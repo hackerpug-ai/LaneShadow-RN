@@ -1,0 +1,389 @@
+---
+description: Guidelines and best practices for React development, focusing on performance optimizations and hook usage
+globs: **/*.tsx,**/*.jsx,**/*.ts,**/*.js
+---
+
+# React Guidelines
+
+## Expo Guidelines
+- IMPORTANT: always check to see what the preferred expo package is when installing a new dependency. Always privlidge those packages over others you know of or ones mentioned on the web.
+
+## Hook Usage Guidelines
+
+### useCallback Guidelines
+
+- **AVOID using `useCallback` unless absolutely necessary**
+- `useCallback` should only be used when you have a proven performance problem
+- Most of the time, `useCallback` creates more overhead than it prevents
+- React's reconciliation is already highly optimized for most use cases
+- **Functions are low memory cost** - creating new functions on each render is fine
+
+#### Core Principle
+
+The main purpose of `useCallback` is to maintain stable function references for:
+1. **React.memo components** - So `shouldComponentUpdate` continues to work
+2. **Hook dependencies** - When function is dependency of `useEffect`, `useMemo`, or custom hooks
+
+**We don't want folks to put useCallback everywhere as it's only needed for a few cases.**
+
+#### When NOT to use useCallback:
+
+```typescript
+// ❌ DON'T: Unnecessary useCallback for simple event handlers
+const handleClick = useCallback(() => {
+  setCount(count + 1);
+}, [count]);
+
+// ✅ DO: Just use a regular function
+const handleClick = () => {
+  setCount(count + 1);
+};
+```
+
+```typescript
+// ❌ DON'T: useCallback with no dependencies
+const handleSubmit = useCallback(() => {
+  // some logic
+}, []);
+
+// ✅ DO: Define outside component or use regular function
+const handleSubmit = () => {
+  // some logic
+};
+```
+
+```typescript
+// ❌ DON'T: useCallback for functions passed to non-memoized components
+const MyComponent = () => {
+  const handleClick = useCallback(() => {
+    // logic
+  }, []);
+  
+  return <RegularComponent onClick={handleClick} />; // RegularComponent is not memoized
+};
+
+// ✅ DO: Skip useCallback since RegularComponent will re-render anyway
+const MyComponent = () => {
+  const handleClick = () => {
+    // logic
+  };
+  
+  return <RegularComponent onClick={handleClick} />;
+};
+```
+
+```typescript
+// ❌ DON'T: useCallback for callbacks passed to hooks that use refs internally
+const MyComponent = () => {
+  const handleUpdate = useCallback((data) => {
+    // logic
+  }, []);
+  
+  useCustomHook({
+    onUpdate: handleUpdate, // Hook stores callback in ref, doesn't need stable reference
+  });
+};
+
+// ✅ DO: Regular function is fine - hook uses refs internally
+const MyComponent = () => {
+  const handleUpdate = (data) => {
+    // logic
+  };
+  
+  useCustomHook({
+    onUpdate: handleUpdate,
+  });
+};
+```
+
+```typescript
+// ❌ DON'T: useCallback when dependencies change frequently
+const MyComponent = ({ userId, filters, sortBy }) => {
+  const fetchData = useCallback(() => {
+    // fetch with userId, filters, sortBy
+  }, [userId, filters, sortBy]); // These change often, useCallback provides no benefit
+  
+  return <DataComponent onFetch={fetchData} />;
+};
+
+// ✅ DO: Regular function - dependencies change anyway
+const MyComponent = ({ userId, filters, sortBy }) => {
+  const fetchData = () => {
+    // fetch with userId, filters, sortBy
+  };
+  
+  return <DataComponent onFetch={fetchData} />;
+};
+```
+
+#### When useCallback IS appropriate:
+
+```typescript
+// ✅ DO: Use when passing to React.memo components with expensive renders
+const ExpensiveChild = React.memo(({ onClick }) => {
+  // Expensive rendering logic
+  return <div onClick={onClick}>Expensive Component</div>;
+});
+
+const Parent = () => {
+  const [count, setCount] = useState(0);
+  
+  // This prevents ExpensiveChild from re-rendering unnecessarily
+  const handleClick = useCallback(() => {
+    // logic that doesn't depend on count
+  }, []);
+  
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>Count: {count}</button>
+      <ExpensiveChild onClick={handleClick} />
+    </div>
+  );
+};
+```
+
+```typescript
+// ✅ DO: Use when the function is a dependency of other hooks
+const MyComponent = ({ userId }) => {
+  const fetchUser = useCallback(async () => {
+    const response = await fetch(`/api/users/${userId}`);
+    return response.json();
+  }, [userId]);
+  
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]); // fetchUser is a dependency
+  
+  return <div>...</div>;
+};
+```
+
+```typescript
+// ✅ DO: Use for expensive components like long lists or data visualization
+const VirtualizedList = React.memo(({ onItemClick }) => {
+  // Expensive virtualization logic
+});
+
+const Parent = () => {
+  const handleItemClick = useCallback((id) => {
+    // handle click
+  }, []);
+  
+  return <VirtualizedList onItemClick={handleItemClick} />;
+};
+```
+
+#### Common Anti-Patterns
+
+**Problem**: Overusing `useCallback` everywhere:
+- Adds unnecessary complexity and refactoring overhead
+- Callbacks change frequently anyway due to dependencies
+- The memoization overhead may exceed the benefit
+- Extracting components just to use hooks at top level
+- Functions are low memory cost - creating new ones is fine
+
+**Solution**: Only use `useCallback` when:
+- Passing to `React.memo` components
+- Function is dependency of other hooks
+- You have proven performance problems (measure first!)
+
+**Remember**: React's reconciliation is already highly optimized. Most apps don't need extensive memoization.
+
+### useMemo Guidelines
+- Similar to `useCallback`, avoid `useMemo` unless you have a proven performance problem
+- Only use `useMemo` for expensive calculations, not for simple object creation
+- React's built-in optimizations handle most cases efficiently
+
+#### When NOT to use useMemo:
+```typescript
+// ❌ DON'T: useMemo for simple object creation
+const style = useMemo(() => ({ color: 'red' }), []);
+
+// ✅ DO: Just create the object normally
+const style = { color: 'red' };
+```
+
+#### When useMemo IS appropriate:
+```typescript
+// ✅ DO: Use for expensive calculations
+const expensiveValue = useMemo(() => {
+  return heavyComputation(data);
+}, [data]);
+```
+
+### useReducer Guidelines
+
+**Use `useReducer` when a single action causes multiple state changes.**
+
+The key signal for using a reducer is when event handlers call multiple `setState` functions together. If state changes are coordinated, they belong in a reducer.
+
+#### Core Principle
+
+**State changes that occur together should stay together.**
+
+Instead of calling multiple `setState` functions in an event handler, dispatch a single action. The reducer determines all the state changes that should happen atomically.
+
+#### When to Use useReducer
+
+Use `useReducer` when you see:
+
+1. **Multiple setState calls in one handler** - An event triggers 2+ state changes
+2. **useEffect hooks just to sync state** - Effects that reset/coordinate related state values
+3. **Conditional state logic** - Next state depends on current state in complex ways
+
+```typescript
+// ❌ SMELL: Multiple setState calls in handlers
+const handlePageChange = (pageIndex: number) => {
+  setCurrentPageIndex(pageIndex)
+  setSelectedFieldId(null)
+  setSheetVisible(false)
+  setIsEditing(false)
+}
+
+// ❌ SMELL: useEffect just to coordinate state
+useEffect(() => {
+  if (viewMode === 'original') {
+    setSelectedFieldId(null)
+    setSheetVisible(false)
+  }
+}, [viewMode])
+```
+
+```typescript
+// ✅ GOOD: Single action, atomic state change
+const handlePageChange = (pageIndex: number) => {
+  dispatch({ type: 'PAGE_CHANGED', pageIndex })
+}
+
+// Reducer handles all coordinated changes
+case 'PAGE_CHANGED':
+  return {
+    ...state,
+    currentPageIndex: action.pageIndex,
+    selectedFieldId: null,
+    sheetVisible: false,
+    isEditing: false,
+  }
+```
+
+#### When NOT to Use useReducer
+
+Keep `useState` for:
+
+- **Independent state** - Values that change separately and don't affect each other
+- **Simple toggles** - Single boolean flags like `isOpen`, `isVisible`
+- **Form fields** - Individual input values that update independently
+
+```typescript
+// ✅ FINE: Independent state, no coordination needed
+const [isModalOpen, setIsModalOpen] = useState(false)
+const [searchQuery, setSearchQuery] = useState('')
+```
+
+#### Reducer Structure
+
+Keep reducers simple. Only include the state you actually need:
+
+```typescript
+type State = {
+  currentPageIndex: number
+  selectedFieldId: string | null
+  sheetVisible: boolean
+  isEditing: boolean
+}
+
+type Action =
+  | { type: 'PAGE_CHANGED'; pageIndex: number }
+  | { type: 'FIELD_SELECTED'; fieldId: string }
+  | { type: 'FIELD_DESELECTED' }
+  | { type: 'SHEET_TOGGLED' }
+  | { type: 'EDIT_MODE_TOGGLED' }
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case 'PAGE_CHANGED':
+      // Page change resets selection and closes sheet
+      return {
+        ...state,
+        currentPageIndex: action.pageIndex,
+        selectedFieldId: null,
+        sheetVisible: false,
+        isEditing: false,
+      }
+    case 'FIELD_SELECTED':
+      return { ...state, selectedFieldId: action.fieldId, sheetVisible: true }
+    case 'FIELD_DESELECTED':
+      return { ...state, selectedFieldId: null, sheetVisible: false }
+    case 'SHEET_TOGGLED':
+      return { ...state, sheetVisible: !state.sheetVisible }
+    case 'EDIT_MODE_TOGGLED':
+      return { ...state, isEditing: !state.isEditing, selectedFieldId: null }
+    default:
+      return state
+  }
+}
+```
+
+#### Action Naming
+
+Name actions after **what happened**, not what should change:
+
+```typescript
+// ❌ BAD: Imperative (describes implementation)
+{ type: 'SET_SELECTED_ID' }
+{ type: 'CLEAR_SELECTION' }
+
+// ✅ GOOD: Event-based (describes what happened)
+{ type: 'FIELD_SELECTED'; fieldId: string }
+{ type: 'FIELD_DESELECTED' }
+{ type: 'PAGE_CHANGED'; pageIndex: number }
+{ type: 'EDIT_MODE_TOGGLED' }
+```
+
+#### Migration Steps
+
+When refactoring from `useState` to `useReducer`:
+
+1. Find handlers that call multiple `setState` functions
+2. Group those state variables into a single State type
+3. Create an Action type for each event that triggers state changes
+4. Write reducer cases that handle all coordinated changes atomically
+5. Replace `setState` calls with `dispatch` calls
+6. Remove any `useEffect` hooks that were just coordinating state
+
+## General Performance Guidelines
+
+### Component Optimization
+- **Measure first, optimize second** - Don't optimize without profiling
+- Use React DevTools Profiler to identify actual performance bottlenecks
+- Most React apps don't need extensive memoization
+- Focus on reducing unnecessary re-renders through proper state structure
+
+### State Management
+- Keep state as close to where it's used as possible
+- Avoid passing down props through many levels (prop drilling)
+- Use context sparingly - it causes all consumers to re-render
+- Consider state colocation to prevent unnecessary re-renders
+
+### Best Practices
+- Prefer composition over complex prop passing
+- Use the `children` prop to avoid re-rendering wrapper components
+- Extract components to prevent inline object/function creation in JSX
+- Use `React.memo` only when you have expensive child components
+
+## Import Guidelines
+- Never use default exports (per project rules)
+- Always use named exports for better tree-shaking and refactoring
+- Organize imports: external libraries first, then internal modules
+
+```typescript
+// ✅ DO: Named exports
+export const MyComponent = () => {
+  return <div>Hello</div>;
+};
+
+// ❌ DON'T: Default exports
+export default function MyComponent() {
+  return <div>Hello</div>;
+}
+```

@@ -1,0 +1,1 @@
+read file .cursor/agents/ui-developer.md run the boot sequence Be sure to read all files referenced in the boot sequence for the agent.

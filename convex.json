@@ -1,0 +1,15 @@
+{
+  "node": {
+    "externalPackages": [
+      "@workos-inc/node",
+      "papaparse",
+      "langchain",
+      "@langchain/core",
+      "@langchain/openai",
+      "@langchain/langgraph",
+      "zod",
+      "jose"
+    ],
+    "nodeVersion": "20"
+  }
+}

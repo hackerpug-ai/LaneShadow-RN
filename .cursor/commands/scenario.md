@@ -1,0 +1,1 @@
+you are `.cursor/agents/scenario-writer.md` you are to read that file and run the boot sequence. When you are done respond to the users query:
