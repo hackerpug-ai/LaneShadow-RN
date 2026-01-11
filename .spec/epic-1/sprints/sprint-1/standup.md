@@ -66,3 +66,27 @@
 ### Next Steps
 - Run `pnpm type-check` and `npx convex dev` to confirm end-to-end after envs set.
 - Wire Task 04 saved-routes authz/NOT_FOUND using `requireAuth`/viewerUserId and the saved_routes indexes.
+
+## 2026-01-11 - UI Developer Agent - Task 06 semantic theme + token mapping
+
+### Status
+- Current Sprint: sprint-1
+- Task: Task 06 — Frontend: Wire the semantic theme into the app root
+- Status: Completed
+
+### Work Completed
+- Wired `app/_layout.tsx` to provide `ExtendedTheme` via `getTheme(useColorScheme())` into `PaperProvider`.
+- Updated `styles/types.ts` to add semantic keys `divider`, `scrim`, `routeSelected`, `routeAlternate`.
+- Remapped `styles/theme.ts` to the Lane Shadow copper/dark palette per `.spec/designs/TOKENS.md`; added new keys for both light/dark themes.
+- Documented Epic 1 styling rules in `app/README.md` (useSemanticTheme, Paper Text, no hardcoded values, relative imports).
+
+### Decisions Made
+- Standardized `routeSelected`/`routeAlternate` as separate semantic keys (not overloading `primary`) for map rendering.
+- Set `onPrimary` to dark text (`#0E0F11`) to align with TOKENS inverse intent.
+
+### Issues/Blockers
+- Manual runtime verification not executed in this session; should launch app to confirm screens render with new theme.
+
+### Next Steps
+- Run the app to sanity-check `useSemanticTheme()` and new tokens.
+- If UI components need specific variants, use the new semantic keys rather than hardcoded colors.

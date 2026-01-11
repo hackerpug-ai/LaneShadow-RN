@@ -7,6 +7,7 @@
 - 🟢 Auth wiring ready: Clerk JWT + Convex gating implemented. Use `requireAuth` from `convex/guards.ts` (viewerUserId = identity.subject). Client uses `ConvexProviderWithClerk` and SecureStore token cache.
 - 🟢 Session preload ready: `convex/db/users.ts` exposes `upsertCurrent` and `getSession` keyed by `clerkUserId`. User model/schema updated with `clerkUserId` and `by_clerkUserId` index.
 - 🟢 Webhooks stub: `convex/http.ts` has POST `/clerk-webhooks` with Svix verification; handlers currently log event types (no entity changes).
+- 🟢 Theme ready: `app/_layout.tsx` now provides `ExtendedTheme` via `getTheme`/`useColorScheme`; semantic tokens updated to copper/dark palette with new keys (`divider`, `scrim`, `routeSelected`, `routeAlternate`). See `styles/theme.ts` and `app/README.md` for usage rules.
 
 ## Decisions Needed
 - None.
