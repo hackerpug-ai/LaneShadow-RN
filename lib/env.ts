@@ -10,8 +10,16 @@ if (!CONVEX_URL) {
   throw new Error('EXPO_PUBLIC_CONVEX_URL environment variable is required. Set it in .env.local')
 }
 
+const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
+if (!CLERK_PUBLISHABLE_KEY) {
+  throw new Error(
+    'EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY environment variable is required. Set it in .env.local',
+  )
+}
+
 export const env = {
   CONVEX_URL,
+  CLERK_PUBLISHABLE_KEY,
 } as const
 
 /**

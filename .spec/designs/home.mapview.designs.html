@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lane Shadow</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b87332",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#1f1913",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "grotesk": ["Space Grotesk", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark text-white font-display overflow-hidden">
+<div class="relative flex h-screen w-full flex-col group/design-root overflow-hidden">
+<!-- Map Background Layer -->
+<div class="absolute inset-0 z-0">
+<!-- Map Image -->
+<div class="w-full h-full bg-cover bg-center grayscale contrast-125 brightness-50" data-alt="Dark aerial map view of city streets at night with muted tones" data-location="Los Angeles" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAuBKzu1biNpheU4P7lUgvYW1nnZqJ12aNtIMELIUpB3FghpUu6H_cjnYeOpkjdScWfjqfo_9zYuEApB30sTkTI7r8fmAjtNmp3-ZCYDI04X_lSE8yuLHMRpkiRjdNskXmXK7c5BA6NRFi7nXtR2P2ri7w5YznYkkvU6m-zu3IoXnM-uSWzWWACGKFwzDf1xLMRPnKl_2llyGlznE08Pq69sIDCiTX0s_Kw9G8bXsGvh-mEi0oC7_jwNnn9MvF6_5vPKSLZQ4_G8aA");'>
+</div>
+<!-- Gradient Overlay for readability -->
+<div class="absolute inset-0 bg-gradient-to-b from-[#171412]/80 via-transparent to-[#171412]/90 pointer-events-none"></div>
+</div>
+<!-- Top App Bar (Transparent) -->
+<header class="absolute top-0 left-0 right-0 z-30 flex items-center justify-between p-4 pt-12 lg:pt-6 bg-gradient-to-b from-black/60 to-transparent">
+<button class="flex items-center justify-center size-10 rounded-full bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined text-[24px]">menu</span>
+</button>
+<h1 class="text-2xl font-bold tracking-tight text-white font-grotesk drop-shadow-lg">
+                Lane Shadow
+            </h1>
+<button class="flex items-center justify-center size-10 rounded-full bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined text-[24px]">settings</span>
+</button>
+</header>
+<!-- Search / Quick Access Floating Bar -->
+<div class="absolute top-28 left-4 right-4 z-20">
+<div class="flex items-center w-full h-12 px-4 rounded-xl bg-[#25211e]/80 backdrop-blur-md border border-white/5 shadow-lg">
+<span class="material-symbols-outlined text-[#b4aba2] text-[20px]">search</span>
+<input class="flex-1 w-full bg-transparent border-none focus:ring-0 text-white placeholder-[#b4aba2] text-sm ml-2 font-medium" placeholder="Where to?" type="text"/>
+<button class="text-[#b4aba2] hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">mic</span>
+</button>
+</div>
+</div>
+<!-- Right Side Map Controls -->
+<div class="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-20">
+<div class="flex flex-col gap-px overflow-hidden rounded-xl shadow-lg bg-[#25211e]/90 backdrop-blur-sm border border-white/5">
+<button class="flex size-10 items-center justify-center text-white hover:bg-white/10 active:bg-white/20">
+<span class="material-symbols-outlined text-[24px]">add</span>
+</button>
+<div class="h-px w-full bg-white/10"></div>
+<button class="flex size-10 items-center justify-center text-white hover:bg-white/10 active:bg-white/20">
+<span class="material-symbols-outlined text-[24px]">remove</span>
+</button>
+</div>
+<button class="flex size-10 items-center justify-center rounded-xl bg-[#25211e]/90 backdrop-blur-sm shadow-lg border border-white/5 text-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[24px]">my_location</span>
+</button>
+<button class="flex size-10 items-center justify-center rounded-xl bg-[#25211e]/90 backdrop-blur-sm shadow-lg border border-white/5 text-white hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]">layers</span>
+</button>
+</div>
+<!-- Main Content Area (Hidden spacing) -->
+<main class="flex-1 relative z-10 pointer-events-none">
+<!-- Route Info Card Example (Hidden/Optional) -->
+</main>
+<!-- Bottom Actions & Navigation -->
+<div class="absolute bottom-0 w-full z-30 flex flex-col gap-4">
+<!-- Floating Action Button (FAB) -->
+<div class="flex justify-end px-5 pointer-events-auto">
+<button class="group flex items-center justify-center h-14 pl-5 pr-6 rounded-xl bg-primary shadow-[0_8px_16px_rgba(184,115,50,0.4)] text-white text-base font-bold tracking-wide transition-transform active:scale-95 hover:bg-[#c98342]">
+<span class="material-symbols-outlined text-[24px] mr-3 group-hover:animate-pulse">explore</span>
+<span>Plan Ride</span>
+</button>
+</div>
+<!-- Bottom Navigation Bar -->
+<nav class="pb-6 pt-4 px-6 bg-[#1f1913]/95 backdrop-blur-xl border-t border-white/5">
+<div class="flex justify-between items-center max-w-sm mx-auto">
+<a class="flex flex-col items-center gap-1 text-primary group" href="#">
+<span class="material-symbols-outlined text-[28px] group-hover:scale-110 transition-transform">map</span>
+<span class="text-[10px] font-medium tracking-wide">Explore</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#b4aba2] hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined text-[28px] group-hover:scale-110 transition-transform">bookmark</span>
+<span class="text-[10px] font-medium tracking-wide">Saved</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#b4aba2] hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined text-[28px] group-hover:scale-110 transition-transform">two_wheeler</span>
+<span class="text-[10px] font-medium tracking-wide">Rides</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#b4aba2] hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined text-[28px] group-hover:scale-110 transition-transform">person</span>
+<span class="text-[10px] font-medium tracking-wide">Profile</span>
+</a>
+</div>
+</nav>
+</div>
+</div>
+</body></html>

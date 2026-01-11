@@ -41,3 +41,28 @@
 - Run `npx convex dev` to confirm schema/codegen.
 - Run `pnpm type-check` to confirm no TS regressions.
 - Proceed to Task 04 authz/NOT_FOUND helpers using these shapes and indexes.
+
+## 2026-01-11 - Backend Engineer Agent - Task 03 Clerk JWT auth + viewer/sessions/webhooks
+
+### Status
+- Current Sprint: sprint-1
+- Task: Task 03 — Clerk JWT auth wiring, viewer guard, user session preload, webhooks stub
+- Status: Completed
+
+### Work Completed
+- Added Clerk + Convex auth wiring with SecureStore token cache and `ConvexProviderWithClerk` in `app/_layout.tsx`.
+- Added Convex route gating with `<Authenticated>/<Unauthenticated>` in `app/(auth)/_layout.tsx` and `app/(app)/_layout.tsx`; sign-in/sign-up screens and sign-out button.
+- Added `convex/auth.config.ts` (Clerk issuer domain, applicationID “convex”).
+- Added `requireAuth` guard in `convex/guards.ts` (viewerUserId = identity.subject).
+- Updated user model/schema to include `clerkUserId` + `by_clerkUserId`; added `convex/db/users.ts` (`upsertCurrent`, `getSession`).
+- Added `convex/http.ts` POST `/clerk-webhooks` with Svix verification (logs event types, stub handlers).
+
+### Decisions Made
+- Guard lives in `convex/guards.ts` (exception to db/actions layout); viewerUserId is identity.subject (Clerk user id).
+
+### Issues/Blockers
+- None. Peer warnings from Clerk about React 19 are noted but non-blocking.
+
+### Next Steps
+- Run `pnpm type-check` and `npx convex dev` to confirm end-to-end after envs set.
+- Wire Task 04 saved-routes authz/NOT_FOUND using `requireAuth`/viewerUserId and the saved_routes indexes.

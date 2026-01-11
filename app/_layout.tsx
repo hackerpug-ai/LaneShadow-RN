@@ -1,35 +1,41 @@
+import { ClerkProvider, useAuth } from '@clerk/clerk-expo'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
-import { ConvexProvider, ConvexReactClient } from 'convex/react'
+import { ConvexReactClient } from 'convex/react'
+import { ConvexProviderWithClerk } from 'convex/react-clerk'
 import { Stack } from 'expo-router'
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Provider as PaperProvider } from 'react-native-paper'
+import { useColorScheme } from '../hooks/use-color-scheme'
+import { clerkTokenCache } from '../lib/clerk-token-cache'
+import { env } from '../lib/env'
+import { getTheme } from '../styles/theme'
+import type { ExtendedTheme } from '../styles/types'
 
 /**
  * Initialize Convex client from environment variable
  * Set EXPO_PUBLIC_CONVEX_URL in .env.local
  */
-const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL
-if (!convexUrl) {
-  throw new Error('EXPO_PUBLIC_CONVEX_URL environment variable is not set')
-}
-const convexClient = new ConvexReactClient(convexUrl)
+const convexClient = new ConvexReactClient(env.CONVEX_URL)
 
 /**
  * Root layout component
  * Sets up Convex and Paper providers, initializes navigation
  */
 export const RootLayout = () => {
-  // Placeholder theme - extend with semantic theme as needed
-  const paperTheme = useMemo(() => ({}), [])
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
+  const paperTheme: ExtendedTheme = getTheme(isDark)
 
   return (
-    <ConvexProvider client={convexClient}>
-      <PaperProvider theme={paperTheme}>
-        <BottomSheetModalProvider>
-          <Stack screenOptions={{ headerShown: false }} />
-        </BottomSheetModalProvider>
-      </PaperProvider>
-    </ConvexProvider>
+    <ClerkProvider publishableKey={env.CLERK_PUBLISHABLE_KEY} tokenCache={clerkTokenCache}>
+      <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
+        <PaperProvider theme={paperTheme}>
+          <BottomSheetModalProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+          </BottomSheetModalProvider>
+        </PaperProvider>
+      </ConvexProviderWithClerk>
+    </ClerkProvider>
   )
 }
 

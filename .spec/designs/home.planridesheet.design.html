@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Plan Ride Sheet</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b87332",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#1f1913",
+                        "surface-dark": "#25211e",
+                        "input-bg": "#36302b",
+                        "text-muted": "#b4aba2",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hide for cleaner UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark text-white font-display overflow-hidden h-screen w-full relative">
+<!-- Map Background Layer -->
+<div class="absolute inset-0 z-0">
+<div class="w-full h-full bg-cover bg-center" data-alt="Dark mode stylized map view of city streets at night" data-location="New York City" style='background-image: linear-gradient(to bottom, rgba(23, 20, 18, 0.3), rgba(23, 20, 18, 0.8)), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDM7_Wq7j3TGhEi3ehLQ1Q19PXgcEtcW4JhnpLKEEFpCRQn3DHASVeI_hmZFbFtwg7mHlgoGdBlrGd3db60RIcPMN2a8RoQy-Gus7wh326GGfeVVqBYcwmYq0s9S77N6kyQNxZy3F7hg5ZIsv9YZaSidDVDS1RcclHFptImr0iUrdkV2ComiLD49B9VEy6EUdFcborHgaLD2AerKVvOuI2sLkQIk7voeoiZrxaCYma_JmrXaENSr5aW9Kpb6lDyRpvfWg8hUbT4N08");'>
+</div>
+<!-- Floating Map Controls (Visual Context) -->
+<div class="absolute top-12 left-4 right-4 flex justify-between items-start pointer-events-none">
+<button class="pointer-events-auto flex size-10 items-center justify-center rounded-full bg-surface-dark shadow-lg border border-[#4f4740]/30 text-white">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+<button class="pointer-events-auto flex size-10 items-center justify-center rounded-full bg-surface-dark shadow-lg border border-[#4f4740]/30 text-white">
+<span class="material-symbols-outlined text-[24px]">layers</span>
+</button>
+</div>
+<!-- Compass / Location Button (Peeking from behind sheet) -->
+<div class="absolute bottom-[65%] right-4 flex flex-col gap-3 z-10">
+<button class="flex size-12 items-center justify-center rounded-full bg-surface-dark shadow-lg border border-[#4f4740]/30 text-primary">
+<span class="material-symbols-outlined text-[24px]">my_location</span>
+</button>
+</div>
+</div>
+<!-- Bottom Sheet Container -->
+<div class="absolute bottom-0 inset-x-0 z-20 flex flex-col justify-end max-h-[85vh]">
+<!-- Sheet Surface -->
+<div class="bg-surface-dark w-full rounded-t-[32px] shadow-[0_-4px_20px_rgba(0,0,0,0.4)] flex flex-col relative overflow-hidden ring-1 ring-white/5">
+<!-- Drag Handle -->
+<div class="w-full flex justify-center pt-3 pb-1 shrink-0" role="presentation">
+<div class="w-12 h-1.5 rounded-full bg-[#4f4740]/60"></div>
+</div>
+<!-- Content Container -->
+<div class="px-6 py-6 pb-8 flex flex-col gap-6 overflow-y-auto no-scrollbar">
+<!-- Header -->
+<div class="flex items-center justify-between">
+<h2 class="text-xl font-bold tracking-tight text-white">Plan Ride</h2>
+<span class="px-3 py-1 rounded-full bg-primary/20 text-primary text-xs font-semibold uppercase tracking-wider">Motorcycle</span>
+</div>
+<!-- Input Fields Group -->
+<div class="relative flex gap-4">
+<!-- Timeline Visual -->
+<div class="flex flex-col items-center pt-4 w-6 shrink-0">
+<div class="w-3 h-3 rounded-full border-2 border-primary bg-transparent box-content"></div>
+<div class="w-0.5 flex-1 bg-gradient-to-b from-primary via-primary/50 to-text-muted/30 my-1 rounded-full"></div>
+<div class="w-3 h-3 rounded-full bg-text-muted/50 box-content"></div>
+</div>
+<!-- Inputs -->
+<div class="flex-1 flex flex-col gap-3">
+<div class="relative group">
+<input class="w-full bg-input-bg rounded-xl border-none focus:ring-1 focus:ring-primary text-white placeholder-text-muted py-3.5 px-4 text-sm font-medium transition-all" type="text" value="Current Location"/>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 text-primary">
+<span class="material-symbols-outlined text-[20px]">near_me</span>
+</div>
+</div>
+<div class="relative group">
+<input class="w-full bg-input-bg rounded-xl border-none focus:ring-1 focus:ring-primary text-white placeholder-text-muted py-3.5 px-4 text-sm font-medium transition-all" placeholder="Where to?" type="text"/>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+</div>
+</div>
+<!-- Swap Button -->
+<div class="flex flex-col justify-center shrink-0">
+<button class="size-10 flex items-center justify-center rounded-full hover:bg-white/5 text-text-muted hover:text-white transition-colors">
+<span class="material-symbols-outlined">swap_vert</span>
+</button>
+</div>
+</div>
+<!-- Scenic Bias Segmented Control -->
+<div class="flex flex-col gap-2.5">
+<label class="text-sm font-medium text-text-muted/80 ml-1">Scenic Bias</label>
+<div class="flex p-1 bg-input-bg rounded-xl">
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="scenic-bias" type="radio" value="default"/>
+<div class="flex items-center justify-center py-2.5 px-4 rounded-lg text-sm font-medium text-text-muted transition-all peer-checked:bg-background-dark peer-checked:text-white peer-checked:shadow-sm">
+<span class="mr-2 material-symbols-outlined text-[18px]">straight</span>
+                                Default
+                            </div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input checked="" class="peer sr-only" name="scenic-bias" type="radio" value="high"/>
+<div class="flex items-center justify-center py-2.5 px-4 rounded-lg text-sm font-medium text-text-muted transition-all peer-checked:bg-primary peer-checked:text-white peer-checked:shadow-md">
+<span class="mr-2 material-symbols-outlined text-[18px]">landscape</span>
+                                High Scenic
+                            </div>
+</label>
+</div>
+</div>
+<!-- Toggles Section -->
+<div class="flex flex-col gap-0 rounded-xl bg-input-bg overflow-hidden border border-white/5">
+<!-- Avoid Highways -->
+<div class="flex items-center justify-between p-4 border-b border-white/5">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-surface-dark flex items-center justify-center text-text-muted">
+<span class="material-symbols-outlined text-[20px]">add_road</span>
+</div>
+<span class="text-sm font-medium text-white">Avoid highways</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-dark border border-white/10 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-text-muted after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary peer-checked:after:bg-white peer-checked:border-primary"></div>
+</label>
+</div>
+<!-- Avoid Tolls -->
+<div class="flex items-center justify-between p-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-surface-dark flex items-center justify-center text-text-muted">
+<span class="material-symbols-outlined text-[20px]">toll</span>
+</div>
+<span class="text-sm font-medium text-white">Avoid tolls</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-dark border border-white/10 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-text-muted after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary peer-checked:after:bg-white peer-checked:border-primary"></div>
+</label>
+</div>
+</div>
+<!-- Primary Action Button -->
+<button class="w-full mt-2 h-14 bg-primary hover:bg-[#a06228] active:scale-[0.98] transition-all rounded-xl shadow-lg shadow-orange-900/20 flex items-center justify-center gap-2 group">
+<span class="text-base font-bold text-white">Plan Ride</span>
+<span class="material-symbols-outlined text-white group-hover:translate-x-1 transition-transform">two_wheeler</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

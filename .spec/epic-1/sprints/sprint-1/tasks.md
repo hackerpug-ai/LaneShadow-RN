@@ -181,7 +181,7 @@
 ### Task 06 — Frontend: Wire the semantic theme into the app root (Sprint 1 frontend infra)
 
 **Assignee**: @.cursor/agents/ui-developer.md
-**Status**: Pending
+**Status**: Completed
 **Dependencies**: None
 
 #### Context
@@ -196,8 +196,8 @@
   - No hardcoded spacing/colors in Epic 1 UI components
 
 #### Acceptance Criteria
-- [ ] `useSemanticTheme()` returns `semantic` tokens successfully in screens.
-- [ ] No runtime errors from missing theme fields.
+- [x] `useSemanticTheme()` returns `semantic` tokens successfully in screens.
+- [x] No runtime errors from missing theme fields.
 
 #### Files to Modify
 - `app/_layout.tsx`

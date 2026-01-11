@@ -70,6 +70,12 @@ export type SemanticColors = {
   // Special colors
   orange: SemanticColorSet
   muted: SemanticColorSet
+
+  // Added for design token alignment
+  divider: SemanticColorSet
+  scrim: SemanticColorSet
+  routeSelected: SemanticColorSet
+  routeAlternate: SemanticColorSet
 }
 
 /**

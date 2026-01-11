@@ -1,21 +1,25 @@
-/**
- * Auth Layout
- *
- * Layout for unauthenticated routes
- * Contains sign-in and any other auth-related screens
- */
-
-import { Stack } from 'expo-router'
+import { Authenticated, Unauthenticated } from 'convex/react'
+import { Redirect, Stack } from 'expo-router'
 import React from 'react'
 
-export default function AuthLayout() {
+export const AuthLayout = () => {
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen name="sign-in" />
-    </Stack>
+    <>
+      <Authenticated>
+        <Redirect href="/(app)" />
+      </Authenticated>
+      <Unauthenticated>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen name="sign-in" />
+          <Stack.Screen name="sign-up" />
+        </Stack>
+      </Unauthenticated>
+    </>
   )
 }
+
+export default AuthLayout

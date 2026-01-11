@@ -9,9 +9,11 @@ import { Infer, v } from 'convex/values'
  *   in `convex/*` handlers as needed.
  */
 export const USER_FIELDS = {
+  clerkUserId: v.string(),
   email: v.string(),
   name: v.string(),
   createdAt: v.number(),
+  updatedAt: v.number(),
 } as const
 
 export const userValidator = v.object(USER_FIELDS)

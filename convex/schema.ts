@@ -13,7 +13,9 @@ export default defineSchema({
    * Users table - Demo table showing the pattern
    * Every user has an email (indexed for quick lookups), name, and creation timestamp
    */
-  users: defineTable(userValidator).index('by_email', ['email']),
+  users: defineTable(userValidator)
+    .index('by_email', ['email'])
+    .index('by_clerkUserId', ['clerkUserId']),
 
   saved_routes: defineTable(savedRouteValidator)
     .index('by_ownerType_and_ownerId', ['ownerType', 'ownerId'])

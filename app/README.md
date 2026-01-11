@@ -59,13 +59,14 @@ export default function MyGroupLayout() {
 
 3. Add screens inside `(mygroup)/`
 
-## Themes & Styling
+## Themes & Styling (Epic 1 rules)
 
-All screens should use:
-- **Paper Text** component: `import { Text } from 'react-native-paper'`
-- **Semantic theme**: `import { useSemanticTheme } from '@/hooks/use-semantic-theme'`
-
-See `/constants/theme.ts` and `README.md` at the project root for theming guide.
+- Theme is provided at the root via `PaperProvider` with our `ExtendedTheme`.
+- Use `useSemanticTheme()` (relative import, e.g. `import { useSemanticTheme } from '../hooks/use-semantic-theme'`).
+- Use Paper `Text` for all text: `import { Text } from 'react-native-paper'`.
+- No hardcoded colors/spacing/typography; use `semantic.color.*`, `semantic.space.*`, `semantic.radius.*`.
+- Prefer `StyleSheet.create` for static layout + inline semantic values with array syntax.
+- New semantic tokens include `divider`, `scrim`, `routeSelected`, `routeAlternate` for map/sheet use.
 
 ## Authentication
 

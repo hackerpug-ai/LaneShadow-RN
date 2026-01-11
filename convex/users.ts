@@ -8,6 +8,7 @@
  */
 
 import { v } from 'convex/values'
+import { USER_FIELDS, type User } from '../models/users'
 import type { Id } from './_generated/dataModel'
 import { mutation, query } from './_generated/server'
 
@@ -15,12 +16,9 @@ import { mutation, query } from './_generated/server'
  * List all users (demo query)
  * Returns array of users from the database
  */
-type ListedUser = {
+type ListedUser = User & {
   _id: Id<'users'>
   _creationTime: number
-  email: string
-  name: string
-  createdAt: number
 }
 
 export const list = query({
@@ -29,9 +27,7 @@ export const list = query({
     v.object({
       _id: v.id('users'),
       _creationTime: v.number(),
-      email: v.string(),
-      name: v.string(),
-      createdAt: v.number(),
+      ...USER_FIELDS,
     })
   ),
   handler: async (ctx): Promise<Array<ListedUser>> => {
@@ -60,10 +56,13 @@ export const create = mutation({
   handler: async (ctx, args): Promise<{ id: Id<'users'> }> => {
     assertLooksLikeEmail(args.email)
 
+    const now = Date.now()
     const id: Id<'users'> = await ctx.db.insert('users', {
+      clerkUserId: 'demo-clerk-user',
       email: args.email,
       name: args.name,
-      createdAt: Date.now(),
+      createdAt: now,
+      updatedAt: now,
     })
 
     return { id }
