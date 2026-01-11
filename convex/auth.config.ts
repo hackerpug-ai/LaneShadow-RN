@@ -1,9 +1,10 @@
 import type { AuthConfig } from 'convex/server'
+import { CLERK_JWT_ISSUER_DOMAIN } from './lib/env'
 
 export const authConfig: AuthConfig = {
   providers: [
     {
-      domain: process.env.CLERK_JWT_ISSUER_DOMAIN!,
+      domain: CLERK_JWT_ISSUER_DOMAIN,
       applicationID: 'convex',
     },
   ],

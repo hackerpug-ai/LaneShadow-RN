@@ -1,4 +1,6 @@
 import { defineSchema, defineTable } from 'convex/server'
+import { orgMembershipValidator } from '../models/org-memberships'
+import { orgValidator } from '../models/orgs'
 import { savedRouteValidator } from '../models/saved-routes'
 import { userValidator } from '../models/users'
 
@@ -16,6 +18,13 @@ export default defineSchema({
   users: defineTable(userValidator)
     .index('by_email', ['email'])
     .index('by_clerkUserId', ['clerkUserId']),
+
+  orgs: defineTable(orgValidator).index('by_clerkOrgId', ['clerkOrgId']),
+
+  org_memberships: defineTable(orgMembershipValidator)
+    .index('by_userId_and_orgId', ['userId', 'orgId'])
+    .index('by_orgId', ['orgId'])
+    .index('by_userId', ['userId']),
 
   saved_routes: defineTable(savedRouteValidator)
     .index('by_ownerType_and_ownerId', ['ownerType', 'ownerId'])

@@ -283,6 +283,7 @@ I follow sprint specifications from `.spec/epic-[X]/sprints/sprint-[XX]/spec.md`
 - DRY enum unions in `models/constants.ts` (never inline)
 - Proper indexing for query performance
 - Complete test coverage
+- Centralize server error codes and human-readable messages in `lib/errors.ts`; add new codes there first, then reference the shared constants from Convex functions/actions.
 
 ### Test-Driven Development (TDD) Workflow
 

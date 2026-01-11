@@ -13,9 +13,12 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as actions_users from "../actions/users.js";
+import type * as db_clerkSync from "../db/clerkSync.js";
 import type * as db_users from "../db/users.js";
 import type * as guards from "../guards.js";
 import type * as http from "../http.js";
+import type * as lib_env from "../lib/env.js";
 import type * as users from "../users.js";
 
 /**
@@ -27,9 +30,12 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "actions/users": typeof actions_users;
+  "db/clerkSync": typeof db_clerkSync;
   "db/users": typeof db_users;
   guards: typeof guards;
   http: typeof http;
+  "lib/env": typeof lib_env;
   users: typeof users;
 }>;
 export declare const api: FilterApi<

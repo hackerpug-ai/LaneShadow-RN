@@ -98,3 +98,33 @@ export const create = mutation({
 
 - **Convex Docs**: https://docs.convex.dev
 - **Project Models**: See `/models/README.md`
+
+## Clerk webhooks → Convex sync (users/orgs/memberships)
+
+- Endpoint: `POST /clerk-webhooks` (Convex HTTP router)
+- Security: Svix signature verification with `CLERK_WEBHOOK_SECRET`
+- Events handled:
+  - `user.created`, `user.updated`, `user.deleted`
+  - `organization.created`, `organization.updated`, `organization.deleted`
+  - `organizationMembership.created`, `organizationMembership.updated`, `organizationMembership.deleted`
+- Internal mutations: `convex/db/clerk-sync.ts` (idempotent, uses indexes)
+- Local edit guard: user/org updates are skipped if `lastLocalUpdateAt` is newer than the webhook `updated_at`.
+
+### Required Convex env vars
+
+Set these in the Convex dashboard (Environment Variables):
+
+- `CLERK_WEBHOOK_SECRET=whsec_...`
+- `CLERK_JWT_ISSUER_DOMAIN=...`
+
+### Clerk dashboard setup
+
+1) Clerk → Webhooks → Add Endpoint  
+2) URL: `https://<your-deployment>.convex.site/clerk-webhooks`  
+3) Select events listed above  
+4) Copy Signing Secret → `CLERK_WEBHOOK_SECRET`
+
+### Testing
+
+- In Clerk webhook settings, send test events (start with `user.created`, `organization.created`, then `organizationMembership.created`).
+- Check Convex logs: signature failures return 401; unhandled events return 200 (no retries).

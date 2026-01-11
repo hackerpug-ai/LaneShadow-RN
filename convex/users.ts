@@ -63,6 +63,7 @@ export const create = mutation({
       name: args.name,
       createdAt: now,
       updatedAt: now,
+      lastLocalUpdateAt: now,
     })
 
     return { id }
