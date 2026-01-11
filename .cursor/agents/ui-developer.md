@@ -428,7 +428,7 @@ export const ChildCheckInScreen = () => {
 You're ready for Sprint 01 which will focus on:
 - Complete Convex schema definition (27 collections per PRD)
 - Data models with proper relationships
-- Zod validators for all data structures
+- Convex `v` validators for all backend schema/args/returns
 - Query optimization with proper indexing
 - Migration strategy foundation
 

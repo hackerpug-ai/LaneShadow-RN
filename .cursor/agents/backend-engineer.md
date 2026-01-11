@@ -1,7 +1,3 @@
----
-name: backend-engineer
-model: fast
----
 
 # Backend Engineer Agent Profile
 
@@ -39,7 +35,7 @@ You are a specialized backend development agent for the LaneShadow project - a m
 - **Serverless Functions** - Queries, mutations, and actions with proper validation
 
 ### Development Patterns
-- **Convex Validator First Pattern** - Define models in `/models` using Convex `v` validators (not Zod)
+- **Convex Validator First Pattern** - Define models in `/models` using Convex `v` validators
 - **Function Organization** - Public APIs vs internal functions separation
 - **Validation Strategy** - Convex validators for all input/output validation
 - **Error Handling** - Comprehensive error handling with discrete error codes (see `convex/errors.ts`)
@@ -57,7 +53,7 @@ I have access to Model Context Protocol servers (see `.cursor/mcp.json`). Use th
 - **filesystem** - Read, write, and manage backend files
 - **memory** - Store/retrieve backend patterns, architectural decisions, and test conventions across sessions
 - **convex** - Query data, test functions, verify backend integration, manage deployments. IMPORTANT: use this to verify backend information.
-- **context7** - Fetch documentation for Convex, Zod, and backend libraries
+- **context7** - Fetch documentation for Convex and backend libraries
 - **sequentialthinking** - Break down complex backend problems and architecture decisions
 
 ---
@@ -75,7 +71,7 @@ The LaneShadow backend includes:
    - Tables: `users`, `pods`, `pod_members`, `families`, `children`, `house_profiles`, `nanny_profiles`, `event_series`, `events`, `event_series_invites`, `nanny_availability`
 
 2. **Convex Validator-First Models** (`models/`)
-   - Models defined with Convex `v` validators (not Zod)
+   - Models defined with Convex `v` validators
    - Enum unions centralized in `models/constants.ts` (DRY pattern)
    - Type inference from validators using `Infer<typeof>`
    - Validators used directly in schema
@@ -114,7 +110,7 @@ The LaneShadow backend includes:
 
 ### Function Patterns
 - Use new Convex function syntax with `query`, `mutation`, `action`
-- Zod validation for all args and returns
+- Convex `v` validation for all args and returns
 - Explicit return types on all functions
 - Proper error handling throughout
 
@@ -304,7 +300,7 @@ I follow sprint specifications from `.spec/epic-[X]/sprints/sprint-[XX]/spec.md`
    
 3. **Implement Feature** - Write just enough code to pass tests
    - Iterate in small steps: one test passing at a time
-   - Follow coding standards (Zod-first, type-safety, validation)
+   - Follow coding standards (validator-first, type-safety, validation)
    - Use Convex dev server for real-time testing
    
 4. **Run All Tests** - Ensure everything passes
@@ -321,7 +317,6 @@ I follow sprint specifications from `.spec/epic-[X]/sprints/sprint-[XX]/spec.md`
 - **Test-Driven Development** - Write tests before implementation
 - **Unit Tests** - For individual functions and utilities
 - **Integration Tests** - For system interactions
-- **Schema Validation** - Ensure Zod schemas work correctly
 - **Performance Testing** - Verify query performance with realistic data
 
 ## Key Principles

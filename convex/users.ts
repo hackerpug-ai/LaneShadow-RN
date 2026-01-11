@@ -1,54 +1,71 @@
 /**
- * Users API - Demo functions showing Zod validation pattern
+ * Users API - Demo functions showing Convex `v` validator-first pattern
  *
  * Shows how to:
- * - Use zQuery and zMutation for Zod-validated functions
- * - Import and use Zod schemas from models/
- * - Define return types with Zod
+ * - Use `query` and `mutation` with Convex `v` validators for args/returns
+ * - Import and use validators from models/
+ * - Add any extra runtime validation inside handlers when needed
  */
 
-import { z } from 'zod'
-import { UserSchema } from '../models/users'
-import { zMutation, zQuery } from './z'
+import { v } from 'convex/values'
+import type { Id } from './_generated/dataModel'
+import { mutation, query } from './_generated/server'
 
 /**
  * List all users (demo query)
  * Returns array of users from the database
  */
-export const list = zQuery({
+type ListedUser = {
+  _id: Id<'users'>
+  _creationTime: number
+  email: string
+  name: string
+  createdAt: number
+}
+
+export const list = query({
   args: {},
-  returns: z.array(
-    z.object({
-      _id: z.string(),
-      _creationTime: z.number(),
-      email: z.string().email(),
-      name: z.string(),
-      createdAt: z.number(),
+  returns: v.array(
+    v.object({
+      _id: v.id('users'),
+      _creationTime: v.number(),
+      email: v.string(),
+      name: v.string(),
+      createdAt: v.number(),
     })
   ),
-  handler: async (ctx) => {
-    const users = await ctx.db.query('users').collect()
+  handler: async (ctx): Promise<Array<ListedUser>> => {
+    const users: Array<ListedUser> = await ctx.db.query('users').collect()
     return users
   },
 })
 
+const assertLooksLikeEmail = (email: string): void => {
+  // Minimal guard: Convex `v.string()` doesn't validate formats.
+  // Tighten this as needed, but keep it deterministic and fast.
+  const looksValid = /^\S+@\S+\.\S+$/.test(email)
+  if (!looksValid) {
+    throw new Error('Invalid email address')
+  }
+}
+
 /**
  * Create a new user (demo mutation)
- * Validates email and name using Zod, returns inserted user ID
+ * Validates inputs using Convex validators + minimal runtime checks,
+ * returns inserted user ID
  */
-export const create = zMutation({
-  args: UserSchema.pick({ email: true, name: true }),
-  returns: z.object({ id: z.string() }),
-  handler: async (ctx, args) => {
-    const doc = {
-      ...args,
-      createdAt: Date.now(),
-    } satisfies z.infer<typeof UserSchema>
+export const create = mutation({
+  args: { email: v.string(), name: v.string() },
+  returns: v.object({ id: v.id('users') }),
+  handler: async (ctx, args): Promise<{ id: Id<'users'> }> => {
+    assertLooksLikeEmail(args.email)
 
-    const id = await ctx.db.insert(
-      'users',
-      doc as { email: string; name: string; createdAt: number }
-    )
+    const id: Id<'users'> = await ctx.db.insert('users', {
+      email: args.email,
+      name: args.name,
+      createdAt: Date.now(),
+    })
+
     return { id }
   },
 })

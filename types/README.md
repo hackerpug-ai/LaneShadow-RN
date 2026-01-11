@@ -110,7 +110,7 @@ export const getUser = query({
 ✅ **No Manual Duplication**: Enums and types are extracted, not redefined  
 ✅ **Type Safety**: TypeScript enforces exact database schema  
 ✅ **Maintainability**: Changes only need to be made in `convex/schema.ts`  
-✅ **Simplicity**: No Zod validators needed for schema validation  
+✅ **Simplicity**: No extra schema validators needed beyond Convex `v`  
 
 ## Files
 

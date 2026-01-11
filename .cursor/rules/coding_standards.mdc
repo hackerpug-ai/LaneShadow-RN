@@ -227,28 +227,21 @@ export const createMidnightAtlasAgent = (): AgentConfig => {
 
 ## Data Validation & Type Safety
 
-### Zod-First Approach
+### Convex Validator-First Approach (`v` for backend schema/args/returns)
 ```typescript
-// ✅ Define schemas first
-export const ProductSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string().min(1).max(255),
-  // ... other fields
-});
+import { Infer, v } from 'convex/values'
 
-export type Product = z.infer<typeof ProductSchema>;
+// ✅ Define field validators (source of truth)
+export const PRODUCT_FIELDS = {
+  id: v.string(),
+  name: v.string(),
+} as const
 
-// ✅ Use schemas for validation at boundaries
-export const validateProductInput = (data: unknown): Product => {
-  return ProductSchema.parse(data);
-};
+// ✅ Use object validator in schema + server function args/returns
+export const productValidator = v.object(PRODUCT_FIELDS)
 
-// ✅ Create helper functions for common operations
-export const createProductValidation = () => ({
-  validateCreate: (data: unknown) => CreateProductSchema.parse(data),
-  validateUpdate: (data: unknown) => UpdateProductSchema.parse(data),
-  validateQuery: (data: unknown) => ProductQuerySchema.parse(data)
-});
+// ✅ Derive TS type from validator
+export type Product = Infer<typeof productValidator>
 ```
 
 ### Error Handling
@@ -259,8 +252,9 @@ export const createErrorHandlers = () => ({
     throw new DatabaseError(`${operation} failed: ${error.message}`);
   },
   
-  handleValidationError: (error: z.ZodError, context: string): never => {
-    throw new ValidationError(`Validation failed in ${context}: ${error.message}`);
+  handleValidationError: (error: unknown, context: string): never => {
+    const message = error instanceof Error ? error.message : String(error)
+    throw new ValidationError(`Validation failed in ${context}: ${message}`);
   }
 });
 
@@ -453,9 +447,10 @@ export const getModule = (condition: boolean) => {
 ### Memoization
 ```typescript
 // ✅ Memoize expensive computations
-const memoizedValidation = memoize((schema: z.ZodSchema, data: unknown) => {
-  return schema.parse(data);
-});
+const memoizedExpensiveComputation = memoize((input: string) => {
+  // ... heavy work ...
+  return input.trim().toLowerCase()
+})
 ```
 
 
@@ -465,7 +460,7 @@ const memoizedValidation = memoize((schema: z.ZodSchema, data: unknown) => {
 2. **Pure Functions** - Minimize side effects and state mutation  
 3. **Explicit Dependencies** - Import what you need directly
 4. **Types over Interfaces** - Use `type` for data structures, `interface` for extensible contracts
-5. **Zod-First** - Define schemas before implementation
+5. **Validator-First (Backend)** - Use Convex `v` validators as the source of truth
 6. **Functional Error Handling** - Use Result types and explicit error functions
 7. **Extensible Enums** - Component-local pattern with Partial maps for schema types
 8. **Module Organization** - Group by feature, not technical layer

@@ -1,6 +1,6 @@
 # React Native + Convex Template
 
-A production-ready React Native starter template with Expo Router, React Native Paper, Convex backend, and Zod-first data modeling.
+A production-ready React Native starter template with Expo Router, React Native Paper, Convex backend, and validator-first data modeling.
 
 ## Quick Start
 
@@ -102,10 +102,9 @@ react-native-convex-template/
 │   └── ui/                  # Generic UI components
 ├── convex/                  # Convex backend
 │   ├── schema.ts            # Database schema
-│   ├── z.ts                 # Zod wrappers (zQuery, zMutation)
 │   ├── users.ts             # Example queries/mutations
 │   └── README.md            # Backend guide
-├── models/                  # Zod-first data models
+├── models/                  # Convex validator-first data models
 │   ├── users.ts             # Example: User model
 │   └── README.md            # Modeling guide
 ├── hooks/                   # Custom React hooks
@@ -130,25 +129,24 @@ react-native-convex-template/
 - **Serverless functions** (queries, mutations, actions)
 - **Relational database** (managed)
 - **TypeScript-first** with full type safety
-- **Zod validation** with derived Convex validators
+- **Convex `v` validators** for all schema, args, and return values
 
-## Data Modeling (Zod-First Pattern)
+## Data Modeling (Convex Validator-First Pattern)
 
-### Step 1: Define Zod Schema
+### Step 1: Define a Model Validator
 
 Create `models/mymodel.ts`:
 
 ```typescript
-import { z } from 'zod'
-import { zodOutputToConvex } from 'convex-helpers/server/zod'
+import { Infer, v } from 'convex/values'
 
-export const MyModelZ = z.object({
-  title: z.string().min(1),
-  count: z.number().int().positive(),
-})
+export const MY_MODEL_FIELDS = {
+  title: v.string(),
+  count: v.number(),
+} as const
 
-export type MyModel = z.infer<typeof MyModelZ>
-export const MyModelV = zodOutputToConvex(MyModelZ)
+export const myModelValidator = v.object(MY_MODEL_FIELDS)
+export type MyModel = Infer<typeof myModelValidator>
 ```
 
 ### Step 2: Add to Convex Schema
@@ -156,33 +154,39 @@ export const MyModelV = zodOutputToConvex(MyModelZ)
 Update `convex/schema.ts`:
 
 ```typescript
-import { MyModelV } from '@/models/mymodel'
+import { myModelValidator } from '../models/mymodel'
 
 export default defineSchema({
-  myModels: defineTable(MyModelV).index('by_title', ['title']),
+  myModels: defineTable(myModelValidator).index('by_title', ['title']),
 })
 ```
 
-### Step 3: Write Zod-Validated Functions
+### Step 3: Write `v`-Validated Functions
 
 Create `convex/mymodels.ts`:
 
 ```typescript
-import { z } from 'zod'
-import { zQuery, zMutation } from './z'
-import { MyModelZ } from '@/models/mymodel'
+import { v } from 'convex/values'
+import { mutation, query } from './_generated/server'
 
-export const list = zQuery({
+export const list = query({
   args: {},
-  returns: z.array(MyModelZ),
+  returns: v.array(
+    v.object({
+      _id: v.id('myModels'),
+      _creationTime: v.number(),
+      title: v.string(),
+      count: v.number(),
+    })
+  ),
   handler: async (ctx) => {
     return await ctx.db.query('myModels').collect()
   },
 })
 
-export const create = zMutation({
-  args: MyModelZ,
-  returns: z.object({ id: z.string() }),
+export const create = mutation({
+  args: { title: v.string(), count: v.number() },
+  returns: v.object({ id: v.id('myModels') }),
   handler: async (ctx, args) => {
     const id = await ctx.db.insert('myModels', args)
     return { id }
@@ -216,44 +220,7 @@ See [models/README.md](./models/README.md) for detailed guide.
 All backend logic lives in `convex/`:
 
 - **`schema.ts`** - Database schema (tables and indexes)
-- **`z.ts`** - Zod wrapper helpers (zQuery, zMutation, zAction)
 - **`users.ts`** - Example API (demo queries/mutations)
-
-### Using Zod-Wrapped Functions
-
-```typescript
-import { z } from 'zod'
-import { zQuery, zMutation, zAction, zid } from './z'
-
-// Read data
-export const getUser = zQuery({
-  args: { userId: zid('users') },
-  returns: z.object({ id: z.string(), name: z.string() }),
-  handler: async (ctx, args) => {
-    const user = await ctx.db.get(args.userId)
-    return user ? { id: user._id, name: user.name } : null
-  },
-})
-
-// Write data
-export const updateUser = zMutation({
-  args: { userId: zid('users'), name: z.string() },
-  returns: z.null(),
-  handler: async (ctx, args) => {
-    await ctx.db.patch(args.userId, { name: args.name })
-  },
-})
-
-// Call external APIs
-export const sendNotification = zAction({
-  args: { userId: zid('users'), message: z.string() },
-  returns: z.object({ sent: z.boolean() }),
-  handler: async (ctx, args) => {
-    // Can use external APIs here
-    return { sent: true }
-  },
-})
-```
 
 See [convex/README.md](./convex/README.md) for full guide.
 
@@ -300,7 +267,7 @@ See project root for full theming guide.
 | `app/` | Expo Router screens and layouts |
 | `components/ui/` | Reusable UI components (Paper-based) |
 | `convex/` | Backend functions and schema |
-| `models/` | Zod-first data models |
+| `models/` | Convex validator-first data models |
 | `hooks/` | Custom React hooks |
 | `lib/` | Utility functions and helpers |
 | `types/` | Shared TypeScript types |
@@ -369,7 +336,7 @@ export const SignInScreen = () => {
 - **Prettier** for formatting
 - **Named exports only** (no default exports)
 - **Semantic theme** for all styling
-- **Zod validation** for all data
+- **Convex `v` validation** for all schema, args, and return values
 
 ## Resources
 
@@ -377,8 +344,6 @@ export const SignInScreen = () => {
 - [Expo Router](https://expo.github.io/router)
 - [React Native Paper](https://reactnativepaper.com)
 - [Convex Docs](https://docs.convex.dev)
-- [Zod Validation](https://zod.dev)
-- [Convex + Zod Integration](https://stack.convex.dev/typescript-zod-function-validation)
 
 ## Troubleshooting
 
@@ -400,7 +365,7 @@ Ensure:
 ## Next Steps
 
 1. **Add authentication** - Replace sign-in placeholder with your auth provider
-2. **Create data models** - Add your first Zod model in `models/`
+2. **Create data models** - Add your first model validator in `models/`
 3. **Build Convex API** - Add queries/mutations in `convex/`
 4. **Design screens** - Create app screens in `app/(app)/`
 5. **Deploy** - Deploy frontend (Expo) and backend (Convex)

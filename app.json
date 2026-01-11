@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "react-native-convex-template",
-    "slug": "rn-convex-template",
+    "name": "LaneShadow",
+    "slug": "laneshadow",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "rnconvex",
+    "scheme": "laneshadow",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

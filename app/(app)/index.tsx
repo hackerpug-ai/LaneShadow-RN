@@ -36,7 +36,7 @@ export const HomeScreen = () => {
               • Convex backend integration
             </Text>
             <Text variant="bodyMedium" style={styles.listItem}>
-              • Zod-first data models
+              • Convex validator-first data models
             </Text>
           </View>
 

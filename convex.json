@@ -7,7 +7,6 @@
       "@langchain/core",
       "@langchain/openai",
       "@langchain/langgraph",
-      "zod",
       "jose"
     ],
     "nodeVersion": "20"

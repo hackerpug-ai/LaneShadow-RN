@@ -1,33 +1,28 @@
 # Data Models
 
-This directory contains all shared data models using **Zod-first** approach.
+This directory contains all shared data models using a **Convex validator-first** approach.
 
-## Pattern: Zod-First with Derived Convex Validators
+## Pattern: `v` First (Models are Convex Validators)
 
 All models define:
-1. **Zod Schema** (e.g., `UserZ`) - Source of truth for data shape
-2. **TypeScript Type** (e.g., `User`) - Inferred from Zod for app code
-3. **Convex Validator** (e.g., `UserV`) - Derived from Zod using `zodOutputToConvex()`
+1. **Field validators** (e.g., `USER_FIELDS`) - source of truth
+2. **Convex object validator** (e.g., `userValidator`) - used in schema + server functions
+3. **TypeScript type** (e.g., `User`) - inferred from validator via `Infer<typeof ...>`
 
 ### Example: User Model
 
 ```typescript
 // models/users.ts
-import { z } from 'zod'
-import { zodOutputToConvex } from 'convex-helpers/server/zod'
+import { Infer, v } from 'convex/values'
 
-// 1. Define Zod schema
-export const UserZ = z.object({
-  email: z.string().email(),
-  name: z.string().min(1),
-  createdAt: z.number(),
-})
+export const USER_FIELDS = {
+  email: v.string(),
+  name: v.string(),
+  createdAt: v.number(),
+} as const
 
-// 2. Export TS type
-export type User = z.infer<typeof UserZ>
-
-// 3. Derive Convex validator
-export const UserV = zodOutputToConvex(UserZ)
+export const userValidator = v.object(USER_FIELDS)
+export type User = Infer<typeof userValidator>
 ```
 
 ## Usage
@@ -36,23 +31,22 @@ export const UserV = zodOutputToConvex(UserZ)
 
 ```typescript
 import { defineSchema, defineTable } from 'convex/server'
-import { UserV } from '@/models/users'
+import { userValidator } from '../models/users'
 
 export default defineSchema({
-  users: defineTable(UserV).index('by_email', ['email']),
+  users: defineTable(userValidator).index('by_email', ['email']),
 })
 ```
 
-### In Zod-Validated Functions (convex/users.ts)
+### In Server Functions (convex/*.ts)
 
 ```typescript
-import { z } from 'zod'
-import { zQuery, zMutation } from './z'
-import { UserZ } from '@/models/users'
+import { v } from 'convex/values'
+import { mutation } from './_generated/server'
 
-export const create = zMutation({
-  args: UserZ.pick({ email: true, name: true }),
-  returns: z.object({ id: z.string() }),
+export const create = mutation({
+  args: { email: v.string(), name: v.string() },
+  returns: v.object({ id: v.id('users') }),
   handler: async (ctx, args) => {
     const id = await ctx.db.insert('users', { ...args, createdAt: Date.now() })
     return { id }
@@ -63,7 +57,7 @@ export const create = zMutation({
 ### In Application Code
 
 ```typescript
-import type { User } from '@/models/users'
+import type { User } from './users'
 
 const user: User = {
   email: 'user@example.com',
@@ -75,7 +69,7 @@ const user: User = {
 ## Adding New Models
 
 1. Create file: `models/mymodel.ts`
-2. Define Zod schema: `export const MyModelZ = z.object({ ... })`
-3. Export TS type: `export type MyModel = z.infer<typeof MyModelZ>`
-4. Export Convex validator: `export const MyModelV = zodOutputToConvex(MyModelZ)`
+2. Define field validators: `export const MY_MODEL_FIELDS = { ... } as const`
+3. Export object validator: `export const myModelValidator = v.object(MY_MODEL_FIELDS)`
+4. Export TS type: `export type MyModel = Infer<typeof myModelValidator>`
 5. Use in `convex/schema.ts` and `convex/*.ts` functions

@@ -1,25 +1,18 @@
-import { zodOutputToConvex } from 'convex-helpers/server/zod'
-import { z } from 'zod'
+import { Infer, v } from 'convex/values'
 
 /**
- * Zod-first schema for User
- * Define data shape with Zod for runtime validation
+ * Convex-validator-first model for User.
+ *
+ * Notes:
+ * - Convex `v.string()` does not validate formats (like email) by itself.
+ * - Enforce stricter validation (email format, etc.) at function boundaries
+ *   in `convex/*` handlers as needed.
  */
-export const UserSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  name: z.string().min(1, 'Name is required'),
-  createdAt: z.number().describe('Timestamp in milliseconds'),
-})
+export const USER_FIELDS = {
+  email: v.string(),
+  name: v.string(),
+  createdAt: v.number(),
+} as const
 
-/**
- * TypeScript type inferred from Zod schema
- * Use this type for application code
- */
-export type User = z.infer<typeof UserSchema>
-
-/**
- * Convex validator derived from Zod schema
- * Use in convex/schema.ts for database table definitions
- * Use with zMutation/zQuery to validate function args
- */
-export const UserValidator = zodOutputToConvex(UserSchema)
+export const userValidator = v.object(USER_FIELDS)
+export type User = Infer<typeof userValidator>
