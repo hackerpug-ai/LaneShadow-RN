@@ -126,6 +126,21 @@ The system intentionally leverages **LLM-led route planning** to capture rider-n
 {
   provider
   bounds: { north, south, east, west }
+
+  /**
+   * Top-level trip stops. These improve UX and debugging and are persisted so the
+   * UI can show “from/to/via” without recomputation.
+   */
+  origin: { lat, lng, label?, placeId? }
+  destination: { lat, lng, label?, placeId? }
+  waypoints: [{ lat, lng, label?, placeId? }]
+
+  /**
+   * POC geometry policy:
+   * - Store overview polyline for fast preview + fit-to-bounds.
+   * - Store leg-level polylines for high-fidelity “on-road” rendering.
+   * - Do NOT store step-level instructions/polylines (turn-by-turn is out of scope).
+   */
   overviewGeometry: {
     format: "polyline"
     encoding
@@ -263,7 +278,245 @@ Define a centralized “capabilities” contract to keep UI dumb and allow futur
 
 - All capabilities are true **only if** the current viewer is the owner.
 
-### 4.3.4 View models (UI-shaped responses)
+### 4.3.4 Shared Types (used across endpoints)
+
+If an object shape is referenced by multiple endpoints, it is defined here. Endpoint-only shapes remain inline in §4.3.5.
+
+#### Shared primitives
+
+```ts
+type ConditionsStatus = "ok" | "unavailable"
+
+type Bounds = {
+  north: number
+  south: number
+  east: number
+  west: number
+}
+
+type SavedRouteCapabilities = {
+  canRead: boolean
+  canRename: boolean
+  canDelete: boolean
+}
+```
+
+#### Plan input + stops (shared; used by planning + saved routes)
+
+```ts
+type RouteStop = {
+  lat: number
+  lng: number
+  label?: string
+  placeId?: string
+}
+
+type PlanPreferences = {
+  scenicBias: "default" | "high"
+  avoidHighways?: boolean
+  avoidTolls?: boolean
+}
+
+type PlanInput = {
+  start: RouteStop
+  end: RouteStop
+  departureTime: number
+  preferences: PlanPreferences
+}
+```
+
+#### `SnapshotMeta` (shared; stored + returned)
+
+`snapshotMeta` is intended to capture **non-geometry, non-overlay** metadata needed for diagnostics and “reopen identically” guarantees without recomputation.
+
+```ts
+type SnapshotMeta = {
+  /**
+   * When this snapshot was persisted (client-observable timeline anchor).
+   */
+  savedAt: number
+
+  /**
+   * Provider identifiers to support future provider migrations and debugging.
+   * The routeSnapshot itself includes provider-specific normalized geometry, but
+   * snapshotMeta captures the “how” and “when” at a high level.
+   */
+  routingProvider: string
+
+  /**
+   * Overlay generation metadata for advisory overlays (wind, etc.).
+   * Overlay payloads live in routeSnapshot.overlays.*; this is the summary.
+   */
+  overlays: {
+    wind?: {
+      generatedAt: number
+      modelVersion: string
+    }
+  }
+
+  /**
+   * Whether condition overlays are present and trustworthy. This powers the UI
+   * “conditions unavailable” notice without requiring any recomputation.
+   */
+  conditionsStatus: ConditionsStatus
+
+  /**
+   * Reserved for future: app version, schema version, fingerprinting, etc.
+   * Keep add-only for backwards compatibility.
+   */
+  metaVersion: number
+}
+```
+
+#### Route preview (shared; list cards + map framing)
+
+```ts
+type RoutePreview = {
+  bounds: Bounds
+  distanceMeters: number
+  durationSeconds: number
+}
+```
+
+#### Route snapshot + geometry (shared; used by multiple endpoints)
+
+These types define the full “render without recomputation” contract for saved routes and planned route previews.
+
+```ts
+type LatLng = {
+  lat: number
+  lng: number
+}
+
+type PolylineGeometry = {
+  /**
+   * Provider-agnostic geometry encoding format.
+   * POC uses polyline exclusively.
+   */
+  format: "polyline"
+
+  /**
+   * Encoding identifier (provider-specific string).
+   * Examples: "google_polyline", "mapbox_polyline6"
+   */
+  encoding: string
+
+  /**
+   * Precision used when encoding the polyline (commonly 5 or 6).
+   */
+  precision: number
+
+  /**
+   * Encoded polyline string
+   */
+  value: string
+}
+
+type RouteLeg = {
+  legIndex: number
+  start: RouteStop
+  end: RouteStop
+  distanceMeters: number
+  durationSeconds: number
+  geometry: PolylineGeometry
+}
+
+type RouteAnnotation = {
+  id: string
+  annotationKind: "place" | "condition"
+  label: string
+  lat: number
+  lng: number
+  placeRef?: string
+  conditionRef?: string
+}
+
+type WindLegendItem = {
+  /**
+   * A stable key for UI mapping (e.g. "low", "medium", "high").
+   */
+  level: string
+
+  /**
+   * Human readable label (e.g. "Low", "Moderate", "High").
+   */
+  label: string
+
+  /**
+   * Optional numeric range for display (e.g. mph/kph).
+   * Keep flexible since providers may vary.
+   */
+  range?: { min?: number; max?: number; unit?: string }
+}
+
+type WindOverlaySegment = {
+  /**
+   * Segment bounds along the leg polyline, measured from leg start.
+   */
+  startMeters: number
+  endMeters: number
+
+  /**
+   * Level key mapped to WindLegendItem.level.
+   */
+  level: string
+
+  /**
+   * Optional explanation used in detail UI or debugging.
+   */
+  reason?: string
+}
+
+type WindOverlayByLeg = {
+  legIndex: number
+  segments: Array<WindOverlaySegment>
+}
+
+type WindOverlay = {
+  generatedAt: number
+  modelVersion: string
+  legend: Array<WindLegendItem>
+  byLeg: Array<WindOverlayByLeg>
+}
+
+type RouteOverlays = {
+  wind?: WindOverlay
+}
+
+type RouteSnapshot = {
+  provider: string
+  bounds: Bounds
+
+  /**
+   * Top-level trip stops (POC: always present)
+   */
+  origin: RouteStop
+  destination: RouteStop
+  waypoints: Array<RouteStop>
+
+  overviewGeometry: PolylineGeometry
+  legs: Array<RouteLeg>
+  annotations: Array<RouteAnnotation>
+  overlays: RouteOverlays
+}
+```
+
+#### Route index (shared; used for overlays + future analytics)
+
+```ts
+type RouteIndexPoint = {
+  lat: number
+  lng: number
+  distanceFromStartMeters: number
+}
+
+type RouteIndex = {
+  routeFingerprint: string
+  sampledPoints: Array<RouteIndexPoint>
+}
+```
+
+### 4.3.5 View models (UI-shaped responses)
 
 These are not raw documents; they are shaped payloads designed to render screens/sheets directly.
 
@@ -280,13 +533,13 @@ These are not raw documents; they are shaped payloads designed to render screens
   - label
   - rationale
   - stats: { distanceMeters, durationSeconds, legsCount }
-  - map: { bounds, overviewGeometry, legs[] }
-  - overlaysPreview: { windSummary, conditionsStatus }
+  - map: { bounds: Bounds, overviewGeometry: PolylineGeometry, legs: Array<RouteLeg> }
+  - overlaysPreview: { windSummary, conditionsStatus: ConditionsStatus }
 
 **RouteOverviewView (S003)**
 
 - selected option full snapshot + overlays + annotations
-- conditionsStatus: "ok" | "unavailable"
+- conditionsStatus: ConditionsStatus
 
 **SavedRoutesListView (V002)**
 
@@ -298,20 +551,20 @@ These are not raw documents; they are shaped payloads designed to render screens
 - name
 - createdAt
 - updatedAt
-- preview: { bounds, distanceMeters, durationSeconds }
+- preview: RoutePreview
 - capabilities: SavedRouteCapabilities
 
 **SavedRouteDetailView (V003)**
 
 - savedRouteId
 - name
-- planInput
-- routeSnapshot
-- routeIndex
-- snapshotMeta
+- planInput: PlanInput
+- routeSnapshot: RouteSnapshot
+- routeIndex: RouteIndex
+- snapshotMeta: SnapshotMeta
 - capabilities: SavedRouteCapabilities
 
-### 4.3.5 Convex function surface area (public vs internal)
+### 4.3.6 Convex function surface area (public vs internal)
 
 Public functions are the app API and return view models. Internal functions are schema-aligned helpers called only by other Convex functions/actions.
 
@@ -342,10 +595,12 @@ Public functions are the app API and return view models. Internal functions are 
 
 #### Internal functions (not client-callable)
 
-- `convex/internal/viewer.ts`
+All internal queries/mutations live under `convex/db/*` (same directory as public db APIs), but are registered with `internalQuery` / `internalMutation`.
+
+- `convex/db/viewer.ts`
   - requireViewer (internalQuery) → { viewerUserId, ... }
 
-- `convex/internal/savedRoutes.ts`
+- `convex/db/savedRoutes.ts`
   - getById (internalQuery)
   - listByOwner (internalQuery)
   - insert (internalMutation)
@@ -354,7 +609,7 @@ Public functions are the app API and return view models. Internal functions are 
 
 **Future (optional)**
 
-- `convex/internal/routePlans.ts`
+- `convex/db/routePlans.ts`
   - persistPlan (internalMutation) for save-from-plan immutability guarantees
 
 ---

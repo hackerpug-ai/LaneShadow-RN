@@ -57,7 +57,9 @@ To keep UI unblocked while the Node-runtime planning action/provider integration
 ### Rules
 
 - **Frontend work**:
-  - Build screens/components using a **placeholder hook** that returns **typed mock data** matching the TRD view-model shapes (§4.3.4).
+  - Build screens/components using a **placeholder hook** that returns **typed mock data** matching the TRD contracts:
+    - Shared types catalog (§4.3.4)
+    - View models (§4.3.5)
   - Placeholder hooks live in `hooks/` and follow this naming:
     - `hooks/use-plan-init-placeholder.ts`
     - `hooks/use-plan-ride-placeholder.ts`
@@ -92,8 +94,10 @@ To validate Epic 1 end-to-end (planning → route overview → save → reopen),
   - An authenticated test user (Clerk/dev auth story TBD; see decision checkpoint below)
   - At least 2 saved routes with:
     - distinct names
-    - realistic planInput
-    - routeSnapshot with legs + overviewGeometry
+    - realistic planInput (TRD §4.3.4 `PlanInput`)
+    - routeSnapshot with:
+      - origin + destination + waypoints (TRD §3.3, §4.3.4 `RouteStop`)
+      - overviewGeometry + legs[] (TRD §3.3, POC geometry policy: overview + leg polylines only)
     - routeIndex with sampled points
     - overlays.wind present as either real data or `"unavailable"` status (TRD §6.2.10 guidance)
 - Seed should support exercising:
@@ -112,7 +116,8 @@ To validate Epic 1 end-to-end (planning → route overview → save → reopen),
   - Sprint plan default: keep geometry provider-agnostic (TRD §1.2) and represent lines as polyline strings per TRD §3.3.
 
 - **Routing provider choice (required)**:
-  - Needs to support: via points, leg geometry, and predictable encoding/precision (TRD §3.3).
+  - Needs to support: via points, **leg geometry**, and predictable encoding/precision (TRD §3.3, §4.3.4 `PolylineGeometry`).
+  - POC geometry policy: **store overview + leg polylines only** (no step-level instructions/polylines).
   - Sprint plan default: stub routing provider in Sprint 1 with deterministic mock snapshots; lock provider in Sprint 2 before implementing real compilation.
 
 - **Places UX scope (optional for POC)**:
@@ -143,23 +148,30 @@ To validate Epic 1 end-to-end (planning → route overview → save → reopen),
 **Backend deliverables**
 
 - Add `saved_routes` table + indexes per TRD §3.1 to `convex/schema.ts`.
-- Add v-first validators for the TRD shapes (plan input, route snapshot/index, capabilities).
+- Add v-first validators for the TRD shared type catalog (§4.3.4), including:
+  - `PlanInput`, `PlanPreferences`, `RouteStop`
+  - `Bounds`, `PolylineGeometry`, `RouteLeg`, `RouteSnapshot`
+  - `RouteIndex`, `SnapshotMeta`, `RoutePreview`
+  - wind overlay types (`WindOverlay*`, `RouteOverlays`)
+  - `SavedRouteCapabilities`
+- Enforce POC geometry policy in stored snapshots: **overviewGeometry + leg polylines only** (no step-level instructions/polylines).
 - Implement internal “viewer” helper (TRD §4.3.5) and enforce POC authz (TRD §4.3.2):
   - all saved routes are user-private; reads/mutations return NOT_FOUND when unauthorized
 - Establish shared types/contracts in the repo (so later sprints can “import, don’t redefine”):
-  - View-model TS types that mirror TRD §4.3.4 (client-side typing for responses).
+  - TS types that mirror the TRD shared type catalog (§4.3.4) and view models (§4.3.5) for client-side typing.
 
 **Acceptance criteria**
 
 - Schema compiles and Convex codegen succeeds.
 - Auth-required behavior is in place for all Epic 1 endpoints; unauthorized access does not leak existence (NOT_FOUND semantics).
+- Convex functions and validators are `v`-first (no Zod-first `zQuery`/`zMutation` patterns).
 - Theming and auth expectations are documented well enough that Sprint 4 UI work does not need to revisit fundamentals.
 
 ## Sprint 2 — Backend APIs: saved routes + plan init (view-model queries/mutations)
 
 **Status**: ⏳ **Planned**
 
-**Goal**: Implement the full public DB API surface for saved routes + plan init, returning UI-shaped view models per TRD §4.3.4.
+**Goal**: Implement the full public DB API surface for saved routes + plan init, returning UI-shaped view models per TRD §4.3.5 (using shared types from §4.3.4).
 
 **Backend deliverables**
 
@@ -178,7 +190,7 @@ Also:
 
 **Acceptance criteria**
 
-- All endpoints in TRD §4.3.5 (db surface) exist and return the view-model shapes in TRD §4.3.4.
+- All endpoints in TRD §4.3.5 (db surface) exist and return the view-model shapes in TRD §4.3.5 (using shared types from §4.3.4).
 - Saved routes are immutable snapshots (only metadata like `name` can change).
 - Saved routes list is summary-only and bounded (TRD §9).
 

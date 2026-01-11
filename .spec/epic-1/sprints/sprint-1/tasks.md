@@ -71,7 +71,7 @@
 
 ---
 
-### Task 03 — Backend: Implement internal viewer helper (`internal.viewer.requireViewer`) (TRD §4.3.2, §4.3.5)
+### Task 03 — Backend: Implement internal viewer helper (`internal.db.viewer.requireViewer`) (TRD §4.3.2, §4.3.5)
 
 **Assignee**: @.cursor/agents/backend-engineer.md
 **Status**: Pending
@@ -82,7 +82,7 @@
 - Sprint 1 acceptance criteria includes: “Auth-required behavior is in place for all Epic 1 endpoints” — in Sprint 1 that means: the primitive exists, and subsequent APIs can depend on it.
 
 #### Requirements
-- Create `convex/internal/viewer.ts` exporting `requireViewer` as an `internalQuery`.
+- Create `convex/db/viewer.ts` exporting `requireViewer` as an `internalQuery`.
 - `requireViewer` must:
   - Use `ctx.auth.getUserIdentity()` to load identity.
   - Throw on missing identity (auth required).
@@ -92,11 +92,11 @@
 - Document in code comments which field is used as `SavedRoute.ownerId` / `createdByUserId`.
 
 #### Acceptance Criteria
-- [ ] `internal.viewer.requireViewer` exists and returns a stable `viewerUserId` when authenticated.
+- [ ] `internal.db.viewer.requireViewer` exists and returns a stable `viewerUserId` when authenticated.
 - [ ] When unauthenticated, it fails deterministically (no silent nulls).
 
 #### Files to Create
-- `convex/internal/viewer.ts`
+- `convex/db/viewer.ts`
 
 #### Testing Requirements
 - [ ] Minimal: manual verification via a one-off `npx convex run` (or a lightweight test if project already has a backend test harness).
@@ -116,7 +116,7 @@
 - TRD §4.3.5 specifies an internal module surface to centralize this.
 
 #### Requirements
-- Create `convex/internal/saved-routes.ts` implementing the internal functions listed in TRD §4.3.5:
+- Implement internal saved-routes helpers in `convex/db/savedRoutes.ts` (as `internalQuery` / `internalMutation`) matching TRD §4.3.6:
   - `getById` (internalQuery)
   - `listByOwner` (internalQuery)
   - `insert` (internalMutation)
@@ -125,7 +125,7 @@
 - All helpers must enforce the POC constraints (TRD §4.3.2):
   - `ownerType = 'user'`
   - `visibility = 'private'`
-  - `ownerId = viewerUserId` (from `internal.viewer.requireViewer`)
+  - `ownerId = viewerUserId` (from `internal.db.viewer.requireViewer`)
 - **NOT_FOUND semantics**:
   - For `getById`, `patchName`, `deleteById`: if the route doesn’t exist OR is not owned by viewer, behave as “not found”.
   - Do **not** throw a distinct “unauthorized” error for these operations.
@@ -137,7 +137,7 @@
 - [ ] Inserts always write POC fields (`ownerType`, `visibility`, `ownerId`, `createdByUserId`) consistently.
 
 #### Files to Create
-- `convex/internal/saved-routes.ts`
+- (none if implemented inline) or optionally `convex/db/savedRoutes/internal.ts` if the file grows too large
 
 #### Testing Requirements
 - [ ] Add minimal tests if a test harness exists; otherwise verify via `npx convex run` with two different auth contexts (or a documented manual verification workflow).
@@ -257,7 +257,7 @@
   - Which auth provider is used for Epic 1 POC (TRD names Clerk; if the repo differs, call out the exact choice and why).
   - Required env vars and where to set them.
   - Step-by-step “dev auth” flow to get an authenticated viewer in the app.
-  - A quick sanity check command for backend auth (e.g., a small Convex function that calls `internal.viewer.requireViewer`).
+  - A quick sanity check command for backend auth (e.g., a small Convex function that calls `internal.db.viewer.requireViewer`).
 
 #### Acceptance Criteria
 - [ ] A new engineer can follow docs to get a signed-in app session that results in non-null `ctx.auth.getUserIdentity()`.

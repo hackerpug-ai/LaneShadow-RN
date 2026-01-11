@@ -1,4 +1,5 @@
 import { defineSchema, defineTable } from 'convex/server'
+import { savedRouteValidator } from '../models/saved-routes'
 import { userValidator } from '../models/users'
 
 /**
@@ -14,7 +15,7 @@ export default defineSchema({
    */
   users: defineTable(userValidator).index('by_email', ['email']),
 
-  // Add your tables below following the same pattern
-  // Example:
-  // posts: defineTable(PostV).index('by_user_id', ['userId']),
+  saved_routes: defineTable(savedRouteValidator)
+    .index('by_ownerType_and_ownerId', ['ownerType', 'ownerId'])
+    .index('by_createdByUserId', ['createdByUserId']),
 })

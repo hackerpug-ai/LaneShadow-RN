@@ -18,14 +18,21 @@
 **Backend deliverables**
 
 - Add `saved_routes` table + indexes per TRD §3.1 to `convex/schema.ts`.
-- Add v-first validators for the TRD shapes (plan input, route snapshot/index, capabilities).
+- Add v-first validators for the TRD shared type catalog (§4.3.4), including:
+  - `PlanInput`, `PlanPreferences`, `RouteStop`
+  - `Bounds`, `PolylineGeometry`, `RouteLeg`, `RouteSnapshot`
+  - `RouteIndex`, `SnapshotMeta`, `RoutePreview`
+  - wind overlay types (`WindOverlay*`, `RouteOverlays`)
+  - `SavedRouteCapabilities`
+- Enforce POC geometry policy in stored snapshots: **overviewGeometry + leg polylines only** (no step-level instructions/polylines).
 - Implement internal “viewer” helper (TRD §4.3.5) and enforce POC authz (TRD §4.3.2):
   - all saved routes are user-private; reads/mutations return NOT_FOUND when unauthorized
 - Establish shared types/contracts in the repo (so later sprints can “import, don’t redefine”):
-  - View-model TS types that mirror TRD §4.3.4 (client-side typing for responses).
+  - TS types that mirror the TRD shared type catalog (§4.3.4) and view models (§4.3.5) for client-side typing.
 
 **Acceptance criteria**
 
 - Schema compiles and Convex codegen succeeds.
 - Auth-required behavior is in place for all Epic 1 endpoints; unauthorized access does not leak existence (NOT_FOUND semantics).
+- Convex functions and validators are `v`-first (no Zod-first `zQuery`/`zMutation` patterns).
 - Theming and auth expectations are documented well enough that Sprint 4 UI work does not need to revisit fundamentals.
