@@ -90,3 +90,36 @@
 ### Next Steps
 - Run the app to sanity-check `useSemanticTheme()` and new tokens.
 - If UI components need specific variants, use the new semantic keys rather than hardcoded colors.
+
+## 2026-01-11 - Backend Engineer Agent - Task 03b Clerk webhooks sync + org/membership data
+
+### Status
+- Current Sprint: sprint-1
+- Task: Task 03b — Backend: Clerk webhooks sync users/orgs/memberships + profile update action
+- Status: Completed
+
+### Work Completed
+- Implemented Svix-verified Clerk webhook routing in `convex/http.ts` that dispatches by `event.type` and calls internal mutations for:
+  - `user.created`, `user.updated`, `user.deleted`
+  - `organization.created`, `organization.updated`, `organization.deleted`
+  - `organizationMembership.created`, `organizationMembership.updated`, `organizationMembership.deleted`
+- Fixed Convex HTTP runtime error `Buffer is not defined` by verifying Svix using `await req.text()` (raw body string) instead of `Buffer`.
+- Added payload sanitization in `convex/http.ts` to strip Clerk webhook objects down to the exact shapes accepted by Convex validators (prevents `ArgumentValidationError` from extra fields like `created_at` inside `email_addresses`).
+- Added validator-first models + schema:
+  - `models/orgs.ts`, `models/org-memberships.ts`
+  - `convex/schema.ts` tables `orgs` and `org_memberships` with indexes `by_clerkOrgId`, `by_userId_and_orgId`, `by_orgId`, `by_userId`
+- Added internal reconcile mutations in `convex/db/clerkSync.ts` for idempotent upsert/delete of users/orgs/memberships.
+- Added `lastLocalUpdateAt` to user/org models and ensured local user upsert writes it.
+- Added `convex/actions/users.ts:updateCurrentProfile` action to push profile name changes to Clerk via `@clerk/backend`, then reconcile local Convex user.
+- Centralized server error codes and human-readable messages in `lib/errors.ts` and documented the convention in `.cursor/agents/backend-engineer.md`.
+
+### Decisions Made
+- Keep Convex validators strict; sanitize webhook payloads at the HTTP boundary rather than loosening validators to `v.any()`.
+- For Convex HTTP actions, avoid Node globals (e.g. `Buffer`) even though webhooks are verified with Svix.
+
+### Issues/Blockers
+- `pnpm type-check` currently fails due to unrelated app TypeScript errors in `app/(app)/*` and `app/(auth)/*`; Convex-only typecheck passes with `pnpm tsc -p convex/tsconfig.json --noEmit`.
+
+### Next Steps
+- Add ordering / out-of-order guards in `convex/db/clerkSync.ts` (e.g. skip applying older `updated_at` events) if we see webhook delivery reordering in practice.
+- Decide if email updates should be supported via Clerk’s dedicated email APIs (currently profile update action updates name only).

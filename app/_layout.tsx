@@ -31,7 +31,12 @@ export const RootLayout = () => {
       <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
         <PaperProvider theme={paperTheme}>
           <BottomSheetModalProvider>
-            <Stack screenOptions={{ headerShown: false }} />
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                animation: 'none',
+              }}
+            />
           </BottomSheetModalProvider>
         </PaperProvider>
       </ConvexProviderWithClerk>

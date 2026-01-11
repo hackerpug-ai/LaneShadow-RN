@@ -12,8 +12,10 @@ export const AuthLayout = () => {
         <Stack
           screenOptions={{
             headerShown: false,
+            animation: 'none',
           }}
         >
+          <Stack.Screen name="session-restoring" />
           <Stack.Screen name="sign-in" />
           <Stack.Screen name="sign-up" />
         </Stack>
