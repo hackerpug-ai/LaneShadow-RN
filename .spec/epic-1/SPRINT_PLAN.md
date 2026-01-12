@@ -1,10 +1,10 @@
 # Epic 1 Sprint Plan (Scenic Route Planning & Saving)
 
-## Current Status (as of 2026-01-11)
+## Current Status (as of 2026-01-12)
 
-- **Epic status**: **Planning**
-  - ⏳ No sprints executed yet in this repo
-  - Next: Sprint 1 (infra: theming + auth + data modeling)
+- **Epic status**: **In Progress**
+  - ✅ Sprint 1 complete (infra: theming + auth + data modeling)
+  - Next: Sprint 2 (Backend APIs: saved routes + plan init)
 
 ## Scope summary (what must be complete by final sprint)
 
@@ -130,7 +130,7 @@ To validate Epic 1 end-to-end (planning → route overview → save → reopen),
 
 ## Sprint 1 — Infra foundations: theming + auth + data modeling
 
-**Status**: ⏳ **Planned**
+**Status**: ✅ **Complete**
 
 **Goal**: Land cross-cutting infra (theming + auth plumbing) and the core data model so backend work can proceed safely and UI can start later without churn.
 

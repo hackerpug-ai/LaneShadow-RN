@@ -10,7 +10,7 @@
 ### Task 01 — Backend: Add v-first validators for saved routes + route shapes (TRD §3.1–§3.4, §4.3.3)
 
 **Assignee**: @.cursor/agents/backend-engineer.md
-**Status**: Pending
+**Status**: Completed
 **Dependencies**: None
 
 #### Context
@@ -45,7 +45,7 @@
 ### Task 02 — Backend: Add `saved_routes` table + indexes to `convex/schema.ts` (TRD §3.1)
 
 **Assignee**: @.cursor/agents/backend-engineer.md
-**Status**: Pending
+**Status**: Completed
 **Dependencies**: Task 01
 
 #### Context
@@ -74,7 +74,7 @@
 ### Task 03 — Backend: Implement internal viewer helper (`internal.db.viewer.requireViewer`) (TRD §4.3.2, §4.3.5)
 
 **Assignee**: @.cursor/agents/backend-engineer.md
-**Status**: Pending
+**Status**: Completed
 **Dependencies**: None
 
 #### Context
@@ -106,7 +106,7 @@
 ### Task 04 — Backend: Implement internal saved routes access layer with NOT_FOUND semantics (TRD §4.3.2, §4.3.5)
 
 **Assignee**: @.cursor/agents/backend-engineer.md
-**Status**: Pending
+**Status**: Completed
 **Dependencies**: Task 02, Task 03
 
 #### Context
@@ -147,7 +147,7 @@
 ### Task 05 — Backend: Add shared TS contracts for Epic 1 view-models (TRD §4.3.4)
 
 **Assignee**: @.cursor/agents/backend-engineer.md
-**Status**: Pending
+**Status**: Completed
 **Dependencies**: Task 01
 
 #### Context
@@ -211,7 +211,7 @@
 ### Task 07 — Frontend: Ensure Epic 1 auth surfaces exist + are reachable (TRD §6.1: V008, V009, V010)
 
 **Assignee**: @.cursor/agents/ui-developer.md
-**Status**: Pending
+**Status**: Done
 **Dependencies**: None
 
 #### Context
@@ -234,7 +234,6 @@
 
 #### Files to Create / Modify
 - **Create**: `app/(auth)/sign-up.tsx`
-- **Create**: `app/(auth)/session-restoring.tsx`
 - **Modify**: `app/(auth)/_layout.tsx` and/or `app/_layout.tsx` as needed
 
 #### Testing Requirements

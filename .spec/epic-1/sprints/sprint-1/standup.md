@@ -123,3 +123,27 @@
 ### Next Steps
 - Add ordering / out-of-order guards in `convex/db/clerkSync.ts` (e.g. skip applying older `updated_at` events) if we see webhook delivery reordering in practice.
 - Decide if email updates should be supported via Clerk’s dedicated email APIs (currently profile update action updates name only).
+
+## 2026-01-12 - Backend Engineer Agent - Task 04 saved-routes internals + Task 05 shared contracts
+
+### Status
+- Current Sprint: sprint-1
+- Task: Task 04 — Internal saved-routes access layer; Task 05 — Shared Epic 1 contracts
+- Status: Completed
+
+### Work Completed
+- Added `convex/db/savedRoutes.ts` with internal helpers (`getById`, `listByOwner`, `insert`, `patchName`, `deleteById`) enforcing POC authz (ownerType=user, visibility=private, ownerId=viewer) using `requireIdentity`; NOT_FOUND semantics: mutations throw `Error('NOT_FOUND')` when missing/not-owned; queries return null.
+- Added `routePreviewValidator`/`RoutePreview` to `models/saved-routes.ts` to keep preview shapes validator-first.
+- Added `types/routes.ts` to re-export all server-derived route shapes from `models/saved-routes.ts` (including `RoutePreview`) and define view-model types: `PlanInitView`, `SavedRouteListItemView`, `SavedRoutesListView`, `SavedRouteDetailView`.
+- Updated `types/index.ts` barrel to export from `./routes`.
+
+### Decisions Made
+- Keep viewer primitive as `requireIdentity` (Clerk user id = identity.subject) from `convex/guards.ts`.
+- NOT_FOUND behavior for mutations: throw `Error('NOT_FOUND')` on missing/not-owned; queries return null.
+
+### Issues/Blockers
+- Unrelated existing blocker remains: `pnpm type-check` currently fails due to app TS errors in `app/(app)/*` and `app/(auth)/*` (see handoff).
+
+### Next Steps
+- Run `pnpm type-check` after app TS fixes.
+- Consumers should call `internal.db.savedRoutes.*` for saved-route operations; public API still to be implemented in later sprint tasks.

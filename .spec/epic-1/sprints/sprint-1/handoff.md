@@ -6,6 +6,8 @@
 - 🟢 Saved routes schema ready: `convex/schema.ts` now defines `saved_routes` with indexes `by_ownerType_and_ownerId` and `by_createdByUserId`. Consumer queries should use these indexes (ownerType+ownerId, createdByUserId) to avoid filters.
 - 🟢 Auth wiring ready: Clerk JWT + Convex gating implemented. Use `requireAuth` from `convex/guards.ts` (viewerUserId = identity.subject). Client uses `ConvexProviderWithClerk` and SecureStore token cache.
 - 🟢 Session preload ready: `convex/db/users.ts` exposes `upsertCurrent` and `getSession` keyed by `clerkUserId`. User model/schema updated with `clerkUserId` and `by_clerkUserId` index.
+- 🟢 Saved routes internal helpers ready: `convex/db/savedRoutes.ts` provides internalQuery/internalMutation functions (`getById`, `listByOwner`, `insert`, `patchName`, `deleteById`) enforcing POC authz (ownerType=user, visibility=private, ownerId=viewer) and NOT_FOUND semantics (throws `NOT_FOUND` on missing/not-owned for mutations; queries return null).
+- 🟢 Shared Epic 1 route contracts ready: `types/routes.ts` re-exports server-derived types from `models/saved-routes.ts` (including `RoutePreview`) and defines view-model types (`PlanInitView`, `SavedRouteListItemView`, `SavedRoutesListView`, `SavedRouteDetailView`).
 - 🟢 Clerk webhooks sync ready:
   - `convex/http.ts` POST `/clerk-webhooks` verifies Svix and routes events to internal mutations.
   - Payload is sanitized at the HTTP boundary to match strict Convex validators (prevents `ArgumentValidationError` on extra Clerk fields).

@@ -165,6 +165,13 @@ export const routeIndexValidator = v.object({
 })
 export type RouteIndex = Infer<typeof routeIndexValidator>
 
+export const routePreviewValidator = v.object({
+  bounds: boundsValidator,
+  distanceMeters: v.number(),
+  durationSeconds: v.number(),
+})
+export type RoutePreview = Infer<typeof routePreviewValidator>
+
 export const snapshotMetaValidator = v.object({
   savedAt: v.number(),
   routingProvider: v.string(),
