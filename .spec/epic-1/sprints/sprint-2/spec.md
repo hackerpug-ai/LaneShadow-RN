@@ -1,6 +1,6 @@
 ## Sprint 2 — Backend APIs: saved routes + plan init (view-model queries/mutations)
 
-**Status**: ⏳ **Planned**
+**Status**: ✅ **Completed**
 
 **Goal**: Implement the full public DB API surface for saved routes + plan init, returning UI-shaped view models per TRD §4.3.5 (using shared types from §4.3.4).
 

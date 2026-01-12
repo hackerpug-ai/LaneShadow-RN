@@ -53,6 +53,8 @@ const computePreview = (savedRoute: SavedRoute) => {
     durationSeconds,
   }
 }
+// When calling functions defined in the same module, route through a local reference
+// and add explicit result typing to avoid Convex/TS circular inference issues.
 const internalSavedRoutes = (internal as any).db.savedRoutes
 
 export const getById = internalQuery({
@@ -179,9 +181,12 @@ export const getSavedRoutesList = query({
         ? Math.min(Math.max(limit, 1), MAX_LIST_LIMIT)
         : MAX_LIST_LIMIT
 
-    const results = (await ctx.runQuery(internalSavedRoutes.listByOwner, {
+    const results: Array<{
+      savedRouteId: Id<'saved_routes'>
+      savedRoute: SavedRoute
+    }> = await ctx.runQuery(internalSavedRoutes.listByOwner, {
       limit: boundedLimit,
-    })) as Array<{ savedRouteId: Id<'saved_routes'>; savedRoute: SavedRoute }>
+    })
 
     return {
       routes: results.map(({ savedRouteId, savedRoute }) => ({
@@ -211,7 +216,7 @@ export const getSavedRouteDetail = query({
   returns: v.union(savedRouteDetailViewValidator, v.null()),
   handler: async (ctx, { savedRouteId }): Promise<SavedRouteDetailView | null> => {
     await requireIdentity(ctx)
-    const savedRoute = await ctx.runQuery(internalSavedRoutes.getById, {
+    const savedRoute: SavedRoute | null = await ctx.runQuery(internalSavedRoutes.getById, {
       savedRouteId,
     })
 
@@ -248,7 +253,10 @@ export const saveRoute = mutation({
   }> => {
     await requireIdentity(ctx)
 
-    const { savedRouteId } = await ctx.runMutation(internalSavedRoutes.insert, args)
+    const { savedRouteId }: { savedRouteId: Id<'saved_routes'> } = await ctx.runMutation(
+      internalSavedRoutes.insert,
+      args
+    )
 
     return { savedRouteId: `${savedRouteId}` }
   },
