@@ -15,6 +15,8 @@ import type {
 } from "convex/server";
 import type * as actions_users from "../actions/users.js";
 import type * as db_clerkSync from "../db/clerkSync.js";
+import type * as db_routesPlan from "../db/routesPlan.js";
+import type * as db_savedRoutes from "../db/savedRoutes.js";
 import type * as db_users from "../db/users.js";
 import type * as guards from "../guards.js";
 import type * as http from "../http.js";
@@ -32,6 +34,8 @@ import type * as users from "../users.js";
 declare const fullApi: ApiFromModules<{
   "actions/users": typeof actions_users;
   "db/clerkSync": typeof db_clerkSync;
+  "db/routesPlan": typeof db_routesPlan;
+  "db/savedRoutes": typeof db_savedRoutes;
   "db/users": typeof db_users;
   guards: typeof guards;
   http: typeof http;
