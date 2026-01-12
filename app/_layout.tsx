@@ -3,7 +3,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { ConvexReactClient } from 'convex/react'
 import { ConvexProviderWithClerk } from 'convex/react-clerk'
 import { Stack } from 'expo-router'
-import React from 'react'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { Provider as PaperProvider } from 'react-native-paper'
 import { useColorScheme } from '../hooks/use-color-scheme'
 import { clerkTokenCache } from '../lib/clerk-token-cache'
@@ -27,20 +27,22 @@ export const RootLayout = () => {
   const paperTheme: ExtendedTheme = getTheme(isDark)
 
   return (
-    <ClerkProvider publishableKey={env.CLERK_PUBLISHABLE_KEY} tokenCache={clerkTokenCache}>
-      <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
-        <PaperProvider theme={paperTheme}>
-          <BottomSheetModalProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                animation: 'none',
-              }}
-            />
-          </BottomSheetModalProvider>
-        </PaperProvider>
-      </ConvexProviderWithClerk>
-    </ClerkProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ClerkProvider publishableKey={env.CLERK_PUBLISHABLE_KEY} tokenCache={clerkTokenCache}>
+        <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
+          <PaperProvider theme={paperTheme}>
+            <BottomSheetModalProvider>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: 'none',
+                }}
+              />
+            </BottomSheetModalProvider>
+          </PaperProvider>
+        </ConvexProviderWithClerk>
+      </ClerkProvider>
+    </GestureHandlerRootView>
   )
 }
 

@@ -11,19 +11,30 @@
  * Following coding standards: composition over inheritance, named exports
  */
 
+import type { TextStyle, ViewStyle } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
+import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { ViewStyle, TextStyle } from 'react-native'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 /**
  * Button size variants
  */
-export type ButtonSize = 'sm' | 'default' | 'lg' | 'icon'
+export type ButtonSize = 'sm' | 'default' | 'lg' | 'xl' | '2xl' | 'icon'
 
 /**
  * Button style variants
  */
-export type ButtonVariant = 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link'
+export type ButtonVariant =
+  | 'default'
+  | 'secondary'
+  | 'outline'
+  | 'ghost'
+  | 'destructive'
+  | 'link'
+  /**
+   * Translucent “glass” look used by auth surfaces (bg-white/5 + border-white/10 in the mock).
+   */
+  | 'glass'
 
 /**
  * Button component props
@@ -65,14 +76,31 @@ export const Button = ({
   const getHeight = (): number => {
     switch (size) {
       case 'sm':
-        return 36
+        // 24 + 12 = 36
+        return semantic.space.xl + semantic.space.md
       case 'lg':
-        return 44
+        // 32 + 12 = 44
+        return semantic.space['2xl'] + semantic.space.md
+      case 'xl':
+        // Auth/social: 48
+        return semantic.space['3xl']
+      case '2xl':
+        // Auth primary CTA: 56 (64 - 8)
+        return semantic.space['4xl'] - semantic.space.sm
       case 'icon':
-        return 40
+        // 32 + 8 = 40
+        return semantic.space['2xl'] + semantic.space.sm
       default:
-        return 40
+        // 32 + 8 = 40
+        return semantic.space['2xl'] + semantic.space.sm
     }
+  }
+
+  const getRadius = (): number => {
+    if (size === 'icon') return semantic.radius.full
+    if (size === '2xl') return semantic.radius.xl
+    if (size === 'xl') return semantic.radius.lg
+    return semantic.radius.md
   }
 
   // Get padding based on size
@@ -83,6 +111,9 @@ export const Button = ({
         return semantic.space.md
       case 'lg':
         return semantic.space['2xl']
+      case 'xl':
+      case '2xl':
+        return semantic.space.lg
       default:
         return semantic.space.lg
     }
@@ -92,6 +123,14 @@ export const Button = ({
   const getBackgroundColor = (pressed: boolean): string => {
     if (variant === 'ghost' || variant === 'link') {
       return 'transparent'
+    }
+
+    if (variant === 'glass') {
+      if (disabled)
+        return semantic.color.surfaceVariant.disabled ?? semantic.color.surfaceVariant.default
+      return pressed
+        ? (semantic.color.surfaceVariant.pressed ?? semantic.color.surfaceVariant.default)
+        : semantic.color.surfaceVariant.default
     }
 
     if (disabled) {
@@ -139,16 +178,14 @@ export const Button = ({
     }
 
     switch (variant) {
+      case 'glass':
+        return semantic.color.onSurface.default
       case 'secondary':
         return semantic.color.onSecondary.default
       case 'outline':
-        return pressed
-          ? semantic.color.accent.default
-          : semantic.color.onSurface.default
+        return pressed ? semantic.color.accent.default : semantic.color.onSurface.default
       case 'ghost':
-        return pressed
-          ? semantic.color.accent.default
-          : semantic.color.onSurface.default
+        return pressed ? semantic.color.accent.default : semantic.color.onSurface.default
       case 'link':
         return semantic.color.primary.default
       case 'destructive':
@@ -160,6 +197,12 @@ export const Button = ({
 
   // Get border style for outline variant
   const getBorderStyle = () => {
+    if (variant === 'glass') {
+      return {
+        borderWidth: 1,
+        borderColor: semantic.color.border.default,
+      }
+    }
     if (variant === 'outline') {
       return {
         borderWidth: 1,
@@ -181,7 +224,7 @@ export const Button = ({
             width: isIconOnly ? getHeight() : undefined,
             paddingHorizontal: getPaddingHorizontal(),
             backgroundColor: getBackgroundColor(pressed),
-            borderRadius: isIconOnly ? semantic.radius.full : semantic.radius.md,
+            borderRadius: getRadius(),
             opacity: disabled ? 0.5 : 1,
           },
           getBorderStyle(),
@@ -190,27 +233,29 @@ export const Button = ({
       >
         {loading ? (
           <Text
+            variant="labelLarge"
             style={[
-              semantic.type.label.md,
               {
                 color: getTextColor(pressed),
               },
               textStyle,
             ]}
           >
-            Loading...
+            Loading…
           </Text>
         ) : (
           <>
             {icon && iconPosition === 'left' && (
-              <View style={[styles.iconContainer, !isIconOnly && { marginRight: semantic.space.sm }]}>
+              <View
+                style={[styles.iconContainer, !isIconOnly && { marginRight: semantic.space.sm }]}
+              >
                 {icon}
               </View>
             )}
             {children && (
               <Text
+                variant="labelLarge"
                 style={[
-                  semantic.type.label.md,
                   {
                     color: getTextColor(pressed),
                     textDecorationLine: variant === 'link' ? 'underline' : 'none',
@@ -222,7 +267,9 @@ export const Button = ({
               </Text>
             )}
             {icon && iconPosition === 'right' && (
-              <View style={[styles.iconContainer, !isIconOnly && { marginLeft: semantic.space.sm }]}>
+              <View
+                style={[styles.iconContainer, !isIconOnly && { marginLeft: semantic.space.sm }]}
+              >
                 {icon}
               </View>
             )}
@@ -257,4 +304,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 })
-

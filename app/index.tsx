@@ -1,7 +1,9 @@
 import { Redirect } from 'expo-router'
 
 const Index = () => {
-  return <Redirect href="/(auth)/session-restoring" />
+  // Redirect to (app) — if unauthenticated, (app)/_layout.tsx will redirect to auth
+  // This ensures authenticated users land on the app, not the login screen
+  return <Redirect href="/(app)" />
 }
 
 export default Index

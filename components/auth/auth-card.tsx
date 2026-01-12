@@ -20,8 +20,9 @@ export const AuthCard = ({ title, children, footer }: AuthCardProps) => {
           backgroundColor: semantic.color.card.default,
           borderColor: semantic.color.border.default,
           borderRadius: semantic.radius.lg,
-          padding: semantic.space.lg,
+          padding: semantic.space.xl,
           gap: semantic.space.md,
+          ...semantic.elevation[4],
         },
       ]}
     >

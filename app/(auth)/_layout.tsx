@@ -1,13 +1,13 @@
 import { Authenticated, Unauthenticated } from 'convex/react'
 import { Redirect, Stack } from 'expo-router'
-import React from 'react'
-
+import * as WebBrowser from 'expo-web-browser'
+import { Platform } from 'react-native'
+if (Platform.OS !== 'web') {
+  WebBrowser.maybeCompleteAuthSession()
+}
 export const AuthLayout = () => {
   return (
     <>
-      <Authenticated>
-        <Redirect href="/(app)" />
-      </Authenticated>
       <Unauthenticated>
         <Stack
           screenOptions={{
@@ -15,11 +15,14 @@ export const AuthLayout = () => {
             animation: 'none',
           }}
         >
-          <Stack.Screen name="session-restoring" />
           <Stack.Screen name="sign-in" />
-          <Stack.Screen name="sign-up" />
+          <Stack.Screen name="oauth-callback" />
+          <Stack.Screen name="tasks" />
         </Stack>
       </Unauthenticated>
+      <Authenticated>
+        <Redirect href="/(app)" />
+      </Authenticated>
     </>
   )
 }

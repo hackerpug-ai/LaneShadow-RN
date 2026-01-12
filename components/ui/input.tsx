@@ -11,25 +11,31 @@
  * Following coding standards: composition over inheritance, named exports
  */
 
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { useState } from 'react'
-import type { TextInputProps, ViewStyle } from 'react-native'
+import type { TextInputProps, TextStyle, ViewStyle } from 'react-native'
 import { StyleSheet, TextInput, View } from 'react-native'
+import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 /**
  * Input component props
  */
 export type InputProps = Omit<TextInputProps, 'style'> & {
+  /** Optional label rendered above the input (uppercase, subtle color) */
+  label?: string
   style?: ViewStyle
+  inputStyle?: TextStyle
   error?: boolean
 }
 
 /**
  * Input component using semantic theme
- * Supports focus states and disabled styling
+ * Supports focus states, labels, and disabled styling
  */
 export const Input = ({
+  label,
   style,
+  inputStyle,
   error = false,
   editable = true,
   onFocus,
@@ -59,13 +65,13 @@ export const Input = ({
     return semantic.color.border.default
   }
 
-  return (
+  const inputField = (
     <View
       style={[
-        styles.container,
+        styles.inputContainer,
         {
           backgroundColor: semantic.color.input.default,
-          borderRadius: semantic.radius.md,
+          borderRadius: semantic.radius.lg,
           borderWidth: 1,
           borderColor: getBorderColor(),
           opacity: editable ? 1 : 0.5,
@@ -86,20 +92,44 @@ export const Input = ({
         style={[
           semantic.type.body.md,
           {
-            height: 40,
-            paddingHorizontal: semantic.space.md,
-            paddingVertical: semantic.space.sm,
+            height: semantic.space['3xl'],
+            paddingHorizontal: semantic.space.lg,
+            paddingVertical: semantic.space.xs,
             color: semantic.color.onSurface.default,
           },
+          inputStyle,
         ]}
       />
+    </View>
+  )
+
+  if (!label) {
+    return inputField
+  }
+
+  return (
+    <View style={styles.wrapper}>
+      <Text
+        variant="labelSmall"
+        style={{
+          color: semantic.color.onSurface.subtle,
+          textTransform: 'uppercase',
+          paddingLeft: semantic.space.xs,
+        }}
+      >
+        {label}
+      </Text>
+      {inputField}
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
+  wrapper: {
+    width: '100%',
+    gap: 4,
+  },
+  inputContainer: {
     width: '100%',
   },
 })
-

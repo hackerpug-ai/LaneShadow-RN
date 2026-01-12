@@ -1,22 +1,27 @@
-import * as SecureStore from 'expo-secure-store'
 import type { TokenCache } from '@clerk/clerk-expo'
-
-const storeKey = async (key: string, value: string | null): Promise<void> => {
-  if (value === null) {
-    await SecureStore.deleteItemAsync(key)
-    return
-  }
-  await SecureStore.setItemAsync(key, value)
-}
+import * as SecureStore from 'expo-secure-store'
 
 export const clerkTokenCache: TokenCache = {
-  getToken: async (key: string): Promise<string | null> => {
-    return SecureStore.getItemAsync(key)
+  async getToken(key: string): Promise<string | null> {
+    try {
+      return await SecureStore.getItemAsync(key)
+    } catch (error) {
+      console.error('❌ Error retrieving token from SecureStore:', error)
+      return null
+    }
   },
-  saveToken: async (key: string, value: string): Promise<void> => {
-    await storeKey(key, value)
+  async saveToken(key: string, value: string): Promise<void> {
+    try {
+      await SecureStore.setItemAsync(key, value)
+    } catch (error) {
+      console.error('❌ Error saving token to SecureStore:', error)
+    }
   },
-  clearToken: async (key: string): Promise<void> => {
-    await storeKey(key, null)
+  async clearToken(key: string): Promise<void> {
+    try {
+      await SecureStore.deleteItemAsync(key)
+    } catch (error) {
+      console.error('❌ Error clearing token from SecureStore:', error)
+    }
   },
 }

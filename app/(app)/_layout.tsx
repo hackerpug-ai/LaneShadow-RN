@@ -1,17 +1,25 @@
+import { useAuth } from '@clerk/clerk-expo'
 import { Authenticated, Unauthenticated } from 'convex/react'
 import { Redirect, Stack } from 'expo-router'
-import React from 'react'
 
 export const AppLayout = () => {
+  const { sessionId } = useAuth()
+  console.log('app sessionId', sessionId)
+  // return (
+  //   <View>
+  //     <Text>App Layout</Text>
+  //   </View>
+  // )
   return (
     <>
       <Unauthenticated>
-        <Redirect href="/(auth)" />
+        <Redirect href="/(auth)/sign-in" />
       </Unauthenticated>
       <Authenticated>
         <Stack
           screenOptions={{
             headerShown: false,
+            animation: 'none',
           }}
         />
       </Authenticated>
@@ -20,20 +28,3 @@ export const AppLayout = () => {
 }
 
 export default AppLayout
-/**
- * App Layout
- * Layout for authenticated routes
- */
-
-import { Stack } from 'expo-router'
-import React from 'react'
-
-export default function AppLayout() {
-  return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    />
-  )
-}
