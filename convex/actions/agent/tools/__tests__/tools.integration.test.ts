@@ -1,11 +1,11 @@
 import type { RouteSketch } from '../../../../../models/route-sketch'
 import type { PlanInput } from '../../../../../models/saved-routes'
-import { createWeatherProvider } from '../../providers/weather-provider'
-import { compileSketch } from '../compile-sketch'
-import { computeRouteIndex } from '../compute-route-index'
-import { mapConditions } from '../map-conditions'
-import { normalizeRoute } from '../normalize-route'
-import { probeConditions } from '../probe-conditions'
+import { createWeatherProvider } from '../../providers/weather_provider'
+import { compileSketch } from '../compile_sketch'
+import { computeRouteIndex } from '../compute_route_index'
+import { mapConditions } from '../map_conditions'
+import { normalizeRoute } from '../normalize_route'
+import { probeConditions } from '../probe_conditions'
 
 const planInput: PlanInput = {
   start: { lat: 37.0, lng: -122.0, label: 'Start', placeId: 'start' },
@@ -88,7 +88,6 @@ const makeIntegrationFetch = (): jest.Mock => {
 
 describe('agent tools integration', () => {
   beforeEach(() => {
-    process.env.ROUTING_PROVIDER_NAME = 'google'
     process.env.GOOGLE_MAPS_API_KEY = 'test-google-key'
     ;(globalThis as any).fetch = makeIntegrationFetch()
   })

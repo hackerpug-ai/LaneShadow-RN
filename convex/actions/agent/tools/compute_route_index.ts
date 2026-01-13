@@ -1,3 +1,5 @@
+'use node'
+"use node";
 import type { RouteIndex, RouteSnapshot } from '../../../../models/saved-routes'
 
 const FNV_OFFSET = 0x811c9dc5

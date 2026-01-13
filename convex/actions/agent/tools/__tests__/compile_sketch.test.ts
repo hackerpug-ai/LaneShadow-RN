@@ -1,6 +1,6 @@
 import type { RouteSketch } from '../../../../../models/route-sketch'
 import type { PlanInput } from '../../../../../models/saved-routes'
-import { compileSketch } from '../compile-sketch'
+import { compileSketch } from '../compile_sketch'
 
 const mockGoogleRoutesOkFetch = (): jest.Mock => {
   const json = {
@@ -54,7 +54,6 @@ describe('compileSketch', () => {
   }
 
   beforeEach(() => {
-    process.env.ROUTING_PROVIDER_NAME = 'google'
     process.env.GOOGLE_MAPS_API_KEY = 'test-google-key'
     ;(globalThis as any).fetch = mockGoogleRoutesOkFetch()
   })

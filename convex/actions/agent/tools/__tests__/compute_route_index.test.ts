@@ -1,5 +1,5 @@
 import type { RouteSnapshot } from '../../../../../models/saved-routes'
-import { computeRouteIndex } from '../compute-route-index'
+import { computeRouteIndex } from '../compute_route_index'
 
 const makeSnapshot = (legsCount: number): RouteSnapshot => {
   const legs = Array.from({ length: legsCount }).map((_, idx) => ({

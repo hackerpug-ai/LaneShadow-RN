@@ -21,14 +21,7 @@ const optionalEnv = (key: string): string | undefined => {
 }
 
 /**
- * Routing provider optional configuration.
- * Keep add-only; real provider wiring can consume these in the future.
- */
-export const ROUTING_PROVIDER_API_KEY = optionalEnv('ROUTING_PROVIDER_API_KEY')
-export const ROUTING_PROVIDER_NAME = optionalEnv('ROUTING_PROVIDER_NAME')
-
-/**
  * Google Routes API (Directions v2) key.
- * Required only if routing provider is set to `google`.
+ * Required for Epic 1 Sprint 3 routing (Google-only).
  */
 export const GOOGLE_MAPS_API_KEY = optionalEnv('GOOGLE_MAPS_API_KEY')

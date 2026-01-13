@@ -1,10 +1,7 @@
+'use node'
 import type { RouteSketch } from '../../../../models/route-sketch'
 import type { PlanInput } from '../../../../models/saved-routes'
-import {
-  GOOGLE_MAPS_API_KEY,
-  ROUTING_PROVIDER_API_KEY,
-  ROUTING_PROVIDER_NAME,
-} from '../../../lib/env'
+import { GOOGLE_MAPS_API_KEY } from '../../../lib/env'
 
 export type ProviderLatLng = { lat: number; lng: number }
 
@@ -41,11 +38,6 @@ export type RoutingProvider = {
     planInput: PlanInput
     sketch: RouteSketch
   }) => Promise<ProviderRouteResponse>
-}
-
-export type RoutingProviderConfig = {
-  providerName?: string
-  apiKey?: string
 }
 
 const parseGoogleDurationSeconds = (duration: unknown): number => {
@@ -162,63 +154,11 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
   },
 })
 
-const clampBounds = (points: Array<ProviderLatLng>) => {
-  const north = Math.max(...points.map((p) => p.lat))
-  const south = Math.min(...points.map((p) => p.lat))
-  const east = Math.max(...points.map((p) => p.lng))
-  const west = Math.min(...points.map((p) => p.lng))
-  return { north, south, east, west }
-}
-
-const createMockGeometry = (
-  start: ProviderLatLng,
-  end: ProviderLatLng
-): ProviderPolylineGeometry => {
-  // Deterministic, placeholder polyline (not geospatially accurate, but stable)
-  return {
-    format: 'polyline',
-    encoding: 'mock_polyline',
-    precision: 5,
-    value: `${start.lat.toFixed(3)},${start.lng.toFixed(3)};${end.lat.toFixed(3)},${end.lng.toFixed(3)}`,
+export const createRoutingProvider = (): RoutingProvider => {
+  // Sprint 3 scope: Google only. If we add providers later, do so behind this factory
+  // without exposing configuration knobs at call sites.
+  if (!GOOGLE_MAPS_API_KEY) {
+    throw new Error('Missing required environment variable: GOOGLE_MAPS_API_KEY')
   }
-}
-
-const createMockProvider = (providerName: string): RoutingProvider => ({
-  routeFromSketch: async ({ planInput }): Promise<ProviderRouteResponse> => {
-    const start = { lat: planInput.start.lat, lng: planInput.start.lng }
-    const end = { lat: planInput.end.lat, lng: planInput.end.lng }
-    const geometry = createMockGeometry(start, end)
-
-    const leg: ProviderLeg = {
-      legIndex: 0,
-      start,
-      end,
-      distanceMeters: 50_000,
-      durationSeconds: 3_600,
-      geometry,
-    }
-
-    return {
-      provider: providerName,
-      bounds: clampBounds([start, end]),
-      overviewGeometry: geometry,
-      legs: [leg],
-    }
-  },
-})
-
-export const createRoutingProvider = (config?: RoutingProviderConfig): RoutingProvider => {
-  const name = config?.providerName ?? ROUTING_PROVIDER_NAME ?? 'mock-routing'
-  const apiKey = config?.apiKey ?? ROUTING_PROVIDER_API_KEY
-
-  if (name === 'google') {
-    const googleKey = apiKey ?? GOOGLE_MAPS_API_KEY
-    if (!googleKey) {
-      throw new Error('Missing required environment variable: GOOGLE_MAPS_API_KEY')
-    }
-    return createGoogleProvider(googleKey)
-  }
-
-  // Default: deterministic mock provider. Add other providers here later.
-  return createMockProvider(name)
+  return createGoogleProvider(GOOGLE_MAPS_API_KEY)
 }

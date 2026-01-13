@@ -1,6 +1,8 @@
+'use node'
 import type { RouteSketch } from '../../../../models/route-sketch'
 import type { PlanInput } from '../../../../models/saved-routes'
-import { createRoutingProvider, type ProviderRouteResponse } from '../providers/routing-provider'
+import { retryOnce, withTimeout } from '../lib/reliability'
+import { createRoutingProvider, type ProviderRouteResponse } from '../providers/routing_provider'
 
 type Waypoint = {
   lat: number
@@ -32,21 +34,30 @@ const buildWaypoints = (planInput: PlanInput, sketch: RouteSketch): Array<Waypoi
 
 export type CompileSketchResult = ProviderRouteResponse
 
+const ROUTING_TIMEOUT_MS = 25_000
+
 export const compileSketch = async (params: {
   planInput: PlanInput
   sketch: RouteSketch
 }): Promise<CompileSketchResult> => {
-  const provider = createRoutingProvider({ providerName: 'google' })
+  const provider = createRoutingProvider()
   try {
     // Map sketch + plan input to provider-level waypoints; provider may use this in the future
     const waypoints = buildWaypoints(params.planInput, params.sketch)
     // For the mock provider, waypoints are not yet consumed, but keep the call signature future-proof
     void waypoints
 
-    return await provider.routeFromSketch({
-      planInput: params.planInput,
-      sketch: params.sketch,
-    })
+    const runOnce = () =>
+      withTimeout(
+        () =>
+          provider.routeFromSketch({
+            planInput: params.planInput,
+            sketch: params.sketch,
+          }),
+        { ms: ROUTING_TIMEOUT_MS, label: 'routing' }
+      )
+
+    return await retryOnce(runOnce)
   } catch (error) {
     console.error('compileSketch failed', error)
     throw new Error('ROUTING_COMPILE_FAILED')

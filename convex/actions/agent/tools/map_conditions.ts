@@ -1,3 +1,4 @@
+"use node";
 import type {
   RouteIndex,
   RouteSnapshot,
@@ -6,7 +7,7 @@ import type {
   WindOverlayByLeg,
   WindOverlaySegment,
 } from '../../../../models/saved-routes'
-import type { ProbedWindPoint } from './probe-conditions'
+import type { ProbedWindPoint } from './probe_conditions'
 
 const MODEL_VERSION = 'open-meteo:v1'
 
@@ -95,7 +96,7 @@ export const mapConditions = ({
   probed,
 }: MapConditionsParams): WindOverlay => {
   if (!probed.length) {
-    throw new Error('No probed wind points to map')
+    throw new Error('CONDITIONS_LOOKUP_FAILED')
   }
 
   const offsets = buildLegOffsets(routeSnapshot)
