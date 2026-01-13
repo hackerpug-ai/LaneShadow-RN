@@ -1,6 +1,6 @@
 'use node'
 import type { RouteIndex, RouteIndexPoint } from '../../../../models/saved-routes'
-import type { WeatherProvider, WindSample } from '../providers/weather_provider'
+import type { WeatherProvider, WindSample } from '../providers/weatherProvider'
 
 const MAX_PROBES = 25
 

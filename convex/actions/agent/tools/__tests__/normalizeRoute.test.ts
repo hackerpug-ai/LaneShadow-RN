@@ -1,6 +1,6 @@
 import type { PlanInput } from '../../../../../models/saved-routes'
-import type { ProviderRouteResponse } from '../../providers/routing_provider'
-import { normalizeRoute } from '../normalize_route'
+import type { ProviderRouteResponse } from '../../providers/routingProvider'
+import { normalizeRoute } from '../normalizeRoute'
 
 describe('normalizeRoute', () => {
   const planInput: PlanInput = {

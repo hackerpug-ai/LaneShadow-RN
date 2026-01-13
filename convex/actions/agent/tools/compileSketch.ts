@@ -2,7 +2,7 @@
 import type { RouteSketch } from '../../../../models/route-sketch'
 import type { PlanInput } from '../../../../models/saved-routes'
 import { retryOnce, withTimeout } from '../lib/reliability'
-import { createRoutingProvider, type ProviderRouteResponse } from '../providers/routing_provider'
+import { createRoutingProvider, type ProviderRouteResponse } from '../providers/routingProvider'
 
 type Waypoint = {
   lat: number

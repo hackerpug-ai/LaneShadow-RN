@@ -59,14 +59,14 @@ const makeGoogleOkFetch = (overrides?: {
   }))
 }
 
-const createProvider = (): import('../routing_provider').RoutingProvider => {
-  // routing_provider reads GOOGLE_MAPS_API_KEY at module init, so set env before importing.
+const createProvider = (): import('../routingProvider').RoutingProvider => {
+  // routingProvider reads GOOGLE_MAPS_API_KEY at module init, so set env before importing.
   process.env.GOOGLE_MAPS_API_KEY = 'test-google-key'
   jest.resetModules()
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { createRoutingProvider } =
-    require('../routing_provider') as typeof import('../routing_provider')
+    require('../routingProvider') as typeof import('../routingProvider')
   return createRoutingProvider()
 }
 

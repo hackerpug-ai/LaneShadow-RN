@@ -7,7 +7,7 @@ import type {
   WindOverlayByLeg,
   WindOverlaySegment,
 } from '../../../../models/saved-routes'
-import type { ProbedWindPoint } from './probe_conditions'
+import type { ProbedWindPoint } from './probeConditions'
 
 const MODEL_VERSION = 'open-meteo:v1'
 

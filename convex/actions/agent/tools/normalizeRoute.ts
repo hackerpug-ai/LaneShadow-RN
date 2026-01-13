@@ -1,7 +1,7 @@
 'use node'
 "use node";
 import type { PlanInput, RouteLeg, RouteSnapshot, RouteStop } from '../../../../models/saved-routes'
-import type { ProviderRouteResponse } from '../providers/routing_provider'
+import type { ProviderRouteResponse } from '../providers/routingProvider'
 
 type NormalizeRouteParams = {
   providerRoute: ProviderRouteResponse

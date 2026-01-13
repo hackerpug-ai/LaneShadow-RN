@@ -1,6 +1,6 @@
 import type { RouteIndex, RouteSnapshot } from '../../../../../models/saved-routes'
-import { mapConditions } from '../map_conditions'
-import type { ProbedWindPoint } from '../probe_conditions'
+import { mapConditions } from '../mapConditions'
+import type { ProbedWindPoint } from '../probeConditions'
 
 const makeSnapshot = (): RouteSnapshot => ({
   provider: 'mock',

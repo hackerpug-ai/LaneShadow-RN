@@ -1,6 +1,6 @@
 import type { RouteIndex, RouteIndexPoint } from '../../../../../models/saved-routes'
-import { createWeatherProvider } from '../../providers/weather_provider'
-import { probeConditions } from '../probe_conditions'
+import { createWeatherProvider } from '../../providers/weatherProvider'
+import { probeConditions } from '../probeConditions'
 
 const makePoints = (count: number): Array<RouteIndexPoint> =>
   Array.from({ length: count }).map((_, i) => ({

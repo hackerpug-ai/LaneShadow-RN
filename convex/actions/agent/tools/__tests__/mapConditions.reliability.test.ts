@@ -1,5 +1,5 @@
 import type { RouteSnapshot, RouteIndex } from '../../../../../models/saved-routes'
-import { mapConditions } from '../map_conditions'
+import { mapConditions } from '../mapConditions'
 
 const snapshot: RouteSnapshot = {
   provider: 'mock',

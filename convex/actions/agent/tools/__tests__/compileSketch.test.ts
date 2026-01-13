@@ -1,6 +1,6 @@
 import type { RouteSketch } from '../../../../../models/route-sketch'
 import type { PlanInput } from '../../../../../models/saved-routes'
-import { compileSketch } from '../compile_sketch'
+import { compileSketch } from '../compileSketch'
 
 const mockGoogleRoutesOkFetch = (): jest.Mock => {
   const json = {

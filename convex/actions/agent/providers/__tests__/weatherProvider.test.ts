@@ -1,5 +1,5 @@
 import * as reliability from '../../lib/reliability'
-import { createWeatherProvider } from '../weather_provider'
+import { createWeatherProvider } from '../weatherProvider'
 
 const departureTimeMs = Date.UTC(2026, 0, 13, 12, 0, 0)
 
