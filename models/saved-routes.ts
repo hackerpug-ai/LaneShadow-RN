@@ -1,4 +1,5 @@
 import { Infer, v } from 'convex/values'
+import { z } from 'zod'
 
 export const OWNER_TYPE = {
   USER: 'user',
@@ -54,6 +55,12 @@ export const planPreferencesValidator = v.object({
 })
 export type PlanPreferences = Infer<typeof planPreferencesValidator>
 
+export const agentPlanPreferencesSchema = z.object({
+  scenicBias: z.union([z.literal(SCENIC_BIAS.DEFAULT), z.literal(SCENIC_BIAS.HIGH)]),
+  avoidHighways: z.boolean().optional(),
+  avoidTolls: z.boolean().optional(),
+})
+
 export const planInputValidator = v.object({
   start: routeStopValidator,
   end: routeStopValidator,
@@ -61,6 +68,20 @@ export const planInputValidator = v.object({
   preferences: planPreferencesValidator,
 })
 export type PlanInput = Infer<typeof planInputValidator>
+
+export const agentRouteStopSchema = z.object({
+  lat: z.number(),
+  lng: z.number(),
+  label: z.string().optional(),
+  placeId: z.string().optional(),
+})
+
+export const agentPlanInputSchema = z.object({
+  start: agentRouteStopSchema,
+  end: agentRouteStopSchema,
+  departureTime: z.number(),
+  preferences: agentPlanPreferencesSchema,
+})
 
 export const polylineGeometryValidator = v.object({
   format: v.literal('polyline'),

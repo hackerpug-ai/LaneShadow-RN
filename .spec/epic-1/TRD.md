@@ -225,7 +225,8 @@ convex/actions/agent/
 ```
 
 **Public Action**
-- planRide (action)
+- `convex/actions/agent/planRide.ts`
+  - planRide (action)
 
 **Supporting Modules**
 - llm/routerAgent.ts
@@ -236,6 +237,25 @@ convex/actions/agent/
 - tools/verifyIntent.ts (optional)
 - providers/routingProvider.ts
 - providers/weatherProvider.ts
+
+**Optional actions (POC)**
+- `convex/actions/places.ts`
+  - autocomplete (action)
+  - getPlaceDetail (action)
+
+#### 4.2.1 Reliability + determinism requirements (agentic pipeline)
+
+This project’s “agent standards” apply to Epic 1 planning actions:
+
+- **Deterministic tools**: Non-LLM “tools” should be pure/deterministic given inputs (e.g., normalization, route indexing, overlay mapping).
+- **Structured outputs only**: Any LLM output consumed by code must be structured JSON and validated before use (Convex `v` is canonical; Zod may be used at the agent boundary).
+- **External call budgets**: Bound fan-out and request volume (TRD §9); cap probe points and route options.
+- **Timeouts + bounded retries**:
+  - External provider calls (LLM, routing, weather) should have timeouts.
+  - Apply **at most 1 retry per failure type**, then **fallback**:
+    - **Routing/LLM hard failures**: discard candidate or fail with a deterministic error code (TRD §11).
+    - **Conditions soft failures**: proceed with `conditionsStatus: "unavailable"` and omit `overlays.wind` (TRD §6.2.10).
+- **Explicit error behavior**: Prefer deterministic error codes (TRD §11) over free-form error messages.
 
 ---
 

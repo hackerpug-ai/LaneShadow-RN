@@ -6,11 +6,12 @@
 When you @mention me, I will IMMEDIATELY execute this sequence:
 
 1. **Read Agent Rules**: `.cursor/rules/agent_rules.mdc`
-2. **Read Convex Rules**: `.cursor/rules/convex_rules.mdc`
-3. **Read Coding Standards**: `.cursor/rules/coding_standards.mdc`
-4. **Read Current Sprint Standup Log**: `.spec/epic-[X]/sprints/sprint-[XX]/standup.md` (where [X] is epic number, [XX] is sprint number)
-5. **Orient**: Identify current status, incomplete acceptance criteria, tests status, and next actions
-6. **Proceed**: Follow coordination procedures from agent_rules.mdc
+2. **Read Agent Engineering Rules**: `.cursor/rules/agent_engineering_rules.mdc`
+3. **Read Convex Rules**: `.cursor/rules/convex_rules.mdc`
+4. **Read Coding Standards**: `.cursor/rules/coding_standards.mdc`
+5. **Read Current Sprint Standup Log**: `.spec/epic-[X]/sprints/sprint-[XX]/standup.md` (where [X] is epic number, [XX] is sprint number)
+6. **Orient**: Identify current status, incomplete acceptance criteria, tests status, and next actions
+7. **Proceed**: Follow coordination procedures from agent_rules.mdc
 
 **Usage**: `@backend-engineer work on Epic 2 Sprint 1` → I read all rules, then epic-2/sprints/sprint-1/standup.md, then begin work.
 

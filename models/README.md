@@ -4,6 +4,21 @@ This directory contains all shared data models using a **Convex validator-first*
 
 ## Pattern: `v` First (Models are Convex Validators)
 
+## Agent/LLM Schema Add-on: Co-located Zod Schemas (LangChain tools/agents)
+
+When a model shape is passed into the LangChain agent/tool layer (e.g. `PlanInput`, `RouteSketch`), we also define a **Zod** schema in the **same file** as the Convex `v` validator.
+
+- **Convex `v` remains the source of truth** (schema + server function validators)
+- **Zod is used for LangChain tool schemas / structured output** (agent reliability)
+- **Co-location rule**: do **not** create separate `*.zod.ts` files; export Zod schemas from the same `models/*.ts` file.
+
+Example (conceptual):
+- `models/saved-routes.ts` exports both:
+  - `planInputValidator` (Convex `v`)
+  - `agentPlanInputSchema` (Zod, agent/tool boundary)
+
+This aligns with LangChain’s JS agent + tool patterns (agents created via `createAgent`, tools defined with schemas) described in the [LangChain JS overview](http://docs.langchain.com/oss/javascript/langchain/overview).
+
 All models define:
 1. **Field validators** (e.g., `USER_FIELDS`) - source of truth
 2. **Convex object validator** (e.g., `userValidator`) - used in schema + server functions

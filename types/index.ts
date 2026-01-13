@@ -52,4 +52,10 @@ export type {
   TypographyStyle,
 } from '../styles/types'
 
+export type {
+  RouteSketch,
+  RouteSketchAnchorPoint,
+  RouteSketchSegment,
+} from '../models/route-sketch'
+
 export * from './routes'

@@ -1,3 +1,8 @@
+---
+name: infrastructure-engineer
+model: fast
+---
+
 # Infrastructure Engineer - Agent Profile
 
 ## ⚠️ BOOT SEQUENCE - Execute Immediately When Invoked

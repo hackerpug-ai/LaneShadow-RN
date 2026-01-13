@@ -6,6 +6,11 @@
   - ✅ Sprint 1 complete (infra: theming + auth + data modeling)
   - Next: Sprint 2 (Backend APIs: saved routes + plan init)
 
+**Implementation reality check (repo)**
+- The public DB API surface for Epic 1 exists (`convex/db/routesPlan.ts`, `convex/db/savedRoutes.ts`).
+- The **public planning action is still missing** and is the key remaining backend gap:
+  - **Missing**: `convex/actions/agent/planRide.ts` exporting `planRide` (TRD §4.2 / §4.3.6)
+
 ## Scope summary (what must be complete by final sprint)
 
 - **Backend (Convex)**:
@@ -169,7 +174,7 @@ To validate Epic 1 end-to-end (planning → route overview → save → reopen),
 
 ## Sprint 2 — Backend APIs: saved routes + plan init (view-model queries/mutations)
 
-**Status**: ⏳ **Planned**
+**Status**: Done
 
 **Goal**: Implement the full public DB API surface for saved routes + plan init, returning UI-shaped view models per TRD §4.3.5 (using shared types from §4.3.4).
 
@@ -209,6 +214,11 @@ Also:
   - Compute `routeIndex` (TRD §3.4)
   - Conditions probing / wind overlay mapping with soft-fail support (TRD §6.2.10)
   - Error codes per TRD §11 (INVALID_INPUT, LLM_SKETCH_INVALID/AMBIGUOUS, ROUTING_COMPILE_FAILED, CONDITIONS_LOOKUP_FAILED)
+- Implement **reliability standards** for the agentic pipeline (TRD §4.2.1):
+  - timeouts for external calls (LLM / routing / weather)
+  - bounded concurrency + bounded fan-out
+  - retry-once policy with explicit fallback behavior
+  - deterministic error-code semantics (no free-form throw strings in leaf tools)
 - Ensure planning is bounded (max 2–3 options) and avoids excessive action→query/mutation fan-out (Convex best practices).
 
 **Acceptance criteria**
