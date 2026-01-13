@@ -17,11 +17,14 @@ export const AppLayout = () => {
       </Unauthenticated>
       <Authenticated>
         <Stack
+          initialRouteName="(tabs)"
           screenOptions={{
             headerShown: false,
             animation: 'none',
           }}
-        />
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'none' }} />
+        </Stack>
       </Authenticated>
     </>
   )

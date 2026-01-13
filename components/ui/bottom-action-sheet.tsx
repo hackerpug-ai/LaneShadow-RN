@@ -6,56 +6,101 @@
  * Following theme_rules.mdc
  */
 
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet'
+import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet'
 import type { ReactNode } from 'react'
-import { StyleSheet } from 'react-native'
-import { Modal, Portal } from 'react-native-paper'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 export type BottomActionSheetProps = {
   visible: boolean
   onDismiss: () => void
   children: ReactNode
+  /**
+   * Snap points for the bottom sheet. Can be percentages ('90%') or pixel values (600).
+   * Defaults to ['90%'] for full-screen-like behavior.
+   */
+  snapPoints?: Array<string | number>
+  /**
+   * For scrollable Gorhom components (BottomSheetScrollView/FlatList/SectionList),
+   * set wrapChildren to false so those components can manage gestures.
+   */
+  /**
+   * Optional testID applied when wrapChildren=true (on the BottomSheetView). For scrollable
+   * content (wrapChildren=false), attach a testID to the scrollable component directly.
+   */
   testID?: string
+  wrapChildren?: boolean
 }
 
+/**
+ * Low-level Gorhom bottom sheet primitive used throughout the app.
+ * Uses stackBehavior="push" to allow sheet-to-sheet stacking.
+ */
 export const BottomActionSheet = ({
   visible,
   onDismiss,
   children,
+  snapPoints: customSnapPoints,
+  wrapChildren = true,
   testID,
 }: BottomActionSheetProps) => {
   const { semantic } = useSemanticTheme()
-  const insets = useSafeAreaInsets()
+  const bottomSheetRef = useRef<BottomSheetModal>(null)
+  const isPresented = useRef(false)
+
+  const snapPoints = useMemo(() => customSnapPoints || ['90%'], [customSnapPoints])
+
+  useEffect(() => {
+    if (visible && !isPresented.current) {
+      bottomSheetRef.current?.present()
+      isPresented.current = true
+    } else if (!visible && isPresented.current) {
+      bottomSheetRef.current?.dismiss()
+      isPresented.current = false
+    }
+  }, [visible])
+
+  const handleDismiss = useCallback(() => {
+    isPresented.current = false
+    onDismiss()
+  }, [onDismiss])
+
+  const renderBackdrop = useCallback(
+    (props: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        opacity={0.5}
+        pressBehavior="close"
+      />
+    ),
+    []
+  )
 
   return (
-    <Portal>
-      <Modal
-        visible={visible}
-        onDismiss={onDismiss}
-        contentContainerStyle={[
-          styles.container,
-          {
-            backgroundColor: semantic.color.surface.default,
-            borderTopLeftRadius: semantic.radius.xl,
-            borderTopRightRadius: semantic.radius.xl,
-            padding: semantic.space.lg,
-            paddingBottom: insets.bottom + Number(semantic.space.lg),
-          },
-        ]}
-        testID={testID}
-      >
-        {children}
-      </Modal>
-    </Portal>
+    <BottomSheetModal
+      ref={bottomSheetRef}
+      index={0}
+      snapPoints={snapPoints}
+      enablePanDownToClose
+      enableDismissOnClose
+      stackBehavior="push"
+      onDismiss={handleDismiss}
+      backdropComponent={renderBackdrop}
+      backgroundStyle={{
+        backgroundColor: semantic.color.surface.default,
+      }}
+      handleComponent={() => null}
+    >
+      {wrapChildren ? (
+        <BottomSheetView style={{ flex: 1 }} testID={testID}>
+          {children}
+        </BottomSheetView>
+      ) : (
+        children
+      )}
+    </BottomSheetModal>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-})

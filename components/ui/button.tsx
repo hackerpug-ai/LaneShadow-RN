@@ -11,7 +11,7 @@
  * Following coding standards: composition over inheritance, named exports
  */
 
-import type { TextStyle, ViewStyle } from 'react-native'
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -48,9 +48,10 @@ export type ButtonProps = {
   children?: React.ReactNode
   icon?: React.ReactNode
   iconPosition?: 'left' | 'right'
-  style?: ViewStyle
-  textStyle?: TextStyle
+  style?: StyleProp<ViewStyle>
+  textStyle?: StyleProp<TextStyle>
   accessibilityLabel?: string
+  testID?: string
 }
 
 /**
@@ -69,6 +70,7 @@ export const Button = ({
   style,
   textStyle,
   accessibilityLabel,
+  testID,
 }: ButtonProps): React.ReactNode => {
   const { semantic } = useSemanticTheme()
 
@@ -173,25 +175,29 @@ export const Button = ({
 
   // Get text color based on variant and state
   const getTextColor = (pressed: boolean): string => {
+    const onPrimaryText = semantic.color.onSurface.default
+    const onSurfaceText = semantic.color.onSurface.default
+    const onSecondaryText = semantic.color.onSecondary?.default || onPrimaryText
+
     if (disabled) {
-      return semantic.color.onSurface.disabled || semantic.color.onSurface.default
+      return semantic.color.onSurface.disabled || onSurfaceText
     }
 
     switch (variant) {
       case 'glass':
-        return semantic.color.onSurface.default
+        return onSurfaceText
       case 'secondary':
-        return semantic.color.onSecondary.default
+        return onSecondaryText
       case 'outline':
-        return pressed ? semantic.color.accent.default : semantic.color.onSurface.default
+        return pressed ? semantic.color.accent.default : onSurfaceText
       case 'ghost':
-        return pressed ? semantic.color.accent.default : semantic.color.onSurface.default
+        return pressed ? semantic.color.accent.default : onSurfaceText
       case 'link':
         return semantic.color.primary.default
       case 'destructive':
-        return semantic.color.onPrimary.default
+        return onPrimaryText
       default:
-        return semantic.color.onPrimary.default
+        return onPrimaryText
     }
   }
 
