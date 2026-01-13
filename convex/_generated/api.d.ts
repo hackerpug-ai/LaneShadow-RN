@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as actions_agent_graphs_planningGraph from "../actions/agent/graphs/planningGraph.js";
 import type * as actions_agent_lib_reliability from "../actions/agent/lib/reliability.js";
+import type * as actions_agent_lib_tracing from "../actions/agent/lib/tracing.js";
 import type * as actions_agent_planRide from "../actions/agent/planRide.js";
 import type * as actions_agent_providers_routingProvider from "../actions/agent/providers/routingProvider.js";
 import type * as actions_agent_providers_weatherProvider from "../actions/agent/providers/weatherProvider.js";
@@ -44,6 +45,7 @@ import type * as users from "../users.js";
 declare const fullApi: ApiFromModules<{
   "actions/agent/graphs/planningGraph": typeof actions_agent_graphs_planningGraph;
   "actions/agent/lib/reliability": typeof actions_agent_lib_reliability;
+  "actions/agent/lib/tracing": typeof actions_agent_lib_tracing;
   "actions/agent/planRide": typeof actions_agent_planRide;
   "actions/agent/providers/routingProvider": typeof actions_agent_providers_routingProvider;
   "actions/agent/providers/weatherProvider": typeof actions_agent_providers_weatherProvider;

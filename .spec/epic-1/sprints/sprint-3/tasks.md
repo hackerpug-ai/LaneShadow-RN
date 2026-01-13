@@ -242,9 +242,9 @@
   - conditions failures must remain **soft-fail** (return routes with `conditionsStatus: "unavailable"`).
 
 #### Acceptance Criteria
-- [ ] External calls used by Sprint 3 planning have timeouts and bounded concurrency.
-- [ ] Retry-once behavior is implemented and documented for provider failures.
-- [ ] Error behavior is deterministic (TRD §11 codes); soft-fail conditions behavior is preserved.
+- [x] External calls used by Sprint 3 planning have timeouts and bounded concurrency.
+- [x] Retry-once behavior is implemented and documented for provider failures.
+- [x] Error behavior is deterministic (TRD §11 codes); soft-fail conditions behavior is preserved.
 
 #### Files to Modify (expected)
 - `convex/actions/agent/providers/weather-provider.ts`
@@ -311,10 +311,12 @@
 
 #### Files to Create / Modify
 - **Create**: `convex/actions/agent/planRide.ts`
-- **Create**: `convex/actions/agent/llm/routerAgent.ts` (LangChain agent via `createAgent`)
+- **Create**: `convex/actions/agent/graphs/planningGraph.ts` (LangGraph StateGraph with structured LLM output via `model.withStructuredOutput()`)
 - **Modify**: `models/route-sketch.ts` (add co-located Zod schema for structured output, if not already done in Task 02)
 - **Modify (optional, but likely needed)**: `models/saved-routes.ts` (add co-located Zod schema for `PlanInput`/nested shapes used as LangChain tool schemas)
 - **Create (if needed)**: `convex/actions/agent/tools/geocode-anchors.ts` (only if you choose to expose geocoding as a LangChain `tool`)
+
+> **Implementation Note**: Original design called for `llm/routerAgent.ts` using LangChain's `createAgent`. Refactored to LangGraph `StateGraph` in `graphs/planningGraph.ts` for clearer separation of probabilistic (LLM) and deterministic (tools) logic, and to support LangSmith observability.
 
 ---
 

@@ -61,12 +61,12 @@ const makeProbed = (levels: Array<'low' | 'moderate' | 'high'>): Array<ProbedWin
 }
 
 describe('mapConditions', () => {
-  it('returns overlay with legend and segments bounded to leg distance', () => {
+  it('returns overlay with legend and segments bounded to leg distance', async () => {
     const snapshot = makeSnapshot()
     const index = makeIndex()
     const probed = makeProbed(['low', 'moderate', 'high'])
 
-    const overlay = mapConditions({ routeSnapshot: snapshot, routeIndex: index, probed })
+    const overlay = await mapConditions({ routeSnapshot: snapshot, routeIndex: index, probed })
 
     expect(overlay.legend.map((l) => l.level)).toEqual(
       expect.arrayContaining(['low', 'moderate', 'high'])
@@ -82,21 +82,21 @@ describe('mapConditions', () => {
     })
   })
 
-  it('merges adjacent segments with same level', () => {
+  it('merges adjacent segments with same level', async () => {
     const snapshot = makeSnapshot()
     const index = makeIndex()
     // All points same level -> should merge to 1 segment
     const probed = makeProbed(['moderate', 'moderate', 'moderate'])
-    const overlay = mapConditions({ routeSnapshot: snapshot, routeIndex: index, probed })
+    const overlay = await mapConditions({ routeSnapshot: snapshot, routeIndex: index, probed })
     const leg = overlay.byLeg[0]
     expect(leg.segments.length).toBe(1)
   })
 
-  it('throws on empty probed', () => {
+  it('throws on empty probed', async () => {
     const snapshot = makeSnapshot()
     const index = makeIndex()
-    expect(() =>
+    await expect(
       mapConditions({ routeSnapshot: snapshot, routeIndex: index, probed: [] })
-    ).toThrow()
+    ).rejects.toThrow()
   })
 })

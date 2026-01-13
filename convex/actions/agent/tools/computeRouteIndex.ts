@@ -1,6 +1,7 @@
 'use node'
-"use node";
+
 import type { RouteIndex, RouteSnapshot } from '../../../../models/saved-routes'
+import { traceableToolSync } from '../lib/tracing'
 
 const FNV_OFFSET = 0x811c9dc5
 const FNV_PRIME = 0x01000193
@@ -77,7 +78,7 @@ const allocatePointsPerLeg = (
   return allocations
 }
 
-export const computeRouteIndex = (routeSnapshot: RouteSnapshot): RouteIndex => {
+const computeRouteIndexImpl = (routeSnapshot: RouteSnapshot): RouteIndex => {
   const fingerprintInput = buildFingerprintInput(routeSnapshot)
   const routeFingerprint = `fnv1a:${fnv1a32(fingerprintInput)}`
 
@@ -167,3 +168,9 @@ export const computeRouteIndex = (routeSnapshot: RouteSnapshot): RouteIndex => {
 
   return { routeFingerprint, sampledPoints: points }
 }
+
+export const computeRouteIndex = traceableToolSync(computeRouteIndexImpl, {
+  name: 'computeRouteIndex',
+  runType: 'tool',
+  tags: ['planRide', 'routing'],
+})

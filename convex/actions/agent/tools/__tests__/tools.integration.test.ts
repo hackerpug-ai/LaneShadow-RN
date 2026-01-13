@@ -103,13 +103,13 @@ describe('agent tools integration', () => {
     expect(providerRoute.overviewGeometry.value).toBeDefined()
 
     // normalize provider output
-    const snapshot = normalizeRoute({ providerRoute, planInput })
+    const snapshot = await normalizeRoute({ providerRoute, planInput })
     expect(snapshot.legs.length).toBe(providerRoute.legs.length)
     expect(snapshot.annotations).toEqual([])
     expect(snapshot.overlays).toEqual({})
 
     // compute route index
-    const index = computeRouteIndex(snapshot)
+    const index = await computeRouteIndex(snapshot)
     expect(index.sampledPoints.length).toBeGreaterThan(0)
     expect(index.sampledPoints[0].distanceFromStartMeters).toBe(0)
 
@@ -123,7 +123,7 @@ describe('agent tools integration', () => {
     expect(probed.length).toBeGreaterThan(0)
 
     // map conditions into wind overlay
-    const overlay = mapConditions({ routeSnapshot: snapshot, routeIndex: index, probed })
+    const overlay = await mapConditions({ routeSnapshot: snapshot, routeIndex: index, probed })
     expect(overlay.legend.length).toBeGreaterThan(0)
     expect(overlay.byLeg.length).toBeGreaterThan(0)
     expect(overlay.byLeg[0].segments.length).toBeGreaterThan(0)

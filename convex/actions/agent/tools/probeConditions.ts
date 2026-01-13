@@ -1,6 +1,7 @@
 'use node'
 import type { RouteIndex, RouteIndexPoint } from '../../../../models/saved-routes'
 import type { WeatherProvider, WindSample } from '../providers/weatherProvider'
+import { traceableToolAsync } from '../lib/tracing'
 
 const MAX_PROBES = 25
 
@@ -40,7 +41,7 @@ export type ProbeConditionsParams = {
 /**
  * Throws on provider failure; caller (planRide) must catch and downgrade to soft-fail.
  */
-export const probeConditions = async ({
+const probeConditionsImpl = async ({
   routeIndex,
   departureTimeMs,
   weatherProvider,
@@ -60,3 +61,9 @@ export const probeConditions = async ({
     wind: samples[idx],
   }))
 }
+
+export const probeConditions = traceableToolAsync(probeConditionsImpl, {
+  name: 'probeConditions',
+  runType: 'tool',
+  tags: ['planRide', 'conditions'],
+})

@@ -3,6 +3,8 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>'],
+  // Set NODE_ENV to 'test' to disable LangSmith tracing during tests
+  setupFiles: ['<rootDir>/jest.env.js'],
   testMatch: ['**/convex-tests/**/*.test.ts', '**/?(*.)+(spec|test).ts'],
   testPathIgnorePatterns: [
     '/node_modules/',

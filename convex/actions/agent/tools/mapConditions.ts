@@ -1,4 +1,4 @@
-"use node";
+"use node"
 import type {
   RouteIndex,
   RouteSnapshot,
@@ -8,6 +8,7 @@ import type {
   WindOverlaySegment,
 } from '../../../../models/saved-routes'
 import type { ProbedWindPoint } from './probeConditions'
+import { traceableToolSync } from '../lib/tracing'
 
 const MODEL_VERSION = 'open-meteo:v1'
 
@@ -90,7 +91,7 @@ export type MapConditionsParams = {
  * Throws on mapping failures; caller (planRide) should catch and return
  * conditionsStatus='unavailable' and omit overlays per soft-fail contract.
  */
-export const mapConditions = ({
+const mapConditionsImpl = ({
   routeSnapshot,
   routeIndex,
   probed,
@@ -203,3 +204,9 @@ export const mapConditions = ({
     byLeg,
   }
 }
+
+export const mapConditions = traceableToolSync(mapConditionsImpl, {
+  name: 'mapConditions',
+  runType: 'tool',
+  tags: ['planRide', 'conditions'],
+})

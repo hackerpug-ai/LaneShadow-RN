@@ -1,6 +1,7 @@
 'use node'
-"use node";
+
 import type { PlanInput, RouteLeg, RouteSnapshot, RouteStop } from '../../../../models/saved-routes'
+import { traceableToolSync } from '../lib/tracing'
 import type { ProviderRouteResponse } from '../providers/routingProvider'
 
 type NormalizeRouteParams = {
@@ -15,10 +16,7 @@ const toRouteStop = (lat: number, lng: number, label?: string, placeId?: string)
   placeId,
 })
 
-export const normalizeRoute = ({
-  providerRoute,
-  planInput,
-}: NormalizeRouteParams): RouteSnapshot => {
+const normalizeRouteImpl = ({ providerRoute, planInput }: NormalizeRouteParams): RouteSnapshot => {
   const origin = toRouteStop(
     planInput.start.lat,
     planInput.start.lng,
@@ -58,3 +56,9 @@ export const normalizeRoute = ({
     overlays: {},
   }
 }
+
+export const normalizeRoute = traceableToolSync(normalizeRouteImpl, {
+  name: 'normalizeRoute',
+  runType: 'tool',
+  tags: ['planRide', 'routing'],
+})

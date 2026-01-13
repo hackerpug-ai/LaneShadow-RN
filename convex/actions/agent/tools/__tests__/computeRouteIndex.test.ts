@@ -35,16 +35,16 @@ const makeSnapshot = (legsCount: number): RouteSnapshot => {
 }
 
 describe('computeRouteIndex', () => {
-  it('produces stable fingerprint for same snapshot', () => {
+  it('produces stable fingerprint for same snapshot', async () => {
     const snapshot = makeSnapshot(2)
-    const a = computeRouteIndex(snapshot)
-    const b = computeRouteIndex(snapshot)
+    const a = await computeRouteIndex(snapshot)
+    const b = await computeRouteIndex(snapshot)
     expect(a.routeFingerprint).toBe(b.routeFingerprint)
   })
 
-  it('returns bounded, monotonic sampled points with endpoints', () => {
+  it('returns bounded, monotonic sampled points with endpoints', async () => {
     const snapshot = makeSnapshot(3)
-    const index = computeRouteIndex(snapshot)
+    const index = await computeRouteIndex(snapshot)
     expect(index.sampledPoints.length).toBeGreaterThan(0)
     expect(index.sampledPoints.length).toBeLessThanOrEqual(200)
     expect(index.sampledPoints[0].distanceFromStartMeters).toBe(0)
@@ -58,9 +58,9 @@ describe('computeRouteIndex', () => {
     expect(last.distanceFromStartMeters).toBeCloseTo(totalDistance)
   })
 
-  it('handles no legs by returning origin-only point', () => {
+  it('handles no legs by returning origin-only point', async () => {
     const snapshot = makeSnapshot(0)
-    const index = computeRouteIndex(snapshot)
+    const index = await computeRouteIndex(snapshot)
     expect(index.sampledPoints.length).toBe(1)
     expect(index.sampledPoints[0].lat).toBe(snapshot.origin.lat)
     expect(index.sampledPoints[0].distanceFromStartMeters).toBe(0)

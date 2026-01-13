@@ -36,8 +36,8 @@ describe('normalizeRoute', () => {
     ],
   }
 
-  it('produces a RouteSnapshot aligned to the validator shape', () => {
-    const snapshot = normalizeRoute({ providerRoute, planInput })
+  it('produces a RouteSnapshot aligned to the validator shape', async () => {
+    const snapshot = await normalizeRoute({ providerRoute, planInput })
 
     expect(snapshot.provider).toBe(providerRoute.provider)
     expect(snapshot.bounds).toEqual(providerRoute.bounds)

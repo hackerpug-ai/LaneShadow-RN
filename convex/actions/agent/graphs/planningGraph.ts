@@ -1,6 +1,5 @@
 'use node'
 
-import { LangChainTracer } from '@langchain/core/tracers/tracer_langchain'
 import { Annotation, END, START, StateGraph } from '@langchain/langgraph'
 import { ChatOpenAI } from '@langchain/openai'
 import { randomUUID } from 'crypto'
@@ -20,13 +19,9 @@ import type {
 } from '../../../../models/saved-routes'
 import { WIND_SUMMARY } from '../../../../models/saved-routes'
 import type { PlannedRouteOptionView } from '../../../../types/routes'
-import {
-  LANGSMITH_API_KEY,
-  LANGSMITH_PROJECT,
-  LANGSMITH_TRACING,
-  OPENAI_API_KEY,
-} from '../../../lib/env'
+import { OPENAI_API_KEY } from '../../../lib/env'
 import { retryOnce, withTimeout } from '../lib/reliability'
+import { buildRunConfig } from '../lib/tracing'
 import { createWeatherProvider } from '../providers/weatherProvider'
 import { compileSketch } from '../tools/compileSketch'
 import { computeRouteIndex } from '../tools/computeRouteIndex'
@@ -196,10 +191,13 @@ export const processRoutes = async (
       const providerRoute = await compileSketch({ planInput: state.planInput, sketch })
 
       // Deterministic: Normalize to RouteSnapshot
-      const routeSnapshot = normalizeRoute({ providerRoute, planInput: state.planInput })
+      const routeSnapshot = await normalizeRoute({
+        providerRoute,
+        planInput: state.planInput,
+      })
 
       // Deterministic: Compute RouteIndex
-      const routeIndex = computeRouteIndex(routeSnapshot)
+      const routeIndex = await computeRouteIndex(routeSnapshot)
 
       // Deterministic: Probe conditions (soft-fail)
       let conditionsStatus: ConditionsStatus = 'ok'
@@ -212,7 +210,7 @@ export const processRoutes = async (
           departureTimeMs: state.planInput.departureTime,
           weatherProvider,
         })
-        const windOverlay = mapConditions({
+        const windOverlay = await mapConditions({
           routeSnapshot,
           routeIndex,
           probed,
@@ -274,20 +272,6 @@ export const createPlanningGraph = () => {
 const planningGraph = createPlanningGraph().compile()
 
 // -----------------------------------------------------------------------------
-// Observability: LangSmith Tracing
-// @see https://docs.langchain.com/oss/javascript/langgraph/observability
-// -----------------------------------------------------------------------------
-
-const createTracer = (): LangChainTracer | undefined => {
-  if (!LANGSMITH_TRACING || !LANGSMITH_API_KEY) {
-    return undefined
-  }
-  return new LangChainTracer({
-    projectName: LANGSMITH_PROJECT,
-  })
-}
-
-// -----------------------------------------------------------------------------
 // Public API
 // -----------------------------------------------------------------------------
 
@@ -306,26 +290,24 @@ export type PlanningGraphOutput = {
 }
 
 export const runPlanningGraph = async (input: PlanningGraphInput): Promise<PlanningGraphOutput> => {
-  const tracer = createTracer()
   const runId = input.requestId ?? randomUUID()
 
-  // Build invoke config with optional tracing
-  const invokeConfig = tracer
-    ? {
-        callbacks: [tracer],
-        tags: ['planRide', 'v1'],
-        metadata: {
-          userId: input.userId,
-          clerkUserId: input.clerkUserId,
-          requestId: runId,
-          startLat: input.planInput.start.lat,
-          startLng: input.planInput.start.lng,
-          endLat: input.planInput.end.lat,
-          endLng: input.planInput.end.lng,
-        },
-        runName: `planRide-${runId}`,
-      }
-    : undefined
+  // Build invoke config with optional LangSmith metadata
+  // Tracing is automatic when LANGSMITH_TRACING=true and LANGSMITH_API_KEY is set
+  // @see https://docs.langchain.com/langsmith/trace-with-langgraph
+  const runConfig = buildRunConfig({
+    runName: `planRide-${runId}`,
+    tags: ['planRide', 'v1'],
+    metadata: {
+      userId: input.userId,
+      clerkUserId: input.clerkUserId,
+      requestId: runId,
+      startLat: input.planInput.start.lat,
+      startLng: input.planInput.start.lng,
+      endLat: input.planInput.end.lat,
+      endLng: input.planInput.end.lng,
+    },
+  })
 
   const result = await planningGraph.invoke(
     {
@@ -335,7 +317,7 @@ export const runPlanningGraph = async (input: PlanningGraphInput): Promise<Plann
       options: [],
       error: null,
     },
-    invokeConfig
+    runConfig
   )
 
   return {

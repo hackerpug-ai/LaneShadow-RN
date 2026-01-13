@@ -71,7 +71,7 @@
 - Task 06: Add conditions probing + wind overlay mapping (soft-fail).
 - Task 07: Implement `actions.agent.planRide` orchestration using LangChain router agent + validation + provider compilation + normalization.
 
-## 2026-01-13 - Backend Engineer Agent - Sprint 3 Task 08 (planRide orchestration + LangChain routerAgent)
+## 2026-01-13 - Backend Engineer Agent - Sprint 3 Task 08 (planRide orchestration + LangGraph refactor + LangSmith observability)
 
 ### Status
 - Current Sprint: sprint-3
@@ -81,21 +81,30 @@
 ### Work Completed
 - Implemented `actions.agent.planRide` orchestration end-to-end (auth → LLM sketches → compile/normalize/index → conditions soft-fail → view model)
   - Created: `convex/actions/agent/planRide.ts`
-- Implemented LangChain router agent wrapper with structured output + bounded retry/timeout
-  - Created: `convex/actions/agent/llm/routerAgent.ts`
-- Added missing LangChain dependencies to `package.json` (Convex already whitelisted in `convex.json`)
-  - Added: `langchain`, `@langchain/openai`, `@langchain/core`, `@langchain/langgraph`
+- **Refactored** LLM sketching from `llm/routerAgent.ts` to LangGraph `StateGraph` in `graphs/planningGraph.ts`
+  - Deleted: `convex/actions/agent/llm/routerAgent.ts`
+  - Created: `convex/actions/agent/graphs/planningGraph.ts`
+  - Uses `model.withStructuredOutput()` directly (no agent/tools overhead since no dynamic tool calling needed)
+  - Graph nodes: `generateSketches` (LLM) → `processRoutes` (deterministic tools)
+- Added LangSmith observability integration
+  - Modified: `convex/lib/env.ts` (added `LANGSMITH_TRACING`, `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT`)
+  - Configured `LangChainTracer` in `planningGraph.ts` with run metadata (userId, tags)
+- Added missing LangChain dependencies to `package.json`
+  - Added: `langchain`, `@langchain/openai`, `@langchain/core`, `@langchain/langgraph`, `langsmith`
 - Wired OpenAI key through Convex env module
   - Modified: `convex/lib/env.ts` (added `OPENAI_API_KEY`)
-- Centralized wind summary literals + validator in models (so validators and runtime code share constants)
+- Centralized wind summary literals + validator in models
   - Modified: `models/saved-routes.ts` (added `WIND_SUMMARY`, `WindSummary`, `windSummaryValidator`)
   - Modified: `types/routes.ts` (use `WindSummary`)
-- Added tests for `planRide` covering happy path, soft-fail conditions, and deterministic hard-fail
-  - Created: `convex/actions/agent/__tests__/planRide.test.ts`
+- Refactored tests to use LangGraph testing patterns (full graph execution, individual node testing, partial execution with `MemorySaver`)
+  - Modified: `convex/actions/agent/__tests__/planRide.test.ts`
 
 ### Decisions Made
+- Refactored from `createAgent` to `model.withStructuredOutput()` — simpler and more direct when no dynamic tool calling is required.
+- Adopted LangGraph `StateGraph` for clearer separation of probabilistic (LLM) and deterministic (tools) logic, conditional edges, and future extensibility (streaming, human-in-the-loop).
 - `overlaysPreview.windSummary` is modeled as a level string (`low|moderate|high|unavailable`) and centralized in `models/saved-routes.ts`.
-- Router LLM model default: `gpt-4o` with temperature 0; structured output enforced via Zod schema at agent boundary.
+- Router LLM model: `gpt-4o` with temperature 0; structured output enforced via Zod schema.
+- LangSmith project default: `LaneShadowDev` (configurable via env var).
 
 ### Issues/Blockers
 - None.

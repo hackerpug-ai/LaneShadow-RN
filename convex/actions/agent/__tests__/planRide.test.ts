@@ -28,6 +28,14 @@ jest.mock('../tools/compileSketch', () => ({
   compileSketch: jest.fn(),
 }))
 
+jest.mock('../tools/normalizeRoute', () => ({
+  normalizeRoute: jest.fn(),
+}))
+
+jest.mock('../tools/computeRouteIndex', () => ({
+  computeRouteIndex: jest.fn(),
+}))
+
 jest.mock('../tools/probeConditions', () => ({
   probeConditions: jest.fn(),
 }))
@@ -36,9 +44,17 @@ jest.mock('../tools/mapConditions', () => ({
   mapConditions: jest.fn(),
 }))
 
+// Mock guards for session
+jest.mock('../../../guards', () => ({
+  requireSession: jest.fn(),
+}))
+
 import { ChatOpenAI } from '@langchain/openai'
+import { requireSession } from '../../../guards'
 import { compileSketch } from '../tools/compileSketch'
+import { computeRouteIndex } from '../tools/computeRouteIndex'
 import { mapConditions } from '../tools/mapConditions'
+import { normalizeRoute } from '../tools/normalizeRoute'
 import { probeConditions } from '../tools/probeConditions'
 
 // -----------------------------------------------------------------------------
@@ -97,6 +113,40 @@ const mockWindData = [
   },
 ]
 
+const mockRouteSnapshot = {
+  provider: 'mock',
+  bounds: { north: 1, south: 0, east: 1, west: 0 },
+  origin: { lat: 0, lng: 0, label: 'Start' },
+  destination: { lat: 1, lng: 1, label: 'End' },
+  waypoints: [],
+  overviewGeometry: {
+    format: 'polyline' as const,
+    encoding: 'mock',
+    precision: 5,
+    value: 'OVERVIEW',
+  },
+  legs: [
+    {
+      legIndex: 0,
+      start: { lat: 0, lng: 0 },
+      end: { lat: 1, lng: 1 },
+      distanceMeters: 1000,
+      durationSeconds: 600,
+      geometry: { format: 'polyline' as const, encoding: 'mock', precision: 5, value: 'LEG' },
+    },
+  ],
+  annotations: [],
+  overlays: {},
+}
+
+const mockRouteIndex = {
+  routeFingerprint: 'test-fingerprint',
+  sampledPoints: [
+    { lat: 0, lng: 0, distanceFromStartMeters: 0 },
+    { lat: 1, lng: 1, distanceFromStartMeters: 1000 },
+  ],
+}
+
 // -----------------------------------------------------------------------------
 // Graph Tests (LangGraph patterns)
 // -----------------------------------------------------------------------------
@@ -116,20 +166,22 @@ describe('planningGraph', () => {
 
       // Setup routing mock
       ;(compileSketch as jest.Mock).mockResolvedValue(mockProviderRoute)
+      ;(normalizeRoute as jest.Mock).mockResolvedValue(mockRouteSnapshot)
+      ;(computeRouteIndex as jest.Mock).mockResolvedValue(mockRouteIndex)
 
       // Setup weather mocks
       ;(probeConditions as jest.Mock).mockResolvedValue(mockWindData)
-      ;(mapConditions as jest.Mock).mockImplementation(({ routeSnapshot }) => ({
+      ;(mapConditions as jest.Mock).mockResolvedValue({
         generatedAt: Date.now(),
         modelVersion: 'test',
         legend: [{ level: 'high', label: 'High' }],
         byLeg: [
           {
-            legIndex: routeSnapshot.legs[0].legIndex,
+            legIndex: 0,
             segments: [{ startMeters: 0, endMeters: 1000, level: 'high' }],
           },
         ],
-      }))
+      })
 
       // Create and compile graph with checkpointer (LangGraph test pattern)
       const graph = createPlanningGraph()
@@ -167,6 +219,8 @@ describe('planningGraph', () => {
 
       // Setup routing mock
       ;(compileSketch as jest.Mock).mockResolvedValue(mockProviderRoute)
+      ;(normalizeRoute as jest.Mock).mockResolvedValue(mockRouteSnapshot)
+      ;(computeRouteIndex as jest.Mock).mockResolvedValue(mockRouteIndex)
 
       // Setup weather to fail (soft-fail scenario)
       ;(probeConditions as jest.Mock).mockRejectedValue(new Error('weather unavailable'))
@@ -192,18 +246,20 @@ describe('planningGraph', () => {
     it('processRoutes node processes sketches into options', async () => {
       // Setup mocks
       ;(compileSketch as jest.Mock).mockResolvedValue(mockProviderRoute)
+      ;(normalizeRoute as jest.Mock).mockResolvedValue(mockRouteSnapshot)
+      ;(computeRouteIndex as jest.Mock).mockResolvedValue(mockRouteIndex)
       ;(probeConditions as jest.Mock).mockResolvedValue(mockWindData)
-      ;(mapConditions as jest.Mock).mockImplementation(({ routeSnapshot }) => ({
+      ;(mapConditions as jest.Mock).mockResolvedValue({
         generatedAt: Date.now(),
         modelVersion: 'test',
         legend: [{ level: 'low', label: 'Low' }],
         byLeg: [
           {
-            legIndex: routeSnapshot.legs[0].legIndex,
+            legIndex: 0,
             segments: [{ startMeters: 0, endMeters: 1000, level: 'low' }],
           },
         ],
-      }))
+      })
 
       // Create graph and get compiled version to access nodes
       const graph = createPlanningGraph()
@@ -261,18 +317,20 @@ describe('planningGraph', () => {
     it('can resume from generateSketches to processRoutes', async () => {
       // Setup mocks for processRoutes only
       ;(compileSketch as jest.Mock).mockResolvedValue(mockProviderRoute)
+      ;(normalizeRoute as jest.Mock).mockResolvedValue(mockRouteSnapshot)
+      ;(computeRouteIndex as jest.Mock).mockResolvedValue(mockRouteIndex)
       ;(probeConditions as jest.Mock).mockResolvedValue(mockWindData)
-      ;(mapConditions as jest.Mock).mockImplementation(({ routeSnapshot }) => ({
+      ;(mapConditions as jest.Mock).mockResolvedValue({
         generatedAt: Date.now(),
         modelVersion: 'test',
         legend: [{ level: 'moderate', label: 'Moderate' }],
         byLeg: [
           {
-            legIndex: routeSnapshot.legs[0].legIndex,
+            legIndex: 0,
             segments: [{ startMeters: 0, endMeters: 1000, level: 'moderate' }],
           },
         ],
-      }))
+      })
 
       // Create graph with checkpointer for partial execution
       const graph = createPlanningGraph()
@@ -310,18 +368,25 @@ describe('planningGraph', () => {
 // planRide Action Tests
 // -----------------------------------------------------------------------------
 
+const mockSession = {
+  user: {
+    _id: 'user-id-123' as any,
+    clerkUserId: 'clerk-user-123',
+    email: 'test@example.com',
+    name: 'Test User',
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    lastLocalUpdateAt: Date.now(),
+  },
+}
+
 describe('planRide action', () => {
-  const mockCtx = {
-    auth: {
-      getUserIdentity: jest.fn().mockResolvedValue({ subject: 'user', tokenIdentifier: null }),
-    },
-  } as unknown as any
+  const mockCtx = {} as unknown as any
 
   beforeEach(() => {
     jest.clearAllMocks()
-    mockCtx.auth.getUserIdentity = jest
-      .fn()
-      .mockResolvedValue({ subject: 'user', tokenIdentifier: null })
+    // Mock requireSession to return a valid session
+    ;(requireSession as jest.Mock).mockResolvedValue(mockSession)
   })
 
   it('returns options from graph execution', async () => {
@@ -331,18 +396,20 @@ describe('planRide action', () => {
       withStructuredOutput: jest.fn().mockReturnValue({ invoke: mockInvoke }),
     }))
     ;(compileSketch as jest.Mock).mockResolvedValue(mockProviderRoute)
+    ;(normalizeRoute as jest.Mock).mockResolvedValue(mockRouteSnapshot)
+    ;(computeRouteIndex as jest.Mock).mockResolvedValue(mockRouteIndex)
     ;(probeConditions as jest.Mock).mockResolvedValue(mockWindData)
-    ;(mapConditions as jest.Mock).mockImplementation(({ routeSnapshot }) => ({
+    ;(mapConditions as jest.Mock).mockResolvedValue({
       generatedAt: Date.now(),
       modelVersion: 'test',
       legend: [{ level: 'high', label: 'High' }],
       byLeg: [
         {
-          legIndex: routeSnapshot.legs[0].legIndex,
+          legIndex: 0,
           segments: [{ startMeters: 0, endMeters: 1000, level: 'high' }],
         },
       ],
-    }))
+    })
 
     const result = await (planRide as any).handler(mockCtx, { planInput })
 

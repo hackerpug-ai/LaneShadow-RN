@@ -1,4 +1,4 @@
-import type { RouteSnapshot, RouteIndex } from '../../../../../models/saved-routes'
+import type { RouteIndex, RouteSnapshot } from '../../../../../models/saved-routes'
 import { mapConditions } from '../mapConditions'
 
 const snapshot: RouteSnapshot = {
@@ -31,9 +31,9 @@ const index: RouteIndex = {
 }
 
 describe('mapConditions reliability', () => {
-  it('throws deterministic error code when no probed points are provided', () => {
-    expect(() => mapConditions({ routeSnapshot: snapshot, routeIndex: index, probed: [] })).toThrow(
-      'CONDITIONS_LOOKUP_FAILED'
-    )
+  it('throws deterministic error code when no probed points are provided', async () => {
+    await expect(
+      mapConditions({ routeSnapshot: snapshot, routeIndex: index, probed: [] })
+    ).rejects.toThrow('CONDITIONS_LOOKUP_FAILED')
   })
 })

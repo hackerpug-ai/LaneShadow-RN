@@ -2,6 +2,7 @@
 import type { RouteSketch } from '../../../../models/route-sketch'
 import type { PlanInput } from '../../../../models/saved-routes'
 import { retryOnce, withTimeout } from '../lib/reliability'
+import { traceableToolAsync } from '../lib/tracing'
 import { createRoutingProvider, type ProviderRouteResponse } from '../providers/routingProvider'
 
 type Waypoint = {
@@ -36,7 +37,7 @@ export type CompileSketchResult = ProviderRouteResponse
 
 const ROUTING_TIMEOUT_MS = 25_000
 
-export const compileSketch = async (params: {
+const compileSketchImpl = async (params: {
   planInput: PlanInput
   sketch: RouteSketch
 }): Promise<CompileSketchResult> => {
@@ -63,3 +64,9 @@ export const compileSketch = async (params: {
     throw new Error('ROUTING_COMPILE_FAILED')
   }
 }
+
+export const compileSketch = traceableToolAsync(compileSketchImpl, {
+  name: 'compileSketch',
+  runType: 'tool',
+  tags: ['planRide', 'routing'],
+})

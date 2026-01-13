@@ -32,12 +32,17 @@ export const GOOGLE_MAPS_API_KEY = optionalEnv('GOOGLE_MAPS_API_KEY')
  */
 export const OPENAI_API_KEY = optionalEnv('OPENAI_API_KEY')
 
+export const isTestEnvironment = process.env.NODE_ENV === 'test'
+
 /**
  * LangSmith observability configuration.
  * Set LANGSMITH_TRACING=true and provide LANGSMITH_API_KEY to enable tracing.
  * Traces are logged to LANGSMITH_PROJECT (defaults to 'default').
+ * Automatically disabled during tests (NODE_ENV=test).
  * @see https://docs.langchain.com/oss/javascript/langgraph/observability
  */
-export const LANGSMITH_TRACING = optionalEnv('LANGSMITH_TRACING') === 'true'
-export const LANGSMITH_API_KEY = optionalEnv('LANGSMITH_API_KEY')
-export const LANGSMITH_PROJECT = optionalEnv('LANGSMITH_PROJECT') ?? 'LaneShadowDev'
+
+export const LANGSMITH_TRACING = !isTestEnvironment && optionalEnv('LANGSMITH_TRACING') === 'true'
+export const LANGSMITH_API_KEY = !isTestEnvironment ? optionalEnv('LANGSMITH_API_KEY') : ''
+export const LANGSMITH_PROJECT =
+  (!isTestEnvironment && optionalEnv('LANGSMITH_PROJECT')) ?? 'LaneShadowDev'

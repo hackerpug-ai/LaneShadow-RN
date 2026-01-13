@@ -95,6 +95,9 @@ dependencies:
   langchain:
     specifier: ^1.2.7
     version: 1.2.7(@langchain/core@1.1.12)(react-dom@19.1.0)(react@19.1.0)
+  langsmith:
+    specifier: ^0.4.5
+    version: 0.4.5
   react:
     specifier: 19.1.0
     version: 19.1.0

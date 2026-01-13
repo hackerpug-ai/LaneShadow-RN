@@ -128,3 +128,126 @@ Set these in the Convex dashboard (Environment Variables):
 
 - In Clerk webhook settings, send test events (start with `user.created`, `organization.created`, then `organizationMembership.created`).
 - Check Convex logs: signature failures return 401; unhandled events return 200 (no retries).
+
+---
+
+## Manual Verification: `planRide` Action
+
+This section provides a repeatable checklist for verifying the `actions.agent.planRide` action.
+
+### Required Environment Variables
+
+Set these in the Convex dashboard (Environment Variables → Development):
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `OPENAI_API_KEY` | ✅ Yes | OpenAI API key for LLM route sketching |
+| `LANGSMITH_TRACING` | Optional | Set to `true` to enable LangSmith tracing |
+| `LANGSMITH_API_KEY` | Optional | LangSmith API key (required if tracing enabled) |
+| `LANGSMITH_PROJECT` | Optional | LangSmith project name (default: `LaneShadowDev`) |
+
+> **Note**: Routing and weather providers currently use mock/stub implementations. No additional keys required for POC.
+
+### Running `planRide`
+
+**Prerequisites**: User must be authenticated via Clerk. The action requires a valid session.
+
+```bash
+# Basic invocation (requires authenticated user context)
+npx convex run actions/agent/planRide:planRide '{
+  "planInput": {
+    "start": { "lat": 37.7749, "lng": -122.4194, "label": "San Francisco" },
+    "end": { "lat": 37.3382, "lng": -121.8863, "label": "San Jose" },
+    "departureTime": 1736784000000,
+    "preferences": { "scenicBias": "default" }
+  }
+}'
+```
+
+### Expected Output Shape
+
+A successful call returns `PlannedRouteOptionsView`:
+
+```json
+{
+  "planId": "uuid-string",
+  "options": [
+    {
+      "routeOptionId": "uuid-string",
+      "label": "Scenic coastal route",
+      "rationale": "Takes scenic Highway 1...",
+      "stats": {
+        "distanceMeters": 75000,
+        "durationSeconds": 4500,
+        "legsCount": 1
+      },
+      "map": {
+        "bounds": { "north": 37.8, "south": 37.3, "east": -121.8, "west": -122.5 },
+        "overviewGeometry": { "format": "polyline", "encoding": "...", "precision": 5, "value": "..." },
+        "legs": [{ "legIndex": 0, "start": {...}, "end": {...}, "distanceMeters": 75000, "durationSeconds": 4500, "geometry": {...} }]
+      },
+      "overlaysPreview": {
+        "windSummary": "low",
+        "conditionsStatus": "ok"
+      }
+    }
+  ]
+}
+```
+
+**Sanity checks**:
+- [ ] `planId` is a non-empty string
+- [ ] `options` array has 1–3 entries
+- [ ] Each option has `label`, `rationale`, `stats`, `map`, `overlaysPreview`
+- [ ] `stats.legsCount` matches `map.legs.length`
+- [ ] `overlaysPreview.conditionsStatus` is `"ok"` or `"unavailable"`
+
+### Error Code Verification
+
+| Scenario | Expected Error Code | How to Trigger |
+|----------|---------------------|----------------|
+| Unauthenticated | `AUTH_REQUIRED` | Call without valid Clerk session |
+| Missing/invalid input | `INVALID_INPUT` | Omit required fields or use invalid coordinates |
+| LLM failure | `LLM_SKETCH_INVALID` | Remove `OPENAI_API_KEY` from env vars |
+
+**Test unauthenticated access**:
+```bash
+# This should fail with AUTH_REQUIRED
+# (Use a Convex admin dashboard or curl without auth headers)
+```
+
+### Degraded Mode: Conditions Unavailable
+
+When weather probing fails, routes should still be returned with degraded overlay status.
+
+**To simulate conditions failure**:
+1. The current implementation uses mock weather data
+2. To test soft-fail, modify `probeConditions` to throw, or add a `WEATHER_DISABLED=true` env check
+
+**Expected degraded response**:
+```json
+{
+  "overlaysPreview": {
+    "windSummary": "unavailable",
+    "conditionsStatus": "unavailable"
+  }
+}
+```
+
+**Verification checklist**:
+- [ ] Routes are still returned (not a hard failure)
+- [ ] `conditionsStatus` is `"unavailable"`
+- [ ] `windSummary` is `"unavailable"`
+- [ ] No wind overlay data in `routeSnapshot.overlays`
+
+### LangSmith Observability (Optional)
+
+When `LANGSMITH_TRACING=true`:
+
+1. Set `LANGSMITH_API_KEY` and optionally `LANGSMITH_PROJECT`
+2. Run `planRide`
+3. View traces at [smith.langchain.com](https://smith.langchain.com)
+4. Traces include:
+   - Run metadata (`userId`, `planInputHash`)
+   - Tags: `planRide`, `v1`
+   - Full LLM invocation details (prompt, response, latency)
