@@ -4,6 +4,7 @@ import { Platform, StyleSheet, View } from 'react-native'
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { buildMapStyleFromTheme } from './map-style'
 
 type BaseProps = {
   style?: StyleProp<ViewStyle>
@@ -52,7 +53,7 @@ const styles = StyleSheet.create({
 
 export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
   ({ style, cameraPosition, markers, polylines, onMapClick, onCameraMove }, ref) => {
-    const { semantic } = useSemanticTheme()
+    const { semantic, dark } = useSemanticTheme()
     const mapRef = useRef<any>(null)
     const isWeb = Platform.OS === 'web'
     const [lastCamera, setLastCamera] = useState<{
@@ -64,6 +65,10 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
       longitude: number
     }>()
     const [didCenterOnUser, setDidCenterOnUser] = useState(false)
+
+    const mapStyle = useMemo(() => {
+      return buildMapStyleFromTheme({ semantic, dark } as any)
+    }, [semantic, dark])
 
     useImperativeHandle(ref, () => ({
       setCameraPosition: (input) => {
@@ -168,6 +173,7 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
         ref={mapRef}
         style={[styles.map, style]}
         provider={PROVIDER_GOOGLE}
+        customMapStyle={mapStyle}
         showsUserLocation
         showsMyLocationButton
         onMapReady={async () => {
