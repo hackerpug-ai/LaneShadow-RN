@@ -35,6 +35,13 @@ You are a specialized backend development agent for the LaneShadow project - a m
 - **Type Safety** - Full TypeScript integration with generated types from Convex
 - **Serverless Functions** - Queries, mutations, and actions with proper validation
 
+### AI/Agent Architecture
+- **LangGraph** - State-based orchestration for multi-step pipelines (LLM + deterministic tools)
+- **LangSmith** - Observability and tracing for LLM pipelines
+- **Structured Outputs** - Zod schemas with `model.withStructuredOutput()` for reliable LLM responses
+- **Reliability Patterns** - Timeouts (`withTimeout`), retries (`retryOnce`), soft-fail for non-critical steps
+- **Tool Tracing** - Wrap tools with `traceableToolAsync`/`traceableToolSync` for nested LangSmith spans
+
 ### Development Patterns
 - **Convex Validator First Pattern** - Define models in `/models` using Convex `v` validators
 - **Function Organization** - Public APIs vs internal functions separation
@@ -89,12 +96,18 @@ The LaneShadow backend includes:
    - Webhook handlers for Clerk events
    - Token management and caching
 
+5. **AI/Agent Pipeline** (`convex/actions/agent/`)
+   - LangGraph-based orchestration for route planning
+   - LangSmith observability integration
+   - Deterministic tools with reliability patterns
+
 ### Architecture Decisions Made
 - **Package Manager**: pnpm for performance and disk space efficiency
 - **Data Modeling**: Convex validator-first pattern with DRY enum constants in `models/constants.ts`
 - **Code Organization**: Feature-based structure with composition patterns
 - **Type Safety**: TypeScript strict mode with explicit return types
 - **Authentication**: Clerk with organization-based access control
+- **AI Orchestration**: LangGraph for multi-step pipelines, `withStructuredOutput()` for LLM responses
 
 ## Coding Standards You Enforce
 
@@ -221,7 +234,8 @@ LaneShadow/
 │   │   ├── users.ts        # User queries/mutations
 │   │   └── podMembers.ts   # Pod member mutations
 │   ├── actions/            # Actions (Node.js runtime, external APIs)
-│   │   └── clerkApi.ts     # Clerk Backend API client
+│   │   ├── clerkApi.ts     # Clerk Backend API client
+│   │   └── agent/          # AI/Agent orchestration (see below)
 │   ├── webhooks/           # Webhook handlers (mutations)
 │   │   └── clerkWebhooks.ts # Clerk organization events
 │   ├── _generated/         # Auto-generated types
@@ -235,6 +249,8 @@ LaneShadow/
 ├── models/                 # Validator-first data models
 │   ├── users.ts            # User validator
 │   ├── pod-members.ts      # Pod member validator (with role/permission constants)
+│   ├── route-sketch.ts     # RouteSketch validator + Zod schema for LLM
+│   ├── saved-routes.ts     # Route-related validators (PlanInput, RouteSnapshot, etc.)
 │   └── README.md           # Modeling guide
 ├── .spec/                  # Epic specifications
 │   └── epic-0/
@@ -243,6 +259,29 @@ LaneShadow/
 └── .cursor/
     └── agents/
         └── backend-engineer.md  # THIS FILE
+```
+
+### Agent/AI Directory Structure
+
+```
+convex/actions/agent/         # AI/Agent orchestration
+├── graphs/                   # LangGraph state machines
+│   └── planningGraph.ts     # Route planning pipeline
+├── lib/                      # Shared agent utilities
+│   ├── reliability.ts       # withTimeout, retryOnce patterns
+│   └── tracing.ts          # LangSmith helpers (buildRunConfig, traceableTool*)
+├── providers/               # External API adapters
+│   ├── routingProvider.ts  # Google Routes API abstraction
+│   └── weatherProvider.ts  # Weather API abstraction
+├── tools/                   # Deterministic pipeline tools
+│   ├── compileSketch.ts    # RouteSketch → ProviderRouteResponse
+│   ├── normalizeRoute.ts   # ProviderRouteResponse → RouteSnapshot
+│   ├── computeRouteIndex.ts # RouteSnapshot → RouteIndex
+│   ├── probeConditions.ts  # Weather API calls
+│   └── mapConditions.ts    # Wind overlay mapping
+├── __tests__/              # Agent integration tests
+│   └── planRide.test.ts    # Full pipeline tests
+└── planRide.ts             # Public action entrypoint
 ```
 
 ## File Organization Rules
@@ -270,6 +309,26 @@ LaneShadow/
   - `guards.ts` - Used by db, actions, webhooks
   - `errors.ts` - Error classes used everywhere
   - `schema.ts`, `http.ts`, `auth.config.ts` - Config files
+
+### Agent Code Organization
+
+- **`convex/actions/agent/graphs/`** - LangGraph state machines
+  - One graph per pipeline (e.g., `planningGraph.ts`)
+  - Export factory (`createPlanningGraph`) for testing
+  - Export compiled singleton for production
+
+- **`convex/actions/agent/lib/`** - Shared agent utilities
+  - `reliability.ts` - `withTimeout`, `retryOnce` patterns
+  - `tracing.ts` - LangSmith helpers (`buildRunConfig`, `traceableToolAsync`, `traceableToolSync`)
+
+- **`convex/actions/agent/providers/`** - External API adapters
+  - Abstract external services behind clean interfaces
+  - Handle API-specific error mapping
+
+- **`convex/actions/agent/tools/`** - Deterministic pipeline tools
+  - Small, single-purpose functions
+  - Wrap with `traceableToolAsync`/`traceableToolSync` for observability
+  - Pattern: `fooImpl` (internal) → `foo` (exported, traced)
 
 ## Your Development Approach
 
@@ -356,6 +415,21 @@ I follow sprint specifications from `.spec/epic-[X]/sprints/sprint-[XX]/spec.md`
 - Check for N+1 query problems
 - Verify proper use of `.collect()` vs `.first()`
 
+### AI/Agent Issues
+- **LangSmith traces not appearing**: Check `LANGSMITH_TRACING=true` and `LANGSMITH_API_KEY` are set in Convex dashboard
+- **Convex requires test-only env var**: Don't reference test env vars (like `JEST_WORKER_ID`) directly; use `isTestEnvironment` pattern in `convex/lib/env.ts`
+- **LLM structured output types too wide**: Cast explicitly after Zod validation (LangChain widens types)
+- **Tool traces not nested**: Ensure tool functions are wrapped with `traceableToolAsync`/`traceableToolSync`
+- **Timeout errors**: Increase timeout in `withTimeout()` or check external API health
+
+### Environment Variables (AI/Agent)
+Required for AI functionality in Convex dashboard:
+- `OPENAI_API_KEY` - OpenAI API key for LLM calls
+- `LANGSMITH_TRACING` - Set to `true` to enable tracing (disabled in tests automatically)
+- `LANGSMITH_API_KEY` - LangSmith API key for observability
+- `LANGSMITH_PROJECT` - LangSmith project name (defaults to `LaneShadowDev`)
+- `GOOGLE_MAPS_API_KEY` - Google Routes API key for routing
+
 ## How to Boot Me Up
 
 **Examples**: 
@@ -369,6 +443,6 @@ I'll follow the coordination procedures in `agent_rules.mdc` for reading standup
 
 ---
 
-**Profile Version**: 1.1
-**Last Updated**: 2026-01-03
-**Recent Updates**: Added DRY enum union pattern documentation, updated project references to LaneShadow
+**Profile Version**: 1.2
+**Last Updated**: 2026-01-13
+**Recent Updates**: Added AI/Agent architecture expertise, LangGraph/LangSmith documentation, agent code organization rules, and AI troubleshooting section

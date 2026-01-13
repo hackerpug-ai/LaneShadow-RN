@@ -1,15 +1,20 @@
 # Epic 1 Sprint Plan (Scenic Route Planning & Saving)
 
-## Current Status (as of 2026-01-12)
+## Current Status (as of 2026-01-13)
 
 - **Epic status**: **In Progress**
   - ✅ Sprint 1 complete (infra: theming + auth + data modeling)
-  - Next: Sprint 2 (Backend APIs: saved routes + plan init)
+  - ✅ Sprint 2 complete (Backend APIs: saved routes + plan init)
+  - ✅ Sprint 3 complete (Backend data flows: PlanRide action + providers + overlays)
+  - Next: Sprint 4 (UI implementation: planning flows + map rendering + saved routes)
 
 **Implementation reality check (repo)**
-- The public DB API surface for Epic 1 exists (`convex/db/routesPlan.ts`, `convex/db/savedRoutes.ts`).
-- The **public planning action is still missing** and is the key remaining backend gap:
-  - **Missing**: `convex/actions/agent/planRide.ts` exporting `planRide` (TRD §4.2 / §4.3.6)
+- ✅ The public DB API surface for Epic 1 exists (`convex/db/routesPlan.ts`, `convex/db/savedRoutes.ts`).
+- ✅ The **public planning action is now implemented**:
+  - `convex/actions/agent/planRide.ts` exporting `planRide` (TRD §4.2 / §4.3.6)
+  - Uses LangGraph `StateGraph` with structured LLM output (`graphs/planningGraph.ts`)
+  - Full pipeline: LLM sketches → compile → normalize → index → conditions (soft-fail)
+  - LangSmith observability integrated (project: `LaneShadowDev`)
 
 ## Scope summary (what must be complete by final sprint)
 
@@ -174,7 +179,7 @@ To validate Epic 1 end-to-end (planning → route overview → save → reopen),
 
 ## Sprint 2 — Backend APIs: saved routes + plan init (view-model queries/mutations)
 
-**Status**: Done
+**Status**: ✅ **Complete**
 
 **Goal**: Implement the full public DB API surface for saved routes + plan init, returning UI-shaped view models per TRD §4.3.5 (using shared types from §4.3.4).
 
@@ -201,35 +206,58 @@ Also:
 
 ## Sprint 3 — Backend data flows: PlanRide action + providers + overlays
 
-**Status**: ⏳ **Planned**
+**Status**: ✅ **Complete**
 
 **Goal**: Implement `actions.agent.planRide` end-to-end so planning produces provider-backed, normalized route options with wind overlay support and clear error behavior.
 
 **Backend deliverables**
 
-- Implement `actions.agent.planRide` (action → PlannedRouteOptionsView, TRD §4.3.5) including:
-  - LLM route sketching + validation (TRD §5.2 constraints)
+- ✅ Implement `actions.agent.planRide` (action → PlannedRouteOptionsView, TRD §4.3.5) including:
+  - LLM route sketching + validation (TRD §5.2 constraints) — via LangGraph `StateGraph`
   - Compile sketch into provider route (TRD §5.3)
   - Normalize provider output into `routeSnapshot` (TRD §3.3)
   - Compute `routeIndex` (TRD §3.4)
   - Conditions probing / wind overlay mapping with soft-fail support (TRD §6.2.10)
   - Error codes per TRD §11 (INVALID_INPUT, LLM_SKETCH_INVALID/AMBIGUOUS, ROUTING_COMPILE_FAILED, CONDITIONS_LOOKUP_FAILED)
-- Implement **reliability standards** for the agentic pipeline (TRD §4.2.1):
+- ✅ Implement **reliability standards** for the agentic pipeline (TRD §4.2.1):
   - timeouts for external calls (LLM / routing / weather)
   - bounded concurrency + bounded fan-out
   - retry-once policy with explicit fallback behavior
   - deterministic error-code semantics (no free-form throw strings in leaf tools)
-- Ensure planning is bounded (max 2–3 options) and avoids excessive action→query/mutation fan-out (Convex best practices).
+- ✅ Ensure planning is bounded (max 2–3 options) and avoids excessive action→query/mutation fan-out (Convex best practices).
+
+**Key implementation decisions (Sprint 3)**
+
+- **LangGraph over raw LangChain**: Refactored from `createAgent` to LangGraph `StateGraph` for clearer separation of probabilistic (LLM) vs deterministic (tools) logic, conditional edges, and LangSmith observability.
+- **Structured output strategy**: Use `model.withStructuredOutput(zod_schema)` directly on GPT-4O; no agent/tools overhead for sketch generation (no dynamic tool calling needed).
+- **Weather provider**: Open-Meteo chosen for POC (no API key required, bounded probing, soft-fail contract).
+- **Wind summary levels**: Centralized in `models/saved-routes.ts` as `WIND_SUMMARY = { LOW, MODERATE, HIGH, UNAVAILABLE }`.
+
+**Files delivered**
+
+| Component | File |
+|-----------|------|
+| Main action | `convex/actions/agent/planRide.ts` |
+| LangGraph pipeline | `convex/actions/agent/graphs/planningGraph.ts` |
+| Error codes | `lib/errors.ts` |
+| RouteSketch model | `models/route-sketch.ts` |
+| Routing provider | `convex/actions/agent/providers/routing-provider.ts` |
+| Weather provider | `convex/actions/agent/providers/weather-provider.ts` |
+| Compile sketch | `convex/actions/agent/tools/compile-sketch.ts` |
+| Normalize route | `convex/actions/agent/tools/normalize-route.ts` |
+| Compute index | `convex/actions/agent/tools/compute-route-index.ts` |
+| Probe conditions | `convex/actions/agent/tools/probe-conditions.ts` |
+| Map conditions | `convex/actions/agent/tools/map-conditions.ts` |
 
 **Acceptance criteria**
 
-- Given valid start/end input, `planRide` returns 2–3 options with:
+- ✅ Given valid start/end input, `planRide` returns 2–3 options with:
   - label, rationale
   - stats (distance/duration/legsCount)
   - map bounds + overviewGeometry + legs[]
   - overlaysPreview.windSummary + conditionsStatus
-- Hard failures produce deterministic error codes.
-- Soft conditions failures still return routes with `conditionsStatus: "unavailable"`.
+- ✅ Hard failures produce deterministic error codes.
+- ✅ Soft conditions failures still return routes with `conditionsStatus: "unavailable"`.
 
 ## Sprint 4 — UI implementation: planning flows + map rendering + saved routes
 

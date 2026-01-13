@@ -323,7 +323,7 @@
 ### Task 09 — QA/DevEx: Manual verification playbook for `planRide` (auth + deterministic outputs)
 
 **Assignee**: @.cursor/agents/qa-engineer.md
-**Status**: Pending
+**Status**: COMPLETED
 **Dependencies**: Task 08
 
 #### Context

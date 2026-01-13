@@ -45,10 +45,10 @@ The system intentionally leverages **LLM-led route planning** to capture rider-n
 - **Client:** React Native  
 - **Backend:** Convex  
 - **Authentication:** Clerk  
-- **LLM Interface:** LangChain (OpenAI)  
+- **LLM Interface:** LangGraph + LangChain (OpenAI GPT-4O)  
 - **Mapping SDK:** Google Maps / Mapbox / equivalent  
-- **Routing Provider:** External Directions API  
-- **Conditions Provider:** External weather API (wind initially)  
+- **Routing Provider:** External Directions API (mock provider for POC)  
+- **Conditions Provider:** Open-Meteo (wind data, no API key required)  
 
 ### 1.2 Architectural Principles
 
@@ -229,14 +229,14 @@ convex/actions/agent/
   - planRide (action)
 
 **Supporting Modules**
-- llm/routerAgent.ts
-- tools/geocodeAnchors.ts
+- graphs/planningGraph.ts (LangGraph StateGraph with structured LLM output)
 - tools/compileSketch.ts
+- tools/normalizeRoute.ts
+- tools/computeRouteIndex.ts
 - tools/probeConditions.ts
 - tools/mapConditions.ts
-- tools/verifyIntent.ts (optional)
-- providers/routingProvider.ts
-- providers/weatherProvider.ts
+- providers/routingProvider.ts (mock provider for POC)
+- providers/weatherProvider.ts (Open-Meteo integration)
 
 **Optional actions (POC)**
 - `convex/actions/places.ts`
@@ -245,9 +245,9 @@ convex/actions/agent/
 
 #### 4.2.1 Reliability + determinism requirements (agentic pipeline)
 
-This project’s “agent standards” apply to Epic 1 planning actions:
+This project's "agent standards" apply to Epic 1 planning actions:
 
-- **Deterministic tools**: Non-LLM “tools” should be pure/deterministic given inputs (e.g., normalization, route indexing, overlay mapping).
+- **Deterministic tools**: Non-LLM "tools" should be pure/deterministic given inputs (e.g., normalization, route indexing, overlay mapping).
 - **Structured outputs only**: Any LLM output consumed by code must be structured JSON and validated before use (Convex `v` is canonical; Zod may be used at the agent boundary).
 - **External call budgets**: Bound fan-out and request volume (TRD §9); cap probe points and route options.
 - **Timeouts + bounded retries**:
@@ -256,6 +256,19 @@ This project’s “agent standards” apply to Epic 1 planning actions:
     - **Routing/LLM hard failures**: discard candidate or fail with a deterministic error code (TRD §11).
     - **Conditions soft failures**: proceed with `conditionsStatus: "unavailable"` and omit `overlays.wind` (TRD §6.2.10).
 - **Explicit error behavior**: Prefer deterministic error codes (TRD §11) over free-form error messages.
+
+#### 4.2.2 Implementation notes (Sprint 3)
+
+The agentic pipeline was implemented using **LangGraph `StateGraph`** rather than raw LangChain `createAgent`:
+
+- **Why LangGraph**: Clearer separation of probabilistic (LLM) vs deterministic (tools) logic, built-in conditional edges, and native LangSmith observability support.
+- **Structured output**: Uses `model.withStructuredOutput(zod_schema)` directly on GPT-4O; no agent/tools overhead since no dynamic tool calling is needed for sketch generation.
+- **Graph nodes**:
+  - `generateSketches` — LLM generates 2-3 route sketches (structured JSON output)
+  - `processRoutes` — Deterministic tools chain (compile → normalize → index → conditions)
+- **Observability**: LangSmith integration enabled with project default `LaneShadowDev` (configurable via `LANGSMITH_*` env vars).
+- **Weather provider**: Open-Meteo chosen for POC (no API key required, bounded probing at route sample points).
+- **Wind summary**: Centralized enum literals in `models/saved-routes.ts` (`WIND_SUMMARY = { LOW, MODERATE, HIGH, UNAVAILABLE }`).
 
 ---
 
@@ -966,6 +979,6 @@ Supports future:
 
 ### Dependencies
 
-- D1. OpenAI availability  
-- D2. Routing provider stability  
-- D3. Weather provider reliability  
+- D1. OpenAI availability (GPT-4O for route sketch generation)  
+- D2. Routing provider stability (mock provider for POC; real provider TBD)  
+- D3. Weather provider reliability (Open-Meteo, free tier, soft-fail on unavailability)  
