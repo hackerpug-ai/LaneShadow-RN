@@ -215,6 +215,23 @@ export const MyComponent = () => {
 
 See [models/README.md](./models/README.md) for detailed guide.
 
+## Planning & Saved Routes Hooks
+
+Environment:
+- `EXPO_PUBLIC_CONVEX_URL` (required)
+- `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` (required)
+- `EXPO_PUBLIC_GOOGLE_PLACES_API_KEY` (optional; used for place autocomplete. Falls back to `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` if set)
+
+Usage:
+```typescript
+import { usePlanInit, usePlanRide } from '../hooks/use-plan-ride'
+import { useSavedRoutesList, useSavedRouteDetail } from '../hooks/use-saved-routes'
+
+const { data: planInit } = usePlanInit()
+const { planRide, isRunning } = usePlanRide()
+const { data: saved } = useSavedRoutesList()
+```
+
 ## Convex Backend
 
 All backend logic lives in `convex/`:

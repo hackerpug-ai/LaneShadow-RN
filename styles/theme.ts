@@ -97,9 +97,10 @@ const lightSemanticTheme: SemanticTheme = {
     info: createColorSet('#2B9AEB', '#5DB3F0', '#1081D6', '#B8DCF5'),
 
     // Surface layers (light)
-    surface: createColorSet('#FFFFFF', '#F5F3F0', '#EAE4DD', '#FFFFFF'),
-    surfaceVariant: createColorSet('#F0ECE7', '#E6E0D8', '#D9D1C6', '#F7F3EE'),
-    background: createColorSet('#F8F7F6', '#F1EFEC', '#E9E5DF', '#F8F7F6'),
+    // Calibrated to pair with dark surface #2B2725; use warm off-white for parity
+    surface: createColorSet('#F7F3EF', '#EFE8E2', '#E5DCD5', '#FFFFFF'),
+    surfaceVariant: createColorSet('#EBE3DD', '#E2D8CF', '#D7CCC2', '#F7F1EB'),
+    background: createColorSet('#F5F0EB', '#EEE8E2', '#E3DAD2', '#F5F0EB'),
 
     // On-surface text
     onSurface: {
@@ -123,7 +124,7 @@ const lightSemanticTheme: SemanticTheme = {
     },
 
     // UI element colors
-    border: createColorSet('#E0DBD5', '#D4CDC5', '#C8BFB4', '#EFEAE4'),
+    border: createColorSet('#D9D0C7', '#CEC3B9', '#C2B6AC', '#EFEAE4'),
     input: createColorSet('#FFFFFF', '#F5F3F0', '#EAE4DD', '#F7F3EE'),
     ring: createColorSet('#B87333', '#C58545', '#8C5A2B', '#E3C3A5'),
 
@@ -236,9 +237,10 @@ const darkSemanticTheme: SemanticTheme = {
     info: createColorSet('#2B9AEB', '#5DB3F0', '#1081D6', '#1C6AA6'),
 
     // Surface layers (dark)
-    surface: createColorSet('#1A1C1F', '#24272B', '#0E0F11', '#1A1C1F'),
-    surfaceVariant: createColorSet('#24272B', '#2D3136', '#1A1C1F', '#24272B'),
-    background: createColorSet('#0E0F11', '#14161A', '#08090A', '#0E0F11'),
+    // Nav/tab surfaces should sit on #2B2725 by default
+    surface: createColorSet('#2B2725', '#332F2B', '#221E1C', '#3A3431'),
+    surfaceVariant: createColorSet('#34302D', '#3C3633', '#272321', '#3D3734'),
+    background: createColorSet('#1B1715', '#231E1B', '#14110F', '#1B1715'),
 
     // On-surface text
     onSurface: {
@@ -262,12 +264,7 @@ const darkSemanticTheme: SemanticTheme = {
     },
 
     // UI element colors
-    border: createColorSet(
-      'rgba(255,255,255,0.08)',
-      'rgba(255,255,255,0.12)',
-      'rgba(255,255,255,0.16)',
-      'rgba(255,255,255,0.06)'
-    ),
+    border: createColorSet('#3A3431', '#443E3A', '#2F2A27', 'rgba(255,255,255,0.06)'),
     input: createColorSet('#24272B', '#2D3136', '#1A1C1F', '#1A1C1F'),
     ring: createColorSet('#B87333', '#C58545', '#8C5A2B', '#6A3F1F'),
 

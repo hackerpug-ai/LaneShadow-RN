@@ -74,9 +74,6 @@ dependencies:
   expo-linking:
     specifier: ~8.0.11
     version: 8.0.11(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
-  expo-maps:
-    specifier: ~0.12.10
-    version: 0.12.10(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
   expo-router:
     specifier: ~6.0.21
     version: 6.0.21(@expo/metro-runtime@6.1.2)(@types/react@19.1.17)(expo-constants@18.0.13)(expo-linking@8.0.11)(expo@54.0.31)(react-dom@19.1.0)(react-native-gesture-handler@2.28.0)(react-native-reanimated@4.1.3)(react-native-safe-area-context@5.6.1)(react-native-screens@4.16.0)(react-native-web@0.21.1)(react-native@0.81.5)(react@19.1.0)
@@ -119,6 +116,9 @@ dependencies:
   react-native-gesture-handler:
     specifier: ~2.28.0
     version: 2.28.0(react-native@0.81.5)(react@19.1.0)
+  react-native-maps:
+    specifier: 1.14.0
+    version: 1.14.0(react-native-web@0.21.1)(react-native@0.81.5)(react@19.1.0)
   react-native-notifier:
     specifier: ^2.0.0
     version: 2.0.0(react-native-gesture-handler@2.28.0)(react-native@0.81.5)(react@19.1.0)
@@ -3928,6 +3928,10 @@ packages:
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
     dev: true
 
+  /@types/geojson@7946.0.16:
+    resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
+    dev: false
+
   /@types/graceful-fs@4.1.9:
     resolution: {integrity: sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==}
     dependencies:
@@ -6435,18 +6439,6 @@ packages:
     transitivePeerDependencies:
       - expo
       - supports-color
-    dev: false
-
-  /expo-maps@0.12.10(expo@54.0.31)(react-native@0.81.5)(react@19.1.0):
-    resolution: {integrity: sha512-GmfWoUqhV7MIj6vYiK/JoH9jaVHB3ktJprDLIL/5WhDbR7lxJLLMzH7dGjaUJx+gyMaBnzRRGzF0WJbY+1RYOw==}
-    peerDependencies:
-      expo: '*'
-      react: '*'
-      react-native: '*'
-    dependencies:
-      expo: 54.0.31(@babel/core@7.28.4)(@expo/metro-runtime@6.1.2)(expo-router@6.0.21)(react-native@0.81.5)(react@19.1.0)
-      react: 19.1.0
-      react-native: 0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0)
     dev: false
 
   /expo-modules-autolinking@3.0.24:
@@ -9537,6 +9529,23 @@ packages:
     dependencies:
       react: 19.1.0
       react-native: 0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0)
+    dev: false
+
+  /react-native-maps@1.14.0(react-native-web@0.21.1)(react-native@0.81.5)(react@19.1.0):
+    resolution: {integrity: sha512-ai7h4UdRLGPFCguz1fI8n4sKLEh35nZXHAH4nSWyAeHGrN8K9GjICu9Xd4Q5Ok4h+WwrM6Xz5pGbF3Qm1tO6iQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      react: '>= 17.0.1'
+      react-native: '>= 0.64.3'
+      react-native-web: '>= 0.11'
+    peerDependenciesMeta:
+      react-native-web:
+        optional: true
+    dependencies:
+      '@types/geojson': 7946.0.16
+      react: 19.1.0
+      react-native: 0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0)
+      react-native-web: 0.21.1(react-dom@19.1.0)(react@19.1.0)
     dev: false
 
   /react-native-notifier@2.0.0(react-native-gesture-handler@2.28.0)(react-native@0.81.5)(react@19.1.0):

@@ -100,3 +100,53 @@
 ### Next Steps
 - [Immediate next actions]
 ```
+
+---
+
+## 2026-01-13 - UI Developer - Task 03 Hook Wiring to Convex Endpoints
+
+### Status
+- Current Sprint: sprint-4
+- Task: `.spec/epic-1/sprints/sprint-4/tasks.md` — Task 03 (Hook Wiring to Convex Endpoints)
+- Status: Completed
+
+### Work Completed
+- Added client error utilities for deterministic code/message mapping: `lib/error-messages.ts` and `lib/convex-error.ts`.
+- Implemented planning hooks: `hooks/use-plan-ride.ts` (`usePlanInit`, `usePlanRide` with error handling and notifications).
+- Implemented saved routes hooks: `hooks/use-saved-routes.ts` (list/detail queries, save/rename/delete mutations with success/error notifications).
+- Implemented Google Places autocomplete hook with debounce, abort, and details lookup: `hooks/use-place-autocomplete.ts`.
+- Exposed optional Places API key in `lib/env.ts` and documented usage in `README.md`.
+- Added unit tests for error parsing and Places parsing helpers: `lib/convex-error.test.ts`, `hooks/use-place-autocomplete.test.ts`.
+
+### Decisions Made
+- Surface user-facing messages through the existing `lib/errors.ts` mapping for deterministic client messaging.
+- Treat Places API key as optional to avoid blocking app startup; surface a clear error when missing.
+
+### Issues/Blockers
+- None.
+
+### Next Steps
+- Task 04: integrate hooks into HomeMap/PlanRideSheet UI flow and wire saved routes screens.
+
+---
+
+## 2026-01-13 - UI Developer - Task 04 Map Controls Polish
+
+### Status
+- Current Sprint: sprint-4
+- Task: `.spec/epic-1/sprints/sprint-4/tasks.md` — Task 04 (HomeMap)
+- Status: In Progress
+
+### Work Completed
+- Restyled `components/map/map-controls.tsx` to mirror the home map design: compact vertical icon stack for zoom/location/layers, semantic theme colors, and Paper `Portal` overlay.
+- Added safe-area aware positioning + optional offsets; created a reusable pressed-state icon control button.
+- Updated `app/(app)/(tabs)/index.tsx` to use the portal-based controls without the old wrapper view.
+
+### Decisions Made
+- Default placement is top-right using safe-area offset; kept the clear/reset action on a layers-style button to stay visually aligned with the design until a dedicated layers toggle exists.
+
+### Issues/Blockers
+- Map provider is still `react-native-maps`; prior standup noted switching to `expo-maps` to avoid config plugin issues. Need confirmation before further map work.
+
+### Next Steps
+- Wire controls to real recenter/layer states as they land and continue Task 04 HomeMap assembly (search bar/top chrome/FAB interactions).

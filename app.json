@@ -65,13 +65,7 @@
         }
       ],
       "expo-secure-store",
-      "expo-web-browser",
-      [
-        "expo-maps",
-        {
-          "requestLocationPermission": true
-        }
-      ]
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

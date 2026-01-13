@@ -1,109 +1,370 @@
-import { useAuth } from '@clerk/clerk-expo'
-import { useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { MapControls } from '../../../components/map/map-controls'
+import type { MapViewHandle } from '../../../components/map/map-view'
+import { MapViewWrapper } from '../../../components/map/map-view'
+import { PlanFab } from '../../../components/map/plan-fab'
+import { buildRoutePolylines } from '../../../components/map/route-polyline'
 import { BottomSheetWrapper } from '../../../components/sheets/bottom-sheet-wrapper'
 import { Button } from '../../../components/ui/button'
+import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
+import type { PlanInput, PlannedRouteOptionsView, RouteStop } from '../../../types/routes'
 
-const HomeScreen = () => {
-  const { signOut, sessionId } = useAuth()
+type PlanningStatus = 'idle' | 'planning' | 'results' | 'error'
+
+type CameraState = {
+  center?: { latitude: number; longitude: number }
+  zoom?: number
+}
+
+type PlanningState = {
+  planningStatus: PlanningStatus
+  startStop: RouteStop | null
+  endStop: RouteStop | null
+  routeOptions: PlannedRouteOptionsView | null
+  selectedRouteOptionId: string | null
+  camera: CameraState
+}
+
+type Action =
+  | { type: 'setStart'; payload: RouteStop | null }
+  | { type: 'setEnd'; payload: RouteStop | null }
+  | { type: 'setStatus'; payload: PlanningStatus }
+  | { type: 'setRouteOptions'; payload: PlannedRouteOptionsView | null }
+  | { type: 'setSelectedOption'; payload: string | null }
+  | { type: 'setCamera'; payload: CameraState }
+  | { type: 'resetSelections' }
+
+const planningReducer = (state: PlanningState, action: Action): PlanningState => {
+  switch (action.type) {
+    case 'setStart':
+      return { ...state, startStop: action.payload }
+    case 'setEnd':
+      return { ...state, endStop: action.payload }
+    case 'setStatus':
+      return { ...state, planningStatus: action.payload }
+    case 'setRouteOptions':
+      return { ...state, routeOptions: action.payload }
+    case 'setSelectedOption':
+      return { ...state, selectedRouteOptionId: action.payload }
+    case 'setCamera':
+      return { ...state, camera: { ...state.camera, ...action.payload } }
+    case 'resetSelections':
+      return {
+        ...state,
+        startStop: null,
+        endStop: null,
+        routeOptions: null,
+        selectedRouteOptionId: null,
+        planningStatus: 'idle',
+      }
+    default:
+      return state
+  }
+}
+
+const initialState: PlanningState = {
+  planningStatus: 'idle',
+  startStop: null,
+  endStop: null,
+  routeOptions: null,
+  selectedRouteOptionId: null,
+  camera: {},
+}
+
+const HomeMapScreen = () => {
+  const mapRef = useRef<MapViewHandle | null>(null)
   const { semantic } = useSemanticTheme()
-  const [sheetAVisible, setSheetAVisible] = useState(false)
-  const [sheetBVisible, setSheetBVisible] = useState(false)
+  const { data: planInit } = usePlanInit()
+  const { planRide, isRunning: isPlanning, error: planningError, resetError } = usePlanRide()
+  const [sheetVisible, setSheetVisible] = useState(false)
+
+  const [state, dispatch] = useReducer(planningReducer, initialState)
+
+  const [scenicBias, setScenicBias] = useState<'default' | 'high'>('default')
+  const [avoidHighways, setAvoidHighways] = useState(false)
+  const [avoidTolls, setAvoidTolls] = useState(false)
+
+  useEffect(() => {
+    if (planInit?.defaults?.preferences) {
+      setScenicBias(planInit.defaults.preferences.scenicBias)
+      setAvoidHighways(planInit.defaults.preferences.avoidHighways ?? false)
+      setAvoidTolls(planInit.defaults.preferences.avoidTolls ?? false)
+    }
+  }, [planInit])
+
+  const selectedOption = useMemo(() => {
+    if (!state.routeOptions?.options?.length) return null
+    const explicit = state.routeOptions.options.find(
+      (opt) => opt.routeOptionId === state.selectedRouteOptionId
+    )
+    return explicit ?? state.routeOptions.options[0]
+  }, [state.routeOptions, state.selectedRouteOptionId])
+
+  const polylines = useMemo(() => {
+    if (!selectedOption) return []
+    return buildRoutePolylines({
+      route: {
+        overviewGeometry: selectedOption.map.overviewGeometry,
+        legs: selectedOption.map.legs,
+        overlays: (selectedOption.map as any)?.overlays,
+      },
+      variant: 'selected',
+      showLegs: true,
+      showWindOverlay: true,
+      semantic: semantic,
+    })
+  }, [selectedOption, semantic])
+
+  const markers = useMemo(() => {
+    const items: Array<any> = []
+    if (state.startStop) {
+      items.push({
+        id: 'start',
+        title: state.startStop.label ?? 'Start',
+        coordinates: { latitude: state.startStop.lat, longitude: state.startStop.lng },
+      })
+    }
+    if (state.endStop) {
+      items.push({
+        id: 'end',
+        title: state.endStop.label ?? 'End',
+        coordinates: { latitude: state.endStop.lat, longitude: state.endStop.lng },
+      })
+    }
+    return items
+  }, [state.startStop, state.endStop])
+
+  const handleMapClick = useCallback(
+    (event: { coordinates?: { latitude: number; longitude: number } }) => {
+      const coords = event.coordinates
+      if (!coords?.latitude || !coords?.longitude) return
+      const nextStop: RouteStop = {
+        lat: coords.latitude,
+        lng: coords.longitude,
+        label: state.startStop ? 'End' : 'Start',
+      }
+
+      if (!state.startStop) {
+        dispatch({ type: 'setStart', payload: nextStop })
+        dispatch({ type: 'setStatus', payload: 'idle' })
+        return
+      }
+
+      if (!state.endStop) {
+        dispatch({ type: 'setEnd', payload: nextStop })
+        dispatch({ type: 'setStatus', payload: 'idle' })
+        return
+      }
+
+      // Restart selection after two points are set
+      dispatch({ type: 'resetSelections' })
+      dispatch({ type: 'setStart', payload: nextStop })
+    },
+    [state.startStop, state.endStop]
+  )
+
+  const handlePlanRide = useCallback(async () => {
+    if (!state.startStop || !state.endStop) return
+    resetError()
+    dispatch({ type: 'setStatus', payload: 'planning' })
+
+    const input: PlanInput = {
+      start: state.startStop,
+      end: state.endStop,
+      departureTime: Date.now(),
+      preferences: {
+        scenicBias,
+        avoidHighways,
+        avoidTolls,
+      },
+    }
+
+    const result = await planRide(input)
+    if (!result) {
+      dispatch({ type: 'setStatus', payload: 'error' })
+      return
+    }
+
+    dispatch({ type: 'setRouteOptions', payload: result })
+    dispatch({ type: 'setSelectedOption', payload: result.options[0]?.routeOptionId ?? null })
+    dispatch({ type: 'setStatus', payload: 'results' })
+    setSheetVisible(false)
+
+    const bounds = result.options[0]?.map.bounds
+    if (bounds) {
+      const center = {
+        latitude: (bounds.north + bounds.south) / 2,
+        longitude: (bounds.east + bounds.west) / 2,
+      }
+      mapRef.current?.setCameraPosition({
+        coordinates: center,
+        zoom: (state.camera.zoom ?? 10) + 0.5,
+        duration: 500,
+      })
+      dispatch({ type: 'setCamera', payload: { center } })
+    }
+  }, [
+    state.startStop,
+    state.endStop,
+    scenicBias,
+    avoidHighways,
+    avoidTolls,
+    planRide,
+    resetError,
+    state.camera.zoom,
+  ])
+
+  const handleCameraMove = useCallback(
+    (event: { coordinates: { latitude: number; longitude: number }; zoom: number }) => {
+      if (!event.coordinates?.latitude || !event.coordinates?.longitude) return
+      dispatch({
+        type: 'setCamera',
+        payload: {
+          center: { latitude: event.coordinates.latitude, longitude: event.coordinates.longitude },
+          zoom: event.zoom,
+        },
+      })
+    },
+    []
+  )
+
+  const zoom = (delta: number) => {
+    mapRef.current?.zoomBy(delta)
+  }
+
+  const recenter = () => {
+    mapRef.current?.recenterToUser()
+  }
+
+  const clearAll = () => {
+    dispatch({ type: 'resetSelections' })
+  }
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          backgroundColor: semantic.color.background.default,
-          padding: semantic.space.lg,
-          gap: semantic.space.md,
-        },
-      ]}
-    >
-      <Text variant="headlineSmall" style={{ color: semantic.color.onSurface.default }}>
-        Home
-      </Text>
-      <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.muted }}>
-        Session: {sessionId ?? 'none'}
-      </Text>
+    <View style={styles.container}>
+      <MapViewWrapper
+        ref={mapRef}
+        polylines={polylines}
+        markers={markers}
+        onMapClick={handleMapClick}
+        onCameraMove={handleCameraMove}
+      />
 
-      <Button
-        variant="secondary"
-        onPress={() => {
-          void signOut()
-        }}
-        style={styles.fullWidth}
-        accessibilityLabel="Sign out"
-      >
-        Sign out
-      </Button>
+      <MapControls
+        onZoomIn={() => zoom(0.5)}
+        onZoomOut={() => zoom(-0.5)}
+        onRecenter={recenter}
+        onClear={clearAll}
+      />
 
-      <Button
-        variant="outline"
-        onPress={() => setSheetAVisible(true)}
-        style={styles.fullWidth}
-        accessibilityLabel="Open sheet A stack demo"
-      >
-        Open Sheet A (stack demo)
-      </Button>
+      <PlanFab onPress={() => setSheetVisible(true)} />
 
       <BottomSheetWrapper
-        isVisible={sheetAVisible}
-        onClose={() => setSheetAVisible(false)}
-        testID="sheet-a"
+        isVisible={sheetVisible}
+        onClose={() => setSheetVisible(false)}
         preset="half"
       >
-        <Text variant="titleMedium" style={{ color: semantic.color.onSurface.default }}>
-          Sheet A
-        </Text>
-        <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.muted }}>
-          This sheet demonstrates stackBehavior="push".
-        </Text>
-        <Button
-          variant="default"
-          onPress={() => setSheetBVisible(true)}
-          style={styles.fullWidth}
-          accessibilityLabel="Open sheet B"
+        <View
+          style={{
+            gap: semantic.space.sm,
+          }}
         >
-          Open Sheet B
-        </Button>
-      </BottomSheetWrapper>
+          <Text variant="titleMedium" style={{ color: semantic.color.onSurface.default }}>
+            Plan Ride
+          </Text>
 
-      <BottomSheetWrapper
-        isVisible={sheetBVisible}
-        onClose={() => setSheetBVisible(false)}
-        testID="sheet-b"
-        preset="content"
-      >
-        <Text variant="titleMedium" style={{ color: semantic.color.onSurface.default }}>
-          Sheet B
-        </Text>
-        <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.muted }}>
-          Closing this keeps Sheet A mounted.
-        </Text>
-        <Button
-          onPress={() => setSheetBVisible(false)}
-          style={styles.fullWidth}
-          accessibilityLabel="Close sheet B"
-        >
-          Close Sheet B
-        </Button>
+          <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.default }}>
+            Start:{' '}
+            {state.startStop
+              ? `${state.startStop.lat.toFixed(4)}, ${state.startStop.lng.toFixed(4)}`
+              : 'Tap map'}
+          </Text>
+          <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.default }}>
+            End:{' '}
+            {state.endStop
+              ? `${state.endStop.lat.toFixed(4)}, ${state.endStop.lng.toFixed(4)}`
+              : 'Tap map'}
+          </Text>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              gap: semantic.space.sm,
+            }}
+          >
+            <Button
+              size="sm"
+              variant={scenicBias === 'default' ? 'secondary' : 'outline'}
+              onPress={() => setScenicBias('default')}
+              testID="pref-scenic-default"
+            >
+              Scenic: default
+            </Button>
+            <Button
+              size="sm"
+              variant={scenicBias === 'high' ? 'secondary' : 'outline'}
+              onPress={() => setScenicBias('high')}
+              testID="pref-scenic-high"
+            >
+              Scenic: high
+            </Button>
+          </View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              gap: semantic.space.sm,
+            }}
+          >
+            <Button
+              size="sm"
+              variant={avoidHighways ? 'secondary' : 'outline'}
+              onPress={() => setAvoidHighways((prev) => !prev)}
+              testID="pref-avoid-highways"
+            >
+              Avoid highways
+            </Button>
+            <Button
+              size="sm"
+              variant={avoidTolls ? 'secondary' : 'outline'}
+              onPress={() => setAvoidTolls((prev) => !prev)}
+              testID="pref-avoid-tolls"
+            >
+              Avoid tolls
+            </Button>
+          </View>
+
+          {planningError ? (
+            <Text variant="bodyMedium" style={{ color: semantic.color.danger.default }}>
+              {planningError}
+            </Text>
+          ) : null}
+
+          <Button
+            variant="default"
+            disabled={!state.startStop || !state.endStop || isPlanning}
+            onPress={handlePlanRide}
+            testID="plan-ride-submit"
+          >
+            {isPlanning ? 'Planning...' : 'Plan ride'}
+          </Button>
+
+          <Button variant="outline" onPress={clearAll} testID="plan-ride-clear">
+            Clear selection
+          </Button>
+        </View>
       </BottomSheetWrapper>
     </View>
   )
 }
 
-export default HomeScreen
+export default HomeMapScreen
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-  },
-  fullWidth: {
-    alignSelf: 'stretch',
   },
 })

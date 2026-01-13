@@ -10,6 +10,8 @@ if (!CONVEX_URL) {
   throw new Error('EXPO_PUBLIC_CONVEX_URL environment variable is required. Set it in .env.local')
 }
 
+const GOOGLE_PLACES_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY
+
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
 if (!CLERK_PUBLISHABLE_KEY) {
   throw new Error(
@@ -20,6 +22,7 @@ if (!CLERK_PUBLISHABLE_KEY) {
 export const env = {
   CONVEX_URL,
   CLERK_PUBLISHABLE_KEY,
+  GOOGLE_PLACES_API_KEY,
 } as const
 
 /**

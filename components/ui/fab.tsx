@@ -6,8 +6,8 @@
  * Following react_rules.mdc: Named exports, no unnecessary hooks
  */
 
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { FAB as PaperFAB } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 export type FABProps = {
   icon: string
@@ -29,8 +29,9 @@ export const FAB = ({ icon, label, onPress, visible = true, testID }: FABProps) 
       testID={testID}
       style={{
         backgroundColor: semantic.color.primary.default,
+        borderRadius: semantic.radius['xl'],
       }}
-      color={semantic.color.onPrimary.default}
+      color={semantic.color.onSurface.default}
     />
   )
 }

@@ -20,16 +20,29 @@ pnpm add expo-maps @mapbox/polyline
 
 ```tsx
 import { MapViewWrapper } from '../components/map/map-view'
-import { RoutePolyline } from '../components/map/route-polyline'
+import { buildRoutePolylines } from '../components/map/route-polyline'
+import { useSemanticTheme } from '../hooks/use-semantic-theme'
 
-<MapViewWrapper>
-  <RoutePolyline
-    route={route}
-    variant="selected"
-    showLegs
-    showWindOverlay
-  />
-</MapViewWrapper>
+const { semantic } = useSemanticTheme()
+
+const polylines = buildRoutePolylines({
+  route: {
+    overviewGeometry: route.overviewGeometry,
+    legs: route.legs,
+    overlays: route.overlays,
+  },
+  variant: 'selected',
+  showLegs: true,
+  showWindOverlay: true,
+  semantic: semantic,
+})
+
+const markers = [
+  { id: 'start', title: 'Start', coordinates: { latitude: start.lat, longitude: start.lng } },
+  { id: 'end', title: 'End', coordinates: { latitude: end.lat, longitude: end.lng } },
+]
+
+<MapViewWrapper polylines={polylines} markers={markers} />
 ```
 
 Notes:

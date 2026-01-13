@@ -1,23 +1,8 @@
-import { AppleMaps, GoogleMaps } from 'expo-maps'
-import { Fragment, useMemo } from 'react'
-import { Platform } from 'react-native'
-import type { ComponentType } from 'react'
-import type {
-  PolylineGeometry,
-  RouteLeg,
-  RouteOverlays,
-  WindOverlayByLeg,
-  WindOverlaySegment,
-} from '../../models/saved-routes'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import {
-  computeCumulativeDistances,
-  decodePolylineGeometry,
-  slicePolylineByMeters,
-  type MapLatLng,
-} from '../../lib/polyline'
+import type { PolylineGeometry, RouteLeg, RouteOverlays, WindOverlayByLeg, WindOverlaySegment } from '../../models/saved-routes'
+import type { ExtendedTheme } from '../../styles/types'
+import { computeCumulativeDistances, decodePolylineGeometry, slicePolylineByMeters, type MapLatLng } from '../../lib/polyline'
 
-type RoutePolylineProps = {
+type RoutePolylineInput = {
   route: {
     overviewGeometry: PolylineGeometry
     legs: Array<RouteLeg>
@@ -28,7 +13,14 @@ type RoutePolylineProps = {
   showWindOverlay?: boolean
 }
 
-const getWindColor = (level: string, semantic: ReturnType<typeof useSemanticTheme>['semantic']): string => {
+export type BuiltPolyline = {
+  id?: string
+  coordinates: Array<{ latitude: number; longitude: number }>
+  strokeColor?: string
+  strokeWidth?: number
+}
+
+const getWindColor = (level: string, semantic: ExtendedTheme['semantic']): string => {
   switch (level) {
     case 'low':
       return semantic.color.success.default
@@ -44,88 +36,74 @@ const getWindColor = (level: string, semantic: ReturnType<typeof useSemanticThem
 const decodeLeg = (leg: RouteLeg): Array<MapLatLng> => decodePolylineGeometry(leg.geometry)
 
 const buildLegOverlayPolylines = (
-  leg: RouteLeg,
   legCoords: Array<MapLatLng>,
   windOverlay: WindOverlayByLeg,
-  semanticColors: ReturnType<typeof useSemanticTheme>['semantic'],
-  PolylineComponent: ComponentType<any>
-) => {
+  semanticColors: ExtendedTheme['semantic']
+): Array<BuiltPolyline> => {
   const distances = computeCumulativeDistances(legCoords)
 
-  return windOverlay.segments.flatMap((segment: WindOverlaySegment, index: number) => {
+  return windOverlay.segments.flatMap((segment: WindOverlaySegment) => {
     const sliced = slicePolylineByMeters(legCoords, distances, segment.startMeters, segment.endMeters)
     if (sliced.length < 2) return []
 
     return [
-      <PolylineComponent
-        key={`wind-${windOverlay.legIndex}-${index}`}
-        coordinates={sliced}
-        strokeColor={getWindColor(segment.level, semanticColors)}
-        strokeWidth={6}
-        zIndex={3}
-      />,
+      {
+        id: `wind-${windOverlay.legIndex}-${segment.startMeters}-${segment.endMeters}`,
+        coordinates: sliced,
+        strokeColor: getWindColor(segment.level, semanticColors),
+        strokeWidth: 6,
+      },
     ]
   })
 }
 
-export const RoutePolyline = ({
+export const buildRoutePolylines = ({
   route,
   variant = 'selected',
   showLegs = true,
   showWindOverlay = true,
-}: RoutePolylineProps) => {
-  const { semantic } = useSemanticTheme()
-  const PolylineComponent: ComponentType<any> =
-    (Platform.OS === 'ios' ? (AppleMaps as any)?.Polyline : (GoogleMaps as any)?.Polyline) ||
-    (() => null)
-
-  const overviewCoords = useMemo(() => decodePolylineGeometry(route.overviewGeometry), [route.overviewGeometry])
-  const legCoords = useMemo(() => route.legs.map((leg) => decodeLeg(leg)), [route.legs])
+  semantic,
+}: RoutePolylineInput & { semantic: ExtendedTheme['semantic'] }): Array<BuiltPolyline> => {
+  const overviewCoords = decodePolylineGeometry(route.overviewGeometry)
+  const legCoords = route.legs.map((leg) => decodeLeg(leg))
 
   const overviewColor =
     variant === 'selected' ? semantic.color.routeSelected.default : semantic.color.routeAlternate.default
-  const legColor =
-    variant === 'selected' ? semantic.color.routeAlternate.default : semantic.color.onSurface.muted
+  const legColor = variant === 'selected' ? semantic.color.routeAlternate.default : semantic.color.onSurface.muted
 
-  const windPolylines = useMemo(() => {
-    if (!showWindOverlay) return []
-    const wind = route.overlays?.wind
-    if (!wind) return []
+  const polylines: Array<BuiltPolyline> = []
 
-    return wind.byLeg.flatMap((overlay) => {
-      const leg = route.legs.find((l) => l.legIndex === overlay.legIndex)
-      const coords = legCoords[overlay.legIndex]
-      if (!leg || !coords) return []
-      return buildLegOverlayPolylines(leg, coords, overlay, semantic, PolylineComponent)
+  if (overviewCoords.length > 1) {
+    polylines.push({
+      id: 'overview',
+      coordinates: overviewCoords,
+      strokeColor: overviewColor,
+      strokeWidth: 6,
     })
-  }, [PolylineComponent, legCoords, route.legs, route.overlays?.wind, semantic, showWindOverlay])
+  }
 
-  return (
-    <Fragment>
-      {overviewCoords.length > 1 && (
-        <PolylineComponent
-          coordinates={overviewCoords}
-          strokeColor={overviewColor}
-          strokeWidth={6}
-          zIndex={1}
-        />
-      )}
+  if (showLegs) {
+    legCoords.forEach((coords, index) => {
+      if (coords.length < 2) return
+      polylines.push({
+        id: `leg-${index}`,
+        coordinates: coords,
+        strokeColor: legColor,
+        strokeWidth: 4,
+      })
+    })
+  }
 
-      {showLegs &&
-        legCoords.map((coords, index) => {
-          if (coords.length < 2) return null
-          return (
-            <PolylineComponent
-              key={`leg-${index}`}
-              coordinates={coords}
-              strokeColor={legColor}
-              strokeWidth={4}
-              zIndex={2}
-            />
-          )
-        })}
+  if (showWindOverlay) {
+    const wind = route.overlays?.wind
+    if (wind) {
+      wind.byLeg.forEach((overlay) => {
+        const coords = legCoords[overlay.legIndex]
+        if (!coords || coords.length < 2) return
+        polylines.push(...buildLegOverlayPolylines(coords, overlay, semantic))
+      })
+    }
+  }
 
-      {windPolylines}
-    </Fragment>
-  )
+  return polylines
 }
