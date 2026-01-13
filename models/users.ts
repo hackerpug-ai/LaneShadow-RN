@@ -21,9 +21,11 @@ export const USER_FIELDS = {
   lastLocalUpdateAt: v.number(),
 } as const
 
-export const userValidator = v.object(USER_FIELDS)
+export const userValidator = v.object({
+  ...USER_FIELDS,
+  _id: v.id('users'),
+})
 export type User = Infer<typeof userValidator>
-
 
 export const sessionValidator = v.object({
   user: userValidator,

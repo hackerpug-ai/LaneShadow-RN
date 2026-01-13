@@ -32,6 +32,21 @@ export const conditionsStatusValidator = v.union(
   v.literal(CONDITIONS_STATUS.UNAVAILABLE)
 )
 
+export const WIND_SUMMARY = {
+  LOW: 'low',
+  MODERATE: 'moderate',
+  HIGH: 'high',
+  UNAVAILABLE: 'unavailable',
+} as const
+export type WindSummary = (typeof WIND_SUMMARY)[keyof typeof WIND_SUMMARY]
+
+export const windSummaryValidator = v.union(
+  v.literal(WIND_SUMMARY.LOW),
+  v.literal(WIND_SUMMARY.MODERATE),
+  v.literal(WIND_SUMMARY.HIGH),
+  v.literal(WIND_SUMMARY.UNAVAILABLE)
+)
+
 export const boundsValidator = v.object({
   north: v.number(),
   south: v.number(),

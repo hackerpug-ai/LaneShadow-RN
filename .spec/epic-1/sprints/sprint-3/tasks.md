@@ -217,7 +217,7 @@
 ### Task 07 — Backend: Implement reliability standards for agentic pipeline (timeouts, retry-once, bounded concurrency) (TRD §4.2.1, §9, §11)
 
 **Assignee**: @.cursor/agents/backend-engineer.md
-**Status**: Pending
+**Status**: Completed
 **Dependencies**: Tasks 01–06
 
 #### Context
@@ -257,7 +257,7 @@
 ### Task 08 — Backend: Implement `actions.agent.planRide` end-to-end orchestration (TRD §4.3.5, §5.3, §9)
 
 **Assignee**: @.cursor/agents/backend-engineer.md
-**Status**: Pending
+**Status**: Completed
 **Dependencies**: Tasks 01–07
 
 #### Context
@@ -298,16 +298,16 @@
   - Avoid excessive `ctx.runQuery`/`ctx.runMutation` fan-out; keep orchestration in-process within the action as much as possible.
 
 #### Acceptance Criteria
-- [ ] `api.actions.agent.planRide` exists after Convex codegen.
-- [ ] LLM sketching is implemented via **LangChain** in `convex/actions/agent/llm/routerAgent.ts` (no raw OpenAI calls in `planRide`).
-- [ ] With valid input, returns 2–3 options including:
+- [x] `api.actions.agent.planRide` exists after Convex codegen.
+- [x] LLM sketching is implemented via **LangChain** in `convex/actions/agent/llm/routerAgent.ts` (no raw OpenAI calls in `planRide`).
+- [x] With valid input, returns 2–3 options including:
   - `label`, `rationale`
   - `stats` (distance/duration/legsCount)
   - `map` (bounds + overviewGeometry + legs[])
   - `overlaysPreview.windSummary` + `conditionsStatus`
-- [ ] Hard failures throw deterministic TRD §11 error codes.
-- [ ] Soft conditions failures still return routes with `conditionsStatus: "unavailable"`.
-- [ ] Output shapes compile against shared types (no duplicated TRD shapes).
+- [x] Hard failures throw deterministic TRD §11 error codes.
+- [x] Soft conditions failures still return routes with `conditionsStatus: "unavailable"`.
+- [x] Output shapes compile against shared types (no duplicated TRD shapes).
 
 #### Files to Create / Modify
 - **Create**: `convex/actions/agent/planRide.ts`

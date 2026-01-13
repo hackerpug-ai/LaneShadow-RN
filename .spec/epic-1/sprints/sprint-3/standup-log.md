@@ -71,6 +71,38 @@
 - Task 06: Add conditions probing + wind overlay mapping (soft-fail).
 - Task 07: Implement `actions.agent.planRide` orchestration using LangChain router agent + validation + provider compilation + normalization.
 
+## 2026-01-13 - Backend Engineer Agent - Sprint 3 Task 08 (planRide orchestration + LangChain routerAgent)
+
+### Status
+- Current Sprint: sprint-3
+- Task: Task 08 — Implement `actions.agent.planRide` end-to-end orchestration
+- Status: Completed
+
+### Work Completed
+- Implemented `actions.agent.planRide` orchestration end-to-end (auth → LLM sketches → compile/normalize/index → conditions soft-fail → view model)
+  - Created: `convex/actions/agent/planRide.ts`
+- Implemented LangChain router agent wrapper with structured output + bounded retry/timeout
+  - Created: `convex/actions/agent/llm/routerAgent.ts`
+- Added missing LangChain dependencies to `package.json` (Convex already whitelisted in `convex.json`)
+  - Added: `langchain`, `@langchain/openai`, `@langchain/core`, `@langchain/langgraph`
+- Wired OpenAI key through Convex env module
+  - Modified: `convex/lib/env.ts` (added `OPENAI_API_KEY`)
+- Centralized wind summary literals + validator in models (so validators and runtime code share constants)
+  - Modified: `models/saved-routes.ts` (added `WIND_SUMMARY`, `WindSummary`, `windSummaryValidator`)
+  - Modified: `types/routes.ts` (use `WindSummary`)
+- Added tests for `planRide` covering happy path, soft-fail conditions, and deterministic hard-fail
+  - Created: `convex/actions/agent/__tests__/planRide.test.ts`
+
+### Decisions Made
+- `overlaysPreview.windSummary` is modeled as a level string (`low|moderate|high|unavailable`) and centralized in `models/saved-routes.ts`.
+- Router LLM model default: `gpt-4o` with temperature 0; structured output enforced via Zod schema at agent boundary.
+
+### Issues/Blockers
+- None.
+
+### Next Steps
+- Task 09: Add a manual verification playbook (recommended in `convex/README.md`) for running `planRide` with/without provider keys and validating degraded-mode behavior.
+
 ### Entry Template
 
 ```markdown

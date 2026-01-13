@@ -6,6 +6,7 @@ import type {
   RouteSnapshot,
   SavedRouteCapabilities,
   SnapshotMeta,
+  WindSummary,
 } from '../models/saved-routes'
 
 export type {
@@ -54,4 +55,29 @@ export type SavedRouteDetailView = {
   routeIndex: RouteIndex
   snapshotMeta: SnapshotMeta
   capabilities: SavedRouteCapabilities
+}
+
+export type PlannedRouteOptionView = {
+  routeOptionId: string
+  label: string
+  rationale: string
+  stats: {
+    distanceMeters: number
+    durationSeconds: number
+    legsCount: number
+  }
+  map: {
+    bounds: RouteSnapshot['bounds']
+    overviewGeometry: RouteSnapshot['overviewGeometry']
+    legs: RouteSnapshot['legs']
+  }
+  overlaysPreview: {
+    windSummary: WindSummary
+    conditionsStatus: 'ok' | 'unavailable'
+  }
+}
+
+export type PlannedRouteOptionsView = {
+  planId: string
+  options: Array<PlannedRouteOptionView>
 }
