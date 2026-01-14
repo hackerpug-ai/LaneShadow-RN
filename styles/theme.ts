@@ -128,6 +128,13 @@ const lightSemanticTheme: SemanticTheme = {
     input: createColorSet('#FFFFFF', '#F5F3F0', '#EAE4DD', '#F7F3EE'),
     ring: createColorSet('#B87333', '#C58545', '#8C5A2B', '#E3C3A5'),
 
+    // Location / POI (map + location UI accents) - HEX only
+    locationPoiDisabled: createColorSet('#BFB8B0'),
+    locationPoiFill: createColorSet('#2C2A28', '#353230', '#1F1D1B', '#BFB8B0'),
+    locationPoiRing: createColorSet('#B87333', '#C58545', '#8C5A2B', '#BFB8B0'),
+    locationPoiMuted: createColorSet('#6E6A64', '#7A7670', '#5F5B56', '#BFB8B0'),
+    locationPoiBg: createColorSet('#F3EFE8', '#F7F3ED', '#EAE4DD', '#BFB8B0'),
+
     // Component-specific
     card: createColorSet('#FFFFFF', '#F5F3F0', '#EAE4DD', '#FFFFFF'),
     popover: createColorSet('#FFFFFF', '#F5F3F0', '#EAE4DD', '#FFFFFF'),
@@ -267,6 +274,13 @@ const darkSemanticTheme: SemanticTheme = {
     border: createColorSet('#3A3431', '#443E3A', '#2F2A27', 'rgba(255,255,255,0.06)'),
     input: createColorSet('#24272B', '#2D3136', '#1A1C1F', '#1A1C1F'),
     ring: createColorSet('#B87333', '#C58545', '#8C5A2B', '#6A3F1F'),
+
+    // Location / POI (map + location UI accents) - HEX only
+    locationPoiDisabled: createColorSet('#5A5652'),
+    locationPoiFill: createColorSet('#EDEDED', '#FFFFFF', '#DADADA', '#5A5652'),
+    locationPoiRing: createColorSet('#B87333', '#C58545', '#8C5A2B', '#5A5652'),
+    locationPoiMuted: createColorSet('#A3A3A3', '#B0B0B0', '#8F8F8F', '#5A5652'),
+    locationPoiBg: createColorSet('#1B1816', '#241F1C', '#14110F', '#5A5652'),
 
     // Component-specific
     card: createColorSet('#24272B', '#2D3136', '#1A1C1F', '#1A1C1F'),

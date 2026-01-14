@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Text } from 'react-native-paper'
+import { Icon, Text } from 'react-native-paper'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MapControls } from '../../../components/map/map-controls'
 import type { MapViewHandle } from '../../../components/map/map-view'
 import { MapViewWrapper } from '../../../components/map/map-view'
-import { PlanFab } from '../../../components/map/plan-fab'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
+import { WhereToBar } from '../../../components/map/where-to-bar'
 import { BottomSheetWrapper } from '../../../components/sheets/bottom-sheet-wrapper'
 import { Button } from '../../../components/ui/button'
 import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
@@ -77,9 +78,11 @@ const initialState: PlanningState = {
 const HomeMapScreen = () => {
   const mapRef = useRef<MapViewHandle | null>(null)
   const { semantic } = useSemanticTheme()
+  const insets = useSafeAreaInsets()
   const { data: planInit } = usePlanInit()
   const { planRide, isRunning: isPlanning, error: planningError, resetError } = usePlanRide()
   const [sheetVisible, setSheetVisible] = useState(false)
+  const [searchStop, setSearchStop] = useState<RouteStop | null>(null)
 
   const [state, dispatch] = useReducer(planningReducer, initialState)
 
@@ -134,8 +137,15 @@ const HomeMapScreen = () => {
         coordinates: { latitude: state.endStop.lat, longitude: state.endStop.lng },
       })
     }
+    if (searchStop) {
+      items.push({
+        id: 'search',
+        title: searchStop.label ?? 'Search',
+        coordinates: { latitude: searchStop.lat, longitude: searchStop.lng },
+      })
+    }
     return items
-  }, [state.startStop, state.endStop])
+  }, [state.startStop, state.endStop, searchStop])
 
   const handleMapClick = useCallback(
     (event: { coordinates?: { latitude: number; longitude: number } }) => {
@@ -241,6 +251,7 @@ const HomeMapScreen = () => {
 
   const clearAll = () => {
     dispatch({ type: 'resetSelections' })
+    setSearchStop(null)
   }
 
   return (
@@ -254,13 +265,49 @@ const HomeMapScreen = () => {
       />
 
       <MapControls
-        onZoomIn={() => zoom(0.5)}
-        onZoomOut={() => zoom(-0.5)}
+        onZoomIn={() => zoom(1)}
+        onZoomOut={() => zoom(-1)}
         onRecenter={recenter}
         onClear={clearAll}
       />
 
-      <PlanFab onPress={() => setSheetVisible(true)} />
+      <View
+        pointerEvents="box-none"
+        style={[
+          styles.bottomOverlay,
+          {
+            paddingBottom: insets.bottom + semantic.space.lg,
+            paddingHorizontal: semantic.space.lg,
+            gap: semantic.space.sm,
+          },
+        ]}
+      >
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <WhereToBar
+            onPlaceSelected={(place) => {
+              setSearchStop(place)
+              mapRef.current?.setCameraPosition({
+                coordinates: { latitude: place.lat, longitude: place.lng },
+                zoom: (state.camera.zoom ?? 12) + 0.5,
+                duration: 500,
+              })
+            }}
+            onClear={() => {
+              setSearchStop(null)
+            }}
+          />
+        </View>
+
+        <Button
+          icon={<Icon source="map-plus" size={30} />}
+          size="icon"
+          variant="default"
+          textStyle={{ color: semantic.color.onSurface.default }}
+          onPress={() => setSheetVisible(true)}
+          accessibilityLabel="Plan ride"
+          testID="plan-ride-button"
+        ></Button>
+      </View>
 
       <BottomSheetWrapper
         isVisible={sheetVisible}
@@ -366,5 +413,25 @@ export default HomeMapScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  bottomOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'flex-end',
+    zIndex: 20,
+    flex: 1,
+    minWidth: 0,
+    maxWidth: 780,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'nowrap',
+    flexBasis: 'auto',
+  },
+
+  plannerButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 })

@@ -5,13 +5,25 @@ type MapStyle = Array<Record<string, unknown>>
 const pickColor = (value: string | undefined, fallback: string, dark: boolean) =>
   value ?? fallback ?? (dark ? '#EBEBEB' : '#1E1E1E')
 
+const pickSemanticHex = (semantic: ExtendedTheme['semantic'], key: string): string | undefined => {
+  const record = semantic.color as unknown as Record<string, unknown>
+  const value = record[key]
+  if (!value || typeof value !== 'object') return undefined
+  const defaultValue = (value as { default?: unknown }).default
+  return typeof defaultValue === 'string' ? defaultValue : undefined
+}
+
 export const buildMapStyleFromTheme = (theme: ExtendedTheme): MapStyle => {
   const { semantic, dark } = theme
+
+  const locationPoiBg = pickSemanticHex(semantic, 'locationPoiBg')
+  const locationPoiMuted = pickSemanticHex(semantic, 'locationPoiMuted')
 
   const palette = dark
     ? {
         land: '#141210',
-        poiSurface: '#1B1816',
+        poiSurface: pickColor(locationPoiBg, '#1B1816', dark),
+        poiText: pickColor(locationPoiMuted, '#A3A3A3', dark),
         roadBase: '#26221F',
         localRoad: '#1A1715',
         arterial: '#3A3430',
@@ -22,7 +34,8 @@ export const buildMapStyleFromTheme = (theme: ExtendedTheme): MapStyle => {
       }
     : {
         land: '#EFEAE3',
-        poiSurface: '#F3EFE8',
+        poiSurface: pickColor(locationPoiBg, '#F3EFE8', dark),
+        poiText: pickColor(locationPoiMuted, '#6E6A64', dark),
         roadBase: '#DCD4CB',
         localRoad: '#E7E1DA',
         arterial: '#BEB5AB',
@@ -55,16 +68,11 @@ export const buildMapStyleFromTheme = (theme: ExtendedTheme): MapStyle => {
       elementType: 'geometry.stroke',
       stylers: [{ color: palette.border }],
     },
-    // POIs
-    {
-      featureType: 'poi',
-      elementType: 'geometry',
-      stylers: [{ color: palette.poiSurface }],
-    },
+    // POIs - only style labels, let geometry use defaults
     {
       featureType: 'poi',
       elementType: 'labels.text.fill',
-      stylers: [{ color: palette.textMuted }],
+      stylers: [{ color: palette.poiText }],
     },
     // Roads - local
     {

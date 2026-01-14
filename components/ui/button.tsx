@@ -251,7 +251,7 @@ export const Button = ({
           </Text>
         ) : (
           <>
-            {icon && iconPosition === 'left' && (
+            {icon && iconPosition === 'left' && !isIconOnly && (
               <View
                 style={[styles.iconContainer, !isIconOnly && { marginRight: semantic.space.sm }]}
               >

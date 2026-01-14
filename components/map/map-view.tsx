@@ -60,6 +60,11 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
       center?: { latitude: number; longitude: number }
       zoom?: number
     }>({})
+    const [lastRegion, setLastRegion] = useState<{
+      center?: { latitude: number; longitude: number }
+      latitudeDelta?: number
+      longitudeDelta?: number
+    }>({})
     const [lastUserLocation, setLastUserLocation] = useState<{
       latitude: number
       longitude: number
@@ -88,28 +93,55 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
       },
       zoomBy: (delta: number) => {
         if (!mapRef.current) return
-        const nextZoom = (lastCamera.zoom ?? 10) + delta
-        const centerToUse = lastCamera.center
+        const centerToUse = lastRegion.center ?? lastCamera.center
         if (!centerToUse) return
-        mapRef.current.animateCamera(
+
+        const baseLatitudeDelta = lastRegion.latitudeDelta ?? 0.05
+        const baseLongitudeDelta = lastRegion.longitudeDelta ?? 0.05
+
+        const scale =
+          delta > 0
+            ? Math.pow(0.5, delta) // zoom in
+            : Math.pow(2, Math.abs(delta)) // zoom out
+
+        const latitudeDelta = Math.min(90, Math.max(0.0005, baseLatitudeDelta * scale))
+        const longitudeDelta = Math.min(90, Math.max(0.0005, baseLongitudeDelta * scale))
+
+        mapRef.current.animateToRegion(
           {
-            center: centerToUse,
-            zoom: nextZoom,
+            latitude: centerToUse.latitude,
+            longitude: centerToUse.longitude,
+            latitudeDelta,
+            longitudeDelta,
           },
-          { duration: 300 }
+          300
         )
-        setLastCamera((prev) => ({ ...prev, zoom: nextZoom }))
+
+        setLastRegion((prev) => ({ ...prev, center: centerToUse, latitudeDelta, longitudeDelta }))
       },
       recenterToUser: () => {
         if (!mapRef.current || !lastUserLocation) return
-        mapRef.current.animateCamera(
+
+        const baseLatitudeDelta = lastRegion.latitudeDelta ?? 0.05
+        const baseLongitudeDelta = lastRegion.longitudeDelta ?? 0.05
+
+        mapRef.current.animateToRegion(
           {
-            center: lastUserLocation,
-            zoom: lastCamera.zoom ?? 14,
+            latitude: lastUserLocation.latitude,
+            longitude: lastUserLocation.longitude,
+            latitudeDelta: baseLatitudeDelta,
+            longitudeDelta: baseLongitudeDelta,
           },
-          { duration: 300 }
+          300
         )
+
         setLastCamera((prev) => ({ ...prev, center: lastUserLocation }))
+        setLastRegion((prev) => ({
+          ...prev,
+          center: lastUserLocation,
+          latitudeDelta: baseLatitudeDelta,
+          longitudeDelta: baseLongitudeDelta,
+        }))
       },
     }))
 
@@ -123,10 +155,20 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
     }, [onMapClick])
 
     const onRegionChangeComplete = useMemo(() => {
-      return (region: { latitude: number; longitude: number; latitudeDelta: number }) => {
+      return (region: {
+        latitude: number
+        longitude: number
+        latitudeDelta: number
+        longitudeDelta: number
+      }) => {
         const zoom = Math.log2(360 / region.latitudeDelta)
         const center = { latitude: region.latitude, longitude: region.longitude }
         setLastCamera({ center, zoom })
+        setLastRegion({
+          center,
+          latitudeDelta: region.latitudeDelta,
+          longitudeDelta: region.longitudeDelta,
+        })
         if (onCameraMove) {
           onCameraMove({
             coordinates: center,
@@ -175,12 +217,12 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
         provider={PROVIDER_GOOGLE}
         customMapStyle={mapStyle}
         showsUserLocation
-        showsMyLocationButton
         onMapReady={async () => {
           if (mapRef.current?.getCamera) {
             const cam: any = await mapRef.current.getCamera?.()
             if (cam?.center) {
               setLastCamera({ center: cam.center, zoom: cam.zoom ?? 12 })
+              setLastRegion((prev) => ({ ...prev, center: cam.center }))
             }
           }
         }}
