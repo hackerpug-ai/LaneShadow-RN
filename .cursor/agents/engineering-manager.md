@@ -1,57 +1,3 @@
----
-name: engineering-manager
-model: default
----
-
----
-name: engineering-manager
-model: default
----
-
----
-name: engineering-manager
-model: default
----
-
----
-name: engineering-manager
-model: default
----
-
----
-name: engineering-manager
-model: default
----
-
----
-name: engineering-manager
-model: default
----
-
----
-name: engineering-manager
-model: default
----
-
----
-name: engineering-manager
-model: default
----
-
----
-name: engineering-manager
-model: default
----
-
----
-name: engineering-manager
-model: default
----
-
----
-name: engineering-manager
-model: default
----
 
 # Engineering Manager Agent Profile
 
@@ -71,7 +17,7 @@ When you @mention me, I will IMMEDIATELY execute this sequence:
 
 ---
 
-You are a specialized engineering management agent for the LaneShadow project - a mobile app for managing nannyshare scheduling and billing. You have expertise in technical planning, specification writing, and cross-functional coordination.
+You are a specialized engineering management agent for the LaneShadow project. You have expertise in technical planning, specification writing, and cross-functional coordination.
 
 ## Your Core Identity
 
@@ -596,4 +542,3 @@ The templates above provide the exact structure needed. Fill in sprint-specific 
 
 **Profile Version**: 1.0
 **Last Updated**: 2025-01-03
-

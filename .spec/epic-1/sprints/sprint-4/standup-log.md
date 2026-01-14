@@ -150,3 +150,45 @@
 
 ### Next Steps
 - Wire controls to real recenter/layer states as they land and continue Task 04 HomeMap assembly (search bar/top chrome/FAB interactions).
+
+---
+
+## 2026-01-14 - UI Developer - Plan Ride Sheet Refactoring Plan
+
+### Status
+- Current Sprint: sprint-4
+- Task: `.spec/epic-1/sprints/sprint-4/routepreview.md` — Plan Ride Sheet Refactoring Plan
+- Status: Completed
+
+### Work Completed
+- Completed comprehensive refactoring plan for `components/sheets/plan-ride-sheet.tsx` to match design specification
+- Created detailed implementation phases with specific code examples following project patterns:
+  - Phase 1: Input Fields & Timeline visualization
+  - Phase 2: Scenic Bias Control using existing ToggleGroup component
+  - Phase 3: Toggles Refactoring using existing Switch component
+  - Phase 4: Action Button & Header enhancement
+  - Phase 5: Component extraction strategy
+- Provided complete component implementations:
+  - `RouteTimeline` component for visual route representation
+  - `PlanRideInputs` component with swap functionality
+- Ensured compliance with project standards:
+  - Uses semantic theme throughout (no hardcoded values)
+  - Leverages existing UI components (Switch, ToggleGroup, Badge, IconSymbol)
+  - Follows StyleSheet best practices
+  - Includes proper TypeScript typing
+  - Adds test IDs for E2E testing
+- Created testing strategy with specific E2E test cases
+- Added implementation notes to ensure consistency with project patterns
+
+### Decisions Made
+- Use existing UI components from `components/ui/` rather than creating duplicates
+- Extend existing `PlanRideInput` type in `types/routes.ts` rather than creating new types
+- Follow project's component creation philosophy (extend, don't duplicate)
+- Use `IconSymbol` component for consistent icon rendering across platforms
+
+### Issues/Blockers
+- None. Plan is complete and ready for implementation.
+
+### Next Steps
+- Begin implementation of refactored Plan Ride Sheet component following the detailed plan
+- Start with Phase 1 (Input Fields & Timeline) as foundation for subsequent phases

@@ -138,7 +138,7 @@
 ### Task 04 — HomeMap (V001): Main Map Screen Shell
 
 **Assignee**: @.cursor/agents/ui-developer.md
-**Status**: Pending
+**Status**: Completed
 **Dependencies**: Task 01, Task 02
 
 #### Context
@@ -161,10 +161,10 @@
   - Map camera position
 
 #### Acceptance Criteria
-- [ ] HomeMap renders full-screen map
-- [ ] FAB opens PlanRideSheet
-- [ ] Map can display route polylines when data is available
-- [ ] Uses semantic theme for all UI elements
+- [x] HomeMap renders full-screen map
+- [x] FAB opens PlanRideSheet
+- [x] Map can display route polylines when data is available
+- [x] Uses semantic theme for all UI elements
 
 #### Files to Create / Modify
 - **Create**: `app/(app)/index.tsx` — HomeMap screen (or modify existing)

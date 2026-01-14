@@ -1,0 +1,931 @@
+---
+alwaysApply: false
+---
+
+# AI Agent Development Rules
+
+Best practices for developing AI agents in the Hummingbird platform using Claude Agent SDK.
+
+## Core Principles
+
+### 1. Agents as Users Pattern
+
+**Rule:** AI agents are special users in the `users` table that reference configuration in the `agents` table.
+
+```typescript
+// ✅ DO: Agent user references agent config
+users: defineTable({
+  userType: v.optional(v.union(v.literal('human'), v.literal('agent'))),
+  agentId: v.optional(v.id('agents')), // Reference to agents table
+})
+
+agents: defineTable({
+  model: v.string(),
+  capabilities: v.array(v.string()),
+  systemPrompt: v.optional(v.string()),
+})
+
+// ❌ DON'T: Embed agent config in users table
+users: defineTable({
+  agentMetadata: v.optional(v.object({
+    model: v.string(),
+    systemPrompt: v.string(),
+    // Duplicates agents table data
+  })),
+})
+```
+
+**Why:** Keeps agent configuration centralized, allows multiple agent users to share configs, cleaner data model.
+
+### 2. Unified Messaging (No Components)
+
+**Rule:** Use existing `threads` and `messages` tables for AI conversations. Do NOT use Convex Agent Component.
+
+```typescript
+// ✅ DO: AI conversations use main app threads/messages
+const threadId = await ctx.db.insert('threads', {
+  kind: 'direct', // Regular thread
+  // ...
+})
+
+// Add agent user as participant
+await ctx.db.insert('threadParticipants', {
+  threadId,
+  userId: agentUser._id, // Agent is just another participant
+})
+
+// ❌ DON'T: Use component's isolated tables
+import agent from '@convex-dev/agent/convex.config'
+app.use(agent) // Creates component.threads, component.messages (isolated)
+```
+
+**Why:**
+- Unified inbox (all conversations together)
+- Future-proof for mixed human/AI group chats
+- Full data ownership and control
+- No vendor lock-in on data model
+
+### 3. Human-in-the-Loop Approval
+
+**Rule:** AI tools create drafts in `agentDrafts` table, not final records. Require human approval before publishing.
+
+```typescript
+// ✅ DO: Create draft for approval
+export const createCareLogTool = (ctx, threadId) =>
+  tool('create_care_log', description, schema, async (args) => {
+    // Validate scope
+    await requireAIScopeAction(ctx, threadId, { ... })
+    
+    // Create DRAFT (not final record)
+    const draftId = await ctx.runMutation(internal.db.agentDrafts.createCareLogDraft, {
+      threadId,
+      childId: args.childId,
+      type: args.type,
+      notes: args.notes,
+    })
+    
+    return {
+      content: [{ type: 'text', text: "I've drafted a care log. Please review and approve." }],
+      metadata: { draftId },
+    }
+  })
+
+// ❌ DON'T: Create final record directly
+export const createCareLogTool = (ctx, threadId) =>
+  tool('create_care_log', description, schema, async (args) => {
+    // No approval - creates immediately
+    await ctx.runMutation(internal.db.careLogs.create, { ... })
+    return { content: [{ type: 'text', text: "Care log created!" }] }
+  })
+```
+
+**Why:**
+- Safety: Nothing published without explicit approval
+- Review: Teacher verifies details are correct
+- Edit: Can modify draft before approving
+- Audit trail: Track AI proposals vs human approvals
+
+### 4. Scope Enforcement
+
+**Rule:** Every AI tool MUST validate scope using `requireAIScopeAction` guard before execution.
+
+```typescript
+// ✅ DO: Validate scope in every tool
+export const createCareLogTool = (ctx, threadId) =>
+  tool('create_care_log', description, schema, async (args) => {
+    // CRITICAL: Validate teacher has access to child's classroom
+    const scopeContext = await requireAIScopeAction(ctx, threadId, {
+      actionType: 'create_care_log',
+      targetType: 'child',
+      targetId: args.childId,
+    })
+    
+    // Scope validated - proceed with draft creation
+    await ctx.runMutation(internal.db.agentDrafts.createCareLogDraft, {
+      classroomId: scopeContext.targetScope.id, // Use validated classroom
+      // ...
+    })
+  })
+
+// ❌ DON'T: Skip scope validation
+export const createCareLogTool = (ctx, threadId) =>
+  tool('create_care_log', description, schema, async (args) => {
+    // No validation - AI can access any classroom!
+    await ctx.runMutation(internal.db.agentDrafts.createCareLogDraft, {
+      childId: args.childId,
+      // Missing scope check - SECURITY VULNERABILITY
+    })
+  })
+```
+
+**Why:**
+- Security: Prevents AI from being privilege escalation vector
+- Authorization: AI respects human user's scope boundaries
+- Consistency: Same authorization model as direct user actions
+
+**Scope Validation Flow:**
+1. AI calls tool with target (child, classroom, etc.)
+2. `requireAIScopeAction` resolves target to scope (child → classroom via enrollment)
+3. Guard checks human user's assignments for that scope
+4. Guard validates role can perform action (teachers create care logs)
+5. If valid: returns scope context, tool proceeds
+6. If invalid: throws error, tool catches and returns to AI
+
+### 5. Agent Organization
+
+**Rule:** Organize agents in `convex/agents/<agentName>/` directory structure.
+
+```
+convex/agents/
+├── teachingAssistant/
+│   ├── config.ts          # Agent configuration & system prompt
+│   ├── tools.ts           # Custom tools with scope enforcement
+│   └── index.ts           # MCP server setup
+├── scheduler/             # Future agent
+│   ├── config.ts
+│   ├── tools.ts
+│   └── index.ts
+└── README.md              # Agent architecture docs
+```
+
+**Why:** Clear separation of concerns, easy to add new agents, maintainable structure.
+
+### 5a. AI Constants & Prompts Organization
+
+**Rule:** ALL AI-related constants, prompts, and model configurations MUST be centralized in `convex/actions/ai/` folder.
+
+```
+convex/actions/ai/
+├── constants.ts           # Models, temperatures, token limits, config
+├── prompts.ts             # Prompt templates and helper functions
+├── ingest.ts              # Uses ./constants and ./prompts
+└── agentWorker.ts         # Uses ./constants and ./prompts
+```
+
+```typescript
+// ✅ DO: Centralize AI constants in ai/ folder
+// convex/actions/ai/constants.ts
+export const AI_MODELS = {
+  INTENT_CLASSIFICATION: 'gpt-4o-mini',
+  TRANSCRIPTION: 'gpt-4o-mini-transcribe',
+  ENRICHMENT: 'claude-sonnet-4-20250514',
+} as const
+
+export const AI_TEMPERATURE = {
+  INTENT_CLASSIFICATION: 0.3,
+  POST_ENRICHMENT: 0.3,
+  // ...
+} as const
+
+// convex/actions/ai/prompts.ts
+export const AGENT_DRAFT_KIND_DESCRIPTIONS = { ... }
+export const getIntentClassificationContext = () => { ... }
+
+// convex/actions/ai/ingest.ts
+import { AI_MODELS, AI_TEMPERATURE } from './constants'
+import { getIntentClassificationContext } from './prompts'
+
+// ❌ DON'T: Place AI constants in validators.ts or root convex/
+// convex/validators.ts
+export const AI_MODELS = { ... } // WRONG - belongs in ai/ folder
+// convex/constants.ts
+export const AI_TEMPERATURE = { ... } // WRONG - belongs in ai/ folder
+```
+
+**Why:**
+- Keeps AI configuration colocated with AI actions
+- Single source of truth for all AI constants
+- Easier to find and update model/temperature settings
+- Better organization (all AI code in one place)
+- Prevents mixing AI constants with general validators
+
+**File Structure:**
+
+```typescript
+// config.ts - Agent configuration
+export const MY_AGENT_CONFIG = {
+  agentId: 'my-agent',
+  displayName: 'My Agent Name',
+  model: 'claude-sonnet-4-20250514',
+  systemPrompt: `You are a helpful assistant for...`,
+} as const
+
+// tools.ts - Custom tools
+export const myTool = (ctx: ActionCtx, threadId: Id<'threads'>) =>
+  tool('my_tool', 'Description', schema, async (args) => {
+    await requireAIScopeAction(ctx, threadId, { ... })
+    await ctx.runMutation(internal.db.agentDrafts.createMyDraft, { ... })
+  })
+
+// index.ts - MCP server setup
+export const createMyAgentTools = (ctx: ActionCtx, threadId: Id<'threads'>) => {
+  return createSdkMcpServer({
+    name: 'my-agent',
+    version: '1.0.0',
+    tools: [myTool(ctx, threadId)],
+  })
+}
+```
+
+**Why:** Clear separation of concerns, easy to add new agents, maintainable structure.
+
+## Loading State Pattern
+
+### 6. Placeholder Messages (No Streaming in MVP)
+
+**Rule:** Use placeholder messages with `status='generating'` for loading state. Defer streaming deltas to later sprints.
+
+```typescript
+// ✅ DO: Create placeholder, update when complete
+export const sendMessage = mutation({
+  handler: async (ctx, args) => {
+    // Create user message
+    const userMessageId = await ctx.db.insert('messages', {
+      body: args.content,
+      status: 'sent',
+    })
+    
+    // Create placeholder (empty, generating)
+    const placeholderMessageId = await ctx.db.insert('messages', {
+      authorId: agentUser._id,
+      body: '',
+      status: 'generating', // UI shows loading spinner
+    })
+    
+    // Schedule AI to update placeholder
+    await ctx.scheduler.runAfter(0, internal.assistant.generateResponse, {
+      threadId,
+      placeholderMessageId,
+    })
+  }
+})
+
+// Action updates placeholder when done
+export const generateResponse = internalAction({
+  handler: async (ctx, args) => {
+    const response = await callClaude(...)
+    
+    // Update placeholder with final content
+    await ctx.runMutation(internal.assistant.updatePlaceholderMessage, {
+      placeholderMessageId: args.placeholderMessageId,
+      finalContent: response,
+      status: 'completed',
+    })
+  }
+})
+
+// ❌ DON'T: Use streaming deltas in MVP (defer to later sprint)
+messageDeltas: defineTable({
+  tempMessageId: v.string(),
+  deltaIndex: v.number(),
+  deltaContent: v.string(),
+})
+// Adds complexity for minimal UX gain in MVP
+```
+
+**Why:**
+- Simpler implementation for MVP
+- Good enough UX with loading spinner
+- Defer streaming to Sprint 06+ if needed
+- Reduces scope and implementation time
+
+## Tool Development Best Practices
+
+### 7. Tool Naming and Descriptions
+
+**Rule:** Tool names should be action-oriented, descriptions should include approval context.
+
+```typescript
+// ✅ DO: Clear naming with approval context
+tool(
+  'create_care_log',
+  'Create a DRAFT care log for teacher approval (nap, feeding, diaper, mood). Teacher must approve before it is published.',
+  schema,
+  handler
+)
+
+// ❌ DON'T: Vague or misleading descriptions
+tool(
+  'care_log',
+  'Care log',
+  schema,
+  handler
+)
+// Unclear what it does, doesn't mention draft/approval
+```
+
+### 8. Error Handling in Tools
+
+**Rule:** Tools must catch scope validation errors and return user-friendly messages to AI.
+
+```typescript
+// ✅ DO: Catch errors and return to AI
+async (args) => {
+  try {
+    await requireAIScopeAction(ctx, threadId, { ... })
+    const draftId = await ctx.runMutation(...)
+    
+    return {
+      content: [{ type: 'text', text: "Draft created for review." }],
+      metadata: { draftId },
+    }
+  } catch (error: any) {
+    // Catch and return to AI with clear message
+    return {
+      content: [{
+        type: 'text',
+        text: `I cannot create that care log: ${error.message}`,
+      }],
+      isError: true,
+    }
+  }
+}
+
+// ❌ DON'T: Let errors bubble up
+async (args) => {
+  await requireAIScopeAction(ctx, threadId, { ... }) // Throws, breaks AI flow
+  const draftId = await ctx.runMutation(...)
+}
+```
+
+**Why:** AI can gracefully explain limitations to user rather than showing error stack traces.
+
+### 9. Type Annotations for Tool Handlers
+
+**Rule:** Always provide explicit type annotations for tool handler arguments to avoid TypeScript 'any' errors.
+
+```typescript
+// ✅ DO: Explicit type annotation
+tool(
+  'create_care_log',
+  description,
+  {
+    childId: z.string(),
+    type: z.enum(['diaper', 'feeding', 'nap', 'mood']),
+    notes: z.string(),
+  },
+  async (args: { childId: string; type: 'diaper' | 'feeding' | 'nap' | 'mood'; notes: string }) => {
+    // TypeScript knows arg types
+  }
+)
+
+// ❌ DON'T: Implicit types
+async (args) => {
+  // Error: Parameter 'args' implicitly has an 'any' type
+}
+```
+
+## Agent Configuration
+
+### 10. System Prompts
+
+**Rule:** System prompts must define role, constraints, available actions, and best practices.
+
+```typescript
+// ✅ DO: Comprehensive system prompt
+export const TEACHING_ASSISTANT_CONFIG = {
+  systemPrompt: `You are a helpful teaching assistant for Montessori schools.
+
+Your role:
+- Help teachers create care logs for children
+- Draft posts and announcements for parents
+- Provide guidance on Montessori practices
+
+Important constraints:
+- You can ONLY create care logs for classrooms the teacher has access to
+- Always confirm child names and details before creating records
+- All actions create DRAFTS that require teacher approval
+
+Available actions:
+- create_care_log: Create draft care log (nap, feeding, diaper, mood)
+- create_post: Draft post/announcement for parents
+
+Best practices:
+- Confirm details: "Just to confirm, you want to create a nap log for Lily?"
+- Provide context: "I'll draft this for Sunflower Room since that's where Lily is enrolled."
+- Respect boundaries: "I can only create care logs for children in classrooms you teach."`,
+}
+
+// ❌ DON'T: Vague or minimal prompt
+export const BAD_CONFIG = {
+  systemPrompt: "You are a teaching assistant. Help teachers.",
+}
+```
+
+### 11. Agent Capabilities
+
+**Rule:** Define capabilities array that matches available tools.
+
+```typescript
+// ✅ DO: Capabilities match available tools
+agents: defineTable({
+  capabilities: v.array(v.string()), // ['care_logs', 'posts', 'scheduling']
+})
+
+// Tools check capabilities
+const teachingAssistant = await ctx.db
+  .query('agents')
+  .filter(q => q.eq(q.field('capabilities'), ['care_logs', 'posts', 'scheduling']))
+  .first()
+
+// ❌ DON'T: Capabilities don't match tools
+capabilities: ['care_logs'] // But provides create_post tool (mismatch)
+```
+
+## Rate Limiting
+
+### 12. Per-User Rate Limits
+
+**Rule:** Enforce rate limits to prevent abuse (50 messages/hour per user).
+
+```typescript
+// ✅ DO: Check rate limit before processing
+export const sendMessage = mutation({
+  handler: async (ctx, args) => {
+    const { thread, userId } = await requireThreadAccess(ctx, args.threadId)
+    
+    // Check rate limit
+    await requireAIRateLimit(ctx, userId, thread.organizationId)
+    
+    // Proceed with message
+  }
+})
+
+// ❌ DON'T: Skip rate limiting
+export const sendMessage = mutation({
+  handler: async (ctx, args) => {
+    // No rate check - allows unlimited messages
+  }
+})
+```
+
+**Configuration:**
+- 50 messages/hour per user (prevents token cost abuse)
+- Count user messages only (not AI responses)
+- Return clear error: "Rate limit exceeded (50/hour)"
+
+## Draft Management
+
+### 13. Draft Data Structure
+
+**Rule:** Store structured data in `careLogData` or similar fields, not just text in `inputText`.
+
+```typescript
+// ✅ DO: Structured data for programmatic approval
+agentDrafts: defineTable({
+  kind: v.literal('care_log'),
+  careLogData: v.object({
+    childId: v.id('children'),
+    classroomId: v.id('classrooms'),
+    type: v.union(v.literal('diaper'), v.literal('feeding'), ...),
+    occurredAt: v.number(),
+    notes: v.string(),
+  }),
+  inputText: v.string(), // For display only
+})
+
+// Approval creates record from structured data
+const careLogId = await ctx.db.insert('careLogs', draft.careLogData)
+
+// ❌ DON'T: Only store text
+agentDrafts: defineTable({
+  inputText: v.string(), // "nap - Lily - 1.5 hours"
+  // No structured data - have to parse text on approval
+})
+```
+
+**Why:** Programmatic approval, no parsing required, type-safe, editable fields.
+
+### 14. Draft Lifecycle
+
+**Rule:** Draft status must follow: draft → approved/discarded → (if approved) creates record.
+
+```typescript
+// ✅ DO: Proper status transitions
+status: v.union(
+  v.literal('draft'),      // AI created, awaiting approval
+  v.literal('approved'),    // User approved, record created
+  v.literal('submitted'),   // Alternative: actually published
+  v.literal('discarded')    // User rejected
+)
+
+// Approval flow
+if (draft.status !== 'draft') {
+  throw new Error('Draft already processed')
+}
+
+await ctx.db.patch(draftId, { status: 'approved', createdRecordId })
+
+// ❌ DON'T: Skip status checks
+await ctx.db.patch(draftId, { status: 'approved' })
+// No validation - can approve already-approved drafts
+```
+
+### 15. Draft Editing
+
+**Rule:** Allow users to edit drafts before approval. Validate only drafts (status='draft') can be edited.
+
+```typescript
+// ✅ DO: Check status before edit
+export const updateDraft = mutation({
+  handler: async (ctx, args) => {
+    const draft = await ctx.db.get(args.draftId)
+    
+    if (draft.status !== 'draft') {
+      throw new Error('Can only edit drafts with status=draft')
+    }
+    
+    await ctx.db.patch(args.draftId, {
+      careLogData: {
+        ...draft.careLogData,
+        notes: args.updates.notes ?? draft.careLogData.notes,
+      },
+    })
+  }
+})
+
+// ❌ DON'T: Allow editing approved/discarded drafts
+export const updateDraft = mutation({
+  handler: async (ctx, args) => {
+    // No status check - can edit approved drafts (breaks audit trail)
+    await ctx.db.patch(args.draftId, { ... })
+  }
+})
+```
+
+## Security
+
+### 16. Validate Human User Scope (Not Agent Scope)
+
+**Rule:** Scope validation checks the HUMAN user's permissions, not the agent user's.
+
+```typescript
+// ✅ DO: Validate thread creator (human) scope
+export const requireAIScopeAction = async (ctx, threadId, action) => {
+  const thread = await ctx.runQuery(api.db.session.getThreadById, { threadId })
+  
+  // Get HUMAN user (thread creator)
+  const userId = thread.createdBy // Human, not agent
+  
+  // Check HUMAN user's assignments
+  const assignments = await ctx.runQuery(api.db.assignments.getUserAssignmentsInternal, {
+    userId, // Human user ID
+    organizationId: thread.organizationId,
+  })
+  
+  // Validate human has access
+  const match = assignments.find(a => a.scopeType === targetScope.type && ...)
+}
+
+// ❌ DON'T: Check agent user's permissions
+export const requireAIScopeAction = async (ctx, threadId, action) => {
+  // Gets agent participant instead of human
+  const agentUser = participants.find(p => p.userType === 'agent')
+  const assignments = await getAssignments(agentUser._id) // WRONG - agent has no assignments!
+}
+```
+
+**Why:** AI acts on behalf of human user, inherits their permissions, not independent actor.
+
+### 17. Tool Return Format
+
+**Rule:** Tools must return `{ content, metadata?, isError? }` format for Claude SDK.
+
+```typescript
+// ✅ DO: Proper return format
+return {
+  content: [{
+    type: 'text' as const,
+    text: `Draft created for review.`,
+  }],
+  metadata: { draftId }, // Optional metadata
+}
+
+// On error
+return {
+  content: [{
+    type: 'text' as const,
+    text: `Cannot create: ${error.message}`,
+  }],
+  isError: true,
+}
+
+// ❌ DON'T: Return plain string or throw
+return "Draft created" // Wrong format
+throw new Error("Failed") // Breaks AI flow
+```
+
+## Frontend Integration
+
+### 18. Hook Interface Stability
+
+**Rule:** Maintain mock hook interface for backward compatibility when implementing real Convex integration.
+
+```typescript
+// ✅ DO: Match mock interface
+export type UseAssistantChat = {
+  sessionId: Id<'threads'> | undefined
+  messages: AssistantMessage[]
+  attachments: AssistantAttachment[]
+  input: string
+  isGenerating: boolean
+  pendingDrafts: DraftItem[] // NEW: Add features incrementally
+  // ... methods
+}
+
+// Existing UI components work without changes
+const chat = useAssistantChat(threadId)
+<Text>{chat.messages[0].content}</Text> // Still works!
+
+// ❌ DON'T: Break interface
+export type UseAssistantChat = {
+  thread: ThreadData // Changed from sessionId
+  msgs: Message[] // Changed from messages
+  // UI breaks - have to update all components
+}
+```
+
+### 19. Reactive Draft Updates
+
+**Rule:** Subscribe to pending drafts via query, update UI automatically when status changes.
+
+```typescript
+// ✅ DO: Subscribe to drafts
+const pendingDrafts = useQuery(
+  api.assistant.listPendingDrafts,
+  threadId ? { threadId } : 'skip'
+)
+
+// UI updates automatically when draft approved/discarded
+{pendingDrafts?.map(draft => (
+  draft.status === 'draft' && <DraftCard {...draft} />
+))}
+
+// ❌ DON'T: Poll or manual refresh
+const [drafts, setDrafts] = useState([])
+useEffect(() => {
+  const interval = setInterval(async () => {
+    const result = await fetchDrafts()
+    setDrafts(result)
+  }, 1000)
+}, [])
+```
+
+**Why:** Convex reactivity handles updates automatically, no polling needed.
+
+## Testing
+
+### 20. Test Scope Enforcement
+
+**Rule:** Every agent tool must have tests for scope boundary violations.
+
+```typescript
+// ✅ DO: Test cross-classroom rejection
+test('AI cannot create care log outside teacher scope', async () => {
+  const t = convexTest(schema)
+  
+  // Teacher in Sunflower Room
+  const { teacherId, sunflowerId } = await setupTeacher(t, 'Sunflower Room')
+  
+  // Create AI thread
+  const { threadId } = await t.mutation(api.assistant.createSession, {})
+  
+  // Child in Butterfly Room (different classroom)
+  const childInButterflyRoom = await createChild(t, 'Butterfly Room')
+  
+  // Try to create care log - should fail
+  await expect(async () => {
+    await t.action(internal.assistant.callTool, {
+      threadId,
+      tool: 'create_care_log',
+      args: { childId: childInButterflyRoom._id },
+    })
+  }).rejects.toThrow('You do not have access to')
+})
+
+// ✅ DO: Test same-classroom success
+test('AI can create care log within teacher scope', async () => {
+  const { threadId, childInSameClassroom } = await setupSameClassroom(t)
+  
+  const result = await t.action(internal.assistant.callTool, {
+    threadId,
+    tool: 'create_care_log',
+    args: { childId: childInSameClassroom._id },
+  })
+  
+  expect(result.draftId).toBeDefined()
+})
+```
+
+### 21. Test Approval Workflow
+
+**Rule:** Test complete flow: draft creation → edit → approve → verify record created.
+
+```typescript
+// ✅ DO: Test full approval workflow
+test('draft approval workflow', async () => {
+  const t = convexTest(schema)
+  
+  // 1. AI creates draft
+  const { draftId } = await t.mutation(api.assistant.proposeAction, { ... })
+  
+  // 2. Verify draft exists
+  const draft = await t.run(ctx => ctx.db.get(draftId))
+  expect(draft.status).toBe('draft')
+  
+  // 3. Edit draft
+  await t.mutation(api.assistant.updateDraft, {
+    draftId,
+    updates: { notes: 'Edited notes' },
+  })
+  
+  // 4. Approve draft
+  const { recordId } = await t.mutation(api.assistant.approveDraft, { draftId })
+  
+  // 5. Verify record created
+  const careLog = await t.run(ctx => ctx.db.get(recordId))
+  expect(careLog).toBeDefined()
+  expect(careLog.notes).toBe('Edited notes')
+  
+  // 6. Verify draft status updated
+  const approvedDraft = await t.run(ctx => ctx.db.get(draftId))
+  expect(approvedDraft.status).toBe('approved')
+  expect(approvedDraft.createdRecordId).toBe(recordId)
+})
+```
+
+## Architecture Decisions
+
+### 22. Component vs Library Decision
+
+**Rule:** Do NOT use @convex-dev/agent component. Use Claude Agent SDK as library with your own tables.
+
+**Rationale:**
+
+**Convex Agent Component:**
+- ❌ Creates isolated `component.threads` and `component.messages` tables
+- ❌ Splits messaging system (AI separate from human chats)
+- ❌ No unified inbox
+- ❌ Cannot add AI to human group chats later
+- ❌ Vendor lock-in on data model
+- ✅ Turnkey solution (streaming, RAG, usage tracking built-in)
+
+**Claude Agent SDK (Library):**
+- ✅ Integrates with YOUR threads/messages tables
+- ✅ Unified messaging (AI + human conversations together)
+- ✅ Future-proof for mixed human/AI chats
+- ✅ Full data ownership
+- ✅ Custom scope enforcement with direct table access
+- ❌ Build ~400 lines yourself (placeholder pattern, guards, tools)
+
+**Decision:** Unified messaging is more valuable than turnkey features.
+
+**Trade-off Accepted:**
+- Build placeholder pattern (~50 lines)
+- Build scope guards (~200 lines)  
+- Build custom tools (~150 lines)
+- Total: ~400 lines to maintain unified architecture
+
+## Common Patterns
+
+### 23. Agent User Lookup
+
+**Rule:** Query agent users by capabilities, not by hardcoded IDs.
+
+```typescript
+// ✅ DO: Query by capabilities
+const teachingAssistant = await ctx.db
+  .query('agents')
+  .filter(q => q.eq(q.field('capabilities'), ['care_logs', 'posts', 'scheduling']))
+  .first()
+
+const agentUser = await ctx.db
+  .query('users')
+  .withIndex('by_agent_id', q => q.eq('agentId', teachingAssistant._id))
+  .first()
+
+// ❌ DON'T: Hardcode agent IDs
+const agentUser = await ctx.db.get('hardcoded_id_123')
+```
+
+### 24. Thread Participant Detection
+
+**Rule:** Detect AI threads by checking if any participant has `userType='agent'`.
+
+```typescript
+// ✅ DO: Check participant types
+const participants = await ctx.db.query('threadParticipants')
+  .withIndex('by_thread_id', q => q.eq('threadId', threadId))
+  .collect()
+
+let hasAgentParticipant = false
+for (const p of participants) {
+  if (p.userId) {
+    const user = await ctx.db.get(p.userId)
+    if (user?.userType === 'agent') {
+      hasAgentParticipant = true
+      break
+    }
+  }
+}
+
+// ❌ DON'T: Add special thread.kind='assistant' field
+threads: defineTable({
+  kind: v.union(v.literal('direct'), v.literal('group'), v.literal('assistant')),
+  // Adds complexity - participant check is sufficient
+})
+```
+
+**Why:** Thread structure is universal, participant types determine presentation (UX decision, not data model).
+
+### 25. DRY: Reuse Validators
+
+**Rule:** Never duplicate enum validators. Import shared validators from `validators.ts`.
+
+```typescript
+// ✅ DO: Reuse shared validators
+import { CareLogTypeSchema, AgentDraftKindSchema, MessageStatusSchema } from './validators'
+
+agentDrafts: defineTable({
+  kind: AgentDraftKindSchema, // Reuse validator
+  careLogData: v.optional(v.object({
+    type: CareLogTypeSchema, // Reuse validator
+  })),
+  status: AgentDraftStatusSchema, // Reuse validator
+})
+
+messages: defineTable({
+  status: v.optional(MessageStatusSchema), // Reuse validator
+})
+
+// ❌ DON'T: Duplicate enum literals
+agentDrafts: defineTable({
+  kind: v.union(
+    v.literal('announcement'),
+    v.literal('message'),
+    v.literal('care_log'), // Duplicates validator
+  ),
+})
+```
+
+**Why:**
+- Single source of truth
+- Change enum once, updates everywhere
+- Type safety across schema and functions
+- Easier refactoring
+
+**Common Shared Validators:**
+- `ScopeSchema` - 'school' | 'campus' | 'classroom' | 'child'
+- `RoleSchema` - All user roles
+- `CareLogTypeSchema` - 'diaper' | 'feeding' | 'nap' | 'mood'
+- `AgentDraftKindSchema` - Draft types
+- `AgentDraftStatusSchema` - Draft lifecycle
+- `MessageStatusSchema` - Message async states
+
+## Summary
+
+**Key Rules:**
+1. ✅ Agents as users (reference agents table)
+2. ✅ Unified messaging (no components)
+3. ✅ Human-in-the-loop approval (drafts pattern)
+4. ✅ Scope enforcement (every tool)
+5. ✅ Organized structure (convex/agents/ for agent configs, convex/actions/ai/ for AI constants)
+6. ✅ AI constants centralized (convex/actions/ai/constants.ts and prompts.ts)
+7. ✅ Placeholder messages (no streaming in MVP)
+8. ✅ Explicit types (tool handlers)
+9. ✅ Error handling (catch and return to AI)
+10. ✅ Rate limiting (50 messages/hour)
+11. ✅ Test scope violations
+12. ✅ DRY validators (reuse from validators.ts)
+
+**Anti-Patterns:**
+- ❌ Don't use Convex Agent Component (splits messaging)
+- ❌ Don't skip scope validation (security risk)
+- ❌ Don't create records directly (need approval)
+- ❌ Don't add streaming deltas in MVP (complexity)
+- ❌ Don't embed agent config in users table (use agents table)
+- ❌ Don't place AI constants in validators.ts or root convex/ (use convex/actions/ai/)
+
+---
+
+**Reference:** See `convex/agents/README.md` for implementation examples and `AI_ASSISTANT_SETUP.md` for complete setup guide.

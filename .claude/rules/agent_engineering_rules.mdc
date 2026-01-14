@@ -1,0 +1,247 @@
+---
+alwaysApply: true
+---
+
+# Agent Engineering Standards
+
+## Purpose
+
+This file documents conventions that keep the codebase clear when we introduce "agentic" modules (LangChain tools/agents, provider adapters, and supporting schemas).
+
+## Zod schemas for agent/tool boundaries
+
+- **Rule**: Any Zod schema that exists primarily to support LangChain agent/tool I/O MUST include the `agent` prefix in its export name.
+  - ✅ `agentPlanInputSchema`, `agentRouteStopSchema`, `agentRouteSketchSchema`
+  - ❌ `planInputSchema`, `routeStopSchema`, `routeSketchSchema`
+
+- **Source of truth**:
+  - **Convex `v` validators are canonical** for backend contracts (schemas, Convex args/returns).
+  - **Zod is only for the agent boundary** (structured output/tool schema reliability).
+
+- **Co-location**:
+  - Zod schemas must live in the same `models/*.ts` module as their corresponding `v` validators (no separate `*.zod.ts` files).
+
+- **Naming pattern**:
+  - Prefer `agent<DomainObject>Schema`, and for nested shapes: `agent<DomainObject><Part>Schema`.
+  - Example:
+    - `agentPlanInputSchema`, `agentPlanPreferencesSchema`, `agentRouteStopSchema`
+    - `agentRouteSketchSchema`, `agentRouteSketchSegmentSchema`, `agentRouteSketchAnchorPointSchema`
+
+## LangGraph Architecture
+
+### When to use LangGraph
+- Multi-step pipelines mixing LLM (probabilistic) and tool (deterministic) steps
+- Need conditional edges or branching logic
+- Require observability/tracing at each step
+- Future extensibility (streaming, human-in-the-loop)
+
+### When NOT to use LangGraph
+- Single LLM call with structured output → use `model.withStructuredOutput()` directly
+- Pure deterministic workflows → use regular async functions
+
+### Graph Structure Pattern
+
+```typescript
+import { Annotation, END, START, StateGraph } from '@langchain/langgraph'
+
+// State annotation defines all inputs, intermediates, and outputs
+export const MyState = Annotation.Root({
+  input: Annotation<Input>,
+  intermediate: Annotation<Intermediate>,
+  output: Annotation<Output>,
+  error: Annotation<string | null>,
+})
+
+// Factory function for testing (allows mocking individual nodes)
+export const createMyGraph = () => {
+  return new StateGraph(MyState)
+    .addNode('llmStep', llmNode)      // Probabilistic
+    .addNode('toolStep', toolNode)    // Deterministic
+    .addEdge(START, 'llmStep')
+    .addEdge('llmStep', 'toolStep')
+    .addEdge('toolStep', END)
+}
+
+// Compiled singleton for production
+const myGraph = createMyGraph().compile()
+```
+
+### Node Separation Pattern
+- **Probabilistic nodes**: LLM calls with structured output validation
+- **Deterministic nodes**: Tool/provider calls with explicit error handling
+- Keep nodes small and single-purpose
+- Each node returns `Partial<StateType>` to update only relevant fields
+
+## LangChain / LangGraph agent guidelines
+
+You are writing LangChain/LangGraph agent code. Optimize for: reliability, structured outputs, deterministic tools, and observability.
+
+### Architecture defaults
+- Prefer deterministic workflows. Use an agent only when dynamic tool choice is required. (Workflows vs agents)
+- Use LangGraph to orchestrate steps as a graph with explicit state and stop conditions.
+- No ad-hoc while-loops for "agent iteration"; use framework execution controls.
+
+### Tools
+- Tools must be small and single-purpose.
+- Tools must return structured data (JSON-compatible) and never return freeform "chatty" text.
+- Every tool must have: clear description, input schema, output schema, and explicit error behavior.
+- Add timeouts and handle tool failures (validate → retry once → fallback).
+
+### Tool Tracing Pattern
+Wrap tool functions with `traceableToolAsync` or `traceableToolSync` for LangSmith observability:
+
+```typescript
+// Internal implementation (not exported)
+const myToolImpl = async (args: Args): Promise<Result> => {
+  // ... implementation
+}
+
+// Exported traced version (callers use this)
+export const myTool = traceableToolAsync(myToolImpl, {
+  name: 'myTool',
+  runType: 'tool',
+  tags: ['myPipeline'],
+})
+```
+
+- Pattern: `fooImpl` (internal) → `foo` (exported, traced)
+- Sync functions wrapped with `traceableToolSync` become async (return `Promise<T>`)
+
+### Structured outputs
+- **Prefer `model.withStructuredOutput(zodSchema)`** over `createAgent` when no dynamic tool selection is needed
+- Any output consumed by code MUST be schema validated (Zod/JSON Schema).
+- When a user asks for "a plan / JSON / an object", return strictly valid structured output with no extra prose.
+- If model output can be malformed, add a validator step (or second model) to enforce structure.
+- LangChain widens Zod types at runtime → cast explicitly after validation:
+
+```typescript
+const structuredModel = model.withStructuredOutput(myZodSchema)
+const result = await structuredModel.invoke(messages)
+// Cast after Zod validates (LangChain types are too wide)
+const typed = result.data as MyType
+```
+
+### Autonomy limits
+- Set max steps/iterations for every agent.
+- Define stop conditions and success criteria.
+- Never exceed 1 retry per failure type unless explicitly requested.
+
+### Reliability patterns
+- Use `withTimeout(fn, { ms, label })` for all external calls (LLM, APIs)
+- Use `retryOnce(fn)` for transient failures
+- Soft-fail for non-critical steps (e.g., conditions lookup):
+
+```typescript
+let conditionsStatus: ConditionsStatus = 'ok'
+try {
+  const probed = await probeConditions(...)
+  // ... process conditions
+} catch (error) {
+  // Soft-fail: conditions unavailable, but route is still valid
+  conditionsStatus = 'unavailable'
+}
+```
+
+### Memory & retrieval
+- Use short-term state for the current run.
+- Long-term memory is opt-in and stored only when explicitly requested by the user.
+- Prefer retrieval (RAG) over dumping conversation history into prompts.
+
+### Security
+- Never include secrets in prompts or model-visible text.
+- Tools access secrets server-side only.
+- Sanitize tool inputs and validate before execution.
+
+## LangSmith Observability
+
+### Automatic Tracing
+LangChain automatically traces when env vars are set:
+- `LANGSMITH_TRACING=true`
+- `LANGSMITH_API_KEY=<key>`
+- `LANGSMITH_PROJECT=<project>` (defaults to 'default')
+
+No manual `LangChainTracer` instantiation needed.
+
+### Custom Metadata via buildRunConfig
+Use `buildRunConfig` from `convex/actions/agent/lib/tracing.ts` to add custom metadata:
+
+```typescript
+import { buildRunConfig } from '../lib/tracing'
+
+const config = buildRunConfig({
+  runName: `myPipeline-${requestId}`,
+  tags: ['myPipeline', 'v1'],
+  metadata: { userId, requestId }
+})
+await graph.invoke(state, config)
+```
+
+Returns `undefined` when tracing is disabled (no overhead).
+
+### Tracing Non-LLM Tools
+Wrap tool functions with `traceableToolAsync` or `traceableToolSync`:
+
+```typescript
+import { traceableToolAsync } from '../lib/tracing'
+
+const myToolImpl = async (args: Args): Promise<Result> => { ... }
+
+export const myTool = traceableToolAsync(myToolImpl, {
+  name: 'myTool',
+  runType: 'tool',
+  tags: ['myPipeline'],
+})
+```
+
+### Cost Tracking
+- LLM costs are **automatic** for LangChain modules (ChatOpenAI, etc.)
+- For non-LLM runs, use `withUsageMetadata` and `toolCost`:
+
+```typescript
+import { withUsageMetadata, toolCost } from '../lib/tracing'
+
+const result = await externalApi.call(...)
+return withUsageMetadata(result, toolCost(0.0015))
+```
+
+### Test Environment
+Tracing is automatically disabled when `NODE_ENV=test` (see `convex/lib/env.ts`).
+
+## Convex Environment Variables
+
+### Static Analysis Gotcha
+Convex statically analyzes `process.env.*` references. **Any referenced variable must be set in the dashboard**, even if only used conditionally.
+
+**Problem**: Test-only env vars like `JEST_WORKER_ID` trigger dashboard requirements.
+
+**Solution**: Use derived booleans that Convex doesn't flag:
+
+```typescript
+// convex/lib/env.ts
+
+// ✅ DO: Derive test environment from NODE_ENV only
+export const isTestEnvironment = process.env.NODE_ENV === 'test'
+
+// ✅ DO: Use derived boolean to disable features
+export const LANGSMITH_TRACING = !isTestEnvironment && optionalEnv('LANGSMITH_TRACING') === 'true'
+
+// ❌ DON'T: Reference test-only env vars directly
+// This forces JEST_WORKER_ID to be set in Convex dashboard:
+// if (process.env.JEST_WORKER_ID) { ... }
+```
+
+### Environment Variable Loading Pattern
+```typescript
+// Required env vars (throw on missing)
+const requireEnv = (key: string): string => {
+  const value = process.env[key]
+  if (!value) throw new Error(`Missing required environment variable: ${key}`)
+  return value
+}
+
+// Optional env vars (return undefined if missing)
+const optionalEnv = (key: string): string | undefined => {
+  const value = process.env[key]
+  return value && value.length > 0 ? value : undefined
+}
+```

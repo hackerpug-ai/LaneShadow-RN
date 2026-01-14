@@ -1,0 +1,681 @@
+---
+alwaysApply: true
+---
+
+# Theme and Styling Guidelines for React Native
+
+## Semantic Theme Usage
+
+### ALWAYS Use Semantic Theme
+
+- **NEVER** use hardcoded colors like `'#6750A4'`, `'#FFFFFF'`, `'rgb(103, 80, 164)'`
+- **NEVER** use hardcoded spacing like `16`, `24`, `padding: 8`
+- **ALWAYS** use semantic theme via `useSemanticTheme()` hook
+- **ALWAYS** use StyleSheet API with array syntax (best practice pattern below)
+
+### CRITICAL: React Native Paper Text Component
+
+- **ALWAYS** use `import { Text } from 'react-native-paper'` for ALL text components
+- **NEVER** use `import { Text } from 'react-native'` directly
+- Paper's Text component provides:
+  - Built-in typography variants (`variant="titleLarge"`, `variant="bodyMedium"`, etc.)
+  - Automatic theme integration
+  - Consistent text styling across the app
+  - Accessibility improvements
+
+```typescript
+// ✅ CORRECT: Paper Text component with variants
+import { Text } from 'react-native-paper'
+
+<Text variant="titleLarge">Title</Text>
+<Text variant="bodyMedium">Body text</Text>
+<Text variant="labelSmall">LABEL</Text>
+
+// ❌ WRONG: React Native Text component
+import { Text } from 'react-native'
+
+<Text style={{ fontSize: 22 }}>Title</Text>
+```
+
+## Best Practice: StyleSheet + Array Syntax
+
+**Pattern**: Use `StyleSheet.create()` for static layout properties, combine with inline semantic theme values using array syntax.
+
+```typescript
+// ✅ CORRECT: StyleSheet for layout + inline for theme + Paper Text
+import { View, StyleSheet } from 'react-native'
+import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '@/hooks/use-semantic-theme'
+
+export const Card = ({ title, children }) => {
+  const { semantic } = useSemanticTheme()
+  
+  return (
+    <View style={[
+      styles.container,
+      {
+        backgroundColor: semantic.color.card.default,
+        borderColor: semantic.color.border.default,
+        borderRadius: semantic.radius.lg,
+        padding: semantic.space.lg,
+      }
+    ]}>
+      <Text
+        variant="titleMedium"
+        style={{ color: semantic.color.onSurface.default }}
+      >
+        {title}
+      </Text>
+      <View style={[styles.content, { marginTop: semantic.space.md }]}>
+        {children}
+      </View>
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    width: '100%',
+    borderWidth: 1,
+  },
+  content: {
+    // Static layout only
+  },
+})
+
+// ❌ WRONG: Pure inline styles (less performant, harder to maintain)
+<View style={{
+  flex: 1,
+  width: '100%',
+  borderWidth: 1,
+  backgroundColor: semantic.color.card.default,
+  borderColor: semantic.color.border.default,
+  borderRadius: semantic.radius.lg,
+  padding: semantic.space.lg,
+}} />
+```
+
+**Why This Pattern**:
+- StyleSheet.create() optimizes static properties (flex, width, borderWidth)
+- Semantic theme values are dynamic (change with light/dark mode, state)
+- Array syntax combines both: `style={[styles.static, { dynamic: values }]}`
+- Better performance and maintainability
+
+## Core Principles
+
+1. **Import the Hook**: Always import `useSemanticTheme` from `@/hooks/use-semantic-theme`
+2. **Extract Theme**: Destructure `semantic` from the hook result
+3. **Reference Semantic Keys**: Use `semantic.color.*`, `semantic.space.*`, `semantic.radius.*`, `semantic.type.*`
+4. **No Hardcoded Values**: Never use raw values in component styles
+5. **State Awareness**: Use state variants (default, hover, pressed, disabled, focus)
+6. **Use StyleSheet + Arrays**: Follow the best practice pattern above for all components
+
+## Theme Structure
+
+```typescript
+theme.semantic = {
+  color: {
+    // Brand colors with states
+    primary: { default, hover, pressed, disabled, focus }
+    secondary: { default, hover, pressed, disabled, focus }
+    tertiary: { default, hover, pressed, disabled, focus }
+    
+    // Intent colors
+    success: { default, hover, pressed, disabled }
+    warning: { default, hover, pressed, disabled }
+    danger: { default, hover, pressed, disabled }
+    info: { default, hover, pressed, disabled }
+    
+    // Surface layers
+    surface: { default, hover, pressed, disabled }
+    surfaceVariant: { default, hover, pressed, disabled }
+    background: { default, hover, pressed, disabled }
+    
+    // Text colors
+    onSurface: { default, hover, pressed, disabled, muted, subtle }
+    onPrimary: { default, hover, pressed, disabled }
+    onSecondary: { default, hover, pressed, disabled }
+    
+    // UI elements
+    border: { default, hover, pressed, disabled }
+    input: { default, hover, pressed, disabled }
+    ring: { default, hover, pressed, disabled }
+    card: { default, hover, pressed, disabled }
+    popover: { default, hover, pressed, disabled }
+    accent: { default, hover, pressed, disabled }
+    
+    // Special
+    orange: { default, hover, pressed, disabled }
+    muted: { default, hover, pressed, disabled }
+  },
+  
+  space: { xs, sm, md, lg, xl, '2xl', '3xl', '4xl' },
+  radius: { none, sm, md, lg, xl, '2xl', full },
+  
+  type: {
+    label: { sm, md, lg },
+    body: { sm, md, lg },
+    title: { sm, md, lg },
+    heading: { sm, md, lg },
+    display: { sm, md, lg }
+  },
+  
+  elevation: { 0, 1, 2, 3, 4, 5 }
+}
+```
+
+## Usage Patterns
+
+### Basic Component
+
+```typescript
+// ✅ DO: Use semantic theme with Paper Text
+import { View, StyleSheet } from 'react-native'
+import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '@/hooks/use-semantic-theme'
+
+export const MyComponent = () => {
+  const { semantic } = useSemanticTheme()
+  
+  return (
+    <View style={{
+      padding: semantic.space.lg,
+      backgroundColor: semantic.color.surface.default,
+      borderRadius: semantic.radius.lg,
+      borderWidth: 1,
+      borderColor: semantic.color.border.default,
+    }}>
+      <Text variant="titleMedium" style={{ color: semantic.color.onSurface.default }}>
+        Title Text
+      </Text>
+      <Text variant="bodySmall" style={{ color: semantic.color.onSurface.muted }}>
+        Body text content
+      </Text>
+    </View>
+  )
+}
+
+// ❌ DON'T: Use hardcoded values
+export const BadComponent = () => {
+  return (
+    <View style={{
+      padding: 16,
+      backgroundColor: '#F5F5F5',
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: '#79747E',
+    }}>
+      <Text style={{
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#1C1B1F',
+      }}>
+        Title Text
+      </Text>
+    </View>
+  )
+}
+```
+
+### Interactive States (Pressable)
+
+```typescript
+// ✅ DO: Use state-aware colors
+import { Pressable } from 'react-native'
+import { useSemanticTheme } from '@/hooks/use-semantic-theme'
+
+export const Button = ({ onPress, disabled = false }) => {
+  const { semantic } = useSemanticTheme()
+  
+  return (
+    <Pressable onPress={onPress} disabled={disabled}>
+      {({ pressed }) => (
+        <View style={{
+          padding: semantic.space.md,
+          backgroundColor: disabled
+            ? semantic.color.primary.disabled
+            : pressed
+            ? semantic.color.primary.pressed
+            : semantic.color.primary.default,
+          borderRadius: semantic.radius.lg,
+        }}>
+          <Text style={{
+            ...semantic.type.label.md,
+            color: semantic.color.onPrimary.default,
+          }}>
+            Press Me
+          </Text>
+        </View>
+      )}
+    </Pressable>
+  )
+}
+
+// ❌ DON'T: Use hardcoded colors for states
+export const BadButton = ({ onPress, disabled }) => {
+  return (
+    <Pressable onPress={onPress} disabled={disabled}>
+      {({ pressed }) => (
+        <View style={{
+          padding: 12,
+          backgroundColor: disabled ? '#A39BB8' : pressed ? '#5A4393' : '#6750A4',
+          borderRadius: 12,
+        }}>
+          <Text style={{ fontSize: 12, color: '#FFFFFF' }}>Press Me</Text>
+        </View>
+      )}
+    </Pressable>
+  )
+}
+```
+
+### StyleSheet with Semantic Theme
+
+```typescript
+// ✅ DO: Combine StyleSheet with semantic theme and Paper Text
+import { View, StyleSheet } from 'react-native'
+import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '@/hooks/use-semantic-theme'
+
+export const Card = ({ title, children }) => {
+  const { semantic } = useSemanticTheme()
+  
+  return (
+    <View style={[
+      styles.container,
+      {
+        backgroundColor: semantic.color.card.default,
+        borderColor: semantic.color.border.default,
+        borderRadius: semantic.radius.lg,
+        padding: semantic.space.lg,
+      }
+    ]}>
+      <Text
+        variant="titleMedium"
+        style={{ color: semantic.color.onSurface.default }}
+      >
+        {title}
+      </Text>
+      <View style={{ marginTop: semantic.space.md }}>
+        {children}
+      </View>
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    borderWidth: 1,
+    // No colors, spacing, or sizes here - use semantic theme
+  },
+})
+```
+
+## Color Usage Guidelines
+
+### Text Colors
+
+```typescript
+// ✅ DO: Use Paper Text with appropriate variants and color roles
+import { Text } from 'react-native-paper'
+const { semantic } = useSemanticTheme()
+
+// Primary text
+<Text variant="bodyLarge" style={{ color: semantic.color.onSurface.default }}>Main Text</Text>
+
+// Secondary text
+<Text variant="bodyMedium" style={{ color: semantic.color.onSurface.muted }}>Secondary Text</Text>
+
+// Subtle/hint text
+<Text variant="bodySmall" style={{ color: semantic.color.onSurface.subtle }}>Hint Text</Text>
+
+// Text on colored backgrounds
+<Text variant="labelMedium" style={{ color: semantic.color.onPrimary.default }}>On Primary</Text>
+
+// ❌ DON'T: Use React Native Text or hardcoded colors
+import { Text } from 'react-native' // WRONG - use Paper
+<Text style={{ color: '#1C1B1F' }}>Text</Text>
+<Text style={{ color: '#49454F' }}>Text</Text>
+```
+
+### Background Colors
+
+```typescript
+// ✅ DO: Use semantic surface colors
+const { semantic } = useSemanticTheme()
+
+// Primary surface
+<View style={{ backgroundColor: semantic.color.surface.default }} />
+
+// Alternate surface
+<View style={{ backgroundColor: semantic.color.surfaceVariant.default }} />
+
+// App background
+<View style={{ backgroundColor: semantic.color.background.default }} />
+
+// Card backgrounds
+<View style={{ backgroundColor: semantic.color.card.default }} />
+
+// ❌ DON'T: Use hardcoded backgrounds
+<View style={{ backgroundColor: '#F5F5F5' }} />
+<View style={{ backgroundColor: '#FFFFFF' }} />
+```
+
+### Intent/Status Colors
+
+```typescript
+// ✅ DO: Use semantic intent colors
+const { semantic } = useSemanticTheme()
+
+// Success
+<View style={{ backgroundColor: semantic.color.success.default }}>
+  <Text style={{ color: semantic.color.onPrimary.default }}>Success!</Text>
+</View>
+
+// Warning
+<View style={{ backgroundColor: semantic.color.warning.default }}>
+  <Text style={{ color: semantic.color.onPrimary.default }}>Warning!</Text>
+</View>
+
+// Danger/Error
+<View style={{ backgroundColor: semantic.color.danger.default }}>
+  <Text style={{ color: semantic.color.onPrimary.default }}>Error!</Text>
+</View>
+
+// Info
+<View style={{ backgroundColor: semantic.color.info.default }}>
+  <Text style={{ color: semantic.color.onPrimary.default }}>Info</Text>
+</View>
+
+// ❌ DON'T: Use hardcoded status colors
+<View style={{ backgroundColor: '#198754' }} />
+<View style={{ backgroundColor: '#B3261E' }} />
+```
+
+## Spacing Guidelines
+
+```typescript
+// ✅ DO: Use semantic spacing
+const { semantic } = useSemanticTheme()
+
+<View style={{
+  padding: semantic.space.lg,        // 16
+  marginBottom: semantic.space.md,   // 12
+  gap: semantic.space.sm,            // 8
+  paddingHorizontal: semantic.space.xl, // 24
+}} />
+
+// ❌ DON'T: Use hardcoded spacing
+<View style={{
+  padding: 16,
+  marginBottom: 12,
+  gap: 8,
+}} />
+```
+
+### Spacing Scale Reference
+- `xs`: 4px - Tiny gaps
+- `sm`: 8px - Small gaps
+- `md`: 12px - Medium gaps
+- `lg`: 16px - Standard padding
+- `xl`: 24px - Large padding
+- `2xl`: 32px - Extra large padding
+- `3xl`: 48px - Section spacing
+- `4xl`: 64px - Major section spacing
+
+## Typography Guidelines
+
+```typescript
+// ✅ DO: Use semantic typography
+const { semantic } = useSemanticTheme()
+
+// Display (hero text)
+<Text style={semantic.type.display.lg}>Hero Title</Text>
+
+// Headings (section titles)
+<Text style={semantic.type.heading.md}>Section Title</Text>
+
+// Titles (component titles)
+<Text style={semantic.type.title.lg}>Card Title</Text>
+
+// Body text (paragraphs)
+<Text style={semantic.type.body.md}>Paragraph content here.</Text>
+
+// Labels (UI labels)
+<Text style={semantic.type.label.sm}>LABEL</Text>
+
+// ❌ DON'T: Use hardcoded typography
+<Text style={{ fontSize: 16, lineHeight: 24, fontWeight: '400' }}>Text</Text>
+<Text style={{ fontSize: 22, fontWeight: '500' }}>Title</Text>
+```
+
+## Border Radius Guidelines
+
+```typescript
+// ✅ DO: Use semantic radius
+const { semantic } = useSemanticTheme()
+
+<View style={{
+  borderRadius: semantic.radius.lg,      // 12 - cards, buttons
+  borderRadius: semantic.radius.md,      // 8 - inputs, chips
+  borderRadius: semantic.radius.full,    // 9999 - circular buttons
+}} />
+
+// ❌ DON'T: Use hardcoded radius
+<View style={{ borderRadius: 12 }} />
+<View style={{ borderRadius: 8 }} />
+```
+
+## Component Variants
+
+### Button Variants
+
+```typescript
+// ✅ DO: Create semantic variants
+import { Pressable, Text } from 'react-native'
+import { useSemanticTheme } from '@/hooks/use-semantic-theme'
+
+type ButtonVariant = 'primary' | 'success' | 'warning' | 'danger'
+
+export const Button = ({ 
+  variant = 'primary',
+  onPress,
+  disabled = false 
+}) => {
+  const { semantic } = useSemanticTheme()
+  
+  const getColors = () => {
+    switch (variant) {
+      case 'success':
+        return {
+          bg: semantic.color.success,
+          text: semantic.color.onPrimary.default,
+        }
+      case 'warning':
+        return {
+          bg: semantic.color.warning,
+          text: semantic.color.onPrimary.default,
+        }
+      case 'danger':
+        return {
+          bg: semantic.color.danger,
+          text: semantic.color.onPrimary.default,
+        }
+      default:
+        return {
+          bg: semantic.color.primary,
+          text: semantic.color.onPrimary.default,
+        }
+    }
+  }
+  
+  const colors = getColors()
+  
+  return (
+    <Pressable onPress={onPress} disabled={disabled}>
+      {({ pressed }) => (
+        <View style={{
+          padding: semantic.space.md,
+          backgroundColor: disabled
+            ? colors.bg.disabled
+            : pressed
+            ? colors.bg.pressed
+            : colors.bg.default,
+          borderRadius: semantic.radius.lg,
+        }}>
+          <Text style={{
+            ...semantic.type.label.md,
+            color: colors.text,
+          }}>
+            Button
+          </Text>
+        </View>
+      )}
+    </Pressable>
+  )
+}
+```
+
+## Dark Mode
+
+**Automatic Dark Mode Support**
+
+The semantic theme automatically handles light/dark mode based on device settings. No manual dark mode logic needed!
+
+```typescript
+// ✅ DO: Semantic colors automatically handle dark mode
+const { semantic } = useSemanticTheme()
+
+<View style={{
+  backgroundColor: semantic.color.surface.default, // Auto light/dark
+  color: semantic.color.onSurface.default,        // Auto light/dark
+}} />
+
+// ❌ DON'T: Manual dark mode detection
+import { useColorScheme } from 'react-native'
+
+const colorScheme = useColorScheme()
+<View style={{
+  backgroundColor: colorScheme === 'dark' ? '#1C1B1F' : '#FFFFFF',
+}} />
+```
+
+## Validation Checklist
+
+Before committing component code:
+
+- [ ] **Text component is from Paper**: `import { Text } from 'react-native-paper'`
+- [ ] **Text uses Paper variants**: `variant="titleLarge"`, `variant="bodyMedium"`, etc.
+- [ ] No hardcoded hex colors (`#6750A4`, `#FFFFFF`, etc.)
+- [ ] No hardcoded spacing values (`16`, `24`, `padding: 8`, etc.)
+- [ ] No hardcoded typography (`fontSize: 16`, `fontWeight: '500'`, etc.)
+- [ ] All colors use `semantic.color.*`
+- [ ] All spacing uses `semantic.space.*`
+- [ ] All typography uses `semantic.type.*` (only when Paper variant not available)
+- [ ] All border radius uses `semantic.radius.*`
+- [ ] Interactive states use appropriate state colors (pressed, disabled, etc.)
+- [ ] Component works in both light and dark modes
+
+## Common Patterns
+
+### Card Component
+
+```typescript
+import { View } from 'react-native'
+import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '@/hooks/use-semantic-theme'
+
+export const Card = ({ title, children }) => {
+  const { semantic } = useSemanticTheme()
+  
+  return (
+    <View style={{
+      backgroundColor: semantic.color.card.default,
+      borderRadius: semantic.radius.lg,
+      borderWidth: 1,
+      borderColor: semantic.color.border.default,
+      padding: semantic.space.lg,
+    }}>
+      {title && (
+        <Text variant="titleMedium" style={{ color: semantic.color.onSurface.default }}>
+          {title}
+        </Text>
+      )}
+      {children}
+    </View>
+  )
+}
+```
+
+### Input Component
+
+```typescript
+export const Input = ({ value, onChangeText, placeholder }) => {
+  const { semantic } = useSemanticTheme()
+  
+  return (
+    <TextInput
+      value={value}
+      onChangeText={onChangeText}
+      placeholder={placeholder}
+      placeholderTextColor={semantic.color.onSurface.subtle}
+      style={{
+        ...semantic.type.body.md,
+        backgroundColor: semantic.color.input.default,
+        borderRadius: semantic.radius.md,
+        borderWidth: 1,
+        borderColor: semantic.color.border.default,
+        padding: semantic.space.md,
+        color: semantic.color.onSurface.default,
+      }}
+    />
+  )
+}
+```
+
+### List Item Component
+
+```typescript
+import { Pressable, View } from 'react-native'
+import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '@/hooks/use-semantic-theme'
+
+export const ListItem = ({ title, onPress, active = false }) => {
+  const { semantic } = useSemanticTheme()
+  
+  return (
+    <Pressable onPress={onPress}>
+      {({ pressed }) => (
+        <View style={{
+          padding: semantic.space.md,
+          backgroundColor: active
+            ? semantic.color.primary.default
+            : pressed
+            ? semantic.color.surface.pressed
+            : semantic.color.surface.default,
+          borderRadius: semantic.radius.md,
+        }}>
+          <Text
+            variant="bodyMedium"
+            style={{
+              color: active
+                ? semantic.color.onPrimary.default
+                : semantic.color.onSurface.default,
+            }}
+          >
+            {title}
+          </Text>
+        </View>
+      )}
+    </Pressable>
+  )
+}
+```
+
+## Resources
+
+- [Semantic Theme Guide](../docs/SEMANTIC_THEME_GUIDE.md)
+- [Reference Component](../components/ui/semantic-card.tsx)
+- [Theme Types](../types/theme.ts)
+- [Theme Configuration](../constants/theme.ts)
