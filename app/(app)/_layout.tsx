@@ -5,11 +5,7 @@ import { Redirect, Stack } from 'expo-router'
 export const AppLayout = () => {
   const { sessionId } = useAuth()
   console.log('app sessionId', sessionId)
-  // return (
-  //   <View>
-  //     <Text>App Layout</Text>
-  //   </View>
-  // )
+
   return (
     <>
       <Unauthenticated>

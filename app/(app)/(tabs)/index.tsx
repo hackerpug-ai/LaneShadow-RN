@@ -1,14 +1,15 @@
+import { useRouter, useSegments } from 'expo-router'
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Icon, Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { MenuLayout } from '../../../components/layouts/menu-layout'
 import { MapControls } from '../../../components/map/map-controls'
+import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
 import type { MapViewHandle } from '../../../components/map/map-view'
 import { MapViewWrapper } from '../../../components/map/map-view'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
-import { WhereToBar } from '../../../components/map/where-to-bar'
-import { BottomSheetWrapper } from '../../../components/sheets/bottom-sheet-wrapper'
-import { Button } from '../../../components/ui/button'
+import { PlanRideSheet } from '../../../components/sheets/plan-ride-sheet'
+import { FloatingSearchInput } from '../../../components/ui/floating-search-input'
 import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import type { PlanInput, PlannedRouteOptionsView, RouteStop } from '../../../types/routes'
@@ -76,6 +77,8 @@ const initialState: PlanningState = {
 }
 
 const HomeMapScreen = () => {
+  const router = useRouter()
+  const segments = useSegments()
   const mapRef = useRef<MapViewHandle | null>(null)
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
@@ -83,7 +86,8 @@ const HomeMapScreen = () => {
   const { planRide, isRunning: isPlanning, error: planningError, resetError } = usePlanRide()
   const [sheetVisible, setSheetVisible] = useState(false)
   const [searchStop, setSearchStop] = useState<RouteStop | null>(null)
-
+  const [controlsHeight, setControlsHeight] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [state, dispatch] = useReducer(planningReducer, initialState)
 
   const [scenicBias, setScenicBias] = useState<'default' | 'high'>('default')
@@ -255,156 +259,96 @@ const HomeMapScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <MapViewWrapper
-        ref={mapRef}
-        polylines={polylines}
-        markers={markers}
-        onMapClick={handleMapClick}
-        onCameraMove={handleCameraMove}
-      />
+    <MenuLayout testID="home-menu-layout" menuOpen={menuOpen} onMenuOpenChange={setMenuOpen}>
+      <View style={styles.container}>
+        <MapViewWrapper
+          ref={mapRef}
+          polylines={polylines}
+          markers={markers}
+          onMapClick={handleMapClick}
+          onCameraMove={handleCameraMove}
+        />
 
-      <MapControls
-        onZoomIn={() => zoom(1)}
-        onZoomOut={() => zoom(-1)}
-        onRecenter={recenter}
-        onClear={clearAll}
-      />
-
-      <View
-        pointerEvents="box-none"
-        style={[
-          styles.bottomOverlay,
-          {
-            paddingBottom: insets.bottom + semantic.space.lg,
-            paddingHorizontal: semantic.space.lg,
-            gap: semantic.space.sm,
-          },
-        ]}
-      >
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <WhereToBar
-            onPlaceSelected={(place) => {
-              setSearchStop(place)
-              mapRef.current?.setCameraPosition({
-                coordinates: { latitude: place.lat, longitude: place.lng },
-                zoom: (state.camera.zoom ?? 12) + 0.5,
-                duration: 500,
-              })
+        <View pointerEvents="box-none" style={[styles.headerOverlay, {}]}>
+          <MapHeaderOverlay
+            title="Lane Shadow"
+            leftAction={{
+              icon: 'menu',
+              onPress: () => setMenuOpen(true),
+              testID: 'map-header-left-button',
             }}
-            onClear={() => {
-              setSearchStop(null)
+            rightAction={{
+              icon: 'cog',
+              onPress: () => router.push('/(app)/(tabs)/settings'),
+              testID: 'map-header-right-button',
             }}
+            testID="map-header-overlay"
           />
         </View>
 
-        <Button
-          icon={<Icon source="map-plus" size={30} />}
-          size="icon"
-          variant="default"
-          textStyle={{ color: semantic.color.onSurface.default }}
-          onPress={() => setSheetVisible(true)}
-          accessibilityLabel="Plan ride"
-          testID="plan-ride-button"
-        ></Button>
-      </View>
-
-      <BottomSheetWrapper
-        isVisible={sheetVisible}
-        onClose={() => setSheetVisible(false)}
-        preset="half"
-      >
         <View
-          style={{
-            gap: semantic.space.sm,
-          }}
+          onLayout={(e) => setControlsHeight(e.nativeEvent.layout.height)}
+          style={[
+            styles.constrols,
+            {
+              right: semantic.space.sm,
+              transform: [{ translateY: -controlsHeight / 2 }],
+            },
+          ]}
         >
-          <Text variant="titleMedium" style={{ color: semantic.color.onSurface.default }}>
-            Plan Ride
-          </Text>
-
-          <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.default }}>
-            Start:{' '}
-            {state.startStop
-              ? `${state.startStop.lat.toFixed(4)}, ${state.startStop.lng.toFixed(4)}`
-              : 'Tap map'}
-          </Text>
-          <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.default }}>
-            End:{' '}
-            {state.endStop
-              ? `${state.endStop.lat.toFixed(4)}, ${state.endStop.lng.toFixed(4)}`
-              : 'Tap map'}
-          </Text>
-
-          <View
-            style={{
-              flexDirection: 'row',
-              gap: semantic.space.sm,
-            }}
-          >
-            <Button
-              size="sm"
-              variant={scenicBias === 'default' ? 'secondary' : 'outline'}
-              onPress={() => setScenicBias('default')}
-              testID="pref-scenic-default"
-            >
-              Scenic: default
-            </Button>
-            <Button
-              size="sm"
-              variant={scenicBias === 'high' ? 'secondary' : 'outline'}
-              onPress={() => setScenicBias('high')}
-              testID="pref-scenic-high"
-            >
-              Scenic: high
-            </Button>
-          </View>
-
-          <View
-            style={{
-              flexDirection: 'row',
-              gap: semantic.space.sm,
-            }}
-          >
-            <Button
-              size="sm"
-              variant={avoidHighways ? 'secondary' : 'outline'}
-              onPress={() => setAvoidHighways((prev) => !prev)}
-              testID="pref-avoid-highways"
-            >
-              Avoid highways
-            </Button>
-            <Button
-              size="sm"
-              variant={avoidTolls ? 'secondary' : 'outline'}
-              onPress={() => setAvoidTolls((prev) => !prev)}
-              testID="pref-avoid-tolls"
-            >
-              Avoid tolls
-            </Button>
-          </View>
-
-          {planningError ? (
-            <Text variant="bodyMedium" style={{ color: semantic.color.danger.default }}>
-              {planningError}
-            </Text>
-          ) : null}
-
-          <Button
-            variant="default"
-            disabled={!state.startStop || !state.endStop || isPlanning}
-            onPress={handlePlanRide}
-            testID="plan-ride-submit"
-          >
-            {isPlanning ? 'Planning...' : 'Plan ride'}
-          </Button>
-
-          <Button variant="outline" onPress={clearAll} testID="plan-ride-clear">
-            Clear selection
-          </Button>
+          <MapControls
+            onZoomIn={() => zoom(1)}
+            onZoomOut={() => zoom(-1)}
+            onRecenter={recenter}
+            onClear={clearAll}
+          />
         </View>
-      </BottomSheetWrapper>
-    </View>
+
+        <View
+          pointerEvents="box-none"
+          style={[
+            styles.bottomOverlay,
+            {
+              paddingBottom: insets.bottom + semantic.space.sm,
+              paddingHorizontal: semantic.space.sm,
+              gap: semantic.space.sm,
+            },
+          ]}
+        >
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <FloatingSearchInput
+              value={searchStop?.label ?? ''}
+              onChangeText={(text) => {
+                setSearchStop({ label: text, lat: 0, lng: 0 })
+              }}
+              placeholder="Where to?"
+              onClear={() => setSearchStop(null)}
+              onPress={() => {
+                setSheetVisible(true)
+              }}
+              testID="where-to-search"
+            />
+          </View>
+        </View>
+
+        <PlanRideSheet
+          isVisible={sheetVisible}
+          onClose={() => setSheetVisible(false)}
+          startStop={state.startStop}
+          endStop={state.endStop}
+          scenicBias={scenicBias}
+          onSetScenicBias={setScenicBias}
+          avoidHighways={avoidHighways}
+          onToggleAvoidHighways={() => setAvoidHighways((prev) => !prev)}
+          avoidTolls={avoidTolls}
+          onToggleAvoidTolls={() => setAvoidTolls((prev) => !prev)}
+          isPlanning={isPlanning}
+          planningError={planningError}
+          onPlanRide={handlePlanRide}
+          onClearSelection={clearAll}
+        />
+      </View>
+    </MenuLayout>
   )
 }
 
@@ -412,7 +356,21 @@ export default HomeMapScreen
 
 const styles = StyleSheet.create({
   container: {
+    position: 'relative',
     flex: 1,
+  },
+  constrols: {
+    position: 'absolute',
+    zIndex: 30,
+    top: '50%',
+    alignItems: 'center',
+  },
+  headerOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    zIndex: 30,
   },
   bottomOverlay: {
     position: 'absolute',

@@ -19,12 +19,7 @@ const TabsLayout = () => {
         tabBarIconStyle: { marginBottom: -4 },
         tabBarLabelStyle: { fontSize: 12, fontWeight: '600' },
         tabBarStyle: {
-          backgroundColor: semantic.color.surface.default,
-          borderTopColor: semantic.color.border.default,
-          borderTopWidth: 1,
-          paddingTop: 6,
-          paddingBottom: Math.max(16, insets.bottom + 8),
-          height: 85,
+          display: 'none',
         },
       }}
     >

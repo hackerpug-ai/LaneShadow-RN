@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native'
-import { Icon, Portal } from 'react-native-paper'
+import { Icon } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
@@ -34,75 +34,73 @@ export const MapControls = ({
   }
 
   return (
-    <Portal>
-      <View pointerEvents="box-none" style={[styles.portal, offsets]}>
+    <View pointerEvents="box-none">
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: 'transparent',
+            gap: semantic.space.xs,
+          },
+        ]}
+        testID="map-controls"
+      >
         <View
           style={[
-            styles.container,
+            styles.cluster,
             {
-              backgroundColor: 'transparent',
-              gap: semantic.space.xs,
+              backgroundColor: semantic.color.surfaceVariant.default,
+              borderColor: semantic.color.border.default,
+              borderRadius: semantic.radius['2xl'],
             },
           ]}
-          testID="map-controls"
         >
+          <ControlButton
+            icon="plus"
+            onPress={onZoomIn}
+            semantic={semantic}
+            testID="control-zoom-in"
+            accessibilityLabel="Zoom in"
+          />
           <View
             style={[
-              styles.cluster,
+              styles.divider,
               {
-                backgroundColor: semantic.color.surfaceVariant.default,
-                borderColor: semantic.color.border.default,
-                borderRadius: semantic.radius['2xl'],
+                backgroundColor: semantic.color.border.default,
               },
             ]}
-          >
-            <ControlButton
-              icon="plus"
-              onPress={onZoomIn}
-              semantic={semantic}
-              testID="control-zoom-in"
-              accessibilityLabel="Zoom in"
-            />
-            <View
-              style={[
-                styles.divider,
-                {
-                  backgroundColor: semantic.color.border.default,
-                },
-              ]}
-            />
+          />
 
-            <ControlButton
-              icon="minus"
-              onPress={onZoomOut}
-              semantic={semantic}
-              testID="control-zoom-out"
-              accessibilityLabel="Zoom out"
-            />
-          </View>
-
-          {onRecenter ? (
-            <ControlButton
-              icon="crosshairs-gps"
-              onPress={onRecenter}
-              semantic={semantic}
-              testID="control-recenter"
-              accessibilityLabel="Recenter map"
-            />
-          ) : null}
-
-          {onClear ? (
-            <ControlButton
-              icon="layers"
-              onPress={onClear}
-              semantic={semantic}
-              testID="control-clear"
-              accessibilityLabel="Reset map state"
-            />
-          ) : null}
+          <ControlButton
+            icon="minus"
+            onPress={onZoomOut}
+            semantic={semantic}
+            testID="control-zoom-out"
+            accessibilityLabel="Zoom out"
+          />
         </View>
+
+        {onRecenter ? (
+          <ControlButton
+            icon="crosshairs-gps"
+            onPress={onRecenter}
+            semantic={semantic}
+            testID="control-recenter"
+            accessibilityLabel="Recenter map"
+          />
+        ) : null}
+
+        {onClear ? (
+          <ControlButton
+            icon="layers"
+            onPress={onClear}
+            semantic={semantic}
+            testID="control-clear"
+            accessibilityLabel="Reset map state"
+          />
+        ) : null}
       </View>
-    </Portal>
+    </View>
   )
 }
 
@@ -151,10 +149,6 @@ const ControlButton = ({
 }
 
 const styles = StyleSheet.create({
-  portal: {
-    position: 'absolute',
-    zIndex: 10,
-  },
   container: {
     alignItems: 'center',
   },

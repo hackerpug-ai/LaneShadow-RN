@@ -71,6 +71,9 @@ dependencies:
   expo-image-picker:
     specifier: ~17.0.10
     version: 17.0.10(expo@54.0.31)
+  expo-linear-gradient:
+    specifier: ~15.0.8
+    version: 15.0.8(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
   expo-linking:
     specifier: ~8.0.11
     version: 8.0.11(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
@@ -6424,6 +6427,18 @@ packages:
     dependencies:
       expo: 54.0.31(@babel/core@7.28.4)(@expo/metro-runtime@6.1.2)(expo-router@6.0.21)(react-native@0.81.5)(react@19.1.0)
       react: 19.1.0
+    dev: false
+
+  /expo-linear-gradient@15.0.8(expo@54.0.31)(react-native@0.81.5)(react@19.1.0):
+    resolution: {integrity: sha512-V2d8Wjn0VzhPHO+rrSBtcl+Fo+jUUccdlmQ6OoL9/XQB7Qk3d9lYrqKDJyccwDxmQT10JdST3Tmf2K52NLc3kw==}
+    peerDependencies:
+      expo: '*'
+      react: '*'
+      react-native: '*'
+    dependencies:
+      expo: 54.0.31(@babel/core@7.28.4)(@expo/metro-runtime@6.1.2)(expo-router@6.0.21)(react-native@0.81.5)(react@19.1.0)
+      react: 19.1.0
+      react-native: 0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0)
     dev: false
 
   /expo-linking@8.0.11(expo@54.0.31)(react-native@0.81.5)(react@19.1.0):

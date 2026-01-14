@@ -202,8 +202,9 @@ export const Button = ({
   }
 
   // Get border style for outline variant
-  const getBorderStyle = () => {
+  const getBorderStyle = (pressed: boolean) => {
     if (variant === 'glass') {
+      if (pressed) return {}
       return {
         borderWidth: 1,
         borderColor: semantic.color.border.default,
@@ -233,7 +234,7 @@ export const Button = ({
             borderRadius: getRadius(),
             opacity: disabled ? 0.5 : 1,
           },
-          getBorderStyle(),
+          getBorderStyle(pressed),
           style,
         ]}
       >

@@ -1,80 +1,101 @@
-/**
- * Menu Layout Component
- * Wraps content with slide-out drawer menu and animation
- *
- * Following theme_rules.mdc and react_rules.mdc
- */
-
-import type { DrawerMenuItem, DrawerMenuSection } from '../ui/drawer-menu'
-import { DrawerMenu } from '../ui/drawer-menu'
+import { useRouter, useSegments } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { Animated, StyleSheet, View } from 'react-native'
+import type { DrawerMenuItem, DrawerMenuSection } from '../ui/menus/drawer-menu'
+import { DrawerMenu } from '../ui/menus/drawer-menu'
 
 const DRAWER_WIDTH = 280
 
 export type MenuLayoutProps = {
-  children: (toggleMenu: () => void) => React.ReactNode
-  sections: DrawerMenuSection[]
-  footerItems: DrawerMenuItem[]
+  children: React.ReactNode
   headerTitle?: string
+  alignment?: 'left' | 'right'
   testID?: string
+  menuOpen: boolean
+  onMenuOpenChange: (open: boolean) => void
 }
 
 export const MenuLayout = ({
   children,
-  sections,
-  footerItems,
   headerTitle = 'Menu',
+  alignment = 'left',
   testID,
+  menuOpen,
+  onMenuOpenChange,
 }: MenuLayoutProps) => {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [contentOffset] = useState(new Animated.Value(0))
+  const router = useRouter()
+  const segments = useSegments()
+  const activeTab = segments[2] ?? 'index'
 
-  // Animate content shift when menu opens
+  const [contentOffset] = useState(new Animated.Value(0))
+  const menuSections: DrawerMenuSection[] = [
+    {
+      title: 'Navigate',
+      items: [
+        {
+          label: 'Home',
+          icon: 'home-variant',
+          active: activeTab === 'index',
+          onPress: () => router.push('/(app)/(tabs)'),
+        },
+        {
+          label: 'Settings',
+          icon: 'cog',
+          active: activeTab === 'settings',
+          onPress: () => router.push('/(app)/(tabs)/settings'),
+        },
+        {
+          label: 'Saved',
+          icon: 'bookmark-multiple',
+          active: activeTab === 'saved-routes',
+          onPress: () => router.push('/(app)/(tabs)/saved-routes'),
+        },
+      ],
+    },
+  ]
+
+  const footerItems: DrawerMenuItem[] = []
   useEffect(() => {
+    const offset = menuOpen ? DRAWER_WIDTH : 0
+    const finalValue = alignment === 'left' ? offset : -offset
     Animated.timing(contentOffset, {
-      toValue: menuOpen ? DRAWER_WIDTH : 0,
+      toValue: finalValue,
       duration: 300,
       useNativeDriver: true,
     }).start()
-  }, [menuOpen, contentOffset])
+  }, [menuOpen, contentOffset, alignment])
 
-  // Wrap footer items to auto-close menu after action
   const wrappedFooterItems: DrawerMenuItem[] = footerItems.map((item) => ({
     ...item,
     onPress: () => {
-      setMenuOpen(false)
+      onMenuOpenChange(false)
       item.onPress()
     },
   }))
 
-  // Wrap section items to auto-close menu after action
-  const wrappedSections: DrawerMenuSection[] = sections.map((section) => ({
+  const wrappedSections: DrawerMenuSection[] = menuSections.map((section) => ({
     ...section,
     items: section.items.map((item) => ({
       ...item,
       onPress: () => {
-        setMenuOpen(false)
+        onMenuOpenChange(false)
         item.onPress()
       },
     })),
   }))
 
-  const toggleMenu = () => setMenuOpen(!menuOpen)
-
   return (
     <View style={styles.container}>
-      {/* Drawer Menu */}
       <DrawerMenu
         isOpen={menuOpen}
-        onClose={() => setMenuOpen(false)}
+        onClose={() => onMenuOpenChange(false)}
         header={{ title: headerTitle, testID: `${testID}-drawer-header` }}
         sections={wrappedSections}
         footer={{ items: wrappedFooterItems }}
+        alignment={alignment}
         testID={testID}
       />
 
-      {/* Main Content Area - shifts right when menu opens */}
       <Animated.View
         style={[
           styles.contentArea,
@@ -83,7 +104,7 @@ export const MenuLayout = ({
           },
         ]}
       >
-        {children(toggleMenu)}
+        {children}
       </Animated.View>
     </View>
   )
@@ -95,5 +116,12 @@ const styles = StyleSheet.create({
   },
   contentArea: {
     flex: 1,
+  },
+  headerOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    zIndex: 30,
   },
 })

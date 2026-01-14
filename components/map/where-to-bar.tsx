@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
-import { Icon, Text } from 'react-native-paper'
+import { Text } from 'react-native-paper'
 
 import { usePlaceAutocomplete } from '../../hooks/use-place-autocomplete'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { RouteStop } from '../../types/routes'
-import { Input } from '../ui/input'
+import { FloatingSearchInput } from '../ui/floating-search-input'
 
 export type WhereToBarProps = {
   onPlaceSelected: (place: RouteStop) => void
@@ -132,84 +132,22 @@ export const WhereToBar = ({ onPlaceSelected, onClear }: WhereToBarProps) => {
           },
         ]}
       >
-        <View
-          style={[
-            styles.inputShell,
-            {
-              backgroundColor: semantic.color.surfaceVariant.default,
-              borderColor: semantic.color.border.default,
-              borderRadius: semantic.radius.xl,
-              paddingHorizontal: semantic.space.md,
-              paddingVertical: semantic.space.xs,
-            },
-          ]}
-        >
-          <Input
-            value={query}
-            onChangeText={(text) => {
-              setQuery(text)
-              setShouldShowSuggestions(text.trim().length > 0)
-              search(text)
-            }}
-            placeholder="Where to?"
-            testID="where-to-input"
-            autoCorrect={false}
-            autoCapitalize="none"
-            numberOfLines={1}
-            scrollEnabled={false}
-            style={{
-              backgroundColor: 'transparent',
-              borderWidth: 0,
-              paddingHorizontal: 0,
-              paddingRight: semantic.space['2xl'],
-              flex: 1,
-              minWidth: 0,
-              flexShrink: 1,
-              maxWidth: '100%',
-            }}
-            inputStyle={{
-              paddingHorizontal: 0,
-              height: undefined,
-              flex: 1,
-              minWidth: 0,
-              flexShrink: 1,
-              maxWidth: '100%',
-            }}
-          />
-          {query ? (
-            <Pressable
-              onPress={() => {
-                setQuery('')
-                setShouldShowSuggestions(false)
-                clear()
-                onClear?.()
-              }}
-              accessibilityLabel="Clear search"
-              hitSlop={{
-                top: semantic.space.xs,
-                bottom: semantic.space.xs,
-                left: semantic.space.xs,
-                right: semantic.space.xs,
-              }}
-              style={({ pressed }) => [
-                styles.clearButton,
-                {
-                  paddingHorizontal: semantic.space.xs,
-                  paddingVertical: semantic.space.xs,
-                  position: 'absolute',
-                  right: semantic.space.sm,
-                  top: 0,
-                  bottom: 0,
-                  justifyContent: 'center',
-                  opacity: pressed ? 0.8 : 1,
-                },
-              ]}
-              testID="where-to-clear"
-            >
-              <Icon source="close" size={18} color={semantic.color.onSurface.default} />
-            </Pressable>
-          ) : null}
-        </View>
+        <FloatingSearchInput
+          value={query}
+          onChangeText={(text) => {
+            setQuery(text)
+            setShouldShowSuggestions(text.trim().length > 0)
+            search(text)
+          }}
+          placeholder="Where to?"
+          testID="where-to"
+          onClear={() => {
+            setQuery('')
+            setShouldShowSuggestions(false)
+            clear()
+            onClear?.()
+          }}
+        />
       </View>
     </View>
   )
@@ -241,17 +179,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-  },
-  inputShell: {
-    flex: 1,
-    minWidth: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  clearButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   suggestions: {
     flex: 1,
