@@ -30,13 +30,14 @@ export const RouteTimeline = ({ startPoint, endPoint }: RouteTimelineProps) => {
             styles.timelineLine,
             {
               width: 2,
-              backgroundColor: semantic.color.border.default,
+              backgroundColor: semantic.color.primary.default, // Changed to primary color
+              opacity: 0.5, // Add opacity for gradient effect
             },
           ]}
         />
       )}
 
-      {/* Start dot (top) */}
+      {/* Start dot (top) - hollow with primary border */}
       {startPoint && (
         <View
           style={[
@@ -46,13 +47,15 @@ export const RouteTimeline = ({ startPoint, endPoint }: RouteTimelineProps) => {
               width: 12,
               height: 12,
               borderRadius: semantic.radius.full,
-              backgroundColor: semantic.color.primary.default,
+              backgroundColor: 'transparent', // Transparent background
+              borderWidth: 2,
+              borderColor: semantic.color.primary.default, // Primary border
             },
           ]}
         />
       )}
 
-      {/* End dot (bottom) */}
+      {/* End dot (bottom) - filled with muted color */}
       {endPoint && (
         <View
           style={[
@@ -62,7 +65,7 @@ export const RouteTimeline = ({ startPoint, endPoint }: RouteTimelineProps) => {
               width: 12,
               height: 12,
               borderRadius: semantic.radius.full,
-              backgroundColor: semantic.color.muted.default,
+              backgroundColor: `${semantic.color.onSurface.muted}50`, // 50% opacity of muted text color
             },
           ]}
         />

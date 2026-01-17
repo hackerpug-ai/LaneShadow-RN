@@ -36,6 +36,7 @@ export type BadgeProps = {
   style?: ViewStyle
   textStyle?: TextStyle
   testID?: string
+  opacity?: number // Add opacity prop for semi-transparent backgrounds
 }
 
 /**
@@ -49,25 +50,35 @@ export const Badge = ({
   style,
   textStyle,
   testID,
+  opacity = 1, // Default to fully opaque
 }: BadgeProps): React.ReactNode => {
   const { semantic } = useSemanticTheme()
 
   // Get background color based on variant
   const getBackgroundColor = (): string => {
+    let baseColor: string
     switch (variant) {
       case 'secondary':
-        return semantic.color.secondary.default
+        baseColor = semantic.color.secondary.default
+        break
       case 'destructive':
-        return semantic.color.danger.default
+        baseColor = semantic.color.danger.default
+        break
       case 'success':
-        return semantic.color.success.default
+        baseColor = semantic.color.success.default
+        break
       case 'warning':
-        return semantic.color.warning.default
+        baseColor = semantic.color.warning.default
+        break
       case 'outline':
         return 'transparent'
       default:
-        return semantic.color.primary.default
+        baseColor = semantic.color.primary.default
+        break
     }
+    
+    // Apply opacity if specified (less than 1)
+    return opacity < 1 ? `${baseColor}${Math.round(opacity * 255).toString(16).padStart(2, '0')}` : baseColor
   }
 
   // Get text color based on variant
