@@ -26,6 +26,7 @@ export type SwitchProps = {
   disabled?: boolean
   style?: ViewStyle
   accessibilityLabel?: string
+  testID?: string
 }
 
 /**
@@ -38,6 +39,7 @@ export const Switch = ({
   disabled = false,
   style,
   accessibilityLabel,
+  testID,
 }: SwitchProps): React.ReactNode => {
   const { semantic } = useSemanticTheme()
   const [animation] = useState(new Animated.Value(value ? 1 : 0))
@@ -68,6 +70,7 @@ export const Switch = ({
       accessibilityRole="switch"
       accessibilityState={{ checked: value, disabled }}
       style={style}
+      testID={testID}
     >
       <Animated.View
         style={[

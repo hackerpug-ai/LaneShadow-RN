@@ -260,7 +260,7 @@ const darkSemanticTheme: SemanticTheme = {
     },
     onPrimary: createColorSet('#0E0F11', '#0E0F11', '#0E0F11', '#2A1F15'),
     onSecondary: createColorSet('#F8F7F6', '#FFFFFF', '#E3E3E3', '#6B7D8F'),
-    secondaryContainer: createColorSet('#24272B', '#2D3136', '#1A1C1F', '#1A1C1F'),
+    secondaryContainer: createColorSet('#36302B', '#403A34', '#2C2623', '#1A1C1F'),
     onSecondaryContainer: {
       default: '#E3E3E3',
       hover: '#EBEBEB',

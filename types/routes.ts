@@ -81,10 +81,3 @@ export type PlannedRouteOptionsView = {
   planId: string
   options: Array<PlannedRouteOptionView>
 }
-
-export type PlanRideInput = {
-  currentLocation?: string | null
-  destination?: string | null
-  onCurrentLocationChange?: (value: string) => void
-  onDestinationChange?: (value: string) => void
-}

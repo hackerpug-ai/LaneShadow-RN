@@ -153,42 +153,141 @@
 
 ---
 
-## 2026-01-14 - UI Developer - Plan Ride Sheet Refactoring Plan
+## 2026-01-14 - UI Developer - Plan Ride Sheet Refactoring Implementation
 
 ### Status
 - Current Sprint: sprint-4
-- Task: `.spec/epic-1/sprints/sprint-4/routepreview.md` — Plan Ride Sheet Refactoring Plan
+- Task: `.spec/epic-1/sprints/sprint-4/routepreview.md` — Plan Ride Sheet Refactoring Implementation
 - Status: Completed
 
 ### Work Completed
-- Completed comprehensive refactoring plan for `components/sheets/plan-ride-sheet.tsx` to match design specification
-- Created detailed implementation phases with specific code examples following project patterns:
-  - Phase 1: Input Fields & Timeline visualization
-  - Phase 2: Scenic Bias Control using existing ToggleGroup component
-  - Phase 3: Toggles Refactoring using existing Switch component
-  - Phase 4: Action Button & Header enhancement
-  - Phase 5: Component extraction strategy
-- Provided complete component implementations:
-  - `RouteTimeline` component for visual route representation
-  - `PlanRideInputs` component with swap functionality
-- Ensured compliance with project standards:
-  - Uses semantic theme throughout (no hardcoded values)
-  - Leverages existing UI components (Switch, ToggleGroup, Badge, IconSymbol)
-  - Follows StyleSheet best practices
-  - Includes proper TypeScript typing
-  - Adds test IDs for E2E testing
-- Created testing strategy with specific E2E test cases
-- Added implementation notes to ensure consistency with project patterns
+- **Fully implemented** the refactored Plan Ride Sheet component following the detailed plan
+- **New Components Created:**
+  - `components/sheets/route-timeline.tsx` - Visual timeline with start/end dots connected by gradient line
+  - `components/sheets/plan-ride-inputs.tsx` - Input fields with location/search icons and swap functionality
+- **Updated Components:**
+  - `components/sheets/plan-ride-sheet.tsx` - Complete refactor with:
+    - Header with "Motorcycle" badge
+    - Visual timeline using RouteTimeline component
+    - ToggleGroup for scenic bias (arrow-right vs image icons)
+    - Switch components for avoid highways/tolls with labeled icons
+    - Enhanced action button with motorbike icon
+  - `components/ui/switch.tsx` - Added `testID` prop support for E2E testing
+  - `components/ui/badge.tsx` - Added `testID` prop support for E2E testing
+- **Enhanced User Experience:**
+  - Visual timeline replaces text-based start/end display
+  - Dedicated input fields with clear icons and swap button
+  - ToggleGroup and Switch components provide clearer control interaction
+  - Icon-enhanced action button and header badge
+- **Technical Implementation:**
+  - Used semantic theme throughout (no hardcoded values)
+  - Leveraged existing UI components (Switch, ToggleGroup, Badge, IconSymbol, Input)
+  - Followed project patterns (extend, don't duplicate)
+  - Proper TypeScript typing extending existing `PlanRideInput` type
+  - Added test IDs for all interactive elements
 
 ### Decisions Made
-- Use existing UI components from `components/ui/` rather than creating duplicates
-- Extend existing `PlanRideInput` type in `types/routes.ts` rather than creating new types
-- Follow project's component creation philosophy (extend, don't duplicate)
-- Use `IconSymbol` component for consistent icon rendering across platforms
+- Used `@components/ui/input.tsx` as base for custom input wrapper
+- Added `testID` support to Switch and Badge components to enable E2E testing
+- Maintained existing type definitions in `types/routes.ts`
+- Used `IconSymbol` component for consistent cross-platform icon rendering
 
 ### Issues/Blockers
-- None. Plan is complete and ready for implementation.
+- None. Implementation completed successfully with no TypeScript errors.
 
 ### Next Steps
-- Begin implementation of refactored Plan Ride Sheet component following the detailed plan
-- Start with Phase 1 (Input Fields & Timeline) as foundation for subsequent phases
+- The refactored Plan Ride Sheet is ready for integration with the HomeMap screen
+- Component follows design specification while maintaining project standards
+- All UI components are properly themed and ready for use in the planning flow
+
+---
+
+## 2026-01-14 - UI Developer - Add Place Autocomplete to Plan Ride Inputs
+
+### Status
+- Current Sprint: sprint-4
+- Task: Add Google Places autocomplete functionality to PlanRideInputs component
+- Status: Completed
+
+### Work Completed
+- **Extended `PlanRideInput` Type** (`types/routes.ts`):
+  - Added `onCurrentLocationSelected?: (place: RouteStop) => void`
+  - Added `onDestinationSelected?: (place: RouteStop) => void`
+  - These callbacks allow the parent component to receive `RouteStop` objects with coordinates when a place is selected
+
+- **Enhanced `PlanRideInputs` Component** (`components/sheets/plan-ride-inputs.tsx`):
+  - **Autocomplete Integration**: Added `usePlaceAutocomplete` hook with 300ms debouncing
+  - **Focus Tracking**: Implemented state to track which input is currently active (`'current' | 'destination' | null`)
+  - **Suggestions UI**:
+    - Renders below the active input (avoiding sheet handle overlap)
+    - Maximum 3 suggestions with scrollable container (200px max height)
+    - Skeleton loading state with 3 placeholders
+    - Pressable suggestion items with visual feedback
+  - **Styling**:
+    - Used semantic theme for consistent colors and spacing
+    - Added shadow and elevation for depth
+    - Rounded corners with proper border styling
+  - **State Management**:
+    - Clears suggestions when switching inputs or on swap button press
+    - Calls appropriate `onXSelected` callback with `RouteStop` object
+    - Updates input text with selected place label
+  - **Test IDs**: Added comprehensive test IDs for E2E testing:
+    - `current-location-suggestions`, `destination-suggestions`
+    - `current-location-skeleton-{index}`, `destination-skeleton-{index}`
+    - `current-location-suggestion-{index}`, `destination-suggestion-{index}`
+
+### Decisions Made
+- **Suggestion Position**: Rendered below inputs instead of above to avoid sheet handle overlap
+- **Single Hook Instance**: Used one `usePlaceAutocomplete` instance instead of two (optimization)
+- **Active Input Filtering**: Only show suggestions for the currently focused input
+- **Location API**: Leveraged existing `usePlaceAutocomplete` hook that handles Google Places API
+
+### Issues/Blockers
+- None. Implementation completed successfully following the established pattern from `WhereToBar` component.
+
+### Next Steps
+- The enhanced PlanRideInputs component is ready for integration into PlanRideSheet
+- Parent component needs to handle the new `onXSelected` callbacks to store `RouteStop` objects for the planning flow
+- Component supports both text input and place selection scenarios
+
+---
+
+## 2026-01-14 - UI Developer - PlanRideSheet and PlanRideInputs Integration
+
+### Status
+- Current Sprint: sprint-4
+- Task: Integration of PlanRideInputs with autocomplete into PlanRideSheet
+- Status: Completed
+
+### Work Completed
+- **Integrated PlanRideInputs component** into PlanRideSheet with full autocomplete support
+- **Updated PlanRideSheet Props**:
+  - Added `onSetStartStop?: (stop: RouteStop) => void` and `onSetEndStop?: (stop: RouteStop) => void` callbacks
+  - Enhanced component to handle RouteStop object storage when places are selected
+- **Implemented Autocomplete Handlers**:
+  - Added `handleCurrentLocationSelected` and `handleDestinationSelected` callbacks
+  - These call the parent's `onSetXStop` props to update the RouteStop objects
+  - Maintained text change handlers for future display state management
+- **Updated Component Structure**:
+  - Replaced manual input fields with PlanRideInputs component
+  - Kept all existing UI components (RouteTimeline, ToggleGroup, Switches, Buttons)
+  - Maintained the visual timeline between start and end points
+- **Preserved Existing Functionality**:
+  - All existing props and behavior remain unchanged
+  - New props are optional to maintain backward compatibility
+  - Clear selection and plan ride buttons work as before
+
+### Decisions Made
+- **Optional Props**: Made `onSetStartStop` and `onSetEndStop` optional to avoid breaking changes
+- **Callback Pattern**: Used the same pattern as other props (e.g., `onToggleAvoidHighways`) for consistency
+- **Integration Point**: Added PlanRideInputs after the header and before the timeline to maintain visual flow
+- **State Management**: Kept text change handlers for future local state management while focusing on RouteStop selection
+
+### Issues/Blockers
+- None. Integration completed successfully with no TypeScript errors.
+
+### Next Steps
+- The PlanRideSheet is now fully integrated with autocomplete functionality
+- Parent components (HomeMap, etc.) can now pass `onSetStartStop` and `onSetEndStop` handlers to store RouteStop objects
+- The component supports both manual text input and Google Places autocomplete selection
+- Ready for connecting to actual planning hooks and route generation

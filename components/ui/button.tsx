@@ -15,6 +15,7 @@ import type { StyleProp, TextStyle, ViewStyle } from 'react-native'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol, type IconName } from './icon-symbol'
 
 /**
  * Button size variants
@@ -46,7 +47,7 @@ export type ButtonProps = {
   disabled?: boolean
   loading?: boolean
   children?: React.ReactNode
-  icon?: React.ReactNode
+  icon?: React.ReactNode | IconName
   iconPosition?: 'left' | 'right'
   style?: StyleProp<ViewStyle>
   textStyle?: StyleProp<TextStyle>
@@ -219,6 +220,20 @@ export const Button = ({
     return {}
   }
 
+  // Render icon - if it's a string (IconName), render IconSymbol; otherwise render as-is
+  const renderIcon = (pressed: boolean): React.ReactNode => {
+    if (!icon) return null
+
+    // If icon is a string (IconName), automatically render IconSymbol
+    if (typeof icon === 'string') {
+      const iconColor = getTextColor(pressed)
+      return <IconSymbol name={icon as IconName} size={20} color={iconColor} />
+    }
+
+    // Otherwise, render the custom icon element as-is
+    return icon
+  }
+
   const content = (pressed: boolean): React.ReactNode => {
     const isIconOnly = size === 'icon'
 
@@ -256,7 +271,7 @@ export const Button = ({
               <View
                 style={[styles.iconContainer, !isIconOnly && { marginRight: semantic.space.sm }]}
               >
-                {icon}
+                {renderIcon(pressed)}
               </View>
             )}
             {children && (
@@ -277,10 +292,10 @@ export const Button = ({
               <View
                 style={[styles.iconContainer, !isIconOnly && { marginLeft: semantic.space.sm }]}
               >
-                {icon}
+                {renderIcon(pressed)}
               </View>
             )}
-            {isIconOnly && icon && <View style={styles.iconContainer}>{icon}</View>}
+            {isIconOnly && icon && <View style={styles.iconContainer}>{renderIcon(pressed)}</View>}
           </>
         )}
       </View>
@@ -294,6 +309,7 @@ export const Button = ({
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
       accessibilityState={{ disabled: disabled || loading }}
+      testID={testID}
     >
       {({ pressed }) => content(pressed)}
     </Pressable>

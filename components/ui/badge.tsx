@@ -35,6 +35,7 @@ export type BadgeProps = {
   icon?: React.ReactNode
   style?: ViewStyle
   textStyle?: TextStyle
+  testID?: string
 }
 
 /**
@@ -47,6 +48,7 @@ export const Badge = ({
   icon,
   style,
   textStyle,
+  testID,
 }: BadgeProps): React.ReactNode => {
   const { semantic } = useSemanticTheme()
 
@@ -104,6 +106,7 @@ export const Badge = ({
         getBorderStyle(),
         style,
       ]}
+      testID={testID}
     >
       {icon && <View style={[styles.icon, { marginRight: semantic.space.xs }]}>{icon}</View>}
       {children && (

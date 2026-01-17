@@ -2,11 +2,12 @@
  * Input Component
  * Text input field with semantic theme styling
  *
- * Specs from README 7.2:
- * - Input height: 40px with px-3 py-2 padding
- * - Border: 1px with semantic.color.border
- * - Focus state: ring-2 with ring-offset-2
- * - Font: text-base (16px) on mobile, text-sm (14px) on desktop
+ * Design specs from placesearch.designs.html:
+ * - Container: bg-surface-elevated, rounded-xl, h-12 (48px)
+ * - Icon: Left-aligned with primary color, pl-4 pr-2 spacing
+ * - Input: Transparent bg, no border, flex-1, px-2
+ * - Focus: ring-1 with ring-primary (on container)
+ * - Font: text-base (16px), normal weight
  *
  * Following coding standards: composition over inheritance, named exports
  */
@@ -16,6 +17,7 @@ import type { TextInputProps, TextStyle, ViewStyle } from 'react-native'
 import { StyleSheet, TextInput, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol, type IconName } from './icon-symbol'
 
 /**
  * Input component props
@@ -26,6 +28,10 @@ export type InputProps = Omit<TextInputProps, 'style'> & {
   style?: ViewStyle
   inputStyle?: TextStyle
   error?: boolean
+  /** Optional left icon name to render inside the input container */
+  leftIcon?: IconName
+  /** Optional right icon name to render inside the input container */
+  rightIcon?: IconName
 }
 
 /**
@@ -38,6 +44,8 @@ export const Input = ({
   inputStyle,
   error = false,
   editable = true,
+  leftIcon,
+  rightIcon,
   onFocus,
   onBlur,
   ...props
@@ -55,14 +63,35 @@ export const Input = ({
     onBlur?.(e)
   }
 
-  const getBorderColor = (): string => {
+  // Use ring effect for focus state instead of border color
+  const getRingStyle = (): any => {
+    if (error) {
+      return {
+        borderWidth: 1,
+        borderColor: semantic.color.danger.default,
+      }
+    }
+    if (isFocused) {
+      return {
+        borderWidth: 1,
+        borderColor: semantic.color.primary.default,
+      }
+    }
+    return {}
+  }
+
+  // Get icon color based on state
+  const getIconColor = (): string => {
     if (error) {
       return semantic.color.danger.default
     }
-    if (isFocused) {
-      return semantic.color.ring.default
-    }
-    return semantic.color.border.default
+    return semantic.color.primary.default
+  }
+
+  // Render an icon by name
+  const renderIcon = (iconName?: IconName): React.ReactNode => {
+    if (!iconName) return null
+    return <IconSymbol name={iconName} size={20} color={getIconColor()} />
   }
 
   const inputField = (
@@ -70,36 +99,39 @@ export const Input = ({
       style={[
         styles.inputContainer,
         {
-          backgroundColor: semantic.color.input.default,
-          borderRadius: semantic.radius.lg,
-          borderWidth: 1,
-          borderColor: getBorderColor(),
+          backgroundColor: semantic.color.surface.default,
+          borderRadius: semantic.radius.xl,
+          height: 48, // h-12 from design
           opacity: editable ? 1 : 0.5,
+          overflow: 'hidden',
         },
-        isFocused && {
-          borderWidth: 2,
-          borderColor: semantic.color.ring.default,
-        },
+        getRingStyle(),
         style,
       ]}
     >
-      <TextInput
-        {...props}
-        editable={editable}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        placeholderTextColor={semantic.color.onSurface.subtle}
-        style={[
-          semantic.type.body.md,
-          {
-            height: semantic.space['3xl'],
-            paddingHorizontal: semantic.space.lg,
-            paddingVertical: semantic.space.xs,
-            color: semantic.color.onSurface.default,
-          },
-          inputStyle,
-        ]}
-      />
+      <View style={styles.inputContent}>
+        {/* Left icon container */}
+        {leftIcon && <View style={styles.leftIconContainer}>{renderIcon(leftIcon)}</View>}
+
+        {/* Text input */}
+        <TextInput
+          {...props}
+          editable={editable}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          placeholderTextColor={semantic.color.onSurface.subtle}
+          style={[
+            styles.textInput,
+            {
+              color: semantic.color.onSurface.default,
+            },
+            inputStyle,
+          ]}
+        />
+
+        {/* Right icon container */}
+        {rightIcon && <View style={styles.rightIconContainer}>{renderIcon(rightIcon)}</View>}
+      </View>
     </View>
   )
 
@@ -131,5 +163,33 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: '100%',
+  },
+  inputContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  leftIconContainer: {
+    paddingLeft: 16, // pl-4 from design
+    paddingRight: 8, // pr-2 from design
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rightIconContainer: {
+    paddingLeft: 8, // pr-2 from design (mirrored)
+    paddingRight: 16, // pl-4 from design (mirrored)
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textInput: {
+    flex: 1,
+    paddingHorizontal: 8, // px-2 from design
+    paddingVertical: 12, // Centered vertically in 48px container
+    fontSize: 16, // text-base from design
+    fontWeight: '400', // font-normal from design
+    backgroundColor: 'transparent',
+    borderWidth: 0,
   },
 })

@@ -7,6 +7,7 @@
  */
 
 import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet'
+import { StyleSheet } from 'react-native'
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -30,7 +31,6 @@ export type BottomActionSheetProps = {
    * content (wrapChildren=false), attach a testID to the scrollable component directly.
    */
   testID?: string
-  wrapChildren?: boolean
 }
 
 /**
@@ -42,7 +42,6 @@ export const BottomActionSheet = ({
   onDismiss,
   children,
   snapPoints: customSnapPoints,
-  wrapChildren = true,
   testID,
 }: BottomActionSheetProps) => {
   const { semantic } = useSemanticTheme()
@@ -90,17 +89,19 @@ export const BottomActionSheet = ({
       onDismiss={handleDismiss}
       backdropComponent={renderBackdrop}
       backgroundStyle={{
-        backgroundColor: semantic.color.surface.default,
+        backgroundColor: semantic.color.background.default,
       }}
       handleComponent={() => null}
     >
-      {wrapChildren ? (
-        <BottomSheetView style={{ flex: 1 }} testID={testID}>
-          {children}
-        </BottomSheetView>
-      ) : (
-        children
-      )}
+      <BottomSheetView style={[styles.container]} testID={testID}>
+        {children}
+      </BottomSheetView>
     </BottomSheetModal>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+})

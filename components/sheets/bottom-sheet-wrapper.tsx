@@ -40,10 +40,7 @@ export const BottomSheetWrapper = ({
 }: BottomSheetWrapperProps) => {
   const { semantic } = useSemanticTheme()
 
-  const resolvedSnapPoints = useMemo(
-    () => snapPoints || SNAP_PRESETS[preset],
-    [preset, snapPoints]
-  )
+  const resolvedSnapPoints = useMemo(() => snapPoints || SNAP_PRESETS[preset], [preset, snapPoints])
 
   return (
     <BottomActionSheet
@@ -51,7 +48,6 @@ export const BottomSheetWrapper = ({
       onDismiss={onClose}
       testID={testID}
       snapPoints={resolvedSnapPoints}
-      wrapChildren={wrapChildren}
     >
       <View
         style={[
