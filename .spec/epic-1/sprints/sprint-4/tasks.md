@@ -17,11 +17,13 @@
 **Dependencies**: None
 
 #### Context
+
 - Sprint 4 requires Google Maps for route visualization
 - Routes are stored as encoded polylines (Google Polyline format)
 - Need utilities to decode polylines and render on map
 
 #### Requirements
+
 - Install and configure maps SDK (Expo Maps: Apple Maps on iOS, Google Maps on Android)
 - Create polyline decoding utility (recommend `@mapbox/polyline` or equivalent)
 - Create base `MapView` component wrapper with:
@@ -35,12 +37,14 @@
   - Render wind overlay segments with color coding
 
 #### Acceptance Criteria
+
 - [x] Maps SDK installed and configured
 - [x] Base MapView component renders correctly
 - [x] Polyline decoder works with Google-format encoded strings
 - [x] Can render multi-colored polyline segments (for wind overlay)
 
 #### Files to Create / Modify
+
 - **Create**: `components/map/map-view.tsx` — Base map component
 - **Create**: `lib/polyline.ts` — Polyline decode/encode utilities
 - **Create**: `components/map/route-polyline.tsx` — Route rendering component
@@ -51,6 +55,7 @@
 - **Modify**: `app.json` — Add Google Maps API key config
 
 #### Environment Setup
+
 - Requires `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` in environment (injected via `app.config.ts`)
 
 ---
@@ -62,11 +67,13 @@
 **Dependencies**: None
 
 #### Context
+
 - Sprint 4 uses bottom sheets extensively for planning flow
 - Need consistent sheet patterns across all screens
 - Navigation structure needs to support sheet presentation
 
 #### Requirements
+
 - Evaluate and install bottom sheet library (recommend `@gorhom/bottom-sheet`)
 - Create reusable sheet wrapper component with:
   - Drag handle
@@ -79,12 +86,14 @@
   - Sheet-to-sheet transitions (e.g., PlanRide → Options → Overview)
 
 #### Acceptance Criteria
+
 - [x] Bottom sheet library installed and configured
 - [x] Reusable `BottomSheet` wrapper component created
 - [x] Navigation structure supports sheet presentation
 - [x] Sheets can be stacked/chained
 
 #### Files to Create / Modify
+
 - **Create**: `components/sheets/bottom-sheet-wrapper.tsx` — Reusable sheet component
 - **Create**: `components/sheets/sheet-handle.tsx` — Drag handle component
 - **Modify**: `app/(app)/_layout.tsx` — Navigation structure
@@ -99,11 +108,13 @@
 **Dependencies**: None
 
 #### Context
+
 - Sprint 3 delivered all backend endpoints
 - UI needs hooks to consume these endpoints
 - Should follow Convex patterns (`useQuery`, `useAction`, `useMutation`)
 
 #### Requirements
+
 - Create hooks/utilities for:
   - `usePlanInit()` — Wraps `api.db.routesPlan.getPlanInit`
   - `usePlanRide()` — Wraps `api.actions.agent.planRide` action
@@ -119,11 +130,13 @@
   - Toast/notification integration
 
 #### Acceptance Criteria
+
 - [x] All Convex endpoint hooks created and typed
 - [x] Places autocomplete hook works with Google Places API
 - [x] Error handling maps codes to user-friendly messages
 
 #### Files to Create / Modify
+
 - **Create**: `hooks/use-plan-ride.ts` — Planning action hook
 - **Create**: `hooks/use-saved-routes.ts` — Saved routes hooks
 - **Create**: `hooks/use-place-autocomplete.ts` — Google Places hook
@@ -142,14 +155,17 @@
 **Dependencies**: Task 01, Task 02
 
 #### Context
+
 - HomeMap is the primary screen for route planning
 - Hosts the map and triggers planning flow
 - TRD §6.1 screen V001
 
 #### Design Reference
+
 - `home.mapview.designs.html`
 
 #### Requirements
+
 - Implement HomeMap screen with:
   - Full-screen map view
   - FAB (Floating Action Button) to open PlanRideSheet
@@ -161,12 +177,14 @@
   - Map camera position
 
 #### Acceptance Criteria
+
 - [x] HomeMap renders full-screen map
 - [x] FAB opens PlanRideSheet
 - [x] Map can display route polylines when data is available
 - [x] Uses semantic theme for all UI elements
 
 #### Files to Create / Modify
+
 - **Create**: `app/(app)/index.tsx` — HomeMap screen (or modify existing)
 - **Create**: `components/map/map-controls.tsx` — Map control buttons
 - **Create**: `components/map/plan-fab.tsx` — Planning FAB
@@ -180,15 +198,18 @@
 **Dependencies**: Task 02, Task 03, Task 04
 
 #### Context
+
 - PlanRideSheet is the entry point for planning
 - PlaceSearchSheet enables location autocomplete
 - TRD §6.1 sheets S001 and S006
 
 #### Design References
+
 - `home.planridesheet.design.html`
 - `placesearch.designs.html`
 
 #### Requirements
+
 - **PlanRideSheet (S001)**:
   - Start location input (taps to open PlaceSearchSheet)
   - End location input (taps to open PlaceSearchSheet)
@@ -204,6 +225,7 @@
   - Consumes `usePlaceAutocomplete()`
 
 #### Acceptance Criteria
+
 - [x] PlanRideSheet displays all input fields per design
 - [x] Tapping location field opens PlaceSearchSheet
 - [x] PlaceSearchSheet shows autocomplete results
@@ -211,6 +233,7 @@
 - [x] "Plan Ride" triggers `usePlanRide()` and transitions to loading
 
 #### Files to Create / Modify
+
 - **Create**: `components/sheets/plan-ride-sheet.tsx`
 - **Create**: `components/sheets/place-search-sheet.tsx`
 - **Create**: `components/planning/location-input.tsx`
@@ -221,19 +244,22 @@
 ### Task 06 — Loading (V004) + Error (S004) States
 
 **Assignee**: @.cursor/agents/ui-developer.md
-**Status**: Pending
+**Status**: Complete
 **Dependencies**: Task 05
 
 #### Context
+
 - Planning can take several seconds (LLM + provider calls)
 - Need loading state during planning
 - Need error handling for failures
 - TRD §6.1 overlay V004 and sheet S004
 
 #### Design Reference
+
 - Derive from existing patterns (no explicit design)
 
 #### Requirements
+
 - **RoutePlannerLoading (V004)**:
   - Full-screen or overlay loading state
   - Progress indication (spinner or skeleton)
@@ -246,12 +272,14 @@
   - "Back" action to return to PlanRideSheet
 
 #### Acceptance Criteria
-- [ ] Loading overlay displays during `planRide` execution
-- [ ] Error sheet displays on planning failure
-- [ ] Error messages are user-friendly (mapped from codes)
-- [ ] Can retry or go back from error state
+
+- [x] Loading overlay displays during `planRide` execution
+- [x] Error sheet displays on planning failure
+- [x] Error messages are user-friendly (mapped from codes)
+- [x] Can retry or go back from error state
 
 #### Files to Create / Modify
+
 - **Create**: `components/sheets/planning-loading.tsx`
 - **Create**: `components/sheets/planning-error-sheet.tsx`
 
@@ -264,15 +292,18 @@
 **Dependencies**: Task 06
 
 #### Context
+
 - After planning completes, user sees 2-3 route options
 - Each option shows summary stats and wind preview
 - Selecting an option highlights it on the map
 - TRD §6.1 sheet S002
 
 #### Design Reference
+
 - `home.routeoptions.designs.html`
 
 #### Requirements
+
 - Display 2-3 route option cards with:
   - Route label and rationale
   - Distance and duration stats
@@ -286,12 +317,14 @@
   - "Back" → returns to PlanRideSheet
 
 #### Acceptance Criteria
+
 - [ ] Displays 2-3 route cards from `planRide` response
 - [ ] Selecting a card updates map to show that route
 - [ ] Wind summary displays correctly for each option
 - [ ] "View Details" opens RouteOverviewSheet for selected route
 
 #### Files to Create / Modify
+
 - **Create**: `components/sheets/route-options-sheet.tsx`
 - **Create**: `components/planning/route-option-card.tsx`
 - **Create**: `components/planning/wind-badge.tsx`
@@ -305,16 +338,19 @@
 **Dependencies**: Task 07
 
 #### Context
+
 - RouteOverviewSheet shows detailed view of selected route
 - Includes leg-by-leg breakdown with wind indicators
 - WindLegendSheet explains wind color coding
 - TRD §6.1 sheets S003 and S005
 
 #### Design References
+
 - `routeoverview.designs.html`
 - `whind-legend.designs.html`
 
 #### Requirements
+
 - **RouteOverviewSheet (S003)**:
   - Route name/label and rationale
   - Stats row: distance, duration, legs count
@@ -334,12 +370,14 @@
   - "Got it" dismiss action
 
 #### Acceptance Criteria
+
 - [ ] RouteOverviewSheet displays all route details per design
 - [ ] Leg list shows wind indicator for each leg
 - [ ] "Save Route" successfully saves and shows confirmation
 - [ ] WindLegendSheet opens and displays legend correctly
 
 #### Files to Create / Modify
+
 - **Create**: `components/sheets/route-overview-sheet.tsx`
 - **Create**: `components/sheets/wind-legend-sheet.tsx`
 - **Create**: `components/planning/route-leg-item.tsx`
@@ -358,15 +396,18 @@
 **Dependencies**: Task 08
 
 #### Context
+
 - SavedRoutesList shows all saved routes
 - Each card shows route preview (thumbnail, name, stats)
 - Tapping a card opens SavedRouteDetail
 - TRD §6.1 screen V002
 
 #### Design Reference
+
 - `saved.routes.designs.html`
 
 #### Requirements
+
 - Implement SavedRoutesList screen with:
   - Header with title
   - Search/filter input (optional for POC)
@@ -383,12 +424,14 @@
   - Consumes `useSavedRoutesList()`
 
 #### Acceptance Criteria
+
 - [ ] List displays all saved routes from backend
 - [ ] Route cards show preview information
 - [ ] Empty state displays when no routes
 - [ ] Tapping card navigates to detail view
 
 #### Files to Create / Modify
+
 - **Create**: `app/(app)/saved-routes.tsx` — SavedRoutesList screen
 - **Create**: `components/saved-routes/route-card.tsx`
 - **Create**: `components/saved-routes/empty-state.tsx`
@@ -402,16 +445,19 @@
 **Dependencies**: Task 09
 
 #### Context
+
 - SavedRouteDetail shows full route with map and overlays
 - Allows rename and delete operations
 - TRD §6.1 screen V003 and sheets S008, S009
 
 #### Design References
+
 - `saved.routes.designs.html`
 - `renameroute.designs.html`
 - `deleteroute.designs.html` (adapt to bottom sheet)
 
 #### Requirements
+
 - **SavedRouteDetail (V003)**:
   - Full map view with route polylines and overlays
   - Route info overlay (name, stats, conditions)
@@ -430,6 +476,7 @@
   - Consumes `useDeleteRoute()`
 
 #### Acceptance Criteria
+
 - [ ] SavedRouteDetail displays route with full map rendering
 - [ ] Route polylines and wind overlays render correctly
 - [ ] Rename updates route name without changing snapshot
@@ -437,6 +484,7 @@
 - [ ] Delete sheet is bottom sheet (not centered modal)
 
 #### Files to Create / Modify
+
 - **Create**: `app/(app)/saved-routes/[id].tsx` — SavedRouteDetail screen
 - **Create**: `components/sheets/rename-route-sheet.tsx`
 - **Create**: `components/sheets/confirm-delete-sheet.tsx`
@@ -455,11 +503,13 @@
 **Dependencies**: Task 10
 
 #### Context
+
 - All screens and flows implemented
 - Need to verify end-to-end functionality
 - Ensure all acceptance criteria are met
 
 #### Requirements
+
 - Test complete planning flow:
   1. Open HomeMap → Tap FAB
   2. Fill PlanRideSheet → Tap "Plan Ride"
@@ -481,6 +531,7 @@
   - Network errors
 
 #### Acceptance Criteria
+
 - [ ] Planning flow works end-to-end
 - [ ] Saved routes CRUD operations work correctly
 - [ ] Error handling displays appropriate messages
@@ -488,6 +539,7 @@
 - [ ] Map renders routes identically on save and reopen
 
 #### Files to Modify
+
 - **Modify**: Various components for bug fixes discovered during testing
 - **Create** (optional): `e2e/planning-flow.test.js` — E2E test file
 
@@ -495,19 +547,19 @@
 
 ## Task Summary
 
-| Phase | Task | Name | Status |
-|-------|------|------|--------|
-| 1 | 01 | Map Infrastructure | Complete |
-| 1 | 02 | Navigation and Sheet Infrastructure | Complete |
-| 1 | 03 | Hook Wiring to Convex | Complete |
-| 2 | 04 | HomeMap (V001) | Complete |
-| 2 | 05 | PlanRideSheet + PlaceSearchSheet | Complete |
-| 2 | 06 | Loading + Error States | Pending |
-| 2 | 07 | RouteOptionsSheet (S002) | Pending |
-| 2 | 08 | RouteOverviewSheet + WindLegend | Pending |
-| 3 | 09 | SavedRoutesList (V002) | Pending |
-| 3 | 10 | SavedRouteDetail + Management | Pending |
-| 4 | 11 | E2E Integration Testing | Pending |
+| Phase | Task | Name                                | Status   |
+| ----- | ---- | ----------------------------------- | -------- |
+| 1     | 01   | Map Infrastructure                  | Complete |
+| 1     | 02   | Navigation and Sheet Infrastructure | Complete |
+| 1     | 03   | Hook Wiring to Convex               | Complete |
+| 2     | 04   | HomeMap (V001)                      | Complete |
+| 2     | 05   | PlanRideSheet + PlaceSearchSheet    | Complete |
+| 2     | 06   | Loading + Error States              | Complete |
+| 2     | 07   | RouteOptionsSheet (S002)            | Pending  |
+| 2     | 08   | RouteOverviewSheet + WindLegend     | Pending  |
+| 3     | 09   | SavedRoutesList (V002)              | Pending  |
+| 3     | 10   | SavedRouteDetail + Management       | Pending  |
+| 4     | 11   | E2E Integration Testing             | Pending  |
 
 ---
 
@@ -518,6 +570,7 @@
 **Task 05 Status**: Updated to **Complete**
 
 #### Implementation Details
+
 - **PlanRideSheet (S001)**: Fully implemented with all required components:
   - Visual timeline component (`RouteTimeline`) connecting start and end points
   - Location inputs with Google Places autocomplete integration
@@ -526,7 +579,7 @@
   - Action buttons for planning and clear selection
   - Enhanced Badge component with opacity support for semi-transparent backgrounds
 - **PlaceSearchSheet (S006)**: Implemented through `usePlaceAutocomplete` hook integration
-- **Technical Enhancements**: 
+- **Technical Enhancements**:
   - All icon names updated to use valid MaterialCommunityIcons
   - Semantic theme consistently applied throughout
   - Test IDs added for E2E testing support
@@ -534,15 +587,58 @@
 - **Design Compliance**: Component matches design specifications exactly with proper spacing, colors, and interactions
 
 #### Files Modified
+
 - `components/sheets/plan-ride-sheet.tsx` - Complete refactor and enhancement
 - `components/sheets/route-timeline.tsx` - Enhanced styling to match design
 - `components/ui/badge.tsx` - Added opacity prop support
 - Various icon name updates across components
 
 #### Acceptance Criteria Status
+
 All acceptance criteria for Task 05 have been met:
+
 - [x] PlanRideSheet displays all input fields per design
 - [x] Tapping location field opens PlaceSearchSheet
 - [x] PlaceSearchSheet shows autocomplete results
 - [x] Selecting a place returns to PlanRideSheet with data populated
 - [x] "Plan Ride" triggers `usePlanRide()` and transitions to loading
+
+### 2026-01-18 — Loading + Error States Implementation Complete
+
+**Task 06 Status**: Updated to **Complete**
+
+#### Implementation Details
+
+- **RoutePlannerLoading (V004)**: Full-screen overlay component implemented with:
+  - Semi-transparent scrim background using semantic theme
+  - Activity indicator spinner with proper sizing
+  - "Planning your route..." messaging with semantic text styling
+  - Cancel button with test ID for E2E testing
+  - Accessibility attributes for progress indication
+- **PlanningErrorSheet (S004)**: Bottom sheet error handling with:
+  - Error message display with user-friendly text
+  - "Try Again" action to retry planning
+  - "Back" action to return to PlanRideSheet
+  - Proper bottom sheet wrapper integration
+  - Test IDs for E2E testing support
+- **Error Handling Infrastructure**:
+  - Error message mapping in `lib/errors.ts` with deterministic error codes
+  - User-facing error extraction in `usePlanRide` hook
+  - Error state management with reset and retry functionality
+  - Cancel planning support via AbortController
+
+#### Files Created/Modified
+
+- `components/sheets/planning-loading.tsx` - Loading overlay component
+- `components/sheets/planning-error-sheet.tsx` - Error sheet component
+- `lib/errors.ts` - Error code to message mapping (existing, enhanced)
+- `hooks/use-plan-ride.ts` - Enhanced with error state management (existing)
+
+#### Acceptance Criteria Status
+
+All acceptance criteria for Task 06 have been met:
+
+- [x] Loading overlay displays during `planRide` execution
+- [x] Error sheet displays on planning failure
+- [x] Error messages are user-friendly (mapped from codes)
+- [x] Can retry or go back from error state
