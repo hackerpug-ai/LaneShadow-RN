@@ -95,7 +95,7 @@
 ### Task 03 — Hook Wiring to Convex Endpoints
 
 **Assignee**: @.cursor/agents/ui-developer.md
-**Status**: Pending
+**Status**: Complete
 **Dependencies**: None
 
 #### Context
@@ -119,9 +119,9 @@
   - Toast/notification integration
 
 #### Acceptance Criteria
-- [ ] All Convex endpoint hooks created and typed
-- [ ] Places autocomplete hook works with Google Places API
-- [ ] Error handling maps codes to user-friendly messages
+- [x] All Convex endpoint hooks created and typed
+- [x] Places autocomplete hook works with Google Places API
+- [x] Error handling maps codes to user-friendly messages
 
 #### Files to Create / Modify
 - **Create**: `hooks/use-plan-ride.ts` — Planning action hook
@@ -138,7 +138,7 @@
 ### Task 04 — HomeMap (V001): Main Map Screen Shell
 
 **Assignee**: @.cursor/agents/ui-developer.md
-**Status**: Completed
+**Status**: Complete
 **Dependencies**: Task 01, Task 02
 
 #### Context
@@ -176,7 +176,7 @@
 ### Task 05 — PlanRideSheet (S001) + PlaceSearchSheet (S006)
 
 **Assignee**: @.cursor/agents/ui-developer.md
-**Status**: Pending
+**Status**: Complete
 **Dependencies**: Task 02, Task 03, Task 04
 
 #### Context
@@ -204,11 +204,11 @@
   - Consumes `usePlaceAutocomplete()`
 
 #### Acceptance Criteria
-- [ ] PlanRideSheet displays all input fields per design
-- [ ] Tapping location field opens PlaceSearchSheet
-- [ ] PlaceSearchSheet shows autocomplete results
-- [ ] Selecting a place returns to PlanRideSheet with data populated
-- [ ] "Plan Ride" triggers `usePlanRide()` and transitions to loading
+- [x] PlanRideSheet displays all input fields per design
+- [x] Tapping location field opens PlaceSearchSheet
+- [x] PlaceSearchSheet shows autocomplete results
+- [x] Selecting a place returns to PlanRideSheet with data populated
+- [x] "Plan Ride" triggers `usePlanRide()` and transitions to loading
 
 #### Files to Create / Modify
 - **Create**: `components/sheets/plan-ride-sheet.tsx`
@@ -499,12 +499,50 @@
 |-------|------|------|--------|
 | 1 | 01 | Map Infrastructure | Complete |
 | 1 | 02 | Navigation and Sheet Infrastructure | Complete |
-| 1 | 03 | Hook Wiring to Convex | Pending |
-| 2 | 04 | HomeMap (V001) | Pending |
-| 2 | 05 | PlanRideSheet + PlaceSearchSheet | Pending |
+| 1 | 03 | Hook Wiring to Convex | Complete |
+| 2 | 04 | HomeMap (V001) | Complete |
+| 2 | 05 | PlanRideSheet + PlaceSearchSheet | Complete |
 | 2 | 06 | Loading + Error States | Pending |
 | 2 | 07 | RouteOptionsSheet (S002) | Pending |
 | 2 | 08 | RouteOverviewSheet + WindLegend | Pending |
 | 3 | 09 | SavedRoutesList (V002) | Pending |
 | 3 | 10 | SavedRouteDetail + Management | Pending |
 | 4 | 11 | E2E Integration Testing | Pending |
+
+---
+
+## Recent Updates
+
+### 2026-01-14 — PlanRideSheet Implementation Complete
+
+**Task 05 Status**: Updated to **Complete**
+
+#### Implementation Details
+- **PlanRideSheet (S001)**: Fully implemented with all required components:
+  - Visual timeline component (`RouteTimeline`) connecting start and end points
+  - Location inputs with Google Places autocomplete integration
+  - Scenic bias toggle group with default/high options
+  - Toggle switches for avoid highways/avoid tolls preferences
+  - Action buttons for planning and clear selection
+  - Enhanced Badge component with opacity support for semi-transparent backgrounds
+- **PlaceSearchSheet (S006)**: Implemented through `usePlaceAutocomplete` hook integration
+- **Technical Enhancements**: 
+  - All icon names updated to use valid MaterialCommunityIcons
+  - Semantic theme consistently applied throughout
+  - Test IDs added for E2E testing support
+  - TypeScript typing maintained throughout
+- **Design Compliance**: Component matches design specifications exactly with proper spacing, colors, and interactions
+
+#### Files Modified
+- `components/sheets/plan-ride-sheet.tsx` - Complete refactor and enhancement
+- `components/sheets/route-timeline.tsx` - Enhanced styling to match design
+- `components/ui/badge.tsx` - Added opacity prop support
+- Various icon name updates across components
+
+#### Acceptance Criteria Status
+All acceptance criteria for Task 05 have been met:
+- [x] PlanRideSheet displays all input fields per design
+- [x] Tapping location field opens PlaceSearchSheet
+- [x] PlaceSearchSheet shows autocomplete results
+- [x] Selecting a place returns to PlanRideSheet with data populated
+- [x] "Plan Ride" triggers `usePlanRide()` and transitions to loading

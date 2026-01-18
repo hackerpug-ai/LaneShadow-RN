@@ -1,11 +1,11 @@
 import { useAction, useQuery } from 'convex/react'
 import type { FunctionReturnType } from 'convex/server'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { api } from '../convex/_generated/api'
 import { getUserFacingError } from '../lib/convex-error'
 import { showErrorNotification } from '../lib/notifier-helpers'
-import type { PlanInput, PlannedRouteOptionsView } from '../types/routes'
+import type { PlanInput } from '../types/routes'
 
 type PlanInitData = FunctionReturnType<typeof api.db.routesPlan.getPlanInit>
 type PlanRideResult = FunctionReturnType<typeof api.actions.agent.planRide.planRide>
@@ -31,25 +31,44 @@ export const usePlanRide = (): {
   isRunning: boolean
   error: string | null
   resetError: () => void
+  cancelPlanning: () => void
 } => {
   const planRideAction = useAction(api.actions.agent.planRide.planRide)
   const [isRunning, setIsRunning] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   const planRide = useCallback(
     async (input: PlanInput) => {
+      // Abort any existing request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+
+      // Create new AbortController
+      const controller = new AbortController()
+      abortControllerRef.current = controller
+
       setIsRunning(true)
       setError(null)
+
       try {
-        const result = await planRideAction({ planInput: input })
+        const result = await planRideAction({
+          planInput: input,
+        })
         return result as PlanRideResult
       } catch (err) {
+        // Ignore aborted errors
+        if (err.name === 'AbortError') {
+          return null
+        }
         const parsed = getUserFacingError(err)
         setError(parsed.message)
         showErrorNotification(parsed.message)
         return null
       } finally {
         setIsRunning(false)
+        abortControllerRef.current = null
       }
     },
     [planRideAction]
@@ -57,13 +76,22 @@ export const usePlanRide = (): {
 
   const resetError = useCallback(() => setError(null), [])
 
+  const cancelPlanning = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    setIsRunning(false)
+    setError(null)
+  }, [])
+
   return useMemo(
     () => ({
       planRide,
       isRunning,
       error,
       resetError,
+      cancelPlanning,
     }),
-    [error, isRunning, planRide, resetError]
+    [error, isRunning, planRide, resetError, cancelPlanning]
   )
 }

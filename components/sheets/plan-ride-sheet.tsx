@@ -33,7 +33,6 @@ export type PlanRideSheetProps = {
   onToggleAvoidTolls: () => void
 
   isPlanning: boolean
-  planningError: string | null
 
   onPlanRide: () => void
   onClearSelection: () => void
@@ -53,7 +52,6 @@ export const PlanRideSheet = ({
   avoidTolls,
   onToggleAvoidTolls,
   isPlanning,
-  planningError,
   onPlanRide,
   onClearSelection,
 }: PlanRideSheetProps) => {
@@ -98,8 +96,8 @@ export const PlanRideSheet = ({
           <Text variant="titleLarge" style={{ color: semantic.color.onSurface.default }}>
             Plan Ride
           </Text>
-          <Badge 
-            variant="default" 
+          <Badge
+            variant="default"
             testID="motorcycle-badge"
             opacity={0.2} // 20% opacity
             textStyle={{ color: semantic.color.primary.default }}
@@ -143,7 +141,7 @@ export const PlanRideSheet = ({
                 onPlaceSelected={handleDestinationSelected}
               />
             </View>
-            
+
             {/* Swap Button */}
             <View style={styles.swapButtonContainer}>
               <Button
@@ -163,13 +161,15 @@ export const PlanRideSheet = ({
           <Text variant="labelSmall" style={{ color: `${semantic.color.onSurface.muted}CC` }}>
             Scenic Bias
           </Text>
-          <View style={[
-            styles.toggleGroupContainer,
-            {
-              backgroundColor: semantic.color.input.default,
-              borderRadius: semantic.radius.xl,
-            }
-          ]}>
+          <View
+            style={[
+              styles.toggleGroupContainer,
+              {
+                backgroundColor: semantic.color.input.default,
+                borderRadius: semantic.radius.xl,
+              },
+            ]}
+          >
             <ToggleGroup
               value={scenicBias}
               onValueChange={(value) => onSetScenicBias(value as ScenicBias)}
@@ -177,12 +177,23 @@ export const PlanRideSheet = ({
             >
               <ToggleGroupItem value="default" accessibilityLabel="Default route">
                 <View style={styles.toggleItem}>
-                  <IconSymbol name="arrow-right" size={18} color={scenicBias === 'default' ? semantic.color.onSurface.default : semantic.color.onSurface.muted} />
-                  <Text 
-                    variant="labelSmall" 
-                    style={{ 
-                      color: scenicBias === 'default' ? semantic.color.onSurface.default : semantic.color.onSurface.muted,
-                      fontWeight: '500'
+                  <IconSymbol
+                    name="arrow-right"
+                    size={18}
+                    color={
+                      scenicBias === 'default'
+                        ? semantic.color.onSurface.default
+                        : semantic.color.onSurface.muted
+                    }
+                  />
+                  <Text
+                    variant="labelSmall"
+                    style={{
+                      color:
+                        scenicBias === 'default'
+                          ? semantic.color.onSurface.default
+                          : semantic.color.onSurface.muted,
+                      fontWeight: '500',
                     }}
                   >
                     Default
@@ -191,12 +202,23 @@ export const PlanRideSheet = ({
               </ToggleGroupItem>
               <ToggleGroupItem value="high" accessibilityLabel="Scenic route">
                 <View style={styles.toggleItem}>
-                  <IconSymbol name="image" size={18} color={scenicBias === 'high' ? semantic.color.onPrimary.default : semantic.color.onSurface.muted} />
-                  <Text 
-                    variant="labelSmall" 
-                    style={{ 
-                      color: scenicBias === 'high' ? semantic.color.onPrimary.default : semantic.color.onSurface.muted,
-                      fontWeight: '500'
+                  <IconSymbol
+                    name="image"
+                    size={18}
+                    color={
+                      scenicBias === 'high'
+                        ? semantic.color.onPrimary.default
+                        : semantic.color.onSurface.muted
+                    }
+                  />
+                  <Text
+                    variant="labelSmall"
+                    style={{
+                      color:
+                        scenicBias === 'high'
+                          ? semantic.color.onPrimary.default
+                          : semantic.color.onSurface.muted,
+                      fontWeight: '500',
                     }}
                   >
                     High Scenic
@@ -208,20 +230,39 @@ export const PlanRideSheet = ({
         </View>
 
         {/* Toggles - Switch Components */}
-        <View style={[
-          styles.toggleSection,
-          {
-            backgroundColor: semantic.color.input.default,
-            borderColor: `${semantic.color.onSurface.default}0D`, // 5% opacity
-            borderWidth: 1,
-          }
-        ]}>
-          <View style={[styles.toggleRow, { justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: `${semantic.color.onSurface.default}0D` }]}>
+        <View
+          style={[
+            styles.toggleSection,
+            {
+              backgroundColor: semantic.color.input.default,
+              borderColor: `${semantic.color.onSurface.default}0D`, // 5% opacity
+              borderWidth: 1,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.toggleRow,
+              {
+                justifyContent: 'space-between',
+                borderBottomWidth: 1,
+                borderBottomColor: `${semantic.color.onSurface.default}0D`,
+              },
+            ]}
+          >
             <View style={styles.toggleLabel}>
-              <View style={[styles.iconContainer, { backgroundColor: semantic.color.surfaceVariant.default }]}>
+              <View
+                style={[
+                  styles.iconContainer,
+                  { backgroundColor: semantic.color.surfaceVariant.default },
+                ]}
+              >
                 <IconSymbol name="car" size={20} color={semantic.color.onSurface.muted} />
               </View>
-              <Text variant="bodySmall" style={{ color: semantic.color.onSurface.default, fontWeight: '500' }}>
+              <Text
+                variant="bodySmall"
+                style={{ color: semantic.color.onSurface.default, fontWeight: '500' }}
+              >
                 Avoid highways
               </Text>
             </View>
@@ -234,10 +275,18 @@ export const PlanRideSheet = ({
 
           <View style={[styles.toggleRow, { justifyContent: 'space-between' }]}>
             <View style={styles.toggleLabel}>
-              <View style={[styles.iconContainer, { backgroundColor: semantic.color.surfaceVariant.default }]}>
+              <View
+                style={[
+                  styles.iconContainer,
+                  { backgroundColor: semantic.color.surfaceVariant.default },
+                ]}
+              >
                 <IconSymbol name="cash" size={20} color={semantic.color.onSurface.muted} />
               </View>
-              <Text variant="bodySmall" style={{ color: semantic.color.onSurface.default, fontWeight: '500' }}>
+              <Text
+                variant="bodySmall"
+                style={{ color: semantic.color.onSurface.default, fontWeight: '500' }}
+              >
                 Avoid tolls
               </Text>
             </View>
@@ -249,13 +298,6 @@ export const PlanRideSheet = ({
           </View>
         </View>
 
-        {/* Error Message */}
-        {planningError ? (
-          <Text variant="bodyMedium" style={{ color: semantic.color.danger.default }}>
-            {planningError}
-          </Text>
-        ) : null}
-
         {/* Action Buttons */}
         <Button
           variant="default"
@@ -265,16 +307,16 @@ export const PlanRideSheet = ({
           icon={<IconSymbol name="motorbike" size={20} color={semantic.color.onPrimary.default} />}
           style={[
             { marginTop: semantic.space.xs },
-            scenicBias === 'high' && styles.highScenicButton
+            scenicBias === 'high' && styles.highScenicButton,
           ]}
           testID="plan-ride-submit"
         >
           {isPlanning ? 'Planning...' : 'Plan Ride'}
         </Button>
 
-        <Button 
-          variant="outline" 
-          onPress={onClearSelection} 
+        <Button
+          variant="outline"
+          onPress={onClearSelection}
           testID="plan-ride-clear"
           style={{ marginTop: semantic.space.sm }}
         >

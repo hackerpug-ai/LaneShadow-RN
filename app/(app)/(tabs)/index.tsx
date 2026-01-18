@@ -9,6 +9,8 @@ import type { MapViewHandle } from '../../../components/map/map-view'
 import { MapViewWrapper } from '../../../components/map/map-view'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
 import { PlanRideSheet } from '../../../components/sheets/plan-ride-sheet'
+import { PlanningErrorSheet } from '../../../components/sheets/planning-error-sheet'
+import { RoutePlannerLoading } from '../../../components/sheets/planning-loading'
 import { FloatingSearchInput } from '../../../components/ui/floating-search-input'
 import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
@@ -83,8 +85,15 @@ const HomeMapScreen = () => {
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
   const { data: planInit } = usePlanInit()
-  const { planRide, isRunning: isPlanning, error: planningError, resetError } = usePlanRide()
+  const {
+    planRide,
+    isRunning: isPlanning,
+    error: planningError,
+    resetError,
+    cancelPlanning,
+  } = usePlanRide()
   const [sheetVisible, setSheetVisible] = useState(false)
+  const [errorSheetVisible, setErrorSheetVisible] = useState(false)
   const [searchStop, setSearchStop] = useState<RouteStop | null>(null)
   const [controlsHeight, setControlsHeight] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -183,6 +192,7 @@ const HomeMapScreen = () => {
   const handlePlanRide = useCallback(async () => {
     if (!state.startStop || !state.endStop) return
     resetError()
+    setErrorSheetVisible(false)
     dispatch({ type: 'setStatus', payload: 'planning' })
 
     const input: PlanInput = {
@@ -199,6 +209,7 @@ const HomeMapScreen = () => {
     const result = await planRide(input)
     if (!result) {
       dispatch({ type: 'setStatus', payload: 'error' })
+      setErrorSheetVisible(true)
       return
     }
 
@@ -256,6 +267,26 @@ const HomeMapScreen = () => {
   const clearAll = () => {
     dispatch({ type: 'resetSelections' })
     setSearchStop(null)
+  }
+
+  const handleTryAgain = () => {
+    setErrorSheetVisible(false)
+    resetError()
+    // Optionally retry the last planning attempt
+    if (state.startStop && state.endStop) {
+      handlePlanRide()
+    }
+  }
+
+  const handleBack = () => {
+    setErrorSheetVisible(false)
+    resetError()
+    setSheetVisible(true) // Reopen planning sheet
+  }
+
+  const handleCloseError = () => {
+    setErrorSheetVisible(false)
+    resetError()
   }
 
   return (
@@ -343,10 +374,19 @@ const HomeMapScreen = () => {
           avoidTolls={avoidTolls}
           onToggleAvoidTolls={() => setAvoidTolls((prev) => !prev)}
           isPlanning={isPlanning}
-          planningError={planningError}
           onPlanRide={handlePlanRide}
           onClearSelection={clearAll}
         />
+
+        <PlanningErrorSheet
+          isVisible={errorSheetVisible}
+          message={planningError || 'An error occurred while planning your route.'}
+          onTryAgain={handleTryAgain}
+          onBack={handleBack}
+          onClose={handleCloseError}
+        />
+
+        <RoutePlannerLoading isVisible={isPlanning} onCancel={cancelPlanning} />
       </View>
     </MenuLayout>
   )

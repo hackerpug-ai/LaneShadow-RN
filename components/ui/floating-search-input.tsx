@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native'
-import { Icon } from 'react-native-paper'
+import { ActivityIndicator, Icon } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Input } from './input'
 
@@ -9,6 +9,8 @@ export type FloatingSearchInputProps = {
   placeholder: string
   onClear?: () => void
   onPress?: () => void
+  isLoading?: boolean
+  onCancelLoading?: () => void
   testID?: string
 }
 
@@ -18,6 +20,8 @@ export const FloatingSearchInput = ({
   placeholder,
   onClear,
   onPress,
+  isLoading = false,
+  onCancelLoading,
   testID,
 }: FloatingSearchInputProps) => {
   const { semantic } = useSemanticTheme()
@@ -27,8 +31,11 @@ export const FloatingSearchInput = ({
   }
 
   const searchIconSize = semantic.space.xl
+  const rightPadding = isLoading ? semantic.space['4xl'] : semantic.space['2xl']
 
   const isPressableOnly = Boolean(onPress)
+  const canClear = value.length > 0 && !isLoading
+  const canCancel = isLoading && onCancelLoading
 
   return (
     <Pressable
@@ -67,7 +74,7 @@ export const FloatingSearchInput = ({
             backgroundColor: 'transparent',
             borderWidth: 0,
             paddingHorizontal: 0,
-            paddingRight: semantic.space['2xl'],
+            paddingRight: rightPadding,
             flex: 1,
             minWidth: 0,
             flexShrink: 1,
@@ -84,7 +91,38 @@ export const FloatingSearchInput = ({
         />
       </View>
 
-      {value.length > 0 ? (
+      {isLoading ? (
+        <View style={[styles.rightActions, { right: semantic.space.sm }]}>
+          <ActivityIndicator
+            size={semantic.space.md}
+            color={semantic.color.onSurface.subtle}
+            testID={testID ? `${testID}-loading` : 'floating-search-loading'}
+          />
+          {canCancel ? (
+            <Pressable
+              onPress={onCancelLoading}
+              accessibilityLabel="Cancel planning"
+              hitSlop={{
+                top: semantic.space.xs,
+                bottom: semantic.space.xs,
+                left: semantic.space.xs,
+                right: semantic.space.xs,
+              }}
+              style={({ pressed }) => [
+                styles.clearButton,
+                {
+                  paddingHorizontal: semantic.space.xs,
+                  paddingVertical: semantic.space.xs,
+                  opacity: pressed ? 0.8 : 1,
+                },
+              ]}
+              testID={testID ? `${testID}-cancel-loading` : 'floating-search-cancel-loading'}
+            >
+              <Icon source="close" size={18} color={semantic.color.onSurface.default} />
+            </Pressable>
+          ) : null}
+        </View>
+      ) : canClear ? (
         <Pressable
           onPress={handleClear}
           accessibilityLabel="Clear search"
@@ -136,6 +174,13 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  rightActions: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    flexDirection: 'row',
     alignItems: 'center',
   },
 })
