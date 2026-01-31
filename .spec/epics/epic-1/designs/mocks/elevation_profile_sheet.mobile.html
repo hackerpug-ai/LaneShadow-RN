@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=390, height=844, initial-scale=1.0">
+  <title>Elevation Profile - LaneShadow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #0E0F11;
+      --bg-secondary: #1A1C1F;
+      --bg-elevated: #24272B;
+      --primary: #B87333;
+      --green: #4ade80;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --text-primary: rgba(255,255,255,0.92);
+      --text-secondary: rgba(255,255,255,0.72);
+      --text-muted: rgba(255,255,255,0.55);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      width: 390px;
+      height: 844px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .scrim {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+    }
+
+    .bottom-sheet {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background: var(--bg-secondary);
+      border-radius: 32px 32px 0 0;
+      box-shadow: 0 -8px 30px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .drag-handle {
+      width: 36px;
+      height: 4px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 2px;
+      margin: 8px auto 0;
+    }
+
+    .sheet-header {
+      padding: 16px 24px;
+    }
+
+    .sheet-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .sheet-content {
+      flex: 1;
+      padding: 0 24px 24px;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat-item {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-icon.ascent {
+      background: rgba(74,222,128,0.2);
+    }
+    .stat-icon.ascent .material-symbols-outlined { color: var(--green); }
+
+    .stat-icon.descent {
+      background: rgba(248,113,113,0.2);
+    }
+    .stat-icon.descent .material-symbols-outlined { color: var(--red); }
+
+    .stat-icon.grade {
+      background: rgba(251,191,36,0.2);
+    }
+    .stat-icon.grade .material-symbols-outlined { color: var(--yellow); }
+
+    .stat-icon .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    .stat-details {
+      flex: 1;
+    }
+
+    .stat-value {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .chart-container {
+      background: var(--bg-elevated);
+      border-radius: 12px;
+      padding: 16px;
+      height: 120px;
+      position: relative;
+    }
+
+    .chart-area {
+      width: 100%;
+      height: 80px;
+      position: relative;
+    }
+
+    .chart-line {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+    }
+
+    .chart-line svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .chart-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+
+    .chart-label {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .legend-row {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 4px;
+    }
+
+    .legend-dot.ascent { background: var(--green); }
+    .legend-dot.descent { background: var(--red); }
+
+    .legend-text {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="scrim"></div>
+
+  <div class="bottom-sheet">
+    <div class="drag-handle"></div>
+
+    <div class="sheet-header">
+      <h2 class="sheet-title">Elevation Profile</h2>
+    </div>
+
+    <div class="sheet-content">
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-icon ascent">
+            <span class="material-symbols-outlined">trending_up</span>
+          </div>
+          <div class="stat-details">
+            <div class="stat-value">2,450 ft</div>
+            <div class="stat-label">Total Ascent</div>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon descent">
+            <span class="material-symbols-outlined">trending_down</span>
+          </div>
+          <div class="stat-details">
+            <div class="stat-value">2,120 ft</div>
+            <div class="stat-label">Total Descent</div>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon grade">
+            <span class="material-symbols-outlined">show_chart</span>
+          </div>
+          <div class="stat-details">
+            <div class="stat-value">8.2%</div>
+            <div class="stat-label">Max Grade</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-area">
+          <div class="chart-line">
+            <svg viewBox="0 0 300 80" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:rgba(184,115,51,0.4)" />
+                  <stop offset="100%" style="stop-color:rgba(184,115,51,0)" />
+                </linearGradient>
+              </defs>
+              <path d="M0,70 L20,65 L40,55 L60,50 L80,35 L100,25 L120,30 L140,20 L160,15 L180,25 L200,30 L220,40 L240,50 L260,55 L280,60 L300,65 L300,80 L0,80 Z" fill="url(#areaGradient)" />
+              <path d="M0,70 L20,65 L40,55 L60,50 L80,35 L100,25 L120,30 L140,20 L160,15 L180,25 L200,30 L220,40 L240,50 L260,55 L280,60 L300,65" fill="none" stroke="#B87333" stroke-width="2" />
+            </svg>
+          </div>
+        </div>
+        <div class="chart-labels">
+          <span class="chart-label">0 mi</span>
+          <span class="chart-label">43 mi</span>
+          <span class="chart-label">87 mi</span>
+        </div>
+      </div>
+
+      <div class="legend-row">
+        <div class="legend-item">
+          <div class="legend-dot ascent"></div>
+          <span class="legend-text">Ascent</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot descent"></div>
+          <span class="legend-text">Descent</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

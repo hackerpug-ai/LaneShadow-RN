@@ -6,6 +6,7 @@
  * - Uses semantic theme tokens
  * - Uses existing UI components
  * - Supports selection state with visual feedback
+ * - Supports loading state during map updates
  */
 
 import { Pressable, StyleSheet, View } from 'react-native'
@@ -18,6 +19,7 @@ import { WindBadge } from './wind-badge'
 export type RouteOptionCardProps = {
   routeOption: PlannedRouteOptionView
   isSelected: boolean
+  isLoading?: boolean
   onSelect: (routeOptionId: string) => void
   testID?: string
 }
@@ -28,13 +30,16 @@ export type RouteOptionCardProps = {
 export const RouteOptionCard = ({
   routeOption,
   isSelected,
+  isLoading = false,
   onSelect,
   testID,
 }: RouteOptionCardProps) => {
   const { semantic } = useSemanticTheme()
 
   const handlePress = () => {
-    onSelect(routeOption.routeOptionId)
+    if (!isLoading) {
+      onSelect(routeOption.routeOptionId)
+    }
   }
 
   // Format distance for display
@@ -59,6 +64,7 @@ export const RouteOptionCard = ({
   return (
     <Pressable
       onPress={handlePress}
+      disabled={isLoading}
       style={[
         styles.container,
         {
@@ -67,6 +73,7 @@ export const RouteOptionCard = ({
           borderWidth: isSelected ? 2 : 1,
           borderRadius: semantic.radius.lg,
           padding: semantic.space.md,
+          opacity: isLoading ? 0.6 : 1,
         },
       ]}
       testID={testID}
@@ -81,7 +88,11 @@ export const RouteOptionCard = ({
           </Text>
           {isSelected && (
             <View style={styles.checkmark}>
-              <IconSymbol name="check-circle" size={20} color={semantic.color.primary.default} />
+              {isLoading ? (
+                <IconSymbol name="loading" size={20} color={semantic.color.primary.default} />
+              ) : (
+                <IconSymbol name="check-circle" size={20} color={semantic.color.primary.default} />
+              )}
             </View>
           )}
         </View>
@@ -148,6 +159,17 @@ const styles = StyleSheet.create({
   },
   checkmark: {
     marginLeft: 8,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   stats: {
     flexDirection: 'row',

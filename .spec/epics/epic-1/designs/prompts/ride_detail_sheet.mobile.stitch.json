@@ -1,0 +1,161 @@
+{
+  "design_key": "ride_detail_sheet",
+  "device": "mobile",
+  "screen": "Ride Detail Sheet (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "Phase 3: View historical ride details with snapshot and rating",
+  "phase": 3,
+  "theme": {
+    "background": "#1A1C1F",
+    "surface": "#24272B",
+    "primary": "#B87333",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "sheet": {
+    "type": "bottom_partial",
+    "height": "70vh",
+    "background": "#1A1C1F",
+    "border_radius_top": "32px",
+    "shadow": "0 -8px 30px rgba(0,0,0,0.5)"
+  },
+  "header": {
+    "drag_handle": {
+      "width": "36px",
+      "height": "4px",
+      "background": "rgba(255,255,255,0.2)",
+      "border_radius": "2px",
+      "margin_top": "8px"
+    },
+    "title": {
+      "text": "Ride Details",
+      "style": "20px 600 rgba(255,255,255,0.92)"
+    },
+    "date": {
+      "text": "January 15, 2026",
+      "style": "14px 400 rgba(255,255,255,0.55)"
+    }
+  },
+  "layout": {
+    "type": "scrollable",
+    "padding": "24px",
+    "sections": [
+      {
+        "id": "route_snapshot",
+        "type": "card",
+        "background": "#24272B",
+        "border_radius": "16px",
+        "padding": "16px",
+        "margin_bottom": "16px",
+        "content": {
+          "map_preview": {
+            "height": "140px",
+            "border_radius": "12px",
+            "margin_bottom": "12px"
+          },
+          "route_name": {
+            "text": "Scenic Coast Route",
+            "style": "18px 600 rgba(255,255,255,0.92)"
+          },
+          "stats_row": {
+            "margin_top": "8px",
+            "gap": "16px",
+            "items": [
+              { "icon": "straighten", "value": "87 mi" },
+              { "icon": "schedule", "value": "2h 15m" }
+            ]
+          }
+        }
+      },
+      {
+        "id": "conditions_snapshot",
+        "type": "card",
+        "background": "#24272B",
+        "border_radius": "16px",
+        "padding": "16px",
+        "margin_bottom": "16px",
+        "label": "Conditions at Time of Ride",
+        "label_style": "12px 600 rgba(255,255,255,0.55) uppercase",
+        "content": {
+          "conditions": [
+            { "icon": "air", "label": "Wind", "value": "10-15 mph", "color": "#94a3b8" },
+            { "icon": "thermostat", "label": "Temp", "value": "68-72°F", "color": "#4ade80" },
+            { "icon": "wb_sunny", "label": "Weather", "value": "Clear", "color": "#fbbf24" }
+          ]
+        }
+      },
+      {
+        "id": "rating_display",
+        "type": "card",
+        "background": "#24272B",
+        "border_radius": "16px",
+        "padding": "16px",
+        "margin_bottom": "16px",
+        "content": {
+          "rating": {
+            "type": "star_display",
+            "value": 4,
+            "max": 5,
+            "size": "24px",
+            "active_color": "#fbbf24",
+            "show_numeric": true
+          }
+        }
+      },
+      {
+        "id": "notes_display",
+        "type": "card",
+        "background": "#24272B",
+        "border_radius": "16px",
+        "padding": "16px",
+        "margin_bottom": "16px",
+        "label": "Notes",
+        "label_style": "12px 600 rgba(255,255,255,0.55) uppercase",
+        "content": {
+          "text": "Great ride! The morning light on the coast was incredible. Stopped at a few viewpoints. Wind picked up a bit after 10am but nothing too bad.",
+          "text_style": "14px 400 rgba(255,255,255,0.72)"
+        }
+      },
+      {
+        "id": "tags_display",
+        "type": "tag_row",
+        "gap": "8px",
+        "tags": [
+          { "label": "Great scenery" },
+          { "label": "Smooth roads" },
+          { "label": "Would repeat" }
+        ],
+        "tag_style": {
+          "background": "rgba(255,255,255,0.1)",
+          "text_color": "rgba(255,255,255,0.72)",
+          "border_radius": "16px",
+          "padding": "6px 12px"
+        }
+      }
+    ]
+  },
+  "actions": {
+    "padding": "24px",
+    "items": [
+      {
+        "label": "View Route",
+        "style": "primary",
+        "height": "56px",
+        "background": "#B87333",
+        "text_color": "rgba(255,255,255,0.92)",
+        "border_radius": "20px",
+        "font": "16px 600",
+        "full_width": true,
+        "icon": "route"
+      }
+    ]
+  },
+  "states": {
+    "default": "Ride details displayed"
+  }
+}

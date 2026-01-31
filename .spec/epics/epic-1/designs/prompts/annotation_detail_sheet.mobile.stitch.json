@@ -1,0 +1,156 @@
+{
+  "design_key": "annotation_detail_sheet",
+  "device": "mobile",
+  "screen": "Annotation Detail Sheet (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "Modal showing place or condition detail from map annotation tap",
+  "theme": {
+    "background": "#1A1C1F",
+    "surface": "#24272B",
+    "primary": "#B87333",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "sheet": {
+    "type": "modal",
+    "background": "#1A1C1F",
+    "border_radius": "24px",
+    "margin": "24px",
+    "shadow": "0 8px 30px rgba(0,0,0,0.5)",
+    "scrim": "rgba(0,0,0,0.55)"
+  },
+  "header": {
+    "padding": "24px",
+    "close_button": {
+      "icon": "close",
+      "position": "top_right",
+      "color": "rgba(255,255,255,0.55)"
+    }
+  },
+  "layout": {
+    "type": "vertical",
+    "padding": "0 24px 24px"
+  },
+  "variants": {
+    "place_annotation": {
+      "header_icon": {
+        "icon": "location_on",
+        "size": "48px",
+        "color": "#B87333",
+        "background": "rgba(184,115,51,0.2)",
+        "border_radius": "24px",
+        "margin_bottom": "16px"
+      },
+      "sections": [
+        {
+          "id": "place_name",
+          "type": "text",
+          "style": "20px 600 rgba(255,255,255,0.92)",
+          "margin_bottom": "4px"
+        },
+        {
+          "id": "place_category",
+          "type": "badge",
+          "background": "rgba(255,255,255,0.1)",
+          "text_style": "12px 500 rgba(255,255,255,0.72)",
+          "margin_bottom": "16px"
+        },
+        {
+          "id": "details_list",
+          "type": "detail_rows",
+          "gap": "12px",
+          "items": [
+            { "label": "Address", "value": "123 Main St, City, ST" },
+            { "label": "Category", "value": "Restaurant" },
+            { "label": "Coordinates", "value": "37.7749, -122.4194" }
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "label": "Get Directions",
+          "style": "primary",
+          "icon": "directions"
+        },
+        {
+          "label": "Set as Destination",
+          "style": "secondary",
+          "icon": "flag"
+        }
+      ]
+    },
+    "condition_annotation": {
+      "header_icon": {
+        "icon": "air",
+        "size": "48px",
+        "color": "#64748b",
+        "background": "rgba(100,116,139,0.2)",
+        "border_radius": "24px",
+        "margin_bottom": "16px"
+      },
+      "sections": [
+        {
+          "id": "condition_type",
+          "type": "text",
+          "style": "20px 600 rgba(255,255,255,0.92)",
+          "content": "Moderate Wind",
+          "margin_bottom": "4px"
+        },
+        {
+          "id": "severity_badge",
+          "type": "badge",
+          "variant": "warning",
+          "text": "15-25 mph",
+          "margin_bottom": "16px"
+        },
+        {
+          "id": "details_list",
+          "type": "detail_rows",
+          "gap": "12px",
+          "items": [
+            { "label": "Time Range", "value": "2:00 PM - 4:00 PM" },
+            { "label": "Direction", "value": "NW Crosswind" },
+            { "label": "Segment", "value": "Highway 1, Mile 42-58" }
+          ]
+        },
+        {
+          "id": "description",
+          "type": "text",
+          "style": "14px 400 rgba(255,255,255,0.55)",
+          "margin_top": "16px",
+          "content": "Expect noticeable crosswinds on exposed coastal sections. Stay alert and maintain a firm grip."
+        }
+      ],
+      "actions": [
+        {
+          "label": "View Legend",
+          "style": "secondary",
+          "icon": "info"
+        }
+      ]
+    }
+  },
+  "components": {
+    "detail_row": {
+      "layout": "horizontal",
+      "justify": "space-between",
+      "padding": "8px 0",
+      "border_bottom": "1px solid rgba(255,255,255,0.08)",
+      "label_style": "14px 400 rgba(255,255,255,0.55)",
+      "value_style": "14px 500 rgba(255,255,255,0.92)"
+    }
+  },
+  "actions": {
+    "padding": "24px",
+    "gap": "12px"
+  },
+  "states": {
+    "place_annotation": "Location/landmark detail",
+    "condition_annotation": "Weather condition detail"
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "design_key": "ride_history_screen",
+  "device": "mobile",
+  "screen": "Ride History Screen (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "Phase 3: Browse completed rides grouped by month",
+  "phase": 3,
+  "theme": {
+    "background": "#0E0F11",
+    "surface": "#1A1C1F",
+    "surface_elevated": "#24272B",
+    "primary": "#B87333",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "header": {
+    "type": "standard",
+    "background": "#0E0F11",
+    "title": {
+      "text": "Ride History",
+      "style": "24px 600 rgba(255,255,255,0.92)"
+    }
+  },
+  "layout": {
+    "type": "scrollable_list",
+    "padding": "16px",
+    "sections": [
+      {
+        "id": "summary_stats",
+        "type": "stats_card",
+        "background": "#24272B",
+        "border_radius": "16px",
+        "padding": "20px",
+        "margin_bottom": "24px",
+        "items": [
+          { "label": "Total Rides", "value": "23" },
+          { "label": "Total Miles", "value": "1,847" },
+          { "label": "Avg Rating", "value": "4.2", "icon": "star", "icon_color": "#fbbf24" }
+        ]
+      },
+      {
+        "id": "month_sections",
+        "type": "grouped_list",
+        "groups": [
+          {
+            "header": "January 2026",
+            "header_style": "14px 600 rgba(255,255,255,0.55) uppercase",
+            "items": "RideHistoryCard components"
+          },
+          {
+            "header": "December 2025",
+            "items": "RideHistoryCard components"
+          }
+        ]
+      }
+    ]
+  },
+  "components": {
+    "ride_history_card": {
+      "background": "#24272B",
+      "border_radius": "16px",
+      "padding": "16px",
+      "margin_bottom": "12px",
+      "layout": "horizontal",
+      "gap": "12px",
+      "children": [
+        {
+          "type": "map_thumbnail",
+          "size": "80x80",
+          "border_radius": "12px"
+        },
+        {
+          "type": "column",
+          "flex": 1,
+          "children": [
+            { "type": "text", "style": "16px 600 text_primary", "content": "Scenic Coast Route" },
+            { "type": "text", "style": "14px 400 text_muted", "content": "Jan 15 87 mi 2h 15m" },
+            {
+              "type": "row",
+              "margin_top": "8px",
+              "gap": "8px",
+              "children": [
+                {
+                  "type": "rating_display",
+                  "value": 4,
+                  "max": 5,
+                  "size": "14px",
+                  "active_color": "#fbbf24"
+                },
+                {
+                  "type": "badge",
+                  "variant": "completed",
+                  "label": "Completed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "icon",
+          "icon": "chevron_right",
+          "color": "text_muted"
+        }
+      ]
+    }
+  },
+  "empty_state": {
+    "icon": "history",
+    "headline": "No Ride History",
+    "body": "Complete your first ride to start building your history",
+    "action_label": "Plan a Ride",
+    "action_icon": "add_road"
+  },
+  "navigation": {
+    "type": "bottom_tabs",
+    "background": "#1A1C1F",
+    "height": "64px",
+    "active_color": "#B87333",
+    "inactive_color": "rgba(255,255,255,0.55)",
+    "tabs": [
+      { "label": "Explore", "icon": "map", "active": false },
+      { "label": "Saved", "icon": "bookmark", "active": false },
+      { "label": "Rides", "icon": "two_wheeler", "active": true },
+      { "label": "Profile", "icon": "person", "active": false }
+    ]
+  },
+  "states": {
+    "default": "History list with month sections",
+    "empty": "No completed rides",
+    "filtered": "Filtered by date range"
+  }
+}

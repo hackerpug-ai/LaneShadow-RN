@@ -1,0 +1,83 @@
+{
+  "design_key": "saved_route_detail",
+  "device": "mobile",
+  "screen": "Saved Route Detail (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "Saved route replay with immutable snapshot and route overview sheet",
+  "theme": {
+    "background": "#0E0F11",
+    "surface": "#1A1C1F",
+    "surface_elevated": "#24272B",
+    "primary": "#B87333",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "layout": {
+    "type": "map_with_sheet",
+    "sections": [
+      {
+        "id": "map_view",
+        "type": "map",
+        "style": "dark_mode",
+        "z_index": 0,
+        "content": "Full bleed map with saved route polyline and overlay segments"
+      },
+      {
+        "id": "top_bar",
+        "type": "floating_row",
+        "z_index": 10,
+        "position": { "top": "safe_area + 12px", "left": "16px" },
+        "content": {
+          "back_button": {
+            "icon": "arrow_back",
+            "size": "40px",
+            "background": "#24272B",
+            "border_radius": "20px"
+          }
+        }
+      },
+      {
+        "id": "action_buttons",
+        "type": "floating_row",
+        "z_index": 10,
+        "position": { "top": "safe_area + 12px", "right": "16px" },
+        "gap": "8px",
+        "content": [
+          {
+            "icon": "more_vert",
+            "size": "40px",
+            "background": "#24272B",
+            "border_radius": "20px"
+          }
+        ]
+      }
+    ]
+  },
+  "sheet": {
+    "type": "bottom_partial",
+    "height": "50vh",
+    "background": "#1A1C1F",
+    "border_radius_top": "32px",
+    "shadow": "0 -8px 30px rgba(0,0,0,0.5)",
+    "content": "RouteOverviewSheet content with saved route data"
+  },
+  "context_menu": {
+    "trigger": "more_vert button",
+    "items": [
+      { "icon": "edit", "label": "Rename", "action": "open_rename_sheet" },
+      { "icon": "share", "label": "Share", "action": "share_route" },
+      { "icon": "delete", "label": "Delete", "action": "open_delete_sheet", "destructive": true }
+    ]
+  },
+  "states": {
+    "default": "Route displayed with overview sheet",
+    "loading": "Loading saved route data",
+    "rated": "Showing rating (Phase 3)",
+    "completed": "Marked as completed (Phase 3)"
+  }
+}

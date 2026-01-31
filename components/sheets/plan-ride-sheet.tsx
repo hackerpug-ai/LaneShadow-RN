@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -7,12 +7,10 @@ import { LocationInput } from '../location-input'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { IconSymbol } from '../ui/icon-symbol'
+import { ScenicBiasSegmented, type ScenicBias } from '../ui/scenic-bias-segmented'
 import { Switch } from '../ui/switch'
-import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group'
 import { BottomSheetWrapper } from './bottom-sheet-wrapper'
 import { RouteTimeline } from './route-timeline'
-
-export type ScenicBias = 'default' | 'high'
 
 export type PlanRideSheetProps = {
   isVisible: boolean
@@ -58,29 +56,44 @@ export const PlanRideSheet = ({
   const { semantic } = useSemanticTheme()
   const [focusedInput, setFocusedInput] = useState<'current' | 'destination' | null>(null)
 
-  const handleCurrentLocationChange = (_value: string) => {
-    // Handle current location text change
-    // This would typically update a local state for display text
+  // These inputs are controlled. Keep local text so typing doesn't "snap back" to
+  // the last selected stop label.
+  const [currentLocationText, setCurrentLocationText] = useState('')
+  const [destinationText, setDestinationText] = useState('')
+
+  useEffect(() => {
+    setCurrentLocationText(startStop?.label ?? '')
+  }, [startStop?.label])
+
+  useEffect(() => {
+    setDestinationText(endStop?.label ?? '')
+  }, [endStop?.label])
+
+  const handleCurrentLocationChange = (value: string) => {
+    setCurrentLocationText(value)
   }
 
-  const handleDestinationChange = (_value: string) => {
-    // Handle destination text change
-    // This would typically update a local state for display text
+  const handleDestinationChange = (value: string) => {
+    setDestinationText(value)
   }
 
   const handleCurrentLocationSelected = (place: RouteStop) => {
     // Update start stop with the selected place
+    setCurrentLocationText(place.label ?? '')
     onSetStartStop?.(place)
   }
 
   const handleDestinationSelected = (place: RouteStop) => {
     // Update end stop with the selected place
+    setDestinationText(place.label ?? '')
     onSetEndStop?.(place)
   }
 
   const handleSwap = () => {
     // Swap start and end stops
     if (startStop && endStop) {
+      setCurrentLocationText(endStop.label ?? '')
+      setDestinationText(startStop.label ?? '')
       onSetStartStop?.(endStop)
       onSetEndStop?.(startStop)
     }
@@ -92,7 +105,7 @@ export const PlanRideSheet = ({
     <BottomSheetWrapper isVisible={isVisible} onClose={onClose} preset="half">
       <View style={[styles.container, { gap: semantic.space.lg }]}>
         {/* Header with motorcycle badge */}
-        <View style={[styles.header, { justifyContent: 'space-between', alignItems: 'center' }]}>
+        <View style={[styles.header]}>
           <Text variant="titleLarge" style={{ color: semantic.color.onSurface.default }}>
             Plan Ride
           </Text>
@@ -100,7 +113,12 @@ export const PlanRideSheet = ({
             variant="default"
             testID="motorcycle-badge"
             opacity={0.2} // 20% opacity
-            textStyle={{ color: semantic.color.primary.default }}
+            textStyle={{
+              color: semantic.color.primary.default,
+              textTransform: 'uppercase',
+              letterSpacing: 0.5,
+              fontWeight: '600',
+            }}
           >
             Motorcycle
           </Badge>
@@ -116,7 +134,7 @@ export const PlanRideSheet = ({
               {/* Current Location Input */}
               <LocationInput
                 label="Current Location"
-                value={startStop?.label || ''}
+                value={currentLocationText}
                 onChangeText={handleCurrentLocationChange}
                 placeholder="Current Location"
                 iconName="near-me"
@@ -130,7 +148,7 @@ export const PlanRideSheet = ({
               {/* Destination Input */}
               <LocationInput
                 label="Where to?"
-                value={endStop?.label || ''}
+                value={destinationText}
                 onChangeText={handleDestinationChange}
                 placeholder="Where to?"
                 iconName="magnify"
@@ -146,7 +164,7 @@ export const PlanRideSheet = ({
             <View style={styles.swapButtonContainer}>
               <Button
                 size="icon"
-                icon="swap-vertical"
+                icon={<IconSymbol name="swap-vertical" size={20} color={semantic.color.onSurface.muted} />}
                 variant="ghost"
                 onPress={handleSwap}
                 testID="swap-locations-button"
@@ -156,78 +174,11 @@ export const PlanRideSheet = ({
           </View>
         </View>
 
-        {/* Scenic Bias Control - Toggle Group */}
-        <View style={[styles.section, { gap: semantic.space.xs, marginLeft: semantic.space.xs }]}>
-          <Text variant="labelSmall" style={{ color: `${semantic.color.onSurface.muted}CC` }}>
-            Scenic Bias
-          </Text>
-          <View
-            style={[
-              styles.toggleGroupContainer,
-              {
-                backgroundColor: semantic.color.input.default,
-                borderRadius: semantic.radius.xl,
-              },
-            ]}
-          >
-            <ToggleGroup
-              value={scenicBias}
-              onValueChange={(value) => onSetScenicBias(value as ScenicBias)}
-              type="single"
-            >
-              <ToggleGroupItem value="default" accessibilityLabel="Default route">
-                <View style={styles.toggleItem}>
-                  <IconSymbol
-                    name="arrow-right"
-                    size={18}
-                    color={
-                      scenicBias === 'default'
-                        ? semantic.color.onSurface.default
-                        : semantic.color.onSurface.muted
-                    }
-                  />
-                  <Text
-                    variant="labelSmall"
-                    style={{
-                      color:
-                        scenicBias === 'default'
-                          ? semantic.color.onSurface.default
-                          : semantic.color.onSurface.muted,
-                      fontWeight: '500',
-                    }}
-                  >
-                    Default
-                  </Text>
-                </View>
-              </ToggleGroupItem>
-              <ToggleGroupItem value="high" accessibilityLabel="Scenic route">
-                <View style={styles.toggleItem}>
-                  <IconSymbol
-                    name="image"
-                    size={18}
-                    color={
-                      scenicBias === 'high'
-                        ? semantic.color.onPrimary.default
-                        : semantic.color.onSurface.muted
-                    }
-                  />
-                  <Text
-                    variant="labelSmall"
-                    style={{
-                      color:
-                        scenicBias === 'high'
-                          ? semantic.color.onPrimary.default
-                          : semantic.color.onSurface.muted,
-                      fontWeight: '500',
-                    }}
-                  >
-                    High Scenic
-                  </Text>
-                </View>
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </View>
-        </View>
+        <ScenicBiasSegmented
+          value={scenicBias}
+          onValueChange={onSetScenicBias}
+          style={{ marginLeft: semantic.space.xs }}
+        />
 
         {/* Toggles - Switch Components */}
         <View
@@ -341,7 +292,7 @@ const styles = StyleSheet.create({
   inputRow: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: 16,
   },
   inputColumn: {
@@ -361,22 +312,10 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+
     paddingTop: 24,
-  },
-  section: {
-    paddingVertical: 4,
-  },
-  toggleGroupContainer: {
-    padding: 4,
-  },
-  toggleItem: {
-    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
   },
   toggleSection: {
     borderRadius: 12,

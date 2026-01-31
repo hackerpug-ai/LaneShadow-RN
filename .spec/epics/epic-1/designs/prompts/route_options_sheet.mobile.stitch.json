@@ -1,0 +1,179 @@
+{
+  "design_key": "route_options_sheet",
+  "device": "mobile",
+  "screen": "Route Options Sheet (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "Compare 2-3 route alternatives with weather overlays and selection",
+  "theme": {
+    "background": "#1A1C1F",
+    "surface": "#24272B",
+    "surface_elevated": "#36302b",
+    "primary": "#B87333",
+    "warning": "#D98E04",
+    "error": "#E35D6A",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "sheet": {
+    "type": "bottom_partial",
+    "height": "65vh",
+    "background": "#1A1C1F",
+    "border_radius_top": "32px",
+    "shadow": "0 -8px 30px rgba(0,0,0,0.5)"
+  },
+  "header": {
+    "drag_handle": {
+      "width": "36px",
+      "height": "4px",
+      "background": "rgba(255,255,255,0.2)",
+      "border_radius": "2px",
+      "margin_top": "8px"
+    },
+    "title": {
+      "text": "Routes to Destination",
+      "style": "20px 600 rgba(255,255,255,0.92)"
+    },
+    "subtitle": {
+      "text": "3 routes found",
+      "style": "14px 400 rgba(255,255,255,0.55)"
+    },
+    "controls": {
+      "type": "row",
+      "margin_top": "16px",
+      "gap": "8px",
+      "content": {
+        "overlay_toggle_group": {
+          "type": "pill_group",
+          "options": [
+            { "label": "Wind", "icon": "air", "active": true },
+            { "label": "Rain", "icon": "water_drop", "active": false },
+            { "label": "Temp", "icon": "thermostat", "active": false }
+          ],
+          "active_style": {
+            "background": "rgba(184,115,51,0.2)",
+            "text_color": "#B87333",
+            "border": "1px solid rgba(184,115,51,0.3)"
+          },
+          "inactive_style": {
+            "background": "rgba(255,255,255,0.05)",
+            "text_color": "rgba(255,255,255,0.55)"
+          }
+        }
+      }
+    }
+  },
+  "layout": {
+    "type": "scrollable_list",
+    "padding": "24px",
+    "padding_top": "16px",
+    "sections": [
+      {
+        "id": "route_cards",
+        "type": "card_list",
+        "gap": "12px",
+        "content": "List of RouteOptionCard components"
+      }
+    ]
+  },
+  "components": {
+    "route_option_card_selected": {
+      "background": "#24272B",
+      "border": "2px solid #B87333",
+      "border_radius": "16px",
+      "padding": "16px",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "row",
+          "justify": "space-between",
+          "children": [
+            {
+              "type": "column",
+              "children": [
+                { "type": "text", "style": "18px 600 text_primary", "content": "Scenic Route" },
+                {
+                  "type": "badge_row",
+                  "gap": "8px",
+                  "margin_top": "8px",
+                  "children": [
+                    { "type": "badge", "variant": "primary", "label": "Most Scenic", "icon": "landscape" },
+                    { "type": "badge", "variant": "neutral", "label": "87 mi" }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "check_icon",
+              "icon": "check_circle",
+              "color": "#B87333",
+              "size": "24px"
+            }
+          ]
+        },
+        {
+          "type": "stats_row",
+          "margin_top": "12px",
+          "gap": "16px",
+          "children": [
+            { "icon": "schedule", "value": "2h 15m", "label": "Duration" },
+            { "icon": "air", "value": "Moderate", "label": "Wind", "color": "#64748b" }
+          ]
+        },
+        {
+          "type": "weather_summary_pill",
+          "margin_top": "12px",
+          "variant": "caution",
+          "text": "Light crosswinds on Hwy 1",
+          "icon": "air"
+        }
+      ]
+    },
+    "route_option_card_unselected": {
+      "background": "#24272B",
+      "border": "1px solid rgba(255,255,255,0.05)",
+      "border_radius": "16px",
+      "padding": "16px",
+      "opacity": 0.8,
+      "layout": "compact",
+      "children": [
+        {
+          "type": "row",
+          "justify": "space-between",
+          "children": [
+            { "type": "text", "style": "16px 500 text_secondary", "content": "Direct Route" },
+            { "type": "text", "style": "14px 400 text_muted", "content": "1h 45m • 72 mi" }
+          ]
+        }
+      ]
+    }
+  },
+  "actions": {
+    "margin_top": "auto",
+    "padding": "24px",
+    "padding_bottom": "40px",
+    "items": [
+      {
+        "label": "View Details",
+        "style": "primary",
+        "height": "56px",
+        "background": "#B87333",
+        "text_color": "rgba(255,255,255,0.92)",
+        "border_radius": "20px",
+        "font": "16px 600",
+        "full_width": true,
+        "icon": "chevron_right"
+      }
+    ]
+  },
+  "states": {
+    "default": "One route selected, others collapsed",
+    "comparing": "Browsing options, no selection",
+    "side_by_side": "Two-column comparison view (Sprint 5)",
+    "overlay_preview": "Showing overlay per card"
+  }
+}

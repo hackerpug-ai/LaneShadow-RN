@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=390, height=844, initial-scale=1.0">
+  <title>Planning Error - LaneShadow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #0E0F11;
+      --bg-secondary: #1A1C1F;
+      --bg-elevated: #24272B;
+      --primary: #B87333;
+      --error: #E35D6A;
+      --text-primary: rgba(255,255,255,0.92);
+      --text-secondary: rgba(255,255,255,0.72);
+      --text-muted: rgba(255,255,255,0.55);
+      --divider: rgba(255,255,255,0.08);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      width: 390px;
+      height: 844px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .scrim {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+    }
+
+    .modal {
+      position: relative;
+      width: calc(100% - 48px);
+      background: var(--bg-secondary);
+      border-radius: 24px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      z-index: 10;
+    }
+
+    .modal-header {
+      text-align: center;
+      padding: 32px 24px 24px;
+    }
+
+    .error-icon {
+      color: var(--error);
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .modal-content {
+      padding: 0 24px;
+    }
+
+    .error-message {
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .error-reasons {
+      background: var(--bg-elevated);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .reason-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+    }
+
+    .reason-item .material-symbols-outlined {
+      font-size: 20px;
+      color: var(--text-muted);
+    }
+
+    .reason-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .modal-actions {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .primary-btn {
+      width: 100%;
+      height: 56px;
+      background: var(--primary);
+      border: none;
+      border-radius: 20px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 16px rgba(184,115,50,0.4);
+      cursor: pointer;
+    }
+
+    .secondary-btn {
+      width: 100%;
+      height: 48px;
+      background: transparent;
+      border: 1px solid var(--divider);
+      border-radius: 20px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .text-btn {
+      width: 100%;
+      height: 48px;
+      background: none;
+      border: none;
+      font-size: 16px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .material-symbols-outlined {
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="scrim"></div>
+
+  <div class="modal">
+    <div class="modal-header">
+      <span class="material-symbols-outlined error-icon">error_outline</span>
+      <h2 class="modal-title">Unable to Plan Route</h2>
+    </div>
+
+    <div class="modal-content">
+      <p class="error-message">We couldn't find a route between these locations. This might be due to:</p>
+
+      <div class="error-reasons">
+        <div class="reason-item">
+          <span class="material-symbols-outlined">location_off</span>
+          <span class="reason-text">Locations too far apart</span>
+        </div>
+        <div class="reason-item">
+          <span class="material-symbols-outlined">block</span>
+          <span class="reason-text">No roads connecting the points</span>
+        </div>
+        <div class="reason-item">
+          <span class="material-symbols-outlined">wifi_off</span>
+          <span class="reason-text">Network connectivity issues</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="primary-btn">
+        <span class="material-symbols-outlined">refresh</span>
+        Try Again
+      </button>
+      <button class="secondary-btn">
+        <span class="material-symbols-outlined">edit_location</span>
+        Adjust Locations
+      </button>
+      <button class="text-btn">Cancel</button>
+    </div>
+  </div>
+</body>
+</html>

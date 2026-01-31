@@ -1,0 +1,110 @@
+{
+  "design_key": "rename_route_sheet",
+  "device": "mobile",
+  "screen": "Rename Route Sheet (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "Modal sheet for renaming saved route metadata",
+  "theme": {
+    "background": "#1A1C1F",
+    "surface": "#24272B",
+    "surface_elevated": "#36302b",
+    "primary": "#B87333",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "sheet": {
+    "type": "modal",
+    "background": "#1A1C1F",
+    "border_radius": "24px",
+    "margin": "24px",
+    "shadow": "0 8px 30px rgba(0,0,0,0.5)",
+    "scrim": "rgba(0,0,0,0.55)"
+  },
+  "header": {
+    "padding": "24px",
+    "title": {
+      "text": "Rename Route",
+      "style": "20px 600 rgba(255,255,255,0.92)"
+    }
+  },
+  "layout": {
+    "type": "form",
+    "padding": "0 24px",
+    "sections": [
+      {
+        "id": "body_text",
+        "type": "text",
+        "text": "Give your route a memorable name",
+        "style": "14px 400 rgba(255,255,255,0.55)",
+        "margin_bottom": "16px"
+      },
+      {
+        "id": "name_input",
+        "type": "text_input",
+        "label": "Route Name",
+        "placeholder": "Enter route name",
+        "value": "Scenic Coast Route",
+        "background": "#36302b",
+        "height": "56px",
+        "border_radius": "12px",
+        "autofocus": true,
+        "max_length": 100,
+        "trailing_icon": "close",
+        "trailing_icon_action": "clear_input"
+      },
+      {
+        "id": "character_count",
+        "type": "text",
+        "text": "18/100",
+        "style": "12px 400 rgba(255,255,255,0.35)",
+        "align": "right",
+        "margin_top": "8px"
+      }
+    ]
+  },
+  "actions": {
+    "padding": "24px",
+    "gap": "12px",
+    "layout": "row",
+    "items": [
+      {
+        "label": "Cancel",
+        "style": "secondary",
+        "height": "48px",
+        "background": "transparent",
+        "text_color": "rgba(255,255,255,0.72)",
+        "border": "1px solid rgba(255,255,255,0.08)",
+        "border_radius": "20px",
+        "flex": 1
+      },
+      {
+        "label": "Save",
+        "style": "primary",
+        "height": "48px",
+        "background": "#B87333",
+        "text_color": "rgba(255,255,255,0.92)",
+        "border_radius": "20px",
+        "flex": 1
+      }
+    ]
+  },
+  "validation": {
+    "max_length": 100,
+    "required": true,
+    "error_messages": {
+      "required": "Route name is required",
+      "max_length": "Name cannot exceed 100 characters"
+    }
+  },
+  "states": {
+    "default": "Input with current name",
+    "editing": "User typing new name",
+    "saving": "Save button shows spinner",
+    "error": "Validation error displayed"
+  }
+}

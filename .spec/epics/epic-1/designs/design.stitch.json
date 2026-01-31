@@ -1,0 +1,266 @@
+{
+  "meta": {
+    "version": "1.0",
+    "framework": "react-native-expo",
+    "platform": "mobile-app",
+    "theme_mode": "dark"
+  },
+  "theme": {
+    "mode": "dark",
+    "colors": {
+      "background": "#0E0F11",
+      "surface": "#1A1C1F",
+      "surface_elevated": "#24272B",
+      "surface_warm": "#1f1913",
+      "surface_warm_elevated": "#25211e",
+      "input_bg": "#36302b",
+      "divider": "rgba(255,255,255,0.08)",
+      "scrim": "rgba(0,0,0,0.55)",
+      "primary": "#B87333",
+      "primary_pressed": "#8C5A2B",
+      "secondary": "rgba(255,255,255,0.12)",
+      "text_primary": "rgba(255,255,255,0.92)",
+      "text_secondary": "rgba(255,255,255,0.72)",
+      "text_muted": "rgba(255,255,255,0.55)",
+      "text_inverse": "#0E0F11",
+      "error": "#E35D6A",
+      "warning": "#D98E04",
+      "route_selected": "#B87333",
+      "route_alternate": "rgba(255,255,255,0.45)",
+      "wind_low": "#94a3b8",
+      "wind_moderate": "#64748b",
+      "wind_high": "#b45309",
+      "rain_none": "transparent",
+      "rain_light": "#93c5fd",
+      "rain_moderate": "#3b82f6",
+      "rain_heavy": "#1d4ed8",
+      "temp_cold": "#2563eb",
+      "temp_cool": "#93c5fd",
+      "temp_comfortable": "#4ade80",
+      "temp_warm": "#fb923c",
+      "temp_hot": "#ef4444"
+    },
+    "typography": {
+      "font_display": "Space Grotesk",
+      "font_body": "Inter",
+      "font_fallback": "Noto Sans",
+      "scale": {
+        "xxl": { "size": 32, "weight": 600, "family": "display" },
+        "xl": { "size": 24, "weight": 600, "family": "display" },
+        "lg": { "size": 20, "weight": 600, "family": "body" },
+        "md": { "size": 16, "weight": 400, "family": "body" },
+        "sm": { "size": 14, "weight": 500, "family": "body" },
+        "xs": { "size": 12, "weight": 400, "family": "body" },
+        "xxs": { "size": 10, "weight": 600, "family": "body", "transform": "uppercase", "tracking": "wider" }
+      }
+    },
+    "spacing": {
+      "xs": 6,
+      "sm": 8,
+      "md": 12,
+      "lg": 20,
+      "xl": 24,
+      "xxl": 32
+    },
+    "radius": {
+      "sm": 8,
+      "md": 12,
+      "lg": 16,
+      "xl": 20,
+      "xxl": 32,
+      "full": 9999
+    },
+    "shadows": {
+      "button_glow": "0 8px 16px rgba(184,115,50,0.4)",
+      "card": "0 4px 12px rgba(0,0,0,0.3)",
+      "sheet": "0 -8px 30px rgba(0,0,0,0.5)",
+      "primary_action": "0 4px 12px rgba(184,115,50,0.2)",
+      "error_action": "0 4px 12px rgba(227,93,106,0.2)"
+    },
+    "motion": {
+      "duration_short": 140,
+      "duration_medium": 220,
+      "easing": "ease-out"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": {
+        "height": [48, 56],
+        "background": "primary",
+        "radius": "xl",
+        "shadow": "primary_action",
+        "text_color": "text_primary",
+        "font": { "size": "md", "weight": 600 }
+      },
+      "secondary": {
+        "height": 48,
+        "background": "transparent",
+        "border": "1px solid divider",
+        "radius": "xl",
+        "text_color": "text_secondary"
+      },
+      "destructive": {
+        "height": [48, 56],
+        "background": "error",
+        "radius": "xl",
+        "shadow": "error_action",
+        "text_color": "text_primary"
+      },
+      "icon": {
+        "size": [40, 48],
+        "background": "surface_elevated",
+        "radius": "full"
+      },
+      "fab": {
+        "height": 56,
+        "background": "primary",
+        "shadow": "button_glow",
+        "radius": "xl"
+      }
+    },
+    "inputs": {
+      "text": {
+        "height": [48, 56],
+        "background": "input_bg",
+        "radius": "xl",
+        "padding": [14, 16],
+        "text_color": "text_primary",
+        "placeholder_color": "text_muted"
+      },
+      "search": {
+        "extends": "text",
+        "leading_icon": "search"
+      },
+      "location": {
+        "extends": "text",
+        "timeline": true,
+        "trailing_icon": "near_me"
+      }
+    },
+    "cards": {
+      "route_option_selected": {
+        "background": "surface_elevated",
+        "border": "2px solid primary",
+        "radius": "xl",
+        "check_icon": true
+      },
+      "route_option_unselected": {
+        "background": "surface_elevated",
+        "border": "1px solid rgba(255,255,255,0.05)",
+        "radius": "xl"
+      },
+      "saved_route": {
+        "background": "surface_elevated",
+        "border": "1px solid rgba(255,255,255,0.05)",
+        "radius": "xl",
+        "thumbnail_size": [96, 96]
+      }
+    },
+    "badges": {
+      "route": {
+        "padding": [4, 8],
+        "radius": "md",
+        "variants": {
+          "primary": { "background": "rgba(184,115,51,0.2)", "text_color": "primary", "border": "1px solid rgba(184,115,51,0.3)" },
+          "neutral": { "background": "rgba(255,255,255,0.05)", "text_color": "text_muted", "border": "1px solid rgba(255,255,255,0.1)" },
+          "warning": { "background": "rgba(227,93,106,0.15)", "text_color": "error", "border": "1px solid rgba(227,93,106,0.3)" }
+        }
+      },
+      "condition_pill": {
+        "padding": [6, 12],
+        "radius": "full",
+        "background": "surface_elevated",
+        "border": "1px solid rgba(255,255,255,0.05)"
+      },
+      "weather_summary": {
+        "padding": [6, 12],
+        "radius": "full",
+        "variants": {
+          "favorable": { "background": "rgba(74,222,128,0.15)", "text_color": "#4ade80" },
+          "caution": { "background": "rgba(251,191,36,0.15)", "text_color": "#fbbf24" },
+          "adverse": { "background": "rgba(239,68,68,0.15)", "text_color": "#ef4444" }
+        }
+      }
+    },
+    "sheets": {
+      "bottom_partial": {
+        "background": "surface",
+        "radius_top": "xxl",
+        "shadow": "sheet",
+        "max_height": "85vh"
+      },
+      "modal": {
+        "extends": "bottom_partial",
+        "scrim": true,
+        "centered": "bottom"
+      },
+      "full_height": {
+        "extends": "bottom_partial",
+        "height": "85vh"
+      }
+    },
+    "overlays": {
+      "wind": {
+        "segment_height": 4,
+        "levels": {
+          "low": "wind_low",
+          "moderate": "wind_moderate",
+          "high": "wind_high"
+        }
+      },
+      "rain": {
+        "segment_height": 4,
+        "levels": {
+          "none": "rain_none",
+          "light": "rain_light",
+          "moderate": "rain_moderate",
+          "heavy": "rain_heavy"
+        }
+      },
+      "temperature": {
+        "segment_height": 4,
+        "gradient": ["temp_cold", "temp_cool", "temp_comfortable", "temp_warm", "temp_hot"]
+      }
+    },
+    "toggles": {
+      "segmented_control": {
+        "container": { "padding": 4, "background": "input_bg", "radius": "xl" },
+        "segment": { "padding": [10, 16], "flex": 1 },
+        "active": { "background": "primary", "text_color": "text_primary" },
+        "inactive": { "background": "transparent", "text_color": "text_muted" }
+      },
+      "overlay_toggle_group": {
+        "container": { "gap": 8, "direction": "row" },
+        "option": { "padding": [6, 12], "radius": "full" },
+        "active": { "background": "rgba(184,115,51,0.2)", "text_color": "primary", "border": "1px solid rgba(184,115,51,0.3)" },
+        "inactive": { "background": "rgba(255,255,255,0.05)", "text_color": "text_muted" }
+      }
+    },
+    "navigation": {
+      "bottom_tabs": {
+        "background": "surface",
+        "height": 64,
+        "active_color": "primary",
+        "inactive_color": "text_muted",
+        "tabs": [
+          { "label": "Explore", "icon": "map" },
+          { "label": "Saved", "icon": "bookmark" },
+          { "label": "Rides", "icon": "two_wheeler", "phase": 3 },
+          { "label": "Profile", "icon": "person", "phase": 2 }
+        ]
+      }
+    }
+  },
+  "iconography": {
+    "system": "Google Material Symbols",
+    "style": "Outlined",
+    "settings": {
+      "fill": 1,
+      "weight": 400,
+      "grade": 0,
+      "optical_size": 24
+    },
+    "sizes": [14, 16, 18, 20, 24, 26, 28]
+  }
+}

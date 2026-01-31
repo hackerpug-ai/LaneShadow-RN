@@ -85,7 +85,11 @@ export const Input = ({
     if (error) {
       return semantic.color.danger.default
     }
-    return semantic.color.primary.default
+    if (!editable) {
+      return semantic.color.onSurface.disabled ?? semantic.color.onSurface.muted
+    }
+    // Design: muted when idle, primary on focus.
+    return isFocused ? semantic.color.primary.default : semantic.color.onSurface.muted
   }
 
   // Render an icon by name

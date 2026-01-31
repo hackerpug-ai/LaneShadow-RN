@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=390, height=844, initial-scale=1.0">
+  <title>Rain Forecast - LaneShadow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #0E0F11;
+      --bg-secondary: #1A1C1F;
+      --bg-elevated: #24272B;
+      --primary: #B87333;
+      --text-primary: rgba(255,255,255,0.92);
+      --text-secondary: rgba(255,255,255,0.72);
+      --text-muted: rgba(255,255,255,0.55);
+      --divider: rgba(255,255,255,0.08);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      width: 390px;
+      height: 844px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .scrim {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(8px);
+    }
+
+    .modal {
+      position: relative;
+      width: calc(100% - 48px);
+      background: var(--bg-secondary);
+      border-radius: 24px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      z-index: 10;
+    }
+
+    .modal-header {
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      background: transparent;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .close-btn .material-symbols-outlined {
+      font-size: 24px;
+      color: var(--text-muted);
+    }
+
+    .modal-content {
+      padding: 0 24px 24px;
+    }
+
+    .legend-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .legend-indicator {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .legend-indicator.none {
+      background: transparent;
+      border: 1px dashed rgba(255,255,255,0.2);
+    }
+
+    .legend-indicator.none .material-symbols-outlined {
+      color: rgba(255,255,255,0.35);
+    }
+
+    .legend-indicator.light {
+      background: rgba(147,197,253,0.2);
+    }
+
+    .legend-indicator.light .material-symbols-outlined {
+      color: #93c5fd;
+    }
+
+    .legend-indicator.moderate {
+      background: rgba(59,130,246,0.2);
+    }
+
+    .legend-indicator.moderate .material-symbols-outlined {
+      color: #3b82f6;
+    }
+
+    .legend-indicator.heavy {
+      background: rgba(29,78,216,0.2);
+    }
+
+    .legend-indicator.heavy .material-symbols-outlined {
+      color: #1d4ed8;
+    }
+
+    .legend-indicator .material-symbols-outlined {
+      font-size: 20px;
+    }
+
+    .legend-details {
+      flex: 1;
+    }
+
+    .legend-level {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+
+    .level-name {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .level-range {
+      font-size: 12px;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.05);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .legend-description {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .disclaimer {
+      margin-top: 24px;
+      padding: 16px;
+      background: var(--bg-elevated);
+      border-radius: 12px;
+    }
+
+    .disclaimer-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      padding: 24px;
+    }
+
+    .primary-btn {
+      width: 100%;
+      height: 48px;
+      background: var(--primary);
+      border: none;
+      border-radius: 20px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="scrim"></div>
+
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Rain Forecast</h2>
+      <button class="close-btn">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="modal-content">
+      <div class="legend-list">
+        <div class="legend-row">
+          <div class="legend-indicator none">
+            <span class="material-symbols-outlined">wb_sunny</span>
+          </div>
+          <div class="legend-details">
+            <div class="legend-level">
+              <span class="level-name">None</span>
+              <span class="level-range">0-20%</span>
+            </div>
+            <p class="legend-description">No rain expected</p>
+          </div>
+        </div>
+
+        <div class="legend-row">
+          <div class="legend-indicator light">
+            <span class="material-symbols-outlined">grain</span>
+          </div>
+          <div class="legend-details">
+            <div class="legend-level">
+              <span class="level-name">Light</span>
+              <span class="level-range">20-50%</span>
+            </div>
+            <p class="legend-description">Light rain possible</p>
+          </div>
+        </div>
+
+        <div class="legend-row">
+          <div class="legend-indicator moderate">
+            <span class="material-symbols-outlined">water_drop</span>
+          </div>
+          <div class="legend-details">
+            <div class="legend-level">
+              <span class="level-name">Moderate</span>
+              <span class="level-range">50-70%</span>
+            </div>
+            <p class="legend-description">Rain likely, pack gear</p>
+          </div>
+        </div>
+
+        <div class="legend-row">
+          <div class="legend-indicator heavy">
+            <span class="material-symbols-outlined">thunderstorm</span>
+          </div>
+          <div class="legend-details">
+            <div class="legend-level">
+              <span class="level-name">Heavy</span>
+              <span class="level-range">70%+</span>
+            </div>
+            <p class="legend-description">Heavy rain expected</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        <p class="disclaimer-text">Rain probabilities are based on hourly forecasts for your estimated arrival time at each route segment. Conditions may change.</p>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="primary-btn">Got it</button>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,92 @@
+{
+  "design_key": "empty_state",
+  "device": "mobile",
+  "screen": "Empty State (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "Reusable empty state component with illustration and action",
+  "theme": {
+    "background": "#0E0F11",
+    "surface": "#1A1C1F",
+    "primary": "#B87333",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "layout": {
+    "type": "centered",
+    "padding": "48px 24px",
+    "sections": [
+      {
+        "id": "illustration",
+        "type": "icon",
+        "icon": "route",
+        "size": "80px",
+        "color": "rgba(255,255,255,0.2)",
+        "margin_bottom": "24px"
+      },
+      {
+        "id": "headline",
+        "type": "text",
+        "style": "20px 600 rgba(255,255,255,0.92)",
+        "align": "center",
+        "margin_bottom": "8px"
+      },
+      {
+        "id": "body_text",
+        "type": "text",
+        "style": "14px 400 rgba(255,255,255,0.55)",
+        "align": "center",
+        "max_width": "280px",
+        "margin_bottom": "32px"
+      },
+      {
+        "id": "primary_action",
+        "type": "button",
+        "style": "primary",
+        "height": "48px",
+        "background": "#B87333",
+        "border_radius": "20px"
+      }
+    ]
+  },
+  "variants": {
+    "no_routes": {
+      "icon": "route",
+      "headline": "No Saved Routes",
+      "body": "Plan your first ride and save it for easy access later",
+      "action_label": "Plan a Ride",
+      "action_icon": "add_road"
+    },
+    "no_history": {
+      "icon": "history",
+      "headline": "No Ride History",
+      "body": "Complete your first ride to start building your history",
+      "action_label": "Plan a Ride",
+      "action_icon": "add_road"
+    },
+    "no_favorites": {
+      "icon": "favorite_border",
+      "headline": "No Favorite Roads",
+      "body": "Save your favorite road segments while viewing routes",
+      "action_label": "Explore Routes",
+      "action_icon": "explore"
+    },
+    "search_no_results": {
+      "icon": "search_off",
+      "headline": "No Results Found",
+      "body": "Try a different search term or check your spelling",
+      "action_label": "Clear Search",
+      "action_icon": "close"
+    }
+  },
+  "states": {
+    "no_routes": "No saved routes variant",
+    "no_history": "No ride history variant",
+    "no_favorites": "No favorite roads variant",
+    "search_no_results": "Search returned nothing variant"
+  }
+}

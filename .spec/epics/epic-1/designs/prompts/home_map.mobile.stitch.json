@@ -1,0 +1,94 @@
+{
+  "design_key": "home_map",
+  "device": "mobile",
+  "screen": "Home Map (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "Map-first shell that hosts planning + route rendering with floating controls",
+  "theme": {
+    "background": "#0E0F11",
+    "surface": "#1A1C1F",
+    "surface_elevated": "#24272B",
+    "primary": "#B87333",
+    "warning": "#D98E04",
+    "error": "#E35D6A",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "header": {
+    "type": "transparent_overlay",
+    "blur_effect": true,
+    "components": {
+      "search_bar": {
+        "background": "#24272B",
+        "border_radius": "12px",
+        "placeholder": "Search destination...",
+        "leading_icon": "search",
+        "trailing_icon": "layers"
+      }
+    }
+  },
+  "layout": {
+    "type": "full_screen_map",
+    "sections": [
+      {
+        "id": "map_background",
+        "type": "map",
+        "style": "dark_mode",
+        "z_index": 0,
+        "content": "Full bleed MapLibre/Mapbox map with dark styling, covers entire viewport"
+      },
+      {
+        "id": "top_controls",
+        "type": "floating_row",
+        "z_index": 10,
+        "position": { "top": "safe_area + 12px", "horizontal": "16px" },
+        "content": "Floating search bar with glassmorphism effect, blur backdrop"
+      },
+      {
+        "id": "map_controls",
+        "type": "floating_column",
+        "z_index": 10,
+        "position": { "right": "16px", "bottom": "160px" },
+        "gap": "8px",
+        "content": "Stack of circular icon buttons: layers toggle, compass, current location"
+      },
+      {
+        "id": "fab_plan_ride",
+        "type": "fab",
+        "z_index": 10,
+        "position": { "right": "16px", "bottom": "100px" },
+        "background": "#B87333",
+        "shadow": "0 8px 16px rgba(184,115,50,0.4)",
+        "icon": "add_road",
+        "label": "Plan Ride"
+      }
+    ]
+  },
+  "navigation": {
+    "type": "bottom_tabs",
+    "background": "#1A1C1F",
+    "border_top": "1px solid rgba(255,255,255,0.08)",
+    "height": "64px",
+    "safe_area_bottom": true,
+    "active_color": "#B87333",
+    "inactive_color": "rgba(255,255,255,0.55)",
+    "tabs": [
+      { "label": "Explore", "icon": "map", "active": true },
+      { "label": "Saved", "icon": "bookmark", "active": false },
+      { "label": "Rides", "icon": "two_wheeler", "active": false, "phase": 3 },
+      { "label": "Profile", "icon": "person", "active": false, "phase": 2 }
+    ]
+  },
+  "states": {
+    "default": "Idle map view with search bar and FAB visible",
+    "search_focused": "Search bar expands, keyboard appears",
+    "route_displayed": "Single route polyline on map with overlay segments",
+    "planning_in_progress": "Loading overlay active, FAB hidden",
+    "route_comparison": "Multiple routes displayed for comparison"
+  }
+}

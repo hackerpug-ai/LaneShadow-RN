@@ -1,0 +1,129 @@
+{
+  "design_key": "add_favorite_road_sheet",
+  "device": "mobile",
+  "screen": "Add Favorite Road Sheet (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "Phase 2: Save a road segment from a route",
+  "phase": 2,
+  "theme": {
+    "background": "#1A1C1F",
+    "surface": "#24272B",
+    "surface_elevated": "#36302b",
+    "primary": "#B87333",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "sheet": {
+    "type": "bottom_partial",
+    "height": "60vh",
+    "background": "#1A1C1F",
+    "border_radius_top": "32px",
+    "shadow": "0 -8px 30px rgba(0,0,0,0.5)"
+  },
+  "header": {
+    "drag_handle": {
+      "width": "36px",
+      "height": "4px",
+      "background": "rgba(255,255,255,0.2)",
+      "border_radius": "2px",
+      "margin_top": "8px"
+    },
+    "title": {
+      "text": "Save Favorite Road",
+      "style": "20px 600 rgba(255,255,255,0.92)"
+    }
+  },
+  "layout": {
+    "type": "form",
+    "padding": "24px",
+    "sections": [
+      {
+        "id": "road_preview",
+        "type": "preview_card",
+        "background": "#24272B",
+        "border_radius": "12px",
+        "padding": "16px",
+        "margin_bottom": "16px",
+        "content": {
+          "map_thumbnail": {
+            "height": "100px",
+            "border_radius": "8px",
+            "margin_bottom": "12px"
+          },
+          "road_name": {
+            "text": "Pacific Coast Highway",
+            "style": "16px 600 rgba(255,255,255,0.92)"
+          },
+          "road_details": {
+            "text": "Mile 42-58 12.3 mi",
+            "style": "14px 400 rgba(255,255,255,0.55)"
+          }
+        }
+      },
+      {
+        "id": "name_input",
+        "type": "text_input",
+        "label": "Name",
+        "placeholder": "Give this road a name",
+        "value": "Pacific Coast Highway",
+        "background": "#36302b",
+        "height": "56px",
+        "border_radius": "12px",
+        "margin_bottom": "16px"
+      },
+      {
+        "id": "description_input",
+        "type": "text_area",
+        "label": "Notes (optional)",
+        "placeholder": "Add notes about this road...",
+        "background": "#36302b",
+        "height": "80px",
+        "border_radius": "12px",
+        "margin_bottom": "16px"
+      },
+      {
+        "id": "tags_input",
+        "type": "tag_input",
+        "label": "Tags",
+        "placeholder": "Add tags...",
+        "suggested_tags": ["Scenic", "Coastal", "Twisty", "Mountain", "Relaxed"],
+        "background": "#36302b",
+        "border_radius": "12px"
+      },
+      {
+        "id": "source_route",
+        "type": "info_row",
+        "margin_top": "16px",
+        "icon": "route",
+        "label": "From route",
+        "value": "Scenic Coast Route",
+        "text_style": "14px 400 rgba(255,255,255,0.55)"
+      }
+    ]
+  },
+  "actions": {
+    "padding": "24px",
+    "items": [
+      {
+        "label": "Save to Favorites",
+        "style": "primary",
+        "height": "56px",
+        "background": "#B87333",
+        "text_color": "rgba(255,255,255,0.92)",
+        "border_radius": "20px",
+        "font": "16px 600",
+        "full_width": true,
+        "icon": "favorite"
+      }
+    ]
+  },
+  "states": {
+    "default": "Form ready for input",
+    "saving": "Save button shows spinner"
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "design_key": "plan_ride_sheet",
+  "device": "mobile",
+  "screen": "Plan Ride Sheet (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "Bottom sheet for route planning with origin/destination inputs and scenic preferences",
+  "theme": {
+    "background": "#1A1C1F",
+    "surface": "#24272B",
+    "surface_elevated": "#36302b",
+    "primary": "#B87333",
+    "warning": "#D98E04",
+    "error": "#E35D6A",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "sheet": {
+    "type": "bottom_partial",
+    "height": "65vh",
+    "background": "#1A1C1F",
+    "border_radius_top": "32px",
+    "shadow": "0 -8px 30px rgba(0,0,0,0.5)",
+    "scrim": "rgba(0,0,0,0.55)"
+  },
+  "header": {
+    "drag_handle": {
+      "width": "36px",
+      "height": "4px",
+      "background": "rgba(255,255,255,0.2)",
+      "border_radius": "2px",
+      "margin_top": "8px",
+      "margin_bottom": "16px"
+    },
+    "title": {
+      "text": "Plan Your Ride",
+      "style": "20px 600 rgba(255,255,255,0.92)"
+    }
+  },
+  "layout": {
+    "type": "form",
+    "padding": "24px",
+    "sections": [
+      {
+        "id": "route_timeline",
+        "type": "timeline_inputs",
+        "content": {
+          "connector": {
+            "type": "vertical_line",
+            "color": "rgba(255,255,255,0.2)",
+            "width": "2px",
+            "margin_left": "11px"
+          },
+          "inputs": [
+            {
+              "type": "location_input",
+              "id": "origin",
+              "icon": "circle_outline",
+              "icon_color": "#B87333",
+              "placeholder": "Starting point",
+              "background": "#36302b",
+              "height": "56px",
+              "border_radius": "12px",
+              "trailing_icon": "near_me"
+            },
+            {
+              "type": "location_input",
+              "id": "destination",
+              "icon": "location_on",
+              "icon_color": "#B87333",
+              "placeholder": "Where to?",
+              "background": "#36302b",
+              "height": "56px",
+              "border_radius": "12px"
+            }
+          ],
+          "swap_button": {
+            "icon": "swap_vert",
+            "position": "right_of_connector",
+            "background": "#24272B",
+            "size": "32px",
+            "border_radius": "16px"
+          }
+        }
+      },
+      {
+        "id": "scenic_bias",
+        "type": "segmented_control",
+        "label": "Route Style",
+        "margin_top": "24px",
+        "container": {
+          "background": "#36302b",
+          "border_radius": "12px",
+          "padding": "4px"
+        },
+        "options": [
+          { "label": "Direct", "value": "direct" },
+          { "label": "Balanced", "value": "balanced", "selected": true },
+          { "label": "Scenic", "value": "scenic" }
+        ],
+        "active_style": {
+          "background": "#B87333",
+          "text_color": "rgba(255,255,255,0.92)"
+        },
+        "inactive_style": {
+          "background": "transparent",
+          "text_color": "rgba(255,255,255,0.55)"
+        }
+      },
+      {
+        "id": "preferences",
+        "type": "toggle_group",
+        "margin_top": "20px",
+        "gap": "12px",
+        "content": [
+          {
+            "type": "toggle_row",
+            "label": "Avoid Highways",
+            "icon": "remove_road",
+            "default": false
+          },
+          {
+            "type": "toggle_row",
+            "label": "Avoid Tolls",
+            "icon": "toll",
+            "default": false
+          }
+        ]
+      }
+    ]
+  },
+  "actions": {
+    "margin_top": "auto",
+    "padding": "24px",
+    "padding_bottom": "40px",
+    "items": [
+      {
+        "label": "Plan Ride",
+        "style": "primary",
+        "height": "56px",
+        "background": "#B87333",
+        "text_color": "rgba(255,255,255,0.92)",
+        "border_radius": "20px",
+        "font": "16px 600",
+        "full_width": true,
+        "shadow": "0 8px 16px rgba(184,115,50,0.4)",
+        "icon": "route"
+      }
+    ]
+  },
+  "states": {
+    "default": "Empty inputs, button disabled",
+    "origin_focused": "Origin input active, keyboard visible",
+    "destination_focused": "Destination input active, keyboard visible",
+    "valid": "Both inputs filled, button enabled",
+    "submitting": "Button shows loading spinner"
+  }
+}

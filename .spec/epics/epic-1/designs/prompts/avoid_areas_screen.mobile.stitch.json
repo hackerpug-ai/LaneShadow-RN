@@ -1,0 +1,144 @@
+{
+  "design_key": "avoid_areas_screen",
+  "device": "mobile",
+  "screen": "Avoid Areas Screen (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "Phase 2: Manage avoid areas with map drawing interface",
+  "phase": 2,
+  "theme": {
+    "background": "#0E0F11",
+    "surface": "#1A1C1F",
+    "surface_elevated": "#24272B",
+    "primary": "#B87333",
+    "error": "#E35D6A",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "header": {
+    "type": "standard",
+    "background": "transparent",
+    "blur": true,
+    "back_arrow": true,
+    "title": {
+      "text": "Avoid Areas",
+      "style": "20px 600 rgba(255,255,255,0.92)"
+    }
+  },
+  "layout": {
+    "type": "map_with_list",
+    "sections": [
+      {
+        "id": "map_view",
+        "type": "map",
+        "height": "50%",
+        "style": "dark_mode",
+        "overlays": [
+          {
+            "type": "avoid_area_overlay",
+            "fill_color": "rgba(227,93,106,0.2)",
+            "stroke_color": "#E35D6A",
+            "stroke_width": 2
+          }
+        ]
+      },
+      {
+        "id": "areas_list",
+        "type": "bottom_section",
+        "height": "50%",
+        "background": "#1A1C1F",
+        "border_radius_top": "24px",
+        "padding": "24px",
+        "content": {
+          "header": {
+            "type": "row",
+            "justify": "space-between",
+            "children": [
+              {
+                "type": "text",
+                "text": "Your Avoid Areas",
+                "style": "16px 600 rgba(255,255,255,0.92)"
+              },
+              {
+                "type": "text",
+                "text": "3 areas",
+                "style": "14px 400 rgba(255,255,255,0.55)"
+              }
+            ]
+          },
+          "list": {
+            "margin_top": "16px",
+            "gap": "12px",
+            "items": "AvoidAreaCard components"
+          }
+        }
+      }
+    ]
+  },
+  "components": {
+    "avoid_area_card": {
+      "background": "#24272B",
+      "border_radius": "12px",
+      "padding": "16px",
+      "layout": "horizontal",
+      "gap": "12px",
+      "children": [
+        {
+          "type": "icon_container",
+          "icon": "block",
+          "size": "40px",
+          "background": "rgba(227,93,106,0.2)",
+          "icon_color": "#E35D6A",
+          "border_radius": "12px"
+        },
+        {
+          "type": "column",
+          "flex": 1,
+          "children": [
+            { "type": "text", "style": "16px 500 text_primary" },
+            { "type": "text", "style": "14px 400 text_muted" }
+          ]
+        },
+        {
+          "type": "icon",
+          "icon": "chevron_right",
+          "color": "text_muted"
+        }
+      ]
+    }
+  },
+  "fab": {
+    "position": { "right": "16px", "bottom": "100px" },
+    "background": "#B87333",
+    "shadow": "0 8px 16px rgba(184,115,50,0.4)",
+    "icon": "add",
+    "label": "Add Area"
+  },
+  "drawing_mode": {
+    "controls": {
+      "position": "top_center",
+      "background": "#24272B",
+      "border_radius": "12px",
+      "padding": "8px",
+      "items": [
+        { "icon": "check", "label": "Done", "action": "confirm_drawing" },
+        { "icon": "undo", "label": "Undo", "action": "undo_point" },
+        { "icon": "close", "label": "Cancel", "action": "cancel_drawing" }
+      ]
+    },
+    "instructions": {
+      "text": "Tap to add points, close the shape to define area",
+      "style": "14px 400 rgba(255,255,255,0.72)",
+      "position": "bottom_center"
+    }
+  },
+  "states": {
+    "default": "Map with existing avoid areas",
+    "drawing_mode": "User drawing new area on map",
+    "editing": "Editing existing area"
+  }
+}

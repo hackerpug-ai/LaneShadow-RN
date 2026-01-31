@@ -1,0 +1,158 @@
+{
+  "design_key": "auth_sign_in",
+  "device": "mobile",
+  "screen": "Auth Sign In (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "User sign-in via social OAuth or email/password with brand header",
+  "theme": {
+    "background": "#1f1913",
+    "surface": "#25211e",
+    "surface_elevated": "#36302b",
+    "primary": "#B87333",
+    "warning": "#D98E04",
+    "error": "#E35D6A",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "header": {
+    "type": "brand",
+    "background": "transparent",
+    "logo": {
+      "type": "app_icon",
+      "size": "64px",
+      "margin_top": "80px"
+    },
+    "title": {
+      "text": "LaneShadow",
+      "style": "32px 600 rgba(255,255,255,0.92)",
+      "font_family": "Space Grotesk"
+    },
+    "subtitle": {
+      "text": "Plan scenic rides with confidence",
+      "style": "14px 400 rgba(255,255,255,0.72)",
+      "margin_top": "8px"
+    }
+  },
+  "layout": {
+    "type": "centered_form",
+    "padding": "24px",
+    "sections": [
+      {
+        "id": "social_auth",
+        "type": "button_group",
+        "margin_top": "48px",
+        "gap": "12px",
+        "content": [
+          {
+            "type": "social_button",
+            "provider": "apple",
+            "label": "Continue with Apple",
+            "background": "#FFFFFF",
+            "text_color": "#000000",
+            "icon": "apple_logo",
+            "height": "56px",
+            "border_radius": "12px"
+          },
+          {
+            "type": "social_button",
+            "provider": "google",
+            "label": "Continue with Google",
+            "background": "#24272B",
+            "text_color": "rgba(255,255,255,0.92)",
+            "icon": "google_logo",
+            "height": "56px",
+            "border_radius": "12px",
+            "border": "1px solid rgba(255,255,255,0.08)"
+          }
+        ]
+      },
+      {
+        "id": "divider",
+        "type": "divider_with_text",
+        "margin_vertical": "24px",
+        "text": "or",
+        "text_style": "12px 400 rgba(255,255,255,0.55)",
+        "line_color": "rgba(255,255,255,0.08)"
+      },
+      {
+        "id": "email_form",
+        "type": "form",
+        "gap": "16px",
+        "content": [
+          {
+            "type": "text_input",
+            "label": "Email",
+            "placeholder": "Enter your email",
+            "keyboard_type": "email-address",
+            "background": "#36302b",
+            "height": "56px",
+            "border_radius": "12px"
+          },
+          {
+            "type": "text_input",
+            "label": "Password",
+            "placeholder": "Enter your password",
+            "secure_text_entry": true,
+            "background": "#36302b",
+            "height": "56px",
+            "border_radius": "12px"
+          }
+        ]
+      },
+      {
+        "id": "forgot_password",
+        "type": "link",
+        "text": "Forgot password?",
+        "color": "#B87333",
+        "align": "right",
+        "margin_top": "8px"
+      }
+    ]
+  },
+  "actions": {
+    "margin_top": "24px",
+    "items": [
+      {
+        "label": "Sign In",
+        "style": "primary",
+        "height": "56px",
+        "background": "#B87333",
+        "text_color": "rgba(255,255,255,0.92)",
+        "border_radius": "20px",
+        "font": "16px 600",
+        "full_width": true,
+        "shadow": "0 8px 16px rgba(184,115,50,0.4)"
+      }
+    ]
+  },
+  "footer": {
+    "margin_top": "auto",
+    "margin_bottom": "40px",
+    "content": [
+      {
+        "type": "text_with_link",
+        "text": "Don't have an account? ",
+        "link_text": "Sign Up",
+        "link_color": "#B87333"
+      },
+      {
+        "type": "legal_text",
+        "margin_top": "16px",
+        "text": "By continuing, you agree to our Terms of Service and Privacy Policy",
+        "style": "12px 400 rgba(255,255,255,0.55)",
+        "links": ["Terms of Service", "Privacy Policy"]
+      }
+    ]
+  },
+  "states": {
+    "default": "Form ready for input",
+    "loading": "Button shows spinner, inputs disabled",
+    "error": "Error message displayed below form",
+    "social_auth_pending": "OAuth flow in progress"
+  }
+}

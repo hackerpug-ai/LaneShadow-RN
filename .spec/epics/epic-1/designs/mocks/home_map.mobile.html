@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=390, height=844, initial-scale=1.0">
+  <title>Home Map - LaneShadow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #0E0F11;
+      --bg-secondary: #1A1C1F;
+      --bg-elevated: #24272B;
+      --primary: #B87333;
+      --primary-pressed: #8C5A2B;
+      --text-primary: rgba(255,255,255,0.92);
+      --text-secondary: rgba(255,255,255,0.72);
+      --text-muted: rgba(255,255,255,0.55);
+      --divider: rgba(255,255,255,0.08);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      width: 390px;
+      height: 844px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* Map Background */
+    .map-container {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #1a1d21 0%, #0d1117 50%, #161b22 100%);
+      z-index: 0;
+    }
+
+    .map-container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.02) 40px, rgba(255,255,255,0.02) 41px),
+        repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.02) 40px, rgba(255,255,255,0.02) 41px);
+    }
+
+    /* Simulated road lines */
+    .map-roads {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .road {
+      position: absolute;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+    }
+
+    .road-1 { width: 3px; height: 300px; top: 100px; left: 120px; transform: rotate(15deg); }
+    .road-2 { width: 3px; height: 400px; top: 200px; left: 200px; transform: rotate(-30deg); }
+    .road-3 { width: 3px; height: 250px; top: 350px; left: 280px; transform: rotate(45deg); }
+    .road-4 { width: 200px; height: 3px; top: 400px; left: 50px; }
+    .road-5 { width: 150px; height: 3px; top: 300px; left: 180px; transform: rotate(-10deg); }
+
+    /* Top Controls */
+    .top-controls {
+      position: absolute;
+      top: 54px;
+      left: 16px;
+      right: 16px;
+      z-index: 10;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-elevated);
+      backdrop-filter: blur(20px);
+      border-radius: 12px;
+      padding: 12px 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .search-bar .material-symbols-outlined {
+      color: var(--text-muted);
+      font-size: 20px;
+    }
+
+    .search-placeholder {
+      flex: 1;
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    /* Map Controls */
+    .map-controls {
+      position: absolute;
+      right: 16px;
+      bottom: 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .map-control-btn {
+      width: 44px;
+      height: 44px;
+      background: var(--bg-elevated);
+      backdrop-filter: blur(20px);
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .map-control-btn .material-symbols-outlined {
+      color: var(--text-secondary);
+      font-size: 22px;
+    }
+
+    /* FAB */
+    .fab {
+      position: absolute;
+      right: 16px;
+      bottom: 100px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary);
+      padding: 14px 20px;
+      border-radius: 20px;
+      box-shadow: 0 8px 16px rgba(184,115,50,0.4);
+      z-index: 10;
+    }
+
+    .fab .material-symbols-outlined {
+      font-size: 22px;
+    }
+
+    .fab-label {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 84px;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--divider);
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      padding-top: 8px;
+      z-index: 20;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+    }
+
+    .nav-item .material-symbols-outlined {
+      font-size: 24px;
+      color: var(--text-muted);
+    }
+
+    .nav-item.active .material-symbols-outlined {
+      color: var(--primary);
+    }
+
+    .nav-label {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .nav-item.active .nav-label {
+      color: var(--primary);
+    }
+
+    /* Safe area indicator */
+    .safe-area-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 44px;
+      z-index: 5;
+    }
+  </style>
+</head>
+<body>
+  <!-- Map Background -->
+  <div class="map-container">
+    <div class="map-roads">
+      <div class="road road-1"></div>
+      <div class="road road-2"></div>
+      <div class="road road-3"></div>
+      <div class="road road-4"></div>
+      <div class="road road-5"></div>
+    </div>
+  </div>
+
+  <!-- Safe Area -->
+  <div class="safe-area-top"></div>
+
+  <!-- Top Controls -->
+  <div class="top-controls">
+    <div class="search-bar">
+      <span class="material-symbols-outlined">search</span>
+      <span class="search-placeholder">Search destination...</span>
+      <span class="material-symbols-outlined">layers</span>
+    </div>
+  </div>
+
+  <!-- Map Controls -->
+  <div class="map-controls">
+    <div class="map-control-btn">
+      <span class="material-symbols-outlined">layers</span>
+    </div>
+    <div class="map-control-btn">
+      <span class="material-symbols-outlined">explore</span>
+    </div>
+    <div class="map-control-btn">
+      <span class="material-symbols-outlined">my_location</span>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <div class="fab">
+    <span class="material-symbols-outlined">add_road</span>
+    <span class="fab-label">Plan Ride</span>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <span class="material-symbols-outlined">map</span>
+      <span class="nav-label">Explore</span>
+    </div>
+    <div class="nav-item">
+      <span class="material-symbols-outlined">bookmark</span>
+      <span class="nav-label">Saved</span>
+    </div>
+    <div class="nav-item">
+      <span class="material-symbols-outlined">two_wheeler</span>
+      <span class="nav-label">Rides</span>
+    </div>
+    <div class="nav-item">
+      <span class="material-symbols-outlined">person</span>
+      <span class="nav-label">Profile</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,113 @@
+{
+  "design_key": "add_avoid_area_sheet",
+  "device": "mobile",
+  "screen": "Add Avoid Area Sheet (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "Phase 2: Define and name a new avoid area",
+  "phase": 2,
+  "theme": {
+    "background": "#1A1C1F",
+    "surface": "#24272B",
+    "surface_elevated": "#36302b",
+    "primary": "#B87333",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "sheet": {
+    "type": "bottom_partial",
+    "height": "50vh",
+    "background": "#1A1C1F",
+    "border_radius_top": "32px",
+    "shadow": "0 -8px 30px rgba(0,0,0,0.5)"
+  },
+  "header": {
+    "drag_handle": {
+      "width": "36px",
+      "height": "4px",
+      "background": "rgba(255,255,255,0.2)",
+      "border_radius": "2px",
+      "margin_top": "8px"
+    },
+    "title": {
+      "text": "Name This Area",
+      "style": "20px 600 rgba(255,255,255,0.92)"
+    }
+  },
+  "layout": {
+    "type": "form",
+    "padding": "24px",
+    "sections": [
+      {
+        "id": "map_preview",
+        "type": "map_preview",
+        "height": "120px",
+        "border_radius": "12px",
+        "margin_bottom": "16px",
+        "content": "Preview of drawn area"
+      },
+      {
+        "id": "name_input",
+        "type": "text_input",
+        "label": "Area Name",
+        "placeholder": "e.g., Downtown Traffic Zone",
+        "background": "#36302b",
+        "height": "56px",
+        "border_radius": "12px",
+        "margin_bottom": "16px"
+      },
+      {
+        "id": "reason_input",
+        "type": "text_input",
+        "label": "Reason (optional)",
+        "placeholder": "Why avoid this area?",
+        "background": "#36302b",
+        "height": "56px",
+        "border_radius": "12px",
+        "margin_bottom": "16px"
+      },
+      {
+        "id": "bounds_display",
+        "type": "info_row",
+        "icon": "crop_free",
+        "label": "Area Size",
+        "value": "~2.3 sq mi",
+        "text_style": "14px 400 rgba(255,255,255,0.55)"
+      }
+    ]
+  },
+  "actions": {
+    "padding": "24px",
+    "gap": "12px",
+    "layout": "row",
+    "items": [
+      {
+        "label": "Cancel",
+        "style": "secondary",
+        "height": "48px",
+        "background": "transparent",
+        "text_color": "rgba(255,255,255,0.72)",
+        "border": "1px solid rgba(255,255,255,0.08)",
+        "border_radius": "20px",
+        "flex": 1
+      },
+      {
+        "label": "Save Area",
+        "style": "primary",
+        "height": "48px",
+        "background": "#B87333",
+        "text_color": "rgba(255,255,255,0.92)",
+        "border_radius": "20px",
+        "flex": 1
+      }
+    ]
+  },
+  "states": {
+    "default": "Form ready for input",
+    "saving": "Save button shows spinner"
+  }
+}

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=390, height=844, initial-scale=1.0">
+  <title>Route Options Sheet - LaneShadow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #0E0F11;
+      --bg-secondary: #1A1C1F;
+      --bg-elevated: #24272B;
+      --primary: #B87333;
+      --primary-20: rgba(184,115,51,0.2);
+      --text-primary: rgba(255,255,255,0.92);
+      --text-secondary: rgba(255,255,255,0.72);
+      --text-muted: rgba(255,255,255,0.55);
+      --divider: rgba(255,255,255,0.08);
+      --wind-low: #94a3b8;
+      --wind-moderate: #64748b;
+      --wind-high: #b45309;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      width: 390px;
+      height: 844px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* Map Background with route */
+    .map-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #1a1d21 0%, #0d1117 50%, #161b22 100%);
+    }
+
+    .route-line {
+      position: absolute;
+      top: 150px;
+      left: 80px;
+      width: 200px;
+      height: 150px;
+      border: 3px solid var(--primary);
+      border-radius: 20px;
+      border-bottom: none;
+      border-right: none;
+      transform: rotate(-15deg);
+    }
+
+    /* Bottom Sheet */
+    .bottom-sheet {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 65%;
+      background: var(--bg-secondary);
+      border-radius: 32px 32px 0 0;
+      box-shadow: 0 -8px 30px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .drag-handle {
+      width: 36px;
+      height: 4px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 2px;
+      margin: 8px auto 16px;
+    }
+
+    .sheet-header {
+      padding: 0 24px 16px;
+    }
+
+    .sheet-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .sheet-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Overlay Toggle Group */
+    .overlay-toggles {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .overlay-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      background: rgba(255,255,255,0.05);
+      color: var(--text-muted);
+    }
+
+    .overlay-pill.active {
+      background: var(--primary-20);
+      color: var(--primary);
+      border: 1px solid rgba(184,115,51,0.3);
+    }
+
+    .overlay-pill .material-symbols-outlined {
+      font-size: 16px;
+    }
+
+    /* Content */
+    .sheet-content {
+      flex: 1;
+      padding: 16px 24px;
+      overflow-y: auto;
+    }
+
+    /* Route Cards */
+    .route-card {
+      background: var(--bg-elevated);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .route-card.selected {
+      border: 2px solid var(--primary);
+    }
+
+    .route-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .route-name {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .route-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge.primary {
+      background: var(--primary-20);
+      color: var(--primary);
+      border: 1px solid rgba(184,115,51,0.3);
+    }
+
+    .badge.neutral {
+      background: rgba(255,255,255,0.05);
+      color: var(--text-muted);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .badge .material-symbols-outlined {
+      font-size: 14px;
+    }
+
+    .check-icon {
+      color: var(--primary);
+    }
+
+    .check-icon .material-symbols-outlined {
+      font-size: 24px;
+    }
+
+    /* Stats Row */
+    .stats-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat .material-symbols-outlined {
+      font-size: 18px;
+      color: var(--text-muted);
+    }
+
+    .stat-value {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* Weather Summary Pill */
+    .weather-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      background: rgba(251,191,36,0.15);
+      color: #fbbf24;
+    }
+
+    .weather-pill .material-symbols-outlined {
+      font-size: 16px;
+    }
+
+    /* Compact Card */
+    .route-card.compact {
+      opacity: 0.8;
+      padding: 12px 16px;
+    }
+
+    .compact-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .compact-name {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .compact-stats {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Action */
+    .sheet-action {
+      padding: 24px;
+      padding-bottom: 40px;
+    }
+
+    .primary-btn {
+      width: 100%;
+      height: 56px;
+      background: var(--primary);
+      border: none;
+      border-radius: 20px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 16px rgba(184,115,50,0.4);
+      cursor: pointer;
+    }
+
+    .primary-btn .material-symbols-outlined {
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Map Background -->
+  <div class="map-bg">
+    <div class="route-line"></div>
+  </div>
+
+  <!-- Bottom Sheet -->
+  <div class="bottom-sheet">
+    <div class="drag-handle"></div>
+
+    <div class="sheet-header">
+      <h2 class="sheet-title">Routes to Destination</h2>
+      <p class="sheet-subtitle">3 routes found</p>
+
+      <div class="overlay-toggles">
+        <div class="overlay-pill active">
+          <span class="material-symbols-outlined">air</span>
+          Wind
+        </div>
+        <div class="overlay-pill">
+          <span class="material-symbols-outlined">water_drop</span>
+          Rain
+        </div>
+        <div class="overlay-pill">
+          <span class="material-symbols-outlined">thermostat</span>
+          Temp
+        </div>
+      </div>
+    </div>
+
+    <div class="sheet-content">
+      <!-- Selected Route Card -->
+      <div class="route-card selected">
+        <div class="route-card-header">
+          <div>
+            <div class="route-name">Scenic Route</div>
+            <div class="route-badges">
+              <span class="badge primary">
+                <span class="material-symbols-outlined">landscape</span>
+                Most Scenic
+              </span>
+              <span class="badge neutral">87 mi</span>
+            </div>
+          </div>
+          <div class="check-icon">
+            <span class="material-symbols-outlined">check_circle</span>
+          </div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat">
+            <span class="material-symbols-outlined">schedule</span>
+            <span class="stat-value">2h 15m</span>
+          </div>
+          <div class="stat">
+            <span class="material-symbols-outlined" style="color: var(--wind-moderate)">air</span>
+            <span class="stat-value">Moderate</span>
+          </div>
+        </div>
+
+        <div class="weather-pill">
+          <span class="material-symbols-outlined">air</span>
+          Light crosswinds on Hwy 1
+        </div>
+      </div>
+
+      <!-- Compact Route Cards -->
+      <div class="route-card compact">
+        <div class="compact-row">
+          <span class="compact-name">Direct Route</span>
+          <span class="compact-stats">1h 45m &bull; 72 mi</span>
+        </div>
+      </div>
+
+      <div class="route-card compact">
+        <div class="compact-row">
+          <span class="compact-name">Balanced Route</span>
+          <span class="compact-stats">2h 00m &bull; 79 mi</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sheet-action">
+      <button class="primary-btn">
+        View Details
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+  </div>
+</body>
+</html>

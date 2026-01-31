@@ -22,6 +22,7 @@ export type RouteOptionsSheetProps = {
   onClose: () => void
   planningResult: PlannedRouteOptionsView | null
   selectedRouteId: string | null
+  isLoading?: boolean
   onRouteSelect: (routeOptionId: string) => void
   onViewDetails: (routeOption: PlannedRouteOptionView) => void
   onBack: () => void
@@ -36,6 +37,7 @@ export const RouteOptionsSheet = ({
   onClose,
   planningResult,
   selectedRouteId,
+  isLoading = false,
   onRouteSelect,
   onViewDetails,
   onBack,
@@ -91,6 +93,7 @@ export const RouteOptionsSheet = ({
             key={routeOption.routeOptionId}
             routeOption={routeOption}
             isSelected={routeOption.routeOptionId === selectedRouteId}
+            isLoading={isLoading}
             onSelect={handleRouteSelect}
             testID={`${testID}-route-${index}`}
           />

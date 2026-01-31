@@ -1,0 +1,196 @@
+{
+  "design_key": "route_overview_sheet",
+  "device": "mobile",
+  "screen": "Route Overview Sheet (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "Route details with leg breakdown, wind conditions, and save action",
+  "theme": {
+    "background": "#1A1C1F",
+    "surface": "#24272B",
+    "surface_elevated": "#36302b",
+    "primary": "#B87333",
+    "warning": "#D98E04",
+    "error": "#E35D6A",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "sheet": {
+    "type": "bottom_partial",
+    "height": "75vh",
+    "background": "#1A1C1F",
+    "border_radius_top": "32px",
+    "shadow": "0 -8px 30px rgba(0,0,0,0.5)"
+  },
+  "header": {
+    "drag_handle": {
+      "width": "36px",
+      "height": "4px",
+      "background": "rgba(255,255,255,0.2)",
+      "border_radius": "2px",
+      "margin_top": "8px"
+    },
+    "back_arrow": true,
+    "back_arrow_color": "rgba(255,255,255,0.72)",
+    "title": {
+      "text": "Scenic Route",
+      "style": "20px 600 rgba(255,255,255,0.92)"
+    },
+    "badges": {
+      "row_direction": "horizontal",
+      "gap": "8px",
+      "margin_top": "8px",
+      "items": [
+        {
+          "type": "badge",
+          "label": "Most Scenic",
+          "background": "rgba(184,115,51,0.2)",
+          "text_color": "#B87333",
+          "icon": "landscape"
+        },
+        {
+          "type": "badge",
+          "label": "87 mi",
+          "background": "rgba(255,255,255,0.05)",
+          "text_color": "rgba(255,255,255,0.55)"
+        }
+      ]
+    }
+  },
+  "layout": {
+    "type": "scrollable",
+    "padding": "24px",
+    "sections": [
+      {
+        "id": "stats_row",
+        "type": "stats_grid",
+        "columns": 3,
+        "gap": "16px",
+        "margin_bottom": "20px",
+        "items": [
+          { "label": "Duration", "value": "2h 15m", "icon": "schedule" },
+          { "label": "Distance", "value": "87 mi", "icon": "straighten" },
+          { "label": "Wind", "value": "Moderate", "icon": "air", "color": "#64748b" }
+        ]
+      },
+      {
+        "id": "condition_advisory",
+        "type": "advisory_card",
+        "background": "rgba(217,142,4,0.15)",
+        "border": "1px solid rgba(217,142,4,0.3)",
+        "border_radius": "12px",
+        "padding": "12px 16px",
+        "margin_bottom": "20px",
+        "content": {
+          "icon": "warning",
+          "icon_color": "#D98E04",
+          "text": "Moderate crosswinds expected on Highway 1 between 2-4 PM",
+          "text_style": "14px 400 rgba(255,255,255,0.72)"
+        }
+      },
+      {
+        "id": "wind_visualization",
+        "type": "route_bar",
+        "label": "Wind Exposure",
+        "height": "8px",
+        "border_radius": "4px",
+        "margin_bottom": "8px",
+        "segments": [
+          { "percent": 30, "color": "#94a3b8", "label": "Low" },
+          { "percent": 45, "color": "#64748b", "label": "Moderate" },
+          { "percent": 25, "color": "#b45309", "label": "High" }
+        ],
+        "legend_link": {
+          "text": "View Legend",
+          "color": "#B87333"
+        }
+      },
+      {
+        "id": "leg_list",
+        "type": "list",
+        "label": "Route Legs",
+        "margin_top": "24px",
+        "gap": "0",
+        "items": [
+          {
+            "type": "leg_item",
+            "instruction": "Head north on Main St",
+            "distance": "0.5 mi",
+            "icon": "turn_right",
+            "wind_indicator": { "level": "low", "color": "#94a3b8" }
+          },
+          {
+            "type": "leg_item",
+            "instruction": "Turn left onto Highway 1",
+            "distance": "42 mi",
+            "icon": "turn_left",
+            "wind_indicator": { "level": "moderate", "color": "#64748b" }
+          },
+          {
+            "type": "leg_item",
+            "instruction": "Continue on Pacific Coast Hwy",
+            "distance": "35 mi",
+            "icon": "straight",
+            "wind_indicator": { "level": "high", "color": "#b45309" }
+          }
+        ]
+      },
+      {
+        "id": "rationale_card",
+        "type": "info_card",
+        "margin_top": "20px",
+        "background": "#24272B",
+        "border_radius": "12px",
+        "padding": "16px",
+        "content": {
+          "title": "Why this route?",
+          "title_style": "14px 600 rgba(255,255,255,0.72)",
+          "body": "This route maximizes scenic coastal views while avoiding peak wind hours on the exposed sections.",
+          "body_style": "14px 400 rgba(255,255,255,0.55)"
+        }
+      }
+    ]
+  },
+  "actions": {
+    "margin_top": "auto",
+    "padding": "24px",
+    "padding_bottom": "40px",
+    "gap": "12px",
+    "items": [
+      {
+        "label": "Save Route",
+        "style": "primary",
+        "height": "56px",
+        "background": "#B87333",
+        "text_color": "rgba(255,255,255,0.92)",
+        "border_radius": "20px",
+        "font": "16px 600",
+        "full_width": true,
+        "icon": "bookmark_add"
+      },
+      {
+        "label": "Start Navigation",
+        "style": "secondary",
+        "height": "48px",
+        "background": "transparent",
+        "text_color": "rgba(255,255,255,0.72)",
+        "border": "1px solid rgba(255,255,255,0.08)",
+        "border_radius": "20px",
+        "font": "16px 500",
+        "full_width": true,
+        "icon": "navigation"
+      }
+    ]
+  },
+  "states": {
+    "default": "Full route details visible",
+    "from_planning": "During planning flow, save action prominent",
+    "from_saved": "Reopening saved route, navigate action prominent",
+    "conditions_unavailable": "Advisory banner for soft-fail",
+    "saving": "Save button shows loading spinner"
+  }
+}

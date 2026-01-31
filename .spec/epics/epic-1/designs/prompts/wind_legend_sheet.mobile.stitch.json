@@ -1,0 +1,137 @@
+{
+  "design_key": "wind_legend_sheet",
+  "device": "mobile",
+  "screen": "Wind Legend Sheet (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "Modal explaining wind condition levels with color legend",
+  "theme": {
+    "background": "#1A1C1F",
+    "surface": "#24272B",
+    "primary": "#B87333",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "sheet": {
+    "type": "modal",
+    "background": "#1A1C1F",
+    "border_radius": "24px",
+    "margin": "24px",
+    "shadow": "0 8px 30px rgba(0,0,0,0.5)",
+    "scrim": "rgba(0,0,0,0.55)"
+  },
+  "header": {
+    "padding": "24px",
+    "title": {
+      "text": "Wind Conditions",
+      "style": "20px 600 rgba(255,255,255,0.92)"
+    },
+    "close_button": {
+      "icon": "close",
+      "position": "top_right",
+      "color": "rgba(255,255,255,0.55)"
+    }
+  },
+  "layout": {
+    "type": "vertical",
+    "padding": "0 24px 24px",
+    "sections": [
+      {
+        "id": "legend_rows",
+        "type": "list",
+        "gap": "16px",
+        "items": [
+          {
+            "type": "legend_row",
+            "color": "#94a3b8",
+            "color_name": "slate-400",
+            "level": "Low",
+            "range": "0-15 mph",
+            "description": "Light breeze, comfortable riding",
+            "icon": "air"
+          },
+          {
+            "type": "legend_row",
+            "color": "#64748b",
+            "color_name": "slate-500",
+            "level": "Moderate",
+            "range": "15-25 mph",
+            "description": "Noticeable crosswinds, stay alert",
+            "icon": "air"
+          },
+          {
+            "type": "legend_row",
+            "color": "#b45309",
+            "color_name": "amber-700",
+            "level": "High",
+            "range": "25+ mph",
+            "description": "Strong gusts, challenging conditions",
+            "icon": "warning"
+          }
+        ]
+      },
+      {
+        "id": "disclaimer",
+        "type": "text",
+        "margin_top": "24px",
+        "padding": "16px",
+        "background": "#24272B",
+        "border_radius": "12px",
+        "text": "Wind conditions are based on forecasts and may vary. Always use your judgment and ride within your comfort level.",
+        "style": "12px 400 rgba(255,255,255,0.55)"
+      }
+    ]
+  },
+  "components": {
+    "legend_row": {
+      "layout": "horizontal",
+      "align": "center",
+      "gap": "16px",
+      "children": [
+        {
+          "type": "color_indicator",
+          "width": "24px",
+          "height": "24px",
+          "border_radius": "6px"
+        },
+        {
+          "type": "column",
+          "flex": 1,
+          "children": [
+            {
+              "type": "row",
+              "justify": "space-between",
+              "children": [
+                { "type": "text", "style": "16px 600 text_primary" },
+                { "type": "text", "style": "14px 400 text_muted" }
+              ]
+            },
+            { "type": "text", "style": "14px 400 text_secondary", "margin_top": "4px" }
+          ]
+        }
+      ]
+    }
+  },
+  "actions": {
+    "padding": "24px",
+    "items": [
+      {
+        "label": "Got it",
+        "style": "primary",
+        "height": "48px",
+        "background": "#B87333",
+        "text_color": "rgba(255,255,255,0.92)",
+        "border_radius": "20px",
+        "font": "16px 600",
+        "full_width": true
+      }
+    ]
+  },
+  "states": {
+    "default": "Legend displayed"
+  }
+}

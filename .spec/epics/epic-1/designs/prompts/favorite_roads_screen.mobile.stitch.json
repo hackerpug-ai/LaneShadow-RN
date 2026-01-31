@@ -1,0 +1,119 @@
+{
+  "design_key": "favorite_roads_screen",
+  "device": "mobile",
+  "screen": "Favorite Roads Screen (mobile view)",
+  "platform": "mobile-app",
+  "ui_library": "react-native-expo",
+  "component_style_match": true,
+  "dimensions": "390x844",
+  "viewport": "mobile",
+  "description": "Phase 2: Browse and manage favorite road segments",
+  "phase": 2,
+  "theme": {
+    "background": "#0E0F11",
+    "surface": "#1A1C1F",
+    "surface_elevated": "#24272B",
+    "primary": "#B87333",
+    "text_primary": "rgba(255,255,255,0.92)",
+    "text_secondary": "rgba(255,255,255,0.72)",
+    "text_muted": "rgba(255,255,255,0.55)"
+  },
+  "header": {
+    "type": "standard",
+    "background": "#0E0F11",
+    "back_arrow": true,
+    "title": {
+      "text": "Favorite Roads",
+      "style": "24px 600 rgba(255,255,255,0.92)"
+    }
+  },
+  "layout": {
+    "type": "scrollable_list",
+    "padding": "16px",
+    "sections": [
+      {
+        "id": "search_bar",
+        "type": "search_input",
+        "background": "#24272B",
+        "border_radius": "12px",
+        "placeholder": "Search favorite roads...",
+        "leading_icon": "search",
+        "margin_bottom": "16px"
+      },
+      {
+        "id": "favorites_list",
+        "type": "card_list",
+        "gap": "12px",
+        "content": "List of FavoriteRoadCard components"
+      }
+    ]
+  },
+  "components": {
+    "favorite_road_card": {
+      "background": "#24272B",
+      "border_radius": "16px",
+      "padding": "16px",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "row",
+          "gap": "12px",
+          "children": [
+            {
+              "type": "map_thumbnail",
+              "size": "80x80",
+              "border_radius": "12px",
+              "content": "Road segment preview"
+            },
+            {
+              "type": "column",
+              "flex": 1,
+              "children": [
+                { "type": "text", "style": "16px 600 text_primary", "content": "Pacific Coast Highway" },
+                { "type": "text", "style": "14px 400 text_muted", "content": "Mile 42-58 12.3 mi" },
+                {
+                  "type": "tag_row",
+                  "margin_top": "8px",
+                  "gap": "8px",
+                  "tags": [
+                    { "label": "Scenic", "color": "primary" },
+                    { "label": "Coastal", "color": "neutral" }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "row",
+          "margin_top": "12px",
+          "justify": "space-between",
+          "children": [
+            {
+              "type": "text",
+              "style": "12px 400 text_muted",
+              "content": "Saved from: Scenic Coast Route"
+            },
+            {
+              "type": "icon",
+              "icon": "chevron_right",
+              "color": "text_muted"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "empty_state": {
+    "icon": "favorite_border",
+    "headline": "No Favorite Roads",
+    "body": "Save your favorite road segments while viewing routes. Long-press any segment to add it here.",
+    "action_label": "Plan a Ride",
+    "action_icon": "add_road"
+  },
+  "states": {
+    "default": "List with favorite roads",
+    "empty": "No favorites saved",
+    "search_active": "Filtered search results"
+  }
+}
