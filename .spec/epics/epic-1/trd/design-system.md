@@ -1,7 +1,10 @@
 # TRD Addendum: Design System Specifications
 
-**Status**: Reference Document (Non-Breaking)
+**Version**: 2.0
+**Last Updated**: 2026-01-30
+**Status**: 📐 Reference Document (Non-Breaking)
 **Derived From**: Design mockups in `../designs/mocks/`
+**Implementation**: `components/ui/` (60+ components)
 
 ---
 
@@ -709,10 +712,60 @@ const searchResultStyle = {
 
 ---
 
+## 10. Implementation Mapping
+
+This section maps design system specs to actual component implementations.
+
+### 10.1 Component Implementation Status
+
+| Design Spec | Component File | Status |
+|-------------|----------------|--------|
+| Badge | `components/ui/badge.tsx` | ✅ |
+| Segmented Control | `components/ui/scenic-bias-segmented.tsx` | ✅ |
+| Toggle Switch | `components/ui/switch.tsx` | ✅ |
+| Chip | `components/ui/chip.tsx` | ✅ |
+| Section Card | `components/ui/card.tsx` | ✅ |
+| Advisory Card | `components/ui/banner.tsx` | ✅ |
+| Weather Pill | `components/planning/wind-badge.tsx` | ✅ |
+| Primary Button | `components/ui/button.tsx` | ✅ |
+| Secondary Button | `components/ui/button.tsx` | ✅ |
+| Location Input | `components/ui/location-input.tsx` | ✅ |
+| Search Input | `components/ui/floating-search-input.tsx` | ✅ |
+| Text Area | `components/ui/textarea.tsx` | ✅ |
+| Star Rating | — | ❌ Phase 3 |
+| Setting Row | — | ❌ Phase 2 |
+| Navigation Row | — | ❌ Phase 2 |
+| Search Result Item | — | ❌ S006 |
+
+### 10.2 Theme Token Implementation
+
+| Token Category | Implementation |
+|----------------|----------------|
+| Colors | `components/ui/semantic-theme.tsx` |
+| Typography | Font families in `app.json`, sizes in theme |
+| Spacing | `spacing` object in semantic theme |
+| Border Radius | `borderRadius` object in semantic theme |
+| Shadows | Platform-specific in component styles |
+
+### 10.3 Bottom Sheet Implementation
+
+All bottom sheets use `@gorhom/bottom-sheet` via wrapper:
+
+| Wrapper | Location | Purpose |
+|---------|----------|---------|
+| BottomSheetWrapper | `components/sheets/bottom-sheet-wrapper.tsx` | Standard sheet with presets |
+
+**Presets**:
+- `content` — Standard content sheet (65% height)
+- `full` — Full-height sheet (90% height)
+
+---
+
 ## Related Documents
 
 - **Design Mockups**: `../designs/mocks/*.mobile.html`
 - **Theme System**: `components/ui/semantic-theme.tsx`
+- **Implementation Map**: `implementation-map.md`
 - **Phase 1 TRD**: `phase-1-core.md`
 - **Phase 2 TRD**: `phase-2-personalization.md`
 - **Phase 3 TRD**: `phase-3-post-ride.md`

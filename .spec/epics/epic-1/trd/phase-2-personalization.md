@@ -1,7 +1,23 @@
 # TRD: Phase 2 - Personalization
 
+**Version**: 2.0
+**Last Updated**: 2026-01-30
 **Status**: 📋 Planned (Sprints 6-7)
-**Depends On**: Phase 1 Core (complete)
+**Depends On**: Phase 1 Core (✅ Backend Complete, ⏳ UI In Progress)
+
+---
+
+## Prerequisites
+
+Before starting Phase 2, the following Phase 1 components must be complete:
+
+| Prerequisite | Status | Notes |
+|--------------|--------|-------|
+| savedRoutes CRUD mutations | ✅ | Required for "Save as Favorite" flow |
+| Route planning pipeline | ✅ | Will be extended to include favorites |
+| User authentication | ✅ | Required for user_preferences table |
+| SavedRouteDetail (V003) | ❌ | Required for "Save as Favorite" action |
+| RouteOverviewSheet (S003) | ❌ | Required for favorites integration |
 
 ---
 

@@ -1,4 +1,44 @@
-# TRD: Lane Shadow PRD V1
+# TRD: Phase 1 - Core Planning & Saving
+
+**Version**: 2.0
+**Last Updated**: 2026-01-30
+**Status**: ✅ Backend Complete | ⏳ UI In Progress (Sprint 4-5)
+
+---
+
+## Implementation Status
+
+### Backend (✅ Complete - Sprints 1-3)
+
+| Component | Status | Location |
+|-----------|--------|----------|
+| Schema (saved_routes, users, orgs) | ✅ | `convex/schema.ts` |
+| Validators (PlanInput, RouteSnapshot) | ✅ | `models/saved-routes.ts` |
+| Planning action (planRide) | ✅ | `convex/actions/agent/planRide.ts` |
+| LangGraph pipeline | ✅ | `convex/actions/agent/planningGraph.ts` |
+| Route compilation (Google Routes) | ✅ | `convex/actions/agent/tools/compileSketch.ts` |
+| Wind overlay (Open-Meteo) | ✅ | `convex/actions/agent/providers/weatherProvider.ts` |
+| Saved routes CRUD | ✅ | `convex/db/savedRoutes.ts` |
+| Clerk auth integration | ✅ | `convex/db/clerkSync.ts` |
+
+### Frontend (⏳ Sprint 4-5)
+
+| Component | Status | Location |
+|-----------|--------|----------|
+| HomeMap (V001) | ✅ | `app/(app)/(tabs)/index.tsx` |
+| PlanRideSheet (S001) | ✅ | `components/sheets/plan-ride-sheet.tsx` |
+| RouteOptionsSheet (S002) | ✅ | `components/sheets/route-options-sheet.tsx` |
+| PlanningLoading (V004) | ✅ | `components/sheets/planning-loading.tsx` |
+| PlanningErrorSheet (S004) | ✅ | `components/sheets/planning-error-sheet.tsx` |
+| SavedRoutesList (V002) | 🔶 Placeholder | `app/(app)/(tabs)/saved-routes.tsx` |
+| SavedRouteDetail (V003) | ❌ Not Built | — |
+| RouteOverviewSheet (S003) | ❌ Not Built | — |
+| PlaceSearchSheet (S006) | ❌ Not Built | — |
+| WindLegendSheet (S005) | ❌ Not Built | — |
+| RenameRouteSheet (S008) | ❌ Not Built | — |
+| ConfirmDeleteRouteSheet (S009) | ❌ Not Built | — |
+
+---
 
 ## Overview
 
@@ -1371,20 +1411,58 @@ const MAX_HISTORY_ITEMS = 10
 
 ---
 
-## 15. Document Changelog
+## 15. Sprint 4-5 Remaining Tasks
+
+### 15.1 Critical Path (Must Complete)
+
+| Task | Effort | Dependency | Screen/Sheet |
+|------|--------|------------|--------------|
+| Implement SavedRoutesList (V002) | M | savedRoutes.getSavedRoutesList | V002 |
+| Implement SavedRouteDetail (V003) | L | savedRoutes.getSavedRouteDetail | V003 |
+| Implement RouteOverviewSheet (S003) | M | V003 | S003 |
+| Implement PlaceSearchSheet (S006) | M | usePlaceAutocomplete | S006 |
+| Implement RenameRouteSheet (S008) | S | savedRoutes.renameRoute | S008 |
+| Implement ConfirmDeleteRouteSheet (S009) | S | savedRoutes.deleteRoute | S009 |
+| Wire route saving from RouteOverviewSheet | S | S003 | S003 |
+
+### 15.2 Polish (Should Complete)
+
+| Task | Effort | Screen/Sheet |
+|------|--------|--------------|
+| Implement WindLegendSheet (S005) | S | S005 |
+| Implement AnnotationDetailSheet (S007) | M | S007 |
+| Add route polyline color-coding by wind | M | V001 |
+| Add current location quick-fill | S | S001 |
+| Add route card loading states | S | S002 |
+| Add empty state for saved routes | S | V002 |
+
+### 15.3 Deferred (Nice to Have)
+
+| Task | Reason |
+|------|--------|
+| Rain/Temp legend sheets (S005a, S005b) | Phase 2 overlays |
+| External navigation deep link | Low priority |
+| Settings screen implementation | Minimal POC |
+
+---
+
+## 16. Document Changelog
 
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2024-01 | Initial TRD |
 | 1.1 | 2024-01 | Added LangGraph implementation notes (Sprint 3) |
 | 1.2 | 2026-01 | Design-driven enrichments: UI extensions (§4.3.6), interaction specs (§6.4-6.5), frozen gaps (§14), design system addendum |
+| 2.0 | 2026-01-30 | **Major update**: Added implementation status, code locations, Sprint 4-5 task breakdown |
 
 ---
 
-## 16. Related Documents
+## 17. Related Documents
 
 | Document | Purpose |
 |----------|---------|
+| [README.md](./README.md) | TRD index and architecture overview |
+| [implementation-map.md](./implementation-map.md) | Code location reference |
 | [design-system.md](./design-system.md) | UI component specifications derived from mockups |
 | [phase-2-personalization.md](./phase-2-personalization.md) | Phase 2 TRD (Sprints 6-7) |
 | [phase-3-post-ride.md](./phase-3-post-ride.md) | Phase 3 TRD (Sprints 8-9) |

@@ -1,0 +1,172 @@
+{
+  "version": "4.0",
+  "created": "2026-03-03",
+  "goal": "Motorcycle trip planning app for scenic route discovery with weather safety overlays",
+  "vibe": "Rugged, industrial-warm, copper-accented, dark-first, utilitarian motorcycle aesthetic with glassmorphic overlays",
+  "spec": "epics/epic-1/PRD.md",
+  "paradigm": "epics/epic-1/designs/paradigm.yaml",
+  "references": [
+    "epics/epic-1/designs/mocks/",
+    "epics/epic-1/designs/legacy/TOKENS.md"
+  ],
+  "platforms": [
+    "mobile-ios",
+    "mobile-android"
+  ],
+  "tools": {
+    "framework": "expo",
+    "framework_docs": "https://docs.expo.dev",
+    "style": "stylesheet",
+    "style_docs": "https://reactnative.dev/docs/stylesheet",
+    "components": "react-native-paper",
+    "components_docs": "https://callstack.github.io/react-native-paper/",
+    "icons": "expo-vector-icons",
+    "icons_variant": "MaterialCommunityIcons",
+    "icons_docs": "https://icons.expo.fyi",
+    "sandbox": "storybook-native"
+  },
+  "theme": {
+    "colors": {
+      "surface": {
+        "primary": "#0E0F11",
+        "secondary": "#1A1C1F",
+        "elevated": "#24272B",
+        "divider": "rgba(255,255,255,0.08)",
+        "sheetScrim": "rgba(0,0,0,0.55)"
+      },
+      "text": {
+        "primary": "rgba(255,255,255,0.92)",
+        "secondary": "rgba(255,255,255,0.72)",
+        "muted": "rgba(255,255,255,0.55)",
+        "inverse": "#0E0F11"
+      },
+      "intent": {
+        "primary": "#B87333",
+        "primaryPressed": "#8C5A2B",
+        "secondary": "rgba(255,255,255,0.12)"
+      },
+      "status": {
+        "error": "#E35D6A",
+        "warning": "#D98E04"
+      },
+      "route": {
+        "selected": "#B87333",
+        "alternate": "rgba(255,255,255,0.45)"
+      }
+    },
+    "typography": {
+      "display": "Space Grotesk",
+      "body": "Inter"
+    },
+    "radius": {
+      "sm": 8,
+      "md": 12,
+      "lg": 16,
+      "xl": 20
+    }
+  },
+  "phase": "atoms",
+  "atoms": [
+    {
+      "name": "DragHandle",
+      "file": "components/ui/drag-handle.tsx",
+      "story": "stories/components/DragHandle.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "RouteBadge",
+      "file": "components/ui/route-badge.tsx",
+      "story": "stories/components/RouteBadge.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "OverlayPill",
+      "file": "components/ui/overlay-pill.tsx",
+      "story": "stories/components/OverlayPill.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "StatRow",
+      "file": "components/ui/stat-row.tsx",
+      "story": "stories/components/StatRow.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "WeatherPill",
+      "file": "components/ui/weather-pill.tsx",
+      "story": "stories/components/WeatherPill.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "RouteThumbnail",
+      "file": "components/ui/route-thumbnail.tsx",
+      "story": "stories/components/RouteThumbnail.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "BottomNavigation",
+      "file": "components/ui/bottom-navigation.tsx",
+      "story": "stories/components/BottomNavigation.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "PrimaryButton",
+      "file": "components/ui/primary-button.tsx",
+      "story": "stories/components/PrimaryButton.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "SectionHeader",
+      "file": "components/ui/section-header.tsx",
+      "story": "stories/components/SectionHeader.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "SearchBar",
+      "file": "components/ui/search-bar.tsx",
+      "story": "stories/components/SearchBar.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "RouteOptionCard",
+      "file": "components/ui/route-option-card.tsx",
+      "story": "stories/components/RouteOptionCard.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "SavedRouteCard",
+      "file": "components/ui/saved-route-card.tsx",
+      "story": "stories/components/SavedRouteCard.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "FloatingActionButton",
+      "file": "components/ui/fab.tsx",
+      "story": "stories/components/FAB.stories.tsx",
+      "status": "verified",
+      "controls": true,
+      "note": "Already existed - using existing component"
+    }
+  ],
+  "gates": {
+    "discover": "passed",
+    "target": "passed",
+    "equip": "passed",
+    "scaffold": "passed",
+    "atoms": "passed",
+    "compose": "pending",
+    "integrate": "pending"
+  }
+}

@@ -1,8 +1,16 @@
-import { registerRootComponent } from 'expo';
+/**
+ * Custom entry point for LaneShadow
+ * Switches between Storybook and the main app based on environment variable
+ */
+import { registerRootComponent } from 'expo'
 
-import App from './App';
+const STORYBOOK_ENABLED = process.env.EXPO_PUBLIC_STORYBOOK_ENABLED === 'true'
 
-// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
-// It also ensures that whether you load the app in Expo Go or in a native build,
-// the environment is set up appropriately
-registerRootComponent(App);
+if (STORYBOOK_ENABLED) {
+  // Load Storybook
+  const StorybookUI = require('./.rnstorybook').default
+  registerRootComponent(StorybookUI)
+} else {
+  // Load the Expo Router app
+  require('expo-router/entry')
+}

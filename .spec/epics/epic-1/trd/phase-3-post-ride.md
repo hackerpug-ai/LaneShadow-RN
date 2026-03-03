@@ -1,7 +1,23 @@
 # TRD: Phase 3 - Post-Ride Experience
 
+**Version**: 2.0
+**Last Updated**: 2026-01-30
 **Status**: 📋 Planned (Sprints 8-9)
-**Depends On**: Phase 1 Core (complete), Phase 2 Personalization
+**Depends On**: Phase 1 Core, Phase 2 Personalization
+
+---
+
+## Prerequisites
+
+Before starting Phase 3, the following components must be complete:
+
+| Prerequisite | Phase | Status | Notes |
+|--------------|-------|--------|-------|
+| savedRoutes CRUD mutations | 1 | ✅ | Will be extended for rating |
+| SavedRouteDetail (V003) | 1 | ❌ | Required for "Mark Complete" action |
+| SavedRoutesList (V002) | 1 | 🔶 | Required for status/rating display |
+| User preferences | 2 | 📋 | Optional integration for time optimization |
+| Weather provider | 1 | ✅ | Will be extended for hourly forecasts |
 
 ---
 
