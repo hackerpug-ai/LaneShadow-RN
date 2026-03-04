@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { api } from '../convex/_generated/api'
 import { getUserFacingError } from '../lib/convex-error'
+import { logger } from '../lib/logger/frontend-logger'
 import { showErrorNotification } from '../lib/notifier-helpers'
 import type { PlanInput } from '../types/routes'
 
@@ -52,17 +53,34 @@ export const usePlanRide = (): {
       setIsRunning(true)
       setError(null)
 
+      logger.info('ui.action', 'planRide called', {
+        origin: input.origin,
+        destination: input.destination,
+        departureTime: input.departureTime,
+      })
+
       try {
         const result = await planRideAction({
           planInput: input,
         })
+
+        logger.info('ui.action', 'planRide succeeded', {
+          optionsCount: result.options.length,
+          planId: result.planId,
+        })
+
         return result as PlanRideResult
       } catch (err) {
         // Ignore aborted errors
         if (err.name === 'AbortError') {
+          logger.info('ui.action', 'planRide aborted')
           return null
         }
+
         const parsed = getUserFacingError(err)
+        logger.error('ui.error', 'planRide failed', err as Error, {
+          userFacingMessage: parsed.message,
+        })
         setError(parsed.message)
         showErrorNotification(parsed.message)
         return null

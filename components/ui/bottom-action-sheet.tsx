@@ -9,6 +9,7 @@
 import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet'
 import { StyleSheet } from 'react-native'
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet'
+import { Provider as PaperProvider } from 'react-native-paper'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -78,6 +79,9 @@ export const BottomActionSheet = ({
     []
   )
 
+  // Capture the theme object to pass to PaperProvider
+  const theme = useSemanticTheme()
+
   return (
     <BottomSheetModal
       ref={bottomSheetRef}
@@ -93,9 +97,11 @@ export const BottomActionSheet = ({
       }}
       handleComponent={() => null}
     >
-      <BottomSheetView style={[styles.container]} testID={testID}>
-        {children}
-      </BottomSheetView>
+      <PaperProvider theme={theme}>
+        <BottomSheetView style={[styles.container]} testID={testID}>
+          {children}
+        </BottomSheetView>
+      </PaperProvider>
     </BottomSheetModal>
   )
 }

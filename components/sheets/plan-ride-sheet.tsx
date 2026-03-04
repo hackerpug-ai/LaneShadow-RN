@@ -6,6 +6,7 @@ import type { RouteStop } from '../../types/routes'
 import { LocationInput } from '../location-input'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
+import { DepartureTimeSelector } from '../ui/departure-time-selector'
 import { IconSymbol } from '../ui/icon-symbol'
 import { ScenicBiasSegmented, type ScenicBias } from '../ui/scenic-bias-segmented'
 import { Switch } from '../ui/switch'
@@ -30,6 +31,9 @@ export type PlanRideSheetProps = {
   avoidTolls: boolean
   onToggleAvoidTolls: () => void
 
+  departureTime: Date
+  onSetDepartureTime: (date: Date) => void
+
   isPlanning: boolean
 
   onPlanRide: () => void
@@ -49,6 +53,8 @@ export const PlanRideSheet = ({
   onToggleAvoidHighways,
   avoidTolls,
   onToggleAvoidTolls,
+  departureTime,
+  onSetDepartureTime,
   isPlanning,
   onPlanRide,
   onClearSelection,
@@ -180,6 +186,14 @@ export const PlanRideSheet = ({
           style={{ marginLeft: semantic.space.xs }}
         />
 
+        {/* Departure Time Selector */}
+        <DepartureTimeSelector
+          value={departureTime}
+          onChange={onSetDepartureTime}
+          minimumDate={new Date()}
+          testID="departure-time-selector"
+        />
+
         {/* Toggles - Switch Components */}
         <View
           style={[
@@ -256,10 +270,7 @@ export const PlanRideSheet = ({
           disabled={!startStop || !endStop || isPlanning}
           onPress={onPlanRide}
           icon={<IconSymbol name="motorbike" size={20} color={semantic.color.onPrimary.default} />}
-          style={[
-            { marginTop: semantic.space.xs },
-            scenicBias === 'high' && styles.highScenicButton,
-          ]}
+          style={{ marginTop: semantic.space.xs }}
           testID="plan-ride-submit"
         >
           {isPlanning ? 'Planning...' : 'Plan Ride'}
@@ -339,13 +350,5 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  highScenicButton: {
-    backgroundColor: '#6750A4', // Primary color for high scenic option
-    shadowColor: '#00000020',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
   },
 })

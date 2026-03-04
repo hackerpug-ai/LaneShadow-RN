@@ -13,6 +13,7 @@ import {
 } from '../../../models/saved-routes'
 import type { PlannedRouteOptionsView } from '../../../types/routes'
 import { requireIdentity, requireSession } from '../../guards'
+import { backend } from '../../lib/logger'
 import { runPlanningGraph } from './graphs/planningGraph'
 
 const plannedRouteOptionValidator = v.object({
@@ -46,6 +47,13 @@ export const planRide = action({
   handler: async (ctx, args): Promise<PlannedRouteOptionsView> => {
     const session = await requireSession(ctx)
 
+    backend.info('convex.action', 'planRide started', {
+      userId: session.user._id,
+      origin: args.planInput.origin,
+      destination: args.planInput.destination,
+      departureTime: args.planInput.departureTime,
+    })
+
     // Pass userId for LangSmith tracing observability
     const result = await runPlanningGraph({
       planInput: args.planInput,
@@ -55,12 +63,24 @@ export const planRide = action({
 
     // Hard-fail if LLM or all routes failed
     if (result.error) {
+      backend.error('convex.action', 'planRide failed with error', new Error(result.error), {
+        userId: session.user._id,
+      })
       throw new Error(result.error)
     }
 
     if (!result.options.length) {
+      backend.error('convex.action', 'planRide produced no options', new Error('LLM_SKETCH_INVALID'), {
+        userId: session.user._id,
+      })
       throw new Error('LLM_SKETCH_INVALID')
     }
+
+    backend.info('convex.action', 'planRide completed successfully', {
+      userId: session.user._id,
+      optionsCount: result.options.length,
+      planId: result.planId,
+    })
 
     return {
       planId: result.planId,

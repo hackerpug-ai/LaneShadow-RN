@@ -65,7 +65,7 @@
       "xl": 20
     }
   },
-  "phase": "atoms",
+  "phase": "compose",
   "atoms": [
     {
       "name": "DragHandle",
@@ -158,6 +158,92 @@
       "status": "verified",
       "controls": true,
       "note": "Already existed - using existing component"
+    },
+    {
+      "name": "PlanRideSheet",
+      "file": "components/sheets/plan-ride-sheet.tsx",
+      "story": "stories/sheets/PlanRideSheet.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "RouteOptionsSheet",
+      "file": "components/sheets/route-options-sheet.tsx",
+      "story": "stories/sheets/RouteOptionsSheet.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "PlanningErrorSheet",
+      "file": "components/sheets/planning-error-sheet.tsx",
+      "story": "stories/sheets/PlanningErrorSheet.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "RoutePlannerLoading",
+      "file": "components/sheets/planning-loading.tsx",
+      "story": "stories/sheets/RoutePlannerLoading.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "RainBadge",
+      "file": "components/ui/rain-badge.tsx",
+      "story": "stories/components/RainBadge.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "TemperatureBadge",
+      "file": "components/ui/temperature-badge.tsx",
+      "story": "stories/components/TemperatureBadge.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "DepartureTimeSelector",
+      "file": "components/ui/departure-time-selector.tsx",
+      "story": "stories/components/DepartureTimeSelector.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "RouteDetailsSheet",
+      "file": "components/sheets/route-details-sheet.tsx",
+      "story": "stories/sheets/RouteDetailsSheet.stories.tsx",
+      "status": "verified",
+      "controls": true
+    },
+    {
+      "name": "SaveRouteConfirmationSheet",
+      "file": "components/sheets/save-route-confirmation-sheet.tsx",
+      "story": "stories/sheets/SaveRouteConfirmationSheet.stories.tsx",
+      "status": "verified",
+      "controls": true
+    }
+  ],
+  "screens": [
+    {
+      "name": "RouteOptionsScreen",
+      "file": "components/screens/route-options-screen.tsx",
+      "story": "stories/screens/RouteOptionsScreen.stories.tsx",
+      "status": "verified",
+      "atoms": ["RouteOptionCard", "WeatherPill", "StatRow", "RouteBadge", "PrimaryButton", "SectionHeader"]
+    },
+    {
+      "name": "SavedRoutesScreen",
+      "file": "components/screens/saved-routes-screen.tsx",
+      "story": "stories/screens/SavedRoutesScreen.stories.tsx",
+      "status": "verified",
+      "atoms": ["SavedRouteCard", "RouteThumbnail", "SectionHeader", "SearchBar", "FAB"]
+    },
+    {
+      "name": "RouteComparisonView",
+      "file": "components/screens/route-comparison-view.tsx",
+      "story": "stories/screens/RouteComparisonView.stories.tsx",
+      "status": "verified",
+      "atoms": ["SectionHeader", "Button"]
     }
   ],
   "gates": {
@@ -166,7 +252,7 @@
     "equip": "passed",
     "scaffold": "passed",
     "atoms": "passed",
-    "compose": "pending",
+    "compose": "passed",
     "integrate": "pending"
   }
 }

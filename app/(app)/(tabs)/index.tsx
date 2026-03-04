@@ -102,6 +102,7 @@ const HomeMapScreen = () => {
   const [scenicBias, setScenicBias] = useState<'default' | 'high'>('default')
   const [avoidHighways, setAvoidHighways] = useState(false)
   const [avoidTolls, setAvoidTolls] = useState(false)
+  const [departureTime, setDepartureTime] = useState(new Date())
 
   useEffect(() => {
     if (planInit?.defaults?.preferences) {
@@ -373,6 +374,8 @@ const HomeMapScreen = () => {
           onToggleAvoidHighways={() => setAvoidHighways((prev) => !prev)}
           avoidTolls={avoidTolls}
           onToggleAvoidTolls={() => setAvoidTolls((prev) => !prev)}
+          departureTime={departureTime}
+          onSetDepartureTime={setDepartureTime}
           isPlanning={isPlanning}
           onPlanRide={handlePlanRide}
           onClearSelection={clearAll}

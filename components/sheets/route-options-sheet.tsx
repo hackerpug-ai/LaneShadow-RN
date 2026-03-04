@@ -8,6 +8,7 @@
  * - Integrates with map for route selection
  */
 
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from 'react-native-paper'
@@ -26,6 +27,8 @@ export type RouteOptionsSheetProps = {
   onRouteSelect: (routeOptionId: string) => void
   onViewDetails: (routeOption: PlannedRouteOptionView) => void
   onBack: () => void
+  onSave?: () => void
+  isSaving?: boolean
   testID?: string
 }
 
@@ -41,6 +44,8 @@ export const RouteOptionsSheet = ({
   onRouteSelect,
   onViewDetails,
   onBack,
+  onSave,
+  isSaving = false,
   testID,
 }: RouteOptionsSheetProps) => {
   const { semantic } = useSemanticTheme()
@@ -109,6 +114,25 @@ export const RouteOptionsSheet = ({
         >
           Back
         </Button>
+
+        {onSave && (
+          <Button
+            variant="default"
+            size="default"
+            onPress={onSave}
+            disabled={!isDetailsButtonEnabled || isSaving}
+            testID={`${testID}-save-button`}
+            icon={
+              <MaterialCommunityIcons
+                name="content-save"
+                size={18}
+                color={semantic.color.onPrimary.default}
+              />
+            }
+          >
+            {isSaving ? 'Saving...' : 'Save Route'}
+          </Button>
+        )}
 
         <Button
           variant="default"

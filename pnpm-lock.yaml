@@ -35,6 +35,9 @@ dependencies:
   '@react-native-async-storage/async-storage':
     specifier: ^2.2.0
     version: 2.2.0(react-native@0.81.5)
+  '@react-native-community/datetimepicker':
+    specifier: ^8.6.0
+    version: 8.6.0(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
   '@react-navigation/bottom-tabs':
     specifier: ^7.4.0
     version: 7.4.8(@react-navigation/native@7.1.18)(react-native-safe-area-context@5.6.1)(react-native-screens@4.16.0)(react-native@0.81.5)(react@19.1.0)
@@ -3098,7 +3101,6 @@ packages:
       invariant: 2.2.4
       react: 19.1.0
       react-native: 0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0)
-    dev: true
 
   /@react-native-community/slider@5.1.2:
     resolution: {integrity: sha512-UV/MjCyCtSjS5BQDrrGIMmCXm309xEG6XbR0Dj65kzTraJSVDxSjQS2uBUXgX+5SZUOCzCxzv3OufOZBdtQY4w==}
