@@ -306,3 +306,49 @@ export const savedRouteValidator = v.object({
   updatedAt: v.number(),
 })
 export type SavedRoute = Infer<typeof savedRouteValidator>
+
+// -----------------------------------------------------------------------------
+// Rain Summary Derivation Utility
+// -----------------------------------------------------------------------------
+
+/**
+ * Derives the worst rain level from a RainOverlay.
+ * Returns 'unavailable' if overlay is missing, empty, or malformed.
+ * Returns the worst condition present: heavy > moderate > light > none.
+ *
+ * @param overlay - Optional RainOverlay to analyze
+ * @returns RainSummary representing the worst rain condition
+ *
+ * @example
+ * const overlay: RainOverlay = {
+ *   byLeg: [
+ *     { legIndex: 0, segments: [{ level: 'light', ... }] },
+ *     { legIndex: 1, segments: [{ level: 'heavy', ... }] }
+ *   ]
+ * }
+ * getWorstRainLevel(overlay) // Returns 'heavy'
+ */
+export const getWorstRainLevel = (overlay?: RainOverlay): RainSummary => {
+  // Handle missing or malformed overlay
+  if (!overlay?.byLeg?.length) return RAIN_SUMMARY.UNAVAILABLE
+
+  // Collect all rain levels from all segments across all legs
+  const levels: string[] = []
+  for (const leg of overlay.byLeg) {
+    for (const segment of leg.segments) {
+      levels.push(segment.level)
+    }
+  }
+
+  // No segments found
+  if (levels.length === 0) return RAIN_SUMMARY.UNAVAILABLE
+
+  // Return worst condition (heavy > moderate > light > none)
+  if (levels.includes(RAIN_SUMMARY.HEAVY)) return RAIN_SUMMARY.HEAVY
+  if (levels.includes(RAIN_SUMMARY.MODERATE)) return RAIN_SUMMARY.MODERATE
+  if (levels.includes(RAIN_SUMMARY.LIGHT)) return RAIN_SUMMARY.LIGHT
+  if (levels.includes(RAIN_SUMMARY.NONE)) return RAIN_SUMMARY.NONE
+
+  // Unknown levels - treat as unavailable
+  return RAIN_SUMMARY.UNAVAILABLE
+}
