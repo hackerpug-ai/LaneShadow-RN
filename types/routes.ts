@@ -7,6 +7,7 @@ import type {
   RouteSnapshot,
   SavedRouteCapabilities,
   SnapshotMeta,
+  TemperatureSummary,
   WindSummary,
 } from '../models/saved-routes'
 
@@ -24,6 +25,7 @@ export type {
   RouteStop,
   SavedRouteCapabilities,
   SnapshotMeta,
+  TemperatureSummary,
 } from '../models/saved-routes'
 
 export type PlanInitView = {
@@ -75,6 +77,8 @@ export type PlannedRouteOptionView = {
   overlaysPreview: {
     windSummary: WindSummary
     rainSummary: RainSummary
+    temperatureSummary: TemperatureSummary
+    maxTemperatureF?: number
     conditionsStatus: 'ok' | 'unavailable'
   }
 }

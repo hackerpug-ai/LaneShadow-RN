@@ -15,6 +15,7 @@ import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { PlannedRouteOptionView } from '../../types/routes'
 import { IconSymbol } from '../ui/icon-symbol'
 import { RainBadge } from '../ui/rain-badge'
+import { TemperatureBadge } from '../ui/temperature-badge'
 import { WindBadge } from './wind-badge'
 
 export type RouteOptionCardProps = {
@@ -145,6 +146,17 @@ export const RouteOptionCard = ({
               testID={`${testID}-rain-badge`}
             />
           </View>
+
+          <View style={styles.weatherItem}>
+            <Text variant="bodySmall" style={{ color: semantic.color.onSurface.muted }}>
+              Temp
+            </Text>
+            <TemperatureBadge
+              temperatureSummary={routeOption.overlaysPreview.temperatureSummary}
+              temperatureValue={routeOption.overlaysPreview.maxTemperatureF}
+              testID={`${testID}-temperature-badge`}
+            />
+          </View>
         </View>
       </View>
     </Pressable>
@@ -196,7 +208,7 @@ const styles = StyleSheet.create({
   },
   weatherRow: {
     alignItems: 'center',
-    flex: 2,
+    flex: 3,
     flexDirection: 'row',
     gap: 8,
   },

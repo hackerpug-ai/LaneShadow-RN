@@ -220,9 +220,62 @@ export const rainOverlayValidator = v.object({
 })
 export type RainOverlay = Infer<typeof rainOverlayValidator>
 
+export const TEMPERATURE_SUMMARY = {
+  COLD: 'cold',
+  MILD: 'mild',
+  WARM: 'warm',
+  HOT: 'hot',
+  UNAVAILABLE: 'unavailable',
+} as const
+export type TemperatureSummary = (typeof TEMPERATURE_SUMMARY)[keyof typeof TEMPERATURE_SUMMARY]
+
+export const temperatureSummaryValidator = v.union(
+  v.literal(TEMPERATURE_SUMMARY.COLD),
+  v.literal(TEMPERATURE_SUMMARY.MILD),
+  v.literal(TEMPERATURE_SUMMARY.WARM),
+  v.literal(TEMPERATURE_SUMMARY.HOT),
+  v.literal(TEMPERATURE_SUMMARY.UNAVAILABLE)
+)
+
+export const temperatureLegendItemValidator = v.object({
+  level: v.string(),
+  label: v.string(),
+  range: v.optional(
+    v.object({
+      min: v.optional(v.number()),
+      max: v.optional(v.number()),
+      unit: v.optional(v.string()),
+    })
+  ),
+})
+export type TemperatureLegendItem = Infer<typeof temperatureLegendItemValidator>
+
+export const temperatureOverlaySegmentValidator = v.object({
+  startMeters: v.number(),
+  endMeters: v.number(),
+  level: v.string(),
+  temperatureCelsius: v.optional(v.number()),
+})
+export type TemperatureOverlaySegment = Infer<typeof temperatureOverlaySegmentValidator>
+
+export const temperatureOverlayByLegValidator = v.object({
+  legIndex: v.number(),
+  segments: v.array(temperatureOverlaySegmentValidator),
+})
+export type TemperatureOverlayByLeg = Infer<typeof temperatureOverlayByLegValidator>
+
+export const temperatureOverlayValidator = v.object({
+  generatedAt: v.number(),
+  modelVersion: v.string(),
+  legend: v.array(temperatureLegendItemValidator),
+  byLeg: v.array(temperatureOverlayByLegValidator),
+})
+export type TemperatureOverlay = Infer<typeof temperatureOverlayValidator>
+
 export const routeOverlaysValidator = v.object({
   wind: v.optional(windOverlayValidator),
   rain: v.optional(rainOverlayValidator),
+  temperature: v.optional(temperatureOverlayValidator),
 })
 export type RouteOverlays = Infer<typeof routeOverlaysValidator>
 
@@ -351,4 +404,103 @@ export const getWorstRainLevel = (overlay?: RainOverlay): RainSummary => {
 
   // Unknown levels - treat as unavailable
   return RAIN_SUMMARY.UNAVAILABLE
+}
+
+// -----------------------------------------------------------------------------
+// Temperature Summary Derivation Utility
+// -----------------------------------------------------------------------------
+
+/**
+ * Derives the worst temperature level from a TemperatureOverlay.
+ * Returns 'unavailable' if overlay is missing, empty, or malformed.
+ * Returns the most extreme temperature present: hot > warm > mild > cold.
+ *
+ * Temperature thresholds (in Celsius):
+ * - cold: < 5°C (< 40°F)
+ * - mild: 5-20°C (40-68°F)
+ * - warm: 20-30°C (68-86°F)
+ * - hot: >= 30°C (>= 86°F)
+ *
+ * @param overlay - Optional TemperatureOverlay to analyze
+ * @returns TemperatureSummary representing the most extreme temperature
+ *
+ * @example
+ * const overlay: TemperatureOverlay = {
+ *   byLeg: [
+ *     { legIndex: 0, segments: [{ temperatureCelsius: 15, ... }] },
+ *     { legIndex: 1, segments: [{ temperatureCelsius: 32, ... }] }
+ *   ]
+ * }
+ * getWorstTemperatureLevel(overlay) // Returns 'hot'
+ */
+export const getWorstTemperatureLevel = (
+  overlay?: TemperatureOverlay
+): TemperatureSummary => {
+  // Handle missing or malformed overlay
+  if (!overlay?.byLeg?.length) return TEMPERATURE_SUMMARY.UNAVAILABLE
+
+  // Track the most extreme temperature found
+  let maxTempCelsius: number | null = null
+
+  // Collect all temperatures from all segments across all legs
+  for (const leg of overlay.byLeg) {
+    for (const segment of leg.segments) {
+      if (segment.temperatureCelsius !== undefined) {
+        if (
+          maxTempCelsius === null ||
+          segment.temperatureCelsius > maxTempCelsius
+        ) {
+          maxTempCelsius = segment.temperatureCelsius
+        }
+      }
+    }
+  }
+
+  // No temperature data found
+  if (maxTempCelsius === null) return TEMPERATURE_SUMMARY.UNAVAILABLE
+
+  // Derive temperature level from maximum temperature
+  if (maxTempCelsius < 5) return TEMPERATURE_SUMMARY.COLD
+  if (maxTempCelsius < 20) return TEMPERATURE_SUMMARY.MILD
+  if (maxTempCelsius < 30) return TEMPERATURE_SUMMARY.WARM
+  return TEMPERATURE_SUMMARY.HOT
+}
+
+/**
+ * Derives the maximum temperature in Fahrenheit from a TemperatureOverlay.
+ * Returns undefined if overlay is missing or has no temperature data.
+ *
+ * @param overlay - Optional TemperatureOverlay to analyze
+ * @returns Maximum temperature in Fahrenheit, or undefined if unavailable
+ *
+ * @example
+ * const overlay: TemperatureOverlay = {
+ *   byLeg: [
+ *     { legIndex: 0, segments: [{ temperatureCelsius: 30, ... }] }
+ *   ]
+ * }
+ * getMaxTemperatureFahrenheit(overlay) // Returns 86
+ */
+export const getMaxTemperatureFahrenheit = (
+  overlay?: TemperatureOverlay
+): number | undefined => {
+  if (!overlay?.byLeg?.length) return undefined
+
+  let maxTempCelsius: number | null = null
+
+  for (const leg of overlay.byLeg) {
+    for (const segment of leg.segments) {
+      if (
+        segment.temperatureCelsius !== undefined &&
+        (maxTempCelsius === null || segment.temperatureCelsius > maxTempCelsius)
+      ) {
+        maxTempCelsius = segment.temperatureCelsius
+      }
+    }
+  }
+
+  if (maxTempCelsius === null) return undefined
+
+  // Convert Celsius to Fahrenheit: (C × 9/5) + 32
+  return Math.round((maxTempCelsius * 9) / 5 + 32)
 }

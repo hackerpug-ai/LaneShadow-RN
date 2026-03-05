@@ -16,9 +16,18 @@ import type {
   PlanInput,
   RainSummary,
   RouteSnapshot,
+  TemperatureSummary,
   WindSummary,
 } from '../../../../models/saved-routes'
-import { RAIN_SUMMARY, WIND_SUMMARY } from '../../../../models/saved-routes'
+import {
+  RAIN_SUMMARY,
+  TEMPERATURE_SUMMARY,
+  WIND_SUMMARY,
+} from '../../../../models/saved-routes'
+import {
+  getMaxTemperatureFahrenheit,
+  getWorstTemperatureLevel,
+} from '../../../../models/saved-routes'
 import type { PlannedRouteOptionView } from '../../../../types/routes'
 import { OPENAI_API_KEY } from '../../../lib/env'
 import { retryOnce, withTimeout } from '../lib/reliability'
@@ -204,6 +213,9 @@ export const processRoutes = async (
       let conditionsStatus: ConditionsStatus = 'ok'
       let windSummary: WindSummary = WIND_SUMMARY.UNAVAILABLE
       let rainSummary: RainSummary = RAIN_SUMMARY.UNAVAILABLE
+      let temperatureSummary: TemperatureSummary =
+        TEMPERATURE_SUMMARY.UNAVAILABLE
+      let maxTemperatureF: number | undefined = undefined
 
       try {
         const weatherProvider = createWeatherProvider()
@@ -219,12 +231,24 @@ export const processRoutes = async (
         })
         routeSnapshot.overlays = { ...routeSnapshot.overlays, wind: windOverlay }
         windSummary = worstWindLevel(routeSnapshot)
+
+        // Compute temperature summary from route snapshot
+        temperatureSummary = getWorstTemperatureLevel(
+          routeSnapshot.overlays.temperature
+        )
+        maxTemperatureF = getMaxTemperatureFahrenheit(
+          routeSnapshot.overlays.temperature
+        )
+
         conditionsStatus = 'ok'
       } catch (error) {
         // Soft-fail: conditions unavailable, but route is still valid
         console.warn('conditions unavailable', error)
         conditionsStatus = 'unavailable'
         windSummary = WIND_SUMMARY.UNAVAILABLE
+        rainSummary = RAIN_SUMMARY.UNAVAILABLE
+        temperatureSummary = TEMPERATURE_SUMMARY.UNAVAILABLE
+        maxTemperatureF = undefined
         routeSnapshot.overlays = { ...routeSnapshot.overlays, wind: undefined }
       }
 
@@ -243,6 +267,8 @@ export const processRoutes = async (
         overlaysPreview: {
           windSummary,
           rainSummary,
+          temperatureSummary,
+          maxTemperatureF,
           conditionsStatus,
         },
       })
