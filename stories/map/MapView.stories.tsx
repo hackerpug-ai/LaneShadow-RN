@@ -400,3 +400,86 @@ export const RegionalView: Story = {
     ],
   },
 }
+
+/**
+ * Rain Overlay Story
+ *
+ * Demonstrates rain-based polyline coloring:
+ * - Green (#22c55e): No rain
+ * - Sky blue (#60a5fa): Light rain
+ * - Blue (#3b82f6): Moderate rain
+ * - Red (#ef4444): Heavy rain
+ *
+ * AC1: Light rain segments display in sky blue (#60a5fa)
+ * AC2: Heavy rain segments display in red (#ef4444)
+ */
+export const WithRainOverlay: Story = {
+  render: (args) => {
+    const mapRef = useRef<MapViewHandle>(null)
+
+    // Route with varying rain conditions
+    const baseCoords = [
+      { latitude: 40.7608, longitude: -111.891 },
+      { latitude: 40.762, longitude: -111.878 },
+      { latitude: 40.764, longitude: -111.865 },
+      { latitude: 40.7656, longitude: -111.8474 },
+      { latitude: 40.767, longitude: -111.83 },
+      { latitude: 40.768, longitude: -111.81 },
+    ]
+
+    return (
+      <View style={{ flex: 1 }}>
+        <MapViewWrapper
+          ref={mapRef}
+          {...args}
+          cameraPosition={{
+            coordinates: SLC_CENTER,
+            zoom: 13,
+          }}
+          polylines={[
+            // No rain (green)
+            {
+              id: 'rain-none',
+              coordinates: baseCoords.slice(0, 2),
+              strokeColor: '#22c55e',
+              strokeWidth: 6,
+            },
+            // Light rain (sky blue) - AC1
+            {
+              id: 'rain-light',
+              coordinates: baseCoords.slice(1, 3),
+              strokeColor: '#60a5fa',
+              strokeWidth: 6,
+            },
+            // Moderate rain (blue)
+            {
+              id: 'rain-moderate',
+              coordinates: baseCoords.slice(2, 4),
+              strokeColor: '#3b82f6',
+              strokeWidth: 6,
+            },
+            // Heavy rain (red) - AC2
+            {
+              id: 'rain-heavy',
+              coordinates: baseCoords.slice(4, 6),
+              strokeColor: '#ef4444',
+              strokeWidth: 6,
+            },
+          ]}
+          markers={[
+            {
+              id: 'start',
+              title: 'Start: Downtown SLC',
+              coordinates: baseCoords[0],
+            },
+            {
+              id: 'end',
+              title: 'End: University of Utah',
+              coordinates: baseCoords[baseCoords.length - 1],
+            },
+          ]}
+        />
+      </View>
+    )
+  },
+}
