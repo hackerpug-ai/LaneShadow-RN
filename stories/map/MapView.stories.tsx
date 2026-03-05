@@ -6,6 +6,8 @@ import type { Meta, StoryObj } from '@storybook/react-native'
 import React, { useRef } from 'react'
 import { View } from 'react-native'
 import { MapViewWrapper, type MapViewHandle } from '../../components/map/map-view'
+import { getRainColor } from '../../lib/map/overlay-colors'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 // Salt Lake City, Utah coordinates
 const SLC_CENTER = {
@@ -404,18 +406,19 @@ export const RegionalView: Story = {
 /**
  * Rain Overlay Story
  *
- * Demonstrates rain-based polyline coloring:
- * - Green (#22c55e): No rain
- * - Sky blue (#60a5fa): Light rain
- * - Blue (#3b82f6): Moderate rain
- * - Red (#ef4444): Heavy rain
+ * Demonstrates rain-based polyline coloring using semantic theme colors:
+ * - Green (success): No rain
+ * - Sky blue (routeAlternate): Light rain
+ * - Blue (info): Moderate rain
+ * - Red (danger): Heavy rain
  *
- * AC1: Light rain segments display in sky blue (#60a5fa)
- * AC2: Heavy rain segments display in red (#ef4444)
+ * AC1: Light rain segments display in sky blue (routeAlternate)
+ * AC2: Heavy rain segments display in red (danger)
  */
 export const WithRainOverlay: Story = {
   render: (args) => {
     const mapRef = useRef<MapViewHandle>(null)
+    const theme = useSemanticTheme()
 
     // Route with varying rain conditions
     const baseCoords = [
@@ -441,28 +444,28 @@ export const WithRainOverlay: Story = {
             {
               id: 'rain-none',
               coordinates: baseCoords.slice(0, 2),
-              strokeColor: '#22c55e',
+              strokeColor: getRainColor('none', theme.semantic),
               strokeWidth: 6,
             },
             // Light rain (sky blue) - AC1
             {
               id: 'rain-light',
               coordinates: baseCoords.slice(1, 3),
-              strokeColor: '#60a5fa',
+              strokeColor: getRainColor('light', theme.semantic),
               strokeWidth: 6,
             },
             // Moderate rain (blue)
             {
               id: 'rain-moderate',
               coordinates: baseCoords.slice(2, 4),
-              strokeColor: '#3b82f6',
+              strokeColor: getRainColor('moderate', theme.semantic),
               strokeWidth: 6,
             },
             // Heavy rain (red) - AC2
             {
               id: 'rain-heavy',
               coordinates: baseCoords.slice(4, 6),
-              strokeColor: '#ef4444',
+              strokeColor: getRainColor('heavy', theme.semantic),
               strokeWidth: 6,
             },
           ]}

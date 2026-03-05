@@ -141,6 +141,8 @@ export const WithRainNoPrecipitation: Story = {
       overlaysPreview: {
         windSummary: 'low' as const,
         rainSummary: 'none' as const,
+        temperatureSummary: 'mild' as const,
+        maxTemperatureF: 68,
         conditionsStatus: 'ok' as const,
       },
     }
@@ -176,6 +178,8 @@ export const WithLightRain: Story = {
       overlaysPreview: {
         windSummary: 'moderate' as const,
         rainSummary: 'light' as const,
+        temperatureSummary: 'mild' as const,
+        maxTemperatureF: 65,
         conditionsStatus: 'ok' as const,
       },
     }
@@ -211,6 +215,8 @@ export const WithModerateRain: Story = {
       overlaysPreview: {
         windSummary: 'high' as const,
         rainSummary: 'moderate' as const,
+        temperatureSummary: 'cold' as const,
+        maxTemperatureF: 45,
         conditionsStatus: 'ok' as const,
       },
     }
@@ -246,6 +252,8 @@ export const WithHeavyRain: Story = {
       overlaysPreview: {
         windSummary: 'high' as const,
         rainSummary: 'heavy' as const,
+        temperatureSummary: 'warm' as const,
+        maxTemperatureF: 75,
         conditionsStatus: 'ok' as const,
       },
     }
@@ -281,6 +289,7 @@ export const WithUnavailableRain: Story = {
       overlaysPreview: {
         windSummary: 'unavailable' as const,
         rainSummary: 'unavailable' as const,
+        temperatureSummary: 'unavailable' as const,
         conditionsStatus: 'unavailable' as const,
       },
     }
@@ -291,6 +300,191 @@ export const WithUnavailableRain: Story = {
           isSelected={false}
           onSelect={() => {}}
           testID="rain-unavailable"
+        />
+      </View>
+    )
+  },
+}
+
+// Temperature-specific stories to demonstrate temperature badge integration
+export const WithMildTemperature: Story = {
+  render: () => {
+    const mockRoute = {
+      routeOptionId: 'route-temp-1',
+      label: 'Comfortable Coastal Ride',
+      rationale: 'Pleasant temperatures throughout',
+      stats: {
+        distanceMeters: 48000,
+        durationSeconds: 5700,
+        legsCount: 3,
+      },
+      map: {
+        bounds: { north: 37.8, south: 37.6, east: -122.4, west: -122.6 },
+        overviewGeometry: { format: 'polyline' as const, encoding: 'google', precision: 5, value: 'test' },
+        legs: [],
+      },
+      overlaysPreview: {
+        windSummary: 'low' as const,
+        rainSummary: 'none' as const,
+        temperatureSummary: 'mild' as const,
+        maxTemperatureF: 68,
+        conditionsStatus: 'ok' as const,
+      },
+    }
+    return (
+      <View style={{ padding: 16 }}>
+        <PlanningRouteOptionCard
+          routeOption={mockRoute}
+          isSelected={true}
+          onSelect={() => {}}
+          testID="temp-mild"
+        />
+      </View>
+    )
+  },
+}
+
+export const WithHotTemperature: Story = {
+  render: () => {
+    const mockRoute = {
+      routeOptionId: 'route-temp-2',
+      label: 'Hot Desert Crossing',
+      rationale: 'High temperatures expected',
+      stats: {
+        distanceMeters: 55000,
+        durationSeconds: 6600,
+        legsCount: 4,
+      },
+      map: {
+        bounds: { north: 37.8, south: 37.6, east: -122.4, west: -122.6 },
+        overviewGeometry: { format: 'polyline' as const, encoding: 'google', precision: 5, value: 'test' },
+        legs: [],
+      },
+      overlaysPreview: {
+        windSummary: 'low' as const,
+        rainSummary: 'none' as const,
+        temperatureSummary: 'hot' as const,
+        maxTemperatureF: 95,
+        conditionsStatus: 'ok' as const,
+      },
+    }
+    return (
+      <View style={{ padding: 16 }}>
+        <PlanningRouteOptionCard
+          routeOption={mockRoute}
+          isSelected={true}
+          onSelect={() => {}}
+          testID="temp-hot"
+        />
+      </View>
+    )
+  },
+}
+
+export const WithColdTemperature: Story = {
+  render: () => {
+    const mockRoute = {
+      routeOptionId: 'route-temp-3',
+      label: 'Mountain Pass Descent',
+      rationale: 'Cold temperatures at altitude',
+      stats: {
+        distanceMeters: 52000,
+        durationSeconds: 6300,
+        legsCount: 3,
+      },
+      map: {
+        bounds: { north: 37.8, south: 37.6, east: -122.4, west: -122.6 },
+        overviewGeometry: { format: 'polyline' as const, encoding: 'google', precision: 5, value: 'test' },
+        legs: [],
+      },
+      overlaysPreview: {
+        windSummary: 'moderate' as const,
+        rainSummary: 'none' as const,
+        temperatureSummary: 'cold' as const,
+        maxTemperatureF: 38,
+        conditionsStatus: 'ok' as const,
+      },
+    }
+    return (
+      <View style={{ padding: 16 }}>
+        <PlanningRouteOptionCard
+          routeOption={mockRoute}
+          isSelected={true}
+          onSelect={() => {}}
+          testID="temp-cold"
+        />
+      </View>
+    )
+  },
+}
+
+export const WithWarmTemperature: Story = {
+  render: () => {
+    const mockRoute = {
+      routeOptionId: 'route-temp-4',
+      label: 'Warm Valley Route',
+      rationale: 'Warm but comfortable riding',
+      stats: {
+        distanceMeters: 43000,
+        durationSeconds: 5100,
+        legsCount: 3,
+      },
+      map: {
+        bounds: { north: 37.8, south: 37.6, east: -122.4, west: -122.6 },
+        overviewGeometry: { format: 'polyline' as const, encoding: 'google', precision: 5, value: 'test' },
+        legs: [],
+      },
+      overlaysPreview: {
+        windSummary: 'low' as const,
+        rainSummary: 'none' as const,
+        temperatureSummary: 'warm' as const,
+        maxTemperatureF: 78,
+        conditionsStatus: 'ok' as const,
+      },
+    }
+    return (
+      <View style={{ padding: 16 }}>
+        <PlanningRouteOptionCard
+          routeOption={mockRoute}
+          isSelected={true}
+          onSelect={() => {}}
+          testID="temp-warm"
+        />
+      </View>
+    )
+  },
+}
+
+export const WithUnavailableTemperature: Story = {
+  render: () => {
+    const mockRoute = {
+      routeOptionId: 'route-temp-5',
+      label: 'Remote Route',
+      rationale: 'Temperature data unavailable',
+      stats: {
+        distanceMeters: 51000,
+        durationSeconds: 6200,
+        legsCount: 4,
+      },
+      map: {
+        bounds: { north: 37.8, south: 37.6, east: -122.4, west: -122.6 },
+        overviewGeometry: { format: 'polyline' as const, encoding: 'google', precision: 5, value: 'test' },
+        legs: [],
+      },
+      overlaysPreview: {
+        windSummary: 'unavailable' as const,
+        rainSummary: 'unavailable' as const,
+        temperatureSummary: 'unavailable' as const,
+        conditionsStatus: 'unavailable' as const,
+      },
+    }
+    return (
+      <View style={{ padding: 16 }}>
+        <PlanningRouteOptionCard
+          routeOption={mockRoute}
+          isSelected={false}
+          onSelect={() => {}}
+          testID="temp-unavailable"
         />
       </View>
     )

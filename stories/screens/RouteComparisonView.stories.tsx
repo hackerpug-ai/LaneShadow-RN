@@ -22,6 +22,8 @@ const mockRoutes: PlannedRouteOptionView[] = [
     overlaysPreview: {
       windSummary: 'low',
       rainSummary: 'none',
+      temperatureSummary: 'mild',
+      maxTemperatureF: 68,
       conditionsStatus: 'ok',
     },
   },
@@ -43,6 +45,8 @@ const mockRoutes: PlannedRouteOptionView[] = [
     overlaysPreview: {
       windSummary: 'moderate',
       rainSummary: 'light',
+      temperatureSummary: 'warm',
+      maxTemperatureF: 72,
       conditionsStatus: 'ok',
     },
   },
@@ -64,6 +68,8 @@ const mockRoutes: PlannedRouteOptionView[] = [
     overlaysPreview: {
       windSummary: 'high',
       rainSummary: 'moderate',
+      temperatureSummary: 'cold',
+      maxTemperatureF: 55,
       conditionsStatus: 'ok',
     },
   },

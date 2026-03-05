@@ -35,6 +35,9 @@ const mockRoute: PlannedRouteOptionView = {
   overlaysPreview: {
     conditionsStatus: 'ok',
     windSummary: 'low',
+    rainSummary: 'none',
+    temperatureSummary: 'mild',
+    maxTemperatureF: 65,
   },
 }
 
@@ -64,6 +67,9 @@ const mockRouteWithHighWind: PlannedRouteOptionView = {
   overlaysPreview: {
     conditionsStatus: 'ok',
     windSummary: 'high',
+    rainSummary: 'none',
+    temperatureSummary: 'cold',
+    maxTemperatureF: 42,
   },
 }
 
@@ -93,6 +99,9 @@ const mockRouteWithModerateWind: PlannedRouteOptionView = {
   overlaysPreview: {
     conditionsStatus: 'ok',
     windSummary: 'moderate',
+    rainSummary: 'none',
+    temperatureSummary: 'warm',
+    maxTemperatureF: 75,
   },
 }
 
@@ -122,6 +131,8 @@ const mockRouteWithUnavailableConditions: PlannedRouteOptionView = {
   overlaysPreview: {
     conditionsStatus: 'unavailable',
     windSummary: 'low',
+    rainSummary: 'unavailable',
+    temperatureSummary: 'unavailable',
   },
 }
 

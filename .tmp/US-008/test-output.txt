@@ -1,0 +1,32 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow
+> jest --config=jest.config.js "lib/weather/timing-calculator.test.ts"
+
+PASS lib/weather/timing-calculator.test.ts
+  timing-calculator
+    calculateRainTiming
+      ✓ should return unavailable status when overlay is undefined (1 ms)
+      ✓ should return unavailable status when overlay has empty byLeg array
+      ✓ should return no-rain status when all segments are "none"
+      ✓ should return throughout status when entire route has rain
+      ✓ should return range status for partial rain coverage (1 ms)
+      ✓ should correctly calculate arrival times across multiple legs
+      ✓ should handle 12am (midnight) correctly (1 ms)
+    formatRainTiming
+      ✓ should return null for no-rain status
+      ✓ should return "Rain throughout ride" for throughout status
+      ✓ should return "Rain data unavailable" for unavailable status
+      ✓ should format range status with 12-hour format
+      ✓ should format range status with minutes when needed
+      ✓ should convert midnight (0) to 12am
+      ✓ should convert noon (12) to 12pm
+      ✓ should handle single hour ranges
+    getRainTimingDisplay
+      ✓ should return null when no rain is expected
+      ✓ should return formatted display string for rain scenarios
+
+Test Suites: 1 passed, 1 total
+Tests:       17 passed, 17 total
+Snapshots:   0 total
+Time:        2.274 s
+Ran all test suites matching /lib\/weather\/timing-calculator.test.ts/i.
