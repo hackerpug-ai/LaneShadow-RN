@@ -7,6 +7,8 @@ import { MapControls } from '../../../components/map/map-controls'
 import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
 import type { MapViewHandle } from '../../../components/map/map-view'
 import { MapViewWrapper } from '../../../components/map/map-view'
+import { OverlayToggle } from '../../../components/map/overlay-toggle'
+import type { OverlayType } from '../../../components/map/overlay-toggle'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
 import { PlanRideSheet } from '../../../components/sheets/plan-ride-sheet'
 import { PlanningErrorSheet } from '../../../components/sheets/planning-error-sheet'
@@ -104,6 +106,9 @@ const HomeMapScreen = () => {
   const [avoidTolls, setAvoidTolls] = useState(false)
   const [departureTime, setDepartureTime] = useState(new Date())
 
+  // Overlay state - defaults to wind when route is first selected, persists locally
+  const [activeOverlay, setActiveOverlay] = useState<OverlayType | ''>('')
+
   useEffect(() => {
     if (planInit?.defaults?.preferences) {
       setScenicBias(planInit.defaults.preferences.scenicBias)
@@ -112,6 +117,17 @@ const HomeMapScreen = () => {
     }
   }, [planInit])
 
+  // Default to wind overlay when route is first selected (AC from spec)
+  useEffect(() => {
+    if (state.planningStatus === 'results' && activeOverlay === '') {
+      setActiveOverlay('wind')
+    }
+    // Reset overlay when planning starts over
+    if (state.planningStatus === 'idle' || state.planningStatus === 'planning') {
+      setActiveOverlay('')
+    }
+  }, [state.planningStatus, activeOverlay])
+
   const selectedOption = useMemo(() => {
     if (!state.routeOptions?.options?.length) return null
     const explicit = state.routeOptions.options.find(
@@ -119,6 +135,17 @@ const HomeMapScreen = () => {
     )
     return explicit ?? state.routeOptions.options[0]
   }, [state.routeOptions, state.selectedRouteOptionId])
+
+  // Determine overlay availability based on selected route option
+  const overlayAvailability = useMemo(() => {
+    return {
+      // Wind data is always available (part of base route planning)
+      wind: true,
+      // Rain and temperature availability depends on conditionsStatus
+      rain: selectedOption?.overlaysPreview?.conditionsStatus === 'ok',
+      temperature: selectedOption?.overlaysPreview?.conditionsStatus === 'ok',
+    }
+  }, [selectedOption])
 
   const polylines = useMemo(() => {
     if (!selectedOption) return []
@@ -316,6 +343,26 @@ const HomeMapScreen = () => {
             }}
             testID="map-header-overlay"
           />
+
+          {/* Overlay toggle - only shown when a route is selected (AC4) */}
+          {selectedOption && (
+            <View
+              style={[
+                styles.overlayToggle,
+                {
+                  top: insets.top + semantic.space['2xl'],
+                  right: semantic.space.lg,
+                },
+              ]}
+            >
+              <OverlayToggle
+                value={activeOverlay}
+                onValueChange={setActiveOverlay}
+                availability={overlayAvailability}
+                testID="overlay-toggle"
+              />
+            </View>
+          )}
         </View>
 
         <View
@@ -414,6 +461,10 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     zIndex: 30,
+  },
+  overlayToggle: {
+    position: 'absolute',
+    zIndex: 25,
   },
   bottomOverlay: {
     position: 'absolute',

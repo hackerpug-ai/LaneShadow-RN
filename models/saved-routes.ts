@@ -47,6 +47,23 @@ export const windSummaryValidator = v.union(
   v.literal(WIND_SUMMARY.UNAVAILABLE)
 )
 
+export const RAIN_SUMMARY = {
+  NONE: 'none',
+  LIGHT: 'light',
+  MODERATE: 'moderate',
+  HEAVY: 'heavy',
+  UNAVAILABLE: 'unavailable',
+} as const
+export type RainSummary = (typeof RAIN_SUMMARY)[keyof typeof RAIN_SUMMARY]
+
+export const rainSummaryValidator = v.union(
+  v.literal(RAIN_SUMMARY.NONE),
+  v.literal(RAIN_SUMMARY.LIGHT),
+  v.literal(RAIN_SUMMARY.MODERATE),
+  v.literal(RAIN_SUMMARY.HEAVY),
+  v.literal(RAIN_SUMMARY.UNAVAILABLE)
+)
+
 export const boundsValidator = v.object({
   north: v.number(),
   south: v.number(),
@@ -168,8 +185,44 @@ export const windOverlayValidator = v.object({
 })
 export type WindOverlay = Infer<typeof windOverlayValidator>
 
+export const rainLegendItemValidator = v.object({
+  level: v.string(),
+  label: v.string(),
+  range: v.optional(
+    v.object({
+      min: v.optional(v.number()),
+      max: v.optional(v.number()),
+      unit: v.optional(v.string()),
+    })
+  ),
+})
+export type RainLegendItem = Infer<typeof rainLegendItemValidator>
+
+export const rainOverlaySegmentValidator = v.object({
+  startMeters: v.number(),
+  endMeters: v.number(),
+  level: v.string(),
+  probability: v.optional(v.number()),
+})
+export type RainOverlaySegment = Infer<typeof rainOverlaySegmentValidator>
+
+export const rainOverlayByLegValidator = v.object({
+  legIndex: v.number(),
+  segments: v.array(rainOverlaySegmentValidator),
+})
+export type RainOverlayByLeg = Infer<typeof rainOverlayByLegValidator>
+
+export const rainOverlayValidator = v.object({
+  generatedAt: v.number(),
+  modelVersion: v.string(),
+  legend: v.array(rainLegendItemValidator),
+  byLeg: v.array(rainOverlayByLegValidator),
+})
+export type RainOverlay = Infer<typeof rainOverlayValidator>
+
 export const routeOverlaysValidator = v.object({
   wind: v.optional(windOverlayValidator),
+  rain: v.optional(rainOverlayValidator),
 })
 export type RouteOverlays = Infer<typeof routeOverlaysValidator>
 

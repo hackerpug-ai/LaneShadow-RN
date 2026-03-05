@@ -14,6 +14,7 @@ import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { PlannedRouteOptionView } from '../../types/routes'
 import { IconSymbol } from '../ui/icon-symbol'
+import { RainBadge } from '../ui/rain-badge'
 import { WindBadge } from './wind-badge'
 
 export type RouteOptionCardProps = {
@@ -124,14 +125,26 @@ export const RouteOptionCard = ({
           </Text>
         </View>
 
-        <View style={styles.windRow}>
-          <Text variant="bodySmall" style={{ color: semantic.color.onSurface.muted }}>
-            Wind
-          </Text>
-          <WindBadge
-            windLevel={routeOption.overlaysPreview.windSummary}
-            testID={`${testID}-wind-badge`}
-          />
+        <View style={styles.weatherRow}>
+          <View style={styles.weatherItem}>
+            <Text variant="bodySmall" style={{ color: semantic.color.onSurface.muted }}>
+              Wind
+            </Text>
+            <WindBadge
+              windLevel={routeOption.overlaysPreview.windSummary}
+              testID={`${testID}-wind-badge`}
+            />
+          </View>
+
+          <View style={styles.weatherItem}>
+            <Text variant="bodySmall" style={{ color: semantic.color.onSurface.muted }}>
+              Rain
+            </Text>
+            <RainBadge
+              rainSummary={routeOption.overlaysPreview.rainSummary}
+              testID={`${testID}-rain-badge`}
+            />
+          </View>
         </View>
       </View>
     </Pressable>
@@ -175,12 +188,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
   },
   statRow: {
     alignItems: 'center',
     flex: 1,
   },
-  windRow: {
+  weatherRow: {
+    alignItems: 'center',
+    flex: 2,
+    flexDirection: 'row',
+    gap: 8,
+  },
+  weatherItem: {
     alignItems: 'center',
     flex: 1,
   },

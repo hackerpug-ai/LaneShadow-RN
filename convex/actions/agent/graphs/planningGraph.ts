@@ -14,10 +14,11 @@ import {
 import type {
   ConditionsStatus,
   PlanInput,
+  RainSummary,
   RouteSnapshot,
   WindSummary,
 } from '../../../../models/saved-routes'
-import { WIND_SUMMARY } from '../../../../models/saved-routes'
+import { RAIN_SUMMARY, WIND_SUMMARY } from '../../../../models/saved-routes'
 import type { PlannedRouteOptionView } from '../../../../types/routes'
 import { OPENAI_API_KEY } from '../../../lib/env'
 import { retryOnce, withTimeout } from '../lib/reliability'
@@ -202,6 +203,7 @@ export const processRoutes = async (
       // Deterministic: Probe conditions (soft-fail)
       let conditionsStatus: ConditionsStatus = 'ok'
       let windSummary: WindSummary = WIND_SUMMARY.UNAVAILABLE
+      let rainSummary: RainSummary = RAIN_SUMMARY.UNAVAILABLE
 
       try {
         const weatherProvider = createWeatherProvider()
@@ -240,6 +242,7 @@ export const processRoutes = async (
         },
         overlaysPreview: {
           windSummary,
+          rainSummary,
           conditionsStatus,
         },
       })

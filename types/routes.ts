@@ -1,6 +1,7 @@
 import type {
   PlanInput,
   PlanPreferences,
+  RainSummary,
   RouteIndex,
   RoutePreview,
   RouteSnapshot,
@@ -73,6 +74,7 @@ export type PlannedRouteOptionView = {
   }
   overlaysPreview: {
     windSummary: WindSummary
+    rainSummary: RainSummary
     conditionsStatus: 'ok' | 'unavailable'
   }
 }
