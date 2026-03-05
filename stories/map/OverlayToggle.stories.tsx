@@ -7,6 +7,7 @@ import React, { useState } from 'react'
 import { StyleSheet, View, Text } from 'react-native'
 import { OverlayToggle } from '../../components/map/overlay-toggle'
 import type { OverlayType } from '../../components/map/overlay-toggle'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 const meta: Meta<typeof OverlayToggle> = {
   title: 'Map/OverlayToggle',
@@ -194,7 +195,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: '#666',
+    color: 'rgba(115, 115, 115, 0.92)',
   },
   controls: {
     gap: 8,
@@ -202,7 +203,7 @@ const styles = StyleSheet.create({
   },
   controlLabel: {
     fontSize: 14,
-    color: '#007AFF',
+    color: '#88C7A6',
   },
   mapContainer: {
     width: '100%',
@@ -211,7 +212,7 @@ const styles = StyleSheet.create({
   },
   mapBackground: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: '#F2EFED',
   },
   overlayContainer: {
     position: 'absolute',

@@ -11,9 +11,9 @@
  * Following coding standards: composition over inheritance, named exports
  */
 
-import { Icon } from 'react-native-paper'
 import { StyleSheet, View } from 'react-native'
-import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group'
+import { IconSymbol } from '../ui/icon-symbol'
+import { ToggleGroup, useToggleGroup } from '../ui/toggle-group'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 /**
@@ -113,11 +113,7 @@ export const OverlayToggle = ({
           borderRadius: semantic.radius.xl,
           paddingHorizontal: semantic.space.xs,
           paddingVertical: semantic.space.xs,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.15,
-          shadowRadius: 4,
-          elevation: 3,
+          ...semantic.elevation[2],
         },
       ]}
       testID={testID}
@@ -174,8 +170,12 @@ const OverlayToggleItem = ({
   label,
   semantic,
 }: OverlayToggleItemProps): React.ReactNode => {
-  const context = require('../ui/toggle-group').useToggleGroup()
-  const { groupValue, onValueChange, disabled } = context
+  const context = useToggleGroup()
+  if (!context) {
+    throw new Error('OverlayToggleItem must be used within a ToggleGroup')
+  }
+
+  const { value: groupValue, onValueChange, disabled } = context
 
   const isSelected = groupValue === value
   const isDisabled = disabled || !available
@@ -216,7 +216,7 @@ const OverlayToggleItem = ({
           height: semantic.space['3xl'],
           borderRadius: semantic.radius.lg,
           backgroundColor: getBackgroundColor(),
-          opacity: isDisabled ? 0.4 : 1,
+          opacity: isDisabled ? 0.5 : 1,
         },
       ]}
       onTouchEnd={handlePress}
@@ -225,9 +225,9 @@ const OverlayToggleItem = ({
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled, selected: isSelected }}
     >
-      <Icon
-        source={icon}
-        size={20}
+      <IconSymbol
+        name={icon as any}
+        size={semantic.space.lg}
         color={getIconColor()}
       />
     </View>
@@ -242,6 +242,6 @@ const styles = StyleSheet.create({
   item: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: 2,
+    marginHorizontal: 4,
   },
 })
