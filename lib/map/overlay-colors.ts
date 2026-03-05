@@ -4,6 +4,7 @@
  * Provides color functions for different weather overlay types:
  * - Rain: blue tints (light=sky, moderate=blue, heavy=indigo/red)
  * - Wind: semantic colors (low=success, moderate=warning, high=danger)
+ * - Temperature: thermal colors (cold=blue, mild=green, warm=orange, hot=red)
  *
  * Colors are WCAG-compliant for visibility on dark map backgrounds.
  *
@@ -21,6 +22,11 @@ export type RainLevel = 'none' | 'light' | 'moderate' | 'heavy'
  * Wind intensity levels
  */
 export type WindLevel = 'low' | 'moderate' | 'high'
+
+/**
+ * Temperature intensity levels
+ */
+export type TemperatureLevel = 'cold' | 'mild' | 'warm' | 'hot'
 
 /**
  * Rain color scheme for route polylines
@@ -90,5 +96,36 @@ export const getWindColor = (level: string, semantic: ExtendedTheme['semantic'])
       return semantic.color.danger.default
     default:
       return semantic.color.info.default
+  }
+}
+
+/**
+ * Returns the color for a temperature level.
+ *
+ * Uses semantic theme colors for temperature:
+ * - cold: Blue (routeAlternate) - below 40°F, cold conditions
+ * - mild: Green (success) - 65-75°F, comfortable riding
+ * - warm: Orange (orange) - 75-85°F, warm but tolerable
+ * - hot: Red (danger) - above 90°F, extreme heat, avoid
+ *
+ * @param level - Temperature level
+ * @param semantic - Semantic theme with intent colors
+ * @returns Hex color string for polyline rendering
+ *
+ * @example
+ * getTemperatureColor('cold', semantic) // Returns routeAlternate blue
+ */
+export const getTemperatureColor = (level: string, semantic: ExtendedTheme['semantic']): string => {
+  switch (level) {
+    case 'cold':
+      return semantic.color.routeAlternate.default
+    case 'mild':
+      return semantic.color.success.default
+    case 'warm':
+      return semantic.color.orange.default
+    case 'hot':
+      return semantic.color.danger.default
+    default:
+      return semantic.color.muted.default
   }
 }

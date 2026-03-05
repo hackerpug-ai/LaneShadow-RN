@@ -9,7 +9,7 @@
  */
 
 import type { ExtendedTheme } from '../../styles/types'
-import { getRainColor, getWindColor } from './overlay-colors'
+import { getRainColor, getWindColor, getTemperatureColor } from './overlay-colors'
 
 describe('overlay-colors', () => {
   // Mock semantic theme for testing
@@ -36,7 +36,7 @@ describe('overlay-colors', () => {
       card: { default: '#FFFFFF' },
       popover: { default: '#FFFFFF' },
       accent: { default: '#FF6B35' },
-      orange: { default: '#FF6B35' },
+      orange: { default: '#fb923c' },
       muted: { default: '#938F99' },
       divider: { default: '#CAC4D0' },
       scrim: { default: '#000000' },
@@ -190,6 +190,58 @@ describe('overlay-colors', () => {
       const colors = [lightRainColor, moderateRainColor, heavyRainColor, noRainColor]
       const uniqueColors = new Set(colors)
       expect(uniqueColors.size).toBe(colors.length)
+    })
+  })
+
+  describe('getTemperatureColor', () => {
+    /**
+     * US-005 AC1: Temperature overlay is active and route has cold segments (<40F)
+     * → Cold segments display in blue (#60a5fa)
+     */
+    it('should satisfy US-005 AC1: returns blue for cold temperature', () => {
+      const result = getTemperatureColor('cold', mockSemanticTheme)
+      expect(result).toBe('#60a5fa')
+    })
+
+    /**
+     * US-005 AC3: Route passes through mild temperature zone (65-75F)
+     * → Mild segments display in green (#22c55e)
+     */
+    it('should satisfy US-005 AC3: returns green for mild temperature', () => {
+      const result = getTemperatureColor('mild', mockSemanticTheme)
+      expect(result).toBe('#22c55e')
+    })
+
+    /**
+     * US-005: Warm temperature (not explicitly in AC but part of the temperature scale)
+     * → Warm segments display in orange (#fb923c)
+     */
+    it('should return orange for warm temperature', () => {
+      const result = getTemperatureColor('warm', mockSemanticTheme)
+      expect(result).toBe('#fb923c')
+    })
+
+    /**
+     * US-005 AC2: Temperature overlay is active and route has hot segments (>90F)
+     * → Hot segments display in red (#ef4444)
+     */
+    it('should satisfy US-005 AC2: returns red for hot temperature', () => {
+      const result = getTemperatureColor('hot', mockSemanticTheme)
+      expect(result).toBe('#ef4444')
+    })
+
+    /**
+     * US-005 AC4: Temperature data missing for a leg
+     * → Leg renders in neutral gray, not a misleading thermal color
+     */
+    it('should satisfy US-005 AC4: returns gray for unknown temperature level', () => {
+      const result = getTemperatureColor('unknown', mockSemanticTheme)
+      expect(result).toBe('#938F99')
+    })
+
+    it('should return gray for missing temperature level', () => {
+      const result = getTemperatureColor('', mockSemanticTheme)
+      expect(result).toBe('#938F99')
     })
   })
 })
