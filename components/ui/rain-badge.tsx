@@ -7,8 +7,8 @@
 
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { StyleSheet, View } from 'react-native'
-import { Text, useTheme } from 'react-native-paper'
-import type { ExtendedTheme } from '../../styles/types'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { Badge } from './badge'
 
 export type RainSummary = 'none' | 'light' | 'moderate' | 'heavy' | 'unavailable'
 
@@ -19,83 +19,99 @@ export type RainBadgeProps = {
   testID?: string
 }
 
-const RAIN_CONFIGS = {
-  none: {
-    icon: 'check-circle-outline' as const,
-    label: 'No rain',
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
-    textColor: '#22c55e',
-  },
-  light: {
-    icon: 'water-outline' as const,
-    label: 'Light rain',
-    backgroundColor: 'rgba(59, 130, 246, 0.15)',
-    textColor: '#60a5fa',
-  },
-  moderate: {
-    icon: 'water' as const,
-    label: 'Moderate rain',
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-    textColor: '#3b82f6',
-  },
-  heavy: {
-    icon: 'weather-pouring' as const,
-    label: 'Heavy rain',
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    textColor: '#ef4444',
-  },
-  unavailable: {
-    icon: 'help-circle-outline' as const,
-    label: 'Unknown',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    textColor: 'rgba(255, 255, 255, 0.55)',
-  },
-}
+// Known rain levels this UI version understands (strict from schema)
+type RainLevelKnown = 'none' | 'light' | 'moderate' | 'heavy' | 'unavailable'
+
+// Accept any string for forward compatibility (backend may add new types)
+export type RainLevel = RainLevelKnown | (string & {})
 
 /**
- * RainBadge component for rain intensity indicators
- * Displays badges with rain icons and intensity labels
+ * Rain badge component that displays rain intensity with color coding
+ * Follows extensible enum pattern with Partial mapping
  */
 export const RainBadge = ({ rainSummary, testID }: RainBadgeProps) => {
-  const theme = useTheme<ExtendedTheme>()
-  const config = RAIN_CONFIGS[rainSummary]
+  const { semantic } = useSemanticTheme()
+
+  // Partial map: only define labels we know
+  const LABELS: Partial<Record<RainLevelKnown, string>> = {
+    none: 'No rain',
+    light: 'Light rain',
+    moderate: 'Moderate rain',
+    heavy: 'Heavy rain',
+    unavailable: 'Unknown',
+  }
+
+  // Partial map: only define badge variants we know
+  const BADGE_VARIANTS: Partial<
+    Record<RainLevelKnown, 'success' | 'info' | 'destructive' | 'secondary'>
+  > = {
+    none: 'success',
+    light: 'info',
+    moderate: 'info',
+    heavy: 'destructive',
+    unavailable: 'secondary',
+  }
+
+  // Partial map: opacity levels for badge backgrounds
+  const BADGE_OPACITY: Partial<Record<RainLevelKnown, number>> = {
+    none: 0.15,
+    light: 0.15,
+    moderate: 0.2,
+    heavy: 0.15,
+    unavailable: 0.08,
+  }
+
+  // Partial map: only define icons we know
+  const ICONS: Partial<Record<RainLevelKnown, React.ReactNode>> = {
+    none: <MaterialCommunityIcons name="check-circle-outline" size={14} />,
+    light: <MaterialCommunityIcons name="water-outline" size={14} />,
+    moderate: <MaterialCommunityIcons name="water" size={14} />,
+    heavy: <MaterialCommunityIcons name="weather-pouring" size={14} />,
+    unavailable: <MaterialCommunityIcons name="help-circle-outline" size={14} />,
+  }
+
+  // Safe getter with dev warning + graceful fallback
+  const getLabel = (level: RainLevel): string => {
+    const mapped = LABELS[level as RainLevelKnown]
+    if (mapped) return mapped
+
+    // Unknown type (new backend value) - warn in dev, show fallback
+    if (__DEV__) {
+      console.warn(`⚠️ Unmapped rain level: "${level}" - add to LABELS in rain-badge.tsx`)
+    }
+
+    // Graceful fallback: CAPS_CASE with underscores converted to spaces
+    return level.toUpperCase().replace(/_/g, ' ')
+  }
+
+  // Safe getter for badge variant
+  const getBadgeVariant = (): 'success' | 'info' | 'destructive' | 'secondary' => {
+    const mapped = BADGE_VARIANTS[rainSummary as RainLevelKnown]
+    return mapped || 'secondary'
+  }
+
+  // Safe getter for badge opacity
+  const getBadgeOpacity = (): number => {
+    const mapped = BADGE_OPACITY[rainSummary as RainLevelKnown]
+    return mapped ?? 1
+  }
+
+  // Safe getter for icon
+  const getIcon = (): React.ReactNode => {
+    return ICONS[rainSummary as RainLevelKnown]
+  }
 
   return (
-    <View
-      style={[
-        styles.badge,
-        { backgroundColor: config.backgroundColor },
-      ]}
-      testID={testID}
-    >
-      <MaterialCommunityIcons
-        name={config.icon}
-        size={14}
-        color={config.textColor}
-        style={styles.icon}
-      />
-      <Text style={[styles.text, { color: config.textColor }]}>
-        {config.label}
-      </Text>
+    <View style={styles.container} testID={testID}>
+      <Badge variant={getBadgeVariant()} opacity={getBadgeOpacity()} icon={getIcon()}>
+        {getLabel(rainSummary)}
+      </Badge>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 6,
+  container: {
     alignSelf: 'flex-start',
-  },
-  icon: {
-    marginRight: -2,
-  },
-  text: {
-    fontSize: 12,
-    fontWeight: '500',
   },
 })

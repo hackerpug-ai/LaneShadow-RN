@@ -7,8 +7,8 @@
 
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { StyleSheet, View } from 'react-native'
-import { Text, useTheme } from 'react-native-paper'
-import type { ExtendedTheme } from '../../styles/types'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { Badge } from './badge'
 
 export type TemperatureSummary = 'cold' | 'mild' | 'warm' | 'hot' | 'unavailable'
 
@@ -21,91 +21,107 @@ export type TemperatureBadgeProps = {
   testID?: string
 }
 
-const TEMPERATURE_CONFIGS = {
-  cold: {
-    icon: 'snowflake-thermometer' as const,
-    label: 'Cold',
-    backgroundColor: 'rgba(59, 130, 246, 0.15)',
-    textColor: '#60a5fa',
-  },
-  mild: {
-    icon: 'thermometer' as const,
-    label: 'Mild',
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
-    textColor: '#22c55e',
-  },
-  warm: {
-    icon: 'thermometer-low' as const,
-    label: 'Warm',
-    backgroundColor: 'rgba(249, 115, 22, 0.15)',
-    textColor: '#fb923c',
-  },
-  hot: {
-    icon: 'thermometer-high' as const,
-    label: 'Hot',
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    textColor: '#ef4444',
-  },
-  unavailable: {
-    icon: 'help-circle-outline' as const,
-    label: 'Unknown',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    textColor: 'rgba(255, 255, 255, 0.55)',
-  },
-}
+// Known temperature levels this UI version understands (strict from schema)
+type TemperatureLevelKnown = 'cold' | 'mild' | 'warm' | 'hot' | 'unavailable'
+
+// Accept any string for forward compatibility (backend may add new types)
+export type TemperatureLevel = TemperatureLevelKnown | (string & {})
 
 /**
- * TemperatureBadge component for temperature indicators
- * Displays badges with temperature icons and labels
+ * Temperature badge component that displays temperature with color coding
+ * Follows extensible enum pattern with Partial mapping
  */
 export const TemperatureBadge = ({
   temperatureSummary,
   temperatureValue,
   testID,
 }: TemperatureBadgeProps) => {
-  const theme = useTheme<ExtendedTheme>()
-  const config = TEMPERATURE_CONFIGS[temperatureSummary]
+  const { semantic } = useSemanticTheme()
+
+  // Partial map: only define labels we know
+  const LABELS: Partial<Record<TemperatureLevelKnown, string>> = {
+    cold: 'Cold',
+    mild: 'Mild',
+    warm: 'Warm',
+    hot: 'Hot',
+    unavailable: 'Unknown',
+  }
+
+  // Partial map: only define badge variants we know
+  const BADGE_VARIANTS: Partial<
+    Record<TemperatureLevelKnown, 'success' | 'info' | 'warning' | 'destructive' | 'secondary'>
+  > = {
+    cold: 'info',
+    mild: 'success',
+    warm: 'warning',
+    hot: 'destructive',
+    unavailable: 'secondary',
+  }
+
+  // Partial map: opacity levels for badge backgrounds
+  const BADGE_OPACITY: Partial<Record<TemperatureLevelKnown, number>> = {
+    cold: 0.15,
+    mild: 0.15,
+    warm: 0.15,
+    hot: 0.15,
+    unavailable: 0.08,
+  }
+
+  // Partial map: only define icons we know
+  const ICONS: Partial<Record<TemperatureLevelKnown, React.ReactNode>> = {
+    cold: <MaterialCommunityIcons name="snowflake-thermometer" size={14} />,
+    mild: <MaterialCommunityIcons name="thermometer" size={14} />,
+    warm: <MaterialCommunityIcons name="thermometer-low" size={14} />,
+    hot: <MaterialCommunityIcons name="thermometer-high" size={14} />,
+    unavailable: <MaterialCommunityIcons name="help-circle-outline" size={14} />,
+  }
+
+  // Safe getter with dev warning + graceful fallback
+  const getLabel = (level: TemperatureLevel): string => {
+    const mapped = LABELS[level as TemperatureLevelKnown]
+    if (mapped) return mapped
+
+    // Unknown type (new backend value) - warn in dev, show fallback
+    if (__DEV__) {
+      console.warn(`⚠️ Unmapped temperature level: "${level}" - add to LABELS in temperature-badge.tsx`)
+    }
+
+    // Graceful fallback: CAPS_CASE with underscores converted to spaces
+    return level.toUpperCase().replace(/_/g, ' ')
+  }
+
+  // Safe getter for badge variant
+  const getBadgeVariant = (): 'success' | 'info' | 'warning' | 'destructive' | 'secondary' => {
+    const mapped = BADGE_VARIANTS[temperatureSummary as TemperatureLevelKnown]
+    return mapped || 'secondary'
+  }
+
+  // Safe getter for badge opacity
+  const getBadgeOpacity = (): number => {
+    const mapped = BADGE_OPACITY[temperatureSummary as TemperatureLevelKnown]
+    return mapped ?? 1
+  }
+
+  // Safe getter for icon
+  const getIcon = (): React.ReactNode => {
+    return ICONS[temperatureSummary as TemperatureLevelKnown]
+  }
 
   const displayLabel = temperatureValue !== undefined
     ? `${temperatureValue}°`
-    : config.label
+    : getLabel(temperatureSummary)
 
   return (
-    <View
-      style={[
-        styles.badge,
-        { backgroundColor: config.backgroundColor },
-      ]}
-      testID={testID}
-    >
-      <MaterialCommunityIcons
-        name={config.icon}
-        size={14}
-        color={config.textColor}
-        style={styles.icon}
-      />
-      <Text style={[styles.text, { color: config.textColor }]}>
+    <View style={styles.container} testID={testID}>
+      <Badge variant={getBadgeVariant()} opacity={getBadgeOpacity()} icon={getIcon()}>
         {displayLabel}
-      </Text>
+      </Badge>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 6,
+  container: {
     alignSelf: 'flex-start',
-  },
-  icon: {
-    marginRight: -2,
-  },
-  text: {
-    fontSize: 12,
-    fontWeight: '500',
   },
 })
