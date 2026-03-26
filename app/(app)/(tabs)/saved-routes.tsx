@@ -6,7 +6,8 @@ import { useRouter } from 'expo-router'
 
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useSavedRoutesList } from '../../../hooks/use-saved-routes'
-import { formatDate, SavedRouteCard } from '../../../components/ui/saved-route-card'
+import { SavedRouteCard } from '../../../components/ui/saved-route-card'
+import { formatDate } from '../../../components/ui/saved-route-card.utils'
 import { Skeleton } from '../../../components/ui/skeleton'
 import type { SavedRouteListItemView } from '../../../types/routes'
 

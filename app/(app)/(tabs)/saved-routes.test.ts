@@ -36,6 +36,8 @@ jest.mock('../../../hooks/use-semantic-theme', () => ({
 jest.mock('../../../hooks/use-saved-routes', () => ({ useSavedRoutesList: () => ({ data: undefined, isLoading: true }) }))
 jest.mock('../../../components/ui/saved-route-card', () => ({
   SavedRouteCard: 'SavedRouteCard',
+}))
+jest.mock('../../../components/ui/saved-route-card.utils', () => ({
   formatDate: (ts: number) => new Date(ts).toLocaleDateString(),
 }))
 jest.mock('../../../components/ui/skeleton', () => ({ Skeleton: 'Skeleton' }))

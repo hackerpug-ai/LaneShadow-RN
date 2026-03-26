@@ -10,35 +10,9 @@ import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
 import { RouteThumbnail } from './route-thumbnail'
+import type { SavedRouteCardProps } from './saved-route-card.types'
 
-/**
- * Format a timestamp into a readable date string (e.g., 'Mar 15, 2026')
- * Uses Intl.DateTimeFormat — no external date library needed.
- */
-export const formatDate = (timestamp: number): string => {
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(new Date(timestamp))
-}
-
-export type SavedRouteCardProps = {
-  /** Route name */
-  name: string
-  /** Route path (origin → destination) */
-  path: string
-  /** Pre-formatted date string (e.g., 'Mar 15, 2026') */
-  dateSaved?: string
-  /** Duration stat */
-  duration?: string
-  /** Distance stat */
-  distance?: string
-  /** Optional press handler */
-  onPress?: () => void
-  /** Thumbnail rotation */
-  thumbnailRotation?: number
-}
+export type { SavedRouteCardProps }
 
 /**
  * SavedRouteCard component for saved routes list
@@ -76,14 +50,22 @@ export const SavedRouteCard = ({
           {name}
         </Text>
         {dateSaved && (
-          <View style={styles.dateLine}>
+          <View
+            style={[
+              styles.dateLine,
+              { gap: semantic.space.xs, marginBottom: semantic.space.xs },
+            ]}
+          >
             <MaterialCommunityIcons
               name="calendar-outline"
               size={14}
               color={semantic.color.onSurface.subtle}
             />
             <Text
-              style={[styles.dateText, { color: semantic.color.onSurface.subtle }]}
+              style={[
+                semantic.type.label.sm,
+                { color: semantic.color.onSurface.subtle },
+              ]}
             >
               {dateSaved}
             </Text>
@@ -161,12 +143,6 @@ const styles = StyleSheet.create({
   dateLine: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginBottom: 4,
-  },
-  dateText: {
-    fontSize: 12,
-    lineHeight: 16,
   },
   routePath: {
     fontSize: 14,
