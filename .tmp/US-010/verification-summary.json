@@ -1,0 +1,48 @@
+{
+  "task_id": "US-010",
+  "title": "Replace stub saved-routes.tsx with FlatList and hook wiring",
+  "acceptance_criteria": {
+    "AC-1": {
+      "status": "pass",
+      "description": "FlatList renders SavedRouteCard for each route, ordered newest first via getSortedRoutes",
+      "evidence": "getSortedRoutes tested with 3 routes, confirms newest-first ordering"
+    },
+    "AC-2": {
+      "status": "pass",
+      "description": "3 skeleton cards displayed during loading (96x96 thumbnail + text skeletons)",
+      "evidence": "SKELETON_COUNT=3 verified in test, SkeletonCard renders 96x96 Skeleton + 3 text Skeletons"
+    },
+    "AC-3": {
+      "status": "pass",
+      "description": "FlatList renders ListEmptyComponent with placeholder text when 0 routes",
+      "evidence": "EmptyPlaceholder component wired as ListEmptyComponent with testID='empty-state'"
+    },
+    "AC-4": {
+      "status": "pass",
+      "description": "Card tap fires onPress with savedRouteId, navigates via router.push",
+      "evidence": "handlePress callback wired to router.push('/(app)/saved-route/{id}')"
+    }
+  },
+  "checks": {
+    "typecheck": "pass (no saved-routes errors; pre-existing errors in route-polyline.test.tsx)",
+    "lint": "skipped (pre-existing config error: missing react-native eslint plugin)",
+    "tests": "pass (13/13 passed)"
+  },
+  "changes": {
+    "modified": [
+      "app/(app)/(tabs)/saved-routes.tsx",
+      "app/(app)/(tabs)/saved-routes.test.ts"
+    ],
+    "theme_fixes": [
+      "Replaced hardcoded paddingTop: 16 with semantic.space.lg",
+      "Replaced hardcoded paddingBottom: 12 with semantic.space.md",
+      "Replaced hardcoded gap: 12 with semantic.space.md",
+      "Replaced hardcoded paddingTop: 64 with semantic.space['4xl']"
+    ],
+    "enhancements": [
+      "Added dateSaved prop using formatDate(item.createdAt)",
+      "Added testID='saved-routes-list' to FlatList",
+      "Added jest.mock() calls to test file for react-native modules"
+    ]
+  }
+}
