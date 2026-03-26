@@ -1,0 +1,336 @@
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      125 |
+      126 | const renderWithPaper = (ui: React.ReactElement) => {
+    > 127 |   return render(
+          |                ^
+      128 |     <PaperProvider theme={MD3DarkTheme}>
+      129 |       {ui}
+      130 |     </PaperProvider>
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderWithPaper (components/ui/route-thumbnail.test.tsx:127:16)
+      at Object.renderWithPaper (components/ui/route-thumbnail.test.tsx:148:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      125 |
+      126 | const renderWithPaper = (ui: React.ReactElement) => {
+    > 127 |   return render(
+          |                ^
+      128 |     <PaperProvider theme={MD3DarkTheme}>
+      129 |       {ui}
+      130 |     </PaperProvider>
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderWithPaper (components/ui/route-thumbnail.test.tsx:127:16)
+      at Object.renderWithPaper (components/ui/route-thumbnail.test.tsx:162:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      125 |
+      126 | const renderWithPaper = (ui: React.ReactElement) => {
+    > 127 |   return render(
+          |                ^
+      128 |     <PaperProvider theme={MD3DarkTheme}>
+      129 |       {ui}
+      130 |     </PaperProvider>
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderWithPaper (components/ui/route-thumbnail.test.tsx:127:16)
+      at Object.renderWithPaper (components/ui/route-thumbnail.test.tsx:170:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      125 |
+      126 | const renderWithPaper = (ui: React.ReactElement) => {
+    > 127 |   return render(
+          |                ^
+      128 |     <PaperProvider theme={MD3DarkTheme}>
+      129 |       {ui}
+      130 |     </PaperProvider>
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderWithPaper (components/ui/route-thumbnail.test.tsx:127:16)
+      at Object.renderWithPaper (components/ui/route-thumbnail.test.tsx:177:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      125 |
+      126 | const renderWithPaper = (ui: React.ReactElement) => {
+    > 127 |   return render(
+          |                ^
+      128 |     <PaperProvider theme={MD3DarkTheme}>
+      129 |       {ui}
+      130 |     </PaperProvider>
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderWithPaper (components/ui/route-thumbnail.test.tsx:127:16)
+      at Object.renderWithPaper (components/ui/route-thumbnail.test.tsx:200:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      125 |
+      126 | const renderWithPaper = (ui: React.ReactElement) => {
+    > 127 |   return render(
+          |                ^
+      128 |     <PaperProvider theme={MD3DarkTheme}>
+      129 |       {ui}
+      130 |     </PaperProvider>
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderWithPaper (components/ui/route-thumbnail.test.tsx:127:16)
+      at Object.renderWithPaper (components/ui/route-thumbnail.test.tsx:207:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      125 |
+      126 | const renderWithPaper = (ui: React.ReactElement) => {
+    > 127 |   return render(
+          |                ^
+      128 |     <PaperProvider theme={MD3DarkTheme}>
+      129 |       {ui}
+      130 |     </PaperProvider>
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderWithPaper (components/ui/route-thumbnail.test.tsx:127:16)
+      at Object.renderWithPaper (components/ui/route-thumbnail.test.tsx:214:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      125 |
+      126 | const renderWithPaper = (ui: React.ReactElement) => {
+    > 127 |   return render(
+          |                ^
+      128 |     <PaperProvider theme={MD3DarkTheme}>
+      129 |       {ui}
+      130 |     </PaperProvider>
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderWithPaper (components/ui/route-thumbnail.test.tsx:127:16)
+      at Object.renderWithPaper (components/ui/route-thumbnail.test.tsx:221:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      125 |
+      126 | const renderWithPaper = (ui: React.ReactElement) => {
+    > 127 |   return render(
+          |                ^
+      128 |     <PaperProvider theme={MD3DarkTheme}>
+      129 |       {ui}
+      130 |     </PaperProvider>
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderWithPaper (components/ui/route-thumbnail.test.tsx:127:16)
+      at Object.renderWithPaper (components/ui/route-thumbnail.test.tsx:248:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      125 |
+      126 | const renderWithPaper = (ui: React.ReactElement) => {
+    > 127 |   return render(
+          |                ^
+      128 |     <PaperProvider theme={MD3DarkTheme}>
+      129 |       {ui}
+      130 |     </PaperProvider>
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderWithPaper (components/ui/route-thumbnail.test.tsx:127:16)
+      at Object.renderWithPaper (components/ui/route-thumbnail.test.tsx:255:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      125 |
+      126 | const renderWithPaper = (ui: React.ReactElement) => {
+    > 127 |   return render(
+          |                ^
+      128 |     <PaperProvider theme={MD3DarkTheme}>
+      129 |       {ui}
+      130 |     </PaperProvider>
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderWithPaper (components/ui/route-thumbnail.test.tsx:127:16)
+      at Object.renderWithPaper (components/ui/route-thumbnail.test.tsx:274:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      125 |
+      126 | const renderWithPaper = (ui: React.ReactElement) => {
+    > 127 |   return render(
+          |                ^
+      128 |     <PaperProvider theme={MD3DarkTheme}>
+      129 |       {ui}
+      130 |     </PaperProvider>
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderWithPaper (components/ui/route-thumbnail.test.tsx:127:16)
+      at Object.renderWithPaper (components/ui/route-thumbnail.test.tsx:288:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      125 |
+      126 | const renderWithPaper = (ui: React.ReactElement) => {
+    > 127 |   return render(
+          |                ^
+      128 |     <PaperProvider theme={MD3DarkTheme}>
+      129 |       {ui}
+      130 |     </PaperProvider>
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderWithPaper (components/ui/route-thumbnail.test.tsx:127:16)
+      at Object.renderWithPaper (components/ui/route-thumbnail.test.tsx:302:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      125 |
+      126 | const renderWithPaper = (ui: React.ReactElement) => {
+    > 127 |   return render(
+          |                ^
+      128 |     <PaperProvider theme={MD3DarkTheme}>
+      129 |       {ui}
+      130 |     </PaperProvider>
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderWithPaper (components/ui/route-thumbnail.test.tsx:127:16)
+      at Object.renderWithPaper (components/ui/route-thumbnail.test.tsx:315:31)
+
+PASS components/ui/route-thumbnail.test.tsx
+  RouteThumbnail
+    AC1: valid geometry rendering
+      ✓ should render at default 96x96 size (17 ms)
+      ✓ should use LinearGradient instead of CSS linear-gradient (2 ms)
+      ✓ should render a route line view (3 ms)
+      ✓ should derive rotation from bounds when provided (2 ms)
+    AC2: no geometry props (backward compatible)
+      ✓ should render without any props (1 ms)
+      ✓ should use LinearGradient even without bounds (1 ms)
+      ✓ should render default decorative route line (1 ms)
+      ✓ should use default rotation when no bounds provided (1 ms)
+    AC3: very small area bounds
+      ✓ should render without crashing for tiny bounds (1 ms)
+      ✓ should still show a visible route line for tiny bounds (1 ms)
+    AC4: malformed geometry fallback
+      ✓ should handle undefined bounds gracefully (1 ms)
+      ✓ should handle bounds with zero span (2 ms)
+      ✓ should handle inverted bounds (south > north) (1 ms)
+    custom sizing
+      ✓ should accept custom width and height (1 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       14 passed, 14 total
+Snapshots:   0 total
+Time:        0.195 s, estimated 1 s
+Ran all test suites matching /components\/ui\/route-thumbnail.test.tsx/i.
