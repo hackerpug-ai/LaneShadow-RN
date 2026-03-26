@@ -189,6 +189,17 @@ describe('RouteThumbnail', () => {
         ])
       )
     })
+
+    it('should use semantic primary color for route line border', () => {
+      const { getByTestId } = renderWithPaper(
+        <RouteThumbnail bounds={validBounds} testID="thumbnail" />
+      )
+      const routeLine = getByTestId('route-line')
+      const flatStyle = Array.isArray(routeLine.props.style)
+        ? Object.assign({}, ...routeLine.props.style.flat())
+        : routeLine.props.style
+      expect(flatStyle.borderColor).toBe(mockSemanticTheme.color.primary.default)
+    })
   })
 
   /**

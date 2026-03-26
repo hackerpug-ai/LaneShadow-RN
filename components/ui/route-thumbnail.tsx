@@ -33,7 +33,7 @@ export type RouteThumbnailProps = {
 }
 
 export const MIN_ROUTE_DIMENSION = 20
-export const ROUTE_PADDING = 15
+export const ROUTE_PADDING = 16
 export const DEFAULT_ROTATION = -10
 
 /**
@@ -124,9 +124,12 @@ export const RouteThumbnail = ({
     : { top: routeTop, left: routeLeft, width: routeWidth, height: routeHeight }
 
   return (
-    <View testID={testID} style={[styles.container, { width, height }]}>
+    <View
+      testID={testID}
+      style={[styles.container, { width, height, borderRadius: semantic.radius.lg }]}
+    >
       <LinearGradient
-        colors={['#1a1d21', '#0d1117']}
+        colors={[semantic.color.background.default, semantic.color.surface.default]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
@@ -141,6 +144,7 @@ export const RouteThumbnail = ({
               width: derivedDimensions.width,
               height: derivedDimensions.height,
               borderColor: semantic.color.primary.default,
+              borderRadius: semantic.radius.md,
               transform: [{ rotate: `${derivedRotation}deg` }],
             },
           ]}
@@ -152,7 +156,6 @@ export const RouteThumbnail = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 12,
     overflow: 'hidden',
   },
   gradient: {
@@ -161,7 +164,6 @@ const styles = StyleSheet.create({
   route: {
     position: 'absolute',
     borderWidth: 2,
-    borderRadius: 10,
     borderRightWidth: 0,
     borderBottomWidth: 0,
   },
