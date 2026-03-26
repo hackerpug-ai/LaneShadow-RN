@@ -1,0 +1,19 @@
+$ jest --config=jest.config.js "--testPathPattern=saved-route-card.test.ts\$"
+PASS components/ui/saved-route-card.test.ts
+  SavedRouteCard
+    formatDate
+      ✓ should satisfy AC1: formats timestamp to readable date string (9 ms)
+      ✓ should satisfy AC2: today date uses same format, no special casing
+      ✓ should format Jan 1, 2026 correctly
+      ✓ should format Dec 31, 2025 correctly (1 ms)
+    props contract
+      ✓ should satisfy AC1: accepts name, path, dateSaved, distance props
+      ✓ should satisfy AC3: accepts very long route names
+      ✓ should satisfy AC4: accepts zero distance string
+      ✓ should allow dateSaved to be omitted
+
+Test Suites: 1 passed, 1 total
+Tests:       8 passed, 8 total
+Snapshots:   0 total
+Time:        1.308 s
+Ran all test suites matching /saved-route-card.test.ts$/i.

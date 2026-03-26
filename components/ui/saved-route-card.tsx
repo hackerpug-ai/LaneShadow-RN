@@ -11,11 +11,25 @@ import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
 import { RouteThumbnail } from './route-thumbnail'
 
+/**
+ * Format a timestamp into a readable date string (e.g., 'Mar 15, 2026')
+ * Uses Intl.DateTimeFormat — no external date library needed.
+ */
+export const formatDate = (timestamp: number): string => {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(timestamp))
+}
+
 export type SavedRouteCardProps = {
   /** Route name */
   name: string
   /** Route path (origin → destination) */
   path: string
+  /** Pre-formatted date string (e.g., 'Mar 15, 2026') */
+  dateSaved?: string
   /** Duration stat */
   duration?: string
   /** Distance stat */
@@ -33,6 +47,7 @@ export type SavedRouteCardProps = {
 export const SavedRouteCard = ({
   name,
   path,
+  dateSaved,
   duration = '',
   distance = '',
   onPress,
@@ -55,10 +70,25 @@ export const SavedRouteCard = ({
 
       <View style={styles.details}>
         <Text
+          numberOfLines={1}
           style={[styles.routeName, { color: semantic.color.onSurface.default }]}
         >
           {name}
         </Text>
+        {dateSaved && (
+          <View style={styles.dateLine}>
+            <MaterialCommunityIcons
+              name="calendar-outline"
+              size={14}
+              color={semantic.color.onSurface.subtle}
+            />
+            <Text
+              style={[styles.dateText, { color: semantic.color.onSurface.subtle }]}
+            >
+              {dateSaved}
+            </Text>
+          </View>
+        )}
         <Text
           style={[styles.routePath, { color: semantic.color.onSurface.default }]}
         >
@@ -70,7 +100,7 @@ export const SavedRouteCard = ({
             {duration && (
               <View style={styles.stat}>
                 <MaterialCommunityIcons
-                  name="schedule"
+                  name="clock-outline"
                   size={16}
                   color={semantic.color.onSurface.subtle}
                 />
@@ -84,7 +114,7 @@ export const SavedRouteCard = ({
             {distance && (
               <View style={styles.stat}>
                 <MaterialCommunityIcons
-                  name="straighten"
+                  name="map-marker-distance"
                   size={16}
                   color={semantic.color.onSurface.subtle}
                 />
@@ -127,6 +157,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
+  },
+  dateLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 4,
+  },
+  dateText: {
+    fontSize: 12,
+    lineHeight: 16,
   },
   routePath: {
     fontSize: 14,
