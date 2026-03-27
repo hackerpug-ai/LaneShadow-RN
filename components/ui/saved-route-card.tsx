@@ -6,7 +6,7 @@
  */
 
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { Pressable, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
 import { RouteThumbnail } from './route-thumbnail'
@@ -42,7 +42,7 @@ export const SavedRouteCard = ({
           borderRadius: semantic.radius.lg,
           padding: semantic.space.lg,
           marginBottom: semantic.space.md,
-          borderWidth: 1,
+          borderWidth: StyleSheet.hairlineWidth,
           backgroundColor: semantic.color.card.default,
           borderColor: semantic.color.divider.default,
         },

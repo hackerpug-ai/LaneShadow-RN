@@ -1,0 +1,21 @@
+{
+  "task": "US-037",
+  "commit_sha": "f2a1d50023b908e968c2f4e3e08c29a80ef01962",
+  "hardcoded_grep_matches": 0,
+  "tests": "8 passed, 0 failed",
+  "lint": "pre-existing failure (react-native plugin missing)",
+  "typecheck": "pre-existing failure (route-polyline.test.tsx syntax errors)",
+  "token_mappings": {
+    "borderRadius:16": "semantic.radius.lg (=16)",
+    "padding:16": "semantic.space.lg (=16)",
+    "marginBottom:12": "semantic.space.md (=12)",
+    "gap:12": "semantic.space.md (=12)",
+    "gap:4": "semantic.space.xs (=4)",
+    "marginBottom:4": "semantic.space.xs (=4)",
+    "marginBottom:8": "semantic.space.sm (=8)",
+    "rgba(255,255,255,0.05)": "semantic.color.divider.default (dark=rgba(255,255,255,0.08))",
+    "fontSize:16,fontWeight:600": "semantic.type.title.md",
+    "fontSize:14": "semantic.type.body.sm",
+    "fontSize:13": "semantic.type.label.sm"
+  }
+}
