@@ -8,7 +8,8 @@ import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useSavedRoutesList } from '../../../hooks/use-saved-routes'
 import { SavedRouteCard } from '../../../components/ui/saved-route-card'
 import { formatDate } from '../../../components/ui/saved-route-card.utils'
-import { SkeletonCard, EmptyPlaceholder } from './saved-routes.components'
+import { SkeletonCard } from './saved-routes.components'
+import { EmptyState } from '../../../components/ui/empty-state'
 import type { SavedRouteListItemView } from '../../../types/routes'
 
 export const SKELETON_COUNT = 3
@@ -116,7 +117,16 @@ const SavedRoutesScreen = () => {
           </Text>
         }
         stickyHeaderIndices={[0]}
-        ListEmptyComponent={EmptyPlaceholder}
+        ListEmptyComponent={
+          <EmptyState
+            icon="map-marker-path"
+            headline="No saved routes yet"
+            body="Plan a route and save it to see it here."
+            ctaLabel="Plan your first route"
+            onCtaPress={() => router.push('/(app)/(tabs)')}
+            testID="saved-routes-empty-state"
+          />
+        }
         refreshControl={
           <RefreshControl refreshing={false} tintColor={semantic.color.primary.default} />
         }
