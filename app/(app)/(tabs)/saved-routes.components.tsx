@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { Swipeable } from 'react-native-gesture-handler'
@@ -217,28 +217,31 @@ export const SwipeableRouteCard = ({
   const { semantic } = useSemanticTheme()
   const swipeableRef = useRef<Swipeable>(null)
 
-  const renderRightActions = () => (
-    <Pressable
-      onPress={() => {
-        swipeableRef.current?.close()
-        onDelete()
-      }}
-      testID="swipe-delete-action"
-      style={[
-        styles.swipeDeleteAction,
-        {
-          backgroundColor: semantic.color.danger.default,
-          borderRadius: semantic.radius.lg,
-          width: semantic.space['4xl'] + semantic.space['4xl'],
-        },
-      ]}
-    >
-      <MaterialCommunityIcons
-        name="trash-can-outline"
-        size={24}
-        color={semantic.color.onSecondary.default}
-      />
-    </Pressable>
+  const renderRightActions = useCallback(
+    () => (
+      <Pressable
+        onPress={() => {
+          swipeableRef.current?.close()
+          onDelete()
+        }}
+        testID="swipe-delete-action"
+        style={[
+          styles.swipeDeleteAction,
+          {
+            backgroundColor: semantic.color.danger.default,
+            borderRadius: semantic.radius.lg,
+            width: semantic.space['4xl'] + semantic.space['4xl'],
+          },
+        ]}
+      >
+        <MaterialCommunityIcons
+          name="trash-can-outline"
+          size={24}
+          color={semantic.color.onSecondary.default}
+        />
+      </Pressable>
+    ),
+    [onDelete, semantic]
   )
 
   return (
