@@ -69,7 +69,10 @@ export const softDeleteRouteHandler = async (
   }
 
   if (doc.deletedAt !== undefined) {
-    return { scheduledDeletionId: doc.scheduledDeletionId! }
+    if (!doc.scheduledDeletionId) {
+      throw new ConvexError('Route is in an inconsistent state: soft-deleted without scheduledDeletionId')
+    }
+    return { scheduledDeletionId: doc.scheduledDeletionId }
   }
 
   const scheduledDeletionId = await ctx.scheduler.runAfter(
