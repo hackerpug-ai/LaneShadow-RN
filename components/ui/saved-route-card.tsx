@@ -6,7 +6,7 @@
  */
 
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { StyleSheet, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
 import { RouteThumbnail } from './route-thumbnail'
@@ -31,13 +31,17 @@ export const SavedRouteCard = ({
   const { semantic } = theme
 
   return (
-    <View
-      style={[
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`View route: ${name}`}
+      style={({ pressed }) => [
         styles.card,
         {
           backgroundColor: semantic.color.card.default,
           borderColor: 'rgba(255, 255, 255, 0.05)',
         },
+        pressed && { opacity: 0.7 },
       ]}
     >
       <RouteThumbnail rotation={thumbnailRotation} />
@@ -116,10 +120,9 @@ export const SavedRouteCard = ({
           name="chevron-right"
           size={24}
           color={semantic.color.onSurface.subtle}
-          onPress={onPress}
         />
       </View>
-    </View>
+    </Pressable>
   )
 }
 
