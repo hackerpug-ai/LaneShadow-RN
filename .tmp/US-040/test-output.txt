@@ -1,0 +1,405 @@
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:198:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:203:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:209:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:215:33)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      218 |
+      219 |     it('renders with custom testID', () => {
+    > 220 |       const { getByTestId } = render(
+          |                                     ^
+      221 |         <RenameRouteDialog
+      222 |           visible
+      223 |           currentName="Morning Ride"
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at Object.<anonymous> (components/ui/__tests__/rename-route-dialog.test.tsx:220:37)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:241:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:249:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:257:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:272:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:282:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:295:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:304:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:319:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:327:31)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:342:41)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:363:56)
+
+  console.error
+    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+
+      179 |
+      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
+    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
+          |         ^
+      182 |
+      183 | // ---------------------------------------------------------------------------
+      184 | // Tests
+
+      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
+      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
+      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
+      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
+      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
+      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
+      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
+      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:381:41)
+
+PASS components/ui/__tests__/rename-route-dialog.test.tsx
+  RenameRouteDialog
+    AC1: pre-populated input, Save disabled when name unchanged
+      ✓ renders the dialog when visible=true (32 ms)
+      ✓ TextInput shows the currentName value (3 ms)
+      ✓ Save button is disabled when input equals currentName (18 ms)
+      ✓ does not render the dialog when visible=false (5 ms)
+      ✓ renders with custom testID (5 ms)
+    AC2: Save enabled when name changes
+      ✓ Save button becomes enabled after text change (6 ms)
+      ✓ Save remains disabled when user types only whitespace (2 ms)
+      ✓ Save remains disabled when trimmed input equals currentName (4 ms)
+    AC3: Save button fires onRename with trimmed value
+      ✓ calls onRename with the new trimmed name when Save is pressed (3 ms)
+      ✓ trims whitespace before calling onRename (3 ms)
+    AC4: Save disabled when input is empty
+      ✓ Save button is disabled when input is cleared (3 ms)
+      ✓ onRename is not called when Save is pressed while disabled (2 ms)
+    AC5: Cancel fires onDismiss without calling onRename
+      ✓ calls onDismiss when Cancel is pressed (3 ms)
+      ✓ does not call onRename when Cancel is pressed (1 ms)
+    US-040: sync guard preserves user draft while dialog is open
+      ✓ preserves user draft when currentName prop changes while dialog is visible (3 ms)
+      ✓ initializes input with currentName when dialog opens (hidden → visible) (2 ms)
+      ✓ shows new currentName when dialog is closed and reopened (3 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       17 passed, 17 total
+Snapshots:   0 total
+Time:        0.431 s, estimated 1 s
+Ran all test suites matching /components\/ui\/__tests__\/rename-route-dialog.test.tsx/i.

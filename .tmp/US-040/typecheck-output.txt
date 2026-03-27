@@ -1,0 +1,2 @@
+No errors in rename-route-dialog.tsx or rename-route-dialog.test.tsx
+Pre-existing errors exist in other files (components/map/route-polyline.test.tsx) - not introduced by US-040

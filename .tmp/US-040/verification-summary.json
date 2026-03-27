@@ -1,0 +1,28 @@
+{
+  "task": "US-040",
+  "status": "completed",
+  "tests": {
+    "total": 17,
+    "passed": 17,
+    "failed": 0,
+    "new_tests": 3,
+    "test_command": "npx jest --config=jest.components.config.js components/ui/__tests__/rename-route-dialog.test.tsx"
+  },
+  "new_tests": [
+    "preserves user draft when currentName prop changes while dialog is visible",
+    "initializes input with currentName when dialog opens (hidden → visible)",
+    "shows new currentName when dialog is closed and reopened"
+  ],
+  "typecheck": "No errors in changed files (pre-existing errors in other files are unrelated)",
+  "lint": "No errors in changed files (pre-existing ESLint config crash is unrelated)",
+  "pre_existing_issues": [
+    "vitest SyntaxError on rename-route-dialog.test.tsx (wrong test runner - must use jest.components.config.js)",
+    "TypeScript errors in components/map/route-polyline.test.tsx",
+    "ESLint crash due to missing react-native plugin"
+  ],
+  "files_changed": [
+    "components/ui/rename-route-dialog.tsx",
+    "components/ui/__tests__/rename-route-dialog.test.tsx"
+  ],
+  "implementation": "Added useRef(visible) guard to useEffect so it only resets name state on visible false→true transition, not on every currentName prop change"
+}

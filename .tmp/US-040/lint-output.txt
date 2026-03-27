@@ -1,0 +1,2 @@
+No lint errors in rename-route-dialog.tsx or rename-route-dialog.test.tsx
+Note: bun run lint crashes with pre-existing ESLint config error: "react-native" plugin not found - not introduced by US-040
