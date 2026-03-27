@@ -11,7 +11,7 @@
  * Following coding standards: composition over inheritance, named exports
  */
 
-import { StyleSheet, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { IconSymbol } from '../ui/icon-symbol'
 import { ToggleGroup, useToggleGroup } from '../ui/toggle-group'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -208,29 +208,34 @@ const OverlayToggleItem = ({
   }
 
   return (
-    <View
-      style={[
-        styles.item,
-        {
-          width: semantic.space['3xl'],
-          height: semantic.space['3xl'],
-          borderRadius: semantic.radius.lg,
-          backgroundColor: getBackgroundColor(),
-          opacity: isDisabled ? 0.5 : 1,
-        },
-      ]}
-      onTouchEnd={handlePress}
+    <Pressable
+      onPress={handlePress}
+      disabled={isDisabled}
       testID={`overlay-item-${value}`}
       accessibilityLabel={label}
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled, selected: isSelected }}
+      android_ripple={{ color: semantic.color.primary.container ?? semantic.color.primary.default }}
     >
-      <IconSymbol
-        name={icon as any}
-        size={semantic.space.lg}
-        color={getIconColor()}
-      />
-    </View>
+      <View
+        style={[
+          styles.item,
+          {
+            width: semantic.space['3xl'],
+            height: semantic.space['3xl'],
+            borderRadius: semantic.radius.lg,
+            backgroundColor: getBackgroundColor(),
+            opacity: isDisabled ? 0.5 : 1,
+          },
+        ]}
+      >
+        <IconSymbol
+          name={icon as any}
+          size={semantic.space.lg}
+          color={getIconColor()}
+        />
+      </View>
+    </Pressable>
   )
 }
 

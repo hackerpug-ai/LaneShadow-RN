@@ -12,7 +12,7 @@
 
 import { createContext, useContext } from 'react'
 import type { ViewStyle } from 'react-native'
-import { StyleSheet, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { ToggleSize, ToggleVariant } from './toggle'
 
@@ -207,29 +207,36 @@ export const ToggleGroupItem = ({
   }
 
   return (
-    <View
-      style={[
-        styles.item,
-        {
-          height: getHeight(),
-          paddingHorizontal: semantic.space.md,
-          backgroundColor: getBackgroundColor(false),
-          borderRadius: semantic.radius.md,
-          opacity: disabled ? 0.5 : 1,
-        },
-        getBorderStyle(),
-        style,
-      ]}
-      onTouchEnd={handlePress}
+    <Pressable
+      onPress={handlePress}
+      disabled={disabled}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
       accessibilityState={{ disabled, selected: isPressed }}
+      android_ripple={{ color: semantic.color.muted.pressed ?? semantic.color.muted.default }}
     >
-      {icon && (
-        <View style={[styles.iconContainer, { marginRight: semantic.space.sm }]}>{icon}</View>
+      {({ pressed }) => (
+        <View
+          style={[
+            styles.item,
+            {
+              height: getHeight(),
+              paddingHorizontal: semantic.space.md,
+              backgroundColor: getBackgroundColor(pressed),
+              borderRadius: semantic.radius.md,
+              opacity: disabled ? 0.5 : 1,
+            },
+            getBorderStyle(),
+            style,
+          ]}
+        >
+          {icon && (
+            <View style={[styles.iconContainer, { marginRight: semantic.space.sm }]}>{icon}</View>
+          )}
+          {children}
+        </View>
       )}
-      {children}
-    </View>
+    </Pressable>
   )
 }
 
