@@ -8,85 +8,24 @@ import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useSavedRoutesList } from '../../../hooks/use-saved-routes'
 import { SavedRouteCard } from '../../../components/ui/saved-route-card'
 import { formatDate } from '../../../components/ui/saved-route-card.utils'
-import { Skeleton } from '../../../components/ui/skeleton'
+import { SkeletonCard, EmptyPlaceholder } from './saved-routes.components'
 import type { SavedRouteListItemView } from '../../../types/routes'
-
-// ---------------------------------------------------------------------------
-// Constants & helpers (exported for tests)
-// ---------------------------------------------------------------------------
 
 export const SKELETON_COUNT = 3
 export const THUMBNAIL_ROTATIONS = [-12, -8, -5, -10, -7] as const
 
-const METERS_PER_MILE = 1609.344
-
-export const formatDistance = (meters: number): string => {
-  const miles = meters / METERS_PER_MILE
-  return `${miles.toFixed(1)} mi`
-}
+export const formatDistance = (meters: number): string =>
+  `${(meters / 1609.344).toFixed(1)} mi`
 
 export const formatDuration = (seconds: number): string => {
-  const totalMinutes = Math.round(seconds / 60)
-  if (totalMinutes < 60) return `${totalMinutes} min`
-  const hours = Math.floor(totalMinutes / 60)
-  const mins = totalMinutes % 60
-  return `${hours}h ${mins}m`
+  const m = Math.round(seconds / 60)
+  if (m < 60) return `${m} min`
+  return `${Math.floor(m / 60)}h ${m % 60}m`
 }
 
 export const getSortedRoutes = (
   routes: SavedRouteListItemView[]
 ): SavedRouteListItemView[] => [...routes].sort((a, b) => b.createdAt - a.createdAt)
-
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
-
-const SkeletonCard = () => {
-  const { semantic } = useSemanticTheme()
-  return (
-    <View
-      testID="skeleton-card"
-      style={[
-        styles.skeletonCard,
-        {
-          backgroundColor: semantic.color.card.default,
-          borderRadius: semantic.radius.lg,
-          padding: semantic.space.md,
-          marginBottom: semantic.space.md,
-          gap: semantic.space.md,
-        },
-      ]}
-    >
-      <Skeleton width={96} height={96} shape="rounded" />
-      <View style={styles.skeletonText}>
-        <Skeleton width="60%" height={16} />
-        <Skeleton width="80%" height={14} style={{ marginTop: semantic.space.sm }} />
-        <Skeleton width="40%" height={13} style={{ marginTop: semantic.space.sm }} />
-      </View>
-    </View>
-  )
-}
-
-const EmptyPlaceholder = () => {
-  const { semantic } = useSemanticTheme()
-  return (
-    <View
-      testID="empty-state"
-      style={[styles.emptyContainer, { paddingTop: semantic.space['4xl'] }]}
-    >
-      <Text
-        variant="bodyLarge"
-        style={{ color: semantic.color.onSurface.muted, textAlign: 'center' }}
-      >
-        No saved routes yet. Plan a ride to get started!
-      </Text>
-    </View>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Screen
-// ---------------------------------------------------------------------------
 
 const SavedRoutesScreen = () => {
   const { semantic } = useSemanticTheme()
@@ -126,6 +65,15 @@ const SavedRoutesScreen = () => {
     []
   )
 
+  const headerStyle = [
+    semantic.type.title.lg,
+    {
+      color: semantic.color.onSurface.default,
+      paddingTop: semantic.space.lg,
+      paddingBottom: semantic.space.md,
+    },
+  ]
+
   if (isLoading) {
     return (
       <View
@@ -138,17 +86,7 @@ const SavedRoutesScreen = () => {
           },
         ]}
       >
-        <Text
-          variant="titleLarge"
-          style={[
-            styles.header,
-            {
-              color: semantic.color.onSurface.default,
-              paddingTop: semantic.space.lg,
-              paddingBottom: semantic.space.md,
-            },
-          ]}
-        >
+        <Text variant="titleLarge" style={headerStyle}>
           Saved Routes
         </Text>
         {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
@@ -173,27 +111,14 @@ const SavedRoutesScreen = () => {
           paddingBottom: bottom + semantic.space.lg,
         }}
         ListHeaderComponent={
-          <Text
-            variant="titleLarge"
-            style={[
-              styles.header,
-              {
-                color: semantic.color.onSurface.default,
-                paddingTop: semantic.space.lg,
-                paddingBottom: semantic.space.md,
-              },
-            ]}
-          >
+          <Text variant="titleLarge" style={headerStyle}>
             Saved Routes
           </Text>
         }
         stickyHeaderIndices={[0]}
         ListEmptyComponent={EmptyPlaceholder}
         refreshControl={
-          <RefreshControl
-            refreshing={false}
-            tintColor={semantic.color.primary.default}
-          />
+          <RefreshControl refreshing={false} tintColor={semantic.color.primary.default} />
         }
       />
     </View>
@@ -205,20 +130,5 @@ export default SavedRoutesScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    fontWeight: '700',
-  },
-  skeletonCard: {
-    flexDirection: 'row',
-  },
-  skeletonText: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  emptyContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 })

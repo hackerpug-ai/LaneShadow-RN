@@ -13,27 +13,73 @@
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 
-// Mock react-native and related modules so pure function imports work in node env
+// ---------------------------------------------------------------------------
+// Mocks
+// ---------------------------------------------------------------------------
+
+const mockPush = jest.fn()
+
 jest.mock('react-native', () => ({
   FlatList: 'FlatList',
   RefreshControl: 'RefreshControl',
   StyleSheet: { create: (s: Record<string, unknown>) => s },
   View: 'View',
-  Animated: { Value: jest.fn(), View: 'Animated.View', loop: jest.fn(), sequence: jest.fn(), timing: jest.fn() },
+  Animated: {
+    Value: jest.fn(),
+    View: 'Animated.View',
+    loop: jest.fn(),
+    sequence: jest.fn(),
+    timing: jest.fn(),
+  },
 }))
-jest.mock('react-native-paper', () => ({ Text: 'Text', useTheme: () => ({ semantic: {} }) }))
-jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ bottom: 0 }) }))
-jest.mock('expo-router', () => ({ useRouter: () => ({ push: jest.fn() }) }))
+jest.mock('react-native-paper', () => ({
+  Text: 'Text',
+  useTheme: () => ({ semantic: {} }),
+}))
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ bottom: 0 }),
+}))
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: mockPush }),
+}))
 jest.mock('../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({
     semantic: {
-      color: { card: { default: '#000' }, background: { default: '#000' }, onSurface: { default: '#fff', muted: '#888' }, primary: { default: '#000' }, muted: { default: '#333' } },
-      space: { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, '2xl': 32, '3xl': 48, '4xl': 64 },
+      color: {
+        card: { default: '#000' },
+        background: { default: '#000' },
+        onSurface: { default: '#fff', muted: '#888' },
+        primary: { default: '#000' },
+        muted: { default: '#333' },
+      },
+      space: {
+        xs: 4,
+        sm: 8,
+        md: 12,
+        lg: 16,
+        xl: 24,
+        '2xl': 32,
+        '3xl': 48,
+        '4xl': 64,
+      },
       radius: { lg: 16, md: 8, sm: 4, none: 0, full: 9999 },
+      type: {
+        title: {
+          lg: { fontSize: 24, lineHeight: 32, fontWeight: '700' },
+        },
+      },
     },
   }),
 }))
-jest.mock('../../../hooks/use-saved-routes', () => ({ useSavedRoutesList: () => ({ data: undefined, isLoading: true }) }))
+
+const mockHookReturn = {
+  data: undefined as { routes: Array<Record<string, unknown>> } | undefined,
+  isLoading: true,
+}
+
+jest.mock('../../../hooks/use-saved-routes', () => ({
+  useSavedRoutesList: () => mockHookReturn,
+}))
 jest.mock('../../../components/ui/saved-route-card', () => ({
   SavedRouteCard: 'SavedRouteCard',
 }))
@@ -41,13 +87,20 @@ jest.mock('../../../components/ui/saved-route-card.utils', () => ({
   formatDate: (ts: number) => new Date(ts).toLocaleDateString(),
 }))
 jest.mock('../../../components/ui/skeleton', () => ({ Skeleton: 'Skeleton' }))
+jest.mock('./saved-routes.components', () => ({
+  SkeletonCard: 'SkeletonCard',
+  EmptyPlaceholder: 'EmptyPlaceholder',
+}))
 
+import React from 'react'
+import renderer, { act } from 'react-test-renderer'
 import {
   formatDistance,
   formatDuration,
   THUMBNAIL_ROTATIONS,
   getSortedRoutes,
 } from './saved-routes'
+import SavedRoutesScreen from './saved-routes'
 import type { SavedRouteListItemView } from '../../../types/routes'
 
 // ---------------------------------------------------------------------------
@@ -117,7 +170,66 @@ describe('SKELETON_COUNT', () => {
 })
 
 // ---------------------------------------------------------------------------
+// AC-3: 0 saved routes -> empty state placeholder renders
+// ---------------------------------------------------------------------------
+describe('AC-3: Empty state rendering', () => {
+  it('should pass empty data and ListEmptyComponent to FlatList when routes is empty', () => {
+    mockHookReturn.data = { routes: [] }
+    mockHookReturn.isLoading = false
+
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRoutesScreen))
+    })
+    const root = tree!.root
+
+    const flatList = root.findByProps({ testID: 'saved-routes-list' })
+    expect(flatList.props.data).toEqual([])
+    expect(flatList.props.ListEmptyComponent).toBeDefined()
+  })
+
+  afterAll(() => {
+    // Reset mock state
+    mockHookReturn.data = undefined
+    mockHookReturn.isLoading = true
+  })
+})
+
+// ---------------------------------------------------------------------------
 // AC-4: Card tap produces correct route path for navigation
+// ---------------------------------------------------------------------------
+describe('AC-4: Card tap navigates with savedRouteId', () => {
+  beforeEach(() => {
+    mockPush.mockClear()
+  })
+
+  afterAll(() => {
+    mockHookReturn.data = undefined
+    mockHookReturn.isLoading = true
+  })
+
+  it('should call router.push with correct path when card is pressed', () => {
+    const testRoute = makeRoute({ savedRouteId: 'route-abc-123', createdAt: 1000 })
+    mockHookReturn.data = { routes: [testRoute] }
+    mockHookReturn.isLoading = false
+
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRoutesScreen))
+    })
+    const root = tree!.root
+
+    const flatList = root.findByProps({ testID: 'saved-routes-list' })
+    // Invoke renderItem to get the card element, then call its onPress
+    const rendered = flatList.props.renderItem({ item: testRoute, index: 0 })
+    rendered.props.onPress()
+
+    expect(mockPush).toHaveBeenCalledWith('/(app)/saved-route/route-abc-123')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Formatting helpers
 // ---------------------------------------------------------------------------
 describe('formatDistance', () => {
   it('should format meters to miles with 1 decimal', () => {
