@@ -163,7 +163,7 @@ const SavedRoutesScreen = () => {
       >
         <SavedRouteCard
           name={item.name}
-          path=""
+          path={item.startLabel && item.endLabel ? `${item.startLabel} → ${item.endLabel}` : item.startLabel || item.endLabel}
           dateSaved={formatDate(item.createdAt)}
           distance={formatDistance(item.preview.distanceMeters)}
           duration={formatDuration(item.preview.durationSeconds)}
@@ -192,6 +192,7 @@ const SavedRoutesScreen = () => {
         data={sortedRoutes}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
+        keyboardShouldPersistTaps="handled"
         maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
         contentContainerStyle={{
           paddingHorizontal: semantic.space.lg,
