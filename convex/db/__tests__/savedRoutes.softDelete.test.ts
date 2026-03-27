@@ -168,3 +168,89 @@ describe('soft-delete handler logic', () => {
     expect(ctx.db.delete).not.toHaveBeenCalled()
   })
 })
+
+describe('soft-delete race condition guards', () => {
+  const makeDoc = (overrides: Record<string, unknown> = {}) => ({
+    _id: 'route_abc',
+    _creationTime: 1000,
+    ownerType: 'user',
+    ownerId: 'user_1',
+    ...overrides,
+  })
+
+  it('RC-1: softDeleteRoute called on already soft-deleted route returns existing scheduledDeletionId without scheduling again', async () => {
+    const existingScheduledId = 'sched_existing' as Id<'_scheduled_functions'>
+    const doc = makeDoc({
+      deletedAt: Date.now() - 1000,
+      scheduledDeletionId: existingScheduledId,
+    })
+    const ctx = {
+      db: {
+        get: jest.fn().mockResolvedValue(doc),
+        patch: jest.fn(),
+      },
+      scheduler: {
+        runAfter: jest.fn(),
+      },
+    }
+
+    const { softDeleteRouteHandler } = await import('../savedRoutes')
+    const result = await softDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any }, 'user_1')
+
+    expect(ctx.scheduler.runAfter).not.toHaveBeenCalled()
+    expect(ctx.db.patch).not.toHaveBeenCalled()
+    expect(result).toEqual({ scheduledDeletionId: existingScheduledId })
+  })
+
+  it('RC-2: permanentlyDeleteRoute after undo (deletedAt cleared) does NOT delete route', async () => {
+    const doc = makeDoc()
+    const ctx = {
+      db: {
+        get: jest.fn().mockResolvedValue(doc),
+        delete: jest.fn(),
+      },
+    }
+
+    const { permanentlyDeleteRouteHandler } = await import('../savedRoutes')
+    const result = await permanentlyDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any })
+
+    expect(ctx.db.delete).not.toHaveBeenCalled()
+    expect(result).toBeNull()
+  })
+
+  it('RC-3: permanentlyDeleteRoute with deletedAt still set permanently deletes the route', async () => {
+    const doc = makeDoc({ deletedAt: Date.now() - 6000 })
+    const ctx = {
+      db: {
+        get: jest.fn().mockResolvedValue(doc),
+        delete: jest.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    const { permanentlyDeleteRouteHandler } = await import('../savedRoutes')
+    await permanentlyDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any })
+
+    expect(ctx.db.delete).toHaveBeenCalledWith('route_abc')
+  })
+
+  it('RC-4: softDeleteRoute normal flow sets deletedAt schedules deletion and returns ID', async () => {
+    const doc = makeDoc()
+    const scheduledId = 'sched_new' as Id<'_scheduled_functions'>
+    const ctx = {
+      db: {
+        get: jest.fn().mockResolvedValue(doc),
+        patch: jest.fn().mockResolvedValue(undefined),
+      },
+      scheduler: {
+        runAfter: jest.fn().mockResolvedValue(scheduledId),
+      },
+    }
+
+    const { softDeleteRouteHandler } = await import('../savedRoutes')
+    const result = await softDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any }, 'user_1')
+
+    expect(ctx.scheduler.runAfter).toHaveBeenCalledWith(5000, expect.anything(), { savedRouteId: 'route_abc' })
+    expect(ctx.db.patch).toHaveBeenCalledWith('route_abc', expect.objectContaining({ scheduledDeletionId: scheduledId }))
+    expect(result).toEqual({ scheduledDeletionId: scheduledId })
+  })
+})

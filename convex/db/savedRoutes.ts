@@ -68,6 +68,10 @@ export const softDeleteRouteHandler = async (
     throw new ConvexError('Route not found')
   }
 
+  if (doc.deletedAt !== undefined) {
+    return { scheduledDeletionId: doc.scheduledDeletionId! }
+  }
+
   const scheduledDeletionId = await ctx.scheduler.runAfter(
     5000,
     internalSavedRoutes.permanentlyDeleteRoute,
@@ -111,6 +115,9 @@ export const permanentlyDeleteRouteHandler = async (
 ): Promise<null> => {
   const doc = await ctx.db.get(args.savedRouteId)
   if (!doc) {
+    return null
+  }
+  if (doc.deletedAt === undefined) {
     return null
   }
   await ctx.db.delete(args.savedRouteId)
@@ -243,7 +250,7 @@ export const patchName = internalMutation({
     const doc = await ctx.db.get(args.savedRouteId)
 
     if (!doc || !isOwnedByViewer(doc, clerkUserId)) {
-      throw new Error('NOT_FOUND')
+      throw new ConvexError('Route not found')
     }
 
     const trimmed = args.name.trim()
@@ -267,7 +274,7 @@ export const deleteById = internalMutation({
     const doc = await ctx.db.get(args.savedRouteId)
 
     if (!doc || !isOwnedByViewer(doc, clerkUserId)) {
-      throw new Error('NOT_FOUND')
+      throw new ConvexError('Route not found')
     }
 
     await ctx.db.delete(doc._id)
@@ -287,6 +294,8 @@ export const getSavedRoutesList = query({
       v.object({
         savedRouteId: v.string(),
         name: v.string(),
+        startLabel: v.string(),
+        endLabel: v.string(),
         createdAt: v.number(),
         updatedAt: v.number(),
         preview: routePreviewValidator,
@@ -315,6 +324,8 @@ export const getSavedRoutesList = query({
       routes: results.map(({ savedRouteId, savedRoute }) => ({
         savedRouteId: `${savedRouteId}`,
         name: savedRoute.name,
+        startLabel: savedRoute.planInput.start?.label ?? '',
+        endLabel: savedRoute.planInput.end?.label ?? '',
         createdAt: savedRoute.createdAt,
         updatedAt: savedRoute.updatedAt,
         preview: computePreview(savedRoute),
@@ -350,6 +361,8 @@ export const getSavedRouteDetail = query({
     return {
       savedRouteId: `${savedRouteId}`,
       name: savedRoute.name,
+        startLabel: savedRoute.planInput.start?.label ?? '',
+        endLabel: savedRoute.planInput.end?.label ?? '',
       planInput: savedRoute.planInput,
       routeSnapshot: savedRoute.routeSnapshot,
       routeIndex: savedRoute.routeIndex,
