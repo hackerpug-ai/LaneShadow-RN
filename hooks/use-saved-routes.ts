@@ -88,7 +88,7 @@ const useMutationRunner = <Args extends Record<string, unknown>, Result>(
       setError(null)
       try {
         const result = await mutationRef(args)
-        showSuccessNotification(successMessage)
+        if (successMessage) showSuccessNotification(successMessage)
         return result
       } catch (err) {
         const parsed = getUserFacingError(err)
@@ -144,13 +144,13 @@ export const useSoftDeleteRoute = () => {
   return useMutationRunner<
     { savedRouteId: Id<'saved_routes'> },
     { scheduledDeletionId: Id<'_scheduled_functions'> }
-  >(mutation, 'Route deleted.')
+  >(mutation, '')
 }
 
 export const useUndoDeleteRoute = () => {
   const mutation = useMutation(api.db.savedRoutes.undoDeleteRoute)
   return useMutationRunner<{ savedRouteId: Id<'saved_routes'> }, null>(
     mutation,
-    'Route restored.'
+    ''
   )
 }

@@ -11,7 +11,7 @@ import { useMemo, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from 'react-native-paper'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
 import {
@@ -22,7 +22,10 @@ import {
 import { MapViewWrapper } from '../../../components/map/map-view'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
 import { WindBadge } from '../../../components/planning/wind-badge'
+import { Button } from '../../../components/ui/button'
+import { DeleteRouteDialog } from '../../../components/ui/delete-route-dialog'
 import { RainBadge } from '../../../components/ui/rain-badge'
+import { RenameRouteDialog } from '../../../components/ui/rename-route-dialog'
 import { RouteLegTimeline } from '../../../components/ui/route-leg-timeline'
 import { StatRow } from '../../../components/ui/stat-row'
 import { TemperatureBadge } from '../../../components/ui/temperature-badge'
@@ -35,16 +38,20 @@ import {
 } from '../../../models/saved-routes'
 import type { RouteOverlays } from '../../../models/saved-routes'
 
+import { useRouteActions } from './use-route-actions'
 import { deriveWindSummary, formatDistance, formatDuration, formatSavedDate } from './utils'
 
+const Z_INDEX_HEADER_ACTIONS = 30
 const Z_INDEX_OVERLAY_TOGGLE = 25
 
 const SavedRouteDetailScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
   const { semantic } = useSemanticTheme()
+  const insets = useSafeAreaInsets()
   const { data, isLoading } = useSavedRouteDetail(id ?? null)
 
+  const actions = useRouteActions(id ?? null)
   const [selectedOverlay, setSelectedOverlay] = useState<OverlayType | ''>('')
 
   const overlayAvailability: OverlayAvailability = useMemo(() => {
@@ -166,6 +173,34 @@ const SavedRouteDetailScreen = () => {
             }}
             testID="route-detail-header"
           />
+          {/* Action buttons - absolutely positioned at top-right of map */}
+          <View
+            style={[
+              styles.headerActions,
+              {
+                top: insets.top,
+                right: semantic.space.lg,
+                gap: semantic.space.xs,
+              },
+            ]}
+          >
+            <Button
+              icon="pencil"
+              size="icon"
+              variant="glass"
+              onPress={actions.openRenameDialog}
+              testID="route-detail-rename"
+              accessibilityLabel="Rename route"
+            />
+            <Button
+              icon="trash-can-outline"
+              size="icon"
+              variant="glass"
+              onPress={actions.openDeleteDialog}
+              testID="route-detail-delete"
+              accessibilityLabel="Delete route"
+            />
+          </View>
 
           {/* Overlay toggle - only shown when overlay data exists (AC4) */}
           {hasAnyOverlay && (
@@ -280,6 +315,24 @@ const SavedRouteDetailScreen = () => {
           )}
         </ScrollView>
       </View>
+
+      {/* Rename dialog */}
+      <RenameRouteDialog
+        visible={actions.renameDialogVisible}
+        currentName={data.name}
+        onRename={actions.handleRename}
+        onDismiss={actions.closeRenameDialog}
+        testID="route-detail-rename-dialog"
+      />
+
+      {/* Delete confirmation dialog */}
+      <DeleteRouteDialog
+        visible={actions.deleteDialogVisible}
+        routeName={data.name}
+        onConfirm={actions.handleDeleteConfirm}
+        onDismiss={actions.closeDeleteDialog}
+        testID="route-detail-delete-dialog"
+      />
     </SafeAreaView>
   )
 }
@@ -322,6 +375,12 @@ const styles = StyleSheet.create({
   },
   mapSection: {
     flex: 0.5,
+  },
+  headerActions: {
+    position: 'absolute',
+    top: 0,
+    flexDirection: 'row',
+    zIndex: Z_INDEX_HEADER_ACTIONS,
   },
   overlayToggle: {
     position: 'absolute',
