@@ -14,3 +14,13 @@ export const v = {
   literal: (value: unknown) => ({ kind: 'literal', value }),
 } as const
 
+export class ConvexError<TData = string> extends Error {
+  name = 'ConvexError'
+  data: TData
+
+  constructor(data: TData) {
+    super(typeof data === 'string' ? data : JSON.stringify(data))
+    this.data = data
+  }
+}
+

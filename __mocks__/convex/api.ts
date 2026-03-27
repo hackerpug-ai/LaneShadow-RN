@@ -1,2 +1,10 @@
-export const api = {} as const
-export const internal = {} as const
+const deepProxy = (): any =>
+  new Proxy(
+    {},
+    {
+      get: (_target, _prop) => deepProxy(),
+    }
+  )
+
+export const api = deepProxy()
+export const internal = deepProxy()
