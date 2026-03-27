@@ -26,6 +26,28 @@ const makeDoc = () => ({
   updatedAt: 1000,
 })
 
+describe('patchName not-found', () => {
+  it('AC-US034-1: throws ConvexError("Route not found") when doc does not exist', async () => {
+    const ctx = makeCtx(null)
+    await expect(
+      (patchName as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID, name: 'New Name' })
+    ).rejects.toThrow(ConvexError)
+    await expect(
+      (patchName as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID, name: 'New Name' })
+    ).rejects.toThrow('Route not found')
+  })
+
+  it('AC-US034-1: throws ConvexError("Route not found") when doc is owned by different user', async () => {
+    const ctx = makeCtx({ ...makeDoc(), ownerId: 'other_user' })
+    await expect(
+      (patchName as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID, name: 'New Name' })
+    ).rejects.toThrow(ConvexError)
+    await expect(
+      (patchName as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID, name: 'New Name' })
+    ).rejects.toThrow('Route not found')
+  })
+})
+
 describe('patchName validation', () => {
   it('AC-1: trims whitespace from name before saving', async () => {
     const ctx = makeCtx(makeDoc())

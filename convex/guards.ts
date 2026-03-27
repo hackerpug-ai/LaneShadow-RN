@@ -1,3 +1,5 @@
+import { ConvexError } from 'convex/values'
+
 import { Session } from '../models/users'
 import { api } from './_generated/api'
 import type { ActionCtx, MutationCtx, QueryCtx } from './_generated/server'
@@ -12,7 +14,7 @@ type Identity = {
 export const requireIdentity = async (ctx: Ctx): Promise<Identity> => {
   const identity = await ctx.auth.getUserIdentity()
   if (!identity) {
-    throw new Error('AUTH_REQUIRED')
+    throw new ConvexError('Authentication required')
   }
 
   // SavedRoute.ownerId / createdByUserId store this viewerUserId (Clerk user id).
