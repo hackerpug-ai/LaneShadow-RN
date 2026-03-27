@@ -7,17 +7,23 @@
 
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
+import {
+  OverlayToggle,
+  type OverlayType,
+  type OverlayAvailability,
+} from '../../../components/map/overlay-toggle'
 import { MapViewWrapper } from '../../../components/map/map-view'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
 import { WindBadge } from '../../../components/planning/wind-badge'
 import { RainBadge } from '../../../components/ui/rain-badge'
+import { RouteLegTimeline } from '../../../components/ui/route-leg-timeline'
 import { StatRow } from '../../../components/ui/stat-row'
 import { TemperatureBadge } from '../../../components/ui/temperature-badge'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
@@ -37,6 +43,20 @@ const SavedRouteDetailScreen = () => {
   const { semantic } = useSemanticTheme()
   const { data, isLoading } = useSavedRouteDetail(id ?? null)
 
+  const [selectedOverlay, setSelectedOverlay] = useState<OverlayType | ''>('')
+
+  const overlayAvailability: OverlayAvailability = useMemo(() => {
+    if (!data) return { wind: false, rain: false, temperature: false }
+    const overlays = data.routeSnapshot.overlays
+    return {
+      wind: !!overlays.wind,
+      rain: !!overlays.rain,
+      temperature: !!overlays.temperature,
+    }
+  }, [data])
+
+  const hasAnyOverlay = overlayAvailability.wind || overlayAvailability.rain || overlayAvailability.temperature
+
   const polylines = useMemo(() => {
     if (!data) return []
     return buildRoutePolylines({
@@ -47,9 +67,12 @@ const SavedRouteDetailScreen = () => {
       },
       variant: 'selected',
       showLegs: true,
+      showWindOverlay: selectedOverlay === 'wind',
+      showRainOverlay: selectedOverlay === 'rain',
+      showTemperatureOverlay: selectedOverlay === 'temperature',
       semantic,
     })
-  }, [data, semantic])
+  }, [data, semantic, selectedOverlay])
 
   if (isLoading) {
     return (
@@ -141,6 +164,26 @@ const SavedRouteDetailScreen = () => {
             }}
             testID="route-detail-header"
           />
+
+          {/* Overlay toggle - only shown when overlay data exists (AC4) */}
+          {hasAnyOverlay && (
+            <View
+              style={[
+                styles.overlayToggle,
+                {
+                  top: semantic.space.xl,
+                  right: semantic.space.lg,
+                },
+              ]}
+            >
+              <OverlayToggle
+                value={selectedOverlay}
+                onValueChange={setSelectedOverlay}
+                availability={overlayAvailability}
+                testID="overlay-toggle"
+              />
+            </View>
+          )}
         </View>
 
         {/* Info section */}
@@ -220,6 +263,19 @@ const SavedRouteDetailScreen = () => {
               </View>
             </>
           )}
+
+          {/* Route Legs timeline section */}
+          {data.routeSnapshot.legs.length > 0 && (
+            <>
+              <SectionHeader label="Route Legs" semantic={semantic} />
+              <RouteLegTimeline
+                legs={data.routeSnapshot.legs}
+                planInput={data.planInput}
+                overlays={overlays}
+                testID="route-leg-timeline"
+              />
+            </>
+          )}
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -264,6 +320,10 @@ const styles = StyleSheet.create({
   },
   mapSection: {
     flex: 0.5,
+  },
+  overlayToggle: {
+    position: 'absolute',
+    zIndex: 25,
   },
   infoSection: {
     flex: 0.5,

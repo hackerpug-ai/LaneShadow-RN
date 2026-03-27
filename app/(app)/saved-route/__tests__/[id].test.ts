@@ -69,6 +69,9 @@ jest.mock('../../../../hooks/use-semantic-theme', () => ({
 jest.mock('../../../../hooks/use-saved-routes', () => ({
   useSavedRouteDetail: () => mockHookReturn,
 }))
+jest.mock('../../../../components/map/overlay-toggle', () => ({
+  OverlayToggle: 'OverlayToggle',
+}))
 jest.mock('../../../../components/map/map-header-overlay', () => ({
   MapHeaderOverlay: 'MapHeaderOverlay',
 }))
@@ -83,6 +86,9 @@ jest.mock('../../../../components/planning/wind-badge', () => ({
 }))
 jest.mock('../../../../components/ui/rain-badge', () => ({
   RainBadge: 'RainBadge',
+}))
+jest.mock('../../../../components/ui/route-leg-timeline', () => ({
+  RouteLegTimeline: 'RouteLegTimeline',
 }))
 jest.mock('../../../../components/ui/stat-row', () => ({
   StatRow: 'StatRow',
@@ -452,5 +458,171 @@ describe('formatSavedDate', () => {
   it('should format timestamp to readable date', () => {
     const ts = new Date('2026-01-15T12:00:00').getTime()
     expect(formatSavedDate(ts)).toMatch(/Jan\s+15,\s+2026/)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// US-016: Overlay toggle on route detail map
+// ---------------------------------------------------------------------------
+
+describe('US-016 AC1: OverlayToggle renders with availability when route has overlay data', () => {
+  afterEach(() => {
+    mockHookReturn.data = undefined
+    mockHookReturn.isLoading = true
+  })
+
+  it('should render OverlayToggle when route has wind and rain data', () => {
+    mockHookReturn.data = makeSavedRouteDetail()
+    mockHookReturn.isLoading = false
+
+    const SavedRouteDetailScreen = require('../[id]').default
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+    const root = tree!.root
+
+    const toggle = root.findByProps({ testID: 'overlay-toggle' })
+    expect(toggle).toBeDefined()
+    expect(toggle.props.availability).toEqual({
+      wind: true,
+      rain: true,
+      temperature: true,
+    })
+  })
+
+  it('should pass onValueChange callback to OverlayToggle', () => {
+    mockHookReturn.data = makeSavedRouteDetail()
+    mockHookReturn.isLoading = false
+
+    const SavedRouteDetailScreen = require('../[id]').default
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+    const root = tree!.root
+
+    const toggle = root.findByProps({ testID: 'overlay-toggle' })
+    expect(typeof toggle.props.onValueChange).toBe('function')
+  })
+
+  it('should default to no overlay selected (empty string)', () => {
+    mockHookReturn.data = makeSavedRouteDetail()
+    mockHookReturn.isLoading = false
+
+    const SavedRouteDetailScreen = require('../[id]').default
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+    const root = tree!.root
+
+    const toggle = root.findByProps({ testID: 'overlay-toggle' })
+    expect(toggle.props.value).toBe('')
+  })
+})
+
+describe('US-016 AC2: Rain toggle disabled when no rain data', () => {
+  afterEach(() => {
+    mockHookReturn.data = undefined
+    mockHookReturn.isLoading = true
+  })
+
+  it('should show rain as unavailable when route has wind but no rain', () => {
+    const windOnlyOverlays: RouteOverlays = {
+      wind: makeWindOverlay('moderate'),
+      // rain and temperature are undefined
+    }
+    mockHookReturn.data = makeSavedRouteDetail({ overlays: windOnlyOverlays })
+    mockHookReturn.isLoading = false
+
+    const SavedRouteDetailScreen = require('../[id]').default
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+    const root = tree!.root
+
+    const toggle = root.findByProps({ testID: 'overlay-toggle' })
+    expect(toggle.props.availability).toEqual({
+      wind: true,
+      rain: false,
+      temperature: false,
+    })
+  })
+})
+
+describe('US-016 AC3: Deselecting overlay reverts polyline to default', () => {
+  afterEach(() => {
+    mockHookReturn.data = undefined
+    mockHookReturn.isLoading = true
+  })
+
+  it('should allow deselecting overlay by calling onValueChange with empty string', () => {
+    mockHookReturn.data = makeSavedRouteDetail()
+    mockHookReturn.isLoading = false
+
+    const SavedRouteDetailScreen = require('../[id]').default
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+    const root = tree!.root
+
+    const toggle = root.findByProps({ testID: 'overlay-toggle' })
+
+    // Select wind
+    act(() => {
+      toggle.props.onValueChange('wind')
+    })
+
+    const toggleAfterSelect = root.findByProps({ testID: 'overlay-toggle' })
+    expect(toggleAfterSelect.props.value).toBe('wind')
+
+    // Deselect
+    act(() => {
+      toggleAfterSelect.props.onValueChange('')
+    })
+
+    const toggleAfterDeselect = root.findByProps({ testID: 'overlay-toggle' })
+    expect(toggleAfterDeselect.props.value).toBe('')
+  })
+})
+
+describe('US-016 AC4: OverlayToggle hidden when no overlay data', () => {
+  afterEach(() => {
+    mockHookReturn.data = undefined
+    mockHookReturn.isLoading = true
+  })
+
+  it('should not render OverlayToggle when route has no overlay data', () => {
+    const noOverlays: RouteOverlays = {
+      // all undefined
+    }
+    mockHookReturn.data = makeSavedRouteDetail({ overlays: noOverlays })
+    mockHookReturn.isLoading = false
+
+    const SavedRouteDetailScreen = require('../[id]').default
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+    const root = tree!.root
+
+    const toggles = root.findAllByProps({ testID: 'overlay-toggle' })
+    expect(toggles).toHaveLength(0)
+  })
+
+  it('should not crash when rendering with no overlay data', () => {
+    const noOverlays: RouteOverlays = {}
+    mockHookReturn.data = makeSavedRouteDetail({ overlays: noOverlays })
+    mockHookReturn.isLoading = false
+
+    const SavedRouteDetailScreen = require('../[id]').default
+    expect(() => {
+      act(() => {
+        renderer.create(React.createElement(SavedRouteDetailScreen))
+      })
+    }).not.toThrow()
   })
 })
