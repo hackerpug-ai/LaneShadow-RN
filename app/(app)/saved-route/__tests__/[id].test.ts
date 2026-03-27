@@ -11,9 +11,96 @@
  *
  * Testing Strategy:
  * - Pure function unit tests for utils (formatDistance, formatDuration, deriveWindSummary)
- * - Type-level contract validation for component props and data flow
+ * - Component rendering tests via react-test-renderer with mocked hooks
  * - Weather derivation logic testing for AC3
  */
+
+/* eslint-disable @typescript-eslint/no-require-imports */
+
+// ---------------------------------------------------------------------------
+// Mocks — must be declared before imports
+// ---------------------------------------------------------------------------
+
+const mockBack = jest.fn()
+
+const mockHookReturn: {
+  data: import('../../../../types/routes').SavedRouteDetailView | null | undefined
+  isLoading: boolean
+} = {
+  data: undefined,
+  isLoading: true,
+}
+
+jest.mock('react-native', () => ({
+  ActivityIndicator: 'ActivityIndicator',
+  StyleSheet: { create: (s: Record<string, unknown>) => s },
+  View: 'View',
+}))
+jest.mock('react-native-gesture-handler', () => ({
+  ScrollView: 'ScrollView',
+}))
+jest.mock('react-native-paper', () => ({
+  Text: 'Text',
+}))
+jest.mock('react-native-safe-area-context', () => ({
+  SafeAreaView: 'SafeAreaView',
+}))
+jest.mock('expo-router', () => ({
+  useLocalSearchParams: () => ({ id: 'test-route-id' }),
+  useRouter: () => ({ back: mockBack }),
+}))
+jest.mock('../../../../hooks/use-semantic-theme', () => ({
+  useSemanticTheme: () => ({
+    semantic: {
+      color: {
+        background: { default: '#000' },
+        primary: { default: '#00f' },
+        onSurface: { default: '#fff', subtle: '#888' },
+        surface: { default: '#111' },
+        surfaceVariant: { default: '#222' },
+        card: { default: '#222' },
+      },
+      space: { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, '2xl': 32 },
+      radius: { lg: 16, md: 8, sm: 4 },
+      type: { title: { md: { fontSize: 20 } } },
+    },
+  }),
+}))
+jest.mock('../../../../hooks/use-saved-routes', () => ({
+  useSavedRouteDetail: () => mockHookReturn,
+}))
+jest.mock('../../../../components/map/map-header-overlay', () => ({
+  MapHeaderOverlay: 'MapHeaderOverlay',
+}))
+jest.mock('../../../../components/map/map-view', () => ({
+  MapViewWrapper: 'MapViewWrapper',
+}))
+jest.mock('../../../../components/map/route-polyline', () => ({
+  buildRoutePolylines: () => [],
+}))
+jest.mock('../../../../components/planning/wind-badge', () => ({
+  WindBadge: 'WindBadge',
+}))
+jest.mock('../../../../components/ui/rain-badge', () => ({
+  RainBadge: 'RainBadge',
+}))
+jest.mock('../../../../components/ui/stat-row', () => ({
+  StatRow: 'StatRow',
+}))
+jest.mock('../../../../components/ui/temperature-badge', () => ({
+  TemperatureBadge: 'TemperatureBadge',
+}))
+jest.mock('../../../../models/saved-routes', () => ({
+  getWorstRainLevel: jest.fn((v) => (v ? 'light' : 'unavailable')),
+  getWorstTemperatureLevel: jest.fn((v) => (v ? 'warm' : 'unavailable')),
+  getMaxTemperatureFahrenheit: jest.fn(() => 72),
+}))
+jest.mock('@expo/vector-icons', () => ({
+  MaterialCommunityIcons: 'MaterialCommunityIcons',
+}))
+
+import React from 'react'
+import renderer, { act } from 'react-test-renderer'
 
 import type { SavedRouteDetailView } from '../../../../types/routes'
 import type { WindOverlay, RainOverlay, TemperatureOverlay, RouteOverlays } from '../../../../models/saved-routes'
@@ -145,24 +232,33 @@ describe('AC1: Route detail screen data rendering', () => {
 })
 
 // ---------------------------------------------------------------------------
-// AC2: Loading state
+// AC2: Loading state renders loading indicator
 // ---------------------------------------------------------------------------
 
 describe('AC2: Loading state behavior', () => {
-  it('should treat undefined data as loading', () => {
-    // useSavedRouteDetail returns { data: undefined, isLoading: true } while loading
-    const data: SavedRouteDetailView | null | undefined = undefined
-    const isLoading = data === undefined
-
-    expect(isLoading).toBe(true)
+  afterEach(() => {
+    mockHookReturn.data = undefined
+    mockHookReturn.isLoading = true
   })
 
-  it('should treat null data as route not found (not loading)', () => {
-    const data: SavedRouteDetailView | null | undefined = null
-    const isLoading = data === undefined
+  it('should render loading indicator when data is undefined and isLoading is true', () => {
+    mockHookReturn.data = undefined
+    mockHookReturn.isLoading = true
 
-    expect(isLoading).toBe(false)
-    expect(data).toBeNull()
+    const SavedRouteDetailScreen = require('../[id]').default
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+    const root = tree!.root
+
+    // The loading branch renders a SafeAreaView with testID="route-detail-loading"
+    const loadingView = root.findByProps({ testID: 'route-detail-loading' })
+    expect(loadingView).toBeDefined()
+
+    // Should contain an ActivityIndicator
+    const indicator = root.findByType('ActivityIndicator' as any)
+    expect(indicator).toBeDefined()
   })
 })
 
@@ -226,36 +322,101 @@ describe('AC3: Partial weather data - wind only', () => {
 })
 
 // ---------------------------------------------------------------------------
-// AC4: Invalid savedRouteId
+// AC4: Invalid savedRouteId renders not-found state
 // ---------------------------------------------------------------------------
 
 describe('AC4: Route not found', () => {
-  it('should identify null data as route not found', () => {
-    // When hook returns null, the route was not found or deleted
-    const data: SavedRouteDetailView | null = null
-    expect(data).toBeNull()
+  afterEach(() => {
+    mockHookReturn.data = undefined
+    mockHookReturn.isLoading = true
   })
 
-  it('should not crash with null id passed to hook', () => {
-    // The hook accepts string | null and skips query for null
-    const savedRouteId: string | null = null
-    expect(savedRouteId).toBeNull()
+  it('should render not-found state when data is null and isLoading is false', () => {
+    mockHookReturn.data = null
+    mockHookReturn.isLoading = false
+
+    const SavedRouteDetailScreen = require('../[id]').default
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+    const root = tree!.root
+
+    // The not-found branch renders a SafeAreaView with testID="route-detail-not-found"
+    const notFoundView = root.findByProps({ testID: 'route-detail-not-found' })
+    expect(notFoundView).toBeDefined()
+
+    // Should display the "Route not found" message
+    const message = root.findByProps({ testID: 'route-not-found-message' })
+    expect(message).toBeDefined()
+  })
+
+  it('should render back button in not-found state for navigation', () => {
+    mockHookReturn.data = null
+    mockHookReturn.isLoading = false
+
+    const SavedRouteDetailScreen = require('../[id]').default
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+    const root = tree!.root
+
+    // MapHeaderOverlay should have a leftAction with the back testID
+    const header = root.findByProps({ testID: 'route-detail-header' })
+    expect(header).toBeDefined()
+    expect(header.props.leftAction.icon).toBe('arrow-left')
   })
 })
 
 // ---------------------------------------------------------------------------
-// AC5: Back navigation
+// AC5: Back navigation wired to router.back()
 // ---------------------------------------------------------------------------
 
 describe('AC5: Back navigation', () => {
-  it('should use router.back() pattern for back navigation', () => {
-    // This validates the component contract: back button calls router.back()
-    // The MapHeaderOverlay leftAction with icon 'arrow-left' triggers onPress
-    // which is () => router.back()
-    const mockRouter = { back: jest.fn() }
-    const onPress = () => mockRouter.back()
-    onPress()
-    expect(mockRouter.back).toHaveBeenCalledTimes(1)
+  beforeEach(() => {
+    mockBack.mockClear()
+  })
+
+  afterEach(() => {
+    mockHookReturn.data = undefined
+    mockHookReturn.isLoading = true
+  })
+
+  it('should wire back button onPress to router.back() in not-found state', () => {
+    mockHookReturn.data = null
+    mockHookReturn.isLoading = false
+
+    const SavedRouteDetailScreen = require('../[id]').default
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+    const root = tree!.root
+
+    // Find the header and invoke leftAction.onPress
+    const header = root.findByProps({ testID: 'route-detail-header' })
+    header.props.leftAction.onPress()
+
+    expect(mockBack).toHaveBeenCalledTimes(1)
+  })
+
+  it('should wire back button onPress to router.back() in detail state', () => {
+    mockHookReturn.data = makeSavedRouteDetail()
+    mockHookReturn.isLoading = false
+
+    const SavedRouteDetailScreen = require('../[id]').default
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+    const root = tree!.root
+
+    // Find the header and invoke leftAction.onPress
+    const header = root.findByProps({ testID: 'route-detail-header' })
+    header.props.leftAction.onPress()
+
+    expect(mockBack).toHaveBeenCalledTimes(1)
   })
 })
 

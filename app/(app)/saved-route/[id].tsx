@@ -89,7 +89,14 @@ const SavedRouteDetailScreen = () => {
           />
           <Text
             variant="bodyLarge"
-            style={[styles.notFoundText, { color: semantic.color.onSurface.default }]}
+            style={[
+              styles.notFoundText,
+              {
+                color: semantic.color.onSurface.default,
+                marginTop: semantic.space.md,
+                marginBottom: semantic.space.xs,
+              },
+            ]}
             testID="route-not-found-message"
           >
             Route not found
@@ -162,7 +169,7 @@ const SavedRouteDetailScreen = () => {
             style={[
               styles.statsCard,
               {
-                backgroundColor: semantic.color.surface.elevated,
+                backgroundColor: semantic.color.surfaceVariant.default,
                 borderRadius: semantic.radius.lg,
                 padding: semantic.space.lg,
                 gap: semantic.space.md,
@@ -236,7 +243,6 @@ const SectionHeader = ({ label, semantic }: SectionHeaderProps) => (
     style={{
       color: semantic.color.onSurface.subtle,
       textTransform: 'uppercase',
-      letterSpacing: 0.5,
       marginTop: semantic.space.lg,
       marginBottom: semantic.space.sm,
     }}
@@ -272,10 +278,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  notFoundText: {
-    marginTop: 12,
-    marginBottom: 4,
-  },
+  notFoundText: {},
   statsCard: {},
   weatherRow: {
     flexDirection: 'row',
