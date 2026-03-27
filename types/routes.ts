@@ -40,6 +40,8 @@ export type PlanInitView = {
 export type SavedRouteListItemView = {
   savedRouteId: string
   name: string
+  startLabel: string
+  endLabel: string
   createdAt: number
   updatedAt: number
   preview: RoutePreview

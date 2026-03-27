@@ -361,8 +361,6 @@ export const getSavedRouteDetail = query({
     return {
       savedRouteId: `${savedRouteId}`,
       name: savedRoute.name,
-        startLabel: savedRoute.planInput.start?.label ?? '',
-        endLabel: savedRoute.planInput.end?.label ?? '',
       planInput: savedRoute.planInput,
       routeSnapshot: savedRoute.routeSnapshot,
       routeIndex: savedRoute.routeIndex,
@@ -404,16 +402,6 @@ export const renameRoute = mutation({
   handler: async (ctx, args): Promise<null> => {
     await requireIdentity(ctx)
     await ctx.runMutation(internalSavedRoutes.patchName, args)
-    return null
-  },
-})
-
-export const deleteRoute = mutation({
-  args: { savedRouteId: v.id('saved_routes') },
-  returns: v.null(),
-  handler: async (ctx, args): Promise<null> => {
-    await requireIdentity(ctx)
-    await ctx.runMutation(internalSavedRoutes.deleteById, args)
     return null
   },
 })

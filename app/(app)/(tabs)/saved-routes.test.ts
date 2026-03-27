@@ -155,6 +155,8 @@ const makeRoute = (
   overrides: Partial<SavedRouteListItemView> & { savedRouteId: string }
 ): SavedRouteListItemView => ({
   name: 'Test Route',
+  startLabel: 'Start',
+  endLabel: 'End',
   createdAt: Date.now(),
   updatedAt: Date.now(),
   preview: {

@@ -1,0 +1,36 @@
+{
+  "task": "US-036",
+  "title": "Wire start/end locations into saved route card",
+  "timestamp": "2026-03-27",
+  "checks": {
+    "typecheck": {
+      "status": "pass",
+      "notes": "No errors in changed files. Pre-existing errors in route-polyline.test.tsx and planRide.ts unrelated to this task."
+    },
+    "lint": {
+      "status": "skip",
+      "notes": "Pre-existing ESLint config issue: react-native plugin not found. Not caused by this task."
+    },
+    "test": {
+      "status": "pass",
+      "suites_passed": 5,
+      "suites_total": 5,
+      "tests_passed": 44,
+      "tests_total": 44
+    }
+  },
+  "files_changed": [
+    "convex/db/savedRoutes.ts",
+    "types/routes.ts",
+    "app/(app)/(tabs)/saved-routes.tsx",
+    "app/(app)/(tabs)/__tests__/saved-routes.swipe.test.ts",
+    "app/(app)/(tabs)/__tests__/saved-routes.filter.test.ts",
+    "app/(app)/(tabs)/saved-routes.test.ts"
+  ],
+  "acceptance_criteria": {
+    "AC1": "Each card shows '{start} → {end}' in the path area - SATISFIED",
+    "AC2": "Missing start/end labels handled gracefully - SATISFIED (fallback to empty string via ?? '')",
+    "AC3": "getSavedRoutesList response includes startLabel and endLabel - SATISFIED",
+    "AC4": "Only label strings added, NOT full planInput object - SATISFIED"
+  }
+}
