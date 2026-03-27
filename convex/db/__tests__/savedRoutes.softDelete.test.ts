@@ -7,6 +7,7 @@
 
 import { ConvexError } from 'convex/values'
 
+import type { Id } from '../../_generated/dataModel'
 import {
   buildSoftDeletePatch,
   buildUndoPatch,
@@ -16,7 +17,7 @@ import {
 describe('buildSoftDeletePatch', () => {
   it('AC-1: returns deletedAt and scheduledDeletionId patch', () => {
     const now = 1000000
-    const scheduledId = 'sched_123'
+    const scheduledId = 'sched_123' as Id<'_scheduled_functions'>
     const patch = buildSoftDeletePatch(now, scheduledId)
     expect(patch.deletedAt).toBe(now)
     expect(patch.scheduledDeletionId).toBe(scheduledId)

@@ -31,8 +31,8 @@ const isOwnedByViewer = (doc: SavedRouteDoc, clerkUserId: string): boolean => {
 
 export const buildSoftDeletePatch = (
   deletedAt: number,
-  scheduledDeletionId: string
-): { deletedAt: number; scheduledDeletionId: string } => ({
+  scheduledDeletionId: Id<'_scheduled_functions'>
+): { deletedAt: number; scheduledDeletionId: Id<'_scheduled_functions'> } => ({
   deletedAt,
   scheduledDeletionId,
 })
@@ -55,14 +55,14 @@ export const shouldExcludeFromList = (doc: {
 
 type SoftDeleteCtx = {
   db: { get: (id: string) => Promise<SavedRouteDoc | null>; patch: (id: string, fields: object) => Promise<void> }
-  scheduler: { runAfter: (ms: number, fn: unknown, args: object) => Promise<string> }
+  scheduler: { runAfter: (ms: number, fn: unknown, args: object) => Promise<Id<'_scheduled_functions'>> }
 }
 
 export const softDeleteRouteHandler = async (
   ctx: SoftDeleteCtx,
   args: { savedRouteId: Id<'saved_routes'> },
   clerkUserId: string
-): Promise<{ scheduledDeletionId: string }> => {
+): Promise<{ scheduledDeletionId: Id<'_scheduled_functions'> }> => {
   const doc = await ctx.db.get(args.savedRouteId)
   if (!doc || !isOwnedByViewer(doc as SavedRouteDoc, clerkUserId)) {
     throw new ConvexError('Route not found')
@@ -407,8 +407,8 @@ export const deleteRoute = mutation({
 
 export const softDeleteRoute = mutation({
   args: { savedRouteId: v.id('saved_routes') },
-  returns: v.object({ scheduledDeletionId: v.string() }),
-  handler: async (ctx, args): Promise<{ scheduledDeletionId: string }> => {
+  returns: v.object({ scheduledDeletionId: v.id('_scheduled_functions') }),
+  handler: async (ctx, args): Promise<{ scheduledDeletionId: Id<'_scheduled_functions'> }> => {
     const { clerkUserId } = await requireIdentity(ctx)
     return softDeleteRouteHandler(ctx as any, args, clerkUserId)
   },
