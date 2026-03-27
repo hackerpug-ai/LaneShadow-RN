@@ -1,0 +1,35 @@
+{
+  "task": "US-015",
+  "title": "Build route detail screen with full map view",
+  "timestamp": "2026-03-26T00:00:00Z",
+  "checks": {
+    "typecheck": {
+      "status": "pass",
+      "errors_in_new_files": 0,
+      "note": "Pre-existing errors in route-polyline.test.tsx and stories - not related to US-015"
+    },
+    "lint": {
+      "status": "skip",
+      "note": "ESLint broken project-wide: react-native plugin not found in eslint 9.x config"
+    },
+    "tests": {
+      "status": "pass",
+      "suites_passed": 1,
+      "tests_passed": 22,
+      "tests_failed": 0,
+      "pre_existing_failures": "10 suites / 5 tests fail without US-015 changes"
+    }
+  },
+  "files_created": [
+    "app/(app)/saved-route/[id].tsx",
+    "app/(app)/saved-route/utils.ts",
+    "app/(app)/saved-route/__tests__/[id].test.ts"
+  ],
+  "acceptance_criteria": {
+    "AC1": "Screen renders MapView with polylines, header with name, stats (distance/duration/legs), weather badges",
+    "AC2": "Loading state shows ActivityIndicator when data is undefined",
+    "AC3": "Wind-only route: WindBadge shows level, RainBadge/TempBadge show unavailable",
+    "AC4": "Null data shows 'Route not found' message with back navigation button",
+    "AC5": "Back button calls router.back() via MapHeaderOverlay leftAction"
+  }
+}

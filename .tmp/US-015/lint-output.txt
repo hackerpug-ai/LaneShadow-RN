@@ -1,0 +1,1 @@
+ESLint is broken project-wide (pre-existing): react-native plugin not found in eslint 9.x config
