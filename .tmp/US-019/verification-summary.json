@@ -1,0 +1,46 @@
+{
+  "task": "US-019",
+  "status": "completed",
+  "commit_sha": "cf89dd803b77caaa16adab8f3e59e2ca42a653b5",
+  "commit_blocked": false,
+  "evidence_path": ".tmp/US-019/",
+  "tdd_summary": [
+    {
+      "ac": "AC-1",
+      "test_function": "filters routes by name containing searchQuery case-insensitively",
+      "red_evidence": "TS2305: Module has no exported member 'applySearchFilter'",
+      "green": true
+    },
+    {
+      "ac": "AC-2",
+      "test_function": "returns all routes when searchQuery is undefined",
+      "red_evidence": "same - module export missing",
+      "green": true
+    },
+    {
+      "ac": "AC-3",
+      "test_function": "returns all routes when searchQuery is empty string",
+      "red_evidence": "same - module export missing",
+      "green": true
+    },
+    {
+      "ac": "AC-4",
+      "test_function": "returns empty array when no routes match searchQuery",
+      "red_evidence": "same - module export missing",
+      "green": true
+    }
+  ],
+  "files_modified": [
+    "convex/db/savedRoutes.ts",
+    "convex/db/savedRoutes.utils.ts"
+  ],
+  "files_created": [
+    "convex/db/__tests__/savedRoutes.search.test.ts",
+    "convex/db/savedRoutes.utils.ts"
+  ],
+  "pre_existing_failures": [
+    "components/map/route-polyline.test.tsx:109 TypeScript syntax error",
+    "ESLint react-native plugin missing"
+  ],
+  "summary": "Added optional searchQuery arg to listByOwner and getSavedRoutesList. Case-insensitive post-fetch filtering via applySearchFilter pure helper extracted to savedRoutes.utils.ts. All 4 ACs pass. Backward compatible - omitting searchQuery returns all routes."
+}
