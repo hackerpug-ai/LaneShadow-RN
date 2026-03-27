@@ -1,0 +1,3 @@
+Pre-existing ESLint configuration error: react-native plugin not found.
+This error exists on the base branch (verified via git stash test).
+No new lint errors introduced by US-035 changes.

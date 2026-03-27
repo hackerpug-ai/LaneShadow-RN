@@ -222,6 +222,15 @@ export const insert = internalMutation({
   returns: v.object({ savedRouteId: v.id('saved_routes') }),
   handler: async (ctx, args) => {
     const { clerkUserId } = await requireIdentity(ctx)
+
+    const trimmed = args.name.trim()
+    if (trimmed.length === 0) {
+      throw new ConvexError('Route name cannot be empty')
+    }
+    if (trimmed.length > 100) {
+      throw new ConvexError('Route name must be 100 characters or less')
+    }
+
     const now = Date.now()
 
     const savedRouteId: Id<'saved_routes'> = await ctx.db.insert('saved_routes', {
@@ -229,7 +238,7 @@ export const insert = internalMutation({
       ownerId: clerkUserId,
       createdByUserId: clerkUserId,
       visibility: VISIBILITY.PRIVATE,
-      name: args.name,
+      name: trimmed,
       planInput: args.planInput,
       routeSnapshot: args.routeSnapshot,
       routeIndex: args.routeIndex,

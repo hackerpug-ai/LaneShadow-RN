@@ -131,14 +131,6 @@ export const useRenameRoute = () => {
   )
 }
 
-export const useDeleteRoute = () => {
-  const mutation = useMutation(api.db.savedRoutes.deleteRoute)
-  return useMutationRunner<{ savedRouteId: Id<'saved_routes'>; name?: string }, null>(
-    mutation,
-    'Route deleted.'
-  )
-}
-
 export const useSoftDeleteRoute = () => {
   const mutation = useMutation(api.db.savedRoutes.softDeleteRoute)
   return useMutationRunner<
