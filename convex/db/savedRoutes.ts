@@ -1,4 +1,4 @@
-import { v } from 'convex/values'
+import { ConvexError, v } from 'convex/values'
 
 import {
   OWNER_TYPE,
@@ -17,11 +17,105 @@ import { internal } from '../_generated/api'
 import type { Doc, Id } from '../_generated/dataModel'
 import { internalMutation, internalQuery, mutation, query } from '../_generated/server'
 import { requireIdentity } from '../guards'
+import { applySearchFilter } from './savedRoutes.utils'
+export { applySearchFilter } from './savedRoutes.utils'
 
 type SavedRouteDoc = Doc<'saved_routes'>
 
 const isOwnedByViewer = (doc: SavedRouteDoc, clerkUserId: string): boolean => {
   return doc.ownerType === OWNER_TYPE.USER && doc.ownerId === clerkUserId
+}
+
+// ---------------------------------------------------------------------------
+// Exported pure helpers (also used in tests)
+// ---------------------------------------------------------------------------
+
+export const buildSoftDeletePatch = (
+  deletedAt: number,
+  scheduledDeletionId: string
+): { deletedAt: number; scheduledDeletionId: string } => ({
+  deletedAt,
+  scheduledDeletionId,
+})
+
+export const buildUndoPatch = (): {
+  deletedAt: undefined
+  scheduledDeletionId: undefined
+} => ({
+  deletedAt: undefined,
+  scheduledDeletionId: undefined,
+})
+
+export const shouldExcludeFromList = (doc: {
+  deletedAt?: number | undefined
+}): boolean => doc.deletedAt !== undefined && doc.deletedAt !== null
+
+// ---------------------------------------------------------------------------
+// Exported handler functions (testable without Convex runtime)
+// ---------------------------------------------------------------------------
+
+type SoftDeleteCtx = {
+  db: { get: (id: string) => Promise<SavedRouteDoc | null>; patch: (id: string, fields: object) => Promise<void> }
+  scheduler: { runAfter: (ms: number, fn: unknown, args: object) => Promise<string> }
+}
+
+export const softDeleteRouteHandler = async (
+  ctx: SoftDeleteCtx,
+  args: { savedRouteId: Id<'saved_routes'> },
+  clerkUserId: string
+): Promise<{ scheduledDeletionId: string }> => {
+  const doc = await ctx.db.get(args.savedRouteId)
+  if (!doc || !isOwnedByViewer(doc as SavedRouteDoc, clerkUserId)) {
+    throw new Error('NOT_FOUND')
+  }
+
+  const scheduledDeletionId = await ctx.scheduler.runAfter(
+    5000,
+    internalSavedRoutes.permanentlyDeleteRoute,
+    { savedRouteId: args.savedRouteId }
+  )
+
+  await ctx.db.patch(args.savedRouteId, buildSoftDeletePatch(Date.now(), scheduledDeletionId))
+  return { scheduledDeletionId }
+}
+
+type UndoDeleteCtx = {
+  db: { get: (id: string) => Promise<SavedRouteDoc | null>; patch: (id: string, fields: object) => Promise<void> }
+  scheduler: { cancel: (id: string) => Promise<void> }
+}
+
+export const undoDeleteRouteHandler = async (
+  ctx: UndoDeleteCtx,
+  args: { savedRouteId: Id<'saved_routes'> },
+  clerkUserId: string
+): Promise<null> => {
+  const doc = await ctx.db.get(args.savedRouteId)
+  if (!doc || !isOwnedByViewer(doc as SavedRouteDoc, clerkUserId)) {
+    throw new Error('NOT_FOUND')
+  }
+
+  if ((doc as any).scheduledDeletionId) {
+    await ctx.scheduler.cancel((doc as any).scheduledDeletionId)
+  }
+
+  await ctx.db.patch(args.savedRouteId, buildUndoPatch())
+  return null
+}
+
+type PermanentlyDeleteCtx = {
+  db: { get: (id: string) => Promise<SavedRouteDoc | null>; delete: (id: string) => Promise<void> }
+}
+
+export const permanentlyDeleteRouteHandler = async (
+  ctx: PermanentlyDeleteCtx,
+  args: { savedRouteId: Id<'saved_routes'> }
+): Promise<null> => {
+  const doc = await ctx.db.get(args.savedRouteId)
+  if (!doc) {
+    return null
+  }
+  await ctx.db.delete(args.savedRouteId)
+  return null
 }
 
 const stripSystemFields = (doc: SavedRouteDoc) => {
@@ -71,14 +165,14 @@ export const getById = internalQuery({
 })
 
 export const listByOwner = internalQuery({
-  args: { limit: v.optional(v.number()) },
+  args: { limit: v.optional(v.number()), searchQuery: v.optional(v.string()) },
   returns: v.array(
     v.object({
       savedRouteId: v.id('saved_routes'),
       savedRoute: savedRouteValidator,
     })
   ),
-  handler: async (ctx, { limit }) => {
+  handler: async (ctx, { limit, searchQuery }) => {
     const { clerkUserId } = await requireIdentity(ctx)
 
     const query = ctx.db
@@ -90,10 +184,16 @@ export const listByOwner = internalQuery({
 
     const rows = limit ? await query.take(limit) : await query.collect()
 
-    return rows.map((doc) => ({
-      savedRouteId: doc._id,
-      savedRoute: stripSystemFields(doc),
-    }))
+    const mapped = rows
+      .filter((doc) => !shouldExcludeFromList(doc as { deletedAt?: number }))
+      .map((doc) => ({
+        savedRouteId: doc._id,
+        savedRoute: stripSystemFields(doc),
+        name: doc.name,
+      }))
+
+    const filtered = applySearchFilter(mapped, searchQuery)
+    return filtered.map(({ savedRouteId, savedRoute }) => ({ savedRouteId, savedRoute }))
   },
 })
 
@@ -139,7 +239,15 @@ export const patchName = internalMutation({
       throw new Error('NOT_FOUND')
     }
 
-    await ctx.db.patch(doc._id, { name: args.name, updatedAt: Date.now() })
+    const trimmed = args.name.trim()
+    if (trimmed.length === 0) {
+      throw new ConvexError('Route name cannot be empty')
+    }
+    if (trimmed.length > 100) {
+      throw new ConvexError('Route name must be 100 characters or less')
+    }
+
+    await ctx.db.patch(doc._id, { name: trimmed, updatedAt: Date.now() })
     return null
   },
 })
@@ -161,7 +269,7 @@ export const deleteById = internalMutation({
 })
 
 export const getSavedRoutesList = query({
-  args: { limit: v.optional(v.number()) },
+  args: { limit: v.optional(v.number()), searchQuery: v.optional(v.string()) },
   returns: v.object({
     routes: v.array(
       v.object({
@@ -174,7 +282,7 @@ export const getSavedRoutesList = query({
       })
     ),
   }),
-  handler: async (ctx, { limit }): Promise<SavedRoutesListView> => {
+  handler: async (ctx, { limit, searchQuery }): Promise<SavedRoutesListView> => {
     await requireIdentity(ctx)
     const boundedLimit =
       limit && Number.isFinite(limit)
@@ -186,6 +294,7 @@ export const getSavedRoutesList = query({
       savedRoute: SavedRoute
     }> = await ctx.runQuery(internalSavedRoutes.listByOwner, {
       limit: boundedLimit,
+      searchQuery,
     })
 
     return {
@@ -279,5 +388,31 @@ export const deleteRoute = mutation({
     await requireIdentity(ctx)
     await ctx.runMutation(internalSavedRoutes.deleteById, args)
     return null
+  },
+})
+
+export const softDeleteRoute = mutation({
+  args: { savedRouteId: v.id('saved_routes') },
+  returns: v.object({ scheduledDeletionId: v.string() }),
+  handler: async (ctx, args): Promise<{ scheduledDeletionId: string }> => {
+    const { clerkUserId } = await requireIdentity(ctx)
+    return softDeleteRouteHandler(ctx as any, args, clerkUserId)
+  },
+})
+
+export const undoDeleteRoute = mutation({
+  args: { savedRouteId: v.id('saved_routes') },
+  returns: v.null(),
+  handler: async (ctx, args): Promise<null> => {
+    const { clerkUserId } = await requireIdentity(ctx)
+    return undoDeleteRouteHandler(ctx as any, args, clerkUserId)
+  },
+})
+
+export const permanentlyDeleteRoute = internalMutation({
+  args: { savedRouteId: v.id('saved_routes') },
+  returns: v.null(),
+  handler: async (ctx, args): Promise<null> => {
+    return permanentlyDeleteRouteHandler(ctx as any, args)
   },
 })

@@ -357,6 +357,8 @@ export const savedRouteValidator = v.object({
   snapshotMeta: snapshotMetaValidator,
   createdAt: v.number(),
   updatedAt: v.number(),
+  deletedAt: v.optional(v.number()),
+  scheduledDeletionId: v.optional(v.id('_scheduled_functions')),
 })
 export type SavedRoute = Infer<typeof savedRouteValidator>
 
