@@ -107,6 +107,7 @@ const SavedRoutesScreen = () => {
         data={sortedRoutes}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
+        maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
         contentContainerStyle={{
           paddingHorizontal: semantic.space.lg,
           paddingBottom: bottom + semantic.space.lg,

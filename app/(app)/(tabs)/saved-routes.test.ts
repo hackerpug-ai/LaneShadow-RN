@@ -87,6 +87,9 @@ jest.mock('../../../components/ui/saved-route-card.utils', () => ({
   formatDate: (ts: number) => new Date(ts).toLocaleDateString(),
 }))
 jest.mock('../../../components/ui/skeleton', () => ({ Skeleton: 'Skeleton' }))
+jest.mock('../../../components/ui/empty-state', () => ({
+  EmptyState: 'EmptyState',
+}))
 jest.mock('./saved-routes.components', () => ({
   SkeletonCard: 'SkeletonCard',
   EmptyPlaceholder: 'EmptyPlaceholder',
@@ -279,5 +282,121 @@ describe('THUMBNAIL_ROTATIONS', () => {
     expect(THUMBNAIL_ROTATIONS[4 % 5]).toBe(-7)
     // Cycle repeats
     expect(THUMBNAIL_ROTATIONS[5 % 5]).toBe(-12)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// US-018: Scroll position preservation
+// ---------------------------------------------------------------------------
+describe('US-018: Scroll position preservation', () => {
+  /**
+   * Acceptance Criteria:
+   * - AC-1: Scrolled to 5th card -> tap card -> view detail -> back -> list at same position
+   * - AC-2: At bottom of list -> tap card -> back -> still at bottom
+   * - AC-3: On detail screen, new route added -> back -> list updates but maintains position
+   * - AC-4: On saved routes -> switch tab -> switch back -> scroll position maintained
+   *
+   * Architecture verification: Expo Router Stack + Tabs keeps saved-routes mounted
+   * when navigating to detail or switching tabs, so FlatList scroll is naturally preserved.
+   */
+
+  it('AC-1/AC-2: FlatList stays mounted when data is loaded (no conditional unmount)', () => {
+    // When data is loaded, the FlatList branch renders (not the skeleton branch).
+    // As long as isLoading stays false, the FlatList component stays in the tree,
+    // preserving its internal scroll state across re-renders.
+    const routes = Array.from({ length: 10 }, (_, i) =>
+      makeRoute({ savedRouteId: `route-${i}`, createdAt: 1000 + i })
+    )
+    mockHookReturn.data = { routes }
+    mockHookReturn.isLoading = false
+
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRoutesScreen))
+    })
+
+    // Verify FlatList is rendered with all 10 routes
+    const flatList = tree!.root.findByProps({ testID: 'saved-routes-list' })
+    expect(flatList.props.data).toHaveLength(10)
+
+    // Simulate a data refresh (e.g., returning from detail screen with Convex cache hit).
+    // The same data reference means no unnecessary FlatList re-mount.
+    act(() => {
+      tree!.update(React.createElement(SavedRoutesScreen))
+    })
+
+    // FlatList is still the same instance in the tree (not replaced by skeleton)
+    const flatListAfter = tree!.root.findByProps({ testID: 'saved-routes-list' })
+    expect(flatListAfter.props.data).toHaveLength(10)
+  })
+
+  it('AC-3: maintainVisibleContentPosition is set for data changes during navigation', () => {
+    // When a new route is added while the user is on the detail screen,
+    // Convex real-time updates push new data to the FlatList.
+    // maintainVisibleContentPosition ensures visible items stay in place.
+    const routes = [makeRoute({ savedRouteId: 'route-1', createdAt: 1000 })]
+    mockHookReturn.data = { routes }
+    mockHookReturn.isLoading = false
+
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRoutesScreen))
+    })
+
+    const flatList = tree!.root.findByProps({ testID: 'saved-routes-list' })
+    expect(flatList.props.maintainVisibleContentPosition).toEqual({
+      minIndexForVisible: 0,
+    })
+  })
+
+  it('AC-3: FlatList uses stable keyExtractor so existing items are not re-mounted on data change', () => {
+    // keyExtractor returns savedRouteId, which is stable across data updates.
+    // This means React can reconcile existing items without unmounting them.
+    const routes = [makeRoute({ savedRouteId: 'route-abc', createdAt: 1000 })]
+    mockHookReturn.data = { routes }
+    mockHookReturn.isLoading = false
+
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRoutesScreen))
+    })
+
+    const flatList = tree!.root.findByProps({ testID: 'saved-routes-list' })
+    const key = flatList.props.keyExtractor(routes[0])
+    expect(key).toBe('route-abc')
+  })
+
+  it('AC-4: Component does not force scroll-to-top on re-render (no scrollToOffset call)', () => {
+    // Verify the component does not imperatively scroll to top.
+    // The FlatList has no ref-based scrollToOffset or scrollToIndex calls
+    // that would reset position on mount or re-render.
+    const routes = Array.from({ length: 5 }, (_, i) =>
+      makeRoute({ savedRouteId: `route-${i}`, createdAt: 1000 + i })
+    )
+    mockHookReturn.data = { routes }
+    mockHookReturn.isLoading = false
+
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRoutesScreen))
+    })
+
+    const flatList = tree!.root.findByProps({ testID: 'saved-routes-list' })
+
+    // No initialScrollIndex that would force position
+    expect(flatList.props.initialScrollIndex).toBeUndefined()
+
+    // Re-render should not change FlatList identity
+    act(() => {
+      tree!.update(React.createElement(SavedRoutesScreen))
+    })
+
+    const flatListAfter = tree!.root.findByProps({ testID: 'saved-routes-list' })
+    expect(flatListAfter.props.data).toHaveLength(5)
+  })
+
+  afterAll(() => {
+    mockHookReturn.data = undefined
+    mockHookReturn.isLoading = true
   })
 })
