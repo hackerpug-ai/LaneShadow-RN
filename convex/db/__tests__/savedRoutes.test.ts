@@ -1,6 +1,8 @@
 import { ConvexError } from 'convex/values'
 
-import { insert } from '../savedRoutes'
+import { insertHandler } from '../savedRoutes'
+
+const CLERK_USER_ID = 'user_123'
 
 const makeCtx = () => ({
   db: {
@@ -9,7 +11,7 @@ const makeCtx = () => ({
     patch: jest.fn().mockResolvedValue(undefined),
   },
   auth: {
-    getUserIdentity: jest.fn().mockResolvedValue({ subject: 'user_123' }),
+    getUserIdentity: jest.fn().mockResolvedValue({ subject: CLERK_USER_ID }),
   },
   runQuery: jest.fn(),
   runMutation: jest.fn(),
@@ -35,10 +37,10 @@ describe('insert name validation', () => {
   it('AC-1: throws ConvexError for whitespace-only name', async () => {
     const ctx = makeCtx()
     await expect(
-      (insert as any).handler(ctx, { ...baseArgs, name: '   ' })
+      insertHandler(ctx as any, { ...baseArgs, name: '   ' }, CLERK_USER_ID)
     ).rejects.toThrow(ConvexError)
     await expect(
-      (insert as any).handler(ctx, { ...baseArgs, name: '   ' })
+      insertHandler(ctx as any, { ...baseArgs, name: '   ' }, CLERK_USER_ID)
     ).rejects.toThrow('Route name cannot be empty')
   })
 
@@ -46,16 +48,16 @@ describe('insert name validation', () => {
     const ctx = makeCtx()
     const longName = 'a'.repeat(101)
     await expect(
-      (insert as any).handler(ctx, { ...baseArgs, name: longName })
+      insertHandler(ctx as any, { ...baseArgs, name: longName }, CLERK_USER_ID)
     ).rejects.toThrow(ConvexError)
     await expect(
-      (insert as any).handler(ctx, { ...baseArgs, name: longName })
+      insertHandler(ctx as any, { ...baseArgs, name: longName }, CLERK_USER_ID)
     ).rejects.toThrow('Route name must be 100 characters or less')
   })
 
   it('AC-3: trims name before inserting', async () => {
     const ctx = makeCtx()
-    await (insert as any).handler(ctx, { ...baseArgs, name: '  My Route  ' })
+    await insertHandler(ctx as any, { ...baseArgs, name: '  My Route  ' }, CLERK_USER_ID)
     expect(ctx.db.insert).toHaveBeenCalledWith(
       'saved_routes',
       expect.objectContaining({ name: 'My Route' })
@@ -66,7 +68,7 @@ describe('insert name validation', () => {
     const ctx = makeCtx()
     const validName = 'a'.repeat(100)
     await expect(
-      (insert as any).handler(ctx, { ...baseArgs, name: validName })
+      insertHandler(ctx as any, { ...baseArgs, name: validName }, CLERK_USER_ID)
     ).resolves.toEqual({ savedRouteId: 'saved_routes_id_new123' })
   })
 })

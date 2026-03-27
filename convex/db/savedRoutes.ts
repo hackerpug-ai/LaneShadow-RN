@@ -127,6 +127,49 @@ export const permanentlyDeleteRouteHandler = async (
   return null
 }
 
+type InsertCtx = {
+  db: { insert: (table: string, fields: object) => Promise<Id<'saved_routes'>> }
+  auth: { getUserIdentity: () => Promise<{ subject: string } | null> }
+}
+
+export const insertHandler = async (
+  ctx: InsertCtx,
+  args: {
+    name: string
+    planInput: SavedRoute['planInput']
+    routeSnapshot: SavedRoute['routeSnapshot']
+    routeIndex: SavedRoute['routeIndex']
+    snapshotMeta: SavedRoute['snapshotMeta']
+  },
+  clerkUserId: string
+): Promise<{ savedRouteId: Id<'saved_routes'> }> => {
+  const trimmed = args.name.trim()
+  if (trimmed.length === 0) {
+    throw new ConvexError('Route name cannot be empty')
+  }
+  if (trimmed.length > 100) {
+    throw new ConvexError('Route name must be 100 characters or less')
+  }
+
+  const now = Date.now()
+
+  const savedRouteId: Id<'saved_routes'> = await ctx.db.insert('saved_routes', {
+    ownerType: OWNER_TYPE.USER,
+    ownerId: clerkUserId,
+    createdByUserId: clerkUserId,
+    visibility: VISIBILITY.PRIVATE,
+    name: trimmed,
+    planInput: args.planInput,
+    routeSnapshot: args.routeSnapshot,
+    routeIndex: args.routeIndex,
+    snapshotMeta: args.snapshotMeta,
+    createdAt: now,
+    updatedAt: now,
+  })
+
+  return { savedRouteId }
+}
+
 const stripSystemFields = (doc: SavedRouteDoc) => {
   const { _id, _creationTime, ...savedRoute } = doc
   return savedRoute
@@ -225,32 +268,7 @@ export const insert = internalMutation({
   returns: v.object({ savedRouteId: v.id('saved_routes') }),
   handler: async (ctx, args) => {
     const { clerkUserId } = await requireIdentity(ctx)
-
-    const trimmed = args.name.trim()
-    if (trimmed.length === 0) {
-      throw new ConvexError('Route name cannot be empty')
-    }
-    if (trimmed.length > 100) {
-      throw new ConvexError('Route name must be 100 characters or less')
-    }
-
-    const now = Date.now()
-
-    const savedRouteId: Id<'saved_routes'> = await ctx.db.insert('saved_routes', {
-      ownerType: OWNER_TYPE.USER,
-      ownerId: clerkUserId,
-      createdByUserId: clerkUserId,
-      visibility: VISIBILITY.PRIVATE,
-      name: trimmed,
-      planInput: args.planInput,
-      routeSnapshot: args.routeSnapshot,
-      routeIndex: args.routeIndex,
-      snapshotMeta: args.snapshotMeta,
-      createdAt: now,
-      updatedAt: now,
-    })
-
-    return { savedRouteId }
+    return insertHandler(ctx as any, args, clerkUserId)
   },
 })
 
