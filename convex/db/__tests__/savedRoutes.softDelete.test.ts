@@ -5,6 +5,8 @@
  * unit-tested without a running Convex backend.
  */
 
+import { ConvexError } from 'convex/values'
+
 import {
   buildSoftDeletePatch,
   buildUndoPatch,
@@ -66,7 +68,7 @@ describe('soft-delete handler logic', () => {
     ...overrides,
   })
 
-  it('AC-4: undoDeleteRoute throws NOT_FOUND when route does not exist', async () => {
+  it('AC-4: undoDeleteRoute throws ConvexError when route does not exist', async () => {
     const ctx = {
       db: {
         get: jest.fn().mockResolvedValue(null),
@@ -80,7 +82,7 @@ describe('soft-delete handler logic', () => {
     const { undoDeleteRouteHandler } = await import('../savedRoutes')
     await expect(
       undoDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any }, 'user_1')
-    ).rejects.toThrow('NOT_FOUND')
+    ).rejects.toThrow(ConvexError)
   })
 
   it('AC-2: undoDeleteRoute cancels scheduled deletion and clears deletedAt', async () => {

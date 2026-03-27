@@ -17,8 +17,8 @@ import { internal } from '../_generated/api'
 import type { Doc, Id } from '../_generated/dataModel'
 import { internalMutation, internalQuery, mutation, query } from '../_generated/server'
 import { requireIdentity } from '../guards'
-import { applySearchFilter } from './savedRoutes.utils'
-export { applySearchFilter } from './savedRoutes.utils'
+import { applyDateFilter, applySearchFilter } from './savedRoutes.utils'
+export { applyDateFilter, applySearchFilter } from './savedRoutes.utils'
 
 type SavedRouteDoc = Doc<'saved_routes'>
 
@@ -66,7 +66,7 @@ export const softDeleteRouteHandler = async (
 ): Promise<{ scheduledDeletionId: string }> => {
   const doc = await ctx.db.get(args.savedRouteId)
   if (!doc || !isOwnedByViewer(doc as SavedRouteDoc, clerkUserId)) {
-    throw new Error('NOT_FOUND')
+    throw new ConvexError('Route not found')
   }
 
   const scheduledDeletionId = await ctx.scheduler.runAfter(
@@ -91,11 +91,11 @@ export const undoDeleteRouteHandler = async (
 ): Promise<null> => {
   const doc = await ctx.db.get(args.savedRouteId)
   if (!doc || !isOwnedByViewer(doc as SavedRouteDoc, clerkUserId)) {
-    throw new Error('NOT_FOUND')
+    throw new ConvexError('Route not found')
   }
 
-  if ((doc as any).scheduledDeletionId) {
-    await ctx.scheduler.cancel((doc as any).scheduledDeletionId)
+  if (doc.scheduledDeletionId) {
+    await ctx.scheduler.cancel(doc.scheduledDeletionId)
   }
 
   await ctx.db.patch(args.savedRouteId, buildUndoPatch())
@@ -165,14 +165,19 @@ export const getById = internalQuery({
 })
 
 export const listByOwner = internalQuery({
-  args: { limit: v.optional(v.number()), searchQuery: v.optional(v.string()) },
+  args: {
+    limit: v.optional(v.number()),
+    searchQuery: v.optional(v.string()),
+    afterDate: v.optional(v.number()),
+    beforeDate: v.optional(v.number()),
+  },
   returns: v.array(
     v.object({
       savedRouteId: v.id('saved_routes'),
       savedRoute: savedRouteValidator,
     })
   ),
-  handler: async (ctx, { limit, searchQuery }) => {
+  handler: async (ctx, { limit, searchQuery, afterDate, beforeDate }) => {
     const { clerkUserId } = await requireIdentity(ctx)
 
     const query = ctx.db
@@ -182,18 +187,21 @@ export const listByOwner = internalQuery({
       )
       .order('desc')
 
-    const rows = limit ? await query.take(limit) : await query.collect()
+    const allRows = await query.collect()
 
-    const mapped = rows
+    const mapped = allRows
       .filter((doc) => !shouldExcludeFromList(doc as { deletedAt?: number }))
       .map((doc) => ({
         savedRouteId: doc._id,
         savedRoute: stripSystemFields(doc),
         name: doc.name,
+        createdAt: doc.createdAt,
       }))
 
-    const filtered = applySearchFilter(mapped, searchQuery)
-    return filtered.map(({ savedRouteId, savedRoute }) => ({ savedRouteId, savedRoute }))
+    const nameFiltered = applySearchFilter(mapped, searchQuery)
+    const dateFiltered = applyDateFilter(nameFiltered, afterDate, beforeDate)
+    const sliced = limit ? dateFiltered.slice(0, limit) : dateFiltered
+    return sliced.map(({ savedRouteId, savedRoute }) => ({ savedRouteId, savedRoute }))
   },
 })
 
@@ -269,7 +277,12 @@ export const deleteById = internalMutation({
 })
 
 export const getSavedRoutesList = query({
-  args: { limit: v.optional(v.number()), searchQuery: v.optional(v.string()) },
+  args: {
+    limit: v.optional(v.number()),
+    searchQuery: v.optional(v.string()),
+    afterDate: v.optional(v.number()),
+    beforeDate: v.optional(v.number()),
+  },
   returns: v.object({
     routes: v.array(
       v.object({
@@ -282,7 +295,7 @@ export const getSavedRoutesList = query({
       })
     ),
   }),
-  handler: async (ctx, { limit, searchQuery }): Promise<SavedRoutesListView> => {
+  handler: async (ctx, { limit, searchQuery, afterDate, beforeDate }): Promise<SavedRoutesListView> => {
     await requireIdentity(ctx)
     const boundedLimit =
       limit && Number.isFinite(limit)
@@ -295,6 +308,8 @@ export const getSavedRoutesList = query({
     }> = await ctx.runQuery(internalSavedRoutes.listByOwner, {
       limit: boundedLimit,
       searchQuery,
+      afterDate,
+      beforeDate,
     })
 
     return {
