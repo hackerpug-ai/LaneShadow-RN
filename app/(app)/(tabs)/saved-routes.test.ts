@@ -77,8 +77,37 @@ const mockHookReturn = {
   isLoading: true,
 }
 
+jest.mock('react-native-gesture-handler', () => {
+  const React = require('react')
+  return {
+    Swipeable: React.forwardRef(function MockSwipeable(
+      props: Record<string, unknown>,
+      _ref: React.Ref<unknown>
+    ) {
+      return React.createElement('Swipeable', props, props.children)
+    }),
+  }
+})
+jest.mock('react-native-notifier', () => ({
+  Notifier: {
+    showNotification: jest.fn(),
+    hideNotification: jest.fn(),
+  },
+}))
 jest.mock('../../../hooks/use-saved-routes', () => ({
   useSavedRoutesList: () => mockHookReturn,
+  useSoftDeleteRoute: () => ({
+    run: jest.fn(),
+    isRunning: false,
+    error: null,
+    resetError: jest.fn(),
+  }),
+  useUndoDeleteRoute: () => ({
+    run: jest.fn(),
+    isRunning: false,
+    error: null,
+    resetError: jest.fn(),
+  }),
 }))
 jest.mock('../../../components/ui/saved-route-card', () => ({
   SavedRouteCard: 'SavedRouteCard',
@@ -90,10 +119,22 @@ jest.mock('../../../components/ui/skeleton', () => ({ Skeleton: 'Skeleton' }))
 jest.mock('../../../components/ui/empty-state', () => ({
   EmptyState: 'EmptyState',
 }))
-jest.mock('./saved-routes.components', () => ({
-  SkeletonCard: 'SkeletonCard',
-  EmptyPlaceholder: 'EmptyPlaceholder',
+jest.mock('../../../components/ui/delete-route-dialog', () => ({
+  DeleteRouteDialog: 'DeleteRouteDialog',
 }))
+jest.mock('../../../lib/notifier-helpers', () => ({
+  showSuccessNotification: jest.fn(),
+  showErrorNotification: jest.fn(),
+}))
+jest.mock('./saved-routes.components', () => {
+  const React = require('react')
+  return {
+    SkeletonCard: 'SkeletonCard',
+    EmptyPlaceholder: 'EmptyPlaceholder',
+    SwipeableRouteCard: ({ children }: { children: unknown }) =>
+      React.createElement('SwipeableRouteCard', null, children),
+  }
+})
 
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
@@ -223,9 +264,14 @@ describe('AC-4: Card tap navigates with savedRouteId', () => {
     const root = tree!.root
 
     const flatList = root.findByProps({ testID: 'saved-routes-list' })
-    // Invoke renderItem to get the card element, then call its onPress
+    // Invoke renderItem to get the element tree, render it, then find the card's onPress
     const rendered = flatList.props.renderItem({ item: testRoute, index: 0 })
-    rendered.props.onPress()
+    let itemTree: renderer.ReactTestRenderer
+    act(() => {
+      itemTree = renderer.create(rendered)
+    })
+    const card = itemTree!.root.findByType('SavedRouteCard' as unknown as React.ComponentClass)
+    card.props.onPress()
 
     expect(mockPush).toHaveBeenCalledWith('/(app)/saved-route/route-abc-123')
   })

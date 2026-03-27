@@ -1,15 +1,29 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
+import { Notifier } from 'react-native-notifier'
+import type { Swipeable } from 'react-native-gesture-handler'
 
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import { useSavedRoutesList } from '../../../hooks/use-saved-routes'
+import {
+  useSavedRoutesList,
+  useSoftDeleteRoute,
+  useUndoDeleteRoute,
+} from '../../../hooks/use-saved-routes'
+import { showSuccessNotification } from '../../../lib/notifier-helpers'
 import { SavedRouteCard } from '../../../components/ui/saved-route-card'
 import { formatDate } from '../../../components/ui/saved-route-card.utils'
-import { LoadingState, FilterHeader, FilteredEmptyState } from './saved-routes.components'
+import { DeleteRouteDialog } from '../../../components/ui/delete-route-dialog'
+import {
+  LoadingState,
+  FilterHeader,
+  FilteredEmptyState,
+  SwipeableRouteCard,
+} from './saved-routes.components'
 import { EmptyState } from '../../../components/ui/empty-state'
 import type { SavedRouteListItemView } from '../../../types/routes'
+import type { Id } from '../../../convex/_generated/dataModel'
 
 export const SKELETON_COUNT = 3
 export const THUMBNAIL_ROTATIONS = [-12, -8, -5, -10, -7] as const
@@ -27,6 +41,8 @@ export const getSortedRoutes = (
   routes: SavedRouteListItemView[]
 ): SavedRouteListItemView[] => [...routes].sort((a, b) => b.createdAt - a.createdAt)
 
+const UNDO_TOAST_DURATION = 5000
+
 const SavedRoutesScreen = () => {
   const { semantic } = useSemanticTheme()
   const { bottom } = useSafeAreaInsets()
@@ -36,6 +52,18 @@ const SavedRoutesScreen = () => {
   const [afterDate, setAfterDate] = useState<number | undefined>()
   const [beforeDate, setBeforeDate] = useState<number | undefined>()
   const [datePickerKey, setDatePickerKey] = useState(0)
+
+  // Swipe-to-delete state
+  const [deleteDialogVisible, setDeleteDialogVisible] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string
+    name: string
+  } | null>(null)
+  const softDelete = useSoftDeleteRoute()
+  const undoDelete = useUndoDeleteRoute()
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const didUndoRef = useRef(false)
+  const openSwipeableRef = useRef<Swipeable | null>(null)
 
   const filtersActive = searchQuery.length > 0 || afterDate !== undefined || beforeDate !== undefined
 
@@ -70,19 +98,81 @@ const SavedRoutesScreen = () => {
     [router]
   )
 
+  const handleSwipeDelete = useCallback(
+    (item: SavedRouteListItemView) => {
+      setDeleteTarget({ id: item.savedRouteId, name: item.name })
+      setDeleteDialogVisible(true)
+    },
+    []
+  )
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deleteTarget) return
+    didUndoRef.current = false
+    setDeleteDialogVisible(false)
+
+    const result = await softDelete.run({
+      savedRouteId: deleteTarget.id as Id<'saved_routes'>,
+    })
+    if (result === null) return
+
+    const deletedId = deleteTarget.id
+
+    Notifier.showNotification({
+      title: 'Route deleted',
+      description: 'Tap to undo.',
+      duration: UNDO_TOAST_DURATION,
+      onPress: async () => {
+        didUndoRef.current = true
+        if (undoTimerRef.current) {
+          clearTimeout(undoTimerRef.current)
+          undoTimerRef.current = null
+        }
+        Notifier.hideNotification()
+        await undoDelete.run({
+          savedRouteId: deletedId as Id<'saved_routes'>,
+        })
+        showSuccessNotification('Route restored')
+      },
+    })
+
+    undoTimerRef.current = setTimeout(() => {
+      undoTimerRef.current = null
+    }, UNDO_TOAST_DURATION)
+
+    setDeleteTarget(null)
+  }, [deleteTarget, softDelete, undoDelete])
+
+  const handleDeleteDismiss = useCallback(() => {
+    setDeleteDialogVisible(false)
+    setDeleteTarget(null)
+  }, [])
+
+  const handleSwipeOpen = useCallback((swipeable: Swipeable) => {
+    if (openSwipeableRef.current && openSwipeableRef.current !== swipeable) {
+      openSwipeableRef.current.close()
+    }
+    openSwipeableRef.current = swipeable
+  }, [])
+
   const renderItem = useCallback(
     ({ item, index }: { item: SavedRouteListItemView; index: number }) => (
-      <SavedRouteCard
-        name={item.name}
-        path=""
-        dateSaved={formatDate(item.createdAt)}
-        distance={formatDistance(item.preview.distanceMeters)}
-        duration={formatDuration(item.preview.durationSeconds)}
-        thumbnailRotation={THUMBNAIL_ROTATIONS[index % THUMBNAIL_ROTATIONS.length]}
-        onPress={() => handlePress(item.savedRouteId)}
-      />
+      <SwipeableRouteCard
+        onDelete={() => handleSwipeDelete(item)}
+        onSwipeOpen={handleSwipeOpen}
+      >
+        <SavedRouteCard
+          name={item.name}
+          path=""
+          dateSaved={formatDate(item.createdAt)}
+          distance={formatDistance(item.preview.distanceMeters)}
+          duration={formatDuration(item.preview.durationSeconds)}
+          thumbnailRotation={THUMBNAIL_ROTATIONS[index % THUMBNAIL_ROTATIONS.length]}
+          onPress={() => handlePress(item.savedRouteId)}
+        />
+      </SwipeableRouteCard>
     ),
-    [handlePress]
+    [handlePress, handleSwipeDelete, handleSwipeOpen]
   )
 
   const keyExtractor = useCallback(
@@ -135,6 +225,13 @@ const SavedRoutesScreen = () => {
         refreshControl={
           <RefreshControl refreshing={false} tintColor={semantic.color.primary.default} />
         }
+      />
+      <DeleteRouteDialog
+        visible={deleteDialogVisible}
+        routeName={deleteTarget?.name ?? ''}
+        onConfirm={handleDeleteConfirm}
+        onDismiss={handleDeleteDismiss}
+        testID="swipe-delete-route-dialog"
       />
     </View>
   )

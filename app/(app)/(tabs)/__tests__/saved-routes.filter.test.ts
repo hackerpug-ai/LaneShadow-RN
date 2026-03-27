@@ -81,11 +81,40 @@ const mockHookReturn = {
 }
 let capturedHookArgs: Record<string, unknown> | undefined
 
+jest.mock('react-native-gesture-handler', () => {
+  const React = require('react')
+  return {
+    Swipeable: React.forwardRef(function MockSwipeable(
+      props: Record<string, unknown>,
+      _ref: React.Ref<unknown>
+    ) {
+      return React.createElement('Swipeable', props, props.children)
+    }),
+  }
+})
+jest.mock('react-native-notifier', () => ({
+  Notifier: {
+    showNotification: jest.fn(),
+    hideNotification: jest.fn(),
+  },
+}))
 jest.mock('../../../../hooks/use-saved-routes', () => ({
   useSavedRoutesList: (args?: Record<string, unknown>) => {
     capturedHookArgs = args
     return mockHookReturn
   },
+  useSoftDeleteRoute: () => ({
+    run: jest.fn(),
+    isRunning: false,
+    error: null,
+    resetError: jest.fn(),
+  }),
+  useUndoDeleteRoute: () => ({
+    run: jest.fn(),
+    isRunning: false,
+    error: null,
+    resetError: jest.fn(),
+  }),
 }))
 jest.mock('../../../../components/ui/saved-route-card', () => ({
   SavedRouteCard: 'SavedRouteCard',
@@ -102,6 +131,13 @@ jest.mock('../../../../components/ui/route-search-bar', () => ({
 }))
 jest.mock('../../../../components/ui/date-range-picker', () => ({
   DateRangePicker: 'DateRangePicker',
+}))
+jest.mock('../../../../components/ui/delete-route-dialog', () => ({
+  DeleteRouteDialog: 'DeleteRouteDialog',
+}))
+jest.mock('../../../../lib/notifier-helpers', () => ({
+  showSuccessNotification: jest.fn(),
+  showErrorNotification: jest.fn(),
 }))
 
 import React from 'react'

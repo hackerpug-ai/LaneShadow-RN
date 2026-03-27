@@ -1,5 +1,8 @@
+import { useRef } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { Swipeable } from 'react-native-gesture-handler'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { Skeleton } from '../../../components/ui/skeleton'
@@ -197,6 +200,68 @@ export const FilteredEmptyState = () => {
 }
 
 // ---------------------------------------------------------------------------
+// SwipeableRouteCard – wraps children with left-swipe delete gesture
+// ---------------------------------------------------------------------------
+
+type SwipeableRouteCardProps = {
+  children: React.ReactNode
+  onDelete: () => void
+  onSwipeOpen?: (ref: Swipeable) => void
+}
+
+export const SwipeableRouteCard = ({
+  children,
+  onDelete,
+  onSwipeOpen,
+}: SwipeableRouteCardProps) => {
+  const { semantic } = useSemanticTheme()
+  const swipeableRef = useRef<Swipeable>(null)
+
+  const renderRightActions = () => (
+    <Pressable
+      onPress={() => {
+        swipeableRef.current?.close()
+        onDelete()
+      }}
+      testID="swipe-delete-action"
+      style={[
+        styles.swipeDeleteAction,
+        {
+          backgroundColor: semantic.color.danger.default,
+          borderRadius: semantic.radius.lg,
+          width: semantic.space['4xl'] + semantic.space['4xl'],
+        },
+      ]}
+    >
+      <MaterialCommunityIcons
+        name="trash-can-outline"
+        size={24}
+        color={semantic.color.onSecondary.default}
+      />
+    </Pressable>
+  )
+
+  return (
+    <Swipeable
+      ref={swipeableRef}
+      renderRightActions={renderRightActions}
+      onSwipeableOpen={(direction) => {
+        if (direction === 'right') {
+          swipeableRef.current?.close()
+          onDelete()
+        }
+      }}
+      onSwipeableWillOpen={() => {
+        if (swipeableRef.current) onSwipeOpen?.(swipeableRef.current)
+      }}
+      overshootRight={false}
+    >
+      {children}
+    </Swipeable>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Styles
 // ---------------------------------------------------------------------------
 
@@ -223,5 +288,9 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
+  },
+  swipeDeleteAction: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 })
