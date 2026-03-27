@@ -79,7 +79,7 @@ jest.mock('../../../../components/map/map-view', () => ({
   MapViewWrapper: 'MapViewWrapper',
 }))
 jest.mock('../../../../components/map/route-polyline', () => ({
-  buildRoutePolylines: () => [],
+  buildRoutePolylines: jest.fn(() => []),
 }))
 jest.mock('../../../../components/planning/wind-badge', () => ({
   WindBadge: 'WindBadge',
@@ -110,8 +110,11 @@ import renderer, { act } from 'react-test-renderer'
 
 import type { SavedRouteDetailView } from '../../../../types/routes'
 import type { WindOverlay, RainOverlay, TemperatureOverlay, RouteOverlays } from '../../../../models/saved-routes'
+import { buildRoutePolylines } from '../../../../components/map/route-polyline'
 import { getWorstRainLevel, getWorstTemperatureLevel } from '../../../../models/saved-routes'
 import { deriveWindSummary, formatDistance, formatDuration, formatSavedDate } from '../utils'
+
+const mockBuildRoutePolylines = buildRoutePolylines as jest.Mock
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -506,6 +509,29 @@ describe('US-016 AC1: OverlayToggle renders with availability when route has ove
     expect(typeof toggle.props.onValueChange).toBe('function')
   })
 
+  it('should call buildRoutePolylines with showRainOverlay:true when rain overlay is selected', () => {
+    mockHookReturn.data = makeSavedRouteDetail()
+    mockHookReturn.isLoading = false
+    mockBuildRoutePolylines.mockClear()
+
+    const SavedRouteDetailScreen = require('../[id]').default
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+    const root = tree!.root
+
+    // Select rain overlay
+    const toggle = root.findByProps({ testID: 'overlay-toggle' })
+    act(() => {
+      toggle.props.onValueChange('rain')
+    })
+
+    // Verify buildRoutePolylines was called with showRainOverlay: true
+    const lastCall = mockBuildRoutePolylines.mock.calls[mockBuildRoutePolylines.mock.calls.length - 1][0]
+    expect(lastCall).toEqual(expect.objectContaining({ showRainOverlay: true }))
+  })
+
   it('should default to no overlay selected (empty string)', () => {
     mockHookReturn.data = makeSavedRouteDetail()
     mockHookReturn.isLoading = false
@@ -561,6 +587,7 @@ describe('US-016 AC3: Deselecting overlay reverts polyline to default', () => {
   it('should allow deselecting overlay by calling onValueChange with empty string', () => {
     mockHookReturn.data = makeSavedRouteDetail()
     mockHookReturn.isLoading = false
+    mockBuildRoutePolylines.mockClear()
 
     const SavedRouteDetailScreen = require('../[id]').default
     let tree: renderer.ReactTestRenderer
@@ -580,12 +607,21 @@ describe('US-016 AC3: Deselecting overlay reverts polyline to default', () => {
     expect(toggleAfterSelect.props.value).toBe('wind')
 
     // Deselect
+    mockBuildRoutePolylines.mockClear()
     act(() => {
       toggleAfterSelect.props.onValueChange('')
     })
 
     const toggleAfterDeselect = root.findByProps({ testID: 'overlay-toggle' })
     expect(toggleAfterDeselect.props.value).toBe('')
+
+    // Verify buildRoutePolylines was called with all overlay flags false
+    const lastCall = mockBuildRoutePolylines.mock.calls[mockBuildRoutePolylines.mock.calls.length - 1][0]
+    expect(lastCall).toEqual(expect.objectContaining({
+      showWindOverlay: false,
+      showRainOverlay: false,
+      showTemperatureOverlay: false,
+    }))
   })
 })
 

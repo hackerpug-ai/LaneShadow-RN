@@ -37,6 +37,8 @@ import type { RouteOverlays } from '../../../models/saved-routes'
 
 import { deriveWindSummary, formatDistance, formatDuration, formatSavedDate } from './utils'
 
+const Z_INDEX_OVERLAY_TOGGLE = 25
+
 const SavedRouteDetailScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
@@ -323,7 +325,7 @@ const styles = StyleSheet.create({
   },
   overlayToggle: {
     position: 'absolute',
-    zIndex: 25,
+    zIndex: Z_INDEX_OVERLAY_TOGGLE,
   },
   infoSection: {
     flex: 0.5,
