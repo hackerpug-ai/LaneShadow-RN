@@ -2,7 +2,7 @@ import React from 'react'
 
 const createComponent = (name: string) => {
   const Component = ({ children, style, testID, ...props }: Record<string, unknown>) =>
-    React.createElement(name, { style, testID, ...props }, children)
+    React.createElement(name, { style, testID, ...props }, children as React.ReactNode)
   Component.displayName = name
   return Component
 }
