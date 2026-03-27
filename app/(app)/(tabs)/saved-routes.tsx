@@ -1,6 +1,5 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native'
-import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 
@@ -8,7 +7,7 @@ import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useSavedRoutesList } from '../../../hooks/use-saved-routes'
 import { SavedRouteCard } from '../../../components/ui/saved-route-card'
 import { formatDate } from '../../../components/ui/saved-route-card.utils'
-import { SkeletonCard } from './saved-routes.components'
+import { LoadingState, FilterHeader, FilteredEmptyState } from './saved-routes.components'
 import { EmptyState } from '../../../components/ui/empty-state'
 import type { SavedRouteListItemView } from '../../../types/routes'
 
@@ -32,17 +31,42 @@ const SavedRoutesScreen = () => {
   const { semantic } = useSemanticTheme()
   const { bottom } = useSafeAreaInsets()
   const router = useRouter()
-  const { data, isLoading } = useSavedRoutesList()
+
+  const [searchQuery, setSearchQuery] = useState('')
+  const [afterDate, setAfterDate] = useState<number | undefined>()
+  const [beforeDate, setBeforeDate] = useState<number | undefined>()
+  const [datePickerKey, setDatePickerKey] = useState(0)
+
+  const filtersActive = searchQuery.length > 0 || afterDate !== undefined || beforeDate !== undefined
+
+  const { data, isLoading } = useSavedRoutesList({
+    searchQuery: searchQuery || undefined,
+    afterDate,
+    beforeDate,
+  })
 
   const sortedRoutes = useMemo(
     () => (data?.routes ? getSortedRoutes(data.routes) : []),
     [data?.routes]
   )
 
-  const handlePress = useCallback(
-    (savedRouteId: string) => {
-      router.push(`/(app)/saved-route/${savedRouteId}`)
+  const handleSearch = useCallback((query: string) => setSearchQuery(query), [])
+  const handleDateRangeChange = useCallback(
+    (range: { afterDate?: number; beforeDate?: number }) => {
+      setAfterDate(range.afterDate)
+      setBeforeDate(range.beforeDate)
     },
+    []
+  )
+  const handleClearFilters = useCallback(() => {
+    setSearchQuery('')
+    setAfterDate(undefined)
+    setBeforeDate(undefined)
+    setDatePickerKey((k) => k + 1)
+  }, [])
+
+  const handlePress = useCallback(
+    (savedRouteId: string) => router.push(`/(app)/saved-route/${savedRouteId}`),
     [router]
   )
 
@@ -66,36 +90,7 @@ const SavedRoutesScreen = () => {
     []
   )
 
-  const headerStyle = [
-    semantic.type.title.lg,
-    {
-      color: semantic.color.onSurface.default,
-      paddingTop: semantic.space.lg,
-      paddingBottom: semantic.space.md,
-    },
-  ]
-
-  if (isLoading) {
-    return (
-      <View
-        testID="saved-routes-loading"
-        style={[
-          styles.container,
-          {
-            backgroundColor: semantic.color.background.default,
-            paddingHorizontal: semantic.space.lg,
-          },
-        ]}
-      >
-        <Text variant="titleLarge" style={headerStyle}>
-          Saved Routes
-        </Text>
-        {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
-          <SkeletonCard key={i} />
-        ))}
-      </View>
-    )
-  }
+  if (isLoading) return <LoadingState />
 
   return (
     <View
@@ -113,20 +108,29 @@ const SavedRoutesScreen = () => {
           paddingBottom: bottom + semantic.space.lg,
         }}
         ListHeaderComponent={
-          <Text variant="titleLarge" style={headerStyle}>
-            Saved Routes
-          </Text>
+          <FilterHeader
+            onSearch={handleSearch}
+            onDateRangeChange={handleDateRangeChange}
+            filtersActive={filtersActive}
+            onClearFilters={handleClearFilters}
+            resultCount={sortedRoutes.length}
+            datePickerKey={datePickerKey}
+          />
         }
         stickyHeaderIndices={[0]}
         ListEmptyComponent={
-          <EmptyState
-            icon="map-marker-path"
-            headline="No saved routes yet"
-            body="Plan a route and save it to see it here."
-            ctaLabel="Plan your first route"
-            onCtaPress={() => router.push('/(app)/(tabs)')}
-            testID="saved-routes-empty-state"
-          />
+          filtersActive ? (
+            <FilteredEmptyState />
+          ) : (
+            <EmptyState
+              icon="map-marker-path"
+              headline="No saved routes yet"
+              body="Plan a route and save it to see it here."
+              ctaLabel="Plan your first route"
+              onCtaPress={() => router.push('/(app)/(tabs)')}
+              testID="saved-routes-empty-state"
+            />
+          )
         }
         refreshControl={
           <RefreshControl refreshing={false} tintColor={semantic.color.primary.default} />

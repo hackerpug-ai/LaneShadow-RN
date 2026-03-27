@@ -25,10 +25,22 @@ type SaveRouteArgs = {
   snapshotMeta: SnapshotMeta
 }
 
-export const useSavedRoutesList = (
+type SavedRoutesListArgs = {
   limit?: number
+  searchQuery?: string
+  afterDate?: number
+  beforeDate?: number
+}
+
+export const useSavedRoutesList = (
+  args?: SavedRoutesListArgs
 ): { data: SavedRoutesListView | undefined; isLoading: boolean } => {
-  const data = useQuery(api.db.savedRoutes.getSavedRoutesList, { limit })
+  const data = useQuery(api.db.savedRoutes.getSavedRoutesList, {
+    limit: args?.limit,
+    searchQuery: args?.searchQuery,
+    afterDate: args?.afterDate,
+    beforeDate: args?.beforeDate,
+  })
   const isLoading = data === undefined
 
   return useMemo(
@@ -124,5 +136,21 @@ export const useDeleteRoute = () => {
   return useMutationRunner<{ savedRouteId: Id<'saved_routes'>; name?: string }, null>(
     mutation,
     'Route deleted.'
+  )
+}
+
+export const useSoftDeleteRoute = () => {
+  const mutation = useMutation(api.db.savedRoutes.softDeleteRoute)
+  return useMutationRunner<
+    { savedRouteId: Id<'saved_routes'> },
+    { scheduledDeletionId: Id<'_scheduled_functions'> }
+  >(mutation, 'Route deleted.')
+}
+
+export const useUndoDeleteRoute = () => {
+  const mutation = useMutation(api.db.savedRoutes.undoDeleteRoute)
+  return useMutationRunner<{ savedRouteId: Id<'saved_routes'> }, null>(
+    mutation,
+    'Route restored.'
   )
 }
