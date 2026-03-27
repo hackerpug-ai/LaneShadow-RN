@@ -18,7 +18,6 @@ import type { Doc, Id } from '../_generated/dataModel'
 import { internalMutation, internalQuery, mutation, query } from '../_generated/server'
 import { requireIdentity } from '../guards'
 import { applyDateFilter, applySearchFilter } from './savedRoutes.utils'
-export { applyDateFilter, applySearchFilter } from './savedRoutes.utils'
 
 type SavedRouteDoc = Doc<'saved_routes'>
 
