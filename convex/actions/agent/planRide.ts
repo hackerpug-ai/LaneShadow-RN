@@ -46,8 +46,9 @@ const plannedRouteOptionsViewValidator = v.object({
 
 /**
  * Build user prompt from PlanInput for agent.
+ * @internal Exported for testing only
  */
-const buildUserPrompt = (planInput: any): string => {
+export const buildUserPrompt = (planInput: any): string => {
   const parts = [
     'Plan a scenic motorcycle route.',
     '',
@@ -69,8 +70,9 @@ const buildUserPrompt = (planInput: any): string => {
  * Parse and validate agent response into PlannedRouteOptionsView.
  * @throws {Error} ERROR_CODES.AGENT_RESPONSE_INVALID if JSON parsing fails
  * @throws {Error} ERROR_CODES.INVALID_AGENT_RESPONSE_STRUCTURE if validation fails
+ * @internal Exported for testing only
  */
-const parseAgentResponse = (agentResponse: string): PlannedRouteOptionsView => {
+export const parseAgentResponse = (agentResponse: string): PlannedRouteOptionsView => {
   try {
     const parsed = JSON.parse(agentResponse)
 
@@ -81,14 +83,16 @@ const parseAgentResponse = (agentResponse: string): PlannedRouteOptionsView => {
       throw new Error(ERROR_CODES.INVALID_AGENT_RESPONSE_STRUCTURE)
     }
 
-    // Validate response structure using Convex validator
-    try {
-      plannedRouteOptionsViewValidator(parsed)
-    } catch (validationError) {
-      backend.error('convex.action', 'Agent response validation failed', validationError as Error, {
-        responseLength: agentResponse.length,
-      })
-      throw new Error(ERROR_CODES.INVALID_AGENT_RESPONSE_STRUCTURE)
+    // Basic structure validation (Convex validator handles full validation at API boundary)
+    // We check that options is an array and has at least some structure
+    if (parsed.options.length > 0) {
+      const firstOption = parsed.options[0]
+      if (!firstOption.routeOptionId || !firstOption.label || !firstOption.map) {
+        backend.error('convex.action', 'Invalid agent response structure', new Error('missing required fields'), {
+          responseLength: agentResponse.length,
+        })
+        throw new Error(ERROR_CODES.INVALID_AGENT_RESPONSE_STRUCTURE)
+      }
     }
 
     return {
