@@ -1,405 +1,748 @@
-[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+$ vitest
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:198:31)
+ ❯ convex/actions/agent/providers/__tests__/routingProvider.test.ts (5 tests | 5 failed) 6ms
+   × routing provider > google provider calls Routes API with key and parses response 4ms
+     → Cannot find module '../routingProvider'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/convex/actions/agent/providers/__tests__/routingProvider.test.ts
+   × routing provider > google provider returns durationSeconds=0 when duration is malformed 0ms
+     → Cannot find module '../routingProvider'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/convex/actions/agent/providers/__tests__/routingProvider.test.ts
+   × routing provider > google provider throws on non-ok responses and includes status/body 0ms
+     → Cannot find module '../routingProvider'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/convex/actions/agent/providers/__tests__/routingProvider.test.ts
+   × routing provider > google provider throws when required fields are missing 0ms
+     → Cannot find module '../routingProvider'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/convex/actions/agent/providers/__tests__/routingProvider.test.ts
+   × routing provider > google provider is deterministic when upstream payload is deterministic 1ms
+     → Cannot find module '../routingProvider'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/convex/actions/agent/providers/__tests__/routingProvider.test.ts
+ ❯ components/map/route-polyline.test.tsx (20 tests | 20 failed) 9ms
+   × route-polyline > rain light color > should satisfy AC1: renders light rain segments in sky blue color 4ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > rain light color > should use semantic theme colors for light rain 0ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > rain heavy color > should satisfy AC2: renders heavy rain segments in red color 0ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > rain heavy color > should use semantic theme danger color for heavy rain 0ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > rain heavy color > should handle multiple rain intensity levels in same leg 0ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > overlay switch colors > should satisfy AC3: shows wind colors when wind overlay is active 0ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > overlay switch colors > should not show rain polylines when rain overlay is inactive 0ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > overlay switch colors > should switch between wind and rain colors correctly 0ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > overlay switch colors > should show temperature colors when temperature overlay is active 0ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > missing rain segment > should satisfy AC4: renders legs without rain data in neutral color 0ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > missing rain segment > should handle empty segments array gracefully 0ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > missing rain segment > should handle missing overlay data entirely 0ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > integration with overlay-colors > should use getRainColor for rain segments 1ms
+     → Cannot find module '../../lib/map/overlay-colors'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/components/map/route-polyline.test.tsx
+   × route-polyline > integration with overlay-colors > should use getWindColor for wind segments 0ms
+     → Cannot find module '../../lib/map/overlay-colors'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/components/map/route-polyline.test.tsx
+   × route-polyline > integration with overlay-colors > should use getTemperatureColor for temperature segments 0ms
+     → Cannot find module '../../lib/map/overlay-colors'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/components/map/route-polyline.test.tsx
+   × route-polyline > segment boundaries > should create polylines with correct segment boundaries 0ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > segment boundaries > should match byLeg structure from overlay data 0ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > conditional overlay rendering > should not apply rain colors when showRainOverlay is false 0ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > conditional overlay rendering > should apply rain colors when showRainOverlay is true 0ms
+     → Cannot read properties of undefined (reading 'length')
+   × route-polyline > conditional overlay rendering > should support multiple overlays simultaneously 0ms
+     → Cannot read properties of undefined (reading 'length')
+ ❯ convex/db/__tests__/savedRoutes.delete.test.ts (3 tests | 3 failed) 4ms
+   × deleteById not-found > AC-US034-2: throws ConvexError("Route not found") when doc does not exist 3ms
+     → deleteById.handler is not a function
+   × deleteById not-found > AC-US034-2: throws ConvexError("Route not found") when doc is owned by different user 0ms
+     → deleteById.handler is not a function
+   × deleteById happy path > deletes the document when owned by the viewer 0ms
+     → deleteById.handler is not a function
+ ❯ convex/db/__tests__/savedRoutes.rename.test.ts (6 tests | 6 failed) 7ms
+   × patchName not-found > AC-US034-1: throws ConvexError("Route not found") when doc does not exist 5ms
+     → patchName.handler is not a function
+   × patchName not-found > AC-US034-1: throws ConvexError("Route not found") when doc is owned by different user 1ms
+     → patchName.handler is not a function
+   × patchName validation > AC-1: trims whitespace from name before saving 0ms
+     → patchName.handler is not a function
+   × patchName validation > AC-2: throws ConvexError for empty string name 0ms
+     → patchName.handler is not a function
+   × patchName validation > AC-3: throws ConvexError for whitespace-only name 0ms
+     → patchName.handler is not a function
+   × patchName validation > AC-4: throws ConvexError for name exceeding 100 characters 0ms
+     → patchName.handler is not a function
+ ✓ lib/polyline.test.ts (2 tests) 2ms
+ ✓ convex/db/__tests__/savedRoutes.softDelete.test.ts (14 tests) 7ms
+ ✓ components/ui/saved-route-card.test.ts (8 tests) 12ms
+ ✓ convex/db/__tests__/savedRoutes.test.ts (4 tests) 4ms
+ ✓ components/planning/__tests__/route-option-card.test.ts (12 tests) 2ms
+ ✓ lib/map/overlay-colors.test.ts (16 tests) 2ms
+ ✓ convex/actions/agent/providers/__tests__/weatherProvider.test.ts (3 tests) 6ms
+ ✓ convex/db/__tests__/savedRoutes.search.test.ts (4 tests) 2ms
+ ✓ convex/db/__tests__/savedRoutes.dateFilter.test.ts (4 tests) 6ms
+ ✓ lib/weather/temp-calculator.test.ts (18 tests) 2ms
+ ✓ lib/convex-error.test.ts (4 tests) 2ms
+ ✓ convex/__tests__/guards.test.ts (3 tests) 3ms
+ ✓ lib/weather/timing-calculator.test.ts (17 tests) 5ms
+ ✓ convex/__tests__/clerk-sync.test.ts (5 tests) 2ms
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+⎯⎯⎯⎯⎯⎯ Failed Suites 26 ⎯⎯⎯⎯⎯⎯
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
+ FAIL  hooks/use-place-autocomplete.test.ts [ hooks/use-place-autocomplete.test.ts ]
+RollupError: Parse failure: Expression expected
+At file: /node_modules/.pnpm/@expo+vector-icons@15.0.3_expo-font@14.0.10_react-native@0.81.5_react@19.1.0/node_modules/@expo/vector-icons/build/createIconSet.js:79:23
+  File: /node_modules/.pnpm/@expo+vector-icons@15.0.3_expo-font@14.0.10_react-native@0.81.5_react@19.1.0/node_modules/@expo/vector-icons/build/createIconSet.js:79:23
+  77 |              }
+  78 |              if (!this.state.fontIsLoaded) {
+  79 |                  return <Text />;
+     |                         ^
+  80 |              }
+  81 |              return (<RNVIconComponent ref={(view) => {
+ ❯ getRollupError node_modules/.pnpm/rollup@4.60.0/node_modules/rollup/dist/es/shared/parseAst.js:406:41
+ ❯ convertProgram node_modules/.pnpm/rollup@4.60.0/node_modules/rollup/dist/es/shared/parseAst.js:1132:26
+ ❯ parseAstAsync node_modules/.pnpm/rollup@4.60.0/node_modules/rollup/dist/es/shared/parseAst.js:2122:106
+ ❯ ssrTransformScript node_modules/.pnpm/vite@7.3.1_@types+node@22.18.10_tsx@4.20.6/node_modules/vite/dist/node/chunks/config.js:15374:9
+ ❯ loadAndTransform node_modules/.pnpm/vite@7.3.1_@types+node@22.18.10_tsx@4.20.6/node_modules/vite/dist/node/chunks/config.js:22701:64
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:203:31)
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/60]⎯
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+ FAIL  components/map/overlay-toggle.test.tsx [ components/map/overlay-toggle.test.tsx ]
+ FAIL  components/planning/segment-detail-view.test.tsx [ components/planning/segment-detail-view.test.tsx ]
+ FAIL  components/planning/weather-strip.test.tsx [ components/planning/weather-strip.test.tsx ]
+ FAIL  components/ui/empty-state.test.tsx [ components/ui/empty-state.test.tsx ]
+ FAIL  components/ui/route-leg-timeline.test.tsx [ components/ui/route-leg-timeline.test.tsx ]
+ FAIL  components/ui/route-thumbnail.test.tsx [ components/ui/route-thumbnail.test.tsx ]
+ FAIL  components/ui/__tests__/date-range-picker.test.tsx [ components/ui/__tests__/date-range-picker.test.tsx ]
+ FAIL  components/ui/__tests__/delete-route-dialog.test.tsx [ components/ui/__tests__/delete-route-dialog.test.tsx ]
+ FAIL  components/ui/__tests__/rename-route-dialog.test.tsx [ components/ui/__tests__/rename-route-dialog.test.tsx ]
+ FAIL  components/ui/__tests__/route-search-bar.test.tsx [ components/ui/__tests__/route-search-bar.test.tsx ]
+SyntaxError: Unexpected token 'typeof'
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/60]⎯
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
+ FAIL  app/(app)/(tabs)/saved-routes.test.ts [ app/(app)/(tabs)/saved-routes.test.ts ]
+RollupError: Parse failure: Expected 'from', got 'typeOf'
+At file: /Users/justinrich/Projects/LaneShadow/node_modules/.pnpm/react-native@0.81.5_@babel+core@7.28.4_@types+react@19.1.17_react@19.1.0/node_modules/react-native/index.js:27:7
+  File: /Users/justinrich/Projects/LaneShadow/node_modules/.pnpm/react-native@0.81.5_@babel+core@7.28.4_@types+react@19.1.17_react@19.1.0/node_modules/react-native/index.js:27:7
+  25 |  // ----------------------------------------------------------------------------
+  26 |  
+  27 |  import typeof * as ReactNativePublicAPI from "/node_modules/.pnpm/react-native@0.81.5_@babel+core@7.28.4_@types+react...
+     |         ^
+  28 |  
+  29 |  const warnOnce = require('./Libraries/Utilities/warnOnce').default;
+ ❯ getRollupError node_modules/.pnpm/rollup@4.60.0/node_modules/rollup/dist/es/shared/parseAst.js:406:41
+ ❯ convertProgram node_modules/.pnpm/rollup@4.60.0/node_modules/rollup/dist/es/shared/parseAst.js:1132:26
+ ❯ parseAstAsync node_modules/.pnpm/rollup@4.60.0/node_modules/rollup/dist/es/shared/parseAst.js:2122:106
+ ❯ ssrTransformScript node_modules/.pnpm/vite@7.3.1_@types+node@22.18.10_tsx@4.20.6/node_modules/vite/dist/node/chunks/config.js:15374:9
+ ❯ loadAndTransform node_modules/.pnpm/vite@7.3.1_@types+node@22.18.10_tsx@4.20.6/node_modules/vite/dist/node/chunks/config.js:22701:64
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:209:31)
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/60]⎯
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+ FAIL  convex/actions/agent/__tests__/planRide.test.ts [ convex/actions/agent/__tests__/planRide.test.ts ]
+Error: Missing required environment variable: CLERK_WEBHOOK_SECRET
+ ❯ requireEnv convex/lib/env.ts:9:11
+      7|   const value = process.env[key]
+      8|   if (!value) {
+      9|     throw new Error(`Missing required environment variable: ${key}`)
+       |           ^
+     10|   }
+     11|   return value
+ ❯ convex/lib/env.ts:14:37
+ ❯ convex/actions/agent/graphs/planningGraph.ts:32:1
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/60]⎯
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:215:33)
+ FAIL  app/(app)/(tabs)/__tests__/saved-routes.filter.test.ts [ app/(app)/(tabs)/__tests__/saved-routes.filter.test.ts ]
+Error: cannot spy on a non-function value
+ ❯ app/(app)/(tabs)/__tests__/saved-routes.filter.test.ts:17:6
+     15| const mockPush = jest.fn()
+     16| 
+     17| jest.mock('react-native', () => ({
+       |      ^
+     18|   FlatList: 'FlatList',
+     19|   Pressable: 'Pressable',
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/60]⎯
 
-      218 |
-      219 |     it('renders with custom testID', () => {
-    > 220 |       const { getByTestId } = render(
-          |                                     ^
-      221 |         <RenameRouteDialog
-      222 |           visible
-      223 |           currentName="Morning Ride"
+ FAIL  app/(app)/(tabs)/__tests__/saved-routes.keyboard.test.ts [ app/(app)/(tabs)/__tests__/saved-routes.keyboard.test.ts ]
+Error: cannot spy on a non-function value
+ ❯ app/(app)/(tabs)/__tests__/saved-routes.keyboard.test.ts:15:6
+     13| const mockPush = jest.fn()
+     14| 
+     15| jest.mock('react-native', () => ({
+       |      ^
+     16|   FlatList: 'FlatList',
+     17|   Pressable: 'Pressable',
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at Object.<anonymous> (components/ui/__tests__/rename-route-dialog.test.tsx:220:37)
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/60]⎯
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+ FAIL  app/(app)/(tabs)/__tests__/saved-routes.swipe.test.ts [ app/(app)/(tabs)/__tests__/saved-routes.swipe.test.ts ]
+Error: cannot spy on a non-function value
+ ❯ app/(app)/(tabs)/__tests__/saved-routes.swipe.test.ts:25:6
+     23| }> = []
+     24| 
+     25| jest.mock('react-native', () => ({
+       |      ^
+     26|   FlatList: 'FlatList',
+     27|   Pressable: 'Pressable',
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/60]⎯
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:241:31)
+ FAIL  app/(app)/(tabs)/__tests__/saved-routes.test.ts [ app/(app)/(tabs)/__tests__/saved-routes.test.ts ]
+Error: cannot spy on a non-function value
+ ❯ app/(app)/(tabs)/__tests__/saved-routes.test.ts:23:6
+     21| }> = []
+     22| 
+     23| jest.mock('react-native', () => ({
+       |      ^
+     24|   FlatList: 'FlatList',
+     25|   Pressable: 'Pressable',
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/60]⎯
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
+ FAIL  app/(app)/saved-route/__tests__/[id].actions.test.ts [ app/(app)/saved-route/__tests__/[id].actions.test.ts ]
+SyntaxError: Unexpected token '<'
+ ❯ Object.<anonymous> node_modules/.pnpm/expo-router@6.0.21_@expo+metro-runtime@6.1.2_@testing-library+react-native@13.3.3_@types+reac_qkezgh66gn5sypucnxwrpe25rq/node_modules/expo-router/src/layouts/Stack.tsx:1:1
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:249:31)
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/60]⎯
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+ FAIL  app/(app)/saved-route/__tests__/[id].test.ts [ app/(app)/saved-route/__tests__/[id].test.ts ]
+Error: cannot spy on a non-function value
+ ❯ app/(app)/saved-route/__tests__/[id].test.ts:34:6
+     32| }
+     33| 
+     34| jest.mock('react-native', () => ({
+       |      ^
+     35|   ActivityIndicator: 'ActivityIndicator',
+     36|   StyleSheet: { create: (s: Record<string, unknown>) => s },
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/60]⎯
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:257:31)
+ FAIL  convex/actions/agent/tools/__tests__/compileSketch.test.ts [ convex/actions/agent/tools/__tests__/compileSketch.test.ts ]
+ FAIL  convex/actions/agent/tools/__tests__/computeRouteIndex.test.ts [ convex/actions/agent/tools/__tests__/computeRouteIndex.test.ts ]
+ FAIL  convex/actions/agent/tools/__tests__/mapConditions.reliability.test.ts [ convex/actions/agent/tools/__tests__/mapConditions.reliability.test.ts ]
+ FAIL  convex/actions/agent/tools/__tests__/mapConditions.test.ts [ convex/actions/agent/tools/__tests__/mapConditions.test.ts ]
+ FAIL  convex/actions/agent/tools/__tests__/normalizeRoute.test.ts [ convex/actions/agent/tools/__tests__/normalizeRoute.test.ts ]
+ FAIL  convex/actions/agent/tools/__tests__/probeConditions.test.ts [ convex/actions/agent/tools/__tests__/probeConditions.test.ts ]
+ FAIL  convex/actions/agent/tools/__tests__/tools.integration.test.ts [ convex/actions/agent/tools/__tests__/tools.integration.test.ts ]
+Error: Missing required environment variable: CLERK_WEBHOOK_SECRET
+ ❯ requireEnv convex/lib/env.ts:9:11
+      7|   const value = process.env[key]
+      8|   if (!value) {
+      9|     throw new Error(`Missing required environment variable: ${key}`)
+       |           ^
+     10|   }
+     11|   return value
+ ❯ convex/lib/env.ts:14:37
+ ❯ convex/actions/agent/lib/tracing.ts:5:1
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/60]⎯
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:272:31)
+⎯⎯⎯⎯⎯⎯ Failed Tests 34 ⎯⎯⎯⎯⎯⎯⎯
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > rain light color > should satisfy AC1: renders light rain segments in sky blue color
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:210:25
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/60]⎯
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:282:31)
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > rain light color > should use semantic theme colors for light rain
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:237:25
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/60]⎯
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > rain heavy color > should satisfy AC2: renders heavy rain segments in red color
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:268:25
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:295:31)
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/60]⎯
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > rain heavy color > should use semantic theme danger color for heavy rain
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:292:25
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/60]⎯
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:304:31)
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > rain heavy color > should handle multiple rain intensity levels in same leg
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:318:25
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/60]⎯
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > overlay switch colors > should satisfy AC3: shows wind colors when wind overlay is active
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:360:25
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:319:31)
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/60]⎯
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > overlay switch colors > should not show rain polylines when rain overlay is inactive
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:383:25
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/60]⎯
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:327:31)
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > overlay switch colors > should switch between wind and rain colors correctly
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:408:29
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/60]⎯
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > overlay switch colors > should show temperature colors when temperature overlay is active
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:439:25
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:342:41)
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/60]⎯
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > missing rain segment > should satisfy AC4: renders legs without rain data in neutral color
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:474:25
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/60]⎯
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:363:56)
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > missing rain segment > should handle empty segments array gracefully
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:508:25
 
-  console.error
-    react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/60]⎯
 
-      179 |
-      180 | const renderDialog = (props?: Partial<typeof defaultProps>) =>
-    > 181 |   render(<RenameRouteDialog {...defaultProps} {...props} />)
-          |         ^
-      182 |
-      183 | // ---------------------------------------------------------------------------
-      184 | // Tests
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > missing rain segment > should handle missing overlay data entirely
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:527:25
 
-      at Object.<anonymous>.process.env.NODE_ENV.exports.create (node_modules/react-test-renderer/cjs/react-test-renderer.development.js:14598:17)
-      at create (node_modules/@testing-library/react-native/src/render-act.ts:15:29)
-      at callback (node_modules/@testing-library/react-native/src/act.ts:31:24)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/.pnpm/react@19.1.0/node_modules/react/cjs/react.development.js:789:22)
-      at actImplementation (node_modules/@testing-library/react-native/src/act.ts:30:25)
-      at renderWithAct (node_modules/@testing-library/react-native/src/render-act.ts:13:11)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:69:33)
-      at renderInternal (node_modules/@testing-library/react-native/src/render.tsx:44:10)
-      at renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:181:9)
-      at Object.renderDialog (components/ui/__tests__/rename-route-dialog.test.tsx:381:41)
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/60]⎯
 
-PASS components/ui/__tests__/rename-route-dialog.test.tsx
-  RenameRouteDialog
-    AC1: pre-populated input, Save disabled when name unchanged
-      ✓ renders the dialog when visible=true (32 ms)
-      ✓ TextInput shows the currentName value (3 ms)
-      ✓ Save button is disabled when input equals currentName (18 ms)
-      ✓ does not render the dialog when visible=false (5 ms)
-      ✓ renders with custom testID (5 ms)
-    AC2: Save enabled when name changes
-      ✓ Save button becomes enabled after text change (6 ms)
-      ✓ Save remains disabled when user types only whitespace (2 ms)
-      ✓ Save remains disabled when trimmed input equals currentName (4 ms)
-    AC3: Save button fires onRename with trimmed value
-      ✓ calls onRename with the new trimmed name when Save is pressed (3 ms)
-      ✓ trims whitespace before calling onRename (3 ms)
-    AC4: Save disabled when input is empty
-      ✓ Save button is disabled when input is cleared (3 ms)
-      ✓ onRename is not called when Save is pressed while disabled (2 ms)
-    AC5: Cancel fires onDismiss without calling onRename
-      ✓ calls onDismiss when Cancel is pressed (3 ms)
-      ✓ does not call onRename when Cancel is pressed (1 ms)
-    US-040: sync guard preserves user draft while dialog is open
-      ✓ preserves user draft when currentName prop changes while dialog is visible (3 ms)
-      ✓ initializes input with currentName when dialog opens (hidden → visible) (2 ms)
-      ✓ shows new currentName when dialog is closed and reopened (3 ms)
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > integration with overlay-colors > should use getRainColor for rain segments
+Error: Cannot find module '../../lib/map/overlay-colors'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/components/map/route-polyline.test.tsx
+ ❯ components/map/route-polyline.test.tsx:553:32
+    551|     it('should use getRainColor for rain segments', () => {
+    552|       // Import the actual utility to verify color mapping
+    553|       const { getRainColor } = require('../../lib/map/overlay-colors')
+       |                                ^
+    554| 
+    555|       const rainOverlay = createMockRainOverlay([
 
-Test Suites: 1 passed, 1 total
-Tests:       17 passed, 17 total
-Snapshots:   0 total
-Time:        0.431 s, estimated 1 s
-Ran all test suites matching /components\/ui\/__tests__\/rename-route-dialog.test.tsx/i.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/60]⎯
+
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > integration with overlay-colors > should use getWindColor for wind segments
+Error: Cannot find module '../../lib/map/overlay-colors'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/components/map/route-polyline.test.tsx
+ ❯ components/map/route-polyline.test.tsx:577:32
+    575| 
+    576|     it('should use getWindColor for wind segments', () => {
+    577|       const { getWindColor } = require('../../lib/map/overlay-colors')
+       |                                ^
+    578| 
+    579|       const windOverlay = createMockWindOverlay([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/60]⎯
+
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > integration with overlay-colors > should use getTemperatureColor for temperature segments
+Error: Cannot find module '../../lib/map/overlay-colors'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/components/map/route-polyline.test.tsx
+ ❯ components/map/route-polyline.test.tsx:600:39
+    598| 
+    599|     it('should use getTemperatureColor for temperature segments', () =…
+    600|       const { getTemperatureColor } = require('../../lib/map/overlay-c…
+       |                                       ^
+    601| 
+    602|       const tempOverlay = createMockTemperatureOverlay([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/60]⎯
+
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > segment boundaries > should create polylines with correct segment boundaries
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:638:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/60]⎯
+
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > segment boundaries > should match byLeg structure from overlay data
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:668:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/60]⎯
+
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > conditional overlay rendering > should not apply rain colors when showRainOverlay is false
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:703:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/60]⎯
+
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > conditional overlay rendering > should apply rain colors when showRainOverlay is true
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:723:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/60]⎯
+
+ FAIL  components/map/route-polyline.test.tsx > route-polyline > conditional overlay rendering > should support multiple overlays simultaneously
+TypeError: Cannot read properties of undefined (reading 'length')
+ ❯ Object.polyline.decode node_modules/.pnpm/@mapbox+polyline@1.2.1/node_modules/@mapbox/polyline/src/polyline.js:61:24
+ ❯ decodePolylineGeometry lib/polyline.ts:8:28
+      6| 
+      7| export const decodePolylineGeometry = (geometry: PolylineGeometry): Ar…
+      8|   const decoded = polyline.decode(geometry.value, geometry.precision)
+       |                            ^
+      9|   return decoded.map(([latitude, longitude]) => ({ latitude, longitude…
+     10| }
+ ❯ buildRoutePolylines components/map/route-polyline.tsx:113:26
+ ❯ components/map/route-polyline.test.tsx:747:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/60]⎯
+
+ FAIL  convex/db/__tests__/savedRoutes.delete.test.ts > deleteById not-found > AC-US034-2: throws ConvexError("Route not found") when doc does not exist
+TypeError: deleteById.handler is not a function
+ ❯ convex/db/__tests__/savedRoutes.delete.test.ts:33:27
+     31|     const ctx = makeCtx(null)
+     32|     await expect(
+     33|       (deleteById as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID …
+       |                           ^
+     34|     ).rejects.toThrow(ConvexError)
+     35|     await expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/60]⎯
+
+ FAIL  convex/db/__tests__/savedRoutes.delete.test.ts > deleteById not-found > AC-US034-2: throws ConvexError("Route not found") when doc is owned by different user
+TypeError: deleteById.handler is not a function
+ ❯ convex/db/__tests__/savedRoutes.delete.test.ts:43:27
+     41|     const ctx = makeCtx({ ...makeDoc(), ownerId: 'other_user' })
+     42|     await expect(
+     43|       (deleteById as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID …
+       |                           ^
+     44|     ).rejects.toThrow(ConvexError)
+     45|     await expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/60]⎯
+
+ FAIL  convex/db/__tests__/savedRoutes.delete.test.ts > deleteById happy path > deletes the document when owned by the viewer
+TypeError: deleteById.handler is not a function
+ ❯ convex/db/__tests__/savedRoutes.delete.test.ts:54:31
+     52|   it('deletes the document when owned by the viewer', async () => {
+     53|     const ctx = makeCtx(makeDoc())
+     54|     await (deleteById as any).handler(ctx, { savedRouteId: SAVED_ROUTE…
+       |                               ^
+     55|     expect(ctx.db.delete).toHaveBeenCalledWith(SAVED_ROUTE_ID)
+     56|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/60]⎯
+
+ FAIL  convex/db/__tests__/savedRoutes.rename.test.ts > patchName not-found > AC-US034-1: throws ConvexError("Route not found") when doc does not exist
+TypeError: patchName.handler is not a function
+ ❯ convex/db/__tests__/savedRoutes.rename.test.ts:33:26
+     31|     const ctx = makeCtx(null)
+     32|     await expect(
+     33|       (patchName as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID, …
+       |                          ^
+     34|     ).rejects.toThrow(ConvexError)
+     35|     await expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/60]⎯
+
+ FAIL  convex/db/__tests__/savedRoutes.rename.test.ts > patchName not-found > AC-US034-1: throws ConvexError("Route not found") when doc is owned by different user
+TypeError: patchName.handler is not a function
+ ❯ convex/db/__tests__/savedRoutes.rename.test.ts:43:26
+     41|     const ctx = makeCtx({ ...makeDoc(), ownerId: 'other_user' })
+     42|     await expect(
+     43|       (patchName as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID, …
+       |                          ^
+     44|     ).rejects.toThrow(ConvexError)
+     45|     await expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/60]⎯
+
+ FAIL  convex/db/__tests__/savedRoutes.rename.test.ts > patchName validation > AC-1: trims whitespace from name before saving
+TypeError: patchName.handler is not a function
+ ❯ convex/db/__tests__/savedRoutes.rename.test.ts:54:30
+     52|   it('AC-1: trims whitespace from name before saving', async () => {
+     53|     const ctx = makeCtx(makeDoc())
+     54|     await (patchName as any).handler(ctx, {
+       |                              ^
+     55|       savedRouteId: SAVED_ROUTE_ID,
+     56|       name: '  Morning Ride  ',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/60]⎯
+
+ FAIL  convex/db/__tests__/savedRoutes.rename.test.ts > patchName validation > AC-2: throws ConvexError for empty string name
+TypeError: patchName.handler is not a function
+ ❯ convex/db/__tests__/savedRoutes.rename.test.ts:67:26
+     65|     const ctx = makeCtx(makeDoc())
+     66|     await expect(
+     67|       (patchName as any).handler(ctx, {
+       |                          ^
+     68|         savedRouteId: SAVED_ROUTE_ID,
+     69|         name: '',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/60]⎯
+
+ FAIL  convex/db/__tests__/savedRoutes.rename.test.ts > patchName validation > AC-3: throws ConvexError for whitespace-only name
+TypeError: patchName.handler is not a function
+ ❯ convex/db/__tests__/savedRoutes.rename.test.ts:83:26
+     81|     const ctx = makeCtx(makeDoc())
+     82|     await expect(
+     83|       (patchName as any).handler(ctx, {
+       |                          ^
+     84|         savedRouteId: SAVED_ROUTE_ID,
+     85|         name: '   ',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/60]⎯
+
+ FAIL  convex/db/__tests__/savedRoutes.rename.test.ts > patchName validation > AC-4: throws ConvexError for name exceeding 100 characters
+TypeError: patchName.handler is not a function
+ ❯ convex/db/__tests__/savedRoutes.rename.test.ts:100:26
+     98|     const longName = 'a'.repeat(101)
+     99|     await expect(
+    100|       (patchName as any).handler(ctx, {
+       |                          ^
+    101|         savedRouteId: SAVED_ROUTE_ID,
+    102|         name: longName,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/60]⎯
+
+ FAIL  convex/actions/agent/providers/__tests__/routingProvider.test.ts > routing provider > google provider calls Routes API with key and parses response
+Error: Cannot find module '../routingProvider'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/convex/actions/agent/providers/__tests__/routingProvider.test.ts
+ ❯ createProvider convex/actions/agent/providers/__tests__/routingProvider.test.ts:69:5
+     67|   // eslint-disable-next-line @typescript-eslint/no-var-requires
+     68|   const { createRoutingProvider } =
+     69|     require('../routingProvider') as typeof import('../routingProvider…
+       |     ^
+     70|   return createRoutingProvider()
+     71| }
+ ❯ convex/actions/agent/providers/__tests__/routingProvider.test.ts:82:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/60]⎯
+
+ FAIL  convex/actions/agent/providers/__tests__/routingProvider.test.ts > routing provider > google provider returns durationSeconds=0 when duration is malformed
+Error: Cannot find module '../routingProvider'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/convex/actions/agent/providers/__tests__/routingProvider.test.ts
+ ❯ createProvider convex/actions/agent/providers/__tests__/routingProvider.test.ts:69:5
+     67|   // eslint-disable-next-line @typescript-eslint/no-var-requires
+     68|   const { createRoutingProvider } =
+     69|     require('../routingProvider') as typeof import('../routingProvider…
+       |     ^
+     70|   return createRoutingProvider()
+     71| }
+ ❯ convex/actions/agent/providers/__tests__/routingProvider.test.ts:100:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/60]⎯
+
+ FAIL  convex/actions/agent/providers/__tests__/routingProvider.test.ts > routing provider > google provider throws on non-ok responses and includes status/body
+Error: Cannot find module '../routingProvider'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/convex/actions/agent/providers/__tests__/routingProvider.test.ts
+ ❯ createProvider convex/actions/agent/providers/__tests__/routingProvider.test.ts:69:5
+     67|   // eslint-disable-next-line @typescript-eslint/no-var-requires
+     68|   const { createRoutingProvider } =
+     69|     require('../routingProvider') as typeof import('../routingProvider…
+       |     ^
+     70|   return createRoutingProvider()
+     71| }
+ ❯ convex/actions/agent/providers/__tests__/routingProvider.test.ts:113:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/60]⎯
+
+ FAIL  convex/actions/agent/providers/__tests__/routingProvider.test.ts > routing provider > google provider throws when required fields are missing
+Error: Cannot find module '../routingProvider'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/convex/actions/agent/providers/__tests__/routingProvider.test.ts
+ ❯ createProvider convex/actions/agent/providers/__tests__/routingProvider.test.ts:69:5
+     67|   // eslint-disable-next-line @typescript-eslint/no-var-requires
+     68|   const { createRoutingProvider } =
+     69|     require('../routingProvider') as typeof import('../routingProvider…
+       |     ^
+     70|   return createRoutingProvider()
+     71| }
+ ❯ convex/actions/agent/providers/__tests__/routingProvider.test.ts:122:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/60]⎯
+
+ FAIL  convex/actions/agent/providers/__tests__/routingProvider.test.ts > routing provider > google provider is deterministic when upstream payload is deterministic
+Error: Cannot find module '../routingProvider'
+Require stack:
+- /Users/justinrich/Projects/LaneShadow/convex/actions/agent/providers/__tests__/routingProvider.test.ts
+ ❯ createProvider convex/actions/agent/providers/__tests__/routingProvider.test.ts:69:5
+     67|   // eslint-disable-next-line @typescript-eslint/no-var-requires
+     68|   const { createRoutingProvider } =
+     69|     require('../routingProvider') as typeof import('../routingProvider…
+       |     ^
+     70|   return createRoutingProvider()
+     71| }
+ ❯ convex/actions/agent/providers/__tests__/routingProvider.test.ts:131:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/60]⎯
+
+
+ Test Files  30 failed | 14 passed (44)
+      Tests  34 failed | 114 passed (148)
+   Start at  15:24:15
+   Duration  1.10s (transform 1.29s, setup 1.37s, collect 1.40s, tests 82ms, environment 7ms, prepare 3.44s)
+
+error: script "test" exited with code 1

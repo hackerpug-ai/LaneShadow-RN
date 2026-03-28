@@ -1,4 +1,5 @@
 import { defineSchema, defineTable } from 'convex/server'
+import { favoriteRoadValidator } from '../models/favorite-roads'
 import { orgMembershipValidator } from '../models/org-memberships'
 import { orgValidator } from '../models/orgs'
 import { savedRouteValidator } from '../models/saved-routes'
@@ -29,4 +30,13 @@ export default defineSchema({
   saved_routes: defineTable(savedRouteValidator)
     .index('by_ownerType_and_ownerId', ['ownerType', 'ownerId'])
     .index('by_createdByUserId', ['createdByUserId']),
+
+  /**
+   * Favorite roads table - Stores user's favorite road segments
+   * Indexed by userId for efficient user-specific queries
+   * Indexed by createdAt for chronological ordering
+   */
+  favorite_roads: defineTable(favoriteRoadValidator)
+    .index('by_userId', ['userId'])
+    .index('by_createdAt', ['createdAt']),
 })

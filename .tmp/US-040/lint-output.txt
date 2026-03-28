@@ -1,2 +1,13 @@
-No lint errors in rename-route-dialog.tsx or rename-route-dialog.test.tsx
-Note: bun run lint crashes with pre-existing ESLint config error: "react-native" plugin not found - not introduced by US-040
+$ eslint .
+
+Oops! Something went wrong! :(
+
+ESLint: 9.37.0
+
+A configuration object specifies rule "react-native/no-inline-styles", but could not find plugin "react-native".
+
+Common causes of this problem include:
+
+1. The "react-native" plugin is not defined in your configuration file.
+2. The "react-native" plugin is not defined within the same configuration object in which the "react-native/no-inline-styles" rule is applied.
+

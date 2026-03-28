@@ -1,28 +1,30 @@
 {
-  "task": "US-040",
-  "status": "completed",
+  "task_id": "US-040",
+  "timestamp": "2026-03-28T15:24:00Z",
+  "commit_sha": "5c7df55a5984f31665b6c924b0ab8d4b5b58fc42",
   "tests": {
-    "total": 17,
-    "passed": 17,
-    "failed": 0,
-    "new_tests": 3,
-    "test_command": "npx jest --config=jest.components.config.js components/ui/__tests__/rename-route-dialog.test.tsx"
+    "exit_code": 1,
+    "passed": 114,
+    "failed": 34,
+    "note": "All test failures are pre-existing (verified via git stash)"
   },
-  "new_tests": [
-    "preserves user draft when currentName prop changes while dialog is visible",
-    "initializes input with currentName when dialog opens (hidden → visible)",
-    "shows new currentName when dialog is closed and reopened"
-  ],
-  "typecheck": "No errors in changed files (pre-existing errors in other files are unrelated)",
-  "lint": "No errors in changed files (pre-existing ESLint config crash is unrelated)",
-  "pre_existing_issues": [
-    "vitest SyntaxError on rename-route-dialog.test.tsx (wrong test runner - must use jest.components.config.js)",
-    "TypeScript errors in components/map/route-polyline.test.tsx",
-    "ESLint crash due to missing react-native plugin"
-  ],
-  "files_changed": [
-    "components/ui/rename-route-dialog.tsx",
-    "components/ui/__tests__/rename-route-dialog.test.tsx"
-  ],
-  "implementation": "Added useRef(visible) guard to useEffect so it only resets name state on visible false→true transition, not on every currentName prop change"
+  "typecheck": {
+    "exit_code": 1,
+    "note": "TypeScript errors are pre-existing in test files and agent code (verified via git stash)"
+  },
+  "lint": {
+    "exit_code": 1,
+    "warnings": 0,
+    "note": "ESLint configuration error (react-native plugin) is pre-existing"
+  },
+  "pre_existing_issues": true,
+  "implementation_verified": {
+    "schema_file": "convex/schema.ts",
+    "model_file": "models/favorite-roads.ts",
+    "table_name": "favorite_roads",
+    "fields": ["userId", "name", "geometry", "bounds (optional)", "createdAt"],
+    "indexes": ["by_userId", "by_createdAt"],
+    "validator_pattern": "Follows existing Convex v.object() pattern",
+    "no_typescript_errors_in_new_files": true
+  }
 }
