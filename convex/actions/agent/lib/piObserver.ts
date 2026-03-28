@@ -3,82 +3,106 @@
 import type { ActionCtx } from '../../../_generated/server'
 import { backend } from '../../../lib/logger'
 import { PI_OBSERVABILITY_ENABLED } from '../../../lib/env'
+import type { AgentEvent } from '@mariozechner/pi-agent-core/dist/types'
 
 /**
- * Pi event observer for AgentSession lifecycle.
- * Replaces LangSmith tracing with pi event system.
+ * Pi event observer for Agent lifecycle.
+ * Listens to AgentEvent stream and logs relevant events.
  */
 export const createPiObserver = (ctx: ActionCtx, userId?: string) => {
   const effectiveUserId = userId ?? 'anonymous'
   const sessionId = crypto.randomUUID()
 
-  return {
-    onSessionStart: (metadata: { model: string; temperature: number }) => {
-      if (!PI_OBSERVABILITY_ENABLED) return
-      backend.info('pi.session', 'Agent session started', {
-        userId: effectiveUserId,
-        sessionId,
-        model: metadata.model,
-        temperature: metadata.temperature,
-      })
-    },
+  return (event: AgentEvent) => {
+    if (!PI_OBSERVABILITY_ENABLED) return
 
-    onSessionEnd: (result: { success: boolean; error?: string }) => {
-      if (!PI_OBSERVABILITY_ENABLED) return
-      backend.info('pi.session', 'Agent session ended', {
-        userId: effectiveUserId,
-        sessionId,
-        success: result.success,
-        error: result.error,
-      })
-    },
+    switch (event.type) {
+      case 'agent_start':
+        backend.info('pi.agent', 'Agent session started', {
+          userId: effectiveUserId,
+          sessionId,
+        })
+        break
 
-    onToolStart: (toolName: string, args: any) => {
-      if (!PI_OBSERVABILITY_ENABLED) return
-      backend.info('pi.tool', 'Tool execution started', {
-        userId: effectiveUserId,
-        sessionId,
-        toolName,
-        argKeys: Object.keys(args),
-      })
-    },
+      case 'agent_end':
+        backend.info('pi.agent', 'Agent session ended', {
+          userId: effectiveUserId,
+          sessionId,
+          messageCount: event.messages.length,
+        })
+        break
 
-    onToolEnd: (toolName: string, result: any) => {
-      if (!PI_OBSERVABILITY_ENABLED) return
-      backend.info('pi.tool', 'Tool execution completed', {
-        userId: effectiveUserId,
-        sessionId,
-        toolName,
-      })
-    },
+      case 'turn_start':
+        backend.info('pi.agent', 'Turn started', {
+          userId: effectiveUserId,
+          sessionId,
+        })
+        break
 
-    onToolError: (toolName: string, error: Error) => {
-      if (!PI_OBSERVABILITY_ENABLED) return
-      backend.error('pi.tool', 'Tool execution failed', error, {
-        userId: effectiveUserId,
-        sessionId,
-        toolName,
-      })
-    },
+      case 'turn_end':
+        backend.info('pi.agent', 'Turn ended', {
+          userId: effectiveUserId,
+          sessionId,
+          toolResultCount: event.toolResults.length,
+        })
+        break
 
-    onLlmRequestStart: (params: { model: string; promptTokens: number }) => {
-      if (!PI_OBSERVABILITY_ENABLED) return
-      backend.info('pi.llm', 'LLM request started', {
-        userId: effectiveUserId,
-        sessionId,
-        model: params.model,
-        promptTokens: params.promptTokens,
-      })
-    },
+      case 'message_start':
+        backend.info('pi.agent', 'Message started', {
+          userId: effectiveUserId,
+          sessionId,
+          role: event.message.role,
+        })
+        break
 
-    onLlmRequestEnd: (result: { totalTokens: number; finishReason: string }) => {
-      if (!PI_OBSERVABILITY_ENABLED) return
-      backend.info('pi.llm', 'LLM request completed', {
-        userId: effectiveUserId,
-        sessionId,
-        totalTokens: result.totalTokens,
-        finishReason: result.finishReason,
-      })
-    },
+      case 'message_update':
+        backend.debug('pi.agent', 'Message updated', {
+          userId: effectiveUserId,
+          sessionId,
+          role: event.message.role,
+        })
+        break
+
+      case 'message_end':
+        backend.info('pi.agent', 'Message ended', {
+          userId: effectiveUserId,
+          sessionId,
+          role: event.message.role,
+        })
+        break
+
+      case 'tool_execution_start':
+        backend.info('pi.tool', 'Tool execution started', {
+          userId: effectiveUserId,
+          sessionId,
+          toolName: event.toolName,
+          argKeys: Object.keys(event.args || {}),
+        })
+        break
+
+      case 'tool_execution_update':
+        backend.debug('pi.tool', 'Tool execution updated', {
+          userId: effectiveUserId,
+          sessionId,
+          toolName: event.toolName,
+        })
+        break
+
+      case 'tool_execution_end':
+        if (event.isError) {
+          backend.error('pi.tool', 'Tool execution failed', new Error(event.result?.toString?.() || 'Unknown error'), {
+            userId: effectiveUserId,
+            sessionId,
+            toolName: event.toolName,
+          })
+        } else {
+          backend.info('pi.tool', 'Tool execution completed', {
+            userId: effectiveUserId,
+            sessionId,
+            toolName: event.toolName,
+          })
+        }
+        break
+    }
   }
 }

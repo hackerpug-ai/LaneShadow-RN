@@ -25,15 +25,30 @@ export const createAgentSession = async (ctx: ActionCtx) => {
   const extension = createRoutePlanningExtension(ctx)
 
   // Import pi SDK dynamically to avoid module resolution issues
-  const { createSession } = await import('@mariozechner/pi-agent-core')
+  const { Agent } = await import('@mariozechner/pi-agent-core')
+  const { getModel } = await import('@mariozechner/pi-ai')
 
-  const session = createSession({
-    model: `openai:${PI_MODEL}`,
-    apiKey: OPENAI_API_KEY,
-    temperature: PI_TEMPERATURE,
-    observer,
-    extensions: [extension],
+  const agent = new Agent({
+    getApiKey: async (provider: string) => {
+      if (provider === 'openai') {
+        return OPENAI_API_KEY
+      }
+      return undefined
+    },
   })
 
-  return session
+  // Subscribe observer to agent events
+  agent.subscribe(observer)
+
+  // Set model
+  const model = getModel('openai', PI_MODEL as any)
+  agent.setModel(model)
+
+  // Set system prompt from extension
+  agent.setSystemPrompt(extension.systemPrompt)
+
+  // Set tools from extension
+  agent.setTools(extension.tools)
+
+  return agent
 }
