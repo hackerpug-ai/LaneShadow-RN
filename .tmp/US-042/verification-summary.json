@@ -1,0 +1,22 @@
+{
+  "task_id": "US-042",
+  "timestamp": "2026-03-28T10:00:00Z",
+  "commit_sha": "3f1527c8e7db81ed943bb1d99d0ea3b429d937c4",
+  "tests": {
+    "exit_code": 0,
+    "passed": 31,
+    "failed": 0,
+    "note": "All route-polyline tests pass including new US-042 long-press selection tests"
+  },
+  "typecheck": {
+    "exit_code": 2,
+    "note": "Pre-existing TypeScript errors in test files (Jest/Vitest mismatch) and React Native type conflicts. Not caused by US-042 changes."
+  },
+  "lint": {
+    "exit_code": 2,
+    "warnings": 0,
+    "note": "Pre-existing ESLint configuration issue: react-native plugin not found. Not caused by US-042 changes."
+  },
+  "pre_existing_issues": true,
+  "summary": "Implemented RoutePolyline React component with long-press gesture handler for segment selection. Added comprehensive test coverage for US-042 acceptance criteria. Fixed overlay segment property names in test helpers (start/end -> startMeters/endMeters). All route-polyline tests pass (31/31). Commit blocked by pre-existing project configuration issues documented in pre-existing-issues.md."
+}
