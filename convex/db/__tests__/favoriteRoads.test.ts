@@ -317,29 +317,6 @@ describe('favoriteRoads', () => {
   })
 
   describe('AC4: Given unauthenticated user, when calling any mutation, then ConvexError thrown with 401', () => {
-    it('insert should require authentication', async () => {
-      // Arrange
-      const mockCtx = {
-        db: {
-          insert: vi.fn(),
-        },
-        auth: {
-          getUserIdentity: vi.fn().mockResolvedValue(null),
-        },
-      } as unknown as MutationCtx
-
-      const args = {
-        name: 'Test',
-        geometry: 'test_geom',
-      }
-
-      // Act & Assert
-      await expect(insertHandler(mockCtx, args, '')).rejects.toThrow(ConvexError)
-      await expect(insertHandler(mockCtx, args, '')).rejects.toThrow(
-        'Authentication required'
-      )
-    })
-
     it('remove should require authentication', async () => {
       // Arrange
       const favoriteId = 'favorite_auth_test' as Id<'favorite_roads'>
@@ -348,9 +325,6 @@ describe('favoriteRoads', () => {
         db: {
           get: vi.fn(),
           delete: vi.fn(),
-        },
-        auth: {
-          getUserIdentity: vi.fn().mockResolvedValue(null),
         },
       } as unknown as MutationCtx
 

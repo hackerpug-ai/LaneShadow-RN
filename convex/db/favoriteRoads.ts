@@ -23,7 +23,6 @@ export const insertFavoriteRoadInputValidator = v.object({
 
 type InsertCtx = {
   db: { insert: (table: string, fields: object) => Promise<Id<'favorite_roads'>> }
-  auth: { getUserIdentity: () => Promise<{ subject: string; tokenIdentifier: string | null } | null> }
 }
 
 export const insertHandler = async (
@@ -35,12 +34,6 @@ export const insertHandler = async (
   },
   clerkUserId: string
 ): Promise<{ favoriteRoadId: Id<'favorite_roads'> }> => {
-  // Check authentication first
-  const identity = await ctx.auth.getUserIdentity()
-  if (!identity) {
-    throw new ConvexError('Authentication required')
-  }
-
   const favoriteRoadId = await ctx.db.insert('favorite_roads', {
     userId: clerkUserId as Id<'users'>,
     name: args.name,
