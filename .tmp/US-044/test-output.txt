@@ -1,0 +1,17 @@
+bun test v1.3.11 (af24e281)
+
+components/ui/__tests__/favorite-road-card.test.tsx:
+
+# Unhandled error between tests
+-------------------------------
+27 | import typeof * as ReactNativePublicAPI from './index.js.flow';
+            ^
+error: Unexpected typeof
+    at /Users/justinrich/Projects/LaneShadow/node_modules/.pnpm/react-native@0.81.5_@babel+core@7.28.4_@types+react@19.1.17_react@19.1.0/node_modules/react-native/index.js:27:8
+-------------------------------
+
+
+ 0 pass
+ 1 fail
+ 1 error
+Ran 1 test across 1 file. [202.00ms]
