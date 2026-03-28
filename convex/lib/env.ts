@@ -27,7 +27,7 @@ const optionalEnv = (key: string): string | undefined => {
 export const GOOGLE_MAPS_API_KEY = optionalEnv('GOOGLE_MAPS_API_KEY')
 
 /**
- * OpenAI API key for LangChain router agent.
+ * OpenAI API key for pi AgentSession (model: gpt-4o).
  * Required for Sprint 3 planning pipeline.
  */
 export const OPENAI_API_KEY = optionalEnv('OPENAI_API_KEY')
@@ -35,14 +35,20 @@ export const OPENAI_API_KEY = optionalEnv('OPENAI_API_KEY')
 export const isTestEnvironment = process.env.NODE_ENV === 'test'
 
 /**
- * LangSmith observability configuration.
- * Set LANGSMITH_TRACING=true and provide LANGSMITH_API_KEY to enable tracing.
- * Traces are logged to LANGSMITH_PROJECT (defaults to 'default').
+ * Pi Agent configuration.
+ * Set PI_OBSERVABILITY_ENABLED=true to enable event logging.
  * Automatically disabled during tests (NODE_ENV=test).
- * @see https://docs.langchain.com/oss/javascript/langgraph/observability
  */
+export const PI_OBSERVABILITY_ENABLED = !isTestEnvironment && optionalEnv('PI_OBSERVABILITY_ENABLED') === 'true'
 
-export const LANGSMITH_TRACING = !isTestEnvironment && optionalEnv('LANGSMITH_TRACING') === 'true'
-export const LANGSMITH_API_KEY = !isTestEnvironment ? optionalEnv('LANGSMITH_API_KEY') : ''
-export const LANGSMITH_PROJECT =
-  (!isTestEnvironment && optionalEnv('LANGSMITH_PROJECT')) ?? 'LaneShadowDev'
+/**
+ * Pi Agent model configuration.
+ * Defaults to gpt-4o for route planning (can override via env).
+ */
+export const PI_MODEL = optionalEnv('PI_MODEL') ?? 'gpt-4o'
+
+/**
+ * Pi Agent temperature for route sketching.
+ * Lower temperature = more deterministic route generation.
+ */
+export const PI_TEMPERATURE = Number(optionalEnv('PI_TEMPERATURE') ?? '0')
