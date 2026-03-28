@@ -83,6 +83,10 @@ export type PlannedRouteOptionView = {
     maxTemperatureF?: number
     conditionsStatus: 'ok' | 'unavailable'
   }
+  favorites?: {
+    count: number
+    names: string[]
+  }
 }
 
 export type PlannedRouteOptionsView = {

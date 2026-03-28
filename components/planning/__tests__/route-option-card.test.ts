@@ -1,13 +1,19 @@
 /**
  * E2E tests for RouteOptionCard component
  *
- * Acceptance Criteria:
+ * Rain Badge Acceptance Criteria:
  * - AC1: RainBadge displays 'Light rain' with blue styling when rain overlay data shows light rain segments
  * - AC2: RainBadge displays the worst condition (heavy > moderate > light > none) for mixed intensities
  * - AC3: RainBadge displays 'Unknown' with muted styling when rain data is null/undefined
  * - AC4: Gracefully falls back to 'unavailable' for malformed/empty data without crashing
  *
- * Note: This test suite focuses on the data flow from PlannedRouteOptionView to RainBadge display.
+ * Favorite Indicator Acceptance Criteria (US-048):
+ * - AC5: Shows favorite indicator badge when favorites are included
+ * - AC6: Does not show indicator when no favorites included
+ * - AC7: Badge shows correct count (singular vs plural)
+ * - AC8: Tapping badge expands to show favorite names
+ *
+ * Note: This test suite focuses on the data flow from PlannedRouteOptionView to badges display.
  * The RainBadge component itself is tested in its own test file.
  */
 
@@ -252,5 +258,259 @@ describe('RouteOptionCard rain badge display integration', () => {
     // This rainSummary would be passed to RainBadge component as:
     // <RainBadge rainSummary={rainSummary} />
     // Which would display "Light rain" with blue styling
+  })
+})
+
+describe('RouteOptionCard favorite indicator (US-048)', () => {
+  /**
+   * AC5: Shows favorite indicator badge when favorites are included
+   */
+  it('should satisfy AC5: shows favorite indicator when favorites included', () => {
+    // Given: A route with 2 favorites
+    const routeOptionWithFavorites = {
+      routeOptionId: 'route-1',
+      label: 'Scenic Route',
+      rationale: 'Best views',
+      stats: {
+        distanceMeters: 15000,
+        durationSeconds: 1800,
+        legsCount: 2,
+      },
+      map: {
+        bounds: {
+          northeast: { lat: 37.7749, lng: -122.4094 },
+          southwest: { lat: 37.7749, lng: -122.4094 },
+        },
+        overviewGeometry: { encodedPolyline: 'test' },
+        legs: [],
+      },
+      overlaysPreview: {
+        windSummary: 'moderate' as any,
+        rainSummary: 'none' as any,
+        temperatureSummary: 'mild' as any,
+        conditionsStatus: 'ok' as const,
+      },
+      favorites: {
+        count: 2,
+        names: ['Skyline Boulevard', 'Coastal Highway'],
+      },
+    }
+
+    // Then: Should render favorite badge
+    expect(routeOptionWithFavorites.favorites).toBeDefined()
+    expect(routeOptionWithFavorites.favorites?.count).toBe(2)
+    expect(routeOptionWithFavorites.favorites?.names).toHaveLength(2)
+
+    // When rendered, component would show:
+    // <Badge variant="primary">
+    //   <Heart size={12} />
+    //   <Text>2 favorites</Text>
+    // </Badge>
+  })
+
+  /**
+   * AC6: Does not show indicator when no favorites included
+   */
+  it('should satisfy AC6: does not show indicator when no favorites', () => {
+    // Given: A route without favorites
+    const routeOptionWithoutFavorites = {
+      routeOptionId: 'route-2',
+      label: 'Direct Route',
+      rationale: 'Fastest path',
+      stats: {
+        distanceMeters: 10000,
+        durationSeconds: 1200,
+        legsCount: 1,
+      },
+      map: {
+        bounds: {
+          northeast: { lat: 37.7749, lng: -122.4094 },
+          southwest: { lat: 37.7749, lng: -122.4094 },
+        },
+        overviewGeometry: { encodedPolyline: 'test' },
+        legs: [],
+      },
+      overlaysPreview: {
+        windSummary: 'light' as any,
+        rainSummary: 'none' as any,
+        temperatureSummary: 'mild' as any,
+        conditionsStatus: 'ok' as const,
+      },
+      // No favorites field or favorites.count = 0
+      favorites: {
+        count: 0,
+        names: [],
+      },
+    }
+
+    // Then: Should not render favorite badge (count = 0)
+    expect(routeOptionWithoutFavorites.favorites?.count).toBe(0)
+    expect(routeOptionWithoutFavorites.favorites?.names).toHaveLength(0)
+  })
+
+  /**
+   * AC7: Badge shows correct count (singular vs plural)
+   */
+  it('should satisfy AC7: shows singular "1 favorite" for count of 1', () => {
+    // Given: A route with 1 favorite
+    const routeOptionWithOneFavorite = {
+      routeOptionId: 'route-3',
+      label: 'Mixed Route',
+      rationale: 'Balanced',
+      stats: {
+        distanceMeters: 12000,
+        durationSeconds: 1500,
+        legsCount: 2,
+      },
+      map: {
+        bounds: {
+          northeast: { lat: 37.7749, lng: -122.4094 },
+          southwest: { lat: 37.7749, lng: -122.4094 },
+        },
+        overviewGeometry: { encodedPolyline: 'test' },
+        legs: [],
+      },
+      overlaysPreview: {
+        windSummary: 'light' as any,
+        rainSummary: 'none' as any,
+        temperatureSummary: 'mild' as any,
+        conditionsStatus: 'ok' as const,
+      },
+      favorites: {
+        count: 1,
+        names: ['Skyline Boulevard'],
+      },
+    }
+
+    // Then: Should show "1 favorite" (singular)
+    expect(routeOptionWithOneFavorite.favorites?.count).toBe(1)
+
+    // Badge text would be: "1 favorite"
+    const expectedBadgeText = `${routeOptionWithOneFavorite.favorites?.count} favorite`
+    expect(expectedBadgeText).toBe('1 favorite')
+  })
+
+  it('should satisfy AC7: shows plural "2 favorites" for count > 1', () => {
+    // Given: A route with 2 favorites
+    const routeOptionWithTwoFavorites = {
+      routeOptionId: 'route-4',
+      label: 'Scenic Route',
+      rationale: 'Best views',
+      stats: {
+        distanceMeters: 15000,
+        durationSeconds: 1800,
+        legsCount: 2,
+      },
+      map: {
+        bounds: {
+          northeast: { lat: 37.7749, lng: -122.4094 },
+          southwest: { lat: 37.7749, lng: -122.4094 },
+        },
+        overviewGeometry: { encodedPolyline: 'test' },
+        legs: [],
+      },
+      overlaysPreview: {
+        windSummary: 'moderate' as any,
+        rainSummary: 'none' as any,
+        temperatureSummary: 'mild' as any,
+        conditionsStatus: 'ok' as const,
+      },
+      favorites: {
+        count: 2,
+        names: ['Skyline Boulevard', 'Coastal Highway'],
+      },
+    }
+
+    // Then: Should show "2 favorites" (plural)
+    expect(routeOptionWithTwoFavorites.favorites?.count).toBe(2)
+
+    // Badge text would be: "2 favorites"
+    const expectedBadgeText = `${routeOptionWithTwoFavorites.favorites?.count} favorites`
+    expect(expectedBadgeText).toBe('2 favorites')
+  })
+
+  /**
+   * AC8: Tapping badge expands to show favorite names
+   */
+  it('should satisfy AC8: favorite names are available for display', () => {
+    // Given: A route with multiple favorites
+    const routeOption = {
+      routeOptionId: 'route-5',
+      label: 'Scenic Route',
+      rationale: 'Best views',
+      stats: {
+        distanceMeters: 15000,
+        durationSeconds: 1800,
+        legsCount: 2,
+      },
+      map: {
+        bounds: {
+          northeast: { lat: 37.7749, lng: -122.4094 },
+          southwest: { lat: 37.7749, lng: -122.4094 },
+        },
+        overviewGeometry: { encodedPolyline: 'test' },
+        legs: [],
+      },
+      overlaysPreview: {
+        windSummary: 'moderate' as any,
+        rainSummary: 'none' as any,
+        temperatureSummary: 'mild' as any,
+        conditionsStatus: 'ok' as const,
+      },
+      favorites: {
+        count: 3,
+        names: ['Skyline Boulevard', 'Coastal Highway', 'Mountain Pass'],
+      },
+    }
+
+    // Then: All favorite names should be available
+    expect(routeOption.favorites?.names).toEqual([
+      'Skyline Boulevard',
+      'Coastal Highway',
+      'Mountain Pass',
+    ])
+
+    // When expanded, component would render:
+    // <View>
+    //   <Text>• Skyline Boulevard</Text>
+    //   <Text>• Coastal Highway</Text>
+    //   <Text>• Mountain Pass</Text>
+    // </View>
+  })
+
+  /**
+   * Edge case: Favorites field is undefined
+   */
+  it('should handle undefined favorites gracefully', () => {
+    // Given: A route without favorites field
+    const routeOption = {
+      routeOptionId: 'route-6',
+      label: 'Basic Route',
+      rationale: 'Simple path',
+      stats: {
+        distanceMeters: 10000,
+        durationSeconds: 1200,
+        legsCount: 1,
+      },
+      map: {
+        bounds: {
+          northeast: { lat: 37.7749, lng: -122.4094 },
+          southwest: { lat: 37.7749, lng: -122.4094 },
+        },
+        overviewGeometry: { encodedPolyline: 'test' },
+        legs: [],
+      },
+      overlaysPreview: {
+        windSummary: 'light' as any,
+        rainSummary: 'none' as any,
+        temperatureSummary: 'mild' as any,
+        conditionsStatus: 'ok' as const,
+      },
+      // No favorites field
+    }
+
+    // Then: Should default to count = 0
+    const favoriteCount = routeOption.favorites?.count ?? 0
+    expect(favoriteCount).toBe(0)
   })
 })

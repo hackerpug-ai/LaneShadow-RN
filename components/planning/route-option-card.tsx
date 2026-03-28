@@ -7,12 +7,15 @@
  * - Uses existing UI components
  * - Supports selection state with visual feedback
  * - Supports loading state during map updates
+ * - Shows favorite inclusion indicator when favorites are used
  */
 
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { useState } from 'react'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { PlannedRouteOptionView } from '../../types/routes'
+import { Badge } from '../ui/badge'
 import { IconSymbol } from '../ui/icon-symbol'
 import { RainBadge } from '../ui/rain-badge'
 import { TemperatureBadge } from '../ui/temperature-badge'
@@ -37,12 +40,16 @@ export const RouteOptionCard = ({
   testID,
 }: RouteOptionCardProps) => {
   const { semantic } = useSemanticTheme()
+  const [showFavorites, setShowFavorites] = useState(false)
 
   const handlePress = () => {
     if (!isLoading) {
       onSelect(routeOption.routeOptionId)
     }
   }
+
+  const favoriteCount = routeOption.favorites?.count ?? 0
+  const favoriteNames = routeOption.favorites?.names ?? []
 
   // Format distance for display
   const formatDistance = (meters: number): string => {
@@ -159,6 +166,53 @@ export const RouteOptionCard = ({
           </View>
         </View>
       </View>
+
+      {/* Favorite inclusion indicator */}
+      {favoriteCount > 0 && (
+        <View style={[styles.favoriteSection, { marginTop: semantic.space.sm }]}>
+          <Pressable
+            onPress={() => setShowFavorites(!showFavorites)}
+            style={styles.favoriteBadgePressable}
+            testID={`${testID}-favorite-badge`}
+          >
+            <Badge variant="primary" testID={`${testID}-favorite-badge-inner`}>
+              <IconSymbol name="heart" size={12} color={semantic.color.onPrimary.default} />
+              <Text
+                variant="labelSmall"
+                style={{ color: semantic.color.onPrimary.default, marginLeft: 4 }}
+              >
+                {favoriteCount} favorite{favoriteCount > 1 ? 's' : ''}
+              </Text>
+            </Badge>
+          </Pressable>
+
+          {/* Expandable favorite names list */}
+          {showFavorites && favoriteNames.length > 0 && (
+            <View
+              style={[
+                styles.favoriteList,
+                {
+                  backgroundColor: semantic.color.surface.subtle,
+                  borderRadius: semantic.radius.md,
+                  padding: semantic.space.sm,
+                  marginTop: semantic.space.xs,
+                },
+              ]}
+              testID={`${testID}-favorite-list`}
+            >
+              {favoriteNames.map((name) => (
+                <Text
+                  key={name}
+                  variant="bodySmall"
+                  style={{ color: semantic.color.onSurface.muted, marginBottom: 2 }}
+                >
+                  • {name}
+                </Text>
+              ))}
+            </View>
+          )}
+        </View>
+      )}
     </Pressable>
   )
 }
@@ -215,5 +269,14 @@ const styles = StyleSheet.create({
   weatherItem: {
     alignItems: 'center',
     flex: 1,
+  },
+  favoriteSection: {
+    marginTop: 4,
+  },
+  favoriteBadgePressable: {
+    alignSelf: 'flex-start',
+  },
+  favoriteList: {
+    marginTop: 4,
   },
 })
