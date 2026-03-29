@@ -4,6 +4,27 @@ const { withStorybook } = require('@storybook/react-native/metro/withStorybook')
 const path = __dirname
 const config = getDefaultConfig(path)
 
+// Exclude test files from Metro bundler
+config.resolver = {
+  ...config.resolver,
+  resolveRequest: (context, moduleName, platform) => {
+    // Exclude test files from being bundled
+    if (moduleName.endsWith('.test.ts') ||
+        moduleName.endsWith('.test.tsx') ||
+        moduleName.endsWith('.spec.ts') ||
+        moduleName.endsWith('.spec.tsx') ||
+        moduleName.includes('__tests__') ||
+        moduleName.endsWith('.mock.ts') ||
+        moduleName.endsWith('.mock.tsx')) {
+      return { type: 'empty' }
+    }
+    // Use default resolution for other modules
+    return config.resolver.resolveRequest
+      ? config.resolver.resolveRequest(context, moduleName, platform)
+      : context.resolveRequest(context, moduleName, platform)
+  },
+}
+
 config.server = {
   ...config.server,
   symbolicator: {
