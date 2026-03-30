@@ -14,6 +14,7 @@ import { PlanRideSheet } from '../../../components/sheets/plan-ride-sheet'
 import { PlanningErrorSheet } from '../../../components/sheets/planning-error-sheet'
 import { RoutePlannerLoading } from '../../../components/sheets/planning-loading'
 import { FloatingSearchInput } from '../../../components/ui/floating-search-input'
+import { useCurrentLocation } from '../../../hooks/use-current-location'
 import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import type { PlanInput, PlannedRouteOptionsView, RouteStop } from '../../../types/routes'
@@ -100,6 +101,14 @@ const HomeMapScreen = () => {
   const [controlsHeight, setControlsHeight] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
   const [state, dispatch] = useReducer(planningReducer, initialState)
+  const { location: currentLocation } = useCurrentLocation()
+
+  // Default start stop to current location
+  useEffect(() => {
+    if (currentLocation && !state.startStop) {
+      dispatch({ type: 'setStart', payload: currentLocation })
+    }
+  }, [currentLocation, state.startStop])
 
   const [scenicBias, setScenicBias] = useState<'default' | 'high'>('default')
   const [avoidHighways, setAvoidHighways] = useState(false)
@@ -415,6 +424,8 @@ const HomeMapScreen = () => {
           onClose={() => setSheetVisible(false)}
           startStop={state.startStop}
           endStop={state.endStop}
+          onSetStartStop={(stop) => dispatch({ type: 'setStart', payload: stop })}
+          onSetEndStop={(stop) => dispatch({ type: 'setEnd', payload: stop })}
           scenicBias={scenicBias}
           onSetScenicBias={setScenicBias}
           avoidHighways={avoidHighways}

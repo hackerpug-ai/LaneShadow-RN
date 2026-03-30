@@ -193,7 +193,7 @@ const OverlayToggleItem = ({
     if (isSelected) {
       return semantic.color.accent.default
     }
-    return 'transparent'
+    return semantic.color.surfaceVariant.default
   }
 
   // Get icon color based on state

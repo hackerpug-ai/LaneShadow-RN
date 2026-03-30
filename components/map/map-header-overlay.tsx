@@ -49,8 +49,8 @@ export const MapHeaderOverlay = ({
 
   const gradientColors: [ColorValue, ColorValue, ColorValue] = showBackground
     ? [
-        withAlpha(semantic.color.surface.default, 0.85),
-        withAlpha(semantic.color.surface.default, 0.35),
+        withAlpha(semantic.color.surface.default, 0.95),
+        withAlpha(semantic.color.surface.default, 0.5),
         'transparent',
       ]
     : ['transparent', 'transparent', 'transparent']

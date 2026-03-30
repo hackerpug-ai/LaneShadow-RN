@@ -51,7 +51,9 @@ export const MapControls = ({
             {
               backgroundColor: semantic.color.surfaceVariant.default,
               borderColor: semantic.color.border.default,
+              borderWidth: 1.5,
               borderRadius: semantic.radius['2xl'],
+              ...semantic.elevation[3],
             },
           ]}
         >
@@ -133,6 +135,8 @@ const ControlButton = ({
             ? semantic.color.surfaceVariant.pressed
             : semantic.color.surfaceVariant.default,
           borderColor: semantic.color.border.default,
+          borderWidth: 1.5,
+          ...semantic.elevation[3],
         },
       ]}
       testID={testID}
