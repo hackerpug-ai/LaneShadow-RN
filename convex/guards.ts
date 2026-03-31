@@ -1,7 +1,7 @@
 import { ConvexError } from 'convex/values'
 
 import { Session } from '../models/users'
-import { api } from './_generated/api'
+import { api, internal } from './_generated/api'
 import type { ActionCtx, MutationCtx, QueryCtx } from './_generated/server'
 
 type Ctx = QueryCtx | MutationCtx | ActionCtx
@@ -22,6 +22,42 @@ export const requireIdentity = async (ctx: Ctx): Promise<Identity> => {
     clerkUserId: identity.subject,
     tokenIdentifier: identity.tokenIdentifier ?? null,
   }
+}
+
+/**
+ * ACTION-ONLY guard. Resolves the session for the authenticated Clerk user,
+ * creating the Convex user record via upsertCurrent if it doesn't exist yet
+ * (handles the webhook race condition where Clerk fires before the DB is synced).
+ */
+export const ensureSession = async (ctx: ActionCtx): Promise<Session> => {
+  const identity = await ctx.auth.getUserIdentity()
+  if (!identity) {
+    throw new ConvexError('Authentication required')
+  }
+
+  const clerkUserId = identity.subject
+  const email = (identity.email as string | undefined) ?? undefined
+  const name =
+    (identity.name as string | undefined) ??
+    (identity.given_name as string | undefined) ??
+    undefined
+
+  const existing = await ctx.runQuery(api.db.users.getSession)
+  if (existing) {
+    return existing
+  }
+
+  await ctx.runMutation(internal.db.users.upsertCurrent, {
+    clerkUserId,
+    email,
+    name,
+  })
+
+  const session = await ctx.runQuery(api.db.users.getSession)
+  if (!session) {
+    throw new ConvexError('SESSION_REQUIRED')
+  }
+  return session
 }
 
 export const requireSession = async (ctx: Ctx): Promise<Session> => {
