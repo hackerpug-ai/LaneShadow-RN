@@ -1,6 +1,12 @@
 import type { RouteSketch } from '../../../../../models/route-sketch'
 import type { PlanInput } from '../../../../../models/saved-routes'
 
+// Mock the env module to prevent requireEnv from throwing on missing Clerk secrets
+// and to control the GOOGLE_MAPS_API_KEY value in tests.
+vi.mock('../../../lib/env', () => ({ GOOGLE_MAPS_API_KEY: 'test-api-key' }))
+
+import { createRoutingProvider } from '../routingProvider'
+
 const planInput: PlanInput = {
   start: { lat: 37.0, lng: -122.0, label: 'Start', placeId: 'start' },
   end: { lat: 37.5, lng: -122.5, label: 'End', placeId: 'end' },
@@ -59,17 +65,6 @@ const makeGoogleOkFetch = (overrides?: {
   }))
 }
 
-const createProvider = (): import('../routingProvider').RoutingProvider => {
-  // routingProvider reads GOOGLE_MAPS_API_KEY at module init, so set env before importing.
-  process.env.GOOGLE_MAPS_API_KEY = 'test-google-key'
-  jest.resetModules()
-
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { createRoutingProvider } =
-    require('../routingProvider') as typeof import('../routingProvider')
-  return createRoutingProvider()
-}
-
 describe('routing provider', () => {
   afterEach(() => {
     jest.resetAllMocks()
@@ -79,14 +74,14 @@ describe('routing provider', () => {
     const fetchMock = makeGoogleOkFetch()
     ;(globalThis as any).fetch = fetchMock
 
-    const provider = createProvider()
+    const provider = createRoutingProvider()
     const result = await provider.routeFromSketch({ planInput, sketch })
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     const [url, init] = fetchMock.mock.calls[0]
     expect(String(url)).toBe('https://routes.googleapis.com/directions/v2:computeRoutes')
     expect(init?.method).toBe('POST')
-    expect(init?.headers?.['X-Goog-Api-Key']).toBe('test-google-key')
+    expect(init?.headers?.['X-Goog-Api-Key']).toBe('test-api-key')
 
     expect(result.provider).toBe('google')
     expect(result.overviewGeometry.value).toBe('OVERVIEW_POLYLINE')
@@ -97,7 +92,7 @@ describe('routing provider', () => {
   it('google provider returns durationSeconds=0 when duration is malformed', async () => {
     ;(globalThis as any).fetch = makeGoogleOkFetch({ duration: 'not-seconds' })
 
-    const provider = createProvider()
+    const provider = createRoutingProvider()
     const result = await provider.routeFromSketch({ planInput, sketch })
 
     expect(result.legs[0].durationSeconds).toBe(0)
@@ -110,7 +105,7 @@ describe('routing provider', () => {
       text: async () => 'oops',
     }))
 
-    const provider = createProvider()
+    const provider = createRoutingProvider()
     await expect(provider.routeFromSketch({ planInput, sketch })).rejects.toThrow(
       /Google Routes request failed: 500/
     )
@@ -119,7 +114,7 @@ describe('routing provider', () => {
   it('google provider throws when required fields are missing', async () => {
     ;(globalThis as any).fetch = makeGoogleOkFetch({ includeOverview: false })
 
-    const provider = createProvider()
+    const provider = createRoutingProvider()
     await expect(provider.routeFromSketch({ planInput, sketch })).rejects.toThrow(
       /missing overview polyline/i
     )
@@ -128,10 +123,30 @@ describe('routing provider', () => {
   it('google provider is deterministic when upstream payload is deterministic', async () => {
     ;(globalThis as any).fetch = makeGoogleOkFetch()
 
-    const provider = createProvider()
+    const provider = createRoutingProvider()
     const a = await provider.routeFromSketch({ planInput, sketch })
     const b = await provider.routeFromSketch({ planInput, sketch })
 
     expect(a).toEqual(b)
+  })
+
+  it('falls back to DRIVE when TWO_WHEELER is rejected', async () => {
+    let callCount = 0
+    const fetchMock = jest.fn(async (_url: string, init: any) => {
+      callCount++
+      const body = JSON.parse(init.body)
+      if (body.travelMode === 'TWO_WHEELER') {
+        return { ok: false, status: 422, text: async () => 'two-wheeler not supported' }
+      }
+      // DRIVE fallback succeeds
+      return makeGoogleOkFetch()()
+    })
+    ;(globalThis as any).fetch = fetchMock
+
+    const provider = createRoutingProvider()
+    const result = await provider.routeFromSketch({ planInput, sketch })
+
+    expect(callCount).toBe(2)
+    expect(result.provider).toBe('google')
   })
 })

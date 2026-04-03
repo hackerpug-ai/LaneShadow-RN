@@ -62,35 +62,50 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
       .filter((a) => a.lat !== undefined && a.lng !== undefined)
       .map((a) => toGoogleWaypoint(a.lat as number, a.lng as number))
 
-    const body = {
-      origin,
-      destination,
-      intermediates,
-      travelMode: 'DRIVE',
-      polylineQuality: 'OVERVIEW',
-      polylineEncoding: 'ENCODED_POLYLINE',
-      // Keep results deterministic-ish (no traffic). Google only allows routingPreference for DRIVE.
-      routingPreference: 'TRAFFIC_UNAWARE',
+    // Build routeModifiers from preferences
+    const routeModifiers: Record<string, boolean> = {}
+    if (planInput.preferences?.avoidHighways) routeModifiers.avoidHighways = true
+    if (planInput.preferences?.avoidTolls) routeModifiers.avoidTolls = true
+
+    // Beta: motorcycle routing. Falls back to DRIVE if rejected.
+    const fetchRoute = async (travelMode: 'TWO_WHEELER' | 'DRIVE'): Promise<any> => {
+      const body = {
+        origin,
+        destination,
+        intermediates,
+        travelMode,
+        polylineQuality: 'OVERVIEW',
+        polylineEncoding: 'ENCODED_POLYLINE',
+        // routingPreference only valid for DRIVE mode per Google Routes API
+        ...(travelMode === 'DRIVE' ? { routingPreference: 'TRAFFIC_UNAWARE' } : {}),
+        ...(Object.keys(routeModifiers).length > 0 ? { routeModifiers } : {}),
+      }
+
+      const response = await fetch('https://routes.googleapis.com/directions/v2:computeRoutes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': apiKey,
+          // Keep payload small but include everything we need to normalize into our provider-agnostic shape.
+          'X-Goog-FieldMask':
+            'routes.distanceMeters,routes.duration,routes.viewport,routes.polyline.encodedPolyline,routes.legs.distanceMeters,routes.legs.duration,routes.legs.polyline.encodedPolyline,routes.legs.startLocation.latLng,routes.legs.endLocation.latLng',
+        },
+        body: JSON.stringify(body),
+      })
+
+      if (!response.ok) {
+        if (travelMode === 'TWO_WHEELER') {
+          console.warn(`[routingProvider] TWO_WHEELER rejected (${response.status}), falling back to DRIVE`)
+          return fetchRoute('DRIVE')
+        }
+        const text = await response.text().catch(() => '')
+        throw new Error(`Google Routes request failed: ${response.status} ${text}`)
+      }
+
+      return response.json()
     }
 
-    const response = await fetch('https://routes.googleapis.com/directions/v2:computeRoutes', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': apiKey,
-        // Keep payload small but include everything we need to normalize into our provider-agnostic shape.
-        'X-Goog-FieldMask':
-          'routes.distanceMeters,routes.duration,routes.viewport,routes.polyline.encodedPolyline,routes.legs.distanceMeters,routes.legs.duration,routes.legs.polyline.encodedPolyline,routes.legs.startLocation.latLng,routes.legs.endLocation.latLng',
-      },
-      body: JSON.stringify(body),
-    })
-
-    if (!response.ok) {
-      const text = await response.text().catch(() => '')
-      throw new Error(`Google Routes request failed: ${response.status} ${text}`)
-    }
-
-    const data: any = await response.json()
+    const data: any = await fetchRoute('TWO_WHEELER')
     const route = data?.routes?.[0]
     if (!route) {
       throw new Error('Google Routes response missing routes[0]')
