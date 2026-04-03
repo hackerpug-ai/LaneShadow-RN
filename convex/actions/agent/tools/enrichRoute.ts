@@ -39,9 +39,7 @@ export const enrichRoute = async (
     }
 
     const enrichModel = process.env.ENRICH_MODEL
-    console.log('[enrichRoute] enrichModel:', enrichModel, 'type:', typeof enrichModel)
     const model = enrichModel != null ? enrichModel : 'gpt-4o-mini'
-    console.log('[enrichRoute] ENRICH_MODEL:', process.env.ENRICH_MODEL, 'model:', model, 'type:', typeof model)
 
     const result = await withTimeout(
       async (signal) => {

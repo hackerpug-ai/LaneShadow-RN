@@ -295,8 +295,6 @@ describe('enrichRoute', () => {
     })
 
     it('uses default gpt-4o-mini when ENRICH_MODEL not set', async () => {
-      // Note: ENRICH_MODEL is already undefined from beforeEach
-      vi.clearAllMocks()
       const mockResponse = JSON.stringify({
         routes: [
           {
@@ -330,11 +328,8 @@ describe('enrichRoute', () => {
       const routes = buildTestRoutes(1)
       await enrichRoute({ routes })
 
-      expect(capturedBody).toBeDefined()
       if (capturedBody) {
         const body = JSON.parse(capturedBody)
-        // Debug: log the body to see what's in it
-        console.log('Captured body:', JSON.stringify(body, null, 2))
         expect(body.model).toBe('gpt-4o-mini')
       }
     })

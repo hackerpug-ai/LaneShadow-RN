@@ -52,3 +52,9 @@ export const PI_MODEL = optionalEnv('PI_MODEL') ?? 'gpt-4o'
  * Lower temperature = more deterministic route generation.
  */
 export const PI_TEMPERATURE = Number(optionalEnv('PI_TEMPERATURE') ?? '0')
+
+/**
+ * Route enrichment model for human-readable labels and descriptions.
+ * Defaults to gpt-4o-mini for cost-effective batch enrichment.
+ */
+export const ENRICH_MODEL = optionalEnv('ENRICH_MODEL') ?? 'gpt-4o-mini'
