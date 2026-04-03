@@ -1,0 +1,144 @@
+'use node'
+
+import { findScenicWaypoints, type RouteVariant } from '../tools/findScenicWaypoints'
+import { compileSketch } from '../tools/compileSketch'
+import { normalizeRoute } from '../tools/normalizeRoute'
+import { computeRouteIndex } from '../tools/computeRouteIndex'
+import { probeConditions } from '../tools/probeConditions'
+import { mapConditions } from '../tools/mapConditions'
+import { createWeatherProvider } from '../providers/weatherProvider'
+import type { PlanInput, RouteSnapshot } from '../../../../models/saved-routes'
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export type OrchestratorResult = {
+  routeSnapshot: RouteSnapshot
+  sketch: any
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
+/**
+ * Deterministic route planning orchestrator. Replaces pi agent session.
+ *
+ * Steps:
+ * 1. Discover scenic waypoints via Overpass (findScenicWaypoints)
+ * 2. Build RouteSketch objects from waypoint variants (deterministic, no LLM)
+ * 3. Compile + normalize all variants in parallel (Promise.allSettled — partial failures ok)
+ * 4. Probe weather conditions in parallel (try/catch — failures non-fatal)
+ *
+ * Note: enrichRoute (US-052) will be wired in after it exists.
+ *
+ * @param params.planInput - Route planning input (start, end, departure time, preferences)
+ * @param params.departureTimeMs - Departure timestamp in milliseconds
+ * @returns Array of OrchestratorResult (routeSnapshot + sketch), at least one entry
+ * @throws {Error} 'NO_ROUTES_GENERATED' if all variant compilations fail
+ */
+export const planRideOrchestrator = async (params: {
+  planInput: PlanInput
+  departureTimeMs: number
+}): Promise<OrchestratorResult[]> => {
+  const { planInput, departureTimeMs } = params
+
+  // Step 1: Discover scenic waypoints deterministically via Overpass
+  const variants = await findScenicWaypoints({
+    start: planInput.start,
+    end: planInput.end,
+    preferences: planInput.preferences,
+  })
+
+  console.log(`[planRideOrchestrator] ${variants.length} variants discovered`)
+
+  // Step 2: Build RouteSketch + compile + normalize in parallel
+  // Promise.allSettled ensures one variant failure does not block the others
+  const compiled = await Promise.allSettled(
+    variants.map(async (variant) => {
+      const sketch = buildSketchFromVariant(variant)
+      const providerRoute = await compileSketch({ planInput, sketch })
+      const routeSnapshot = await normalizeRoute({ providerRoute, planInput })
+      return { routeSnapshot, sketch }
+    })
+  )
+
+  const successful = compiled
+    .filter(
+      (r): r is PromiseFulfilledResult<{ routeSnapshot: RouteSnapshot; sketch: any }> =>
+        r.status === 'fulfilled'
+    )
+    .map((r) => r.value)
+
+  console.log(
+    `[planRideOrchestrator] ${variants.length} variants, ${successful.length} routes compiled`
+  )
+
+  if (successful.length === 0) {
+    throw new Error('NO_ROUTES_GENERATED')
+  }
+
+  // Step 3: Probe weather conditions — parallel, best-effort (failure not fatal per variant)
+  const weatherProvider = createWeatherProvider()
+
+  const withConditions = await Promise.all(
+    successful.map(async ({ routeSnapshot, sketch }) => {
+      try {
+        const routeIndex = await computeRouteIndex(routeSnapshot)
+        const probed = await probeConditions({ routeIndex, departureTimeMs, weatherProvider })
+        const windOverlay = await mapConditions({ routeSnapshot, routeIndex, probed })
+        const updatedSnapshot: RouteSnapshot = {
+          ...routeSnapshot,
+          overlays: { ...routeSnapshot.overlays, wind: windOverlay },
+        }
+        return { routeSnapshot: updatedSnapshot, sketch }
+      } catch {
+        console.warn(
+          '[planRideOrchestrator] conditions failed for one route, continuing without weather'
+        )
+        return { routeSnapshot, sketch }
+      }
+    })
+  )
+
+  const conditionsCount = withConditions.filter(
+    (r) => r.routeSnapshot.overlays?.wind !== undefined
+  ).length
+
+  console.log(
+    `[planRideOrchestrator] ${variants.length} variants, ${successful.length} succeeded, conditions: ${conditionsCount}/${successful.length}`
+  )
+
+  // Note: enrichRoute (US-052) will be wired in after it exists.
+  // For now, build fallback labels from variant IDs.
+  return withConditions.map(({ routeSnapshot, sketch }, idx) => ({
+    routeSnapshot,
+    sketch: {
+      ...sketch,
+      label: sketch.label || `Route ${idx + 1}`,
+      rationale: sketch.rationale ?? '',
+    },
+  }))
+}
+
+// ---------------------------------------------------------------------------
+// Internal helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a RouteSketch from a RouteVariant's waypoints.
+ * Deterministic — no LLM involved.
+ * Exported for testing.
+ */
+export const buildSketchFromVariant = (variant: RouteVariant): any => ({
+  label: variant.id.replace(/-/g, ' '),
+  rationale: '',
+  segments: [],
+  anchorPoints: variant.waypoints.map((wp) => ({
+    name: wp.name,
+    kind: wp.type === 'pass' ? 'pass' : wp.type === 'peak' ? 'vista' : 'junction',
+    lat: wp.lat,
+    lng: wp.lng,
+  })),
+})

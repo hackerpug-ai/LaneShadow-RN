@@ -1,7 +1,7 @@
 'use node'
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { buildUserPrompt, parseAgentResponse } from '../planRide'
+import { buildUserPrompt, buildOptionsFromResults } from '../planRide'
 import { ERROR_CODES } from '../../../errors'
 
 // -----------------------------------------------------------------------------
@@ -15,95 +15,29 @@ const planInput = {
   preferences: { scenicBias: 'default' as const },
 }
 
-const planInputWithFavorites = {
-  ...planInput,
-  includeFavorites: true,
-}
-
-const mockAgentResponse = {
-  planId: 'test-plan-123',
-  options: [
+const makeSnapshot = () => ({
+  provider: 'google',
+  bounds: { north: 1, south: 0, east: 1, west: 0 },
+  origin: { lat: 0, lng: 0 },
+  destination: { lat: 1, lng: 1 },
+  waypoints: [],
+  overviewGeometry: { format: 'polyline' as const, encoding: 'encoded_polyline', precision: 5, value: 'test' },
+  legs: [
     {
-      routeOptionId: 'option-1',
-      label: 'Scenic Coastal Route',
-      rationale: 'Beautiful ocean views',
-      stats: {
-        distanceMeters: 25000,
-        durationSeconds: 1800,
-        legsCount: 2,
-      },
-      map: {
-        bounds: { north: 1, south: 0, east: 1, west: 0 },
-        overviewGeometry: {
-          format: 'polyline' as const,
-          encoding: 'encoded_polyline',
-          precision: 5,
-          value: 'test_overview',
-        },
-        legs: [
-          {
-            legIndex: 0,
-            start: { lat: 0, lng: 0 },
-            end: { lat: 1, lng: 1 },
-            distanceMeters: 15000,
-            durationSeconds: 900,
-            geometry: {
-              format: 'polyline' as const,
-              encoding: 'encoded_polyline',
-              precision: 5,
-              value: 'test_leg',
-            },
-          },
-        ],
-      },
-      overlaysPreview: {
-        windSummary: 'moderate',
-        conditionsStatus: 'ok',
-      },
-    },
-    {
-      routeOptionId: 'option-2',
-      label: 'Mountain Pass Route',
-      rationale: 'Scenic mountain views',
-      stats: {
-        distanceMeters: 30000,
-        durationSeconds: 2400,
-        legsCount: 3,
-      },
-      map: {
-        bounds: { north: 1.5, south: 0, east: 1.5, west: 0 },
-        overviewGeometry: {
-          format: 'polyline' as const,
-          encoding: 'encoded_polyline',
-          precision: 5,
-          value: 'test_overview_2',
-        },
-        legs: [
-          {
-            legIndex: 0,
-            start: { lat: 0, lng: 0 },
-            end: { lat: 0.5, lng: 0.5 },
-            distanceMeters: 10000,
-            durationSeconds: 800,
-            geometry: {
-              format: 'polyline' as const,
-              encoding: 'encoded_polyline',
-              precision: 5,
-              value: 'test_leg_2_1',
-            },
-          },
-        ],
-      },
-      overlaysPreview: {
-        windSummary: 'high',
-        conditionsStatus: 'ok',
-      },
+      legIndex: 0,
+      start: { lat: 0, lng: 0 },
+      end: { lat: 1, lng: 1 },
+      distanceMeters: 15000,
+      durationSeconds: 900,
+      geometry: { format: 'polyline' as const, encoding: 'encoded_polyline', precision: 5, value: 'test_leg' },
     },
   ],
-}
+  annotations: [],
+  overlays: {},
+})
 
 // -----------------------------------------------------------------------------
-// Helper Function Tests
+// buildUserPrompt tests
 // -----------------------------------------------------------------------------
 
 describe('buildUserPrompt', () => {
@@ -141,129 +75,95 @@ describe('buildUserPrompt', () => {
   })
 })
 
-describe('parseAgentResponse', () => {
-  it('parses valid JSON response', () => {
-    const response = JSON.stringify(mockAgentResponse)
-    const result = parseAgentResponse(response)
+// -----------------------------------------------------------------------------
+// buildOptionsFromResults tests
+// -----------------------------------------------------------------------------
 
-    expect(result.planId).toBe('test-plan-123')
-    expect(result.options).toHaveLength(2)
-    expect(result.options[0].routeOptionId).toBe('option-1')
-    expect(result.options[0].label).toBe('Scenic Coastal Route')
+describe('buildOptionsFromResults', () => {
+  it('builds PlannedRouteOptionsView from results', () => {
+    const results = [
+      { routeSnapshot: makeSnapshot(), sketch: { label: 'Coastal Route', rationale: 'Scenic' } },
+    ]
+    const view = buildOptionsFromResults(results, 'test-plan-id')
+
+    expect(view.planId).toBe('test-plan-id')
+    expect(view.options).toHaveLength(1)
+    expect(view.options[0].label).toBe('Coastal Route')
+    expect(view.options[0].rationale).toBe('Scenic')
+    expect(view.options[0].stats.legsCount).toBe(1)
+    expect(view.options[0].stats.distanceMeters).toBe(15000)
+    expect(view.options[0].stats.durationSeconds).toBe(900)
   })
 
-  it('throws AGENT_RESPONSE_INVALID for invalid JSON', () => {
-    const invalidJson = '{ this is not valid json'
+  it('falls back to Route N label when sketch label is missing', () => {
+    const results = [
+      { routeSnapshot: makeSnapshot(), sketch: {} },
+      { routeSnapshot: makeSnapshot(), sketch: { label: 'Named Route', rationale: '' } },
+    ]
+    const view = buildOptionsFromResults(results, 'plan-id')
 
-    expect(() => parseAgentResponse(invalidJson)).toThrow(ERROR_CODES.AGENT_RESPONSE_INVALID)
+    expect(view.options[0].label).toBe('Route 1')
+    expect(view.options[1].label).toBe('Named Route')
   })
 
-  it('throws INVALID_AGENT_RESPONSE_STRUCTURE for missing options array', () => {
-    const responseWithoutOptions = JSON.stringify({
-      planId: 'test-123',
-      // options array is missing
-    })
+  it('sets conditionsStatus to unavailable', () => {
+    const results = [
+      { routeSnapshot: makeSnapshot(), sketch: { label: 'Test', rationale: '' } },
+    ]
+    const view = buildOptionsFromResults(results, 'plan-id')
 
-    expect(() => parseAgentResponse(responseWithoutOptions)).toThrow(
-      ERROR_CODES.INVALID_AGENT_RESPONSE_STRUCTURE
-    )
+    expect(view.options[0].overlaysPreview.conditionsStatus).toBe('unavailable')
   })
 
-  it('throws INVALID_AGENT_RESPONSE_STRUCTURE for non-array options', () => {
-    const responseWithInvalidOptions = JSON.stringify({
-      planId: 'test-123',
-      options: 'not an array',
-    })
+  it('sums leg distances and durations correctly', () => {
+    const snapshotWithMultipleLegs = {
+      ...makeSnapshot(),
+      legs: [
+        {
+          legIndex: 0,
+          start: { lat: 0, lng: 0 },
+          end: { lat: 0.5, lng: 0.5 },
+          distanceMeters: 10000,
+          durationSeconds: 600,
+          geometry: { format: 'polyline' as const, encoding: 'encoded_polyline', precision: 5, value: 'leg1' },
+        },
+        {
+          legIndex: 1,
+          start: { lat: 0.5, lng: 0.5 },
+          end: { lat: 1, lng: 1 },
+          distanceMeters: 20000,
+          durationSeconds: 1200,
+          geometry: { format: 'polyline' as const, encoding: 'encoded_polyline', precision: 5, value: 'leg2' },
+        },
+      ],
+    }
 
-    expect(() => parseAgentResponse(responseWithInvalidOptions)).toThrow(
-      ERROR_CODES.INVALID_AGENT_RESPONSE_STRUCTURE
-    )
-  })
+    const results = [
+      { routeSnapshot: snapshotWithMultipleLegs, sketch: { label: 'Multi-leg', rationale: '' } },
+    ]
+    const view = buildOptionsFromResults(results, 'plan-id')
 
-  it('generates planId when not provided in response', () => {
-    const responseWithoutPlanId = JSON.stringify({
-      options: [mockAgentResponse.options[0]],
-    })
-    const result = parseAgentResponse(responseWithoutPlanId)
-
-    expect(result.planId).toBeTruthy()
-    expect(result.options).toHaveLength(1)
+    expect(view.options[0].stats.distanceMeters).toBe(30000)
+    expect(view.options[0].stats.durationSeconds).toBe(1800)
+    expect(view.options[0].stats.legsCount).toBe(2)
   })
 })
 
 // -----------------------------------------------------------------------------
 // planRide Action Integration Tests
 // -----------------------------------------------------------------------------
-// Note: Convex actions created with action() are not directly unit testable.
-// The action will be tested through integration/e2e tests with the actual
-// Convex backend. The helper functions above are thoroughly tested.
 
 describe('planRide action', () => {
   describe('integration tests (pending)', () => {
-    it('should return parsed options from successful agent response', () => {
-      // Integration test will verify:
-      // - Agent session is created correctly
-      // - User prompt is built and sent
-      // - Agent response is parsed and returned
-      // - Event subscriptions are cleaned up
+    it('should return parsed options from successful orchestrator response', () => {
       expect(true).toBe(true) // Placeholder
     })
 
-    it('should throw NO_ROUTES_GENERATED when agent returns empty options', () => {
-      // Integration test will verify error handling
+    it('should throw NO_ROUTES_GENERATED when orchestrator returns empty options', () => {
       expect(true).toBe(true) // Placeholder
     })
 
-    it('should throw AGENT_TIMEOUT when agent does not respond within 55 seconds', () => {
-      // Integration test will verify timeout behavior
-      expect(true).toBe(true) // Placeholder
-    })
-
-    it('should throw AGENT_RESPONSE_INVALID for malformed JSON', () => {
-      // Integration test will verify JSON parsing errors
-      expect(true).toBe(true) // Placeholder
-    })
-
-    it('should throw INVALID_AGENT_RESPONSE_STRUCTURE for missing options', () => {
-      // Integration test will verify structure validation
-      expect(true).toBe(true) // Placeholder
-    })
-
-    it('should handle includeFavorites flag correctly', () => {
-      // Integration test will verify favorites integration (US-047)
-      expect(true).toBe(true) // Placeholder
-    })
-
-    it('should clean up event subscriptions after completion or error', () => {
-      // Integration test will verify cleanup
-      expect(true).toBe(true) // Placeholder
-    })
-  })
-})
-
-// -----------------------------------------------------------------------------
-// US-047: Favorites Integration Tests
-// -----------------------------------------------------------------------------
-
-describe('US-047: favorites integration', () => {
-  describe('integration tests (pending)', () => {
-    it('Given: includeFavorites=false, When: Planning route, Then: Favorites not fetched, normal routing', () => {
-      // Integration test will verify favorites are not fetched when flag is false
-      expect(true).toBe(true) // Placeholder
-    })
-
-    it('Given: includeFavorites=true, When: Planning route with favorites, Then: Favorites fetched, passed to routing', () => {
-      // Integration test will verify favorites are fetched and used
-      expect(true).toBe(true) // Placeholder
-    })
-
-    it('Given: includeFavorites=true, no favorites, When: Planning route, Then: Normal routing, no error', () => {
-      // Integration test will verify graceful handling of empty favorites
-      expect(true).toBe(true) // Placeholder
-    })
-
-    it('Given: Favorites too far from route, When: Planning route, Then: Routes generated without favorites', () => {
-      // Integration test will verify favorites that are too far are ignored
+    it('should throw AGENT_TIMEOUT when orchestrator does not respond within 55 seconds', () => {
       expect(true).toBe(true) // Placeholder
     })
   })
