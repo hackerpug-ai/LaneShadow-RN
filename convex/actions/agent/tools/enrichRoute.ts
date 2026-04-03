@@ -1,9 +1,26 @@
 'use node'
 
+import { generateObject } from 'ai'
+import { openai } from '@ai-sdk/openai'
+import { z } from 'zod'
+import { OPENAI_API_KEY, PI_MODEL } from '../../../lib/env'
 import { withTimeout } from '../lib/reliability'
 
 const ENRICH_TIMEOUT_MS = 10_000
-const DEFAULT_MODEL = 'gpt-4o-mini'
+
+/**
+ * Zod schema for route enrichment output.
+ * aisdk will automatically validate the LLM response against this schema.
+ */
+const RouteEnrichmentSchema = z.object({
+  routes: z.array(
+    z.object({
+      label: z.string().describe('Punchy route name (≤8 words) referencing the most iconic waypoint'),
+      rationale: z.string().describe('1-2 sentences about why this route is scenic (mention waypoints)'),
+      highlights: z.array(z.string().describe('Short phrases (max 4 words each)')),
+    })
+  ),
+})
 
 export type RouteEnrichment = {
   label: string
@@ -20,72 +37,52 @@ export type EnrichRouteInput = {
 }
 
 /**
- * Generates human-readable labels and rationale for routes using OpenAI.
- * Called AFTER routes are compiled — receives structured data (real waypoint names,
- * stats, preferences) and returns NL copy.
+ * Generates human-readable labels and rationale for routes using aisdk with structured output.
+ * Uses PI_MODEL for all OpenAI calls (single interface).
  *
  * Falls back to generic labels on any failure — never throws.
  *
  * @param params.routes - Array of routes with waypoint names, stats, and preferences
  * @returns Array of enrichment objects with label, rationale, and highlights
  */
-export const enrichRoute = async (
-  params: EnrichRouteInput
-): Promise<RouteEnrichment[]> => {
+export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrichment[]> => {
   try {
-    const apiKey = process.env.OPENAI_API_KEY
+    const apiKey = OPENAI_API_KEY
     if (!apiKey) {
       throw new Error('OPENAI_API_KEY not set')
     }
 
-    const enrichModel = process.env.ENRICH_MODEL
-    const model = enrichModel != null ? enrichModel : 'gpt-4o-mini'
+    // Use PI_MODEL for all OpenAI calls (standardized interface)
+    const model = PI_MODEL
 
-    const result = await withTimeout(
-      async (signal) => {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            model,
-            response_format: { type: 'json_object' },
-            messages: [
-              {
-                role: 'system',
-                content:
-                  'You are a motorcycle route naming specialist. You receive structured route data and write compelling, accurate names and descriptions. Output JSON only.',
-              },
-              {
-                role: 'user',
-                content: buildUserPrompt(params.routes),
-              },
-            ],
-            max_tokens: 500,
-          }),
-          signal,
-        })
+    console.log(`[enrichRoute] using model=${model}, routes=${params.routes.length}`)
 
-        if (!response.ok) {
-          throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`)
-        }
+    // Set API key in environment for aisdk
+    const originalEnvKey = process.env.OPENAI_API_KEY
+    process.env.OPENAI_API_KEY = apiKey
 
-        return response.json()
-      },
-      { ms: ENRICH_TIMEOUT_MS, label: 'enrichRoute' }
-    )
+    try {
+      const result = await withTimeout(
+        async () => {
+          return generateObject({
+            model: openai(model),
+            schema: RouteEnrichmentSchema,
+            prompt: buildUserPrompt(params.routes),
+          })
+        },
+        { ms: ENRICH_TIMEOUT_MS, label: 'enrichRoute' }
+      )
 
-    const content = result.choices[0]?.message?.content ?? '{}'
-    const parsed = JSON.parse(content)
-    const routes = (parsed.routes ?? []) as any[]
-
-    return routes.map((r: any, idx: number) => ({
-      label: r.label ?? `Route ${idx + 1}`,
-      rationale: r.rationale ?? '',
-      highlights: Array.isArray(r.highlights) ? r.highlights : [],
-    }))
+      // aisdk automatically validates the response against the Zod schema
+      return result.object.routes
+    } finally {
+      // Restore original environment
+      if (originalEnvKey !== undefined) {
+        process.env.OPENAI_API_KEY = originalEnvKey
+      } else {
+        delete process.env.OPENAI_API_KEY
+      }
+    }
   } catch (error) {
     console.warn('[enrichRoute] LLM call failed, using fallback labels', error)
     return params.routes.map((_, idx) => fallbackEnrichment(idx))
@@ -107,15 +104,16 @@ const fallbackEnrichment = (idx: number): RouteEnrichment => ({
 const buildUserPrompt = (routes: EnrichRouteInput['routes']): string => {
   const parts: string[] = []
 
-  parts.push(`Name and describe these ${routes.length} motorcycle routes.\n`)
+  parts.push(
+    'You are a motorcycle route naming specialist. You receive structured route data and write compelling, accurate names and descriptions.'
+  )
+  parts.push(`\nName and describe these ${routes.length} motorcycle routes.\n`)
 
   routes.forEach((route, idx) => {
     parts.push(`\nRoute ${idx + 1}:`)
     parts.push(`Waypoints: ${route.waypoints.map((w) => w.name).join(', ')}`)
     parts.push(
-      `Distance: ${(route.stats.distanceMeters / 1609.34).toFixed(1)} miles, Duration: ${Math.round(
-        route.stats.durationSeconds / 60
-      )} minutes`
+      `Distance: ${(route.stats.distanceMeters / 1609.34).toFixed(1)} miles, Duration: ${Math.round(route.stats.durationSeconds / 60)} minutes`
     )
 
     if (route.preferences?.scenicBias) {
@@ -126,9 +124,7 @@ const buildUserPrompt = (routes: EnrichRouteInput['routes']): string => {
     }
   })
 
-  parts.push(
-    '\n\nOutput JSON with "routes" array. Each route has: label (≤8 words), rationale (1-2 sentences), highlights (2-4 short phrases).'
-  )
+  parts.push('\n\nGenerate a name and description for each route.')
 
   return parts.join('\n')
 }
