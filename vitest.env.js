@@ -13,6 +13,46 @@ import { vi } from 'vitest'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+// Globally stub react-native before any test imports it (directly or transitively
+// via @testing-library/react-native). React Native 0.81 ships Flow-annotated
+// source files (`import typeof * as ...`) that Node's parser cannot handle, so
+// we intercept Node's module resolver to redirect every `require('react-native')`
+// — including nested requires inside @testing-library/react-native's CJS — to
+// our stub at __mocks__/react-native.ts.
+//
+// vi.mock() and vitest's server.deps.inline don't help here because those only
+// apply to files that Vite transforms; the testing-library package is loaded by
+// Node's native CJS loader which bypasses Vite entirely.
+import Module from 'node:module'
+const EXPO_ICONS_STUB = path.resolve(__dirname, '__mocks__/expo-vector-icons.ts')
+const STUB_MAP = {
+  'react-native': path.resolve(__dirname, '__mocks__/react-native.ts'),
+  'react-native-paper': path.resolve(__dirname, '__mocks__/react-native-paper.ts'),
+  '@expo/vector-icons': EXPO_ICONS_STUB,
+  '@expo/vector-icons/MaterialCommunityIcons': EXPO_ICONS_STUB,
+  '@expo/vector-icons/MaterialIcons': EXPO_ICONS_STUB,
+  '@expo/vector-icons/Ionicons': EXPO_ICONS_STUB,
+  '@expo/vector-icons/Feather': EXPO_ICONS_STUB,
+  '@expo/vector-icons/FontAwesome': EXPO_ICONS_STUB,
+  '@expo/vector-icons/FontAwesome5': EXPO_ICONS_STUB,
+  '@expo/vector-icons/FontAwesome6': EXPO_ICONS_STUB,
+  '@expo/vector-icons/AntDesign': EXPO_ICONS_STUB,
+  '@expo/vector-icons/Entypo': EXPO_ICONS_STUB,
+  '@expo/vector-icons/EvilIcons': EXPO_ICONS_STUB,
+  '@expo/vector-icons/Fontisto': EXPO_ICONS_STUB,
+  '@expo/vector-icons/Foundation': EXPO_ICONS_STUB,
+  '@expo/vector-icons/Octicons': EXPO_ICONS_STUB,
+  '@expo/vector-icons/SimpleLineIcons': EXPO_ICONS_STUB,
+  '@expo/vector-icons/Zocial': EXPO_ICONS_STUB,
+}
+const originalResolveFilename = Module._resolveFilename
+Module._resolveFilename = function (request, parent, ...rest) {
+  if (STUB_MAP[request]) {
+    return STUB_MAP[request]
+  }
+  return originalResolveFilename.call(this, request, parent, ...rest)
+}
+
 const loadFirstEnvFile = () => {
   const rootDir = path.resolve(__dirname)
   const candidates = ['.env.test.local', '.env.test', '.env.local', '.env'].map(
