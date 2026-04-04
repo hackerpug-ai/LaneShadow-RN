@@ -97,8 +97,57 @@ export const sendMessage = action({
     } catch (error) {
       // Convert agent errors to conversational messages
       console.error('[sendMessage] Agent error:', error)
+
+      // Extract error code from error if available
+      const errorMessage = error instanceof Error ? error.message : String(error)
+
+      // Map error codes to helpful, conversational messages
+      const getConversationalErrorMessage = (error: string): string => {
+        // Rate limit errors
+        if (
+          error.includes('RATE_LIMIT_EXCEEDED') ||
+          error.includes('PLAN_LIMIT_EXCEEDED') ||
+          errorMessage.includes('monthly limit')
+        ) {
+          return "You've used all 5 monthly plans. Upgrade to Premium for unlimited planning!"
+        }
+
+        // Parse/understanding errors
+        if (
+          error.includes('AGENTIC_PARSE_FAILED') ||
+          error.includes('LOW_CONFIDENCE_PARSE') ||
+          errorMessage.includes('understanding') ||
+          errorMessage.includes('parse')
+        ) {
+          return "I couldn't understand that location. Try 'scenic ride to Santa Cruz' instead."
+        }
+
+        // Route generation errors
+        if (
+          error.includes('GENERATION_FAILED') ||
+          error.includes('NO_ROUTES_GENERATED') ||
+          errorMessage.includes('generate') ||
+          errorMessage.includes('routes')
+        ) {
+          return "I couldn't generate a route for that request. Try a different destination."
+        }
+
+        // Timeout errors
+        if (
+          error.includes('AGENT_TIMEOUT') ||
+          error.includes('NETWORK_TIMEOUT') ||
+          errorMessage.includes('timeout') ||
+          errorMessage.includes('timed out')
+        ) {
+          return "Request timed out. Please try again."
+        }
+
+        // Generic fallback
+        return "I'm having trouble right now. Could you try again?"
+      }
+
       agentResult = {
-        response: "I'm having trouble right now. Could you try again?",
+        response: getConversationalErrorMessage(errorMessage),
         attachments: undefined,
       }
     }

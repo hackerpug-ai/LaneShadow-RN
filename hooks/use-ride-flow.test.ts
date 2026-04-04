@@ -9,6 +9,7 @@
  * - AC5: Given IDLE state, when LOAD_SESSION dispatched, then populates routeOptions from attachment
  */
 
+import { describe, it, expect } from 'vitest'
 import { rideFlowReducer, initialState } from './use-ride-flow'
 import type { PlannedRouteOptionsView } from '../types/routes'
 
@@ -188,9 +189,11 @@ describe('useRideFlow', () => {
       })
 
       expect(nextState.phase).toBe('IDLE')
-      expect(nextState.sessionId).toBeNull()
-      expect(nextState.selectedRouteId).toBeNull()
-      expect(nextState.routeOptions).toBeNull()
+      if (nextState.phase === 'IDLE') {
+        expect(nextState.sessionId).toBeNull()
+        expect(nextState.selectedRouteId).toBeNull()
+        expect(nextState.routeOptions).toBeNull()
+      }
     })
   })
 
@@ -208,9 +211,11 @@ describe('useRideFlow', () => {
       })
 
       expect(nextState.phase).toBe('IDLE')
-      expect(nextState.sessionId).toBe('session-123')
-      expect(nextState.routeOptions).toEqual(mockRouteOptions)
-      expect(nextState.selectedRouteId).toBe('route-1')
+      if (nextState.phase === 'IDLE') {
+        expect(nextState.sessionId).toBe('session-123')
+        expect(nextState.routeOptions).toEqual(mockRouteOptions)
+        expect(nextState.selectedRouteId).toBe('route-1')
+      }
     })
   })
 

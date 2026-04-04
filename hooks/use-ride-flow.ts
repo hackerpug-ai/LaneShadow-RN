@@ -24,6 +24,7 @@ import type { PlannedRouteOptionsView } from '../types/routes'
 export type RideFlowState =
   | IdleState
   | PlanningState
+  | ErrorState
   | RouteResultsState
   | RouteDetailsState
   | SessionHistoryState
@@ -43,6 +44,12 @@ export type PlanningState = {
   currentPhase: string
   routeOptions: PlannedRouteOptionsView | null
   selectedRouteId: string | null
+}
+
+export type ErrorState = {
+  phase: 'ERROR'
+  errorMessage: string
+  sessionId: string | null
 }
 
 export type RouteResultsState = {
@@ -184,6 +191,9 @@ const rideFlowReducer = (
     case 'PLANNING':
       return handlePlanningState(state, action)
 
+    case 'ERROR':
+      return handleErrorState(state, action)
+
     case 'ROUTE_RESULTS':
       return handleRouteResultsState(state, action)
 
@@ -259,8 +269,43 @@ const handlePlanningState = (
       }
 
     case 'PLANNING_ERROR':
-      // On error, return to IDLE state
+      // On error, transition to ERROR state with message
+      return {
+        phase: 'ERROR',
+        errorMessage: action.error,
+        sessionId: state.sessionId,
+      }
+
+    case 'NEW_SESSION':
       return initialState
+
+    default:
+      // No-op for unhandled actions
+      return state
+  }
+}
+
+/**
+ * ERROR state handlers
+ */
+const handleErrorState = (
+  state: ErrorState,
+  action: RideFlowAction
+): RideFlowState => {
+  switch (action.type) {
+    case 'SEND_MESSAGE':
+      // Try again - transition to PLANNING
+      if (!guards.canSendMessage(action.content)) {
+        return state
+      }
+      return {
+        phase: 'PLANNING',
+        sessionId: generateSessionId(),
+        planId: null,
+        currentPhase: 'analyzing',
+        routeOptions: null,
+        selectedRouteId: null,
+      }
 
     case 'NEW_SESSION':
       return initialState
@@ -464,6 +509,10 @@ export const isIdle = (state: RideFlowState): state is IdleState => {
 
 export const isPlanning = (state: RideFlowState): state is PlanningState => {
   return state.phase === 'PLANNING'
+}
+
+export const isError = (state: RideFlowState): state is ErrorState => {
+  return state.phase === 'ERROR'
 }
 
 export const isRouteResults = (

@@ -2,32 +2,49 @@
  * useChatPlanning - Orchestrates chat-to-planning flow
  *
  * Manages the flow from user message to route options:
- * - Sends user message to state machine
- * - Calls parseNaturalLanguageInput to extract route parameters
- * - Calls createPlan to start route planning
- * - Subscribes to plan status for phase updates
+ * - Creates planning session if needed
+ * - Sends user message to backend agent
+ * - Polls for route plan completion
  * - Dispatches PLANNING_SUCCESS when routes are ready
+ * - Dispatches PLANNING_ERROR on backend failures
  * - Supports cancellation via AbortController
  *
  * This hook orchestrates the planning pipeline but doesn't render UI.
  * All state is managed through the useRideFlow state machine.
- *
- * Time-based phase fallback (2s/phase) ensures UX works even when
- * real-time status is unavailable.
  */
 
 import { useRef, useCallback, useEffect, useState } from 'react'
+import { useAction, useMutation, useQuery } from 'convex/react'
+import type { Id } from '../convex/_generated/dataModel'
 import type { RideFlowAction } from './use-ride-flow'
 import type { PlannedRouteOptionsView } from '../types/routes'
+import { api } from '../convex/_generated/api'
+
+/**
+ * Type for sendMessage action result
+ */
+type SendMessageResult = {
+  response: string
+  messageId: Id<'session_messages'>
+  attachments?: Array<{ type: string; routePlanId?: Id<'route_plans'> }>
+}
+
+/**
+ * Type for route plan document
+ */
+type RoutePlanDoc = {
+  _id: Id<'route_plans'>
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
+  result?: PlannedRouteOptionsView
+  errorMessage?: string
+}
 
 /**
  * Planning phases for progress tracking
  */
 type PlanningPhase =
   | null // Not planning
-  | 'analyzing' // Parsing natural language input
-  | 'routing' // Computing routes
-  | 'enriching' // Adding weather/conditions overlays
+  | 'planning' // Agent is processing request
   | 'complete' // Done
 
 /**
@@ -36,8 +53,8 @@ type PlanningPhase =
 type PlanningState = {
   isPlanning: boolean
   currentPhase: PlanningPhase
-  planId: string | null
   sessionId: string | null
+  routePlanId: Id<'route_plans'> | null
 }
 
 /**
@@ -47,7 +64,6 @@ type UseChatPlanningReturn = {
   // State
   isPlanning: boolean
   currentPhase: PlanningPhase
-  planId: string | null
   sessionId: string | null
 
   // Actions
@@ -55,7 +71,7 @@ type UseChatPlanningReturn = {
   cancel: () => void
 }
 
-const PHASE_FALLBACK_DURATION_MS = 2000 // 2 seconds per phase
+const POLL_INTERVAL_MS = 1000 // Poll every second for plan completion
 
 /**
  * Main hook - orchestrates chat planning flow
@@ -82,44 +98,64 @@ export const useChatPlanning = (dispatch: (action: RideFlowAction) => void): Use
   const [planningState, setPlanningState] = useState<PlanningState>({
     isPlanning: false,
     currentPhase: null,
-    planId: null,
     sessionId: null,
+    routePlanId: null,
   })
 
-  // Backend functions (these will be stubbed for now - US-009 implements parseNaturalLanguageInput)
-  // TODO: Replace with actual Convex actions when available
-  // const parseNaturalLanguageInput = useAction(api.db.schedule.parseNaturalLanguageInput)
-  // const createPlan = useAction(api.db.plans.createPlan)
-  // const getPlanStatus = useQuery(api.db.sessions.getPlanStatus)
+  // Backend functions
+  const createSession = useMutation(api.db.planningSessions.createSession)
+  // @ts-ignore - Convex useAction type inference issue with nested actions
+  const sendMessage = useAction(api.actions.agent.sendMessage)
+
+  // Query for route plan status (when we have a planId)
+  // Note: When routePlanId is null, pass 'skip' to avoid the query
+  const routePlan = useQuery(
+    api.db.routePlans.getPlanById,
+    planningState.routePlanId ?? ('skip' as any)
+  ) as RoutePlanDoc | null | undefined
 
   /**
-   * Update phase with time-based fallback
-   */
-  const updatePhase = useCallback((phase: PlanningPhase) => {
-    setPlanningState((prev) => ({ ...prev, currentPhase: phase }))
-  }, [])
-
-  /**
-   * Start time-based phase progression (fallback when getPlanStatus unavailable)
+   * Poll for plan completion
    */
   useEffect(() => {
-    if (!planningState.isPlanning || planningState.currentPhase === 'complete') {
+    if (!planningState.routePlanId || !planningState.isPlanning) {
       return
     }
 
-    const phaseProgression: PlanningPhase[] = ['analyzing', 'routing', 'enriching', 'complete']
-    const currentIndex = phaseProgression.indexOf(planningState.currentPhase)
+    // Check if plan is ready
+    if (routePlan) {
+      if (routePlan.status === 'completed' && routePlan.result) {
+        // Plan is complete - dispatch success
+        dispatch({
+          type: 'PLANNING_SUCCESS',
+          routeOptions: routePlan.result as PlannedRouteOptionsView,
+        })
 
-    if (currentIndex === -1 || currentIndex === phaseProgression.length - 1) {
-      return
+        // Reset planning state
+        setPlanningState({
+          isPlanning: false,
+          currentPhase: 'complete',
+          sessionId: planningState.sessionId,
+          routePlanId: planningState.routePlanId,
+        })
+      } else if (routePlan.status === 'failed') {
+        // Plan failed - dispatch error
+        dispatch({
+          type: 'PLANNING_ERROR',
+          error: routePlan.errorMessage || 'Route planning failed',
+        })
+
+        // Reset planning state
+        setPlanningState({
+          isPlanning: false,
+          currentPhase: null,
+          sessionId: null,
+          routePlanId: null,
+        })
+      }
+      // If status is 'running', continue polling
     }
-
-    const timer = setTimeout(() => {
-      updatePhase(phaseProgression[currentIndex + 1])
-    }, PHASE_FALLBACK_DURATION_MS)
-
-    return () => clearTimeout(timer)
-  }, [planningState.isPlanning, planningState.currentPhase, updatePhase])
+  }, [routePlan, planningState, dispatch])
 
   /**
    * Send planning message - starts the full pipeline
@@ -138,70 +174,67 @@ export const useChatPlanning = (dispatch: (action: RideFlowAction) => void): Use
         })
 
         // Start planning state
-        const sessionId = `session-${Date.now()}`
         setPlanningState({
           isPlanning: true,
-          currentPhase: 'analyzing',
-          planId: null,
-          sessionId,
+          currentPhase: 'planning',
+          sessionId: null,
+          routePlanId: null,
         })
 
-        // TODO: Step 1 - Parse natural language input (US-009)
-        // const parseResult = await parseNaturalLanguageInput(
-        //   { message },
-        //   { signal }
-        // )
-        //
-        // if (signal.aborted) throw new Error('Aborted')
-        //
-        // updatePhase('routing')
+        // Step 1: Create session if needed
+        const sessionResult = await createSession({ firstMessage: message })
+        const sessionId = sessionResult.sessionId
 
-        // TODO: Step 2 - Create plan (US-006)
-        // const planResult = await createPlan(
-        //   {
-        //     planInput: parseResult.planInput,
-        //     startLabel: parseResult.startLabel,
-        //     endLabel: parseResult.endLabel,
-        //   },
-        //   { signal }
-        // )
-        //
-        // if (signal.aborted) throw new Error('Aborted')
-        //
-        // setPlanningState((prev) => ({ ...prev, planId: planResult.planId }))
-        // updatePhase('enriching')
+        // Update state with real sessionId
+        setPlanningState((prev) => ({
+          ...prev,
+          sessionId,
+        }))
 
-        // TODO: Step 3 - Subscribe to plan status for real-time updates
-        // This would use useQuery to track plan status and update phases
-
-        // TODO: Step 4 - Wait for completion and get routes
-        // For now, simulate completion after phases
-        setTimeout(() => {
-          if (!signal.aborted) {
-            // Simulated route options - replace with actual backend data
-            const mockRouteOptions: PlannedRouteOptionsView = {
-              planId: 'mock-plan-id',
-              options: [],
-            }
-
-            // Dispatch success to state machine
-            dispatch({
-              type: 'PLANNING_SUCCESS',
-              routeOptions: mockRouteOptions,
-            })
-
-            // Reset planning state
-            setPlanningState({
-              isPlanning: false,
-              currentPhase: 'complete',
-              planId: 'mock-plan-id',
-              sessionId,
-            })
-          }
-        }, PHASE_FALLBACK_DURATION_MS * 3) // After all phases
-      } catch (error) {
         // Check if aborted
         if (signal.aborted) {
+          throw new Error('Aborted')
+        }
+
+        // Step 2: Send message to backend agent
+        const result = await sendMessage({
+          sessionId,
+          content: message,
+        }) as SendMessageResult
+
+        // Check if aborted again
+        if (signal.aborted) {
+          throw new Error('Aborted')
+        }
+
+        // Step 3: Handle response with route attachments
+        if (result.attachments && result.attachments.length > 0) {
+          // Find route attachment
+          const routeAttachment = result.attachments.find((a) => a.type === 'route_options')
+
+          if (routeAttachment?.routePlanId) {
+            // Set routePlanId to trigger polling
+            setPlanningState((prev) => ({
+              ...prev,
+              routePlanId: routeAttachment.routePlanId,
+            }))
+
+            // The useEffect will handle the rest when the plan is ready
+            return
+          }
+        }
+
+        // No route attachments - just a text response
+        // This is still a success, just without routes
+        setPlanningState({
+          isPlanning: false,
+          currentPhase: 'complete',
+          sessionId,
+          routePlanId: null,
+        })
+      } catch (error) {
+        // Check if aborted
+        if (signal.aborted || (error as Error).name === 'AbortError') {
           console.log('Planning cancelled')
           return
         }
@@ -213,18 +246,34 @@ export const useChatPlanning = (dispatch: (action: RideFlowAction) => void): Use
         setPlanningState({
           isPlanning: false,
           currentPhase: null,
-          planId: null,
           sessionId: null,
+          routePlanId: null,
         })
 
         // Dispatch error action to state machine
+        // Include the actual error message from backend (already conversational)
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+
+        // Check if this is a backend conversational error or a technical error
+        const isConversational =
+          errorMessage.includes('monthly limit') ||
+          errorMessage.includes('could not understand') ||
+          errorMessage.includes('could not generate') ||
+          errorMessage.includes('timed out') ||
+          errorMessage.includes('try again')
+
+        // Use the backend message if it's conversational, otherwise use generic
+        const displayMessage = isConversational
+          ? errorMessage
+          : "I'm having trouble right now. Could you try again?"
+
         dispatch({
           type: 'PLANNING_ERROR',
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: displayMessage,
         })
       }
     },
-    [dispatch]
+    [dispatch, createSession, sendMessage]
   )
 
   /**
@@ -239,8 +288,8 @@ export const useChatPlanning = (dispatch: (action: RideFlowAction) => void): Use
     setPlanningState({
       isPlanning: false,
       currentPhase: null,
-      planId: null,
       sessionId: null,
+      routePlanId: null,
     })
 
     // Dispatch new session to reset state machine
@@ -252,7 +301,6 @@ export const useChatPlanning = (dispatch: (action: RideFlowAction) => void): Use
   return {
     isPlanning: planningState.isPlanning,
     currentPhase: planningState.currentPhase,
-    planId: planningState.planId,
     sessionId: planningState.sessionId,
     sendPlanningMessage,
     cancel,
