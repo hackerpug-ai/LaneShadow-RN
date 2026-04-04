@@ -9,7 +9,8 @@
  * - PLANNING: Shows progress indicator with current phase
  * - ROUTE_RESULTS: Shows input for follow-up questions
  *
- * This is a controlled component - all state managed by parent.
+ * Note: This component manages its own input text state. The parent manages
+ * the ride flow state (planning, error, success) but not the text input value.
  */
 
 import React, { useState, useCallback } from 'react'
@@ -149,10 +150,11 @@ export const ChatInput = ({
 
   const handleSelectSuggestion = useCallback(
     (suggestion: string) => {
-      setText(suggestion)
-      setTimeout(() => handleSend(), 100)
+      // Send the suggestion directly without using setTimeout
+      // This avoids potential memory leaks from uncleaned timeouts
+      onSend(suggestion)
     },
-    [handleSend]
+    [onSend]
   )
 
   return (
