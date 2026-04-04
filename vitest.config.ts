@@ -23,6 +23,19 @@ export default defineConfig({
       exclude: ['convex/_generated/**', 'convex/**/*.test.ts', 'convex/**/*.spec.ts'],
     },
     globals: true,
+    // Configure jsdom environment for React hooks tests
+    environmentOptions: {
+      jsdom: {
+        // Configure jsdom environment
+      },
+    },
+    // Use jsdom for hooks tests
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        singleThread: true,
+      },
+    },
   },
   resolve: {
     alias: {

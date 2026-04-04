@@ -17,11 +17,8 @@
  */
 
 import { useRef, useCallback, useEffect, useState } from 'react'
-import { useAction, useQuery } from 'convex/react'
 import type { RideFlowAction } from './use-ride-flow'
 import type { PlannedRouteOptionsView } from '../types/routes'
-import { api } from '../convex/_generated/api'
-import type { Id } from '../convex/_generated/dataModel'
 
 /**
  * Planning phases for progress tracking
@@ -220,11 +217,11 @@ export const useChatPlanning = (dispatch: (action: RideFlowAction) => void): Use
           sessionId: null,
         })
 
-        // TODO: Dispatch error action to state machine
-        // dispatch({
-        //   type: 'PLANNING_ERROR',
-        //   error: error instanceof Error ? error.message : 'Unknown error',
-        // })
+        // Dispatch error action to state machine
+        dispatch({
+          type: 'PLANNING_ERROR',
+          error: error instanceof Error ? error.message : 'Unknown error',
+        })
       }
     },
     [dispatch]
