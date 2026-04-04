@@ -8,7 +8,7 @@ import { FavoriteRoadsSection } from '../../../components/settings/favorite-road
 
 const SettingsScreen = () => {
   const router = useRouter()
-  const segments = useSegments()
+  const segments = useSegments() as string[]
   const activeTab = segments[2] ?? 'index'
   const { semantic } = useSemanticTheme()
   const [menuOpen, setMenuOpen] = useState(false)

@@ -329,9 +329,10 @@ const HomeMapScreen = () => {
               testID: 'map-header-left-button',
             }}
             rightAction={{
-              icon: 'cog',
-              onPress: () => router.push('/(app)/(tabs)/settings'),
+              icon: 'message-text-outline',
+              onPress: () => router.push('/(app)/(tabs)/chat'),
               testID: 'map-header-right-button',
+              accessibilityLabel: 'Open chat history',
             }}
             testID="map-header-overlay"
           />
