@@ -1,5 +1,7 @@
 import { useRouter, useSegments } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useMutation } from 'convex/react'
+import { api } from '../../../convex/_generated/api'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MenuLayout } from '../../../components/layouts/menu-layout'
@@ -61,6 +63,12 @@ const HomeMapScreen = () => {
   const { sendPlanningMessage, cancel: cancelChatPlanning, isPlanning: isChatPlanning } = useChatPlanning(flowDispatch)
   const { messages } = useChatSession(flowState.sessionId, flowState)
   const { polylines, selectRoute } = useRouteComparison(flowState, flowDispatch)
+  const createSession = useMutation(api.db.planningSessions.createSession)
+
+  const handleNewSession = async () => {
+    await createSession({ firstMessage: '' })
+    flowDispatch({ type: 'NEW_SESSION' })
+  }
 
   // Manual mode state (legacy - for PlanRideSheet)
   const [startStop, setStartStop] = useState<RouteStop | null>(null)
@@ -413,6 +421,7 @@ const HomeMapScreen = () => {
           state={flowState}
           suggestions={IDLE_SUGGESTIONS}
           testID="chat-input"
+          onNewSession={handleNewSession}
         />
 
         <PlanRideSheet
