@@ -39,6 +39,7 @@ type SendMessageCtx = {
 
 type ListMessagesCtx = {
   db: {
+    get: (id: Id<'planning_sessions'>) => Promise<PlanningSessionDoc | null>
     query: (table: string) => any
   }
 }
@@ -71,11 +72,17 @@ export const sendHandler = async (
     throw new ConvexError(ERROR_CODES.SESSION_NOT_FOUND)
   }
 
+  // AC-1 & AC-2: Validate content is not empty or whitespace-only
+  const trimmedContent = args.content.trim()
+  if (trimmedContent.length === 0) {
+    throw new ConvexError(ERROR_CODES.INVALID_CONTENT)
+  }
+
   const now = Date.now()
   const messageId = await ctx.db.insert('session_messages', {
     sessionId: args.sessionId,
     role: 'rider',
-    content: args.content,
+    content: trimmedContent,
     createdAt: now,
   })
 
@@ -86,8 +93,15 @@ export const sendHandler = async (
 
 export const listHandler = async (
   ctx: ListMessagesCtx,
-  args: { sessionId: Id<'planning_sessions'> }
+  args: { sessionId: Id<'planning_sessions'> },
+  clerkUserId: string
 ): Promise<SessionMessageDoc[]> => {
+  // CRITICAL: Validate session ownership first
+  const session = await ctx.db.get(args.sessionId)
+  if (!session || !isOwnedByUser(session, clerkUserId)) {
+    throw new ConvexError(ERROR_CODES.SESSION_NOT_FOUND)
+  }
+
   const messages = await ctx.db
     .query('session_messages')
     .withIndex('by_sessionId', (q: any) => q.eq('sessionId', args.sessionId))
@@ -106,11 +120,17 @@ export const addSystemMessageHandler = async (
     attachments?: Array<{ type: 'route_options'; routePlanId: Id<'route_plans'> }>
   }
 ): Promise<{ messageId: Id<'session_messages'> }> => {
+  // AC-1 & AC-2: Validate content is not empty or whitespace-only
+  const trimmedContent = args.content.trim()
+  if (trimmedContent.length === 0) {
+    throw new ConvexError(ERROR_CODES.INVALID_CONTENT)
+  }
+
   const now = Date.now()
   const messageId = await ctx.db.insert('session_messages', {
     sessionId: args.sessionId,
     role: 'system',
-    content: args.content,
+    content: trimmedContent,
     attachments: args.attachments,
     createdAt: now,
   })
@@ -143,7 +163,7 @@ export const list = query({
   returns: v.any(),
   handler: async (ctx, args) => {
     const { clerkUserId } = await requireIdentity(ctx)
-    const messages = await listHandler(ctx as any, args)
+    const messages = await listHandler(ctx as any, args, clerkUserId)
     return messages
   },
 })

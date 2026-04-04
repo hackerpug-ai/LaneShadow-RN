@@ -1,13 +1,13 @@
 'use node'
 
 import { v } from 'convex/values'
-import { action } from '../_generated/server'
-import { internal } from '../_generated/api'
-import { requireIdentity } from '../guards'
+import { action } from '../../_generated/server'
+import { internal } from '../../_generated/api'
+import { requireIdentity } from '../../guards'
 import { executeRidePlanningAgent } from './ridePlanningAgent'
 import { sendHandler, listHandler } from '../../db/sessionMessages'
 import { getSessionByIdHandler } from '../../db/planningSessions'
-import type { Id } from '../_generated/dataModel'
+import type { Id } from '../../_generated/dataModel'
 
 /**
  * sendMessage - Single client entry point for the ride planning agent
@@ -45,7 +45,11 @@ export const sendMessage = action({
       )
     ),
   }),
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{
+    response: string
+    messageId: Id<'session_messages'>
+    attachments?: Array<{ type: string; routePlanId?: Id<'route_plans'> }>
+  }> => {
     // Step 1: Validate session ownership (deterministic)
     const { clerkUserId } = await requireIdentity(ctx)
 
@@ -65,7 +69,8 @@ export const sendMessage = action({
     // Step 3: Build conversation context for the agent
     const messages = await listHandler(
       ctx as any,
-      { sessionId: args.sessionId }
+      { sessionId: args.sessionId },
+      clerkUserId
     )
 
     // Convert to agent format (role: content:)
@@ -100,12 +105,12 @@ export const sendMessage = action({
 
     // Step 5: Persist system response (deterministic)
     // This ALWAYS happens, even if agent produced an error
-    const systemMessageResult = await ctx.runMutation(
+    const systemMessageResult: { messageId: Id<'session_messages'> } = await ctx.runMutation(
       internal.db.sessionMessages.addSystemMessage,
       {
         sessionId: args.sessionId,
         content: agentResult.response,
-        attachments: agentResult.attachments,
+        attachments: agentResult.attachments as Array<{ type: 'route_options'; routePlanId: Id<'route_plans'> }> | undefined,
       }
     )
 
@@ -113,7 +118,7 @@ export const sendMessage = action({
     return {
       response: agentResult.response,
       messageId: systemMessageResult.messageId,
-      attachments: agentResult.attachments,
+      attachments: agentResult.attachments as Array<{ type: string; routePlanId?: Id<'route_plans'> }> | undefined,
     }
   },
 })
