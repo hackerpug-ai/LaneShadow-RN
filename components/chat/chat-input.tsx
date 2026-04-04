@@ -18,7 +18,6 @@ import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView } from 
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { ErrorMessage } from './error-message'
-import { MotorcyclePlusIcon } from '../ui/motorcycle-plus-icon'
 import type { RideFlowState } from '../../hooks/use-ride-flow'
 
 type ChatInputProps = {
@@ -27,7 +26,6 @@ type ChatInputProps = {
   state: RideFlowState
   suggestions?: string[]
   testID?: string
-  onNewSession?: () => void
 }
 
 /**
@@ -130,7 +128,6 @@ export const ChatInput = ({
   state,
   suggestions = [],
   testID = 'chat-input',
-  onNewSession,
 }: ChatInputProps) => {
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
@@ -206,25 +203,6 @@ export const ChatInput = ({
           },
         ]}
       >
-        {/* New session button (left of input) */}
-        {onNewSession && (
-          <TouchableOpacity
-            onPress={onNewSession}
-            style={[
-              styles.newSessionButton,
-              {
-                backgroundColor: semantic.color.surfaceVariant.default,
-              },
-            ]}
-            testID="chat-input-new-session-button"
-            accessibilityLabel="Start new ride session"
-            accessibilityRole="button"
-            accessibilityHint="Creates a new planning session"
-          >
-            <MotorcyclePlusIcon size={22} color={semantic.color.primary.default} />
-          </TouchableOpacity>
-        )}
-
         {/* Text input */}
         <View style={styles.inputWrapper}>
           <TextInput
@@ -326,12 +304,5 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     marginLeft: 'auto',
-  },
-  newSessionButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 })

@@ -8,6 +8,7 @@ export type MapControlsProps = {
   onZoomOut: () => void
   onRecenter?: () => void
   onClear?: () => void
+  onOpenChat?: () => void
   position?: {
     top?: number
     right?: number
@@ -21,6 +22,7 @@ export const MapControls = ({
   onZoomOut,
   onRecenter,
   onClear,
+  onOpenChat,
   position,
 }: MapControlsProps) => {
   const { semantic } = useSemanticTheme()
@@ -99,6 +101,16 @@ export const MapControls = ({
             semantic={semantic}
             testID="control-clear"
             accessibilityLabel="Reset map state"
+          />
+        ) : null}
+
+        {onOpenChat ? (
+          <ControlButton
+            icon="message-text-outline"
+            onPress={onOpenChat}
+            semantic={semantic}
+            testID="control-open-chat"
+            accessibilityLabel="Open chat history"
           />
         ) : null}
       </View>

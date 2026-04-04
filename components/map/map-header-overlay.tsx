@@ -7,6 +7,7 @@
  */
 
 import { LinearGradient } from 'expo-linear-gradient'
+import type { ReactNode } from 'react'
 import { StyleSheet, View, type ColorValue, type StyleProp, type ViewStyle } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -19,6 +20,8 @@ type Action = {
   onPress: () => void
   testID?: string
   accessibilityLabel?: string
+  /** Optional custom icon renderer — overrides the `icon` glyph when provided. */
+  renderIcon?: () => ReactNode
 }
 
 export type MapHeaderOverlayProps = {
@@ -64,11 +67,15 @@ export const MapHeaderOverlay = ({
       return (
         <Button
           icon={
-            <IconSymbol
-              name={leftAction.icon as any}
-              size={24}
-              color={semantic.color.onSurface.default}
-            />
+            leftAction.renderIcon ? (
+              leftAction.renderIcon()
+            ) : (
+              <IconSymbol
+                name={leftAction.icon as any}
+                size={24}
+                color={semantic.color.onSurface.default}
+              />
+            )
           }
           size="icon"
           variant="glass"
@@ -88,11 +95,15 @@ export const MapHeaderOverlay = ({
       return (
         <Button
           icon={
-            <IconSymbol
-              name={rightAction.icon as any}
-              size={24}
-              color={semantic.color.onSurface.default}
-            />
+            rightAction.renderIcon ? (
+              rightAction.renderIcon()
+            ) : (
+              <IconSymbol
+                name={rightAction.icon as any}
+                size={24}
+                color={semantic.color.onSurface.default}
+              />
+            )
           }
           size="icon"
           variant="glass"

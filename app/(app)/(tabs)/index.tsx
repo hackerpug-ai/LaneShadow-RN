@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MenuLayout } from '../../../components/layouts/menu-layout'
 import { MapControls } from '../../../components/map/map-controls'
 import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
+import { MotorcyclePlusIcon } from '../../../components/ui/motorcycle-plus-icon'
 import type { MapViewHandle } from '../../../components/map/map-view'
 import { MapViewWrapper } from '../../../components/map/map-view'
 import { OverlayToggle } from '../../../components/map/overlay-toggle'
@@ -337,10 +338,13 @@ const HomeMapScreen = () => {
               testID: 'map-header-left-button',
             }}
             rightAction={{
-              icon: 'message-text-outline',
-              onPress: () => router.push('/(app)/(tabs)/chat'),
-              testID: 'map-header-right-button',
-              accessibilityLabel: 'Open chat history',
+              icon: 'motorbike',
+              onPress: handleNewSession,
+              testID: 'map-header-new-session',
+              accessibilityLabel: 'Start new ride session',
+              renderIcon: () => (
+                <MotorcyclePlusIcon size={24} color={semantic.color.onSurface.default} />
+              ),
             }}
             testID="map-header-overlay"
           />
@@ -381,6 +385,7 @@ const HomeMapScreen = () => {
             onZoomOut={() => zoom(-1)}
             onRecenter={recenter}
             onClear={clearAll}
+            onOpenChat={() => router.push('/(app)/(tabs)/chat')}
           />
         </View>
 
@@ -422,7 +427,6 @@ const HomeMapScreen = () => {
           state={flowState}
           suggestions={IDLE_SUGGESTIONS}
           testID="chat-input"
-          onNewSession={handleNewSession}
         />
 
         <PlanRideSheet
