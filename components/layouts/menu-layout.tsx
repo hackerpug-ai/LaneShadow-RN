@@ -1,6 +1,8 @@
+import { useQuery } from 'convex/react'
 import { useRouter, useSegments } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { Animated, StyleSheet, View } from 'react-native'
+import { api } from '../../convex/_generated/api'
 import type { DrawerMenuItem, DrawerMenuSection } from '../ui/menus/drawer-menu'
 import { DrawerMenu } from '../ui/menus/drawer-menu'
 
@@ -31,7 +33,34 @@ export const MenuLayout = ({
   const segments = useSegments() as string[]
   const activeTab = segments[2] ?? 'index'
 
+  const sessions = useQuery(api.db.planningSessions.listSessions)
+
   const [contentOffset] = useState(new Animated.Value(0))
+
+  const sessionsSection: DrawerMenuSection = {
+    title: 'Sessions',
+    items:
+      !sessions || sessions.length === 0
+        ? [
+            {
+              label: 'No sessions yet',
+              icon: 'motorbike' as const,
+              onPress: () => {},
+              disabled: true,
+              testID: 'drawer-sessions-empty',
+            },
+          ]
+        : sessions.slice(0, 20).map((s) => ({
+            label: s.title || 'Untitled ride',
+            icon: 'motorbike' as const,
+            onPress: () => {
+              onMenuOpenChange?.(false)
+              router.push({ pathname: '/(app)/(tabs)/chat', params: { sessionId: s._id } })
+            },
+            testID: `drawer-session-${s._id}`,
+          })),
+  }
+
   const internalMenuSections: DrawerMenuSection[] = [
     {
       title: 'Navigate',
@@ -56,6 +85,7 @@ export const MenuLayout = ({
         },
       ],
     },
+    sessionsSection,
   ]
 
   const internalFooterItems: DrawerMenuItem[] = []
