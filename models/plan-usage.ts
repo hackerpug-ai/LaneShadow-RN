@@ -7,6 +7,25 @@ import { Infer, v } from 'convex/values'
  * Free tier: 5 plans per month.
  */
 
+// Month validation regex: YYYY-MM format (e.g., "2026-04")
+const MONTH_REGEX = /^(\d{4})-(\d{2})$/
+
+/**
+ * Validates month string in YYYY-MM format
+ * @param month - Month string to validate
+ * @returns true if valid, false otherwise
+ */
+export function isValidMonth(month: string): boolean {
+  const match = month.match(MONTH_REGEX)
+  if (!match) return false
+
+  const year = parseInt(match[1], 10)
+  const monthNum = parseInt(match[2], 10)
+
+  // Validate month is in range 01-12
+  return monthNum >= 1 && monthNum <= 12 && year >= 2000 && year <= 2100
+}
+
 export const PLAN_USAGE_FIELDS = {
   clerkUserId: v.string(),
   month: v.string(), // Format: "YYYY-MM" (e.g., "2026-04")

@@ -1,12 +1,14 @@
 import type { Doc, Id } from '../_generated/dataModel'
 import type { MutationCtx, QueryCtx } from '../_generated/server'
 import { internalMutation, internalQuery } from '../_generated/server'
-import { v } from 'convex/values'
+import { v, ConvexError } from 'convex/values'
 import {
   type UsageCheckResult,
   FREE_TIER_MONTHLY_LIMIT,
   type PlanUsage,
+  isValidMonth,
 } from '../../models/plan-usage'
+import { ERROR_CODES } from '../errors'
 
 /**
  * Utility function to get current month in YYYY-MM format
@@ -29,6 +31,11 @@ export async function checkUsage(
   clerkUserId: string,
   month: string = getCurrentMonth()
 ): Promise<UsageCheckResult> {
+  // AC-3: Validate month format
+  if (!isValidMonth(month)) {
+    throw new ConvexError(ERROR_CODES.INVALID_CONTENT)
+  }
+
   const record = await ctx.db
     .query('plan_usage')
     .withIndex('by_clerkUserId_and_month', (q) =>
@@ -62,6 +69,11 @@ export async function incrementUsage(
   clerkUserId: string,
   month: string = getCurrentMonth()
 ): Promise<UsageCheckResult> {
+  // AC-3: Validate month format
+  if (!isValidMonth(month)) {
+    throw new ConvexError(ERROR_CODES.INVALID_CONTENT)
+  }
+
   const record = await ctx.db
     .query('plan_usage')
     .withIndex('by_clerkUserId_and_month', (q) =>
