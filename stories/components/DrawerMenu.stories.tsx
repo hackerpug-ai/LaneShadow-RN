@@ -52,96 +52,106 @@ const sampleFooter = {
   ],
 }
 
+const ClosedDemo = () => {
+  const [isOpen, setIsOpen] = useState(false)
+  return (
+    <View style={{ width: '100%', height: 400, position: 'relative' }}>
+      <Pressable onPress={() => setIsOpen(true)}><Text style={{ textDecorationLine: 'underline' }}>Open Drawer</Text></Pressable>
+      <DrawerMenu
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        header={{ title: 'Menu' }}
+        sections={sampleSections}
+        footer={sampleFooter}
+      />
+    </View>
+  )
+}
+
 export const Closed: Story = {
-  render: () => {
-    const [isOpen, setIsOpen] = useState(false)
-    return (
-      <View style={{ width: '100%', height: 400, position: 'relative' }}>
-        <Pressable onPress={() => setIsOpen(true)}><Text style={{ textDecorationLine: 'underline' }}>Open Drawer</Text></Pressable>
-        <DrawerMenu
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          header={{ title: 'Menu' }}
-          sections={sampleSections}
-          footer={sampleFooter}
-        />
-      </View>
-    )
-  },
+  render: () => <ClosedDemo />,
+}
+
+const OpenDemo = () => {
+  const [isOpen, setIsOpen] = useState(true)
+  return (
+    <View style={{ width: '100%', height: 400, position: 'relative' }}>
+      <Text style={{ padding: 16 }}>Content behind drawer</Text>
+      <DrawerMenu
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        header={{ title: 'Menu' }}
+        sections={sampleSections}
+        footer={sampleFooter}
+      />
+    </View>
+  )
 }
 
 export const Open: Story = {
-  render: () => {
-    const [isOpen, setIsOpen] = useState(true)
-    return (
-      <View style={{ width: '100%', height: 400, position: 'relative' }}>
-        <Text style={{ padding: 16 }}>Content behind drawer</Text>
-        <DrawerMenu
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          header={{ title: 'Menu' }}
-          sections={sampleSections}
-          footer={sampleFooter}
-        />
-      </View>
-    )
-  },
+  render: () => <OpenDemo />,
+}
+
+const WithoutHeaderDemo = () => {
+  const [isOpen, setIsOpen] = useState(false)
+  return (
+    <View style={{ width: '100%', height: 400, position: 'relative' }}>
+      <Pressable onPress={() => setIsOpen(true)}><Text style={{ textDecorationLine: 'underline' }}>Open Drawer</Text></Pressable>
+      <DrawerMenu
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        sections={sampleSections}
+        footer={sampleFooter}
+      />
+    </View>
+  )
 }
 
 export const WithoutHeader: Story = {
-  render: () => {
-    const [isOpen, setIsOpen] = useState(false)
-    return (
-      <View style={{ width: '100%', height: 400, position: 'relative' }}>
-        <Pressable onPress={() => setIsOpen(true)}><Text style={{ textDecorationLine: 'underline' }}>Open Drawer</Text></Pressable>
-        <DrawerMenu
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          sections={sampleSections}
-          footer={sampleFooter}
-        />
-      </View>
-    )
-  },
+  render: () => <WithoutHeaderDemo />,
+}
+
+const WithoutFooterDemo = () => {
+  const [isOpen, setIsOpen] = useState(false)
+  return (
+    <View style={{ width: '100%', height: 400, position: 'relative' }}>
+      <Pressable onPress={() => setIsOpen(true)}><Text style={{ textDecorationLine: 'underline' }}>Open Drawer</Text></Pressable>
+      <DrawerMenu
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        header={{ title: 'Menu' }}
+        sections={sampleSections}
+      />
+    </View>
+  )
 }
 
 export const WithoutFooter: Story = {
-  render: () => {
-    const [isOpen, setIsOpen] = useState(false)
-    return (
-      <View style={{ width: '100%', height: 400, position: 'relative' }}>
-        <Pressable onPress={() => setIsOpen(true)}><Text style={{ textDecorationLine: 'underline' }}>Open Drawer</Text></Pressable>
-        <DrawerMenu
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          header={{ title: 'Menu' }}
-          sections={sampleSections}
-        />
-      </View>
-    )
-  },
+  render: () => <WithoutFooterDemo />,
+}
+
+const SingleSectionDemo = () => {
+  const [isOpen, setIsOpen] = useState(false)
+  return (
+    <View style={{ width: '100%', height: 400, position: 'relative' }}>
+      <Pressable onPress={() => setIsOpen(true)}><Text style={{ textDecorationLine: 'underline' }}>Open Drawer</Text></Pressable>
+      <DrawerMenu
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        sections={[
+          {
+            items: [
+              { label: 'Home', icon: 'home', onPress: () => {} },
+              { label: 'Search', icon: 'magnify', onPress: () => {} },
+              { label: 'Profile', icon: 'account', onPress: () => {} },
+            ],
+          },
+        ]}
+      />
+    </View>
+  )
 }
 
 export const SingleSection: Story = {
-  render: () => {
-    const [isOpen, setIsOpen] = useState(false)
-    return (
-      <View style={{ width: '100%', height: 400, position: 'relative' }}>
-        <Pressable onPress={() => setIsOpen(true)}><Text style={{ textDecorationLine: 'underline' }}>Open Drawer</Text></Pressable>
-        <DrawerMenu
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          sections={[
-            {
-              items: [
-                { label: 'Home', icon: 'home', onPress: () => {} },
-                { label: 'Search', icon: 'magnify', onPress: () => {} },
-                { label: 'Profile', icon: 'account', onPress: () => {} },
-              ],
-            },
-          ]}
-        />
-      </View>
-    )
-  },
+  render: () => <SingleSectionDemo />,
 }

@@ -67,17 +67,19 @@ export const Indeterminate: Story = {
   render: () => <View style={{ width: 300 }}><Progress value={0} indeterminate /></View>
 }
 
+const WithLabelDemo = () => {
+  const [value, setValue] = useState(65)
+  return (
+    <View style={{ width: 300, gap: 8 }}>
+      <Text>Downloading route... {value}%</Text>
+      <Progress value={value} />
+      <Pressable onPress={() => setValue(Math.min(100, value + 10))}><Text style={{ textDecorationLine: 'underline' }}>Advance</Text></Pressable>
+    </View>
+  )
+}
+
 export const WithLabel: Story = {
-  render: () => {
-    const [value, setValue] = useState(65)
-    return (
-      <View style={{ width: 300, gap: 8 }}>
-        <Text>Downloading route... {value}%</Text>
-        <Progress value={value} />
-        <Pressable onPress={() => setValue(Math.min(100, value + 10))}><Text style={{ textDecorationLine: 'underline' }}>Advance</Text></Pressable>
-      </View>
-    )
-  },
+  render: () => <WithLabelDemo />,
 }
 
 export const CustomMax: Story = {

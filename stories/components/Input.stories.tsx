@@ -72,11 +72,13 @@ export const WithLabel: Story = {
   },
 }
 
+const WithValueDemo = () => {
+  const [value, setValue] = useState('john@example.com')
+  return <Input value={value} onChangeText={setValue} placeholder="Email" />
+}
+
 export const WithValue: Story = {
-  render: () => {
-    const [value, setValue] = useState('john@example.com')
-    return <Input value={value} onChangeText={setValue} placeholder="Email" />
-  },
+  render: () => <WithValueDemo />,
 }
 
 export const WithLeftIcon: Story = {
@@ -118,15 +120,17 @@ export const Disabled: Story = {
   },
 }
 
+const InFormDemo = () => {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  return (
+    <View style={{ width: 300, gap: 16 }}>
+      <Input label="Email" placeholder="your@email.com" value={email} onChangeText={setEmail} leftIcon="email" />
+      <Input label="Password" placeholder="Enter password" value={password} onChangeText={setPassword} rightIcon="eye-off" secureTextEntry />
+    </View>
+  )
+}
+
 export const InForm: Story = {
-  render: () => {
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    return (
-      <View style={{ width: 300, gap: 16 }}>
-        <Input label="Email" placeholder="your@email.com" value={email} onChangeText={setEmail} leftIcon="email" />
-        <Input label="Password" placeholder="Enter password" value={password} onChangeText={setPassword} rightIcon="eye-off" secureTextEntry />
-      </View>
-    )
-  },
+  render: () => <InFormDemo />,
 }

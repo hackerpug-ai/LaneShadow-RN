@@ -43,84 +43,94 @@ const meta: Meta<typeof FloatingSearchInput> = {
 export default meta
 type Story = StoryObj<typeof FloatingSearchInput>
 
+const DefaultDemo = () => {
+  const [value, setValue] = useState('')
+  return (
+    <View style={{ width: 350 }}>
+      <FloatingSearchInput
+        value={value}
+        onChangeText={setValue}
+        placeholder="Search locations..."
+        onClear={() => setValue('')}
+      />
+    </View>
+  )
+}
+
 export const Default: Story = {
-  render: () => {
-    const [value, setValue] = useState('')
-    return (
-      <View style={{ width: 350 }}>
-        <FloatingSearchInput
-          value={value}
-          onChangeText={setValue}
-          placeholder="Search locations..."
-          onClear={() => setValue('')}
-        />
-      </View>
-    )
-  },
+  render: () => <DefaultDemo />,
+}
+
+const WithValueDemo = () => {
+  const [value, setValue] = useState('San Francisco')
+  return (
+    <View style={{ width: 350 }}>
+      <FloatingSearchInput
+        value={value}
+        onChangeText={setValue}
+        placeholder="Search locations..."
+        onClear={() => setValue('')}
+      />
+    </View>
+  )
 }
 
 export const WithValue: Story = {
-  render: () => {
-    const [value, setValue] = useState('San Francisco')
-    return (
-      <View style={{ width: 350 }}>
-        <FloatingSearchInput
-          value={value}
-          onChangeText={setValue}
-          placeholder="Search locations..."
-          onClear={() => setValue('')}
-        />
-      </View>
-    )
-  },
+  render: () => <WithValueDemo />,
+}
+
+const LoadingDemo = () => {
+  const [value, setValue] = useState('Golden Gate')
+  return (
+    <View style={{ width: 350 }}>
+      <FloatingSearchInput
+        value={value}
+        onChangeText={setValue}
+        placeholder="Search locations..."
+        isLoading={true}
+        onCancelLoading={() => setValue('')}
+      />
+    </View>
+  )
 }
 
 export const Loading: Story = {
-  render: () => {
-    const [value, setValue] = useState('Golden Gate')
-    return (
-      <View style={{ width: 350 }}>
-        <FloatingSearchInput
-          value={value}
-          onChangeText={setValue}
-          placeholder="Search locations..."
-          isLoading={true}
-          onCancelLoading={() => setValue('')}
-        />
-      </View>
-    )
-  },
+  render: () => <LoadingDemo />,
+}
+
+const PressableDemo = () => {
+  const [value, setValue] = useState('')
+  const [focused, setFocused] = useState(false)
+  return (
+    <View style={{ width: 350 }}>
+      <FloatingSearchInput
+        value={value}
+        onChangeText={setValue}
+        placeholder="Where to?"
+        onPress={() => setFocused(true)}
+      />
+    </View>
+  )
 }
 
 export const Pressable: Story = {
-  render: () => {
-    const [value, setValue] = useState('')
-    const [focused, setFocused] = useState(false)
-    return (
-      <View style={{ width: 350 }}>
-        <FloatingSearchInput
-          value={value}
-          onChangeText={setValue}
-          placeholder="Where to?"
-          onPress={() => setFocused(true)}
-        />
-      </View>
-    )
-  },
+  render: () => <PressableDemo />,
+}
+
+const InContextDemo = () => {
+  const [search, setSearch] = useState('')
+  return (
+    <View style={{ width: '100%', padding: 16, backgroundColor: '#f5f5f5' }}>
+      <FloatingSearchInput
+        value={search}
+        onChangeText={setSearch}
+        placeholder="Search for routes, locations..."
+        onClear={() => setSearch('')}
+      />
+    </View>
+  )
 }
 
 export const InContext: Story = {
-  render: () => {
-    const [search, setSearch] = useState('')
-    return (
-      <View style={{ width: '100%', padding: 16, backgroundColor: '#f5f5f5' }}>
-        <FloatingSearchInput
-          value={search}
-          onChangeText={setSearch}
-          placeholder="Search for routes, locations..."
-          onClear={() => setSearch('')}
-        />
-      </View>
-    )
-  },
+  render: () => <InContextDemo />,
 }

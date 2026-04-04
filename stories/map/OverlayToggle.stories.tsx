@@ -48,142 +48,156 @@ export const Default: Story = {
   ),
 }
 
+const WindSelectedDemo = () => {
+  const [value, setValue] = useState<OverlayType | ''>('wind')
+  return (
+    <View style={styles.container}>
+      <OverlayToggle
+        value={value}
+        onValueChange={setValue}
+        availability={{ wind: true, rain: true, temperature: true }}
+      />
+      <Text style={styles.label}>Selected: {value || 'none'}</Text>
+    </View>
+  )
+}
+
 export const WindSelected: Story = {
-  render: () => {
-    const [value, setValue] = useState<OverlayType | ''>('wind')
-    return (
-      <View style={styles.container}>
-        <OverlayToggle
-          value={value}
-          onValueChange={setValue}
-          availability={{ wind: true, rain: true, temperature: true }}
-        />
-        <Text style={styles.label}>Selected: {value || 'none'}</Text>
-      </View>
-    )
-  },
+  render: () => <WindSelectedDemo />,
+}
+
+const RainSelectedDemo = () => {
+  const [value, setValue] = useState<OverlayType | ''>('rain')
+  return (
+    <View style={styles.container}>
+      <OverlayToggle
+        value={value}
+        onValueChange={setValue}
+        availability={{ wind: true, rain: true, temperature: true }}
+      />
+      <Text style={styles.label}>Selected: {value || 'none'}</Text>
+    </View>
+  )
 }
 
 export const RainSelected: Story = {
-  render: () => {
-    const [value, setValue] = useState<OverlayType | ''>('rain')
-    return (
-      <View style={styles.container}>
-        <OverlayToggle
-          value={value}
-          onValueChange={setValue}
-          availability={{ wind: true, rain: true, temperature: true }}
-        />
-        <Text style={styles.label}>Selected: {value || 'none'}</Text>
-      </View>
-    )
-  },
+  render: () => <RainSelectedDemo />,
+}
+
+const TemperatureSelectedDemo = () => {
+  const [value, setValue] = useState<OverlayType | ''>('temperature')
+  return (
+    <View style={styles.container}>
+      <OverlayToggle
+        value={value}
+        onValueChange={setValue}
+        availability={{ wind: true, rain: true, temperature: true }}
+      />
+      <Text style={styles.label}>Selected: {value || 'none'}</Text>
+    </View>
+  )
 }
 
 export const TemperatureSelected: Story = {
-  render: () => {
-    const [value, setValue] = useState<OverlayType | ''>('temperature')
-    return (
-      <View style={styles.container}>
+  render: () => <TemperatureSelectedDemo />,
+}
+
+const RainUnavailableDemo = () => {
+  const [value, setValue] = useState<OverlayType | ''>('wind')
+  return (
+    <View style={styles.container}>
+      <OverlayToggle
+        value={value}
+        onValueChange={setValue}
+        availability={{ wind: true, rain: false, temperature: true }}
+      />
+      <Text style={styles.label}>Rain data unavailable</Text>
+    </View>
+  )
+}
+
+export const RainUnavailable: Story = {
+  render: () => <RainUnavailableDemo />,
+}
+
+const OnlyWindAvailableDemo = () => {
+  const [value, setValue] = useState<OverlayType | ''>('wind')
+  return (
+    <View style={styles.container}>
+      <OverlayToggle
+        value={value}
+        onValueChange={setValue}
+        availability={{ wind: true, rain: false, temperature: false }}
+      />
+      <Text style={styles.label}>Only wind data available</Text>
+    </View>
+  )
+}
+
+export const OnlyWindAvailable: Story = {
+  render: () => <OnlyWindAvailableDemo />,
+}
+
+const InteractiveDemo = () => {
+  const [value, setValue] = useState<OverlayType | ''>('wind')
+  const [availability, setAvailability] = useState({
+    wind: true,
+    rain: true,
+    temperature: true,
+  })
+
+  const toggleRainAvailability = () => {
+    setAvailability((prev) => ({ ...prev, rain: !prev.rain }))
+  }
+
+  const toggleTempAvailability = () => {
+    setAvailability((prev) => ({ ...prev, temperature: !prev.temperature }))
+  }
+
+  return (
+    <View style={styles.container}>
+      <OverlayToggle
+        value={value}
+        onValueChange={setValue}
+        availability={availability}
+      />
+      <Text style={styles.label}>
+        Selected: {value || 'none'}
+      </Text>
+      <View style={styles.controls}>
+        <Text style={styles.controlLabel} onPress={toggleRainAvailability}>
+          Toggle Rain Data: {availability.rain ? 'Available' : 'Unavailable'}
+        </Text>
+        <Text style={styles.controlLabel} onPress={toggleTempAvailability}>
+          Toggle Temp Data: {availability.temperature ? 'Available' : 'Unavailable'}
+        </Text>
+      </View>
+    </View>
+  )
+}
+
+export const Interactive: Story = {
+  render: () => <InteractiveDemo />,
+}
+
+const WithMapBackgroundDemo = () => {
+  const [value, setValue] = useState<OverlayType | ''>('wind')
+  return (
+    <View style={styles.mapContainer}>
+      <View style={styles.mapBackground} />
+      <View style={styles.overlayContainer}>
         <OverlayToggle
           value={value}
           onValueChange={setValue}
           availability={{ wind: true, rain: true, temperature: true }}
         />
-        <Text style={styles.label}>Selected: {value || 'none'}</Text>
       </View>
-    )
-  },
-}
-
-export const RainUnavailable: Story = {
-  render: () => {
-    const [value, setValue] = useState<OverlayType | ''>('wind')
-    return (
-      <View style={styles.container}>
-        <OverlayToggle
-          value={value}
-          onValueChange={setValue}
-          availability={{ wind: true, rain: false, temperature: true }}
-        />
-        <Text style={styles.label}>Rain data unavailable</Text>
-      </View>
-    )
-  },
-}
-
-export const OnlyWindAvailable: Story = {
-  render: () => {
-    const [value, setValue] = useState<OverlayType | ''>('wind')
-    return (
-      <View style={styles.container}>
-        <OverlayToggle
-          value={value}
-          onValueChange={setValue}
-          availability={{ wind: true, rain: false, temperature: false }}
-        />
-        <Text style={styles.label}>Only wind data available</Text>
-      </View>
-    )
-  },
-}
-
-export const Interactive: Story = {
-  render: () => {
-    const [value, setValue] = useState<OverlayType | ''>('wind')
-    const [availability, setAvailability] = useState({
-      wind: true,
-      rain: true,
-      temperature: true,
-    })
-
-    const toggleRainAvailability = () => {
-      setAvailability((prev) => ({ ...prev, rain: !prev.rain }))
-    }
-
-    const toggleTempAvailability = () => {
-      setAvailability((prev) => ({ ...prev, temperature: !prev.temperature }))
-    }
-
-    return (
-      <View style={styles.container}>
-        <OverlayToggle
-          value={value}
-          onValueChange={setValue}
-          availability={availability}
-        />
-        <Text style={styles.label}>
-          Selected: {value || 'none'}
-        </Text>
-        <View style={styles.controls}>
-          <Text style={styles.controlLabel} onPress={toggleRainAvailability}>
-            Toggle Rain Data: {availability.rain ? 'Available' : 'Unavailable'}
-          </Text>
-          <Text style={styles.controlLabel} onPress={toggleTempAvailability}>
-            Toggle Temp Data: {availability.temperature ? 'Available' : 'Unavailable'}
-          </Text>
-        </View>
-      </View>
-    )
-  },
+    </View>
+  )
 }
 
 export const WithMapBackground: Story = {
-  render: () => {
-    const [value, setValue] = useState<OverlayType | ''>('wind')
-    return (
-      <View style={styles.mapContainer}>
-        <View style={styles.mapBackground} />
-        <View style={styles.overlayContainer}>
-          <OverlayToggle
-            value={value}
-            onValueChange={setValue}
-            availability={{ wind: true, rain: true, temperature: true }}
-          />
-        </View>
-      </View>
-    )
-  },
+  render: () => <WithMapBackgroundDemo />,
 }
 
 const styles = StyleSheet.create({

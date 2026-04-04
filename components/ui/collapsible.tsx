@@ -51,7 +51,4 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  content: {
-    // Dynamic spacing applied inline
-  },
 })

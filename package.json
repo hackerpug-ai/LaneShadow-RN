@@ -3,8 +3,8 @@
   "main": "./index.js",
   "version": "1.0.0",
   "scripts": {
-    "dev": "npx convex dev & npx expo start --dev-client",
-    "client:dev": "npx expo start --dev-client",
+    "dev": "npx convex dev & npx expo start --ios",
+    "client:dev": "npx expo start --ios",
     "server:dev": "npx convex dev",
     "native:ios": "npx expo prebuild --platform ios",
     "pods:ios": "npx expo run:ios",
@@ -49,6 +49,7 @@
     "expo": "~54.0.31",
     "expo-auth-session": "^7.0.10",
     "expo-constants": "~18.0.13",
+    "expo-dev-client": "~6.0.20",
     "expo-font": "~14.0.10",
     "expo-haptics": "~15.0.8",
     "expo-image-picker": "~17.0.10",

@@ -116,6 +116,7 @@ import { useRouteActions } from '../use-route-actions'
  */
 function callHook(savedRouteId: string | null) {
   stateCounter = 0
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   return useRouteActions(savedRouteId)
 }
 

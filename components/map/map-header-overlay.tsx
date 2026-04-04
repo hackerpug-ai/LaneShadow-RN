@@ -166,11 +166,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
   },
-  iconButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 9999, // Full circle
-  },
   placeholder: {},
 })
 

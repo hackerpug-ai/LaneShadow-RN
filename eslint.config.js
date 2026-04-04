@@ -107,4 +107,31 @@ module.exports = defineConfig([
       'react-native/no-color-literals': 'warn',
     },
   },
+  // Detox e2e tests: Jest + Detox globals
+  {
+    files: ['e2e/**/*.{js,ts}'],
+    languageOptions: {
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        beforeAll: 'readonly',
+        beforeEach: 'readonly',
+        afterAll: 'readonly',
+        afterEach: 'readonly',
+        expect: 'readonly',
+        device: 'readonly',
+        element: 'readonly',
+        by: 'readonly',
+        waitFor: 'readonly',
+      },
+    },
+  },
+  // Test files: inline test components don't need display names, children prop is common in wrappers
+  {
+    files: ['**/__tests__/**/*.{ts,tsx}', '**/*.test.{ts,tsx}'],
+    rules: {
+      'react/display-name': 'off',
+      'react/no-children-prop': 'off',
+    },
+  },
 ])

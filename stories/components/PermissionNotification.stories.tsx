@@ -67,25 +67,27 @@ export const PreventDismiss: Story = {
   },
 }
 
-export const Interactive: Story = {
-  render: () => {
-    const [granted, setGranted] = useState(false)
-    if (granted) {
-      return (
-        <View style={{ padding: 16 }}>
-          <Pressable onPress={() => setGranted(false)}>
-            <Text>Reset Permission</Text>
-          </Pressable>
-        </View>
-      )
-    }
+const InteractiveDemo = () => {
+  const [granted, setGranted] = useState(false)
+  if (granted) {
     return (
-      <PermissionNotification
-        title="Camera Access"
-        description="Allow access to camera to capture route photos"
-        actionLabel="Grant Permission"
-        onActionPress={() => setGranted(true)}
-      />
+      <View style={{ padding: 16 }}>
+        <Pressable onPress={() => setGranted(false)}>
+          <Text>Reset Permission</Text>
+        </Pressable>
+      </View>
     )
-  },
+  }
+  return (
+    <PermissionNotification
+      title="Camera Access"
+      description="Allow access to camera to capture route photos"
+      actionLabel="Grant Permission"
+      onActionPress={() => setGranted(true)}
+    />
+  )
+}
+
+export const Interactive: Story = {
+  render: () => <InteractiveDemo />,
 }

@@ -112,53 +112,55 @@ export const CustomPosition: Story = {
   ),
 }
 
-export const Interactive: Story = {
-  render: () => {
-    const [zoom, setZoom] = useState(12)
-    const [message, setMessage] = useState('')
+const InteractiveDemo = () => {
+  const [zoom, setZoom] = useState(12)
+  const [message, setMessage] = useState('')
 
-    const handleZoomIn = () => {
-      setZoom((prev) => Math.min(20, prev + 1))
-      setMessage(`Zoomed in to level ${zoom + 1}`)
-    }
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(20, prev + 1))
+    setMessage(`Zoomed in to level ${zoom + 1}`)
+  }
 
-    const handleZoomOut = () => {
-      setZoom((prev) => Math.max(1, prev - 1))
-      setMessage(`Zoomed out to level ${zoom - 1}`)
-    }
+  const handleZoomOut = () => {
+    setZoom((prev) => Math.max(1, prev - 1))
+    setMessage(`Zoomed out to level ${zoom - 1}`)
+  }
 
-    const handleRecenter = () => {
-      setMessage('Recentered to user location')
-    }
+  const handleRecenter = () => {
+    setMessage('Recentered to user location')
+  }
 
-    const handleClear = () => {
-      setMessage('Map state cleared')
-      setZoom(12)
-    }
+  const handleClear = () => {
+    setMessage('Map state cleared')
+    setZoom(12)
+  }
 
-    return (
-      <View style={styles.mapContainer}>
-        <View style={styles.placeholderMap}>
-          <View style={styles.infoBox}>
-            <Text style={styles.infoText}>
-              Zoom Level: {zoom}
+  return (
+    <View style={styles.mapContainer}>
+      <View style={styles.placeholderMap}>
+        <View style={styles.infoBox}>
+          <Text style={styles.infoText}>
+            Zoom Level: {zoom}
+          </Text>
+          {message ? (
+            <Text style={styles.messageText}>
+              {message}
             </Text>
-            {message ? (
-              <Text style={styles.messageText}>
-                {message}
-              </Text>
-            ) : null}
-          </View>
-          <MapControls
-            onZoomIn={handleZoomIn}
-            onZoomOut={handleZoomOut}
-            onRecenter={handleRecenter}
-            onClear={handleClear}
-          />
+          ) : null}
         </View>
+        <MapControls
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onRecenter={handleRecenter}
+          onClear={handleClear}
+        />
       </View>
-    )
-  },
+    </View>
+  )
+}
+
+export const Interactive: Story = {
+  render: () => <InteractiveDemo />,
 }
 
 const styles = StyleSheet.create({

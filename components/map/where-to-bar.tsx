@@ -173,13 +173,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-  inner: {
-    flex: 1,
-    minWidth: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-  },
   suggestions: {
     flex: 1,
     minWidth: 0,

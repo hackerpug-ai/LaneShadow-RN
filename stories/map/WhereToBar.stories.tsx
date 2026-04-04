@@ -71,45 +71,47 @@ export const WithInitialValue: Story = {
   ),
 }
 
-export const WithSelection: Story = {
-  render: () => {
-    const [selectedPlace, setSelectedPlace] = useState<RouteStop | null>(null)
+const WithSelectionDemo = () => {
+  const [selectedPlace, setSelectedPlace] = useState<RouteStop | null>(null)
 
-    const handlePlaceSelected = (place: RouteStop) => {
-      setSelectedPlace(place)
-    }
+  const handlePlaceSelected = (place: RouteStop) => {
+    setSelectedPlace(place)
+  }
 
-    return (
-      <View style={styles.mapContainer}>
-        <View style={styles.placeholderMap}>
-          <View style={styles.contentArea}>
-            {selectedPlace ? (
-              <View style={styles.selectedCard}>
-                <Text variant="titleMedium" style={styles.selectedTitle}>
-                  Selected Destination
-                </Text>
-                <Text variant="bodyLarge" style={styles.selectedLabel}>
-                  {selectedPlace.label}
-                </Text>
-                {selectedPlace.lat && selectedPlace.lng && (
-                  <Text variant="bodySmall" style={styles.selectedCoords}>
-                    {selectedPlace.lat.toFixed(4)}, {selectedPlace.lng.toFixed(4)}
-                  </Text>
-                )}
-              </View>
-            ) : (
-              <Text variant="titleMedium" style={styles.hintText}>
-                Search for a destination
+  return (
+    <View style={styles.mapContainer}>
+      <View style={styles.placeholderMap}>
+        <View style={styles.contentArea}>
+          {selectedPlace ? (
+            <View style={styles.selectedCard}>
+              <Text variant="titleMedium" style={styles.selectedTitle}>
+                Selected Destination
               </Text>
-            )}
-          </View>
-          <View style={styles.barContainer}>
-            <WhereToBar onPlaceSelected={handlePlaceSelected} />
-          </View>
+              <Text variant="bodyLarge" style={styles.selectedLabel}>
+                {selectedPlace.label}
+              </Text>
+              {selectedPlace.lat && selectedPlace.lng && (
+                <Text variant="bodySmall" style={styles.selectedCoords}>
+                  {selectedPlace.lat.toFixed(4)}, {selectedPlace.lng.toFixed(4)}
+                </Text>
+              )}
+            </View>
+          ) : (
+            <Text variant="titleMedium" style={styles.hintText}>
+              Search for a destination
+            </Text>
+          )}
+        </View>
+        <View style={styles.barContainer}>
+          <WhereToBar onPlaceSelected={handlePlaceSelected} />
         </View>
       </View>
-    )
-  },
+    </View>
+  )
+}
+
+export const WithSelection: Story = {
+  render: () => <WithSelectionDemo />,
 }
 
 export const OnMapBackground: Story = {
@@ -152,57 +154,59 @@ export const WithHeader: Story = {
   ),
 }
 
-export const Interactive: Story = {
-  render: () => {
-    const [searchHistory, setSearchHistory] = useState<string[]>([])
-    const [lastSelection, setLastSelection] = useState<string>('')
+const InteractiveDemo = () => {
+  const [searchHistory, setSearchHistory] = useState<string[]>([])
+  const [lastSelection, setLastSelection] = useState<string>('')
 
-    const handlePlaceSelected = (place: RouteStop) => {
-      setLastSelection(place.label)
-      setSearchHistory((prev) => [place.label, ...prev].slice(0, 5))
-    }
+  const handlePlaceSelected = (place: RouteStop) => {
+    setLastSelection(place.label)
+    setSearchHistory((prev) => [place.label, ...prev].slice(0, 5))
+  }
 
-    return (
-      <View style={styles.mapContainer}>
-        <View style={styles.mapPlaceholder}>
-          <View style={styles.infoPanel}>
-            <Text variant="titleSmall" style={styles.panelTitle}>
-              Search Activity
-            </Text>
-            {lastSelection ? (
-              <View style={styles.panelItem}>
-                <Text variant="bodySmall" style={styles.panelLabel}>
-                  Last selection:
-                </Text>
-                <Text variant="bodyMedium" style={styles.panelValue}>
-                  {lastSelection}
-                </Text>
-              </View>
-            ) : (
-              <Text variant="bodySmall" style={styles.panelEmpty}>
-                No destination selected yet
+  return (
+    <View style={styles.mapContainer}>
+      <View style={styles.mapPlaceholder}>
+        <View style={styles.infoPanel}>
+          <Text variant="titleSmall" style={styles.panelTitle}>
+            Search Activity
+          </Text>
+          {lastSelection ? (
+            <View style={styles.panelItem}>
+              <Text variant="bodySmall" style={styles.panelLabel}>
+                Last selection:
               </Text>
-            )}
-            {searchHistory.length > 0 && (
-              <View style={styles.historySection}>
-                <Text variant="labelSmall" style={styles.historyTitle}>
-                  Recent searches:
+              <Text variant="bodyMedium" style={styles.panelValue}>
+                {lastSelection}
+              </Text>
+            </View>
+          ) : (
+            <Text variant="bodySmall" style={styles.panelEmpty}>
+              No destination selected yet
+            </Text>
+          )}
+          {searchHistory.length > 0 && (
+            <View style={styles.historySection}>
+              <Text variant="labelSmall" style={styles.historyTitle}>
+                Recent searches:
+              </Text>
+              {searchHistory.map((item, index) => (
+                <Text key={index} variant="bodySmall" style={styles.historyItem}>
+                  {index + 1}. {item}
                 </Text>
-                {searchHistory.map((item, index) => (
-                  <Text key={index} variant="bodySmall" style={styles.historyItem}>
-                    {index + 1}. {item}
-                  </Text>
-                ))}
-              </View>
-            )}
-          </View>
-          <View style={styles.barContainer}>
-            <WhereToBar onPlaceSelected={handlePlaceSelected} />
-          </View>
+              ))}
+            </View>
+          )}
+        </View>
+        <View style={styles.barContainer}>
+          <WhereToBar onPlaceSelected={handlePlaceSelected} />
         </View>
       </View>
-    )
-  },
+    </View>
+  )
+}
+
+export const Interactive: Story = {
+  render: () => <InteractiveDemo />,
 }
 
 // Helper component to demonstrate with initial value

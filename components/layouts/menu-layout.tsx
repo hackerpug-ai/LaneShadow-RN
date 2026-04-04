@@ -124,11 +124,4 @@ const styles = StyleSheet.create({
   contentArea: {
     flex: 1,
   },
-  headerOverlay: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    zIndex: 30,
-  },
 })

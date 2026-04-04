@@ -45,83 +45,93 @@ const SampleContent = () => (
   </View>
 )
 
+const DefaultDemo = () => {
+  const [visible, setVisible] = useState(false)
+  return (
+    <View style={{ padding: 16 }}>
+       <Pressable onPress={() => setVisible(true)}><Text style={{ textDecorationLine: 'underline' }}>Show Sheet</Text></Pressable>
+      <BottomActionSheet visible={visible} onDismiss={() => setVisible(false)}>
+        <SampleContent />
+      </BottomActionSheet>
+    </View>
+  )
+}
+
 export const Default: Story = {
-  render: () => {
-    const [visible, setVisible] = useState(false)
-    return (
-      <View style={{ padding: 16 }}>
-         <Pressable onPress={() => setVisible(true)}><Text style={{ textDecorationLine: 'underline' }}>Show Sheet</Text></Pressable>
-        <BottomActionSheet visible={visible} onDismiss={() => setVisible(false)}>
-          <SampleContent />
-        </BottomActionSheet>
-      </View>
-    )
-  },
+  render: () => <DefaultDemo />,
+}
+
+const HalfHeightDemo = () => {
+  const [visible, setVisible] = useState(false)
+  return (
+    <View style={{ padding: 16 }}>
+       <Pressable onPress={() => setVisible(true)}><Text style={{ textDecorationLine: 'underline' }}>Show 50% Sheet</Text></Pressable>
+      <BottomActionSheet visible={visible} onDismiss={() => setVisible(false)} snapPoints={['50%']}>
+        <SampleContent />
+      </BottomActionSheet>
+    </View>
+  )
 }
 
 export const HalfHeight: Story = {
-  render: () => {
-    const [visible, setVisible] = useState(false)
-    return (
-      <View style={{ padding: 16 }}>
-         <Pressable onPress={() => setVisible(true)}><Text style={{ textDecorationLine: 'underline' }}>Show 50% Sheet</Text></Pressable>
-        <BottomActionSheet visible={visible} onDismiss={() => setVisible(false)} snapPoints={['50%']}>
-          <SampleContent />
-        </BottomActionSheet>
-      </View>
-    )
-  },
+  render: () => <HalfHeightDemo />,
+}
+
+const CustomSnapDemo = () => {
+  const [visible, setVisible] = useState(false)
+  return (
+    <View style={{ padding: 16 }}>
+       <Pressable onPress={() => setVisible(true)}><Text style={{ textDecorationLine: 'underline' }}>Show Custom Snap</Text></Pressable>
+      <BottomActionSheet visible={visible} onDismiss={() => setVisible(false)} snapPoints={[300, '80%']}>
+        <SampleContent />
+      </BottomActionSheet>
+    </View>
+  )
 }
 
 export const CustomSnap: Story = {
-  render: () => {
-    const [visible, setVisible] = useState(false)
-    return (
-      <View style={{ padding: 16 }}>
-         <Pressable onPress={() => setVisible(true)}><Text style={{ textDecorationLine: 'underline' }}>Show Custom Snap</Text></Pressable>
-        <BottomActionSheet visible={visible} onDismiss={() => setVisible(false)} snapPoints={[300, '80%']}>
-          <SampleContent />
-        </BottomActionSheet>
-      </View>
-    )
-  },
+  render: () => <CustomSnapDemo />,
+}
+
+const WithActionsDemo = () => {
+  const [visible, setVisible] = useState(false)
+  return (
+    <View style={{ padding: 16 }}>
+       <Pressable onPress={() => setVisible(true)}><Text style={{ textDecorationLine: 'underline' }}>Show Actions</Text></Pressable>
+      <BottomActionSheet visible={visible} onDismiss={() => setVisible(false)}>
+        <View style={{ padding: 24, gap: 16 }}>
+          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Choose an action</Text>
+          <View style={{ gap: 8 }}>
+            <Pressable onPress={() => {}}><Text>Save</Text></Pressable>
+            <Pressable onPress={() => {}}><Text>Cancel</Text></Pressable>
+          </View>
+        </View>
+      </BottomActionSheet>
+    </View>
+  )
 }
 
 export const WithActions: Story = {
-  render: () => {
-    const [visible, setVisible] = useState(false)
-    return (
-      <View style={{ padding: 16 }}>
-         <Pressable onPress={() => setVisible(true)}><Text style={{ textDecorationLine: 'underline' }}>Show Actions</Text></Pressable>
-        <BottomActionSheet visible={visible} onDismiss={() => setVisible(false)}>
-          <View style={{ padding: 24, gap: 16 }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Choose an action</Text>
-            <View style={{ gap: 8 }}>
-              <Pressable onPress={() => {}}><Text>Save</Text></Pressable>
-              <Pressable onPress={() => {}}><Text>Cancel</Text></Pressable>
-            </View>
-          </View>
-        </BottomActionSheet>
-      </View>
-    )
-  },
+  render: () => <WithActionsDemo />,
+}
+
+const LongContentDemo = () => {
+  const [visible, setVisible] = useState(false)
+  return (
+    <View style={{ padding: 16 }}>
+       <Pressable onPress={() => setVisible(true)}><Text style={{ textDecorationLine: 'underline' }}>Show Long Content</Text></Pressable>
+      <BottomActionSheet visible={visible} onDismiss={() => setVisible(false)}>
+        <View style={{ padding: 24, gap: 16 }}>
+          <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Settings</Text>
+          {Array.from({ length: 20 }).map((_, i) => (
+            <Text key={i}>Setting option {i + 1}</Text>
+          ))}
+        </View>
+      </BottomActionSheet>
+    </View>
+  )
 }
 
 export const LongContent: Story = {
-  render: () => {
-    const [visible, setVisible] = useState(false)
-    return (
-      <View style={{ padding: 16 }}>
-         <Pressable onPress={() => setVisible(true)}><Text style={{ textDecorationLine: 'underline' }}>Show Long Content</Text></Pressable>
-        <BottomActionSheet visible={visible} onDismiss={() => setVisible(false)}>
-          <View style={{ padding: 24, gap: 16 }}>
-            <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Settings</Text>
-            {Array.from({ length: 20 }).map((_, i) => (
-              <Text key={i}>Setting option {i + 1}</Text>
-            ))}
-          </View>
-        </BottomActionSheet>
-      </View>
-    )
-  },
+  render: () => <LongContentDemo />,
 }

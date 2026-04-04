@@ -76,37 +76,41 @@ export const DisabledChecked: Story = {
   },
 }
 
+const InteractiveDemo = () => {
+  const [checked, setChecked] = useState(false)
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+      <Checkbox checked={checked} onCheckedChange={setChecked} />
+      <Text>Accept terms and conditions</Text>
+    </View>
+  )
+}
+
 export const Interactive: Story = {
-  render: () => {
-    const [checked, setChecked] = useState(false)
-    return (
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <Checkbox checked={checked} onCheckedChange={setChecked} />
-        <Text>Accept terms and conditions</Text>
-      </View>
-    )
-  },
+  render: () => <InteractiveDemo />,
+}
+
+const MultipleDemo = () => {
+  const [options, setOptions] = useState({ scenic: true, paved: false, loop: true })
+  return (
+    <View style={{ gap: 12 }}>
+      {[
+        { key: 'scenic', label: 'Scenic Route' },
+        { key: 'paved', label: 'Paved Roads Only' },
+        { key: 'loop', label: 'Loop Route' },
+      ].map((option) => (
+        <View key={option.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Checkbox
+            checked={options[option.key as keyof typeof options]}
+            onCheckedChange={(checked) => setOptions({ ...options, [option.key]: checked })}
+          />
+          <Text>{option.label}</Text>
+        </View>
+      ))}
+    </View>
+  )
 }
 
 export const Multiple: Story = {
-  render: () => {
-    const [options, setOptions] = useState({ scenic: true, paved: false, loop: true })
-    return (
-      <View style={{ gap: 12 }}>
-        {[
-          { key: 'scenic', label: 'Scenic Route' },
-          { key: 'paved', label: 'Paved Roads Only' },
-          { key: 'loop', label: 'Loop Route' },
-        ].map((option) => (
-          <View key={option.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Checkbox
-              checked={options[option.key as keyof typeof options]}
-              onCheckedChange={(checked) => setOptions({ ...options, [option.key]: checked })}
-            />
-            <Text>{option.label}</Text>
-          </View>
-        ))}
-      </View>
-    )
-  },
+  render: () => <MultipleDemo />,
 }

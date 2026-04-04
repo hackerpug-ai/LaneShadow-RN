@@ -161,7 +161,7 @@ const DeleteFavoriteDialog = ({
             },
           ]}
         >
-          Remove "{favoriteName}" from your favorites?
+          Remove &ldquo;{favoriteName}&rdquo; from your favorites?
         </Text>
         <View style={styles.dialogActions}>
           <Button

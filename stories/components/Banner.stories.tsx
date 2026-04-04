@@ -57,47 +57,53 @@ export const WithIcon: Story = {
   },
 }
 
+const WithActionsDemo = () => {
+  const [visible] = useState(true)
+  return (
+    <Banner
+      visible={visible}
+      message="This feature requires internet access"
+      actions={[{ label: 'Retry', onPress: () => {} }]}
+    />
+  )
+}
+
 export const WithActions: Story = {
-  render: () => {
-    const [visible, setVisible] = useState(true)
-    return (
-      <Banner
-        visible={visible}
-        message="This feature requires internet access"
-        actions={[{ label: 'Retry', onPress: () => {} }]}
-      />
-    )
-  },
+  render: () => <WithActionsDemo />,
+}
+
+const MultipleActionsDemo = () => {
+  const [visible, setVisible] = useState(true)
+  return (
+    <Banner
+      visible={visible}
+      message="Your session is about to expire"
+      actions={[
+        { label: 'Refresh', onPress: () => {} },
+        { label: 'Dismiss', onPress: () => setVisible(false) },
+      ]}
+    />
+  )
 }
 
 export const MultipleActions: Story = {
-  render: () => {
-    const [visible, setVisible] = useState(true)
-    return (
+  render: () => <MultipleActionsDemo />,
+}
+
+const DismissibleDemo = () => {
+  const [visible, setVisible] = useState(true)
+  return (
+    <View style={{ width: 350 }}>
       <Banner
         visible={visible}
-        message="Your session is about to expire"
-        actions={[
-          { label: 'Refresh', onPress: () => {} },
-          { label: 'Dismiss', onPress: () => setVisible(false) },
-        ]}
+        message="This message can be dismissed"
+        actions={[{ label: 'Dismiss', onPress: () => setVisible(false) }]}
       />
-    )
-  },
+      {!visible && <Pressable onPress={() => setVisible(true)}><Text style={{ textDecorationLine: 'underline' }}>Show Banner</Text></Pressable>}
+    </View>
+  )
 }
 
 export const Dismissible: Story = {
-  render: () => {
-    const [visible, setVisible] = useState(true)
-    return (
-      <View style={{ width: 350 }}>
-        <Banner
-          visible={visible}
-          message="This message can be dismissed"
-          actions={[{ label: 'Dismiss', onPress: () => setVisible(false) }]}
-        />
-        {!visible && <Pressable onPress={() => setVisible(true)}><Text style={{ textDecorationLine: 'underline' }}>Show Banner</Text></Pressable>}
-      </View>
-    )
-  },
+  render: () => <DismissibleDemo />,
 }

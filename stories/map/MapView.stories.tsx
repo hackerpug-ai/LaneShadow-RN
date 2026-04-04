@@ -101,117 +101,120 @@ export const WithSLCMarkers: Story = {
   },
 }
 
+const WithRoutePolylineDemo = (args: React.ComponentProps<typeof MapViewWrapper>) => {
+  const mapRef = useRef<MapViewHandle>(null)
+
+  // Simple route from Downtown to University of Utah
+  const routeCoords = [
+    { latitude: 40.7608, longitude: -111.891 }, // Downtown
+    { latitude: 40.762, longitude: -111.878 },
+    { latitude: 40.764, longitude: -111.865 },
+    { latitude: 40.7656, longitude: -111.8474 }, // University
+  ]
+
+  return (
+    <View style={{ flex: 1 }}>
+      <MapViewWrapper
+        ref={mapRef}
+        {...args}
+        polylines={[
+          {
+            id: 'route-1',
+            coordinates: routeCoords,
+            strokeColor: '#3B82F6',
+            strokeWidth: 6,
+          },
+        ]}
+        markers={[
+          {
+            id: 'start',
+            title: 'Start: Downtown SLC',
+            coordinates: routeCoords[0],
+          },
+          {
+            id: 'end',
+            title: 'End: University of Utah',
+            coordinates: routeCoords[routeCoords.length - 1],
+          },
+        ]}
+      />
+    </View>
+  )
+}
+
 export const WithRoutePolyline: Story = {
-  render: (args) => {
-    const mapRef = useRef<MapViewHandle>(null)
+  render: (args) => <WithRoutePolylineDemo {...args} />,
+}
 
-    // Simple route from Downtown to University of Utah
-    const routeCoords = [
-      { latitude: 40.7608, longitude: -111.891 }, // Downtown
-      { latitude: 40.762, longitude: -111.878 },
-      { latitude: 40.764, longitude: -111.865 },
-      { latitude: 40.7656, longitude: -111.8474 }, // University
-    ]
+const MultipleRoutesDemo = (args: React.ComponentProps<typeof MapViewWrapper>) => {
+  const mapRef = useRef<MapViewHandle>(null)
 
-    return (
-      <View style={{ flex: 1 }}>
-        <MapViewWrapper
-          ref={mapRef}
-          {...args}
-          polylines={[
-            {
-              id: 'route-1',
-              coordinates: routeCoords,
-              strokeColor: '#3B82F6',
-              strokeWidth: 6,
-            },
-          ]}
-          markers={[
-            {
-              id: 'start',
-              title: 'Start: Downtown SLC',
-              coordinates: routeCoords[0],
-            },
-            {
-              id: 'end',
-              title: 'End: University of Utah',
-              coordinates: routeCoords[routeCoords.length - 1],
-            },
-          ]}
-        />
-      </View>
-    )
-  },
+  // Route 1 - I-15 route
+  const route1Coords = [
+    { latitude: 40.7608, longitude: -111.891 },
+    { latitude: 40.755, longitude: -111.895 },
+    { latitude: 40.75, longitude: -111.89 },
+    { latitude: 40.745, longitude: -111.885 },
+  ]
+
+  // Route 2 - Alternative
+  const route2Coords = [
+    { latitude: 40.7608, longitude: -111.891 },
+    { latitude: 40.762, longitude: -111.88 },
+    { latitude: 40.764, longitude: -111.87 },
+    { latitude: 40.765, longitude: -111.86 },
+  ]
+
+  return (
+    <View style={{ flex: 1 }}>
+      <MapViewWrapper
+        ref={mapRef}
+        {...args}
+        cameraPosition={{
+          coordinates: SLC_CENTER,
+          zoom: 13,
+        }}
+        polylines={[
+          {
+            id: 'route-selected',
+            coordinates: route1Coords,
+            strokeColor: '#3B82F6',
+            strokeWidth: 6,
+          },
+          {
+            id: 'route-alternate',
+            coordinates: route2Coords,
+            strokeColor: '#9CA3AF',
+            strokeWidth: 4,
+          },
+        ]}
+        markers={[
+          {
+            id: 'start',
+            title: 'Start',
+            coordinates: route1Coords[0],
+          },
+          {
+            id: 'end1',
+            title: 'End Route 1',
+            coordinates: route1Coords[route1Coords.length - 1],
+          },
+          {
+            id: 'end2',
+            title: 'End Route 2',
+            coordinates: route2Coords[route2Coords.length - 1],
+          },
+        ]}
+      />
+    </View>
+  )
 }
 
 export const MultipleRoutes: Story = {
-  render: (args) => {
-    const mapRef = useRef<MapViewHandle>(null)
-
-    // Route 1 - I-15 route
-    const route1Coords = [
-      { latitude: 40.7608, longitude: -111.891 },
-      { latitude: 40.755, longitude: -111.895 },
-      { latitude: 40.75, longitude: -111.89 },
-      { latitude: 40.745, longitude: -111.885 },
-    ]
-
-    // Route 2 - Alternative
-    const route2Coords = [
-      { latitude: 40.7608, longitude: -111.891 },
-      { latitude: 40.762, longitude: -111.88 },
-      { latitude: 40.764, longitude: -111.87 },
-      { latitude: 40.765, longitude: -111.86 },
-    ]
-
-    return (
-      <View style={{ flex: 1 }}>
-        <MapViewWrapper
-          ref={mapRef}
-          {...args}
-          cameraPosition={{
-            coordinates: SLC_CENTER,
-            zoom: 13,
-          }}
-          polylines={[
-            {
-              id: 'route-selected',
-              coordinates: route1Coords,
-              strokeColor: '#3B82F6',
-              strokeWidth: 6,
-            },
-            {
-              id: 'route-alternate',
-              coordinates: route2Coords,
-              strokeColor: '#9CA3AF',
-              strokeWidth: 4,
-            },
-          ]}
-          markers={[
-            {
-              id: 'start',
-              title: 'Start',
-              coordinates: route1Coords[0],
-            },
-            {
-              id: 'end1',
-              title: 'End Route 1',
-              coordinates: route1Coords[route1Coords.length - 1],
-            },
-            {
-              id: 'end2',
-              title: 'End Route 2',
-              coordinates: route2Coords[route2Coords.length - 1],
-            },
-          ]}
-        />
-      </View>
-    )
-  },
+  render: (args) => <MultipleRoutesDemo {...args} />,
 }
 
-export const WithWindOverlay: Story = {
-  render: (args) => {
+const WithWindOverlayDemo = (args: React.ComponentProps<typeof MapViewWrapper>) => {
     const mapRef = useRef<MapViewHandle>(null)
 
     // Route with colored segments simulating wind conditions
@@ -261,11 +264,13 @@ export const WithWindOverlay: Story = {
         />
       </View>
     )
-  },
 }
 
-export const CanyonRoute: Story = {
-  render: (args) => {
+export const WithWindOverlay: Story = {
+  render: (args) => <WithWindOverlayDemo {...args} />,
+}
+
+const CanyonRouteDemo = (args: React.ComponentProps<typeof MapViewWrapper>) => {
     const mapRef = useRef<MapViewHandle>(null)
 
     // Simulated route up a canyon (e.g., Big Cottonwood Canyon)
@@ -309,11 +314,13 @@ export const CanyonRoute: Story = {
         />
       </View>
     )
-  },
 }
 
-export const WithInteractions: Story = {
-  render: (args) => {
+export const CanyonRoute: Story = {
+  render: (args) => <CanyonRouteDemo {...args} />,
+}
+
+const WithInteractionsDemo = (args: React.ComponentProps<typeof MapViewWrapper>) => {
     const mapRef = useRef<MapViewHandle>(null)
 
     const handleMapClick = (event: { coordinates?: { latitude: number; longitude: number } }) => {
@@ -350,7 +357,10 @@ export const WithInteractions: Story = {
         />
       </View>
     )
-  },
+}
+
+export const WithInteractions: Story = {
+  render: (args) => <WithInteractionsDemo {...args} />,
 }
 
 export const MountainView: Story = {
@@ -415,8 +425,7 @@ export const RegionalView: Story = {
  * AC1: Light rain segments display in sky blue (routeAlternate)
  * AC2: Heavy rain segments display in red (danger)
  */
-export const WithRainOverlay: Story = {
-  render: (args) => {
+const WithRainOverlayDemo = (args: React.ComponentProps<typeof MapViewWrapper>) => {
     const mapRef = useRef<MapViewHandle>(null)
     const theme = useSemanticTheme()
 
@@ -484,5 +493,8 @@ export const WithRainOverlay: Story = {
         />
       </View>
     )
-  },
+}
+
+export const WithRainOverlay: Story = {
+  render: (args) => <WithRainOverlayDemo {...args} />,
 }

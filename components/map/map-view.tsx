@@ -178,6 +178,17 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
       }
     }, [onCameraMove])
 
+    const initialCamera = useMemo(() => {
+      if (!cameraPosition?.coordinates) return undefined
+      return {
+        center: cameraPosition.coordinates,
+        zoom: cameraPosition.zoom ?? 12,
+        heading: 0,
+        pitch: 0,
+        altitude: 0,
+      }
+    }, [cameraPosition])
+
     if (isWeb) {
       return (
         <View
@@ -198,17 +209,6 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
         </View>
       )
     }
-
-    const initialCamera = useMemo(() => {
-      if (!cameraPosition?.coordinates) return undefined
-      return {
-        center: cameraPosition.coordinates,
-        zoom: cameraPosition.zoom ?? 12,
-        heading: 0,
-        pitch: 0,
-        altitude: 0,
-      }
-    }, [cameraPosition])
 
     return (
       <MapView

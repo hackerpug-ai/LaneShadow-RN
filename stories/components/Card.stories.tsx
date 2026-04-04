@@ -118,17 +118,19 @@ export const WithoutBorder: Story = {
   ),
 }
 
+const PressableDemo = () => {
+  const [pressed, setPressed] = React.useState(false)
+  return (
+    <Card onPress={() => setPressed(!pressed)} style={{ width: 300 }}>
+      <CardContent>
+        <Text>{pressed ? 'Pressed!' : 'Click me'}</Text>
+      </CardContent>
+    </Card>
+  )
+}
+
 export const Pressable: Story = {
-  render: () => {
-    const [pressed, setPressed] = React.useState(false)
-    return (
-      <Card onPress={() => setPressed(!pressed)} style={{ width: 300 }}>
-        <CardContent>
-          <Text>{pressed ? 'Pressed!' : 'Click me'}</Text>
-        </CardContent>
-      </Card>
-    )
-  },
+  render: () => <PressableDemo />,
 }
 
 export const AllVariants: Story = {

@@ -38,35 +38,41 @@ const meta: Meta<typeof CaptionInput> = {
 export default meta
 type Story = StoryObj<typeof CaptionInput>
 
+const DefaultDemo = () => {
+  const [value, setValue] = useState('')
+  return (
+    <View style={{ width: 350 }}>
+      <CaptionInput value={value} onChangeText={setValue} onSend={() => {}} placeholder="Add a caption..." />
+    </View>
+  )
+}
+
 export const Default: Story = {
-  render: () => {
-    const [value, setValue] = useState('')
-    return (
-      <View style={{ width: 350 }}>
-        <CaptionInput value={value} onChangeText={setValue} onSend={() => {}} placeholder="Add a caption..." />
-      </View>
-    )
-  },
+  render: () => <DefaultDemo />,
+}
+
+const WithTextDemo = () => {
+  const [value, setValue] = useState('This is an amazing route through the mountains!')
+  return (
+    <View style={{ width: 350 }}>
+      <CaptionInput value={value} onChangeText={setValue} onSend={() => {}} placeholder="Add a caption..." />
+    </View>
+  )
 }
 
 export const WithText: Story = {
-  render: () => {
-    const [value, setValue] = useState('This is an amazing route through the mountains!')
-    return (
-      <View style={{ width: 350 }}>
-        <CaptionInput value={value} onChangeText={setValue} onSend={() => {}} placeholder="Add a caption..." />
-      </View>
-    )
-  },
+  render: () => <WithTextDemo />,
+}
+
+const CustomPlaceholderDemo = () => {
+  const [value, setValue] = useState('')
+  return (
+    <View style={{ width: 350 }}>
+      <CaptionInput value={value} onChangeText={setValue} onSend={() => {}} placeholder="Write a note about this ride..." />
+    </View>
+  )
 }
 
 export const CustomPlaceholder: Story = {
-  render: () => {
-    const [value, setValue] = useState('')
-    return (
-      <View style={{ width: 350 }}>
-        <CaptionInput value={value} onChangeText={setValue} onSend={() => {}} placeholder="Write a note about this ride..." />
-      </View>
-    )
-  },
+  render: () => <CustomPlaceholderDemo />,
 }

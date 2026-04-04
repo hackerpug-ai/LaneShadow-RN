@@ -78,37 +78,39 @@ export const WithBottomSheet: Story = {
   ),
 }
 
-export const Interactive: Story = {
-  render: () => {
-    const [pressed, setPressed] = React.useState(false)
-    const [count, setCount] = React.useState(0)
+const InteractiveDemo = () => {
+  const [pressed, setPressed] = React.useState(false)
+  const [count, setCount] = React.useState(0)
 
-    const handlePress = () => {
-      setPressed(true)
-      setCount((prev) => prev + 1)
-      setTimeout(() => setPressed(false), 200)
-    }
+  const handlePress = () => {
+    setPressed(true)
+    setCount((prev) => prev + 1)
+    setTimeout(() => setPressed(false), 200)
+  }
 
-    return (
-      <View style={styles.mapContainer}>
-        <View style={styles.mapPlaceholder}>
-          <View style={styles.mapGrid}>
-            {Array.from({ length: 20 }).map((_, i) => (
-              <View key={i} style={styles.gridLine} />
-            ))}
-          </View>
-          {pressed && (
-            <View style={styles.feedback}>
-              <Text style={styles.feedbackText}>
-                Opening route planner... ({count})
-              </Text>
-            </View>
-          )}
-          <PlanFab onPress={handlePress} />
+  return (
+    <View style={styles.mapContainer}>
+      <View style={styles.mapPlaceholder}>
+        <View style={styles.mapGrid}>
+          {Array.from({ length: 20 }).map((_, i) => (
+            <View key={i} style={styles.gridLine} />
+          ))}
         </View>
+        {pressed && (
+          <View style={styles.feedback}>
+            <Text style={styles.feedbackText}>
+              Opening route planner... ({count})
+            </Text>
+          </View>
+        )}
+        <PlanFab onPress={handlePress} />
       </View>
-    )
-  },
+    </View>
+  )
+}
+
+export const Interactive: Story = {
+  render: () => <InteractiveDemo />,
 }
 
 export const MultipleStates: Story = {

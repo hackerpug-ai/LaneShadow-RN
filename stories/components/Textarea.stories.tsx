@@ -58,11 +58,13 @@ export const Default: Story = {
   },
 }
 
+const WithValueDemo = () => {
+  const [value, setValue] = useState('This is a multi-line text input.\nYou can type as much as you want.')
+  return <Textarea value={value} onChangeText={setValue} placeholder="Enter text..." />
+}
+
 export const WithValue: Story = {
-  render: () => {
-    const [value, setValue] = useState('This is a multi-line text input.\nYou can type as much as you want.')
-    return <Textarea value={value} onChangeText={setValue} placeholder="Enter text..." />
-  },
+  render: () => <WithValueDemo />,
 }
 
 export const Error: Story = {
@@ -93,13 +95,15 @@ export const Tall: Story = {
   },
 }
 
+const InContextDemo = () => {
+  const [description, setDescription] = useState('')
+  return (
+    <View style={{ width: 350, padding: 16, gap: 8 }}>
+      <Textarea value={description} onChangeText={setDescription} placeholder="Describe your route..." numberOfLines={5} />
+    </View>
+  )
+}
+
 export const InContext: Story = {
-  render: () => {
-    const [description, setDescription] = useState('')
-    return (
-      <View style={{ width: 350, padding: 16, gap: 8 }}>
-        <Textarea value={description} onChangeText={setDescription} placeholder="Describe your route..." numberOfLines={5} />
-      </View>
-    )
-  },
+  render: () => <InContextDemo />,
 }

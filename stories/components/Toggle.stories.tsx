@@ -93,17 +93,19 @@ export const Disabled: Story = {
   },
 }
 
+const InteractiveDemo = () => {
+  const [pressed, setPressed] = useState(false)
+  return (
+    <View style={{ padding: 16 }}>
+      <Toggle pressed={pressed} onPressedChange={setPressed}>
+        {pressed ? 'On' : 'Off'}
+      </Toggle>
+    </View>
+  )
+}
+
 export const Interactive: Story = {
-  render: () => {
-    const [pressed, setPressed] = useState(false)
-    return (
-      <View style={{ padding: 16 }}>
-        <Toggle pressed={pressed} onPressedChange={setPressed}>
-          {pressed ? 'On' : 'Off'}
-        </Toggle>
-      </View>
-    )
-  },
+  render: () => <InteractiveDemo />,
 }
 
 export const Sizes: Story = {

@@ -64,41 +64,45 @@ export const DisabledOn: Story = {
   },
 }
 
+const InteractiveDemo = () => {
+  const [enabled, setEnabled] = useState(false)
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+      <Switch value={enabled} onValueChange={setEnabled} />
+      <Text>{enabled ? 'Enabled' : 'Disabled'}</Text>
+    </View>
+  )
+}
+
 export const Interactive: Story = {
-  render: () => {
-    const [enabled, setEnabled] = useState(false)
-    return (
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <Switch value={enabled} onValueChange={setEnabled} />
-        <Text>{enabled ? 'Enabled' : 'Disabled'}</Text>
-      </View>
-    )
-  },
+  render: () => <InteractiveDemo />,
+}
+
+const SettingsDemo = () => {
+  const [settings, setSettings] = useState({
+    notifications: true,
+    location: false,
+    darkMode: true,
+  })
+  return (
+    <View style={{ gap: 16, width: 280 }}>
+      {[
+        { key: 'notifications', label: 'Push Notifications' },
+        { key: 'location', label: 'Location Services' },
+        { key: 'darkMode', label: 'Dark Mode' },
+      ].map((setting) => (
+        <View key={setting.key} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Text>{setting.label}</Text>
+          <Switch
+            value={settings[setting.key as keyof typeof settings]}
+            onValueChange={(value) => setSettings({ ...settings, [setting.key]: value })}
+          />
+        </View>
+      ))}
+    </View>
+  )
 }
 
 export const Settings: Story = {
-  render: () => {
-    const [settings, setSettings] = useState({
-      notifications: true,
-      location: false,
-      darkMode: true,
-    })
-    return (
-      <View style={{ gap: 16, width: 280 }}>
-        {[
-          { key: 'notifications', label: 'Push Notifications' },
-          { key: 'location', label: 'Location Services' },
-          { key: 'darkMode', label: 'Dark Mode' },
-        ].map((setting) => (
-          <View key={setting.key} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text>{setting.label}</Text>
-            <Switch
-              value={settings[setting.key as keyof typeof settings]}
-              onValueChange={(value) => setSettings({ ...settings, [setting.key]: value })}
-            />
-          </View>
-        ))}
-      </View>
-    )
-  },
+  render: () => <SettingsDemo />,
 }

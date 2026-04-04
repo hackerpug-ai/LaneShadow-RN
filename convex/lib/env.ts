@@ -4,6 +4,7 @@
  */
 
 const requireEnv = (key: string): string => {
+  // eslint-disable-next-line expo/no-dynamic-env-var -- server-side Convex env utility; key is a parameter
   const value = process.env[key]
   if (!value) {
     throw new Error(`Missing required environment variable: ${key}`)
@@ -16,6 +17,7 @@ export const CLERK_JWT_ISSUER_DOMAIN = requireEnv('CLERK_JWT_ISSUER_DOMAIN')
 export const CLERK_SECRET_KEY = requireEnv('CLERK_SECRET_KEY')
 
 const optionalEnv = (key: string): string | undefined => {
+  // eslint-disable-next-line expo/no-dynamic-env-var -- server-side Convex env utility; key is a parameter
   const value = process.env[key]
   return value && value.length > 0 ? value : undefined
 }
