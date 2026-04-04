@@ -18,6 +18,21 @@ export const routePlanStatusValidator = v.union(
   v.literal('cancelled')
 )
 
+export const ROUTE_PLAN_PHASE = {
+  READING: 'reading',
+  FINDING: 'finding',
+  WEATHER: 'weather',
+  BUILDING: 'building',
+} as const
+export type RoutePlanPhase = (typeof ROUTE_PLAN_PHASE)[keyof typeof ROUTE_PLAN_PHASE]
+
+export const routePlanPhaseValidator = v.union(
+  v.literal('reading'),
+  v.literal('finding'),
+  v.literal('weather'),
+  v.literal('building')
+)
+
 export const routePlanValidator = v.object({
   clerkUserId: v.string(),
   planInput: planInputValidator,
@@ -25,6 +40,7 @@ export const routePlanValidator = v.object({
   endLabel: v.optional(v.string()),
   status: routePlanStatusValidator,
   statusMessage: v.optional(v.string()),
+  phase: v.optional(routePlanPhaseValidator),
   result: v.optional(v.any()),
   errorCode: v.optional(v.string()),
   errorMessage: v.optional(v.string()),
@@ -32,5 +48,6 @@ export const routePlanValidator = v.object({
   createdAt: v.number(),
   updatedAt: v.number(),
   completedAt: v.optional(v.number()),
+  acknowledged: v.optional(v.boolean()),
 })
 export type RoutePlan = Infer<typeof routePlanValidator>

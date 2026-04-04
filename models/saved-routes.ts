@@ -98,6 +98,7 @@ export const planInputValidator = v.object({
   end: routeStopValidator,
   departureTime: v.number(),
   preferences: planPreferencesValidator,
+  nlpText: v.optional(v.string()),
 })
 export type PlanInput = Infer<typeof planInputValidator>
 
