@@ -1,6 +1,7 @@
 'use node'
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import * as aiModule from 'ai'
 import {
   executeRidePlanningAgent,
   planRoute,
@@ -8,6 +9,7 @@ import {
   fetchWeather,
   saveRoute,
   searchFavorites,
+  extractRouteAttachments,
 } from '../ridePlanningAgent'
 import { ERROR_CODES } from '../../../errors'
 
@@ -49,6 +51,15 @@ vi.mock('../../../_generated/api', () => ({
     },
   },
 }))
+
+// Mock AI SDK generateText
+vi.mock('ai', async () => {
+  const actual = await vi.importActual('ai')
+  return {
+    ...actual,
+    generateText: vi.fn(),
+  }
+})
 
 // -----------------------------------------------------------------------------
 // Test Data
@@ -122,7 +133,9 @@ describe('ridePlanningAgent', () => {
       })
 
       expect(result.type).toBe('routes')
-      expect(result.data).toEqual(mockRouteOptions)
+      if (result.type === 'routes') {
+        expect(result.data).toEqual(mockRouteOptions)
+      }
       expect(mockAgentContext.runMutation).toHaveBeenCalled()
     })
 
@@ -135,7 +148,9 @@ describe('ridePlanningAgent', () => {
       })
 
       expect(result.type).toBe('chat')
-      expect(result.message).toContain('monthly limit')
+      if (result.type === 'chat') {
+        expect(result.message).toContain('monthly limit')
+      }
       expect(mockParseNaturalLanguageInput).not.toHaveBeenCalled()
       expect(mockPlanRide).not.toHaveBeenCalled()
     })
@@ -155,7 +170,9 @@ describe('ridePlanningAgent', () => {
       })
 
       expect(result.type).toBe('chat')
-      expect(result.message).toContain('trouble understanding')
+      if (result.type === 'chat') {
+        expect(result.message).toContain('trouble understanding')
+      }
     })
 
     it('should return error message on orchestrator failure', async () => {
@@ -174,7 +191,9 @@ describe('ridePlanningAgent', () => {
       })
 
       expect(result.type).toBe('error')
-      expect(result.message).toContain("couldn't plan your route")
+      if (result.type === 'error') {
+        expect(result.message).toContain("couldn't plan your route")
+      }
     })
   })
 
@@ -201,14 +220,18 @@ describe('ridePlanningAgent', () => {
       const result = await refineRoute(contextWithHistory, { refinement: 'avoid highways' })
 
       expect(result.type).toBe('routes')
-      expect(result.data).toEqual(mockRouteOptions)
+      if (result.type === 'routes') {
+        expect(result.data).toEqual(mockRouteOptions)
+      }
     })
 
     it('should return chat message when no previous route exists', async () => {
       const result = await refineRoute(mockAgentContext, { refinement: 'make it shorter' })
 
       expect(result.type).toBe('chat')
-      expect(result.message).toContain("don't have a route to refine")
+      if (result.type === 'chat') {
+        expect(result.message).toContain("don't have a route to refine")
+      }
     })
   })
 
@@ -217,7 +240,9 @@ describe('ridePlanningAgent', () => {
       const result = await fetchWeather(mockAgentContext, { location: 'San Francisco' })
 
       expect(result.type).toBe('weather')
-      expect(result.data).toBeDefined()
+      if (result.type === 'weather') {
+        expect(result.data).toBeDefined()
+      }
     })
   })
 
@@ -234,14 +259,18 @@ describe('ridePlanningAgent', () => {
       const result = await saveRoute(contextWithHistory, { routeIndex: 0, name: 'My Favorite Route' })
 
       expect(result.type).toBe('confirmation')
-      expect(result.message).toContain('save')
+      if (result.type === 'confirmation') {
+        expect(result.message).toContain('save')
+      }
     })
 
     it('should return chat message when no route to save', async () => {
       const result = await saveRoute(mockAgentContext, { routeIndex: 0 })
 
       expect(result.type).toBe('chat')
-      expect(result.message).toContain("don't see a route")
+      if (result.type === 'chat') {
+        expect(result.message).toContain("don't see a route")
+      }
     })
   })
 
@@ -250,7 +279,124 @@ describe('ridePlanningAgent', () => {
       const result = await searchFavorites(mockAgentContext, { query: 'coastal' })
 
       expect(result.type).toBe('chat')
-      expect(result.message).toContain('Searching')
+      if (result.type === 'chat') {
+        expect(result.message).toContain('Searching')
+      }
+    })
+  })
+
+  describe('extractRouteAttachments', () => {
+    it('should extract route plan IDs from planRoute tool results', () => {
+      const toolResults = [
+        {
+          toolName: 'planRoute',
+          result: JSON.stringify({
+            type: 'routes',
+            data: { planId: 'plan123', options: [] },
+          }),
+        },
+      ]
+
+      const attachments = extractRouteAttachments(toolResults)
+
+      expect(attachments).toHaveLength(1)
+      expect(attachments[0]).toMatchObject({
+        type: 'route',
+        routePlanId: 'plan123',
+      })
+    })
+
+    it('should extract route plan IDs from refineRoute tool results', () => {
+      const toolResults = [
+        {
+          toolName: 'refineRoute',
+          result: JSON.stringify({
+            type: 'routes',
+            data: { planId: 'plan456', options: [] },
+          }),
+        },
+      ]
+
+      const attachments = extractRouteAttachments(toolResults)
+
+      expect(attachments).toHaveLength(1)
+      expect(attachments[0]).toMatchObject({
+        type: 'route',
+        routePlanId: 'plan456',
+      })
+    })
+
+    it('should return empty array when no route tools are called', () => {
+      const toolResults = [
+        {
+          toolName: 'fetchWeather',
+          result: JSON.stringify({ type: 'weather', data: {} }),
+        },
+      ]
+
+      const attachments = extractRouteAttachments(toolResults)
+
+      expect(attachments).toHaveLength(0)
+    })
+
+    it('should handle multiple route tool calls', () => {
+      const toolResults = [
+        {
+          toolName: 'planRoute',
+          result: JSON.stringify({
+            type: 'routes',
+            data: { planId: 'plan123', options: [] },
+          }),
+        },
+        {
+          toolName: 'refineRoute',
+          result: JSON.stringify({
+            type: 'routes',
+            data: { planId: 'plan456', options: [] },
+          }),
+        },
+      ]
+
+      const attachments = extractRouteAttachments(toolResults)
+
+      expect(attachments).toHaveLength(2)
+      expect(attachments[0].routePlanId).toBe('plan123')
+      expect(attachments[1].routePlanId).toBe('plan456')
+    })
+
+    it('should handle malformed tool results gracefully', () => {
+      const toolResults = [
+        {
+          toolName: 'planRoute',
+          result: 'invalid json',
+        },
+      ]
+
+      const attachments = extractRouteAttachments(toolResults)
+
+      expect(attachments).toHaveLength(0)
+    })
+  })
+
+  describe('executeRidePlanningAgent', () => {
+    it('should return empty attachments when no route tool is called', async () => {
+      // Mock generateText to simulate chat-only response
+      vi.mocked(aiModule.generateText).mockResolvedValue({
+        text: 'Hello! How can I help you today?',
+        toolCalls: [],
+        toolResults: [],
+        usage: { promptTokens: 10, completionTokens: 20 } as any,
+        finishReason: 'stop' as const,
+        warnings: undefined,
+        responseMessages: {} as any,
+        requestId: '',
+        experimental_providerMetadata: undefined as any,
+      } as any)
+
+      const result = await executeRidePlanningAgent(mockAgentContext, 'hello, how are you?')
+
+      // Verify attachments are undefined or empty for chat-only responses
+      expect(result.attachments).toBeUndefined()
     })
   })
 })

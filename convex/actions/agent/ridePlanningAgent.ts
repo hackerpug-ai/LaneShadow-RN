@@ -1,13 +1,14 @@
 'use node'
 
-import { generateText } from 'ai'
+import { generateText, stepCountIs } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
 import { v } from 'convex/values'
 
 import { OPENAI_API_KEY, AI_MODEL } from '../../lib/env'
 import { parseNaturalLanguageInput } from './tools/parseNaturalLanguageInput'
-import { planRide } from './planRide'
+import { planRideOrchestrator } from './lib/planRideOrchestrator'
+import { buildOptionsFromResults } from './planRide'
 import { FREE_TIER_MONTHLY_LIMIT } from '../../../models/plan-usage'
 import { ERROR_CODES } from '../../errors'
 import type { Id } from '../../_generated/dataModel'
@@ -81,12 +82,12 @@ export async function planRoute(
       }
     }
 
-    // Call the deterministic orchestrator
-    // Note: We call the action directly since we're already in an action context
-    const result = await planRide(
-      ctx as any,
-      { planInput: parseResult.planInput }
-    )
+    // Call the deterministic orchestrator directly
+    const results = await planRideOrchestrator({
+      planInput: parseResult.planInput,
+      departureTimeMs: parseResult.planInput.departureTime,
+    })
+    const result = buildOptionsFromResults(results, crypto.randomUUID())
 
     // Increment usage (deterministic action)
     await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, {
@@ -155,11 +156,12 @@ export async function refineRoute(
       }
     }
 
-    // Call orchestrator with updated preferences
-    const result = await planRide(
-      ctx as any,
-      { planInput: parseResult.planInput }
-    )
+    // Call orchestrator with updated preferences directly
+    const results = await planRideOrchestrator({
+      planInput: parseResult.planInput,
+      departureTimeMs: parseResult.planInput.departureTime,
+    })
+    const result = buildOptionsFromResults(results, crypto.randomUUID())
 
     // Increment usage
     await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, {
@@ -266,6 +268,38 @@ export async function searchFavorites(
 }
 
 // -----------------------------------------------------------------------------
+// Attachment Extraction Helper (testable)
+// -----------------------------------------------------------------------------
+
+/**
+ * Extract route plan IDs from tool results
+ * This is a pure function that can be tested independently
+ */
+export function extractRouteAttachments(
+  toolResults: Array<{ toolName: string; result: string }>
+): Array<{ type: string; routePlanId?: string }> {
+  const attachments: Array<{ type: string; routePlanId?: string }> = []
+
+  for (const toolResult of toolResults) {
+    if (toolResult.toolName === 'planRoute' || toolResult.toolName === 'refineRoute') {
+      try {
+        const parsedResult = JSON.parse(toolResult.result)
+        if (parsedResult.type === 'routes' && parsedResult.data.planId) {
+          attachments.push({
+            type: 'route',
+            routePlanId: parsedResult.data.planId,
+          })
+        }
+      } catch (error) {
+        console.error('[extractRouteAttachments] Error parsing tool result:', error)
+      }
+    }
+  }
+
+  return attachments
+}
+
+// -----------------------------------------------------------------------------
 // Agent Execution
 // -----------------------------------------------------------------------------
 
@@ -302,6 +336,9 @@ export async function executeRidePlanningAgent(
     throw new Error('OpenAI API key not configured')
   }
 
+  // Track tool results for attachments
+  const toolResultsTracker: Array<{ toolName: string; result: string }> = []
+
   const tools = {
     planRoute: {
       description: 'Plan a new motorcycle route based on natural language input',
@@ -316,6 +353,9 @@ export async function executeRidePlanningAgent(
       }),
       execute: async (args: { request: string; currentLocation: { lat: number; lng: number } }) => {
         const result = await planRoute(ctx, args)
+        const resultString = JSON.stringify(result)
+        // Track the result for attachments
+        toolResultsTracker.push({ toolName: 'planRoute', result: resultString })
         if (result.type === 'routes') {
           return JSON.stringify({
             type: 'routes',
@@ -342,6 +382,9 @@ export async function executeRidePlanningAgent(
       }),
       execute: async (args: { refinement: string }) => {
         const result = await refineRoute(ctx, args)
+        const resultString = JSON.stringify(result)
+        // Track the result for attachments
+        toolResultsTracker.push({ toolName: 'refineRoute', result: resultString })
         if (result.type === 'routes') {
           return JSON.stringify({
             type: 'routes',
@@ -395,13 +438,13 @@ export async function executeRidePlanningAgent(
   } as const
 
   // Build conversation history for the agent
-  const messages = [
-    { role: 'system' as const, content: SYSTEM_PROMPT },
+  const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
+    { role: 'system', content: SYSTEM_PROMPT },
     ...ctx.conversationHistory.map((m) => ({
-      role: (m.role === 'rider' ? 'user' : 'assistant') as const,
+      role: (m.role === 'rider' ? 'user' : 'assistant') as 'user' | 'assistant',
       content: m.content,
     })),
-    { role: 'user' as const, content: userMessage },
+    { role: 'user', content: userMessage },
   ]
 
   // Execute the agent with timeout
@@ -416,19 +459,14 @@ export async function executeRidePlanningAgent(
       tools,
       toolChoice: 'auto',
       temperature: 0.7,
-      maxTokens: 500,
+      stopWhen: stepCountIs(10),
     }),
     timeoutPromise,
   ])
 
-  // Extract tool results and build response
+  // Build response and extract attachments from tracked tool results
   let responseText = result.text
-  const attachments: Array<{ type: string; routePlanId?: string }> = []
-
-  // Check if any tool calls returned route data
-  // Note: In the AI SDK, tool results are returned differently
-  // For now, we'll use the response text and assume the agent has been configured
-  // to include route information in the text when appropriate
+  const attachments = extractRouteAttachments(toolResultsTracker)
 
   // If agent didn't generate text but we have routes, add a default message
   if (!responseText && attachments.length > 0) {
