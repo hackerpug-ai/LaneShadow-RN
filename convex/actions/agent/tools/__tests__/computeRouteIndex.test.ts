@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import type { RouteSnapshot } from '../../../../../models/saved-routes'
 import { computeRouteIndex } from '../computeRouteIndex'
 

@@ -19,6 +19,17 @@ import { WindBadge } from '../planning/wind-badge'
 import { Button } from '../ui/button'
 import { BottomSheetWrapper } from './bottom-sheet-wrapper'
 
+/**
+ * Add opacity to a hex color
+ */
+const addOpacity = (hexColor: string, opacity: number): string => {
+  const hex = hexColor.replace('#', '')
+  const r = parseInt(hex.substring(0, 2), 16)
+  const g = parseInt(hex.substring(2, 4), 16)
+  const b = parseInt(hex.substring(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`
+}
+
 export type RouteDetailsSheetProps = {
   isVisible: boolean
   onClose: () => void
@@ -82,7 +93,7 @@ export const RouteDetailsSheet = ({
               { backgroundColor: semantic.color.primary.default + '1F' }, // Add 12% alpha
             ]}
           >
-            <IconSymbol name="route" size={14} color={semantic.color.primary.default} />
+            <IconSymbol name="routes" size={14} color={semantic.color.primary.default} />
             <Text style={[styles.badgeText, { color: semantic.color.primary.default }]}>{route.label}</Text>
           </View>
         </View>
@@ -116,22 +127,19 @@ export const RouteDetailsSheet = ({
             >
               Route Statistics
             </Text>
-            <View style={[styles.statsCard, { backgroundColor: semantic.color.surface.elevated }]}>
+            <View style={[styles.statsCard, { backgroundColor: addOpacity(semantic.color.surface.default, 0.8) }]}>
               <StatRow
                 icon="map-marker-distance"
-                label="Distance"
                 value={formatDistance(route.stats.distanceMeters)}
                 testID={`${testID}-stat-distance`}
               />
               <StatRow
                 icon="clock-outline"
-                label="Duration"
                 value={formatDuration(route.stats.durationSeconds)}
                 testID={`${testID}-stat-duration`}
               />
               <StatRow
                 icon="vector-polyline"
-                label="Segments"
                 value={`${route.stats.legsCount} legs`}
                 testID={`${testID}-stat-legs`}
               />
@@ -146,7 +154,7 @@ export const RouteDetailsSheet = ({
             >
               Conditions
             </Text>
-            <View style={[styles.conditionsCard, { backgroundColor: semantic.color.surface.elevated }]}>
+            <View style={[styles.conditionsCard, { backgroundColor: addOpacity(semantic.color.surface.default, 0.8) }]}>
               <View style={styles.conditionRow}>
                 <Text
                   variant="bodyMedium"

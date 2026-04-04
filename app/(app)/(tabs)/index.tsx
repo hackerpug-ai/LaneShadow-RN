@@ -314,7 +314,7 @@ const HomeMapScreen = () => {
       <View style={styles.container}>
         <MapViewWrapper
           ref={mapRef}
-          polylines={routePolylines.flatMap(p => p.polylines)}
+          polylines={routePolylines}
           markers={markers}
           onMapClick={handleMapClick}
           onCameraMove={handleCameraMove}

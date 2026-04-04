@@ -54,8 +54,8 @@ export const usePlanRide = (): {
       setError(null)
 
       logger.info('ui.action', 'planRide called', {
-        origin: input.origin,
-        destination: input.destination,
+        start: input.start,
+        end: input.end,
         departureTime: input.departureTime,
       })
 

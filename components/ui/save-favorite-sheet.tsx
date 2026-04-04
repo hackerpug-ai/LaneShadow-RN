@@ -11,10 +11,9 @@
  * - AC4: Error message displayed on save failure, sheet stays open
  */
 
-import type { TextInput } from 'react-native'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useMutation } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -56,15 +55,12 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
   const [isSaving, setIsSaving] = useState(false)
 
   const insertFavorite = useMutation(api.db.favoriteRoads.insert)
-  const inputRef = useRef<TextInput>(null)
 
   // Reset form when sheet opens
   useEffect(() => {
     if (visible) {
       setName('')
       setError(null)
-      // Auto-focus input on open
-      inputRef.current?.focus()
     }
   }, [visible])
 
@@ -94,7 +90,12 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
         input: {
           name: trimmedName,
           geometry: segment.geometry,
-          bounds: segment.bounds,
+          bounds: {
+            north: segment.bounds.northeast.lat,
+            south: segment.bounds.southwest.lat,
+            east: segment.bounds.northeast.lng,
+            west: segment.bounds.southwest.lng,
+          },
         },
       })
       onClose()
@@ -140,7 +141,6 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
 
         {/* Name Input */}
         <Input
-          ref={inputRef}
           testID="save-favorite-name-input"
           value={name}
           onChangeText={handleNameChange}

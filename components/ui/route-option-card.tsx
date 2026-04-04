@@ -9,7 +9,7 @@
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
-import { IconSymbol } from './icon-symbol'
+import { IconSymbol, type IconName } from './icon-symbol'
 import { RouteBadge } from './route-badge'
 import { StatRow } from './stat-row'
 import { WeatherPill } from './weather-pill'
@@ -22,13 +22,13 @@ export type RouteOptionCardProps = {
   /** Card variant */
   variant?: RouteOptionCardVariant
   /** Optional badges */
-  badges?: Array<{ icon?: string; label: string; variant?: 'primary' | 'neutral' }>
+  badges?: Array<{ icon?: IconName; label: string; variant?: 'primary' | 'neutral' }>
   /** Optional stats */
-  stats?: Array<{ icon: string; value: string }>
+  stats?: Array<{ icon: IconName; value: string }>
   /** Optional weather summary */
   weatherSummary?: string
   /** Optional weather icon */
-  weatherIcon?: string
+  weatherIcon?: IconName
   /** Compact row display (for variant="compact") */
   compactStats?: string
 }
@@ -43,7 +43,7 @@ export const RouteOptionCard = ({
   badges = [],
   stats = [],
   weatherSummary,
-  weatherIcon = 'air',
+  weatherIcon = 'air' as IconName,
   compactStats,
 }: RouteOptionCardProps) => {
   const theme = useTheme<ExtendedTheme>()

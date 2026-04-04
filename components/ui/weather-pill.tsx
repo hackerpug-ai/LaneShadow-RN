@@ -5,14 +5,14 @@
  * Follows the design system pill patterns
  */
 
-import { IconSymbol } from './icon-symbol'
+import { IconSymbol, type IconName } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
 
 export type WeatherPillProps = {
   /** Icon name from MaterialCommunityIcons */
-  icon: string
+  icon: IconName
   /** Weather description text */
   description: string
   /** Icon size */

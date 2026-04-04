@@ -17,6 +17,7 @@
  * The RainBadge component itself is tested in its own test file.
  */
 
+import { describe, it, expect } from 'vitest'
 import { getWorstRainLevel, RAIN_SUMMARY, type RainOverlay, type RainOverlayByLeg } from '../../../models/saved-routes'
 
 describe('getWorstRainLevel', () => {
@@ -509,8 +510,7 @@ describe('RouteOptionCard favorite indicator (US-048)', () => {
       // No favorites field
     }
 
-    // Then: Should default to count = 0
-    const favoriteCount = routeOption.favorites?.count ?? 0
-    expect(favoriteCount).toBe(0)
+    // Then: Should not have favorites property
+    expect(routeOption).not.toHaveProperty('favorites')
   })
 })

@@ -4,7 +4,7 @@
  */
 import type { Meta, StoryObj } from '@storybook/react-native'
 import React from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, Text } from 'react-native'
 import { PlanFab } from '../../components/map/plan-fab'
 
 const meta: Meta<typeof PlanFab> = {
@@ -20,7 +20,6 @@ const meta: Meta<typeof PlanFab> = {
   },
   argTypes: {
     onPress: {
-      control: 'function',
       description: 'Callback when button is pressed',
     },
   },

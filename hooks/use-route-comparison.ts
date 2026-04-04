@@ -91,7 +91,7 @@ export const useRouteComparison = (
           legs: option.map.legs,
           overlays: (option.map as any)?.overlays,
         },
-        variant: isSelected ? 'selected' : 'unselected',
+        variant: isSelected ? 'selected' : 'alternate',
         showLegs: true,
         showWindOverlay: isSelected, // Only show wind on selected route
         semantic,

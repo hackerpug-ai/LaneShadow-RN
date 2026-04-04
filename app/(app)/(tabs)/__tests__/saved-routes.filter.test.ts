@@ -10,11 +10,11 @@
  * - AC6: Filtered empty state shown when 0 results with active filters
  */
 
-/* eslint-disable @typescript-eslint/no-require-imports */
+import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest'
 
-const mockPush = jest.fn()
+const mockPush = vi.fn()
 
-jest.mock('react-native', () => ({
+vi.mock('react-native', () => ({
   FlatList: 'FlatList',
   Pressable: 'Pressable',
   RefreshControl: 'RefreshControl',
@@ -23,27 +23,27 @@ jest.mock('react-native', () => ({
   TextInput: 'TextInput',
   View: 'View',
   Animated: {
-    Value: jest.fn(),
+    Value: vi.fn(),
     View: 'Animated.View',
-    loop: jest.fn(),
-    sequence: jest.fn(),
-    timing: jest.fn(),
+    loop: vi.fn(),
+    sequence: vi.fn(),
+    timing: vi.fn(),
   },
 }))
-jest.mock('react-native-paper', () => ({
+vi.mock('react-native-paper', () => ({
   Text: 'Text',
   useTheme: () => ({ semantic: {} }),
 }))
-jest.mock('react-native-safe-area-context', () => ({
+vi.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ bottom: 0 }),
 }))
-jest.mock('expo-router', () => ({
+vi.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush }),
 }))
-jest.mock('@expo/vector-icons', () => ({
+vi.mock('@expo/vector-icons', () => ({
   MaterialCommunityIcons: 'MaterialCommunityIcons',
 }))
-jest.mock('../../../../hooks/use-semantic-theme', () => ({
+vi.mock('../../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({
     semantic: {
       color: {
@@ -81,7 +81,7 @@ const mockHookReturn = {
 }
 let capturedHookArgs: Record<string, unknown> | undefined
 
-jest.mock('react-native-gesture-handler', () => {
+vi.mock('react-native-gesture-handler', () => {
   const React = require('react')
   return {
     Swipeable: React.forwardRef(function MockSwipeable(
@@ -92,52 +92,52 @@ jest.mock('react-native-gesture-handler', () => {
     }),
   }
 })
-jest.mock('react-native-notifier', () => ({
+vi.mock('react-native-notifier', () => ({
   Notifier: {
-    showNotification: jest.fn(),
-    hideNotification: jest.fn(),
+    showNotification: vi.fn(),
+    hideNotification: vi.fn(),
   },
 }))
-jest.mock('../../../../hooks/use-saved-routes', () => ({
+vi.mock('../../../../hooks/use-saved-routes', () => ({
   useSavedRoutesList: (args?: Record<string, unknown>) => {
     capturedHookArgs = args
     return mockHookReturn
   },
   useSoftDeleteRoute: () => ({
-    run: jest.fn(),
+    run: vi.fn(),
     isRunning: false,
     error: null,
-    resetError: jest.fn(),
+    resetError: vi.fn(),
   }),
   useUndoDeleteRoute: () => ({
-    run: jest.fn(),
+    run: vi.fn(),
     isRunning: false,
     error: null,
-    resetError: jest.fn(),
+    resetError: vi.fn(),
   }),
 }))
-jest.mock('../../../../components/ui/saved-route-card', () => ({
+vi.mock('../../../../components/ui/saved-route-card', () => ({
   SavedRouteCard: 'SavedRouteCard',
 }))
-jest.mock('../../../../components/ui/saved-route-card.utils', () => ({
+vi.mock('../../../../components/ui/saved-route-card.utils', () => ({
   formatDate: (ts: number) => new Date(ts).toLocaleDateString(),
 }))
-jest.mock('../../../../components/ui/skeleton', () => ({ Skeleton: 'Skeleton' }))
-jest.mock('../../../../components/ui/empty-state', () => ({
+vi.mock('../../../../components/ui/skeleton', () => ({ Skeleton: 'Skeleton' }))
+vi.mock('../../../../components/ui/empty-state', () => ({
   EmptyState: 'EmptyState',
 }))
-jest.mock('../../../../components/ui/route-search-bar', () => ({
+vi.mock('../../../../components/ui/route-search-bar', () => ({
   RouteSearchBar: 'RouteSearchBar',
 }))
-jest.mock('../../../../components/ui/date-range-picker', () => ({
+vi.mock('../../../../components/ui/date-range-picker', () => ({
   DateRangePicker: 'DateRangePicker',
 }))
-jest.mock('../../../../components/ui/delete-route-dialog', () => ({
+vi.mock('../../../../components/ui/delete-route-dialog', () => ({
   DeleteRouteDialog: 'DeleteRouteDialog',
 }))
-jest.mock('../../../../lib/notifier-helpers', () => ({
-  showSuccessNotification: jest.fn(),
-  showErrorNotification: jest.fn(),
+vi.mock('../../../../lib/notifier-helpers', () => ({
+  showSuccessNotification: vi.fn(),
+  showErrorNotification: vi.fn(),
 }))
 
 import React from 'react'
@@ -273,10 +273,10 @@ describe('AC4: Result count with active filters', () => {
     act(() => {
       tree = renderer.create(
         React.createElement(FilterHeader, {
-          onSearch: jest.fn(),
-          onDateRangeChange: jest.fn(),
+          onSearch: vi.fn(),
+          onDateRangeChange: vi.fn(),
           filtersActive: true,
-          onClearFilters: jest.fn(),
+          onClearFilters: vi.fn(),
           resultCount: 3,
           datePickerKey: 0,
         })
@@ -301,10 +301,10 @@ describe('AC4: Result count with active filters', () => {
     act(() => {
       tree = renderer.create(
         React.createElement(FilterHeader, {
-          onSearch: jest.fn(),
-          onDateRangeChange: jest.fn(),
+          onSearch: vi.fn(),
+          onDateRangeChange: vi.fn(),
           filtersActive: true,
-          onClearFilters: jest.fn(),
+          onClearFilters: vi.fn(),
           resultCount: 1,
           datePickerKey: 0,
         })
@@ -329,10 +329,10 @@ describe('AC5: No filters active', () => {
     act(() => {
       tree = renderer.create(
         React.createElement(FilterHeader, {
-          onSearch: jest.fn(),
-          onDateRangeChange: jest.fn(),
+          onSearch: vi.fn(),
+          onDateRangeChange: vi.fn(),
           filtersActive: false,
-          onClearFilters: jest.fn(),
+          onClearFilters: vi.fn(),
           resultCount: 5,
           datePickerKey: 0,
         })
@@ -426,7 +426,7 @@ describe('Hook integration: useSavedRoutesList args', () => {
 // ---------------------------------------------------------------------------
 describe('FilterHeader: clear button interaction', () => {
   it('should call onClearFilters when clear button is pressed', () => {
-    const onClearFilters = jest.fn()
+    const onClearFilters = vi.fn()
     const { FilterHeader } = require('../saved-routes.components') as {
       FilterHeader: React.FC<Record<string, unknown>>
     }
@@ -435,8 +435,8 @@ describe('FilterHeader: clear button interaction', () => {
     act(() => {
       tree = renderer.create(
         React.createElement(FilterHeader, {
-          onSearch: jest.fn(),
-          onDateRangeChange: jest.fn(),
+          onSearch: vi.fn(),
+          onDateRangeChange: vi.fn(),
           filtersActive: true,
           onClearFilters,
           resultCount: 2,

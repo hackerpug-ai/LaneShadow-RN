@@ -33,7 +33,7 @@ const meta: Meta<typeof StatRow> = {
     },
   },
   args: {
-    icon: 'schedule',
+    icon: 'clock-outline',
     value: '2h 15m',
     iconSize: 18,
   },
@@ -46,21 +46,21 @@ export const Default: Story = {}
 
 export const Duration: Story = {
   args: {
-    icon: 'schedule',
+    icon: 'clock-outline',
     value: '2h 15m',
   },
 }
 
 export const Distance: Story = {
   args: {
-    icon: 'straighten',
+    icon: 'ruler',
     value: '87 mi',
   },
 }
 
 export const Wind: Story = {
   args: {
-    icon: 'air',
+    icon: 'weather-windy',
     value: 'Moderate',
   },
 }
@@ -70,7 +70,7 @@ export const Multiple: Story = {
     <View style={{ flexDirection: 'row', gap: 16 }}>
       <StatRow icon="calendar-clock" value="2h 15m" />
       <StatRow icon="arrow-collapse-horizontal" value="87 mi" />
-      <StatRow icon="air" value="Moderate" />
+      <StatRow icon="weather-windy" value="Moderate" />
     </View>
   ),
 }

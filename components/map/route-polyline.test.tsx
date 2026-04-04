@@ -24,6 +24,7 @@
  * - Verify long-press gesture detection and callback behavior
  */
 
+import { describe, it, expect } from 'vitest'
 import type { PolylineGeometry, RouteLeg, RouteOverlays } from '../../models/saved-routes'
 import { buildRoutePolylines } from './route-polyline'
 import type { ExtendedTheme } from '../../styles/types'
@@ -49,6 +50,10 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     border: { default: '#CAC4D0' },
     input: { default: '#CAC4D0' },
     ring: { default: '#6750A4' },
+    locationPoiFill: { default: '#EDEDED' },
+    locationPoiRing: { default: '#B87333' },
+    locationPoiMuted: { default: '#A3A3A3' },
+    locationPoiBg: { default: '#F3EFE8' },
     card: { default: '#FFFFFF' },
     popover: { default: '#FFFFFF' },
     accent: { default: '#FF6B35' },
@@ -132,15 +137,19 @@ const createMockGeometry = (points: Array<[number, number]>): PolylineGeometry =
 const createMockLegs = (count: number): Array<RouteLeg> => {
   return Array.from({ length: count }, (_, i) => ({
     legIndex: i,
-    startAddress: `Start ${i}`,
-    endAddress: `End ${i}`,
+    start: {
+      lat: 37.7749 + i * 0.01,
+      lng: -122.4194,
+      label: `Start ${i}`,
+    },
+    end: {
+      lat: 37.7759 + i * 0.01,
+      lng: -122.4184,
+      label: `End ${i}`,
+    },
     distanceMeters: 1000 + i * 500,
     durationSeconds: 300 + i * 60,
     geometry: createMockGeometry([
-      [37.7749 + i * 0.01, -122.4194],
-      [37.7759 + i * 0.01, -122.4184],
-    ]),
-    overviewPolyline: createMockGeometry([
       [37.7749 + i * 0.01, -122.4194],
       [37.7759 + i * 0.01, -122.4184],
     ]),
@@ -165,6 +174,14 @@ const createMockRainOverlay = (
   segmentsByLeg: Array<{ start: number; end: number; level: 'none' | 'light' | 'moderate' | 'heavy' }[]>
 ): RouteOverlays['rain'] => {
   return {
+    generatedAt: Date.now(),
+    modelVersion: 'test-v1',
+    legend: [
+      { level: 'none', label: 'No rain' },
+      { level: 'light', label: 'Light rain' },
+      { level: 'moderate', label: 'Moderate rain' },
+      { level: 'heavy', label: 'Heavy rain' },
+    ],
     byLeg: segmentsByLeg.map((segments, legIndex) => ({
       legIndex,
       segments: segments.map((seg) => ({
@@ -181,6 +198,13 @@ const createMockWindOverlay = (
   segmentsByLeg: Array<{ start: number; end: number; level: 'low' | 'moderate' | 'high' }[]>
 ): RouteOverlays['wind'] => {
   return {
+    generatedAt: Date.now(),
+    modelVersion: 'test-v1',
+    legend: [
+      { level: 'low', label: 'Low wind' },
+      { level: 'moderate', label: 'Moderate wind' },
+      { level: 'high', label: 'High wind' },
+    ],
     byLeg: segmentsByLeg.map((segments, legIndex) => ({
       legIndex,
       segments: segments.map((seg) => ({
@@ -197,6 +221,14 @@ const createMockTemperatureOverlay = (
   segmentsByLeg: Array<{ start: number; end: number; level: 'cold' | 'mild' | 'warm' | 'hot' }[]>
 ): RouteOverlays['temperature'] => {
   return {
+    generatedAt: Date.now(),
+    modelVersion: 'test-v1',
+    legend: [
+      { level: 'cold', label: 'Cold', range: { min: -Infinity, max: 10, unit: '°C' } },
+      { level: 'mild', label: 'Mild', range: { min: 10, max: 25, unit: '°C' } },
+      { level: 'warm', label: 'Warm', range: { min: 25, max: 32, unit: '°C' } },
+      { level: 'hot', label: 'Hot', range: { min: 32, max: Infinity, unit: '°C' } },
+    ],
     byLeg: segmentsByLeg.map((segments, legIndex) => ({
       legIndex,
       segments: segments.map((seg) => ({

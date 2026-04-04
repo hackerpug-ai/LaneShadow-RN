@@ -26,6 +26,7 @@ export type BadgeVariant =
   | 'outline'
   | 'success'
   | 'warning'
+  | 'info'
 
 /**
  * Badge component props

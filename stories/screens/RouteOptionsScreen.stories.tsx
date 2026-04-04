@@ -9,7 +9,7 @@ const mockRoutes: RouteOptionData[] = [
     name: 'Scenic Mountain Pass',
     variant: 'selected',
     badges: [
-      { icon: 'landscape', label: 'Most Scenic', variant: 'primary' },
+      { icon: 'image', label: 'Most Scenic', variant: 'primary' },
       { icon: 'wind-power', label: 'Low Wind', variant: 'neutral' },
     ],
     stats: [

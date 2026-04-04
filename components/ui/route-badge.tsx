@@ -5,7 +5,7 @@
  * Follows the design system badge patterns
  */
 
-import { IconSymbol } from './icon-symbol'
+import { IconSymbol, type IconName } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
@@ -18,7 +18,7 @@ export type RouteBadgeProps = {
   /** Visual variant */
   variant?: RouteBadgeVariant
   /** Optional icon name from MaterialCommunityIcons */
-  icon?: string
+  icon?: IconName
   /** Icon size */
   iconSize?: number
 }

@@ -9,6 +9,7 @@
  * - AC5: All visual properties use semantic theme tokens
  */
 
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import React from 'react'
 import { render, fireEvent, act } from '@testing-library/react-native'
 import type { ExtendedTheme } from '../../../styles/types'
@@ -42,6 +43,10 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     border: { default: '#49454F' },
     input: { default: '#49454F' },
     ring: { default: '#6750A4' },
+    locationPoiFill: { default: '#EDEDED' },
+    locationPoiRing: { default: '#B87333' },
+    locationPoiMuted: { default: '#A3A3A3' },
+    locationPoiBg: { default: '#F3EFE8' },
     card: { default: '#1C1B1F' },
     popover: { default: '#1C1B1F' },
     accent: { default: '#FF6B35' },
@@ -109,12 +114,12 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
 }
 
 // Mock useSemanticTheme hook
-jest.mock('../../../hooks/use-semantic-theme', () => ({
+vi.mock('../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
 // Mock @expo/vector-icons
-jest.mock('@expo/vector-icons', () => {
+vi.mock('@expo/vector-icons', () => {
   const { View } = require('react-native')
   const { createElement } = require('react')
   return {
@@ -136,12 +141,12 @@ import { RouteSearchBar } from '../route-search-bar'
 
 describe('RouteSearchBar', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.useFakeTimers()
+    vi.clearAllMocks()
+    vi.useFakeTimers()
   })
 
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   /**
@@ -149,34 +154,34 @@ describe('RouteSearchBar', () => {
    */
   describe('AC1: renders with icon and placeholder', () => {
     it('renders the container with default testID', () => {
-      const { getByTestId } = render(<RouteSearchBar onSearch={jest.fn()} />)
+      const { getByTestId } = render(<RouteSearchBar onSearch={vi.fn()} />)
       expect(getByTestId('route-search-bar')).toBeTruthy()
     })
 
     it('renders with a custom testID when provided', () => {
       const { getByTestId } = render(
-        <RouteSearchBar onSearch={jest.fn()} testID="custom-search-bar" />
+        <RouteSearchBar onSearch={vi.fn()} testID="custom-search-bar" />
       )
       expect(getByTestId('custom-search-bar')).toBeTruthy()
     })
 
     it('renders the text input', () => {
-      const { getByTestId } = render(<RouteSearchBar onSearch={jest.fn()} />)
+      const { getByTestId } = render(<RouteSearchBar onSearch={vi.fn()} />)
       expect(getByTestId('route-search-bar-input')).toBeTruthy()
     })
 
     it('input has the correct placeholder text', () => {
-      const { getByPlaceholderText } = render(<RouteSearchBar onSearch={jest.fn()} />)
+      const { getByPlaceholderText } = render(<RouteSearchBar onSearch={vi.fn()} />)
       expect(getByPlaceholderText('Search routes...')).toBeTruthy()
     })
 
     it('renders the search icon', () => {
-      const { getByTestId } = render(<RouteSearchBar onSearch={jest.fn()} />)
+      const { getByTestId } = render(<RouteSearchBar onSearch={vi.fn()} />)
       expect(getByTestId('route-search-bar-icon')).toBeTruthy()
     })
 
     it('clear button is hidden when input is empty', () => {
-      const { queryByTestId } = render(<RouteSearchBar onSearch={jest.fn()} />)
+      const { queryByTestId } = render(<RouteSearchBar onSearch={vi.fn()} />)
       expect(queryByTestId('route-search-bar-clear')).toBeNull()
     })
   })
@@ -186,18 +191,18 @@ describe('RouteSearchBar', () => {
    */
   describe('AC2: fires onSearch after 300ms debounce', () => {
     it('does not call onSearch before 300ms', () => {
-      const onSearch = jest.fn()
+      const onSearch = vi.fn()
       const { getByTestId } = render(<RouteSearchBar onSearch={onSearch} />)
       fireEvent.changeText(getByTestId('route-search-bar-input'), 'morn')
-      jest.advanceTimersByTime(299)
+      vi.advanceTimersByTime(299)
       expect(onSearch).not.toHaveBeenCalled()
     })
 
     it('calls onSearch with the typed value after 300ms', () => {
-      const onSearch = jest.fn()
+      const onSearch = vi.fn()
       const { getByTestId } = render(<RouteSearchBar onSearch={onSearch} />)
       fireEvent.changeText(getByTestId('route-search-bar-input'), 'morn')
-      jest.advanceTimersByTime(300)
+      vi.advanceTimersByTime(300)
       expect(onSearch).toHaveBeenCalledTimes(1)
       expect(onSearch).toHaveBeenCalledWith('morn')
     })
@@ -208,29 +213,29 @@ describe('RouteSearchBar', () => {
    */
   describe('AC3: debounces rapid typing to a single call', () => {
     it('fires onSearch only once when multiple keystrokes happen within 300ms', () => {
-      const onSearch = jest.fn()
+      const onSearch = vi.fn()
       const { getByTestId } = render(<RouteSearchBar onSearch={onSearch} />)
       const input = getByTestId('route-search-bar-input')
 
       fireEvent.changeText(input, 'm')
-      jest.advanceTimersByTime(50)
+      vi.advanceTimersByTime(50)
       fireEvent.changeText(input, 'mo')
-      jest.advanceTimersByTime(50)
+      vi.advanceTimersByTime(50)
       fireEvent.changeText(input, 'mor')
-      jest.advanceTimersByTime(50)
+      vi.advanceTimersByTime(50)
       fireEvent.changeText(input, 'morn')
-      jest.advanceTimersByTime(50)
+      vi.advanceTimersByTime(50)
       fireEvent.changeText(input, 'morni')
-      jest.advanceTimersByTime(50)
+      vi.advanceTimersByTime(50)
       fireEvent.changeText(input, 'mornin')
-      jest.advanceTimersByTime(50)
+      vi.advanceTimersByTime(50)
       fireEvent.changeText(input, 'morning')
 
       // Still within debounce window - no calls yet
       expect(onSearch).not.toHaveBeenCalled()
 
       // Advance past the debounce delay
-      jest.advanceTimersByTime(300)
+      vi.advanceTimersByTime(300)
 
       expect(onSearch).toHaveBeenCalledTimes(1)
       expect(onSearch).toHaveBeenCalledWith('morning')
@@ -242,18 +247,18 @@ describe('RouteSearchBar', () => {
    */
   describe('AC4: clear button resets and fires onSearch immediately', () => {
     it('shows the clear button after text is entered', () => {
-      const { getByTestId } = render(<RouteSearchBar onSearch={jest.fn()} />)
+      const { getByTestId } = render(<RouteSearchBar onSearch={vi.fn()} />)
       fireEvent.changeText(getByTestId('route-search-bar-input'), 'test')
       expect(getByTestId('route-search-bar-clear')).toBeTruthy()
     })
 
     it('calls onSearch("") immediately when clear is pressed (no debounce)', () => {
-      const onSearch = jest.fn()
+      const onSearch = vi.fn()
       const { getByTestId } = render(<RouteSearchBar onSearch={onSearch} />)
 
       fireEvent.changeText(getByTestId('route-search-bar-input'), 'test')
       // Clear any pending debounce timers
-      jest.clearAllTimers()
+      vi.clearAllTimers()
       onSearch.mockClear()
 
       act(() => {
@@ -266,14 +271,14 @@ describe('RouteSearchBar', () => {
     })
 
     it('hides clear button after pressing it', () => {
-      const { getByTestId, queryByTestId } = render(<RouteSearchBar onSearch={jest.fn()} />)
+      const { getByTestId, queryByTestId } = render(<RouteSearchBar onSearch={vi.fn()} />)
       fireEvent.changeText(getByTestId('route-search-bar-input'), 'test')
       fireEvent.press(getByTestId('route-search-bar-clear'))
       expect(queryByTestId('route-search-bar-clear')).toBeNull()
     })
 
     it('cancels the pending debounce when clear is pressed', () => {
-      const onSearch = jest.fn()
+      const onSearch = vi.fn()
       const { getByTestId } = render(<RouteSearchBar onSearch={onSearch} />)
 
       fireEvent.changeText(getByTestId('route-search-bar-input'), 'test')
@@ -282,7 +287,7 @@ describe('RouteSearchBar', () => {
       onSearch.mockClear()
 
       // Advance timers — the old debounce should not fire
-      jest.advanceTimersByTime(300)
+      vi.advanceTimersByTime(300)
       expect(onSearch).not.toHaveBeenCalled()
     })
   })
@@ -292,7 +297,7 @@ describe('RouteSearchBar', () => {
    */
   describe('AC5: uses semantic theme tokens for visual properties', () => {
     it('container background uses semantic.color.surfaceVariant.default', () => {
-      const { getByTestId } = render(<RouteSearchBar onSearch={jest.fn()} />)
+      const { getByTestId } = render(<RouteSearchBar onSearch={vi.fn()} />)
       const container = getByTestId('route-search-bar')
       const flatStyle = Array.isArray(container.props.style)
         ? Object.assign({}, ...container.props.style.flat().filter(Boolean))
@@ -301,7 +306,7 @@ describe('RouteSearchBar', () => {
     })
 
     it('container borderRadius uses semantic.radius.lg', () => {
-      const { getByTestId } = render(<RouteSearchBar onSearch={jest.fn()} />)
+      const { getByTestId } = render(<RouteSearchBar onSearch={vi.fn()} />)
       const container = getByTestId('route-search-bar')
       const flatStyle = Array.isArray(container.props.style)
         ? Object.assign({}, ...container.props.style.flat().filter(Boolean))
@@ -310,7 +315,7 @@ describe('RouteSearchBar', () => {
     })
 
     it('text input color uses semantic.color.onSurface.default', () => {
-      const { getByTestId } = render(<RouteSearchBar onSearch={jest.fn()} />)
+      const { getByTestId } = render(<RouteSearchBar onSearch={vi.fn()} />)
       const input = getByTestId('route-search-bar-input')
       const flatStyle = Array.isArray(input.props.style)
         ? Object.assign({}, ...input.props.style.flat().filter(Boolean))
@@ -319,7 +324,7 @@ describe('RouteSearchBar', () => {
     })
 
     it('placeholder color uses semantic.color.onSurface.subtle', () => {
-      const { getByTestId } = render(<RouteSearchBar onSearch={jest.fn()} />)
+      const { getByTestId } = render(<RouteSearchBar onSearch={vi.fn()} />)
       const input = getByTestId('route-search-bar-input')
       expect(input.props.placeholderTextColor).toBe(mockSemanticTheme.color.onSurface.subtle)
     })

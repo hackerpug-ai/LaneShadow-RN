@@ -8,6 +8,7 @@
  * - AC4: Rain overlay has no segment data for a leg → Leg renders in default neutral color (gray)
  */
 
+import { describe, it, expect } from 'vitest'
 import type { ExtendedTheme } from '../../styles/types'
 import { getRainColor, getWindColor, getTemperatureColor } from './overlay-colors'
 
@@ -33,6 +34,10 @@ describe('overlay-colors', () => {
       border: { default: '#CAC4D0' },
       input: { default: '#CAC4D0' },
       ring: { default: '#6750A4' },
+    locationPoiFill: { default: '#EDEDED' },
+    locationPoiRing: { default: '#B87333' },
+    locationPoiMuted: { default: '#A3A3A3' },
+    locationPoiBg: { default: '#F3EFE8' },
       card: { default: '#FFFFFF' },
       popover: { default: '#FFFFFF' },
       accent: { default: '#FF6B35' },

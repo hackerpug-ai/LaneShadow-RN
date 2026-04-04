@@ -4,10 +4,14 @@
  */
 process.env.NODE_ENV = 'test'
 
+import { fileURLToPath } from 'node:url'
 import dotenv from 'dotenv'
 import fs from 'node:fs'
 import path from 'node:path'
 import { vi } from 'vitest'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const loadFirstEnvFile = () => {
   const rootDir = path.resolve(__dirname)

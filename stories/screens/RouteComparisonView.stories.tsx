@@ -16,7 +16,12 @@ const mockRoutes: PlannedRouteOptionView[] = [
     },
     map: {
       bounds: { north: 37.8, south: 37.7, east: -122.3, west: -122.5 },
-      overviewGeometry: 'encoded_polyline_string',
+      overviewGeometry: {
+        format: 'polyline' as const,
+        encoding: 'utf8',
+        precision: 5,
+        value: 'encoded_polyline_string',
+      },
       legs: [],
     },
     overlaysPreview: {
@@ -39,7 +44,12 @@ const mockRoutes: PlannedRouteOptionView[] = [
     },
     map: {
       bounds: { north: 37.8, south: 37.7, east: -122.3, west: -122.5 },
-      overviewGeometry: 'encoded_polyline_string',
+      overviewGeometry: {
+        format: 'polyline' as const,
+        encoding: 'utf8',
+        precision: 5,
+        value: 'encoded_polyline_string',
+      },
       legs: [],
     },
     overlaysPreview: {
@@ -62,7 +72,12 @@ const mockRoutes: PlannedRouteOptionView[] = [
     },
     map: {
       bounds: { north: 37.8, south: 37.7, east: -122.3, west: -122.5 },
-      overviewGeometry: 'encoded_polyline_string',
+      overviewGeometry: {
+        format: 'polyline' as const,
+        encoding: 'utf8',
+        precision: 5,
+        value: 'encoded_polyline_string',
+      },
       legs: [],
     },
     overlaysPreview: {

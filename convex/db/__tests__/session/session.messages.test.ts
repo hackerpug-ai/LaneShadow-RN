@@ -185,7 +185,7 @@ describe('sendHandler', () => {
     )
     const afterTime = Date.now()
 
-    const insertCall = (ctx.db.insert as vi.Mock).mock.calls[0]
+    const insertCall = (ctx.db.insert as any).mock.calls[0]
     const createdAt = insertCall[1].createdAt
 
     expect(createdAt).toBeGreaterThanOrEqual(beforeTime)
@@ -482,7 +482,7 @@ describe('addSystemMessageHandler', () => {
     })
     const afterTime = Date.now()
 
-    const insertCall = (ctx.db.insert as vi.Mock).mock.calls[0]
+    const insertCall = (ctx.db.insert as any).mock.calls[0]
     const createdAt = insertCall[1].createdAt
 
     expect(createdAt).toBeGreaterThanOrEqual(beforeTime)

@@ -7,12 +7,14 @@ import { DrawerMenu } from '../ui/menus/drawer-menu'
 const DRAWER_WIDTH = 280
 
 export type MenuLayoutProps = {
-  children: React.ReactNode
+  children: React.ReactNode | ((onMenuPress: () => void) => React.ReactNode)
   headerTitle?: string
   alignment?: 'left' | 'right'
   testID?: string
-  menuOpen: boolean
-  onMenuOpenChange: (open: boolean) => void
+  menuOpen?: boolean
+  onMenuOpenChange?: (open: boolean) => void
+  sections?: DrawerMenuSection[]
+  footerItems?: DrawerMenuItem[]
 }
 
 export const MenuLayout = ({
@@ -20,15 +22,17 @@ export const MenuLayout = ({
   headerTitle = 'Menu',
   alignment = 'left',
   testID,
-  menuOpen,
+  menuOpen = false,
   onMenuOpenChange,
+  sections: externalSections,
+  footerItems: externalFooterItems,
 }: MenuLayoutProps) => {
   const router = useRouter()
   const segments = useSegments()
   const activeTab = segments[2] ?? 'index'
 
   const [contentOffset] = useState(new Animated.Value(0))
-  const menuSections: DrawerMenuSection[] = [
+  const internalMenuSections: DrawerMenuSection[] = [
     {
       title: 'Navigate',
       items: [
@@ -54,7 +58,10 @@ export const MenuLayout = ({
     },
   ]
 
-  const footerItems: DrawerMenuItem[] = []
+  const internalFooterItems: DrawerMenuItem[] = []
+
+  const menuSections = externalSections || internalMenuSections
+  const footerItems = externalFooterItems || internalFooterItems
   useEffect(() => {
     const offset = menuOpen ? DRAWER_WIDTH : 0
     const finalValue = alignment === 'left' ? offset : -offset
@@ -104,7 +111,7 @@ export const MenuLayout = ({
           },
         ]}
       >
-        {children}
+        {typeof children === 'function' ? children(() => onMenuOpenChange?.(false)) : children}
       </Animated.View>
     </View>
   )

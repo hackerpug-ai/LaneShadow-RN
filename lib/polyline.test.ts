@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { decodePolylineGeometry, computeCumulativeDistances, slicePolylineByMeters } from './polyline'
 
 describe('polyline utils', () => {

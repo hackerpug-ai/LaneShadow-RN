@@ -41,7 +41,7 @@ const meta: Meta<typeof OverlayPill> = {
     },
   },
   args: {
-    icon: 'air',
+    icon: 'weather-windy',
     label: 'Wind',
     active: false,
     iconSize: 16,
@@ -53,7 +53,7 @@ type Story = StoryObj<typeof OverlayPill>
 
 export const Default: Story = {
   args: {
-    icon: 'air',
+    icon: 'weather-windy',
     label: 'Wind',
     active: false,
   },
@@ -61,7 +61,7 @@ export const Default: Story = {
 
 export const Active: Story = {
   args: {
-    icon: 'air',
+    icon: 'weather-windy',
     label: 'Wind',
     active: true,
   },
@@ -69,7 +69,7 @@ export const Active: Story = {
 
 export const Rain: Story = {
   args: {
-    icon: 'water-drop',
+    icon: 'water',
     label: 'Rain',
     active: false,
   },
@@ -93,8 +93,8 @@ export const AllOverlays: Story = {
         justifyContent: 'center',
       }}
     >
-      <OverlayPill icon="air" label="Wind" active />
-      <OverlayPill icon="water-drop" label="Rain" />
+      <OverlayPill icon="weather-windy" label="Wind" active />
+      <OverlayPill icon="water" label="Rain" />
       <OverlayPill icon="thermometer" label="Temp" />
     </View>
   ),

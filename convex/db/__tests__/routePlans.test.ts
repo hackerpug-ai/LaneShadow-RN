@@ -6,7 +6,7 @@
  */
 
 import { ConvexError } from 'convex/values'
-import { vi, beforeEach, afterEach } from 'vitest'
+import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest'
 
 import { ERROR_CODES } from '../../errors'
 import type { Id } from '../../_generated/dataModel'
@@ -72,18 +72,18 @@ describe('createPlanHandler', () => {
   it('AC-1: inserts plan with status=pending and returns routePlanId', async () => {
     const ctx = {
       db: {
-        query: jest.fn().mockReturnValue({
-          withIndex: jest.fn().mockReturnValue({
-            filter: jest.fn().mockReturnValue({
-              first: jest.fn().mockResolvedValue(null),
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            filter: vi.fn().mockReturnValue({
+              first: vi.fn().mockResolvedValue(null),
             }),
           }),
         }),
-        insert: jest.fn().mockResolvedValue(PLAN_ID),
-        patch: jest.fn().mockResolvedValue(undefined),
+        insert: vi.fn().mockResolvedValue(PLAN_ID),
+        patch: vi.fn().mockResolvedValue(undefined),
       },
       scheduler: {
-        runAfter: jest.fn().mockResolvedValue(SCHEDULED_ACTION_ID),
+        runAfter: vi.fn().mockResolvedValue(SCHEDULED_ACTION_ID),
       },
     }
 
@@ -109,18 +109,18 @@ describe('createPlanHandler', () => {
   it('AC-1: schedules executePlan action and patches scheduledActionId', async () => {
     const ctx = {
       db: {
-        query: jest.fn().mockReturnValue({
-          withIndex: jest.fn().mockReturnValue({
-            filter: jest.fn().mockReturnValue({
-              first: jest.fn().mockResolvedValue(null),
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            filter: vi.fn().mockReturnValue({
+              first: vi.fn().mockResolvedValue(null),
             }),
           }),
         }),
-        insert: jest.fn().mockResolvedValue(PLAN_ID),
-        patch: jest.fn().mockResolvedValue(undefined),
+        insert: vi.fn().mockResolvedValue(PLAN_ID),
+        patch: vi.fn().mockResolvedValue(undefined),
       },
       scheduler: {
-        runAfter: jest.fn().mockResolvedValue(SCHEDULED_ACTION_ID),
+        runAfter: vi.fn().mockResolvedValue(SCHEDULED_ACTION_ID),
       },
     }
 
@@ -145,18 +145,18 @@ describe('createPlanHandler', () => {
     const existingPlan = makePlanDoc({ status: 'pending' })
     const ctx = {
       db: {
-        query: jest.fn().mockReturnValue({
-          withIndex: jest.fn().mockReturnValue({
-            filter: jest.fn().mockReturnValue({
-              first: jest.fn().mockResolvedValue(existingPlan),
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            filter: vi.fn().mockReturnValue({
+              first: vi.fn().mockResolvedValue(existingPlan),
             }),
           }),
         }),
-        insert: jest.fn(),
-        patch: jest.fn(),
+        insert: vi.fn(),
+        patch: vi.fn(),
       },
       scheduler: {
-        runAfter: jest.fn(),
+        runAfter: vi.fn(),
       },
     }
 
@@ -175,10 +175,10 @@ describe('createPlanHandler', () => {
     let callCount = 0
     const ctx = {
       db: {
-        query: jest.fn().mockReturnValue({
-          withIndex: jest.fn().mockReturnValue({
-            filter: jest.fn().mockReturnValue({
-              first: jest.fn().mockImplementation(() => {
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            filter: vi.fn().mockReturnValue({
+              first: vi.fn().mockImplementation(() => {
                 callCount++
                 if (callCount === 1) return Promise.resolve(null)
                 return Promise.resolve(existingPlan)
@@ -186,11 +186,11 @@ describe('createPlanHandler', () => {
             }),
           }),
         }),
-        insert: jest.fn(),
-        patch: jest.fn(),
+        insert: vi.fn(),
+        patch: vi.fn(),
       },
       scheduler: {
-        runAfter: jest.fn(),
+        runAfter: vi.fn(),
       },
     }
 
@@ -208,10 +208,10 @@ describe('getActivePlanHandler', () => {
   it('AC-2: returns null when no active plan exists', async () => {
     const ctx = {
       db: {
-        query: jest.fn().mockReturnValue({
-          withIndex: jest.fn().mockReturnValue({
-            filter: jest.fn().mockReturnValue({
-              first: jest.fn().mockResolvedValue(null),
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            filter: vi.fn().mockReturnValue({
+              first: vi.fn().mockResolvedValue(null),
             }),
           }),
         }),
@@ -226,10 +226,10 @@ describe('getActivePlanHandler', () => {
     const pendingPlan = makePlanDoc({ status: 'pending' })
     const ctx = {
       db: {
-        query: jest.fn().mockReturnValue({
-          withIndex: jest.fn().mockReturnValue({
-            filter: jest.fn().mockReturnValue({
-              first: jest.fn().mockResolvedValue(pendingPlan),
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            filter: vi.fn().mockReturnValue({
+              first: vi.fn().mockResolvedValue(pendingPlan),
             }),
           }),
         }),
@@ -245,10 +245,10 @@ describe('getActivePlanHandler', () => {
     let callCount = 0
     const ctx = {
       db: {
-        query: jest.fn().mockReturnValue({
-          withIndex: jest.fn().mockReturnValue({
-            filter: jest.fn().mockReturnValue({
-              first: jest.fn().mockImplementation(() => {
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            filter: vi.fn().mockReturnValue({
+              first: vi.fn().mockImplementation(() => {
                 callCount++
                 if (callCount === 1) return Promise.resolve(null) // pending
                 return Promise.resolve(runningPlan) // running
@@ -273,7 +273,7 @@ describe('getPlanByIdHandler', () => {
     const plan = makePlanDoc()
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(plan),
+        get: vi.fn().mockResolvedValue(plan),
       },
     }
 
@@ -289,7 +289,7 @@ describe('getPlanByIdHandler', () => {
   it('AC-3: throws PLAN_NOT_FOUND when plan does not exist', async () => {
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(null),
+        get: vi.fn().mockResolvedValue(null),
       },
     }
 
@@ -306,7 +306,7 @@ describe('getPlanByIdHandler', () => {
     const plan = makePlanDoc({ clerkUserId: 'other_user_456' })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(plan),
+        get: vi.fn().mockResolvedValue(plan),
       },
     }
 
@@ -325,8 +325,8 @@ describe('updatePlanStatusHandler', () => {
     const plan = makePlanDoc({ status: 'pending' })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(plan),
-        patch: jest.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(plan),
+        patch: vi.fn().mockResolvedValue(undefined),
       },
     }
 
@@ -348,8 +348,8 @@ describe('updatePlanStatusHandler', () => {
     const plan = makePlanDoc({ status: 'running' })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(plan),
-        patch: jest.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(plan),
+        patch: vi.fn().mockResolvedValue(undefined),
       },
     }
 
@@ -373,8 +373,8 @@ describe('updatePlanStatusHandler', () => {
     const plan = makePlanDoc({ status: 'running' })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(plan),
-        patch: jest.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(plan),
+        patch: vi.fn().mockResolvedValue(undefined),
       },
     }
 
@@ -400,8 +400,8 @@ describe('updatePlanStatusHandler', () => {
     const plan = makePlanDoc({ status: 'pending' })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(plan),
-        patch: jest.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(plan),
+        patch: vi.fn().mockResolvedValue(undefined),
       },
     }
 
@@ -432,11 +432,11 @@ describe('cancelPlanHandler', () => {
     })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(plan),
-        patch: jest.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(plan),
+        patch: vi.fn().mockResolvedValue(undefined),
       },
       scheduler: {
-        cancel: jest.fn().mockResolvedValue(undefined),
+        cancel: vi.fn().mockResolvedValue(undefined),
       },
     }
 
@@ -456,11 +456,11 @@ describe('cancelPlanHandler', () => {
     })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(plan),
-        patch: jest.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(plan),
+        patch: vi.fn().mockResolvedValue(undefined),
       },
       scheduler: {
-        cancel: jest.fn().mockResolvedValue(undefined),
+        cancel: vi.fn().mockResolvedValue(undefined),
       },
     }
 
@@ -473,11 +473,11 @@ describe('cancelPlanHandler', () => {
     const plan = makePlanDoc({ status: 'pending' }) // no scheduledActionId
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(plan),
-        patch: jest.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(plan),
+        patch: vi.fn().mockResolvedValue(undefined),
       },
       scheduler: {
-        cancel: jest.fn(),
+        cancel: vi.fn(),
       },
     }
 
@@ -493,11 +493,11 @@ describe('cancelPlanHandler', () => {
   it('AC-5: throws PLAN_NOT_FOUND when plan does not exist', async () => {
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(null),
-        patch: jest.fn(),
+        get: vi.fn().mockResolvedValue(null),
+        patch: vi.fn(),
       },
       scheduler: {
-        cancel: jest.fn(),
+        cancel: vi.fn(),
       },
     }
 
@@ -510,11 +510,11 @@ describe('cancelPlanHandler', () => {
     const plan = makePlanDoc({ clerkUserId: 'other_user_789' })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(plan),
-        patch: jest.fn(),
+        get: vi.fn().mockResolvedValue(plan),
+        patch: vi.fn(),
       },
       scheduler: {
-        cancel: jest.fn(),
+        cancel: vi.fn(),
       },
     }
 

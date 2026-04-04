@@ -69,11 +69,11 @@ export const TemperatureBadge = ({
 
   // Partial map: only define icons we know
   const ICONS: Partial<Record<TemperatureLevelKnown, React.ReactNode>> = {
-    cold: <IconSymbol name="snowflake-thermometer" size={14} />,
-    mild: <IconSymbol name="thermometer" size={14} />,
-    warm: <IconSymbol name="thermometer-low" size={14} />,
-    hot: <IconSymbol name="thermometer-high" size={14} />,
-    unavailable: <IconSymbol name="help-circle-outline" size={14} />,
+    cold: <IconSymbol name="snowflake-thermometer" size={14} color={semantic.color.onSurface.subtle} />,
+    mild: <IconSymbol name="thermometer" size={14} color={semantic.color.onSurface.subtle} />,
+    warm: <IconSymbol name="thermometer-low" size={14} color={semantic.color.onSurface.subtle} />,
+    hot: <IconSymbol name="thermometer-high" size={14} color={semantic.color.onSurface.subtle} />,
+    unavailable: <IconSymbol name="help-circle-outline" size={14} color={semantic.color.onSurface.subtle} />,
   }
 
   // Safe getter with dev warning + graceful fallback

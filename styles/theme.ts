@@ -129,7 +129,6 @@ const lightSemanticTheme: SemanticTheme = {
     ring: createColorSet('#B87333', '#C58545', '#8C5A2B', '#E3C3A5'),
 
     // Location / POI (map + location UI accents) - HEX only
-    locationPoiDisabled: createColorSet('#BFB8B0'),
     locationPoiFill: createColorSet('#2C2A28', '#353230', '#1F1D1B', '#BFB8B0'),
     locationPoiRing: createColorSet('#B87333', '#C58545', '#8C5A2B', '#BFB8B0'),
     locationPoiMuted: createColorSet('#6E6A64', '#7A7670', '#5F5B56', '#BFB8B0'),
@@ -276,7 +275,6 @@ const darkSemanticTheme: SemanticTheme = {
     ring: createColorSet('#B87333', '#C58545', '#8C5A2B', '#6A3F1F'),
 
     // Location / POI (map + location UI accents) - HEX only
-    locationPoiDisabled: createColorSet('#5A5652'),
     locationPoiFill: createColorSet('#EDEDED', '#FFFFFF', '#DADADA', '#5A5652'),
     locationPoiRing: createColorSet('#B87333', '#C58545', '#8C5A2B', '#5A5652'),
     locationPoiMuted: createColorSet('#A3A3A3', '#B0B0B0', '#8F8F8F', '#5A5652'),

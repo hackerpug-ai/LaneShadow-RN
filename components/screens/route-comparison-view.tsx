@@ -190,12 +190,13 @@ export const RouteComparisonView = ({
                         </Text>
                       </View>
                       {isSelected && (
-                        <IconSymbol
-                          name="check-circle"
-                          size={20}
-                          color={semantic.color.primary.default}
-                          testID={`${testID}-route-${route.routeOptionId}-selected`}
-                        />
+                        <View testID={`${testID}-route-${route.routeOptionId}-selected`}>
+                          <IconSymbol
+                            name="check-circle"
+                            size={20}
+                            color={semantic.color.primary.default}
+                          />
+                        </View>
                       )}
                     </View>
                   </View>

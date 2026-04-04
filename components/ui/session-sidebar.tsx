@@ -90,7 +90,7 @@ export const SessionSidebar: React.FC<SessionSidebarProps> = ({
     if (sessions.length === 0) return null;
     return (
       <View key={title} style={styles.group}>
-        <Text style={[styles.groupTitle, { color: theme.colors.text.muted }]}>
+        <Text style={[styles.groupTitle, { color: semantic.color.onSurface.subtle }]}>
           {title}
         </Text>
         <View style={styles.groupSessions}>{sessions.map(renderSessionCard)}</View>

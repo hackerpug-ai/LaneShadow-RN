@@ -22,7 +22,8 @@
     "storybook:generate": "sb-rn-get-stories",
     "storybook": "EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start --clear",
     "storybook:ios": "EXPO_PUBLIC_STORYBOOK_ENABLED=true expo run:ios",
-    "storybook:android": "EXPO_PUBLIC_STORYBOOK_ENABLED=true expo run:android"
+    "storybook:android": "EXPO_PUBLIC_STORYBOOK_ENABLED=true expo run:android",
+    "prepare": "husky"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.50",
@@ -96,6 +97,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.0",
     "eslint-plugin-react-native": "^5.0.0",
+    "husky": "^9.1.7",
     "jsdom": "^29.0.1",
     "prettier": "^3.6.2",
     "react-test-renderer": "19.1.0",

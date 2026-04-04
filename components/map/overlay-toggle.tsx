@@ -17,6 +17,17 @@ import { ToggleGroup, useToggleGroup } from '../ui/toggle-group'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 /**
+ * Add opacity to a hex color
+ */
+const addOpacity = (hexColor: string, opacity: number): string => {
+  const hex = hexColor.replace('#', '')
+  const r = parseInt(hex.substring(0, 2), 16)
+  const g = parseInt(hex.substring(2, 4), 16)
+  const b = parseInt(hex.substring(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`
+}
+
+/**
  * Overlay type for map visualizations
  */
 export type OverlayType = 'wind' | 'rain' | 'temperature'
@@ -215,7 +226,7 @@ const OverlayToggleItem = ({
       accessibilityLabel={label}
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled, selected: isSelected }}
-      android_ripple={{ color: semantic.color.primary.container ?? semantic.color.primary.default }}
+      android_ripple={{ color: addOpacity(semantic.color.primary.default, 0.2) }}
     >
       <View
         style={[

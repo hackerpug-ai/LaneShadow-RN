@@ -17,32 +17,32 @@
 // Mocks
 // ---------------------------------------------------------------------------
 
-const mockPush = jest.fn()
+const mockPush = vi.fn()
 
-jest.mock('react-native', () => ({
+vi.mock('react-native', () => ({
   FlatList: 'FlatList',
   RefreshControl: 'RefreshControl',
   StyleSheet: { create: (s: Record<string, unknown>) => s },
   View: 'View',
   Animated: {
-    Value: jest.fn(),
+    Value: vi.fn(),
     View: 'Animated.View',
-    loop: jest.fn(),
-    sequence: jest.fn(),
-    timing: jest.fn(),
+    loop: vi.fn(),
+    sequence: vi.fn(),
+    timing: vi.fn(),
   },
 }))
-jest.mock('react-native-paper', () => ({
+vi.mock('react-native-paper', () => ({
   Text: 'Text',
   useTheme: () => ({ semantic: {} }),
 }))
-jest.mock('react-native-safe-area-context', () => ({
+vi.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ bottom: 0 }),
 }))
-jest.mock('expo-router', () => ({
+vi.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush }),
 }))
-jest.mock('../../../hooks/use-semantic-theme', () => ({
+vi.mock('../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({
     semantic: {
       color: {
@@ -77,7 +77,7 @@ const mockHookReturn = {
   isLoading: true,
 }
 
-jest.mock('react-native-gesture-handler', () => {
+vi.mock('react-native-gesture-handler', () => {
   const React = require('react')
   return {
     Swipeable: React.forwardRef(function MockSwipeable(
@@ -88,45 +88,45 @@ jest.mock('react-native-gesture-handler', () => {
     }),
   }
 })
-jest.mock('react-native-notifier', () => ({
+vi.mock('react-native-notifier', () => ({
   Notifier: {
-    showNotification: jest.fn(),
-    hideNotification: jest.fn(),
+    showNotification: vi.fn(),
+    hideNotification: vi.fn(),
   },
 }))
-jest.mock('../../../hooks/use-saved-routes', () => ({
+vi.mock('../../../hooks/use-saved-routes', () => ({
   useSavedRoutesList: () => mockHookReturn,
   useSoftDeleteRoute: () => ({
-    run: jest.fn(),
+    run: vi.fn(),
     isRunning: false,
     error: null,
-    resetError: jest.fn(),
+    resetError: vi.fn(),
   }),
   useUndoDeleteRoute: () => ({
-    run: jest.fn(),
+    run: vi.fn(),
     isRunning: false,
     error: null,
-    resetError: jest.fn(),
+    resetError: vi.fn(),
   }),
 }))
-jest.mock('../../../components/ui/saved-route-card', () => ({
+vi.mock('../../../components/ui/saved-route-card', () => ({
   SavedRouteCard: 'SavedRouteCard',
 }))
-jest.mock('../../../components/ui/saved-route-card.utils', () => ({
+vi.mock('../../../components/ui/saved-route-card.utils', () => ({
   formatDate: (ts: number) => new Date(ts).toLocaleDateString(),
 }))
-jest.mock('../../../components/ui/skeleton', () => ({ Skeleton: 'Skeleton' }))
-jest.mock('../../../components/ui/empty-state', () => ({
+vi.mock('../../../components/ui/skeleton', () => ({ Skeleton: 'Skeleton' }))
+vi.mock('../../../components/ui/empty-state', () => ({
   EmptyState: 'EmptyState',
 }))
-jest.mock('../../../components/ui/delete-route-dialog', () => ({
+vi.mock('../../../components/ui/delete-route-dialog', () => ({
   DeleteRouteDialog: 'DeleteRouteDialog',
 }))
-jest.mock('../../../lib/notifier-helpers', () => ({
-  showSuccessNotification: jest.fn(),
-  showErrorNotification: jest.fn(),
+vi.mock('../../../lib/notifier-helpers', () => ({
+  showSuccessNotification: vi.fn(),
+  showErrorNotification: vi.fn(),
 }))
-jest.mock('./saved-routes.components', () => {
+vi.mock('./saved-routes.components', () => {
   const React = require('react')
   return {
     SkeletonCard: 'SkeletonCard',
@@ -136,6 +136,7 @@ jest.mock('./saved-routes.components', () => {
   }
 })
 
+import { vi, describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
 import {

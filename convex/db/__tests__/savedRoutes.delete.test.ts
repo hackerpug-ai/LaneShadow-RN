@@ -1,17 +1,18 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { ConvexError } from 'convex/values'
 
 import { deleteById } from '../savedRoutes'
 
 const makeCtx = (doc: Record<string, unknown> | null = null) => ({
   db: {
-    get: jest.fn().mockResolvedValue(doc),
-    delete: jest.fn().mockResolvedValue(undefined),
+    get: vi.fn().mockResolvedValue(doc),
+    delete: vi.fn().mockResolvedValue(undefined),
   },
   auth: {
-    getUserIdentity: jest.fn().mockResolvedValue({ subject: 'user_123' }),
+    getUserIdentity: vi.fn().mockResolvedValue({ subject: 'user_123' }),
   },
-  runQuery: jest.fn(),
-  runMutation: jest.fn(),
+  runQuery: vi.fn(),
+  runMutation: vi.fn(),
 })
 
 const SAVED_ROUTE_ID = 'saved_routes_id_abc123' as any

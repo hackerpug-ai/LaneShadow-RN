@@ -8,6 +8,7 @@
  * - AC4: No route selected → Overlay toggle is hidden
  */
 
+import { vi, describe, it, expect } from 'vitest'
 import { render, fireEvent } from '@testing-library/react-native'
 import { PaperProvider, MD3DarkTheme } from 'react-native-paper'
 import type { OverlayAvailability, OverlayType } from './overlay-toggle'
@@ -40,6 +41,10 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     border: { default: '#CAC4D0' },
     input: { default: '#CAC4D0' },
     ring: { default: '#6750A4' },
+    locationPoiFill: { default: '#EDEDED' },
+    locationPoiRing: { default: '#B87333' },
+    locationPoiMuted: { default: '#A3A3A3' },
+    locationPoiBg: { default: '#F3EFE8' },
     card: { default: '#FFFFFF' },
     popover: { default: '#FFFFFF' },
     accent: { default: '#FF6B35' },
@@ -107,7 +112,7 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
 }
 
 // Mock useSemanticTheme hook
-jest.mock('../../hooks/use-semantic-theme', () => ({
+vi.mock('../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
@@ -127,7 +132,7 @@ describe('overlay-toggle', () => {
    */
   describe('switch to rain', () => {
     it('should satisfy AC1: switches to rain overlay when rain toggle is pressed', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: true,
         rain: true,
@@ -151,7 +156,7 @@ describe('overlay-toggle', () => {
     })
 
     it('should select rain overlay when no overlay is currently selected', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: true,
         rain: true,
@@ -181,7 +186,7 @@ describe('overlay-toggle', () => {
    */
   describe('disabled toggle', () => {
     it('should satisfy AC2: shows rain toggle as disabled when rain data is unavailable', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: true,
         rain: false, // Rain data unavailable
@@ -210,7 +215,7 @@ describe('overlay-toggle', () => {
     })
 
     it('should show visual indication for disabled toggle', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: true,
         rain: false,
@@ -233,7 +238,7 @@ describe('overlay-toggle', () => {
     })
 
     it('should handle all overlays unavailable', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: false,
         rain: false,
@@ -262,7 +267,7 @@ describe('overlay-toggle', () => {
    */
   describe('single selection', () => {
     it('should satisfy AC3: deselects temperature when wind is selected', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: true,
         rain: true,
@@ -286,7 +291,7 @@ describe('overlay-toggle', () => {
     })
 
     it('should deselect wind when rain is selected', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: true,
         rain: true,
@@ -310,7 +315,7 @@ describe('overlay-toggle', () => {
     })
 
     it('should allow deselection by selecting the same overlay', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: true,
         rain: true,
@@ -344,7 +349,7 @@ describe('overlay-toggle', () => {
    */
   describe('hidden when no route', () => {
     it('should satisfy AC4: component renders when route is selected', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: true,
         rain: true,
@@ -365,7 +370,7 @@ describe('overlay-toggle', () => {
     })
 
     it('should render with empty value when no overlay is selected', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: true,
         rain: true,
@@ -397,7 +402,7 @@ describe('overlay-toggle', () => {
    */
   describe('edge cases', () => {
     it('should handle multi-tap race condition', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: true,
         rain: true,
@@ -426,7 +431,7 @@ describe('overlay-toggle', () => {
     })
 
     it('should handle partial overlay availability', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: true,
         rain: false, // No rain data
@@ -451,7 +456,7 @@ describe('overlay-toggle', () => {
     })
 
     it('should switch between overlays correctly', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: true,
         rain: true,
@@ -494,7 +499,7 @@ describe('overlay-toggle', () => {
    */
   describe('accessibility', () => {
     it('should have proper accessibility labels', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: true,
         rain: true,
@@ -516,7 +521,7 @@ describe('overlay-toggle', () => {
     })
 
     it('should have proper accessibility roles', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: true,
         rain: true,
@@ -538,7 +543,7 @@ describe('overlay-toggle', () => {
     })
 
     it('should indicate selected state in accessibility', () => {
-      const onValueChange = jest.fn()
+      const onValueChange = vi.fn()
       const availability: OverlayAvailability = {
         wind: true,
         rain: true,

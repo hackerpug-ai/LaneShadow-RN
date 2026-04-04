@@ -8,6 +8,7 @@
  * - AC4: Delete button text uses semantic.color.danger.default color
  */
 
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 import React from 'react'
 import { render, fireEvent } from '@testing-library/react-native'
 
@@ -90,12 +91,12 @@ const mockSemanticTheme = {
 }
 
 // Mock useSemanticTheme hook
-jest.mock('../../../hooks/use-semantic-theme', () => ({
+vi.mock('../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
 // Mock react-native-paper Dialog, Portal, Button, Text
-jest.mock('react-native-paper', () => {
+vi.mock('react-native-paper', () => {
   const { View, Text: RNText, Pressable } = require('react-native')
   const { createElement } = require('react')
 
@@ -142,8 +143,8 @@ import { DeleteRouteDialog } from '../delete-route-dialog'
 const defaultProps = {
   visible: true,
   routeName: 'Morning Ride',
-  onConfirm: jest.fn(),
-  onDismiss: jest.fn(),
+  onConfirm: vi.fn(),
+  onDismiss: vi.fn(),
 }
 
 // ---------------------------------------------------------------------------
@@ -152,7 +153,7 @@ const defaultProps = {
 
 describe('DeleteRouteDialog', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   /**
@@ -214,7 +215,7 @@ describe('DeleteRouteDialog', () => {
    */
   describe('AC2: Cancel button fires onDismiss', () => {
     it('calls onDismiss when Cancel is pressed', () => {
-      const onDismiss = jest.fn()
+      const onDismiss = vi.fn()
       const { getByTestId } = render(
         <DeleteRouteDialog {...defaultProps} onDismiss={onDismiss} />
       )
@@ -223,8 +224,8 @@ describe('DeleteRouteDialog', () => {
     })
 
     it('does not call onConfirm when Cancel is pressed', () => {
-      const onConfirm = jest.fn()
-      const onDismiss = jest.fn()
+      const onConfirm = vi.fn()
+      const onDismiss = vi.fn()
       const { getByTestId } = render(
         <DeleteRouteDialog {...defaultProps} onConfirm={onConfirm} onDismiss={onDismiss} />
       )
@@ -238,7 +239,7 @@ describe('DeleteRouteDialog', () => {
    */
   describe('AC3: Delete button fires onConfirm', () => {
     it('calls onConfirm when Delete is pressed', () => {
-      const onConfirm = jest.fn()
+      const onConfirm = vi.fn()
       const { getByTestId } = render(
         <DeleteRouteDialog {...defaultProps} onConfirm={onConfirm} />
       )
@@ -247,8 +248,8 @@ describe('DeleteRouteDialog', () => {
     })
 
     it('does not call onDismiss when Delete is pressed', () => {
-      const onConfirm = jest.fn()
-      const onDismiss = jest.fn()
+      const onConfirm = vi.fn()
+      const onDismiss = vi.fn()
       const { getByTestId } = render(
         <DeleteRouteDialog {...defaultProps} onConfirm={onConfirm} onDismiss={onDismiss} />
       )

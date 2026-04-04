@@ -4,7 +4,7 @@
  */
 import type { Meta, StoryObj } from '@storybook/react-native'
 import React, { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, Text } from 'react-native'
 import { MapControls } from '../../components/map/map-controls'
 
 const meta: Meta<typeof MapControls> = {
@@ -20,19 +20,15 @@ const meta: Meta<typeof MapControls> = {
   },
   argTypes: {
     onZoomIn: {
-      control: 'function',
       description: 'Callback when zoom in button pressed',
     },
     onZoomOut: {
-      control: 'function',
       description: 'Callback when zoom out button pressed',
     },
     onRecenter: {
-      control: 'function',
       description: 'Callback when recenter button pressed',
     },
     onClear: {
-      control: 'function',
       description: 'Callback when clear button pressed',
     },
   },

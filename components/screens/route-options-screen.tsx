@@ -13,15 +13,16 @@ import type { ExtendedTheme } from '../../styles/types'
 import { RouteOptionCard } from '../ui/route-option-card'
 import { PrimaryButton } from '../ui/primary-button'
 import { SectionHeader } from '../ui/section-header'
+import type { IconName } from '../ui/icon-symbol'
 
 export type RouteOptionData = {
   id: string
   name: string
   variant: 'selected' | 'compact'
-  badges?: Array<{ icon?: string; label: string; variant?: 'primary' | 'neutral' }>
-  stats?: Array<{ icon: string; value: string }>
+  badges?: Array<{ icon?: IconName; label: string; variant?: 'primary' | 'neutral' }>
+  stats?: Array<{ icon: IconName; value: string }>
   weatherSummary?: string
-  weatherIcon?: string
+  weatherIcon?: IconName
   compactStats?: string
 }
 

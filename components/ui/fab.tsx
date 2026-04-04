@@ -15,9 +15,10 @@ export type FABProps = {
   onPress: () => void
   visible?: boolean
   testID?: string
+  style?: any
 }
 
-export const FAB = ({ icon, label, onPress, visible = true, testID }: FABProps) => {
+export const FAB = ({ icon, label, onPress, visible = true, testID, style }: FABProps) => {
   const { semantic } = useSemanticTheme()
 
   return (
@@ -27,10 +28,13 @@ export const FAB = ({ icon, label, onPress, visible = true, testID }: FABProps) 
       onPress={onPress}
       visible={visible}
       testID={testID}
-      style={{
-        backgroundColor: semantic.color.primary.default,
-        borderRadius: semantic.radius['xl'],
-      }}
+      style={[
+        {
+          backgroundColor: semantic.color.primary.default,
+          borderRadius: semantic.radius['xl'],
+        },
+        style,
+      ]}
       color={semantic.color.onSurface.default}
     />
   )

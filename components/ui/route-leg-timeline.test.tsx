@@ -9,6 +9,7 @@
  * - AC4: Empty legs array → timeline section hidden, no crash
  */
 
+import { vi, describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react-native'
 import { PaperProvider, MD3DarkTheme } from 'react-native-paper'
 import { RouteLegTimeline } from './route-leg-timeline'
@@ -45,6 +46,10 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     border: { default: '#CAC4D0' },
     input: { default: '#CAC4D0' },
     ring: { default: '#6750A4' },
+    locationPoiFill: { default: '#EDEDED' },
+    locationPoiRing: { default: '#B87333' },
+    locationPoiMuted: { default: '#A3A3A3' },
+    locationPoiBg: { default: '#F3EFE8' },
     card: { default: '#FFFFFF' },
     popover: { default: '#FFFFFF' },
     accent: { default: '#FF6B35' },
@@ -115,11 +120,11 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
 // Mocks
 // ---------------------------------------------------------------------------
 
-jest.mock('../../hooks/use-semantic-theme', () => ({
+vi.mock('../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
-jest.mock('expo-linear-gradient', () => {
+vi.mock('expo-linear-gradient', () => {
   const { View } = require('react-native')
   return {
     LinearGradient: (props: Record<string, unknown>) => {
@@ -131,7 +136,7 @@ jest.mock('expo-linear-gradient', () => {
 
 // Mock WindBadge and RainBadge - they have their own test coverage
 // and wind-badge uses @expo/vector-icons which requires extra babel transform
-jest.mock('../planning/wind-badge', () => {
+vi.mock('../planning/wind-badge', () => {
   const { View, Text } = require('react-native')
   return {
     WindBadge: ({ windLevel, testID }: { windLevel: string; testID?: string }) => (
@@ -142,7 +147,7 @@ jest.mock('../planning/wind-badge', () => {
   }
 })
 
-jest.mock('./rain-badge', () => {
+vi.mock('./rain-badge', () => {
   const { View, Text } = require('react-native')
   return {
     RainBadge: ({ rainSummary, testID }: { rainSummary: string; testID?: string }) => (

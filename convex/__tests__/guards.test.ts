@@ -1,13 +1,14 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { ConvexError } from 'convex/values'
 
 import { ensureSession, requireIdentity } from '../guards'
 
 const makeCtx = (identity: Record<string, unknown> | null) => ({
   auth: {
-    getUserIdentity: jest.fn().mockResolvedValue(identity),
+    getUserIdentity: vi.fn().mockResolvedValue(identity),
   },
-  runQuery: jest.fn(),
-  runMutation: jest.fn(),
+  runQuery: vi.fn(),
+  runMutation: vi.fn(),
 })
 
 const clerkIdentity = {

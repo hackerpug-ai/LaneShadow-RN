@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
 import type { RouteSketch } from '../../../../../models/route-sketch'
 import type { PlanInput } from '../../../../../models/saved-routes'
 import { createWeatherProvider } from '../../providers/weatherProvider'
@@ -27,7 +28,7 @@ const sketch: RouteSketch = {
   anchorPoints: [{ name: 'Mid', kind: 'junction', lat: 37.25, lng: -122.25 }],
 }
 
-const makeIntegrationFetch = (): jest.Mock => {
+const makeIntegrationFetch = (): Mock => {
   const googleJson = {
     routes: [
       {
@@ -63,7 +64,7 @@ const makeIntegrationFetch = (): jest.Mock => {
     },
   }
 
-  return jest.fn(async (url: string) => {
+  return vi.fn(async (url: string) => {
     if (url.startsWith('https://routes.googleapis.com/directions/v2:computeRoutes')) {
       return {
         ok: true,
@@ -93,7 +94,7 @@ describe('agent tools integration', () => {
   })
 
   afterEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   it('compiles, normalizes, indexes, probes, and maps wind overlay deterministically', async () => {

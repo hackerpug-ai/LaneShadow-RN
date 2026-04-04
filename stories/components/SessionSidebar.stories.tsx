@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-native';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 import { SessionSidebar, ChatSession } from '../../components/ui/session-sidebar';
 
 const meta: Meta<typeof SessionSidebar> = {

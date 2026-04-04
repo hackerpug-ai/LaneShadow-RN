@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
 import * as reliability from '../../lib/reliability'
 import { createWeatherProvider } from '../weatherProvider'
 
@@ -14,13 +15,13 @@ const okWeatherPayload = {
 
 describe('weather provider reliability', () => {
   afterEach(() => {
-    jest.useRealTimers()
-    jest.resetAllMocks()
+    vi.useRealTimers()
+    vi.resetAllMocks()
   })
 
   it('retries once on transient HTTP failure then succeeds', async () => {
     let call = 0
-    ;(global.fetch as jest.Mock) = jest.fn(async () => {
+    ;(global.fetch as Mock) = vi.fn(async () => {
       call += 1
       if (call === 1) {
         return { ok: false, status: 500, json: async () => ({}) }
@@ -39,7 +40,7 @@ describe('weather provider reliability', () => {
   it('bounds concurrency to MAX_CONCURRENT (8)', async () => {
     let active = 0
     let maxSeen = 0
-    ;(global.fetch as jest.Mock) = jest.fn(
+    ;(global.fetch as Mock) = vi.fn(
       (_url: string, { signal }: { signal?: AbortSignal } = {}) =>
         new Promise((resolve, reject) => {
           active += 1
@@ -71,12 +72,12 @@ describe('weather provider reliability', () => {
   })
 
   it('times out and surfaces timeout error after retry', async () => {
-    const withTimeoutSpy = jest
+    const withTimeoutSpy = vi
       .spyOn(reliability, 'withTimeout')
       .mockImplementation(async (_op, { label }) => {
         throw new Error(label ? `TIMEOUT:${label}` : 'TIMEOUT')
       })
-    ;(global.fetch as jest.Mock) = jest.fn(async () => ({
+    ;(global.fetch as Mock) = vi.fn(async () => ({
       ok: true,
       status: 200,
       json: async () => okWeatherPayload,
@@ -85,7 +86,7 @@ describe('weather provider reliability', () => {
     const provider = createWeatherProvider()
     const points = [{ lat: 37, lng: -122, distanceFromStartMeters: 0 }]
     await expect(provider.getWindAtPoints({ points, departureTimeMs })).rejects.toThrow(/TIMEOUT/)
-    expect(global.fetch as jest.Mock).not.toHaveBeenCalled()
+    expect(global.fetch as Mock).not.toHaveBeenCalled()
     withTimeoutSpy.mockRestore()
   })
 })

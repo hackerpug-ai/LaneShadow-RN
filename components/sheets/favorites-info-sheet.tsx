@@ -18,6 +18,17 @@ import { BottomActionSheet } from '../ui/bottom-action-sheet'
 import { Button } from '../ui/button'
 import { IconSymbol } from '../ui/icon-symbol'
 
+/**
+ * Add opacity to a hex color
+ */
+const addOpacity = (hexColor: string, opacity: number): string => {
+  const hex = hexColor.replace('#', '')
+  const r = parseInt(hex.substring(0, 2), 16)
+  const g = parseInt(hex.substring(2, 4), 16)
+  const b = parseInt(hex.substring(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`
+}
+
 export type FavoritesInfoSheetProps = {
   visible: boolean
   onClose: () => void
@@ -60,7 +71,7 @@ export const FavoritesInfoSheet = ({
               alignSelf: 'center',
               padding: semantic.space.md,
               borderRadius: semantic.radius.full,
-              backgroundColor: semantic.color.primary.subtle,
+              backgroundColor: addOpacity(semantic.color.primary.default, 0.15),
             },
           ]}
         >
@@ -88,7 +99,7 @@ export const FavoritesInfoSheet = ({
           style={[
             styles.list,
             {
-              backgroundColor: semantic.color.surface.subtle,
+              backgroundColor: addOpacity(semantic.color.surface.default, 0.5),
               borderRadius: semantic.radius.md,
               padding: semantic.space.md,
               gap: semantic.space.sm,

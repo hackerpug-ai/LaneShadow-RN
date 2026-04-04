@@ -28,8 +28,8 @@ function resetStateStore() {
   stateCounter = 0
 }
 
-jest.mock('react', () => {
-  const actualReact = jest.requireActual('react')
+vi.mock('react', () => {
+  const actualReact = vi.importActual('react')
   return {
     ...actualReact,
     useState: (initial: any) => {
@@ -58,54 +58,55 @@ jest.mock('react', () => {
 // Mocks — must be declared before imports
 // ---------------------------------------------------------------------------
 
-const mockBack = jest.fn()
-jest.mock('expo-router', () => ({
+const mockBack = vi.fn()
+vi.mock('expo-router', () => ({
   useRouter: () => ({ back: mockBack }),
 }))
 
-const mockRenameRun = jest.fn().mockResolvedValue(null)
-const mockSoftDeleteRun = jest.fn().mockResolvedValue({ scheduledDeletionId: 'sched_123' })
-const mockUndoDeleteRun = jest.fn().mockResolvedValue(null)
+const mockRenameRun = vi.fn().mockResolvedValue(null)
+const mockSoftDeleteRun = vi.fn().mockResolvedValue({ scheduledDeletionId: 'sched_123' })
+const mockUndoDeleteRun = vi.fn().mockResolvedValue(null)
 
-jest.mock('../../../../hooks/use-saved-routes', () => ({
+vi.mock('../../../../hooks/use-saved-routes', () => ({
   useRenameRoute: () => ({
     run: mockRenameRun,
     isRunning: false,
     error: null,
-    resetError: jest.fn(),
+    resetError: vi.fn(),
   }),
   useSoftDeleteRoute: () => ({
     run: mockSoftDeleteRun,
     isRunning: false,
     error: null,
-    resetError: jest.fn(),
+    resetError: vi.fn(),
   }),
   useUndoDeleteRoute: () => ({
     run: mockUndoDeleteRun,
     isRunning: false,
     error: null,
-    resetError: jest.fn(),
+    resetError: vi.fn(),
   }),
 }))
 
-const mockShowNotification = jest.fn()
-const mockHideNotification = jest.fn()
-jest.mock('react-native-notifier', () => ({
+const mockShowNotification = vi.fn()
+const mockHideNotification = vi.fn()
+vi.mock('react-native-notifier', () => ({
   Notifier: {
     showNotification: (...args: unknown[]) => mockShowNotification(...args),
     hideNotification: (...args: unknown[]) => mockHideNotification(...args),
   },
 }))
 
-jest.mock('../../../../lib/notifier-helpers', () => ({
-  showSuccessNotification: jest.fn(),
-  showErrorNotification: jest.fn(),
+vi.mock('../../../../lib/notifier-helpers', () => ({
+  showSuccessNotification: vi.fn(),
+  showErrorNotification: vi.fn(),
 }))
 
 // ---------------------------------------------------------------------------
 // Import after mocks
 // ---------------------------------------------------------------------------
 
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { useRouteActions } from '../use-route-actions'
 
 /**
@@ -124,7 +125,7 @@ function callHook(savedRouteId: string | null) {
 
 describe('useRouteActions', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     resetStateStore()
   })
 

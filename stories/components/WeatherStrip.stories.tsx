@@ -30,9 +30,24 @@ const meta: Meta<typeof WeatherStrip> = {
   },
   args: {
     overlays: {
-      rain: { byLeg: [{ legIndex: 0, segments: [{ start: 0, end: 1000, level: 'none' }] }] },
-      wind: { byLeg: [{ legIndex: 0, segments: [{ start: 0, end: 1000, level: 'low' }] }] },
-      temperature: { byLeg: [{ legIndex: 0, segments: [{ start: 0, end: 1000, level: 'mild' }] }] },
+      rain: {
+        generatedAt: Date.now(),
+        modelVersion: 'test-v1',
+        legend: [{ level: 'none', label: 'No Rain' }],
+        byLeg: [{ legIndex: 0, segments: [{ startMeters: 0, endMeters: 1000, level: 'none' }] }],
+      },
+      wind: {
+        generatedAt: Date.now(),
+        modelVersion: 'test-v1',
+        legend: [{ level: 'low', label: 'Low Wind' }],
+        byLeg: [{ legIndex: 0, segments: [{ startMeters: 0, endMeters: 1000, level: 'low' }] }],
+      },
+      temperature: {
+        generatedAt: Date.now(),
+        modelVersion: 'test-v1',
+        legend: [{ level: 'mild', label: 'Mild' }],
+        byLeg: [{ legIndex: 0, segments: [{ startMeters: 0, endMeters: 1000, level: 'mild' }] }],
+      },
     } as RouteOverlays,
   },
 }
@@ -46,9 +61,24 @@ const createOverlays = (conditions: {
   wind?: 'low' | 'moderate' | 'high'
   temperature?: 'cold' | 'mild' | 'warm' | 'hot'
 }): RouteOverlays => ({
-  rain: { byLeg: [{ legIndex: 0, segments: [{ start: 0, end: 1000, level: conditions.rain ?? 'none' }] }] },
-  wind: { byLeg: [{ legIndex: 0, segments: [{ start: 0, end: 1000, level: conditions.wind ?? 'low' }] }] },
-  temperature: { byLeg: [{ legIndex: 0, segments: [{ start: 0, end: 1000, level: conditions.temperature ?? 'mild' }] }] },
+  rain: {
+    generatedAt: Date.now(),
+    modelVersion: 'test-v1',
+    legend: [{ level: 'none', label: 'No Rain' }],
+    byLeg: [{ legIndex: 0, segments: [{ startMeters: 0, endMeters: 1000, level: conditions.rain ?? 'none' }] }],
+  },
+  wind: {
+    generatedAt: Date.now(),
+    modelVersion: 'test-v1',
+    legend: [{ level: 'low', label: 'Low Wind' }],
+    byLeg: [{ legIndex: 0, segments: [{ startMeters: 0, endMeters: 1000, level: conditions.wind ?? 'low' }] }],
+  },
+  temperature: {
+    generatedAt: Date.now(),
+    modelVersion: 'test-v1',
+    legend: [{ level: 'mild', label: 'Mild' }],
+    byLeg: [{ legIndex: 0, segments: [{ startMeters: 0, endMeters: 1000, level: conditions.temperature ?? 'mild' }] }],
+  },
 })
 
 export const GoodConditions: Story = {

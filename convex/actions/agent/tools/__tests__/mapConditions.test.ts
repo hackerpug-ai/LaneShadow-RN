@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import type { RouteIndex, RouteSnapshot } from '../../../../../models/saved-routes'
 import { mapConditions } from '../mapConditions'
 import type { ProbedWindPoint } from '../probeConditions'

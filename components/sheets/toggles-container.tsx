@@ -76,7 +76,7 @@ export const TogglesContainer = ({
             ]}
           >
             <IconSymbol
-              name="add-road"
+              name="road-variant"
               size={20}
               color={semantic.color.onSurface.muted}
             />
@@ -117,7 +117,7 @@ export const TogglesContainer = ({
               },
             ]}
           >
-            <IconSymbol name="toll" size={20} color={semantic.color.onSurface.muted} />
+            <IconSymbol name="cash" size={20} color={semantic.color.onSurface.muted} />
           </View>
           <Text
             variant="bodyMedium"

@@ -11,7 +11,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ConvexError } from 'convex/values'
 import type { Doc, Id } from '../../_generated/dataModel'
-import type { MutationCtx, QueryCtx } from '../../_generated/server'
 import {
   insertHandler,
   listHandler,
@@ -19,7 +18,32 @@ import {
   insertFavoriteRoadInputValidator,
 } from '../favoriteRoads'
 
-// Mock types for testing
+// Mock types for testing (matching internal types from favoriteRoads.ts)
+type InsertCtx = {
+  db: { insert: (table: string, fields: object) => Promise<Id<'favorite_roads'>> }
+}
+
+type ListCtx = {
+  db: {
+    query: (
+      table: string
+    ) => {
+      withIndex: (indexName: string, fn: (q: any) => any) => {
+        order: (direction: 'asc' | 'desc') => {
+          collect: () => Promise<Array<Doc<'favorite_roads'>>>
+        }
+      }
+    }
+  }
+}
+
+type RemoveCtx = {
+  db: {
+    get: (id: Id<'favorite_roads'>) => Promise<Doc<'favorite_roads'> | null>
+    delete: (id: Id<'favorite_roads'>) => Promise<void>
+  }
+}
+
 type MockInsert = (
   table: string,
   fields: object
@@ -56,7 +80,7 @@ describe('favoriteRoads', () => {
         auth: {
           getUserIdentity: mockGetUserIdentity,
         },
-      } as unknown as MutationCtx
+      } as unknown as InsertCtx
 
       const args = {
         name: 'Scenic Route 66',
@@ -92,17 +116,11 @@ describe('favoriteRoads', () => {
       const clerkUserId = 'user_def456'
       const mockInsert = vi.fn<MockInsert>().mockResolvedValue(mockFavoriteId)
 
-      const mockCtx = {
+      const mockCtx: InsertCtx = {
         db: {
           insert: mockInsert,
         },
-        auth: {
-          getUserIdentity: vi.fn().mockResolvedValue({
-            subject: clerkUserId,
-            tokenIdentifier: null,
-          }),
-        },
-      } as unknown as MutationCtx
+      }
 
       const args = {
         name: 'Highway 101',
@@ -179,11 +197,11 @@ describe('favoriteRoads', () => {
         }),
       })
 
-      const mockCtx = {
+      const mockCtx: ListCtx = {
         db: {
           query: mockQuery,
         },
-      } as unknown as QueryCtx
+      }
 
       // Act
       const result = await listHandler(mockCtx, clerkUserId)
@@ -209,11 +227,11 @@ describe('favoriteRoads', () => {
         }),
       })
 
-      const mockCtx = {
+      const mockCtx: ListCtx = {
         db: {
           query: mockQuery,
         },
-      } as unknown as QueryCtx
+      }
 
       // Act
       const result = await listHandler(mockCtx, clerkUserId)
@@ -247,7 +265,7 @@ describe('favoriteRoads', () => {
           get: mockGet,
           delete: mockDelete,
         },
-      } as unknown as MutationCtx
+      } as unknown as RemoveCtx
 
       const args = { favoriteRoadId: favoriteId }
 
@@ -282,7 +300,7 @@ describe('favoriteRoads', () => {
         db: {
           get: mockGet,
         },
-      } as unknown as MutationCtx
+      } as unknown as RemoveCtx
 
       const args = { favoriteRoadId: favoriteId }
 
@@ -304,7 +322,7 @@ describe('favoriteRoads', () => {
         db: {
           get: mockGet,
         },
-      } as unknown as MutationCtx
+      } as unknown as RemoveCtx
 
       const args = { favoriteRoadId: favoriteId }
 
@@ -326,7 +344,7 @@ describe('favoriteRoads', () => {
           get: vi.fn(),
           delete: vi.fn(),
         },
-      } as unknown as MutationCtx
+      } as unknown as RemoveCtx
 
       const args = { favoriteRoadId: favoriteId }
 

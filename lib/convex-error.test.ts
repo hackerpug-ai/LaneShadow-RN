@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { getServerErrorCode, getUserFacingError } from './convex-error'
 
 describe('convex-error helpers', () => {

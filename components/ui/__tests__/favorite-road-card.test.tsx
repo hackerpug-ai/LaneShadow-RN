@@ -8,6 +8,7 @@
  * - AC4: Given card rendered, when mini map displays, then shows road segment geometry
  */
 
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 import React from 'react'
 import { render, fireEvent } from '@testing-library/react-native'
 
@@ -90,12 +91,12 @@ const mockSemanticTheme = {
 }
 
 // Mock useSemanticTheme hook
-jest.mock('../../../hooks/use-semantic-theme', () => ({
+vi.mock('../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
 // Mock react-native-paper Text
-jest.mock('react-native-paper', () => {
+vi.mock('react-native-paper', () => {
   const { View, Text: RNText, Pressable } = require('react-native')
   const { createElement } = require('react')
 
@@ -106,7 +107,7 @@ jest.mock('react-native-paper', () => {
 })
 
 // Mock RouteThumbnail component
-jest.mock('../route-thumbnail', () => ({
+vi.mock('../route-thumbnail', () => ({
   RouteThumbnail: ({ width, height, testID }: any) => {
     const { View } = require('react-native')
     return React.createElement(View, { testID, style: { width, height } })
@@ -114,7 +115,7 @@ jest.mock('../route-thumbnail', () => ({
 }))
 
 // Mock Card component
-jest.mock('../card', () => {
+vi.mock('../card', () => {
   const { View } = require('react-native')
   const { createElement } = require('react')
 
@@ -125,7 +126,7 @@ jest.mock('../card', () => {
 })
 
 // Mock Button component
-jest.mock('../button', () => {
+vi.mock('../button', () => {
   const { Pressable } = require('react-native')
   const { createElement } = require('react')
 
@@ -173,7 +174,7 @@ const mockFavorite: any = {
 
 const defaultProps = {
   favorite: mockFavorite,
-  onDelete: jest.fn(),
+  onDelete: vi.fn(),
 }
 
 // ---------------------------------------------------------------------------
@@ -182,7 +183,7 @@ const defaultProps = {
 
 describe('FavoriteRoadCard', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   /**
@@ -285,7 +286,7 @@ describe('FavoriteRoadCard', () => {
    */
   describe('AC3: Delete confirmation', () => {
     it('should call onDelete when delete is confirmed', () => {
-      const mockOnDelete = jest.fn()
+      const mockOnDelete = vi.fn()
       const { getByTestId } = render(
         <FavoriteRoadCard {...defaultProps} onDelete={mockOnDelete} />
       )
@@ -336,7 +337,7 @@ describe('FavoriteRoadCard', () => {
       const { getByTestId, getByText } = render(
         <FavoriteRoadCard
           favorite={favoriteWithoutBounds}
-          onDelete={jest.fn()}
+          onDelete={vi.fn()}
         />
       )
 

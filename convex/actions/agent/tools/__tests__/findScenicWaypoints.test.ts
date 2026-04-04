@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { computeBbox, findScenicWaypoints } from '../findScenicWaypoints'
 import type { RouteVariant } from '../findScenicWaypoints'
 
@@ -26,11 +27,11 @@ const makeOverpassResponse = (elements: ReturnType<typeof makeNode>[]) => ({
 })
 
 const setupFetch = (response: ReturnType<typeof makeOverpassResponse>) => {
-  ;(globalThis as { fetch: unknown }).fetch = jest.fn(async () => response)
+  ;(globalThis as { fetch: unknown }).fetch = vi.fn(async () => response)
 }
 
 const setupFetchError = (error: Error) => {
-  ;(globalThis as { fetch: unknown }).fetch = jest.fn(async () => {
+  ;(globalThis as { fetch: unknown }).fetch = vi.fn(async () => {
     throw error
   })
 }
@@ -44,7 +45,7 @@ const END = { lat: 38.5, lng: -119.0 }
 
 describe('findScenicWaypoints', () => {
   afterEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   it('returns clustered variants from valid Overpass response', async () => {
@@ -112,7 +113,7 @@ describe('findScenicWaypoints', () => {
 
   it('returns fallback on Overpass timeout', async () => {
     // Simulate a timeout by having fetch reject with a timeout-like error
-    ;(globalThis as { fetch: unknown }).fetch = jest.fn(async () => {
+    ;(globalThis as { fetch: unknown }).fetch = vi.fn(async () => {
       await new Promise((_, reject) =>
         setTimeout(() => reject(new Error('TIMEOUT:overpass')), 10)
       )

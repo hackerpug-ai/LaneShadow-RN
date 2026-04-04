@@ -1,8 +1,9 @@
+import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
 import type { RouteSketch } from '../../../../../models/route-sketch'
 import type { PlanInput } from '../../../../../models/saved-routes'
 import { compileSketch } from '../compileSketch'
 
-const mockGoogleRoutesOkFetch = (): jest.Mock => {
+const mockGoogleRoutesOkFetch = (): Mock => {
   const json = {
     routes: [
       {
@@ -24,7 +25,7 @@ const mockGoogleRoutesOkFetch = (): jest.Mock => {
     ],
   }
 
-  return jest.fn(async (url: string) => {
+  return vi.fn(async (url: string) => {
     if (url.startsWith('https://routes.googleapis.com/directions/v2:computeRoutes')) {
       return {
         ok: true,
@@ -59,7 +60,7 @@ describe('compileSketch', () => {
   })
 
   afterEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   it('returns provider response with expected fields', async () => {

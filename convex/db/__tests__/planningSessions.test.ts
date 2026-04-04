@@ -5,6 +5,7 @@
  * unit-tested without a running Convex backend.
  */
 
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { ConvexError } from 'convex/values'
 
 import { ERROR_CODES } from '../../errors'
@@ -42,7 +43,7 @@ describe('createSessionHandler', () => {
   it('AC-1: inserts session with status=active and returns sessionId', async () => {
     const ctx = {
       db: {
-        insert: jest.fn().mockResolvedValue(SESSION_ID),
+        insert: vi.fn().mockResolvedValue(SESSION_ID),
       },
     }
 
@@ -68,7 +69,7 @@ describe('createSessionHandler', () => {
   it('AC-1: truncates title to first 50 characters', async () => {
     const ctx = {
       db: {
-        insert: jest.fn().mockResolvedValue(SESSION_ID),
+        insert: vi.fn().mockResolvedValue(SESSION_ID),
       },
     }
 
@@ -109,10 +110,10 @@ describe('listSessionsHandler', () => {
 
     const ctx = {
       db: {
-        query: jest.fn().mockReturnValue({
-          withIndex: jest.fn().mockReturnValue({
-            order: jest.fn().mockReturnValue({
-              collect: jest.fn().mockResolvedValue([
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            order: vi.fn().mockReturnValue({
+              collect: vi.fn().mockResolvedValue([
                 sessions[2], // session3 (newest)
                 sessions[1], // session2
                 sessions[0], // session1 (oldest)
@@ -134,10 +135,10 @@ describe('listSessionsHandler', () => {
   it('AC-2: returns empty array when user has no sessions', async () => {
     const ctx = {
       db: {
-        query: jest.fn().mockReturnValue({
-          withIndex: jest.fn().mockReturnValue({
-            order: jest.fn().mockReturnValue({
-              collect: jest.fn().mockResolvedValue([]),
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            order: vi.fn().mockReturnValue({
+              collect: vi.fn().mockResolvedValue([]),
             }),
           }),
         }),
@@ -159,7 +160,7 @@ describe('getSessionByIdHandler', () => {
     const session = makeSessionDoc()
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(session),
+        get: vi.fn().mockResolvedValue(session),
       },
     }
 
@@ -175,7 +176,7 @@ describe('getSessionByIdHandler', () => {
   it('AC-3: throws SESSION_NOT_FOUND when session does not exist', async () => {
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(null),
+        get: vi.fn().mockResolvedValue(null),
       },
     }
 
@@ -192,7 +193,7 @@ describe('getSessionByIdHandler', () => {
     const session = makeSessionDoc({ clerkUserId: 'other_user_456' })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(session),
+        get: vi.fn().mockResolvedValue(session),
       },
     }
 
@@ -211,8 +212,8 @@ describe('archiveSessionHandler', () => {
     const session = makeSessionDoc({ status: 'active' })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(session),
-        patch: jest.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(session),
+        patch: vi.fn().mockResolvedValue(undefined),
       },
     }
 
@@ -230,8 +231,8 @@ describe('archiveSessionHandler', () => {
   it('AC-4: throws SESSION_NOT_FOUND when session does not exist', async () => {
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(null),
-        patch: jest.fn(),
+        get: vi.fn().mockResolvedValue(null),
+        patch: vi.fn(),
       },
     }
 
@@ -244,8 +245,8 @@ describe('archiveSessionHandler', () => {
     const session = makeSessionDoc({ clerkUserId: 'other_user_789' })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(session),
-        patch: jest.fn(),
+        get: vi.fn().mockResolvedValue(session),
+        patch: vi.fn(),
       },
     }
 
@@ -262,14 +263,14 @@ describe('archiveSessionHandler', () => {
     })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(session),
-        patch: jest.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(session),
+        patch: vi.fn().mockResolvedValue(undefined),
       },
     }
 
     await archiveSessionHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID)
 
-    const patchCall = (ctx.db.patch as jest.Mock).mock.calls[0]
+    const patchCall = (ctx.db.patch as any).mock.calls[0]
     const newUpdatedAt = patchCall[1].updatedAt
 
     expect(newUpdatedAt).toBeGreaterThan(oldTimestamp)

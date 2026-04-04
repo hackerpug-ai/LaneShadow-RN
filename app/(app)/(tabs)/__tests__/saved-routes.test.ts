@@ -8,19 +8,21 @@
  * - AC4: Swipe gesture still works inside SwipeableRouteCard (no conflict)
  */
 
+import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
+
 /* eslint-disable @typescript-eslint/no-require-imports */
 
-const mockPush = jest.fn()
-const mockBack = jest.fn()
+const mockPush = vi.fn()
+const mockBack = vi.fn()
 
-const mockSwipeableClose = jest.fn()
+const mockSwipeableClose = vi.fn()
 const mockSwipeableInstances: Array<{
-  close: jest.Mock
+  close: Mock
   renderRightActions: (() => unknown) | null
   onSwipeableOpen: ((direction: string) => void) | null
 }> = []
 
-jest.mock('react-native', () => ({
+vi.mock('react-native', () => ({
   FlatList: 'FlatList',
   Pressable: 'Pressable',
   RefreshControl: 'RefreshControl',
@@ -29,15 +31,15 @@ jest.mock('react-native', () => ({
   TextInput: 'TextInput',
   View: 'View',
   Animated: {
-    Value: jest.fn(),
+    Value: vi.fn(),
     View: 'Animated.View',
-    loop: jest.fn(),
-    sequence: jest.fn(),
-    timing: jest.fn(),
+    loop: vi.fn(),
+    sequence: vi.fn(),
+    timing: vi.fn(),
   },
 }))
 
-jest.mock('react-native-paper', () => ({
+vi.mock('react-native-paper', () => ({
   Text: 'Text',
   useTheme: () => ({
     semantic: {
@@ -83,19 +85,19 @@ jest.mock('react-native-paper', () => ({
   Portal: ({ children }: { children: unknown }) => children,
 }))
 
-jest.mock('react-native-safe-area-context', () => ({
+vi.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ bottom: 0 }),
 }))
 
-jest.mock('expo-router', () => ({
+vi.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush, back: mockBack }),
 }))
 
-jest.mock('@expo/vector-icons', () => ({
+vi.mock('@expo/vector-icons', () => ({
   MaterialCommunityIcons: 'MaterialCommunityIcons',
 }))
 
-jest.mock('react-native-gesture-handler', () => {
+vi.mock('react-native-gesture-handler', () => {
   const React = require('react')
   return {
     Swipeable: React.forwardRef(function MockSwipeable(
@@ -122,14 +124,14 @@ jest.mock('react-native-gesture-handler', () => {
   }
 })
 
-jest.mock('react-native-notifier', () => ({
+vi.mock('react-native-notifier', () => ({
   Notifier: {
-    showNotification: jest.fn(),
-    hideNotification: jest.fn(),
+    showNotification: vi.fn(),
+    hideNotification: vi.fn(),
   },
 }))
 
-jest.mock('../../../../hooks/use-semantic-theme', () => ({
+vi.mock('../../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({
     semantic: {
       color: {
@@ -167,57 +169,57 @@ jest.mock('../../../../hooks/use-semantic-theme', () => ({
   }),
 }))
 
-const mockSoftDeleteRun = jest.fn().mockResolvedValue({ scheduledDeletionId: 'sched_123' })
-const mockUndoDeleteRun = jest.fn().mockResolvedValue(null)
+const mockSoftDeleteRun = vi.fn().mockResolvedValue({ scheduledDeletionId: 'sched_123' })
+const mockUndoDeleteRun = vi.fn().mockResolvedValue(null)
 
 const mockHookReturn = {
   data: undefined as { routes: Array<Record<string, unknown>> } | undefined,
   isLoading: true,
 }
 
-jest.mock('../../../../hooks/use-saved-routes', () => ({
+vi.mock('../../../../hooks/use-saved-routes', () => ({
   useSavedRoutesList: () => mockHookReturn,
   useSoftDeleteRoute: () => ({
     run: mockSoftDeleteRun,
     isRunning: false,
     error: null,
-    resetError: jest.fn(),
+    resetError: vi.fn(),
   }),
   useUndoDeleteRoute: () => ({
     run: mockUndoDeleteRun,
     isRunning: false,
     error: null,
-    resetError: jest.fn(),
+    resetError: vi.fn(),
   }),
 }))
 
-jest.mock('../../../../lib/notifier-helpers', () => ({
-  showSuccessNotification: jest.fn(),
-  showErrorNotification: jest.fn(),
+vi.mock('../../../../lib/notifier-helpers', () => ({
+  showSuccessNotification: vi.fn(),
+  showErrorNotification: vi.fn(),
 }))
 
-jest.mock('../../../../components/ui/route-thumbnail', () => ({
+vi.mock('../../../../components/ui/route-thumbnail', () => ({
   RouteThumbnail: 'RouteThumbnail',
 }))
 // For screen-level tests (AC1 fire, AC4) we mock SavedRouteCard as a string
 // For SavedRouteCard unit tests (AC1-3 structural), we require the real component
-jest.mock('../../../../components/ui/saved-route-card', () => ({
+vi.mock('../../../../components/ui/saved-route-card', () => ({
   SavedRouteCard: 'SavedRouteCard',
 }))
-jest.mock('../../../../components/ui/saved-route-card.utils', () => ({
+vi.mock('../../../../components/ui/saved-route-card.utils', () => ({
   formatDate: (ts: number) => new Date(ts).toLocaleDateString(),
 }))
-jest.mock('../../../../components/ui/skeleton', () => ({ Skeleton: 'Skeleton' }))
-jest.mock('../../../../components/ui/empty-state', () => ({
+vi.mock('../../../../components/ui/skeleton', () => ({ Skeleton: 'Skeleton' }))
+vi.mock('../../../../components/ui/empty-state', () => ({
   EmptyState: 'EmptyState',
 }))
-jest.mock('../../../../components/ui/route-search-bar', () => ({
+vi.mock('../../../../components/ui/route-search-bar', () => ({
   RouteSearchBar: 'RouteSearchBar',
 }))
-jest.mock('../../../../components/ui/date-range-picker', () => ({
+vi.mock('../../../../components/ui/date-range-picker', () => ({
   DateRangePicker: 'DateRangePicker',
 }))
-jest.mock('../../../../components/ui/delete-route-dialog', () => ({
+vi.mock('../../../../components/ui/delete-route-dialog', () => ({
   DeleteRouteDialog: 'DeleteRouteDialog',
 }))
 
@@ -247,7 +249,7 @@ const makeRoute = (
 })
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockSwipeableInstances.length = 0
   mockHookReturn.data = undefined
   mockHookReturn.isLoading = true

@@ -9,6 +9,7 @@
  * - AC4: Undefined/malformed geometry -> graceful fallback, no crash
  */
 
+import { vi, describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react-native'
 import { PaperProvider, MD3DarkTheme } from 'react-native-paper'
 import { RouteThumbnail } from './route-thumbnail'
@@ -42,6 +43,10 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     border: { default: '#CAC4D0' },
     input: { default: '#CAC4D0' },
     ring: { default: '#6750A4' },
+    locationPoiFill: { default: '#EDEDED' },
+    locationPoiRing: { default: '#B87333' },
+    locationPoiMuted: { default: '#A3A3A3' },
+    locationPoiBg: { default: '#F3EFE8' },
     card: { default: '#FFFFFF' },
     popover: { default: '#FFFFFF' },
     accent: { default: '#FF6B35' },
@@ -109,12 +114,12 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
 }
 
 // Mock useSemanticTheme hook
-jest.mock('../../hooks/use-semantic-theme', () => ({
+vi.mock('../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
 // Mock expo-linear-gradient
-jest.mock('expo-linear-gradient', () => {
+vi.mock('expo-linear-gradient', () => {
   const { View } = require('react-native')
   return {
     LinearGradient: (props: Record<string, unknown>) => {

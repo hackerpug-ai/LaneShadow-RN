@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import dotenv from 'dotenv'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -21,6 +22,6 @@ loadFirstEnvFile()
 // Global test utilities
 global.console = {
   ...console,
-  error: jest.fn(), // Suppress error logs in tests
-  warn: jest.fn(),
+  error: vi.fn(), // Suppress error logs in tests
+  warn: vi.fn(),
 }

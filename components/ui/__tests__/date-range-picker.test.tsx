@@ -11,6 +11,7 @@
  * - AC4: Tapping the same preset again deselects it back to "All time"
  */
 
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 import React from 'react'
 import { render, fireEvent } from '@testing-library/react-native'
 
@@ -81,7 +82,7 @@ const mockSemanticTheme = {
   },
 }
 
-jest.mock('../../../hooks/use-semantic-theme', () => ({
+vi.mock('../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
@@ -103,7 +104,7 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000
 
 describe('DateRangePicker', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   /**
@@ -112,42 +113,42 @@ describe('DateRangePicker', () => {
   describe('AC1: renders all preset chips', () => {
     it('renders "All time" chip', () => {
       const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={jest.fn()} />
+        <DateRangePicker onDateRangeChange={vi.fn()} />
       )
       expect(getByTestId('date-range-picker-chip-all')).toBeTruthy()
     })
 
     it('renders "Last week" chip', () => {
       const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={jest.fn()} />
+        <DateRangePicker onDateRangeChange={vi.fn()} />
       )
       expect(getByTestId('date-range-picker-chip-week')).toBeTruthy()
     })
 
     it('renders "Last month" chip', () => {
       const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={jest.fn()} />
+        <DateRangePicker onDateRangeChange={vi.fn()} />
       )
       expect(getByTestId('date-range-picker-chip-month')).toBeTruthy()
     })
 
     it('renders "Last 3 months" chip', () => {
       const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={jest.fn()} />
+        <DateRangePicker onDateRangeChange={vi.fn()} />
       )
       expect(getByTestId('date-range-picker-chip-3months')).toBeTruthy()
     })
 
     it('renders with custom testID', () => {
       const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={jest.fn()} testID="my-picker" />
+        <DateRangePicker onDateRangeChange={vi.fn()} testID="my-picker" />
       )
       expect(getByTestId('my-picker')).toBeTruthy()
     })
 
     it('"All time" chip is initially active (primary background color)', () => {
       const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={jest.fn()} />
+        <DateRangePicker onDateRangeChange={vi.fn()} />
       )
       const allChip = getByTestId('date-range-picker-chip-all')
       const style = Array.isArray(allChip.props.style)
@@ -162,7 +163,7 @@ describe('DateRangePicker', () => {
    */
   describe('AC2: tapping "Last week" emits correct date range', () => {
     it('calls onDateRangeChange with afterDate when "Last week" is tapped', () => {
-      const onDateRangeChange = jest.fn()
+      const onDateRangeChange = vi.fn()
       const before = Date.now()
       const { getByTestId } = render(
         <DateRangePicker onDateRangeChange={onDateRangeChange} />
@@ -179,7 +180,7 @@ describe('DateRangePicker', () => {
 
     it('"Last week" chip becomes active after being tapped', () => {
       const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={jest.fn()} />
+        <DateRangePicker onDateRangeChange={vi.fn()} />
       )
       fireEvent.press(getByTestId('date-range-picker-chip-week'))
       const weekChip = getByTestId('date-range-picker-chip-week')
@@ -195,7 +196,7 @@ describe('DateRangePicker', () => {
    */
   describe('AC3: tapping "All time" clears the filter', () => {
     it('fires { afterDate: undefined, beforeDate: undefined } when "All time" is tapped after a preset', () => {
-      const onDateRangeChange = jest.fn()
+      const onDateRangeChange = vi.fn()
       const { getByTestId } = render(
         <DateRangePicker onDateRangeChange={onDateRangeChange} />
       )
@@ -209,7 +210,7 @@ describe('DateRangePicker', () => {
 
     it('"All time" chip is active after being tapped', () => {
       const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={jest.fn()} />
+        <DateRangePicker onDateRangeChange={vi.fn()} />
       )
       fireEvent.press(getByTestId('date-range-picker-chip-week'))
       fireEvent.press(getByTestId('date-range-picker-chip-all'))
@@ -227,7 +228,7 @@ describe('DateRangePicker', () => {
    */
   describe('AC4: tapping same preset twice deselects back to "All time"', () => {
     it('fires { afterDate: undefined, beforeDate: undefined } when selected preset is tapped again', () => {
-      const onDateRangeChange = jest.fn()
+      const onDateRangeChange = vi.fn()
       const { getByTestId } = render(
         <DateRangePicker onDateRangeChange={onDateRangeChange} />
       )
@@ -241,7 +242,7 @@ describe('DateRangePicker', () => {
 
     it('"All time" chip becomes active again after deselect', () => {
       const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={jest.fn()} />
+        <DateRangePicker onDateRangeChange={vi.fn()} />
       )
       fireEvent.press(getByTestId('date-range-picker-chip-month'))
       fireEvent.press(getByTestId('date-range-picker-chip-month'))

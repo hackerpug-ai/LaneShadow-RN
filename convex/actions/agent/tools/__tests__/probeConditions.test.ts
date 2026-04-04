@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
 import type { RouteIndex, RouteIndexPoint } from '../../../../../models/saved-routes'
 import { createWeatherProvider } from '../../providers/weatherProvider'
 import { probeConditions } from '../probeConditions'
@@ -14,7 +15,7 @@ const makeRouteIndex = (points: Array<RouteIndexPoint>): RouteIndex => ({
   sampledPoints: points,
 })
 
-const makeOkFetch = (): jest.Mock => {
+const makeOkFetch = (): Mock => {
   const times: Array<string> = [
     '2026-01-13T11:00:00.000Z',
     '2026-01-13T12:00:00.000Z',
@@ -30,7 +31,7 @@ const makeOkFetch = (): jest.Mock => {
     },
   }
 
-  return jest.fn(async () => ({
+  return vi.fn(async () => ({
     ok: true,
     status: 200,
     json: async () => json,
@@ -53,7 +54,7 @@ describe('probeConditions', () => {
   })
 
   afterEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   it('returns empty array when no points', async () => {

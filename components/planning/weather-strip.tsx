@@ -27,12 +27,12 @@ import type { RouteOverlays } from '../../models/saved-routes'
 const SEVERITY_ORDER: Record<string, number> = {
   // Rain severity
   heavy: 5,
-  moderate: 4,
+  moderateRain: 4,
   light: 3,
   none: 2,
   // Wind severity
   high: 4,
-  moderate: 3,
+  moderateWind: 3,
   low: 2,
   // Temperature severity
   hot: 4,

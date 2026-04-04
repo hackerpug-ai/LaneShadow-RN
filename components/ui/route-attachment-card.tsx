@@ -59,7 +59,7 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
   };
 
   const Container = onPress ? Pressable : View;
-  const renderContent = (pressed: boolean) => (
+  const renderContent = (pressed: boolean): React.ReactNode => (
     <View
       style={[
         styles.card,
@@ -164,16 +164,49 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
     </View>
   );
 
-  return (
-    <Container
+  const content = renderContent(false);
+
+  return onPress ? (
+    <Pressable
       onPress={onPress}
-      disabled={!onPress}
       accessibilityLabel={`Route: ${label}`}
-      accessibilityRole={onPress ? 'button' : 'none'}
+      accessibilityRole="button"
       accessibilityState={{ selected: isSelected }}
+      style={({ pressed }) => [
+        styles.card,
+        {
+          backgroundColor: isSelected
+            ? semantic.color.primary.default + '15'
+            : semantic.color.surfaceVariant.default,
+          borderColor: isSelected
+            ? semantic.color.primary.default
+            : semantic.color.border.default,
+          opacity: pressed && !isSelected ? 0.8 : 1,
+        },
+        compact && styles.compactCard,
+        style,
+      ]}
     >
-      {({ pressed }) => renderContent(pressed ?? false)}
-    </Container>
+      {content}
+    </Pressable>
+  ) : (
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: isSelected
+            ? semantic.color.primary.default + '15'
+            : semantic.color.surfaceVariant.default,
+          borderColor: isSelected
+            ? semantic.color.primary.default
+            : semantic.color.border.default,
+        },
+        compact && styles.compactCard,
+        style,
+      ]}
+    >
+      {content}
+    </View>
   );
 };
 

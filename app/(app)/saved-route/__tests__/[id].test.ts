@@ -21,7 +21,7 @@
 // Mocks — must be declared before imports
 // ---------------------------------------------------------------------------
 
-const mockBack = jest.fn()
+const mockBack = vi.fn()
 
 const mockHookReturn: {
   data: import('../../../../types/routes').SavedRouteDetailView | null | undefined
@@ -31,25 +31,25 @@ const mockHookReturn: {
   isLoading: true,
 }
 
-jest.mock('react-native', () => ({
+vi.mock('react-native', () => ({
   ActivityIndicator: 'ActivityIndicator',
   StyleSheet: { create: (s: Record<string, unknown>) => s },
   View: 'View',
 }))
-jest.mock('react-native-gesture-handler', () => ({
+vi.mock('react-native-gesture-handler', () => ({
   ScrollView: 'ScrollView',
 }))
-jest.mock('react-native-paper', () => ({
+vi.mock('react-native-paper', () => ({
   Text: 'Text',
 }))
-jest.mock('react-native-safe-area-context', () => ({
+vi.mock('react-native-safe-area-context', () => ({
   SafeAreaView: 'SafeAreaView',
 }))
-jest.mock('expo-router', () => ({
+vi.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ id: 'test-route-id' }),
   useRouter: () => ({ back: mockBack }),
 }))
-jest.mock('../../../../hooks/use-semantic-theme', () => ({
+vi.mock('../../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({
     semantic: {
       color: {
@@ -66,45 +66,46 @@ jest.mock('../../../../hooks/use-semantic-theme', () => ({
     },
   }),
 }))
-jest.mock('../../../../hooks/use-saved-routes', () => ({
+vi.mock('../../../../hooks/use-saved-routes', () => ({
   useSavedRouteDetail: () => mockHookReturn,
 }))
-jest.mock('../../../../components/map/overlay-toggle', () => ({
+vi.mock('../../../../components/map/overlay-toggle', () => ({
   OverlayToggle: 'OverlayToggle',
 }))
-jest.mock('../../../../components/map/map-header-overlay', () => ({
+vi.mock('../../../../components/map/map-header-overlay', () => ({
   MapHeaderOverlay: 'MapHeaderOverlay',
 }))
-jest.mock('../../../../components/map/map-view', () => ({
+vi.mock('../../../../components/map/map-view', () => ({
   MapViewWrapper: 'MapViewWrapper',
 }))
-jest.mock('../../../../components/map/route-polyline', () => ({
-  buildRoutePolylines: jest.fn(() => []),
+vi.mock('../../../../components/map/route-polyline', () => ({
+  buildRoutePolylines: vi.fn(() => []),
 }))
-jest.mock('../../../../components/planning/wind-badge', () => ({
+vi.mock('../../../../components/planning/wind-badge', () => ({
   WindBadge: 'WindBadge',
 }))
-jest.mock('../../../../components/ui/rain-badge', () => ({
+vi.mock('../../../../components/ui/rain-badge', () => ({
   RainBadge: 'RainBadge',
 }))
-jest.mock('../../../../components/ui/route-leg-timeline', () => ({
+vi.mock('../../../../components/ui/route-leg-timeline', () => ({
   RouteLegTimeline: 'RouteLegTimeline',
 }))
-jest.mock('../../../../components/ui/stat-row', () => ({
+vi.mock('../../../../components/ui/stat-row', () => ({
   StatRow: 'StatRow',
 }))
-jest.mock('../../../../components/ui/temperature-badge', () => ({
+vi.mock('../../../../components/ui/temperature-badge', () => ({
   TemperatureBadge: 'TemperatureBadge',
 }))
-jest.mock('../../../../models/saved-routes', () => ({
-  getWorstRainLevel: jest.fn((v) => (v ? 'light' : 'unavailable')),
-  getWorstTemperatureLevel: jest.fn((v) => (v ? 'warm' : 'unavailable')),
-  getMaxTemperatureFahrenheit: jest.fn(() => 72),
+vi.mock('../../../../models/saved-routes', () => ({
+  getWorstRainLevel: vi.fn((v) => (v ? 'light' : 'unavailable')),
+  getWorstTemperatureLevel: vi.fn((v) => (v ? 'warm' : 'unavailable')),
+  getMaxTemperatureFahrenheit: vi.fn(() => 72),
 }))
-jest.mock('@expo/vector-icons', () => ({
+vi.mock('@expo/vector-icons', () => ({
   MaterialCommunityIcons: 'MaterialCommunityIcons',
 }))
 
+import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
 
@@ -114,7 +115,7 @@ import { buildRoutePolylines } from '../../../../components/map/route-polyline'
 import { getWorstRainLevel, getWorstTemperatureLevel } from '../../../../models/saved-routes'
 import { deriveWindSummary, formatDistance, formatDuration, formatSavedDate } from '../utils'
 
-const mockBuildRoutePolylines = buildRoutePolylines as jest.Mock
+const mockBuildRoutePolylines = buildRoutePolylines as Mock
 
 // ---------------------------------------------------------------------------
 // Fixtures

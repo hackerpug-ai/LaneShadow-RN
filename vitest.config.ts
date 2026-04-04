@@ -7,11 +7,6 @@ export default defineConfig({
     environment: 'node',
     setupFiles: ['./vitest.env.js'],
     include: ['**/*.test.ts', '**/*.test.tsx'],
-    environmentMatchGlobs: [
-      // Use jsdom for React hooks tests that need DOM
-      ['hooks/**/*.test.ts', 'jsdom'],
-      ['components/**/*.test.tsx', 'jsdom'],
-    ],
     exclude: [
       'node_modules/',
       'e2e/',
@@ -21,6 +16,7 @@ export default defineConfig({
       'convex/_generated/',
       'dist/',
       'build/',
+      '.claude/worktrees/**',
     ],
     coverage: {
       provider: 'v8',

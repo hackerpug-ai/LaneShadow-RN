@@ -53,18 +53,18 @@ export const SessionCard: React.FC<SessionCardProps> = ({
   const getStatusIcon = () => {
     switch (status) {
       case 'active':
-        return 'radio-button-on';
+        return 'radiobox-marked';
       case 'completed':
-        return 'checkmark-circle';
+        return 'check-circle';
       case 'saved':
         return 'bookmark';
       default:
-        return 'ellipse';
+        return 'circle-outline';
     }
   };
 
   const Container = onPress || onLongPress ? Pressable : View;
-  const renderContent = (pressed: boolean) => (
+  const renderContent = (pressed: boolean): React.ReactNode => (
     <View
       style={[
         styles.card,
@@ -153,17 +153,52 @@ export const SessionCard: React.FC<SessionCardProps> = ({
     </View>
   );
 
-  return (
-    <Container
+  const content = renderContent(false);
+
+  return (onPress || onLongPress) ? (
+    <Pressable
       onPress={onPress}
       onLongPress={onLongPress}
       delayLongPress={500}
       accessibilityLabel={`Session: ${title}`}
-      accessibilityRole={onPress ? 'button' : 'none'}
+      accessibilityRole="button"
       accessibilityState={{ selected: isActive }}
+      style={({ pressed }) => [
+        styles.card,
+        {
+          backgroundColor: isActive
+            ? semantic.color.primary.default + '15'
+            : semantic.color.surfaceVariant.default,
+          borderColor: isActive
+            ? semantic.color.primary.default
+            : semantic.color.border.default,
+          opacity: pressed && !isActive ? 0.8 : 1,
+          ...(!isActive && pressed ? semantic.elevation[3] : semantic.elevation[1]),
+        },
+        compact && styles.compactCard,
+        style,
+      ]}
     >
-      {({ pressed }) => renderContent(pressed ?? false)}
-    </Container>
+      {content}
+    </Pressable>
+  ) : (
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: isActive
+            ? semantic.color.primary.default + '15'
+            : semantic.color.surfaceVariant.default,
+          borderColor: isActive
+            ? semantic.color.primary.default
+            : semantic.color.border.default,
+        },
+        compact && styles.compactCard,
+        style,
+      ]}
+    >
+      {content}
+    </View>
   );
 };
 

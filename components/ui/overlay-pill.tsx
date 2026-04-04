@@ -5,14 +5,14 @@
  * Follows the design system toggle patterns
  */
 
-import { IconSymbol } from './icon-symbol'
+import { IconSymbol, type IconName } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
 
 export type OverlayPillProps = {
   /** Icon name from MaterialCommunityIcons */
-  icon: string
+  icon: IconName
   /** Label text */
   label: string
   /** Active state */

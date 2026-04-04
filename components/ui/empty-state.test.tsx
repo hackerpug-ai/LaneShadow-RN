@@ -9,6 +9,7 @@
  * - AC4: No onCtaPress callback -> CTA button is hidden, no crash
  */
 
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 import React from 'react'
 import { render, fireEvent } from '@testing-library/react-native'
 import { PaperProvider, MD3DarkTheme } from 'react-native-paper'
@@ -43,6 +44,10 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     border: { default: '#49454F' },
     input: { default: '#49454F' },
     ring: { default: '#6750A4' },
+    locationPoiFill: { default: '#EDEDED' },
+    locationPoiRing: { default: '#B87333' },
+    locationPoiMuted: { default: '#A3A3A3' },
+    locationPoiBg: { default: '#F3EFE8' },
     card: { default: '#1C1B1F' },
     popover: { default: '#1C1B1F' },
     accent: { default: '#FF6B35' },
@@ -110,13 +115,14 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
 }
 
 // Mock useSemanticTheme hook
-jest.mock('../../hooks/use-semantic-theme', () => ({
+vi.mock('../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
 // Mock react-native-paper Text (not in global mock)
-jest.mock('react-native-paper', () => {
-  const actual = jest.requireActual('react-native-paper')
+vi.mock('react-native-paper', () => {
+  const reactNativePaper = require('react-native-paper')
+  const actual = typeof reactNativePaper === 'function' ? reactNativePaper.default ?? reactNativePaper : reactNativePaper
   const { Text: RNText } = require('react-native')
   return {
     ...actual,
@@ -135,7 +141,7 @@ jest.mock('react-native-paper', () => {
 })
 
 // Mock @expo/vector-icons
-jest.mock('@expo/vector-icons', () => {
+vi.mock('@expo/vector-icons', () => {
   const { View } = require('react-native')
   return {
     MaterialCommunityIcons: (props: Record<string, unknown>) => {
@@ -145,7 +151,7 @@ jest.mock('@expo/vector-icons', () => {
 })
 
 // Mock Button to avoid deep import chains (expo-font, etc.)
-jest.mock('./button', () => {
+vi.mock('./button', () => {
   const { Pressable, Text } = require('react-native')
   const { createElement } = require('react')
   return {
@@ -187,7 +193,7 @@ const defaultProps: EmptyStateProps = {
   headline: 'No saved routes yet',
   body: 'Plan a route and save it to see it here.',
   ctaLabel: 'Plan your first route',
-  onCtaPress: jest.fn(),
+  onCtaPress: vi.fn(),
 }
 
 // ---------------------------------------------------------------------------
@@ -196,7 +202,7 @@ const defaultProps: EmptyStateProps = {
 
 describe('EmptyState', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   /**
@@ -245,7 +251,7 @@ describe('EmptyState', () => {
           headline="No saved routes yet"
           body="Plan a route."
           ctaLabel="Plan your first route"
-          onCtaPress={jest.fn()}
+          onCtaPress={vi.fn()}
         />
       )
       expect(getByTestId('empty-state')).toBeTruthy()
@@ -264,7 +270,7 @@ describe('EmptyState', () => {
    */
   describe('AC2: CTA button invokes onCtaPress', () => {
     it('calls onCtaPress when CTA button is pressed', () => {
-      const onCtaPress = jest.fn()
+      const onCtaPress = vi.fn()
       const { getByTestId } = renderWithPaper(
         <EmptyState {...defaultProps} onCtaPress={onCtaPress} testID="empty-state" />
       )

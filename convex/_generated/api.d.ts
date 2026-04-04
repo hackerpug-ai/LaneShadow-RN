@@ -20,6 +20,8 @@ import type * as actions_agent_lib_tracing from "../actions/agent/lib/tracing.js
 import type * as actions_agent_planRide from "../actions/agent/planRide.js";
 import type * as actions_agent_providers_routingProvider from "../actions/agent/providers/routingProvider.js";
 import type * as actions_agent_providers_weatherProvider from "../actions/agent/providers/weatherProvider.js";
+import type * as actions_agent_ridePlanningAgent from "../actions/agent/ridePlanningAgent.js";
+import type * as actions_agent_sendMessage from "../actions/agent/sendMessage.js";
 import type * as actions_agent_tools_compileSketch from "../actions/agent/tools/compileSketch.js";
 import type * as actions_agent_tools_computeRouteIndex from "../actions/agent/tools/computeRouteIndex.js";
 import type * as actions_agent_tools_enrichRoute from "../actions/agent/tools/enrichRoute.js";
@@ -62,6 +64,8 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/planRide": typeof actions_agent_planRide;
   "actions/agent/providers/routingProvider": typeof actions_agent_providers_routingProvider;
   "actions/agent/providers/weatherProvider": typeof actions_agent_providers_weatherProvider;
+  "actions/agent/ridePlanningAgent": typeof actions_agent_ridePlanningAgent;
+  "actions/agent/sendMessage": typeof actions_agent_sendMessage;
   "actions/agent/tools/compileSketch": typeof actions_agent_tools_compileSketch;
   "actions/agent/tools/computeRouteIndex": typeof actions_agent_tools_computeRouteIndex;
   "actions/agent/tools/enrichRoute": typeof actions_agent_tools_enrichRoute;

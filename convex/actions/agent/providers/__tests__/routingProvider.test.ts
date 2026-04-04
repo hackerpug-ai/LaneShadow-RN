@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, afterEach, Mock } from 'vitest'
 import type { RouteSketch } from '../../../../../models/route-sketch'
 import type { PlanInput } from '../../../../../models/saved-routes'
 
@@ -26,7 +27,7 @@ const makeGoogleOkFetch = (overrides?: {
   includeOverview?: boolean
   includeViewport?: boolean
   includeLegs?: boolean
-}): jest.Mock => {
+}): Mock => {
   const json = {
     routes: [
       {
@@ -57,7 +58,7 @@ const makeGoogleOkFetch = (overrides?: {
     ],
   }
 
-  return jest.fn(async () => ({
+  return vi.fn(async () => ({
     ok: true,
     status: 200,
     json: async () => json,
@@ -67,7 +68,7 @@ const makeGoogleOkFetch = (overrides?: {
 
 describe('routing provider', () => {
   afterEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   it('google provider calls Routes API with key and parses response', async () => {
@@ -99,7 +100,7 @@ describe('routing provider', () => {
   })
 
   it('google provider throws on non-ok responses and includes status/body', async () => {
-    ;(globalThis as any).fetch = jest.fn(async () => ({
+    ;(globalThis as any).fetch = vi.fn(async () => ({
       ok: false,
       status: 500,
       text: async () => 'oops',
@@ -132,7 +133,7 @@ describe('routing provider', () => {
 
   it('falls back to DRIVE when TWO_WHEELER is rejected', async () => {
     let callCount = 0
-    const fetchMock = jest.fn(async (_url: string, init: any) => {
+    const fetchMock = vi.fn(async (_url: string, init: any) => {
       callCount++
       const body = JSON.parse(init.body)
       if (body.travelMode === 'TWO_WHEELER') {

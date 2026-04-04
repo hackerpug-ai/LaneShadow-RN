@@ -9,6 +9,7 @@
  * - AC5: User taps Cancel → onDismiss fires, onRename not called
  */
 
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 import React from 'react'
 import { render, fireEvent } from '@testing-library/react-native'
 import type { ExtendedTheme } from '../../../styles/types'
@@ -42,6 +43,10 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     border: { default: '#49454F' },
     input: { default: '#49454F' },
     ring: { default: '#6750A4' },
+    locationPoiFill: { default: '#EDEDED' },
+    locationPoiRing: { default: '#B87333' },
+    locationPoiMuted: { default: '#A3A3A3' },
+    locationPoiBg: { default: '#F3EFE8' },
     card: { default: '#1C1B1F' },
     popover: { default: '#1C1B1F' },
     accent: { default: '#FF6B35' },
@@ -112,12 +117,12 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
 // Mocks
 // ---------------------------------------------------------------------------
 
-jest.mock('../../../hooks/use-semantic-theme', () => ({
+vi.mock('../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
 // Mock react-native-paper Dialog, Portal, TextInput, Button
-jest.mock('react-native-paper', () => {
+vi.mock('react-native-paper', () => {
   const { View, Text, TextInput: RNTextInput, Pressable } = require('react-native')
   const { createElement } = require('react')
 
@@ -173,8 +178,8 @@ import { RenameRouteDialog } from '../rename-route-dialog'
 const defaultProps = {
   visible: true,
   currentName: 'Morning Ride',
-  onRename: jest.fn(),
-  onDismiss: jest.fn(),
+  onRename: vi.fn(),
+  onDismiss: vi.fn(),
 }
 
 const renderDialog = (props?: Partial<typeof defaultProps>) =>
@@ -186,7 +191,7 @@ const renderDialog = (props?: Partial<typeof defaultProps>) =>
 
 describe('RenameRouteDialog', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   /**
@@ -221,8 +226,8 @@ describe('RenameRouteDialog', () => {
         <RenameRouteDialog
           visible
           currentName="Morning Ride"
-          onRename={jest.fn()}
-          onDismiss={jest.fn()}
+          onRename={vi.fn()}
+          onDismiss={vi.fn()}
           testID="custom-dialog"
         />
       )
@@ -268,7 +273,7 @@ describe('RenameRouteDialog', () => {
    */
   describe('AC3: Save button fires onRename with trimmed value', () => {
     it('calls onRename with the new trimmed name when Save is pressed', () => {
-      const onRename = jest.fn()
+      const onRename = vi.fn()
       const { getByTestId } = renderDialog({ onRename })
       const input = getByTestId('rename-route-dialog-input')
       fireEvent.changeText(input, 'Evening Ride')
@@ -278,7 +283,7 @@ describe('RenameRouteDialog', () => {
     })
 
     it('trims whitespace before calling onRename', () => {
-      const onRename = jest.fn()
+      const onRename = vi.fn()
       const { getByTestId } = renderDialog({ onRename })
       const input = getByTestId('rename-route-dialog-input')
       fireEvent.changeText(input, '  Evening Ride  ')
@@ -300,7 +305,7 @@ describe('RenameRouteDialog', () => {
     })
 
     it('onRename is not called when Save is pressed while disabled', () => {
-      const onRename = jest.fn()
+      const onRename = vi.fn()
       const { getByTestId } = renderDialog({ onRename })
       const input = getByTestId('rename-route-dialog-input')
       fireEvent.changeText(input, '')
@@ -315,15 +320,15 @@ describe('RenameRouteDialog', () => {
    */
   describe('AC5: Cancel fires onDismiss without calling onRename', () => {
     it('calls onDismiss when Cancel is pressed', () => {
-      const onDismiss = jest.fn()
+      const onDismiss = vi.fn()
       const { getByTestId } = renderDialog({ onDismiss })
       fireEvent.press(getByTestId('rename-route-dialog-cancel'))
       expect(onDismiss).toHaveBeenCalledTimes(1)
     })
 
     it('does not call onRename when Cancel is pressed', () => {
-      const onRename = jest.fn()
-      const onDismiss = jest.fn()
+      const onRename = vi.fn()
+      const onDismiss = vi.fn()
       const { getByTestId } = renderDialog({ onRename, onDismiss })
       fireEvent.press(getByTestId('rename-route-dialog-cancel'))
       expect(onRename).not.toHaveBeenCalled()
@@ -343,8 +348,8 @@ describe('RenameRouteDialog', () => {
         <RenameRouteDialog
           visible
           currentName="Afternoon Ride"
-          onRename={jest.fn()}
-          onDismiss={jest.fn()}
+          onRename={vi.fn()}
+          onDismiss={vi.fn()}
         />
       )
       const updatedInput = getByTestId('rename-route-dialog-input')

@@ -43,11 +43,11 @@ export const RainBadge = ({ rainSummary, testID }: RainBadgeProps) => {
 
   // Partial map: only define badge variants we know
   const BADGE_VARIANTS: Partial<
-    Record<RainLevelKnown, 'success' | 'info' | 'destructive' | 'secondary'>
+    Record<RainLevelKnown, 'success' | 'warning' | 'destructive' | 'secondary'>
   > = {
     none: 'success',
-    light: 'info',
-    moderate: 'info',
+    light: 'warning',
+    moderate: 'warning',
     heavy: 'destructive',
     unavailable: 'secondary',
   }
@@ -61,13 +61,25 @@ export const RainBadge = ({ rainSummary, testID }: RainBadgeProps) => {
     unavailable: 0.08,
   }
 
+  // Helper to get icon color based on rain level
+  const getIconColor = (): string => {
+    const colorMap: Partial<Record<RainLevelKnown, string>> = {
+      none: semantic.color.success.default,
+      light: semantic.color.warning.default,
+      moderate: semantic.color.warning.default,
+      heavy: semantic.color.danger.default,
+      unavailable: semantic.color.onSurface.subtle,
+    }
+    return colorMap[rainSummary as RainLevelKnown] || semantic.color.onSurface.subtle
+  }
+
   // Partial map: only define icons we know
   const ICONS: Partial<Record<RainLevelKnown, React.ReactNode>> = {
-    none: <IconSymbol name="check-circle-outline" size={14} />,
-    light: <IconSymbol name="water-outline" size={14} />,
-    moderate: <IconSymbol name="water" size={14} />,
-    heavy: <IconSymbol name="weather-pouring" size={14} />,
-    unavailable: <IconSymbol name="help-circle-outline" size={14} />,
+    none: <IconSymbol name="check-circle-outline" size={14} color={getIconColor()} />,
+    light: <IconSymbol name="water-outline" size={14} color={getIconColor()} />,
+    moderate: <IconSymbol name="water" size={14} color={getIconColor()} />,
+    heavy: <IconSymbol name="weather-pouring" size={14} color={getIconColor()} />,
+    unavailable: <IconSymbol name="help-circle-outline" size={14} color={getIconColor()} />,
   }
 
   // Safe getter with dev warning + graceful fallback
@@ -85,7 +97,7 @@ export const RainBadge = ({ rainSummary, testID }: RainBadgeProps) => {
   }
 
   // Safe getter for badge variant
-  const getBadgeVariant = (): 'success' | 'info' | 'destructive' | 'secondary' => {
+  const getBadgeVariant = (): 'success' | 'warning' | 'destructive' | 'secondary' => {
     const mapped = BADGE_VARIANTS[rainSummary as RainLevelKnown]
     return mapped || 'secondary'
   }

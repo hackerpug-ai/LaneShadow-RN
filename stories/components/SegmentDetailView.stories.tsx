@@ -58,6 +58,13 @@ const createOverlays = (
   conditions: Array<{ rain?: string; wind?: string; temperature?: string }>
 ): RouteOverlays => ({
   rain: {
+    generatedAt: Date.now(),
+    modelVersion: 'test-v1',
+    legend: [
+      { level: 'none', label: 'No Rain' },
+      { level: 'light', label: 'Light Rain' },
+      { level: 'moderate', label: 'Moderate Rain' },
+    ],
     byLeg: legs.map((leg, i) => ({
       legIndex: leg.legIndex,
       segments: [
@@ -71,6 +78,13 @@ const createOverlays = (
     })),
   },
   wind: {
+    generatedAt: Date.now(),
+    modelVersion: 'test-v1',
+    legend: [
+      { level: 'low', label: 'Low Wind' },
+      { level: 'moderate', label: 'Moderate Wind' },
+      { level: 'high', label: 'High Wind' },
+    ],
     byLeg: legs.map((leg, i) => ({
       legIndex: leg.legIndex,
       segments: [
@@ -83,6 +97,13 @@ const createOverlays = (
     })),
   },
   temperature: {
+    generatedAt: Date.now(),
+    modelVersion: 'test-v1',
+    legend: [
+      { level: 'cold', label: 'Cold' },
+      { level: 'mild', label: 'Mild' },
+      { level: 'warm', label: 'Warm' },
+    ],
     byLeg: legs.map((leg, i) => ({
       legIndex: leg.legIndex,
       segments: [

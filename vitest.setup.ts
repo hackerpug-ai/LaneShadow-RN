@@ -4,7 +4,8 @@ import { vi } from 'vitest'
  * Vitest environment setup - runs before tests
  * Sets NODE_ENV=test to disable LangSmith tracing during tests
  */
-process.env.NODE_ENV = 'test' as unknown as string
+// @ts-ignore - NODE_ENV is readonly in some environments
+process.env.NODE_ENV = 'test'
 
 // Mock console methods to suppress test output
 global.console = {

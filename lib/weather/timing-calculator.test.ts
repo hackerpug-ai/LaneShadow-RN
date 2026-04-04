@@ -4,6 +4,7 @@
  * Tests pure functions for rain timing calculation
  */
 
+import { describe, it, expect } from 'vitest'
 import type { RainOverlay, RouteLeg } from '../../models/saved-routes'
 import {
   calculateRainTiming,

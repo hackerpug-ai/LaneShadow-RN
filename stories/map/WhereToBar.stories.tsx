@@ -22,11 +22,9 @@ const meta: Meta<typeof WhereToBar> = {
   },
   argTypes: {
     onPlaceSelected: {
-      control: 'function',
       description: 'Callback when a place is selected',
     },
     onClear: {
-      control: 'function',
       description: 'Callback when search is cleared',
     },
   },

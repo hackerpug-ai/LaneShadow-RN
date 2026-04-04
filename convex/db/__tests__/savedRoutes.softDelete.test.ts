@@ -5,6 +5,7 @@
  * unit-tested without a running Convex backend.
  */
 
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { ConvexError } from 'convex/values'
 
 import type { Id } from '../../_generated/dataModel'
@@ -72,11 +73,11 @@ describe('soft-delete handler logic', () => {
   it('AC-4: undoDeleteRoute throws ConvexError when route does not exist', async () => {
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(null),
-        patch: jest.fn(),
+        get: vi.fn().mockResolvedValue(null),
+        patch: vi.fn(),
       },
       scheduler: {
-        cancel: jest.fn(),
+        cancel: vi.fn(),
       },
     }
 
@@ -93,11 +94,11 @@ describe('soft-delete handler logic', () => {
     })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(doc),
-        patch: jest.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(doc),
+        patch: vi.fn().mockResolvedValue(undefined),
       },
       scheduler: {
-        cancel: jest.fn().mockResolvedValue(undefined),
+        cancel: vi.fn().mockResolvedValue(undefined),
       },
     }
 
@@ -116,11 +117,11 @@ describe('soft-delete handler logic', () => {
     const scheduledId = 'sched_new'
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(doc),
-        patch: jest.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(doc),
+        patch: vi.fn().mockResolvedValue(undefined),
       },
       scheduler: {
-        runAfter: jest.fn().mockResolvedValue(scheduledId),
+        runAfter: vi.fn().mockResolvedValue(scheduledId),
       },
     }
 
@@ -143,8 +144,8 @@ describe('soft-delete handler logic', () => {
     const doc = makeDoc({ deletedAt: Date.now() - 6000 })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(doc),
-        delete: jest.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(doc),
+        delete: vi.fn().mockResolvedValue(undefined),
       },
     }
 
@@ -157,8 +158,8 @@ describe('soft-delete handler logic', () => {
   it('AC-3: permanentlyDeleteRoute is a no-op when route already deleted', async () => {
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(null),
-        delete: jest.fn(),
+        get: vi.fn().mockResolvedValue(null),
+        delete: vi.fn(),
       },
     }
 
@@ -186,11 +187,11 @@ describe('soft-delete race condition guards', () => {
     })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(doc),
-        patch: jest.fn(),
+        get: vi.fn().mockResolvedValue(doc),
+        patch: vi.fn(),
       },
       scheduler: {
-        runAfter: jest.fn(),
+        runAfter: vi.fn(),
       },
     }
 
@@ -206,8 +207,8 @@ describe('soft-delete race condition guards', () => {
     const doc = makeDoc()
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(doc),
-        delete: jest.fn(),
+        get: vi.fn().mockResolvedValue(doc),
+        delete: vi.fn(),
       },
     }
 
@@ -222,8 +223,8 @@ describe('soft-delete race condition guards', () => {
     const doc = makeDoc({ deletedAt: Date.now() - 6000 })
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(doc),
-        delete: jest.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(doc),
+        delete: vi.fn().mockResolvedValue(undefined),
       },
     }
 
@@ -238,11 +239,11 @@ describe('soft-delete race condition guards', () => {
     const scheduledId = 'sched_new' as Id<'_scheduled_functions'>
     const ctx = {
       db: {
-        get: jest.fn().mockResolvedValue(doc),
-        patch: jest.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(doc),
+        patch: vi.fn().mockResolvedValue(undefined),
       },
       scheduler: {
-        runAfter: jest.fn().mockResolvedValue(scheduledId),
+        runAfter: vi.fn().mockResolvedValue(scheduledId),
       },
     }
 

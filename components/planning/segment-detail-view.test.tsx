@@ -8,6 +8,7 @@
  * - AC4: Route has only 1 leg → Segment detail view renders → Shows single segment without collapse controls (always expanded)
  */
 
+import { vi, describe, it, expect } from 'vitest'
 import { render, fireEvent } from '@testing-library/react-native'
 import { PaperProvider, MD3DarkTheme } from 'react-native-paper'
 import type { RouteLeg, RouteOverlays } from '../../models/saved-routes'
@@ -35,6 +36,10 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     border: { default: '#CAC4D0' },
     input: { default: '#CAC4D0' },
     ring: { default: '#6750A4' },
+    locationPoiFill: { default: '#EDEDED' },
+    locationPoiRing: { default: '#B87333' },
+    locationPoiMuted: { default: '#A3A3A3' },
+    locationPoiBg: { default: '#F3EFE8' },
     card: { default: '#FFFFFF' },
     popover: { default: '#FFFFFF' },
     accent: { default: '#FF6B35' },
@@ -102,7 +107,7 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
 }
 
 // Mock useSemanticTheme hook
-jest.mock('../../hooks/use-semantic-theme', () => ({
+vi.mock('../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
@@ -128,6 +133,15 @@ const createOverlays = (
   conditions: Array<{ rain?: string; wind?: string; temperature?: string }>
 ): RouteOverlays => ({
   rain: {
+    generatedAt: Date.now(),
+    modelVersion: 'test-v1',
+    legend: [
+      { level: 'none', label: 'No rain' },
+      { level: 'light', label: 'Light rain' },
+      { level: 'moderate', label: 'Moderate rain' },
+      { level: 'heavy', label: 'Heavy rain' },
+      { level: 'unavailable', label: 'Unavailable' },
+    ],
     byLeg: legs.map((leg, i) => ({
       legIndex: leg.legIndex,
       segments: [
@@ -141,6 +155,14 @@ const createOverlays = (
     })),
   },
   wind: {
+    generatedAt: Date.now(),
+    modelVersion: 'test-v1',
+    legend: [
+      { level: 'low', label: 'Low wind' },
+      { level: 'moderate', label: 'Moderate wind' },
+      { level: 'high', label: 'High wind' },
+      { level: 'unavailable', label: 'Unavailable' },
+    ],
     byLeg: legs.map((leg, i) => ({
       legIndex: leg.legIndex,
       segments: [
@@ -153,6 +175,15 @@ const createOverlays = (
     })),
   },
   temperature: {
+    generatedAt: Date.now(),
+    modelVersion: 'test-v1',
+    legend: [
+      { level: 'cold', label: 'Cold', range: { min: -Infinity, max: 10, unit: '°C' } },
+      { level: 'mild', label: 'Mild', range: { min: 10, max: 25, unit: '°C' } },
+      { level: 'warm', label: 'Warm', range: { min: 25, max: 32, unit: '°C' } },
+      { level: 'hot', label: 'Hot', range: { min: 32, max: Infinity, unit: '°C' } },
+      { level: 'unavailable', label: 'Unavailable' },
+    ],
     byLeg: legs.map((leg, i) => ({
       legIndex: leg.legIndex,
       segments: [
@@ -319,9 +350,24 @@ describe('segment-detail-view', () => {
     it('should handle missing overlays gracefully', () => {
       const legs = createLegs(2)
       const overlays: RouteOverlays = {
-        rain: { byLeg: [] },
-        wind: { byLeg: [] },
-        temperature: { byLeg: [] },
+        rain: {
+          generatedAt: Date.now(),
+          modelVersion: 'test-v1',
+          legend: [],
+          byLeg: [],
+        },
+        wind: {
+          generatedAt: Date.now(),
+          modelVersion: 'test-v1',
+          legend: [],
+          byLeg: [],
+        },
+        temperature: {
+          generatedAt: Date.now(),
+          modelVersion: 'test-v1',
+          legend: [],
+          byLeg: [],
+        },
       }
       const { queryByTestId, getByText } = renderWithPaper(
         <SegmentDetailView legs={legs} overlays={overlays} testID="segment-detail-view" />

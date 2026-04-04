@@ -1,7 +1,7 @@
 'use node'
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Id } from '../../_generated/dataModel'
+import type { Id } from '../../../_generated/dataModel'
 
 // -----------------------------------------------------------------------------
 // Test the sendMessage orchestrator logic (without Convex imports)

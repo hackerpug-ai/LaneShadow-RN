@@ -59,15 +59,15 @@ export const Selected: Story = {
     name: 'Scenic Route',
     variant: 'selected',
     badges: [
-      { icon: 'landscape', label: 'Most Scenic', variant: 'primary' },
+      { icon: 'image', label: 'Most Scenic', variant: 'primary' },
       { label: '87 mi', variant: 'neutral' },
     ],
     stats: [
-      { icon: 'schedule', value: '2h 15m' },
-      { icon: 'air', value: 'Moderate' },
+      { icon: 'clock-outline', value: '2h 15m' },
+      { icon: 'weather-windy', value: 'Moderate' },
     ],
     weatherSummary: 'Light crosswinds on Hwy 1',
-    weatherIcon: 'air',
+    weatherIcon: 'weather-windy',
   },
 }
 
@@ -94,12 +94,12 @@ export const Multiple: Story = {
         name="Scenic Route"
         variant="selected"
         badges={[
-          { icon: 'landscape', label: 'Most Scenic', variant: 'primary' },
+          { icon: 'image', label: 'Most Scenic', variant: 'primary' },
           { label: '87 mi', variant: 'neutral' },
         ]}
         stats={[
-          { icon: 'schedule', value: '2h 15m' },
-          { icon: 'air', value: 'Moderate' },
+          { icon: 'clock-outline', value: '2h 15m' },
+          { icon: 'weather-windy', value: 'Moderate' },
         ]}
         weatherSummary="Light crosswinds on Hwy 1"
       />

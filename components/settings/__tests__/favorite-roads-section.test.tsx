@@ -8,6 +8,7 @@
  * - AC4: Given: User deletes favorite, When: favoriteRoads.remove called, Then: Card removed, list updates
  */
 
+import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest'
 import React from 'react'
 import { render, waitFor, fireEvent } from '@testing-library/react-native'
 import type { Doc } from '../../../convex/_generated/dataModel'
@@ -151,12 +152,12 @@ const mockSemanticTheme = {
 }
 
 // Mock useSemanticTheme hook
-jest.mock('../../../hooks/use-semantic-theme', () => ({
+vi.mock('../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
 // Mock react-native-paper Text
-jest.mock('react-native-paper', () => {
+vi.mock('react-native-paper', () => {
   const { View, Text: RNText, Pressable } = require('react-native')
   const { createElement } = require('react')
 
@@ -167,7 +168,7 @@ jest.mock('react-native-paper', () => {
 })
 
 // Mock EmptyState component
-jest.mock('../../../components/ui/empty-state', () => ({
+vi.mock('../../../components/ui/empty-state', () => ({
   EmptyState: ({ icon, headline, body, testID }: any) => {
     const { View, Text } = require('react-native')
     const { createElement } = require('react')
@@ -181,7 +182,7 @@ jest.mock('../../../components/ui/empty-state', () => ({
 }))
 
 // Mock SectionHeader component
-jest.mock('../../../components/ui/section-header', () => ({
+vi.mock('../../../components/ui/section-header', () => ({
   SectionHeader: ({ title }: any) => {
     const { Text } = require('react-native')
     const { createElement } = require('react')
@@ -190,7 +191,7 @@ jest.mock('../../../components/ui/section-header', () => ({
 }))
 
 // Mock FavoriteRoadCard component
-jest.mock('../../../components/ui/favorite-road-card', () => ({
+vi.mock('../../../components/ui/favorite-road-card', () => ({
   FavoriteRoadCard: ({ favorite, onDelete, testID }: any) => {
     const { View, Text, Pressable } = require('react-native')
     const { createElement } = require('react')
@@ -211,9 +212,9 @@ jest.mock('../../../components/ui/favorite-road-card', () => ({
 }))
 
 // Mock Convex hooks
-jest.mock('convex/react', () => ({
-  useQuery: jest.fn(),
-  useMutation: jest.fn(),
+vi.mock('convex/react', () => ({
+  useQuery: vi.fn(),
+  useMutation: vi.fn(),
 }))
 
 import { FavoriteRoadsSection } from '../favorite-roads-section'
@@ -225,7 +226,7 @@ import { useQuery, useMutation } from 'convex/react'
 
 describe('FavoriteRoadsSection', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   /**
@@ -235,8 +236,8 @@ describe('FavoriteRoadsSection', () => {
    * Then: Section visible with header
    */
   it('should satisfy AC1: renders section with header when loading', () => {
-    ;(useQuery as jest.Mock).mockReturnValue(undefined)
-    ;(useMutation as jest.Mock).mockReturnValue(jest.fn())
+    ;(useQuery as Mock).mockReturnValue(undefined)
+    ;(useMutation as Mock).mockReturnValue(vi.fn())
 
     const { getByText } = render(<FavoriteRoadsSection />)
 
@@ -259,8 +260,10 @@ describe('FavoriteRoadsSection', () => {
         name: 'Scenic Route 1',
         geometry: 'geometry1',
         bounds: {
-          northeast: { lat: 40.7128, lng: -74.006 },
-          southwest: { lat: 40.6, lng: -74.1 },
+          north: 40.7128,
+          south: 40.6,
+          east: -74.006,
+          west: -74.1,
         },
         createdAt: 1000,
       },
@@ -271,16 +274,18 @@ describe('FavoriteRoadsSection', () => {
         name: 'Mountain Pass',
         geometry: 'geometry2',
         bounds: {
-          northeast: { lat: 40.8, lng: -74.0 },
-          southwest: { lat: 40.7, lng: -74.2 },
+          north: 40.8,
+          south: 40.7,
+          east: -74.0,
+          west: -74.2,
         },
         createdAt: 2000,
       },
     ]
 
-    ;(useQuery as jest.Mock).mockReturnValue(mockFavorites)
-    const mockRemove = jest.fn()
-    ;(useMutation as jest.Mock).mockReturnValue(mockRemove)
+    ;(useQuery as Mock).mockReturnValue(mockFavorites)
+    const mockRemove = vi.fn()
+    ;(useMutation as Mock).mockReturnValue(mockRemove)
 
     const { getByText } = render(<FavoriteRoadsSection />)
 
@@ -298,8 +303,8 @@ describe('FavoriteRoadsSection', () => {
    * Then: Shows empty state message
    */
   it('should satisfy AC3: renders empty state when user has no favorites', async () => {
-    ;(useQuery as jest.Mock).mockReturnValue([])
-    ;(useMutation as jest.Mock).mockReturnValue(jest.fn())
+    ;(useQuery as Mock).mockReturnValue([])
+    ;(useMutation as Mock).mockReturnValue(vi.fn())
 
     const { getByText, getByTestId } = render(<FavoriteRoadsSection />)
 
@@ -329,16 +334,18 @@ describe('FavoriteRoadsSection', () => {
         name: 'Scenic Route 1',
         geometry: 'geometry1',
         bounds: {
-          northeast: { lat: 40.7128, lng: -74.006 },
-          southwest: { lat: 40.6, lng: -74.1 },
+          north: 40.7128,
+          south: 40.6,
+          east: -74.006,
+          west: -74.1,
         },
         createdAt: 1000,
       },
     ]
 
-    ;(useQuery as jest.Mock).mockReturnValue(mockFavorites)
-    const mockRemove = jest.fn().mockResolvedValue({ success: true })
-    ;(useMutation as jest.Mock).mockReturnValue(mockRemove)
+    ;(useQuery as Mock).mockReturnValue(mockFavorites)
+    const mockRemove = vi.fn().mockResolvedValue({ success: true })
+    ;(useMutation as Mock).mockReturnValue(mockRemove)
 
     const { getByText } = render(<FavoriteRoadsSection />)
 
@@ -368,8 +375,10 @@ describe('FavoriteRoadsSection', () => {
         name: 'Old Route',
         geometry: 'oldGeometry',
         bounds: {
-          northeast: { lat: 40.7, lng: -74.0 },
-          southwest: { lat: 40.6, lng: -74.1 },
+          north: 40.7,
+          south: 40.6,
+          east: -74.0,
+          west: -74.1,
         },
         createdAt: 1000, // Older
       },
@@ -380,8 +389,10 @@ describe('FavoriteRoadsSection', () => {
         name: 'New Route',
         geometry: 'newGeometry',
         bounds: {
-          northeast: { lat: 40.9, lng: -73.9 },
-          southwest: { lat: 40.8, lng: -74.0 },
+          north: 40.9,
+          south: 40.8,
+          east: -73.9,
+          west: -74.0,
         },
         createdAt: 3000, // Newest
       },
@@ -392,22 +403,24 @@ describe('FavoriteRoadsSection', () => {
         name: 'Middle Route',
         geometry: 'middleGeometry',
         bounds: {
-          northeast: { lat: 40.8, lng: -74.0 },
-          southwest: { lat: 40.7, lng: -74.1 },
+          north: 40.8,
+          south: 40.7,
+          east: -74.0,
+          west: -74.1,
         },
         createdAt: 2000, // Middle
       },
     ]
 
-    ;(useQuery as jest.Mock).mockReturnValue(mockFavorites)
-    ;(useMutation as jest.Mock).mockReturnValue(jest.fn())
+    ;(useQuery as Mock).mockReturnValue(mockFavorites)
+    ;(useMutation as Mock).mockReturnValue(vi.fn())
 
-    const { getByAllText } = render(<FavoriteRoadsSection />)
+    const { getAllByText } = render(<FavoriteRoadsSection />)
 
     await waitFor(() => {
-      expect(getByAllText('New Route')).toBeTruthy()
-      expect(getByAllText('Middle Route')).toBeTruthy()
-      expect(getByAllText('Old Route')).toBeTruthy()
+      expect(getAllByText('New Route')).toBeTruthy()
+      expect(getAllByText('Middle Route')).toBeTruthy()
+      expect(getAllByText('Old Route')).toBeTruthy()
     })
 
     // The backend sorts by createdAt descending, so we trust that order

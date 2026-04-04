@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-native';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 import { FullChatHistoryView, ChatMessage } from '../../components/ui/full-chat-history-view';
 
 const meta: Meta<typeof FullChatHistoryView> = {

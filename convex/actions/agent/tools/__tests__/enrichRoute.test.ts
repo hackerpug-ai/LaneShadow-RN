@@ -240,9 +240,14 @@ describe('enrichRoute', () => {
       expect(vi.mocked(generateObject)).toHaveBeenCalled()
 
       // Verify schema was passed
-      const schemaArg = vi.mocked(generateObject).mock.calls[0][0].schema
-      expect(schemaArg).toBeDefined()
-      expect(schemaArg._def.typeName).toBe('ZodObject')
+      const callArgs = vi.mocked(generateObject).mock.calls[0]
+      if (callArgs && typeof callArgs[0] === 'object' && callArgs[0] !== null) {
+        const schemaArg = (callArgs[0] as any).schema
+        expect(schemaArg).toBeDefined()
+        expect(schemaArg._def.typeName).toBe('ZodObject')
+      } else {
+        throw new Error('generateObject not called with expected arguments')
+      }
     })
   })
 

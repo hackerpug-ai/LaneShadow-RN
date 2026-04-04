@@ -62,6 +62,12 @@ export type SemanticColors = {
   input: SemanticColorSet
   ring: SemanticColorSet
 
+  // Location / POI colors
+  locationPoiFill: SemanticColorSet
+  locationPoiRing: SemanticColorSet
+  locationPoiMuted: SemanticColorSet
+  locationPoiBg: SemanticColorSet
+
   // Component-specific
   card: SemanticColorSet
   popover: SemanticColorSet

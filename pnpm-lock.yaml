@@ -214,6 +214,9 @@ devDependencies:
   eslint-plugin-react-native:
     specifier: ^5.0.0
     version: 5.0.0(eslint@9.37.0)
+  husky:
+    specifier: ^9.1.7
+    version: 9.1.7
   jsdom:
     specifier: ^29.0.1
     version: 29.0.1
@@ -9069,6 +9072,12 @@ packages:
     dependencies:
       ms: 2.1.3
     dev: false
+
+  /husky@9.1.7:
+    resolution: {integrity: sha512-5gs5ytaNjBrh5Ow3zrvdUUY+0VxIuWVL4i9irt6friV+BqdCfmV11CQTWMiBYWHbXhco+J1kHfTOUkePhCDvMA==}
+    engines: {node: '>=18'}
+    hasBin: true
+    dev: true
 
   /hyphenate-style-name@1.1.0:
     resolution: {integrity: sha512-WDC/ui2VVRrz3jOVi+XtjqkDjiVjTtFaAGiW37k6b+ohyQ5wYDOGkvCZa8+H0nx3gyvv0+BST9xuOgIyGQ00gw==}

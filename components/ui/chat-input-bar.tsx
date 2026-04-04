@@ -12,12 +12,6 @@ import { IconSymbol, type IconName } from './icon-symbol';
 import { useSemanticTheme } from '../../hooks/use-semantic-theme';
 import { SuggestionChips, type SuggestionChip } from './suggestion-chips';
 
-interface SuggestionChip {
-  id: string;
-  label: string;
-  icon: IconName;
-}
-
 const DEFAULT_SUGGESTIONS: SuggestionChip[] = [
   { id: '1', label: '2-hour loop', icon: 'clock-outline' },
   { id: '2', label: 'scenic coastal', icon: 'water-outline' },

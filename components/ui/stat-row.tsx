@@ -5,30 +5,31 @@
  * Follows the design system stat display patterns
  */
 
-import { IconSymbol } from './icon-symbol'
+import { IconSymbol, type IconName } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
 
 export type StatRowProps = {
   /** Icon name from MaterialCommunityIcons */
-  icon: string
+  icon: IconName
   /** Value text */
   value: string
   /** Icon size */
   iconSize?: number
+  testID?: string
 }
 
 /**
  * StatRow component for displaying stat with icon and value
  * Used for duration, distance, wind level, etc.
  */
-export const StatRow = ({ icon, value, iconSize = 18 }: StatRowProps) => {
+export const StatRow = ({ icon, value, iconSize = 18, testID }: StatRowProps) => {
   const theme = useTheme<ExtendedTheme>()
   const { semantic } = theme
 
   return (
-    <View style={styles.stat}>
+    <View style={styles.stat} testID={testID}>
       <IconSymbol
         name={icon}
         size={iconSize}

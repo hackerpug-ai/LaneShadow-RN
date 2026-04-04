@@ -8,6 +8,7 @@
  * - AC4: All conditions are favorable (low wind, no rain, mild temp) → Shows 'Good conditions' summary in green
  */
 
+import { vi, describe, it, expect } from 'vitest'
 import { render, fireEvent } from '@testing-library/react-native'
 import { PaperProvider, MD3DarkTheme } from 'react-native-paper'
 import type { RouteOverlays } from '../../models/saved-routes'
@@ -35,6 +36,10 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     border: { default: '#CAC4D0' },
     input: { default: '#CAC4D0' },
     ring: { default: '#6750A4' },
+    locationPoiFill: { default: '#EDEDED' },
+    locationPoiRing: { default: '#B87333' },
+    locationPoiMuted: { default: '#A3A3A3' },
+    locationPoiBg: { default: '#F3EFE8' },
     card: { default: '#FFFFFF' },
     popover: { default: '#FFFFFF' },
     accent: { default: '#FF6B35' },
@@ -102,7 +107,7 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
 }
 
 // Mock useSemanticTheme hook
-jest.mock('../../hooks/use-semantic-theme', () => ({
+vi.mock('../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
@@ -113,31 +118,57 @@ const createMockOverlays = (conditions: {
   temperature?: 'cold' | 'mild' | 'warm' | 'hot'
 }): RouteOverlays => ({
   rain: {
+    generatedAt: Date.now(),
+    modelVersion: 'test-v1',
+    legend: [
+      { level: 'none', label: 'No rain' },
+      { level: 'light', label: 'Light rain' },
+      { level: 'moderate', label: 'Moderate rain' },
+      { level: 'heavy', label: 'Heavy rain' },
+      { level: 'unavailable', label: 'Unavailable' },
+    ],
     byLeg: [
       {
         legIndex: 0,
         segments: [
-          { start: 0, end: 1000, level: conditions.rain ?? 'none' },
+          { startMeters: 0, endMeters: 1000, level: conditions.rain ?? 'none' },
         ],
       },
     ],
   },
   wind: {
+    generatedAt: Date.now(),
+    modelVersion: 'test-v1',
+    legend: [
+      { level: 'low', label: 'Low wind' },
+      { level: 'moderate', label: 'Moderate wind' },
+      { level: 'high', label: 'High wind' },
+      { level: 'unavailable', label: 'Unavailable' },
+    ],
     byLeg: [
       {
         legIndex: 0,
         segments: [
-          { start: 0, end: 1000, level: conditions.wind ?? 'low' },
+          { startMeters: 0, endMeters: 1000, level: conditions.wind ?? 'low' },
         ],
       },
     ],
   },
   temperature: {
+    generatedAt: Date.now(),
+    modelVersion: 'test-v1',
+    legend: [
+      { level: 'cold', label: 'Cold', range: { min: -Infinity, max: 10, unit: '°C' } },
+      { level: 'mild', label: 'Mild', range: { min: 10, max: 25, unit: '°C' } },
+      { level: 'warm', label: 'Warm', range: { min: 25, max: 32, unit: '°C' } },
+      { level: 'hot', label: 'Hot', range: { min: 32, max: Infinity, unit: '°C' } },
+      { level: 'unavailable', label: 'Unavailable' },
+    ],
     byLeg: [
       {
         legIndex: 0,
         segments: [
-          { start: 0, end: 1000, level: conditions.temperature ?? 'mild' },
+          { startMeters: 0, endMeters: 1000, level: conditions.temperature ?? 'mild' },
         ],
       },
     ],
@@ -368,9 +399,24 @@ describe('weather-strip', () => {
   describe('edge cases', () => {
     it('should handle empty overlays gracefully', () => {
       const overlays: RouteOverlays = {
-        rain: { byLeg: [] },
-        wind: { byLeg: [] },
-        temperature: { byLeg: [] },
+        rain: {
+          generatedAt: Date.now(),
+          modelVersion: 'test-v1',
+          legend: [],
+          byLeg: [],
+        },
+        wind: {
+          generatedAt: Date.now(),
+          modelVersion: 'test-v1',
+          legend: [],
+          byLeg: [],
+        },
+        temperature: {
+          generatedAt: Date.now(),
+          modelVersion: 'test-v1',
+          legend: [],
+          byLeg: [],
+        },
       }
 
       const { queryByTestId } = renderWithPaper(

@@ -7,12 +7,12 @@
 
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
-import { IconSymbol } from './icon-symbol'
+import { IconSymbol, type IconName } from './icon-symbol'
 import type { ExtendedTheme } from '../../styles/types'
 
 export type NavItem = {
   /** Icon name from MaterialCommunityIcons */
-  icon: string
+  icon: IconName
   /** Label text */
   label: string
   /** Whether the item is active */

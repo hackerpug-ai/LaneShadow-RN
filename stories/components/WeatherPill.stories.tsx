@@ -41,7 +41,7 @@ const meta: Meta<typeof WeatherPill> = {
     },
   },
   args: {
-    icon: 'air',
+    icon: 'weather-windy',
     description: 'Light crosswinds on Hwy 1',
     iconSize: 16,
   },
@@ -54,14 +54,14 @@ export const Default: Story = {}
 
 export const Wind: Story = {
   args: {
-    icon: 'air',
+    icon: 'weather-windy',
     description: 'Light crosswinds on Hwy 1',
   },
 }
 
 export const Rain: Story = {
   args: {
-    icon: 'water-drop',
+    icon: 'water',
     description: 'Light rain expected',
     backgroundColor: 'rgba(59, 130, 246, 0.15)',
     textColor: '#60a5fa',
@@ -79,7 +79,7 @@ export const Temperature: Story = {
 
 export const Short: Story = {
   args: {
-    icon: 'air',
+    icon: 'weather-windy',
     description: 'Moderate',
   },
 }
@@ -87,9 +87,9 @@ export const Short: Story = {
 export const Multiple: Story = {
   render: () => (
     <View style={{ gap: 8, alignItems: 'flex-start' }}>
-      <WeatherPill icon="air" description="Light crosswinds on Hwy 1" />
+      <WeatherPill icon="weather-windy" description="Light crosswinds on Hwy 1" />
       <WeatherPill
-        icon="water-drop"
+        icon="water"
         description="Light rain expected"
         backgroundColor="rgba(59, 130, 246, 0.15)"
         textColor="#60a5fa"

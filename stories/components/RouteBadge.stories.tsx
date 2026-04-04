@@ -57,26 +57,26 @@ export const Primary: Story = {
   args: {
     children: 'Most Scenic',
     variant: 'primary',
-    icon: 'landscape',
+    icon: 'image',
   },
 }
 
 export const WithIcon: Story = {
   args: {
     children: '2h 15m',
-    icon: 'schedule',
+    icon: 'clock-outline',
   },
 }
 
 export const BadgeSet: Story = {
   render: () => (
     <View style={{ gap: 8, alignItems: 'flex-start' }}>
-      <RouteBadge variant="primary" icon="landscape">
+      <RouteBadge variant="primary" icon="image">
         Most Scenic
       </RouteBadge>
       <RouteBadge>87 mi</RouteBadge>
       <RouteBadge icon="calendar-clock">2h 15m</RouteBadge>
-      <RouteBadge icon="air" variant="primary">
+      <RouteBadge icon="weather-windy" variant="primary">
         Moderate
       </RouteBadge>
     </View>

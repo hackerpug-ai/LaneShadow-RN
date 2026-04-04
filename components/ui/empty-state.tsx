@@ -14,7 +14,7 @@
  * ```
  */
 
-import { IconSymbol } from './icon-symbol'
+import { IconSymbol, type IconName } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 
@@ -22,7 +22,7 @@ import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Button } from './button'
 
 export type EmptyStateProps = {
-  icon: string
+  icon: IconName
   headline: string
   body: string
   ctaLabel?: string
@@ -42,13 +42,15 @@ export const EmptyState = ({
 
   return (
     <View testID={testID ?? 'empty-state'} style={styles.container}>
-      <View testID={testID ? `${testID}-icon` : 'empty-state-icon'}>
+      <View
+        testID={testID ? `${testID}-icon` : 'empty-state-icon'}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
         <IconSymbol
-          name={icon as React.ComponentProps<typeof MaterialCommunityIcons>['name']}
+          name={icon as IconName}
           size={64}
           color={semantic.color.onSurface.muted}
-          accessibilityElementsHidden
-          importantForAccessibility="no-hide-descendants"
         />
       </View>
       <View

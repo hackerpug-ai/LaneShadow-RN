@@ -65,7 +65,7 @@ export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrich
       { ms: ENRICH_TIMEOUT_MS, label: 'enrichRoute' }
     )
 
-    return result.object.routes
+    return result.object.routes as RouteEnrichment[]
   } catch (error) {
     console.warn('[enrichRoute] LLM call failed, using fallback labels', error)
     return params.routes.map((_, idx) => fallbackEnrichment(idx))
