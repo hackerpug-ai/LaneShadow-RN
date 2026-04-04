@@ -2,20 +2,21 @@
 
 import type { PlanInput } from '../../../../../models/saved-routes'
 import { parseNaturalLanguageInput } from '../parseNaturalLanguageInput'
+import { vi, beforeEach, describe, it, expect } from 'vitest'
 
 // Mock generateObject from AI SDK
-const mockGenerateObject = jest.fn()
+const mockGenerateObject = vi.fn()
 
-jest.mock('ai', () => ({
-  generateObject: jest.fn().mockImplementation(() => mockGenerateObject()),
+vi.mock('ai', () => ({
+  generateObject: vi.fn().mockImplementation(() => mockGenerateObject()),
 }))
 
-jest.mock('@ai-sdk/openai', () => ({
-  openai: jest.fn().mockReturnValue('mocked-model'),
+vi.mock('@ai-sdk/openai', () => ({
+  openai: vi.fn().mockReturnValue('mocked-model'),
 }))
 
 // Mock withTimeout to avoid actual delays
-jest.mock('../../lib/reliability', () => ({
+vi.mock('../../lib/reliability', () => ({
   withTimeout: async (fn, { ms, label }) => {
     return await fn()
   },
@@ -29,7 +30,7 @@ describe('parseNaturalLanguageInput', () => {
   const mockDepartureTime = Date.now() + 3600000
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Given: "2-hour scenic ride from SF to SC"', () => {
