@@ -12,6 +12,7 @@ import type { Doc, Id } from '../_generated/dataModel'
 import { internalMutation, internalQuery, mutation, query } from '../_generated/server'
 import { requireIdentity } from '../guards'
 import { ERROR_CODES } from '../errors'
+import { checkUsage, incrementUsage } from './planUsage'
 
 type RoutePlanDoc = Doc<'route_plans'>
 
@@ -101,6 +102,12 @@ export const createPlanHandler = async (
   },
   clerkUserId: string
 ): Promise<{ routePlanId: Id<'route_plans'> }> => {
+  // Check usage rate limit before creating plan
+  const usageCheck = await checkUsage(ctx as unknown as any, clerkUserId)
+  if (!usageCheck.allowed) {
+    throw new ConvexError(ERROR_CODES.RATE_LIMIT_EXCEEDED)
+  }
+
   // Check no active (pending or running) plan already exists
   const pendingPlan = await queryFirstByStatus(ctx as unknown as GetActivePlanCtx, clerkUserId, ROUTE_PLAN_STATUS.PENDING)
   if (pendingPlan) {
@@ -123,6 +130,9 @@ export const createPlanHandler = async (
     createdAt: now,
     updatedAt: now,
   })
+
+  // Increment usage after successful plan creation
+  await incrementUsage(ctx as unknown as any, clerkUserId)
 
   // Schedule execution
   const scheduledActionId = await ctx.scheduler.runAfter(0, internal.actions.agent.planRide.executePlan, {

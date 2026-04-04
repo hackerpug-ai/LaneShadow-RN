@@ -24,6 +24,7 @@ import type { Id } from '../../_generated/dataModel'
 import { ROUTE_PLAN_STATUS } from '../../../models/route-plans'
 import { planRideOrchestrator } from './lib/planRideOrchestrator'
 import type { OrchestratorResult } from './lib/planRideOrchestrator'
+import { getConversationalError } from '../../lib/conversationalErrors'
 
 const plannedRouteOptionValidator = v.object({
   routeOptionId: v.string(),
@@ -172,7 +173,23 @@ export const planRide = action({
       backend.error('convex.action', 'Route planning failed', error as Error, {
         userId: session.user._id,
       })
-      throw error
+
+      // Convert error to conversational error for chat interface
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      const errorValues = Object.values(ERROR_CODES)
+      const errorCode = errorValues.includes(errorMessage as typeof ERROR_CODES[keyof typeof ERROR_CODES])
+        ? (errorMessage as typeof ERROR_CODES[keyof typeof ERROR_CODES])
+        : ERROR_CODES.GENERATION_FAILED
+
+      const conversationalError = getConversationalError(errorCode, {
+        userId: session.user._id,
+      })
+
+      // Return conversational error instead of throwing
+      throw new Error(JSON.stringify({
+        error: conversationalError,
+        originalError: errorMessage,
+      }))
     }
   },
 })
@@ -311,14 +328,27 @@ export const executePlanHandler = async (
       error: errorMessage,
       errorStack: error instanceof Error ? error.stack : undefined,
     })
+
+    // Determine error code for conversational error
+    let errorCode: typeof ERROR_CODES[keyof typeof ERROR_CODES] = ERROR_CODES.GENERATION_FAILED
+    if (errorMessage === ERROR_CODES.AGENT_TIMEOUT) {
+      errorCode = ERROR_CODES.AGENT_TIMEOUT
+    } else if (errorMessage === ERROR_CODES.NO_ROUTES_GENERATED) {
+      errorCode = ERROR_CODES.NO_ROUTES_GENERATED
+    } else if (errorMessage === ERROR_CODES.INVALID_AGENT_RESPONSE_STRUCTURE) {
+      errorCode = ERROR_CODES.NO_ROUTES_GENERATED
+    }
+
+    const conversationalError = getConversationalError(errorCode)
+
     await ctx.runMutation(
       (internal as any).db.routePlans.updatePlanStatus,
       {
         routePlanId,
         status: ROUTE_PLAN_STATUS.FAILED,
-        errorCode: errorMessage,
-        errorMessage: 'Route planning failed',
-        statusMessage: 'Planning failed',
+        errorCode: errorCode,
+        errorMessage: conversationalError.message,
+        statusMessage: conversationalError.message,
       }
     )
   }

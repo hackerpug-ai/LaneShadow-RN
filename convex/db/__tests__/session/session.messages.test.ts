@@ -251,7 +251,7 @@ describe('listHandler', () => {
                 callback({ eq: (field: string, value: unknown) => {
                   if (field === 'sessionId') return msg.sessionId === value
                   return true
-                })
+                } })
               )
               return {
                 collect: jest.fn().mockResolvedValue(filtered),

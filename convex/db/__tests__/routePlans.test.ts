@@ -6,6 +6,7 @@
  */
 
 import { ConvexError } from 'convex/values'
+import { vi, beforeEach, afterEach } from 'vitest'
 
 import { ERROR_CODES } from '../../errors'
 import type { Id } from '../../_generated/dataModel'
@@ -16,6 +17,23 @@ import {
   updatePlanStatusHandler,
   cancelPlanHandler,
 } from '../routePlans'
+
+// Mock planUsage functions
+vi.mock('../planUsage', () => ({
+  checkUsage: vi.fn().mockResolvedValue({
+    count: 0,
+    limit: 5,
+    allowed: true,
+    remaining: 5,
+  }),
+  incrementUsage: vi.fn().mockResolvedValue({
+    count: 1,
+    limit: 5,
+    allowed: true,
+    remaining: 4,
+  }),
+  getCurrentMonth: vi.fn().mockReturnValue('2026-04'),
+}))
 
 // ---------------------------------------------------------------------------
 // Shared fixtures
