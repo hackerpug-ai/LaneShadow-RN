@@ -1,63 +1,40 @@
 import type { Meta, StoryObj } from '@storybook/react-native';
-import { View, Text } from 'react-native';
-import { FullChatHistoryView, ChatMessage } from '../../components/ui/full-chat-history-view';
+import { View } from 'react-native';
+import { ChatTranscript, ChatMessage } from '../../components/ui/chat-transcript';
 
-const meta: Meta<typeof FullChatHistoryView> = {
-  title: 'Components/FullChatHistoryView',
-  component: FullChatHistoryView,
+const meta: Meta<typeof ChatTranscript> = {
+  title: 'Components/ChatTranscript',
+  component: ChatTranscript,
   parameters: {
     layout: 'fullscreen',
     docs: {
       description: {
         component:
-          'Expanded chat history view showing all messages with route attachments. Takes 70% of screen height with map visible below (dimmed).',
+          'Agentic chat transcript view. Rider messages are right-aligned bubbles; agent messages are left-aligned with a motorbike avatar. Route attachments render inline below agent text.',
       },
     },
   },
   argTypes: {
-    visible: {
-      control: 'boolean',
-      description: 'View visibility',
-    },
     messages: {
       control: 'object',
       description: 'Array of chat messages',
-    },
-    onCollapse: {
-      action: 'collapsed',
-      description: 'Callback when view is collapsed',
     },
     onRoutePress: {
       action: 'route-pressed',
       description: 'Callback when a route attachment is pressed',
     },
   },
-  args: {
-    visible: true,
-  },
   decorators: [
     (Story) => (
-      <View style={{ flex: 1, backgroundColor: '#0E0F11' }}>
+      <View style={{ flex: 1 }}>
         <Story />
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            opacity: 0.3,
-          }}
-        >
-          <Text style={{ color: 'rgba(255,255,255,0.55)' }}>
-            Map View (Dimmed)
-          </Text>
-        </View>
       </View>
     ),
   ],
 };
 
 export default meta;
-type Story = StoryObj<typeof FullChatHistoryView>;
+type Story = StoryObj<typeof ChatTranscript>;
 
 const MOCK_MESSAGES: ChatMessage[] = [
   {
@@ -119,7 +96,7 @@ export const Default: Story = {
   },
 };
 
-export const SingleMessage: Story = {
+export const SingleRiderMessage: Story = {
   args: {
     messages: [
       {
@@ -129,6 +106,12 @@ export const SingleMessage: Story = {
         timestamp: new Date(),
       },
     ],
+  },
+};
+
+export const EmptyState: Story = {
+  args: {
+    messages: [],
   },
 };
 
@@ -157,7 +140,7 @@ export const LongConversation: Story = {
       {
         id: '4',
         role: 'agent',
-        content: 'Updated! Here are 2 shorter options...',
+        content: 'Updated! Here are 2 shorter options that come in under your 2-hour window.',
         timestamp: new Date(Date.now() - 60000),
         routeAttachments: [
           MOCK_MESSAGES[1].routeAttachments![1],
@@ -165,13 +148,6 @@ export const LongConversation: Story = {
         ],
       },
     ],
-  },
-};
-
-export const WithPendingInput: Story = {
-  args: {
-    messages: MOCK_MESSAGES,
-    currentInput: 'Add a stop at Big Sur',
   },
 };
 

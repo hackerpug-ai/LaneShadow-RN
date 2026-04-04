@@ -10,18 +10,17 @@
  */
 
 import { useQuery } from 'convex/react'
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { useLocalSearchParams } from 'expo-router'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { api } from '../../../convex/_generated/api'
 import type { Id } from '../../../convex/_generated/dataModel'
 import { SubpageLayout } from '../../../components/layouts/subpage-layout'
-import { FullChatHistoryView } from '../../../components/ui/full-chat-history-view'
-import type { ChatMessage } from '../../../components/ui/full-chat-history-view'
+import { ChatTranscript } from '../../../components/ui/chat-transcript'
+import type { ChatMessage } from '../../../components/ui/chat-transcript'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 
 export default function ChatScreen() {
-  const router = useRouter()
   const { semantic } = useSemanticTheme()
   const { sessionId: sessionIdParam } = useLocalSearchParams<{ sessionId?: string }>()
 
@@ -54,10 +53,6 @@ export default function ChatScreen() {
       timestamp: new Date(msg.createdAt),
     })) ?? []
 
-  const handleCollapse = () => {
-    router.push('/(app)/(tabs)')
-  }
-
   // Loading state while queries are in flight
   const isLoading = sessions === undefined
 
@@ -86,11 +81,7 @@ export default function ChatScreen() {
           </Text>
         </View>
       ) : (
-        <FullChatHistoryView
-          visible
-          messages={messages}
-          onCollapse={handleCollapse}
-        />
+        <ChatTranscript messages={messages} />
       )}
     </SubpageLayout>
   )
