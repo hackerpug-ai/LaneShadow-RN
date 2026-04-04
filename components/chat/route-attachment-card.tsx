@@ -16,6 +16,17 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { PlannedRouteOptionsView } from '../../types/routes'
 
+/**
+ * Add opacity to a hex color
+ */
+const addOpacity = (hexColor: string, opacity: number): string => {
+  const hex = hexColor.replace('#', '')
+  const r = parseInt(hex.substring(0, 2), 16)
+  const g = parseInt(hex.substring(2, 4), 16)
+  const b = parseInt(hex.substring(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`
+}
+
 type RouteAttachmentCardProps = {
   route: PlannedRouteOptionsView['options'][0]
   isSelected: boolean
@@ -59,14 +70,8 @@ export const RouteAttachmentCard = ({
 }: RouteAttachmentCardProps) => {
   const { semantic } = useSemanticTheme()
 
-  const duration = route.map.legs.reduce(
-    (sum, leg) => sum + leg.duration.value,
-    0
-  )
-  const distance = route.map.legs.reduce(
-    (sum, leg) => sum + leg.distance.value,
-    0
-  )
+  const duration = route.stats.durationSeconds
+  const distance = route.stats.distanceMeters
 
   return (
     <TouchableOpacity
@@ -75,11 +80,11 @@ export const RouteAttachmentCard = ({
         styles.container,
         {
           backgroundColor: isSelected
-            ? semantic.color.primary.container
+            ? addOpacity(semantic.color.primary.default, 0.15)
             : semantic.color.card.default,
           borderColor: isSelected
             ? semantic.color.primary.default
-            : semantic.color.outline.default,
+            : semantic.color.border.default,
           borderWidth: isSelected ? 2 : 1,
           borderRadius: semantic.radius.md,
           padding: semantic.space.md,
@@ -90,6 +95,7 @@ export const RouteAttachmentCard = ({
       accessibilityLabel={`Route ${route.label}, ${formatDuration(
         duration
       )}, ${formatDistance(distance)}`}
+      accessibilityHint="Double tap to view route details and highlight on map"
       accessibilityRole="button"
       accessibilityState={{ selected: isSelected }}
     >
@@ -99,8 +105,8 @@ export const RouteAttachmentCard = ({
           semantic.type.title.sm,
           {
             color: isSelected
-              ? semantic.color.onPrimaryContainer.default
-              : semantic.color.onCard.default,
+              ? semantic.color.primary.default
+              : semantic.color.onSurface.default,
             marginBottom: semantic.space.xs,
           },
         ]}
@@ -117,8 +123,8 @@ export const RouteAttachmentCard = ({
               semantic.type.body.sm,
               {
                 color: isSelected
-                  ? semantic.color.onPrimaryContainer.secondary
-                  : semantic.color.onCard.secondary,
+                  ? semantic.color.primary.default
+                  : semantic.color.onSurface.muted,
               },
             ]}
           >
@@ -131,8 +137,8 @@ export const RouteAttachmentCard = ({
               semantic.type.body.sm,
               {
                 color: isSelected
-                  ? semantic.color.onPrimaryContainer.secondary
-                  : semantic.color.onCard.secondary,
+                  ? semantic.color.primary.default
+                  : semantic.color.onSurface.muted,
               },
             ]}
           >

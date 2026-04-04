@@ -12,10 +12,11 @@
  * This is a controlled component - all state managed by parent.
  */
 
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { ErrorMessage } from './error-message'
 import type { RideFlowState } from '../../hooks/use-ride-flow'
 
 type ChatInputProps = {
@@ -39,25 +40,28 @@ const PlanningProgress = ({ currentPhase }: { currentPhase: string | null }) => 
   ]
 
   const currentIndex = phases.findIndex((p) => p.key === currentPhase)
+  const phaseLabel = currentIndex >= 0 ? phases[currentIndex].label : 'Planning...'
 
   return (
     <View
       style={[
         styles.progressContainer,
         {
-          backgroundColor: semantic.color.surface.secondary,
+          backgroundColor: semantic.color.surfaceVariant.default,
           padding: semantic.space.md,
           borderRadius: semantic.radius.md,
         },
       ]}
+      accessibilityLiveRegion="polite"
+      accessibilityLabel={`Planning progress: ${phaseLabel}`}
     >
       <Text
         style={[
           semantic.type.body.sm,
-          { color: semantic.color.onSurface.secondary },
+          { color: semantic.color.onSurface.muted },
         ]}
       >
-        {currentIndex >= 0 ? phases[currentIndex].label : 'Planning...'}
+        {phaseLabel}
       </Text>
     </View>
   )
@@ -91,12 +95,14 @@ const SuggestionChips = ({
           style={[
             styles.chip,
             {
-              backgroundColor: semantic.color.surface.secondary,
+              backgroundColor: semantic.color.surfaceVariant.default,
               paddingHorizontal: semantic.space.md,
               paddingVertical: semantic.space.sm,
               borderRadius: semantic.radius.full,
             },
           ]}
+          accessibilityLabel={`Suggestion: ${suggestion}`}
+          accessibilityRole="button"
         >
           <Text
             style={[
@@ -126,16 +132,28 @@ export const ChatInput = ({
   const insets = useSafeAreaInsets()
   const [text, setText] = useState('')
 
-  const handleSend = () => {
+  const handleSend = useCallback(() => {
     const trimmed = text.trim()
     if (trimmed.length > 0) {
       onSend(trimmed)
       setText('')
     }
-  }
+  }, [text, onSend])
 
   const isPlanning = state.phase === 'PLANNING'
   const isIdle = state.phase === 'IDLE'
+  const isError = state.phase === 'ERROR'
+
+  // In ERROR state, sessionId might be null - handle gracefully
+  const errorMessage = isError ? state.errorMessage : null
+
+  const handleSelectSuggestion = useCallback(
+    (suggestion: string) => {
+      setText(suggestion)
+      setTimeout(() => handleSend(), 100)
+    },
+    [handleSend]
+  )
 
   return (
     <View
@@ -158,14 +176,16 @@ export const ChatInput = ({
         />
       )}
 
+      {/* Error message when in ERROR state */}
+      {isError && errorMessage && (
+        <ErrorMessage message={errorMessage} testID="chat-error-message" />
+      )}
+
       {/* Suggestion chips when idle */}
       {isIdle && suggestions.length > 0 && !isPlanning && (
         <SuggestionChips
           suggestions={suggestions}
-          onSelect={(suggestion) => {
-            setText(suggestion)
-            setTimeout(() => handleSend(), 100)
-          }}
+          onSelect={handleSelectSuggestion}
         />
       )}
 
@@ -174,10 +194,10 @@ export const ChatInput = ({
         style={[
           styles.inputContainer,
           {
-            backgroundColor: semantic.color.surface.primary,
+            backgroundColor: semantic.color.surface.default,
             borderRadius: semantic.radius.full,
             borderWidth: 1,
-            borderColor: semantic.color.outline.default,
+            borderColor: semantic.color.border.default,
           },
         ]}
       >
@@ -192,12 +212,14 @@ export const ChatInput = ({
               },
             ]}
             placeholder="Where would you like to ride?"
-            placeholderTextColor={semantic.color.onSurface.variant}
+            placeholderTextColor={semantic.color.onSurface.muted}
             value={text}
             onChangeText={setText}
             onSubmitEditing={handleSend}
             returnKeyType="send"
             testID="chat-input-text-field"
+            accessibilityLabel="Chat input field"
+            accessibilityHint="Type your ride request and tap send"
           />
         </View>
 
@@ -208,7 +230,7 @@ export const ChatInput = ({
             styles.sendButton,
             {
               backgroundColor: isPlanning
-                ? semantic.color.error.default
+                ? semantic.color.danger.default
                 : semantic.color.primary.default,
               width: 40,
               height: 40,
@@ -217,6 +239,14 @@ export const ChatInput = ({
               justifyContent: 'center',
             },
           ]}
+          testID="chat-input-send-button"
+          accessibilityLabel={isPlanning ? 'Cancel planning' : 'Send message'}
+          accessibilityHint={
+            isPlanning
+              ? 'Cancels the current ride planning operation'
+              : 'Sends your ride request to the planning assistant'
+          }
+          accessibilityRole="button"
         >
           <Text
             style={[
