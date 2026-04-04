@@ -1,5 +1,7 @@
 import type { Doc, Id } from '../_generated/dataModel'
 import type { MutationCtx, QueryCtx } from '../_generated/server'
+import { internalMutation, internalQuery } from '../_generated/server'
+import { v } from 'convex/values'
 import {
   type UsageCheckResult,
   FREE_TIER_MONTHLY_LIMIT,
@@ -103,3 +105,39 @@ export async function incrementUsage(
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// Internal query/mutation for agent usage
+// ---------------------------------------------------------------------------
+
+/**
+ * Internal query to check usage from actions/agents
+ */
+export const checkUsageInternal = internalQuery({
+  args: { clerkUserId: v.string() },
+  returns: v.object({
+    count: v.number(),
+    limit: v.number(),
+    allowed: v.boolean(),
+    remaining: v.number(),
+  }),
+  handler: async (ctx, args) => {
+    return checkUsage(ctx, args.clerkUserId)
+  },
+})
+
+/**
+ * Internal mutation to increment usage from actions/agents
+ */
+export const incrementUsageInternal = internalMutation({
+  args: { clerkUserId: v.string() },
+  returns: v.object({
+    count: v.number(),
+    limit: v.number(),
+    allowed: v.boolean(),
+    remaining: v.number(),
+  }),
+  handler: async (ctx, args) => {
+    return incrementUsage(ctx, args.clerkUserId)
+  },
+})
