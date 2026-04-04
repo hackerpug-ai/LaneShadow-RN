@@ -255,13 +255,16 @@ describe('FavoriteRoadCard', () => {
     })
 
     it('should include road name in dialog message', () => {
-      const { getByTestId, getByText } = render(
+      const { getByTestId, getAllByText } = render(
         <FavoriteRoadCard {...defaultProps} />
       )
 
       fireEvent.press(getByTestId('delete-button'))
 
-      expect(getByText(/Scenic Coastal Drive/)).toBeTruthy()
+      // Name appears twice: once in the card title, once in the dialog prompt.
+      // Assert both are present (second occurrence confirms dialog includes it).
+      const matches = getAllByText(/Scenic Coastal Drive/)
+      expect(matches.length).toBeGreaterThanOrEqual(2)
     })
 
     it('should dismiss dialog when cancel is pressed', () => {

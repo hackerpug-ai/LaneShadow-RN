@@ -51,6 +51,7 @@ export const RouteSearchBar = ({ onSearch, testID = 'route-search-bar' }: RouteS
         name="magnify"
         size={20}
         color={semantic.color.onSurface.subtle}
+        testID={`${testID}-icon`}
       />
       <TextInput
         testID={`${testID}-input`}

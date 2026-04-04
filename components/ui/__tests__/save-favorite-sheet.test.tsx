@@ -120,35 +120,38 @@ vi.mock('../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
-// Mock BottomActionSheet
+// Mock @gorhom/bottom-sheet. The real library uses imperative ref methods
+// (present/dismiss) to control visibility, not a `visible` prop. For tests
+// we render children unconditionally so the sheet contents are always in the
+// tree — the bottom-action-sheet wrapper still calls present/dismiss on the
+// mocked ref, which are no-ops here.
 vi.mock('@gorhom/bottom-sheet', () => {
   const React = require('react')
   const { View } = require('react-native')
 
   return {
     BottomSheetModal: React.forwardRef((props: any, ref: any) => {
+      // Track presentation state locally. The wrapper calls present()/dismiss()
+      // via the imperative ref when its `visible` prop changes — we mirror
+      // that by rendering children only when present() has been called.
+      const [presented, setPresented] = React.useState(false)
       React.useImperativeHandle(ref, () => ({
-        present: vi.fn(),
-        dismiss: vi.fn(),
+        present: () => setPresented(true),
+        dismiss: () => setPresented(false),
       }))
-      if (!props.visible) return null
-      return React.createElement(View, { testID: props.testID || 'bottom-sheet' }, props.children)
+      if (!presented) return null
+      return React.createElement(
+        View,
+        { testID: props.testID || 'bottom-sheet' },
+        props.children
+      )
     }),
     BottomSheetView: (props: any) => React.createElement(View, props, props.children),
     BottomSheetBackdrop: () => null,
   }
 })
 
-// Mock react-native-paper
-vi.mock('react-native-paper', () => {
-  const React = require('react')
-  const { View, Text, Pressable } = require('react-native')
-
-  return {
-    Provider: (props: any) => props.children,
-    Text: (props: any) => React.createElement(Text, props, props.children),
-  }
-})
+// react-native-paper is globally stubbed via __mocks__/react-native-paper.ts.
 
 // Mock Convex mutation
 const mockInsertFavorite = vi.fn()
@@ -243,7 +246,13 @@ describe('SaveFavoriteSheet', () => {
         input: {
           name: 'Hwy 9 - Skyline Blvd',
           geometry: mockSegment.geometry,
-          bounds: mockSegment.bounds,
+          // Component transforms { northeast, southwest } → { north, south, east, west }
+          bounds: {
+            north: mockSegment.bounds.northeast.lat,
+            south: mockSegment.bounds.southwest.lat,
+            east: mockSegment.bounds.northeast.lng,
+            west: mockSegment.bounds.southwest.lng,
+          },
         },
       })
     })
@@ -277,7 +286,13 @@ describe('SaveFavoriteSheet', () => {
         input: {
           name: 'Hwy 9 - Skyline Blvd',
           geometry: mockSegment.geometry,
-          bounds: mockSegment.bounds,
+          // Component transforms { northeast, southwest } → { north, south, east, west }
+          bounds: {
+            north: mockSegment.bounds.northeast.lat,
+            south: mockSegment.bounds.southwest.lat,
+            east: mockSegment.bounds.northeast.lng,
+            west: mockSegment.bounds.southwest.lng,
+          },
         },
       })
     })
@@ -390,17 +405,16 @@ describe('SaveFavoriteSheet', () => {
     it('displays error message when mutation throws', async () => {
       mockInsertFavorite.mockRejectedValue(new Error('Network error'))
 
-      const { getByTestId, getByText } = renderSheet()
+      const { getByTestId, findByText } = renderSheet()
       const input = getByTestId('save-favorite-name-input')
       const saveButton = getByTestId('save-favorite-save-button')
 
       fireEvent.changeText(input, 'Hwy 9')
       fireEvent.press(saveButton)
 
-      // Wait for async mutation
-      await Promise.resolve()
-
-      expect(getByText('Failed to save favorite. Please try again.')).toBeTruthy()
+      // findByText auto-waits for the async state update after the rejected
+      // mutation settles and the catch handler runs.
+      expect(await findByText('Failed to save favorite. Please try again.')).toBeTruthy()
     })
 
     it('keeps sheet open when mutation fails', async () => {
@@ -423,15 +437,16 @@ describe('SaveFavoriteSheet', () => {
     it('reenables Save button after mutation fails', async () => {
       mockInsertFavorite.mockRejectedValue(new Error('Network error'))
 
-      const { getByTestId } = renderSheet()
+      const { getByTestId, findByText } = renderSheet()
       const input = getByTestId('save-favorite-name-input')
       const saveButton = getByTestId('save-favorite-save-button')
 
       fireEvent.changeText(input, 'Hwy 9')
       fireEvent.press(saveButton)
 
-      // Wait for async mutation
-      await Promise.resolve()
+      // Wait for the error message to appear (after catch + finally have run).
+      // The finally block sets isSaving=false which re-enables the button.
+      await findByText('Failed to save favorite. Please try again.')
 
       expect(saveButton.props.disabled).toBe(false)
     })

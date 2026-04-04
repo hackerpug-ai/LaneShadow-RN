@@ -2,50 +2,55 @@
  * Stub for @expo/vector-icons. The real package ships .js files containing
  * inline JSX (expected to be processed by Metro), which vitest + vite cannot
  * parse. Tests only need a component-shaped stub that renders nothing.
+ *
+ * This module is used for BOTH:
+ *   1. `import { MaterialCommunityIcons } from '@expo/vector-icons'` (named)
+ *   2. `import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'` (default, deep path)
+ *
+ * The Vite stub plugin redirects both to this one file, so we expose a
+ * single generic component as BOTH named exports AND as the default.
+ * When imported via deep path, the default export is expected to be the
+ * icon component itself, not a package-shaped object.
  */
 import React from 'react'
 
-const createIconComponent = (name: string) => {
-  const Icon = (props: Record<string, unknown>) =>
-    React.createElement('View', {
-      testID: (props as { testID?: string }).testID ?? `icon-${name}`,
-      'data-name': (props as { name?: string }).name,
-    })
-  Icon.displayName = name
-  Icon.glyphMap = {} as Record<string, number>
-  return Icon
+type IconProps = {
+  name?: string
+  size?: number
+  color?: string
+  testID?: string
+  style?: unknown
 }
 
-export const MaterialCommunityIcons = createIconComponent('MaterialCommunityIcons')
-export const MaterialIcons = createIconComponent('MaterialIcons')
-export const Ionicons = createIconComponent('Ionicons')
-export const Feather = createIconComponent('Feather')
-export const FontAwesome = createIconComponent('FontAwesome')
-export const FontAwesome5 = createIconComponent('FontAwesome5')
-export const FontAwesome6 = createIconComponent('FontAwesome6')
-export const AntDesign = createIconComponent('AntDesign')
-export const Entypo = createIconComponent('Entypo')
-export const EvilIcons = createIconComponent('EvilIcons')
-export const Fontisto = createIconComponent('Fontisto')
-export const Foundation = createIconComponent('Foundation')
-export const Octicons = createIconComponent('Octicons')
-export const SimpleLineIcons = createIconComponent('SimpleLineIcons')
-export const Zocial = createIconComponent('Zocial')
+const IconStub = (props: IconProps) =>
+  React.createElement('View', {
+    testID: props.testID ?? `icon-${props.name ?? 'generic'}`,
+    'data-icon-name': props.name,
+    'data-icon-size': props.size,
+    'data-icon-color': props.color,
+    style: props.style,
+  })
+IconStub.displayName = 'IconStub'
+;(IconStub as unknown as { glyphMap: Record<string, number> }).glyphMap = {}
 
-export default {
-  MaterialCommunityIcons,
-  MaterialIcons,
-  Ionicons,
-  Feather,
-  FontAwesome,
-  FontAwesome5,
-  FontAwesome6,
-  AntDesign,
-  Entypo,
-  EvilIcons,
-  Fontisto,
-  Foundation,
-  Octicons,
-  SimpleLineIcons,
-  Zocial,
-}
+// Named exports for consumers of `@expo/vector-icons` (base package).
+export const MaterialCommunityIcons = IconStub
+export const MaterialIcons = IconStub
+export const Ionicons = IconStub
+export const Feather = IconStub
+export const FontAwesome = IconStub
+export const FontAwesome5 = IconStub
+export const FontAwesome6 = IconStub
+export const AntDesign = IconStub
+export const Entypo = IconStub
+export const EvilIcons = IconStub
+export const Fontisto = IconStub
+export const Foundation = IconStub
+export const Octicons = IconStub
+export const SimpleLineIcons = IconStub
+export const Zocial = IconStub
+
+// Default export: the icon component itself. Deep-path imports like
+// `@expo/vector-icons/MaterialCommunityIcons` expect the default export to
+// be the component directly.
+export default IconStub

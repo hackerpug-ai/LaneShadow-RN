@@ -53,6 +53,14 @@ Module._resolveFilename = function (request, parent, ...rest) {
   return originalResolveFilename.call(this, request, parent, ...rest)
 }
 
+// Configure @testing-library/react-native to include elements marked as
+// accessibilityElementsHidden / importantForAccessibility="no-hide-descendants"
+// in queries. Many of our components use these a11y props on decorative
+// wrappers (icons, backgrounds) that tests still need to address by testID.
+// Must run inline (not in beforeAll) so module-level `render()` calls pick it up.
+const { configure } = await import('@testing-library/react-native')
+configure({ defaultHidden: true })
+
 const loadFirstEnvFile = () => {
   const rootDir = path.resolve(__dirname)
   const candidates = ['.env.test.local', '.env.test', '.env.local', '.env'].map(

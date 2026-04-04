@@ -118,16 +118,8 @@ vi.mock('../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
-// Mock @expo/vector-icons
-vi.mock('@expo/vector-icons', () => {
-  const { View } = require('react-native')
-  const { createElement } = require('react')
-  return {
-    MaterialCommunityIcons: (props) => {
-      return createElement(View, { testID: props.testID, size: props.size, color: props.color, name: props.name })
-    },
-  }
-})
+// @expo/vector-icons is globally stubbed via __mocks__/expo-vector-icons.ts
+// (wired in vitest.config.ts + vitest.env.js). No per-test override needed.
 
 // ---------------------------------------------------------------------------
 // Import after mocks

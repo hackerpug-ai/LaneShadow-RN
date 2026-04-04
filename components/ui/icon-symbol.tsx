@@ -17,12 +17,14 @@ export function IconSymbol({
   size = 24,
   color,
   style,
+  testID,
 }: {
   name: IconName
   size?: number
   color: string | OpaqueColorValue
   style?: StyleProp<TextStyle>
   weight?: SymbolWeight
+  testID?: string
 }) {
-  return <MaterialCommunityIcons color={color} size={size} name={name} style={style} />
+  return <MaterialCommunityIcons color={color} size={size} name={name} style={style} testID={testID} />
 }

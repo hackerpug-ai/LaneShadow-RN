@@ -119,36 +119,10 @@ vi.mock('../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
-// Mock react-native-paper Text (not in global mock)
-vi.mock('react-native-paper', () => {
-  const reactNativePaper = require('react-native-paper')
-  const actual = typeof reactNativePaper === 'function' ? reactNativePaper.default ?? reactNativePaper : reactNativePaper
-  const { Text: RNText } = require('react-native')
-  return {
-    ...actual,
-    // Provide a simple Text that passes style/children through
-    Text: ({ children, style, variant, ...rest }: Record<string, unknown>) => {
-      const { createElement } = require('react')
-      return createElement(RNText, { style, ...rest }, children)
-    },
-    PaperProvider: ({ children }: { children: unknown }) => {
-      const { createElement } = require('react')
-      const { View } = require('react-native')
-      return createElement(View, null, children)
-    },
-    MD3DarkTheme: { dark: true, version: 3, colors: {} },
-  }
-})
-
-// Mock @expo/vector-icons
-vi.mock('@expo/vector-icons', () => {
-  const { View } = require('react-native')
-  return {
-    MaterialCommunityIcons: (props: Record<string, unknown>) => {
-      return <View testID="mock-mci" size={props.size} color={props.color} />
-    },
-  }
-})
+// react-native-paper and @expo/vector-icons are already stubbed globally via
+// __mocks__/ (wired in vitest.config.ts + vitest.env.js). The stubs provide
+// Text, PaperProvider, MD3DarkTheme, MaterialCommunityIcons, etc. No per-test
+// override needed.
 
 // Mock Button to avoid deep import chains (expo-font, etc.)
 vi.mock('./button', () => {

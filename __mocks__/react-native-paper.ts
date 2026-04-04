@@ -4,6 +4,9 @@ import { View, Text as RNText } from 'react-native'
 export const PaperProvider = ({ children }: { children: React.ReactNode; theme?: unknown }) =>
   React.createElement(View, null, children)
 
+// Alias for consumers that do `import { Provider as PaperProvider } from 'react-native-paper'`.
+export const Provider = PaperProvider
+
 export const MD3DarkTheme = {
   dark: true,
   version: 3,
