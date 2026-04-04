@@ -28,7 +28,7 @@ export const MenuLayout = ({
   footerItems: externalFooterItems,
 }: MenuLayoutProps) => {
   const router = useRouter()
-  const segments = useSegments()
+  const segments = useSegments() as string[]
   const activeTab = segments[2] ?? 'index'
 
   const [contentOffset] = useState(new Animated.Value(0))

@@ -18,6 +18,7 @@ type Action = {
   icon: IconName
   onPress: () => void
   testID?: string
+  accessibilityLabel?: string
 }
 
 export type MapHeaderOverlayProps = {
@@ -72,6 +73,7 @@ export const MapHeaderOverlay = ({
           size="icon"
           variant="glass"
           onPress={leftAction.onPress}
+          accessibilityLabel={leftAction.accessibilityLabel}
           testID={leftAction.testID ? `${leftAction.testID}-left-button` : 'map-header-left-button'}
         />
       )
@@ -95,6 +97,7 @@ export const MapHeaderOverlay = ({
           size="icon"
           variant="glass"
           onPress={rightAction.onPress}
+          accessibilityLabel={rightAction.accessibilityLabel}
           testID={
             rightAction.testID ? `${rightAction.testID}-right-button` : 'map-header-right-button'
           }
