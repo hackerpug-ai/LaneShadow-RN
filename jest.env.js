@@ -15,3 +15,14 @@ if (!process.env.CLERK_JWT_ISSUER_DOMAIN) {
 if (!process.env.CLERK_SECRET_KEY) {
   process.env.CLERK_SECRET_KEY = 'test-clerk-secret-key'
 }
+
+// Stub required Expo public env vars for test environments
+if (!process.env.EXPO_PUBLIC_CONVEX_URL) {
+  process.env.EXPO_PUBLIC_CONVEX_URL = 'https://test.convex.cloud'
+}
+if (!process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+  process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY = 'test-clerk-publishable-key'
+}
+if (!process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY) {
+  process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = 'test-google-places-key'
+}
