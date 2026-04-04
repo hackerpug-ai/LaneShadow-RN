@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 export default defineConfig({
   test: {
     // Set NODE_ENV to 'test' to disable LangSmith tracing during tests
-    environment: 'node',
+    environment: 'jsdom',
     setupFiles: ['./vitest.env.js'],
     include: ['**/*.test.ts', '**/*.test.tsx'],
     exclude: [

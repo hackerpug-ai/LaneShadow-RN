@@ -147,24 +147,24 @@ describe('buildOptionsFromResults', () => {
     expect(view.options[0].stats.durationSeconds).toBe(1800)
     expect(view.options[0].stats.legsCount).toBe(2)
   })
-})
 
-// -----------------------------------------------------------------------------
-// planRide Action Integration Tests
-// -----------------------------------------------------------------------------
+  it('handles empty results array', () => {
+    const view = buildOptionsFromResults([], 'plan-id')
 
-describe('planRide action', () => {
-  describe('integration tests (pending)', () => {
-    it('should return parsed options from successful orchestrator response', () => {
-      expect(true).toBe(true) // Placeholder
-    })
+    expect(view.planId).toBe('plan-id')
+    expect(view.options).toHaveLength(0)
+  })
 
-    it('should throw NO_ROUTES_GENERATED when orchestrator returns empty options', () => {
-      expect(true).toBe(true) // Placeholder
-    })
+  it('preserves route geometry encoding details', () => {
+    const results = [
+      { routeSnapshot: makeSnapshot(), sketch: { label: 'Test', rationale: '' } },
+    ]
+    const view = buildOptionsFromResults(results, 'plan-id')
 
-    it('should throw AGENT_TIMEOUT when orchestrator does not respond within 55 seconds', () => {
-      expect(true).toBe(true) // Placeholder
-    })
+    const route = view.options[0]
+    expect(route.map.overviewGeometry.format).toBe('polyline')
+    expect(route.map.overviewGeometry.encoding).toBe('encoded_polyline')
+    expect(route.map.overviewGeometry.precision).toBe(5)
+    expect(route.map.overviewGeometry.value).toBe('test')
   })
 })
