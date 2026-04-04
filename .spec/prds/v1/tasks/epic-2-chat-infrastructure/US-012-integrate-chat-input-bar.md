@@ -1,5 +1,7 @@
 # Integrate ChatInputBar into HomeMapScreen
 
+> Status: COMPLETE (2026-04-04)
+
 > Task ID: US-012
 > Type: FEATURE
 > Priority: P0

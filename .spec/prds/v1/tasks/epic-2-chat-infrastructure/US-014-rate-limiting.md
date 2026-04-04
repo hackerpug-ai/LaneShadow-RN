@@ -1,5 +1,7 @@
 # Implement plan_usage rate limiting and conversational error recovery
 
+> Status: COMPLETE (2026-04-04)
+
 > Task ID: US-014
 > Type: FEATURE
 > Priority: P1

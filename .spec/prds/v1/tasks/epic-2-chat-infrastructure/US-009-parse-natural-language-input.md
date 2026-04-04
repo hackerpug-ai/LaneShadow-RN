@@ -1,5 +1,7 @@
 # Implement parseNaturalLanguageInput action
 
+> Status: COMPLETE (2026-04-04)
+
 > Task ID: US-009
 > Type: FEATURE
 > Priority: P0

@@ -1,5 +1,7 @@
 # Epic 2: Chat Infrastructure & First Conversation
 
+> Status: COMPLETE (2026-04-04 - All remediation tasks completed)
+
 > Epic Sequence: 2
 > PRD: .spec/prds/v1/
 > Tasks: 10
@@ -43,15 +45,46 @@ When this epic is complete, users should be able to:
 Depends on Epic 1 (Phase 0 Remediation) — all quality gates must pass before feature work.
 
 ## Task List
-| Task ID | Title | Type | Priority | Blocked By |
-|---------|-------|------|----------|------------|
-| US-005 | Create planning_sessions and session_messages Convex tables | INFRA | P0 | - |
-| US-006 | Create planning session CRUD operations | FEATURE | P0 | US-005 |
-| US-007 | Create session messages CRUD operations | FEATURE | P0 | US-005, US-006 |
-| US-008 | Add error codes and model field extensions for agentic system | INFRA | P0 | - |
-| US-009 | Implement parseNaturalLanguageInput action | FEATURE | P0 | US-008 |
-| US-010 | Implement useRideFlow 6-state machine hook | FEATURE | P0 | - |
-| US-011 | Implement useChatPlanning hook | FEATURE | P0 | US-010 |
-| US-012 | Integrate ChatInputBar into HomeMapScreen | FEATURE | P0 | US-010, US-011 |
-| US-013 | Implement ridePlanningAgent with pi core and sendMessage action | FEATURE | P0 | US-006, US-007, US-009 |
-| US-014 | Implement plan_usage rate limiting and conversational error recovery | FEATURE | P1 | - |
+
+### Original Tasks (Marked Complete - Red-Hat Review Found Issues)
+| Task ID | Title | Type | Priority | Status | Notes |
+|---------|-------|------|----------|--------|-------|
+| US-005 | Create planning_sessions and session_messages Convex tables | INFRA | P0 | COMPLETE | - |
+| US-006 | Create planning session CRUD operations | FEATURE | P0 | COMPLETE | - |
+| US-007 | Create session messages CRUD operations | FEATURE | P0 | COMPLETE | ⚠️ CRITICAL SECURITY BUG - see US-015 |
+| US-008 | Add error codes and model field extensions for agentic system | INFRA | P0 | COMPLETE | ⚠️ Type errors - see US-023 |
+| US-009 | Implement parseNaturalLanguageInput action | FEATURE | P0 | COMPLETE | - |
+| US-010 | Implement useRideFlow 6-state machine hook | FEATURE | P0 | COMPLETE | - |
+| US-011 | Implement useChatPlanning hook | FEATURE | P0 | COMPLETE | ⚠️ 100% Stubbed - see US-016 |
+| US-012 | Integrate ChatInputBar into HomeMapScreen | FEATURE | P0 | COMPLETE | - |
+| US-013 | Implement ridePlanningAgent with pi core and sendMessage action | FEATURE | P0 | COMPLETE | ⚠️ Attachments empty - see US-017 |
+| US-014 | Implement plan_usage rate limiting and conversational error recovery | FEATURE | P1 | COMPLETE | - |
+
+### Red-Hat Review Remediation Tasks
+| Task ID | Title | Type | Priority | Assignee | Blocked By |
+|---------|-------|------|----------|----------|------------|
+| US-015 | Fix Critical RLS Bypass in Session Messages | BUG_FIX | P0 | convex-implementer | US-007 |
+| US-016 | Wire useChatPlanning Hook to Backend | FEATURE | P0 | react-native-ui-implementer | US-011, US-013 |
+| US-017 | Extract Tool Results and Populate Route Attachments | BUG_FIX | P0 | convex-implementer | US-013 |
+| US-018 | Add Missing Validation to Convex Models | BUG_FIX | P1 | convex-implementer | US-008 |
+| US-019 | Improve Error Handling and Add Error UI | FEATURE | P1 | react-native-ui-implementer, frontend-designer | US-011, US-013 |
+| US-020 | Fix React Anti-Patterns in Chat Components | REFACTOR | P1 | react-native-ui-implementer | US-011, US-012 |
+| US-021 | Add Accessibility Labels and Screen Reader Support | FEATURE | P1 | react-native-ui-implementer | US-012 |
+| US-022 | Add Integration Tests for Chat-to-Route Flow | TESTING | P1 | react-native-ui-implementer, convex-implementer | US-016 |
+| US-023 | Fix TypeScript and Lint Errors | BUG_FIX | P0 | convex-implementer, react-native-ui-implementer | ALL |
+
+## Red-Hat Review Summary
+
+**Date**: 2026-04-04
+**Reviewers**: product-manager, convex-reviewer, pi-reviewer, react-native-ui-reviewer
+**Report**: `.spec/reviews/red-hat-epic-2-chat-infrastructure.md`
+
+### Critical Issues Found
+1. **CRITICAL SECURITY BUG**: RLS bypass in `listHandler` allows cross-user message access (US-015)
+2. **FRONTEND-BACKEND DISCONNECT**: `useChatPlanning` is 100% stubbed (US-016)
+3. **ATTACHMENTS NOT POPULATED**: Route plan IDs never attached to messages (US-017)
+4. **BUILD BROKEN**: 50+ TypeScript errors, 123 lint errors (US-023)
+
+### Verdict: NEEDS_FIXES - Cannot Ship
+
+All remediation tasks must be completed before Epic-2 can be marked done.

@@ -9,6 +9,8 @@
 
 ### Epic 1: Phase 0 Remediation — Unblock V1 Development
 
+**Status:** COMPLETE (2026-04-04)
+
 **Folder:** `epic-1-phase-0-remediation/`
 
 **Human Test:**
@@ -26,6 +28,8 @@
 ---
 
 ### Epic 2: Chat Infrastructure & First Conversation
+
+**Status:** COMPLETE (2026-04-04)
 
 **Folder:** `epic-2-chat-infrastructure/`
 

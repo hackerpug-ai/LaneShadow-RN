@@ -1,5 +1,7 @@
 # Create planning_sessions and session_messages Convex tables
 
+> Status: COMPLETE (2026-04-04)
+
 > Task ID: US-005
 > Type: INFRA
 > Priority: P0

@@ -1,5 +1,7 @@
 # Create session messages CRUD operations
 
+> Status: COMPLETE (2026-04-04)
+
 > Task ID: US-007
 > Type: FEATURE
 > Priority: P0

@@ -1,5 +1,7 @@
 # Replace hardcoded colors in map components with semantic tokens
 
+> Status: COMPLETE (2026-04-04)
+
 > Task ID: US-003
 > Type: INFRA
 > Priority: P0

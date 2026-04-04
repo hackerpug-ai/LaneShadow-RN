@@ -1,5 +1,7 @@
 # Epic 1: Phase 0 Remediation — Unblock V1 Development
 
+> Status: COMPLETE (2026-04-04)
+
 > Epic Sequence: 1
 > PRD: .spec/prds/v1/
 > Tasks: 4

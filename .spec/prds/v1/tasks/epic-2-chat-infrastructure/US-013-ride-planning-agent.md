@@ -1,5 +1,7 @@
 # Implement ridePlanningAgent with pi core and sendMessage action
 
+> Status: COMPLETE (2026-04-04)
+
 > Task ID: US-013
 > Type: FEATURE
 > Priority: P0
