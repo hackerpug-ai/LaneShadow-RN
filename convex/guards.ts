@@ -60,7 +60,16 @@ export const ensureSession = async (ctx: ActionCtx): Promise<Session> => {
   return session
 }
 
-export const requireSession = async (ctx: Ctx): Promise<Session> => {
+export const requireSession = async (ctx: Ctx, devBypassKey?: string): Promise<Session> => {
+  // Dev-only auth bypass: if DEV_AUTH_BYPASS_KEY is set and matches, use first user in DB
+  if (devBypassKey) {
+    const expectedKey = process.env.DEV_AUTH_BYPASS_KEY
+    if (expectedKey && devBypassKey === expectedKey) {
+      const response = await (ctx as any).runQuery(internal.db.users.getFirstUser)
+      if (response) return response
+    }
+  }
+
   try {
     const response = await ctx.runQuery(api.db.users.getSession)
     if (!response) {

@@ -127,10 +127,10 @@ export const buildOptionsFromResults = (
  * @throws {Error} ERROR_CODES.NO_ROUTES_GENERATED if orchestrator produces no route options
  */
 export const planRide = action({
-  args: { planInput: planInputValidator },
+  args: { planInput: planInputValidator, devBypassKey: v.optional(v.string()) },
   returns: plannedRouteOptionsViewValidator,
   handler: async (ctx, args): Promise<PlannedRouteOptionsView> => {
-    const session = await requireSession(ctx)
+    const session = await requireSession(ctx, args.devBypassKey)
 
     backend.info('convex.action', 'planRide started', {
       userId: session.user._id,

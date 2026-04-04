@@ -8,7 +8,7 @@
  * - Supports save functionality with loading state
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from '../ui/icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from 'react-native-paper'
@@ -79,11 +79,11 @@ export const RouteDetailsSheet = ({
           <View
             style={[
               styles.badge,
-              { backgroundColor: 'rgba(184, 115, 51, 0.12)' },
+              { backgroundColor: semantic.color.primary.default + '1F' }, // Add 12% alpha
             ]}
           >
-            <MaterialCommunityIcons name="route" size={14} color="#B87333" />
-            <Text style={styles.badgeText}>{route.label}</Text>
+            <IconSymbol name="route" size={14} color={semantic.color.primary.default} />
+            <Text style={[styles.badgeText, { color: semantic.color.primary.default }]}>{route.label}</Text>
           </View>
         </View>
 
@@ -167,15 +167,15 @@ export const RouteDetailsSheet = ({
                   Status
                 </Text>
                 <View style={styles.statusRow}>
-                  <MaterialCommunityIcons
+                  <IconSymbol
                     name={route.overlaysPreview.conditionsStatus === 'ok' ? 'check-circle' : 'alert-circle'}
                     size={16}
-                    color={route.overlaysPreview.conditionsStatus === 'ok' ? '#22c55e' : '#f97316'}
+                    color={route.overlaysPreview.conditionsStatus === 'ok' ? semantic.color.success.default : semantic.color.warning.default}
                   />
                   <Text
                     variant="bodySmall"
                     style={{
-                      color: route.overlaysPreview.conditionsStatus === 'ok' ? '#22c55e' : '#f97316',
+                      color: route.overlaysPreview.conditionsStatus === 'ok' ? semantic.color.success.default : semantic.color.warning.default,
                     }}
                   >
                     {route.overlaysPreview.conditionsStatus === 'ok' ? 'Good conditions' : 'Data unavailable'}
@@ -196,7 +196,7 @@ export const RouteDetailsSheet = ({
               disabled={isSaving}
               testID={`${testID}-save-button`}
               icon={
-                <MaterialCommunityIcons
+                <IconSymbol
                   name="content-save"
                   size={20}
                   color={semantic.color.onPrimary.default}
@@ -236,7 +236,6 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#B87333',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },

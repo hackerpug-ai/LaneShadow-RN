@@ -1,6 +1,7 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useEffect, useRef, useState } from 'react'
 import { Pressable, StyleSheet, TextInput, View } from 'react-native'
+import { Text } from 'react-native-paper'
+import { IconSymbol } from './icon-symbol'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 type RouteSearchBarProps = {
@@ -46,11 +47,10 @@ export const RouteSearchBar = ({ onSearch, testID = 'route-search-bar' }: RouteS
         },
       ]}
     >
-      <MaterialCommunityIcons
+      <IconSymbol
         name="magnify"
         size={20}
         color={semantic.color.onSurface.subtle}
-        testID={`${testID}-icon`}
       />
       <TextInput
         testID={`${testID}-input`}
@@ -68,7 +68,7 @@ export const RouteSearchBar = ({ onSearch, testID = 'route-search-bar' }: RouteS
       />
       {text.length > 0 && (
         <Pressable onPress={handleClear} testID={`${testID}-clear`}>
-          <MaterialCommunityIcons
+          <IconSymbol
             name="close-circle"
             size={18}
             color={semantic.color.onSurface.subtle}

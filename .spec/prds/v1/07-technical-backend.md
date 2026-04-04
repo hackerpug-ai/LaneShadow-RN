@@ -1,14 +1,14 @@
 ---
 stability: CONSTITUTION
 last_validated: 2026-04-03
-prd_version: 1.1.0
+prd_version: 1.3.0
 ---
 
 # LaneShadow V1 — Technical Backend Architecture
 
 ## 1. Overview
 
-This document specifies all Convex backend changes required to ship V1: conversational planning via chat sessions, 2-3 alternative routes, full weather overlays (wind + rain + temperature), conditions-aware route ranking, saved routes CRUD, and rate limiting. It is grounded in the current codebase state as of 2026-04-03.
+This document specifies all Convex backend changes required to ship V1: agentic conversational planning via chat sessions using pi core, 2-3 alternative routes, full weather overlays (wind + rain + temperature), conditions-aware route ranking, saved routes CRUD, and rate limiting. It is grounded in the current codebase state as of 2026-04-03.
 
 ### Current Architecture (Baseline)
 
@@ -26,7 +26,36 @@ createPlan (mutation) -> schedules executePlan (internalAction)
   -> updatePlanStatus (COMPLETED)
 ```
 
-**V1 adds:** NLP text entry path, rain + temperature overlays, enrichRoute wiring, and overlaysPreview populated from real data.
+**V1 adds:** Agentic conversational entry point via pi core, rain + temperature overlays, enrichRoute wiring, and overlaysPreview populated from real data.
+
+### V1 Architecture: Agentic + Deterministic Hybrid
+
+V1 introduces pi core as the agent framework, creating a hybrid architecture:
+
+```
+Rider Message
+    ↓
+pi core Agent Session (agentic reasoning)
+    ↓
+parseNaturalLanguageInput (agent tool) → PlanInput
+    ↓
+planRoute (agent tool) → deterministic orchestrator
+    ↓
+planRideOrchestrator (deterministic workflow)
+    → findScenicWaypoints (Overpass)
+    → compileSketch + normalizeRoute (parallel)
+    → computeRouteIndex
+    → probeConditions (Open-Meteo) → wind + rain + temp
+    → mapConditions → all overlays
+    ↓
+enrichRoute (agent tool) → descriptions, highlights
+    ↓
+buildOptionsFromResults → PlannedRouteOptionsView
+```
+
+**Key Principles**:
+- **Agentic (Probabilistic)**: Intent understanding, conversation context, response generation, error recovery
+- **Deterministic (Guaranteed)**: Route computation, weather fetching, data persistence, state transitions
 
 ---
 
@@ -42,11 +71,11 @@ export const planInputValidator = v.object({
   end: routeStopValidator,
   departureTime: v.number(),
   preferences: planPreferencesValidator,
-  nlpText: v.optional(v.string()),  // NEW: original NLP input verbatim
+  nlpText: v.optional(v.string()),  // NEW: original agentic input verbatim
 })
 ```
 
-**Rationale:** Storing `nlpText` on `PlanInput` means it propagates to `route_plans.planInput` and `saved_routes.planInput` without schema changes to either table. The NLP text rides along with the structured input everywhere it flows.
+**Rationale:** Storing `nlpText` on `PlanInput` means it propagates to `route_plans.planInput` and `saved_routes.planInput` without schema changes to either table. The agentic text rides along with the structured input everywhere it flows.
 
 **Migration:** Additive optional field - no migration needed. Existing records without `nlpText` remain valid.
 
@@ -108,7 +137,7 @@ Add `weatherFetchedAt: v.optional(v.number())` to the route plan result so the c
 
 ### 2.7 New Tables — Chat Sessions
 
-V1 introduces two new tables for the conversational planning experience:
+V1 introduces two new tables for the agentic conversational planning experience:
 
 #### planning_sessions
 
@@ -161,15 +190,100 @@ plan_usage: defineTable({
 
 ---
 
-## 3. New Convex Actions
+## 3. Agent Architecture (pi Core)
 
-### 3.1 parseNaturalLanguageInput
+### 3.1 Agent Session Management
 
-**File:** `convex/actions/agent/parseNaturalLanguageInput.ts`
+V1 uses pi core (`@mariozechner/pi-agent-core`) for agent session management:
+
+```typescript
+// File: convex/actions/agent/ridePlanningAgent.ts
+import { createAgent } from '@mariozechner/pi-agent-core'
+import { openai } from '@ai-sdk/openai'
+
+export const ridePlanningAgent = createAgent({
+  id: 'ride-planning-agent',
+  description: 'Motorcycle ride planning agent that interprets rider intent and generates route options',
+  model: openai('gpt-4o-mini'),
+  tools: {
+    planRoute: {
+      description: 'Generate 2-3 scenic motorcycle route alternatives from start to end points',
+      parameters: z.object({
+        start: z.object({ lat: z.number(), lng: z.number(), label: z.string().optional() }),
+        end: z.object({ lat: z.number(), lng: z.number(), label: z.string().optional() }),
+        departureTime: z.number(),
+        preferences: z.object({
+          scenicBias: z.enum(['low', 'default', 'high']).optional(),
+          avoidHighways: z.boolean().optional(),
+          avoidTolls: z.boolean().optional(),
+        }).optional(),
+      }),
+      execute: async (args) => {
+        // Call deterministic orchestrator
+        return await planRideOrchestrator(args)
+      }
+    },
+    refineRoute: {
+      description: 'Refine existing routes based on rider feedback',
+      parameters: z.object({
+        routePlanId: z.id('route_plans'),
+        refinement: z.string(),
+      }),
+      execute: async (args) => {
+        // Parse refinement and re-run orchestrator
+      }
+    },
+    fetchWeather: {
+      description: 'Fetch weather data for a route',
+      parameters: z.object({
+        routeGeometry: z.object({
+          bounds: z.object({ northeast: z.object({ lat: z.number(), lng: z.number() }), southwest: z.object({ lat: z.number(), lng: z.number() }) }),
+        }),
+        departureTime: z.number(),
+      }),
+      execute: async (args) => {
+        // Call weather provider
+      }
+    },
+    saveRoute: {
+      description: 'Save a route to the rider\'s library',
+      parameters: z.object({
+        routePlanId: z.id('route_plans'),
+        name: z.string(),
+      }),
+      execute: async (args) => {
+        // Convex mutation to save route
+      }
+    },
+    searchFavorites: {
+      description: 'Search favorite road segments in an area',
+      parameters: z.object({
+        bounds: z.object({ northeast: z.object({ lat: z.number(), lng: z.number() }), southwest: z.object({ lat: z.number(), lng: z.number() }) }),
+      }),
+      execute: async (args) => {
+        // Convex query for favorites
+      }
+    },
+  },
+  systemPrompt: `You are a knowledgeable motorcycle ride planning agent. Your role is to:
+1. Understand rider intent from natural language descriptions
+2. Generate 2-3 scenic route alternatives using the planRoute tool
+3. Refine routes based on follow-up feedback
+4. Provide brief, helpful responses (1-2 sentences max)
+5. Handle errors gracefully with helpful suggestions
+6. Maintain conversation context across exchanges
+
+The map is always the primary view. Your responses supplement the map, not replace it.`,
+})
+```
+
+### 3.2 Agent Tool: parseNaturalLanguageInput
+
+**File:** `convex/actions/agent/tools/parseNaturalLanguageInput.ts`
 
 **Type:** `action` (requires `'use node'` - calls OpenAI)
 
-**Purpose:** Convert a free-text ride description into a structured `PlanInput`. This is the V1 NLP entry point.
+**Purpose:** Convert a free-text ride description into a structured `PlanInput`. This is the V1 agentic entry point.
 
 **Args:**
 ```typescript
@@ -207,33 +321,77 @@ v.object({
 - `previousMessages` provides conversation context for refinement — the LLM can interpret "make it shorter" or "avoid that highway" relative to previous routes
 - `departureTime` defaults to `Date.now()` when absent
 - Timeout: 10 seconds via `withTimeout` (same pattern as `enrichRoute`)
-- Falls back to throwing `NLP_PARSE_FAILED` error (caller responds conversationally per UC-NLP-11)
+- Falls back to throwing `AGentic_PARSE_FAILED` error (caller responds conversationally per UC-AG-11)
 - The returned `planInput` includes `nlpText: text` so the original input is preserved
 - `isRefinement` is true when the LLM detects the input is modifying a previous plan, false for new requests
 
 **New error codes** to add to `convex/errors.ts`:
 ```typescript
-NLP_PARSE_FAILED: 'NLP_PARSE_FAILED',
+AGENTIC_PARSE_FAILED: 'AGENTIC_PARSE_FAILED',
 PLAN_LIMIT_EXCEEDED: 'PLAN_LIMIT_EXCEEDED',
 SESSION_NOT_FOUND: 'SESSION_NOT_FOUND',
 ```
 
-### 3.2 planRide action - NLP path
+### 3.3 Agent Tool: enrichRoute
 
-No new action needed. The existing `planRide` action accepts `planInput` directly. The NLP path is:
+**File:** `convex/actions/agent/tools/enrichRoute.ts`
+
+**Type:** `action` (already exists, enhance for V1)
+
+**Purpose:** Generate route descriptions, labels, and highlights using agentic reasoning.
+
+**Implementation:**
+- Single LLM call processes all routes at once for efficiency
+- Generates distinctive labels ("Coastal Cruiser", "Mountain Loop")
+- Creates 1-sentence descriptions highlighting notable features
+- Returns structured data for deterministic parsing
+
+### 3.4 Conversation Flow
 
 ```
-Client calls parseNaturalLanguageInput -> gets PlanInput
-Client calls createPlan (mutation) with that PlanInput -> schedules executePlan
+1. Rider sends message
+2. Client calls parseNaturalLanguageInput → PlanInput
+3. Agent decides: new plan or refinement?
+4. Agent calls planRoute tool → deterministic orchestrator
+5. Orchestrator generates routes + weather
+6. Agent calls enrichRoute tool → descriptions
+7. Agent generates conversational response
+8. Client saves message to session_messages
+9. Client displays response + route attachments on map
 ```
-
-The client orchestrates two calls. This keeps the backend clean and lets the client show progress at each step.
 
 ---
 
-## 4. Modified Existing Functions
+## 4. New Convex Actions
 
-### 4.1 weatherProvider.ts - Combined weather fetch
+### 4.1 planRide action - Agentic path
+
+No new action needed. The existing `planRide` action accepts `planInput` directly. The agentic path is:
+
+```
+Agent calls parseNaturalLanguageInput → gets PlanInput
+Agent calls planRoute tool → deterministic orchestrator
+```
+
+The agent orchestrates the workflow. The client sends messages and receives responses.
+
+### 4.2 Chat Session Actions
+
+| Endpoint | Type | Notes |
+|----------|------|-------|
+| `api.db.planningSessions.create` | mutation | NEW - creates a new planning session |
+| `api.db.planningSessions.list` | query | NEW - user's sessions, newest first, paginated |
+| `api.db.planningSessions.get` | query | NEW - single session by ID |
+| `api.db.planningSessions.archive` | mutation | NEW - soft archive a session |
+| `api.db.sessionMessages.list` | query | NEW - messages for a session, chronological |
+| `api.db.sessionMessages.send` | mutation | NEW - adds rider message, triggers agent processing |
+| `api.db.sessionMessages.addSystemMessage` | internalMutation | NEW - adds agent response with route attachments |
+
+---
+
+## 5. Modified Existing Functions
+
+### 5.1 weatherProvider.ts - Combined weather fetch
 
 **Current state:** Only exposes `getWindAtPoints`.
 
@@ -249,24 +407,24 @@ https://api.open-meteo.com/v1/forecast
 
 Same concurrency limiter (MAX_CONCURRENT=8) and per-point timeout (8s). Batching all variables into one call per point is strictly better than separate calls.
 
-### 4.2 probeConditions.ts - Combined output
+### 5.2 probeConditions.ts - Combined output
 
 Returns `ProbedConditionsPoint[]` with wind + rain + temperature samples per point. Existing `selectRepresentativePoints` logic (max 25 probes) is unchanged.
 
-### 4.3 mapConditions.ts - All three overlays
+### 5.3 mapConditions.ts - All three overlays
 
 Returns `{ wind: WindOverlay, rain: RainOverlay, temperature: TemperatureOverlay }`.
 
 Rain levels: `none` (prob<20%, precip<0.1mm), `light`, `moderate`, `heavy` (prob>80% OR precip>4mm).
 Temperature levels: Use existing thresholds from `getWorstTemperatureLevel` in models/saved-routes.ts.
 
-### 4.4 planRideOrchestrator.ts - Wire rain+temp+enrichRoute
+### 5.4 planRideOrchestrator.ts - Wire rain+temp+enrichRoute
 
 Conditions block produces all three overlays. After conditions, `enrichRoute` runs once for all routes (single LLM call). `buildOptionsFromResults` populates `overlaysPreview` from real data using existing utility functions.
 
 ---
 
-## 5. Conditions Scoring (Best for Today)
+## 6. Conditions Scoring (Best for Today)
 
 Deterministic score computation in `buildOptionsFromResults`:
 
@@ -288,19 +446,19 @@ Add `conditionsScore: number` to `PlannedRouteOptionView`. Options sorted by sco
 
 ---
 
-## 6. API Contract
+## 7. API Contract
 
-### 6.1 PlannedRouteOptionView additions
+### 7.1 PlannedRouteOptionView additions
 
-- `highlights?: string[]` - from enrichRoute
+- `highlights?: string[]` - from enrichRoute (agent-generated)
 - `conditionsScore: number` - 0-100, higher = better conditions
 - `overlaysPreview` - populated from real overlay data (not hardcoded)
 
-### 6.2 parseNaturalLanguageInput action
+### 7.2 parseNaturalLanguageInput action
 
-New public action: `text + currentLocation? + departureTime?` -> `{ planInput, confidence, warnings }`
+New public action: `text + currentLocation? + departureTime?` → `{ planInput, confidence, warnings }`
 
-### 6.3 Endpoint Summary
+### 7.3 Endpoint Summary
 
 | Endpoint | Type | Notes |
 |----------|------|-------|
@@ -310,7 +468,7 @@ New public action: `text + currentLocation? + departureTime?` -> `{ planInput, c
 | `api.db.routePlans.getPlanStatus` | query | NEW - returns plan phase + status for progress tracking |
 | `api.db.routePlans.cancelPlan` | mutation | Unchanged |
 | `api.actions.agent.planRide.planRide` | action | Returns real overlays + conditionsScore |
-| `api.actions.agent.parseNaturalLanguageInput` | action | NEW - NLP entry point with session context |
+| `api.actions.agent.parseNaturalLanguageInput` | action | NEW - Agentic entry point with session context |
 | **Chat Sessions** | | |
 | `api.db.planningSessions.create` | mutation | NEW - creates a new planning session |
 | `api.db.planningSessions.list` | query | NEW - user's sessions, newest first, paginated |
@@ -318,7 +476,7 @@ New public action: `text + currentLocation? + departureTime?` -> `{ planInput, c
 | `api.db.planningSessions.archive` | mutation | NEW - soft archive a session |
 | `api.db.sessionMessages.list` | query | NEW - messages for a session, chronological |
 | `api.db.sessionMessages.send` | mutation | NEW - adds rider message, optionally triggers planning |
-| `api.db.sessionMessages.addSystemMessage` | internalMutation | NEW - adds AI response with route attachments |
+| `api.db.sessionMessages.addSystemMessage` | internalMutation | NEW - adds agent response with route attachments |
 | **Saved Routes** | | |
 | `api.db.savedRoutes.save` | mutation | NEW - create from PlannedRouteOptionView |
 | `api.db.savedRoutes.list` | query | NEW - by owner, paginated, newest first |
@@ -335,20 +493,44 @@ New public action: `text + currentLocation? + departureTime?` -> `{ planInput, c
 
 ---
 
-## 7. External Dependencies
+## 8. External Dependencies
 
 | Dependency | Purpose | Already in project |
 |-----------|---------|------------------|
 | Google Routes API v2 | Route computation | Yes |
 | Open-Meteo | Wind, rain, temperature | Yes |
-| OpenAI via aisdk | NLP parsing, route enrichment | Yes |
+| OpenAI via aisdk | Agentic parsing, route enrichment | Yes |
 | Overpass API | Scenic waypoint discovery | Yes |
+| pi core | Agent framework and session management | Yes |
 
 **No new external services required for V1.**
 
 ---
 
-## 8. Navigation Export
+## 9. Error Handling and Fallbacks
+
+### 9.1 Agentic Error Recovery
+
+The agent handles errors conversationally:
+
+| Error Type | Agent Response | Retry Strategy |
+|------------|----------------|----------------|
+| Low intent confidence | "I need a bit more detail — where are you starting from?" | Ask for clarification |
+| Route generation failed | "I couldn't find routes matching that. Try being more specific." | Suggest specificity |
+| Weather unavailable | "Weather data isn't available right now. Routes are ranked by scenicness only." | Degrade gracefully |
+| Network timeout | "I'm having trouble connecting. Check your signal and try again." | Retry on next message |
+| Plan limit exceeded | "You've used your 5 free plans this month. Upgrade to Pro for unlimited." | Upsell |
+
+### 9.2 Deterministic Error Handling
+
+- Orchestrator failures return partial results (Promise.allSettled)
+- Weather failures are non-fatal (continue without weather)
+- Invalid agent tool calls throw structured errors
+- All errors logged with context for debugging
+
+---
+
+## 10. Navigation Export
 
 Navigation export (UC-SR-10) is **client-side only**. The client constructs a deep-link URL from `routeSnapshot.origin`, `routeSnapshot.destination`, and intermediate waypoints. No backend action required.
 
@@ -357,6 +539,54 @@ Waze: `https://waze.com/ul?ll=...&navigate=yes`
 
 ---
 
-## 9. Migration Strategy
+## 11. Migration Strategy
 
 All V1 schema changes are additive optional fields or new tables. No migration actions required for existing data. Existing records remain valid. Missing overlays surface as `'unavailable'` via existing utility functions. New tables (`planning_sessions`, `session_messages`, `plan_usage`) are created fresh.
+
+---
+
+## 12. Performance Considerations
+
+### 12.1 Agentic Operations
+
+- **parseNaturalLanguageInput**: ~2-5 seconds (LLM call)
+- **enrichRoute**: ~3-8 seconds (single LLM call for all routes)
+- **Total agentic overhead**: ~5-13 seconds
+
+### 12.2 Deterministic Operations
+
+- **findScenicWaypoints**: ~1-2 seconds
+- **compileSketch + normalizeRoute**: ~2-4 seconds per route (parallel)
+- **probeConditions**: ~1-3 seconds (parallel)
+- **Total deterministic time**: ~4-9 seconds
+
+### 12.3 End-to-End Target
+
+- **Target**: <12 seconds from message send to route display
+- **Strategy**: Parallelize agentic and deterministic operations where possible
+- **Fallback**: Show progressive status updates ("Reading your ride...", "Finding scenic roads...", "Checking weather...")
+
+---
+
+## 13. Testing Strategy
+
+### 13.1 Unit Tests
+
+- Agent tool handlers (parseNaturalLanguageInput, enrichRoute)
+- Orchestrator workflow steps
+- Weather mapping logic
+- Conditions scoring
+
+### 13.2 Integration Tests
+
+- End-to-end conversation flows
+- Session persistence
+- Error recovery scenarios
+- Rate limiting
+
+### 13.3 Agent Evaluation
+
+- Intent understanding accuracy
+- Response quality and safety
+- Conversation context maintenance
+- Tool selection correctness

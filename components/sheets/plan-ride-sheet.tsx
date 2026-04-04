@@ -1,3 +1,4 @@
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet'
 import { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
@@ -6,12 +7,12 @@ import type { RouteStop } from '../../types/routes'
 import { LocationInput } from '../location-input'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { DepartureTimeSelector } from '../ui/departure-time-selector'
 import { IconSymbol } from '../ui/icon-symbol'
-import { ScenicBiasSegmented, type ScenicBias } from '../ui/scenic-bias-segmented'
-import { Switch } from '../ui/switch'
+import type { ScenicBias } from '../ui/scenic-bias-segmented'
 import { BottomSheetWrapper } from './bottom-sheet-wrapper'
+import { PreferencesRow } from './preferences-row'
 import { RouteTimeline } from './route-timeline'
+import { SheetHandle } from './sheet-handle'
 
 export type PlanRideSheetProps = {
   isVisible: boolean
@@ -108,8 +109,17 @@ export const PlanRideSheet = ({
   }
 
   return (
-    <BottomSheetWrapper isVisible={isVisible} onClose={onClose} preset="half">
-      <View style={[styles.container, { gap: semantic.space.lg }]}>
+    <BottomSheetWrapper isVisible={isVisible} onClose={onClose} preset="half" wrapChildren={false}>
+      <BottomSheetScrollView
+        contentContainerStyle={[styles.container, {
+          gap: semantic.space.lg,
+          paddingHorizontal: semantic.space.lg,
+          paddingTop: semantic.space.md,
+          paddingBottom: semantic.space.lg,
+        }]}
+        keyboardShouldPersistTaps="handled"
+      >
+        <SheetHandle />
         {/* Header with motorcycle badge */}
         <View style={[styles.header]}>
           <Text variant="titleLarge" style={{ color: semantic.color.onSurface.default }}>
@@ -180,111 +190,29 @@ export const PlanRideSheet = ({
           </View>
         </View>
 
-        <ScenicBiasSegmented
-          value={scenicBias}
-          onValueChange={onSetScenicBias}
-          style={{ marginLeft: semantic.space.xs }}
+        <PreferencesRow
+          scenicBias={scenicBias}
+          onSetScenicBias={onSetScenicBias}
+          avoidHighways={avoidHighways}
+          onToggleAvoidHighways={onToggleAvoidHighways}
+          avoidTolls={avoidTolls}
+          onToggleAvoidTolls={onToggleAvoidTolls}
+          departureTime={departureTime}
+          onSetDepartureTime={onSetDepartureTime}
         />
 
-        {/* Departure Time Selector */}
-        <DepartureTimeSelector
-          value={departureTime}
-          onChange={onSetDepartureTime}
-          minimumDate={new Date()}
-          testID="departure-time-selector"
-        />
-
-        {/* Toggles - Switch Components */}
-        <View
-          style={[
-            styles.toggleSection,
-            {
-              backgroundColor: semantic.color.input.default,
-              borderColor: `${semantic.color.onSurface.default}0D`, // 5% opacity
-              borderWidth: 1,
-            },
-          ]}
-        >
-          <View
-            style={[
-              styles.toggleRow,
-              {
-                justifyContent: 'space-between',
-                borderBottomWidth: 1,
-                borderBottomColor: `${semantic.color.onSurface.default}0D`,
-              },
-            ]}
-          >
-            <View style={styles.toggleLabel}>
-              <View
-                style={[
-                  styles.iconContainer,
-                  { backgroundColor: semantic.color.surfaceVariant.default },
-                ]}
-              >
-                <IconSymbol name="car" size={20} color={semantic.color.onSurface.muted} />
-              </View>
-              <Text
-                variant="bodySmall"
-                style={{ color: semantic.color.onSurface.default, fontWeight: '500' }}
-              >
-                Avoid highways
-              </Text>
-            </View>
-            <Switch
-              value={avoidHighways}
-              onValueChange={onToggleAvoidHighways}
-              testID="pref-avoid-highways"
-            />
-          </View>
-
-          <View style={[styles.toggleRow, { justifyContent: 'space-between' }]}>
-            <View style={styles.toggleLabel}>
-              <View
-                style={[
-                  styles.iconContainer,
-                  { backgroundColor: semantic.color.surfaceVariant.default },
-                ]}
-              >
-                <IconSymbol name="cash" size={20} color={semantic.color.onSurface.muted} />
-              </View>
-              <Text
-                variant="bodySmall"
-                style={{ color: semantic.color.onSurface.default, fontWeight: '500' }}
-              >
-                Avoid tolls
-              </Text>
-            </View>
-            <Switch
-              value={avoidTolls}
-              onValueChange={onToggleAvoidTolls}
-              testID="pref-avoid-tolls"
-            />
-          </View>
-        </View>
-
-        {/* Action Buttons */}
+        {/* Action Button */}
         <Button
           variant="default"
           size="lg"
           disabled={!startStop || !endStop || isPlanning}
           onPress={onPlanRide}
           icon={<IconSymbol name="motorbike" size={20} color={semantic.color.onPrimary.default} />}
-          style={{ marginTop: semantic.space.xs }}
           testID="plan-ride-submit"
         >
           {isPlanning ? 'Planning...' : 'Plan Ride'}
         </Button>
-
-        <Button
-          variant="outline"
-          onPress={onClearSelection}
-          testID="plan-ride-clear"
-          style={{ marginTop: semantic.space.sm }}
-        >
-          Clear selection
-        </Button>
-      </View>
+      </BottomSheetScrollView>
     </BottomSheetWrapper>
   )
 }
@@ -327,28 +255,5 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  toggleSection: {
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  toggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-  },
-  toggleLabel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-  },
-  iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 })

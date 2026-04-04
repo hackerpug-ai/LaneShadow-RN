@@ -14,7 +14,8 @@
 
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { ViewStyle } from 'react-native'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
+import { Text } from 'react-native-paper'
 
 /**
  * Checkbox component props

@@ -5,7 +5,7 @@
  * Follows the design system stat display patterns
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
@@ -29,7 +29,7 @@ export const StatRow = ({ icon, value, iconSize = 18 }: StatRowProps) => {
 
   return (
     <View style={styles.stat}>
-      <MaterialCommunityIcons
+      <IconSymbol
         name={icon}
         size={iconSize}
         color={semantic.color.onSurface.subtle}

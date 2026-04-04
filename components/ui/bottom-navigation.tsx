@@ -5,9 +5,9 @@
  * Follows Material Design 3 bottom navigation patterns
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
+import { IconSymbol } from './icon-symbol'
 import type { ExtendedTheme } from '../../styles/types'
 
 export type NavItem = {
@@ -56,11 +56,10 @@ export const BottomNavigation = ({
 
         return (
           <View key={index} style={styles.navItem}>
-            <MaterialCommunityIcons
+            <IconSymbol
               name={item.icon}
               size={24}
               color={color}
-              onPress={item.onPress}
             />
             <Text style={[styles.navLabel, { color }]}>{item.label}</Text>
           </View>

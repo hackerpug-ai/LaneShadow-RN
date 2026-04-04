@@ -7,7 +7,8 @@
  */
 
 import { useEffect, useState } from 'react'
-import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native'
+import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { IconSymbol, type IconName } from '../icon-symbol'

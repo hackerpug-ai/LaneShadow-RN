@@ -5,6 +5,7 @@ const path = __dirname
 const config = getDefaultConfig(path)
 
 // Exclude test files from Metro bundler
+const originalResolveRequest = config.resolver?.resolveRequest
 config.resolver = {
   ...config.resolver,
   resolveRequest: (context, moduleName, platform) => {
@@ -19,8 +20,8 @@ config.resolver = {
       return { type: 'empty' }
     }
     // Use default resolution for other modules
-    return config.resolver.resolveRequest
-      ? config.resolver.resolveRequest(context, moduleName, platform)
+    return originalResolveRequest
+      ? originalResolveRequest(context, moduleName, platform)
       : context.resolveRequest(context, moduleName, platform)
   },
 }

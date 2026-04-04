@@ -5,6 +5,8 @@ import type { FC } from 'react'
 import { useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Polyline } from 'react-native-maps'
+import { useTheme } from 'react-native-paper'
+import type { ExtendedTheme } from '../../styles/types'
 
 import type { BuiltPolyline } from './route-polyline'
 
@@ -105,6 +107,8 @@ export const RoutePolyline: FC<RoutePolylineProps> = ({
   onSegmentSelect,
   selectedSegmentId,
 }) => {
+  const theme = useTheme<ExtendedTheme>()
+  const { semantic } = theme
   const [activeSegment, setActiveSegment] = useState<string | null>(null)
 
   const handleLongPress = useMemo(
@@ -144,7 +148,7 @@ export const RoutePolyline: FC<RoutePolylineProps> = ({
       {polylines.map((polyline) => {
         const isHighlighted =
           selectedSegmentId === polyline.id || activeSegment === polyline.id
-        const strokeColor = isHighlighted ? '#6750A4' : polyline.strokeColor
+        const strokeColor = isHighlighted ? semantic.color.tertiary.default : polyline.strokeColor
         const strokeWidth = isHighlighted ? 8 : polyline.strokeWidth ?? 4
 
         return (

@@ -8,7 +8,8 @@
 
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { ReactNode } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
+import { Text } from 'react-native-paper'
 import { Avatar } from './avatar'
 import { IconSymbol } from './icon-symbol'
 

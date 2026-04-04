@@ -6,7 +6,7 @@ We believe the best rides aren't planned -- they're imagined -- so we're making 
 
 | Field | Value |
 |-------|-------|
-| Version | 1.1.0 |
+| Version | 1.4.0 |
 | Appetite | 6 weeks |
 | Scope Level | Full feature |
 | Created | 2026-04-03 |
@@ -19,26 +19,28 @@ We believe the best rides aren't planned -- they're imagined -- so we're making 
 |------|---------|-----------|
 | [00-overview.md](./00-overview.md) | Product description, problem statement, solution, current status | PRODUCT_CONTEXT |
 | [01-scope.md](./01-scope.md) | In scope / out of scope (6-week appetite) | FEATURE_SPEC |
-| [02-roles.md](./02-roles.md) | Rider + System/AI Planner roles, AI personality | PRODUCT_CONTEXT |
-| [03-functional-groups.md](./03-functional-groups.md) | 3 groups: NLP (Conversational Planning), WX, SR | FEATURE_SPEC |
-| [04-uc-nlp.md](./04-uc-nlp.md) | UC-NLP-01 through UC-NLP-11 (Conversational Planning) | FEATURE_SPEC |
+| [02-roles.md](./02-roles.md) | Rider + System/Agent Planner roles, Agent personality | PRODUCT_CONTEXT |
+| [03-functional-groups.md](./03-functional-groups.md) | 3 groups: Agentic Conversational Planning, WX, SR | FEATURE_SPEC |
+| [04-uc-agentic.md](./04-uc-agentic.md) | UC-AG-01 through UC-AG-11 (Agentic Conversational Planning) | FEATURE_SPEC |
 | [05-uc-wx.md](./05-uc-wx.md) | UC-WX-01 through UC-WX-07 (Weather & Conditions) | FEATURE_SPEC |
 | [06-uc-sr.md](./06-uc-sr.md) | UC-SR-01 through UC-SR-10 (Saved Routes & Favorites) | FEATURE_SPEC |
-| [07-technical-backend.md](./07-technical-backend.md) | Convex schema, actions, chat sessions, rate limiting | CONSTITUTION |
+| [07-technical-backend.md](./07-technical-backend.md) | Convex schema, actions, agent tools, pi core integration, rate limiting | CONSTITUTION |
 | [08-technical-ui.md](./08-technical-ui.md) | UI screen specs, chat components, state machine, animations | CONSTITUTION |
 | [09-technical-client.md](./09-technical-client.md) | Client state architecture, hooks, data flow | CONSTITUTION |
 | [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) | Current implementation status, gap analysis, phased roadmap | IMPLEMENTATION_GUIDE |
+| [AGENTIC_UI_COMPONENT_REVIEW.md](./AGENTIC_UI_COMPONENT_REVIEW.md) | Agentic UI component coverage analysis and integration plan | IMPLEMENTATION_GUIDE |
 
 ## Quick Stats
 
 | Metric | Value |
-|--------|-------|
-| **Current Completion** | ~23% overall (as of 2026-04-03) |
-| Functional Groups | 3 (NLP, WX, SR) |
+|--------|--------|
+| **Current Completion** | ~35% overall (as of 2026-04-03) |
+| Functional Groups | 3 (Agentic Planning, WX, SR) |
 | Use Cases | 28 |
 | **Implemented UCs** | 4 (14%) |
 | **Partial UCs** | 10 (36%) |
 | **New UCs** | 14 (50%) |
+| **UI Components Ready** | 9/9 agentic components verified ✅ |
 | New Components | 10 (5 chat + 5 existing) |
 | Reused Components | 10+ |
 | New Convex Tables | 3 (planning_sessions, session_messages, plan_usage) |
@@ -47,7 +49,7 @@ We believe the best rides aren't planned -- they're imagined -- so we're making 
 | New Hooks | 8 |
 | External Dependencies | 0 new (all existing) |
 | **Phase 0 Remediation** | 7-11 hours (BLOCKING) |
-| **Est. Time to V1** | 4-5 weeks after Phase 0 |
+| **Est. Time to V1** | 3-4 weeks after Phase 0 (improved from 4-5) |
 
 ## V1 Gate Test
 
@@ -75,6 +77,8 @@ If that works and feels magical, V1 ships.
 | 1.0.0 | 2026-04-03 | Initial V1 PRD | New strategy based on competitive analysis + user research |
 | 1.1.0 | 2026-04-03 | UX model change: single-shot NLP to conversational chat sessions | Reviewer feedback (frontend-designer, convex-planner, product-manager) + founder vision for map-first copilot experience |
 | 1.2.0 | 2026-04-03 | Add IMPLEMENTATION_STATUS.md with current gap analysis and phased roadmap | Product team adjustment plan report — comprehensive codebase analysis against V1 PRD scope |
+| 1.3.0 | 2026-04-03 | Update terminology to agentic AI patterns, add pi core integration details | Migration to pi core agent framework with deterministic orchestrator pattern |
+| 1.4.0 | 2026-04-03 | Add AGENTIC_UI_COMPONENT_REVIEW.md with component coverage analysis | All 9 agentic UI components built and verified, ready for integration |
 
 ## Team
 
@@ -87,6 +91,7 @@ If that works and feels magical, V1 ships.
 
 ## Next Steps
 
+- [`tasks/`](./tasks/) - Epic roadmap and task breakdowns
 - `/kb-project-plan` - Build implementation plan from this PRD
 - `/kb-run-epic` - Execute implementation tasks
 - `npx convex dev --once` - Deploy backend changes

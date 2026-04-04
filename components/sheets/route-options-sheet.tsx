@@ -8,7 +8,7 @@
  * - Integrates with map for route selection
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from '../ui/icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from 'react-native-paper'
@@ -123,7 +123,7 @@ export const RouteOptionsSheet = ({
             disabled={!isDetailsButtonEnabled || isSaving}
             testID={`${testID}-save-button`}
             icon={
-              <MaterialCommunityIcons
+              <IconSymbol
                 name="content-save"
                 size={18}
                 color={semantic.color.onPrimary.default}

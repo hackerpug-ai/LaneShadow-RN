@@ -1,0 +1,30 @@
+{
+  "task_id": "US-033",
+  "title": "Add keyboardShouldPersistTaps to saved routes FlatList",
+  "files_modified": [
+    "app/(app)/(tabs)/saved-routes.tsx"
+  ],
+  "files_created": [
+    "app/(app)/(tabs)/__tests__/saved-routes.keyboard.test.ts"
+  ],
+  "tests": {
+    "passed": 2,
+    "failed": 0,
+    "test_file": "app/(app)/(tabs)/__tests__/saved-routes.keyboard.test.ts"
+  },
+  "typecheck": {
+    "status": "pre-existing-failures",
+    "errors_in_our_files": 0,
+    "total_errors": 46
+  },
+  "lint": {
+    "status": "pre-existing-config-error",
+    "errors_in_our_files": 0
+  },
+  "acceptance_criteria": {
+    "AC1_persist_taps_handled": true,
+    "AC2_scroll_dismisses_keyboard": true,
+    "AC3_flatlist_has_prop": true,
+    "AC4_no_regression": true
+  }
+}

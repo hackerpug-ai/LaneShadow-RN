@@ -14,7 +14,7 @@
  * ```
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 
@@ -43,7 +43,7 @@ export const EmptyState = ({
   return (
     <View testID={testID ?? 'empty-state'} style={styles.container}>
       <View testID={testID ? `${testID}-icon` : 'empty-state-icon'}>
-        <MaterialCommunityIcons
+        <IconSymbol
           name={icon as React.ComponentProps<typeof MaterialCommunityIcons>['name']}
           size={64}
           color={semantic.color.onSurface.muted}

@@ -1,0 +1,20 @@
+$ jest --config=jest.config.js "app/\\(app\\)/\\(tabs\\)/__tests__/saved-routes.test.ts"
+PASS app/(app)/(tabs)/__tests__/saved-routes.test.ts
+  AC1: Tapping card body navigates to detail screen
+    ✓ should fire onPress when the SavedRouteCard prop is called from the list (16 ms)
+    ✓ should pass onPress prop to SavedRouteCard (not to chevron) (1 ms)
+  AC2: Chevron fires same navigation, no double-fire
+    ✓ should render exactly one SavedRouteCard per list item (not nested Pressables from screen) (1 ms)
+    ✓ should NOT have a Pressable wrapping SavedRouteCard in the screen renderItem
+  AC3: Accessibility role and label on SavedRouteCard
+    ✓ should pass name prop to SavedRouteCard for accessibility label generation
+    ✓ SavedRouteCard component source should have accessibilityRole button and label with name (1 ms)
+  AC4: Swipe gesture unaffected by Pressable wrapper
+    ✓ should still wrap each route card in Swipeable
+    ✓ should render delete action via renderRightActions
+
+Test Suites: 1 passed, 1 total
+Tests:       8 passed, 8 total
+Snapshots:   0 total
+Time:        1.418 s, estimated 3 s
+Ran all test suites matching /app\/\(app\)\/\(tabs\)\/__tests__\/saved-routes.test.ts/i.

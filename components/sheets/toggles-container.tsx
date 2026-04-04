@@ -45,7 +45,7 @@ export const TogglesContainer = ({
           backgroundColor: semantic.color.input.default,
           borderRadius: semantic.radius.lg,
           borderWidth: 1,
-          borderColor: 'rgba(255, 255, 255, 0.05)',
+          borderColor: semantic.color.divider.default,
           overflow: 'hidden',
         },
         style,
@@ -59,7 +59,7 @@ export const TogglesContainer = ({
             paddingHorizontal: semantic.space.lg,
             paddingVertical: semantic.space.lg,
             borderBottomWidth: 1,
-            borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+            borderBottomColor: semantic.color.divider.default,
           },
         ]}
       >

@@ -49,20 +49,24 @@ export const BottomSheetWrapper = ({
       testID={testID}
       snapPoints={resolvedSnapPoints}
     >
-      <View
-        style={[
-          styles.content,
-          {
-            paddingHorizontal: semantic.space.lg,
-            paddingTop: semantic.space.md,
-            paddingBottom: semantic.space.lg,
-            gap: semantic.space.md,
-          },
-        ]}
-      >
-        {showHandle ? <SheetHandle /> : null}
-        {children}
-      </View>
+      {wrapChildren ? (
+        <View
+          style={[
+            styles.content,
+            {
+              paddingHorizontal: semantic.space.lg,
+              paddingTop: semantic.space.md,
+              paddingBottom: semantic.space.lg,
+              gap: semantic.space.md,
+            },
+          ]}
+        >
+          {showHandle ? <SheetHandle /> : null}
+          {children}
+        </View>
+      ) : (
+        children
+      )}
     </BottomActionSheet>
   )
 }

@@ -110,10 +110,10 @@ export const RouteOptionsScreen = ({
             <View
               style={[
                 styles.errorIcon,
-                { backgroundColor: 'rgba(227, 93, 106, 0.15)' },
+                { backgroundColor: semantic.color.danger.default + '26' }, // Add 15% alpha
               ]}
             >
-              <View style={[styles.errorDot, { backgroundColor: '#E35D6A' }]} />
+              <View style={[styles.errorDot, { backgroundColor: semantic.color.danger.default }]} />
             </View>
             <View style={styles.errorTextContainer}>
               <View style={[styles.errorLine, { backgroundColor: semantic.color.onSurface.muted }]} />
@@ -227,7 +227,6 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 3,
-    borderTopColor: '#B87333',
     borderRightColor: 'transparent',
     borderBottomColor: 'transparent',
     borderLeftColor: 'transparent',

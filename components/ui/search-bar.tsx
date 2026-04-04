@@ -5,7 +5,7 @@
  * Follows the design system search patterns
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
@@ -40,7 +40,7 @@ export const SearchBar = ({
         },
       ]}
     >
-      <MaterialCommunityIcons
+      <IconSymbol
         name="magnify"
         size={20}
         color={semantic.color.onSurface.subtle}

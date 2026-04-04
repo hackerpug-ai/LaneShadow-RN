@@ -13,39 +13,57 @@ const pickSemanticHex = (semantic: ExtendedTheme['semantic'], key: string): stri
   return typeof defaultValue === 'string' ? defaultValue : undefined
 }
 
+const pickSemanticColor = (
+  semantic: ExtendedTheme['semantic'],
+  colorKey: string,
+  stateKey: string = 'default'
+): string | undefined => {
+  const record = semantic.color as unknown as Record<string, unknown>
+  const colorGroup = record[colorKey]
+  if (!colorGroup || typeof colorGroup !== 'object') return undefined
+  const stateValue = (colorGroup as Record<string, unknown>)[stateKey]
+  return typeof stateValue === 'string' ? stateValue : undefined
+}
+
 export const buildMapStyleFromTheme = (theme: ExtendedTheme): MapStyle => {
   const { semantic, dark } = theme
 
+  // Extract colors from semantic theme with fallbacks
   const locationPoiBg = pickSemanticHex(semantic, 'locationPoiBg')
   const locationPoiMuted = pickSemanticHex(semantic, 'locationPoiMuted')
+  const primaryColor = pickSemanticColor(semantic, 'primary')
+  const surfaceColor = pickSemanticColor(semantic, 'surface')
+  const onSurfaceDefault = pickSemanticColor(semantic, 'onSurface', 'default')
+  const onSurfaceMuted = pickSemanticColor(semantic, 'onSurface', 'muted')
+  const borderColor = pickSemanticColor(semantic, 'border')
 
   const palette = dark
     ? {
-        land: '#141210',
+        land: semantic.color.background.default ?? '#141210',
         poiSurface: pickColor(locationPoiBg, '#1B1816', dark),
-        poiText: pickColor(locationPoiMuted, '#A3A3A3', dark),
-        roadBase: '#26221F',
-        localRoad: '#1A1715',
-        arterial: '#3A3430',
-        border: '#3A3531',
-        text: '#EDEDED',
-        textMuted: '#A3A3A3',
+        poiText: pickColor(locationPoiMuted, onSurfaceMuted ?? '#A3A3A3', dark),
+        roadBase: semantic.color.surfaceVariant.default ?? '#26221F',
+        localRoad: semantic.color.background.default ?? '#1A1715',
+        arterial: semantic.color.border.default ?? '#3A3430',
+        border: borderColor ?? '#3A3531',
+        text: onSurfaceDefault ?? '#EDEDED',
+        textMuted: onSurfaceMuted ?? '#A3A3A3',
         water: '#1A2026',
       }
     : {
-        land: '#EFEAE3',
-        poiSurface: pickColor(locationPoiBg, '#F3EFE8', dark),
-        poiText: pickColor(locationPoiMuted, '#6E6A64', dark),
-        roadBase: '#DCD4CB',
-        localRoad: '#E7E1DA',
-        arterial: '#BEB5AB',
-        border: '#C6BDB3',
-        text: '#1C1B1A',
-        textMuted: '#6E6A64',
+        land: semantic.color.background.default ?? '#EFEAE3',
+        poiSurface: pickColor(locationPoiBg, surfaceColor ?? '#F3EFE8', dark),
+        poiText: pickColor(locationPoiMuted, onSurfaceMuted ?? '#6E6A64', dark),
+        roadBase: semantic.color.surfaceVariant.default ?? '#DCD4CB',
+        localRoad: semantic.color.surface.default ?? '#E7E1DA',
+        arterial: borderColor ?? '#BEB5AB',
+        border: borderColor ?? '#C6BDB3',
+        text: onSurfaceDefault ?? '#1C1B1A',
+        textMuted: onSurfaceMuted ?? '#6E6A64',
         water: '#C9CED3',
       }
 
-  const primary = pickColor(semantic.color.primary.default, '#B87333', dark)
+  const primary = primaryColor ?? '#B87333'
 
   return [
     // Global labels

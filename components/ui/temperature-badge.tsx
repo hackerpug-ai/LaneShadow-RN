@@ -5,7 +5,7 @@
  * Follows the design system badge patterns
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Badge } from './badge'
@@ -69,11 +69,11 @@ export const TemperatureBadge = ({
 
   // Partial map: only define icons we know
   const ICONS: Partial<Record<TemperatureLevelKnown, React.ReactNode>> = {
-    cold: <MaterialCommunityIcons name="snowflake-thermometer" size={14} />,
-    mild: <MaterialCommunityIcons name="thermometer" size={14} />,
-    warm: <MaterialCommunityIcons name="thermometer-low" size={14} />,
-    hot: <MaterialCommunityIcons name="thermometer-high" size={14} />,
-    unavailable: <MaterialCommunityIcons name="help-circle-outline" size={14} />,
+    cold: <IconSymbol name="snowflake-thermometer" size={14} />,
+    mild: <IconSymbol name="thermometer" size={14} />,
+    warm: <IconSymbol name="thermometer-low" size={14} />,
+    hot: <IconSymbol name="thermometer-high" size={14} />,
+    unavailable: <IconSymbol name="help-circle-outline" size={14} />,
   }
 
   // Safe getter with dev warning + graceful fallback

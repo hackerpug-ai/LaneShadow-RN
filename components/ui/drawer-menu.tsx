@@ -8,7 +8,8 @@
 
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { useEffect, useState } from 'react'
-import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native'
+import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { IconSymbol, type IconName } from './icon-symbol'
 
@@ -67,7 +68,7 @@ export const DrawerMenu = ({
       {/* Backdrop overlay */}
       {isOpen && (
         <Pressable
-          style={styles.backdrop}
+          style={[styles.backdrop, { backgroundColor: semantic.color.scrim.default }]}
           onPress={onClose}
           testID={testID ? `${testID}-backdrop` : undefined}
         />

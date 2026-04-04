@@ -27,28 +27,14 @@ const optionalEnv = (key: string): string | undefined => {
 export const GOOGLE_MAPS_API_KEY = optionalEnv('GOOGLE_MAPS_API_KEY')
 
 /**
- * OpenAI API key for pi AgentSession (model: gpt-4o).
- * Required for Sprint 3 planning pipeline.
+ * OpenAI API key for all AI calls (aisdk, pi agent).
  */
 export const OPENAI_API_KEY = optionalEnv('OPENAI_API_KEY')
 
 export const isTestEnvironment = process.env.NODE_ENV === 'test'
 
 /**
- * Pi Agent configuration.
- * Set PI_OBSERVABILITY_ENABLED=true to enable event logging.
- * Automatically disabled during tests (NODE_ENV=test).
+ * AI model for all LLM interactions (enrichment, agents).
+ * Defaults to gpt-4o. Override via AI_MODEL env var.
  */
-export const PI_OBSERVABILITY_ENABLED = !isTestEnvironment && optionalEnv('PI_OBSERVABILITY_ENABLED') === 'true'
-
-/**
- * Pi Agent model configuration.
- * Defaults to gpt-4o for route planning (can override via env).
- */
-export const PI_MODEL = optionalEnv('PI_MODEL') ?? 'gpt-4o'
-
-/**
- * Pi Agent temperature for route sketching.
- * Lower temperature = more deterministic route generation.
- */
-export const PI_TEMPERATURE = Number(optionalEnv('PI_TEMPERATURE') ?? '0')
+export const AI_MODEL = optionalEnv('AI_MODEL') ?? 'gpt-4o'

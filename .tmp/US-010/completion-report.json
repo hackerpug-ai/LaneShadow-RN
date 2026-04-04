@@ -1,0 +1,58 @@
+{
+  "task": {
+    "id": "US-010",
+    "title": "Implement useRideFlow 6-state machine hook",
+    "assignee": "ui-developer"
+  },
+  "completion": {
+    "status": "completed",
+    "commit_sha": "e43a687dd2660150fad7921ebcaa7f7787e1382c",
+    "evidence_path": ".tmp/US-010/"
+  },
+  "acceptance_criteria": [
+    {
+      "id": "AC1",
+      "description": "Given: State is IDLE. When: SEND_MESSAGE dispatched with content. Then: Transitions to PLANNING.",
+      "status": "PASS",
+      "verification": "Unit test: should transition from IDLE to PLANNING when SEND_MESSAGE is dispatched with content"
+    },
+    {
+      "id": "AC2",
+      "description": "Given: State is PLANNING. When: PLANNING_SUCCESS dispatched. Then: Transitions to ROUTE_RESULTS.",
+      "status": "PASS",
+      "verification": "Unit test: should transition from PLANNING to ROUTE_RESULTS when PLANNING_SUCCESS is dispatched"
+    },
+    {
+      "id": "AC3",
+      "description": "Given: State is ROUTE_RESULTS. When: NAVIGATE_EXPORT dispatched, selectedRouteId is null. Then: Transition rejected (guard).",
+      "status": "PASS",
+      "verification": "Unit test: should reject NAVIGATE_EXPORT transition when selectedRouteId is null"
+    },
+    {
+      "id": "AC4",
+      "description": "Given: Any state. When: NEW_SESSION dispatched. Then: Resets all state to IDLE.",
+      "status": "PASS",
+      "verification": "Unit test: should reset from any state to IDLE when NEW_SESSION is dispatched"
+    },
+    {
+      "id": "AC5",
+      "description": "Given: State is IDLE. When: LOAD_SESSION dispatched. Then: Populates routeOptions from attachment.",
+      "status": "PASS",
+      "verification": "Unit test: should load session data into IDLE state"
+    }
+  ],
+  "test_results": {
+    "total_tests": 11,
+    "passed": 11,
+    "failed": 0,
+    "coverage": "All state transitions and guards tested"
+  },
+  "implementation_summary": "Implemented pure state machine hook with 6 states (IDLE, PLANNING, ROUTE_RESULTS, ROUTE_DETAILS, SESSION_HISTORY, NAVIGATION_EXPORT) with guarded transitions. Drop-in replacement for existing planningReducer. TypeScript strict mode compliant. No UI rendering or side effects - pure state management.",
+  "files_created": [
+    "hooks/use-ride-flow.ts",
+    "hooks/use-ride-flow.test.ts"
+  ],
+  "files_modified": [
+    "jest.config.js"
+  ]
+}

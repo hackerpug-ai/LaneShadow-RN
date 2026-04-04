@@ -125,7 +125,6 @@ export const createPlanHandler = async (
   })
 
   // Schedule execution
-  // @ts-expect-error executePlan will be added in next task
   const scheduledActionId = await ctx.scheduler.runAfter(0, internal.actions.agent.planRide.executePlan, {
     routePlanId,
   })

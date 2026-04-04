@@ -5,7 +5,7 @@
  * Uses native date picker with styled trigger button
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from './icon-symbol'
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker'
 import { useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
@@ -89,24 +89,24 @@ export const DepartureTimeSelector = ({
         style={({ pressed }) => [
           styles.button,
           {
-            backgroundColor: 'rgba(184, 115, 51, 0.12)',
-            borderColor: 'rgba(184, 115, 51, 0.3)',
+            backgroundColor: semantic.color.primary.default + '1F', // Add 12% alpha
+            borderColor: semantic.color.primary.default + '4D', // Add 30% alpha
             opacity: pressed ? 0.8 : 1,
           },
         ]}
         onPress={() => setShowPicker(true)}
       >
-        <MaterialCommunityIcons
+        <IconSymbol
           name="clock-outline"
           size={18}
-          color="#B87333"
+          color={semantic.color.primary.default}
           style={styles.icon}
         />
-        <Text style={styles.buttonText}>{displayText}</Text>
-        <MaterialCommunityIcons
+        <Text style={[styles.buttonText, { color: semantic.color.onSurface.default }]}>{displayText}</Text>
+        <IconSymbol
           name="chevron-down"
           size={18}
-          color="#B87333"
+          color={semantic.color.primary.default}
         />
       </Pressable>
 
@@ -150,6 +150,5 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: '500',
-    color: '#B87333',
   },
 })

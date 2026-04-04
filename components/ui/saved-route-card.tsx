@@ -5,7 +5,7 @@
  * Follows the design system card patterns
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from './icon-symbol'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
@@ -73,7 +73,7 @@ export const SavedRouteCard = ({
               marginBottom: semantic.space.xs,
             }}
           >
-            <MaterialCommunityIcons
+            <IconSymbol
               name="calendar-outline"
               size={14}
               color={semantic.color.onSurface.subtle}
@@ -110,7 +110,7 @@ export const SavedRouteCard = ({
                   gap: semantic.space.xs,
                 }}
               >
-                <MaterialCommunityIcons
+                <IconSymbol
                   name="clock-outline"
                   size={16}
                   color={semantic.color.onSurface.subtle}
@@ -133,7 +133,7 @@ export const SavedRouteCard = ({
                   gap: semantic.space.xs,
                 }}
               >
-                <MaterialCommunityIcons
+                <IconSymbol
                   name="map-marker-distance"
                   size={16}
                   color={semantic.color.onSurface.subtle}
@@ -153,7 +153,7 @@ export const SavedRouteCard = ({
       </View>
 
       <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <MaterialCommunityIcons
+        <IconSymbol
           name="chevron-right"
           size={24}
           color={semantic.color.onSurface.subtle}

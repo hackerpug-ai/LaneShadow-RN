@@ -8,6 +8,7 @@
 import { IconSymbol } from '../ui/icon-symbol'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Pressable, StyleSheet, TextInput, View } from 'react-native'
+import { Text } from 'react-native-paper'
 
 export type CaptionInputProps = {
   value: string

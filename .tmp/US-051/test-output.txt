@@ -1,0 +1,101 @@
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow
+
+stdout | convex/actions/agent/__tests__/executePlan.test.ts > executePlanHandler > AC-1: Given a pending plan, When executePlanHandler runs, Then updates status to running then completed
+[planRide] executePlanHandler started { routePlanId: [32m'plan_abc123'[39m }
+
+stdout | convex/actions/agent/__tests__/executePlan.test.ts > executePlanHandler > AC-1: Given a pending plan, When executePlanHandler runs, Then updates status to running then completed
+[planRide] Plan retrieved { planId: [32m'plan_abc123'[39m, status: [32m'pending'[39m }
+
+stdout | convex/actions/agent/__tests__/executePlan.test.ts > executePlanHandler > AC-1: Given a pending plan, When executePlanHandler runs, Then updates status to running then completed
+[planRide] Starting planRideOrchestrator...
+
+stdout | convex/actions/agent/__tests__/executePlan.test.ts > executePlanHandler > AC-1: Given a pending plan, When executePlanHandler runs, Then updates status to running then completed
+[planRide] Orchestrator completed, routes: [33m1[39m
+
+stdout | convex/actions/agent/__tests__/executePlan.test.ts > executePlanHandler > AC-1: Given a pending plan, When executePlanHandler runs, Then updates status to running then completed
+[planRide] Writing completed result to DB: {
+  optionsCount: [33m1[39m,
+  firstOptionLabel: [32m'Coastal Route'[39m,
+  firstLegKeys: [
+    [32m'legIndex'[39m,
+    [32m'start'[39m,
+    [32m'end'[39m,
+    [32m'distanceMeters'[39m,
+    [32m'durationSeconds'[39m,
+    [32m'geometry'[39m
+  ],
+  firstLegHasGeometry: [33mtrue[39m,
+  firstLegGeometry: {
+    format: [32m'polyline'[39m,
+    encoding: [32m'encoded_polyline'[39m,
+    hasValue: [33mtrue[39m,
+    valueLen: [33m7[39m
+  }
+}
+
+stdout | convex/actions/agent/__tests__/executePlan.test.ts > executePlanHandler > AC-2: Given plan not found, When executePlanHandler runs, Then returns without calling runMutation
+[planRide] executePlanHandler started { routePlanId: [32m'plan_abc123'[39m }
+
+stdout | convex/actions/agent/__tests__/executePlan.test.ts > executePlanHandler > AC-2: Given plan not found, When executePlanHandler runs, Then returns without calling runMutation
+[planRide] Plan retrieved { planId: [90mundefined[39m, status: [90mundefined[39m }
+
+stdout | convex/actions/agent/__tests__/executePlan.test.ts > executePlanHandler > AC-3: Given a cancelled plan, When executePlanHandler runs, Then returns without calling runMutation
+[planRide] executePlanHandler started { routePlanId: [32m'plan_abc123'[39m }
+
+stdout | convex/actions/agent/__tests__/executePlan.test.ts > executePlanHandler > AC-3: Given a cancelled plan, When executePlanHandler runs, Then returns without calling runMutation
+[planRide] Plan retrieved { planId: [32m'plan_abc123'[39m, status: [32m'cancelled'[39m }
+
+ ✓ convex/actions/agent/__tests__/planRide.test.ts (10 tests) 4ms
+stdout | convex/actions/agent/__tests__/executePlan.test.ts > executePlanHandler > AC-4: Given orchestrator throws, When executePlanHandler runs, Then writes failed status to DB
+[planRide] executePlanHandler started { routePlanId: [32m'plan_abc123'[39m }
+
+stdout | convex/actions/agent/__tests__/executePlan.test.ts > executePlanHandler > AC-4: Given orchestrator throws, When executePlanHandler runs, Then writes failed status to DB
+[planRide] Plan retrieved { planId: [32m'plan_abc123'[39m, status: [32m'pending'[39m }
+
+stdout | convex/actions/agent/__tests__/executePlan.test.ts > executePlanHandler > AC-4: Given orchestrator throws, When executePlanHandler runs, Then writes failed status to DB
+[planRide] Starting planRideOrchestrator...
+
+stdout | convex/actions/agent/__tests__/executePlan.test.ts > executePlanHandler > AC-5: Given plan is cancelled mid-run, When executePlanHandler checks, Then does not write completed
+[planRide] executePlanHandler started { routePlanId: [32m'plan_abc123'[39m }
+
+stdout | convex/actions/agent/__tests__/executePlan.test.ts > executePlanHandler > AC-5: Given plan is cancelled mid-run, When executePlanHandler checks, Then does not write completed
+[planRide] Plan retrieved { planId: [32m'plan_abc123'[39m, status: [32m'pending'[39m }
+
+ ✓ convex/actions/agent/__tests__/executePlan.test.ts (5 tests) 8ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  .claude/worktrees/agent-a060d1d8/convex/actions/agent/__tests__/planRide.test.ts [ .claude/worktrees/agent-a060d1d8/convex/actions/agent/__tests__/planRide.test.ts ]
+Error: Cannot find package '@langchain/langgraph' imported from '/Users/justinrich/Projects/LaneShadow/.claude/worktrees/agent-a060d1d8/convex/actions/agent/__tests__/planRide.test.ts'
+ ❯ .claude/worktrees/agent-a060d1d8/convex/actions/agent/__tests__/planRide.test.ts:3:1
+      1| 'use node'
+      2| 
+      3| import { MemorySaver } from '@langchain/langgraph'
+       | ^
+      4| 
+      5| import { createPlanningGraph } from '../graphs/planningGraph'
+
+Caused by: Error: Failed to load url @langchain/langgraph (resolved id: @langchain/langgraph) in /Users/justinrich/Projects/LaneShadow/.claude/worktrees/agent-a060d1d8/convex/actions/agent/__tests__/planRide.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/.pnpm/vite@7.3.1_@types+node@22.18.10_tsx@4.20.6/node_modules/vite/dist/node/chunks/config.js:22663:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  .claude/worktrees/agent-a524aa06/convex/actions/agent/__tests__/planRide.test.ts [ .claude/worktrees/agent-a524aa06/convex/actions/agent/__tests__/planRide.test.ts ]
+Error: cannot spy on a non-function value
+ ❯ .claude/worktrees/agent-a524aa06/convex/actions/agent/__tests__/planRide.test.ts:13:6
+     11| 
+     12| // Mock ChatOpenAI for LLM calls
+     13| jest.mock('@langchain/openai', () => ({
+       |      ^
+     14|   ChatOpenAI: jest.fn().mockImplementation(() => ({
+     15|     withStructuredOutput: jest.fn().mockReturnValue({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 2 passed (4)
+      Tests  15 passed (15)
+   Start at  23:30:11
+   Duration  2.39s (transform 236ms, setup 63ms, collect 358ms, tests 12ms, environment 0ms, prepare 204ms)
+

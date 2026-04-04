@@ -5,7 +5,7 @@
  * Follows the design system pill patterns
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
@@ -37,8 +37,8 @@ export const WeatherPill = ({
   const theme = useTheme<ExtendedTheme>()
   const { semantic } = theme
 
-  const bgColor = backgroundColor || 'rgba(251, 191, 36, 0.15)'
-  const color = textColor || '#fbbf24'
+  const bgColor = backgroundColor || semantic.color.warning.default + '26' // Add 15% alpha
+  const color = textColor || semantic.color.warning.default
 
   return (
     <View
@@ -49,7 +49,7 @@ export const WeatherPill = ({
         },
       ]}
     >
-      <MaterialCommunityIcons name={icon} size={iconSize} color={color} />
+      <IconSymbol name={icon} size={iconSize} color={color} />
       <Text style={[styles.description, { color }]}>{description}</Text>
     </View>
   )

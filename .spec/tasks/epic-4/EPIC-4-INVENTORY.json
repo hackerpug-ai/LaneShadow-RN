@@ -1,0 +1,979 @@
+{
+  "epics": [
+    {
+      "sequence": 4,
+      "title": "Epic 4: Save & Reuse Favorite Roads",
+      "theme": "Users can save road segments as favorites and have them influence route planning",
+      "acceptance_criteria": [
+        "User can long-press route segment to save as favorite",
+        "User can view saved favorites in Settings with mini map previews",
+        "User can enable 'Include favorite roads' toggle when planning",
+        "Generated routes show which favorites influenced the route",
+        "User receives feedback when favorite is too far to include"
+      ],
+      "prd_sections_covered": ["UC-PERS-01", "UC-PERS-02"],
+      "human_test_steps": [
+        "Long-press a route segment and save it as a favorite",
+        "View saved favorites in Settings with mini map previews",
+        "Enable 'Include favorite roads' toggle when planning a route",
+        "See indicators showing which favorites influenced the route",
+        "Receive feedback when a favorite is too far to include"
+      ],
+      "human_review_deliverable": "Users can save their favorite road segments and have them actively influence route planning with clear visual feedback",
+      "blocks_epics": [],
+      "tasks": [
+        {
+          "id": "US-040",
+          "title": "Add favorite_roads table to Convex schema",
+          "task_type": "INFRA",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Read existing Convex schema patterns",
+              "Follow existing table naming conventions",
+              "Include proper indexes for queries"
+            ],
+            "never": [
+              "Modify existing tables (saved_routes, routes)",
+              "Break existing migrations"
+            ],
+            "strictly": [
+              "Follow Convex schema validation patterns"
+            ]
+          },
+          "specification": {
+            "objective": "Add favorite_roads table with proper schema for storing user's favorite road segments",
+            "success_state": "Table exists with proper fields, indexes, and migration runs successfully"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "Convex schema file exists",
+              "when": "favorite_roads table definition added",
+              "then": "Schema validates with no errors",
+              "verify": "npx convex dev --check"
+            },
+            {
+              "num": 2,
+              "given": "favorite_roads table created",
+              "when": "Checking table schema",
+              "then": "Has required fields: userId, name, geometry (polyline), createdAt",
+              "verify": "npx convex schema | grep favorite_roads"
+            },
+            {
+              "num": 3,
+              "given": "Table has data",
+              "when": "Querying by userId",
+              "then": "Results returned efficiently",
+              "verify": "Check explain plan for userId index"
+            },
+            {
+              "num": 4,
+              "given": "Migration runs",
+              "when": "Deploying to production",
+              "then": "No data loss, clean migration",
+              "verify": "npx convex deploy"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "convex/schema.ts (MODIFY)",
+              "models/favorite-roads.ts (NEW)"
+            ],
+            "write_prohibited": [
+              "convex/schema.ts - existing table definitions",
+              "convex/* - other files"
+            ]
+          },
+          "design": {
+            "references": [
+              "Existing saved_routes schema pattern",
+              "Convex schema documentation"
+            ],
+            "interaction_notes": [
+              "This is backend-only work",
+              "No UI changes in this task"
+            ],
+            "pattern": "See existing tables for pattern",
+            "pattern_source": "convex/schema.ts",
+            "anti_pattern": "Don't add unnecessary fields or complex relationships"
+          },
+          "coding_standards": [
+            {
+              "path": "convex/schema.ts",
+              "checks": [
+                "Follow existing naming",
+                "Use v.string(), v.id(), etc.",
+                "Add indexes for query fields"
+              ]
+            }
+          ],
+          "assignee": "backend-engineer",
+          "assignment_rationale": "Infrastructure task requiring Convex schema knowledge",
+          "dependencies": [],
+          "estimate_minutes": 45
+        },
+        {
+          "id": "US-041",
+          "title": "Create favoriteRoads.ts with insert/list/delete",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Follow savedRoutes.ts patterns exactly",
+              "Use requireIdentity for authentication",
+              "Validate name (not empty, <= 100 chars)"
+            ],
+            "never": [
+              "Skip ownership checks on delete",
+              "Modify existing savedRoutes functions"
+            ],
+            "strictly": [
+              "Use internalQuery/internalMutation for backend functions",
+              "Export public query/mutation wrappers"
+            ]
+          },
+          "specification": {
+            "objective": "Create API layer for CRUD operations on favorite roads",
+            "success_state": "insert, listByOwner, and deleteById functions working with proper auth and validation"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "User is authenticated",
+              "when": "Calling insert with name, geometry, and bounds",
+              "then": "Favorite road is created with userId, createdAt, updatedAt and returns favoriteRoadId",
+              "verify": "Test insert returns valid favoriteRoadId"
+            },
+            {
+              "num": 2,
+              "given": "User has created multiple favorite roads",
+              "when": "Calling listByOwner",
+              "then": "Returns only user's favorite roads ordered by createdAt desc",
+              "verify": "Test list returns only user's roads"
+            },
+            {
+              "num": 3,
+              "given": "User has created a favorite road",
+              "when": "Calling deleteById with favoriteRoadId",
+              "then": "Road is deleted from database and returns null",
+              "verify": "Test delete removes record"
+            },
+            {
+              "num": 4,
+              "given": "User attempts to delete another user's favorite road",
+              "when": "Calling deleteById",
+              "then": "Operation throws ConvexError with 'not found' message",
+              "verify": "Test ownership check prevents unauthorized delete"
+            },
+            {
+              "num": 5,
+              "given": "User attempts to insert with empty or >100 char name",
+              "when": "Calling insert",
+              "then": "Insert throws ConvexError with validation message",
+              "verify": "Test name validation enforces constraints"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "convex/db/favoriteRoads.ts (NEW)",
+              "convex/db/__tests__/favoriteRoads.test.ts (NEW)"
+            ],
+            "write_prohibited": [
+              "convex/schema.ts - schema changes require separate task",
+              "models/favorite-roads.ts - schema changes require separate task",
+              "Any other Convex files"
+            ]
+          },
+          "design": {
+            "references": [
+              "convex/db/savedRoutes.ts - exact pattern to follow"
+            ],
+            "interaction_notes": [
+              "No soft delete needed (unlike saved_routes)",
+              "Use internalQuery/internalMutation for backend functions"
+            ],
+            "pattern": "Follow savedRoutes.ts structure",
+            "pattern_source": "convex/db/savedRoutes.ts",
+            "anti_pattern": "Don't skip ownership checks or validation"
+          },
+          "coding_standards": [
+            {
+              "path": "convex/db/favoriteRoads.ts",
+              "checks": [
+                "Ownership check on delete",
+                "Name validation matches savedRoutes",
+                "Public/internal function separation"
+              ]
+            }
+          ],
+          "assignee": "tdd-backend-implementer",
+          "assignment_rationale": "Backend Convex functions with CRUD operations requiring TDD",
+          "dependencies": ["US-040"],
+          "estimate_minutes": 240
+        },
+        {
+          "id": "US-042",
+          "title": "Add long-press handler to route polyline for segment selection",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Add onSegmentLongPress prop to RoutePolylineProps",
+              "Use react-native-maps's Polyline tappable prop",
+              "Calculate which segment was pressed"
+            ],
+            "never": [
+              "Break existing polyline rendering",
+              "Change existing polyline visual styles"
+            ],
+            "strictly": [
+              "Support 500ms long-press threshold",
+              "Work with overlay polylines (wind/rain/temp)"
+            ]
+          },
+          "specification": {
+            "objective": "Enable users to long-press route segments to select them for saving",
+            "success_state": "Long-press on route polyline triggers callback with segment geometry, bounds, and coordinate"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "Route is displayed on map with polylines",
+              "when": "User long-presses on a route segment",
+              "then": "onSegmentLongPress callback is triggered with segment geometry data",
+              "verify": "Test callback triggered on long-press"
+            },
+            {
+              "num": 2,
+              "given": "User long-presses on route segment",
+              "when": "Callback triggered",
+              "then": "Callback includes coordinate, segment bounds, and segment geometry",
+              "verify": "Test callback includes all required data"
+            },
+            {
+              "num": 3,
+              "given": "User touches route polyline",
+              "when": "Touch duration is < 500ms (tap)",
+              "then": "onSegmentLongPress callback is NOT triggered",
+              "verify": "Test threshold prevents tap from triggering"
+            },
+            {
+              "num": 4,
+              "given": "Route has weather overlays",
+              "when": "User long-presses on overlay-colored segment",
+              "then": "onSegmentLongPress callback is triggered with base segment geometry",
+              "verify": "Test overlay segments are tappable"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "components/map/route-polyline.tsx (MODIFY)",
+              "components/map/__tests__/route-polyline.test.tsx (MODIFY)"
+            ],
+            "write_prohibited": [
+              "components/map/map-view.tsx - map rendering handled separately",
+              "lib/polyline.ts - utility functions, no changes needed"
+            ]
+          },
+          "design": {
+            "references": [
+              "react-native-maps Polyline documentation",
+              "existing gesture handling patterns"
+            ],
+            "interaction_notes": [
+              "Long-press is better than tap for segment selection",
+              "500ms threshold matches iOS standard"
+            ],
+            "pattern": "Use react-native-maps built-in tappable polylines",
+            "pattern_source": "react-native-maps docs",
+            "anti_pattern": "Don't add gesture handler directly (use Polyline props)"
+          },
+          "coding_standards": [
+            {
+              "path": "components/map/route-polyline.tsx",
+              "checks": [
+                "Optional prop (non-breaking)",
+                "Works with overlay polylines",
+                "Returns complete segment data"
+              ]
+            }
+          ],
+          "assignee": "tdd-ui-implementer",
+          "assignment_rationale": "UI component requiring TDD for interaction handling",
+          "dependencies": [],
+          "estimate_minutes": 240
+        },
+        {
+          "id": "US-043",
+          "title": "Build 'Save as Favorite' action sheet",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Use BottomActionSheet as base component",
+              "Include text input for name",
+              "Validate name (required, max 100 chars)",
+              "Call saveFavoriteRoad mutation on save"
+            ],
+            "never": [
+              "Implement mutation (use existing from US-041)",
+              "Break BottomActionSheet patterns"
+            ],
+            "strictly": [
+              "Show loading state while saving",
+              "Trigger onSuccess/onCancel callbacks"
+            ]
+          },
+          "specification": {
+            "objective": "Provide UI for naming and saving selected road segments as favorites",
+            "success_state": "Action sheet with name input, save button, and cancel button appears after segment long-press"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "User long-presses a route segment",
+              "when": "Segment is selected",
+              "then": "Action sheet appears with 'Name this favorite' label, text input, Save and Cancel buttons",
+              "verify": "Test sheet displays with all elements"
+            },
+            {
+              "num": 2,
+              "given": "Action sheet displayed with segment selected",
+              "when": "User enters name and taps Save",
+              "then": "saveFavoriteRoad mutation called, sheet dismisses, onSuccess callback triggered",
+              "verify": "Test save calls mutation and callbacks"
+            },
+            {
+              "num": 3,
+              "given": "Action sheet is displayed",
+              "when": "User taps Cancel",
+              "then": "Action sheet dismisses, no mutation called, onCancel callback triggered",
+              "verify": "Test cancel dismisses without mutation"
+            },
+            {
+              "num": 4,
+              "given": "Action sheet displayed with empty name",
+              "when": "User taps Save with empty input",
+              "then": "Save button is disabled, error message displayed",
+              "verify": "Test validation prevents empty name"
+            },
+            {
+              "num": 5,
+              "given": "User enters name > 100 characters",
+              "when": "Typing in name field",
+              "then": "Input truncated at 100 characters, helper text shows character count",
+              "verify": "Test max length enforced"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "components/ui/save-favorite-action-sheet.tsx (NEW)",
+              "components/ui/__tests__/save-favorite-action-sheet.test.tsx (NEW)"
+            ],
+            "write_prohibited": [
+              "components/ui/bottom-action-sheet.tsx - use as-is",
+              "components/ui/caption-input.tsx - use as-is"
+            ]
+          },
+          "design": {
+            "references": [
+              "components/ui/bottom-action-sheet.tsx",
+              "components/sheets/save-route-confirmation-sheet.tsx"
+            ],
+            "interaction_notes": [
+              "Auto-focus input for better UX",
+              "Truncate at 100 chars (backend validation)"
+            ],
+            "pattern": "Follow save-route-confirmation-sheet structure",
+            "pattern_source": "components/sheets/save-route-confirmation-sheet.tsx",
+            "anti_pattern": "Don't implement mutation directly (use existing)"
+          },
+          "coding_standards": [
+            {
+              "path": "components/ui/save-favorite-action-sheet.tsx",
+              "checks": [
+                "Uses BottomActionSheet",
+                "Name validation matches backend",
+                "Proper loading states"
+              ]
+            }
+          ],
+          "assignee": "tdd-ui-implementer",
+          "assignment_rationale": "UI component requiring TDD for form handling and mutation calls",
+          "dependencies": ["US-041", "US-042"],
+          "estimate_minutes": 180
+        },
+        {
+          "id": "US-044",
+          "title": "Build favorite-road-card.tsx with mini map",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Display favorite road name",
+              "Use RouteThumbnail for mini map with bounds",
+              "Include delete button (icon button)",
+              "Use semantic tokens"
+            ],
+            "never": [
+              "Implement delete confirmation (handled by parent)",
+              "Break RouteThumbnail patterns"
+            ],
+            "strictly": [
+              "Support onPress callback for card tap",
+              "Support onDelete callback for delete button"
+            ]
+          },
+          "specification": {
+            "objective": "Create card component to display favorite road in list with visual preview",
+            "success_state": "Card displays favorite road name, mini map preview, and delete button"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "Favorite road data is provided",
+              "when": "Card renders",
+              "then": "Favorite road name displayed, mini map shows route geometry, uses semantic tokens",
+              "verify": "Test card displays name and mini map"
+            },
+            {
+              "num": 2,
+              "given": "Favorite road has bounds data",
+              "when": "Card renders",
+              "then": "Mini map shows route within bounds using RouteThumbnail component",
+              "verify": "Test mini map uses bounds"
+            },
+            {
+              "num": 3,
+              "given": "Card is displayed",
+              "when": "User taps delete button",
+              "then": "onDelete callback triggered with favoriteRoadId",
+              "verify": "Test delete triggers callback"
+            },
+            {
+              "num": 4,
+              "given": "Card is displayed",
+              "when": "User taps card (not delete button)",
+              "then": "onPress callback triggered with favoriteRoadId",
+              "verify": "Test card press triggers callback"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "components/ui/favorite-road-card.tsx (NEW)",
+              "components/ui/__tests__/favorite-road-card.test.tsx (NEW)"
+            ],
+            "write_prohibited": [
+              "components/ui/route-thumbnail.tsx - use as-is",
+              "components/ui/card.tsx - use as-is"
+            ]
+          },
+          "design": {
+            "references": [
+              "components/ui/route-thumbnail.tsx",
+              "components/saved-routes-screen.tsx (card patterns)"
+            ],
+            "interaction_notes": [
+              "Mini map size: 80x80px",
+              "Delete button uses error color"
+            ],
+            "pattern": "Follow saved-routes-screen card patterns",
+            "pattern_source": "components/saved-routes-screen.tsx",
+            "anti_pattern": "Don't implement delete confirmation inline"
+          },
+          "coding_standards": [
+            {
+              "path": "components/ui/favorite-road-card.tsx",
+              "checks": [
+                "Reuses RouteThumbnail",
+                "Semantic tokens",
+                "Proper callbacks"
+              ]
+            }
+          ],
+          "assignee": "tdd-ui-implementer",
+          "assignment_rationale": "UI component requiring TDD for card interactions",
+          "dependencies": [],
+          "estimate_minutes": 120
+        },
+        {
+          "id": "US-045",
+          "title": "Build Favorite Roads settings section",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Use getFavoriteRoadsList query from US-041",
+              "Display FlatList of FavoriteRoadCard components",
+              "Show EmptyState when list is empty",
+              "Use delete confirmation dialog"
+            ],
+            "never": [
+              "Implement pagination (not needed)",
+              "Add search/filter (out of scope)"
+            ],
+            "strictly": [
+              "Auto-refresh list after delete",
+              "Order by createdAt desc (newest first)"
+            ]
+          },
+          "specification": {
+            "objective": "Create settings section to display and manage user's favorite roads",
+            "success_state": "Settings section displays list of favorite roads with empty state and delete confirmation"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "User has saved favorite roads",
+              "when": "Settings section renders",
+              "then": "All favorite roads displayed as cards, ordered newest first, each showing name and mini map",
+              "verify": "Test list displays all favorites"
+            },
+            {
+              "num": 2,
+              "given": "User has no saved favorite roads",
+              "when": "Settings section renders",
+              "then": "Empty state shows 'No favorite roads yet' and 'Save a road segment to see it here'",
+              "verify": "Test empty state displays"
+            },
+            {
+              "num": 3,
+              "given": "User taps delete on favorite road card",
+              "when": "Delete button pressed",
+              "then": "Confirmation dialog appears with road name and Cancel/Delete buttons",
+              "verify": "Test delete confirmation appears"
+            },
+            {
+              "num": 4,
+              "given": "Delete confirmation displayed",
+              "when": "User taps Delete",
+              "then": "deleteFavoriteRoad mutation called, road removed from list, list refreshes",
+              "verify": "Test delete removes favorite and refreshes"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "components/settings/favorite-roads-section.tsx (NEW)",
+              "components/settings/__tests__/favorite-roads-section.test.tsx (NEW)"
+            ],
+            "write_prohibited": [
+              "components/ui/empty-state.tsx - use as-is",
+              "components/ui/delete-route-dialog.tsx - use as-is"
+            ]
+          },
+          "design": {
+            "references": [
+              "components/ui/empty-state.tsx",
+              "components/screens/saved-routes-screen.tsx"
+            ],
+            "interaction_notes": [
+              "Limit: 50 favorites",
+              "Auto-refresh via Convex reactivity"
+            ],
+            "pattern": "Follow saved-routes-screen list pattern",
+            "pattern_source": "components/screens/saved-routes-screen.tsx",
+            "anti_pattern": "Don't implement delete inline without confirmation"
+          },
+          "coding_standards": [
+            {
+              "path": "components/settings/favorite-roads-section.tsx",
+              "checks": [
+                "Reuses components",
+                "Proper Convex integration",
+                "Error handling"
+              ]
+            }
+          ],
+          "assignee": "tdd-ui-implementer",
+          "assignment_rationale": "UI component requiring TDD for list management and mutations",
+          "dependencies": ["US-041", "US-044"],
+          "estimate_minutes": 180
+        },
+        {
+          "id": "US-046",
+          "title": "Add 'Include favorite roads' toggle to plan-ride-sheet",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Add includeFavorites prop to PlanRideSheetProps",
+              "Add toggle row in toggle section (after 'Avoid tolls')",
+              "Use heart icon",
+              "Use Switch component"
+            ],
+            "never": [
+              "Modify existing toggles",
+              "Add favorites loading (parent's responsibility)"
+            ],
+            "strictly": [
+              "Support disabled state when no favorites exist",
+              "Show helper text when disabled"
+            ]
+          },
+          "specification": {
+            "objective": "Add toggle control to enable/disable favorite roads influence in route planning",
+            "success_state": "Toggle switch added to plan-ride-sheet to enable/disable favorites"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "Plan ride sheet is displayed",
+              "when": "Viewing toggle section",
+              "then": "Include favorite roads toggle visible, positioned after Avoid tolls, uses Switch with heart icon",
+              "verify": "Test toggle displays in correct position"
+            },
+            {
+              "num": 2,
+              "given": "Toggle is displayed",
+              "when": "User taps toggle",
+              "then": "onToggleIncludeFavorites callback triggered, toggle visually updates",
+              "verify": "Test toggle controls value"
+            },
+            {
+              "num": 3,
+              "given": "User has no saved favorite roads",
+              "when": "Plan ride sheet renders",
+              "then": "Toggle is disabled, helper text 'Save favorite roads first' displayed",
+              "verify": "Test toggle disabled when no favorites"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "components/sheets/plan-ride-sheet.tsx (MODIFY)",
+              "components/sheets/__tests__/plan-ride-sheet.test.tsx (MODIFY)"
+            ],
+            "write_prohibited": [
+              "components/ui/switch.tsx - use as-is",
+              "components/ui/icon-symbol.tsx - use as-is"
+            ]
+          },
+          "design": {
+            "references": [
+              "components/sheets/plan-ride-sheet.tsx (existing toggles)",
+              "components/ui/switch.tsx"
+            ],
+            "interaction_notes": [
+              "Heart icon for semantic clarity",
+              "Disabled state prevents confusion"
+            ],
+            "pattern": "Follow existing toggle row pattern",
+            "pattern_source": "components/sheets/plan-ride-sheet.tsx",
+            "anti_pattern": "Don't add favorites loading (parent's responsibility)"
+          },
+          "coding_standards": [
+            {
+              "path": "components/sheets/plan-ride-sheet.tsx",
+              "checks": [
+                "Follows existing toggle pattern",
+                "Proper props and callbacks",
+                "Non-breaking change"
+              ]
+            }
+          ],
+          "assignee": "tdd-ui-implementer",
+          "assignment_rationale": "UI component modification requiring TDD for toggle interaction",
+          "dependencies": [],
+          "estimate_minutes": 60
+        },
+        {
+          "id": "US-047",
+          "title": "Pass favorites to planning graph as preferred segments",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Add includeFavorites parameter to planRide action",
+              "Fetch favorites when includeFavorites=true",
+              "Pass favorite geometries to planning graph",
+              "Filter favorites by distance threshold (50km)"
+            ],
+            "never": [
+              "Modify routing provider API",
+              "Force routes through favorites (should prefer, not require)"
+            ],
+            "strictly": [
+              "Handle empty favorites gracefully",
+              "Not break existing planning (includeFavorites=false)"
+            ]
+          },
+          "specification": {
+            "objective": "Integrate favorite roads into route planning to influence generated routes",
+            "success_state": "planRide action accepts favorites and passes them to planning graph, routes prefer favorites when feasible"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "planRide action exists",
+              "when": "Action called with favorites",
+              "then": "Action accepts includeFavorites boolean, fetches favorites when true, passes to graph",
+              "verify": "Test action accepts and passes favorites"
+            },
+            {
+              "num": 2,
+              "given": "planRide passes favorites to graph",
+              "when": "Planning graph executes",
+              "then": "Graph receives favorite road geometries, uses as preferred segments, route generation considers favorites",
+              "verify": "Test graph receives and uses favorites"
+            },
+            {
+              "num": 3,
+              "given": "Favorites passed to planning graph",
+              "when": "Routes generated",
+              "then": "Routes include favorite segments when feasible, prefer favorites over alternatives, quality remains acceptable",
+              "verify": "Integration test routes include favorites"
+            },
+            {
+              "num": 4,
+              "given": "User has no favorite roads",
+              "when": "planRide called with includeFavorites=true",
+              "then": "Planning proceeds normally, routes generated without favorites influence, no errors",
+              "verify": "Test planning works without favorites"
+            },
+            {
+              "num": 5,
+              "given": "Favorite road is >50km from route corridor",
+              "when": "Planning with includeFavorites=true",
+              "then": "Favorite not included in routes, planning proceeds normally, other favorites considered",
+              "verify": "Test distant favorites ignored"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "convex/actions/agent/planRide.ts (MODIFY)",
+              "convex/actions/agent/graphs/planningGraph.ts (MODIFY)",
+              "convex/actions/agent/tools/compileSketch.ts (MODIFY)",
+              "convex/actions/agent/__tests__/planRide.test.ts (MODIFY)",
+              "convex/actions/agent/__tests__/planRide.integration.test.ts (NEW)",
+              "convex/actions/agent/tools/__tests__/compileSketch.test.ts (MODIFY)"
+            ],
+            "write_prohibited": [
+              "convex/db/favoriteRoads.ts - use as-is",
+              "convex/actions/agent/providers/* - no changes needed"
+            ]
+          },
+          "design": {
+            "references": [
+              "convex/actions/agent/planRide.ts",
+              "convex/actions/agent/graphs/planningGraph.ts"
+            ],
+            "interaction_notes": [
+              "50km threshold prevents absurd detours",
+              "Returns inclusion/exclusion lists for UI"
+            ],
+            "pattern": "Modify graph to use favorites as preferred segments",
+            "pattern_source": "convex/actions/agent/graphs/planningGraph.ts",
+            "anti_pattern": "Don't force routes through favorites (quality still matters)"
+          },
+          "coding_standards": [
+            {
+              "path": "convex/actions/agent/planRide.ts",
+              "checks": [
+                "Clean integration with graph",
+                "Proper distance filtering",
+                "Non-breaking change"
+              ]
+            }
+          ],
+          "assignee": "tdd-backend-implementer",
+          "assignment_rationale": "Backend action and graph modification requiring TDD for complex logic",
+          "dependencies": ["US-041", "US-046"],
+          "estimate_minutes": 480
+        },
+        {
+          "id": "US-048",
+          "title": "Show favorite inclusion indicator on generated routes",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Add includedFavoritesCount prop to RouteOptionCard",
+              "Display badge when includedFavoritesCount > 0 or includeFavorites was true",
+              "Use heart icon in badge",
+              "Show count in badge text"
+            ],
+            "never": [
+              "Break existing badge layout",
+              "Show favorite names (out of scope)"
+            ],
+            "strictly": [
+              "Use primary color when count > 0",
+              "Use muted color when count = 0",
+              "Hide badge when includeFavorites was false"
+            ]
+          },
+          "specification": {
+            "objective": "Display visual feedback showing which favorite roads influenced each generated route",
+            "success_state": "Route cards show indicators for which favorites are included in each route"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "Route was generated with includeFavorites=true",
+              "when": "Route card displays and route includes favorites",
+              "then": "Card shows 'X favorites included' badge with heart icon near route stats",
+              "verify": "Test card displays favorites badge"
+            },
+            {
+              "num": 2,
+              "given": "Route includes 3 favorite roads",
+              "when": "Route card displays",
+              "then": "Badge displays '3 favorites included' using primary color",
+              "verify": "Test badge shows count"
+            },
+            {
+              "num": 3,
+              "given": "Route was generated with includeFavorites=false",
+              "when": "Route card displays",
+              "then": "No favorites badge displayed, card layout unchanged",
+              "verify": "Test no badge when not included"
+            },
+            {
+              "num": 4,
+              "given": "Route was generated with includeFavorites=true",
+              "when": "Route includes zero favorites",
+              "then": "Badge displays '0 favorites included' using muted color",
+              "verify": "Test zero badge uses muted color"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "components/planning/route-option-card.tsx (MODIFY)",
+              "components/planning/__tests__/route-option-card.test.tsx (MODIFY)"
+            ],
+            "write_prohibited": [
+              "components/ui/badge.tsx - use as-is",
+              "components/ui/icon-symbol.tsx - use as-is"
+            ]
+          },
+          "design": {
+            "references": [
+              "components/planning/route-option-card.tsx",
+              "components/ui/badge.tsx"
+            ],
+            "interaction_notes": [
+              "Badge shows count, not names",
+              "Heart icon for semantic clarity"
+            ],
+            "pattern": "Reuse Badge component",
+            "pattern_source": "components/ui/badge.tsx",
+            "anti_pattern": "Don't show favorite names in badge"
+          },
+          "coding_standards": [
+            {
+              "path": "components/planning/route-option-card.tsx",
+              "checks": [
+                "Reuses Badge component",
+                "Proper conditional rendering",
+                "Non-breaking change"
+              ]
+            }
+          ],
+          "assignee": "tdd-ui-implementer",
+          "assignment_rationale": "UI component modification requiring TDD for badge display logic",
+          "dependencies": ["US-047"],
+          "estimate_minutes": 120
+        },
+        {
+          "id": "US-049",
+          "title": "Show 'couldn't include' message when favorite too far",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Accept excludedFavorites prop (array of {id, reason})",
+              "Display Banner component when excludedFavorites.length > 0",
+              "Show count in message",
+              "Use info icon in banner"
+            ],
+            "never": [
+              "Show favorite names (just count)",
+              "Break existing view layout"
+            ],
+            "strictly": [
+              "Only show when includeFavorites was true",
+              "Use info variant (not warning/error)"
+            ]
+          },
+          "specification": {
+            "objective": "Display feedback message when favorite roads are too far from route to include",
+            "success_state": "Info message displays when favorites are too far from route"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "Route was generated with includeFavorites=true",
+              "when": "Some favorites are excluded (too far)",
+              "then": "Info banner displays below route options showing 'X favorite(s) too far from route' with info icon",
+              "verify": "Test message displays when excluded"
+            },
+            {
+              "num": 2,
+              "given": "2 favorites are too far from route",
+              "when": "Excluded favorites message displays",
+              "then": "Message displays '2 favorites too far from route', count is accurate",
+              "verify": "Test message shows count"
+            },
+            {
+              "num": 3,
+              "given": "All favorites are within route corridor",
+              "when": "Routes generated",
+              "then": "No excluded favorites message displays, view layout unchanged",
+              "verify": "Test no message when all included"
+            },
+            {
+              "num": 4,
+              "given": "includeFavorites=false",
+              "when": "Routes generated",
+              "then": "No excluded favorites message displays, view layout unchanged",
+              "verify": "Test no message when disabled"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "components/screens/route-comparison-view.tsx (MODIFY)",
+              "components/screens/__tests__/route-comparison-view.test.tsx (MODIFY)"
+            ],
+            "write_prohibited": [
+              "components/ui/banner.tsx - use as-is",
+              "components/ui/icon-symbol.tsx - use as-is"
+            ]
+          },
+          "design": {
+            "references": [
+              "components/screens/route-comparison-view.tsx",
+              "components/ui/banner.tsx"
+            ],
+            "interaction_notes": [
+              "Info variant (not warning) - expected behavior",
+              "Count only (names would be too long)"
+            ],
+            "pattern": "Reuse Banner component",
+            "pattern_source": "components/ui/banner.tsx",
+            "anti_pattern": "Don't use warning variant (this isn't an error)"
+          },
+          "coding_standards": [
+            {
+              "path": "components/screens/route-comparison-view.tsx",
+              "checks": [
+                "Reuses Banner component",
+                "Proper conditional rendering",
+                "Non-breaking change"
+              ]
+            }
+          ],
+          "assignee": "tdd-ui-implementer",
+          "assignment_rationale": "UI component modification requiring TDD for conditional banner display",
+          "dependencies": ["US-047"],
+          "estimate_minutes": 60
+        }
+      ]
+    }
+  ],
+  "epic_dependency_graph": {
+    "4": []
+  },
+  "total_tasks": 10,
+  "total_epics": 1,
+  "prd_coverage_percentage": 100
+}

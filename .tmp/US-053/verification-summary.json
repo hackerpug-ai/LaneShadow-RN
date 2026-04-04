@@ -1,0 +1,1 @@
+{"status":"completed","commit_sha":"7f9dd20","summary":"Fixed vi.mock absolute path to relative, routingPreference now only applied for DRIVE mode, added vitest config files to worktree"}

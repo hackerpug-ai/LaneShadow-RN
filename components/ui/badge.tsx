@@ -13,7 +13,8 @@
 
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { TextStyle, ViewStyle } from 'react-native'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
+import { Text } from 'react-native-paper'
 
 /**
  * Badge variant types

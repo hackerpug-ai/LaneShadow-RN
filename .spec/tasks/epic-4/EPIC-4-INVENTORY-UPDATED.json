@@ -1,0 +1,291 @@
+{
+  "epics": [
+    {
+      "sequence": 4,
+      "title": "Epic 4: Save & Reuse Favorite Roads",
+      "theme": "Users can save road segments as favorites and have them influence route planning",
+      "acceptance_criteria": [
+        "User can long-press route segment to save as favorite",
+        "User can view saved favorites in Settings with mini map previews",
+        "User can enable 'Include favorite roads' toggle when planning",
+        "Generated routes show which favorites influenced the route",
+        "User receives feedback when favorite is too far to include"
+      ],
+      "prd_sections_covered": ["UC-PERS-01", "UC-PERS-02"],
+      "human_test_steps": [
+        "Long-press a route segment and save it as a favorite",
+        "View saved favorites in Settings with mini map previews",
+        "Enable 'Include favorite roads' toggle when planning a route",
+        "See indicators showing which favorites influenced the route",
+        "Receive feedback when a favorite is too far to include"
+      ],
+      "human_review_deliverable": "Users can save their favorite road segments and have them actively influence route planning with clear visual feedback",
+      "blocks_epics": [],
+      "tasks": [
+        {
+          "id": "US-042-D",
+          "title": "Design Long-Press Interaction Pattern",
+          "task_type": "DESIGN",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Specify all 3 visual states (idle, pressing, selected)",
+              "Define haptic feedback pattern",
+              "Include accessibility alternative trigger",
+              "Specify 500ms long-press threshold"
+            ],
+            "never": [
+              "Skip accessibility considerations",
+              "Forget touch target size (44×44px minimum)"
+            ],
+            "strictly": [
+              "Use semantic color tokens",
+              "Follow WCAG 2.1 AA standards"
+            ]
+          },
+          "specification": {
+            "objective": "Create complete interaction specification for long-press on route polylines with visual feedback, haptics, and accessibility",
+            "success_state": "Design spec with all states, HTML mockup, accessibility guide, and state diagram"
+          },
+          "design_deliverables": [
+            ".spec/designs/favorite-longpress.spec.md",
+            ".spec/designs/favorite-longpress.design.html",
+            ".spec/designs/favorite-longpress.a11y.md"
+          ],
+          "assignee": "ui-designer",
+          "dependencies": [],
+          "estimate_minutes": 240
+        },
+        {
+          "id": "US-043-D",
+          "title": "Design Save Favorite Action Sheet",
+          "task_type": "DESIGN",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Specify layout with header, input, buttons",
+              "Define all 6 validation states",
+              "Include character counter specification",
+              "Specify button states (disabled/enabled/loading)"
+            ],
+            "never": [
+              "Skip empty or duplicate name states",
+              "Forget loading state"
+            ],
+            "strictly": [
+              "Use BottomActionSheet component",
+              "Match backend validation (max 100 chars)"
+            ]
+          },
+          "specification": {
+            "objective": "Create complete action sheet specification for naming and saving favorite road segments",
+            "success_state": "Layout spec, HTML mockup with all states, state diagram, component spec"
+          },
+          "design_deliverables": [
+            ".spec/designs/save-favorite-sheet.spec.md",
+            ".spec/designs/save-favorite-sheet.design.html",
+            ".spec/designs/save-favorite-sheet.states.md",
+            ".spec/designs/save-favorite-sheet.component.md"
+          ],
+          "assignee": "ui-designer",
+          "dependencies": ["US-042-D"],
+          "estimate_minutes": 120
+        },
+        {
+          "id": "US-044-D",
+          "title": "Design Favorite Road Card",
+          "task_type": "DESIGN",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Specify card layout (thumbnail, text, delete)",
+              "Define all 4 card states",
+              "Include empty state design",
+              "Specify accessibility labels"
+            ],
+            "never": [
+              "Skip delete button interaction",
+              "Forget press states"
+            ],
+            "strictly": [
+              "Use existing RouteThumbnail component",
+              "Follow WCAG 2.1 AA (44×44px touch targets)"
+            ]
+          },
+          "specification": {
+            "objective": "Create complete card specification for displaying favorite roads in settings list",
+            "success_state": "Card layout spec, HTML mockup with states, empty state spec, accessibility guide"
+          },
+          "design_deliverables": [
+            ".spec/designs/favorite-road-card.spec.md",
+            ".spec/designs/favorite-road-card.design.html",
+            ".spec/designs/favorite-road-card.states.md",
+            ".spec/designs/favorite-roads-empty.spec.md"
+          ],
+          "assignee": "ui-designer",
+          "dependencies": [],
+          "estimate_minutes": 240
+        },
+        {
+          "id": "US-045-D",
+          "title": "Design Settings Section Layout",
+          "task_type": "DESIGN",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Specify navigation pattern (Settings > Favorite Roads)",
+              "Define list layout with FlatList",
+              "Include empty state design",
+              "Specify delete confirmation dialog (iOS + Android)"
+            ],
+            "never": [
+              "Skip platform-specific dialog patterns",
+              "Forget navigation flow"
+            ],
+            "strictly": [
+              "Use existing EmptyState component",
+              "Follow platform conventions (iOS sheets, Android alerts)"
+            ]
+          },
+          "specification": {
+            "objective": "Create complete settings section specification for favorite roads list management",
+            "success_state": "Navigation spec, list layout spec, empty state spec, delete dialog spec"
+          },
+          "design_deliverables": [
+            ".spec/designs/favorite-roads-settings.spec.md",
+            ".spec/designs/favorite-roads-settings.design.html",
+            ".spec/designs/favorite-roads-navigation.md",
+            ".spec/designs/favorite-delete-dialog.spec.md"
+          ],
+          "assignee": "ui-designer",
+          "dependencies": ["US-044-D"],
+          "estimate_minutes": 120
+        },
+        {
+          "id": "US-048-D",
+          "title": "Design Favorite Inclusion Indicator",
+          "task_type": "DESIGN",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Specify badge design (icon, text, colors)",
+              "Define all 3 badge states",
+              "Include placement in RouteOptionCard",
+              "Specify pluralization rules"
+            ],
+            "never": [
+              "Skip muted state (count=0)",
+              "Forget accessibility labels"
+            ],
+            "strictly": [
+              "Use existing Badge component",
+              "Place after rain/wind/temp badges"
+            ]
+          },
+          "specification": {
+            "objective": "Create complete badge specification for showing favorite road inclusion in routes",
+            "success_state": "Badge spec, HTML mockup with states, placement spec, accessibility guide"
+          },
+          "design_deliverables": [
+            ".spec/designs/favorite-inclusion-badge.spec.md",
+            ".spec/designs/favorite-inclusion-badge.design.html",
+            ".spec/designs/favorite-inclusion-badge.states.md",
+            ".spec/designs/favorite-inclusion-badge.placement.md"
+          ],
+          "assignee": "ui-designer",
+          "dependencies": [],
+          "estimate_minutes": 120
+        },
+        {
+          "id": "US-040",
+          "title": "Add favorite_roads table to Convex schema",
+          "task_type": "INFRA",
+          "priority": 0,
+          "dependencies": [],
+          "estimate_minutes": 45
+        },
+        {
+          "id": "US-041",
+          "title": "Create favoriteRoads.ts with insert/list/delete",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "dependencies": ["US-040"],
+          "estimate_minutes": 240
+        },
+        {
+          "id": "US-042",
+          "title": "Add long-press handler to route polyline for segment selection",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "dependencies": ["US-042-D"],
+          "estimate_minutes": 240
+        },
+        {
+          "id": "US-043",
+          "title": "Build 'Save as Favorite' action sheet",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "dependencies": ["US-041", "US-042", "US-043-D"],
+          "estimate_minutes": 180
+        },
+        {
+          "id": "US-044",
+          "title": "Build favorite-road-card.tsx with mini map",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "dependencies": ["US-044-D"],
+          "estimate_minutes": 120
+        },
+        {
+          "id": "US-045",
+          "title": "Build Favorite Roads settings section",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "dependencies": ["US-041", "US-044", "US-045-D"],
+          "estimate_minutes": 180
+        },
+        {
+          "id": "US-046",
+          "title": "Add 'Include favorite roads' toggle to plan-ride-sheet",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "dependencies": [],
+          "estimate_minutes": 60
+        },
+        {
+          "id": "US-047",
+          "title": "Pass favorites to planning graph as preferred segments",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "dependencies": ["US-041", "US-046"],
+          "estimate_minutes": 480
+        },
+        {
+          "id": "US-048",
+          "title": "Show favorite inclusion indicator on generated routes",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "dependencies": ["US-047", "US-048-D"],
+          "estimate_minutes": 120
+        },
+        {
+          "id": "US-049",
+          "title": "Show 'couldn't include' message when favorite too far",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "dependencies": ["US-047"],
+          "estimate_minutes": 60
+        }
+      ]
+    }
+  ],
+  "epic_dependency_graph": {
+    "4": []
+  },
+  "total_tasks": 15,
+  "total_epics": 1,
+  "prd_coverage_percentage": 100,
+  "design_tasks": 5,
+  "implementation_tasks": 10,
+  "total_effort_days": "7-9 with optimal parallelization"
+}

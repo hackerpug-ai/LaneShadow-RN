@@ -7,7 +7,8 @@
 
 import { IconSymbol, type IconName } from '../ui/icon-symbol'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
+import { Text } from 'react-native-paper'
 
 export type ChipProps = {
   label: string

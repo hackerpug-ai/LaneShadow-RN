@@ -5,13 +5,13 @@
  * and route highlights. Accessed via navigation from saved routes list.
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useMemo, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from 'react-native-paper'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { IconSymbol } from '../../../components/ui/icon-symbol'
 
 import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
 import {
@@ -114,7 +114,7 @@ const SavedRouteDetailScreen = () => {
           testID="route-detail-header"
         />
         <View style={styles.centered}>
-          <MaterialCommunityIcons
+          <IconSymbol
             name="map-marker-question"
             size={48}
             color={semantic.color.onSurface.subtle}

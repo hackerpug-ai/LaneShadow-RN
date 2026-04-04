@@ -230,6 +230,7 @@ const HomeMapScreen = () => {
     if (!state.startStop || !state.endStop) return
     resetError()
     setErrorSheetVisible(false)
+    setSheetVisible(false)
     dispatch({ type: 'setStatus', payload: 'planning' })
 
     const input: PlanInput = {
@@ -244,16 +245,25 @@ const HomeMapScreen = () => {
     }
 
     const result = await planRide(input)
+    console.log('[handlePlanRide] result:', result ? `${result.options.length} options` : 'null')
     if (!result) {
       dispatch({ type: 'setStatus', payload: 'error' })
       setErrorSheetVisible(true)
       return
     }
 
+    const firstOption = result.options[0]
+    console.log('[handlePlanRide] first option:', {
+      id: firstOption?.routeOptionId,
+      label: firstOption?.label,
+      legsCount: firstOption?.map?.legs?.length,
+      hasOverview: !!firstOption?.map?.overviewGeometry?.value,
+      bounds: firstOption?.map?.bounds,
+    })
+
     dispatch({ type: 'setRouteOptions', payload: result })
     dispatch({ type: 'setSelectedOption', payload: result.options[0]?.routeOptionId ?? null })
     dispatch({ type: 'setStatus', payload: 'results' })
-    setSheetVisible(false)
 
     const bounds = result.options[0]?.map.bounds
     if (bounds) {

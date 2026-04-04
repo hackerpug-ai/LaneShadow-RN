@@ -2,7 +2,7 @@ import { useCallback, useRef } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { Swipeable } from 'react-native-gesture-handler'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from '../../../components/ui/icon-symbol'
 
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { Skeleton } from '../../../components/ui/skeleton'
@@ -234,7 +234,7 @@ export const SwipeableRouteCard = ({
           },
         ]}
       >
-        <MaterialCommunityIcons
+        <IconSymbol
           name="trash-can-outline"
           size={24}
           color={semantic.color.onSecondary.default}

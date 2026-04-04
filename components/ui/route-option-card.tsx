@@ -6,10 +6,10 @@
  * Follows the design system card patterns
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
+import { IconSymbol } from './icon-symbol'
 import { RouteBadge } from './route-badge'
 import { StatRow } from './stat-row'
 import { WeatherPill } from './weather-pill'

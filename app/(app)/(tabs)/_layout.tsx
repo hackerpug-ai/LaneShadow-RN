@@ -1,6 +1,6 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { IconSymbol } from '../../../components/ui/icon-symbol'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 
 const TabsLayout = () => {
@@ -28,7 +28,7 @@ const TabsLayout = () => {
         options={{
           title: 'Home',
           tabBarIcon: ({ focused }) => (
-            <MaterialCommunityIcons
+            <IconSymbol
               name="home-variant"
               size={22}
               color={focused ? activeColor : inactiveColor}
@@ -41,7 +41,7 @@ const TabsLayout = () => {
         options={{
           title: 'Settings',
           tabBarIcon: ({ focused }) => (
-            <MaterialCommunityIcons
+            <IconSymbol
               name="cog"
               size={22}
               color={focused ? activeColor : inactiveColor}
@@ -54,7 +54,7 @@ const TabsLayout = () => {
         options={{
           title: 'Saved',
           tabBarIcon: ({ focused }) => (
-            <MaterialCommunityIcons
+            <IconSymbol
               name="bookmark-multiple"
               size={22}
               color={focused ? activeColor : inactiveColor}

@@ -6,7 +6,7 @@
  */
 
 import { useMemo, useState } from 'react'
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { usePlaceAutocomplete } from '../hooks/use-place-autocomplete'
 import { useSemanticTheme } from '../hooks/use-semantic-theme'
@@ -61,7 +61,7 @@ export const LocationInput = ({
   )
 
   return (
-    <View style={[styles.inputContainer, hasSuggestions && styles.inputContainerWithSuggestions]}>
+    <View style={styles.inputContainer}>
       <View style={[styles.innerInputWrapper]}>
         <View style={styles.inputInner}>
           <Input
@@ -75,6 +75,11 @@ export const LocationInput = ({
             rightIcon={iconName}
             inputStyle={{
               paddingHorizontal: semantic.space.sm,
+              // Remove bottom border radius when suggestions are showing
+              ...(hasSuggestions ? {
+                borderBottomLeftRadius: 0,
+                borderBottomRightRadius: 0,
+              } : {}),
             }}
             testID={testID}
             onFocus={() => setFocusedInput(inputType)}
@@ -82,7 +87,7 @@ export const LocationInput = ({
         </View>
       </View>
 
-      {/* Suggestions dropdown */}
+      {/* Suggestions — flush with input, no border gap, fixed container height */}
       {hasSuggestions && (
         <View
           style={[
@@ -90,84 +95,64 @@ export const LocationInput = ({
             {
               backgroundColor: semantic.color.surface.default,
               borderColor: semantic.color.border.default,
-              borderRadius: semantic.radius.lg,
-              borderWidth: 1,
-              shadowOpacity: 0.08,
-              shadowRadius: 8,
-              shadowOffset: { width: 0, height: 4 },
-              elevation: 2,
+              borderLeftWidth: 1,
+              borderRightWidth: 1,
+              borderBottomWidth: 1,
+              borderBottomLeftRadius: semantic.radius.lg,
+              borderBottomRightRadius: semantic.radius.lg,
             },
           ]}
           testID={`${inputType}-suggestions`}
         >
-          <ScrollView style={{ maxHeight: 200 }} nestedScrollEnabled>
-            {isLoading
-              ? Array.from({ length: 3 }).map((_, index) => (
+          {isLoading
+            ? Array.from({ length: 3 }).map((_, index) => (
+                <View
+                  key={`skeleton-${index}`}
+                  style={[
+                    styles.suggestionRow,
+                    {
+                      paddingHorizontal: semantic.space.md,
+                      paddingVertical: semantic.space.sm,
+                      backgroundColor: semantic.color.surfaceVariant.default,
+                    },
+                  ]}
+                  testID={`${inputType}-skeleton-${index}`}
+                >
                   <View
-                    key={`skeleton-${index}`}
-                    style={[
-                      styles.suggestionRow,
-                      {
-                        paddingHorizontal: semantic.space.md,
-                        paddingVertical: semantic.space.sm,
-                        backgroundColor: semantic.color.surfaceVariant.default,
-                      },
-                    ]}
-                    testID={`${inputType}-skeleton-${index}`}
+                    style={{
+                      height: semantic.space.md,
+                      width: '70%',
+                      borderRadius: semantic.radius.md,
+                      backgroundColor: semantic.color.surface.default,
+                    }}
+                  />
+                </View>
+              ))
+            : limitedPredictions.map((item, index) => (
+                <Pressable
+                  key={item.placeId}
+                  onPress={() => handleSelectPlace(item.placeId, item.primaryText || item.description)}
+                  style={({ pressed }) => [
+                    styles.suggestionRow,
+                    {
+                      paddingHorizontal: semantic.space.md,
+                      paddingVertical: semantic.space.sm,
+                      backgroundColor: pressed
+                        ? semantic.color.surfaceVariant.pressed
+                        : transparent,
+                    },
+                  ]}
+                  testID={`${inputType}-suggestion-${index}`}
+                >
+                  <Text
+                    variant="bodySmall"
+                    style={{ color: semantic.color.onSurface.default }}
+                    numberOfLines={1}
                   >
-                    <View
-                      style={{
-                        height: semantic.space.md,
-                        width: '70%',
-                        borderRadius: semantic.radius.md,
-                        backgroundColor: semantic.color.surface.default,
-                      }}
-                    />
-                    <View
-                      style={{
-                        height: semantic.space.sm,
-                        width: '50%',
-                        borderRadius: semantic.radius.sm,
-                        backgroundColor: semantic.color.surface.default,
-                      }}
-                    />
-                  </View>
-                ))
-              : limitedPredictions.map((item, index) => (
-                  <Pressable
-                    key={item.placeId}
-                    onPress={() => handleSelectPlace(item.placeId, item.primaryText || item.description)}
-                    style={({ pressed }) => [
-                      styles.suggestionRow,
-                      {
-                        paddingHorizontal: semantic.space.md,
-                        paddingVertical: semantic.space.sm,
-                        backgroundColor: pressed
-                          ? semantic.color.surfaceVariant.pressed
-                          : transparent,
-                      },
-                    ]}
-                    testID={`${inputType}-suggestion-${index}`}
-                  >
-                    <Text
-                      variant="bodyMedium"
-                      style={{ color: semantic.color.onSurface.default }}
-                      numberOfLines={1}
-                    >
-                      {item.primaryText || item.description}
-                    </Text>
-                    {item.secondaryText ? (
-                      <Text
-                        variant="bodySmall"
-                        style={{ color: semantic.color.onSurface.subtle }}
-                        numberOfLines={1}
-                      >
-                        {item.secondaryText}
-                      </Text>
-                    ) : null}
-                  </Pressable>
-                ))}
-          </ScrollView>
+                    {item.primaryText || item.description}
+                  </Text>
+                </Pressable>
+              ))}
         </View>
       )}
     </View>
@@ -179,11 +164,6 @@ const transparent = 'transparent'
 const styles = StyleSheet.create({
   inputContainer: {
     width: '100%',
-    position: 'relative',
-    zIndex: 1,
-  },
-  inputContainerWithSuggestions: {
-    zIndex: 10,
   },
   innerInputWrapper: {
     flexDirection: 'row',
@@ -193,11 +173,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   suggestions: {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    right: 0,
-    marginTop: 4,
+    // Flush with input — no gap, continuous visual
+    marginTop: -1,
   },
   suggestionRow: {
     gap: 4,

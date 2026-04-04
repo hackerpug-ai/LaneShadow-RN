@@ -10,7 +10,7 @@
  * - Supports loading state
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from '../ui/icon-symbol'
 import { StyleSheet, View, ScrollView, Pressable, ActivityIndicator } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Text } from 'react-native-paper'
@@ -91,7 +91,7 @@ export const RouteComparisonView = ({
         style={[styles.container, styles.centered, { backgroundColor: semantic.color.surface.default }]}
         testID={testID}
       >
-        <MaterialCommunityIcons
+        <IconSymbol
           name="map-marker-off"
           size={48}
           color={semantic.color.onSurface.muted}
@@ -155,8 +155,8 @@ export const RouteComparisonView = ({
                     styles.routeCard,
                     {
                       backgroundColor: isSelected
-                        ? 'rgba(184, 115, 51, 0.08)'
-                        : '#24272B',
+                        ? semantic.color.primary.default + '14' // Add 8% alpha
+                        : semantic.color.card.default,
                       borderColor: isSelected ? semantic.color.primary.default : 'transparent',
                       borderWidth: isSelected ? 2 : 0,
                     },
@@ -170,27 +170,27 @@ export const RouteComparisonView = ({
                           styles.routeBadge,
                           {
                             backgroundColor: isSelected
-                              ? 'rgba(184, 115, 51, 0.15)'
-                              : 'rgba(255, 255, 255, 0.06)',
+                              ? semantic.color.primary.default + '26' // Add 15% alpha
+                              : semantic.color.divider.default,
                           },
                         ]}
                       >
-                        <MaterialCommunityIcons
+                        <IconSymbol
                           name="map-marker-path"
                           size={14}
-                          color={isSelected ? '#B87333' : semantic.color.onSurface.muted}
+                          color={isSelected ? semantic.color.primary.default : semantic.color.onSurface.muted}
                         />
                         <Text
                           style={[
                             styles.routeBadgeText,
-                            { color: isSelected ? '#B87333' : semantic.color.onSurface.muted },
+                            { color: isSelected ? semantic.color.primary.default : semantic.color.onSurface.muted },
                           ]}
                         >
                           {route.label}
                         </Text>
                       </View>
                       {isSelected && (
-                        <MaterialCommunityIcons
+                        <IconSymbol
                           name="check-circle"
                           size={20}
                           color={semantic.color.primary.default}
@@ -212,7 +212,7 @@ export const RouteComparisonView = ({
                   {/* Stats */}
                   <View style={styles.statsRow}>
                     <View style={styles.statItem}>
-                      <MaterialCommunityIcons
+                      <IconSymbol
                         name="map-marker-distance"
                         size={16}
                         color={semantic.color.onSurface.muted}
@@ -225,7 +225,7 @@ export const RouteComparisonView = ({
                       </Text>
                     </View>
                     <View style={styles.statItem}>
-                      <MaterialCommunityIcons
+                      <IconSymbol
                         name="clock-outline"
                         size={16}
                         color={semantic.color.onSurface.muted}
@@ -238,7 +238,7 @@ export const RouteComparisonView = ({
                       </Text>
                     </View>
                     <View style={styles.statItem}>
-                      <MaterialCommunityIcons
+                      <IconSymbol
                         name="vector-polyline"
                         size={16}
                         color={semantic.color.onSurface.muted}
@@ -254,15 +254,15 @@ export const RouteComparisonView = ({
 
                   {/* Wind indicator */}
                   <View style={styles.windRow}>
-                    <MaterialCommunityIcons
+                    <IconSymbol
                       name="weather-windy"
                       size={14}
                       color={
                         route.overlaysPreview.windSummary === 'low'
-                          ? '#22c55e'
+                          ? semantic.color.success.default
                           : route.overlaysPreview.windSummary === 'moderate'
-                            ? '#f59e0b'
-                            : '#ef4444'
+                            ? semantic.color.warning.default
+                            : semantic.color.danger.default
                       }
                     />
                     <Text
@@ -272,10 +272,10 @@ export const RouteComparisonView = ({
                         {
                           color:
                             route.overlaysPreview.windSummary === 'low'
-                              ? '#22c55e'
+                              ? semantic.color.success.default
                               : route.overlaysPreview.windSummary === 'moderate'
-                                ? '#f59e0b'
-                                : '#ef4444',
+                                ? semantic.color.warning.default
+                                : semantic.color.danger.default,
                         },
                       ]}
                     >
@@ -292,7 +292,7 @@ export const RouteComparisonView = ({
                       size="sm"
                       onPress={() => onViewDetails(route.routeOptionId)}
                       icon={
-                        <MaterialCommunityIcons
+                        <IconSymbol
                           name="information-outline"
                           size={16}
                           color={semantic.color.onSurface.subtle}
@@ -308,7 +308,7 @@ export const RouteComparisonView = ({
                       onPress={() => onSave(route.routeOptionId)}
                       disabled={!isSelected}
                       icon={
-                        <MaterialCommunityIcons
+                        <IconSymbol
                           name="content-save"
                           size={16}
                           color={

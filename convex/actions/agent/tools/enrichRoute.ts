@@ -3,7 +3,7 @@
 import { generateObject } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
-import { OPENAI_API_KEY, PI_MODEL } from '../../../lib/env'
+import { OPENAI_API_KEY, AI_MODEL } from '../../../lib/env'
 import { withTimeout } from '../lib/reliability'
 
 const ENRICH_TIMEOUT_MS = 10_000
@@ -38,7 +38,7 @@ export type EnrichRouteInput = {
 
 /**
  * Generates human-readable labels and rationale for routes using aisdk with structured output.
- * Uses PI_MODEL for all OpenAI calls (single interface).
+ * Uses AI_MODEL for all OpenAI calls (single interface).
  *
  * Falls back to generic labels on any failure — never throws.
  *
@@ -47,42 +47,25 @@ export type EnrichRouteInput = {
  */
 export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrichment[]> => {
   try {
-    const apiKey = OPENAI_API_KEY
-    if (!apiKey) {
+    if (!OPENAI_API_KEY) {
       throw new Error('OPENAI_API_KEY not set')
     }
 
-    // Use PI_MODEL for all OpenAI calls (standardized interface)
-    const model = PI_MODEL
-
+    const model = AI_MODEL
     console.log(`[enrichRoute] using model=${model}, routes=${params.routes.length}`)
 
-    // Set API key in environment for aisdk
-    const originalEnvKey = process.env.OPENAI_API_KEY
-    process.env.OPENAI_API_KEY = apiKey
+    const result = await withTimeout(
+      async () => {
+        return generateObject({
+          model: openai(model),
+          schema: RouteEnrichmentSchema,
+          prompt: buildUserPrompt(params.routes),
+        })
+      },
+      { ms: ENRICH_TIMEOUT_MS, label: 'enrichRoute' }
+    )
 
-    try {
-      const result = await withTimeout(
-        async () => {
-          return generateObject({
-            model: openai(model),
-            schema: RouteEnrichmentSchema,
-            prompt: buildUserPrompt(params.routes),
-          })
-        },
-        { ms: ENRICH_TIMEOUT_MS, label: 'enrichRoute' }
-      )
-
-      // aisdk automatically validates the response against the Zod schema
-      return result.object.routes
-    } finally {
-      // Restore original environment
-      if (originalEnvKey !== undefined) {
-        process.env.OPENAI_API_KEY = originalEnvKey
-      } else {
-        delete process.env.OPENAI_API_KEY
-      }
-    }
+    return result.object.routes
   } catch (error) {
     console.warn('[enrichRoute] LLM call failed, using fallback labels', error)
     return params.routes.map((_, idx) => fallbackEnrichment(idx))

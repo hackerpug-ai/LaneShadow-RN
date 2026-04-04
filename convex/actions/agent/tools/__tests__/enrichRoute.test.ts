@@ -46,7 +46,7 @@ describe('enrichRoute', () => {
   })
 
   afterEach(() => {
-    delete process.env.PI_MODEL
+    delete process.env.AI_MODEL
   })
 
   describe('aisdk integration', () => {
@@ -274,9 +274,9 @@ describe('enrichRoute', () => {
     }, 20000)
   })
 
-  describe('PI_MODEL integration', () => {
-    it('uses PI_MODEL environment variable', async () => {
-      process.env.PI_MODEL = 'gpt-4o'
+  describe('AI_MODEL integration', () => {
+    it('uses AI_MODEL environment variable', async () => {
+      process.env.AI_MODEL = 'gpt-4o'
 
       const mockOpenaiCall = vi.mocked(openai)
       mockOpenaiCall.mockReturnValue('mocked-model' as any)
@@ -298,8 +298,8 @@ describe('enrichRoute', () => {
       const routes = buildTestRoutes(1)
       await enrichRoute({ routes })
 
-      // Verify openai was called with PI_MODEL (single parameter)
-      expect(mockOpenaiCall).toHaveBeenCalledWith('gpt-4o')
+      // Verify openai was called with AI_MODEL + apiKey
+      expect(mockOpenaiCall).toHaveBeenCalledWith('gpt-4o', expect.objectContaining({ apiKey: expect.any(String) }))
       expect(vi.mocked(generateObject)).toHaveBeenCalled()
     })
   })

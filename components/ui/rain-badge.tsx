@@ -5,7 +5,7 @@
  * Follows the design system badge patterns
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Badge } from './badge'
@@ -63,11 +63,11 @@ export const RainBadge = ({ rainSummary, testID }: RainBadgeProps) => {
 
   // Partial map: only define icons we know
   const ICONS: Partial<Record<RainLevelKnown, React.ReactNode>> = {
-    none: <MaterialCommunityIcons name="check-circle-outline" size={14} />,
-    light: <MaterialCommunityIcons name="water-outline" size={14} />,
-    moderate: <MaterialCommunityIcons name="water" size={14} />,
-    heavy: <MaterialCommunityIcons name="weather-pouring" size={14} />,
-    unavailable: <MaterialCommunityIcons name="help-circle-outline" size={14} />,
+    none: <IconSymbol name="check-circle-outline" size={14} />,
+    light: <IconSymbol name="water-outline" size={14} />,
+    moderate: <IconSymbol name="water" size={14} />,
+    heavy: <IconSymbol name="weather-pouring" size={14} />,
+    unavailable: <IconSymbol name="help-circle-outline" size={14} />,
   }
 
   // Safe getter with dev warning + graceful fallback

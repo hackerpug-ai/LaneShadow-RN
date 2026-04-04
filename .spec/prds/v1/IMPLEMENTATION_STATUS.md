@@ -88,25 +88,41 @@
 
 ## Phase 2: CHAT UI CORE (Week 2-3)
 
-**Status**: ⏳ BLOCKED — depends on Phase 1 backend
+**Status**: ✅ UI COMPONENTS COMPLETE — Backend integration pending
 
 **Owner**: ui-architect (frontend-designer) with ui-developer
 
-### Components to Create
+### Components Built ✅
 
-| Component | File Path | Effort |
+All agentic UI components have been built and verified with Storybook:
+
+| Component | File Path | Status |
 |-----------|-----------|--------|
-| `ChatInput` | `components/chat/chat-input.tsx` | 1-2 days |
-| `RouteAttachmentCard` | `components/chat/route-attachment-card.tsx` | 1 day |
-| `ChatMessageOverlay` | `components/chat/chat-message-overlay.tsx` | 1 day |
-| `useRideFlow` hook | `hooks/use-ride-flow.ts` | 1 day |
-| `useChatSession` hook | `hooks/use-chat-session.ts` | 1 day |
+| `ChatInputBar` | `components/ui/chat-input-bar.tsx` | ✅ Verified |
+| `SuggestionChips` | `components/ui/suggestion-chips.tsx` | ✅ Verified |
+| `AgentMessageOverlay` | `components/ui/agent-message-overlay.tsx` | ✅ Verified |
+| `RouteAttachmentCard` | `components/ui/route-attachment-card.tsx` | ✅ Verified |
+| `SessionSidebar` | `components/ui/session-sidebar.tsx` | ✅ Verified |
+| `FullChatHistoryView` | `components/ui/full-chat-history-view.tsx` | ✅ Verified |
+| `PlanningProgressIndicator` | `components/ui/planning-progress-indicator.tsx` | ✅ Verified |
+| `SessionCard` | `components/ui/session-card.tsx` | ✅ Verified |
+| `NewSessionButton` | `components/ui/new-session-button.tsx` | ✅ Verified |
+
+### Integration Tasks
+
+| Task | Component | Effort |
+|------|-----------|--------|
+| Integrate ChatInputBar into HomeMapScreen | HomeMapScreen | 1 day |
+| Add AgentMessageOverlay to map layer | HomeMapScreen | 0.5 day |
+| Wire session state reducer | hooks/use-chat-session.ts | 1 day |
+| Implement pi core hooks | hooks/use-ride-flow.ts | 1 day |
+| Connect backend message stream | ChatInputBar | 1 day |
 
 ### Components to Modify
 
 | Component | Changes | Effort |
 |-----------|---------|--------|
-| `HomeMapScreen` | Migrate to 6-state reducer, integrate ChatInput | 2-3 days |
+| `HomeMapScreen` | Integrate chat UI components, add session reducer | 2-3 days |
 
 **Acceptance**: Chat input sends messages, routes render as attachments, overlay shows responses
 
@@ -243,19 +259,21 @@
 
 ### NLP Group (Conversational Planning) — 0% Complete
 
-| UC ID | Title | Status | Phase |
-|-------|-------|--------|-------|
-| UC-NLP-01 | Start a planning conversation | NEW | Phase 2 |
-| UC-NLP-02 | Generate 2–3 alternative scenic routes | NEW | Phase 2 |
-| UC-NLP-03 | View and select route attachments | NEW | Phase 2 |
-| UC-NLP-04 | Conditions-aware route ranking | NEW | Phase 4 |
-| UC-NLP-05 | Switch to manual planning mode | PARTIAL | Phase 2 |
-| UC-NLP-06 | AI-generated route descriptions | PARTIAL | Phase 2 |
-| UC-NLP-07 | Refine routes through follow-up messages | NEW | Phase 6 |
-| UC-NLP-08 | View temporary AI message overlay | NEW | Phase 2 |
-| UC-NLP-09 | Manage chat sessions | NEW | Phase 3 |
-| UC-NLP-10 | Expand chat to full message history | NEW | Phase 3 |
-| UC-NLP-11 | Error recovery in conversation | NEW | Phase 6 |
+| UC ID | Title | Status | Phase | UI Components |
+|-------|-------|--------|-------|---------------|
+| UC-NLP-01 | Start a planning conversation | UI READY | Phase 2 | ChatInputBar ✅, SuggestionChips ✅, NewSessionButton ✅ |
+| UC-NLP-02 | Generate 2–3 alternative scenic routes | UI READY | Phase 2 | RouteAttachmentCard ✅, PlanningProgressIndicator ✅ |
+| UC-NLP-03 | View and select route attachments | UI READY | Phase 2 | RouteAttachmentCard ✅ |
+| UC-NLP-04 | Conditions-aware route ranking | UI READY | Phase 4 | RouteAttachmentCard ✅ (with badges) |
+| UC-NLP-05 | Switch to manual planning mode | UI READY | Phase 2 | ChatInputBar ✅ (manual button) |
+| UC-NLP-06 | AI-generated route descriptions | UI READY | Phase 2 | RouteAttachmentCard ✅ (agent labels) |
+| UC-NLP-07 | Refine routes through follow-up messages | UI READY | Phase 6 | ChatInputBar ✅, AgentMessageOverlay ✅ |
+| UC-NLP-08 | View temporary AI message overlay | UI READY | Phase 2 | AgentMessageOverlay ✅ |
+| UC-NLP-09 | Manage chat sessions | UI READY | Phase 3 | SessionSidebar ✅, SessionCard ✅, NewSessionButton ✅ |
+| UC-NLP-10 | Expand chat to full message history | UI READY | Phase 3 | FullChatHistoryView ✅, RouteAttachmentCard ✅ |
+| UC-NLP-11 | Error recovery in conversation | UI READY | Phase 6 | AgentMessageOverlay ✅ (error messages) |
+
+**UI Component Status**: 9/9 components built and verified — ready for integration
 
 ### WX Group (Weather & Conditions) — 29% Complete
 
@@ -317,6 +335,16 @@
 
 ### Architectural Mismatch
 All agents converged on this finding: The current codebase is a **manual form-based planning UI**. The V1 PRD requires a **conversational AI copilot**. This is not a gap — it's a different paradigm.
+
+### UI Components Update (April 3, 2026)
+All 9 agentic UI components have been built and verified:
+- Full semantic theming applied throughout
+- Storybook controls for all components
+- Accessibility labels and roles implemented
+- Pressable interaction feedback added
+- Ready for integration into HomeMapScreen
+
+See `AGENTIC_UI_COMPONENT_REVIEW.md` for detailed coverage analysis.
 
 ### Quality Debt Blocking Progress
 The cross-validation revealed systemic quality violations (icon imports, Text usage, hardcoded colors) that will propagate into V1 features if not remediated first. This changes the implementation sequence.

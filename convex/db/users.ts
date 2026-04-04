@@ -18,7 +18,8 @@ export const getSession = query({
       return null
     }
 
-    return { user }
+    const { _creationTime, ...userWithoutSystemFields } = user
+    return { user: userWithoutSystemFields }
   },
 })
 
@@ -59,6 +60,18 @@ export const upsertCurrent = internalMutation({
     } as any)
 
     return { userId }
+  },
+})
+
+/** Dev-only: get first user for auth bypass testing */
+export const getFirstUser = internalQuery({
+  args: {},
+  returns: v.union(sessionValidator, v.null()),
+  handler: async (ctx) => {
+    const user = await ctx.db.query('users').first()
+    if (!user) return null
+    const { _creationTime, ...userWithoutSystemFields } = user
+    return { user: userWithoutSystemFields }
   },
 })
 

@@ -5,7 +5,7 @@
  * Follows the design system badge patterns
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
@@ -39,16 +39,16 @@ export const RouteBadge = ({
   const isPrimary = variant === 'primary'
 
   const backgroundColor = isPrimary
-    ? 'rgba(184, 115, 51, 0.2)'
-    : 'rgba(255, 255, 255, 0.05)'
+    ? semantic.color.primary.default + '33' // Add 20% alpha
+    : semantic.color.divider.default
 
   const color = isPrimary
     ? semantic.color.primary.default
     : semantic.color.onSurface.subtle
 
   const borderColor = isPrimary
-    ? 'rgba(184, 115, 51, 0.3)'
-    : 'rgba(255, 255, 255, 0.1)'
+    ? semantic.color.primary.default + '4D' // Add 30% alpha
+    : semantic.color.border.default
 
   return (
     <View
@@ -61,7 +61,7 @@ export const RouteBadge = ({
       ]}
     >
       {icon && (
-        <MaterialCommunityIcons
+        <IconSymbol
           name={icon}
           size={iconSize}
           color={color}

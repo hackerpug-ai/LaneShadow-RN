@@ -6,7 +6,8 @@
  */
 
 import { useState } from 'react'
-import { Pressable, ScrollView, StyleSheet, Text } from 'react-native'
+import { Pressable, ScrollView, StyleSheet } from 'react-native'
+import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 type DateRangePreset = 'all' | 'week' | 'month' | '3months'

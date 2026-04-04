@@ -5,7 +5,7 @@
  * Follows the design system toggle patterns
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
@@ -38,15 +38,15 @@ export const OverlayPill = ({
   const { semantic } = theme
 
   const backgroundColor = active
-    ? 'rgba(184, 115, 51, 0.2)'
-    : 'rgba(255, 255, 255, 0.05)'
+    ? semantic.color.primary.default + '33' // Add 20% alpha
+    : semantic.color.divider.default
 
   const color = active
     ? semantic.color.primary.default
     : semantic.color.onSurface.subtle
 
   const borderColor = active
-    ? 'rgba(184, 115, 51, 0.3)'
+    ? semantic.color.primary.default + '4D' // Add 30% alpha
     : 'transparent'
 
   return (
@@ -59,7 +59,7 @@ export const OverlayPill = ({
         },
       ]}
     >
-      <MaterialCommunityIcons
+      <IconSymbol
         name={icon}
         size={iconSize}
         color={color}

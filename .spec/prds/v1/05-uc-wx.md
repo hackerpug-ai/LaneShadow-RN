@@ -12,6 +12,43 @@ prd_version: 1.1.0
 
 **Description**: The Rider can activate a wind overlay that colorizes the route polyline on the map based on wind speed and direction along the route. This allows the Rider to see at a glance which segments will have headwinds, crosswinds, or favorable tailwinds before committing to a route.
 
+### Wireframe: Weather Overlay Controls
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ ┌───────────────────────────────────────────────────┐   │
+│ │ Weather Overlays                      [Legend □]  │   │
+│ ├───────────────────────────────────────────────────┤   │
+│ │                                                   │   │
+│ │  💨 Wind     [▼]   ☑ Active                      │   │
+│ │  🌧️ Rain     [▼]   ☐ Available                   │   │
+│ │  🌡️ Temp     [▼]   ☐ Available                   │   │
+│ │                                                   │   │
+│ │               Wind Legend                         │   │
+│ │  ━━━ 0-10 mph  (Calm - Tailwind)                 │   │
+│ │  ━━━ 10-20 mph (Moderate - Crosswind)            │   │
+│ │  ━━━ 20+ mph   (Strong - Headwind)               │   │
+│ │                                                   │   │
+│ └───────────────────────────────────────────────────┘   │
+│                                                         │
+│              [Map with Wind-Colored Route]              │
+│                                                         │
+│         ━━━ Green (Tailwind, 8 mph) ━━                  │
+│       ━━━ Yellow (Crosswind, 15 mph) ━━                 │
+│     ━━━ Red (Headwind, 22 mph) ━━                       │
+│                                                         │
+│                    >>> Wind Arrows                      │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Key Elements**:
+- Overlay controls: Compact toggle panel for wind, rain, temperature
+- Active state: Checked indicator shows which overlay is enabled
+- Legend: Color-coded explanation of wind speed bands
+- Route coloring: Segments colored by wind conditions
+- Direction indicators: Arrows show wind direction on route
+
 **Acceptance Criteria**:
 - ☐ Rider can tap the wind overlay toggle to activate wind-based coloring on the active route polyline
 - ☐ System renders polyline segments in distinct colors corresponding to wind speed bands (calm, moderate, strong)
@@ -51,6 +88,39 @@ prd_version: 1.1.0
 
 **Description**: Each route comparison card in the results tray displays a compact weather badge summarizing the key condition to know before choosing that route. The badge makes weather visible at a glance without requiring the Rider to tap into each route's detail view.
 
+### Wireframe: Weather Badges on Route Cards
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ ┌───────────────────────────────────────────────────┐   │
+│ │ ⭐ Best for today  🌤️ Clear                      │   │
+│ │ Coastal Cruiser                                    │   │
+│ │ 42 mi • 2h 15m • Scenic: 9.2/10                   │   │
+│ │ Perfect conditions, light tailwinds              │   │
+│ └───────────────────────────────────────────────────┘   │
+│                                                         │
+│ ┌───────────────────────────────────────────────────┐   │
+│ │ 🌧️ Light rain 3 PM                               │   │
+│ │ Mountain Loop                                      │   │
+│ │ 38 mi • 2h 05m • Scenic: 8.7/10                   │   │
+│ │ Rain expected 2-4 PM, forest canopy              │   │
+│ └───────────────────────────────────────────────────┘   │
+│                                                         │
+│ ┌───────────────────────────────────────────────────┐   │
+│ │ 💨 Windy 15-20 mph                                │   │
+│ │ Valley Route                                       │   │
+│ │ 35 mi • 1h 50m • Scenic: 8.1/10                   │   │
+│ │ Strong crosswinds on open sections               │   │
+│ └───────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Key Elements**:
+- Badge position: Top-right of each route card
+- Weather icon: Matches condition type (sun, rain cloud, wind)
+- Label: Brief text describing dominant condition
+- Color coding: Visual indicator of severity (clear, warning, alert)
+
 **Acceptance Criteria**:
 - ☐ Rider can see a compact weather badge on each route attachment card showing the dominant condition (e.g., "Clear", "Light rain 3 PM", "Windy")
 - ☐ System selects the badge label based on the most salient weather condition during the planned ride window for that route
@@ -64,6 +134,55 @@ prd_version: 1.1.0
 
 **Description**: The Rider can tap to expand a weather timeline panel within the route detail view that shows hourly weather conditions across the planned ride duration. This gives riders planning longer trips a full picture of how conditions evolve over the course of the ride.
 
+### Wireframe: Weather Timeline Panel
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ ┌───────────────────────────────────────────────────┐   │
+│ │ Coastal Cruiser - Route Details                   │   │
+│ ├───────────────────────────────────────────────────┤   │
+│ │                                                   │   │
+│ │ Weather Timeline                      [▼ Collapse]│
+│ │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │   │
+│ │                                                   │   │
+│ │  9 AM  🌤️  68°F  💨 8 mph   🌧️ 0%               │   │
+│ │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   │   │
+│ │                                                   │   │
+│ │ 10 AM  ☀️  72°F  💨 10 mph  🌧️ 5%               │   │
+│ │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   │   │
+│ │                                                   │   │
+│ │ 11 AM  ⚠️  74°F  💨 18 mph  🌧️ 10%  ⚡ Worst    │   │
+│ │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   │   │
+│ │                                                   │   │
+│ │ 12 PM  ☀️  75°F  💨 15 mph  🌧️ 15%              │   │
+│ │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   │   │
+│ │                                                   │   │
+│ │  1 PM  🌤️  73°F  💨 12 mph  🌧️ 20%              │   │
+│ │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   │   │
+│ │                                                   │   │
+│ │  2 PM  🌧️  70°F  💨 10 mph  🌧️ 45%              │   │
+│ │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   │   │
+│ │                                                   │   │
+│ │  3 PM  🌧️  68°F  💨 8 mph   🌧️ 65%  ⚠ Rain      │   │
+│ │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   │   │
+│ │                                                   │   │
+│ │                                                   │   │
+│ │ Peak Conditions:                                   │   │
+│ │ ⚠️ Strongest winds 10-11 AM (18 mph crosswinds)   │   │
+│ │ 🌧️ Rain likely 2-4 PM (peaks at 65%)             │   │
+│ │                                                   │   │
+│ └───────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Key Elements**:
+- Expandable panel: Slides up from route detail view
+- Hourly breakdown: Time, conditions icon, temp, wind, rain probability
+- Visual indicators: Icons and color coding for quick scanning
+- Worst hour: Highlighted with warning icon
+- Peak conditions: Summary of critical windows
+- Timeline visualization: Connected entries show ride progression
+
 **Acceptance Criteria**:
 - ☐ Rider can tap an expand control on the route detail view to reveal the hourly weather timeline
 - ☐ Rider can view wind speed, rain probability, and temperature for each hour of the planned ride duration in the expanded timeline
@@ -76,6 +195,54 @@ prd_version: 1.1.0
 ## UC-WX-06: Adjust departure time and re-rank routes
 
 **Description**: The Rider can change their planned departure time via a chat message ("what if I leave at 3pm?") or a time picker control. The System re-probes weather conditions for the new departure window and re-ranks routes accordingly. The AI responds with updated "Best for today" designation and weather badges.
+
+### Wireframe: Departure Time Adjustment
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                                                         │
+│ ┌───────────────────────────────────────────────────┐   │
+│ │ Rider: What if I leave at 3pm instead?            │   │
+│ │ Today 9:25 AM                                     │   │
+│ └───────────────────────────────────────────────────┘   │
+│                                                         │
+│ ┌───────────────────────────────────────────────────┐   │
+│ │ 🤖 Agent: Great question! Let me check the        │   │
+│ │ weather for a 3 PM departure...                   │   │
+│ │                                                 │   │
+│ │ ┌───────────────────────────────────────────┐  │   │
+│ │ │ ⭐ Best for 3 PM  🌧️ Rain clearing      │  │   │
+│ │ │ Valley Route • 35 mi • 1h 50m            │  │   │
+│ │ │ Rain stops by 4 PM, great afternoon      │  │   │
+│ │ └───────────────────────────────────────────┘  │   │
+│ │                                                 │   │
+│ │ ┌───────────────────────────────────────────┐  │   │
+│ │ │ 🌧️ Wet start  💨 20+ mph                │  │   │
+│ │ │ Coastal Cruiser • 42 mi • 2h 15m         │  │   │
+│ │ │ Heavy rain at 3 PM, strong headwinds     │  │   │
+│ │ └───────────────────────────────────────────┘  │   │
+│ │                                                 │   │
+│ │ ┌───────────────────────────────────────────┐  │   │
+│ │ │ ⛈️ Thunderstorm risk                    │  │   │
+│ │ │ Mountain Loop • 38 mi • 2h 05m           │  │   │
+│ │ │ Storm cells expected 3-5 PM              │  │   │
+│ │ └───────────────────────────────────────────┘  │   │
+│ └─────────────────────────────────────────────────┘   │
+│                                                         │
+│ [+ Session]  📍 Departure: 3:00 PM          [Manual]  │
+├─────────────────────────────────────────────────────────┤
+│ [What about 2pm?]                                 [Send>]│
+└─────────────────────────────────────────────────────────┘
+```
+
+**Key Elements**:
+- Chat context: Rider's time change message visible in history
+- Agent response: Acknowledges time change and re-ranks routes
+- Updated badges: "Best for 3 PM" shows new time context
+- Route reordering: Routes sorted by new conditions
+- Departure indicator: Updated departure time in header
+- Weather warnings: Clear indicators of problematic conditions
+- Comparison: Rider can see how timing affects route quality
 
 **Acceptance Criteria**:
 - ☐ Rider can send a chat message like "what if I leave at 3pm" to trigger departure time adjustment

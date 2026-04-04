@@ -9,7 +9,7 @@
  */
 
 import { useState } from 'react'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from '../ui/icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -62,7 +62,7 @@ export const SaveRouteConfirmationSheet = ({
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.iconContainer}>
-            <MaterialCommunityIcons
+            <IconSymbol
               name="bookmark-plus"
               size={28}
               color={semantic.color.primary.default}
@@ -113,7 +113,7 @@ export const SaveRouteConfirmationSheet = ({
             disabled={!isValid || isSaving}
             loading={isSaving}
             icon={
-              <MaterialCommunityIcons
+              <IconSymbol
                 name="check"
                 size={20}
                 color={isValid ? semantic.color.onPrimary.default : semantic.color.onSurface.disabled}

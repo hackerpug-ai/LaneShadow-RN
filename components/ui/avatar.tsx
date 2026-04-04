@@ -14,7 +14,8 @@
 
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { ImageSourcePropType, ViewStyle } from 'react-native'
-import { Image, StyleSheet, Text, View } from 'react-native'
+import { Image, StyleSheet, View } from 'react-native'
+import { Text } from 'react-native-paper'
 
 /**
  * Avatar size variants

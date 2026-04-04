@@ -25,6 +25,74 @@ prd_version: 1.1.0
 
 **Description**: The Rider navigates to the Saved Routes tab and sees a scrollable list of all their saved routes in reverse-chronological order. Each card shows enough context to recognize a route without opening it. An empty state with a planning CTA appears if no routes have been saved yet.
 
+### Wireframe: Saved Routes List
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ Saved Routes                                    [⚙️]   │
+├─────────────────────────────────────────────────────────┤
+│ 🔍 Search routes...                                     │
+│                                                         │
+│ Filter: [All ▼]  Date: [All time ▼]  [Clear]          │
+├─────────────────────────────────────────────────────────┤
+│ ┌───────────────────────────────────────────────────┐   │
+│ │ ⭐ Coastal Cruiser                    ⭐⭐⭐⭐⭐  │   │
+│ │ 📍 Asheville → Wilmington                       │   │
+│ │ 📅 Saved Oct 15, 2025  •  🛵 Ridden Oct 18      │   │
+│ │ 42 mi • 2h 15m • Scenic: 9.2/10                 │   │
+│ │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │   │
+│ │ [🗺️ View]  [✏️ Rename]  [🗑️ Delete]  [Navigate]│   │
+│ └───────────────────────────────────────────────────┘   │
+│                                                         │
+│ ┌───────────────────────────────────────────────────┐   │
+│ │ Mountain Loop                            ⭐⭐⭐⭐  │   │
+│ │ 📍 Asheville → Blowing Rock                     │   │
+│ │ 📅 Saved Oct 10, 2025  •  📝 Has notes          │   │
+│ │ 38 mi • 2h 05m • Scenic: 8.7/10                 │   │
+│ │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │   │
+│ │ [🗺️ View]  [✏️ Rename]  [🗑️ Delete]  [Navigate]│   │
+│ └───────────────────────────────────────────────────┘   │
+│                                                         │
+│ ┌───────────────────────────────────────────────────┐   │
+│ │ Valley Run                               (Unrated)│   │
+│ │ 📍 Asheville → Mooresville                      │   │
+│ │ 📅 Saved Sep 28, 2025  •  Planned (not ridden)  │   │
+│ │ 35 mi • 1h 50m • Scenic: 8.1/10                 │   │
+│ │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │   │
+│ │ [🗺️ View]  [✏️ Rename]  [🗑️ Delete]  [Navigate]│   │
+│ └───────────────────────────────────────────────────┘   │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+
+───────────────────────────────────────────────────────────
+
+Empty State (when no routes):
+
+┌─────────────────────────────────────────────────────────┐
+│ Saved Routes                                    [⚙️]   │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│                                                         │
+│                    🛵                                   │
+│                                                         │
+│           No saved routes yet                          │
+│                                                         │
+│      Plan your first ride and save it here!            │
+│                                                         │
+│         [Plan a Ride →]                                │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Key Elements**:
+- Search bar: Real-time filtering by route name
+- Filter controls: Status (All/Planned/Ridden), Date range, Clear button
+- Route cards: Thumbnail map, name, locations, date, status badges
+- Ratings: Star display (5 stars or unrated)
+- Quick actions: View, Rename, Delete, Navigate
+- Empty state: Friendly CTA to start planning
+- Status indicators: Ridden/Planned badges, note indicator
+
 **Acceptance Criteria**:
 - ☐ Rider can navigate to a Saved Routes tab to view all previously saved routes
 - ☐ Rider can see each route card displaying the route name, date saved, start and end locations, distance, and a thumbnail map preview
@@ -51,6 +119,82 @@ prd_version: 1.1.0
 
 **Description**: The Rider can update the name of a saved route to something personally meaningful, or permanently delete routes they no longer want. Both actions are accessible from the route detail view to avoid accidental triggers in the list.
 
+### Wireframe: Route Detail View
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ ← Back              Coastal Cruiser              [⋮]   │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│                    [Interactive Map]                   │
+│                  (Route Polyline Display)               │
+│                                                         │
+│            🌤️ Weather overlays available               │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│ ⭐ Scenic: 9.2/10  |  🌤️ Clear  |  💨 8-12 mph        │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│ 📍 Asheville, NC → Wilmington, NC                      │
+│ 📏 42 miles  |  ⏱️ 2h 15m  |  ↗️ 2,400 ft elevation    │
+│ 📅 Saved: Oct 15, 2025  |  🛵 Ridden: Oct 18, 2025     │
+│                                                         │
+│ 📝 Ocean views with light tailwinds. Perfect for       │
+│    fall riding. Includes rest stop at Wrightsville     │
+│    Beach.                                              │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│ Your Rating: ⭐⭐⭐⭐⭐ (5/5)                            │
+│                                                         │
+│ Your Notes:                                            │
+│ "Amazing ride! Fall colors were peak. Stopped for       │
+│  coffee at 10 AM. Would do again!"                     │
+│                                                         │
+│ [Edit Note]                                            │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│ Actions:                                                │
+│ [✏️ Rename]  [🔄 Re-Plan]  [🧭 Navigate]  [🗑️ Delete]  │
+│                                                         │
+│ Status: [☑ Mark as Ridden]                             │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Key Elements**:
+- Map: Full-width interactive map with route polyline
+- Route info: Distance, duration, elevation, dates
+- Weather summary: Quick overview of conditions
+- Description: AI-generated or user-modified
+- Rating section: Star rating control
+- Notes: User notes with edit capability
+- Action buttons: Rename, Re-plan, Navigate, Delete
+- Status toggle: Mark as ridden
+- Back navigation: Return to list
+
+### Wireframe: Delete Confirmation Dialog
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                                                         │
+│              ⚠️ Delete Route?                           │
+│                                                         │
+│         Are you sure you want to delete                 │
+│         "Coastal Cruiser"?                              │
+│                                                         │
+│         This action cannot be undone.                   │
+│                                                         │
+│                                                         │
+│         [Cancel]           [Delete Route]               │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Key Elements**:
+- Warning: Clear visual indicator of destructive action
+- Route name: Confirmation of which route will be deleted
+- Undo warning: Explicit statement that action is permanent
+- Actions: Cancel (safe) vs Delete (destructive, distinct styling)
+
 **Acceptance Criteria**:
 - ☐ Rider can tap a rename control in the route detail view to edit the route name inline
 - ☐ System updates the route name across the list view and detail view immediately after the Rider confirms the rename
@@ -64,6 +208,106 @@ prd_version: 1.1.0
 
 **Description**: While viewing a route on the map, the Rider can long-press on any road segment to mark it as a favorite. Favorite roads represent the roads the Rider loves most and form the personalization core of LaneShadow. Each favorite segment is named and stored for future use.
 
+### Wireframe: Save Favorite Road Segment
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ ← Back              Coastal Cruiser              [⋮]   │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│                    [Interactive Map]                   │
+│                  (Route Polyline Display)               │
+│                                                         │
+│          ━━━━━━━━━━━━━━━━━━━━━━━━                      │
+│              ╱    ╲                                    │
+│     ╱─── Segment selected ──╲                          │
+│          ╲    ╱                                       │
+│               ╲                                        │
+│                                                         │
+│         ┌─────────────────┐                            │
+│         │ Save as Favorite│                            │
+│         └─────────────────┘                            │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│                ┌───────────────────────────┐            │
+│                │   Save as Favorite Road   │            │
+│                ├───────────────────────────┤            │
+│                │                           │            │
+│                │  📍 Selected Segment      │            │
+│                │  US-64 West, 2.3 mi       │            │
+│                │  [Mini Map Preview]       │            │
+│                │                           │            │
+│                │  Name this road:          │            │
+│                │  ┌─────────────────────┐  │            │
+│                │  │                     │  │            │
+│                │  └─────────────────────┘  │            │
+│                │                           │            │
+│                │  💡 Tip: Give it a name  │            │
+│                │     that reminds you why │            │
+│                │     you love it!         │            │
+│                │                           │            │
+│                │  [Cancel]    [Save]       │            │
+│                └───────────────────────────┘            │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Key Elements**:
+- Long-press gesture: Triggers favorite selection on any segment
+- Visual feedback: Segment highlights when selected
+- Action sheet: Slides up with save options
+- Mini map: Preview of selected segment
+- Name input: Text field for custom naming
+- Helper text: Guidance on naming
+- Actions: Cancel and Save buttons
+
+### Wireframe: Favorite Roads List (Settings)
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ ← Settings       Favorite Roads                        │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│ Your favorite roads are automatically included          │
+│ when you enable "Include favorite roads" in             │
+│ route planning.                                         │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│ ┌───────────────────────────────────────────────────┐   │
+│ │ 🛤️ Sunset Climb                                 │   │
+│ │ 📍 US-64 West, 2.3 mi                           │   │
+│ │ Saved Oct 15, 2025                               │   │
+│ │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │   │
+│ │ [🗺️ View on Map]  [✏️ Rename]  [🗑️ Remove]    │   │
+│ └───────────────────────────────────────────────────┘   │
+│                                                         │
+│ ┌───────────────────────────────────────────────────┐   │
+│ │ 🌊 Ocean Drive                                   │   │
+│ │ 📍 NC-12 South, 5.1 mi                          │   │
+│ │ Saved Sep 28, 2025                               │   │
+│ │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │   │
+│ │ [🗺️ View on Map]  [✏️ Rename]  [🗑️ Remove]    │   │
+│ └───────────────────────────────────────────────────┘   │
+│                                                         │
+│ ┌───────────────────────────────────────────────────┐   │
+│ │ 🌲 Forest Loop                                   │   │
+│ │ 📍 Blue Ridge Pkwy, 3.8 mi                       │   │
+│ │ Saved Sep 15, 2025                               │   │
+│ │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │   │
+│ │ [🗆️ View on Map]  [✏️ Rename]  [🗑️ Remove]    │   │
+│ └───────────────────────────────────────────────────┘   │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Key Elements**:
+- Header: Settings navigation with back button
+- Explanation: Context about how favorites work
+- Favorite cards: Name, location/road, date saved, mini map preview
+- Quick actions: View on map, Rename, Remove
+- Scrollable list: All saved favorite roads
+
 **Acceptance Criteria**:
 - ☐ Rider can long-press on a polyline segment in the route map view to trigger the "Save as Favorite" action sheet
 - ☐ Rider can enter a name for the favorite road segment in the action sheet before saving
@@ -76,6 +320,66 @@ prd_version: 1.1.0
 ## UC-SR-06: Auto-include favorite roads in route planning
 
 **Description**: When planning a new route, the Rider can enable an "Include my favorite roads" toggle that instructs the AI planning pipeline to bias route generation toward the Rider's saved favorite road segments. Routes that include a favorite segment show an indicator so the Rider knows their preferences were honored.
+
+### Wireframe: Include Favorites in Planning
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                                                         │
+│ ┌───────────────────────────────────────────────────┐   │
+│ │ 🤖 Agent: I found 3 great routes...              │   │
+│ │                                                 │   │
+│ │ ┌───────────────────────────────────────────┐  │   │
+│ │ │ ⭐ Best  🌤️ Clear                      │  │   │
+│ │ │ Coastal Cruiser • 42 mi • 2h 15m         │  │   │
+│ │ │ 💚 Includes your favorites!              │  │   │
+│ │ └───────────────────────────────────────────┘  │   │
+│ │                                                 │   │
+│ │ ┌───────────────────────────────────────────┐  │   │
+│ │ │ 🌧️ Light rain                            │  │   │
+│ │ │ Mountain Loop • 38 mi • 2h 05m           │  │   │
+│ │ └───────────────────────────────────────────┘  │   │
+│ └─────────────────────────────────────────────────┘   │
+│                                                         │
+│ [+ Session]  📍 Near Asheville, NC     [Manual]  [⚙️]  │
+├─────────────────────────────────────────────────────────┤
+│ ☑ Include my favorite roads (3)                        │
+│ [Add more preferences...]                         [Send>]│
+└─────────────────────────────────────────────────────────┘
+
+───────────────────────────────────────────────────────────
+
+Session Settings Panel:
+
+┌─────────────────────────────────────────────────────────┐
+│ Session Settings                              [Close ×]  │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│ Route Preferences:                                     │
+│                                                         │
+│ ☑ Include my favorite roads (3)                        │
+│    🛤️ Sunset Climb, 🌊 Ocean Drive, 🌲 Forest Loop     │
+│                                                         │
+│ ☐ Avoid highways                                       │
+│ ☐ Prefer scenic roads                                  │
+│ ☐ Minimize elevation gain                              │
+│                                                         │
+│ Departure Time:                                        │
+│ 🕐 Leaving now → [Change]                               │
+│                                                         │
+│ Favorite Roads:                                         │
+│ 💚 Your favorites are included in this session         │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Key Elements**:
+- Toggle: "Include my favorite roads" checkbox in chat input area
+- Badge indicator: "Includes your favorites!" on route cards
+- Session settings: Panel for managing preferences
+- Favorite count: Shows how many favorites will be included
+- Favorite list: Displays which roads are included
+- Departure time: Integrated with session settings
 
 **Acceptance Criteria**:
 - ☐ Rider can mention favorite roads in a chat message (e.g., "include my favorite roads") or toggle "Include favorite roads" in session settings before generating routes
@@ -103,6 +407,71 @@ prd_version: 1.1.0
 ## UC-SR-08: Re-plan from a saved route
 
 **Description**: The Rider can use a saved route as the starting point for a new planning conversation. This opens a new chat session pre-loaded with the saved route's context, allowing the Rider to refine it for today's conditions or preferences.
+
+### Wireframe: Re-Plan from Saved Route
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ ← Back              Coastal Cruiser              [⋮]   │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│                    [Interactive Map]                   │
+│                  (Route Polyline Display)               │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│ ⭐ Scenic: 9.2/10  |  🌤️ Clear  |  💨 8-12 mph        │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│ 📍 Asheville, NC → Wilmington, NC                      │
+│ 📏 42 miles  |  ⏱️ 2h 15m  |  ↗️ 2,400 ft elevation    │
+│ 📅 Saved: Oct 15, 2025  |  🛵 Ridden: Oct 18, 2025     │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│ Actions:                                                │
+│ [✏️ Rename]  [🔄 Re-Plan]  [🧭 Navigate]  [🗑️ Delete]  │
+└─────────────────────────────────────────────────────────┘
+
+                         ↓ [Tap Re-Plan]
+
+┌─────────────────────────────────────────────────────────┐
+│                                                         │
+│ ┌───────────────────────────────────────────────────┐   │
+│ │ 🔄 New Planning Session                          │   │
+│ │                                                 │   │
+│ │ Starting from: "Coastal Cruiser" (saved route)  │   │
+│ │                                                 │   │
+│ │ Original plan: 42 mi • 2h 15m • Asheville→Wilm │   │
+│ │                                                 │   │
+│ │ ┌─────────────────────────────────────────────┐ │   │
+│ │ │ ⭐ Saved Route                             │ │   │
+│ │ │ Coastal Cruiser • 42 mi • 2h 15m           │ │   │
+│ │ │ Loaded from your saved routes              │ │   │
+│ │ └─────────────────────────────────────────────┘ │   │
+│ │                                                 │   │
+│ │ How would you like to modify this route?        │   │
+│ │                                                 │   │
+│ │ 💡 Try:                                         │   │
+│ │ "Same route but avoid the rain section"         │   │
+│ │ "Add a stop at Big Sur"                         │   │
+│ │ "Make it 10 miles shorter"                      │   │
+│ │ "What if I leave at 3pm instead?"               │   │
+│ │                                                 │   │
+│ └─────────────────────────────────────────────────┘   │
+│                                                         │
+│ [+ Session]  📍 Near Asheville, NC           [Manual]  │
+├─────────────────────────────────────────────────────────┤
+│ [Refine this route...]                            [Send>]│
+└─────────────────────────────────────────────────────────┘
+```
+
+**Key Elements**:
+- Re-plan button: Prominent action in route detail view
+- Session header: Clear indication this is a new session
+- Context loading: Shows which saved route is the starting point
+- Original route card: Displayed as first attachment
+- Suggested refinements: Quick-start prompts for common modifications
+- Chat input: Pre-loaded with context, ready for refinement
+- Original preserved: Saved route remains unchanged
 
 **Acceptance Criteria**:
 - ☐ Rider can tap "Re-plan this route" from the saved route detail view

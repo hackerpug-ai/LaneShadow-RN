@@ -1,0 +1,7 @@
+{
+  "status": "completed",
+  "commit_sha": "dfa1d67",
+  "commit_blocked": false,
+  "evidence_path": ".tmp/US-024/",
+  "summary": "Created DateRangePicker component at components/ui/date-range-picker.tsx with chip-style preset selection (All time, Last week, Last month, Last 3 months). All styles use semantic theme tokens. Toggle deselect behavior implemented. 12/12 tests passing in components/ui/__tests__/date-range-picker.test.tsx."
+}

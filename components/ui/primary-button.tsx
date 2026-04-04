@@ -5,7 +5,7 @@
  * Follows the design system button patterns
  */
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { IconSymbol } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
@@ -70,7 +70,7 @@ export const PrimaryButton = ({
       ) : (
         <View style={styles.content}>
           {icon && (
-            <MaterialCommunityIcons
+            <IconSymbol
               name={icon}
               size={20}
               color={semantic.color.onPrimary.default}

@@ -71,8 +71,14 @@ export const planRideOrchestrator = async (params: {
     )
     .map((r) => r.value)
 
+  // Log failures so we can debug NO_ROUTES_GENERATED
+  const failed = compiled.filter((r) => r.status === 'rejected') as PromiseRejectedResult[]
+  for (const f of failed) {
+    console.error(`[planRideOrchestrator] variant compile failed:`, f.reason?.message ?? f.reason)
+  }
+
   console.log(
-    `[planRideOrchestrator] ${variants.length} variants, ${successful.length} routes compiled`
+    `[planRideOrchestrator] ${variants.length} variants, ${successful.length} routes compiled, ${failed.length} failed`
   )
 
   if (successful.length === 0) {
