@@ -1,6 +1,6 @@
 import { useRouter, useSegments } from 'expo-router'
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ScrollView, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MenuLayout } from '../../../components/layouts/menu-layout'
 import { MapControls } from '../../../components/map/map-controls'
@@ -13,73 +13,28 @@ import { buildRoutePolylines } from '../../../components/map/route-polyline'
 import { PlanRideSheet } from '../../../components/sheets/plan-ride-sheet'
 import { PlanningErrorSheet } from '../../../components/sheets/planning-error-sheet'
 import { RoutePlannerLoading } from '../../../components/sheets/planning-loading'
-import { FloatingSearchInput } from '../../../components/ui/floating-search-input'
+import { ChatInput, RouteAttachmentCard } from '../../../components/chat'
 import { useCurrentLocation } from '../../../hooks/use-current-location'
 import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import type { PlanInput, PlannedRouteOptionsView, RouteStop } from '../../../types/routes'
-
-type PlanningStatus = 'idle' | 'planning' | 'results' | 'error'
+import { useRideFlow } from '../../../hooks/use-ride-flow'
+import { useChatPlanning } from '../../../hooks/use-chat-planning'
+import { useChatSession } from '../../../hooks/use-chat-session'
+import { useRouteComparison } from '../../../hooks/use-route-comparison'
+import type { PlanInput, RouteStop } from '../../../types/routes'
 
 type CameraState = {
   center?: { latitude: number; longitude: number }
   zoom?: number
 }
 
-type PlanningState = {
-  planningStatus: PlanningStatus
-  startStop: RouteStop | null
-  endStop: RouteStop | null
-  routeOptions: PlannedRouteOptionsView | null
-  selectedRouteOptionId: string | null
-  camera: CameraState
-}
-
-type Action =
-  | { type: 'setStart'; payload: RouteStop | null }
-  | { type: 'setEnd'; payload: RouteStop | null }
-  | { type: 'setStatus'; payload: PlanningStatus }
-  | { type: 'setRouteOptions'; payload: PlannedRouteOptionsView | null }
-  | { type: 'setSelectedOption'; payload: string | null }
-  | { type: 'setCamera'; payload: CameraState }
-  | { type: 'resetSelections' }
-
-const planningReducer = (state: PlanningState, action: Action): PlanningState => {
-  switch (action.type) {
-    case 'setStart':
-      return { ...state, startStop: action.payload }
-    case 'setEnd':
-      return { ...state, endStop: action.payload }
-    case 'setStatus':
-      return { ...state, planningStatus: action.payload }
-    case 'setRouteOptions':
-      return { ...state, routeOptions: action.payload }
-    case 'setSelectedOption':
-      return { ...state, selectedRouteOptionId: action.payload }
-    case 'setCamera':
-      return { ...state, camera: { ...state.camera, ...action.payload } }
-    case 'resetSelections':
-      return {
-        ...state,
-        startStop: null,
-        endStop: null,
-        routeOptions: null,
-        selectedRouteOptionId: null,
-        planningStatus: 'idle',
-      }
-    default:
-      return state
-  }
-}
-
-const initialState: PlanningState = {
-  planningStatus: 'idle',
-  startStop: null,
-  endStop: null,
-  routeOptions: null,
-  selectedRouteOptionId: null,
-  camera: {},
-}
+// Suggestion chips for idle state
+const IDLE_SUGGESTIONS = [
+  'Plan a scenic ride',
+  'Ride to the coast',
+  'Find coffee nearby',
+  'Avoid highways',
+]
 
 const HomeMapScreen = () => {
   const router = useRouter()
@@ -90,7 +45,7 @@ const HomeMapScreen = () => {
   const { data: planInit } = usePlanInit()
   const {
     planRide,
-    isRunning: isPlanning,
+    isRunning: isManualPlanning,
     error: planningError,
     resetError,
     cancelPlanning,
@@ -100,15 +55,28 @@ const HomeMapScreen = () => {
   const [searchStop, setSearchStop] = useState<RouteStop | null>(null)
   const [controlsHeight, setControlsHeight] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [state, dispatch] = useReducer(planningReducer, initialState)
+
+  // Chat infrastructure
+  const { state: flowState, dispatch: flowDispatch } = useRideFlow()
+  const { sendPlanningMessage, cancel: cancelChatPlanning, isPlanning: isChatPlanning } = useChatPlanning(flowDispatch)
+  const { messages } = useChatSession(flowState.sessionId, flowState)
+  const { polylines, selectRoute } = useRouteComparison(flowState, flowDispatch)
+
+  // Manual mode state (legacy - for PlanRideSheet)
+  const [startStop, setStartStop] = useState<RouteStop | null>(null)
+  const [endStop, setEndStop] = useState<RouteStop | null>(null)
+  const [selectedRouteOptionId, setSelectedRouteOptionId] = useState<string | null>(null)
+  const [manualRouteOptions, setManualRouteOptions] = useState<any>(null)
+  const [camera, setCamera] = useState<CameraState>({})
+
   const { location: currentLocation } = useCurrentLocation()
 
   // Default start stop to current location
   useEffect(() => {
-    if (currentLocation && !state.startStop) {
-      dispatch({ type: 'setStart', payload: currentLocation })
+    if (currentLocation && !startStop) {
+      setStartStop(currentLocation)
     }
-  }, [currentLocation, state.startStop])
+  }, [currentLocation, startStop])
 
   const [scenicBias, setScenicBias] = useState<'default' | 'high'>('default')
   const [avoidHighways, setAvoidHighways] = useState(false)
@@ -128,22 +96,31 @@ const HomeMapScreen = () => {
 
   // Default to wind overlay when route is first selected (AC from spec)
   useEffect(() => {
-    if (state.planningStatus === 'results' && activeOverlay === '') {
+    const hasRouteResults = flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS'
+    if (hasRouteResults && activeOverlay === '') {
       setActiveOverlay('wind')
     }
     // Reset overlay when planning starts over
-    if (state.planningStatus === 'idle' || state.planningStatus === 'planning') {
+    if (flowState.phase === 'IDLE' || flowState.phase === 'PLANNING') {
       setActiveOverlay('')
     }
-  }, [state.planningStatus, activeOverlay])
+  }, [flowState.phase, activeOverlay])
 
+  // Get selected option from flow state
   const selectedOption = useMemo(() => {
-    if (!state.routeOptions?.options?.length) return null
-    const explicit = state.routeOptions.options.find(
-      (opt) => opt.routeOptionId === state.selectedRouteOptionId
-    )
-    return explicit ?? state.routeOptions.options[0]
-  }, [state.routeOptions, state.selectedRouteOptionId])
+    if (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS') {
+      if (!flowState.routeOptions?.options?.length) return null
+      const explicit = flowState.routeOptions.options.find(
+        (opt) => opt.routeOptionId === flowState.selectedRouteId
+      )
+      return explicit ?? flowState.routeOptions.options[0]
+    }
+    // Fallback to manual mode
+    if (!manualRouteOptions?.options?.length) return null
+    return manualRouteOptions.options.find(
+      (opt: any) => opt.routeOptionId === selectedRouteOptionId
+    ) ?? manualRouteOptions.options[0]
+  }, [flowState, manualRouteOptions, selectedRouteOptionId])
 
   // Determine overlay availability based on selected route option
   const overlayAvailability = useMemo(() => {
@@ -156,7 +133,15 @@ const HomeMapScreen = () => {
     }
   }, [selectedOption])
 
-  const polylines = useMemo(() => {
+  // Build polylines for map rendering
+  const routePolylines = useMemo(() => {
+    // If using chat flow, use polylines from useRouteComparison
+    if (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS') {
+      // Flatten the nested polylines array
+      return polylines.flatMap(routePolyline => routePolyline.polylines)
+    }
+
+    // Fallback to manual mode
     if (!selectedOption) return []
     return buildRoutePolylines({
       route: {
@@ -167,24 +152,24 @@ const HomeMapScreen = () => {
       variant: 'selected',
       showLegs: true,
       showWindOverlay: true,
-      semantic: semantic,
+      semantic,
     })
-  }, [selectedOption, semantic])
+  }, [selectedOption, semantic, flowState.phase, polylines])
 
   const markers = useMemo(() => {
     const items: Array<any> = []
-    if (state.startStop) {
+    if (startStop) {
       items.push({
         id: 'start',
-        title: state.startStop.label ?? 'Start',
-        coordinates: { latitude: state.startStop.lat, longitude: state.startStop.lng },
+        title: startStop.label ?? 'Start',
+        coordinates: { latitude: startStop.lat, longitude: startStop.lng },
       })
     }
-    if (state.endStop) {
+    if (endStop) {
       items.push({
         id: 'end',
-        title: state.endStop.label ?? 'End',
-        coordinates: { latitude: state.endStop.lat, longitude: state.endStop.lng },
+        title: endStop.label ?? 'End',
+        coordinates: { latitude: endStop.lat, longitude: endStop.lng },
       })
     }
     if (searchStop) {
@@ -195,7 +180,7 @@ const HomeMapScreen = () => {
       })
     }
     return items
-  }, [state.startStop, state.endStop, searchStop])
+  }, [startStop, endStop, searchStop])
 
   const handleMapClick = useCallback(
     (event: { coordinates?: { latitude: number; longitude: number } }) => {
@@ -204,38 +189,37 @@ const HomeMapScreen = () => {
       const nextStop: RouteStop = {
         lat: coords.latitude,
         lng: coords.longitude,
-        label: state.startStop ? 'End' : 'Start',
+        label: startStop ? 'End' : 'Start',
       }
 
-      if (!state.startStop) {
-        dispatch({ type: 'setStart', payload: nextStop })
-        dispatch({ type: 'setStatus', payload: 'idle' })
+      if (!startStop) {
+        setStartStop(nextStop)
         return
       }
 
-      if (!state.endStop) {
-        dispatch({ type: 'setEnd', payload: nextStop })
-        dispatch({ type: 'setStatus', payload: 'idle' })
+      if (!endStop) {
+        setEndStop(nextStop)
         return
       }
 
       // Restart selection after two points are set
-      dispatch({ type: 'resetSelections' })
-      dispatch({ type: 'setStart', payload: nextStop })
+      setStartStop(nextStop)
+      setEndStop(null)
+      setManualRouteOptions(null)
+      setSelectedRouteOptionId(null)
     },
-    [state.startStop, state.endStop]
+    [startStop, endStop]
   )
 
   const handlePlanRide = useCallback(async () => {
-    if (!state.startStop || !state.endStop) return
+    if (!startStop || !endStop) return
     resetError()
     setErrorSheetVisible(false)
     setSheetVisible(false)
-    dispatch({ type: 'setStatus', payload: 'planning' })
 
     const input: PlanInput = {
-      start: state.startStop,
-      end: state.endStop,
+      start: startStop,
+      end: endStop,
       departureTime: Date.now(),
       preferences: {
         scenicBias,
@@ -245,25 +229,13 @@ const HomeMapScreen = () => {
     }
 
     const result = await planRide(input)
-    console.log('[handlePlanRide] result:', result ? `${result.options.length} options` : 'null')
     if (!result) {
-      dispatch({ type: 'setStatus', payload: 'error' })
       setErrorSheetVisible(true)
       return
     }
 
-    const firstOption = result.options[0]
-    console.log('[handlePlanRide] first option:', {
-      id: firstOption?.routeOptionId,
-      label: firstOption?.label,
-      legsCount: firstOption?.map?.legs?.length,
-      hasOverview: !!firstOption?.map?.overviewGeometry?.value,
-      bounds: firstOption?.map?.bounds,
-    })
-
-    dispatch({ type: 'setRouteOptions', payload: result })
-    dispatch({ type: 'setSelectedOption', payload: result.options[0]?.routeOptionId ?? null })
-    dispatch({ type: 'setStatus', payload: 'results' })
+    setManualRouteOptions(result)
+    setSelectedRouteOptionId(result.options[0]?.routeOptionId ?? null)
 
     const bounds = result.options[0]?.map.bounds
     if (bounds) {
@@ -273,31 +245,28 @@ const HomeMapScreen = () => {
       }
       mapRef.current?.setCameraPosition({
         coordinates: center,
-        zoom: (state.camera.zoom ?? 10) + 0.5,
+        zoom: (camera.zoom ?? 10) + 0.5,
         duration: 500,
       })
-      dispatch({ type: 'setCamera', payload: { center } })
+      setCamera({ center })
     }
   }, [
-    state.startStop,
-    state.endStop,
+    startStop,
+    endStop,
     scenicBias,
     avoidHighways,
     avoidTolls,
     planRide,
     resetError,
-    state.camera.zoom,
+    camera.zoom,
   ])
 
   const handleCameraMove = useCallback(
     (event: { coordinates: { latitude: number; longitude: number }; zoom: number }) => {
       if (!event.coordinates?.latitude || !event.coordinates?.longitude) return
-      dispatch({
-        type: 'setCamera',
-        payload: {
-          center: { latitude: event.coordinates.latitude, longitude: event.coordinates.longitude },
-          zoom: event.zoom,
-        },
+      setCamera({
+        center: { latitude: event.coordinates.latitude, longitude: event.coordinates.longitude },
+        zoom: event.zoom,
       })
     },
     []
@@ -312,15 +281,19 @@ const HomeMapScreen = () => {
   }
 
   const clearAll = () => {
-    dispatch({ type: 'resetSelections' })
+    setStartStop(null)
+    setEndStop(null)
+    setManualRouteOptions(null)
+    setSelectedRouteOptionId(null)
     setSearchStop(null)
+    flowDispatch({ type: 'NEW_SESSION' })
   }
 
   const handleTryAgain = () => {
     setErrorSheetVisible(false)
     resetError()
     // Optionally retry the last planning attempt
-    if (state.startStop && state.endStop) {
+    if (startStop && endStop) {
       handlePlanRide()
     }
   }
@@ -341,7 +314,7 @@ const HomeMapScreen = () => {
       <View style={styles.container}>
         <MapViewWrapper
           ref={mapRef}
-          polylines={polylines}
+          polylines={routePolylines.flatMap(p => p.polylines)}
           markers={markers}
           onMapClick={handleMapClick}
           onCameraMove={handleCameraMove}
@@ -387,7 +360,7 @@ const HomeMapScreen = () => {
         <View
           onLayout={(e) => setControlsHeight(e.nativeEvent.layout.height)}
           style={[
-            styles.constrols,
+            styles.controls,
             {
               right: semantic.space.sm,
               transform: [{ translateY: -controlsHeight / 2 }],
@@ -402,40 +375,53 @@ const HomeMapScreen = () => {
           />
         </View>
 
-        <View
-          pointerEvents="box-none"
-          style={[
-            styles.bottomOverlay,
-            {
-              paddingBottom: insets.bottom + semantic.space.sm,
-              paddingHorizontal: semantic.space.sm,
-              gap: semantic.space.sm,
-            },
-          ]}
-        >
-          <View style={{ flex: 1, minWidth: 0 }}>
-            <FloatingSearchInput
-              value={searchStop?.label ?? ''}
-              onChangeText={(text) => {
-                setSearchStop({ label: text, lat: 0, lng: 0 })
-              }}
-              placeholder="Where to?"
-              onClear={() => setSearchStop(null)}
-              onPress={() => {
-                setSheetVisible(true)
-              }}
-              testID="where-to-search"
-            />
-          </View>
-        </View>
+        {/* Route attachment cards when showing results */}
+        {(flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS') &&
+          flowState.routeOptions?.options && (
+            <View
+              pointerEvents="box-none"
+              style={[
+                styles.routeCards,
+                {
+                  paddingBottom: insets.bottom + semantic.space.xl + 80, // Space for chat input
+                  paddingHorizontal: semantic.space.md,
+                },
+              ]}
+            >
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: semantic.space.sm }}
+              >
+                {flowState.routeOptions.options.map((option) => (
+                  <RouteAttachmentCard
+                    key={option.routeOptionId}
+                    route={option}
+                    isSelected={option.routeOptionId === flowState.selectedRouteId}
+                    onSelect={selectRoute}
+                    testID={`route-card-${option.routeOptionId}`}
+                  />
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
+        {/* Chat input - always visible at bottom */}
+        <ChatInput
+          onSend={sendPlanningMessage}
+          onCancel={cancelChatPlanning}
+          state={flowState}
+          suggestions={IDLE_SUGGESTIONS}
+          testID="chat-input"
+        />
 
         <PlanRideSheet
           isVisible={sheetVisible}
           onClose={() => setSheetVisible(false)}
-          startStop={state.startStop}
-          endStop={state.endStop}
-          onSetStartStop={(stop) => dispatch({ type: 'setStart', payload: stop })}
-          onSetEndStop={(stop) => dispatch({ type: 'setEnd', payload: stop })}
+          startStop={startStop}
+          endStop={endStop}
+          onSetStartStop={setStartStop}
+          onSetEndStop={setEndStop}
           scenicBias={scenicBias}
           onSetScenicBias={setScenicBias}
           avoidHighways={avoidHighways}
@@ -444,7 +430,7 @@ const HomeMapScreen = () => {
           onToggleAvoidTolls={() => setAvoidTolls((prev) => !prev)}
           departureTime={departureTime}
           onSetDepartureTime={setDepartureTime}
-          isPlanning={isPlanning}
+          isPlanning={isManualPlanning}
           onPlanRide={handlePlanRide}
           onClearSelection={clearAll}
         />
@@ -457,7 +443,7 @@ const HomeMapScreen = () => {
           onClose={handleCloseError}
         />
 
-        <RoutePlannerLoading isVisible={isPlanning} onCancel={cancelPlanning} />
+        <RoutePlannerLoading isVisible={isManualPlanning} onCancel={cancelPlanning} />
       </View>
     </MenuLayout>
   )
@@ -470,7 +456,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     flex: 1,
   },
-  constrols: {
+  controls: {
     position: 'absolute',
     zIndex: 30,
     top: '50%',
@@ -487,24 +473,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     zIndex: 25,
   },
-  bottomOverlay: {
+  routeCards: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    alignItems: 'flex-end',
-    zIndex: 20,
-    flex: 1,
-    minWidth: 0,
-    maxWidth: 780,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    flexWrap: 'nowrap',
-    flexBasis: 'auto',
-  },
-
-  plannerButton: {
+    zIndex: 15,
     alignItems: 'center',
-    justifyContent: 'center',
   },
 })
