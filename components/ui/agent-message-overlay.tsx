@@ -39,6 +39,21 @@ interface AgentMessageOverlayProps {
   autoDismissDelay?: number;
 }
 
+/**
+ * Auto-dismiss behavior:
+ * - By default the overlay fades away after 5 seconds (`autoDismiss: true`,
+ *   `autoDismissDelay: 5000`). Callers should not override these unless they
+ *   have an explicit UX reason (e.g. Storybook stories set `autoDismiss: false`
+ *   so the story stays visible while browsing).
+ *
+ * Pin escape-hatch:
+ * - The header pin button (`handlePin`) toggles `pinned` local state.
+ * - When `pinned` is true the useEffect re-runs (pinned is in its dep array),
+ *   clears the previous timer via the cleanup return, and the condition
+ *   `autoDismiss && !pinned` evaluates to false — so no new timer is set.
+ * - When the user unpins, `pinned` becomes false, the effect re-runs again,
+ *   and a fresh timer is started from that moment forward.
+ */
 export const AgentMessageOverlay: React.FC<AgentMessageOverlayProps> = ({
   message,
   routeAttachments = [],
