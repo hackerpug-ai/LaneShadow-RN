@@ -1,6 +1,7 @@
 import { ConvexError, v } from 'convex/values'
 
 import {
+  lastKnownLocationValidator,
   planningSessionStatusValidator,
   PLANNING_SESSION_STATUS,
 } from '../../models/planning-sessions'
@@ -173,6 +174,7 @@ export const listSessions = query({
       status: planningSessionStatusValidator,
       createdAt: v.number(),
       updatedAt: v.number(),
+      lastKnownLocation: v.optional(lastKnownLocationValidator),
     })
   ),
   handler: async (ctx): Promise<PlanningSessionDoc[]> => {
@@ -191,6 +193,7 @@ export const getSessionById = query({
     status: planningSessionStatusValidator,
     createdAt: v.number(),
     updatedAt: v.number(),
+    lastKnownLocation: v.optional(lastKnownLocationValidator),
   }),
   handler: async (ctx, args): Promise<PlanningSessionDoc> => {
     const { clerkUserId } = await requireIdentity(ctx)
