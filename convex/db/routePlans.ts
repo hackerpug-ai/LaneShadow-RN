@@ -295,6 +295,7 @@ export const cancelPlan = mutation({
 export const createForAgentInternal = internalMutation({
   args: {
     clerkUserId: v.string(),
+    planningSessionId: v.optional(v.id('planning_sessions')),
     planInput: planInputValidator,
     startLabel: v.optional(v.string()),
     endLabel: v.optional(v.string()),
@@ -304,6 +305,7 @@ export const createForAgentInternal = internalMutation({
     const now = Date.now()
     const routePlanId = await ctx.db.insert('route_plans', {
       clerkUserId: args.clerkUserId,
+      planningSessionId: args.planningSessionId,
       planInput: args.planInput,
       startLabel: args.startLabel,
       endLabel: args.endLabel,
