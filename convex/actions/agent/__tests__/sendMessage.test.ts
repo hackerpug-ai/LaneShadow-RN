@@ -478,12 +478,10 @@ describe('buildStreamingContext', () => {
     )
   })
 
-  it('returns the messageId from the pending message', async () => {
-    runMutation.mockResolvedValueOnce({ messageId: textMessageId })
+  it('returns undefined from getMessageId before any delta fires', async () => {
+    const { getMessageId } = await buildStreamingContext(sessionId, runMutation)
 
-    const { messageId } = await buildStreamingContext(sessionId, runMutation)
-
-    expect(messageId).toBe(textMessageId)
+    expect(getMessageId()).toBeUndefined()
   })
 
   it('onTextDelta calls appendStreamingChunk with the delta', async () => {
@@ -583,8 +581,8 @@ describe('sendMessage streaming integration', () => {
     // Subsequent calls: appendStreamingChunk + finalizeAssistantMessage return null
     runMutation.mockResolvedValue(null)
 
-    const { messageId, onTextDelta, finalizeOk } = await buildStreamingContext(sessionId, runMutation)
-    expect(messageId).toBe(textMessageId)
+    const { getMessageId, onTextDelta, finalizeOk } = await buildStreamingContext(sessionId, runMutation)
+    expect(getMessageId()).toBeUndefined() // row not yet created — no delta fired
 
     // Simulate agent streaming deltas
     await onTextDelta('Your scenic ')

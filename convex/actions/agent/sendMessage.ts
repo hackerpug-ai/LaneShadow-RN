@@ -80,27 +80,35 @@ export function buildCardCallbacks(
  * Build the streaming callbacks that wire the final-turn text deltas into a
  * pending assistant message row.
  *
+ * The row is created lazily — only when the first text delta arrives. If the
+ * agent errors or produces no final text turn, no row is written and there is
+ * nothing to finalize (no orphaned empty avatar in the chat).
+ *
  * Returns:
- * - `executeCtxPatch` — an `onTextDelta` callback to merge into ExecuteContext
- * - `messageId` — the pending message row created before streaming starts
- * - `finalizeOk()` — call after the agent succeeds
- * - `finalizeFail()` — call when the agent throws
+ * - `getMessageId()` — getter that returns the (possibly-undefined) message id
+ * - `onTextDelta(delta)` — creates the row on first call, then appends chunk
+ * - `finalizeOk()` — no-ops if no row was ever created
+ * - `finalizeFail()` — no-ops if no row was ever created
  */
 export async function buildStreamingContext(
   sessionId: Id<'planning_sessions'>,
   runMutation: (fn: any, args: any) => Promise<any>
 ): Promise<{
-  messageId: Id<'session_messages'>
+  getMessageId: () => Id<'session_messages'> | undefined
   onTextDelta: (delta: string) => Promise<void>
   finalizeOk: () => Promise<void>
   finalizeFail: () => Promise<void>
 }> {
-  const { messageId } = await runMutation(
-    internal.db.sessionMessages.createPendingAssistantMessage,
-    { sessionId, kind: 'text' }
-  )
+  let messageId: Id<'session_messages'> | undefined = undefined
 
   const onTextDelta = async (delta: string): Promise<void> => {
+    if (messageId === undefined) {
+      const result = await runMutation(
+        internal.db.sessionMessages.createPendingAssistantMessage,
+        { sessionId, kind: 'text' }
+      )
+      messageId = result.messageId
+    }
     await runMutation(internal.db.sessionMessages.appendStreamingChunk, {
       messageId,
       delta,
@@ -108,6 +116,7 @@ export async function buildStreamingContext(
   }
 
   const finalizeOk = async (): Promise<void> => {
+    if (messageId === undefined) return // agent produced no text, no row to finalize
     await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
       messageId,
       status: 'complete',
@@ -115,13 +124,14 @@ export async function buildStreamingContext(
   }
 
   const finalizeFail = async (): Promise<void> => {
+    if (messageId === undefined) return // nothing to finalize
     await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
       messageId,
       status: 'failed',
     })
   }
 
-  return { messageId, onTextDelta, finalizeOk, finalizeFail }
+  return { getMessageId: () => messageId, onTextDelta, finalizeOk, finalizeFail }
 }
 
 /**
@@ -204,12 +214,11 @@ export const sendMessage = action({
     // their card row in onToolFinish — with attachments already set at insert
     // time — eliminating the empty-placeholder race window.
     //
-    // We also create a pending `text` assistant message row up front so the
-    // client can see `status: 'streaming'` while the model is generating, then
-    // stream text deltas into it via appendStreamingChunk, and finalize it when
-    // the agent loop completes.
+    // We also wire a lazy streaming context so that a pending `text` assistant
+    // message row is created only when the first text delta arrives. If the
+    // agent produces no text (or errors before any delta), no row is written.
     const cardCallbacks = buildCardCallbacks(args.sessionId, ctx.runMutation.bind(ctx))
-    const { messageId: textMessageId, onTextDelta, finalizeOk, finalizeFail } =
+    const { getMessageId: getTextMessageId, onTextDelta, finalizeOk, finalizeFail } =
       await buildStreamingContext(args.sessionId, ctx.runMutation.bind(ctx))
 
     const executeCtx = { ...cardCallbacks, onTextDelta }
@@ -308,9 +317,10 @@ export const sendMessage = action({
     }
 
     // Step 6: Return response to client
+    const textMessageId = getTextMessageId()
     return {
       response: agentResult.response,
-      messageId: textMessageId,
+      messageId: textMessageId ?? riderMessageResult.messageId,
       attachments: agentResult.attachments as { type: string; routePlanId?: Id<'route_plans'> }[] | undefined,
     }
   },
