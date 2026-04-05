@@ -4,6 +4,12 @@ import { ERROR_CODES } from '../errors'
 import type { Id } from '../_generated/dataModel'
 import { internalMutation, mutation, query } from '../_generated/server'
 import { requireIdentity } from '../guards'
+import {
+  sessionMessageKindValidator,
+  sessionMessageAttachmentValidator,
+  type SessionMessageKind,
+  type SessionMessageAttachment,
+} from '../../models/session-messages'
 
 type SessionMessageDoc = {
   _id: Id<'session_messages'>
@@ -48,6 +54,27 @@ type AddSystemMessageCtx = {
   db: {
     insert: (table: string, fields: object) => Promise<Id<'session_messages'>>
     patch: (id: Id<'planning_sessions'>, fields: object) => Promise<void>
+  }
+}
+
+type CreatePendingAssistantMessageCtx = {
+  db: {
+    insert: (table: string, fields: object) => Promise<Id<'session_messages'>>
+    patch: (id: Id<'planning_sessions'>, fields: object) => Promise<void>
+  }
+}
+
+type FinalizeAssistantMessageCtx = {
+  db: {
+    get: (id: Id<'session_messages'>) => Promise<{ sessionId: Id<'planning_sessions'>; content: string; [key: string]: unknown } | null>
+    patch: (id: Id<'session_messages'> | Id<'planning_sessions'>, fields: object) => Promise<void>
+  }
+}
+
+type AppendStreamingChunkCtx = {
+  db: {
+    get: (id: Id<'session_messages'>) => Promise<{ content: string; [key: string]: unknown } | null>
+    patch: (id: Id<'session_messages'>, fields: object) => Promise<void>
   }
 }
 
@@ -140,6 +167,69 @@ export const addSystemMessageHandler = async (
   return { messageId }
 }
 
+export const createPendingAssistantMessageHandler = async (
+  ctx: CreatePendingAssistantMessageCtx,
+  args: {
+    sessionId: Id<'planning_sessions'>
+    kind: SessionMessageKind
+    attachments?: SessionMessageAttachment[]
+  }
+): Promise<{ messageId: Id<'session_messages'> }> => {
+  const status = args.kind !== 'text' ? 'running' : 'streaming'
+  const now = Date.now()
+  const fields: Record<string, unknown> = {
+    sessionId: args.sessionId,
+    role: 'system',
+    content: '',
+    kind: args.kind,
+    status,
+    createdAt: now,
+  }
+  if (args.attachments !== undefined) {
+    fields.attachments = args.attachments
+  }
+  const messageId = await ctx.db.insert('session_messages', fields)
+  await ctx.db.patch(args.sessionId, { updatedAt: now })
+  return { messageId }
+}
+
+export const finalizeAssistantMessageHandler = async (
+  ctx: FinalizeAssistantMessageCtx,
+  args: {
+    messageId: Id<'session_messages'>
+    content?: string
+    status: 'complete' | 'failed'
+  }
+): Promise<null> => {
+  const message = await ctx.db.get(args.messageId)
+  if (!message) {
+    throw new ConvexError(ERROR_CODES.SESSION_NOT_FOUND)
+  }
+  const now = Date.now()
+  const patch: Record<string, unknown> = { status: args.status }
+  if (args.content !== undefined) {
+    patch.content = args.content
+  }
+  await ctx.db.patch(args.messageId, patch)
+  await ctx.db.patch(message.sessionId, { updatedAt: now })
+  return null
+}
+
+export const appendStreamingChunkHandler = async (
+  ctx: AppendStreamingChunkCtx,
+  args: {
+    messageId: Id<'session_messages'>
+    delta: string
+  }
+): Promise<null> => {
+  const message = await ctx.db.get(args.messageId)
+  if (!message) {
+    throw new ConvexError(ERROR_CODES.SESSION_NOT_FOUND)
+  }
+  await ctx.db.patch(args.messageId, { content: message.content + args.delta })
+  return null
+}
+
 // ---------------------------------------------------------------------------
 // Convex public mutations and queries
 // ---------------------------------------------------------------------------
@@ -184,5 +274,40 @@ export const addSystemMessage = internalMutation({
   returns: v.object({ messageId: v.id('session_messages') }),
   handler: async (ctx, args) => {
     return addSystemMessageHandler(ctx as any, args)
+  },
+})
+
+export const createPendingAssistantMessage = internalMutation({
+  args: {
+    sessionId: v.id('planning_sessions'),
+    kind: sessionMessageKindValidator,
+    attachments: v.optional(v.array(sessionMessageAttachmentValidator)),
+  },
+  returns: v.object({ messageId: v.id('session_messages') }),
+  handler: async (ctx, args) => {
+    return createPendingAssistantMessageHandler(ctx as any, args)
+  },
+})
+
+export const finalizeAssistantMessage = internalMutation({
+  args: {
+    messageId: v.id('session_messages'),
+    content: v.optional(v.string()),
+    status: v.union(v.literal('complete'), v.literal('failed')),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    return finalizeAssistantMessageHandler(ctx as any, args)
+  },
+})
+
+export const appendStreamingChunk = internalMutation({
+  args: {
+    messageId: v.id('session_messages'),
+    delta: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    return appendStreamingChunkHandler(ctx as any, args)
   },
 })
