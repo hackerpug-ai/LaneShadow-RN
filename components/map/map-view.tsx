@@ -41,6 +41,15 @@ export type MapViewHandle = {
   }) => void
   zoomBy: (delta: number) => void
   recenterToUser: () => void
+  animateToRegion: (
+    region: {
+      latitude: number
+      longitude: number
+      latitudeDelta: number
+      longitudeDelta: number
+    },
+    duration?: number
+  ) => void
 }
 
 const styles = StyleSheet.create({
@@ -48,6 +57,10 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
+  },
+  webFallback: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 })
 
@@ -143,6 +156,17 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
           longitudeDelta: baseLongitudeDelta,
         }))
       },
+      animateToRegion: (region, duration = 500) => {
+        if (!mapRef.current) return
+        mapRef.current.animateToRegion(region, duration)
+        const center = { latitude: region.latitude, longitude: region.longitude }
+        setLastCamera((prev) => ({ ...prev, center }))
+        setLastRegion({
+          center,
+          latitudeDelta: region.latitudeDelta,
+          longitudeDelta: region.longitudeDelta,
+        })
+      },
     }))
 
     const onPress = useMemo(() => {
@@ -194,11 +218,10 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
         <View
           style={[
             styles.map,
+            styles.webFallback,
             style,
             {
               backgroundColor: semantic.color.surface.default,
-              alignItems: 'center',
-              justifyContent: 'center',
               padding: semantic.space.lg,
             },
           ]}

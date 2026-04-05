@@ -32,6 +32,7 @@ import { useRideFlow } from '../../../hooks/use-ride-flow'
 import { useChatPlanning } from '../../../hooks/use-chat-planning'
 import { useChatSession } from '../../../hooks/use-chat-session'
 import { useRouteComparison } from '../../../hooks/use-route-comparison'
+import { useActiveSessionRoute } from '../../../hooks/use-active-session-route'
 import type { PlanInput, RouteStop } from '../../../types/routes'
 
 type CameraState = {
@@ -52,8 +53,8 @@ const TRANSIENT_MS = 5000
 const TRANSIENT_FADE_MS = 450
 
 const HomeMapScreen = () => {
-  const router = useRouter()
-  const segments = useSegments()
+  useRouter()
+  useSegments()
   const mapRef = useRef<MapViewHandle | null>(null)
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
@@ -101,7 +102,7 @@ const HomeMapScreen = () => {
     cancel: cancelChatPlanning,
     sessionId: planningSessionId,
   } = useChatPlanning(flowDispatch)
-  const { messages } = useChatSession(flowState.sessionId, flowState)
+  useChatSession(flowState.sessionId, flowState)
   const { polylines, selectRoute } = useRouteComparison(flowState, flowDispatch)
   const createSession = useMutation(api.db.planningSessions.createSession)
   const { location: currentLocation } = useCurrentLocation()
@@ -116,6 +117,16 @@ const HomeMapScreen = () => {
     if (planningSessionId) return planningSessionId as Id<'planning_sessions'>
     return null
   }, [sessionIdParam, planningSessionId])
+
+  // Agent-produced route from Convex (task #258). Subscribes to the latest
+  // routing_card in the current session and exposes the active route option.
+  const { activeOption: agentActiveOption, routePlan: agentRoutePlan } = useActiveSessionRoute(
+    activeChatSessionId ?? undefined
+  )
+
+  // Track the last plan id we animated the camera to, so we only fit once
+  // per newly resolved plan (not on every re-render).
+  const lastFittedPlanIdRef = useRef<string | null>(null)
 
   const rawTranscriptMessages = useQuery(
     api.db.sessionMessages.list,
@@ -258,6 +269,24 @@ const HomeMapScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatMode, transientVisible])
 
+  // Fit camera to agent-produced route when a new plan resolves for the first
+  // time. Tracks by plan _id so we only animate once per newly-resolved plan.
+  useEffect(() => {
+    if (!agentActiveOption || !agentRoutePlan?._id) return
+    const planId = agentRoutePlan._id as string
+    if (lastFittedPlanIdRef.current === planId) return
+    lastFittedPlanIdRef.current = planId
+
+    const { north, south, east, west } = agentActiveOption.map.bounds
+    const region = {
+      latitude: (north + south) / 2,
+      longitude: (east + west) / 2,
+      latitudeDelta: Math.max(0.01, (north - south) * 1.2),
+      longitudeDelta: Math.max(0.01, (east - west) * 1.2),
+    }
+    mapRef.current?.animateToRegion(region, 500)
+  }, [agentActiveOption, agentRoutePlan])
+
   const mapLayerStyle = useAnimatedStyle(() => ({ opacity: mapOpacity.value }))
   const chatLayerStyle = useAnimatedStyle(() => ({ opacity: chatOpacity.value }))
   const scrimLayerStyle = useAnimatedStyle(() => ({ opacity: scrimOpacity.value }))
@@ -333,10 +362,27 @@ const HomeMapScreen = () => {
 
   // Build polylines for map rendering
   const routePolylines = useMemo(() => {
-    // If using chat flow, use polylines from useRouteComparison
+    // If using chat flow state machine, use polylines from useRouteComparison
     if (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS') {
       // Flatten the nested polylines array
       return polylines.flatMap(routePolyline => routePolyline.polylines)
+    }
+
+    // Agent-produced route from Convex subscription: renders when the agent
+    // has planned a route but the flow state machine hasn't transitioned into
+    // ROUTE_RESULTS yet (e.g. agent chat flow, task #258).
+    if (agentActiveOption) {
+      return buildRoutePolylines({
+        route: {
+          overviewGeometry: agentActiveOption.map.overviewGeometry,
+          legs: agentActiveOption.map.legs,
+          overlays: (agentActiveOption.map as any)?.overlays,
+        },
+        variant: 'selected',
+        showLegs: true,
+        showWindOverlay: true,
+        semantic,
+      })
     }
 
     // Fallback to manual mode
@@ -352,7 +398,7 @@ const HomeMapScreen = () => {
       showWindOverlay: true,
       semantic,
     })
-  }, [selectedOption, semantic, flowState.phase, polylines])
+  }, [selectedOption, semantic, flowState.phase, polylines, agentActiveOption])
 
   const markers = useMemo(() => {
     const items: any[] = []
