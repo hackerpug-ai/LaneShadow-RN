@@ -167,6 +167,7 @@ vi.mock('../../chat/card-registry', () => {
       routing_card: RoutingCardStub,
       weather_card: PlaceholderStub,
       saved_route_card: PlaceholderStub,
+      reasoning: PlaceholderStub,
     },
   }
 })
@@ -555,6 +556,207 @@ describe('ChatTranscript', () => {
       )
       expect(getByTestId('rider-message-row')).toBeTruthy()
       expect(queryByTestId('card-row-routing_card')).toBeNull()
+    })
+  })
+
+  /**
+   * US-314: reasoning rows render ABOVE their paired assistant turn.
+   *
+   * The upstream Convex query returns messages sorted by `createdAt`
+   * ascending, and the ReAct loop emits reasoning rows BEFORE their paired
+   * card/text because thinking_delta streams in first. ChatTranscript renders
+   * in array order, so reasoning naturally appears above the paired turn
+   * without any bespoke clustering. These tests lock that invariant in.
+   */
+  describe('US-314: reasoning ordering above paired turn', () => {
+    /** Walk the rendered tree in DFS order and collect the testIDs we care about. */
+    const collectOrderedTestIDs = (
+      node: { props?: { testID?: string; children?: unknown }; children?: unknown[] } | null,
+      wanted: (id: string) => boolean,
+      out: string[] = []
+    ): string[] => {
+      if (!node || typeof node !== 'object') return out
+      const id = node.props?.testID
+      if (id && wanted(id)) out.push(id)
+      const kids = (node as { children?: unknown[] }).children
+      if (Array.isArray(kids)) {
+        for (const child of kids) {
+          collectOrderedTestIDs(
+            child as { props?: { testID?: string } } | null,
+            wanted,
+            out
+          )
+        }
+      }
+      return out
+    }
+
+    it('renders reasoning row BEFORE the paired agent card in a single turn', () => {
+      const reasoning: ChatMessage = {
+        id: 'r-1',
+        role: 'agent',
+        content: 'Looking at the weather and scenic options…',
+        timestamp: new Date('2026-04-04T10:00:00.100Z'),
+        kind: 'reasoning',
+        status: 'complete',
+      }
+      const card: ChatMessage = {
+        id: 'c-1',
+        role: 'agent',
+        content: '',
+        timestamp: new Date('2026-04-04T10:00:03.500Z'),
+        kind: 'routing_card',
+        status: 'complete',
+        attachments: [
+          { type: 'route_options', routePlanId: 'route_plans:plan-1' as any },
+        ],
+      }
+
+      const { toJSON } = render(
+        <ChatTranscript messages={[reasoning, card]} />
+      )
+      const tree = toJSON() as unknown as {
+        props?: { testID?: string }
+        children?: unknown[]
+      }
+      const order = collectOrderedTestIDs(tree, (id) =>
+        id === 'card-row-reasoning' || id === 'card-row-routing_card'
+      )
+      expect(order).toEqual(['card-row-reasoning', 'card-row-routing_card'])
+    })
+
+    it('preserves order across multiple turns (reasoning → card → rider → reasoning → card)', () => {
+      const messages: ChatMessage[] = [
+        {
+          id: 'r-1',
+          role: 'agent',
+          content: 'Thinking about turn 1…',
+          timestamp: new Date('2026-04-04T10:00:00.000Z'),
+          kind: 'reasoning',
+          status: 'complete',
+        },
+        {
+          id: 'c-1',
+          role: 'agent',
+          content: '',
+          timestamp: new Date('2026-04-04T10:00:02.000Z'),
+          kind: 'routing_card',
+          status: 'complete',
+          attachments: [
+            { type: 'route_options', routePlanId: 'route_plans:plan-1' as any },
+          ],
+        },
+        {
+          id: 'rider-1',
+          role: 'rider',
+          content: 'Any faster options?',
+          timestamp: new Date('2026-04-04T10:01:00.000Z'),
+        },
+        {
+          id: 'r-2',
+          role: 'agent',
+          content: 'Thinking about turn 2…',
+          timestamp: new Date('2026-04-04T10:01:05.000Z'),
+          kind: 'reasoning',
+          status: 'complete',
+        },
+        {
+          id: 'c-2',
+          role: 'agent',
+          content: '',
+          timestamp: new Date('2026-04-04T10:01:07.000Z'),
+          kind: 'routing_card',
+          status: 'complete',
+          attachments: [
+            { type: 'route_options', routePlanId: 'route_plans:plan-2' as any },
+          ],
+        },
+      ]
+
+      const { toJSON } = render(<ChatTranscript messages={messages} />)
+      const tree = toJSON() as unknown as {
+        props?: { testID?: string }
+        children?: unknown[]
+      }
+      const order = collectOrderedTestIDs(tree, (id) =>
+        id === 'card-row-reasoning' ||
+        id === 'card-row-routing_card' ||
+        id === 'rider-message-row'
+      )
+      // Expect both reasoning rows to appear directly before their paired
+      // routing_card, with the rider message separating the two turns.
+      expect(order).toEqual([
+        'card-row-reasoning',
+        'card-row-routing_card',
+        'rider-message-row',
+        'card-row-reasoning',
+        'card-row-routing_card',
+      ])
+    })
+
+    it('never renders a reasoning card before a rider message (riders do not reason)', () => {
+      // Even if a stray reasoning row were somehow sequenced immediately
+      // before a rider message by createdAt, it would belong to the PREVIOUS
+      // agent turn — not the rider. This test verifies the rider still
+      // renders as a RiderBubble (no card wrapping) and that reasoning does
+      // not get "attached" to the rider row.
+      const messages: ChatMessage[] = [
+        {
+          id: 'r-1',
+          role: 'agent',
+          content: 'Summarising last turn…',
+          timestamp: new Date('2026-04-04T10:00:00.000Z'),
+          kind: 'reasoning',
+          status: 'complete',
+        },
+        {
+          id: 'rider-1',
+          role: 'rider',
+          content: 'Thanks!',
+          timestamp: new Date('2026-04-04T10:00:10.000Z'),
+        },
+      ]
+
+      const { getByTestId, queryAllByTestId } = render(
+        <ChatTranscript messages={messages} />
+      )
+      // Rider bubble still rendered correctly
+      expect(getByTestId('rider-message-row')).toBeTruthy()
+      // Reasoning row present as its own card row (not fused into rider)
+      expect(queryAllByTestId('card-row-reasoning').length).toBe(1)
+    })
+
+    it('filters hidden rows upstream: agent_turn / tool_result_hidden never reach the transcript', () => {
+      // ChatTranscript does not render these kinds — its only defense is the
+      // card registry returning null for unknown kinds. But chat.tsx filters
+      // them out BEFORE the transcript sees them. This test documents that
+      // contract by verifying that even if these kinds slipped through,
+      // nothing crashes and no spurious rows render.
+      const messages: ChatMessage[] = [
+        {
+          id: 'hidden-1',
+          role: 'agent',
+          content: '',
+          timestamp: new Date('2026-04-04T10:00:00.000Z'),
+          // Cast — these kinds are NOT in the union intentionally; we only
+          // exercise the defensive path.
+          kind: 'agent_turn' as any,
+          status: 'complete',
+        },
+        {
+          id: 'hidden-2',
+          role: 'agent',
+          content: '',
+          timestamp: new Date('2026-04-04T10:00:01.000Z'),
+          kind: 'tool_result_hidden' as any,
+          status: 'complete',
+        },
+      ]
+
+      const { queryByTestId } = render(<ChatTranscript messages={messages} />)
+      // No registry match → CardRow returns null → no card-row wrapper renders.
+      expect(queryByTestId('card-row-agent_turn')).toBeNull()
+      expect(queryByTestId('card-row-tool_result_hidden')).toBeNull()
     })
   })
 })

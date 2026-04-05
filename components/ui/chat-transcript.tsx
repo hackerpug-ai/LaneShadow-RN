@@ -17,6 +17,18 @@
  * - Auto-scrolls to bottom on mount and whenever messages.length changes.
  * - Fills its parent container naturally (flex: 1) — no absolute positioning.
  *
+ * Message ordering (US-314):
+ * - Messages arrive already sorted by `createdAt` ascending from the upstream
+ *   Convex query (`api.db.sessionMessages.list`). The ReAct loop emits a
+ *   `reasoning` row FIRST (thinking_delta streams in before tool calls or
+ *   final text), then the paired `agent_turn` / card / text row is inserted.
+ *   Because reasoning rows get an EARLIER `createdAt`, they naturally render
+ *   ABOVE their paired assistant response when we render in array order.
+ *   No bespoke clustering/grouping step is required — the createdAt order is
+ *   the turn-cluster order. Hidden rows (`agent_turn`, `tool_result_hidden`)
+ *   are filtered out upstream in `app/(app)/(tabs)/chat.tsx` before reaching
+ *   this component, so what we receive is strictly visible rows in turn order.
+ *
  * Following components/CLAUDE.md: uses useSemanticTheme() exclusively.
  * Following react-rules.md: named export, no unnecessary useCallback/useMemo.
  */
