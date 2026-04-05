@@ -99,7 +99,6 @@ const HomeMapScreen = () => {
   const {
     sendPlanningMessage,
     cancel: cancelChatPlanning,
-    isPlanning: isChatPlanning,
     sessionId: planningSessionId,
   } = useChatPlanning(flowDispatch)
   const { messages } = useChatSession(flowState.sessionId, flowState)
@@ -121,6 +120,16 @@ const HomeMapScreen = () => {
   const rawTranscriptMessages = useQuery(
     api.db.sessionMessages.list,
     activeChatSessionId ? { sessionId: activeChatSessionId } : 'skip'
+  )
+
+  // Derive isPlanning from live message statuses: if any assistant row is
+  // still running or streaming, the agent is working.
+  const isPlanning = useMemo(
+    () =>
+      rawTranscriptMessages?.some(
+        (msg) => msg.status === 'running' || msg.status === 'streaming'
+      ) ?? false,
+    [rawTranscriptMessages]
   )
 
   const transcriptMessages: TranscriptMessage[] = useMemo(() => {
@@ -663,6 +672,7 @@ const HomeMapScreen = () => {
           onSend={handleSendMessage}
           onCancel={cancelChatPlanning}
           state={flowState}
+          isPlanning={isPlanning}
           suggestions={IDLE_SUGGESTIONS}
           testID="chat-input"
         />

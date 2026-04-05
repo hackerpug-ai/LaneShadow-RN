@@ -19,6 +19,10 @@ type SessionMessageDoc = {
   content: string
   attachments?: Array<{ type: 'route_options'; routePlanId: Id<'route_plans'> }>
   createdAt: number
+  // Per task #227 (widen phase): both fields are optional until migration
+  // backfills pre-existing rows. Callers should default accordingly.
+  kind?: SessionMessageKind
+  status?: 'streaming' | 'running' | 'complete' | 'failed'
 }
 
 type PlanningSessionDoc = {

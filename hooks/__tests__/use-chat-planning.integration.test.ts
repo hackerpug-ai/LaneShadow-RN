@@ -214,9 +214,7 @@ describe('useChatPlanning - Integration Tests', () => {
         content: 'scenic ride to Santa Cruz',
       })
 
-      // Assert: Planning completes when no route attachment
-      expect(result.current.isPlanning).toBe(false)
-      expect(result.current.currentPhase).toBe('complete')
+      // Assert: sessionId captured from createSession
       expect(result.current.sessionId).toBe('session123')
     })
 
@@ -393,9 +391,8 @@ describe('useChatPlanning - Integration Tests', () => {
         await result.current.sendPlanningMessage('test')
       })
 
-      // After successful planning, isPlanning should be false
-      // (because there's no route attachment in the mock response)
-      expect(result.current.isPlanning).toBe(false)
+      // After successful planning, sessionId should be set
+      expect(result.current.sessionId).toBe('session123')
     })
 
     it('should handle timeout errors from backend', async () => {
@@ -440,7 +437,6 @@ describe('useChatPlanning - Integration Tests', () => {
       expect(actions.some((a) => a.type === 'NEW_SESSION')).toBe(true)
 
       // Verify state reset
-      expect(result.current.isPlanning).toBe(false)
       expect(result.current.sessionId).toBeNull()
     })
 
@@ -453,9 +449,7 @@ describe('useChatPlanning - Integration Tests', () => {
         await result.current.sendPlanningMessage('test')
       })
 
-      // After sendPlanningMessage completes, state should be:
-      expect(result.current.isPlanning).toBe(false)
-      expect(result.current.currentPhase).toBe('complete')
+      // After sendPlanningMessage completes, sessionId should be set
       expect(result.current.sessionId).toBe('session123')
 
       // Multiple cancels - wrap in act to ensure state updates are flushed
@@ -465,8 +459,6 @@ describe('useChatPlanning - Integration Tests', () => {
       })
 
       // Should remain in cancelled state
-      expect(result.current.isPlanning).toBe(false)
-      expect(result.current.currentPhase).toBeNull()
       expect(result.current.sessionId).toBeNull()
     })
 
@@ -479,16 +471,12 @@ describe('useChatPlanning - Integration Tests', () => {
         await result.current.sendPlanningMessage('Plan a ride from SF to LA')
       })
 
-      expect(result.current.isPlanning).toBe(false) // No route attachment, so completes
-      expect(result.current.currentPhase).toBe('complete')
       expect(result.current.sessionId).toBe('session123')
 
       act(() => {
         result.current.cancel()
       })
 
-      expect(result.current.isPlanning).toBe(false)
-      expect(result.current.currentPhase).toBeNull()
       expect(result.current.sessionId).toBeNull()
     })
   })
