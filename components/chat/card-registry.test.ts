@@ -19,12 +19,18 @@ vi.mock('./routing-card', () => ({
     return null
   },
 }))
+vi.mock('./cards/reasoning-card', () => ({
+  ReasoningCard: function ReasoningCardStub() {
+    return null
+  },
+}))
 
 describe('CARD_REGISTRY', () => {
-  it('AC1: has entries for routing_card, weather_card, saved_route_card', () => {
+  it('AC1: has entries for routing_card, weather_card, saved_route_card, reasoning', () => {
     expect(CARD_REGISTRY.routing_card).toBeDefined()
     expect(CARD_REGISTRY.weather_card).toBeDefined()
     expect(CARD_REGISTRY.saved_route_card).toBeDefined()
+    expect(CARD_REGISTRY.reasoning).toBeDefined()
   })
 
   it('AC2: routing_card maps to RoutingCard component', () => {
@@ -42,5 +48,6 @@ describe('CARD_REGISTRY', () => {
     expect(typeof CARD_REGISTRY.routing_card).toBe('function')
     expect(typeof CARD_REGISTRY.weather_card).toBe('function')
     expect(typeof CARD_REGISTRY.saved_route_card).toBe('function')
+    expect(typeof CARD_REGISTRY.reasoning).toBe('function')
   })
 })
