@@ -5,7 +5,59 @@ import { action } from '../../_generated/server'
 import { api, internal } from '../../_generated/api'
 import { requireIdentity } from '../../guards'
 import { executeRidePlanningAgent } from './ridePlanningAgent'
+import type { ExecuteContext } from './ridePlanningAgent'
 import type { Id } from '../../_generated/dataModel'
+import type { SessionMessageKind } from '../../../models/session-messages'
+
+// ---------------------------------------------------------------------------
+// Card-backed tool mapping
+// ---------------------------------------------------------------------------
+
+/**
+ * Maps tool names to the session_message card kind they produce.
+ * Only tools listed here will have a card message emitted in the transcript.
+ */
+export const TOOL_TO_CARD_KIND: Record<string, SessionMessageKind> = {
+  planRoute: 'routing_card',
+  fetchWeather: 'weather_card',
+  saveRoute: 'saved_route_card',
+}
+
+// ---------------------------------------------------------------------------
+// Card callback factory
+// ---------------------------------------------------------------------------
+
+/**
+ * Build the onToolStart / onToolFinish callbacks for a given session.
+ * Extracted as a named function so it can be unit-tested independently.
+ */
+export function buildCardCallbacks(
+  sessionId: Id<'planning_sessions'>,
+  runMutation: (fn: any, args: any) => Promise<any>
+): ExecuteContext {
+  return {
+    async onToolStart(toolName, _args) {
+      const kind = TOOL_TO_CARD_KIND[toolName]
+      if (!kind) return // non-card tool — do nothing
+
+      const { messageId } = await runMutation(
+        internal.db.sessionMessages.createPendingAssistantMessage,
+        { sessionId, kind }
+      )
+      return { messageId }
+    },
+
+    async onToolFinish(toolName, messageId, result) {
+      if (messageId === undefined) return // no card was created
+
+      const isError = (result as any)?.type === 'error'
+      await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
+        messageId,
+        status: isError ? 'failed' : 'complete',
+      })
+    },
+  }
+}
 
 /**
  * sendMessage - Single client entry point for the ride planning agent
@@ -82,7 +134,11 @@ export const sendMessage = action({
       }))
 
     // Step 4: Run agent with session context (probabilistic)
-    // This is where the agent decides what to do
+    // This is where the agent decides what to do.
+    // We pass card-emission callbacks so card-backed tools (planRoute, etc.)
+    // emit a pending card message into session_messages before the tool runs
+    // and finalize it (complete/failed) after the tool returns.
+    const cardCallbacks = buildCardCallbacks(args.sessionId, ctx.runMutation.bind(ctx))
     let agentResult
     try {
       agentResult = await executeRidePlanningAgent(
@@ -94,7 +150,8 @@ export const sendMessage = action({
           runQuery: ctx.runQuery.bind(ctx),
           runMutation: ctx.runMutation.bind(ctx),
         },
-        args.content
+        args.content,
+        cardCallbacks
       )
     } catch (error) {
       // Convert agent errors to conversational messages

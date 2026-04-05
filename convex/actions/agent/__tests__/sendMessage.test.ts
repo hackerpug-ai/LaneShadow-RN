@@ -2,6 +2,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../../_generated/dataModel'
+import { buildCardCallbacks, TOOL_TO_CARD_KIND } from '../sendMessage'
 
 // -----------------------------------------------------------------------------
 // Test the sendMessage orchestrator logic (without Convex imports)
@@ -31,6 +32,32 @@ vi.mock('../../../db/sessionMessages', () => ({
 vi.mock('../../../db/planningSessions', () => ({
   get getSessionByIdHandler() {
     return mockGetSessionByIdHandler
+  },
+}))
+
+// Mock internal so buildCardCallbacks can import it without Convex runtime
+vi.mock('../../../_generated/api', () => ({
+  internal: {
+    db: {
+      sessionMessages: {
+        createPendingAssistantMessage: { __ref: 'createPendingAssistantMessage' },
+        finalizeAssistantMessage: { __ref: 'finalizeAssistantMessage' },
+        addSystemMessage: { __ref: 'addSystemMessage' },
+      },
+      planUsage: {
+        checkUsageInternal: { __ref: 'checkUsageInternal' },
+        incrementUsageInternal: { __ref: 'incrementUsageInternal' },
+      },
+    },
+  },
+  api: {
+    db: {
+      planningSessions: { getSessionById: { __ref: 'getSessionById' } },
+      sessionMessages: {
+        send: { __ref: 'send' },
+        list: { __ref: 'list' },
+      },
+    },
   },
 }))
 
@@ -299,5 +326,128 @@ describe('sendMessage', () => {
       }),
       expect.any(String)
     )
+  })
+})
+
+// -----------------------------------------------------------------------------
+// Tests: TOOL_TO_CARD_KIND mapping
+// -----------------------------------------------------------------------------
+
+describe('TOOL_TO_CARD_KIND', () => {
+  it('maps planRoute to routing_card', () => {
+    expect(TOOL_TO_CARD_KIND['planRoute']).toBe('routing_card')
+  })
+
+  it('maps fetchWeather to weather_card', () => {
+    expect(TOOL_TO_CARD_KIND['fetchWeather']).toBe('weather_card')
+  })
+
+  it('maps saveRoute to saved_route_card', () => {
+    expect(TOOL_TO_CARD_KIND['saveRoute']).toBe('saved_route_card')
+  })
+
+  it('does not map geocode', () => {
+    expect(TOOL_TO_CARD_KIND['geocode']).toBeUndefined()
+  })
+})
+
+// -----------------------------------------------------------------------------
+// Tests: buildCardCallbacks
+// -----------------------------------------------------------------------------
+
+describe('buildCardCallbacks', () => {
+  const sessionId = 'session_card_test' as Id<'planning_sessions'>
+  const cardMessageId = 'card_msg_1' as Id<'session_messages'>
+
+  let runMutation: ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    runMutation = vi.fn()
+  })
+
+  it('creates a pending routing_card message when planRoute starts', async () => {
+    runMutation.mockResolvedValue({ messageId: cardMessageId })
+    const { onToolStart } = buildCardCallbacks(sessionId, runMutation)
+
+    const result = await onToolStart!('planRoute', {})
+
+    expect(runMutation).toHaveBeenCalledWith(
+      { __ref: 'createPendingAssistantMessage' },
+      { sessionId, kind: 'routing_card' }
+    )
+    expect(result).toEqual({ messageId: cardMessageId })
+  })
+
+  it('does NOT create a card message for non-card tools (geocode)', async () => {
+    const { onToolStart } = buildCardCallbacks(sessionId, runMutation)
+
+    const result = await onToolStart!('geocode', { query: 'Santa Cruz' })
+
+    expect(runMutation).not.toHaveBeenCalled()
+    expect(result).toBeUndefined()
+  })
+
+  it('finalizes the card as complete when planRoute succeeds', async () => {
+    runMutation.mockResolvedValue(null)
+    const { onToolFinish } = buildCardCallbacks(sessionId, runMutation)
+
+    await onToolFinish!('planRoute', cardMessageId, {
+      type: 'routes',
+      data: { planId: 'plan_abc', options: [] },
+    })
+
+    expect(runMutation).toHaveBeenCalledWith(
+      { __ref: 'finalizeAssistantMessage' },
+      { messageId: cardMessageId, status: 'complete' }
+    )
+  })
+
+  it('finalizes the card as failed when planRoute returns error type', async () => {
+    runMutation.mockResolvedValue(null)
+    const { onToolFinish } = buildCardCallbacks(sessionId, runMutation)
+
+    await onToolFinish!('planRoute', cardMessageId, {
+      type: 'error',
+      message: 'Something went wrong',
+    })
+
+    expect(runMutation).toHaveBeenCalledWith(
+      { __ref: 'finalizeAssistantMessage' },
+      { messageId: cardMessageId, status: 'failed' }
+    )
+  })
+
+  it('skips finalize when messageId is undefined (non-card tool path)', async () => {
+    const { onToolFinish } = buildCardCallbacks(sessionId, runMutation)
+
+    await onToolFinish!('geocode', undefined, { results: [] })
+
+    expect(runMutation).not.toHaveBeenCalled()
+  })
+
+  it('creates a pending weather_card message when fetchWeather starts', async () => {
+    runMutation.mockResolvedValue({ messageId: cardMessageId })
+    const { onToolStart } = buildCardCallbacks(sessionId, runMutation)
+
+    const result = await onToolStart!('fetchWeather', { location: 'San Jose' })
+
+    expect(runMutation).toHaveBeenCalledWith(
+      { __ref: 'createPendingAssistantMessage' },
+      { sessionId, kind: 'weather_card' }
+    )
+    expect(result).toEqual({ messageId: cardMessageId })
+  })
+
+  it('creates a pending saved_route_card message when saveRoute starts', async () => {
+    runMutation.mockResolvedValue({ messageId: cardMessageId })
+    const { onToolStart } = buildCardCallbacks(sessionId, runMutation)
+
+    const result = await onToolStart!('saveRoute', { routeIndex: 0, name: 'My Route' })
+
+    expect(runMutation).toHaveBeenCalledWith(
+      { __ref: 'createPendingAssistantMessage' },
+      { sessionId, kind: 'saved_route_card' }
+    )
+    expect(result).toEqual({ messageId: cardMessageId })
   })
 })
