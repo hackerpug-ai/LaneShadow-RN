@@ -6,7 +6,7 @@ import {
   type RoutePlanStatus,
   type RoutePlan,
 } from '../../models/route-plans'
-import { planInputValidator } from '../../models/saved-routes'
+import { planInputValidator, planPreferencesValidator } from '../../models/saved-routes'
 import { internal } from '../_generated/api'
 import type { Doc, Id } from '../_generated/dataModel'
 import { internalMutation, internalQuery, mutation, query } from '../_generated/server'
@@ -42,6 +42,12 @@ type CreatePlanCtx = {
 type GetActivePlanCtx = {
   db: {
     query: (table: string) => IndexQueryResult
+  }
+}
+
+type ListBySessionCtx = {
+  db: {
+    query: (table: string) => any
   }
 }
 
@@ -322,5 +328,86 @@ export const getPlanByIdInternal = internalQuery({
   returns: v.union(v.any(), v.null()),
   handler: async (ctx, args): Promise<RoutePlanDoc | null> => {
     return ctx.db.get(args.routePlanId)
+  },
+})
+
+// ---------------------------------------------------------------------------
+// Agent-context query: summarized rows by planning session
+// ---------------------------------------------------------------------------
+
+export type RoutePlanSummary = {
+  _id: Id<'route_plans'>
+  _creationTime: number
+  startLabel?: string
+  endLabel?: string
+  preferences: RoutePlan['planInput']['preferences']
+  status: RoutePlanStatus
+  distanceMeters?: number
+  durationSeconds?: number
+}
+
+const DEFAULT_LIST_BY_SESSION_LIMIT = 5
+
+const toRoutePlanSummary = (doc: RoutePlanDoc): RoutePlanSummary => {
+  const firstOption = (doc.result as any)?.options?.[0]
+  const stats = firstOption?.stats as
+    | { distanceMeters?: number; durationSeconds?: number }
+    | undefined
+  return {
+    _id: doc._id,
+    _creationTime: doc._creationTime,
+    startLabel: doc.startLabel,
+    endLabel: doc.endLabel,
+    preferences: doc.planInput.preferences,
+    status: doc.status,
+    distanceMeters: stats?.distanceMeters,
+    durationSeconds: stats?.durationSeconds,
+  }
+}
+
+export const listBySessionHandler = async (
+  ctx: ListBySessionCtx,
+  args: {
+    sessionId: Id<'planning_sessions'>
+    limit?: number
+    status?: RoutePlanStatus
+  }
+): Promise<RoutePlanSummary[]> => {
+  const limit = args.limit ?? DEFAULT_LIST_BY_SESSION_LIMIT
+  const docs: RoutePlanDoc[] = await ctx.db
+    .query('route_plans')
+    .withIndex('by_planningSessionId_and_status', (q: any) => {
+      const base = q.eq('planningSessionId', args.sessionId)
+      if (args.status !== undefined) {
+        return base.eq('status', args.status)
+      }
+      return base
+    })
+    .order('desc')
+    .take(limit)
+
+  return docs.map(toRoutePlanSummary)
+}
+
+export const listBySession = internalQuery({
+  args: {
+    sessionId: v.id('planning_sessions'),
+    limit: v.optional(v.number()),
+    status: v.optional(routePlanStatusValidator),
+  },
+  returns: v.array(
+    v.object({
+      _id: v.id('route_plans'),
+      _creationTime: v.number(),
+      startLabel: v.optional(v.string()),
+      endLabel: v.optional(v.string()),
+      preferences: planPreferencesValidator,
+      status: routePlanStatusValidator,
+      distanceMeters: v.optional(v.number()),
+      durationSeconds: v.optional(v.number()),
+    })
+  ),
+  handler: async (ctx, args): Promise<RoutePlanSummary[]> => {
+    return listBySessionHandler(ctx as any, args)
   },
 })
