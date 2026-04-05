@@ -67,6 +67,26 @@ export type ExecuteContext = {
   /** Called for each text delta emitted during the final streaming turn.
    *  Only invoked on the last (non-tool) turn when the model produces text. */
   onTextDelta?: (delta: string) => Promise<void>
+  /** Called for each thinking/reasoning delta when the model emits extended
+   *  thinking tokens (e.g. Claude 3.7 Sonnet with thinking enabled). Fires
+   *  once per reasoning chunk in stream order, before the associated text. */
+  onThinkingDelta?: (delta: string) => Promise<void>
+  /** Called when the model emits a partial (streaming) tool call — i.e. the
+   *  tool name and arguments are not yet complete. Use to show a "pending"
+   *  indicator in the UI before the tool actually executes. */
+  onToolPending?: (partialCall: { name: string; partialArguments: string }) => Promise<void>
+  /** Called at the start of each ReAct step before the model is invoked.
+   *  Provides the current step index (0-based) and the configured maximum so
+   *  callers can render a progress indicator or enforce step budgets. */
+  onStepStart?: (step: number, maxSteps: number) => Promise<void>
+  /** Called once after each complete assistant turn (after the full
+   *  AssistantMessage has been assembled from the stream). Useful for
+   *  persisting the raw pi-ai message or emitting an agent-turn card. */
+  onAgentTurn?: (assistant: AssistantMessage) => Promise<void>
+  /** Called after each tool result is appended to the conversation context.
+   *  Provides the tool call ID and the full ToolResultMessage so callers can
+   *  persist raw pi-ai messages or trigger downstream card updates. */
+  onToolResultPiMessage?: (toolCallId: string, result: ToolResultMessage) => Promise<void>
 }
 
 // -----------------------------------------------------------------------------
