@@ -1,7 +1,6 @@
 'use node'
 
 import {
-  complete,
   stream,
   getModel,
   validateToolCall,
@@ -71,10 +70,11 @@ export type ExecuteContext = {
    *  thinking tokens (e.g. Claude 3.7 Sonnet with thinking enabled). Fires
    *  once per reasoning chunk in stream order, before the associated text. */
   onThinkingDelta?: (delta: string) => Promise<void>
-  /** Called when the model emits a partial (streaming) tool call — i.e. the
-   *  tool name and arguments are not yet complete. Use to show a "pending"
-   *  indicator in the UI before the tool actually executes. */
-  onToolPending?: (partialCall: { name: string; partialArguments: string }) => Promise<void>
+  /** Called when the model begins emitting a tool call from the stream,
+   *  before arguments are populated. Provides the tool name so the UI can
+   *  show a pending indicator. Full arguments arrive via onToolStart when
+   *  the tool actually executes. */
+  onToolPending?: (partial: { name: string }) => Promise<void>
   /** Called at the start of each ReAct step before the model is invoked.
    *  Provides the current step index (0-based) and the configured maximum so
    *  callers can render a progress indicator or enforce step budgets. */
@@ -458,34 +458,38 @@ export async function executeRidePlanningAgent(
       throw new Error(ERROR_CODES.AGENT_TIMEOUT)
     }
 
-    // Determine whether to stream with delta forwarding.
-    // Strategy: always stream (so we can capture deltas), but only forward
-    // text_delta events to onTextDelta if the turn ends as a final (non-tool)
-    // turn. We buffer deltas in-flight and flush them when we see the `done`
-    // event with a non-toolUse stop reason.
-    let assistant: AssistantMessage
+    // Fire onStepStart at the top of every iteration.
+    await executeCtx?.onStepStart?.(step, MAX_STEPS)
 
-    if (executeCtx?.onTextDelta) {
-      const eventStream = stream(model, context)
-      const bufferedDeltas: string[] = []
+    // Always stream so we can capture all event types.
+    // Buffer text_delta events and flush them only when the turn ends as a
+    // final (non-tool) turn. Thinking and toolcall_start events are forwarded
+    // immediately.
+    const eventStream = stream(model, context)
+    const bufferedTextDeltas: string[] = []
 
-      for await (const event of eventStream) {
-        const ev = event as AssistantMessageEvent
-        if (ev.type === 'text_delta') {
-          bufferedDeltas.push(ev.delta)
+    for await (const event of eventStream) {
+      const ev = event as AssistantMessageEvent
+      if (ev.type === 'text_delta') {
+        bufferedTextDeltas.push(ev.delta)
+      } else if (ev.type === 'thinking_delta') {
+        await executeCtx?.onThinkingDelta?.(ev.delta)
+      } else if (ev.type === 'toolcall_start') {
+        // Extract the most recent (in-progress) tool call from the partial message.
+        const partialContent = ev.partial.content
+        const partialToolCall = partialContent[ev.contentIndex]
+        if (partialToolCall && partialToolCall.type === 'toolCall') {
+          await executeCtx?.onToolPending?.({ name: partialToolCall.name })
         }
-        // When the stream ends as a final (text) turn, flush buffered deltas.
-        if (ev.type === 'done' && ev.reason !== 'toolUse') {
-          for (const delta of bufferedDeltas) {
-            await executeCtx.onTextDelta!(delta)
-          }
+      } else if (ev.type === 'done' && ev.reason !== 'toolUse') {
+        // Flush buffered text deltas on a final (non-tool) turn.
+        for (const delta of bufferedTextDeltas) {
+          await executeCtx?.onTextDelta?.(delta)
         }
       }
-
-      assistant = await eventStream.result()
-    } else {
-      assistant = await complete(model, context)
     }
+
+    const assistant = await eventStream.result()
 
     context.messages.push(assistant)
 
@@ -495,6 +499,9 @@ export async function executeRidePlanningAgent(
       (b): b is ToolCall => b.type === 'toolCall'
     )
     if (toolCalls.length === 0) break
+
+    // Notify caller that the assistant turn with tool calls is complete.
+    await executeCtx?.onAgentTurn?.(assistant)
 
     for (const call of toolCalls) {
       let result: unknown
@@ -520,6 +527,7 @@ export async function executeRidePlanningAgent(
         timestamp: Date.now(),
       }
       context.messages.push(toolResultMsg)
+      await executeCtx?.onToolResultPiMessage?.(call.id, toolResultMsg)
     }
   }
 

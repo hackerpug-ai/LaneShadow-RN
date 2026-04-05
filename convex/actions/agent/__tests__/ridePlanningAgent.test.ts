@@ -8,12 +8,12 @@ import { buildSystemPrompt, executeRidePlanningAgent, extractRouteAttachments } 
 // -----------------------------------------------------------------------------
 
 // Mock pi-ai: keep TypeBox Type/Static exports intact (piTools.ts needs them),
-// only replace the three runtime functions the agent uses.
+// only replace the runtime functions the agent uses.
 vi.mock('@mariozechner/pi-ai', async () => {
   const actual = await vi.importActual('@mariozechner/pi-ai') as Record<string, unknown>
   return {
     ...actual,
-    complete: vi.fn(),
+    stream: vi.fn(),
     getModel: vi.fn(() => ({ api: 'openai-completions', provider: 'openai', name: 'gpt-4o' })),
     validateToolCall: vi.fn((_tools: unknown, toolCall: { arguments: unknown }) => toolCall.arguments),
   }
@@ -100,6 +100,44 @@ const makeAssistantMessage = (
   stopReason,
   timestamp: Date.now(),
 })
+
+/**
+ * Build a mock AssistantMessageEventStream that yields the given events
+ * then resolves result() with the provided AssistantMessage.
+ *
+ * The agent loop uses:
+ *   for await (const event of eventStream) { ... }
+ *   const assistant = await eventStream.result()
+ *
+ * We simulate this by returning an object that is both async-iterable and
+ * has a result() method.
+ */
+type MockEvent = { type: string; [key: string]: unknown }
+
+const makeMockStream = (events: MockEvent[], resultMessage: ReturnType<typeof makeAssistantMessage>) => {
+  const mockStream = {
+    [Symbol.asyncIterator]: async function* () {
+      for (const ev of events) {
+        yield ev
+      }
+    },
+    result: vi.fn().mockResolvedValue(resultMessage),
+  }
+  return mockStream
+}
+
+/**
+ * Shorthand: create a stream that just emits a done event and resolves to
+ * the given AssistantMessage (the common case for most existing tests).
+ */
+const makeSimpleStream = (assistantMessage: ReturnType<typeof makeAssistantMessage>) => {
+  const doneEvent: MockEvent = {
+    type: 'done',
+    reason: assistantMessage.stopReason === 'toolUse' ? 'toolUse' : 'stop',
+    message: assistantMessage,
+  }
+  return makeMockStream([doneEvent], assistantMessage)
+}
 
 const makeAgentContext = () => ({
   sessionId: 'session_test' as any,
@@ -257,7 +295,7 @@ describe('extractRouteAttachments', () => {
 // -----------------------------------------------------------------------------
 
 describe('executeRidePlanningAgent', () => {
-  let complete: ReturnType<typeof vi.fn>
+  let mockStream: ReturnType<typeof vi.fn>
   let planRideOrchestrator: ReturnType<typeof vi.fn>
   let buildOptionsFromResults: ReturnType<typeof vi.fn>
 
@@ -265,7 +303,7 @@ describe('executeRidePlanningAgent', () => {
     vi.clearAllMocks()
     // Re-acquire mock references after clearAllMocks.
     const piAi = await import('@mariozechner/pi-ai') as any
-    complete = piAi.complete
+    mockStream = piAi.stream
 
     const orchestratorMod = await import('../lib/planRideOrchestrator') as any
     planRideOrchestrator = orchestratorMod.planRideOrchestrator
@@ -280,14 +318,13 @@ describe('executeRidePlanningAgent', () => {
   })
 
   it('returns text response with no attachments for a single-turn chat', async () => {
-    complete.mockResolvedValueOnce(
-      makeAssistantMessage([{ type: 'text', text: 'Hello! How can I help you plan your ride?' }], 'stop')
-    )
+    const msg = makeAssistantMessage([{ type: 'text', text: 'Hello! How can I help you plan your ride?' }], 'stop')
+    mockStream.mockReturnValueOnce(makeSimpleStream(msg))
 
     const ctx = makeAgentContext()
     const result = await executeRidePlanningAgent(ctx, 'hello')
 
-    expect(complete).toHaveBeenCalledTimes(1)
+    expect(mockStream).toHaveBeenCalledTimes(1)
     expect(result.response).toBe('Hello! How can I help you plan your ride?')
     expect(result.attachments).toBeUndefined()
     expect(planRideOrchestrator).not.toHaveBeenCalled()
@@ -295,35 +332,34 @@ describe('executeRidePlanningAgent', () => {
 
   it('calls planRoute tool then returns text with route attachment', async () => {
     // First call: agent wants to plan a route.
-    complete.mockResolvedValueOnce(
-      makeAssistantMessage(
-        [
-          {
-            type: 'toolCall',
-            id: 'tc1',
-            name: 'planRoute',
-            arguments: {
-              start: { lat: 37.77, lng: -122.42, label: null },
-              end: { lat: 36.97, lng: -122.03, label: 'Santa Cruz, CA' },
-              departureTime: Date.now() + 3_600_000,
-              preferences: { scenicBias: 'high', avoidHighways: false, avoidTolls: false },
-            },
+    const toolCallMsg = makeAssistantMessage(
+      [
+        {
+          type: 'toolCall',
+          id: 'tc1',
+          name: 'planRoute',
+          arguments: {
+            start: { lat: 37.77, lng: -122.42, label: null },
+            end: { lat: 36.97, lng: -122.03, label: 'Santa Cruz, CA' },
+            departureTime: Date.now() + 3_600_000,
+            preferences: { scenicBias: 'high', avoidHighways: false, avoidTolls: false },
           },
-        ],
-        'toolUse'
-      )
+        },
+      ],
+      'toolUse'
     )
     // Second call: agent summarises.
-    complete.mockResolvedValueOnce(
-      makeAssistantMessage([{ type: 'text', text: 'Here are 3 scenic routes to Santa Cruz.' }], 'stop')
-    )
+    const textMsg = makeAssistantMessage([{ type: 'text', text: 'Here are 3 scenic routes to Santa Cruz.' }], 'stop')
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(toolCallMsg))
+      .mockReturnValueOnce(makeSimpleStream(textMsg))
 
     planRideOrchestrator.mockResolvedValue([])
 
     const ctx = makeAgentContext()
     const result = await executeRidePlanningAgent(ctx, 'plan a scenic ride to Santa Cruz')
 
-    expect(complete).toHaveBeenCalledTimes(2)
+    expect(mockStream).toHaveBeenCalledTimes(2)
     expect(planRideOrchestrator).toHaveBeenCalledTimes(1)
     // runPlanRoute writes the route_plans row (create → finalize) and
     // increments usage after a successful planRoute: three mutations.
@@ -335,32 +371,31 @@ describe('executeRidePlanningAgent', () => {
   })
 
   it('does not call orchestrator and returns upsell message when usage limit is reached', async () => {
-    // First complete: agent tries to plan a route.
-    complete.mockResolvedValueOnce(
-      makeAssistantMessage(
-        [
-          {
-            type: 'toolCall',
-            id: 'tc_rate',
-            name: 'planRoute',
-            arguments: {
-              start: { lat: 37.77, lng: -122.42, label: null },
-              end: { lat: 36.97, lng: -122.03, label: 'Santa Cruz' },
-              departureTime: Date.now() + 3_600_000,
-              preferences: { scenicBias: 'default', avoidHighways: false, avoidTolls: false },
-            },
+    // First stream call: agent tries to plan a route.
+    const toolCallMsg = makeAssistantMessage(
+      [
+        {
+          type: 'toolCall',
+          id: 'tc_rate',
+          name: 'planRoute',
+          arguments: {
+            start: { lat: 37.77, lng: -122.42, label: null },
+            end: { lat: 36.97, lng: -122.03, label: 'Santa Cruz' },
+            departureTime: Date.now() + 3_600_000,
+            preferences: { scenicBias: 'default', avoidHighways: false, avoidTolls: false },
           },
-        ],
-        'toolUse'
-      )
+        },
+      ],
+      'toolUse'
     )
-    // Second complete: agent returns the upsell text from the tool result.
-    complete.mockResolvedValueOnce(
-      makeAssistantMessage(
-        [{ type: 'text', text: "You've reached your monthly limit. Upgrade to Premium!" }],
-        'stop'
-      )
+    // Second stream call: agent returns the upsell text from the tool result.
+    const upsellMsg = makeAssistantMessage(
+      [{ type: 'text', text: "You've reached your monthly limit. Upgrade to Premium!" }],
+      'stop'
     )
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(toolCallMsg))
+      .mockReturnValueOnce(makeSimpleStream(upsellMsg))
 
     const ctx = makeAgentContext()
     // Usage check fails.
@@ -372,7 +407,7 @@ describe('executeRidePlanningAgent', () => {
     expect(planRideOrchestrator).not.toHaveBeenCalled()
     // Usage must NOT be incremented.
     expect(ctx.runMutation).not.toHaveBeenCalled()
-    // The final response comes from the second complete() call.
+    // The final response comes from the second stream call.
     expect(result.response).toBe("You've reached your monthly limit. Upgrade to Premium!")
     // No route attachment since no route was actually planned.
     expect(result.attachments).toBeUndefined()
@@ -380,45 +415,43 @@ describe('executeRidePlanningAgent', () => {
 
   it('executes geocode then planRoute then text (multi-step)', async () => {
     // Step 1: geocode.
-    complete.mockResolvedValueOnce(
-      makeAssistantMessage(
-        [{ type: 'toolCall', id: 'tc_geo', name: 'geocode', arguments: { query: 'Santa Cruz' } }],
-        'toolUse'
-      )
+    const geoMsg = makeAssistantMessage(
+      [{ type: 'toolCall', id: 'tc_geo', name: 'geocode', arguments: { query: 'Santa Cruz' } }],
+      'toolUse'
     )
     // Step 2: planRoute using geocoded coords.
-    complete.mockResolvedValueOnce(
-      makeAssistantMessage(
-        [
-          {
-            type: 'toolCall',
-            id: 'tc_plan',
-            name: 'planRoute',
-            arguments: {
-              start: { lat: 37.77, lng: -122.42, label: null },
-              end: { lat: 36.97, lng: -122.03, label: 'Santa Cruz, CA' },
-              departureTime: Date.now() + 3_600_000,
-              preferences: { scenicBias: 'high', avoidHighways: false, avoidTolls: false },
-            },
+    const planMsg = makeAssistantMessage(
+      [
+        {
+          type: 'toolCall',
+          id: 'tc_plan',
+          name: 'planRoute',
+          arguments: {
+            start: { lat: 37.77, lng: -122.42, label: null },
+            end: { lat: 36.97, lng: -122.03, label: 'Santa Cruz, CA' },
+            departureTime: Date.now() + 3_600_000,
+            preferences: { scenicBias: 'high', avoidHighways: false, avoidTolls: false },
           },
-        ],
-        'toolUse'
-      )
+        },
+      ],
+      'toolUse'
     )
     // Step 3: final text.
-    complete.mockResolvedValueOnce(
-      makeAssistantMessage(
-        [{ type: 'text', text: 'Here are 3 scenic routes to Santa Cruz.' }],
-        'stop'
-      )
+    const textMsg = makeAssistantMessage(
+      [{ type: 'text', text: 'Here are 3 scenic routes to Santa Cruz.' }],
+      'stop'
     )
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(geoMsg))
+      .mockReturnValueOnce(makeSimpleStream(planMsg))
+      .mockReturnValueOnce(makeSimpleStream(textMsg))
 
     planRideOrchestrator.mockResolvedValue([])
 
     const ctx = makeAgentContext()
     const result = await executeRidePlanningAgent(ctx, 'scenic ride to Santa Cruz')
 
-    expect(complete).toHaveBeenCalledTimes(3)
+    expect(mockStream).toHaveBeenCalledTimes(3)
     expect(planRideOrchestrator).toHaveBeenCalledTimes(1)
     // create + finalize + incrementUsage = 3 mutations
     expect(ctx.runMutation).toHaveBeenCalledTimes(3)
@@ -428,21 +461,21 @@ describe('executeRidePlanningAgent', () => {
     ])
   })
 
-  it('caps the loop at MAX_STEPS (10) if complete keeps returning toolUse', async () => {
+  it('caps the loop at MAX_STEPS (10) if stream keeps returning toolUse', async () => {
     // Simulate an agent that never stops — always requests a tool call.
     const neverStop = makeAssistantMessage(
       [{ type: 'toolCall', id: 'tc_loop', name: 'fetchWeather', arguments: { location: null } }],
       'toolUse'
     )
-    // mockResolvedValue sets a default that applies to all calls not covered by Once mocks.
-    complete.mockResolvedValue(neverStop)
+    // mockReturnValue sets a default that applies to all calls not covered by Once mocks.
+    mockStream.mockReturnValue(makeSimpleStream(neverStop))
 
     const ctx = makeAgentContext()
     // Should resolve without throwing (loop terminates at max steps).
     await expect(executeRidePlanningAgent(ctx, 'weather please')).resolves.toBeDefined()
 
     // The loop runs at most MAX_STEPS (10) iterations.
-    expect(complete).toHaveBeenCalledTimes(10)
+    expect(mockStream).toHaveBeenCalledTimes(10)
   })
 
   it('throws when OPENAI_API_KEY is missing', async () => {
@@ -468,13 +501,156 @@ describe('executeRidePlanningAgent', () => {
     // top-level vi.mock that sets OPENAI_API_KEY to 'test-openai-key'.
     // For the "missing key" scenario we verify the guard works by directly
     // testing the guard expression path: pass a context and simulate that
-    // complete throws because there is no key configured.
-    complete.mockRejectedValueOnce(new Error('OpenAI API key not configured'))
+    // stream throws because there is no key configured.
+    mockStream.mockImplementationOnce(() => {
+      throw new Error('OpenAI API key not configured')
+    })
 
     const ctx = makeAgentContext()
     await expect(executeRidePlanningAgent(ctx, 'test')).rejects.toThrow()
 
     // Restore doMock override.
     vi.unmock('../../../lib/env')
+  })
+
+  // ---------------------------------------------------------------------------
+  // Tests: new callback wiring (US-307)
+  // ---------------------------------------------------------------------------
+
+  it('fires onThinkingDelta for each thinking_delta event from the stream', async () => {
+    const finalMsg = makeAssistantMessage([{ type: 'text', text: 'Done thinking.' }], 'stop')
+    const events: MockEvent[] = [
+      { type: 'thinking_delta', contentIndex: 0, delta: 'Hmm, ' },
+      { type: 'thinking_delta', contentIndex: 0, delta: 'let me think...' },
+      { type: 'done', reason: 'stop', message: finalMsg },
+    ]
+    mockStream.mockReturnValueOnce(makeMockStream(events, finalMsg))
+
+    const onThinkingDelta = vi.fn().mockResolvedValue(undefined)
+    const ctx = makeAgentContext()
+    await executeRidePlanningAgent(ctx, 'hello', { onThinkingDelta })
+
+    expect(onThinkingDelta).toHaveBeenCalledTimes(2)
+    expect(onThinkingDelta).toHaveBeenNthCalledWith(1, 'Hmm, ')
+    expect(onThinkingDelta).toHaveBeenNthCalledWith(2, 'let me think...')
+  })
+
+  it('fires onToolPending for each toolcall_start event from the stream', async () => {
+    // At toolcall_start the runtime initialises arguments to {} — args are not
+    // yet populated. The contract exposes only the tool name at this point.
+    const partialToolCall = {
+      type: 'toolCall' as const,
+      id: 'tc_partial',
+      name: 'geocode',
+      arguments: {},
+    }
+    const finalMsg = makeAssistantMessage(
+      [{ type: 'toolCall', id: 'tc_partial', name: 'geocode', arguments: { query: 'Santa Cruz' } }],
+      'toolUse'
+    )
+    const textMsg = makeAssistantMessage([{ type: 'text', text: 'Found it.' }], 'stop')
+
+    // Construct partial AssistantMessage for the toolcall_start event.
+    const partialMsg = {
+      ...finalMsg,
+      content: [partialToolCall],
+    }
+    const events: MockEvent[] = [
+      { type: 'toolcall_start', contentIndex: 0, partial: partialMsg },
+      { type: 'done', reason: 'toolUse', message: finalMsg },
+    ]
+    mockStream
+      .mockReturnValueOnce(makeMockStream(events, finalMsg))
+      .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+    const onToolPending = vi.fn().mockResolvedValue(undefined)
+    const ctx = makeAgentContext()
+    await executeRidePlanningAgent(ctx, 'geocode Santa Cruz', { onToolPending })
+
+    expect(onToolPending).toHaveBeenCalledTimes(1)
+    expect(onToolPending).toHaveBeenCalledWith({ name: 'geocode' })
+  })
+
+  it('fires onStepStart once per loop iteration with (step, MAX_STEPS)', async () => {
+    // Two-step loop: tool call then text.
+    const toolMsg = makeAssistantMessage(
+      [{ type: 'toolCall', id: 'tc_step', name: 'fetchWeather', arguments: { location: null } }],
+      'toolUse'
+    )
+    const textMsg = makeAssistantMessage([{ type: 'text', text: 'Weather is nice.' }], 'stop')
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(toolMsg))
+      .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+    const onStepStart = vi.fn().mockResolvedValue(undefined)
+    const ctx = makeAgentContext()
+    await executeRidePlanningAgent(ctx, 'weather', { onStepStart })
+
+    expect(onStepStart).toHaveBeenCalledTimes(2)
+    expect(onStepStart).toHaveBeenNthCalledWith(1, 0, 10)
+    expect(onStepStart).toHaveBeenNthCalledWith(2, 1, 10)
+  })
+
+  it('fires onAgentTurn once per assistant turn that has tool calls', async () => {
+    const toolMsg = makeAssistantMessage(
+      [{ type: 'toolCall', id: 'tc_turn', name: 'fetchWeather', arguments: { location: null } }],
+      'toolUse'
+    )
+    const textMsg = makeAssistantMessage([{ type: 'text', text: 'The weather looks good.' }], 'stop')
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(toolMsg))
+      .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+    const onAgentTurn = vi.fn().mockResolvedValue(undefined)
+    const ctx = makeAgentContext()
+    await executeRidePlanningAgent(ctx, 'weather', { onAgentTurn })
+
+    // Only the turn with tool calls triggers onAgentTurn (not the final text turn).
+    expect(onAgentTurn).toHaveBeenCalledTimes(1)
+    expect(onAgentTurn).toHaveBeenCalledWith(toolMsg)
+  })
+
+  it('fires onToolResultPiMessage after each tool result with correct toolCallId and ToolResultMessage', async () => {
+    const toolMsg = makeAssistantMessage(
+      [{ type: 'toolCall', id: 'tc_result', name: 'fetchWeather', arguments: { location: null } }],
+      'toolUse'
+    )
+    const textMsg = makeAssistantMessage([{ type: 'text', text: 'Done.' }], 'stop')
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(toolMsg))
+      .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+    const onToolResultPiMessage = vi.fn().mockResolvedValue(undefined)
+    const ctx = makeAgentContext()
+    await executeRidePlanningAgent(ctx, 'weather', { onToolResultPiMessage })
+
+    expect(onToolResultPiMessage).toHaveBeenCalledTimes(1)
+    const [toolCallId, toolResultMsg] = onToolResultPiMessage.mock.calls[0]
+    expect(toolCallId).toBe('tc_result')
+    expect(toolResultMsg).toMatchObject({
+      role: 'toolResult',
+      toolCallId: 'tc_result',
+      toolName: 'fetchWeather',
+      isError: false,
+    })
+    expect(toolResultMsg.content[0].text).toContain('weather')
+  })
+
+  it('back-compat: runs normally with no callbacks provided (no crashes, tools execute)', async () => {
+    const toolMsg = makeAssistantMessage(
+      [{ type: 'toolCall', id: 'tc_compat', name: 'fetchWeather', arguments: { location: null } }],
+      'toolUse'
+    )
+    const textMsg = makeAssistantMessage([{ type: 'text', text: 'Looks sunny!' }], 'stop')
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(toolMsg))
+      .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+    const ctx = makeAgentContext()
+    // No executeCtx at all — must not crash.
+    const result = await executeRidePlanningAgent(ctx, 'weather')
+
+    expect(result.response).toBe('Looks sunny!')
+    expect(mockStream).toHaveBeenCalledTimes(2)
   })
 })
