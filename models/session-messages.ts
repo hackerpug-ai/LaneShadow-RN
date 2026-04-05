@@ -11,16 +11,57 @@ export const sessionMessageRoleValidator = v.union(
   v.literal('system')
 )
 
+export const SESSION_MESSAGE_KIND = {
+  TEXT: 'text',
+  ROUTING_CARD: 'routing_card',
+  WEATHER_CARD: 'weather_card',
+  SAVED_ROUTE_CARD: 'saved_route_card',
+} as const
+export type SessionMessageKind = (typeof SESSION_MESSAGE_KIND)[keyof typeof SESSION_MESSAGE_KIND]
+
+export const sessionMessageKindValidator = v.union(
+  v.literal('text'),
+  v.literal('routing_card'),
+  v.literal('weather_card'),
+  v.literal('saved_route_card')
+)
+
+export const SESSION_MESSAGE_STATUS = {
+  STREAMING: 'streaming',
+  RUNNING: 'running',
+  COMPLETE: 'complete',
+  FAILED: 'failed',
+} as const
+export type SessionMessageStatus = (typeof SESSION_MESSAGE_STATUS)[keyof typeof SESSION_MESSAGE_STATUS]
+
+export const sessionMessageStatusValidator = v.union(
+  v.literal('streaming'),  // assistant text currently arriving token-by-token
+  v.literal('running'),    // long-running tool card still working
+  v.literal('complete'),   // terminal success
+  v.literal('failed')      // terminal failure
+)
+
 export const sessionMessageAttachmentValidator = v.object({
   type: v.literal('route_options'),
   routePlanId: v.id('route_plans'),
 })
+export type SessionMessageAttachment = Infer<typeof sessionMessageAttachmentValidator>
 
+/**
+ * WIDEN phase of widen-migrate-narrow: `kind` and `status` are optional here
+ * so existing rows remain valid. Migration backfillSessionMessageKindStatus
+ * sets defaults (kind='text', status='complete'), then a follow-up commit
+ * narrows these fields to required.
+ */
 export const sessionMessageValidator = v.object({
   sessionId: v.id('planning_sessions'),
   role: sessionMessageRoleValidator,
   content: v.string(),
   attachments: v.optional(v.array(sessionMessageAttachmentValidator)),
   createdAt: v.number(),
+  /** Discriminates content type. Defaults to 'text' for pre-migration rows. */
+  kind: v.optional(sessionMessageKindValidator),
+  /** Per-message lifecycle state. Defaults to 'complete' for pre-migration rows. */
+  status: v.optional(sessionMessageStatusValidator),
 })
 export type SessionMessage = Infer<typeof sessionMessageValidator>

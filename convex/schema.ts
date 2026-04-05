@@ -69,8 +69,10 @@ export default defineSchema({
   /**
    * Session messages table - Messages within planning sessions
    * Indexed by sessionId for efficient message retrieval
+   * Indexed by sessionId and status for fast "is anything streaming/running?" lookups
    * Separate table allows pagination and avoids document size limits
    */
   session_messages: defineTable(sessionMessageValidator)
-    .index('by_sessionId', ['sessionId']),
+    .index('by_sessionId', ['sessionId'])
+    .index('by_sessionId_and_status', ['sessionId', 'status']),
 })

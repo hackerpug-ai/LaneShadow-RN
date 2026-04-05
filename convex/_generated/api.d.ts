@@ -41,6 +41,7 @@ import type * as http from "../http.js";
 import type * as lib_conversationalErrors from "../lib/conversationalErrors.js";
 import type * as lib_env from "../lib/env.js";
 import type * as lib_logger from "../lib/logger.js";
+import type * as migrations_backfillSessionMessageKindStatus from "../migrations/backfillSessionMessageKindStatus.js";
 import type * as users from "../users.js";
 
 import type {
@@ -83,6 +84,7 @@ declare const fullApi: ApiFromModules<{
   "lib/conversationalErrors": typeof lib_conversationalErrors;
   "lib/env": typeof lib_env;
   "lib/logger": typeof lib_logger;
+  "migrations/backfillSessionMessageKindStatus": typeof migrations_backfillSessionMessageKindStatus;
   users: typeof users;
 }>;
 
