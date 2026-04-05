@@ -604,38 +604,21 @@ const HomeMapScreen = () => {
         <View pointerEvents="box-none" style={[styles.headerOverlay, {}]}>
           <MapHeaderOverlay
             title={chatMode ? 'Chat' : 'Lane Shadow'}
-            leftAction={
-              chatMode
-                ? {
-                    icon: 'arrow-left',
-                    onPress: cycleTranscript,
-                    testID: 'map-header-left-button',
-                    accessibilityLabel: 'Back to map',
-                  }
-                : {
-                    icon: 'menu',
-                    onPress: () => setMenuOpen(true),
-                    testID: 'map-header-left-button',
-                  }
-            }
-            rightAction={
-              chatMode
-                ? {
-                    icon: 'plus',
-                    onPress: handleNewSession,
-                    testID: 'map-header-new-session',
-                    accessibilityLabel: 'Start new ride session',
-                  }
-                : {
-                    icon: 'motorbike',
-                    onPress: handleNewSession,
-                    testID: 'map-header-new-session',
-                    accessibilityLabel: 'Start new ride session',
-                    renderIcon: () => (
-                      <MotorcyclePlusIcon size={24} color={semantic.color.onSurface.default} />
-                    ),
-                  }
-            }
+            leftAction={{
+              icon: 'menu',
+              onPress: () => setMenuOpen(true),
+              testID: 'map-header-left-button',
+              accessibilityLabel: 'Open menu',
+            }}
+            rightAction={{
+              icon: 'motorbike',
+              onPress: handleNewSession,
+              testID: 'map-header-new-session',
+              accessibilityLabel: 'Start new ride session',
+              renderIcon: () => (
+                <MotorcyclePlusIcon size={24} color={semantic.color.onSurface.default} />
+              ),
+            }}
             testID="map-header-overlay"
           />
 
@@ -660,26 +643,29 @@ const HomeMapScreen = () => {
           )}
         </View>
 
-        {!chatMode && (
-          <View
-            onLayout={(e) => setControlsHeight(e.nativeEvent.layout.height)}
-            style={[
-              styles.controls,
-              {
-                right: semantic.space.sm,
-                transform: [{ translateY: -controlsHeight / 2 }],
-              },
-            ]}
-          >
-            <MapControls
-              onZoomIn={() => zoom(1)}
-              onZoomOut={() => zoom(-1)}
-              onRecenter={recenter}
-              onClear={clearAll}
-              onOpenChat={cycleTranscript}
-            />
-          </View>
-        )}
+        {/* Right-side workbar — always rendered so the chat/map toggle
+            stays in a consistent space. Map mode exposes zoom/recenter/clear
+            above the toggle; chat mode collapses to just the toggle and
+            leaves room for future chat-specific operations. */}
+        <View
+          onLayout={(e) => setControlsHeight(e.nativeEvent.layout.height)}
+          style={[
+            styles.controls,
+            {
+              right: semantic.space.sm,
+              transform: [{ translateY: -controlsHeight / 2 }],
+            },
+          ]}
+          pointerEvents="box-none"
+        >
+          <MapControls
+            mode={chatMode ? 'chat' : 'map'}
+            onZoomIn={() => zoom(1)}
+            onZoomOut={() => zoom(-1)}
+            onRecenter={recenter}
+            onClear={clearAll}
+          />
+        </View>
 
         {/* Route attachment cards when showing results (map mode only) */}
         {!chatMode &&
@@ -721,6 +707,8 @@ const HomeMapScreen = () => {
           isPlanning={isPlanning}
           suggestions={IDLE_SUGGESTIONS}
           testID="chat-input"
+          chatMode={chatMode}
+          onToggleChatMode={cycleTranscript}
         />
 
         <PlanRideSheet

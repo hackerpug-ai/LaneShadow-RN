@@ -163,6 +163,36 @@ export const Interactive: Story = {
   render: () => <InteractiveDemo />,
 }
 
+export const MapModeWithToggle: Story = {
+  render: () => (
+    <View style={styles.mapContainer}>
+      <View style={styles.placeholderMap}>
+        <MapControls
+          mode="map"
+          onZoomIn={() => console.log('Zoom in')}
+          onZoomOut={() => console.log('Zoom out')}
+          onRecenter={() => console.log('Recenter')}
+          onClear={() => console.log('Clear')}
+          onToggleView={() => console.log('Open chat')}
+        />
+      </View>
+    </View>
+  ),
+}
+
+export const ChatModeWithToggle: Story = {
+  render: () => (
+    <View style={styles.mapContainer}>
+      <View style={styles.placeholderMap}>
+        <MapControls
+          mode="chat"
+          onToggleView={() => console.log('Back to map')}
+        />
+      </View>
+    </View>
+  ),
+}
+
 const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,

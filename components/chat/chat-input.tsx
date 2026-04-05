@@ -22,6 +22,7 @@
 import { useState, useCallback } from 'react'
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Icon } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { ErrorMessage } from './error-message'
 import type { RideFlowState } from '../../hooks/use-ride-flow'
@@ -38,6 +39,10 @@ type ChatInputProps = {
   isPlanning: boolean
   suggestions?: string[]
   testID?: string
+  /** Whether chat mode is currently active (transcript visible) */
+  chatMode?: boolean
+  /** Handler for the mode-toggle button (switches between map and chat views) */
+  onToggleChatMode?: () => void
 }
 
 /**
@@ -101,6 +106,8 @@ export const ChatInput = ({
   isPlanning,
   suggestions = [],
   testID = 'chat-input',
+  chatMode = false,
+  onToggleChatMode,
 }: ChatInputProps) => {
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
@@ -154,75 +161,118 @@ export const ChatInput = ({
         />
       )}
 
-      {/* Input bar */}
-      <View
-        style={[
-          styles.inputContainer,
-          {
-            backgroundColor: semantic.color.surface.default,
-            borderRadius: semantic.radius.xl,
-            borderWidth: 1,
-            borderColor: semantic.color.border.default,
-          },
-        ]}
-      >
-        {/* Text input */}
-        <View style={styles.inputWrapper}>
-          <TextInput
-            style={[
-              semantic.type.body.md,
-              styles.textInput,
-              {
-                color: semantic.color.onSurface.default,
-              },
-            ]}
-            placeholder="Where would you like to ride?"
-            placeholderTextColor={semantic.color.onSurface.muted}
-            value={text}
-            onChangeText={setText}
-            multiline
-            textAlignVertical="top"
-            blurOnSubmit={false}
-            testID="chat-input-text-field"
-            accessibilityLabel="Chat input field"
-            accessibilityHint="Type your ride request and tap send"
-          />
-        </View>
-
-        {/* Action button */}
-        <TouchableOpacity
-          onPress={isPlanning ? onCancel : handleSend}
+      {/* Input row: input container + toggle button */}
+      <View style={styles.inputRow}>
+        {/* Input bar */}
+        <View
           style={[
-            styles.sendButton,
+            styles.inputContainer,
             {
-              backgroundColor: isPlanning
-                ? semantic.color.danger.default
-                : semantic.color.primary.default,
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              alignItems: 'center',
-              justifyContent: 'center',
+              backgroundColor: semantic.color.surface.default,
+              borderRadius: semantic.radius.xl,
+              borderWidth: 1,
+              borderColor: semantic.color.border.default,
             },
           ]}
-          testID="chat-input-send-button"
-          accessibilityLabel={isPlanning ? 'Cancel planning' : 'Send message'}
-          accessibilityHint={
-            isPlanning
-              ? 'Cancels the current ride planning operation'
-              : 'Sends your ride request to the planning assistant'
-          }
-          accessibilityRole="button"
         >
-          <Text
+          {/* Text input */}
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={[
+                semantic.type.body.md,
+                styles.textInput,
+                {
+                  color: semantic.color.onSurface.default,
+                },
+              ]}
+              placeholder="Where would you like to ride?"
+              placeholderTextColor={semantic.color.onSurface.muted}
+              value={text}
+              onChangeText={setText}
+              multiline
+              textAlignVertical="top"
+              blurOnSubmit={false}
+              testID="chat-input-text-field"
+              accessibilityLabel="Chat input field"
+              accessibilityHint="Type your ride request and tap send"
+            />
+          </View>
+
+          {/* Action button */}
+          <TouchableOpacity
+            onPress={isPlanning ? onCancel : handleSend}
             style={[
-              semantic.type.body.md,
-              { color: semantic.color.onPrimary.default },
+              styles.sendButton,
+              {
+                backgroundColor: isPlanning
+                  ? semantic.color.danger.default
+                  : semantic.color.primary.default,
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
             ]}
+            testID="chat-input-send-button"
+            accessibilityLabel={isPlanning ? 'Cancel planning' : 'Send message'}
+            accessibilityHint={
+              isPlanning
+                ? 'Cancels the current ride planning operation'
+                : 'Sends your ride request to the planning assistant'
+            }
+            accessibilityRole="button"
           >
-            {isPlanning ? '✕' : '↑'}
-          </Text>
-        </TouchableOpacity>
+            <Icon
+              source={isPlanning ? 'close' : 'arrow-up'}
+              size={20}
+              color={semantic.color.onPrimary.default}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Mode toggle button */}
+        {onToggleChatMode && (
+          <TouchableOpacity
+            onPress={onToggleChatMode}
+            style={[
+              styles.toggleButton,
+              {
+                backgroundColor: semantic.color.surfaceVariant.default,
+                borderColor: semantic.color.border.default,
+                borderWidth: 1.5,
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                alignItems: 'center',
+                justifyContent: 'center',
+                ...semantic.elevation[3],
+              },
+            ]}
+            testID="chat-input-toggle-button"
+            accessibilityLabel={
+              chatMode ? 'Switch to map view' : 'Switch to chat view'
+            }
+            accessibilityHint={
+              chatMode
+                ? 'Returns to the map view'
+                : 'Opens the chat transcript view'
+            }
+            accessibilityRole="button"
+            hitSlop={{
+              top: semantic.space.xs,
+              bottom: semantic.space.xs,
+              left: semantic.space.xs,
+              right: semantic.space.xs,
+            }}
+          >
+            <Icon
+              source={chatMode ? 'map-outline' : 'message-text-outline'}
+              size={20}
+              color={semantic.color.onSurface.default}
+            />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   )
@@ -247,10 +297,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'transparent',
   },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    width: '100%',
+    flex: 1,
     maxWidth: 780,
     paddingHorizontal: 16,
     paddingVertical: 10,
@@ -271,4 +326,5 @@ const styles = StyleSheet.create({
   sendButton: {
     marginLeft: 'auto',
   },
+  toggleButton: {},
 })

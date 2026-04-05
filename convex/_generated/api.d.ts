@@ -47,6 +47,7 @@ import type * as lib_conversationalErrors from "../lib/conversationalErrors.js";
 import type * as lib_env from "../lib/env.js";
 import type * as lib_logger from "../lib/logger.js";
 import type * as migrations_backfillSessionMessageKindStatus from "../migrations/backfillSessionMessageKindStatus.js";
+import type * as migrations_deleteEmptyAssistantMessages from "../migrations/deleteEmptyAssistantMessages.js";
 import type * as users from "../users.js";
 
 /**
@@ -92,6 +93,7 @@ declare const fullApi: ApiFromModules<{
   "lib/env": typeof lib_env;
   "lib/logger": typeof lib_logger;
   "migrations/backfillSessionMessageKindStatus": typeof migrations_backfillSessionMessageKindStatus;
+  "migrations/deleteEmptyAssistantMessages": typeof migrations_deleteEmptyAssistantMessages;
   users: typeof users;
 }>;
 export declare const api: FilterApi<

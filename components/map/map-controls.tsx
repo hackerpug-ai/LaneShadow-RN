@@ -3,12 +3,24 @@ import { Icon } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
+export type MapControlsMode = 'map' | 'chat'
+
 export type MapControlsProps = {
-  onZoomIn: () => void
-  onZoomOut: () => void
+  /**
+   * Which view this workbar is backing. `'map'` shows zoom/recenter/clear
+   * and a "message" icon that opens chat. `'chat'` collapses the
+   * map-specific cluster and swaps the toggle slot for a "map" icon that
+   * returns the rider to the map. The toggle itself ALWAYS lives at the
+   * bottom of this right-side workbar so it occupies a consistent space
+   * between modes.
+   */
+  mode?: MapControlsMode
+  onZoomIn?: () => void
+  onZoomOut?: () => void
   onRecenter?: () => void
   onClear?: () => void
-  onOpenChat?: () => void
+  /** Handler for the mode-toggle button (chat-icon in map mode, map-icon in chat mode). */
+  onToggleView?: () => void
   position?: {
     top?: number
     right?: number
@@ -18,11 +30,12 @@ export type MapControlsProps = {
 }
 
 export const MapControls = ({
+  mode = 'map',
   onZoomIn,
   onZoomOut,
   onRecenter,
   onClear,
-  onOpenChat,
+  onToggleView,
   position,
 }: MapControlsProps) => {
   const { semantic } = useSemanticTheme()
@@ -47,71 +60,87 @@ export const MapControls = ({
         ]}
         testID="map-controls"
       >
-        <View
-          style={[
-            styles.cluster,
-            {
-              backgroundColor: semantic.color.surfaceVariant.default,
-              borderColor: semantic.color.border.default,
-              borderWidth: 1.5,
-              borderRadius: semantic.radius['2xl'],
-              ...semantic.elevation[3],
-            },
-          ]}
-        >
-          <ControlButton
-            icon="plus"
-            onPress={onZoomIn}
-            semantic={semantic}
-            testID="control-zoom-in"
-            accessibilityLabel="Zoom in"
-          />
-          <View
-            style={[
-              styles.divider,
-              {
-                backgroundColor: semantic.color.border.default,
-              },
-            ]}
-          />
+        {mode === 'map' ? (
+          <>
+            <View
+              style={[
+                styles.cluster,
+                {
+                  backgroundColor: semantic.color.surfaceVariant.default,
+                  borderColor: semantic.color.border.default,
+                  borderWidth: 1.5,
+                  borderRadius: semantic.radius['2xl'],
+                  ...semantic.elevation[3],
+                },
+              ]}
+            >
+              <ControlButton
+                icon="plus"
+                onPress={onZoomIn ?? (() => {})}
+                semantic={semantic}
+                testID="control-zoom-in"
+                accessibilityLabel="Zoom in"
+              />
+              <View
+                style={[
+                  styles.divider,
+                  {
+                    backgroundColor: semantic.color.border.default,
+                  },
+                ]}
+              />
 
-          <ControlButton
-            icon="minus"
-            onPress={onZoomOut}
-            semantic={semantic}
-            testID="control-zoom-out"
-            accessibilityLabel="Zoom out"
-          />
-        </View>
+              <ControlButton
+                icon="minus"
+                onPress={onZoomOut ?? (() => {})}
+                semantic={semantic}
+                testID="control-zoom-out"
+                accessibilityLabel="Zoom out"
+              />
+            </View>
 
-        {onRecenter ? (
-          <ControlButton
-            icon="crosshairs-gps"
-            onPress={onRecenter}
-            semantic={semantic}
-            testID="control-recenter"
-            accessibilityLabel="Recenter map"
-          />
+            {onRecenter ? (
+              <ControlButton
+                icon="crosshairs-gps"
+                onPress={onRecenter}
+                semantic={semantic}
+                testID="control-recenter"
+                accessibilityLabel="Recenter map"
+              />
+            ) : null}
+
+            {onClear ? (
+              <ControlButton
+                icon="layers"
+                onPress={onClear}
+                semantic={semantic}
+                testID="control-clear"
+                accessibilityLabel="Reset map state"
+              />
+            ) : null}
+          </>
         ) : null}
 
-        {onClear ? (
-          <ControlButton
-            icon="layers"
-            onPress={onClear}
-            semantic={semantic}
-            testID="control-clear"
-            accessibilityLabel="Reset map state"
-          />
-        ) : null}
-
-        {onOpenChat ? (
-          <ControlButton
-            icon="message-text-outline"
-            onPress={onOpenChat}
-            semantic={semantic}
-            testID="control-open-chat"
-            accessibilityLabel="Open chat history"
-          />
+        {/* Mode-toggle lives at the bottom of the workbar in BOTH modes so
+            the chat/map swap button occupies a consistent right-side slot. */}
+        {onToggleView ? (
+          mode === 'map' ? (
+            <ControlButton
+              icon="message-text-outline"
+              onPress={onToggleView}
+              semantic={semantic}
+              testID="control-toggle-view"
+              accessibilityLabel="Open chat"
+            />
+          ) : (
+            <ControlButton
+              icon="map-outline"
+              onPress={onToggleView}
+              semantic={semantic}
+              testID="control-toggle-view"
+              accessibilityLabel="Back to map"
+            />
+          )
         ) : null}
       </View>
     </View>

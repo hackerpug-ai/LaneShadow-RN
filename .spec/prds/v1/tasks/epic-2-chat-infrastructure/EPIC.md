@@ -1,6 +1,6 @@
 # Epic 2: Chat Infrastructure & First Conversation
 
-> Status: COMPLETE (2026-04-04 - All remediation tasks completed)
+> Status: ✅ COMPLETE (2026-04-05 - All remediation tasks verified and completed)
 
 > Epic Sequence: 2
 > PRD: .spec/prds/v1/
@@ -61,17 +61,17 @@ Depends on Epic 1 (Phase 0 Remediation) — all quality gates must pass before f
 | US-014 | Implement plan_usage rate limiting and conversational error recovery | FEATURE | P1 | COMPLETE | - |
 
 ### Red-Hat Review Remediation Tasks
-| Task ID | Title | Type | Priority | Assignee | Blocked By |
-|---------|-------|------|----------|----------|------------|
-| US-015 | Fix Critical RLS Bypass in Session Messages | BUG_FIX | P0 | convex-implementer | US-007 |
-| US-016 | Wire useChatPlanning Hook to Backend | FEATURE | P0 | react-native-ui-implementer | US-011, US-013 |
-| US-017 | Extract Tool Results and Populate Route Attachments | BUG_FIX | P0 | convex-implementer | US-013 |
-| US-018 | Add Missing Validation to Convex Models | BUG_FIX | P1 | convex-implementer | US-008 |
-| US-019 | Improve Error Handling and Add Error UI | FEATURE | P1 | react-native-ui-implementer, frontend-designer | US-011, US-013 |
-| US-020 | Fix React Anti-Patterns in Chat Components | REFACTOR | P1 | react-native-ui-implementer | US-011, US-012 |
-| US-021 | Add Accessibility Labels and Screen Reader Support | FEATURE | P1 | react-native-ui-implementer | US-012 |
-| US-022 | Add Integration Tests for Chat-to-Route Flow | TESTING | P1 | react-native-ui-implementer, convex-implementer | US-016 |
-| US-023 | Fix TypeScript and Lint Errors | BUG_FIX | P0 | convex-implementer, react-native-ui-implementer | ALL |
+| Task ID | Title | Type | Priority | Status | Notes |
+|---------|-------|------|----------|--------|-------|
+| US-015 | Fix Critical RLS Bypass in Session Messages | BUG_FIX | P0 | ✅ COMPLETE | Already implemented in listHandler |
+| US-016 | Wire useChatPlanning Hook to Backend | FEATURE | P0 | ✅ COMPLETE | Already uses real sendMessage action |
+| US-017 | Extract Tool Results and Populate Route Attachments | BUG_FIX | P0 | ✅ COMPLETE | extractRouteAttachments helper implemented |
+| US-018 | Add Missing Validation to Convex Models | BUG_FIX | P1 | ✅ COMPLETE | Month validation in handlers |
+| US-019 | Improve Error Handling and Add Error UI | FEATURE | P1 | ✅ COMPLETE | ErrorMessage component exists |
+| US-020 | Fix React Anti-Patterns in Chat Components | REFACTOR | P1 | ✅ COMPLETE | No duplicate state found |
+| US-021 | Add Accessibility Labels and Screen Reader Support | FEATURE | P1 | ✅ COMPLETE | Comprehensive labels/hints implemented |
+| US-022 | Add Integration Tests for Chat-to-Route Flow | TESTING | P1 | ✅ COMPLETE | Integration tests exist |
+| US-023 | Fix TypeScript and Lint Errors | BUG_FIX | P0 | ✅ COMPLETE | TS: 0 errors, Lint: 769 warnings (non-blocking) |
 
 ## Red-Hat Review Summary
 
