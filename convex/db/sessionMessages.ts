@@ -305,24 +305,6 @@ export const finalizeAssistantMessage = internalMutation({
   },
 })
 
-export const attachRoutePlanToMessage = internalMutation({
-  args: {
-    messageId: v.id('session_messages'),
-    routePlanId: v.id('route_plans'),
-  },
-  returns: v.null(),
-  handler: async (ctx, args): Promise<null> => {
-    const message = await ctx.db.get(args.messageId)
-    if (!message) {
-      throw new ConvexError(ERROR_CODES.SESSION_NOT_FOUND)
-    }
-    await ctx.db.patch(args.messageId, {
-      attachments: [{ type: 'route_options', routePlanId: args.routePlanId }],
-    })
-    return null
-  },
-})
-
 export const appendStreamingChunk = internalMutation({
   args: {
     messageId: v.id('session_messages'),
