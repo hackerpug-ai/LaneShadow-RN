@@ -2,9 +2,11 @@
 
 import {
   complete,
+  stream,
   getModel,
   validateToolCall,
   type AssistantMessage,
+  type AssistantMessageEvent,
   type Context,
   type Message,
   type Tool,
@@ -62,6 +64,9 @@ export type ExecuteContext = {
   onToolStart?: (toolName: string, args: unknown) => Promise<{ messageId: Id<'session_messages'> } | void>
   /** Called after tool execution completes (success or error). */
   onToolFinish?: (toolName: string, messageId: Id<'session_messages'> | undefined, result: unknown) => Promise<void>
+  /** Called for each text delta emitted during the final streaming turn.
+   *  Only invoked on the last (non-tool) turn when the model produces text. */
+  onTextDelta?: (delta: string) => Promise<void>
 }
 
 // -----------------------------------------------------------------------------
@@ -394,7 +399,35 @@ export async function executeRidePlanningAgent(
       throw new Error(ERROR_CODES.AGENT_TIMEOUT)
     }
 
-    const assistant: AssistantMessage = await complete(model, context)
+    // Determine whether to stream with delta forwarding.
+    // Strategy: always stream (so we can capture deltas), but only forward
+    // text_delta events to onTextDelta if the turn ends as a final (non-tool)
+    // turn. We buffer deltas in-flight and flush them when we see the `done`
+    // event with a non-toolUse stop reason.
+    let assistant: AssistantMessage
+
+    if (executeCtx?.onTextDelta) {
+      const eventStream = stream(model, context)
+      const bufferedDeltas: string[] = []
+
+      for await (const event of eventStream) {
+        const ev = event as AssistantMessageEvent
+        if (ev.type === 'text_delta') {
+          bufferedDeltas.push(ev.delta)
+        }
+        // When the stream ends as a final (text) turn, flush buffered deltas.
+        if (ev.type === 'done' && ev.reason !== 'toolUse') {
+          for (const delta of bufferedDeltas) {
+            await executeCtx.onTextDelta!(delta)
+          }
+        }
+      }
+
+      assistant = await eventStream.result()
+    } else {
+      assistant = await complete(model, context)
+    }
+
     context.messages.push(assistant)
 
     if (assistant.stopReason !== 'toolUse') break

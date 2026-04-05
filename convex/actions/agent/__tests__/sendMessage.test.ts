@@ -2,7 +2,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../../_generated/dataModel'
-import { buildCardCallbacks, TOOL_TO_CARD_KIND } from '../sendMessage'
+import { buildCardCallbacks, buildStreamingContext, TOOL_TO_CARD_KIND } from '../sendMessage'
 
 // -----------------------------------------------------------------------------
 // Test the sendMessage orchestrator logic (without Convex imports)
@@ -42,6 +42,7 @@ vi.mock('../../../_generated/api', () => ({
       sessionMessages: {
         createPendingAssistantMessage: { __ref: 'createPendingAssistantMessage' },
         finalizeAssistantMessage: { __ref: 'finalizeAssistantMessage' },
+        appendStreamingChunk: { __ref: 'appendStreamingChunk' },
         addSystemMessage: { __ref: 'addSystemMessage' },
       },
       planUsage: {
@@ -449,5 +450,185 @@ describe('buildCardCallbacks', () => {
       { sessionId, kind: 'saved_route_card' }
     )
     expect(result).toEqual({ messageId: cardMessageId })
+  })
+})
+
+// -----------------------------------------------------------------------------
+// Tests: buildStreamingContext
+// -----------------------------------------------------------------------------
+
+describe('buildStreamingContext', () => {
+  const sessionId = 'session_stream_test' as Id<'planning_sessions'>
+  const textMessageId = 'text_msg_1' as Id<'session_messages'>
+
+  let runMutation: ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    runMutation = vi.fn()
+  })
+
+  it('creates a pending text message with status: streaming', async () => {
+    runMutation.mockResolvedValueOnce({ messageId: textMessageId })
+
+    await buildStreamingContext(sessionId, runMutation)
+
+    expect(runMutation).toHaveBeenCalledWith(
+      { __ref: 'createPendingAssistantMessage' },
+      { sessionId, kind: 'text' }
+    )
+  })
+
+  it('returns the messageId from the pending message', async () => {
+    runMutation.mockResolvedValueOnce({ messageId: textMessageId })
+
+    const { messageId } = await buildStreamingContext(sessionId, runMutation)
+
+    expect(messageId).toBe(textMessageId)
+  })
+
+  it('onTextDelta calls appendStreamingChunk with the delta', async () => {
+    runMutation.mockResolvedValueOnce({ messageId: textMessageId })
+    runMutation.mockResolvedValueOnce(null) // appendStreamingChunk
+
+    const { onTextDelta } = await buildStreamingContext(sessionId, runMutation)
+    await onTextDelta('Hello ')
+
+    expect(runMutation).toHaveBeenCalledWith(
+      { __ref: 'appendStreamingChunk' },
+      { messageId: textMessageId, delta: 'Hello ' }
+    )
+  })
+
+  it('onTextDelta is called multiple times for multiple chunks', async () => {
+    runMutation.mockResolvedValueOnce({ messageId: textMessageId })
+    runMutation.mockResolvedValue(null)
+
+    const { onTextDelta } = await buildStreamingContext(sessionId, runMutation)
+    const chunks = ['Hello ', 'world', '!']
+    for (const chunk of chunks) {
+      await onTextDelta(chunk)
+    }
+
+    const appendCalls = runMutation.mock.calls.filter(
+      ([ref]: [any]) => ref?.__ref === 'appendStreamingChunk'
+    )
+    expect(appendCalls).toHaveLength(3)
+
+    const allDeltas = appendCalls.map(([, args]: [any, any]) => args.delta).join('')
+    expect(allDeltas).toBe('Hello world!')
+  })
+
+  it('total streamed content matches the final response text', async () => {
+    const responseText = 'Here are 2 scenic routes for your ride.'
+    runMutation.mockResolvedValueOnce({ messageId: textMessageId })
+    runMutation.mockResolvedValue(null)
+
+    const { onTextDelta } = await buildStreamingContext(sessionId, runMutation)
+
+    // Simulate streaming the full response as individual word deltas
+    const words = responseText.split(' ')
+    for (let i = 0; i < words.length; i++) {
+      const delta = i === 0 ? words[i] : ' ' + words[i]
+      await onTextDelta(delta)
+    }
+
+    const appendCalls = runMutation.mock.calls.filter(
+      ([ref]: [any]) => ref?.__ref === 'appendStreamingChunk'
+    )
+    const reconstructed = appendCalls.map(([, args]: [any, any]) => args.delta).join('')
+    expect(reconstructed).toBe(responseText)
+  })
+
+  it('finalizeOk calls finalizeAssistantMessage with status: complete', async () => {
+    runMutation.mockResolvedValueOnce({ messageId: textMessageId })
+    runMutation.mockResolvedValueOnce(null) // finalize
+
+    const { finalizeOk } = await buildStreamingContext(sessionId, runMutation)
+    await finalizeOk()
+
+    expect(runMutation).toHaveBeenCalledWith(
+      { __ref: 'finalizeAssistantMessage' },
+      { messageId: textMessageId, status: 'complete' }
+    )
+  })
+
+  it('finalizeFail calls finalizeAssistantMessage with status: failed', async () => {
+    runMutation.mockResolvedValueOnce({ messageId: textMessageId })
+    runMutation.mockResolvedValueOnce(null) // finalize
+
+    const { finalizeFail } = await buildStreamingContext(sessionId, runMutation)
+    await finalizeFail()
+
+    expect(runMutation).toHaveBeenCalledWith(
+      { __ref: 'finalizeAssistantMessage' },
+      { messageId: textMessageId, status: 'failed' }
+    )
+  })
+})
+
+// -----------------------------------------------------------------------------
+// Tests: streaming integration (sendMessage handler with buildStreamingContext)
+// -----------------------------------------------------------------------------
+
+describe('sendMessage streaming integration', () => {
+  const sessionId = 'session_integration' as Id<'planning_sessions'>
+  const textMessageId = 'text_msg_integration' as Id<'session_messages'>
+  const responseText = 'Your scenic route is ready!'
+
+  it('creates a streaming message, calls appendStreamingChunk at least once, then finalizes complete', async () => {
+    const runMutation = vi.fn()
+
+    // Call 1: createPendingAssistantMessage → returns messageId
+    runMutation.mockResolvedValueOnce({ messageId: textMessageId })
+    // Subsequent calls: appendStreamingChunk + finalizeAssistantMessage return null
+    runMutation.mockResolvedValue(null)
+
+    const { messageId, onTextDelta, finalizeOk } = await buildStreamingContext(sessionId, runMutation)
+    expect(messageId).toBe(textMessageId)
+
+    // Simulate agent streaming deltas
+    await onTextDelta('Your scenic ')
+    await onTextDelta('route is ready!')
+
+    await finalizeOk()
+
+    // Assert createPendingAssistantMessage was called with kind: text
+    expect(runMutation).toHaveBeenNthCalledWith(
+      1,
+      { __ref: 'createPendingAssistantMessage' },
+      { sessionId, kind: 'text' }
+    )
+
+    // Assert appendStreamingChunk called at least once
+    const appendCalls = runMutation.mock.calls.filter(
+      ([ref]: [any]) => ref?.__ref === 'appendStreamingChunk'
+    )
+    expect(appendCalls.length).toBeGreaterThanOrEqual(1)
+
+    // Assert total content equals response text
+    const totalContent = appendCalls.map(([, args]: [any, any]) => args.delta).join('')
+    expect(totalContent).toBe(responseText)
+
+    // Assert finalizeAssistantMessage called with complete
+    expect(runMutation).toHaveBeenCalledWith(
+      { __ref: 'finalizeAssistantMessage' },
+      { messageId: textMessageId, status: 'complete' }
+    )
+  })
+
+  it('calls finalizeAssistantMessage with status: failed when agent errors', async () => {
+    const runMutation = vi.fn()
+    runMutation.mockResolvedValueOnce({ messageId: textMessageId })
+    runMutation.mockResolvedValue(null)
+
+    const { finalizeFail } = await buildStreamingContext(sessionId, runMutation)
+
+    // Simulate agent error path
+    await finalizeFail()
+
+    expect(runMutation).toHaveBeenCalledWith(
+      { __ref: 'finalizeAssistantMessage' },
+      { messageId: textMessageId, status: 'failed' }
+    )
   })
 })
