@@ -1,7 +1,6 @@
 'use node'
 
 import {
-  complete,
   stream,
   getModel,
   validateToolCall,
@@ -458,34 +457,41 @@ export async function executeRidePlanningAgent(
       throw new Error(ERROR_CODES.AGENT_TIMEOUT)
     }
 
-    // Determine whether to stream with delta forwarding.
-    // Strategy: always stream (so we can capture deltas), but only forward
-    // text_delta events to onTextDelta if the turn ends as a final (non-tool)
-    // turn. We buffer deltas in-flight and flush them when we see the `done`
-    // event with a non-toolUse stop reason.
-    let assistant: AssistantMessage
+    // Fire onStepStart at the top of every iteration.
+    await executeCtx?.onStepStart?.(step, MAX_STEPS)
 
-    if (executeCtx?.onTextDelta) {
-      const eventStream = stream(model, context)
-      const bufferedDeltas: string[] = []
+    // Always stream so we can capture all event types.
+    // Buffer text_delta events and flush them only when the turn ends as a
+    // final (non-tool) turn. Thinking and toolcall_start events are forwarded
+    // immediately.
+    const eventStream = stream(model, context)
+    const bufferedTextDeltas: string[] = []
 
-      for await (const event of eventStream) {
-        const ev = event as AssistantMessageEvent
-        if (ev.type === 'text_delta') {
-          bufferedDeltas.push(ev.delta)
+    for await (const event of eventStream) {
+      const ev = event as AssistantMessageEvent
+      if (ev.type === 'text_delta') {
+        bufferedTextDeltas.push(ev.delta)
+      } else if (ev.type === 'thinking_delta') {
+        await executeCtx?.onThinkingDelta?.(ev.delta)
+      } else if (ev.type === 'toolcall_start') {
+        // Extract the most recent (in-progress) tool call from the partial message.
+        const partialContent = ev.partial.content
+        const partialToolCall = partialContent[ev.contentIndex]
+        if (partialToolCall && partialToolCall.type === 'toolCall') {
+          await executeCtx?.onToolPending?.({
+            name: partialToolCall.name,
+            partialArguments: JSON.stringify(partialToolCall.arguments ?? {}),
+          })
         }
-        // When the stream ends as a final (text) turn, flush buffered deltas.
-        if (ev.type === 'done' && ev.reason !== 'toolUse') {
-          for (const delta of bufferedDeltas) {
-            await executeCtx.onTextDelta!(delta)
-          }
+      } else if (ev.type === 'done' && ev.reason !== 'toolUse') {
+        // Flush buffered text deltas on a final (non-tool) turn.
+        for (const delta of bufferedTextDeltas) {
+          await executeCtx?.onTextDelta?.(delta)
         }
       }
-
-      assistant = await eventStream.result()
-    } else {
-      assistant = await complete(model, context)
     }
+
+    const assistant = await eventStream.result()
 
     context.messages.push(assistant)
 
@@ -495,6 +501,9 @@ export async function executeRidePlanningAgent(
       (b): b is ToolCall => b.type === 'toolCall'
     )
     if (toolCalls.length === 0) break
+
+    // Notify caller that the assistant turn with tool calls is complete.
+    await executeCtx?.onAgentTurn?.(assistant)
 
     for (const call of toolCalls) {
       let result: unknown
@@ -520,6 +529,7 @@ export async function executeRidePlanningAgent(
         timestamp: Date.now(),
       }
       context.messages.push(toolResultMsg)
+      await executeCtx?.onToolResultPiMessage?.(call.id, toolResultMsg)
     }
   }
 
