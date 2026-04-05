@@ -28,6 +28,7 @@ import { SubpageLayout } from '../../../components/layouts/subpage-layout'
 import { ChatTranscript } from '../../../components/ui/chat-transcript'
 import type { ChatMessage } from '../../../components/ui/chat-transcript'
 import { useChatPlanning } from '../../../hooks/use-chat-planning'
+import { useCurrentLocation } from '../../../hooks/use-current-location'
 import { useRideFlow } from '../../../hooks/use-ride-flow'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 
@@ -45,7 +46,15 @@ export default function ChatScreen() {
   // Local flow state for composing/sending from the chat screen
   const { state: flowState, dispatch: flowDispatch } = useRideFlow()
   const { sendPlanningMessage, cancel: cancelChatPlanning } = useChatPlanning(flowDispatch)
+  const { location: currentLocation } = useCurrentLocation()
   const createSession = useMutation(api.db.planningSessions.createSession)
+
+  // Wrap send to forward device location (when available) to the agent.
+  const handleSendMessage = (text: string) =>
+    sendPlanningMessage(
+      text,
+      currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lng } : undefined
+    )
 
   // Fetch all sessions to find the target session
   const sessions = useQuery(api.db.planningSessions.listSessions)
@@ -134,7 +143,7 @@ export default function ChatScreen() {
         pointerEvents="box-none"
       >
         <ChatInput
-          onSend={sendPlanningMessage}
+          onSend={handleSendMessage}
           onCancel={cancelChatPlanning}
           state={flowState}
           suggestions={messages.length === 0 ? CHAT_SUGGESTIONS : []}

@@ -67,7 +67,10 @@ type UseChatPlanningReturn = {
   sessionId: string | null
 
   // Actions
-  sendPlanningMessage: (message: string) => Promise<void>
+  sendPlanningMessage: (
+    message: string,
+    currentLocation?: { lat: number; lng: number }
+  ) => Promise<void>
   cancel: () => void
 }
 
@@ -160,7 +163,7 @@ export const useChatPlanning = (dispatch: (action: RideFlowAction) => void): Use
    * Send planning message - starts the full pipeline
    */
   const sendPlanningMessage = useCallback(
-    async (message: string) => {
+    async (message: string, currentLocation?: { lat: number; lng: number }) => {
       // Create new AbortController for this request
       abortControllerRef.current = new AbortController()
       const signal = abortControllerRef.current.signal
@@ -199,6 +202,7 @@ export const useChatPlanning = (dispatch: (action: RideFlowAction) => void): Use
         const result = await sendMessage({
           sessionId,
           content: message,
+          currentLocation,
         }) as SendMessageResult
 
         // Check if aborted again

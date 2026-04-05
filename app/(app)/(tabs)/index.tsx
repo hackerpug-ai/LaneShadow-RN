@@ -105,6 +105,7 @@ const HomeMapScreen = () => {
   const { messages } = useChatSession(flowState.sessionId, flowState)
   const { polylines, selectRoute } = useRouteComparison(flowState, flowDispatch)
   const createSession = useMutation(api.db.planningSessions.createSession)
+  const { location: currentLocation } = useCurrentLocation()
 
   // Resolve which session drives the chat transcript. Prefer an explicit
   // URL param (deep link from the menu drawer), fall back to the real
@@ -196,9 +197,12 @@ const HomeMapScreen = () => {
         setTransientVisible(true)
         armTransientTimer()
       }
-      void sendPlanningMessage(message)
+      void sendPlanningMessage(
+        message,
+        currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lng } : undefined
+      )
     },
-    [chatMode, sendPlanningMessage, armTransientTimer]
+    [chatMode, sendPlanningMessage, armTransientTimer, currentLocation]
   )
 
   // Cycle the transcript visibility when the chat button / overlay is tapped.
@@ -255,8 +259,6 @@ const HomeMapScreen = () => {
   const [selectedRouteOptionId, setSelectedRouteOptionId] = useState<string | null>(null)
   const [manualRouteOptions, setManualRouteOptions] = useState<any>(null)
   const [camera, setCamera] = useState<CameraState>({})
-
-  const { location: currentLocation } = useCurrentLocation()
 
   // Default start stop to current location
   useEffect(() => {
