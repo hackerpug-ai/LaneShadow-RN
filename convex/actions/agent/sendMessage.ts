@@ -63,16 +63,23 @@ export const sendMessage = action({
       content: args.content,
     })
 
-    // Step 3: Build conversation context for the agent
+    // Step 3: Build conversation context for the agent.
+    // We persist the rider message first (step 2) so it survives even if the
+    // agent throws, but that means the `list` query now returns the current
+    // turn at the tail. The agent receives the current turn as `userMessage`,
+    // so we slice it off here to avoid duplicating it in the LLM context.
     const messages = await ctx.runQuery(api.db.sessionMessages.list, {
       sessionId: args.sessionId,
     })
 
-    // Convert to agent format (role: content:)
-    const conversationHistory = messages.map((msg) => ({
-      role: msg.role, // 'rider' or 'system'
-      content: msg.content,
-    }))
+    // Convert to agent format (role: content:), excluding the just-persisted
+    // rider turn — it flows through `args.content` directly.
+    const conversationHistory = messages
+      .slice(0, -1)
+      .map((msg) => ({
+        role: msg.role, // 'rider' or 'system'
+        content: msg.content,
+      }))
 
     // Step 4: Run agent with session context (probabilistic)
     // This is where the agent decides what to do
