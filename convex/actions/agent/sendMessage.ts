@@ -203,6 +203,17 @@ export const sendMessage = action({
     // rider turn — it flows through `args.content` directly.
     const conversationHistory = messages
       .slice(0, -1)
+      .filter((msg) => {
+        // Cards carry their data in `attachments`, not `content`. The LLM
+        // only understands text turns, so skip any row with a kind != 'text'.
+        if (msg.kind && msg.kind !== 'text') return false
+        // Failed turns represent broken flows and confuse the LLM.
+        if (msg.status === 'failed') return false
+        // Empty/whitespace-only content contributes nothing and can look
+        // like an empty assistant turn to the model.
+        if (!msg.content || !msg.content.trim()) return false
+        return true
+      })
       .map((msg) => ({
         role: msg.role, // 'rider' or 'system'
         content: msg.content,
