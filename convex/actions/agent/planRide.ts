@@ -219,7 +219,7 @@ export const executePlanHandler = async (
 ): Promise<void> => {
   const { routePlanId } = args
 
-  console.log('[planRide] executePlanHandler started', { routePlanId })
+  console.info('[planRide] executePlanHandler started', { routePlanId })
 
   // Step 1: Read the plan record
   const plan = await ctx.runQuery(
@@ -227,7 +227,7 @@ export const executePlanHandler = async (
     { routePlanId }
   ) as any
 
-  console.log('[planRide] Plan retrieved', { planId: plan?._id, status: plan?.status })
+  console.info('[planRide] Plan retrieved', { planId: plan?._id, status: plan?.status })
 
   // Step 2: Early return if plan is null or cancelled
   if (!plan || plan.status === ROUTE_PLAN_STATUS.CANCELLED) {
@@ -270,7 +270,7 @@ export const executePlanHandler = async (
       }, 240_000)
     })
 
-    console.log('[planRide] Starting planRideOrchestrator...')
+    console.info('[planRide] Starting planRideOrchestrator...')
 
     // Step 7: Run orchestrator - race against timeout
     const results = await Promise.race([
@@ -281,7 +281,7 @@ export const executePlanHandler = async (
       timeoutPromise,
     ])
 
-    console.log('[planRide] Orchestrator completed, routes:', results.length)
+    console.info('[planRide] Orchestrator completed, routes:', results.length)
 
     // Check cancellation after orchestrator completes
     if (await checkCancelled()) {
@@ -301,7 +301,7 @@ export const executePlanHandler = async (
 
     const firstOption = result.options[0]
     const firstLeg = firstOption?.map?.legs?.[0]
-    console.log('[planRide] Writing completed result to DB:', {
+    console.info('[planRide] Writing completed result to DB:', {
       optionsCount: result.options.length,
       firstOptionLabel: firstOption?.label,
       firstLegKeys: firstLeg ? Object.keys(firstLeg) : [],

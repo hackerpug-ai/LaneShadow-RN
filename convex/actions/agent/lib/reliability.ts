@@ -67,7 +67,7 @@ export const createConcurrencyLimiter = (concurrency: number): ConcurrencyLimite
   }
 
   let active = 0
-  const queue: Array<() => void> = []
+  const queue: (() => void)[] = []
 
   const next = () => {
     if (active >= concurrency) return

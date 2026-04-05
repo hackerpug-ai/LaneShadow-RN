@@ -135,7 +135,7 @@ async function sendMessageHandler(
   clerkUserId: string
 ): Promise<{ response: string; messageId: Id<'session_messages'>; attachments?: any[] }> {
   // Step 1: Validate session ownership (deterministic)
-  const session = await mockGetSessionByIdHandler(
+  await mockGetSessionByIdHandler(
     ctx as any,
     { sessionId: args.sessionId },
     clerkUserId

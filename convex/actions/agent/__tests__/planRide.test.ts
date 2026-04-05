@@ -1,8 +1,7 @@
 'use node'
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { buildUserPrompt, buildOptionsFromResults } from '../planRide'
-import { ERROR_CODES } from '../../../errors'
 
 // -----------------------------------------------------------------------------
 // Test Data

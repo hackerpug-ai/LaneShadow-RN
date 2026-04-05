@@ -51,7 +51,7 @@ export const planRideOrchestrator = async (params: {
     preferences: planInput.preferences,
   })
 
-  console.log(`[planRideOrchestrator] ${variants.length} variants discovered`)
+  console.info(`[planRideOrchestrator] ${variants.length} variants discovered`)
 
   // Step 2: Build RouteSketch + compile + normalize in parallel
   // Promise.allSettled ensures one variant failure does not block the others
@@ -77,7 +77,7 @@ export const planRideOrchestrator = async (params: {
     console.error(`[planRideOrchestrator] variant compile failed:`, f.reason?.message ?? f.reason)
   }
 
-  console.log(
+  console.info(
     `[planRideOrchestrator] ${variants.length} variants, ${successful.length} routes compiled, ${failed.length} failed`
   )
 
@@ -112,7 +112,7 @@ export const planRideOrchestrator = async (params: {
     (r) => r.routeSnapshot.overlays?.wind !== undefined
   ).length
 
-  console.log(
+  console.info(
     `[planRideOrchestrator] ${variants.length} variants, ${successful.length} succeeded, conditions: ${conditionsCount}/${successful.length}`
   )
 

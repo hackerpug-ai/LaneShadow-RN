@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
+import { vi, describe, it, expect, afterEach, type Mock } from 'vitest'
 import * as reliability from '../../lib/reliability'
 import { createWeatherProvider } from '../weatherProvider'
 

@@ -74,10 +74,10 @@ vi.mock('../../../_generated/api', () => ({
  * Build a minimal AssistantMessage shaped object that satisfies the pi-ai type.
  */
 const makeAssistantMessage = (
-  content: Array<
+  content: (
     | { type: 'text'; text: string }
     | { type: 'toolCall'; id: string; name: string; arguments: Record<string, unknown> }
-  >,
+  )[],
   stopReason: 'stop' | 'toolUse' = 'stop'
 ) => ({
   role: 'assistant' as const,
@@ -100,7 +100,7 @@ const makeAssistantMessage = (
 const makeAgentContext = () => ({
   sessionId: 'session_test' as any,
   clerkUserId: 'user_test',
-  conversationHistory: [] as Array<{ role: string; content: string }>,
+  conversationHistory: [] as { role: string; content: string }[],
   currentLocation: { lat: 37.77, lng: -122.42 },
   runQuery: vi.fn().mockResolvedValue({ allowed: true, remaining: 4 }),
   runMutation: vi.fn().mockResolvedValue(undefined),
@@ -421,9 +421,7 @@ describe('executeRidePlanningAgent', () => {
     // Re-import to pick up the overridden env. Because vi.mock is hoisted and
     // the module is already loaded, we test this by importing a fresh copy via
     // dynamic import after resetting the module cache.
-    const { executeRidePlanningAgent: freshAgent } = await vi.importActual(
-      '../ridePlanningAgent'
-    ) as typeof import('../ridePlanningAgent')
+    await vi.importActual('../ridePlanningAgent') as typeof import('../ridePlanningAgent')
 
     // The actual implementation reads OPENAI_API_KEY at call time, but the
     // module-level import is already bound. Instead, verify the agent throws

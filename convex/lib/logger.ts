@@ -36,7 +36,7 @@ export function logBackend(
   }
 
   // Log with [LOG] prefix for easy filtering - MCP can parse this
-  console.log(`[LOG]${JSON.stringify(entry)}`)
+  console.info(`[LOG]${JSON.stringify(entry)}`)
 }
 
 /**

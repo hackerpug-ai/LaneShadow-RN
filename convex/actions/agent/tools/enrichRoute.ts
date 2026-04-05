@@ -71,7 +71,7 @@ export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrich
       throw new Error('OPENAI_API_KEY not set')
     }
 
-    console.log(`[enrichRoute] using model=${AI_MODEL}, routes=${params.routes.length}`)
+    console.info(`[enrichRoute] using model=${AI_MODEL}, routes=${params.routes.length}`)
 
     const model = getModel('openai', AI_MODEL as any)
 

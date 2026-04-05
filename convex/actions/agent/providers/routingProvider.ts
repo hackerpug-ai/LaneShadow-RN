@@ -30,7 +30,7 @@ export type ProviderRouteResponse = {
     west: number
   }
   overviewGeometry: ProviderPolylineGeometry
-  legs: Array<ProviderLeg>
+  legs: ProviderLeg[]
 }
 
 export type RoutingProvider = {
@@ -184,7 +184,7 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
     if (!routes.length) {
       throw new Error('Google Routes response missing routes')
     }
-    console.log(`[routingProvider] Google returned ${routes.length} alternative routes`)
+    console.info(`[routingProvider] Google returned ${routes.length} alternative routes`)
     return routes.map(parseGoogleRoute)
   },
 })

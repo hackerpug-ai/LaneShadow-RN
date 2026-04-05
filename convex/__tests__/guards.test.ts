@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { vi, describe, it, expect } from 'vitest'
 import { ConvexError } from 'convex/values'
 
 import { ensureSession, requireIdentity } from '../guards'

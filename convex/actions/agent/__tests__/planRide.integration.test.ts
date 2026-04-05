@@ -52,13 +52,13 @@ const basePlanDoc = {
 // ---------------------------------------------------------------------------
 
 const makeFakeCtx = () => {
-  const mutations: Array<{ status: string; result?: unknown; errorCode?: string; statusMessage?: string }> = []
+  const mutations: { status: string; result?: unknown; errorCode?: string; statusMessage?: string }[] = []
 
   const ctx = {
     runQuery: async (_ref: unknown, _args: unknown) => basePlanDoc,
     runMutation: async (_ref: unknown, args: any) => {
       mutations.push(args)
-      console.log('[test] runMutation:', args.status, args.statusMessage ?? '', args.errorCode ?? '')
+      console.info('[test] runMutation:', args.status, args.statusMessage ?? '', args.errorCode ?? '')
       return null
     },
   }
@@ -90,9 +90,9 @@ describe('planRide integration (real APIs)', () => {
     const completed = mutations.find((m) => m.status === ROUTE_PLAN_STATUS.COMPLETED)
     const failed = mutations.find((m) => m.status === ROUTE_PLAN_STATUS.FAILED)
 
-    console.log('[test] All mutation statuses:', mutations.map((m) => m.status))
+    console.info('[test] All mutation statuses:', mutations.map((m) => m.status))
     if (failed) console.error('[test] FAILED:', failed.errorCode)
-    if (completed) console.log('[test] Result options count:', (completed.result as any)?.options?.length)
+    if (completed) console.info('[test] Result options count:', (completed.result as any)?.options?.length)
 
     expect(failed, `Plan failed: ${failed?.errorCode}`).toBeUndefined()
     expect(completed).toBeDefined()
