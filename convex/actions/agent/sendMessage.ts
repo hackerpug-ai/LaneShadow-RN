@@ -16,11 +16,11 @@ import type { SessionMessageKind } from '../../../models/session-messages'
 /**
  * Maps tool names to the session_message card kind they produce.
  * Only tools listed here will have a card message emitted in the transcript.
+ * fetchWeather and saveRoute are placeholder stubs that return no real data —
+ * they are intentionally excluded to avoid emitting empty card rows.
  */
 export const TOOL_TO_CARD_KIND: Record<string, SessionMessageKind> = {
   planRoute: 'routing_card',
-  fetchWeather: 'weather_card',
-  saveRoute: 'saved_route_card',
 }
 
 // ---------------------------------------------------------------------------
@@ -30,39 +30,43 @@ export const TOOL_TO_CARD_KIND: Record<string, SessionMessageKind> = {
 /**
  * Build the onToolStart / onToolFinish callbacks for a given session.
  * Extracted as a named function so it can be unit-tested independently.
+ *
+ * Cards are born complete: onToolStart is a no-op. onToolFinish creates the
+ * card row with attachments already set at insert time, then immediately
+ * finalizes it — eliminating the empty-placeholder race window.
  */
 export function buildCardCallbacks(
   sessionId: Id<'planning_sessions'>,
   runMutation: (fn: any, args: any) => Promise<any>
 ): ExecuteContext {
   return {
-    async onToolStart(toolName, _args) {
-      const kind = TOOL_TO_CARD_KIND[toolName]
-      if (!kind) return // non-card tool — do nothing
-
-      const { messageId } = await runMutation(
-        internal.db.sessionMessages.createPendingAssistantMessage,
-        { sessionId, kind }
-      )
-      return { messageId }
+    // No-op: card rows are created in onToolFinish once the result is known.
+    async onToolStart(_toolName, _args) {
+      return undefined
     },
 
-    async onToolFinish(toolName, messageId, result) {
-      if (messageId === undefined) return // no card was created
+    async onToolFinish(toolName, _messageId, result) {
+      // Only planRoute produces a card. For all other tools, do nothing.
+      if (toolName !== 'planRoute') return
 
-      // Attach the route_plans row id (if the tool produced one) so the
-      // routing_card can subscribe to its status/result reactively. This
-      // applies to both success and failure paths — failure still yields a
-      // route_plans row with status='failed' that the card renders.
       const routePlanId = (result as { routePlanId?: Id<'route_plans'> })
         ?.routePlanId
-      if (routePlanId) {
-        await runMutation(internal.db.sessionMessages.attachRoutePlanToMessage, {
-          messageId,
-          routePlanId,
-        })
-      }
 
+      // If the tool produced no routePlanId there is nothing to render.
+      if (!routePlanId) return
+
+      // Create the card row with the attachment already set — no empty placeholder.
+      const { messageId } = await runMutation(
+        internal.db.sessionMessages.createPendingAssistantMessage,
+        {
+          sessionId,
+          kind: 'routing_card',
+          attachments: [{ type: 'route_options', routePlanId }],
+        }
+      )
+
+      // Immediately finalize. Both mutations run back-to-back in the same
+      // action — clients see running → complete in one reactive tick.
       const isError = (result as any)?.type === 'error'
       await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
         messageId,
@@ -196,9 +200,9 @@ export const sendMessage = action({
 
     // Step 4: Run agent with session context (probabilistic)
     // This is where the agent decides what to do.
-    // We pass card-emission callbacks so card-backed tools (planRoute, etc.)
-    // emit a pending card message into session_messages before the tool runs
-    // and finalize it (complete/failed) after the tool returns.
+    // We pass card-emission callbacks so card-backed tools (planRoute) create
+    // their card row in onToolFinish — with attachments already set at insert
+    // time — eliminating the empty-placeholder race window.
     //
     // We also create a pending `text` assistant message row up front so the
     // client can see `status: 'streaming'` while the model is generating, then
