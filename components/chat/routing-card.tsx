@@ -36,6 +36,7 @@ import { useQuery } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import type { Id } from '../../convex/_generated/dataModel'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { useSelectedRoute } from '../../contexts/selected-route'
 import { RouteAttachmentCard } from './route-attachment-card'
 import type { PlannedRouteOptionsView } from '../../types/routes'
 import {
@@ -243,8 +244,8 @@ interface CompletedCardProps {
 }
 
 const CompletedCard = ({ result, semantic }: CompletedCardProps) => {
-  // Dummy selection state — RoutingCard does not manage selection; it simply
-  // renders the route list. The first option is highlighted as a default hint.
+  const { selectedRouteId, setSelectedRouteId } = useSelectedRoute()
+
   return (
     <View
       style={[styles.card, { gap: semantic.space.sm }]}
@@ -256,10 +257,12 @@ const CompletedCard = ({ result, semantic }: CompletedCardProps) => {
         <RouteAttachmentCard
           key={option.routeOptionId}
           route={option}
-          isSelected={idx === 0}
-          onSelect={() => {
-            // Selection wiring is task #234's responsibility.
-          }}
+          isSelected={
+            selectedRouteId === null
+              ? idx === 0
+              : option.routeOptionId === selectedRouteId
+          }
+          onSelect={() => setSelectedRouteId(option.routeOptionId)}
           testID={`routing-card-route-${option.routeOptionId}`}
         />
       ))}
