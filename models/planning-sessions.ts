@@ -13,11 +13,19 @@ export const planningSessionStatusValidator = v.union(
   v.literal('archived')
 )
 
+export const lastKnownLocationValidator = v.object({
+  lat: v.number(),
+  lng: v.number(),
+  updatedAt: v.number(),
+})
+export type LastKnownLocation = Infer<typeof lastKnownLocationValidator>
+
 export const planningSessionValidator = v.object({
   clerkUserId: v.string(),
   title: v.string(),
   status: planningSessionStatusValidator,
   createdAt: v.number(),
   updatedAt: v.number(),
+  lastKnownLocation: v.optional(lastKnownLocationValidator),
 })
 export type PlanningSession = Infer<typeof planningSessionValidator>

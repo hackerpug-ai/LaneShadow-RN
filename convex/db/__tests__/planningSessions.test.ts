@@ -15,6 +15,7 @@ import {
   listSessionsHandler,
   getSessionByIdHandler,
   archiveSessionHandler,
+  updateLastKnownLocationHandler,
 } from '../planningSessions'
 
 // ---------------------------------------------------------------------------
@@ -274,5 +275,62 @@ describe('archiveSessionHandler', () => {
     const newUpdatedAt = patchCall[1].updatedAt
 
     expect(newUpdatedAt).toBeGreaterThan(oldTimestamp)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// US-302: updateLastKnownLocation patches session with location + updatedAt
+// ---------------------------------------------------------------------------
+
+describe('updateLastKnownLocationHandler', () => {
+  it('US-302: adds lastKnownLocation to session without one (insert case)', async () => {
+    const patch = vi.fn().mockResolvedValue(undefined)
+    const ctx = { db: { patch } }
+
+    const before = Date.now()
+    await updateLastKnownLocationHandler(ctx as any, {
+      sessionId: SESSION_ID,
+      lat: 40.7128,
+      lng: -74.006,
+    })
+    const after = Date.now()
+
+    expect(patch).toHaveBeenCalledTimes(1)
+    const [id, fields] = patch.mock.calls[0]
+    expect(id).toBe(SESSION_ID)
+    expect(fields.lastKnownLocation.lat).toBe(40.7128)
+    expect(fields.lastKnownLocation.lng).toBe(-74.006)
+    expect(fields.lastKnownLocation.updatedAt).toBeGreaterThanOrEqual(before)
+    expect(fields.lastKnownLocation.updatedAt).toBeLessThanOrEqual(after)
+  })
+
+  it('US-302: replaces existing lastKnownLocation with new coordinates + updatedAt', async () => {
+    const patch = vi.fn().mockResolvedValue(undefined)
+    const ctx = { db: { patch } }
+
+    const oldTimestamp = Date.now() - 60_000
+    // First call (simulating earlier write; we just call handler twice)
+    await updateLastKnownLocationHandler(ctx as any, {
+      sessionId: SESSION_ID,
+      lat: 34.0522,
+      lng: -118.2437,
+    })
+    const firstCallFields = patch.mock.calls[0][1]
+    expect(firstCallFields.lastKnownLocation.updatedAt).toBeGreaterThan(oldTimestamp)
+
+    // Simulate a later update
+    await updateLastKnownLocationHandler(ctx as any, {
+      sessionId: SESSION_ID,
+      lat: 47.6062,
+      lng: -122.3321,
+    })
+
+    expect(patch).toHaveBeenCalledTimes(2)
+    const secondCallFields = patch.mock.calls[1][1]
+    expect(secondCallFields.lastKnownLocation.lat).toBe(47.6062)
+    expect(secondCallFields.lastKnownLocation.lng).toBe(-122.3321)
+    expect(secondCallFields.lastKnownLocation.updatedAt).toBeGreaterThanOrEqual(
+      firstCallFields.lastKnownLocation.updatedAt
+    )
   })
 })
