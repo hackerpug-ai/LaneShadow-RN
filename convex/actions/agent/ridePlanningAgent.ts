@@ -50,6 +50,20 @@ export type ToolResult =
   | { type: 'weather'; data: any }
   | { type: 'chat'; message: string }
 
+/**
+ * Optional callbacks that callers can inject into executeTool to observe
+ * tool dispatch lifecycle events (e.g. to emit card messages). The agent
+ * logic itself stays unaware of cards — it just invokes the callbacks when
+ * provided.
+ */
+export type ExecuteContext = {
+  /** Called immediately before tool execution begins. May return a messageId
+   *  for a pending card that was created, which will be forwarded to onToolFinish. */
+  onToolStart?: (toolName: string, args: unknown) => Promise<{ messageId: Id<'session_messages'> } | void>
+  /** Called after tool execution completes (success or error). */
+  onToolFinish?: (toolName: string, messageId: Id<'session_messages'> | undefined, result: unknown) => Promise<void>
+}
+
 // -----------------------------------------------------------------------------
 // System Prompt
 // -----------------------------------------------------------------------------
@@ -225,22 +239,59 @@ const tools: Tool[] = [
 // Tool Executor Dispatch
 // -----------------------------------------------------------------------------
 
-async function executeTool(ctx: AgentContext, call: ToolCall): Promise<unknown> {
+async function executeTool(
+  ctx: AgentContext,
+  call: ToolCall,
+  executeCtx?: ExecuteContext
+): Promise<unknown> {
   const validated = validateToolCall(tools, call)
-  switch (call.name) {
-    case 'geocode':
-      return await runGeocode(ctx, validated)
-    case 'planRoute':
-      return await runPlanRoute(ctx, validated)
-    case 'fetchWeather':
-      return await runFetchWeather(ctx, validated)
-    case 'saveRoute':
-      return await runSaveRoute(ctx, validated)
-    case 'searchFavorites':
-      return await runSearchFavorites(ctx, validated)
-    default:
-      return { type: 'error', message: `Unknown tool: ${call.name}` }
+
+  // Notify caller that tool is starting; capture any pending card messageId
+  let pendingMessageId: Id<'session_messages'> | undefined
+  if (executeCtx?.onToolStart) {
+    const startResult = await executeCtx.onToolStart(call.name, validated)
+    if (startResult) {
+      pendingMessageId = startResult.messageId
+    }
   }
+
+  let result: unknown
+  try {
+    switch (call.name) {
+      case 'geocode':
+        result = await runGeocode(ctx, validated)
+        break
+      case 'planRoute':
+        result = await runPlanRoute(ctx, validated)
+        break
+      case 'fetchWeather':
+        result = await runFetchWeather(ctx, validated)
+        break
+      case 'saveRoute':
+        result = await runSaveRoute(ctx, validated)
+        break
+      case 'searchFavorites':
+        result = await runSearchFavorites(ctx, validated)
+        break
+      default:
+        result = { type: 'error', message: `Unknown tool: ${call.name}` }
+    }
+  } catch (err) {
+    // Re-throw after notifying so the agent loop's error handler still fires
+    if (executeCtx?.onToolFinish) {
+      await executeCtx.onToolFinish(call.name, pendingMessageId, {
+        type: 'error',
+        message: err instanceof Error ? err.message : String(err),
+      })
+    }
+    throw err
+  }
+
+  if (executeCtx?.onToolFinish) {
+    await executeCtx.onToolFinish(call.name, pendingMessageId, result)
+  }
+
+  return result
 }
 
 // -----------------------------------------------------------------------------
@@ -275,10 +326,14 @@ export function extractRouteAttachments(
 /**
  * Execute the ride planning agent with tools.
  * This is the probabilistic part — the agent decides which tools to call.
+ *
+ * @param executeCtx - Optional callbacks for observing tool dispatch lifecycle
+ *   (e.g. emitting card messages). The agent logic itself is unaware of cards.
  */
 export async function executeRidePlanningAgent(
   ctx: AgentContext,
-  userMessage: string
+  userMessage: string,
+  executeCtx?: ExecuteContext
 ): Promise<{ response: string; attachments?: Array<{ type: string; routePlanId?: string }> }> {
   if (!OPENAI_API_KEY) {
     throw new Error('OpenAI API key not configured')
@@ -353,7 +408,7 @@ export async function executeRidePlanningAgent(
       let result: unknown
       let isError = false
       try {
-        result = await executeTool(ctx, call)
+        result = await executeTool(ctx, call, executeCtx)
       } catch (err) {
         result = {
           type: 'error',
