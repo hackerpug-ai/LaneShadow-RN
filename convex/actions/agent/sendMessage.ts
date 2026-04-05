@@ -50,6 +50,19 @@ export function buildCardCallbacks(
     async onToolFinish(toolName, messageId, result) {
       if (messageId === undefined) return // no card was created
 
+      // Attach the route_plans row id (if the tool produced one) so the
+      // routing_card can subscribe to its status/result reactively. This
+      // applies to both success and failure paths — failure still yields a
+      // route_plans row with status='failed' that the card renders.
+      const routePlanId = (result as { routePlanId?: Id<'route_plans'> })
+        ?.routePlanId
+      if (routePlanId) {
+        await runMutation(internal.db.sessionMessages.attachRoutePlanToMessage, {
+          messageId,
+          routePlanId,
+        })
+      }
+
       const isError = (result as any)?.type === 'error'
       await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
         messageId,

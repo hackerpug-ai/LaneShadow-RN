@@ -45,8 +45,8 @@ export type AgentContext = {
 }
 
 export type ToolResult =
-  | { type: 'routes'; data: { planId: string; options: any[] } }
-  | { type: 'error'; message: string }
+  | { type: 'routes'; data: { planId: string; options: any[] }; routePlanId: Id<'route_plans'> }
+  | { type: 'error'; message: string; routePlanId?: Id<'route_plans'> }
   | { type: 'confirmation'; message: string }
   | { type: 'search_results'; data: any[] }
   | { type: 'weather'; data: any }
@@ -132,37 +132,69 @@ async function runPlanRoute(
     }
   }
 
+  // Persist a route_plans row up front so the reactive RoutingCard in the
+  // chat transcript can subscribe to status/phase/result updates. The agent
+  // runs the orchestrator inline (unlike the scheduled createPlan flow), so
+  // we insert with status='running' and finalize once the orchestrator
+  // returns.
+  const planInput = {
+    start: {
+      lat: args.start.lat,
+      lng: args.start.lng,
+      label: args.start.label ?? undefined,
+    },
+    end: {
+      lat: args.end.lat,
+      lng: args.end.lng,
+      label: args.end.label ?? undefined,
+    },
+    departureTime: args.departureTime,
+    preferences: args.preferences,
+  }
+
+  const { routePlanId } = await ctx.runMutation(
+    internal.db.routePlans.createForAgentInternal,
+    {
+      clerkUserId: ctx.clerkUserId,
+      planInput,
+      startLabel: args.start.label ?? undefined,
+      endLabel: args.end.label ?? undefined,
+    }
+  )
+
   try {
     const results = await planRideOrchestrator({
-      planInput: {
-        start: {
-          lat: args.start.lat,
-          lng: args.start.lng,
-          label: args.start.label ?? undefined,
-        },
-        end: {
-          lat: args.end.lat,
-          lng: args.end.lng,
-          label: args.end.label ?? undefined,
-        },
-        departureTime: args.departureTime,
-        preferences: args.preferences,
-      },
+      planInput,
       departureTimeMs: args.departureTime,
     })
     const built = buildOptionsFromResults(results, crypto.randomUUID())
+
+    // Finalize the route_plans row with the orchestrator output so RoutingCard
+    // can transition into its CompletedCard state with the route options.
+    await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+      routePlanId,
+      status: 'completed',
+      result: built,
+    })
 
     // Increment usage (deterministic action)
     await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, {
       clerkUserId: ctx.clerkUserId,
     })
 
-    return { type: 'routes', data: built }
+    return { type: 'routes', data: built, routePlanId }
   } catch (error) {
     console.error('[runPlanRoute] Error:', error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+      routePlanId,
+      status: 'failed',
+      errorMessage,
+    })
     return {
       type: 'error',
       message: "I couldn't plan your route right now. Please try again.",
+      routePlanId,
     }
   }
 }
@@ -309,14 +341,21 @@ async function executeTool(
  */
 export function extractRouteAttachments(
   toolResults: { toolName: string; result: unknown }[]
-): { type: string; routePlanId?: string }[] {
-  const attachments: { type: string; routePlanId?: string }[] = []
+): { type: string; routePlanId?: Id<'route_plans'> }[] {
+  const attachments: { type: string; routePlanId?: Id<'route_plans'> }[] = []
 
   for (const tr of toolResults) {
     if (tr.toolName === 'planRoute') {
       const result = tr.result as any
-      if (result?.type === 'routes' && result?.data?.planId) {
-        attachments.push({ type: 'route', routePlanId: result.data.planId })
+      // Prefer the real Convex route_plans document id (added by runPlanRoute
+      // when it persists the plan). `result.data.planId` is a legacy UUID
+      // string and is NOT a valid v.id('route_plans') — never emit it through
+      // the action's returns validator.
+      if (result?.type === 'routes' && result?.routePlanId) {
+        attachments.push({
+          type: 'route_options',
+          routePlanId: result.routePlanId,
+        })
       }
     }
   }
@@ -339,7 +378,7 @@ export async function executeRidePlanningAgent(
   ctx: AgentContext,
   userMessage: string,
   executeCtx?: ExecuteContext
-): Promise<{ response: string; attachments?: { type: string; routePlanId?: string }[] }> {
+): Promise<{ response: string; attachments?: { type: string; routePlanId?: Id<'route_plans'> }[] }> {
   if (!OPENAI_API_KEY) {
     throw new Error('OpenAI API key not configured')
   }

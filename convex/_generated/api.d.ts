@@ -8,6 +8,11 @@
  * @module
  */
 
+import type {
+  ApiFromModules,
+  FilterApi,
+  FunctionReference,
+} from "convex/server";
 import type * as actions_agent_lib_piTools from "../actions/agent/lib/piTools.js";
 import type * as actions_agent_lib_planRideOrchestrator from "../actions/agent/lib/planRideOrchestrator.js";
 import type * as actions_agent_lib_reliability from "../actions/agent/lib/reliability.js";
@@ -44,12 +49,14 @@ import type * as lib_logger from "../lib/logger.js";
 import type * as migrations_backfillSessionMessageKindStatus from "../migrations/backfillSessionMessageKindStatus.js";
 import type * as users from "../users.js";
 
-import type {
-  ApiFromModules,
-  FilterApi,
-  FunctionReference,
-} from "convex/server";
-
+/**
+ * A utility for referencing Convex functions in your app's API.
+ *
+ * Usage:
+ * ```js
+ * const myFunctionReference = api.myModule.myFunction;
+ * ```
+ */
 declare const fullApi: ApiFromModules<{
   "actions/agent/lib/piTools": typeof actions_agent_lib_piTools;
   "actions/agent/lib/planRideOrchestrator": typeof actions_agent_lib_planRideOrchestrator;
@@ -87,31 +94,11 @@ declare const fullApi: ApiFromModules<{
   "migrations/backfillSessionMessageKindStatus": typeof migrations_backfillSessionMessageKindStatus;
   users: typeof users;
 }>;
-
-/**
- * A utility for referencing Convex functions in your app's public API.
- *
- * Usage:
- * ```js
- * const myFunctionReference = api.myModule.myFunction;
- * ```
- */
 export declare const api: FilterApi<
   typeof fullApi,
   FunctionReference<any, "public">
 >;
-
-/**
- * A utility for referencing Convex functions in your app's internal API.
- *
- * Usage:
- * ```js
- * const myFunctionReference = internal.myModule.myFunction;
- * ```
- */
 export declare const internal: FilterApi<
   typeof fullApi,
   FunctionReference<any, "internal">
 >;
-
-export declare const components: {};

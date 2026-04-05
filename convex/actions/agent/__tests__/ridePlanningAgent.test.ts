@@ -62,6 +62,10 @@ vi.mock('../../../_generated/api', () => ({
         checkUsageInternal: { __fake: true },
         incrementUsageInternal: { __fake: true },
       },
+      routePlans: {
+        createForAgentInternal: { __fake: true },
+        updatePlanStatus: { __fake: true },
+      },
     },
   },
 }))
@@ -103,7 +107,13 @@ const makeAgentContext = () => ({
   conversationHistory: [] as { role: string; content: string }[],
   currentLocation: { lat: 37.77, lng: -122.42 },
   runQuery: vi.fn().mockResolvedValue({ allowed: true, remaining: 4 }),
-  runMutation: vi.fn().mockResolvedValue(undefined),
+  // runPlanRoute calls runMutation three times:
+  //  1. createForAgentInternal → { routePlanId }
+  //  2. updatePlanStatus       → null (completed OR failed)
+  //  3. incrementUsageInternal → null  (success path only)
+  // We return { routePlanId } uniformly — the status/usage mutations ignore
+  // the return value, so over-returning is harmless.
+  runMutation: vi.fn().mockResolvedValue({ routePlanId: 'rp_test' }),
 })
 
 // -----------------------------------------------------------------------------
@@ -151,7 +161,25 @@ describe('buildSystemPrompt', () => {
 // -----------------------------------------------------------------------------
 
 describe('extractRouteAttachments', () => {
-  it('returns attachment when planRoute result has type routes and a planId', () => {
+  it('returns attachment with the Convex routePlanId when planRoute persisted a route_plans row', () => {
+    const toolResults = [
+      {
+        toolName: 'planRoute',
+        result: {
+          type: 'routes',
+          data: { planId: 'abc123', options: [] },
+          routePlanId: 'rp_convex_id',
+        },
+      },
+    ]
+
+    const attachments = extractRouteAttachments(toolResults)
+
+    expect(attachments).toHaveLength(1)
+    expect(attachments[0]).toEqual({ type: 'route_options', routePlanId: 'rp_convex_id' })
+  })
+
+  it('returns empty array when planRoute result has no routePlanId', () => {
     const toolResults = [
       {
         toolName: 'planRoute',
@@ -159,10 +187,7 @@ describe('extractRouteAttachments', () => {
       },
     ]
 
-    const attachments = extractRouteAttachments(toolResults)
-
-    expect(attachments).toHaveLength(1)
-    expect(attachments[0]).toEqual({ type: 'route', routePlanId: 'abc123' })
+    expect(extractRouteAttachments(toolResults)).toHaveLength(0)
   })
 
   it('returns empty array when toolName is not planRoute', () => {
@@ -199,7 +224,11 @@ describe('extractRouteAttachments', () => {
     const toolResults = [
       {
         toolName: 'planRoute',
-        result: { type: 'routes', data: { planId: 'plan_1', options: [] } },
+        result: {
+          type: 'routes',
+          data: { planId: 'plan_1', options: [] },
+          routePlanId: 'rp_1',
+        },
       },
       {
         toolName: 'geocode',
@@ -207,15 +236,19 @@ describe('extractRouteAttachments', () => {
       },
       {
         toolName: 'planRoute',
-        result: { type: 'routes', data: { planId: 'plan_2', options: [] } },
+        result: {
+          type: 'routes',
+          data: { planId: 'plan_2', options: [] },
+          routePlanId: 'rp_2',
+        },
       },
     ]
 
     const attachments = extractRouteAttachments(toolResults)
 
     expect(attachments).toHaveLength(2)
-    expect(attachments[0]).toEqual({ type: 'route', routePlanId: 'plan_1' })
-    expect(attachments[1]).toEqual({ type: 'route', routePlanId: 'plan_2' })
+    expect(attachments[0]).toEqual({ type: 'route_options', routePlanId: 'rp_1' })
+    expect(attachments[1]).toEqual({ type: 'route_options', routePlanId: 'rp_2' })
   })
 })
 
@@ -292,10 +325,13 @@ describe('executeRidePlanningAgent', () => {
 
     expect(complete).toHaveBeenCalledTimes(2)
     expect(planRideOrchestrator).toHaveBeenCalledTimes(1)
-    // Usage should be incremented after a successful planRoute.
-    expect(ctx.runMutation).toHaveBeenCalledTimes(1)
+    // runPlanRoute writes the route_plans row (create → finalize) and
+    // increments usage after a successful planRoute: three mutations.
+    expect(ctx.runMutation).toHaveBeenCalledTimes(3)
     expect(result.response).toBe('Here are 3 scenic routes to Santa Cruz.')
-    expect(result.attachments).toEqual([{ type: 'route', routePlanId: 'plan_abc' }])
+    expect(result.attachments).toEqual([
+      { type: 'route_options', routePlanId: 'rp_test' },
+    ])
   })
 
   it('does not call orchestrator and returns upsell message when usage limit is reached', async () => {
@@ -384,9 +420,12 @@ describe('executeRidePlanningAgent', () => {
 
     expect(complete).toHaveBeenCalledTimes(3)
     expect(planRideOrchestrator).toHaveBeenCalledTimes(1)
-    expect(ctx.runMutation).toHaveBeenCalledTimes(1)
+    // create + finalize + incrementUsage = 3 mutations
+    expect(ctx.runMutation).toHaveBeenCalledTimes(3)
     expect(result.response).toBe('Here are 3 scenic routes to Santa Cruz.')
-    expect(result.attachments).toEqual([{ type: 'route', routePlanId: 'plan_abc' }])
+    expect(result.attachments).toEqual([
+      { type: 'route_options', routePlanId: 'rp_test' },
+    ])
   })
 
   it('caps the loop at MAX_STEPS (10) if complete keeps returning toolUse', async () => {

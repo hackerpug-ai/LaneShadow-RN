@@ -284,6 +284,37 @@ export const cancelPlan = mutation({
   },
 })
 
+/**
+ * Create a route_plans row for the pi-ai agent's inline planRoute tool.
+ *
+ * Unlike `createPlan`, this does NOT schedule a separate executePlan action
+ * (the agent runs the orchestrator synchronously in-process) and does NOT
+ * enforce the single-active-plan guard (the agent may replan mid-conversation).
+ * Usage metering is handled by the agent via `planUsage.incrementUsageInternal`.
+ */
+export const createForAgentInternal = internalMutation({
+  args: {
+    clerkUserId: v.string(),
+    planInput: planInputValidator,
+    startLabel: v.optional(v.string()),
+    endLabel: v.optional(v.string()),
+  },
+  returns: v.object({ routePlanId: v.id('route_plans') }),
+  handler: async (ctx, args): Promise<{ routePlanId: Id<'route_plans'> }> => {
+    const now = Date.now()
+    const routePlanId = await ctx.db.insert('route_plans', {
+      clerkUserId: args.clerkUserId,
+      planInput: args.planInput,
+      startLabel: args.startLabel,
+      endLabel: args.endLabel,
+      status: ROUTE_PLAN_STATUS.RUNNING,
+      createdAt: now,
+      updatedAt: now,
+    })
+    return { routePlanId }
+  },
+})
+
 export const getPlanByIdInternal = internalQuery({
   args: { routePlanId: v.id('route_plans') },
   returns: v.union(v.any(), v.null()),
