@@ -5,7 +5,7 @@ import {
   PLANNING_SESSION_STATUS,
 } from '../../models/planning-sessions'
 import type { Doc, Id } from '../_generated/dataModel'
-import { mutation, query } from '../_generated/server'
+import { internalMutation, mutation, query } from '../_generated/server'
 import { requireIdentity } from '../guards'
 import { ERROR_CODES } from '../errors'
 
@@ -46,6 +46,12 @@ type GetSessionByIdCtx = {
 type ArchiveSessionCtx = {
   db: {
     get: (id: Id<'planning_sessions'>) => Promise<PlanningSessionDoc | null>
+    patch: (id: Id<'planning_sessions'>, fields: object) => Promise<void>
+  }
+}
+
+type UpdateLastKnownLocationCtx = {
+  db: {
     patch: (id: Id<'planning_sessions'>, fields: object) => Promise<void>
   }
 }
@@ -124,6 +130,19 @@ export const archiveSessionHandler = async (
   })
 }
 
+export const updateLastKnownLocationHandler = async (
+  ctx: UpdateLastKnownLocationCtx,
+  args: { sessionId: Id<'planning_sessions'>; lat: number; lng: number }
+): Promise<void> => {
+  await ctx.db.patch(args.sessionId, {
+    lastKnownLocation: {
+      lat: args.lat,
+      lng: args.lng,
+      updatedAt: Date.now(),
+    },
+  })
+}
+
 // ---------------------------------------------------------------------------
 // Convex public mutations and queries
 // ---------------------------------------------------------------------------
@@ -180,6 +199,22 @@ export const getSessionById = query({
       args,
       clerkUserId
     )
+  },
+})
+
+export const updateLastKnownLocation = internalMutation({
+  args: {
+    sessionId: v.id('planning_sessions'),
+    lat: v.number(),
+    lng: v.number(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args): Promise<null> => {
+    await updateLastKnownLocationHandler(
+      ctx as unknown as UpdateLastKnownLocationCtx,
+      args
+    )
+    return null
   },
 })
 
