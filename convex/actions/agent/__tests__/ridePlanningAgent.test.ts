@@ -1,7 +1,7 @@
 'use node'
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { executeRidePlanningAgent, extractRouteAttachments } from '../ridePlanningAgent'
+import { buildSystemPrompt, executeRidePlanningAgent, extractRouteAttachments } from '../ridePlanningAgent'
 
 // -----------------------------------------------------------------------------
 // Mocks
@@ -104,6 +104,46 @@ const makeAgentContext = () => ({
   currentLocation: { lat: 37.77, lng: -122.42 },
   runQuery: vi.fn().mockResolvedValue({ allowed: true, remaining: 4 }),
   runMutation: vi.fn().mockResolvedValue(undefined),
+})
+
+// -----------------------------------------------------------------------------
+// Tests: buildSystemPrompt
+// -----------------------------------------------------------------------------
+
+describe('buildSystemPrompt', () => {
+  it('includes device location and instructs the agent not to ask for origin when currentLocation is set', () => {
+    const ctx = {
+      sessionId: 'session_test' as any,
+      clerkUserId: 'user_test',
+      conversationHistory: [],
+      currentLocation: { lat: 37.77, lng: -122.42 },
+      runQuery: vi.fn(),
+      runMutation: vi.fn(),
+    }
+
+    const prompt = buildSystemPrompt(ctx)
+
+    expect(prompt).toContain('lat=37.77, lng=-122.42')
+    expect(prompt).toContain('Use this as the default origin')
+    expect(prompt).toContain('Do NOT ask "where are you starting from?"')
+  })
+
+  it('omits device location and prompts to ask when currentLocation is undefined', () => {
+    const ctx = {
+      sessionId: 'session_test' as any,
+      clerkUserId: 'user_test',
+      conversationHistory: [],
+      currentLocation: undefined,
+      runQuery: vi.fn(),
+      runMutation: vi.fn(),
+    }
+
+    const prompt = buildSystemPrompt(ctx)
+
+    expect(prompt).not.toContain('lat=')
+    expect(prompt).toContain('ask where they are starting from')
+    expect(prompt).not.toContain('Do NOT ask')
+  })
 })
 
 // -----------------------------------------------------------------------------

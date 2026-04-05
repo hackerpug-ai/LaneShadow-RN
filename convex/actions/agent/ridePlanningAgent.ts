@@ -54,10 +54,10 @@ export type ToolResult =
 // System Prompt
 // -----------------------------------------------------------------------------
 
-const buildSystemPrompt = (ctx: AgentContext): string => {
+export const buildSystemPrompt = (ctx: AgentContext): string => {
   const locBlock = ctx.currentLocation
-    ? `Rider's current location: lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng}`
-    : `Rider's current location: unknown — ask before planning.`
+    ? `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng}. Use this as the default origin when the rider asks for a route without specifying where they're starting from. Do NOT ask "where are you starting from?" when this location is available — just use it.`
+    : `Rider's current location: unknown — ask where they are starting from before planning a route.`
 
   return `You are a motorcycle ride planning assistant. Be concise — 1-2 sentences per response. Use 2nd person ("your ride", "you'll see").
 
