@@ -85,6 +85,13 @@ export default function ChatScreen() {
       timestamp: new Date(msg.createdAt),
     })) ?? []
 
+  // Derive isPlanning from live message statuses: if any assistant row is
+  // still running or streaming, the agent is working.
+  const isPlanning =
+    rawMessages?.some(
+      (msg) => msg.status === 'running' || msg.status === 'streaming'
+    ) ?? false
+
   const isLoading = sessions === undefined
   const hasNoSessions = sessions !== undefined && sessions.length === 0
 
@@ -146,6 +153,7 @@ export default function ChatScreen() {
           onSend={handleSendMessage}
           onCancel={cancelChatPlanning}
           state={flowState}
+          isPlanning={isPlanning}
           suggestions={messages.length === 0 ? CHAT_SUGGESTIONS : []}
           testID="chat-screen-input"
         />

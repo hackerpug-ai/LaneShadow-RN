@@ -2,18 +2,24 @@
  * ChatInput - Primary conversational interface for ride planning
  *
  * Always-visible input bar at bottom of map screen.
- * Shows suggestion chips when idle, progress indicator when planning.
+ * Shows suggestion chips when idle. Per-message status is surfaced inline
+ * by the transcript (running/streaming rows render their own indicators);
+ * this component no longer renders a global planning loader.
  *
  * States:
  * - IDLE: Shows suggestion chips above input
- * - PLANNING: Shows progress indicator with current phase
+ * - PLANNING: Send button becomes a cancel button (×)
  * - ROUTE_RESULTS: Shows input for follow-up questions
  *
  * Note: This component manages its own input text state. The parent manages
  * the ride flow state (planning, error, success) but not the text input value.
+ *
+ * `isPlanning` is derived by the parent from the live session_messages query
+ * (e.g. "any message with status running|streaming") and passed in as a prop,
+ * so the cancel affordance stays in sync with actual agent activity.
  */
 
-import React, { useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -24,48 +30,14 @@ type ChatInputProps = {
   onSend: (message: string) => void
   onCancel: () => void
   state: RideFlowState
+  /**
+   * Whether an assistant message is currently running or streaming. When
+   * true, the send button becomes a cancel (×) button. Derived by the parent
+   * from the Convex `session_messages` query.
+   */
+  isPlanning: boolean
   suggestions?: string[]
   testID?: string
-}
-
-/**
- * Planning progress indicator
- */
-const PlanningProgress = ({ currentPhase }: { currentPhase: string | null }) => {
-  const { semantic } = useSemanticTheme()
-
-  const phases = [
-    { key: 'analyzing', label: 'Analyzing request...' },
-    { key: 'routing', label: 'Computing routes...' },
-    { key: 'enriching', label: 'Adding weather data...' },
-  ]
-
-  const currentIndex = phases.findIndex((p) => p.key === currentPhase)
-  const phaseLabel = currentIndex >= 0 ? phases[currentIndex].label : 'Planning...'
-
-  return (
-    <View
-      style={[
-        styles.progressContainer,
-        {
-          backgroundColor: semantic.color.surfaceVariant.default,
-          padding: semantic.space.md,
-          borderRadius: semantic.radius.md,
-        },
-      ]}
-      accessibilityLiveRegion="polite"
-      accessibilityLabel={`Planning progress: ${phaseLabel}`}
-    >
-      <Text
-        style={[
-          semantic.type.body.sm,
-          { color: semantic.color.onSurface.muted },
-        ]}
-      >
-        {phaseLabel}
-      </Text>
-    </View>
-  )
 }
 
 /**
@@ -126,6 +98,7 @@ export const ChatInput = ({
   onSend,
   onCancel,
   state,
+  isPlanning,
   suggestions = [],
   testID = 'chat-input',
 }: ChatInputProps) => {
@@ -141,7 +114,6 @@ export const ChatInput = ({
     }
   }, [text, onSend])
 
-  const isPlanning = state.phase === 'PLANNING'
   const isIdle = state.phase === 'IDLE'
   const isError = state.phase === 'ERROR'
 
@@ -169,15 +141,6 @@ export const ChatInput = ({
       ]}
       testID={testID}
     >
-      {/* Progress indicator when planning */}
-      {isPlanning && (
-        <PlanningProgress
-          currentPhase={
-            state.phase === 'PLANNING' ? state.currentPhase : null
-          }
-        />
-      )}
-
       {/* Error message when in ERROR state */}
       {isError && errorMessage && (
         <ErrorMessage message={errorMessage} testID="chat-error-message" />
@@ -274,11 +237,6 @@ const styles = StyleSheet.create({
     zIndex: 20,
     alignItems: 'center',
     gap: 8,
-  },
-  progressContainer: {
-    width: '100%',
-    maxWidth: 780,
-    alignItems: 'center',
   },
   chipsContainer: {
     width: '100%',
