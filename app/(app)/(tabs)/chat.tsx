@@ -76,17 +76,27 @@ export default function ChatScreen() {
     resolvedSessionId ? { sessionId: resolvedSessionId } : 'skip'
   )
 
-  // Map session_messages (role: 'rider' | 'system') to ChatMessage
+  // Map session_messages (role: 'rider' | 'system') to ChatMessage.
+  // Hidden agent bookkeeping rows (agent_turn, tool_result_hidden, reasoning)
+  // carry pi-ai Message payloads for the ReAct loop and never render in the
+  // transcript directly, so we drop them at this boundary.
   const messages: ChatMessage[] =
-    rawMessages?.map((msg) => ({
-      id: msg._id,
-      role: msg.role === 'system' ? 'agent' : 'rider',
-      content: msg.content,
-      timestamp: new Date(msg.createdAt),
-      kind: msg.kind,
-      status: msg.status,
-      attachments: msg.attachments,
-    })) ?? []
+    rawMessages
+      ?.filter(
+        (msg) =>
+          msg.kind !== 'agent_turn' &&
+          msg.kind !== 'tool_result_hidden' &&
+          msg.kind !== 'reasoning'
+      )
+      .map((msg) => ({
+        id: msg._id,
+        role: msg.role === 'system' ? 'agent' : 'rider',
+        content: msg.content,
+        timestamp: new Date(msg.createdAt),
+        kind: msg.kind as ChatMessage['kind'],
+        status: msg.status,
+        attachments: msg.attachments,
+      })) ?? []
 
   // Derive isPlanning from live message statuses: if any assistant row is
   // still running or streaming, the agent is working.
