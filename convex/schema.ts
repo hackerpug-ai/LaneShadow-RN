@@ -45,7 +45,8 @@ export default defineSchema({
     .index('by_createdAt', ['createdAt']),
 
   route_plans: defineTable(routePlanValidator)
-    .index('by_clerkUserId_and_status', ['clerkUserId', 'status']),
+    .index('by_clerkUserId_and_status', ['clerkUserId', 'status'])
+    .index('by_planningSessionId_and_status', ['planningSessionId', 'status']),
 
   /**
    * Plan usage table - Tracks monthly route plan usage per user for rate limiting

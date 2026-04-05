@@ -35,6 +35,7 @@ export const routePlanPhaseValidator = v.union(
 
 export const routePlanValidator = v.object({
   clerkUserId: v.string(),
+  planningSessionId: v.optional(v.id('planning_sessions')),
   planInput: planInputValidator,
   startLabel: v.optional(v.string()),
   endLabel: v.optional(v.string()),
