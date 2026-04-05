@@ -536,11 +536,13 @@ describe('executeRidePlanningAgent', () => {
   })
 
   it('fires onToolPending for each toolcall_start event from the stream', async () => {
+    // At toolcall_start the runtime initialises arguments to {} — args are not
+    // yet populated. The contract exposes only the tool name at this point.
     const partialToolCall = {
       type: 'toolCall' as const,
       id: 'tc_partial',
       name: 'geocode',
-      arguments: { query: 'Santa' },
+      arguments: {},
     }
     const finalMsg = makeAssistantMessage(
       [{ type: 'toolCall', id: 'tc_partial', name: 'geocode', arguments: { query: 'Santa Cruz' } }],
@@ -566,10 +568,7 @@ describe('executeRidePlanningAgent', () => {
     await executeRidePlanningAgent(ctx, 'geocode Santa Cruz', { onToolPending })
 
     expect(onToolPending).toHaveBeenCalledTimes(1)
-    expect(onToolPending).toHaveBeenCalledWith({
-      name: 'geocode',
-      partialArguments: JSON.stringify({ query: 'Santa' }),
-    })
+    expect(onToolPending).toHaveBeenCalledWith({ name: 'geocode' })
   })
 
   it('fires onStepStart once per loop iteration with (step, MAX_STEPS)', async () => {

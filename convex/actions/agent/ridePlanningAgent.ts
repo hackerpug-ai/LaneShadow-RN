@@ -70,10 +70,11 @@ export type ExecuteContext = {
    *  thinking tokens (e.g. Claude 3.7 Sonnet with thinking enabled). Fires
    *  once per reasoning chunk in stream order, before the associated text. */
   onThinkingDelta?: (delta: string) => Promise<void>
-  /** Called when the model emits a partial (streaming) tool call — i.e. the
-   *  tool name and arguments are not yet complete. Use to show a "pending"
-   *  indicator in the UI before the tool actually executes. */
-  onToolPending?: (partialCall: { name: string; partialArguments: string }) => Promise<void>
+  /** Called when the model begins emitting a tool call from the stream,
+   *  before arguments are populated. Provides the tool name so the UI can
+   *  show a pending indicator. Full arguments arrive via onToolStart when
+   *  the tool actually executes. */
+  onToolPending?: (partial: { name: string }) => Promise<void>
   /** Called at the start of each ReAct step before the model is invoked.
    *  Provides the current step index (0-based) and the configured maximum so
    *  callers can render a progress indicator or enforce step budgets. */
@@ -478,10 +479,7 @@ export async function executeRidePlanningAgent(
         const partialContent = ev.partial.content
         const partialToolCall = partialContent[ev.contentIndex]
         if (partialToolCall && partialToolCall.type === 'toolCall') {
-          await executeCtx?.onToolPending?.({
-            name: partialToolCall.name,
-            partialArguments: JSON.stringify(partialToolCall.arguments ?? {}),
-          })
+          await executeCtx?.onToolPending?.({ name: partialToolCall.name })
         }
       } else if (ev.type === 'done' && ev.reason !== 'toolUse') {
         // Flush buffered text deltas on a final (non-tool) turn.
