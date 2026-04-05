@@ -82,8 +82,9 @@ function formatDurationLabel(
     return 'Thought briefly'
   }
   if (completedAt === null) {
-    // Complete but we never captured a completion timestamp (e.g. message
-    // already complete on first render) — use createdAt as best-effort anchor.
+    // Complete but we never captured a live completion timestamp (e.g.
+    // message already complete on first render — historical transcript).
+    // Fall through to spec default rather than inflate with createdAt.
     return 'Thought briefly'
   }
   const elapsedMs = Math.max(0, completedAt - startedAt)
@@ -92,6 +93,24 @@ function formatDurationLabel(
   }
   const seconds = Math.round(elapsedMs / 1000)
   return `Thought for ${seconds}s`
+}
+
+/**
+ * Non-abbreviated duration formatter for screen-reader labels. VoiceOver
+ * reads "3s" as "three ess", so the accessibility label needs full words
+ * (per design spec §8.3: "Agent reasoning, thought for 3 seconds").
+ */
+function formatDurationForA11y(
+  status: ReasoningCardProps['message']['status'],
+  startedAt: number,
+  completedAt: number | null
+): string {
+  if (status === 'failed') return 'briefly'
+  if (completedAt === null) return 'briefly'
+  const elapsedMs = Math.max(0, completedAt - startedAt)
+  if (elapsedMs < 1000) return 'briefly'
+  const seconds = Math.round(elapsedMs / 1000)
+  return `${seconds} ${seconds === 1 ? 'second' : 'seconds'}`
 }
 
 // ---------------------------------------------------------------------------
@@ -150,6 +169,12 @@ export const ReasoningCard = ({ message }: ReasoningCardProps) => {
   // when the status transitions streaming → complete.
   const [completedAt, setCompletedAt] = useState<number | null>(null)
   const completedAtRef = useRef<number | null>(null)
+  // Track the previous streaming state so we can distinguish a live
+  // streaming→complete transition from a message that was already complete
+  // on first render (historical transcript). Only live transitions should
+  // capture completedAt; otherwise we'd inflate the duration using createdAt
+  // minus "now" (potentially minutes or hours later).
+  const prevIsStreamingRef = useRef<boolean | null>(null)
 
   const status = message.status
   const isStreaming = status === 'streaming' || status === 'running'
@@ -163,14 +188,30 @@ export const ReasoningCard = ({ message }: ReasoningCardProps) => {
       .catch(() => {
         // API unavailable — leave animations enabled
       })
+    // Subscribe to live reduce-motion toggles so users who flip the iOS
+    // setting mid-session see the animation behaviour update immediately.
+    const sub = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      setReduceMotion
+    )
+    return () => sub.remove()
   }, [])
 
   useEffect(() => {
-    if (!isStreaming && completedAtRef.current === null) {
+    // Only capture completedAt on a LIVE streaming → complete transition.
+    // On first render, prevIsStreamingRef.current is null, so historical
+    // already-complete messages correctly skip this assignment and fall
+    // through to the "Thought briefly" default.
+    if (
+      prevIsStreamingRef.current === true &&
+      !isStreaming &&
+      completedAtRef.current === null
+    ) {
       const now = Date.now()
       completedAtRef.current = now
       setCompletedAt(now)
     }
+    prevIsStreamingRef.current = isStreaming
   }, [isStreaming])
 
   const handleToggle = () => {
@@ -184,10 +225,17 @@ export const ReasoningCard = ({ message }: ReasoningCardProps) => {
     completedAt
   )
 
-  // Accessibility label per design spec section 8.3
+  // Accessibility label per design spec §8.3. Uses full words so VoiceOver
+  // reads "3 seconds" (not "three ess") and "briefly" for historical or
+  // sub-second durations.
+  const a11yDuration = formatDurationForA11y(
+    status,
+    message.createdAt,
+    completedAt
+  )
   const accessibilityLabel = isStreaming
     ? 'Agent is thinking'
-    : `Agent reasoning, ${durationLabel.toLowerCase()}`
+    : `Agent reasoning, thought for ${a11yDuration}`
   const accessibilityHint = !canExpand
     ? undefined
     : expanded
@@ -304,10 +352,7 @@ export const ReasoningCard = ({ message }: ReasoningCardProps) => {
             testID="reasoning-card-body"
           >
             <Text
-              style={[
-                semantic.type.body.sm,
-                { color: mutedColor, lineHeight: 21 },
-              ]}
+              style={[semantic.type.body.sm, { color: mutedColor }]}
             >
               {message.content}
             </Text>
