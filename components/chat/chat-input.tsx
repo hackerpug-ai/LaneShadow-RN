@@ -197,7 +197,7 @@ export const ChatInput = ({
           styles.inputContainer,
           {
             backgroundColor: semantic.color.surface.default,
-            borderRadius: semantic.radius.full,
+            borderRadius: semantic.radius.xl,
             borderWidth: 1,
             borderColor: semantic.color.border.default,
           },
@@ -208,17 +208,18 @@ export const ChatInput = ({
           <TextInput
             style={[
               semantic.type.body.md,
+              styles.textInput,
               {
                 color: semantic.color.onSurface.default,
-                flex: 1,
               },
             ]}
             placeholder="Where would you like to ride?"
             placeholderTextColor={semantic.color.onSurface.muted}
             value={text}
             onChangeText={setText}
-            onSubmitEditing={handleSend}
-            returnKeyType="send"
+            multiline
+            textAlignVertical="top"
+            blurOnSubmit={false}
             testID="chat-input-text-field"
             accessibilityLabel="Chat input field"
             accessibilityHint="Type your ride request and tap send"
@@ -290,17 +291,24 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     width: '100%',
     maxWidth: 780,
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     gap: 12,
   },
   inputWrapper: {
     flex: 1,
     minHeight: 24,
     justifyContent: 'center',
+    paddingBottom: 8,
+  },
+  textInput: {
+    flex: 1,
+    minHeight: 24,
+    maxHeight: 140,
+    padding: 0,
   },
   sendButton: {
     marginLeft: 'auto',

@@ -50,7 +50,28 @@ Module._resolveFilename = function (request, parent, ...rest) {
   if (STUB_MAP[request]) {
     return STUB_MAP[request]
   }
-  return originalResolveFilename.call(this, request, parent, ...rest)
+  try {
+    return originalResolveFilename.call(this, request, parent, ...rest)
+  } catch (err) {
+    // Fallback: try .ts / .tsx / index.ts / index.tsx for relative requires.
+    // Node's native CJS resolver only knows .js/.json/.node; test files that
+    // do `require('./saved-routes')` against a TSX sibling need this hook.
+    if (err.code === 'MODULE_NOT_FOUND' && (request.startsWith('./') || request.startsWith('../')) && parent?.filename) {
+      const baseDir = path.dirname(parent.filename)
+      const candidates = [
+        path.resolve(baseDir, request + '.ts'),
+        path.resolve(baseDir, request + '.tsx'),
+        path.resolve(baseDir, request, 'index.ts'),
+        path.resolve(baseDir, request, 'index.tsx'),
+      ]
+      for (const candidate of candidates) {
+        if (fs.existsSync(candidate)) {
+          return candidate
+        }
+      }
+    }
+    throw err
+  }
 }
 
 // Configure @testing-library/react-native to include elements marked as

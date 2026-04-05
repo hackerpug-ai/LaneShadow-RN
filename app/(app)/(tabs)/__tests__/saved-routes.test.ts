@@ -223,8 +223,32 @@ vi.mock('../../../../components/ui/delete-route-dialog', () => ({
   DeleteRouteDialog: 'DeleteRouteDialog',
 }))
 
+vi.mock('../saved-routes.components', () => {
+  const React = require('react')
+  return {
+    SkeletonCard: 'SkeletonCard',
+    EmptyPlaceholder: 'EmptyPlaceholder',
+    LoadingState: 'LoadingState',
+    FilterHeader: 'FilterHeader',
+    FilteredEmptyState: 'FilteredEmptyState',
+    SwipeableRouteCard: ({ children, onDelete }: { children: unknown; onDelete: () => void }) => {
+      const renderRightActions = () =>
+        React.createElement('Pressable', {
+          testID: 'swipe-delete-action',
+          onPress: onDelete,
+        })
+      return React.createElement(
+        'Swipeable',
+        { testID: 'swipeable-wrapper', renderRightActions },
+        children
+      )
+    },
+  }
+})
+
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
+import SavedRoutesScreen from '../saved-routes'
 import type { SavedRouteListItemView } from '../../../../types/routes'
 
 const makeRoute = (
@@ -268,7 +292,7 @@ describe('AC1: Tapping card body navigates to detail screen', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
+      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -302,7 +326,7 @@ describe('AC1: Tapping card body navigates to detail screen', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
+      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -333,7 +357,7 @@ describe('AC2: Chevron fires same navigation, no double-fire', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
+      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -366,7 +390,7 @@ describe('AC2: Chevron fires same navigation, no double-fire', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
+      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -405,7 +429,7 @@ describe('AC3: Accessibility role and label on SavedRouteCard', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
+      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -452,7 +476,7 @@ describe('AC4: Swipe gesture unaffected by Pressable wrapper', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
+      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -476,7 +500,7 @@ describe('AC4: Swipe gesture unaffected by Pressable wrapper', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
+      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 

@@ -1,8 +1,14 @@
-import { useRouter, useSegments } from 'expo-router'
+import { useRouter, useSegments, useLocalSearchParams } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useMutation } from 'convex/react'
+import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
+import type { Id } from '../../../convex/_generated/dataModel'
 import { ScrollView, StyleSheet, View } from 'react-native'
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MenuLayout } from '../../../components/layouts/menu-layout'
 import { MapControls } from '../../../components/map/map-controls'
@@ -17,6 +23,8 @@ import { PlanRideSheet } from '../../../components/sheets/plan-ride-sheet'
 import { PlanningErrorSheet } from '../../../components/sheets/planning-error-sheet'
 import { RoutePlannerLoading } from '../../../components/sheets/planning-loading'
 import { ChatInput, RouteAttachmentCard } from '../../../components/chat'
+import { ChatTranscript } from '../../../components/ui/chat-transcript'
+import type { ChatMessage as TranscriptMessage } from '../../../components/ui/chat-transcript'
 import { useCurrentLocation } from '../../../hooks/use-current-location'
 import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
@@ -39,12 +47,39 @@ const IDLE_SUGGESTIONS = [
   'Avoid highways',
 ]
 
+const CHAT_TRANSITION_MS = 260
+const TRANSIENT_MS = 5000
+const TRANSIENT_FADE_MS = 450
+
 const HomeMapScreen = () => {
   const router = useRouter()
   const segments = useSegments()
   const mapRef = useRef<MapViewHandle | null>(null)
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
+  const { sessionId: sessionIdParam, chat: chatParam } = useLocalSearchParams<{
+    sessionId?: string
+    chat?: string
+  }>()
+
+  // Transcript visibility model (single source of truth for the transcript
+  // that overlays the map):
+  //   - `chatMode` (a.k.a. "pinned"): transcript visible indefinitely, map
+  //     fully faded out, header swaps to chat UI.
+  //   - `transientVisible`: transcript visible as a scrim over the map,
+  //     auto-hides after TRANSIENT_MS. Triggered by new messages arriving.
+  //   - neither: transcript hidden, map fully interactive.
+  // Tapping the chat button cycles: hidden → pinned → hidden, transient →
+  // pinned. This way a brand new message can be glanced at without changing
+  // screens, but a tap commits to reading the full thread.
+  const [chatMode, setChatMode] = useState(chatParam === '1')
+  const [transientVisible, setTransientVisible] = useState(false)
+  const [mapMounted, setMapMounted] = useState(!chatMode)
+  const [transcriptMounted, setTranscriptMounted] = useState(chatMode)
+  const mapOpacity = useSharedValue(chatMode ? 0 : 1)
+  const chatOpacity = useSharedValue(chatMode ? 1 : 0)
+  const scrimOpacity = useSharedValue(chatMode ? 1 : 0)
+  const transientTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { data: planInit } = usePlanInit()
   const {
     planRide,
@@ -61,15 +96,158 @@ const HomeMapScreen = () => {
 
   // Chat infrastructure
   const { state: flowState, dispatch: flowDispatch } = useRideFlow()
-  const { sendPlanningMessage, cancel: cancelChatPlanning, isPlanning: isChatPlanning } = useChatPlanning(flowDispatch)
+  const {
+    sendPlanningMessage,
+    cancel: cancelChatPlanning,
+    isPlanning: isChatPlanning,
+    sessionId: planningSessionId,
+  } = useChatPlanning(flowDispatch)
   const { messages } = useChatSession(flowState.sessionId, flowState)
   const { polylines, selectRoute } = useRouteComparison(flowState, flowDispatch)
   const createSession = useMutation(api.db.planningSessions.createSession)
+
+  // Resolve which session drives the chat transcript. Prefer an explicit
+  // URL param (deep link from the menu drawer), fall back to the real
+  // Convex sessionId created inside useChatPlanning. Note: we deliberately
+  // DO NOT use `flowState.sessionId` — that's a locally-generated string
+  // used by the state machine and would not validate as an Id<>.
+  const activeChatSessionId: Id<'planning_sessions'> | null = useMemo(() => {
+    if (sessionIdParam) return sessionIdParam as Id<'planning_sessions'>
+    if (planningSessionId) return planningSessionId as Id<'planning_sessions'>
+    return null
+  }, [sessionIdParam, planningSessionId])
+
+  const rawTranscriptMessages = useQuery(
+    api.db.sessionMessages.list,
+    activeChatSessionId ? { sessionId: activeChatSessionId } : 'skip'
+  )
+
+  const transcriptMessages: TranscriptMessage[] = useMemo(() => {
+    return (
+      rawTranscriptMessages?.map((msg) => ({
+        id: msg._id,
+        role: (msg.role === 'system' ? 'agent' : 'rider') as 'rider' | 'agent',
+        content: msg.content,
+        timestamp: new Date(msg.createdAt),
+      })) ?? []
+    )
+  }, [rawTranscriptMessages])
 
   const handleNewSession = async () => {
     await createSession({ firstMessage: '' })
     flowDispatch({ type: 'NEW_SESSION' })
   }
+
+  const clearTransientTimer = useCallback(() => {
+    if (transientTimerRef.current) {
+      clearTimeout(transientTimerRef.current)
+      transientTimerRef.current = null
+    }
+  }, [])
+
+  const armTransientTimer = useCallback(() => {
+    clearTransientTimer()
+    transientTimerRef.current = setTimeout(() => {
+      setTransientVisible(false)
+      transientTimerRef.current = null
+    }, TRANSIENT_MS)
+  }, [clearTransientTimer])
+
+  // Show the transcript transiently whenever a new message lands and we're
+  // not already pinned into chat mode. The first Convex payload is treated
+  // as the baseline so existing history doesn't flash on app open.
+  const prevMessageCountRef = useRef(0)
+  const baselineSetRef = useRef(false)
+  // Reset baseline when the session we're viewing changes
+  useEffect(() => {
+    baselineSetRef.current = false
+    prevMessageCountRef.current = 0
+  }, [activeChatSessionId])
+  useEffect(() => {
+    if (rawTranscriptMessages === undefined) return // still loading
+    if (!baselineSetRef.current) {
+      prevMessageCountRef.current = transcriptMessages.length
+      baselineSetRef.current = true
+      return
+    }
+    const prev = prevMessageCountRef.current
+    prevMessageCountRef.current = transcriptMessages.length
+    if (chatMode) return
+    if (transcriptMessages.length > prev) {
+      setTranscriptMounted(true)
+      setTransientVisible(true)
+      armTransientTimer()
+    }
+  }, [transcriptMessages.length, chatMode, armTransientTimer, rawTranscriptMessages])
+
+  // Cleanup on unmount
+  useEffect(() => () => clearTransientTimer(), [clearTransientTimer])
+
+  // Wrap the send so the transient overlay surfaces the INSTANT the user
+  // commits, without waiting for Convex to round-trip. This matters on the
+  // very first message of a brand-new session: `planningSessionId` changes
+  // mid-flight, which resets the baseline guard and would otherwise make
+  // the first Convex payload look like "existing history" and get skipped.
+  // By arming transient up-front, the rider always sees their send land.
+  const handleSendMessage = useCallback(
+    (message: string) => {
+      if (!chatMode) {
+        setTranscriptMounted(true)
+        setTransientVisible(true)
+        armTransientTimer()
+      }
+      void sendPlanningMessage(message)
+    },
+    [chatMode, sendPlanningMessage, armTransientTimer]
+  )
+
+  // Cycle the transcript visibility when the chat button / overlay is tapped.
+  //   hidden    → pinned (chat mode)
+  //   transient → pinned (cancel timer, stay visible)
+  //   pinned    → hidden (exit chat mode)
+  const cycleTranscript = useCallback(() => {
+    clearTransientTimer()
+    if (chatMode) {
+      setChatMode(false)
+      setTransientVisible(false)
+      return
+    }
+    // Pin whatever is showing — or surface it from hidden
+    setTranscriptMounted(true)
+    setTransientVisible(false)
+    setMapMounted(true)
+    setChatMode(true)
+  }, [chatMode, clearTransientTimer])
+
+  // Respond to deep-link param changes (e.g. drawer tapping a session when
+  // the home tab is already mounted).
+  useEffect(() => {
+    if (chatParam === '1' && !chatMode) {
+      setTranscriptMounted(true)
+      setChatMode(true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatParam, sessionIdParam])
+
+  // Opacity orchestration — map + scrim track chatMode, chat content tracks
+  // chatMode || transientVisible so it can peek in without hiding the map.
+  useEffect(() => {
+    const duration = chatMode || !transientVisible ? CHAT_TRANSITION_MS : TRANSIENT_FADE_MS
+    mapOpacity.value = withTiming(chatMode ? 0 : 1, { duration: CHAT_TRANSITION_MS })
+    scrimOpacity.value = withTiming(chatMode ? 1 : 0, { duration: CHAT_TRANSITION_MS })
+    chatOpacity.value = withTiming(chatMode || transientVisible ? 1 : 0, { duration })
+    const t = setTimeout(() => {
+      if (chatMode) setMapMounted(false)
+      else setMapMounted(true)
+      if (!chatMode && !transientVisible) setTranscriptMounted(false)
+    }, CHAT_TRANSITION_MS + 60)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatMode, transientVisible])
+
+  const mapLayerStyle = useAnimatedStyle(() => ({ opacity: mapOpacity.value }))
+  const chatLayerStyle = useAnimatedStyle(() => ({ opacity: chatOpacity.value }))
+  const scrimLayerStyle = useAnimatedStyle(() => ({ opacity: scrimOpacity.value }))
 
   // Manual mode state (legacy - for PlanRideSheet)
   const [startStop, setStartStop] = useState<RouteStop | null>(null)
@@ -321,36 +499,91 @@ const HomeMapScreen = () => {
   return (
     <MenuLayout testID="home-menu-layout" menuOpen={menuOpen} onMenuOpenChange={setMenuOpen}>
       <View style={styles.container}>
-        <MapViewWrapper
-          ref={mapRef}
-          polylines={routePolylines}
-          markers={markers}
-          onMapClick={handleMapClick}
-          onCameraMove={handleCameraMove}
-        />
+        {/* Map layer — cross-fades out when chat mode is entered */}
+        {mapMounted && (
+          <Animated.View
+            style={[StyleSheet.absoluteFill, mapLayerStyle]}
+            pointerEvents={chatMode ? 'none' : 'auto'}
+          >
+            <MapViewWrapper
+              ref={mapRef}
+              polylines={routePolylines}
+              markers={markers}
+              onMapClick={handleMapClick}
+              onCameraMove={handleCameraMove}
+            />
+          </Animated.View>
+        )}
+
+        {/* Chat transcript layer — the single source of truth for
+            messages on this screen. Renders in three visibility modes:
+              • hidden         (opacity 0, unmounted)
+              • transient peek (semi-opaque scrim, auto-hides, no touch)
+              • pinned         (solid scrim, fully interactive, chat mode)
+            Uses one scrim backdrop (animated separately) so the peek can
+            leave the map readable through the transcript. */}
+        {transcriptMounted && (
+          <Animated.View
+            style={[StyleSheet.absoluteFill, chatLayerStyle, styles.chatLayer]}
+            pointerEvents={chatMode ? 'auto' : 'none'}
+          >
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                StyleSheet.absoluteFill,
+                scrimLayerStyle,
+                { backgroundColor: semantic.color.background.default },
+              ]}
+            />
+            <ChatTranscript
+              messages={transcriptMessages}
+              topInset={insets.top + 72}
+              bottomInset={insets.bottom + 96}
+              transparent
+            />
+          </Animated.View>
+        )}
 
         <View pointerEvents="box-none" style={[styles.headerOverlay, {}]}>
           <MapHeaderOverlay
-            title="Lane Shadow"
-            leftAction={{
-              icon: 'menu',
-              onPress: () => setMenuOpen(true),
-              testID: 'map-header-left-button',
-            }}
-            rightAction={{
-              icon: 'motorbike',
-              onPress: handleNewSession,
-              testID: 'map-header-new-session',
-              accessibilityLabel: 'Start new ride session',
-              renderIcon: () => (
-                <MotorcyclePlusIcon size={24} color={semantic.color.onSurface.default} />
-              ),
-            }}
+            title={chatMode ? 'Chat' : 'Lane Shadow'}
+            leftAction={
+              chatMode
+                ? {
+                    icon: 'arrow-left',
+                    onPress: cycleTranscript,
+                    testID: 'map-header-left-button',
+                    accessibilityLabel: 'Back to map',
+                  }
+                : {
+                    icon: 'menu',
+                    onPress: () => setMenuOpen(true),
+                    testID: 'map-header-left-button',
+                  }
+            }
+            rightAction={
+              chatMode
+                ? {
+                    icon: 'plus',
+                    onPress: handleNewSession,
+                    testID: 'map-header-new-session',
+                    accessibilityLabel: 'Start new ride session',
+                  }
+                : {
+                    icon: 'motorbike',
+                    onPress: handleNewSession,
+                    testID: 'map-header-new-session',
+                    accessibilityLabel: 'Start new ride session',
+                    renderIcon: () => (
+                      <MotorcyclePlusIcon size={24} color={semantic.color.onSurface.default} />
+                    ),
+                  }
+            }
             testID="map-header-overlay"
           />
 
-          {/* Overlay toggle - only shown when a route is selected (AC4) */}
-          {selectedOption && (
+          {/* Overlay toggle - only shown when a route is selected and not in chat mode */}
+          {selectedOption && !chatMode && (
             <View
               style={[
                 styles.overlayToggle,
@@ -370,27 +603,30 @@ const HomeMapScreen = () => {
           )}
         </View>
 
-        <View
-          onLayout={(e) => setControlsHeight(e.nativeEvent.layout.height)}
-          style={[
-            styles.controls,
-            {
-              right: semantic.space.sm,
-              transform: [{ translateY: -controlsHeight / 2 }],
-            },
-          ]}
-        >
-          <MapControls
-            onZoomIn={() => zoom(1)}
-            onZoomOut={() => zoom(-1)}
-            onRecenter={recenter}
-            onClear={clearAll}
-            onOpenChat={() => router.push('/(app)/(tabs)/chat')}
-          />
-        </View>
+        {!chatMode && (
+          <View
+            onLayout={(e) => setControlsHeight(e.nativeEvent.layout.height)}
+            style={[
+              styles.controls,
+              {
+                right: semantic.space.sm,
+                transform: [{ translateY: -controlsHeight / 2 }],
+              },
+            ]}
+          >
+            <MapControls
+              onZoomIn={() => zoom(1)}
+              onZoomOut={() => zoom(-1)}
+              onRecenter={recenter}
+              onClear={clearAll}
+              onOpenChat={cycleTranscript}
+            />
+          </View>
+        )}
 
-        {/* Route attachment cards when showing results */}
-        {(flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS') &&
+        {/* Route attachment cards when showing results (map mode only) */}
+        {!chatMode &&
+          (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS') &&
           flowState.routeOptions?.options && (
             <View
               pointerEvents="box-none"
@@ -422,7 +658,7 @@ const HomeMapScreen = () => {
 
         {/* Chat input - always visible at bottom */}
         <ChatInput
-          onSend={sendPlanningMessage}
+          onSend={handleSendMessage}
           onCancel={cancelChatPlanning}
           state={flowState}
           suggestions={IDLE_SUGGESTIONS}
@@ -494,5 +730,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 15,
     alignItems: 'center',
+  },
+  chatLayer: {
+    zIndex: 10,
   },
 })

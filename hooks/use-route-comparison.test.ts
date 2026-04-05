@@ -1,5 +1,30 @@
 import { describe, it, expect, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
+
+// Mock useSemanticTheme so route-polyline can read semantic.color.* without
+// needing the real styles/theme.ts pipeline (which depends on RNP's runtime
+// theme assembly that is not wired through the vitest environment).
+vi.mock('./use-semantic-theme', () => ({
+  useSemanticTheme: () => ({
+    semantic: {
+      color: {
+        routeSelected: { default: '#FF6B35' },
+        routeAlternate: { default: '#60a5fa' },
+        onSurface: { default: '#E6E0E9', muted: '#938F99' },
+      },
+    },
+  }),
+  useTheme: () => ({
+    semantic: {
+      color: {
+        routeSelected: { default: '#FF6B35' },
+        routeAlternate: { default: '#60a5fa' },
+        onSurface: { default: '#E6E0E9', muted: '#938F99' },
+      },
+    },
+  }),
+}))
+
 import { useRouteComparison } from './use-route-comparison'
 import type { RideFlowState } from './use-ride-flow'
 

@@ -3,6 +3,75 @@
 import { Type } from '@sinclair/typebox'
 
 /**
+ * Agent tool parameter schemas (TypeBox) passed to pi-ai's Tool definitions.
+ *
+ * Design rule: every property is REQUIRED. Instead of Type.Optional(), use
+ * Type.Union([X, Type.Null()]) for "maybe absent" fields. This keeps the
+ * JSON schema compatible with OpenAI strict structured-output mode, which
+ * rejects optional properties.
+ */
+export const AgentToolSchemas = {
+  geocode: Type.Object({
+    query: Type.String({
+      description:
+        'A place name, address, or landmark (e.g. "Santa Cruz", "Golden Gate Bridge", "123 Main St Boulder CO")',
+    }),
+  }),
+
+  planRoute: Type.Object({
+    start: Type.Object({
+      lat: Type.Number({ description: 'Starting latitude in decimal degrees' }),
+      lng: Type.Number({ description: 'Starting longitude in decimal degrees' }),
+      label: Type.Union([Type.String(), Type.Null()], {
+        description: 'Human-readable name of the starting point, or null if unknown',
+      }),
+    }),
+    end: Type.Object({
+      lat: Type.Number({ description: 'Destination latitude in decimal degrees' }),
+      lng: Type.Number({ description: 'Destination longitude in decimal degrees' }),
+      label: Type.Union([Type.String(), Type.Null()], {
+        description: 'Human-readable name of the destination, or null if unknown',
+      }),
+    }),
+    departureTime: Type.Integer({
+      description:
+        'Departure time as unix timestamp in milliseconds. Default to Date.now() + 3600000 (1 hour from now) when not specified by the rider.',
+    }),
+    preferences: Type.Object({
+      scenicBias: Type.Union(
+        [Type.Literal('default'), Type.Literal('high')],
+        { description: 'Use "high" when the rider asks for scenic/twisty/backroads, "default" otherwise' },
+      ),
+      avoidHighways: Type.Boolean({
+        description: 'True when the rider wants to avoid highways/interstates',
+      }),
+      avoidTolls: Type.Boolean({
+        description: 'True when the rider wants to avoid toll roads',
+      }),
+    }),
+  }),
+
+  fetchWeather: Type.Object({
+    location: Type.Union([Type.String(), Type.Null()], {
+      description: 'Optional place name to check weather for; null for current route',
+    }),
+  }),
+
+  saveRoute: Type.Object({
+    routeIndex: Type.Union([Type.Integer(), Type.Null()], {
+      description: '0-based index of which route option to save; null to save the best one',
+    }),
+    name: Type.Union([Type.String(), Type.Null()], {
+      description: 'Custom name for the saved route; null to auto-generate',
+    }),
+  }),
+
+  searchFavorites: Type.Object({
+    query: Type.String({ description: 'Search query to filter saved routes' }),
+  }),
+}
+
+/**
  * Route planning validator schemas using TypeBox for pi ToolDefinitions.
  * These mirror the existing Zod schemas in models/ but use TypeBox for AJV validation.
  */

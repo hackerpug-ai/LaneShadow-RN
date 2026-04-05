@@ -61,6 +61,16 @@ export interface ChatMessage {
 interface ChatTranscriptProps {
   messages: ChatMessage[];
   onRoutePress?: (routeId: string, messageId: string) => void;
+  /** Extra top padding inside the scroll content, e.g. to clear a
+   *  floating header overlay rendered above the transcript. */
+  topInset?: number;
+  /** Extra bottom padding inside the scroll content, e.g. to clear a
+   *  floating input bar rendered above the transcript. */
+  bottomInset?: number;
+  /** When true, the transcript's own background is transparent so the
+   *  parent can provide its own backdrop (e.g. a semi-transparent scrim
+   *  over the map). */
+  transparent?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -297,7 +307,13 @@ const EmptyState = () => {
 // ChatTranscript
 // ---------------------------------------------------------------------------
 
-export const ChatTranscript = ({ messages, onRoutePress }: ChatTranscriptProps) => {
+export const ChatTranscript = ({
+  messages,
+  onRoutePress,
+  topInset = 0,
+  bottomInset = 0,
+  transparent = false,
+}: ChatTranscriptProps) => {
   const { semantic } = useSemanticTheme();
   const scrollRef = useRef<ScrollView>(null);
 
@@ -319,10 +335,18 @@ export const ChatTranscript = ({ messages, onRoutePress }: ChatTranscriptProps) 
   return (
     <ScrollView
       ref={scrollRef}
-      style={[styles.scroll, { backgroundColor: semantic.color.background.default }]}
+      style={[
+        styles.scroll,
+        transparent ? null : { backgroundColor: semantic.color.background.default },
+      ]}
       contentContainerStyle={[
         styles.scrollContent,
-        { padding: semantic.space.lg, gap: semantic.space.lg },
+        {
+          padding: semantic.space.lg,
+          paddingTop: semantic.space.lg + topInset,
+          paddingBottom: semantic.space.lg + bottomInset,
+          gap: semantic.space.lg,
+        },
       ]}
       showsVerticalScrollIndicator={false}
       testID="chat-transcript-scroll"

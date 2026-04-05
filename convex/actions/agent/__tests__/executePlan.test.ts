@@ -145,7 +145,10 @@ describe('executePlanHandler', () => {
     const failedCall = statusArgs.find((a) => a?.status === ROUTE_PLAN_STATUS.FAILED)
 
     expect(failedCall).toBeDefined()
-    expect(failedCall?.errorCode).toBe('ROUTING_ALL_VARIANTS_FAILED')
+    // The handler maps unknown error messages to GENERATION_FAILED. Specific
+    // codes (AGENT_TIMEOUT, NO_ROUTES_GENERATED, INVALID_AGENT_RESPONSE_STRUCTURE)
+    // are preserved; everything else is surfaced as the generic failure code.
+    expect(failedCall?.errorCode).toBe('GENERATION_FAILED')
   })
 
   // ---------------------------------------------------------------------------

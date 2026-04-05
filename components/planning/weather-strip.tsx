@@ -24,22 +24,24 @@ import type { RouteOverlays } from '../../models/saved-routes'
  * Severity level for comparing weather conditions
  * Higher numbers = more severe conditions
  */
-const SEVERITY_ORDER: Record<string, number> = {
-  // Rain severity
+const RAIN_SEVERITY: Record<string, number> = {
   heavy: 5,
-  moderateRain: 4,
+  moderate: 4,
   light: 3,
   none: 2,
-  // Wind severity
+  unavailable: 0,
+}
+const WIND_SEVERITY: Record<string, number> = {
   high: 4,
-  moderateWind: 3,
+  moderate: 3,
   low: 2,
-  // Temperature severity
+  unavailable: 0,
+}
+const TEMP_SEVERITY: Record<string, number> = {
   hot: 4,
+  cold: 4,
   warm: 3,
-  cold: 2,
   mild: 1,
-  // Fallback
   unavailable: 0,
 }
 
@@ -77,16 +79,15 @@ const getWorstCondition = (
   const windLevel = getWorstWindLevel(overlays.wind)
   const tempLevel = getWorstTemperatureLevel(overlays.temperature)
 
-  const rainSeverity = SEVERITY_ORDER[rainLevel] ?? 0
-  const windSeverity = SEVERITY_ORDER[windLevel] ?? 0
-  const tempSeverity = SEVERITY_ORDER[tempLevel] ?? 0
+  const rainSeverity = RAIN_SEVERITY[rainLevel] ?? 0
+  const windSeverity = WIND_SEVERITY[windLevel] ?? 0
+  const tempSeverity = TEMP_SEVERITY[tempLevel] ?? 0
 
   // All conditions are favorable (none, low, mild)
-  if (
-    rainLevel === 'none' &&
-    windLevel === 'low' &&
-    tempLevel === 'mild'
-  ) {
+  const rainOk = rainLevel === 'none' || rainLevel === 'unavailable'
+  const windOk = windLevel === 'low' || windLevel === 'unavailable'
+  const tempOk = tempLevel === 'mild' || tempLevel === 'unavailable'
+  if (rainOk && windOk && tempOk) {
     return null // Good conditions
   }
 
@@ -149,9 +150,9 @@ export const WeatherStrip = ({ overlays, testID }: WeatherStripProps) => {
   const tempLevel = getWorstTemperatureLevel(overlays.temperature)
 
   const isGoodConditions =
-    rainLevel === 'none' &&
-    windLevel === 'low' &&
-    tempLevel === 'mild'
+    (rainLevel === 'none' || rainLevel === 'unavailable') &&
+    (windLevel === 'low' || windLevel === 'unavailable') &&
+    (tempLevel === 'mild' || tempLevel === 'unavailable')
 
   return (
     <TouchableWithoutFeedback

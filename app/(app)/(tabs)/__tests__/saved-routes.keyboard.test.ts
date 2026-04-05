@@ -137,6 +137,7 @@ vi.mock('../../../../lib/notifier-helpers', () => ({
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
+import SavedRoutesScreen from '../saved-routes'
 
 // ---------------------------------------------------------------------------
 // AC1 + AC3: FlatList has keyboardShouldPersistTaps="handled"
@@ -153,7 +154,6 @@ describe('US-033: keyboardShouldPersistTaps on FlatList', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -167,7 +167,6 @@ describe('US-033: keyboardShouldPersistTaps on FlatList', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 

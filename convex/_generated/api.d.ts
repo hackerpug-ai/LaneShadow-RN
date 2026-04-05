@@ -13,6 +13,7 @@ import type * as actions_agent_lib_planRideOrchestrator from "../actions/agent/l
 import type * as actions_agent_lib_reliability from "../actions/agent/lib/reliability.js";
 import type * as actions_agent_lib_tracing from "../actions/agent/lib/tracing.js";
 import type * as actions_agent_planRide from "../actions/agent/planRide.js";
+import type * as actions_agent_providers_geocodingProvider from "../actions/agent/providers/geocodingProvider.js";
 import type * as actions_agent_providers_routingProvider from "../actions/agent/providers/routingProvider.js";
 import type * as actions_agent_providers_weatherProvider from "../actions/agent/providers/weatherProvider.js";
 import type * as actions_agent_ridePlanningAgent from "../actions/agent/ridePlanningAgent.js";
@@ -23,7 +24,6 @@ import type * as actions_agent_tools_enrichRoute from "../actions/agent/tools/en
 import type * as actions_agent_tools_findScenicWaypoints from "../actions/agent/tools/findScenicWaypoints.js";
 import type * as actions_agent_tools_mapConditions from "../actions/agent/tools/mapConditions.js";
 import type * as actions_agent_tools_normalizeRoute from "../actions/agent/tools/normalizeRoute.js";
-import type * as actions_agent_tools_parseNaturalLanguageInput from "../actions/agent/tools/parseNaturalLanguageInput.js";
 import type * as actions_agent_tools_probeConditions from "../actions/agent/tools/probeConditions.js";
 import type * as actions_users from "../actions/users.js";
 import type * as db_clerkSync from "../db/clerkSync.js";
@@ -55,6 +55,7 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/lib/reliability": typeof actions_agent_lib_reliability;
   "actions/agent/lib/tracing": typeof actions_agent_lib_tracing;
   "actions/agent/planRide": typeof actions_agent_planRide;
+  "actions/agent/providers/geocodingProvider": typeof actions_agent_providers_geocodingProvider;
   "actions/agent/providers/routingProvider": typeof actions_agent_providers_routingProvider;
   "actions/agent/providers/weatherProvider": typeof actions_agent_providers_weatherProvider;
   "actions/agent/ridePlanningAgent": typeof actions_agent_ridePlanningAgent;
@@ -65,7 +66,6 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/tools/findScenicWaypoints": typeof actions_agent_tools_findScenicWaypoints;
   "actions/agent/tools/mapConditions": typeof actions_agent_tools_mapConditions;
   "actions/agent/tools/normalizeRoute": typeof actions_agent_tools_normalizeRoute;
-  "actions/agent/tools/parseNaturalLanguageInput": typeof actions_agent_tools_parseNaturalLanguageInput;
   "actions/agent/tools/probeConditions": typeof actions_agent_tools_probeConditions;
   "actions/users": typeof actions_users;
   "db/clerkSync": typeof db_clerkSync;

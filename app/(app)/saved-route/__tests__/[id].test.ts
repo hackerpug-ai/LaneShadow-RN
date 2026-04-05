@@ -15,8 +15,6 @@
  * - Weather derivation logic testing for AC3
  */
 
-/* eslint-disable @typescript-eslint/no-require-imports */
-
 // ---------------------------------------------------------------------------
 // Mocks — must be declared before imports
 // ---------------------------------------------------------------------------
@@ -44,6 +42,7 @@ vi.mock('react-native-paper', () => ({
 }))
 vi.mock('react-native-safe-area-context', () => ({
   SafeAreaView: 'SafeAreaView',
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }))
 vi.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ id: 'test-route-id' }),
@@ -104,6 +103,32 @@ vi.mock('../../../../models/saved-routes', () => ({
 vi.mock('@expo/vector-icons', () => ({
   MaterialCommunityIcons: 'MaterialCommunityIcons',
 }))
+vi.mock('../../../../components/ui/icon-symbol', () => ({
+  IconSymbol: 'IconSymbol',
+}))
+vi.mock('../../../../components/ui/button', () => ({
+  Button: 'Button',
+}))
+vi.mock('../../../../components/ui/delete-route-dialog', () => ({
+  DeleteRouteDialog: 'DeleteRouteDialog',
+}))
+vi.mock('../../../../components/ui/rename-route-dialog', () => ({
+  RenameRouteDialog: 'RenameRouteDialog',
+}))
+vi.mock('../use-route-actions', () => ({
+  useRouteActions: () => ({
+    renameDialogVisible: false,
+    deleteDialogVisible: false,
+    openRenameDialog: vi.fn(),
+    closeRenameDialog: vi.fn(),
+    openDeleteDialog: vi.fn(),
+    closeDeleteDialog: vi.fn(),
+    handleRename: vi.fn(),
+    handleDeleteConfirm: vi.fn(),
+    renameRunning: false,
+    deleteRunning: false,
+  }),
+}))
 
 import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
 import React from 'react'
@@ -114,6 +139,7 @@ import type { WindOverlay, RainOverlay, TemperatureOverlay, RouteOverlays } from
 import { buildRoutePolylines } from '../../../../components/map/route-polyline'
 import { getWorstRainLevel, getWorstTemperatureLevel } from '../../../../models/saved-routes'
 import { deriveWindSummary, formatDistance, formatDuration, formatSavedDate } from '../utils'
+import SavedRouteDetailScreen from '../[id]'
 
 const mockBuildRoutePolylines = buildRoutePolylines as Mock
 
@@ -255,7 +281,6 @@ describe('AC2: Loading state behavior', () => {
     mockHookReturn.data = undefined
     mockHookReturn.isLoading = true
 
-    const SavedRouteDetailScreen = require('../[id]').default
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(React.createElement(SavedRouteDetailScreen))
@@ -345,7 +370,6 @@ describe('AC4: Route not found', () => {
     mockHookReturn.data = null
     mockHookReturn.isLoading = false
 
-    const SavedRouteDetailScreen = require('../[id]').default
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(React.createElement(SavedRouteDetailScreen))
@@ -365,7 +389,6 @@ describe('AC4: Route not found', () => {
     mockHookReturn.data = null
     mockHookReturn.isLoading = false
 
-    const SavedRouteDetailScreen = require('../[id]').default
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(React.createElement(SavedRouteDetailScreen))
@@ -397,7 +420,6 @@ describe('AC5: Back navigation', () => {
     mockHookReturn.data = null
     mockHookReturn.isLoading = false
 
-    const SavedRouteDetailScreen = require('../[id]').default
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(React.createElement(SavedRouteDetailScreen))
@@ -415,7 +437,6 @@ describe('AC5: Back navigation', () => {
     mockHookReturn.data = makeSavedRouteDetail()
     mockHookReturn.isLoading = false
 
-    const SavedRouteDetailScreen = require('../[id]').default
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(React.createElement(SavedRouteDetailScreen))
@@ -479,7 +500,6 @@ describe('US-016 AC1: OverlayToggle renders with availability when route has ove
     mockHookReturn.data = makeSavedRouteDetail()
     mockHookReturn.isLoading = false
 
-    const SavedRouteDetailScreen = require('../[id]').default
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(React.createElement(SavedRouteDetailScreen))
@@ -499,7 +519,6 @@ describe('US-016 AC1: OverlayToggle renders with availability when route has ove
     mockHookReturn.data = makeSavedRouteDetail()
     mockHookReturn.isLoading = false
 
-    const SavedRouteDetailScreen = require('../[id]').default
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(React.createElement(SavedRouteDetailScreen))
@@ -515,7 +534,6 @@ describe('US-016 AC1: OverlayToggle renders with availability when route has ove
     mockHookReturn.isLoading = false
     mockBuildRoutePolylines.mockClear()
 
-    const SavedRouteDetailScreen = require('../[id]').default
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(React.createElement(SavedRouteDetailScreen))
@@ -537,7 +555,6 @@ describe('US-016 AC1: OverlayToggle renders with availability when route has ove
     mockHookReturn.data = makeSavedRouteDetail()
     mockHookReturn.isLoading = false
 
-    const SavedRouteDetailScreen = require('../[id]').default
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(React.createElement(SavedRouteDetailScreen))
@@ -563,7 +580,6 @@ describe('US-016 AC2: Rain toggle disabled when no rain data', () => {
     mockHookReturn.data = makeSavedRouteDetail({ overlays: windOnlyOverlays })
     mockHookReturn.isLoading = false
 
-    const SavedRouteDetailScreen = require('../[id]').default
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(React.createElement(SavedRouteDetailScreen))
@@ -590,7 +606,6 @@ describe('US-016 AC3: Deselecting overlay reverts polyline to default', () => {
     mockHookReturn.isLoading = false
     mockBuildRoutePolylines.mockClear()
 
-    const SavedRouteDetailScreen = require('../[id]').default
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(React.createElement(SavedRouteDetailScreen))
@@ -639,7 +654,6 @@ describe('US-016 AC4: OverlayToggle hidden when no overlay data', () => {
     mockHookReturn.data = makeSavedRouteDetail({ overlays: noOverlays })
     mockHookReturn.isLoading = false
 
-    const SavedRouteDetailScreen = require('../[id]').default
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(React.createElement(SavedRouteDetailScreen))
@@ -655,7 +669,6 @@ describe('US-016 AC4: OverlayToggle hidden when no overlay data', () => {
     mockHookReturn.data = makeSavedRouteDetail({ overlays: noOverlays })
     mockHookReturn.isLoading = false
 
-    const SavedRouteDetailScreen = require('../[id]').default
     expect(() => {
       act(() => {
         renderer.create(React.createElement(SavedRouteDetailScreen))

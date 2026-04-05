@@ -3,51 +3,22 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { env } from '../lib/env'
 import { getUserFacingError } from '../lib/convex-error'
 import { showErrorNotification } from '../lib/notifier-helpers'
-import type { RouteStop } from '../types/routes'
+import {
+  parseAutocompletePredictions,
+  parsePlaceDetails,
+  type PlaceDetails,
+  type PlacePrediction,
+} from './use-place-autocomplete.helpers'
+
+export {
+  parseAutocompletePredictions,
+  parsePlaceDetails,
+  type PlaceDetails,
+  type PlacePrediction,
+}
 
 const AUTOCOMPLETE_URL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json'
 const DETAILS_URL = 'https://maps.googleapis.com/maps/api/place/details/json'
-
-export type PlacePrediction = {
-  placeId: string
-  primaryText: string
-  secondaryText: string
-  description: string
-}
-
-export type PlaceDetails = RouteStop
-
-export const parseAutocompletePredictions = (response: any): Array<PlacePrediction> => {
-  if (!response || !Array.isArray(response.predictions)) return []
-
-  return response.predictions
-    .map((prediction: any) => {
-      const structured = prediction.structured_formatting ?? {}
-      return {
-        placeId: prediction.place_id as string,
-        primaryText: structured.main_text ?? prediction.description ?? '',
-        secondaryText: structured.secondary_text ?? '',
-        description: prediction.description ?? '',
-      }
-    })
-    .filter((item) => Boolean(item.placeId))
-}
-
-export const parsePlaceDetails = (response: any): PlaceDetails | null => {
-  const location = response?.result?.geometry?.location
-  if (!location || typeof location.lat !== 'number' || typeof location.lng !== 'number') {
-    return null
-  }
-
-  const label = response?.result?.name ?? response?.result?.formatted_address ?? ''
-
-  return {
-    lat: location.lat,
-    lng: location.lng,
-    label,
-    placeId: response?.result?.place_id ?? undefined,
-  }
-}
 
 const buildAutocompleteUrl = (query: string, apiKey: string) =>
   `${AUTOCOMPLETE_URL}?input=${encodeURIComponent(query)}&key=${apiKey}`

@@ -131,6 +131,9 @@ vi.mock('./saved-routes.components', () => {
   return {
     SkeletonCard: 'SkeletonCard',
     EmptyPlaceholder: 'EmptyPlaceholder',
+    LoadingState: 'LoadingState',
+    FilterHeader: 'FilterHeader',
+    FilteredEmptyState: 'FilteredEmptyState',
     SwipeableRouteCard: ({ children }: { children: unknown }) =>
       React.createElement('SwipeableRouteCard', null, children),
   }
@@ -144,6 +147,7 @@ import {
   formatDuration,
   THUMBNAIL_ROTATIONS,
   getSortedRoutes,
+  SKELETON_COUNT,
 } from './saved-routes'
 import SavedRoutesScreen from './saved-routes'
 import type { SavedRouteListItemView } from '../../../types/routes'
@@ -211,7 +215,6 @@ describe('getSortedRoutes', () => {
 // ---------------------------------------------------------------------------
 describe('SKELETON_COUNT', () => {
   it('should define exactly 3 skeleton placeholders', () => {
-    const { SKELETON_COUNT } = require('./saved-routes')
     expect(SKELETON_COUNT).toBe(3)
   })
 })

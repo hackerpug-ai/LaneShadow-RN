@@ -1,23 +1,37 @@
 'use node'
 
-import { generateObject } from 'ai'
-import { openai } from '@ai-sdk/openai'
-import { z } from 'zod'
+import {
+  complete,
+  getModel,
+  Type,
+  type AssistantMessage,
+  type Context,
+  type Tool,
+  type ToolCall,
+} from '@mariozechner/pi-ai'
 import { OPENAI_API_KEY, AI_MODEL } from '../../../lib/env'
 import { withTimeout } from '../lib/reliability'
 
 const ENRICH_TIMEOUT_MS = 10_000
 
 /**
- * Zod schema for route enrichment output.
- * aisdk will automatically validate the LLM response against this schema.
+ * TypeBox schema for the enrichment output, exposed to the model as the
+ * parameters of a single tool `emit_enrichments`. The model is forced to call
+ * this tool, giving us structured output without relying on free-form JSON
+ * parsing.
  */
-const RouteEnrichmentSchema = z.object({
-  routes: z.array(
-    z.object({
-      label: z.string().describe('Punchy route name (≤8 words) referencing the most iconic waypoint'),
-      rationale: z.string().describe('1-2 sentences about why this route is scenic (mention waypoints)'),
-      highlights: z.array(z.string().describe('Short phrases (max 4 words each)')),
+const EnrichmentToolSchema = Type.Object({
+  routes: Type.Array(
+    Type.Object({
+      label: Type.String({
+        description: 'Punchy route name (≤8 words) referencing the most iconic waypoint',
+      }),
+      rationale: Type.String({
+        description: '1-2 sentences about why this route is scenic (mention waypoints)',
+      }),
+      highlights: Type.Array(
+        Type.String({ description: 'Short phrase (max 4 words)' })
+      ),
     })
   ),
 })
@@ -36,14 +50,20 @@ export type EnrichRouteInput = {
   }>
 }
 
+const enrichmentTool: Tool = {
+  name: 'emit_enrichments',
+  description:
+    'Emit enriched names, rationales, and highlights for every supplied route. Call this exactly once with one entry per input route, in the same order.',
+  // Cast to `any` for the TypeBox 0.33 (project) vs 0.34 (pi-ai peer) minor
+  // API difference. Runtime shapes are identical — AJV resolves both.
+  parameters: EnrichmentToolSchema as any,
+}
+
 /**
- * Generates human-readable labels and rationale for routes using aisdk with structured output.
- * Uses AI_MODEL for all OpenAI calls (single interface).
+ * Generates human-readable labels and rationale for routes using pi-ai with
+ * a forced tool-call as the structured-output mechanism.
  *
  * Falls back to generic labels on any failure — never throws.
- *
- * @param params.routes - Array of routes with waypoint names, stats, and preferences
- * @returns Array of enrichment objects with label, rationale, and highlights
  */
 export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrichment[]> => {
   try {
@@ -51,21 +71,41 @@ export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrich
       throw new Error('OPENAI_API_KEY not set')
     }
 
-    const model = AI_MODEL
-    console.log(`[enrichRoute] using model=${model}, routes=${params.routes.length}`)
+    console.log(`[enrichRoute] using model=${AI_MODEL}, routes=${params.routes.length}`)
 
-    const result = await withTimeout(
-      async () => {
-        return generateObject({
-          model: openai(model),
-          schema: RouteEnrichmentSchema,
-          prompt: buildUserPrompt(params.routes),
-        })
-      },
+    const model = getModel('openai', AI_MODEL as any)
+
+    const context: Context = {
+      systemPrompt:
+        'You are a motorcycle route naming specialist. You receive structured route data and write compelling, accurate names and descriptions. Always respond by calling the emit_enrichments tool exactly once with one entry per input route, in order.',
+      messages: [
+        {
+          role: 'user',
+          content: buildUserPrompt(params.routes),
+          timestamp: Date.now(),
+        },
+      ],
+      tools: [enrichmentTool],
+    }
+
+    const assistant: AssistantMessage = await withTimeout(
+      async () => complete(model, context),
       { ms: ENRICH_TIMEOUT_MS, label: 'enrichRoute' }
     )
 
-    return result.object.routes as RouteEnrichment[]
+    const call = assistant.content.find(
+      (b): b is ToolCall => b.type === 'toolCall' && b.name === 'emit_enrichments'
+    )
+    if (!call) {
+      throw new Error('Model did not emit enrichments tool call')
+    }
+
+    const { routes } = call.arguments as { routes: RouteEnrichment[] }
+    if (!Array.isArray(routes) || routes.length === 0) {
+      throw new Error('emit_enrichments returned no routes')
+    }
+
+    return routes
   } catch (error) {
     console.warn('[enrichRoute] LLM call failed, using fallback labels', error)
     return params.routes.map((_, idx) => fallbackEnrichment(idx))
@@ -87,10 +127,7 @@ const fallbackEnrichment = (idx: number): RouteEnrichment => ({
 const buildUserPrompt = (routes: EnrichRouteInput['routes']): string => {
   const parts: string[] = []
 
-  parts.push(
-    'You are a motorcycle route naming specialist. You receive structured route data and write compelling, accurate names and descriptions.'
-  )
-  parts.push(`\nName and describe these ${routes.length} motorcycle routes.\n`)
+  parts.push(`Name and describe these ${routes.length} motorcycle routes.\n`)
 
   routes.forEach((route, idx) => {
     parts.push(`\nRoute ${idx + 1}:`)
@@ -107,7 +144,7 @@ const buildUserPrompt = (routes: EnrichRouteInput['routes']): string => {
     }
   })
 
-  parts.push('\n\nGenerate a name and description for each route.')
+  parts.push('\n\nCall emit_enrichments with a name and description for each route.')
 
   return parts.join('\n')
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseAutocompletePredictions, parsePlaceDetails } from './use-place-autocomplete'
+import { parseAutocompletePredictions, parsePlaceDetails } from './use-place-autocomplete.helpers'
 
 describe('use-place-autocomplete helpers', () => {
   it('parses autocomplete predictions', () => {

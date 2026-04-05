@@ -26,7 +26,6 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^3.0.50",
     "@clerk/backend": "^1.9.0",
     "@clerk/clerk-expo": "^2.19.17",
     "@expo/vector-icons": "^15.0.3",
@@ -42,7 +41,6 @@
     "@react-navigation/native": "^7.1.8",
     "@sinclair/typebox": "^0.33.0",
     "@testing-library/react-native": "^13.3.3",
-    "ai": "^6.0.145",
     "convex": "^1.27.5",
     "convex-helpers": "^0.1.60",
     "date-fns": "^4.1.0",

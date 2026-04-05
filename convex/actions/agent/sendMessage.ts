@@ -2,11 +2,9 @@
 
 import { v } from 'convex/values'
 import { action } from '../../_generated/server'
-import { internal } from '../../_generated/api'
+import { api, internal } from '../../_generated/api'
 import { requireIdentity } from '../../guards'
 import { executeRidePlanningAgent } from './ridePlanningAgent'
-import { sendHandler, listHandler } from '../../db/sessionMessages'
-import { getSessionByIdHandler } from '../../db/planningSessions'
 import type { Id } from '../../_generated/dataModel'
 
 /**
@@ -51,27 +49,24 @@ export const sendMessage = action({
     attachments?: Array<{ type: string; routePlanId?: Id<'route_plans'> }>
   }> => {
     // Step 1: Validate session ownership (deterministic)
+    // Actions have no direct `ctx.db`; we must go through the public
+    // query/mutation wrappers which re-check auth on their own.
     const { clerkUserId } = await requireIdentity(ctx)
 
-    const session = await getSessionByIdHandler(
-      ctx as any,
-      { sessionId: args.sessionId },
-      clerkUserId
-    )
+    const session = await ctx.runQuery(api.db.planningSessions.getSessionById, {
+      sessionId: args.sessionId,
+    })
 
     // Step 2: Persist rider message (deterministic)
-    const riderMessageResult = await sendHandler(
-      ctx as any,
-      { sessionId: args.sessionId, content: args.content },
-      clerkUserId
-    )
+    const riderMessageResult = await ctx.runMutation(api.db.sessionMessages.send, {
+      sessionId: args.sessionId,
+      content: args.content,
+    })
 
     // Step 3: Build conversation context for the agent
-    const messages = await listHandler(
-      ctx as any,
-      { sessionId: args.sessionId },
-      clerkUserId
-    )
+    const messages = await ctx.runQuery(api.db.sessionMessages.list, {
+      sessionId: args.sessionId,
+    })
 
     // Convert to agent format (role: content:)
     const conversationHistory = messages.map((msg) => ({

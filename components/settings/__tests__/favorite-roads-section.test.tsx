@@ -202,10 +202,7 @@ vi.mock('../../../components/ui/favorite-road-card', () => ({
       createElement(Text, null, favorite.name),
       createElement(Pressable, {
         testID: 'delete-button',
-        onPress: () => {
-          // Show dialog
-          fireEvent.press(createElement(Pressable, { testID: 'delete-favorite-dialog-confirm', onPress: onDelete }))
-        },
+        onPress: onDelete,
       })
     )
   },
@@ -242,7 +239,7 @@ describe('FavoriteRoadsSection', () => {
     const { getByText } = render(<FavoriteRoadsSection />)
 
     expect(getByText('Favorite Roads')).toBeTruthy()
-    expect(useQuery).toHaveBeenCalledWith('favoriteRoads:list', {})
+    expect(useQuery).toHaveBeenCalledWith('db.favoriteRoads:list')
   })
 
   /**
@@ -347,16 +344,14 @@ describe('FavoriteRoadsSection', () => {
     const mockRemove = vi.fn().mockResolvedValue({ success: true })
     ;(useMutation as Mock).mockReturnValue(mockRemove)
 
-    const { getByText } = render(<FavoriteRoadsSection />)
+    const { getByText, getByTestId } = render(<FavoriteRoadsSection />)
 
     await waitFor(() => {
       expect(getByText('Scenic Route 1')).toBeTruthy()
     })
 
     // Find delete button and press it
-    const deleteButton = getByText('Scenic Route 1').parent.findByProps({
-      testID: 'delete-button',
-    })
+    const deleteButton = getByTestId('delete-button')
     fireEvent.press(deleteButton)
 
     await waitFor(() => {

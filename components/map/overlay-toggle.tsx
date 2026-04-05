@@ -227,6 +227,7 @@ const OverlayToggleItem = ({
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled, selected: isSelected }}
       android_ripple={{ color: addOpacity(semantic.color.primary.default, 0.2) }}
+      style={[isDisabled ? { opacity: 0.5 } : { opacity: 1 }]}
     >
       <View
         style={[
@@ -236,7 +237,6 @@ const OverlayToggleItem = ({
             height: semantic.space['3xl'],
             borderRadius: semantic.radius.lg,
             backgroundColor: getBackgroundColor(),
-            opacity: isDisabled ? 0.5 : 1,
           },
         ]}
       >

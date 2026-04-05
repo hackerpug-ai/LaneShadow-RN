@@ -104,8 +104,7 @@ export const useChatPlanning = (dispatch: (action: RideFlowAction) => void): Use
 
   // Backend functions
   const createSession = useMutation(api.db.planningSessions.createSession)
-  // @ts-ignore - Convex useAction type inference issue with nested actions
-  const sendMessage = useAction(api.actions.agent.sendMessage)
+  const sendMessage = useAction(api.actions.agent.sendMessage.sendMessage)
 
   // Query for route plan status (when we have a planId)
   // Note: When routePlanId is null, pass 'skip' to avoid the query

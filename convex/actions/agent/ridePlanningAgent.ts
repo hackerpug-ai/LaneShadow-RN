@@ -1,24 +1,32 @@
 'use node'
 
-import { generateText, stepCountIs } from 'ai'
-import { openai } from '@ai-sdk/openai'
-import { z } from 'zod'
-import { v } from 'convex/values'
-
-import { OPENAI_API_KEY, AI_MODEL } from '../../lib/env'
-import { parseNaturalLanguageInput } from './tools/parseNaturalLanguageInput'
+import {
+  complete,
+  getModel,
+  validateToolCall,
+  type AssistantMessage,
+  type Context,
+  type Message,
+  type Tool,
+  type ToolCall,
+  type ToolResultMessage,
+} from '@mariozechner/pi-ai'
+import { AgentToolSchemas } from './lib/piTools'
+import { createGeocodingProvider } from './providers/geocodingProvider'
 import { planRideOrchestrator } from './lib/planRideOrchestrator'
 import { buildOptionsFromResults } from './planRide'
+import { OPENAI_API_KEY, AI_MODEL } from '../../lib/env'
 import { FREE_TIER_MONTHLY_LIMIT } from '../../../models/plan-usage'
 import { ERROR_CODES } from '../../errors'
-import type { Id } from '../../_generated/dataModel'
-import type { ActionCtx } from '../../_generated/server'
 import { internal } from '../../_generated/api'
+import type { ActionCtx } from '../../_generated/server'
+import type { Id } from '../../_generated/dataModel'
 
 // -----------------------------------------------------------------------------
 // Constants
 // -----------------------------------------------------------------------------
 
+const MAX_STEPS = 10
 const AGENT_TIMEOUT_MS = 30_000
 
 // -----------------------------------------------------------------------------
@@ -43,72 +51,96 @@ export type ToolResult =
   | { type: 'chat'; message: string }
 
 // -----------------------------------------------------------------------------
-// Tool Implementations
+// System Prompt
 // -----------------------------------------------------------------------------
 
-/**
- * planRoute tool - Plan a new route based on natural language input
- * Checks rate limits, parses input, and calls the orchestrator
- */
-export async function planRoute(
+const buildSystemPrompt = (ctx: AgentContext): string => {
+  const locBlock = ctx.currentLocation
+    ? `Rider's current location: lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng}`
+    : `Rider's current location: unknown — ask before planning.`
+
+  return `You are a motorcycle ride planning assistant. Be concise — 1-2 sentences per response. Use 2nd person ("your ride", "you'll see").
+
+${locBlock}
+
+Workflow:
+1. If the rider names a place (not "here"), call geocode first to get coordinates.
+2. Call planRoute with structured start, end, departureTime (default: now + 3600000 ms), and preferences.
+3. For refinements ("make it shorter", "avoid highways"): call planRoute again with updated preferences and the same endpoints.
+
+Presentation:
+- 1-2 sentences, highlight scenic features, road types, rough duration.
+- Never expose tool names or technical details.
+
+Errors: suggest what the rider can try next without surfacing internals.`
+}
+
+// -----------------------------------------------------------------------------
+// Tool Handlers
+// -----------------------------------------------------------------------------
+
+async function runGeocode(
   ctx: AgentContext,
-  input: { request: string; currentLocation: { lat: number; lng: number } }
-): Promise<ToolResult> {
+  args: { query: string }
+): Promise<unknown> {
+  const provider = createGeocodingProvider()
+  const results = await provider.geocode(args.query, ctx.currentLocation)
+  return { results: results.slice(0, 3) }
+}
+
+async function runPlanRoute(
+  ctx: AgentContext,
+  args: {
+    start: { lat: number; lng: number; label: string | null }
+    end: { lat: number; lng: number; label: string | null }
+    departureTime: number
+    preferences: {
+      scenicBias: 'default' | 'high'
+      avoidHighways: boolean
+      avoidTolls: boolean
+    }
+  }
+): Promise<unknown> {
+  // Rate-limit check
+  const usage = await ctx.runQuery(internal.db.planUsage.checkUsageInternal, {
+    clerkUserId: ctx.clerkUserId,
+  })
+
+  if (!usage.allowed) {
+    return {
+      type: 'chat',
+      message: `You've reached your monthly limit of ${FREE_TIER_MONTHLY_LIMIT} route plans. Upgrade to Premium for unlimited plans!`,
+    }
+  }
+
   try {
-    // Check rate limit using internal query
-    const usage = await ctx.runQuery(internal.db.planUsage.checkUsageInternal, {
-      clerkUserId: ctx.clerkUserId,
-    })
-
-    if (!usage.allowed) {
-      return {
-        type: 'chat',
-        message: `You've reached your monthly limit of ${FREE_TIER_MONTHLY_LIMIT} route plans. Upgrade to Premium for unlimited plans!`,
-      }
-    }
-
-    // Parse natural language input
-    const parseResult = await parseNaturalLanguageInput({
-      text: input.request,
-      currentLocation: input.currentLocation,
-      departureTime: Date.now() + 3_600_000, // 1 hour from now
-      previousMessages: ctx.conversationHistory,
-    })
-
-    if (parseResult.confidence === 'low' && parseResult.warnings.length > 0) {
-      return {
-        type: 'chat',
-        message: `I'm having trouble understanding your request. ${parseResult.warnings[0]}`,
-      }
-    }
-
-    // Call the deterministic orchestrator directly
     const results = await planRideOrchestrator({
-      planInput: parseResult.planInput,
-      departureTimeMs: parseResult.planInput.departureTime,
+      planInput: {
+        start: {
+          lat: args.start.lat,
+          lng: args.start.lng,
+          label: args.start.label ?? undefined,
+        },
+        end: {
+          lat: args.end.lat,
+          lng: args.end.lng,
+          label: args.end.label ?? undefined,
+        },
+        departureTime: args.departureTime,
+        preferences: args.preferences,
+      },
+      departureTimeMs: args.departureTime,
     })
-    const result = buildOptionsFromResults(results, crypto.randomUUID())
+    const built = buildOptionsFromResults(results, crypto.randomUUID())
 
     // Increment usage (deterministic action)
     await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, {
       clerkUserId: ctx.clerkUserId,
     })
 
-    return {
-      type: 'routes',
-      data: result,
-    }
+    return { type: 'routes', data: built }
   } catch (error) {
-    console.error('[planRoute] Error:', error)
-    const message = error instanceof Error ? error.message : 'Failed to plan your route'
-
-    if (message.includes(ERROR_CODES.RATE_LIMIT_EXCEEDED)) {
-      return {
-        type: 'chat',
-        message: `You've reached your monthly limit of ${FREE_TIER_MONTHLY_LIMIT} route plans.`,
-      }
-    }
-
+    console.error('[runPlanRoute] Error:', error)
     return {
       type: 'error',
       message: "I couldn't plan your route right now. Please try again.",
@@ -116,154 +148,98 @@ export async function planRoute(
   }
 }
 
-/**
- * refineRoute tool - Refine an existing route with new preferences
- */
-export async function refineRoute(
-  ctx: AgentContext,
-  input: { refinement: string }
-): Promise<ToolResult> {
-  try {
-    // Check if there's a previous route to refine
-    const lastSystemMessage = ctx.conversationHistory
-      .filter((m) => m.role === 'system')
-      .pop()
-
-    if (!lastSystemMessage) {
-      return {
-        type: 'chat',
-        message: "I don't have a route to refine yet. Let's plan one first!",
-      }
-    }
-
-    // Parse the refinement request
-    const parseResult = await parseNaturalLanguageInput({
-      text: input.refinement,
-      currentLocation: ctx.currentLocation || { lat: 37.7749, lng: -122.4194 },
-      departureTime: Date.now() + 3_600_000,
-      previousMessages: ctx.conversationHistory,
-    })
-
-    // Check rate limit
-    const usage = await ctx.runQuery(internal.db.planUsage.checkUsageInternal, {
-      clerkUserId: ctx.clerkUserId,
-    })
-
-    if (!usage.allowed) {
-      return {
-        type: 'chat',
-        message: `You've reached your monthly limit of ${FREE_TIER_MONTHLY_LIMIT} route plans.`,
-      }
-    }
-
-    // Call orchestrator with updated preferences directly
-    const results = await planRideOrchestrator({
-      planInput: parseResult.planInput,
-      departureTimeMs: parseResult.planInput.departureTime,
-    })
-    const result = buildOptionsFromResults(results, crypto.randomUUID())
-
-    // Increment usage
-    await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, {
-      clerkUserId: ctx.clerkUserId,
-    })
-
-    return {
-      type: 'routes',
-      data: result,
-    }
-  } catch (error) {
-    console.error('[refineRoute] Error:', error)
-    return {
-      type: 'error',
-      message: "I couldn't refine your route. Could you try rephrasing that?",
-    }
+async function runFetchWeather(
+  _ctx: AgentContext,
+  _args: { location: string | null }
+): Promise<unknown> {
+  return {
+    type: 'weather',
+    data: {
+      summary: 'Weather information will be available soon.',
+      temperature: '--',
+      conditions: 'unknown',
+    },
   }
 }
 
-/**
- * fetchWeather tool - Get weather information for route locations
- */
-export async function fetchWeather(
-  ctx: AgentContext,
-  input: { location?: string }
-): Promise<ToolResult> {
-  try {
-    // For now, return a placeholder weather response
-    // This would be expanded in a future story to integrate with a weather API
-    return {
-      type: 'weather',
-      data: {
-        summary: 'Weather information will be available soon.',
-        temperature: '--',
-        conditions: 'unknown',
-      },
-    }
-  } catch (error) {
-    console.error('[fetchWeather] Error:', error)
-    return {
-      type: 'error',
-      message: "I couldn't fetch the weather right now.",
-    }
+async function runSaveRoute(
+  _ctx: AgentContext,
+  args: { routeIndex: number | null; name: string | null }
+): Promise<unknown> {
+  const routeName = args.name ?? 'Your planned route'
+  return {
+    type: 'confirmation',
+    message: `I've noted that you want to save "${routeName}". Saving routes will be available soon!`,
   }
 }
 
-/**
- * saveRoute tool - Save the current route to favorites
- */
-export async function saveRoute(
-  ctx: AgentContext,
-  input: { routeIndex?: number; name?: string }
-): Promise<ToolResult> {
-  try {
-    // Find the most recent route plan in the conversation
-    const lastSystemMessage = ctx.conversationHistory
-      .filter((m) => m.role === 'system')
-      .pop()
-
-    if (!lastSystemMessage) {
-      return {
-        type: 'chat',
-        message: "I don't see a route to save yet. Let's plan one first!",
-      }
-    }
-
-    // This would integrate with saved routes in a future story
-    // For now, return a conversational response
-    const routeName = input.name || 'Your planned route'
-    return {
-      type: 'confirmation',
-      message: `I've noted that you want to save "${routeName}". Saving routes will be available soon!`,
-    }
-  } catch (error) {
-    console.error('[saveRoute] Error:', error)
-    return {
-      type: 'error',
-      message: "I couldn't save your route right now.",
-    }
+async function runSearchFavorites(
+  _ctx: AgentContext,
+  args: { query: string }
+): Promise<unknown> {
+  return {
+    type: 'chat',
+    message: `Searching your saved routes for "${args.query}" — this feature will be available soon!`,
   }
 }
 
-/**
- * searchFavorites tool - Search saved routes by query
- */
-export async function searchFavorites(
-  ctx: AgentContext,
-  input: { query: string }
-): Promise<ToolResult> {
-  try {
-    // This would integrate with saved routes search in a future story
-    // For now, return a placeholder response
-    return {
-      type: 'chat',
-      message: `Searching your saved routes for "${input.query}" — this feature will be available soon!`,
-    }
-  } catch (error) {
-    console.error('[searchFavorites] Error:', error)
-    return {
-      type: 'error',
-      message: "I couldn't search your routes right now.",
-    }
+// -----------------------------------------------------------------------------
+// Tool Registry
+// -----------------------------------------------------------------------------
+
+// Cast schemas to `any` to bridge the TypeBox 0.33 (project) vs 0.34 (pi-ai
+// peer dep) minor API difference at the TypeScript type level. The runtime
+// shapes are identical — both produce plain objects with a `Symbol(TypeBox.Kind)`
+// symbol property that AJV resolves correctly.
+const tools: Tool[] = [
+  {
+    name: 'geocode',
+    description:
+      "Look up coordinates for a place name, address, or landmark. Use before planRoute when the rider names somewhere other than \"here\". Results are biased toward the rider's current location.",
+    parameters: AgentToolSchemas.geocode as any,
+  },
+  {
+    name: 'planRoute',
+    description:
+      "Plan a motorcycle route with 2-3 scenic options. Call geocode first if you need coordinates for the start or end. Use the rider's current location (given in the system prompt) as start when they say \"here\" or don't specify. For refinements, call this again with updated preferences.",
+    parameters: AgentToolSchemas.planRoute as any,
+  },
+  {
+    name: 'fetchWeather',
+    description: 'Get weather information for the planned route.',
+    parameters: AgentToolSchemas.fetchWeather as any,
+  },
+  {
+    name: 'saveRoute',
+    description: 'Save the current route to favorites.',
+    parameters: AgentToolSchemas.saveRoute as any,
+  },
+  {
+    name: 'searchFavorites',
+    description: 'Search saved routes by query.',
+    parameters: AgentToolSchemas.searchFavorites as any,
+  },
+]
+
+// -----------------------------------------------------------------------------
+// Tool Executor Dispatch
+// -----------------------------------------------------------------------------
+
+async function executeTool(ctx: AgentContext, call: ToolCall): Promise<unknown> {
+  const validated = validateToolCall(tools, call)
+  switch (call.name) {
+    case 'geocode':
+      return await runGeocode(ctx, validated)
+    case 'planRoute':
+      return await runPlanRoute(ctx, validated)
+    case 'fetchWeather':
+      return await runFetchWeather(ctx, validated)
+    case 'saveRoute':
+      return await runSaveRoute(ctx, validated)
+    case 'searchFavorites':
+      return await runSearchFavorites(ctx, validated)
+    default:
+      return { type: 'error', message: `Unknown tool: ${call.name}` }
   }
 }
 
@@ -272,26 +248,19 @@ export async function searchFavorites(
 // -----------------------------------------------------------------------------
 
 /**
- * Extract route plan IDs from tool results
- * This is a pure function that can be tested independently
+ * Extract route plan IDs from tool results.
+ * Pure function — testable independently.
  */
 export function extractRouteAttachments(
-  toolResults: Array<{ toolName: string; result: string }>
+  toolResults: Array<{ toolName: string; result: unknown }>
 ): Array<{ type: string; routePlanId?: string }> {
   const attachments: Array<{ type: string; routePlanId?: string }> = []
 
-  for (const toolResult of toolResults) {
-    if (toolResult.toolName === 'planRoute' || toolResult.toolName === 'refineRoute') {
-      try {
-        const parsedResult = JSON.parse(toolResult.result)
-        if (parsedResult.type === 'routes' && parsedResult.data.planId) {
-          attachments.push({
-            type: 'route',
-            routePlanId: parsedResult.data.planId,
-          })
-        }
-      } catch (error) {
-        console.error('[extractRouteAttachments] Error parsing tool result:', error)
+  for (const tr of toolResults) {
+    if (tr.toolName === 'planRoute') {
+      const result = tr.result as any
+      if (result?.type === 'routes' && result?.data?.planId) {
+        attachments.push({ type: 'route', routePlanId: result.data.planId })
       }
     }
   }
@@ -300,33 +269,12 @@ export function extractRouteAttachments(
 }
 
 // -----------------------------------------------------------------------------
-// Agent Execution
+// Main Entry Point
 // -----------------------------------------------------------------------------
 
 /**
- * System prompt for the ride planning agent
- */
-const SYSTEM_PROMPT = `You are a motorcycle ride planning assistant. Be concise — 1-2 sentences per response. Use 2nd person ("your ride", "you'll see").
-
-When planning routes:
-- Present 2-3 options with brief descriptions
-- Highlight key features (scenic views, road types, estimated time)
-- Ask clarifying questions if the request is unclear
-
-When refining routes:
-- Acknowledge what changed ("Updated to avoid highways")
-- Present new options briefly
-
-For errors:
-- Be helpful and conversational
-- Never expose technical details or tool names
-- Suggest what the user can try next
-
-Remember: You're helping plan motorcycle adventures. Keep it friendly and efficient.`
-
-/**
- * Execute the ride planning agent with tools
- * This is the probabilistic part — the agent decides which tools to call
+ * Execute the ride planning agent with tools.
+ * This is the probabilistic part — the agent decides which tools to call.
  */
 export async function executeRidePlanningAgent(
   ctx: AgentContext,
@@ -336,141 +284,112 @@ export async function executeRidePlanningAgent(
     throw new Error('OpenAI API key not configured')
   }
 
-  // Track tool results for attachments
-  const toolResultsTracker: Array<{ toolName: string; result: string }> = []
+  // getModel is typed against the known model map; cast AI_MODEL via `as any`
+  // since it's a runtime string that may be overridden via env var.
+  const model = getModel('openai', AI_MODEL as any)
 
-  const tools = {
-    planRoute: {
-      description: 'Plan a new motorcycle route based on natural language input',
-      inputSchema: z.object({
-        request: z.string().describe('The natural language ride request'),
-        currentLocation: z
-          .object({
-            lat: z.number(),
-            lng: z.number(),
-          })
-          .describe('Current GPS coordinates'),
-      }),
-      execute: async (args: { request: string; currentLocation: { lat: number; lng: number } }) => {
-        const result = await planRoute(ctx, args)
-        const resultString = JSON.stringify(result)
-        // Track the result for attachments
-        toolResultsTracker.push({ toolName: 'planRoute', result: resultString })
-        if (result.type === 'routes') {
-          return JSON.stringify({
-            type: 'routes',
-            planId: result.data.planId,
-            options: result.data.options.map((opt: any) => ({
-              label: opt.label,
-              rationale: opt.rationale,
-              distance: `${Math.round(opt.stats.distanceMeters / 1000)}km`,
-              duration: `${Math.round(opt.stats.durationSeconds / 60)}min`,
-            })),
-          })
-        } else if (result.type === 'chat') {
-          return JSON.stringify({ type: 'chat', message: result.message })
-        } else if (result.type === 'error') {
-          return JSON.stringify({ type: 'error', message: result.message })
-        }
-        return JSON.stringify({ type: 'unknown' })
-      },
-    },
-    refineRoute: {
-      description: 'Refine the current route with new preferences or constraints',
-      inputSchema: z.object({
-        refinement: z.string().describe('The refinement request (e.g., "avoid highways", "make it shorter")'),
-      }),
-      execute: async (args: { refinement: string }) => {
-        const result = await refineRoute(ctx, args)
-        const resultString = JSON.stringify(result)
-        // Track the result for attachments
-        toolResultsTracker.push({ toolName: 'refineRoute', result: resultString })
-        if (result.type === 'routes') {
-          return JSON.stringify({
-            type: 'routes',
-            planId: result.data.planId,
-            options: result.data.options.map((opt: any) => ({
-              label: opt.label,
-              rationale: opt.rationale,
-              distance: `${Math.round(opt.stats.distanceMeters / 1000)}km`,
-              duration: `${Math.round(opt.stats.durationSeconds / 60)}min`,
-            })),
-          })
-        } else if (result.type === 'chat') {
-          return JSON.stringify({ type: 'chat', message: result.message })
-        } else if (result.type === 'error') {
-          return JSON.stringify({ type: 'error', message: result.message })
-        }
-        return JSON.stringify({ type: 'unknown' })
-      },
-    },
-    fetchWeather: {
-      description: 'Get weather information for the planned route',
-      inputSchema: z.object({
-        location: z.string().optional().describe('Optional location to check weather for'),
-      }),
-      execute: async (args: { location?: string }) => {
-        const result = await fetchWeather(ctx, args)
-        return JSON.stringify(result)
-      },
-    },
-    saveRoute: {
-      description: 'Save the current route to favorites',
-      inputSchema: z.object({
-        routeIndex: z.number().optional().describe('Index of the route to save (0-based)'),
-        name: z.string().optional().describe('Custom name for the saved route'),
-      }),
-      execute: async (args: { routeIndex?: number; name?: string }) => {
-        const result = await saveRoute(ctx, args)
-        return JSON.stringify(result)
-      },
-    },
-    searchFavorites: {
-      description: 'Search saved routes by query',
-      inputSchema: z.object({
-        query: z.string().describe('Search query for saved routes'),
-      }),
-      execute: async (args: { query: string }) => {
-        const result = await searchFavorites(ctx, args)
-        return JSON.stringify(result)
-      },
-    },
-  } as const
+  const toolResultsTracker: Array<{ toolName: string; result: unknown }> = []
 
-  // Build conversation history for the agent
-  const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
-    { role: 'system', content: SYSTEM_PROMPT },
-    ...ctx.conversationHistory.map((m) => ({
-      role: (m.role === 'rider' ? 'user' : 'assistant') as 'user' | 'assistant',
-      content: m.content,
-    })),
-    { role: 'user', content: userMessage },
-  ]
-
-  // Execute the agent with timeout
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    setTimeout(() => reject(new Error(ERROR_CODES.AGENT_TIMEOUT)), AGENT_TIMEOUT_MS)
+  // Build conversation history from stored role+content pairs.
+  // UserMessage is straightforward. AssistantMessage requires metadata fields
+  // (api, provider, model, usage, stopReason) that aren't stored in history —
+  // we populate them with sentinel values so the LLM receives the prior turn
+  // context correctly.
+  const historyMessages: Message[] = ctx.conversationHistory.map((m): Message => {
+    if (m.role === 'rider') {
+      return {
+        role: 'user',
+        content: m.content,
+        timestamp: Date.now(),
+      }
+    }
+    return {
+      role: 'assistant',
+      content: [{ type: 'text', text: m.content }],
+      api: 'openai-completions',
+      provider: 'openai',
+      model: AI_MODEL,
+      usage: {
+        input: 0,
+        output: 0,
+        cacheRead: 0,
+        cacheWrite: 0,
+        totalTokens: 0,
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
+      },
+      stopReason: 'stop',
+      timestamp: Date.now(),
+    }
   })
 
-  const result = await Promise.race([
-    generateText({
-      model: openai(AI_MODEL),
-      messages,
-      tools,
-      toolChoice: 'auto',
-      temperature: 0.7,
-      stopWhen: stepCountIs(10),
-    }),
-    timeoutPromise,
-  ])
+  const context: Context = {
+    systemPrompt: buildSystemPrompt(ctx),
+    messages: [
+      ...historyMessages,
+      { role: 'user', content: userMessage, timestamp: Date.now() } as Message,
+    ],
+    tools,
+  }
 
-  // Build response and extract attachments from tracked tool results
-  let responseText = result.text
+  // Agent loop — run until stop or max steps
+  const deadline = Date.now() + AGENT_TIMEOUT_MS
+
+  for (let step = 0; step < MAX_STEPS; step++) {
+    if (Date.now() > deadline) {
+      throw new Error(ERROR_CODES.AGENT_TIMEOUT)
+    }
+
+    const assistant: AssistantMessage = await complete(model, context)
+    context.messages.push(assistant)
+
+    if (assistant.stopReason !== 'toolUse') break
+
+    const toolCalls = assistant.content.filter(
+      (b): b is ToolCall => b.type === 'toolCall'
+    )
+    if (toolCalls.length === 0) break
+
+    for (const call of toolCalls) {
+      let result: unknown
+      let isError = false
+      try {
+        result = await executeTool(ctx, call)
+      } catch (err) {
+        result = {
+          type: 'error',
+          message: err instanceof Error ? err.message : String(err),
+        }
+        isError = true
+      }
+
+      toolResultsTracker.push({ toolName: call.name, result })
+
+      const toolResultMsg: ToolResultMessage = {
+        role: 'toolResult',
+        toolCallId: call.id,
+        toolName: call.name,
+        content: [{ type: 'text', text: JSON.stringify(result) }],
+        isError,
+        timestamp: Date.now(),
+      }
+      context.messages.push(toolResultMsg)
+    }
+  }
+
+  // Extract final text from the last assistant message
+  const last = context.messages[context.messages.length - 1]
+  let responseText = ''
+  if (last && last.role === 'assistant') {
+    const assistantLast = last as AssistantMessage
+    responseText = assistantLast.content
+      .filter((b): b is { type: 'text'; text: string } => b.type === 'text')
+      .map((b) => b.text)
+      .join('')
+  }
+
   const attachments = extractRouteAttachments(toolResultsTracker)
-
-  // If agent didn't generate text but we have routes, add a default message
   if (!responseText && attachments.length > 0) {
-    responseText = "Here are your route options!"
+    responseText = 'Here are your route options!'
   }
 
   return {

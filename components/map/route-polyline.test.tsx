@@ -28,6 +28,7 @@ import { describe, it, expect } from 'vitest'
 import type { PolylineGeometry, RouteLeg, RouteOverlays } from '../../models/saved-routes'
 import { buildRoutePolylines } from './route-polyline'
 import type { ExtendedTheme } from '../../styles/types'
+import { getRainColor, getWindColor, getTemperatureColor } from '../../lib/map/overlay-colors'
 
 // Mock semantic theme for testing
 const mockSemanticTheme: ExtendedTheme['semantic'] = {
@@ -599,9 +600,6 @@ describe('route-polyline', () => {
    */
   describe('integration with overlay-colors', () => {
     it('should use getRainColor for rain segments', () => {
-      // Import the actual utility to verify color mapping
-      const { getRainColor } = require('../../lib/map/overlay-colors')
-
       const rainOverlay = createMockRainOverlay([
         [{ start: 0, end: 1000, level: 'heavy' }],
       ])
@@ -624,8 +622,6 @@ describe('route-polyline', () => {
     })
 
     it('should use getWindColor for wind segments', () => {
-      const { getWindColor } = require('../../lib/map/overlay-colors')
-
       const windOverlay = createMockWindOverlay([
         [{ start: 0, end: 1000, level: 'moderate' }],
       ])
@@ -647,8 +643,6 @@ describe('route-polyline', () => {
     })
 
     it('should use getTemperatureColor for temperature segments', () => {
-      const { getTemperatureColor } = require('../../lib/map/overlay-colors')
-
       const tempOverlay = createMockTemperatureOverlay([
         [{ start: 0, end: 1000, level: 'warm' }],
       ])

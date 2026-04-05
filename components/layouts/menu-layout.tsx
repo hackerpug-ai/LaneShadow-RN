@@ -55,7 +55,10 @@ export const MenuLayout = ({
             icon: 'motorbike' as const,
             onPress: () => {
               onMenuOpenChange?.(false)
-              router.push({ pathname: '/(app)/(tabs)/chat', params: { sessionId: s._id } })
+              router.push({
+                pathname: '/(app)/(tabs)',
+                params: { sessionId: s._id, chat: '1' },
+              })
             },
             testID: `drawer-session-${s._id}`,
           })),

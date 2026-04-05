@@ -10,6 +10,8 @@ const createComponent = (name: string) => {
 export const View = createComponent('View')
 export const Text = createComponent('Text')
 export const TouchableOpacity = createComponent('TouchableOpacity')
+export const TouchableWithoutFeedback = createComponent('TouchableWithoutFeedback')
+export const TouchableHighlight = createComponent('TouchableHighlight')
 export const ScrollView = createComponent('ScrollView')
 export const FlatList = createComponent('FlatList')
 export const Image = createComponent('Image')

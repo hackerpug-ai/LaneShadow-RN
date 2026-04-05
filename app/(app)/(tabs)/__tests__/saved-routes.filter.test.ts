@@ -142,6 +142,8 @@ vi.mock('../../../../lib/notifier-helpers', () => ({
 
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
+import SavedRoutesScreen from '../saved-routes'
+import { FilterHeader, FilteredEmptyState } from '../saved-routes.components'
 import type { SavedRouteListItemView } from '../../../../types/routes'
 
 const makeRoute = (
@@ -180,7 +182,7 @@ describe('AC1: Search filters routes via hook', () => {
     mockHookReturn.isLoading = false
 
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
+      
       renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -208,7 +210,7 @@ describe('AC2: Date chip filters via hook', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
+      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -243,7 +245,7 @@ describe('AC3: Clear all filters', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
+      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -265,10 +267,6 @@ describe('AC3: Clear all filters', () => {
 // ---------------------------------------------------------------------------
 describe('AC4: Result count with active filters', () => {
   it('should show result count and clear button when filtersActive=true', () => {
-    const { FilterHeader } = require('../saved-routes.components') as {
-      FilterHeader: React.FC<Record<string, unknown>>
-    }
-
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(
@@ -293,10 +291,6 @@ describe('AC4: Result count with active filters', () => {
   })
 
   it('should show "1 route found" for singular result', () => {
-    const { FilterHeader } = require('../saved-routes.components') as {
-      FilterHeader: React.FC<Record<string, unknown>>
-    }
-
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(
@@ -321,10 +315,6 @@ describe('AC4: Result count with active filters', () => {
 // ---------------------------------------------------------------------------
 describe('AC5: No filters active', () => {
   it('should not show clear filters button or result count when filtersActive=false', () => {
-    const { FilterHeader } = require('../saved-routes.components') as {
-      FilterHeader: React.FC<Record<string, unknown>>
-    }
-
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(
@@ -354,10 +344,6 @@ describe('AC5: No filters active', () => {
 // ---------------------------------------------------------------------------
 describe('AC6: Filtered empty state', () => {
   it('should render FilteredEmptyState component with correct message', () => {
-    const { FilteredEmptyState } = require('../saved-routes.components') as {
-      FilteredEmptyState: React.FC
-    }
-
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(React.createElement(FilteredEmptyState))
@@ -373,7 +359,7 @@ describe('AC6: Filtered empty state', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
+      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -410,7 +396,7 @@ describe('Hook integration: useSavedRoutesList args', () => {
     mockHookReturn.isLoading = false
 
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
+      
       renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -427,10 +413,6 @@ describe('Hook integration: useSavedRoutesList args', () => {
 describe('FilterHeader: clear button interaction', () => {
   it('should call onClearFilters when clear button is pressed', () => {
     const onClearFilters = vi.fn()
-    const { FilterHeader } = require('../saved-routes.components') as {
-      FilterHeader: React.FC<Record<string, unknown>>
-    }
-
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(

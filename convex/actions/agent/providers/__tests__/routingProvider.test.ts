@@ -4,7 +4,7 @@ import type { PlanInput } from '../../../../../models/saved-routes'
 
 // Mock the env module to prevent requireEnv from throwing on missing Clerk secrets
 // and to control the GOOGLE_MAPS_API_KEY value in tests.
-vi.mock('../../../lib/env', () => ({ GOOGLE_MAPS_API_KEY: 'test-api-key' }))
+vi.mock('../../../../lib/env', () => ({ GOOGLE_MAPS_API_KEY: 'test-api-key' }))
 
 import { createRoutingProvider } from '../routingProvider'
 
@@ -131,15 +131,15 @@ describe('routing provider', () => {
     expect(a).toEqual(b)
   })
 
-  it('falls back to DRIVE when TWO_WHEELER is rejected', async () => {
+  it('uses DRIVE travel mode', async () => {
+    // The provider only issues DRIVE requests. (The previous TWO_WHEELER-first
+    // fallback was removed — Google's Routes API rejects routingPreference for
+    // TWO_WHEELER, and DRIVE is the stable mode for motorcycle scenic routing.)
     let callCount = 0
     const fetchMock = vi.fn(async (_url: string, init: any) => {
       callCount++
       const body = JSON.parse(init.body)
-      if (body.travelMode === 'TWO_WHEELER') {
-        return { ok: false, status: 422, text: async () => 'two-wheeler not supported' }
-      }
-      // DRIVE fallback succeeds
+      expect(body.travelMode).toBe('DRIVE')
       return makeGoogleOkFetch()()
     })
     ;(globalThis as any).fetch = fetchMock
@@ -147,7 +147,7 @@ describe('routing provider', () => {
     const provider = createRoutingProvider()
     const result = await provider.routeFromSketch({ planInput, sketch })
 
-    expect(callCount).toBe(2)
+    expect(callCount).toBe(1)
     expect(result.provider).toBe('google')
   })
 })

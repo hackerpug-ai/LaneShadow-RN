@@ -168,7 +168,19 @@ const createMockOverlays = (conditions: {
       {
         legIndex: 0,
         segments: [
-          { startMeters: 0, endMeters: 1000, level: conditions.temperature ?? 'mild' },
+          {
+            startMeters: 0,
+            endMeters: 1000,
+            level: conditions.temperature ?? 'mild',
+            temperatureCelsius:
+              conditions.temperature === 'hot'
+                ? 35
+                : conditions.temperature === 'warm'
+                ? 25
+                : conditions.temperature === 'cold'
+                ? 0
+                : 15,
+          },
         ],
       },
     ],
@@ -282,7 +294,7 @@ describe('weather-strip', () => {
 
     it('should collapse back to compact mode when tapped again', () => {
       const overlays = createMockOverlays({
-        rain: 'moderate',
+        rain: 'none',
         wind: 'high',
         temperature: 'cold',
       })

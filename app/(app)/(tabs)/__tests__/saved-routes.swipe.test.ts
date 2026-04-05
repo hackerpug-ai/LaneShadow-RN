@@ -64,6 +64,9 @@ vi.mock('expo-router', () => ({
 vi.mock('@expo/vector-icons', () => ({
   MaterialCommunityIcons: 'MaterialCommunityIcons',
 }))
+vi.mock('@expo/vector-icons/MaterialCommunityIcons', () => ({
+  default: 'MaterialCommunityIcons',
+}))
 
 vi.mock('react-native-gesture-handler', () => {
   const React = require('react')
@@ -190,6 +193,8 @@ vi.mock('../../../../components/ui/delete-route-dialog', () => ({
 
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
+import SavedRoutesScreen from '../saved-routes'
+import { SwipeableRouteCard } from '../saved-routes.components'
 import type { SavedRouteListItemView } from '../../../../types/routes'
 
 const makeRoute = (
@@ -234,7 +239,6 @@ describe('AC1: Swipe reveals delete action', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -262,7 +266,6 @@ describe('AC1: Swipe reveals delete action', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -304,7 +307,6 @@ describe('AC2: Swipe/tap triggers delete confirmation dialog', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -352,7 +354,6 @@ describe('AC3: Delete confirmation triggers soft-delete + undo toast', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      const SavedRoutesScreen = require('../saved-routes').default
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -404,10 +405,6 @@ describe('AC3: Delete confirmation triggers soft-delete + undo toast', () => {
 // ---------------------------------------------------------------------------
 describe('AC5: Semantic theme tokens used for delete area', () => {
   it('should use danger color for background and white for icon', () => {
-    const { SwipeableRouteCard } = require('../saved-routes.components') as {
-      SwipeableRouteCard: React.FC<Record<string, unknown>>
-    }
-
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(
@@ -415,8 +412,8 @@ describe('AC5: Semantic theme tokens used for delete area', () => {
           SwipeableRouteCard,
           {
             onDelete: vi.fn(),
-          },
-          React.createElement('View')
+            children: React.createElement('View'),
+          }
         )
       )
     })
