@@ -137,6 +137,33 @@ vi.mock('../route-attachment-card', () => {
   }
 })
 
+// Mock TypingIndicator to avoid reanimated native module requirements
+vi.mock('../../chat/typing-indicator', () => {
+  const { View } = require('react-native')
+  const { createElement } = require('react')
+  return {
+    TypingIndicator: (_props: Record<string, unknown>) =>
+      createElement(View, { testID: 'typing-indicator' }),
+  }
+})
+
+// Mock card-registry so we can assert routing_card resolution without
+// pulling RoutingCard's convex/useQuery/reanimated dependency graph.
+vi.mock('../../chat/card-registry', () => {
+  const { View } = require('react-native')
+  const { createElement } = require('react')
+  const RoutingCardStub = (props: Record<string, unknown>) =>
+    createElement(View, { testID: 'registry-routing-card', 'data-attachments-count': (props.attachments as unknown[])?.length ?? 0 })
+  const PlaceholderStub = () => createElement(View, { testID: 'registry-placeholder-card' })
+  return {
+    CARD_REGISTRY: {
+      routing_card: RoutingCardStub,
+      weather_card: PlaceholderStub,
+      saved_route_card: PlaceholderStub,
+    },
+  }
+})
+
 // ---------------------------------------------------------------------------
 // Import after mocks
 // ---------------------------------------------------------------------------
@@ -370,6 +397,164 @@ describe('ChatTranscript', () => {
       )
       expect(getByTestId('rider-message-row')).toBeTruthy()
       expect(getByTestId('agent-message-row')).toBeTruthy()
+    })
+  })
+
+  /**
+   * Task #234: kind + status routing
+   */
+  describe('kind + status routing (task #234)', () => {
+    it('renders existing text messages unchanged when kind is undefined (backwards compat)', () => {
+      const { getByTestId, getByText, queryByTestId } = render(
+        <ChatTranscript messages={[AGENT_MESSAGE]} />
+      )
+      // Agent row still renders with existing testID
+      expect(getByTestId('agent-message-row')).toBeTruthy()
+      expect(getByText('Here are three great options for you.')).toBeTruthy()
+      // No typing indicator for complete messages
+      expect(queryByTestId('agent-message-typing-indicator-slot')).toBeNull()
+      // No card slot
+      expect(queryByTestId('card-row-routing_card')).toBeNull()
+    })
+
+    it('renders text messages with kind: "text" explicitly as normal agent text', () => {
+      const textMsg: ChatMessage = {
+        ...AGENT_MESSAGE,
+        kind: 'text',
+        status: 'complete',
+      }
+      const { getByTestId, queryByTestId } = render(
+        <ChatTranscript messages={[textMsg]} />
+      )
+      expect(getByTestId('agent-message-row')).toBeTruthy()
+      expect(queryByTestId('agent-message-typing-indicator-slot')).toBeNull()
+    })
+
+    it('appends TypingIndicator inline when a text message has status: "streaming"', () => {
+      const streamingMsg: ChatMessage = {
+        id: 'stream-1',
+        role: 'agent',
+        content: 'Planning your route',
+        timestamp: new Date('2026-04-04T10:02:00Z'),
+        kind: 'text',
+        status: 'streaming',
+      }
+      const { getByTestId } = render(
+        <ChatTranscript messages={[streamingMsg]} />
+      )
+      // Agent row renders
+      expect(getByTestId('agent-message-row')).toBeTruthy()
+      // Typing indicator slot is present
+      expect(getByTestId('agent-message-typing-indicator-slot')).toBeTruthy()
+      // Mocked TypingIndicator itself renders
+      expect(getByTestId('typing-indicator')).toBeTruthy()
+    })
+
+    it('does NOT append TypingIndicator when status is "complete"', () => {
+      const completeMsg: ChatMessage = {
+        id: 'c-1',
+        role: 'agent',
+        content: 'All set.',
+        timestamp: new Date('2026-04-04T10:03:00Z'),
+        kind: 'text',
+        status: 'complete',
+      }
+      const { queryByTestId } = render(
+        <ChatTranscript messages={[completeMsg]} />
+      )
+      expect(queryByTestId('agent-message-typing-indicator-slot')).toBeNull()
+    })
+
+    it('looks up CARD_REGISTRY["routing_card"] and renders it when kind === "routing_card"', () => {
+      const routingCardMsg: ChatMessage = {
+        id: 'card-1',
+        role: 'agent',
+        content: '',
+        timestamp: new Date('2026-04-04T10:04:00Z'),
+        kind: 'routing_card',
+        status: 'running',
+        attachments: [
+          {
+            type: 'route_options',
+            routePlanId: 'route_plans:plan-xyz' as any,
+          },
+        ],
+      }
+      const { getByTestId, queryByTestId } = render(
+        <ChatTranscript messages={[routingCardMsg]} />
+      )
+      // Card row wrapper with kind suffix
+      expect(getByTestId('card-row-routing_card')).toBeTruthy()
+      // The registry-mocked RoutingCard renders
+      expect(getByTestId('registry-routing-card')).toBeTruthy()
+      // No AgentMessage text row for card-kind messages
+      expect(queryByTestId('agent-message-row')).toBeNull()
+    })
+
+    it('renders placeholder stub for weather_card kind without crashing', () => {
+      const weatherMsg: ChatMessage = {
+        id: 'weather-1',
+        role: 'agent',
+        content: '',
+        timestamp: new Date('2026-04-04T10:05:00Z'),
+        kind: 'weather_card',
+        status: 'complete',
+      }
+      const { getByTestId } = render(
+        <ChatTranscript messages={[weatherMsg]} />
+      )
+      expect(getByTestId('card-row-weather_card')).toBeTruthy()
+      expect(getByTestId('registry-placeholder-card')).toBeTruthy()
+    })
+
+    it('passes attachments array through to card component', () => {
+      const cardMsg: ChatMessage = {
+        id: 'card-2',
+        role: 'agent',
+        content: '',
+        timestamp: new Date('2026-04-04T10:06:00Z'),
+        kind: 'routing_card',
+        status: 'running',
+        attachments: [
+          { type: 'route_options', routePlanId: 'route_plans:a' as any },
+        ],
+      }
+      const { getByTestId } = render(
+        <ChatTranscript messages={[cardMsg]} />
+      )
+      const card = getByTestId('registry-routing-card')
+      // The mock wrote the attachments count into a prop we can read
+      expect(card.props['data-attachments-count']).toBe(1)
+    })
+
+    it('defaults to empty attachments array when message.attachments is undefined', () => {
+      const cardMsg: ChatMessage = {
+        id: 'card-3',
+        role: 'agent',
+        content: '',
+        timestamp: new Date('2026-04-04T10:07:00Z'),
+        kind: 'routing_card',
+        status: 'running',
+        // attachments intentionally omitted
+      }
+      const { getByTestId } = render(
+        <ChatTranscript messages={[cardMsg]} />
+      )
+      const card = getByTestId('registry-routing-card')
+      expect(card.props['data-attachments-count']).toBe(0)
+    })
+
+    it('rider messages with any kind still render as RiderBubble (kind does not apply)', () => {
+      const riderWithKind: ChatMessage = {
+        ...RIDER_MESSAGE,
+        // A rider message should never be a card, but we verify kind is ignored for rider role
+        kind: 'routing_card' as any,
+      }
+      const { getByTestId, queryByTestId } = render(
+        <ChatTranscript messages={[riderWithKind]} />
+      )
+      expect(getByTestId('rider-message-row')).toBeTruthy()
+      expect(queryByTestId('card-row-routing_card')).toBeNull()
     })
   })
 })

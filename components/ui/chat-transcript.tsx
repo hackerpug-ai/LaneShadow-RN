@@ -31,6 +31,13 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSemanticTheme } from '../../hooks/use-semantic-theme';
 import { RouteAttachmentCard } from './route-attachment-card';
+import { TypingIndicator } from '../chat/typing-indicator';
+import {
+  CARD_REGISTRY,
+  type CardAttachment,
+  type CardKind,
+} from '../chat/card-registry';
+import type { Id } from '../../convex/_generated/dataModel';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -50,12 +57,21 @@ export interface RouteAttachmentProps {
   isBest?: boolean;
 }
 
+export type ChatMessageKind = 'text' | CardKind;
+export type ChatMessageStatus = 'streaming' | 'running' | 'complete' | 'failed';
+
 export interface ChatMessage {
   id: string;
   role: 'rider' | 'agent';
   content: string;
   timestamp: Date;
   routeAttachments?: RouteAttachmentProps[];
+  /** Discriminates content type — defaults to 'text' when undefined. */
+  kind?: ChatMessageKind;
+  /** Per-message lifecycle state. Used to render streaming indicators. */
+  status?: ChatMessageStatus;
+  /** Raw session_message attachments passed through to card components. */
+  attachments?: CardAttachment[];
 }
 
 interface ChatTranscriptProps {
@@ -239,17 +255,27 @@ const AgentMessage = ({ message, onRoutePress }: AgentMessageProps) => {
 
       {/* Content column */}
       <View style={styles.agentContent}>
-        <Text
-          style={[
-            styles.agentText,
-            {
-              color: semantic.color.onSurface.default,
-              ...semantic.type.body.lg,
-            },
-          ]}
-        >
-          {message.content}
-        </Text>
+        <View style={styles.agentTextRow}>
+          <Text
+            style={[
+              styles.agentText,
+              {
+                color: semantic.color.onSurface.default,
+                ...semantic.type.body.lg,
+              },
+            ]}
+          >
+            {message.content}
+          </Text>
+          {message.status === 'streaming' && (
+            <View
+              style={[styles.typingSlot, { marginLeft: semantic.space.xs }]}
+              testID="agent-message-typing-indicator-slot"
+            >
+              <TypingIndicator size="sm" />
+            </View>
+          )}
+        </View>
 
         {/* Route attachments inline below agent text */}
         {message.routeAttachments && message.routeAttachments.length > 0 && (
@@ -271,6 +297,62 @@ const AgentMessage = ({ message, onRoutePress }: AgentMessageProps) => {
     </View>
   );
 };
+
+// ---------------------------------------------------------------------------
+// Card row (left-aligned, no bubble — mirrors AgentMessage layout)
+// ---------------------------------------------------------------------------
+
+interface CardRowProps {
+  message: ChatMessage;
+}
+
+const CardRow = ({ message }: CardRowProps) => {
+  const kind = message.kind as CardKind | undefined;
+  if (!kind || kind === ('text' as CardKind)) return null;
+
+  const CardComponent = CARD_REGISTRY[kind];
+  // Defensive: if kind isn't in the registry, render nothing.
+  if (!CardComponent) return null;
+
+  // Shape attachments to match the CardProps contract.
+  const attachments: CardAttachment[] = message.attachments ?? [];
+
+  // Cards are always assistant-side, left-aligned. We reuse the agentRow
+  // layout for visual consistency but skip the avatar since each card has
+  // its own visual identity.
+  return (
+    <View style={styles.agentRow} testID={`card-row-${kind}`}>
+      <View style={styles.agentContent}>
+        <CardComponent
+          message={{
+            _id: message.id as Id<'session_messages'>,
+            createdAt: message.timestamp.getTime(),
+            content: message.content,
+            status: message.status,
+          }}
+          attachments={attachments}
+        />
+      </View>
+    </View>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Assistant message router — branches on message.kind
+// ---------------------------------------------------------------------------
+
+function renderAssistantMessage(
+  message: ChatMessage,
+  onRoutePress: ((routeId: string, messageId: string) => void) | undefined,
+): React.ReactElement {
+  const kind: ChatMessageKind = message.kind ?? 'text';
+
+  if (kind === 'text') {
+    return <AgentMessage message={message} onRoutePress={onRoutePress} />;
+  }
+
+  return <CardRow message={message} />;
+}
 
 // ---------------------------------------------------------------------------
 // Empty state
@@ -363,7 +445,7 @@ export const ChatTranscript = ({
             {message.role === 'rider' ? (
               <RiderBubble message={message} />
             ) : (
-              <AgentMessage message={message} onRoutePress={onRoutePress} />
+              renderAssistantMessage(message, onRoutePress)
             )}
           </React.Fragment>
         );
@@ -420,8 +502,16 @@ const styles = StyleSheet.create({
   agentContent: {
     flex: 1,
   },
+  agentTextRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    flexWrap: 'wrap',
+  },
   agentText: {
     flexShrink: 1,
+  },
+  typingSlot: {
+    paddingBottom: 6,
   },
   attachments: {
     gap: 10,

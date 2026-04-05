@@ -83,6 +83,9 @@ export default function ChatScreen() {
       role: msg.role === 'system' ? 'agent' : 'rider',
       content: msg.content,
       timestamp: new Date(msg.createdAt),
+      kind: msg.kind,
+      status: msg.status,
+      attachments: msg.attachments,
     })) ?? []
 
   // Derive isPlanning from live message statuses: if any assistant row is
