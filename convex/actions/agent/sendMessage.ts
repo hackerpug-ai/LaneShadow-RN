@@ -60,6 +60,54 @@ export function buildCardCallbacks(
 }
 
 /**
+ * Build the streaming callbacks that wire the final-turn text deltas into a
+ * pending assistant message row.
+ *
+ * Returns:
+ * - `executeCtxPatch` — an `onTextDelta` callback to merge into ExecuteContext
+ * - `messageId` — the pending message row created before streaming starts
+ * - `finalizeOk()` — call after the agent succeeds
+ * - `finalizeFail()` — call when the agent throws
+ */
+export async function buildStreamingContext(
+  sessionId: Id<'planning_sessions'>,
+  runMutation: (fn: any, args: any) => Promise<any>
+): Promise<{
+  messageId: Id<'session_messages'>
+  onTextDelta: (delta: string) => Promise<void>
+  finalizeOk: () => Promise<void>
+  finalizeFail: () => Promise<void>
+}> {
+  const { messageId } = await runMutation(
+    internal.db.sessionMessages.createPendingAssistantMessage,
+    { sessionId, kind: 'text' }
+  )
+
+  const onTextDelta = async (delta: string): Promise<void> => {
+    await runMutation(internal.db.sessionMessages.appendStreamingChunk, {
+      messageId,
+      delta,
+    })
+  }
+
+  const finalizeOk = async (): Promise<void> => {
+    await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
+      messageId,
+      status: 'complete',
+    })
+  }
+
+  const finalizeFail = async (): Promise<void> => {
+    await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
+      messageId,
+      status: 'failed',
+    })
+  }
+
+  return { messageId, onTextDelta, finalizeOk, finalizeFail }
+}
+
+/**
  * sendMessage - Single client entry point for the ride planning agent
  *
  * This is the orchestrator that:
@@ -138,7 +186,17 @@ export const sendMessage = action({
     // We pass card-emission callbacks so card-backed tools (planRoute, etc.)
     // emit a pending card message into session_messages before the tool runs
     // and finalize it (complete/failed) after the tool returns.
+    //
+    // We also create a pending `text` assistant message row up front so the
+    // client can see `status: 'streaming'` while the model is generating, then
+    // stream text deltas into it via appendStreamingChunk, and finalize it when
+    // the agent loop completes.
     const cardCallbacks = buildCardCallbacks(args.sessionId, ctx.runMutation.bind(ctx))
+    const { messageId: textMessageId, onTextDelta, finalizeOk, finalizeFail } =
+      await buildStreamingContext(args.sessionId, ctx.runMutation.bind(ctx))
+
+    const executeCtx = { ...cardCallbacks, onTextDelta }
+
     let agentResult
     try {
       agentResult = await executeRidePlanningAgent(
@@ -151,11 +209,17 @@ export const sendMessage = action({
           runMutation: ctx.runMutation.bind(ctx),
         },
         args.content,
-        cardCallbacks
+        executeCtx
       )
+      // Step 5a: Finalize the streaming text message as complete
+      await finalizeOk()
     } catch (error) {
       // Convert agent errors to conversational messages
       console.error('[sendMessage] Agent error:', error)
+
+      // Finalize the streaming text message as failed before building the
+      // fallback response — the fallback will be stored in a new message below.
+      await finalizeFail()
 
       // Extract error code from error if available
       const errorMessage = error instanceof Error ? error.message : String(error)
@@ -209,23 +273,27 @@ export const sendMessage = action({
         response: getConversationalErrorMessage(errorMessage),
         attachments: undefined,
       }
-    }
 
-    // Step 5: Persist system response (deterministic)
-    // This ALWAYS happens, even if agent produced an error
-    const systemMessageResult: { messageId: Id<'session_messages'> } = await ctx.runMutation(
-      internal.db.sessionMessages.addSystemMessage,
-      {
-        sessionId: args.sessionId,
-        content: agentResult.response,
-        attachments: agentResult.attachments as Array<{ type: 'route_options'; routePlanId: Id<'route_plans'> }> | undefined,
+      // Persist the fallback error response as a new system message
+      const fallbackResult: { messageId: Id<'session_messages'> } = await ctx.runMutation(
+        internal.db.sessionMessages.addSystemMessage,
+        {
+          sessionId: args.sessionId,
+          content: agentResult.response,
+        }
+      )
+
+      return {
+        response: agentResult.response,
+        messageId: fallbackResult.messageId,
+        attachments: undefined,
       }
-    )
+    }
 
     // Step 6: Return response to client
     return {
       response: agentResult.response,
-      messageId: systemMessageResult.messageId,
+      messageId: textMessageId,
       attachments: agentResult.attachments as Array<{ type: string; routePlanId?: Id<'route_plans'> }> | undefined,
     }
   },
