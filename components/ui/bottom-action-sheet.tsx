@@ -22,7 +22,7 @@ export type BottomActionSheetProps = {
    * Snap points for the bottom sheet. Can be percentages ('90%') or pixel values (600).
    * Defaults to ['90%'] for full-screen-like behavior.
    */
-  snapPoints?: Array<string | number>
+  snapPoints?: (string | number)[]
   /**
    * For scrollable Gorhom components (BottomSheetScrollView/FlatList/SectionList),
    * set wrapChildren to false so those components can manage gestures.

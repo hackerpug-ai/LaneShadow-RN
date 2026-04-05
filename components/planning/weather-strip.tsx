@@ -16,8 +16,7 @@ import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { RainBadge } from '../ui/rain-badge'
 import { TemperatureBadge } from '../ui/temperature-badge'
 import { WindBadge } from './wind-badge'
-import { getWorstRainLevel } from '../../models/saved-routes'
-import { getWorstTemperatureLevel } from '../../models/saved-routes'
+import { getWorstRainLevel , getWorstTemperatureLevel } from '../../models/saved-routes'
 import type { RouteOverlays } from '../../models/saved-routes'
 
 /**

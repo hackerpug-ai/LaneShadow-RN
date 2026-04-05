@@ -13,6 +13,9 @@ import React from 'react'
 import { render, waitFor, fireEvent } from '@testing-library/react-native'
 import type { Doc } from '../../../convex/_generated/dataModel'
 
+import { FavoriteRoadsSection } from '../favorite-roads-section'
+import { useQuery, useMutation } from 'convex/react'
+
 // ---------------------------------------------------------------------------
 // Mock semantic theme
 // ---------------------------------------------------------------------------
@@ -213,9 +216,6 @@ vi.mock('convex/react', () => ({
   useQuery: vi.fn(),
   useMutation: vi.fn(),
 }))
-
-import { FavoriteRoadsSection } from '../favorite-roads-section'
-import { useQuery, useMutation } from 'convex/react'
 
 // ---------------------------------------------------------------------------
 // Tests

@@ -7,6 +7,11 @@ import React from 'react'
 import { View } from 'react-native'
 import { RouteOptionCard } from '../../components/ui/route-option-card'
 
+// Stories for the RouteOptionCard component from components/planning/route-option-card.tsx
+// This demonstrates the rain badge integration with PlannedRouteOptionView data
+
+import { RouteOptionCard as PlanningRouteOptionCard } from '../../components/planning/route-option-card'
+
 const meta: Meta<typeof RouteOptionCard> = {
   title: 'Components/RouteOptionCard',
   component: RouteOptionCard,
@@ -116,11 +121,6 @@ export const Multiple: Story = {
     </View>
   ),
 }
-
-// Stories for the RouteOptionCard component from components/planning/route-option-card.tsx
-// This demonstrates the rain badge integration with PlannedRouteOptionView data
-
-import { RouteOptionCard as PlanningRouteOptionCard } from '../../components/planning/route-option-card'
 
 export const WithRainNoPrecipitation: Story = {
   render: () => {

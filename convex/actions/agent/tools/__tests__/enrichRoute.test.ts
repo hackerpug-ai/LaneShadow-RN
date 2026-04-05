@@ -1,5 +1,8 @@
 import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest'
 
+import { complete, getModel } from '@mariozechner/pi-ai'
+import { enrichRoute } from '../enrichRoute'
+
 // Mock env so OPENAI_API_KEY is deterministic across the whole suite.
 vi.mock('../../../../lib/env', () => ({
   OPENAI_API_KEY: 'test-openai-key',
@@ -20,9 +23,6 @@ vi.mock('@mariozechner/pi-ai', async () => {
     getModel: vi.fn(() => ({ api: 'openai-completions', provider: 'openai', name: 'gpt-4o' })),
   }
 })
-
-import { complete, getModel } from '@mariozechner/pi-ai'
-import { enrichRoute } from '../enrichRoute'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -45,7 +45,7 @@ const buildTestRoutes = (count: number = 3) =>
     },
   }))
 
-const makeAssistant = (routes: Array<{ label: string; rationale: string; highlights: string[] }>) =>
+const makeAssistant = (routes: { label: string; rationale: string; highlights: string[] }[]) =>
   ({
     role: 'assistant',
     content: [

@@ -39,7 +39,7 @@ http.route({
 
     const sanitizeEmailAddresses = (
       emailAddresses: any
-    ): Array<{ id: string; email_address: string }> | undefined => {
+    ): { id: string; email_address: string }[] | undefined => {
       if (!Array.isArray(emailAddresses)) return undefined
       return emailAddresses
         .map((e) => ({ id: e?.id, email_address: e?.email_address }))

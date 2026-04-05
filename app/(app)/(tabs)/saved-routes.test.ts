@@ -17,6 +17,18 @@
 // Mocks
 // ---------------------------------------------------------------------------
 
+import { vi, describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
+import React from 'react'
+import renderer, { act } from 'react-test-renderer'
+import SavedRoutesScreen, {
+  formatDistance,
+  formatDuration,
+  THUMBNAIL_ROTATIONS,
+  getSortedRoutes,
+  SKELETON_COUNT,
+} from './saved-routes'
+import type { SavedRouteListItemView } from '../../../types/routes'
+
 const mockPush = vi.fn()
 
 vi.mock('react-native', () => ({
@@ -73,7 +85,7 @@ vi.mock('../../../hooks/use-semantic-theme', () => ({
 }))
 
 const mockHookReturn = {
-  data: undefined as { routes: Array<Record<string, unknown>> } | undefined,
+  data: undefined as { routes: Record<string, unknown>[] } | undefined,
   isLoading: true,
 }
 
@@ -138,19 +150,6 @@ vi.mock('./saved-routes.components', () => {
       React.createElement('SwipeableRouteCard', null, children),
   }
 })
-
-import { vi, describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
-import React from 'react'
-import renderer, { act } from 'react-test-renderer'
-import {
-  formatDistance,
-  formatDuration,
-  THUMBNAIL_ROTATIONS,
-  getSortedRoutes,
-  SKELETON_COUNT,
-} from './saved-routes'
-import SavedRoutesScreen from './saved-routes'
-import type { SavedRouteListItemView } from '../../../types/routes'
 
 // ---------------------------------------------------------------------------
 // Test data

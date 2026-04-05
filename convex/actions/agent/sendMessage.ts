@@ -146,7 +146,7 @@ export const sendMessage = action({
   handler: async (ctx, args): Promise<{
     response: string
     messageId: Id<'session_messages'>
-    attachments?: Array<{ type: string; routePlanId?: Id<'route_plans'> }>
+    attachments?: { type: string; routePlanId?: Id<'route_plans'> }[]
   }> => {
     // Step 1: Validate session ownership (deterministic)
     // Actions have no direct `ctx.db`; we must go through the public
@@ -294,7 +294,7 @@ export const sendMessage = action({
     return {
       response: agentResult.response,
       messageId: textMessageId,
-      attachments: agentResult.attachments as Array<{ type: string; routePlanId?: Id<'route_plans'> }> | undefined,
+      attachments: agentResult.attachments as { type: string; routePlanId?: Id<'route_plans'> }[] | undefined,
     }
   },
 })

@@ -19,8 +19,8 @@ export type RouteOptionData = {
   id: string
   name: string
   variant: 'selected' | 'compact'
-  badges?: Array<{ icon?: IconName; label: string; variant?: 'primary' | 'neutral' }>
-  stats?: Array<{ icon: IconName; value: string }>
+  badges?: { icon?: IconName; label: string; variant?: 'primary' | 'neutral' }[]
+  stats?: { icon: IconName; value: string }[]
   weatherSummary?: string
   weatherIcon?: IconName
   compactStats?: string

@@ -10,17 +10,22 @@
 
 import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
 
+import React from 'react'
+import renderer, { act } from 'react-test-renderer'
+import SavedRoutesScreen from '../saved-routes'
+import type { SavedRouteListItemView } from '../../../../types/routes'
+
 /* eslint-disable @typescript-eslint/no-require-imports */
 
 const mockPush = vi.fn()
 const mockBack = vi.fn()
 
 const mockSwipeableClose = vi.fn()
-const mockSwipeableInstances: Array<{
+const mockSwipeableInstances: {
   close: Mock
   renderRightActions: (() => unknown) | null
   onSwipeableOpen: ((direction: string) => void) | null
-}> = []
+}[] = []
 
 vi.mock('react-native', () => ({
   FlatList: 'FlatList',
@@ -173,7 +178,7 @@ const mockSoftDeleteRun = vi.fn().mockResolvedValue({ scheduledDeletionId: 'sche
 const mockUndoDeleteRun = vi.fn().mockResolvedValue(null)
 
 const mockHookReturn = {
-  data: undefined as { routes: Array<Record<string, unknown>> } | undefined,
+  data: undefined as { routes: Record<string, unknown>[] } | undefined,
   isLoading: true,
 }
 
@@ -245,11 +250,6 @@ vi.mock('../saved-routes.components', () => {
     },
   }
 })
-
-import React from 'react'
-import renderer, { act } from 'react-test-renderer'
-import SavedRoutesScreen from '../saved-routes'
-import type { SavedRouteListItemView } from '../../../../types/routes'
 
 const makeRoute = (
   overrides: Partial<SavedRouteListItemView> & { savedRouteId: string }

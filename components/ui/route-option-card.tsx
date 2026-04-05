@@ -22,9 +22,9 @@ export type RouteOptionCardProps = {
   /** Card variant */
   variant?: RouteOptionCardVariant
   /** Optional badges */
-  badges?: Array<{ icon?: IconName; label: string; variant?: 'primary' | 'neutral' }>
+  badges?: { icon?: IconName; label: string; variant?: 'primary' | 'neutral' }[]
   /** Optional stats */
-  stats?: Array<{ icon: IconName; value: string }>
+  stats?: { icon: IconName; value: string }[]
   /** Optional weather summary */
   weatherSummary?: string
   /** Optional weather icon */

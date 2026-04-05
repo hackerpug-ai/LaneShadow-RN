@@ -51,8 +51,8 @@ const ElevationPreview = ({ level }: { level: 0 | 1 | 2 | 3 | 4 | 5 }) => {
  * Main spacing display component
  */
 const SpacingDisplay = () => {
-  const spacingEntries = Object.entries(SPACING) as Array<[string, number]>
-  const radiusEntries = Object.entries(BORDER_RADIUS) as Array<[string, number]>
+  const spacingEntries = Object.entries(SPACING) as [string, number][]
+  const radiusEntries = Object.entries(BORDER_RADIUS) as [string, number][]
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>

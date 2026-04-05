@@ -18,7 +18,7 @@ export type PlacePrediction = {
 
 export type PlaceDetails = RouteStop
 
-export const parseAutocompletePredictions = (response: any): Array<PlacePrediction> => {
+export const parseAutocompletePredictions = (response: any): PlacePrediction[] => {
   if (!response || !Array.isArray(response.predictions)) return []
 
   return response.predictions

@@ -14,11 +14,18 @@
  * (react-test-renderer is broken in React 19, no jsdom available).
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 
 // ---------------------------------------------------------------------------
 // React hook mocks — simulate useState, useCallback, useRef
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Import after mocks
+// ---------------------------------------------------------------------------
+
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { useRouteActions } from '../use-route-actions'
 
 const stateStore = new Map<number, any>()
 let stateCounter = 0
@@ -101,13 +108,6 @@ vi.mock('../../../../lib/notifier-helpers', () => ({
   showSuccessNotification: vi.fn(),
   showErrorNotification: vi.fn(),
 }))
-
-// ---------------------------------------------------------------------------
-// Import after mocks
-// ---------------------------------------------------------------------------
-
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { useRouteActions } from '../use-route-actions'
 
 /**
  * Call the hook as a plain function. Because React hooks are mocked,

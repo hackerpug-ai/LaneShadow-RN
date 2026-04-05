@@ -51,12 +51,12 @@ const TypeGroup = ({
   scales,
 }: {
   title: string
-  scales: Array<{
+  scales: {
     label: string
     fontSize: number
     lineHeight: number
     fontWeight: string
-  }>
+  }[]
 }) => (
   <View style={styles.group}>
     <Text style={styles.groupTitle}>{title}</Text>

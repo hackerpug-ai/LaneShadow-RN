@@ -10,6 +10,11 @@
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+import React from 'react'
+import renderer, { act } from 'react-test-renderer'
+import SavedRoutesScreen from '../saved-routes'
+
 const mockPush = vi.fn()
 
 vi.mock('react-native', () => ({
@@ -74,7 +79,7 @@ vi.mock('../../../../hooks/use-semantic-theme', () => ({
 }))
 
 const mockHookReturn = {
-  data: undefined as { routes: Array<Record<string, unknown>> } | undefined,
+  data: undefined as { routes: Record<string, unknown>[] } | undefined,
   isLoading: true,
 }
 
@@ -133,11 +138,6 @@ vi.mock('../../../../lib/notifier-helpers', () => ({
   showSuccessNotification: vi.fn(),
   showErrorNotification: vi.fn(),
 }))
-
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
-import React from 'react'
-import renderer, { act } from 'react-test-renderer'
-import SavedRoutesScreen from '../saved-routes'
 
 // ---------------------------------------------------------------------------
 // AC1 + AC3: FlatList has keyboardShouldPersistTaps="handled"

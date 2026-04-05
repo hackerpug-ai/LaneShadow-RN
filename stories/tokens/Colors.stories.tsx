@@ -34,7 +34,7 @@ const ColorGroup = ({
   colors,
 }: {
   title: string
-  colors: Array<{ name: string; color: string; textColor?: string }>
+  colors: { name: string; color: string; textColor?: string }[]
 }) => (
   <View style={styles.group}>
     <Text style={styles.groupTitle}>{title}</Text>

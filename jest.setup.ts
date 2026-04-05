@@ -5,7 +5,7 @@ import path from 'node:path'
 
 const loadFirstEnvFile = (): void => {
   const rootDir = path.resolve(__dirname)
-  const candidates: Array<string> = ['.env.test.local', '.env.test', '.env.local', '.env'].map(
+  const candidates: string[] = ['.env.test.local', '.env.test', '.env.local', '.env'].map(
     (p) => path.join(rootDir, p)
   )
 

@@ -355,7 +355,7 @@ const HomeMapScreen = () => {
   }, [selectedOption, semantic, flowState.phase, polylines])
 
   const markers = useMemo(() => {
-    const items: Array<any> = []
+    const items: any[] = []
     if (startStop) {
       items.push({
         id: 'start',

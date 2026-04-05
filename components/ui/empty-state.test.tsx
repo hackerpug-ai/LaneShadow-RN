@@ -16,6 +16,13 @@ import { PaperProvider, MD3DarkTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
 
 // ---------------------------------------------------------------------------
+// Import after mocks are registered
+// ---------------------------------------------------------------------------
+
+import { EmptyState } from './empty-state'
+import type { EmptyStateProps } from './empty-state'
+
+// ---------------------------------------------------------------------------
 // Mock semantic theme (dark mode)
 // ---------------------------------------------------------------------------
 
@@ -147,13 +154,6 @@ vi.mock('./button', () => {
       ),
   }
 })
-
-// ---------------------------------------------------------------------------
-// Import after mocks are registered
-// ---------------------------------------------------------------------------
-
-import { EmptyState } from './empty-state'
-import type { EmptyStateProps } from './empty-state'
 
 // ---------------------------------------------------------------------------
 // Helpers

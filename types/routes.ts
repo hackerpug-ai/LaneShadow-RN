@@ -49,7 +49,7 @@ export type SavedRouteListItemView = {
 }
 
 export type SavedRoutesListView = {
-  routes: Array<SavedRouteListItemView>
+  routes: SavedRouteListItemView[]
 }
 
 export type SavedRouteDetailView = {
@@ -91,5 +91,5 @@ export type PlannedRouteOptionView = {
 
 export type PlannedRouteOptionsView = {
   planId: string
-  options: Array<PlannedRouteOptionView>
+  options: PlannedRouteOptionView[]
 }

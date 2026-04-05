@@ -43,7 +43,7 @@ const makeIndex = (): RouteIndex => ({
   ],
 })
 
-const makeProbed = (levels: Array<'low' | 'moderate' | 'high'>): Array<ProbedWindPoint> => {
+const makeProbed = (levels: ('low' | 'moderate' | 'high')[]): ProbedWindPoint[] => {
   const distances = [0, 5_000, 10_000]
   const speeds = { low: 3, moderate: 7, high: 12 }
   return levels.map((lvl, idx) => ({

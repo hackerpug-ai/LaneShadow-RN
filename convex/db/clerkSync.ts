@@ -7,7 +7,7 @@ import { internalMutation } from '../_generated/server'
 
 type ClerkUserEvent = {
   id: string
-  email_addresses?: Array<{ id: string; email_address: string }>
+  email_addresses?: { id: string; email_address: string }[]
   primary_email_address_id?: string | null
   first_name?: string | null
   last_name?: string | null

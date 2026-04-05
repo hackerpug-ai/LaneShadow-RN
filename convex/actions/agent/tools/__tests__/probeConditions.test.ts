@@ -3,20 +3,20 @@ import type { RouteIndex, RouteIndexPoint } from '../../../../../models/saved-ro
 import { createWeatherProvider } from '../../providers/weatherProvider'
 import { probeConditions } from '../probeConditions'
 
-const makePoints = (count: number): Array<RouteIndexPoint> =>
+const makePoints = (count: number): RouteIndexPoint[] =>
   Array.from({ length: count }).map((_, i) => ({
     lat: 37 + i * 0.001,
     lng: -122 - i * 0.001,
     distanceFromStartMeters: i * 1000,
   }))
 
-const makeRouteIndex = (points: Array<RouteIndexPoint>): RouteIndex => ({
+const makeRouteIndex = (points: RouteIndexPoint[]): RouteIndex => ({
   routeFingerprint: 'fp',
   sampledPoints: points,
 })
 
 const makeOkFetch = (): Mock => {
-  const times: Array<string> = [
+  const times: string[] = [
     '2026-01-13T11:00:00.000Z',
     '2026-01-13T12:00:00.000Z',
     '2026-01-13T13:00:00.000Z',

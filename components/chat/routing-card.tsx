@@ -55,7 +55,7 @@ export type RoutingCardProps = {
     status?: 'streaming' | 'running' | 'complete' | 'failed'
     content: string
   }
-  attachments: Array<{ type: 'route_options'; routePlanId: Id<'route_plans'> }>
+  attachments: { type: 'route_options'; routePlanId: Id<'route_plans'> }[]
 }
 
 /**
@@ -74,7 +74,7 @@ type RoutePlanDoc = {
 // Phase pill definitions
 // ---------------------------------------------------------------------------
 
-const PHASES: Array<{ key: RoutePlanPhase; label: string }> = [
+const PHASES: { key: RoutePlanPhase; label: string }[] = [
   { key: ROUTE_PLAN_PHASE.READING, label: 'Reading' },
   { key: ROUTE_PLAN_PHASE.FINDING, label: 'Finding' },
   { key: ROUTE_PLAN_PHASE.WEATHER, label: 'Weather' },

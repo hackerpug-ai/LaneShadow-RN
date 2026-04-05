@@ -28,7 +28,7 @@ export type SegmentSelectData = {
  * Props for RoutePolyline component
  */
 export type RoutePolylineProps = {
-  polylines: Array<BuiltPolyline>
+  polylines: BuiltPolyline[]
   onSegmentSelect?: (segment: SegmentSelectData) => void
   selectedSegmentId?: string
 }
@@ -36,7 +36,7 @@ export type RoutePolylineProps = {
 /**
  * Calculate bounding box from coordinates
  */
-const calculateBounds = (coordinates: Array<{ latitude: number; longitude: number }>) => {
+const calculateBounds = (coordinates: { latitude: number; longitude: number }[]) => {
   const lats = coordinates.map((c) => c.latitude)
   const lngs = coordinates.map((c) => c.longitude)
 
@@ -55,7 +55,7 @@ const calculateBounds = (coordinates: Array<{ latitude: number; longitude: numbe
 /**
  * Encode coordinates to polyline string (simplified - for production use proper encoding)
  */
-const encodeCoordinates = (coordinates: Array<{ latitude: number; longitude: number }>): string => {
+const encodeCoordinates = (coordinates: { latitude: number; longitude: number }[]): string => {
   // For now, return a simplified representation
   // In production, this should use proper polyline encoding
   return JSON.stringify(coordinates)
@@ -113,7 +113,7 @@ export const RoutePolyline: FC<RoutePolylineProps> = ({
 
   const handleLongPress = useMemo(
     () =>
-      (segmentId: string, coordinates: Array<{ latitude: number; longitude: number }>) =>
+      (segmentId: string, coordinates: { latitude: number; longitude: number }[]) =>
       ({ nativeEvent }: GestureHandlerGestureEvent) => {
         const state = nativeEvent.state
 

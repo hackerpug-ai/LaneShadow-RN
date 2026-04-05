@@ -3,8 +3,7 @@
  * Demonstrates text input field with semantic theme styling
  */
 import type { Meta, StoryObj } from '@storybook/react-native'
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { View } from 'react-native'
 import { Input } from '../../components/ui/input'
 

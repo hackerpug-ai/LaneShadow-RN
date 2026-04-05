@@ -44,8 +44,8 @@ type LegAllocation = {
 
 const allocatePointsPerLeg = (
   totalPoints: number,
-  legs: Array<{ distanceMeters: number; legIndex: number }>
-): Array<LegAllocation> => {
+  legs: { distanceMeters: number; legIndex: number }[]
+): LegAllocation[] => {
   const totalDistance = legs.reduce((sum, leg) => sum + leg.distanceMeters, 0)
   if (totalDistance === 0) {
     return legs.map((leg, idx) => ({
@@ -56,7 +56,7 @@ const allocatePointsPerLeg = (
     }))
   }
   let remainingPoints = totalPoints
-  const allocations: Array<LegAllocation> = []
+  const allocations: LegAllocation[] = []
   let cumulativeDistance = 0
 
   legs.forEach((leg, idx) => {
@@ -149,7 +149,7 @@ const computeRouteIndexImpl = (routeSnapshot: RouteSnapshot): RouteIndex => {
     const interior = points.slice(1, -1)
 
     const targetInteriorCount = Math.max(0, MAX_SAMPLED_POINTS - 2)
-    const selectedInterior: Array<(typeof interior)[number]> = []
+    const selectedInterior: (typeof interior)[number][] = []
 
     if (interior.length <= targetInteriorCount) {
       selectedInterior.push(...interior)

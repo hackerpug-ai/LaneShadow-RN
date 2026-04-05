@@ -1,6 +1,6 @@
 import type { ExtendedTheme } from '../../styles/types'
 
-type MapStyle = Array<Record<string, unknown>>
+type MapStyle = Record<string, unknown>[]
 
 const pickColor = (value: string | undefined, fallback: string, dark: boolean) =>
   value ?? fallback ?? (dark ? '#EBEBEB' : '#1E1E1E')

@@ -70,12 +70,12 @@ const parseGoogleRoute = (route: any): ProviderRouteResponse => {
     throw new Error('Google Routes response missing viewport')
   }
 
-  const legsRaw: Array<any> = Array.isArray(route?.legs) ? route.legs : []
+  const legsRaw: any[] = Array.isArray(route?.legs) ? route.legs : []
   if (!legsRaw.length) {
     throw new Error('Google Routes response missing legs')
   }
 
-  const legs: Array<ProviderLeg> = legsRaw.map((leg: any, idx: number) => {
+  const legs: ProviderLeg[] = legsRaw.map((leg: any, idx: number) => {
     const startLatLng = leg?.startLocation?.latLng
     const endLatLng = leg?.endLocation?.latLng
     const legPolyline: string | undefined = leg?.polyline?.encodedPolyline

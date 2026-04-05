@@ -18,6 +18,8 @@ import type { PlannedRouteOptionView } from '../../types/routes'
 import { Badge } from '../ui/badge'
 import { IconSymbol } from '../ui/icon-symbol'
 import { RainBadge } from '../ui/rain-badge'
+import { TemperatureBadge } from '../ui/temperature-badge'
+import { WindBadge } from './wind-badge'
 
 /**
  * Add opacity to a hex color
@@ -29,8 +31,6 @@ const addOpacity = (hexColor: string, opacity: number): string => {
   const b = parseInt(hex.substring(4, 6), 16)
   return `rgba(${r}, ${g}, ${b}, ${opacity})`
 }
-import { TemperatureBadge } from '../ui/temperature-badge'
-import { WindBadge } from './wind-badge'
 
 export type RouteOptionCardProps = {
   routeOption: PlannedRouteOptionView

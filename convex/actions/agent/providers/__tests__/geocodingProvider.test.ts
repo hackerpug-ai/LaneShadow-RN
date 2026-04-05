@@ -1,11 +1,11 @@
 import { vi, describe, it, expect, afterEach, type Mock } from 'vitest'
 
+import { createGeocodingProvider } from '../geocodingProvider'
+
 // Mock the env module before importing the provider.
 // This prevents requireEnv() from throwing on missing Clerk secrets,
 // and sets a known value for GOOGLE_MAPS_API_KEY.
 vi.mock('../../../../../lib/env', () => ({ GOOGLE_MAPS_API_KEY: 'test-geocode-key' }))
-
-import { createGeocodingProvider } from '../geocodingProvider'
 
 const makeSampleResults = (count = 2) =>
   Array.from({ length: count }, (_, i) => ({

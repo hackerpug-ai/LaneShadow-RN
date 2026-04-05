@@ -43,11 +43,11 @@ export type RouteEnrichment = {
 }
 
 export type EnrichRouteInput = {
-  routes: Array<{
-    waypoints: Array<{ name: string; type: string }>
+  routes: {
+    waypoints: { name: string; type: string }[]
     stats: { distanceMeters: number; durationSeconds: number }
     preferences?: { scenicBias?: string; avoidHighways?: boolean }
-  }>
+  }[]
 }
 
 const enrichmentTool: Tool = {

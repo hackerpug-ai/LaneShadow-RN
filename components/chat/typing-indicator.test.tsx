@@ -19,6 +19,12 @@ import { render } from '@testing-library/react-native'
 import type { ExtendedTheme } from '../../styles/types'
 
 // ---------------------------------------------------------------------------
+// Import component under test (after all mocks are set up)
+// ---------------------------------------------------------------------------
+
+import { TypingIndicator } from './typing-indicator'
+
+// ---------------------------------------------------------------------------
 // Mock: react-native — add isReduceMotionEnabled which the base stub omits
 // ---------------------------------------------------------------------------
 
@@ -168,12 +174,6 @@ const mockSemantic: ExtendedTheme['semantic'] = {
 vi.mock('../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemantic }),
 }))
-
-// ---------------------------------------------------------------------------
-// Import component under test (after all mocks are set up)
-// ---------------------------------------------------------------------------
-
-import { TypingIndicator } from './typing-indicator'
 
 // ---------------------------------------------------------------------------
 // Tests

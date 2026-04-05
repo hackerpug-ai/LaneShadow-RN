@@ -21,7 +21,7 @@ export type ActionCtx = {
 type FunctionConfig = {
   args?: unknown
   returns?: unknown
-  handler: (...args: Array<any>) => any
+  handler: (...args: any[]) => any
 }
 
 export const query = (config: FunctionConfig) => config

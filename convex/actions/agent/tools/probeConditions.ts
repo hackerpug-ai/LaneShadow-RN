@@ -5,12 +5,12 @@ import { traceableToolAsync } from '../lib/tracing'
 
 const MAX_PROBES = 25
 
-const selectRepresentativePoints = (points: Array<RouteIndexPoint>): Array<RouteIndexPoint> => {
+const selectRepresentativePoints = (points: RouteIndexPoint[]): RouteIndexPoint[] => {
   if (points.length <= MAX_PROBES) {
     return points
   }
 
-  const selected: Array<RouteIndexPoint> = []
+  const selected: RouteIndexPoint[] = []
   const lastIndex = points.length - 1
   const slots = MAX_PROBES - 1
 
@@ -45,7 +45,7 @@ const probeConditionsImpl = async ({
   routeIndex,
   departureTimeMs,
   weatherProvider,
-}: ProbeConditionsParams): Promise<Array<ProbedWindPoint>> => {
+}: ProbeConditionsParams): Promise<ProbedWindPoint[]> => {
   const selected = selectRepresentativePoints(routeIndex.sampledPoints)
   if (!selected.length) return []
 

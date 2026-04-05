@@ -3,8 +3,7 @@
  * Demonstrates floating search input with loading and clear states
  */
 import type { Meta, StoryObj } from '@storybook/react-native'
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { View } from 'react-native'
 import { FloatingSearchInput } from '../../components/ui/floating-search-input'
 

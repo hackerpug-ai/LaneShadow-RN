@@ -14,9 +14,9 @@ export type WindSample = {
 
 export type WeatherProvider = {
   getWindAtPoints: (params: {
-    points: Array<RouteIndexPoint>
+    points: RouteIndexPoint[]
     departureTimeMs: number
-  }) => Promise<Array<WindSample>>
+  }) => Promise<WindSample[]>
 }
 
 const OPEN_METEO_ENDPOINT = 'https://api.open-meteo.com/v1/forecast'
@@ -32,7 +32,7 @@ const toUtcDateString = (timeMs: number): string => {
   return `${year}-${month}-${day}`
 }
 
-const pickNearestHourIndex = (times: Array<string>, targetMs: number): number => {
+const pickNearestHourIndex = (times: string[], targetMs: number): number => {
   let bestIdx = 0
   let bestDiff = Number.POSITIVE_INFINITY
   for (let i = 0; i < times.length; i += 1) {
@@ -81,10 +81,10 @@ const fetchWindForPoint = async (
             )
           }
           const data: any = await response.json()
-          const times: Array<string> | undefined = data?.hourly?.time
-          const speeds: Array<number> | undefined = data?.hourly?.windspeed_10m
-          const directions: Array<number> | undefined = data?.hourly?.winddirection_10m
-          const gusts: Array<number> | undefined = data?.hourly?.windgusts_10m
+          const times: string[] | undefined = data?.hourly?.time
+          const speeds: number[] | undefined = data?.hourly?.windspeed_10m
+          const directions: number[] | undefined = data?.hourly?.winddirection_10m
+          const gusts: number[] | undefined = data?.hourly?.windgusts_10m
 
           if (!times || !speeds || !directions || times.length === 0) {
             throw new Error('Open-Meteo response missing hourly data')

@@ -2,7 +2,7 @@ import type { ServerErrorCode } from './errors'
 import { getErrorMessage, SERVER_ERROR_MESSAGES } from './errors'
 
 const SERVER_ERROR_CODES = new Set<ServerErrorCode>(
-  Object.keys(SERVER_ERROR_MESSAGES) as Array<ServerErrorCode>
+  Object.keys(SERVER_ERROR_MESSAGES) as ServerErrorCode[]
 )
 
 const UNKNOWN_MESSAGE = 'Something went wrong. Please try again.'

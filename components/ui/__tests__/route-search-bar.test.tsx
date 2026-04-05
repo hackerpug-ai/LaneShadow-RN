@@ -14,6 +14,15 @@ import React from 'react'
 import { render, fireEvent, act } from '@testing-library/react-native'
 import type { ExtendedTheme } from '../../../styles/types'
 
+// @expo/vector-icons is globally stubbed via __mocks__/expo-vector-icons.ts
+// (wired in vitest.config.ts + vitest.env.js). No per-test override needed.
+
+// ---------------------------------------------------------------------------
+// Import after mocks
+// ---------------------------------------------------------------------------
+
+import { RouteSearchBar } from '../route-search-bar'
+
 // ---------------------------------------------------------------------------
 // Mock semantic theme (dark mode)
 // ---------------------------------------------------------------------------
@@ -117,15 +126,6 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
 vi.mock('../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
-
-// @expo/vector-icons is globally stubbed via __mocks__/expo-vector-icons.ts
-// (wired in vitest.config.ts + vitest.env.js). No per-test override needed.
-
-// ---------------------------------------------------------------------------
-// Import after mocks
-// ---------------------------------------------------------------------------
-
-import { RouteSearchBar } from '../route-search-bar'
 
 // ---------------------------------------------------------------------------
 // Tests

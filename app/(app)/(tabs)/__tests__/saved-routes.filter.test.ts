@@ -12,6 +12,12 @@
 
 import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest'
 
+import React from 'react'
+import renderer, { act } from 'react-test-renderer'
+import SavedRoutesScreen from '../saved-routes'
+import { FilterHeader, FilteredEmptyState } from '../saved-routes.components'
+import type { SavedRouteListItemView } from '../../../../types/routes'
+
 const mockPush = vi.fn()
 
 vi.mock('react-native', () => ({
@@ -76,7 +82,7 @@ vi.mock('../../../../hooks/use-semantic-theme', () => ({
 }))
 
 const mockHookReturn = {
-  data: undefined as { routes: Array<Record<string, unknown>> } | undefined,
+  data: undefined as { routes: Record<string, unknown>[] } | undefined,
   isLoading: true,
 }
 let capturedHookArgs: Record<string, unknown> | undefined
@@ -139,12 +145,6 @@ vi.mock('../../../../lib/notifier-helpers', () => ({
   showSuccessNotification: vi.fn(),
   showErrorNotification: vi.fn(),
 }))
-
-import React from 'react'
-import renderer, { act } from 'react-test-renderer'
-import SavedRoutesScreen from '../saved-routes'
-import { FilterHeader, FilteredEmptyState } from '../saved-routes.components'
-import type { SavedRouteListItemView } from '../../../../types/routes'
 
 const makeRoute = (
   overrides: Partial<SavedRouteListItemView> & { savedRouteId: string }

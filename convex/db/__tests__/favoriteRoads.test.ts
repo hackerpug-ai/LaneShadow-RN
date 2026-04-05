@@ -30,7 +30,7 @@ type ListCtx = {
     ) => {
       withIndex: (indexName: string, fn: (q: any) => any) => {
         order: (direction: 'asc' | 'desc') => {
-          collect: () => Promise<Array<Doc<'favorite_roads'>>>
+          collect: () => Promise<Doc<'favorite_roads'>[]>
         }
       }
     }
@@ -54,7 +54,7 @@ type MockQuery = (
 ) => {
   withIndex: (indexName: string, fn: (q: any) => any) => {
     order: (direction: 'asc' | 'desc') => {
-      collect: () => Promise<Array<Doc<'favorite_roads'>>>
+      collect: () => Promise<Doc<'favorite_roads'>[]>
     }
   }
 }
@@ -150,7 +150,7 @@ describe('favoriteRoads', () => {
       const clerkUserId = 'user_list123'
       const now = Date.now()
 
-      const mockFavorites: Array<Doc<'favorite_roads'>> = [
+      const mockFavorites: Doc<'favorite_roads'>[] = [
         {
           _id: 'favorite_1' as Id<'favorite_roads'>,
           _creationTime: now,

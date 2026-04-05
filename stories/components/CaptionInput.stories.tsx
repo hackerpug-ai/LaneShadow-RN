@@ -3,8 +3,7 @@
  * Demonstrates multi-line input with action buttons
  */
 import type { Meta, StoryObj } from '@storybook/react-native'
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { View } from 'react-native'
 import { CaptionInput } from '../../components/ui/caption-input'
 

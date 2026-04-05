@@ -13,17 +13,17 @@ type BaseProps = {
     zoom?: number
     duration?: number
   }
-  markers?: Array<{
+  markers?: {
     id?: string
     title?: string
     coordinates: { latitude: number; longitude: number }
-  }>
-  polylines?: Array<{
+  }[]
+  polylines?: {
     id?: string
-    coordinates: Array<{ latitude: number; longitude: number }>
+    coordinates: { latitude: number; longitude: number }[]
     strokeColor?: string
     strokeWidth?: number
-  }>
+  }[]
   onMapClick?: (event: { coordinates?: { latitude: number; longitude: number } }) => void
   onCameraMove?: (event: {
     coordinates: { latitude: number; longitude: number }

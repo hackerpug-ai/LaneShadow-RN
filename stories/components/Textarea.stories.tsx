@@ -3,8 +3,7 @@
  * Demonstrates multi-line text input field
  */
 import type { Meta, StoryObj } from '@storybook/react-native'
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { View } from 'react-native'
 import { Textarea } from '../../components/ui/textarea'
 

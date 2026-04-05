@@ -2,16 +2,11 @@
  * Vitest environment setup - runs before tests
  * Sets NODE_ENV=test to disable LangSmith tracing during tests
  */
-process.env.NODE_ENV = 'test'
-
 import { fileURLToPath } from 'node:url'
 import dotenv from 'dotenv'
 import fs from 'node:fs'
 import path from 'node:path'
 import { vi } from 'vitest'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 // Globally stub react-native before any test imports it (directly or transitively
 // via @testing-library/react-native). React Native 0.81 ships Flow-annotated
@@ -24,6 +19,11 @@ const __dirname = path.dirname(__filename)
 // apply to files that Vite transforms; the testing-library package is loaded by
 // Node's native CJS loader which bypasses Vite entirely.
 import Module from 'node:module'
+
+process.env.NODE_ENV = 'test'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 const EXPO_ICONS_STUB = path.resolve(__dirname, '__mocks__/expo-vector-icons.ts')
 const STUB_MAP = {
   'react-native': path.resolve(__dirname, '__mocks__/react-native.ts'),

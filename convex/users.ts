@@ -30,8 +30,8 @@ export const list = query({
       ...USER_FIELDS,
     })
   ),
-  handler: async (ctx): Promise<Array<ListedUser>> => {
-    const users: Array<ListedUser> = await ctx.db.query('users').collect()
+  handler: async (ctx): Promise<ListedUser[]> => {
+    const users: ListedUser[] = await ctx.db.query('users').collect()
     return users
   },
 })

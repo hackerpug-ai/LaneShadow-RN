@@ -14,6 +14,12 @@ import { render, fireEvent } from '@testing-library/react-native'
 import type { ExtendedTheme } from '../../../styles/types'
 
 // ---------------------------------------------------------------------------
+// Import after mocks
+// ---------------------------------------------------------------------------
+
+import { SaveFavoriteSheet } from '../save-favorite-sheet'
+
+// ---------------------------------------------------------------------------
 // Mock semantic theme
 // ---------------------------------------------------------------------------
 
@@ -158,12 +164,6 @@ const mockInsertFavorite = vi.fn()
 vi.mock('convex/react', () => ({
   useMutation: () => mockInsertFavorite,
 }))
-
-// ---------------------------------------------------------------------------
-// Import after mocks
-// ---------------------------------------------------------------------------
-
-import { SaveFavoriteSheet } from '../save-favorite-sheet'
 
 // ---------------------------------------------------------------------------
 // Helpers

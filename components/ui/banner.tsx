@@ -13,7 +13,7 @@ export type BannerProps = {
   visible: boolean
   message: string
   icon?: string
-  actions?: Array<{ label: string; onPress: () => void }>
+  actions?: { label: string; onPress: () => void }[]
   testID?: string
 }
 

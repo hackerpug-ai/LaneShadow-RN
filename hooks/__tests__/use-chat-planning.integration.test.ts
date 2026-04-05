@@ -16,13 +16,20 @@ import { renderHook, waitFor, act } from '@testing-library/react'
 import React from 'react'
 
 // -------------------------------------------------------------------------
+// Imports after mocks
+// -------------------------------------------------------------------------
+
+import { useChatPlanning } from '../use-chat-planning'
+import type { RideFlowAction } from '../use-ride-flow'
+
+// -------------------------------------------------------------------------
 // Mock setup - MUST come before imports
 // -------------------------------------------------------------------------
 
 // Track backend calls
 let backendCallLog: {
-  createSession: Array<{ firstMessage: string }>
-  sendMessage: Array<{ sessionId: string; content: string }>
+  createSession: { firstMessage: string }[]
+  sendMessage: { sessionId: string; content: string }[]
 } = {
   createSession: [],
   sendMessage: [],
@@ -50,13 +57,6 @@ vi.mock('convex/react', () => ({
   useAction: () => mockSendMessage,
   useQuery: () => null,
 }))
-
-// -------------------------------------------------------------------------
-// Imports after mocks
-// -------------------------------------------------------------------------
-
-import { useChatPlanning } from '../use-chat-planning'
-import type { RideFlowAction } from '../use-ride-flow'
 
 // -------------------------------------------------------------------------
 // Test Data

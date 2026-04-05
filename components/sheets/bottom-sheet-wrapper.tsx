@@ -7,7 +7,7 @@ import { SheetHandle } from './sheet-handle'
 
 type SnapPreset = 'content' | 'half' | 'full'
 
-const SNAP_PRESETS: Record<SnapPreset, Array<string | number>> = {
+const SNAP_PRESETS: Record<SnapPreset, (string | number)[]> = {
   content: ['40%'],
   half: ['60%'],
   full: ['90%'],
@@ -19,7 +19,7 @@ export type BottomSheetWrapperProps = {
   children: ReactNode
   testID?: string
   preset?: SnapPreset
-  snapPoints?: Array<string | number>
+  snapPoints?: (string | number)[]
   wrapChildren?: boolean
   showHandle?: boolean
 }

@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 
+import { useRouteComparison } from './use-route-comparison'
+import type { RideFlowState } from './use-ride-flow'
+
 // Mock useSemanticTheme so route-polyline can read semantic.color.* without
 // needing the real styles/theme.ts pipeline (which depends on RNP's runtime
 // theme assembly that is not wired through the vitest environment).
@@ -24,9 +27,6 @@ vi.mock('./use-semantic-theme', () => ({
     },
   }),
 }))
-
-import { useRouteComparison } from './use-route-comparison'
-import type { RideFlowState } from './use-ride-flow'
 
 describe('useRouteComparison', () => {
   it('should return empty polylines for idle state', () => {

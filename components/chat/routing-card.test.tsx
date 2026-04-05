@@ -21,6 +21,13 @@ import { render } from '@testing-library/react-native'
 import type { ExtendedTheme } from '../../styles/types'
 
 // ---------------------------------------------------------------------------
+// Import after mocks
+// ---------------------------------------------------------------------------
+
+import { RoutingCard } from './routing-card'
+import type { RoutingCardProps } from './routing-card'
+
+// ---------------------------------------------------------------------------
 // Mock: react-native-reanimated
 // All animation primitives are no-ops in tests.
 // ---------------------------------------------------------------------------
@@ -197,13 +204,6 @@ vi.mock('./route-attachment-card', () => {
     },
   }
 })
-
-// ---------------------------------------------------------------------------
-// Import after mocks
-// ---------------------------------------------------------------------------
-
-import { RoutingCard } from './routing-card'
-import type { RoutingCardProps } from './routing-card'
 
 // ---------------------------------------------------------------------------
 // Fixtures

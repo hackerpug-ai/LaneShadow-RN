@@ -4,7 +4,7 @@ import type { PolylineGeometry } from '../models/saved-routes'
 export type LatLng = { lat: number; lng: number }
 export type MapLatLng = { latitude: number; longitude: number }
 
-export const decodePolylineGeometry = (geometry: PolylineGeometry): Array<MapLatLng> => {
+export const decodePolylineGeometry = (geometry: PolylineGeometry): MapLatLng[] => {
   const decoded = polyline.decode(geometry.value, geometry.precision)
   return decoded.map(([latitude, longitude]) => ({ latitude, longitude }))
 }
@@ -26,12 +26,12 @@ export const haversineMeters = (a: MapLatLng, b: MapLatLng): number => {
   return R * c
 }
 
-export const computeCumulativeDistances = (coords: Array<MapLatLng>): Array<number> => {
+export const computeCumulativeDistances = (coords: MapLatLng[]): number[] => {
   if (coords.length === 0) {
     return []
   }
 
-  const distances: Array<number> = [0]
+  const distances: number[] = [0]
   for (let i = 1; i < coords.length; i += 1) {
     const segment = haversineMeters(coords[i - 1], coords[i])
     distances.push(distances[i - 1] + segment)
@@ -52,17 +52,17 @@ const interpolatePoint = (start: MapLatLng, end: MapLatLng, t: number): MapLatLn
  * used to render wind overlay segments with distinct colors.
  */
 export const slicePolylineByMeters = (
-  coords: Array<MapLatLng>,
-  cumulativeDistances: Array<number> | undefined,
+  coords: MapLatLng[],
+  cumulativeDistances: number[] | undefined,
   startMeters: number,
   endMeters: number
-): Array<MapLatLng> => {
+): MapLatLng[] => {
   if (coords.length < 2 || endMeters <= startMeters) {
     return []
   }
 
   const distances = cumulativeDistances ?? computeCumulativeDistances(coords)
-  const sliced: Array<MapLatLng> = []
+  const sliced: MapLatLng[] = []
 
   for (let i = 0; i < coords.length - 1; i += 1) {
     const segStart = distances[i]

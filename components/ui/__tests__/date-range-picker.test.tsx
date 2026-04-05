@@ -16,6 +16,12 @@ import React from 'react'
 import { render, fireEvent } from '@testing-library/react-native'
 
 // ---------------------------------------------------------------------------
+// Import after mocks
+// ---------------------------------------------------------------------------
+
+import { DateRangePicker } from '../date-range-picker'
+
+// ---------------------------------------------------------------------------
 // Mock semantic theme
 // ---------------------------------------------------------------------------
 
@@ -85,12 +91,6 @@ const mockSemanticTheme = {
 vi.mock('../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
-
-// ---------------------------------------------------------------------------
-// Import after mocks
-// ---------------------------------------------------------------------------
-
-import { DateRangePicker } from '../date-range-picker'
 
 // ---------------------------------------------------------------------------
 // Helpers

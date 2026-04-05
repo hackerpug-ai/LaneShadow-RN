@@ -3,8 +3,7 @@
  * Demonstrates warning banner with semantic theme styling
  */
 import type { Meta, StoryObj } from '@storybook/react-native'
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { View, Pressable, Text } from 'react-native'
 import { Banner } from '../../components/ui/banner'
 

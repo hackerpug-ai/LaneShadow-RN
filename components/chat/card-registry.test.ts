@@ -9,6 +9,9 @@
 
 import { describe, it, expect, vi } from 'vitest'
 
+import { CARD_REGISTRY } from './card-registry'
+import { RoutingCard } from './routing-card'
+
 // Avoid pulling in the full RoutingCard → convex/react → RN deps by stubbing
 // the module down to just an identifiable named export.
 vi.mock('./routing-card', () => ({
@@ -16,9 +19,6 @@ vi.mock('./routing-card', () => ({
     return null
   },
 }))
-
-import { CARD_REGISTRY } from './card-registry'
-import { RoutingCard } from './routing-card'
 
 describe('CARD_REGISTRY', () => {
   it('AC1: has entries for routing_card, weather_card, saved_route_card', () => {

@@ -15,6 +15,13 @@ import { render, act } from '@testing-library/react-native'
 import type { ExtendedTheme } from '../../../styles/types'
 
 // ---------------------------------------------------------------------------
+// Import after mocks
+// ---------------------------------------------------------------------------
+
+import { ChatTranscript } from '../chat-transcript'
+import type { ChatMessage } from '../chat-transcript'
+
+// ---------------------------------------------------------------------------
 // Mock semantic theme
 // ---------------------------------------------------------------------------
 
@@ -163,13 +170,6 @@ vi.mock('../../chat/card-registry', () => {
     },
   }
 })
-
-// ---------------------------------------------------------------------------
-// Import after mocks
-// ---------------------------------------------------------------------------
-
-import { ChatTranscript } from '../chat-transcript'
-import type { ChatMessage } from '../chat-transcript'
 
 // ---------------------------------------------------------------------------
 // Fixtures

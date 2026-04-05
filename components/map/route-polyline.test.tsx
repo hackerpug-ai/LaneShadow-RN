@@ -122,7 +122,7 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
 }
 
 // Helper to create mock route geometry
-const createMockGeometry = (points: Array<[number, number]>): PolylineGeometry => {
+const createMockGeometry = (points: [number, number][]): PolylineGeometry => {
   // For testing, we'll use a real encoded polyline
   // This is a simple 2-point polyline in San Francisco
   // Encoded: 37.7749, -122.4194 to 37.7849, -122.4094
@@ -135,7 +135,7 @@ const createMockGeometry = (points: Array<[number, number]>): PolylineGeometry =
 }
 
 // Helper to create mock route legs
-const createMockLegs = (count: number): Array<RouteLeg> => {
+const createMockLegs = (count: number): RouteLeg[] => {
   return Array.from({ length: count }, (_, i) => ({
     legIndex: i,
     start: {
@@ -172,7 +172,7 @@ const createMockRoute = (overlays: RouteOverlays) => {
 
 // Helper to create mock rain overlay
 const createMockRainOverlay = (
-  segmentsByLeg: Array<{ start: number; end: number; level: 'none' | 'light' | 'moderate' | 'heavy' }[]>
+  segmentsByLeg: { start: number; end: number; level: 'none' | 'light' | 'moderate' | 'heavy' }[][]
 ): RouteOverlays['rain'] => {
   return {
     generatedAt: Date.now(),
@@ -196,7 +196,7 @@ const createMockRainOverlay = (
 
 // Helper to create mock wind overlay
 const createMockWindOverlay = (
-  segmentsByLeg: Array<{ start: number; end: number; level: 'low' | 'moderate' | 'high' }[]>
+  segmentsByLeg: { start: number; end: number; level: 'low' | 'moderate' | 'high' }[][]
 ): RouteOverlays['wind'] => {
   return {
     generatedAt: Date.now(),
@@ -219,7 +219,7 @@ const createMockWindOverlay = (
 
 // Helper to create mock temperature overlay
 const createMockTemperatureOverlay = (
-  segmentsByLeg: Array<{ start: number; end: number; level: 'cold' | 'mild' | 'warm' | 'hot' }[]>
+  segmentsByLeg: { start: number; end: number; level: 'cold' | 'mild' | 'warm' | 'hot' }[][]
 ): RouteOverlays['temperature'] => {
   return {
     generatedAt: Date.now(),

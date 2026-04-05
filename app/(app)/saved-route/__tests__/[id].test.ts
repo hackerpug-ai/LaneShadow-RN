@@ -19,6 +19,17 @@
 // Mocks — must be declared before imports
 // ---------------------------------------------------------------------------
 
+import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
+import React from 'react'
+import renderer, { act } from 'react-test-renderer'
+
+import type { SavedRouteDetailView } from '../../../../types/routes'
+import type { WindOverlay, RainOverlay, TemperatureOverlay, RouteOverlays } from '../../../../models/saved-routes'
+import { buildRoutePolylines } from '../../../../components/map/route-polyline'
+import { getWorstRainLevel, getWorstTemperatureLevel } from '../../../../models/saved-routes'
+import { deriveWindSummary, formatDistance, formatDuration, formatSavedDate } from '../utils'
+import SavedRouteDetailScreen from '../[id]'
+
 const mockBack = vi.fn()
 
 const mockHookReturn: {
@@ -129,17 +140,6 @@ vi.mock('../use-route-actions', () => ({
     deleteRunning: false,
   }),
 }))
-
-import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
-import React from 'react'
-import renderer, { act } from 'react-test-renderer'
-
-import type { SavedRouteDetailView } from '../../../../types/routes'
-import type { WindOverlay, RainOverlay, TemperatureOverlay, RouteOverlays } from '../../../../models/saved-routes'
-import { buildRoutePolylines } from '../../../../components/map/route-polyline'
-import { getWorstRainLevel, getWorstTemperatureLevel } from '../../../../models/saved-routes'
-import { deriveWindSummary, formatDistance, formatDuration, formatSavedDate } from '../utils'
-import SavedRouteDetailScreen from '../[id]'
 
 const mockBuildRoutePolylines = buildRoutePolylines as Mock
 

@@ -15,6 +15,12 @@ import { render, fireEvent, act } from '@testing-library/react-native'
 import type { ExtendedTheme } from '../../../styles/types'
 
 // ---------------------------------------------------------------------------
+// Import after mocks
+// ---------------------------------------------------------------------------
+
+import { AgentMessageOverlay } from '../agent-message-overlay'
+
+// ---------------------------------------------------------------------------
 // Mock semantic theme
 // ---------------------------------------------------------------------------
 
@@ -145,12 +151,6 @@ vi.mock('../../route-attachment-card', () => {
       createElement(View, { testID: `route-card-${props.id}` }),
   }
 })
-
-// ---------------------------------------------------------------------------
-// Import after mocks
-// ---------------------------------------------------------------------------
-
-import { AgentMessageOverlay } from '../agent-message-overlay'
 
 // ---------------------------------------------------------------------------
 // Helpers

@@ -50,7 +50,7 @@ const makeIntegrationFetch = (): Mock => {
     ],
   }
 
-  const openMeteoTimes: Array<string> = [
+  const openMeteoTimes: string[] = [
     '2026-01-13T11:00:00.000Z',
     '2026-01-13T12:00:00.000Z',
     '2026-01-13T13:00:00.000Z',

@@ -30,7 +30,7 @@ const normalizeRouteImpl = ({ providerRoute, planInput }: NormalizeRouteParams):
     planInput.end.placeId
   )
 
-  const legs: Array<RouteLeg> = providerRoute.legs.map((leg) => ({
+  const legs: RouteLeg[] = providerRoute.legs.map((leg) => ({
     legIndex: leg.legIndex,
     start: toRouteStop(leg.start.lat, leg.start.lng),
     end: toRouteStop(leg.end.lat, leg.end.lng),

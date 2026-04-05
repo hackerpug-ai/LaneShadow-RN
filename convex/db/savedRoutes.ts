@@ -340,10 +340,10 @@ export const getSavedRoutesList = query({
         ? Math.min(Math.max(limit, 1), MAX_LIST_LIMIT)
         : MAX_LIST_LIMIT
 
-    const results: Array<{
+    const results: {
       savedRouteId: Id<'saved_routes'>
       savedRoute: SavedRoute
-    }> = await ctx.runQuery(internalSavedRoutes.listByOwner, {
+    }[] = await ctx.runQuery(internalSavedRoutes.listByOwner, {
       limit: boundedLimit,
       searchQuery,
       afterDate,

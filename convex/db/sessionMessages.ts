@@ -17,7 +17,7 @@ type SessionMessageDoc = {
   sessionId: Id<'planning_sessions'>
   role: 'rider' | 'system'
   content: string
-  attachments?: Array<{ type: 'route_options'; routePlanId: Id<'route_plans'> }>
+  attachments?: { type: 'route_options'; routePlanId: Id<'route_plans'> }[]
   createdAt: number
   // Per task #227 (widen phase): both fields are optional until migration
   // backfills pre-existing rows. Callers should default accordingly.
@@ -148,7 +148,7 @@ export const addSystemMessageHandler = async (
   args: {
     sessionId: Id<'planning_sessions'>
     content: string
-    attachments?: Array<{ type: 'route_options'; routePlanId: Id<'route_plans'> }>
+    attachments?: { type: 'route_options'; routePlanId: Id<'route_plans'> }[]
   }
 ): Promise<{ messageId: Id<'session_messages'> }> => {
   // AC-1 & AC-2: Validate content is not empty or whitespace-only

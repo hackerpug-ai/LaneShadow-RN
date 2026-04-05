@@ -19,8 +19,7 @@ import { WindBadge } from '../planning/wind-badge'
 import { RainBadge } from './rain-badge'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { getWorstRainLevel, RAIN_SUMMARY, WIND_SUMMARY } from '../../models/saved-routes'
-import type { RouteLeg, RouteOverlays, PlanInput, RainOverlay, WindOverlay } from '../../models/saved-routes'
-import type { WindSummary, RainSummary } from '../../models/saved-routes'
+import type { RouteLeg, RouteOverlays, PlanInput, RainOverlay, WindOverlay , WindSummary, RainSummary } from '../../models/saved-routes'
 
 // ---------------------------------------------------------------------------
 // withAlpha utility (same as route-timeline.tsx, colocated for independence)

@@ -19,6 +19,13 @@ import { renderHook, act } from '@testing-library/react'
 import React from 'react'
 
 // -------------------------------------------------------------------------
+// Imports after mocks
+// -------------------------------------------------------------------------
+
+import { useChatPlanning } from './use-chat-planning'
+import type { RideFlowAction } from './use-ride-flow'
+
+// -------------------------------------------------------------------------
 // Mock setup - MUST come before imports
 // -------------------------------------------------------------------------
 
@@ -31,13 +38,6 @@ vi.mock('convex/react', () => ({
   useAction: () => mockSendMessage,
   useQuery: () => null,
 }))
-
-// -------------------------------------------------------------------------
-// Imports after mocks
-// -------------------------------------------------------------------------
-
-import { useChatPlanning } from './use-chat-planning'
-import type { RideFlowAction } from './use-ride-flow'
 
 describe('useChatPlanning', () => {
   let mockDispatch: (action: RideFlowAction) => void

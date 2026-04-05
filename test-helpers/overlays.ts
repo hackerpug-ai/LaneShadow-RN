@@ -8,7 +8,7 @@ import type { RouteOverlays } from '../models/saved-routes'
 /**
  * Create a minimal valid RainOverlay
  */
-export const createRainOverlay = (levels: Array<'none' | 'light' | 'moderate' | 'heavy' | 'unavailable'>): RouteOverlays['rain'] => ({
+export const createRainOverlay = (levels: ('none' | 'light' | 'moderate' | 'heavy' | 'unavailable')[]): RouteOverlays['rain'] => ({
   generatedAt: Date.now(),
   modelVersion: 'test-v1',
   legend: [
@@ -34,7 +34,7 @@ export const createRainOverlay = (levels: Array<'none' | 'light' | 'moderate' | 
 /**
  * Create a minimal valid WindOverlay
  */
-export const createWindOverlay = (levels: Array<'low' | 'moderate' | 'high' | 'unavailable'>): RouteOverlays['wind'] => ({
+export const createWindOverlay = (levels: ('low' | 'moderate' | 'high' | 'unavailable')[]): RouteOverlays['wind'] => ({
   generatedAt: Date.now(),
   modelVersion: 'test-v1',
   legend: [
@@ -59,7 +59,7 @@ export const createWindOverlay = (levels: Array<'low' | 'moderate' | 'high' | 'u
 /**
  * Create a minimal valid TemperatureOverlay
  */
-export const createTemperatureOverlay = (levels: Array<'cold' | 'mild' | 'warm' | 'hot' | 'unavailable'>): RouteOverlays['temperature'] => ({
+export const createTemperatureOverlay = (levels: ('cold' | 'mild' | 'warm' | 'hot' | 'unavailable')[]): RouteOverlays['temperature'] => ({
   generatedAt: Date.now(),
   modelVersion: 'test-v1',
   legend: [

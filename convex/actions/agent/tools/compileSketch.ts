@@ -17,8 +17,8 @@ const toWaypoint = (lat: number, lng: number, label?: string): Waypoint => ({
   label,
 })
 
-const buildWaypoints = (planInput: PlanInput, sketch: RouteSketch): Array<Waypoint> => {
-  const via: Array<Waypoint> = []
+const buildWaypoints = (planInput: PlanInput, sketch: RouteSketch): Waypoint[] => {
+  const via: Waypoint[] = []
 
   // Prefer anchorPoints with coordinates; ignore anchors without coords for now (would require geocoding).
   sketch.anchorPoints.forEach((anchor) => {

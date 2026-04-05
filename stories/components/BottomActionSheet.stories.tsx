@@ -3,8 +3,7 @@
  * Demonstrates bottom action sheet modal
  */
 import type { Meta, StoryObj } from '@storybook/react-native'
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { View, Text, Pressable } from 'react-native'
 import { BottomActionSheet } from '../../components/ui/bottom-action-sheet'
 

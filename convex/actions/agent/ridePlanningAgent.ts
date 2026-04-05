@@ -38,17 +38,17 @@ const AGENT_TIMEOUT_MS = 30_000
 export type AgentContext = {
   sessionId: Id<'planning_sessions'>
   clerkUserId: string
-  conversationHistory: Array<{ role: string; content: string }>
+  conversationHistory: { role: string; content: string }[]
   currentLocation?: { lat: number; lng: number }
   runQuery: ActionCtx['runQuery']
   runMutation: ActionCtx['runMutation']
 }
 
 export type ToolResult =
-  | { type: 'routes'; data: { planId: string; options: Array<any> } }
+  | { type: 'routes'; data: { planId: string; options: any[] } }
   | { type: 'error'; message: string }
   | { type: 'confirmation'; message: string }
-  | { type: 'search_results'; data: Array<any> }
+  | { type: 'search_results'; data: any[] }
   | { type: 'weather'; data: any }
   | { type: 'chat'; message: string }
 
@@ -308,9 +308,9 @@ async function executeTool(
  * Pure function — testable independently.
  */
 export function extractRouteAttachments(
-  toolResults: Array<{ toolName: string; result: unknown }>
-): Array<{ type: string; routePlanId?: string }> {
-  const attachments: Array<{ type: string; routePlanId?: string }> = []
+  toolResults: { toolName: string; result: unknown }[]
+): { type: string; routePlanId?: string }[] {
+  const attachments: { type: string; routePlanId?: string }[] = []
 
   for (const tr of toolResults) {
     if (tr.toolName === 'planRoute') {
@@ -339,7 +339,7 @@ export async function executeRidePlanningAgent(
   ctx: AgentContext,
   userMessage: string,
   executeCtx?: ExecuteContext
-): Promise<{ response: string; attachments?: Array<{ type: string; routePlanId?: string }> }> {
+): Promise<{ response: string; attachments?: { type: string; routePlanId?: string }[] }> {
   if (!OPENAI_API_KEY) {
     throw new Error('OpenAI API key not configured')
   }
@@ -348,7 +348,7 @@ export async function executeRidePlanningAgent(
   // since it's a runtime string that may be overridden via env var.
   const model = getModel('openai', AI_MODEL as any)
 
-  const toolResultsTracker: Array<{ toolName: string; result: unknown }> = []
+  const toolResultsTracker: { toolName: string; result: unknown }[] = []
 
   // Build conversation history from stored role+content pairs.
   // UserMessage is straightforward. AssistantMessage requires metadata fields

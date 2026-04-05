@@ -22,7 +22,7 @@ export type DateRangePickerProps = {
   testID?: string
 }
 
-const PRESETS: Array<{ key: DateRangePreset; label: string; daysBack?: number }> = [
+const PRESETS: { key: DateRangePreset; label: string; daysBack?: number }[] = [
   { key: 'all', label: 'All time' },
   { key: 'week', label: 'Last week', daysBack: 7 },
   { key: 'month', label: 'Last month', daysBack: 30 },

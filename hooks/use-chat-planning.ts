@@ -23,7 +23,7 @@ import { api } from '../convex/_generated/api'
 type SendMessageResult = {
   response: string
   messageId: Id<'session_messages'>
-  attachments?: Array<{ type: string; routePlanId?: Id<'route_plans'> }>
+  attachments?: { type: string; routePlanId?: Id<'route_plans'> }[]
 }
 
 /**

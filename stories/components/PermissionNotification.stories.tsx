@@ -3,8 +3,7 @@
  * Demonstrates permission request notification
  */
 import type { Meta, StoryObj } from '@storybook/react-native'
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { View, Pressable, Text } from 'react-native'
 import { PermissionNotification } from '../../components/ui/permission-notification'
 

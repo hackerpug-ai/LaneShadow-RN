@@ -16,7 +16,7 @@ import { getRainColor, getWindColor, getTemperatureColor } from '../../lib/map/o
 type RoutePolylineInput = {
   route: {
     overviewGeometry: PolylineGeometry
-    legs: Array<RouteLeg>
+    legs: RouteLeg[]
     overlays?: RouteOverlays
   }
   variant?: 'selected' | 'alternate'
@@ -28,18 +28,18 @@ type RoutePolylineInput = {
 
 export type BuiltPolyline = {
   id?: string
-  coordinates: Array<{ latitude: number; longitude: number }>
+  coordinates: { latitude: number; longitude: number }[]
   strokeColor?: string
   strokeWidth?: number
 }
 
-const decodeLeg = (leg: RouteLeg): Array<MapLatLng> => decodePolylineGeometry(leg.geometry)
+const decodeLeg = (leg: RouteLeg): MapLatLng[] => decodePolylineGeometry(leg.geometry)
 
 const buildWindOverlayPolylines = (
-  legCoords: Array<MapLatLng>,
+  legCoords: MapLatLng[],
   windOverlay: WindOverlayByLeg,
   semanticColors: ExtendedTheme['semantic']
-): Array<BuiltPolyline> => {
+): BuiltPolyline[] => {
   const distances = computeCumulativeDistances(legCoords)
 
   return windOverlay.segments.flatMap((segment: WindOverlaySegment) => {
@@ -58,10 +58,10 @@ const buildWindOverlayPolylines = (
 }
 
 const buildRainOverlayPolylines = (
-  legCoords: Array<MapLatLng>,
+  legCoords: MapLatLng[],
   rainOverlay: RainOverlayByLeg,
   semanticColors: ExtendedTheme['semantic']
-): Array<BuiltPolyline> => {
+): BuiltPolyline[] => {
   const distances = computeCumulativeDistances(legCoords)
 
   return rainOverlay.segments.flatMap((segment: RainOverlaySegment) => {
@@ -80,10 +80,10 @@ const buildRainOverlayPolylines = (
 }
 
 const buildTemperatureOverlayPolylines = (
-  legCoords: Array<MapLatLng>,
+  legCoords: MapLatLng[],
   temperatureOverlay: TemperatureOverlayByLeg,
   semanticColors: ExtendedTheme['semantic']
-): Array<BuiltPolyline> => {
+): BuiltPolyline[] => {
   const distances = computeCumulativeDistances(legCoords)
 
   return temperatureOverlay.segments.flatMap((segment: TemperatureOverlaySegment) => {
@@ -109,7 +109,7 @@ export const buildRoutePolylines = ({
   showRainOverlay = true,
   showTemperatureOverlay = true,
   semantic,
-}: RoutePolylineInput & { semantic: ExtendedTheme['semantic'] }): Array<BuiltPolyline> => {
+}: RoutePolylineInput & { semantic: ExtendedTheme['semantic'] }): BuiltPolyline[] => {
   const overviewCoords = decodePolylineGeometry(route.overviewGeometry)
   const legCoords = route.legs.map((leg) => decodeLeg(leg))
 
@@ -117,7 +117,7 @@ export const buildRoutePolylines = ({
     variant === 'selected' ? semantic.color.routeSelected.default : semantic.color.routeAlternate.default
   const legColor = variant === 'selected' ? semantic.color.routeAlternate.default : semantic.color.onSurface.muted
 
-  const polylines: Array<BuiltPolyline> = []
+  const polylines: BuiltPolyline[] = []
 
   if (overviewCoords.length > 1) {
     polylines.push({

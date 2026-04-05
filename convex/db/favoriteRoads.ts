@@ -55,7 +55,7 @@ type ListCtx = {
         fn: (q: any) => any
       ) => {
         order: (direction: 'asc' | 'desc') => {
-          collect: () => Promise<Array<FavoriteRoadDoc>>
+          collect: () => Promise<FavoriteRoadDoc[]>
         }
       }
     }
@@ -65,7 +65,7 @@ type ListCtx = {
 export const listHandler = async (
   ctx: ListCtx,
   clerkUserId: string
-): Promise<Array<FavoriteRoadDoc>> => {
+): Promise<FavoriteRoadDoc[]> => {
   const favorites = await ctx.db
     .query('favorite_roads')
     .withIndex('by_userId', (q) => q.eq('userId', clerkUserId as Id<'users'>))

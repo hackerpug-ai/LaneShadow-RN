@@ -1,12 +1,12 @@
 // Mock the env module to prevent requireEnv from throwing on missing Clerk secrets
 // and to control the GOOGLE_MAPS_API_KEY value in tests.
-vi.mock('../../../../lib/env', () => ({ GOOGLE_MAPS_API_KEY: 'test-api-key' }))
-
 import { vi, describe, it, expect, afterEach, Mock } from 'vitest'
 import type { RouteSketch } from '../../../../../models/route-sketch'
 import type { PlanInput } from '../../../../../models/saved-routes'
 
 import { createRoutingProvider } from '../routingProvider'
+
+vi.mock('../../../../lib/env', () => ({ GOOGLE_MAPS_API_KEY: 'test-api-key' }))
 
 const planInput: PlanInput = {
   start: { lat: 37.0, lng: -122.0, label: 'Start', placeId: 'start' },

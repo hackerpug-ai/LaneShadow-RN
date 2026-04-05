@@ -33,7 +33,7 @@ export const usePlaceAutocomplete = (options?: { debounceMs?: number }) => {
     env.GOOGLE_PLACES_API_KEY ?? (process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string | undefined)
 
   const [query, setQuery] = useState('')
-  const [predictions, setPredictions] = useState<Array<PlacePrediction>>([])
+  const [predictions, setPredictions] = useState<PlacePrediction[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 

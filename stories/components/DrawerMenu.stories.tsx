@@ -3,8 +3,7 @@
  * Demonstrates slide-out drawer menu with navigation items
  */
 import type { Meta, StoryObj } from '@storybook/react-native'
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { View, Text, Pressable } from 'react-native'
 import { DrawerMenu } from '../../components/ui/drawer-menu'
 import type { IconName } from '../../components/ui/icon-symbol'

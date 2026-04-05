@@ -55,7 +55,7 @@ const createLegs = (count: number): RouteLeg[] =>
 // Helper to create mock overlays
 const createOverlays = (
   legs: RouteLeg[],
-  conditions: Array<{ rain?: string; wind?: string; temperature?: string }>
+  conditions: { rain?: string; wind?: string; temperature?: string }[]
 ): RouteOverlays => ({
   rain: {
     generatedAt: Date.now(),

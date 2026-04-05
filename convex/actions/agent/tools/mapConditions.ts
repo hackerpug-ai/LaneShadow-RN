@@ -12,7 +12,7 @@ import { traceableToolSync } from '../lib/tracing'
 
 const MODEL_VERSION = 'open-meteo:v1'
 
-const legend: Array<WindLegendItem> = [
+const legend: WindLegendItem[] = [
   { level: 'low', label: 'Low', range: { min: 0, max: 6, unit: 'm/s' } },
   { level: 'moderate', label: 'Moderate', range: { min: 6, max: 10, unit: 'm/s' } },
   { level: 'high', label: 'High', range: { min: 10, unit: 'm/s' } },
@@ -61,8 +61,8 @@ const levelFromWind = (
 
 const buildLegOffsets = (
   routeSnapshot: RouteSnapshot
-): Array<{ legIndex: number; start: number; distance: number }> => {
-  const offsets: Array<{ legIndex: number; start: number; distance: number }> = []
+): { legIndex: number; start: number; distance: number }[] => {
+  const offsets: { legIndex: number; start: number; distance: number }[] = []
   let cumulative = 0
   routeSnapshot.legs.forEach((leg) => {
     offsets.push({ legIndex: leg.legIndex, start: cumulative, distance: leg.distanceMeters })
@@ -73,7 +73,7 @@ const buildLegOffsets = (
 
 const findLegForDistance = (
   distance: number,
-  offsets: Array<{ legIndex: number; start: number; distance: number }>
+  offsets: { legIndex: number; start: number; distance: number }[]
 ): { legIndex: number; start: number; distance: number } | null => {
   for (const leg of offsets) {
     if (distance >= leg.start && distance <= leg.start + leg.distance) return leg
@@ -84,7 +84,7 @@ const findLegForDistance = (
 export type MapConditionsParams = {
   routeSnapshot: RouteSnapshot
   routeIndex: RouteIndex
-  probed: Array<ProbedWindPoint>
+  probed: ProbedWindPoint[]
 }
 
 /**
@@ -103,14 +103,14 @@ const mapConditionsImpl = ({
   const offsets = buildLegOffsets(routeSnapshot)
 
   // Precompute route bearings from routeIndex points (same cardinality as sampled points - 1)
-  const bearings: Array<number> = []
+  const bearings: number[] = []
   for (let i = 0; i < routeIndex.sampledPoints.length - 1; i += 1) {
     const a = routeIndex.sampledPoints[i]
     const b = routeIndex.sampledPoints[i + 1]
     bearings.push(bearingBetween({ lat: a.lat, lng: a.lng }, { lat: b.lat, lng: b.lng }))
   }
 
-  const byLegMap: Map<number, Array<WindOverlaySegment>> = new Map()
+  const byLegMap: Map<number, WindOverlaySegment[]> = new Map()
 
   const sortedProbed = [...probed].sort(
     (a, b) => a.distanceFromStartMeters - b.distanceFromStartMeters
@@ -174,9 +174,9 @@ const mapConditionsImpl = ({
   }
 
   // Merge adjacent segments with the same level per leg
-  const mergeSegments = (segments: Array<WindOverlaySegment>): Array<WindOverlaySegment> => {
+  const mergeSegments = (segments: WindOverlaySegment[]): WindOverlaySegment[] => {
     const sorted = segments.sort((a, b) => a.startMeters - b.startMeters)
-    const merged: Array<WindOverlaySegment> = []
+    const merged: WindOverlaySegment[] = []
     for (const seg of sorted) {
       const last = merged[merged.length - 1]
       if (last && last.level === seg.level && Math.abs(last.endMeters - seg.startMeters) < 1e-6) {
@@ -189,7 +189,7 @@ const mapConditionsImpl = ({
     return merged
   }
 
-  const byLeg: Array<WindOverlayByLeg> = []
+  const byLeg: WindOverlayByLeg[] = []
   for (const [legIndex, segments] of byLegMap.entries()) {
     const merged = mergeSegments(segments)
     if (merged.length) {
