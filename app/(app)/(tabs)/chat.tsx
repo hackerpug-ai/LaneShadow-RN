@@ -77,16 +77,15 @@ export default function ChatScreen() {
   )
 
   // Map session_messages (role: 'rider' | 'system') to ChatMessage.
-  // Hidden agent bookkeeping rows (agent_turn, tool_result_hidden, reasoning)
-  // carry pi-ai Message payloads for the ReAct loop and never render in the
-  // transcript directly, so we drop them at this boundary.
+  // Hidden agent bookkeeping rows (agent_turn, tool_result_hidden) carry
+  // pi-ai Message payloads for the ReAct loop and never render. The
+  // 'reasoning' kind is surfaced inline via ReasoningCard (US-313).
   const messages: ChatMessage[] =
     rawMessages
       ?.filter(
         (msg) =>
           msg.kind !== 'agent_turn' &&
-          msg.kind !== 'tool_result_hidden' &&
-          msg.kind !== 'reasoning'
+          msg.kind !== 'tool_result_hidden'
       )
       .map((msg) => ({
         id: msg._id,
