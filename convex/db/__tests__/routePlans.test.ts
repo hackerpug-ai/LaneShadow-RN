@@ -6,7 +6,7 @@
  */
 
 import { ConvexError } from 'convex/values'
-import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest'
+import { vi, describe, it, expect } from 'vitest'
 
 import { ERROR_CODES } from '../../errors'
 import type { Id } from '../../_generated/dataModel'
@@ -16,6 +16,7 @@ import {
   getPlanByIdHandler,
   updatePlanStatusHandler,
   cancelPlanHandler,
+  listBySessionHandler,
 } from '../routePlans'
 
 // Mock planUsage functions
@@ -521,5 +522,165 @@ describe('cancelPlanHandler', () => {
     await expect(
       cancelPlanHandler(ctx as any, { routePlanId: PLAN_ID }, CLERK_USER_ID)
     ).rejects.toThrow(ERROR_CODES.PLAN_NOT_FOUND)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// listBySessionHandler (agent-context summarized query)
+// ---------------------------------------------------------------------------
+
+describe('listBySessionHandler', () => {
+  const SESSION_ID = 'session_abc' as Id<'planning_sessions'>
+
+  const makeDoc = (overrides: Record<string, unknown> = {}) => ({
+    _id: PLAN_ID,
+    _creationTime: 1000,
+    clerkUserId: CLERK_USER_ID,
+    planningSessionId: SESSION_ID,
+    planInput: basePlanInput,
+    startLabel: 'SF',
+    endLabel: 'LA',
+    status: 'completed',
+    createdAt: Date.now() - 5000,
+    updatedAt: Date.now() - 4000,
+    result: {
+      planId: 'plan-1',
+      options: [
+        {
+          routeOptionId: 'opt-1',
+          label: 'Scenic',
+          rationale: '...',
+          stats: {
+            distanceMeters: 123456,
+            durationSeconds: 7200,
+            legsCount: 2,
+          },
+          map: { bounds: {}, overviewGeometry: {}, legs: [] },
+          overlaysPreview: {},
+        },
+      ],
+    },
+    ...overrides,
+  })
+
+  const makeCtx = (docs: unknown[], opts: { captureRange?: (q: any) => void } = {}) => {
+    const takeFn = vi.fn().mockResolvedValue(docs)
+    const orderFn = vi.fn().mockReturnValue({ take: takeFn })
+    const withIndexFn = vi.fn().mockImplementation((_name: string, range: (q: any) => any) => {
+      if (opts.captureRange) {
+        const eqCalls: { field: string; value: unknown }[] = []
+        const mockQ: any = {
+          eq: (field: string, value: unknown) => {
+            eqCalls.push({ field, value })
+            return mockQ
+          },
+        }
+        range(mockQ)
+        opts.captureRange(eqCalls)
+      }
+      return { order: orderFn }
+    })
+    const queryFn = vi.fn().mockReturnValue({ withIndex: withIndexFn })
+    return {
+      ctx: { db: { query: queryFn } },
+      spies: { takeFn, orderFn, withIndexFn, queryFn },
+    }
+  }
+
+  it('returns summarized rows with distanceMeters/durationSeconds from first option', async () => {
+    const doc = makeDoc()
+    const { ctx } = makeCtx([doc])
+
+    const result = await listBySessionHandler(ctx as any, { sessionId: SESSION_ID })
+
+    expect(result).toHaveLength(1)
+    expect(result[0]).toEqual({
+      _id: PLAN_ID,
+      _creationTime: 1000,
+      startLabel: 'SF',
+      endLabel: 'LA',
+      preferences: basePlanInput.preferences,
+      status: 'completed',
+      distanceMeters: 123456,
+      durationSeconds: 7200,
+    })
+  })
+
+  it('strips result.options geometry/waypoints from returned rows', async () => {
+    const doc = makeDoc()
+    const { ctx } = makeCtx([doc])
+
+    const result = await listBySessionHandler(ctx as any, { sessionId: SESSION_ID })
+
+    expect(result[0]).not.toHaveProperty('result')
+    expect(result[0]).not.toHaveProperty('planInput')
+    expect(JSON.stringify(result[0])).not.toContain('overviewGeometry')
+  })
+
+  it('handles rows without result (pending/running plans)', async () => {
+    const doc = makeDoc({ status: 'pending', result: undefined })
+    const { ctx } = makeCtx([doc])
+
+    const result = await listBySessionHandler(ctx as any, { sessionId: SESSION_ID })
+
+    expect(result[0].status).toBe('pending')
+    expect(result[0].distanceMeters).toBeUndefined()
+    expect(result[0].durationSeconds).toBeUndefined()
+  })
+
+  it('defaults limit to 5', async () => {
+    const { ctx, spies } = makeCtx([])
+
+    await listBySessionHandler(ctx as any, { sessionId: SESSION_ID })
+
+    expect(spies.takeFn).toHaveBeenCalledWith(5)
+  })
+
+  it('respects custom limit', async () => {
+    const { ctx, spies } = makeCtx([])
+
+    await listBySessionHandler(ctx as any, { sessionId: SESSION_ID, limit: 20 })
+
+    expect(spies.takeFn).toHaveBeenCalledWith(20)
+  })
+
+  it('filters by planningSessionId only when status not provided', async () => {
+    let captured: { field: string; value: unknown }[] = []
+    const { ctx } = makeCtx([], {
+      captureRange: (calls) => {
+        captured = calls
+      },
+    })
+
+    await listBySessionHandler(ctx as any, { sessionId: SESSION_ID })
+
+    expect(captured).toEqual([{ field: 'planningSessionId', value: SESSION_ID }])
+  })
+
+  it('filters by planningSessionId AND status when status provided', async () => {
+    let captured: { field: string; value: unknown }[] = []
+    const { ctx } = makeCtx([], {
+      captureRange: (calls) => {
+        captured = calls
+      },
+    })
+
+    await listBySessionHandler(ctx as any, {
+      sessionId: SESSION_ID,
+      status: 'completed',
+    })
+
+    expect(captured).toEqual([
+      { field: 'planningSessionId', value: SESSION_ID },
+      { field: 'status', value: 'completed' },
+    ])
+  })
+
+  it('returns empty array when no plans match', async () => {
+    const { ctx } = makeCtx([])
+
+    const result = await listBySessionHandler(ctx as any, { sessionId: SESSION_ID })
+
+    expect(result).toEqual([])
   })
 })

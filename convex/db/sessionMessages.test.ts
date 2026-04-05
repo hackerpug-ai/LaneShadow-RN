@@ -6,12 +6,19 @@
  */
 
 import { vi, describe, it, expect } from 'vitest'
+import { ConvexError } from 'convex/values'
 import type { Id } from '../_generated/dataModel'
 import {
   createPendingAssistantMessageHandler,
   finalizeAssistantMessageHandler,
   appendStreamingChunkHandler,
+  recordAgentTurnHandler,
+  recordToolResultHandler,
+  recordReasoningHandler,
+  appendReasoningChunkHandler,
+  listWithPiMessagesHandler,
 } from './sessionMessages'
+import { ERROR_CODES } from '../errors'
 
 // ---------------------------------------------------------------------------
 // Shared fixtures
@@ -302,5 +309,366 @@ describe('finalizeAssistantMessageHandler', () => {
 
     const messagePatchCall = (ctx.db.patch as any).mock.calls[0]
     expect(messagePatchCall[1]).not.toHaveProperty('content')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// piMessage extensions on existing mutations
+// ---------------------------------------------------------------------------
+
+describe('createPendingAssistantMessageHandler with piMessage', () => {
+  it('persists piMessage when provided', async () => {
+    const ctx = {
+      db: {
+        insert: vi.fn().mockResolvedValue(MESSAGE_ID),
+        patch: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    const piMessage = { role: 'assistant', content: 'hello' }
+    await createPendingAssistantMessageHandler(ctx as any, {
+      sessionId: SESSION_ID,
+      kind: 'text',
+      piMessage,
+    })
+
+    expect(ctx.db.insert).toHaveBeenCalledWith(
+      'session_messages',
+      expect.objectContaining({ piMessage })
+    )
+  })
+
+  it('omits piMessage from insert when not provided (back-compat)', async () => {
+    const ctx = {
+      db: {
+        insert: vi.fn().mockResolvedValue(MESSAGE_ID),
+        patch: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    await createPendingAssistantMessageHandler(ctx as any, {
+      sessionId: SESSION_ID,
+      kind: 'text',
+    })
+
+    const insertCall = (ctx.db.insert as any).mock.calls[0]
+    expect(insertCall[1]).not.toHaveProperty('piMessage')
+  })
+})
+
+describe('finalizeAssistantMessageHandler with piMessage', () => {
+  it('patches piMessage when provided', async () => {
+    const ctx = {
+      db: {
+        get: vi.fn().mockResolvedValue({
+          _id: MESSAGE_ID,
+          sessionId: SESSION_ID,
+          content: '',
+          status: 'streaming',
+        }),
+        patch: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    const piMessage = { role: 'assistant', content: 'done' }
+    await finalizeAssistantMessageHandler(ctx as any, {
+      messageId: MESSAGE_ID,
+      status: 'complete',
+      piMessage,
+    })
+
+    expect(ctx.db.patch).toHaveBeenCalledWith(
+      MESSAGE_ID,
+      expect.objectContaining({ piMessage, status: 'complete' })
+    )
+  })
+
+  it('does not patch piMessage when not provided', async () => {
+    const ctx = {
+      db: {
+        get: vi.fn().mockResolvedValue({
+          _id: MESSAGE_ID,
+          sessionId: SESSION_ID,
+          content: '',
+          status: 'streaming',
+        }),
+        patch: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    await finalizeAssistantMessageHandler(ctx as any, {
+      messageId: MESSAGE_ID,
+      status: 'complete',
+    })
+
+    const messagePatchCall = (ctx.db.patch as any).mock.calls[0]
+    expect(messagePatchCall[1]).not.toHaveProperty('piMessage')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// recordAgentTurnHandler
+// ---------------------------------------------------------------------------
+
+describe('recordAgentTurnHandler', () => {
+  it('inserts agent_turn row with piMessage', async () => {
+    const ctx = {
+      db: {
+        insert: vi.fn().mockResolvedValue(MESSAGE_ID),
+      },
+    }
+
+    const piMessage = { role: 'assistant', toolCalls: [{ id: 't1' }] }
+    const result = await recordAgentTurnHandler(ctx as any, {
+      sessionId: SESSION_ID,
+      piMessage,
+    })
+
+    expect(result).toBe(MESSAGE_ID)
+    expect(ctx.db.insert).toHaveBeenCalledWith(
+      'session_messages',
+      expect.objectContaining({
+        sessionId: SESSION_ID,
+        role: 'system',
+        kind: 'agent_turn',
+        content: '',
+        piMessage,
+        createdAt: expect.any(Number),
+      })
+    )
+  })
+
+  it('sets createdAt to now', async () => {
+    const ctx = {
+      db: {
+        insert: vi.fn().mockResolvedValue(MESSAGE_ID),
+      },
+    }
+
+    const before = Date.now()
+    await recordAgentTurnHandler(ctx as any, {
+      sessionId: SESSION_ID,
+      piMessage: {},
+    })
+    const after = Date.now()
+
+    const insertCall = (ctx.db.insert as any).mock.calls[0]
+    expect(insertCall[1].createdAt).toBeGreaterThanOrEqual(before)
+    expect(insertCall[1].createdAt).toBeLessThanOrEqual(after)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// recordToolResultHandler
+// ---------------------------------------------------------------------------
+
+describe('recordToolResultHandler', () => {
+  it('patches row with piMessage only (no kind/status/content change)', async () => {
+    const ctx = {
+      db: {
+        patch: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    const piMessage = { role: 'tool', content: 'result' }
+    const result = await recordToolResultHandler(ctx as any, {
+      messageId: MESSAGE_ID,
+      piMessage,
+    })
+
+    expect(result).toBeNull()
+    expect(ctx.db.patch).toHaveBeenCalledWith(MESSAGE_ID, { piMessage })
+
+    const patchArgs = (ctx.db.patch as any).mock.calls[0][1]
+    expect(patchArgs).not.toHaveProperty('kind')
+    expect(patchArgs).not.toHaveProperty('status')
+    expect(patchArgs).not.toHaveProperty('content')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// recordReasoningHandler
+// ---------------------------------------------------------------------------
+
+describe('recordReasoningHandler', () => {
+  it('inserts reasoning row with status=streaming', async () => {
+    const ctx = {
+      db: {
+        insert: vi.fn().mockResolvedValue(MESSAGE_ID),
+      },
+    }
+
+    const piMessage = { role: 'assistant', thought: 'reasoning...' }
+    const result = await recordReasoningHandler(ctx as any, {
+      sessionId: SESSION_ID,
+      content: 'Thinking...',
+      piMessage,
+    })
+
+    expect(result).toBe(MESSAGE_ID)
+    expect(ctx.db.insert).toHaveBeenCalledWith(
+      'session_messages',
+      expect.objectContaining({
+        sessionId: SESSION_ID,
+        role: 'system',
+        kind: 'reasoning',
+        content: 'Thinking...',
+        status: 'streaming',
+        piMessage,
+        createdAt: expect.any(Number),
+      })
+    )
+  })
+})
+
+// ---------------------------------------------------------------------------
+// appendReasoningChunkHandler
+// ---------------------------------------------------------------------------
+
+describe('appendReasoningChunkHandler', () => {
+  it('concatenates delta to existing content', async () => {
+    const ctx = {
+      db: {
+        get: vi.fn().mockResolvedValue({
+          _id: MESSAGE_ID,
+          content: 'Hello',
+        }),
+        patch: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    const result = await appendReasoningChunkHandler(ctx as any, {
+      messageId: MESSAGE_ID,
+      delta: ' world',
+    })
+
+    expect(result).toBeNull()
+    expect(ctx.db.patch).toHaveBeenCalledWith(
+      MESSAGE_ID,
+      expect.objectContaining({ content: 'Hello world' })
+    )
+  })
+
+  it('throws SESSION_NOT_FOUND when message missing', async () => {
+    const ctx = {
+      db: {
+        get: vi.fn().mockResolvedValue(null),
+        patch: vi.fn(),
+      },
+    }
+
+    await expect(
+      appendReasoningChunkHandler(ctx as any, {
+        messageId: MESSAGE_ID,
+        delta: ' x',
+      })
+    ).rejects.toThrow(ConvexError)
+    await expect(
+      appendReasoningChunkHandler(ctx as any, {
+        messageId: MESSAGE_ID,
+        delta: ' x',
+      })
+    ).rejects.toThrow(ERROR_CODES.SESSION_NOT_FOUND)
+  })
+
+  it('does NOT change status', async () => {
+    const ctx = {
+      db: {
+        get: vi.fn().mockResolvedValue({
+          _id: MESSAGE_ID,
+          content: 'x',
+          status: 'streaming',
+        }),
+        patch: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    await appendReasoningChunkHandler(ctx as any, {
+      messageId: MESSAGE_ID,
+      delta: 'y',
+    })
+
+    const patchCall = (ctx.db.patch as any).mock.calls[0]
+    expect(patchCall[1]).not.toHaveProperty('status')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// listWithPiMessagesHandler
+// ---------------------------------------------------------------------------
+
+describe('listWithPiMessagesHandler', () => {
+  it('returns messages ordered by createdAt ascending', async () => {
+    const now = Date.now()
+    const messages = [
+      {
+        _id: 'msg3' as Id<'session_messages'>,
+        _creationTime: 3000,
+        sessionId: SESSION_ID,
+        role: 'system',
+        content: 'third',
+        createdAt: now,
+      },
+      {
+        _id: 'msg1' as Id<'session_messages'>,
+        _creationTime: 1000,
+        sessionId: SESSION_ID,
+        role: 'rider',
+        content: 'first',
+        createdAt: now - 2000,
+      },
+      {
+        _id: 'msg2' as Id<'session_messages'>,
+        _creationTime: 2000,
+        sessionId: SESSION_ID,
+        role: 'system',
+        content: 'second',
+        kind: 'agent_turn',
+        piMessage: { role: 'assistant' },
+        createdAt: now - 1000,
+      },
+    ]
+
+    const ctx = {
+      db: {
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            filter: vi.fn().mockReturnValue({
+              collect: vi.fn().mockResolvedValue(messages),
+            }),
+          }),
+        }),
+      },
+    }
+
+    const result = await listWithPiMessagesHandler(ctx as any, {
+      sessionId: SESSION_ID,
+    })
+
+    expect(result).toHaveLength(3)
+    expect(result[0]._id).toBe('msg1')
+    expect(result[1]._id).toBe('msg2')
+    expect(result[1].piMessage).toEqual({ role: 'assistant' })
+    expect(result[2]._id).toBe('msg3')
+  })
+
+  it('returns empty array when no messages', async () => {
+    const ctx = {
+      db: {
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            filter: vi.fn().mockReturnValue({
+              collect: vi.fn().mockResolvedValue([]),
+            }),
+          }),
+        }),
+      },
+    }
+
+    const result = await listWithPiMessagesHandler(ctx as any, {
+      sessionId: SESSION_ID,
+    })
+
+    expect(result).toEqual([])
   })
 })

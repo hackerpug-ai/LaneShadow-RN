@@ -2,11 +2,13 @@ import { ConvexError, v } from 'convex/values'
 
 import { ERROR_CODES } from '../errors'
 import type { Id } from '../_generated/dataModel'
-import { internalMutation, mutation, query } from '../_generated/server'
+import { internalMutation, internalQuery, mutation, query } from '../_generated/server'
 import { requireIdentity } from '../guards'
 import {
   sessionMessageKindValidator,
   sessionMessageAttachmentValidator,
+  sessionMessageStatusValidator,
+  sessionMessageRoleValidator,
   type SessionMessageKind,
   type SessionMessageAttachment,
 } from '../../models/session-messages'
@@ -23,6 +25,7 @@ type SessionMessageDoc = {
   // backfills pre-existing rows. Callers should default accordingly.
   kind?: SessionMessageKind
   status?: 'streaming' | 'running' | 'complete' | 'failed'
+  piMessage?: unknown
 }
 
 type PlanningSessionDoc = {
@@ -177,6 +180,7 @@ export const createPendingAssistantMessageHandler = async (
     sessionId: Id<'planning_sessions'>
     kind: SessionMessageKind
     attachments?: SessionMessageAttachment[]
+    piMessage?: unknown
   }
 ): Promise<{ messageId: Id<'session_messages'> }> => {
   const status = args.kind !== 'text' ? 'running' : 'streaming'
@@ -192,6 +196,9 @@ export const createPendingAssistantMessageHandler = async (
   if (args.attachments !== undefined) {
     fields.attachments = args.attachments
   }
+  if (args.piMessage !== undefined) {
+    fields.piMessage = args.piMessage
+  }
   const messageId = await ctx.db.insert('session_messages', fields)
   await ctx.db.patch(args.sessionId, { updatedAt: now })
   return { messageId }
@@ -203,6 +210,7 @@ export const finalizeAssistantMessageHandler = async (
     messageId: Id<'session_messages'>
     content?: string
     status: 'complete' | 'failed'
+    piMessage?: unknown
   }
 ): Promise<null> => {
   const message = await ctx.db.get(args.messageId)
@@ -214,9 +222,120 @@ export const finalizeAssistantMessageHandler = async (
   if (args.content !== undefined) {
     patch.content = args.content
   }
+  if (args.piMessage !== undefined) {
+    patch.piMessage = args.piMessage
+  }
   await ctx.db.patch(args.messageId, patch)
   await ctx.db.patch(message.sessionId, { updatedAt: now })
   return null
+}
+
+// ---------------------------------------------------------------------------
+// ReAct loop / pi-ai agent persistence handlers
+// ---------------------------------------------------------------------------
+
+type RecordAgentTurnCtx = {
+  db: {
+    insert: (table: string, fields: object) => Promise<Id<'session_messages'>>
+  }
+}
+
+type RecordToolResultCtx = {
+  db: {
+    patch: (id: Id<'session_messages'>, fields: object) => Promise<void>
+  }
+}
+
+type RecordReasoningCtx = {
+  db: {
+    insert: (table: string, fields: object) => Promise<Id<'session_messages'>>
+  }
+}
+
+type ListWithPiMessagesCtx = {
+  db: {
+    query: (table: string) => any
+  }
+}
+
+export const recordAgentTurnHandler = async (
+  ctx: RecordAgentTurnCtx,
+  args: {
+    sessionId: Id<'planning_sessions'>
+    piMessage: unknown
+  }
+): Promise<Id<'session_messages'>> => {
+  const now = Date.now()
+  const messageId = await ctx.db.insert('session_messages', {
+    sessionId: args.sessionId,
+    role: 'system',
+    content: '',
+    kind: 'agent_turn',
+    piMessage: args.piMessage,
+    createdAt: now,
+  })
+  return messageId
+}
+
+export const recordToolResultHandler = async (
+  ctx: RecordToolResultCtx,
+  args: {
+    messageId: Id<'session_messages'>
+    piMessage: unknown
+  }
+): Promise<null> => {
+  await ctx.db.patch(args.messageId, { piMessage: args.piMessage })
+  return null
+}
+
+export const recordReasoningHandler = async (
+  ctx: RecordReasoningCtx,
+  args: {
+    sessionId: Id<'planning_sessions'>
+    content: string
+    piMessage: unknown
+  }
+): Promise<Id<'session_messages'>> => {
+  const now = Date.now()
+  const messageId = await ctx.db.insert('session_messages', {
+    sessionId: args.sessionId,
+    role: 'system',
+    content: args.content,
+    kind: 'reasoning',
+    status: 'streaming',
+    piMessage: args.piMessage,
+    createdAt: now,
+  })
+  return messageId
+}
+
+export const appendReasoningChunkHandler = async (
+  ctx: AppendStreamingChunkCtx,
+  args: {
+    messageId: Id<'session_messages'>
+    delta: string
+  }
+): Promise<null> => {
+  const message = await ctx.db.get(args.messageId)
+  if (!message) {
+    throw new ConvexError(ERROR_CODES.SESSION_NOT_FOUND)
+  }
+  await ctx.db.patch(args.messageId, { content: message.content + args.delta })
+  return null
+}
+
+export const listWithPiMessagesHandler = async (
+  ctx: ListWithPiMessagesCtx,
+  args: { sessionId: Id<'planning_sessions'> }
+): Promise<SessionMessageDoc[]> => {
+  const messages = await ctx.db
+    .query('session_messages')
+    .withIndex('by_sessionId', (q: any) => q.eq('sessionId', args.sessionId))
+    .filter((q: any) => q.eq(true, true))
+    .collect()
+  return messages.sort(
+    (a: SessionMessageDoc, b: SessionMessageDoc) => a.createdAt - b.createdAt
+  )
 }
 
 export const appendStreamingChunkHandler = async (
@@ -286,6 +405,7 @@ export const createPendingAssistantMessage = internalMutation({
     sessionId: v.id('planning_sessions'),
     kind: sessionMessageKindValidator,
     attachments: v.optional(v.array(sessionMessageAttachmentValidator)),
+    piMessage: v.optional(v.any()),
   },
   returns: v.object({ messageId: v.id('session_messages') }),
   handler: async (ctx, args) => {
@@ -298,6 +418,7 @@ export const finalizeAssistantMessage = internalMutation({
     messageId: v.id('session_messages'),
     content: v.optional(v.string()),
     status: v.union(v.literal('complete'), v.literal('failed')),
+    piMessage: v.optional(v.any()),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -313,5 +434,84 @@ export const appendStreamingChunk = internalMutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     return appendStreamingChunkHandler(ctx as any, args)
+  },
+})
+
+// ---------------------------------------------------------------------------
+// ReAct loop / pi-ai agent persistence mutations + queries
+// ---------------------------------------------------------------------------
+
+const sessionMessageRowValidator = v.object({
+  _id: v.id('session_messages'),
+  _creationTime: v.number(),
+  sessionId: v.id('planning_sessions'),
+  role: sessionMessageRoleValidator,
+  content: v.string(),
+  attachments: v.optional(
+    v.array(
+      v.object({
+        type: v.literal('route_options'),
+        routePlanId: v.id('route_plans'),
+      })
+    )
+  ),
+  createdAt: v.number(),
+  kind: v.optional(sessionMessageKindValidator),
+  status: v.optional(sessionMessageStatusValidator),
+  piMessage: v.optional(v.any()),
+})
+
+export const listWithPiMessages = internalQuery({
+  args: {
+    sessionId: v.id('planning_sessions'),
+  },
+  returns: v.array(sessionMessageRowValidator),
+  handler: async (ctx, args) => {
+    return listWithPiMessagesHandler(ctx as any, args)
+  },
+})
+
+export const recordAgentTurn = internalMutation({
+  args: {
+    sessionId: v.id('planning_sessions'),
+    piMessage: v.any(),
+  },
+  returns: v.id('session_messages'),
+  handler: async (ctx, args) => {
+    return recordAgentTurnHandler(ctx as any, args)
+  },
+})
+
+export const recordToolResult = internalMutation({
+  args: {
+    messageId: v.id('session_messages'),
+    piMessage: v.any(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    return recordToolResultHandler(ctx as any, args)
+  },
+})
+
+export const recordReasoning = internalMutation({
+  args: {
+    sessionId: v.id('planning_sessions'),
+    content: v.string(),
+    piMessage: v.any(),
+  },
+  returns: v.id('session_messages'),
+  handler: async (ctx, args) => {
+    return recordReasoningHandler(ctx as any, args)
+  },
+})
+
+export const appendReasoningChunk = internalMutation({
+  args: {
+    messageId: v.id('session_messages'),
+    delta: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    return appendReasoningChunkHandler(ctx as any, args)
   },
 })
