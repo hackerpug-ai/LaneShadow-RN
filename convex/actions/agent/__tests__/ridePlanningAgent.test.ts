@@ -56,6 +56,13 @@ vi.mock('../../../lib/env', () => ({
 // The vitest alias already provides a deep proxy for _generated/api, but vi.mock
 // lets individual tests override ctx.runQuery return values cleanly.
 vi.mock('../../../_generated/api', () => ({
+  api: {
+    db: {
+      planningSessions: {
+        getSessionById: { __fake: true },
+      },
+    },
+  },
   internal: {
     db: {
       planUsage: {
@@ -65,9 +72,15 @@ vi.mock('../../../_generated/api', () => ({
       routePlans: {
         createForAgentInternal: { __fake: true },
         updatePlanStatus: { __fake: true },
+        listBySession: { __fake: true },
       },
     },
   },
+}))
+
+// Mock sessionContext so buildInSessionRouteBlock can be controlled per test.
+vi.mock('../sessionContext', () => ({
+  buildInSessionRouteBlock: vi.fn().mockResolvedValue(''),
 }))
 
 // -----------------------------------------------------------------------------
@@ -159,7 +172,16 @@ const makeAgentContext = () => ({
 // -----------------------------------------------------------------------------
 
 describe('buildSystemPrompt', () => {
-  it('includes device location and instructs the agent not to ask for origin when currentLocation is set', () => {
+  let buildInSessionRouteBlockMock: ReturnType<typeof vi.fn>
+
+  beforeEach(async () => {
+    vi.clearAllMocks()
+    const sessionContextMod = await import('../sessionContext') as any
+    buildInSessionRouteBlockMock = sessionContextMod.buildInSessionRouteBlock
+    buildInSessionRouteBlockMock.mockResolvedValue('')
+  })
+
+  it('includes device location and instructs the agent not to ask for origin when currentLocation is set', async () => {
     const ctx = {
       planningSessionId: 'session_test' as any,
       clerkUserId: 'user_test',
@@ -169,28 +191,85 @@ describe('buildSystemPrompt', () => {
       runMutation: vi.fn(),
     }
 
-    const prompt = buildSystemPrompt(ctx)
+    const prompt = await buildSystemPrompt(ctx)
 
     expect(prompt).toContain('lat=37.77, lng=-122.42')
     expect(prompt).toContain('Use this as the default origin')
     expect(prompt).toContain('Do NOT ask "where are you starting from?"')
   })
 
-  it('omits device location and prompts to ask when currentLocation is undefined', () => {
+  it('omits device location and prompts to ask when currentLocation is undefined and no lastKnownLocation', async () => {
     const ctx = {
       planningSessionId: 'session_test' as any,
       clerkUserId: 'user_test',
       piMessages: [],
       currentLocation: undefined,
-      runQuery: vi.fn(),
+      runQuery: vi.fn().mockResolvedValue({ lastKnownLocation: undefined }),
       runMutation: vi.fn(),
     }
 
-    const prompt = buildSystemPrompt(ctx)
+    const prompt = await buildSystemPrompt(ctx)
 
     expect(prompt).not.toContain('lat=')
     expect(prompt).toContain('ask where they are starting from')
     expect(prompt).not.toContain('Do NOT ask')
+  })
+
+  it('uses lastKnownLocation fallback when currentLocation is undefined but session has lastKnownLocation', async () => {
+    const ctx = {
+      planningSessionId: 'session_test' as any,
+      clerkUserId: 'user_test',
+      piMessages: [],
+      currentLocation: undefined,
+      runQuery: vi.fn().mockResolvedValue({
+        lastKnownLocation: { lat: 34.05, lng: -118.24, updatedAt: Date.now() },
+      }),
+      runMutation: vi.fn(),
+    }
+
+    const prompt = await buildSystemPrompt(ctx)
+
+    expect(prompt).toContain('last known location')
+    expect(prompt).toContain('lat=34.05, lng=-118.24')
+    expect(prompt).toContain('may be stale')
+    expect(prompt).not.toContain('ask where they are starting from')
+  })
+
+  it('includes route summary block when buildInSessionRouteBlock returns content', async () => {
+    buildInSessionRouteBlockMock.mockResolvedValue(
+      'Routes already planned this session:\n1. SF → Santa Cruz: 75mi · 90min · scenic'
+    )
+    const ctx = {
+      planningSessionId: 'session_test' as any,
+      clerkUserId: 'user_test',
+      piMessages: [],
+      currentLocation: { lat: 37.77, lng: -122.42 },
+      runQuery: vi.fn(),
+      runMutation: vi.fn(),
+    }
+
+    const prompt = await buildSystemPrompt(ctx)
+
+    expect(prompt).toContain('Routes already planned this session:')
+    expect(prompt).toContain('SF → Santa Cruz')
+  })
+
+  it('has no extra blank lines when buildInSessionRouteBlock returns empty string', async () => {
+    buildInSessionRouteBlockMock.mockResolvedValue('')
+    const ctx = {
+      planningSessionId: 'session_test' as any,
+      clerkUserId: 'user_test',
+      piMessages: [],
+      currentLocation: { lat: 37.77, lng: -122.42 },
+      runQuery: vi.fn(),
+      runMutation: vi.fn(),
+    }
+
+    const prompt = await buildSystemPrompt(ctx)
+
+    // Should not have consecutive blank lines caused by empty routeBlock
+    expect(prompt).not.toMatch(/\n{3,}/)
+    expect(prompt).not.toContain('Routes already planned')
   })
 })
 
@@ -315,6 +394,10 @@ describe('executeRidePlanningAgent', () => {
       planId: 'plan_abc',
       options: [{ routeOptionId: 'opt1', label: 'Scenic Route', rationale: 'Nice views' }],
     })
+
+    // Restore buildInSessionRouteBlock default (returns "" so no route block in prompt).
+    const sessionContextMod = await import('../sessionContext') as any
+    sessionContextMod.buildInSessionRouteBlock.mockResolvedValue('')
   })
 
   it('returns text response with no attachments for a single-turn chat', async () => {

@@ -16,12 +16,13 @@ import { AgentToolSchemas } from './lib/piTools'
 import { createGeocodingProvider } from './providers/geocodingProvider'
 import { planRideOrchestrator } from './lib/planRideOrchestrator'
 import { buildOptionsFromResults } from './planRide'
+import { buildInSessionRouteBlock } from './sessionContext'
 import { LoopDetector } from './loopDetector'
 import { BudgetTracker } from './budgetTracker'
 import { OPENAI_API_KEY, AI_MODEL } from '../../lib/env'
 import { FREE_TIER_MONTHLY_LIMIT } from '../../../models/plan-usage'
 import { ERROR_CODES } from '../../errors'
-import { internal } from '../../_generated/api'
+import { api, internal } from '../../_generated/api'
 import type { ActionCtx } from '../../_generated/server'
 import type { Id } from '../../_generated/dataModel'
 
@@ -99,14 +100,32 @@ export type ExecuteContext = {
 // System Prompt
 // -----------------------------------------------------------------------------
 
-export const buildSystemPrompt = (ctx: AgentContext): string => {
-  const locBlock = ctx.currentLocation
-    ? `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng}. Use this as the default origin when the rider asks for a route without specifying where they're starting from. Do NOT ask "where are you starting from?" when this location is available — just use it.`
-    : `Rider's current location: unknown — ask where they are starting from before planning a route.`
+export const buildSystemPrompt = async (ctx: AgentContext): Promise<string> => {
+  let locBlock: string
+  if (ctx.currentLocation) {
+    locBlock = `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng}. Use this as the default origin when the rider asks for a route without specifying where they're starting from. Do NOT ask "where are you starting from?" when this location is available — just use it.`
+  } else {
+    // Try lastKnownLocation fallback from the planning session
+    const session = await ctx.runQuery(api.db.planningSessions.getSessionById, {
+      sessionId: ctx.planningSessionId,
+    })
+    if (session.lastKnownLocation) {
+      locBlock = `The rider's last known location is lat=${session.lastKnownLocation.lat}, lng=${session.lastKnownLocation.lng} (may be stale). Use this as the default origin but mention it may not be current.`
+    } else {
+      locBlock = `Rider's current location: unknown — ask where they are starting from before planning a route.`
+    }
+  }
+
+  const routeBlock = await buildInSessionRouteBlock(
+    { runQuery: ctx.runQuery },
+    ctx.planningSessionId,
+  )
+
+  const locationSection = `${locBlock}${routeBlock ? '\n\n' + routeBlock : ''}`
 
   return `You are a motorcycle ride planning assistant. Be concise — 1-2 sentences per response. Use 2nd person ("your ride", "you'll see").
 
-${locBlock}
+${locationSection}
 
 Workflow:
 1. If the rider names a place (not "here"), call geocode first to get coordinates.
@@ -419,7 +438,7 @@ export async function executeRidePlanningAgent(
   const toolResultsTracker: { toolName: string; result: unknown }[] = []
 
   const context: Context = {
-    systemPrompt: buildSystemPrompt(ctx),
+    systemPrompt: await buildSystemPrompt(ctx),
     messages: [
       ...ctx.piMessages,
       { role: 'user', content: userMessage, timestamp: Date.now() } as Message,
