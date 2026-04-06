@@ -1,11 +1,9 @@
 'use node'
 
 import {
-  stream,
   getModel,
   validateToolCall,
   type AssistantMessage,
-  type AssistantMessageEvent,
   type Context,
   type Message,
   type Tool,
@@ -20,9 +18,9 @@ import { buildInSessionRouteBlock } from './sessionContext'
 import { LoopDetector } from './loopDetector'
 import { BudgetTracker } from './budgetTracker'
 import { summarizeForContext } from './lib/summarizeForContext'
+import { runAgent } from './runAgent'
 import { OPENAI_API_KEY, AI_MODEL } from '../../lib/env'
 import { FREE_TIER_MONTHLY_LIMIT } from '../../../models/plan-usage'
-import { ERROR_CODES } from '../../errors'
 import { api, internal } from '../../_generated/api'
 import type { ActionCtx } from '../../_generated/server'
 import type { Id } from '../../_generated/dataModel'
@@ -460,11 +458,6 @@ export async function executeRidePlanningAgent(
   // since it's a runtime string that may be overridden via env var.
   const model = getModel('openai', AI_MODEL as any)
 
-  const loopDetector = new LoopDetector(3)   // threshold: 3 identical calls
-  const budgetTracker = new BudgetTracker(0.25) // $0.25 per session
-
-  const toolResultsTracker: { toolName: string; result: unknown }[] = []
-
   const context: Context = {
     systemPrompt: await buildSystemPrompt(ctx),
     messages: [
@@ -474,180 +467,21 @@ export async function executeRidePlanningAgent(
     tools,
   }
 
-  // Agent loop — run until stop or max steps
-  const deadline = Date.now() + AGENT_TIMEOUT_MS
+  const result = await runAgent({
+    model,
+    context,
+    executor: (call: ToolCall) => executeTool(ctx, call, executeCtx),
+    callbacks: executeCtx,
+    maxSteps: MAX_STEPS,
+    timeoutMs: AGENT_TIMEOUT_MS,
+    loopDetector: new LoopDetector(3),
+    budgetTracker: new BudgetTracker(0.25),
+    summarizeForContext,
+    parallelSafeTools: safeToolNames,
+  })
 
-  for (let step = 0; step < MAX_STEPS; step++) {
-    if (Date.now() > deadline) {
-      throw new Error(ERROR_CODES.AGENT_TIMEOUT)
-    }
-
-    // Fire onStepStart at the top of every iteration.
-    await executeCtx?.onStepStart?.(step, MAX_STEPS)
-
-    // Always stream so we can capture all event types.
-    // Buffer text_delta events and flush them only when the turn ends as a
-    // final (non-tool) turn. Thinking and toolcall_start events are forwarded
-    // immediately.
-    const eventStream = stream(model, context)
-    const bufferedTextDeltas: string[] = []
-
-    for await (const event of eventStream) {
-      const ev = event as AssistantMessageEvent
-      if (ev.type === 'text_delta') {
-        bufferedTextDeltas.push(ev.delta)
-      } else if (ev.type === 'thinking_delta') {
-        await executeCtx?.onThinkingDelta?.(ev.delta)
-      } else if (ev.type === 'toolcall_start') {
-        // Extract the most recent (in-progress) tool call from the partial message.
-        const partialContent = ev.partial.content
-        const partialToolCall = partialContent[ev.contentIndex]
-        if (partialToolCall && partialToolCall.type === 'toolCall') {
-          await executeCtx?.onToolPending?.({ name: partialToolCall.name })
-        }
-      } else if (ev.type === 'done' && ev.reason !== 'toolUse') {
-        // Flush buffered text deltas on a final (non-tool) turn.
-        for (const delta of bufferedTextDeltas) {
-          await executeCtx?.onTextDelta?.(delta)
-        }
-      }
-    }
-
-    const assistant = await eventStream.result()
-
-    // Track cumulative spend; throws ConvexError(AGENT_BUDGET_EXCEEDED) if over limit.
-    budgetTracker.add(assistant.usage)
-
-    context.messages.push(assistant)
-
-    if (assistant.stopReason !== 'toolUse') {
-      // Notify caller of the final (text-only) assistant turn so they can
-      // persist the full pi-ai AssistantMessage alongside the text row.
-      await executeCtx?.onFinalAssistant?.(assistant)
-      break
-    }
-
-    const toolCalls = assistant.content.filter(
-      (b): b is ToolCall => b.type === 'toolCall'
-    )
-    if (toolCalls.length === 0) break
-
-    // Notify caller that the assistant turn with tool calls is complete.
-    await executeCtx?.onAgentTurn?.(assistant)
-
-    // Partition tool calls into parallel-safe and sequential groups.
-    // The LoopDetector check runs for ALL calls before any execution begins,
-    // so loop-detected calls are handled uniformly regardless of partition.
-    const safeCalls = toolCalls.filter(c => safeToolNames.has(c.name))
-    const unsafeCalls = toolCalls.filter(c => !safeToolNames.has(c.name))
-
-    // Pre-allocate a results map keyed by call id so we can reconstruct
-    // original ordering when pushing ToolResultMessage items.
-    type CallOutcome = { result: unknown; isError: boolean; loopDetected: boolean }
-    const outcomes = new Map<string, CallOutcome>()
-
-    // LoopDetector: record all calls BEFORE dispatching any execution.
-    for (const call of toolCalls) {
-      if (loopDetector.record(call)) {
-        outcomes.set(call.id, { result: { type: 'error', message: 'Loop detected' }, isError: true, loopDetected: true })
-      }
-    }
-
-    // Execute safe calls in parallel (excluding loop-detected ones).
-    const safeCallsToRun = safeCalls.filter(c => !outcomes.has(c.id))
-    await Promise.all(
-      safeCallsToRun.map(async (call) => {
-        let result: unknown
-        let isError = false
-        try {
-          result = await executeTool(ctx, call, executeCtx)
-        } catch (err) {
-          result = {
-            type: 'error',
-            message: err instanceof Error ? err.message : String(err),
-            hint: "An unexpected error occurred. Ask the rider what they'd like to do.",
-            retryGuidance: 'ask_rider',
-          }
-          isError = true
-        }
-        outcomes.set(call.id, { result, isError, loopDetected: false })
-      })
-    )
-
-    // Execute unsafe calls sequentially (excluding loop-detected ones).
-    for (const call of unsafeCalls) {
-      if (outcomes.has(call.id)) continue  // already loop-detected
-      let result: unknown
-      let isError = false
-      try {
-        result = await executeTool(ctx, call, executeCtx)
-      } catch (err) {
-        result = {
-          type: 'error',
-          message: err instanceof Error ? err.message : String(err),
-          hint: "An unexpected error occurred. Ask the rider what they'd like to do.",
-          retryGuidance: 'ask_rider',
-        }
-        isError = true
-      }
-      outcomes.set(call.id, { result, isError, loopDetected: false })
-    }
-
-    // Reconstruct results in original call order and push to context.
-    for (const call of toolCalls) {
-      const outcome = outcomes.get(call.id)!
-
-      if (outcome.loopDetected) {
-        const loopResult: ToolResultMessage = {
-          role: 'toolResult',
-          toolCallId: call.id,
-          toolName: call.name,
-          content: [{ type: 'text', text: JSON.stringify({
-            type: 'error',
-            message: `Already called ${call.name} with identical arguments ${loopDetector.getCount(call)} times. Try different arguments or ask the rider for clarification.`,
-          }) }],
-          isError: true,
-          timestamp: Date.now(),
-        }
-        toolResultsTracker.push({ toolName: call.name, result: { type: 'error', message: 'Loop detected' } })
-        context.messages.push(loopResult)
-        await executeCtx?.onToolResultPiMessage?.(call.id, loopResult)
-        continue
-      }
-
-      const { result, isError } = outcome
-
-      // Full result stays in toolResultsTracker for frontend attachments
-      toolResultsTracker.push({ toolName: call.name, result })
-
-      // Trimmed result goes into the LLM context
-      const contextResult = summarizeForContext(call.name, result)
-
-      const toolResultMsg: ToolResultMessage = {
-        role: 'toolResult',
-        toolCallId: call.id,
-        toolName: call.name,
-        content: [{ type: 'text', text: JSON.stringify(contextResult) }],
-        isError,
-        timestamp: Date.now(),
-      }
-      context.messages.push(toolResultMsg)
-      await executeCtx?.onToolResultPiMessage?.(call.id, toolResultMsg)
-    }
-  }
-
-  // Extract final text from the last assistant message
-  const last = context.messages[context.messages.length - 1]
-  let responseText = ''
-  if (last && last.role === 'assistant') {
-    const assistantLast = last as AssistantMessage
-    responseText = assistantLast.content
-      .filter((b): b is { type: 'text'; text: string } => b.type === 'text')
-      .map((b) => b.text)
-      .join('')
-  }
-
-  const attachments = extractRouteAttachments(toolResultsTracker)
+  const attachments = extractRouteAttachments(result.toolResults)
+  let responseText = result.response
   if (!responseText && attachments.length > 0) {
     responseText = 'Here are your route options!'
   }
