@@ -1,6 +1,10 @@
 # Add pin/dismiss gestures to transient message overlay
 
 > Task ID: US-016
+> Status: ✅ Completed
+> Completed: 2026-04-06T16:53:55Z
+> Commit: a7217859248d9d64789c1d4e84af90a423ac5e2c
+> Reviewer: orchestrator-verified via diff
 > Type: FEATURE
 > Priority: P0
 > Estimate: 60 minutes
