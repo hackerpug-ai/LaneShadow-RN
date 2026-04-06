@@ -1,3 +1,5 @@
+For UI/UX design rules and theme system usage, see [`styles/RULES.md`](styles/RULES.md).
+
 # Planning & Execution Workflow
 
 ## Plan Storage
