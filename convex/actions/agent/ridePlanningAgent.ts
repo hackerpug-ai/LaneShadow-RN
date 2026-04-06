@@ -129,14 +129,20 @@ ${locationSection}
 Workflow:
 1. If the rider names a place (not "here"), call geocode first to get coordinates.
 2. Call planRoute with structured start, end, departureTime (default: now + 3600000 ms), and preferences.
-3. For refinements ("make it shorter", "avoid highways"): call planRoute again with updated preferences and the same endpoints.
+3. For refinements ("make it shorter", "avoid highways"):
+   - ALWAYS carry forward ALL prior constraints unless the rider explicitly revokes one.
+   - Example: prior call used scenicBias='high' + avoidHighways=true. Rider says "also avoid tolls" → call planRoute with scenicBias='high', avoidHighways=true, avoidTolls=true.
+   - Only drop a constraint if the rider says so (e.g. "highways are fine now").
+   - Keep the same start/end unless the rider changes them.
 
 Presentation:
 - 1-2 sentences, highlight scenic features, road types, rough duration.
 - Briefly explain WHY you chose this route — what makes it a good match for the rider's request (e.g. "This avoids Highway 1 and takes you through the redwood-lined Old La Honda Road" or "I routed through Half Moon Bay for the coastal views you'll love").
 - Never expose tool names or technical details.
 
-Errors: suggest what the rider can try next without surfacing internals.`
+Errors: suggest what the rider can try next without surfacing internals.
+
+Do not call fetchWeather, saveRoute, or searchFavorites — these features are coming soon. If the rider asks about weather or saving, respond conversationally that these features will be available soon.`
 }
 
 // -----------------------------------------------------------------------------
@@ -322,19 +328,19 @@ const tools: ToolWithParallelSafe[] = [
   },
   {
     name: 'fetchWeather',
-    description: 'Get weather information for the planned route.',
+    description: 'Get weather information for the planned route. NOTE: Not yet implemented — do not call this tool.',
     parameters: AgentToolSchemas.fetchWeather as any,
     parallelSafe: true,
   },
   {
     name: 'saveRoute',
-    description: 'Save the current route to favorites.',
+    description: 'Save the current route to favorites. NOTE: Not yet implemented — do not call this tool.',
     parameters: AgentToolSchemas.saveRoute as any,
     parallelSafe: false,
   },
   {
     name: 'searchFavorites',
-    description: 'Search saved routes by query.',
+    description: 'Search saved routes by query. NOTE: Not yet implemented — do not call this tool.',
     parameters: AgentToolSchemas.searchFavorites as any,
     parallelSafe: true,
   },
