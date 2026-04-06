@@ -16,6 +16,8 @@ import { AgentToolSchemas } from './lib/piTools'
 import { createGeocodingProvider } from './providers/geocodingProvider'
 import { planRideOrchestrator } from './lib/planRideOrchestrator'
 import { buildOptionsFromResults } from './planRide'
+import { LoopDetector } from './loopDetector'
+import { BudgetTracker } from './budgetTracker'
 import { OPENAI_API_KEY, AI_MODEL } from '../../lib/env'
 import { FREE_TIER_MONTHLY_LIMIT } from '../../../models/plan-usage'
 import { ERROR_CODES } from '../../errors'
@@ -407,6 +409,9 @@ export async function executeRidePlanningAgent(
   // since it's a runtime string that may be overridden via env var.
   const model = getModel('openai', AI_MODEL as any)
 
+  const loopDetector = new LoopDetector(3)   // threshold: 3 identical calls
+  const budgetTracker = new BudgetTracker(0.25) // $0.25 per session
+
   const toolResultsTracker: { toolName: string; result: unknown }[] = []
 
   // Build conversation history from stored role+content pairs.
@@ -491,6 +496,9 @@ export async function executeRidePlanningAgent(
 
     const assistant = await eventStream.result()
 
+    // Track cumulative spend; throws ConvexError(AGENT_BUDGET_EXCEEDED) if over limit.
+    budgetTracker.add(assistant.usage)
+
     context.messages.push(assistant)
 
     if (assistant.stopReason !== 'toolUse') break
@@ -504,6 +512,25 @@ export async function executeRidePlanningAgent(
     await executeCtx?.onAgentTurn?.(assistant)
 
     for (const call of toolCalls) {
+      // Check for repeated identical tool calls before executing.
+      if (loopDetector.record(call)) {
+        const loopResult: ToolResultMessage = {
+          role: 'toolResult',
+          toolCallId: call.id,
+          toolName: call.name,
+          content: [{ type: 'text', text: JSON.stringify({
+            type: 'error',
+            message: `Already called ${call.name} with identical arguments ${loopDetector.getCount(call)} times. Try different arguments or ask the rider for clarification.`,
+          }) }],
+          isError: true,
+          timestamp: Date.now(),
+        }
+        toolResultsTracker.push({ toolName: call.name, result: { type: 'error', message: 'Loop detected' } })
+        context.messages.push(loopResult)
+        await executeCtx?.onToolResultPiMessage?.(call.id, loopResult)
+        continue
+      }
+
       let result: unknown
       let isError = false
       try {

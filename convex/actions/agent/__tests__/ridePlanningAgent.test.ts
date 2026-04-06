@@ -653,4 +653,120 @@ describe('executeRidePlanningAgent', () => {
     expect(result.response).toBe('Looks sunny!')
     expect(mockStream).toHaveBeenCalledTimes(2)
   })
+
+  // ---------------------------------------------------------------------------
+  // Tests: LoopDetector integration (US-318)
+  // ---------------------------------------------------------------------------
+
+  it('LoopDetector intercepts 3rd identical tool call — tool NOT executed, error result injected', async () => {
+    const identicalCall = {
+      type: 'toolCall' as const,
+      id: 'tc_loop',
+      name: 'fetchWeather',
+      arguments: { location: 'SF' },
+    }
+
+    // Three consecutive steps each requesting the exact same tool call.
+    const step1 = makeAssistantMessage([identicalCall], 'toolUse')
+    const step2 = makeAssistantMessage([{ ...identicalCall, id: 'tc_loop2' }], 'toolUse')
+    const step3 = makeAssistantMessage([{ ...identicalCall, id: 'tc_loop3' }], 'toolUse')
+    const finalMsg = makeAssistantMessage([{ type: 'text', text: 'Sorry, something went wrong.' }], 'stop')
+
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(step1))
+      .mockReturnValueOnce(makeSimpleStream(step2))
+      .mockReturnValueOnce(makeSimpleStream(step3))
+      .mockReturnValueOnce(makeSimpleStream(finalMsg))
+
+    const onToolResultPiMessage = vi.fn().mockResolvedValue(undefined)
+    const ctx = makeAgentContext()
+    const result = await executeRidePlanningAgent(ctx, 'weather', { onToolResultPiMessage })
+
+    // 4 stream calls: 3 tool steps + 1 final text
+    expect(mockStream).toHaveBeenCalledTimes(4)
+
+    // The 3rd call (id: tc_loop3) should be intercepted — onToolResultPiMessage
+    // should have been called for it with isError: true.
+    const loopInterceptCall = onToolResultPiMessage.mock.calls.find(
+      ([id]: [string]) => id === 'tc_loop3'
+    )
+    expect(loopInterceptCall).toBeDefined()
+    const loopMsg = loopInterceptCall![1]
+    expect(loopMsg.isError).toBe(true)
+    expect(loopMsg.content[0].text).toContain('identical arguments')
+
+    // Final response should come through
+    expect(result.response).toBe('Sorry, something went wrong.')
+  })
+
+  it('LoopDetector does NOT fire for calls with different args (no false positives)', async () => {
+    // Two calls with the same tool name but different arguments — should NOT trigger loop.
+    const call1 = makeAssistantMessage(
+      [{ type: 'toolCall', id: 'tc_geo1', name: 'geocode', arguments: { query: 'Santa Cruz' } }],
+      'toolUse'
+    )
+    const call2 = makeAssistantMessage(
+      [{ type: 'toolCall', id: 'tc_geo2', name: 'geocode', arguments: { query: 'San Francisco' } }],
+      'toolUse'
+    )
+    const finalMsg = makeAssistantMessage([{ type: 'text', text: 'Got both locations.' }], 'stop')
+
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(call1))
+      .mockReturnValueOnce(makeSimpleStream(call2))
+      .mockReturnValueOnce(makeSimpleStream(finalMsg))
+
+    const ctx = makeAgentContext()
+    const result = await executeRidePlanningAgent(ctx, 'geocode two places')
+
+    // Both tool calls should have executed without loop interception.
+    expect(mockStream).toHaveBeenCalledTimes(3)
+    expect(result.response).toBe('Got both locations.')
+  })
+
+  // ---------------------------------------------------------------------------
+  // Tests: BudgetTracker integration (US-318)
+  // ---------------------------------------------------------------------------
+
+  it('BudgetTracker throws after cumulative cost exceeds limit — loop aborts with AGENT_BUDGET_EXCEEDED', async () => {
+    // Produce an assistant message whose usage pushes cost over the $0.25 limit.
+    const expensiveMsg = makeAssistantMessage([{ type: 'text', text: 'Hello' }], 'stop')
+    // Override cost to exceed the $0.25 limit immediately.
+    expensiveMsg.usage = {
+      input: 1000,
+      output: 1000,
+      cacheRead: 0,
+      cacheWrite: 0,
+      totalTokens: 2000,
+      cost: { input: 0.1, output: 0.2, cacheRead: 0, cacheWrite: 0, total: 0.30 },
+    }
+
+    mockStream.mockReturnValueOnce(makeSimpleStream(expensiveMsg))
+
+    const ctx = makeAgentContext()
+    await expect(executeRidePlanningAgent(ctx, 'hello')).rejects.toMatchObject({
+      data: { code: 'AGENT_BUDGET_EXCEEDED' },
+    })
+  })
+
+  it('BudgetTracker does NOT throw when cumulative cost is under limit (normal operation)', async () => {
+    // Cost well under $0.25 limit — should proceed normally.
+    const cheapMsg = makeAssistantMessage([{ type: 'text', text: 'Cheap response.' }], 'stop')
+    cheapMsg.usage = {
+      input: 10,
+      output: 10,
+      cacheRead: 0,
+      cacheWrite: 0,
+      totalTokens: 20,
+      cost: { input: 0.001, output: 0.001, cacheRead: 0, cacheWrite: 0, total: 0.002 },
+    }
+
+    mockStream.mockReturnValueOnce(makeSimpleStream(cheapMsg))
+
+    const ctx = makeAgentContext()
+    const result = await executeRidePlanningAgent(ctx, 'hello')
+
+    expect(result.response).toBe('Cheap response.')
+    expect(mockStream).toHaveBeenCalledTimes(1)
+  })
 })
