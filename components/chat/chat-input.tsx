@@ -118,12 +118,16 @@ export const ChatInput = ({
   const [text, setText] = useState('')
 
   const handleSend = useCallback(() => {
+    // Block sending if planning is in progress
+    if (isPlanning) {
+      return
+    }
     const trimmed = text.trim()
     if (trimmed.length > 0) {
       onSend(trimmed)
       setText('')
     }
-  }, [text, onSend])
+  }, [text, onSend, isPlanning])
 
   const isIdle = state.phase === 'IDLE'
   const isError = state.phase === 'ERROR'
@@ -216,6 +220,7 @@ export const ChatInput = ({
                 {
                   color: semantic.color.onSurface.default,
                 },
+                isPlanning && styles.inputDisabled,
               ]}
               placeholder="Where would you like to ride?"
               placeholderTextColor={semantic.color.onSurface.muted}
@@ -224,9 +229,14 @@ export const ChatInput = ({
               multiline
               textAlignVertical="top"
               blurOnSubmit={false}
+              editable={!isPlanning}
               testID="chat-input-text-field"
               accessibilityLabel="Chat input field"
-              accessibilityHint="Type your ride request and tap send"
+              accessibilityHint={
+                isPlanning
+                  ? 'Input is disabled while planning'
+                  : 'Type your ride request and tap send'
+              }
             />
           </View>
 
@@ -358,6 +368,9 @@ const styles = StyleSheet.create({
     minHeight: 24,
     maxHeight: 140,
     padding: 0,
+  },
+  inputDisabled: {
+    opacity: 0.5,
   },
   manualModeButton: {
     alignSelf: 'flex-end',
