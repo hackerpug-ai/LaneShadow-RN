@@ -12,6 +12,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MenuLayout } from '../../../components/layouts/menu-layout'
 import { MapControls } from '../../../components/map/map-controls'
+import { MapPlanningIndicator } from '../../../components/map/map-planning-indicator'
 import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
 import { MotorcyclePlusIcon } from '../../../components/ui/motorcycle-plus-icon'
 import type { MapViewHandle } from '../../../components/map/map-view'
@@ -77,6 +78,8 @@ const HomeMapScreen = () => {
   // screens, but a tap commits to reading the full thread.
   const [chatMode, setChatMode] = useState(chatParam === '1')
   const [transientVisible, setTransientVisible] = useState(false)
+  const [mapPlanningVisible, setMapPlanningVisible] = useState(false)
+  const transientStartIndexRef = useRef(0)
   const [mapMounted, setMapMounted] = useState(!chatMode)
   const [transcriptMounted, setTranscriptMounted] = useState(chatMode)
   const mapOpacity = useSharedValue(chatMode ? 0 : 1)
@@ -146,6 +149,11 @@ const HomeMapScreen = () => {
       ) ?? false,
     [rawTranscriptMessages]
   )
+
+  // Dismiss planning indicator when agent finishes (fallback for cancel or no-message scenarios)
+  useEffect(() => {
+    if (!isPlanning) setMapPlanningVisible(false)
+  }, [isPlanning])
 
   const transcriptMessages: TranscriptMessage[] = useMemo(() => {
     return (
@@ -224,6 +232,12 @@ const HomeMapScreen = () => {
     prevMessageCountRef.current = transcriptMessages.length
     if (chatMode) return
     if (transcriptMessages.length > prev) {
+      // Only show transient overlay for agent responses, not rider sends
+      const newestMsg = transcriptMessages[transcriptMessages.length - 1]
+      if (newestMsg?.role === 'rider') return
+      // Hide planning indicator, show only new messages transiently
+      setMapPlanningVisible(false)
+      transientStartIndexRef.current = prev
       overlay.resetPin()
       setTranscriptMounted(true)
       setTransientVisible(true)
@@ -237,24 +251,20 @@ const HomeMapScreen = () => {
 
   // Wrap the send so the transient overlay surfaces the INSTANT the user
   // commits, without waiting for Convex to round-trip. This matters on the
-  // very first message of a brand-new session: `planningSessionId` changes
-  // mid-flight, which resets the baseline guard and would otherwise make
-  // the first Convex payload look like "existing history" and get skipped.
-  // By arming transient up-front, the rider always sees their send land.
+  // Show a lightweight planning indicator in map mode instead of the full
+  // transcript overlay. The transient overlay only fires when the agent
+  // responds (handled by the transcriptMessages.length effect above).
   const handleSendMessage = useCallback(
     (message: string) => {
       if (!chatMode) {
-        overlay.resetPin()
-        setTranscriptMounted(true)
-        setTransientVisible(true)
-        armTransientTimer()
+        setMapPlanningVisible(true)
       }
       void sendPlanningMessage(
         message,
         currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lng } : undefined
       )
     },
-    [chatMode, sendPlanningMessage, armTransientTimer, currentLocation, overlay]
+    [chatMode, sendPlanningMessage, currentLocation]
   )
 
   // Cycle the transcript visibility when the chat button / overlay is tapped.
@@ -335,6 +345,15 @@ const HomeMapScreen = () => {
     }
   }, [mapMounted, doFit])
 
+  // Zoom to current location on fresh app start
+  const didInitialCenterRef = useRef(false)
+  useEffect(() => {
+    if (currentLocation && mapMounted && mapRef.current && !didInitialCenterRef.current) {
+      didInitialCenterRef.current = true
+      mapRef.current.recenterToUser()
+    }
+  }, [currentLocation, mapMounted])
+
   // Register the fit handler so other tabs / chat overlay can trigger it
   useEffect(() => {
     registerFitHandler(doFit)
@@ -360,13 +379,6 @@ const HomeMapScreen = () => {
   const [selectedRouteOptionId, setSelectedRouteOptionId] = useState<string | null>(null)
   const [manualRouteOptions, setManualRouteOptions] = useState<any>(null)
   const [camera, setCamera] = useState<CameraState>({})
-
-  // Default start stop to current location
-  useEffect(() => {
-    if (currentLocation && !startStop) {
-      setStartStop(currentLocation)
-    }
-  }, [currentLocation, startStop])
 
   const [scenicBias, setScenicBias] = useState<'default' | 'high'>('default')
   const [avoidHighways, setAvoidHighways] = useState(false)
@@ -496,6 +508,8 @@ const HomeMapScreen = () => {
         overlay.dismiss()
         return
       }
+      // Only drop pins in manual planning mode (PlanRideSheet open)
+      if (!sheetVisible) return
       const coords = event.coordinates
       if (!coords?.latitude || !coords?.longitude) return
       const nextStop: RouteStop = {
@@ -520,7 +534,7 @@ const HomeMapScreen = () => {
       setManualRouteOptions(null)
       setSelectedRouteOptionId(null)
     },
-    [startStop, endStop, transientVisible, overlay]
+    [startStop, endStop, transientVisible, overlay, sheetVisible]
   )
 
   const handlePlanRide = useCallback(async () => {
@@ -622,9 +636,12 @@ const HomeMapScreen = () => {
     if (prefs.avoidTolls) setAvoidTolls(true)
     if (prefs.scenic) setScenicBias('high')
 
+    // Default start to current location for manual mode
+    if (currentLocation && !startStop) setStartStop(currentLocation)
+
     // Open PlanRideSheet — session history is NOT destroyed
     setSheetVisible(true)
-  }, [transcriptMessages, extractPreferencesFromMessages])
+  }, [transcriptMessages, extractPreferencesFromMessages, currentLocation, startStop])
 
   const clearAll = () => {
     setStartStop(null)
@@ -707,7 +724,7 @@ const HomeMapScreen = () => {
             {transientVisible && !chatMode ? (
               <Pressable onPress={overlay.pin} style={StyleSheet.absoluteFill}>
                 <ChatTranscript
-                  messages={transcriptMessages}
+                  messages={transcriptMessages.slice(transientStartIndexRef.current)}
                   topInset={insets.top + 72}
                   bottomInset={insets.bottom + 96}
                   transparent
@@ -829,6 +846,9 @@ const HomeMapScreen = () => {
               </ScrollView>
             </View>
           )}
+
+        {/* Planning indicator - shown in map mode while agent is working */}
+        <MapPlanningIndicator visible={mapPlanningVisible && !chatMode} />
 
         {/* Chat input - always visible at bottom */}
         <ChatInput

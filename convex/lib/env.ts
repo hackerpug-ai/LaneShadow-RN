@@ -40,3 +40,10 @@ export const isTestEnvironment = process.env.NODE_ENV === 'test'
  * Defaults to gpt-4o. Override via AI_MODEL env var.
  */
 export const AI_MODEL = optionalEnv('AI_MODEL') ?? 'gpt-4o'
+
+/**
+ * Disable rate limits for testing.
+ * Set via: npx convex env set DISABLE_RATE_LIMITS true
+ * TODO: Remove when Premium tier is implemented
+ */
+export const DISABLE_RATE_LIMITS = optionalEnv('DISABLE_RATE_LIMITS') === 'true'

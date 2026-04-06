@@ -19,7 +19,7 @@ import { LoopDetector } from './loopDetector'
 import { BudgetTracker } from './budgetTracker'
 import { summarizeForContext } from './lib/summarizeForContext'
 import { runAgent } from './runAgent'
-import { OPENAI_API_KEY, AI_MODEL } from '../../lib/env'
+import { OPENAI_API_KEY, AI_MODEL, DISABLE_RATE_LIMITS } from '../../lib/env'
 import { FREE_TIER_MONTHLY_LIMIT } from '../../../models/plan-usage'
 import { api, internal } from '../../_generated/api'
 import type { ActionCtx } from '../../_generated/server'
@@ -174,16 +174,19 @@ async function runPlanRoute(
   }
 ): Promise<unknown> {
   // Rate-limit check
-  const usage = await ctx.runQuery(internal.db.planUsage.checkUsageInternal, {
-    clerkUserId: ctx.clerkUserId,
-  })
+  // TODO: Re-enable rate limiting when Premium tier is implemented
+  if (!DISABLE_RATE_LIMITS) {
+    const usage = await ctx.runQuery(internal.db.planUsage.checkUsageInternal, {
+      clerkUserId: ctx.clerkUserId,
+    })
 
-  if (!usage.allowed) {
-    return {
-      type: 'chat',
-      message: `You've reached your monthly limit of ${FREE_TIER_MONTHLY_LIMIT} route plans. Upgrade to Premium for unlimited plans!`,
-      hint: 'Do not attempt another planRoute call — the user is rate-limited.',
-      retryGuidance: 'stop',
+    if (!usage.allowed) {
+      return {
+        type: 'chat',
+        message: `You've reached your monthly limit of ${FREE_TIER_MONTHLY_LIMIT} route plans. Upgrade to Premium for unlimited plans!`,
+        hint: 'Do not attempt another planRoute call — the user is rate-limited.',
+        retryGuidance: 'stop',
+      }
     }
   }
 
