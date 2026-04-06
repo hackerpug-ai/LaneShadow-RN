@@ -577,6 +577,40 @@ const HomeMapScreen = () => {
     mapRef.current?.recenterToUser()
   }
 
+  // --- Manual planning mode fallback (US-018) ---
+  // Extract routing preferences the rider has expressed in chat messages so
+  // that PlanRideSheet can be pre-populated when they switch to manual mode.
+  const extractPreferencesFromMessages = useCallback(
+    (messages: TranscriptMessage[]) => {
+      const allText = messages
+        .filter((m) => m.role === 'rider')
+        .map((m) => m.content.toLowerCase())
+        .join(' ')
+
+      return {
+        avoidHighways: allText.includes('avoid highway') || allText.includes('no highways'),
+        avoidTolls: allText.includes('avoid toll') || allText.includes('no tolls'),
+        scenic:
+          allText.includes('scenic') ||
+          allText.includes('twisties') ||
+          allText.includes('curvy'),
+      }
+    },
+    []
+  )
+
+  const handleManualModePress = useCallback(() => {
+    // Carry over preferences from the chat conversation
+    const prefs = extractPreferencesFromMessages(transcriptMessages)
+
+    if (prefs.avoidHighways) setAvoidHighways(true)
+    if (prefs.avoidTolls) setAvoidTolls(true)
+    if (prefs.scenic) setScenicBias('high')
+
+    // Open PlanRideSheet — session history is NOT destroyed
+    setSheetVisible(true)
+  }, [transcriptMessages, extractPreferencesFromMessages])
+
   const clearAll = () => {
     setStartStop(null)
     setEndStop(null)
@@ -768,6 +802,7 @@ const HomeMapScreen = () => {
           testID="chat-input"
           chatMode={chatMode}
           onToggleChatMode={cycleTranscript}
+          onManualModePress={handleManualModePress}
         />
 
         <PlanRideSheet

@@ -43,6 +43,9 @@ type ChatInputProps = {
   chatMode?: boolean
   /** Handler for the mode-toggle button (switches between map and chat views) */
   onToggleChatMode?: () => void
+  /** Handler for the manual planning mode icon. Opens PlanRideSheet with
+   *  preferences extracted from the current chat conversation. */
+  onManualModePress?: () => void
 }
 
 /**
@@ -108,6 +111,7 @@ export const ChatInput = ({
   testID = 'chat-input',
   chatMode = false,
   onToggleChatMode,
+  onManualModePress,
 }: ChatInputProps) => {
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
@@ -175,6 +179,33 @@ export const ChatInput = ({
             },
           ]}
         >
+          {/* Manual planning mode icon */}
+          {onManualModePress && (
+            <TouchableOpacity
+              onPress={onManualModePress}
+              style={[
+                styles.manualModeButton,
+                {
+                  width: 32,
+                  height: 32,
+                  borderRadius: 16,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                },
+              ]}
+              testID="chat-input-manual-mode-button"
+              accessibilityLabel="Switch to manual planning"
+              accessibilityHint="Opens the manual ride planning sheet with preferences from your conversation"
+              accessibilityRole="button"
+            >
+              <Icon
+                source="map-marker-path"
+                size={18}
+                color={semantic.color.onSurface.muted}
+              />
+            </TouchableOpacity>
+          )}
+
           {/* Text input */}
           <View style={styles.inputWrapper}>
             <TextInput
@@ -322,6 +353,10 @@ const styles = StyleSheet.create({
     minHeight: 24,
     maxHeight: 140,
     padding: 0,
+  },
+  manualModeButton: {
+    alignSelf: 'flex-end',
+    marginBottom: 4,
   },
   sendButton: {
     marginLeft: 'auto',
