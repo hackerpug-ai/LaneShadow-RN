@@ -191,7 +191,7 @@ Example: Route Sketching
 | Natural language refinement | Phase progression |
 | Creative problem-solving | Emission of events |
 
-**Rule of thumb**: If you're writing a switch statement with >3 cases, ask if an LLM could handle the semantic mapping instead.
+**Rule of thumb**: See [`AGENT_DECISION_FRAMEWORK.md`](./AGENT_DECISION_FRAMEWORK.md) for the research-backed decision framework. The short version: "Could I write a test that covers all valid inputs?" If yes → deterministic. If no → LLM agent.
 
 ---
 
