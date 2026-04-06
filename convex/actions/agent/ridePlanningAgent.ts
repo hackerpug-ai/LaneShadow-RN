@@ -32,6 +32,26 @@ const MAX_STEPS = 10
 const AGENT_TIMEOUT_MS = 30_000
 
 // -----------------------------------------------------------------------------
+// In-Memory Sketch Store (per-session)
+// -----------------------------------------------------------------------------
+
+// Temporary store for pending sketches between createRouteSketch and compileSketch calls
+// In production, this should be stored in the planning session or a similar persistent store
+const pendingSketches = new Map<string, any>()
+
+function storePendingSketch(sessionId: string, sketch: any): void {
+  pendingSketches.set(sessionId, sketch)
+}
+
+function getPendingSketch(sessionId: string): any | undefined {
+  return pendingSketches.get(sessionId)
+}
+
+function clearPendingSketch(sessionId: string): void {
+  pendingSketches.delete(sessionId)
+}
+
+// -----------------------------------------------------------------------------
 // Types
 // -----------------------------------------------------------------------------
 
@@ -122,28 +142,56 @@ export const buildSystemPrompt = async (ctx: AgentContext): Promise<string> => {
 
   const locationSection = `${locBlock}${routeBlock ? '\n\n' + routeBlock : ''}`
 
-  return `You are a motorcycle ride planning assistant. Be concise — 1-2 sentences per response. Use 2nd person ("your ride", "you'll see").
+  return `You are a motorcycle ride planning assistant with deep knowledge of road networks. Be concise — 1-2 sentences per response. Use 2nd person ("your ride", "you'll see").
 
 ${locationSection}
 
-Workflow:
-1. If the rider names a place (not "here"), call geocode first to get coordinates.
-2. Call planRoute with structured start, end, departureTime (default: now + 3600000 ms), and preferences.
-3. For refinements:
-   - ALWAYS carry forward ALL prior constraints unless the rider explicitly revokes one.
-   - Example: prior call used scenicBias='high' + avoidHighways=true. Rider says "also avoid tolls" → call planRoute with scenicBias='high', avoidHighways=true, avoidTolls=true.
-   - Only drop a constraint if the rider says so (e.g. "highways are fine now").
-   - Keep the same start/end unless the rider changes them.
-   - IMPORTANT: You can ONLY control scenicBias, avoidHighways, and avoidTolls preferences. If the rider asks to avoid a specific road (e.g., "avoid Highway 1") or make other unsupported changes, explain that you can only adjust scenic preference and highway/toll avoidance generally.
+**Route Planning Approach:**
 
-Presentation:
-- 1-2 sentences, highlight scenic features, road types, rough duration.
-- Briefly explain WHY you chose this route — what makes it a good match for the rider's request (e.g. "This avoids Highway 1 and takes you through the redwood-lined Old La Honda Road" or "I routed through Half Moon Bay for the coastal views you'll love").
-- Never expose tool names or technical details.
+You have TWO ways to plan routes:
 
-Errors: suggest what the rider can try next without surfacing internals.
+**Option 1: Deterministic (planRoute)**
+- Use for standard requests without specific road constraints
+- Call planRoute with start/end coordinates and preferences
+- Returns 2-3 scenic route variants automatically
 
-Do not call fetchWeather, saveRoute, or searchFavorites — these features are coming soon. If the rider asks about weather or saving, respond conversationally that these features will be available soon.`
+**Option 2: LLM-Authored (createRouteSketch + compileSketch)**
+- Use when the rider specifies roads to avoid or preferred routes
+- YOU author the high-level itinerary (e.g., "take Highway 280 to Skyline Blvd")
+- Google Maps validates and provides precise geometry
+- If Google Maps says roads don't connect, revise your sketch and try again
+
+**When to use LLM-authored routes:**
+- Rider names specific roads: "avoid Highway 1", "take Market Street", "include Skyline Blvd"
+- Rider wants to avoid a specific area: "don't go through Santa Cruz"
+- Rider requests a particular route: "take the coast road", "use the mountain pass"
+
+**LLM-Authored Workflow:**
+1. Call createRouteSketch with your planned route segments and waypoints
+   - segments: Array of road segments (roadName, fromName, toName, viaNames)
+   - anchorPoints: Key waypoints (towns, junctions, landmarks, passes)
+2. Call geocode if you need coordinates for start/end
+3. Call compileSketch with start/end coordinates and your sketch
+4. If compileSketch fails with routing error, revise your sketch and try again
+
+**Example: Rider says "avoid Highway 1"**
+- Create sketch with segments: [{roadName: "Highway 280", fromName: "San Jose", toName: "San Bruno"}, {roadName: "Skyline Blvd", fromName: "San Bruno", toName: "Half Moon Bay"}]
+- Add anchorPoints for key junctions
+- Call compileSketch to validate and get geometry
+
+**Refinement Rules:**
+- ALWAYS carry forward ALL prior constraints unless explicitly revoked
+- Check the session context for previous routes and their preferences
+- Keep the same start/end unless the rider changes them
+
+**Presentation:**
+- 1-2 sentences, highlight scenic features, road types, rough duration
+- Explain WHY you chose this route (e.g., "This takes Highway 280 to Skyline Blvd for mountain views without Highway 1 traffic")
+- Never expose tool names or technical details
+
+**Errors:** If compileSketch fails, explain conversationally and try a different route.
+
+Do not call fetchWeather, saveRoute, or searchFavorites — these features are coming soon.`
 }
 
 // -----------------------------------------------------------------------------
@@ -280,6 +328,210 @@ async function runFetchWeather(
   }
 }
 
+async function runCreateRouteSketch(
+  ctx: AgentContext,
+  args: {
+    label: string
+    rationale: string
+    segments: Array<{
+      roadName: string
+      fromName: string
+      toName: string
+      viaNames: string[] | null
+    }>
+    anchorPoints: Array<{
+      name: string
+      kind: 'town' | 'junction' | 'landmark' | 'pass'
+      lat: number | null
+      lng: number | null
+    }>
+  }
+): Promise<unknown> {
+  // Store the sketch for use with compileSketch
+  const sessionId = ctx.planningSessionId
+  const sketch = {
+    label: args.label,
+    rationale: args.rationale,
+    segments: args.segments.map(s => ({
+      roadName: s.roadName,
+      fromName: s.fromName,
+      toName: s.toName,
+      viaNames: s.viaNames || undefined,
+    })),
+    anchorPoints: args.anchorPoints,
+  }
+  storePendingSketch(sessionId, sketch)
+
+  // Return success so the agent knows the sketch was created
+  return {
+    type: 'sketch_created',
+    sketch,
+    message: `Route sketch "${args.label}" created. Now call compileSketch with start/end coordinates to generate the route.`,
+  }
+}
+
+async function runCompileSketch(
+  ctx: AgentContext,
+  args: {
+    start: { lat: number; lng: number; label: string | null }
+    end: { lat: number; lng: number; label: string | null }
+    departureTime: number
+    preferences: {
+      scenicBias: 'default' | 'high'
+      avoidHighways: boolean
+      avoidTolls: boolean
+    }
+    sketch?: {
+      label: string
+      rationale: string
+      segments: Array<{
+        roadName: string
+        fromName: string
+        toName: string
+        viaNames?: string[]
+      }>
+      anchorPoints: Array<{
+        name: string
+        kind: 'town' | 'junction' | 'landmark' | 'pass'
+        lat?: number
+        lng?: number
+      }>
+    }
+  }
+): Promise<unknown> {
+  // Get sketch from args or from pending store
+  let sketch = args.sketch
+  if (!sketch) {
+    sketch = getPendingSketch(ctx.planningSessionId)
+    if (!sketch) {
+      return {
+        type: 'error',
+        message: "No route sketch found. Call createRouteSketch first to define your route itinerary.",
+        hint: "Use createRouteSketch to specify the roads and waypoints for your route.",
+        retryGuidance: 'create_sketch',
+      }
+    }
+  }
+
+  // Rate-limit check
+  const usage = await ctx.runQuery(internal.db.planUsage.checkUsageInternal, {
+    clerkUserId: ctx.clerkUserId,
+  })
+
+  if (!usage.allowed) {
+    return {
+      type: 'chat',
+      message: `You've reached your monthly limit of ${usage.limit} route plans. Upgrade to Premium for unlimited plans!`,
+      hint: 'Do not attempt another planRoute call — the user is rate-limited.',
+      retryGuidance: 'stop',
+    }
+  }
+
+  // Persist a route_plans row up front
+  const planInput = {
+    start: {
+      lat: args.start.lat,
+      lng: args.start.lng,
+      label: args.start.label ?? undefined,
+    },
+    end: {
+      lat: args.end.lat,
+      lng: args.end.lng,
+      label: args.end.label ?? undefined,
+    },
+    departureTime: args.departureTime,
+    preferences: args.preferences,
+  }
+
+  const { routePlanId } = await ctx.runMutation(
+    internal.db.routePlans.createForAgentInternal,
+    {
+      clerkUserId: ctx.clerkUserId,
+      planningSessionId: ctx.planningSessionId,
+      planInput,
+      startLabel: args.start.label ?? undefined,
+      endLabel: args.end.label ?? undefined,
+    }
+  )
+
+  try {
+    // Import compileSketch dynamically to avoid circular deps
+    const { compileSketch: compileSketchImpl } = await import('./tools/compileSketch')
+    const { normalizeRoute } = await import('./tools/normalizeRoute')
+    const { buildOptionsFromResults } = await import('./planRide')
+
+    // Compile the sketch to get Google Maps geometry
+    const providerRoute = await compileSketchImpl({
+      planInput,
+      sketch,
+    })
+
+    // Normalize the route
+    const routeSnapshot = await normalizeRoute({
+      providerRoute,
+      planInput,
+    })
+
+    // Build the result
+    const results = [{
+      routeSnapshot,
+      sketch,
+    }]
+    const built = buildOptionsFromResults(results, crypto.randomUUID())
+
+    // Clear the pending sketch after successful compilation
+    clearPendingSketch(ctx.planningSessionId)
+
+    // Finalize the route_plans row
+    await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+      routePlanId,
+      status: 'completed',
+      result: built,
+    })
+
+    // Increment usage
+    await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, {
+      clerkUserId: ctx.clerkUserId,
+    })
+
+    return { type: 'routes', data: built, routePlanId }
+  } catch (error) {
+    console.error('[runCompileSketch] Error:', error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+
+    // Check if it's a routing compilation error (e.g., invalid road, no connection)
+    const isRoutingError = errorMessage.includes('ROUTING_COMPILE_FAILED') ||
+                          errorMessage.includes('ZERO_RESULTS') ||
+                          errorMessage.includes('NOT_FOUND')
+
+    await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+      routePlanId,
+      status: 'failed',
+      errorMessage,
+    })
+
+    if (isRoutingError) {
+      return {
+        type: 'error',
+        message: "I couldn't route that way — the roads may not connect or one might not exist. Let me try a different approach.",
+        hint: `The route sketch "${sketch.label}" couldn't be compiled. Try using different roads or check if they connect.`,
+        retryGuidance: 'revise_sketch',
+        routePlanId,
+      }
+    }
+
+    return {
+      type: 'error',
+      message: "I couldn't plan your route right now. Please try again.",
+      hint: error instanceof Error && error.message.includes('timeout')
+        ? 'The route calculation timed out. Try a shorter distance or simpler route.'
+        : 'Suggest an alternate destination or relax preferences (e.g. remove avoid-highways).',
+      retryGuidance: 'ask_rider',
+      routePlanId,
+    }
+  }
+}
+
 async function runSaveRoute(
   _ctx: AgentContext,
   args: { routeIndex: number | null; name: string | null }
@@ -316,14 +568,28 @@ const tools: ToolWithParallelSafe[] = [
   {
     name: 'geocode',
     description:
-      "Look up coordinates for a place name, address, or landmark. Use before planRoute when the rider names somewhere other than \"here\". Results are biased toward the rider's current location.",
+      "Look up coordinates for a place name, address, or landmark. Use before planRoute or compileSketch when the rider names somewhere other than \"here\". Results are biased toward the rider's current location.",
     parameters: AgentToolSchemas.geocode as any,
     parallelSafe: true,
   },
   {
+    name: 'createRouteSketch',
+    description:
+      "Create a high-level route itinerary by specifying road segments (think \"take Highway 5 to Highway 405 to PCH\"). Use this when the rider asks to avoid specific roads (\"avoid Highway 1\") or requests a particular route (\"take Skyline Blvd\"). After creating the sketch, call compileSketch with start/end coordinates to generate the precise route.",
+    parameters: AgentToolSchemas.createRouteSketch as any,
+    parallelSafe: true,
+  },
+  {
+    name: 'compileSketch',
+    description:
+      "Convert a route sketch into a precise route with geometry from Google Maps. Call geocode first if you need coordinates for start/end points. This validates that your sketch roads actually connect and returns detailed turn-by-turn geometry. If routing fails, revise your sketch and try again.",
+    parameters: AgentToolSchemas.compileSketch as any,
+    parallelSafe: false,
+  },
+  {
     name: 'planRoute',
     description:
-      "Plan a motorcycle route with 2-3 scenic options. Call geocode first if you need coordinates for the start or end. Use the rider's current location (given in the system prompt) as start when they say \"here\" or don't specify. For refinements, call this again with updated preferences.",
+      "Plan a motorcycle route with 2-3 scenic options using the deterministic orchestrator. Call geocode first if you need coordinates for the start or end. Use the rider's current location (given in the system prompt) as start when they say \"here\" or don't specify. For refinements, consider using createRouteSketch + compileSketch for more control.",
     parameters: AgentToolSchemas.planRoute as any,
     parallelSafe: false,
   },
@@ -374,6 +640,12 @@ async function executeTool(
     switch (call.name) {
       case 'geocode':
         result = await runGeocode(ctx, validated)
+        break
+      case 'createRouteSketch':
+        result = await runCreateRouteSketch(ctx, validated)
+        break
+      case 'compileSketch':
+        result = await runCompileSketch(ctx, validated)
         break
       case 'planRoute':
         result = await runPlanRoute(ctx, validated)

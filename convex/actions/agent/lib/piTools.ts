@@ -18,6 +18,94 @@ export const AgentToolSchemas = {
     }),
   }),
 
+  createRouteSketch: Type.Object({
+    label: Type.String({
+      description: 'A brief label for this route (e.g., "Highway 280 to Skyline Blvd")',
+    }),
+    rationale: Type.String({
+      description: 'Explanation of why this route matches the rider\'s request (e.g., "Avoids Highway 1 and uses scenic mountain roads")',
+    }),
+    segments: Type.Array(
+      Type.Object({
+        roadName: Type.String({ description: 'Name of the road (e.g., "Highway 280", "Skyline Blvd")' }),
+        fromName: Type.String({ description: 'Starting point or junction (e.g., "San Jose", "Highway 85")' }),
+        toName: Type.String({ description: 'Ending point or junction (e.g., "San Bruno", "Highway 92")' }),
+        viaNames: Type.Union([
+          Type.Array(Type.String()),
+          Type.Null(),
+        ], { description: 'Optional intermediate places this road passes through' }),
+      }),
+      { description: 'Road segments that make up the route - think "take 5 to 405 to PCH"' },
+    ),
+    anchorPoints: Type.Array(
+      Type.Object({
+        name: Type.String({ description: 'Name of the waypoint (e.g., "Half Moon Bay", "Junction 92")' }),
+        kind: Type.Union([
+          Type.Literal('town'),
+          Type.Literal('junction'),
+          Type.Literal('landmark'),
+          Type.Literal('pass'),
+        ], { description: 'Type of waypoint' }),
+        lat: Type.Union([Type.Number(), Type.Null()], { description: 'Latitude if known, otherwise null' }),
+        lng: Type.Union([Type.Number(), Type.Null()], { description: 'Longitude if known, otherwise null' }),
+      }),
+      { description: 'Key waypoints along the route (cities, junctions, landmarks, mountain passes)' },
+    ),
+  }),
+
+  compileSketch: Type.Object({
+    start: Type.Object({
+      lat: Type.Number({ description: 'Starting latitude in decimal degrees' }),
+      lng: Type.Number({ description: 'Starting longitude in decimal degrees' }),
+      label: Type.Union([Type.String(), Type.Null()], {
+        description: 'Human-readable name of the starting point, or null if unknown',
+      }),
+    }),
+    end: Type.Object({
+      lat: Type.Number({ description: 'Destination latitude in decimal degrees' }),
+      lng: Type.Number({ description: 'Destination longitude in decimal degrees' }),
+      label: Type.Union([Type.String(), Type.Null()], {
+        description: 'Human-readable name of the destination, or null if unknown',
+      }),
+    }),
+    departureTime: Type.Integer({
+      description: 'Departure time as unix timestamp in milliseconds. Default to Date.now() + 3600000 (1 hour from now) when not specified by the rider.',
+    }),
+    preferences: Type.Object({
+      scenicBias: Type.Union(
+        [Type.Literal('default'), Type.Literal('high')],
+        { description: 'Use "high" when the rider asks for scenic/twisty/backroads, "default" otherwise' },
+      ),
+      avoidHighways: Type.Boolean({
+        description: 'True when the rider wants to avoid highways/interstates',
+      }),
+      avoidTolls: Type.Boolean({
+        description: 'True when the rider wants to avoid toll roads',
+      }),
+    }),
+    sketch: Type.Object({
+      label: Type.String(),
+      rationale: Type.String(),
+      segments: Type.Array(Type.Object({
+        roadName: Type.String(),
+        fromName: Type.String(),
+        toName: Type.String(),
+        viaNames: Type.Optional(Type.Array(Type.String())),
+      })),
+      anchorPoints: Type.Array(Type.Object({
+        name: Type.String(),
+        kind: Type.Union([
+          Type.Literal('junction'),
+          Type.Literal('pass'),
+          Type.Literal('vista'),
+          Type.Literal('town'),
+        ]),
+        lat: Type.Optional(Type.Number()),
+        lng: Type.Optional(Type.Number()),
+      })),
+    }),
+  }),
+
   planRoute: Type.Object({
     start: Type.Object({
       lat: Type.Number({ description: 'Starting latitude in decimal degrees' }),
