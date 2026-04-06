@@ -1,6 +1,10 @@
 # Enable conversation refinement via state machine handlers
 
 > Task ID: US-015
+> Status: ✅ Completed
+> Completed: 2026-04-06T16:43:53Z
+> Commit: fc942c94f6316a8bc4a6f633c51321e4b79b115d
+> Reviewer: feature-dev:code-reviewer (orchestrator-verified via diff)
 > Type: FEATURE
 > Priority: P0
 > Estimate: 45 minutes

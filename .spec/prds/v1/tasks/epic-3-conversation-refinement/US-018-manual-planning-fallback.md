@@ -1,6 +1,10 @@
 # Wire manual planning mode fallback from chat input
 
 > Task ID: US-018
+> Status: ✅ Completed
+> Completed: 2026-04-06T16:43:16Z
+> Commit: 2577dae36706e4744a2b741d85638c6f7fe1ee49
+> Reviewer: feature-dev:code-reviewer (orchestrator-verified via diff)
 > Type: FEATURE
 > Priority: P1
 > Estimate: 60 minutes
