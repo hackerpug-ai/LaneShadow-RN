@@ -887,4 +887,145 @@ describe('executeRidePlanningAgent', () => {
     expect(result.response).toBe('Cheap response.')
     expect(mockStream).toHaveBeenCalledTimes(1)
   })
+
+  // ---------------------------------------------------------------------------
+  // Tests: summarizeForContext wiring (US-310)
+  // ---------------------------------------------------------------------------
+
+  it('US-310: ToolResultMessage pushed to context contains summarized planRoute result (no geometry), while toolResultsTracker holds full result', async () => {
+    // The full planRoute result includes geometry-heavy options with nested waypoints.
+    const fullRouteResult = {
+      type: 'routes',
+      routePlanId: 'rp_summary_test',
+      data: {
+        planId: 'plan_summary',
+        options: [
+          {
+            routeOptionId: 'opt1',
+            label: 'Scenic Route',
+            rationale: 'Great views',
+            stats: { distanceMeters: 80_000, durationSeconds: 5_400 },
+            highlights: ['Ocean views', 'Redwood forest'],
+            waypoints: [{ lat: 37.1, lng: -122.1 }, { lat: 36.9, lng: -122.0 }],
+            geometry: [{ lat: 37.1, lng: -122.1 }, { lat: 37.0, lng: -122.05 }, { lat: 36.9, lng: -122.0 }],
+            legs: [{ steps: [{ instruction: 'Turn left', distance: 1000 }] }],
+          },
+        ],
+      },
+    }
+
+    // buildOptionsFromResults returns the full data payload.
+    buildOptionsFromResults.mockReturnValue(fullRouteResult.data)
+    planRideOrchestrator.mockResolvedValue([])
+
+    // ctx.runMutation: first call returns routePlanId, rest return null.
+    const ctx = makeAgentContext()
+    ctx.runMutation
+      .mockResolvedValueOnce({ routePlanId: 'rp_summary_test' }) // createForAgentInternal
+      .mockResolvedValueOnce(null)                                  // updatePlanStatus
+      .mockResolvedValueOnce(null)                                  // incrementUsageInternal
+
+    const toolCallMsg = makeAssistantMessage(
+      [
+        {
+          type: 'toolCall',
+          id: 'tc_summary',
+          name: 'planRoute',
+          arguments: {
+            start: { lat: 37.77, lng: -122.42, label: null },
+            end: { lat: 36.97, lng: -122.03, label: 'Santa Cruz, CA' },
+            departureTime: Date.now() + 3_600_000,
+            preferences: { scenicBias: 'high', avoidHighways: false, avoidTolls: false },
+          },
+        },
+      ],
+      'toolUse'
+    )
+    const textMsg = makeAssistantMessage([{ type: 'text', text: 'Here are your routes.' }], 'stop')
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(toolCallMsg))
+      .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+    // Capture the ToolResultMessage pushed to context via the callback.
+    let capturedToolResultMsg: unknown
+    const onToolResultPiMessage = vi.fn().mockImplementation(async (_id: string, msg: unknown) => {
+      capturedToolResultMsg = msg
+    })
+
+    await executeRidePlanningAgent(ctx, 'plan a ride to Santa Cruz', { onToolResultPiMessage })
+
+    expect(onToolResultPiMessage).toHaveBeenCalledTimes(1)
+
+    // The ToolResultMessage content must be the SUMMARIZED form — no geometry/waypoints/legs.
+    const contentText = (capturedToolResultMsg as any).content[0].text
+    const parsed = JSON.parse(contentText)
+
+    // Summarized shape has type, routePlanId, summary — NOT data.options with geometry.
+    expect(parsed.type).toBe('routes')
+    expect(parsed.routePlanId).toBe('rp_summary_test')
+    expect(parsed.summary).toBeDefined()
+    expect(Array.isArray(parsed.summary)).toBe(true)
+    expect(parsed.summary[0]).toMatchObject({
+      index: 0,
+      label: 'Scenic Route',
+      distanceMi: expect.any(Number),
+      durationMin: expect.any(Number),
+    })
+
+    // Geometry fields must NOT be present in the context message.
+    expect(parsed.data).toBeUndefined()
+    expect(parsed.summary[0].geometry).toBeUndefined()
+    expect(parsed.summary[0].waypoints).toBeUndefined()
+    expect(parsed.summary[0].legs).toBeUndefined()
+
+    // The attachment extraction (which uses toolResultsTracker) must still work
+    // with the full result — routePlanId is present in the attachment.
+    const finalResult = await (async () => {
+      // Re-run to get the return value (the prior run already finished).
+      // Instead, check the return value of the already-completed run above.
+      return null
+    })()
+    void finalResult
+
+    // Verify the agent still produced correct attachments (full result in tracker).
+    // We do this by running a second independent call and asserting attachments.
+    buildOptionsFromResults.mockReturnValue(fullRouteResult.data)
+    planRideOrchestrator.mockResolvedValue([])
+    ctx.runMutation
+      .mockResolvedValueOnce({ routePlanId: 'rp_summary_test' })
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null)
+
+    const toolCallMsg2 = makeAssistantMessage(
+      [
+        {
+          type: 'toolCall',
+          id: 'tc_summary2',
+          name: 'planRoute',
+          arguments: {
+            start: { lat: 37.77, lng: -122.42, label: null },
+            end: { lat: 36.97, lng: -122.03, label: 'Santa Cruz, CA' },
+            departureTime: Date.now() + 3_600_000,
+            preferences: { scenicBias: 'high', avoidHighways: false, avoidTolls: false },
+          },
+        },
+      ],
+      'toolUse'
+    )
+    const textMsg2 = makeAssistantMessage([{ type: 'text', text: 'Routes ready.' }], 'stop')
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(toolCallMsg2))
+      .mockReturnValueOnce(makeSimpleStream(textMsg2))
+
+    const ctx2 = makeAgentContext()
+    ctx2.runMutation
+      .mockResolvedValueOnce({ routePlanId: 'rp_summary_test' })
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null)
+
+    const result2 = await executeRidePlanningAgent(ctx2, 'plan a ride to Santa Cruz')
+    expect(result2.attachments).toEqual([
+      { type: 'route_options', routePlanId: 'rp_summary_test' },
+    ])
+  })
 })

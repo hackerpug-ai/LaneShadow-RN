@@ -19,6 +19,7 @@ import { buildOptionsFromResults } from './planRide'
 import { buildInSessionRouteBlock } from './sessionContext'
 import { LoopDetector } from './loopDetector'
 import { BudgetTracker } from './budgetTracker'
+import { summarizeForContext } from './lib/summarizeForContext'
 import { OPENAI_API_KEY, AI_MODEL } from '../../lib/env'
 import { FREE_TIER_MONTHLY_LIMIT } from '../../../models/plan-usage'
 import { ERROR_CODES } from '../../errors'
@@ -540,13 +541,17 @@ export async function executeRidePlanningAgent(
         isError = true
       }
 
+      // Full result stays in toolResultsTracker for frontend attachments
       toolResultsTracker.push({ toolName: call.name, result })
+
+      // Trimmed result goes into the LLM context
+      const contextResult = summarizeForContext(call.name, result)
 
       const toolResultMsg: ToolResultMessage = {
         role: 'toolResult',
         toolCallId: call.id,
         toolName: call.name,
-        content: [{ type: 'text', text: JSON.stringify(result) }],
+        content: [{ type: 'text', text: JSON.stringify(contextResult) }],
         isError,
         timestamp: Date.now(),
       }
