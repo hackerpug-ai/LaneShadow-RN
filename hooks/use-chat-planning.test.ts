@@ -100,17 +100,17 @@ describe('useChatPlanning', () => {
   })
 
   describe('AC3: Cancellation resets state properly', () => {
-    it('should dispatch NEW_SESSION when cancel is called', () => {
+    it('should dispatch CANCEL_PLANNING when cancel is called', () => {
       const { result } = renderHook(() => useChatPlanning(mockDispatch))
 
       act(() => {
         result.current.cancel()
       })
 
-      expect(dispatchedActions).toContainEqual({ type: 'NEW_SESSION' })
+      expect(dispatchedActions).toContainEqual({ type: 'CANCEL_PLANNING' })
     })
 
-    it('should reset sessionId after cancellation', async () => {
+    it('should preserve sessionId after cancellation', async () => {
       const { result } = renderHook(() => useChatPlanning(mockDispatch))
 
       await act(async () => {
@@ -122,7 +122,8 @@ describe('useChatPlanning', () => {
         result.current.cancel()
       })
 
-      expect(result.current.sessionId).toBeNull()
+      // Session is preserved so rider can send follow-up messages
+      expect(result.current.sessionId).toBe('session123')
     })
 
     it('should handle multiple cancel calls gracefully', async () => {
@@ -137,7 +138,8 @@ describe('useChatPlanning', () => {
         result.current.cancel()
       })
 
-      expect(result.current.sessionId).toBeNull()
+      // Session preserved after cancel
+      expect(result.current.sessionId).toBe('session123')
     })
   })
 
