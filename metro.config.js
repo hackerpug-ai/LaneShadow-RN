@@ -20,6 +20,12 @@ const originalResolveRequest = config.resolver?.resolveRequest
 config.resolver = {
   ...config.resolver,
   resolveRequest: (context, moduleName, platform) => {
+    // Let Expo handle its own virtual modules (expo/virtual/*)
+    if (moduleName.startsWith('expo/virtual/')) {
+      return originalResolveRequest
+        ? originalResolveRequest(context, moduleName, platform)
+        : context.resolveRequest(context, moduleName, platform)
+    }
     // Exclude test files from being bundled
     if (moduleName.endsWith('.test.ts') ||
         moduleName.endsWith('.test.tsx') ||
