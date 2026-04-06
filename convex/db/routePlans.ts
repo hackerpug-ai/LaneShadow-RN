@@ -344,6 +344,8 @@ export type RoutePlanSummary = {
   status: RoutePlanStatus
   distanceMeters?: number
   durationSeconds?: number
+  routeLabel?: string
+  routeRationale?: string
 }
 
 const DEFAULT_LIST_BY_SESSION_LIMIT = 5
@@ -362,6 +364,8 @@ const toRoutePlanSummary = (doc: RoutePlanDoc): RoutePlanSummary => {
     status: doc.status,
     distanceMeters: stats?.distanceMeters,
     durationSeconds: stats?.durationSeconds,
+    routeLabel: firstOption?.label,
+    routeRationale: firstOption?.rationale,
   }
 }
 
@@ -405,6 +409,8 @@ export const listBySession = internalQuery({
       status: routePlanStatusValidator,
       distanceMeters: v.optional(v.number()),
       durationSeconds: v.optional(v.number()),
+      routeLabel: v.optional(v.string()),
+      routeRationale: v.optional(v.string()),
     })
   ),
   handler: async (ctx, args): Promise<RoutePlanSummary[]> => {
