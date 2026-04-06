@@ -49,11 +49,11 @@ export type AgentContext = {
 
 export type ToolResult =
   | { type: 'routes'; data: { planId: string; options: any[] }; routePlanId: Id<'route_plans'> }
-  | { type: 'error'; message: string; routePlanId?: Id<'route_plans'> }
+  | { type: 'error'; message: string; hint?: string; retryGuidance?: string; routePlanId?: Id<'route_plans'> }
   | { type: 'confirmation'; message: string }
   | { type: 'search_results'; data: any[] }
   | { type: 'weather'; data: any }
-  | { type: 'chat'; message: string }
+  | { type: 'chat'; message: string; hint?: string; retryGuidance?: string }
 
 /**
  * Optional callbacks that callers can inject into executeTool to observe
@@ -150,6 +150,14 @@ async function runGeocode(
 ): Promise<unknown> {
   const provider = createGeocodingProvider()
   const results = await provider.geocode(args.query, ctx.currentLocation)
+  if (results.length === 0) {
+    return {
+      type: 'error',
+      message: `No results found for "${args.query}"`,
+      hint: 'Try a more specific query with city/state, e.g. "Santa Cruz, CA" instead of "Santa Cruz"',
+      retryGuidance: 'different_args',
+    }
+  }
   return { results: results.slice(0, 3) }
 }
 
@@ -175,6 +183,8 @@ async function runPlanRoute(
     return {
       type: 'chat',
       message: `You've reached your monthly limit of ${FREE_TIER_MONTHLY_LIMIT} route plans. Upgrade to Premium for unlimited plans!`,
+      hint: 'Do not attempt another planRoute call — the user is rate-limited.',
+      retryGuidance: 'stop',
     }
   }
 
@@ -241,6 +251,10 @@ async function runPlanRoute(
     return {
       type: 'error',
       message: "I couldn't plan your route right now. Please try again.",
+      hint: error instanceof Error && error.message.includes('timeout')
+        ? 'The route calculation timed out. Try a shorter distance or simpler route.'
+        : 'Suggest an alternate destination or relax preferences (e.g. remove avoid-highways).',
+      retryGuidance: 'ask_rider',
       routePlanId,
     }
   }
@@ -366,6 +380,8 @@ async function executeTool(
       await executeCtx.onToolFinish(call.name, pendingMessageId, {
         type: 'error',
         message: err instanceof Error ? err.message : String(err),
+        hint: "An unexpected error occurred. Ask the rider what they'd like to do.",
+        retryGuidance: 'ask_rider',
       })
     }
     throw err
@@ -537,6 +553,8 @@ export async function executeRidePlanningAgent(
         result = {
           type: 'error',
           message: err instanceof Error ? err.message : String(err),
+          hint: "An unexpected error occurred. Ask the rider what they'd like to do.",
+          retryGuidance: 'ask_rider',
         }
         isError = true
       }
