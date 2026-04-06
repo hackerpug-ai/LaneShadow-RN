@@ -370,6 +370,41 @@ describe('executeRidePlanningAgent', () => {
     ])
   })
 
+  it('passes planningSessionId to createForAgentInternal when planRoute tool runs', async () => {
+    const toolCallMsg = makeAssistantMessage(
+      [
+        {
+          type: 'toolCall',
+          id: 'tc_session',
+          name: 'planRoute',
+          arguments: {
+            start: { lat: 37.77, lng: -122.42, label: null },
+            end: { lat: 36.97, lng: -122.03, label: 'Santa Cruz, CA' },
+            departureTime: Date.now() + 3_600_000,
+            preferences: { scenicBias: 'default', avoidHighways: false, avoidTolls: false },
+          },
+        },
+      ],
+      'toolUse'
+    )
+    const textMsg = makeAssistantMessage([{ type: 'text', text: 'Routes ready.' }], 'stop')
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(toolCallMsg))
+      .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+    planRideOrchestrator.mockResolvedValue([])
+
+    const ctx = makeAgentContext()
+    await executeRidePlanningAgent(ctx, 'plan a ride to Santa Cruz')
+
+    // The first runMutation call must be createForAgentInternal.
+    // Verify it received planningSessionId from ctx.planningSessionId.
+    const { internal: internalApi } = await import('../../../_generated/api') as any
+    const firstCall = ctx.runMutation.mock.calls[0]
+    expect(firstCall[0]).toBe(internalApi.db.routePlans.createForAgentInternal)
+    expect(firstCall[1]).toMatchObject({ planningSessionId: 'session_test' })
+  })
+
   it('does not call orchestrator and returns upsell message when usage limit is reached', async () => {
     // First stream call: agent tries to plan a route.
     const toolCallMsg = makeAssistantMessage(
