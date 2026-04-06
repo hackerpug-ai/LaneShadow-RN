@@ -324,6 +324,20 @@ const handleRouteResultsState = (
   action: RideFlowAction
 ): RideFlowState => {
   switch (action.type) {
+    case 'SEND_MESSAGE':
+      // Refinement: transition to PLANNING but KEEP the existing sessionId
+      if (!guards.canSendMessage(action.content)) {
+        return state
+      }
+      return {
+        phase: 'PLANNING',
+        sessionId: state.sessionId,
+        planId: null,
+        currentPhase: 'analyzing',
+        routeOptions: state.routeOptions,
+        selectedRouteId: state.selectedRouteId,
+      }
+
     case 'SELECT_ROUTE':
       return {
         phase: 'ROUTE_DETAILS',
@@ -372,6 +386,20 @@ const handleRouteDetailsState = (
   action: RideFlowAction
 ): RideFlowState => {
   switch (action.type) {
+    case 'SEND_MESSAGE':
+      // Refinement: transition to PLANNING but KEEP the existing sessionId
+      if (!guards.canSendMessage(action.content)) {
+        return state
+      }
+      return {
+        phase: 'PLANNING',
+        sessionId: state.sessionId,
+        planId: null,
+        currentPhase: 'analyzing',
+        routeOptions: state.routeOptions,
+        selectedRouteId: state.selectedRouteId,
+      }
+
     case 'SELECT_ROUTE':
       // Allow changing selected route
       return {
