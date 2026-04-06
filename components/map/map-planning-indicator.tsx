@@ -17,11 +17,14 @@ import { TypingIndicator } from '../chat/typing-indicator'
 
 type MapPlanningIndicatorProps = {
   visible: boolean
+  /** Distance from the screen bottom to clear the ChatInput. */
+  bottomOffset?: number
   testID?: string
 }
 
 export const MapPlanningIndicator = ({
   visible,
+  bottomOffset,
   testID = 'map-planning-indicator',
 }: MapPlanningIndicatorProps) => {
   const { semantic } = useSemanticTheme()
@@ -33,7 +36,7 @@ export const MapPlanningIndicator = ({
       entering={FadeIn.duration(200)}
       exiting={FadeOut.duration(200)}
       testID={testID}
-      style={styles.wrapper}
+      style={[styles.wrapper, bottomOffset !== undefined && { bottom: bottomOffset }]}
     >
       <View
         style={[

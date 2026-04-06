@@ -184,6 +184,7 @@ const HomeMapScreen = () => {
     transcriptMessages,
     chatMode,
     sessionId: activeChatSessionId,
+    isLoading: rawTranscriptMessages === undefined,
   })
 
   // Hide planning indicator when first toast appears
@@ -743,7 +744,10 @@ const HomeMapScreen = () => {
           )}
 
         {/* Planning indicator - shown in map mode while agent is working */}
-        <MapPlanningIndicator visible={mapPlanningVisible && !chatMode} />
+        <MapPlanningIndicator
+          visible={mapPlanningVisible && !chatMode}
+          bottomOffset={insets.bottom + 96}
+        />
 
         {/* Toast-style message notifications — map mode only */}
         {!chatMode && toasts.length > 0 && (

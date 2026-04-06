@@ -18,6 +18,10 @@ interface UseToastMessagesOptions {
   sessionId?: string
   /** Max toasts visible at once (default 3). */
   maxVisible?: number
+  /** Whether the upstream data source is still loading (undefined = loading).
+   *  Baseline is deferred until the first real payload arrives so we don't
+   *  flash existing history on app open. */
+  isLoading?: boolean
 }
 
 interface UseToastMessagesReturn {
@@ -44,6 +48,7 @@ export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessage
     chatMode,
     sessionId,
     maxVisible = 3,
+    isLoading = false,
   } = opts
 
   const [toasts, setToasts] = useState<ToastMessage[]>([])
@@ -67,6 +72,8 @@ export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessage
 
   // Detect new messages and create toasts
   useEffect(() => {
+    // Defer baseline until the upstream data source has loaded at least once
+    if (isLoading) return
     if (!baselineSetRef.current) {
       prevCountRef.current = transcriptMessages.length
       baselineSetRef.current = true
@@ -101,7 +108,7 @@ export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessage
       setToasts((prev) => [...prev, ...qualifying].slice(-maxVisible))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transcriptMessages.length, chatMode, maxVisible])
+  }, [transcriptMessages.length, chatMode, maxVisible, isLoading])
 
   // Update content & status of existing toasts when messages stream in
   useEffect(() => {
