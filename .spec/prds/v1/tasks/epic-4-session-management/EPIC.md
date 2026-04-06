@@ -1,48 +1,20 @@
-# Epic 4: Session Management
+# Epic 4: Session Management — SUPERSEDED
 
-> Epic Sequence: 4
+> Epic Sequence: 4 (old PRD v1)
 > PRD: .spec/prds/v1/
-> Tasks: 3
+> Tasks: 3 (all resolved)
+> Status: SUPERSEDED (2026-04-06)
 
-## Overview
+## Why Superseded
 
-Enable persistent planning sessions: start new sessions, browse history in sidebar, resume previous sessions. Sessions work like ChatGPT threads — each session is an independent conversation about a ride plan.
+The session management functionality described in this epic was implemented organically during Epic 2 through different code paths than originally specified. All critical functionality works:
 
-## Human Test Steps
+| Original Task | Status | How It's Done |
+|---|---|---|
+| **US-019**: useChatSession hook with CRUD | **DONE differently** | Session lifecycle managed directly in `index.tsx`: `useQuery(api.db.planningSessions.listSessions)`, `activeChatSessionId` memo, conditional `sessionMessages.list` with skip pattern. Auto-loads most recent session on app open. |
+| **US-020**: Session history sidebar | **DEFERRED** | No sidebar exists. The standalone chat tab provides session context. A ChatGPT-style sidebar may be overengineering for a motorcycle ride planner. Revisit in a future UX polish epic if user testing reveals need. |
+| **US-021**: New Session button | **DONE** | `handleNewSession()` at `index.tsx:177`, wired to header button at line 674, dispatches `NEW_SESSION` to flow state machine, creates new Convex session. |
 
-When this epic is complete, users should be able to:
+## Dead Code Note
 
-1. Plan a ride ("coastal 2-hour loop") — verify session created
-2. Tap "New Session" — verify map clears and chat resets
-3. Plan different ride in new session
-4. Open sidebar — verify both sessions listed
-5. Verify titles auto-generated from first messages
-6. Tap first session — verify routes restore on map
-7. Close and reopen app — verify most recent session loads
-
-## Acceptance Criteria (from PRD)
-
-- Rider can tap "New Session" button to start a fresh planning conversation (UC-AG-09)
-- Starting a new session clears map polylines and resets chat input
-- Rider can access session history via slide-out sidebar (left swipe or hamburger)
-- Session sidebar shows auto-generated title, date, and route count per session
-- Rider can tap a session to resume it, restoring routes and chat history
-- Sessions persist across app launches
-- Most recent active session loads automatically on app open
-
-## PRD Sections Covered
-
-- UC-AG-09: Manage chat sessions
-
-## Dependencies
-
-- **Depends on**: Epic 1 (Phase 0 Remediation), Epic 2 (Chat Infrastructure)
-- **Blocks**: Epic 7
-
-## Task List
-
-| Task ID | Title | Type | Priority | Blocked By |
-|---------|-------|------|----------|------------|
-| US-019 | Implement useChatSession hook with session CRUD | FEATURE | P0 | Epic 2 |
-| US-020 | Implement useSessionHistory and integrate SessionSidebar | FEATURE | P0 | Epic 2 |
-| US-021 | Wire NewSessionButton and session clearing logic | FEATURE | P0 | Epic 2 |
+`hooks/use-chat-session.ts` is a hollow stub — its return value is discarded at `index.tsx:107`. Should be removed as part of Epic 3 US-019 (orphaned component cleanup).

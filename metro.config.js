@@ -4,6 +4,17 @@ const { withStorybook } = require('@storybook/react-native/metro/withStorybook')
 const path = __dirname
 const config = getDefaultConfig(path)
 
+// Exclude directories that Watchman/Metro should never scan
+config.watchFolders = config.watchFolders || []
+config.resolver = {
+  ...config.resolver,
+  blockList: [
+    /\.claude\/worktrees\/.*/,
+    /\.spec\/.*/,
+    /\.git\/worktrees\/.*/,
+  ],
+}
+
 // Exclude test files from Metro bundler
 const originalResolveRequest = config.resolver?.resolveRequest
 config.resolver = {

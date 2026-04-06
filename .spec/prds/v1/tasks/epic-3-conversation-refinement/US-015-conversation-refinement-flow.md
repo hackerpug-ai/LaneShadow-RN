@@ -1,104 +1,94 @@
-# Implement conversation refinement flow in useChatPlanning
+# Enable conversation refinement via state machine handlers
 
 > Task ID: US-015
 > Type: FEATURE
 > Priority: P0
-> Estimate: 120 minutes
+> Estimate: 45 minutes
 > Assignee: ui-developer
+> Refined: 2026-04-06 — rewritten to match actual agent architecture; session reuse already works at app level
 
 ## CRITICAL CONSTRAINTS
 
 ### MUST
 
-- Pass `previousMessages` to `parseNaturalLanguageInput` for conversation context
-- When `isRefinement=true`, new routes replace active routes on map while previous routes remain in chat history
-- Support preference changes ("avoid highways"), stop additions ("add Big Sur"), and constraint modifications ("make it shorter", "under 1 hour")
+- Add `SEND_MESSAGE` handler to `ROUTE_RESULTS` and `ROUTE_DETAILS` phases in `useRideFlow` state machine
+- When new route attachments arrive in an existing session, replace active map polylines while preserving chat history
 - Complete refinement flow within 12 seconds end-to-end
 
 ### NEVER
 
-- Start a new session for refinements — stay in current session context
 - Drop previous route attachments from chat history when new routes arrive
 - Break the existing initial planning flow while adding refinement support
+- Modify any Convex backend code — the backend already supports multi-turn refinement
 
 ### STRICTLY
 
-- Follow the Convex conditional query pattern: `useQuery(api, sessionId ? { sessionId } : 'skip')`
-- Use the existing `parseNaturalLanguageInput` action interface — do not create a separate refinement endpoint
+- The agent handles refinement detection natively through conversation context — do NOT add client-side refinement detection logic
 
 ## SPECIFICATION
 
-**Objective:** Enable riders to refine existing route results through follow-up messages in the same chat session. The agent interprets follow-up messages in context of the active session and routes, then generates updated alternatives that replace active map routes while preserving history.
+**Objective:** Enable riders to send follow-up messages while viewing route results. Currently, `SEND_MESSAGE` is silently dropped in `ROUTE_RESULTS` and `ROUTE_DETAILS` phases (falls through default case). The backend already handles multi-turn refinement — the only gap is the state machine not accepting user input in these phases.
 
-**Success looks like:** A rider can say "scenic 2-hour ride to Santa Cruz, avoid highways", see routes, then say "actually avoid Highway 1" and get updated routes within 12 seconds — all without leaving the map view.
+**What already works:**
+- Session reuse at the app level (`activeChatSessionId` memo persists across messages)
+- Backend receives full message history + route context via `buildInSessionRouteBlock()`
+- Agent is instructed to handle refinements ("call planRoute again with updated preferences")
+
+**What's broken:** The `useRideFlow` state machine has no `SEND_MESSAGE` handler in `ROUTE_RESULTS` (line ~322) or `ROUTE_DETAILS` (line ~370) phases. Follow-up messages are silently dropped.
+
+**Success looks like:** A rider sees routes, types "actually avoid Highway 1", the state machine transitions to PLANNING, and updated routes appear within 12 seconds.
 
 ## ACCEPTANCE CRITERIA
 
 | # | Given | When | Then | Verify |
 |---|-------|------|------|--------|
-| 1 | Routes are displayed on map from initial planning | Rider sends a follow-up message | New routes replace active polylines on map | New routes replace active polylines when `isRefinement=true` |
-| 2 | Rider has sent refinement and received updated routes | Rider expands chat history | Previous route attachment cards are visible when scrolled up | Previous route cards remain visible in chat history |
-| 3 | Rider sends a refinement message | System processes the refinement | Updated routes are generated and displayed | System responds to refinement within 12 seconds |
-| 4 | Active session has multiple messages | Refinement is sent | `previousMessages` array is passed to `parseNaturalLanguageInput` | Verify `previousMessages` includes session context |
-| 5 | Rider sends preference change ("avoid highways") | Agent processes refinement | Routes reflect the preference change | Routes exclude highway segments |
+| 1 | Ride flow is in ROUTE_RESULTS phase | Rider sends a follow-up message | State machine transitions to PLANNING with existing sessionId | Code review: SEND_MESSAGE handler in ROUTE_RESULTS |
+| 2 | Ride flow is in ROUTE_DETAILS phase | Rider sends a follow-up message | State machine transitions to PLANNING with existing sessionId | Code review: SEND_MESSAGE handler in ROUTE_DETAILS |
+| 3 | Routes displayed, rider sends refinement | System processes the refinement | New routes replace active polylines, prior route cards preserved in history | Manual: send follow-up, observe map + history |
+| 4 | Rider sends a refinement message | System processes | Updated routes generated within 12s | Manual: time from send to route display |
 
 ## TEST CRITERIA
 
 | # | Boolean Statement | Maps To AC | Verify | Status |
 |---|-------------------|------------|--------|--------|
-| 1 | New routes replace active polylines when `isRefinement=true` | AC-1 | Manual: send follow-up, observe map update | TODO |
-| 2 | Previous route cards remain visible in chat history when scrolled up | AC-2 | Manual: expand chat, scroll up after refinement | TODO |
-| 3 | System responds to refinement within 12 seconds | AC-3 | Manual: time from send to route display | TODO |
-| 4 | `previousMessages` is passed to `parseNaturalLanguageInput` on refinement | AC-4 | Code review: inspect hook implementation | TODO |
-| 5 | Preference changes are reflected in updated routes | AC-5 | Manual: say "avoid highways", verify no highway segments | TODO |
+| 1 | ROUTE_RESULTS handles SEND_MESSAGE → PLANNING transition | AC-1 | Code review: state machine | TODO |
+| 2 | ROUTE_DETAILS handles SEND_MESSAGE → PLANNING transition | AC-2 | Code review: state machine | TODO |
+| 3 | New routes replace active polylines, history preserved | AC-3 | Manual: refinement flow | TODO |
+| 4 | System responds to refinement within 12 seconds | AC-4 | Manual: timing | TODO |
 
 ## GUARDRAILS
 
 ### WRITE-ALLOWED
 
-- `hooks/use-chat-planning.ts` (MODIFY)
+- `hooks/use-ride-flow.ts` (MODIFY — add SEND_MESSAGE to ROUTE_RESULTS/ROUTE_DETAILS)
 
 ### WRITE-PROHIBITED
 
-- `convex/actions/agent/tools/parseNaturalLanguageInput.ts` (backend — do not modify)
-- `convex/actions/agent/lib/planRideOrchestrator.ts` (backend — do not modify)
+- `hooks/use-chat-planning.ts` (session reuse already works at app level)
+- `convex/` (backend is complete)
+- `components/ui/chat-transcript.tsx` (rendering is fine)
 
 ## DESIGN
-
-### References
-
-- 09-technical-client.md §4.2 — Chat planning hook architecture
-- 04-uc-agentic.md UC-AG-07 — Refine routes through follow-up messages
-- 08-technical-ui.md §State Machine — ROUTE_RESULTS → PLANNING transition on refinement
 
 ### Code Pattern
 
 ```typescript
-// In useChatPlanning hook — refinement detection
-const sendMessage = async (text: string) => {
-  const hasActiveRoutes = state.routeOptions !== null
-  const previousMessages = messages.map(m => ({ role: m.role, content: m.text }))
-
-  const result = await parseNaturalLanguageInput({
-    text,
-    sessionId: activeSessionId,
-    previousMessages: hasActiveRoutes ? previousMessages : undefined,
-    currentLocation,
-    departureTime,
-  })
-
-  if (result.isRefinement) {
-    // Replace active routes on map, preserve history
-    dispatch({ type: 'SET_ROUTE_OPTIONS', payload: newRouteOptions })
+// In useRideFlow — add SEND_MESSAGE to route phases
+case 'ROUTE_RESULTS':
+case 'ROUTE_DETAILS':
+  switch (action.type) {
+    case 'SEND_MESSAGE':
+      // Transition to PLANNING but KEEP the existing sessionId
+      return { ...state, phase: 'PLANNING' }
+    // ... existing handlers
   }
-}
 ```
 
 ### Anti-pattern (DO NOT)
 
-- Do not create separate "refine" and "plan" code paths — use the single `parseNaturalLanguageInput` call with `isRefinement` response to branch behavior
-- Do not clear chat history when replacing map routes
-- Do not use `useEffect` for state syncing — read from Convex queries directly
+- Do not add `isRefinement` detection logic — the agent handles this natively
+- Do not create separate "refine" and "plan" code paths
+- Do not modify `useChatPlanning` — session reuse already works at app level
 
 ## CODING STANDARDS
 
@@ -106,11 +96,10 @@ const sendMessage = async (text: string) => {
 
 ## DEPENDENCIES
 
-- Epic 2: Chat Infrastructure (ChatInput, useChatPlanning hook must exist)
-- `parseNaturalLanguageInput` action must accept `previousMessages` parameter
+- Epic 2: Chat Infrastructure
 
 ## NOTES
 
-- The `isRefinement` flag comes from the backend response, not from client-side detection
-- Planning phase indicators should show during refinement just like initial planning
-- The 12-second SLA applies to refinements, same as initial planning
+- Session reuse was originally identified as a bug but is actually working correctly at the app level via `activeChatSessionId` memo in HomeMapScreen
+- The backend agent receives full message history and route context — refinement is architecturally supported
+- This is a small but critical fix — without it, follow-up messages during route viewing are silently dropped

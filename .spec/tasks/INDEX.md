@@ -2,8 +2,8 @@
 
 > Generated: 2026-04-02
 > PRD: .spec/prd/ROADMAP.md
-> Total Epics: 2 active (Epic 4 complete, Epic 5 ready)
-> Total Tasks: 15
+> Total Epics: 3 active (Epic 4 complete, Epics 5-6 ready)
+> Total Tasks: 22
 
 ## Epic Status
 
@@ -14,10 +14,11 @@
 | Epic 3 | Search, Filter & Organize Routes | ✅ Complete | 22 |
 | Epic 4 | Save & Reuse Favorite Roads | ✅ Complete | 10 |
 | **Epic 5** | **Scenic Routing Rearchitecture** | **🚀 Ready** | **5** |
-| Epic 6 | Mark Areas to Avoid | 📋 Planned | 9 |
-| Epic 7 | Elevation Profile Visualization | 📋 Planned | 8 |
-| Epic 8 | Rate Routes & Add Notes | 📋 Planned | 10 |
-| Epic 9 | Track Ride History | 📋 Planned | 8 |
+| **Epic 6** | **Agent Thinking Transparency** | **🚀 Ready** | **7** |
+| Epic 7 | Mark Areas to Avoid | 📋 Planned | 9 |
+| Epic 8 | Elevation Profile Visualization | 📋 Planned | 8 |
+| Epic 9 | Rate Routes & Add Notes | 📋 Planned | 10 |
+| Epic 10 | Track Ride History | 📋 Planned | 8 |
 
 ---
 
@@ -64,6 +65,31 @@ US-050, US-053 (parallel, no deps)
         └── US-052
         └── US-054
 ```
+
+---
+
+## Epic 6: Agent Thinking Transparency
+
+**Status**: 🚀 Ready to Execute
+**Folder:** `epic-6-thinking-transparency/`
+
+- [US-055](epic-6-thinking-transparency/US-055.md): Add thinking_card kind + thinkingSteps validators — `convex-implementer`
+- [US-056](epic-6-thinking-transparency/US-056.md): Add thinking card lifecycle mutations — `convex-implementer`
+- [US-057](epic-6-thinking-transparency/US-057.md): Wire tool transparency into agent callbacks — `pi-implementer`
+- [US-058](epic-6-thinking-transparency/US-058.md): Build ThinkingCard component (chip + bottom sheet) — `frontend-designer`
+- [US-059](epic-6-thinking-transparency/US-059.md): Register thinking_card + chat screen passthrough — `frontend-designer`
+- [US-060](epic-6-thinking-transparency/US-060.md): Build RouteMiniMap component — `frontend-designer`
+- [US-061](epic-6-thinking-transparency/US-061.md): Integrate mini-map into route attachment cards — `frontend-designer`
+
+**Dependency order:**
+```
+US-055 (data model) ──┬── US-056 ── US-057
+                      └── US-058 ── US-059
+
+US-060 (independent) ── US-061
+```
+
+---
 
 ## Usage
 

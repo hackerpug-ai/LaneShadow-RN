@@ -1,70 +1,80 @@
-# Integrate AgentMessageOverlay with auto-dismiss and pin
+# Add pin/dismiss gestures to transient message overlay
 
 > Task ID: US-016
 > Type: FEATURE
 > Priority: P0
-> Estimate: 90 minutes
+> Estimate: 60 minutes
 > Assignee: ui-developer
+> Refined: 2026-04-06 — scoped down; transient overlay partially exists
 
 ## CRITICAL CONSTRAINTS
 
 ### MUST
 
-- Integrate AgentMessageOverlay into HomeMapScreen
-- Implement `useMessageOverlay` hook: show on new system message, auto-dismiss after 5s or map tap, pin on overlay tap, swipe-up dismiss (PanResponder `dy < -30`)
-- Position overlay at top-left of map area
-- Entry animation: translateY -20 to 0, opacity 0 to 1, 300ms
-- Exit animation: 200ms fade
-- Use 92% opacity surface background
+- Add pin-on-tap behavior to the existing transient transcript overlay (tap transcript → cancel auto-dismiss timer)
+- Add swipe-up dismiss (PanResponder `dy < -30`) to dismiss transcript overlay
+- Add map-tap dismiss (tapping map area outside transcript dismisses it)
+- Maintain existing auto-dismiss timer (transient mode already auto-hides)
 
 ### NEVER
 
 - Block route polylines with overlay position
 - Dismiss overlay when user is interacting with route cards
-- Show overlay for rider messages — only system/agent messages
+- Show overlay for rider messages — only system/agent messages trigger transient display
+- Import or wire the orphaned `components/ui/agent-message-overlay.tsx` — use the active `ChatTranscript` + transient visibility system
 
 ### STRICTLY
 
 - Use `useSemanticTheme()` for all color tokens — no hardcoded colors
 - Use React Native's `PanResponder` for swipe detection, not third-party gesture libraries
+- Build on the EXISTING transient visibility pattern (`transientVisible`, `armTransientTimer`, `chatOpacity`/`scrimOpacity`)
 
 ## SPECIFICATION
 
-**Objective:** When the agent responds with route results or conversational messages, display a temporary overlay card on the map. The overlay auto-dismisses after 5 seconds, can be pinned by tapping, and can be swiped away. Route attachment cards are visible within the overlay in compact format.
+**Objective:** HomeMapScreen already has a transient overlay pattern: when an agent message arrives, `ChatTranscript` shows transiently over the map and auto-dismisses via `armTransientTimer`. This task adds three missing gestures: pin (tap to keep visible), swipe-up dismiss, and map-tap dismiss.
 
-**Success looks like:** After planning completes, an overlay smoothly animates in at top-left showing the agent's response with route cards. After 5 seconds it fades out. If the rider taps it, it stays. If they swipe up, it dismisses immediately.
+**What already exists:**
+- `transientVisible` state + `armTransientTimer` in HomeMapScreen — shows transcript on new message, auto-hides
+- `chatOpacity`/`scrimOpacity` animated values for cross-fade over map
+- `cycleTranscript` function for toggling visibility modes
+
+**What's missing:**
+- Pin gesture: tapping the transcript should cancel the auto-dismiss timer and keep it visible
+- Swipe-up dismiss: swiping up on the transcript should dismiss it immediately
+- Map-tap dismiss: tapping the map (not the transcript) should dismiss a visible overlay
+
+**Success looks like:** After planning completes, the transcript shows transiently over the map. After 5s it fades. If the rider taps it, it pins (stays visible). If they swipe up, it dismisses immediately. Tapping the map also dismisses it.
 
 ## ACCEPTANCE CRITERIA
 
 | # | Given | When | Then | Verify |
 |---|-------|------|------|--------|
-| 1 | Planning completes with route results | Agent response is received | Overlay appears with entry animation (translateY -20→0, opacity 0→1, 300ms) | Visual: overlay animates in smoothly |
-| 2 | Overlay is visible and not pinned | 5 seconds elapse | Overlay auto-dismisses with 200ms fade | Visual: overlay fades after 5s |
-| 3 | Overlay is visible | Rider taps the overlay | Overlay becomes pinned (does not auto-dismiss) | Visual: overlay persists past 5s after tap |
-| 4 | Overlay is visible | Rider swipes up (dy < -30) | Overlay dismisses immediately | Visual: overlay disappears on swipe |
-| 5 | Agent response includes route attachments | Overlay is shown | Route attachment cards visible inline in compact format | Visual: route cards appear within overlay |
-| 6 | Overlay is visible | Rider taps the map (not the overlay) | Overlay dismisses | Visual: map tap dismisses overlay |
+| 1 | Transcript is showing transiently (auto-dismiss armed) | Rider taps the transcript | Auto-dismiss timer is cancelled, transcript stays visible | Manual: tap transcript, wait >5s, still visible |
+| 2 | Transcript is visible (pinned or transient) | Rider swipes up (dy < -30) | Transcript dismisses immediately | Manual: swipe up, transcript gone |
+| 3 | Transcript is visible (pinned or transient) | Rider taps the map (not the transcript) | Transcript dismisses | Manual: tap map area, transcript dismissed |
+| 4 | Agent sends a response | New system message arrives | Transcript appears transiently (existing behavior preserved) | Manual: send message, see overlay appear |
+| 5 | Transcript is visible with route cards | Rider interacts with a route card | Transcript does NOT dismiss during interaction | Manual: tap route card, verify no dismiss |
 
 ## TEST CRITERIA
 
 | # | Boolean Statement | Maps To AC | Verify | Status |
 |---|-------------------|------------|--------|--------|
-| 1 | Overlay appears with animation after planning completes | AC-1 | Manual: complete planning, observe animation | TODO |
-| 2 | Overlay auto-dismisses after 5 seconds when not pinned | AC-2 | Manual: wait 5s, verify fade | TODO |
-| 3 | Tapping overlay pins it (prevents auto-dismiss) | AC-3 | Manual: tap overlay, wait >5s | TODO |
-| 4 | Swiping up dismisses overlay immediately | AC-4 | Manual: swipe up on overlay | TODO |
-| 5 | Route attachment cards visible within overlay | AC-5 | Manual: verify cards in overlay | TODO |
-| 6 | Map tap dismisses overlay | AC-6 | Manual: tap map area outside overlay | TODO |
+| 1 | Tapping transcript cancels auto-dismiss timer | AC-1 | Manual: tap, wait >5s | TODO |
+| 2 | Swipe up (dy < -30) dismisses transcript immediately | AC-2 | Manual: swipe up | TODO |
+| 3 | Map tap dismisses transcript | AC-3 | Manual: tap map | TODO |
+| 4 | Existing transient display still works | AC-4 | Manual: send message, see overlay | TODO |
+| 5 | Route card interaction doesn't trigger dismiss | AC-5 | Manual: interact with card | TODO |
 
 ## GUARDRAILS
 
 ### WRITE-ALLOWED
 
-- `hooks/use-message-overlay.ts` (NEW)
-- `app/(app)/(tabs)/index.tsx` (MODIFY)
+- `app/(app)/(tabs)/index.tsx` (MODIFY — add gesture handlers to existing transient system)
+- `hooks/use-message-overlay.ts` (NEW — optional extraction of gesture logic into hook)
 
 ### WRITE-PROHIBITED
 
+- `components/ui/agent-message-overlay.tsx` (orphaned — do not use or modify)
 - `components/sheets/plan-ride-sheet.tsx` (preserve existing)
 - `convex/` (no backend changes)
 
@@ -72,26 +82,16 @@
 
 ### References
 
-- 08-technical-ui.md §2 — AgentMessageOverlay component spec
-- 04-uc-agentic.md UC-AG-08 — Wireframe and acceptance criteria
-- 04-uc-agentic.md UC-AG-08 wireframe — Top-left positioning, compact route cards
+- 04-uc-agentic.md UC-AG-08 — View temporary AI message overlay on map
+- Existing: `armTransientTimer` and `transientVisible` in `app/(app)/(tabs)/index.tsx`
 
 ### Code Pattern
 
 ```typescript
-// hooks/use-message-overlay.ts
-export function useMessageOverlay() {
-  const [visible, setVisible] = useState(false)
+// Optional: extract into hooks/use-message-overlay.ts
+export function useMessageOverlay(transientVisible: boolean) {
   const [pinned, setPinned] = useState(false)
   const timerRef = useRef<NodeJS.Timeout>()
-
-  const show = useCallback(() => {
-    setVisible(true)
-    setPinned(false)
-    timerRef.current = setTimeout(() => {
-      if (!pinned) setVisible(false)
-    }, 5000)
-  }, [])
 
   const pin = useCallback(() => {
     setPinned(true)
@@ -99,20 +99,29 @@ export function useMessageOverlay() {
   }, [])
 
   const dismiss = useCallback(() => {
-    setVisible(false)
     setPinned(false)
-    clearTimeout(timerRef.current)
+    // Trigger existing hide animation
   }, [])
 
-  return { visible, pinned, show, pin, dismiss }
+  // PanResponder for swipe detection
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, { dy }) => dy < -10,
+      onPanResponderRelease: (_, { dy }) => {
+        if (dy < -30) dismiss()
+      },
+    })
+  ).current
+
+  return { pinned, pin, dismiss, panResponder }
 }
 ```
 
 ### Anti-pattern (DO NOT)
 
-- Do not use `Animated.timing` with `useNativeDriver: false` for translateY — use native driver
-- Do not position overlay at center or bottom — must be top-left to avoid blocking polylines
-- Do not use `setTimeout` chains for animation sequencing — use `Animated.sequence` or `Animated.parallel`
+- Do not import `components/ui/agent-message-overlay.tsx` — it's orphaned with stale prop contracts
+- Do not replace the existing transient visibility system — extend it with gestures
+- Do not use `Animated.timing` with `useNativeDriver: false` for gestures
 
 ## CODING STANDARDS
 
@@ -120,11 +129,11 @@ export function useMessageOverlay() {
 
 ## DEPENDENCIES
 
-- Epic 2: Chat Infrastructure (system messages must be flowing)
-- AgentMessageOverlay component should be created as part of this task or exist from Epic 2
+- US-015: Session reuse must work so follow-up messages trigger transient overlay correctly
+- Existing: `transientVisible` + `armTransientTimer` pattern in HomeMapScreen
 
 ## NOTES
 
-- The overlay is a presentation layer over the map — it does not affect routing state
-- All messages are always accessible in expanded chat view regardless of overlay state
-- The 92% opacity ensures readability while keeping the map contextually visible
+- This task is scoped down from the original 90min to 60min because the transient overlay already exists
+- The orphaned `AgentMessageOverlay` component will be cleaned up in US-019
+- Pin state should reset when a new transient display is triggered

@@ -1,60 +1,51 @@
-# Epic 3: Conversation Refinement & Message Overlay
+# Epic 3: Conversation Refinement & Chat UX Polish
 
 > Epic Sequence: 3
 > PRD: .spec/prds/v1/
 > Tasks: 4
+> Status: REFINED (2026-04-06) — trimmed to verified gaps only
 
 ## Overview
 
-Complete the conversational loop: follow-up messages refine existing routes in context, temporary AI message overlays appear on the map and auto-dismiss, manual planning mode fallback, and expanded chat history view.
+Polish the conversational UX: enable follow-up messages during route viewing, add gesture-based transcript controls, wire route card taps to map polylines, and clean up orphaned design-era components.
+
+## Architecture Context (Post-Epic 2)
+
+The backend is **complete** for this epic. The ReAct agent loop handles multi-turn refinement natively. Session reuse works at the app level via `activeChatSessionId`. The standalone chat tab provides full chat history. The remaining work is small frontend wiring tasks.
 
 ## Human Test Steps
-
-When this epic is complete, users should be able to:
 
 1. Generate routes with "scenic 2-hour ride to Santa Cruz, avoid highways"
 2. Type "actually avoid Highway 1" — verify updated routes replace previous on map within 12s
 3. Type "make it shorter" — verify routes update reflecting constraint
-4. Observe agent response overlay (top-left) — wait 5s, verify auto-dismiss
-5. Send message — tap overlay to pin, verify stays
-6. Swipe overlay to dismiss manually
-7. Tap expand chevron — verify full chat history with all route cards
-8. Scroll up — verify previous route cards visible and tappable
-9. Collapse — verify map is primary again
-10. Tap manual mode icon — verify planning sheet opens
+4. Observe transient transcript overlay — wait 5s, verify auto-dismiss
+5. Tap transcript to pin, verify stays past 5s
+6. Swipe transcript up to dismiss manually
+7. Tap map area — verify transcript dismisses
 
-## Acceptance Criteria (from PRD)
+## Acceptance Criteria
 
-- Follow-up messages refine routes in context of current session (UC-AG-07)
-- Updated routes generated within 12 seconds for refinement requests
-- Agent handles preference changes, stop additions, and constraint modifications
-- Previous route attachments remain visible in chat history
-- New route attachments replace active routes on map
-- Agent response overlay appears at top-left, auto-dismisses after 5s (UC-AG-08)
-- Overlay can be pinned (tap) or dismissed (swipe)
-- Route attachment cards visible within overlay
-- Full chat history view shows all messages chronologically (UC-AG-10)
-- Route cards in history are tappable to highlight polyline on map
-- Expand/collapse chat without losing map visibility
-- Manual mode icon opens existing PlanRideSheet with preferences carried over (UC-AG-05)
-
-## PRD Sections Covered
-
-- UC-AG-07: Refine routes through follow-up messages
-- UC-AG-08: View temporary AI message overlay on map
-- UC-AG-10: Expand chat to full message history
-- UC-AG-05: Switch to manual planning mode
-
-## Dependencies
-
-- **Depends on**: Epic 1 (Phase 0 Remediation), Epic 2 (Chat Infrastructure)
-- **Blocks**: Epics 5, 6, 7
+- Follow-up messages work during route viewing (SEND_MESSAGE handled in ROUTE_RESULTS/ROUTE_DETAILS)
+- Transient transcript can be pinned (tap), swiped away (up), or map-tap dismissed
+- Previous route attachments remain in chat history after refinement
+- Orphaned design-era components removed
 
 ## Task List
 
-| Task ID | Title | Type | Priority | Blocked By |
-|---------|-------|------|----------|------------|
-| US-015 | Implement conversation refinement flow in useChatPlanning | FEATURE | P0 | Epic 2 |
-| US-016 | Integrate AgentMessageOverlay with auto-dismiss and pin | FEATURE | P0 | Epic 2 |
-| US-017 | Integrate FullChatHistoryView with route attachment interaction | FEATURE | P0 | Epic 2 |
-| US-018 | Wire manual planning mode fallback from chat input | FEATURE | P1 | Epic 2 |
+| Task ID | Title | Type | Priority | Estimate | Blocked By |
+|---------|-------|------|----------|----------|------------|
+| US-015 | Enable conversation refinement via state machine handlers | FEATURE | P0 | 45 min | Epic 2 |
+| US-016 | Add pin/dismiss gestures to transient message overlay | FEATURE | P0 | 60 min | US-015 |
+| US-018 | Wire manual planning mode fallback from chat input | FEATURE | P1 | 60 min | Epic 2 |
+| US-019 | Remove orphaned design-era components | CHORE | P2 | 30 min | US-016 |
+
+## Removed Tasks
+
+| Task ID | Title | Reason |
+|---------|-------|--------|
+| US-017 | Build expandable chat history sheet | **Redundant** — standalone chat tab (`app/(app)/(tabs)/chat.tsx`) already provides full expanded chat experience. Three-quarter sheet adds complexity without clear UX gain. |
+
+## Dependencies
+
+- **Depends on**: Epic 1, Epic 2
+- **Blocks**: Epics 5, 6, 7
