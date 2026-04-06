@@ -286,6 +286,29 @@ const HomeMapScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatMode])
 
+  // Reactive bridge: transition out of PLANNING when agent route plan completes.
+  useEffect(() => {
+    if (
+      flowState.phase === 'PLANNING' &&
+      agentRoutePlan?.status === 'completed' &&
+      agentRoutePlan?.result
+    ) {
+      flowDispatch({
+        type: 'PLANNING_SUCCESS',
+        routeOptions: agentRoutePlan.result,
+      })
+    }
+  }, [flowState.phase, agentRoutePlan?.status, agentRoutePlan?.result, flowDispatch])
+
+  useEffect(() => {
+    if (flowState.phase === 'PLANNING' && agentRoutePlan?.status === 'failed') {
+      flowDispatch({
+        type: 'PLANNING_ERROR',
+        error: "I couldn't plan that route. Could you try again?",
+      })
+    }
+  }, [flowState.phase, agentRoutePlan?.status, flowDispatch])
+
   // Fit camera to agent-produced route.
   const { setSelectedRouteId, registerFitHandler } = useSelectedRoute()
   const pendingFitRef = useRef(false)
