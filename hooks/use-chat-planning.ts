@@ -27,24 +27,12 @@ type SendMessageResult = {
 }
 
 /**
- * Hook return value
- */
-type UseChatPlanningReturn = {
-  sessionId: string | null
-  sendPlanningMessage: (
-    message: string,
-    currentLocation?: { lat: number; lng: number }
-  ) => Promise<void>
-  cancel: () => void
-}
-
-/**
  * Main hook - orchestrates chat planning flow
  *
  * Usage:
  * ```tsx
  * const { state, dispatch } = useRideFlow()
- * const { sendPlanningMessage, cancel } = useChatPlanning(dispatch)
+ * const { sendPlanningMessage, cancel, sessionId } = useChatPlanning(dispatch)
  * const isPlanning = messages?.some(m => m.status === 'running' || m.status === 'streaming') ?? false
  *
  * await sendPlanningMessage('Plan a ride from SF to LA')
@@ -53,11 +41,18 @@ type UseChatPlanningReturn = {
  */
 export const useChatPlanning = (
   dispatch: (action: RideFlowAction) => void
-): UseChatPlanningReturn => {
+): {
+  sessionId: Id<'planning_sessions'> | null
+  sendPlanningMessage: (
+    message: string,
+    currentLocation?: { lat: number; lng: number }
+  ) => Promise<void>
+  cancel: () => void
+} => {
   // Track AbortController for cancellation
   const abortControllerRef = useRef<AbortController | null>(null)
   // Remember the last session we created so callers can consume it
-  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [sessionId, setSessionId] = useState<Id<'planning_sessions'> | null>(null)
 
   // Backend functions
   const createSession = useMutation(api.db.planningSessions.createSession)
@@ -67,6 +62,10 @@ export const useChatPlanning = (
    * Send planning message - creates a session (if needed) then invokes the
    * backend agent action. The per-message running/streaming lifecycle is
    * owned by the backend and observed via the session_messages query.
+   *
+   * Session reuse logic:
+   * - If we already have a sessionId from a previous message, reuse it (refinement)
+   * - Otherwise, create a new session (first message or after error/new session)
    */
   const sendPlanningMessage = useCallback(
     async (message: string, currentLocation?: { lat: number; lng: number }) => {
@@ -82,10 +81,17 @@ export const useChatPlanning = (
           content: message,
         })
 
-        // Step 1: Create session if needed
-        const sessionResult = await createSession({ firstMessage: message })
-        const newSessionId = sessionResult.sessionId
-        setSessionId(newSessionId)
+        // Step 1: Create session if needed, or reuse existing session
+        let sessionIdToUse: Id<'planning_sessions'>
+        if (sessionId) {
+          // Reuse existing session for refinement
+          sessionIdToUse = sessionId
+        } else {
+          // Create new session for first message
+          const sessionResult = await createSession({ firstMessage: message })
+          sessionIdToUse = sessionResult.sessionId
+          setSessionId(sessionIdToUse)
+        }
 
         // Check if aborted
         if (signal.aborted) {
@@ -95,7 +101,7 @@ export const useChatPlanning = (
         // Step 2: Send message to backend agent. The action writes pending
         // assistant rows and finalizes them; we just await completion.
         await sendMessage({
-          sessionId: newSessionId,
+          sessionId: sessionIdToUse,
           content: message,
           currentLocation,
         }) as SendMessageResult
@@ -134,7 +140,7 @@ export const useChatPlanning = (
         })
       }
     },
-    [dispatch, createSession, sendMessage]
+    [dispatch, createSession, sendMessage, sessionId]
   )
 
   /**
