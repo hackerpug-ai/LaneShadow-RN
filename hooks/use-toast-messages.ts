@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ChatMessage, ChatMessageStatus } from '../components/ui/chat-transcript'
 
 // ---------------------------------------------------------------------------
@@ -72,6 +72,17 @@ export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessage
   // IDs we've already promoted to toasts (or explicitly dismissed).
   const toastedIdsRef = useRef<Set<string>>(new Set())
 
+  // Cheap fingerprint that changes whenever any message's content or
+  // status changes — ensures the detection effect re-fires even when
+  // the array length stays the same (e.g. streaming content updates).
+  const fingerprint = useMemo(() => {
+    let fp = ''
+    for (const m of transcriptMessages) {
+      fp += `${m.id}:${m.content.length}:${m.status ?? ''};`
+    }
+    return fp
+  }, [transcriptMessages])
+
   // Reset baseline when session changes
   useEffect(() => {
     baselineIdsRef.current = null
@@ -85,8 +96,8 @@ export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessage
   }, [chatMode])
 
   // Scan for new toast-worthy messages on every transcript update.
-  // This covers both new messages (length increase) AND streaming
-  // messages that start empty and later gain content.
+  // Depends on `fingerprint` so it re-fires when content streams in,
+  // not just when new rows appear.
   useEffect(() => {
     if (isLoading) return
 
@@ -117,7 +128,7 @@ export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessage
     if (newToasts.length > 0) {
       setToasts((prev) => [...prev, ...newToasts].slice(-maxVisible))
     }
-  }, [transcriptMessages, chatMode, maxVisible, isLoading])
+  }, [fingerprint, chatMode, maxVisible, isLoading, transcriptMessages])
 
   // Update content & status of existing toasts when messages stream in
   useEffect(() => {

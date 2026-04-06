@@ -221,10 +221,6 @@ const HomeMapScreen = () => {
     isLoading: rawTranscriptMessages === undefined,
   })
 
-  // Hide planning indicator when first toast appears
-  useEffect(() => {
-    if (toasts.length > 0) setMapPlanningVisible(false)
-  }, [toasts.length])
 
   const handleSendMessage = useCallback(
     (message: string) => {
@@ -779,8 +775,10 @@ const HomeMapScreen = () => {
           )}
 
         {/* Planning indicator - shown in map mode while agent is working */}
+        {/* Planning indicator — stays visible until agent finishes,
+            but hides when toasts are showing (toast = agent responded) */}
         <MapPlanningIndicator
-          visible={mapPlanningVisible && !chatMode}
+          visible={mapPlanningVisible && !chatMode && toasts.length === 0}
           bottomOffset={insets.bottom + 96}
         />
 
