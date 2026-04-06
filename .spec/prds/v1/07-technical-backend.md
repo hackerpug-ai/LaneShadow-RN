@@ -1,7 +1,7 @@
 ---
 stability: CONSTITUTION
 last_validated: 2026-04-03
-prd_version: 1.3.0
+prd_version: 1.4.0
 ---
 
 # LaneShadow V1 — Technical Backend Architecture
@@ -28,34 +28,49 @@ createPlan (mutation) -> schedules executePlan (internalAction)
 
 **V1 adds:** Agentic conversational entry point via pi core, rain + temperature overlays, enrichRoute wiring, and overlaysPreview populated from real data.
 
-### V1 Architecture: Agentic + Deterministic Hybrid
+### V1 Architecture: LLM-First Routing ("The Californians Pattern")
 
-V1 introduces pi core as the agent framework, creating a hybrid architecture:
+V1 introduces an LLM-first routing architecture where the AI authors routes from its own road knowledge, and Google Maps validates per-segment:
 
 ```
 Rider Message
     ↓
-pi core Agent Session (agentic reasoning)
+pi core Agent Session (conversation context)
     ↓
-parseNaturalLanguageInput (agent tool) → PlanInput
+LLM Authors Route Sketch (probabilistic)
+    "Take 280 south to 92, hop on Skyline Blvd
+     down to Alice's Restaurant, then drop to HMB"
+    → RouteSketch with segments + anchorPoints
     ↓
-planRoute (agent tool) → deterministic orchestrator
+Google Maps Validates Per-Segment (deterministic)
+    Segment 1: 280 → Junction 92       ✅ OK
+    Segment 2: Skyline Blvd → Alice's   ✅ OK
+    Segment 3: Alice's → HMB            ❌ Failed
     ↓
-planRideOrchestrator (deterministic workflow)
-    → findScenicWaypoints (Overpass)
-    → compileSketch + normalizeRoute (parallel)
-    → computeRouteIndex
-    → probeConditions (Open-Meteo) → wind + rain + temp
-    → mapConditions → all overlays
+┌─── All pass? ───┐
+│ YES             │ NO → Rich feedback to LLM
+│ Stitch legs     │      "Segment 3 failed: Skyline
+│ into route      │       doesn't reach HMB directly.
+│                 │       Google suggests via Hwy 84."
+│                 │      → LLM revises failed segments only
+│                 │      → Back to validation (max 3 retries)
+└─────────────────┘
+    ↓
+probeConditions (Open-Meteo) → wind + rain + temp
+    ↓
+mapConditions → all overlays
     ↓
 enrichRoute (agent tool) → descriptions, highlights
     ↓
 buildOptionsFromResults → PlannedRouteOptionsView
 ```
 
+**Fallback**: When the LLM is uncertain about roads in an area, it falls back to the deterministic orchestrator (`planRoute` → `findScenicWaypoints` → `compileSketch`).
+
 **Key Principles**:
-- **Agentic (Probabilistic)**: Intent understanding, conversation context, response generation, error recovery
-- **Deterministic (Guaranteed)**: Route computation, weather fetching, data persistence, state transitions
+- **LLM-First (Probabilistic)**: Route authoring from road knowledge, intent understanding, conversation context, segment revision, response generation
+- **Google Maps as Ground Truth (Deterministic)**: Per-segment validation, polyline generation, distance/duration computation
+- **Deterministic (Guaranteed)**: Weather fetching, conditions scoring, data persistence, state transitions
 
 ---
 
@@ -265,15 +280,17 @@ export const ridePlanningAgent = createAgent({
       }
     },
   },
-  systemPrompt: `You are a knowledgeable motorcycle ride planning agent. Your role is to:
-1. Understand rider intent from natural language descriptions
-2. Generate 2-3 scenic route alternatives using the planRoute tool
-3. Refine routes based on follow-up feedback
-4. Provide brief, helpful responses (1-2 sentences max)
-5. Handle errors gracefully with helpful suggestions
+  systemPrompt: `You are an expert motorcycle navigator who knows road networks. For ANY route request — even generic ones like "scenic ride to Santa Cruz" — author a high-level itinerary using roads you know. Pick specific roads: "Take 280 south to 92, then Skyline Blvd to Alice's, drop down 84 to 1 for the last stretch."
+
+Your role:
+1. Author route sketches with named roads and landmarks from your road knowledge
+2. When the rider says "avoid Market Street," route around it in your sketch — no API flags needed
+3. If a segment fails validation, revise only the failed segments using the feedback provided
+4. If you're unsure about roads in an area, say so and fall back to planRoute
+5. Provide brief, opinionated responses (1-2 sentences max) — you have opinions about roads
 6. Maintain conversation context across exchanges
 
-The map is always the primary view. Your responses supplement the map, not replace it.`,
+The map is always the primary view. Your responses supplement the map, not replace it. You are a riding buddy who knows every road, not a search engine.`,
 })
 ```
 
@@ -350,14 +367,19 @@ SESSION_NOT_FOUND: 'SESSION_NOT_FOUND',
 
 ```
 1. Rider sends message
-2. Client calls parseNaturalLanguageInput → PlanInput
-3. Agent decides: new plan or refinement?
-4. Agent calls planRoute tool → deterministic orchestrator
-5. Orchestrator generates routes + weather
-6. Agent calls enrichRoute tool → descriptions
-7. Agent generates conversational response
-8. Client saves message to session_messages
-9. Client displays response + route attachments on map
+2. Agent interprets intent (new plan or refinement?)
+3. Agent authors RouteSketch with segments + anchorPoints from road knowledge
+4. compileSegments validates each segment independently via Google Maps
+5. If segments fail → Agent receives per-segment feedback → revises failed segments only (max 3 retries)
+6. All segments pass → stitch legs into complete route
+7. probeConditions fetches weather for validated route
+8. enrichRoute generates descriptions + labels
+9. Agent generates conversational response
+10. Client saves message to session_messages
+11. Client displays response + route attachments on map
+
+Fallback: If Agent is uncertain about roads in an area →
+  planRoute tool → deterministic orchestrator (Overpass + compileSketch)
 ```
 
 ---

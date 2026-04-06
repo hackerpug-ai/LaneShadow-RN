@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
 last_validated: 2026-04-03
-prd_version: 1.1.0
+prd_version: 1.4.0
 ---
 
 # UC-NLP: Conversational Planning
@@ -24,7 +24,7 @@ prd_version: 1.1.0
 
 ## UC-NLP-02: Generate 2–3 alternative scenic routes as chat attachments
 
-**Description**: After the Rider sends a planning message, the System interprets it, runs the route planning pipeline, and returns 2–3 distinct route alternatives. The routes appear as attachments in the AI's chat response message AND as polylines on the map simultaneously. The AI's response includes brief descriptive text about the options.
+**Description**: After the Rider sends a planning message, the AI authors a route sketch using its knowledge of road networks — picking specific roads, highways, and landmarks — then validates each segment independently against Google Maps. Failed segments get specific feedback and surgical revision. The result: 2–3 distinct route alternatives that feel locally curated. The routes appear as attachments in the AI's chat response message AND as polylines on the map simultaneously.
 
 **Acceptance Criteria**:
 - ☐ System generates between 2 and 3 route alternatives from a valid planning message
@@ -87,15 +87,17 @@ prd_version: 1.1.0
 
 ## UC-NLP-07: Refine routes through follow-up messages
 
-**Description**: The Rider sends a follow-up message in the same session to modify the current route set. Examples: "make it shorter", "avoid Highway 1", "add a stop at Big Sur", "what about going through the mountains instead?" The System interprets the message in context of the active session and routes, then generates updated alternatives.
+**Description**: The Rider sends a follow-up message in the same session to modify the current route set. Examples: "make it shorter", "avoid Highway 1", "add a stop at Big Sur", "what about going through the mountains instead?" The AI revises only the affected segments of the route sketch, keeping unchanged segments intact. "Avoid Highway 1" means the AI re-sketches just the coastal segment using an alternative road.
 
 **Acceptance Criteria**:
 - ☐ Rider can send a follow-up message after receiving route results without leaving the map view
 - ☐ System interprets the message in context of the current session and active routes (e.g., "make it shorter" refers to the currently displayed routes)
+- ☐ AI revises only the affected segments, keeping unchanged segments intact
+- ☐ "Avoid X" constraints work by the AI routing around X in its sketch — no API flags needed
 - ☐ System generates updated route alternatives that reflect the refinement request
 - ☐ Previous route attachments remain visible in the chat history (scroll up in expanded view)
 - ☐ New route attachments replace the active routes on the map
-- ☐ System responds within 12 seconds for refinement requests
+- ☐ System responds within 15 seconds for refinement requests
 - ☐ System can handle preference changes ("avoid highways"), stop additions ("add a stop at Big Sur"), and constraint modifications ("make it shorter", "under 1 hour") as refinement types
 
 ---

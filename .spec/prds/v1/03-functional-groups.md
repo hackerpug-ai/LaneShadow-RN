@@ -1,14 +1,14 @@
 ---
 stability: FEATURE_SPEC
 last_validated: 2026-04-03
-prd_version: 1.3.0
+prd_version: 1.4.0
 ---
 
 # Functional Groups
 
 | Group | Prefix | Description |
 |-------|--------|-------------|
-| Agentic Conversational Planning | AG | Plan rides through agent-powered conversational planning on the map — describe intent, refine iteratively, manage sessions. Routes are chat attachments rendered on the map. The agent uses pi core for reasoning and deterministic workflows for route generation. |
+| Agentic Conversational Planning | AG | Plan rides through an opinionated AI navigator on the map — describe what you want, the AI authors routes using roads it knows, Google Maps validates per-segment, and a retry loop handles failures. Refine iteratively, manage sessions. Routes are chat attachments rendered on the map. |
 | Weather & Conditions | WX | Wind, rain, and temperature overlays on route polylines and attachment cards; expandable hourly weather timeline; departure time adjustment |
 | Saved Routes & Favorites | SR | Save and browse routes, search and filter the library, rename and delete, save favorite road segments, auto-include favorites in planning, rate routes, mark as ridden, export to navigation |
 
@@ -38,14 +38,17 @@ AG ────────► WX
 
 ### AG — Agentic Conversational Planning
 
-This is LaneShadow's primary differentiator. No competitor offers an agentic conversational planning experience on a map. The AG group covers the full planning flow: chat-based input, agent-powered intent understanding, route generation as chat attachments, iterative refinement via follow-up messages, session management, temporary message overlays on the map, and expanded chat history.
+This is LaneShadow's primary differentiator. No competitor offers an AI that **authors opinionated routes from its own road knowledge**. Every other app — Calimoto, Scenic, REVER — requires riders to drop pins. LaneShadow's AI picks the roads.
 
-**Agent Architecture**: The system uses pi core to create a ride planning agent that:
-- Interprets natural language ride descriptions through agentic reasoning
-- Maintains conversation context across sessions for iterative refinement
-- Generates conversational responses and route descriptions
-- Orchestrates deterministic workflows for route computation, weather fetching, and persistence
-- Handles errors and edge cases with helpful, conversational fallbacks
+The AG group covers the full LLM-first planning flow: chat-based input, AI-authored route sketches with named roads and landmarks, per-segment Google Maps validation, surgical retry on failed segments, iterative refinement via follow-up messages, session management, temporary message overlays on the map, and expanded chat history.
+
+**LLM-First Architecture** ("The Californians Pattern"):
+- AI authors route sketches using its knowledge of road networks — even for generic requests like "scenic ride"
+- Each segment is validated independently by Google Maps (not all-or-nothing)
+- Failed segments get rich feedback: which leg broke, why, and what Google suggests instead
+- The AI revises only failed segments (max 3 retries), keeping successful ones intact
+- Deterministic orchestrator remains as fallback when the AI is uncertain about an area
+- pi core provides session management, conversation context, and tool orchestration
 
 All other groups depend on having routes to work with.
 

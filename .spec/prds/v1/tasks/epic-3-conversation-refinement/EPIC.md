@@ -2,8 +2,8 @@
 
 > Epic Sequence: 3
 > PRD: .spec/prds/v1/
-> Tasks: 4
-> Status: REFINED (2026-04-06) — trimmed to verified gaps only
+> Tasks: 11
+> Status: REFINED (2026-04-06) — trimmed to verified gaps only; LLM-first routing tasks added
 
 ## Overview
 
@@ -38,6 +38,13 @@ The backend is **complete** for this epic. The ReAct agent loop handles multi-tu
 | US-016 | Add pin/dismiss gestures to transient message overlay | FEATURE | P0 | 60 min | US-015 |
 | US-018 | Wire manual planning mode fallback from chat input | FEATURE | P1 | 60 min | Epic 2 |
 | US-019 | Remove orphaned design-era components | CHORE | P2 | 30 min | US-016 |
+| US-020 | LLM-first routing architecture ("The Californians Pattern") | FEATURE | P0 | 4-6 hrs | Epic 2 |
+| US-021 | Per-segment compilation in routing provider | FEATURE | P0 | 90 min | - |
+| US-022 | Segment stitching & partial result types | FEATURE | P0 | 60 min | US-021 |
+| US-023 | Rich per-segment error feedback to LLM | FEATURE | P0 | 75 min | US-021, US-022 |
+| US-024 | LLM-first system prompt rewrite | FEATURE | P0 | 60 min | - |
+| US-025 | Segment retry loop with LLM revision | FEATURE | P0 | 90 min | US-023, US-024 |
+| US-026 | Road-aware waypoint placement via viaNames | FEATURE | P1 | 60 min | US-021 |
 
 ## Removed Tasks
 

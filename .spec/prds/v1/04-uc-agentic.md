@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
 last_validated: 2026-04-03
-prd_version: 1.3.0
+prd_version: 1.4.0
 ---
 
 # UC-AG: Agentic Conversational Planning
@@ -50,7 +50,7 @@ prd_version: 1.3.0
 
 ## UC-AG-02: Generate 2–3 alternative scenic routes as chat attachments
 
-**Description**: After the Rider sends a planning message, the Agent interprets it using agentic reasoning, runs the deterministic route planning pipeline, and returns 2–3 distinct route alternatives. The routes appear as attachments in the Agent's chat response message AND as polylines on the map simultaneously. The Agent's response includes brief descriptive text about the options generated through agentic description writing.
+**Description**: After the Rider sends a planning message, the Agent authors a route sketch using its knowledge of road networks — picking specific roads, highways, and landmarks — then validates each segment independently against Google Maps. If any segment fails, the Agent receives structured feedback about which leg broke and why, and surgically revises just the failed segments (max 3 retries). The result: 2–3 distinct route alternatives that feel locally curated, not algorithmically generated. The routes appear as attachments in the Agent's chat response message AND as polylines on the map simultaneously.
 
 ### Wireframe: Route Attachment Cards
 
@@ -95,13 +95,16 @@ prd_version: 1.3.0
 - Map background: All 3 route polylines visible simultaneously
 
 **Acceptance Criteria**:
-- ☐ Agent generates between 2 and 3 route alternatives from a valid planning message
+- ☐ Agent authors a route sketch with named roads and landmarks from its own road knowledge — even for generic requests ("scenic ride to Santa Cruz")
+- ☐ Each segment of the sketch is validated independently by Google Maps — a single failed segment does not block the entire route
+- ☐ When a segment fails, the Agent receives structured feedback (which segment, why, Google's suggestion) and revises only the failed segments (max 3 retries)
+- ☐ Agent generates between 2 and 3 validated route alternatives from a valid planning message
 - ☐ Routes appear as attachment cards embedded in the Agent's response message in the chat thread
 - ☐ All route alternatives render as distinct polylines on the map at the same time
-- ☐ System displays inline planning progress indicators in the chat ("Reading your ride...", "Finding scenic roads...", "Checking weather...", "Building options...") while generating routes
-- ☐ System completes route generation and displays results within 12 seconds for a valid description
+- ☐ System displays inline planning progress indicators in the chat ("Sketching your route...", "Validating roads...", "Checking weather...", "Building options...") while generating routes
+- ☐ System completes route generation and displays results within 15 seconds for a valid description (accounts for per-segment validation and potential retries)
 - ☐ Agent responds conversationally with a fallback message if route generation fails or returns fewer than 2 results (see UC-AG-11)
-- ☐ Agent uses pi core tool execution to run deterministic orchestrator for route generation
+- ☐ Deterministic orchestrator (`planRoute`) remains available as fallback when the Agent is uncertain about road networks in an area
 
 ---
 
@@ -156,15 +159,17 @@ prd_version: 1.3.0
 
 ## UC-AG-07: Refine routes through follow-up messages
 
-**Description**: The Rider sends a follow-up message in the same session to modify the current route set. Examples: "make it shorter", "avoid Highway 1", "add a stop at Big Sur", "what about going through the mountains instead?" The Agent interprets the message in context of the active session and routes using agentic reasoning, then triggers the deterministic workflow to generate updated alternatives.
+**Description**: The Rider sends a follow-up message in the same session to modify the current route set. Examples: "make it shorter", "avoid Highway 1", "add a stop at Big Sur", "what about going through the mountains instead?" The Agent revises only the affected segments of the route sketch — keeping successful segments intact and re-authoring the parts that need to change. "Avoid Highway 1" means the Agent re-sketches just the coastal segment using an alternative road, not regenerating the entire route from scratch.
 
 **Acceptance Criteria**:
 - ☐ Rider can send a follow-up message after receiving route results without leaving the map view
 - ☐ Agent interprets the message in context of the current session and active routes (e.g., "make it shorter" refers to the currently displayed routes)
+- ☐ Agent revises only the affected segments of the route sketch, keeping unchanged segments intact
+- ☐ "Avoid X" constraints work by the Agent routing around X in its sketch — no Google Maps `avoidRoads` API needed
 - ☐ System generates updated route alternatives that reflect the refinement request
 - ☐ Previous route attachments remain visible in the chat history (scroll up in expanded view)
 - ☐ New route attachments replace the active routes on the map
-- ☐ System responds within 12 seconds for refinement requests
+- ☐ System responds within 15 seconds for refinement requests
 - ☐ Agent can handle preference changes ("avoid highways"), stop additions ("add a stop at Big Sur"), and constraint modifications ("make it shorter", "under 1 hour") as refinement types
 - ☐ Agent uses pi core session context to maintain conversation state across refinements
 
