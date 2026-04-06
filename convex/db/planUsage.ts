@@ -8,7 +8,17 @@ import {
   type PlanUsage,
   isValidMonth,
 } from '../../models/plan-usage'
+import { RATE_LIMIT_OVERRIDE } from '../lib/env'
 import { ERROR_CODES } from '../errors'
+
+/** Effective monthly limit: env override (0 = unlimited) > hardcoded default */
+const UNLIMITED = 999_999_999
+function getEffectiveLimit(): number {
+  if (RATE_LIMIT_OVERRIDE !== undefined) {
+    return RATE_LIMIT_OVERRIDE === 0 ? UNLIMITED : RATE_LIMIT_OVERRIDE
+  }
+  return FREE_TIER_MONTHLY_LIMIT
+}
 
 /**
  * Utility function to get current month in YYYY-MM format
@@ -44,7 +54,7 @@ export async function checkUsage(
     .unique()
 
   const count = record?.planCount ?? 0
-  const limit = FREE_TIER_MONTHLY_LIMIT
+  const limit = getEffectiveLimit()
   const allowed = count < limit
   const remaining = Math.max(0, limit - count)
 
@@ -88,9 +98,9 @@ export async function incrementUsage(
       planCount: newCount,
     })
 
-    const limit = FREE_TIER_MONTHLY_LIMIT
+    const limit = getEffectiveLimit()
     const allowed = newCount < limit
-    const remaining = Math.max(0, limit - newCount)
+    const remaining = limit === Infinity ? Infinity : Math.max(0, limit - newCount)
 
     return {
       count: newCount,
@@ -106,7 +116,7 @@ export async function incrementUsage(
       planCount: 1,
     })
 
-    const limit = FREE_TIER_MONTHLY_LIMIT
+    const limit = getEffectiveLimit()
     const remaining = limit - 1
 
     return {

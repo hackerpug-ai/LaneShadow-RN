@@ -42,8 +42,10 @@ export const isTestEnvironment = process.env.NODE_ENV === 'test'
 export const AI_MODEL = optionalEnv('AI_MODEL') ?? 'gpt-4o'
 
 /**
- * Disable rate limits for testing.
- * Set via: npx convex env set DISABLE_RATE_LIMITS true
- * TODO: Remove when Premium tier is implemented
+ * Override the monthly route plan limit. 0 = unlimited.
+ * When unset, falls back to FREE_TIER_MONTHLY_LIMIT (5).
+ * Set via: npx convex env set RATE_LIMIT_OVERRIDE 0
  */
-export const DISABLE_RATE_LIMITS = optionalEnv('DISABLE_RATE_LIMITS') === 'true'
+const rateLimitRaw = optionalEnv('RATE_LIMIT_OVERRIDE')
+export const RATE_LIMIT_OVERRIDE: number | undefined =
+  rateLimitRaw !== undefined ? parseInt(rateLimitRaw, 10) : undefined
