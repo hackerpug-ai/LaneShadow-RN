@@ -603,6 +603,8 @@ describe('listBySessionHandler', () => {
       status: 'completed',
       distanceMeters: 123456,
       durationSeconds: 7200,
+      routeLabel: 'Scenic',
+      routeRationale: '...',
     })
   })
 
