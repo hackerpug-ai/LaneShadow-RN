@@ -61,6 +61,9 @@ export const useRouteComparison = (
     if (state.phase === 'ROUTE_RESULTS' || state.phase === 'ROUTE_DETAILS') {
       return state.routeOptions
     }
+    if (state.phase === 'PLANNING' && state.routeOptions) {
+      return state.routeOptions
+    }
     return null
   }, [state])
 
@@ -71,6 +74,9 @@ export const useRouteComparison = (
     }
     if (state.phase === 'ROUTE_RESULTS') {
       return state.selectedRouteId
+    }
+    if (state.phase === 'PLANNING') {
+      return state.selectedRouteId ?? null
     }
     return null
   }, [state])
