@@ -131,6 +131,70 @@ Set these in the Convex dashboard (Environment Variables):
 
 ---
 
+## Agentic Architecture: Agent-First Planning
+
+**Principle**: Be agent-planned first, then dynamic. When designing features, default to using LLMs for strategy, decision-making, and semantic reasoning before reaching for deterministic code.
+
+### The Problem: "Coding in 2015"
+
+Historically, software plans avoided using LLMs for strategizing or making decisions. The LLM coded as if it were 2015 — reaching for hardcoded logic, enum switches, and rigid schemas instead of leveraging its own reasoning capabilities.
+
+This resulted in:
+- **Stingy plans**: 3 hardcoded preference flags instead of natural language refinement
+- ** brittle UX**: "avoid Highway 1" does nothing because the system can't represent it
+- **Missed opportunities**: No dynamic adaptation, no semantic understanding of user intent
+
+### Agent-First Thinking
+
+When architecting Convex features, ask:
+
+1. **Can an LLM author this instead of me hardcoding it?**
+   - Route itineraries → LLM sketches, Google Maps validates
+   - User preferences → Natural language, not 3 boolean flags
+   - Error messages → LLM explains what went wrong and suggests fixes
+
+2. **Am I encoding domain knowledge in code that should live in the agent's context?**
+   - Road network knowledge ("Highway 1 is coastal") → LLM knows this
+   - Riding constraints ("twisty roads are better") → Agent reasoning
+   - Route refinement patterns → System prompt, not switch statements
+
+3. **Is this deterministic or probabilistic?**
+   - **Deterministic**: State transitions, recording data, schema validation
+   - **Probabilistic (Agentic)**: Reading specs, generating plans, making judgment calls, creative work
+
+### Pattern: LLM-Authored + Validated
+
+The best pattern is often:
+
+```
+LLM authors semantic structure (flexible, expressive)
+    ↓
+Deterministic code validates and materializes it (safe, reliable)
+    ↓
+Failure loop with feedback (retry with guidance)
+```
+
+Example: Route Sketching
+- `createRouteSketch`: LLM describes "Highway 280 → Skyline → PCH" in natural segments
+- `compileSketch`: Google Maps validates geometry, returns specific errors if roads don't connect
+- Agent retry: "Highway 92 doesn't intersect Skyline there, try Highway 84 instead"
+
+### When to Use Which
+
+| Use LLM/Agent for... | Use Deterministic Code for... |
+|---------------------|------------------------------|
+| Understanding user intent | Recording state transitions |
+| Generating route sketches | Database persistence |
+| Explaining errors to users | Schema validation |
+| Making judgment calls | API calls with retry logic |
+| Semantic reasoning | Parsing structured output |
+| Natural language refinement | Phase progression |
+| Creative problem-solving | Emission of events |
+
+**Rule of thumb**: If you're writing a switch statement with >3 cases, ask if an LLM could handle the semantic mapping instead.
+
+---
+
 ## Manual Verification: `planRide` Action
 
 This section provides a repeatable checklist for verifying the `actions.agent.planRide` action.
