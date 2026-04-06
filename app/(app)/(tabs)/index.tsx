@@ -235,6 +235,16 @@ const HomeMapScreen = () => {
     [chatMode, sendPlanningMessage, currentLocation]
   )
 
+  // Cancel handler that routes to the appropriate cancel function
+  // based on which planning mode is active
+  const handleCancel = useCallback(() => {
+    if (isManualPlanning) {
+      cancelPlanning()
+    } else {
+      cancelChatPlanning()
+    }
+  }, [isManualPlanning, cancelPlanning, cancelChatPlanning])
+
   // Cycle the transcript visibility when the chat button / overlay is tapped.
   //   hidden    → pinned (chat mode)
   //   map mode  → chat mode (show transcript)
@@ -806,9 +816,9 @@ const HomeMapScreen = () => {
         {/* Chat input - always visible at bottom */}
         <ChatInput
           onSend={handleSendMessage}
-          onCancel={cancelChatPlanning}
+          onCancel={handleCancel}
           state={flowState}
-          isPlanning={isPlanning}
+          isPlanning={isPlanning || isManualPlanning}
           suggestions={IDLE_SUGGESTIONS}
           testID="chat-input"
           chatMode={chatMode}
