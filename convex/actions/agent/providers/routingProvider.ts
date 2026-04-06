@@ -1,5 +1,5 @@
 'use node'
-import type { RouteSketch } from '../../../../models/route-sketch'
+import type { RouteSketch, RouteSketchAnchorPoint, RouteSketchSegment } from '../../../../models/route-sketch'
 import type { PlanInput } from '../../../../models/saved-routes'
 import { GOOGLE_MAPS_API_KEY } from '../../../lib/env'
 
@@ -42,6 +42,10 @@ export type RoutingProvider = {
     planInput: PlanInput
     sketch: RouteSketch
   }) => Promise<ProviderRouteResponse[]>
+  routeSegment: (input: {
+    segment: RouteSketchSegment
+    anchorPoints: RouteSketchAnchorPoint[]
+  }) => Promise<ProviderRouteResponse>
 }
 
 const parseGoogleDurationSeconds = (duration: unknown): number => {
@@ -166,6 +170,14 @@ const fetchGoogleRoutes = async (apiKey: string, body: any): Promise<any> => {
   return response.json()
 }
 
+const findAnchorPoint = (
+  anchorPoints: RouteSketchAnchorPoint[],
+  name: string
+): RouteSketchAnchorPoint | undefined => {
+  const normalized = name.trim().toLowerCase()
+  return anchorPoints.find((a) => a.name.trim().toLowerCase() === normalized)
+}
+
 const createGoogleProvider = (apiKey: string): RoutingProvider => ({
   routeFromSketch: async ({ planInput, sketch }): Promise<ProviderRouteResponse> => {
     const body = buildGoogleRequestBody(planInput, sketch)
@@ -186,6 +198,39 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
     }
     console.info(`[routingProvider] Google returned ${routes.length} alternative routes`)
     return routes.map(parseGoogleRoute)
+  },
+
+  routeSegment: async ({ segment, anchorPoints }): Promise<ProviderRouteResponse> => {
+    const fromAnchor = findAnchorPoint(anchorPoints, segment.fromName)
+    const toAnchor = findAnchorPoint(anchorPoints, segment.toName)
+
+    if (!fromAnchor || fromAnchor.lat === undefined || fromAnchor.lng === undefined) {
+      throw new Error(
+        `anchorPoint not found or missing lat/lng for fromName: "${segment.fromName}"`
+      )
+    }
+    if (!toAnchor || toAnchor.lat === undefined || toAnchor.lng === undefined) {
+      throw new Error(
+        `anchorPoint not found or missing lat/lng for toName: "${segment.toName}"`
+      )
+    }
+
+    const body = {
+      origin: toGoogleWaypoint(fromAnchor.lat, fromAnchor.lng),
+      destination: toGoogleWaypoint(toAnchor.lat, toAnchor.lng),
+      intermediates: [],
+      travelMode: 'DRIVE',
+      routingPreference: 'TRAFFIC_UNAWARE',
+      polylineQuality: 'OVERVIEW',
+      polylineEncoding: 'ENCODED_POLYLINE',
+    }
+
+    const data: any = await fetchGoogleRoutes(apiKey, body)
+    const route = data?.routes?.[0]
+    if (!route) {
+      throw new Error('Google Routes response missing routes[0]')
+    }
+    return parseGoogleRoute(route)
   },
 })
 
