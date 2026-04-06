@@ -4,7 +4,7 @@ import { vi, describe, it, expect, afterEach, Mock } from 'vitest'
 import type { RouteSketch } from '../../../../../models/route-sketch'
 import type { PlanInput } from '../../../../../models/saved-routes'
 
-import { createRoutingProvider } from '../routingProvider'
+import { createRoutingProvider, resolveViaWaypoints } from '../routingProvider'
 
 vi.mock('../../../../lib/env', () => ({ GOOGLE_MAPS_API_KEY: 'test-api-key' }))
 
@@ -149,5 +149,106 @@ describe('routing provider', () => {
 
     expect(callCount).toBe(1)
     expect(result.provider).toBe('google')
+  })
+})
+
+describe('resolveViaWaypoints', () => {
+  const anchorPoints = [
+    { name: 'Alice Springs', kind: 'town' as const, lat: 37.1, lng: -122.1 },
+    { name: 'Bob Peak', kind: 'pass' as const, lat: 37.2, lng: -122.2 },
+    { name: 'Charlie Junction', kind: 'junction' as const, lat: 37.3, lng: -122.3 },
+    { name: 'Delta Landmark', kind: 'landmark' as const, lat: 37.4, lng: -122.4 },
+  ]
+
+  it('AC-1: resolves a single viaName to its matching anchorPoint coordinates', () => {
+    const result = resolveViaWaypoints(['Alice Springs'], anchorPoints)
+    expect(result).toEqual([{ lat: 37.1, lng: -122.1 }])
+  })
+
+  it('AC-2: multiple viaNames are resolved in order matching the viaNames array', () => {
+    const result = resolveViaWaypoints(['Bob Peak', 'Alice Springs'], anchorPoints)
+    expect(result).toEqual([
+      { lat: 37.2, lng: -122.2 },
+      { lat: 37.1, lng: -122.1 },
+    ])
+  })
+
+  it('AC-3: unresolvable viaName is skipped and does not throw', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const result = resolveViaWaypoints(['Alice Springs', 'NONEXISTENT'], anchorPoints)
+    expect(result).toEqual([{ lat: 37.1, lng: -122.1 }])
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('NONEXISTENT'))
+    warnSpy.mockRestore()
+  })
+
+  it('AC-4: no viaNames returns empty array (origin→destination only in request)', () => {
+    const result = resolveViaWaypoints([], anchorPoints)
+    expect(result).toEqual([])
+  })
+
+  it('AC-5: more than 3 viaNames uses only first 3 and warns about the rest', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const result = resolveViaWaypoints(
+      ['Alice Springs', 'Bob Peak', 'Charlie Junction', 'Delta Landmark'],
+      anchorPoints
+    )
+    expect(result).toHaveLength(3)
+    expect(result[0]).toEqual({ lat: 37.1, lng: -122.1 })
+    expect(result[1]).toEqual({ lat: 37.2, lng: -122.2 })
+    expect(result[2]).toEqual({ lat: 37.3, lng: -122.3 })
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Delta Landmark'))
+    warnSpy.mockRestore()
+  })
+
+  it('AC-1 integration: Google Maps request body includes viaName as intermediate waypoint', async () => {
+    const sketchWithVia: RouteSketch = {
+      label: 'Test',
+      rationale: 'Mocked',
+      segments: [
+        {
+          roadName: 'Scenic Hwy',
+          fromName: 'Start',
+          toName: 'End',
+          viaNames: ['Mid'],
+        },
+      ],
+      anchorPoints: [{ name: 'Mid', kind: 'junction', lat: 37.25, lng: -122.25 }],
+    }
+
+    let capturedBody: any
+    const fetchMock = vi.fn(async (_url: string, init: any) => {
+      capturedBody = JSON.parse(init.body)
+      return makeGoogleOkFetch()()
+    })
+    ;(globalThis as any).fetch = fetchMock
+
+    const provider = createRoutingProvider()
+    await provider.routeFromSketch({ planInput, sketch: sketchWithVia })
+
+    expect(capturedBody.intermediates).toHaveLength(1)
+    expect(capturedBody.intermediates[0]).toEqual({
+      location: { latLng: { latitude: 37.25, longitude: -122.25 } },
+    })
+  })
+
+  it('AC-4 integration: no viaNames means no intermediates in Google Maps request', async () => {
+    const sketchNoVia: RouteSketch = {
+      label: 'Test',
+      rationale: 'Mocked',
+      segments: [{ roadName: 'Hwy', fromName: 'A', toName: 'B' }],
+      anchorPoints: [],
+    }
+
+    let capturedBody: any
+    const fetchMock = vi.fn(async (_url: string, init: any) => {
+      capturedBody = JSON.parse(init.body)
+      return makeGoogleOkFetch()()
+    })
+    ;(globalThis as any).fetch = fetchMock
+
+    const provider = createRoutingProvider()
+    await provider.routeFromSketch({ planInput, sketch: sketchNoVia })
+
+    expect(capturedBody.intermediates).toHaveLength(0)
   })
 })

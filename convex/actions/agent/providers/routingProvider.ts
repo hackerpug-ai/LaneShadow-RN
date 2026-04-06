@@ -115,6 +115,56 @@ const parseGoogleRoute = (route: any): ProviderRouteResponse => {
   }
 }
 
+const MAX_VIA_WAYPOINTS_PER_SEGMENT = 3
+
+export type ResolvedWaypoint = { lat: number; lng: number }
+
+/**
+ * Resolve segment viaNames to anchorPoint coordinates.
+ * - Case-insensitive, whitespace-trimmed name matching.
+ * - Max 3 intermediates per segment; excess names are skipped with a warning.
+ * - Unresolvable names are skipped with a warning.
+ */
+export const resolveViaWaypoints = (
+  viaNames: string[],
+  anchorPoints: RouteSketch['anchorPoints']
+): ResolvedWaypoint[] => {
+  if (viaNames.length === 0) return []
+
+  if (viaNames.length > MAX_VIA_WAYPOINTS_PER_SEGMENT) {
+    const excess = viaNames.slice(MAX_VIA_WAYPOINTS_PER_SEGMENT)
+    console.warn(
+      `[resolveViaWaypoints] Segment has ${viaNames.length} viaNames; max is ${MAX_VIA_WAYPOINTS_PER_SEGMENT}. ` +
+        `Skipping excess: ${excess.join(', ')}`
+    )
+  }
+
+  const capped = viaNames.slice(0, MAX_VIA_WAYPOINTS_PER_SEGMENT)
+
+  return capped.reduce<ResolvedWaypoint[]>((acc, name) => {
+    const normalised = name.trim().toLowerCase()
+    const anchor = anchorPoints.find(
+      (a) => a.name.trim().toLowerCase() === normalised && a.lat !== undefined && a.lng !== undefined
+    )
+    if (!anchor) {
+      console.warn(`[resolveViaWaypoints] Could not resolve viaName "${name}" to an anchorPoint with coordinates — skipping.`)
+      return acc
+    }
+    acc.push({ lat: anchor.lat as number, lng: anchor.lng as number })
+    return acc
+  }, [])
+}
+
+/**
+ * Collect all viaNames from sketch segments in order, resolve them to
+ * anchorPoint coordinates, and return as Google waypoints.
+ */
+const resolveSketchIntermediates = (sketch: RouteSketch) => {
+  const allViaNames = sketch.segments.flatMap((s) => s.viaNames ?? [])
+  const resolved = resolveViaWaypoints(allViaNames, sketch.anchorPoints)
+  return resolved.map((w) => toGoogleWaypoint(w.lat, w.lng))
+}
+
 const buildGoogleRequestBody = (
   planInput: PlanInput,
   sketch: RouteSketch,
@@ -122,9 +172,7 @@ const buildGoogleRequestBody = (
 ) => {
   const origin = toGoogleWaypoint(planInput.start.lat, planInput.start.lng)
   const destination = toGoogleWaypoint(planInput.end.lat, planInput.end.lng)
-  const intermediates = sketch.anchorPoints
-    .filter((a) => a.lat !== undefined && a.lng !== undefined)
-    .map((a) => toGoogleWaypoint(a.lat as number, a.lng as number))
+  const intermediates = resolveSketchIntermediates(sketch)
 
   const routeModifiers: Record<string, boolean> = {}
   if (planInput.preferences?.avoidHighways) routeModifiers.avoidHighways = true
