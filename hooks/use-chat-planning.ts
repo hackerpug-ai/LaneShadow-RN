@@ -143,12 +143,9 @@ export const useChatPlanning = (
   const cancel = useCallback(() => {
     abortControllerRef.current?.abort()
     abortControllerRef.current = null
-    setSessionId(null)
-
-    // Dispatch new session to reset state machine
-    dispatch({
-      type: 'NEW_SESSION',
-    })
+    // Preserve sessionId for potential follow-up messages.
+    // Only the explicit "new ride" button (NEW_SESSION) should nullify session.
+    dispatch({ type: 'CANCEL_PLANNING' })
   }, [dispatch])
 
   return {

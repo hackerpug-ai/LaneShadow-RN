@@ -219,6 +219,40 @@ describe('useRideFlow', () => {
     })
   })
 
+  describe('CANCEL_PLANNING action', () => {
+    it('should return to ROUTE_RESULTS when routeOptions exist', () => {
+      const mockRouteOptions = createMockRouteOptions()
+      const planningState = {
+        phase: 'PLANNING' as const,
+        sessionId: 'test-session',
+        planId: null,
+        currentPhase: 'analyzing',
+        routeOptions: mockRouteOptions,
+        selectedRouteId: 'route-1',
+      }
+      const result = rideFlowReducer(planningState, { type: 'CANCEL_PLANNING' })
+      expect(result.phase).toBe('ROUTE_RESULTS')
+      if (result.phase === 'ROUTE_RESULTS') {
+        expect(result.sessionId).toBe('test-session')
+        expect(result.routeOptions).toEqual(mockRouteOptions)
+        expect(result.selectedRouteId).toBe('route-1')
+      }
+    })
+
+    it('should return to IDLE when no routeOptions', () => {
+      const planningState = {
+        phase: 'PLANNING' as const,
+        sessionId: 'test-session',
+        planId: null,
+        currentPhase: 'analyzing',
+        routeOptions: null,
+        selectedRouteId: null,
+      }
+      const result = rideFlowReducer(planningState, { type: 'CANCEL_PLANNING' })
+      expect(result.phase).toBe('IDLE')
+    })
+  })
+
   describe('Additional state transitions', () => {
     it('should transition from ROUTE_RESULTS to ROUTE_DETAILS when SELECT_ROUTE is dispatched', () => {
       // Setup: Get to ROUTE_RESULTS state
