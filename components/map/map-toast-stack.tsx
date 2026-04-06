@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    zIndex: 15,
+    zIndex: 25,
     alignItems: 'center',
   },
   toast: {

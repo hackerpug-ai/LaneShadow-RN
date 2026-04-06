@@ -31,6 +31,18 @@ interface UseToastMessagesReturn {
 }
 
 // ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Returns true if the message qualifies for toast display. */
+function isToastWorthy(msg: ChatMessage): boolean {
+  if (msg.role !== 'agent') return false
+  if (msg.kind && msg.kind !== 'text') return false
+  if (!msg.content.trim()) return false
+  return true
+}
+
+// ---------------------------------------------------------------------------
 // Hook
 // ---------------------------------------------------------------------------
 
@@ -39,8 +51,9 @@ interface UseToastMessagesReturn {
  * transcript. Only agent text messages are surfaced — route cards, weather
  * cards, reasoning, and rider messages are filtered out.
  *
- * Each toast carries its own auto-fade timer. Streaming messages defer
- * their timer until the stream completes.
+ * Uses ID-based tracking so streaming messages that start empty are
+ * picked up once content arrives (the array length doesn't change for
+ * in-place content updates).
  */
 export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessagesReturn {
   const {
@@ -53,15 +66,16 @@ export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessage
 
   const [toasts, setToasts] = useState<ToastMessage[]>([])
 
-  // Baseline tracking — same pattern as the old transient system so we
-  // don't flash existing history on app open / session switch.
-  const prevCountRef = useRef(0)
-  const baselineSetRef = useRef(false)
+  // IDs of messages present when the baseline was established — these
+  // are "old" messages that should never become toasts.
+  const baselineIdsRef = useRef<Set<string> | null>(null)
+  // IDs we've already promoted to toasts (or explicitly dismissed).
+  const toastedIdsRef = useRef<Set<string>>(new Set())
 
   // Reset baseline when session changes
   useEffect(() => {
-    baselineSetRef.current = false
-    prevCountRef.current = 0
+    baselineIdsRef.current = null
+    toastedIdsRef.current = new Set()
     setToasts([])
   }, [sessionId])
 
@@ -70,45 +84,40 @@ export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessage
     if (chatMode) setToasts([])
   }, [chatMode])
 
-  // Detect new messages and create toasts
+  // Scan for new toast-worthy messages on every transcript update.
+  // This covers both new messages (length increase) AND streaming
+  // messages that start empty and later gain content.
   useEffect(() => {
-    // Defer baseline until the upstream data source has loaded at least once
     if (isLoading) return
-    if (!baselineSetRef.current) {
-      prevCountRef.current = transcriptMessages.length
-      baselineSetRef.current = true
+
+    // Establish baseline on first load — snapshot current IDs
+    if (baselineIdsRef.current === null) {
+      baselineIdsRef.current = new Set(transcriptMessages.map((m) => m.id))
       return
     }
 
-    const prev = prevCountRef.current
-    prevCountRef.current = transcriptMessages.length
-
     if (chatMode) return
-    if (transcriptMessages.length <= prev) return
 
-    const newMessages = transcriptMessages.slice(prev)
-    const qualifying: ToastMessage[] = []
+    const newToasts: ToastMessage[] = []
 
-    for (const msg of newMessages) {
-      // Only agent messages
-      if (msg.role !== 'agent') continue
-      // Only plain text (skip route cards, weather cards, reasoning, etc.)
-      if (msg.kind && msg.kind !== 'text') continue
-      // Skip empty content
-      if (!msg.content.trim()) continue
+    for (const msg of transcriptMessages) {
+      // Skip baseline messages and already-toasted messages
+      if (baselineIdsRef.current.has(msg.id)) continue
+      if (toastedIdsRef.current.has(msg.id)) continue
+      if (!isToastWorthy(msg)) continue
 
-      qualifying.push({
+      toastedIdsRef.current.add(msg.id)
+      newToasts.push({
         id: msg.id,
         content: msg.content,
         status: msg.status,
       })
     }
 
-    if (qualifying.length > 0) {
-      setToasts((prev) => [...prev, ...qualifying].slice(-maxVisible))
+    if (newToasts.length > 0) {
+      setToasts((prev) => [...prev, ...newToasts].slice(-maxVisible))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transcriptMessages.length, chatMode, maxVisible, isLoading])
+  }, [transcriptMessages, chatMode, maxVisible, isLoading])
 
   // Update content & status of existing toasts when messages stream in
   useEffect(() => {
