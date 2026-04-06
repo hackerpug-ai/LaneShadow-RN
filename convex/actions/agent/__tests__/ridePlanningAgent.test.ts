@@ -1346,6 +1346,348 @@ describe('executeRidePlanningAgent', () => {
     })
   })
 
+  // ---------------------------------------------------------------------------
+  // Tests: US-025 — segment retry loop with cached segment merging
+  // ---------------------------------------------------------------------------
+
+  describe('segment retry loop (US-025)', () => {
+    // Helpers shared across US-025 tests
+    const RETRY_SESSION = 'session_retry_025' as any
+
+    const makeSegment = (roadName: string, fromName: string, toName: string) => ({
+      roadName, fromName, toName,
+    })
+
+    const makeCompileCall = (sessionId: string, segments: Array<{ roadName: string; fromName: string; toName: string }>, callId = 'tc_retry') =>
+      makeAssistantMessage(
+        [
+          {
+            type: 'toolCall',
+            id: callId,
+            name: 'compileSketch',
+            arguments: {
+              start: { lat: 37.77, lng: -122.42, label: 'SF' },
+              end: { lat: 36.97, lng: -122.03, label: 'Santa Cruz' },
+              departureTime: Date.now() + 3_600_000,
+              preferences: { scenicBias: 'high', avoidHighways: false, avoidTolls: false },
+              sketch: {
+                label: '4-Segment Route',
+                rationale: 'Scenic coastal loop',
+                segments,
+                anchorPoints: [],
+              },
+            },
+          },
+        ],
+        'toolUse'
+      )
+
+    const makeProviderRoute = (value = 'abc123') => ({
+      provider: 'google' as const,
+      bounds: { north: 37.8, south: 36.9, east: -121.9, west: -122.5 },
+      overviewGeometry: { format: 'polyline' as const, encoding: 'google_encoded_polyline', precision: 5, value },
+      legs: [
+        {
+          legIndex: 0,
+          start: { lat: 37.77, lng: -122.42 },
+          end: { lat: 36.97, lng: -122.03 },
+          distanceMeters: 100_000,
+          durationSeconds: 5_400,
+          geometry: { format: 'polyline' as const, encoding: 'google_encoded_polyline', precision: 5, value: 'leg_abc' },
+        },
+      ],
+    })
+
+    const makeRouteSnapshot = () => ({
+      routeOptionId: 'snap_retry',
+      label: '4-Segment Route',
+      rationale: 'Scenic coastal loop',
+      stats: { distanceMeters: 100_000, durationSeconds: 5_400 },
+      highlights: [],
+      waypoints: [],
+      geometry: [],
+      legs: [],
+    })
+
+    let compileSegmentsMock: ReturnType<typeof vi.fn>
+    let stitchSegmentsMock: ReturnType<typeof vi.fn>
+    let normalizeRouteMock: ReturnType<typeof vi.fn>
+
+    beforeEach(async () => {
+      const compileSketchMod = await import('../tools/compileSketch') as any
+      compileSegmentsMock = compileSketchMod.compileSegments
+      stitchSegmentsMock = compileSketchMod.stitchSegments
+
+      const normalizeRouteMod = await import('../tools/normalizeRoute') as any
+      normalizeRouteMock = normalizeRouteMod.normalizeRoute
+      normalizeRouteMock.mockResolvedValue(makeRouteSnapshot())
+    })
+
+    it('skip succeeded: only compiles segment 2 on retry when segments 0,1,3 are unchanged and already succeeded', async () => {
+      // The 4 segments (0-3)
+      const segs = [
+        makeSegment('I-280 S', 'SF', 'CA-92 junction'),
+        makeSegment('Skyline Blvd', 'CA-92', "Alice's Restaurant"),
+        makeSegment('Old La Honda Rd', "Alice's Restaurant", 'Half Moon Bay'),  // this will fail on first attempt
+        makeSegment('CA-1 N', 'Half Moon Bay', 'Santa Cruz'),
+      ]
+      // Revised segment 2 (different road)
+      const segsRevised = [
+        ...segs.slice(0, 2),
+        makeSegment('CA-84', "Alice's Restaurant", 'Half Moon Bay'),  // revised
+        segs[3],
+      ]
+
+      // First attempt: segment 2 fails, others succeed
+      const firstResults = [
+        { status: 'ok', segmentIndex: 0, route: makeProviderRoute('seg0') },
+        { status: 'ok', segmentIndex: 1, route: makeProviderRoute('seg1') },
+        { status: 'failed', segmentIndex: 2, error: 'ZERO_RESULTS: Old La Honda Rd' },
+        { status: 'ok', segmentIndex: 3, route: makeProviderRoute('seg3') },
+      ]
+
+      // Second attempt (only segment 2 should be compiled): succeeds
+      const secondResults = [
+        { status: 'ok', segmentIndex: 2, route: makeProviderRoute('seg2_revised') },
+      ]
+
+      compileSegmentsMock
+        .mockResolvedValueOnce(firstResults)
+        .mockResolvedValueOnce(secondResults)
+
+      stitchSegmentsMock.mockReturnValue(makeProviderRoute('stitched'))
+
+      const ctx1 = { ...makeAgentContext(), planningSessionId: RETRY_SESSION }
+      const ctx2 = { ...makeAgentContext(), planningSessionId: RETRY_SESSION }
+      ctx1.runMutation = vi.fn().mockResolvedValue({ routePlanId: 'rp_retry_1' })
+      ctx2.runMutation = vi.fn().mockResolvedValue({ routePlanId: 'rp_retry_2' })
+
+      // First call: attempt 1, segment 2 fails
+      const errorTextMsg = makeAssistantMessage([{ type: 'text', text: 'Segment 2 failed.' }], 'stop')
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(makeCompileCall(RETRY_SESSION, segs, 'tc_attempt1')))
+        .mockReturnValueOnce(makeSimpleStream(errorTextMsg))
+
+      await executeRidePlanningAgent(ctx1, 'plan a route')
+
+      // Second call: attempt 2 with revised segment 2
+      const successTextMsg = makeAssistantMessage([{ type: 'text', text: 'Route compiled.' }], 'stop')
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(makeCompileCall(RETRY_SESSION, segsRevised, 'tc_attempt2')))
+        .mockReturnValueOnce(makeSimpleStream(successTextMsg))
+
+      await executeRidePlanningAgent(ctx2, 'try revised segment 2')
+
+      // compileSegments called twice total
+      expect(compileSegmentsMock).toHaveBeenCalledTimes(2)
+
+      // Second call to compileSegments must only include segment 2 (the changed one)
+      const secondCallArgs = compileSegmentsMock.mock.calls[1][0]
+      expect(secondCallArgs.sketch.segments).toHaveLength(1)
+      expect(secondCallArgs.sketch.segments[0].roadName).toBe('CA-84')
+    })
+
+    it('merge cached: revised segment 2 success merges with cached 0,1,3 for fully stitched 4-segment route', async () => {
+      const segs = [
+        makeSegment('I-280 S', 'SF', 'CA-92 junction'),
+        makeSegment('Skyline Blvd', 'CA-92', "Alice's Restaurant"),
+        makeSegment('Old La Honda Rd', "Alice's Restaurant", 'Half Moon Bay'),
+        makeSegment('CA-1 N', 'Half Moon Bay', 'Santa Cruz'),
+      ]
+      const segsRevised = [
+        ...segs.slice(0, 2),
+        makeSegment('CA-84', "Alice's Restaurant", 'Half Moon Bay'),
+        segs[3],
+      ]
+
+      const MERGE_SESSION = 'session_merge_025' as any
+
+      const firstResults = [
+        { status: 'ok', segmentIndex: 0, route: makeProviderRoute('s0') },
+        { status: 'ok', segmentIndex: 1, route: makeProviderRoute('s1') },
+        { status: 'failed', segmentIndex: 2, error: 'ZERO_RESULTS' },
+        { status: 'ok', segmentIndex: 3, route: makeProviderRoute('s3') },
+      ]
+      // On retry, only seg 2 is compiled
+      const secondResults = [
+        { status: 'ok', segmentIndex: 2, route: makeProviderRoute('s2_new') },
+      ]
+
+      compileSegmentsMock
+        .mockResolvedValueOnce(firstResults)
+        .mockResolvedValueOnce(secondResults)
+
+      stitchSegmentsMock.mockReturnValue(makeProviderRoute('stitched_full'))
+      normalizeRouteMock.mockResolvedValue(makeRouteSnapshot())
+
+      const ctx1 = { ...makeAgentContext(), planningSessionId: MERGE_SESSION }
+      const ctx2 = { ...makeAgentContext(), planningSessionId: MERGE_SESSION }
+      ctx1.runMutation = vi.fn().mockResolvedValue({ routePlanId: 'rp_m1' })
+      ctx2.runMutation = vi.fn().mockResolvedValue({ routePlanId: 'rp_m2' })
+
+      const errMsg = makeAssistantMessage([{ type: 'text', text: 'Retry needed.' }], 'stop')
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(makeCompileCall(MERGE_SESSION, segs, 'tc_m1')))
+        .mockReturnValueOnce(makeSimpleStream(errMsg))
+      await executeRidePlanningAgent(ctx1, 'plan route')
+
+      const successMsg = makeAssistantMessage([{ type: 'text', text: 'Here is your route.' }], 'stop')
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(makeCompileCall(MERGE_SESSION, segsRevised, 'tc_m2')))
+        .mockReturnValueOnce(makeSimpleStream(successMsg))
+
+      let capturedResult: unknown
+      const onToolResultPiMessage = vi.fn().mockImplementation(async (id: string, msg: unknown) => {
+        if (id === 'tc_m2') capturedResult = msg
+      })
+
+      const result = await executeRidePlanningAgent(ctx2, 'revised route', { onToolResultPiMessage })
+
+      // stitchSegments must have been called with all 4 segments (3 cached + 1 new)
+      expect(stitchSegmentsMock).toHaveBeenCalledTimes(1)
+      const stitchArgs = stitchSegmentsMock.mock.calls[0][0]
+      expect(stitchArgs).toHaveLength(4)
+      // Segment 2 should be the revised one (s2_new)
+      const seg2Result = stitchArgs.find((r: any) => r.segmentIndex === 2)
+      expect(seg2Result?.route?.overviewGeometry?.value).toBe('s2_new')
+      // Final response should be routes
+      const resultText = (capturedResult as any).content[0].text
+      const parsed = JSON.parse(resultText)
+      expect(parsed.type).toBe('routes')
+      expect(result.response).toBe('Here is your route.')
+    })
+
+    it('attempt count: error hint includes attemptsRemaining decremented per retry', async () => {
+      const ATTEMPTS_SESSION = 'session_attempts_025' as any
+      const segs = [
+        makeSegment('Road A', 'Start', 'Middle'),
+        makeSegment('Road B', 'Middle', 'End'),
+      ]
+
+      // Segment 1 fails on every attempt
+      const failResults = [
+        { status: 'ok', segmentIndex: 0, route: makeProviderRoute() },
+        { status: 'failed', segmentIndex: 1, error: 'ZERO_RESULTS: Road B' },
+      ]
+
+      compileSegmentsMock.mockResolvedValue(failResults)
+      stitchSegmentsMock.mockReturnValue(makeProviderRoute('partial'))
+      normalizeRouteMock.mockResolvedValue(makeRouteSnapshot())
+
+      const capturedHints: unknown[] = []
+
+      // Run attempt 1
+      const ctx1 = { ...makeAgentContext(), planningSessionId: ATTEMPTS_SESSION }
+      ctx1.runMutation = vi.fn().mockResolvedValue({ routePlanId: 'rp_a1' })
+      const onResult1 = vi.fn().mockImplementation(async (id: string, msg: unknown) => {
+        if (id === 'tc_a1') capturedHints.push(msg)
+      })
+      const errMsg1 = makeAssistantMessage([{ type: 'text', text: 'Attempt 1 failed.' }], 'stop')
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(makeCompileCall(ATTEMPTS_SESSION, segs, 'tc_a1')))
+        .mockReturnValueOnce(makeSimpleStream(errMsg1))
+      await executeRidePlanningAgent(ctx1, 'attempt 1', { onToolResultPiMessage: onResult1 })
+
+      // Attempt 2 — compileSegments called again (segment 1 still fails)
+      // On retry only segment 1 needs compiling (segment 0 is cached)
+      const failSegOnly = [
+        { status: 'failed', segmentIndex: 1, error: 'ZERO_RESULTS: Road B still fails' },
+      ]
+      compileSegmentsMock.mockResolvedValue(failSegOnly)
+
+      const ctx2 = { ...makeAgentContext(), planningSessionId: ATTEMPTS_SESSION }
+      ctx2.runMutation = vi.fn().mockResolvedValue({ routePlanId: 'rp_a2' })
+      const onResult2 = vi.fn().mockImplementation(async (id: string, msg: unknown) => {
+        if (id === 'tc_a2') capturedHints.push(msg)
+      })
+      const errMsg2 = makeAssistantMessage([{ type: 'text', text: 'Attempt 2 failed.' }], 'stop')
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(makeCompileCall(ATTEMPTS_SESSION, segs, 'tc_a2')))
+        .mockReturnValueOnce(makeSimpleStream(errMsg2))
+      await executeRidePlanningAgent(ctx2, 'attempt 2', { onToolResultPiMessage: onResult2 })
+
+      expect(capturedHints).toHaveLength(2)
+
+      // Attempt 1 error hint should show 2 attempts remaining
+      const hint1Text = (capturedHints[0] as any).content[0].text
+      const hint1 = JSON.parse(JSON.parse(hint1Text).hint)
+      expect(hint1.attemptsRemaining).toBe(2)
+
+      // Attempt 2 error hint should show 1 attempt remaining
+      const hint2Text = (capturedHints[1] as any).content[0].text
+      const hint2 = JSON.parse(JSON.parse(hint2Text).hint)
+      expect(hint2.attemptsRemaining).toBe(1)
+    })
+
+    it('max retries: returns partial route with user message after 3 failed attempts on same session', async () => {
+      const MAX_SESSION = 'session_max_025' as any
+      const segs = [
+        makeSegment('Road X', 'A', 'B'),
+        makeSegment('Bad Road', 'B', 'C'),
+      ]
+
+      // Segment 1 fails every time
+      const firstAttemptResults = [
+        { status: 'ok', segmentIndex: 0, route: makeProviderRoute('rx') },
+        { status: 'failed', segmentIndex: 1, error: 'ZERO_RESULTS: Bad Road' },
+      ]
+      // On retry attempts 2 and 3: only segment 1 is compiled (segment 0 cached)
+      const retryFailResults = [
+        { status: 'failed', segmentIndex: 1, error: 'ZERO_RESULTS: Bad Road still broken' },
+      ]
+
+      compileSegmentsMock
+        .mockResolvedValueOnce(firstAttemptResults)
+        .mockResolvedValueOnce(retryFailResults)
+        .mockResolvedValueOnce(retryFailResults)
+
+      // stitchSegments is called for the partial route (attempt 3 max retries fallback)
+      stitchSegmentsMock.mockReturnValue(makeProviderRoute('partial_best'))
+      normalizeRouteMock.mockResolvedValue(makeRouteSnapshot())
+
+      // Attempt 1
+      const ctx1 = { ...makeAgentContext(), planningSessionId: MAX_SESSION }
+      ctx1.runMutation = vi.fn().mockResolvedValue({ routePlanId: 'rp_mx1' })
+      const errMsg1 = makeAssistantMessage([{ type: 'text', text: 'First failed.' }], 'stop')
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(makeCompileCall(MAX_SESSION, segs, 'tc_mx1')))
+        .mockReturnValueOnce(makeSimpleStream(errMsg1))
+      await executeRidePlanningAgent(ctx1, 'first attempt')
+
+      // Attempt 2
+      const ctx2 = { ...makeAgentContext(), planningSessionId: MAX_SESSION }
+      ctx2.runMutation = vi.fn().mockResolvedValue({ routePlanId: 'rp_mx2' })
+      const errMsg2 = makeAssistantMessage([{ type: 'text', text: 'Second failed.' }], 'stop')
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(makeCompileCall(MAX_SESSION, segs, 'tc_mx2')))
+        .mockReturnValueOnce(makeSimpleStream(errMsg2))
+      await executeRidePlanningAgent(ctx2, 'second attempt')
+
+      // Attempt 3 — max retries hit, should return partial route
+      const ctx3 = { ...makeAgentContext(), planningSessionId: MAX_SESSION }
+      ctx3.runMutation = vi.fn().mockResolvedValue({ routePlanId: 'rp_mx3' })
+      let capturedResult: unknown
+      const onResult3 = vi.fn().mockImplementation(async (id: string, msg: unknown) => {
+        if (id === 'tc_mx3') capturedResult = msg
+      })
+      const finalMsg = makeAssistantMessage([{ type: 'text', text: 'Partial route delivered.' }], 'stop')
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(makeCompileCall(MAX_SESSION, segs, 'tc_mx3')))
+        .mockReturnValueOnce(makeSimpleStream(finalMsg))
+      await executeRidePlanningAgent(ctx3, 'third attempt', { onToolResultPiMessage: onResult3 })
+
+      // On attempt 3, should return a routes result (partial) with a user message, not an error
+      const resultText = (capturedResult as any).content[0].text
+      const parsed = JSON.parse(resultText)
+      // Returns a chat/routes result with a partial-route message
+      expect(['routes', 'chat']).toContain(parsed.type)
+      // The message must mention the failed road and indicate partial routing
+      const msgContent = parsed.message ?? parsed.data?.message ?? ''
+      const fullContent = JSON.stringify(parsed)
+      expect(fullContent).toMatch(/Bad Road|couldn't find a path|partial|routed most/)
+    })
+  })
+
   it('US-310: ToolResultMessage pushed to context contains summarized planRoute result (no geometry), while toolResultsTracker holds full result', async () => {
     // The full planRoute result includes geometry-heavy options with nested waypoints.
     const fullRouteResult = {

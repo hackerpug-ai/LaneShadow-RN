@@ -35,20 +35,111 @@ const AGENT_TIMEOUT_MS = 30_000
 // In-Memory Sketch Store (per-session)
 // -----------------------------------------------------------------------------
 
-// Temporary store for pending sketches between createRouteSketch and compileSketch calls
-// In production, this should be stored in the planning session or a similar persistent store
-const pendingSketches = new Map<string, any>()
+// Session-scoped state for sketch compilation — tracks pending sketches, succeeded
+// segment cache, and attempt count for the retry loop.
 
-function storePendingSketch(sessionId: string, sketch: any): void {
-  pendingSketches.set(sessionId, sketch)
+const MAX_COMPILE_ATTEMPTS = 3
+
+type SegmentIdentity = {
+  roadName: string
+  fromName: string
+  toName: string
 }
 
-function getPendingSketch(sessionId: string): any | undefined {
+type CachedSegmentResult = {
+  // The original segment index in the sketch passed to the first compileSketch call
+  segmentIndex: number
+  route: import('./providers/routingProvider').ProviderRouteResponse
+  identity: SegmentIdentity
+}
+
+type PendingSketchState = {
+  sketch: any
+  succeededSegments: CachedSegmentResult[]
+  attemptCount: number
+}
+
+const pendingSketches = new Map<string, PendingSketchState>()
+
+function storePendingSketch(sessionId: string, sketch: any): void {
+  // Reset the sketch state when a new sketch is stored (LLM called createRouteSketch again)
+  pendingSketches.set(sessionId, { sketch, succeededSegments: [], attemptCount: 0 })
+}
+
+function getPendingSketchState(sessionId: string): PendingSketchState | undefined {
   return pendingSketches.get(sessionId)
+}
+
+function updatePendingSketchState(sessionId: string, state: PendingSketchState): void {
+  pendingSketches.set(sessionId, state)
 }
 
 function clearPendingSketch(sessionId: string): void {
   pendingSketches.delete(sessionId)
+}
+
+// Legacy accessor — kept for createRouteSketch handler which only needs the sketch
+function getPendingSketch(sessionId: string): any | undefined {
+  return pendingSketches.get(sessionId)?.sketch
+}
+
+/**
+ * Segment identity key for change detection.
+ * Two segments with the same (roadName, fromName, toName) are considered identical.
+ */
+function segmentKey(seg: SegmentIdentity): string {
+  return `${seg.roadName}||${seg.fromName}||${seg.toName}`
+}
+
+/**
+ * Find which segments in the new sketch are unchanged compared to previously-succeeded segments.
+ * Returns a map from new-sketch-index → cached result for each unchanged segment.
+ */
+function findUnchangedSegments(
+  newSegments: SegmentIdentity[],
+  cached: CachedSegmentResult[]
+): Map<number, CachedSegmentResult> {
+  const cachedByKey = new Map(cached.map((r) => [segmentKey(r.identity), r]))
+  const unchanged = new Map<number, CachedSegmentResult>()
+
+  newSegments.forEach((seg, idx) => {
+    const hit = cachedByKey.get(segmentKey(seg))
+    if (hit) {
+      unchanged.set(idx, hit)
+    }
+  })
+
+  return unchanged
+}
+
+/**
+ * Merge cached succeeded segments with newly-compiled results into a single ordered array.
+ * The result is ordered by segmentIndex (position in the new sketch).
+ */
+function mergeSegmentResults(
+  newSegments: SegmentIdentity[],
+  unchanged: Map<number, CachedSegmentResult>,
+  newResults: import('./tools/compileSketch').SegmentCompileResult[]
+): import('./tools/compileSketch').SegmentCompileResult[] {
+  // newResults are indexed relative to the toCompile subset — remap them
+  // The compile call was given segments in order; map back to sketch index
+  let newResultIdx = 0
+  const merged: import('./tools/compileSketch').SegmentCompileResult[] = []
+
+  for (let i = 0; i < newSegments.length; i++) {
+    const cached = unchanged.get(i)
+    if (cached) {
+      merged.push({ status: 'ok', segmentIndex: i, route: cached.route })
+    } else {
+      // This was a segment we compiled — get from newResults in order
+      const r = newResults[newResultIdx++]
+      if (r) {
+        merged.push({ ...r, segmentIndex: i })
+      }
+    }
+  }
+
+  return merged
 }
 
 // -----------------------------------------------------------------------------
@@ -383,10 +474,12 @@ async function runCompileSketch(
     }
   }
 ): Promise<unknown> {
+  const sessionId = ctx.planningSessionId
+
   // Get sketch from args or from pending store
   let sketch = args.sketch
   if (!sketch) {
-    sketch = getPendingSketch(ctx.planningSessionId)
+    sketch = getPendingSketch(sessionId)
     if (!sketch) {
       return {
         type: 'error',
@@ -431,7 +524,7 @@ async function runCompileSketch(
     internal.db.routePlans.createForAgentInternal,
     {
       clerkUserId: ctx.clerkUserId,
-      planningSessionId: ctx.planningSessionId,
+      planningSessionId: sessionId,
       planInput,
       startLabel: args.start.label ?? undefined,
       endLabel: args.end.label ?? undefined,
@@ -448,33 +541,145 @@ async function runCompileSketch(
 
     if (sketch.segments.length > 0) {
       // Per-segment compilation path (LLM-authored sketches)
-      const segmentResults = await compileSegments({ planInput, sketch })
-      const failed = segmentResults.filter(r => r.status === 'failed')
+
+      // ------------------------------------------------------------------
+      // Retry tracking (US-025)
+      // ------------------------------------------------------------------
+      // Load current session state (attempt count + previously-succeeded segments)
+      const currentState = getPendingSketchState(sessionId)
+      const attemptCount = (currentState?.attemptCount ?? 0) + 1
+      const cachedSucceeded: CachedSegmentResult[] = currentState?.succeededSegments ?? []
+
+      // Determine which segments need compilation this attempt.
+      // Unchanged segments (same roadName+fromName+toName as a cached success) are skipped.
+      const newSegments: SegmentIdentity[] = sketch.segments.map(s => ({
+        roadName: s.roadName,
+        fromName: s.fromName,
+        toName: s.toName,
+      }))
+
+      const unchanged = findUnchangedSegments(newSegments, cachedSucceeded)
+      const toCompile = sketch.segments.filter((_, i) => !unchanged.has(i))
+
+      // ------------------------------------------------------------------
+      // Max retries exhausted with persistent failures
+      // ------------------------------------------------------------------
+      const attemptsRemaining = MAX_COMPILE_ATTEMPTS - attemptCount
+
+      if (attemptCount >= MAX_COMPILE_ATTEMPTS && cachedSucceeded.length > 0 && toCompile.length > 0) {
+        // Compile the remaining failed segments one last time to see if any succeed
+        const lastResults = await compileSegments({
+          planInput,
+          sketch: { ...sketch, segments: toCompile },
+        })
+        const allResults = mergeSegmentResults(newSegments, unchanged, lastResults)
+        const stillFailed = allResults.filter(r => r.status === 'failed')
+        const nowSucceeded = allResults.filter(r => r.status === 'ok')
+
+        if (stillFailed.length > 0 && nowSucceeded.length > 0) {
+          // Build a partial route from the succeeded segments and return it with a message
+          const partialRoute = stitchSegments(nowSucceeded)
+          const routeSnapshot = await normalizeRoute({ providerRoute: partialRoute, planInput })
+          const results = [{ routeSnapshot, sketch }]
+          const built = buildOptionsFromResults(results, crypto.randomUUID())
+
+          clearPendingSketch(sessionId)
+          await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+            routePlanId,
+            status: 'completed',
+            result: built,
+          })
+          await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, {
+            clerkUserId: ctx.clerkUserId,
+          })
+
+          const failedRoadNames = stillFailed.map(f => newSegments[f.segmentIndex]?.roadName ?? 'unknown road').join(', ')
+          return {
+            type: 'routes',
+            data: {
+              ...built,
+              message: `I routed most of the trip but couldn't find a path for ${failedRoadNames}. Here's what works.`,
+            },
+            routePlanId,
+          }
+        }
+
+        if (stillFailed.length > 0 && nowSucceeded.length === 0) {
+          // All remaining segments failed — return a chat message
+          clearPendingSketch(sessionId)
+          await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+            routePlanId,
+            status: 'failed',
+            errorMessage: `All segments failed after ${MAX_COMPILE_ATTEMPTS} attempts`,
+          })
+          const failedRoadNames = stillFailed.map(f => newSegments[f.segmentIndex]?.roadName ?? 'unknown road').join(', ')
+          return {
+            type: 'chat',
+            message: `I wasn't able to find a path for ${failedRoadNames} after several attempts. Try a different route?`,
+          }
+        }
+
+        // All succeeded on last attempt — fall through to normal success path
+        providerRoute = stitchSegments(nowSucceeded)
+        clearPendingSketch(sessionId)
+        const routeSnapshot = await normalizeRoute({ providerRoute, planInput })
+        const results = [{ routeSnapshot, sketch }]
+        const built = buildOptionsFromResults(results, crypto.randomUUID())
+        await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+          routePlanId, status: 'completed', result: built,
+        })
+        await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, { clerkUserId: ctx.clerkUserId })
+        return { type: 'routes', data: built, routePlanId }
+      }
+
+      // ------------------------------------------------------------------
+      // Normal compilation attempt (attempt 1..MAX-1, or first attempt with no cache)
+      // ------------------------------------------------------------------
+      const segmentResults = await compileSegments({
+        planInput,
+        sketch: { ...sketch, segments: toCompile },
+      })
+
+      // Merge new results with cached unchanged segments
+      const mergedResults = mergeSegmentResults(newSegments, unchanged, segmentResults)
+      const failed = mergedResults.filter(r => r.status === 'failed')
+      const succeeded = mergedResults.filter(r => r.status === 'ok')
 
       if (failed.length > 0) {
-        // Partial or total failure — return structured per-segment error feedback
-        const succeeded = segmentResults.filter(r => r.status === 'ok')
+        // Update the succeeded segment cache for the next retry attempt
+        const newCachedSucceeded: CachedSegmentResult[] = succeeded.map(s => ({
+          segmentIndex: s.segmentIndex,
+          route: (s as Extract<typeof s, { status: 'ok' }>).route,
+          identity: newSegments[s.segmentIndex],
+        }))
+
+        updatePendingSketchState(sessionId, {
+          sketch,
+          succeededSegments: newCachedSucceeded,
+          attemptCount,
+        })
 
         await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
           routePlanId,
           status: 'failed',
-          errorMessage: `${failed.length} of ${segmentResults.length} segments failed`,
+          errorMessage: `${failed.length} of ${newSegments.length} segments failed`,
         })
 
         return {
           type: 'error',
-          message: `${failed.length} of ${segmentResults.length} road segments couldn't be routed.`,
+          message: `${failed.length} of ${newSegments.length} road segments couldn't be routed.`,
           hint: JSON.stringify({
             type: 'partial_route',
+            attemptsRemaining,
             succeeded: succeeded.map(s => ({
               segmentIndex: s.segmentIndex,
-              roadName: sketch.segments[s.segmentIndex].roadName,
+              roadName: newSegments[s.segmentIndex].roadName,
             })),
             failed: failed.map(f => ({
               segmentIndex: f.segmentIndex,
-              roadName: sketch.segments[f.segmentIndex].roadName,
-              fromName: sketch.segments[f.segmentIndex].fromName,
-              toName: sketch.segments[f.segmentIndex].toName,
+              roadName: newSegments[f.segmentIndex].roadName,
+              fromName: newSegments[f.segmentIndex].fromName,
+              toName: newSegments[f.segmentIndex].toName,
               error: f.status === 'failed' ? f.error : 'unknown',
             })),
             retryGuidance: 'revise_failed_segments',
@@ -486,7 +691,7 @@ async function runCompileSketch(
       }
 
       // All segments succeeded — stitch into a single provider route
-      providerRoute = stitchSegments(segmentResults)
+      providerRoute = stitchSegments(mergedResults)
     } else {
       // Single-shot compilation path (deterministic orchestrator sketches with empty segments)
       providerRoute = await compileSketchImpl({
@@ -509,7 +714,7 @@ async function runCompileSketch(
     const built = buildOptionsFromResults(results, crypto.randomUUID())
 
     // Clear the pending sketch after successful compilation
-    clearPendingSketch(ctx.planningSessionId)
+    clearPendingSketch(sessionId)
 
     // Finalize the route_plans row
     await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
