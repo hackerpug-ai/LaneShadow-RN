@@ -83,6 +83,18 @@ vi.mock('../sessionContext', () => ({
   buildInSessionRouteBlock: vi.fn().mockResolvedValue(''),
 }))
 
+// Mock compileSketch tools so per-segment path can be unit-tested without HTTP calls.
+vi.mock('../tools/compileSketch', () => ({
+  compileSketch: vi.fn(),
+  compileSegments: vi.fn(),
+  stitchSegments: vi.fn(),
+}))
+
+// Mock normalizeRoute so route normalization can be controlled per test.
+vi.mock('../tools/normalizeRoute', () => ({
+  normalizeRoute: vi.fn(),
+}))
+
 // -----------------------------------------------------------------------------
 // Helpers
 // -----------------------------------------------------------------------------
@@ -1054,6 +1066,284 @@ describe('executeRidePlanningAgent', () => {
     // Results must arrive in the same order as the original tool calls.
     expect(onToolResultPiMessage.mock.calls[0][0]).toBe('tc_order_1')
     expect(onToolResultPiMessage.mock.calls[1][0]).toBe('tc_order_2')
+  })
+
+  // ---------------------------------------------------------------------------
+  // Tests: US-023 — per-segment compilation dispatch in runCompileSketch
+  // ---------------------------------------------------------------------------
+
+  describe('per-segment dispatch (US-023)', () => {
+    // Helpers shared across US-023 tests
+    const makeCompileSketchCall = (sketchOverride?: Partial<{
+      label: string
+      rationale: string
+      segments: Array<{ roadName: string; fromName: string; toName: string; viaNames?: string[] }>
+      anchorPoints: Array<{ name: string; kind: 'town' | 'junction' | 'landmark' | 'pass'; lat?: number; lng?: number }>
+    }>) =>
+      makeAssistantMessage(
+        [
+          {
+            type: 'toolCall',
+            id: 'tc_compile',
+            name: 'compileSketch',
+            arguments: {
+              start: { lat: 37.77, lng: -122.42, label: 'SF' },
+              end: { lat: 36.97, lng: -122.03, label: 'Santa Cruz' },
+              departureTime: Date.now() + 3_600_000,
+              preferences: { scenicBias: 'high', avoidHighways: false, avoidTolls: false },
+              sketch: {
+                label: 'Test Sketch',
+                rationale: 'Scenic coastal route',
+                segments: [
+                  { roadName: 'Skyline Blvd', fromName: 'SF', toName: 'Palo Alto' },
+                  { roadName: 'CA-84', fromName: 'Palo Alto', toName: 'Half Moon Bay' },
+                  { roadName: 'CA-1', fromName: 'Half Moon Bay', toName: 'Santa Cruz' },
+                ],
+                anchorPoints: [],
+                ...sketchOverride,
+              },
+            },
+          },
+        ],
+        'toolUse'
+      )
+
+    const makeProviderRoute = () => ({
+      provider: 'google',
+      bounds: { north: 37.8, south: 36.9, east: -121.9, west: -122.5 },
+      overviewGeometry: { format: 'polyline' as const, encoding: 'google_encoded_polyline', precision: 5, value: 'abc123' },
+      legs: [
+        {
+          legIndex: 0,
+          start: { lat: 37.77, lng: -122.42 },
+          end: { lat: 36.97, lng: -122.03 },
+          distanceMeters: 100_000,
+          durationSeconds: 5_400,
+          geometry: { format: 'polyline' as const, encoding: 'google_encoded_polyline', precision: 5, value: 'leg_abc' },
+        },
+      ],
+    })
+
+    const makeRouteSnapshot = () => ({
+      routeOptionId: 'snap1',
+      label: 'Test Sketch',
+      rationale: 'Scenic coastal route',
+      stats: { distanceMeters: 100_000, durationSeconds: 5_400 },
+      highlights: [],
+      waypoints: [],
+      geometry: [],
+      legs: [],
+    })
+
+    let compileSegmentsMock: ReturnType<typeof vi.fn>
+    let stitchSegmentsMock: ReturnType<typeof vi.fn>
+    let compileSketchImplMock: ReturnType<typeof vi.fn>
+    let normalizeRouteMock: ReturnType<typeof vi.fn>
+
+    beforeEach(async () => {
+      const compileSketchMod = await import('../tools/compileSketch') as any
+      compileSegmentsMock = compileSketchMod.compileSegments
+      stitchSegmentsMock = compileSketchMod.stitchSegments
+      compileSketchImplMock = compileSketchMod.compileSketch
+
+      const normalizeRouteMod = await import('../tools/normalizeRoute') as any
+      normalizeRouteMock = normalizeRouteMod.normalizeRoute
+
+      // Default: normalize returns a route snapshot
+      normalizeRouteMock.mockResolvedValue(makeRouteSnapshot())
+    })
+
+    it('per-segment dispatch: dispatches to compileSegments when sketch has segments', async () => {
+      // All 3 segments succeed
+      const segmentResults = [
+        { status: 'ok', segmentIndex: 0, route: makeProviderRoute() },
+        { status: 'ok', segmentIndex: 1, route: makeProviderRoute() },
+        { status: 'ok', segmentIndex: 2, route: makeProviderRoute() },
+      ]
+      compileSegmentsMock.mockResolvedValue(segmentResults)
+      stitchSegmentsMock.mockReturnValue(makeProviderRoute())
+
+      const toolMsg = makeCompileSketchCall()
+      const textMsg = makeAssistantMessage([{ type: 'text', text: 'Here is your route.' }], 'stop')
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(toolMsg))
+        .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+      const ctx = makeAgentContext()
+      const result = await executeRidePlanningAgent(ctx, 'plan a sketch route')
+
+      // compileSegments must have been called (per-segment path)
+      expect(compileSegmentsMock).toHaveBeenCalledTimes(1)
+      // compileSketch (single-shot) must NOT have been called
+      expect(compileSketchImplMock).not.toHaveBeenCalled()
+      // stitchSegments must have been called to combine results
+      expect(stitchSegmentsMock).toHaveBeenCalledTimes(1)
+      // Result should be a successful route
+      expect(result.response).toBe('Here is your route.')
+    })
+
+    it('segment error feedback: returns structured failed/succeeded arrays when a segment fails', async () => {
+      // Segment 1 fails, segments 0 and 2 succeed
+      const segmentResults = [
+        { status: 'ok', segmentIndex: 0, route: makeProviderRoute() },
+        { status: 'failed', segmentIndex: 1, error: 'ZERO_RESULTS: No route found for CA-84' },
+        { status: 'ok', segmentIndex: 2, route: makeProviderRoute() },
+      ]
+      compileSegmentsMock.mockResolvedValue(segmentResults)
+
+      const toolMsg = makeCompileSketchCall()
+      const textMsg = makeAssistantMessage([{ type: 'text', text: 'Some segments failed.' }], 'stop')
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(toolMsg))
+        .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+      let capturedToolResult: unknown
+      const onToolResultPiMessage = vi.fn().mockImplementation(async (_id: string, msg: unknown) => {
+        if ((_id as string) === 'tc_compile') {
+          capturedToolResult = msg
+        }
+      })
+
+      const ctx = makeAgentContext()
+      await executeRidePlanningAgent(ctx, 'plan a sketch route', { onToolResultPiMessage })
+
+      // The tool result should be an error
+      const resultText = (capturedToolResult as any).content[0].text
+      const parsed = JSON.parse(resultText)
+
+      expect(parsed.type).toBe('error')
+      expect(parsed.message).toContain('1 of 3')
+
+      const hint = JSON.parse(parsed.hint)
+      expect(hint.type).toBe('partial_route')
+      expect(hint.retryGuidance).toBe('revise_failed_segments')
+
+      // failed array should contain segment 1
+      expect(hint.failed).toHaveLength(1)
+      expect(hint.failed[0]).toMatchObject({
+        segmentIndex: 1,
+        roadName: 'CA-84',
+        fromName: 'Palo Alto',
+        toName: 'Half Moon Bay',
+        error: 'ZERO_RESULTS: No route found for CA-84',
+      })
+
+      // succeeded array should contain segments 0 and 2
+      expect(hint.succeeded).toHaveLength(2)
+      expect(hint.succeeded[0]).toMatchObject({ segmentIndex: 0, roadName: 'Skyline Blvd' })
+      expect(hint.succeeded[1]).toMatchObject({ segmentIndex: 2, roadName: 'CA-1' })
+    })
+
+    it('single-shot fallback: uses single-shot compilation when sketch has no segments', async () => {
+      compileSketchImplMock.mockResolvedValue(makeProviderRoute())
+
+      const toolMsg = makeCompileSketchCall({
+        segments: [],
+        anchorPoints: [],
+      })
+      const textMsg = makeAssistantMessage([{ type: 'text', text: 'Single-shot route ready.' }], 'stop')
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(toolMsg))
+        .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+      const ctx = makeAgentContext()
+      await executeRidePlanningAgent(ctx, 'plan a route')
+
+      // Must use single-shot, not per-segment
+      expect(compileSketchImplMock).toHaveBeenCalledTimes(1)
+      expect(compileSegmentsMock).not.toHaveBeenCalled()
+      expect(stitchSegmentsMock).not.toHaveBeenCalled()
+    })
+
+    it('all segments failed: returns error with all in failed[], empty succeeded[], revise_failed_segments guidance', async () => {
+      // All 3 segments fail
+      const segmentResults = [
+        { status: 'failed', segmentIndex: 0, error: 'Road not found: Skyline Blvd' },
+        { status: 'failed', segmentIndex: 1, error: 'Road not found: CA-84' },
+        { status: 'failed', segmentIndex: 2, error: 'Road not found: CA-1' },
+      ]
+      compileSegmentsMock.mockResolvedValue(segmentResults)
+
+      const toolMsg = makeCompileSketchCall()
+      const textMsg = makeAssistantMessage([{ type: 'text', text: 'All failed.' }], 'stop')
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(toolMsg))
+        .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+      let capturedToolResult: unknown
+      const onToolResultPiMessage = vi.fn().mockImplementation(async (_id: string, msg: unknown) => {
+        if ((_id as string) === 'tc_compile') {
+          capturedToolResult = msg
+        }
+      })
+
+      const ctx = makeAgentContext()
+      await executeRidePlanningAgent(ctx, 'plan a sketch route', { onToolResultPiMessage })
+
+      const resultText = (capturedToolResult as any).content[0].text
+      const parsed = JSON.parse(resultText)
+
+      expect(parsed.type).toBe('error')
+      expect(parsed.message).toContain('3 of 3')
+      expect(parsed.retryGuidance).toBe('revise_failed_segments')
+
+      const hint = JSON.parse(parsed.hint)
+      expect(hint.retryGuidance).toBe('revise_failed_segments')
+      expect(hint.succeeded).toHaveLength(0)
+      expect(hint.failed).toHaveLength(3)
+      expect(hint.failed[0]).toMatchObject({ segmentIndex: 0, roadName: 'Skyline Blvd' })
+      expect(hint.failed[1]).toMatchObject({ segmentIndex: 1, roadName: 'CA-84' })
+      expect(hint.failed[2]).toMatchObject({ segmentIndex: 2, roadName: 'CA-1' })
+
+      // stitchSegments must NOT be called when all fail
+      expect(stitchSegmentsMock).not.toHaveBeenCalled()
+    })
+
+    it('partial geometry: includes partial stitched route info in error hint when some segments succeed', async () => {
+      // 2 of 3 succeed
+      const segmentResults = [
+        { status: 'ok', segmentIndex: 0, route: makeProviderRoute() },
+        { status: 'ok', segmentIndex: 1, route: makeProviderRoute() },
+        { status: 'failed', segmentIndex: 2, error: 'ZERO_RESULTS: CA-1 blocked' },
+      ]
+      compileSegmentsMock.mockResolvedValue(segmentResults)
+
+      const toolMsg = makeCompileSketchCall()
+      const textMsg = makeAssistantMessage([{ type: 'text', text: 'Partial failure.' }], 'stop')
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(toolMsg))
+        .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+      let capturedToolResult: unknown
+      const onToolResultPiMessage = vi.fn().mockImplementation(async (_id: string, msg: unknown) => {
+        if ((_id as string) === 'tc_compile') {
+          capturedToolResult = msg
+        }
+      })
+
+      const ctx = makeAgentContext()
+      await executeRidePlanningAgent(ctx, 'plan a sketch route', { onToolResultPiMessage })
+
+      const resultText = (capturedToolResult as any).content[0].text
+      const parsed = JSON.parse(resultText)
+
+      expect(parsed.type).toBe('error')
+      expect(parsed.message).toContain('1 of 3')
+
+      const hint = JSON.parse(parsed.hint)
+      // succeeded should have 2 entries (partial route)
+      expect(hint.succeeded).toHaveLength(2)
+      expect(hint.succeeded[0]).toMatchObject({ segmentIndex: 0, roadName: 'Skyline Blvd' })
+      expect(hint.succeeded[1]).toMatchObject({ segmentIndex: 1, roadName: 'CA-84' })
+      // failed should have 1 entry
+      expect(hint.failed).toHaveLength(1)
+      expect(hint.failed[0]).toMatchObject({
+        segmentIndex: 2,
+        roadName: 'CA-1',
+        fromName: 'Half Moon Bay',
+        toName: 'Santa Cruz',
+      })
+    })
   })
 
   it('US-310: ToolResultMessage pushed to context contains summarized planRoute result (no geometry), while toolResultsTracker holds full result', async () => {
