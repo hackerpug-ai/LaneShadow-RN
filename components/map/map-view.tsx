@@ -50,6 +50,10 @@ export type MapViewHandle = {
     },
     duration?: number
   ) => void
+  fitToCoordinates: (
+    coordinates: { latitude: number; longitude: number }[],
+    options?: { edgePadding?: { top: number; right: number; bottom: number; left: number }; animated?: boolean }
+  ) => void
 }
 
 const styles = StyleSheet.create({
@@ -165,6 +169,13 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
           center,
           latitudeDelta: region.latitudeDelta,
           longitudeDelta: region.longitudeDelta,
+        })
+      },
+      fitToCoordinates: (coordinates, options) => {
+        if (!mapRef.current || coordinates.length === 0) return
+        mapRef.current.fitToCoordinates(coordinates, {
+          edgePadding: options?.edgePadding ?? { top: 80, right: 40, bottom: 80, left: 40 },
+          animated: options?.animated ?? true,
         })
       },
     }))

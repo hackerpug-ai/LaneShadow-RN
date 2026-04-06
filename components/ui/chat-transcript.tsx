@@ -89,6 +89,8 @@ export interface ChatMessage {
 interface ChatTranscriptProps {
   messages: ChatMessage[];
   onRoutePress?: (routeId: string, messageId: string) => void;
+  /** Called when the user taps a completed route card to view it on the map. */
+  onViewOnMap?: () => void;
   /** Extra top padding inside the scroll content, e.g. to clear a
    *  floating header overlay rendered above the transcript. */
   topInset?: number;
@@ -316,9 +318,10 @@ const AgentMessage = ({ message, onRoutePress }: AgentMessageProps) => {
 
 interface CardRowProps {
   message: ChatMessage;
+  onViewOnMap?: () => void;
 }
 
-const CardRow = ({ message }: CardRowProps) => {
+const CardRow = ({ message, onViewOnMap }: CardRowProps) => {
   const kind = message.kind as CardKind | undefined;
   if (!kind || kind === ('text' as CardKind)) return null;
 
@@ -343,6 +346,7 @@ const CardRow = ({ message }: CardRowProps) => {
             status: message.status,
           }}
           attachments={attachments}
+          onViewOnMap={onViewOnMap}
         />
       </View>
     </View>
@@ -356,6 +360,7 @@ const CardRow = ({ message }: CardRowProps) => {
 function renderAssistantMessage(
   message: ChatMessage,
   onRoutePress: ((routeId: string, messageId: string) => void) | undefined,
+  onViewOnMap: (() => void) | undefined,
 ): React.ReactElement {
   const kind: ChatMessageKind = message.kind ?? 'text';
 
@@ -363,7 +368,7 @@ function renderAssistantMessage(
     return <AgentMessage message={message} onRoutePress={onRoutePress} />;
   }
 
-  return <CardRow message={message} />;
+  return <CardRow message={message} onViewOnMap={onViewOnMap} />;
 }
 
 // ---------------------------------------------------------------------------
@@ -404,6 +409,7 @@ const EmptyState = () => {
 export const ChatTranscript = ({
   messages,
   onRoutePress,
+  onViewOnMap,
   topInset = 0,
   bottomInset = 0,
   transparent = false,
@@ -457,7 +463,7 @@ export const ChatTranscript = ({
             {message.role === 'rider' ? (
               <RiderBubble message={message} />
             ) : (
-              renderAssistantMessage(message, onRoutePress)
+              renderAssistantMessage(message, onRoutePress, onViewOnMap)
             )}
           </React.Fragment>
         );

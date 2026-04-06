@@ -33,7 +33,9 @@ import { useChatPlanning } from '../../../hooks/use-chat-planning'
 import { useChatSession } from '../../../hooks/use-chat-session'
 import { useRouteComparison } from '../../../hooks/use-route-comparison'
 import { useActiveSessionRoute } from '../../../hooks/use-active-session-route'
+import { useSelectedRoute } from '../../../contexts/selected-route'
 import type { PlanInput, RouteStop } from '../../../types/routes'
+import { decodePolylineGeometry } from '../../../lib/polyline'
 
 type CameraState = {
   center?: { latitude: number; longitude: number }
@@ -107,16 +109,19 @@ const HomeMapScreen = () => {
   const createSession = useMutation(api.db.planningSessions.createSession)
   const { location: currentLocation } = useCurrentLocation()
 
-  // Resolve which session drives the chat transcript. Prefer an explicit
-  // URL param (deep link from the menu drawer), fall back to the real
-  // Convex sessionId created inside useChatPlanning. Note: we deliberately
-  // DO NOT use `flowState.sessionId` — that's a locally-generated string
-  // used by the state machine and would not validate as an Id<>.
+  // Fetch sessions so we can fall back to the most recent one on app open.
+  const sessions = useQuery(api.db.planningSessions.listSessions)
+
+  // Resolve which session drives the chat transcript and map route.
+  // Priority: explicit URL param → active planning session → most recent session.
+  // Note: we deliberately DO NOT use `flowState.sessionId` — that's a
+  // locally-generated string used by the state machine.
   const activeChatSessionId: Id<'planning_sessions'> | null = useMemo(() => {
     if (sessionIdParam) return sessionIdParam as Id<'planning_sessions'>
     if (planningSessionId) return planningSessionId as Id<'planning_sessions'>
+    if (sessions && sessions.length > 0) return sessions[0]._id
     return null
-  }, [sessionIdParam, planningSessionId])
+  }, [sessionIdParam, planningSessionId, sessions])
 
   // Agent-produced route from Convex (task #258). Subscribes to the latest
   // routing_card in the current session and exposes the active route option.
@@ -145,18 +150,35 @@ const HomeMapScreen = () => {
 
   const transcriptMessages: TranscriptMessage[] = useMemo(() => {
     return (
-      rawTranscriptMessages?.map((msg) => ({
-        id: msg._id,
-        role: (msg.role === 'system' ? 'agent' : 'rider') as 'rider' | 'agent',
-        content: msg.content,
-        timestamp: new Date(msg.createdAt),
-      })) ?? []
+      rawTranscriptMessages
+        ?.filter(
+          (msg) =>
+            msg.kind !== 'agent_turn' &&
+            msg.kind !== 'tool_result_hidden' &&
+            !(
+              msg.role === 'system' &&
+              (msg.kind === 'text' || !msg.kind) &&
+              !msg.content?.trim() &&
+              msg.status !== 'streaming'
+            )
+        )
+        .map((msg) => ({
+          id: msg._id,
+          role: (msg.role === 'system' ? 'agent' : 'rider') as 'rider' | 'agent',
+          content: msg.content,
+          timestamp: new Date(msg.createdAt),
+          kind: msg.kind as TranscriptMessage['kind'],
+          status: msg.status,
+          attachments: msg.attachments,
+        })) ?? []
     )
   }, [rawTranscriptMessages])
 
   const handleNewSession = async () => {
     await createSession({ firstMessage: '' })
     flowDispatch({ type: 'NEW_SESSION' })
+    setSelectedRouteId(null)
+    lastFittedPlanIdRef.current = null
   }
 
   const clearTransientTimer = useCallback(() => {
@@ -269,23 +291,54 @@ const HomeMapScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatMode, transientVisible])
 
-  // Fit camera to agent-produced route when a new plan resolves for the first
-  // time. Tracks by plan _id so we only animate once per newly-resolved plan.
+  // Fit camera to agent-produced route.
+  const { setSelectedRouteId, registerFitHandler } = useSelectedRoute()
+  const pendingFitRef = useRef(false)
+
+  const doFit = useCallback(() => {
+    if (!agentActiveOption) return
+    if (!mapRef.current) {
+      // Map not mounted yet — defer until it remounts
+      pendingFitRef.current = true
+      return
+    }
+    const coords = decodePolylineGeometry(agentActiveOption.map.overviewGeometry)
+    if (coords.length > 0) {
+      // Pad enough to clear the floating header (safe area top + header ~72)
+      // and the bottom input bar + suggestions (~160 + safe area bottom).
+      const padTop = insets.top + 80
+      const padBottom = insets.bottom + 180
+      mapRef.current.fitToCoordinates(coords, {
+        edgePadding: { top: padTop, right: 60, bottom: padBottom, left: 60 },
+        animated: true,
+      })
+    }
+  }, [agentActiveOption, insets.top, insets.bottom])
+
+  // When mapMounted flips back to true, flush any pending fit
+  useEffect(() => {
+    if (mapMounted && pendingFitRef.current) {
+      pendingFitRef.current = false
+      // Brief delay for the MapView to finish its onMapReady
+      const t = setTimeout(doFit, 300)
+      return () => clearTimeout(t)
+    }
+  }, [mapMounted, doFit])
+
+  // Register the fit handler so other tabs / chat overlay can trigger it
+  useEffect(() => {
+    registerFitHandler(doFit)
+    return () => registerFitHandler(null)
+  }, [doFit, registerFitHandler])
+
+  // Auto-fit when a new plan resolves for the first time
   useEffect(() => {
     if (!agentActiveOption || !agentRoutePlan?._id) return
     const planId = agentRoutePlan._id as string
     if (lastFittedPlanIdRef.current === planId) return
     lastFittedPlanIdRef.current = planId
-
-    const { north, south, east, west } = agentActiveOption.map.bounds
-    const region = {
-      latitude: (north + south) / 2,
-      longitude: (east + west) / 2,
-      latitudeDelta: Math.max(0.01, (north - south) * 1.2),
-      longitudeDelta: Math.max(0.01, (east - west) * 1.2),
-    }
-    mapRef.current?.animateToRegion(region, 500)
-  }, [agentActiveOption, agentRoutePlan])
+    doFit()
+  }, [agentActiveOption, agentRoutePlan, doFit])
 
   const mapLayerStyle = useAnimatedStyle(() => ({ opacity: mapOpacity.value }))
   const chatLayerStyle = useAnimatedStyle(() => ({ opacity: chatOpacity.value }))
@@ -530,6 +583,8 @@ const HomeMapScreen = () => {
     setManualRouteOptions(null)
     setSelectedRouteOptionId(null)
     setSearchStop(null)
+    setSelectedRouteId(null)
+    lastFittedPlanIdRef.current = null
     flowDispatch({ type: 'NEW_SESSION' })
   }
 
@@ -597,6 +652,10 @@ const HomeMapScreen = () => {
               topInset={insets.top + 72}
               bottomInset={insets.bottom + 96}
               transparent
+              onViewOnMap={() => {
+                setChatMode(false)
+                setTransientVisible(false)
+              }}
             />
           </Animated.View>
         )}

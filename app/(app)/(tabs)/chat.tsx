@@ -17,7 +17,7 @@
  */
 
 import { useMutation, useQuery } from 'convex/react'
-import { useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { StyleSheet, View } from 'react-native'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { Text } from 'react-native-paper'
@@ -31,6 +31,7 @@ import { useChatPlanning } from '../../../hooks/use-chat-planning'
 import { useCurrentLocation } from '../../../hooks/use-current-location'
 import { useRideFlow } from '../../../hooks/use-ride-flow'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
+import { useSelectedRoute } from '../../../contexts/selected-route'
 
 const CHAT_SUGGESTIONS = [
   'Plan a scenic ride',
@@ -41,6 +42,7 @@ const CHAT_SUGGESTIONS = [
 
 export default function ChatScreen() {
   const { semantic } = useSemanticTheme()
+  const router = useRouter()
   const { sessionId: sessionIdParam } = useLocalSearchParams<{ sessionId?: string }>()
 
   // Local flow state for composing/sending from the chat screen
@@ -80,12 +82,21 @@ export default function ChatScreen() {
   // Hidden agent bookkeeping rows (agent_turn, tool_result_hidden) carry
   // pi-ai Message payloads for the ReAct loop and never render. The
   // 'reasoning' kind is surfaced inline via ReasoningCard (US-313).
+  // Agent text messages with empty content (intermediate streaming artifacts)
+  // are also filtered to avoid rendering avatar-only placeholder rows.
   const messages: ChatMessage[] =
     rawMessages
       ?.filter(
         (msg) =>
           msg.kind !== 'agent_turn' &&
-          msg.kind !== 'tool_result_hidden'
+          msg.kind !== 'tool_result_hidden' &&
+          // Filter empty agent text messages unless still actively streaming
+          !(
+            msg.role === 'system' &&
+            (msg.kind === 'text' || !msg.kind) &&
+            !msg.content?.trim() &&
+            msg.status !== 'streaming'
+          )
       )
       .map((msg) => ({
         id: msg._id,
@@ -107,9 +118,12 @@ export default function ChatScreen() {
   const isLoading = sessions === undefined
   const hasNoSessions = sessions !== undefined && sessions.length === 0
 
+  const { setSelectedRouteId } = useSelectedRoute()
+
   const handleNewSession = async () => {
     await createSession({ firstMessage: '' })
     flowDispatch({ type: 'NEW_SESSION' })
+    setSelectedRouteId(null)
   }
 
   return (
@@ -148,7 +162,11 @@ export default function ChatScreen() {
               </Text>
             </View>
           ) : (
-            <ChatTranscript messages={messages} bottomInset={140} />
+            <ChatTranscript
+              messages={messages}
+              bottomInset={140}
+              onViewOnMap={() => router.push('/(app)/(tabs)')}
+            />
           )}
         </Animated.View>
       </SubpageLayout>

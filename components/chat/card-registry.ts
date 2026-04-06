@@ -32,6 +32,8 @@ export type CardProps = {
     content: string
   }
   attachments: CardAttachment[]
+  /** Called when the user taps a completed route card to view it on the map. */
+  onViewOnMap?: () => void
 }
 
 export type CardKind =
