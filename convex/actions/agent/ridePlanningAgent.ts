@@ -439,16 +439,61 @@ async function runCompileSketch(
   )
 
   try {
-    // Import compileSketch dynamically to avoid circular deps
-    const { compileSketch: compileSketchImpl } = await import('./tools/compileSketch')
+    // Import compilation tools dynamically to avoid circular deps
+    const { compileSketch: compileSketchImpl, compileSegments, stitchSegments } = await import('./tools/compileSketch')
     const { normalizeRoute } = await import('./tools/normalizeRoute')
     const { buildOptionsFromResults } = await import('./planRide')
 
-    // Compile the sketch to get Google Maps geometry
-    const providerRoute = await compileSketchImpl({
-      planInput,
-      sketch,
-    })
+    let providerRoute: import('./providers/routingProvider').ProviderRouteResponse
+
+    if (sketch.segments.length > 0) {
+      // Per-segment compilation path (LLM-authored sketches)
+      const segmentResults = await compileSegments({ planInput, sketch })
+      const failed = segmentResults.filter(r => r.status === 'failed')
+
+      if (failed.length > 0) {
+        // Partial or total failure — return structured per-segment error feedback
+        const succeeded = segmentResults.filter(r => r.status === 'ok')
+
+        await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+          routePlanId,
+          status: 'failed',
+          errorMessage: `${failed.length} of ${segmentResults.length} segments failed`,
+        })
+
+        return {
+          type: 'error',
+          message: `${failed.length} of ${segmentResults.length} road segments couldn't be routed.`,
+          hint: JSON.stringify({
+            type: 'partial_route',
+            succeeded: succeeded.map(s => ({
+              segmentIndex: s.segmentIndex,
+              roadName: sketch.segments[s.segmentIndex].roadName,
+            })),
+            failed: failed.map(f => ({
+              segmentIndex: f.segmentIndex,
+              roadName: sketch.segments[f.segmentIndex].roadName,
+              fromName: sketch.segments[f.segmentIndex].fromName,
+              toName: sketch.segments[f.segmentIndex].toName,
+              error: f.status === 'failed' ? f.error : 'unknown',
+            })),
+            retryGuidance: 'revise_failed_segments',
+            hint: 'Revise only the failed segments. Keep succeeded segments unchanged.',
+          }),
+          retryGuidance: 'revise_failed_segments',
+          routePlanId,
+        }
+      }
+
+      // All segments succeeded — stitch into a single provider route
+      providerRoute = stitchSegments(segmentResults)
+    } else {
+      // Single-shot compilation path (deterministic orchestrator sketches with empty segments)
+      providerRoute = await compileSketchImpl({
+        planInput,
+        sketch,
+      })
+    }
 
     // Normalize the route
     const routeSnapshot = await normalizeRoute({
