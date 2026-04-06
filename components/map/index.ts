@@ -4,3 +4,4 @@ export { MapViewWrapper, type MapViewProps, type MapViewHandle } from './map-vie
 export { buildRoutePolylines } from './route-polyline'
 export { WhereToBar } from './where-to-bar'
 export { PlanFab } from './plan-fab'
+export { MapToastStack } from './map-toast-stack'

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
 import type { Id } from '../../../convex/_generated/dataModel'
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
+import { ScrollView, StyleSheet, View } from 'react-native'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -27,7 +27,8 @@ import { ChatInput, RouteAttachmentCard } from '../../../components/chat'
 import { ChatTranscript } from '../../../components/ui/chat-transcript'
 import type { ChatMessage as TranscriptMessage } from '../../../components/ui/chat-transcript'
 import { useCurrentLocation } from '../../../hooks/use-current-location'
-import { useMessageOverlay } from '../../../hooks/use-message-overlay'
+import { useToastMessages } from '../../../hooks/use-toast-messages'
+import { MapToastStack } from '../../../components/map/map-toast-stack'
 import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useRideFlow } from '../../../hooks/use-ride-flow'
@@ -52,8 +53,6 @@ const IDLE_SUGGESTIONS = [
 ]
 
 const CHAT_TRANSITION_MS = 260
-const TRANSIENT_MS = 5000
-const TRANSIENT_FADE_MS = 450
 
 const HomeMapScreen = () => {
   useRouter()
@@ -66,26 +65,16 @@ const HomeMapScreen = () => {
     chat?: string
   }>()
 
-  // Transcript visibility model (single source of truth for the transcript
-  // that overlays the map):
-  //   - `chatMode` (a.k.a. "pinned"): transcript visible indefinitely, map
-  //     fully faded out, header swaps to chat UI.
-  //   - `transientVisible`: transcript visible as a scrim over the map,
-  //     auto-hides after TRANSIENT_MS. Triggered by new messages arriving.
-  //   - neither: transcript hidden, map fully interactive.
-  // Tapping the chat button cycles: hidden → pinned → hidden, transient →
-  // pinned. This way a brand new message can be glanced at without changing
-  // screens, but a tap commits to reading the full thread.
+  // Visibility model:
+  //   - `chatMode`: full transcript visible, map faded out.
+  //   - map mode: lightweight toast pills for new agent messages,
+  //     managed by useToastMessages hook. Tap any toast → chat mode.
   const [chatMode, setChatMode] = useState(chatParam === '1')
-  const [transientVisible, setTransientVisible] = useState(false)
   const [mapPlanningVisible, setMapPlanningVisible] = useState(false)
-  const transientStartIndexRef = useRef(0)
   const [mapMounted, setMapMounted] = useState(!chatMode)
   const [transcriptMounted, setTranscriptMounted] = useState(chatMode)
   const mapOpacity = useSharedValue(chatMode ? 0 : 1)
   const chatOpacity = useSharedValue(chatMode ? 1 : 0)
-  const scrimOpacity = useSharedValue(chatMode ? 1 : 0)
-  const transientTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { data: planInit } = usePlanInit()
   const {
     planRide,
@@ -188,72 +177,20 @@ const HomeMapScreen = () => {
     lastFittedPlanIdRef.current = null
   }
 
-  const clearTransientTimer = useCallback(() => {
-    if (transientTimerRef.current) {
-      clearTimeout(transientTimerRef.current)
-      transientTimerRef.current = null
-    }
-  }, [])
-
-  // Gesture overlay: pin (tap transcript), dismiss (swipe-up / map tap)
-  const overlay = useMessageOverlay({
-    clearTransientTimer,
-    setTransientVisible,
+  // Toast-style messages for map mode — lightweight pills instead of
+  // the full transcript overlay. The hook manages baseline tracking,
+  // filtering (agent text only), and per-toast lifecycle.
+  const { toasts, dismissToast, clearAll: clearToasts } = useToastMessages({
+    transcriptMessages,
+    chatMode,
+    sessionId: activeChatSessionId,
   })
 
-  const armTransientTimer = useCallback(() => {
-    clearTransientTimer()
-    transientTimerRef.current = setTimeout(() => {
-      // If pinned via tap gesture, skip auto-dismiss
-      if (overlay.pinnedRef.current) return
-      setTransientVisible(false)
-      transientTimerRef.current = null
-    }, TRANSIENT_MS)
-  }, [clearTransientTimer, overlay.pinnedRef])
-
-  // Show the transcript transiently whenever a new message lands and we're
-  // not already pinned into chat mode. The first Convex payload is treated
-  // as the baseline so existing history doesn't flash on app open.
-  const prevMessageCountRef = useRef(0)
-  const baselineSetRef = useRef(false)
-  // Reset baseline when the session we're viewing changes
+  // Hide planning indicator when first toast appears
   useEffect(() => {
-    baselineSetRef.current = false
-    prevMessageCountRef.current = 0
-  }, [activeChatSessionId])
-  useEffect(() => {
-    if (rawTranscriptMessages === undefined) return // still loading
-    if (!baselineSetRef.current) {
-      prevMessageCountRef.current = transcriptMessages.length
-      baselineSetRef.current = true
-      return
-    }
-    const prev = prevMessageCountRef.current
-    prevMessageCountRef.current = transcriptMessages.length
-    if (chatMode) return
-    if (transcriptMessages.length > prev) {
-      // Only show transient overlay for agent responses, not rider sends
-      const newestMsg = transcriptMessages[transcriptMessages.length - 1]
-      if (newestMsg?.role === 'rider') return
-      // Hide planning indicator, show only new messages transiently
-      setMapPlanningVisible(false)
-      transientStartIndexRef.current = prev
-      overlay.resetPin()
-      setTranscriptMounted(true)
-      setTransientVisible(true)
-      armTransientTimer()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transcriptMessages.length, chatMode, armTransientTimer, rawTranscriptMessages])
+    if (toasts.length > 0) setMapPlanningVisible(false)
+  }, [toasts.length])
 
-  // Cleanup on unmount
-  useEffect(() => () => clearTransientTimer(), [clearTransientTimer])
-
-  // Wrap the send so the transient overlay surfaces the INSTANT the user
-  // commits, without waiting for Convex to round-trip. This matters on the
-  // Show a lightweight planning indicator in map mode instead of the full
-  // transcript overlay. The transient overlay only fires when the agent
-  // responds (handled by the transcriptMessages.length effect above).
   const handleSendMessage = useCallback(
     (message: string) => {
       if (!chatMode) {
@@ -269,21 +206,18 @@ const HomeMapScreen = () => {
 
   // Cycle the transcript visibility when the chat button / overlay is tapped.
   //   hidden    → pinned (chat mode)
-  //   transient → pinned (cancel timer, stay visible)
-  //   pinned    → hidden (exit chat mode)
+  //   map mode  → chat mode (show transcript)
+  //   chat mode → map mode (hide transcript)
   const cycleTranscript = useCallback(() => {
-    clearTransientTimer()
     if (chatMode) {
       setChatMode(false)
-      setTransientVisible(false)
       return
     }
-    // Pin whatever is showing — or surface it from hidden
+    clearToasts()
     setTranscriptMounted(true)
-    setTransientVisible(false)
     setMapMounted(true)
     setChatMode(true)
-  }, [chatMode, clearTransientTimer])
+  }, [chatMode, clearToasts])
 
   // Respond to deep-link param changes (e.g. drawer tapping a session when
   // the home tab is already mounted).
@@ -295,21 +229,21 @@ const HomeMapScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatParam, sessionIdParam])
 
-  // Opacity orchestration — map + scrim track chatMode, chat content tracks
-  // chatMode || transientVisible so it can peek in without hiding the map.
+  // Opacity orchestration — map fades out when chat mode is active,
+  // transcript fades in. No transient scrim needed — toasts handle map mode.
   useEffect(() => {
-    const duration = chatMode || !transientVisible ? CHAT_TRANSITION_MS : TRANSIENT_FADE_MS
     mapOpacity.value = withTiming(chatMode ? 0 : 1, { duration: CHAT_TRANSITION_MS })
-    scrimOpacity.value = withTiming(chatMode ? 1 : 0, { duration: CHAT_TRANSITION_MS })
-    chatOpacity.value = withTiming(chatMode || transientVisible ? 1 : 0, { duration })
+    chatOpacity.value = withTiming(chatMode ? 1 : 0, { duration: CHAT_TRANSITION_MS })
     const t = setTimeout(() => {
       if (chatMode) setMapMounted(false)
-      else setMapMounted(true)
-      if (!chatMode && !transientVisible) setTranscriptMounted(false)
+      else {
+        setMapMounted(true)
+        setTranscriptMounted(false)
+      }
     }, CHAT_TRANSITION_MS + 60)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatMode, transientVisible])
+  }, [chatMode])
 
   // Fit camera to agent-produced route.
   const { setSelectedRouteId, registerFitHandler } = useSelectedRoute()
@@ -371,7 +305,6 @@ const HomeMapScreen = () => {
 
   const mapLayerStyle = useAnimatedStyle(() => ({ opacity: mapOpacity.value }))
   const chatLayerStyle = useAnimatedStyle(() => ({ opacity: chatOpacity.value }))
-  const scrimLayerStyle = useAnimatedStyle(() => ({ opacity: scrimOpacity.value }))
 
   // Manual mode state (legacy - for PlanRideSheet)
   const [startStop, setStartStop] = useState<RouteStop | null>(null)
@@ -503,11 +436,6 @@ const HomeMapScreen = () => {
 
   const handleMapClick = useCallback(
     (event: { coordinates?: { latitude: number; longitude: number } }) => {
-      // AC-3: Tapping the map (not the transcript) dismisses visible overlay
-      if (transientVisible) {
-        overlay.dismiss()
-        return
-      }
       // Only drop pins in manual planning mode (PlanRideSheet open)
       if (!sheetVisible) return
       const coords = event.coordinates
@@ -534,7 +462,7 @@ const HomeMapScreen = () => {
       setManualRouteOptions(null)
       setSelectedRouteOptionId(null)
     },
-    [startStop, endStop, transientVisible, overlay, sheetVisible]
+    [startStop, endStop, sheetVisible]
   )
 
   const handlePlanRide = useCallback(async () => {
@@ -693,59 +621,26 @@ const HomeMapScreen = () => {
           </Animated.View>
         )}
 
-        {/* Chat transcript layer -- the single source of truth for
-            messages on this screen. Renders in three visibility modes:
-              - hidden         (opacity 0, unmounted)
-              - transient peek (semi-opaque scrim, auto-hides; tap to pin,
-                swipe-up to dismiss)
-              - pinned / chat  (solid scrim, fully interactive, chat mode)
-            Uses one scrim backdrop (animated separately) so the peek can
-            leave the map readable through the transcript.
-
-            When transient, pointerEvents='auto' so we can capture tap-to-pin
-            and swipe-up-to-dismiss gestures via PanResponder. */}
+        {/* Chat transcript layer — only visible in chat mode. Map mode
+            uses lightweight MapToastStack instead of the full transcript. */}
         {transcriptMounted && (
           <Animated.View
             style={[StyleSheet.absoluteFill, chatLayerStyle, styles.chatLayer]}
-            pointerEvents={chatMode || transientVisible ? 'auto' : 'none'}
-            {...(transientVisible && !chatMode
-              ? overlay.panResponder.panHandlers
-              : {})}
+            pointerEvents={chatMode ? 'auto' : 'none'}
           >
-            <Animated.View
-              pointerEvents="none"
+            <View
               style={[
                 StyleSheet.absoluteFill,
-                scrimLayerStyle,
                 { backgroundColor: semantic.color.background.default },
               ]}
             />
-            {/* AC-1: Tap transcript to pin (cancel auto-dismiss) */}
-            {transientVisible && !chatMode ? (
-              <Pressable onPress={overlay.pin} style={StyleSheet.absoluteFill}>
-                <ChatTranscript
-                  messages={transcriptMessages.slice(transientStartIndexRef.current)}
-                  topInset={insets.top + 72}
-                  bottomInset={insets.bottom + 96}
-                  transparent
-                  onViewOnMap={() => {
-                    setChatMode(false)
-                    setTransientVisible(false)
-                  }}
-                />
-              </Pressable>
-            ) : (
-              <ChatTranscript
-                messages={transcriptMessages}
-                topInset={insets.top + 72}
-                bottomInset={insets.bottom + 96}
-                transparent
-                onViewOnMap={() => {
-                  setChatMode(false)
-                  setTransientVisible(false)
-                }}
-              />
-            )}
+            <ChatTranscript
+              messages={transcriptMessages}
+              topInset={insets.top + 72}
+              bottomInset={insets.bottom + 96}
+              transparent
+              onViewOnMap={() => setChatMode(false)}
+            />
           </Animated.View>
         )}
 
@@ -849,6 +744,20 @@ const HomeMapScreen = () => {
 
         {/* Planning indicator - shown in map mode while agent is working */}
         <MapPlanningIndicator visible={mapPlanningVisible && !chatMode} />
+
+        {/* Toast-style message notifications — map mode only */}
+        {!chatMode && toasts.length > 0 && (
+          <MapToastStack
+            messages={toasts}
+            onDismiss={dismissToast}
+            onTapToChat={() => {
+              clearToasts()
+              cycleTranscript()
+            }}
+            bottomOffset={insets.bottom + 96}
+            testID="map-toast-stack"
+          />
+        )}
 
         {/* Chat input - always visible at bottom */}
         <ChatInput
