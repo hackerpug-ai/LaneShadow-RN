@@ -75,8 +75,9 @@ describe('buildInSessionRouteBlock', () => {
       expect(result).toContain('1. Home \u2192 Santa Cruz:')
       expect(result).toContain('42mi')
       expect(result).toContain('75min')
-      expect(result).toContain('default')
       expect(result).toContain('When refining, reference these by endpoint pair and only change what the rider asks.')
+      // Default preferences are not shown
+      expect(result).not.toContain('Preferences:')
     })
 
     it('produces correct line structure', async () => {
@@ -138,7 +139,8 @@ describe('buildInSessionRouteBlock', () => {
       })
       const ctx = makeCtx([route])
       const result = await buildInSessionRouteBlock(ctx, SESSION_ID)
-      expect(result).toContain('default')
+      // Default preferences are not shown
+      expect(result).not.toContain('Preferences:')
     })
 
     it('renders "scenic" for high scenicBias with no avoidances', async () => {
@@ -147,58 +149,64 @@ describe('buildInSessionRouteBlock', () => {
       })
       const ctx = makeCtx([route])
       const result = await buildInSessionRouteBlock(ctx, SESSION_ID)
-      expect(result).toContain('scenic')
-      expect(result).not.toContain('avoid-highways')
-      expect(result).not.toContain('avoid-tolls')
+      expect(result).toContain('Preferences:')
+      expect(result).toContain('{"scenicBias":"high"}')
+      expect(result).not.toContain('avoidHighways')
+      expect(result).not.toContain('avoidTolls')
     })
 
-    it('renders "scenic+avoid-highways" for high scenic + avoidHighways', async () => {
+    it('renders JSON for high scenic + avoidHighways', async () => {
       const route = makeRoute({
         preferences: { scenicBias: 'high', avoidHighways: true, avoidTolls: false },
       })
       const ctx = makeCtx([route])
       const result = await buildInSessionRouteBlock(ctx, SESSION_ID)
-      expect(result).toContain('scenic+avoid-highways')
-      expect(result).not.toContain('avoid-tolls')
+      expect(result).toContain('Preferences:')
+      expect(result).toContain('{"scenicBias":"high","avoidHighways":true}')
+      expect(result).not.toContain('avoidTolls')
     })
 
-    it('renders "scenic+avoid-tolls" for high scenic + avoidTolls', async () => {
+    it('renders JSON for high scenic + avoidTolls', async () => {
       const route = makeRoute({
         preferences: { scenicBias: 'high', avoidHighways: false, avoidTolls: true },
       })
       const ctx = makeCtx([route])
       const result = await buildInSessionRouteBlock(ctx, SESSION_ID)
-      expect(result).toContain('scenic+avoid-tolls')
-      expect(result).not.toContain('avoid-highways')
+      expect(result).toContain('Preferences:')
+      expect(result).toContain('{"scenicBias":"high","avoidTolls":true}')
+      expect(result).not.toContain('avoidHighways')
     })
 
-    it('renders "scenic+avoid-highways+avoid-tolls" for all flags set', async () => {
+    it('renders JSON for all flags set', async () => {
       const route = makeRoute({
         preferences: { scenicBias: 'high', avoidHighways: true, avoidTolls: true },
       })
       const ctx = makeCtx([route])
       const result = await buildInSessionRouteBlock(ctx, SESSION_ID)
-      expect(result).toContain('scenic+avoid-highways+avoid-tolls')
+      expect(result).toContain('Preferences:')
+      expect(result).toContain('{"scenicBias":"high","avoidHighways":true,"avoidTolls":true}')
     })
 
-    it('renders "avoid-highways" for default scenic + avoidHighways only', async () => {
+    it('renders JSON for default scenic + avoidHighways only', async () => {
       const route = makeRoute({
         preferences: { scenicBias: 'default', avoidHighways: true, avoidTolls: false },
       })
       const ctx = makeCtx([route])
       const result = await buildInSessionRouteBlock(ctx, SESSION_ID)
-      expect(result).toContain('avoid-highways')
-      expect(result).not.toContain('scenic')
+      expect(result).toContain('Preferences:')
+      expect(result).toContain('{"avoidHighways":true}')
+      expect(result).not.toContain('scenicBias')
     })
 
-    it('renders "avoid-tolls" for default scenic + avoidTolls only', async () => {
+    it('renders JSON for default scenic + avoidTolls only', async () => {
       const route = makeRoute({
         preferences: { scenicBias: 'default', avoidHighways: false, avoidTolls: true },
       })
       const ctx = makeCtx([route])
       const result = await buildInSessionRouteBlock(ctx, SESSION_ID)
-      expect(result).toContain('avoid-tolls')
-      expect(result).not.toContain('scenic')
+      expect(result).toContain('Preferences:')
+      expect(result).toContain('{"avoidTolls":true}')
+      expect(result).not.toContain('scenicBias')
     })
 
     it('renders "default" when avoidHighways and avoidTolls are undefined', async () => {
@@ -207,7 +215,8 @@ describe('buildInSessionRouteBlock', () => {
       })
       const ctx = makeCtx([route])
       const result = await buildInSessionRouteBlock(ctx, SESSION_ID)
-      expect(result).toContain('default')
+      // Default preferences are not shown
+      expect(result).not.toContain('Preferences:')
     })
   })
 
