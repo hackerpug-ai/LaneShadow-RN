@@ -892,6 +892,104 @@ describe('executeRidePlanningAgent', () => {
   // Tests: summarizeForContext wiring (US-310)
   // ---------------------------------------------------------------------------
 
+  // ---------------------------------------------------------------------------
+  // Tests: parallel tool execution (US-320)
+  // ---------------------------------------------------------------------------
+
+  it('US-320: two concurrent geocode calls both execute (parallel safe)', async () => {
+    // The model asks for two geocodes in a single turn.
+    const twoGeoMsg = makeAssistantMessage(
+      [
+        { type: 'toolCall', id: 'tc_geo_sc', name: 'geocode', arguments: { query: 'Santa Cruz' } },
+        { type: 'toolCall', id: 'tc_geo_hmb', name: 'geocode', arguments: { query: 'Half Moon Bay' } },
+      ],
+      'toolUse'
+    )
+    const textMsg = makeAssistantMessage([{ type: 'text', text: 'Got both.' }], 'stop')
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(twoGeoMsg))
+      .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+    const { createGeocodingProvider } = await import('../providers/geocodingProvider') as any
+    const ctx = makeAgentContext()
+    await executeRidePlanningAgent(ctx, 'geocode Santa Cruz and Half Moon Bay')
+
+    // createGeocodingProvider is called once per geocode tool invocation.
+    // Collect all geocode mock calls across every instance.
+    const allGeocodeCalls: unknown[][] = (createGeocodingProvider.mock.results as Array<{ value: any }>)
+      .flatMap(r => (r.value.geocode.mock.calls as unknown[][]))
+
+    expect(allGeocodeCalls).toHaveLength(2)
+    const queries = allGeocodeCalls.map(args => args[0])
+    expect(queries).toContain('Santa Cruz')
+    expect(queries).toContain('Half Moon Bay')
+  })
+
+  it('US-320: geocode (safe) and planRoute (unsafe) in same turn — geocode runs parallel-safe, planRoute sequential', async () => {
+    // Simulate a model turn that requests both geocode and planRoute together.
+    const mixedMsg = makeAssistantMessage(
+      [
+        { type: 'toolCall', id: 'tc_geo_mix', name: 'geocode', arguments: { query: 'Monterey' } },
+        {
+          type: 'toolCall',
+          id: 'tc_plan_mix',
+          name: 'planRoute',
+          arguments: {
+            start: { lat: 37.77, lng: -122.42, label: null },
+            end: { lat: 36.6, lng: -121.9, label: 'Monterey, CA' },
+            departureTime: Date.now() + 3_600_000,
+            preferences: { scenicBias: 'high', avoidHighways: false, avoidTolls: false },
+          },
+        },
+      ],
+      'toolUse'
+    )
+    const textMsg = makeAssistantMessage([{ type: 'text', text: 'Done.' }], 'stop')
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(mixedMsg))
+      .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+    planRideOrchestrator.mockResolvedValue([])
+
+    const onToolResultPiMessage = vi.fn().mockResolvedValue(undefined)
+    const ctx = makeAgentContext()
+    const result = await executeRidePlanningAgent(ctx, 'ride to Monterey', { onToolResultPiMessage })
+
+    // Both tool results must be present.
+    expect(onToolResultPiMessage).toHaveBeenCalledTimes(2)
+    const ids = onToolResultPiMessage.mock.calls.map(([id]: [string]) => id)
+    expect(ids).toContain('tc_geo_mix')
+    expect(ids).toContain('tc_plan_mix')
+
+    // planRoute must have executed (runMutation called).
+    expect(ctx.runMutation).toHaveBeenCalled()
+    expect(result.response).toBe('Done.')
+  })
+
+  it('US-320: result ordering is preserved regardless of parallel execution order', async () => {
+    // Two geocodes in a single turn; results must appear in call order (sc before hmb).
+    const twoGeoMsg = makeAssistantMessage(
+      [
+        { type: 'toolCall', id: 'tc_order_1', name: 'geocode', arguments: { query: 'Santa Cruz' } },
+        { type: 'toolCall', id: 'tc_order_2', name: 'geocode', arguments: { query: 'Half Moon Bay' } },
+      ],
+      'toolUse'
+    )
+    const textMsg = makeAssistantMessage([{ type: 'text', text: 'Ordered.' }], 'stop')
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(twoGeoMsg))
+      .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+    const onToolResultPiMessage = vi.fn().mockResolvedValue(undefined)
+    const ctx = makeAgentContext()
+    await executeRidePlanningAgent(ctx, 'both places', { onToolResultPiMessage })
+
+    expect(onToolResultPiMessage).toHaveBeenCalledTimes(2)
+    // Results must arrive in the same order as the original tool calls.
+    expect(onToolResultPiMessage.mock.calls[0][0]).toBe('tc_order_1')
+    expect(onToolResultPiMessage.mock.calls[1][0]).toBe('tc_order_2')
+  })
+
   it('US-310: ToolResultMessage pushed to context contains summarized planRoute result (no geometry), while toolResultsTracker holds full result', async () => {
     // The full planRoute result includes geometry-heavy options with nested waypoints.
     const fullRouteResult = {

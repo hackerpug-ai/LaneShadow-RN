@@ -303,35 +303,45 @@ async function runSearchFavorites(
 // peer dep) minor API difference at the TypeScript type level. The runtime
 // shapes are identical — both produce plain objects with a `Symbol(TypeBox.Kind)`
 // symbol property that AJV resolves correctly.
-const tools: Tool[] = [
+
+type ToolWithParallelSafe = Tool & { parallelSafe: boolean }
+
+const tools: ToolWithParallelSafe[] = [
   {
     name: 'geocode',
     description:
       "Look up coordinates for a place name, address, or landmark. Use before planRoute when the rider names somewhere other than \"here\". Results are biased toward the rider's current location.",
     parameters: AgentToolSchemas.geocode as any,
+    parallelSafe: true,
   },
   {
     name: 'planRoute',
     description:
       "Plan a motorcycle route with 2-3 scenic options. Call geocode first if you need coordinates for the start or end. Use the rider's current location (given in the system prompt) as start when they say \"here\" or don't specify. For refinements, call this again with updated preferences.",
     parameters: AgentToolSchemas.planRoute as any,
+    parallelSafe: false,
   },
   {
     name: 'fetchWeather',
     description: 'Get weather information for the planned route.',
     parameters: AgentToolSchemas.fetchWeather as any,
+    parallelSafe: true,
   },
   {
     name: 'saveRoute',
     description: 'Save the current route to favorites.',
     parameters: AgentToolSchemas.saveRoute as any,
+    parallelSafe: false,
   },
   {
     name: 'searchFavorites',
     description: 'Search saved routes by query.',
     parameters: AgentToolSchemas.searchFavorites as any,
+    parallelSafe: true,
   },
 ]
+
+const safeToolNames = new Set(tools.filter(t => t.parallelSafe).map(t => t.name))
 
 // -----------------------------------------------------------------------------
 // Tool Executor Dispatch
@@ -525,9 +535,69 @@ export async function executeRidePlanningAgent(
     // Notify caller that the assistant turn with tool calls is complete.
     await executeCtx?.onAgentTurn?.(assistant)
 
+    // Partition tool calls into parallel-safe and sequential groups.
+    // The LoopDetector check runs for ALL calls before any execution begins,
+    // so loop-detected calls are handled uniformly regardless of partition.
+    const safeCalls = toolCalls.filter(c => safeToolNames.has(c.name))
+    const unsafeCalls = toolCalls.filter(c => !safeToolNames.has(c.name))
+
+    // Pre-allocate a results map keyed by call id so we can reconstruct
+    // original ordering when pushing ToolResultMessage items.
+    type CallOutcome = { result: unknown; isError: boolean; loopDetected: boolean }
+    const outcomes = new Map<string, CallOutcome>()
+
+    // LoopDetector: record all calls BEFORE dispatching any execution.
     for (const call of toolCalls) {
-      // Check for repeated identical tool calls before executing.
       if (loopDetector.record(call)) {
+        outcomes.set(call.id, { result: { type: 'error', message: 'Loop detected' }, isError: true, loopDetected: true })
+      }
+    }
+
+    // Execute safe calls in parallel (excluding loop-detected ones).
+    const safeCallsToRun = safeCalls.filter(c => !outcomes.has(c.id))
+    await Promise.all(
+      safeCallsToRun.map(async (call) => {
+        let result: unknown
+        let isError = false
+        try {
+          result = await executeTool(ctx, call, executeCtx)
+        } catch (err) {
+          result = {
+            type: 'error',
+            message: err instanceof Error ? err.message : String(err),
+            hint: "An unexpected error occurred. Ask the rider what they'd like to do.",
+            retryGuidance: 'ask_rider',
+          }
+          isError = true
+        }
+        outcomes.set(call.id, { result, isError, loopDetected: false })
+      })
+    )
+
+    // Execute unsafe calls sequentially (excluding loop-detected ones).
+    for (const call of unsafeCalls) {
+      if (outcomes.has(call.id)) continue  // already loop-detected
+      let result: unknown
+      let isError = false
+      try {
+        result = await executeTool(ctx, call, executeCtx)
+      } catch (err) {
+        result = {
+          type: 'error',
+          message: err instanceof Error ? err.message : String(err),
+          hint: "An unexpected error occurred. Ask the rider what they'd like to do.",
+          retryGuidance: 'ask_rider',
+        }
+        isError = true
+      }
+      outcomes.set(call.id, { result, isError, loopDetected: false })
+    }
+
+    // Reconstruct results in original call order and push to context.
+    for (const call of toolCalls) {
+      const outcome = outcomes.get(call.id)!
+
+      if (outcome.loopDetected) {
         const loopResult: ToolResultMessage = {
           role: 'toolResult',
           toolCallId: call.id,
@@ -545,19 +615,7 @@ export async function executeRidePlanningAgent(
         continue
       }
 
-      let result: unknown
-      let isError = false
-      try {
-        result = await executeTool(ctx, call, executeCtx)
-      } catch (err) {
-        result = {
-          type: 'error',
-          message: err instanceof Error ? err.message : String(err),
-          hint: "An unexpected error occurred. Ask the rider what they'd like to do.",
-          retryGuidance: 'ask_rider',
-        }
-        isError = true
-      }
+      const { result, isError } = outcome
 
       // Full result stays in toolResultsTracker for frontend attachments
       toolResultsTracker.push({ toolName: call.name, result })
