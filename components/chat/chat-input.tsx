@@ -66,7 +66,7 @@ const SuggestionChips = ({
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={[
         styles.chipsContainer,
-        { gap: semantic.space.sm },
+        { gap: semantic.space.sm, paddingHorizontal: semantic.space.md },
       ]}
     >
       {suggestions.map((suggestion, index) => (
@@ -147,14 +147,15 @@ export const ChatInput = ({
         styles.container,
         {
           paddingBottom: insets.bottom + semantic.space.md,
-          paddingHorizontal: semantic.space.md,
         },
       ]}
       testID={testID}
     >
       {/* Error message when in ERROR state */}
       {isError && errorMessage && (
-        <ErrorMessage message={errorMessage} testID="chat-error-message" />
+        <View style={{ paddingHorizontal: semantic.space.md }}>
+          <ErrorMessage message={errorMessage} testID="chat-error-message" />
+        </View>
       )}
 
       {/* Suggestion chips when idle */}
@@ -166,7 +167,7 @@ export const ChatInput = ({
       )}
 
       {/* Input row: input container + toggle button */}
-      <View style={styles.inputRow}>
+      <View style={[styles.inputRow, { paddingHorizontal: semantic.space.md }]}>
         {/* Input bar */}
         <View
           style={[
@@ -326,9 +327,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   chipsContainer: {
-    width: '100%',
     maxWidth: 780,
-    paddingHorizontal: 4,
   },
   chip: {
     borderWidth: 1,

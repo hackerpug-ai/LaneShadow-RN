@@ -402,7 +402,10 @@ const HomeMapScreen = () => {
   // Build polylines for map rendering
   const routePolylines = useMemo(() => {
     // If using chat flow state machine, use polylines from useRouteComparison
-    if (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS') {
+    // This includes ROUTE_RESULTS, ROUTE_DETAILS, and PLANNING (when refining existing routes)
+    const hasRouteOptions = (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS' || flowState.phase === 'PLANNING') && 'routeOptions' in flowState && flowState.routeOptions
+
+    if (hasRouteOptions) {
       // Flatten the nested polylines array
       return polylines.flatMap(routePolyline => routePolyline.polylines)
     }
@@ -742,9 +745,11 @@ const HomeMapScreen = () => {
         </View>
 
         {/* Route attachment cards when showing results (map mode only, hidden while toasts are visible) */}
+        {/* Show during ROUTE_RESULTS, ROUTE_DETAILS, and PLANNING (when refining existing routes) */}
         {!chatMode &&
           toasts.length === 0 &&
-          (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS') &&
+          (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS' || flowState.phase === 'PLANNING') &&
+          'routeOptions' in flowState &&
           flowState.routeOptions?.options && (
             <View
               pointerEvents="box-none"

@@ -14,7 +14,7 @@
 
 import React, { useEffect, useRef } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
-import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated'
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { TypingIndicator } from '../chat/typing-indicator'
 import type { ToastMessage } from '../../hooks/use-toast-messages'
@@ -59,7 +59,6 @@ const MapToast = ({ toast, onDismiss, onTap, autoFadeMs = AUTO_FADE_MS }: MapToa
     <Animated.View
       entering={FadeIn.duration(200)}
       exiting={FadeOut.duration(300)}
-      layout={LinearTransition.springify().damping(15).stiffness(120)}
       style={[
         styles.toast,
         {
@@ -69,6 +68,7 @@ const MapToast = ({ toast, onDismiss, onTap, autoFadeMs = AUTO_FADE_MS }: MapToa
           paddingVertical: semantic.space.sm,
           paddingHorizontal: semantic.space.lg,
           maxWidth: `${MAX_TOAST_WIDTH_RATIO * 100}%` as unknown as number,
+          minWidth: 200,
           ...semantic.elevation[2],
         },
       ]}
