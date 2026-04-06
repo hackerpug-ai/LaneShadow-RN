@@ -8,6 +8,8 @@ import { executeRidePlanningAgent } from './ridePlanningAgent'
 import type { ExecuteContext } from './ridePlanningAgent'
 import type { Id } from '../../_generated/dataModel'
 import type { SessionMessageKind } from '../../../models/session-messages'
+import type { Message, AssistantMessage, ToolResultMessage } from '@mariozechner/pi-ai'
+import { AI_MODEL } from '../../lib/env'
 
 // ---------------------------------------------------------------------------
 // Card-backed tool mapping
@@ -24,21 +26,91 @@ export const TOOL_TO_CARD_KIND: Record<string, SessionMessageKind> = {
 }
 
 // ---------------------------------------------------------------------------
+// Legacy message reconstruction
+// ---------------------------------------------------------------------------
+
+type SessionMessageRow = {
+  _id: Id<'session_messages'>
+  _creationTime: number
+  sessionId: Id<'planning_sessions'>
+  role: 'rider' | 'system'
+  content: string
+  createdAt: number
+  kind?: SessionMessageKind
+  status?: 'streaming' | 'running' | 'complete' | 'failed'
+  piMessage?: unknown
+}
+
+/**
+ * Reconstruct a pi-ai Message from a legacy session_messages row that has no
+ * piMessage field. Only handles 'rider' and 'system' (text-only) rows.
+ *
+ * Returns null for rows that should be skipped (cards, failed, hidden kinds,
+ * empty content).
+ */
+export function reconstructLegacyPiMessage(row: SessionMessageRow): Message | null {
+  // Skip hidden/non-text kinds
+  if (row.kind && row.kind !== 'text') return null
+  // Skip failed turns
+  if (row.status === 'failed') return null
+  // Skip empty content
+  if (!row.content || !row.content.trim()) return null
+
+  if (row.role === 'rider') {
+    return {
+      role: 'user',
+      content: row.content,
+      timestamp: row.createdAt,
+    } as Message
+  }
+
+  // system role → fabricate AssistantMessage with sentinel metadata
+  return {
+    role: 'assistant',
+    content: [{ type: 'text', text: row.content }],
+    api: 'openai-completions',
+    provider: 'openai',
+    model: AI_MODEL,
+    usage: {
+      input: 0,
+      output: 0,
+      cacheRead: 0,
+      cacheWrite: 0,
+      totalTokens: 0,
+      cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
+    },
+    stopReason: 'stop',
+    timestamp: row.createdAt,
+  } as Message
+}
+
+// ---------------------------------------------------------------------------
 // Card callback factory
 // ---------------------------------------------------------------------------
 
 /**
- * Build the onToolStart / onToolFinish callbacks for a given session.
- * Extracted as a named function so it can be unit-tested independently.
+ * Build the onToolStart / onToolFinish / onAgentTurn / onToolResultPiMessage
+ * callbacks for a given session. Extracted as a named function so it can be
+ * unit-tested independently.
  *
  * Cards are born complete: onToolStart is a no-op. onToolFinish creates the
  * card row with attachments already set at insert time, then immediately
  * finalizes it — eliminating the empty-placeholder race window.
+ *
+ * onAgentTurn persists the full AssistantMessage as an agent_turn row so the
+ * next session load can reconstruct the full pi-ai Message history.
+ *
+ * onToolResultPiMessage patches the card row (if any) with the raw
+ * ToolResultMessage piMessage for the same reason.
  */
 export function buildCardCallbacks(
   sessionId: Id<'planning_sessions'>,
   runMutation: (fn: any, args: any) => Promise<any>
 ): ExecuteContext {
+  // Map from toolCallId → card messageId so onToolResultPiMessage can patch
+  // the correct row after onToolFinish creates it.
+  const pendingCardMessages = new Map<string, Id<'session_messages'>>()
+
   return {
     // No-op: card rows are created in onToolFinish once the result is known.
     async onToolStart(_toolName, _args) {
@@ -73,21 +145,41 @@ export function buildCardCallbacks(
         status: isError ? 'failed' : 'complete',
       })
     },
+
+    async onAgentTurn(assistant: AssistantMessage) {
+      await runMutation(internal.db.sessionMessages.recordAgentTurn, {
+        sessionId,
+        piMessage: assistant as any,
+      })
+    },
+
+    async onToolResultPiMessage(toolCallId: string, result: ToolResultMessage) {
+      if (pendingCardMessages.has(toolCallId)) {
+        await runMutation(internal.db.sessionMessages.recordToolResult, {
+          messageId: pendingCardMessages.get(toolCallId)!,
+          piMessage: result as any,
+        })
+      }
+    },
   }
 }
 
 /**
  * Build the streaming callbacks that wire the final-turn text deltas into a
- * pending assistant message row.
+ * pending assistant message row. Also handles reasoning (thinking) deltas.
  *
- * The row is created lazily — only when the first text delta arrives. If the
- * agent errors or produces no final text turn, no row is written and there is
- * nothing to finalize (no orphaned empty avatar in the chat).
+ * The text row is created lazily — only when the first text delta arrives. If
+ * the agent errors or produces no final text turn, no row is written and there
+ * is nothing to finalize (no orphaned empty avatar in the chat).
+ *
+ * The reasoning row is also created lazily on the first thinking delta, then
+ * subsequent deltas append to it.
  *
  * Returns:
  * - `getMessageId()` — getter that returns the (possibly-undefined) message id
  * - `onTextDelta(delta)` — creates the row on first call, then appends chunk
- * - `finalizeOk()` — no-ops if no row was ever created
+ * - `onThinkingDelta(delta)` — creates reasoning row on first call, then appends
+ * - `finalizeOk(piMessage?)` — no-ops if no row was ever created
  * - `finalizeFail()` — no-ops if no row was ever created
  */
 export async function buildStreamingContext(
@@ -96,10 +188,12 @@ export async function buildStreamingContext(
 ): Promise<{
   getMessageId: () => Id<'session_messages'> | undefined
   onTextDelta: (delta: string) => Promise<void>
-  finalizeOk: () => Promise<void>
+  onThinkingDelta: (delta: string) => Promise<void>
+  finalizeOk: (piMessage?: unknown) => Promise<void>
   finalizeFail: () => Promise<void>
 }> {
   let messageId: Id<'session_messages'> | undefined = undefined
+  let reasoningMessageId: Id<'session_messages'> | null = null
 
   const onTextDelta = async (delta: string): Promise<void> => {
     if (messageId === undefined) {
@@ -115,12 +209,31 @@ export async function buildStreamingContext(
     })
   }
 
-  const finalizeOk = async (): Promise<void> => {
+  const onThinkingDelta = async (delta: string): Promise<void> => {
+    if (!reasoningMessageId) {
+      reasoningMessageId = await runMutation(
+        internal.db.sessionMessages.recordReasoning,
+        {
+          sessionId,
+          content: delta,
+          piMessage: {},
+        }
+      )
+    } else {
+      await runMutation(internal.db.sessionMessages.appendReasoningChunk, {
+        messageId: reasoningMessageId,
+        delta,
+      })
+    }
+  }
+
+  const finalizeOk = async (piMessage?: unknown): Promise<void> => {
     if (messageId === undefined) return // agent produced no text, no row to finalize
-    await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
-      messageId,
-      status: 'complete',
-    })
+    const args: Record<string, unknown> = { messageId, status: 'complete' }
+    if (piMessage !== undefined) {
+      args.piMessage = piMessage
+    }
+    await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, args)
   }
 
   const finalizeFail = async (): Promise<void> => {
@@ -131,7 +244,7 @@ export async function buildStreamingContext(
     })
   }
 
-  return { getMessageId: () => messageId, onTextDelta, finalizeOk, finalizeFail }
+  return { getMessageId: () => messageId, onTextDelta, onThinkingDelta, finalizeOk, finalizeFail }
 }
 
 /**
@@ -180,9 +293,19 @@ export const sendMessage = action({
     // query/mutation wrappers which re-check auth on their own.
     const { clerkUserId } = await requireIdentity(ctx)
 
-    const session = await ctx.runQuery(api.db.planningSessions.getSessionById, {
+    // Validates ownership — throws if session does not belong to this user.
+    await ctx.runQuery(api.db.planningSessions.getSessionById, {
       sessionId: args.sessionId,
     })
+
+    // Step 1b: Update last known location if provided (deterministic)
+    if (args.currentLocation) {
+      await ctx.runMutation(internal.db.planningSessions.updateLastKnownLocation, {
+        sessionId: args.sessionId,
+        lat: args.currentLocation.lat,
+        lng: args.currentLocation.lng,
+      })
+    }
 
     // Step 2: Persist rider message (deterministic)
     const riderMessageResult = await ctx.runMutation(api.db.sessionMessages.send, {
@@ -190,34 +313,28 @@ export const sendMessage = action({
       content: args.content,
     })
 
-    // Step 3: Build conversation context for the agent.
+    // Step 3: Build pi-ai Message[] history for the agent.
     // We persist the rider message first (step 2) so it survives even if the
-    // agent throws, but that means the `list` query now returns the current
-    // turn at the tail. The agent receives the current turn as `userMessage`,
-    // so we slice it off here to avoid duplicating it in the LLM context.
-    const messages = await ctx.runQuery(api.db.sessionMessages.list, {
+    // agent throws, but that means the `listWithPiMessages` query now returns
+    // the current turn at the tail. The agent receives the current turn as
+    // `userMessage`, so we slice it off here to avoid duplicating it in the
+    // LLM context.
+    const rows = await ctx.runQuery(internal.db.sessionMessages.listWithPiMessages, {
       sessionId: args.sessionId,
     })
 
-    // Convert to agent format (role: content:), excluding the just-persisted
-    // rider turn — it flows through `args.content` directly.
-    const conversationHistory = messages
+    // Build the pi-ai Message[] from rows, excluding the just-persisted rider turn.
+    const piMessages: Message[] = rows
       .slice(0, -1)
-      .filter((msg) => {
-        // Cards carry their data in `attachments`, not `content`. The LLM
-        // only understands text turns, so skip any row with a kind != 'text'.
-        if (msg.kind && msg.kind !== 'text') return false
-        // Failed turns represent broken flows and confuse the LLM.
-        if (msg.status === 'failed') return false
-        // Empty/whitespace-only content contributes nothing and can look
-        // like an empty assistant turn to the model.
-        if (!msg.content || !msg.content.trim()) return false
-        return true
+      .flatMap((row): Message[] => {
+        if (row.piMessage) {
+          // Row has a full pi-ai Message stored — use it directly.
+          return [row.piMessage as Message]
+        }
+        // Legacy row — reconstruct from role+content.
+        const msg = reconstructLegacyPiMessage(row)
+        return msg ? [msg] : []
       })
-      .map((msg) => ({
-        role: msg.role, // 'rider' or 'system'
-        content: msg.content,
-      }))
 
     // Step 4: Run agent with session context (probabilistic)
     // This is where the agent decides what to do.
@@ -229,18 +346,28 @@ export const sendMessage = action({
     // message row is created only when the first text delta arrives. If the
     // agent produces no text (or errors before any delta), no row is written.
     const cardCallbacks = buildCardCallbacks(args.sessionId, ctx.runMutation.bind(ctx))
-    const { getMessageId: getTextMessageId, onTextDelta, finalizeOk, finalizeFail } =
+    const { getMessageId: getTextMessageId, onTextDelta, onThinkingDelta, finalizeOk, finalizeFail } =
       await buildStreamingContext(args.sessionId, ctx.runMutation.bind(ctx))
 
-    const executeCtx = { ...cardCallbacks, onTextDelta }
+    // Track the final assistant message for piMessage persistence
+    let finalAssistantMessage: AssistantMessage | undefined = undefined
+
+    const executeCtx: ExecuteContext = {
+      ...cardCallbacks,
+      onTextDelta,
+      onThinkingDelta,
+      onFinalAssistant: async (assistant: AssistantMessage) => {
+        finalAssistantMessage = assistant
+      },
+    }
 
     let agentResult
     try {
       agentResult = await executeRidePlanningAgent(
         {
-          sessionId: args.sessionId,
+          planningSessionId: args.sessionId,
           clerkUserId,
-          conversationHistory,
+          piMessages,
           currentLocation: args.currentLocation,
           runQuery: ctx.runQuery.bind(ctx),
           runMutation: ctx.runMutation.bind(ctx),
@@ -248,8 +375,10 @@ export const sendMessage = action({
         args.content,
         executeCtx
       )
-      // Step 5a: Finalize the streaming text message as complete
-      await finalizeOk()
+      // Step 5a: Finalize the streaming text message as complete, including
+      // the final AssistantMessage as piMessage so the next session load has
+      // the full pi-ai message stored.
+      await finalizeOk(finalAssistantMessage as unknown)
     } catch (error) {
       // Convert agent errors to conversational messages
       console.error('[sendMessage] Agent error:', error)
