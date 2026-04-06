@@ -201,6 +201,7 @@ async function runPlanRoute(
     internal.db.routePlans.createForAgentInternal,
     {
       clerkUserId: ctx.clerkUserId,
+      planningSessionId: ctx.planningSessionId,
       planInput,
       startLabel: args.start.label ?? undefined,
       endLabel: args.end.label ?? undefined,
