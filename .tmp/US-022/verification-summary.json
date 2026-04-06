@@ -1,0 +1,43 @@
+{
+  "task": "US-022",
+  "title": "Segment Stitching & Partial Result Types",
+  "status": "completed",
+  "tdd_cycles": [
+    {
+      "ac": "AC-1",
+      "description": "stitchSegments produces ProviderRouteResponse with correct leg count when all segments succeed",
+      "red_evidence": "stitchSegments is not a function",
+      "green_evidence": "test passes after implementation",
+      "test_function": "AC-1: produces ProviderRouteResponse with correct leg count when all segments succeed"
+    },
+    {
+      "ac": "AC-2",
+      "description": "stitchSegments excludes failed segments and renumbers legs sequentially when partial failure occurs",
+      "red_evidence": "stitchSegments is not a function",
+      "green_evidence": "test passes after implementation",
+      "test_function": "AC-2: excludes failed segments and renumbers legs sequentially when partial failure occurs"
+    },
+    {
+      "ac": "AC-3",
+      "description": "Stitched route passes through normalizeRoute without errors",
+      "red_evidence": "stitchSegments is not a function",
+      "green_evidence": "test passes after implementation (needed await for traceableToolSync wrapper)",
+      "test_function": "AC-3: stitched route passes through normalizeRoute without errors"
+    },
+    {
+      "ac": "AC-4",
+      "description": "stitchSegments throws error when all segments have failed status",
+      "red_evidence": "stitchSegments is not a function",
+      "green_evidence": "test passes after implementation",
+      "test_function": "AC-4: throws error when all segments have failed status"
+    }
+  ],
+  "files_changed": [
+    "convex/actions/agent/tools/compileSketch.ts",
+    "convex/actions/agent/tools/__tests__/compileSketch.test.ts"
+  ],
+  "tests_total": 10,
+  "tests_passing": 10,
+  "typecheck": "passed",
+  "lint": "passed"
+}
