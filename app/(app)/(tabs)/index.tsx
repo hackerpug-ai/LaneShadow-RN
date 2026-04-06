@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
 import type { Id } from '../../../convex/_generated/dataModel'
-import { ScrollView, StyleSheet, View } from 'react-native'
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -26,6 +26,7 @@ import { ChatInput, RouteAttachmentCard } from '../../../components/chat'
 import { ChatTranscript } from '../../../components/ui/chat-transcript'
 import type { ChatMessage as TranscriptMessage } from '../../../components/ui/chat-transcript'
 import { useCurrentLocation } from '../../../hooks/use-current-location'
+import { useMessageOverlay } from '../../../hooks/use-message-overlay'
 import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useRideFlow } from '../../../hooks/use-ride-flow'
@@ -188,13 +189,21 @@ const HomeMapScreen = () => {
     }
   }, [])
 
+  // Gesture overlay: pin (tap transcript), dismiss (swipe-up / map tap)
+  const overlay = useMessageOverlay({
+    clearTransientTimer,
+    setTransientVisible,
+  })
+
   const armTransientTimer = useCallback(() => {
     clearTransientTimer()
     transientTimerRef.current = setTimeout(() => {
+      // If pinned via tap gesture, skip auto-dismiss
+      if (overlay.pinnedRef.current) return
       setTransientVisible(false)
       transientTimerRef.current = null
     }, TRANSIENT_MS)
-  }, [clearTransientTimer])
+  }, [clearTransientTimer, overlay.pinnedRef])
 
   // Show the transcript transiently whenever a new message lands and we're
   // not already pinned into chat mode. The first Convex payload is treated
@@ -217,10 +226,12 @@ const HomeMapScreen = () => {
     prevMessageCountRef.current = transcriptMessages.length
     if (chatMode) return
     if (transcriptMessages.length > prev) {
+      overlay.resetPin()
       setTranscriptMounted(true)
       setTransientVisible(true)
       armTransientTimer()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transcriptMessages.length, chatMode, armTransientTimer, rawTranscriptMessages])
 
   // Cleanup on unmount
@@ -235,6 +246,7 @@ const HomeMapScreen = () => {
   const handleSendMessage = useCallback(
     (message: string) => {
       if (!chatMode) {
+        overlay.resetPin()
         setTranscriptMounted(true)
         setTransientVisible(true)
         armTransientTimer()
@@ -244,7 +256,7 @@ const HomeMapScreen = () => {
         currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lng } : undefined
       )
     },
-    [chatMode, sendPlanningMessage, armTransientTimer, currentLocation]
+    [chatMode, sendPlanningMessage, armTransientTimer, currentLocation, overlay]
   )
 
   // Cycle the transcript visibility when the chat button / overlay is tapped.
@@ -481,6 +493,11 @@ const HomeMapScreen = () => {
 
   const handleMapClick = useCallback(
     (event: { coordinates?: { latitude: number; longitude: number } }) => {
+      // AC-3: Tapping the map (not the transcript) dismisses visible overlay
+      if (transientVisible) {
+        overlay.dismiss()
+        return
+      }
       const coords = event.coordinates
       if (!coords?.latitude || !coords?.longitude) return
       const nextStop: RouteStop = {
@@ -505,7 +522,7 @@ const HomeMapScreen = () => {
       setManualRouteOptions(null)
       setSelectedRouteOptionId(null)
     },
-    [startStop, endStop]
+    [startStop, endStop, transientVisible, overlay]
   )
 
   const handlePlanRide = useCallback(async () => {
@@ -661,17 +678,24 @@ const HomeMapScreen = () => {
           </Animated.View>
         )}
 
-        {/* Chat transcript layer — the single source of truth for
+        {/* Chat transcript layer -- the single source of truth for
             messages on this screen. Renders in three visibility modes:
-              • hidden         (opacity 0, unmounted)
-              • transient peek (semi-opaque scrim, auto-hides, no touch)
-              • pinned         (solid scrim, fully interactive, chat mode)
+              - hidden         (opacity 0, unmounted)
+              - transient peek (semi-opaque scrim, auto-hides; tap to pin,
+                swipe-up to dismiss)
+              - pinned / chat  (solid scrim, fully interactive, chat mode)
             Uses one scrim backdrop (animated separately) so the peek can
-            leave the map readable through the transcript. */}
+            leave the map readable through the transcript.
+
+            When transient, pointerEvents='auto' so we can capture tap-to-pin
+            and swipe-up-to-dismiss gestures via PanResponder. */}
         {transcriptMounted && (
           <Animated.View
             style={[StyleSheet.absoluteFill, chatLayerStyle, styles.chatLayer]}
-            pointerEvents={chatMode ? 'auto' : 'none'}
+            pointerEvents={chatMode || transientVisible ? 'auto' : 'none'}
+            {...(transientVisible && !chatMode
+              ? overlay.panResponder.panHandlers
+              : {})}
           >
             <Animated.View
               pointerEvents="none"
@@ -681,16 +705,32 @@ const HomeMapScreen = () => {
                 { backgroundColor: semantic.color.background.default },
               ]}
             />
-            <ChatTranscript
-              messages={transcriptMessages}
-              topInset={insets.top + 72}
-              bottomInset={insets.bottom + 96}
-              transparent
-              onViewOnMap={() => {
-                setChatMode(false)
-                setTransientVisible(false)
-              }}
-            />
+            {/* AC-1: Tap transcript to pin (cancel auto-dismiss) */}
+            {transientVisible && !chatMode ? (
+              <Pressable onPress={overlay.pin} style={StyleSheet.absoluteFill}>
+                <ChatTranscript
+                  messages={transcriptMessages}
+                  topInset={insets.top + 72}
+                  bottomInset={insets.bottom + 96}
+                  transparent
+                  onViewOnMap={() => {
+                    setChatMode(false)
+                    setTransientVisible(false)
+                  }}
+                />
+              </Pressable>
+            ) : (
+              <ChatTranscript
+                messages={transcriptMessages}
+                topInset={insets.top + 72}
+                bottomInset={insets.bottom + 96}
+                transparent
+                onViewOnMap={() => {
+                  setChatMode(false)
+                  setTransientVisible(false)
+                }}
+              />
+            )}
           </Animated.View>
         )}
 
