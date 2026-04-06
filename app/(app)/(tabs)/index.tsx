@@ -31,7 +31,6 @@ import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useRideFlow } from '../../../hooks/use-ride-flow'
 import { useChatPlanning } from '../../../hooks/use-chat-planning'
-import { useChatSession } from '../../../hooks/use-chat-session'
 import { useRouteComparison } from '../../../hooks/use-route-comparison'
 import { useActiveSessionRoute } from '../../../hooks/use-active-session-route'
 import { useSelectedRoute } from '../../../contexts/selected-route'
@@ -105,7 +104,6 @@ const HomeMapScreen = () => {
     cancel: cancelChatPlanning,
     sessionId: planningSessionId,
   } = useChatPlanning(flowDispatch)
-  useChatSession(flowState.sessionId, flowState)
   const { polylines, selectRoute } = useRouteComparison(flowState, flowDispatch)
   const createSession = useMutation(api.db.planningSessions.createSession)
   const { location: currentLocation } = useCurrentLocation()
