@@ -1,9 +1,9 @@
 # Task Index: LaneShadow V1 — Ride the Moment
 
-> Generated: 2026-04-04
+> Generated: 2026-04-06
 > PRD: .spec/prds/v1/
-> Total Epics: 8
-> Total Tasks: 43
+> Total Epics: 10
+> Total Tasks: 51
 
 ## Epic Structure
 
@@ -72,6 +72,30 @@
 - [US-016](epic-3-conversation-refinement/US-016.md): Integrate AgentMessageOverlay with auto-dismiss and pin
 - [US-017](epic-3-conversation-refinement/US-017.md): Integrate FullChatHistoryView with route attachment interaction
 - [US-018](epic-3-conversation-refinement/US-018.md): Wire manual planning mode fallback from chat input
+
+---
+
+### Epic 3b: LLM Tool Augmentation — Grounding & Enrichment
+
+**Folder:** `epic-3b-llm-tool-augmentation/`
+
+**Human Test:**
+1. Ask "scenic 2-hour ride from San Jose" — verify LLM cites curvature scores in rationale
+2. Verify routes only use paved roads (no gravel/dirt)
+3. See elevation data in route response ("3,200 ft climb")
+4. Ask "find me lunch 2 hours in" — verify restaurants along route
+5. Verify LLM doesn't recommend non-existent roads (grounding check)
+6. Ask for a route when weather is bad on one path — verify LLM routes around it
+
+**Tasks:**
+- [US-062](epic-3b-llm-tool-augmentation/US-062-osm-road-lookup-tool.md): OSM road lookup tool (verify road exists + get attributes)
+- [US-063](epic-3b-llm-tool-augmentation/US-063-road-curvature-scoring-tool.md): Road curvature scoring tool
+- [US-064](epic-3b-llm-tool-augmentation/US-064-road-surface-verification-tool.md): Road surface verification tool
+- [US-065](epic-3b-llm-tool-augmentation/US-065-elevation-profile-tool.md): Elevation profile tool
+- [US-066](epic-3b-llm-tool-augmentation/US-066-search-along-route-tool.md): Google Search Along Route tool
+- [US-067](epic-3b-llm-tool-augmentation/US-067-weather-during-planning-tool.md): Weather-during-planning tool
+- [US-068](epic-3b-llm-tool-augmentation/US-068-user-favorites-lookup-tool.md): User favorites lookup tool
+- [US-069](epic-3b-llm-tool-augmentation/US-069-wire-tools-to-agent.md): Wire tools to agent + update system prompt
 
 ---
 
@@ -178,13 +202,15 @@
 ## Dependency Graph
 
 ```
-Epic 1 (Phase 0) ──→ Epic 2 (Chat Infra) ──→ Epic 3 (Refinement) ─┐
-                                              Epic 4 (Sessions)   ─┤
-                                              Epic 5 (Weather)    ─┼→ Epic 7 (SR Advanced) → Epic 8 (Gate)
-                                              Epic 6 (Save Core)  ─┘
+Epic 1 (Phase 0) ──→ Epic 2 (Chat Infra) ──→ Epic 3 (Refinement) ──→ Epic 3b (Tool Augmentation) ─┐
+                                              Epic 4 (Sessions)                                    ─┤
+                                              Epic 5 (Weather)                                     ─┼→ Epic 7 (SR Advanced) → Epic 8 (Gate)
+                                              Epic 6 (Save Core)                                   ─┘
 ```
 
+Epic 3b depends on Epic 3 (per-segment compilation + LLM-first prompt).
 Epics 3, 4, 5, 6 can run **in parallel** after Epic 2.
+Epic 3b can run in parallel with Epics 4, 5, 6 (after Epic 3).
 
 ## V1 Gate Test Minimum
 
