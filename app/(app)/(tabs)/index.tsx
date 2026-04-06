@@ -8,6 +8,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
+  FadeInDown,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MenuLayout } from '../../../components/layouts/menu-layout'
@@ -119,7 +120,6 @@ const HomeMapScreen = () => {
   const {
     activeOption: agentActiveOption,
     routePlan: agentRoutePlan,
-    options: agentRouteOptions,
   } = useActiveSessionRoute(activeChatSessionId ?? undefined)
 
   // Track the last plan id we animated the camera to, so we only fit once
@@ -440,7 +440,7 @@ const HomeMapScreen = () => {
       showWindOverlay: true,
       semantic,
     })
-  }, [selectedOption, semantic, flowState.phase, polylines, agentActiveOption])
+  }, [selectedOption, semantic, flowState, polylines, agentActiveOption])
 
   const markers = useMemo(() => {
     const items: any[] = []
@@ -751,8 +751,10 @@ const HomeMapScreen = () => {
           (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS' || flowState.phase === 'PLANNING') &&
           'routeOptions' in flowState &&
           flowState.routeOptions?.options && (
-            <View
+            <Animated.View
               pointerEvents="box-none"
+              key={`route-cards-${flowState.phase}-${flowState.sessionId}`}
+              entering={FadeInDown.duration(300).springify()}
               style={[
                 styles.routeCards,
                 {
@@ -776,7 +778,7 @@ const HomeMapScreen = () => {
                   />
                 ))}
               </ScrollView>
-            </View>
+            </Animated.View>
           )}
 
         {/* Planning indicator - shown in map mode while agent is working */}
