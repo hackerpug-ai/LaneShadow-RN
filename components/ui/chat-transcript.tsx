@@ -242,9 +242,11 @@ const RiderBubble = ({ message }: RiderBubbleProps) => {
 interface AgentMessageProps {
   message: ChatMessage;
   onRoutePress?: (routeId: string, messageId: string) => void;
+  /** When true, adds a semi-transparent glass container for readability over map */
+  transparent?: boolean;
 }
 
-const AgentMessage = ({ message, onRoutePress }: AgentMessageProps) => {
+const AgentMessage = ({ message, onRoutePress, transparent }: AgentMessageProps) => {
   const { semantic } = useSemanticTheme();
 
   return (
@@ -267,8 +269,18 @@ const AgentMessage = ({ message, onRoutePress }: AgentMessageProps) => {
         />
       </View>
 
-      {/* Content column */}
-      <View style={styles.agentContent}>
+      {/* Content column — wrap in glass card when overlaid on map */}
+      <View
+        style={[
+          styles.agentContent,
+          transparent && {
+            backgroundColor: semantic.color.surface.default + 'D9', // ~85% opacity
+            borderRadius: semantic.radius.lg,
+            paddingHorizontal: semantic.space.md,
+            paddingVertical: semantic.space.sm,
+          },
+        ]}
+      >
         <View style={styles.agentTextRow}>
           <Text
             style={[
@@ -361,11 +373,12 @@ function renderAssistantMessage(
   message: ChatMessage,
   onRoutePress: ((routeId: string, messageId: string) => void) | undefined,
   onViewOnMap: (() => void) | undefined,
+  transparent?: boolean,
 ): React.ReactElement {
   const kind: ChatMessageKind = message.kind ?? 'text';
 
   if (kind === 'text') {
-    return <AgentMessage message={message} onRoutePress={onRoutePress} />;
+    return <AgentMessage message={message} onRoutePress={onRoutePress} transparent={transparent} />;
   }
 
   return <CardRow message={message} onViewOnMap={onViewOnMap} />;
@@ -463,7 +476,7 @@ export const ChatTranscript = ({
             {message.role === 'rider' ? (
               <RiderBubble message={message} />
             ) : (
-              renderAssistantMessage(message, onRoutePress, onViewOnMap)
+              renderAssistantMessage(message, onRoutePress, onViewOnMap, transparent)
             )}
           </React.Fragment>
         );

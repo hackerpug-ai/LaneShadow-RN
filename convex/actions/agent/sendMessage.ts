@@ -117,7 +117,7 @@ export function buildCardCallbacks(
       return undefined
     },
 
-    async onToolFinish(toolName, _messageId, result) {
+    async onToolFinish(toolCallId, toolName, _messageId, result) {
       // Only planRoute produces a card. For all other tools, do nothing.
       if (toolName !== 'planRoute') return
 
@@ -136,6 +136,10 @@ export function buildCardCallbacks(
           attachments: [{ type: 'route_options', routePlanId }],
         }
       )
+
+      // Store the mapping so onToolResultPiMessage can patch this row with the
+      // full ToolResultMessage piMessage for multi-turn context.
+      pendingCardMessages.set(toolCallId, messageId)
 
       // Immediately finalize. Both mutations run back-to-back in the same
       // action — clients see running → complete in one reactive tick.

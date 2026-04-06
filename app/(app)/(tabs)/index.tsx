@@ -116,13 +116,47 @@ const HomeMapScreen = () => {
 
   // Agent-produced route from Convex (task #258). Subscribes to the latest
   // routing_card in the current session and exposes the active route option.
-  const { activeOption: agentActiveOption, routePlan: agentRoutePlan } = useActiveSessionRoute(
-    activeChatSessionId ?? undefined
-  )
+  const {
+    activeOption: agentActiveOption,
+    routePlan: agentRoutePlan,
+    options: agentRouteOptions,
+  } = useActiveSessionRoute(activeChatSessionId ?? undefined)
 
   // Track the last plan id we animated the camera to, so we only fit once
   // per newly resolved plan (not on every re-render).
   const lastFittedPlanIdRef = useRef<string | null>(null)
+
+  // Hydrate flowState from a restored session on app reload. When the session
+  // came from the sessions[0] fallback (not active planning) and has completed
+  // routes, transition the flow state to ROUTE_RESULTS so route cards appear.
+  const hydratedSessionRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (
+      !planningSessionId &&
+      !sessionIdParam &&
+      activeChatSessionId &&
+      agentRoutePlan?.status === 'completed' &&
+      agentRoutePlan?.result &&
+      flowState.phase === 'IDLE' &&
+      hydratedSessionRef.current !== activeChatSessionId
+    ) {
+      hydratedSessionRef.current = activeChatSessionId
+      flowDispatch({
+        type: 'LOAD_SESSION',
+        sessionId: activeChatSessionId,
+        routeOptions: agentRoutePlan.result,
+        selectedRouteId: agentActiveOption?.routeOptionId,
+      })
+    }
+  }, [
+    activeChatSessionId,
+    agentRoutePlan,
+    agentActiveOption,
+    flowState.phase,
+    planningSessionId,
+    sessionIdParam,
+    flowDispatch,
+  ])
 
   const rawTranscriptMessages = useQuery(
     api.db.sessionMessages.list,
@@ -711,8 +745,9 @@ const HomeMapScreen = () => {
           />
         </View>
 
-        {/* Route attachment cards when showing results (map mode only) */}
+        {/* Route attachment cards when showing results (map mode only, hidden while toasts are visible) */}
         {!chatMode &&
+          toasts.length === 0 &&
           (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS') &&
           flowState.routeOptions?.options && (
             <View

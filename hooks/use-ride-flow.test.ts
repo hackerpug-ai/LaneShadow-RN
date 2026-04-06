@@ -197,8 +197,8 @@ describe('useRideFlow', () => {
     })
   })
 
-  describe('AC5: LOAD_SESSION populates routeOptions from attachment', () => {
-    it('should load session data into IDLE state', () => {
+  describe('AC5: LOAD_SESSION restores session with route results', () => {
+    it('should load session data into ROUTE_RESULTS state', () => {
       const state = initialState
       expect(state.phase).toBe('IDLE')
 
@@ -210,8 +210,8 @@ describe('useRideFlow', () => {
         selectedRouteId: 'route-1',
       })
 
-      expect(nextState.phase).toBe('IDLE')
-      if (nextState.phase === 'IDLE') {
+      expect(nextState.phase).toBe('ROUTE_RESULTS')
+      if (nextState.phase === 'ROUTE_RESULTS') {
         expect(nextState.sessionId).toBe('session-123')
         expect(nextState.routeOptions).toEqual(mockRouteOptions)
         expect(nextState.selectedRouteId).toBe('route-1')

@@ -62,8 +62,9 @@ export type ExecuteContext = {
   /** Called immediately before tool execution begins. May return a messageId
    *  for a pending card that was created, which will be forwarded to onToolFinish. */
   onToolStart?: (toolName: string, args: unknown) => Promise<{ messageId: Id<'session_messages'> } | void>
-  /** Called after tool execution completes (success or error). */
-  onToolFinish?: (toolName: string, messageId: Id<'session_messages'> | undefined, result: unknown) => Promise<void>
+  /** Called after tool execution completes (success or error).
+   *  Receives the toolCallId so callers can correlate with onToolResultPiMessage. */
+  onToolFinish?: (toolCallId: string, toolName: string, messageId: Id<'session_messages'> | undefined, result: unknown) => Promise<void>
   /** Called for each text delta emitted during the final streaming turn.
    *  Only invoked on the last (non-tool) turn when the model produces text. */
   onTextDelta?: (delta: string) => Promise<void>
@@ -385,7 +386,7 @@ async function executeTool(
   } catch (err) {
     // Re-throw after notifying so the agent loop's error handler still fires
     if (executeCtx?.onToolFinish) {
-      await executeCtx.onToolFinish(call.name, pendingMessageId, {
+      await executeCtx.onToolFinish(call.id, call.name, pendingMessageId, {
         type: 'error',
         message: err instanceof Error ? err.message : String(err),
         hint: "An unexpected error occurred. Ask the rider what they'd like to do.",
@@ -396,7 +397,7 @@ async function executeTool(
   }
 
   if (executeCtx?.onToolFinish) {
-    await executeCtx.onToolFinish(call.name, pendingMessageId, result)
+    await executeCtx.onToolFinish(call.id, call.name, pendingMessageId, result)
   }
 
   return result

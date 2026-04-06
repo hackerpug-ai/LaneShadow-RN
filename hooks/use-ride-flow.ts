@@ -237,7 +237,7 @@ const handleIdleState = (
 
     case 'LOAD_SESSION':
       return {
-        phase: 'IDLE',
+        phase: 'ROUTE_RESULTS',
         sessionId: action.sessionId,
         routeOptions: action.routeOptions,
         selectedRouteId: action.selectedRouteId ?? null,

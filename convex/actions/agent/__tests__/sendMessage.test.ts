@@ -436,7 +436,7 @@ describe('buildCardCallbacks', () => {
 
     const { onToolFinish } = buildCardCallbacks(sessionId, runMutation)
 
-    await onToolFinish!('planRoute', undefined, {
+    await onToolFinish!('tc_1', 'planRoute', undefined, {
       type: 'routes',
       data: { planId: 'plan_abc', options: [] },
       routePlanId: 'rp_1' as Id<'route_plans'>,
@@ -465,7 +465,7 @@ describe('buildCardCallbacks', () => {
 
     const { onToolFinish } = buildCardCallbacks(sessionId, runMutation)
 
-    await onToolFinish!('planRoute', undefined, {
+    await onToolFinish!('tc_2', 'planRoute', undefined, {
       type: 'error',
       message: 'Something went wrong',
       routePlanId: 'rp_1' as Id<'route_plans'>,
@@ -482,7 +482,7 @@ describe('buildCardCallbacks', () => {
   it('planRoute with no routePlanId is a no-op on finish', async () => {
     const { onToolFinish } = buildCardCallbacks(sessionId, runMutation)
 
-    await onToolFinish!('planRoute', undefined, {
+    await onToolFinish!('tc_3', 'planRoute', undefined, {
       type: 'chat',
       message: 'No routes to show',
     })
@@ -493,7 +493,7 @@ describe('buildCardCallbacks', () => {
   it('non-planRoute tools do not emit cards on finish', async () => {
     const { onToolFinish } = buildCardCallbacks(sessionId, runMutation)
 
-    await onToolFinish!('geocode', undefined, { results: [] })
+    await onToolFinish!('tc_4', 'geocode', undefined, { results: [] })
 
     expect(runMutation).not.toHaveBeenCalled()
   })
@@ -501,7 +501,7 @@ describe('buildCardCallbacks', () => {
   it('fetchWeather does not emit a card on finish', async () => {
     const { onToolFinish } = buildCardCallbacks(sessionId, runMutation)
 
-    await onToolFinish!('fetchWeather', undefined, { temperature: 72 })
+    await onToolFinish!('tc_5', 'fetchWeather', undefined, { temperature: 72 })
 
     expect(runMutation).not.toHaveBeenCalled()
   })
@@ -509,7 +509,42 @@ describe('buildCardCallbacks', () => {
   it('saveRoute does not emit a card on finish', async () => {
     const { onToolFinish } = buildCardCallbacks(sessionId, runMutation)
 
-    await onToolFinish!('saveRoute', undefined, { saved: true })
+    await onToolFinish!('tc_6', 'saveRoute', undefined, { saved: true })
+
+    expect(runMutation).not.toHaveBeenCalled()
+  })
+
+  it('onToolResultPiMessage patches card row after onToolFinish populates pendingCardMessages', async () => {
+    // onToolFinish creates card → stores toolCallId mapping
+    runMutation.mockResolvedValueOnce({ messageId: cardMessageId }) // createPendingAssistantMessage
+    runMutation.mockResolvedValueOnce(undefined) // finalizeAssistantMessage
+    runMutation.mockResolvedValueOnce(undefined) // recordToolResult
+
+    const callbacks = buildCardCallbacks(sessionId, runMutation)
+
+    await callbacks.onToolFinish!('tc_patch', 'planRoute', undefined, {
+      type: 'routes',
+      data: { planId: 'plan_abc', options: [] },
+      routePlanId: 'rp_1' as Id<'route_plans'>,
+    })
+
+    // Now onToolResultPiMessage should find the mapping and persist
+    const toolResultMsg = { role: 'toolResult', toolCallId: 'tc_patch', content: [] }
+    await callbacks.onToolResultPiMessage!('tc_patch', toolResultMsg as any)
+
+    expect(runMutation).toHaveBeenCalledTimes(3)
+    expect(runMutation).toHaveBeenNthCalledWith(
+      3,
+      { __ref: 'recordToolResult' },
+      { messageId: cardMessageId, piMessage: toolResultMsg }
+    )
+  })
+
+  it('onToolResultPiMessage is a no-op when toolCallId has no pending card', async () => {
+    const callbacks = buildCardCallbacks(sessionId, runMutation)
+
+    const toolResultMsg = { role: 'toolResult', toolCallId: 'tc_unknown', content: [] }
+    await callbacks.onToolResultPiMessage!('tc_unknown', toolResultMsg as any)
 
     expect(runMutation).not.toHaveBeenCalled()
   })

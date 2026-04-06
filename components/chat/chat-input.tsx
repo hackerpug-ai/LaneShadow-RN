@@ -232,6 +232,12 @@ export const ChatInput = ({
           {/* Action button */}
           <TouchableOpacity
             onPress={isPlanning ? onCancel : handleSend}
+            hitSlop={{
+              top: semantic.space.xs,
+              bottom: semantic.space.xs,
+              left: semantic.space.xs,
+              right: semantic.space.xs,
+            }}
             style={[
               styles.sendButton,
               {
