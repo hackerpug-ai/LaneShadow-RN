@@ -1,7 +1,9 @@
 import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
 import type { RouteSketch } from '../../../../../models/route-sketch'
 import type { PlanInput } from '../../../../../models/saved-routes'
-import { compileSketch, compileSegments } from '../compileSketch'
+import { compileSketch, compileSegments, stitchSegments } from '../compileSketch'
+import type { SegmentCompileResult } from '../compileSketch'
+import { normalizeRoute } from '../normalizeRoute'
 
 const mockGoogleRoutesOkFetch = (): Mock => {
   const json = {
@@ -235,5 +237,130 @@ describe('compileSegments', () => {
       /segment/i
     )
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+})
+
+// Helpers for stitchSegments tests
+
+const makeOkSegment = (
+  segmentIndex: number,
+  overridePolyline?: string,
+  bounds?: { north: number; south: number; east: number; west: number }
+): SegmentCompileResult => ({
+  status: 'ok',
+  segmentIndex,
+  route: {
+    provider: 'google',
+    bounds: bounds ?? {
+      north: 37.2 + segmentIndex * 0.1,
+      south: 36.9 + segmentIndex * 0.1,
+      east: -121.9 + segmentIndex * 0.1,
+      west: -122.2 + segmentIndex * 0.1,
+    },
+    overviewGeometry: {
+      format: 'polyline',
+      encoding: 'google_encoded_polyline',
+      precision: 5,
+      value: overridePolyline ?? `SEG${segmentIndex}_OVERVIEW`,
+    },
+    legs: [
+      {
+        legIndex: 0,
+        start: { lat: 37.0 + segmentIndex * 0.1, lng: -122.0 + segmentIndex * 0.1 },
+        end: { lat: 37.1 + segmentIndex * 0.1, lng: -122.1 + segmentIndex * 0.1 },
+        distanceMeters: 10_000,
+        durationSeconds: 600,
+        geometry: {
+          format: 'polyline',
+          encoding: 'google_encoded_polyline',
+          precision: 5,
+          value: `SEG${segmentIndex}_LEG0`,
+        },
+      },
+    ],
+  },
+})
+
+const makeFailedSegment = (segmentIndex: number): SegmentCompileResult => ({
+  status: 'failed',
+  segmentIndex,
+  error: `Segment ${segmentIndex} routing failed`,
+})
+
+describe('stitchSegments', () => {
+  it('AC-1: produces ProviderRouteResponse with correct leg count when all segments succeed', () => {
+    const results: SegmentCompileResult[] = [
+      makeOkSegment(0, 'POLY_A', { north: 37.2, south: 36.9, east: -121.9, west: -122.2 }),
+      makeOkSegment(1, 'POLY_B', { north: 37.5, south: 37.2, east: -121.6, west: -121.9 }),
+      makeOkSegment(2, 'POLY_C', { north: 37.8, south: 37.5, east: -121.3, west: -121.6 }),
+    ]
+
+    const stitched = stitchSegments(results)
+
+    // 3 segments → 3 legs
+    expect(stitched.legs).toHaveLength(3)
+    // Legs are renumbered 0, 1, 2
+    expect(stitched.legs.map((l) => l.legIndex)).toEqual([0, 1, 2])
+    // Merged bounds: north = max, south = min, east = max, west = min
+    expect(stitched.bounds.north).toBe(37.8)
+    expect(stitched.bounds.south).toBe(36.9)
+    expect(stitched.bounds.east).toBe(-121.3)
+    expect(stitched.bounds.west).toBe(-122.2)
+    // Concatenated overview polyline
+    expect(stitched.overviewGeometry.value).toBe('POLY_APOLY_BPOLY_C')
+    // Provider set
+    expect(stitched.provider).toBe('google')
+  })
+
+  it('AC-2: excludes failed segments and renumbers legs sequentially when partial failure occurs', () => {
+    const results: SegmentCompileResult[] = [
+      makeOkSegment(0, 'POLY_A'),
+      makeFailedSegment(1),
+      makeOkSegment(2, 'POLY_C'),
+    ]
+
+    const stitched = stitchSegments(results)
+
+    // 3 segments, 1 failed → 2 legs
+    expect(stitched.legs).toHaveLength(2)
+    // Legs renumbered 0, 1 sequentially
+    expect(stitched.legs[0].legIndex).toBe(0)
+    expect(stitched.legs[1].legIndex).toBe(1)
+    // Overview polyline only from successful segments
+    expect(stitched.overviewGeometry.value).toBe('POLY_APOLY_C')
+  })
+
+  it('AC-3: stitched route passes through normalizeRoute without errors', async () => {
+    const results: SegmentCompileResult[] = [
+      makeOkSegment(0, 'POLY_A'),
+      makeOkSegment(1, 'POLY_B'),
+      makeOkSegment(2, 'POLY_C'),
+    ]
+
+    const stitched = stitchSegments(results)
+
+    const planInput: PlanInput = {
+      start: { lat: 37.0, lng: -122.0, label: 'Start' },
+      end: { lat: 37.5, lng: -121.5, label: 'End' },
+      departureTime: Date.UTC(2026, 0, 13, 12, 0, 0),
+      preferences: { scenicBias: 'default' },
+    }
+
+    const snapshot = await normalizeRoute({ providerRoute: stitched, planInput })
+
+    expect(snapshot.legs).toHaveLength(3)
+    expect(snapshot.provider).toBe('google')
+    expect(snapshot.bounds).toEqual(stitched.bounds)
+    expect(snapshot.overviewGeometry.value).toBe('POLY_APOLY_BPOLY_C')
+  })
+
+  it('AC-4: throws error when all segments have failed status', () => {
+    const results: SegmentCompileResult[] = [
+      makeFailedSegment(0),
+      makeFailedSegment(1),
+      makeFailedSegment(2),
+    ]
+
+    expect(() => stitchSegments(results)).toThrow(/all segments failed/i)
   })
 })

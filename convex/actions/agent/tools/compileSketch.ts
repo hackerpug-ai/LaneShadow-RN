@@ -77,6 +77,49 @@ export type SegmentCompileResult =
   | { status: 'ok'; segmentIndex: number; route: ProviderRouteResponse }
   | { status: 'failed'; segmentIndex: number; error: string }
 
+export type SegmentCompilationResult = {
+  allSucceeded: boolean
+  segments: SegmentCompileResult[]
+  stitchedRoute?: ProviderRouteResponse
+  failedSegments: SegmentCompileResult[]
+}
+
+const mergeBounds = (
+  bounds: { north: number; south: number; east: number; west: number }[]
+): { north: number; south: number; east: number; west: number } => ({
+  north: Math.max(...bounds.map((b) => b.north)),
+  south: Math.min(...bounds.map((b) => b.south)),
+  east: Math.max(...bounds.map((b) => b.east)),
+  west: Math.min(...bounds.map((b) => b.west)),
+})
+
+export const stitchSegments = (results: SegmentCompileResult[]): ProviderRouteResponse => {
+  const ok = results.filter(
+    (r): r is Extract<SegmentCompileResult, { status: 'ok' }> => r.status === 'ok'
+  )
+
+  if (ok.length === 0) {
+    throw new Error('All segments failed — cannot stitch')
+  }
+
+  return {
+    provider: 'google',
+    bounds: mergeBounds(ok.map((r) => r.route.bounds)),
+    overviewGeometry: {
+      format: 'polyline',
+      encoding: 'google_encoded_polyline',
+      precision: 5,
+      value: ok.map((r) => r.route.overviewGeometry.value).join(''),
+    },
+    legs: ok.flatMap((r, i) =>
+      r.route.legs.map((leg) => ({
+        ...leg,
+        legIndex: i,
+      }))
+    ),
+  }
+}
+
 export const compileSegments = async (params: {
   planInput: PlanInput
   sketch: RouteSketch
