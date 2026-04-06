@@ -20,23 +20,21 @@ type SessionContextRunQuery = {
 const METERS_PER_MILE = 1609.344
 
 function formatPreferences(prefs: PlanPreferences): string {
-  const prefObj: Record<string, string | boolean> = {}
+  const parts: string[] = []
 
   if (prefs.scenicBias === 'high') {
-    prefObj.scenicBias = 'high'
+    parts.push('scenic bias: high')
   }
 
   if (prefs.avoidHighways) {
-    prefObj.avoidHighways = true
+    parts.push('avoid highways: yes')
   }
 
   if (prefs.avoidTolls) {
-    prefObj.avoidTolls = true
+    parts.push('avoid tolls: yes')
   }
 
-  return Object.keys(prefObj).length > 0
-    ? JSON.stringify(prefObj)
-    : 'default'
+  return parts.length > 0 ? parts.join(', ') : 'default'
 }
 
 function formatLabel(
@@ -60,14 +58,14 @@ function formatRoute(summary: RoutePlanSummary, index: number): string {
   const distMiles = Math.round((summary.distanceMeters ?? 0) / METERS_PER_MILE)
   const durationMins = Math.round((summary.durationSeconds ?? 0) / 60)
 
-  const prefsJson = formatPreferences(summary.preferences)
+  const prefsText = formatPreferences(summary.preferences)
 
   const lines = [
     `${index}. ${startLabel} \u2192 ${endLabel}: ${distMiles}mi \u00b7 ${durationMins}min`,
   ]
 
-  if (prefsJson !== 'default') {
-    lines.push(`   Preferences: ${prefsJson}`)
+  if (prefsText !== 'default') {
+    lines.push(`   Preferences: ${prefsText}`)
   }
 
   return lines.join('\n')
