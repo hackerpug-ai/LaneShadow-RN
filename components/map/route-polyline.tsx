@@ -115,7 +115,7 @@ export const buildRoutePolylines = ({
 
   const overviewColor =
     variant === 'selected' ? semantic.color.routeSelected.default : semantic.color.routeAlternate.default
-  const legColor = variant === 'selected' ? semantic.color.routeAlternate.default : semantic.color.onSurface.muted
+  const legColor = variant === 'selected' ? semantic.color.routeSelected.default : semantic.color.onSurface.muted
 
   const polylines: BuiltPolyline[] = []
 

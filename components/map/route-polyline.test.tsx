@@ -534,15 +534,12 @@ describe('route-polyline', () => {
       const basePolylines = polylines.filter((p) => !p.id?.startsWith('rain-'))
       expect(basePolylines.length).toBeGreaterThan(0)
 
-      // Leg polylines should render in neutral color
+      // Leg polylines should render in selected color (copper) when variant is 'selected'
       const legPolylines = basePolylines.filter((p) => p.id?.startsWith('leg-'))
       legPolylines.forEach((legPolyline) => {
         expect(legPolyline.strokeColor).toBeDefined()
-        // Leg color should be a muted/neutral color
-        expect(
-          legPolyline.strokeColor === mockSemanticTheme.color.routeAlternate.default ||
-          legPolyline.strokeColor === mockSemanticTheme.color.onSurface.muted
-        ).toBe(true)
+        // Leg color should be the selected route color (copper) when variant is 'selected'
+        expect(legPolyline.strokeColor).toBe(mockSemanticTheme.color.routeSelected.default)
       })
     })
 
