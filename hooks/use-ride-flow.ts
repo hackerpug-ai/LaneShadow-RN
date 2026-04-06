@@ -87,6 +87,7 @@ export type RideFlowAction =
   | SendMessageAction
   | PlanningSuccessAction
   | PlanningErrorAction
+  | CancelPlanningAction
   | SelectRouteAction
   | ViewHistoryAction
   | CloseHistoryAction
@@ -108,6 +109,10 @@ export type PlanningSuccessAction = {
 export type PlanningErrorAction = {
   type: 'PLANNING_ERROR'
   error: string
+}
+
+export type CancelPlanningAction = {
+  type: 'CANCEL_PLANNING'
 }
 
 export type SelectRouteAction = {
@@ -275,6 +280,20 @@ const handlePlanningState = (
         errorMessage: action.error,
         sessionId: state.sessionId,
       }
+
+    case 'CANCEL_PLANNING':
+      // If we have existing route options (refinement was cancelled),
+      // return to ROUTE_RESULTS with existing data
+      if (state.routeOptions) {
+        return {
+          phase: 'ROUTE_RESULTS',
+          sessionId: state.sessionId,
+          routeOptions: state.routeOptions,
+          selectedRouteId: state.selectedRouteId,
+        }
+      }
+      // No existing routes (initial plan was cancelled), reset to IDLE
+      return initialState
 
     case 'NEW_SESSION':
       return initialState

@@ -433,15 +433,12 @@ describe('useChatPlanning - Integration Tests', () => {
         result.current.cancel()
       })
 
-      // Verify NEW_SESSION was dispatched
-      expect(actions.some((a) => a.type === 'NEW_SESSION')).toBe(true)
-
-      // Verify state reset
-      expect(result.current.sessionId).toBeNull()
+      // Verify CANCEL_PLANNING was dispatched (preserves session context)
+      expect(actions.some((a) => a.type === 'CANCEL_PLANNING')).toBe(true)
     })
 
     it('should handle multiple cancel calls gracefully', async () => {
-      const { dispatch } = createDispatchTracker()
+      const { actions, dispatch } = createDispatchTracker()
 
       const { result } = renderHook(() => useChatPlanning(dispatch))
 
@@ -458,12 +455,12 @@ describe('useChatPlanning - Integration Tests', () => {
         result.current.cancel()
       })
 
-      // Should remain in cancelled state
-      expect(result.current.sessionId).toBeNull()
+      // CANCEL_PLANNING should have been dispatched
+      expect(actions.some((a) => a.type === 'CANCEL_PLANNING')).toBe(true)
     })
 
-    it('should reset planning state when cancel is called', async () => {
-      const { dispatch } = createDispatchTracker()
+    it('should dispatch CANCEL_PLANNING when cancel is called', async () => {
+      const { actions, dispatch } = createDispatchTracker()
 
       const { result } = renderHook(() => useChatPlanning(dispatch))
 
@@ -477,7 +474,9 @@ describe('useChatPlanning - Integration Tests', () => {
         result.current.cancel()
       })
 
-      expect(result.current.sessionId).toBeNull()
+      // Should dispatch CANCEL_PLANNING, not NEW_SESSION, to preserve session
+      expect(actions.some((a) => a.type === 'CANCEL_PLANNING')).toBe(true)
+      expect(actions.some((a) => a.type === 'NEW_SESSION')).toBe(false)
     })
   })
 
