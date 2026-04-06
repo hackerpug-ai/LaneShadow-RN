@@ -151,3 +151,71 @@ describe('routing provider', () => {
     expect(result.provider).toBe('google')
   })
 })
+
+describe('routeSegment', () => {
+  afterEach(() => {
+    vi.resetAllMocks()
+  })
+
+  const sketchWithAnchors: RouteSketch = {
+    label: 'Test',
+    rationale: 'Mocked',
+    segments: [
+      { roadName: 'Highway 1', fromName: 'Start Town', toName: 'Mid Junction' },
+      { roadName: 'Highway 2', fromName: 'Mid Junction', toName: 'End Town' },
+    ],
+    anchorPoints: [
+      { name: 'Start Town', kind: 'town', lat: 37.0, lng: -122.0 },
+      { name: 'Mid Junction', kind: 'junction', lat: 37.25, lng: -122.25 },
+      { name: 'End Town', kind: 'town', lat: 37.5, lng: -122.5 },
+    ],
+  }
+
+  it('AC-1: routeSegment routes a single segment using fromName/toName matched to anchorPoints', async () => {
+    ;(globalThis as any).fetch = makeGoogleOkFetch()
+
+    const provider = createRoutingProvider()
+    const segment = sketchWithAnchors.segments[0]
+    const result = await provider.routeSegment({ segment, anchorPoints: sketchWithAnchors.anchorPoints })
+
+    expect(result.provider).toBe('google')
+    expect(result.overviewGeometry.value).toBe('OVERVIEW_POLYLINE')
+    expect(result.legs).toHaveLength(1)
+  })
+
+  it('AC-1: routeSegment uses origin/destination coords from matched anchorPoints', async () => {
+    const fetchMock = makeGoogleOkFetch()
+    ;(globalThis as any).fetch = fetchMock
+
+    const provider = createRoutingProvider()
+    const segment = sketchWithAnchors.segments[0]
+    await provider.routeSegment({ segment, anchorPoints: sketchWithAnchors.anchorPoints })
+
+    const [, init] = fetchMock.mock.calls[0]
+    const body = JSON.parse(init.body)
+    expect(body.origin.location.latLng.latitude).toBe(37.0)
+    expect(body.origin.location.latLng.longitude).toBe(-122.0)
+    expect(body.destination.location.latLng.latitude).toBe(37.25)
+    expect(body.destination.location.latLng.longitude).toBe(-122.25)
+  })
+
+  it('AC-2: routeSegment throws when anchorPoint for fromName is missing lat/lng', async () => {
+    ;(globalThis as any).fetch = makeGoogleOkFetch()
+
+    const provider = createRoutingProvider()
+    const segment = { roadName: 'Road', fromName: 'Unknown Start', toName: 'Mid Junction' }
+    await expect(
+      provider.routeSegment({ segment, anchorPoints: sketchWithAnchors.anchorPoints })
+    ).rejects.toThrow(/anchorPoint/)
+  })
+
+  it('AC-1: routeSegment matches anchorPoints case-insensitively and trims whitespace', async () => {
+    ;(globalThis as any).fetch = makeGoogleOkFetch()
+
+    const provider = createRoutingProvider()
+    const segment = { roadName: 'Road', fromName: '  start town  ', toName: '  MID JUNCTION  ' }
+    const result = await provider.routeSegment({ segment, anchorPoints: sketchWithAnchors.anchorPoints })
+
+    expect(result.provider).toBe('google')
+  })
+})

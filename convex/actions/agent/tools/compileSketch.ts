@@ -5,6 +5,8 @@ import { retryOnce, withTimeout } from '../lib/reliability'
 import { traceableToolAsync } from '../lib/tracing'
 import { createRoutingProvider, type ProviderRouteResponse } from '../providers/routingProvider'
 
+const MAX_SEGMENTS_FOR_PER_SEGMENT_COMPILATION = 10
+
 type Waypoint = {
   lat: number
   lng: number
@@ -70,3 +72,36 @@ export const compileSketch = traceableToolAsync(compileSketchImpl, {
   runType: 'tool',
   tags: ['planRide', 'routing'],
 })
+
+export type SegmentCompileResult =
+  | { status: 'ok'; segmentIndex: number; route: ProviderRouteResponse }
+  | { status: 'failed'; segmentIndex: number; error: string }
+
+export const compileSegments = async (params: {
+  planInput: PlanInput
+  sketch: RouteSketch
+}): Promise<SegmentCompileResult[]> => {
+  const { sketch } = params
+
+  if (sketch.segments.length > MAX_SEGMENTS_FOR_PER_SEGMENT_COMPILATION) {
+    throw new Error(
+      `Too many segments: ${sketch.segments.length} exceeds the per-segment compilation limit of ${MAX_SEGMENTS_FOR_PER_SEGMENT_COMPILATION}`
+    )
+  }
+
+  const provider = createRoutingProvider()
+
+  const settledResults = await Promise.allSettled(
+    sketch.segments.map((segment) =>
+      provider.routeSegment({ segment, anchorPoints: sketch.anchorPoints })
+    )
+  )
+
+  return settledResults.map((result, idx) => {
+    if (result.status === 'fulfilled') {
+      return { status: 'ok', segmentIndex: idx, route: result.value }
+    }
+    const error = result.reason instanceof Error ? result.reason.message : String(result.reason)
+    return { status: 'failed', segmentIndex: idx, error }
+  })
+}
