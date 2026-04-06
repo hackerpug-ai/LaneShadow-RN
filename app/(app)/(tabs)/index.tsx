@@ -434,6 +434,9 @@ const HomeMapScreen = () => {
 
   // Build polylines for map rendering
   const routePolylines = useMemo(() => {
+    // Hide polylines during planning loading for cleaner UX
+    if (mapPlanningVisible) return []
+
     // If using chat flow state machine, use polylines from useRouteComparison
     // This includes ROUTE_RESULTS, ROUTE_DETAILS, and PLANNING (when refining existing routes)
     const hasRouteOptions = (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS' || flowState.phase === 'PLANNING') && 'routeOptions' in flowState && flowState.routeOptions
@@ -781,6 +784,7 @@ const HomeMapScreen = () => {
         {/* Show during ROUTE_RESULTS, ROUTE_DETAILS, and PLANNING (when refining existing routes) */}
         {!chatMode &&
           toasts.length === 0 &&
+          !mapPlanningVisible &&
           (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS' || flowState.phase === 'PLANNING') &&
           'routeOptions' in flowState &&
           flowState.routeOptions?.options && (
