@@ -11,7 +11,7 @@ import { buildCardCallbacks, buildStreamingContext, TOOL_TO_CARD_KIND } from '..
 // Mock all the dependencies
 const mockExecuteRidePlanningAgent = vi.fn()
 const mockSendHandler = vi.fn()
-const mockListHandler = vi.fn()
+const mockListWithPiMessagesHandler = vi.fn()
 const mockGetSessionByIdHandler = vi.fn()
 
 vi.mock('../ridePlanningAgent', () => ({
@@ -24,8 +24,8 @@ vi.mock('../../../db/sessionMessages', () => ({
   get sendHandler() {
     return mockSendHandler
   },
-  get listHandler() {
-    return mockListHandler
+  get listWithPiMessagesHandler() {
+    return mockListWithPiMessagesHandler
   },
 }))
 
@@ -44,10 +44,18 @@ vi.mock('../../../_generated/api', () => ({
         finalizeAssistantMessage: { __ref: 'finalizeAssistantMessage' },
         appendStreamingChunk: { __ref: 'appendStreamingChunk' },
         addSystemMessage: { __ref: 'addSystemMessage' },
+        listWithPiMessages: { __ref: 'listWithPiMessages' },
+        recordAgentTurn: { __ref: 'recordAgentTurn' },
+        recordToolResult: { __ref: 'recordToolResult' },
+        recordReasoning: { __ref: 'recordReasoning' },
+        appendReasoningChunk: { __ref: 'appendReasoningChunk' },
       },
       planUsage: {
         checkUsageInternal: { __ref: 'checkUsageInternal' },
         incrementUsageInternal: { __ref: 'incrementUsageInternal' },
+      },
+      planningSessions: {
+        updateLastKnownLocation: { __ref: 'updateLastKnownLocation' },
       },
     },
   },
@@ -84,6 +92,7 @@ const mockMessages = [
     role: 'rider' as const,
     content: 'Plan a scenic route',
     createdAt: Date.now(),
+    piMessage: { role: 'user', content: 'Plan a scenic route', timestamp: 1000 },
   },
   {
     _id: 'msg2' as Id<'session_messages'>,
@@ -92,6 +101,16 @@ const mockMessages = [
     role: 'system' as const,
     content: 'Here are your routes',
     createdAt: Date.now(),
+    piMessage: {
+      role: 'assistant',
+      content: [{ type: 'text', text: 'Here are your routes' }],
+      api: 'openai-completions',
+      provider: 'openai',
+      model: 'gpt-4o',
+      usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, totalTokens: 0, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } },
+      stopReason: 'stop',
+      timestamp: 2000,
+    },
   },
 ]
 
@@ -148,26 +167,28 @@ async function sendMessageHandler(
     clerkUserId
   )
 
-  // Step 3: Build conversation context for the agent
-  const messages = await mockListHandler(
+  // Step 3: Build pi-ai Message[] history for the agent
+  const rows = await mockListWithPiMessagesHandler(
     ctx as any,
     { sessionId: args.sessionId }
   )
 
-  // Convert to agent format (role: content:)
-  const conversationHistory = messages.map((msg) => ({
-    role: msg.role, // 'rider' or 'system'
-    content: msg.content,
-  }))
+  // Build piMessages from rows (excluding the just-persisted rider turn)
+  const piMessages = rows
+    .slice(0, -1)
+    .flatMap((row: any) => {
+      if (row.piMessage) return [row.piMessage]
+      return []
+    })
 
   // Step 4: Run agent with session context (probabilistic)
   let agentResult
   try {
     agentResult = await mockExecuteRidePlanningAgent(
       {
-        sessionId: args.sessionId,
+        planningSessionId: args.sessionId,
         clerkUserId,
-        conversationHistory,
+        piMessages,
         currentLocation: args.currentLocation,
         runQuery: ctx.runQuery.bind(ctx),
         runMutation: ctx.runMutation.bind(ctx),
@@ -210,7 +231,7 @@ describe('sendMessage', () => {
     vi.clearAllMocks()
     mockGetSessionByIdHandler.mockResolvedValue(mockSession)
     mockSendHandler.mockResolvedValue({ messageId: 'msg1' as Id<'session_messages'> })
-    mockListHandler.mockResolvedValue(mockMessages)
+    mockListWithPiMessagesHandler.mockResolvedValue(mockMessages)
     mockExecuteRidePlanningAgent.mockResolvedValue(mockAgentResult)
     mockActionCtx.runMutation.mockResolvedValue({
       messageId: 'msg2' as Id<'session_messages'>,
@@ -243,16 +264,16 @@ describe('sendMessage', () => {
     )
   })
 
-  it('should load conversation history for agent context', async () => {
+  it('should load pi-ai message history for agent context', async () => {
     await sendMessageHandler(mockActionCtx, {
       sessionId: 'session123' as Id<'planning_sessions'>,
       content: 'avoid Highway 1',
     }, 'user123')
 
-    expect(mockListHandler).toHaveBeenCalledWith(mockActionCtx, { sessionId: 'session123' })
+    expect(mockListWithPiMessagesHandler).toHaveBeenCalledWith(mockActionCtx, { sessionId: 'session123' })
   })
 
-  it('should execute agent with session context', async () => {
+  it('should execute agent with piMessages session context', async () => {
     await sendMessageHandler(mockActionCtx, {
       sessionId: 'session123' as Id<'planning_sessions'>,
       content: 'Plan a scenic route to Santa Cruz',
@@ -260,12 +281,11 @@ describe('sendMessage', () => {
 
     expect(mockExecuteRidePlanningAgent).toHaveBeenCalledWith(
       {
-        sessionId: 'session123',
+        planningSessionId: 'session123',
         clerkUserId: 'user123',
-        conversationHistory: [
-          { role: 'rider', content: 'Plan a scenic route' },
-          { role: 'system', content: 'Here are your routes' },
-        ],
+        // Both mockMessages have piMessage, but the last one is sliced off (current rider turn).
+        // So we expect only the first message's piMessage.
+        piMessages: [mockMessages[0].piMessage],
         currentLocation: undefined,
         runQuery: expect.any(Function),
         runMutation: expect.any(Function),
@@ -324,6 +344,8 @@ describe('sendMessage', () => {
     expect(mockExecuteRidePlanningAgent).toHaveBeenCalledWith(
       expect.objectContaining({
         currentLocation: { lat: 37.7749, lng: -122.4194 },
+        planningSessionId: 'session123',
+        piMessages: expect.any(Array),
       }),
       expect.any(String)
     )

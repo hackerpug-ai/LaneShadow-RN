@@ -35,9 +35,9 @@ const AGENT_TIMEOUT_MS = 30_000
 // -----------------------------------------------------------------------------
 
 export type AgentContext = {
-  sessionId: Id<'planning_sessions'>
+  planningSessionId: Id<'planning_sessions'>
   clerkUserId: string
-  conversationHistory: { role: string; content: string }[]
+  piMessages: Message[]
   currentLocation?: { lat: number; lng: number }
   runQuery: ActionCtx['runQuery']
   runMutation: ActionCtx['runMutation']
@@ -87,6 +87,10 @@ export type ExecuteContext = {
    *  Provides the tool call ID and the full ToolResultMessage so callers can
    *  persist raw pi-ai messages or trigger downstream card updates. */
   onToolResultPiMessage?: (toolCallId: string, result: ToolResultMessage) => Promise<void>
+  /** Called once for the final (non-tool) assistant turn after the full
+   *  AssistantMessage has been assembled from the stream. Useful for
+   *  persisting the final pi-ai AssistantMessage alongside the text row. */
+  onFinalAssistant?: (assistant: AssistantMessage) => Promise<void>
 }
 
 // -----------------------------------------------------------------------------
@@ -409,42 +413,10 @@ export async function executeRidePlanningAgent(
 
   const toolResultsTracker: { toolName: string; result: unknown }[] = []
 
-  // Build conversation history from stored role+content pairs.
-  // UserMessage is straightforward. AssistantMessage requires metadata fields
-  // (api, provider, model, usage, stopReason) that aren't stored in history —
-  // we populate them with sentinel values so the LLM receives the prior turn
-  // context correctly.
-  const historyMessages: Message[] = ctx.conversationHistory.map((m): Message => {
-    if (m.role === 'rider') {
-      return {
-        role: 'user',
-        content: m.content,
-        timestamp: Date.now(),
-      }
-    }
-    return {
-      role: 'assistant',
-      content: [{ type: 'text', text: m.content }],
-      api: 'openai-completions',
-      provider: 'openai',
-      model: AI_MODEL,
-      usage: {
-        input: 0,
-        output: 0,
-        cacheRead: 0,
-        cacheWrite: 0,
-        totalTokens: 0,
-        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
-      },
-      stopReason: 'stop',
-      timestamp: Date.now(),
-    }
-  })
-
   const context: Context = {
     systemPrompt: buildSystemPrompt(ctx),
     messages: [
-      ...historyMessages,
+      ...ctx.piMessages,
       { role: 'user', content: userMessage, timestamp: Date.now() } as Message,
     ],
     tools,
@@ -493,7 +465,12 @@ export async function executeRidePlanningAgent(
 
     context.messages.push(assistant)
 
-    if (assistant.stopReason !== 'toolUse') break
+    if (assistant.stopReason !== 'toolUse') {
+      // Notify caller of the final (text-only) assistant turn so they can
+      // persist the full pi-ai AssistantMessage alongside the text row.
+      await executeCtx?.onFinalAssistant?.(assistant)
+      break
+    }
 
     const toolCalls = assistant.content.filter(
       (b): b is ToolCall => b.type === 'toolCall'

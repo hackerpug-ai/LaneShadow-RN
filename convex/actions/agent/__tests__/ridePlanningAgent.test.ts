@@ -140,9 +140,9 @@ const makeSimpleStream = (assistantMessage: ReturnType<typeof makeAssistantMessa
 }
 
 const makeAgentContext = () => ({
-  sessionId: 'session_test' as any,
+  planningSessionId: 'session_test' as any,
   clerkUserId: 'user_test',
-  conversationHistory: [] as { role: string; content: string }[],
+  piMessages: [] as any[],
   currentLocation: { lat: 37.77, lng: -122.42 },
   runQuery: vi.fn().mockResolvedValue({ allowed: true, remaining: 4 }),
   // runPlanRoute calls runMutation three times:
@@ -161,9 +161,9 @@ const makeAgentContext = () => ({
 describe('buildSystemPrompt', () => {
   it('includes device location and instructs the agent not to ask for origin when currentLocation is set', () => {
     const ctx = {
-      sessionId: 'session_test' as any,
+      planningSessionId: 'session_test' as any,
       clerkUserId: 'user_test',
-      conversationHistory: [],
+      piMessages: [],
       currentLocation: { lat: 37.77, lng: -122.42 },
       runQuery: vi.fn(),
       runMutation: vi.fn(),
@@ -178,9 +178,9 @@ describe('buildSystemPrompt', () => {
 
   it('omits device location and prompts to ask when currentLocation is undefined', () => {
     const ctx = {
-      sessionId: 'session_test' as any,
+      planningSessionId: 'session_test' as any,
       clerkUserId: 'user_test',
-      conversationHistory: [],
+      piMessages: [],
       currentLocation: undefined,
       runQuery: vi.fn(),
       runMutation: vi.fn(),
