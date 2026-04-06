@@ -271,6 +271,72 @@ describe('buildSystemPrompt', () => {
     expect(prompt).not.toMatch(/\n{3,}/)
     expect(prompt).not.toContain('Routes already planned')
   })
+
+  // ---------------------------------------------------------------------------
+  // US-024: LLM-first prompt guidance
+  // ---------------------------------------------------------------------------
+
+  const makeMinimalCtx = () => ({
+    planningSessionId: 'session_test' as any,
+    clerkUserId: 'user_test',
+    piMessages: [] as any[],
+    currentLocation: { lat: 37.77, lng: -122.42 },
+    runQuery: vi.fn(),
+    runMutation: vi.fn(),
+  })
+
+  it('llm-first prompt: instructs LLM to author a route sketch for all requests', async () => {
+    const ctx = makeMinimalCtx()
+    const prompt = await buildSystemPrompt(ctx)
+
+    // Must instruct the LLM to use createRouteSketch as the default first step
+    expect(prompt).toContain('createRouteSketch')
+    // Must communicate the always-sketch-first principle
+    expect(prompt.toLowerCase()).toMatch(/any route request|every route request|all.*request/)
+  })
+
+  it('avoid guidance: instructs LLM to route around avoidances in the sketch, not via avoidRoads API', async () => {
+    const ctx = makeMinimalCtx()
+    const prompt = await buildSystemPrompt(ctx)
+
+    // Prompt must tell LLM to handle avoidance in the sketch
+    expect(prompt.toLowerCase()).toMatch(/avoid.*sketch|route around.*sketch|sketch.*avoid/)
+    // Must explicitly say no avoidRoads API is needed
+    expect(prompt).toMatch(/no.*avoidRoads|avoidRoads.*not needed|avoid.*sketch.*no.*API/i)
+  })
+
+  it('fallback guidance: instructs LLM to fall back to planRoute when uncertain', async () => {
+    const ctx = makeMinimalCtx()
+    const prompt = await buildSystemPrompt(ctx)
+
+    // Must mention planRoute as available fallback
+    expect(prompt).toContain('planRoute')
+    // Must state the fallback condition (uncertainty)
+    expect(prompt.toLowerCase()).toMatch(/uncertain|unsure|don.t know|genuinely/)
+  })
+
+  it('planRoute available: preserves planRoute as an available tool in the prompt', async () => {
+    const ctx = makeMinimalCtx()
+    const prompt = await buildSystemPrompt(ctx)
+
+    // planRoute must remain mentioned as a tool option (fallback)
+    expect(prompt).toContain('planRoute')
+  })
+
+  it('llm-first prompt: includes viaNames guidance for intermediate landmarks', async () => {
+    const ctx = makeMinimalCtx()
+    const prompt = await buildSystemPrompt(ctx)
+
+    expect(prompt).toContain('viaNames')
+  })
+
+  it('llm-first prompt: includes segment retry hint', async () => {
+    const ctx = makeMinimalCtx()
+    const prompt = await buildSystemPrompt(ctx)
+
+    // Must mention that failed segments can be revised individually
+    expect(prompt.toLowerCase()).toMatch(/fail|didn.t work|revise/)
+  })
 })
 
 // -----------------------------------------------------------------------------
