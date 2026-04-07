@@ -45,7 +45,7 @@ export const AgentToolSchemas = {
           Type.Literal('junction'),
           Type.Literal('landmark'),
           Type.Literal('pass'),
-        ], { description: 'Type of waypoint' }),
+        ], { description: 'Type of waypoint. MUST be one of: "town", "junction", "landmark", "pass". Use "landmark" for parks, scenic spots, restaurants, or any named place that isn\'t a town, junction, or mountain pass.' }),
         lat: Type.Union([Type.Number(), Type.Null()], { description: 'Latitude if known, otherwise null' }),
         lng: Type.Union([Type.Number(), Type.Null()], { description: 'Longitude if known, otherwise null' }),
       }),

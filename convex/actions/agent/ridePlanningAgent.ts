@@ -261,6 +261,7 @@ For ANY route request — even generic ones like "scenic 2-hour ride" or "take m
 - Fill in segments with specific road names: roadName, fromName, toName
 - Use viaNames to include intermediate landmarks along each road — e.g., "Skeggs Point" on Skyline Blvd — these pin the route to the roads you intend
 - Add anchorPoints for key junctions, towns, passes, or landmarks along the route
+- Each anchorPoint kind MUST be one of: "town", "junction", "landmark", "pass" — use "landmark" for parks, scenic spots, restaurants, or anything that isn't a town/junction/pass
 
 **Avoidances**: When the rider says "avoid Highway 1" or "skip the freeway," route around it in your sketch using alternative roads — no avoidRoads API parameter is needed. Just don't include that road in your segments.
 
