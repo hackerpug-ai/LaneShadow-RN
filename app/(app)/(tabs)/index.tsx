@@ -439,12 +439,15 @@ const HomeMapScreen = () => {
 
   // Determine overlay availability based on selected route option
   const overlayAvailability = useMemo(() => {
+    // Only show overlays when the route actually has overlay data
+    const hasOverlayData = selectedOption?.overlaysPreview?.conditionsStatus === 'ok'
+
     return {
-      // Wind data is always available (part of base route planning)
-      wind: true,
+      // Wind data is only available when overlay data exists
+      wind: hasOverlayData,
       // Rain and temperature availability depends on conditionsStatus
-      rain: selectedOption?.overlaysPreview?.conditionsStatus === 'ok',
-      temperature: selectedOption?.overlaysPreview?.conditionsStatus === 'ok',
+      rain: hasOverlayData,
+      temperature: hasOverlayData,
     }
   }, [selectedOption])
 
@@ -752,8 +755,8 @@ const HomeMapScreen = () => {
             testID="map-header-overlay"
           />
 
-          {/* Overlay toggle - only shown when a route is selected and not in chat mode */}
-          {selectedOption && !chatMode && (
+          {/* Overlay toggle - only shown when a route is selected, has overlay data, and not in chat mode */}
+          {selectedOption && !chatMode && (overlayAvailability.wind || overlayAvailability.rain || overlayAvailability.temperature) && (
             <View
               style={[
                 styles.overlayToggle,
