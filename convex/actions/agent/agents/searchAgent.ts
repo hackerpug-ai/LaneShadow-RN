@@ -164,8 +164,8 @@ export async function executeSearchAgent(
       context: agentContext,
       executor: (call) => executeSearchTool(ctx, call),
       callbacks: searchCallbacks,
-      maxSteps: 4,
-      timeoutMs: 20_000,
+      maxSteps: 20, // uncapped for now — levelsetting resource needs
+      timeoutMs: 300_000, // 5 min — uncapped for levelsetting
       budgetTracker,
       parallelSafeTools: searchToolNames,
     })

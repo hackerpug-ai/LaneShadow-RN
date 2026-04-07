@@ -277,8 +277,8 @@ export async function executeEnrichmentAgent(
       context: agentContext,
       executor: (call) => executeEnrichmentTool(ctx, call),
       callbacks: enrichmentCallbacks,
-      maxSteps: 4,
-      timeoutMs: 30_000,
+      maxSteps: 20, // uncapped for now — levelsetting resource needs
+      timeoutMs: 300_000, // 5 min — uncapped for levelsetting
       budgetTracker,
       parallelSafeTools: enrichmentToolNames,
     })

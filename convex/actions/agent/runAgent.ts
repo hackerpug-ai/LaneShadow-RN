@@ -72,8 +72,8 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
     context,
     executor,
     callbacks,
-    maxSteps = 10,
-    timeoutMs = 30_000,
+    maxSteps = 100, // effectively uncapped — levelsetting resource needs
+    timeoutMs = 600_000, // 10 min — effectively uncapped for levelsetting
     loopDetector,
     budgetTracker,
     summarizeForContext,
@@ -87,8 +87,8 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
 
   for (let step = 0; step < maxSteps; step++) {
     if (Date.now() > deadline) {
-      console.warn(`[runAgent] TIMEOUT at step ${step}`)
-      throw new Error(ERROR_CODES.AGENT_TIMEOUT)
+      console.warn(`[runAgent] TIMEOUT at step ${step} — breaking loop (levelsetting: log, don't throw)`)
+      break
     }
 
     console.info(`[runAgent] Step ${step + 1}/${maxSteps}`)

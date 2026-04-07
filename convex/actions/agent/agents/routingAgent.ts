@@ -21,7 +21,8 @@ import type { SubAgentConfig, RoutingAgentResult } from './types'
 // Constants
 // -----------------------------------------------------------------------------
 
-export const MAX_COMPILE_ATTEMPTS = 3
+// Uncapped for levelsetting — log attempts but don't limit
+export const MAX_COMPILE_ATTEMPTS = 20
 
 // -----------------------------------------------------------------------------
 // In-Memory Sketch Store (per-session)
@@ -761,7 +762,11 @@ That's it. 2-3 tool calls. The rider sees a map and can say "looks good", "try a
 
 **Avoidances**: When the rider says "avoid Highway 1" or "skip the freeway," route around it in your sketch using alternative roads — no avoidRoads API parameter is needed. Just don't include that road in your segments.
 
-**Segment retry**: If some roads don't work out after compilation, I'll tell you which segments failed and you can revise just those — not the whole route.
+**Segment retry (CRITICAL)**: When compileSketch returns a partial_route error:
+- Call compileSketch AGAIN with a revised sketch that keeps the succeeded segments IDENTICAL (same roadName, fromName, toName)
+- Only change the failed segments — try different fromName/toName endpoints or add viaNames to pin the road
+- Do NOT call createRouteSketch to start over — compileSketch caches succeeded segments and only re-routes the failed ones
+- If the same segment fails 3 times, fall back to planRoute for that leg
 
 **Examples**:
 - "Scenic ride to Santa Cruz" → geocode("Santa Cruz") → createRouteSketch with Skyline Blvd + Highway 9 → compileSketch → done
@@ -824,8 +829,8 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
       onToolResultPiMessage: executeCtx.onToolResultPiMessage,
       // NOT forwarding onTextDelta or onThinkingDelta — sub-agent text doesn't stream to UI
     } : undefined,
-    maxSteps: 6,
-    timeoutMs: 90_000,
+    maxSteps: 20, // uncapped for now — levelsetting resource needs
+    timeoutMs: 300_000, // 5 min — uncapped for levelsetting
     budgetTracker,
     parallelSafeTools: routingParallelSafeTools,
   })

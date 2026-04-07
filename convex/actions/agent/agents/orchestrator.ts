@@ -346,8 +346,8 @@ export async function executeOrchestrator(
           onToolResultPiMessage: executeCtx.onToolResultPiMessage,
         }
       : undefined,
-    maxSteps: 5,
-    timeoutMs: 120_000,
+    maxSteps: 20, // uncapped for now — levelsetting resource needs
+    timeoutMs: 300_000, // 5 min — uncapped for levelsetting
     budgetTracker,
     parallelSafeTools: new Set<string>(), // sub-agents are NOT parallel-safe
   })
