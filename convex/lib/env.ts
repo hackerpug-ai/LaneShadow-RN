@@ -48,10 +48,10 @@ export const AI_PROVIDER = (optionalEnv('AI_PROVIDER') ?? 'google') as 'openai' 
 
 /**
  * AI model for all LLM interactions (enrichment, agents).
- * Defaults to gemini-2.5-flash for google, gpt-4.1 for openai.
+ * Defaults to gpt-5 for openai, gemini-2.5-flash for google.
  * Override via AI_MODEL env var.
  */
-export const AI_MODEL = optionalEnv('AI_MODEL') ?? (AI_PROVIDER === 'google' ? 'gemini-2.5-flash' : 'gpt-4.1')
+export const AI_MODEL = optionalEnv('AI_MODEL') ?? (AI_PROVIDER === 'google' ? 'gemini-2.5-flash' : 'gpt-5')
 
 /**
  * Override the monthly route plan limit. 0 = unlimited.
