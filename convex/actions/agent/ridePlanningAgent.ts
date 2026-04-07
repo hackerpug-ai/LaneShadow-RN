@@ -27,6 +27,7 @@ export type AgentContext = {
   currentLocation?: { lat: number; lng: number }
   runQuery: ActionCtx['runQuery']
   runMutation: ActionCtx['runMutation']
+  runAction: ActionCtx['runAction']
 }
 
 export type ToolResult =

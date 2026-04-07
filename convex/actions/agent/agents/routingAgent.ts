@@ -167,6 +167,53 @@ async function runDiscoverCorridor(
   }
 ): Promise<unknown> {
   const discoverCorridor = await import('../tools/discoverCorridor')
+
+  // Try Convex OSM data first for fast queries
+  try {
+    const bounds = {
+      south: Math.min(args.start.lat, args.end.lat) - 0.5,
+      west: Math.min(args.start.lng, args.end.lng) - 0.5,
+      north: Math.max(args.start.lat, args.end.lat) + 0.5,
+      east: Math.max(args.start.lng, args.end.lng) + 0.5,
+    }
+
+    // Query scenic nodes and roads from Convex
+    const [nodes, ways] = await Promise.all([
+      ctx.runAction(internal.actions.osm.queryNodesInBbox, {
+        bounds,
+        types: ['viewpoint', 'peak', 'mountain_pass'],
+      }),
+      ctx.runAction(internal.actions.osm.queryWaysInBbox, {
+        bounds,
+        highwayClasses: ['trunk', 'primary', 'secondary', 'tertiary'],
+      }),
+    ])
+
+    // If we got results from Convex, use them
+    if (nodes.length > 0 || ways.length > 0) {
+      return {
+        roads: ways.map((w: any) => ({
+          name: w.name || 'Unknown Road',
+          highway: w.highwayClass || 'unknown',
+          surface: w.surface || null,
+          endpoints: w.geometry.map((g: number[]) => ({ lat: g[1], lng: g[0] })),
+        })),
+        pois: nodes.map((n: any) => ({
+          name: n.name || 'Unknown Point',
+          type: n.type as 'viewpoint' | 'peak' | 'pass' | 'scenic_road',
+          lat: n.lat,
+          lng: n.lon,
+          score: n.type === 'mountain_pass' ? 3 : n.type === 'peak' ? 2 : 1,
+        })),
+        discoveryStatus: (nodes.length > 0 || ways.length > 0) ? 'success' : 'failed' as const,
+      }
+    }
+  } catch (error) {
+    // Convex query failed, fall back to Overpass
+    console.warn('Convex OSM query failed, falling back to Overpass:', error)
+  }
+
+  // Fall back to Overpass tool
   return discoverCorridor.discoverCorridor(args)
 }
 
@@ -178,6 +225,32 @@ async function runLookupRoad(
   }
 ): Promise<unknown> {
   const lookupRoad = await import('../tools/lookupRoad')
+
+  // Try Convex OSM data first for fast name lookup
+  try {
+    const ways = await ctx.runAction(internal.actions.osm.queryWaysByName, {
+      name: args.roadName,
+      bounds: args.bbox,
+    })
+
+    if (ways.length > 0) {
+      return {
+        exists: true,
+        status: 'found' as const,
+        matches: ways.map((w: any) => ({
+          name: w.name || args.roadName,
+          highway: w.highwayClass || 'unknown',
+          surface: w.surface || null,
+          geometry: w.geometry.map((g: number[]) => ({ lat: g[1], lng: g[0] })),
+        })),
+      }
+    }
+  } catch (error) {
+    // Convex query failed, fall back to Overpass
+    console.warn('Convex OSM query failed, falling back to Overpass:', error)
+  }
+
+  // Fall back to Overpass tool
   return lookupRoad.lookupRoad(args)
 }
 

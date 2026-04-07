@@ -392,6 +392,7 @@ export const sendMessage = action({
             currentLocation: args.currentLocation,
             runQuery: ctx.runQuery.bind(ctx),
             runMutation: ctx.runMutation.bind(ctx),
+            runAction: ctx.runAction.bind(ctx),
           },
           args.content,
           executeCtx

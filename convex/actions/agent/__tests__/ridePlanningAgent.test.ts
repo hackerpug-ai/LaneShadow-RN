@@ -241,6 +241,7 @@ const makeAgentContext = () => ({
   // We return { routePlanId } uniformly — the status/usage mutations ignore
   // the return value, so over-returning is harmless.
   runMutation: vi.fn().mockResolvedValue({ routePlanId: 'rp_test' }),
+  runAction: vi.fn(),
 })
 
 // -----------------------------------------------------------------------------
@@ -265,6 +266,7 @@ describe('buildSystemPrompt', () => {
       currentLocation: { lat: 37.77, lng: -122.42 },
       runQuery: vi.fn(),
       runMutation: vi.fn(),
+      runAction: vi.fn(),
     }
 
     const prompt = await buildSystemPrompt(ctx)
@@ -282,6 +284,7 @@ describe('buildSystemPrompt', () => {
       currentLocation: undefined,
       runQuery: vi.fn().mockResolvedValue({ lastKnownLocation: undefined }),
       runMutation: vi.fn(),
+      runAction: vi.fn(),
     }
 
     const prompt = await buildSystemPrompt(ctx)
@@ -301,6 +304,7 @@ describe('buildSystemPrompt', () => {
         lastKnownLocation: { lat: 34.05, lng: -118.24, updatedAt: Date.now() },
       }),
       runMutation: vi.fn(),
+      runAction: vi.fn(),
     }
 
     const prompt = await buildSystemPrompt(ctx)
@@ -322,6 +326,7 @@ describe('buildSystemPrompt', () => {
       currentLocation: { lat: 37.77, lng: -122.42 },
       runQuery: vi.fn(),
       runMutation: vi.fn(),
+      runAction: vi.fn(),
     }
 
     const prompt = await buildSystemPrompt(ctx)
@@ -339,6 +344,7 @@ describe('buildSystemPrompt', () => {
       currentLocation: { lat: 37.77, lng: -122.42 },
       runQuery: vi.fn(),
       runMutation: vi.fn(),
+      runAction: vi.fn(),
     }
 
     const prompt = await buildSystemPrompt(ctx)
@@ -359,6 +365,7 @@ describe('buildSystemPrompt', () => {
     currentLocation: { lat: 37.77, lng: -122.42 },
     runQuery: vi.fn(),
     runMutation: vi.fn(),
+    runAction: vi.fn(),
   })
 
   it('llm-first prompt: instructs LLM to author a route sketch for all requests', async () => {
