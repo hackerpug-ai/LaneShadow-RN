@@ -183,7 +183,7 @@ export const createPendingAssistantMessageHandler = async (
     piMessage?: unknown
   }
 ): Promise<{ messageId: Id<'session_messages'> }> => {
-  const status = args.kind !== 'text' ? 'running' : 'streaming'
+  const status = args.kind === 'text' || args.kind === 'planning' ? 'streaming' : 'running'
   const now = Date.now()
   const fields: Record<string, unknown> = {
     sessionId: args.sessionId,
@@ -353,6 +353,28 @@ export const appendStreamingChunkHandler = async (
   return null
 }
 
+type UpdatePlanningContentCtx = {
+  db: {
+    get: (id: Id<'session_messages'>) => Promise<{ content: string; [key: string]: unknown } | null>
+    patch: (id: Id<'session_messages'>, fields: object) => Promise<void>
+  }
+}
+
+export const updatePlanningContentHandler = async (
+  ctx: UpdatePlanningContentCtx,
+  args: {
+    messageId: Id<'session_messages'>
+    content: string
+  }
+): Promise<null> => {
+  const message = await ctx.db.get(args.messageId)
+  if (!message) {
+    throw new ConvexError(ERROR_CODES.SESSION_NOT_FOUND)
+  }
+  await ctx.db.patch(args.messageId, { content: args.content })
+  return null
+}
+
 // ---------------------------------------------------------------------------
 // Convex public mutations and queries
 // ---------------------------------------------------------------------------
@@ -434,6 +456,17 @@ export const appendStreamingChunk = internalMutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     return appendStreamingChunkHandler(ctx as any, args)
+  },
+})
+
+export const updatePlanningContent = internalMutation({
+  args: {
+    messageId: v.id('session_messages'),
+    content: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    return updatePlanningContentHandler(ctx as any, args)
   },
 })
 

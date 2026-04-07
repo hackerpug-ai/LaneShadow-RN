@@ -19,6 +19,7 @@ export const SESSION_MESSAGE_KIND = {
   REASONING: 'reasoning',
   AGENT_TURN: 'agent_turn',
   TOOL_RESULT_HIDDEN: 'tool_result_hidden',
+  PLANNING: 'planning',
 } as const
 export type SessionMessageKind = (typeof SESSION_MESSAGE_KIND)[keyof typeof SESSION_MESSAGE_KIND]
 
@@ -29,7 +30,8 @@ export const sessionMessageKindValidator = v.union(
   v.literal('saved_route_card'),
   v.literal('reasoning'),
   v.literal('agent_turn'),
-  v.literal('tool_result_hidden')
+  v.literal('tool_result_hidden'),
+  v.literal('planning')
 )
 
 export const SESSION_MESSAGE_STATUS = {
