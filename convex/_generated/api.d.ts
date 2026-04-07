@@ -8,25 +8,26 @@
  * @module
  */
 
-import type {
-  ApiFromModules,
-  FilterApi,
-  FunctionReference,
-} from "convex/server";
+import type * as actions_agent_budgetTracker from "../actions/agent/budgetTracker.js";
 import type * as actions_agent_lib_piTools from "../actions/agent/lib/piTools.js";
 import type * as actions_agent_lib_planRideOrchestrator from "../actions/agent/lib/planRideOrchestrator.js";
 import type * as actions_agent_lib_reliability from "../actions/agent/lib/reliability.js";
+import type * as actions_agent_lib_summarizeForContext from "../actions/agent/lib/summarizeForContext.js";
 import type * as actions_agent_lib_tracing from "../actions/agent/lib/tracing.js";
+import type * as actions_agent_loopDetector from "../actions/agent/loopDetector.js";
 import type * as actions_agent_planRide from "../actions/agent/planRide.js";
 import type * as actions_agent_providers_geocodingProvider from "../actions/agent/providers/geocodingProvider.js";
 import type * as actions_agent_providers_routingProvider from "../actions/agent/providers/routingProvider.js";
 import type * as actions_agent_providers_weatherProvider from "../actions/agent/providers/weatherProvider.js";
 import type * as actions_agent_ridePlanningAgent from "../actions/agent/ridePlanningAgent.js";
+import type * as actions_agent_runAgent from "../actions/agent/runAgent.js";
 import type * as actions_agent_sendMessage from "../actions/agent/sendMessage.js";
+import type * as actions_agent_sessionContext from "../actions/agent/sessionContext.js";
 import type * as actions_agent_tools_compileSketch from "../actions/agent/tools/compileSketch.js";
 import type * as actions_agent_tools_computeRouteIndex from "../actions/agent/tools/computeRouteIndex.js";
 import type * as actions_agent_tools_enrichRoute from "../actions/agent/tools/enrichRoute.js";
 import type * as actions_agent_tools_findScenicWaypoints from "../actions/agent/tools/findScenicWaypoints.js";
+import type * as actions_agent_tools_lookupRoad from "../actions/agent/tools/lookupRoad.js";
 import type * as actions_agent_tools_mapConditions from "../actions/agent/tools/mapConditions.js";
 import type * as actions_agent_tools_normalizeRoute from "../actions/agent/tools/normalizeRoute.js";
 import type * as actions_agent_tools_probeConditions from "../actions/agent/tools/probeConditions.js";
@@ -50,29 +51,33 @@ import type * as migrations_backfillSessionMessageKindStatus from "../migrations
 import type * as migrations_deleteEmptyAssistantMessages from "../migrations/deleteEmptyAssistantMessages.js";
 import type * as users from "../users.js";
 
-/**
- * A utility for referencing Convex functions in your app's API.
- *
- * Usage:
- * ```js
- * const myFunctionReference = api.myModule.myFunction;
- * ```
- */
+import type {
+  ApiFromModules,
+  FilterApi,
+  FunctionReference,
+} from "convex/server";
+
 declare const fullApi: ApiFromModules<{
+  "actions/agent/budgetTracker": typeof actions_agent_budgetTracker;
   "actions/agent/lib/piTools": typeof actions_agent_lib_piTools;
   "actions/agent/lib/planRideOrchestrator": typeof actions_agent_lib_planRideOrchestrator;
   "actions/agent/lib/reliability": typeof actions_agent_lib_reliability;
+  "actions/agent/lib/summarizeForContext": typeof actions_agent_lib_summarizeForContext;
   "actions/agent/lib/tracing": typeof actions_agent_lib_tracing;
+  "actions/agent/loopDetector": typeof actions_agent_loopDetector;
   "actions/agent/planRide": typeof actions_agent_planRide;
   "actions/agent/providers/geocodingProvider": typeof actions_agent_providers_geocodingProvider;
   "actions/agent/providers/routingProvider": typeof actions_agent_providers_routingProvider;
   "actions/agent/providers/weatherProvider": typeof actions_agent_providers_weatherProvider;
   "actions/agent/ridePlanningAgent": typeof actions_agent_ridePlanningAgent;
+  "actions/agent/runAgent": typeof actions_agent_runAgent;
   "actions/agent/sendMessage": typeof actions_agent_sendMessage;
+  "actions/agent/sessionContext": typeof actions_agent_sessionContext;
   "actions/agent/tools/compileSketch": typeof actions_agent_tools_compileSketch;
   "actions/agent/tools/computeRouteIndex": typeof actions_agent_tools_computeRouteIndex;
   "actions/agent/tools/enrichRoute": typeof actions_agent_tools_enrichRoute;
   "actions/agent/tools/findScenicWaypoints": typeof actions_agent_tools_findScenicWaypoints;
+  "actions/agent/tools/lookupRoad": typeof actions_agent_tools_lookupRoad;
   "actions/agent/tools/mapConditions": typeof actions_agent_tools_mapConditions;
   "actions/agent/tools/normalizeRoute": typeof actions_agent_tools_normalizeRoute;
   "actions/agent/tools/probeConditions": typeof actions_agent_tools_probeConditions;
@@ -96,11 +101,31 @@ declare const fullApi: ApiFromModules<{
   "migrations/deleteEmptyAssistantMessages": typeof migrations_deleteEmptyAssistantMessages;
   users: typeof users;
 }>;
+
+/**
+ * A utility for referencing Convex functions in your app's public API.
+ *
+ * Usage:
+ * ```js
+ * const myFunctionReference = api.myModule.myFunction;
+ * ```
+ */
 export declare const api: FilterApi<
   typeof fullApi,
   FunctionReference<any, "public">
 >;
+
+/**
+ * A utility for referencing Convex functions in your app's internal API.
+ *
+ * Usage:
+ * ```js
+ * const myFunctionReference = internal.myModule.myFunction;
+ * ```
+ */
 export declare const internal: FilterApi<
   typeof fullApi,
   FunctionReference<any, "internal">
 >;
+
+export declare const components: {};
