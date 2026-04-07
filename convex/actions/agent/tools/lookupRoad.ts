@@ -80,7 +80,7 @@ const buildExactQuery = (roadName: string, bbox: BoundingBox): string => {
   const { south, west, north, east } = bbox
   const escaped = roadName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   return `[out:json][timeout:8];
-way["name"~"^${escaped}$","i"]["highway"~"${HIGHWAY_TYPES}"](${south},${west},${north},${east});
+way["name"~"^${escaped}$",i]["highway"~"${HIGHWAY_TYPES}"](${south},${west},${north},${east});
 out body geom;`
 }
 
@@ -88,7 +88,7 @@ const buildBroadQuery = (firstWord: string, bbox: BoundingBox): string => {
   const { south, west, north, east } = bbox
   const escaped = firstWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   return `[out:json][timeout:8];
-way["name"~"${escaped}","i"]["highway"~"${HIGHWAY_TYPES}"](${south},${west},${north},${east});
+way["name"~"${escaped}",i]["highway"~"${HIGHWAY_TYPES}"](${south},${west},${north},${east});
 out body;`
 }
 

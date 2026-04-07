@@ -92,11 +92,11 @@ export const AgentToolSchemas = {
       anchorPoints: Type.Array(Type.Object({
         name: Type.String(),
         kind: Type.Union([
-          Type.Literal('junction'),
-          Type.Literal('pass'),
-          Type.Literal('vista'),
           Type.Literal('town'),
-        ]),
+          Type.Literal('junction'),
+          Type.Literal('landmark'),
+          Type.Literal('pass'),
+        ], { description: 'MUST be one of: "town", "junction", "landmark", "pass"' }),
         lat: Type.Optional(Type.Number()),
         lng: Type.Optional(Type.Number()),
       })),

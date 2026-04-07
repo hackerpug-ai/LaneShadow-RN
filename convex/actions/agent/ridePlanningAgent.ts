@@ -37,7 +37,7 @@ import type { Id } from '../../_generated/dataModel'
 // -----------------------------------------------------------------------------
 
 const MAX_STEPS = 10
-const AGENT_TIMEOUT_MS = 60_000
+const AGENT_TIMEOUT_MS = 120_000
 
 // -----------------------------------------------------------------------------
 // In-Memory Sketch Store (per-session)
