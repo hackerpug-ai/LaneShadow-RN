@@ -241,6 +241,16 @@ export const AgentToolSchemas = {
         'Planned departure time as unix timestamp in milliseconds. Used to select the matching forecast hour.',
     }),
   }),
+
+  webSearch: Type.Object({
+    query: Type.String({
+      description:
+        'Search query in natural language (e.g., "Skyline Blvd road closure 2026", "speed limit Highway 9 Santa Cruz")',
+    }),
+    maxResults: Type.Union([Type.Integer(), Type.Null()], {
+      description: 'Maximum number of results to return. Null for default (3).',
+    }),
+  }),
 }
 
 /**
