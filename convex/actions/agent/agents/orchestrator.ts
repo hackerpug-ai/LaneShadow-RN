@@ -304,7 +304,8 @@ export async function executeOrchestrator(
   // -------------------------------------------------------------------------
   // 2. BUILD ORCHESTRATOR CONTEXT
   // -------------------------------------------------------------------------
-  const model = getModel(AI_PROVIDER as any, AI_MODEL as any)
+  // Opus for orchestrator — best reasoning for intent classification and sequencing
+  const model = getModel('anthropic', 'claude-opus-4-6' as any)
   const systemPrompt = buildOrchestratorPrompt(ctx, availableToolNames)
 
   const context: Context = {
