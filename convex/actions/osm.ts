@@ -121,3 +121,27 @@ export const queryWaysByName = internalAction({
     );
   },
 });
+
+/**
+ * Import OSM nodes (public action wrapper)
+ *
+ * Can be called from scripts or CLI for ETL pipeline.
+ */
+export const importNodes = internalAction({
+  args: { nodes: v.array(v.any()) },
+  handler: async (ctx, args): Promise<{ inserted: number; updated: number; total: number }> => {
+    return await ctx.runMutation(internal.db.osm.importNodes, args);
+  },
+});
+
+/**
+ * Import OSM ways (public action wrapper)
+ *
+ * Can be called from scripts or CLI for ETL pipeline.
+ */
+export const importWays = internalAction({
+  args: { ways: v.array(v.any()) },
+  handler: async (ctx, args): Promise<{ inserted: number; updated: number; total: number }> => {
+    return await ctx.runMutation(internal.db.osm.importWays, args);
+  },
+});

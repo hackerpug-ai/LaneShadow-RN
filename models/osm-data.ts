@@ -82,7 +82,7 @@ export const OSM_NODE_FIELDS = {
   name: v.optional(v.string()),
   lat: v.number(),
   lon: v.number(),
-  tags: v.object({}), // All OSM tags for extensibility
+  tags: v.record(v.string(), v.any()), // All OSM tags for extensibility (arbitrary key-value pairs)
   s2Token: v.string(), // S2 geometry token for spatial indexing (level 10 ≈ 10km cells)
   importedAt: v.number(),
 } as const;
