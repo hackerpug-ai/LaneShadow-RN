@@ -19,6 +19,7 @@ import { executeRoutingAgent } from './routingAgent'
 import { executeSearchAgent } from './searchAgent'
 import { executeEnrichmentAgent } from './enrichmentAgent'
 import { getPendingSketchState } from './routingAgent'
+import { summarizeToolResult } from '../lib/summarizeToolResult'
 
 // -----------------------------------------------------------------------------
 // Result type
@@ -149,46 +150,90 @@ async function executeOrchestratorTool(
   // Each sub-agent gets its own BudgetTracker slice (log mode — shared parent tracks overall)
   const subBudget = new BudgetTracker(0.25, { mode: 'log' })
 
+  /**
+   * Build a sub-agent ExecuteContext that wraps tool callbacks to intercept
+   * tool lifecycle events and emit planning events via the parent executeCtx's
+   * onSubToolPending / onSubToolComplete callbacks.
+   */
+  function buildSubAgentCtx(agentName: string, baseCtx: Partial<ExecuteContext>): ExecuteContext {
+    if (!executeCtx) return baseCtx as ExecuteContext
+
+    // Per-tool start time map for duration tracking
+    const toolStartTimes = new Map<string, number>()
+
+    return {
+      ...baseCtx,
+      onToolStart: async (toolName: string, args: unknown) => {
+        toolStartTimes.set(toolName, Date.now())
+        // Emit planning event for pending tool
+        await executeCtx.onSubToolPending?.(toolName, agentName)
+        // Forward to base callback if present
+        return baseCtx.onToolStart?.(toolName, args)
+      },
+      onToolFinish: async (toolCallId: string, toolName: string, messageId, result: unknown) => {
+        const t0 = toolStartTimes.get(toolName) ?? Date.now()
+        const durationMs = Date.now() - t0
+        toolStartTimes.delete(toolName)
+        const summary = summarizeToolResult(toolName, result)
+        // Emit planning event for completed tool
+        await executeCtx.onSubToolComplete?.(toolName, agentName, summary, durationMs)
+        // Forward to base callback if present
+        return baseCtx.onToolFinish?.(toolCallId, toolName, messageId, result)
+      },
+    }
+  }
+
+  const agentStart = Date.now()
+
   switch (call.name) {
-    case 'routing_agent':
+    case 'routing_agent': {
       // Routing agent needs card callbacks (onToolStart/onToolFinish) forwarded
-      return executeRoutingAgent({
+      const subCtx = buildSubAgentCtx('routing', {
+        onToolStart: executeCtx?.onToolStart,
+        onToolFinish: executeCtx?.onToolFinish,
+        onAgentTurn: executeCtx?.onAgentTurn,
+        onToolResultPiMessage: executeCtx?.onToolResultPiMessage,
+      })
+      const result = await executeRoutingAgent({
         ctx,
-        executeCtx: executeCtx
-          ? {
-              onToolStart: executeCtx.onToolStart,
-              onToolFinish: executeCtx.onToolFinish,
-              onAgentTurn: executeCtx.onAgentTurn,
-              onToolResultPiMessage: executeCtx.onToolResultPiMessage,
-            }
-          : undefined,
+        executeCtx: executeCtx ? subCtx : undefined,
         budgetTracker: subBudget,
         userMessage: query,
       })
-    case 'search_agent':
-      return executeSearchAgent({
+      const summary = summarizeToolResult('routing_agent', result)
+      await executeCtx?.onSubAgentComplete?.('routing', summary, Date.now() - agentStart)
+      return result
+    }
+    case 'search_agent': {
+      const subCtx = buildSubAgentCtx('search', {
+        onAgentTurn: executeCtx?.onAgentTurn,
+        onToolResultPiMessage: executeCtx?.onToolResultPiMessage,
+      })
+      const result = await executeSearchAgent({
         ctx,
-        executeCtx: executeCtx
-          ? {
-              onAgentTurn: executeCtx.onAgentTurn,
-              onToolResultPiMessage: executeCtx.onToolResultPiMessage,
-            }
-          : undefined,
+        executeCtx: executeCtx ? subCtx : undefined,
         budgetTracker: subBudget,
         userMessage: query,
       })
-    case 'enrichment_agent':
-      return executeEnrichmentAgent({
+      const summary = summarizeToolResult('search_agent', result)
+      await executeCtx?.onSubAgentComplete?.('search', summary, Date.now() - agentStart)
+      return result
+    }
+    case 'enrichment_agent': {
+      const subCtx = buildSubAgentCtx('enrichment', {
+        onAgentTurn: executeCtx?.onAgentTurn,
+        onToolResultPiMessage: executeCtx?.onToolResultPiMessage,
+      })
+      const result = await executeEnrichmentAgent({
         ctx,
-        executeCtx: executeCtx
-          ? {
-              onAgentTurn: executeCtx.onAgentTurn,
-              onToolResultPiMessage: executeCtx.onToolResultPiMessage,
-            }
-          : undefined,
+        executeCtx: executeCtx ? subCtx : undefined,
         budgetTracker: subBudget,
         userMessage: query,
       })
+      const summary = summarizeToolResult('enrichment_agent', result)
+      await executeCtx?.onSubAgentComplete?.('enrichment', summary, Date.now() - agentStart)
+      return result
+    }
     default:
       return { type: 'error', message: `Unknown orchestrator tool: ${call.name}` }
   }
