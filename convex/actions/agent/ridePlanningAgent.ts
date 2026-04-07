@@ -1108,9 +1108,9 @@ export function extractRouteAttachments(
   const attachments: { type: string; routePlanId?: Id<'route_plans'> }[] = []
 
   for (const tr of toolResults) {
-    if (tr.toolName === 'planRoute') {
+    if (tr.toolName === 'planRoute' || tr.toolName === 'compileSketch') {
       const result = tr.result as any
-      // Prefer the real Convex route_plans document id (added by runPlanRoute
+      // Prefer the real Convex route_plans document id (added by runPlanRoute/runCompileSketch
       // when it persists the plan). `result.data.planId` is a legacy UUID
       // string and is NOT a valid v.id('route_plans') — never emit it through
       // the action's returns validator.
