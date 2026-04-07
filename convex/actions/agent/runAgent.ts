@@ -178,14 +178,18 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
           result = await executor(call)
           console.info(`[runAgent] ✅ ${call.name} completed in ${Date.now() - t0}ms → ${JSON.stringify(result ?? null).slice(0, 200)}`)
         } catch (err) {
+          const errMsg = err instanceof Error ? err.message : String(err)
+          const isValidation = errMsg.includes('Validation failed')
           result = {
             type: 'error',
-            message: err instanceof Error ? err.message : String(err),
-            hint: "An unexpected error occurred. Ask the rider what they'd like to do.",
-            retryGuidance: 'ask_rider',
+            message: errMsg,
+            hint: isValidation
+              ? 'Your tool arguments were malformed. Fix the JSON structure (ensure all objects have curly braces) and retry the same tool call.'
+              : "An unexpected error occurred. Ask the rider what they'd like to do.",
+            retryGuidance: isValidation ? 'fix_args_and_retry' : 'ask_rider',
           }
           isError = true
-          console.error(`[runAgent] ❌ ${call.name} FAILED in ${Date.now() - t0}ms: ${err instanceof Error ? err.message : String(err)}`)
+          console.error(`[runAgent] ❌ ${call.name} FAILED in ${Date.now() - t0}ms: ${errMsg}`)
         }
         outcomes.set(call.id, { result, isError, loopDetected: false })
       })
@@ -202,14 +206,18 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
         result = await executor(call)
         console.info(`[runAgent] ✅ ${call.name} completed in ${Date.now() - t0}ms → ${JSON.stringify(result ?? null).slice(0, 200)}`)
       } catch (err) {
+        const errMsg = err instanceof Error ? err.message : String(err)
+        const isValidation = errMsg.includes('Validation failed')
         result = {
           type: 'error',
-          message: err instanceof Error ? err.message : String(err),
-          hint: "An unexpected error occurred. Ask the rider what they'd like to do.",
-          retryGuidance: 'ask_rider',
+          message: errMsg,
+          hint: isValidation
+            ? 'Your tool arguments were malformed. Fix the JSON structure (ensure all objects have curly braces) and retry the same tool call.'
+            : "An unexpected error occurred. Ask the rider what they'd like to do.",
+          retryGuidance: isValidation ? 'fix_args_and_retry' : 'ask_rider',
         }
         isError = true
-        console.error(`[runAgent] ❌ ${call.name} FAILED in ${Date.now() - t0}ms: ${err instanceof Error ? err.message : String(err)}`)
+        console.error(`[runAgent] ❌ ${call.name} FAILED in ${Date.now() - t0}ms: ${errMsg}`)
       }
       outcomes.set(call.id, { result, isError, loopDetected: false })
     }
