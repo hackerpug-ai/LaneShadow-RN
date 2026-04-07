@@ -40,10 +40,10 @@
 
 | # | Boolean Statement | Maps To AC | Verify | Status |
 |---|-------------------|------------|--------|--------|
-| 1 | checkSurface returns paved with confirmed confidence when OSM surface tag is asphalt | AC-1 | `npx vitest run convex/actions/agent/tools/__tests__/checkSurface.test.ts -t "paved road"` | [ ] TRUE [ ] FALSE |
-| 2 | checkSurface returns unpaved with confirmed confidence when OSM surface tag is gravel | AC-2 | `npx vitest run convex/actions/agent/tools/__tests__/checkSurface.test.ts -t "unpaved road"` | [ ] TRUE [ ] FALSE |
-| 3 | checkSurface infers paved for primary/secondary/trunk highways without surface tag | AC-3 | `npx vitest run convex/actions/agent/tools/__tests__/checkSurface.test.ts -t "inferred paved"` | [ ] TRUE [ ] FALSE |
-| 4 | checkSurface infers unpaved for track/path highways without surface tag | AC-4 | `npx vitest run convex/actions/agent/tools/__tests__/checkSurface.test.ts -t "inferred unpaved"` | [ ] TRUE [ ] FALSE |
+| 1 | checkSurface returns paved with confirmed confidence when OSM surface tag is asphalt | AC-1 | `npx vitest run convex/actions/agent/tools/__tests__/checkSurface.test.ts -t "paved road"` | [x] TRUE [ ] FALSE |
+| 2 | checkSurface returns unpaved with confirmed confidence when OSM surface tag is gravel | AC-2 | `npx vitest run convex/actions/agent/tools/__tests__/checkSurface.test.ts -t "unpaved road"` | [x] TRUE [ ] FALSE |
+| 3 | checkSurface infers paved for primary/secondary/trunk highways without surface tag | AC-3 | `npx vitest run convex/actions/agent/tools/__tests__/checkSurface.test.ts -t "inferred paved"` | [x] TRUE [ ] FALSE |
+| 4 | checkSurface infers unpaved for track/path highways without surface tag | AC-4 | `npx vitest run convex/actions/agent/tools/__tests__/checkSurface.test.ts -t "inferred unpaved"` | [x] TRUE [ ] FALSE |
 
 ## GUARDRAILS
 

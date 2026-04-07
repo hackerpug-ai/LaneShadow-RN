@@ -42,10 +42,10 @@
 
 | # | Boolean Statement | Maps To AC | Verify | Status |
 |---|-------------------|------------|--------|--------|
-| 1 | getCurvature returns score ≥ 1000 and rating "very_twisty" for road geometry with many tight curves | AC-1 | `npx vitest run convex/actions/agent/tools/__tests__/getCurvature.test.ts -t "twisty road"` | [ ] TRUE [ ] FALSE |
-| 2 | getCurvature returns score < 100 and rating "straight" for road geometry with minimal curves | AC-2 | `npx vitest run convex/actions/agent/tools/__tests__/getCurvature.test.ts -t "straight road"` | [ ] TRUE [ ] FALSE |
-| 3 | calculateCurvatureScore weights hairpin curves at 4x and sweeping curves at 1x | AC-3 | `npx vitest run convex/actions/agent/tools/__tests__/getCurvature.test.ts -t "mixed geometry"` | [ ] TRUE [ ] FALSE |
-| 4 | calculateCurvatureScore returns score 0 for geometry with fewer than 3 points | AC-4 | `npx vitest run convex/actions/agent/tools/__tests__/getCurvature.test.ts -t "minimal geometry"` | [ ] TRUE [ ] FALSE |
+| 1 | getCurvature returns score ≥ 1000 and rating "very_twisty" for road geometry with many tight curves | AC-1 | `npx vitest run convex/actions/agent/tools/__tests__/getCurvature.test.ts -t "twisty road"` | [x] TRUE [ ] FALSE |
+| 2 | getCurvature returns score < 100 and rating "straight" for road geometry with minimal curves | AC-2 | `npx vitest run convex/actions/agent/tools/__tests__/getCurvature.test.ts -t "straight road"` | [x] TRUE [ ] FALSE |
+| 3 | calculateCurvatureScore weights hairpin curves at 4x and sweeping curves at 1x | AC-3 | `npx vitest run convex/actions/agent/tools/__tests__/getCurvature.test.ts -t "mixed geometry"` | [x] TRUE [ ] FALSE |
+| 4 | calculateCurvatureScore returns score 0 for geometry with fewer than 3 points | AC-4 | `npx vitest run convex/actions/agent/tools/__tests__/getCurvature.test.ts -t "minimal geometry"` | [x] TRUE [ ] FALSE |
 
 ## GUARDRAILS
 
