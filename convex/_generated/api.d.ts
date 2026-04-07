@@ -27,6 +27,8 @@ import type * as actions_agent_tools_compileSketch from "../actions/agent/tools/
 import type * as actions_agent_tools_computeRouteIndex from "../actions/agent/tools/computeRouteIndex.js";
 import type * as actions_agent_tools_enrichRoute from "../actions/agent/tools/enrichRoute.js";
 import type * as actions_agent_tools_findScenicWaypoints from "../actions/agent/tools/findScenicWaypoints.js";
+import type * as actions_agent_tools_getElevation from "../actions/agent/tools/getElevation.js";
+import type * as actions_agent_tools_getUserFavorites from "../actions/agent/tools/getUserFavorites.js";
 import type * as actions_agent_tools_mapConditions from "../actions/agent/tools/mapConditions.js";
 import type * as actions_agent_tools_normalizeRoute from "../actions/agent/tools/normalizeRoute.js";
 import type * as actions_agent_tools_probeConditions from "../actions/agent/tools/probeConditions.js";
@@ -76,6 +78,8 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/tools/computeRouteIndex": typeof actions_agent_tools_computeRouteIndex;
   "actions/agent/tools/enrichRoute": typeof actions_agent_tools_enrichRoute;
   "actions/agent/tools/findScenicWaypoints": typeof actions_agent_tools_findScenicWaypoints;
+  "actions/agent/tools/getElevation": typeof actions_agent_tools_getElevation;
+  "actions/agent/tools/getUserFavorites": typeof actions_agent_tools_getUserFavorites;
   "actions/agent/tools/mapConditions": typeof actions_agent_tools_mapConditions;
   "actions/agent/tools/normalizeRoute": typeof actions_agent_tools_normalizeRoute;
   "actions/agent/tools/probeConditions": typeof actions_agent_tools_probeConditions;
