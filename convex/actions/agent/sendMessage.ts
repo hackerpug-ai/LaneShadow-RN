@@ -6,6 +6,7 @@ import { api, internal } from '../../_generated/api'
 import { requireIdentity } from '../../guards'
 import { executeRidePlanningAgent } from './ridePlanningAgent'
 import type { ExecuteContext } from './ridePlanningAgent'
+import { PlanningEventEmitter } from './lib/planningEvents'
 import type { Id } from '../../_generated/dataModel'
 import type { SessionMessageKind } from '../../../models/session-messages'
 import type { Message, AssistantMessage, ToolResultMessage } from '@mariozechner/pi-ai'
@@ -354,6 +355,13 @@ export const sendMessage = action({
     const { getMessageId: getTextMessageId, onTextDelta, onThinkingDelta, finalizeOk, finalizeFail } =
       await buildStreamingContext(args.sessionId, ctx.runMutation.bind(ctx))
 
+    // Create the planning emitter — lazy: no row is created until the first
+    // event fires, so simple "hello" responses produce no planning row.
+    const planningEmitter = new PlanningEventEmitter({
+      runMutation: ctx.runMutation.bind(ctx),
+      sessionId: args.sessionId,
+    })
+
     // Track the final assistant message for piMessage persistence
     let finalAssistantMessage: AssistantMessage | undefined = undefined
 
@@ -364,101 +372,114 @@ export const sendMessage = action({
       onFinalAssistant: async (assistant: AssistantMessage) => {
         finalAssistantMessage = assistant
       },
+      // Planning event callbacks — forward to the emitter
+      onSubToolPending: (tool, agent) => planningEmitter.toolPending(tool, agent),
+      onSubToolComplete: (tool, agent, summary, durationMs) =>
+        planningEmitter.toolComplete(tool, agent, summary, durationMs),
+      onSubAgentComplete: (agent, summary, durationMs) =>
+        planningEmitter.agentComplete(agent, summary, durationMs),
     }
 
     let agentResult
     try {
-      agentResult = await executeRidePlanningAgent(
-        {
-          planningSessionId: args.sessionId,
-          clerkUserId,
-          piMessages,
-          currentLocation: args.currentLocation,
-          runQuery: ctx.runQuery.bind(ctx),
-          runMutation: ctx.runMutation.bind(ctx),
-        },
-        args.content,
-        executeCtx
-      )
-      // Step 5a: Finalize the streaming text message as complete, including
-      // the final AssistantMessage as piMessage so the next session load has
-      // the full pi-ai message stored.
-      await finalizeOk(finalAssistantMessage as unknown)
-    } catch (error) {
-      // Convert agent errors to conversational messages
-      console.error('[sendMessage] Agent error:', error)
+      try {
+        agentResult = await executeRidePlanningAgent(
+          {
+            planningSessionId: args.sessionId,
+            clerkUserId,
+            piMessages,
+            currentLocation: args.currentLocation,
+            runQuery: ctx.runQuery.bind(ctx),
+            runMutation: ctx.runMutation.bind(ctx),
+          },
+          args.content,
+          executeCtx
+        )
+        // Step 5a: Finalize the streaming text message as complete, including
+        // the final AssistantMessage as piMessage so the next session load has
+        // the full pi-ai message stored.
+        await finalizeOk(finalAssistantMessage as unknown)
+      } catch (error) {
+        // Convert agent errors to conversational messages
+        console.error('[sendMessage] Agent error:', error)
 
-      // Finalize the streaming text message as failed before building the
-      // fallback response — the fallback will be stored in a new message below.
-      await finalizeFail()
+        // Finalize the streaming text message as failed before building the
+        // fallback response — the fallback will be stored in a new message below.
+        await finalizeFail()
 
-      // Extract error code from error if available
-      const errorMessage = error instanceof Error ? error.message : String(error)
+        // Extract error code from error if available
+        const errorMessage = error instanceof Error ? error.message : String(error)
 
-      // Map error codes to helpful, conversational messages
-      const getConversationalErrorMessage = (error: string): string => {
-        // Rate limit errors
-        if (
-          error.includes('RATE_LIMIT_EXCEEDED') ||
-          error.includes('PLAN_LIMIT_EXCEEDED') ||
-          errorMessage.includes('monthly limit')
-        ) {
-          return "You've used all 5 monthly plans. Upgrade to Premium for unlimited planning!"
+        // Map error codes to helpful, conversational messages
+        const getConversationalErrorMessage = (error: string): string => {
+          // Rate limit errors
+          if (
+            error.includes('RATE_LIMIT_EXCEEDED') ||
+            error.includes('PLAN_LIMIT_EXCEEDED') ||
+            errorMessage.includes('monthly limit')
+          ) {
+            return "You've used all 5 monthly plans. Upgrade to Premium for unlimited planning!"
+          }
+
+          // Parse/understanding errors
+          if (
+            error.includes('AGENTIC_PARSE_FAILED') ||
+            error.includes('LOW_CONFIDENCE_PARSE') ||
+            errorMessage.includes('understanding') ||
+            errorMessage.includes('parse')
+          ) {
+            return "I couldn't understand that location. Try 'scenic ride to Santa Cruz' instead."
+          }
+
+          // Route generation errors
+          if (
+            error.includes('GENERATION_FAILED') ||
+            error.includes('NO_ROUTES_GENERATED') ||
+            errorMessage.includes('generate') ||
+            errorMessage.includes('routes')
+          ) {
+            return "I couldn't generate a route for that request. Try a different destination."
+          }
+
+          // Timeout errors
+          if (
+            error.includes('AGENT_TIMEOUT') ||
+            error.includes('NETWORK_TIMEOUT') ||
+            errorMessage.includes('timeout') ||
+            errorMessage.includes('timed out')
+          ) {
+            return "Request timed out. Please try again."
+          }
+
+          // Generic fallback
+          return "I'm having trouble right now. Could you try again?"
         }
 
-        // Parse/understanding errors
-        if (
-          error.includes('AGENTIC_PARSE_FAILED') ||
-          error.includes('LOW_CONFIDENCE_PARSE') ||
-          errorMessage.includes('understanding') ||
-          errorMessage.includes('parse')
-        ) {
-          return "I couldn't understand that location. Try 'scenic ride to Santa Cruz' instead."
+        agentResult = {
+          response: getConversationalErrorMessage(errorMessage),
+          attachments: undefined,
         }
 
-        // Route generation errors
-        if (
-          error.includes('GENERATION_FAILED') ||
-          error.includes('NO_ROUTES_GENERATED') ||
-          errorMessage.includes('generate') ||
-          errorMessage.includes('routes')
-        ) {
-          return "I couldn't generate a route for that request. Try a different destination."
-        }
+        // Persist the fallback error response as a new system message
+        const fallbackResult: { messageId: Id<'session_messages'> } = await ctx.runMutation(
+          internal.db.sessionMessages.addSystemMessage,
+          {
+            sessionId: args.sessionId,
+            content: agentResult.response,
+          }
+        )
 
-        // Timeout errors
-        if (
-          error.includes('AGENT_TIMEOUT') ||
-          error.includes('NETWORK_TIMEOUT') ||
-          errorMessage.includes('timeout') ||
-          errorMessage.includes('timed out')
-        ) {
-          return "Request timed out. Please try again."
+        return {
+          response: agentResult.response,
+          messageId: fallbackResult.messageId,
+          attachments: undefined,
         }
-
-        // Generic fallback
-        return "I'm having trouble right now. Could you try again?"
       }
-
-      agentResult = {
-        response: getConversationalErrorMessage(errorMessage),
-        attachments: undefined,
-      }
-
-      // Persist the fallback error response as a new system message
-      const fallbackResult: { messageId: Id<'session_messages'> } = await ctx.runMutation(
-        internal.db.sessionMessages.addSystemMessage,
-        {
-          sessionId: args.sessionId,
-          content: agentResult.response,
-        }
-      )
-
-      return {
-        response: agentResult.response,
-        messageId: fallbackResult.messageId,
-        attachments: undefined,
-      }
+    } finally {
+      // Finalize the planning row — no-op if no events were emitted (simple
+      // direct responses that never call tools produce no planning row).
+      // Runs on both success and error paths, including early returns in catch.
+      await planningEmitter.done()
     }
 
     // Step 6: Return response to client

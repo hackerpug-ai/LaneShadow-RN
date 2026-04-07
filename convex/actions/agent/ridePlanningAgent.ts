@@ -47,6 +47,10 @@ export type ExecuteContext = {
   onAgentTurn?: (assistant: AssistantMessage) => Promise<void>
   onToolResultPiMessage?: (toolCallId: string, result: ToolResultMessage) => Promise<void>
   onFinalAssistant?: (assistant: AssistantMessage) => Promise<void>
+  /** Planning event callbacks — wired by sendMessage to PlanningEventEmitter */
+  onSubToolPending?: (tool: string, agent: string) => Promise<void>
+  onSubToolComplete?: (tool: string, agent: string, summary: string, durationMs: number) => Promise<void>
+  onSubAgentComplete?: (agent: string, summary: string, durationMs: number) => Promise<void>
 }
 
 // -----------------------------------------------------------------------------
