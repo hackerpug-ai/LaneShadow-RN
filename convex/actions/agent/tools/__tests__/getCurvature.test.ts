@@ -58,29 +58,24 @@ const makeTinyGeometry = (): Array<{ lat: number; lng: number }> => [
 ]
 
 /**
- * Mixed geometry: some hairpin segments followed by straight segments.
- * Used to verify relative weighting behavior.
+ * 3-point hairpin geometry producing circumcircle radius ~23m (< 60m → weight=4).
+ * Forward step ~10m, side swing ~50m, back to center.
  */
-const makeMixedGeometry = (): Array<{ lat: number; lng: number }> => {
-  // 3 tight hairpin points (radius << 60m, weight=4)
-  // Then 3 straight points (radius >> 175m, weight=0)
-  // Then 3 sweeping points (radius 100-175m, weight=1)
-  const coords: Array<{ lat: number; lng: number }> = [
-    // Hairpin segment: very tight turn
-    { lat: 37.0, lng: -122.0 },
-    { lat: 37.00010, lng: -122.00050 }, // ~50m forward, 50m side
-    { lat: 37.00020, lng: -122.0 },     // back to center — very tight radius
-    // Straight segment
-    { lat: 37.0010, lng: -122.0 },
-    { lat: 37.0020, lng: -122.0 },
-    { lat: 37.0030, lng: -122.0 },
-    // Sweeping curve (moderate radius)
-    { lat: 37.0040, lng: -122.0 },
-    { lat: 37.0050, lng: -122.0010 },
-    { lat: 37.0060, lng: -122.0020 },
-  ]
-  return coords
-}
+const makeHairpinOnlyGeometry = (): Array<{ lat: number; lng: number }> => [
+  { lat: 37.0, lng: -122.0 },
+  { lat: 37.00010, lng: -122.00050 }, // ~45m segment, tight turn
+  { lat: 37.00020, lng: -122.0 },     // back to center — radius ~23m
+]
+
+/**
+ * 3-point sweeping geometry producing circumcircle radius ~114m (100-175m → weight=1).
+ * Gentle curve with larger steps.
+ */
+const makeSweepingOnlyGeometry = (): Array<{ lat: number; lng: number }> => [
+  { lat: 37.0, lng: -122.0 },
+  { lat: 37.0010, lng: -122.0010 }, // ~142m segment, gentle arc
+  { lat: 37.0020, lng: -122.0 },    // radius ~114m
+]
 
 // ---------------------------------------------------------------------------
 // AC-1: Twisty road returns score >= 1000 with "very_twisty" rating
@@ -119,16 +114,21 @@ describe('straight road', () => {
 // ---------------------------------------------------------------------------
 
 describe('mixed geometry', () => {
-  it('calculateCurvatureScore weights hairpin curves at 4x and sweeping at 1x', () => {
-    const mixed = makeMixedGeometry()
-    const result = calculateCurvatureScore(mixed)
+  it('weights hairpin at 4x over sweeping at 1x', () => {
+    // hairpinOnly: 3 points with circumcircle radius ~23m → weight=4
+    // sweepingOnly: 3 points with circumcircle radius ~114m → weight=1
+    // Even though the sweeping segment is ~3x longer, the 4x weight means
+    // hairpin score must exceed sweeping score.
+    const hairpinOnly = makeHairpinOnlyGeometry()
+    const sweepingOnly = makeSweepingOnlyGeometry()
 
-    // The hairpin segment should contribute significantly more than the sweeping segment.
-    // Verify the function returned a positive score and correct rating fields exist.
-    expect(result.score).toBeGreaterThanOrEqual(0)
-    expect(typeof result.rating).toBe('string')
-    expect(['very_twisty', 'twisty', 'moderate', 'mild', 'straight']).toContain(result.rating)
-    expect(result.kmCornering).toBeGreaterThanOrEqual(0)
+    const h = calculateCurvatureScore(hairpinOnly)
+    const s = calculateCurvatureScore(sweepingOnly)
+
+    // Sweeping weight=1 must produce a positive score (not treated as straight/weight=0)
+    expect(s.score).toBeGreaterThan(0)
+    // Hairpin weight=4 must produce a higher score than sweeping weight=1
+    expect(h.score).toBeGreaterThan(s.score)
   })
 })
 
