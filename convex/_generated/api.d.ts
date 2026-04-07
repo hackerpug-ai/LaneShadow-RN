@@ -52,6 +52,7 @@ import type * as actions_agent_tools_searchAlongRoute from "../actions/agent/too
 import type * as actions_agent_tools_searchNearby from "../actions/agent/tools/searchNearby.js";
 import type * as actions_agent_tools_webSearch from "../actions/agent/tools/webSearch.js";
 import type * as actions_mapData from "../actions/mapData.js";
+import type * as actions_monitoring from "../actions/monitoring.js";
 import type * as actions_osm from "../actions/osm.js";
 import type * as actions_users from "../actions/users.js";
 import type * as crons from "../crons.js";
@@ -71,6 +72,7 @@ import type * as guards from "../guards.js";
 import type * as http from "../http.js";
 import type * as lib_conversationalErrors from "../lib/conversationalErrors.js";
 import type * as lib_env from "../lib/env.js";
+import type * as lib_errors_protomaps from "../lib/errors/protomaps.js";
 import type * as lib_logger from "../lib/logger.js";
 import type * as migrations_backfillSessionMessageKindStatus from "../migrations/backfillSessionMessageKindStatus.js";
 import type * as migrations_deleteEmptyAssistantMessages from "../migrations/deleteEmptyAssistantMessages.js";
@@ -128,6 +130,7 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/tools/searchNearby": typeof actions_agent_tools_searchNearby;
   "actions/agent/tools/webSearch": typeof actions_agent_tools_webSearch;
   "actions/mapData": typeof actions_mapData;
+  "actions/monitoring": typeof actions_monitoring;
   "actions/osm": typeof actions_osm;
   "actions/users": typeof actions_users;
   crons: typeof crons;
@@ -147,6 +150,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   "lib/conversationalErrors": typeof lib_conversationalErrors;
   "lib/env": typeof lib_env;
+  "lib/errors/protomaps": typeof lib_errors_protomaps;
   "lib/logger": typeof lib_logger;
   "migrations/backfillSessionMessageKindStatus": typeof migrations_backfillSessionMessageKindStatus;
   "migrations/deleteEmptyAssistantMessages": typeof migrations_deleteEmptyAssistantMessages;

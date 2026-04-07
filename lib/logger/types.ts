@@ -23,6 +23,10 @@ export type LogCategory =
   | 'api.weather'
   | 'api.routing'
   | 'api.places'
+  // Protomaps (backend)
+  | 'protomaps.query'
+  | 'protomaps.error'
+  | 'protomaps.fallback'
   // Frontend
   | 'ui.action'
   | 'ui.navigation'
