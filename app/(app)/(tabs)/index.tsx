@@ -20,6 +20,7 @@ import type { MapViewHandle } from '../../../components/map/map-view'
 import { MapViewWrapper } from '../../../components/map/map-view'
 import { OverlayToggle } from '../../../components/map/overlay-toggle'
 import type { OverlayType } from '../../../components/map/overlay-toggle'
+import { MinimalOverlayWidget } from '../../../components/map/minimal-overlay-widget'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
 import { PlanRideSheet } from '../../../components/sheets/plan-ride-sheet'
 import { PlanningErrorSheet } from '../../../components/sheets/planning-error-sheet'
@@ -771,6 +772,24 @@ const HomeMapScreen = () => {
                 onValueChange={setActiveOverlay}
                 availability={overlayAvailability}
                 testID="overlay-toggle"
+              />
+            </View>
+          )}
+
+          {/* PREVIEW: Minimal overlay widget - positioned below original for comparison */}
+          {selectedOption && !chatMode && (overlayAvailability.wind || overlayAvailability.rain || overlayAvailability.temperature) && (
+            <View
+              style={{
+                position: 'absolute',
+                top: insets.top + semantic.space['2xl'] + 70,
+                right: semantic.space.lg,
+              }}
+            >
+              <MinimalOverlayWidget
+                value={activeOverlay}
+                onValueChange={setActiveOverlay}
+                availability={overlayAvailability}
+                testID="minimal-overlay-widget"
               />
             </View>
           )}
