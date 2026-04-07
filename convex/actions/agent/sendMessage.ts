@@ -378,6 +378,7 @@ export const sendMessage = action({
         planningEmitter.toolComplete(tool, agent, summary, durationMs),
       onSubAgentComplete: (agent, summary, durationMs) =>
         planningEmitter.agentComplete(agent, summary, durationMs),
+      onSubThinkingDelta: (delta) => planningEmitter.updateThinking(delta),
     }
 
     let agentResult

@@ -51,6 +51,7 @@ export type ExecuteContext = {
   onSubToolPending?: (tool: string, agent: string) => Promise<void>
   onSubToolComplete?: (tool: string, agent: string, summary: string, durationMs: number) => Promise<void>
   onSubAgentComplete?: (agent: string, summary: string, durationMs: number) => Promise<void>
+  onSubThinkingDelta?: (delta: string) => Promise<void>
 }
 
 // -----------------------------------------------------------------------------

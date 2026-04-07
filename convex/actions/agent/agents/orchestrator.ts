@@ -163,6 +163,10 @@ async function executeOrchestratorTool(
 
     return {
       ...baseCtx,
+      // Forward sub-agent thinking deltas to planning emitter for live status
+      onThinkingDelta: async (delta: string) => {
+        await executeCtx.onSubThinkingDelta?.(delta)
+      },
       onToolStart: async (toolName: string, args: unknown) => {
         toolStartTimes.set(toolName, Date.now())
         // Emit planning event for pending tool
@@ -325,7 +329,11 @@ export async function executeOrchestrator(
     callbacks: executeCtx
       ? {
           onTextDelta: executeCtx.onTextDelta,
-          onThinkingDelta: executeCtx.onThinkingDelta,
+          onThinkingDelta: async (delta: string) => {
+            // Fan out: reasoning card + planning status line
+            await executeCtx.onThinkingDelta?.(delta)
+            await executeCtx.onSubThinkingDelta?.(delta)
+          },
           onFinalAssistant: executeCtx.onFinalAssistant,
           onAgentTurn: executeCtx.onAgentTurn,
           onStepStart: executeCtx.onStepStart,

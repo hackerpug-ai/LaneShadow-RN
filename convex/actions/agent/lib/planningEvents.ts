@@ -47,6 +47,9 @@ export class PlanningEventEmitter {
   private events: PlanningEvent[] = []
   private messageId: Id<'session_messages'> | null = null
   private startTime: number
+  private thinkingBuffer = ''
+  private lastThinkingFlush = 0
+  private static THINKING_THROTTLE_MS = 600 // Don't update more than ~1.7x/sec
 
   constructor(
     private opts: {
@@ -88,8 +91,55 @@ export class PlanningEventEmitter {
     })
   }
 
+  /**
+   * Stream sub-agent thinking text as the status line.
+   * Buffers tokens and throttles DB writes to avoid mutation spam.
+   * Shows the last ~80 chars of thinking as a rolling status.
+   */
+  async updateThinking(delta: string): Promise<void> {
+    await this.ensureInit()
+
+    this.thinkingBuffer += delta
+
+    const now = Date.now()
+    if (now - this.lastThinkingFlush < PlanningEventEmitter.THINKING_THROTTLE_MS) return
+
+    this.lastThinkingFlush = now
+
+    // Take the last meaningful chunk — trim to last ~80 chars at a word boundary
+    let statusLine = this.thinkingBuffer.trim()
+    if (statusLine.length > 80) {
+      statusLine = statusLine.slice(-80)
+      const spaceIdx = statusLine.indexOf(' ')
+      if (spaceIdx > 0) statusLine = statusLine.slice(spaceIdx + 1)
+    }
+
+    if (statusLine.length > 0) {
+      await this.persistContent(statusLine)
+    }
+  }
+
+  /**
+   * Flush any remaining thinking buffer to the status line.
+   * Call this when a tool starts or agent completes to ensure the last
+   * thinking text is visible before switching to a tool status.
+   */
+  async flushThinking(): Promise<void> {
+    if (this.thinkingBuffer.trim().length === 0 || this.messageId === null) return
+    this.lastThinkingFlush = Date.now()
+    let statusLine = this.thinkingBuffer.trim()
+    if (statusLine.length > 80) {
+      statusLine = statusLine.slice(-80)
+      const spaceIdx = statusLine.indexOf(' ')
+      if (spaceIdx > 0) statusLine = statusLine.slice(spaceIdx + 1)
+    }
+    await this.persistContent(statusLine)
+    this.thinkingBuffer = ''
+  }
+
   async toolPending(tool: string, agent: string): Promise<void> {
     await this.ensureInit()
+    this.thinkingBuffer = '' // Clear thinking when a tool starts
 
     const event: PlanningEvent = {
       type: 'tool_pending',
