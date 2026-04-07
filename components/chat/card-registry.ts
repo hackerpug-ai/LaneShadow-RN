@@ -14,6 +14,7 @@ import type { ComponentType } from 'react'
 import type { Id } from '../../convex/_generated/dataModel'
 import { RoutingCard } from './routing-card'
 import { ReasoningCard } from './cards/reasoning-card'
+import { PlanningCard } from './cards/planning-card'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -41,6 +42,7 @@ export type CardKind =
   | 'weather_card'
   | 'saved_route_card'
   | 'reasoning'
+  | 'planning'
 
 // ---------------------------------------------------------------------------
 // Placeholder stub — renders nothing until a real tool-backed card exists
@@ -58,4 +60,5 @@ export const CARD_REGISTRY: Record<CardKind, ComponentType<CardProps>> = {
   weather_card: PlaceholderCard, // TODO: replace when fetchWeather tool is real
   saved_route_card: PlaceholderCard, // TODO: replace when saveRoute tool is real
   reasoning: ReasoningCard,
+  planning: PlanningCard,
 }
