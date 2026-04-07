@@ -105,7 +105,9 @@ const fetchOverpass = async (query: string, signal: AbortSignal): Promise<Overpa
   })
 
   if (!response.ok) {
-    throw new Error(`Overpass HTTP ${response.status}`)
+    const body = await response.text().catch(() => '(no body)')
+    console.error(`[lookupRoad] Overpass HTTP ${response.status}: ${body.slice(0, 500)}`)
+    throw new Error(`Overpass HTTP ${response.status}: ${body.slice(0, 200)}`)
   }
 
   return response.json() as Promise<OverpassResponse>

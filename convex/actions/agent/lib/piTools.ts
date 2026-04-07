@@ -30,10 +30,7 @@ export const AgentToolSchemas = {
         roadName: Type.String({ description: 'Name of the road (e.g., "Highway 280", "Skyline Blvd")' }),
         fromName: Type.String({ description: 'Starting point or junction (e.g., "San Jose", "Highway 85")' }),
         toName: Type.String({ description: 'Ending point or junction (e.g., "San Bruno", "Highway 92")' }),
-        viaNames: Type.Union([
-          Type.Array(Type.String()),
-          Type.Null(),
-        ], { description: 'Optional intermediate places this road passes through' }),
+        viaNames: Type.Optional(Type.Array(Type.String(), { description: 'Optional intermediate places this road passes through' })),
       }),
       { description: 'Road segments that make up the route - think "take 5 to 405 to PCH"' },
     ),
