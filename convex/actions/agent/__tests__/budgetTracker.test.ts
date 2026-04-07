@@ -1,5 +1,5 @@
 import { ConvexError } from 'convex/values'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { ERROR_CODES } from '../../../errors'
 import { BudgetTracker } from '../budgetTracker'
@@ -108,6 +108,66 @@ describe('BudgetTracker', () => {
     it('does not throw when cost is exactly below the custom limit', () => {
       const tracker = new BudgetTracker(0.001)
       expect(() => tracker.add(makeUsage(0.0005))).not.toThrow()
+    })
+  })
+
+  describe('log mode', () => {
+    it('does not throw when limit exceeded in log mode', () => {
+      const tracker = new BudgetTracker(0.10, { mode: 'log' })
+      tracker.add(makeUsage(0.05))
+      // This would exceed the limit in gate mode — must not throw in log mode
+      expect(() => tracker.add(makeUsage(0.10))).not.toThrow()
+    })
+
+    it('calls console.warn when limit exceeded in log mode', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const tracker = new BudgetTracker(0.10, { mode: 'log' })
+      tracker.add(makeUsage(0.05))
+      tracker.add(makeUsage(0.10))
+      expect(warnSpy).toHaveBeenCalled()
+      warnSpy.mockRestore()
+    })
+
+    it('includes agentLabel in log output when provided', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const tracker = new BudgetTracker(0.10, { mode: 'log' })
+      tracker.add(makeUsage(0.05))
+      tracker.add(makeUsage(0.10), 'routingAgent')
+      const warnMessage = warnSpy.mock.calls[0]?.[0] as string
+      expect(warnMessage).toContain('routingAgent')
+      warnSpy.mockRestore()
+    })
+
+    it('still accumulates cumulative cost in log mode even after limit exceeded', () => {
+      const tracker = new BudgetTracker(0.10, { mode: 'log' })
+      tracker.add(makeUsage(0.05))
+      tracker.add(makeUsage(0.10))
+      expect(tracker.getCumulative()).toBeCloseTo(0.15)
+    })
+  })
+
+  describe('gate mode (backwards compatible)', () => {
+    it('throws ConvexError in gate mode (same as no-option constructor)', () => {
+      const tracker = new BudgetTracker(0.10, { mode: 'gate' })
+      tracker.add(makeUsage(0.05))
+      expect(() => tracker.add(makeUsage(0.10))).toThrow(ConvexError)
+    })
+  })
+
+  describe('agentLabel parameter', () => {
+    it('accepts optional agentLabel parameter without throwing (gate mode, under limit)', () => {
+      const tracker = new BudgetTracker(1.0)
+      expect(() => tracker.add(makeUsage(0.05), 'testAgent')).not.toThrow()
+    })
+
+    it('log message includes cost and cumulative when agentLabel provided', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const tracker = new BudgetTracker(0.10, { mode: 'log' })
+      tracker.add(makeUsage(0.15), 'enrichmentAgent')
+      const warnMessage = warnSpy.mock.calls[0]?.[0] as string
+      expect(warnMessage).toContain('[BudgetTracker]')
+      expect(warnMessage).toContain('enrichmentAgent')
+      warnSpy.mockRestore()
     })
   })
 })

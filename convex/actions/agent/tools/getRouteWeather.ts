@@ -1,15 +1,13 @@
 'use node'
 import { createWeatherProvider } from '../providers/weatherProvider'
 import { traceableToolAsync } from '../lib/tracing'
+import { samplePolyline } from '../lib/geo'
+import type { LatLng } from '../lib/geo'
 
 const MAX_WEATHER_SAMPLES = 5
-const MIN_WEATHER_SAMPLES = 3
 const FOG_VISIBILITY_THRESHOLD_M = 1000
 
-export type LatLng = {
-  lat: number
-  lng: number
-}
+export type { LatLng }
 
 export type WeatherSegment = {
   lat: number
@@ -35,25 +33,6 @@ export type RouteWeatherResult = RouteWeatherOk | RouteWeatherUnavailable
 export type GetRouteWeatherParams = {
   polyline: LatLng[]
   departureTimeMs: number
-}
-
-/**
- * Sample a polyline down to 3-5 representative points (start, intermediate, end).
- */
-const samplePolyline = (polyline: LatLng[]): LatLng[] => {
-  if (polyline.length <= MIN_WEATHER_SAMPLES) return polyline
-
-  const targetCount = Math.min(MAX_WEATHER_SAMPLES, Math.max(MIN_WEATHER_SAMPLES, polyline.length))
-  const selected: LatLng[] = []
-  const lastIndex = polyline.length - 1
-  const slots = targetCount - 1
-
-  for (let i = 0; i <= slots; i += 1) {
-    const idx = Math.round((i * lastIndex) / slots)
-    selected.push(polyline[idx])
-  }
-
-  return selected
 }
 
 const buildSummary = (segments: WeatherSegment[]): string => {
@@ -107,7 +86,7 @@ const getRouteWeatherImpl = async ({
     }
   }
 
-  const sampledPoints = samplePolyline(polyline)
+  const sampledPoints = samplePolyline(polyline, MAX_WEATHER_SAMPLES)
   const provider = createWeatherProvider()
 
   try {

@@ -1,6 +1,8 @@
 'use node'
 
 import { traceableToolAsync } from '../lib/tracing'
+import { haversineDistance, samplePolyline } from '../lib/geo'
+import type { LatLng } from '../lib/geo'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -15,10 +17,7 @@ const STEEP_GRADE_THRESHOLD_PCT = 8
 // Types
 // ---------------------------------------------------------------------------
 
-export type LatLng = {
-  lat: number
-  lng: number
-}
+export type { LatLng }
 
 export type SteepSegment = {
   fromIndex: number
@@ -37,46 +36,8 @@ export type ElevationResult =
     }
   | { status: 'unavailable' }
 
-// ---------------------------------------------------------------------------
-// Haversine distance (meters)
-// ---------------------------------------------------------------------------
-
-const EARTH_RADIUS_M = 6_371_000
-
-export const haversineMeters = (a: LatLng, b: LatLng): number => {
-  const toRad = (deg: number) => (deg * Math.PI) / 180
-  const dLat = toRad(b.lat - a.lat)
-  const dLng = toRad(b.lng - a.lng)
-  const sinDLat = Math.sin(dLat / 2)
-  const sinDLng = Math.sin(dLng / 2)
-  const c = sinDLat * sinDLat + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * sinDLng * sinDLng
-  return 2 * EARTH_RADIUS_M * Math.asin(Math.sqrt(c))
-}
-
-// ---------------------------------------------------------------------------
-// Polyline sampling
-// ---------------------------------------------------------------------------
-
-/**
- * Sample a polyline down to at most `maxPoints` points using uniform stride.
- * Always includes first and last points.
- */
-export const samplePolyline = (polyline: LatLng[], maxPoints: number): LatLng[] => {
-  if (polyline.length <= maxPoints) return polyline
-
-  const result: LatLng[] = []
-  const stride = (polyline.length - 1) / (maxPoints - 1)
-
-  for (let i = 0; i < maxPoints; i++) {
-    const idx = Math.round(i * stride)
-    result.push(polyline[Math.min(idx, polyline.length - 1)])
-  }
-
-  // Ensure last point is exact
-  result[result.length - 1] = polyline[polyline.length - 1]
-
-  return result
-}
+// Re-export samplePolyline for backwards compatibility with existing test imports
+export { samplePolyline }
 
 // ---------------------------------------------------------------------------
 // Open-Elevation API call
@@ -126,7 +87,7 @@ const computeProfile = (
     if (i === 0) continue
 
     const deltaElev = elevationsM[i] - elevationsM[i - 1]
-    const distM = haversineMeters(points[i - 1], points[i])
+    const distM = haversineDistance(points[i - 1], points[i])
 
     if (deltaElev > 0) {
       totalGainM += deltaElev

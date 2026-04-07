@@ -1,26 +1,19 @@
 'use node'
 
 import { traceableToolAsync } from '../lib/tracing'
+import { decodePolyline, haversineKm } from '../lib/geo'
+import { createPlacesProvider } from '../providers/placesProvider'
+import type { PlaceResult } from '../providers/placesProvider'
 
 // ---------------------------------------------------------------------------
-// Constants
+// Re-export PlaceResult for external consumers
 // ---------------------------------------------------------------------------
 
-const PLACES_ENDPOINT = 'https://places.googleapis.com/v1/places:searchText'
-const PLACES_FIELD_MASK = 'places.displayName,places.formattedAddress,places.types,routingSummaries'
-const MAX_RESULT_COUNT = 5
+export type { PlaceResult }
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-
-export type PlaceResult = {
-  name: string
-  address: string
-  types?: string[]
-  detourMinutes?: number
-  distanceFromRouteMeters?: number
-}
 
 export type SearchAlongRouteError = {
   status: 'error'
@@ -37,115 +30,8 @@ type SearchAlongRouteParams = {
 }
 
 // ---------------------------------------------------------------------------
-// Internal types for Google Places API response
-// ---------------------------------------------------------------------------
-
-type PlacesApiPlace = {
-  displayName?: { text: string }
-  formattedAddress?: string
-  types?: string[]
-}
-
-type RoutingSummaryLeg = {
-  duration?: string
-  distanceMeters?: number
-}
-
-type RoutingSummary = {
-  legs?: RoutingSummaryLeg[]
-}
-
-type PlacesApiResponse = {
-  places?: PlacesApiPlace[]
-  routingSummaries?: RoutingSummary[]
-}
-
-// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-/**
- * Parse a duration string like "180s" or "3m" into minutes.
- * Google Places API returns duration as a string like "180s".
- */
-const parseDurationToMinutes = (duration: string | undefined): number | undefined => {
-  if (!duration) return undefined
-
-  const secondsMatch = duration.match(/^(\d+(?:\.\d+)?)s$/)
-  if (secondsMatch) {
-    return Math.round(parseFloat(secondsMatch[1]) / 60)
-  }
-
-  const minutesMatch = duration.match(/^(\d+(?:\.\d+)?)m$/)
-  if (minutesMatch) {
-    return Math.round(parseFloat(minutesMatch[1]))
-  }
-
-  return undefined
-}
-
-/**
- * Decode a Google Maps encoded polyline string into an array of lat/lng points.
- * Implements the standard Google encoded polyline algorithm:
- * https://developers.google.com/maps/documentation/utilities/polylinealgorithm
- */
-const decodePolyline = (encoded: string): Array<{ lat: number; lng: number }> => {
-  const points: Array<{ lat: number; lng: number }> = []
-  let index = 0
-  let lat = 0
-  let lng = 0
-
-  while (index < encoded.length) {
-    let result = 0
-    let shift = 0
-    let b: number
-
-    do {
-      b = encoded.charCodeAt(index++) - 63
-      result |= (b & 0x1f) << shift
-      shift += 5
-    } while (b >= 0x20)
-
-    const dlat = result & 1 ? ~(result >> 1) : result >> 1
-    lat += dlat
-
-    result = 0
-    shift = 0
-
-    do {
-      b = encoded.charCodeAt(index++) - 63
-      result |= (b & 0x1f) << shift
-      shift += 5
-    } while (b >= 0x20)
-
-    const dlng = result & 1 ? ~(result >> 1) : result >> 1
-    lng += dlng
-
-    points.push({ lat: lat / 1e5, lng: lng / 1e5 })
-  }
-
-  return points
-}
-
-/**
- * Compute the haversine distance in kilometers between two lat/lng points.
- */
-const haversineKm = (
-  a: { lat: number; lng: number },
-  b: { lat: number; lng: number }
-): number => {
-  const R = 6371 // Earth radius in km
-  const dLat = ((b.lat - a.lat) * Math.PI) / 180
-  const dLng = ((b.lng - a.lng) * Math.PI) / 180
-  const sinDLat = Math.sin(dLat / 2)
-  const sinDLng = Math.sin(dLng / 2)
-  const a_ =
-    sinDLat * sinDLat +
-    Math.cos((a.lat * Math.PI) / 180) *
-      Math.cos((b.lat * Math.PI) / 180) *
-      sinDLng * sinDLng
-  return R * 2 * Math.atan2(Math.sqrt(a_), Math.sqrt(1 - a_))
-}
 
 /**
  * Compute a lat/lng point that is approximately `offsetHours` hours into the
@@ -158,16 +44,15 @@ const AVERAGE_SPEED_KMH = 60
 const estimateOriginPoint = (
   routePolyline: string,
   offsetHours: number
-): { latitude: number; longitude: number } => {
+): { lat: number; lng: number } => {
   const points = decodePolyline(routePolyline)
 
   if (points.length === 0) {
-    // Fallback: no points could be decoded
-    return { latitude: 0, longitude: 0 }
+    return { lat: 0, lng: 0 }
   }
 
   if (points.length === 1) {
-    return { latitude: points[0].lat, longitude: points[0].lng }
+    return { lat: points[0].lat, lng: points[0].lng }
   }
 
   // Build cumulative distance array (in km)
@@ -179,7 +64,7 @@ const estimateOriginPoint = (
   const totalDistanceKm = cumulative[cumulative.length - 1]
 
   if (totalDistanceKm === 0) {
-    return { latitude: points[0].lat, longitude: points[0].lng }
+    return { lat: points[0].lat, lng: points[0].lng }
   }
 
   // Target distance = offsetHours * averageSpeed
@@ -199,13 +84,13 @@ const estimateOriginPoint = (
       const t = segLen === 0 ? 0 : (clampedTarget - segStart) / segLen
       const lat = points[i - 1].lat + t * (points[i].lat - points[i - 1].lat)
       const lng = points[i - 1].lng + t * (points[i].lng - points[i - 1].lng)
-      return { latitude: lat, longitude: lng }
+      return { lat, lng }
     }
   }
 
   // Should not reach here, but return last point as fallback
   const last = points[points.length - 1]
-  return { latitude: last.lat, longitude: last.lng }
+  return { lat: last.lat, lng: last.lng }
 }
 
 // ---------------------------------------------------------------------------
@@ -215,60 +100,19 @@ const estimateOriginPoint = (
 const searchAlongRouteImpl = async (
   params: SearchAlongRouteParams
 ): Promise<SearchAlongRouteResult> => {
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY ?? ''
+  const provider = createPlacesProvider()
 
-  const body: Record<string, unknown> = {
-    textQuery: params.query,
-    searchAlongRouteParameters: {
-      polyline: { encodedPolyline: params.routePolyline },
-    },
-    maxResultCount: MAX_RESULT_COUNT,
-  }
-
-  if (params.originOffset !== undefined) {
-    const origin = estimateOriginPoint(params.routePolyline, params.originOffset)
-    body.routingParameters = { origin }
-  }
+  const origin =
+    params.originOffset !== undefined
+      ? estimateOriginPoint(params.routePolyline, params.originOffset)
+      : undefined
 
   try {
-    const response = await fetch(PLACES_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask': PLACES_FIELD_MASK,
-      },
-      body: JSON.stringify(body),
+    const results = await provider.searchAlongRoute({
+      polyline: params.routePolyline,
+      query: params.query,
+      origin,
     })
-
-    if (!response.ok) {
-      console.warn(`searchAlongRoute: Places API returned HTTP ${response.status}`)
-      return { status: 'error', reason: 'places_api_error' }
-    }
-
-    const data = (await response.json()) as PlacesApiResponse
-
-    const places = data.places ?? []
-    const routingSummaries = data.routingSummaries ?? []
-
-    if (places.length === 0) {
-      return []
-    }
-
-    const results: PlaceResult[] = places.map((place, index) => {
-      const summary = routingSummaries[index]
-      const leg = summary?.legs?.[0]
-      const detourMinutes = parseDurationToMinutes(leg?.duration)
-
-      return {
-        name: place.displayName?.text ?? '',
-        address: place.formattedAddress ?? '',
-        types: place.types,
-        ...(detourMinutes !== undefined ? { detourMinutes } : {}),
-        ...(leg?.distanceMeters !== undefined ? { distanceFromRouteMeters: leg.distanceMeters } : {}),
-      }
-    })
-
     return results
   } catch (error) {
     console.warn('searchAlongRoute: Places API call failed', error)
