@@ -369,6 +369,17 @@ const HomeMapScreen = () => {
     doFit()
   }, [agentActiveOption, agentRoutePlan, doFit])
 
+  // Reset selection when a new plan is created (latest plan = default selected)
+  const lastSeenPlanIdRef = useRef<string | null>(null)
+  useEffect(() => {
+    const currentPlanId = agentRoutePlan?._id as string | null
+    if (currentPlanId && currentPlanId !== lastSeenPlanIdRef.current) {
+      lastSeenPlanIdRef.current = currentPlanId
+      // Reset to null so it defaults to the first option of the new plan
+      setSelectedRouteId(null)
+    }
+  }, [agentRoutePlan?._id, setSelectedRouteId])
+
   const mapLayerStyle = useAnimatedStyle(() => ({ opacity: mapOpacity.value }))
   const chatLayerStyle = useAnimatedStyle(() => ({ opacity: chatOpacity.value }))
 
@@ -478,7 +489,7 @@ const HomeMapScreen = () => {
       showWindOverlay: true,
       semantic,
     })
-  }, [selectedOption, semantic, flowState, polylines, agentActiveOption])
+  }, [mapPlanningVisible, selectedOption, semantic, flowState, polylines, agentActiveOption])
 
   const markers = useMemo(() => {
     const items: any[] = []
