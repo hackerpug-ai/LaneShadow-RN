@@ -47,7 +47,7 @@ export default function ChatScreen() {
 
   // Local flow state for composing/sending from the chat screen
   const { state: flowState, dispatch: flowDispatch } = useRideFlow()
-  const { sendPlanningMessage, cancel: cancelChatPlanning } = useChatPlanning(flowDispatch)
+  const { sendPlanningMessage, cancel: cancelChatPlanning, resetSession } = useChatPlanning(flowDispatch)
   const { location: currentLocation } = useCurrentLocation()
   const createSession = useMutation(api.db.planningSessions.createSession)
 
@@ -124,6 +124,7 @@ export default function ChatScreen() {
     await createSession({ firstMessage: '' })
     flowDispatch({ type: 'NEW_SESSION' })
     setSelectedRouteId(null)
+    resetSession()
   }
 
   return (

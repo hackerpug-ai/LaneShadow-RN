@@ -96,6 +96,7 @@ const HomeMapScreen = () => {
     sendPlanningMessage,
     cancel: cancelChatPlanning,
     sessionId: planningSessionId,
+    resetSession,
   } = useChatPlanning(flowDispatch)
   const { polylines, selectRoute } = useRouteComparison(flowState, flowDispatch)
   const createSession = useMutation(api.db.planningSessions.createSession)
@@ -209,6 +210,7 @@ const HomeMapScreen = () => {
     flowDispatch({ type: 'NEW_SESSION' })
     setSelectedRouteId(null)
     lastFittedPlanIdRef.current = null
+    resetSession()
   }
 
   // Toast-style messages for map mode — lightweight pills instead of
@@ -649,6 +651,7 @@ const HomeMapScreen = () => {
     setSearchStop(null)
     setSelectedRouteId(null)
     lastFittedPlanIdRef.current = null
+    resetSession()
     flowDispatch({ type: 'NEW_SESSION' })
   }
 

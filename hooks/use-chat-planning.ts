@@ -48,6 +48,7 @@ export const useChatPlanning = (
     currentLocation?: { lat: number; lng: number }
   ) => Promise<void>
   cancel: () => void
+  resetSession: () => void
 } => {
   // Track AbortController for cancellation
   const abortControllerRef = useRef<AbortController | null>(null)
@@ -154,9 +155,18 @@ export const useChatPlanning = (
     dispatch({ type: 'CANCEL_PLANNING' })
   }, [dispatch])
 
+  /**
+   * Reset session — call when starting a new session so the next message
+   * creates a fresh session instead of reusing the old one.
+   */
+  const resetSession = useCallback(() => {
+    setSessionId(null)
+  }, [])
+
   return {
     sessionId,
     sendPlanningMessage,
     cancel,
+    resetSession,
   }
 }
