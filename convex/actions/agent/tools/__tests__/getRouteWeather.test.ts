@@ -61,7 +61,7 @@ describe('getRouteWeather', () => {
       expect(result.status).toBe('ok')
       if (result.status !== 'ok') return
 
-      expect(result.segments).toHaveLength(result.segments.length)
+      expect(result.segments).toHaveLength(5)
       expect(result.segments.length).toBeGreaterThanOrEqual(1)
 
       for (const seg of result.segments) {

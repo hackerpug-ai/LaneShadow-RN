@@ -1,9 +1,9 @@
 'use node'
+import { createWeatherProvider } from '../providers/weatherProvider'
 import { traceableToolAsync } from '../lib/tracing'
 
 const MAX_WEATHER_SAMPLES = 5
 const MIN_WEATHER_SAMPLES = 3
-const OPEN_METEO_ENDPOINT = 'https://api.open-meteo.com/v1/forecast'
 const FOG_VISIBILITY_THRESHOLD_M = 1000
 
 export type LatLng = {
@@ -37,28 +37,6 @@ export type GetRouteWeatherParams = {
   departureTimeMs: number
 }
 
-const toUtcDateString = (timeMs: number): string => {
-  const d = new Date(timeMs)
-  const year = d.getUTCFullYear()
-  const month = `${d.getUTCMonth() + 1}`.padStart(2, '0')
-  const day = `${d.getUTCDate()}`.padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
-
-const pickNearestHourIndex = (times: string[], targetMs: number): number => {
-  let bestIdx = 0
-  let bestDiff = Number.POSITIVE_INFINITY
-  for (let i = 0; i < times.length; i += 1) {
-    const ts = Date.parse(times[i])
-    const diff = Math.abs(ts - targetMs)
-    if (diff < bestDiff) {
-      bestDiff = diff
-      bestIdx = i
-    }
-  }
-  return bestIdx
-}
-
 /**
  * Sample a polyline down to 3-5 representative points (start, intermediate, end).
  */
@@ -76,43 +54,6 @@ const samplePolyline = (polyline: LatLng[]): LatLng[] => {
   }
 
   return selected
-}
-
-const fetchWeatherForPoint = async (
-  lat: number,
-  lng: number,
-  departureTimeMs: number
-): Promise<WeatherSegment> => {
-  const dateStr = toUtcDateString(departureTimeMs)
-  const url =
-    `${OPEN_METEO_ENDPOINT}?latitude=${lat}&longitude=${lng}` +
-    `&hourly=windspeed_10m,winddirection_10m,windgusts_10m,temperature_2m,precipitation_probability,visibility` +
-    `&timezone=UTC&start_date=${dateStr}&end_date=${dateStr}`
-
-  const response = await fetch(url)
-  if (!response.ok) {
-    throw new Error(`Open-Meteo request failed: ${response.status}`)
-  }
-
-  const data: any = await response.json()
-  const times: string[] | undefined = data?.hourly?.time
-  const speeds: number[] | undefined = data?.hourly?.windspeed_10m
-  const temps: number[] | undefined = data?.hourly?.temperature_2m
-  const rainProbs: number[] | undefined = data?.hourly?.precipitation_probability
-  const visibilities: number[] | undefined = data?.hourly?.visibility
-
-  if (!times || !speeds || !temps || times.length === 0) {
-    throw new Error('Open-Meteo response missing required hourly data')
-  }
-
-  const idx = pickNearestHourIndex(times, departureTimeMs)
-  const windSpeedKph = speeds[idx] ?? 0
-  const tempC = temps[idx] ?? 0
-  const rainProbabilityPct = rainProbs ? (rainProbs[idx] ?? 0) : 0
-  const visibilityM = visibilities ? (visibilities[idx] ?? 10000) : 10000
-  const fog = visibilityM < FOG_VISIBILITY_THRESHOLD_M
-
-  return { lat, lng, tempC, windSpeedKph, rainProbabilityPct, fog }
 }
 
 const buildSummary = (segments: WeatherSegment[]): string => {
@@ -167,11 +108,22 @@ const getRouteWeatherImpl = async ({
   }
 
   const sampledPoints = samplePolyline(polyline)
+  const provider = createWeatherProvider()
 
   try {
-    const segments = await Promise.all(
-      sampledPoints.map((pt) => fetchWeatherForPoint(pt.lat, pt.lng, departureTimeMs))
-    )
+    const weatherSamples = await provider.getWeatherAtPoints({
+      points: sampledPoints,
+      departureTimeMs,
+    })
+
+    const segments: WeatherSegment[] = weatherSamples.map((sample) => ({
+      lat: sample.lat,
+      lng: sample.lng,
+      tempC: sample.tempC,
+      windSpeedKph: sample.windSpeed,
+      rainProbabilityPct: sample.rainProbabilityPct,
+      fog: sample.visibilityM < FOG_VISIBILITY_THRESHOLD_M,
+    }))
 
     const routeWeatherSummary = buildSummary(segments)
 
