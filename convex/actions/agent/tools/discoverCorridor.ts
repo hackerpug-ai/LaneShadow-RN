@@ -34,6 +34,7 @@ export type PoiInfo = {
 export type DiscoverCorridorResult = {
   roads: RoadInfo[]
   pois: PoiInfo[]
+  discoveryStatus: 'success' | 'partial' | 'failed'
 }
 
 // ---------------------------------------------------------------------------
@@ -253,7 +254,13 @@ const discoverCorridorImpl = async (params: {
     `discoverCorridor: found ${roads.length} roads, ${pois.length} POIs between ${params.start.lat},${params.start.lng} and ${params.end.lat},${params.end.lng}`
   )
 
-  return { roads, pois }
+  // Determine discovery status
+  const totalRoads = roads.length
+  const totalPois = pois.length
+  const discoveryStatus =
+    totalRoads === 0 && totalPois === 0 ? 'failed' : totalRoads < 3 || totalPois === 0 ? 'partial' : 'success'
+
+  return { roads, pois, discoveryStatus }
 }
 
 // ---------------------------------------------------------------------------

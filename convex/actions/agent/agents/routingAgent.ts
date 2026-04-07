@@ -195,8 +195,8 @@ async function runCreateRouteSketch(
     anchorPoints: Array<{
       name: string
       kind: 'town' | 'junction' | 'landmark' | 'pass'
-      lat: number | null
-      lng: number | null
+      lat: number
+      lng: number
     }>
   }
 ): Promise<unknown> {
@@ -656,7 +656,7 @@ const routingTools: RoutingTool[] = [
   },
   {
     name: 'discoverCorridor',
-    description: 'Discover real roads and scenic POIs in the corridor between two points. Returns road names with coordinates. Call BEFORE creating a sketch to see what roads exist.',
+    description: 'Discover real roads and scenic POIs in the corridor between two points. Returns road names with coordinates and a discoveryStatus field. Check discoveryStatus: if "failed" (0 roads, 0 POIs), fall back to planRoute instead of sketching.',
     parameters: AgentToolSchemas.discoverCorridor as any,
     parallelSafe: true,
   },
@@ -786,20 +786,21 @@ Get a route on the map ASAP so the rider can see it and decide. ALWAYS discover 
 **Workflow**:
 1. If the rider names a place (not "here"), call geocode first to get coordinates.
 2. Call discoverCorridor with start/end to see what roads and POIs exist.
-3. PICK roads from discovery results based on the rider's intent:
+3. Check discoveryStatus: if "failed" (0 roads, 0 POIs), immediately call planRoute instead — do not attempt to sketch.
+4. PICK roads from discovery results based on the rider's intent:
    - "scenic" → roads near peaks, passes, viewpoints
    - "avoid highways" → skip motorway/trunk class roads
    - "take Skyline Blvd" → verify with lookupRoad if not in results
-4. Author createRouteSketch using real road names + coordinates from discovery.
+5. Author createRouteSketch using real road names + coordinates from discovery.
    - ALL anchor points MUST have lat/lng from discovery or geocode
    - Use road endpoints as segment fromName/toName anchor coordinates
    - Use POI coordinates for landmark/pass anchors
-5. Call compileSketch to generate the route.
-6. Present in 1-2 sentences.
+6. Call compileSketch to generate the route.
+7. Present in 1-2 sentences.
 
 That's 3-4 tool calls.
 
-**Uncertainty fallback**: If discovery returns few roads or you're genuinely unsure about an area, fall back to planRoute instead of sketching.
+**Uncertainty fallback**: If discovery returns few roads (0-2 roads), empty POIs, or you're genuinely unsure about an area, fall back to planRoute instead of sketching. DO NOT create a sketch without real coordinates from discovery.
 
 **IMPORTANT: If a tool call fails with a validation error, fix the arguments and retry. Do NOT give up after one failure.**
 
