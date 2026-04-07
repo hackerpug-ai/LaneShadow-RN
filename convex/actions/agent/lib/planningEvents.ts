@@ -25,15 +25,15 @@ export type PlanningContent = {
 // ---------------------------------------------------------------------------
 
 const TOOL_STATUS_LINE: Record<string, string> = {
-  geocode: 'Geocoding...',
-  createRouteSketch: 'Sketching route...',
-  compileSketch: 'Compiling segments...',
-  planRoute: 'Planning route...',
-  searchNearby: 'Searching nearby...',
-  webSearch: 'Searching the web...',
-  routing_agent: 'Planning route...',
-  search_agent: 'Searching...',
-  enrichment_agent: 'Analyzing route...',
+  geocode: 'Looking up location...',
+  createRouteSketch: 'Designing your route...',
+  compileSketch: 'Finding the best roads...',
+  planRoute: 'Planning your ride...',
+  searchNearby: 'Looking for places nearby...',
+  webSearch: 'Checking the latest info...',
+  routing_agent: 'Planning your ride...',
+  search_agent: 'Looking into that...',
+  enrichment_agent: 'Checking your route...',
 }
 
 const getToolStatusLine = (tool: string): string =>

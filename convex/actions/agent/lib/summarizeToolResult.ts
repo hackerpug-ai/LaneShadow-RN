@@ -1,8 +1,11 @@
 'use node'
 
 /**
- * Maps a tool name + result to a human-readable summary string.
- * Used by the orchestrator to emit planning events with meaningful status lines.
+ * Maps a tool name + result to a rider-friendly summary string.
+ * Used by the orchestrator to emit planning events with accessible status lines.
+ *
+ * These summaries appear in the PlanningCard bottom sheet — they should read
+ * like a natural stream of thought, not developer debug output.
  */
 export function summarizeToolResult(toolName: string, result: unknown): string {
   const r = result as any
@@ -10,44 +13,59 @@ export function summarizeToolResult(toolName: string, result: unknown): string {
   switch (toolName) {
     case 'geocode': {
       const label = r?.results?.[0]?.label
-      return label ? `Geocoded ${label}` : `${toolName} complete`
+      if (label) {
+        // Extract just the city/place name (before first comma)
+        const short = label.split(',')[0]
+        return `Looking up ${short}`
+      }
+      return 'Looking up location'
     }
 
     case 'createRouteSketch': {
       const label = r?.sketch?.label
-      return label ? `Sketched: ${label}` : `${toolName} complete`
+      return label ? `Designing route: ${label}` : 'Designing your route'
     }
 
     case 'compileSketch': {
-      const options = r?.data?.options
-      const n = Array.isArray(options) ? options.length : 0
-      return n > 0 ? `Compiled ${n} segments` : `${toolName} complete`
+      if (r?.type === 'error') {
+        const hint = r?.hint
+        if (typeof hint === 'string' && hint.includes('partial_route')) {
+          return 'Some roads need adjusting...'
+        }
+        return 'Adjusting route...'
+      }
+      return 'Found the best roads'
     }
 
     case 'planRoute':
-      return 'Planned route'
+      return 'Mapping out your ride'
 
     case 'searchNearby': {
       const results = Array.isArray(result) ? result : []
-      return `Found ${results.length} nearby places`
+      const n = results.length
+      return n > 0 ? `Found ${n} place${n === 1 ? '' : 's'} nearby` : 'Searched nearby'
     }
 
     case 'webSearch':
-      return 'Searched the web'
+      return 'Checked the latest info'
 
     case 'routing_agent': {
-      return r?.summary ?? 'Route ready'
+      if (r?.status === 'route_ready') return 'Your route is ready'
+      if (r?.status === 'needs_clarification') return 'Need a bit more info'
+      return r?.summary ?? 'Route planning done'
     }
 
     case 'search_agent': {
-      return r?.summary ?? 'Search complete'
+      if (r?.status === 'answered') return 'Found what you need'
+      return r?.summary ?? 'Done searching'
     }
 
     case 'enrichment_agent': {
-      return r?.summary ?? 'Analysis complete'
+      if (r?.status === 'answered') return 'Got your answer'
+      return r?.summary ?? 'Done checking'
     }
 
     default:
-      return `${toolName} complete`
+      return 'Working on it...'
   }
 }
