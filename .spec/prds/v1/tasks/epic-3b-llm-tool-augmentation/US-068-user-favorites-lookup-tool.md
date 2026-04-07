@@ -42,10 +42,10 @@
 
 | # | Boolean Statement | Maps To AC | Verify | Status |
 |---|-------------------|------------|--------|--------|
-| 1 | getUserFavorites returns all matching favorites sorted by rating descending | AC-1 | `npx vitest run convex/actions/agent/tools/__tests__/getUserFavorites.test.ts -t "with favorites"` | [ ] TRUE [ ] FALSE |
-| 2 | getUserFavorites returns empty array for users with no favorites | AC-2 | `npx vitest run convex/actions/agent/tools/__tests__/getUserFavorites.test.ts -t "no favorites"` | [ ] TRUE [ ] FALSE |
-| 3 | getUserFavorites filters results to only favorites within the provided bounding box | AC-3 | `npx vitest run convex/actions/agent/tools/__tests__/getUserFavorites.test.ts -t "region filter"` | [ ] TRUE [ ] FALSE |
-| 4 | getUserFavorites returns at most 10 results even when more exist in the region | AC-4 | `npx vitest run convex/actions/agent/tools/__tests__/getUserFavorites.test.ts -t "max limit"` | [ ] TRUE [ ] FALSE |
+| 1 | getUserFavorites returns all matching favorites sorted by rating descending | AC-1 | `npx vitest run convex/actions/agent/tools/__tests__/getUserFavorites.test.ts -t "with favorites"` | [x] TRUE [ ] FALSE |
+| 2 | getUserFavorites returns empty array for users with no favorites | AC-2 | `npx vitest run convex/actions/agent/tools/__tests__/getUserFavorites.test.ts -t "no favorites"` | [x] TRUE [ ] FALSE |
+| 3 | getUserFavorites filters results to only favorites within the provided bounding box | AC-3 | `npx vitest run convex/actions/agent/tools/__tests__/getUserFavorites.test.ts -t "region filter"` | [x] TRUE [ ] FALSE |
+| 4 | getUserFavorites returns at most 10 results even when more exist in the region | AC-4 | `npx vitest run convex/actions/agent/tools/__tests__/getUserFavorites.test.ts -t "max limit"` | [x] TRUE [ ] FALSE |
 
 ## GUARDRAILS
 

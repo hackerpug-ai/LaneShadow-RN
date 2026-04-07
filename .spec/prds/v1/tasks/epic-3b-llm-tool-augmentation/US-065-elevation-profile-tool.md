@@ -42,10 +42,10 @@
 
 | # | Boolean Statement | Maps To AC | Verify | Status |
 |---|-------------------|------------|--------|--------|
-| 1 | getElevation returns positive gain/loss and grade above 5% for mountain road geometry | AC-1 | `npx vitest run convex/actions/agent/tools/__tests__/getElevation.test.ts -t "mountain route"` | [ ] TRUE [ ] FALSE |
-| 2 | getElevation returns minimal gain and low grade for flat road geometry | AC-2 | `npx vitest run convex/actions/agent/tools/__tests__/getElevation.test.ts -t "flat route"` | [ ] TRUE [ ] FALSE |
-| 3 | getElevation samples polyline to 100 or fewer points before API call | AC-3 | `npx vitest run convex/actions/agent/tools/__tests__/getElevation.test.ts -t "sampling"` | [ ] TRUE [ ] FALSE |
-| 4 | getElevation returns unavailable status without throwing when API is unreachable | AC-4 | `npx vitest run convex/actions/agent/tools/__tests__/getElevation.test.ts -t "api failure"` | [ ] TRUE [ ] FALSE |
+| 1 | getElevation returns positive gain/loss and grade above 5% for mountain road geometry | AC-1 | `npx vitest run convex/actions/agent/tools/__tests__/getElevation.test.ts -t "mountain route"` | [x] TRUE [ ] FALSE |
+| 2 | getElevation returns minimal gain and low grade for flat road geometry | AC-2 | `npx vitest run convex/actions/agent/tools/__tests__/getElevation.test.ts -t "flat route"` | [x] TRUE [ ] FALSE |
+| 3 | getElevation samples polyline to 100 or fewer points before API call | AC-3 | `npx vitest run convex/actions/agent/tools/__tests__/getElevation.test.ts -t "sampling"` | [x] TRUE [ ] FALSE |
+| 4 | getElevation returns unavailable status without throwing when API is unreachable | AC-4 | `npx vitest run convex/actions/agent/tools/__tests__/getElevation.test.ts -t "api failure"` | [x] TRUE [ ] FALSE |
 
 ## GUARDRAILS
 

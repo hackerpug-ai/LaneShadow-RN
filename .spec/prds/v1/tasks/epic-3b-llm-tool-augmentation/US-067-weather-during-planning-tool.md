@@ -42,10 +42,10 @@
 
 | # | Boolean Statement | Maps To AC | Verify | Status |
 |---|-------------------|------------|--------|--------|
-| 1 | getRouteWeather returns temperature, wind, and rain data for each sample point | AC-1 | `npx vitest run convex/actions/agent/tools/__tests__/getRouteWeather.test.ts -t "basic weather"` | [ ] TRUE [ ] FALSE |
-| 2 | getRouteWeather detects fog conditions at coastal sample points | AC-2 | `npx vitest run convex/actions/agent/tools/__tests__/getRouteWeather.test.ts -t "fog detection"` | [ ] TRUE [ ] FALSE |
-| 3 | getRouteWeather returns unavailable status without throwing on API failure | AC-3 | `npx vitest run convex/actions/agent/tools/__tests__/getRouteWeather.test.ts -t "api failure"` | [ ] TRUE [ ] FALSE |
-| 4 | getRouteWeather samples polyline to 3-5 points before weather API call | AC-4 | `npx vitest run convex/actions/agent/tools/__tests__/getRouteWeather.test.ts -t "sampling"` | [ ] TRUE [ ] FALSE |
+| 1 | getRouteWeather returns temperature, wind, and rain data for each sample point | AC-1 | `npx vitest run convex/actions/agent/tools/__tests__/getRouteWeather.test.ts -t "basic weather"` | [x] TRUE [ ] FALSE |
+| 2 | getRouteWeather detects fog conditions at coastal sample points | AC-2 | `npx vitest run convex/actions/agent/tools/__tests__/getRouteWeather.test.ts -t "fog detection"` | [x] TRUE [ ] FALSE |
+| 3 | getRouteWeather returns unavailable status without throwing on API failure | AC-3 | `npx vitest run convex/actions/agent/tools/__tests__/getRouteWeather.test.ts -t "api failure"` | [x] TRUE [ ] FALSE |
+| 4 | getRouteWeather samples polyline to 3-5 points before weather API call | AC-4 | `npx vitest run convex/actions/agent/tools/__tests__/getRouteWeather.test.ts -t "sampling"` | [x] TRUE [ ] FALSE |
 
 ## GUARDRAILS
 
@@ -92,3 +92,17 @@ Do NOT call weather API for each point in the polyline — sample to 3-5 points.
 
 - This tool bridges Epic 3b (planning tools) and Epic 5 (weather completion). The WX group's weather overlays show weather AFTER planning; this tool makes weather available DURING planning.
 - For V1, the "fog detection" can be approximated by visibility < 1km in the weather API response.
+
+## REVIEW NOTES (US-067 Round 1)
+
+**Verdict: NEEDS_FIXES**
+
+NEVER constraint violated: `getRouteWeather.ts` duplicates the Open-Meteo HTTP integration
+instead of delegating to `WeatherProvider` from `convex/actions/agent/providers/weatherProvider.ts`.
+Duplicated functions: `toUtcDateString`, `pickNearestHourIndex`, `fetchWeatherForPoint` (direct fetch).
+The existing provider has timeout handling (`withTimeout`), retry logic (`retryOnce`), and
+concurrency limiting that `getRouteWeather.ts` omits entirely.
+
+Additionally, test line 64 (`expect(result.segments).toHaveLength(result.segments.length)`) is a
+tautological assertion (always passes) and must be replaced with a concrete expected count
+(e.g., `toHaveLength(5)` for a 5-point polyline input).

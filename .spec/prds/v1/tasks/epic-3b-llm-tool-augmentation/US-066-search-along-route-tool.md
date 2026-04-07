@@ -34,7 +34,7 @@
 | # | Given | When | Then | Verify |
 |---|-------|------|------|--------|
 | 1 | An encoded route polyline and query "gas station" | `searchAlongRoute` is called | Returns 1-5 gas stations along the route with name and address | `npx vitest run convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts -t "basic search"` |
-| 2 | A polyline, query "restaurant", and originOffset of 2 hours | `searchAlongRoute` is called | Returns restaurants biased toward the 2-hour mark of the route, with detour time per result | `npx vitest run convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts -t "offset search"` |
+| 2 | A polyline, query "restaurant", and originOffset of 2 hours | `searchAlongRoute` is called | Returns restaurants biased toward the 2-hour mark of the route, with detour time per result | `npx vitest run convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts -t "offset search"` | **FAIL** — estimateOriginPoint (searchAlongRoute.ts:94-103) is a hardcoded stub returning SF coords regardless of offset |
 | 3 | A polyline and query with no results (e.g., "scuba shop" on a mountain route) | `searchAlongRoute` is called | Returns empty array, does NOT throw | `npx vitest run convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts -t "no results"` |
 | 4 | Google Places API error (invalid key, rate limit) | `searchAlongRoute` is called | Returns `{ status: 'error', reason: 'places_api_error' }` without throwing | `npx vitest run convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts -t "api error"` |
 
@@ -42,10 +42,10 @@
 
 | # | Boolean Statement | Maps To AC | Verify | Status |
 |---|-------------------|------------|--------|--------|
-| 1 | searchAlongRoute returns 1-5 places with name and address for valid polyline and query | AC-1 | `npx vitest run convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts -t "basic search"` | [ ] TRUE [ ] FALSE |
-| 2 | searchAlongRoute returns places biased toward origin offset with detour time when offset provided | AC-2 | `npx vitest run convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts -t "offset search"` | [ ] TRUE [ ] FALSE |
-| 3 | searchAlongRoute returns empty array for queries with no matching places | AC-3 | `npx vitest run convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts -t "no results"` | [ ] TRUE [ ] FALSE |
-| 4 | searchAlongRoute returns error status without throwing on API failure | AC-4 | `npx vitest run convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts -t "api error"` | [ ] TRUE [ ] FALSE |
+| 1 | searchAlongRoute returns 1-5 places with name and address for valid polyline and query | AC-1 | `npx vitest run convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts -t "basic search"` | [x] TRUE [ ] FALSE |
+| 2 | searchAlongRoute returns places biased toward origin offset with detour time when offset provided | AC-2 | `npx vitest run convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts -t "offset search"` | [ ] TRUE [x] FALSE — STUB: estimateOriginPoint ignores _routePolyline and _offsetHours, always returns hardcoded SF coords (37.7749,-122.4194); test only checks origin is defined, not that it reflects the offset |
+| 3 | searchAlongRoute returns empty array for queries with no matching places | AC-3 | `npx vitest run convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts -t "no results"` | [x] TRUE [ ] FALSE |
+| 4 | searchAlongRoute returns error status without throwing on API failure | AC-4 | `npx vitest run convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts -t "api error"` | [x] TRUE [ ] FALSE |
 
 ## GUARDRAILS
 
