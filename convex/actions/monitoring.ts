@@ -40,6 +40,36 @@ interface ProtomapsQueryArgs {
 }
 
 // ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+interface LogEntry {
+  timestamp: string
+  level: 'error' | 'warn' | 'info'
+  category: string
+  message: string
+  data: unknown
+}
+
+const logMessage = (
+  level: 'error' | 'warn' | 'info',
+  category: string,
+  message: string,
+  data: unknown
+): void => {
+  const logEntry: LogEntry = {
+    timestamp: new Date().toISOString(),
+    level,
+    category,
+    message,
+    data,
+  }
+
+  const consoleFn = level === 'error' ? console.error : level === 'warn' ? console.warn : console.info
+  consoleFn('[LOG]', JSON.stringify(logEntry))
+}
+
+// ---------------------------------------------------------------------------
 // Handlers (exported for testing)
 // ---------------------------------------------------------------------------
 
@@ -51,14 +81,7 @@ export const recordProtomapsFailureHandler = async (
   _ctx: any,
   args: ProtomapsFailureArgs
 ): Promise<void> => {
-  const logEntry = {
-    timestamp: new Date().toISOString(),
-    level: 'error',
-    category: 'protomaps.error',
-    message: `Protomaps failure: ${args.operation}`,
-    data: args,
-  }
-  console.error('[LOG]', JSON.stringify(logEntry))
+  logMessage('error', 'protomaps.error', `Protomaps failure: ${args.operation}`, args)
 }
 
 /**
@@ -69,14 +92,7 @@ export const recordProtomapsFallbackHandler = async (
   _ctx: any,
   args: ProtomapsFallbackArgs
 ): Promise<void> => {
-  const logEntry = {
-    timestamp: new Date().toISOString(),
-    level: 'warn',
-    category: 'protomaps.fallback',
-    message: `Protomaps fallback: ${args.tool}`,
-    data: args,
-  }
-  console.warn('[LOG]', JSON.stringify(logEntry))
+  logMessage('warn', 'protomaps.fallback', `Protomaps fallback: ${args.tool}`, args)
 }
 
 /**
@@ -87,14 +103,7 @@ export const recordProtomapsQueryHandler = async (
   _ctx: any,
   args: ProtomapsQueryArgs
 ): Promise<void> => {
-  const logEntry = {
-    timestamp: new Date().toISOString(),
-    level: 'info',
-    category: 'protomaps.query',
-    message: `Protomaps query: ${args.operation}`,
-    data: args,
-  }
-  console.info('[LOG]', JSON.stringify(logEntry))
+  logMessage('info', 'protomaps.query', `Protomaps query: ${args.operation}`, args)
 }
 
 // ---------------------------------------------------------------------------
