@@ -210,6 +210,19 @@ export const AgentToolSchemas = {
     }),
   }),
 
+  searchNearby: Type.Object({
+    query: Type.String({
+      description: 'Natural language search query (e.g., "gas station", "scenic overlook", "coffee shop")',
+    }),
+    location: Type.Object({
+      lat: Type.Number({ description: 'Latitude in decimal degrees' }),
+      lng: Type.Number({ description: 'Longitude in decimal degrees' }),
+    }, { description: "Center point for the search — use rider's current location" }),
+    radiusMeters: Type.Union([Type.Number(), Type.Null()], {
+      description: 'Search radius in meters. Null for default (5000m / ~3mi). Max 50000m.',
+    }),
+  }),
+
   getCurvature: Type.Object({
     roadName: Type.String({
       description: 'Name of the road being scored (used for logging/context)',
