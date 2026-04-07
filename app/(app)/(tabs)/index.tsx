@@ -304,7 +304,7 @@ const HomeMapScreen = () => {
   }, [flowState.phase, agentRoutePlan?.status, flowDispatch])
 
   // Fit camera to agent-produced route.
-  const { setSelectedRouteId, registerFitHandler } = useSelectedRoute()
+  const { setSelectedRouteId, setDisplayedRoutePlanId, registerFitHandler } = useSelectedRoute()
   const pendingFitRef = useRef(false)
 
   const handleNewSession = async () => {
@@ -377,8 +377,10 @@ const HomeMapScreen = () => {
       lastSeenPlanIdRef.current = currentPlanId
       // Reset to null so it defaults to the first option of the new plan
       setSelectedRouteId(null)
+      // Clear any pinned plan override so the newest plan shows
+      setDisplayedRoutePlanId(null)
     }
-  }, [agentRoutePlan?._id, setSelectedRouteId])
+  }, [agentRoutePlan?._id, setSelectedRouteId, setDisplayedRoutePlanId])
 
   const mapLayerStyle = useAnimatedStyle(() => ({ opacity: mapOpacity.value }))
   const chatLayerStyle = useAnimatedStyle(() => ({ opacity: chatOpacity.value }))
