@@ -47,17 +47,11 @@ export const ANTHROPIC_API_KEY = optionalEnv('ANTHROPIC_API_KEY')
 export const isTestEnvironment = process.env.NODE_ENV === 'test'
 
 /**
- * AI provider: 'openai', 'google', or 'anthropic'. Defaults to 'anthropic' (Claude).
- * Override via AI_PROVIDER env var.
+ * AI provider and model. Hardcoded to avoid env var drift.
+ * Change here to switch providers.
  */
-export const AI_PROVIDER = (optionalEnv('AI_PROVIDER') ?? 'anthropic') as 'openai' | 'google' | 'anthropic'
-
-/**
- * AI model for all LLM interactions (enrichment, agents).
- * Defaults to gpt-5 for openai, gemini-2.5-flash for google.
- * Override via AI_MODEL env var.
- */
-export const AI_MODEL = optionalEnv('AI_MODEL') ?? (AI_PROVIDER === 'anthropic' ? 'claude-sonnet-4.6' : AI_PROVIDER === 'google' ? 'gemini-2.5-flash' : 'gpt-4.1')
+export const AI_PROVIDER: 'openai' | 'google' | 'anthropic' = 'anthropic'
+export const AI_MODEL = 'claude-sonnet-4-6'
 
 /**
  * Override the monthly route plan limit. 0 = unlimited.
