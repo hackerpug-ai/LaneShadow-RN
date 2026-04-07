@@ -281,9 +281,10 @@ const HomeMapScreen = () => {
   }, [chatMode])
 
   // Reactive bridge: transition out of PLANNING when agent route plan completes.
+  // Also updates flowState when already in ROUTE_RESULTS and a new plan arrives.
   useEffect(() => {
     if (
-      flowState.phase === 'PLANNING' &&
+      (flowState.phase === 'PLANNING' || flowState.phase === 'ROUTE_RESULTS') &&
       agentRoutePlan?.status === 'completed' &&
       agentRoutePlan?.result
     ) {
