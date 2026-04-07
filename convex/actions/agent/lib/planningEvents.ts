@@ -67,6 +67,7 @@ export class PlanningEventEmitter {
   private async ensureInit(): Promise<void> {
     if (this.messageId !== null) return
 
+    console.info('[PlanningEmitter] Creating planning row (lazy init)')
     const result = await this.opts.runMutation(
       internal.db.sessionMessages.createPendingAssistantMessage,
       {
@@ -75,6 +76,7 @@ export class PlanningEventEmitter {
       }
     )
     this.messageId = result.messageId
+    console.info(`[PlanningEmitter] Planning row created: ${this.messageId}`)
   }
 
   private async persistContent(statusLine: string): Promise<void> {
@@ -115,6 +117,7 @@ export class PlanningEventEmitter {
     }
 
     if (statusLine.length > 0) {
+      console.info(`[PlanningEmitter] thinking: "${statusLine}"`)
       await this.persistContent(statusLine)
     }
   }
@@ -150,6 +153,7 @@ export class PlanningEventEmitter {
     this.events.push(event)
 
     const statusLine = getToolStatusLine(tool)
+    console.info(`[PlanningEmitter] toolPending: ${agent}/${tool} → "${statusLine}"`)
     await this.persistContent(statusLine)
   }
 
@@ -159,6 +163,7 @@ export class PlanningEventEmitter {
     summary: string,
     durationMs: number
   ): Promise<void> {
+    console.info(`[PlanningEmitter] toolComplete: ${agent}/${tool} → "${summary}" (${durationMs}ms)`)
     await this.ensureInit()
 
     const event: PlanningEvent = {
@@ -180,6 +185,7 @@ export class PlanningEventEmitter {
     summary: string,
     durationMs: number
   ): Promise<void> {
+    console.info(`[PlanningEmitter] agentComplete: ${agent} → "${summary}" (${durationMs}ms)`)
     await this.ensureInit()
 
     const event: PlanningEvent = {
@@ -199,9 +205,13 @@ export class PlanningEventEmitter {
    * No-op if no events were emitted (no planning row was created).
    */
   async done(): Promise<void> {
-    if (this.messageId === null) return
+    if (this.messageId === null) {
+      console.info('[PlanningEmitter] done() — no events emitted, skipping')
+      return
+    }
 
     const totalDurationMs = Date.now() - this.startTime
+    console.info(`[PlanningEmitter] done() — ${this.events.length} events, ${totalDurationMs}ms total`)
     const content: PlanningContent = {
       events: this.events,
       statusLine: this.events.length > 0
