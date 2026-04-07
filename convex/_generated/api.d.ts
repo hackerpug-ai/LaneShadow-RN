@@ -31,6 +31,7 @@ import type * as actions_agent_tools_enrichRoute from "../actions/agent/tools/en
 import type * as actions_agent_tools_findScenicWaypoints from "../actions/agent/tools/findScenicWaypoints.js";
 import type * as actions_agent_tools_getCurvature from "../actions/agent/tools/getCurvature.js";
 import type * as actions_agent_tools_getElevation from "../actions/agent/tools/getElevation.js";
+import type * as actions_agent_tools_getRouteWeather from "../actions/agent/tools/getRouteWeather.js";
 import type * as actions_agent_tools_getUserFavorites from "../actions/agent/tools/getUserFavorites.js";
 import type * as actions_agent_tools_lookupRoad from "../actions/agent/tools/lookupRoad.js";
 import type * as actions_agent_tools_mapConditions from "../actions/agent/tools/mapConditions.js";
@@ -87,6 +88,7 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/tools/findScenicWaypoints": typeof actions_agent_tools_findScenicWaypoints;
   "actions/agent/tools/getCurvature": typeof actions_agent_tools_getCurvature;
   "actions/agent/tools/getElevation": typeof actions_agent_tools_getElevation;
+  "actions/agent/tools/getRouteWeather": typeof actions_agent_tools_getRouteWeather;
   "actions/agent/tools/getUserFavorites": typeof actions_agent_tools_getUserFavorites;
   "actions/agent/tools/lookupRoad": typeof actions_agent_tools_lookupRoad;
   "actions/agent/tools/mapConditions": typeof actions_agent_tools_mapConditions;

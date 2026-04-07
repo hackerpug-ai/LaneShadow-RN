@@ -230,6 +230,20 @@ export const AgentToolSchemas = {
       description: 'Road surface type from OSM tags (e.g. "asphalt", "gravel"), or null if unknown',
     }),
   }),
+
+  getRouteWeather: Type.Object({
+    polyline: Type.Array(
+      Type.Object({
+        lat: Type.Number({ description: 'Latitude in decimal degrees' }),
+        lng: Type.Number({ description: 'Longitude in decimal degrees' }),
+      }),
+      { description: 'Array of lat/lng points representing the route polyline' }
+    ),
+    departureTimeMs: Type.Integer({
+      description:
+        'Planned departure time as unix timestamp in milliseconds. Used to select the matching forecast hour.',
+    }),
+  }),
 }
 
 /**

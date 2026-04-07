@@ -12,11 +12,28 @@ export type WindSample = {
   timeIso: string
 }
 
+export type FullWeatherSample = {
+  lat: number
+  lng: number
+  windSpeed: number
+  windDirectionDeg: number
+  windGust?: number
+  unit: 'km/h' | 'm/s'
+  timeIso: string
+  tempC: number
+  rainProbabilityPct: number
+  visibilityM: number
+}
+
 export type WeatherProvider = {
   getWindAtPoints: (params: {
     points: RouteIndexPoint[]
     departureTimeMs: number
   }) => Promise<WindSample[]>
+  getWeatherAtPoints: (params: {
+    points: Array<{ lat: number; lng: number }>
+    departureTimeMs: number
+  }) => Promise<FullWeatherSample[]>
 }
 
 const OPEN_METEO_ENDPOINT = 'https://api.open-meteo.com/v1/forecast'
@@ -59,6 +76,73 @@ const isRetryableWeatherError = (error: unknown): boolean => {
     return true
   }
   return false
+}
+
+const fetchFullWeatherForPoint = async (
+  lat: number,
+  lng: number,
+  departureTimeMs: number
+): Promise<FullWeatherSample> => {
+  const dateStr = toUtcDateString(departureTimeMs)
+  const url =
+    `${OPEN_METEO_ENDPOINT}?latitude=${lat}&longitude=${lng}` +
+    `&hourly=windspeed_10m,winddirection_10m,windgusts_10m,temperature_2m,precipitation_probability,visibility` +
+    `&timezone=UTC&start_date=${dateStr}&end_date=${dateStr}`
+
+  const fetchOnce = async () =>
+    withTimeout(
+      async (signal) => {
+        try {
+          const response = await fetch(url, { signal })
+          if (!response.ok) {
+            throw markRetryable(
+              new Error(`Open-Meteo request failed: ${response.status}`),
+              response.status >= 500 || response.status === 429
+            )
+          }
+          const data: any = await response.json()
+          const times: string[] | undefined = data?.hourly?.time
+          const speeds: number[] | undefined = data?.hourly?.windspeed_10m
+          const directions: number[] | undefined = data?.hourly?.winddirection_10m
+          const gusts: number[] | undefined = data?.hourly?.windgusts_10m
+          const temps: number[] | undefined = data?.hourly?.temperature_2m
+          const rainProbs: number[] | undefined = data?.hourly?.precipitation_probability
+          const visibilities: number[] | undefined = data?.hourly?.visibility
+
+          if (!times || !speeds || !directions || !temps || times.length === 0) {
+            throw new Error('Open-Meteo response missing hourly data')
+          }
+
+          const idx = pickNearestHourIndex(times, departureTimeMs)
+
+          return {
+            lat,
+            lng,
+            windSpeed: speeds[idx],
+            windDirectionDeg: directions[idx],
+            windGust: gusts ? gusts[idx] : undefined,
+            unit: 'km/h' as const,
+            timeIso: times[idx],
+            tempC: temps[idx],
+            rainProbabilityPct: rainProbs ? (rainProbs[idx] ?? 0) : 0,
+            visibilityM: visibilities ? (visibilities[idx] ?? 10000) : 10000,
+          }
+        } catch (error) {
+          if (error instanceof DOMException && error.name === 'AbortError') {
+            throw markRetryable(new Error('Open-Meteo request aborted'), true)
+          }
+          if (error instanceof Error) {
+            throw error
+          }
+          throw new Error('Unknown weather provider error')
+        }
+      },
+      { ms: DEFAULT_WEATHER_TIMEOUT_MS, label: 'weather' }
+    )
+
+  return await retryOnce(fetchOnce, {
+    shouldRetry: isRetryableWeatherError,
+  })
 }
 
 const fetchWindForPoint = async (
@@ -140,7 +224,23 @@ export const createWeatherProvider = (): WeatherProvider => {
     return samples
   }
 
-  return { getWindAtPoints }
+  const getWeatherAtPoints: WeatherProvider['getWeatherAtPoints'] = async ({
+    points,
+    departureTimeMs,
+  }) => {
+    if (!points.length) return []
+
+    const cappedPoints = points.slice(0, MAX_PROBED_POINTS)
+    const limiter = createConcurrencyLimiter(MAX_CONCURRENT)
+
+    const samples = await Promise.all(
+      cappedPoints.map((pt) => limiter(() => fetchFullWeatherForPoint(pt.lat, pt.lng, departureTimeMs)))
+    )
+
+    return samples
+  }
+
+  return { getWindAtPoints, getWeatherAtPoints }
 }
 
 /**
