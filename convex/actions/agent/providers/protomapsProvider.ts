@@ -46,6 +46,8 @@
  */
 
 import { PMTiles } from 'pmtiles';
+import { VectorTile } from '@mapbox/vector-tile';
+import Pbf from 'pbf';
 import { S2LatLng, S2CellId } from 'nodes2ts';
 
 // Protomaps layer names (from https://protomaps.com/styles/)
@@ -106,19 +108,49 @@ function latToTile(lat: number, zoom: number): number {
 }
 
 /**
- * Extract features from tile data
+ * Convert tile pixel coordinates to geographic coordinates.
+ * MVT features use loadGeometry() which returns Points in tile-local coords (0-4096 extent).
  */
-function extractFeaturesFromTile(tileData: any, layer: string, filter?: (feature: any) => boolean): any[] {
-  if (!tileData || !tileData.data) return [];
+function tilePixelToLonLat(px: number, py: number, tileX: number, tileY: number, zoom: number, extent: number = 4096): [number, number] {
+  const n = Math.pow(2, zoom);
+  const lon = (tileX + px / extent) / n * 360 - 180;
+  const latRad = Math.atan(Math.sinh(Math.PI * (1 - 2 * (tileY + py / extent) / n)));
+  const lat = latRad * 180 / Math.PI;
+  return [lon, lat];
+}
 
-  const layerData = tileData.data.layers.find((l: any) => l.name === layer);
+/** Feature with tile context for coordinate conversion */
+type TileFeature = {
+  feature: any;
+  tileX: number;
+  tileY: number;
+  tileZoom: number;
+  extent: number;
+};
+
+/**
+ * Decode raw MVT ArrayBuffer into a VectorTile, then extract features from a layer.
+ */
+function extractFeaturesFromTile(
+  tileData: any,
+  layer: string,
+  tileX: number,
+  tileY: number,
+  tileZoom: number,
+  filter?: (feature: any) => boolean
+): TileFeature[] {
+  if (!tileData || !tileData.data || tileData.data.byteLength === 0) return [];
+
+  // Decode the raw protobuf MVT bytes
+  const tile = new VectorTile(new Pbf(tileData.data));
+  const layerData = tile.layers[layer];
   if (!layerData) return [];
 
-  const features: any[] = [];
+  const features: TileFeature[] = [];
   for (let i = 0; i < layerData.length; i++) {
     const feature = layerData.feature(i);
     if (!filter || filter(feature)) {
-      features.push(feature);
+      features.push({ feature, tileX, tileY, tileZoom, extent: layerData.extent });
     }
   }
 
@@ -229,7 +261,7 @@ export function createProtomapsProvider(pmtilesUrl: string) {
         const tileData = await pmtiles.getZxy(TILE_ZOOM, x, y);
 
         // Extract POIs (viewpoints, mountain passes)
-        const pois = extractFeaturesFromTile(tileData, LAYERS.POIS, (f) => {
+        const pois = extractFeaturesFromTile(tileData, LAYERS.POIS, x, y, TILE_ZOOM, (f) => {
           const props = f.properties;
           return (
             props.tourism === 'viewpoint' ||
@@ -238,12 +270,13 @@ export function createProtomapsProvider(pmtilesUrl: string) {
           );
         });
 
-        for (const poi of pois) {
+        for (const { feature: poi, tileX, tileY, tileZoom, extent } of pois) {
           const props = poi.properties;
-          const coords = poi.loadGeometry();
-          if (coords.length === 0) continue;
+          const geom = poi.loadGeometry();
+          if (geom.length === 0 || geom[0].length === 0) continue;
 
-          const [lon, lat] = coords[0];
+          const pt = geom[0][0];
+          const [lon, lat] = tilePixelToLonLat(pt.x, pt.y, tileX, tileY, tileZoom, extent);
 
           // Classify node type
           let type: 'viewpoint' | 'peak' | 'mountain_pass' = 'viewpoint';
@@ -264,17 +297,18 @@ export function createProtomapsProvider(pmtilesUrl: string) {
         }
 
         // Extract natural features (peaks)
-        const natural = extractFeaturesFromTile(tileData, LAYERS.NATURAL, (f) => {
+        const natural = extractFeaturesFromTile(tileData, LAYERS.NATURAL, x, y, TILE_ZOOM, (f) => {
           const props = f.properties;
           return props.natural === 'peak' && props.name;
         });
 
-        for (const feat of natural) {
+        for (const { feature: feat, tileX: tx, tileY: ty, tileZoom: tz, extent: ext } of natural) {
           const props = feat.properties;
-          const coords = feat.loadGeometry();
-          if (coords.length === 0) continue;
+          const geom = feat.loadGeometry();
+          if (geom.length === 0 || geom[0].length === 0) continue;
 
-          const [lon, lat] = coords[0];
+          const pt = geom[0][0];
+          const [lon, lat] = tilePixelToLonLat(pt.x, pt.y, tx, ty, tz, ext);
 
           // Filter by type if specified
           if (types && !types.includes('peak')) continue;
@@ -313,21 +347,24 @@ export function createProtomapsProvider(pmtilesUrl: string) {
         const tileData = await pmtiles.getZxy(TILE_ZOOM, x, y);
 
         // Extract roads
-        const roads = extractFeaturesFromTile(tileData, LAYERS.ROADS, (f) => {
+        const roads = extractFeaturesFromTile(tileData, LAYERS.ROADS, x, y, TILE_ZOOM, (f) => {
           const props = f.properties;
           if (!props.highway) return false;
           if (highwayClasses && !highwayClasses.includes(props.highway)) return false;
           return true;
         });
 
-        for (const road of roads) {
+        for (const { feature: road, tileX, tileY, tileZoom, extent } of roads) {
           const props = road.properties;
           const geometry = road.loadGeometry();
 
-          if (geometry.length < 2) continue;
+          // loadGeometry returns Point[][] — first array is the line ring
+          if (geometry.length === 0 || geometry[0].length < 2) continue;
 
-          // Convert geometry to [[lon, lat], ...]
-          const coords: number[][] = geometry.map((g: number[]) => [g[0], g[1]]);
+          // Convert tile pixel coords to [[lon, lat], ...]
+          const coords: number[][] = geometry[0].map((pt: any) =>
+            tilePixelToLonLat(pt.x, pt.y, tileX, tileY, tileZoom, extent)
+          );
 
           // Calculate bounds
           const lats = coords.map((c) => c[1]);
