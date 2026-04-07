@@ -11,7 +11,12 @@ echo "Running ESLint..."
 npm run lint || exit 1
 
 # 3. Convex build (push to dev deployment, typecheck, codegen — one-shot)
-echo "Running Convex dev --once..."
-npx convex dev --once || exit 1
+# Skip in non-interactive terminals (CI, agent worktrees, etc.)
+if [ -t 0 ]; then
+  echo "Running Convex dev --once..."
+  npx convex dev --once || exit 1
+else
+  echo "Skipping Convex dev --once (non-interactive terminal)"
+fi
 
 echo "All pre-commit checks passed."
