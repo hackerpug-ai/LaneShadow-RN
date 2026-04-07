@@ -69,6 +69,18 @@ export const AgentToolSchemas = {
   searchFavorites: Type.Object({
     query: Type.String({ description: 'Search query to filter saved routes' }),
   }),
+
+  searchAlongRoute: Type.Object({
+    routePolyline: Type.String({
+      description: 'Encoded polyline of the compiled route (from compileSegments output)',
+    }),
+    query: Type.String({
+      description: 'Natural language search query for places (e.g., "gas station", "restaurant", "scenic overlook")',
+    }),
+    originOffset: Type.Union([Type.Number(), Type.Null()], {
+      description: 'Optional offset in hours into the trip to bias results toward that point (e.g., 2 for "find food 2 hours in"). Null to search along the entire route without bias.',
+    }),
+  }),
 }
 
 /**
