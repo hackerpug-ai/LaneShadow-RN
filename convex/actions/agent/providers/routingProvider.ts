@@ -2,6 +2,7 @@
 import type { RouteSketch, RouteSketchAnchorPoint, RouteSketchSegment } from '../../../../models/route-sketch'
 import type { PlanInput } from '../../../../models/saved-routes'
 import { GOOGLE_MAPS_API_KEY } from '../../../lib/env'
+import { createGeocodingProvider } from './geocodingProvider'
 
 export type ProviderLatLng = { lat: number; lng: number }
 
@@ -249,24 +250,44 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
   },
 
   routeSegment: async ({ segment, anchorPoints }): Promise<ProviderRouteResponse> => {
-    const fromAnchor = findAnchorPoint(anchorPoints, segment.fromName)
-    const toAnchor = findAnchorPoint(anchorPoints, segment.toName)
-
-    if (!fromAnchor || fromAnchor.lat === undefined || fromAnchor.lng === undefined) {
-      throw new Error(
-        `anchorPoint not found or missing lat/lng for fromName: "${segment.fromName}"`
-      )
+    // Resolve from/to coordinates: check anchors first, fall back to geocoding
+    const resolveCoords = async (name: string): Promise<{ lat: number; lng: number }> => {
+      const anchor = findAnchorPoint(anchorPoints, name)
+      if (anchor?.lat !== undefined && anchor?.lng !== undefined) {
+        return { lat: anchor.lat, lng: anchor.lng }
+      }
+      // Auto-geocode missing anchor points
+      console.info(`[routeSegment] Geocoding missing anchor: "${name}"`)
+      const geocoder = createGeocodingProvider()
+      const results = await geocoder.geocode(name)
+      if (results.length === 0) {
+        throw new Error(`Could not geocode "${name}" — no results found`)
+      }
+      return { lat: results[0].lat, lng: results[0].lng }
     }
-    if (!toAnchor || toAnchor.lat === undefined || toAnchor.lng === undefined) {
-      throw new Error(
-        `anchorPoint not found or missing lat/lng for toName: "${segment.toName}"`
-      )
+
+    const [from, to] = await Promise.all([
+      resolveCoords(segment.fromName),
+      resolveCoords(segment.toName),
+    ])
+
+    // Build intermediates from viaNames if present
+    const intermediates: Array<{ location: { latLng: { latitude: number; longitude: number } } }> = []
+    if (segment.viaNames && segment.viaNames.length > 0) {
+      for (const via of segment.viaNames) {
+        try {
+          const coords = await resolveCoords(via)
+          intermediates.push({ location: { latLng: { latitude: coords.lat, longitude: coords.lng } } })
+        } catch {
+          console.warn(`[routeSegment] Skipping via "${via}" — geocode failed`)
+        }
+      }
     }
 
     const body = {
-      origin: toGoogleWaypoint(fromAnchor.lat, fromAnchor.lng),
-      destination: toGoogleWaypoint(toAnchor.lat, toAnchor.lng),
-      intermediates: [],
+      origin: toGoogleWaypoint(from.lat, from.lng),
+      destination: toGoogleWaypoint(to.lat, to.lng),
+      intermediates,
       travelMode: 'DRIVE',
       routingPreference: 'TRAFFIC_UNAWARE',
       polylineQuality: 'OVERVIEW',
