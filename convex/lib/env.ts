@@ -37,9 +37,9 @@ export const isTestEnvironment = process.env.NODE_ENV === 'test'
 
 /**
  * AI model for all LLM interactions (enrichment, agents).
- * Defaults to gpt-4o. Override via AI_MODEL env var.
+ * Defaults to gpt-4.1. Override via AI_MODEL env var.
  */
-export const AI_MODEL = optionalEnv('AI_MODEL') ?? 'gpt-4o'
+export const AI_MODEL = optionalEnv('AI_MODEL') ?? 'gpt-4.1'
 
 /**
  * Override the monthly route plan limit. 0 = unlimited.
