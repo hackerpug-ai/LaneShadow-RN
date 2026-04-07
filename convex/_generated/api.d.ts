@@ -26,6 +26,7 @@ import type * as actions_agent_loopDetector from "../actions/agent/loopDetector.
 import type * as actions_agent_planRide from "../actions/agent/planRide.js";
 import type * as actions_agent_providers_geocodingProvider from "../actions/agent/providers/geocodingProvider.js";
 import type * as actions_agent_providers_placesProvider from "../actions/agent/providers/placesProvider.js";
+import type * as actions_agent_providers_protomapsProvider from "../actions/agent/providers/protomapsProvider.js";
 import type * as actions_agent_providers_routingProvider from "../actions/agent/providers/routingProvider.js";
 import type * as actions_agent_providers_weatherProvider from "../actions/agent/providers/weatherProvider.js";
 import type * as actions_agent_providers_webSearchProvider from "../actions/agent/providers/webSearchProvider.js";
@@ -50,8 +51,10 @@ import type * as actions_agent_tools_probeConditions from "../actions/agent/tool
 import type * as actions_agent_tools_searchAlongRoute from "../actions/agent/tools/searchAlongRoute.js";
 import type * as actions_agent_tools_searchNearby from "../actions/agent/tools/searchNearby.js";
 import type * as actions_agent_tools_webSearch from "../actions/agent/tools/webSearch.js";
+import type * as actions_mapData from "../actions/mapData.js";
 import type * as actions_osm from "../actions/osm.js";
 import type * as actions_users from "../actions/users.js";
+import type * as crons from "../crons.js";
 import type * as db_clerkSync from "../db/clerkSync.js";
 import type * as db_favoriteRoads from "../db/favoriteRoads.js";
 import type * as db_osm from "../db/osm.js";
@@ -99,6 +102,7 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/planRide": typeof actions_agent_planRide;
   "actions/agent/providers/geocodingProvider": typeof actions_agent_providers_geocodingProvider;
   "actions/agent/providers/placesProvider": typeof actions_agent_providers_placesProvider;
+  "actions/agent/providers/protomapsProvider": typeof actions_agent_providers_protomapsProvider;
   "actions/agent/providers/routingProvider": typeof actions_agent_providers_routingProvider;
   "actions/agent/providers/weatherProvider": typeof actions_agent_providers_weatherProvider;
   "actions/agent/providers/webSearchProvider": typeof actions_agent_providers_webSearchProvider;
@@ -123,8 +127,10 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/tools/searchAlongRoute": typeof actions_agent_tools_searchAlongRoute;
   "actions/agent/tools/searchNearby": typeof actions_agent_tools_searchNearby;
   "actions/agent/tools/webSearch": typeof actions_agent_tools_webSearch;
+  "actions/mapData": typeof actions_mapData;
   "actions/osm": typeof actions_osm;
   "actions/users": typeof actions_users;
+  crons: typeof crons;
   "db/clerkSync": typeof db_clerkSync;
   "db/favoriteRoads": typeof db_favoriteRoads;
   "db/osm": typeof db_osm;

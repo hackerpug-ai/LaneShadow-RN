@@ -2,6 +2,7 @@
 
 import { retryOnce, withTimeout } from '../lib/reliability'
 import { traceableToolAsync } from '../lib/tracing'
+import { createProtomapsProvider, getProtomapsUrl, getProtomapsPresignedUrl } from '../providers/protomapsProvider'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -13,6 +14,9 @@ const BBOX_PADDING_DEGREES = 0.5 // ~55km at mid-latitudes
 const MAX_TOP_NODES = 8
 const MAX_WAYPOINTS_PER_VARIANT = 4
 const MIN_VALID_NODES = 2
+
+// Initialize Protomaps provider (URL resolved from env vars)
+const protomaps = createProtomapsProvider(getProtomapsUrl())
 
 // ---------------------------------------------------------------------------
 // Output types
@@ -220,8 +224,39 @@ const findScenicWaypointsImpl = async (params: {
   end: { lat: number; lng: number }
   preferences?: { scenicBias?: string }
 }): Promise<RouteVariant[]> => {
+  const bbox = computeBbox(params.start, params.end)
+
+  // Try Protomaps first (fast, US-wide coverage)
   try {
-    const bbox = computeBbox(params.start, params.end)
+    console.info('[findScenicWaypoints] Trying Protomaps')
+    const url = await getProtomapsPresignedUrl()
+    await protomaps.init(url)
+
+    const nodes = await protomaps.queryNodesInBbox(bbox, ['viewpoint', 'peak', 'mountain_pass'])
+
+    if (nodes.length >= MIN_VALID_NODES) {
+      const waypoints = nodes.map((n) => ({
+        lat: n.lat,
+        lng: n.lon,
+        name: n.name || `${n.type} (${n.lat.toFixed(4)}, ${n.lon.toFixed(4)})`,
+        type: n.type === 'mountain_pass' ? 'pass' : n.type,
+        score: n.type === 'mountain_pass' ? 3 : n.type === 'peak' ? 2 : 1,
+      } as ScenicWaypoint))
+
+      const variants = clusterVariants(waypoints, params.start, params.end)
+
+      console.info(`[findScenicWaypoints] Protomaps found ${waypoints.length} nodes, returning ${variants.length} variants`)
+
+      return variants
+    }
+
+    console.info('[findScenicWaypoints] Protomaps found insufficient nodes, trying Overpass')
+  } catch (error) {
+    console.warn('[findScenicWaypoints] Protomaps failed, falling back to Overpass:', error)
+  }
+
+  // Fallback to Overpass API (slower, but works globally)
+  try {
     const query = buildOverpassQuery(bbox)
 
     const fetchOverpass = async (signal: AbortSignal): Promise<OverpassResponse> => {

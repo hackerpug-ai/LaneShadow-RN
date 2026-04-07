@@ -2,6 +2,7 @@
 
 import { retryOnce, withTimeout } from '../lib/reliability'
 import { traceableToolAsync } from '../lib/tracing'
+import { createProtomapsProvider, getProtomapsUrl, getProtomapsPresignedUrl } from '../providers/protomapsProvider'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -10,6 +11,9 @@ import { traceableToolAsync } from '../lib/tracing'
 const OVERPASS_ENDPOINT = 'https://overpass-api.de/api/interpreter'
 const OVERPASS_TIMEOUT_MS = 8_000
 const MAX_MATCHES = 5
+
+// Initialize Protomaps provider (URL resolved from env vars, presigned on first use)
+const protomaps = createProtomapsProvider(getProtomapsUrl())
 
 // ---------------------------------------------------------------------------
 // Highway class priority (lower index = higher priority)
@@ -202,6 +206,38 @@ const lookupRoadImpl = async (params: {
 }): Promise<LookupRoadResult> => {
   const { roadName, bbox } = params
 
+  // Try Protomaps first (fast, US-wide coverage)
+  try {
+    console.info(`[lookupRoad] Trying Protomaps for "${roadName}"`)
+    // Get presigned URL for R2 access if needed
+    const url = await getProtomapsPresignedUrl()
+    await protomaps.init(url)
+
+    const ways = await protomaps.queryWaysByName(roadName, bbox)
+
+    if (ways.length > 0) {
+      const matches: RoadMatch[] = ways.slice(0, MAX_MATCHES).map((w) => ({
+        name: w.name || roadName,
+        highway: w.highwayClass || 'unknown',
+        surface: w.surface || null,
+        geometry: w.geometry.map((p) => ({ lat: p[1], lng: p[0] })),
+      }))
+
+      console.info(`[lookupRoad] Protomaps found ${matches.length} matches`)
+
+      return {
+        exists: true,
+        status: 'found',
+        matches,
+      }
+    }
+
+    console.info(`[lookupRoad] Protomaps found no matches, trying Overpass`)
+  } catch (error) {
+    console.warn(`[lookupRoad] Protomaps failed, falling back to Overpass:`, error)
+  }
+
+  // Fallback to Overpass API (slower, but works globally)
   try {
     // Step 1: exact name match query
     const exactQuery = buildExactQuery(roadName, bbox)

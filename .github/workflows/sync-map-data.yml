@@ -1,0 +1,53 @@
+name: Sync Map Data (PMTiles → R2)
+
+# Runs 1st of each month at 6:00 AM UTC, or manually
+on:
+  schedule:
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Install pmtiles CLI
+        run: |
+          curl -sL "https://github.com/protomaps/go-pmtiles/releases/download/v1.30.1/go-pmtiles-1.30.1_Linux_x86_64.tar.gz" -o pmtiles.tar.gz
+          tar -xzf pmtiles.tar.gz
+          chmod +x pmtiles
+          sudo mv pmtiles /usr/local/bin/
+          pmtiles version
+
+      - name: Extract US + Canada from Protomaps daily build
+        run: |
+          BUILD_DATE=$(date +%Y%m%d)
+          echo "Build date: $BUILD_DATE"
+
+          # Try today's build, fall back to yesterday
+          if ! pmtiles extract "https://build.protomaps.com/${BUILD_DATE}.pmtiles" us-canada.pmtiles \
+            --bbox="-170,24,-52,72" --maxzoom=14; then
+            YESTERDAY=$(date -d "yesterday" +%Y%m%d 2>/dev/null || date -v-1d +%Y%m%d)
+            echo "Today's build not available, trying ${YESTERDAY}..."
+            pmtiles extract "https://build.protomaps.com/${YESTERDAY}.pmtiles" us-canada.pmtiles \
+              --bbox="-170,24,-52,72" --maxzoom=14
+          fi
+
+          ls -lh us-canada.pmtiles
+
+      - name: Upload to R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_S3_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_S3_SECRET }}
+        run: |
+          pmtiles upload us-canada.pmtiles map-data/us-canada.pmtiles \
+            --bucket='s3://laneshadow?endpoint=https://d5110b1895ee190e145c0c8756f49879.r2.cloudflarestorage.com&region=auto'
+
+      - name: Verify upload
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_S3_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_S3_SECRET }}
+        run: |
+          pmtiles show map-data/us-canada.pmtiles \
+            --bucket='s3://laneshadow?endpoint=https://d5110b1895ee190e145c0c8756f49879.r2.cloudflarestorage.com&region=auto'

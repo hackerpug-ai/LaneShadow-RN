@@ -3,6 +3,7 @@
 import { findScenicWaypoints } from './findScenicWaypoints'
 import { retryOnce, withTimeout } from '../lib/reliability'
 import { traceableToolAsync } from '../lib/tracing'
+import { createProtomapsProvider, getProtomapsUrl, getProtomapsPresignedUrl } from '../providers/protomapsProvider'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -11,6 +12,9 @@ import { traceableToolAsync } from '../lib/tracing'
 const OVERPASS_ENDPOINT = 'https://overpass-api.de/api/interpreter'
 const OVERPASS_TIMEOUT_MS = 8_000
 const MAX_ROADS = 15
+
+// Initialize Protomaps provider (URL resolved from env vars)
+const protomaps = createProtomapsProvider(getProtomapsUrl())
 
 // ---------------------------------------------------------------------------
 // Output types
@@ -212,21 +216,45 @@ const discoverCorridorImpl = async (params: {
     avoidHighways?: boolean
   }
 }): Promise<DiscoverCorridorResult> => {
-  // Run queries in parallel
+  const bbox = computeBbox(params.start, params.end)
+
+  // Try Protomaps for roads first (fast, US-wide coverage)
+  let protomapsRoads: RoadInfo[] = []
+  try {
+    console.info('[discoverCorridor] Trying Protomaps for roads')
+    const url = await getProtomapsPresignedUrl()
+    await protomaps.init(url)
+
+    const ways = await protomaps.queryWaysInBbox(bbox, ['trunk', 'primary', 'secondary', 'tertiary'])
+
+    protomapsRoads = ways.map((w) => ({
+      name: w.name || 'Unnamed Road',
+      highway: w.highwayClass || 'unknown',
+      surface: w.surface || null,
+      endpoints: w.geometry.slice(0, 3).map((p) => ({ lat: p[1], lng: p[0] })),
+    }))
+
+    console.info(`[discoverCorridor] Protomaps found ${protomapsRoads.length} roads`)
+  } catch (error) {
+    console.warn('[discoverCorridor] Protomaps failed, falling back to Overpass:', error)
+  }
+
+  // Run queries in parallel (use Protomaps roads if available, otherwise fetch from Overpass)
   const [variants, roadData] = await Promise.allSettled([
     findScenicWaypoints(params),
-    (async () => {
-      const bbox = computeBbox(params.start, params.end)
-      const query = buildRoadQuery(bbox)
+    protomapsRoads.length > 0
+      ? Promise.resolve({ elements: [] })
+      : (async () => {
+          const query = buildRoadQuery(bbox)
 
-      const runOnce = () =>
-        withTimeout((signal) => fetchOverpass(query, signal), {
-          ms: OVERPASS_TIMEOUT_MS,
-          label: 'overpass',
-        })
+          const runOnce = () =>
+            withTimeout((signal) => fetchOverpass(query, signal), {
+              ms: OVERPASS_TIMEOUT_MS,
+              label: 'overpass',
+            })
 
-      return retryOnce(runOnce)
-    })(),
+          return retryOnce(runOnce)
+        })(),
   ])
 
   // Extract POIs from scenic waypoints
@@ -242,12 +270,10 @@ const discoverCorridorImpl = async (params: {
     }))
   }
 
-  // Extract roads from Overpass
-  let roads: RoadInfo[] = []
-  if (roadData.status === 'fulfilled') {
+  // Extract roads (use Protomaps or Overpass)
+  let roads: RoadInfo[] = protomapsRoads
+  if (protomapsRoads.length === 0 && roadData.status === 'fulfilled') {
     roads = parseRoads(roadData.value.elements ?? [])
-  } else {
-    console.warn('discoverCorridor: Road query failed, returning empty roads list')
   }
 
   console.info(

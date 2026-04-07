@@ -26,6 +26,8 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1026.0",
+    "@aws-sdk/s3-request-presigner": "^3.1026.0",
     "@clerk/backend": "^1.9.0",
     "@clerk/clerk-expo": "^2.19.17",
     "@expo/vector-icons": "^15.0.3",
@@ -66,6 +68,7 @@
     "nodes2ts": "^4.0.2",
     "osm-pbf-parser": "^2.3.0",
     "osmtogeojson": "3.0.0-beta.5",
+    "pmtiles": "^4.4.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.71.0",
