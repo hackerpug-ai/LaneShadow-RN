@@ -71,7 +71,11 @@ export function createWebSearchProvider(): WebSearchProvider {
         .slice(0, maxResults)
         .map((item) => ({
           title: item.title ?? '',
-          snippet: (item.description ?? '').slice(0, SNIPPET_MAX_CHARS),
+          snippet: (item.description ?? '')
+            .replace(/<[^>]*>/g, '')
+            .replace(/&[a-z]+;/gi, ' ')
+            .trim()
+            .slice(0, SNIPPET_MAX_CHARS),
           url: item.url ?? '',
         }))
     } catch (error) {
