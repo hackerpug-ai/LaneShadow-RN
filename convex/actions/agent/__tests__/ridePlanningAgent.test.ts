@@ -83,6 +83,67 @@ vi.mock('../sessionContext', () => ({
   buildInSessionRouteBlock: vi.fn().mockResolvedValue(''),
 }))
 
+// Mock the 7 new tool implementations so tests don't make HTTP calls.
+vi.mock('../tools/lookupRoad', () => ({
+  lookupRoad: vi.fn().mockResolvedValue({
+    exists: true,
+    status: 'found',
+    matches: [
+      { name: 'Skyline Blvd', highway: 'secondary', surface: 'asphalt', geometry: [{ lat: 37.3, lng: -122.1 }, { lat: 37.4, lng: -122.2 }] },
+    ],
+  }),
+}))
+
+vi.mock('../tools/getCurvature', () => ({
+  getCurvature: vi.fn().mockResolvedValue({
+    score: 2400,
+    rating: 'very_twisty',
+    kmCornering: 12.3,
+    segmentCount: 10,
+    surface: 'asphalt',
+    status: 'ok',
+  }),
+}))
+
+vi.mock('../tools/checkSurface', () => ({
+  classifySurface: vi.fn().mockReturnValue({
+    surface: 'paved',
+    material: 'asphalt',
+    confidence: 'confirmed',
+  }),
+}))
+
+vi.mock('../tools/getElevation', () => ({
+  getElevation: vi.fn().mockResolvedValue({
+    status: 'ok',
+    totalGainFt: 1200,
+    totalLossFt: 800,
+    maxElevationFt: 2800,
+    maxGradePct: 9.5,
+    steepSegments: [],
+  }),
+}))
+
+vi.mock('../tools/searchAlongRoute', () => ({
+  searchAlongRoute: vi.fn().mockResolvedValue([
+    { name: 'Alice\'s Restaurant', address: '17288 Skyline Blvd, Woodside, CA', types: ['restaurant'] },
+  ]),
+}))
+
+vi.mock('../tools/getRouteWeather', () => ({
+  getRouteWeather: vi.fn().mockResolvedValue({
+    status: 'ok',
+    segments: [{ lat: 37.3, lng: -122.1, tempC: 15, windSpeedKph: 10, rainProbabilityPct: 5, fog: false }],
+    routeWeatherSummary: 'Temperature: 15°C. Light winds (10 km/h). Low rain probability (5%).',
+  }),
+}))
+
+vi.mock('../tools/getUserFavorites', () => ({
+  getUserFavorites: vi.fn().mockResolvedValue([
+    { roadName: 'Skyline Blvd', rating: 5, rideCount: 12, lastRidden: '2024-03-15' },
+  ]),
+}))
+
 // Mock compileSketch tools so per-segment path can be unit-tested without HTTP calls.
 vi.mock('../tools/compileSketch', () => ({
   compileSketch: vi.fn(),
@@ -1823,5 +1884,249 @@ describe('executeRidePlanningAgent', () => {
     expect(result2.attachments).toEqual([
       { type: 'route_options', routePlanId: 'rp_summary_test' },
     ])
+  })
+
+  // ---------------------------------------------------------------------------
+  // Tests: US-069 — tool registration and system prompt tool workflow
+  // ---------------------------------------------------------------------------
+
+  describe('tool registration', () => {
+    it('all 7 new tools appear in the agent context passed to stream', async () => {
+      const { stream: mockStreamFn } = await import('@mariozechner/pi-ai') as any
+
+      // Capture the context object passed to stream to inspect available tools.
+      let capturedContext: any = null
+      mockStreamFn.mockImplementationOnce((model: any, context: any) => {
+        capturedContext = context
+        const msg = makeAssistantMessage([{ type: 'text', text: 'Ready.' }], 'stop')
+        return makeSimpleStream(msg)
+      })
+
+      const ctx = makeAgentContext()
+      await executeRidePlanningAgent(ctx, 'hello')
+
+      expect(capturedContext).not.toBeNull()
+      const toolNames = capturedContext.tools.map((t: any) => t.name) as string[]
+
+      expect(toolNames).toContain('lookupRoad')
+      expect(toolNames).toContain('getCurvature')
+      expect(toolNames).toContain('checkSurface')
+      expect(toolNames).toContain('getElevation')
+      expect(toolNames).toContain('searchAlongRoute')
+      expect(toolNames).toContain('getRouteWeather')
+      expect(toolNames).toContain('getUserFavorites')
+    })
+  })
+
+  describe('grounding before sketch', () => {
+    it('system prompt instructs LLM to call lookupRoad before sketch for scenic requests', async () => {
+      const ctx = makeAgentContext()
+      const prompt = await buildSystemPrompt(ctx)
+
+      expect(prompt).toContain('lookupRoad')
+      expect(prompt.toLowerCase()).toMatch(/scenic|twisty|exploratory/)
+      expect(prompt.toLowerCase()).toMatch(/pre-sketch|before.*sketch|grounding/)
+    })
+
+    it('lookupRoad tool executes and returns road match data when called', async () => {
+      const { lookupRoad: lookupRoadMock } = await import('../tools/lookupRoad') as any
+
+      const lookupCall = makeAssistantMessage(
+        [
+          {
+            type: 'toolCall',
+            id: 'tc_lookup',
+            name: 'lookupRoad',
+            arguments: {
+              roadName: 'Skyline Blvd',
+              bbox: { south: 37.2, west: -122.4, north: 37.6, east: -121.9 },
+            },
+          },
+        ],
+        'toolUse'
+      )
+      const textMsg = makeAssistantMessage(
+        [{ type: 'text', text: 'Skyline Blvd is verified — very twisty with asphalt surface.' }],
+        'stop'
+      )
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(lookupCall))
+        .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+      const ctx = makeAgentContext()
+      const result = await executeRidePlanningAgent(ctx, 'scenic ride on Skyline')
+
+      expect(lookupRoadMock).toHaveBeenCalledTimes(1)
+      expect(lookupRoadMock).toHaveBeenCalledWith({
+        roadName: 'Skyline Blvd',
+        bbox: { south: 37.2, west: -122.4, north: 37.6, east: -121.9 },
+      })
+      expect(result.response).toContain('Skyline Blvd')
+    })
+  })
+
+  describe('curvature in rationale', () => {
+    it('system prompt instructs LLM to cite curvature scores in route rationale', async () => {
+      const ctx = makeAgentContext()
+      const prompt = await buildSystemPrompt(ctx)
+
+      expect(prompt).toContain('getCurvature')
+      expect(prompt.toLowerCase()).toMatch(/curvature|twisty|score/)
+      expect(prompt.toLowerCase()).toMatch(/cite|reference|data/)
+    })
+
+    it('getCurvature tool executes and returns score data when called', async () => {
+      const { getCurvature: getCurvatureMock } = await import('../tools/getCurvature') as any
+
+      const curvatureCall = makeAssistantMessage(
+        [
+          {
+            type: 'toolCall',
+            id: 'tc_curv',
+            name: 'getCurvature',
+            arguments: {
+              roadName: 'Skyline Blvd',
+              geometry: [{ lat: 37.3, lng: -122.1 }, { lat: 37.4, lng: -122.2 }],
+              surface: 'asphalt',
+            },
+          },
+        ],
+        'toolUse'
+      )
+      const textMsg = makeAssistantMessage(
+        [{ type: 'text', text: 'Skyline Blvd scores 2400 — very twisty!' }],
+        'stop'
+      )
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(curvatureCall))
+        .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+      const ctx = makeAgentContext()
+      const result = await executeRidePlanningAgent(ctx, 'twisty mountain roads')
+
+      expect(getCurvatureMock).toHaveBeenCalledTimes(1)
+      expect(result.response).toContain('2400')
+    })
+  })
+
+  describe('skip grounding', () => {
+    it('system prompt documents when to skip grounding tools (direct A-to-B, named roads, retries)', async () => {
+      const ctx = makeAgentContext()
+      const prompt = await buildSystemPrompt(ctx)
+
+      // Must describe when to skip grounding
+      expect(prompt.toLowerCase()).toMatch(/skip.*grounding|when to skip/)
+      // Must mention direct A-to-B as a skip case
+      expect(prompt.toLowerCase()).toMatch(/direct|a-to-b|fastest/)
+      // Must mention retry loops as a skip case
+      expect(prompt.toLowerCase()).toMatch(/retry|re-compilation/)
+    })
+  })
+
+  describe('post-compile enrichment', () => {
+    it('system prompt instructs LLM to call getElevation and getRouteWeather after compileSketch', async () => {
+      const ctx = makeAgentContext()
+      const prompt = await buildSystemPrompt(ctx)
+
+      expect(prompt).toContain('getElevation')
+      expect(prompt).toContain('getRouteWeather')
+      expect(prompt.toLowerCase()).toMatch(/after.*compil|post.compil/)
+    })
+
+    it('getElevation tool executes and returns elevation profile when called', async () => {
+      const { getElevation: getElevationMock } = await import('../tools/getElevation') as any
+
+      const elevCall = makeAssistantMessage(
+        [
+          {
+            type: 'toolCall',
+            id: 'tc_elev',
+            name: 'getElevation',
+            arguments: {
+              polyline: [{ lat: 37.3, lng: -122.1 }, { lat: 37.5, lng: -122.3 }],
+            },
+          },
+        ],
+        'toolUse'
+      )
+      const textMsg = makeAssistantMessage(
+        [{ type: 'text', text: 'Your route climbs 1200ft to a peak of 2800ft.' }],
+        'stop'
+      )
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(elevCall))
+        .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+      const ctx = makeAgentContext()
+      const result = await executeRidePlanningAgent(ctx, 'show me elevation for the route')
+
+      expect(getElevationMock).toHaveBeenCalledTimes(1)
+      expect(result.response).toContain('1200ft')
+    })
+
+    it('getRouteWeather tool executes and returns weather summary when called', async () => {
+      const { getRouteWeather: getRouteWeatherMock } = await import('../tools/getRouteWeather') as any
+
+      const weatherCall = makeAssistantMessage(
+        [
+          {
+            type: 'toolCall',
+            id: 'tc_weather',
+            name: 'getRouteWeather',
+            arguments: {
+              polyline: [{ lat: 37.3, lng: -122.1 }, { lat: 37.5, lng: -122.3 }],
+              departureTimeMs: Date.now() + 3_600_000,
+            },
+          },
+        ],
+        'toolUse'
+      )
+      const textMsg = makeAssistantMessage(
+        [{ type: 'text', text: 'Weather looks great: 15°C, light winds.' }],
+        'stop'
+      )
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(weatherCall))
+        .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+      const ctx = makeAgentContext()
+      const result = await executeRidePlanningAgent(ctx, 'check weather for my route')
+
+      expect(getRouteWeatherMock).toHaveBeenCalledTimes(1)
+      expect(result.response).toContain('15°C')
+    })
+
+    it('searchAlongRoute tool executes and returns nearby places when called', async () => {
+      const { searchAlongRoute: searchAlongRouteMock } = await import('../tools/searchAlongRoute') as any
+
+      const sarCall = makeAssistantMessage(
+        [
+          {
+            type: 'toolCall',
+            id: 'tc_sar',
+            name: 'searchAlongRoute',
+            arguments: {
+              routePolyline: 'encodedPolylineString',
+              query: 'gas station',
+              originOffset: null,
+            },
+          },
+        ],
+        'toolUse'
+      )
+      const textMsg = makeAssistantMessage(
+        [{ type: 'text', text: "Alice's Restaurant is a great stop along Skyline." }],
+        'stop'
+      )
+      mockStream
+        .mockReturnValueOnce(makeSimpleStream(sarCall))
+        .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+      const ctx = makeAgentContext()
+      const result = await executeRidePlanningAgent(ctx, 'find stops along the route')
+
+      expect(searchAlongRouteMock).toHaveBeenCalledTimes(1)
+      expect(result.response).toContain("Alice's Restaurant")
+    })
   })
 })
