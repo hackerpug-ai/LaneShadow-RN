@@ -27,7 +27,7 @@ import { LoopDetector } from './loopDetector'
 import { BudgetTracker } from './budgetTracker'
 import { summarizeForContext } from './lib/summarizeForContext'
 import { runAgent } from './runAgent'
-import { OPENAI_API_KEY, GOOGLE_GENERATIVE_AI_API_KEY, AI_MODEL, AI_PROVIDER } from '../../lib/env'
+import { OPENAI_API_KEY, GOOGLE_GENERATIVE_AI_API_KEY, ANTHROPIC_API_KEY, AI_MODEL, AI_PROVIDER } from '../../lib/env'
 import { api, internal } from '../../_generated/api'
 import type { ActionCtx } from '../../_generated/server'
 import type { Id } from '../../_generated/dataModel'
@@ -37,7 +37,7 @@ import type { Id } from '../../_generated/dataModel'
 // -----------------------------------------------------------------------------
 
 const MAX_STEPS = 10
-const AGENT_TIMEOUT_MS = 30_000
+const AGENT_TIMEOUT_MS = 60_000
 
 // -----------------------------------------------------------------------------
 // In-Memory Sketch Store (per-session)
@@ -1142,10 +1142,11 @@ export async function executeRidePlanningAgent(
   userMessage: string,
   executeCtx?: ExecuteContext
 ): Promise<{ response: string; attachments?: { type: string; routePlanId?: Id<'route_plans'> }[] }> {
-  if (AI_PROVIDER === 'google' && !GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (AI_PROVIDER === 'anthropic' && !ANTHROPIC_API_KEY) {
+    throw new Error('ANTHROPIC_API_KEY not configured')
+  } else if (AI_PROVIDER === 'google' && !GOOGLE_GENERATIVE_AI_API_KEY) {
     throw new Error('GOOGLE_GENERATIVE_AI_API_KEY not configured')
-  }
-  if (AI_PROVIDER === 'openai' && !OPENAI_API_KEY) {
+  } else if (AI_PROVIDER === 'openai' && !OPENAI_API_KEY) {
     throw new Error('OpenAI API key not configured')
   }
 

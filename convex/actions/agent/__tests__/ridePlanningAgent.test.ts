@@ -45,8 +45,9 @@ vi.mock('../planRide', () => ({
 vi.mock('../../../lib/env', () => ({
   OPENAI_API_KEY: 'test-openai-key',
   GOOGLE_GENERATIVE_AI_API_KEY: 'test-google-ai-key',
-  AI_MODEL: 'gemini-2.5-flash',
-  AI_PROVIDER: 'google',
+  ANTHROPIC_API_KEY: 'test-anthropic-key',
+  AI_MODEL: 'claude-sonnet-4.6',
+  AI_PROVIDER: 'anthropic',
   GOOGLE_MAPS_API_KEY: 'test-google-key',
   CLERK_WEBHOOK_SECRET: 'test-clerk-webhook-secret',
   CLERK_JWT_ISSUER_DOMAIN: 'test-clerk-jwt-issuer-domain',

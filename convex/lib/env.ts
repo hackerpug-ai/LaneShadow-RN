@@ -38,20 +38,26 @@ export const OPENAI_API_KEY = optionalEnv('OPENAI_API_KEY')
  */
 export const GOOGLE_GENERATIVE_AI_API_KEY = optionalEnv('GOOGLE_GENERATIVE_AI_API_KEY')
 
+/**
+ * Anthropic API key for Claude models.
+ * pi-ai reads ANTHROPIC_API_KEY from process.env automatically.
+ */
+export const ANTHROPIC_API_KEY = optionalEnv('ANTHROPIC_API_KEY')
+
 export const isTestEnvironment = process.env.NODE_ENV === 'test'
 
 /**
- * AI provider: 'openai' or 'google'. Defaults to 'google' (Gemini).
+ * AI provider: 'openai', 'google', or 'anthropic'. Defaults to 'anthropic' (Claude).
  * Override via AI_PROVIDER env var.
  */
-export const AI_PROVIDER = (optionalEnv('AI_PROVIDER') ?? 'google') as 'openai' | 'google'
+export const AI_PROVIDER = (optionalEnv('AI_PROVIDER') ?? 'anthropic') as 'openai' | 'google' | 'anthropic'
 
 /**
  * AI model for all LLM interactions (enrichment, agents).
  * Defaults to gpt-5 for openai, gemini-2.5-flash for google.
  * Override via AI_MODEL env var.
  */
-export const AI_MODEL = optionalEnv('AI_MODEL') ?? (AI_PROVIDER === 'google' ? 'gemini-2.5-flash' : 'gpt-5')
+export const AI_MODEL = optionalEnv('AI_MODEL') ?? (AI_PROVIDER === 'anthropic' ? 'claude-sonnet-4.6' : AI_PROVIDER === 'google' ? 'gemini-2.5-flash' : 'gpt-4.1')
 
 /**
  * Override the monthly route plan limit. 0 = unlimited.
