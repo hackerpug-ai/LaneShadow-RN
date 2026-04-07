@@ -110,7 +110,39 @@ describe('searchAlongRoute', () => {
     const fetchMock = (globalThis as unknown as { fetch: ReturnType<typeof vi.fn> }).fetch
     const callBody = JSON.parse(fetchMock.mock.calls[0][1].body as string) as Record<string, unknown>
     expect(callBody.routingParameters).toBeDefined()
-    expect((callBody.routingParameters as Record<string, unknown>).origin).toBeDefined()
+    const origin = (callBody.routingParameters as Record<string, unknown>).origin as { latitude: number; longitude: number }
+    expect(origin).toBeDefined()
+
+    // CRITICAL: origin must NOT be the hardcoded SF fallback — it must reflect
+    // the actual decoded polyline point at the given offset
+    const SF_LAT = 37.7749
+    const SF_LNG = -122.4194
+    const isSFDefault =
+      Math.abs(origin.latitude - SF_LAT) < 0.001 &&
+      Math.abs(origin.longitude - SF_LNG) < 0.001
+    expect(isSFDefault).toBe(false)
+
+    // Also verify that different offsets produce different origin points
+    setupFetch({
+      places: [{ displayName: { text: "Burger Barn" }, formattedAddress: "1 Route Rd", types: ["restaurant"] }],
+    })
+    // Capture the NEW fetch mock after setupFetch replaces it
+    const fetchMock2 = (globalThis as unknown as { fetch: ReturnType<typeof vi.fn> }).fetch
+    await searchAlongRoute({ routePolyline: SAMPLE_POLYLINE, query: "restaurant", originOffset: 0 })
+    const callBodyOffset0 = JSON.parse(fetchMock2.mock.calls[0][1].body as string) as Record<string, unknown>
+    const originOffset0 = (callBodyOffset0.routingParameters as Record<string, unknown>).origin as { latitude: number; longitude: number }
+
+    // offset=0 should give the route start; offset=2 should give a different point
+    // (for any real polyline these differ unless the route has zero length)
+    const originOffset2 = origin
+    // At minimum they should be valid lat/lng numbers derived from the route
+    expect(typeof originOffset0.latitude).toBe('number')
+    expect(typeof originOffset0.longitude).toBe('number')
+    // They should differ (offset 0 = start, offset 2 = somewhere along route)
+    const coordsDiffer =
+      Math.abs(originOffset0.latitude - originOffset2.latitude) > 1e-9 ||
+      Math.abs(originOffset0.longitude - originOffset2.longitude) > 1e-9
+    expect(coordsDiffer).toBe(true)
   })
 
   it('no results: returns empty array for queries with no matching places', async () => {
