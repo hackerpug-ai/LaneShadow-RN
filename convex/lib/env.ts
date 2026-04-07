@@ -33,13 +33,25 @@ export const GOOGLE_MAPS_API_KEY = optionalEnv('GOOGLE_MAPS_API_KEY')
  */
 export const OPENAI_API_KEY = optionalEnv('OPENAI_API_KEY')
 
+/**
+ * Google Generative AI (Gemini) API key.
+ */
+export const GOOGLE_GENERATIVE_AI_API_KEY = optionalEnv('GOOGLE_GENERATIVE_AI_API_KEY')
+
 export const isTestEnvironment = process.env.NODE_ENV === 'test'
 
 /**
- * AI model for all LLM interactions (enrichment, agents).
- * Defaults to gpt-4.1. Override via AI_MODEL env var.
+ * AI provider: 'openai' or 'google'. Defaults to 'google' (Gemini).
+ * Override via AI_PROVIDER env var.
  */
-export const AI_MODEL = optionalEnv('AI_MODEL') ?? 'gpt-4.1'
+export const AI_PROVIDER = (optionalEnv('AI_PROVIDER') ?? 'google') as 'openai' | 'google'
+
+/**
+ * AI model for all LLM interactions (enrichment, agents).
+ * Defaults to gemini-2.5-flash for google, gpt-4.1 for openai.
+ * Override via AI_MODEL env var.
+ */
+export const AI_MODEL = optionalEnv('AI_MODEL') ?? (AI_PROVIDER === 'google' ? 'gemini-2.5-flash' : 'gpt-4.1')
 
 /**
  * Override the monthly route plan limit. 0 = unlimited.

@@ -44,7 +44,9 @@ vi.mock('../planRide', () => ({
 // Mock env — provide all required keys so the module loads without throwing.
 vi.mock('../../../lib/env', () => ({
   OPENAI_API_KEY: 'test-openai-key',
-  AI_MODEL: 'gpt-4o',
+  GOOGLE_GENERATIVE_AI_API_KEY: 'test-google-ai-key',
+  AI_MODEL: 'gemini-2.5-flash',
+  AI_PROVIDER: 'google',
   GOOGLE_MAPS_API_KEY: 'test-google-key',
   CLERK_WEBHOOK_SECRET: 'test-clerk-webhook-secret',
   CLERK_JWT_ISSUER_DOMAIN: 'test-clerk-jwt-issuer-domain',
@@ -735,39 +737,14 @@ describe('executeRidePlanningAgent', () => {
     expect(mockStream).toHaveBeenCalledTimes(10)
   })
 
-  it('throws when OPENAI_API_KEY is missing', async () => {
-    // Override the env mock locally so OPENAI_API_KEY is undefined.
-    vi.doMock('../../../lib/env', () => ({
-      OPENAI_API_KEY: undefined,
-      AI_MODEL: 'gpt-4o',
-      GOOGLE_MAPS_API_KEY: 'test-google-key',
-      CLERK_WEBHOOK_SECRET: 'secret',
-      CLERK_JWT_ISSUER_DOMAIN: 'domain',
-      CLERK_SECRET_KEY: 'key',
-      isTestEnvironment: true,
-    }))
-
-    // Re-import to pick up the overridden env. Because vi.mock is hoisted and
-    // the module is already loaded, we test this by importing a fresh copy via
-    // dynamic import after resetting the module cache.
-    await vi.importActual('../ridePlanningAgent') as typeof import('../ridePlanningAgent')
-
-    // The actual implementation reads OPENAI_API_KEY at call time, but the
-    // module-level import is already bound. Instead, verify the agent throws
-    // by using the live module with the env mock already in place from the
-    // top-level vi.mock that sets OPENAI_API_KEY to 'test-openai-key'.
-    // For the "missing key" scenario we verify the guard works by directly
-    // testing the guard expression path: pass a context and simulate that
-    // stream throws because there is no key configured.
+  it('throws when API key is missing', async () => {
+    // Simulate the provider throwing because there is no key configured.
     mockStream.mockImplementationOnce(() => {
-      throw new Error('OpenAI API key not configured')
+      throw new Error('GOOGLE_GENERATIVE_AI_API_KEY not configured')
     })
 
     const ctx = makeAgentContext()
     await expect(executeRidePlanningAgent(ctx, 'test')).rejects.toThrow()
-
-    // Restore doMock override.
-    vi.unmock('../../../lib/env')
   })
 
   // ---------------------------------------------------------------------------
