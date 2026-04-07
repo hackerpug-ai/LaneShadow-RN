@@ -18,11 +18,20 @@
  * Following components/CLAUDE.md: named export, no hardcoded colors or spacing.
  */
 
-import { FlatList, StyleSheet, View } from 'react-native'
+import { FlatList, StyleSheet, View, ScrollView } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { IconSymbol } from '../ui/icon-symbol'
 import { BottomSheetWrapper } from './bottom-sheet-wrapper'
+import { useEffect, useState } from 'react'
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated'
+import { AccessibilityInfo } from 'react-native'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -42,6 +51,102 @@ export type PlanningBottomSheetProps = {
   onClose: () => void
   events: PlanningEvent[]
   totalDurationMs: number
+  /** Full accumulated thinking text from agent reasoning */
+  thinkingText?: string
+  /** Whether planning is currently in progress (streaming/running) */
+  isStreaming?: boolean
+}
+
+// ---------------------------------------------------------------------------
+// Streaming thinking component
+// ---------------------------------------------------------------------------
+
+interface StreamingThinkingProps {
+  text: string
+}
+
+const StreamingThinking = ({ text }: StreamingThinkingProps) => {
+  const { semantic } = useSemanticTheme()
+  const [reduceMotion, setReduceMotion] = useState(false)
+  const opacity = useSharedValue(reduceMotion ? 0.7 : 0.4)
+
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((enabled) => setReduceMotion(enabled))
+      .catch(() => {
+        // API unavailable — leave animations enabled
+      })
+    const sub = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      setReduceMotion
+    )
+    return () => sub.remove()
+  }, [])
+
+  useEffect(() => {
+    if (reduceMotion) {
+      opacity.value = 0.7
+      return
+    }
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(1.0, { duration: 600 }),
+        withTiming(0.4, { duration: 600 })
+      ),
+      -1,
+      false
+    )
+  }, [reduceMotion, opacity])
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }))
+
+  if (!text.trim()) return null
+
+  return (
+    <View
+      style={[
+        styles.thinkingContainer,
+        {
+          backgroundColor: semantic.color.surfaceVariant.default,
+          borderRadius: semantic.radius.md,
+          borderColor: semantic.color.primary.default + '30',
+          borderWidth: 1,
+        },
+      ]}
+    >
+      <View style={[styles.thinkingHeader, { gap: semantic.space.sm }]}>
+        <Animated.View
+          style={[
+            styles.pulsingDot,
+            { backgroundColor: semantic.color.primary.default },
+            animatedStyle,
+          ]}
+        />
+        <Text
+          variant="labelMedium"
+          style={{ color: semantic.color.primary.default }}
+        >
+          Thinking
+        </Text>
+      </View>
+      <ScrollView
+        style={styles.thinkingScroll}
+        contentContainerStyle={styles.thinkingScrollContent}
+      >
+        <Text
+          variant="bodyMedium"
+          style={[
+            styles.thinkingText,
+            { color: semantic.color.onSurface.default },
+          ]}
+        >
+          {text}
+        </Text>
+      </ScrollView>
+    </View>
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -115,6 +220,8 @@ export const PlanningBottomSheet = ({
   onClose,
   events,
   totalDurationMs,
+  thinkingText,
+  isStreaming,
 }: PlanningBottomSheetProps) => {
   const { semantic } = useSemanticTheme()
 
@@ -130,6 +237,9 @@ export const PlanningBottomSheet = ({
       preset="content"
       testID="planning-bottom-sheet"
     >
+      {/* Streaming thinking section */}
+      {isStreaming && thinkingText && <StreamingThinking text={thinkingText} />}
+
       {/* Header */}
       <Text
         variant="titleMedium"
@@ -241,5 +351,30 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     flex: 1,
+  },
+  thinkingContainer: {
+    padding: 12,
+    marginBottom: 12,
+    minHeight: 80,
+    maxHeight: 200,
+  },
+  thinkingHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  pulsingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  thinkingScroll: {
+    maxHeight: 150,
+  },
+  thinkingScrollContent: {
+    paddingBottom: 8,
+  },
+  thinkingText: {
+    lineHeight: 20,
   },
 })

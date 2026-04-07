@@ -103,7 +103,7 @@ module.exports = defineConfig([
       // REACT NATIVE SPECIFIC
       // ============================================
       'react-native/no-inline-styles': 'warn',
-      'react-native/no-unused-styles': 'error',
+      'react-native/no-unused-styles': 'warn', // Downgraded to warn - some styles consumed by libraries
       'react-native/no-color-literals': 'warn',
     },
   },

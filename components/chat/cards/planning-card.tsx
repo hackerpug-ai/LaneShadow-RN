@@ -69,6 +69,7 @@ export type PlanningCardProps = {
 type PlanningContent = {
   events: PlanningEvent[]
   statusLine: string
+  thinkingText?: string
   totalDurationMs: number
 }
 
@@ -89,6 +90,7 @@ function parsePlanningContent(raw: string): PlanningContent {
     return {
       events: rawEvents.filter(isPlanningEvent),
       statusLine: typeof parsed.statusLine === 'string' ? parsed.statusLine : '',
+      thinkingText: typeof parsed.thinkingText === 'string' ? parsed.thinkingText : undefined,
       totalDurationMs:
         typeof parsed.totalDurationMs === 'number' ? parsed.totalDurationMs : 0,
     }
@@ -328,6 +330,8 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
         onClose={() => setSheetVisible(false)}
         events={content.events}
         totalDurationMs={content.totalDurationMs}
+        thinkingText={content.thinkingText}
+        isStreaming={isStreaming}
       />
     </View>
   )

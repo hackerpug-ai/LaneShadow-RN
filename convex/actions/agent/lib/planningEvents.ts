@@ -17,6 +17,7 @@ export type PlanningEvent =
 export type PlanningContent = {
   events: PlanningEvent[]
   statusLine: string
+  thinkingText?: string // Full accumulated thinking text for streaming display
   totalDurationMs?: number
 }
 
@@ -88,6 +89,7 @@ export class PlanningEventEmitter {
     const content: PlanningContent = {
       events: this.events,
       statusLine,
+      thinkingText: this.thinkingBuffer.trim() || undefined,
     }
 
     await this.opts.runMutation(internal.db.sessionMessages.updatePlanningContent, {
