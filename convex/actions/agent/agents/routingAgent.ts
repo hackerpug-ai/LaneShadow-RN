@@ -189,8 +189,8 @@ async function runDiscoverCorridor(
       }),
     ])
 
-    // If we got results from Convex, use them
-    if (nodes.length > 0 || ways.length > 0) {
+    // If we got road results from Convex, use them (nodes alone aren't enough for corridor discovery)
+    if (ways.length > 0) {
       return {
         roads: ways.map((w: any) => ({
           name: w.name || 'Unknown Road',
@@ -205,7 +205,7 @@ async function runDiscoverCorridor(
           lng: n.lon,
           score: n.type === 'mountain_pass' ? 3 : n.type === 'peak' ? 2 : 1,
         })),
-        discoveryStatus: (nodes.length > 0 || ways.length > 0) ? 'success' : 'failed' as const,
+        discoveryStatus: 'success' as const,
       }
     }
   } catch (error) {
