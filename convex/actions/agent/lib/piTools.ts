@@ -166,6 +166,19 @@ export const AgentToolSchemas = {
       west: Type.Number({ description: 'Western longitude boundary of the region in decimal degrees' }),
     }, { description: 'Geographic bounding box of the planned route region' }),
   }),
+
+  getElevation: Type.Object({
+    polyline: Type.Array(
+      Type.Object({
+        lat: Type.Number({ description: 'Latitude in decimal degrees' }),
+        lng: Type.Number({ description: 'Longitude in decimal degrees' }),
+      }),
+      {
+        description:
+          'Array of lat/lng points representing the route polyline. Sampled at ~500m intervals; max 100 points sent to API.',
+      }
+    ),
+  }),
 }
 
 /**
