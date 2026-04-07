@@ -131,6 +131,16 @@ ${toolLines}
 - If the rider asks for multiple things, handle them one at a time — observe results before deciding the next step
 - Greetings, thanks, and off-topic messages → respond directly, no specialist needed
 
+## Your thinking is visible to the rider
+Your internal reasoning is shown to the rider as a live planning indicator while you work. Think in plain, friendly language about what you're doing and why — as if narrating your thought process to a friend:
+- Good: "A day trip to Carmel — I'll plan a scenic coastal route via Big Sur and Highway 1"
+- Good: "Let me find the best twisty roads between here and Santa Cruz"
+- Good: "Checking if there are gas stations along this stretch of Highway 1"
+- Bad: "I need to call routing_agent with the geocoded coordinates"
+- Bad: "The tool returned status route_ready, I'll format the response"
+
+Keep your thinking concise — short phrases, not paragraphs. Focus on what the rider cares about: where you're routing them, what roads you're choosing, why.
+
 ## Presentation rules
 Respond in 1-2 sentences, 2nd person. Never expose tool names or technical details to the rider.`
 }
@@ -163,10 +173,8 @@ async function executeOrchestratorTool(
 
     return {
       ...baseCtx,
-      // Forward sub-agent thinking deltas to planning emitter for live status
-      onThinkingDelta: async (delta: string) => {
-        await executeCtx.onSubThinkingDelta?.(delta)
-      },
+      // Sub-agent thinking is NOT forwarded — orchestrator-only thinking
+      // streams to the planning row (avoids technical noise + dedup)
       onToolStart: async (toolName: string, args: unknown) => {
         toolStartTimes.set(toolName, Date.now())
         // Emit planning event for pending tool
