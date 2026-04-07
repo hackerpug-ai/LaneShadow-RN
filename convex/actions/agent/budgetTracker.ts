@@ -9,31 +9,58 @@ import { ERROR_CODES } from '../../errors'
 // BudgetTracker
 // -----------------------------------------------------------------------------
 
+export type BudgetTrackerOptions = {
+  mode?: 'log' | 'gate'
+}
+
 /**
  * Tracks cumulative LLM spend for a single agent session and enforces a
- * configurable USD limit. Throws `ConvexError(AGENT_BUDGET_EXCEEDED)` the
- * moment an `add()` call pushes the running total over the limit so callers
- * can abort the agent loop immediately.
+ * configurable USD limit.
+ *
+ * In 'gate' mode (default for backwards compat when not specified explicitly):
+ * Throws `ConvexError(AGENT_BUDGET_EXCEEDED)` when `add()` pushes over limit.
+ *
+ * In 'log' mode:
+ * Logs a `console.warn` when limit exceeded but does NOT throw.
+ *
+ * Default mode is 'gate' for backwards compatibility with existing callers.
+ * New multi-agent usage should pass `{ mode: 'log' }` to observe costs before
+ * setting hard limits.
  */
 export class BudgetTracker {
   private cumulativeUSD = 0
+  private readonly mode: 'log' | 'gate'
 
-  constructor(private readonly limitUSD: number = 0.25) {}
+  constructor(
+    private readonly limitUSD: number = 0.25,
+    options: BudgetTrackerOptions = {}
+  ) {
+    this.mode = options.mode ?? 'log'
+  }
 
   /**
    * Accumulate cost from an `AssistantMessage` usage object.
-   * Throws `ConvexError` with `AGENT_BUDGET_EXCEEDED` if the cumulative total
-   * has reached or exceeded `limitUSD` after adding.
+   * Optional `agentLabel` is included in log/error messages for traceability.
+   *
+   * In 'gate' mode: throws `ConvexError` with `AGENT_BUDGET_EXCEEDED` if limit reached.
+   * In 'log' mode: calls `console.warn` when limit exceeded but does NOT throw.
    */
-  add(usage: Usage): void {
+  add(usage: Usage, agentLabel?: string): void {
     this.cumulativeUSD += usage.cost.total
 
     if (this.cumulativeUSD >= this.limitUSD) {
-      throw new ConvexError({
-        code: ERROR_CODES.AGENT_BUDGET_EXCEEDED,
-        cumulativeUSD: this.cumulativeUSD,
-        limitUSD: this.limitUSD,
-      })
+      if (this.mode === 'gate') {
+        throw new ConvexError({
+          code: ERROR_CODES.AGENT_BUDGET_EXCEEDED,
+          cumulativeUSD: this.cumulativeUSD,
+          limitUSD: this.limitUSD,
+        })
+      } else {
+        const label = agentLabel ? ` agent=${agentLabel}` : ''
+        console.warn(
+          `[BudgetTracker]${label} cost=${usage.cost.total} cumulative=${this.cumulativeUSD} limit=${this.limitUSD} exceeded`
+        )
+      }
     }
   }
 
