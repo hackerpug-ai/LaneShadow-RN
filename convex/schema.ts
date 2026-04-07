@@ -9,6 +9,7 @@ import { savedRouteValidator } from '../models/saved-routes'
 import { sessionMessageValidator } from '../models/session-messages'
 import { userValidator } from '../models/users'
 import { performanceValidator } from '../models/performance'
+import { osmNodeValidator, osmWayValidator, osmImportJobValidator } from '../models/osm-data'
 
 /**
  * Convex Database Schema for React Native + Convex Template
@@ -82,4 +83,32 @@ export default defineSchema({
     .index('by_processType', ['processType'])
     .index('by_agent_and_createdAt', ['agent', 'createdAt'])
     .index('by_createdAt', ['createdAt']),
+
+  /**
+   * OSM nodes table - Scenic waypoints (viewpoints, peaks, mountain passes)
+   * Indexed by s2Token for efficient spatial queries
+   * Indexed by osmId for deduplication during import
+   */
+  osm_nodes: defineTable(osmNodeValidator)
+    .index('by_osmId', ['osmId'])
+    .index('by_s2Token', ['s2Token'])
+    .index('by_type', ['type']),
+
+  /**
+   * OSM ways table - Road segments with simplified geometry
+   * Indexed by s2Tokens for spatial bbox queries (ways can span multiple cells)
+   * Indexed by name for exact road name lookups
+   * Indexed by highwayClass for filtering by road type
+   */
+  osm_ways: defineTable(osmWayValidator)
+    .index('by_osmId', ['osmId'])
+    .index('by_name', ['name'])
+    .index('by_highwayClass', ['highwayClass']),
+
+  /**
+   * OSM import jobs table - Tracks ETL import progress
+   * Indexed by status for job queue queries
+   */
+  osm_import_jobs: defineTable(osmImportJobValidator)
+    .index('by_status', ['status']),
 })

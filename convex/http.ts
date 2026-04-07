@@ -7,6 +7,37 @@ import { CLERK_WEBHOOK_SECRET } from './lib/env'
 const http = httpRouter()
 const convexInternal = internal as any
 
+// OSM import endpoints - for ETL pipeline
+http.route({
+  path: '/osm/importNodes',
+  method: 'POST',
+  handler: httpAction(async (ctx, req) => {
+    const { nodes } = await req.json()
+
+    const result = await ctx.runMutation(convexInternal.db.osm.importNodes, { nodes })
+
+    return new Response(JSON.stringify(result), {
+      headers: { 'Content-Type': 'application/json' },
+      status: 200,
+    })
+  }),
+})
+
+http.route({
+  path: '/osm/importWays',
+  method: 'POST',
+  handler: httpAction(async (ctx, req) => {
+    const { ways } = await req.json()
+
+    const result = await ctx.runMutation(convexInternal.db.osm.importWays, { ways })
+
+    return new Response(JSON.stringify(result), {
+      headers: { 'Content-Type': 'application/json' },
+      status: 200,
+    })
+  }),
+})
+
 http.route({
   path: '/clerk-webhooks',
   method: 'POST',

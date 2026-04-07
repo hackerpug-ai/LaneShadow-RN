@@ -50,9 +50,11 @@ import type * as actions_agent_tools_probeConditions from "../actions/agent/tool
 import type * as actions_agent_tools_searchAlongRoute from "../actions/agent/tools/searchAlongRoute.js";
 import type * as actions_agent_tools_searchNearby from "../actions/agent/tools/searchNearby.js";
 import type * as actions_agent_tools_webSearch from "../actions/agent/tools/webSearch.js";
+import type * as actions_osm from "../actions/osm.js";
 import type * as actions_users from "../actions/users.js";
 import type * as db_clerkSync from "../db/clerkSync.js";
 import type * as db_favoriteRoads from "../db/favoriteRoads.js";
+import type * as db_osm from "../db/osm.js";
 import type * as db_performance from "../db/performance.js";
 import type * as db_planUsage from "../db/planUsage.js";
 import type * as db_planningSessions from "../db/planningSessions.js";
@@ -69,6 +71,7 @@ import type * as lib_env from "../lib/env.js";
 import type * as lib_logger from "../lib/logger.js";
 import type * as migrations_backfillSessionMessageKindStatus from "../migrations/backfillSessionMessageKindStatus.js";
 import type * as migrations_deleteEmptyAssistantMessages from "../migrations/deleteEmptyAssistantMessages.js";
+import type * as queries_osm from "../queries/osm.js";
 import type * as users from "../users.js";
 
 import type {
@@ -120,9 +123,11 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/tools/searchAlongRoute": typeof actions_agent_tools_searchAlongRoute;
   "actions/agent/tools/searchNearby": typeof actions_agent_tools_searchNearby;
   "actions/agent/tools/webSearch": typeof actions_agent_tools_webSearch;
+  "actions/osm": typeof actions_osm;
   "actions/users": typeof actions_users;
   "db/clerkSync": typeof db_clerkSync;
   "db/favoriteRoads": typeof db_favoriteRoads;
+  "db/osm": typeof db_osm;
   "db/performance": typeof db_performance;
   "db/planUsage": typeof db_planUsage;
   "db/planningSessions": typeof db_planningSessions;
@@ -139,6 +144,7 @@ declare const fullApi: ApiFromModules<{
   "lib/logger": typeof lib_logger;
   "migrations/backfillSessionMessageKindStatus": typeof migrations_backfillSessionMessageKindStatus;
   "migrations/deleteEmptyAssistantMessages": typeof migrations_deleteEmptyAssistantMessages;
+  "queries/osm": typeof queries_osm;
   users: typeof users;
 }>;
 
