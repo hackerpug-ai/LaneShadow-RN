@@ -205,14 +205,6 @@ const HomeMapScreen = () => {
     )
   }, [rawTranscriptMessages])
 
-  const handleNewSession = async () => {
-    await createSession({ firstMessage: '' })
-    flowDispatch({ type: 'NEW_SESSION' })
-    setSelectedRouteId(null)
-    lastFittedPlanIdRef.current = null
-    resetSession()
-  }
-
   // Toast-style messages for map mode — lightweight pills instead of
   // the full transcript overlay. The hook manages baseline tracking,
   // filtering (agent text only), and per-toast lifecycle.
@@ -314,6 +306,14 @@ const HomeMapScreen = () => {
   // Fit camera to agent-produced route.
   const { setSelectedRouteId, registerFitHandler } = useSelectedRoute()
   const pendingFitRef = useRef(false)
+
+  const handleNewSession = async () => {
+    await createSession({ firstMessage: '' })
+    flowDispatch({ type: 'NEW_SESSION' })
+    setSelectedRouteId(null)
+    lastFittedPlanIdRef.current = null
+    resetSession()
+  }
 
   const doFit = useCallback(() => {
     if (!agentActiveOption) return

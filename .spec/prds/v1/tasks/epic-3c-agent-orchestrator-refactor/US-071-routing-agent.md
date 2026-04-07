@@ -32,30 +32,30 @@ type RoutingAgentResult =
 
 ## Acceptance Criteria
 
-- [ ] `convex/actions/agent/agents/routingAgent.ts` exists with:
+- [x] `convex/actions/agent/agents/routingAgent.ts` exists with:
   - `executeRoutingAgent(config: SubAgentConfig): Promise<RoutingAgentResult>`
   - `buildRoutingPrompt(ctx: AgentContext): string` — Phase 1 guidance only (~30 lines), no enrichment instructions
   - 4 tool definitions: `geocode`, `createRouteSketch`, `compileSketch`, `planRoute`
   - `executeRoutingTool(ctx, call, executeCtx?)` dispatcher for the 4 tools
-- [ ] `PendingSketchState` type, module-level Map, and all helpers moved from `ridePlanningAgent.ts`:
+- [x] `PendingSketchState` type, module-level Map, and all helpers moved from `ridePlanningAgent.ts`:
   - `storePendingSketch`, `getPendingSketchState`, `updatePendingSketchState`, `clearPendingSketch`, `getPendingSketch`
   - `segmentKey`, `findUnchangedSegments`, `mergeSegmentResults`
   - `MAX_COMPILE_ATTEMPTS` constant
-- [ ] Tool handler functions moved from `ridePlanningAgent.ts`:
+- [x] Tool handler functions moved from `ridePlanningAgent.ts`:
   - `runGeocode`, `runCreateRouteSketch`, `runCompileSketch`, `runPlanRoute`
-- [ ] Routing agent uses Haiku model: `getModel('anthropic', 'claude-haiku-4-5-20251001')` — NOT the global `AI_MODEL` constant. The narrow 4-tool toolbox and focused prompt compensate for the smaller model. Escalate to Sonnet only if sketch quality degrades (monitored via BudgetTracker logs).
-- [ ] `executeRoutingAgent` calls `runAgent()` with:
+- [x] Routing agent uses Haiku model: `getModel('anthropic', 'claude-haiku-4-5-20251001')` — NOT the global `AI_MODEL` constant. The narrow 4-tool toolbox and focused prompt compensate for the smaller model. Escalate to Sonnet only if sketch quality degrades (monitored via BudgetTracker logs).
+- [x] `executeRoutingAgent` calls `runAgent()` with:
   - `maxSteps: 6` (geocode + sketch + compile + maybe retry)
   - `timeoutMs: 90_000`
   - Shared `budgetTracker` from `SubAgentConfig` (label: `'routing'`)
   - `parallelSafeTools: new Set(['geocode', 'createRouteSketch'])`
-- [ ] ExecuteContext callback forwarding: forwards `onToolStart`, `onToolFinish`, `onAgentTurn`, `onToolResultPiMessage` (card emission). Does NOT forward `onTextDelta` or `onThinkingDelta` (sub-agent text doesn't stream to UI)
-- [ ] Returns `RoutingAgentResult`:
+- [x] ExecuteContext callback forwarding: forwards `onToolStart`, `onToolFinish`, `onAgentTurn`, `onToolResultPiMessage` (card emission). Does NOT forward `onTextDelta` or `onThinkingDelta` (sub-agent text doesn't stream to UI)
+- [x] Returns `RoutingAgentResult`:
   - `route_ready` when `extractRouteAttachments` finds a routePlanId in tool results
   - `needs_clarification` when agent responded with text but no tool calls
   - `failed` otherwise
-- [ ] Sub-agent gets NO conversation history — only `userMessage` from `SubAgentConfig` as a single user turn
-- [ ] Routing prompt includes location block (from `AgentContext.currentLocation` or session fallback)
+- [x] Sub-agent gets NO conversation history — only `userMessage` from `SubAgentConfig` as a single user turn
+- [x] Routing prompt includes location block (from `AgentContext.currentLocation` or session fallback)
 
 ## Files to Create/Modify
 

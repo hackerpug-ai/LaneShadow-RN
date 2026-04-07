@@ -9,14 +9,18 @@
  */
 
 import type * as actions_agent_agents_enrichmentAgent from "../actions/agent/agents/enrichmentAgent.js";
+import type * as actions_agent_agents_orchestrator from "../actions/agent/agents/orchestrator.js";
 import type * as actions_agent_agents_routingAgent from "../actions/agent/agents/routingAgent.js";
+import type * as actions_agent_agents_searchAgent from "../actions/agent/agents/searchAgent.js";
 import type * as actions_agent_agents_types from "../actions/agent/agents/types.js";
 import type * as actions_agent_budgetTracker from "../actions/agent/budgetTracker.js";
 import type * as actions_agent_lib_geo from "../actions/agent/lib/geo.js";
 import type * as actions_agent_lib_piTools from "../actions/agent/lib/piTools.js";
 import type * as actions_agent_lib_planRideOrchestrator from "../actions/agent/lib/planRideOrchestrator.js";
+import type * as actions_agent_lib_planningEvents from "../actions/agent/lib/planningEvents.js";
 import type * as actions_agent_lib_reliability from "../actions/agent/lib/reliability.js";
 import type * as actions_agent_lib_summarizeForContext from "../actions/agent/lib/summarizeForContext.js";
+import type * as actions_agent_lib_summarizeToolResult from "../actions/agent/lib/summarizeToolResult.js";
 import type * as actions_agent_lib_tracing from "../actions/agent/lib/tracing.js";
 import type * as actions_agent_loopDetector from "../actions/agent/loopDetector.js";
 import type * as actions_agent_planRide from "../actions/agent/planRide.js";
@@ -32,6 +36,7 @@ import type * as actions_agent_sessionContext from "../actions/agent/sessionCont
 import type * as actions_agent_tools_checkSurface from "../actions/agent/tools/checkSurface.js";
 import type * as actions_agent_tools_compileSketch from "../actions/agent/tools/compileSketch.js";
 import type * as actions_agent_tools_computeRouteIndex from "../actions/agent/tools/computeRouteIndex.js";
+import type * as actions_agent_tools_discoverCorridor from "../actions/agent/tools/discoverCorridor.js";
 import type * as actions_agent_tools_enrichRoute from "../actions/agent/tools/enrichRoute.js";
 import type * as actions_agent_tools_findScenicWaypoints from "../actions/agent/tools/findScenicWaypoints.js";
 import type * as actions_agent_tools_getCurvature from "../actions/agent/tools/getCurvature.js";
@@ -48,6 +53,7 @@ import type * as actions_agent_tools_webSearch from "../actions/agent/tools/webS
 import type * as actions_users from "../actions/users.js";
 import type * as db_clerkSync from "../db/clerkSync.js";
 import type * as db_favoriteRoads from "../db/favoriteRoads.js";
+import type * as db_performance from "../db/performance.js";
 import type * as db_planUsage from "../db/planUsage.js";
 import type * as db_planningSessions from "../db/planningSessions.js";
 import type * as db_routePlans from "../db/routePlans.js";
@@ -73,14 +79,18 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   "actions/agent/agents/enrichmentAgent": typeof actions_agent_agents_enrichmentAgent;
+  "actions/agent/agents/orchestrator": typeof actions_agent_agents_orchestrator;
   "actions/agent/agents/routingAgent": typeof actions_agent_agents_routingAgent;
+  "actions/agent/agents/searchAgent": typeof actions_agent_agents_searchAgent;
   "actions/agent/agents/types": typeof actions_agent_agents_types;
   "actions/agent/budgetTracker": typeof actions_agent_budgetTracker;
   "actions/agent/lib/geo": typeof actions_agent_lib_geo;
   "actions/agent/lib/piTools": typeof actions_agent_lib_piTools;
   "actions/agent/lib/planRideOrchestrator": typeof actions_agent_lib_planRideOrchestrator;
+  "actions/agent/lib/planningEvents": typeof actions_agent_lib_planningEvents;
   "actions/agent/lib/reliability": typeof actions_agent_lib_reliability;
   "actions/agent/lib/summarizeForContext": typeof actions_agent_lib_summarizeForContext;
+  "actions/agent/lib/summarizeToolResult": typeof actions_agent_lib_summarizeToolResult;
   "actions/agent/lib/tracing": typeof actions_agent_lib_tracing;
   "actions/agent/loopDetector": typeof actions_agent_loopDetector;
   "actions/agent/planRide": typeof actions_agent_planRide;
@@ -96,6 +106,7 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/tools/checkSurface": typeof actions_agent_tools_checkSurface;
   "actions/agent/tools/compileSketch": typeof actions_agent_tools_compileSketch;
   "actions/agent/tools/computeRouteIndex": typeof actions_agent_tools_computeRouteIndex;
+  "actions/agent/tools/discoverCorridor": typeof actions_agent_tools_discoverCorridor;
   "actions/agent/tools/enrichRoute": typeof actions_agent_tools_enrichRoute;
   "actions/agent/tools/findScenicWaypoints": typeof actions_agent_tools_findScenicWaypoints;
   "actions/agent/tools/getCurvature": typeof actions_agent_tools_getCurvature;
@@ -112,6 +123,7 @@ declare const fullApi: ApiFromModules<{
   "actions/users": typeof actions_users;
   "db/clerkSync": typeof db_clerkSync;
   "db/favoriteRoads": typeof db_favoriteRoads;
+  "db/performance": typeof db_performance;
   "db/planUsage": typeof db_planUsage;
   "db/planningSessions": typeof db_planningSessions;
   "db/routePlans": typeof db_routePlans;

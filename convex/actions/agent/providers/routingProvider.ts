@@ -3,6 +3,7 @@ import type { RouteSketch, RouteSketchAnchorPoint, RouteSketchSegment } from '..
 import type { PlanInput } from '../../../../models/saved-routes'
 import { GOOGLE_MAPS_API_KEY } from '../../../lib/env'
 import { createGeocodingProvider } from './geocodingProvider'
+import { haversineKm } from '../lib/geo'
 
 export type ProviderLatLng = { lat: number; lng: number }
 
@@ -266,7 +267,19 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
       if (results.length === 0) {
         throw new Error(`Could not geocode "${name}" — no results found`)
       }
-      return { lat: results[0].lat, lng: results[0].lng }
+      const coords = { lat: results[0].lat, lng: results[0].lng }
+
+      // Distance fence: reject results that are too far from location bias
+      if (locationBias) {
+        const distKm = haversineKm(coords, locationBias)
+        if (distKm > 200) {
+          throw new Error(
+            `Geocoded "${name}" to ${results[0].label} which is ${Math.round(distKm)}km away — likely wrong location`
+          )
+        }
+      }
+
+      return coords
     }
 
     const [from, to] = await Promise.all([

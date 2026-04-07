@@ -158,6 +158,29 @@ export async function runGeocode(
   return { results: results.slice(0, 3) }
 }
 
+async function runDiscoverCorridor(
+  ctx: AgentContext,
+  args: {
+    start: { lat: number; lng: number }
+    end: { lat: number; lng: number }
+    preferences?: { scenicBias?: 'default' | 'high'; avoidHighways?: boolean }
+  }
+): Promise<unknown> {
+  const discoverCorridor = await import('../tools/discoverCorridor')
+  return discoverCorridor.discoverCorridor(args)
+}
+
+async function runLookupRoad(
+  ctx: AgentContext,
+  args: {
+    roadName: string
+    bbox: { south: number; west: number; north: number; east: number }
+  }
+): Promise<unknown> {
+  const lookupRoad = await import('../tools/lookupRoad')
+  return lookupRoad.lookupRoad(args)
+}
+
 async function runCreateRouteSketch(
   ctx: AgentContext,
   args: {
@@ -632,6 +655,18 @@ const routingTools: RoutingTool[] = [
     parallelSafe: true,
   },
   {
+    name: 'discoverCorridor',
+    description: 'Discover real roads and scenic POIs in the corridor between two points. Returns road names with coordinates. Call BEFORE creating a sketch to see what roads exist.',
+    parameters: AgentToolSchemas.discoverCorridor as any,
+    parallelSafe: true,
+  },
+  {
+    name: 'lookupRoad',
+    description: 'Verify a specific road exists and get its coordinates. Use when the rider names a particular road.',
+    parameters: AgentToolSchemas.lookupRoad as any,
+    parallelSafe: true,
+  },
+  {
     name: 'createRouteSketch',
     description:
       "Create a high-level route itinerary by specifying road segments (think \"take Highway 5 to Highway 405 to PCH\"). Use this when the rider asks to avoid specific roads (\"avoid Highway 1\") or requests a particular route (\"take Skyline Blvd\"). After creating the sketch, call compileSketch with start/end coordinates to generate the precise route.",
@@ -682,6 +717,12 @@ export async function executeRoutingTool(
       case 'geocode':
         result = await runGeocode(ctx, validated)
         break
+      case 'discoverCorridor':
+        result = await runDiscoverCorridor(ctx, validated)
+        break
+      case 'lookupRoad':
+        result = await runLookupRoad(ctx, validated)
+        break
       case 'createRouteSketch':
         result = await runCreateRouteSketch(ctx, validated)
         break
@@ -730,7 +771,7 @@ export function buildRoutingPrompt(ctx: AgentContext): string {
     locBlock = `Rider's current location: unknown — ask where they are starting from before planning a route.`
   }
 
-  return `You are an expert motorcycle navigator with encyclopedic knowledge of road networks and strong opinions about the best routes — think of yourself as a local who has ridden every road in the area. Be concise — 1-2 sentences per response. Use 2nd person ("your ride", "you'll see").
+  return `You are an expert motorcycle navigator with strong opinions about the best routes — think of yourself as a local who has ridden every road in the area. Be concise — 1-2 sentences per response. Use 2nd person ("your ride", "you'll see").
 
 ${locBlock}
 
@@ -738,19 +779,27 @@ ${locBlock}
 
 For ANY route request — even generic ones like "scenic 2-hour ride" or "take me somewhere fun" — your job is to pick great roads and author a route sketch.
 
-### Phase 1: Sketch Fast, Show the Map (default for every new route request)
+### Phase 1: Discover → Pick → Sketch → Compile
 
-Get a route on the map ASAP so the rider can see it and decide. Do NOT call lookupRoad, getCurvature, or checkSurface in this phase — rely on your road knowledge.
+Get a route on the map ASAP so the rider can see it and decide. ALWAYS discover real roads first before sketching.
 
 **Workflow**:
 1. If the rider names a place (not "here"), call geocode first to get coordinates.
-2. Author a createRouteSketch immediately using your encyclopedic knowledge of roads. Pick good roads — you know them.
-3. Call compileSketch to turn the sketch into a real route on the map.
-4. Present the route in 1-2 sentences. Let the rider react.
+2. Call discoverCorridor with start/end to see what roads and POIs exist.
+3. PICK roads from discovery results based on the rider's intent:
+   - "scenic" → roads near peaks, passes, viewpoints
+   - "avoid highways" → skip motorway/trunk class roads
+   - "take Skyline Blvd" → verify with lookupRoad if not in results
+4. Author createRouteSketch using real road names + coordinates from discovery.
+   - ALL anchor points MUST have lat/lng from discovery or geocode
+   - Use road endpoints as segment fromName/toName anchor coordinates
+   - Use POI coordinates for landmark/pass anchors
+5. Call compileSketch to generate the route.
+6. Present in 1-2 sentences.
 
-That's it. 2-3 tool calls. The rider sees a map and can say "looks good", "try a different road", or "I hate Highway 1".
+That's 3-4 tool calls.
 
-**Uncertainty fallback**: If you're genuinely unsure about roads in an area (e.g., rural backroads you don't know), fall back to planRoute instead of sketching.
+**Uncertainty fallback**: If discovery returns few roads or you're genuinely unsure about an area, fall back to planRoute instead of sketching.
 
 **IMPORTANT: If a tool call fails with a validation error, fix the arguments and retry. Do NOT give up after one failure.**
 
@@ -759,6 +808,7 @@ That's it. 2-3 tool calls. The rider sees a map and can say "looks good", "try a
 - Use viaNames to include intermediate landmarks along each road — e.g., "Skeggs Point" on Skyline Blvd — these pin the route to the roads you intend
 - Add anchorPoints for key junctions, towns, passes, or landmarks along the route
 - Each anchorPoint kind MUST be one of: "town", "junction", "landmark", "pass" — use "landmark" for parks, scenic spots, restaurants, or anything that isn't a town/junction/pass
+- ALL anchor points MUST have lat/lng coordinates from discovery or geocode results
 
 **Avoidances**: When the rider says "avoid Highway 1" or "skip the freeway," route around it in your sketch using alternative roads — no avoidRoads API parameter is needed. Just don't include that road in your segments.
 
@@ -769,9 +819,9 @@ That's it. 2-3 tool calls. The rider sees a map and can say "looks good", "try a
 - If the same segment fails 3 times, fall back to planRoute for that leg
 
 **Examples**:
-- "Scenic ride to Santa Cruz" → geocode("Santa Cruz") → createRouteSketch with Skyline Blvd + Highway 9 → compileSketch → done
-- "Avoid Highway 1, get to Santa Cruz" → sketch an inland route via CA-17 and CA-35 instead → compileSketch → done
-- "Scenic ride through rural Montana" → "I'm not confident about the specific backroads there — let me use planRoute to find options." → call planRoute
+- "Scenic ride to Santa Cruz" → geocode("Santa Cruz") → discoverCorridor → createRouteSketch with Skyline Blvd + Highway 9 (using discovered coordinates) → compileSketch → done
+- "Avoid Highway 1, get to Santa Cruz" → discoverCorridor → pick inland roads (CA-17, CA-35) from results → createRouteSketch → compileSketch → done
+- "Scenic ride through rural Montana" → discoverCorridor → if few roads found, fall back to planRoute
 
 **Presentation**:
 - 1-2 sentences, highlight scenic features, road types, rough duration.
