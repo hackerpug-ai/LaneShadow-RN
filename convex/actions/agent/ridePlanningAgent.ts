@@ -11,6 +11,14 @@ import {
   type ToolResultMessage,
 } from '@mariozechner/pi-ai'
 import { AgentToolSchemas } from './lib/piTools'
+import { lookupRoad } from './tools/lookupRoad'
+import { getCurvature } from './tools/getCurvature'
+import { classifySurface } from './tools/checkSurface'
+import { getElevation } from './tools/getElevation'
+import { searchAlongRoute } from './tools/searchAlongRoute'
+import { getRouteWeather } from './tools/getRouteWeather'
+import { getUserFavorites } from './tools/getUserFavorites'
+import type { UserFavorite } from './tools/getUserFavorites'
 import { createGeocodingProvider } from './providers/geocodingProvider'
 import { planRideOrchestrator } from './lib/planRideOrchestrator'
 import { buildOptionsFromResults } from './planRide'
@@ -261,6 +269,27 @@ For ANY route request — even generic ones like "scenic 2-hour ride" or "take m
 - "Scenic ride to Santa Cruz" → createRouteSketch: segments=[{roadName:"I-280 S", fromName:"SF", toName:"CA-92 junction"}, {roadName:"Skyline Blvd", fromName:"CA-92", toName:"Alice's Restaurant", viaNames:["Skeggs Point"]}, {roadName:"CA-84", fromName:"Alice's Restaurant", toName:"Half Moon Bay"}, {roadName:"CA-1 N", fromName:"Half Moon Bay", toName:"Santa Cruz"}]
 - "Avoid Highway 1, get to Santa Cruz" → sketch an inland route via CA-17 and CA-35 instead; no need for avoidRoads
 - "Scenic ride through rural Montana" → "I'm not confident about the specific backroads there — let me use planRoute to find options." → call planRoute
+
+## Available Tools — When to Use
+
+### Pre-Sketch Grounding (use for scenic/twisty/exploratory requests)
+- **lookupRoad**: Verify a road exists in OSM before including it in your sketch. Returns geometry you can pass to getCurvature.
+- **checkSurface**: Confirm a road is paved before recommending it to street bikes. Pass the surface and highway tags from lookupRoad.
+- **getCurvature**: Score a road's twistiness using the roadcurvature.com algorithm. Use the geometry returned by lookupRoad.
+- **getUserFavorites**: Check if the rider has favorite roads in this region. Pass the bounding box of your planned route area.
+
+### Post-Compilation Enrichment (use after successful compileSketch)
+- **getElevation**: Get elevation profile of the compiled route — describe climbs, passes, and grades.
+- **searchAlongRoute**: Find gas stations, restaurants, or scenic stops along the compiled route. Use the encoded polyline from compileSketch output.
+- **getRouteWeather**: Check weather along the route for the planned departure time. Use the polyline from compileSketch output.
+
+### When to Skip Grounding
+Skip lookupRoad/getCurvature/checkSurface for:
+- Direct A-to-B requests ("fastest route to SFO")
+- Requests naming specific roads ("take Highway 101 to...")
+- Re-compilations during retry loops (roads already verified in prior attempt)
+
+**Cite tool data in your response**: When you use grounding tools, reference the data — e.g. "I picked Skyline Blvd (curvature: 2400, paved) over Page Mill Rd (curvature: 800)" — this builds rider trust.
 
 **Presentation**:
 - 1-2 sentences, highlight scenic features, road types, rough duration.
@@ -766,6 +795,81 @@ async function runCompileSketch(
   }
 }
 
+async function runLookupRoad(
+  _ctx: AgentContext,
+  args: {
+    roadName: string
+    bbox: { south: number; west: number; north: number; east: number }
+  }
+): Promise<unknown> {
+  return lookupRoad(args)
+}
+
+async function runGetCurvature(
+  _ctx: AgentContext,
+  args: {
+    roadName: string
+    geometry: Array<{ lat: number; lng: number }>
+    surface: string | null
+  }
+): Promise<unknown> {
+  return getCurvature(args)
+}
+
+async function runCheckSurface(
+  _ctx: AgentContext,
+  args: {
+    surface: string | null
+    highway: string | null
+  }
+): Promise<unknown> {
+  return classifySurface(args)
+}
+
+async function runGetElevation(
+  _ctx: AgentContext,
+  args: { polyline: Array<{ lat: number; lng: number }> }
+): Promise<unknown> {
+  return getElevation(args)
+}
+
+async function runSearchAlongRoute(
+  _ctx: AgentContext,
+  args: {
+    routePolyline: string
+    query: string
+    originOffset: number | null
+  }
+): Promise<unknown> {
+  return searchAlongRoute({
+    routePolyline: args.routePolyline,
+    query: args.query,
+    originOffset: args.originOffset ?? undefined,
+  })
+}
+
+async function runGetRouteWeather(
+  _ctx: AgentContext,
+  args: {
+    polyline: Array<{ lat: number; lng: number }>
+    departureTimeMs: number
+  }
+): Promise<unknown> {
+  return getRouteWeather(args)
+}
+
+async function runGetUserFavorites(
+  _ctx: AgentContext,
+  args: {
+    bbox: { north: number; south: number; east: number; west: number }
+  }
+): Promise<unknown> {
+  // Epic 6 will provide a richer favorite_roads schema with rating/rideCount/lastRidden/lat/lng.
+  // Until then, pass an empty list — the tool gracefully returns no favorites.
+  const allFavorites: UserFavorite[] = []
+  return getUserFavorites(args, allFavorites)
+}
+
 async function runSaveRoute(
   _ctx: AgentContext,
   args: { routeIndex: number | null; name: string | null }
@@ -828,6 +932,55 @@ const tools: ToolWithParallelSafe[] = [
     parallelSafe: false,
   },
   {
+    name: 'lookupRoad',
+    description:
+      'Verify a road exists in OpenStreetMap for a given bounding box. Returns matched road names, highway class, surface type, and simplified geometry. Use before including a road in a sketch for scenic/twisty requests. Pass the returned geometry to getCurvature to score twistiness.',
+    parameters: AgentToolSchemas.lookupRoad as any,
+    parallelSafe: true,
+  },
+  {
+    name: 'getCurvature',
+    description:
+      "Score a road's twistiness using the roadcurvature.com circumcircle-radius algorithm. Higher scores mean more curves: 1000+ = very twisty, 600–999 = twisty, 300–599 = moderate, 100–299 = mild, <100 = straight. Use geometry from lookupRoad results. Use to compare candidate roads and pick 'the fun road'.",
+    parameters: AgentToolSchemas.getCurvature as any,
+    parallelSafe: true,
+  },
+  {
+    name: 'checkSurface',
+    description:
+      "Classify a road's surface as paved, unpaved, or unknown using OSM surface and highway tags. Use to confirm a road is suitable for street motorcycles before including it in a sketch. Pass surface and highway values from lookupRoad results.",
+    parameters: AgentToolSchemas.checkSurface as any,
+    parallelSafe: true,
+  },
+  {
+    name: 'getUserFavorites',
+    description:
+      "Retrieve the rider's favorite roads within a geographic bounding box, sorted by rating and ride count. Use before authoring a sketch to surface roads the rider already loves in this region.",
+    parameters: AgentToolSchemas.getUserFavorites as any,
+    parallelSafe: true,
+  },
+  {
+    name: 'getElevation',
+    description:
+      'Get the elevation profile for a route polyline: total gain/loss in feet, max elevation, max grade percentage, and steep segments. Call after successful compileSketch to describe climbs, mountain passes, and challenging grades to the rider.',
+    parameters: AgentToolSchemas.getElevation as any,
+    parallelSafe: true,
+  },
+  {
+    name: 'searchAlongRoute',
+    description:
+      "Find places of interest along a compiled route using Google Places. Pass the encoded polyline from compileSketch output. Useful for finding gas stations, restaurants, or scenic stops. Use originOffset (hours) to bias results toward a specific point in the trip.",
+    parameters: AgentToolSchemas.searchAlongRoute as any,
+    parallelSafe: true,
+  },
+  {
+    name: 'getRouteWeather',
+    description:
+      'Get weather conditions along a compiled route for the planned departure time. Returns temperature, wind speed, rain probability, and fog by segment, plus a human-readable summary. Call after successful compileSketch to warn riders about adverse conditions.',
+    parameters: AgentToolSchemas.getRouteWeather as any,
+    parallelSafe: true,
+  },
+  {
     name: 'fetchWeather',
     description: 'Get weather information for the planned route. NOTE: Not yet implemented — do not call this tool.',
     parameters: AgentToolSchemas.fetchWeather as any,
@@ -883,6 +1036,27 @@ async function executeTool(
         break
       case 'planRoute':
         result = await runPlanRoute(ctx, validated)
+        break
+      case 'lookupRoad':
+        result = await runLookupRoad(ctx, validated)
+        break
+      case 'getCurvature':
+        result = await runGetCurvature(ctx, validated)
+        break
+      case 'checkSurface':
+        result = await runCheckSurface(ctx, validated)
+        break
+      case 'getElevation':
+        result = await runGetElevation(ctx, validated)
+        break
+      case 'searchAlongRoute':
+        result = await runSearchAlongRoute(ctx, validated)
+        break
+      case 'getRouteWeather':
+        result = await runGetRouteWeather(ctx, validated)
+        break
+      case 'getUserFavorites':
+        result = await runGetUserFavorites(ctx, validated)
         break
       case 'fetchWeather':
         result = await runFetchWeather(ctx, validated)
