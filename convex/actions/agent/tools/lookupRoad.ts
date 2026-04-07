@@ -97,6 +97,7 @@ out body;`
 // ---------------------------------------------------------------------------
 
 const fetchOverpass = async (query: string, signal: AbortSignal): Promise<OverpassResponse> => {
+  console.info(`[lookupRoad] Overpass query:\n${query}`)
   const response = await fetch(OVERPASS_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -106,8 +107,12 @@ const fetchOverpass = async (query: string, signal: AbortSignal): Promise<Overpa
 
   if (!response.ok) {
     const body = await response.text().catch(() => '(no body)')
-    console.error(`[lookupRoad] Overpass HTTP ${response.status}: ${body.slice(0, 500)}`)
-    throw new Error(`Overpass HTTP ${response.status}: ${body.slice(0, 200)}`)
+    // Extract the actual error from the HTML — look for the error message between <p> tags
+    const errorMatch = body.match(/<p[^>]*>.*?<strong[^>]*>(.*?)<\/strong>/s)
+    const errorDetail = errorMatch?.[1] ?? body.slice(0, 500)
+    console.error(`[lookupRoad] Overpass HTTP ${response.status} error: ${errorDetail}`)
+    console.error(`[lookupRoad] Query was:\n${query}`)
+    throw new Error(`Overpass HTTP ${response.status}: ${errorDetail.slice(0, 200)}`)
   }
 
   return response.json() as Promise<OverpassResponse>
