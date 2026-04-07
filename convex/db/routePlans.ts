@@ -417,3 +417,38 @@ export const listBySession = internalQuery({
     return listBySessionHandler(ctx as any, args)
   },
 })
+
+/**
+ * Get active (pending or running) route plans for a session.
+ * Public query for frontend cancellation support.
+ */
+export const getActiveRoutePlansForSession = query({
+  args: {
+    sessionId: v.id('planning_sessions'),
+  },
+  returns: v.array(
+    v.object({
+      _id: v.id('route_plans'),
+      status: routePlanStatusValidator,
+    })
+  ),
+  handler: async (ctx, args): Promise<Array<{ _id: Id<'route_plans'>; status: RoutePlanStatus }>> => {
+    const docs = await ctx.db
+      .query('route_plans')
+      .withIndex('by_planningSessionId_and_status', (q) =>
+        q.eq('planningSessionId', args.sessionId)
+      )
+      .filter((q) =>
+        q.or(
+          q.eq(q.field('status'), 'pending'),
+          q.eq(q.field('status'), 'running')
+        )
+      )
+      .collect()
+
+    return docs.map((doc) => ({
+      _id: doc._id,
+      status: doc.status,
+    }))
+  },
+})

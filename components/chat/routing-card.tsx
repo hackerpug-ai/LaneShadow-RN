@@ -241,11 +241,12 @@ const RunningCard = ({ routePlan, semantic, reduceMotion }: RunningCardProps) =>
 interface CompletedCardProps {
   result: PlannedRouteOptionsView
   semantic: ReturnType<typeof useSemanticTheme>['semantic']
+  routePlanId: Id<'route_plans'>
   onViewOnMap?: () => void
 }
 
-const CompletedCard = ({ result, semantic, onViewOnMap }: CompletedCardProps) => {
-  const { selectedRouteId, setSelectedRouteId, requestFitToRoute } = useSelectedRoute()
+const CompletedCard = ({ result, semantic, routePlanId, onViewOnMap }: CompletedCardProps) => {
+  const { selectedRouteId, setSelectedRouteId, setDisplayedRoutePlanId, requestFitToRoute } = useSelectedRoute()
 
   return (
     <View
@@ -265,6 +266,7 @@ const CompletedCard = ({ result, semantic, onViewOnMap }: CompletedCardProps) =>
           }
           onSelect={() => {
             setSelectedRouteId(option.routeOptionId)
+            setDisplayedRoutePlanId(routePlanId)
             requestFitToRoute()
             onViewOnMap?.()
           }}
@@ -389,7 +391,7 @@ export const RoutingCard = ({ message: _message, attachments, onViewOnMap }: Rou
           // Completed but no result yet — show pending
           return <PendingCard semantic={semantic} />
         }
-        return <CompletedCard result={result} semantic={semantic} onViewOnMap={onViewOnMap} />
+        return <CompletedCard result={result} semantic={semantic} routePlanId={routePlanId!} onViewOnMap={onViewOnMap} />
       }
 
       case 'failed':

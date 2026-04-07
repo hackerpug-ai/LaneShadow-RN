@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native'
+import { Pressable, StyleSheet, View, Text } from 'react-native'
 import { Icon } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -21,6 +21,8 @@ export type MapControlsProps = {
   onClear?: () => void
   /** Handler for the mode-toggle button (chat-icon in map mode, map-icon in chat mode). */
   onToggleView?: () => void
+  /** Show labels below icons for better discoverability */
+  showLabels?: boolean
   position?: {
     top?: number
     right?: number
@@ -36,6 +38,7 @@ export const MapControls = ({
   onRecenter,
   onClear,
   onToggleView,
+  showLabels = false,
   position,
 }: MapControlsProps) => {
   const { semantic } = useSemanticTheme()
@@ -76,6 +79,7 @@ export const MapControls = ({
             >
               <ControlButton
                 icon="plus"
+                label={showLabels ? 'Zoom' : undefined}
                 onPress={onZoomIn ?? (() => {})}
                 semantic={semantic}
                 testID="control-zoom-in"
@@ -88,10 +92,11 @@ export const MapControls = ({
                     backgroundColor: semantic.color.border.default,
                   },
                 ]}
-              />
+                />
 
               <ControlButton
                 icon="minus"
+                label={showLabels ? 'Zoom' : undefined}
                 onPress={onZoomOut ?? (() => {})}
                 semantic={semantic}
                 testID="control-zoom-out"
@@ -102,6 +107,7 @@ export const MapControls = ({
             {onRecenter ? (
               <ControlButton
                 icon="crosshairs-gps"
+                label={showLabels ? 'Recenter' : undefined}
                 onPress={onRecenter}
                 semantic={semantic}
                 testID="control-recenter"
@@ -112,6 +118,7 @@ export const MapControls = ({
             {onClear ? (
               <ControlButton
                 icon="layers"
+                label={showLabels ? 'Layers' : undefined}
                 onPress={onClear}
                 semantic={semantic}
                 testID="control-clear"
@@ -127,6 +134,7 @@ export const MapControls = ({
           mode === 'map' ? (
             <ControlButton
               icon="message-text-outline"
+              label={showLabels ? 'Chat' : undefined}
               onPress={onToggleView}
               semantic={semantic}
               testID="control-toggle-view"
@@ -135,6 +143,7 @@ export const MapControls = ({
           ) : (
             <ControlButton
               icon="map-outline"
+              label={showLabels ? 'Map' : undefined}
               onPress={onToggleView}
               semantic={semantic}
               testID="control-toggle-view"
@@ -149,6 +158,7 @@ export const MapControls = ({
 
 type ControlButtonProps = {
   icon: string
+  label?: string
   onPress: () => void
   semantic: ReturnType<typeof useSemanticTheme>['semantic']
   testID: string
@@ -157,6 +167,7 @@ type ControlButtonProps = {
 
 const ControlButton = ({
   icon,
+  label,
   onPress,
   semantic,
   testID,
@@ -169,8 +180,8 @@ const ControlButton = ({
       style={({ pressed }) => [
         styles.controlButton,
         {
-          width: semantic.space['3xl'],
-          height: semantic.space['3xl'],
+          width: label ? 'auto' : semantic.space['3xl'],
+          minWidth: label ? semantic.space['3xl'] : undefined,
           borderRadius: semantic.radius['2xl'],
           backgroundColor: pressed
             ? semantic.color.surfaceVariant.pressed
@@ -178,6 +189,9 @@ const ControlButton = ({
           borderColor: semantic.color.border.default,
           borderWidth: 1.5,
           ...semantic.elevation[3],
+          paddingHorizontal: label ? semantic.space.sm : undefined,
+          paddingVertical: semantic.space.xs,
+          gap: label ? semantic.space.xs : undefined,
         },
       ]}
       testID={testID}
@@ -189,6 +203,19 @@ const ControlButton = ({
       }}
     >
       <Icon source={icon} size={20} color={semantic.color.onSurface.default} />
+      {label && (
+        <Text
+          style={[
+            semantic.type.body.sm,
+            {
+              color: semantic.color.onSurface.default,
+            },
+          ]}
+          numberOfLines={1}
+        >
+          {label}
+        </Text>
+      )}
     </Pressable>
   )
 }
@@ -199,6 +226,7 @@ const styles = StyleSheet.create({
   },
   cluster: {},
   controlButton: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },

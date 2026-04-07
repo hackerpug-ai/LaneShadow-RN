@@ -56,19 +56,31 @@ export const useActiveSessionRoute = (sessionId: Id<'planning_sessions'> | null)
     targetRoutePlanId ? { routePlanId: targetRoutePlanId } : 'skip'
   )
 
+  // Session isolation: only return the route plan if it belongs to the current session
+  // This prevents plans from rendering on wrong/new sessions
+  const isValidRoutePlan = routePlan && (
+    !sessionId || // No session filter needed if we're not in a session
+    routePlan.planningSessionId === sessionId // Plan must belong to current session
+  )
+  const validatedRoutePlan = isValidRoutePlan ? routePlan : null
+
   // Determine the active route option
   let activeOption: RoutePlanResult['activeOption'] = null
-  if (routePlan?.result?.options) {
-    const options = routePlan.result.options as Array<{ routeOptionId: string }>
+  if (validatedRoutePlan?.result?.options) {
+    const options = validatedRoutePlan.result.options as Array<{ routeOptionId: string }>
     console.info('[useActiveSessionRoute] Route plan data:', {
-      routePlanId: routePlan._id,
-      status: routePlan.status,
-      hasResult: !!routePlan.result,
+      routePlanId: validatedRoutePlan._id,
+      planningSessionId: validatedRoutePlan.planningSessionId,
+      currentSessionId: sessionId,
+      sessionMatch: validatedRoutePlan.planningSessionId === sessionId,
+      status: validatedRoutePlan.status,
+      hasResult: !!validatedRoutePlan.result,
       optionsCount: options.length,
       firstOption: options[0] ? {
         routeOptionId: options[0].routeOptionId,
         hasMap: !!(options[0] as any).map,
         hasOverviewGeometry: !!(options[0] as any).map?.overviewGeometry,
+        overviewGeometryPreview: (options[0] as any).map?.overviewGeometry?.value?.substring(0, 50) + '...',
         legsCount: (options[0] as any).map?.legs?.length,
       } : null,
     })
@@ -84,16 +96,17 @@ export const useActiveSessionRoute = (sessionId: Id<'planning_sessions'> | null)
     }
   } else {
     console.info('[useActiveSessionRoute] No route plan or options:', {
-      hasRoutePlan: !!routePlan,
-      status: routePlan?.status,
-      hasResult: !!routePlan?.result,
-      hasOptions: !!routePlan?.result?.options,
+      hasRoutePlan: !!validatedRoutePlan,
+      wasFilteredOut: routePlan !== null && validatedRoutePlan === null,
+      status: validatedRoutePlan?.status,
+      hasResult: !!validatedRoutePlan?.result,
+      hasOptions: !!validatedRoutePlan?.result?.options,
     })
   }
 
   return {
     routePlanId: targetRoutePlanId,
-    routePlan,
+    routePlan: validatedRoutePlan,
     activeOption,
   }
 }

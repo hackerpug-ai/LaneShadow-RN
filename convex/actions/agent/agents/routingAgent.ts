@@ -578,7 +578,7 @@ async function runCompileSketch(
         routeOptionId: built.options[0].routeOptionId,
         hasMap: !!built.options[0].map,
         hasOverviewGeometry: !!built.options[0].map?.overviewGeometry,
-        overviewGeometryLength: built.options[0].map?.overviewGeometry?.length,
+        overviewGeometryValue: built.options[0].map?.overviewGeometry?.value?.substring(0, 50) + '...',
         legsCount: built.options[0].map?.legs?.length,
       } : null,
     })
@@ -704,7 +704,7 @@ async function runPlanRoute(
         routeOptionId: built.options[0].routeOptionId,
         hasMap: !!built.options[0].map,
         hasOverviewGeometry: !!built.options[0].map?.overviewGeometry,
-        overviewGeometryLength: built.options[0].map?.overviewGeometry?.length,
+        overviewGeometryValue: built.options[0].map?.overviewGeometry?.value?.substring(0, 50) + '...',
         legsCount: built.options[0].map?.legs?.length,
       } : null,
     })

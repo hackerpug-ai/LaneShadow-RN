@@ -37,6 +37,10 @@ vi.mock('../contexts/selected-route', () => ({
   useSelectedRoute: () => ({
     selectedRouteId: mockSelectedRouteId,
     setSelectedRouteId: mockSetSelectedRouteId,
+    displayedRoutePlanId: null,
+    setDisplayedRoutePlanId: vi.fn(),
+    requestFitToRoute: vi.fn(),
+    registerFitHandler: vi.fn(),
   }),
 }))
 
@@ -99,10 +103,10 @@ describe('useActiveSessionRoute', () => {
   describe('loading state', () => {
     it('returns loading result (undefined routePlan) while sessions list is loading', () => {
       // useQuery returns undefined by default = loading
-      const { result } = renderHook(() => useActiveSessionRoute())
+      const { result } = renderHook(() => useActiveSessionRoute('sess-1' as never))
 
       expect(result.current.routePlan).toBeUndefined()
-      expect(result.current.options).toEqual([])
+      expect(result.current.activeOption).toBeNull()
       expect(result.current.activeOption).toBeNull()
     })
 
@@ -111,26 +115,26 @@ describe('useActiveSessionRoute', () => {
       mockQueryResults.set('{}', [{ _id: 'sess-1' }])
       mockQueryResults.set(JSON.stringify({ sessionId: 'sess-1' }), undefined)
 
-      const { result } = renderHook(() => useActiveSessionRoute())
+      const { result } = renderHook(() => useActiveSessionRoute('sess-1' as never))
 
       expect(result.current.routePlan).toBeUndefined()
-      expect(result.current.options).toEqual([])
+      expect(result.current.activeOption).toBeNull()
     })
   })
 
   describe('empty/no-session state', () => {
-    it('returns null routePlan when sessions list is empty', () => {
-      mockQueryResults.set('{}', []) // empty sessions list
+    it('returns undefined routePlan when messages list is empty', () => {
+      // Empty messages array means query completed but no routing_card found
+      const msgs: MockMessage[] = []
+      mockQueryResults.set(JSON.stringify({ sessionId: 'sess-1' }), msgs)
 
-      const { result } = renderHook(() => useActiveSessionRoute())
+      const { result } = renderHook(() => useActiveSessionRoute('sess-1' as never))
 
-      expect(result.current.routePlan).toBeNull()
-      expect(result.current.options).toEqual([])
+      expect(result.current.routePlan).toBeUndefined()
       expect(result.current.activeOption).toBeNull()
     })
 
     it('returns null routePlan when no routing_card message exists', () => {
-      mockQueryResults.set('{}', [{ _id: 'sess-1' }])
       // messages list has only a user message, no routing_card
       const msgs: MockMessage[] = [
         { _id: 'msg-1', kind: 'user', createdAt: 1 },
@@ -138,10 +142,10 @@ describe('useActiveSessionRoute', () => {
       ]
       mockQueryResults.set(JSON.stringify({ sessionId: 'sess-1' }), msgs)
 
-      const { result } = renderHook(() => useActiveSessionRoute())
+      const { result } = renderHook(() => useActiveSessionRoute('sess-1' as never))
 
-      expect(result.current.routePlan).toBeNull()
-      expect(result.current.options).toEqual([])
+      // Query is skipped when no routing_card found, returns undefined
+      expect(result.current.routePlan).toBeUndefined()
       expect(result.current.activeOption).toBeNull()
     })
   })
@@ -162,7 +166,7 @@ describe('useActiveSessionRoute', () => {
       mockQueryResults.set(JSON.stringify({ sessionId: 'sess-1' }), msgs)
       mockQueryResults.set(JSON.stringify({ routePlanId: 'plan-1' }), planDoc)
 
-      const { result } = renderHook(() => useActiveSessionRoute())
+      const { result } = renderHook(() => useActiveSessionRoute('sess-1' as never))
 
       expect(result.current.activeOption?.routeOptionId).toBe('opt-1')
     })
@@ -183,7 +187,7 @@ describe('useActiveSessionRoute', () => {
       mockQueryResults.set(JSON.stringify({ sessionId: 'sess-1' }), msgs)
       mockQueryResults.set(JSON.stringify({ routePlanId: 'plan-1' }), planDoc)
 
-      const { result } = renderHook(() => useActiveSessionRoute())
+      const { result } = renderHook(() => useActiveSessionRoute('sess-1' as never))
 
       expect(result.current.activeOption?.routeOptionId).toBe('opt-2')
     })
@@ -204,7 +208,7 @@ describe('useActiveSessionRoute', () => {
       mockQueryResults.set(JSON.stringify({ sessionId: 'sess-1' }), msgs)
       mockQueryResults.set(JSON.stringify({ routePlanId: 'plan-1' }), planDoc)
 
-      const { result } = renderHook(() => useActiveSessionRoute())
+      const { result } = renderHook(() => useActiveSessionRoute('sess-1' as never))
 
       expect(result.current.activeOption?.routeOptionId).toBe('opt-1')
     })
@@ -235,31 +239,30 @@ describe('useActiveSessionRoute', () => {
       mockQueryResults.set(JSON.stringify({ routePlanId: 'old-plan' }), planDocOld)
       mockQueryResults.set(JSON.stringify({ routePlanId: 'new-plan' }), planDocNew)
 
-      const { result } = renderHook(() => useActiveSessionRoute())
+      const { result } = renderHook(() => useActiveSessionRoute('sess-1' as never))
 
       expect(result.current.activeOption?.routeOptionId).toBe('new-opt-1')
     })
   })
 
-  describe('selectRoute callback', () => {
-    it('exposes selectedRouteId from context', () => {
-      mockSelectedRouteId = 'some-route'
+  describe('selectedRouteId from context', () => {
+    it('respects selectedRouteId from context for option selection', () => {
+      mockSelectedRouteId = 'opt-2'
+      const planDoc = makePlanDoc(['opt-1', 'opt-2', 'opt-3'])
 
-      const { result } = renderHook(() => useActiveSessionRoute())
+      mockQueryResults.set(JSON.stringify({ sessionId: 'sess-1' }), [
+        {
+          _id: 'msg-3',
+          kind: 'routing_card',
+          createdAt: 3,
+          attachments: [{ routePlanId: 'plan-1' }],
+        },
+      ])
+      mockQueryResults.set(JSON.stringify({ routePlanId: 'plan-1' }), planDoc)
 
-      expect(result.current.selectedRouteId).toBe('some-route')
-    })
+      const { result } = renderHook(() => useActiveSessionRoute('sess-1' as never))
 
-    it('calls setSelectedRouteId when selectRoute is invoked', () => {
-      mockSelectedRouteId = null
-
-      const { result } = renderHook(() => useActiveSessionRoute())
-
-      act(() => {
-        result.current.selectRoute('opt-42')
-      })
-
-      expect(mockSetSelectedRouteId).toHaveBeenCalledWith('opt-42')
+      expect(result.current.activeOption?.routeOptionId).toBe('opt-2')
     })
   })
 

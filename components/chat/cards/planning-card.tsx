@@ -171,6 +171,16 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
 
   const content = parsePlanningContent(message.content)
 
+  // Auto-show the bottom sheet during streaming so users can see thinking immediately
+  // Close it when streaming completes
+  React.useEffect(() => {
+    if (isStreaming && content.thinkingText) {
+      setSheetVisible(true)
+    } else if (!isStreaming && sheetVisible) {
+      setSheetVisible(false)
+    }
+  }, [isStreaming, content.thinkingText, sheetVisible])
+
   // ---------------------------------------------------------------------------
   // Accessibility: reduce-motion support
   // ---------------------------------------------------------------------------

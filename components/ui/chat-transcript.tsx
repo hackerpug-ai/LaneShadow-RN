@@ -44,6 +44,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSemanticTheme } from '../../hooks/use-semantic-theme';
 import { RouteAttachmentCard } from './route-attachment-card';
 import { TypingIndicator } from '../chat/typing-indicator';
+import { MarkdownText } from './markdown-text';
 import {
   CARD_REGISTRY,
   type CardAttachment,
@@ -282,17 +283,9 @@ const AgentMessage = ({ message, onRoutePress, transparent }: AgentMessageProps)
         ]}
       >
         <View style={styles.agentTextRow}>
-          <Text
-            style={[
-              styles.agentText,
-              {
-                color: semantic.color.onSurface.default,
-                ...semantic.type.body.lg,
-              },
-            ]}
-          >
+          <MarkdownText testID="agent-message-content">
             {message.content}
-          </Text>
+          </MarkdownText>
           {message.status === 'streaming' && (
             <View
               style={[styles.typingSlot, { marginLeft: semantic.space.xs }]}

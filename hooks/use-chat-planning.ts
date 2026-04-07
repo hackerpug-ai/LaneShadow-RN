@@ -12,10 +12,11 @@
  */
 
 import { useRef, useCallback, useState } from 'react'
-import { useAction, useMutation } from 'convex/react'
+import { useAction, useMutation, useQuery } from 'convex/react'
 import type { Id } from '../convex/_generated/dataModel'
 import type { RideFlowAction } from './use-ride-flow'
 import { api } from '../convex/_generated/api'
+import { useSelectedRoute } from '../contexts/selected-route'
 
 /**
  * Type for sendMessage action result
@@ -58,6 +59,14 @@ export const useChatPlanning = (
   // Backend functions
   const createSession = useMutation(api.db.planningSessions.createSession)
   const sendMessage = useAction(api.actions.agent.sendMessage.sendMessage)
+  const cancelPlan = useMutation(api.db.routePlans.cancelPlan)
+  const getActiveRoutePlansForSession = useQuery(
+    api.db.routePlans.getActiveRoutePlansForSession,
+    sessionId !== null ? { sessionId } : 'skip'
+  )
+
+  // Reset displayed route when starting a new plan so newest shows
+  const { setDisplayedRoutePlanId } = useSelectedRoute()
 
   /**
    * Send planning message - creates a session (if needed) then invokes the
@@ -75,6 +84,9 @@ export const useChatPlanning = (
       const signal = abortControllerRef.current.signal
 
       try {
+        // Reset displayed route so newest plan shows
+        setDisplayedRoutePlanId(null)
+
         // Dispatch user message to state machine (kept so the ride-flow
         // reducer still sees the rider turn)
         dispatch({
@@ -147,13 +159,22 @@ export const useChatPlanning = (
   /**
    * Cancel in-flight planning
    */
-  const cancel = useCallback(() => {
+  const cancel = useCallback(async () => {
+    // Abort the frontend request
     abortControllerRef.current?.abort()
     abortControllerRef.current = null
+
+    // Cancel any active route plans on the backend
+    if (sessionId && getActiveRoutePlansForSession) {
+      await Promise.all(
+        getActiveRoutePlansForSession.map((plan) => cancelPlan({ routePlanId: plan._id }))
+      )
+    }
+
     // Preserve sessionId for potential follow-up messages.
     // Only the explicit "new ride" button (NEW_SESSION) should nullify session.
     dispatch({ type: 'CANCEL_PLANNING' })
-  }, [dispatch])
+  }, [dispatch, cancelPlan, getActiveRoutePlansForSession, sessionId])
 
   /**
    * Reset session — call when starting a new session so the next message
