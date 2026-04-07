@@ -1,144 +1,99 @@
 /**
- * useActiveSessionRoute - Bridges agent chat output to UI consumers.
+ * useActiveSessionRoute - Fetches the active route plan for a planning session
  *
- * Subscribes to the active planning session's newest routing_card message,
- * resolves its route_plans attachment, and exposes the available route options
- * plus the currently-selected route option from SelectedRoute context.
- *
- * Consumers:
- * - Home map screen (route polyline rendering, task #258)
- * - CompletedCard selection wiring (task #257)
+ * Returns the route plan from the newest routing_card message in the session.
+ * If displayedRoutePlanId is provided, returns that specific route plan instead.
  */
 
 import { useQuery } from 'convex/react'
 import { api } from '../convex/_generated/api'
 import type { Id } from '../convex/_generated/dataModel'
 import { useSelectedRoute } from '../contexts/selected-route'
-import type { PlannedRouteOptionView, PlannedRouteOptionsView } from '../types/routes'
 
-type RoutePlanDoc = {
-  _id: Id<'route_plans'>
-  status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
-  result?: PlannedRouteOptionsView
-  [key: string]: unknown
-}
-
-type UseActiveSessionRouteResult = {
-  routePlan: RoutePlanDoc | null | undefined // undefined = loading
-  options: PlannedRouteOptionView[]
-  activeOption: PlannedRouteOptionView | null
-  selectedRouteId: string | null
-  selectRoute: (routeOptionId: string) => void
-}
-
-const EMPTY_RESULT: UseActiveSessionRouteResult = {
-  routePlan: null,
-  options: [],
-  activeOption: null,
-  selectedRouteId: null,
-  selectRoute: () => {},
-}
-
-const LOADING_RESULT: UseActiveSessionRouteResult = {
-  routePlan: undefined,
-  options: [],
-  activeOption: null,
-  selectedRouteId: null,
-  selectRoute: () => {},
+type RoutePlanResult = {
+  routePlanId: Id<'route_plans'> | null
+  routePlan: any
+  activeOption: any
 }
 
 /**
- * Resolves the active route plan and selected option for a planning session.
+ * Get the active route plan for a session.
  *
- * If `sessionId` is omitted, the hook picks the most recent session from
- * `listSessions`. Pass an explicit `sessionId` to pin to a specific session.
+ * If displayedRoutePlanId is provided in SelectedRouteContext, returns that specific plan.
+ * Otherwise, returns the newest route plan from the session (based on routing_card messages).
+ *
+ * Also returns the selected route option within that plan (based on selectedRouteId).
  */
-export function useActiveSessionRoute(
-  sessionId?: Id<'planning_sessions'>
-): UseActiveSessionRouteResult {
-  // Step 1: Resolve sessionId — if not provided, fetch the most recent session
-  const sessions = useQuery(
-    api.db.planningSessions.listSessions,
-    sessionId === undefined ? {} : 'skip'
-  )
+export const useActiveSessionRoute = (sessionId: Id<'planning_sessions'> | null): RoutePlanResult => {
+  const { selectedRouteId, displayedRoutePlanId } = useSelectedRoute()
 
-  const resolvedSessionId: Id<'planning_sessions'> | undefined =
-    sessionId ?? sessions?.[0]?._id
-
-  // Step 2: Subscribe to session messages
+  // Fetch messages to find the newest routing_card
   const messages = useQuery(
     api.db.sessionMessages.list,
-    resolvedSessionId ? { sessionId: resolvedSessionId } : 'skip'
+    sessionId ? { sessionId } : 'skip'
   )
 
-  // Step 3: Find the newest routing_card message with a routePlanId
-  // messages are sorted oldest-first by listHandler, so we reverse to find newest
-  let routePlanId: Id<'route_plans'> | undefined
-  if (messages) {
+  // Determine which route plan ID to fetch
+  let targetRoutePlanId: Id<'route_plans'> | null = null
+
+  if (displayedRoutePlanId) {
+    // Use the overridden route plan (cast to Id type)
+    targetRoutePlanId = displayedRoutePlanId as Id<'route_plans'>
+  } else if (messages) {
+    // Find the newest routing_card message
     for (let i = messages.length - 1; i >= 0; i--) {
       const msg = messages[i]
       if (msg.kind === 'routing_card' && msg.attachments?.[0]?.routePlanId) {
-        routePlanId = msg.attachments[0].routePlanId
+        targetRoutePlanId = msg.attachments[0].routePlanId
         break
       }
     }
   }
 
-  // Step 4: Subscribe to the route plan doc
+  // Fetch the route plan using the public query (requires auth)
   const routePlan = useQuery(
     api.db.routePlans.getPlanById,
-    routePlanId ? { routePlanId } : 'skip'
-  ) as RoutePlanDoc | null | undefined
+    targetRoutePlanId ? { routePlanId: targetRoutePlanId } : 'skip'
+  )
 
-  // Step 5: Compute options from route plan result
-  const options: PlannedRouteOptionView[] = routePlan?.result?.options ?? []
-
-  // Step 6: Read selection from SelectedRoute context
-  const { selectedRouteId, setSelectedRouteId } = useSelectedRoute()
-
-  // Step 7: Compute the active option
-  // If selectedRouteId matches an option, use that. Otherwise default to first option.
-  const activeOption: PlannedRouteOptionView | null =
-    options.find((opt) => opt.routeOptionId === selectedRouteId) ?? options[0] ?? null
-
-  // Step 8: Expose selectRoute callback
-  const selectRoute = (id: string) => {
-    setSelectedRouteId(id)
-  }
-
-  // Handle loading states — queries return undefined while loading
-  if (sessionId === undefined) {
-    // Still waiting for sessions list to load
-    if (sessions === undefined) {
-      return { ...LOADING_RESULT, selectedRouteId, selectRoute }
+  // Determine the active route option
+  let activeOption: RoutePlanResult['activeOption'] = null
+  if (routePlan?.result?.options) {
+    const options = routePlan.result.options as Array<{ routeOptionId: string }>
+    console.info('[useActiveSessionRoute] Route plan data:', {
+      routePlanId: routePlan._id,
+      status: routePlan.status,
+      hasResult: !!routePlan.result,
+      optionsCount: options.length,
+      firstOption: options[0] ? {
+        routeOptionId: options[0].routeOptionId,
+        hasMap: !!(options[0] as any).map,
+        hasOverviewGeometry: !!(options[0] as any).map?.overviewGeometry,
+        legsCount: (options[0] as any).map?.legs?.length,
+      } : null,
+    })
+    if (options.length > 0) {
+      if (selectedRouteId === null) {
+        // No selection - use the first option
+        activeOption = options[0]
+      } else {
+        // Find the selected option
+        const selected = options.find((opt) => opt.routeOptionId === selectedRouteId)
+        activeOption = selected ?? options[0]
+      }
     }
-    // Sessions list loaded but empty — no sessions exist
-    if (sessions.length === 0) {
-      return { ...EMPTY_RESULT, selectedRouteId, selectRoute }
-    }
+  } else {
+    console.info('[useActiveSessionRoute] No route plan or options:', {
+      hasRoutePlan: !!routePlan,
+      status: routePlan?.status,
+      hasResult: !!routePlan?.result,
+      hasOptions: !!routePlan?.result?.options,
+    })
   }
 
-  // Messages query is still loading
-  if (resolvedSessionId && messages === undefined) {
-    return { ...LOADING_RESULT, selectedRouteId, selectRoute }
-  }
-
-  // No routing_card message found
-  if (!routePlanId) {
-    return { routePlan: null, options: [], activeOption: null, selectedRouteId, selectRoute }
-  }
-
-  // Route plan query is still loading
-  if (routePlan === undefined) {
-    return { ...LOADING_RESULT, selectedRouteId, selectRoute }
-  }
-
-  // Step 9: Return the full result
   return {
-    routePlan: routePlan ?? null,
-    options,
+    routePlanId: targetRoutePlanId,
+    routePlan,
     activeOption,
-    selectedRouteId,
-    selectRoute,
   }
 }

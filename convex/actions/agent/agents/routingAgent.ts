@@ -569,6 +569,20 @@ async function runCompileSketch(
     // Clear the pending sketch after successful compilation
     clearPendingSketch(sessionId)
 
+    // Debug: log the result structure before storing
+    console.info('[runCompileSketch] Storing route plan result:', {
+      routePlanId,
+      status: 'completed',
+      optionsCount: built.options?.length,
+      firstOption: built.options?.[0] ? {
+        routeOptionId: built.options[0].routeOptionId,
+        hasMap: !!built.options[0].map,
+        hasOverviewGeometry: !!built.options[0].map?.overviewGeometry,
+        overviewGeometryLength: built.options[0].map?.overviewGeometry?.length,
+        legsCount: built.options[0].map?.legs?.length,
+      } : null,
+    })
+
     // Finalize the route_plans row
     await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
       routePlanId,
@@ -680,6 +694,20 @@ async function runPlanRoute(
       departureTimeMs: args.departureTime,
     })
     const built = buildOptionsFromResults(results, crypto.randomUUID())
+
+    // Debug: log the result structure before storing
+    console.info('[runPlanRoute] Storing route plan result:', {
+      routePlanId,
+      status: 'completed',
+      optionsCount: built.options?.length,
+      firstOption: built.options?.[0] ? {
+        routeOptionId: built.options[0].routeOptionId,
+        hasMap: !!built.options[0].map,
+        hasOverviewGeometry: !!built.options[0].map?.overviewGeometry,
+        overviewGeometryLength: built.options[0].map?.overviewGeometry?.length,
+        legsCount: built.options[0].map?.legs?.length,
+      } : null,
+    })
 
     await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
       routePlanId,
