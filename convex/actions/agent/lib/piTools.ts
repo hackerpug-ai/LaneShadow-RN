@@ -191,6 +191,33 @@ export const AgentToolSchemas = {
       east: Type.Number({ description: 'Eastern longitude boundary in decimal degrees' }),
     }),
   }),
+
+  checkSurface: Type.Object({
+    surface: Type.Union([Type.String(), Type.Null()], {
+      description: 'OSM surface tag value (e.g. "asphalt", "gravel", "dirt"); null if not present in OSM data',
+    }),
+    highway: Type.Union([Type.String(), Type.Null()], {
+      description: 'OSM highway class (e.g. "primary", "track", "path"); null if not available',
+    }),
+  }),
+
+  getCurvature: Type.Object({
+    roadName: Type.String({
+      description: 'Name of the road being scored (used for logging/context)',
+    }),
+    geometry: Type.Array(
+      Type.Object({
+        lat: Type.Number({ description: 'Latitude in decimal degrees' }),
+        lng: Type.Number({ description: 'Longitude in decimal degrees' }),
+      }),
+      {
+        description: 'Array of lat/lng points representing the road geometry from OSM. Use geometry returned by lookupRoad.',
+      }
+    ),
+    surface: Type.Union([Type.String(), Type.Null()], {
+      description: 'Road surface type from OSM tags (e.g. "asphalt", "gravel"), or null if unknown',
+    }),
+  }),
 }
 
 /**
