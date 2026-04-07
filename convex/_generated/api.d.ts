@@ -8,6 +8,9 @@
  * @module
  */
 
+import type * as actions_agent_agents_enrichmentAgent from "../actions/agent/agents/enrichmentAgent.js";
+import type * as actions_agent_agents_routingAgent from "../actions/agent/agents/routingAgent.js";
+import type * as actions_agent_agents_types from "../actions/agent/agents/types.js";
 import type * as actions_agent_budgetTracker from "../actions/agent/budgetTracker.js";
 import type * as actions_agent_lib_geo from "../actions/agent/lib/geo.js";
 import type * as actions_agent_lib_piTools from "../actions/agent/lib/piTools.js";
@@ -18,8 +21,10 @@ import type * as actions_agent_lib_tracing from "../actions/agent/lib/tracing.js
 import type * as actions_agent_loopDetector from "../actions/agent/loopDetector.js";
 import type * as actions_agent_planRide from "../actions/agent/planRide.js";
 import type * as actions_agent_providers_geocodingProvider from "../actions/agent/providers/geocodingProvider.js";
+import type * as actions_agent_providers_placesProvider from "../actions/agent/providers/placesProvider.js";
 import type * as actions_agent_providers_routingProvider from "../actions/agent/providers/routingProvider.js";
 import type * as actions_agent_providers_weatherProvider from "../actions/agent/providers/weatherProvider.js";
+import type * as actions_agent_providers_webSearchProvider from "../actions/agent/providers/webSearchProvider.js";
 import type * as actions_agent_ridePlanningAgent from "../actions/agent/ridePlanningAgent.js";
 import type * as actions_agent_runAgent from "../actions/agent/runAgent.js";
 import type * as actions_agent_sendMessage from "../actions/agent/sendMessage.js";
@@ -38,6 +43,8 @@ import type * as actions_agent_tools_mapConditions from "../actions/agent/tools/
 import type * as actions_agent_tools_normalizeRoute from "../actions/agent/tools/normalizeRoute.js";
 import type * as actions_agent_tools_probeConditions from "../actions/agent/tools/probeConditions.js";
 import type * as actions_agent_tools_searchAlongRoute from "../actions/agent/tools/searchAlongRoute.js";
+import type * as actions_agent_tools_searchNearby from "../actions/agent/tools/searchNearby.js";
+import type * as actions_agent_tools_webSearch from "../actions/agent/tools/webSearch.js";
 import type * as actions_users from "../actions/users.js";
 import type * as db_clerkSync from "../db/clerkSync.js";
 import type * as db_favoriteRoads from "../db/favoriteRoads.js";
@@ -65,6 +72,9 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "actions/agent/agents/enrichmentAgent": typeof actions_agent_agents_enrichmentAgent;
+  "actions/agent/agents/routingAgent": typeof actions_agent_agents_routingAgent;
+  "actions/agent/agents/types": typeof actions_agent_agents_types;
   "actions/agent/budgetTracker": typeof actions_agent_budgetTracker;
   "actions/agent/lib/geo": typeof actions_agent_lib_geo;
   "actions/agent/lib/piTools": typeof actions_agent_lib_piTools;
@@ -75,8 +85,10 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/loopDetector": typeof actions_agent_loopDetector;
   "actions/agent/planRide": typeof actions_agent_planRide;
   "actions/agent/providers/geocodingProvider": typeof actions_agent_providers_geocodingProvider;
+  "actions/agent/providers/placesProvider": typeof actions_agent_providers_placesProvider;
   "actions/agent/providers/routingProvider": typeof actions_agent_providers_routingProvider;
   "actions/agent/providers/weatherProvider": typeof actions_agent_providers_weatherProvider;
+  "actions/agent/providers/webSearchProvider": typeof actions_agent_providers_webSearchProvider;
   "actions/agent/ridePlanningAgent": typeof actions_agent_ridePlanningAgent;
   "actions/agent/runAgent": typeof actions_agent_runAgent;
   "actions/agent/sendMessage": typeof actions_agent_sendMessage;
@@ -95,6 +107,8 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/tools/normalizeRoute": typeof actions_agent_tools_normalizeRoute;
   "actions/agent/tools/probeConditions": typeof actions_agent_tools_probeConditions;
   "actions/agent/tools/searchAlongRoute": typeof actions_agent_tools_searchAlongRoute;
+  "actions/agent/tools/searchNearby": typeof actions_agent_tools_searchNearby;
+  "actions/agent/tools/webSearch": typeof actions_agent_tools_webSearch;
   "actions/users": typeof actions_users;
   "db/clerkSync": typeof db_clerkSync;
   "db/favoriteRoads": typeof db_favoriteRoads;

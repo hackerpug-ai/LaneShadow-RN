@@ -74,14 +74,14 @@ Key differences from holocron:
 
 ## Acceptance Criteria
 
-- [ ] `convex/actions/agent/tools/webSearch.ts` exists
-- [ ] Delegates to `createWebSearchProvider().search()` (created in US-070) — does NOT call Jina API directly
-- [ ] Input: `query: string`, optional `maxResults` (default 3)
-- [ ] Output: array of `{ title, snippet, url }` — compact enough for LLM context without summarization
-- [ ] Results are trimmed: snippet max 200 chars, no HTML tags
-- [ ] Soft-fail: returns `[]` on provider failure (never throws)
-- [ ] Tool schema added to `piTools.ts` as `AgentToolSchemas.webSearch`
-- [ ] Wrapped with `traceableToolAsync` for observability
+- [x] `convex/actions/agent/tools/webSearch.ts` exists
+- [x] Delegates to `createWebSearchProvider().search()` (created in US-070) — does NOT call Jina API directly
+- [x] Input: `query: string`, optional `maxResults` (default 3)
+- [x] Output: array of `{ title, snippet, url }` — compact enough for LLM context without summarization
+- [ ] Results are trimmed: snippet max 200 chars, no HTML tags <!-- FAIL: 200-char truncation present in provider but no HTML stripping logic exists in either webSearch.ts or webSearchProvider.ts -->
+- [x] Soft-fail: returns `[]` on provider failure (never throws)
+- [x] Tool schema added to `piTools.ts` as `AgentToolSchemas.webSearch`
+- [x] Wrapped with `traceableToolAsync` for observability
 
 ## Files to Create/Modify
 

@@ -31,27 +31,27 @@ type EnrichmentAgentResult =
 
 ## Acceptance Criteria
 
-- [ ] `convex/actions/agent/agents/enrichmentAgent.ts` exists with:
+- [x] `convex/actions/agent/agents/enrichmentAgent.ts` exists with:
   - `executeEnrichmentAgent(config: SubAgentConfig): Promise<EnrichmentAgentResult>`
   - `buildEnrichmentPrompt(ctx: AgentContext, routeBlock: string): string` — Phase 2 guidance only (~15 lines)
   - 7 tool definitions: `getElevation`, `getCurvature`, `searchAlongRoute`, `getRouteWeather`, `checkSurface`, `lookupRoad`, `getUserFavorites`
   - `executeEnrichmentTool(ctx, call)` dispatcher for the 7 tools
-- [ ] Tool handler functions moved from `ridePlanningAgent.ts`:
+- [x] Tool handler functions moved from `ridePlanningAgent.ts`:
   - `runGetElevation`, `runGetCurvature`, `runCheckSurface`, `runSearchAlongRoute`, `runGetRouteWeather`, `runLookupRoad`, `runGetUserFavorites`
-- [ ] `executeEnrichmentAgent` short-circuits with `{ status: 'not_applicable', reason }` if `buildInSessionRouteBlock()` returns empty (no route exists to enrich)
-- [ ] Enrichment agent uses Haiku model: `getModel('anthropic', 'claude-haiku-4-5-20251001')` — nearly bounded task (classify question → pick tool → present data). Minimal reasoning required.
-- [ ] `executeEnrichmentAgent` calls `runAgent()` with:
+- [x] `executeEnrichmentAgent` short-circuits with `{ status: 'not_applicable', reason }` if `buildInSessionRouteBlock()` returns empty (no route exists to enrich)
+- [x] Enrichment agent uses Haiku model: `getModel('anthropic', 'claude-haiku-4-5-20251001')` — nearly bounded task (classify question → pick tool → present data). Minimal reasoning required.
+- [x] `executeEnrichmentAgent` calls `runAgent()` with:
   - `maxSteps: 4` (classify + 1-2 tool calls + respond)
   - `timeoutMs: 30_000`
   - Shared `budgetTracker` from `SubAgentConfig` (label: `'enrichment'`)
   - `parallelSafeTools`: all 7 tools (all are parallel-safe)
-- [ ] Does NOT forward card-related callbacks (`onToolStart`, `onToolFinish`) — enrichment tools don't emit cards
-- [ ] Forwards `onAgentTurn` and `onToolResultPiMessage` for message persistence
-- [ ] Returns `EnrichmentAgentResult`:
+- [x] Does NOT forward card-related callbacks (`onToolStart`, `onToolFinish`) — enrichment tools don't emit cards
+- [x] Forwards `onAgentTurn` and `onToolResultPiMessage` for message persistence
+- [x] Returns `EnrichmentAgentResult`:
   - `answered` when tool results exist (includes `data` and agent's `summary` text)
   - `not_applicable` when no route exists or agent couldn't answer
-- [ ] Sub-agent gets NO conversation history — only `userMessage` from `SubAgentConfig`
-- [ ] Enrichment prompt tells the agent which tool answers which question type (e.g., "twisty?" → getCurvature + lookupRoad)
+- [x] Sub-agent gets NO conversation history — only `userMessage` from `SubAgentConfig`
+- [x] Enrichment prompt tells the agent which tool answers which question type (e.g., "twisty?" → getCurvature + lookupRoad)
 
 ## Files to Create/Modify
 

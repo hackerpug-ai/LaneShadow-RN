@@ -20,7 +20,10 @@ export type PlaceResult = {
   types?: string[]
   detourMinutes?: number
   distanceFromRouteMeters?: number
+  distanceMeters?: number
 }
+
+export type SearchNearbyResult = PlaceResult[] | { status: 'error'; reason: string }
 
 type PlacesApiPlace = {
   displayName?: { text: string }
@@ -51,7 +54,7 @@ export type PlacesProvider = {
   searchNearby(params: {
     query: string
     location: LatLng
-    radiusMeters?: number
+    radiusMeters?: number | null
   }): Promise<PlaceResult[]>
 }
 
