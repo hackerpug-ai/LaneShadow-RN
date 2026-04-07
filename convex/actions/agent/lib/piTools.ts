@@ -179,6 +179,18 @@ export const AgentToolSchemas = {
       }
     ),
   }),
+
+  lookupRoad: Type.Object({
+    roadName: Type.String({
+      description: 'Road name to look up in OSM (e.g. "Highway 1", "Pacific Coast Highway")',
+    }),
+    bbox: Type.Object({
+      south: Type.Number({ description: 'Southern latitude boundary in decimal degrees' }),
+      west: Type.Number({ description: 'Western longitude boundary in decimal degrees' }),
+      north: Type.Number({ description: 'Northern latitude boundary in decimal degrees' }),
+      east: Type.Number({ description: 'Eastern longitude boundary in decimal degrees' }),
+    }),
+  }),
 }
 
 /**
