@@ -1,6 +1,7 @@
 'use node'
 import type { RouteSketch } from '../../../../models/route-sketch'
 import type { PlanInput } from '../../../../models/saved-routes'
+import { decodePolyline, encodePolyline } from '../lib/geo'
 import { retryOnce, withTimeout } from '../lib/reliability'
 import { traceableToolAsync } from '../lib/tracing'
 import { createRoutingProvider, type ProviderRouteResponse } from '../providers/routingProvider'
@@ -102,6 +103,18 @@ export const stitchSegments = (results: SegmentCompileResult[]): ProviderRouteRe
     throw new Error('All segments failed — cannot stitch')
   }
 
+  // Decode each polyline segment, concatenate, then re-encode
+  // Google polylines use delta encoding, so naive string concatenation is mathematically wrong
+  const allPoints = ok.flatMap((r) => decodePolyline(r.route.overviewGeometry.value))
+
+  // Deduplicate boundary points where segments meet (avoid duplicate coordinates)
+  const deduped = allPoints.filter(
+    (p, i) =>
+      i === 0 || p.lat !== allPoints[i - 1].lat || p.lng !== allPoints[i - 1].lng
+  )
+
+  const value = encodePolyline(deduped)
+
   return {
     provider: 'google',
     bounds: mergeBounds(ok.map((r) => r.route.bounds)),
@@ -109,7 +122,7 @@ export const stitchSegments = (results: SegmentCompileResult[]): ProviderRouteRe
       format: 'polyline',
       encoding: 'google_encoded_polyline',
       precision: 5,
-      value: ok.map((r) => r.route.overviewGeometry.value).join(''),
+      value,
     },
     legs: ok.flatMap((r, i) =>
       r.route.legs.map((leg) => ({

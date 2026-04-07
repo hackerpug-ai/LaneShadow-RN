@@ -106,6 +106,66 @@ export const decodePolyline = (encoded: string): LatLng[] => {
 }
 
 /**
+ * Encode a signed integer using the Google polyline encoding scheme.
+ *
+ * Algorithm:
+ * 1. Convert signed to unsigned: (value << 1) ^ (value >> 31)
+ * 2. Encode in chunks of 5 bits (0x1F mask)
+ * 3. Set continuation bit (0x20) on all but the last chunk
+ * 4. Add 63 to each chunk (ASCII offset for printable characters)
+ */
+const encodeSignedValue = (value: number): string => {
+  // Convert signed to unsigned using sign-magnitude encoding
+  let unsigned = (value << 1) ^ (value >> 31)
+  let encoded = ''
+
+  while (unsigned >= 0x20) {
+    // Encode chunk with continuation bit
+    encoded += String.fromCharCode((0x20 | (unsigned & 0x1f)) + 63)
+    unsigned >>>= 5
+  }
+
+  // Final chunk without continuation bit
+  encoded += String.fromCharCode(unsigned + 63)
+
+  return encoded
+}
+
+/**
+ * Encode an array of LatLng points into a Google Maps encoded polyline string.
+ * Implements the standard Google encoded polyline algorithm:
+ * https://developers.google.com/maps/documentation/utilities/polylinealgorithm
+ *
+ * This is the inverse of decodePolyline. It encodes latitude/longitude pairs
+ * into a compact ASCII string format suitable for URL parameters or storage.
+ *
+ * @param points - Array of lat/lng objects to encode
+ * @returns Encoded polyline string, or empty string if input is empty
+ */
+export const encodePolyline = (points: LatLng[]): string => {
+  if (points.length === 0) return ''
+
+  let output = ''
+  let prevLat = 0
+  let prevLng = 0
+
+  for (const { lat, lng } of points) {
+    // Convert to E5 (multiply by 1e5 and round)
+    const latE5 = Math.round(lat * 1e5)
+    const lngE5 = Math.round(lng * 1e5)
+
+    // Encode deltas from previous point
+    output += encodeSignedValue(latE5 - prevLat)
+    output += encodeSignedValue(lngE5 - prevLng)
+
+    prevLat = latE5
+    prevLng = lngE5
+  }
+
+  return output
+}
+
+/**
  * Sample a polyline down to at most `maxPoints` points using uniform stride.
  * Always includes first and last points.
  */
