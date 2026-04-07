@@ -9,7 +9,7 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 120
 
     steps:
       - name: Install pmtiles CLI
@@ -41,8 +41,9 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_S3_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_S3_SECRET }}
         run: |
-          pmtiles upload us-canada.pmtiles map-data/us-canada.pmtiles \
-            --bucket='s3://laneshadow?endpoint=https://d5110b1895ee190e145c0c8756f49879.r2.cloudflarestorage.com&region=auto'
+          aws s3 cp us-canada.pmtiles s3://laneshadow/map-data/us-canada.pmtiles \
+            --endpoint-url "https://d5110b1895ee190e145c0c8756f49879.r2.cloudflarestorage.com" \
+            --region auto
 
       - name: Verify upload
         env:
