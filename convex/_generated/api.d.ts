@@ -9,6 +9,7 @@
  */
 
 import type * as actions_agent_budgetTracker from "../actions/agent/budgetTracker.js";
+import type * as actions_agent_lib_geo from "../actions/agent/lib/geo.js";
 import type * as actions_agent_lib_piTools from "../actions/agent/lib/piTools.js";
 import type * as actions_agent_lib_planRideOrchestrator from "../actions/agent/lib/planRideOrchestrator.js";
 import type * as actions_agent_lib_reliability from "../actions/agent/lib/reliability.js";
@@ -23,16 +24,19 @@ import type * as actions_agent_ridePlanningAgent from "../actions/agent/ridePlan
 import type * as actions_agent_runAgent from "../actions/agent/runAgent.js";
 import type * as actions_agent_sendMessage from "../actions/agent/sendMessage.js";
 import type * as actions_agent_sessionContext from "../actions/agent/sessionContext.js";
+import type * as actions_agent_tools_checkSurface from "../actions/agent/tools/checkSurface.js";
 import type * as actions_agent_tools_compileSketch from "../actions/agent/tools/compileSketch.js";
 import type * as actions_agent_tools_computeRouteIndex from "../actions/agent/tools/computeRouteIndex.js";
 import type * as actions_agent_tools_enrichRoute from "../actions/agent/tools/enrichRoute.js";
 import type * as actions_agent_tools_findScenicWaypoints from "../actions/agent/tools/findScenicWaypoints.js";
+import type * as actions_agent_tools_getCurvature from "../actions/agent/tools/getCurvature.js";
 import type * as actions_agent_tools_getElevation from "../actions/agent/tools/getElevation.js";
 import type * as actions_agent_tools_getUserFavorites from "../actions/agent/tools/getUserFavorites.js";
 import type * as actions_agent_tools_lookupRoad from "../actions/agent/tools/lookupRoad.js";
 import type * as actions_agent_tools_mapConditions from "../actions/agent/tools/mapConditions.js";
 import type * as actions_agent_tools_normalizeRoute from "../actions/agent/tools/normalizeRoute.js";
 import type * as actions_agent_tools_probeConditions from "../actions/agent/tools/probeConditions.js";
+import type * as actions_agent_tools_searchAlongRoute from "../actions/agent/tools/searchAlongRoute.js";
 import type * as actions_users from "../actions/users.js";
 import type * as db_clerkSync from "../db/clerkSync.js";
 import type * as db_favoriteRoads from "../db/favoriteRoads.js";
@@ -61,6 +65,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   "actions/agent/budgetTracker": typeof actions_agent_budgetTracker;
+  "actions/agent/lib/geo": typeof actions_agent_lib_geo;
   "actions/agent/lib/piTools": typeof actions_agent_lib_piTools;
   "actions/agent/lib/planRideOrchestrator": typeof actions_agent_lib_planRideOrchestrator;
   "actions/agent/lib/reliability": typeof actions_agent_lib_reliability;
@@ -75,16 +80,19 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/runAgent": typeof actions_agent_runAgent;
   "actions/agent/sendMessage": typeof actions_agent_sendMessage;
   "actions/agent/sessionContext": typeof actions_agent_sessionContext;
+  "actions/agent/tools/checkSurface": typeof actions_agent_tools_checkSurface;
   "actions/agent/tools/compileSketch": typeof actions_agent_tools_compileSketch;
   "actions/agent/tools/computeRouteIndex": typeof actions_agent_tools_computeRouteIndex;
   "actions/agent/tools/enrichRoute": typeof actions_agent_tools_enrichRoute;
   "actions/agent/tools/findScenicWaypoints": typeof actions_agent_tools_findScenicWaypoints;
+  "actions/agent/tools/getCurvature": typeof actions_agent_tools_getCurvature;
   "actions/agent/tools/getElevation": typeof actions_agent_tools_getElevation;
   "actions/agent/tools/getUserFavorites": typeof actions_agent_tools_getUserFavorites;
   "actions/agent/tools/lookupRoad": typeof actions_agent_tools_lookupRoad;
   "actions/agent/tools/mapConditions": typeof actions_agent_tools_mapConditions;
   "actions/agent/tools/normalizeRoute": typeof actions_agent_tools_normalizeRoute;
   "actions/agent/tools/probeConditions": typeof actions_agent_tools_probeConditions;
+  "actions/agent/tools/searchAlongRoute": typeof actions_agent_tools_searchAlongRoute;
   "actions/users": typeof actions_users;
   "db/clerkSync": typeof db_clerkSync;
   "db/favoriteRoads": typeof db_favoriteRoads;
