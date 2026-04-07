@@ -61,13 +61,10 @@ export class PlanningEventEmitter {
   }
 
   /**
-   * Lazy init — creates the planning row on first event, so simple "hello"
-   * responses that never call tools produce no planning row.
+   * Create the planning row immediately. Call this right after construction.
    */
-  private async ensureInit(): Promise<void> {
-    if (this.messageId !== null) return
-
-    console.info('[PlanningEmitter] Creating planning row (lazy init)')
+  async init(): Promise<void> {
+    console.info('[PlanningEmitter] Creating planning row')
     const result = await this.opts.runMutation(
       internal.db.sessionMessages.createPendingAssistantMessage,
       {
@@ -77,6 +74,12 @@ export class PlanningEventEmitter {
     )
     this.messageId = result.messageId
     console.info(`[PlanningEmitter] Planning row created: ${this.messageId}`)
+  }
+
+  /** @deprecated kept for internal consistency — just checks init happened */
+  private async ensureInit(): Promise<void> {
+    if (this.messageId !== null) return
+    await this.init()
   }
 
   private async persistContent(statusLine: string): Promise<void> {

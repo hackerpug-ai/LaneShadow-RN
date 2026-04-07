@@ -28,6 +28,7 @@ import { summarizeToolResult } from '../lib/summarizeToolResult'
 export type OrchestratorResult = {
   response: string
   attachments?: { type: string; routePlanId?: Id<'route_plans'> }[]
+  metrics?: import('../runAgent').RunAgentMetrics
 }
 
 // -----------------------------------------------------------------------------
@@ -360,5 +361,6 @@ export async function executeOrchestrator(
   return {
     response: result.response || (attachments.length > 0 ? 'Here are your route options!' : ''),
     attachments: attachments.length > 0 ? attachments : undefined,
+    metrics: result.metrics,
   }
 }

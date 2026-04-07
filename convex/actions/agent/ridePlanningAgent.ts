@@ -94,10 +94,11 @@ export async function executeRidePlanningAgent(
   ctx: AgentContext,
   userMessage: string,
   executeCtx?: ExecuteContext
-): Promise<{ response: string; attachments?: { type: string; routePlanId?: Id<'route_plans'> }[] }> {
+): Promise<{ response: string; attachments?: { type: string; routePlanId?: Id<'route_plans'> }[]; metrics?: import('./runAgent').RunAgentMetrics }> {
   const result = await executeOrchestrator(ctx, userMessage, executeCtx)
   return {
     response: result.response,
     attachments: result.attachments,
+    metrics: result.metrics,
   }
 }

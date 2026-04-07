@@ -8,6 +8,7 @@ import { routePlanValidator } from '../models/route-plans'
 import { savedRouteValidator } from '../models/saved-routes'
 import { sessionMessageValidator } from '../models/session-messages'
 import { userValidator } from '../models/users'
+import { performanceValidator } from '../models/performance'
 
 /**
  * Convex Database Schema for React Native + Convex Template
@@ -76,4 +77,9 @@ export default defineSchema({
   session_messages: defineTable(sessionMessageValidator)
     .index('by_sessionId', ['sessionId'])
     .index('by_sessionId_and_status', ['sessionId', 'status']),
+
+  performance: defineTable(performanceValidator)
+    .index('by_processType', ['processType'])
+    .index('by_agent_and_createdAt', ['agent', 'createdAt'])
+    .index('by_createdAt', ['createdAt']),
 })

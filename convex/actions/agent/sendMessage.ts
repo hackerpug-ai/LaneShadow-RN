@@ -355,12 +355,12 @@ export const sendMessage = action({
     const { getMessageId: getTextMessageId, onTextDelta, onThinkingDelta, finalizeOk, finalizeFail } =
       await buildStreamingContext(args.sessionId, ctx.runMutation.bind(ctx))
 
-    // Create the planning emitter — lazy: no row is created until the first
-    // event fires, so simple "hello" responses produce no planning row.
+    // Create the planning emitter — always create the row immediately
     const planningEmitter = new PlanningEventEmitter({
       runMutation: ctx.runMutation.bind(ctx),
       sessionId: args.sessionId,
     })
+    await planningEmitter.init()
 
     // Track the final assistant message for piMessage persistence
     let finalAssistantMessage: AssistantMessage | undefined = undefined
@@ -400,7 +400,42 @@ export const sendMessage = action({
         // the final AssistantMessage as piMessage so the next session load has
         // the full pi-ai message stored.
         await finalizeOk(finalAssistantMessage as unknown)
-      } catch (error) {
+
+        // Record performance metrics
+        if (agentResult.metrics) {
+          const m = agentResult.metrics
+          await ctx.runMutation(internal.db.performance.recordAgentRun, {
+            agent: 'orchestrator',
+            model: 'claude-opus-4-6',
+            sessionId: args.sessionId as unknown as string,
+            input: args.content.slice(0, 200),
+            output: (agentResult.response ?? '').slice(0, 200),
+            steps: m.steps,
+            toolCalls: m.toolCalls,
+            tools: m.tools,
+            durationMs: m.durationMs,
+            inputTokens: m.inputTokens,
+            outputTokens: m.outputTokens,
+            cacheReadTokens: m.cacheReadTokens,
+            totalCostUsd: m.totalCostUsd,
+            success: true,
+          })
+        }
+      } catch (error: any) {
+        // Record failed run
+        await ctx.runMutation(internal.db.performance.recordAgentRun, {
+          agent: 'orchestrator',
+          model: 'claude-opus-4-6',
+          sessionId: args.sessionId as unknown as string,
+          input: args.content.slice(0, 200),
+          steps: 0,
+          toolCalls: 0,
+          tools: [],
+          durationMs: 0,
+          success: false,
+          error: (error?.message ?? String(error)).slice(0, 500),
+        })
+
         // Convert agent errors to conversational messages
         console.error('[sendMessage] Agent error:', error)
 

@@ -44,6 +44,17 @@ export type RunAgentConfig = {
   parallelSafeTools?: Set<string>
 }
 
+export type RunAgentMetrics = {
+  steps: number
+  toolCalls: number
+  tools: string[]
+  durationMs: number
+  inputTokens: number
+  outputTokens: number
+  cacheReadTokens: number
+  totalCostUsd: number
+}
+
 export type RunAgentResult = {
   /** Final text from the last (non-tool) assistant turn */
   response: string
@@ -51,6 +62,8 @@ export type RunAgentResult = {
   toolResults: { toolName: string; result: unknown }[]
   /** Full message array after the loop completes */
   messages: Message[]
+  /** Performance metrics for telemetry */
+  metrics: RunAgentMetrics
 }
 
 // -----------------------------------------------------------------------------
@@ -82,6 +95,13 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
 
   const toolResults: { toolName: string; result: unknown }[] = []
   const deadline = Date.now() + timeoutMs
+  const t0 = Date.now()
+  let totalInputTokens = 0
+  let totalOutputTokens = 0
+  let totalCacheReadTokens = 0
+  let totalCostUsd = 0
+  let stepCount = 0
+  const toolNames = new Set<string>()
 
   console.info(`[runAgent] Starting agent loop: maxSteps=${maxSteps}, timeoutMs=${timeoutMs}, tools=${(context.tools ?? []).map(t => t.name).join(', ')}`)
 
@@ -122,8 +142,15 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
 
     const assistant = await eventStream.result()
 
-    // Track cumulative spend; throws ConvexError(AGENT_BUDGET_EXCEEDED) if over limit.
+    // Track cumulative spend and metrics
     budgetTracker?.add(assistant.usage)
+    if (assistant.usage) {
+      totalInputTokens += assistant.usage.input ?? 0
+      totalOutputTokens += assistant.usage.output ?? 0
+      totalCacheReadTokens += assistant.usage.cacheRead ?? 0
+      totalCostUsd += assistant.usage.cost?.total ?? 0
+    }
+    stepCount = step + 1
 
     context.messages.push(assistant)
 
@@ -248,6 +275,7 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
 
       // Full result stays in toolResults for callers to inspect (e.g. attachments).
       toolResults.push({ toolName: call.name, result })
+      toolNames.add(call.name)
 
       // Optionally trimmed result goes into the LLM context.
       const contextResult = summarizeForContext
@@ -280,9 +308,23 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
       .join('')
   }
 
+  const metrics: RunAgentMetrics = {
+    steps: stepCount,
+    toolCalls: toolResults.length,
+    tools: [...toolNames],
+    durationMs: Date.now() - t0,
+    inputTokens: totalInputTokens,
+    outputTokens: totalOutputTokens,
+    cacheReadTokens: totalCacheReadTokens,
+    totalCostUsd: totalCostUsd,
+  }
+
+  console.info(`[runAgent] metrics: steps=${metrics.steps} tools=[${metrics.tools.join(',')}] duration=${metrics.durationMs}ms cost=$${metrics.totalCostUsd.toFixed(4)} tokens(in=${metrics.inputTokens} out=${metrics.outputTokens} cache=${metrics.cacheReadTokens})`)
+
   return {
     response,
     toolResults,
     messages: context.messages,
+    metrics,
   }
 }
