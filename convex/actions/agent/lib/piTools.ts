@@ -69,6 +69,20 @@ export const AgentToolSchemas = {
   searchFavorites: Type.Object({
     query: Type.String({ description: 'Search query to filter saved routes' }),
   }),
+
+  getRouteWeather: Type.Object({
+    polyline: Type.Array(
+      Type.Object({
+        lat: Type.Number({ description: 'Latitude in decimal degrees' }),
+        lng: Type.Number({ description: 'Longitude in decimal degrees' }),
+      }),
+      { description: 'Array of lat/lng points representing the route polyline' }
+    ),
+    departureTimeMs: Type.Integer({
+      description:
+        'Planned departure time as unix timestamp in milliseconds. Used to select the matching forecast hour.',
+    }),
+  }),
 }
 
 /**
