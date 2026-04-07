@@ -39,6 +39,8 @@ import Animated, {
 } from 'react-native-reanimated'
 import { IconSymbol } from '../../ui/icon-symbol'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
+import { PlanningBottomSheet } from '../../sheets/planning-bottom-sheet'
+import type { PlanningEvent } from '../../sheets/planning-bottom-sheet'
 import type { Id } from '../../../convex/_generated/dataModel'
 import type { CardAttachment } from '../card-registry'
 
@@ -65,16 +67,27 @@ export type PlanningCardProps = {
 // ---------------------------------------------------------------------------
 
 type PlanningContent = {
-  events: unknown[]
+  events: PlanningEvent[]
   statusLine: string
   totalDurationMs: number
+}
+
+function isPlanningEvent(value: unknown): value is PlanningEvent {
+  if (typeof value !== 'object' || value === null) return false
+  const v = value as Record<string, unknown>
+  return (
+    (v.type === 'tool_pending' || v.type === 'tool_complete' || v.type === 'agent_complete') &&
+    typeof v.agent === 'string' &&
+    typeof v.ts === 'number'
+  )
 }
 
 function parsePlanningContent(raw: string): PlanningContent {
   try {
     const parsed = JSON.parse(raw)
+    const rawEvents = Array.isArray(parsed.events) ? parsed.events : []
     return {
-      events: Array.isArray(parsed.events) ? parsed.events : [],
+      events: rawEvents.filter(isPlanningEvent),
       statusLine: typeof parsed.statusLine === 'string' ? parsed.statusLine : '',
       totalDurationMs:
         typeof parsed.totalDurationMs === 'number' ? parsed.totalDurationMs : 0,
@@ -143,6 +156,7 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
   const { semantic } = useSemanticTheme()
 
   const [expanded, setExpanded] = useState(false)
+  const [sheetVisible, setSheetVisible] = useState(false)
   const [reduceMotion, setReduceMotion] = useState(false)
 
   const status = message.status
@@ -224,6 +238,7 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
   const handleToggle = () => {
     if (!canExpand) return
     setExpanded((prev) => !prev)
+    setSheetVisible(true)
   }
 
   return (
@@ -308,6 +323,12 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
           ) : null}
         </View>
       </Pressable>
+      <PlanningBottomSheet
+        isVisible={sheetVisible}
+        onClose={() => setSheetVisible(false)}
+        events={content.events}
+        totalDurationMs={content.totalDurationMs}
+      />
     </View>
   )
 }
