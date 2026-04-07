@@ -57,6 +57,13 @@ type UpdateLastKnownLocationCtx = {
   }
 }
 
+type DeleteSessionCtx = {
+  db: {
+    get: (id: Id<'planning_sessions'>) => Promise<PlanningSessionDoc | null>
+    patch: (id: Id<'planning_sessions'>, fields: object) => Promise<void>
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -100,7 +107,8 @@ export const listSessionsHandler = async (
     .order('desc')
     .collect()
 
-  return sessions
+  // Filter out soft-deleted sessions
+  return sessions.filter((session) => !session.deletedAt)
 }
 
 export const getSessionByIdHandler = async (
@@ -141,6 +149,22 @@ export const updateLastKnownLocationHandler = async (
       lng: args.lng,
       updatedAt: Date.now(),
     },
+  })
+}
+
+export const deleteSessionHandler = async (
+  ctx: DeleteSessionCtx,
+  args: { sessionId: Id<'planning_sessions'> },
+  clerkUserId: string
+): Promise<void> => {
+  const doc = await ctx.db.get(args.sessionId)
+  if (!doc || !isOwnedByUser(doc, clerkUserId)) {
+    throw new ConvexError(ERROR_CODES.SESSION_NOT_FOUND)
+  }
+
+  // Soft delete - mark as deleted with timestamp
+  await ctx.db.patch(args.sessionId, {
+    deletedAt: Date.now(),
   })
 }
 
@@ -216,6 +240,20 @@ export const updateLastKnownLocation = internalMutation({
     await updateLastKnownLocationHandler(
       ctx as unknown as UpdateLastKnownLocationCtx,
       args
+    )
+    return null
+  },
+})
+
+export const deleteSession = mutation({
+  args: { sessionId: v.id('planning_sessions') },
+  returns: v.null(),
+  handler: async (ctx, args): Promise<null> => {
+    const { clerkUserId } = await requireIdentity(ctx)
+    await deleteSessionHandler(
+      ctx as unknown as DeleteSessionCtx,
+      args,
+      clerkUserId
     )
     return null
   },

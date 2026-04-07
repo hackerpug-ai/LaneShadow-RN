@@ -27,5 +27,6 @@ export const planningSessionValidator = v.object({
   createdAt: v.number(),
   updatedAt: v.number(),
   lastKnownLocation: v.optional(lastKnownLocationValidator),
+  deletedAt: v.optional(v.number()),
 })
 export type PlanningSession = Infer<typeof planningSessionValidator>

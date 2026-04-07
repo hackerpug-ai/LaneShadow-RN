@@ -19,7 +19,9 @@ export type DrawerMenuItem = {
   label: string
   icon: IconName
   onPress: () => void
+  onLongPress?: () => void
   active?: boolean
+  disabled?: boolean
   testID?: string
 }
 
@@ -131,6 +133,9 @@ export const DrawerMenu = ({
                 <Pressable
                   key={itemIndex}
                   onPress={item.onPress}
+                  onLongPress={item.onLongPress}
+                  disabled={item.disabled}
+                  delayLongPress={500}
                   testID={item.testID}
                   style={({ pressed }) => [
                     styles.menuItem,
@@ -143,6 +148,7 @@ export const DrawerMenu = ({
                         : pressed
                           ? semantic.color.surface.pressed
                           : 'transparent',
+                      opacity: item.disabled ? 0.5 : 1,
                     },
                   ]}
                 >
@@ -150,18 +156,22 @@ export const DrawerMenu = ({
                     name={item.icon}
                     size={24}
                     color={
-                      item.active
-                        ? semantic.color.primary.default
-                        : semantic.color.onSurface.default
+                      item.disabled
+                        ? semantic.color.onSurface.subtle
+                        : item.active
+                          ? semantic.color.primary.default
+                          : semantic.color.onSurface.default
                     }
                   />
                   <Text
                     style={[
                       semantic.type.body.md,
                       {
-                        color: item.active
-                          ? semantic.color.primary.default
-                          : semantic.color.onSurface.default,
+                        color: item.disabled
+                          ? semantic.color.onSurface.subtle
+                          : item.active
+                            ? semantic.color.primary.default
+                            : semantic.color.onSurface.default,
                         fontWeight: item.active ? '500' : '400',
                       },
                     ]}
