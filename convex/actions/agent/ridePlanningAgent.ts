@@ -1153,8 +1153,18 @@ export async function executeRidePlanningAgent(
   // getModel is typed against the known model map; cast via `as any`
   // since provider/model are runtime strings that may be overridden via env var.
   console.info(`[agent] Initializing model: provider=${AI_PROVIDER}, model=${AI_MODEL}`)
-  const model = getModel(AI_PROVIDER as any, AI_MODEL as any)
-  console.info(`[agent] Model resolved: api=${(model as any)?.api}, id=${(model as any)?.id}`)
+  let model: ReturnType<typeof getModel>
+  try {
+    model = getModel(AI_PROVIDER as any, AI_MODEL as any)
+  } catch (e) {
+    console.error(`[agent] getModel failed:`, e)
+    throw e
+  }
+  if (!model || !(model as any).api) {
+    console.error(`[agent] getModel returned invalid model:`, JSON.stringify(model))
+    throw new Error(`Model not found: provider=${AI_PROVIDER}, model=${AI_MODEL}. Model object: ${JSON.stringify(model)}`)
+  }
+  console.info(`[agent] Model resolved: api=${(model as any).api}, id=${(model as any).id}`)
 
   const context: Context = {
     systemPrompt: await buildSystemPrompt(ctx),
