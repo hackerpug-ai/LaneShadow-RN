@@ -38,6 +38,7 @@ type PlanRouteSuccessSummary = {
   type: 'routes'
   routePlanId: unknown
   summary: RouteSummaryEntry[]
+  message?: string
 }
 
 function summarizePlanRoute(result: Record<string, unknown>): unknown {
@@ -99,6 +100,13 @@ function summarizePlanRoute(result: Record<string, unknown>): unknown {
       summary,
     }
 
+    // Preserve any partial-route user-facing message embedded in data
+    // (e.g. "I routed most of the trip but couldn't find a path for Bad Road").
+    const dataMessage = isObject(data) && typeof data['message'] === 'string' ? data['message'] : undefined
+    if (dataMessage) {
+      summarized.message = dataMessage
+    }
+
     return summarized
   }
 
@@ -118,7 +126,7 @@ function summarizePlanRoute(result: Record<string, unknown>): unknown {
  * durations. All other tool results pass through unchanged.
  */
 export function summarizeForContext(toolName: string, result: unknown): unknown {
-  if (toolName === 'planRoute') {
+  if (toolName === 'planRoute' || toolName === 'compileSketch') {
     if (!isObject(result)) return result
     return summarizePlanRoute(result)
   }

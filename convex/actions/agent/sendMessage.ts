@@ -23,6 +23,7 @@ import { AI_MODEL } from '../../lib/env'
  */
 export const TOOL_TO_CARD_KIND: Record<string, SessionMessageKind> = {
   planRoute: 'routing_card',
+  compileSketch: 'routing_card',
 }
 
 // ---------------------------------------------------------------------------
@@ -118,8 +119,8 @@ export function buildCardCallbacks(
     },
 
     async onToolFinish(toolCallId, toolName, _messageId, result) {
-      // Only planRoute produces a card. For all other tools, do nothing.
-      if (toolName !== 'planRoute') return
+      // Only card-backed tools (planRoute, compileSketch) produce a card.
+      if (!TOOL_TO_CARD_KIND[toolName]) return
 
       const routePlanId = (result as { routePlanId?: Id<'route_plans'> })
         ?.routePlanId

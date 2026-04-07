@@ -361,6 +361,10 @@ describe('TOOL_TO_CARD_KIND', () => {
     expect(TOOL_TO_CARD_KIND['planRoute']).toBe('routing_card')
   })
 
+  it('maps compileSketch to routing_card', () => {
+    expect(TOOL_TO_CARD_KIND['compileSketch']).toBe('routing_card')
+  })
+
   it('does not map fetchWeather (placeholder stub excluded)', () => {
     expect(TOOL_TO_CARD_KIND['fetchWeather']).toBeUndefined()
   })
