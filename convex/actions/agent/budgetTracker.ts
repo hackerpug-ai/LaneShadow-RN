@@ -35,7 +35,7 @@ export class BudgetTracker {
     private readonly limitUSD: number = 0.25,
     options: BudgetTrackerOptions = {}
   ) {
-    this.mode = options.mode ?? 'gate'
+    this.mode = options.mode ?? 'log'
   }
 
   /**

@@ -26,7 +26,7 @@ function makeUsage(total: number) {
 describe('BudgetTracker', () => {
   describe('accumulation', () => {
     it('sums usage.cost.total across multiple add() calls', () => {
-      const tracker = new BudgetTracker(1.0)
+      const tracker = new BudgetTracker(1.0, { mode: 'gate' })
       tracker.add(makeUsage(0.10))
       tracker.add(makeUsage(0.05))
       tracker.add(makeUsage(0.20))
@@ -36,14 +36,14 @@ describe('BudgetTracker', () => {
 
   describe('no throw below limit', () => {
     it('does not throw when a single add() stays under the limit', () => {
-      const tracker = new BudgetTracker(0.25)
+      const tracker = new BudgetTracker(0.25, { mode: 'gate' })
       expect(() => tracker.add(makeUsage(0.10))).not.toThrow()
     })
   })
 
   describe('throw at limit', () => {
     it('throws ConvexError with AGENT_BUDGET_EXCEEDED when cumulative reaches the limit', () => {
-      const tracker = new BudgetTracker(0.25)
+      const tracker = new BudgetTracker(0.25, { mode: 'gate' })
       tracker.add(makeUsage(0.10))
       tracker.add(makeUsage(0.10))
       // Third add pushes cumulative to 0.30 >= 0.25
@@ -51,7 +51,7 @@ describe('BudgetTracker', () => {
     })
 
     it('thrown error carries the expected code, cumulativeUSD, and limitUSD', () => {
-      const tracker = new BudgetTracker(0.25)
+      const tracker = new BudgetTracker(0.25, { mode: 'gate' })
       tracker.add(makeUsage(0.10))
       try {
         tracker.add(makeUsage(0.20))
@@ -66,7 +66,7 @@ describe('BudgetTracker', () => {
     })
 
     it('throws exactly on the crossing call, not a cycle later', () => {
-      const tracker = new BudgetTracker(0.15)
+      const tracker = new BudgetTracker(0.15, { mode: 'gate' })
       tracker.add(makeUsage(0.10)) // cumulative: 0.10 — no throw
       // This call crosses the limit and must throw immediately
       expect(() => tracker.add(makeUsage(0.10))).toThrow(ConvexError)
@@ -75,20 +75,20 @@ describe('BudgetTracker', () => {
 
   describe('getCumulative and getRemainingBudget', () => {
     it('getCumulative returns the running total after adds', () => {
-      const tracker = new BudgetTracker(1.0)
+      const tracker = new BudgetTracker(1.0, { mode: 'gate' })
       tracker.add(makeUsage(0.12))
       tracker.add(makeUsage(0.08))
       expect(tracker.getCumulative()).toBeCloseTo(0.20)
     })
 
     it('getRemainingBudget returns limitUSD minus cumulative', () => {
-      const tracker = new BudgetTracker(1.0)
+      const tracker = new BudgetTracker(1.0, { mode: 'gate' })
       tracker.add(makeUsage(0.30))
       expect(tracker.getRemainingBudget()).toBeCloseTo(0.70)
     })
 
     it('getRemainingBudget can be negative after limit is crossed', () => {
-      const tracker = new BudgetTracker(0.25)
+      const tracker = new BudgetTracker(0.25, { mode: 'gate' })
       tracker.add(makeUsage(0.10))
       try {
         tracker.add(makeUsage(0.20))
@@ -101,12 +101,12 @@ describe('BudgetTracker', () => {
 
   describe('custom limit', () => {
     it('respects a custom $0.001 limit and throws on a tiny cost', () => {
-      const tracker = new BudgetTracker(0.001)
+      const tracker = new BudgetTracker(0.001, { mode: 'gate' })
       expect(() => tracker.add(makeUsage(0.002))).toThrow(ConvexError)
     })
 
     it('does not throw when cost is exactly below the custom limit', () => {
-      const tracker = new BudgetTracker(0.001)
+      const tracker = new BudgetTracker(0.001, { mode: 'gate' })
       expect(() => tracker.add(makeUsage(0.0005))).not.toThrow()
     })
   })
@@ -156,7 +156,7 @@ describe('BudgetTracker', () => {
 
   describe('agentLabel parameter', () => {
     it('accepts optional agentLabel parameter without throwing (gate mode, under limit)', () => {
-      const tracker = new BudgetTracker(1.0)
+      const tracker = new BudgetTracker(1.0, { mode: 'gate' })
       expect(() => tracker.add(makeUsage(0.05), 'testAgent')).not.toThrow()
     })
 
