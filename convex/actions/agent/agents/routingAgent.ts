@@ -325,6 +325,7 @@ async function runCompileSketch(
         const lastResults = await compileSegments({
           planInput,
           sketch: { ...sketch, segments: toCompile },
+          locationBias: ctx.currentLocation,
         })
         const allResults = mergeSegmentResults(newSegments, unchanged, lastResults)
         const stillFailed = allResults.filter(r => r.status === 'failed')
@@ -392,6 +393,7 @@ async function runCompileSketch(
       const segmentResults = await compileSegments({
         planInput,
         sketch: { ...sketch, segments: toCompile },
+        locationBias: ctx.currentLocation,
       })
 
       // Merge new results with cached unchanged segments

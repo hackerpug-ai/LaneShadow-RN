@@ -46,6 +46,7 @@ export type RoutingProvider = {
   routeSegment: (input: {
     segment: RouteSketchSegment
     anchorPoints: RouteSketchAnchorPoint[]
+    locationBias?: { lat: number; lng: number }
   }) => Promise<ProviderRouteResponse>
 }
 
@@ -249,17 +250,19 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
     return routes.map(parseGoogleRoute)
   },
 
-  routeSegment: async ({ segment, anchorPoints }): Promise<ProviderRouteResponse> => {
+  routeSegment: async ({ segment, anchorPoints, locationBias }): Promise<ProviderRouteResponse> => {
     // Resolve from/to coordinates: check anchors first, fall back to geocoding
+    // locationBias anchors geocode results near the rider's area (prevents
+    // "Highway 35" resolving to Texas instead of San Mateo County)
     const resolveCoords = async (name: string): Promise<{ lat: number; lng: number }> => {
       const anchor = findAnchorPoint(anchorPoints, name)
       if (anchor?.lat !== undefined && anchor?.lng !== undefined) {
         return { lat: anchor.lat, lng: anchor.lng }
       }
-      // Auto-geocode missing anchor points
-      console.info(`[routeSegment] Geocoding missing anchor: "${name}"`)
+      // Auto-geocode missing anchor points with location bias
+      console.info(`[routeSegment] Geocoding missing anchor: "${name}"${locationBias ? ` (bias: ${locationBias.lat.toFixed(2)},${locationBias.lng.toFixed(2)})` : ''}`)
       const geocoder = createGeocodingProvider()
-      const results = await geocoder.geocode(name)
+      const results = await geocoder.geocode(name, locationBias)
       if (results.length === 0) {
         throw new Error(`Could not geocode "${name}" — no results found`)
       }

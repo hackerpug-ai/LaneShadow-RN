@@ -123,8 +123,9 @@ export const stitchSegments = (results: SegmentCompileResult[]): ProviderRouteRe
 export const compileSegments = async (params: {
   planInput: PlanInput
   sketch: RouteSketch
+  locationBias?: { lat: number; lng: number }
 }): Promise<SegmentCompileResult[]> => {
-  const { sketch } = params
+  const { sketch, locationBias } = params
 
   if (sketch.segments.length > MAX_SEGMENTS_FOR_PER_SEGMENT_COMPILATION) {
     throw new Error(
@@ -136,7 +137,7 @@ export const compileSegments = async (params: {
 
   const settledResults = await Promise.allSettled(
     sketch.segments.map((segment) =>
-      provider.routeSegment({ segment, anchorPoints: sketch.anchorPoints })
+      provider.routeSegment({ segment, anchorPoints: sketch.anchorPoints, locationBias })
     )
   )
 
