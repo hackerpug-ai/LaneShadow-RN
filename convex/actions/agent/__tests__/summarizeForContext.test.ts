@@ -232,3 +232,54 @@ describe('summarizeForContext — pass-through tools', () => {
     expect(summarizeForContext('someUnknownTool', null)).toBeNull()
   })
 })
+
+// ---------------------------------------------------------------------------
+// compileSketch — same summarization logic as planRoute
+// ---------------------------------------------------------------------------
+
+describe('summarizeForContext — compileSketch success', () => {
+  it('compileSketch success result is summarized like planRoute (geometry dropped)', () => {
+    const result = makeSuccessResult(2)
+    const summarized = summarizeForContext('compileSketch', result) as any
+
+    expect(summarized.type).toBe('routes')
+    expect(summarized.routePlanId).toBe('route_plans:abc123')
+    expect(summarized.summary).toHaveLength(2)
+    expect(summarized.data).toBeUndefined()
+  })
+
+  it('compileSketch partial route preserves data.message in the summarized output', () => {
+    const result = makeSuccessResult(1)
+    ;(result.data as any).message = "I routed most of the trip but couldn't find a path for Bad Road."
+    const summarized = summarizeForContext('compileSketch', result) as any
+
+    expect(summarized.message).toBe("I routed most of the trip but couldn't find a path for Bad Road.")
+  })
+
+  it('compileSketch error passes through unchanged', () => {
+    const result = {
+      type: 'error' as const,
+      message: "I couldn't plan your route right now. Please try again.",
+      routePlanId: 'route_plans:xyz',
+    }
+    expect(summarizeForContext('compileSketch', result)).toEqual(result)
+  })
+
+  it('compileSketch chat (rate-limit) passes through unchanged', () => {
+    const result = {
+      type: 'chat' as const,
+      message: "You've reached your monthly limit.",
+    }
+    expect(summarizeForContext('compileSketch', result)).toEqual(result)
+  })
+
+  it('compileSketch summarized JSON is less than 30% of original for large geometry', () => {
+    const GEOMETRY_SIZE = 2000
+    const result = makeSuccessResult(3, GEOMETRY_SIZE)
+
+    const originalBytes = JSON.stringify(result).length
+    const summarizedBytes = JSON.stringify(summarizeForContext('compileSketch', result)).length
+
+    expect(summarizedBytes / originalBytes).toBeLessThan(0.3)
+  })
+})
