@@ -777,7 +777,8 @@ const HomeMapScreen = () => {
           )}
 
           {/* PREVIEW: Minimal overlay widget - positioned below original for comparison */}
-          {selectedOption && !chatMode && (overlayAvailability.wind || overlayAvailability.rain || overlayAvailability.temperature) && (
+          {/* TEMP: Force show minimal widget for visual testing */}
+          {selectedOption && !chatMode && (
             <View
               style={{
                 position: 'absolute',
