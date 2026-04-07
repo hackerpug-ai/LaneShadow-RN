@@ -157,6 +157,15 @@ export const AgentToolSchemas = {
   searchFavorites: Type.Object({
     query: Type.String({ description: 'Search query to filter saved routes' }),
   }),
+
+  getUserFavorites: Type.Object({
+    bbox: Type.Object({
+      north: Type.Number({ description: 'Northern latitude boundary of the region in decimal degrees' }),
+      south: Type.Number({ description: 'Southern latitude boundary of the region in decimal degrees' }),
+      east: Type.Number({ description: 'Eastern longitude boundary of the region in decimal degrees' }),
+      west: Type.Number({ description: 'Western longitude boundary of the region in decimal degrees' }),
+    }, { description: 'Geographic bounding box of the planned route region' }),
+  }),
 }
 
 /**
