@@ -17,6 +17,10 @@ export type EnrichmentAgentResult =
   | { status: 'answered'; data: unknown; summary: string }
   | { status: 'not_applicable'; reason: string }
 
+export type SearchAgentResult =
+  | { status: 'answered'; data: unknown; summary: string }
+  | { status: 'not_applicable'; reason: string }
+
 // -----------------------------------------------------------------------------
 // Sub-agent config (shared across all sub-agents in the orchestrator)
 // -----------------------------------------------------------------------------
