@@ -11,7 +11,7 @@
  * - AC4: Error message displayed on save failure, sheet stays open
  */
 
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useEffect, useState } from 'react'
 import { useMutation } from 'convex/react'
@@ -20,6 +20,7 @@ import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { BottomActionSheet } from './bottom-action-sheet'
 import { Input } from './input'
 import { Button } from './button'
+import { BottomSheetView } from '@gorhom/bottom-sheet'
 
 export type Bounds = {
   northeast: { lat: number; lng: number }
@@ -120,90 +121,108 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
   }
 
   return (
-    <BottomActionSheet visible={visible} onDismiss={onClose} testID="save-favorite-sheet">
-      <View style={styles.container}>
-        {/* Title */}
-        <Text
-          variant="headlineSmall"
-          style={[
-            styles.title,
-            { color: semantic.color.onSurface.default },
-          ]}
+    <BottomActionSheet
+      visible={visible}
+      onDismiss={onClose}
+      testID="save-favorite-sheet"
+      snapPoints={['80%']}
+    >
+      <BottomSheetView style={styles.container}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={0}
+          style={{ flex: 1 }}
         >
-          Save as Favorite
-        </Text>
-
-        {/* Caption */}
-        <Text
-          variant="bodyMedium"
-          style={[
-            styles.caption,
-            { color: semantic.color.onSurface.subtle },
-          ]}
-        >
-          Give this road segment a name to save it to your favorites
-        </Text>
-
-        {/* Name Input */}
-        <Input
-          testID="save-favorite-name-input"
-          value={name}
-          onChangeText={handleNameChange}
-          placeholder="e.g., Hwy 9 - Skyline Blvd"
-          maxLength={100}
-          autoFocus
-          error={!!error}
-        />
-
-        {/* Character Count */}
-        <Text
-          variant="bodySmall"
-          style={{ color: semantic.color.onSurface.subtle }}
-        >
-          {name.length}/100 characters
-        </Text>
-
-        {/* Error Message */}
-        {error && (
-          <Text
-            variant="bodySmall"
-            style={[
-              styles.errorText,
-              { color: semantic.color.danger.default },
-            ]}
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            bounces={false}
           >
-            {error}
-          </Text>
-        )}
+            {/* Title */}
+            <Text
+              variant="headlineSmall"
+              style={[
+                styles.title,
+                { color: semantic.color.onSurface.default },
+              ]}
+            >
+              Save as Favorite
+            </Text>
 
-        {/* Save Button */}
-        <View style={styles.buttonContainer}>
-          <Button
-            testID="save-favorite-save-button"
-            onPress={handleSave}
-            disabled={isSaving || !name.trim()}
-            loading={isSaving}
-            size="lg"
-            style={styles.saveButton}
-          >
-            Save Favorite
-          </Button>
+            {/* Caption */}
+            <Text
+              variant="bodyMedium"
+              style={[
+                styles.caption,
+                { color: semantic.color.onSurface.subtle },
+              ]}
+            >
+              Give this road segment a name to save it to your favorites
+            </Text>
 
-          {/* Cancel Button */}
-          <Button
-            testID="save-favorite-cancel-button"
-            onPress={() => {
-              onCancel?.()
-              onClose()
-            }}
-            variant="outline"
-            disabled={isSaving}
-            style={styles.cancelButton}
-          >
-            Cancel
-          </Button>
-        </View>
-      </View>
+            {/* Name Input */}
+            <Input
+              testID="save-favorite-name-input"
+              value={name}
+              onChangeText={handleNameChange}
+              placeholder="e.g., Hwy 9 - Skyline Blvd"
+              maxLength={100}
+              autoFocus
+              error={!!error}
+            />
+
+            {/* Character Count */}
+            <Text
+              variant="bodySmall"
+              style={{ color: semantic.color.onSurface.subtle }}
+            >
+              {name.length}/100 characters
+            </Text>
+
+            {/* Error Message */}
+            {error && (
+              <Text
+                variant="bodySmall"
+                style={[
+                  styles.errorText,
+                  { color: semantic.color.danger.default },
+                ]}
+              >
+                {error}
+              </Text>
+            )}
+
+            {/* Save Button */}
+            <View style={styles.buttonContainer}>
+              <Button
+                testID="save-favorite-save-button"
+                onPress={handleSave}
+                disabled={isSaving || !name.trim()}
+                loading={isSaving}
+                size="lg"
+                style={styles.saveButton}
+              >
+                Save Favorite
+              </Button>
+
+              {/* Cancel Button */}
+              <Button
+                testID="save-favorite-cancel-button"
+                onPress={() => {
+                  onCancel?.()
+                  onClose()
+                }}
+                variant="outline"
+                disabled={isSaving}
+                style={styles.cancelButton}
+              >
+                Cancel
+              </Button>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </BottomSheetView>
     </BottomActionSheet>
   )
 }
@@ -211,8 +230,14 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
     padding: 16,
     gap: 16,
+    paddingBottom: 32,
   },
   title: {
     marginBottom: 4,

@@ -96,6 +96,9 @@ export const BottomActionSheet = ({
         backgroundColor: semantic.color.background.default,
       }}
       handleComponent={() => null}
+      android_keyboardInputMode="adjustResize"
+      keyboardBehavior="interactive"
+      keyboardBlurBehavior="restore"
     >
       <PaperProvider theme={theme}>
         <BottomSheetView style={[styles.container]} testID={testID}>
