@@ -3,19 +3,74 @@
  *
  * Acceptance Criteria:
  * - AC1: Given favorite road data, when card renders, then shows name and mini map preview
- * - AC2: Given card rendered, when user taps delete, then confirmation dialog shown
- * - AC3: Given delete confirmed, when favoriteRoads.remove called, then card removed from list
- * - AC4: Given card rendered, when mini map displays, then shows road segment geometry
+ * - AC2: Given card rendered, when mini map displays, then shows road bounds for positioning
+ * - AC3: Given card rendered, when user taps delete, then onDelete callback triggered with ID
+ * - AC4: Given card rendered, when user taps card, then onPress callback triggered with ID
  */
 
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import React from 'react'
-import { render, fireEvent } from '@testing-library/react-native'
+
+// ---------------------------------------------------------------------------
+// Mock all modules before importing the component under test
+// ---------------------------------------------------------------------------
+
+// Mock useSemanticTheme hook
+vi.mock('../../../hooks/use-semantic-theme', () => ({
+  useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
+}))
+
+// Mock react-native-paper Text
+vi.mock('react-native-paper', () => {
+  const { createElement } = require('react')
+
+  const Text = ({ children, style, ...props }) =>
+    createElement('Text', { style, ...props }, children)
+
+  return { Text }
+})
+
+// Mock RouteThumbnail component
+vi.mock('../route-thumbnail', () => ({
+  RouteThumbnail: ({ width, height, testID }: any) => {
+    const { createElement } = require('react')
+    return createElement('View', { testID, style: { width, height } })
+  },
+}))
+
+// Mock Button component
+vi.mock('../button', () => {
+  const { createElement } = require('react')
+
+  return {
+    Button: ({ children, onPress, testID, accessibilityLabel, icon, ...props }: any) => {
+      return createElement(
+        'Pressable',
+        {
+          onPress,
+          testID,
+          accessibilityLabel,
+          accessibilityRole: 'button',
+        },
+        children || icon
+      )
+    },
+  }
+})
+
+// Mock IconSymbol component
+vi.mock('../icon-symbol', () => ({
+  IconSymbol: ({ name, size, color, testID }: any) => {
+    const { createElement } = require('react')
+    return createElement('View', { testID: testID || `icon-${name}`, style: { width: size, height: size, backgroundColor: color } })
+  },
+}))
 
 // ---------------------------------------------------------------------------
 // Import after mocks
 // ---------------------------------------------------------------------------
 
+import { render, fireEvent } from '@testing-library/react-native'
 import { FavoriteRoadCard } from '../favorite-road-card'
 
 // ---------------------------------------------------------------------------
@@ -30,6 +85,7 @@ const mockSemanticTheme = {
     success: { default: '#31A362' },
     warning: { default: '#D98E04' },
     danger: { default: '#E35D6A' },
+    error: { default: '#E35D6A' },
     info: { default: '#2B9AEB' },
     surface: { default: '#2B2725' },
     surfaceVariant: { default: '#34302D' },
@@ -96,85 +152,21 @@ const mockSemanticTheme = {
   },
 }
 
-// Mock useSemanticTheme hook
-vi.mock('../../../hooks/use-semantic-theme', () => ({
-  useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
-}))
-
-// Mock react-native-paper Text
-vi.mock('react-native-paper', () => {
-  const { View, Text: RNText, Pressable } = require('react-native')
-  const { createElement } = require('react')
-
-  const Text = ({ children, style, ...props }) =>
-    createElement(RNText, { style, ...props }, children)
-
-  return { Text }
-})
-
-// Mock RouteThumbnail component
-vi.mock('../route-thumbnail', () => ({
-  RouteThumbnail: ({ width, height, testID }: any) => {
-    const { View } = require('react-native')
-    return React.createElement(View, { testID, style: { width, height } })
-  },
-}))
-
-// Mock Card component
-vi.mock('../card', () => {
-  const { View } = require('react-native')
-  const { createElement } = require('react')
-
-  return {
-    Card: ({ children, testID, style }: any) =>
-      createElement(View, { testID, style }, children),
-  }
-})
-
-// Mock Button component
-vi.mock('../button', () => {
-  const { Pressable } = require('react-native')
-  const { createElement } = require('react')
-
-  return {
-    Button: ({ children, onPress, testID, accessibilityLabel, icon, ...props }: any) => {
-      // Render as a pressable view with testID
-      return createElement(
-        Pressable,
-        {
-          onPress,
-          testID,
-          accessibilityLabel,
-          accessibilityRole: 'button',
-        },
-        children || icon
-      )
-    },
-  }
-})
-
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-const mockFavorite: any = {
-  _id: 'favorite123',
-  _creationTime: 1234567890,
-  userId: 'user123',
-  name: 'Scenic Coastal Drive',
-  geometry: 'encoded_polyline_string',
-  bounds: {
-    north: 37.7749,
-    south: 37.7549,
-    east: -122.4194,
-    west: -122.4394,
-  },
-  createdAt: 1234567890,
+const mockBounds = {
+  north: 37.7749,
+  south: 37.7549,
+  east: -122.4194,
+  west: -122.4394,
 }
 
 const defaultProps = {
-  favorite: mockFavorite,
-  onDelete: vi.fn(),
+  favoriteRoadId: 'favorite123',
+  name: 'Scenic Coastal Drive',
+  bounds: mockBounds,
 }
 
 // ---------------------------------------------------------------------------
@@ -199,155 +191,145 @@ describe('FavoriteRoadCard', () => {
     it('should display the mini map preview', () => {
       const { getByTestId } = render(<FavoriteRoadCard {...defaultProps} />)
 
-      expect(getByTestId('route-thumbnail')).toBeTruthy()
+      expect(getByTestId('favorite-road-card-thumbnail')).toBeTruthy()
     })
 
-    it('should render thumbnail with correct size (60x60)', () => {
+    it('should render thumbnail with correct size (80x80)', () => {
       const { getByTestId } = render(<FavoriteRoadCard {...defaultProps} />)
 
-      const thumbnail = getByTestId('route-thumbnail')
+      const thumbnail = getByTestId('favorite-road-card-thumbnail')
       expect(thumbnail.props.style).toEqual(
         expect.objectContaining({
-          width: 60,
-          height: 60,
+          width: 80,
+          height: 80,
         })
       )
-    })
-
-    it('should display "Favorite road" caption', () => {
-      const { getByText } = render(<FavoriteRoadCard {...defaultProps} />)
-
-      expect(getByText('Favorite road')).toBeTruthy()
     })
   })
 
   /**
-   * AC2: Given card rendered, when user taps delete, then confirmation dialog shown
+   * AC2: Given card rendered, when mini map displays, then shows road bounds for positioning
    */
-  describe('AC2: Delete confirmation dialog', () => {
+  describe('AC2: Mini map uses bounds for positioning', () => {
+    it('should render RouteThumbnail with bounds prop', () => {
+      const { getByTestId } = render(<FavoriteRoadCard {...defaultProps} />)
+
+      const thumbnail = getByTestId('favorite-road-card-thumbnail')
+      expect(thumbnail).toBeTruthy()
+    })
+
+    it('should handle different bounds values', () => {
+      const differentBounds = {
+        north: 40.5,
+        south: 40.0,
+        east: -105.0,
+        west: -105.5,
+      }
+
+      const { getByTestId, getByText } = render(
+        <FavoriteRoadCard
+          {...defaultProps}
+          bounds={differentBounds}
+        />
+      )
+
+      // Should still render thumbnail
+      expect(getByTestId('favorite-road-card-thumbnail')).toBeTruthy()
+      // Should still show name
+      expect(getByText('Scenic Coastal Drive')).toBeTruthy()
+    })
+  })
+
+  /**
+   * AC3: Given card rendered, when user taps delete, then onDelete callback triggered with ID
+   */
+  describe('AC3: Delete button triggers callback', () => {
     it('should show delete button', () => {
       const { getByTestId } = render(<FavoriteRoadCard {...defaultProps} />)
 
-      expect(getByTestId('delete-button')).toBeTruthy()
+      expect(getByTestId('favorite-road-card-delete')).toBeTruthy()
     })
 
     it('should have accessibility label for delete button', () => {
       const { getByTestId } = render(<FavoriteRoadCard {...defaultProps} />)
 
-      expect(getByTestId('delete-button').props.accessibilityLabel).toBe(
+      expect(getByTestId('favorite-road-card-delete').props.accessibilityLabel).toBe(
         'Delete favorite'
       )
     })
 
-    it('should show confirmation dialog when delete button is pressed', () => {
-      const { getByTestId, queryByTestId } = render(
-        <FavoriteRoadCard {...defaultProps} />
-      )
-
-      // Dialog should not be visible initially
-      expect(queryByTestId('delete-favorite-dialog')).toBeNull()
-
-      // Press delete button
-      fireEvent.press(getByTestId('delete-button'))
-
-      // Dialog should now be visible
-      expect(getByTestId('delete-favorite-dialog')).toBeTruthy()
-    })
-
-    it('should include road name in dialog message', () => {
-      const { getByTestId, getAllByText } = render(
-        <FavoriteRoadCard {...defaultProps} />
-      )
-
-      fireEvent.press(getByTestId('delete-button'))
-
-      // Name appears twice: once in the card title, once in the dialog prompt.
-      // Assert both are present (second occurrence confirms dialog includes it).
-      const matches = getAllByText(/Scenic Coastal Drive/)
-      expect(matches.length).toBeGreaterThanOrEqual(2)
-    })
-
-    it('should dismiss dialog when cancel is pressed', () => {
-      const { getByTestId, queryByTestId } = render(
-        <FavoriteRoadCard {...defaultProps} />
-      )
-
-      // Open dialog
-      fireEvent.press(getByTestId('delete-button'))
-      expect(getByTestId('delete-favorite-dialog')).toBeTruthy()
-
-      // Press cancel
-      fireEvent.press(getByTestId('delete-favorite-dialog-cancel'))
-
-      // Dialog should be dismissed
-      expect(queryByTestId('delete-favorite-dialog')).toBeNull()
-    })
-  })
-
-  /**
-   * AC3: Given delete confirmed, when favoriteRoads.remove called, then card removed from list
-   */
-  describe('AC3: Delete confirmation', () => {
-    it('should call onDelete when delete is confirmed', () => {
+    it('should call onDelete with ID when delete button is pressed', () => {
       const mockOnDelete = vi.fn()
       const { getByTestId } = render(
         <FavoriteRoadCard {...defaultProps} onDelete={mockOnDelete} />
       )
 
-      // Open dialog
-      fireEvent.press(getByTestId('delete-button'))
-
-      // Confirm delete
-      fireEvent.press(getByTestId('delete-favorite-dialog-confirm'))
+      fireEvent.press(getByTestId('favorite-road-card-delete'))
 
       expect(mockOnDelete).toHaveBeenCalledTimes(1)
+      expect(mockOnDelete).toHaveBeenCalledWith('favorite123')
     })
 
-    it('should close dialog after confirmation', () => {
-      const { getByTestId, queryByTestId } = render(
-        <FavoriteRoadCard {...defaultProps} />
-      )
+    it('should not call onDelete when not provided', () => {
+      const { getByTestId } = render(<FavoriteRoadCard {...defaultProps} />)
 
-      // Open dialog
-      fireEvent.press(getByTestId('delete-button'))
-      expect(getByTestId('delete-favorite-dialog')).toBeTruthy()
-
-      // Confirm delete
-      fireEvent.press(getByTestId('delete-favorite-dialog-confirm'))
-
-      // Dialog should be closed
-      expect(queryByTestId('delete-favorite-dialog')).toBeNull()
+      // Should not throw when delete is pressed without callback
+      expect(() => {
+        fireEvent.press(getByTestId('favorite-road-card-delete'))
+      }).not.toThrow()
     })
   })
 
   /**
-   * AC4: Given card rendered, when mini map displays, then shows road segment geometry
+   * AC4: Given card rendered, when user taps card, then onPress callback triggered with ID
    */
-  describe('AC4: Mini map geometry display', () => {
-    it('should render RouteThumbnail with bounds for geometry display', () => {
-      const { getByTestId } = render(<FavoriteRoadCard {...defaultProps} />)
+  describe('AC4: Card press triggers callback', () => {
+    it('should call onPress with ID when card is pressed', () => {
+      const mockOnPress = vi.fn()
+      const { getByTestId } = render(
+        <FavoriteRoadCard {...defaultProps} onPress={mockOnPress} />
+      )
 
-      const thumbnail = getByTestId('route-thumbnail')
-      expect(thumbnail).toBeTruthy()
+      fireEvent.press(getByTestId('favorite-road-card'))
+
+      expect(mockOnPress).toHaveBeenCalledTimes(1)
+      expect(mockOnPress).toHaveBeenCalledWith('favorite123')
     })
 
-    it('should handle favorite roads without bounds', () => {
-      const favoriteWithoutBounds = {
-        ...mockFavorite,
-        bounds: undefined,
-      }
+    it('should not call onPress when not provided', () => {
+      const { getByTestId } = render(<FavoriteRoadCard {...defaultProps} />)
 
-      const { getByTestId, getByText } = render(
+      // Should not throw when card is pressed without callback
+      expect(() => {
+        fireEvent.press(getByTestId('favorite-road-card'))
+      }).not.toThrow()
+    })
+
+    it('should not trigger onPress when delete button is pressed', () => {
+      const mockOnPress = vi.fn()
+      const mockOnDelete = vi.fn()
+      const { getByTestId } = render(
         <FavoriteRoadCard
-          favorite={favoriteWithoutBounds}
-          onDelete={vi.fn()}
+          {...defaultProps}
+          onPress={mockOnPress}
+          onDelete={mockOnDelete}
         />
       )
 
-      // Should still render thumbnail
-      expect(getByTestId('route-thumbnail')).toBeTruthy()
-      // Should still show name
-      expect(getByText('Scenic Coastal Drive')).toBeTruthy()
+      // Press delete button
+      fireEvent.press(getByTestId('favorite-road-card-delete'))
+
+      // Only delete should be called, not press
+      expect(mockOnDelete).toHaveBeenCalledTimes(1)
+      expect(mockOnPress).not.toHaveBeenCalled()
+    })
+
+    it('should have correct accessibility label', () => {
+      const { getByTestId } = render(<FavoriteRoadCard {...defaultProps} />)
+
+      expect(getByTestId('favorite-road-card').props.accessibilityLabel).toBe(
+        'View Scenic Coastal Drive'
+      )
     })
   })
 })

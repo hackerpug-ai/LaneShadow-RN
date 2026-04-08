@@ -81,7 +81,9 @@ export const FavoriteRoadsSection: React.FC = () => {
       {favorites.map((favorite) => (
         <View key={favorite._id} style={[styles.cardWrapper, { marginBottom: semantic.space.md }]}>
           <FavoriteRoadCard
-            favorite={favorite}
+            favoriteRoadId={favorite._id}
+            name={favorite.name}
+            bounds={favorite.bounds ?? { north: 0, south: 0, east: 0, west: 0 }}
             onDelete={() => handleDelete(favorite._id)}
             testID={`favorite-road-card-${favorite._id}`}
           />

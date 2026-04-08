@@ -2,216 +2,119 @@
  * FavoriteRoadCard Component
  *
  * Card component that displays a favorite road with name and mini map preview.
- * Follows the design system card patterns and supports delete action with confirmation.
+ * Follows the design system card patterns.
  */
 
-import { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { Doc } from '../../convex/_generated/dataModel'
-import { Card } from './card'
+import type { Bounds } from '../../models/favorite-roads'
 import { RouteThumbnail } from './route-thumbnail'
 import { Button } from './button'
+import { IconSymbol } from './icon-symbol'
 
 export type FavoriteRoadCardProps = {
-  /** Favorite road document from Convex */
-  favorite: Doc<'favorite_roads'>
-  /** Callback when delete is confirmed */
-  onDelete: () => void
+  /** Unique identifier for the favorite road */
+  favoriteRoadId: string
+  /** Display name for the favorite road */
+  name: string
+  /** Geographic bounds for mini map positioning */
+  bounds: Bounds
+  /** Callback when card is pressed (not delete button) */
+  onPress?: (id: string) => void
+  /** Callback when delete button is pressed */
+  onDelete?: (id: string) => void
   /** Test ID for testing */
   testID?: string
 }
 
 /**
  * FavoriteRoadCard component for favorite roads list
- * Displays road with mini map preview, name, and delete action
+ * Displays road with mini map preview, name, and delete button
  */
 export const FavoriteRoadCard = ({
-  favorite,
+  favoriteRoadId,
+  name,
+  bounds,
+  onPress,
   onDelete,
   testID = 'favorite-road-card',
 }: FavoriteRoadCardProps) => {
   const { semantic } = useSemanticTheme()
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-
-  const handleDeleteConfirm = () => {
-    setShowDeleteDialog(false)
-    onDelete()
-  }
 
   return (
-    <>
-      <View testID={testID}>
-        <Card>
-        <View style={styles.content}>
-          <RouteThumbnail
-            testID="route-thumbnail"
-            width={60}
-            height={60}
-            bounds={favorite.bounds ?? undefined}
-          />
-
-          <View style={styles.textContainer}>
-            <Text
-              numberOfLines={1}
-              style={[
-                semantic.type.title.md,
-                { color: semantic.color.onSurface.default },
-              ]}
-            >
-              {favorite.name}
-            </Text>
-            <Text
-              style={[
-                semantic.type.body.sm,
-                {
-                  color: semantic.color.onSurface.muted,
-                  marginTop: semantic.space.xs,
-                },
-              ]}
-            >
-              Favorite road
-            </Text>
-          </View>
-
-          <Button
-            testID="delete-button"
-            variant="ghost"
-            size="icon"
-            icon="trash-can-outline"
-            accessibilityLabel="Delete favorite"
-            onPress={() => setShowDeleteDialog(true)}
-          />
-        </View>
-        </Card>
-      </View>
-
-      <DeleteFavoriteDialog
-        visible={showDeleteDialog}
-        favoriteName={favorite.name}
-        onConfirm={handleDeleteConfirm}
-        onDismiss={() => setShowDeleteDialog(false)}
-        testID="delete-favorite-dialog"
-      />
-    </>
-  )
-}
-
-/**
- * Delete confirmation dialog for favorite roads
- */
-type DeleteFavoriteDialogProps = {
-  visible: boolean
-  favoriteName: string
-  onConfirm: () => void
-  onDismiss: () => void
-  testID?: string
-}
-
-const DeleteFavoriteDialog = ({
-  visible,
-  favoriteName,
-  onConfirm,
-  onDismiss,
-  testID = 'delete-favorite-dialog',
-}: DeleteFavoriteDialogProps) => {
-  const { semantic } = useSemanticTheme()
-
-  if (!visible) {
-    return null
-  }
-
-  return (
-    <View
+    <Pressable
+      onPress={() => onPress?.(favoriteRoadId)}
       testID={testID}
-      style={[
-        styles.dialogOverlay,
-        { backgroundColor: semantic.color.surface.default },
-      ]}
+      accessibilityRole="button"
+      accessibilityLabel={`View ${name}`}
     >
-      <View
-        style={[
-          styles.dialogContent,
-          {
-            backgroundColor: semantic.color.surface.default,
-            borderRadius: semantic.radius.lg,
-            padding: semantic.space.lg,
-            ...semantic.elevation[4],
-          },
-        ]}
-      >
-        <Text
+      {({ pressed }) => (
+        <View
           style={[
-            semantic.type.title.lg,
+            styles.container,
             {
-              color: semantic.color.onSurface.default,
-              marginBottom: semantic.space.md,
+              backgroundColor: semantic.color.card.default,
+              borderColor: semantic.color.border.default,
+              borderRadius: semantic.radius.lg,
+              padding: semantic.space.lg,
+              opacity: pressed ? 0.8 : 1,
             },
           ]}
         >
-          Delete Favorite Road
-        </Text>
-        <Text
-          style={[
-            semantic.type.body.md,
-            {
-              color: semantic.color.onSurface.default,
-              marginBottom: semantic.space.lg,
-            },
-          ]}
-        >
-          Remove &ldquo;{favoriteName}&rdquo; from your favorites?
-        </Text>
-        <View style={styles.dialogActions}>
-          <Button
-            testID={`${testID}-cancel`}
-            variant="secondary"
-            onPress={onDismiss}
-            style={{ flex: 1, marginRight: semantic.space.sm }}
-          >
-            Cancel
-          </Button>
-          <Button
-            testID={`${testID}-confirm`}
-            variant="destructive"
-            onPress={onConfirm}
-            style={{ flex: 1, marginLeft: semantic.space.sm }}
-          >
-            Delete
-          </Button>
+          <View style={[styles.content, { gap: semantic.space.md }]}>
+            {/* Mini map preview */}
+            <RouteThumbnail
+              width={80}
+              height={80}
+              bounds={bounds}
+              testID={`${testID}-thumbnail`}
+            />
+
+            {/* Road name */}
+            <View style={styles.textContainer}>
+              <Text
+                numberOfLines={2}
+                style={[
+                  semantic.type.title.md,
+                  { color: semantic.color.onSurface.default },
+                ]}
+              >
+                {name}
+              </Text>
+            </View>
+
+            {/* Delete button */}
+            <View style={styles.deleteButtonContainer}>
+              <Button
+                testID={`${testID}-delete`}
+                size="icon"
+                variant="ghost"
+                icon={<IconSymbol name="trash-can-outline" size={20} color={semantic.color.danger.default} />}
+                accessibilityLabel="Delete favorite"
+                onPress={() => onDelete?.(favoriteRoadId)}
+              />
+            </View>
+          </View>
         </View>
-      </View>
-    </View>
+      )}
+    </Pressable>
   )
 }
 
 const styles = StyleSheet.create({
+  container: {
+    borderWidth: StyleSheet.hairlineWidth,
+  },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16, // semantic.space.md
   },
   textContainer: {
     flex: 1,
   },
-  dialogOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 1000,
-  },
-  dialogContent: {
-    width: '80%',
-    maxWidth: 400,
-  },
-  dialogActions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+  deleteButtonContainer: {
+    // Prevent card press when delete is pressed
+    zIndex: 1,
   },
 })
