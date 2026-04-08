@@ -186,30 +186,10 @@ export const planRide = action({
     })
 
     try {
-      // Fetch favorites if requested
-      let favorites: { id: string; geometry: string; bounds?: { north: number; south: number; east: number; west: number } }[] = []
-      if (args.planInput.includeFavorites) {
-        try {
-          // Use internal API to fetch favorites
-          // Note: This requires the Convex API to be generated
-          const favoriteRoads = await ctx.runQuery((internal as any).db.favoriteRoads.list, {}) as any[]
-          favorites = favoriteRoads.map((fav) => ({
-            id: fav._id.toString(),
-            geometry: fav.geometry,
-            bounds: fav.bounds,
-          }))
-          console.info('[planRide] Fetched favorites for planning:', { count: favorites.length })
-        } catch (error) {
-          console.warn('[planRide] Failed to fetch favorites, continuing without them:', error)
-          // Don't fail planning if favorites fetch fails
-        }
-      }
-
       const results = await Promise.race([
         planRideOrchestrator({
           planInput: args.planInput,
           departureTimeMs: args.planInput.departureTime,
-          favorites,
         }),
         timeoutPromise,
       ])
@@ -295,27 +275,6 @@ export const executePlanHandler = async (
     return
   }
 
-  // Step 2.5: Fetch favorites if includeFavorites is true
-  let favorites: { id: string; geometry: string; bounds?: { north: number; south: number; east: number; west: number } }[] = []
-  if (plan?.planInput?.includeFavorites) {
-    try {
-      const favoriteRoadsResult = await ctx.runQuery(
-        (internal as any).db.favoriteRoads.list,
-        {}
-      )
-      const favoriteRoads = favoriteRoadsResult as any[]
-      favorites = favoriteRoads.map((fav) => ({
-        id: fav._id.toString(),
-        geometry: fav.geometry,
-        bounds: fav.bounds,
-      }))
-      console.info('[planRide] Fetched favorites for planning:', { count: favorites.length })
-    } catch (error) {
-      console.warn('[planRide] Failed to fetch favorites, continuing without them:', error)
-      // Don't fail planning if favorites fetch fails
-    }
-  }
-
   // Step 3: Update status to 'running'
   // Note: Auth was already validated in createPlan mutation that scheduled this job.
   // Background jobs (internalAction via scheduler) have no JWT context.
@@ -354,12 +313,11 @@ export const executePlanHandler = async (
 
     console.info('[planRide] Starting planRideOrchestrator...')
 
-    // Step 7: Run orchestrator - race against timeout
+    // Step 6: Run orchestrator - race against timeout
     const results = await Promise.race([
       orchestratorFn({
         planInput: plan.planInput,
         departureTimeMs: plan.planInput.departureTime,
-        favorites,
       }),
       timeoutPromise,
     ])

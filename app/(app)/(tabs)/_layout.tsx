@@ -50,19 +50,6 @@ const TabsLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="chat"
-        options={{
-          title: 'Chat',
-          tabBarIcon: ({ focused }) => (
-            <IconSymbol
-              name="message-text-outline"
-              size={22}
-              color={focused ? activeColor : inactiveColor}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="saved-routes"
         options={{
           title: 'Saved',
