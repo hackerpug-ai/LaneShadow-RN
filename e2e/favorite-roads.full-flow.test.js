@@ -22,6 +22,11 @@
  * Test Database: Real Convex backend (test deployment)
  */
 
+const {
+  createDistantFavorite,
+  deleteFavoriteByName,
+} = require('./helpers/favorite-roads.helpers')
+
 describe('Favorite Roads Full Flow (US-052)', () => {
   const TEST_FAVORITE_NAME = 'E2E Test Favorite'
   const TEST_TIMEOUT = 120000 // 2 minutes for full flow test
@@ -95,25 +100,30 @@ describe('Favorite Roads Full Flow (US-052)', () => {
       await waitForPlanningComplete()
     }
 
-    // Long-press on the route polyline
-    // Note: Detox doesn't support long-press on specific map coordinates
-    // This test assumes the polyline component handles the gesture
+    // Wait for route polyline to be visible
     await waitFor(element(by.id('home-route-polyline')))
       .toBeVisible()
       .withTimeout(10000)
 
-    // Simulate long-press on the map (this would need to be calibrated
-    // to actual route coordinates in a real implementation)
-    // For now, we verify the SaveFavoriteSheet can appear
+    // Take screenshot before long-press
     await takeScreenshot('03-before-long-press')
 
-    // The actual long-press would be done via Detox's longPress API
-    // but map coordinates make this tricky. This is a placeholder.
-    // In production, you'd use: await element(by.id('route-segment-X')).longPress()
+    // Perform long-press on the route polyline
+    // The route polyline uses LongPressGestureHandler from react-native-gesture-handler
+    // Detox's longPress() works on the testID element
+    await element(by.id('route-polyline')).longPress()
 
-    // Verify SaveFavoriteSheet appears (after actual long-press implementation)
-    // await expect(element(by.id('save-favorite-sheet'))).toBeVisible()
-    // await takeScreenshot('04-save-favorite-sheet-visible')
+    // Wait for SaveFavoriteSheet to appear after long-press
+    await waitFor(element(by.id('save-favorite-sheet')))
+      .toBeVisible()
+      .withTimeout(5000)
+
+    // Verify SaveFavoriteSheet is visible
+    await expect(element(by.id('save-favorite-sheet'))).toBeVisible()
+    await takeScreenshot('04-save-favorite-sheet-visible')
+
+    // Verify the name input is visible and focused
+    await expect(element(by.id('save-favorite-name-input'))).toBeVisible()
   })
 
   /**
@@ -230,24 +240,79 @@ describe('Favorite Roads Full Flow (US-052)', () => {
 
   /**
    * AC9: Exclusion message appears when favorites are too far
+   *
+   * This test verifies that when a favorite is >50km from the planned route,
+   * the FavoriteExclusionAlert appears with the favorite's name.
    */
   it('should satisfy AC9: Exclusion message appears for distant favorites', async () => {
-    // This test would require:
-    // 1. Creating a favorite that's far from the planned route
-    // 2. Planning a route that doesn't pass near it
-    // 3. Verifying the exclusion message appears
+    const DISTANT_FAVORITE_NAME = 'Distant E2E Test Favorite'
 
-    // For this test, we'd need to create a distant favorite first
-    // This is a placeholder for that scenario
+    // Step 1: Create a distant favorite (>50km from typical test area)
+    // This helper plans a route to a distant location (e.g., SF to LA),
+    // long-presses a segment, and saves it as a favorite
+    await createDistantFavorite(DISTANT_FAVORITE_NAME)
 
-    // Example: Create a favorite in a different city/region
-    // Then plan a route that doesn't go near it
-    // Verify exclusion message appears with the favorite's name
+    // Step 2: Plan a local route that won't include the distant favorite
+    // Open manual planning mode
+    await element(by.id('chat-input-manual-mode-button')).tap()
 
-    // await expect(element(by.text(/Some favorites are too far/))).toBeVisible()
-    // await expect(element(by.text(new RegExp(TEST_FAVORITE_NAME)))).toBeVisible()
+    await waitFor(element(by.id('plan-ride-sheet')))
+      .toBeVisible()
+      .withTimeout(5000)
 
-    await takeScreenshot('11-exclusion-message')
+    // Enable favorites toggle
+    const toggleExists = await element(by.id('include-favorites-toggle')).isExisting()
+    if (toggleExists) {
+      await element(by.id('include-favorites-toggle')).tap()
+      await new Promise(resolve => setTimeout(resolve, 500))
+    }
+
+    // Plan a short local route (San Francisco to Oakland - ~10km)
+    // This should NOT include the LA favorite (>50km away)
+    await element(by.id('destination-input')).tap()
+    await element(by.id('destination-input')).typeText('Oakland, CA')
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    // Wait for place search results and select first
+    const placeResultExists = await element(by.id('place-search-result-0')).isExisting()
+    if (placeResultExists) {
+      await element(by.id('place-search-result-0')).tap()
+    }
+
+    // Submit route planning
+    await element(by.id('plan-ride-submit')).tap()
+
+    // Wait for planning to complete
+    await waitForPlanningComplete()
+
+    // Step 3: Verify the exclusion alert appears
+    // The alert should show because the LA favorite is >50km from SF-Oakland route
+    await waitFor(element(by.id('favorite-exclusion-alert')))
+      .toBeVisible()
+      .withTimeout(10000)
+
+    // Verify the exclusion alert is visible
+    await expect(element(by.id('favorite-exclusion-alert'))).toBeVisible()
+
+    // Verify the alert text mentions favorites being too far
+    await expect(element(by.text(/Some favorites couldn't be included/))).toBeVisible()
+    await expect(element(by.text(/too far from your route/))).toBeVisible()
+
+    // Verify the distant favorite's name is mentioned in the alert
+    await expect(element(by.text(new RegExp(DISTANT_FAVORITE_NAME)))).toBeVisible()
+
+    await takeScreenshot('11-exclusion-message-with-distant-favorite')
+
+    // Dismiss the alert
+    await element(by.id('favorite-exclusion-alert-dismiss')).tap()
+
+    // Verify alert is dismissed
+    await waitFor(element(by.id('favorite-exclusion-alert')))
+      .toBeNotVisible()
+      .withTimeout(3000)
+
+    // Step 4: Clean up the distant favorite
+    await deleteFavoriteByName(DISTANT_FAVORITE_NAME)
   })
 
   /**
