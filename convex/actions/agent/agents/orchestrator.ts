@@ -305,8 +305,8 @@ export async function executeOrchestrator(
   // -------------------------------------------------------------------------
   // 2. BUILD ORCHESTRATOR CONTEXT
   // -------------------------------------------------------------------------
-  // Opus for orchestrator — best reasoning for intent classification and sequencing
-  const model = getModel('anthropic', 'claude-opus-4-6' as any)
+  // Sonnet for orchestrator — balance of reasoning and latency for intent classification
+  const model = getModel('anthropic', 'claude-sonnet-4-6' as any)
   const systemPrompt = buildOrchestratorPrompt(ctx, availableToolNames)
 
   const context: Context = {

@@ -1107,10 +1107,8 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
 
   const { ctx, executeCtx, budgetTracker, userMessage } = config
 
-  // Routing agent uses Haiku — narrower tool set and focused prompt compensate for smaller model
-  // Sonnet for routing — Haiku generates vague waypoint names ("Summit area")
-  // that geocode to wrong locations. Sonnet produces precise names that work.
-  const model = getModel('anthropic', 'claude-sonnet-4-6' as any)
+  // Routing agent uses Haiku for latency — narrower tool set and focused prompt compensate for smaller model
+  const model = getModel('anthropic', 'claude-haiku-4-5-20251001' as any)
 
   const systemPrompt = buildRoutingPrompt(ctx)
 
