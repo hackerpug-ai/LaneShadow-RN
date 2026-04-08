@@ -42,6 +42,8 @@ type RouteAttachmentCardProps = {
   elevationGainFt?: number
   /** Whether favorites were included in route planning */
   includeFavorites?: boolean
+  /** Called when card is pressed in 'full' variant to navigate to map */
+  onViewOnMap?: () => void
 }
 
 /**
@@ -129,6 +131,7 @@ export const RouteAttachmentCard = ({
   waypointSummary,
   elevationGainFt,
   includeFavorites = false,
+  onViewOnMap,
 }: RouteAttachmentCardProps) => {
   console.info('[RouteAttachmentCard] Rendering', {
     routeId: route.routeOptionId,
@@ -145,8 +148,16 @@ export const RouteAttachmentCard = ({
   const distance = route.stats.distanceMeters
 
   const handlePress = () => {
-    console.info('[RouteAttachmentCard] Opening directions sheet', { routeId: route.routeOptionId })
-    setDirectionsVisible(true)
+    // In 'full' variant (chat context), navigate to map
+    // In 'compact' variant (map context), show directions sheet
+    if (variant === 'full') {
+      console.info('[RouteAttachmentCard] Press in chat context - navigating to map', { routeId: route.routeOptionId })
+      onSelect(route.routeOptionId)
+      onViewOnMap?.()
+    } else {
+      console.info('[RouteAttachmentCard] Press in map context - opening directions sheet', { routeId: route.routeOptionId })
+      setDirectionsVisible(true)
+    }
   }
 
   const handleLongPress = () => {
@@ -185,7 +196,7 @@ export const RouteAttachmentCard = ({
         accessibilityLabel={`Route from ${start} to ${end}, ${formatDuration(
           duration
         )}, ${formatDistance(distance)}`}
-        accessibilityHint="Tap to view directions, long press to select route"
+        accessibilityHint={variant === 'full' ? 'Tap to view on map, long press to select route' : 'Tap to view directions, long press to select route'}
         accessibilityRole="button"
         accessibilityState={{ selected: isSelected }}
       >

@@ -33,7 +33,7 @@
  * Following react-rules.md: named export, no unnecessary useCallback/useMemo.
  */
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -445,7 +445,13 @@ export const ChatTranscript = ({
   const { semantic } = useSemanticTheme();
   const scrollRef = useRef<ScrollView>(null);
 
-  // Auto-scroll to bottom on mount and when messages list grows
+  // Auto-scroll to bottom on mount and when messages list grows or content changes
+  // Track message IDs and status to detect content updates (e.g., streaming status changes)
+  const messagesTracking = useMemo(
+    () => messages.map(m => `${m.id}-${m.status ?? 'complete'}`).join(','),
+    [messages]
+  )
+
   useEffect(() => {
     if (messages.length > 0) {
       // Use a short timeout to ensure layout is complete before scrolling
@@ -454,7 +460,7 @@ export const ChatTranscript = ({
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [messages.length]);
+  }, [messagesTracking, messages.length]);
 
   if (messages.length === 0) {
     return <EmptyState />;

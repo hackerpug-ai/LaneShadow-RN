@@ -175,7 +175,7 @@ export const RouteDirectionsSheet = ({
                   {/* Steps */}
                   {leg.steps.map((step, stepIndex) => (
                     <View
-                      key={`${leg.legIndex}-${step.stepIndex}`}
+                      key={`step-${leg.legIndex}-${step.stepIndex}-${step.instruction.slice(0, 20)}`}
                       style={[
                         styles.stepCard,
                         {

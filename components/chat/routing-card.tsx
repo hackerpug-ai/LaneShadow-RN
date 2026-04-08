@@ -254,6 +254,9 @@ interface CompletedCardProps {
 const CompletedCard = ({ result, semantic, routePlanId, onViewOnMap }: CompletedCardProps) => {
   const { selectedRouteId, setSelectedRouteId, setDisplayedRoutePlanId, requestFitToRouteWithReset } = useSelectedRoute()
 
+  // When no route is selected, default to the first route option
+  const defaultSelectedRouteId = selectedRouteId ?? result.options[0]?.routeOptionId ?? null
+
   return (
     <View
       style={[styles.card, { gap: semantic.space.sm }]}
@@ -261,21 +264,20 @@ const CompletedCard = ({ result, semantic, routePlanId, onViewOnMap }: Completed
       accessibilityLiveRegion="polite"
       accessibilityLabel="Route options ready"
     >
-      {result.options.map((option, idx) => (
+      {result.options.map((option) => (
         <RouteAttachmentCard
           key={option.routeOptionId}
           route={option}
-          isSelected={
-            selectedRouteId === null
-              ? idx === 0
-              : option.routeOptionId === selectedRouteId
-          }
+          isSelected={option.routeOptionId === defaultSelectedRouteId}
           onSelect={() => {
             setSelectedRouteId(option.routeOptionId)
             setDisplayedRoutePlanId(routePlanId)
             requestFitToRouteWithReset()
+          }}
+          onViewOnMap={() => {
             onViewOnMap?.()
           }}
+          variant="full"
           testID={`routing-card-route-${option.routeOptionId}`}
         />
       ))}
