@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
 import type { Id } from '../../../convex/_generated/dataModel'
-import { ScrollView, StyleSheet, View } from 'react-native'
+import { Pressable, ScrollView, StyleSheet, View, Keyboard } from 'react-native'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -535,7 +535,10 @@ const HomeMapScreen = () => {
   // Build polylines for map rendering
   const routePolylines = useMemo(() => {
     // Hide polylines during planning loading for cleaner UX
-    if (mapPlanningVisible) return []
+    if (mapPlanningVisible) {
+      console.info('[routePolylines] Hidden: mapPlanningVisible=true')
+      return []
+    }
 
     // If using chat flow state machine, use polylines from useRouteComparison
     // This includes ROUTE_RESULTS, ROUTE_DETAILS, and PLANNING (when refining existing routes)
@@ -550,6 +553,11 @@ const HomeMapScreen = () => {
     // has planned a route but the flow state machine hasn't transitioned into
     // ROUTE_RESULTS yet (e.g. agent chat flow, task #258).
     if (agentActiveOption) {
+      console.info('[routePolylines] Using agentActiveOption:', {
+        hasOverviewGeometry: !!agentActiveOption.map?.overviewGeometry,
+        overviewValue: agentActiveOption.map?.overviewGeometry?.value?.substring(0, 30),
+        legsCount: agentActiveOption.map?.legs?.length,
+      })
       return buildRoutePolylines({
         route: {
           overviewGeometry: agentActiveOption.map.overviewGeometry,
@@ -564,6 +572,11 @@ const HomeMapScreen = () => {
     }
 
     // Fallback to manual mode
+    console.info('[routePolylines] No agentActiveOption, falling back:', {
+      flowPhase: flowState.phase,
+      hasSelectedOption: !!selectedOption,
+      agentActiveOption: agentActiveOption === null ? 'null' : agentActiveOption === undefined ? 'undefined' : 'exists',
+    })
     if (!selectedOption) return []
     return buildRoutePolylines({
       route: {
@@ -606,6 +619,8 @@ const HomeMapScreen = () => {
 
   const handleMapClick = useCallback(
     (event: { coordinates?: { latitude: number; longitude: number } }) => {
+      // Dismiss keyboard on any map tap
+      Keyboard.dismiss()
       // Only drop pins in manual planning mode (PlanRideSheet open)
       if (!sheetVisible) return
       const coords = event.coordinates
@@ -715,6 +730,11 @@ const HomeMapScreen = () => {
     mapRef.current?.recenterToUser()
   }
 
+  // Dismiss keyboard when tapping outside the input
+  const handleDismissKeyboard = useCallback(() => {
+    Keyboard.dismiss()
+  }, [])
+
   // --- Manual planning mode fallback (US-018) ---
   // Extract routing preferences the rider has expressed in chat messages so
   // that PlanRideSheet can be pre-populated when they switch to manual mode.
@@ -815,19 +835,19 @@ const HomeMapScreen = () => {
             style={[StyleSheet.absoluteFill, mapLayerStyle]}
             pointerEvents={chatMode ? 'none' : 'auto'}
           >
-            <MapViewWrapper
-              ref={mapRef}
-              markers={markers}
-              onMapClick={handleMapClick}
-              onCameraMove={handleCameraMove}
-            >
-              <RoutePolyline
-                polylines={routePolylines}
-                onSegmentSelect={handleSegmentSelect}
-                selectedSegmentId={highlightedSegmentId}
-                testID="home-route-polyline"
-              />
-            </MapViewWrapper>
+              <MapViewWrapper
+                ref={mapRef}
+                markers={markers}
+                onMapClick={handleMapClick}
+                onCameraMove={handleCameraMove}
+              >
+                <RoutePolyline
+                  polylines={routePolylines}
+                  onSegmentSelect={handleSegmentSelect}
+                  selectedSegmentId={highlightedSegmentId}
+                  testID="home-route-polyline"
+                />
+              </MapViewWrapper>
           </Animated.View>
         )}
 
@@ -838,19 +858,25 @@ const HomeMapScreen = () => {
             style={[StyleSheet.absoluteFill, chatLayerStyle, styles.chatLayer]}
             pointerEvents={chatMode ? 'auto' : 'none'}
           >
-            <View
-              style={[
-                StyleSheet.absoluteFill,
-                { backgroundColor: semantic.color.background.default },
-              ]}
-            />
-            <ChatTranscript
-              messages={transcriptMessages}
-              topInset={insets.top + 72}
-              bottomInset={insets.bottom + 96}
-              transparent
-              onViewOnMap={() => setChatMode(false)}
-            />
+            <Pressable
+              style={StyleSheet.absoluteFill}
+              onPress={handleDismissKeyboard}
+              testID="chat-dismiss-keyboard-pressable"
+            >
+              <View
+                style={[
+                  StyleSheet.absoluteFill,
+                  { backgroundColor: semantic.color.background.default },
+                ]}
+              />
+              <ChatTranscript
+                messages={transcriptMessages}
+                topInset={insets.top + 72}
+                bottomInset={insets.bottom + 96}
+                transparent
+                onViewOnMap={() => setChatMode(false)}
+              />
+            </Pressable>
           </Animated.View>
         )}
 
@@ -965,25 +991,6 @@ const HomeMapScreen = () => {
         <MapPlanningIndicator
           visible={mapPlanningVisible && !chatMode && toasts.length === 0}
           bottomOffset={insets.bottom + 96}
-          extraInputOffset={useMemo(() => {
-            // Match the ChatInput's extraBottomOffset calculation so indicator
-            // stays above the input, not overlapping it
-            if (chatMode) return 0
-
-            const offsets: number[] = []
-
-            // Planning indicator: ~44px height (from MapPlanningIndicator)
-            if (mapPlanningVisible && toasts.length === 0) {
-              offsets.push(44)
-            }
-
-            // Toast stack: varies by message count, ~48px per toast
-            if (toasts.length > 0) {
-              offsets.push(toasts.length * 48)
-            }
-
-            return Math.max(...offsets, 0)
-          }, [chatMode, mapPlanningVisible, toasts.length])}
         />
 
         {/* Toast-style message notifications — map mode only */}
@@ -1001,8 +1008,6 @@ const HomeMapScreen = () => {
         )}
 
         {/* Chat input - always visible at bottom */}
-        {/* Dynamic spacing rule: calculate extra bottom offset to avoid overlapping
-            temporary elements (planning indicator, toasts, route cards) per /frontend-design */}
         <ChatInput
           onSend={handleSendMessage}
           onCancel={handleCancel}
@@ -1014,36 +1019,6 @@ const HomeMapScreen = () => {
           onToggleChatMode={cycleTranscript}
           onManualModePress={handleManualModePress}
           hasMessages={transcriptMessages.length > 0}
-          extraBottomOffset={useMemo(() => {
-            // Only add offset in map mode when temporary elements are visible
-            if (chatMode) return 0
-
-            const offsets: number[] = []
-
-            // Planning indicator: ~44px height (from MapPlanningIndicator)
-            if (mapPlanningVisible && toasts.length === 0) {
-              offsets.push(44)
-            }
-
-            // Toast stack: varies by message count, ~48px per toast
-            if (toasts.length > 0) {
-              offsets.push(toasts.length * 48)
-            }
-
-            // Route cards: these render above the input area, but we need to
-            // ensure the input doesn't overlap the bottom-most card
-            const hasRouteOptions =
-              (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS' || flowState.phase === 'PLANNING') &&
-              'routeOptions' in flowState &&
-              flowState.routeOptions?.options
-            const showingRouteCards = !chatMode && toasts.length === 0 && !mapPlanningVisible && hasRouteOptions
-            if (showingRouteCards) {
-              // Route cards have their own spacing, but ensure input clears them
-              offsets.push(80) // Approximate height for one route card
-            }
-
-            return Math.max(...offsets, 0)
-          }, [chatMode, mapPlanningVisible, toasts.length, flowState.phase])}
         />
 
         <PlanRideSheet
