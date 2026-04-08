@@ -26,7 +26,7 @@ const crons = cronJobs();
 crons.weekly(
   'map-data-freshness-check',
   { dayOfWeek: 'monday', hourUTC: 9, minuteUTC: 0 },
-  internal.actions.mapData.checkFreshness,
+  internal.actions.mapData.checkFreshnessWithAlert,
 );
 
 export default crons;

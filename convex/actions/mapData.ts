@@ -237,6 +237,108 @@ export const checkFreshness = internalAction({
 });
 
 // ---------------------------------------------------------------------------
+// Check Freshness with Alert
+// ---------------------------------------------------------------------------
+
+/**
+ * Core freshness check logic with alerting.
+ *
+ * This is extracted as a pure function for testability.
+ * It takes a checkFreshness function and wraps it with alerting logic.
+ */
+export async function checkFreshnessWithAlertLogic(
+  checkFreshnessFn: () => Promise<{
+    status: 'fresh' | 'stale' | 'missing';
+    ageInDays?: number;
+    message: string;
+  }>
+): Promise<{
+  status: 'fresh' | 'stale' | 'missing';
+  ageInDays?: number;
+  message: string;
+}> {
+  // Call the provided checkFreshness function
+  const result = await checkFreshnessFn();
+
+  // Emit error log for stale or missing data
+  if (result.status === 'stale' || result.status === 'missing') {
+    console.error(
+      '[LOG]',
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'error',
+        category: 'protomaps.error',
+        message: 'Map data is stale or missing',
+        data: result,
+      })
+    );
+  }
+
+  return result;
+}
+
+/**
+ * Check freshness and emit error log for stale/missing data.
+ *
+ * Wraps checkFreshness and adds structured error logging when data is stale
+ * or missing, for integration with monitoring/alerting systems.
+ */
+export const checkFreshnessWithAlert = internalAction({
+  args: {},
+  handler: async (ctx): Promise<{
+    status: 'fresh' | 'stale' | 'missing';
+    ageInDays?: number;
+    message: string;
+  }> => {
+    // Get the R2 client and bucket
+    const client = getR2Client();
+    const bucket = getBucket();
+
+    try {
+      const result = await client.send(
+        new HeadObjectCommand({ Bucket: bucket, Key: PMTILES_KEY })
+      );
+
+      if (!result.LastModified) {
+        const staleResult = {
+          status: 'stale' as const,
+          message: 'PMTiles file exists but has no last-modified date',
+        };
+        return checkFreshnessWithAlertLogic(async () => staleResult);
+      }
+
+      const ageMs = Date.now() - result.LastModified.getTime();
+      const ageDays = Math.floor(ageMs / (1000 * 60 * 60 * 24));
+
+      if (ageDays > 30) {
+        const staleResult = {
+          status: 'stale' as const,
+          ageInDays: ageDays,
+          message: `PMTiles file is ${ageDays} days old. Run: npx tsx scripts/sync-protomaps-r2.ts`,
+        };
+        return checkFreshnessWithAlertLogic(async () => staleResult);
+      }
+
+      const freshResult = {
+        status: 'fresh' as const,
+        ageInDays: ageDays,
+        message: `PMTiles file is ${ageDays} days old`,
+      };
+      return checkFreshnessWithAlertLogic(async () => freshResult);
+    } catch (error: any) {
+      if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
+        const missingResult = {
+          status: 'missing' as const,
+          message: 'No PMTiles file found on R2. Run: npx tsx scripts/sync-protomaps-r2.ts',
+        };
+        return checkFreshnessWithAlertLogic(async () => missingResult);
+      }
+      throw error;
+    }
+  },
+});
+
+// ---------------------------------------------------------------------------
 // Upload PMTiles chunk (for script-driven upload)
 // ---------------------------------------------------------------------------
 
