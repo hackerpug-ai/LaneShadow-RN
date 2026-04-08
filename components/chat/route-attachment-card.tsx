@@ -44,6 +44,10 @@ type RouteAttachmentCardProps = {
   includeFavorites?: boolean
   /** Called when card is pressed in 'full' variant to navigate to map */
   onViewOnMap?: () => void
+  /** Called when a leg is pressed in the directions sheet */
+  onLegSelect?: (legIndex: number) => void
+  /** Index of the currently selected leg */
+  selectedLegIndex?: number
 }
 
 /**
@@ -132,6 +136,8 @@ export const RouteAttachmentCard = ({
   elevationGainFt,
   includeFavorites = false,
   onViewOnMap,
+  onLegSelect,
+  selectedLegIndex,
 }: RouteAttachmentCardProps) => {
   console.info('[RouteAttachmentCard] Rendering', {
     routeId: route.routeOptionId,
@@ -469,6 +475,8 @@ export const RouteAttachmentCard = ({
         legs={route.map.legs}
         destinationLabel={end}
         testID={`${testID}-directions`}
+        onLegSelect={onLegSelect}
+        selectedLegIndex={selectedLegIndex}
       />
     )}
     </View>

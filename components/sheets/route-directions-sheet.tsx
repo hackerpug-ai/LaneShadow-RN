@@ -13,7 +13,7 @@
  */
 
 import React, { useMemo } from 'react'
-import { StyleSheet, View, ScrollView, Platform, Linking } from 'react-native'
+import { StyleSheet, View, ScrollView, Platform, Linking, Pressable } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { IconSymbol } from '../ui/icon-symbol'
@@ -28,6 +28,10 @@ export type RouteDirectionsSheetProps = {
   legs: RouteLeg[]
   destinationLabel?: string
   testID?: string
+  /** Called when a leg is pressed */
+  onLegSelect?: (legIndex: number) => void
+  /** Index of the currently selected leg */
+  selectedLegIndex?: number
 }
 
 /**
@@ -72,6 +76,43 @@ const getMapUrl = (destination: { lat: number; lng: number; label?: string }): s
 }
 
 /**
+ * Generate a human-readable summary for a leg from its steps
+ * Takes the first 2-3 meaningful steps or steps covering the first 25% of distance
+ */
+const generateLegSummary = (leg: RouteLeg): string | null => {
+  if (!leg.steps || leg.steps.length === 0) {
+    return null
+  }
+
+  // Filter steps to get meaningful instructions (skip empty ones)
+  const meaningfulSteps = leg.steps.filter((step) => step.instruction && step.instruction.trim().length > 0)
+
+  if (meaningfulSteps.length === 0) {
+    return null
+  }
+
+  // Take first 2-3 steps or steps covering first 25% of leg distance
+  const targetDistance = leg.distanceMeters * 0.25
+  let accumulatedDistance = 0
+  const stepsToInclude: string[] = []
+
+  for (const step of meaningfulSteps) {
+    stepsToInclude.push(step.instruction.trim())
+    accumulatedDistance += step.distanceMeters
+
+    if (stepsToInclude.length >= 3 || accumulatedDistance >= targetDistance) {
+      break
+    }
+  }
+
+  // Join instructions with proper punctuation
+  const summary = stepsToInclude.join(', ')
+  // Remove trailing period if present and add ellipsis if we truncated
+  const trimmed = summary.endsWith('.') ? summary.slice(0, -1) : summary
+  return meaningfulSteps.length > stepsToInclude.length ? `${trimmed}...` : trimmed
+}
+
+/**
  * Route directions sheet with leg-by-leg breakdown
  */
 export const RouteDirectionsSheet = ({
@@ -81,6 +122,8 @@ export const RouteDirectionsSheet = ({
   legs,
   destinationLabel,
   testID = 'route-directions-sheet',
+  onLegSelect,
+  selectedLegIndex,
 }: RouteDirectionsSheetProps) => {
   const { semantic } = useSemanticTheme()
 
@@ -104,11 +147,15 @@ export const RouteDirectionsSheet = ({
     })
   }
 
+  const handleLegPress = (legIndex: number) => {
+    onLegSelect?.(legIndex)
+  }
+
   return (
     <BottomSheetWrapper
       isVisible={isVisible}
       onClose={onClose}
-      preset="full"
+      snapPoints={['50%', '90%']}
       testID={testID}
       wrapChildren={false}
       showHandle={true}
@@ -247,17 +294,28 @@ export const RouteDirectionsSheet = ({
             }
 
             // Fallback: show leg without steps
+            const legSummary = generateLegSummary(leg)
+            const isSelected = selectedLegIndex === legIndex
+
             return (
-              <View
+              <Pressable
                 key={leg.legIndex}
-                style={[
+                onPress={() => handleLegPress(legIndex)}
+                style={({ pressed }) => [
                   styles.legCard,
                   {
-                    backgroundColor: semantic.color.surface.default + 'E6',
-                    borderColor: semantic.color.border.default + '4D',
+                    backgroundColor: isSelected
+                      ? semantic.color.primary.default + '1A'
+                      : pressed
+                        ? semantic.color.surface.default + 'CC'
+                        : semantic.color.surface.default + 'E6',
+                    borderColor: isSelected
+                      ? semantic.color.primary.default
+                      : semantic.color.border.default + '4D',
                     marginBottom: legIndex === legs.length - 1 ? semantic.space.xl : semantic.space.sm,
                   },
                 ]}
+                testID={`${testID}-leg-${legIndex}`}
               >
                 {/* Leg header with number and stats */}
                 <View style={styles.legHeader}>
@@ -348,6 +406,25 @@ export const RouteDirectionsSheet = ({
                   </View>
                 </View>
 
+                {/* Human-readable leg summary */}
+                {legSummary && (
+                  <View style={styles.legSummary}>
+                    <IconSymbol
+                      name="information"
+                      size={12}
+                      color={semantic.color.onSurface.subtle}
+                    />
+                    <Text
+                      variant="bodySmall"
+                      style={[styles.legSummaryText, { color: semantic.color.onSurface.subtle }]}
+                      numberOfLines={2}
+                      ellipsizeMode="tail"
+                    >
+                      {legSummary}
+                    </Text>
+                  </View>
+                )}
+
                 {/* Distance/duration inline for this leg */}
                 <View style={styles.legDetails}>
                   <Text
@@ -357,7 +434,7 @@ export const RouteDirectionsSheet = ({
                     {formatDistance(leg.distanceMeters)} • {formatDuration(leg.durationSeconds)}
                   </Text>
                 </View>
-              </View>
+              </Pressable>
             )
           })}
 
@@ -440,6 +517,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'transparent',
+    flexDirection: 'column',
   },
   header: {
     borderBottomWidth: 1,
@@ -455,7 +533,7 @@ const styles = StyleSheet.create({
   },
   legsContent: {
     paddingTop: 12, // semantic.space.md
-    paddingBottom: 12, // semantic.space.md
+    paddingBottom: 100, // Extra padding for fixed footer
   },
   // Leg section (for legs with steps)
   legSection: {
@@ -554,6 +632,18 @@ const styles = StyleSheet.create({
     paddingLeft: 18, // Align with location text
     paddingTop: 4,
   },
+  legSummary: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 6,
+    paddingLeft: 18, // Align with location text
+    paddingTop: 4,
+  },
+  legSummaryText: {
+    flex: 1,
+    fontSize: 12,
+    lineHeight: 16,
+  },
   locationGroup: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -578,6 +668,10 @@ const styles = StyleSheet.create({
   },
   footer: {
     borderTopWidth: 1,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   footerButtons: {
     flexDirection: 'row',
