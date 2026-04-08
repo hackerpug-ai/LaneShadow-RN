@@ -13,6 +13,7 @@ import { tripPlanValidator } from '../models/trip-plan'
 import { userValidator } from '../models/users'
 import { performanceValidator } from '../models/performance'
 import { osmNodeValidator, osmWayValidator, osmImportJobValidator } from '../models/osm-data'
+import { routeEnrichmentValidator } from '../models/route-enrichments'
 
 /**
  * Convex Database Schema for React Native + Convex Template
@@ -135,4 +136,13 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index('by_user', ['clerkUserId']),
+
+  /**
+   * Route enrichments table - Tracks background enrichment jobs with cache support
+   * Indexed by routePlanId for finding enrichments for a specific route plan
+   * Indexed by contentFingerprint and phase for cache lookup and invalidation
+   */
+  route_enrichments: defineTable(routeEnrichmentValidator)
+    .index('by_routePlanId', ['routePlanId'])
+    .index('by_contentFingerprint_and_phase', ['contentFingerprint', 'phase']),
 })

@@ -537,6 +537,30 @@ async function runCompileSketch(
       const succeeded = mergedResults.filter(r => r.status === 'ok')
 
       if (failed.length > 0) {
+        // Total failure: all segments failed - throw exception to terminate agent
+        if (succeeded.length === 0) {
+          const errorDetails = failed.map(f => ({
+            segmentIndex: f.segmentIndex,
+            roadName: newSegments[f.segmentIndex].roadName,
+            fromName: newSegments[f.segmentIndex].fromName,
+            toName: newSegments[f.segmentIndex].toName,
+            error: f.status === 'failed' ? f.error : 'unknown',
+          }))
+
+          await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+            routePlanId,
+            status: 'failed',
+            errorMessage: `All ${failed.length} segments failed to route`,
+          })
+
+          throw new Error(
+            `All road segments couldn't be routed. ` +
+            `Failed segments: ${errorDetails.map(e => `${e.roadName} (${e.fromName} → ${e.toName}): ${e.error}`).join(', ')}. ` +
+            `Try using more specific location names or major highways.`
+          )
+        }
+
+        // Partial failure: some segments succeeded - return error for retry
         // Update the succeeded segment cache for the next retry attempt
         const newCachedSucceeded: CachedSegmentResult[] = succeeded.map(s => ({
           segmentIndex: s.segmentIndex,

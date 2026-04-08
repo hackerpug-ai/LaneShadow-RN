@@ -63,6 +63,7 @@ import type * as db_osm from "../db/osm.js";
 import type * as db_performance from "../db/performance.js";
 import type * as db_planUsage from "../db/planUsage.js";
 import type * as db_planningSessions from "../db/planningSessions.js";
+import type * as db_routeEnrichments from "../db/routeEnrichments.js";
 import type * as db_routePlans from "../db/routePlans.js";
 import type * as db_routesPlan from "../db/routesPlan.js";
 import type * as db_savedRoutes from "../db/savedRoutes.js";
@@ -143,6 +144,7 @@ declare const fullApi: ApiFromModules<{
   "db/performance": typeof db_performance;
   "db/planUsage": typeof db_planUsage;
   "db/planningSessions": typeof db_planningSessions;
+  "db/routeEnrichments": typeof db_routeEnrichments;
   "db/routePlans": typeof db_routePlans;
   "db/routesPlan": typeof db_routesPlan;
   "db/savedRoutes": typeof db_savedRoutes;
