@@ -191,11 +191,21 @@ export const RouteOptionCard = ({
                 accessibilityLabel={`Route includes ${favoriteCount} favorite${favoriteCount === 1 ? '' : 's'}`}
                 accessibilityRole="text"
               >
-                <Badge variant="default" testID={`${testID}-favorite-badge-inner`}>
-                  <IconSymbol name="heart" size={12} color={semantic.color.onPrimary.default} />
+                <Badge
+                  variant={favoriteCount === 0 ? 'outline' : 'default'}
+                  testID={`${testID}-favorite-badge-inner`}
+                >
+                  <IconSymbol
+                    name="heart"
+                    size={12}
+                    color={favoriteCount === 0 ? semantic.color.onSurface.muted : semantic.color.onPrimary.default}
+                  />
                   <Text
                     variant="labelSmall"
-                    style={{ color: semantic.color.onPrimary.default, marginLeft: 4 }}
+                    style={{
+                      color: favoriteCount === 0 ? semantic.color.onSurface.muted : semantic.color.onPrimary.default,
+                      marginLeft: 4,
+                    }}
                   >
                     {favoriteCount} favorite{favoriteCount !== 1 ? 's' : ''}
                   </Text>
