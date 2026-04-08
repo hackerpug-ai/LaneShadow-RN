@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LaneShadow Logo — Saul Bass Concept</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: #111;
+    color: #eee;
+    padding: 60px 40px;
+  }
+
+  h1 {
+    font-size: 14px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 60px;
+    font-weight: 400;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .concept {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .concept-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+
+  .concept-desc {
+    font-size: 13px;
+    color: #777;
+    text-align: center;
+    max-width: 340px;
+    line-height: 1.6;
+    margin-top: 20px;
+  }
+
+  .showcase {
+    display: flex;
+    flex-direction: column;
+    gap: 80px;
+    max-width: 1400px;
+    margin: 80px auto 0;
+  }
+
+  .showcase-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+    flex-wrap: wrap;
+  }
+
+  .showcase-section {
+    text-align: center;
+  }
+
+  .showcase-section .concept-label {
+    margin-bottom: 32px;
+  }
+
+  .bg-light {
+    background: #F7F3EF;
+    border-radius: 16px;
+    padding: 48px;
+  }
+
+  .bg-dark {
+    background: #1B1715;
+    border-radius: 16px;
+    padding: 48px;
+  }
+
+  .bg-copper {
+    background: #B87333;
+    border-radius: 16px;
+    padding: 48px;
+  }
+
+  .app-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 27px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+  }
+
+  .app-icon-dark {
+    background: linear-gradient(145deg, #2B2725, #1B1715);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  .app-icon-light {
+    background: linear-gradient(145deg, #F7F3EF, #EBE3DD);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  }
+
+  .size-demos {
+    display: flex;
+    align-items: flex-end;
+    gap: 32px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .size-demo {
+    text-align: center;
+  }
+
+  .size-demo span {
+    display: block;
+    font-size: 10px;
+    color: #555;
+    margin-top: 8px;
+    letter-spacing: 1px;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #222;
+    margin: 80px 0;
+  }
+
+  .rationale {
+    max-width: 640px;
+    margin: 80px auto 0;
+    padding: 40px;
+    border: 1px solid #222;
+    border-radius: 12px;
+  }
+
+  .rationale h2 {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #B87333;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .rationale p {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #888;
+    margin-bottom: 16px;
+  }
+
+  .rationale p:last-child { margin-bottom: 0; }
+
+  .color-ref {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-top: 40px;
+  }
+
+  .swatch {
+    text-align: center;
+  }
+
+  .swatch-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+    border: 1px solid #333;
+  }
+
+  .swatch span {
+    font-size: 10px;
+    color: #555;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<h1>LaneShadow &mdash; Logo System / Saul Bass</h1>
+
+<div class="grid">
+
+  <!-- CONCEPT: THE MARK -->
+  <div class="concept">
+    <div class="concept-label">The Mark</div>
+    <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- The Shadow (behind, offset) - dark brown -->
+      <path d="M 56 148 C 56 148, 52 100, 72 68 C 92 36, 116 28, 132 44 C 148 60, 152 96, 148 128"
+            stroke="#2B2725" stroke-width="28" stroke-linecap="round" fill="none"/>
+      <!-- The Lane (front) - copper -->
+      <path d="M 44 140 C 44 140, 40 92, 60 60 C 80 28, 104 20, 120 36 C 136 52, 140 88, 136 120"
+            stroke="#B87333" stroke-width="22" stroke-linecap="round" fill="none"/>
+    </svg>
+    <p class="concept-desc">
+      Two curved strokes &mdash; the lane in copper, its shadow in dark brown.
+      The negative space between them implies the rider.
+      The S-curve suggests both road and the letter S.
+    </p>
+  </div>
+
+  <!-- CONCEPT: HORIZONTAL LOCKUP -->
+  <div class="concept">
+    <div class="concept-label">Horizontal Lockup</div>
+    <svg width="400" height="80" viewBox="0 0 400 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Mark (scaled down) -->
+      <g transform="translate(0, 0) scale(0.4)">
+        <path d="M 56 148 C 56 148, 52 100, 72 68 C 92 36, 116 28, 132 44 C 148 60, 152 96, 148 128"
+              stroke="#2B2725" stroke-width="28" stroke-linecap="round" fill="none"/>
+        <path d="M 44 140 C 44 140, 40 92, 60 60 C 80 28, 104 20, 120 36 C 136 52, 140 88, 136 120"
+              stroke="#B87333" stroke-width="22" stroke-linecap="round" fill="none"/>
+      </g>
+      <!-- Wordmark -->
+      <text x="90" y="38" font-family="'DM Sans', system-ui" font-weight="700" font-size="28" fill="#B87333" letter-spacing="1">Lane</text>
+      <text x="90" y="64" font-family="'DM Sans', system-ui" font-weight="400" font-size="28" fill="#888" letter-spacing="1">Shadow</text>
+    </svg>
+    <p class="concept-desc">
+      Mark + stacked wordmark. "Lane" in copper bold,
+      "Shadow" in muted weight. The typography mirrors the mark's
+      duality: bold presence, subtle echo.
+    </p>
+  </div>
+
+  <!-- CONCEPT: INLINE LOCKUP -->
+  <div class="concept">
+    <div class="concept-label">Inline Lockup</div>
+    <svg width="420" height="60" viewBox="0 0 420 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Mark (scaled down) -->
+      <g transform="translate(-4, -2) scale(0.32)">
+        <path d="M 56 148 C 56 148, 52 100, 72 68 C 92 36, 116 28, 132 44 C 148 60, 152 96, 148 128"
+              stroke="#2B2725" stroke-width="28" stroke-linecap="round" fill="none"/>
+        <path d="M 44 140 C 44 140, 40 92, 60 60 C 80 28, 104 20, 120 36 C 136 52, 140 88, 136 120"
+              stroke="#B87333" stroke-width="22" stroke-linecap="round" fill="none"/>
+      </g>
+      <!-- Wordmark inline -->
+      <text x="62" y="42" font-family="'DM Sans', system-ui" font-weight="700" font-size="32" letter-spacing="0.5">
+        <tspan fill="#B87333">Lane</tspan><tspan fill="#666">Shadow</tspan>
+      </text>
+    </svg>
+    <p class="concept-desc">
+      Single-line lockup for navigation bars, headers, and
+      constrained horizontal spaces.
+    </p>
+  </div>
+
+  <!-- CONCEPT: MONOCHROME -->
+  <div class="concept">
+    <div class="concept-label">Monochrome Variants</div>
+    <div style="display: flex; gap: 40px; align-items: center;">
+      <!-- White on dark -->
+      <div class="bg-dark" style="padding: 24px;">
+        <svg width="80" height="80" viewBox="0 0 200 200" fill="none">
+          <path d="M 56 148 C 56 148, 52 100, 72 68 C 92 36, 116 28, 132 44 C 148 60, 152 96, 148 128"
+                stroke="rgba(255,255,255,0.25)" stroke-width="28" stroke-linecap="round" fill="none"/>
+          <path d="M 44 140 C 44 140, 40 92, 60 60 C 80 28, 104 20, 120 36 C 136 52, 140 88, 136 120"
+                stroke="rgba(255,255,255,0.92)" stroke-width="22" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <!-- Dark on light -->
+      <div class="bg-light" style="padding: 24px;">
+        <svg width="80" height="80" viewBox="0 0 200 200" fill="none">
+          <path d="M 56 148 C 56 148, 52 100, 72 68 C 92 36, 116 28, 132 44 C 148 60, 152 96, 148 128"
+                stroke="rgba(0,0,0,0.12)" stroke-width="28" stroke-linecap="round" fill="none"/>
+          <path d="M 44 140 C 44 140, 40 92, 60 60 C 80 28, 104 20, 120 36 C 136 52, 140 88, 136 120"
+                stroke="#1A1C1F" stroke-width="22" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <!-- Copper on copper -->
+      <div class="bg-copper" style="padding: 24px;">
+        <svg width="80" height="80" viewBox="0 0 200 200" fill="none">
+          <path d="M 56 148 C 56 148, 52 100, 72 68 C 92 36, 116 28, 132 44 C 148 60, 152 96, 148 128"
+                stroke="rgba(0,0,0,0.25)" stroke-width="28" stroke-linecap="round" fill="none"/>
+          <path d="M 44 140 C 44 140, 40 92, 60 60 C 80 28, 104 20, 120 36 C 136 52, 140 88, 136 120"
+                stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+    </div>
+    <p class="concept-desc">
+      The mark works in any single-color context.
+      The shadow stroke becomes a tonal shift &mdash;
+      opacity, not a second color.
+    </p>
+  </div>
+</div>
+
+<hr>
+
+<!-- APP ICON -->
+<div class="showcase">
+  <div class="showcase-section">
+    <div class="concept-label">App Icon</div>
+    <div class="showcase-row">
+      <div>
+        <div class="app-icon app-icon-dark">
+          <svg width="72" height="72" viewBox="0 0 200 200" fill="none">
+            <path d="M 56 148 C 56 148, 52 100, 72 68 C 92 36, 116 28, 132 44 C 148 60, 152 96, 148 128"
+                  stroke="#3A3431" stroke-width="28" stroke-linecap="round" fill="none"/>
+            <path d="M 44 140 C 44 140, 40 92, 60 60 C 80 28, 104 20, 120 36 C 136 52, 140 88, 136 120"
+                  stroke="#B87333" stroke-width="22" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <p style="font-size: 10px; color: #555; margin-top: 12px; text-align: center; letter-spacing: 1px;">DARK</p>
+      </div>
+      <div>
+        <div class="app-icon app-icon-light">
+          <svg width="72" height="72" viewBox="0 0 200 200" fill="none">
+            <path d="M 56 148 C 56 148, 52 100, 72 68 C 92 36, 116 28, 132 44 C 148 60, 152 96, 148 128"
+                  stroke="#D9D0C7" stroke-width="28" stroke-linecap="round" fill="none"/>
+            <path d="M 44 140 C 44 140, 40 92, 60 60 C 80 28, 104 20, 120 36 C 136 52, 140 88, 136 120"
+                  stroke="#B87333" stroke-width="22" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <p style="font-size: 10px; color: #555; margin-top: 12px; text-align: center; letter-spacing: 1px;">LIGHT</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIZE SCALABILITY -->
+  <div class="showcase-section">
+    <div class="concept-label">Scale Test</div>
+    <div class="size-demos">
+      <div class="size-demo">
+        <svg width="16" height="16" viewBox="0 0 200 200" fill="none">
+          <path d="M 56 148 C 56 148, 52 100, 72 68 C 92 36, 116 28, 132 44 C 148 60, 152 96, 148 128"
+                stroke="#2B2725" stroke-width="32" stroke-linecap="round" fill="none"/>
+          <path d="M 44 140 C 44 140, 40 92, 60 60 C 80 28, 104 20, 120 36 C 136 52, 140 88, 136 120"
+                stroke="#B87333" stroke-width="26" stroke-linecap="round" fill="none"/>
+        </svg>
+        <span>16px</span>
+      </div>
+      <div class="size-demo">
+        <svg width="32" height="32" viewBox="0 0 200 200" fill="none">
+          <path d="M 56 148 C 56 148, 52 100, 72 68 C 92 36, 116 28, 132 44 C 148 60, 152 96, 148 128"
+                stroke="#2B2725" stroke-width="28" stroke-linecap="round" fill="none"/>
+          <path d="M 44 140 C 44 140, 40 92, 60 60 C 80 28, 104 20, 120 36 C 136 52, 140 88, 136 120"
+                stroke="#B87333" stroke-width="22" stroke-linecap="round" fill="none"/>
+        </svg>
+        <span>32px</span>
+      </div>
+      <div class="size-demo">
+        <svg width="64" height="64" viewBox="0 0 200 200" fill="none">
+          <path d="M 56 148 C 56 148, 52 100, 72 68 C 92 36, 116 28, 132 44 C 148 60, 152 96, 148 128"
+                stroke="#2B2725" stroke-width="28" stroke-linecap="round" fill="none"/>
+          <path d="M 44 140 C 44 140, 40 92, 60 60 C 80 28, 104 20, 120 36 C 136 52, 140 88, 136 120"
+                stroke="#B87333" stroke-width="22" stroke-linecap="round" fill="none"/>
+        </svg>
+        <span>64px</span>
+      </div>
+      <div class="size-demo">
+        <svg width="128" height="128" viewBox="0 0 200 200" fill="none">
+          <path d="M 56 148 C 56 148, 52 100, 72 68 C 92 36, 116 28, 132 44 C 148 60, 152 96, 148 128"
+                stroke="#2B2725" stroke-width="28" stroke-linecap="round" fill="none"/>
+          <path d="M 44 140 C 44 140, 40 92, 60 60 C 80 28, 104 20, 120 36 C 136 52, 140 88, 136 120"
+                stroke="#B87333" stroke-width="22" stroke-linecap="round" fill="none"/>
+        </svg>
+        <span>128px</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- DESIGN RATIONALE -->
+<div class="rationale">
+  <h2>Design Rationale</h2>
+  <p>
+    The mark is two things at once: a winding road and its shadow on asphalt.
+    The copper stroke is the lane &mdash; the path the rider chooses. The dark stroke
+    is the shadow &mdash; always present, always following, slightly behind and below.
+  </p>
+  <p>
+    The negative space between them is where the motorcycle lives. You never see
+    the rider. You see what the rider leaves behind: a lane, and its shadow.
+    That's the name. That's the product. That's the mark.
+  </p>
+  <p>
+    The S-curve carries three meanings simultaneously: the shape of a good
+    motorcycle road, the letter S (Shadow), and forward momentum through
+    a turn. Bass always insisted a mark should work harder than decoration &mdash;
+    it should <em>mean</em> something at every level of reading.
+  </p>
+  <p>
+    Two strokes. Two colors. No fills. No gradients. No ornamentation.
+    It faxes clean. It embroiders clean. It works at 16 pixels and on a billboard.
+    That's the test.
+  </p>
+</div>
+
+<!-- COLOR REFERENCE -->
+<div class="color-ref">
+  <div class="swatch">
+    <div class="swatch-circle" style="background: #B87333;"></div>
+    <span>COPPER #B87333</span>
+  </div>
+  <div class="swatch">
+    <div class="swatch-circle" style="background: #2B2725;"></div>
+    <span>SHADOW #2B2725</span>
+  </div>
+  <div class="swatch">
+    <div class="swatch-circle" style="background: #1A1C1F;"></div>
+    <span>INK #1A1C1F</span>
+  </div>
+  <div class="swatch">
+    <div class="swatch-circle" style="background: #F7F3EF;"></div>
+    <span>CREAM #F7F3EF</span>
+  </div>
+</div>
+
+</body>
+</html>

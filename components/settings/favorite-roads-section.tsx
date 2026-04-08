@@ -20,6 +20,7 @@ import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { DeleteFavoriteDialog } from '../ui/delete-favorite-dialog'
 import { EmptyState } from '../ui/empty-state'
 import { SavedRouteCard } from '../ui/saved-route-card'
+import { formatDate } from '../ui/saved-route-card.utils'
 import { SectionHeader } from '../ui/section-header'
 import { IconSymbol } from '../ui/icon-symbol'
 import type { SavedRoutesListView } from '../../types/routes'
@@ -43,6 +44,7 @@ const SavedRouteCardWithDelete: React.FC<{
               ? `${item.startLabel} → ${item.endLabel}`
               : item.startLabel || item.endLabel || 'Unknown route'
           }
+          dateSaved={formatDate(item.createdAt)}
           distance={`${(item.preview.distanceMeters / 1609.344).toFixed(1)} mi`}
           duration={(() => {
             const minutes = Math.round(item.preview.durationSeconds / 60)

@@ -21,6 +21,10 @@ export type MapControlsProps = {
   onClear?: () => void
   /** Handler for the mode-toggle button (chat-icon in map mode, map-icon in chat mode). */
   onToggleView?: () => void
+  /** Handler for save route button (bookmark icon). Only shown when a route is available. */
+  onSaveRoute?: () => void
+  /** Whether a route is available to save (controls bookmark button visibility). */
+  hasRouteToSave?: boolean
   /** Show labels below icons for better discoverability */
   showLabels?: boolean
   position?: {
@@ -38,6 +42,8 @@ export const MapControls = ({
   onRecenter,
   onClear,
   onToggleView,
+  onSaveRoute,
+  hasRouteToSave = false,
   showLabels = false,
   position,
 }: MapControlsProps) => {
@@ -125,6 +131,18 @@ export const MapControls = ({
                 accessibilityLabel="Reset map state"
               />
             ) : null}
+
+            {hasRouteToSave && onSaveRoute ? (
+              <ControlButton
+                icon="bookmark"
+                label={showLabels ? 'Save' : undefined}
+                onPress={onSaveRoute}
+                semantic={semantic}
+                testID="control-save-route"
+                accessibilityLabel="Save route"
+                accent
+              />
+            ) : null}
           </>
         ) : null}
 
@@ -163,6 +181,8 @@ type ControlButtonProps = {
   semantic: ReturnType<typeof useSemanticTheme>['semantic']
   testID: string
   accessibilityLabel: string
+  /** Use primary color accent for important actions (e.g., save route) */
+  accent?: boolean
 }
 
 const ControlButton = ({
@@ -172,6 +192,7 @@ const ControlButton = ({
   semantic,
   testID,
   accessibilityLabel,
+  accent = false,
 }: ControlButtonProps) => {
   return (
     <Pressable
@@ -184,9 +205,15 @@ const ControlButton = ({
           minWidth: label ? semantic.space['3xl'] : undefined,
           borderRadius: semantic.radius['2xl'],
           backgroundColor: pressed
-            ? semantic.color.surfaceVariant.pressed
-            : semantic.color.surfaceVariant.default,
-          borderColor: semantic.color.border.default,
+            ? accent
+              ? semantic.color.primary.pressed
+              : semantic.color.surfaceVariant.pressed
+            : accent
+              ? semantic.color.primary.default
+              : semantic.color.surfaceVariant.default,
+          borderColor: accent
+            ? semantic.color.primary.default
+            : semantic.color.border.default,
           borderWidth: 1.5,
           ...semantic.elevation[3],
           paddingHorizontal: label ? semantic.space.sm : undefined,
@@ -202,13 +229,17 @@ const ControlButton = ({
         right: semantic.space.xs,
       }}
     >
-      <Icon source={icon} size={20} color={semantic.color.onSurface.default} />
+      <Icon
+        source={icon}
+        size={20}
+        color={accent ? semantic.color.onPrimary.default : semantic.color.onSurface.default}
+      />
       {label && (
         <Text
           style={[
             semantic.type.body.sm,
             {
-              color: semantic.color.onSurface.default,
+              color: accent ? semantic.color.onPrimary.default : semantic.color.onSurface.default,
             },
           ]}
           numberOfLines={1}

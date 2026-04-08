@@ -4,7 +4,6 @@ import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
 import type { Id } from '../../../convex/_generated/dataModel'
 import { Pressable, ScrollView, StyleSheet, View, Keyboard } from 'react-native'
-import { Icon } from 'react-native-paper'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -996,32 +995,9 @@ const HomeMapScreen = () => {
             onZoomOut={() => zoom(-1)}
             onRecenter={recenter}
             onClear={clearAll}
+            onSaveRoute={handleSaveRoutePress}
+            hasRouteToSave={!chatMode && !!agentActiveOption && !!agentRoutePlan}
           />
-
-          {/* Save Route button - shown when a route is selected */}
-          {!chatMode && agentActiveOption && agentRoutePlan && (
-            <Pressable
-              onPress={handleSaveRoutePress}
-              style={({ pressed }) => [
-                styles.saveRouteButton,
-                {
-                  backgroundColor: pressed
-                    ? semantic.color.primary.pressed
-                    : semantic.color.primary.default,
-                  bottom: insets.bottom + semantic.space.xl + 80, // Above chat input
-                },
-              ]}
-              testID="save-route-button"
-              accessibilityLabel="Save route"
-              accessibilityRole="button"
-            >
-              <Icon
-                source="heart-outline"
-                size={20}
-                color={semantic.color.onPrimary.default}
-              />
-            </Pressable>
-          )}
         </View>
 
         {/* Route attachment cards when showing results (map mode only, hidden while toasts are visible) */}
@@ -1175,21 +1151,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 15,
     alignItems: 'center',
-  },
-  saveRouteButton: {
-    position: 'absolute',
-    right: 16,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 8,
   },
   chatLayer: {
     zIndex: 10,
