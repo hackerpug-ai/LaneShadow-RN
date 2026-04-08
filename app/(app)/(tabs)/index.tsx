@@ -106,6 +106,9 @@ const HomeMapScreen = () => {
   const [controlsHeight, setControlsHeight] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
 
+  // Track when we've explicitly started a new session (to prevent falling back to old session)
+  const [explicitlyNewSession, setExplicitlyNewSession] = useState(false)
+
   // US-050: Save Route Sheet state
   const [saveRouteSheetVisible, setSaveRouteSheetVisible] = useState(false)
   const [saveRouteData, setSaveRouteData] = useState<{
@@ -139,9 +142,10 @@ const HomeMapScreen = () => {
   const activeChatSessionId: Id<'planning_sessions'> | null = useMemo(() => {
     if (sessionIdParam) return sessionIdParam as Id<'planning_sessions'>
     if (planningSessionId) return planningSessionId as Id<'planning_sessions'>
-    if (sessions && sessions.length > 0) return sessions[0]._id
+    // Only fall back to most recent session if we haven't explicitly started a new one
+    if (!explicitlyNewSession && sessions && sessions.length > 0) return sessions[0]._id
     return null
-  }, [sessionIdParam, planningSessionId, sessions])
+  }, [sessionIdParam, planningSessionId, sessions, explicitlyNewSession])
 
   // Agent-produced route from Convex (task #258). Subscribes to the latest
   // routing_card in the current session and exposes the active route option.
@@ -186,6 +190,13 @@ const HomeMapScreen = () => {
     sessionIdParam,
     flowDispatch,
   ])
+
+  // Clear the explicitly-new-session flag when a new session is actually created
+  useEffect(() => {
+    if (planningSessionId && explicitlyNewSession) {
+      setExplicitlyNewSession(false)
+    }
+  }, [planningSessionId, explicitlyNewSession])
 
   const rawTranscriptMessages = useQuery(
     api.db.sessionMessages.list,
@@ -365,6 +376,8 @@ const HomeMapScreen = () => {
     setDisplayedRoutePlanId(null)
     lastFittedPlanIdRef.current = null
     resetSession()
+    // Mark that we've explicitly started a new session (prevent falling back to old session)
+    setExplicitlyNewSession(true)
   }
 
   const doFit = useCallback(() => {

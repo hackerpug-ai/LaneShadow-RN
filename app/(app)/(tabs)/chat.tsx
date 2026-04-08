@@ -32,7 +32,7 @@ import { useCurrentLocation } from '../../../hooks/use-current-location'
 import { useRideFlow } from '../../../hooks/use-ride-flow'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useSelectedRoute } from '../../../contexts/selected-route'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 
 // Set up global error handler for uncaught errors
 if (typeof console !== 'undefined') {
@@ -78,6 +78,9 @@ export default function ChatScreen() {
   // Fetch all sessions to find the target session
   const sessions = useQuery(api.db.planningSessions.listSessions)
 
+  // Track when we've explicitly started a new session (to prevent falling back to old session)
+  const [explicitlyNewSession, setExplicitlyNewSession] = useState(false)
+
   console.info('[ChatScreen] Sessions query result', {
     sessionsCount: sessions?.length ?? 0,
     isLoading: sessions === undefined,
@@ -113,7 +116,8 @@ export default function ChatScreen() {
     if (sessionIdParam) {
       return sessionIdParam as Id<'planning_sessions'>
     }
-    if (sessions && sessions.length > 0) {
+    // Only fall back to most recent session if we haven't explicitly started a new one
+    if (!explicitlyNewSession && sessions && sessions.length > 0) {
       return sessions[0]._id
     }
     return null
@@ -207,6 +211,13 @@ export default function ChatScreen() {
     return optimisticChatMessages
   }, [messages, optimisticMessages, resolvedSessionId])
 
+  // Clear the explicitly-new-session flag when a new session is actually created
+  useEffect(() => {
+    if (sessionId && explicitlyNewSession) {
+      setExplicitlyNewSession(false)
+    }
+  }, [sessionId, explicitlyNewSession])
+
   const { setSelectedRouteId, setDisplayedRoutePlanId } = useSelectedRoute()
 
   // Dismiss keyboard when tapping outside the input
@@ -222,6 +233,8 @@ export default function ChatScreen() {
     setSelectedRouteId(null)
     setDisplayedRoutePlanId(null)
     resetSession()
+    // Mark that we've explicitly started a new session (prevent falling back to old session)
+    setExplicitlyNewSession(true)
     router.replace('/(app)/(tabs)?chat=1' as any)
   }
 
