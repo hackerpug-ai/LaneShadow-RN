@@ -73,6 +73,7 @@ const GESTURE_HANDLER_STUB = path.resolve(__dirname, '__mocks__/react-native-ges
 const BOTTOM_SHEET_STUB = path.resolve(__dirname, '__mocks__/gorhom-bottom-sheet.ts')
 const EXPO_MODULES_CORE_STUB = path.resolve(__dirname, '__mocks__/expo-modules-core.ts')
 const NOTIFIER_STUB = path.resolve(__dirname, '__mocks__/react-native-notifier.ts')
+const SAFE_AREA_STUB = path.resolve(__dirname, '__mocks__/react-native-safe-area-context.ts')
 const STUB_MAP = {
   'react-native': path.resolve(__dirname, '__mocks__/react-native.ts'),
   'react-native-paper': path.resolve(__dirname, '__mocks__/react-native-paper.ts'),
@@ -98,6 +99,7 @@ const STUB_MAP = {
   '@gorhom/bottom-sheet': BOTTOM_SHEET_STUB,
   'expo-modules-core': EXPO_MODULES_CORE_STUB,
   'react-native-notifier': NOTIFIER_STUB,
+  'react-native-safe-area-context': SAFE_AREA_STUB,
 }
 const originalResolveFilename = Module._resolveFilename
 Module._resolveFilename = function (request, parent, ...rest) {

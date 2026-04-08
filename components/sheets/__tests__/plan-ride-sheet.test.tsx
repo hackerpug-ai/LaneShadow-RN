@@ -17,7 +17,7 @@ import type { ExtendedTheme } from '../../../styles/types'
 // ---------------------------------------------------------------------------
 
 import { PlanRideSheet } from '../plan-ride-sheet'
-import type { RouteStop } from '../../../types/routes'
+import type { RouteStop } from '../../../models/saved-routes'
 
 // ---------------------------------------------------------------------------
 // Mock semantic theme
@@ -146,6 +146,7 @@ vi.mock('@gorhom/bottom-sheet', () => {
       )
     }),
     BottomSheetScrollView: (props: any) => React.createElement(View, props, props.children),
+    BottomSheetView: (props: any) => React.createElement(View, props, props.children),
     BottomSheetBackdrop: () => null,
   }
 })

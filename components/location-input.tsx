@@ -10,7 +10,7 @@ import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { usePlaceAutocomplete } from '../hooks/use-place-autocomplete'
 import { useSemanticTheme } from '../hooks/use-semantic-theme'
-import { RouteStop } from '../types'
+import type { RouteStop } from '../models/saved-routes'
 import { IconSymbol, type IconName } from './ui/icon-symbol'
 import { Input } from './ui/input'
 
