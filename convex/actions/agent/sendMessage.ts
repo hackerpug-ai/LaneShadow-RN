@@ -234,6 +234,13 @@ export async function buildStreamingContext(
   }
 
   const finalizeOk = async (piMessage?: unknown): Promise<void> => {
+    // Finalize reasoning message first (was left in 'streaming' status)
+    if (reasoningMessageId) {
+      await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
+        messageId: reasoningMessageId,
+        status: 'complete',
+      })
+    }
     if (messageId === undefined) return // agent produced no text, no row to finalize
     const args: Record<string, unknown> = { messageId, status: 'complete' }
     if (piMessage !== undefined) {
@@ -243,6 +250,13 @@ export async function buildStreamingContext(
   }
 
   const finalizeFail = async (): Promise<void> => {
+    // Finalize reasoning message on failure too
+    if (reasoningMessageId) {
+      await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
+        messageId: reasoningMessageId,
+        status: 'failed',
+      })
+    }
     if (messageId === undefined) return // nothing to finalize
     await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
       messageId,

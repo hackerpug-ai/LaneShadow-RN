@@ -103,7 +103,25 @@ describe('useRideFlow', () => {
 
   describe('AC3: NAVIGATION_EXPORT rejected when selectedRouteId is null', () => {
     it('should reject NAVIGATE_EXPORT transition when selectedRouteId is null', () => {
-      // Setup: Get to ROUTE_RESULTS state
+      // Setup: Get to ROUTE_RESULTS state — PLANNING_SUCCESS auto-selects
+      // the first option, so we construct the state directly to test the guard
+      const state = {
+        phase: 'ROUTE_RESULTS' as const,
+        sessionId: 'test-session',
+        routeOptions: createMockRouteOptions(),
+        selectedRouteId: null,
+      }
+
+      // Try to navigate to export without selecting a route
+      const nextState = rideFlowReducer(state, {
+        type: 'NAVIGATE_EXPORT',
+      })
+
+      // Should stay in ROUTE_RESULTS (guard prevents transition)
+      expect(nextState.phase).toBe('ROUTE_RESULTS')
+    })
+
+    it('should auto-select first route option on PLANNING_SUCCESS', () => {
       let state = rideFlowReducer(initialState, {
         type: 'SEND_MESSAGE',
         content: 'Plan a ride',
@@ -117,15 +135,7 @@ describe('useRideFlow', () => {
 
       expect(state.phase).toBe('ROUTE_RESULTS')
       if (state.phase === 'ROUTE_RESULTS') {
-        expect(state.selectedRouteId).toBeNull()
-
-        // Try to navigate to export without selecting a route
-        const nextState = rideFlowReducer(state, {
-          type: 'NAVIGATE_EXPORT',
-        })
-
-        // Should stay in ROUTE_RESULTS (guard prevents transition)
-        expect(nextState.phase).toBe('ROUTE_RESULTS')
+        expect(state.selectedRouteId).toBe('route-1')
       }
     })
 

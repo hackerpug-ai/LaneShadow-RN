@@ -270,7 +270,7 @@ const handlePlanningState = (
         phase: 'ROUTE_RESULTS',
         sessionId: state.sessionId,
         routeOptions: action.routeOptions,
-        selectedRouteId: null,
+        selectedRouteId: action.routeOptions.options?.[0]?.routeOptionId ?? null,
       }
 
     case 'PLANNING_ERROR':

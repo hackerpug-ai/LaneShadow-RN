@@ -545,8 +545,15 @@ const HomeMapScreen = () => {
     const hasRouteOptions = (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS' || flowState.phase === 'PLANNING') && 'routeOptions' in flowState && flowState.routeOptions
 
     if (hasRouteOptions) {
-      // Flatten the nested polylines array
-      return polylines.flatMap(routePolyline => routePolyline.polylines)
+      const flattened = polylines.flatMap(routePolyline => routePolyline.polylines)
+      console.info('[routePolylines] Using useRouteComparison polylines:', {
+        flowPhase: flowState.phase,
+        routeComparisonCount: polylines.length,
+        flattenedCount: flattened.length,
+        selectedRouteId: 'selectedRouteId' in flowState ? flowState.selectedRouteId : 'n/a',
+        firstPolylineCoords: flattened[0]?.coordinates?.length ?? 0,
+      })
+      return flattened
     }
 
     // Agent-produced route from Convex subscription: renders when the agent
