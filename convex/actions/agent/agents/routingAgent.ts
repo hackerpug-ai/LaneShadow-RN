@@ -158,65 +158,6 @@ export async function runGeocode(
   return { results: results.slice(0, 3) }
 }
 
-async function runDiscoverCorridor(
-  ctx: AgentContext,
-  args: {
-    start: { lat: number; lng: number }
-    end: { lat: number; lng: number }
-    preferences?: { scenicBias?: 'default' | 'high'; avoidHighways?: boolean }
-  }
-): Promise<unknown> {
-  const discoverCorridor = await import('../tools/discoverCorridor')
-
-  // Try Convex OSM data first for fast queries
-  try {
-    const bounds = {
-      south: Math.min(args.start.lat, args.end.lat) - 0.5,
-      west: Math.min(args.start.lng, args.end.lng) - 0.5,
-      north: Math.max(args.start.lat, args.end.lat) + 0.5,
-      east: Math.max(args.start.lng, args.end.lng) + 0.5,
-    }
-
-    // Query scenic nodes and roads from Convex
-    const [nodes, ways] = await Promise.all([
-      ctx.runAction(internal.actions.osm.queryNodesInBbox, {
-        bounds,
-        types: ['viewpoint', 'peak', 'mountain_pass'],
-      }),
-      ctx.runAction(internal.actions.osm.queryWaysInBbox, {
-        bounds,
-        highwayClasses: ['trunk', 'primary', 'secondary', 'tertiary'],
-      }),
-    ])
-
-    // If we got road results from Convex, use them (nodes alone aren't enough for corridor discovery)
-    if (ways.length > 0) {
-      return {
-        roads: ways.map((w: any) => ({
-          name: w.name || 'Unknown Road',
-          highway: w.highwayClass || 'unknown',
-          surface: w.surface || null,
-          endpoints: w.geometry.map((g: number[]) => ({ lat: g[1], lng: g[0] })),
-        })),
-        pois: nodes.map((n: any) => ({
-          name: n.name || 'Unknown Point',
-          type: n.type as 'viewpoint' | 'peak' | 'pass' | 'scenic_road',
-          lat: n.lat,
-          lng: n.lon,
-          score: n.type === 'mountain_pass' ? 3 : n.type === 'peak' ? 2 : 1,
-        })),
-        discoveryStatus: 'success' as const,
-      }
-    }
-  } catch (error) {
-    // Convex query failed, fall back to Overpass
-    console.warn('Convex OSM query failed, falling back to Overpass:', error)
-  }
-
-  // Fall back to Overpass tool
-  return discoverCorridor.discoverCorridor(args)
-}
-
 async function runLookupRoad(
   ctx: AgentContext,
   args: {
@@ -918,12 +859,6 @@ const routingTools: RoutingTool[] = [
     parallelSafe: true,
   },
   {
-    name: 'discoverCorridor',
-    description: 'Discover real roads and scenic POIs in the corridor between two points. Returns road names with coordinates and a discoveryStatus field. Check discoveryStatus: if "failed" (0 roads, 0 POIs), fall back to planRoute instead of sketching.',
-    parameters: AgentToolSchemas.discoverCorridor as any,
-    parallelSafe: true,
-  },
-  {
     name: 'createRouteSketch',
     description:
       "Create a high-level route itinerary by specifying road segments (think \"take Highway 5 to Highway 405 to PCH\"). Use this when the rider asks to avoid specific roads (\"avoid Highway 1\") or requests a particular route (\"take Skyline Blvd\"). After creating the sketch, call compileSketch with start/end coordinates to generate the precise route.",
@@ -973,9 +908,6 @@ export async function executeRoutingTool(
     switch (call.name) {
       case 'geocode':
         result = await runGeocode(ctx, validated)
-        break
-      case 'discoverCorridor':
-        result = await runDiscoverCorridor(ctx, validated)
         break
       case 'createRouteSketch':
         result = await runCreateRouteSketch(ctx, validated)
@@ -1029,54 +961,46 @@ export function buildRoutingPrompt(ctx: AgentContext): string {
 
 ${locBlock}
 
-## Your Job: Author Routes, Don't Just Transcribe Them
+## Your Job: Plan Routes Fast
 
-For ANY route request — even generic ones like "scenic 2-hour ride" or "take me somewhere fun" — your job is to pick great roads and author a route sketch.
+Your primary tool is planRoute — it generates 2-3 scenic route options using AI-suggested roads. Use it for most requests.
 
-### Phase 1: Discover → Pick → Sketch → Compile
+**When to use planRoute** (95% of requests):
+- "scenic ride to Santa Cruz"
+- "take me somewhere fun"
+- "2-hour ride from here"
+- Any destination request
 
-Get a route on the map ASAP so the rider can see it and decide. ALWAYS discover real roads first before sketching.
+**When to use createRouteSketch + compileSketch** (advanced control):
+- Rider specifies exact roads: "take Highway 1 to PCH"
+- Rider wants to avoid a specific road: "avoid I-5"
+- Rider requests a particular route style you can't achieve with planRoute
 
-**Workflow**:
+**Workflow for sketching** (only when rider specifies roads):
 1. If the rider names a place (not "here"), call geocode first to get coordinates.
-2. Call discoverCorridor with start/end to see what roads and POIs exist.
-3. Check discoveryStatus: if "failed" (0 roads, 0 POIs), immediately call planRoute instead — do not attempt to sketch.
-4. PICK roads from discovery results based on the rider's intent:
-   - "scenic" → roads near peaks, passes, viewpoints
-   - "avoid highways" → skip motorway/trunk class roads
-   - "take Skyline Blvd" → use road name directly from discovery or geocode results
-5. Author createRouteSketch using real road names + coordinates from discovery.
-   - ALL anchor points MUST have lat/lng from discovery or geocode
-   - Use road endpoints as segment fromName/toName anchor coordinates
-   - Use POI coordinates for landmark/pass anchors
-6. Call compileSketch to generate the route.
-7. Present in 1-2 sentences.
-
-That's 3-4 tool calls.
-
-**Uncertainty fallback**: If discovery returns few roads (0-2 roads), empty POIs, or you're genuinely unsure about an area, fall back to planRoute instead of sketching. DO NOT create a sketch without real coordinates from discovery.
-
-**IMPORTANT: If a tool call fails with a validation error, fix the arguments and retry. Do NOT give up after one failure.**
+2. Call createRouteSketch with specific road names and anchor points.
+3. Call compileSketch with start/end coordinates to generate the route.
+4. Present in 1-2 sentences.
 
 **How to author a sketch**:
 - Fill in segments with specific road names: roadName, fromName, toName
-- Use viaNames to include intermediate landmarks along each road — e.g., "Skeggs Point" on Skyline Blvd — these pin the route to the roads you intend
-- Add anchorPoints for key junctions, towns, passes, or landmarks along the route
-- Each anchorPoint kind MUST be one of: "town", "junction", "landmark", "pass" — use "landmark" for parks, scenic spots, restaurants, or anything that isn't a town/junction/pass
-- ALL anchor points MUST have lat/lng coordinates from discovery or geocode results
-
-**Avoidances**: When the rider says "avoid Highway 1" or "skip the freeway," route around it in your sketch using alternative roads — no avoidRoads API parameter is needed. Just don't include that road in your segments.
+- Use viaNames to include intermediate landmarks — e.g., "Skeggs Point" on Skyline Blvd
+- Add anchorPoints for key junctions, towns, passes, or landmarks
+- Each anchorPoint kind MUST be: "town", "junction", "landmark", or "pass"
+- ALL anchor points MUST have lat/lng from geocode results
 
 **Segment retry (CRITICAL)**: When compileSketch returns a partial_route error:
-- Call compileSketch AGAIN with a revised sketch that keeps the succeeded segments IDENTICAL (same roadName, fromName, toName)
-- Only change the failed segments — try different fromName/toName endpoints or add viaNames to pin the road
-- Do NOT call createRouteSketch to start over — compileSketch caches succeeded segments and only re-routes the failed ones
+- Call compileSketch AGAIN with a revised sketch that keeps succeeded segments IDENTICAL
+- Only change failed segments — try different endpoints or add viaNames
+- Do NOT call createRouteSketch to start over — compileSketch caches succeeded segments
 - If the same segment fails 3 times, fall back to planRoute for that leg
 
+**IMPORTANT: If a tool call fails with a validation error, fix the arguments and retry. Do NOT give up after one failure.**
+
 **Examples**:
-- "Scenic ride to Santa Cruz" → geocode("Santa Cruz") → discoverCorridor → createRouteSketch with Skyline Blvd + Highway 9 (using discovered coordinates) → compileSketch → done
-- "Avoid Highway 1, get to Santa Cruz" → discoverCorridor → pick inland roads (CA-17, CA-35) from results → createRouteSketch → compileSketch → done
-- "Scenic ride through rural Montana" → discoverCorridor → if few roads found, fall back to planRoute
+- "Scenic ride to Santa Cruz" → geocode("Santa Cruz") → planRoute → done
+- "Take Highway 1 south" → geocode → createRouteSketch with Highway 1 → compileSketch → done
+- "Avoid the freeway, get to Napa" → geocode → createRouteSketch with backroads → compileSketch → done
 
 **Presentation**:
 - 1-2 sentences, highlight scenic features, road types, rough duration.

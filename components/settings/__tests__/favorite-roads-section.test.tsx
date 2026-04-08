@@ -13,7 +13,7 @@ import React from 'react'
 import { render, waitFor, fireEvent } from '@testing-library/react-native'
 import type { Doc } from '../../../convex/_generated/dataModel'
 
-import { FavoriteRoadsSection } from '../favorite-roads-section'
+import { SavedRoutesSection } from '../favorite-roads-section'
 import { useQuery, useMutation } from 'convex/react'
 
 // ---------------------------------------------------------------------------
@@ -221,7 +221,7 @@ vi.mock('convex/react', () => ({
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('FavoriteRoadsSection', () => {
+describe('SavedRoutesSection', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -236,7 +236,7 @@ describe('FavoriteRoadsSection', () => {
     ;(useQuery as Mock).mockReturnValue(undefined)
     ;(useMutation as Mock).mockReturnValue(vi.fn())
 
-    const { getByText } = render(<FavoriteRoadsSection />)
+    const { getByText } = render(<SavedRoutesSection />)
 
     expect(getByText('Favorite Roads')).toBeTruthy()
     expect(useQuery).toHaveBeenCalledWith('db.favoriteRoads:list')
@@ -286,7 +286,7 @@ describe('FavoriteRoadsSection', () => {
     const mockRemove = vi.fn()
     ;(useMutation as Mock).mockReturnValue(mockRemove)
 
-    const { getByText } = render(<FavoriteRoadsSection />)
+    const { getByText } = render(<SavedRoutesSection />)
 
     await waitFor(() => {
       expect(getByText('Favorite Roads')).toBeTruthy()
@@ -305,7 +305,7 @@ describe('FavoriteRoadsSection', () => {
     ;(useQuery as Mock).mockReturnValue([])
     ;(useMutation as Mock).mockReturnValue(vi.fn())
 
-    const { getByText, getByTestId } = render(<FavoriteRoadsSection />)
+    const { getByText, getByTestId } = render(<SavedRoutesSection />)
 
     await waitFor(() => {
       expect(getByText('Favorite Roads')).toBeTruthy()
@@ -347,7 +347,7 @@ describe('FavoriteRoadsSection', () => {
     const mockRemove = vi.fn().mockResolvedValue({ success: true })
     ;(useMutation as Mock).mockReturnValue(mockRemove)
 
-    const { getByText, getByTestId } = render(<FavoriteRoadsSection />)
+    const { getByText, getByTestId } = render(<SavedRoutesSection />)
 
     await waitFor(() => {
       expect(getByText('Scenic Route 1')).toBeTruthy()
@@ -416,7 +416,7 @@ describe('FavoriteRoadsSection', () => {
     ;(useQuery as Mock).mockReturnValue(mockFavorites)
     ;(useMutation as Mock).mockReturnValue(vi.fn())
 
-    const { getAllByText } = render(<FavoriteRoadsSection />)
+    const { getAllByText } = render(<SavedRoutesSection />)
 
     await waitFor(() => {
       expect(getAllByText('New Route')).toBeTruthy()

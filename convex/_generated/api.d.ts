@@ -41,7 +41,6 @@ import type * as actions_agent_sessionContext from "../actions/agent/sessionCont
 import type * as actions_agent_tools_checkSurface from "../actions/agent/tools/checkSurface.js";
 import type * as actions_agent_tools_compileSketch from "../actions/agent/tools/compileSketch.js";
 import type * as actions_agent_tools_computeRouteIndex from "../actions/agent/tools/computeRouteIndex.js";
-import type * as actions_agent_tools_discoverCorridor from "../actions/agent/tools/discoverCorridor.js";
 import type * as actions_agent_tools_enrichRoute from "../actions/agent/tools/enrichRoute.js";
 import type * as actions_agent_tools_findScenicWaypoints from "../actions/agent/tools/findScenicWaypoints.js";
 import type * as actions_agent_tools_getCurvature from "../actions/agent/tools/getCurvature.js";
@@ -127,7 +126,6 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/tools/checkSurface": typeof actions_agent_tools_checkSurface;
   "actions/agent/tools/compileSketch": typeof actions_agent_tools_compileSketch;
   "actions/agent/tools/computeRouteIndex": typeof actions_agent_tools_computeRouteIndex;
-  "actions/agent/tools/discoverCorridor": typeof actions_agent_tools_discoverCorridor;
   "actions/agent/tools/enrichRoute": typeof actions_agent_tools_enrichRoute;
   "actions/agent/tools/findScenicWaypoints": typeof actions_agent_tools_findScenicWaypoints;
   "actions/agent/tools/getCurvature": typeof actions_agent_tools_getCurvature;

@@ -18,23 +18,6 @@ export const AgentToolSchemas = {
     }),
   }),
 
-  discoverCorridor: Type.Object({
-    start: Type.Object({
-      lat: Type.Number({ description: 'Starting latitude in decimal degrees' }),
-      lng: Type.Number({ description: 'Starting longitude in decimal degrees' }),
-    }),
-    end: Type.Object({
-      lat: Type.Number({ description: 'Ending latitude in decimal degrees' }),
-      lng: Type.Number({ description: 'Ending longitude in decimal degrees' }),
-    }),
-    preferences: Type.Optional(Type.Object({
-      scenicBias: Type.Union([Type.Literal('default'), Type.Literal('high')], {
-        description: 'Use "high" when the rider asks for scenic/twisty/backroads, "default" otherwise',
-      }),
-      avoidHighways: Type.Boolean({ description: 'True when the rider wants to avoid highways/interstates' }),
-    })),
-  }),
-
   createRouteSketch: Type.Object({
     label: Type.String({
       description: 'A brief label for this route (e.g., "Highway 280 to Skyline Blvd")',
@@ -60,10 +43,10 @@ export const AgentToolSchemas = {
           Type.Literal('landmark'),
           Type.Literal('pass'),
         ], { description: 'Type of waypoint. MUST be one of: "town", "junction", "landmark", "pass". Use "landmark" for parks, scenic spots, restaurants, or any named place that isn\'t a town, junction, or mountain pass.' }),
-        lat: Type.Number({ description: 'Latitude — use coordinates from discoverCorridor or geocode results' }),
-        lng: Type.Number({ description: 'Longitude — use coordinates from discoverCorridor or geocode results' }),
+        lat: Type.Number({ description: 'Latitude — use coordinates from geocode results' }),
+        lng: Type.Number({ description: 'Longitude — use coordinates from geocode results' }),
       }),
-      { description: 'Key waypoints along the route (cities, junctions, landmarks, mountain passes). Coordinates are REQUIRED and should come from discoverCorridor or geocode results.' },
+      { description: 'Key waypoints along the route (cities, junctions, landmarks, mountain passes). Coordinates are REQUIRED and should come from geocode results.' },
     ),
   }),
 
@@ -114,8 +97,8 @@ export const AgentToolSchemas = {
           Type.Literal('landmark'),
           Type.Literal('pass'),
         ], { description: 'MUST be one of: "town", "junction", "landmark", "pass"' }),
-        lat: Type.Number({ description: 'Latitude — use coordinates from discoverCorridor or geocode results' }),
-        lng: Type.Number({ description: 'Longitude — use coordinates from discoverCorridor or geocode results' }),
+        lat: Type.Number({ description: 'Latitude — use coordinates from geocode results' }),
+        lng: Type.Number({ description: 'Longitude — use coordinates from geocode results' }),
       })),
     }),
   }),
