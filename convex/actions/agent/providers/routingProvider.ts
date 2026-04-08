@@ -110,7 +110,7 @@ const parseGoogleRoute = (route: any): ProviderRouteResponse => {
       return {
         stepIndex: stepIdx,
         distanceMeters: Number(step?.distanceMeters ?? 0),
-        durationSeconds: parseGoogleDurationSeconds(step?.duration),
+        durationSeconds: parseGoogleDurationSeconds(step?.staticDuration ?? step?.duration),
         instruction,
         startLocation: {
           lat: stepStartLatLng?.latitude ?? startLatLng.latitude,
@@ -246,7 +246,7 @@ const fetchGoogleRoutes = async (apiKey: string, body: any): Promise<any> => {
         'routes.distanceMeters,routes.duration,routes.viewport,routes.polyline.encodedPolyline,' +
         'routes.legs.distanceMeters,routes.legs.duration,routes.legs.polyline.encodedPolyline,' +
         'routes.legs.startLocation.latLng,routes.legs.endLocation.latLng,' +
-        'routes.legs.steps.distanceMeters,routes.legs.steps.duration,routes.legs.steps.instruction,routes.legs.steps.startLocation.latLng,routes.legs.steps.endLocation.latLng',
+        'routes.legs.steps.distanceMeters,routes.legs.steps.staticDuration,routes.legs.steps.instruction,routes.legs.steps.startLocation.latLng,routes.legs.steps.endLocation.latLng',
     },
     body: JSON.stringify(body),
   })
