@@ -200,18 +200,18 @@ async function runCreateRouteSketch(
   args: {
     label: string
     rationale: string
-    segments: Array<{
+    segments: {
       roadName: string
       fromName: string
       toName: string
       viaNames: string[] | null
-    }>
-    anchorPoints: Array<{
+    }[]
+    anchorPoints: {
       name: string
       kind: 'town' | 'junction' | 'landmark' | 'pass'
       lat: number
       lng: number
-    }>
+    }[]
   }
 ): Promise<unknown> {
   // Store the sketch for use with compileSketch
@@ -251,18 +251,18 @@ async function runCompileSketch(
     sketch?: {
       label: string
       rationale: string
-      segments: Array<{
+      segments: {
         roadName: string
         fromName: string
         toName: string
         viaNames?: string[]
-      }>
-      anchorPoints: Array<{
+      }[]
+      anchorPoints: {
         name: string
         kind: 'town' | 'junction' | 'landmark' | 'pass'
         lat?: number
         lng?: number
-      }>
+      }[]
     }
   }
 ): Promise<unknown> {

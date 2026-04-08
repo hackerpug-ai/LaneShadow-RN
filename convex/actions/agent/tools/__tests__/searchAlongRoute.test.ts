@@ -8,7 +8,7 @@ import type { PlaceResult } from '../searchAlongRoute'
 
 const SAMPLE_POLYLINE = 'u{~vFvyys@fS]'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 const setupFetch = (jsonPayload: unknown, ok = true, status = 200) => {
   ;(globalThis as unknown as { fetch: unknown }).fetch = vi.fn(async () => ({
     ok,

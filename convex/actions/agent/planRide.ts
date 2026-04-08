@@ -108,7 +108,7 @@ export const buildOptionsFromResults = (
 ): PlannedRouteOptionsView => {
   // Collect all included and excluded favorites across all routes
   const allIncludedFavorites = new Set<string>()
-  const allExcludedFavorites: Array<{ id: string; reason: string }> = []
+  const allExcludedFavorites: { id: string; reason: string }[] = []
 
   results.forEach((result) => {
     const sketch = result.sketch
@@ -187,7 +187,7 @@ export const planRide = action({
 
     try {
       // Fetch favorites if requested
-      let favorites: Array<{ id: string; geometry: string; bounds?: { north: number; south: number; east: number; west: number } }> = []
+      let favorites: { id: string; geometry: string; bounds?: { north: number; south: number; east: number; west: number } }[] = []
       if (args.planInput.includeFavorites) {
         try {
           // Use internal API to fetch favorites
@@ -296,7 +296,7 @@ export const executePlanHandler = async (
   }
 
   // Step 2.5: Fetch favorites if includeFavorites is true
-  let favorites: Array<{ id: string; geometry: string; bounds?: { north: number; south: number; east: number; west: number } }> = []
+  let favorites: { id: string; geometry: string; bounds?: { north: number; south: number; east: number; west: number } }[] = []
   if (plan?.planInput?.includeFavorites) {
     try {
       const favoriteRoadsResult = await ctx.runQuery(

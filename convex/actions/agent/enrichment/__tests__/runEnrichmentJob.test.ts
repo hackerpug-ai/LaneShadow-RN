@@ -1,11 +1,11 @@
 // Set env variables before imports
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { runEnrichmentJobHandler } from '../runEnrichmentJob'
+
 process.env.GOOGLE_MAPS_API_KEY = 'test-api-key'
 process.env.CLERK_WEBHOOK_SECRET = 'test-secret'
 
 'use node'
-
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { runEnrichmentJobHandler } from '../runEnrichmentJob'
 
 // Mock Id type for tests
 type Id<T> = string

@@ -11,7 +11,7 @@ type LatLng = { lat: number; lng: number }
  * Build a mock Open-Elevation response for the given points with prescribed
  * elevation values (in meters).
  */
-const makeElevationResponse = (points: Array<{ lat: number; lng: number; elevation: number }>) => ({
+const makeElevationResponse = (points: { lat: number; lng: number; elevation: number }[]) => ({
   ok: true,
   status: 200,
   json: async () => ({

@@ -7,8 +7,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import type { PlanInput } from '../../../../../models/saved-routes'
-import type { Id } from '../../../../../convex/_generated/dataModel'
-import type { Doc } from '../../../../../convex/_generated/dataModel'
+import type { Id , Doc } from '../../../../../convex/_generated/dataModel'
 
 // ---------------------------------------------------------------------------
 // Helpers

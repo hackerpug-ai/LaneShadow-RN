@@ -335,7 +335,7 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
     ])
 
     // Build intermediates from viaNames if present
-    const intermediates: Array<{ location: { latLng: { latitude: number; longitude: number } } }> = []
+    const intermediates: { location: { latLng: { latitude: number; longitude: number } } }[] = []
     if (segment.viaNames && segment.viaNames.length > 0) {
       for (const via of segment.viaNames) {
         try {

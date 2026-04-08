@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Mock console methods before importing
-const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
-
 import {
   recordProtomapsFailureHandler,
   recordProtomapsFallbackHandler,
   recordProtomapsQueryHandler,
 } from '../monitoring'
+
+// Mock console methods before importing
+const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
 
 describe('Monitoring Actions', () => {
   beforeEach(() => {

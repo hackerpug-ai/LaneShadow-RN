@@ -2,14 +2,14 @@ import { vi, describe, it, expect, afterEach, beforeEach } from 'vitest'
 import { lookupRoad } from '../lookupRoad'
 import type { LookupRoadResult, RoadMatch } from '../lookupRoad'
 
+import { recordProtomapsFallbackHandler } from '../../../monitoring'
+
 // Mock the monitoring module before importing
 vi.mock('../../../monitoring', () => ({
   recordProtomapsFallbackHandler: vi.fn(),
   recordProtomapsFailureHandler: vi.fn(),
   recordProtomapsQueryHandler: vi.fn(),
 }))
-
-import { recordProtomapsFallbackHandler } from '../../../monitoring'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -19,13 +19,13 @@ type OverpassWay = {
   type: string
   id: number
   tags?: Record<string, string>
-  geometry?: Array<{ lat: number; lon: number }>
+  geometry?: { lat: number; lon: number }[]
 }
 
 const makeWay = (
   id: number,
   tags: Record<string, string>,
-  geometry: Array<{ lat: number; lon: number }> = [
+  geometry: { lat: number; lon: number }[] = [
     { lat: 37.5, lon: -119.5 },
     { lat: 37.6, lon: -119.4 },
   ]

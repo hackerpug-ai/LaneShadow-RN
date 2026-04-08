@@ -15,10 +15,9 @@ import { AI_MODEL, AI_PROVIDER } from '../../../lib/env'
 import type { Id } from '../../../_generated/dataModel'
 import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
 import type { RoutingAgentResult } from './types'
-import { executeRoutingAgent } from './routingAgent'
+import { executeRoutingAgent , getPendingSketchState } from './routingAgent'
 import { executeSearchAgent } from './searchAgent'
 import { executeEnrichmentAgent } from './enrichmentAgent'
-import { getPendingSketchState } from './routingAgent'
 import { summarizeToolResult } from '../lib/summarizeToolResult'
 
 // -----------------------------------------------------------------------------

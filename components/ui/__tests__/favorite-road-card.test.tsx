@@ -12,6 +12,13 @@ import { vi, describe, it, expect, beforeEach } from 'vitest'
 import React from 'react'
 
 // ---------------------------------------------------------------------------
+// Import after mocks
+// ---------------------------------------------------------------------------
+
+import { render, fireEvent } from '@testing-library/react-native'
+import { FavoriteRoadCard } from '../favorite-road-card'
+
+// ---------------------------------------------------------------------------
 // Mock all modules before importing the component under test
 // ---------------------------------------------------------------------------
 
@@ -65,13 +72,6 @@ vi.mock('../icon-symbol', () => ({
     return createElement('View', { testID: testID || `icon-${name}`, style: { width: size, height: size, backgroundColor: color } })
   },
 }))
-
-// ---------------------------------------------------------------------------
-// Import after mocks
-// ---------------------------------------------------------------------------
-
-import { render, fireEvent } from '@testing-library/react-native'
-import { FavoriteRoadCard } from '../favorite-road-card'
 
 // ---------------------------------------------------------------------------
 // Mock semantic theme

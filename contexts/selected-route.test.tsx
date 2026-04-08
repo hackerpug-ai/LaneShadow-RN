@@ -53,7 +53,7 @@ describe('SelectedRouteProvider', () => {
    * AC2: Default selectedRouteId is null
    */
   it('provides null selectedRouteId by default', () => {
-    const rendered: Array<string | null> = []
+    const rendered: (string | null)[] = []
     render(
       <SelectedRouteProvider>
         <Consumer onRender={(id) => rendered.push(id)} />
@@ -66,7 +66,7 @@ describe('SelectedRouteProvider', () => {
    * AC3: setSelectedRouteId updates the value
    */
   it('updates selectedRouteId when setSelectedRouteId is called', () => {
-    const rendered: Array<string | null> = []
+    const rendered: (string | null)[] = []
     render(
       <SelectedRouteProvider>
         <Consumer onRender={(id) => rendered.push(id)} />
@@ -83,7 +83,7 @@ describe('SelectedRouteProvider', () => {
    *  default {selectedRouteId: null} safely. This test verifies no crash.)
    */
   it('useSelectedRoute does not crash when used without provider (uses default value)', () => {
-    const rendered: Array<string | null> = []
+    const rendered: (string | null)[] = []
     expect(() =>
       render(<Consumer onRender={(id) => rendered.push(id)} />),
     ).not.toThrow()

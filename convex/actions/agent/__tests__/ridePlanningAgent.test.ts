@@ -1040,7 +1040,7 @@ describe('executeRidePlanningAgent', () => {
 
     // createGeocodingProvider is called once per geocode tool invocation.
     // Collect all geocode mock calls across every instance.
-    const allGeocodeCalls: unknown[][] = (createGeocodingProvider.mock.results as Array<{ value: any }>)
+    const allGeocodeCalls: unknown[][] = (createGeocodingProvider.mock.results as { value: any }[])
       .flatMap(r => (r.value.geocode.mock.calls as unknown[][]))
 
     expect(allGeocodeCalls).toHaveLength(2)
@@ -1123,8 +1123,8 @@ describe('executeRidePlanningAgent', () => {
     const makeCompileSketchCall = (sketchOverride?: Partial<{
       label: string
       rationale: string
-      segments: Array<{ roadName: string; fromName: string; toName: string; viaNames?: string[] }>
-      anchorPoints: Array<{ name: string; kind: 'town' | 'junction' | 'landmark' | 'pass'; lat?: number; lng?: number }>
+      segments: { roadName: string; fromName: string; toName: string; viaNames?: string[] }[]
+      anchorPoints: { name: string; kind: 'town' | 'junction' | 'landmark' | 'pass'; lat?: number; lng?: number }[]
     }>) =>
       makeAssistantMessage(
         [
@@ -1404,7 +1404,7 @@ describe('executeRidePlanningAgent', () => {
       roadName, fromName, toName,
     })
 
-    const makeCompileCall = (sessionId: string, segments: Array<{ roadName: string; fromName: string; toName: string }>, callId = 'tc_retry') =>
+    const makeCompileCall = (sessionId: string, segments: { roadName: string; fromName: string; toName: string }[], callId = 'tc_retry') =>
       makeAssistantMessage(
         [
           {

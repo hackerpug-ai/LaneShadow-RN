@@ -51,7 +51,7 @@ export type AddWaypointResult = AddWaypointResultSuccess | AddWaypointResultErro
 
 export interface ListWaypointsResultSuccess {
   success: true
-  waypoints: Array<{
+  waypoints: {
     _id: Id<'waypoints'>
     routePlanId: Id<'route_plans'>
     kind: 'on_route' | 'off_route'
@@ -64,7 +64,7 @@ export interface ListWaypointsResultSuccess {
       durationMinutes: number
       reason?: string
     }
-  }>
+  }[]
 }
 
 export interface ListWaypointsResultError {
@@ -78,7 +78,7 @@ export interface WaypointApprovalResultSuccess {
   success: true
   approvedCount: number
   rejectedCount: number
-  intermediates?: Array<{ lat: number; lng: number }>
+  intermediates?: { lat: number; lng: number }[]
 }
 
 export interface WaypointApprovalResultError {
@@ -604,11 +604,11 @@ export async function addWaypoint(
 
     const data = await response.json() as {
       status: string
-      results: Array<{
+      results: {
         geometry: { location: { lat: number; lng: number } }
         formatted_address: string
         place_id: string
-      }>
+      }[]
     }
 
     if (data.status !== 'OK' || !data.results || data.results.length === 0) {

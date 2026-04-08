@@ -31,7 +31,7 @@ export type WeatherProvider = {
     departureTimeMs: number
   }) => Promise<WindSample[]>
   getWeatherAtPoints: (params: {
-    points: Array<{ lat: number; lng: number }>
+    points: { lat: number; lng: number }[]
     departureTimeMs: number
   }) => Promise<FullWeatherSample[]>
 }

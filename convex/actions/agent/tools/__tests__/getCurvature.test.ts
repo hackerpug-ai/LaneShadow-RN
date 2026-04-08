@@ -11,11 +11,11 @@ import type { CurvatureResult } from '../getCurvature'
  * Creates coords that alternate sharply left/right, producing small circumcircle radii.
  * Using extreme zigzag so the curves are tight (radius << 60m → hairpin weight=4).
  */
-const makeTwistyGeometry = (): Array<{ lat: number; lng: number }> => {
+const makeTwistyGeometry = (): { lat: number; lng: number }[] => {
   // Start at a base position and create a tight zigzag
   // Each "step" moves forward ~50m and alternates 100m side to side
   // This creates very small circumcircle radii (hairpin curves)
-  const coords: Array<{ lat: number; lng: number }> = []
+  const coords: { lat: number; lng: number }[] = []
   const baseLat = 37.3861
   const baseLng = -122.0839
 
@@ -36,8 +36,8 @@ const makeTwistyGeometry = (): Array<{ lat: number; lng: number }> => {
  * Generate a straight-line geometry along a highway.
  * Points are almost perfectly collinear, so circumcircle radii are enormous → weight=0.
  */
-const makeStraightGeometry = (): Array<{ lat: number; lng: number }> => {
-  const coords: Array<{ lat: number; lng: number }> = []
+const makeStraightGeometry = (): { lat: number; lng: number }[] => {
+  const coords: { lat: number; lng: number }[] = []
   const baseLat = 40.0
   const baseLng = -122.0
 
@@ -52,7 +52,7 @@ const makeStraightGeometry = (): Array<{ lat: number; lng: number }> => {
 /**
  * Small geometry with fewer than 3 points.
  */
-const makeTinyGeometry = (): Array<{ lat: number; lng: number }> => [
+const makeTinyGeometry = (): { lat: number; lng: number }[] => [
   { lat: 37.0, lng: -122.0 },
   { lat: 37.01, lng: -122.01 },
 ]
@@ -61,7 +61,7 @@ const makeTinyGeometry = (): Array<{ lat: number; lng: number }> => [
  * 3-point hairpin geometry producing circumcircle radius ~23m (< 60m → weight=4).
  * Forward step ~10m, side swing ~50m, back to center.
  */
-const makeHairpinOnlyGeometry = (): Array<{ lat: number; lng: number }> => [
+const makeHairpinOnlyGeometry = (): { lat: number; lng: number }[] => [
   { lat: 37.0, lng: -122.0 },
   { lat: 37.00010, lng: -122.00050 }, // ~45m segment, tight turn
   { lat: 37.00020, lng: -122.0 },     // back to center — radius ~23m
@@ -71,7 +71,7 @@ const makeHairpinOnlyGeometry = (): Array<{ lat: number; lng: number }> => [
  * 3-point sweeping geometry producing circumcircle radius ~114m (100-175m → weight=1).
  * Gentle curve with larger steps.
  */
-const makeSweepingOnlyGeometry = (): Array<{ lat: number; lng: number }> => [
+const makeSweepingOnlyGeometry = (): { lat: number; lng: number }[] => [
   { lat: 37.0, lng: -122.0 },
   { lat: 37.0010, lng: -122.0010 }, // ~142m segment, gentle arc
   { lat: 37.0020, lng: -122.0 },    // radius ~114m

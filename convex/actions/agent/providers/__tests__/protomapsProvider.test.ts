@@ -493,7 +493,7 @@ describe('Protomaps Provider', () => {
 /**
  * Create a mock feature with properties and geometry
  */
-function createMockFeature(properties: Record<string, any>, geometry: Array<{ x: number; y: number }>) {
+function createMockFeature(properties: Record<string, any>, geometry: { x: number; y: number }[]) {
   return {
     properties,
     loadGeometry: vi.fn().mockReturnValue([geometry]),

@@ -17,20 +17,20 @@ import React from 'react'
 import { render, fireEvent } from '@testing-library/react-native'
 
 // ---------------------------------------------------------------------------
-// Mock convex before imports
-// ---------------------------------------------------------------------------
-
-vi.mock('convex/react', () => ({
-  useQuery: vi.fn(),
-}))
-
-// ---------------------------------------------------------------------------
 // Import after mocks
 // ---------------------------------------------------------------------------
 
 import { WaypointList } from '../waypoint-list'
 import type { Id } from '../../../convex/_generated/dataModel'
 import { useQuery } from 'convex/react'
+
+// ---------------------------------------------------------------------------
+// Mock convex before imports
+// ---------------------------------------------------------------------------
+
+vi.mock('convex/react', () => ({
+  useQuery: vi.fn(),
+}))
 
 // ---------------------------------------------------------------------------
 // Mock semantic theme

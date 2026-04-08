@@ -8,9 +8,8 @@
  */
 
 import { StyleSheet, View, ScrollView, Pressable } from 'react-native'
-import { Text } from 'react-native-paper'
+import { Text , useTheme } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
 import { SavedRouteCard } from '../ui/saved-route-card'
 import { SearchBar } from '../ui/search-bar'

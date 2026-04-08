@@ -77,7 +77,7 @@ async function runGetCurvature(
   _ctx: AgentContext,
   args: {
     roadName: string
-    geometry: Array<{ lat: number; lng: number }>
+    geometry: { lat: number; lng: number }[]
     surface: string | null
   }
 ): Promise<unknown> {
@@ -96,7 +96,7 @@ async function runCheckSurface(
 
 async function runGetElevation(
   _ctx: AgentContext,
-  args: { polyline: Array<{ lat: number; lng: number }> }
+  args: { polyline: { lat: number; lng: number }[] }
 ): Promise<unknown> {
   return getElevation(args)
 }
@@ -119,7 +119,7 @@ async function runSearchAlongRoute(
 async function runGetRouteWeather(
   _ctx: AgentContext,
   args: {
-    polyline: Array<{ lat: number; lng: number }>
+    polyline: { lat: number; lng: number }[]
     departureTimeMs: number
   }
 ): Promise<unknown> {

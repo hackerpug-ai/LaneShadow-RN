@@ -74,7 +74,7 @@ export const useActiveSessionRoute = (sessionId: Id<'planning_sessions'> | null)
   // Determine the active route option
   let activeOption: RoutePlanResult['activeOption'] = null
   if (validatedRoutePlan?.result?.options) {
-    const options = validatedRoutePlan.result.options as Array<{ routeOptionId: string }>
+    const options = validatedRoutePlan.result.options as { routeOptionId: string }[]
     console.info('[useActiveSessionRoute] Route plan data:', {
       routePlanId: validatedRoutePlan._id,
       planningSessionId: validatedRoutePlan.planningSessionId,

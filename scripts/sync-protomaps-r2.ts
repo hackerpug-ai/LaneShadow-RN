@@ -22,9 +22,8 @@
 
 import { execSync } from 'child_process';
 import { existsSync, statSync, readFileSync, unlinkSync } from 'fs';
-import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, HeadObjectCommand , GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { GetObjectCommand } from '@aws-sdk/client-s3';
 import * as dotenv from 'dotenv';
 import { resolve } from 'path';
 

@@ -140,7 +140,7 @@ export const getPresignedUrl = internalAction({
 export const listMapData = internalAction({
   args: {},
   handler: async (): Promise<
-    Array<{ key: string; size: number; lastModified: string }>
+    { key: string; size: number; lastModified: string }[]
   > => {
     const client = getR2Client();
     const bucket = getBucket();

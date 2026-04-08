@@ -41,7 +41,7 @@ export type RoadMatch = {
   name: string
   highway: string
   surface: string | null
-  geometry: Array<{ lat: number; lng: number }>
+  geometry: { lat: number; lng: number }[]
 }
 
 export type LookupRoadResult =
@@ -65,7 +65,7 @@ type OverpassWay = {
   type: string
   id: number
   tags?: Record<string, string>
-  geometry?: Array<{ lat: number; lon: number }>
+  geometry?: { lat: number; lon: number }[]
 }
 
 type OverpassResponse = {
@@ -128,8 +128,8 @@ const runOverpassQuery = (query: string): Promise<OverpassResponse> => {
 // ---------------------------------------------------------------------------
 
 const simplifyGeometry = (
-  geometry: Array<{ lat: number; lon: number }> | undefined
-): Array<{ lat: number; lng: number }> => {
+  geometry: { lat: number; lon: number }[] | undefined
+): { lat: number; lng: number }[] => {
   if (!geometry || geometry.length === 0) return []
 
   // Return first, last, and at most one midpoint to keep geometry lightweight

@@ -7,6 +7,8 @@ type ThemeMode = 'light' | 'dark' | 'auto'
 type SettingsState = {
   themeMode: ThemeMode
   setThemeMode: (mode: ThemeMode) => void
+  _hasHydrated: boolean
+  setHasHydrated: (hasHydrated: boolean) => void
 }
 
 /**
@@ -20,10 +22,15 @@ export const useSettingsStore = create<SettingsState>()(
     (set) => ({
       themeMode: 'auto',
       setThemeMode: (mode) => set({ themeMode: mode }),
+      _hasHydrated: false,
+      setHasHydrated: (hasHydrated) => set({ _hasHydrated: hasHydrated }),
     }),
     {
       name: 'laneshadow-settings',
       storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true)
+      },
     }
   )
 )

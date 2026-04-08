@@ -218,10 +218,10 @@ export const filterFavoritesByDistance = (
   thresholdKm: number = 50
 ): {
   nearbyFavorites: FavoriteRoadForPlanning[]
-  excludedFavorites: Array<{ id: string; reason: string }>
+  excludedFavorites: { id: string; reason: string }[]
 } => {
   const nearbyFavorites: FavoriteRoadForPlanning[] = []
-  const excludedFavorites: Array<{ id: string; reason: string }> = []
+  const excludedFavorites: { id: string; reason: string }[] = []
 
   for (const fav of favorites) {
     if (!fav.bounds) {
@@ -261,7 +261,7 @@ const injectFavoritesIntoVariants = (
 
   // Convert favorites to waypoints by extracting representative points
   // For now, use the center of the favorite's bounds as the waypoint location
-  const favoriteWaypoints: Array<{ lat: number; lng: number; name: string; type: 'scenic_road'; score: number }> = []
+  const favoriteWaypoints: { lat: number; lng: number; name: string; type: 'scenic_road'; score: number }[] = []
 
   for (const fav of favorites) {
     if (!fav.bounds) {

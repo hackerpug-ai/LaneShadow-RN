@@ -26,14 +26,14 @@ export type EnrichmentPhase = 'fast' | 'extended'
 export interface EnrichmentData {
   status: EnrichmentStatus
   phase: EnrichmentPhase
-  enrichments?: Array<{
+  enrichments?: {
     routeOptionId: string
     label: string
     rationale: string
     highlights: string[]
     elevation?: unknown
     weather?: unknown
-  }>
+  }[]
   error?: string
 }
 

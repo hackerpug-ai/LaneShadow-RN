@@ -12,6 +12,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 
 // ---------------------------------------------------------------------------
+// Imports after mocks
+// ---------------------------------------------------------------------------
+
+import { useActiveSessionRoute } from './use-active-session-route'
+
+// ---------------------------------------------------------------------------
 // Mock convex/react — must be defined before imports that use it
 // ---------------------------------------------------------------------------
 
@@ -45,12 +51,6 @@ vi.mock('../contexts/selected-route', () => ({
 }))
 
 // ---------------------------------------------------------------------------
-// Imports after mocks
-// ---------------------------------------------------------------------------
-
-import { useActiveSessionRoute } from './use-active-session-route'
-
-// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ type MockMessage = {
   _id: string
   kind: string
   createdAt: number
-  attachments?: Array<{ routePlanId?: string }>
+  attachments?: { routePlanId?: string }[]
 }
 
 function makePlanDoc(routeOptionIds: string[] = ['opt-1']) {

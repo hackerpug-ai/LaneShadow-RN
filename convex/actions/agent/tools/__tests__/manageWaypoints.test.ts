@@ -1,9 +1,4 @@
 // Set env variables before imports
-process.env.GOOGLE_MAPS_API_KEY = 'test-api-key'
-process.env.CLERK_WEBHOOK_SECRET = 'test-secret'
-
-'use node'
-
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import {
   addWaypoint,
@@ -16,6 +11,11 @@ import {
   isAddWaypointError,
   isWaypointApprovalError,
 } from '../manageWaypoints'
+
+process.env.GOOGLE_MAPS_API_KEY = 'test-api-key'
+process.env.CLERK_WEBHOOK_SECRET = 'test-secret'
+
+'use node'
 
 // Mock Id type for tests
 type Id<T> = string

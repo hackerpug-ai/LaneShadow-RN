@@ -51,7 +51,7 @@ const ratingFromScore = (score: number): CurvatureRating => {
  * weight by tightness, multiply by the segment length, and sum.
  */
 export const calculateCurvatureScore = (
-  coords: Array<{ lat: number; lng: number }>
+  coords: { lat: number; lng: number }[]
 ): Omit<CurvatureResult, 'surface' | 'status' | 'segmentCount'> => {
   if (coords.length < 3) {
     return { score: 0, rating: 'straight', kmCornering: 0 }
@@ -83,7 +83,7 @@ export const calculateCurvatureScore = (
 // ---------------------------------------------------------------------------
 
 export type GetCurvatureParams = {
-  geometry: Array<{ lat: number; lng: number }>
+  geometry: { lat: number; lng: number }[]
   roadName: string
   surface: string | null
 }

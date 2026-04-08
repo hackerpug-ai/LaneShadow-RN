@@ -41,7 +41,7 @@ export const MarkdownText = ({ children, style, testID }: MarkdownTextProps) => 
   const { semantic } = useSemanticTheme()
 
   // Default styles that integrate with semantic theme
-  // eslint-disable-next-line react-native/no-unused-styles
+   
   const defaultStyles = StyleSheet.create({
     body: {
       color: semantic.color.onSurface.default,

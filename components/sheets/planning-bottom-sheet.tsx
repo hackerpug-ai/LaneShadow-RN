@@ -18,7 +18,7 @@
  * Following components/CLAUDE.md: named export, no hardcoded colors or spacing.
  */
 
-import { FlatList, StyleSheet, View, ScrollView } from 'react-native'
+import { FlatList, StyleSheet, View, ScrollView , AccessibilityInfo } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { IconSymbol } from '../ui/icon-symbol'
@@ -31,7 +31,6 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated'
-import { AccessibilityInfo } from 'react-native'
 
 // ---------------------------------------------------------------------------
 // Types

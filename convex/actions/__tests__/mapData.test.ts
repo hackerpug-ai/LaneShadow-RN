@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { checkFreshnessWithAlertLogic } from '../mapData';
+
 // Mock console methods before importing
 const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-import { checkFreshnessWithAlertLogic } from '../mapData';
 
 describe('Map Data Actions', () => {
   beforeEach(() => {
