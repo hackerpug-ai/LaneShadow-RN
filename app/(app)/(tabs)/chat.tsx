@@ -195,27 +195,12 @@ export default function ChatScreen() {
     Keyboard.dismiss()
   }
 
-  const handleNewSession = async () => {
+  const handleNewSession = () => {
     console.info('[ChatScreen] New session button pressed')
 
-    // Check if the top session has 0 visible messages
-    const hasEmptyTopSession = topSessionId && topSessionVisibleMessageCount === 0
-
-    // Check if we're currently viewing the top session
-    const isViewingTopSession = resolvedSessionId === topSessionId
-
-    if (hasEmptyTopSession && isViewingTopSession) {
-      // Already viewing the top session which has 0 messages - do nothing
-      console.info('[ChatScreen] Already viewing empty top session, ignoring click', {
-        topSessionId,
-        resolvedSessionId,
-      })
-      return
-    }
-
-    // Navigate to new-session route to create session
-    console.info('[ChatScreen] Navigating to new-session route')
-    router.push('/new-session' as any)
+    // Navigate to /new for lazy session creation
+    console.info('[ChatScreen] Navigating to /new route')
+    router.push('/new' as any)
   }
 
   return (

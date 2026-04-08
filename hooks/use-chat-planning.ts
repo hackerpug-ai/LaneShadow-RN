@@ -10,9 +10,9 @@
  * derive isPlanning from the Convex messages query instead. Route-plan
  * polling lives in the RoutingCard component.
  *
- * Message persistence: The backend sendMessage action persists the rider message
- * immediately (before agent processing starts), so user messages appear in the
- * transcript right away without needing optimistic UI updates.
+ * Optimistic UI: Messages appear immediately in the UI with client-generated
+ * temp IDs, then are replaced with server-confirmed messages. This provides
+ * instant feedback while preventing race conditions via the isSending flag.
  */
 
 import { useRef, useCallback, useState } from 'react'
@@ -21,6 +21,7 @@ import type { Id } from '../convex/_generated/dataModel'
 import type { RideFlowAction } from './use-ride-flow'
 import { api } from '../convex/_generated/api'
 import { useSelectedRoute } from '../contexts/selected-route'
+import { useRouter } from 'expo-router'
 
 /**
  * Type for sendMessage action result
@@ -28,7 +29,19 @@ import { useSelectedRoute } from '../contexts/selected-route'
 type SendMessageResult = {
   response: string
   messageId: Id<'session_messages'>
+  sessionId?: Id<'planning_sessions'>
   attachments?: { type: string; routePlanId?: Id<'route_plans'> }[]
+}
+
+/**
+ * Optimistic message type (client-side only)
+ */
+type OptimisticMessage = {
+  id: string // Temp ID like 'temp-1234567890'
+  role: 'rider' | 'agent'
+  content: string
+  timestamp: Date
+  isOptimistic: true
 }
 
 /**
@@ -37,7 +50,7 @@ type SendMessageResult = {
  * Usage:
  * ```tsx
  * const { state, dispatch } = useRideFlow()
- * const { sendPlanningMessage, cancel, sessionId } = useChatPlanning(dispatch)
+ * const { sendPlanningMessage, cancel, sessionId, isSending, optimisticMessages } = useChatPlanning(dispatch)
  * const isPlanning = messages?.some(m => m.status === 'running' || m.status === 'streaming') ?? false
  *
  * await sendPlanningMessage('Plan a ride from SF to LA')
@@ -54,11 +67,19 @@ export const useChatPlanning = (
   ) => Promise<void>
   cancel: () => void
   resetSession: () => void
+  isSending: boolean | null
+  optimisticMessages: OptimisticMessage[]
 } => {
+  const router = useRouter()
+
   // Track AbortController for cancellation
   const abortControllerRef = useRef<AbortController | null>(null)
   // Remember the last session we created so callers can consume it
   const [sessionId, setSessionId] = useState<Id<'planning_sessions'> | null>(null)
+  // Track sending state to prevent race conditions
+  const [isSending, setIsSending] = useState<boolean | null>(null)
+  // Track optimistic messages (client-side only)
+  const [optimisticMessages, setOptimisticMessages] = useState<OptimisticMessage[]>([])
 
   // Backend functions
   const createSession = useMutation(api.db.planningSessions.createSession)
@@ -77,23 +98,45 @@ export const useChatPlanning = (
    * backend agent action. The per-message running/streaming lifecycle is
    * owned by the backend and observed via the session_messages query.
    *
+   * Optimistic UI pattern:
+   * - Show message immediately with temp ID
+   * - Send to server (create session if needed)
+   * - Replace optimistic message with real message
+   * - Revert on error
+   *
    * Session reuse logic:
    * - If we already have a sessionId from a previous message, reuse it (refinement)
    * - Otherwise, create a new session (first message or after error/new session)
-   *
-   * Message persistence:
-   * - The backend sendMessage action persists the rider message immediately
-   * - No optimistic update needed - the real message appears as soon as the mutation completes
    */
   const sendPlanningMessage = useCallback(
     async (message: string, currentLocation?: { lat: number; lng: number }) => {
+      // Prevent race conditions - don't allow concurrent sends
+      if (isSending) {
+        console.info('[useChatPlanning] Already sending, ignoring duplicate send')
+        return
+      }
+
       // Create new AbortController for this request
       abortControllerRef.current = new AbortController()
       const signal = abortControllerRef.current.signal
 
+      // Generate temp ID for optimistic message
+      const tempId = `temp-${Date.now()}`
+
       try {
         // Reset displayed route so newest plan shows
         setDisplayedRoutePlanId(null)
+
+        // Show optimistic message immediately
+        const optimisticMessage: OptimisticMessage = {
+          id: tempId,
+          role: 'rider',
+          content: message,
+          timestamp: new Date(),
+          isOptimistic: true,
+        }
+        setOptimisticMessages((prev) => [...prev, optimisticMessage])
+        setIsSending(true)
 
         // Dispatch user message to state machine (kept so the ride-flow
         // reducer still sees the rider turn)
@@ -104,14 +147,18 @@ export const useChatPlanning = (
 
         // Step 1: Create session if needed, or reuse existing session
         let sessionIdToUse: Id<'planning_sessions'>
+        let isNewSession = false
+
         if (sessionId) {
           // Reuse existing session for refinement
           sessionIdToUse = sessionId
         } else {
-          // Create new session for first message
-          const sessionResult = await createSession({ firstMessage: message })
+          // Create new session for first message (without firstMessage in create call)
+          console.info('[useChatPlanning] Creating new session for message')
+          const sessionResult = await createSession({ firstMessage: '' })
           sessionIdToUse = sessionResult.sessionId
           setSessionId(sessionIdToUse)
+          isNewSession = true
         }
 
         // Check if aborted
@@ -121,7 +168,7 @@ export const useChatPlanning = (
 
         // Step 2: Send message to backend agent. The action persists the rider
         // message immediately (before agent processing starts), so it appears
-        // in the transcript right away. No optimistic message needed.
+        // in the transcript right away.
         const result = await sendMessage({
           sessionId: sessionIdToUse,
           content: message,
@@ -130,10 +177,24 @@ export const useChatPlanning = (
 
         console.info('[useChatPlanning] Backend persisted message:', result.messageId)
 
+        // Replace optimistic message with real message (remove from optimistic list)
+        setOptimisticMessages((prev) => prev.filter((m) => m.id !== tempId))
+
+        // If this was a new session, update URL to the real session ID
+        if (isNewSession && sessionIdToUse) {
+          console.info('[useChatPlanning] New session created, updating URL', {
+            sessionId: sessionIdToUse,
+          })
+          router.replace(`/chat?sessionId=${sessionIdToUse}` as any)
+        }
+
         if (signal.aborted) {
           throw new Error('Aborted')
         }
       } catch (error) {
+        // Remove optimistic message on error
+        setOptimisticMessages((prev) => prev.filter((m) => m.id !== tempId))
+
         // Ignore cancelled requests
         if (signal.aborted || (error as Error).name === 'AbortError') {
           console.log('Planning cancelled')
@@ -162,9 +223,11 @@ export const useChatPlanning = (
           type: 'PLANNING_ERROR',
           error: displayMessage,
         })
+      } finally {
+        setIsSending(false)
       }
     },
-    [dispatch, createSession, sendMessage, sessionId]
+    [dispatch, createSession, sendMessage, sessionId, isSending, router, setDisplayedRoutePlanId]
   )
 
   /**
@@ -182,6 +245,10 @@ export const useChatPlanning = (
       )
     }
 
+    // Clear optimistic messages on cancel
+    setOptimisticMessages([])
+    setIsSending(false)
+
     // Preserve sessionId for potential follow-up messages.
     // Only the explicit "new ride" button (NEW_SESSION) should nullify session.
     dispatch({ type: 'CANCEL_PLANNING' })
@@ -193,6 +260,8 @@ export const useChatPlanning = (
    */
   const resetSession = useCallback(() => {
     setSessionId(null)
+    setOptimisticMessages([])
+    setIsSending(null)
   }, [])
 
   return {
@@ -200,5 +269,7 @@ export const useChatPlanning = (
     sendPlanningMessage,
     cancel,
     resetSession,
+    isSending,
+    optimisticMessages,
   }
 }

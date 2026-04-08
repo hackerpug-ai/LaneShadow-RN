@@ -64,7 +64,7 @@ const IDLE_SUGGESTIONS = [
 const CHAT_TRANSITION_MS = 260
 
 const HomeMapScreen = () => {
-  useRouter()
+  const router = useRouter()
   useSegments()
   const mapRef = useRef<MapViewHandle | null>(null)
   const { semantic } = useSemanticTheme()
@@ -119,7 +119,6 @@ const HomeMapScreen = () => {
     resetSession,
   } = useChatPlanning(flowDispatch)
   const { polylines, selectRoute } = useRouteComparison(flowState, flowDispatch)
-  const createSession = useMutation(api.db.planningSessions.createSession)
   const { location: currentLocation } = useCurrentLocation()
 
   // Fetch sessions so we can fall back to the most recent one on app open.
@@ -349,8 +348,10 @@ const HomeMapScreen = () => {
   const { setSelectedRouteId, setDisplayedRoutePlanId, registerFitHandler, requestFitToRouteWithReset } = useSelectedRoute()
   const pendingFitRef = useRef(false)
 
-  const handleNewSession = async () => {
-    await createSession({ firstMessage: '' })
+  const handleNewSession = () => {
+    // Navigate to /new for lazy session creation
+    router.push('/new' as any)
+    // Reset local state
     flowDispatch({ type: 'NEW_SESSION' })
     setSelectedRouteId(null)
     lastFittedPlanIdRef.current = null
