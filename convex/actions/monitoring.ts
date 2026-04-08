@@ -39,6 +39,10 @@ interface ProtomapsQueryArgs {
   bbox?: string
 }
 
+interface LogInfoArgs {
+  message: string
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -106,6 +110,14 @@ export const recordProtomapsQueryHandler = async (
   logMessage('info', 'protomaps.query', `Protomaps query: ${args.operation}`, args)
 }
 
+/**
+ * Testable handler for logInfo.
+ * @internal Exported for testing only
+ */
+export const logInfoHandler = async (_ctx: any, args: LogInfoArgs): Promise<void> => {
+  logMessage('info', 'system', args.message, null)
+}
+
 // ---------------------------------------------------------------------------
 // Actions
 // ---------------------------------------------------------------------------
@@ -157,4 +169,16 @@ export const recordProtomapsQuery = internalAction({
     bbox: v.optional(v.string()),
   },
   handler: recordProtomapsQueryHandler,
+})
+
+/**
+ * Generic info logging
+ *
+ * Logs informational messages for monitoring and debugging.
+ */
+export const logInfo = internalAction({
+  args: {
+    message: v.string(),
+  },
+  handler: logInfoHandler,
 })

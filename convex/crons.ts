@@ -4,6 +4,24 @@ import { internal } from './_generated/api';
 const crons = cronJobs();
 
 /**
+ * Daily cleanup of old empty planning sessions.
+ *
+ * Runs every day at midnight UTC (5:00 PM PDT / 4:00 PM PST).
+ * Deletes planning sessions that:
+ * - Were created more than 1 hour ago
+ * - Have no messages (empty sessions)
+ * - Are not already soft-deleted
+ *
+ * This helps keep the database clean by removing abandoned sessions
+ * that users created but never interacted with.
+ */
+crons.daily(
+  'cleanup-empty-sessions',
+  { hourUTC: 0, minuteUTC: 0 },
+  internal.db.planningSessions.cleanupOldEmptySessions,
+);
+
+/**
  * Weekly map data freshness check.
  *
  * Runs every Monday at 9:00 AM UTC (2:00 AM PDT / 1:00 AM PST).

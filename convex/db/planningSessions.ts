@@ -272,3 +272,63 @@ export const archiveSession = mutation({
     return null
   },
 })
+
+// ---------------------------------------------------------------------------
+// Cron job: Cleanup old empty sessions
+// ---------------------------------------------------------------------------
+
+type CleanupOldEmptySessionsCtx = {
+  db: {
+    query: (table: 'planning_sessions' | 'session_messages') => any
+    delete: (id: any) => Promise<void>
+  }
+}
+
+const ONE_HOUR_MS = 60 * 60 * 1000
+
+export const cleanupOldEmptySessionsHandler = async (
+  ctx: CleanupOldEmptySessionsCtx
+): Promise<{ deletedCount: number }> => {
+  const now = Date.now()
+  const cutoffTime = now - ONE_HOUR_MS
+  let deletedCount = 0
+
+  // Fetch all sessions that were created more than an hour ago
+  const oldSessions = await ctx.db
+    .query('planning_sessions')
+    .filter((q: any) => q.lt(q.field('createdAt'), cutoffTime))
+    .collect()
+
+  for (const session of oldSessions) {
+    // Skip soft-deleted sessions
+    if (session.deletedAt) {
+      continue
+    }
+
+    // Check if session has any messages
+    const messages = await ctx.db
+      .query('session_messages')
+      .withIndex('by_sessionId', (q: any) => q.eq('sessionId', session._id))
+      .collect()
+
+    // If no messages, delete the session
+    if (messages.length === 0) {
+      await ctx.db.delete(session._id)
+      deletedCount++
+    }
+  }
+
+  if (deletedCount > 0) {
+    console.log(`[cleanup] Cleaned up ${deletedCount} empty planning session(s) older than 1 hour`)
+  }
+
+  return { deletedCount }
+}
+
+export const cleanupOldEmptySessions = internalMutation({
+  args: {},
+  returns: v.object({ deletedCount: v.number() }),
+  handler: async (ctx): Promise<{ deletedCount: number }> => {
+    return cleanupOldEmptySessionsHandler(ctx as any)
+  },
+})
