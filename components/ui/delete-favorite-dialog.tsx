@@ -27,7 +27,7 @@ export const DeleteFavoriteDialog = ({
         style={{ backgroundColor: semantic.color.surface.default }}
       >
         <Dialog.Title style={{ color: semantic.color.onSurface.default }}>
-          Delete favorite road?
+          Delete saved route?
         </Dialog.Title>
         <Dialog.Content>
           <Text style={{ color: semantic.color.onSurface.default }}>

@@ -4,6 +4,7 @@ import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
 import type { Id } from '../../../convex/_generated/dataModel'
 import { Pressable, ScrollView, StyleSheet, View, Keyboard } from 'react-native'
+import { Icon } from 'react-native-paper'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -22,7 +23,7 @@ import { WeatherPillsRow } from '../../../components/map/weather-pills-row'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
 import { RoutePolyline, type SegmentSelectData } from '../../../components/map/route-polyline-component'
 import { PlanRideSheet } from '../../../components/sheets/plan-ride-sheet'
-import { SaveFavoriteSheet } from '../../../components/ui/save-favorite-sheet'
+import { SaveRouteSheet } from '../../../components/ui/save-favorite-sheet'
 import { PlanningErrorSheet } from '../../../components/sheets/planning-error-sheet'
 import { RoutePlannerLoading } from '../../../components/sheets/planning-loading'
 import { ChatInput, RouteAttachmentCard } from '../../../components/chat'
@@ -105,8 +106,15 @@ const HomeMapScreen = () => {
   const [controlsHeight, setControlsHeight] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // US-050: Save Favorite Sheet state
-  const [saveFavoriteSheetVisible, setSaveFavoriteSheetVisible] = useState(false)
+  // US-050: Save Route Sheet state
+  const [saveRouteSheetVisible, setSaveRouteSheetVisible] = useState(false)
+  const [saveRouteData, setSaveRouteData] = useState<{
+    suggestedName: string
+    planInput: any
+    routeSnapshot: any
+    routeIndex: any
+    snapshotMeta: any
+  } | null>(null)
   const [selectedSegment, setSelectedSegment] = useState<SegmentSelectData | null>(null)
   const [highlightedSegmentId, setHighlightedSegmentId] = useState<string | undefined>(undefined)
 
@@ -808,24 +816,64 @@ const HomeMapScreen = () => {
     resetError()
   }
 
-  // US-050: Handle segment long-press for favorite saving
+  // US-050: Handle segment long-press for route saving
   const handleSegmentSelect = useCallback((segment: SegmentSelectData) => {
     setSelectedSegment(segment)
     setHighlightedSegmentId(segment.segmentId)
     // Small delay to show highlight before sheet appears
     setTimeout(() => {
-      setSaveFavoriteSheetVisible(true)
+      setSaveRouteSheetVisible(true)
     }, 100)
   }, [])
 
-  const handleCloseSaveFavoriteSheet = useCallback(() => {
-    setSaveFavoriteSheetVisible(false)
+  // US-050: Handle save route button press
+  const handleSaveRoutePress = useCallback(() => {
+    if (!agentRoutePlan || !agentActiveOption) return
+
+    // Build suggested name from start/end labels if available
+    const startLabel = agentRoutePlan.startLabel ?? 'Start'
+    const endLabel = agentRoutePlan.endLabel ?? 'Destination'
+    const suggestedName = `${startLabel} → ${endLabel}`
+
+    // Build routeIndex from the active option
+    const routeIndex = {
+      fingerprint: agentActiveOption.routeOptionId,
+      sampledPoints: [], // Will be populated by the mutation
+    }
+
+    // Build snapshotMeta
+    const snapshotMeta = {
+      savedAt: Date.now(),
+      routingProvider: 'route_plans', // The plan came from the route_plans table
+      overlays: {
+        wind: agentActiveOption.overlaysPreview?.windSummary
+          ? { generatedAt: Date.now(), modelVersion: '1.0' }
+          : undefined,
+      },
+      conditionsStatus: agentActiveOption.overlaysPreview?.conditionsStatus ?? 'unavailable',
+      metaVersion: 1,
+    }
+
+    setSaveRouteData({
+      suggestedName,
+      planInput: agentRoutePlan.planInput,
+      routeSnapshot: agentActiveOption.map,
+      routeIndex,
+      snapshotMeta,
+    })
+    setSaveRouteSheetVisible(true)
+  }, [agentRoutePlan, agentActiveOption])
+
+  const handleCloseSaveRouteSheet = useCallback(() => {
+    setSaveRouteSheetVisible(false)
+    setSaveRouteData(null)
     setHighlightedSegmentId(undefined)
     setSelectedSegment(null)
   }, [])
 
-  const handleSaveFavoriteSuccess = useCallback(() => {
+  const handleSaveRouteSuccess = useCallback(() => {
     // Sheet will close via onSuccess prop
+    setSaveRouteData(null)
     setHighlightedSegmentId(undefined)
     setSelectedSegment(null)
   }, [])
@@ -949,6 +997,31 @@ const HomeMapScreen = () => {
             onRecenter={recenter}
             onClear={clearAll}
           />
+
+          {/* Save Route button - shown when a route is selected */}
+          {!chatMode && agentActiveOption && agentRoutePlan && (
+            <Pressable
+              onPress={handleSaveRoutePress}
+              style={({ pressed }) => [
+                styles.saveRouteButton,
+                {
+                  backgroundColor: pressed
+                    ? semantic.color.primary.pressed
+                    : semantic.color.primary.default,
+                  bottom: insets.bottom + semantic.space.xl + 80, // Above chat input
+                },
+              ]}
+              testID="save-route-button"
+              accessibilityLabel="Save route"
+              accessibilityRole="button"
+            >
+              <Icon
+                source="heart-outline"
+                size={20}
+                color={semantic.color.onPrimary.default}
+              />
+            </Pressable>
+          )}
         </View>
 
         {/* Route attachment cards when showing results (map mode only, hidden while toasts are visible) */}
@@ -1058,26 +1131,13 @@ const HomeMapScreen = () => {
 
         <RoutePlannerLoading isVisible={isManualPlanning} onCancel={cancelPlanning} />
 
-        {/* US-050: Save Favorite Sheet */}
-        <SaveFavoriteSheet
-          visible={saveFavoriteSheetVisible}
-          onClose={handleCloseSaveFavoriteSheet}
-          segment={selectedSegment ? {
-            geometry: selectedSegment.geometry,
-            bounds: {
-              northeast: {
-                lat: selectedSegment.bounds.northEast.latitude,
-                lng: selectedSegment.bounds.northEast.longitude,
-              },
-              southwest: {
-                lat: selectedSegment.bounds.southWest.latitude,
-                lng: selectedSegment.bounds.southWest.longitude,
-              },
-            },
-            legIndex: selectedSegment.legIndex,
-          } : null}
-          onSuccess={handleSaveFavoriteSuccess}
-          onCancel={handleCloseSaveFavoriteSheet}
+        {/* US-050: Save Route Sheet */}
+        <SaveRouteSheet
+          visible={saveRouteSheetVisible}
+          onClose={handleCloseSaveRouteSheet}
+          routeData={saveRouteData}
+          onSuccess={handleSaveRouteSuccess}
+          onCancel={handleCloseSaveRouteSheet}
         />
       </View>
     </MenuLayout>
@@ -1115,6 +1175,21 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 15,
     alignItems: 'center',
+  },
+  saveRouteButton: {
+    position: 'absolute',
+    right: 16,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 8,
   },
   chatLayer: {
     zIndex: 10,

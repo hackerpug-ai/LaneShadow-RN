@@ -162,28 +162,65 @@ vi.mock('@gorhom/bottom-sheet', () => {
 // react-native-paper is globally stubbed via __mocks__/react-native-paper.ts.
 
 // Mock Convex mutation
-const mockInsertFavorite = vi.fn()
+const mockSaveRoute = vi.fn()
 vi.mock('convex/react', () => ({
-  useMutation: () => mockInsertFavorite,
+  useMutation: () => mockSaveRoute,
 }))
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-const mockSegment = {
-  geometry: 'encoded_polyline_here',
-  bounds: {
-    northeast: { lat: 37.7749, lng: -122.4194 },
-    southwest: { lat: 37.7749, lng: -122.4194 },
+const mockRouteData = {
+  suggestedName: 'San Francisco → Santa Cruz',
+  planInput: {
+    start: { lat: 37.7749, lng: -122.4194 },
+    end: { lat: 36.9741, lng: -122.0308 },
+    departureTime: Date.now(),
+    preferences: {
+      scenicBias: 'default' as const,
+      avoidHighways: false,
+      avoidTolls: false,
+    },
   },
-  legIndex: 0,
+  routeSnapshot: {
+    provider: 'test_provider',
+    origin: { lat: 37.7749, lng: -122.4194 },
+    destination: { lat: 36.9741, lng: -122.0308 },
+    waypoints: [],
+    overviewGeometry: {
+      format: 'polyline' as const,
+      encoding: 'utf8',
+      precision: 5,
+      value: 'encoded_polyline_here',
+    },
+    bounds: {
+      north: 37.7749,
+      south: 36.9741,
+      east: -122.0308,
+      west: -122.4194,
+    },
+    legs: [],
+    annotations: [],
+    overlays: {},
+  },
+  routeIndex: {
+    routeFingerprint: 'test-fingerprint',
+    sampledPoints: [],
+  },
+  snapshotMeta: {
+    savedAt: Date.now(),
+    routingProvider: 'route_plans' as const,
+    overlays: {},
+    conditionsStatus: 'ok' as const,
+    metaVersion: 1,
+  },
 }
 
 const defaultProps = {
   visible: true,
   onClose: vi.fn(),
-  segment: mockSegment,
+  routeData: mockRouteData,
   onSuccess: vi.fn(),
   onCancel: vi.fn(),
 }
@@ -198,7 +235,7 @@ const renderSheet = (props?: Partial<typeof defaultProps>) =>
 describe('SaveFavoriteSheet', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockInsertFavorite.mockResolvedValue({ favoriteRoadId: 'test-id' })
+    mockSaveRoute.mockResolvedValue({ savedRouteId: 'test-id' })
   })
 
   /**
@@ -246,18 +283,12 @@ describe('SaveFavoriteSheet', () => {
       // Wait for async mutation
       await Promise.resolve()
 
-      expect(mockInsertFavorite).toHaveBeenCalledWith({
-        input: {
-          name: 'Hwy 9 - Skyline Blvd',
-          geometry: mockSegment.geometry,
-          // Component transforms { northeast, southwest } → { north, south, east, west }
-          bounds: {
-            north: mockSegment.bounds.northeast.lat,
-            south: mockSegment.bounds.southwest.lat,
-            east: mockSegment.bounds.northeast.lng,
-            west: mockSegment.bounds.southwest.lng,
-          },
-        },
+      expect(mockSaveRoute).toHaveBeenCalledWith({
+        name: 'Hwy 9 - Skyline Blvd',
+        planInput: mockRouteData.planInput,
+        routeSnapshot: mockRouteData.routeSnapshot,
+        routeIndex: mockRouteData.routeIndex,
+        snapshotMeta: mockRouteData.snapshotMeta,
       })
     })
 
@@ -286,24 +317,18 @@ describe('SaveFavoriteSheet', () => {
 
       await Promise.resolve()
 
-      expect(mockInsertFavorite).toHaveBeenCalledWith({
-        input: {
-          name: 'Hwy 9 - Skyline Blvd',
-          geometry: mockSegment.geometry,
-          // Component transforms { northeast, southwest } → { north, south, east, west }
-          bounds: {
-            north: mockSegment.bounds.northeast.lat,
-            south: mockSegment.bounds.southwest.lat,
-            east: mockSegment.bounds.northeast.lng,
-            west: mockSegment.bounds.southwest.lng,
-          },
-        },
+      expect(mockSaveRoute).toHaveBeenCalledWith({
+        name: 'Hwy 9 - Skyline Blvd',
+        planInput: mockRouteData.planInput,
+        routeSnapshot: mockRouteData.routeSnapshot,
+        routeIndex: mockRouteData.routeIndex,
+        snapshotMeta: mockRouteData.snapshotMeta,
       })
     })
 
     it('shows loading state while saving', async () => {
       let resolveMutation: (value: any) => void
-      mockInsertFavorite.mockReturnValue(
+      mockSaveRoute.mockReturnValue(
         new Promise((resolve) => {
           resolveMutation = resolve
         })
@@ -357,7 +382,7 @@ describe('SaveFavoriteSheet', () => {
       fireEvent.changeText(input, '')
       fireEvent.press(saveButton)
 
-      expect(mockInsertFavorite).not.toHaveBeenCalled()
+      expect(mockSaveRoute).not.toHaveBeenCalled()
     })
 
     it('does not close sheet when validation fails', () => {
@@ -459,7 +484,7 @@ describe('SaveFavoriteSheet', () => {
 
     it('disables Cancel button while saving', async () => {
       let resolveMutation: (value: any) => void
-      mockInsertFavorite.mockReturnValue(
+      mockSaveRoute.mockReturnValue(
         new Promise((resolve) => {
           resolveMutation = resolve
         })
@@ -502,7 +527,7 @@ describe('SaveFavoriteSheet', () => {
    */
   describe('AC4: Error handling when mutation fails', () => {
     it('displays error message when mutation throws', async () => {
-      mockInsertFavorite.mockRejectedValue(new Error('Network error'))
+      mockSaveRoute.mockRejectedValue(new Error('Network error'))
 
       const { getByTestId, findByText } = renderSheet()
       const input = getByTestId('save-favorite-name-input')
@@ -513,11 +538,11 @@ describe('SaveFavoriteSheet', () => {
 
       // findByText auto-waits for the async state update after the rejected
       // mutation settles and the catch handler runs.
-      expect(await findByText('Failed to save favorite. Please try again.')).toBeTruthy()
+      expect(await findByText('Failed to save route. Please try again.')).toBeTruthy()
     })
 
     it('keeps sheet open when mutation fails', async () => {
-      mockInsertFavorite.mockRejectedValue(new Error('Network error'))
+      mockSaveRoute.mockRejectedValue(new Error('Network error'))
 
       const onClose = vi.fn()
       const { getByTestId } = renderSheet({ onClose })
@@ -534,7 +559,7 @@ describe('SaveFavoriteSheet', () => {
     })
 
     it('reenables Save button after mutation fails', async () => {
-      mockInsertFavorite.mockRejectedValue(new Error('Network error'))
+      mockSaveRoute.mockRejectedValue(new Error('Network error'))
 
       const { getByTestId, findByText } = renderSheet()
       const input = getByTestId('save-favorite-name-input')
@@ -551,7 +576,7 @@ describe('SaveFavoriteSheet', () => {
     })
 
     it('clears error message when user starts typing again', async () => {
-      mockInsertFavorite.mockRejectedValue(new Error('Network error'))
+      mockSaveRoute.mockRejectedValue(new Error('Network error'))
 
       const { getByTestId } = renderSheet()
       const input = getByTestId('save-favorite-name-input')
@@ -566,7 +591,7 @@ describe('SaveFavoriteSheet', () => {
       expect(true).toBeTruthy() // Placeholder - actual error text requires testID
 
       // Start typing - error should clear
-      mockInsertFavorite.mockResolvedValue({ favoriteRoadId: 'test-id' })
+      mockSaveRoute.mockResolvedValue({ savedRouteId: 'test-id' })
       fireEvent.changeText(input, 'Hwy 9 - Updated')
       // Error cleared when dismissed
       expect(true).toBeTruthy() // Placeholder - actual error clearing requires testID
@@ -611,15 +636,15 @@ describe('SaveFavoriteSheet', () => {
       expect(true).toBeTruthy() // Placeholder - requires testID for error text
     })
 
-    it('does not call mutation without segment data', () => {
-      const { getByTestId } = renderSheet({ segment: null })
+    it('does not call mutation without route data', () => {
+      const { getByTestId } = renderSheet({ routeData: null })
       const input = getByTestId('save-favorite-name-input')
       const saveButton = getByTestId('save-favorite-save-button')
 
       fireEvent.changeText(input, 'Hwy 9')
       fireEvent.press(saveButton)
 
-      expect(mockInsertFavorite).not.toHaveBeenCalled()
+      expect(mockSaveRoute).not.toHaveBeenCalled()
     })
   })
 })

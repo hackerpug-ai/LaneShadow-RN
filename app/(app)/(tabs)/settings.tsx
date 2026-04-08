@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { MenuLayout } from '../../../components/layouts/menu-layout'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import { FavoriteRoadsSection } from '../../../components/settings/favorite-roads-section'
+import { SavedRoutesSection } from '../../../components/settings/favorite-roads-section'
 
 const SettingsScreen = () => {
   const router = useRouter()
@@ -31,8 +31,8 @@ const SettingsScreen = () => {
           Placeholder screen for app settings.
         </Text>
 
-        {/* Favorite Roads Section */}
-        <FavoriteRoadsSection />
+        {/* Saved Routes Section */}
+        <SavedRoutesSection />
       </View>
     </MenuLayout>
   )

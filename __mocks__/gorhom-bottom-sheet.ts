@@ -2,6 +2,7 @@
  * Mock for @gorhom/bottom-sheet
  */
 import React from 'react'
+import { TextInput } from 'react-native'
 
 const createComponent = (name: string) => {
   const Component = ({ children, style, testID, ...props }: Record<string, unknown>) =>
@@ -25,6 +26,9 @@ export const BottomSheetScrollView = createComponent('BottomSheetScrollView')
 export const BottomSheetView = createComponent('BottomSheetView')
 export const BottomSheetBackdrop = () => null
 export const BottomSheetHandle = createComponent('BottomSheetHandle')
+// BottomSheetTextInput is just a regular TextInput with special keyboard handling
+// For tests, we can use the regular TextInput
+export const BottomSheetTextInput = TextInput
 
 export default {
   BottomSheetModal,
@@ -32,4 +36,5 @@ export default {
   BottomSheetView,
   BottomSheetBackdrop,
   BottomSheetHandle,
+  BottomSheetTextInput,
 }

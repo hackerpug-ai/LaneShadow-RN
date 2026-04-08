@@ -1,11 +1,11 @@
 /**
- * Save Favorite Sheet Component
+ * Save Route Sheet Component
  *
- * Allows users to name and save a selected road segment as a favorite.
+ * Allows users to name and save a complete route.
  * Following theme_rules.mdc - no hardcoded values, uses semantic theme.
  *
  * Acceptance Criteria:
- * - AC1: Shows "Save as Favorite" title with name input
+ * - AC1: Shows "Save Route" title with name input
  * - AC2: Mutation called, sheet closes on success
  * - AC3: Validation error shown for empty name
  * - AC4: Error message displayed on save failure, sheet stays open
@@ -20,36 +20,32 @@ import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { BottomActionSheet } from './bottom-action-sheet'
 import { BottomSheetInput } from './bottom-sheet-input'
 import { Button } from './button'
+import type { SavedRoute } from '../../models/saved-routes'
 
-export type Bounds = {
-  northeast: { lat: number; lng: number }
-  southwest: { lat: number; lng: number }
-}
-
-export type SegmentData = {
-  geometry: string
-  bounds: Bounds
-  legIndex?: number
-}
-
-export type SaveFavoriteSheetProps = {
+export type SaveRouteSheetProps = {
   visible: boolean
   onClose: () => void
-  segment: SegmentData | null
+  routeData: {
+    suggestedName?: string
+    planInput: SavedRoute['planInput']
+    routeSnapshot: SavedRoute['routeSnapshot']
+    routeIndex: SavedRoute['routeIndex']
+    snapshotMeta: SavedRoute['snapshotMeta']
+  } | null
   onSuccess?: () => void
   onCancel?: () => void
 }
 
 /**
- * Save Favorite Sheet component
+ * Save Route Sheet component
  *
  * Displays a bottom sheet with name input and save button.
  * Validates name (1-100 characters) and calls mutation on save.
  */
-export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
+export const SaveRouteSheet: React.FC<SaveRouteSheetProps> = ({
   visible,
   onClose,
-  segment,
+  routeData,
   onSuccess,
   onCancel,
 }) => {
@@ -58,19 +54,21 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
   const [error, setError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
 
-  const insertFavorite = useMutation(api.db.favoriteRoads.insert)
+  const saveRoute = useMutation(api.db.savedRoutes.saveRoute)
 
-  // Reset form when sheet opens
+  // Reset form when sheet opens and pre-fill suggested name
   useEffect(() => {
     if (visible) {
-      setName('')
+      setName(routeData?.suggestedName ?? '')
       setError(null)
     }
-  }, [visible])
+  }, [visible, routeData?.suggestedName])
 
   const handleSave = async () => {
     // Validate name
     const trimmedName = name.trim()
+    console.log('[SaveRouteSheet] handleSave called', { trimmedName, routeData })
+
     if (!trimmedName) {
       setError('Please enter a name')
       return
@@ -81,8 +79,8 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
       return
     }
 
-    if (!segment) {
-      setError('No segment selected')
+    if (!routeData) {
+      setError('No route data available')
       return
     }
 
@@ -90,22 +88,26 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
     setError(null)
 
     try {
-      await insertFavorite({
-        input: {
-          name: trimmedName,
-          geometry: segment.geometry,
-          bounds: {
-            north: segment.bounds.northeast.lat,
-            south: segment.bounds.southwest.lat,
-            east: segment.bounds.northeast.lng,
-            west: segment.bounds.southwest.lng,
-          },
-        },
+      console.log('[SaveRouteSheet] Calling saveRoute with:', {
+        name: trimmedName,
+        planInput: routeData.planInput,
+        hasRouteSnapshot: !!routeData.routeSnapshot,
+        hasRouteIndex: !!routeData.routeIndex,
+        snapshotMeta: routeData.snapshotMeta,
       })
+      await saveRoute({
+        name: trimmedName,
+        planInput: routeData.planInput,
+        routeSnapshot: routeData.routeSnapshot,
+        routeIndex: routeData.routeIndex,
+        snapshotMeta: routeData.snapshotMeta,
+      })
+      console.log('[SaveRouteSheet] saveRoute succeeded')
       onSuccess?.()
       onClose()
-    } catch {
-      setError('Failed to save favorite. Please try again.')
+    } catch (error) {
+      console.error('[SaveRouteSheet] saveRoute failed:', error)
+      setError('Failed to save route. Please try again.')
     } finally {
       setIsSaving(false)
     }
@@ -123,7 +125,7 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
     <BottomActionSheet
       visible={visible}
       onDismiss={onClose}
-      testID="save-favorite-sheet"
+      testID="save-route-sheet"
       snapPoints={['60%', '90%']}
       hasTextInput={true}
     >
@@ -137,7 +139,7 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
                 { color: semantic.color.onSurface.default },
               ]}
             >
-              Save as Favorite
+              Save Route
             </Text>
 
             {/* Caption */}
@@ -148,12 +150,12 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
                 { color: semantic.color.onSurface.subtle },
               ]}
             >
-              Give this road segment a name to save it to your favorites
+              Name your route to save it for later
             </Text>
 
             {/* Name Input */}
             <BottomSheetInput
-              testID="save-favorite-name-input"
+              testID="save-route-name-input"
               value={name}
               onChangeText={handleNameChange}
               placeholder="e.g., Hwy 9 - Skyline Blvd"
@@ -186,19 +188,19 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
             {/* Save Button */}
             <View style={styles.buttonContainer}>
               <Button
-                testID="save-favorite-save-button"
+                testID="save-route-save-button"
                 onPress={handleSave}
                 disabled={isSaving || !name.trim()}
                 loading={isSaving}
                 size="lg"
                 style={styles.saveButton}
               >
-                Save Favorite
+                Save Route
               </Button>
 
               {/* Cancel Button */}
               <Button
-                testID="save-favorite-cancel-button"
+                testID="save-route-cancel-button"
                 onPress={() => {
                   onCancel?.()
                   onClose()
@@ -215,6 +217,9 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
     </BottomActionSheet>
   )
 }
+
+// Export both names for backwards compatibility during transition
+export { SaveRouteSheet as SaveFavoriteSheet }
 
 const styles = StyleSheet.create({
   container: {
