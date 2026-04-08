@@ -7,7 +7,7 @@ import { useEffect } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { Provider as PaperProvider } from 'react-native-paper'
 import { ErrorBoundary } from '../components/logging/error-boundary'
-import { useColorScheme } from '../hooks/use-color-scheme'
+import { ThemePreferenceProvider, useThemePreference } from '../contexts/theme-preference'
 import { clerkTokenCache } from '../lib/clerk-token-cache'
 import { env } from '../lib/env'
 import { initLogger, logger } from '../lib/logger/frontend-logger'
@@ -25,8 +25,7 @@ const convexClient = new ConvexReactClient(env.CONVEX_URL)
  * Sets up Convex and Paper providers, initializes navigation
  */
 export const RootLayout = () => {
-  const colorScheme = useColorScheme()
-  const isDark = colorScheme === 'dark'
+  const { isDark } = useThemePreference()
   const paperTheme: ExtendedTheme = getTheme(isDark)
 
   // Initialize logger on app start
@@ -45,20 +44,22 @@ export const RootLayout = () => {
   return (
     <ErrorBoundary>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <ClerkProvider publishableKey={env.CLERK_PUBLISHABLE_KEY} tokenCache={clerkTokenCache}>
-          <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
-            <PaperProvider theme={paperTheme}>
-              <BottomSheetModalProvider>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    animation: 'none',
-                  }}
-                />
-              </BottomSheetModalProvider>
-            </PaperProvider>
-          </ConvexProviderWithClerk>
-        </ClerkProvider>
+        <ThemePreferenceProvider>
+          <ClerkProvider publishableKey={env.CLERK_PUBLISHABLE_KEY} tokenCache={clerkTokenCache}>
+            <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
+              <PaperProvider theme={paperTheme}>
+                <BottomSheetModalProvider>
+                  <Stack
+                    screenOptions={{
+                      headerShown: false,
+                      animation: 'none',
+                    }}
+                  />
+                </BottomSheetModalProvider>
+              </PaperProvider>
+            </ConvexProviderWithClerk>
+          </ClerkProvider>
+        </ThemePreferenceProvider>
       </GestureHandlerRootView>
     </ErrorBoundary>
   )
