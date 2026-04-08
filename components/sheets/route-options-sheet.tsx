@@ -30,6 +30,7 @@ export type RouteOptionsSheetProps = {
   onSave?: () => void
   isSaving?: boolean
   testID?: string
+  includeFavorites?: boolean
 }
 
 /**
@@ -47,6 +48,7 @@ export const RouteOptionsSheet = ({
   onSave,
   isSaving = false,
   testID,
+  includeFavorites = false,
 }: RouteOptionsSheetProps) => {
   const { semantic } = useSemanticTheme()
 
@@ -101,6 +103,7 @@ export const RouteOptionsSheet = ({
             isLoading={isLoading}
             onSelect={handleRouteSelect}
             testID={`${testID}-route-${index}`}
+            includeFavorites={includeFavorites}
           />
         ))}
       </ScrollView>
