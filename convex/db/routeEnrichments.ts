@@ -279,7 +279,7 @@ export const findByRoutePlanId = internalQuery({
   },
   returns: v.array(v.any()),
   handler: async (ctx, args): Promise<RouteEnrichmentDoc[]> => {
-    return findByRoutePlanIdHandler(ctx, args)
+    return findByRoutePlanIdHandler(ctx as any, args)
   },
 })
 
@@ -290,6 +290,6 @@ export const findByContentFingerprint = internalQuery({
   },
   returns: v.union(v.null(), v.any()),
   handler: async (ctx, args): Promise<RouteEnrichmentDoc | null> => {
-    return findByContentFingerprintHandler(ctx, args)
+    return findByContentFingerprintHandler(ctx as any, args)
   },
 })

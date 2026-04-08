@@ -14,6 +14,7 @@ import type * as actions_agent_agents_routingAgent from "../actions/agent/agents
 import type * as actions_agent_agents_searchAgent from "../actions/agent/agents/searchAgent.js";
 import type * as actions_agent_agents_types from "../actions/agent/agents/types.js";
 import type * as actions_agent_budgetTracker from "../actions/agent/budgetTracker.js";
+import type * as actions_agent_enrichment_runEnrichmentJob from "../actions/agent/enrichment/runEnrichmentJob.js";
 import type * as actions_agent_generateTripPlan from "../actions/agent/generateTripPlan.js";
 import type * as actions_agent_lib_geo from "../actions/agent/lib/geo.js";
 import type * as actions_agent_lib_piTools from "../actions/agent/lib/piTools.js";
@@ -96,6 +97,7 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/agents/searchAgent": typeof actions_agent_agents_searchAgent;
   "actions/agent/agents/types": typeof actions_agent_agents_types;
   "actions/agent/budgetTracker": typeof actions_agent_budgetTracker;
+  "actions/agent/enrichment/runEnrichmentJob": typeof actions_agent_enrichment_runEnrichmentJob;
   "actions/agent/generateTripPlan": typeof actions_agent_generateTripPlan;
   "actions/agent/lib/geo": typeof actions_agent_lib_geo;
   "actions/agent/lib/piTools": typeof actions_agent_lib_piTools;
