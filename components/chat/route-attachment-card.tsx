@@ -130,6 +130,13 @@ export const RouteAttachmentCard = ({
   elevationGainFt,
   includeFavorites = false,
 }: RouteAttachmentCardProps) => {
+  console.info('[RouteAttachmentCard] Rendering', {
+    routeId: route.routeOptionId,
+    label: route.label,
+    isSelected,
+    variant,
+  })
+
   const { semantic } = useSemanticTheme()
   const [directionsVisible, setDirectionsVisible] = useState(false)
 
@@ -138,17 +145,19 @@ export const RouteAttachmentCard = ({
   const distance = route.stats.distanceMeters
 
   const handlePress = () => {
+    console.info('[RouteAttachmentCard] Opening directions sheet', { routeId: route.routeOptionId })
     setDirectionsVisible(true)
   }
 
   const handleLongPress = () => {
+    console.info('[RouteAttachmentCard] Long press - selecting route', { routeId: route.routeOptionId })
     onSelect(route.routeOptionId)
   }
 
   const isCompact = variant === 'compact'
 
   return (
-    <>
+    <View>
       <TouchableOpacity
         onPress={handlePress}
         onLongPress={handleLongPress}
@@ -438,16 +447,20 @@ export const RouteAttachmentCard = ({
         </View>
       </TouchableOpacity>
 
-    {/* Route directions sheet */}
-    <RouteDirectionsSheet
-      isVisible={directionsVisible}
-      onClose={() => setDirectionsVisible(false)}
-      routeLabel={route.label}
-      legs={route.map.legs}
-      destinationLabel={end}
-      testID={`${testID}-directions`}
-    />
-    </>
+    {/* Route directions sheet — mounted only when opened to avoid
+         Fabric "Attempt to recycle a mounted view" crash when
+         BottomSheetModal native views conflict with view recycling. */}
+    {directionsVisible && (
+      <RouteDirectionsSheet
+        isVisible={directionsVisible}
+        onClose={() => setDirectionsVisible(false)}
+        routeLabel={route.label}
+        legs={route.map.legs}
+        destinationLabel={end}
+        testID={`${testID}-directions`}
+      />
+    )}
+    </View>
   )
 }
 

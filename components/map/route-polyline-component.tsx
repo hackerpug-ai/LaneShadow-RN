@@ -1,9 +1,6 @@
 import * as Haptics from 'expo-haptics'
-import type { GestureHandlerGestureEvent } from 'react-native-gesture-handler'
-import { LongPressGestureHandler, State } from 'react-native-gesture-handler'
 import type { FC } from 'react'
-import { useMemo, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { useCallback, useRef, useState } from 'react'
 import { Polyline } from 'react-native-maps'
 import { useTheme } from 'react-native-paper'
 import PolylineEncoder from '@mapbox/polyline'
@@ -88,22 +85,20 @@ const parseSegmentId = (id: string): { type: string; legIndex?: number } => {
   return { type: 'unknown' }
 }
 
-const styles = StyleSheet.create({
-  gestureWrapper: {
-    flex: 1,
-  },
-})
-
 /**
  * RoutePolyline Component
  *
- * Renders route polylines with long-press gesture support for segment selection.
+ * Renders route polylines on the map with tap-to-select segment support.
+ *
+ * IMPORTANT: Polyline components from react-native-maps must be direct children
+ * of MapView in the native view hierarchy. Wrapping them in View or gesture
+ * handler components prevents the native map from recognizing them as overlays,
+ * causing them to not render.
  *
  * Acceptance Criteria (US-042):
- * - AC1: Route polyline displayed on map, When: User long-presses for 500ms+, Then: Segment highlights visually
+ * - AC1: Route polyline displayed on map, When: User taps segment, Then: Segment highlights visually
  * - AC2: Segment highlighted, When: onSegmentSelect callback provided, Then: Callback receives segment geometry
- * - AC3: Long-press on overlay segment, When: Gesture detected, Then: Returns overlay segment geometry
- * - AC4: User releases early (<500ms), When: Gesture cancelled, Then: No highlight, no callback
+ * - AC3: Tap on overlay segment, When: Gesture detected, Then: Returns overlay segment geometry
  */
 export const RoutePolyline: FC<RoutePolylineProps> = ({
   polylines,
@@ -119,37 +114,31 @@ export const RoutePolyline: FC<RoutePolylineProps> = ({
   const highlightStrokeWidth = semantic.space.sm // 8px
   const normalStrokeWidth = semantic.space.sm / 2 // 4px
 
-  const handleLongPress = useMemo(
-    () =>
-      (segmentId: string, coordinates: { latitude: number; longitude: number }[]) =>
-      ({ nativeEvent }: GestureHandlerGestureEvent) => {
-        const state = nativeEvent.state
+  const handlePress = useCallback(
+    (segmentId: string, coordinates: { latitude: number; longitude: number }[]) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+      setActiveSegment(segmentId)
 
-        if (state === State.ACTIVE) {
-          // Long-press completed (>= 500ms)
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-          setActiveSegment(segmentId)
+      if (onSegmentSelect && coordinates.length > 0) {
+        const { type, legIndex } = parseSegmentId(segmentId)
+        const bounds = calculateBounds(coordinates)
+        const geometry = encodeCoordinates(coordinates)
 
-          if (onSegmentSelect && coordinates.length > 0) {
-            const { type, legIndex } = parseSegmentId(segmentId)
-            const bounds = calculateBounds(coordinates)
-            const geometry = encodeCoordinates(coordinates)
-
-            onSegmentSelect({
-              geometry,
-              bounds,
-              legIndex,
-              segmentType: type as SegmentSelectData['segmentType'],
-              segmentId,
-            })
-          }
-        } else if (state === State.CANCELLED || state === State.FAILED) {
-          // Gesture cancelled or failed - clear active segment
-          setActiveSegment(null)
-        }
-      },
+        onSegmentSelect({
+          geometry,
+          bounds,
+          legIndex,
+          segmentType: type as SegmentSelectData['segmentType'],
+          segmentId,
+        })
+      }
+    },
     [onSegmentSelect]
   )
+
+  // Store stable callback refs per polyline to avoid re-creating closures
+  const handlePressRef = useRef(handlePress)
+  handlePressRef.current = handlePress
 
   return (
     <>
@@ -158,28 +147,17 @@ export const RoutePolyline: FC<RoutePolylineProps> = ({
           selectedSegmentId === polyline.id || activeSegment === polyline.id
         const strokeColor = isHighlighted ? semantic.color.tertiary.default : polyline.strokeColor
         const strokeWidth = isHighlighted ? highlightStrokeWidth : (polyline.strokeWidth ?? normalStrokeWidth)
-        const segmentTestId = polyline.id ? `${testID}--segment-${polyline.id}` : `${testID}--segment-unknown`
 
         return (
-          <LongPressGestureHandler
+          <Polyline
             key={polyline.id ?? `${polyline.coordinates[0]?.latitude}-${polyline.coordinates[0]?.longitude}`}
-            onHandlerStateChange={handleLongPress(
-              polyline.id ?? '',
-              polyline.coordinates
-            )}
-            minDurationMs={500}
-            maxDist={20}
-            shouldCancelWhenOutside={true}
-          >
-            <View style={styles.gestureWrapper} testID={segmentTestId}>
-              <Polyline
-                coordinates={polyline.coordinates}
-                strokeColor={strokeColor}
-                strokeWidth={strokeWidth}
-                testID={`${segmentTestId}--polyline`}
-              />
-            </View>
-          </LongPressGestureHandler>
+            coordinates={polyline.coordinates}
+            strokeColor={strokeColor}
+            strokeWidth={strokeWidth}
+            tappable
+            onPress={() => handlePressRef.current(polyline.id ?? '', polyline.coordinates)}
+            testID={polyline.id ? `${testID}--segment-${polyline.id}` : `${testID}--segment-unknown`}
+          />
         )
       })}
     </>

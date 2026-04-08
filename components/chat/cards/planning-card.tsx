@@ -155,6 +155,12 @@ const PulsingDot = ({ reduceMotion, color }: PulsingDotProps) => {
 // ---------------------------------------------------------------------------
 
 export const PlanningCard = ({ message }: PlanningCardProps) => {
+  console.info('[PlanningCard] Component mounting', {
+    messageId: message._id,
+    status: message.status,
+    contentLength: message.content?.length,
+  })
+
   const { semantic } = useSemanticTheme()
 
   const [expanded, setExpanded] = useState(false)
@@ -166,17 +172,34 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
   const isComplete = status === 'complete'
   const isFailed = status === 'failed'
 
+  console.info('[PlanningCard] State computed', {
+    status,
+    isStreaming,
+    isComplete,
+    isFailed,
+    canExpand: isComplete,
+  })
+
   // Only complete rows are tappable/expandable. Streaming and failed are not.
   const canExpand = isComplete
 
   const content = parsePlanningContent(message.content)
 
+  console.info('[PlanningCard] Content parsed', {
+    eventsCount: content.events.length,
+    statusLine: content.statusLine,
+    hasThinkingText: !!content.thinkingText,
+    totalDurationMs: content.totalDurationMs,
+  })
+
   // Auto-show the bottom sheet during streaming so users can see thinking immediately
   // Close it when streaming completes
   React.useEffect(() => {
     if (isStreaming && content.thinkingText) {
+      console.info('[PlanningCard] Auto-showing sheet for streaming')
       setSheetVisible(true)
     } else if (!isStreaming && sheetVisible) {
+      console.info('[PlanningCard] Hiding sheet - streaming complete')
       setSheetVisible(false)
     }
   }, [isStreaming, content.thinkingText, sheetVisible])
@@ -248,6 +271,7 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
       : 'map-marker-path'
 
   const handleToggle = () => {
+    console.info('[PlanningCard] Toggle pressed', { canExpand, expanded })
     if (!canExpand) return
     setExpanded((prev) => !prev)
     setSheetVisible(true)
@@ -335,14 +359,16 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
           ) : null}
         </View>
       </Pressable>
-      <PlanningBottomSheet
-        isVisible={sheetVisible}
-        onClose={() => setSheetVisible(false)}
-        events={content.events}
-        totalDurationMs={content.totalDurationMs}
-        thinkingText={content.thinkingText}
-        isStreaming={isStreaming}
-      />
+      {sheetVisible && (
+        <PlanningBottomSheet
+          isVisible={sheetVisible}
+          onClose={() => setSheetVisible(false)}
+          events={content.events}
+          totalDurationMs={content.totalDurationMs}
+          thinkingText={content.thinkingText}
+          isStreaming={isStreaming}
+        />
+      )}
     </View>
   )
 }

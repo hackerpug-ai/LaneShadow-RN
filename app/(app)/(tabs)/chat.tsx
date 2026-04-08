@@ -18,7 +18,7 @@
 
 import { useMutation, useQuery } from 'convex/react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, Pressable, Keyboard } from 'react-native'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { Text } from 'react-native-paper'
 import { api } from '../../../convex/_generated/api'
@@ -32,6 +32,16 @@ import { useCurrentLocation } from '../../../hooks/use-current-location'
 import { useRideFlow } from '../../../hooks/use-ride-flow'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useSelectedRoute } from '../../../contexts/selected-route'
+import React from 'react'
+
+// Set up global error handler for uncaught errors
+if (typeof console !== 'undefined') {
+  const originalError = console.error
+  console.error = (...args) => {
+    originalError('[ChatScreen Global Error]', ...args)
+    console.info('[ChatScreen] Error stack trace', new Error().stack)
+  }
+}
 
 const CHAT_SUGGESTIONS = [
   'Plan a scenic ride',
@@ -41,6 +51,8 @@ const CHAT_SUGGESTIONS = [
 ]
 
 export default function ChatScreen() {
+  console.info('[ChatScreen] Component mounting')
+
   const { semantic } = useSemanticTheme()
   const router = useRouter()
   const { sessionId: sessionIdParam } = useLocalSearchParams<{ sessionId?: string }>()
@@ -51,6 +63,12 @@ export default function ChatScreen() {
   const { location: currentLocation } = useCurrentLocation()
   const createSession = useMutation(api.db.planningSessions.createSession)
 
+  console.info('[ChatScreen] Hooks initialized', {
+    hasFlowState: !!flowState,
+    hasCurrentLocation: !!currentLocation,
+    sessionIdParam,
+  })
+
   // Wrap send to forward device location (when available) to the agent.
   const handleSendMessage = (text: string) =>
     sendPlanningMessage(
@@ -60,6 +78,11 @@ export default function ChatScreen() {
 
   // Fetch all sessions to find the target session
   const sessions = useQuery(api.db.planningSessions.listSessions)
+
+  console.info('[ChatScreen] Sessions query result', {
+    sessionsCount: sessions?.length ?? 0,
+    isLoading: sessions === undefined,
+  })
 
   // Resolve which session to display in the transcript
   const resolvedSessionId: Id<'planning_sessions'> | null = (() => {
@@ -72,11 +95,22 @@ export default function ChatScreen() {
     return null
   })()
 
+  console.info('[ChatScreen] Resolved session ID', {
+    resolvedSessionId,
+    sessionIdParam,
+    firstSessionId: sessions?.[0]?._id,
+  })
+
   // Fetch messages for the resolved session (skip when no session)
   const rawMessages = useQuery(
     api.db.sessionMessages.list,
     resolvedSessionId ? { sessionId: resolvedSessionId } : 'skip'
   )
+
+  console.info('[ChatScreen] Messages query result', {
+    rawMessagesCount: rawMessages?.length ?? 0,
+    isLoadingMessages: rawMessages === undefined,
+  })
 
   // Map session_messages (role: 'rider' | 'system') to ChatMessage.
   // Hidden agent bookkeeping rows (agent_turn, tool_result_hidden) carry
@@ -108,6 +142,11 @@ export default function ChatScreen() {
         attachments: msg.attachments,
       })) ?? []
 
+  console.info('[ChatScreen] Filtered and mapped messages', {
+    filteredCount: messages.length,
+    rawCount: rawMessages?.length ?? 0,
+  })
+
   // Derive isPlanning from live message statuses: if any assistant row is
   // still running or streaming, the agent is working.
   const isPlanning =
@@ -118,13 +157,27 @@ export default function ChatScreen() {
   const isLoading = sessions === undefined
   const hasNoSessions = sessions !== undefined && sessions.length === 0
 
+  console.info('[ChatScreen] Render state', {
+    isLoading,
+    hasNoSessions,
+    messagesCount: messages.length,
+    isPlanning,
+  })
+
   const { setSelectedRouteId } = useSelectedRoute()
 
+  // Dismiss keyboard when tapping outside the input
+  const handleDismissKeyboard = () => {
+    Keyboard.dismiss()
+  }
+
   const handleNewSession = async () => {
+    console.info('[ChatScreen] Creating new session')
     await createSession({ firstMessage: '' })
     flowDispatch({ type: 'NEW_SESSION' })
     setSelectedRouteId(null)
     resetSession()
+    console.info('[ChatScreen] New session created and state reset')
   }
 
   return (
@@ -139,37 +192,43 @@ export default function ChatScreen() {
         }}
       >
         {/* Staggered fade so the transcript resolves in place, not snapping */}
-        <Animated.View
-          entering={FadeIn.duration(260).delay(40)}
+        <Pressable
           style={styles.body}
+          onPress={handleDismissKeyboard}
+          testID="chat-screen-dismiss-keyboard-pressable"
         >
-          {isLoading ? (
-            <View style={styles.centeredState}>
-              <Text
-                variant="bodyMedium"
-                style={{ color: semantic.color.onSurface.muted }}
-              >
-                Loading…
-              </Text>
-            </View>
-          ) : hasNoSessions && messages.length === 0 ? (
-            <View style={styles.centeredState}>
-              <Text
-                variant="bodyMedium"
-                style={[styles.emptyText, { color: semantic.color.onSurface.muted }]}
-                testID="chat-screen-empty-state"
-              >
-                Start a conversation below — describe the ride you want.
-              </Text>
-            </View>
-          ) : (
-            <ChatTranscript
-              messages={messages}
-              bottomInset={140}
-              onViewOnMap={() => router.push('/(app)/(tabs)')}
-            />
-          )}
-        </Animated.View>
+          <Animated.View
+            entering={FadeIn.duration(260).delay(40)}
+            style={StyleSheet.absoluteFill}
+          >
+            {isLoading ? (
+              <View style={styles.centeredState}>
+                <Text
+                  variant="bodyMedium"
+                  style={{ color: semantic.color.onSurface.muted }}
+                >
+                  Loading…
+                </Text>
+              </View>
+            ) : hasNoSessions && messages.length === 0 ? (
+              <View style={styles.centeredState}>
+                <Text
+                  variant="bodyMedium"
+                  style={[styles.emptyText, { color: semantic.color.onSurface.muted }]}
+                  testID="chat-screen-empty-state"
+                >
+                  Start a conversation below — describe the ride you want.
+                </Text>
+              </View>
+            ) : (
+              <ChatTranscript
+                messages={messages}
+                bottomInset={140}
+                onViewOnMap={() => router.push('/(app)/(tabs)')}
+              />
+            )}
+          </Animated.View>
+        </Pressable>
       </SubpageLayout>
 
       {/* ChatInput lives at the root level so its bottom-safe-area math

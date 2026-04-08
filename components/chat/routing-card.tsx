@@ -352,6 +352,8 @@ const CancelledCard = ({ semantic }: CancelledCardProps) => (
 // ---------------------------------------------------------------------------
 
 export const RoutingCard = ({ message: _message, attachments, onViewOnMap }: RoutingCardProps & { onViewOnMap?: () => void }) => {
+  console.info('[RoutingCard] Component mounting', { attachmentsCount: attachments.length })
+
   const { semantic } = useSemanticTheme()
 
   // Reduce-motion state: initialise to false, update asynchronously.
@@ -367,12 +369,20 @@ export const RoutingCard = ({ message: _message, attachments, onViewOnMap }: Rou
 
   const routePlanId = attachments[0]?.routePlanId
 
+  console.info('[RoutingCard] Route plan ID extracted', { routePlanId })
+
   // Reactive Convex query — passes 'skip' sentinel when there is no planId so
   // the query is dormant. Pattern copied from hooks/use-chat-planning.ts:114-117.
   const routePlan = useQuery(
     api.db.routePlans.getPlanById,
     routePlanId ? { routePlanId } : ('skip' as any)
   ) as RoutePlanDoc | null | undefined
+
+  console.info('[RoutingCard] Route plan query result', {
+    hasRoutePlan: !!routePlan,
+    status: routePlan?.status,
+    phase: routePlan?.phase,
+  })
 
   // While loading or if no planId, show pending state
   const status: RoutePlanStatus = routePlan?.status ?? 'pending'
@@ -426,8 +436,14 @@ export const RoutingCard = ({ message: _message, attachments, onViewOnMap }: Rou
     }
   }
 
+  // Key by status so React fully unmounts the old tree (e.g. RunningCard
+  // with active Reanimated animations) before mounting the new one. Without
+  // this, Fabric's view recycler tries to recycle animated native views that
+  // are still "mounted" from Reanimated's perspective, causing the
+  // "Attempt to recycle a mounted view" crash.
   return (
     <View
+      key={status}
       style={[styles.container, { maxWidth: '90%' }]}
       testID="routing-card"
     >
