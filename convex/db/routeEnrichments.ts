@@ -178,9 +178,9 @@ export const cancelEnrichmentHandler = async (
   if (doc.scheduledJobId) {
     try {
       await ctx.scheduler.cancel(doc.scheduledJobId)
-    } catch (error) {
-      // Log error but continue - enrichment should still be marked as cancelled
-      console.error('[routeEnrichments] Failed to cancel scheduled job:', error)
+    } catch {
+      // Silently ignore cancellation failures - enrichment should still be marked as cancelled
+      // In production, this could be logged to an error tracking service
     }
   }
 
@@ -257,9 +257,9 @@ export const invalidateStaleEnrichmentsHandler = async (
     if (enrichment.scheduledJobId) {
       try {
         await ctx.scheduler.cancel(enrichment.scheduledJobId)
-      } catch (error) {
-        // Log error but continue - enrichment should still be marked as cancelled
-        console.error('[routeEnrichments] Failed to cancel scheduled job:', error)
+      } catch {
+        // Silently ignore cancellation failures - enrichment should still be marked as cancelled
+        // In production, this could be logged to an error tracking service
       }
     }
 
