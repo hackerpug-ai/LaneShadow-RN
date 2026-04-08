@@ -20,9 +20,9 @@ export type FavoriteRoadCardProps = {
   /** Geographic bounds for mini map positioning */
   bounds: Bounds
   /** Callback when card is pressed (not delete button) */
-  onPress?: () => void
+  onPress?: (id: string) => void
   /** Callback when delete button is pressed */
-  onDelete?: () => void
+  onDelete?: (id: string) => void
   /** Test ID for testing */
   testID?: string
 }
@@ -43,7 +43,7 @@ export const FavoriteRoadCard = ({
 
   return (
     <Pressable
-      onPress={() => onPress?.()}
+      onPress={() => onPress?.(favoriteRoadId)}
       testID={testID}
       accessibilityRole="button"
       accessibilityLabel={`View ${name}`}
@@ -85,7 +85,7 @@ export const FavoriteRoadCard = ({
           <Pressable
             onPress={(e) => {
               e?.stopPropagation()
-              onDelete?.()
+              onDelete?.(favoriteRoadId)
             }}
             testID={`${testID}-delete`}
             accessibilityRole="button"
