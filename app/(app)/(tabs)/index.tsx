@@ -483,6 +483,13 @@ const HomeMapScreen = () => {
   const [departureTime, setDepartureTime] = useState(new Date())
   const [includeFavorites, setIncludeFavorites] = useState(false)
 
+  // Reset includeFavorites when sheet closes (US-046)
+  useEffect(() => {
+    if (!sheetVisible) {
+      setIncludeFavorites(false)
+    }
+  }, [sheetVisible])
+
   // Query user's favorite roads
   const favorites = useQuery('db.favoriteRoads:list' as any)
   const hasFavorites = (favorites?.length ?? 0) > 0
