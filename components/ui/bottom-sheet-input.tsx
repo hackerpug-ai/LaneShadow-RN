@@ -1,44 +1,28 @@
 /**
- * Input Component
- * Text input field with semantic theme styling
+ * BottomSheetInput Component
  *
- * IMPORTANT: Keyboard handling for different container types:
+ * A text input specifically designed for use in Gorhom bottom sheets.
+ * Uses BottomSheetTextInput to ensure proper keyboard handling.
  *
- * 1. GORHOM BOTTOM SHEETS - Use native keyboard handling:
- *   <BottomSheetWrapper hasTextInput={true}>
- *     <Input ... />
- *   </BottomSheetWrapper>
- *   Do NOT wrap in KeyboardAvoidingView — causes "double avoidance" conflicts.
+ * IMPORTANT: Use this component instead of regular Input for all text inputs
+ * inside BottomSheetWrapper or BottomActionSheet components. The regular
+ * TextInput does not integrate properly with Gorhom's keyboard handling.
  *
- * 2. REGULAR MODALS/FIXED CONTAINERS - Wrap with KeyboardAvoidingInput:
- *   import { KeyboardAvoidingInput } from './keyboard-avoiding-input'
- *   <KeyboardAvoidingInput>
- *     <Input ... />
- *   </KeyboardAvoidingInput>
- *
- * 3. SCROLLABLE FORMS - No wrapper needed, use ScrollView with keyboardShouldPersistTaps.
- *
- * Design specs from placesearch.designs.html:
- * - Container: bg-surface-elevated, rounded-xl, h-12 (48px)
- * - Icon: Left-aligned with primary color, pl-4 pr-2 spacing
- * - Input: Transparent bg, no border, flex-1, px-2
- * - Focus: ring-1 with ring-primary (on container)
- * - Font: text-base (16px), normal weight
- *
- * Following coding standards: composition over inheritance, named exports
+ * Based on: https://github.com/gorhom/react-native-bottom-sheet/issues/1891
  */
 
 import { useState } from 'react'
 import type { TextInputProps, TextStyle, ViewStyle } from 'react-native'
-import { StyleSheet, TextInput, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
+import { BottomSheetTextInput } from '@gorhom/bottom-sheet'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { IconSymbol, type IconName } from './icon-symbol'
 
 /**
- * Input component props
+ * BottomSheetInput component props
  */
-export type InputProps = Omit<TextInputProps, 'style'> & {
+export type BottomSheetInputProps = Omit<TextInputProps, 'style'> & {
   /** Optional label rendered above the input (uppercase, subtle color) */
   label?: string
   style?: ViewStyle
@@ -51,10 +35,12 @@ export type InputProps = Omit<TextInputProps, 'style'> & {
 }
 
 /**
- * Input component using semantic theme
- * Supports focus states, labels, and disabled styling
+ * BottomSheetInput component using BottomSheetTextInput
+ *
+ * This component MUST be used instead of regular Input for all text inputs
+ * inside Gorhom bottom sheets to ensure proper keyboard handling.
  */
-export const Input = ({
+export const BottomSheetInput = ({
   label,
   style,
   inputStyle,
@@ -65,7 +51,7 @@ export const Input = ({
   onFocus,
   onBlur,
   ...props
-}: InputProps): React.ReactNode => {
+}: BottomSheetInputProps): React.ReactNode => {
   const { semantic } = useSemanticTheme()
   const [isFocused, setIsFocused] = useState(false)
 
@@ -134,7 +120,7 @@ export const Input = ({
         {leftIcon && <View style={styles.leftIconContainer}>{renderIcon(leftIcon)}</View>}
 
         {/* Text input */}
-        <TextInput
+        <BottomSheetTextInput
           {...props}
           editable={editable}
           onFocus={handleFocus}

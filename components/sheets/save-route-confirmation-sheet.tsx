@@ -14,8 +14,7 @@ import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { KeyboardAvoidingInput } from '../ui/keyboard-avoiding-input'
+import { BottomSheetInput } from '../ui/bottom-sheet-input'
 import { BottomSheetWrapper } from './bottom-sheet-wrapper'
 
 export type SaveRouteConfirmationSheetProps = {
@@ -90,17 +89,15 @@ export const SaveRouteConfirmationSheet = ({
 
         {/* Name Input */}
         <View style={styles.inputSection}>
-          <KeyboardAvoidingInput behavior="padding" offset={20}>
-            <Input
-              label="Route Name"
-              placeholder="e.g., Coastal Sunday Ride"
-              value={routeName}
-              onChangeText={setRouteName}
-              editable={!isSaving}
-              leftIcon="map-marker-path"
-              testID={`${testID}-name-input`}
-            />
-          </KeyboardAvoidingInput>
+          <BottomSheetInput
+            label="Route Name"
+            placeholder="e.g., Coastal Sunday Ride"
+            value={routeName}
+            onChangeText={setRouteName}
+            editable={!isSaving}
+            leftIcon="map-marker-path"
+            testID={`${testID}-name-input`}
+          />
         </View>
 
         {/* Actions */}

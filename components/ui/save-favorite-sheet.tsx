@@ -18,9 +18,8 @@ import { useMutation } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { BottomActionSheet } from './bottom-action-sheet'
-import { Input } from './input'
+import { BottomSheetInput } from './bottom-sheet-input'
 import { Button } from './button'
-import { KeyboardAvoidingInput } from './keyboard-avoiding-input'
 
 export type Bounds = {
   northeast: { lat: number; lng: number }
@@ -129,37 +128,31 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
       hasTextInput={true}
     >
       <View style={styles.container}>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          bounces={false}
-        >
-          {/* Title */}
-          <Text
-            variant="headlineSmall"
-            style={[
-              styles.title,
-              { color: semantic.color.onSurface.default },
-            ]}
-          >
-            Save as Favorite
-          </Text>
+          <View style={styles.content}>
+            {/* Title */}
+            <Text
+              variant="headlineSmall"
+              style={[
+                styles.title,
+                { color: semantic.color.onSurface.default },
+              ]}
+            >
+              Save as Favorite
+            </Text>
 
-          {/* Caption */}
-          <Text
-            variant="bodyMedium"
-            style={[
-              styles.caption,
-              { color: semantic.color.onSurface.subtle },
-            ]}
-          >
-            Give this road segment a name to save it to your favorites
-          </Text>
+            {/* Caption */}
+            <Text
+              variant="bodyMedium"
+              style={[
+                styles.caption,
+                { color: semantic.color.onSurface.subtle },
+              ]}
+            >
+              Give this road segment a name to save it to your favorites
+            </Text>
 
-          {/* Name Input */}
-          <KeyboardAvoidingInput behavior="padding" offset={20}>
-            <Input
+            {/* Name Input */}
+            <BottomSheetInput
               testID="save-favorite-name-input"
               value={name}
               onChangeText={handleNameChange}
@@ -168,57 +161,56 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
               autoFocus
               error={!!error}
             />
-          </KeyboardAvoidingInput>
 
-          {/* Character Count */}
-          <Text
-            variant="bodySmall"
-            style={{ color: semantic.color.onSurface.subtle }}
-          >
-            {name.length}/100 characters
-          </Text>
-
-          {/* Error Message */}
-          {error && (
+            {/* Character Count */}
             <Text
               variant="bodySmall"
-              style={[
-                styles.errorText,
-                { color: semantic.color.danger.default },
-              ]}
+              style={{ color: semantic.color.onSurface.subtle }}
             >
-              {error}
+              {name.length}/100 characters
             </Text>
-          )}
 
-          {/* Save Button */}
-          <View style={styles.buttonContainer}>
-            <Button
-              testID="save-favorite-save-button"
-              onPress={handleSave}
-              disabled={isSaving || !name.trim()}
-              loading={isSaving}
-              size="lg"
-              style={styles.saveButton}
-            >
-              Save Favorite
-            </Button>
+            {/* Error Message */}
+            {error && (
+              <Text
+                variant="bodySmall"
+                style={[
+                  styles.errorText,
+                  { color: semantic.color.danger.default },
+                ]}
+              >
+                {error}
+              </Text>
+            )}
 
-            {/* Cancel Button */}
-            <Button
-              testID="save-favorite-cancel-button"
-              onPress={() => {
-                onCancel?.()
-                onClose()
-              }}
-              variant="outline"
-              disabled={isSaving}
-              style={styles.cancelButton}
-            >
-              Cancel
-            </Button>
+            {/* Save Button */}
+            <View style={styles.buttonContainer}>
+              <Button
+                testID="save-favorite-save-button"
+                onPress={handleSave}
+                disabled={isSaving || !name.trim()}
+                loading={isSaving}
+                size="lg"
+                style={styles.saveButton}
+              >
+                Save Favorite
+              </Button>
+
+              {/* Cancel Button */}
+              <Button
+                testID="save-favorite-cancel-button"
+                onPress={() => {
+                  onCancel?.()
+                  onClose()
+                }}
+                variant="outline"
+                disabled={isSaving}
+                style={styles.cancelButton}
+              >
+                Cancel
+              </Button>
+            </View>
           </View>
-        </ScrollView>
       </View>
     </BottomActionSheet>
   )
@@ -228,13 +220,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
+  content: {
     padding: 16,
     gap: 16,
-    paddingBottom: 32, // Reduced padding - keyboard avoidance handles the rest
+    paddingBottom: 32,
   },
   title: {
     marginBottom: 4,

@@ -13,8 +13,10 @@
  */
 
 import React, { useMemo } from 'react'
-import { StyleSheet, View, ScrollView, Platform, Linking, Pressable } from 'react-native'
+import { StyleSheet, View, Platform, Linking, Pressable } from 'react-native'
 import { Text } from 'react-native-paper'
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { IconSymbol } from '../ui/icon-symbol'
 import { Button } from '../ui/button'
@@ -126,6 +128,7 @@ export const RouteDirectionsSheet = ({
   selectedLegIndex,
 }: RouteDirectionsSheetProps) => {
   const { semantic } = useSemanticTheme()
+  const insets = useSafeAreaInsets()
 
   // Get final destination coordinates for navigation
   const finalDestination = useMemo(() => {
@@ -159,6 +162,49 @@ export const RouteDirectionsSheet = ({
       testID={testID}
       wrapChildren={false}
       showHandle={true}
+      footer={
+        <View
+          style={[
+            styles.footer,
+            {
+              paddingHorizontal: semantic.space.lg,
+              paddingTop: semantic.space.md,
+              paddingBottom: semantic.space.lg + insets.bottom,
+              borderTopColor: semantic.color.border.default + '33',
+              backgroundColor: semantic.color.surface.default,
+            },
+          ]}
+        >
+          <View style={styles.footerButtons}>
+            <Button
+              variant="secondary"
+              size="lg"
+              onPress={onClose}
+              style={styles.footerButton}
+              testID={`${testID}-close-button`}
+            >
+              Close
+            </Button>
+
+            <Button
+              variant="default"
+              size="lg"
+              onPress={handleNavigate}
+              style={styles.footerButton}
+              testID={`${testID}-navigate-button`}
+              icon={
+                <IconSymbol
+                  name="navigation"
+                  size={20}
+                  color={semantic.color.onPrimary.default}
+                />
+              }
+            >
+              Navigate
+            </Button>
+          </View>
+        </View>
+      }
     >
       <View style={styles.container}>
         {/* Fixed header */}
@@ -189,15 +235,15 @@ export const RouteDirectionsSheet = ({
         </View>
 
         {/* Scrollable step-by-step directions */}
-        <ScrollView
-          style={styles.legsContainer}
-          contentContainerStyle={[
-            styles.legsContent,
-            { paddingHorizontal: semantic.space.lg },
-          ]}
-          showsVerticalScrollIndicator={true}
-          testID={`${testID}-steps-scroll`}
-        >
+        <View style={styles.scrollWrapper}>
+          <BottomSheetScrollView
+            contentContainerStyle={[
+              styles.legsContent,
+              { paddingHorizontal: semantic.space.lg },
+            ]}
+            showsVerticalScrollIndicator={true}
+            testID={`${testID}-steps-scroll`}
+          >
           {legs.map((leg, legIndex) => {
             // If leg has steps, show them individually
             if (leg.steps && leg.steps.length > 0) {
@@ -462,49 +508,7 @@ export const RouteDirectionsSheet = ({
               )} • Total time: {formatDuration(legs.reduce((sum, leg) => sum + leg.durationSeconds, 0))}
             </Text>
           </View>
-        </ScrollView>
-
-        {/* Fixed footer with actions */}
-        <View
-          style={[
-            styles.footer,
-            {
-              paddingHorizontal: semantic.space.lg,
-              paddingTop: semantic.space.md,
-              paddingBottom: semantic.space.lg,
-              borderTopColor: semantic.color.border.default + '33',
-              backgroundColor: semantic.color.surface.default,
-            },
-          ]}
-        >
-          <View style={styles.footerButtons}>
-            <Button
-              variant="secondary"
-              size="lg"
-              onPress={onClose}
-              style={styles.footerButton}
-              testID={`${testID}-close-button`}
-            >
-              Close
-            </Button>
-
-            <Button
-              variant="default"
-              size="lg"
-              onPress={handleNavigate}
-              style={styles.footerButton}
-              testID={`${testID}-navigate-button`}
-              icon={
-                <IconSymbol
-                  name="navigation"
-                  size={20}
-                  color={semantic.color.onPrimary.default}
-                />
-              }
-            >
-              Navigate
-            </Button>
-          </View>
+          </BottomSheetScrollView>
         </View>
       </View>
     </BottomSheetWrapper>
@@ -528,12 +532,15 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     marginTop: 2,
   },
+  scrollWrapper: {
+    flex: 1,
+  },
   legsContainer: {
     flex: 1,
   },
   legsContent: {
     paddingTop: 12, // semantic.space.md
-    paddingBottom: 100, // Extra padding for fixed footer
+    paddingBottom: 120, // Extra padding for footer and input field
   },
   // Leg section (for legs with steps)
   legSection: {
@@ -660,6 +667,7 @@ const styles = StyleSheet.create({
     padding: 8, // semantic.space.sm
     borderRadius: 8,
     borderWidth: 1,
+    marginBottom: 16, // Extra space below summary card
   },
   summaryText: {
     flex: 1,
@@ -668,10 +676,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     borderTopWidth: 1,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
   },
   footerButtons: {
     flexDirection: 'row',

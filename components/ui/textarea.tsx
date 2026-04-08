@@ -2,14 +2,21 @@
  * Textarea Component
  * Multi-line text input field with semantic theme styling
  *
- * IMPORTANT: When using this component in bottom sheets, modals, or any container
- * where the keyboard might hide the input, wrap it with <KeyboardAvoidingInput>:
+ * IMPORTANT: Keyboard handling for different container types:
  *
+ * 1. GORHOM BOTTOM SHEETS - Use native keyboard handling:
+ *   <BottomSheetWrapper hasTextInput={true}>
+ *     <Textarea ... />
+ *   </BottomSheetWrapper>
+ *   Do NOT wrap in KeyboardAvoidingView — causes "double avoidance" conflicts.
+ *
+ * 2. REGULAR MODALS/FIXED CONTAINERS - Wrap with KeyboardAvoidingInput:
  *   import { KeyboardAvoidingInput } from './keyboard-avoiding-input'
- *
  *   <KeyboardAvoidingInput>
  *     <Textarea ... />
  *   </KeyboardAvoidingInput>
+ *
+ * 3. SCROLLABLE FORMS - No wrapper needed, use ScrollView with keyboardShouldPersistTaps.
  *
  * Specs from README 7.2:
  * - Min height: 80px with px-3 py-2 padding
