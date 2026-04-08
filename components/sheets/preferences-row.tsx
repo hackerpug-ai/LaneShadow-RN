@@ -29,6 +29,9 @@ export type PreferencesRowProps = {
   onToggleAvoidTolls: () => void
   departureTime: Date
   onSetDepartureTime: (date: Date) => void
+  includeFavorites: boolean
+  onToggleIncludeFavorites: () => void
+  hasFavorites: boolean
 }
 
 /**
@@ -71,6 +74,9 @@ export const PreferencesRow = ({
   onToggleAvoidTolls,
   departureTime,
   onSetDepartureTime,
+  includeFavorites,
+  onToggleIncludeFavorites,
+  hasFavorites,
 }: PreferencesRowProps) => {
   const { semantic } = useSemanticTheme()
   const [showDatePicker, setShowDatePicker] = useState(false)
@@ -195,6 +201,30 @@ export const PreferencesRow = ({
             style={[styles.chipText, { color: avoidTolls ? activeTextColor : inactiveTextColor }]}
           >
             No Tolls
+          </Text>
+        </Pressable>
+
+        {/* Include Favorite Roads Chip */}
+        <Pressable
+          onPress={onToggleIncludeFavorites}
+          testID="pref-chip-include-favorites"
+          style={({ pressed }) => [
+            styles.chip,
+            {
+              backgroundColor: includeFavorites ? activeBackground : inactiveBackground,
+              opacity: pressed || !hasFavorites ? 0.5 : 1,
+            },
+          ]}
+        >
+          <IconSymbol
+            name="heart"
+            size={16}
+            color={includeFavorites ? activeIconColor : inactiveIconColor}
+          />
+          <Text
+            style={[styles.chipText, { color: includeFavorites ? activeTextColor : inactiveTextColor }]}
+          >
+            Favorites
           </Text>
         </Pressable>
       </ScrollView>

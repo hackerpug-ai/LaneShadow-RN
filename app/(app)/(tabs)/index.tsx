@@ -474,6 +474,11 @@ const HomeMapScreen = () => {
   const [avoidHighways, setAvoidHighways] = useState(false)
   const [avoidTolls, setAvoidTolls] = useState(false)
   const [departureTime, setDepartureTime] = useState(new Date())
+  const [includeFavorites, setIncludeFavorites] = useState(false)
+
+  // Query user's favorite roads
+  const favorites = useQuery('db.favoriteRoads:list' as any)
+  const hasFavorites = (favorites?.length ?? 0) > 0
 
   useEffect(() => {
     if (planInit?.defaults?.preferences) {
@@ -992,6 +997,9 @@ const HomeMapScreen = () => {
           onToggleAvoidTolls={() => setAvoidTolls((prev) => !prev)}
           departureTime={departureTime}
           onSetDepartureTime={setDepartureTime}
+          includeFavorites={includeFavorites}
+          onToggleIncludeFavorites={() => setIncludeFavorites((prev) => !prev)}
+          hasFavorites={hasFavorites}
           isPlanning={isManualPlanning}
           onPlanRide={handlePlanRide}
           onClearSelection={clearAll}

@@ -35,6 +35,10 @@ export type PlanRideSheetProps = {
   departureTime: Date
   onSetDepartureTime: (date: Date) => void
 
+  includeFavorites: boolean
+  onToggleIncludeFavorites: () => void
+  hasFavorites: boolean
+
   isPlanning: boolean
 
   onPlanRide: () => void
@@ -56,6 +60,9 @@ export const PlanRideSheet = ({
   onToggleAvoidTolls,
   departureTime,
   onSetDepartureTime,
+  includeFavorites,
+  onToggleIncludeFavorites,
+  hasFavorites,
   isPlanning,
   onPlanRide,
   onClearSelection,
@@ -199,6 +206,9 @@ export const PlanRideSheet = ({
           onToggleAvoidTolls={onToggleAvoidTolls}
           departureTime={departureTime}
           onSetDepartureTime={onSetDepartureTime}
+          includeFavorites={includeFavorites}
+          onToggleIncludeFavorites={onToggleIncludeFavorites}
+          hasFavorites={hasFavorites}
         />
 
         {/* Action Button */}
