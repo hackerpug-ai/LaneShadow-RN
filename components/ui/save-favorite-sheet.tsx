@@ -36,18 +36,22 @@ export type SaveFavoriteSheetProps = {
   visible: boolean
   onClose: () => void
   segment: SegmentData | null
+  onSuccess?: () => void
+  onCancel?: () => void
 }
 
 /**
  * Save Favorite Sheet component
  *
  * Displays a bottom sheet with name input and save button.
- * Validates name (1-50 characters) and calls mutation on save.
+ * Validates name (1-100 characters) and calls mutation on save.
  */
 export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
   visible,
   onClose,
   segment,
+  onSuccess,
+  onCancel,
 }) => {
   const { semantic } = useSemanticTheme()
   const [name, setName] = useState('')
@@ -72,8 +76,8 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
       return
     }
 
-    if (trimmedName.length > 50) {
-      setError('Name must be 50 characters or less')
+    if (trimmedName.length > 100) {
+      setError('Name must be 100 characters or less')
       return
     }
 
@@ -98,6 +102,7 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
           },
         },
       })
+      onSuccess?.()
       onClose()
     } catch (err) {
       setError('Failed to save favorite. Please try again.')
@@ -145,10 +150,18 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
           value={name}
           onChangeText={handleNameChange}
           placeholder="e.g., Hwy 9 - Skyline Blvd"
-          maxLength={50}
+          maxLength={100}
           autoFocus
           error={!!error}
         />
+
+        {/* Character Count */}
+        <Text
+          variant="bodySmall"
+          style={{ color: semantic.color.onSurface.subtle }}
+        >
+          {name.length}/100 characters
+        </Text>
 
         {/* Error Message */}
         {error && (
@@ -175,6 +188,20 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
           >
             Save Favorite
           </Button>
+
+          {/* Cancel Button */}
+          <Button
+            testID="save-favorite-cancel-button"
+            onPress={() => {
+              onCancel?.()
+              onClose()
+            }}
+            variant="outline"
+            disabled={isSaving}
+            style={styles.cancelButton}
+          >
+            Cancel
+          </Button>
         </View>
       </View>
     </BottomActionSheet>
@@ -199,8 +226,12 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 8,
+    gap: 12,
   },
   saveButton: {
+    width: '100%',
+  },
+  cancelButton: {
     width: '100%',
   },
 })
