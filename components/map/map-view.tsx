@@ -1,4 +1,5 @@
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 import type { StyleProp, ViewStyle } from 'react-native'
 import { Platform, StyleSheet, View } from 'react-native'
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps'
@@ -29,6 +30,7 @@ type BaseProps = {
     coordinates: { latitude: number; longitude: number }
     zoom: number
   }) => void
+  children?: ReactNode
 }
 
 export type MapViewProps = BaseProps
@@ -69,7 +71,7 @@ const styles = StyleSheet.create({
 })
 
 export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
-  ({ style, cameraPosition, markers, polylines, onMapClick, onCameraMove }, ref) => {
+  ({ style, cameraPosition, markers, polylines, onMapClick, onCameraMove, children }, ref) => {
     const { semantic, dark } = useSemanticTheme()
     const mapRef = useRef<any>(null)
     const isWeb = Platform.OS === 'web'
@@ -299,6 +301,8 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
             strokeWidth={line.strokeWidth ?? 4}
           />
         ))}
+
+        {children}
       </MapView>
     )
   }

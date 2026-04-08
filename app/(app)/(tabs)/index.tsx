@@ -810,11 +810,17 @@ const HomeMapScreen = () => {
           >
             <MapViewWrapper
               ref={mapRef}
-              polylines={routePolylines}
               markers={markers}
               onMapClick={handleMapClick}
               onCameraMove={handleCameraMove}
-            />
+            >
+              <RoutePolyline
+                polylines={routePolylines}
+                onSegmentSelect={handleSegmentSelect}
+                selectedSegmentId={highlightedSegmentId}
+                testID="home-route-polyline"
+              />
+            </MapViewWrapper>
           </Animated.View>
         )}
 
@@ -1045,6 +1051,28 @@ const HomeMapScreen = () => {
         />
 
         <RoutePlannerLoading isVisible={isManualPlanning} onCancel={cancelPlanning} />
+
+        {/* US-050: Save Favorite Sheet */}
+        <SaveFavoriteSheet
+          visible={saveFavoriteSheetVisible}
+          onClose={handleCloseSaveFavoriteSheet}
+          segment={selectedSegment ? {
+            geometry: selectedSegment.geometry,
+            bounds: {
+              northeast: {
+                lat: selectedSegment.bounds.northEast.latitude,
+                lng: selectedSegment.bounds.northEast.longitude,
+              },
+              southwest: {
+                lat: selectedSegment.bounds.southWest.latitude,
+                lng: selectedSegment.bounds.southWest.longitude,
+              },
+            },
+            legIndex: selectedSegment.legIndex,
+          } : null}
+          onSuccess={handleSaveFavoriteSuccess}
+          onCancel={handleCloseSaveFavoriteSheet}
+        />
       </View>
     </MenuLayout>
   )
