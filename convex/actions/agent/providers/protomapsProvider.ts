@@ -49,6 +49,8 @@ import { PMTiles } from 'pmtiles';
 import { VectorTile } from '@mapbox/vector-tile';
 import Pbf from 'pbf';
 import { S2LatLng, S2CellId } from 'nodes2ts';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ProtomapsError } from '../../../lib/errors/protomaps';
 import { recordProtomapsFailureHandler, recordProtomapsQueryHandler } from '../../monitoring';
 
@@ -176,9 +178,6 @@ export async function getProtomapsPresignedUrl(): Promise<string> {
   // If URL points to R2 and we have credentials, generate presigned URL
   if (baseUrl && r2Endpoint && r2KeyId && r2Secret && r2Bucket && baseUrl.includes('r2.cloudflarestorage.com')) {
     try {
-      const { S3Client, GetObjectCommand } = await import('@aws-sdk/client-s3');
-      const { getSignedUrl } = await import('@aws-sdk/s3-request-presigner');
-
       const client = new S3Client({
         region: 'auto',
         endpoint: r2Endpoint,

@@ -4,6 +4,7 @@ import { findScenicWaypoints } from './findScenicWaypoints'
 import { retryOnce, withTimeout } from '../lib/reliability'
 import { traceableToolAsync } from '../lib/tracing'
 import { createProtomapsProvider, getProtomapsUrl, getProtomapsPresignedUrl } from '../providers/protomapsProvider'
+import { recordProtomapsFallbackHandler } from '../../monitoring'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -236,7 +237,20 @@ const discoverCorridorImpl = async (params: {
 
     console.info(`[discoverCorridor] Protomaps found ${protomapsRoads.length} roads`)
   } catch (error) {
-    console.warn('[discoverCorridor] Protomaps failed, falling back to Overpass:', error)
+    const fallbackReason = error instanceof Error ? error.message : 'unknown'
+
+    // Record the fallback event for monitoring
+    await recordProtomapsFallbackHandler(null, {
+      tool: 'discoverCorridor',
+      reason: fallbackReason,
+      bbox: JSON.stringify(bbox),
+    })
+
+    console.warn('[discoverCorridor] Protomaps failed, falling back to Overpass', {
+      fallbackReason,
+      bbox: JSON.stringify(bbox),
+      timestamp: new Date().toISOString(),
+    })
   }
 
   // Run queries in parallel (use Protomaps roads if available, otherwise fetch from Overpass)
