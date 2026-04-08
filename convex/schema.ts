@@ -14,6 +14,7 @@ import { userValidator } from '../models/users'
 import { performanceValidator } from '../models/performance'
 import { osmNodeValidator, osmWayValidator, osmImportJobValidator } from '../models/osm-data'
 import { routeEnrichmentValidator } from '../models/route-enrichments'
+import { waypointValidator } from '../models/waypoints'
 
 /**
  * Convex Database Schema for React Native + Convex Template
@@ -145,4 +146,13 @@ export default defineSchema({
   route_enrichments: defineTable(routeEnrichmentValidator)
     .index('by_routePlanId', ['routePlanId'])
     .index('by_contentFingerprint_and_phase', ['contentFingerprint', 'phase']),
+
+  /**
+   * Waypoints table - Stores user waypoints for route plans
+   * Indexed by routePlanId for efficient route-specific queries
+   * Indexed by routePlanId and status for workflow filtering
+   */
+  waypoints: defineTable(waypointValidator)
+    .index('by_routePlanId', ['routePlanId'])
+    .index('by_routePlanId_and_status', ['routePlanId', 'status']),
 })

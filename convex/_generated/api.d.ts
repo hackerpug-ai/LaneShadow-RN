@@ -70,6 +70,7 @@ import type * as db_savedRoutes from "../db/savedRoutes.js";
 import type * as db_sessionMessages from "../db/sessionMessages.js";
 import type * as db_tripPlans from "../db/tripPlans.js";
 import type * as db_users from "../db/users.js";
+import type * as db_waypoints from "../db/waypoints.js";
 import type * as errors from "../errors.js";
 import type * as guards from "../guards.js";
 import type * as http from "../http.js";
@@ -151,6 +152,7 @@ declare const fullApi: ApiFromModules<{
   "db/sessionMessages": typeof db_sessionMessages;
   "db/tripPlans": typeof db_tripPlans;
   "db/users": typeof db_users;
+  "db/waypoints": typeof db_waypoints;
   errors: typeof errors;
   guards: typeof guards;
   http: typeof http;

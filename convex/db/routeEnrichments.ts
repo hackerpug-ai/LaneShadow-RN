@@ -201,7 +201,7 @@ export const createEnrichment = internalMutation({
   },
   returns: v.object({ enrichmentId: v.id('route_enrichments') }),
   handler: async (ctx, args): Promise<{ enrichmentId: Id<'route_enrichments'> }> => {
-    return createEnrichmentHandler(ctx, args)
+    return createEnrichmentHandler(ctx as any, args)
   },
 })
 
@@ -243,7 +243,9 @@ export const completeEnrichment = internalMutation({
   },
   returns: v.null(),
   handler: async (ctx, args): Promise<null> => {
-    await completeEnrichmentHandler(ctx, args)
+    if (args.enrichments) {
+      await completeEnrichmentHandler(ctx as any, { enrichmentId: args.enrichmentId, enrichments: args.enrichments })
+    }
     return null
   },
 })
