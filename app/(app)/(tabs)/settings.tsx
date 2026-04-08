@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { MenuLayout } from '../../../components/layouts/menu-layout'
+import { SubpageLayout } from '../../../components/layouts/subpage-layout'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { SavedRoutesSection } from '../../../components/settings/favorite-roads-section'
 
@@ -15,25 +16,24 @@ const SettingsScreen = () => {
 
   return (
     <MenuLayout menuOpen={menuOpen} onMenuOpenChange={setMenuOpen} testID="settings-menu-layout">
-      <View
-        style={[
-          styles.container,
-          {
-            backgroundColor: semantic.color.background.default,
-            padding: semantic.space.lg,
-          },
-        ]}
-      >
-        <Text variant="headlineSmall" style={{ color: semantic.color.onSurface.default }}>
-          Settings
-        </Text>
-        <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.muted }}>
-          Placeholder screen for app settings.
-        </Text>
+      <SubpageLayout title="Settings" testID="settings-screen">
+        <View
+          style={[
+            styles.container,
+            {
+              backgroundColor: semantic.color.background.default,
+              padding: semantic.space.lg,
+            },
+          ]}
+        >
+          <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.muted }}>
+            Placeholder screen for app settings.
+          </Text>
 
-        {/* Saved Routes Section */}
-        <SavedRoutesSection />
-      </View>
+          {/* Saved Routes Section */}
+          <SavedRoutesSection />
+        </View>
+      </SubpageLayout>
     </MenuLayout>
   )
 }
