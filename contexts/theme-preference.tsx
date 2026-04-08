@@ -1,47 +1,38 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useMemo } from 'react'
 import { useColorScheme } from 'react-native'
-import { asyncStorage, type StorageSchema } from '../hooks/use-async-storage'
+import { useSettingsStore } from '../stores/settings-store'
 
-type ThemeMode = NonNullable<StorageSchema['theme_preference']>
+type ThemeMode = 'light' | 'dark' | 'auto'
 
 type ThemePreferenceContextValue = {
   mode: ThemeMode
   isDark: boolean
-  setMode: (mode: ThemeMode) => Promise<void>
+  setMode: (mode: ThemeMode) => void
 }
 
 const ThemePreferenceContext = createContext<ThemePreferenceContextValue>({
   mode: 'auto',
   isDark: false,
-  setMode: async () => {},
+  setMode: () => {},
 })
 
 export const useThemePreference = () => useContext(ThemePreferenceContext)
 
+/**
+ * Theme preference provider that reads from the settings store
+ * and resolves the 'auto' mode against the system color scheme.
+ */
 export const ThemePreferenceProvider = ({ children }: { children: React.ReactNode }) => {
   const systemScheme = useColorScheme()
-  const [mode, setModeState] = useState<ThemeMode>('auto')
-  const [loaded, setLoaded] = useState(false)
+  const { themeMode, setThemeMode } = useSettingsStore()
 
-  useEffect(() => {
-    asyncStorage.getItem('theme_preference').then((stored) => {
-      if (stored) setModeState(stored)
-      setLoaded(true)
-    })
-  }, [])
-
-  const setMode = useCallback(async (next: ThemeMode) => {
-    setModeState(next)
-    await asyncStorage.setItem('theme_preference', next)
-  }, [])
-
-  const isDark =
-    mode === 'auto' ? systemScheme === 'dark' : mode === 'dark'
-
-  if (!loaded) return null
+  const isDark = useMemo(
+    () => (themeMode === 'auto' ? systemScheme === 'dark' : themeMode === 'dark'),
+    [themeMode, systemScheme]
+  )
 
   return (
-    <ThemePreferenceContext.Provider value={{ mode, isDark, setMode }}>
+    <ThemePreferenceContext.Provider value={{ mode: themeMode, isDark, setMode: setThemeMode }}>
       {children}
     </ThemePreferenceContext.Provider>
   )

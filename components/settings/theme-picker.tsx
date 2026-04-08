@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { IconSymbol } from '../ui/icon-symbol'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { useThemePreference } from '../../contexts/theme-preference'
+import { useSettingsStore } from '../../stores/settings-store'
 
 /**
  * Hardcoded preview colors extracted from theme.ts so the cards
@@ -106,7 +106,8 @@ const SplitPreview = () => {
 
 export const ThemePicker = ({ testID }: { testID?: string }) => {
   const { semantic } = useSemanticTheme()
-  const { mode, setMode } = useThemePreference()
+  const { themeMode, setThemeMode } = useSettingsStore()
+  const mode = themeMode
 
   return (
     <View testID={testID} style={[styles.container, { gap: semantic.space.md }]}>
@@ -128,7 +129,7 @@ export const ThemePicker = ({ testID }: { testID?: string }) => {
           return (
             <Pressable
               key={option.value}
-              onPress={() => setMode(option.value)}
+              onPress={() => setThemeMode(option.value)}
               testID={`theme-option-${option.value}`}
               style={({ pressed }) => [
                 styles.card,
