@@ -2,6 +2,7 @@
  * Route Comparison View Screen Component
  *
  * Screen displaying multiple route options for comparison and selection
+ * Uses SubpageLayout for proper safe area handling and navigation
  * Composes RouteOptionCard atoms and provides actions for viewing details and saving routes
  *
  * Follows project standards:
@@ -17,7 +18,7 @@ import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { PlannedRouteOptionView } from '../../types/routes'
 import { Button } from '../ui/button'
-import { SectionHeader } from '../ui/section-header'
+import { SubpageLayout } from '../layouts/subpage-layout'
 
 export type RouteComparisonViewProps = {
   routes: PlannedRouteOptionView[]
@@ -55,6 +56,7 @@ const formatDuration = (seconds: number): string => {
 /**
  * Route comparison view screen for comparing and selecting routes
  * Shows route options with selection state, details button, and save action
+ * Uses SubpageLayout for proper navigation and safe area handling
  */
 export const RouteComparisonView = ({
   routes,
@@ -70,58 +72,50 @@ export const RouteComparisonView = ({
 
   if (isLoading) {
     return (
-      <View
-        style={[styles.container, styles.centered, { backgroundColor: semantic.color.surface.default }]}
-        testID={testID}
-      >
-        <ActivityIndicator size="large" color={semantic.color.primary.default} />
-        <Text
-          variant="bodyMedium"
-          style={[styles.loadingText, { color: semantic.color.onSurface.subtle }]}
-        >
-          Loading routes...
-        </Text>
-      </View>
+      <SubpageLayout title="Compare Routes" testID={testID || 'route-comparison-loading'}>
+        <View style={[styles.centered, { flex: 1 }]}>
+          <ActivityIndicator size="large" color={semantic.color.primary.default} />
+          <Text
+            variant="bodyMedium"
+            style={[styles.loadingText, { color: semantic.color.onSurface.subtle }]}
+          >
+            Loading routes...
+          </Text>
+        </View>
+      </SubpageLayout>
     )
   }
 
   if (routes.length === 0) {
     return (
-      <View
-        style={[styles.container, styles.centered, { backgroundColor: semantic.color.surface.default }]}
-        testID={testID}
-      >
-        <IconSymbol
-          name="map-marker-off"
-          size={48}
-          color={semantic.color.onSurface.muted}
-        />
-        <Text
-          variant="titleMedium"
-          style={[styles.emptyTitle, { color: semantic.color.onSurface.default }]}
-        >
-          No Routes Available
-        </Text>
-        <Text
-          variant="bodyMedium"
-          style={[styles.emptyText, { color: semantic.color.onSurface.subtle }]}
-        >
-          Try adjusting your search criteria
-        </Text>
-      </View>
+      <SubpageLayout title="Compare Routes" testID={testID || 'route-comparison-empty'}>
+        <View style={[styles.centered, { flex: 1 }]}>
+          <IconSymbol
+            name="map-marker-off"
+            size={48}
+            color={semantic.color.onSurface.muted}
+          />
+          <Text
+            variant="titleMedium"
+            style={[styles.emptyTitle, { color: semantic.color.onSurface.default }]}
+          >
+            No Routes Available
+          </Text>
+          <Text
+            variant="bodyMedium"
+            style={[styles.emptyText, { color: semantic.color.onSurface.subtle }]}
+          >
+            Try adjusting your search criteria
+          </Text>
+        </View>
+      </SubpageLayout>
     )
   }
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          backgroundColor: semantic.color.surface.default,
-          paddingBottom: insets.bottom + semantic.space.lg,
-        },
-      ]}
-      testID={testID}
+    <SubpageLayout
+      title="Compare Routes"
+      testID={testID || 'route-comparison-view'}
     >
       <ScrollView
         style={styles.scrollView}
@@ -132,10 +126,11 @@ export const RouteComparisonView = ({
         showsVerticalScrollIndicator={false}
         testID={`${testID}-scroll-view`}
       >
-        <SectionHeader
-          title="Compare Routes"
-          subtitle={`${routes.length} option${routes.length > 1 ? 's' : ''} available`}
-        />
+        <View style={styles.subtitleContainer}>
+          <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.subtle }}>
+            {routes.length} option{routes.length > 1 ? 's' : ''} available
+          </Text>
+        </View>
 
         <View style={styles.routesList}>
           {routes.map((route) => {
@@ -330,16 +325,13 @@ export const RouteComparisonView = ({
           })}
         </View>
       </ScrollView>
-    </View>
+    </SubpageLayout>
   )
 }
 
 RouteComparisonView.displayName = 'RouteComparisonView'
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   centered: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -351,6 +343,9 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 16,
     paddingBottom: 16,
+  },
+  subtitleContainer: {
+    marginBottom: 8,
   },
   loadingText: {
     marginTop: 8,
