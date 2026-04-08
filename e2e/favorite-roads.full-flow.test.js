@@ -22,13 +22,9 @@
  * Test Database: Real Convex backend (test deployment)
  */
 
-const {
-  createDistantFavorite,
-  deleteFavoriteByName,
-} = require('./helpers/favorite-roads.helpers')
-
 describe('Favorite Roads Full Flow (US-052)', () => {
   const TEST_FAVORITE_NAME = 'E2E Test Favorite'
+  const DISTANT_FAVORITE_NAME = 'Distant E2E Favorite'
   const TEST_TIMEOUT = 120000 // 2 minutes for full flow test
 
   beforeAll(async () => {
@@ -82,8 +78,8 @@ describe('Favorite Roads Full Flow (US-052)', () => {
 
   /**
    * AC3: Long-press segment highlights it and shows SaveFavoriteSheet
-   * Note: This test assumes a route is already displayed on the map
-   * In a real scenario, you'd need to plan a route first
+   * This test performs an actual long-press on the route polyline segment
+   * and verifies that SaveFavoriteSheet appears in response.
    */
   it('should satisfy AC3: Long-press segment shows SaveFavoriteSheet', async () => {
     // First, ensure we have a route to interact with
@@ -108,10 +104,12 @@ describe('Favorite Roads Full Flow (US-052)', () => {
     // Take screenshot before long-press
     await takeScreenshot('03-before-long-press')
 
-    // Perform long-press on the route polyline
-    // The route polyline uses LongPressGestureHandler from react-native-gesture-handler
-    // Detox's longPress() works on the testID element
-    await element(by.id('route-polyline')).longPress()
+    // Perform long-press on the route polyline segment
+    // The RoutePolyline component creates segment wrappers with testID pattern:
+    // {testID}--segment-{segmentId}
+    // We use the first leg segment which is typically present
+    // Long-press duration must be >= 500ms to trigger the gesture handler
+    await element(by.id('home-route-polyline--segment-leg-0')).longPress(800)
 
     // Wait for SaveFavoriteSheet to appear after long-press
     await waitFor(element(by.id('save-favorite-sheet')))
@@ -122,8 +120,14 @@ describe('Favorite Roads Full Flow (US-052)', () => {
     await expect(element(by.id('save-favorite-sheet'))).toBeVisible()
     await takeScreenshot('04-save-favorite-sheet-visible')
 
+    // Verify the sheet's title is visible
+    await expect(element(by.text('Save as Favorite'))).toBeVisible()
+
     // Verify the name input is visible and focused
     await expect(element(by.id('save-favorite-name-input'))).toBeVisible()
+
+    // Verify the save button is visible
+    await expect(element(by.id('save-favorite-save-button'))).toBeVisible()
   })
 
   /**
@@ -241,21 +245,85 @@ describe('Favorite Roads Full Flow (US-052)', () => {
   /**
    * AC9: Exclusion message appears when favorites are too far
    *
-   * This test verifies that when a favorite is >50km from the planned route,
-   * the FavoriteExclusionAlert appears with the favorite's name.
+   * This test creates a distant favorite (>50km away) and then plans a local route
+   * to verify that the FavoriteExclusionAlert appears with the favorite's name.
    */
   it('should satisfy AC9: Exclusion message appears for distant favorites', async () => {
-    const DISTANT_FAVORITE_NAME = 'Distant E2E Test Favorite'
-
-    // Step 1: Create a distant favorite (>50km from typical test area)
-    // This helper plans a route to a distant location (e.g., SF to LA),
-    // long-presses a segment, and saves it as a favorite
-    await createDistantFavorite(DISTANT_FAVORITE_NAME)
-
-    // Step 2: Plan a local route that won't include the distant favorite
+    // Step 1: Create a distant favorite by planning a route to a far location
     // Open manual planning mode
     await element(by.id('chat-input-manual-mode-button')).tap()
 
+    // Wait for PlanRideSheet to appear
+    await waitFor(element(by.id('plan-ride-sheet')))
+      .toBeVisible()
+      .withTimeout(5000)
+
+    // Set start location (San Francisco)
+    await element(by.id('current-location-input')).tap()
+    await element(by.id('current-location-input')).typeText('San Francisco, CA')
+    await new Promise(resolve => setTimeout(resolve, 500))
+    await element(by.id('place-search-result-0')).tap()
+
+    // Set end location (Los Angeles - distant location, >50km away)
+    await element(by.id('destination-input')).tap()
+    await element(by.id('destination-input')).typeText('Los Angeles, CA')
+    await new Promise(resolve => setTimeout(resolve, 500))
+    await element(by.id('place-search-result-0')).tap()
+
+    // Submit route planning
+    await element(by.id('plan-ride-submit')).tap()
+
+    // Wait for planning to complete
+    await waitForPlanningComplete()
+
+    // Wait for route results to appear
+    await waitFor(element(by.id('route-card-0')))
+      .toBeVisible()
+      .withTimeout(10000)
+
+    // Select the first route to display it on the map
+    await element(by.id('route-card-0')).tap()
+
+    // Wait for route polyline to appear
+    await waitFor(element(by.id('home-route-polyline')))
+      .toBeVisible()
+      .withTimeout(10000)
+
+    // Long-press on a route segment to save as distant favorite
+    await element(by.id('home-route-polyline--segment-leg-0')).longPress(800)
+
+    // Wait for SaveFavoriteSheet to appear
+    await waitFor(element(by.id('save-favorite-sheet')))
+      .toBeVisible()
+      .withTimeout(5000)
+
+    // Enter the distant favorite name
+    await element(by.id('save-favorite-name-input')).clearText()
+    await element(by.id('save-favorite-name-input')).typeText(DISTANT_FAVORITE_NAME)
+
+    // Tap save button
+    await element(by.id('save-favorite-save-button')).tap()
+
+    // Wait for sheet to dismiss
+    await waitFor(element(by.id('save-favorite-sheet')))
+      .toBeNotVisible()
+      .withTimeout(5000)
+
+    // Wait for success toast
+    await waitFor(element(by.text('Favorite saved')))
+      .toBeVisible()
+      .withTimeout(5000)
+
+    // Wait for toast to dismiss
+    await waitFor(element(by.text('Favorite saved')))
+      .toBeNotVisible()
+      .withTimeout(5000)
+
+    // Step 2: Plan a local route that won't include the distant favorite
+    // Open manual planning mode again
+    await element(by.id('chat-input-manual-mode-button')).tap()
+
+    // Wait for PlanRideSheet to appear
     await waitFor(element(by.id('plan-ride-sheet')))
       .toBeVisible()
       .withTimeout(5000)
@@ -267,10 +335,11 @@ describe('Favorite Roads Full Flow (US-052)', () => {
       await new Promise(resolve => setTimeout(resolve, 500))
     }
 
-    // Plan a short local route (San Francisco to Oakland - ~10km)
-    // This should NOT include the LA favorite (>50km away)
+    // Plan a short local route (within SF only)
+    // Set destination to a nearby location
     await element(by.id('destination-input')).tap()
-    await element(by.id('destination-input')).typeText('Oakland, CA')
+    await element(by.id('destination-input')).clearText()
+    await element(by.id('destination-input')).typeText('Golden Gate Park')
     await new Promise(resolve => setTimeout(resolve, 500))
 
     // Wait for place search results and select first
@@ -285,8 +354,7 @@ describe('Favorite Roads Full Flow (US-052)', () => {
     // Wait for planning to complete
     await waitForPlanningComplete()
 
-    // Step 3: Verify the exclusion alert appears
-    // The alert should show because the LA favorite is >50km from SF-Oakland route
+    // Step 3: Verify the exclusion alert appears with the distant favorite's name
     await waitFor(element(by.id('favorite-exclusion-alert')))
       .toBeVisible()
       .withTimeout(10000)
@@ -301,7 +369,7 @@ describe('Favorite Roads Full Flow (US-052)', () => {
     // Verify the distant favorite's name is mentioned in the alert
     await expect(element(by.text(new RegExp(DISTANT_FAVORITE_NAME)))).toBeVisible()
 
-    await takeScreenshot('11-exclusion-message-with-distant-favorite')
+    await takeScreenshot('11-exclusion-message-with-name')
 
     // Dismiss the alert
     await element(by.id('favorite-exclusion-alert-dismiss')).tap()
@@ -310,9 +378,6 @@ describe('Favorite Roads Full Flow (US-052)', () => {
     await waitFor(element(by.id('favorite-exclusion-alert')))
       .toBeNotVisible()
       .withTimeout(3000)
-
-    // Step 4: Clean up the distant favorite
-    await deleteFavoriteByName(DISTANT_FAVORITE_NAME)
   })
 
   /**
@@ -336,28 +401,33 @@ describe('Favorite Roads Full Flow (US-052)', () => {
       .toBeVisible()
       .withTimeout(5000)
 
-    // Find and delete our test favorite
-    // This would involve swiping or tapping a delete button
-    const favoriteExists = await element(by.text(TEST_FAVORITE_NAME)).isExisting()
+    // Delete test favorites (both the regular and distant ones)
+    const testFavorites = [TEST_FAVORITE_NAME, DISTANT_FAVORITE_NAME]
 
-    if (favoriteExists) {
-      // Swipe to delete or tap delete button
-      await element(by.text(TEST_FAVORITE_NAME)).swipe('left')
-      await element(by.text('Delete')).tap()
+    for (const favoriteName of testFavorites) {
+      const favoriteExists = await element(by.text(favoriteName)).isExisting()
 
-      // Confirm deletion if there's a dialog
-      const deleteDialogExists = await element(by.text('Delete favorite')).isExisting()
-      if (deleteDialogExists) {
+      if (favoriteExists) {
+        // Swipe to delete or tap delete button
+        await element(by.text(favoriteName)).swipe('left')
         await element(by.text('Delete')).tap()
-      }
 
-      // Wait for deletion to complete
-      await waitFor(element(by.text(TEST_FAVORITE_NAME)))
-        .toBeNotVisible()
-        .withTimeout(5000)
+        // Confirm deletion if there's a dialog
+        const deleteDialogExists = await element(by.text('Delete favorite')).isExisting()
+        if (deleteDialogExists) {
+          await element(by.text('Delete')).tap()
+        }
+
+        // Wait for deletion to complete
+        await waitFor(element(by.text(favoriteName)))
+          .toBeNotVisible()
+          .withTimeout(5000)
+
+        await new Promise(resolve => setTimeout(resolve, 500))
+      }
     }
 
-    await takeScreenshot('12-favorite-deleted')
+    await takeScreenshot('12-favorites-deleted')
 
     // Navigate back to home
     await element(by.id('settings-back-button')).tap()
