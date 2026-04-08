@@ -207,7 +207,8 @@ export default function ChatScreen() {
       console.info('[ChatScreen] Top session has 0 messages, navigating to it', {
         topSessionId,
       })
-      router.push(`/chat?sessionId=${topSessionId}`)
+      // Use setParams to update the query param and trigger re-render
+      router.setParams({ sessionId: topSessionId })
       return
     }
 
@@ -223,7 +224,8 @@ export default function ChatScreen() {
       console.info('[ChatScreen] New session created, navigating to it', {
         sessionId: result.sessionId,
       })
-      router.push(`/chat?sessionId=${result.sessionId}`)
+      // Use setParams to update the query param and trigger re-render
+      router.setParams({ sessionId: result.sessionId })
     }
   }
 
