@@ -109,7 +109,15 @@ describe('findScenicWaypoints', () => {
 
     const result = await findScenicWaypoints({ start: START, end: END })
 
-    expect(result).toEqual([{ id: 'direct-scenic', waypoints: [] }])
+    expect(result).toEqual([{
+      id: 'direct-scenic',
+      waypoints: [],
+      preferences: {
+        scenicBias: 'high',
+        avoidHighways: true,
+        avoidTolls: false,
+      },
+    }])
   })
 
   it('returns fallback on Overpass timeout', async () => {
@@ -122,7 +130,15 @@ describe('findScenicWaypoints', () => {
 
     const result = await findScenicWaypoints({ start: START, end: END })
 
-    expect(result).toEqual([{ id: 'direct-scenic', waypoints: [] }])
+    expect(result).toEqual([{
+      id: 'direct-scenic',
+      waypoints: [],
+      preferences: {
+        scenicBias: 'high',
+        avoidHighways: true,
+        avoidTolls: false,
+      },
+    }])
   })
 
   it('returns fallback when <2 nodes in response', async () => {
@@ -135,7 +151,15 @@ describe('findScenicWaypoints', () => {
 
     const result = await findScenicWaypoints({ start: START, end: END })
 
-    expect(result).toEqual([{ id: 'direct-scenic', waypoints: [] }])
+    expect(result).toEqual([{
+      id: 'direct-scenic',
+      waypoints: [],
+      preferences: {
+        scenicBias: 'high',
+        avoidHighways: true,
+        avoidTolls: false,
+      },
+    }])
   })
 
   it('skips nodes with no name tag', async () => {
@@ -159,6 +183,53 @@ describe('findScenicWaypoints', () => {
     expect(allWaypoints.every((w) => w.name.length > 0)).toBe(true)
     expect(allWaypoints.some((w) => w.name === 'Valid Pass')).toBe(true)
     expect(allWaypoints.some((w) => w.name === 'Named Peak')).toBe(true)
+  })
+
+  it('returns 3 variants with different routing preferences', async () => {
+    const elements = [
+      makeNode(1, 37.2, -120.1, { 'tourism': 'viewpoint', 'name': 'Eagle View' }),
+      makeNode(2, 37.6, -119.8, { 'mountain_pass': 'yes', 'name': 'Tioga Pass' }),
+      makeNode(3, 38.0, -119.5, { 'natural': 'peak', 'name': 'Mount Dana' }),
+      makeNode(4, 38.3, -119.2, { 'mountain_pass': 'yes', 'name': 'Sonora Pass' }),
+    ]
+
+    setupFetch(makeOverpassResponse(elements))
+
+    const result = await findScenicWaypoints({ start: START, end: END })
+
+    // Should return exactly 3 variants
+    expect(result).toHaveLength(3)
+
+    // Each variant should have preferences
+    for (const variant of result) {
+      expect(variant.preferences).toBeDefined()
+      expect(variant.preferences?.scenicBias).toBeDefined()
+      expect(variant.preferences?.avoidHighways).toBeDefined()
+      expect(variant.preferences?.avoidTolls).toBeDefined()
+    }
+
+    // Variants should have different routing strategies
+    const scenic = result.find((v) => v.id === 'scenic-coastal')
+    const balanced = result.find((v) => v.id === 'balanced')
+    const efficient = result.find((v) => v.id === 'efficient')
+
+    expect(scenic).toBeDefined()
+    expect(balanced).toBeDefined()
+    expect(efficient).toBeDefined()
+
+    // Scenic variant should avoid highways
+    expect(scenic?.preferences?.avoidHighways).toBe(true)
+    expect(scenic?.preferences?.scenicBias).toBe('high')
+
+    // Balanced variant should allow highways
+    expect(balanced?.preferences?.avoidHighways).toBe(false)
+    expect(balanced?.preferences?.scenicBias).toBe('default')
+
+    // Efficient variant should avoid tolls
+    expect(efficient?.preferences?.avoidTolls).toBe(true)
+
+    // Efficient variant should have fewer waypoints than the others
+    expect(efficient?.waypoints.length).toBeLessThan(scenic?.waypoints.length ?? 0)
   })
 
   it('computes bbox with correct padding', () => {

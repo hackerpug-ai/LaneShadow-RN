@@ -95,8 +95,12 @@ export const planRideOrchestrator = async (params: {
   const compiled = await Promise.allSettled(
     variantsWithFavorites.map(async (variant) => {
       const sketch = buildSketchFromVariant(variant)
-      const providerRoute = await compileSketch({ planInput, sketch })
-      const routeSnapshot = await normalizeRoute({ providerRoute, planInput, sketch })
+      // Use variant-specific preferences for routing diversity
+      const variantPlanInput = variant.preferences
+        ? { ...planInput, preferences: variant.preferences }
+        : planInput
+      const providerRoute = await compileSketch({ planInput: variantPlanInput, sketch })
+      const routeSnapshot = await normalizeRoute({ providerRoute, planInput: variantPlanInput, sketch })
       return { routeSnapshot, sketch }
     })
   )

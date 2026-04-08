@@ -29,13 +29,28 @@ export type ScenicWaypoint = {
 export type RouteVariant = {
   id: string
   waypoints: ScenicWaypoint[]
+  preferences?: {
+    scenicBias: 'default' | 'high'
+    avoidHighways: boolean
+    avoidTolls: boolean
+  }
 }
 
 // ---------------------------------------------------------------------------
 // Fallback
 // ---------------------------------------------------------------------------
 
-const FALLBACK: RouteVariant[] = [{ id: 'direct-scenic', waypoints: [] }]
+const FALLBACK: RouteVariant[] = [
+  {
+    id: 'direct-scenic',
+    waypoints: [],
+    preferences: {
+      scenicBias: 'high',
+      avoidHighways: true,
+      avoidTolls: false,
+    },
+  },
+]
 
 // ---------------------------------------------------------------------------
 // Internal types
@@ -158,33 +173,42 @@ const clusterVariants = (
     return FALLBACK
   }
 
-  if (waypoints.length < 4) {
-    const sorted = sortByCorridorProximity(waypoints, start, end)
-    return [{ id: 'direct-scenic', waypoints: sorted.slice(0, MAX_WAYPOINTS_PER_VARIANT) }]
-  }
+  // Sort all waypoints by corridor proximity
+  const sorted = sortByCorridorProximity(waypoints, start, end)
+  const topWaypoints = sorted.slice(0, MAX_WAYPOINTS_PER_VARIANT)
 
-  const midLat = (start.lat + end.lat) / 2
-
-  const northNodes = waypoints.filter((w) => w.lat >= midLat)
-  const southNodes = waypoints.filter((w) => w.lat < midLat)
-
-  const variants: RouteVariant[] = []
-
-  if (northNodes.length > 0) {
-    const sorted = sortByCorridorProximity(northNodes, start, end)
-    variants.push({ id: 'scenic-north', waypoints: sorted.slice(0, MAX_WAYPOINTS_PER_VARIANT) })
-  }
-
-  if (southNodes.length > 0) {
-    const sorted = sortByCorridorProximity(southNodes, start, end)
-    variants.push({ id: 'scenic-south', waypoints: sorted.slice(0, MAX_WAYPOINTS_PER_VARIANT) })
-  }
-
-  // Balanced: top nodes regardless of lat
-  const balanced = sortByCorridorProximity(waypoints, start, end)
-  variants.push({ id: 'direct-scenic', waypoints: balanced.slice(0, MAX_WAYPOINTS_PER_VARIANT) })
-
-  return variants
+  // Generate 3 variants with different routing preferences
+  // This creates meaningfully different routes even with similar waypoints
+  return [
+    {
+      id: 'scenic-coastal',
+      waypoints: topWaypoints,
+      preferences: {
+        scenicBias: 'high',
+        avoidHighways: true,
+        avoidTolls: false,
+      },
+    },
+    {
+      id: 'balanced',
+      waypoints: topWaypoints,
+      preferences: {
+        scenicBias: 'default',
+        avoidHighways: false,
+        avoidTolls: false,
+      },
+    },
+    {
+      id: 'efficient',
+      // Use fewer waypoints for a more direct route
+      waypoints: topWaypoints.slice(0, Math.max(2, Math.floor(topWaypoints.length / 2))),
+      preferences: {
+        scenicBias: 'default',
+        avoidHighways: false,
+        avoidTolls: true,
+      },
+    },
+  ]
 }
 
 // ---------------------------------------------------------------------------
