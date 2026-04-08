@@ -99,6 +99,7 @@ export const planInputValidator = v.object({
   departureTime: v.number(),
   preferences: planPreferencesValidator,
   nlpText: v.optional(v.string()),
+  includeFavorites: v.optional(v.boolean()),
 })
 export type PlanInput = Infer<typeof planInputValidator>
 

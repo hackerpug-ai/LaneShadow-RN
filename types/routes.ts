@@ -94,9 +94,17 @@ export type PlannedRouteOptionView = {
     elevation?: unknown
     weather?: unknown
   }
+  /** Favorites included in this route */
+  includedFavorites?: string[]
+  /** Favorites excluded with reasons */
+  excludedFavorites?: { id: string; reason: string }[]
 }
 
 export type PlannedRouteOptionsView = {
   planId: string
   options: PlannedRouteOptionView[]
+  /** All favorites included across all routes */
+  includedFavorites?: string[]
+  /** All favorites excluded across all routes */
+  excludedFavorites?: { id: string; reason: string }[]
 }

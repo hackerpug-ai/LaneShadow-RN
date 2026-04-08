@@ -48,11 +48,29 @@ const plannedRouteOptionValidator = v.object({
     maxTemperatureF: v.optional(v.number()),
     conditionsStatus: conditionsStatusValidator,
   }),
+  includedFavorites: v.optional(v.array(v.string())), // IDs of included favorites
+  excludedFavorites: v.optional(
+    v.array(
+      v.object({
+        id: v.string(),
+        reason: v.string(),
+      })
+    )
+  ), // Favorites that were excluded with reasons
 })
 
 const plannedRouteOptionsViewValidator = v.object({
   planId: v.string(),
   options: v.array(plannedRouteOptionValidator),
+  includedFavorites: v.optional(v.array(v.string())), // Overall included favorites
+  excludedFavorites: v.optional(
+    v.array(
+      v.object({
+        id: v.string(),
+        reason: v.string(),
+      })
+    )
+  ), // Overall excluded favorites
 })
 
 /**
@@ -87,35 +105,55 @@ export const buildUserPrompt = (planInput: any): string => {
 export const buildOptionsFromResults = (
   results: OrchestratorResult[],
   planId: string
-): PlannedRouteOptionsView => ({
-  planId,
-  options: results.map((result, idx) => {
-    const snap = result.routeSnapshot
+): PlannedRouteOptionsView => {
+  // Collect all included and excluded favorites across all routes
+  const allIncludedFavorites = new Set<string>()
+  const allExcludedFavorites: Array<{ id: string; reason: string }> = []
+
+  results.forEach((result) => {
     const sketch = result.sketch
-    return {
-      routeOptionId: randomUUID(),
-      label: sketch?.label ?? `Route ${idx + 1}`,
-      rationale: sketch?.rationale ?? '',
-      stats: {
-        distanceMeters: snap.legs.reduce((s: number, l: any) => s + (l.distanceMeters ?? 0), 0),
-        durationSeconds: snap.legs.reduce((s: number, l: any) => s + (l.durationSeconds ?? 0), 0),
-        legsCount: snap.legs.length,
-      },
-      map: {
-        bounds: snap.bounds,
-        overviewGeometry: snap.overviewGeometry,
-        legs: snap.legs,
-        overlays: snap.overlays ?? {},
-      },
-      overlaysPreview: {
-        windSummary: 'unavailable',
-        rainSummary: 'unavailable',
-        temperatureSummary: 'unavailable',
-        conditionsStatus: 'unavailable',
-      },
+    if (sketch?.includedFavorites) {
+      sketch.includedFavorites.forEach((id: string) => allIncludedFavorites.add(id))
     }
-  }),
-})
+    if (sketch?.excludedFavorites) {
+      allExcludedFavorites.push(...sketch.excludedFavorites)
+    }
+  })
+
+  return {
+    planId,
+    includedFavorites: Array.from(allIncludedFavorites),
+    excludedFavorites: allExcludedFavorites,
+    options: results.map((result, idx) => {
+      const snap = result.routeSnapshot
+      const sketch = result.sketch
+      return {
+        routeOptionId: randomUUID(),
+        label: sketch?.label ?? `Route ${idx + 1}`,
+        rationale: sketch?.rationale ?? '',
+        stats: {
+          distanceMeters: snap.legs.reduce((s: number, l: any) => s + (l.distanceMeters ?? 0), 0),
+          durationSeconds: snap.legs.reduce((s: number, l: any) => s + (l.durationSeconds ?? 0), 0),
+          legsCount: snap.legs.length,
+        },
+        map: {
+          bounds: snap.bounds,
+          overviewGeometry: snap.overviewGeometry,
+          legs: snap.legs,
+          overlays: snap.overlays ?? {},
+        },
+        overlaysPreview: {
+          windSummary: 'unavailable',
+          rainSummary: 'unavailable',
+          temperatureSummary: 'unavailable',
+          conditionsStatus: 'unavailable',
+        },
+        includedFavorites: sketch?.includedFavorites,
+        excludedFavorites: sketch?.excludedFavorites,
+      }
+    }),
+  }
+}
 
 /**
  * Plan a motorcycle ride route using the deterministic orchestrator.
@@ -148,10 +186,30 @@ export const planRide = action({
     })
 
     try {
+      // Fetch favorites if requested
+      let favorites: Array<{ id: string; geometry: string; bounds?: { north: number; south: number; east: number; west: number } }> = []
+      if (args.planInput.includeFavorites) {
+        try {
+          // Use internal API to fetch favorites
+          // Note: This requires the Convex API to be generated
+          const favoriteRoads = await ctx.runQuery((internal as any).db.favoriteRoads.list, {}) as any[]
+          favorites = favoriteRoads.map((fav) => ({
+            id: fav._id.toString(),
+            geometry: fav.geometry,
+            bounds: fav.bounds,
+          }))
+          console.info('[planRide] Fetched favorites for planning:', { count: favorites.length })
+        } catch (error) {
+          console.warn('[planRide] Failed to fetch favorites, continuing without them:', error)
+          // Don't fail planning if favorites fetch fails
+        }
+      }
+
       const results = await Promise.race([
         planRideOrchestrator({
           planInput: args.planInput,
           departureTimeMs: args.planInput.departureTime,
+          favorites,
         }),
         timeoutPromise,
       ])
@@ -237,6 +295,27 @@ export const executePlanHandler = async (
     return
   }
 
+  // Step 2.5: Fetch favorites if includeFavorites is true
+  let favorites: Array<{ id: string; geometry: string; bounds?: { north: number; south: number; east: number; west: number } }> = []
+  if (plan?.planInput?.includeFavorites) {
+    try {
+      const favoriteRoadsResult = await ctx.runQuery(
+        (internal as any).db.favoriteRoads.list,
+        {}
+      )
+      const favoriteRoads = favoriteRoadsResult as any[]
+      favorites = favoriteRoads.map((fav) => ({
+        id: fav._id.toString(),
+        geometry: fav.geometry,
+        bounds: fav.bounds,
+      }))
+      console.info('[planRide] Fetched favorites for planning:', { count: favorites.length })
+    } catch (error) {
+      console.warn('[planRide] Failed to fetch favorites, continuing without them:', error)
+      // Don't fail planning if favorites fetch fails
+    }
+  }
+
   // Step 3: Update status to 'running'
   // Note: Auth was already validated in createPlan mutation that scheduled this job.
   // Background jobs (internalAction via scheduler) have no JWT context.
@@ -280,6 +359,7 @@ export const executePlanHandler = async (
       orchestratorFn({
         planInput: plan.planInput,
         departureTimeMs: plan.planInput.departureTime,
+        favorites,
       }),
       timeoutPromise,
     ])
