@@ -173,6 +173,10 @@ const makeRoute = (
     canRename: true,
     canDelete: true,
   },
+  routeIndex: {
+    routeFingerprint: 'test-fingerprint',
+    sampledPoints: [],
+  },
   ...overrides,
 })
 

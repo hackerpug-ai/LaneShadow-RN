@@ -28,6 +28,7 @@ import { RoutePlannerLoading } from '../../../components/sheets/planning-loading
 import { ChatInput, RouteAttachmentCard } from '../../../components/chat'
 import { ChatTranscript } from '../../../components/ui/chat-transcript'
 import type { ChatMessage as TranscriptMessage } from '../../../components/ui/chat-transcript'
+import { useIsRouteSaved } from '../../../hooks/use-is-route-saved'
 import { useCurrentLocation } from '../../../hooks/use-current-location'
 import { useToastMessages } from '../../../hooks/use-toast-messages'
 import { MapToastStack } from '../../../components/map/map-toast-stack'
@@ -851,10 +852,24 @@ const HomeMapScreen = () => {
       metaVersion: 1,
     }
 
+    // Build complete RouteSnapshot from agentActiveOption.map
+    // The map object only has bounds, overviewGeometry, legs - we need to add missing fields
+    const routeSnapshot = {
+      provider: 'route_plans',
+      bounds: agentActiveOption.map.bounds,
+      origin: agentRoutePlan.planInput.start,
+      destination: agentRoutePlan.planInput.end,
+      waypoints: [], // No waypoints for simple A->B routes
+      overviewGeometry: agentActiveOption.map.overviewGeometry,
+      legs: agentActiveOption.map.legs,
+      annotations: [], // Will be populated by enrichment if needed
+      overlays: agentActiveOption.map.overlays || {},
+    }
+
     const routeData = {
       suggestedName,
       planInput: agentRoutePlan.planInput,
-      routeSnapshot: agentActiveOption.map,
+      routeSnapshot,
       routeIndex,
       snapshotMeta,
     }
@@ -901,10 +916,24 @@ const HomeMapScreen = () => {
       metaVersion: 1,
     }
 
+    // Build complete RouteSnapshot from agentActiveOption.map
+    // The map object only has bounds, overviewGeometry, legs - we need to add missing fields
+    const routeSnapshot = {
+      provider: 'route_plans',
+      bounds: agentActiveOption.map.bounds,
+      origin: agentRoutePlan.planInput.start,
+      destination: agentRoutePlan.planInput.end,
+      waypoints: [], // No waypoints for simple A->B routes
+      overviewGeometry: agentActiveOption.map.overviewGeometry,
+      legs: agentActiveOption.map.legs,
+      annotations: [], // Will be populated by enrichment if needed
+      overlays: agentActiveOption.map.overlays || {},
+    }
+
     const routeData = {
       suggestedName,
       planInput: agentRoutePlan.planInput,
-      routeSnapshot: agentActiveOption.map,
+      routeSnapshot,
       routeIndex,
       snapshotMeta,
     }
@@ -1048,7 +1077,7 @@ const HomeMapScreen = () => {
             onClear={clearAll}
             onSaveRoute={handleSaveRoutePress}
             hasRouteToSave={!chatMode && !!agentActiveOption && !!agentRoutePlan}
-            isSavedRoute={false}
+            isSavedRoute={useIsRouteSaved(agentActiveOption?.routeOptionId)}
           />
         </View>
 

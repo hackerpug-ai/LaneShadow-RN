@@ -330,6 +330,7 @@ export const getSavedRoutesList = query({
         updatedAt: v.number(),
         preview: routePreviewValidator,
         capabilities: savedRouteCapabilitiesValidator,
+        routeIndex: routeIndexValidator,
       })
     ),
   }),
@@ -360,6 +361,7 @@ export const getSavedRoutesList = query({
         updatedAt: savedRoute.updatedAt,
         preview: computePreview(savedRoute),
         capabilities: defaultCapabilities,
+        routeIndex: savedRoute.routeIndex,
       })),
     }
   },

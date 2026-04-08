@@ -47,6 +47,7 @@ export type SavedRouteListItemView = {
   updatedAt: number
   preview: RoutePreview
   capabilities: SavedRouteCapabilities
+  routeIndex: RouteIndex
 }
 
 export type SavedRoutesListView = {
