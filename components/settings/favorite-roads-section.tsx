@@ -14,14 +14,61 @@
 import type { Id } from '../../convex/_generated/dataModel'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../convex/_generated/api'
-import { FlatList, View, StyleSheet } from 'react-native'
+import { FlatList, Pressable, StyleSheet, View } from 'react-native'
 import { useState } from 'react'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { DeleteFavoriteDialog } from '../ui/delete-favorite-dialog'
 import { EmptyState } from '../ui/empty-state'
-import { FavoriteRoadCard } from '../ui/favorite-road-card'
+import { SavedRouteCard } from '../ui/saved-route-card'
 import { SectionHeader } from '../ui/section-header'
+import { IconSymbol } from '../ui/icon-symbol'
 import type { SavedRoutesListView } from '../../types/routes'
+
+/**
+ * Wrapper component that adds delete button to SavedRouteCard
+ */
+const SavedRouteCardWithDelete: React.FC<{
+  item: SavedRoutesListView['routes'][number]
+  onDelete: (id: string) => void
+}> = ({ item, onDelete }) => {
+  const { semantic } = useSemanticTheme()
+
+  return (
+    <View style={styles.cardRow}>
+      <View style={styles.cardWrapper}>
+        <SavedRouteCard
+          name={item.name}
+          path={
+            item.startLabel && item.endLabel
+              ? `${item.startLabel} → ${item.endLabel}`
+              : item.startLabel || item.endLabel || 'Unknown route'
+          }
+          distance={`${(item.preview.distanceMeters / 1609.344).toFixed(1)} mi`}
+          duration={(() => {
+            const minutes = Math.round(item.preview.durationSeconds / 60)
+            if (minutes < 60) return `${minutes} min`
+            return `${Math.floor(minutes / 60)}h ${minutes % 60}m`
+          })()}
+          thumbnailRotation={0}
+          onPress={() => {
+            /* TODO: Navigate to route detail */
+          }}
+        />
+      </View>
+      <Pressable
+        onPress={() => onDelete(item.savedRouteId)}
+        accessibilityRole="button"
+        accessibilityLabel="Delete saved route"
+        style={({ pressed }) => [
+          styles.deleteButton,
+          { opacity: pressed ? 0.6 : 1 },
+        ]}
+      >
+        <IconSymbol name="trash-can-outline" size={20} color={semantic.color.danger.default} />
+      </Pressable>
+    </View>
+  )
+}
 
 /**
  * SavedRoutesSection component for settings screen
@@ -146,13 +193,7 @@ export const SavedRoutesSection: React.FC = () => {
         data={savedRoutesData.routes}
         keyExtractor={(item) => item.savedRouteId}
         renderItem={({ item }) => (
-          <FavoriteRoadCard
-            favoriteRoadId={item.savedRouteId as Id<'favorite_roads'>} // TODO: Create SavedRouteCard component
-            name={item.name}
-            bounds={item.preview.bounds ?? { north: 0, south: 0, east: 0, west: 0 }}
-            onDelete={() => handleDelete(item.savedRouteId)}
-            testID={`saved-route-card-${item.savedRouteId}`}
-          />
+          <SavedRouteCardWithDelete item={item} onDelete={handleDelete} />
         )}
         ItemSeparatorComponent={() => <View style={{ height: semantic.space.md }} />}
         ListEmptyComponent={
@@ -182,5 +223,18 @@ const styles = StyleSheet.create({
   },
   skeleton: {
     height: 80,
+  },
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  cardWrapper: {
+    flex: 1,
+  },
+  deleteButton: {
+    padding: 8,
+    borderRadius: 8,
+    marginLeft: 8,
   },
 })

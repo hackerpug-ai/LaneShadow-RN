@@ -1,164 +1,152 @@
 /**
  * SavedRouteCard Component
  *
- * Saved route card with thumbnail, name, path, and stats
- * Follows the design system card patterns
+ * Card component that displays a saved route with name, path, distance, duration, and date.
+ * Follows the design system card patterns.
  */
 
-import { IconSymbol } from './icon-symbol'
 import { Pressable, StyleSheet, View } from 'react-native'
-import { Text, useTheme } from 'react-native-paper'
-import type { ExtendedTheme } from '../../styles/types'
+import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { RouteThumbnail } from './route-thumbnail'
+import { formatDate } from './saved-route-card.utils'
 import type { SavedRouteCardProps } from './saved-route-card.types'
-
-export type { SavedRouteCardProps }
 
 /**
  * SavedRouteCard component for saved routes list
- * Displays route with thumbnail, name, path, and stats
+ * Displays route with mini map preview, name, path, stats, and date
  */
 export const SavedRouteCard = ({
   name,
   path,
   dateSaved,
-  duration = '',
-  distance = '',
+  distance,
+  duration,
+  thumbnailRotation = 0,
   onPress,
-  thumbnailRotation = -10,
 }: SavedRouteCardProps) => {
-  const theme = useTheme<ExtendedTheme>()
-  const { semantic } = theme
+  const { semantic } = useSemanticTheme()
 
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`View route: ${name}`}
+      accessibilityLabel={`View ${name}`}
       style={({ pressed }) => [
+        styles.container,
         {
-          flexDirection: 'row',
-          gap: semantic.space.md,
-          borderRadius: semantic.radius.lg,
-          padding: semantic.space.lg,
-          marginBottom: semantic.space.md,
-          borderWidth: StyleSheet.hairlineWidth,
           backgroundColor: semantic.color.card.default,
-          borderColor: semantic.color.divider.default,
+          borderColor: semantic.color.border.default,
+          borderRadius: semantic.radius.lg,
+          padding: semantic.space.md,
+          opacity: pressed ? 0.8 : 1,
         },
-        pressed && { opacity: 0.7 },
       ]}
     >
-      <RouteThumbnail rotation={thumbnailRotation} />
-
-      <View style={{ flex: 1 }}>
-        <Text
-          numberOfLines={1}
-          style={[
-            semantic.type.title.md,
-            {
-              color: semantic.color.onSurface.default,
-              marginBottom: semantic.space.xs,
-            },
-          ]}
-        >
-          {name}
-        </Text>
-        {dateSaved && (
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: semantic.space.xs,
-              marginBottom: semantic.space.xs,
+      <View style={[styles.content, { gap: semantic.space.md }]}>
+        {/* Mini map preview */}
+        <View style={styles.thumbnailContainer}>
+          <RouteThumbnail
+            width={60}
+            height={60}
+            bounds={{
+              north: 37.7749,
+              south: 37.7049,
+              east: -122.4049,
+              west: -122.4749,
             }}
+            rotation={thumbnailRotation}
+          />
+        </View>
+
+        {/* Route info */}
+        <View style={styles.textContainer}>
+          {/* Route name */}
+          <Text
+            numberOfLines={2}
+            style={[
+              semantic.type.title.sm,
+              { color: semantic.color.onSurface.default },
+            ]}
           >
-            <IconSymbol
-              name="calendar-outline"
-              size={14}
-              color={semantic.color.onSurface.subtle}
-            />
-            <Text
-              style={[
-                semantic.type.label.sm,
-                { color: semantic.color.onSurface.subtle },
-              ]}
-            >
-              {dateSaved}
-            </Text>
-          </View>
-        )}
-        <Text
-          style={[
-            semantic.type.body.sm,
-            {
-              color: semantic.color.onSurface.default,
-              marginBottom: semantic.space.sm,
-            },
-          ]}
-        >
-          {path}
-        </Text>
+            {name}
+          </Text>
 
-        {(duration || distance) && (
-          <View style={{ flexDirection: 'row', gap: semantic.space.md }}>
-            {duration && (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: semantic.space.xs,
-                }}
-              >
-                <IconSymbol
-                  name="clock-outline"
-                  size={16}
-                  color={semantic.color.onSurface.subtle}
-                />
-                <Text
-                  style={[
-                    semantic.type.label.sm,
-                    { color: semantic.color.onSurface.subtle },
-                  ]}
-                >
-                  {duration}
-                </Text>
-              </View>
-            )}
+          {/* Route path */}
+          <Text
+            numberOfLines={1}
+            style={[
+              semantic.type.body.sm,
+              { color: semantic.color.onSurface.subtle },
+            ]}
+          >
+            {path}
+          </Text>
+
+          {/* Stats row */}
+          <View
+            style={[styles.statsRow, { gap: semantic.space.sm }]}
+          >
+            {/* Distance */}
             {distance && (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: semantic.space.xs,
-                }}
+              <Text
+                style={[
+                  semantic.type.body.sm,
+                  { color: semantic.color.onSurface.muted },
+                ]}
               >
-                <IconSymbol
-                  name="map-marker-distance"
-                  size={16}
-                  color={semantic.color.onSurface.subtle}
-                />
-                <Text
-                  style={[
-                    semantic.type.label.sm,
-                    { color: semantic.color.onSurface.subtle },
-                  ]}
-                >
-                  {distance}
-                </Text>
-              </View>
+                {distance}
+              </Text>
+            )}
+
+            {/* Duration */}
+            {duration && (
+              <Text
+                style={[
+                  semantic.type.body.sm,
+                  { color: semantic.color.onSurface.muted },
+                ]}
+              >
+                {duration}
+              </Text>
+            )}
+
+            {/* Date saved */}
+            {dateSaved && (
+              <Text
+                style={[
+                  semantic.type.body.sm,
+                  { color: semantic.color.onSurface.muted },
+                ]}
+              >
+                {dateSaved}
+              </Text>
             )}
           </View>
-        )}
-      </View>
-
-      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <IconSymbol
-          name="chevron-right"
-          size={24}
-          color={semantic.color.onSurface.subtle}
-        />
+        </View>
       </View>
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  thumbnailContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textContainer: {
+    flex: 1,
+    gap: 4,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+})
