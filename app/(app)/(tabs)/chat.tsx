@@ -32,7 +32,7 @@ import { useCurrentLocation } from '../../../hooks/use-current-location'
 import { useRideFlow } from '../../../hooks/use-ride-flow'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useSelectedRoute } from '../../../contexts/selected-route'
-import React from 'react'
+import React, { useState } from 'react'
 
 // Set up global error handler for uncaught errors
 if (typeof console !== 'undefined') {
@@ -56,6 +56,9 @@ export default function ChatScreen() {
   const { semantic } = useSemanticTheme()
   const router = useRouter()
   const { sessionId: sessionIdParam } = useLocalSearchParams<{ sessionId?: string }>()
+
+  // Force remount key - changes when we want to refresh the session view
+  const [remountKey, setRemountKey] = useState(0)
 
   // Local flow state for composing/sending from the chat screen
   const { state: flowState, dispatch: flowDispatch } = useRideFlow()
@@ -214,37 +217,28 @@ export default function ChatScreen() {
       return
     }
 
-    if (hasEmptyTopSession && !isViewingTopSession) {
-      // Top session exists and has no messages, but we're viewing an old session
-      // Navigate to the empty top session instead of creating new
-      console.info('[ChatScreen] Top session has 0 messages, navigating to it', {
-        topSessionId,
-        currentSession: resolvedSessionId,
-      })
-      // Use replace to navigate with the new session ID
-      router.replace(`/chat?sessionId=${topSessionId}`)
-      return
-    }
-
-    // Create a new session and navigate to it
+    // Create a new session first, then navigate
     console.info('[ChatScreen] Creating new session')
     const result = await createSession({ firstMessage: '' })
     flowDispatch({ type: 'NEW_SESSION' })
     setSelectedRouteId(null)
     resetSession()
 
-    // Navigate to the newly created session
+    // Force remount by updating the key and navigating to the new session
     if (result?.sessionId) {
-      console.info('[ChatScreen] New session created, navigating to it', {
+      console.info('[ChatScreen] New session created, forcing remount', {
         sessionId: result.sessionId,
       })
-      // Use replace to navigate with the new session ID
-      router.replace(`/chat?sessionId=${result.sessionId}`)
+      setRemountKey(prev => prev + 1)
+      // Small delay to allow the key change to take effect
+      setTimeout(() => {
+        router.replace('/(app)/(tabs)/chat?sessionId=' + encodeURIComponent(result.sessionId) as any)
+      }, 50)
     }
   }
 
   return (
-    <View style={styles.root}>
+    <View style={styles.root} key={remountKey}>
       <SubpageLayout
         title="Chat"
         testID="chat-screen"
