@@ -182,6 +182,8 @@ const defaultProps = {
   visible: true,
   onClose: vi.fn(),
   segment: mockSegment,
+  onSuccess: vi.fn(),
+  onCancel: vi.fn(),
 }
 
 const renderSheet = (props?: Partial<typeof defaultProps>) =>
@@ -368,16 +370,16 @@ describe('SaveFavoriteSheet', () => {
       expect(onClose).not.toHaveBeenCalled()
     })
 
-    it('shows validation error when name exceeds 50 characters', () => {
+    it('shows validation error when name exceeds 100 characters', () => {
       const { getByTestId, getByText } = renderSheet()
       const input = getByTestId('save-favorite-name-input')
       const saveButton = getByTestId('save-favorite-save-button')
 
-      const longName = 'a'.repeat(51)
+      const longName = 'a'.repeat(101)
       fireEvent.changeText(input, longName)
       fireEvent.press(saveButton)
 
-      expect(getByText('Name must be 50 characters or less')).toBeTruthy()
+      expect(getByText('Name must be 100 characters or less')).toBeTruthy()
     })
 
     it('clears validation error when user starts typing', () => {
@@ -395,6 +397,101 @@ describe('SaveFavoriteSheet', () => {
       fireEvent.changeText(input, 'H')
       // Error cleared when typing starts
       expect(true).toBeTruthy() // Placeholder - actual error clearing requires testID
+    })
+  })
+
+  /**
+   * AC2: onSuccess callback behavior
+   */
+  describe('AC2: onSuccess callback', () => {
+    it('calls onSuccess after successful save', async () => {
+      const onSuccess = vi.fn()
+      const { getByTestId } = renderSheet({ onSuccess })
+      const input = getByTestId('save-favorite-name-input')
+      const saveButton = getByTestId('save-favorite-save-button')
+
+      fireEvent.changeText(input, 'Hwy 9 - Skyline Blvd')
+      fireEvent.press(saveButton)
+
+      // Wait for async mutation
+      await Promise.resolve()
+
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+    })
+
+    it('calls onSuccess before onClose', async () => {
+      const order: string[] = []
+      const onSuccess = vi.fn(() => order.push('success'))
+      const onClose = vi.fn(() => order.push('close'))
+      const { getByTestId } = renderSheet({ onSuccess, onClose })
+      const input = getByTestId('save-favorite-name-input')
+      const saveButton = getByTestId('save-favorite-save-button')
+
+      fireEvent.changeText(input, 'Hwy 9 - Skyline Blvd')
+      fireEvent.press(saveButton)
+
+      // Wait for async mutation
+      await Promise.resolve()
+
+      expect(order).toEqual(['success', 'close'])
+    })
+  })
+
+  /**
+   * AC3: Cancel button behavior
+   */
+  describe('AC3: Cancel button behavior', () => {
+    it('calls onCancel callback when Cancel button pressed', () => {
+      const onCancel = vi.fn()
+      const { getByTestId } = renderSheet({ onCancel })
+      fireEvent.press(getByTestId('save-favorite-cancel-button'))
+      expect(onCancel).toHaveBeenCalledTimes(1)
+    })
+
+    it('calls onClose after onCancel', () => {
+      const onClose = vi.fn()
+      const { getByTestId } = renderSheet({ onClose })
+      fireEvent.press(getByTestId('save-favorite-cancel-button'))
+      expect(onClose).toHaveBeenCalledTimes(1)
+    })
+
+    it('disables Cancel button while saving', async () => {
+      let resolveMutation: (value: any) => void
+      mockInsertFavorite.mockReturnValue(
+        new Promise((resolve) => {
+          resolveMutation = resolve
+        })
+      )
+
+      const { getByTestId } = renderSheet()
+      const input = getByTestId('save-favorite-name-input')
+      const saveButton = getByTestId('save-favorite-save-button')
+      const cancelButton = getByTestId('save-favorite-cancel-button')
+
+      fireEvent.changeText(input, 'Hwy 9')
+      fireEvent.press(saveButton)
+
+      // Cancel button should be disabled while saving
+      expect(cancelButton.props.disabled).toBe(true)
+
+      resolveMutation!({ favoriteRoadId: 'test-id' })
+    })
+  })
+
+  /**
+   * AC5: Character count display
+   */
+  describe('AC5: Character count display', () => {
+    it('shows character count', () => {
+      const { getByText } = renderSheet()
+      expect(getByText('0/100 characters')).toBeTruthy()
+    })
+
+    it('updates character count as user types', () => {
+      const { getByTestId, getByText } = renderSheet()
+      const input = getByTestId('save-favorite-name-input')
+      fireEvent.changeText(input, 'Hello')
+      expect(getByText('5/100 characters')).toBeTruthy()
     })
   })
 
@@ -497,13 +594,13 @@ describe('SaveFavoriteSheet', () => {
       expect(getByText('Please enter a name')).toBeTruthy()
     })
 
-    it('enforces max 50 character limit', () => {
+    it('enforces max 100 character limit', () => {
       const { getByTestId, getByText } = renderSheet()
       const input = getByTestId('save-favorite-name-input')
       const saveButton = getByTestId('save-favorite-save-button')
 
-      // Exactly 50 should work
-      const validName = 'a'.repeat(50)
+      // Exactly 100 should work
+      const validName = 'a'.repeat(100)
       fireEvent.changeText(input, validName)
       fireEvent.press(saveButton)
 
