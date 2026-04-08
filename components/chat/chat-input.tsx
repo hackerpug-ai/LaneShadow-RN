@@ -20,7 +20,7 @@
  */
 
 import { useState, useCallback } from 'react'
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native'
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Icon } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -155,31 +155,38 @@ export const ChatInput = ({
   return (
     <View
       pointerEvents="box-none"
-      style={[
-        styles.container,
-        {
-          paddingBottom: insets.bottom + semantic.space.md + extraBottomOffset,
-        },
-      ]}
+      style={styles.container}
       testID={testID}
     >
-      {/* Error message when in ERROR state */}
-      {isError && errorMessage && (
-        <View style={{ paddingHorizontal: semantic.space.md }}>
-          <ErrorMessage message={errorMessage} testID="chat-error-message" />
-        </View>
-      )}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
+        style={{
+          width: '100%',
+        }}
+      >
+        <View
+          style={{
+            paddingBottom: insets.bottom + semantic.space.md + extraBottomOffset,
+          }}
+        >
+        {/* Error message when in ERROR state */}
+        {isError && errorMessage && (
+          <View style={{ paddingHorizontal: semantic.space.md }}>
+            <ErrorMessage message={errorMessage} testID="chat-error-message" />
+          </View>
+        )}
 
-      {/* Suggestion chips when idle AND no messages have been sent yet */}
-      {isIdle && !hasMessages && suggestions.length > 0 && !isPlanning && (
-        <SuggestionChips
-          suggestions={suggestions}
-          onSelect={handleSelectSuggestion}
-        />
-      )}
+        {/* Suggestion chips when idle AND no messages have been sent yet */}
+        {isIdle && !hasMessages && suggestions.length > 0 && !isPlanning && (
+          <SuggestionChips
+            suggestions={suggestions}
+            onSelect={handleSelectSuggestion}
+          />
+        )}
 
-      {/* Input row: input container + toggle button */}
-      <View style={[styles.inputRow, { paddingHorizontal: semantic.space.md }]}>
+        {/* Input row: input container + toggle button */}
+        <View style={[styles.inputRow, { paddingHorizontal: semantic.space.md }]}>
         {/* Input bar */}
         <View
           style={[
@@ -329,7 +336,9 @@ export const ChatInput = ({
             />
           </TouchableOpacity>
         )}
-      </View>
+        </View>
+        </View>
+      </KeyboardAvoidingView>
     </View>
   )
 }
@@ -340,6 +349,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    width: '100%',
     zIndex: 20,
     alignItems: 'center',
     gap: 8,
@@ -364,6 +374,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     gap: 12,
+    minHeight: 56,
   },
   inputWrapper: {
     flex: 1,
