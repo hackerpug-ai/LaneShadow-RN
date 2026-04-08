@@ -49,6 +49,8 @@ import { PMTiles } from 'pmtiles';
 import { VectorTile } from '@mapbox/vector-tile';
 import Pbf from 'pbf';
 import { S2LatLng, S2CellId } from 'nodes2ts';
+import { ProtomapsError } from '../../../lib/errors/protomaps';
+import { recordProtomapsFailureHandler, recordProtomapsQueryHandler } from '../../monitoring';
 
 // Protomaps layer names (from https://protomaps.com/styles/)
 const LAYERS = {
@@ -173,23 +175,53 @@ export async function getProtomapsPresignedUrl(): Promise<string> {
 
   // If URL points to R2 and we have credentials, generate presigned URL
   if (baseUrl && r2Endpoint && r2KeyId && r2Secret && r2Bucket && baseUrl.includes('r2.cloudflarestorage.com')) {
-    const { S3Client, GetObjectCommand } = await import('@aws-sdk/client-s3');
-    const { getSignedUrl } = await import('@aws-sdk/s3-request-presigner');
+    try {
+      const { S3Client, GetObjectCommand } = await import('@aws-sdk/client-s3');
+      const { getSignedUrl } = await import('@aws-sdk/s3-request-presigner');
 
-    const client = new S3Client({
-      region: 'auto',
-      endpoint: r2Endpoint,
-      credentials: { accessKeyId: r2KeyId, secretAccessKey: r2Secret },
-    });
+      const client = new S3Client({
+        region: 'auto',
+        endpoint: r2Endpoint,
+        credentials: { accessKeyId: r2KeyId, secretAccessKey: r2Secret },
+      });
 
-    // Extract key from URL: endpoint/bucket/key → key
-    const key = baseUrl.replace(`${r2Endpoint}/${r2Bucket}/`, '');
+      // Extract key from URL: endpoint/bucket/key → key
+      const key = baseUrl.replace(`${r2Endpoint}/${r2Bucket}/`, '');
 
-    const command = new GetObjectCommand({ Bucket: r2Bucket, Key: key });
-    const presignedUrl = await getSignedUrl(client, command, { expiresIn: 3600 });
+      const command = new GetObjectCommand({ Bucket: r2Bucket, Key: key });
+      const presignedUrl = await getSignedUrl(client, command, { expiresIn: 3600 });
 
-    console.log(`[Protomaps] Generated presigned R2 URL for ${key}`);
-    return presignedUrl;
+      console.info(`[Protomaps] Generated presigned R2 URL for ${key}`);
+      return presignedUrl;
+    } catch (error) {
+      // Record the failure with monitoring
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      await recordProtomapsFailureHandler(null, {
+        operation: 'generatePresignedUrl',
+        error: errorMessage,
+        context: {
+          hasR2Endpoint: !!r2Endpoint,
+          hasR2KeyId: !!r2KeyId,
+          hasR2Secret: !!r2Secret,
+          hasR2Bucket: !!r2Bucket,
+        },
+      });
+
+      // Check if we're in production
+      const isProduction = process.env.CONVEX_CLOUD === 'production';
+
+      if (isProduction) {
+        // In production, throw an error to prevent serving wrong geographic data
+        throw new ProtomapsError(
+          `Failed to generate presigned URL: ${errorMessage}`,
+          'R2_AUTH_FAILED',
+          error
+        );
+      }
+
+      // In development, fall back to sample data
+      console.warn(`[Protomaps] R2 presigned URL generation failed, falling back to sample data: ${errorMessage}`);
+    }
   }
 
   // Direct URL (public hosting, custom CDN, etc.)
@@ -208,7 +240,21 @@ export async function getProtomapsPresignedUrl(): Promise<string> {
 export function getProtomapsUrl(): string {
   // Direct URL override (e.g., public R2 URL or custom hosting)
   if (process.env.PROTOMAPS_US_URL) {
-    return process.env.PROTOMAPS_US_URL;
+    const url = process.env.PROTOMAPS_US_URL;
+
+    // Validate URL format
+    try {
+      new URL(url);
+
+      // Check if it's a .pmtiles file
+      if (!url.endsWith('.pmtiles')) {
+        console.warn(`[Protomaps] PROTOMAPS_US_URL does not point to a .pmtiles file: ${url}`);
+      }
+    } catch {
+      console.warn(`[Protomaps] Invalid PROTOMAPS_US_URL format: ${url}`);
+    }
+
+    return url;
   }
 
   // Fallback sample (Florence, Italy — for dev only)
@@ -250,15 +296,18 @@ export function createProtomapsProvider(pmtilesUrl: string) {
     types?: string[]
   ): Promise<OsmNode[]> {
     await init();
-    if (!pmtiles) throw new Error('Protomaps not initialized');
+    if (!pmtiles) throw new ProtomapsError('Protomaps not initialized', 'R2_AUTH_FAILED');
 
+    const startTime = Date.now();
     const tiles = bboxToTiles(bbox, TILE_ZOOM);
     const nodes: OsmNode[] = [];
+    let tilesFetched = 0;
 
     // Fetch all tiles in bbox
     for (let x = tiles.minX; x <= tiles.maxX; x++) {
       for (let y = tiles.minY; y <= tiles.maxY; y++) {
         const tileData = await pmtiles.getZxy(TILE_ZOOM, x, y);
+        tilesFetched++;
 
         // Extract POIs (viewpoints, mountain passes)
         const pois = extractFeaturesFromTile(tileData, LAYERS.POIS, x, y, TILE_ZOOM, (f) => {
@@ -325,6 +374,16 @@ export function createProtomapsProvider(pmtilesUrl: string) {
       }
     }
 
+    // Record query metrics
+    const durationMs = Date.now() - startTime;
+    await recordProtomapsQueryHandler(null, {
+      operation: 'queryNodesInBbox',
+      durationMs,
+      tilesFetched,
+      resultCount: nodes.length,
+      bbox: `${bbox.west},${bbox.south},${bbox.east},${bbox.north}`,
+    });
+
     return nodes;
   }
 
@@ -336,15 +395,18 @@ export function createProtomapsProvider(pmtilesUrl: string) {
     highwayClasses?: string[]
   ): Promise<OsmWay[]> {
     await init();
-    if (!pmtiles) throw new Error('Protomaps not initialized');
+    if (!pmtiles) throw new ProtomapsError('Protomaps not initialized', 'R2_AUTH_FAILED');
 
+    const startTime = Date.now();
     const tiles = bboxToTiles(bbox, TILE_ZOOM);
     const waysMap = new Map<number, OsmWay>();
+    let tilesFetched = 0;
 
     // Fetch all tiles in bbox
     for (let x = tiles.minX; x <= tiles.maxX; x++) {
       for (let y = tiles.minY; y <= tiles.maxY; y++) {
         const tileData = await pmtiles.getZxy(TILE_ZOOM, x, y);
+        tilesFetched++;
 
         // Extract roads
         const roads = extractFeaturesFromTile(tileData, LAYERS.ROADS, x, y, TILE_ZOOM, (f) => {
@@ -401,11 +463,22 @@ export function createProtomapsProvider(pmtilesUrl: string) {
       }
     }
 
+    // Record query metrics
+    const durationMs = Date.now() - startTime;
+    await recordProtomapsQueryHandler(null, {
+      operation: 'queryWaysInBbox',
+      durationMs,
+      tilesFetched,
+      resultCount: waysMap.size,
+      bbox: `${bbox.west},${bbox.south},${bbox.east},${bbox.north}`,
+    });
+
     return Array.from(waysMap.values());
   }
 
   /**
    * Query ways by name
+   * Note: This function uses queryWaysInBbox which will throw ProtomapsError if not initialized
    */
   async function queryWaysByName(name: string, bbox: BoundingBox): Promise<OsmWay[]> {
     const ways = await queryWaysInBbox(bbox);
