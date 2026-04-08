@@ -743,6 +743,13 @@ async function runPlanRoute(
     }
   )
 
+  console.info('[runPlanRoute] Starting route planning:', {
+    routePlanId,
+    start: args.start.label,
+    end: args.end.label,
+    departureTime: new Date(args.departureTime).toISOString(),
+  })
+
   try {
     const results = await planRideOrchestrator({
       planInput,
@@ -782,6 +789,10 @@ async function runPlanRoute(
         status: 'completed',
         result: built,
       })
+      console.info('[runPlanRoute] Route plan completed successfully:', {
+        routePlanId,
+        optionsCount: built.options?.length,
+      })
     } catch (updateError) {
       console.error('[runPlanRoute] Error updating status to completed:', updateError)
       throw updateError
@@ -796,6 +807,10 @@ async function runPlanRoute(
   } catch (error) {
     console.error('[runPlanRoute] Error:', error)
     const errorMessage = error instanceof Error ? error.message : String(error)
+    console.info('[runPlanRoute] Route plan failed:', {
+      routePlanId,
+      errorMessage,
+    })
     await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
       routePlanId,
       status: 'failed',
