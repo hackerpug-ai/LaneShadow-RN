@@ -14,18 +14,39 @@ const GEOCODING_ENDPOINT = 'https://maps.googleapis.com/maps/api/geocode/json'
 const GEOCODING_TIMEOUT_MS = 5_000
 const MAX_RESULTS = 5
 
+type LocationBiasOptions = {
+  currentLocation?: { lat: number; lng: number }
+  routeStart?: { lat: number; lng: number }
+  routeEnd?: { lat: number; lng: number }
+}
+
+// Accept both legacy { lat, lng } format and new LocationBiasOptions
+type GeocodeBias = { lat: number; lng: number } | LocationBiasOptions
+
+const normalizeLocationOptions = (bias?: GeocodeBias): LocationBiasOptions | undefined => {
+  if (!bias) return undefined
+  // Check if it's the legacy { lat, lng } format
+  if ('lat' in bias && 'lng' in bias && !('currentLocation' in bias)) {
+    return { currentLocation: bias as { lat: number; lng: number } }
+  }
+  return bias as LocationBiasOptions
+}
+
 const geocodeWithKey = async (
   apiKey: string,
   query: string,
-  bias?: { lat: number; lng: number }
+  locationOptions?: GeocodeBias
 ): Promise<GeocodeResult[]> => {
-  const makeUrl = (radius?: number) => {
+  const makeUrl = (bias?: { lat: number; lng: number }, radius?: number) => {
     let url = `${GEOCODING_ENDPOINT}?address=${encodeURIComponent(query)}&key=${encodeURIComponent(apiKey)}`
     if (bias && radius) {
       url += `&location=${encodeURIComponent(`${bias.lat},${bias.lng}`)}&radius=${radius}`
     }
     return url
   }
+
+  // Normalize location options to handle both legacy and new formats
+  const normalizedOptions = normalizeLocationOptions(locationOptions)
 
   // Try with location bias first (larger radius for better coverage)
   const tryGeocode = async (url: string): Promise<GeocodeResult[] | null> => {
@@ -59,31 +80,31 @@ const geocodeWithKey = async (
     }
   }
 
-  // Strategy 1: Try with larger radius (200km for better regional coverage)
-  if (bias) {
-    const biasedResults = await tryGeocode(makeUrl(200000))
-    if (biasedResults && biasedResults.length > 0) {
-      return biasedResults
+  // Tier 1: Current location (200km) - highest priority when available
+  if (normalizedOptions?.currentLocation) {
+    const results = await tryGeocode(makeUrl(normalizedOptions.currentLocation, 200000))
+    if (results && results.length > 0) return results
+  }
+
+  // Tier 2: Route start point (300km) - fallback when currentLocation unavailable
+  if (normalizedOptions?.routeStart) {
+    const results = await tryGeocode(makeUrl(normalizedOptions.routeStart, 300000))
+    if (results && results.length > 0) return results
+  }
+
+  // Tier 3: Route midpoint (500km) - covers entire route corridor
+  if (normalizedOptions?.routeStart && normalizedOptions?.routeEnd) {
+    const midpoint = {
+      lat: (normalizedOptions.routeStart.lat + normalizedOptions.routeEnd.lat) / 2,
+      lng: (normalizedOptions.routeStart.lng + normalizedOptions.routeEnd.lng) / 2,
     }
+    const results = await tryGeocode(makeUrl(midpoint, 500000))
+    if (results && results.length > 0) return results
   }
 
-  // Strategy 2: Try without location bias (global search)
-  const globalResults = await tryGeocode(makeUrl())
-  if (globalResults && globalResults.length > 0) {
-    return globalResults
-  }
-
-  // Strategy 3: Try with state/region hints for California locations
-  if (bias && (bias.lat > 32 && bias.lat < 42 && bias.lng > -125 && bias.lng < -114)) {
-    const californiaResults = await tryGeocode(
-      `${GEOCODING_ENDPOINT}?address=${encodeURIComponent(query + ', California')}&key=${encodeURIComponent(apiKey)}`
-    )
-    if (californiaResults && californiaResults.length > 0) {
-      return californiaResults
-    }
-  }
-
-  return []
+  // Tier 4: Global search - no location bias
+  const results = await tryGeocode(makeUrl())
+  return results ?? []
 }
 
 // Production callers use no arguments. Pass an explicit apiKey string in tests
@@ -97,7 +118,7 @@ export const createGeocodingProvider = (apiKeyParam?: string) => {
   return {
     geocode: async (
       query: string,
-      bias?: { lat: number; lng: number }
+      bias?: GeocodeBias
     ): Promise<GeocodeResult[]> => geocodeWithKey(apiKey, query, bias),
   }
 }
