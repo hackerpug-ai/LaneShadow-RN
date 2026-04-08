@@ -102,6 +102,8 @@ interface ChatTranscriptProps {
    *  parent can provide its own backdrop (e.g. a semi-transparent scrim
    *  over the map). */
   transparent?: boolean;
+  /** Called when the user begins dragging (scrolling) the transcript. */
+  onScrollBeginDrag?: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -441,26 +443,53 @@ export const ChatTranscript = ({
   topInset = 0,
   bottomInset = 0,
   transparent = false,
+  onScrollBeginDrag,
 }: ChatTranscriptProps) => {
   const { semantic } = useSemanticTheme();
   const scrollRef = useRef<ScrollView>(null);
 
-  // Auto-scroll to bottom on mount and when messages list grows or content changes
-  // Track message IDs and status to detect content updates (e.g., streaming status changes)
-  const messagesTracking = useMemo(
-    () => messages.map(m => `${m.id}-${m.status ?? 'complete'}`).join(','),
-    [messages]
-  )
+  // Track whether the user has manually scrolled away from the bottom
+  // This prevents auto-scroll from interrupting the user reading history
+  const [userHasScrolled, setUserHasScrolled] = React.useState(false);
 
+  // Track message IDs to detect when NEW messages arrive (vs existing messages updating)
+  const messageIds = useMemo(
+    () => messages.map(m => m.id).join(','),
+    [messages]
+  );
+
+  // Track the previous message IDs to detect new messages
+  const prevMessageIdsRef = React.useRef<string>('');
+
+  // Auto-scroll to bottom on mount and when NEW messages arrive (not just status updates)
   useEffect(() => {
-    if (messages.length > 0) {
+    const hasNewMessages = messageIds !== prevMessageIdsRef.current && messages.length > 0;
+
+    if (hasNewMessages && !userHasScrolled) {
       // Use a short timeout to ensure layout is complete before scrolling
       const timer = setTimeout(() => {
         scrollRef.current?.scrollToEnd({ animated: true });
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [messagesTracking, messages.length]);
+
+    // Update the ref for next comparison
+    prevMessageIdsRef.current = messageIds;
+  }, [messageIds, messages.length, userHasScrolled]);
+
+  // Detect when user manually scrolls away from bottom
+  const handleScroll = React.useCallback((event: { nativeEvent: { contentOffset: { y: number }; contentSize: { height: number }; layoutMeasurement: { height: number } } }) => {
+    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+    const isNearBottom = contentSize.height - contentOffset.y - layoutMeasurement.height < 50;
+
+    // Mark that user has scrolled if they're not near the bottom
+    if (!isNearBottom) {
+      setUserHasScrolled(true);
+    } else {
+      // User is back at the bottom, reset the flag
+      setUserHasScrolled(false);
+    }
+  }, []);
 
   if (messages.length === 0) {
     return <EmptyState />;
@@ -469,6 +498,8 @@ export const ChatTranscript = ({
   return (
     <ScrollView
       ref={scrollRef}
+      onScroll={handleScroll}
+      scrollEventThrottle={100}
       style={[
         styles.scroll,
         transparent ? null : { backgroundColor: semantic.color.background.default },
@@ -483,6 +514,9 @@ export const ChatTranscript = ({
         },
       ]}
       showsVerticalScrollIndicator={false}
+      keyboardDismissMode="on-drag"
+      keyboardShouldPersistTaps="handled"
+      onScrollBeginDrag={onScrollBeginDrag}
       testID="chat-transcript-scroll"
     >
       {messages.map((message, index) => {

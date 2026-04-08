@@ -1003,16 +1003,16 @@ const HomeMapScreen = () => {
             style={[StyleSheet.absoluteFill, chatLayerStyle, styles.chatLayer]}
             pointerEvents={chatMode ? 'auto' : 'none'}
           >
-            <Pressable
+            <View
               style={StyleSheet.absoluteFill}
-              onPress={handleDismissKeyboard}
               testID="chat-dismiss-keyboard-pressable"
             >
-              <View
+              <Pressable
                 style={[
                   StyleSheet.absoluteFill,
                   { backgroundColor: semantic.color.background.default },
                 ]}
+                onPress={handleDismissKeyboard}
               />
               <ChatTranscript
                 messages={transcriptMessages}
@@ -1020,8 +1020,9 @@ const HomeMapScreen = () => {
                 bottomInset={insets.bottom + 96}
                 transparent
                 onViewOnMap={() => setChatMode(false)}
+                onScrollBeginDrag={handleDismissKeyboard}
               />
-            </Pressable>
+            </View>
           </Animated.View>
         )}
 
