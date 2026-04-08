@@ -1,3 +1,7 @@
+// Set env variables before imports
+process.env.GOOGLE_MAPS_API_KEY = 'test-api-key'
+process.env.CLERK_WEBHOOK_SECRET = 'test-secret'
+
 'use node'
 
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
@@ -13,13 +17,11 @@ import {
   isWaypointApprovalError,
 } from '../manageWaypoints'
 
-process.env.GOOGLE_MAPS_API_KEY = 'test-api-key'
-process.env.CLERK_WEBHOOK_SECRET = 'test-secret'
-
+// Mock Id type for tests
 type Id<T> = string
 
-const mockRoutePlanId = 'mock-route-plan-id' as Id<'route_plans'>
-const mockWaypointId = 'mock-waypoint-id' as Id<'waypoints'>
+const mockRoutePlanId: Id<'route_plans'> = 'mock-route-plan-id'
+const mockWaypointId: Id<'waypoints'> = 'mock-waypoint-id'
 
 describe('manageWaypoints', () => {
   beforeEach(() => {
@@ -33,6 +35,7 @@ describe('manageWaypoints', () => {
   describe('addWaypoint', () => {
     it('should add waypoint from coordinates', async () => {
       const result = await addWaypoint({
+        // @ts-ignore - Using mock ID for testing
         routePlanId: mockRoutePlanId,
         location: {
           type: 'coordinates',
@@ -64,6 +67,7 @@ describe('manageWaypoints', () => {
       })) as any
 
       const result = await addWaypoint({
+        // @ts-ignore - Using mock ID for testing
         routePlanId: mockRoutePlanId,
         location: {
           type: 'natural_language',
@@ -92,6 +96,7 @@ describe('manageWaypoints', () => {
       })) as any
 
       const result = await addWaypoint({
+        // @ts-ignore - Using mock ID for testing
         routePlanId: mockRoutePlanId,
         location: {
           type: 'natural_language',
@@ -111,6 +116,7 @@ describe('manageWaypoints', () => {
   describe('listWaypoints', () => {
     it('should list waypoints for route plan', async () => {
       const result = await listWaypoints({
+        // @ts-ignore - Using mock ID for testing
         routePlanId: mockRoutePlanId,
       })
 
@@ -124,7 +130,9 @@ describe('manageWaypoints', () => {
   describe('applyWaypointDecisions', () => {
     it('should approve and reject waypoints', async () => {
       const result = await applyWaypointDecisions({
+        // @ts-ignore - Using mock IDs for testing
         routePlanId: mockRoutePlanId,
+        // @ts-ignore - Using mock IDs for testing
         approvedWaypointIds: [mockWaypointId],
         rejectedWaypointIds: [],
       })
@@ -138,11 +146,17 @@ describe('manageWaypoints', () => {
 
     it('should enforce maximum waypoint limit', async () => {
       const result = await applyWaypointDecisions({
+        // @ts-ignore - Using mock IDs for testing
         routePlanId: mockRoutePlanId,
+        // @ts-ignore - Using mock IDs for testing
         approvedWaypointIds: [
+          // @ts-ignore - Using mock IDs for testing
           'wp1' as Id<'waypoints'>,
+          // @ts-ignore - Using mock IDs for testing
           'wp2' as Id<'waypoints'>,
+          // @ts-ignore - Using mock IDs for testing
           'wp3' as Id<'waypoints'>,
+          // @ts-ignore - Using mock IDs for testing
           'wp4' as Id<'waypoints'>,
         ],
         rejectedWaypointIds: [],
@@ -159,6 +173,7 @@ describe('manageWaypoints', () => {
   describe('presentDeviationOptions', () => {
     it('should present deviation options for waypoint', async () => {
       const result = await presentDeviationOptions({
+        // @ts-ignore - Using mock ID for testing
         waypointId: mockWaypointId,
       })
 
@@ -169,10 +184,15 @@ describe('manageWaypoints', () => {
   describe('optimizeWaypointOrder', () => {
     it('should optimize waypoint order', async () => {
       const result = await optimizeWaypointOrder({
+        // @ts-ignore - Using mock IDs for testing
         routePlanId: mockRoutePlanId,
+        // @ts-ignore - Using mock IDs for testing
         waypointIds: [
+          // @ts-ignore - Using mock IDs for testing
           'wp1' as Id<'waypoints'>,
+          // @ts-ignore - Using mock IDs for testing
           'wp2' as Id<'waypoints'>,
+          // @ts-ignore - Using mock IDs for testing
           'wp3' as Id<'waypoints'>,
         ],
       })

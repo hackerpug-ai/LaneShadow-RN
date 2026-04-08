@@ -12,9 +12,20 @@ const requireEnv = (key: string): string => {
   return value
 }
 
-export const CLERK_WEBHOOK_SECRET = requireEnv('CLERK_WEBHOOK_SECRET')
-export const CLERK_JWT_ISSUER_DOMAIN = requireEnv('CLERK_JWT_ISSUER_DOMAIN')
-export const CLERK_SECRET_KEY = requireEnv('CLERK_SECRET_KEY')
+// In test environment, allow missing required env vars since vitest.env.js sets them
+const isTestOrVitest = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true'
+
+export const CLERK_WEBHOOK_SECRET = isTestOrVitest
+  ? (process.env.CLERK_WEBHOOK_SECRET ?? 'test-webhook-secret')
+  : requireEnv('CLERK_WEBHOOK_SECRET')
+
+export const CLERK_JWT_ISSUER_DOMAIN = isTestOrVitest
+  ? (process.env.CLERK_JWT_ISSUER_DOMAIN ?? 'test.issuer.domain')
+  : requireEnv('CLERK_JWT_ISSUER_DOMAIN')
+
+export const CLERK_SECRET_KEY = isTestOrVitest
+  ? (process.env.CLERK_SECRET_KEY ?? 'sk_test_test_secret')
+  : requireEnv('CLERK_SECRET_KEY')
 
 const optionalEnv = (key: string): string | undefined => {
   // eslint-disable-next-line expo/no-dynamic-env-var -- server-side Convex env utility; key is a parameter
