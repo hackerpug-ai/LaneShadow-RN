@@ -5,7 +5,7 @@ import { Text } from 'react-native-paper'
 import { MenuLayout } from '../../../components/layouts/menu-layout'
 import { SubpageLayout } from '../../../components/layouts/subpage-layout'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import { SavedRoutesSection } from '../../../components/settings/favorite-roads-section'
+import { ThemePicker } from '../../../components/settings/theme-picker'
 
 const SettingsScreen = () => {
   const router = useRouter()
@@ -30,8 +30,8 @@ const SettingsScreen = () => {
             Placeholder screen for app settings.
           </Text>
 
-          {/* Saved Routes Section */}
-          <SavedRoutesSection />
+          {/* Theme Picker */}
+          <ThemePicker testID="settings-theme-picker" />
         </View>
       </SubpageLayout>
     </MenuLayout>
