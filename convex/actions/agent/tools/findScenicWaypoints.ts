@@ -3,6 +3,7 @@
 import { retryOnce, withTimeout } from '../lib/reliability'
 import { traceableToolAsync } from '../lib/tracing'
 import { createProtomapsProvider, getProtomapsUrl, getProtomapsPresignedUrl } from '../providers/protomapsProvider'
+import { recordProtomapsFallbackHandler } from '../../monitoring'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -252,7 +253,17 @@ const findScenicWaypointsImpl = async (params: {
 
     console.info('[findScenicWaypoints] Protomaps found insufficient nodes, trying Overpass')
   } catch (error) {
-    console.warn('[findScenicWaypoints] Protomaps failed, falling back to Overpass:', error)
+    const fallbackReason = error instanceof Error ? error.message : 'unknown'
+    await recordProtomapsFallbackHandler(null, {
+      tool: 'findScenicWaypoints',
+      reason: fallbackReason,
+      bbox: JSON.stringify(bbox),
+    })
+    console.warn('[findScenicWaypoints] Protomaps failed, falling back to Overpass', {
+      fallbackReason,
+      bbox: JSON.stringify(bbox),
+      timestamp: new Date().toISOString(),
+    })
   }
 
   // Fallback to Overpass API (slower, but works globally)

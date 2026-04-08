@@ -1,6 +1,7 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { computeBbox, findScenicWaypoints } from '../findScenicWaypoints'
 import type { RouteVariant } from '../findScenicWaypoints'
+import { recordProtomapsFallbackHandler } from '../../../monitoring'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -171,5 +172,35 @@ describe('findScenicWaypoints', () => {
     expect(bbox.west).toBeCloseTo(-120.0 - 0.5, 5)
     expect(bbox.north).toBeCloseTo(38.5 + 0.5, 5)
     expect(bbox.east).toBeCloseTo(-119.0 + 0.5, 5)
+  })
+
+  it('records monitoring event when Protomaps fails and falls back to Overpass', async () => {
+    const elements = [
+      makeNode(1, 37.2, -120.1, { 'tourism': 'viewpoint', 'name': 'Eagle View' }),
+      makeNode(2, 37.6, -119.8, { 'mountain_pass': 'yes', 'name': 'Tioga Pass' }),
+    ]
+
+    setupFetch(makeOverpassResponse(elements))
+
+    // Mock the monitoring handler
+    const mockHandler = vi.fn()
+    vi.spyOn(await import('../../../monitoring.ts'), 'recordProtomapsFallbackHandler').mockImplementation(mockHandler)
+
+    const result = await findScenicWaypoints({ start: START, end: END })
+
+    // Should return valid results from Overpass fallback
+    expect(result).toBeDefined()
+    expect(Array.isArray(result)).toBe(true)
+
+    // Should have called the monitoring handler
+    expect(mockHandler).toHaveBeenCalledTimes(1)
+    expect(mockHandler).toHaveBeenCalledWith(
+      null,
+      expect.objectContaining({
+        tool: 'findScenicWaypoints',
+        reason: expect.any(String),
+        bbox: expect.stringContaining('south'),
+      })
+    )
   })
 })
