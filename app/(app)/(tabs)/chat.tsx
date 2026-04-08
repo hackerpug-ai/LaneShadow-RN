@@ -84,6 +84,31 @@ export default function ChatScreen() {
     isLoading: sessions === undefined,
   })
 
+  // Get the top (most recent) session ID for message count check
+  const topSessionId = sessions && sessions.length > 0 ? sessions[0]._id : null
+
+  // Fetch messages for the top session to check if it has 0 visible messages
+  const topSessionMessages = useQuery(
+    api.db.sessionMessages.list,
+    topSessionId ? { sessionId: topSessionId } : 'skip'
+  )
+
+  // Count visible messages (non-hidden) in the top session
+  const topSessionVisibleMessageCount = React.useMemo(() => {
+    if (!topSessionMessages) return 0
+    return topSessionMessages.filter(
+      (msg) =>
+        msg.kind !== 'agent_turn' &&
+        msg.kind !== 'tool_result_hidden' &&
+        !(
+          msg.role === 'system' &&
+          (msg.kind === 'text' || !msg.kind) &&
+          !msg.content?.trim() &&
+          msg.status !== 'streaming'
+        )
+    ).length
+  }, [topSessionMessages])
+
   // Resolve which session to display in the transcript
   const resolvedSessionId: Id<'planning_sessions'> | null = (() => {
     if (sessionIdParam) {
@@ -172,12 +197,34 @@ export default function ChatScreen() {
   }
 
   const handleNewSession = async () => {
+    console.info('[ChatScreen] New session button pressed')
+
+    // Check if the top session has 0 visible messages
+    const hasEmptyTopSession = topSessionId && topSessionVisibleMessageCount === 0
+
+    if (hasEmptyTopSession) {
+      // Top session exists and has no messages - navigate to it instead of creating new
+      console.info('[ChatScreen] Top session has 0 messages, navigating to it', {
+        topSessionId,
+      })
+      router.push(`/chat?sessionId=${topSessionId}`)
+      return
+    }
+
+    // Create a new session and navigate to it
     console.info('[ChatScreen] Creating new session')
-    await createSession({ firstMessage: '' })
+    const result = await createSession({ firstMessage: '' })
     flowDispatch({ type: 'NEW_SESSION' })
     setSelectedRouteId(null)
     resetSession()
-    console.info('[ChatScreen] New session created and state reset')
+
+    // Navigate to the newly created session
+    if (result?.sessionId) {
+      console.info('[ChatScreen] New session created, navigating to it', {
+        sessionId: result.sessionId,
+      })
+      router.push(`/chat?sessionId=${result.sessionId}`)
+    }
   }
 
   return (
