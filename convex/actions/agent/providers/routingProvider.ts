@@ -59,6 +59,11 @@ export type RoutingProvider = {
     anchorPoints: RouteSketchAnchorPoint[]
     locationBias?: { lat: number; lng: number }
   }) => Promise<ProviderRouteResponse>
+  routeDetour: (input: {
+    origin: ProviderLatLng
+    destination: ProviderLatLng
+    waypoint: ProviderLatLng
+  }) => Promise<ProviderRouteResponse>
 }
 
 const parseGoogleDurationSeconds = (duration: unknown): number => {
@@ -356,6 +361,24 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
     const route = data?.routes?.[0]
     if (!route) {
       throw new Error('Google Routes response missing routes[0]')
+    }
+    return parseGoogleRoute(route)
+  },
+  routeDetour: async ({ origin, destination, waypoint }): Promise<ProviderRouteResponse> => {
+    const body = {
+      origin: toGoogleWaypoint(origin.lat, origin.lng),
+      destination: toGoogleWaypoint(destination.lat, destination.lng),
+      intermediates: [toGoogleWaypoint(waypoint.lat, waypoint.lng)],
+      travelMode: "DRIVE",
+      routingPreference: "TRAFFIC_UNAWARE",
+      polylineQuality: "OVERVIEW",
+      polylineEncoding: "ENCODED_POLYLINE",
+    }
+
+    const data: any = await fetchGoogleRoutes(apiKey, body)
+    const route = data?.routes?.[0]
+    if (!route) {
+      throw new Error("Google Routes response missing routes[0]")
     }
     return parseGoogleRoute(route)
   },
