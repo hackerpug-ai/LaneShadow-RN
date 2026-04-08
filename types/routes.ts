@@ -88,6 +88,12 @@ export type PlannedRouteOptionView = {
     count: number
     names: string[]
   }
+  /** Enrichment data from background enrichment jobs */
+  enrichment?: {
+    highlights: string[]
+    elevation?: unknown
+    weather?: unknown
+  }
 }
 
 export type PlannedRouteOptionsView = {

@@ -88,6 +88,7 @@ describe('runEnrichmentJob', () => {
 
       const updateStatusCalls: any[] = []
       const completeEnrichmentCalls: any[] = []
+      const mergeEnrichmentCalls: any[] = []
 
       // Mock ctx.runQuery
       const mockRunQuery = vi.fn((func, args) => {
@@ -107,7 +108,8 @@ describe('runEnrichmentJob', () => {
         if (args && 'status' in args && args.status === 'running') {
           updateStatusCalls.push(args)
         }
-        if (args && 'enrichments' in args) {
+        if (args && 'enrichmentId' in args && 'enrichments' in args) {
+          // completeEnrichment mutation
           completeEnrichmentCalls.push(args)
         }
         return Promise.resolve(undefined)
@@ -138,6 +140,9 @@ describe('runEnrichmentJob', () => {
       expect(completeEnrichmentCalls[0].enrichments).toBeDefined()
       expect(completeEnrichmentCalls[0].enrichments).toHaveLength(1)
       expect(completeEnrichmentCalls[0].enrichments[0].label).toContain('km Route')
+
+      // Verify merge was called (even though we don't track mergeEnrichmentCalls in this test)
+      expect(mockRunMutation).toHaveBeenCalled()
     })
   })
 
@@ -278,6 +283,7 @@ describe('runEnrichmentJob', () => {
       }
 
       const completeEnrichmentCalls: any[] = []
+      const mergeEnrichmentCalls: any[] = []
 
       const mockRunQuery = vi.fn((func, args) => {
         if (args && 'enrichmentId' in args) {
@@ -290,8 +296,13 @@ describe('runEnrichmentJob', () => {
       })
 
       const mockRunMutation = vi.fn((func, args) => {
-        if (args && 'enrichments' in args) {
+        if (args && 'enrichmentId' in args && 'enrichments' in args) {
+          // completeEnrichment mutation
           completeEnrichmentCalls.push(args)
+        }
+        if (args && 'routePlanId' in args && 'enrichments' in args) {
+          // mergeEnrichment mutation
+          mergeEnrichmentCalls.push(args)
         }
         return Promise.resolve(undefined)
       })
@@ -308,13 +319,21 @@ describe('runEnrichmentJob', () => {
         phase: 'fast',
       })
 
-      // Verify enrichment was saved
+      // Verify enrichment was saved to route_enrichments table
       expect(completeEnrichmentCalls).toHaveLength(1)
       const savedEnrichment = completeEnrichmentCalls[0]
 
       expect(savedEnrichment.enrichmentId).toBe(ENRICHMENT_ID)
       expect(savedEnrichment.enrichments).toBeDefined()
       expect(savedEnrichment.enrichments).toHaveLength(1)
+
+      // Verify enrichment was merged into route_plans table
+      expect(mergeEnrichmentCalls).toHaveLength(1)
+      const mergedEnrichment = mergeEnrichmentCalls[0]
+
+      expect(mergedEnrichment.routePlanId).toBe(ROUTE_PLAN_ID)
+      expect(mergedEnrichment.enrichments).toBeDefined()
+      expect(mergedEnrichment.enrichments).toHaveLength(1)
 
       const enrichment = savedEnrichment.enrichments[0]
       expect(enrichment.routeOptionId).toBeDefined()

@@ -419,6 +419,96 @@ export const listBySession = internalQuery({
 })
 
 /**
+ * Merge enrichment data into route plan options.
+ *
+ * Updates the route_plans.result.options array with enrichment data from background jobs.
+ * Each option is enriched if a matching enrichment exists by routeOptionId.
+ *
+ * @param ctx - Database context
+ * @param args.routePlanId - The route plan to enrich
+ * @param args.enrichments - Array of enrichment data to merge
+ */
+export const mergeEnrichmentHandler = async (
+  ctx: {
+    db: {
+      get: (id: Id<'route_plans'>) => Promise<RoutePlanDoc | null>
+      patch: (id: Id<'route_plans'>, fields: object) => Promise<void>
+    }
+  },
+  args: {
+    routePlanId: Id<'route_plans'>
+    enrichments: Array<{
+      routeOptionId: string
+      label?: string
+      rationale?: string
+      highlights: string[]
+      elevation?: unknown
+      weather?: unknown
+    }>
+  }
+): Promise<void> => {
+  const plan = await ctx.db.get(args.routePlanId)
+  if (!plan || !plan.result) {
+    return
+  }
+
+  // Type guard for result structure
+  const result = plan.result as { options: Array<{ routeOptionId: string }> }
+  if (!result.options || !Array.isArray(result.options)) {
+    return
+  }
+
+  // Merge enrichment into route options
+  const enrichedOptions = result.options.map((option) => {
+    const enrichment = args.enrichments.find((e) => e.routeOptionId === option.routeOptionId)
+
+    if (!enrichment) {
+      return option
+    }
+
+    return {
+      ...option,
+      ...(enrichment.label && { label: enrichment.label }),
+      ...(enrichment.rationale && { rationale: enrichment.rationale }),
+      enrichment: {
+        highlights: enrichment.highlights,
+        elevation: enrichment.elevation,
+        weather: enrichment.weather,
+      },
+    }
+  })
+
+  // Patch the route plan with enriched options
+  await ctx.db.patch(args.routePlanId, {
+    result: {
+      ...result,
+      options: enrichedOptions,
+    },
+  })
+}
+
+export const mergeEnrichment = internalMutation({
+  args: {
+    routePlanId: v.id('route_plans'),
+    enrichments: v.array(
+      v.object({
+        routeOptionId: v.string(),
+        label: v.optional(v.string()),
+        rationale: v.optional(v.string()),
+        highlights: v.array(v.string()),
+        elevation: v.optional(v.any()),
+        weather: v.optional(v.any()),
+      })
+    ),
+  },
+  returns: v.null(),
+  handler: async (ctx, args): Promise<null> => {
+    await mergeEnrichmentHandler(ctx as any, args)
+    return null
+  },
+})
+
+/**
  * Get active (pending or running) route plans for a session.
  * Public query for frontend cancellation support.
  */

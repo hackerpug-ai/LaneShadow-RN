@@ -371,6 +371,25 @@ export const RouteAttachmentCard = ({
               {route.rationale}
             </Text>
           )}
+
+          {/* Enrichment highlights (full variant only) */}
+          {!isCompact && route.enrichment?.highlights && route.enrichment.highlights.length > 0 && (
+            <View style={[styles.highlightsContainer, { marginTop: semantic.space.xs }]}>
+              {route.enrichment.highlights.slice(0, 3).map((highlight, i) => (
+                <Text
+                  key={i}
+                  style={[
+                    semantic.type.body.sm,
+                    styles.highlight,
+                    { color: semantic.color.onSurface.subtle },
+                  ]}
+                  numberOfLines={1}
+                >
+                  • {highlight}
+                </Text>
+              ))}
+            </View>
+          )}
         </View>
       </TouchableOpacity>
 
@@ -436,6 +455,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
     fontStyle: 'italic',
+  },
+  highlightsContainer: {
+    gap: 4,
+  },
+  highlight: {
+    fontSize: 12,
+    lineHeight: 16,
   },
   selectedBorder: {
     borderWidth: 1.5,

@@ -138,14 +138,14 @@ vi.mock('../../ui/button', () => {
   const { Pressable, Text: RNText } = require('react-native')
   const { createElement } = require('react')
 
-  return {
-    Button: ({ children, onPress, testID, variant }: any) =>
-      createElement(
-        Pressable,
-        { onPress, testID, accessibilityRole: 'button' },
-        createElement(RNText, {}, `${variant}:${children}`)
-      ),
-  }
+  const Button = (props: any) =>
+    createElement(
+      Pressable,
+      { onPress: props.disabled ? undefined : props.onPress, testID: props.testID, disabled: props.disabled, accessibilityRole: 'button' },
+      createElement(RNText, {}, `${props.variant}:${props.children}`)
+    )
+
+  return { Button }
 })
 
 // Mock IconSymbol component

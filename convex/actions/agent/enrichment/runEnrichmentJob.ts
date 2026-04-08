@@ -61,20 +61,22 @@ export const runEnrichmentJobHandler = async (
         return null
       }
 
-      // Save results
+      // Save results to route_enrichments table
       await ctx.runMutation(
         internal.db.routeEnrichments.completeEnrichment,
         { enrichmentId: args.enrichmentId, enrichments: results }
       )
 
-      // Trigger UI update via session message
-      // Note: Session message schema doesn't currently support enrichment data
-      // This will be added in a follow-up task
-      if (routePlan.planningSessionId) {
-        // TODO: Add enrichment data to session message attachment schema
-        // For now, just log completion
-        console.log(`Enrichment ${args.phase} completed for routePlan ${enrichment.routePlanId}`)
-      }
+      // Merge enrichment into route_plans table for reactive UI updates
+      await ctx.runMutation(
+        internal.db.routePlans.mergeEnrichment,
+        {
+          routePlanId: enrichment.routePlanId,
+          enrichments: results,
+        }
+      )
+
+      console.log(`Enrichment ${args.phase} completed for routePlan ${enrichment.routePlanId}`)
     } catch (error) {
       await ctx.runMutation(
         internal.db.routeEnrichments.failEnrichment,

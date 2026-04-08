@@ -225,7 +225,8 @@ export const WaypointCard = ({
       )}
 
       {/* Action buttons for waypoints that need approval */}
-      {canApprove && onApprove && (
+      {/* Show buttons when there's actionable state OR when both callbacks provided (for disabled state display) */}
+      {(canApprove || canReject || (onApprove && onReject)) && (
         <View
           style={[
             styles.actionButtons,
@@ -235,25 +236,32 @@ export const WaypointCard = ({
             },
           ]}
         >
-          <Button
-            variant="outline"
-            size="sm"
-            onPress={() => onReject?.(waypoint._id)}
-            disabled={!canReject}
-            style={styles.actionButton}
-            testID={`${testID}-reject`}
-          >
-            Reject
-          </Button>
-          <Button
-            variant="default"
-            size="sm"
-            onPress={() => onApprove(waypoint._id)}
-            style={styles.actionButton}
-            testID={`${testID}-approve`}
-          >
-            Approve
-          </Button>
+          {/* Reject button: show when onReject is provided OR when onApprove is provided (as a pair) */}
+          {(onReject || onApprove) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onPress={() => onReject?.(waypoint._id)}
+              disabled={!onReject || !canReject}
+              style={styles.actionButton}
+              testID={`${testID}-reject`}
+            >
+              Reject
+            </Button>
+          )}
+          {/* Approve button: show when onApprove is provided */}
+          {onApprove && (
+            <Button
+              variant="default"
+              size="sm"
+              onPress={() => onApprove(waypoint._id)}
+              disabled={!canApprove}
+              style={styles.actionButton}
+              testID={`${testID}-approve`}
+            >
+              Approve
+            </Button>
+          )}
         </View>
       )}
     </View>
