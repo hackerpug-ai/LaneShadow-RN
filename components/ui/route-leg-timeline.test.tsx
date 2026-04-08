@@ -5,7 +5,7 @@
  * - AC1: Route with 3 legs → timeline shows start/end labels, each leg has distance,
  *         duration, weather badges
  * - AC2: Route with 1 leg → single leg entry, no extra separators
- * - AC3: Leg has no label → falls back to 'Waypoint N' (uses leg index)
+ * - AC3: Leg has no label → uses improved fallback (Start/Destination/Leg N), never "Waypoint N"
  * - AC4: Empty legs array → timeline section hidden, no crash
  */
 
@@ -373,35 +373,77 @@ describe('RouteLegTimeline', () => {
   })
 
   /**
-   * AC3: A leg has no label → falls back to 'Waypoint N' (uses leg index)
+   * AC3: A leg has no label → uses improved fallback (Start/Destination/Leg N), never "Waypoint N"
    */
   describe('AC3: fallback label for legs with no label', () => {
-    it('uses "Waypoint 1" when planInput.start has no label and it is the first leg', () => {
+    it('uses "Start" when planInput.start has no label and it is the first leg', () => {
       const noLabelPlanInput: PlanInput = {
         ...planInput,
         start: { lat: 34.0, lng: -118.0 }, // no label
       }
-      const legs = [makeLeg(0)]
+      const legs = [makeLeg(0, { start: { lat: 34.0, lng: -118.0 }, end: { lat: 34.1, lng: -118.1 } })]
 
       const { getByTestId } = renderWithPaper(
         <RouteLegTimeline legs={legs} planInput={noLabelPlanInput} testID="timeline" />
       )
       const startLabel = getByTestId('leg-start-label-0')
-      expect(startLabel.props.children).toBe('Waypoint 1')
+      expect(startLabel.props.children).toBe('Start')
     })
 
-    it('uses leg start label or Waypoint N for intermediate legs', () => {
+    it('uses "Destination" when last leg end has no label', () => {
+      const noLabelPlanInput: PlanInput = {
+        ...planInput,
+        end: { lat: 34.3, lng: -118.3 }, // no label
+      }
+      const legs = [makeLeg(0, { start: { lat: 34.0, lng: -118.0 }, end: { lat: 34.1, lng: -118.1 } })]
+
+      const { getByTestId } = renderWithPaper(
+        <RouteLegTimeline legs={legs} planInput={noLabelPlanInput} testID="timeline" />
+      )
+      const endLabel = getByTestId('leg-end-label-0')
+      expect(endLabel.props.children).toBe('Destination')
+    })
+
+    it('uses leg-based label for intermediate stops without labels', () => {
       const legs = [
-        makeLeg(0, { start: { lat: 34.0, lng: -118.0 }, end: { lat: 34.1, lng: -118.1 } }),
+        makeLeg(0, { start: { lat: 34.0, lng: -118.0, label: 'Home' }, end: { lat: 34.1, lng: -118.1 } }),
         makeLeg(1, { start: { lat: 34.1, lng: -118.1 }, end: { lat: 34.2, lng: -118.2 } }),
+        makeLeg(2, { start: { lat: 34.2, lng: -118.2 }, end: { lat: 34.3, lng: -118.3, label: 'Work' } }),
       ]
 
       const { getByTestId } = renderWithPaper(
         <RouteLegTimeline legs={legs} planInput={planInput} testID="timeline" />
       )
-      // Second leg has no label on start → falls back to Waypoint 2
+      // Second leg start has no label → falls back to "Start of Leg 2"
       const secondLegStart = getByTestId('leg-start-label-1')
-      expect(secondLegStart.props.children).toBe('Waypoint 2')
+      expect(secondLegStart.props.children).toBe('Start of Leg 2')
+    })
+
+    it('NEVER shows "Waypoint" in any label', () => {
+      const legs = [
+        makeLeg(0, { start: { lat: 34.0, lng: -118.0 }, end: { lat: 34.1, lng: -118.1 } }),
+        makeLeg(1, { start: { lat: 34.1, lng: -118.1 }, end: { lat: 34.2, lng: -118.2 } }),
+        makeLeg(2, { start: { lat: 34.2, lng: -118.2 }, end: { lat: 34.3, lng: -118.3 } }),
+      ]
+
+      const noLabelPlanInput: PlanInput = {
+        ...planInput,
+        start: { lat: 34.0, lng: -118.0 },
+        end: { lat: 34.3, lng: -118.3 },
+      }
+
+      const { getAllByTestId } = renderWithPaper(
+        <RouteLegTimeline legs={legs} planInput={noLabelPlanInput} testID="timeline" />
+      )
+
+      // Get all label elements
+      const labels = getAllByTestId(/^leg-(start|end)-label-/)
+
+      // Verify none contain "waypoint" (case-insensitive)
+      labels.forEach((label) => {
+        const text = String(label.props.children).toLowerCase()
+        expect(text).not.toContain('waypoint')
+      })
     })
   })
 

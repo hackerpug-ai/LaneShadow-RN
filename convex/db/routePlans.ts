@@ -446,6 +446,7 @@ export const listBySession = internalQuery({
  *
  * Updates the route_plans.result.options array with enrichment data from background jobs.
  * Each option is enriched if a matching enrichment exists by routeOptionId.
+ * Also applies AI-generated leg labels to route legs.
  *
  * @param ctx - Database context
  * @param args.routePlanId - The route plan to enrich
@@ -460,14 +461,15 @@ export const mergeEnrichmentHandler = async (
   },
   args: {
     routePlanId: Id<'route_plans'>
-    enrichments: Array<{
+    enrichments: {
       routeOptionId: string
       label?: string
       rationale?: string
       highlights: string[]
+      legLabels?: string[]
       elevation?: unknown
       weather?: unknown
-    }>
+    }[]
   }
 ): Promise<void> => {
   const plan = await ctx.db.get(args.routePlanId)
@@ -476,7 +478,7 @@ export const mergeEnrichmentHandler = async (
   }
 
   // Type guard for result structure
-  const result = plan.result as { options: Array<{ routeOptionId: string }> }
+  const result = plan.result as { options: { routeOptionId: string; map?: { legs?: unknown[] } }[] }
   if (!result.options || !Array.isArray(result.options)) {
     return
   }
@@ -489,7 +491,7 @@ export const mergeEnrichmentHandler = async (
       return option
     }
 
-    return {
+    const enrichedOption: any = {
       ...option,
       ...(enrichment.label && { label: enrichment.label }),
       ...(enrichment.rationale && { rationale: enrichment.rationale }),
@@ -499,6 +501,36 @@ export const mergeEnrichmentHandler = async (
         weather: enrichment.weather,
       },
     }
+
+    // Apply AI-generated leg labels if available
+    if (enrichment.legLabels && Array.isArray(enrichment.legLabels) && option.map?.legs) {
+      const legs = option.map.legs as any[]
+      enrichedOption.map = {
+        ...option.map,
+        legs: legs.map((leg, idx) => {
+          if (idx >= enrichment.legLabels!.length) {
+            return leg
+          }
+
+          const legLabel = enrichment.legLabels![idx]
+          const [fromLabel, toLabel] = legLabel.split(' → ').map((s: string) => s.trim())
+
+          return {
+            ...leg,
+            start: {
+              ...leg.start,
+              ...(fromLabel && { label: fromLabel }),
+            },
+            end: {
+              ...leg.end,
+              ...(toLabel && { label: toLabel }),
+            },
+          }
+        }),
+      }
+    }
+
+    return enrichedOption
   })
 
   // Patch the route plan with enriched options
@@ -519,6 +551,7 @@ export const mergeEnrichment = internalMutation({
         label: v.optional(v.string()),
         rationale: v.optional(v.string()),
         highlights: v.array(v.string()),
+        legLabels: v.optional(v.array(v.string())),
         elevation: v.optional(v.any()),
         weather: v.optional(v.any()),
       })
@@ -545,7 +578,7 @@ export const getActiveRoutePlansForSession = query({
       status: routePlanStatusValidator,
     })
   ),
-  handler: async (ctx, args): Promise<Array<{ _id: Id<'route_plans'>; status: RoutePlanStatus }>> => {
+  handler: async (ctx, args): Promise<{ _id: Id<'route_plans'>; status: RoutePlanStatus }[]> => {
     const docs = await ctx.db
       .query('route_plans')
       .withIndex('by_planningSessionId_and_status', (q) =>

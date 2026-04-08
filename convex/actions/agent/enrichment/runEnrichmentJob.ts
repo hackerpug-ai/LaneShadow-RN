@@ -4,8 +4,8 @@ import { v } from 'convex/values'
 import { internalAction } from '../../../_generated/server'
 import { internal } from '../../../_generated/api'
 import type { Id } from '../../../_generated/dataModel'
-import type { RouteSnapshot } from '../../../../models/saved-routes'
-import type { PlanInput } from '../../../../models/saved-routes'
+import type { RouteSnapshot , PlanInput, RouteLeg } from '../../../../models/saved-routes'
+import { enrichRoute, type EnrichRouteInput } from '../tools/enrichRoute'
 
 /**
  * Background enrichment job runner
@@ -102,61 +102,70 @@ export const runEnrichmentJob = internalAction({
 /**
  * Run enrichment phase logic
  *
- * Calls the enrichRoute implementation to generate route labels and rationales.
- * Fast phase: Basic route descriptions and highlights
+ * Calls the enrichRoute tool to generate route labels, rationales, highlights, and leg labels.
+ * Fast phase: Basic route descriptions and highlights with leg labeling
  * Extended phase: Would include elevation, weather, and extended analysis
  */
 async function runEnrichmentPhase(params: {
   phase: 'fast' | 'extended'
   routePlan: RouteSnapshot
   planInput: PlanInput
-}): Promise<Array<{
+}): Promise<{
   routeOptionId: string
   label: string
   rationale: string
   highlights: string[]
-}>> {
-  const { phase, routePlan } = params
+  legLabels?: string[]
+}[]> {
+  const { phase, routePlan, planInput } = params
 
-  // For now, implement basic enrichment logic
-  // In production, this would use the enrichRoute tool or AI service
-  const enrichments: Array<{
-    routeOptionId: string
-    label: string
-    rationale: string
-    highlights: string[]
-  }> = []
+  // Extract leg context for AI labeling
+  const legContext = routePlan.legs.map((leg, idx) => ({
+    index: idx,
+    fromName: leg.start.label,
+    toName: leg.end.label,
+    distance: leg.distanceMeters,
+  }))
 
-  // Generate a basic label based on route characteristics
-  const distanceKm = Math.round(
-    routePlan.legs.reduce((sum, leg) => sum + leg.distanceMeters, 0) / 1000
-  )
-  const durationMin = Math.round(
-    routePlan.legs.reduce((sum, leg) => sum + leg.durationSeconds, 0) / 60
-  )
+  // Extract waypoints from route for AI context
+  const waypoints = routePlan.legs.map((leg, idx) => ({
+    name: leg.start.label || `Point ${idx}`,
+    type: 'waypoint',
+  }))
 
-  let label = `${distanceKm} km Route`
-  let rationale = `Direct route covering ${distanceKm} km in approximately ${durationMin} minutes.`
-
-  // Add scenic bias context if present
-  const scenicBias = params.planInput.preferences?.scenicBias
-  if (scenicBias === 'high') {
-    label = 'Scenic ' + label
-    rationale = `Prioritizes scenic roads and natural beauty. ${rationale}`
+  // Add the end point as the last waypoint
+  if (routePlan.legs.length > 0) {
+    const lastLeg = routePlan.legs[routePlan.legs.length - 1]
+    waypoints.push({
+      name: lastLeg.end.label || 'Destination',
+      type: 'waypoint',
+    })
   }
 
-  // Generate highlights from annotations
-  const highlights = routePlan.annotations
-    .filter((a) => a.annotationKind === 'place')
-    .map((a) => a.label)
-    .slice(0, 3) // Limit to top 3 highlights
+  // Call enrichRoute tool with leg context
+  const enrichInput: EnrichRouteInput = {
+    routes: [
+      {
+        waypoints,
+        legContext,
+        stats: {
+          distanceMeters: routePlan.legs.reduce((sum, leg) => sum + leg.distanceMeters, 0),
+          durationSeconds: routePlan.legs.reduce((sum, leg) => sum + leg.durationSeconds, 0),
+        },
+        preferences: planInput.preferences,
+      },
+    ],
+  }
 
-  enrichments.push({
-    routeOptionId: routePlan.provider || 'default',
-    label,
-    rationale,
-    highlights,
-  })
+  const enrichments = await enrichRoute(enrichInput)
 
-  return enrichments
+  return [
+    {
+      routeOptionId: routePlan.provider || 'default',
+      label: enrichments[0].label,
+      rationale: enrichments[0].rationale,
+      highlights: enrichments[0].highlights,
+      legLabels: enrichments[0].legLabels,
+    },
+  ]
 }

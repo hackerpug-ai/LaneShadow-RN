@@ -32,6 +32,11 @@ const EnrichmentToolSchema = Type.Object({
       highlights: Type.Array(
         Type.String({ description: 'Short phrase (max 4 words)' })
       ),
+      legLabels: Type.Array(
+        Type.String({
+          description: 'Descriptive label for each leg (max 6 words). Use place names, road names, or landmarks. Format as "From → To". NEVER use "waypoint" as a label.',
+        })
+      ),
     })
   ),
 })
@@ -40,11 +45,19 @@ export type RouteEnrichment = {
   label: string
   rationale: string
   highlights: string[]
+  legLabels: string[]
 }
 
 export type EnrichRouteInput = {
   routes: {
     waypoints: { name: string; type: string }[]
+    legContext?: {
+      index: number
+      fromName?: string
+      toName?: string
+      roadName?: string
+      distance: number
+    }[]
     stats: { distanceMeters: number; durationSeconds: number }
     preferences?: { scenicBias?: string; avoidHighways?: boolean }
   }[]
@@ -53,7 +66,7 @@ export type EnrichRouteInput = {
 const enrichmentTool: Tool = {
   name: 'emit_enrichments',
   description:
-    'Emit enriched names, rationales, and highlights for every supplied route. Call this exactly once with one entry per input route, in the same order.',
+    'Emit enriched names, rationales, highlights, and leg labels for every supplied route. Call this exactly once with one entry per input route, in the same order.',
   // Cast to `any` for the TypeBox 0.33 (project) vs 0.34 (pi-ai peer) minor
   // API difference. Runtime shapes are identical — AJV resolves both.
   parameters: EnrichmentToolSchema as any,
@@ -77,7 +90,20 @@ export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrich
 
     const context: Context = {
       systemPrompt:
-        'You are a motorcycle route naming specialist. You receive structured route data and write compelling, accurate names and descriptions. Always respond by calling the emit_enrichments tool exactly once with one entry per input route, in order.',
+        'You are a motorcycle route specialist. You receive structured route data and write compelling, accurate names and descriptions.\n\n' +
+        '## Labeling Rules\n\n' +
+        '### Route-Level Labels\n' +
+        '- Punchy, memorable names referencing iconic waypoints\n' +
+        '- Max 8 words\n' +
+        '- Examples: "Pacific Coast Highway Dream", "Sierra Nevada Sweep"\n\n' +
+        '### Leg Labels\n' +
+        '- Describe the FROM → TO of each leg segment\n' +
+        '- Use place names (cities, towns, landmarks)\n' +
+        '- Use road names for highway segments\n' +
+        '- NEVER use "waypoint" as a label\n' +
+        '- Max 6 words per label\n' +
+        '- Examples: "San Francisco → Daly City", "Highway 1 → Santa Cruz", "Golden Gate Bridge → Sausalito"\n\n' +
+        'Always respond by calling the emit_enrichments tool exactly once with one entry per input route, in order.',
       messages: [
         {
           role: 'user',
@@ -108,17 +134,23 @@ export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrich
     return routes
   } catch (error) {
     console.warn('[enrichRoute] LLM call failed, using fallback labels', error)
-    return params.routes.map((_, idx) => fallbackEnrichment(idx))
+    return params.routes.map((route, idx) =>
+      fallbackEnrichment(idx, route.legContext?.length ?? 0)
+    )
   }
 }
 
 /**
  * Fallback enrichment when LLM fails. Always succeeds.
  */
-const fallbackEnrichment = (idx: number): RouteEnrichment => ({
+const fallbackEnrichment = (
+  idx: number,
+  legCount: number
+): RouteEnrichment => ({
   label: `Route ${idx + 1}`,
   rationale: 'A scenic route through the area.',
   highlights: ['Scenic roads', 'Local character'],
+  legLabels: Array.from({ length: legCount }, (_, i) => `Leg ${i + 1}`),
 })
 
 /**
@@ -142,9 +174,22 @@ const buildUserPrompt = (routes: EnrichRouteInput['routes']): string => {
     if (route.preferences?.avoidHighways) {
       parts.push(`Preference: avoid highways`)
     }
+
+    // Add leg context for labeling
+    if (route.legContext && route.legContext.length > 0) {
+      parts.push(`\nLegs (${route.legContext.length}):`)
+      route.legContext.forEach((leg) => {
+        const from = leg.fromName || `Point ${leg.index}`
+        const to = leg.toName || `Point ${leg.index + 1}`
+        const road = leg.roadName ? ` via ${leg.roadName}` : ''
+        parts.push(`  - Leg ${leg.index + 1}: ${from} → ${to}${road}`)
+      })
+    }
   })
 
-  parts.push('\n\nCall emit_enrichments with a name and description for each route.')
+  parts.push(
+    '\n\nCall emit_enrichments with a name, description, and leg labels for each route.'
+  )
 
   return parts.join('\n')
 }

@@ -45,7 +45,9 @@ const buildTestRoutes = (count: number = 3) =>
     },
   }))
 
-const makeAssistant = (routes: { label: string; rationale: string; highlights: string[] }[]) =>
+const makeAssistant = (
+  routes: { label: string; rationale: string; highlights: string[]; legLabels?: string[] }[]
+) =>
   ({
     role: 'assistant',
     content: [
@@ -115,6 +117,7 @@ describe('enrichRoute', () => {
         label: 'High Sierra Crest via Tioga Pass',
         rationale: 'A scenic mountain route crossing the Sierra Nevada through the famous Tioga Pass.',
         highlights: ['Mountain pass', 'Alpine meadows', 'Sweeping views'],
+        legLabels: [],
       })
       expect(result[2].label).toBe('Desert Valley Tour')
     })
@@ -130,11 +133,13 @@ describe('enrichRoute', () => {
         label: 'Route 1',
         rationale: 'A scenic route through the area.',
         highlights: ['Scenic roads', 'Local character'],
+        legLabels: ['Leg 1'],
       })
       expect(result[1]).toEqual({
         label: 'Route 2',
         rationale: 'A scenic route through the area.',
         highlights: ['Scenic roads', 'Local character'],
+        legLabels: ['Leg 1'],
       })
     })
 
@@ -247,7 +252,7 @@ describe('enrichRoute', () => {
   describe('AI_MODEL integration', () => {
     it('forwards AI_MODEL to getModel()', async () => {
       vi.mocked(complete).mockResolvedValue(
-        makeAssistant([{ label: 'Test', rationale: 'Test', highlights: ['A'] }])
+        makeAssistant([{ label: 'Test', rationale: 'Test', highlights: ['A'], legLabels: [] }])
       )
 
       await enrichRoute({ routes: buildTestRoutes(1) })
@@ -255,6 +260,90 @@ describe('enrichRoute', () => {
       // AI_MODEL is read at module import time; we just assert getModel was
       // called with 'openai' and *some* model string from env.
       expect(vi.mocked(getModel)).toHaveBeenCalledWith('openai', expect.any(String))
+    })
+  })
+
+  describe('leg labeling', () => {
+    it('generates leg labels when legContext is provided', async () => {
+      vi.mocked(complete).mockResolvedValue(
+        makeAssistant([
+          {
+            label: 'Pacific Coast Highway',
+            rationale: 'Scenic coastal route',
+            highlights: ['Ocean views'],
+            legLabels: ['San Francisco → Daly City', 'Daly City → Santa Cruz'],
+          },
+        ])
+      )
+
+      const routes = [
+        {
+          waypoints: [
+            { name: 'San Francisco', type: 'city' },
+            { name: 'Santa Cruz', type: 'city' },
+          ],
+          legContext: [
+            { index: 0, fromName: 'San Francisco', toName: 'Daly City', roadName: 'CA-1', distance: 10000 },
+            { index: 1, fromName: 'Daly City', toName: 'Santa Cruz', roadName: 'CA-1', distance: 40000 },
+          ],
+          stats: { distanceMeters: 50000, durationSeconds: 3600 },
+        },
+      ]
+
+      const result = await enrichRoute({ routes })
+
+      expect(result[0].legLabels).toEqual(['San Francisco → Daly City', 'Daly City → Santa Cruz'])
+    })
+
+    it('returns empty legLabels array when no legContext provided', async () => {
+      vi.mocked(complete).mockResolvedValue(
+        makeAssistant([{ label: 'Test', rationale: 'Test', highlights: ['A'], legLabels: [] }])
+      )
+
+      const routes = [
+        {
+          waypoints: [{ name: 'Start', type: 'junction' }],
+          stats: { distanceMeters: 50000, durationSeconds: 3600 },
+        },
+      ]
+
+      const result = await enrichRoute({ routes })
+
+      expect(result[0].legLabels).toEqual([])
+    })
+
+    it('AI never generates "waypoint" in leg labels', async () => {
+      vi.mocked(complete).mockResolvedValue(
+        makeAssistant([
+          {
+            label: 'Test Route',
+            rationale: 'Test',
+            highlights: ['A'],
+            legLabels: ['San Francisco → Half Moon Bay', 'Half Moon Bay → Santa Cruz'],
+          },
+        ])
+      )
+
+      const routes = [
+        {
+          waypoints: [
+            { name: 'San Francisco', type: 'city' },
+            { name: 'Santa Cruz', type: 'city' },
+          ],
+          legContext: [
+            { index: 0, fromName: 'San Francisco', toName: 'Half Moon Bay', roadName: 'CA-1', distance: 20000 },
+            { index: 1, fromName: 'Half Moon Bay', toName: 'Santa Cruz', roadName: 'CA-1', distance: 30000 },
+          ],
+          stats: { distanceMeters: 50000, durationSeconds: 3600 },
+        },
+      ]
+
+      const result = await enrichRoute({ routes })
+
+      // Verify no leg label contains "waypoint" (case-insensitive)
+      result[0].legLabels.forEach((label) => {
+        expect(label.toLowerCase()).not.toContain('waypoint')
+      })
     })
   })
 })

@@ -103,6 +103,38 @@ const formatLegDuration = (durationSeconds: number): string => {
   return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`
 }
 
+/**
+ * Get a descriptive label for a route stop (start or end of a leg).
+ * Uses fallback: AI label → generic leg label.
+ * Never returns "waypoint" as a fallback.
+ */
+const getLegLabel = (
+  stop: RouteLeg['start'] | RouteLeg['end'],
+  legIndex: number,
+  position: 'start' | 'end',
+  isFirstLeg: boolean,
+  isLastLeg: boolean
+): string => {
+  // Priority 1: Use AI-generated label if available
+  if (stop.label) {
+    return stop.label
+  }
+
+  // Priority 2: Generic but better than "waypoint"
+  // For the very first point, use "Start"
+  if (isFirstLeg && position === 'start') {
+    return 'Start'
+  }
+
+  // For the very last point, use "Destination"
+  if (isLastLeg && position === 'end') {
+    return 'Destination'
+  }
+
+  // Otherwise, use a leg-based label
+  return `${position === 'start' ? 'Start' : 'End'} of Leg ${legIndex + 1}`
+}
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -144,8 +176,9 @@ const LegItem = ({
   const legRain = getWorstRainForLeg(rainOverlay, leg.legIndex)
   const legWind = getWorstWindForLeg(windOverlay, leg.legIndex)
 
-  // Waypoint label for the start of this leg
-  const startWaypointLabel = startLabel ?? `Waypoint ${index + 1}`
+  // Use improved label logic - never shows "Waypoint X"
+  const displayStartLabel = getLegLabel(leg.start, index, 'start', isFirst, isLast)
+  const displayEndLabel = getLegLabel(leg.end, index, 'end', isFirst, isLast)
 
   return (
     <View
@@ -229,7 +262,7 @@ const LegItem = ({
           style={{ color: semantic.color.onSurface.subtle, marginBottom: semantic.space.xs }}
           testID={`leg-start-label-${index}`}
         >
-          {startWaypointLabel}
+          {displayStartLabel}
         </Text>
 
         {/* Leg label */}
@@ -272,13 +305,13 @@ const LegItem = ({
         </View>
 
         {/* End label shown below the last leg */}
-        {isLast && endLabel && (
+        {isLast && displayEndLabel && (
           <Text
             variant="bodySmall"
             style={{ color: semantic.color.onSurface.subtle, marginTop: semantic.space.xs }}
             testID={`leg-end-label-${index}`}
           >
-            {endLabel}
+            {displayEndLabel}
           </Text>
         )}
       </View>
@@ -302,8 +335,8 @@ export const RouteLegTimeline = ({ legs, planInput, overlays, testID }: RouteLeg
           index={index}
           isFirst={index === 0}
           isLast={index === legs.length - 1}
-          startLabel={index === 0 ? planInput.start.label : leg.start.label}
-          endLabel={index === legs.length - 1 ? planInput.end.label : leg.end.label}
+          startLabel={leg.start.label}
+          endLabel={leg.end.label}
           rainOverlay={overlays?.rain}
           windOverlay={overlays?.wind}
         />
