@@ -205,6 +205,8 @@ async function runCreateRouteSketch(
       fromName: string
       toName: string
       viaNames: string[] | null
+      fromLabel?: string
+      toLabel?: string
     }[]
     anchorPoints: {
       name: string
@@ -224,6 +226,8 @@ async function runCreateRouteSketch(
       fromName: s.fromName,
       toName: s.toName,
       viaNames: s.viaNames || undefined,
+      fromLabel: s.fromLabel || undefined,
+      toLabel: s.toLabel || undefined,
     })),
     anchorPoints: args.anchorPoints,
   }
@@ -256,6 +260,8 @@ async function runCompileSketch(
         fromName: string
         toName: string
         viaNames?: string[]
+        fromLabel?: string
+        toLabel?: string
       }[]
       anchorPoints: {
         name: string
@@ -378,7 +384,7 @@ async function runCompileSketch(
         if (stillFailed.length > 0 && nowSucceeded.length > 0) {
           // Build a partial route from the succeeded segments and return it with a message
           const partialRoute = stitchSegments(nowSucceeded)
-          const routeSnapshot = await normalizeRoute({ providerRoute: partialRoute, planInput })
+          const routeSnapshot = await normalizeRoute({ providerRoute: partialRoute, planInput, sketch })
           const results = [{ routeSnapshot, sketch }]
 
           let built
@@ -440,7 +446,7 @@ async function runCompileSketch(
         // All succeeded on last attempt — fall through to normal success path
         providerRoute = stitchSegments(nowSucceeded)
         clearPendingSketch(sessionId)
-        const routeSnapshot = await normalizeRoute({ providerRoute, planInput })
+        const routeSnapshot = await normalizeRoute({ providerRoute, planInput, sketch })
         const results = [{ routeSnapshot, sketch }]
 
         let built
@@ -566,6 +572,7 @@ async function runCompileSketch(
     const routeSnapshot = await normalizeRoute({
       providerRoute,
       planInput,
+      sketch,
     })
 
     // Build the result
@@ -984,6 +991,7 @@ Your primary tool is planRoute — it generates 2-3 scenic route options using A
 
 **How to author a sketch**:
 - Fill in segments with specific road names: roadName, fromName, toName
+- Add fromLabel/toLabel for more descriptive presentation labels (e.g., "Downtown San Jose" instead of just "San Jose")
 - Use viaNames to include intermediate landmarks — e.g., "Skeggs Point" on Skyline Blvd
 - Add anchorPoints for key junctions, towns, passes, or landmarks
 - Each anchorPoint kind MUST be: "town", "junction", "landmark", or "pass"

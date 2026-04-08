@@ -60,6 +60,7 @@ export type EnrichRouteInput = {
     }[]
     stats: { distanceMeters: number; durationSeconds: number }
     preferences?: { scenicBias?: string; avoidHighways?: boolean }
+    existingLegLabels?: string[] // Pre-existing labels from sketch (skip LLM generation)
   }[]
 }
 
@@ -77,8 +78,14 @@ const enrichmentTool: Tool = {
  * a forced tool-call as the structured-output mechanism.
  *
  * Falls back to generic labels on any failure — never throws.
+ *
+ * When existingLegLabels are provided, skips LLM leg label generation and uses
+ * the existing labels directly (preserving sketch-generated labels).
  */
 export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrichment[]> => {
+  // Check if we have existing leg labels from sketch
+  const hasExistingLabels = params.routes.some(r => r.existingLegLabels && r.existingLegLabels.length > 0)
+
   try {
     if (!OPENAI_API_KEY) {
       throw new Error('OPENAI_API_KEY not set')
@@ -96,18 +103,23 @@ export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrich
         '- Punchy, memorable names referencing iconic waypoints\n' +
         '- Max 8 words\n' +
         '- Examples: "Pacific Coast Highway Dream", "Sierra Nevada Sweep"\n\n' +
-        '### Leg Labels\n' +
-        '- Describe the FROM → TO of each leg segment\n' +
-        '- Use place names (cities, towns, landmarks)\n' +
-        '- Use road names for highway segments\n' +
-        '- NEVER use "waypoint" as a label\n' +
-        '- Max 6 words per label\n' +
-        '- Examples: "San Francisco → Daly City", "Highway 1 → Santa Cruz", "Golden Gate Bridge → Sausalito"\n\n' +
+        (hasExistingLabels
+          ? '### Leg Labels\n' +
+            '- SKIP leg label generation - existing labels from the route sketch will be used\n' +
+            '- Only generate route-level labels, rationales, and highlights\n'
+          : '### Leg Labels\n' +
+            '- Describe the FROM → TO of each leg segment\n' +
+            '- Use place names (cities, towns, landmarks)\n' +
+            '- Use road names for highway segments\n' +
+            '- NEVER use "waypoint" as a label\n' +
+            '- Max 6 words per label\n' +
+            '- Examples: "San Francisco → Daly City", "Highway 1 → Santa Cruz", "Golden Gate Bridge → Sausalito"\n'
+        ) +
         'Always respond by calling the emit_enrichments tool exactly once with one entry per input route, in order.',
       messages: [
         {
           role: 'user',
-          content: buildUserPrompt(params.routes),
+          content: buildUserPrompt(params.routes, hasExistingLabels),
           timestamp: Date.now(),
         },
       ],
@@ -131,11 +143,19 @@ export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrich
       throw new Error('emit_enrichments returned no routes')
     }
 
+    // If we have existing labels, replace LLM-generated labels with existing ones
+    if (hasExistingLabels) {
+      return routes.map((enrichment, idx) => ({
+        ...enrichment,
+        legLabels: params.routes[idx].existingLegLabels || enrichment.legLabels,
+      }))
+    }
+
     return routes
   } catch (error) {
     console.warn('[enrichRoute] LLM call failed, using fallback labels', error)
     return params.routes.map((route, idx) =>
-      fallbackEnrichment(idx, route.legContext?.length ?? 0)
+      fallbackEnrichment(idx, route.legContext?.length ?? 0, route.existingLegLabels)
     )
   }
 }
@@ -145,18 +165,19 @@ export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrich
  */
 const fallbackEnrichment = (
   idx: number,
-  legCount: number
+  legCount: number,
+  existingLegLabels?: string[]
 ): RouteEnrichment => ({
   label: `Route ${idx + 1}`,
   rationale: 'A scenic route through the area.',
   highlights: ['Scenic roads', 'Local character'],
-  legLabels: Array.from({ length: legCount }, (_, i) => `Leg ${i + 1}`),
+  legLabels: existingLegLabels || Array.from({ length: legCount }, (_, i) => `Leg ${i + 1}`),
 })
 
 /**
  * Builds the user prompt for the LLM with route details.
  */
-const buildUserPrompt = (routes: EnrichRouteInput['routes']): string => {
+const buildUserPrompt = (routes: EnrichRouteInput['routes'], hasExistingLabels: boolean): string => {
   const parts: string[] = []
 
   parts.push(`Name and describe these ${routes.length} motorcycle routes.\n`)
@@ -175,8 +196,8 @@ const buildUserPrompt = (routes: EnrichRouteInput['routes']): string => {
       parts.push(`Preference: avoid highways`)
     }
 
-    // Add leg context for labeling
-    if (route.legContext && route.legContext.length > 0) {
+    // Only add leg context if we don't have existing labels
+    if (!hasExistingLabels && route.legContext && route.legContext.length > 0) {
       parts.push(`\nLegs (${route.legContext.length}):`)
       route.legContext.forEach((leg) => {
         const from = leg.fromName || `Point ${leg.index}`
@@ -185,10 +206,20 @@ const buildUserPrompt = (routes: EnrichRouteInput['routes']): string => {
         parts.push(`  - Leg ${leg.index + 1}: ${from} → ${to}${road}`)
       })
     }
+
+    // If we have existing labels, mention them
+    if (hasExistingLabels && route.existingLegLabels && route.existingLegLabels.length > 0) {
+      parts.push(`\nExisting leg labels (will be preserved):`)
+      route.existingLegLabels.forEach((label, i) => {
+        parts.push(`  - Leg ${i + 1}: ${label}`)
+      })
+    }
   })
 
   parts.push(
-    '\n\nCall emit_enrichments with a name, description, and leg labels for each route.'
+    '\n\nCall emit_enrichments with a name, description' +
+    (hasExistingLabels ? ' and highlights' : ', leg labels, and highlights') +
+    ' for each route.'
   )
 
   return parts.join('\n')

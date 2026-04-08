@@ -96,7 +96,7 @@ export const planRideOrchestrator = async (params: {
     variantsWithFavorites.map(async (variant) => {
       const sketch = buildSketchFromVariant(variant)
       const providerRoute = await compileSketch({ planInput, sketch })
-      const routeSnapshot = await normalizeRoute({ providerRoute, planInput })
+      const routeSnapshot = await normalizeRoute({ providerRoute, planInput, sketch })
       return { routeSnapshot, sketch }
     })
   )

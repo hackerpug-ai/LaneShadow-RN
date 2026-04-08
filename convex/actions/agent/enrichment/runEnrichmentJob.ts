@@ -127,6 +127,12 @@ async function runEnrichmentPhase(params: {
     distance: leg.distanceMeters,
   }))
 
+  // Extract existing leg labels from the route plan (these were set by normalizeRoute from sketch labels)
+  const existingLegLabels = routePlan.legs.map((leg) => {
+    // Use the end label as the leg label (e.g., "Downtown San Jose" for leg ending there)
+    return leg.end.label || undefined
+  }).filter((label): label is string => label !== undefined)
+
   // Extract waypoints from route for AI context
   const waypoints = routePlan.legs.map((leg, idx) => ({
     name: leg.start.label || `Point ${idx}`,
@@ -153,6 +159,7 @@ async function runEnrichmentPhase(params: {
           durationSeconds: routePlan.legs.reduce((sum, leg) => sum + leg.durationSeconds, 0),
         },
         preferences: planInput.preferences,
+        existingLegLabels, // Pass existing labels to preserve them
       },
     ],
   }

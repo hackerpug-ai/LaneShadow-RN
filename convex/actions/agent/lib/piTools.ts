@@ -31,6 +31,8 @@ export const AgentToolSchemas = {
         fromName: Type.String({ description: 'Starting point or junction (e.g., "San Jose", "Highway 85")' }),
         toName: Type.String({ description: 'Ending point or junction (e.g., "San Bruno", "Highway 92")' }),
         viaNames: Type.Optional(Type.Array(Type.String(), { description: 'Optional intermediate places this road passes through' })),
+        fromLabel: Type.Optional(Type.String({ description: 'Descriptive label for the starting point (e.g., "Downtown San Jose", "Highway 85 interchange"). Use this to provide more context than fromName alone.' })),
+        toLabel: Type.Optional(Type.String({ description: 'Descriptive label for the ending point (e.g., "San Bruno city limits", "Highway 92 junction"). Use this to provide more context than toName alone.' })),
       }),
       { description: 'Road segments that make up the route - think "take 5 to 405 to PCH"' },
     ),
@@ -88,6 +90,8 @@ export const AgentToolSchemas = {
         fromName: Type.String(),
         toName: Type.String(),
         viaNames: Type.Optional(Type.Array(Type.String())),
+        fromLabel: Type.Optional(Type.String()),
+        toLabel: Type.Optional(Type.String()),
       })),
       anchorPoints: Type.Array(Type.Object({
         name: Type.String(),

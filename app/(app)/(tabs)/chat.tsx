@@ -18,7 +18,7 @@
 
 import { useQuery } from 'convex/react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { StyleSheet, View, Pressable, Keyboard } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { Text } from 'react-native-paper'
 import { api } from '../../../convex/_generated/api'
@@ -220,11 +220,6 @@ export default function ChatScreen() {
 
   const { setSelectedRouteId, setDisplayedRoutePlanId } = useSelectedRoute()
 
-  // Dismiss keyboard when tapping outside the input
-  const handleDismissKeyboard = () => {
-    Keyboard.dismiss()
-  }
-
   const handleNewSession = () => {
     console.info('[ChatScreen] New session button pressed')
 
@@ -250,14 +245,10 @@ export default function ChatScreen() {
         }}
       >
         {/* Staggered fade so the transcript resolves in place, not snapping */}
-        <Pressable
-          style={styles.body}
-          onPress={handleDismissKeyboard}
-          testID="chat-screen-dismiss-keyboard-pressable"
-        >
+        <View style={styles.body}>
           <Animated.View
             entering={FadeIn.duration(260).delay(40)}
-            style={StyleSheet.absoluteFill}
+            style={styles.fadingContent}
           >
             {isLoading ? (
               <View style={styles.centeredState}>
@@ -286,7 +277,7 @@ export default function ChatScreen() {
               />
             )}
           </Animated.View>
-        </Pressable>
+        </View>
       </SubpageLayout>
 
       {/* ChatInput lives at the root level so its bottom-safe-area math
@@ -315,6 +306,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   body: {
+    flex: 1,
+  },
+  fadingContent: {
     flex: 1,
   },
   inputSlot: {
