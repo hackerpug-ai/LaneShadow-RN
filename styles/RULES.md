@@ -96,6 +96,36 @@ primary + 'CC' → 80% — header backdrop blur
 Every color token supports: `default`, `hover`, `pressed`, `disabled`, `focus`.
 Always handle `pressed` and `disabled` at minimum.
 
+### Waypoint kind colors
+
+| Kind | Hex | Purpose |
+|---|---|---|
+| On Route | `#31A362` | Waypoint is on the planned route |
+| Off Route | `#D98E04` | Waypoint is off the planned route |
+| Mixed | `#2B9AEB` | Waypoint has mixed on/off route status |
+
+Access via `semantic.color.waypointOnRoute`, `semantic.color.waypointOffRoute`, `semantic.color.waypointMixed`.
+
+### Enrichment phase colors
+
+| Phase | Hex | Purpose |
+|---|---|---|
+| Fast | `#2C9F9B` | Fast/standard enrichment completed |
+| Extended | `#8B5CF6` | Extended enrichment in progress |
+| Cached | `#6B7280` (light) / `#9CA3AF` (dark) | Enrichment served from cache |
+
+Access via `semantic.color.enrichmentFast`, `semantic.color.enrichmentExtended`, `semantic.color.enrichmentCached`.
+
+### Deviation path colors
+
+| Element | Hex | Purpose |
+|---|---|---|
+| Original Route | `#9CA3AF` (light) / `#6B7280` (dark) | The original planned route |
+| Detour Path | `#FF6B35` | The active detour/deviation path |
+| Reconnect Point | `#31A362` | Point where detour reconnects to original route |
+
+Access via `semantic.color.deviationOriginalRoute`, `semantic.color.deviationDetourPath`, `semantic.color.deviationReconnectPoint`.
+
 ---
 
 ## 5. Typography

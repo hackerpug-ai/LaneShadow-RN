@@ -82,6 +82,21 @@ export type SemanticColors = {
   scrim: SemanticColorSet
   routeSelected: SemanticColorSet
   routeAlternate: SemanticColorSet
+
+  // Waypoint kind colors
+  waypointOnRoute?: SemanticColorSet
+  waypointOffRoute?: SemanticColorSet
+  waypointMixed?: SemanticColorSet
+
+  // Enrichment phase colors
+  enrichmentFast?: SemanticColorSet
+  enrichmentExtended?: SemanticColorSet
+  enrichmentCached?: SemanticColorSet
+
+  // Deviation path colors
+  deviationOriginalRoute?: SemanticColorSet
+  deviationDetourPath?: SemanticColorSet
+  deviationReconnectPoint?: SemanticColorSet
 }
 
 /**

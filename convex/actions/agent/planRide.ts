@@ -346,6 +346,7 @@ export const executePlanHandler = async (
         (internal as any).db.routeEnrichments.createEnrichment,
         {
           routePlanId,
+          planningSessionId: plan.planningSessionId,
           clerkUserId: plan.clerkUserId,
           contentFingerprint: fingerprint,
           phase: 'fast',

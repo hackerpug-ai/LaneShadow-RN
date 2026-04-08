@@ -9,7 +9,7 @@ import {
 } from '../../models/route-enrichments'
 import { internal } from '../_generated/api'
 import type { Doc, Id } from '../_generated/dataModel'
-import { internalMutation, internalQuery } from '../_generated/server'
+import { internalMutation, internalQuery, query } from '../_generated/server'
 
 type RouteEnrichmentDoc = Doc<'route_enrichments'>
 
@@ -75,6 +75,7 @@ export const createEnrichmentHandler = async (
   ctx: CreateEnrichmentCtx,
   args: {
     routePlanId: Id<'route_plans'>
+    planningSessionId: Id<'planning_sessions'>
     clerkUserId: string
     contentFingerprint: string
     phase: 'fast' | 'extended'
@@ -84,6 +85,7 @@ export const createEnrichmentHandler = async (
 
   const enrichmentId = await ctx.db.insert('route_enrichments', {
     routePlanId: args.routePlanId,
+    planningSessionId: args.planningSessionId,
     clerkUserId: args.clerkUserId,
     contentFingerprint: args.contentFingerprint,
     phase: args.phase,
@@ -174,7 +176,12 @@ export const cancelEnrichmentHandler = async (
 
   // Cancel scheduled job if it exists
   if (doc.scheduledJobId) {
-    await ctx.scheduler.cancel(doc.scheduledJobId)
+    try {
+      await ctx.scheduler.cancel(doc.scheduledJobId)
+    } catch (error) {
+      // Log error but continue - enrichment should still be marked as cancelled
+      console.error('[routeEnrichments] Failed to cancel scheduled job:', error)
+    }
   }
 
   const now = Date.now()
@@ -213,6 +220,8 @@ export const findByContentFingerprintHandler = async (
  * Invalidate stale enrichments when a new route is created in the same session.
  * Cancels scheduled jobs and marks enrichments as cancelled.
  *
+ * Uses a single query with the by_planningSessionId_and_status index to avoid N+1 pattern.
+ *
  * @param ctx - Database and scheduler context
  * @param args.planningSessionId - The planning session ID
  * @param args.newRoutePlanId - The new route plan ID (exclude from invalidation)
@@ -224,40 +233,41 @@ export const invalidateStaleEnrichmentsHandler = async (
     newRoutePlanId: Id<'route_plans'>
   }
 ): Promise<void> => {
-  // 1. Find all route plans for this planning session
-  const routePlans = await ctx.db
-    .query('route_plans')
+  // Single query: Find all pending/running enrichments for this planning session
+  const enrichments = await ctx.db
+    .query('route_enrichments')
     .withIndex('by_planningSessionId_and_status', (q: any) =>
       q.eq('planningSessionId', args.planningSessionId)
     )
     .collect()
 
-  // 2. For each route plan (except the new one), find running/pending enrichments
-  for (const routePlan of routePlans) {
-    if (routePlan._id === args.newRoutePlanId) {
-      continue // Skip the new route plan
+  // Cancel and mark each stale enrichment (except for the new route plan)
+  for (const enrichment of enrichments) {
+    // Skip enrichments for the new route plan or already completed/failed ones
+    if (
+      enrichment.routePlanId === args.newRoutePlanId ||
+      enrichment.status === 'completed' ||
+      enrichment.status === 'failed' ||
+      enrichment.status === 'cancelled'
+    ) {
+      continue
     }
 
-    const enrichments = await ctx.db
-      .query('route_enrichments')
-      .withIndex('by_routePlanId', (q: any) => q.eq('routePlanId', routePlan._id))
-      .collect()
-
-    // 3. Cancel and mark each stale enrichment
-    for (const enrichment of enrichments) {
-      if (enrichment.status === 'pending' || enrichment.status === 'running') {
-        // Cancel scheduled job if it exists
-        if (enrichment.scheduledJobId) {
-          await ctx.scheduler.cancel(enrichment.scheduledJobId)
-        }
-
-        // Mark as cancelled
-        await ctx.db.patch(enrichment._id, {
-          status: 'cancelled',
-          updatedAt: Date.now(),
-        })
+    // Cancel scheduled job if it exists
+    if (enrichment.scheduledJobId) {
+      try {
+        await ctx.scheduler.cancel(enrichment.scheduledJobId)
+      } catch (error) {
+        // Log error but continue - enrichment should still be marked as cancelled
+        console.error('[routeEnrichments] Failed to cancel scheduled job:', error)
       }
     }
+
+    // Mark as cancelled
+    await ctx.db.patch(enrichment._id, {
+      status: 'cancelled',
+      updatedAt: Date.now(),
+    })
   }
 }
 
@@ -272,6 +282,7 @@ const internalRouteEnrichments = (internal as any).db.routeEnrichments
 export const createEnrichment = internalMutation({
   args: {
     routePlanId: v.id('route_plans'),
+    planningSessionId: v.id('planning_sessions'),
     clerkUserId: v.string(),
     contentFingerprint: v.string(),
     phase: routeEnrichmentPhaseValidator,
@@ -369,6 +380,22 @@ export const findByRoutePlanId = internalQuery({
   returns: v.array(v.any()),
   handler: async (ctx, args): Promise<RouteEnrichmentDoc[]> => {
     return findByRoutePlanIdHandler(ctx as any, args)
+  },
+})
+
+/**
+ * Public query: Get the most recent enrichment for a route plan
+ * Used by the frontend to track enrichment status for route option cards
+ */
+export const getByRoutePlanId = query({
+  args: {
+    routePlanId: v.id('route_plans'),
+  },
+  returns: v.union(v.null(), v.any()),
+  handler: async (ctx, args): Promise<RouteEnrichmentDoc | null> => {
+    const enrichments = await findByRoutePlanIdHandler(ctx as any, args)
+    // Return the most recent enrichment (sorted by createdAt desc)
+    return enrichments.length > 0 ? enrichments[0] : null
   },
 })
 

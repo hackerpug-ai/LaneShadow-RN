@@ -146,6 +146,30 @@ const lightSemanticTheme: SemanticTheme = {
     scrim: createColorSet('rgba(0,0,0,0.55)'),
     routeSelected: createColorSet('#B87333', '#C58545', '#8C5A2B'),
     routeAlternate: createColorSet('rgba(0,0,0,0.45)'),
+
+    // Waypoint kind colors (light mode)
+    // onRoute: Green - waypoint is on the planned route
+    waypointOnRoute: createColorSet('#31A362', '#4FBD7F', '#268A4D', '#A0DDB8'),
+    // offRoute: Amber - waypoint is off the planned route
+    waypointOffRoute: createColorSet('#D98E04', '#E6A42C', '#A86D00', '#F5D182'),
+    // mixed: Blue - waypoint has mixed on/off route status
+    waypointMixed: createColorSet('#2B9AEB', '#5DB3F0', '#1081D6', '#B8DCF5'),
+
+    // Enrichment phase colors (light mode)
+    // fast: Teal - fast/standard enrichment completed
+    enrichmentFast: createColorSet('#2C9F9B', '#4DBFB9', '#1F7A7B', '#A0E5E0'),
+    // extended: Purple - extended enrichment in progress
+    enrichmentExtended: createColorSet('#8B5CF6', '#A78BFA', '#6D28D9', '#C4B5FD'),
+    // cached: Gray - enrichment served from cache
+    enrichmentCached: createColorSet('#6B7280', '#8B93A0', '#4B5563', '#D1D5DB'),
+
+    // Deviation path colors (light mode)
+    // originalRoute: Muted gray - the original planned route
+    deviationOriginalRoute: createColorSet('#9CA3AF', '#B0B7C0', '#6B7280', '#E5E7EB'),
+    // detourPath: Orange - the active detour/deviation path
+    deviationDetourPath: createColorSet('#FF6B35', '#FF8555', '#E6572E', '#FFB8A0'),
+    // reconnectPoint: Green - point where detour reconnects to original route
+    deviationReconnectPoint: createColorSet('#31A362', '#4FBD7F', '#268A4D', '#A0DDB8'),
   },
 
   space: SPACING,
@@ -292,6 +316,30 @@ const darkSemanticTheme: SemanticTheme = {
     scrim: createColorSet('rgba(0,0,0,0.55)'),
     routeSelected: createColorSet('#B87333', '#C58545', '#8C5A2B'),
     routeAlternate: createColorSet('rgba(255,255,255,0.45)'),
+
+    // Waypoint kind colors (dark mode)
+    // onRoute: Green - waypoint is on the planned route
+    waypointOnRoute: createColorSet('#31A362', '#4FBD7F', '#268A4D', '#1B5F35'),
+    // offRoute: Amber - waypoint is off the planned route
+    waypointOffRoute: createColorSet('#D98E04', '#E6A42C', '#A86D00', '#A96419'),
+    // mixed: Blue - waypoint has mixed on/off route status
+    waypointMixed: createColorSet('#2B9AEB', '#5DB3F0', '#1081D6', '#1C6AA6'),
+
+    // Enrichment phase colors (dark mode)
+    // fast: Teal - fast/standard enrichment completed
+    enrichmentFast: createColorSet('#2C9F9B', '#4DBFB9', '#1F7A7B', '#1A5F5C'),
+    // extended: Purple - extended enrichment in progress
+    enrichmentExtended: createColorSet('#8B5CF6', '#A78BFA', '#6D28D9', '#4C1D95'),
+    // cached: Gray - enrichment served from cache
+    enrichmentCached: createColorSet('#9CA3AF', '#B0B7C0', '#6B7280', '#4B5563'),
+
+    // Deviation path colors (dark mode)
+    // originalRoute: Muted gray - the original planned route
+    deviationOriginalRoute: createColorSet('#6B7280', '#8B93A0', '#4B5563', '#374151'),
+    // detourPath: Orange - the active detour/deviation path
+    deviationDetourPath: createColorSet('#FF6B35', '#FF8555', '#E6572E', '#B8451F'),
+    // reconnectPoint: Green - point where detour reconnects to original route
+    deviationReconnectPoint: createColorSet('#31A362', '#4FBD7F', '#268A4D', '#1B5F35'),
   },
 
   space: SPACING,

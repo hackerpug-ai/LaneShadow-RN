@@ -27,6 +27,7 @@ export const routeEnrichmentPhaseValidator = v.union(v.literal('fast'), v.litera
 
 export const routeEnrichmentValidator = v.object({
   routePlanId: v.id('route_plans'),
+  planningSessionId: v.id('planning_sessions'),
   clerkUserId: v.string(),
 
   // Content fingerprint for cache invalidation

@@ -142,10 +142,12 @@ export default defineSchema({
    * Route enrichments table - Tracks background enrichment jobs with cache support
    * Indexed by routePlanId for finding enrichments for a specific route plan
    * Indexed by contentFingerprint and phase for cache lookup and invalidation
+   * Indexed by planningSessionId and status for efficient session-scoped invalidation
    */
   route_enrichments: defineTable(routeEnrichmentValidator)
     .index('by_routePlanId', ['routePlanId'])
-    .index('by_contentFingerprint_and_phase', ['contentFingerprint', 'phase']),
+    .index('by_contentFingerprint_and_phase', ['contentFingerprint', 'phase'])
+    .index('by_planningSessionId_and_status', ['planningSessionId', 'status']),
 
   /**
    * Waypoints table - Stores user waypoints for route plans
