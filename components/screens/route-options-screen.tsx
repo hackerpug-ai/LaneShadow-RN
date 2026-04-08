@@ -2,17 +2,19 @@
  * RouteOptionsScreen Component
  *
  * Screen displaying route options with weather safety overlays
- * Composes RouteOptionCard, WeatherPill, StatRow, RouteBadge, PrimaryButton, SectionHeader atoms
+ * Uses SubpageLayout for proper safe area handling and navigation
+ * Composes RouteOptionCard, WeatherPill, StatRow, RouteBadge, PrimaryButton atoms
  * Follows the design system screen patterns
  */
 
 import { StyleSheet, View, ScrollView, Pressable } from 'react-native'
+import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
 import { RouteOptionCard } from '../ui/route-option-card'
 import { PrimaryButton } from '../ui/primary-button'
-import { SectionHeader } from '../ui/section-header'
+import { SubpageLayout } from '../layouts/subpage-layout'
 import type { IconName } from '../ui/icon-symbol'
 
 export type RouteOptionData = {
@@ -41,11 +43,14 @@ export type RouteOptionsScreenProps = {
   loading?: boolean
   /** Error state */
   error?: string | null
+  /** Test ID for testing */
+  testID?: string
 }
 
 /**
  * RouteOptionsScreen component for displaying route options with weather overlays
  * Shows a list of route options with stats, badges, and weather information
+ * Uses SubpageLayout for proper navigation and safe area handling
  */
 export const RouteOptionsScreen = ({
   routes,
@@ -55,6 +60,7 @@ export const RouteOptionsScreen = ({
   onBack,
   loading = false,
   error = null,
+  testID,
 }: RouteOptionsScreenProps) => {
   const theme = useTheme<ExtendedTheme>()
   const { semantic } = theme
@@ -76,65 +82,53 @@ export const RouteOptionsScreen = ({
 
   if (loading) {
     return (
-      <View
-        style={[
-          styles.container,
-          styles.centered,
-          { backgroundColor: semantic.color.background.default },
-        ]}
-      >
-        <View style={styles.loadingContainer}>
-          <View
-            style={[
-              styles.spinner,
-              {
-                borderTopColor: semantic.color.primary.default,
-              },
-            ]}
-          />
+      <SubpageLayout title="Route Options" testID={testID || 'route-options-loading'}>
+        <View style={[styles.centered, { flex: 1 }]}>
+          <View style={styles.loadingContainer}>
+            <View
+              style={[
+                styles.spinner,
+                {
+                  borderTopColor: semantic.color.primary.default,
+                },
+              ]}
+            />
+          </View>
         </View>
-      </View>
+      </SubpageLayout>
     )
   }
 
   if (error) {
     return (
-      <View
-        style={[
-          styles.container,
-          styles.centered,
-          { backgroundColor: semantic.color.background.default },
-        ]}
-      >
-        <View style={styles.errorContainer}>
-          <View style={styles.errorContent}>
-            <View
-              style={[
-                styles.errorIcon,
-                { backgroundColor: semantic.color.danger.default + '26' }, // Add 15% alpha
-              ]}
-            >
-              <View style={[styles.errorDot, { backgroundColor: semantic.color.danger.default }]} />
-            </View>
-            <View style={styles.errorTextContainer}>
-              <View style={[styles.errorLine, { backgroundColor: semantic.color.onSurface.muted }]} />
-              <View style={[styles.errorLine, { backgroundColor: semantic.color.onSurface.muted }, styles.errorLineShort]} />
+      <SubpageLayout title="Route Options" testID={testID || 'route-options-error'}>
+        <View style={[styles.centered, { flex: 1 }]}>
+          <View style={styles.errorContainer}>
+            <View style={styles.errorContent}>
+              <View
+                style={[
+                  styles.errorIcon,
+                  { backgroundColor: semantic.color.danger.default + '26' }, // Add 15% alpha
+                ]}
+              >
+                <View style={[styles.errorDot, { backgroundColor: semantic.color.danger.default }]} />
+              </View>
+              <View style={styles.errorTextContainer}>
+                <View style={[styles.errorLine, { backgroundColor: semantic.color.onSurface.muted }]} />
+                <View style={[styles.errorLine, { backgroundColor: semantic.color.onSurface.muted }, styles.errorLineShort]} />
+              </View>
             </View>
           </View>
         </View>
-      </View>
+      </SubpageLayout>
     )
   }
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          backgroundColor: semantic.color.background.default,
-          paddingBottom: insets.bottom + semantic.space.lg,
-        },
-      ]}
+    <SubpageLayout
+      title="Route Options"
+      testID={testID || 'route-options-screen'}
+      backTo={onBack ? undefined : '/(app)/(tabs)'}
     >
       <ScrollView
         style={styles.scrollView}
@@ -144,10 +138,11 @@ export const RouteOptionsScreen = ({
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <SectionHeader
-          title="Route Options"
-          subtitle={`${routes.length} routes found`}
-        />
+        <View style={styles.subtitleContainer}>
+          <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.subtle }}>
+            {routes.length} {routes.length === 1 ? 'route' : 'routes'} found
+          </Text>
+        </View>
 
         <View style={styles.routesList}>
           {routes.map((route) => (
@@ -179,7 +174,7 @@ export const RouteOptionsScreen = ({
           styles.bottomBar,
           {
             paddingHorizontal: semantic.space.lg,
-            paddingBottom: semantic.space.md,
+            paddingBottom: insets.bottom + semantic.space.md,
             borderTopColor: semantic.color.divider.default,
           },
         ]}
@@ -192,14 +187,11 @@ export const RouteOptionsScreen = ({
           Start Navigation
         </PrimaryButton>
       </View>
-    </View>
+    </SubpageLayout>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   centered: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -210,6 +202,9 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 16,
     paddingBottom: 16,
+  },
+  subtitleContainer: {
+    marginBottom: 8,
   },
   routesList: {
     gap: 12,
