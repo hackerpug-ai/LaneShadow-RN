@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, ScrollView } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { BottomActionSheet } from '../ui/bottom-action-sheet'
 import { SheetHandle } from './sheet-handle'
@@ -22,6 +22,13 @@ export type BottomSheetWrapperProps = {
   snapPoints?: (string | number)[]
   wrapChildren?: boolean
   showHandle?: boolean
+  footer?: ReactNode
+  /**
+   * Whether this sheet contains text inputs that need keyboard avoidance.
+   * When true, enables interactive keyboard behavior and proper resize handling.
+   * IMPORTANT: You should still wrap individual inputs with <KeyboardAvoidingInput>.
+   */
+  hasTextInput?: boolean
 }
 
 /**
@@ -37,6 +44,8 @@ export const BottomSheetWrapper = ({
   snapPoints,
   wrapChildren = true,
   showHandle = true,
+  footer,
+  hasTextInput = false,
 }: BottomSheetWrapperProps) => {
   const { semantic } = useSemanticTheme()
 
@@ -48,6 +57,7 @@ export const BottomSheetWrapper = ({
       onDismiss={onClose}
       testID={testID}
       snapPoints={resolvedSnapPoints}
+      hasTextInput={hasTextInput}
     >
       {wrapChildren ? (
         <View
@@ -65,7 +75,11 @@ export const BottomSheetWrapper = ({
           {children}
         </View>
       ) : (
-        children
+        <View style={styles.unwrappedContainer}>
+          {showHandle ? <SheetHandle /> : null}
+          {children}
+          {footer && <View style={styles.footerWrapper}>{footer}</View>}
+        </View>
       )}
     </BottomActionSheet>
   )
@@ -74,5 +88,15 @@ export const BottomSheetWrapper = ({
 const styles = StyleSheet.create({
   content: {
     flex: 1,
+  },
+  unwrappedContainer: {
+    flex: 1,
+    flexDirection: 'column',
+  },
+  footerWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
 })

@@ -12,6 +12,7 @@ import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from '@gorhom/
 import { Provider as PaperProvider } from 'react-native-paper'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 export type BottomActionSheetProps = {
@@ -32,6 +33,12 @@ export type BottomActionSheetProps = {
    * content (wrapChildren=false), attach a testID to the scrollable component directly.
    */
   testID?: string
+  /**
+   * Whether this sheet contains text inputs that need special keyboard handling.
+   * When true, enables interactive keyboard behavior that allows the sheet to
+   * grow with the keyboard instead of being pushed off-screen.
+   */
+  hasTextInput?: boolean
 }
 
 /**
@@ -44,12 +51,19 @@ export const BottomActionSheet = ({
   children,
   snapPoints: customSnapPoints,
   testID,
+  hasTextInput = false,
 }: BottomActionSheetProps) => {
   const { semantic } = useSemanticTheme()
+  const insets = useSafeAreaInsets()
   const bottomSheetRef = useRef<BottomSheetModal>(null)
   const isPresented = useRef(false)
 
   const snapPoints = useMemo(() => customSnapPoints || ['90%'], [customSnapPoints])
+
+  // When sheet has text input, enable interactive keyboard behavior
+  // This allows the sheet to grow with keyboard instead of being pushed up
+  const keyboardBehavior = hasTextInput ? ('interactive' as const) : ('fillParent' as const)
+  const keyboardBlurBehavior = hasTextInput ? 'restore' : 'none'
 
   useEffect(() => {
     if (visible && !isPresented.current) {
@@ -87,6 +101,7 @@ export const BottomActionSheet = ({
       ref={bottomSheetRef}
       index={0}
       snapPoints={snapPoints}
+      topInset={insets.top}
       enablePanDownToClose
       enableDismissOnClose
       stackBehavior="push"
@@ -97,11 +112,11 @@ export const BottomActionSheet = ({
       }}
       handleComponent={() => null}
       android_keyboardInputMode="adjustResize"
-      keyboardBehavior="interactive"
-      keyboardBlurBehavior="restore"
+      keyboardBehavior={keyboardBehavior}
+      keyboardBlurBehavior={keyboardBlurBehavior}
     >
       <PaperProvider theme={theme}>
-        <BottomSheetView style={[styles.container]} testID={testID}>
+        <BottomSheetView style={styles.container} testID={testID}>
           {children}
         </BottomSheetView>
       </PaperProvider>

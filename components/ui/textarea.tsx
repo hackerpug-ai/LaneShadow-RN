@@ -2,6 +2,15 @@
  * Textarea Component
  * Multi-line text input field with semantic theme styling
  *
+ * IMPORTANT: When using this component in bottom sheets, modals, or any container
+ * where the keyboard might hide the input, wrap it with <KeyboardAvoidingInput>:
+ *
+ *   import { KeyboardAvoidingInput } from './keyboard-avoiding-input'
+ *
+ *   <KeyboardAvoidingInput>
+ *     <Textarea ... />
+ *   </KeyboardAvoidingInput>
+ *
  * Specs from README 7.2:
  * - Min height: 80px with px-3 py-2 padding
  * - Border: 1px with semantic.color.border

@@ -2,6 +2,15 @@
  * Input Component
  * Text input field with semantic theme styling
  *
+ * IMPORTANT: When using this component in bottom sheets, modals, or any container
+ * where the keyboard might hide the input, wrap it with <KeyboardAvoidingInput>:
+ *
+ *   import { KeyboardAvoidingInput } from './keyboard-avoiding-input'
+ *
+ *   <KeyboardAvoidingInput>
+ *     <Input ... />
+ *   </KeyboardAvoidingInput>
+ *
  * Design specs from placesearch.designs.html:
  * - Container: bg-surface-elevated, rounded-xl, h-12 (48px)
  * - Icon: Left-aligned with primary color, pl-4 pr-2 spacing

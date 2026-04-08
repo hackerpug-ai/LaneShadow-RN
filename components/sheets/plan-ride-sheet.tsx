@@ -116,7 +116,13 @@ export const PlanRideSheet = ({
   }
 
   return (
-    <BottomSheetWrapper isVisible={isVisible} onClose={onClose} preset="half" wrapChildren={false}>
+    <BottomSheetWrapper
+      isVisible={isVisible}
+      onClose={onClose}
+      preset="half"
+      wrapChildren={false}
+      hasTextInput={true}
+    >
       <BottomSheetScrollView
         contentContainerStyle={[styles.container, {
           gap: semantic.space.lg,

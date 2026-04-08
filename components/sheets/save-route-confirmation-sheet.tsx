@@ -15,6 +15,7 @@ import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
+import { KeyboardAvoidingInput } from '../ui/keyboard-avoiding-input'
 import { BottomSheetWrapper } from './bottom-sheet-wrapper'
 
 export type SaveRouteConfirmationSheetProps = {
@@ -57,7 +58,13 @@ export const SaveRouteConfirmationSheet = ({
   const isValid = routeName.trim().length > 0
 
   return (
-    <BottomSheetWrapper isVisible={isVisible} onClose={handleClose} preset="content" testID={testID}>
+    <BottomSheetWrapper
+      isVisible={isVisible}
+      onClose={handleClose}
+      preset="content"
+      testID={testID}
+      hasTextInput={true}
+    >
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -83,15 +90,17 @@ export const SaveRouteConfirmationSheet = ({
 
         {/* Name Input */}
         <View style={styles.inputSection}>
-          <Input
-            label="Route Name"
-            placeholder="e.g., Coastal Sunday Ride"
-            value={routeName}
-            onChangeText={setRouteName}
-            editable={!isSaving}
-            leftIcon="map-marker-path"
-            testID={`${testID}-name-input`}
-          />
+          <KeyboardAvoidingInput behavior="padding" offset={20}>
+            <Input
+              label="Route Name"
+              placeholder="e.g., Coastal Sunday Ride"
+              value={routeName}
+              onChangeText={setRouteName}
+              editable={!isSaving}
+              leftIcon="map-marker-path"
+              testID={`${testID}-name-input`}
+            />
+          </KeyboardAvoidingInput>
         </View>
 
         {/* Actions */}
