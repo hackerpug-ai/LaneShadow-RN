@@ -2,6 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ChatMessage, ChatMessageStatus } from '../components/ui/chat-transcript'
 
 // ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+/** Auto-dismiss timeout for toasts in milliseconds */
+const TOAST_AUTO_DISMISS_MS = 5000 // 5 seconds
+
+// ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
@@ -90,10 +97,18 @@ export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessage
     setToasts([])
   }, [sessionId])
 
-  // Clear all toasts when entering chat mode
+  // Clear all toasts when entering chat mode (full transcript shows all messages)
+  // But don't clear immediately - let them auto-dismiss naturally
   useEffect(() => {
-    if (chatMode) setToasts([])
-  }, [chatMode])
+    if (chatMode && toasts.length > 0) {
+      // In chat mode, clear toasts after a shorter delay since the full
+      // transcript is visible and shows all messages
+      const timer = setTimeout(() => {
+        setToasts([])
+      }, 1000) // Clear toasts after 1 second in chat mode
+      return () => clearTimeout(timer)
+    }
+  }, [chatMode, toasts.length])
 
   // Scan for new toast-worthy messages on every transcript update.
   // Depends on `fingerprint` so it re-fires when content streams in,
@@ -147,6 +162,27 @@ export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessage
       return changed ? updated : current
     })
   }, [transcriptMessages])
+
+  // Auto-dismiss toasts after a delay (works in both map and chat mode)
+  // This ensures messages don't stay on screen forever
+  useEffect(() => {
+    if (toasts.length === 0) return
+
+    // Set up auto-dismiss timers for each toast
+    const timers: number[] = []
+
+    toasts.forEach((toast) => {
+      const timer = setTimeout(() => {
+        setToasts((prev) => prev.filter((t) => t.id !== toast.id))
+      }, TOAST_AUTO_DISMISS_MS)
+      timers.push(timer)
+    })
+
+    // Clean up timers on unmount or when toasts change
+    return () => {
+      timers.forEach((timer) => clearTimeout(timer))
+    }
+  }, [toasts, chatMode]) // Include chatMode so timers reset when mode changes
 
   const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id))
