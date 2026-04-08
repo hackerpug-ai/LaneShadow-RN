@@ -20,7 +20,9 @@ import type { MapViewHandle } from '../../../components/map/map-view'
 import { MapViewWrapper } from '../../../components/map/map-view'
 import { WeatherPillsRow } from '../../../components/map/weather-pills-row'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
+import { RoutePolyline, type SegmentSelectData } from '../../../components/map/route-polyline-component'
 import { PlanRideSheet } from '../../../components/sheets/plan-ride-sheet'
+import { SaveFavoriteSheet } from '../../../components/ui/save-favorite-sheet'
 import { PlanningErrorSheet } from '../../../components/sheets/planning-error-sheet'
 import { RoutePlannerLoading } from '../../../components/sheets/planning-loading'
 import { ChatInput, RouteAttachmentCard } from '../../../components/chat'
@@ -102,6 +104,11 @@ const HomeMapScreen = () => {
   const [searchStop, setSearchStop] = useState<RouteStop | null>(null)
   const [controlsHeight, setControlsHeight] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
+
+  // US-050: Save Favorite Sheet state
+  const [saveFavoriteSheetVisible, setSaveFavoriteSheetVisible] = useState(false)
+  const [selectedSegment, setSelectedSegment] = useState<SegmentSelectData | null>(null)
+  const [highlightedSegmentId, setHighlightedSegmentId] = useState<string | undefined>(undefined)
 
   // Chat infrastructure
   const { state: flowState, dispatch: flowDispatch } = useRideFlow()
@@ -636,6 +643,7 @@ const HomeMapScreen = () => {
         avoidHighways,
         avoidTolls,
       },
+      includeFavorites,
     }
 
     const result = await planRide(input)
@@ -666,6 +674,7 @@ const HomeMapScreen = () => {
     scenicBias,
     avoidHighways,
     avoidTolls,
+    includeFavorites,
     planRide,
     resetError,
     camera.zoom,
@@ -767,6 +776,28 @@ const HomeMapScreen = () => {
     setErrorSheetVisible(false)
     resetError()
   }
+
+  // US-050: Handle segment long-press for favorite saving
+  const handleSegmentSelect = useCallback((segment: SegmentSelectData) => {
+    setSelectedSegment(segment)
+    setHighlightedSegmentId(segment.segmentId)
+    // Small delay to show highlight before sheet appears
+    setTimeout(() => {
+      setSaveFavoriteSheetVisible(true)
+    }, 100)
+  }, [])
+
+  const handleCloseSaveFavoriteSheet = useCallback(() => {
+    setSaveFavoriteSheetVisible(false)
+    setHighlightedSegmentId(undefined)
+    setSelectedSegment(null)
+  }, [])
+
+  const handleSaveFavoriteSuccess = useCallback(() => {
+    // Sheet will close via onSuccess prop
+    setHighlightedSegmentId(undefined)
+    setSelectedSegment(null)
+  }, [])
 
   return (
     <MenuLayout testID="home-menu-layout" menuOpen={menuOpen} onMenuOpenChange={setMenuOpen}>
