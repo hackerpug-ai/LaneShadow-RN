@@ -97,7 +97,7 @@ export type PlannedRouteOptionView = {
   /** Favorites included in this route */
   includedFavorites?: string[]
   /** Favorites excluded with reasons */
-  excludedFavorites?: { id: string; reason: string }[]
+  excludedFavorites?: { id: string; name?: string; reason: string }[]
 }
 
 export type PlannedRouteOptionsView = {
@@ -106,5 +106,5 @@ export type PlannedRouteOptionsView = {
   /** All favorites included across all routes */
   includedFavorites?: string[]
   /** All favorites excluded across all routes */
-  excludedFavorites?: { id: string; reason: string }[]
+  excludedFavorites?: { id: string; name?: string; reason: string }[]
 }

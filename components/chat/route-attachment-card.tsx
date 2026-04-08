@@ -40,6 +40,8 @@ type RouteAttachmentCardProps = {
   waypointSummary?: WaypointSummary
   /** Elevation gain in feet (for elevation badge) */
   elevationGainFt?: number
+  /** Whether favorites were included in route planning */
+  includeFavorites?: boolean
 }
 
 /**
@@ -126,6 +128,7 @@ export const RouteAttachmentCard = ({
   variant = 'compact',
   waypointSummary,
   elevationGainFt,
+  includeFavorites = false,
 }: RouteAttachmentCardProps) => {
   const { semantic } = useSemanticTheme()
   const [directionsVisible, setDirectionsVisible] = useState(false)
@@ -354,6 +357,48 @@ export const RouteAttachmentCard = ({
                 </Text>
               </>
             )}
+
+            {/* Favorite count badge (shown when includeFavorites is true) */}
+            {includeFavorites && (
+              <>
+                <Text
+                  style={[
+                    semantic.type.label.sm,
+                    {
+                      color: isSelected
+                        ? semantic.color.primary.default
+                        : semantic.color.onSurface.muted,
+                      marginHorizontal: semantic.space.xs,
+                    },
+                  ]}
+                >
+                  •
+                </Text>
+                <View
+                  style={styles.favoriteBadge}
+                  accessibilityLabel={`Route includes ${route.favorites?.count ?? 0} favorite${(route.favorites?.count ?? 0) === 1 ? '' : 's'}`}
+                  accessibilityRole="text"
+                >
+                  <Badge
+                    variant="default"
+                    testID={`${testID}-favorite-badge`}
+                    style={{ paddingHorizontal: semantic.space.xs }}
+                  >
+                    <Text
+                      style={[
+                        semantic.type.label.sm,
+                        {
+                          color: semantic.color.onPrimary.default,
+                          fontWeight: '600',
+                        },
+                      ]}
+                    >
+                      {route.favorites?.count ?? 0} favorite{(route.favorites?.count ?? 0) !== 1 ? 's' : ''}
+                    </Text>
+                  </Badge>
+                </View>
+              </>
+            )}
           </View>
 
           {/* Rationale snippet (full variant only) */}
@@ -450,6 +495,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
+  },
+  favoriteBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   rationale: {
     fontSize: 12,

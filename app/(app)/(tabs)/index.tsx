@@ -952,6 +952,7 @@ const HomeMapScreen = () => {
                     isSelected={option.routeOptionId === flowState.selectedRouteId}
                     onSelect={selectRoute}
                     testID={`route-card-${option.routeOptionId}`}
+                    includeFavorites={includeFavorites}
                   />
                 ))}
               </ScrollView>

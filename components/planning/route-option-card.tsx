@@ -38,6 +38,7 @@ export type RouteOptionCardProps = {
   isLoading?: boolean
   onSelect: (routeOptionId: string) => void
   testID?: string
+  includeFavorites?: boolean
 }
 
 /**
@@ -49,6 +50,7 @@ export const RouteOptionCard = ({
   isLoading = false,
   onSelect,
   testID,
+  includeFavorites = false,
 }: RouteOptionCardProps) => {
   const { semantic } = useSemanticTheme()
   const [showFavorites, setShowFavorites] = useState(false)
@@ -175,53 +177,64 @@ export const RouteOptionCard = ({
               testID={`${testID}-temperature-badge`}
             />
           </View>
+
+          {/* Favorites badge - shown alongside weather badges when includeFavorites is ON */}
+          {includeFavorites && (
+            <View style={styles.weatherItem}>
+              <Text variant="bodySmall" style={{ color: semantic.color.onSurface.muted }}>
+                Favorites
+              </Text>
+              <Pressable
+                onPress={() => setShowFavorites(!showFavorites)}
+                style={styles.favoriteBadgePressable}
+                testID={`${testID}-favorite-badge`}
+                accessibilityLabel={`Route includes ${favoriteCount} favorite${favoriteCount === 1 ? '' : 's'}`}
+                accessibilityRole="text"
+              >
+                <Badge variant="default" testID={`${testID}-favorite-badge-inner`}>
+                  <IconSymbol name="heart" size={12} color={semantic.color.onPrimary.default} />
+                  <Text
+                    variant="labelSmall"
+                    style={{ color: semantic.color.onPrimary.default, marginLeft: 4 }}
+                  >
+                    {favoriteCount} favorite{favoriteCount !== 1 ? 's' : ''}
+                  </Text>
+                </Badge>
+              </Pressable>
+            </View>
+          )}
         </View>
       </View>
 
-      {/* Favorite inclusion indicator */}
-      {favoriteCount > 0 && (
-        <View style={[styles.favoriteSection, { marginTop: semantic.space.sm }]}>
-          <Pressable
-            onPress={() => setShowFavorites(!showFavorites)}
-            style={styles.favoriteBadgePressable}
-            testID={`${testID}-favorite-badge`}
+      {/* Expandable favorite names list - shown below stats when favorites are included */}
+      {includeFavorites && showFavorites && favoriteNames.length > 0 && (
+        <View
+          style={[
+            styles.favoriteList,
+            {
+              backgroundColor: addOpacity(semantic.color.surface.default, 0.5),
+              borderRadius: semantic.radius.md,
+              padding: semantic.space.sm,
+              marginTop: semantic.space.sm,
+            },
+          ]}
+          testID={`${testID}-favorite-list`}
+        >
+          <Text
+            variant="bodySmall"
+            style={{ color: semantic.color.onSurface.default, fontWeight: '600', marginBottom: 4 }}
           >
-            <Badge variant="default" testID={`${testID}-favorite-badge-inner`}>
-              <IconSymbol name="heart" size={12} color={semantic.color.onPrimary.default} />
-              <Text
-                variant="labelSmall"
-                style={{ color: semantic.color.onPrimary.default, marginLeft: 4 }}
-              >
-                {favoriteCount} favorite{favoriteCount > 1 ? 's' : ''}
-              </Text>
-            </Badge>
-          </Pressable>
-
-          {/* Expandable favorite names list */}
-          {showFavorites && favoriteNames.length > 0 && (
-            <View
-              style={[
-                styles.favoriteList,
-                {
-                  backgroundColor: addOpacity(semantic.color.surface.default, 0.5),
-                  borderRadius: semantic.radius.md,
-                  padding: semantic.space.sm,
-                  marginTop: semantic.space.xs,
-                },
-              ]}
-              testID={`${testID}-favorite-list`}
+            Included favorites:
+          </Text>
+          {favoriteNames.map((name) => (
+            <Text
+              key={name}
+              variant="bodySmall"
+              style={{ color: semantic.color.onSurface.muted, marginBottom: 2 }}
             >
-              {favoriteNames.map((name) => (
-                <Text
-                  key={name}
-                  variant="bodySmall"
-                  style={{ color: semantic.color.onSurface.muted, marginBottom: 2 }}
-                >
-                  • {name}
-                </Text>
-              ))}
-            </View>
-          )}
+              • {name}
+            </Text>
+          ))}
         </View>
       )}
     </Pressable>
@@ -269,9 +282,6 @@ const styles = StyleSheet.create({
   weatherItem: {
     alignItems: 'center',
     flex: 1,
-  },
-  favoriteSection: {
-    marginTop: 4,
   },
   favoriteBadgePressable: {
     alignSelf: 'flex-start',

@@ -70,6 +70,7 @@ export const LayoutAnimation = {
 export const AccessibilityInfo = {
   isScreenReaderEnabled: () => Promise.resolve(false),
   addEventListener: () => ({ remove: () => undefined }),
+  announceForAccessibility: () => undefined,
 }
 
 export const Alert = {
