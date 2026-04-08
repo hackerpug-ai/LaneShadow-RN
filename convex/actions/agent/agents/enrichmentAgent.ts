@@ -254,6 +254,39 @@ export async function executeEnrichmentAgent(
       parallelSafeTools: enrichmentToolNames,
     })
 
+    // Check if any tools failed
+    const failedTools = result.toolResults.filter(
+      (tr): tr is { toolName: string; result: { type: 'error'; message: string } } =>
+        typeof tr.result === 'object' &&
+        tr.result !== null &&
+        'type' in tr.result &&
+        tr.result.type === 'error'
+    )
+
+    if (failedTools.length > 0) {
+      // Extract error reasons for debugging
+      const errorDetails = failedTools
+        .map(ft => `${ft.toolName}: ${(ft.result as any).message ?? 'unknown error'}`)
+        .join('; ')
+
+      console.warn(`[executeEnrichmentAgent] ${failedTools.length} tool(s) failed: ${errorDetails}`)
+
+      // Still return 'answered' if we have a response, but include error context
+      if (result.response) {
+        return {
+          status: 'answered',
+          data: result.toolResults,
+          summary: result.response,
+        }
+      }
+
+      // No response and tools failed - return not_applicable with details
+      return {
+        status: 'not_applicable',
+        reason: `Enrichment failed: ${errorDetails}`,
+      }
+    }
+
     // Build EnrichmentAgentResult from runAgent output
     if (result.toolResults.length > 0) {
       return {

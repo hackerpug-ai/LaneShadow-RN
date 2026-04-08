@@ -41,6 +41,10 @@ export function summarizeToolResult(toolName: string, result: unknown): string {
       return 'Mapping out your ride'
 
     case 'searchNearby': {
+      // Check for error result
+      if (result && typeof result === 'object' && 'status' in result && result.status === 'error') {
+        return 'Search failed'
+      }
       const results = Array.isArray(result) ? result : []
       const n = results.length
       return n > 0 ? `Found ${n} place${n === 1 ? '' : 's'} nearby` : 'Searched nearby'
@@ -56,12 +60,42 @@ export function summarizeToolResult(toolName: string, result: unknown): string {
     }
 
     case 'search_agent': {
-      if (r?.status === 'answered') return 'Found what you need'
+      if (r?.status === 'answered') {
+        // Check if data contains errors
+        const data = r?.data
+        if (Array.isArray(data) && data.length > 0) {
+          const hasErrors = data.some((item: any) =>
+            item?.result?.status === 'error' || item?.result?.type === 'error'
+          )
+          if (hasErrors) {
+            return 'Some searches failed — trying my best'
+          }
+        }
+        return 'Found what you need'
+      }
+      if (r?.status === 'not_applicable') {
+        return "Couldn't complete that search"
+      }
       return r?.summary ?? 'Done searching'
     }
 
     case 'enrichment_agent': {
-      if (r?.status === 'answered') return 'Got your answer'
+      if (r?.status === 'answered') {
+        // Check if data contains errors
+        const data = r?.data
+        if (Array.isArray(data) && data.length > 0) {
+          const hasErrors = data.some((item: any) =>
+            item?.result?.type === 'error' || item?.result?.status === 'error'
+          )
+          if (hasErrors) {
+            return 'Some checks failed — partial results'
+          }
+        }
+        return 'Got your answer'
+      }
+      if (r?.status === 'not_applicable') {
+        return "Couldn't complete that check"
+      }
       return r?.summary ?? 'Done checking'
     }
 

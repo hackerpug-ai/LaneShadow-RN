@@ -170,6 +170,39 @@ export async function executeSearchAgent(
       parallelSafeTools: searchToolNames,
     })
 
+    // Check if any tools failed
+    const failedTools = result.toolResults.filter(
+      (tr): tr is { toolName: string; result: { status: 'error'; reason: string } } =>
+        typeof tr.result === 'object' &&
+        tr.result !== null &&
+        'status' in tr.result &&
+        tr.result.status === 'error'
+    )
+
+    if (failedTools.length > 0) {
+      // Extract error reasons for debugging
+      const errorDetails = failedTools
+        .map(ft => `${ft.toolName}: ${(ft.result as any).reason ?? 'unknown error'}`)
+        .join('; ')
+
+      console.warn(`[executeSearchAgent] ${failedTools.length} tool(s) failed: ${errorDetails}`)
+
+      // Still return 'answered' if we have a response, but include error context
+      if (result.response) {
+        return {
+          status: 'answered',
+          data: result.toolResults,
+          summary: result.response,
+        }
+      }
+
+      // No response and tools failed - return not_applicable with details
+      return {
+        status: 'not_applicable',
+        reason: `Search failed: ${errorDetails}`,
+      }
+    }
+
     if (result.toolResults.length > 0) {
       return {
         status: 'answered',
