@@ -1,12 +1,15 @@
 import { defineSchema, defineTable } from 'convex/server'
+import { v } from 'convex/values'
 import { favoriteRoadValidator } from '../models/favorite-roads'
 import { orgMembershipValidator } from '../models/org-memberships'
 import { orgValidator } from '../models/orgs'
 import { planUsageValidator } from '../models/plan-usage'
 import { planningSessionValidator } from '../models/planning-sessions'
 import { routePlanValidator } from '../models/route-plans'
+import { planInputValidator } from '../models/saved-routes'
 import { savedRouteValidator } from '../models/saved-routes'
 import { sessionMessageValidator } from '../models/session-messages'
+import { tripPlanValidator } from '../models/trip-plan'
 import { userValidator } from '../models/users'
 import { performanceValidator } from '../models/performance'
 import { osmNodeValidator, osmWayValidator, osmImportJobValidator } from '../models/osm-data'
@@ -111,4 +114,25 @@ export default defineSchema({
    */
   osm_import_jobs: defineTable(osmImportJobValidator)
     .index('by_status', ['status']),
+
+  /**
+   * Trip plans table - Stores no-tool LLM trip plan generation records
+   * Indexed by clerkUserId for user trip plan lookups
+   */
+  trip_plans: defineTable({
+    clerkUserId: v.string(),
+    planInput: planInputValidator,
+    status: v.union(
+      v.literal('pending'),
+      v.literal('generating'),
+      v.literal('needs_retry'),
+      v.literal('completed'),
+      v.literal('failed')
+    ),
+    result: v.optional(tripPlanValidator),
+    attemptCount: v.number(),
+    error: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index('by_user', ['clerkUserId']),
 })
