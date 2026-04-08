@@ -269,6 +269,8 @@ export const invalidateStaleEnrichmentsHandler = async (
       updatedAt: Date.now(),
     })
   }
+
+  return Promise.resolve()
 }
 
 // ---------------------------------------------------------------------------

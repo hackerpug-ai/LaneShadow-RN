@@ -494,12 +494,10 @@ describe('invalidateStaleEnrichmentsHandler', () => {
       },
     }
 
-    await expect(
-      invalidateStaleEnrichmentsHandler(ctx as any, {
-        planningSessionId: PLANNING_SESSION_ID,
-        newRoutePlanId: NEW_ROUTE_PLAN_ID,
-      })
-    ).resolves.not.toThrow()
+    await invalidateStaleEnrichmentsHandler(ctx as any, {
+      planningSessionId: PLANNING_SESSION_ID,
+      newRoutePlanId: NEW_ROUTE_PLAN_ID,
+    })
 
     expect(ctx.scheduler.cancel).not.toHaveBeenCalled()
     expect(ctx.db.patch).not.toHaveBeenCalled()
@@ -588,12 +586,11 @@ describe('invalidateStaleEnrichmentsHandler', () => {
     }
 
     // Should not throw despite scheduler.cancel error
-    await expect(
-      invalidateStaleEnrichmentsHandler(ctx as any, {
-        planningSessionId: PLANNING_SESSION_ID,
-        newRoutePlanId: NEW_ROUTE_PLAN_ID,
-      })
-    ).resolves.not.toThrow()
+    await invalidateStaleEnrichmentsHandler(ctx as any, {
+      planningSessionId: PLANNING_SESSION_ID,
+      newRoutePlanId: NEW_ROUTE_PLAN_ID,
+    })
+    // If we get here, the function completed without throwing
 
     // Should still mark enrichment as cancelled despite scheduler error
     expect(ctx.db.patch).toHaveBeenCalledWith(
