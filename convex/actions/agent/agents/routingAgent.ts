@@ -786,81 +786,120 @@ async function runPlanRoute(
     departureTime: new Date(args.departureTime).toISOString(),
   })
 
-  try {
-    const results = await planRideOrchestrator({
-      planInput,
-      departureTimeMs: args.departureTime,
-    })
+  // Retry orchestrator internally before surfacing errors to the agent/UI.
+  // This prevents the UI from flashing a failure while the agent retries
+  // with a brand-new plan record.
+  const MAX_ORCHESTRATOR_RETRIES = 2
+  let lastError: unknown = null
 
-    let built
+  for (let attempt = 1; attempt <= MAX_ORCHESTRATOR_RETRIES; attempt++) {
     try {
-      built = buildOptionsFromResults(results, crypto.randomUUID())
-    } catch (buildError) {
-      console.error('[runPlanRoute] Error building options:', buildError)
+      const results = await planRideOrchestrator({
+        planInput,
+        departureTimeMs: args.departureTime,
+      })
+
+      let built
+      try {
+        built = buildOptionsFromResults(results, crypto.randomUUID())
+      } catch (buildError) {
+        console.error('[runPlanRoute] Error building options:', buildError)
+        await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+          routePlanId,
+          status: 'failed',
+          errorMessage: `Failed to build route options: ${buildError instanceof Error ? buildError.message : String(buildError)}`,
+        })
+        // Build errors are not retryable — bad data, not transient
+        return {
+          type: 'error',
+          message: "I couldn't plan your route right now. Please try again.",
+          hint: 'There was an issue processing the route data.',
+          retryGuidance: 'ask_rider',
+          routePlanId,
+        }
+      }
+
+      // Debug: log the result structure before storing
+      console.info('[runPlanRoute] Storing route plan result:', {
+        routePlanId,
+        status: 'completed',
+        optionsCount: built.options?.length,
+        firstOption: built.options?.[0] ? {
+          routeOptionId: built.options[0].routeOptionId,
+          hasMap: !!built.options[0].map,
+          hasOverviewGeometry: !!built.options[0].map?.overviewGeometry,
+          overviewGeometryValue: built.options[0].map?.overviewGeometry?.value?.substring(0, 50) + '...',
+          legsCount: built.options[0].map?.legs?.length,
+        } : null,
+      })
+
+      try {
+        await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+          routePlanId,
+          status: 'completed',
+          result: built,
+        })
+        console.info('[runPlanRoute] Route plan completed successfully:', {
+          routePlanId,
+          optionsCount: built.options?.length,
+        })
+      } catch (updateError) {
+        console.error('[runPlanRoute] Error updating status to completed:', updateError)
+        throw updateError
+      }
+
+      // Increment usage (deterministic action)
+      await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, {
+        clerkUserId: ctx.clerkUserId,
+      })
+
+      return { type: 'routes', data: built, routePlanId }
+    } catch (error) {
+      lastError = error
+      const errorMessage = error instanceof Error ? error.message : String(error)
+
+      if (attempt < MAX_ORCHESTRATOR_RETRIES) {
+        console.warn(`[runPlanRoute] Attempt ${attempt}/${MAX_ORCHESTRATOR_RETRIES} failed, retrying:`, errorMessage)
+        // Update status to show retry in progress (not "failed")
+        await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+          routePlanId,
+          status: 'running',
+          statusMessage: 'Retrying route planning...',
+        })
+        continue
+      }
+
+      // Final attempt failed — now surface the error
+      console.error('[runPlanRoute] All attempts exhausted:', errorMessage)
+      console.info('[runPlanRoute] Route plan failed:', {
+        routePlanId,
+        errorMessage,
+        attempts: attempt,
+      })
       await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
         routePlanId,
         status: 'failed',
-        errorMessage: `Failed to build route options: ${buildError instanceof Error ? buildError.message : String(buildError)}`,
+        errorMessage,
       })
-      throw buildError
-    }
-
-    // Debug: log the result structure before storing
-    console.info('[runPlanRoute] Storing route plan result:', {
-      routePlanId,
-      status: 'completed',
-      optionsCount: built.options?.length,
-      firstOption: built.options?.[0] ? {
-        routeOptionId: built.options[0].routeOptionId,
-        hasMap: !!built.options[0].map,
-        hasOverviewGeometry: !!built.options[0].map?.overviewGeometry,
-        overviewGeometryValue: built.options[0].map?.overviewGeometry?.value?.substring(0, 50) + '...',
-        legsCount: built.options[0].map?.legs?.length,
-      } : null,
-    })
-
-    try {
-      await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+      return {
+        type: 'error',
+        message: "I couldn't plan your route right now. Please try again.",
+        hint: error instanceof Error && error.message.includes('timeout')
+          ? 'The route calculation timed out. Try a shorter distance or simpler route.'
+          : 'Suggest an alternate destination or relax preferences (e.g. remove avoid-highways).',
+        retryGuidance: 'ask_rider',
         routePlanId,
-        status: 'completed',
-        result: built,
-      })
-      console.info('[runPlanRoute] Route plan completed successfully:', {
-        routePlanId,
-        optionsCount: built.options?.length,
-      })
-    } catch (updateError) {
-      console.error('[runPlanRoute] Error updating status to completed:', updateError)
-      throw updateError
+      }
     }
+  }
 
-    // Increment usage (deterministic action)
-    await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, {
-      clerkUserId: ctx.clerkUserId,
-    })
-
-    return { type: 'routes', data: built, routePlanId }
-  } catch (error) {
-    console.error('[runPlanRoute] Error:', error)
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    console.info('[runPlanRoute] Route plan failed:', {
-      routePlanId,
-      errorMessage,
-    })
-    await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
-      routePlanId,
-      status: 'failed',
-      errorMessage,
-    })
-    return {
-      type: 'error',
-      message: "I couldn't plan your route right now. Please try again.",
-      hint: error instanceof Error && error.message.includes('timeout')
-        ? 'The route calculation timed out. Try a shorter distance or simpler route.'
-        : 'Suggest an alternate destination or relax preferences (e.g. remove avoid-highways).',
-      retryGuidance: 'ask_rider',
-      routePlanId,
-    }
+  // Should never reach here, but TypeScript needs it
+  return {
+    type: 'error',
+    message: "I couldn't plan your route right now. Please try again.",
+    hint: 'Suggest an alternate destination or relax preferences.',
+    retryGuidance: 'ask_rider',
+    routePlanId,
   }
 }
 

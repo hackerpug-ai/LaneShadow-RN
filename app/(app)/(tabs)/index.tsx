@@ -965,6 +965,25 @@ const HomeMapScreen = () => {
         <MapPlanningIndicator
           visible={mapPlanningVisible && !chatMode && toasts.length === 0}
           bottomOffset={insets.bottom + 96}
+          extraInputOffset={useMemo(() => {
+            // Match the ChatInput's extraBottomOffset calculation so indicator
+            // stays above the input, not overlapping it
+            if (chatMode) return 0
+
+            const offsets: number[] = []
+
+            // Planning indicator: ~44px height (from MapPlanningIndicator)
+            if (mapPlanningVisible && toasts.length === 0) {
+              offsets.push(44)
+            }
+
+            // Toast stack: varies by message count, ~48px per toast
+            if (toasts.length > 0) {
+              offsets.push(toasts.length * 48)
+            }
+
+            return Math.max(...offsets, 0)
+          }, [chatMode, mapPlanningVisible, toasts.length])}
         />
 
         {/* Toast-style message notifications — map mode only */}

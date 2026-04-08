@@ -28,6 +28,7 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.hackerpug.laneshadow",
+      "windowSoftInputMode": "adjustResize",
       "config": {
         "googleMaps": {
           "apiKey": "process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY"

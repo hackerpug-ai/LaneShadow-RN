@@ -19,24 +19,32 @@ type MapPlanningIndicatorProps = {
   visible: boolean
   /** Distance from the screen bottom to clear the ChatInput. */
   bottomOffset?: number
+  /** Extra offset added by ChatInput to avoid overlapping temporary elements.
+   *  The indicator must position itself above this offset. */
+  extraInputOffset?: number
   testID?: string
 }
 
 export const MapPlanningIndicator = ({
   visible,
   bottomOffset,
+  extraInputOffset = 0,
   testID = 'map-planning-indicator',
 }: MapPlanningIndicatorProps) => {
   const { semantic } = useSemanticTheme()
 
   if (!visible) return null
 
+  // Calculate position: base offset + extra input offset + buffer
+  // The indicator sits above the input, so we add the offsets to position it correctly
+  const calculatedBottom = (bottomOffset ?? 100) + extraInputOffset
+
   return (
     <Animated.View
       entering={FadeIn.duration(200)}
       exiting={FadeOut.duration(200)}
       testID={testID}
-      style={[styles.wrapper, bottomOffset !== undefined && { bottom: bottomOffset }]}
+      style={[styles.wrapper, { bottom: calculatedBottom }]}
     >
       <View
         style={[

@@ -110,7 +110,7 @@ const parseGoogleRoute = (route: any): ProviderRouteResponse => {
     const steps: ProviderStep[] = stepsRaw.map((step: any, stepIdx: number) => {
       const stepStartLatLng = step?.startLocation?.latLng
       const stepEndLatLng = step?.endLocation?.latLng
-      const instruction = step?.instruction ?? ''
+      const instruction = step?.navigationInstruction?.instructions ?? ''
 
       return {
         stepIndex: stepIdx,
@@ -251,7 +251,7 @@ const fetchGoogleRoutes = async (apiKey: string, body: any): Promise<any> => {
         'routes.distanceMeters,routes.duration,routes.viewport,routes.polyline.encodedPolyline,' +
         'routes.legs.distanceMeters,routes.legs.duration,routes.legs.polyline.encodedPolyline,' +
         'routes.legs.startLocation.latLng,routes.legs.endLocation.latLng,' +
-        'routes.legs.steps.distanceMeters,routes.legs.steps.staticDuration,routes.legs.steps.instruction,routes.legs.steps.startLocation.latLng,routes.legs.steps.endLocation.latLng',
+        'routes.legs.steps.distanceMeters,routes.legs.steps.staticDuration,routes.legs.steps.navigationInstruction.instructions,routes.legs.steps.startLocation.latLng,routes.legs.steps.endLocation.latLng',
     },
     body: JSON.stringify(body),
   })

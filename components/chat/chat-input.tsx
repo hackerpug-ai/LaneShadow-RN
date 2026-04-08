@@ -19,8 +19,8 @@
  * so the cancel affordance stays in sync with actual agent activity.
  */
 
-import { useState, useCallback } from 'react'
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native'
+import { useState, useCallback, useEffect } from 'react'
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Keyboard } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Icon } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -124,6 +124,16 @@ export const ChatInput = ({
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
   const [text, setText] = useState('')
+  const [keyboardVisible, setKeyboardVisible] = useState(false)
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardWillShow', () => setKeyboardVisible(true))
+    const hideSub = Keyboard.addListener('keyboardWillHide', () => setKeyboardVisible(false))
+    return () => {
+      showSub.remove()
+      hideSub.remove()
+    }
+  }, [])
 
   const handleSend = useCallback(() => {
     // Block sending if planning is in progress
@@ -153,23 +163,17 @@ export const ChatInput = ({
   )
 
   return (
-    <View
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       pointerEvents="box-none"
       style={styles.container}
       testID={testID}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={0}
+      <View
         style={{
-          width: '100%',
+          paddingBottom: (keyboardVisible ? 0 : insets.bottom) + semantic.space.md + extraBottomOffset,
         }}
       >
-        <View
-          style={{
-            paddingBottom: insets.bottom + semantic.space.md + extraBottomOffset,
-          }}
-        >
         {/* Error message when in ERROR state */}
         {isError && errorMessage && (
           <View style={{ paddingHorizontal: semantic.space.md }}>
@@ -242,7 +246,7 @@ export const ChatInput = ({
               value={text}
               onChangeText={setText}
               multiline
-              textAlignVertical="top"
+              textAlignVertical="center"
               blurOnSubmit={false}
               editable={!isPlanning}
               testID="chat-input-text-field"
@@ -337,9 +341,8 @@ export const ChatInput = ({
           </TouchableOpacity>
         )}
         </View>
-        </View>
-      </KeyboardAvoidingView>
-    </View>
+      </View>
+    </KeyboardAvoidingView>
   )
 }
 
@@ -365,6 +368,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    width: '100%',
   },
   inputContainer: {
     flexDirection: 'row',

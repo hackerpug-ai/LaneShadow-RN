@@ -309,6 +309,29 @@ export const createForAgentInternal = internalMutation({
   returns: v.object({ routePlanId: v.id('route_plans') }),
   handler: async (ctx, args): Promise<{ routePlanId: Id<'route_plans'> }> => {
     const now = Date.now()
+
+    // Supersede any previous failed plans in the same session so the UI
+    // transitions them to "Cancelled" instead of showing a stale red error
+    // card while the new attempt runs.
+    if (args.planningSessionId) {
+      const previousPlans = await ctx.db
+        .query('route_plans')
+        .filter((q) =>
+          q.and(
+            q.eq(q.field('planningSessionId'), args.planningSessionId),
+            q.eq(q.field('status'), ROUTE_PLAN_STATUS.FAILED)
+          )
+        )
+        .collect()
+
+      for (const plan of previousPlans) {
+        await ctx.db.patch(plan._id, {
+          status: ROUTE_PLAN_STATUS.CANCELLED,
+          updatedAt: now,
+        })
+      }
+    }
+
     const routePlanId = await ctx.db.insert('route_plans', {
       clerkUserId: args.clerkUserId,
       planningSessionId: args.planningSessionId,

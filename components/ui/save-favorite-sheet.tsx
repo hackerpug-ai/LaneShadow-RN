@@ -11,7 +11,7 @@
  * - AC4: Error message displayed on save failure, sheet stays open
  */
 
-import { StyleSheet, View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native'
+import { StyleSheet, View, ScrollView } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useEffect, useState } from 'react'
 import { useMutation } from 'convex/react'
@@ -124,13 +124,9 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
       visible={visible}
       onDismiss={onClose}
       testID="save-favorite-sheet"
-      snapPoints={['80%']}
+      snapPoints={['75%']}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={0}
-        style={styles.container}
-      >
+      <View style={styles.container}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -219,7 +215,7 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
             </Button>
           </View>
         </ScrollView>
-      </KeyboardAvoidingView>
+      </View>
     </BottomActionSheet>
   )
 }
@@ -234,7 +230,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 16,
     gap: 16,
-    paddingBottom: 32,
+    paddingBottom: 100, // Extra padding for keyboard
   },
   title: {
     marginBottom: 4,
