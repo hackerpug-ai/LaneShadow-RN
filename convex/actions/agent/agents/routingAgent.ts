@@ -382,6 +382,12 @@ async function runCompileSketch(
     }
   )
 
+  // Invalidate stale enrichments from previous route plans in this session
+  await ctx.runMutation(internal.db.routeEnrichments.invalidateStaleEnrichments, {
+    planningSessionId: sessionId,
+    newRoutePlanId: routePlanId,
+  })
+
   try {
     // Import compilation tools dynamically to avoid circular deps
     const { compileSketch: compileSketchImpl, compileSegments, stitchSegments } = await import('../tools/compileSketch')
@@ -766,6 +772,12 @@ async function runPlanRoute(
       endLabel: args.end.label ?? undefined,
     }
   )
+
+  // Invalidate stale enrichments from previous route plans in this session
+  await ctx.runMutation(internal.db.routeEnrichments.invalidateStaleEnrichments, {
+    planningSessionId: ctx.planningSessionId,
+    newRoutePlanId: routePlanId,
+  })
 
   console.info('[runPlanRoute] Starting route planning:', {
     routePlanId,

@@ -57,6 +57,16 @@ type FindByFingerprintCtx = {
   }
 }
 
+type InvalidateStaleEnrichmentsCtx = {
+  db: {
+    query: (table: string) => any
+    patch: (id: Id<'route_enrichments'>, fields: object) => Promise<void>
+  }
+  scheduler: {
+    cancel: (id: Id<'_scheduled_functions'>) => Promise<void>
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Exported handler functions (testable without Convex runtime)
 // ---------------------------------------------------------------------------
@@ -103,6 +113,21 @@ export const updateStatusHandler = async (
 
   await ctx.db.patch(args.enrichmentId, {
     status: args.status,
+    updatedAt: now,
+  })
+}
+
+export const updateEnrichmentHandler = async (
+  ctx: UpdateEnrichmentCtx,
+  args: {
+    enrichmentId: Id<'route_enrichments'>
+    scheduledJobId: Id<'_scheduled_functions'>
+  }
+): Promise<void> => {
+  const now = Date.now()
+
+  await ctx.db.patch(args.enrichmentId, {
+    scheduledJobId: args.scheduledJobId,
     updatedAt: now,
   })
 }
@@ -184,6 +209,58 @@ export const findByContentFingerprintHandler = async (
     .unique()
 }
 
+/**
+ * Invalidate stale enrichments when a new route is created in the same session.
+ * Cancels scheduled jobs and marks enrichments as cancelled.
+ *
+ * @param ctx - Database and scheduler context
+ * @param args.planningSessionId - The planning session ID
+ * @param args.newRoutePlanId - The new route plan ID (exclude from invalidation)
+ */
+export const invalidateStaleEnrichmentsHandler = async (
+  ctx: InvalidateStaleEnrichmentsCtx,
+  args: {
+    planningSessionId: Id<'planning_sessions'>
+    newRoutePlanId: Id<'route_plans'>
+  }
+): Promise<void> => {
+  // 1. Find all route plans for this planning session
+  const routePlans = await ctx.db
+    .query('route_plans')
+    .withIndex('by_planningSessionId_and_status', (q: any) =>
+      q.eq('planningSessionId', args.planningSessionId)
+    )
+    .collect()
+
+  // 2. For each route plan (except the new one), find running/pending enrichments
+  for (const routePlan of routePlans) {
+    if (routePlan._id === args.newRoutePlanId) {
+      continue // Skip the new route plan
+    }
+
+    const enrichments = await ctx.db
+      .query('route_enrichments')
+      .withIndex('by_routePlanId', (q: any) => q.eq('routePlanId', routePlan._id))
+      .collect()
+
+    // 3. Cancel and mark each stale enrichment
+    for (const enrichment of enrichments) {
+      if (enrichment.status === 'pending' || enrichment.status === 'running') {
+        // Cancel scheduled job if it exists
+        if (enrichment.scheduledJobId) {
+          await ctx.scheduler.cancel(enrichment.scheduledJobId)
+        }
+
+        // Mark as cancelled
+        await ctx.db.patch(enrichment._id, {
+          status: 'cancelled',
+          updatedAt: Date.now(),
+        })
+      }
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Convex internal mutations and queries
 // ---------------------------------------------------------------------------
@@ -221,6 +298,18 @@ export const updateStatus = internalMutation({
   returns: v.null(),
   handler: async (ctx, args): Promise<null> => {
     await updateStatusHandler(ctx, args)
+    return null
+  },
+})
+
+export const updateEnrichment = internalMutation({
+  args: {
+    enrichmentId: v.id('route_enrichments'),
+    scheduledJobId: v.id('_scheduled_functions'),
+  },
+  returns: v.null(),
+  handler: async (ctx, args): Promise<null> => {
+    await updateEnrichmentHandler(ctx, args)
     return null
   },
 })
@@ -291,5 +380,17 @@ export const findByContentFingerprint = internalQuery({
   returns: v.union(v.null(), v.any()),
   handler: async (ctx, args): Promise<RouteEnrichmentDoc | null> => {
     return findByContentFingerprintHandler(ctx as any, args)
+  },
+})
+
+export const invalidateStaleEnrichments = internalMutation({
+  args: {
+    planningSessionId: v.id('planning_sessions'),
+    newRoutePlanId: v.id('route_plans'),
+  },
+  returns: v.null(),
+  handler: async (ctx, args): Promise<null> => {
+    await invalidateStaleEnrichmentsHandler(ctx as any, args)
+    return null
   },
 })

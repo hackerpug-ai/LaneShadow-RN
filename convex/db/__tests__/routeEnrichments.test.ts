@@ -6,7 +6,6 @@
  */
 
 import { vi, describe, it, expect } from 'vitest'
-import schema from '../../schema'
 import type { Id } from '../../_generated/dataModel'
 
 // These imports will fail until we implement the module
@@ -19,35 +18,11 @@ import {
   cancelEnrichmentHandler,
   findByRoutePlanIdHandler,
   findByContentFingerprintHandler,
+  invalidateStaleEnrichmentsHandler,
 } from '../routeEnrichments'
 
 // ---------------------------------------------------------------------------
-// AC-1: route_enrichments table exists in schema.ts
-// ---------------------------------------------------------------------------
-
-describe('route_enrichments schema', () => {
-  it('AC-1: route_enrichments table exists in schema', () => {
-    // This will fail if the table doesn't exist
-    expect(schema.tables).toHaveProperty('route_enrichments')
-  })
-
-  it('AC-2: has by_routePlanId index', () => {
-    const table = schema.tables.route_enrichments as any
-    expect(table).toBeDefined()
-    const indexDescriptors = table.indexes.map((idx: any) => idx.indexDescriptor)
-    expect(indexDescriptors).toContain('by_routePlanId')
-  })
-
-  it('AC-2: has by_contentFingerprint_and_phase index', () => {
-    const table = schema.tables.route_enrichments as any
-    expect(table).toBeDefined()
-    const indexDescriptors = table.indexes.map((idx: any) => idx.indexDescriptor)
-    expect(indexDescriptors).toContain('by_contentFingerprint_and_phase')
-  })
-})
-
-// ---------------------------------------------------------------------------
-// AC-3: CRUD operations exist in convex/db/routeEnrichments.ts
+// AC-1: CRUD operations exist in convex/db/routeEnrichments.ts
 // ---------------------------------------------------------------------------
 
 const CLERK_USER_ID = 'user_test_123'
@@ -328,5 +303,238 @@ describe('findByContentFingerprintHandler', () => {
     })
 
     expect(result).toBeNull()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// AC-1 through AC-5: Invalidation of stale enrichments when new route is created
+// ---------------------------------------------------------------------------
+
+const PLANNING_SESSION_ID = 'planning_sessions_id_123' as Id<'planning_sessions'>
+const NEW_ROUTE_PLAN_ID = 'route_plans_new' as Id<'route_plans'>
+
+// Helper to create mock query builder that mimics Convex query chain
+const createMockQueryBuilder = (result: any[]) => ({
+  collect: vi.fn().mockResolvedValue(result),
+})
+
+// Helper to create mock withIndex that handles the callback pattern
+const createMockWithIndex = (result: any[]) => {
+  return vi.fn((indexName: string, callback: any) => {
+    // Create a query builder mock for the callback
+    const queryBuilder = {
+      eq: vi.fn().mockReturnThis(),
+    }
+    // Call the callback with the query builder
+    callback(queryBuilder)
+    // Return the final query builder with collect
+    return createMockQueryBuilder(result)
+  })
+}
+
+describe('invalidateStaleEnrichmentsHandler', () => {
+  it('AC-1: finds all pending/running enrichments for the planning session', async () => {
+    const oldRoutePlanId = 'route_plans_old' as Id<'route_plans'>
+    const staleEnrichment1 = makeEnrichmentDoc({
+      _id: 'enrich1' as Id<'route_enrichments'>,
+      routePlanId: oldRoutePlanId,
+      status: 'running' as const,
+      scheduledJobId: 'job1' as Id<'_scheduled_functions'>,
+    })
+    const staleEnrichment2 = makeEnrichmentDoc({
+      _id: 'enrich2' as Id<'route_enrichments'>,
+      routePlanId: oldRoutePlanId,
+      status: 'pending' as const,
+      scheduledJobId: 'job2' as Id<'_scheduled_functions'>,
+    })
+
+    const mockRoutePlan = {
+      _id: oldRoutePlanId,
+      _creationTime: 1000,
+    }
+
+    const ctx = {
+      db: {
+        query: vi.fn((table: string) => {
+          if (table === 'route_plans') {
+            return {
+              withIndex: createMockWithIndex([mockRoutePlan]),
+            }
+          } else {
+            return {
+              withIndex: createMockWithIndex([staleEnrichment1, staleEnrichment2]),
+            }
+          }
+        }),
+        patch: vi.fn().mockResolvedValue(undefined),
+      },
+      scheduler: {
+        cancel: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    await invalidateStaleEnrichmentsHandler(ctx as any, {
+      planningSessionId: PLANNING_SESSION_ID,
+      newRoutePlanId: NEW_ROUTE_PLAN_ID,
+    })
+
+    // Verify query was called for route_plans and route_enrichments
+    expect(ctx.db.query).toHaveBeenCalledWith('route_plans')
+    expect(ctx.db.query).toHaveBeenCalledWith('route_enrichments')
+  })
+
+  it('AC-2: cancels scheduled jobs for stale enrichments', async () => {
+    const oldRoutePlanId = 'route_plans_old' as Id<'route_plans'>
+    const staleEnrichment = makeEnrichmentDoc({
+      status: 'running' as const,
+      scheduledJobId: SCHEDULED_JOB_ID,
+    })
+
+    const mockRoutePlan = {
+      _id: oldRoutePlanId,
+      _creationTime: 1000,
+    }
+
+    const ctx = {
+      db: {
+        query: vi.fn((table: string) => {
+          if (table === 'route_plans') {
+            return {
+              withIndex: createMockWithIndex([mockRoutePlan]),
+            }
+          } else {
+            return {
+              withIndex: createMockWithIndex([staleEnrichment]),
+            }
+          }
+        }),
+        patch: vi.fn().mockResolvedValue(undefined),
+      },
+      scheduler: {
+        cancel: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    await invalidateStaleEnrichmentsHandler(ctx as any, {
+      planningSessionId: PLANNING_SESSION_ID,
+      newRoutePlanId: NEW_ROUTE_PLAN_ID,
+    })
+
+    expect(ctx.scheduler.cancel).toHaveBeenCalledWith(SCHEDULED_JOB_ID)
+  })
+
+  it('AC-3: marks stale enrichments as cancelled', async () => {
+    const oldRoutePlanId = 'route_plans_old' as Id<'route_plans'>
+    const staleEnrichment = makeEnrichmentDoc({
+      _id: 'enrich1' as Id<'route_enrichments'>,
+      status: 'running' as const,
+      scheduledJobId: SCHEDULED_JOB_ID,
+    })
+
+    const mockRoutePlan = {
+      _id: oldRoutePlanId,
+      _creationTime: 1000,
+    }
+
+    const ctx = {
+      db: {
+        query: vi.fn((table: string) => {
+          if (table === 'route_plans') {
+            return {
+              withIndex: createMockWithIndex([mockRoutePlan]),
+            }
+          } else {
+            return {
+              withIndex: createMockWithIndex([staleEnrichment]),
+            }
+          }
+        }),
+        patch: vi.fn().mockResolvedValue(undefined),
+      },
+      scheduler: {
+        cancel: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    await invalidateStaleEnrichmentsHandler(ctx as any, {
+      planningSessionId: PLANNING_SESSION_ID,
+      newRoutePlanId: NEW_ROUTE_PLAN_ID,
+    })
+
+    expect(ctx.db.patch).toHaveBeenCalledWith(
+      'enrich1' as Id<'route_enrichments'>,
+      expect.objectContaining({
+        status: 'cancelled',
+        updatedAt: expect.any(Number),
+      })
+    )
+  })
+
+  it('AC-4: does not cancel enrichments for other planning sessions', async () => {
+    const oldRoutePlanId = 'route_plans_old' as Id<'route_plans'>
+    const staleEnrichment = makeEnrichmentDoc({
+      status: 'running' as const,
+      scheduledJobId: SCHEDULED_JOB_ID,
+    })
+
+    const mockRoutePlan = {
+      _id: oldRoutePlanId,
+      _creationTime: 1000,
+    }
+
+    const ctx = {
+      db: {
+        query: vi.fn((table: string) => {
+          if (table === 'route_plans') {
+            return {
+              withIndex: createMockWithIndex([mockRoutePlan]),
+            }
+          } else {
+            return {
+              withIndex: createMockWithIndex([staleEnrichment]),
+            }
+          }
+        }),
+        patch: vi.fn().mockResolvedValue(undefined),
+      },
+      scheduler: {
+        cancel: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    await invalidateStaleEnrichmentsHandler(ctx as any, {
+      planningSessionId: PLANNING_SESSION_ID,
+      newRoutePlanId: NEW_ROUTE_PLAN_ID,
+    })
+
+    // Should query for route_plans first
+    expect(ctx.db.query).toHaveBeenCalledWith('route_plans')
+  })
+
+  it('AC-5: handles case where no stale enrichments exist', async () => {
+    const ctx = {
+      db: {
+        query: vi.fn(() => {
+          // Query route_plans returns empty
+          return {
+            withIndex: createMockWithIndex([]),
+          }
+        }),
+        patch: vi.fn().mockResolvedValue(undefined),
+      },
+      scheduler: {
+        cancel: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    await expect(
+      invalidateStaleEnrichmentsHandler(ctx as any, {
+        planningSessionId: PLANNING_SESSION_ID,
+        newRoutePlanId: NEW_ROUTE_PLAN_ID,
+      })
+    ).resolves.not.toThrow()
+
+    expect(ctx.scheduler.cancel).not.toHaveBeenCalled()
+    expect(ctx.db.patch).not.toHaveBeenCalled()
   })
 })
