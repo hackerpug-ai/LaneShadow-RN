@@ -14,6 +14,7 @@ import type * as actions_agent_agents_routingAgent from "../actions/agent/agents
 import type * as actions_agent_agents_searchAgent from "../actions/agent/agents/searchAgent.js";
 import type * as actions_agent_agents_types from "../actions/agent/agents/types.js";
 import type * as actions_agent_budgetTracker from "../actions/agent/budgetTracker.js";
+import type * as actions_agent_generateTripPlan from "../actions/agent/generateTripPlan.js";
 import type * as actions_agent_lib_geo from "../actions/agent/lib/geo.js";
 import type * as actions_agent_lib_piTools from "../actions/agent/lib/piTools.js";
 import type * as actions_agent_lib_planRideOrchestrator from "../actions/agent/lib/planRideOrchestrator.js";
@@ -66,6 +67,7 @@ import type * as db_routePlans from "../db/routePlans.js";
 import type * as db_routesPlan from "../db/routesPlan.js";
 import type * as db_savedRoutes from "../db/savedRoutes.js";
 import type * as db_sessionMessages from "../db/sessionMessages.js";
+import type * as db_tripPlans from "../db/tripPlans.js";
 import type * as db_users from "../db/users.js";
 import type * as errors from "../errors.js";
 import type * as guards from "../guards.js";
@@ -92,6 +94,7 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/agents/searchAgent": typeof actions_agent_agents_searchAgent;
   "actions/agent/agents/types": typeof actions_agent_agents_types;
   "actions/agent/budgetTracker": typeof actions_agent_budgetTracker;
+  "actions/agent/generateTripPlan": typeof actions_agent_generateTripPlan;
   "actions/agent/lib/geo": typeof actions_agent_lib_geo;
   "actions/agent/lib/piTools": typeof actions_agent_lib_piTools;
   "actions/agent/lib/planRideOrchestrator": typeof actions_agent_lib_planRideOrchestrator;
@@ -144,6 +147,7 @@ declare const fullApi: ApiFromModules<{
   "db/routesPlan": typeof db_routesPlan;
   "db/savedRoutes": typeof db_savedRoutes;
   "db/sessionMessages": typeof db_sessionMessages;
+  "db/tripPlans": typeof db_tripPlans;
   "db/users": typeof db_users;
   errors: typeof errors;
   guards: typeof guards;

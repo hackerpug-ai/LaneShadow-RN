@@ -307,7 +307,7 @@ const AgentMessage = ({ message, onRoutePress, transparent }: AgentMessageProps)
                 key={route.id}
                 {...route}
                 onPress={onRoutePress ? () => onRoutePress(route.id, message.id) : undefined}
-                compact={false}
+                variant="full"
               />
             ))}
           </View>
@@ -328,11 +328,33 @@ interface CardRowProps {
 
 const CardRow = ({ message, onViewOnMap }: CardRowProps) => {
   const kind = message.kind as CardKind | undefined;
-  if (!kind || kind === ('text' as CardKind)) return null;
+  console.info('[ChatTranscript] CardRow called:', {
+    kind,
+    messageId: message.id,
+    isText: kind === ('text' as CardKind),
+    hasKind: !!kind,
+  });
+
+  if (!kind || kind === ('text' as CardKind)) {
+    console.info('[ChatTranscript] CardRow returning null (text or no kind)');
+    return null;
+  }
 
   const CardComponent = CARD_REGISTRY[kind];
   // Defensive: if kind isn't in the registry, render nothing.
-  if (!CardComponent) return null;
+  if (!CardComponent) {
+    console.warn('[ChatTranscript] Unknown card kind:', kind);
+    return null;
+  }
+
+  // Debug logging to see what's being rendered
+  console.info('[ChatTranscript] Rendering card:', {
+    kind,
+    messageId: message.id,
+    hasAttachments: !!message.attachments,
+    attachmentsCount: message.attachments?.length ?? 0,
+    attachments: message.attachments,
+  });
 
   // Shape attachments to match the CardProps contract.
   const attachments: CardAttachment[] = message.attachments ?? [];

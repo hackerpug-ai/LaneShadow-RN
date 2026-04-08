@@ -7,7 +7,13 @@ import type { LatLng } from '../lib/geo'
 // ---------------------------------------------------------------------------
 
 const PLACES_ENDPOINT = 'https://places.googleapis.com/v1/places:searchText'
-const PLACES_FIELD_MASK = 'places.displayName,places.formattedAddress,places.types,routingSummaries'
+
+// Base fields always included
+const BASE_FIELD_MASK = 'places.displayName,places.formattedAddress,places.types'
+
+// Fields only included when routing is enabled
+const ROUTING_FIELD_MASK = 'routingSummaries'
+
 const MAX_RESULT_COUNT = 5
 
 // ---------------------------------------------------------------------------
@@ -101,25 +107,42 @@ const mapPlaces = (
 
 const fetchPlaces = async (
   body: Record<string, unknown>,
-  apiKey: string
+  apiKey: string,
+  includeRouting: boolean = false
 ): Promise<PlaceResult[]> => {
+  // Validate API key presence
+  if (!apiKey) {
+    console.error('fetchPlaces: GOOGLE_MAPS_API_KEY is missing or empty')
+    throw new Error('Places API key is missing')
+  }
+
+  // Build field mask based on whether routing is included
+  const fieldMask = includeRouting
+    ? `${BASE_FIELD_MASK},${ROUTING_FIELD_MASK}`
+    : BASE_FIELD_MASK
+
+  console.log('fetchPlaces: Request body:', JSON.stringify(body, null, 2))
+  console.log('fetchPlaces: Field mask:', fieldMask)
+
   const response = await fetch(PLACES_ENDPOINT, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': apiKey,
-      'X-Goog-FieldMask': PLACES_FIELD_MASK,
+      'X-Goog-FieldMask': fieldMask,
     },
     body: JSON.stringify(body),
   })
 
   if (!response.ok) {
-    throw new Error(`Places API returned HTTP ${response.status}`)
+    const errorText = await response.text()
+    console.error(`fetchPlaces: HTTP ${response.status} - ${errorText}`)
+    throw new Error(`Places API returned HTTP ${response.status}: ${errorText}`)
   }
 
   const data = (await response.json()) as PlacesApiResponse
   const places = data.places ?? []
-  const routingSummaries = data.routingSummaries ?? []
+  const routingSummaries = includeRouting ? (data.routingSummaries ?? []) : []
 
   if (places.length === 0) return []
   return mapPlaces(places, routingSummaries)
@@ -137,8 +160,17 @@ export function createPlacesProvider(): PlacesProvider {
     query,
     origin,
   }) => {
+    // Validate and sanitize query
+    if (!query || query.trim().length === 0) {
+      console.warn('searchAlongRoute: Empty query provided')
+      return []
+    }
+
+    // Clean up the query
+    const cleanedQuery = query.trim().replace(/\s+/g, ' ')
+
     const body: Record<string, unknown> = {
-      textQuery: query,
+      textQuery: cleanedQuery,
       searchAlongRouteParameters: {
         polyline: { encodedPolyline: polyline },
       },
@@ -149,7 +181,8 @@ export function createPlacesProvider(): PlacesProvider {
       body.routingParameters = { origin: { latitude: origin.lat, longitude: origin.lng } }
     }
 
-    return fetchPlaces(body, apiKey)
+    // searchAlongRoute uses routing, so request routing summaries
+    return fetchPlaces(body, apiKey, true)
   }
 
   const searchNearby: PlacesProvider['searchNearby'] = async ({
@@ -157,8 +190,18 @@ export function createPlacesProvider(): PlacesProvider {
     location,
     radiusMeters = 5000,
   }) => {
+    // Validate and sanitize query
+    if (!query || query.trim().length === 0) {
+      console.warn('searchNearby: Empty query provided')
+      return []
+    }
+
+    // Clean up the query - remove excessive whitespace and special characters
+    // that might cause API issues, but keep meaningful content
+    const cleanedQuery = query.trim().replace(/\s+/g, ' ')
+
     const body: Record<string, unknown> = {
-      textQuery: query,
+      textQuery: cleanedQuery,
       locationBias: {
         circle: {
           center: { latitude: location.lat, longitude: location.lng },
@@ -168,7 +211,8 @@ export function createPlacesProvider(): PlacesProvider {
       maxResultCount: MAX_RESULT_COUNT,
     }
 
-    return fetchPlaces(body, apiKey)
+    // searchNearby doesn't use routing, so don't request routing summaries
+    return fetchPlaces(body, apiKey, false)
   }
 
   return { searchAlongRoute, searchNearby }

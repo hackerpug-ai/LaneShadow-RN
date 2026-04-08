@@ -36,9 +36,10 @@ const meta: Meta<typeof RouteAttachmentCard> = {
       control: 'boolean',
       description: 'Visual selection state',
     },
-    compact: {
-      control: 'boolean',
-      description: 'Use compact layout',
+    variant: {
+      control: 'select',
+      options: ['compact', 'full'],
+      description: 'Visual variant: compact for map overlay, full for chat transcript',
     },
     onPress: {
       action: 'pressed',
@@ -58,7 +59,7 @@ const meta: Meta<typeof RouteAttachmentCard> = {
     },
     isBest: true,
     isSelected: false,
-    compact: false,
+    variant: 'full',
   },
   decorators: [
     (Story) => (
@@ -128,13 +129,13 @@ export const NoBadge: Story = {
 
 export const Compact: Story = {
   args: {
-    compact: true,
+    variant: 'compact',
   },
 };
 
 export const CompactSelected: Story = {
   args: {
-    compact: true,
+    variant: 'compact',
     isSelected: true,
   },
 };

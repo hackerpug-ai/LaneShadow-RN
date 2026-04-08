@@ -124,6 +124,22 @@ export const polylineGeometryValidator = v.object({
 })
 export type PolylineGeometry = Infer<typeof polylineGeometryValidator>
 
+export const routeStepValidator = v.object({
+  stepIndex: v.number(),
+  distanceMeters: v.number(),
+  durationSeconds: v.number(),
+  instruction: v.string(), // Human-readable turn instruction (e.g., "Turn left onto Main St")
+  startLocation: v.object({
+    lat: v.number(),
+    lng: v.number(),
+  }),
+  endLocation: v.object({
+    lat: v.number(),
+    lng: v.number(),
+  }),
+})
+export type RouteStep = Infer<typeof routeStepValidator>
+
 export const routeLegValidator = v.object({
   legIndex: v.number(),
   start: routeStopValidator,
@@ -131,6 +147,7 @@ export const routeLegValidator = v.object({
   distanceMeters: v.number(),
   durationSeconds: v.number(),
   geometry: polylineGeometryValidator,
+  steps: v.optional(v.array(routeStepValidator)), // Turn-by-turn steps
 })
 export type RouteLeg = Infer<typeof routeLegValidator>
 
@@ -280,8 +297,8 @@ export const routeOverlaysValidator = v.object({
 })
 export type RouteOverlays = Infer<typeof routeOverlaysValidator>
 
-// POC geometry policy (TRD §3.3): store overview polyline + leg polylines only.
-// Step-level instructions/polylines are intentionally excluded to keep storage lean.
+// Updated policy (2026-04): store overview polyline + leg polylines + step instructions.
+// Turn-by-turn directions are now included for Google Maps-quality navigation.
 export const routeSnapshotValidator = v.object({
   provider: v.string(),
   bounds: boundsValidator,
@@ -506,4 +523,87 @@ export const getMaxTemperatureFahrenheit = (
 
   // Convert Celsius to Fahrenheit: (C × 9/5) + 32
   return Math.round((maxTempCelsius * 9) / 5 + 32)
+}
+
+// -----------------------------------------------------------------------------
+// Wind Summary Derivation Utility
+// -----------------------------------------------------------------------------
+
+/**
+ * Derives the worst wind level from a WindOverlay.
+ * Returns 'unavailable' if overlay is missing, empty, or malformed.
+ * Returns the worst condition present: high > moderate > low.
+ *
+ * @param overlay - Optional WindOverlay to analyze
+ * @returns WindSummary representing the worst wind condition
+ *
+ * @example
+ * const overlay: WindOverlay = {
+ *   byLeg: [
+ *     { legIndex: 0, segments: [{ level: 'low', ... }] },
+ *     { legIndex: 1, segments: [{ level: 'high', ... }] }
+ *   ]
+ * }
+ * getWorstWindLevel(overlay) // Returns 'high'
+ */
+export const getWorstWindLevel = (overlay?: WindOverlay): WindSummary => {
+  // Handle missing or malformed overlay
+  if (!overlay?.byLeg?.length) return WIND_SUMMARY.UNAVAILABLE
+
+  // Collect all wind levels from all segments across all legs
+  const levels: string[] = []
+  for (const leg of overlay.byLeg) {
+    for (const segment of leg.segments) {
+      levels.push(segment.level)
+    }
+  }
+
+  // No segments found
+  if (levels.length === 0) return WIND_SUMMARY.UNAVAILABLE
+
+  // Return worst condition (high > moderate > low)
+  if (levels.includes(WIND_SUMMARY.HIGH)) return WIND_SUMMARY.HIGH
+  if (levels.includes(WIND_SUMMARY.MODERATE)) return WIND_SUMMARY.MODERATE
+  if (levels.includes(WIND_SUMMARY.LOW)) return WIND_SUMMARY.LOW
+
+  // Unknown levels - treat as unavailable
+  return WIND_SUMMARY.UNAVAILABLE
+}
+
+/**
+ * Derives the maximum wind speed in mph from a WindOverlay.
+ * This is a placeholder implementation - the actual wind overlay structure
+ * does not currently include wind speed values in segments.
+ *
+ * For now, returns estimated values based on wind level:
+ * - high: ~25 mph
+ * - moderate: ~15 mph
+ * - low: ~5 mph
+ * - unavailable: undefined
+ *
+ * @param overlay - Optional WindOverlay to analyze
+ * @returns Maximum wind speed in mph, or undefined if unavailable
+ *
+ * @example
+ * const overlay: WindOverlay = {
+ *   byLeg: [
+ *     { legIndex: 0, segments: [{ level: 'moderate', ... }] }
+ *   ]
+ * }
+ * getMaxWindSpeedMph(overlay) // Returns 15
+ */
+export const getMaxWindSpeedMph = (
+  overlay?: WindOverlay
+): number | undefined => {
+  const worstLevel = getWorstWindLevel(overlay)
+
+  // Placeholder values based on wind level
+  // TODO: Update when wind overlay includes actual speed values
+  const speedMap: Record<string, number> = {
+    high: 25,
+    moderate: 15,
+    low: 5,
+  }
+
+  return speedMap[worstLevel]
 }

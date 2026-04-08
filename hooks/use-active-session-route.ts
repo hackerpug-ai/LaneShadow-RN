@@ -12,6 +12,7 @@ import { useSelectedRoute } from '../contexts/selected-route'
 
 type RoutePlanResult = {
   routePlanId: Id<'route_plans'> | null
+  newestRoutePlanId: Id<'route_plans'> | null
   routePlan: any
   activeOption: any
 }
@@ -33,21 +34,27 @@ export const useActiveSessionRoute = (sessionId: Id<'planning_sessions'> | null)
     sessionId ? { sessionId } : 'skip'
   )
 
+  // Always find the newest routing_card message (independent of display override)
+  let newestRoutePlanId: Id<'route_plans'> | null = null
+  if (messages) {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const msg = messages[i]
+      if (msg.kind === 'routing_card' && msg.attachments?.[0]?.routePlanId) {
+        newestRoutePlanId = msg.attachments[0].routePlanId
+        break
+      }
+    }
+  }
+
   // Determine which route plan ID to fetch
   let targetRoutePlanId: Id<'route_plans'> | null = null
 
   if (displayedRoutePlanId) {
     // Use the overridden route plan (cast to Id type)
     targetRoutePlanId = displayedRoutePlanId as Id<'route_plans'>
-  } else if (messages) {
-    // Find the newest routing_card message
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const msg = messages[i]
-      if (msg.kind === 'routing_card' && msg.attachments?.[0]?.routePlanId) {
-        targetRoutePlanId = msg.attachments[0].routePlanId
-        break
-      }
-    }
+  } else {
+    // No override - use the newest plan
+    targetRoutePlanId = newestRoutePlanId
   }
 
   // Fetch the route plan using the public query (requires auth)
@@ -106,6 +113,7 @@ export const useActiveSessionRoute = (sessionId: Id<'planning_sessions'> | null)
 
   return {
     routePlanId: targetRoutePlanId,
+    newestRoutePlanId,
     routePlan: validatedRoutePlan,
     activeOption,
   }

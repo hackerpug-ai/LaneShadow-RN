@@ -18,9 +18,7 @@ import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
 import { MotorcyclePlusIcon } from '../../../components/ui/motorcycle-plus-icon'
 import type { MapViewHandle } from '../../../components/map/map-view'
 import { MapViewWrapper } from '../../../components/map/map-view'
-import { OverlayToggle } from '../../../components/map/overlay-toggle'
-import type { OverlayType } from '../../../components/map/overlay-toggle'
-import { MinimalOverlayWidget } from '../../../components/map/minimal-overlay-widget'
+import { WeatherPillsRow } from '../../../components/map/weather-pills-row'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
 import { PlanRideSheet } from '../../../components/sheets/plan-ride-sheet'
 import { PlanningErrorSheet } from '../../../components/sheets/planning-error-sheet'
@@ -122,6 +120,7 @@ const HomeMapScreen = () => {
   const {
     activeOption: agentActiveOption,
     routePlan: agentRoutePlan,
+    newestRoutePlanId,
   } = useActiveSessionRoute(activeChatSessionId ?? undefined)
 
   // Track the last plan id we animated the camera to, so we only fit once
@@ -181,8 +180,7 @@ const HomeMapScreen = () => {
   }, [isPlanning])
 
   const transcriptMessages: TranscriptMessage[] = useMemo(() => {
-    return (
-      rawTranscriptMessages
+    const filtered = rawTranscriptMessages
         ?.filter(
           (msg) =>
             msg.kind !== 'agent_turn' &&
@@ -203,7 +201,22 @@ const HomeMapScreen = () => {
           status: msg.status,
           attachments: msg.attachments,
         })) ?? []
-    )
+
+    // Debug logging to see what messages are being passed to the transcript
+    const routingCardMessages = filtered.filter(m => m.kind === 'routing_card')
+    if (routingCardMessages.length > 0) {
+      console.info('[index.tsx] Routing card messages in transcript:', {
+        totalCount: filtered.length,
+        routingCardCount: routingCardMessages.length,
+        routingCardMessages: routingCardMessages.map(m => ({
+          id: m.id,
+          hasAttachments: !!m.attachments,
+          attachments: m.attachments,
+        })),
+      })
+    }
+
+    return filtered
   }, [rawTranscriptMessages])
 
   // Toast-style messages for map mode — lightweight pills instead of
@@ -375,14 +388,17 @@ const HomeMapScreen = () => {
   const lastSeenPlanIdRef = useRef<string | null>(null)
   useEffect(() => {
     const currentPlanId = agentRoutePlan?._id as string | null
-    if (currentPlanId && currentPlanId !== lastSeenPlanIdRef.current) {
-      lastSeenPlanIdRef.current = currentPlanId
+    const newestPlanId = newestRoutePlanId as string | null
+
+    // Reset when the newest plan changes (not just the displayed plan)
+    if (newestPlanId && newestPlanId !== lastSeenPlanIdRef.current) {
+      lastSeenPlanIdRef.current = newestPlanId
       // Reset to null so it defaults to the first option of the new plan
       setSelectedRouteId(null)
       // Clear any pinned plan override so the newest plan shows
       setDisplayedRoutePlanId(null)
     }
-  }, [agentRoutePlan?._id, setSelectedRouteId, setDisplayedRoutePlanId])
+  }, [newestRoutePlanId, setSelectedRouteId, setDisplayedRoutePlanId])
 
   const mapLayerStyle = useAnimatedStyle(() => ({ opacity: mapOpacity.value }))
   const chatLayerStyle = useAnimatedStyle(() => ({ opacity: chatOpacity.value }))
@@ -399,9 +415,6 @@ const HomeMapScreen = () => {
   const [avoidTolls, setAvoidTolls] = useState(false)
   const [departureTime, setDepartureTime] = useState(new Date())
 
-  // Overlay state - defaults to wind when route is first selected, persists locally
-  const [activeOverlay, setActiveOverlay] = useState<OverlayType | ''>('')
-
   useEffect(() => {
     if (planInit?.defaults?.preferences) {
       setScenicBias(planInit.defaults.preferences.scenicBias)
@@ -409,18 +422,6 @@ const HomeMapScreen = () => {
       setAvoidTolls(planInit.defaults.preferences.avoidTolls ?? false)
     }
   }, [planInit])
-
-  // Default to wind overlay when route is first selected (AC from spec)
-  useEffect(() => {
-    const hasRouteResults = flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS'
-    if (hasRouteResults && activeOverlay === '') {
-      setActiveOverlay('wind')
-    }
-    // Reset overlay when planning starts over
-    if (flowState.phase === 'IDLE' || flowState.phase === 'PLANNING') {
-      setActiveOverlay('')
-    }
-  }, [flowState.phase, activeOverlay])
 
   // Get selected option from flow state
   const selectedOption = useMemo(() => {
@@ -756,41 +757,23 @@ const HomeMapScreen = () => {
             testID="map-header-overlay"
           />
 
-          {/* Overlay toggle - only shown when a route is selected, has overlay data, and not in chat mode */}
-          {selectedOption && !chatMode && (overlayAvailability.wind || overlayAvailability.rain || overlayAvailability.temperature) && (
+          {/* Weather pills - only shown when a route is selected and not in chat mode */}
+          {/* TEMP: Force show for testing */}
+          {selectedOption && !chatMode && (
             <View
               style={[
-                styles.overlayToggle,
+                styles.weatherPills,
                 {
-                  top: insets.top + semantic.space['2xl'],
+                  top: insets.top + semantic.space['3xl'] + 8, // Positioned below header area
                   right: semantic.space.lg,
                 },
               ]}
+              testID="weather-pills-container"
+              pointerEvents="box-none"
             >
-              <OverlayToggle
-                value={activeOverlay}
-                onValueChange={setActiveOverlay}
-                availability={overlayAvailability}
-                testID="overlay-toggle"
-              />
-            </View>
-          )}
-
-          {/* PREVIEW: Minimal overlay widget - positioned below original for comparison */}
-          {/* TEMP: Force show minimal widget for visual testing */}
-          {selectedOption && !chatMode && (
-            <View
-              style={{
-                position: 'absolute',
-                top: insets.top + semantic.space['2xl'] + 70,
-                right: semantic.space.lg,
-              }}
-            >
-              <MinimalOverlayWidget
-                value={activeOverlay}
-                onValueChange={setActiveOverlay}
-                availability={overlayAvailability}
-                testID="minimal-overlay-widget"
+              <WeatherPillsRow
+                overlays={selectedOption.overlays}
+                testID="weather-pills-row"
               />
             </View>
           )}
@@ -841,8 +824,7 @@ const HomeMapScreen = () => {
               ]}
             >
               <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ gap: semantic.space.sm }}
               >
                 {flowState.routeOptions.options.map((option) => (
@@ -881,6 +863,8 @@ const HomeMapScreen = () => {
         )}
 
         {/* Chat input - always visible at bottom */}
+        {/* Dynamic spacing rule: calculate extra bottom offset to avoid overlapping
+            temporary elements (planning indicator, toasts, route cards) per /frontend-design */}
         <ChatInput
           onSend={handleSendMessage}
           onCancel={handleCancel}
@@ -891,6 +875,36 @@ const HomeMapScreen = () => {
           chatMode={chatMode}
           onToggleChatMode={cycleTranscript}
           onManualModePress={handleManualModePress}
+          extraBottomOffset={useMemo(() => {
+            // Only add offset in map mode when temporary elements are visible
+            if (chatMode) return 0
+
+            const offsets: number[] = []
+
+            // Planning indicator: ~44px height (from MapPlanningIndicator)
+            if (mapPlanningVisible && toasts.length === 0) {
+              offsets.push(44)
+            }
+
+            // Toast stack: varies by message count, ~48px per toast
+            if (toasts.length > 0) {
+              offsets.push(toasts.length * 48)
+            }
+
+            // Route cards: these render above the input area, but we need to
+            // ensure the input doesn't overlap the bottom-most card
+            const hasRouteOptions =
+              (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS' || flowState.phase === 'PLANNING') &&
+              'routeOptions' in flowState &&
+              flowState.routeOptions?.options
+            const showingRouteCards = !chatMode && toasts.length === 0 && !mapPlanningVisible && hasRouteOptions
+            if (showingRouteCards) {
+              // Route cards have their own spacing, but ensure input clears them
+              offsets.push(80) // Approximate height for one route card
+            }
+
+            return Math.max(...offsets, 0)
+          }, [chatMode, mapPlanningVisible, toasts.length, flowState.phase])}
         />
 
         <PlanRideSheet
@@ -947,9 +961,9 @@ const styles = StyleSheet.create({
     top: 0,
     zIndex: 30,
   },
-  overlayToggle: {
+  weatherPills: {
     position: 'absolute',
-    zIndex: 25,
+    zIndex: 26,
   },
   routeCards: {
     position: 'absolute',

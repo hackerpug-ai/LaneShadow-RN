@@ -23,6 +23,7 @@ export type {
   RoutePreview,
   RouteSnapshot,
   RouteStop,
+  RouteStep,
   SavedRouteCapabilities,
   SnapshotMeta,
   TemperatureSummary,

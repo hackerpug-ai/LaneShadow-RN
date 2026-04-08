@@ -14,6 +14,15 @@ export type ProviderPolylineGeometry = {
   value: string
 }
 
+export type ProviderStep = {
+  stepIndex: number
+  distanceMeters: number
+  durationSeconds: number
+  instruction: string
+  startLocation: ProviderLatLng
+  endLocation: ProviderLatLng
+}
+
 export type ProviderLeg = {
   legIndex: number
   start: ProviderLatLng
@@ -21,6 +30,7 @@ export type ProviderLeg = {
   distanceMeters: number
   durationSeconds: number
   geometry: ProviderPolylineGeometry
+  steps?: ProviderStep[]
 }
 
 export type ProviderRouteResponse = {
@@ -89,6 +99,30 @@ const parseGoogleRoute = (route: any): ProviderRouteResponse => {
     if (!startLatLng || !endLatLng || !legPolyline) {
       throw new Error('Google Routes response leg missing start/end/polyline')
     }
+
+    // Parse steps for turn-by-turn directions
+    const stepsRaw: any[] = Array.isArray(leg?.steps) ? leg.steps : []
+    const steps: ProviderStep[] = stepsRaw.map((step: any, stepIdx: number) => {
+      const stepStartLatLng = step?.startLocation?.latLng
+      const stepEndLatLng = step?.endLocation?.latLng
+      const instruction = step?.instruction ?? ''
+
+      return {
+        stepIndex: stepIdx,
+        distanceMeters: Number(step?.distanceMeters ?? 0),
+        durationSeconds: parseGoogleDurationSeconds(step?.duration),
+        instruction,
+        startLocation: {
+          lat: stepStartLatLng?.latitude ?? startLatLng.latitude,
+          lng: stepStartLatLng?.longitude ?? startLatLng.longitude,
+        },
+        endLocation: {
+          lat: stepEndLatLng?.latitude ?? endLatLng.latitude,
+          lng: stepEndLatLng?.longitude ?? endLatLng.longitude,
+        },
+      }
+    })
+
     return {
       legIndex: idx,
       start: { lat: startLatLng.latitude, lng: startLatLng.longitude },
@@ -101,6 +135,7 @@ const parseGoogleRoute = (route: any): ProviderRouteResponse => {
         precision: 5,
         value: legPolyline,
       },
+      steps: steps.length > 0 ? steps : undefined,
     }
   })
 
@@ -208,7 +243,10 @@ const fetchGoogleRoutes = async (apiKey: string, body: any): Promise<any> => {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': apiKey,
       'X-Goog-FieldMask':
-        'routes.distanceMeters,routes.duration,routes.viewport,routes.polyline.encodedPolyline,routes.legs.distanceMeters,routes.legs.duration,routes.legs.polyline.encodedPolyline,routes.legs.startLocation.latLng,routes.legs.endLocation.latLng',
+        'routes.distanceMeters,routes.duration,routes.viewport,routes.polyline.encodedPolyline,' +
+        'routes.legs.distanceMeters,routes.legs.duration,routes.legs.polyline.encodedPolyline,' +
+        'routes.legs.startLocation.latLng,routes.legs.endLocation.latLng,' +
+        'routes.legs.steps.distanceMeters,routes.legs.steps.duration,routes.legs.steps.instruction,routes.legs.steps.startLocation.latLng,routes.legs.steps.endLocation.latLng',
     },
     body: JSON.stringify(body),
   })

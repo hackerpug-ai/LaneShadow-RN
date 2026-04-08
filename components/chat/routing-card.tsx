@@ -196,6 +196,12 @@ const RunningCard = ({ routePlan, semantic, reduceMotion }: RunningCardProps) =>
     ? `Phase: ${activePhase}. ${statusText}`
     : statusText
 
+  console.info('[RoutingCard] RunningCard render:', {
+    activePhase,
+    statusText,
+    phasesCount: PHASES.length,
+  })
+
   return (
     <View
       style={[
@@ -372,6 +378,15 @@ export const RoutingCard = ({ message: _message, attachments, onViewOnMap }: Rou
   const status: RoutePlanStatus = routePlan?.status ?? 'pending'
 
   const renderInner = () => {
+    // Debug logging to understand what's happening
+    console.info('[RoutingCard] Render state:', {
+      routePlanId,
+      status,
+      hasRoutePlan: !!routePlan,
+      hasResult: !!routePlan?.result,
+      resultOptionsCount: routePlan?.result?.options?.length ?? 0,
+    })
+
     switch (status) {
       case 'pending':
         return <PendingCard semantic={semantic} />
@@ -388,7 +403,12 @@ export const RoutingCard = ({ message: _message, attachments, onViewOnMap }: Rou
       case 'completed': {
         const result = routePlan?.result
         if (!result) {
-          // Completed but no result yet — show pending
+          // Completed but no result yet — show pending with debug info
+          console.warn('[RoutingCard] Completed but no result:', {
+            routePlanId,
+            routePlan,
+            status,
+          })
           return <PendingCard semantic={semantic} />
         }
         return <CompletedCard result={result} semantic={semantic} routePlanId={routePlanId!} onViewOnMap={onViewOnMap} />
@@ -401,6 +421,7 @@ export const RoutingCard = ({ message: _message, attachments, onViewOnMap }: Rou
         return <CancelledCard semantic={semantic} />
 
       default:
+        console.warn('[RoutingCard] Unknown status:', status)
         return <PendingCard semantic={semantic} />
     }
   }

@@ -46,6 +46,10 @@ type ChatInputProps = {
   /** Handler for the manual planning mode icon. Opens PlanRideSheet with
    *  preferences extracted from the current chat conversation. */
   onManualModePress?: () => void
+  /** Extra bottom padding to avoid overlapping with temporary elements above
+   *  (e.g., planning indicator, toasts, route cards). Following /frontend-design
+   *  dynamic spacing rule: input must not obscure temporary items. */
+  extraBottomOffset?: number
 }
 
 /**
@@ -112,6 +116,7 @@ export const ChatInput = ({
   chatMode = false,
   onToggleChatMode,
   onManualModePress,
+  extraBottomOffset = 0,
 }: ChatInputProps) => {
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
@@ -150,7 +155,7 @@ export const ChatInput = ({
       style={[
         styles.container,
         {
-          paddingBottom: insets.bottom + semantic.space.md,
+          paddingBottom: insets.bottom + semantic.space.md + extraBottomOffset,
         },
       ]}
       testID={testID}
