@@ -168,6 +168,8 @@ export const RoutePolyline: FC<RoutePolylineProps> = ({
               polyline.coordinates
             )}
             minDurationMs={500}
+            maxDist={20}
+            shouldCancelWhenOutside={true}
           >
             <View style={styles.gestureWrapper} testID={segmentTestId}>
               <Polyline
