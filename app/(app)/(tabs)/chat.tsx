@@ -59,7 +59,7 @@ export default function ChatScreen() {
 
   // Local flow state for composing/sending from the chat screen
   const { state: flowState, dispatch: flowDispatch } = useRideFlow()
-  const { sendPlanningMessage, cancel: cancelChatPlanning, resetSession } = useChatPlanning(flowDispatch)
+  const { sendPlanningMessage, cancel: cancelChatPlanning, resetSession, sessionId, optimisticMessages } = useChatPlanning(flowDispatch)
   const { location: currentLocation } = useCurrentLocation()
 
   console.info('[ChatScreen] Hooks initialized', {
@@ -188,6 +188,25 @@ export default function ChatScreen() {
     isPlanning,
   })
 
+  // Combine optimistic messages with regular messages
+  const allMessages: ChatMessage[] = React.useMemo(() => {
+    // If we have optimistic messages, map them to ChatMessage format
+    const optimisticChatMessages: ChatMessage[] = optimisticMessages.map((msg) => ({
+      id: msg.id,
+      role: msg.role === 'agent' ? 'agent' : 'rider',
+      content: msg.content,
+      timestamp: msg.timestamp,
+    }))
+
+    // If we have a session, combine with server messages
+    if (resolvedSessionId) {
+      return [...messages, ...optimisticChatMessages]
+    }
+
+    // No session yet, only show optimistic messages
+    return optimisticChatMessages
+  }, [messages, optimisticMessages, resolvedSessionId])
+
   const { setSelectedRouteId } = useSelectedRoute()
 
   // Dismiss keyboard when tapping outside the input
@@ -198,9 +217,10 @@ export default function ChatScreen() {
   const handleNewSession = () => {
     console.info('[ChatScreen] New session button pressed')
 
-    // Navigate to /new for lazy session creation
-    console.info('[ChatScreen] Navigating to /new route')
-    router.push('/new' as any)
+    // Clear session ID to stay on chat view with no session
+    console.info('[ChatScreen] Clearing session ID, staying on chat view')
+    resetSession()
+    router.replace('/(app)/(tabs)?chat=1' as any)
   }
 
   return (
@@ -233,7 +253,7 @@ export default function ChatScreen() {
                   Loading…
                 </Text>
               </View>
-            ) : hasNoSessions && messages.length === 0 ? (
+            ) : allMessages.length === 0 ? (
               <View style={styles.centeredState}>
                 <Text
                   variant="bodyMedium"
@@ -245,7 +265,7 @@ export default function ChatScreen() {
               </View>
             ) : (
               <ChatTranscript
-                messages={messages}
+                messages={allMessages}
                 bottomInset={140}
                 onViewOnMap={() => router.push('/(app)/(tabs)')}
               />
@@ -267,7 +287,7 @@ export default function ChatScreen() {
           onCancel={cancelChatPlanning}
           state={flowState}
           isPlanning={isPlanning}
-          suggestions={messages.length === 0 ? CHAT_SUGGESTIONS : []}
+          suggestions={allMessages.length === 0 ? CHAT_SUGGESTIONS : []}
           testID="chat-screen-input"
         />
       </Animated.View>

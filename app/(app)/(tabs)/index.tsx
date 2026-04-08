@@ -349,8 +349,8 @@ const HomeMapScreen = () => {
   const pendingFitRef = useRef(false)
 
   const handleNewSession = () => {
-    // Navigate to /new for lazy session creation
-    router.push('/new' as any)
+    // Clear session ID to stay on current view with no session
+    router.replace('/(app)/(tabs)' as any)
     // Reset local state
     flowDispatch({ type: 'NEW_SESSION' })
     setSelectedRouteId(null)

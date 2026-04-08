@@ -13,7 +13,7 @@ const Index = () => {
   const isLoading = sessions === undefined
 
   // Auto-navigation logic (similar to Holocron):
-  // - On first mount, navigate to /new immediately (optimistic empty state)
+  // - On first mount, navigate to tabs immediately (optimistic empty state)
   // - After sessions load, if sessions exist, redirect to most recent
   useEffect(() => {
     // Skip if still loading or already set redirect
@@ -22,7 +22,7 @@ const Index = () => {
     }
 
     // If sessions exist, navigate to the most recent one
-    // Otherwise, navigate to /new for lazy session creation
+    // Otherwise, navigate to tabs without sessionId (empty state)
     if (sessions && sessions.length > 0) {
       const mostRecent = sessions[0]
       console.info('[Index] Redirecting to most recent session', {
@@ -30,8 +30,8 @@ const Index = () => {
       })
       setRedirectTarget(`/(app)/(tabs)?sessionId=${mostRecent._id}`)
     } else {
-      console.info('[Index] No sessions found, navigating to /new')
-      setRedirectTarget('/(app)/(tabs)/new')
+      console.info('[Index] No sessions found, navigating to tabs without session')
+      setRedirectTarget('/(app)/(tabs)')
     }
   }, [isLoading, sessions, redirectTarget])
 
