@@ -9,6 +9,10 @@
  * longer maintains a global isPlanning flag or polls route_plans — callers
  * derive isPlanning from the Convex messages query instead. Route-plan
  * polling lives in the RoutingCard component.
+ *
+ * Message persistence: The backend sendMessage action persists the rider message
+ * immediately (before agent processing starts), so user messages appear in the
+ * transcript right away without needing optimistic UI updates.
  */
 
 import { useRef, useCallback, useState } from 'react'
@@ -60,7 +64,6 @@ export const useChatPlanning = (
   const createSession = useMutation(api.db.planningSessions.createSession)
   const sendMessage = useAction(api.actions.agent.sendMessage.sendMessage)
   const cancelPlan = useMutation(api.db.routePlans.cancelPlan)
-  const createOptimisticMessage = useMutation(api.db.sessionMessages.createOptimisticUserMessage)
   const getActiveRoutePlansForSession = useQuery(
     api.db.routePlans.getActiveRoutePlansForSession,
     sessionId !== null ? { sessionId } : 'skip'
@@ -78,9 +81,9 @@ export const useChatPlanning = (
    * - If we already have a sessionId from a previous message, reuse it (refinement)
    * - Otherwise, create a new session (first message or after error/new session)
    *
-   * Optimistic updates:
-   * - User message appears immediately with 'complete' status
-   * - Once backend confirms, the optimistic message is replaced with the real one
+   * Message persistence:
+   * - The backend sendMessage action persists the rider message immediately
+   * - No optimistic update needed - the real message appears as soon as the mutation completes
    */
   const sendPlanningMessage = useCallback(
     async (message: string, currentLocation?: { lat: number; lng: number }) => {
@@ -116,22 +119,16 @@ export const useChatPlanning = (
           throw new Error('Aborted')
         }
 
-        // Step 1.5: Optimistically add user message to transcript
-        // This will appear immediately while the backend processes
-        const optimisticId = await createOptimisticMessage({
-          sessionId: sessionIdToUse,
-          content: message,
-        })
-
-        console.info('[useChatPlanning] Created optimistic message:', optimisticId)
-
-        // Step 2: Send message to backend agent. The action writes pending
-        // assistant rows and finalizes them; we just await completion.
-        await sendMessage({
+        // Step 2: Send message to backend agent. The action persists the rider
+        // message immediately (before agent processing starts), so it appears
+        // in the transcript right away. No optimistic message needed.
+        const result = await sendMessage({
           sessionId: sessionIdToUse,
           content: message,
           currentLocation,
         }) as SendMessageResult
+
+        console.info('[useChatPlanning] Backend persisted message:', result.messageId)
 
         if (signal.aborted) {
           throw new Error('Aborted')
