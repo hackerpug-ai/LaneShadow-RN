@@ -104,7 +104,7 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
       })
       onSuccess?.()
       onClose()
-    } catch (err) {
+    } catch {
       setError('Failed to save favorite. Please try again.')
     } finally {
       setIsSaving(false)
