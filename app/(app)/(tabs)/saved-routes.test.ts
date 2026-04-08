@@ -143,11 +143,19 @@ vi.mock('./saved-routes.components', () => {
   return {
     SkeletonCard: 'SkeletonCard',
     EmptyPlaceholder: 'EmptyPlaceholder',
-    LoadingState: 'LoadingState',
+    LoadingState: ({ children }: { children: unknown }) =>
+      React.createElement('LoadingState', null, children),
     FilterHeader: 'FilterHeader',
     FilteredEmptyState: 'FilteredEmptyState',
     SwipeableRouteCard: ({ children }: { children: unknown }) =>
       React.createElement('SwipeableRouteCard', null, children),
+  }
+})
+vi.mock('../../../components/layouts/subpage-layout', () => {
+  const React = require('react')
+  return {
+    SubpageLayout: ({ children, title }: { children: unknown; title: string }) =>
+      React.createElement('SubpageLayout', { title }, children),
   }
 })
 

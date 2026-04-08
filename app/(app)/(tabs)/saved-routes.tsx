@@ -22,6 +22,7 @@ import {
   SwipeableRouteCard,
 } from './saved-routes.components'
 import { EmptyState } from '../../../components/ui/empty-state'
+import { SubpageLayout } from '../../../components/layouts/subpage-layout'
 import type { SavedRouteListItemView } from '../../../types/routes'
 import type { Id } from '../../../convex/_generated/dataModel'
 
@@ -183,9 +184,9 @@ const SavedRoutesScreen = () => {
   if (isLoading) return <LoadingState />
 
   return (
-    <View
+    <SubpageLayout
+      title="Saved Routes"
       testID="saved-routes-screen"
-      style={[styles.container, { backgroundColor: semantic.color.background.default }]}
     >
       <FlatList
         testID="saved-routes-list"
@@ -234,14 +235,8 @@ const SavedRoutesScreen = () => {
         onDismiss={handleDeleteDismiss}
         testID="swipe-delete-route-dialog"
       />
-    </View>
+    </SubpageLayout>
   )
 }
 
 export default SavedRoutesScreen
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-})

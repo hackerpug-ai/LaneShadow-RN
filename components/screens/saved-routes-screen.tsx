@@ -2,18 +2,20 @@
  * SavedRoutesScreen Component
  *
  * Screen displaying saved motorcycle routes with search functionality
- * Composes SavedRouteCard, RouteThumbnail, SectionHeader, SearchBar, FAB atoms
+ * Uses SubpageLayout for proper safe area handling and navigation
+ * Composes SavedRouteCard, RouteThumbnail, SearchBar, FAB atoms
  * Follows the design system screen patterns
  */
 
 import { StyleSheet, View, ScrollView, Pressable } from 'react-native'
+import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
 import { SavedRouteCard } from '../ui/saved-route-card'
 import { SearchBar } from '../ui/search-bar'
-import { SectionHeader } from '../ui/section-header'
 import { FAB } from '../ui/fab'
+import { SubpageLayout } from '../layouts/subpage-layout'
 
 export type SavedRouteData = {
   id: string
@@ -41,11 +43,14 @@ export type SavedRoutesScreenProps = {
   emptyMessage?: string
   /** Empty state subtext */
   emptySubtext?: string
+  /** Test ID for testing */
+  testID?: string
 }
 
 /**
  * SavedRoutesScreen component for displaying saved motorcycle routes
  * Shows a list of saved routes with search functionality and FAB for adding new routes
+ * Uses SubpageLayout for proper navigation and safe area handling
  */
 export const SavedRoutesScreen = ({
   routes,
@@ -56,10 +61,10 @@ export const SavedRoutesScreen = ({
   loading = false,
   emptyMessage = 'No saved routes',
   emptySubtext = 'Create your first motorcycle adventure',
+  testID,
 }: SavedRoutesScreenProps) => {
   const theme = useTheme<ExtendedTheme>()
   const { semantic } = theme
-  const insets = useSafeAreaInsets()
 
   const filteredRoutes = searchQuery
     ? routes.filter(
@@ -76,14 +81,14 @@ export const SavedRoutesScreen = ({
   }
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          backgroundColor: semantic.color.background.default,
-          paddingBottom: insets.bottom + semantic.space['3xl'],
-        },
-      ]}
+    <SubpageLayout
+      title="Saved Routes"
+      testID={testID || 'saved-routes-screen'}
+      rightAction={onPressAdd ? {
+        icon: 'plus',
+        onPress: onPressAdd,
+        testID: testID ? `${testID}-add` : 'saved-routes-add',
+      } : undefined}
     >
       <ScrollView
         style={styles.scrollView}
@@ -93,10 +98,15 @@ export const SavedRoutesScreen = ({
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <SectionHeader
-          title="Saved Routes"
-          subtitle={`${routes.length} routes`}
-        />
+        {/* Route count subtitle */}
+        <View style={styles.subtitleContainer}>
+          <Text
+            variant="bodyMedium"
+            style={{ color: semantic.color.onSurface.subtle }}
+          >
+            {routes.length} {routes.length === 1 ? 'route' : 'routes'}
+          </Text>
+        </View>
 
         <View style={styles.searchContainer}>
           <SearchBar
@@ -169,33 +179,20 @@ export const SavedRoutesScreen = ({
           </View>
         )}
       </ScrollView>
-
-      <FAB
-        icon="plus"
-        label="New Route"
-        onPress={onPressAdd}
-        visible={!!onPressAdd}
-        style={[
-          styles.fab,
-          {
-            marginBottom: insets.bottom + semantic.space.lg,
-          },
-        ]}
-      />
-    </View>
+    </SubpageLayout>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingTop: 16,
     paddingBottom: 16,
+  },
+  subtitleContainer: {
+    marginBottom: 8,
   },
   searchContainer: {
     marginTop: 8,
@@ -252,10 +249,5 @@ const styles = StyleSheet.create({
   },
   emptyLineShort: {
     width: 120,
-  },
-  fab: {
-    position: 'absolute',
-    right: 16,
-    bottom: 16,
   },
 })

@@ -8,6 +8,7 @@ import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { Skeleton } from '../../../components/ui/skeleton'
 import { RouteSearchBar } from '../../../components/ui/route-search-bar'
 import { DateRangePicker } from '../../../components/ui/date-range-picker'
+import { SubpageLayout } from '../../../components/layouts/subpage-layout'
 import type { DateRangePickerProps } from '../../../components/ui/date-range-picker'
 
 // ---------------------------------------------------------------------------
@@ -70,33 +71,11 @@ const SKELETON_COUNT = 3
 export const LoadingState = () => {
   const { semantic } = useSemanticTheme()
   return (
-    <View
-      testID="saved-routes-loading"
-      style={[
-        styles.loadingContainer,
-        {
-          backgroundColor: semantic.color.background.default,
-          paddingHorizontal: semantic.space.lg,
-        },
-      ]}
-    >
-      <Text
-        variant="titleLarge"
-        style={[
-          semantic.type.title.lg,
-          {
-            color: semantic.color.onSurface.default,
-            paddingTop: semantic.space.lg,
-            paddingBottom: semantic.space.md,
-          },
-        ]}
-      >
-        Saved Routes
-      </Text>
+    <SubpageLayout title="Saved Routes" testID="saved-routes-loading">
       {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
         <SkeletonCard key={i} />
       ))}
-    </View>
+    </SubpageLayout>
   )
 }
 
@@ -131,20 +110,11 @@ export const FilterHeader = ({
         {
           backgroundColor: semantic.color.background.default,
           gap: semantic.space.sm,
-          paddingTop: semantic.space.lg,
+          paddingTop: semantic.space.md,
           paddingBottom: semantic.space.md,
         },
       ]}
     >
-      <Text
-        variant="titleLarge"
-        style={[
-          semantic.type.title.lg,
-          { color: semantic.color.onSurface.default },
-        ]}
-      >
-        Saved Routes
-      </Text>
       <RouteSearchBar onSearch={onSearch} testID="route-search-bar" />
       <DateRangePicker
         key={datePickerKey}
@@ -288,9 +258,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  loadingContainer: {
-    flex: 1,
   },
   swipeDeleteAction: {
     justifyContent: 'center',
