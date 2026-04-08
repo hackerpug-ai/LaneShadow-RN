@@ -205,6 +205,9 @@ export const planRide = action({
 type ExecutePlanCtx = {
   runQuery: (ref: unknown, args: unknown) => Promise<unknown>
   runMutation: (ref: unknown, args: unknown) => Promise<unknown>
+  scheduler: {
+    runAfter: (delayMs: number, func: unknown, args: unknown) => Promise<Id<'_scheduled_functions'>>
+  }
 }
 
 /**
@@ -311,6 +314,78 @@ export const executePlanHandler = async (
         : 'MISSING',
     })
 
+    // AC-1: Generate content fingerprint for enrichment caching
+    const { generateContentFingerprint } = await import('./lib/enrichmentCache')
+    const fingerprint = generateContentFingerprint(plan.planInput)
+
+    console.info('[planRide] Generated content fingerprint for enrichment', {
+      fingerprint,
+      routePlanId,
+    })
+
+    // AC-2: Check cache for existing enrichment before scheduling new job
+    const cached = await ctx.runQuery(
+      (internal as any).db.routeEnrichments.findByContentFingerprint,
+      { contentFingerprint: fingerprint, phase: 'fast' }
+    ) as any
+
+    if (cached) {
+      console.info('[planRide] Cache hit for enrichment - skipping job scheduling', {
+        fingerprint,
+        cachedEnrichmentId: cached._id,
+        cachedStatus: cached.status,
+      })
+    } else {
+      console.info('[planRide] Cache miss - scheduling background enrichment', {
+        fingerprint,
+        routePlanId,
+      })
+
+      // AC-3: Schedule background enrichment job (100ms delay)
+      const { enrichmentId } = await ctx.runMutation(
+        (internal as any).db.routeEnrichments.createEnrichment,
+        {
+          routePlanId,
+          clerkUserId: plan.clerkUserId,
+          contentFingerprint: fingerprint,
+          phase: 'fast',
+        }
+      ) as { enrichmentId: Id<'route_enrichments'> }
+
+      console.info('[planRide] Enrichment record created', {
+        enrichmentId,
+        routePlanId,
+      })
+
+      // Schedule background job with 100ms delay
+      const scheduledJobId = await ctx.scheduler.runAfter(
+        100,
+        (internal as any).actions.agent.enrichment.runEnrichmentJob,
+        { enrichmentId, phase: 'fast' }
+      )
+
+      console.info('[planRide] Background enrichment job scheduled', {
+        enrichmentId,
+        scheduledJobId,
+        delayMs: 100,
+      })
+
+      // AC-5: Store scheduledJobId in enrichment record
+      await ctx.runMutation(
+        (internal as any).db.routeEnrichments.updateEnrichment,
+        {
+          enrichmentId,
+          scheduledJobId,
+        }
+      )
+
+      console.info('[planRide] Enrichment record updated with scheduled job ID', {
+        enrichmentId,
+        scheduledJobId,
+      })
+    }
+
+    // AC-4: Return immediate results with fallback labels (non-blocking)
     await ctx.runMutation(
       (internal as any).db.routePlans.updatePlanStatus,
       {
