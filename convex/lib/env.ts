@@ -54,6 +54,32 @@ export const AI_PROVIDER: 'openai' | 'google' | 'anthropic' = 'anthropic'
 export const AI_MODEL = 'claude-sonnet-4-6'
 
 /**
+ * Protomaps US URL for tile data.
+ * Optional environment variable for custom tile source.
+ */
+const protomapsUrl = optionalEnv('PROTOMAPS_US_URL')
+
+if (protomapsUrl) {
+  try {
+    new URL(protomapsUrl)
+
+    // Warn if not a .pmtiles URL
+    if (
+      !protomapsUrl.endsWith('.pmtiles') &&
+      !protomapsUrl.includes('.pmtiles?')
+    ) {
+      console.warn(
+        `Warning: PROTOMAPS_US_URL does not appear to be a .pmtiles URL: ${protomapsUrl}`,
+      )
+    }
+  } catch (e) {
+    throw new Error(`Invalid PROTOMAPS_US_URL: ${protomapsUrl} is not a valid URL`)
+  }
+}
+
+export const PROTOMAPS_US_URL = protomapsUrl
+
+/**
  * Override the monthly route plan limit. 0 = unlimited.
  * When unset, falls back to FREE_TIER_MONTHLY_LIMIT (5).
  * Set via: npx convex env set RATE_LIMIT_OVERRIDE 0
