@@ -60,6 +60,7 @@ export const useChatPlanning = (
   const createSession = useMutation(api.db.planningSessions.createSession)
   const sendMessage = useAction(api.actions.agent.sendMessage.sendMessage)
   const cancelPlan = useMutation(api.db.routePlans.cancelPlan)
+  const createOptimisticMessage = useMutation(api.db.sessionMessages.createOptimisticUserMessage)
   const getActiveRoutePlansForSession = useQuery(
     api.db.routePlans.getActiveRoutePlansForSession,
     sessionId !== null ? { sessionId } : 'skip'
@@ -76,6 +77,10 @@ export const useChatPlanning = (
    * Session reuse logic:
    * - If we already have a sessionId from a previous message, reuse it (refinement)
    * - Otherwise, create a new session (first message or after error/new session)
+   *
+   * Optimistic updates:
+   * - User message appears immediately with 'complete' status
+   * - Once backend confirms, the optimistic message is replaced with the real one
    */
   const sendPlanningMessage = useCallback(
     async (message: string, currentLocation?: { lat: number; lng: number }) => {
@@ -110,6 +115,15 @@ export const useChatPlanning = (
         if (signal.aborted) {
           throw new Error('Aborted')
         }
+
+        // Step 1.5: Optimistically add user message to transcript
+        // This will appear immediately while the backend processes
+        const optimisticId = await createOptimisticMessage({
+          sessionId: sessionIdToUse,
+          content: message,
+        })
+
+        console.info('[useChatPlanning] Created optimistic message:', optimisticId)
 
         // Step 2: Send message to backend agent. The action writes pending
         // assistant rows and finalizes them; we just await completion.

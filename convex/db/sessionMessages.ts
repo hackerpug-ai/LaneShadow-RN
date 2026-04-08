@@ -422,6 +422,37 @@ export const addSystemMessage = internalMutation({
   },
 })
 
+export const createOptimisticUserMessage = mutation({
+  args: {
+    sessionId: v.id('planning_sessions'),
+    content: v.string(),
+  },
+  returns: v.id('session_messages'),
+  handler: async (ctx, args) => {
+    const { clerkUserId } = await requireIdentity(ctx)
+
+    // Validate content is not empty or whitespace-only
+    const trimmedContent = args.content.trim()
+    if (trimmedContent.length === 0) {
+      throw new ConvexError(ERROR_CODES.INVALID_CONTENT)
+    }
+
+    const now = Date.now()
+    const messageId = await ctx.db.insert('session_messages', {
+      sessionId: args.sessionId,
+      role: 'rider',
+      content: trimmedContent,
+      kind: 'text',
+      status: 'complete',
+      createdAt: now,
+    })
+
+    await ctx.db.patch(args.sessionId, { updatedAt: now })
+
+    return messageId
+  },
+})
+
 export const createPendingAssistantMessage = internalMutation({
   args: {
     sessionId: v.id('planning_sessions'),

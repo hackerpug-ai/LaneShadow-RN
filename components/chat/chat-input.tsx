@@ -46,6 +46,8 @@ type ChatInputProps = {
   /** Handler for the manual planning mode icon. Opens PlanRideSheet with
    *  preferences extracted from the current chat conversation. */
   onManualModePress?: () => void
+  /** Whether the session has any messages (used to hide suggestions after first request) */
+  hasMessages?: boolean
   /** Extra bottom padding to avoid overlapping with temporary elements above
    *  (e.g., planning indicator, toasts, route cards). Following /frontend-design
    *  dynamic spacing rule: input must not obscure temporary items. */
@@ -116,6 +118,7 @@ export const ChatInput = ({
   chatMode = false,
   onToggleChatMode,
   onManualModePress,
+  hasMessages = false,
   extraBottomOffset = 0,
 }: ChatInputProps) => {
   const { semantic } = useSemanticTheme()
@@ -167,8 +170,8 @@ export const ChatInput = ({
         </View>
       )}
 
-      {/* Suggestion chips when idle */}
-      {isIdle && suggestions.length > 0 && !isPlanning && (
+      {/* Suggestion chips when idle AND no messages have been sent yet */}
+      {isIdle && !hasMessages && suggestions.length > 0 && !isPlanning && (
         <SuggestionChips
           suggestions={suggestions}
           onSelect={handleSelectSuggestion}

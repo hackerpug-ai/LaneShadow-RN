@@ -875,6 +875,7 @@ const HomeMapScreen = () => {
           chatMode={chatMode}
           onToggleChatMode={cycleTranscript}
           onManualModePress={handleManualModePress}
+          hasMessages={transcriptMessages.length > 0}
           extraBottomOffset={useMemo(() => {
             // Only add offset in map mode when temporary elements are visible
             if (chatMode) return 0
