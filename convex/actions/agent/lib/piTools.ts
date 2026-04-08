@@ -281,6 +281,56 @@ export const AgentToolSchemas = {
       description: 'Maximum number of results to return. Null for default (3).',
     }),
   }),
+
+  // ---------------------------------------------------------------------------
+  // Waypoint management tools (US-052)
+  // ---------------------------------------------------------------------------
+
+  addWaypoint: Type.Object({
+    routePlanId: Type.String({ description: 'ID of the route plan to add the waypoint to' }),
+    location: Type.Union([
+      Type.String({ description: 'Natural language location (e.g., "gas station in Santa Cruz", " viewpoints on Highway 1")' }),
+      Type.Object({
+        lat: Type.Number({ description: 'Latitude in decimal degrees' }),
+        lng: Type.Number({ description: 'Longitude in decimal degrees' }),
+      }),
+    ], { description: 'Location as natural language query or coordinates' }),
+    locationBias: Type.Union([
+      Type.Object({
+        lat: Type.Number({ description: 'Bias latitude for geocoding' }),
+        lng: Type.Number({ description: 'Bias longitude for geocoding' }),
+      }),
+      Type.Null(),
+    ], { description: 'Optional location bias for geocoding (e.g., route start point). Null for no bias.' }),
+  }),
+
+  listWaypoints: Type.Object({
+    routePlanId: Type.String({ description: 'ID of the route plan to list waypoints for' }),
+    status: Type.Union([
+      Type.Literal('pending'),
+      Type.Literal('evaluating'),
+      Type.Literal('ready'),
+      Type.Literal('approved'),
+      Type.Literal('rejected'),
+      Type.Literal('applied'),
+      Type.Null(),
+    ], { description: 'Filter by waypoint status. Null to list all waypoints.' }),
+  }),
+
+  applyWaypointDecisions: Type.Object({
+    routePlanId: Type.String({ description: 'ID of the route plan' }),
+    approvedWaypointIds: Type.Array(Type.String(), { description: 'List of waypoint IDs to approve' }),
+    rejectedWaypointIds: Type.Array(Type.String(), { description: 'List of waypoint IDs to reject' }),
+  }),
+
+  presentDeviationOptions: Type.Object({
+    waypointId: Type.String({ description: 'ID of the waypoint to present deviation options for' }),
+  }),
+
+  optimizeWaypointOrder: Type.Object({
+    routePlanId: Type.String({ description: 'ID of the route plan' }),
+    waypointIds: Type.Array(Type.String(), { description: 'List of waypoint IDs to optimize' }),
+  }),
 }
 
 /**

@@ -16,6 +16,7 @@ import type * as actions_agent_agents_types from "../actions/agent/agents/types.
 import type * as actions_agent_budgetTracker from "../actions/agent/budgetTracker.js";
 import type * as actions_agent_enrichment_runEnrichmentJob from "../actions/agent/enrichment/runEnrichmentJob.js";
 import type * as actions_agent_generateTripPlan from "../actions/agent/generateTripPlan.js";
+import type * as actions_agent_lib_enrichmentCache from "../actions/agent/lib/enrichmentCache.js";
 import type * as actions_agent_lib_geo from "../actions/agent/lib/geo.js";
 import type * as actions_agent_lib_piTools from "../actions/agent/lib/piTools.js";
 import type * as actions_agent_lib_planRideOrchestrator from "../actions/agent/lib/planRideOrchestrator.js";
@@ -30,6 +31,7 @@ import type * as actions_agent_providers_geocodingProvider from "../actions/agen
 import type * as actions_agent_providers_placesProvider from "../actions/agent/providers/placesProvider.js";
 import type * as actions_agent_providers_protomapsProvider from "../actions/agent/providers/protomapsProvider.js";
 import type * as actions_agent_providers_routingProvider from "../actions/agent/providers/routingProvider.js";
+import type * as actions_agent_providers_waypointService from "../actions/agent/providers/waypointService.js";
 import type * as actions_agent_providers_weatherProvider from "../actions/agent/providers/weatherProvider.js";
 import type * as actions_agent_providers_webSearchProvider from "../actions/agent/providers/webSearchProvider.js";
 import type * as actions_agent_ridePlanningAgent from "../actions/agent/ridePlanningAgent.js";
@@ -99,6 +101,7 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/budgetTracker": typeof actions_agent_budgetTracker;
   "actions/agent/enrichment/runEnrichmentJob": typeof actions_agent_enrichment_runEnrichmentJob;
   "actions/agent/generateTripPlan": typeof actions_agent_generateTripPlan;
+  "actions/agent/lib/enrichmentCache": typeof actions_agent_lib_enrichmentCache;
   "actions/agent/lib/geo": typeof actions_agent_lib_geo;
   "actions/agent/lib/piTools": typeof actions_agent_lib_piTools;
   "actions/agent/lib/planRideOrchestrator": typeof actions_agent_lib_planRideOrchestrator;
@@ -113,6 +116,7 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/providers/placesProvider": typeof actions_agent_providers_placesProvider;
   "actions/agent/providers/protomapsProvider": typeof actions_agent_providers_protomapsProvider;
   "actions/agent/providers/routingProvider": typeof actions_agent_providers_routingProvider;
+  "actions/agent/providers/waypointService": typeof actions_agent_providers_waypointService;
   "actions/agent/providers/weatherProvider": typeof actions_agent_providers_weatherProvider;
   "actions/agent/providers/webSearchProvider": typeof actions_agent_providers_webSearchProvider;
   "actions/agent/ridePlanningAgent": typeof actions_agent_ridePlanningAgent;
