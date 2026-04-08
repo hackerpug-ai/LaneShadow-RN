@@ -433,14 +433,33 @@ async function runCompileSketch(
           const partialRoute = stitchSegments(nowSucceeded)
           const routeSnapshot = await normalizeRoute({ providerRoute: partialRoute, planInput })
           const results = [{ routeSnapshot, sketch }]
-          const built = buildOpts(results, crypto.randomUUID())
+
+          let built
+          try {
+            built = buildOpts(results, crypto.randomUUID())
+          } catch (buildError) {
+            console.error('[runCompileSketch] Error building partial route options:', buildError)
+            await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+              routePlanId,
+              status: 'failed',
+              errorMessage: `Failed to build route options: ${buildError instanceof Error ? buildError.message : String(buildError)}`,
+            })
+            throw buildError
+          }
 
           clearPendingSketch(sessionId)
-          await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
-            routePlanId,
-            status: 'completed',
-            result: built,
-          })
+
+          try {
+            await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+              routePlanId,
+              status: 'completed',
+              result: built,
+            })
+          } catch (updateError) {
+            console.error('[runCompileSketch] Error updating status to completed:', updateError)
+            throw updateError
+          }
+
           await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, {
             clerkUserId: ctx.clerkUserId,
           })
@@ -476,10 +495,29 @@ async function runCompileSketch(
         clearPendingSketch(sessionId)
         const routeSnapshot = await normalizeRoute({ providerRoute, planInput })
         const results = [{ routeSnapshot, sketch }]
-        const built = buildOpts(results, crypto.randomUUID())
-        await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
-          routePlanId, status: 'completed', result: built,
-        })
+
+        let built
+        try {
+          built = buildOpts(results, crypto.randomUUID())
+        } catch (buildError) {
+          console.error('[runCompileSketch] Error building route options:', buildError)
+          await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+            routePlanId,
+            status: 'failed',
+            errorMessage: `Failed to build route options: ${buildError instanceof Error ? buildError.message : String(buildError)}`,
+          })
+          throw buildError
+        }
+
+        try {
+          await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+            routePlanId, status: 'completed', result: built,
+          })
+        } catch (updateError) {
+          console.error('[runCompileSketch] Error updating status to completed:', updateError)
+          throw updateError
+        }
+
         await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, { clerkUserId: ctx.clerkUserId })
         return { type: 'routes', data: built, routePlanId }
       }
@@ -564,7 +602,19 @@ async function runCompileSketch(
       routeSnapshot,
       sketch,
     }]
-    const built = buildOpts(results, crypto.randomUUID())
+
+    let built
+    try {
+      built = buildOpts(results, crypto.randomUUID())
+    } catch (buildError) {
+      console.error('[runCompileSketch] Error building options:', buildError)
+      await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+        routePlanId,
+        status: 'failed',
+        errorMessage: `Failed to build route options: ${buildError instanceof Error ? buildError.message : String(buildError)}`,
+      })
+      throw buildError
+    }
 
     // Clear the pending sketch after successful compilation
     clearPendingSketch(sessionId)
@@ -584,11 +634,16 @@ async function runCompileSketch(
     })
 
     // Finalize the route_plans row
-    await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
-      routePlanId,
-      status: 'completed',
-      result: built,
-    })
+    try {
+      await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+        routePlanId,
+        status: 'completed',
+        result: built,
+      })
+    } catch (updateError) {
+      console.error('[runCompileSketch] Error updating status to completed:', updateError)
+      throw updateError
+    }
 
     // Increment usage
     await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, {
@@ -693,7 +748,19 @@ async function runPlanRoute(
       planInput,
       departureTimeMs: args.departureTime,
     })
-    const built = buildOptionsFromResults(results, crypto.randomUUID())
+
+    let built
+    try {
+      built = buildOptionsFromResults(results, crypto.randomUUID())
+    } catch (buildError) {
+      console.error('[runPlanRoute] Error building options:', buildError)
+      await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+        routePlanId,
+        status: 'failed',
+        errorMessage: `Failed to build route options: ${buildError instanceof Error ? buildError.message : String(buildError)}`,
+      })
+      throw buildError
+    }
 
     // Debug: log the result structure before storing
     console.info('[runPlanRoute] Storing route plan result:', {
@@ -709,11 +776,16 @@ async function runPlanRoute(
       } : null,
     })
 
-    await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
-      routePlanId,
-      status: 'completed',
-      result: built,
-    })
+    try {
+      await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+        routePlanId,
+        status: 'completed',
+        result: built,
+      })
+    } catch (updateError) {
+      console.error('[runPlanRoute] Error updating status to completed:', updateError)
+      throw updateError
+    }
 
     // Increment usage (deterministic action)
     await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, {
