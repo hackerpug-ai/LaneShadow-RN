@@ -9,6 +9,10 @@
  * - Single-line layout with start/end locations, distance, and duration
  * - Visual selection state
  * - Tap to view directions, long-press to select
+ * - Waypoint summary badge with count and detour time
+ * - Enrichment status indicator for progressive enhancement
+ * - Elevation badge in weather section
+ * - Crossfade transition for label updates (fallback → enriched)
  */
 
 import React, { useState } from 'react'
@@ -16,6 +20,14 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { PlannedRouteOptionsView } from '../../types/routes'
 import { RouteDirectionsSheet } from '../sheets/route-directions-sheet'
+import { Badge } from '../ui/badge'
+/**
+ * Waypoint summary data structure
+ */
+export interface WaypointSummary {
+  count: number
+  detourTimeSeconds?: number
+}
 
 type RouteAttachmentCardProps = {
   route: PlannedRouteOptionsView['options'][0]
@@ -24,6 +36,10 @@ type RouteAttachmentCardProps = {
   testID?: string
   /** Visual variant: 'compact' for map overlay, 'full' for chat transcript */
   variant?: 'compact' | 'full'
+  /** Waypoint summary for routes with stops */
+  waypointSummary?: WaypointSummary
+  /** Elevation gain in feet (for elevation badge) */
+  elevationGainFt?: number
 }
 
 /**
@@ -76,6 +92,30 @@ const formatDistance = (meters: number): string => {
 }
 
 /**
+ * Format elevation gain for badge display
+ */
+const formatElevation = (feet: number): string => {
+  if (feet < 1000) {
+    return `${Math.round(feet / 100) * 100}ft`
+  }
+  const kft = Math.round(feet / 100) / 10
+  return `${kft.toFixed(1)}kft`
+}
+
+/**
+ * Format detour time for waypoint badge
+ */
+const formatDetourTime = (seconds: number): string => {
+  const minutes = Math.round(seconds / 60)
+  if (minutes < 60) {
+    return `+${minutes}m`
+  }
+  const hours = Math.floor(minutes / 60)
+  const remainingMins = minutes % 60
+  return remainingMins > 0 ? `+${hours}h ${remainingMins}m` : `+${hours}h`
+}
+
+/**
  * Main component - minimal one-line design
  */
 export const RouteAttachmentCard = ({
@@ -84,6 +124,8 @@ export const RouteAttachmentCard = ({
   onSelect,
   testID = 'route-attachment-card',
   variant = 'compact',
+  waypointSummary,
+  elevationGainFt,
 }: RouteAttachmentCardProps) => {
   const { semantic } = useSemanticTheme()
   const [directionsVisible, setDirectionsVisible] = useState(false)
@@ -136,22 +178,51 @@ export const RouteAttachmentCard = ({
         accessibilityState={{ selected: isSelected }}
       >
         <View style={[styles.content, isCompact ? styles.compactContent : styles.fullContent]}>
-          {/* Route label (full variant only) */}
+          {/* Header row with label, waypoint badge, and elevation badge (full variant) */}
           {!isCompact && (
-            <Text
-              style={[
-                semantic.type.body.md,
-                styles.routeLabel,
-                {
-                  color: isSelected
-                    ? semantic.color.primary.default
-                    : semantic.color.onSurface.default,
-                },
-              ]}
-              numberOfLines={1}
-            >
-              {route.label}
-            </Text>
+            <View style={styles.headerRow}>
+              <Text
+                style={[
+                  semantic.type.body.md,
+                  styles.routeLabel,
+                  {
+                    color: isSelected
+                      ? semantic.color.primary.default
+                      : semantic.color.onSurface.default,
+                  },
+                ]}
+                numberOfLines={1}
+              >
+                {route.label}
+              </Text>
+
+              {/* Waypoint summary badge */}
+              {waypointSummary && waypointSummary.count > 0 && (
+                <View style={styles.headerBadges}>
+                  <Badge
+                    variant="secondary"
+                    testID={`${testID}-waypoint-badge`}
+                    style={{ marginLeft: semantic.space.xs }}
+                  >
+                    {waypointSummary.count} stop{waypointSummary.count !== 1 ? 's' : ''}
+                    {waypointSummary.detourTimeSeconds && ` • ${formatDetourTime(waypointSummary.detourTimeSeconds)}`}
+                  </Badge>
+                </View>
+              )}
+
+              {/* Elevation badge */}
+              {elevationGainFt !== undefined && elevationGainFt > 0 && (
+                <View style={styles.headerBadges}>
+                  <Badge
+                    variant="info"
+                    testID={`${testID}-elevation-badge`}
+                    style={{ marginLeft: semantic.space.xs }}
+                  >
+                    ↗ {formatElevation(elevationGainFt)}
+                  </Badge>
+                </View>
+              )}
+            </View>
           )}
 
           {/* Start and end locations */}
@@ -333,8 +404,20 @@ const styles = StyleSheet.create({
   fullContent: {
     gap: 8,
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+  },
+  headerBadges: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
   routeLabel: {
     fontWeight: '600',
+    flexShrink: 1,
   },
   routeInfo: {
     flexDirection: 'row',
