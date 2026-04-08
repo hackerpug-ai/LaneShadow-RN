@@ -11,7 +11,7 @@
  * - AC4: Error message displayed on save failure, sheet stays open
  */
 
-import { StyleSheet, View, ScrollView } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useEffect, useState } from 'react'
 import { useMutation } from 'convex/react'
