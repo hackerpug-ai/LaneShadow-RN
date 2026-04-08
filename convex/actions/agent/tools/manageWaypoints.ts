@@ -515,7 +515,7 @@ export async function applyWaypointDecisionsImpl(
     })
 
     // 4. Sort on-route waypoints by order, off-route don't need order
-    const sortedWaypoints = approvedWaypoints.sort((a, b) => {
+    const sortedWaypoints = approvedWaypoints.sort((a: any, b: any) => {
       // On-route waypoints with order come first
       if (a.kind === 'on_route' && b.kind === 'on_route') {
         return (a.order ?? 0) - (b.order ?? 0)
@@ -528,8 +528,8 @@ export async function applyWaypointDecisionsImpl(
 
     // 5. Extract intermediate waypoints for route regeneration (only on-route)
     const intermediates = sortedWaypoints
-      .filter((w) => w.kind === 'on_route')
-      .map((w) => ({ lat: w.location.lat, lng: w.location.lng }))
+      .filter((w: any) => w.kind === 'on_route')
+      .map((w: any) => ({ lat: w.location.lat, lng: w.location.lng }))
 
     return {
       success: true,

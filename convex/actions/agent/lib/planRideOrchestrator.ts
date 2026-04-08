@@ -53,16 +53,7 @@ export const planRideOrchestrator = async (params: {
 }): Promise<OrchestratorResult[]> => {
   const { planInput, departureTimeMs, favorites = [] } = params
 
-  // Step 1: Discover scenic waypoints deterministically via Overpass
-  const variants = await findScenicWaypoints({
-    start: planInput.start,
-    end: planInput.end,
-    preferences: planInput.preferences,
-  })
-
-  console.info(`[planRideOrchestrator] ${variants.length} variants discovered`)
-
-  // Step 1.5: Filter favorites by distance from route corridor
+  // Step 1: Filter favorites by distance from route corridor
   const routeBounds = {
     north: Math.max(planInput.start.lat, planInput.end.lat),
     south: Math.min(planInput.start.lat, planInput.end.lat),
@@ -83,10 +74,26 @@ export const planRideOrchestrator = async (params: {
     }
   }
 
-  // Step 2: Build RouteSketch + compile + normalize in parallel
+  // Step 2: Discover scenic waypoints deterministically via Overpass
+  // Then inject favorites into the variants so they influence routing
+  const variants = await findScenicWaypoints({
+    start: planInput.start,
+    end: planInput.end,
+    preferences: planInput.preferences,
+  })
+
+  // Inject nearby favorites into each variant as waypoints
+  // This ensures they are included when the routing provider builds routes
+  const variantsWithFavorites = nearbyFavorites.length > 0
+    ? injectFavoritesIntoVariants(variants, nearbyFavorites)
+    : variants
+
+  console.info(`[planRideOrchestrator] ${variantsWithFavorites.length} variants discovered (including ${nearbyFavorites.length} favorites)`)
+
+  // Step 3: Build RouteSketch + compile + normalize in parallel
   // Promise.allSettled ensures one variant failure does not block the others
   const compiled = await Promise.allSettled(
-    variants.map(async (variant) => {
+    variantsWithFavorites.map(async (variant) => {
       const sketch = buildSketchFromVariant(variant)
       const providerRoute = await compileSketch({ planInput, sketch })
       const routeSnapshot = await normalizeRoute({ providerRoute, planInput })
@@ -233,6 +240,58 @@ export const filterFavoritesByDistance = (
   }
 
   return { nearbyFavorites, excludedFavorites }
+}
+
+/**
+ * Inject favorite roads into route variants as waypoints.
+ * Favorites are converted to waypoints and added to each variant's waypoint list.
+ * This ensures the routing provider will route through these favorite areas.
+ *
+ * @param variants - Route variants from findScenicWaypoints
+ * @param favorites - Nearby favorites to inject
+ * @returns Route variants with favorites added as waypoints
+ */
+const injectFavoritesIntoVariants = (
+  variants: RouteVariant[],
+  favorites: FavoriteRoadForPlanning[]
+): RouteVariant[] => {
+  if (favorites.length === 0) {
+    return variants
+  }
+
+  // Convert favorites to waypoints by extracting representative points
+  // For now, use the center of the favorite's bounds as the waypoint location
+  const favoriteWaypoints: Array<{ lat: number; lng: number; name: string; type: 'scenic_road'; score: number }> = []
+
+  for (const fav of favorites) {
+    if (!fav.bounds) {
+      console.warn(`[injectFavoritesIntoVariants] Skipping favorite ${fav.id} - no bounds`)
+      continue
+    }
+
+    // Use center of bounds as waypoint location
+    const centerLat = (fav.bounds.north + fav.bounds.south) / 2
+    const centerLng = (fav.bounds.east + fav.bounds.west) / 2
+
+    favoriteWaypoints.push({
+      lat: centerLat,
+      lng: centerLng,
+      name: fav.id, // Use favorite ID as waypoint name
+      type: 'scenic_road',
+      score: 4, // Higher score than scenic waypoints to prioritize favorites
+    })
+  }
+
+  // Inject favorite waypoints into each variant
+  // Insert them after the start waypoint but before the end
+  return variants.map((variant) => ({
+    ...variant,
+    waypoints: [
+      variant.waypoints[0], // Keep start waypoint
+      ...favoriteWaypoints, // Add favorites
+      ...variant.waypoints.slice(1), // Add remaining waypoints
+    ],
+  }))
 }
 
 /**

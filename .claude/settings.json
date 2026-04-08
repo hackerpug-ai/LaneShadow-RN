@@ -3,5 +3,29 @@
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_CODE_TASK_LIST_ID": "LaneShadow",
     "teammateMode": "subprocess"
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/justinrich/Projects/LaneShadow && npx convex dev --once"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/justinrich/Projects/LaneShadow && npx convex dev --once"
+          }
+        ]
+      }
+    ]
   }
 }
