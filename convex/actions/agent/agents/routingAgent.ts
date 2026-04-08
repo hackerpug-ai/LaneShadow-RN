@@ -762,12 +762,6 @@ const routingTools: RoutingTool[] = [
     parallelSafe: true,
   },
   {
-    name: 'lookupRoad',
-    description: 'Verify a specific road exists and get its coordinates. Use when the rider names a particular road.',
-    parameters: AgentToolSchemas.lookupRoad as any,
-    parallelSafe: true,
-  },
-  {
     name: 'createRouteSketch',
     description:
       "Create a high-level route itinerary by specifying road segments (think \"take Highway 5 to Highway 405 to PCH\"). Use this when the rider asks to avoid specific roads (\"avoid Highway 1\") or requests a particular route (\"take Skyline Blvd\"). After creating the sketch, call compileSketch with start/end coordinates to generate the precise route.",
@@ -820,9 +814,6 @@ export async function executeRoutingTool(
         break
       case 'discoverCorridor':
         result = await runDiscoverCorridor(ctx, validated)
-        break
-      case 'lookupRoad':
-        result = await runLookupRoad(ctx, validated)
         break
       case 'createRouteSketch':
         result = await runCreateRouteSketch(ctx, validated)
@@ -891,7 +882,7 @@ Get a route on the map ASAP so the rider can see it and decide. ALWAYS discover 
 4. PICK roads from discovery results based on the rider's intent:
    - "scenic" → roads near peaks, passes, viewpoints
    - "avoid highways" → skip motorway/trunk class roads
-   - "take Skyline Blvd" → verify with lookupRoad if not in results
+   - "take Skyline Blvd" → use road name directly from discovery or geocode results
 5. Author createRouteSketch using real road names + coordinates from discovery.
    - ALL anchor points MUST have lat/lng from discovery or geocode
    - Use road endpoints as segment fromName/toName anchor coordinates

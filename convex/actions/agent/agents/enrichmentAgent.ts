@@ -28,27 +28,6 @@ type ToolWithParallelSafe = Tool & { parallelSafe: boolean }
 
 const enrichmentTools: ToolWithParallelSafe[] = [
   {
-    name: 'lookupRoad',
-    description:
-      'Verify a road exists in OpenStreetMap for a given bounding box. Returns matched road names, highway class, surface type, and simplified geometry. Use to verify road details before answering questions about surface or twistiness.',
-    parameters: AgentToolSchemas.lookupRoad as any,
-    parallelSafe: true,
-  },
-  {
-    name: 'getCurvature',
-    description:
-      "Score a road's twistiness using the roadcurvature.com circumcircle-radius algorithm. Higher scores mean more curves: 1000+ = very twisty, 600–999 = twisty, 300–599 = moderate, 100–299 = mild, <100 = straight. Use geometry from lookupRoad results. Use to answer 'is it twisty?' questions.",
-    parameters: AgentToolSchemas.getCurvature as any,
-    parallelSafe: true,
-  },
-  {
-    name: 'checkSurface',
-    description:
-      "Classify a road's surface as paved, unpaved, or unknown using OSM surface and highway tags. Use to answer questions about road surface quality. Pass surface and highway values from lookupRoad results.",
-    parameters: AgentToolSchemas.checkSurface as any,
-    parallelSafe: true,
-  },
-  {
     name: 'getElevation',
     description:
       'Get the elevation profile for a route polyline: total gain/loss in feet, max elevation, max grade percentage, and steep segments. Use to describe climbs, mountain passes, and challenging grades.',
@@ -170,12 +149,6 @@ export async function executeEnrichmentTool(
   const validated = validateToolCall(enrichmentTools, call)
 
   switch (call.name) {
-    case 'lookupRoad':
-      return runLookupRoad(ctx, validated)
-    case 'getCurvature':
-      return runGetCurvature(ctx, validated)
-    case 'checkSurface':
-      return runCheckSurface(ctx, validated)
     case 'getElevation':
       return runGetElevation(ctx, validated)
     case 'searchAlongRoute':
@@ -207,8 +180,6 @@ ${routeBlock}
 
 Use the right tool for each question type:
 
-- **"Is it twisty?" / "How curvy?"** → lookupRoad (get geometry) then getCurvature (score twistiness)
-- **"What's the surface like?" / "Is it paved?"** → lookupRoad (get surface tag) then checkSurface (classify)
 - **"What's the elevation like?" / "Any big climbs?"** → getElevation (get profile and grades)
 - **"Where can I get gas?" / "Any food stops?"** → searchAlongRoute (find places along route)
 - **"What's the weather?" / "Will it rain?"** → getRouteWeather (conditions for departure time)
