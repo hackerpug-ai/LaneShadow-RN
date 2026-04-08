@@ -93,6 +93,8 @@ const lightSemanticTheme: SemanticTheme = {
     // Intent colors
     success: createColorSet('#31A362', '#4FBD7F', '#268A4D', '#A0DDB8'),
     warning: createColorSet('#D98E04', '#E6A42C', '#A86D00', '#F5D182'),
+    warningContainer: createColorSet('#FFF8E7', '#FFFCF0', '#F5ECD0', '#FFF8E7'),
+    onWarningContainer: createColorSet('#5C3E00', '#7A5200', '#4C3300', '#A57700'),
     danger: createColorSet('#E35D6A', '#EA7A88', '#C94352', '#F5B9C1'),
     info: createColorSet('#2B9AEB', '#5DB3F0', '#1081D6', '#B8DCF5'),
 
@@ -263,6 +265,8 @@ const darkSemanticTheme: SemanticTheme = {
     // Intent colors
     success: createColorSet('#31A362', '#4FBD7F', '#268A4D', '#1B5F35'),
     warning: createColorSet('#D98E04', '#E6A42C', '#A86D00', '#A96419'),
+    warningContainer: createColorSet('#4A3C00', '#5C4B00', '#3E3200', '#6A5800'),
+    onWarningContainer: createColorSet('#FFF8E7', '#FFFCF0', '#F5ECD0', '#E5D5A0'),
     danger: createColorSet('#E35D6A', '#EA7A88', '#C94352', '#801B1B'),
     info: createColorSet('#2B9AEB', '#5DB3F0', '#1081D6', '#1C6AA6'),
 

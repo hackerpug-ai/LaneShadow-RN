@@ -8,6 +8,7 @@
  * - Integrates with map for route selection
  */
 
+import { useState } from 'react'
 import { IconSymbol } from '../ui/icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
@@ -16,6 +17,7 @@ import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { PlannedRouteOptionsView, PlannedRouteOptionView } from '../../types/routes'
 import { RouteOptionCard } from '../planning/route-option-card'
 import { Button } from '../ui/button'
+import { FavoriteExclusionAlert } from '../ui/favorite-exclusion-alert'
 import { BottomSheetWrapper } from './bottom-sheet-wrapper'
 
 export type RouteOptionsSheetProps = {
@@ -31,6 +33,8 @@ export type RouteOptionsSheetProps = {
   isSaving?: boolean
   testID?: string
   includeFavorites?: boolean
+  /** Session key for tracking exclusion messages */
+  sessionKey?: string
 }
 
 /**
@@ -49,11 +53,17 @@ export const RouteOptionsSheet = ({
   isSaving = false,
   testID,
   includeFavorites = false,
+  sessionKey,
 }: RouteOptionsSheetProps) => {
   const { semantic } = useSemanticTheme()
+  const [exclusionAlertDismissed, setExclusionAlertDismissed] = useState(false)
 
   const handleRouteSelect = (routeOptionId: string) => {
     onRouteSelect(routeOptionId)
+  }
+
+  const handleExclusionAlertDismiss = () => {
+    setExclusionAlertDismissed(true)
   }
 
   const handleViewDetails = () => {
@@ -89,6 +99,16 @@ export const RouteOptionsSheet = ({
           Route Options
         </Text>
       </View>
+
+      {/* Favorite exclusion alert */}
+      {!exclusionAlertDismissed && planningResult?.excludedFavorites && planningResult.excludedFavorites.length > 0 && (
+        <FavoriteExclusionAlert
+          excludedFavorites={planningResult.excludedFavorites}
+          includeFavorites={includeFavorites}
+          onDismiss={handleExclusionAlertDismiss}
+          sessionKey={sessionKey}
+        />
+      )}
 
       <ScrollView
         style={styles.scrollView}

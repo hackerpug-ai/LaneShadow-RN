@@ -21,6 +21,8 @@ describe('overlay-colors', () => {
       tertiary: { default: '#7D5260' },
       success: { default: '#22c55e' },
       warning: { default: '#f59e0b' },
+    warningContainer: { default: 'FFF8E7' },
+    onWarningContainer: { default: '#5C3E00' },
       danger: { default: '#ef4444' },
       info: { default: '#3b82f6' },
       surface: { default: '#FEF7FF' },

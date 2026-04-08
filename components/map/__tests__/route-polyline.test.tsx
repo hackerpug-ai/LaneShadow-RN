@@ -33,6 +33,8 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     tertiary: { default: '#2B9AEB' },
     success: { default: '#31A362' },
     warning: { default: '#D98E04' },
+    warningContainer: { default: '#FFF8E7' },
+    onWarningContainer: { default: '#5C3E00' },
     danger: { default: '#E35D6A' },
     info: { default: '#2B9AEB' },
     surface: { default: '#1B1715' },

@@ -38,6 +38,8 @@ export type SemanticColors = {
   // Intent colors
   success: SemanticColorSet
   warning: SemanticColorSet
+  warningContainer: SemanticColorSet
+  onWarningContainer: SemanticColorSet
   danger: SemanticColorSet
   info: SemanticColorSet
 
