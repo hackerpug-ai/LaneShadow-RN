@@ -1,6 +1,15 @@
-import { vi, describe, it, expect, afterEach } from 'vitest'
+import { vi, describe, it, expect, afterEach, beforeEach } from 'vitest'
 import { lookupRoad } from '../lookupRoad'
 import type { LookupRoadResult, RoadMatch } from '../lookupRoad'
+
+// Mock the monitoring module before importing
+vi.mock('../../../monitoring', () => ({
+  recordProtomapsFallbackHandler: vi.fn(),
+  recordProtomapsFailureHandler: vi.fn(),
+  recordProtomapsQueryHandler: vi.fn(),
+}))
+
+import { recordProtomapsFallbackHandler } from '../../../monitoring'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -57,6 +66,12 @@ const BBOX = {
 // ---------------------------------------------------------------------------
 
 describe('lookupRoad', () => {
+  const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   afterEach(() => {
     vi.resetAllMocks()
   })
@@ -180,6 +195,63 @@ describe('lookupRoad', () => {
       const rankA = highwayOrder.indexOf(resultHighways[i])
       const rankB = highwayOrder.indexOf(resultHighways[i + 1])
       expect(rankA).toBeLessThanOrEqual(rankB)
+    }
+  })
+
+  // AC-5: lookupRoad records Protomaps fallback events with structured logging
+  it('AC-5: records Protomaps fallback events with tool name, reason, and bbox', async () => {
+    // Mock fetch to simulate Overpass fallback (Protomaps will fail first)
+    const elements = [
+      makeWay(1, {
+        name: 'Test Road',
+        highway: 'primary',
+        surface: 'asphalt',
+      }),
+    ]
+    setupFetch(makeOverpassResponse(elements))
+
+    // Mock Protomaps provider to throw an error (forcing fallback)
+    vi.doMock('../providers/protomapsProvider', async () => {
+      const actual = await vi.importActual<any>('../providers/protomapsProvider')
+      return {
+        ...actual,
+        createProtomapsProvider: () => ({
+          init: vi.fn().mockRejectedValue(new Error('Protomaps tiles not available for region')),
+          queryWaysByName: vi.fn(),
+        }),
+      }
+    })
+
+    // Call lookupRoad - it should fall back to Overpass and record the event
+    const result = await lookupRoad({ roadName: 'Test Road', bbox: BBOX })
+
+    // Verify the result (should still work via Overpass fallback)
+    expect(result.exists).toBe(true)
+    if (result.status !== 'found') throw new Error('Expected status: found')
+    expect(result.matches.length).toBeGreaterThan(0)
+
+    // Verify recordProtomapsFallbackHandler was called with correct arguments
+    expect(recordProtomapsFallbackHandler).toHaveBeenCalledTimes(1)
+    const callArgs = (recordProtomapsFallbackHandler as any).mock.calls[0]
+    expect(callArgs[0]).toBeNull() // ctx is null in handler call
+    expect(callArgs[1]).toMatchObject({
+      tool: 'lookupRoad',
+      reason: expect.any(String), // The actual error message may vary
+      bbox: JSON.stringify(BBOX),
+    })
+
+    // Verify console.warn was called with structured context
+    expect(consoleWarnSpy).toHaveBeenCalled()
+    const warnCall = consoleWarnSpy.mock.calls.find((call) =>
+      call[0]?.includes?.('[lookupRoad] Protomaps failed, falling back to Overpass')
+    )
+    expect(warnCall).toBeDefined()
+    if (warnCall && warnCall[1]) {
+      expect(warnCall[1]).toMatchObject({
+        fallbackReason: expect.any(String),
+        bbox: JSON.stringify(BBOX),
+        timestamp: expect.any(String),
+      })
     }
   })
 })

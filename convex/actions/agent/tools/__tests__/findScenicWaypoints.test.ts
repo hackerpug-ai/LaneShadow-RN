@@ -184,7 +184,7 @@ describe('findScenicWaypoints', () => {
 
     // Mock the monitoring handler
     const mockHandler = vi.fn()
-    vi.spyOn(await import('../../../monitoring.ts'), 'recordProtomapsFallbackHandler').mockImplementation(mockHandler)
+    vi.spyOn(await import('../../../monitoring'), 'recordProtomapsFallbackHandler').mockImplementation(mockHandler)
 
     const result = await findScenicWaypoints({ start: START, end: END })
 

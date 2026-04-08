@@ -3,6 +3,7 @@
 import { retryOnce, withTimeout } from '../lib/reliability'
 import { traceableToolAsync } from '../lib/tracing'
 import { createProtomapsProvider, getProtomapsUrl, getProtomapsPresignedUrl } from '../providers/protomapsProvider'
+import { recordProtomapsFallbackHandler } from '../../monitoring'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -234,7 +235,20 @@ const lookupRoadImpl = async (params: {
 
     console.info(`[lookupRoad] Protomaps found no matches, trying Overpass`)
   } catch (error) {
-    console.warn(`[lookupRoad] Protomaps failed, falling back to Overpass:`, error)
+    const fallbackReason = error instanceof Error ? error.message : 'unknown'
+
+    // Record the fallback event for monitoring
+    await recordProtomapsFallbackHandler(null, {
+      tool: 'lookupRoad',
+      reason: fallbackReason,
+      bbox: JSON.stringify(bbox),
+    })
+
+    console.warn('[lookupRoad] Protomaps failed, falling back to Overpass', {
+      fallbackReason,
+      bbox: JSON.stringify(bbox),
+      timestamp: new Date().toISOString(),
+    })
   }
 
   // Fallback to Overpass API (slower, but works globally)
