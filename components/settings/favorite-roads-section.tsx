@@ -33,11 +33,8 @@ export const FavoriteRoadsSection: React.FC = () => {
   const { semantic } = useSemanticTheme()
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
 
-  // TODO: The Convex API needs to be regenerated to include favoriteRoads
-  // For now, using string references to work around the generated API issue
-  // Once regenerated, this should be: api.db.favoriteRoads.list
-  const favorites = useQuery('db.favoriteRoads:list' as any)
-  const removeFavorite = useMutation('db.favoriteRoads:remove' as any)
+  const favorites = useQuery(api.db.favoriteRoads.list)
+  const removeFavorite = useMutation(api.db.favoriteRoads.remove)
 
   const handleDelete = (favoriteId: string) => {
     setDeleteTarget(favoriteId)
