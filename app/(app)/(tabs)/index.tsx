@@ -534,14 +534,10 @@ const HomeMapScreen = () => {
 
   // Build polylines for map rendering
   const routePolylines = useMemo(() => {
-    // Hide polylines during planning loading for cleaner UX
-    if (mapPlanningVisible) {
-      console.info('[routePolylines] Hidden: mapPlanningVisible=true')
-      return []
-    }
-
     // If using chat flow state machine, use polylines from useRouteComparison
-    // This includes ROUTE_RESULTS, ROUTE_DETAILS, and PLANNING (when refining existing routes)
+    // This includes ROUTE_RESULTS, ROUTE_DETAILS, and PLANNING (when refining existing routes).
+    // During PLANNING, existing route options are preserved so the old route stays
+    // visible on the map until a new one arrives.
     const hasRouteOptions = (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS' || flowState.phase === 'PLANNING') && 'routeOptions' in flowState && flowState.routeOptions
 
     if (hasRouteOptions) {
@@ -596,7 +592,7 @@ const HomeMapScreen = () => {
       showWindOverlay: true,
       semantic,
     })
-  }, [mapPlanningVisible, selectedOption, semantic, flowState, polylines, agentActiveOption])
+  }, [selectedOption, semantic, flowState, polylines, agentActiveOption])
 
   const markers = useMemo(() => {
     const items: any[] = []
