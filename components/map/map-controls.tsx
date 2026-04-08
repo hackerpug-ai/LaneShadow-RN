@@ -25,6 +25,8 @@ export type MapControlsProps = {
   onSaveRoute?: () => void
   /** Whether a route is available to save (controls bookmark button visibility). */
   hasRouteToSave?: boolean
+  /** Whether we're currently viewing a saved route (controls bookmark button accent styling). */
+  isSavedRoute?: boolean
   /** Show labels below icons for better discoverability */
   showLabels?: boolean
   position?: {
@@ -44,6 +46,7 @@ export const MapControls = ({
   onToggleView,
   onSaveRoute,
   hasRouteToSave = false,
+  isSavedRoute = false,
   showLabels = false,
   position,
 }: MapControlsProps) => {
@@ -140,7 +143,7 @@ export const MapControls = ({
                 semantic={semantic}
                 testID="control-save-route"
                 accessibilityLabel="Save route"
-                accent
+                accent={isSavedRoute}
               />
             ) : null}
           </>

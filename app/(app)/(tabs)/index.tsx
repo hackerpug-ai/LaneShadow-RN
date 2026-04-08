@@ -817,17 +817,65 @@ const HomeMapScreen = () => {
 
   // US-050: Handle segment long-press for route saving
   const handleSegmentSelect = useCallback((segment: SegmentSelectData) => {
+    console.log('[handleSegmentSelect] Called with segment:', segment)
+
+    // When long-pressing a segment, we want to save the full route, not just the segment
+    // So we use the same data flow as the bookmark button
+    if (!agentRoutePlan || !agentActiveOption) {
+      console.log('[handleSegmentSelect] Missing route data', { hasAgentRoutePlan: !!agentRoutePlan, hasAgentActiveOption: !!agentActiveOption })
+      return
+    }
+
     setSelectedSegment(segment)
     setHighlightedSegmentId(segment.segmentId)
+
+    // Build the same route data as the bookmark button
+    const startLabel = agentRoutePlan.startLabel ?? 'Start'
+    const endLabel = agentRoutePlan.endLabel ?? 'Destination'
+    const suggestedName = `${startLabel} → ${endLabel}`
+
+    const routeIndex = {
+      routeFingerprint: agentActiveOption.routeOptionId,
+      sampledPoints: [],
+    }
+
+    const snapshotMeta = {
+      savedAt: Date.now(),
+      routingProvider: 'route_plans',
+      overlays: {
+        wind: agentActiveOption.overlaysPreview?.windSummary
+          ? { generatedAt: Date.now(), modelVersion: '1.0' }
+          : undefined,
+      },
+      conditionsStatus: agentActiveOption.overlaysPreview?.conditionsStatus ?? 'unavailable',
+      metaVersion: 1,
+    }
+
+    const routeData = {
+      suggestedName,
+      planInput: agentRoutePlan.planInput,
+      routeSnapshot: agentActiveOption.map,
+      routeIndex,
+      snapshotMeta,
+    }
+
+    console.log('[handleSegmentSelect] Setting route data:', routeData)
+    setSaveRouteData(routeData)
+
     // Small delay to show highlight before sheet appears
     setTimeout(() => {
       setSaveRouteSheetVisible(true)
     }, 100)
-  }, [])
+  }, [agentRoutePlan, agentActiveOption])
 
   // US-050: Handle save route button press
   const handleSaveRoutePress = useCallback(() => {
-    if (!agentRoutePlan || !agentActiveOption) return
+    console.log('[handleSaveRoutePress] Called', { agentRoutePlan, agentActiveOption })
+
+    if (!agentRoutePlan || !agentActiveOption) {
+      console.log('[handleSaveRoutePress] Missing data', { hasAgentRoutePlan: !!agentRoutePlan, hasAgentActiveOption: !!agentActiveOption })
+      return
+    }
 
     // Build suggested name from start/end labels if available
     const startLabel = agentRoutePlan.startLabel ?? 'Start'
@@ -836,7 +884,7 @@ const HomeMapScreen = () => {
 
     // Build routeIndex from the active option
     const routeIndex = {
-      fingerprint: agentActiveOption.routeOptionId,
+      routeFingerprint: agentActiveOption.routeOptionId,
       sampledPoints: [], // Will be populated by the mutation
     }
 
@@ -853,13 +901,16 @@ const HomeMapScreen = () => {
       metaVersion: 1,
     }
 
-    setSaveRouteData({
+    const routeData = {
       suggestedName,
       planInput: agentRoutePlan.planInput,
       routeSnapshot: agentActiveOption.map,
       routeIndex,
       snapshotMeta,
-    })
+    }
+
+    console.log('[handleSaveRoutePress] Setting route data:', routeData)
+    setSaveRouteData(routeData)
     setSaveRouteSheetVisible(true)
   }, [agentRoutePlan, agentActiveOption])
 
@@ -997,6 +1048,7 @@ const HomeMapScreen = () => {
             onClear={clearAll}
             onSaveRoute={handleSaveRoutePress}
             hasRouteToSave={!chatMode && !!agentActiveOption && !!agentRoutePlan}
+            isSavedRoute={false}
           />
         </View>
 
