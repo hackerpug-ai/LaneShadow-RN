@@ -252,7 +252,7 @@ interface CompletedCardProps {
 }
 
 const CompletedCard = ({ result, semantic, routePlanId, onViewOnMap }: CompletedCardProps) => {
-  const { selectedRouteId, setSelectedRouteId, setDisplayedRoutePlanId, requestFitToRoute } = useSelectedRoute()
+  const { selectedRouteId, setSelectedRouteId, setDisplayedRoutePlanId, requestFitToRouteWithReset } = useSelectedRoute()
 
   return (
     <View
@@ -273,7 +273,7 @@ const CompletedCard = ({ result, semantic, routePlanId, onViewOnMap }: Completed
           onSelect={() => {
             setSelectedRouteId(option.routeOptionId)
             setDisplayedRoutePlanId(routePlanId)
-            requestFitToRoute()
+            requestFitToRouteWithReset()
             onViewOnMap?.()
           }}
           testID={`routing-card-route-${option.routeOptionId}`}

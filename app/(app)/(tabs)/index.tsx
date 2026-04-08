@@ -44,6 +44,13 @@ type CameraState = {
   zoom?: number
 }
 
+// Persistent camera state that survives chat/map toggles
+type PersistentCameraState = {
+  center: { latitude: number; longitude: number }
+  zoom: number
+  timestamp: number
+}
+
 // Suggestion chips for idle state
 const IDLE_SUGGESTIONS = [
   'Plan a scenic ride',
@@ -75,6 +82,12 @@ const HomeMapScreen = () => {
   const [transcriptMounted, setTranscriptMounted] = useState(chatMode)
   const mapOpacity = useSharedValue(chatMode ? 0 : 1)
   const chatOpacity = useSharedValue(chatMode ? 1 : 0)
+
+  // Persistent camera state that survives chat/map toggles
+  const [persistentCamera, setPersistentCamera] = useState<PersistentCameraState | null>(null)
+  const [shouldFitToRoute, setShouldFitToRoute] = useState(false)
+  const isProgrammaticMoveRef = useRef(false)
+
   const { data: planInit } = usePlanInit()
   const {
     planRide,
@@ -284,8 +297,9 @@ const HomeMapScreen = () => {
     mapOpacity.value = withTiming(chatMode ? 0 : 1, { duration: CHAT_TRANSITION_MS })
     chatOpacity.value = withTiming(chatMode ? 1 : 0, { duration: CHAT_TRANSITION_MS })
     const t = setTimeout(() => {
-      if (chatMode) setMapMounted(false)
-      else {
+      if (chatMode) {
+        setMapMounted(false)
+      } else {
         setMapMounted(true)
         setTranscriptMounted(false)
       }
@@ -319,7 +333,7 @@ const HomeMapScreen = () => {
   }, [flowState.phase, agentRoutePlan?.status, flowDispatch])
 
   // Fit camera to agent-produced route.
-  const { setSelectedRouteId, setDisplayedRoutePlanId, registerFitHandler } = useSelectedRoute()
+  const { setSelectedRouteId, setDisplayedRoutePlanId, registerFitHandler, requestFitToRouteWithReset } = useSelectedRoute()
   const pendingFitRef = useRef(false)
 
   const handleNewSession = async () => {
@@ -348,6 +362,8 @@ const HomeMapScreen = () => {
         animated: true,
       })
     }
+    // Clear the flag after fitting so subsequent chat/map toggles preserve position
+    setShouldFitToRoute(false)
   }, [agentActiveOption, insets.top, insets.bottom])
 
   // When mapMounted flips back to true, flush any pending fit
@@ -359,6 +375,38 @@ const HomeMapScreen = () => {
       return () => clearTimeout(t)
     }
   }, [mapMounted, doFit])
+
+  // Restore camera position when map remounts after chat mode
+  const restorationInProgressRef = useRef(false)
+  useEffect(() => {
+    // Prevent infinite loops by checking if restoration is already in progress
+    if (restorationInProgressRef.current) return
+
+    if (mapMounted && !chatMode && persistentCamera && !shouldFitToRoute && mapRef.current) {
+      restorationInProgressRef.current = true
+      isProgrammaticMoveRef.current = true
+      // Small delay to ensure map is ready
+      const t = setTimeout(() => {
+        if (mapRef.current && persistentCamera) {
+          mapRef.current.setCameraPosition({
+            coordinates: persistentCamera.center,
+            zoom: persistentCamera.zoom,
+            duration: 300,
+          })
+        }
+        // Reset the flags after the animation completes
+        setTimeout(() => {
+          restorationInProgressRef.current = false
+          isProgrammaticMoveRef.current = false
+        }, 400)
+      }, 100)
+      return () => {
+        clearTimeout(t)
+        restorationInProgressRef.current = false
+        isProgrammaticMoveRef.current = false
+      }
+    }
+  }, [mapMounted, chatMode, persistentCamera, shouldFitToRoute])
 
   // Zoom to current location on fresh app start
   const didInitialCenterRef = useRef(false)
@@ -381,6 +429,8 @@ const HomeMapScreen = () => {
     const planId = agentRoutePlan._id as string
     if (lastFittedPlanIdRef.current === planId) return
     lastFittedPlanIdRef.current = planId
+    // Set the flag to allow camera reset for new plans
+    setShouldFitToRoute(true)
     doFit()
   }, [agentActiveOption, agentRoutePlan, doFit])
 
@@ -609,10 +659,19 @@ const HomeMapScreen = () => {
   const handleCameraMove = useCallback(
     (event: { coordinates: { latitude: number; longitude: number }; zoom: number }) => {
       if (!event.coordinates?.latitude || !event.coordinates?.longitude) return
-      setCamera({
+      const newCamera = {
         center: { latitude: event.coordinates.latitude, longitude: event.coordinates.longitude },
         zoom: event.zoom,
-      })
+      }
+      setCamera(newCamera)
+      // Only persist camera state for user-initiated moves (not programmatic ones)
+      if (!isProgrammaticMoveRef.current) {
+        setPersistentCamera({
+          center: newCamera.center,
+          zoom: newCamera.zoom,
+          timestamp: Date.now(),
+        })
+      }
     },
     []
   )
