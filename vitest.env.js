@@ -22,9 +22,57 @@ import Module from 'node:module'
 
 process.env.NODE_ENV = 'test'
 
+// Set __DEV__ for React Native/Expo packages
+global.__DEV__ = false
+
+// Set up ExpoGlobal for expo-modules-core
+globalThis.ExpoGlobal = {
+  EventEmitter: class EventEmitter {
+    constructor() {
+      this.listeners = {}
+    }
+
+    addEventListener(event, listener) {
+      if (!this.listeners[event]) {
+        this.listeners[event] = []
+      }
+      this.listeners[event].push(listener)
+      return {
+        remove: () => {
+          this.listeners[event] = this.listeners[event].filter(l => l !== listener)
+        }
+      }
+    }
+
+    removeEventListener(event, listener) {
+      if (!this.listeners[event]) return
+      this.listeners[event] = this.listeners[event].filter(l => l !== listener)
+    }
+
+    emit(event, data) {
+      if (!this.listeners[event]) return
+      this.listeners[event].forEach(listener => listener(data))
+    }
+
+    removeAllListeners(event) {
+      if (event) {
+        this.listeners[event] = []
+      } else {
+        this.listeners = {}
+      }
+    }
+  }
+}
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const EXPO_ICONS_STUB = path.resolve(__dirname, '__mocks__/expo-vector-icons.ts')
+const DATETIMEPICKER_STUB = path.resolve(__dirname, '__mocks__/datetimepicker.ts')
+const LINEAR_GRADIENT_STUB = path.resolve(__dirname, '__mocks__/expo-linear-gradient.ts')
+const GESTURE_HANDLER_STUB = path.resolve(__dirname, '__mocks__/react-native-gesture-handler.ts')
+const BOTTOM_SHEET_STUB = path.resolve(__dirname, '__mocks__/gorhom-bottom-sheet.ts')
+const EXPO_MODULES_CORE_STUB = path.resolve(__dirname, '__mocks__/expo-modules-core.ts')
+const NOTIFIER_STUB = path.resolve(__dirname, '__mocks__/react-native-notifier.ts')
 const STUB_MAP = {
   'react-native': path.resolve(__dirname, '__mocks__/react-native.ts'),
   'react-native-paper': path.resolve(__dirname, '__mocks__/react-native-paper.ts'),
@@ -44,6 +92,12 @@ const STUB_MAP = {
   '@expo/vector-icons/Octicons': EXPO_ICONS_STUB,
   '@expo/vector-icons/SimpleLineIcons': EXPO_ICONS_STUB,
   '@expo/vector-icons/Zocial': EXPO_ICONS_STUB,
+  '@react-native-community/datetimepicker': DATETIMEPICKER_STUB,
+  'expo-linear-gradient': LINEAR_GRADIENT_STUB,
+  'react-native-gesture-handler': GESTURE_HANDLER_STUB,
+  '@gorhom/bottom-sheet': BOTTOM_SHEET_STUB,
+  'expo-modules-core': EXPO_MODULES_CORE_STUB,
+  'react-native-notifier': NOTIFIER_STUB,
 }
 const originalResolveFilename = Module._resolveFilename
 Module._resolveFilename = function (request, parent, ...rest) {

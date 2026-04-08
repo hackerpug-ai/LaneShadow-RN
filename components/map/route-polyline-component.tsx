@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Polyline } from 'react-native-maps'
 import { useTheme } from 'react-native-paper'
+import PolylineEncoder from '@mapbox/polyline'
 import type { ExtendedTheme } from '../../styles/types'
 
 import type { BuiltPolyline } from './route-polyline'
@@ -31,6 +32,7 @@ export type RoutePolylineProps = {
   polylines: BuiltPolyline[]
   onSegmentSelect?: (segment: SegmentSelectData) => void
   selectedSegmentId?: string
+  testID?: string
 }
 
 /**
@@ -53,12 +55,13 @@ const calculateBounds = (coordinates: { latitude: number; longitude: number }[])
 }
 
 /**
- * Encode coordinates to polyline string (simplified - for production use proper encoding)
+ * Encode coordinates to Google Polyline encoded string
+ * Uses @mapbox/polyline library for proper encoding
  */
 const encodeCoordinates = (coordinates: { latitude: number; longitude: number }[]): string => {
-  // For now, return a simplified representation
-  // In production, this should use proper polyline encoding
-  return JSON.stringify(coordinates)
+  // Convert to [longitude, latitude] format expected by @mapbox/polyline
+  const points = coordinates.map((coord) => [coord.longitude, coord.latitude] as [number, number])
+  return PolylineEncoder.encode(points)
 }
 
 /**
@@ -106,10 +109,15 @@ export const RoutePolyline: FC<RoutePolylineProps> = ({
   polylines,
   onSegmentSelect,
   selectedSegmentId,
+  testID = 'route-polyline',
 }) => {
   const theme = useTheme<ExtendedTheme>()
   const { semantic } = theme
   const [activeSegment, setActiveSegment] = useState<string | null>(null)
+
+  // Use semantic spacing for stroke widths
+  const highlightStrokeWidth = semantic.space.sm // 8px
+  const normalStrokeWidth = semantic.space.sm / 2 // 4px
 
   const handleLongPress = useMemo(
     () =>
@@ -149,7 +157,8 @@ export const RoutePolyline: FC<RoutePolylineProps> = ({
         const isHighlighted =
           selectedSegmentId === polyline.id || activeSegment === polyline.id
         const strokeColor = isHighlighted ? semantic.color.tertiary.default : polyline.strokeColor
-        const strokeWidth = isHighlighted ? 8 : polyline.strokeWidth ?? 4
+        const strokeWidth = isHighlighted ? highlightStrokeWidth : (polyline.strokeWidth ?? normalStrokeWidth)
+        const segmentTestId = polyline.id ? `${testID}--segment-${polyline.id}` : `${testID}--segment-unknown`
 
         return (
           <LongPressGestureHandler
@@ -160,11 +169,12 @@ export const RoutePolyline: FC<RoutePolylineProps> = ({
             )}
             minDurationMs={500}
           >
-            <View style={styles.gestureWrapper}>
+            <View style={styles.gestureWrapper} testID={segmentTestId}>
               <Polyline
                 coordinates={polyline.coordinates}
                 strokeColor={strokeColor}
                 strokeWidth={strokeWidth}
+                testID={`${segmentTestId}--polyline`}
               />
             </View>
           </LongPressGestureHandler>

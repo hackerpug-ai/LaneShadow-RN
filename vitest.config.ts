@@ -28,6 +28,47 @@ const reactNativeStubPlugin = () => ({
     if (source === '@expo/vector-icons' || source.startsWith('@expo/vector-icons/')) {
       return resolve(__dirname, '__mocks__/expo-vector-icons.ts')
     }
+    // @react-native-community/datetimepicker contains syntax errors that
+    // vitest/esbuild cannot parse. Redirect to our stub.
+    if (source === '@react-native-community/datetimepicker') {
+      return resolve(__dirname, '__mocks__/datetimepicker.ts')
+    }
+    // expo-linear-gradient contains JSX that cannot be parsed
+    if (source === 'expo-linear-gradient') {
+      return resolve(__dirname, '__mocks__/expo-linear-gradient.ts')
+    }
+    // react-native-gesture-handler has TypeScript files that cannot be parsed
+    if (source === 'react-native-gesture-handler') {
+      return resolve(__dirname, '__mocks__/react-native-gesture-handler.ts')
+    }
+    // @gorhom/bottom-sheet has dependency issues
+    if (source === '@gorhom/bottom-sheet') {
+      return resolve(__dirname, '__mocks__/gorhom-bottom-sheet.ts')
+    }
+    // expo-modules-core requires ExpoGlobal
+    if (source === 'expo-modules-core') {
+      return resolve(__dirname, '__mocks__/expo-modules-core.ts')
+    }
+    // expo has TypeScript files that cannot be parsed
+    if (source === 'expo') {
+      return resolve(__dirname, '__mocks__/expo.ts')
+    }
+    // react-native-maps contains JSX that cannot be parsed
+    if (source === 'react-native-maps') {
+      return resolve(__dirname, '__mocks__/react-native-maps.ts')
+    }
+    // expo-haptics requires native modules
+    if (source === 'expo-haptics') {
+      return resolve(__dirname, '__mocks__/expo-haptics.ts')
+    }
+    // react-native-notifier contains syntax that cannot be parsed
+    if (source === 'react-native-notifier') {
+      return resolve(__dirname, '__mocks__/react-native-notifier.ts')
+    }
+    // react-native-safe-area-context requires native modules
+    if (source === 'react-native-safe-area-context') {
+      return resolve(__dirname, '__mocks__/react-native-safe-area-context.ts')
+    }
     return null
   },
 })
@@ -82,10 +123,15 @@ export default defineConfig({
       { find: /^.*\/_generated\/dataModel$/, replacement: resolve(__dirname, '__mocks__/convex/dataModel.ts') },
       { find: /^convex-helpers\/server\/zod$/, replacement: resolve(__dirname, '__mocks__/convex-helpers/server/zod.ts') },
       { find: /^convex-test$/, replacement: resolve(__dirname, '__mocks__/convex-test.ts') },
+      { find: /^@react-native-community\/datetimepicker$/, replacement: resolve(__dirname, '__mocks__/datetimepicker.ts') },
       // Stub react-native so tests can import RN components without running the native runtime.
       // Must match `react-native` exactly (not `react-native-*` like react-native-paper).
       { find: /^react-native$/, replacement: resolve(__dirname, '__mocks__/react-native.ts') },
       { find: /^react-native-paper$/, replacement: resolve(__dirname, '__mocks__/react-native-paper.ts') },
+      { find: /^expo$/, replacement: resolve(__dirname, '__mocks__/expo.ts') },
+      { find: /^expo-modules-core$/, replacement: resolve(__dirname, '__mocks__/expo-modules-core.ts') },
+      { find: /^react-native-maps$/, replacement: resolve(__dirname, '__mocks__/react-native-maps.ts') },
+      { find: /^expo-haptics$/, replacement: resolve(__dirname, '__mocks__/expo-haptics.ts') },
     ],
   },
   esbuild: {
