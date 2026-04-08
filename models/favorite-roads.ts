@@ -16,12 +16,17 @@ export type Bounds = Infer<typeof boundsValidator>
 /**
  * Favorite road validator
  * Represents a user's favorite road segment with geometry and metadata
+ *
+ * Note: Uses clerkUserId (string) instead of v.id('users') for consistency
+ * with saved_routes pattern. This allows storing Clerk user IDs directly
+ * without requiring a separate users table lookup.
  */
 export const favoriteRoadValidator = v.object({
   /**
-   * Reference to the user who owns this favorite road
+   * Clerk user ID who owns this favorite road
+   * Stored as string for consistency with saved_routes.ownerId pattern
    */
-  userId: v.id('users'),
+  clerkUserId: v.string(),
 
   /**
    * User-defined name for this favorite road
@@ -43,6 +48,11 @@ export const favoriteRoadValidator = v.object({
    * Unix timestamp when this favorite road was created
    */
   createdAt: v.number(),
+
+  /**
+   * Unix timestamp when this favorite road was last updated
+   */
+  updatedAt: v.number(),
 })
 
 export type FavoriteRoad = Infer<typeof favoriteRoadValidator>

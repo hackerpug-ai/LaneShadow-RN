@@ -10,7 +10,6 @@ import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { Bounds } from '../../models/favorite-roads'
 import { RouteThumbnail } from './route-thumbnail'
-import { Button } from './button'
 import { IconSymbol } from './icon-symbol'
 
 export type FavoriteRoadCardProps = {
@@ -21,9 +20,9 @@ export type FavoriteRoadCardProps = {
   /** Geographic bounds for mini map positioning */
   bounds: Bounds
   /** Callback when card is pressed (not delete button) */
-  onPress?: (id: string) => void
+  onPress?: () => void
   /** Callback when delete button is pressed */
-  onDelete?: (id: string) => void
+  onDelete?: () => void
   /** Test ID for testing */
   testID?: string
 }
@@ -44,60 +43,62 @@ export const FavoriteRoadCard = ({
 
   return (
     <Pressable
-      onPress={() => onPress?.(favoriteRoadId)}
+      onPress={() => onPress?.()}
       testID={testID}
       accessibilityRole="button"
       accessibilityLabel={`View ${name}`}
+      style={({ pressed }) => [
+        styles.container,
+        {
+          backgroundColor: semantic.color.card.default,
+          borderColor: semantic.color.border.default,
+          borderRadius: semantic.radius.lg,
+          padding: semantic.space.lg,
+          opacity: pressed ? 0.8 : 1,
+        },
+      ]}
     >
-      {({ pressed }) => (
-        <View
-          style={[
-            styles.container,
-            {
-              backgroundColor: semantic.color.card.default,
-              borderColor: semantic.color.border.default,
-              borderRadius: semantic.radius.lg,
-              padding: semantic.space.lg,
-              opacity: pressed ? 0.8 : 1,
-            },
-          ]}
-        >
-          <View style={[styles.content, { gap: semantic.space.md }]}>
-            {/* Mini map preview */}
-            <RouteThumbnail
-              width={80}
-              height={80}
-              bounds={bounds}
-              testID={`${testID}-thumbnail`}
-            />
+      <View style={[styles.content, { gap: semantic.space.md }]}>
+        {/* Mini map preview */}
+        <RouteThumbnail
+          width={80}
+          height={80}
+          bounds={bounds}
+          testID={`${testID}-thumbnail`}
+        />
 
-            {/* Road name */}
-            <View style={styles.textContainer}>
-              <Text
-                numberOfLines={2}
-                style={[
-                  semantic.type.title.md,
-                  { color: semantic.color.onSurface.default },
-                ]}
-              >
-                {name}
-              </Text>
-            </View>
-
-            {/* Delete button */}
-            <View style={styles.deleteButtonContainer}>
-              <Button
-                testID={`${testID}-delete`}
-                size="icon"
-                variant="ghost"
-                icon={<IconSymbol name="trash-can-outline" size={20} color={semantic.color.danger.default} />}
-                accessibilityLabel="Delete favorite"
-                onPress={() => onDelete?.(favoriteRoadId)}
-              />
-            </View>
-          </View>
+        {/* Road name */}
+        <View style={styles.textContainer}>
+          <Text
+            numberOfLines={2}
+            style={[
+              semantic.type.title.md,
+              { color: semantic.color.onSurface.default },
+            ]}
+          >
+            {name}
+          </Text>
         </View>
-      )}
+
+        {/* Delete button */}
+        <View style={styles.deleteButtonContainer}>
+          <Pressable
+            onPress={(e) => {
+              e?.stopPropagation()
+              onDelete?.()
+            }}
+            testID={`${testID}-delete`}
+            accessibilityRole="button"
+            accessibilityLabel="Delete favorite"
+            style={({ pressed }) => [
+              styles.deleteButtonContent,
+              { opacity: pressed ? 0.6 : 1 },
+            ]}
+          >
+            <IconSymbol name="trash-can-outline" size={20} color={semantic.color.danger.default} />
+          </Pressable>
+        </View>
+      </View>
     </Pressable>
   )
 }
@@ -116,5 +117,10 @@ const styles = StyleSheet.create({
   deleteButtonContainer: {
     // Prevent card press when delete is pressed
     zIndex: 1,
+  },
+  deleteButtonContent: {
+    padding: 8,
+    borderRadius: 8,
+    margin: -8, // Offset padding to maintain layout
   },
 })

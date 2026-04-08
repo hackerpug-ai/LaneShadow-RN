@@ -195,14 +195,14 @@ vi.mock('../../../components/ui/section-header', () => ({
 
 // Mock FavoriteRoadCard component
 vi.mock('../../../components/ui/favorite-road-card', () => ({
-  FavoriteRoadCard: ({ favorite, onDelete, testID }: any) => {
+  FavoriteRoadCard: ({ name, onDelete, testID }: any) => {
     const { View, Text, Pressable } = require('react-native')
     const { createElement } = require('react')
 
     return createElement(
       View,
       { testID },
-      createElement(Text, null, favorite.name),
+      createElement(Text, null, name),
       createElement(Pressable, {
         testID: 'delete-button',
         onPress: onDelete,
@@ -253,7 +253,7 @@ describe('FavoriteRoadsSection', () => {
       {
         _id: 'favorite1' as any,
         _creationTime: 1000,
-        userId: 'user1' as any,
+        clerkUserId: 'user1',
         name: 'Scenic Route 1',
         geometry: 'geometry1',
         bounds: {
@@ -263,11 +263,12 @@ describe('FavoriteRoadsSection', () => {
           west: -74.1,
         },
         createdAt: 1000,
+        updatedAt: 1000,
       },
       {
         _id: 'favorite2' as any,
         _creationTime: 2000,
-        userId: 'user1' as any,
+        clerkUserId: 'user1',
         name: 'Mountain Pass',
         geometry: 'geometry2',
         bounds: {
@@ -277,6 +278,7 @@ describe('FavoriteRoadsSection', () => {
           west: -74.2,
         },
         createdAt: 2000,
+        updatedAt: 2000,
       },
     ]
 
@@ -327,7 +329,7 @@ describe('FavoriteRoadsSection', () => {
       {
         _id: 'favorite1' as any,
         _creationTime: 1000,
-        userId: 'user1' as any,
+        clerkUserId: 'user1',
         name: 'Scenic Route 1',
         geometry: 'geometry1',
         bounds: {
@@ -337,6 +339,7 @@ describe('FavoriteRoadsSection', () => {
           west: -74.1,
         },
         createdAt: 1000,
+        updatedAt: 1000,
       },
     ]
 
@@ -366,7 +369,7 @@ describe('FavoriteRoadsSection', () => {
       {
         _id: 'old' as any,
         _creationTime: 1000,
-        userId: 'user1' as any,
+        clerkUserId: 'user1',
         name: 'Old Route',
         geometry: 'oldGeometry',
         bounds: {
@@ -376,11 +379,12 @@ describe('FavoriteRoadsSection', () => {
           west: -74.1,
         },
         createdAt: 1000, // Older
+        updatedAt: 1000,
       },
       {
         _id: 'new' as any,
         _creationTime: 3000,
-        userId: 'user1' as any,
+        clerkUserId: 'user1',
         name: 'New Route',
         geometry: 'newGeometry',
         bounds: {
@@ -390,11 +394,12 @@ describe('FavoriteRoadsSection', () => {
           west: -74.0,
         },
         createdAt: 3000, // Newest
+        updatedAt: 3000,
       },
       {
         _id: 'middle' as any,
         _creationTime: 2000,
-        userId: 'user1' as any,
+        clerkUserId: 'user1',
         name: 'Middle Route',
         geometry: 'middleGeometry',
         bounds: {
@@ -404,6 +409,7 @@ describe('FavoriteRoadsSection', () => {
           west: -74.1,
         },
         createdAt: 2000, // Middle
+        updatedAt: 2000,
       },
     ]
 

@@ -34,12 +34,14 @@ export const insertHandler = async (
   },
   clerkUserId: string
 ): Promise<{ favoriteRoadId: Id<'favorite_roads'> }> => {
+  const now = Date.now()
   const favoriteRoadId = await ctx.db.insert('favorite_roads', {
-    userId: clerkUserId as Id<'users'>,
+    clerkUserId,
     name: args.name,
     geometry: args.geometry,
     bounds: args.bounds,
-    createdAt: Date.now(),
+    createdAt: now,
+    updatedAt: now,
   })
 
   return { favoriteRoadId }
@@ -68,7 +70,7 @@ export const listHandler = async (
 ): Promise<FavoriteRoadDoc[]> => {
   const favorites = await ctx.db
     .query('favorite_roads')
-    .withIndex('by_userId', (q) => q.eq('userId', clerkUserId as Id<'users'>))
+    .withIndex('by_clerkUserId', (q) => q.eq('clerkUserId', clerkUserId))
     .order('desc')
     .collect()
 
@@ -96,7 +98,7 @@ export const removeHandler = async (
 
   const favorite = await ctx.db.get(args.favoriteRoadId)
 
-  if (!favorite || favorite.userId !== (clerkUserId as Id<'users'>)) {
+  if (!favorite || favorite.clerkUserId !== clerkUserId) {
     throw new ConvexError('Favorite road not found')
   }
 

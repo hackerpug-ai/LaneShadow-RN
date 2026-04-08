@@ -44,11 +44,11 @@ export default defineSchema({
 
   /**
    * Favorite roads table - Stores user's favorite road segments
-   * Indexed by userId for efficient user-specific queries
+   * Indexed by clerkUserId for efficient user-specific queries
    * Indexed by createdAt for chronological ordering
    */
   favorite_roads: defineTable(favoriteRoadValidator)
-    .index('by_userId', ['userId'])
+    .index('by_clerkUserId', ['clerkUserId'])
     .index('by_createdAt', ['createdAt']),
 
   route_plans: defineTable(routePlanValidator)

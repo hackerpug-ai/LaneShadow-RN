@@ -99,11 +99,12 @@ describe('favoriteRoads', () => {
       // Assert
       expect(mockInsert).toHaveBeenCalledTimes(1)
       expect(mockInsert).toHaveBeenCalledWith('favorite_roads', {
-        userId: clerkUserId,
+        clerkUserId,
         name: args.name,
         geometry: args.geometry,
         bounds: args.bounds,
         createdAt: expect.any(Number),
+        updatedAt: expect.any(Number),
       })
       expect(result).toEqual({
         favoriteRoadId: mockFavoriteId,
@@ -132,11 +133,12 @@ describe('favoriteRoads', () => {
 
       // Assert
       expect(mockInsert).toHaveBeenCalledWith('favorite_roads', {
-        userId: clerkUserId,
+        clerkUserId,
         name: args.name,
         geometry: args.geometry,
         bounds: undefined,
         createdAt: expect.any(Number),
+        updatedAt: expect.any(Number),
       })
       expect(result).toEqual({
         favoriteRoadId: mockFavoriteId,
@@ -154,16 +156,17 @@ describe('favoriteRoads', () => {
         {
           _id: 'favorite_1' as Id<'favorite_roads'>,
           _creationTime: now,
-          userId: clerkUserId as Id<'users'>,
+          clerkUserId: clerkUserId,
           name: 'Oldest Favorite',
           geometry: 'encoded_1',
           bounds: undefined,
           createdAt: now - 10000, // 10 seconds ago
+          updatedAt: now - 10000,
         },
         {
           _id: 'favorite_2' as Id<'favorite_roads'>,
           _creationTime: now,
-          userId: clerkUserId as Id<'users'>,
+          clerkUserId: clerkUserId,
           name: 'Newest Favorite',
           geometry: 'encoded_2',
           bounds: {
@@ -173,15 +176,17 @@ describe('favoriteRoads', () => {
             west: -122.4394,
           },
           createdAt: now - 1000, // 1 second ago
+          updatedAt: now - 1000,
         },
         {
           _id: 'favorite_3' as Id<'favorite_roads'>,
           _creationTime: now,
-          userId: clerkUserId as Id<'users'>,
+          clerkUserId: clerkUserId,
           name: 'Middle Favorite',
           geometry: 'encoded_3',
           bounds: undefined,
           createdAt: now - 5000, // 5 seconds ago
+          updatedAt: now - 5000,
         },
       ]
 
@@ -250,11 +255,12 @@ describe('favoriteRoads', () => {
       const mockFavorite: Doc<'favorite_roads'> = {
         _id: favoriteId,
         _creationTime: Date.now(),
-        userId: clerkUserId as Id<'users'>,
+        clerkUserId: clerkUserId,
         name: 'Delete Me',
         geometry: 'encoded_delete',
         bounds: undefined,
         createdAt: Date.now(),
+        updatedAt: Date.now(),
       }
 
       const mockGet = vi.fn<MockGet>().mockResolvedValue(mockFavorite)
@@ -287,11 +293,12 @@ describe('favoriteRoads', () => {
       const mockFavorite: Doc<'favorite_roads'> = {
         _id: favoriteId,
         _creationTime: Date.now(),
-        userId: otherUserId as Id<'users'>,
+        clerkUserId: otherUserId,
         name: 'Protected Favorite',
         geometry: 'encoded_protected',
         bounds: undefined,
         createdAt: Date.now(),
+        updatedAt: Date.now(),
       }
 
       const mockGet = vi.fn<MockGet>().mockResolvedValue(mockFavorite)
