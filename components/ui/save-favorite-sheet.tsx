@@ -20,6 +20,7 @@ import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { BottomActionSheet } from './bottom-action-sheet'
 import { Input } from './input'
 import { Button } from './button'
+import { KeyboardAvoidingInput } from './keyboard-avoiding-input'
 
 export type Bounds = {
   northeast: { lat: number; lng: number }
@@ -124,7 +125,8 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
       visible={visible}
       onDismiss={onClose}
       testID="save-favorite-sheet"
-      snapPoints={['75%']}
+      snapPoints={['60%', '90%']}
+      hasTextInput={true}
     >
       <View style={styles.container}>
         <ScrollView
@@ -156,15 +158,17 @@ export const SaveFavoriteSheet: React.FC<SaveFavoriteSheetProps> = ({
           </Text>
 
           {/* Name Input */}
-          <Input
-            testID="save-favorite-name-input"
-            value={name}
-            onChangeText={handleNameChange}
-            placeholder="e.g., Hwy 9 - Skyline Blvd"
-            maxLength={100}
-            autoFocus
-            error={!!error}
-          />
+          <KeyboardAvoidingInput behavior="padding" offset={20}>
+            <Input
+              testID="save-favorite-name-input"
+              value={name}
+              onChangeText={handleNameChange}
+              placeholder="e.g., Hwy 9 - Skyline Blvd"
+              maxLength={100}
+              autoFocus
+              error={!!error}
+            />
+          </KeyboardAvoidingInput>
 
           {/* Character Count */}
           <Text
@@ -230,7 +234,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 16,
     gap: 16,
-    paddingBottom: 100, // Extra padding for keyboard
+    paddingBottom: 32, // Reduced padding - keyboard avoidance handles the rest
   },
   title: {
     marginBottom: 4,
