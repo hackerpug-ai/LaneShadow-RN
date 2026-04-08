@@ -20,7 +20,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react'
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Keyboard } from 'react-native'
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Keyboard, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Icon } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -169,10 +169,11 @@ export const ChatInput = ({
       style={styles.container}
       testID={testID}
     >
-      <View
+      <Pressable
         style={{
           paddingBottom: (keyboardVisible ? 0 : insets.bottom) + semantic.space.md + extraBottomOffset,
         }}
+        onPress={Keyboard.dismiss}
       >
         {/* Error message when in ERROR state */}
         {isError && errorMessage && (
@@ -192,7 +193,7 @@ export const ChatInput = ({
         {/* Input row: input container + toggle button */}
         <View style={[styles.inputRow, { paddingHorizontal: semantic.space.md }]}>
         {/* Input bar */}
-        <View
+        <Pressable
           style={[
             styles.inputContainer,
             {
@@ -202,6 +203,7 @@ export const ChatInput = ({
               borderColor: semantic.color.border.default,
             },
           ]}
+          onPress={Keyboard.dismiss}
         >
           {/* Manual planning mode icon */}
           {onManualModePress && (
@@ -296,7 +298,7 @@ export const ChatInput = ({
               color={semantic.color.onPrimary.default}
             />
           </TouchableOpacity>
-        </View>
+        </Pressable>
 
         {/* Mode toggle button */}
         {onToggleChatMode && (
@@ -341,7 +343,7 @@ export const ChatInput = ({
           </TouchableOpacity>
         )}
         </View>
-      </View>
+      </Pressable>
     </KeyboardAvoidingView>
   )
 }
