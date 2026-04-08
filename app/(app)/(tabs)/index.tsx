@@ -87,6 +87,7 @@ const HomeMapScreen = () => {
   const [persistentCamera, setPersistentCamera] = useState<PersistentCameraState | null>(null)
   const [shouldFitToRoute, setShouldFitToRoute] = useState(false)
   const isProgrammaticMoveRef = useRef(false)
+  const previousChatModeRef = useRef(chatMode)
 
   const { data: planInit } = usePlanInit()
   const {
@@ -308,6 +309,11 @@ const HomeMapScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatMode])
 
+  // Track previous chat mode for restoration logic
+  useEffect(() => {
+    previousChatModeRef.current = chatMode
+  }, [chatMode])
+
   // Reactive bridge: transition out of PLANNING when agent route plan completes.
   // Also updates flowState when already in ROUTE_RESULTS and a new plan arrives.
   useEffect(() => {
@@ -376,37 +382,41 @@ const HomeMapScreen = () => {
     }
   }, [mapMounted, doFit])
 
-  // Restore camera position when map remounts after chat mode
+  // Restore camera position when transitioning from chat mode to map mode
   const restorationInProgressRef = useRef(false)
   useEffect(() => {
-    // Prevent infinite loops by checking if restoration is already in progress
-    if (restorationInProgressRef.current) return
+    // Only restore when actually transitioning from chat to map mode
+    const wasInChatMode = previousChatModeRef.current
 
-    if (mapMounted && !chatMode && persistentCamera && !shouldFitToRoute && mapRef.current) {
-      restorationInProgressRef.current = true
-      isProgrammaticMoveRef.current = true
-      // Small delay to ensure map is ready
-      const t = setTimeout(() => {
-        if (mapRef.current && persistentCamera) {
-          mapRef.current.setCameraPosition({
-            coordinates: persistentCamera.center,
-            zoom: persistentCamera.zoom,
-            duration: 300,
-          })
-        }
-        // Reset the flags after the animation completes
-        setTimeout(() => {
-          restorationInProgressRef.current = false
-          isProgrammaticMoveRef.current = false
-        }, 400)
-      }, 100)
-      return () => {
-        clearTimeout(t)
+    // Prevent infinite loops and only restore on chat→map transition
+    if (restorationInProgressRef.current) return
+    if (!wasInChatMode || chatMode) return // Not a chat→map transition
+    if (!mapMounted || !persistentCamera || shouldFitToRoute) return
+    if (!mapRef.current) return
+
+    restorationInProgressRef.current = true
+    isProgrammaticMoveRef.current = true
+    // Small delay to ensure map is ready
+    const t = setTimeout(() => {
+      if (mapRef.current && persistentCamera) {
+        mapRef.current.setCameraPosition({
+          coordinates: persistentCamera.center,
+          zoom: persistentCamera.zoom,
+          duration: 300,
+        })
+      }
+      // Reset the flags after the animation completes
+      setTimeout(() => {
         restorationInProgressRef.current = false
         isProgrammaticMoveRef.current = false
-      }
+      }, 400)
+    }, 100)
+    return () => {
+      clearTimeout(t)
+      restorationInProgressRef.current = false
+      isProgrammaticMoveRef.current = false
     }
-  }, [mapMounted, chatMode, persistentCamera, shouldFitToRoute])
+  }, [chatMode, mapMounted, persistentCamera, shouldFitToRoute])
 
   // Zoom to current location on fresh app start
   const didInitialCenterRef = useRef(false)
