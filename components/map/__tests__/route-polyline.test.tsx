@@ -16,13 +16,14 @@
  * - AC4: User releases early (<500ms), When: Gesture cancelled, Then: No highlight, no callback
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, waitFor } from '@testing-library/react-native'
-import type { RoutePolylineProps, SegmentSelectData } from './route-polyline-component'
-import { RoutePolyline } from './route-polyline-component'
-import type { BuiltPolyline } from './route-polyline'
+import { describe, it, expect, vi } from 'vitest'
+import { render, fireEvent } from '@testing-library/react-native'
+import { State } from 'react-native-gesture-handler'
+import type { SegmentSelectData } from '../route-polyline-component'
+import { RoutePolyline } from '../route-polyline-component'
+import type { BuiltPolyline } from '../route-polyline'
 import { ThemeProvider } from 'react-native-paper'
-import type { ExtendedTheme } from '../../styles/types'
+import type { ExtendedTheme } from '../../../styles/types'
 
 // Mock theme provider wrapper
 const mockSemanticTheme: ExtendedTheme['semantic'] = {
@@ -125,8 +126,6 @@ const mockTheme = {
   },
 }
 
-const mockPolyline = 'polyline-encoded-string'
-
 // Helper to create mock built polylines
 const createMockPolylines = (): BuiltPolyline[] => [
   {
@@ -166,7 +165,7 @@ const createMockOverlayPolylines = (): BuiltPolyline[] => [
       { latitude: 37.7749, longitude: -122.4194 },
       { latitude: 37.7799, longitude: -122.4144 },
     ],
-    strokeColor: '#31A362', // Low wind (green)
+    strokeColor: '#31A362',
     strokeWidth: 6,
   },
   {
@@ -175,7 +174,7 @@ const createMockOverlayPolylines = (): BuiltPolyline[] => [
       { latitude: 37.7799, longitude: -122.4144 },
       { latitude: 37.7849, longitude: -122.4094 },
     ],
-    strokeColor: '#60a5fa', // Light rain (sky blue)
+    strokeColor: '#60a5fa',
     strokeWidth: 6,
   },
 ]
@@ -276,107 +275,207 @@ describe('RoutePolyline Component', () => {
   })
 
   describe('Segment Selection Callback (AC2)', () => {
-    it('should accept onSegmentSelect callback prop', () => {
+    it('should trigger callback on long-press ACTIVE state', () => {
       const polylines = createMockPolylines()
       const onSegmentSelect = vi.fn()
-
-      render(
+      const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
         </TestWrapper>
       )
 
-      // Verify callback prop is accepted
-      expect(onSegmentSelect).toBeDefined()
-    })
+      const segment = getByTestId('route-polyline--segment-leg-0')
 
-    it('should define correct segment data structure', () => {
-      const polylines = createMockPolylines()
-
-      // Verify the component can handle the callback structure
-      const mockCallback = vi.fn((data: SegmentSelectData) => {
-        // Verify callback receives correct data structure
-        expect(data).toHaveProperty('geometry')
-        expect(data).toHaveProperty('bounds')
-        expect(data).toHaveProperty('segmentType')
-        expect(data).toHaveProperty('segmentId')
-        expect(data.bounds).toHaveProperty('northEast')
-        expect(data.bounds).toHaveProperty('southWest')
+      // Trigger the long-press gesture with ACTIVE state
+      fireEvent(segment, 'onHandlerStateChange', {
+        nativeEvent: { state: State.ACTIVE }
       })
 
-      render(
+      // Verify callback was actually called
+      expect(onSegmentSelect).toHaveBeenCalledTimes(1)
+      expect(onSegmentSelect).toHaveBeenCalledWith(
+        expect.objectContaining({
+          segmentId: 'leg-0',
+          geometry: expect.any(String),
+          bounds: expect.objectContaining({
+            northEast: expect.any(Object),
+            southWest: expect.any(Object)
+          }),
+          segmentType: 'leg',
+          legIndex: 0
+        })
+      )
+    })
+
+    it('should provide correct segment data structure', () => {
+      const polylines = createMockPolylines()
+      const onSegmentSelect = vi.fn()
+      const { getByTestId } = render(
         <TestWrapper>
-          <RoutePolyline polylines={polylines} onSegmentSelect={mockCallback} />
+          <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
         </TestWrapper>
       )
 
-      expect(mockCallback).toBeDefined()
+      const segment = getByTestId('route-polyline--segment-leg-1')
+
+      fireEvent(segment, 'onHandlerStateChange', {
+        nativeEvent: { state: State.ACTIVE }
+      })
+
+      expect(onSegmentSelect).toHaveBeenCalledTimes(1)
+
+      const callbackData = onSegmentSelect.mock.calls[0][0] as SegmentSelectData
+      expect(callbackData).toHaveProperty('geometry')
+      expect(callbackData).toHaveProperty('bounds')
+      expect(callbackData).toHaveProperty('segmentType', 'leg')
+      expect(callbackData).toHaveProperty('segmentId', 'leg-1')
+      expect(callbackData).toHaveProperty('legIndex', 1)
+      expect(callbackData.bounds).toHaveProperty('northEast')
+      expect(callbackData.bounds).toHaveProperty('southWest')
+    })
+
+    it('should encode geometry as polyline string', () => {
+      const polylines = createMockPolylines()
+      const onSegmentSelect = vi.fn()
+      const { getByTestId } = render(
+        <TestWrapper>
+          <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
+        </TestWrapper>
+      )
+
+      const segment = getByTestId('route-polyline--segment-overview')
+
+      fireEvent(segment, 'onHandlerStateChange', {
+        nativeEvent: { state: State.ACTIVE }
+      })
+
+      expect(onSegmentSelect).toHaveBeenCalledTimes(1)
+
+      const callbackData = onSegmentSelect.mock.calls[0][0] as SegmentSelectData
+      // Geometry should be a polyline-encoded string, not JSON
+      expect(callbackData.geometry).not.toMatch(/^\[.*\]$/) // Not JSON array
+      expect(callbackData.geometry.length).toBeGreaterThan(0)
     })
   })
 
   describe('Overlay Segment Selection (AC3)', () => {
-    it('should render overlay segments with correct IDs', () => {
-      const overlayPolylines = createMockOverlayPolylines()
-
-      const { getByTestId } = render(
-        <TestWrapper>
-          <RoutePolyline polylines={overlayPolylines} />
-        </TestWrapper>
-      )
-
-      expect(getByTestId('route-polyline--segment-wind-0-0-1000')).toBeDefined()
-      expect(getByTestId('route-polyline--segment-rain-0-1000-2000')).toBeDefined()
-    })
-
-    it('should handle different segment types', () => {
+    it('should trigger callback for wind overlay segment', () => {
       const overlayPolylines = createMockOverlayPolylines()
       const onSegmentSelect = vi.fn()
-
-      render(
+      const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={overlayPolylines} onSegmentSelect={onSegmentSelect} />
         </TestWrapper>
       )
 
-      // Verify component can handle different segment types
-      expect(onSegmentSelect).toBeDefined()
+      const segment = getByTestId('route-polyline--segment-wind-0-0-1000')
+
+      fireEvent(segment, 'onHandlerStateChange', {
+        nativeEvent: { state: State.ACTIVE }
+      })
+
+      expect(onSegmentSelect).toHaveBeenCalledTimes(1)
+      expect(onSegmentSelect).toHaveBeenCalledWith(
+        expect.objectContaining({
+          segmentId: 'wind-0-0-1000',
+          segmentType: 'wind',
+          legIndex: 0
+        })
+      )
+    })
+
+    it('should trigger callback for rain overlay segment', () => {
+      const overlayPolylines = createMockOverlayPolylines()
+      const onSegmentSelect = vi.fn()
+      const { getByTestId } = render(
+        <TestWrapper>
+          <RoutePolyline polylines={overlayPolylines} onSegmentSelect={onSegmentSelect} />
+        </TestWrapper>
+      )
+
+      const segment = getByTestId('route-polyline--segment-rain-0-1000-2000')
+
+      fireEvent(segment, 'onHandlerStateChange', {
+        nativeEvent: { state: State.ACTIVE }
+      })
+
+      expect(onSegmentSelect).toHaveBeenCalledTimes(1)
+      expect(onSegmentSelect).toHaveBeenCalledWith(
+        expect.objectContaining({
+          segmentId: 'rain-0-1000-2000',
+          segmentType: 'rain',
+          legIndex: 0
+        })
+      )
     })
   })
 
   describe('Early Release Behavior (AC4)', () => {
-    it('should handle gesture cancellation', () => {
+    it('should not trigger callback on CANCELLED state', () => {
       const polylines = createMockPolylines()
       const onSegmentSelect = vi.fn()
-
-      render(
+      const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
         </TestWrapper>
       )
 
-      // Component should handle cancelled state
-      expect(onSegmentSelect).toBeDefined()
-    })
-  })
+      const segment = getByTestId('route-polyline--segment-leg-0')
 
-  describe('Polyline Encoding', () => {
-    it('should use proper polyline encoding format', () => {
-      const polylines = createMockPolylines()
-
-      // Verify the component can handle proper encoding
-      const mockCallback = vi.fn((data: SegmentSelectData) => {
-        // Geometry should be a polyline-encoded string, not JSON
-        expect(data.geometry).not.toMatch(/^\[.*\]$/) // Not JSON array
-        expect(data.geometry.length).toBeGreaterThan(0)
+      // Trigger gesture cancellation
+      fireEvent(segment, 'onHandlerStateChange', {
+        nativeEvent: { state: State.CANCELLED }
       })
 
-      render(
+      // Callback should NOT be called
+      expect(onSegmentSelect).not.toHaveBeenCalled()
+    })
+
+    it('should not trigger callback on FAILED state', () => {
+      const polylines = createMockPolylines()
+      const onSegmentSelect = vi.fn()
+      const { getByTestId } = render(
         <TestWrapper>
-          <RoutePolyline polylines={polylines} onSegmentSelect={mockCallback} />
+          <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
         </TestWrapper>
       )
 
-      expect(mockCallback).toBeDefined()
+      const segment = getByTestId('route-polyline--segment-leg-0')
+
+      // Trigger gesture failure
+      fireEvent(segment, 'onHandlerStateChange', {
+        nativeEvent: { state: State.FAILED }
+      })
+
+      // Callback should NOT be called
+      expect(onSegmentSelect).not.toHaveBeenCalled()
+    })
+
+    it('should handle cancellation after active state', () => {
+      const polylines = createMockPolylines()
+      const onSegmentSelect = vi.fn()
+      const { getByTestId } = render(
+        <TestWrapper>
+          <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
+        </TestWrapper>
+      )
+
+      const segment = getByTestId('route-polyline--segment-leg-0')
+
+      // First trigger active state (should call callback)
+      fireEvent(segment, 'onHandlerStateChange', {
+        nativeEvent: { state: State.ACTIVE }
+      })
+
+      expect(onSegmentSelect).toHaveBeenCalledTimes(1)
+
+      // Then trigger cancellation (should not call callback again)
+      fireEvent(segment, 'onHandlerStateChange', {
+        nativeEvent: { state: State.CANCELLED }
+      })
+
+      // Still only 1 call from the ACTIVE state
+      expect(onSegmentSelect).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -394,18 +493,26 @@ describe('RoutePolyline Component', () => {
         },
       ]
 
-      const mockCallback = vi.fn((data: SegmentSelectData) => {
-        expect(data.segmentType).toBe('overview')
-        expect(data.segmentId).toBe('overview')
-      })
-
-      render(
+      const onSegmentSelect = vi.fn()
+      const { getByTestId } = render(
         <TestWrapper>
-          <RoutePolyline polylines={polylines} onSegmentSelect={mockCallback} />
+          <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
         </TestWrapper>
       )
 
-      expect(mockCallback).toBeDefined()
+      const segment = getByTestId('route-polyline--segment-overview')
+
+      fireEvent(segment, 'onHandlerStateChange', {
+        nativeEvent: { state: State.ACTIVE }
+      })
+
+      expect(onSegmentSelect).toHaveBeenCalledTimes(1)
+      expect(onSegmentSelect).toHaveBeenCalledWith(
+        expect.objectContaining({
+          segmentType: 'overview',
+          segmentId: 'overview'
+        })
+      )
     })
 
     it('should parse leg segment type with index', () => {
@@ -421,19 +528,27 @@ describe('RoutePolyline Component', () => {
         },
       ]
 
-      const mockCallback = vi.fn((data: SegmentSelectData) => {
-        expect(data.segmentType).toBe('leg')
-        expect(data.legIndex).toBe(2)
-        expect(data.segmentId).toBe('leg-2')
-      })
-
-      render(
+      const onSegmentSelect = vi.fn()
+      const { getByTestId } = render(
         <TestWrapper>
-          <RoutePolyline polylines={polylines} onSegmentSelect={mockCallback} />
+          <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
         </TestWrapper>
       )
 
-      expect(mockCallback).toBeDefined()
+      const segment = getByTestId('route-polyline--segment-leg-2')
+
+      fireEvent(segment, 'onHandlerStateChange', {
+        nativeEvent: { state: State.ACTIVE }
+      })
+
+      expect(onSegmentSelect).toHaveBeenCalledTimes(1)
+      expect(onSegmentSelect).toHaveBeenCalledWith(
+        expect.objectContaining({
+          segmentType: 'leg',
+          legIndex: 2,
+          segmentId: 'leg-2'
+        })
+      )
     })
 
     it('should parse wind overlay segment type', () => {
@@ -449,18 +564,26 @@ describe('RoutePolyline Component', () => {
         },
       ]
 
-      const mockCallback = vi.fn((data: SegmentSelectData) => {
-        expect(data.segmentType).toBe('wind')
-        expect(data.legIndex).toBe(1)
-      })
-
-      render(
+      const onSegmentSelect = vi.fn()
+      const { getByTestId } = render(
         <TestWrapper>
-          <RoutePolyline polylines={polylines} onSegmentSelect={mockCallback} />
+          <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
         </TestWrapper>
       )
 
-      expect(mockCallback).toBeDefined()
+      const segment = getByTestId('route-polyline--segment-wind-1-500-1500')
+
+      fireEvent(segment, 'onHandlerStateChange', {
+        nativeEvent: { state: State.ACTIVE }
+      })
+
+      expect(onSegmentSelect).toHaveBeenCalledTimes(1)
+      expect(onSegmentSelect).toHaveBeenCalledWith(
+        expect.objectContaining({
+          segmentType: 'wind',
+          legIndex: 1
+        })
+      )
     })
 
     it('should parse rain overlay segment type', () => {
@@ -476,18 +599,26 @@ describe('RoutePolyline Component', () => {
         },
       ]
 
-      const mockCallback = vi.fn((data: SegmentSelectData) => {
-        expect(data.segmentType).toBe('rain')
-        expect(data.legIndex).toBe(0)
-      })
-
-      render(
+      const onSegmentSelect = vi.fn()
+      const { getByTestId } = render(
         <TestWrapper>
-          <RoutePolyline polylines={polylines} onSegmentSelect={mockCallback} />
+          <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
         </TestWrapper>
       )
 
-      expect(mockCallback).toBeDefined()
+      const segment = getByTestId('route-polyline--segment-rain-0-0-1000')
+
+      fireEvent(segment, 'onHandlerStateChange', {
+        nativeEvent: { state: State.ACTIVE }
+      })
+
+      expect(onSegmentSelect).toHaveBeenCalledTimes(1)
+      expect(onSegmentSelect).toHaveBeenCalledWith(
+        expect.objectContaining({
+          segmentType: 'rain',
+          legIndex: 0
+        })
+      )
     })
 
     it('should parse temperature overlay segment type', () => {
@@ -503,18 +634,26 @@ describe('RoutePolyline Component', () => {
         },
       ]
 
-      const mockCallback = vi.fn((data: SegmentSelectData) => {
-        expect(data.segmentType).toBe('temp')
-        expect(data.legIndex).toBe(2)
-      })
-
-      render(
+      const onSegmentSelect = vi.fn()
+      const { getByTestId } = render(
         <TestWrapper>
-          <RoutePolyline polylines={polylines} onSegmentSelect={mockCallback} />
+          <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
         </TestWrapper>
       )
 
-      expect(mockCallback).toBeDefined()
+      const segment = getByTestId('route-polyline--segment-temp-2-2000-3000')
+
+      fireEvent(segment, 'onHandlerStateChange', {
+        nativeEvent: { state: State.ACTIVE }
+      })
+
+      expect(onSegmentSelect).toHaveBeenCalledTimes(1)
+      expect(onSegmentSelect).toHaveBeenCalledWith(
+        expect.objectContaining({
+          segmentType: 'temp',
+          legIndex: 2
+        })
+      )
     })
   })
 
@@ -533,24 +672,30 @@ describe('RoutePolyline Component', () => {
         },
       ]
 
-      const mockCallback = vi.fn((data: SegmentSelectData) => {
-        // North should be max latitude
-        expect(data.bounds.northEast.latitude).toBe(37.7949)
-        // East should be max longitude
-        expect(data.bounds.northEast.longitude).toBe(-122.3994)
-        // South should be min latitude
-        expect(data.bounds.southWest.latitude).toBe(37.7749)
-        // West should be min longitude
-        expect(data.bounds.southWest.longitude).toBe(-122.4194)
-      })
-
-      render(
+      const onSegmentSelect = vi.fn()
+      const { getByTestId } = render(
         <TestWrapper>
-          <RoutePolyline polylines={polylines} onSegmentSelect={mockCallback} />
+          <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
         </TestWrapper>
       )
 
-      expect(mockCallback).toBeDefined()
+      const segment = getByTestId('route-polyline--segment-test-segment')
+
+      fireEvent(segment, 'onHandlerStateChange', {
+        nativeEvent: { state: State.ACTIVE }
+      })
+
+      expect(onSegmentSelect).toHaveBeenCalledTimes(1)
+
+      const callbackData = onSegmentSelect.mock.calls[0][0] as SegmentSelectData
+      // North should be max latitude
+      expect(callbackData.bounds.northEast.latitude).toBe(37.7949)
+      // East should be max longitude
+      expect(callbackData.bounds.northEast.longitude).toBe(-122.3994)
+      // South should be min latitude
+      expect(callbackData.bounds.southWest.latitude).toBe(37.7749)
+      // West should be min longitude
+      expect(callbackData.bounds.southWest.longitude).toBe(-122.4194)
     })
   })
 })
