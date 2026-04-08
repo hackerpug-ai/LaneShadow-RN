@@ -14,8 +14,10 @@
 import type { Id } from '../../convex/_generated/dataModel'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../convex/_generated/api'
-import { StyleSheet, View } from 'react-native'
+import { FlatList, View, StyleSheet } from 'react-native'
+import { useState } from 'react'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { DeleteFavoriteDialog } from '../ui/delete-favorite-dialog'
 import { EmptyState } from '../ui/empty-state'
 import { FavoriteRoadCard } from '../ui/favorite-road-card'
 import { SectionHeader } from '../ui/section-header'
@@ -29,6 +31,7 @@ import { SectionHeader } from '../ui/section-header'
  */
 export const FavoriteRoadsSection: React.FC = () => {
   const { semantic } = useSemanticTheme()
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
 
   // TODO: The Convex API needs to be regenerated to include favoriteRoads
   // For now, using string references to work around the generated API issue
@@ -36,25 +39,72 @@ export const FavoriteRoadsSection: React.FC = () => {
   const favorites = useQuery('db.favoriteRoads:list' as any)
   const removeFavorite = useMutation('db.favoriteRoads:remove' as any)
 
-  const handleDelete = async (favoriteId: string) => {
+  const handleDelete = (favoriteId: string) => {
+    setDeleteTarget(favoriteId)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return
+
     try {
       await removeFavorite({
-        favoriteRoadId: favoriteId as Id<'favorite_roads'>,
+        favoriteRoadId: deleteTarget as Id<'favorite_roads'>,
       })
+      setDeleteTarget(null)
     } catch (error) {
       console.error('Failed to delete favorite:', error)
       // Error handling could be improved with toast/snackbar in future iteration
     }
   }
 
+  const handleDismissDelete = () => {
+    setDeleteTarget(null)
+  }
+
+  // Get the name of the favorite being deleted for the dialog
+  const favoriteToDelete = favorites?.find((f) => f._id === deleteTarget)
+
   // Loading state - show skeleton
   if (favorites === undefined) {
     return (
       <View style={styles.section}>
         <SectionHeader title="Favorite Roads" />
-        <View style={[styles.skeleton, { backgroundColor: semantic.color.surfaceVariant.default }]} />
-        <View style={[styles.skeleton, { backgroundColor: semantic.color.surfaceVariant.default }]} />
-        <View style={[styles.skeleton, { backgroundColor: semantic.color.surfaceVariant.default }]} />
+        <View
+          style={[
+            styles.skeleton,
+            {
+              backgroundColor: semantic.color.surfaceVariant.default,
+              borderRadius: semantic.radius.lg,
+              marginBottom: semantic.space.md,
+            },
+          ]}
+        />
+        <View
+          style={[
+            styles.skeleton,
+            {
+              backgroundColor: semantic.color.surfaceVariant.default,
+              borderRadius: semantic.radius.lg,
+              marginBottom: semantic.space.md,
+            },
+          ]}
+        />
+        <View
+          style={[
+            styles.skeleton,
+            {
+              backgroundColor: semantic.color.surfaceVariant.default,
+              borderRadius: semantic.radius.lg,
+              marginBottom: semantic.space.md,
+            },
+          ]}
+        />
+        <DeleteFavoriteDialog
+          visible={false}
+          favoriteName=""
+          onConfirm={() => {}}
+          onDismiss={() => {}}
+        />
       </View>
     )
   }
@@ -67,8 +117,14 @@ export const FavoriteRoadsSection: React.FC = () => {
         <EmptyState
           icon="heart-outline"
           headline="No favorite roads yet"
-          body="Long-press a route segment to save it as a favorite"
+          body="Save a road segment to see it here"
           testID="empty-state"
+        />
+        <DeleteFavoriteDialog
+          visible={false}
+          favoriteName=""
+          onConfirm={() => {}}
+          onDismiss={() => {}}
         />
       </View>
     )
@@ -78,17 +134,36 @@ export const FavoriteRoadsSection: React.FC = () => {
   return (
     <View style={[styles.section, { marginBottom: semantic.space.lg }]}>
       <SectionHeader title="Favorite Roads" />
-      {favorites.map((favorite) => (
-        <View key={favorite._id} style={[styles.cardWrapper, { marginBottom: semantic.space.md }]}>
+      <FlatList
+        data={favorites}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
           <FavoriteRoadCard
-            favoriteRoadId={favorite._id}
-            name={favorite.name}
-            bounds={favorite.bounds ?? { north: 0, south: 0, east: 0, west: 0 }}
-            onDelete={() => handleDelete(favorite._id)}
-            testID={`favorite-road-card-${favorite._id}`}
+            favoriteRoadId={item._id}
+            name={item.name}
+            bounds={item.bounds ?? { north: 0, south: 0, east: 0, west: 0 }}
+            onDelete={() => handleDelete(item._id)}
+            testID={`favorite-road-card-${item._id}`}
           />
-        </View>
-      ))}
+        )}
+        ItemSeparatorComponent={() => <View style={{ height: semantic.space.md }} />}
+        ListEmptyComponent={
+          <EmptyState
+            icon="heart-outline"
+            headline="No favorite roads yet"
+            body="Save a road segment to see it here"
+            testID="empty-state"
+          />
+        }
+        scrollEnabled={false}
+      />
+      <DeleteFavoriteDialog
+        visible={deleteTarget !== null}
+        favoriteName={favoriteToDelete?.name ?? ''}
+        onConfirm={handleConfirmDelete}
+        onDismiss={handleDismissDelete}
+        testID="delete-favorite-dialog"
+      />
     </View>
   )
 }
@@ -99,10 +174,5 @@ const styles = StyleSheet.create({
   },
   skeleton: {
     height: 80,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  cardWrapper: {
-    width: '100%',
   },
 })
