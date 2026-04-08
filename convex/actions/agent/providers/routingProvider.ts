@@ -303,14 +303,18 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
       const geocoder = createGeocodingProvider()
       const results = await geocoder.geocode(name, locationBias)
       if (results.length === 0) {
-        throw new Error(`Could not geocode "${name}" — no results found`)
+        throw new Error(
+          `Could not geocode "${name}". Try being more specific: include city/state (e.g., "${name}, CA"), ` +
+          `use nearby landmarks, or provide coordinates directly.`
+        )
       }
       const coords = { lat: results[0].lat, lng: results[0].lng }
 
       // Distance fence: reject results that are too far from location bias
+      // Increased to 500km to accommodate regional routes (SF to Tahoe, etc.)
       if (locationBias) {
         const distKm = haversineKm(coords, locationBias)
-        if (distKm > 200) {
+        if (distKm > 500) {
           throw new Error(
             `Geocoded "${name}" to ${results[0].label} which is ${Math.round(distKm)}km away — likely wrong location`
           )
