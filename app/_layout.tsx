@@ -21,10 +21,10 @@ import type { ExtendedTheme } from '../styles/types'
 const convexClient = new ConvexReactClient(env.CONVEX_URL)
 
 /**
- * Root layout component
- * Sets up Convex and Paper providers, initializes navigation
+ * Inner layout component that uses the theme preference
+ * Must be inside ThemePreferenceProvider
  */
-export const RootLayout = () => {
+const RootLayoutInner = () => {
   const { isDark } = useThemePreference()
   const paperTheme: ExtendedTheme = getTheme(isDark)
 
@@ -42,23 +42,33 @@ export const RootLayout = () => {
   }, [])
 
   return (
+    <ClerkProvider publishableKey={env.CLERK_PUBLISHABLE_KEY} tokenCache={clerkTokenCache}>
+      <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
+        <PaperProvider theme={paperTheme}>
+          <BottomSheetModalProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                animation: 'none',
+              }}
+            />
+          </BottomSheetModalProvider>
+        </PaperProvider>
+      </ConvexProviderWithClerk>
+    </ClerkProvider>
+  )
+}
+
+/**
+ * Root layout component
+ * Wraps the app in ThemePreferenceProvider and other top-level providers
+ */
+export const RootLayout = () => {
+  return (
     <ErrorBoundary>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <ThemePreferenceProvider>
-          <ClerkProvider publishableKey={env.CLERK_PUBLISHABLE_KEY} tokenCache={clerkTokenCache}>
-            <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
-              <PaperProvider theme={paperTheme}>
-                <BottomSheetModalProvider>
-                  <Stack
-                    screenOptions={{
-                      headerShown: false,
-                      animation: 'none',
-                    }}
-                  />
-                </BottomSheetModalProvider>
-              </PaperProvider>
-            </ConvexProviderWithClerk>
-          </ClerkProvider>
+          <RootLayoutInner />
         </ThemePreferenceProvider>
       </GestureHandlerRootView>
     </ErrorBoundary>

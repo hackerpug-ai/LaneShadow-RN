@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useMemo, useState } from 'react'
 import { useColorScheme } from 'react-native'
 import { useSettingsStore } from '../stores/settings-store'
 
@@ -27,15 +27,10 @@ export const useThemePreference = () => useContext(ThemePreferenceContext)
  */
 export const ThemePreferenceProvider = ({ children }: { children: React.ReactNode }) => {
   const systemScheme = useColorScheme()
-  const { themeMode, setThemeMode, _hasHydrated } = useSettingsStore()
-  const [ready, setReady] = useState(false)
-
-  // Wait for hydration before rendering
-  useEffect(() => {
-    if (_hasHydrated) {
-      setReady(true)
-    }
-  }, [_hasHydrated])
+  // Use Zustand's subscription to trigger re-renders when store changes
+  const themeMode = useSettingsStore((state) => state.themeMode)
+  const setThemeMode = useSettingsStore((state) => state.setThemeMode)
+  const _hydrated = useSettingsStore((state) => state._hydrated)
 
   const isDark = useMemo(
     () => (themeMode === 'auto' ? systemScheme === 'dark' : themeMode === 'dark'),
@@ -43,7 +38,7 @@ export const ThemePreferenceProvider = ({ children }: { children: React.ReactNod
   )
 
   // Don't render until hydrated to avoid flash of wrong theme
-  if (!ready) {
+  if (!_hydrated) {
     return null
   }
 

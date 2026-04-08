@@ -7,8 +7,7 @@ type ThemeMode = 'light' | 'dark' | 'auto'
 type SettingsState = {
   themeMode: ThemeMode
   setThemeMode: (mode: ThemeMode) => void
-  _hasHydrated: boolean
-  setHasHydrated: (hasHydrated: boolean) => void
+  _hydrated: boolean
 }
 
 /**
@@ -22,14 +21,21 @@ export const useSettingsStore = create<SettingsState>()(
     (set) => ({
       themeMode: 'auto',
       setThemeMode: (mode) => set({ themeMode: mode }),
-      _hasHydrated: false,
-      setHasHydrated: (hasHydrated) => set({ _hasHydrated: hasHydrated }),
+      _hydrated: false,
     }),
     {
       name: 'laneshadow-settings',
       storage: createJSONStorage(() => AsyncStorage),
       onRehydrateStorage: () => (state) => {
-        state?.setHasHydrated(true)
+        // Mark as hydrated after rehydration completes
+        // This fires both when there IS data to rehydrate AND when there isn't
+        state._hydrated = true
+      },
+      partialize: (state) => {
+        // Don't persist the _hydrated flag itself
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { _hydrated, ...rest } = state
+        return rest
       },
     }
   )

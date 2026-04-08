@@ -362,6 +362,7 @@ const HomeMapScreen = () => {
     // Reset local state
     flowDispatch({ type: 'NEW_SESSION' })
     setSelectedRouteId(null)
+    setDisplayedRoutePlanId(null)
     lastFittedPlanIdRef.current = null
     resetSession()
   }

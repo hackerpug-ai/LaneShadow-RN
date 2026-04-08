@@ -207,7 +207,7 @@ export default function ChatScreen() {
     return optimisticChatMessages
   }, [messages, optimisticMessages, resolvedSessionId])
 
-  const { setSelectedRouteId } = useSelectedRoute()
+  const { setSelectedRouteId, setDisplayedRoutePlanId } = useSelectedRoute()
 
   // Dismiss keyboard when tapping outside the input
   const handleDismissKeyboard = () => {
@@ -219,6 +219,8 @@ export default function ChatScreen() {
 
     // Clear session ID to stay on chat view with no session
     console.info('[ChatScreen] Clearing session ID, staying on chat view')
+    setSelectedRouteId(null)
+    setDisplayedRoutePlanId(null)
     resetSession()
     router.replace('/(app)/(tabs)?chat=1' as any)
   }

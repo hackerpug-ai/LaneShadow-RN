@@ -109,6 +109,13 @@ export const ThemePicker = ({ testID }: { testID?: string }) => {
   const { themeMode, setThemeMode } = useSettingsStore()
   const mode = themeMode
 
+  const handlePress = (optionValue: ThemeMode) => {
+    console.log('[ThemePicker] Tapping theme option:', optionValue)
+    console.log('[ThemePicker] Current themeMode:', themeMode)
+    setThemeMode(optionValue)
+    console.log('[ThemePicker] After setThemeMode')
+  }
+
   return (
     <View testID={testID} style={[styles.container, { gap: semantic.space.md }]}>
       <Text
@@ -129,7 +136,7 @@ export const ThemePicker = ({ testID }: { testID?: string }) => {
           return (
             <Pressable
               key={option.value}
-              onPress={() => setThemeMode(option.value)}
+              onPress={() => handlePress(option.value)}
               testID={`theme-option-${option.value}`}
               style={({ pressed }) => [
                 styles.card,
