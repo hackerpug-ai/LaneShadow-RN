@@ -1,62 +1,88 @@
 /**
- * New Session Redirect
+ * New Session Loading Screen
  *
- * Temporary redirect page that creates a new session (or finds an existing empty one)
- * and redirects back to the chat view with the correct session ID.
+ * Creates a new planning session and redirects to the chat screen with the new session ID.
+ * Shows a loading state while the session is being created.
  *
- * This works around expo-router's limitation where navigating to the same route
- * with different query params doesn't trigger a re-render.
+ * This route is used instead of creating sessions directly in the chat screen to avoid
+ * race conditions with navigation timing.
  */
 
-import { router } from 'expo-router'
-import { useEffect } from 'react'
-import { useMutation, useQuery } from 'convex/react'
-import { ActivityIndicator, View } from 'react-native'
-import { api } from '../../../../convex/_generated/api'
-import { useSemanticTheme } from '../../../../hooks/use-semantic-theme'
+import { useEffect, useState } from 'react'
+import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { Text } from 'react-native-paper'
+import { useRouter } from 'expo-router'
+import { useMutation } from 'convex/react'
+import { api } from '../../../convex/_generated/api'
+import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 
-export default function NewSessionRedirect() {
+export default function NewSessionScreen() {
   const { semantic } = useSemanticTheme()
-  const sessions = useQuery(api.db.planningSessions.listSessions)
+  const router = useRouter()
   const createSession = useMutation(api.db.planningSessions.createSession)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const handleRedirect = async () => {
-      if (sessions === undefined) {
-        // Still loading
-        return
-      }
-
-      // Get the top session ID
-      const topSessionId = sessions && sessions.length > 0 ? sessions[0]._id : null
-
-      // Fetch messages for the top session to check if it has visible messages
-      let topSessionHasMessages = false
-      if (topSessionId) {
-        // We need to check message count, but we don't have the query here
-        // For now, just check if sessions exist and use the top one
-        // The actual message count check happens in the chat screen
-      }
-
-      // Create a new session or use the existing top session
-      let targetSessionId: string
-      if (topSessionId) {
-        targetSessionId = topSessionId
-      } else {
+    const createNewSession = async () => {
+      try {
+        console.info('[NewSessionScreen] Creating new session')
         const result = await createSession({ firstMessage: '' })
-        targetSessionId = result.sessionId
-      }
 
-      // Redirect to chat with the session ID
-      router.replace('/(app)/(tabs)?sessionId=' + encodeURIComponent(targetSessionId) + '&chat=1')
+        if (result?.sessionId) {
+          console.info('[NewSessionScreen] Session created, redirecting to chat', {
+            sessionId: result.sessionId,
+          })
+          // Redirect to chat screen with the new session ID
+          router.replace(`/chat?sessionId=${result.sessionId}` as any)
+        } else {
+          throw new Error('Failed to create session - no ID returned')
+        }
+      } catch (err) {
+        console.error('[NewSessionScreen] Failed to create session', err)
+        setError('Failed to create new session. Please try again.')
+        // Auto-retry after 2 seconds
+        setTimeout(() => {
+          router.back()
+        }, 2000)
+      }
     }
 
-    handleRedirect()
-  }, [sessions, createSession])
+    createNewSession()
+  }, [createSession, router])
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <ActivityIndicator color={semantic.color.primary.default} />
+    <View style={styles.container}>
+      {error ? (
+        <View style={styles.content}>
+          <Text style={[styles.message, { color: '#dc2626' }]}>
+            {error}
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.content}>
+          <ActivityIndicator size="large" color={semantic.color.primary.default} />
+          <Text style={[styles.message, { color: semantic.color.onSurface.muted }]}>
+            Creating new session…
+          </Text>
+        </View>
+      )}
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+  },
+  message: {
+    fontSize: 16,
+    textAlign: 'center',
+  },
+})

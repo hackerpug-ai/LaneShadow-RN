@@ -16,7 +16,7 @@
  * Following components/CLAUDE.md: non-map screens use SubpageLayout.
  */
 
-import { useMutation, useQuery } from 'convex/react'
+import { useQuery } from 'convex/react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { StyleSheet, View, Pressable, Keyboard } from 'react-native'
 import Animated, { FadeIn } from 'react-native-reanimated'
@@ -32,7 +32,7 @@ import { useCurrentLocation } from '../../../hooks/use-current-location'
 import { useRideFlow } from '../../../hooks/use-ride-flow'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useSelectedRoute } from '../../../contexts/selected-route'
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 
 // Set up global error handler for uncaught errors
 if (typeof console !== 'undefined') {
@@ -55,32 +55,12 @@ export default function ChatScreen() {
 
   const { semantic } = useSemanticTheme()
   const router = useRouter()
-  const { sessionId: sessionIdParam, new: newParam } = useLocalSearchParams<{ sessionId?: string; new?: string }>()
-
-  // Force remount key - changes when we want to refresh the session view
-  const [remountKey, setRemountKey] = useState(0)
-
-  // Handle "new" session parameter - create a session and redirect
-  useEffect(() => {
-    if (newParam === '1') {
-      console.info('[ChatScreen] new=1 detected, creating session')
-      createSession({ firstMessage: '' }).then((result) => {
-        if (result?.sessionId) {
-          console.info('[ChatScreen] Session created, redirecting', {
-            sessionId: result.sessionId,
-          })
-          // Replace the URL with the new session ID, removing the "new" param
-          router.replace('/(app)/(tabs)/chat?sessionId=' + encodeURIComponent(result.sessionId) as any)
-        }
-      })
-    }
-  }, [newParam])
+  const { sessionId: sessionIdParam } = useLocalSearchParams<{ sessionId?: string }>()
 
   // Local flow state for composing/sending from the chat screen
   const { state: flowState, dispatch: flowDispatch } = useRideFlow()
   const { sendPlanningMessage, cancel: cancelChatPlanning, resetSession } = useChatPlanning(flowDispatch)
   const { location: currentLocation } = useCurrentLocation()
-  const createSession = useMutation(api.db.planningSessions.createSession)
 
   console.info('[ChatScreen] Hooks initialized', {
     hasFlowState: !!flowState,
@@ -130,10 +110,6 @@ export default function ChatScreen() {
 
   // Resolve which session to display in the transcript
   const resolvedSessionId: Id<'planning_sessions'> | null = (() => {
-    // If new=1, we're creating a session - show empty state until redirect
-    if (newParam === '1') {
-      return null
-    }
     if (sessionIdParam) {
       return sessionIdParam as Id<'planning_sessions'>
     }
@@ -146,7 +122,6 @@ export default function ChatScreen() {
   console.info('[ChatScreen] Resolved session ID', {
     resolvedSessionId,
     sessionIdParam,
-    newParam,
     firstSessionId: sessions?.[0]?._id,
   })
 
@@ -238,13 +213,13 @@ export default function ChatScreen() {
       return
     }
 
-    // Navigate with new=1 parameter to trigger session creation
-    console.info('[ChatScreen] Navigating to create new session')
-    router.replace('/(app)/(tabs)/chat?new=1' as any)
+    // Navigate to new-session route to create session
+    console.info('[ChatScreen] Navigating to new-session route')
+    router.push('/new-session' as any)
   }
 
   return (
-    <View style={styles.root} key={remountKey}>
+    <View style={styles.root}>
       <SubpageLayout
         title="Chat"
         testID="chat-screen"
