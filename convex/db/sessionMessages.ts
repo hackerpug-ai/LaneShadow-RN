@@ -27,6 +27,7 @@ type SessionMessageDoc = {
   kind?: SessionMessageKind
   status?: 'streaming' | 'running' | 'complete' | 'failed'
   piMessage?: unknown
+  thinkingSteps?: { type: 'thinking' | 'tool_start' | 'tool_finish'; toolName?: string; summary: string; detail?: string; timestamp: number }[]
 }
 
 type PlanningSessionDoc = {

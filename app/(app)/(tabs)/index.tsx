@@ -247,6 +247,7 @@ const HomeMapScreen = () => {
           kind: msg.kind as TranscriptMessage['kind'],
           status: msg.status,
           attachments: msg.attachments,
+          thinkingSteps: msg.thinkingSteps,
         })) ?? []
 
     // Debug logging to see what messages are being passed to the transcript
