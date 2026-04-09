@@ -782,15 +782,27 @@ async function runPlanRoute(
       })
 
       try {
-        await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+        // Check if the route plan was already marked as failed (e.g., agent returned needs_clarification)
+        const currentPlan = await ctx.runQuery(internal.db.routePlans.getPlanByIdInternal, {
           routePlanId,
-          status: 'completed',
-          result: built,
-        })
-        console.info('[runPlanRoute] Route plan completed successfully:', {
-          routePlanId,
-          optionsCount: built.options?.length,
-        })
+        }) as any
+
+        // Only update to completed if not already failed
+        if (currentPlan?.status !== 'failed') {
+          await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+            routePlanId,
+            status: 'completed',
+            result: built,
+          })
+          console.info('[runPlanRoute] Route plan completed successfully:', {
+            routePlanId,
+            optionsCount: built.options?.length,
+          })
+        } else {
+          console.info('[runPlanRoute] Route plan already failed, skipping completion:', {
+            routePlanId,
+          })
+        }
       } catch (updateError) {
         console.error('[runPlanRoute] Error updating status to completed:', updateError)
         throw updateError
@@ -824,11 +836,24 @@ async function runPlanRoute(
         errorMessage,
         attempts: attempt,
       })
-      await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+
+      // Check if the route plan was already completed (race condition guard)
+      const currentPlan = await ctx.runQuery(internal.db.routePlans.getPlanByIdInternal, {
         routePlanId,
-        status: 'failed',
-        errorMessage,
-      })
+      }) as any
+
+      // Only mark as failed if not already completed
+      if (currentPlan?.status !== 'completed') {
+        await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+          routePlanId,
+          status: 'failed',
+          errorMessage,
+        })
+      } else {
+        console.info('[runPlanRoute] Route plan already completed, skipping failure mark:', {
+          routePlanId,
+        })
+      }
       return {
         type: 'error',
         message: "I couldn't plan your route right now. Please try again.",
