@@ -8,6 +8,7 @@
  * AC-001: App Launch Gatekeeper Check
  * AC-004: Navigation Route Guarding
  * AC-006: Setup State Persistence
+ * CLR-004: Model Download Persistence
  *
  * This provider:
  * - Checks model status on app launch
@@ -15,6 +16,7 @@
  * - Shows "Setup Required" screen if model is corrupted
  * - Allows main app access only when model is valid
  * - Validates on every launch (never caches permanently)
+ * - CLR-004: Tracks download progress and supports resume
  */
 
 import React, { useEffect } from 'react'
@@ -35,6 +37,8 @@ export interface ModelGatekeeperProviderProps {
  *
  * Wraps the app and enforces gatekeeper validation.
  * Only renders children when model is validated.
+ *
+ * CLR-004: Shows actual download progress from Convex persistence.
  */
 export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = ({
   children,
@@ -42,8 +46,11 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
 }) => {
   const {
     status,
+    downloadProgress,
+    canResumeDownload,
     restoreModel,
     startDownload,
+    cancelDownload,
     markSetupComplete,
     isChecking,
   } = useModelSetup()
@@ -66,6 +73,7 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
       <View style={styles.fullScreen} testID={`${testID}-setup-wizard`}>
         <WelcomeScreen
           onDownloadPress={startDownload}
+          canResume={canResumeDownload}
           testID={`${testID}-welcome`}
         />
       </View>
@@ -86,10 +94,22 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
 
   // Show download progress if downloading
   if (status === 'downloading') {
+    // CLR-004: Use actual download progress from Convex
+    const progress = downloadProgress || {
+      state: 'downloading' as const,
+      progress: 0,
+      bytesDownloaded: 0,
+      totalBytes: 800 * 1024 * 1024,
+      estimatedTimeRemaining: 0,
+      lastUpdated: Date.now(),
+      networkType: 'wifi' as const,
+    }
+
     return (
       <View style={styles.fullScreen} testID={`${testID}-downloading`}>
         <DownloadProgressScreen
-          progress={{ state: 'downloading', progress: 50, bytesDownloaded: 400 * 1024 * 1024, totalBytes: 800 * 1024 * 1024, estimatedTimeRemaining: 300, lastUpdated: Date.now(), networkType: 'wifi' }}
+          progress={progress}
+          onCancelPress={cancelDownload}
           testID={`${testID}-download-progress`}
         />
       </View>

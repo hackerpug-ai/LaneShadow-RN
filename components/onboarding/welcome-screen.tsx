@@ -6,6 +6,7 @@
  * - Copper-accented branding
  * - "Download Your Shadow" CTA button
  * - No skip/bypass options (per AC-001)
+ * - CLR-004: Resume support for interrupted downloads
  */
 
 import React from 'react'
@@ -17,11 +18,13 @@ import { LaneShadowLogo } from '../auth/lane-shadow-logo'
 
 export interface WelcomeScreenProps {
   onDownloadPress: () => void
+  canResume?: boolean
   testID?: string
 }
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   onDownloadPress,
+  canResume = false,
   testID = 'welcome-screen',
 }) => {
   const { semantic } = useSemanticTheme()
@@ -77,7 +80,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           testID={`${testID}-download-button`}
           style={{ width: '100%' }}
         >
-          Download Your Shadow
+          {canResume ? 'Resume Download' : 'Download Your Shadow'}
         </Button>
       </View>
 
@@ -90,7 +93,9 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
             { color: semantic.color.onSurface.subtle, textAlign: 'center' },
           ]}
         >
-          WiFi connection required (~800MB download)
+          {canResume
+            ? 'Resume your interrupted download'
+            : 'WiFi connection required (~800MB download)'}
         </Text>
       </View>
     </View>

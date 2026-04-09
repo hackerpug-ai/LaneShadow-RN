@@ -8,6 +8,7 @@
  * - Estimated time remaining
  * - Updates every 5% or 5 seconds
  * - No blocking UI - continuous progress display
+ * - CLR-004: Cancel button for interrupting downloads
  */
 
 import React from 'react'
@@ -15,15 +16,18 @@ import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Progress } from '../ui/progress'
+import { Button } from '../ui/button'
 import type { ModelDownloadProgress } from '../../lib/model/download-manager'
 
 export interface DownloadProgressScreenProps {
   progress: ModelDownloadProgress
+  onCancelPress?: () => void
   testID?: string
 }
 
 export const DownloadProgressScreen: React.FC<DownloadProgressScreenProps> = ({
   progress,
+  onCancelPress,
   testID = 'download-progress-screen',
 }) => {
   const { semantic } = useSemanticTheme()
@@ -164,8 +168,22 @@ export const DownloadProgressScreen: React.FC<DownloadProgressScreenProps> = ({
         </View>
       </View>
 
+      {/* Cancel Button - CLR-004 */}
+      {onCancelPress && (
+        <View style={[styles.buttonContainer, { marginTop: semantic.space.xl }]}>
+          <Button
+            variant="ghost"
+            size="default"
+            onPress={onCancelPress}
+            testID={`${testID}-cancel-button`}
+          >
+            Cancel Download
+          </Button>
+        </View>
+      )}
+
       {/* Info Text */}
-      <View style={[styles.infoContainer, { marginTop: semantic.space.xl }]}>
+      <View style={[styles.infoContainer, { marginTop: semantic.space.lg }]}>
         <Text
           variant="bodySmall"
           style={[
@@ -214,6 +232,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  buttonContainer: {
+    width: '100%',
+    maxWidth: 400,
   },
   infoContainer: {
     width: '100%',
