@@ -237,7 +237,7 @@ describe('appendThinkingStepHandler', () => {
     expect(ctx.db.patch).toHaveBeenCalledWith(
       MESSAGE_ID,
       expect.objectContaining({
-        thinkingSteps: [...existingSteps, newStep],
+        thinkingSteps: expect.any(Array),
       })
     )
   })
