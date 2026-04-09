@@ -63,7 +63,7 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
   // Show setup wizard if model is missing
   if (status === 'required') {
     return (
-      <View testID={`${testID}-setup-wizard`}>
+      <View style={styles.fullScreen} testID={`${testID}-setup-wizard`}>
         <WelcomeScreen
           onDownloadPress={startDownload}
           testID={`${testID}-welcome`}
@@ -75,7 +75,7 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
   // Show "Setup Required" screen if model is corrupted
   if (status === 'corrupted') {
     return (
-      <View testID={`${testID}-setup-required`}>
+      <View style={styles.fullScreen} testID={`${testID}-setup-required`}>
         <SetupRequiredScreen
           onRestorePress={restoreModel}
           testID={`${testID}-restore-screen`}
@@ -87,7 +87,7 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
   // Show download progress if downloading
   if (status === 'downloading') {
     return (
-      <View testID={`${testID}-downloading`}>
+      <View style={styles.fullScreen} testID={`${testID}-downloading`}>
         <DownloadProgressScreen
           progress={{ state: 'downloading', progress: 50, bytesDownloaded: 400 * 1024 * 1024, totalBytes: 800 * 1024 * 1024, estimatedTimeRemaining: 300, lastUpdated: Date.now(), networkType: 'wifi' }}
           testID={`${testID}-download-progress`}
@@ -99,7 +99,7 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
   // Show completion screen when download is done
   if (status === 'valid') {
     return (
-      <View testID={`${testID}-completion`}>
+      <View style={styles.fullScreen} testID={`${testID}-completion`}>
         <CompletionScreen
           onStartRiding={markSetupComplete}
           testID={`${testID}-completion-screen`}
@@ -109,7 +109,7 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
   }
 
   // Model is valid - render main app
-  return <View testID={`${testID}-main-app`}>{children}</View>
+  return <View style={styles.fullScreen} testID={`${testID}-main-app`}>{children}</View>
 }
 
 const styles = {
@@ -117,5 +117,8 @@ const styles = {
     flex: 1,
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
+  },
+  fullScreen: {
+    flex: 1,
   },
 }
