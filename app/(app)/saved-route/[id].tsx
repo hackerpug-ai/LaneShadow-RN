@@ -26,7 +26,7 @@ import { useSavedRouteDetail } from '../../../hooks/use-saved-routes'
 import type { RouteOverlays } from '../../../models/saved-routes'
 
 import { useRouteActions } from './use-route-actions'
-import { formatDistance, formatDuration, formatSavedDate } from './utils'
+import { formatDistance, formatDuration, formatSavedDate } from '../saved-route.utils/utils'
 
 const Z_INDEX_HEADER_ACTIONS = 30
 

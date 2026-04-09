@@ -9,7 +9,10 @@ const Index = () => {
 
   // Fetch sessions for auto-navigation logic
   // Only query when Clerk auth is loaded and user is signed in to prevent race conditions.
-  const sessions = useQuery(api.db.planningSessions.listSessions, clerkLoaded && isSignedIn ? undefined : "skip")
+  const sessions = useQuery(
+    api.db.planningSessions.listSessions,
+    clerkLoaded && isSignedIn ? undefined : 'skip'
+  )
 
   // Track redirect target
   const [redirectTarget, setRedirectTarget] = useState<string | null>(null)

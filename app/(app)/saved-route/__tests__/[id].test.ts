@@ -27,7 +27,7 @@ import type { SavedRouteDetailView } from '../../../../types/routes'
 import type { WindOverlay, RainOverlay, TemperatureOverlay, RouteOverlays } from '../../../../models/saved-routes'
 import { buildRoutePolylines } from '../../../../components/map/route-polyline'
 import { getWorstRainLevel, getWorstTemperatureLevel } from '../../../../models/saved-routes'
-import { deriveWindSummary, formatDistance, formatDuration, formatSavedDate } from '../utils'
+import { deriveWindSummary, formatDistance, formatDuration, formatSavedDate } from '../../saved-route.utils/utils'
 import SavedRouteDetailScreen from '../[id]'
 
 const mockBack = vi.fn()
