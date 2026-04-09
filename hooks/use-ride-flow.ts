@@ -50,6 +50,7 @@ export type ErrorState = {
   phase: 'ERROR'
   errorMessage: string
   sessionId: string | null
+  errorTimestamp?: number // Track when error occurred for auto-dismiss
 }
 
 export type RouteResultsState = {
@@ -95,6 +96,7 @@ export type RideFlowAction =
   | CloseExportAction
   | NewSessionAction
   | LoadSessionAction
+  | ClearErrorAction
 
 export type SendMessageAction = {
   type: 'SEND_MESSAGE'
@@ -145,6 +147,10 @@ export type LoadSessionAction = {
   sessionId: string
   routeOptions: PlannedRouteOptionsView
   selectedRouteId?: string
+}
+
+export type ClearErrorAction = {
+  type: 'CLEAR_ERROR'
 }
 
 /**
@@ -274,11 +280,12 @@ const handlePlanningState = (
       }
 
     case 'PLANNING_ERROR':
-      // On error, transition to ERROR state with message
+      // On error, transition to ERROR state with message and timestamp
       return {
         phase: 'ERROR',
         errorMessage: action.error,
         sessionId: state.sessionId,
+        errorTimestamp: Date.now(),
       }
 
     case 'CANCEL_PLANNING':
@@ -312,6 +319,10 @@ const handleErrorState = (
   action: RideFlowAction
 ): RideFlowState => {
   switch (action.type) {
+    case 'CLEAR_ERROR':
+      // Auto-dismiss error - return to IDLE
+      return initialState
+
     case 'SEND_MESSAGE':
       // Try again - transition to PLANNING
       if (!guards.canSendMessage(action.content)) {

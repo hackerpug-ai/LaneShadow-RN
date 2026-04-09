@@ -52,6 +52,8 @@ type ChatInputProps = {
    *  (e.g., planning indicator, toasts, route cards). Following /frontend-design
    *  dynamic spacing rule: input must not obscure temporary items. */
   extraBottomOffset?: number
+  /** Dispatch function for clearing error state */
+  dispatch?: (action: { type: string }) => void
 }
 
 /**
@@ -120,6 +122,7 @@ export const ChatInput = ({
   onManualModePress,
   hasMessages = false,
   extraBottomOffset = 0,
+  dispatch,
 }: ChatInputProps) => {
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
@@ -134,6 +137,17 @@ export const ChatInput = ({
       hideSub.remove()
     }
   }, [])
+
+  // Auto-dismiss error after 6 seconds
+  useEffect(() => {
+    if (state.phase === 'ERROR' && 'errorTimestamp' in state && state.errorTimestamp) {
+      const timer = setTimeout(() => {
+        dispatch?.({ type: 'CLEAR_ERROR' })
+      }, 6000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [state.phase, dispatch])
 
   const handleSend = useCallback(() => {
     // Block sending if planning is in progress

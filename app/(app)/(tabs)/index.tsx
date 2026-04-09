@@ -1224,6 +1224,7 @@ const HomeMapScreen = () => {
           onToggleChatMode={cycleTranscript}
           onManualModePress={handleManualModePress}
           hasMessages={transcriptMessages.length > 0}
+          dispatch={flowDispatch}
         />
 
         <PlanRideSheet
