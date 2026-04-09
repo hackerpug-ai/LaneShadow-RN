@@ -121,7 +121,13 @@ export const insert = mutation({
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    const { clerkUserId } = await requireIdentity(ctx)
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) {
+      // Return empty array for unauthenticated users
+      // This allows the UI to render without errors
+      return []
+    }
+    const clerkUserId = identity.subject
     return listHandler(ctx as any, clerkUserId)
   },
 })
