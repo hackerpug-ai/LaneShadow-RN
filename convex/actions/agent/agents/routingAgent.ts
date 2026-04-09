@@ -1088,25 +1088,9 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
     }
   }
 
-  // Helper to update route plan status when needs_clarification or failed
-  const updateRoutePlanIfNeeded = async (status: 'failed', errorMessage: string) => {
-    // Check if any tool result has a routePlanId (from planRoute tool)
-    for (const tr of result.toolResults) {
-      const result = tr.result as any
-      if (result?.routePlanId) {
-        await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
-          routePlanId: result.routePlanId,
-          status,
-          errorMessage,
-        })
-        break
-      }
-    }
-  }
-
   if (result.response && result.toolResults.length === 0) {
     // Agent responded with text but no tool calls — needs clarification
-    await updateRoutePlanIfNeeded('failed', result.response)
+    // No route plan was created, so nothing to update
     return {
       status: 'needs_clarification',
       question: result.response,
@@ -1121,25 +1105,48 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
         return { status: 'route_ready', routePlanId: parsed.routePlanId, summary: parsed.summary ?? '' }
       }
       if (parsed.status === 'needs_clarification' && parsed.question) {
-        await updateRoutePlanIfNeeded('failed', parsed.question)
+        // No route plan was created (agent didn't call planRoute), so nothing to update
         return { status: 'needs_clarification', question: parsed.question }
       }
       if (parsed.status === 'failed') {
-        await updateRoutePlanIfNeeded('failed', parsed.reason ?? 'Unknown failure')
+        // Update any route plan that was created before the failure
+        for (const tr of result.toolResults) {
+          const toolResult = tr.result as any
+          if (toolResult?.routePlanId) {
+            await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+              routePlanId: toolResult.routePlanId,
+              status: 'failed',
+              errorMessage: parsed.reason ?? 'Unknown failure',
+            })
+            break
+          }
+        }
         return { status: 'failed', reason: parsed.reason ?? 'Unknown failure' }
       }
     } catch {
       // Not JSON — fall through
     }
 
-    await updateRoutePlanIfNeeded('failed', result.response)
+    // Non-JSON response with no tool results — treat as clarification request
     return {
       status: 'needs_clarification',
       question: result.response,
     }
   }
 
-  await updateRoutePlanIfNeeded('failed', 'Routing agent did not produce a route or response')
+  // No response and no tool results — complete failure
+  // Update any route plan that was created before the failure
+  for (const tr of result.toolResults) {
+    const toolResult = tr.result as any
+    if (toolResult?.routePlanId) {
+      await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+        routePlanId: toolResult.routePlanId,
+        status: 'failed',
+        errorMessage: 'Routing agent did not produce a route or response',
+      })
+      break
+    }
+  }
   return {
     status: 'failed',
     reason: 'Routing agent did not produce a route or response',
