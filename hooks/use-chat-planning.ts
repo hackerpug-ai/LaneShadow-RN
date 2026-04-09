@@ -180,12 +180,13 @@ export const useChatPlanning = (
         // Replace optimistic message with real message (remove from optimistic list)
         setOptimisticMessages((prev) => prev.filter((m) => m.id !== tempId))
 
-        // If this was a new session, update URL to the real session ID
+        // If this was a new session, update URL to include the session ID
         if (isNewSession && sessionIdToUse) {
           console.info('[useChatPlanning] New session created, updating URL', {
             sessionId: sessionIdToUse,
           })
-          router.replace(`/chat?sessionId=${sessionIdToUse}` as any)
+          // Update the current route's search params with the session ID
+          router.setParams({ sessionId: sessionIdToUse } as any)
         }
 
         if (signal.aborted) {
