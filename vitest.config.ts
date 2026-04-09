@@ -69,6 +69,10 @@ const reactNativeStubPlugin = () => ({
     if (source === 'react-native-safe-area-context') {
       return resolve(__dirname, '__mocks__/react-native-safe-area-context.ts')
     }
+    // react-native-markdown-display contains JSX that cannot be parsed
+    if (source === 'react-native-markdown-display') {
+      return resolve(__dirname, '__mocks__/react-native-markdown-display.ts')
+    }
     return null
   },
 })
