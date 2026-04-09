@@ -1,0 +1,97 @@
+{
+  "test_type": "route_leg_labels_only",
+  "date": "2026-04-09",
+  "models": [
+    "Qwen3.5 0.8B",
+    "Haiku"
+  ],
+  "qwen_results": [
+    {
+      "route_id": "sf-to-point-reyes",
+      "model": "Qwen3.5 0.8B",
+      "duration_seconds": 0.37,
+      "leg_labels": [
+        "Highway 101 connects SF to Sausalito",
+        "Highway 1 connects Sausalito to Stinson Beach",
+        "Highway 1 connects Stinson Beach to Point Reyes"
+      ],
+      "expected_count": 3,
+      "actual_count": 3,
+      "valid": true
+    },
+    {
+      "route_id": "la-to-san-diego",
+      "model": "Qwen3.5 0.8B",
+      "duration_seconds": 0.35,
+      "leg_labels": [
+        "LA to Laguna Beach via Pacific Coast Highway",
+        "Laguna Beach to Oceanside via I-5 S",
+        "Oceanside to San Diego via I-5 S"
+      ],
+      "expected_count": 3,
+      "actual_count": 3,
+      "valid": true
+    },
+    {
+      "route_id": "seattle-to-portland",
+      "model": "Qwen3.5 0.8B",
+      "duration_seconds": 0.35,
+      "leg_labels": [
+        "Seattle to Olympia via I-5 S",
+        "Olympia to Longview via I-5 S",
+        "Longview to Portland via I-5 S"
+      ],
+      "expected_count": 3,
+      "actual_count": 3,
+      "valid": true
+    }
+  ],
+  "haiku_results": [
+    {
+      "route_id": "sf-to-point-reyes",
+      "model": "Haiku",
+      "duration_seconds": 1.27,
+      "leg_labels": [
+        "SF to Sausalito via 101",
+        "Sausalito to Stinson via 1",
+        "Stinson to Point Reyes via 1"
+      ],
+      "expected_count": 3,
+      "actual_count": 3,
+      "valid": true
+    },
+    {
+      "route_id": "la-to-san-diego",
+      "model": "Haiku",
+      "duration_seconds": 0.98,
+      "leg_labels": [
+        "LA to Laguna Beach PCH",
+        "Laguna Beach to Oceanside I-5",
+        "Oceanside to San Diego I-5"
+      ],
+      "expected_count": 3,
+      "actual_count": 3,
+      "valid": true
+    },
+    {
+      "route_id": "seattle-to-portland",
+      "model": "Haiku",
+      "duration_seconds": 0.79,
+      "leg_labels": [
+        "Seattle to Olympia",
+        "Olympia to Longview",
+        "Longview to Portland"
+      ],
+      "expected_count": 3,
+      "actual_count": 3,
+      "valid": true
+    }
+  ],
+  "comparison": {
+    "qwen_avg_duration": 0.35666666666666663,
+    "haiku_avg_duration": 1.0133333333333334,
+    "qwen_valid_rate": 100.0,
+    "haiku_valid_rate": 100.0,
+    "speed_ratio": 2.841121495327103
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "strategy": "improved_sequential",
+  "valid": true,
+  "has_real_data": false,
+  "duration": 9.045753002166748,
+  "data": {
+    "origin": "San Francisco, CA",
+    "destination": "Point Reyes, CA",
+    "route_preference": "scenic",
+    "avoid_highways": true,
+    "road_types": [
+      "coastal",
+      "twisty"
+    ]
+  }
+}

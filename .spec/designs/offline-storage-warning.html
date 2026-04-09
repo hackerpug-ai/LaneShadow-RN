@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaneShadow - Storage Warning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1B1715;
+            color: #F5F0EB;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .device-frame {
+            width: 375px;
+            height: 812px;
+            background: linear-gradient(180deg, #1B1715 0%, #2B2725 100%);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 8px solid #1A1C1F;
+        }
+
+        .backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .dialog {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #24272B;
+            border-radius: 24px 24px 0 0;
+            padding: 32px 24px 40px;
+            animation: slide-up 0.3s ease-out;
+        }
+
+        @keyframes slide-up {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .dialog-handle {
+            width: 36px;
+            height: 4px;
+            background: rgba(244, 240, 235, 0.2);
+            border-radius: 2px;
+            margin: 0 auto 24px;
+        }
+
+        .dialog-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(217, 142, 4, 0.15);
+            border: 2px solid rgba(217, 142, 4, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 20px;
+        }
+
+        .dialog-title {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            color: #F5F0EB;
+            margin-bottom: 12px;
+        }
+
+        .dialog-message {
+            font-size: 16px;
+            text-align: center;
+            color: #9CA3AF;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .storage-breakdown {
+            background: rgba(217, 142, 4, 0.1);
+            border: 1px solid rgba(217, 142, 4, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .storage-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .storage-row:last-child {
+            margin-bottom: 0;
+            padding-top: 12px;
+            border-top: 1px solid rgba(217, 142, 4, 0.2);
+        }
+
+        .storage-label {
+            font-size: 14px;
+            color: #9CA3AF;
+        }
+
+        .storage-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .storage-value.danger {
+            color: #E35D6A;
+        }
+
+        .storage-value.warning {
+            color: #D98E04;
+        }
+
+        .suggestion-box {
+            background: rgba(43, 154, 235, 0.1);
+            border: 1px solid rgba(43, 154, 235, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .suggestion-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .suggestion-text {
+            font-size: 14px;
+            color: #F5F0EB;
+            line-height: 1.4;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .secondary-button {
+            flex: 1;
+            height: 56px;
+            background: transparent;
+            border: 1px solid rgba(244, 240, 235, 0.2);
+            border-radius: 16px;
+            color: #9CA3AF;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .secondary-button:hover {
+            background: rgba(244, 240, 235, 0.05);
+        }
+
+        .primary-button {
+            flex: 1;
+            height: 56px;
+            background: linear-gradient(135deg, #B87333 0%, #FF6B35 100%);
+            border: none;
+            border-radius: 16px;
+            color: #F5F0EB;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .primary-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(184, 115, 51, 0.3);
+        }
+
+        .annotation {
+            position: absolute;
+            background: #2B9AEB;
+            color: #F5F0EB;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            max-width: 200px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .annotation::after {
+            content: '';
+            position: absolute;
+            left: 20px;
+            bottom: -6px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #2B9AEB;
+        }
+    </style>
+</head>
+<body>
+    <div class="device-frame">
+        <!-- Backdrop -->
+        <div class="backdrop"></div>
+
+        <!-- Dialog -->
+        <div class="dialog">
+            <div class="dialog-handle"></div>
+
+            <div class="dialog-icon">💾</div>
+            <div class="dialog-title">Not Enough Storage</div>
+            <div class="dialog-message">
+                This region requires more space than is currently available on your device.
+            </div>
+
+            <!-- Storage Breakdown -->
+            <div class="storage-breakdown" style="position: relative;">
+                <div class="storage-row">
+                    <span class="storage-label">Required space</span>
+                    <span class="storage-value danger">380 MB</span>
+                </div>
+                <div class="storage-row">
+                    <span class="storage-label">Available space</span>
+                    <span class="storage-value warning">245 MB</span>
+                </div>
+                <div class="storage-row">
+                    <span class="storage-label">Additional space needed</span>
+                    <span class="storage-value danger">135 MB</span>
+                </div>
+                <div class="annotation" style="right: -220px; top: 50%; transform: translateY(-50%);">UC-OFF-05: Pre-download validation with clear math</div>
+            </div>
+
+            <!-- Suggestion -->
+            <div class="suggestion-box">
+                <span class="suggestion-icon">💡</span>
+                <span class="suggestion-text">Try deleting old offline regions or clearing app cache to free up space.</span>
+            </div>
+
+            <!-- Buttons -->
+            <div class="button-group">
+                <button class="secondary-button">Cancel</button>
+                <button class="primary-button" style="position: relative;">
+                    Manage Storage
+                    <div class="annotation" style="bottom: 100%; right: 0; margin-bottom: 8px;">Navigates to offline regions list</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Storage Warning Dialog - UC-OFF-05');
+            console.log('');
+            console.log('KEY INTERACTIONS:');
+            console.log('- Modal bottom sheet with backdrop blur');
+            console.log('- Clear breakdown: required vs available vs needed');
+            console.log('- Suggests deleting old regions to free space');
+            console.log('- Cancel button dismisses dialog');
+            console.log('- Manage Storage button navigates to regions list');
+            console.log('- System cleans up partial downloads on failure');
+        });
+    </script>
+</body>
+</html>

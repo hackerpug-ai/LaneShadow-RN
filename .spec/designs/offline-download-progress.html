@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaneShadow - Download Progress</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1B1715;
+            color: #F5F0EB;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .device-frame {
+            width: 375px;
+            height: 812px;
+            background: linear-gradient(180deg, #1B1715 0%, #2B2725 100%);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 8px solid #1A1C1F;
+        }
+
+        .status-bar {
+            height: 44px;
+            padding: 12px 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .subpage-header {
+            padding: 16px 20px;
+            background: linear-gradient(180deg, rgba(184, 115, 51, 0.15) 0%, transparent 100%);
+            border-bottom: 1px solid rgba(184, 115, 51, 0.3);
+        }
+
+        .header-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-button {
+            width: 40px;
+            height: 40px;
+            background: rgba(184, 115, 51, 0.2);
+            border: 1px solid rgba(184, 115, 51, 0.3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .back-button:hover {
+            background: rgba(184, 115, 51, 0.3);
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #F5F0EB;
+        }
+
+        .content {
+            padding: 32px 24px;
+            height: calc(100% - 44px - 73px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .progress-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .region-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            position: relative;
+        }
+
+        .progress-ring {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-bg {
+            fill: none;
+            stroke: rgba(184, 115, 51, 0.2);
+            stroke-width: 8;
+        }
+
+        .progress-ring-circle {
+            fill: none;
+            stroke: url(#gradient);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.35s;
+        }
+
+        .progress-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .progress-percentage {
+            font-size: 36px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #B87333 0%, #FF6B35 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            color: #9CA3AF;
+            margin-top: 4px;
+        }
+
+        .region-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #F5F0EB;
+            margin-bottom: 8px;
+        }
+
+        .region-status {
+            font-size: 16px;
+            color: #9CA3AF;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: rgba(244, 240, 235, 0.03);
+            border: 1px solid rgba(244, 240, 235, 0.08);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #9CA3AF;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #F5F0EB;
+        }
+
+        .timeline-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .timeline-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .timeline-icon.active {
+            background: rgba(184, 115, 51, 0.2);
+            border: 2px solid #B87333;
+        }
+
+        .timeline-icon.done {
+            background: #31A362;
+        }
+
+        .timeline-icon.pending {
+            background: rgba(244, 240, 235, 0.1);
+            color: #9CA3AF;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #F5F0EB;
+            margin-bottom: 4px;
+        }
+
+        .timeline-description {
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+
+        .button-section {
+            padding-top: 24px;
+        }
+
+        .secondary-button {
+            width: 100%;
+            height: 48px;
+            background: transparent;
+            border: 1px solid rgba(244, 240, 235, 0.2);
+            border-radius: 12px;
+            color: #9CA3AF;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .secondary-button:hover {
+            background: rgba(244, 240, 235, 0.05);
+        }
+
+        .annotation {
+            position: absolute;
+            background: #2B9AEB;
+            color: #F5F0EB;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            max-width: 200px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .annotation::after {
+            content: '';
+            position: absolute;
+            left: 20px;
+            bottom: -6px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #2B9AEB;
+        }
+    </style>
+</head>
+<body>
+    <div class="device-frame">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>📶 📡 🔋</span>
+        </div>
+
+        <!-- Subpage Header -->
+        <div class="subpage-header">
+            <div class="header-row">
+                <div class="back-button">←</div>
+                <div class="header-title">Downloading Region</div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Progress Section -->
+            <div class="progress-section" style="position: relative;">
+                <div class="region-icon">
+                    <svg class="progress-ring" viewBox="0 0 120 120">
+                        <circle class="progress-ring-bg" cx="60" cy="60" r="52"/>
+                        <circle class="progress-ring-circle" cx="60" cy="60" r="52"
+                            style="stroke-dasharray: 326.73; stroke-dashoffset: 130.69;"/>
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#B87333" />
+                                <stop offset="100%" stop-color="#FF6B35" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="progress-center">
+                        <div class="progress-percentage">60%</div>
+                        <div class="progress-label">Complete</div>
+                    </div>
+                </div>
+                <div class="region-name">Bay Area</div>
+                <div class="region-status">Download in progress...</div>
+                <div class="annotation" style="top: -40px; left: 50%; transform: translateX(-50%);">UC-OFF-02: Real-time progress indicator</div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Downloaded</div>
+                    <div class="stat-value">147 MB</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Remaining</div>
+                    <div class="stat-value">98 MB</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Speed</div>
+                    <div class="stat-value">4.2 MB/s</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">ETA</div>
+                    <div class="stat-value">~23s</div>
+                </div>
+            </div>
+
+            <!-- Timeline Section -->
+            <div class="timeline-section">
+                <div class="timeline-item">
+                    <div class="timeline-icon done">✓</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Download started</div>
+                        <div class="timeline-description">Initializing download...</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon active">
+                        <div style="width: 12px; height: 12px; border: 2px solid #B87333; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Downloading map tiles</div>
+                        <div class="timeline-description">Fetching vector data...</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon pending">○</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Processing data</div>
+                        <div class="timeline-description">Optimizing for offline use...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Button Section -->
+            <div class="button-section">
+                <button class="secondary-button">Cancel Download</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Download Progress Screen - UC-OFF-02');
+            console.log('');
+            console.log('KEY INTERACTIONS:');
+            console.log('- Circular progress shows 0-100% completion');
+            console.log('- Stats update in real-time (downloaded, remaining, speed, ETA)');
+            console.log('- Timeline shows current stage');
+            console.log('- Progress bar updates smoothly (not jumpy)');
+            console.log('- Can background download and return to see progress');
+            console.log('- Cancel button shows confirmation dialog');
+        });
+    </script>
+</body>
+</html>

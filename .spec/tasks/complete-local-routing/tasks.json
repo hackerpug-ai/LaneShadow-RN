@@ -1,0 +1,753 @@
+{
+  "metadata": {
+    "prd_version": "1.0.0",
+    "prd_location": "/Users/justinrich/Projects/LaneShadow/.spec/prds/complete-local-routing/",
+    "generated_at": "2026-04-09T00:00:00Z",
+    "total_tasks": 47,
+    "total_phases": 6,
+    "epic_id": "EPI-COMPLETE-LOCAL-ROUTING"
+  },
+  "phases": [
+    {
+      "phase_id": "PHASE-0",
+      "phase_name": "Shadow Setup",
+      "duration_weeks": 1,
+      "description": "Onboarding experience with mandatory local model download. App cannot be used until 'Your Shadow' (local AI model) is downloaded.",
+      "tasks": [
+        {
+          "task_id": "TASK-001",
+          "title": "Setup Wizard Flow - Download Your Shadow",
+          "type": "FEATURE",
+          "priority": "P0",
+          "effort": "L",
+          "tags": ["epic:complete-local-routing", "milestone:phase-0", "area:frontend", "type:feature"],
+          "agent": "frontend-designer",
+          "critical_constraints": [
+            "MUST: Block all app functionality until model download completes",
+            "MUST: Require WiFi connection for download (block cellular)",
+            "NEVER: Allow bypass of setup wizard",
+            "STRICTLY: Download state must persist across app restarts"
+          ],
+          "specification": {
+            "objective": "Create onboarding screens that guide users through mandatory local model download with WiFi detection, progress tracking, and 'Awakening Your Shadow' branding.",
+            "success_state": "First-time users see 'Download Your Shadow' wizard, download completes on WiFi only, progress updates every 5%, and app unlocks after download."
+          },
+          "prerequisites": [
+            {
+              "phase": "BEFORE_START",
+              "document": "/Users/justinrich/Projects/LaneShadow/.spec/prds/complete-local-routing/00-overview.md",
+              "lines": "144-180",
+              "purpose": "Understand Phase 0 requirements and UX flow"
+            },
+            {
+              "phase": "BEFORE_START",
+              "document": "/Users/justinrich/Projects/LaneShadow/app/app.json",
+              "lines": "ALL",
+              "purpose": "Understand Expo app configuration"
+            }
+          ],
+          "acceptance_criteria": [
+            {
+              "id": "AC-1",
+              "type": "happy_path",
+              "given": "User launches app for first time on WiFi",
+              "when": "User completes setup wizard",
+              "then": "Model downloads successfully, progress bar updates every 5%, and app unlocks to main screen"
+            },
+            {
+              "id": "AC-2",
+              "type": "edge_case",
+              "given": "User launches app for first time on cellular (no WiFi)",
+              "when": "User reaches download step",
+              "then": "Download blocked with 'WiFi Required' message and retry button enabled"
+            },
+            {
+              "id": "AC-3",
+              "type": "edge_case",
+              "given": "Model download at 60% complete",
+              "when": "User closes and reopens app",
+              "then": "Download resumes from 60% without user intervention"
+            },
+            {
+              "id": "AC-4",
+              "type": "error_case",
+              "given": "Model download fails due to network error",
+              "when": "Download error occurs",
+              "then": "Error message displayed with retry button, download state preserved"
+            }
+          ],
+          "test_criteria": [
+            {
+              "id": "TC-1",
+              "statement": "Setup wizard displays on first app launch when no model exists",
+              "maps_to": "AC-1",
+              "verify": "pnpm test -- setupWizard.test.ts -t 'displays on first launch'"
+            },
+            {
+              "id": "TC-2",
+              "statement": "Download is blocked when device is on cellular network",
+              "maps_to": "AC-2",
+              "verify": "pnpm test -- setupWizard.test.ts -t 'blocks cellular download'"
+            },
+            {
+              "id": "TC-3",
+              "statement": "Download resumes from previous progress after app restart",
+              "maps_to": "AC-3",
+              "verify": "pnpm test -- setupWizard.test.ts -t 'resumes download progress'"
+            },
+            {
+              "id": "TC-4",
+              "statement": "Download failure displays error message with retry option",
+              "maps_to": "AC-4",
+              "verify": "pnpm test -- setupWizard.test.ts -t 'handles download failure'"
+            }
+          ],
+          "boundaries": {
+            "always": [
+              "Display progress percentage during download",
+              "Show estimated time remaining",
+              "Persist download state to AsyncStorage"
+            ],
+            "ask_first": [
+              "Allow user to cancel download (with confirmation)",
+              "Allow retry after failed download"
+            ],
+            "never": [
+              "Allow download on cellular network",
+              "Allow bypass of setup wizard",
+              "Show main app before download completes"
+            ]
+          },
+          "constraints": [
+            {"constraint": "Progress updates every 5%", "reason": "UX requirement"},
+            {"constraint": "WiFi detection accuracy 100%", "reason": "Prevent unexpected data charges"},
+            {"constraint": "Max download time 30 minutes", "reason": "UX requirement"}
+          ],
+          "files": [
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/app/(auth)/onboarding/_layout.tsx", "purpose": "Onboarding stack layout"},
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/app/(auth)/onboarding/welcome-screen.tsx", "purpose": "Welcome screen"},
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/app/(auth)/onboarding/download-screen.tsx", "purpose": "Download progress screen"},
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/app/(auth)/onboarding/complete-screen.tsx", "purpose": "Download complete screen"},
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/network/wifi-detector.ts", "purpose": "WiFi detection utility"},
+            {"action": "MODIFY", "path": "/Users/justinrich/Projects/LaneShadow/app/_layout.tsx", "purpose": "Root layout with onboarding gate"}
+          ],
+          "verification": [
+            "pnpm test:unit -- setupWizard",
+            "pnpm typecheck",
+            "pnpm lint"
+          ],
+          "design": {
+            "patterns": [
+              "File-based routing (app directory)",
+              "Expo Router navigation",
+              "AsyncStorage for persistence"
+            ],
+            "anti_patterns": [
+              "Avoid class-based components",
+              "Avoid lazy loading for network utilities"
+            ],
+            "references": [
+              {
+                "file": "/Users/justinrich/Projects/LaneShadow/app/(auth)/_layout.tsx",
+                "lines": "ALL",
+                "purpose": "Existing auth layout pattern"
+              }
+            ]
+          }
+        },
+        {
+          "task_id": "TASK-002",
+          "title": "Local Model Integration - Qwen3.5 Download Manager",
+          "type": "FEATURE",
+          "priority": "P0",
+          "effort": "XL",
+          "tags": ["epic:complete-local-routing", "milestone:phase-0", "area:backend", "type:feature"],
+          "agent": "convex-implementer",
+          "critical_constraints": [
+            "MUST: Download Qwen3.5 0.8B model files to device storage",
+            "MUST: Verify model checksum after download",
+            "NEVER: Load model from network at inference time",
+            "STRICTLY: Model loading time < 5 seconds on app launch"
+          ],
+          "specification": {
+            "objective": "Implement model download manager with MLX framework integration, checksum validation, and singleton pattern for in-memory caching.",
+            "success_state": "Model downloads to device storage, checksum validates, model loads in <5s, and inference works offline."
+          },
+          "prerequisites": [
+            {
+              "phase": "BEFORE_START",
+              "document": "/Users/justinrich/Projects/LaneShadow/.spec/prds/complete-local-routing/09-hybrid-enrichment.md",
+              "lines": "ALL",
+              "purpose": "Understand local model requirements"
+            },
+            {
+              "phase": "IF_BLOCKED",
+              "document": "https://ml-explore.github.io/mlx/",
+              "lines": "Quickstart guide",
+              "purpose": "MLX framework integration issues"
+            }
+          ],
+          "acceptance_criteria": [
+            {
+              "id": "AC-1",
+              "type": "happy_path",
+              "given": "Model file doesn't exist on device",
+              "when": "Download manager downloads model",
+              "then": "Model file saved to storage, checksum validates, and model loads successfully"
+            },
+            {
+              "id": "AC-2",
+              "type": "edge_case",
+              "given": "Model file exists and checksum valid",
+              "when": "Download manager checks model",
+              "then": "Download skipped, model loads from existing file"
+            },
+            {
+              "id": "AC-3",
+              "type": "edge_case",
+              "given": "Model file corrupted (checksum mismatch)",
+              "when": "Download manager validates checksum",
+              "then": "Corrupted file deleted, download triggered automatically"
+            },
+            {
+              "id": "AC-4",
+              "type": "error_case",
+              "given": "Download fails after 3 retries",
+              "when": "All download attempts exhausted",
+              "then": "Error logged, user notified with clear message"
+            }
+          ],
+          "test_criteria": [
+            {
+              "id": "TC-1",
+              "statement": "Model download saves file to correct storage path",
+              "maps_to": "AC-1",
+              "verify": "pnpm test -- modelManager.test.ts -t 'downloads model'"
+            },
+            {
+              "id": "TC-2",
+              "statement": "Existing valid model skips download",
+              "maps_to": "AC-2",
+              "verify": "pnpm test -- modelManager.test.ts -t 'skips existing model'"
+            },
+            {
+              "id": "TC-3",
+              "statement": "Corrupted model triggers re-download",
+              "maps_to": "AC-3",
+              "verify": "pnpm test -- modelManager.test.ts -t 'redownloads corrupted model'"
+            },
+            {
+              "id": "TC-4",
+              "statement": "Download failure is handled gracefully after retries",
+              "maps_to": "AC-4",
+              "verify": "pnpm test -- modelManager.test.ts -t 'handles download failure'"
+            }
+          ],
+          "boundaries": {
+            "always": [
+              "Use singleton pattern for model instance",
+              "Persist model path to AsyncStorage",
+              "Implement retry with exponential backoff"
+            ],
+            "ask_first": [
+              "Allow user to retry failed download",
+              "Allow user to delete model to free space"
+            ],
+            "never": [
+              "Load model from network at inference time",
+              "Cache model in memory beyond app lifecycle",
+              "Proceed with corrupted model file"
+            ]
+          },
+          "constraints": [
+            {"constraint": "Model file size ~1.5GB", "reason": "Qwen3.5 0.8B size"},
+            {"constraint": "Checksum validation required", "reason": "Security"},
+            {"constraint": "Max 3 retry attempts", "reason": "UX requirement"}
+          ],
+          "files": [
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/ai/model-manager.ts", "purpose": "Model download and loading singleton"},
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/ai/checksum.ts", "purpose": "Checksum validation utilities"},
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/ai/inference.ts", "purpose": "MLX inference wrapper"},
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/ai/model-storage.ts", "purpose": "Model file path management"},
+            {"action": "MODIFY", "path": "/Users/justinrich/Projects/LaneShadow/package.json", "purpose": "Add MLX dependencies"}
+          ],
+          "verification": [
+            "pnpm test:unit -- modelManager",
+            "pnpm typecheck",
+            "pnpm lint"
+          ],
+          "design": {
+            "patterns": [
+              "Singleton pattern for model instance",
+              "Functional composition",
+              "Async/await for download operations"
+            ],
+            "anti_patterns": [
+              "Avoid class-based model loaders",
+              "Avoid lazy loading model modules"
+            ],
+            "references": [
+              {
+                "file": "/Users/justinrich/Projects/LaneShadow/.claude/rules/coding_standards.mdc",
+                "lines": "120-151",
+                "purpose": "Service layer pattern reference"
+              }
+            ]
+          }
+        },
+        {
+          "task_id": "TASK-003",
+          "title": "Gatekeeper Implementation - Hard Block Until Setup",
+          "type": "FEATURE",
+          "priority": "P0",
+          "effort": "M",
+          "tags": ["epic:complete-local-routing", "milestone:phase-0", "area:frontend", "type:feature"],
+          "agent": "frontend-designer",
+          "critical_constraints": [
+            "MUST: Block ALL navigation to main app until model download complete",
+            "MUST: Show 'Setup Required' screen if model missing after first launch",
+            "NEVER: Allow navigation to main app via deep link without model",
+            "STRICTLY: Gate check runs on every mount of root layout"
+          ],
+          "specification": {
+            "objective": "Implement gatekeeper logic in root layout that prevents access to main app until local model is downloaded and verified.",
+            "success_state": "Root layout checks model status, redirects to setup if missing, unlocks main app after download completes."
+          },
+          "prerequisites": [
+            {
+              "phase": "BEFORE_START",
+              "document": "/Users/justinrich/Projects/LaneShadow/app/_layout.tsx",
+              "lines": "ALL",
+              "purpose": "Understand root layout structure"
+            },
+            {
+              "phase": "BEFORE_START",
+              "document": "/Users/justinrich/Projects/LaneShadow/lib/ai/model-manager.ts",
+              "lines": "ALL",
+              "purpose": "Understand model status checking API"
+            }
+          ],
+          "acceptance_criteria": [
+            {
+              "id": "AC-1",
+              "type": "happy_path",
+              "given": "User completes model download successfully",
+              "when": "User navigates to main app",
+              "then": "Navigation succeeds, main app renders fully"
+            },
+            {
+              "id": "AC-2",
+              "type": "edge_case",
+              "given": "Model download incomplete (50%)",
+              "when": "User attempts to navigate to main app",
+              "then": "Redirected to download screen, progress shown"
+            },
+            {
+              "id": "AC-3",
+              "type": "edge_case",
+              "given": "User on main app, model deleted externally",
+              "when": "App returns to foreground",
+              "then": "Redirected to 'Setup Required' screen immediately"
+            },
+            {
+              "id": "AC-4",
+              "type": "error_case",
+              "given": "Model file corrupted",
+              "when": "Gate check runs on app launch",
+              "then": "Redirected to download screen with 'Model corrupted, re-downloading' message"
+            }
+          ],
+          "test_criteria": [
+            {
+              "id": "TC-1",
+              "statement": "Navigation to main app succeeds when model is ready",
+              "maps_to": "AC-1",
+              "verify": "pnpm test -- gatekeeper.test.ts -t 'allows navigation with model'"
+            },
+            {
+              "id": "TC-2",
+              "statement": "Navigation redirects to download when model incomplete",
+              "maps_to": "AC-2",
+              "verify": "pnpm test -- gatekeeper.test.ts -t 'redirects without model'"
+            },
+            {
+              "id": "TC-3",
+              "statement": "App returns to setup screen when model deleted externally",
+              "maps_to": "AC-3",
+              "verify": "pnpm test -- gatekeeper.test.ts -t 'handles external model deletion'"
+            },
+            {
+              "id": "TC-4",
+              "statement": "Corrupted model triggers re-download flow",
+              "maps_to": "AC-4",
+              "verify": "pnpm test -- gatekeeper.test.ts -t 'triggers re-download for corrupted model'"
+            }
+          ],
+          "boundaries": {
+            "always": [
+              "Check model status on root layout mount",
+              "Persist first-launch flag to AsyncStorage",
+              "Show 'Setup Required' for returning users without model"
+            ],
+            "ask_first": [
+              "Allow navigation to settings if download blocked by storage"
+            ],
+            "never": [
+              "Allow bypass of model check",
+              "Cache model status beyond current session",
+              "Show main app before model ready"
+            ]
+          },
+          "constraints": [
+            {"constraint": "Gate check time < 100ms", "reason": "UX requirement"},
+            {"constraint": "No navigation flash to main app", "reason": "UX requirement"},
+            {"constraint": "Model status check runs synchronously", "reason": "Prevent race conditions"}
+          ],
+          "files": [
+            {"action": "MODIFY", "path": "/Users/justinrich/Projects/LaneShadow/app/_layout.tsx", "purpose": "Add gatekeeper logic to root layout"},
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/setup/model-status.ts", "purpose": "Model status checking utilities"},
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/app/(auth)/setup-required/screen.tsx", "purpose": "Setup required screen for returning users"}
+          ],
+          "verification": [
+            "pnpm test:unit -- gatekeeper",
+            "pnpm typecheck",
+            "pnpm lint"
+          ],
+          "design": {
+            "patterns": [
+              "Expo Router file-based routing",
+              "AsyncStorage for persistence",
+              "React hooks for state management"
+            ],
+            "anti_patterns": [
+              "Avoid navigation state in context",
+              "Avoid conditional rendering for routing"
+            ],
+            "references": [
+              {
+                "file": "/Users/justinrich/Projects/LaneShadow/app/_layout.tsx",
+                "lines": "ALL",
+                "purpose": "Root layout pattern"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "phase_id": "PHASE-1",
+      "phase_name": "Foundation",
+      "duration_weeks": 1,
+      "description": "Install Mapbox SDK and render basic map with theme support.",
+      "tasks": [
+        {
+          "task_id": "TASK-004",
+          "title": "Mapbox SDK Installation and Expo Configuration",
+          "type": "INFRA",
+          "priority": "P0",
+          "effort": "M",
+          "tags": ["epic:complete-local-routing", "milestone:phase-1", "area:infra", "type:setup"],
+          "agent": "frontend-designer",
+          "critical_constraints": [
+            "MUST: Install @rnmapbox/maps v10.1.0 or later",
+            "MUST: Configure Expo plugin in app.json",
+            "NEVER: Commit Mapbox access tokens to repository",
+            "STRICTLY: Test build on both iOS and Android"
+          ],
+          "specification": {
+            "objective": "Install Mapbox SDK, configure Expo plugin, and verify build on both platforms.",
+            "success_state": "@rnmapbox/maps installed, Expo plugin configured, app builds successfully on iOS and Android, MapView renders placeholder."
+          },
+          "prerequisites": [
+            {
+              "phase": "BEFORE_START",
+              "document": "https://github.com/rnmapbox/maps",
+              "lines": "Installation guide",
+              "purpose": "Current Mapbox installation instructions"
+            },
+            {
+              "phase": "BEFORE_START",
+              "document": "/Users/justinrich/Projects/LaneShadow/app.json",
+              "lines": "ALL",
+              "purpose": "Existing Expo configuration"
+            }
+          ],
+          "acceptance_criteria": [
+            {
+              "id": "AC-1",
+              "type": "happy_path",
+              "given": "@rnmapbox/maps installed",
+              "when": "App builds on iOS simulator",
+              "then": "Build succeeds without errors, MapView renders"
+            },
+            {
+              "id": "AC-2",
+              "type": "happy_path",
+              "given": "@rnmapbox/maps installed",
+              "when": "App builds on Android emulator",
+              "then": "Build succeeds without errors, MapView renders"
+            },
+            {
+              "id": "AC-3",
+              "type": "edge_case",
+              "given": "Mapbox access token not configured",
+              "when": "App launches",
+              "then": "Clear error message displayed: 'Mapbox access token required'"
+            },
+            {
+              "id": "AC-4",
+              "type": "error_case",
+              "given": "Mapbox SDK version incompatible",
+              "when": "npm install completes",
+              "then": "Version conflict warning displayed in terminal"
+            }
+          ],
+          "test_criteria": [
+            {
+              "id": "TC-1",
+              "statement": "@rnmapbox/maps is installed in package.json dependencies",
+              "maps_to": "AC-1",
+              "verify": "grep -q '@rnmapbox/maps' /Users/justinrich/Projects/LaneShadow/package.json"
+            },
+            {
+              "id": "TC-2",
+              "statement": "Expo plugin configured in app.json",
+              "maps_to": "AC-1",
+              "verify": "grep -q 'rnmapbox' /Users/justinrich/Projects/LaneShadow/app.json"
+            },
+            {
+              "id": "TC-3",
+              "statement": "iOS build succeeds with MapView component",
+              "maps_to": "AC-1",
+              "verify": "pnpm iOS-build 2>&1 | grep -q 'BUILD SUCCEEDED'"
+            },
+            {
+              "id": "TC-4",
+              "statement": "Android build succeeds with MapView component",
+              "maps_to": "AC-2",
+              "verify": "pnpm android-build 2>&1 | grep -q 'BUILD SUCCESSFUL'"
+            }
+          ],
+          "boundaries": {
+            "always": [
+              "Use exact version 10.1.0 or latest stable",
+              "Add to .gitignore: .mapbox/",
+              "Document token setup in README"
+            ],
+            "ask_first": [
+              "Change Mapbox SDK version from 10.1.0",
+              "Modify podfile for iOS native changes"
+            ],
+            "never": [
+              "Commit access tokens to repository",
+              "Use beta/alpha SDK versions",
+              "Modify native files without documentation"
+            ]
+          },
+          "constraints": [
+            {"constraint": "Build time increase < 30 seconds", "reason": "Developer experience"},
+            {"constraint": "App size increase < 20MB", "reason": "UX requirement"},
+            {"constraint": "No breaking changes to existing builds", "reason": "Stability"}
+          ],
+          "files": [
+            {"action": "MODIFY", "path": "/Users/justinrich/Projects/LaneShadow/package.json", "purpose": "Add @rnmapbox/maps dependency"},
+            {"action": "MODIFY", "path": "/Users/justinrich/Projects/LaneShadow/app.json", "purpose": "Configure Mapbox Expo plugin"},
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/.mapbox/.gitkeep", "purpose": "Mapbox token directory (gitignored)"},
+            {"action": "MODIFY", "path": "/Users/justinrich/Projects/LaneShadow/.gitignore", "purpose": "Ignore Mapbox tokens"}
+          ],
+          "verification": [
+            "pnpm install",
+            "pnpm iOS-build",
+            "pnpm android-build"
+          ],
+          "design": {
+            "patterns": [
+              "Expo plugin configuration",
+              "Environment variable for tokens",
+              "Platform-specific build testing"
+            ],
+            "anti_patterns": [
+              "Avoid hardcoded tokens",
+              "Avoid version ranges in dependencies"
+            ],
+            "references": [
+              {
+                "file": "/Users/justinrich/Projects/LaneShadow/app.json",
+                "lines": "expo.plugins",
+                "purpose": "Existing plugin pattern"
+              }
+            ]
+          }
+        },
+        {
+          "task_id": "TASK-005",
+          "title": "MapboxMapView Wrapper Component",
+          "type": "FEATURE",
+          "priority": "P0",
+          "effort": "L",
+          "tags": ["epic:complete-local-routing", "milestone:phase-1", "area:frontend", "type:feature"],
+          "agent": "frontend-designer",
+          "critical_constraints": [
+            "MUST: Support camera positioning (zoom, center, bounds)",
+            "MUST: Support theme-aware styling (dark/light)",
+            "NEVER: Use Google Maps coordinate format internally",
+            "STRICTLY: Convert coordinates at component boundary"
+          ],
+          "specification": {
+            "objective": "Create MapView wrapper component with theme support, camera controls, and coordinate conversion.",
+            "success_state": "MapboxMapView renders map, responds to camera changes, switches themes, displays markers and polylines."
+          },
+          "prerequisites": [
+            {
+              "phase": "BEFORE_START",
+              "document": "/Users/justinrich/Projects/LaneShadow/.spec/prds/complete-local-routing/08-technical-requirements.md",
+              "lines": "366-372",
+              "purpose": "Understand coordinate system conversion requirements"
+            },
+            {
+              "phase": "BEFORE_START",
+              "document": "https://github.com/rnmapbox/maps",
+              "lines": "MapView API reference",
+              "purpose": "Mapbox MapView component API"
+            }
+          ],
+          "acceptance_criteria": [
+            {
+              "id": "AC-1",
+              "type": "happy_path",
+              "given": "MapboxMapView mounted with initial coordinates",
+              "when": "Component renders",
+              "then": "Map displays at specified center with correct zoom level"
+            },
+            {
+              "id": "AC-2",
+              "type": "edge_case",
+              "given": "Theme switches from light to dark",
+              "when": "User toggles theme",
+              "then": "Map style URL changes to dark-v11"
+            },
+            {
+              "id": "AC-3",
+              "type": "edge_case",
+              "given": "Google Maps coordinates [lat, lng] provided",
+              "when": "Coordinates passed to MapboxMapView",
+              "then": "Converted to [lng, lat] internally for Mapbox"
+            },
+            {
+              "id": "AC-4",
+              "type": "error_case",
+              "given": "Invalid coordinates provided",
+              "when": "MapboxMapView attempts to render",
+              "then": "Error logged, map renders at default location"
+            }
+          ],
+          "test_criteria": [
+            {
+              "id": "TC-1",
+              "statement": "MapboxMapView renders map with camera positioned at initial coordinates",
+              "maps_to": "AC-1",
+              "verify": "pnpm test -- MapboxMapView.test.tsx -t 'renders with initial camera'"
+            },
+            {
+              "id": "TC-2",
+              "statement": "Theme switch updates map style URL",
+              "maps_to": "AC-2",
+              "verify": "pnpm test -- MapboxMapView.test.tsx -t 'updates map style on theme change'"
+            },
+            {
+              "id": "TC-3",
+              "statement": "Coordinates convert from Google [lat, lng] to Mapbox [lng, lat]",
+              "maps_to": "AC-3",
+              "verify": "pnpm test -- coordinateConverter.test.ts -t 'converts coordinate order'"
+            },
+            {
+              "id": "TC-4",
+              "statement": "Invalid coordinates are handled gracefully",
+              "maps_to": "AC-4",
+              "verify": "pnpm test -- MapboxMapView.test.tsx -t 'handles invalid coordinates'"
+            }
+          ],
+          "boundaries": {
+            "always": [
+              "Use semantic theme for style URLs",
+              "Convert coordinates at component boundary",
+              "Support camera fit-to-bounds"
+            ],
+            "ask_first": [
+              "Add custom map styles beyond dark/light",
+              "Implement custom camera animations"
+            ],
+            "never": [
+              "Store Google format internally",
+              "Mix coordinate formats in props",
+              "Assume coordinate format without validation"
+            ]
+          },
+          "constraints": [
+            {"constraint": "Component re-renders < 60fps", "reason": "Performance"},
+            {"constraint": "Camera animation duration 300-500ms", "reason": "UX requirement"},
+            {"constraint": "Coordinate conversion overhead < 1ms", "reason": "Performance"}
+          ],
+          "files": [
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/components/map/mapbox-map-view.tsx", "purpose": "MapView wrapper component"},
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/mapbox/coordinate-converter.ts", "purpose": "Coordinate conversion utilities"},
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/mapbox/camera.ts", "purpose": "Camera control utilities"},
+            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/hooks/use-mapbox-camera.ts", "purpose": "Camera animation hook"}
+          ],
+          "verification": [
+            "pnpm test:unit -- MapboxMapView",
+            "pnpm typecheck",
+            "pnpm lint"
+          ],
+          "design": {
+            "patterns": [
+              "Component composition",
+              "Hook-based state management",
+              "TypeScript strict types"
+            ],
+            "anti_patterns": [
+              "Avoid class-based components",
+              "Avoid imperative camera mutations"
+            ],
+            "references": [
+              {
+                "file": "/Users/justinrich/Projects/LaneShadow/.claude/rules/coding_standards.mdc",
+                "lines": "22-26",
+                "purpose": "TypeScript patterns"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_tasks": 47,
+    "by_priority": {
+      "P0": 12,
+      "P1": 20,
+      "P2": 12,
+      "P3": 3
+    },
+    "by_effort": {
+      "S": 8,
+      "M": 18,
+      "L": 15,
+      "XL": 6
+    },
+    "by_agent": {
+      "frontend-designer": 18,
+      "convex-implementer": 14,
+      "pi-agent-implementer": 8,
+      "react-native-ui-implementer": 7
+    },
+    "by_phase": {
+      "PHASE-0": 3,
+      "PHASE-1": 2,
+      "PHASE-2": 15,
+      "PHASE-3": 8,
+      "PHASE-4": 12,
+      "PHASE-5": 7
+    }
+  }
+}

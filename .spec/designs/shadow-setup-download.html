@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaneShadow - Download Your Shadow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1B1715;
+            color: #F5F0EB;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .device-frame {
+            width: 375px;
+            height: 812px;
+            background: linear-gradient(180deg, #1B1715 0%, #2B2725 100%);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 8px solid #1A1C1F;
+        }
+
+        .status-bar {
+            height: 44px;
+            padding: 12px 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 48px 32px;
+            height: calc(100% - 44px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .shadow-icon {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 32px;
+            position: relative;
+        }
+
+        .shadow-circle {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #B87333 0%, #FF6B35 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 72px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .shadow-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(184, 115, 51, 0.3) 0%, transparent 70%);
+            animation: glow 3s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes glow {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #B87333 0%, #FF6B35 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #9CA3AF;
+        }
+
+        .progress-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .progress-ring-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .progress-ring {
+            width: 200px;
+            height: 200px;
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .progress-center {
+            position: absolute;
+            text-align: center;
+        }
+
+        .progress-percentage {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #B87333 0%, #FF6B35 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            color: #9CA3AF;
+            margin-top: 4px;
+        }
+
+        .progress-details {
+            background: rgba(184, 115, 51, 0.1);
+            border: 1px solid rgba(184, 115, 51, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            color: #9CA3AF;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #F5F0EB;
+            font-weight: 600;
+        }
+
+        .status-message {
+            background: rgba(43, 154, 235, 0.1);
+            border: 1px solid rgba(43, 154, 235, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-icon {
+            font-size: 20px;
+        }
+
+        .status-text {
+            font-size: 14px;
+            color: #F5F0EB;
+        }
+
+        .button-section {
+            padding-top: 24px;
+        }
+
+        .secondary-button {
+            width: 100%;
+            height: 48px;
+            background: transparent;
+            border: 1px solid rgba(244, 240, 235, 0.2);
+            border-radius: 12px;
+            color: #9CA3AF;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .secondary-button:hover {
+            background: rgba(244, 240, 235, 0.05);
+            border-color: rgba(244, 240, 235, 0.3);
+        }
+
+        .annotation {
+            position: absolute;
+            background: #2B9AEB;
+            color: #F5F0EB;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            max-width: 200px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .annotation::after {
+            content: '';
+            position: absolute;
+            left: 20px;
+            bottom: -6px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #2B9AEB;
+        }
+    </style>
+</head>
+<body>
+    <div class="device-frame">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>📶 📡 🔋</span>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <div class="shadow-icon">
+                    <div class="shadow-glow"></div>
+                    <div class="shadow-circle">🤖</div>
+                </div>
+                <div class="title">Awakening Your Shadow</div>
+                <div class="subtitle">Downloading your AI riding companion</div>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section">
+                <div class="progress-ring-container" style="position: relative;">
+                    <svg class="progress-ring">
+                        <circle
+                            class="progress-ring-circle-bg"
+                            stroke="rgba(184, 115, 51, 0.2)"
+                            stroke-width="8"
+                            fill="transparent"
+                            r="90"
+                            cx="100"
+                            cy="100"
+                        />
+                        <circle
+                            class="progress-ring-circle"
+                            stroke="url(#gradient)"
+                            stroke-width="8"
+                            stroke-linecap="round"
+                            fill="transparent"
+                            r="90"
+                            cx="100"
+                            cy="100"
+                            style="stroke-dasharray: 565.48; stroke-dashoffset: 339.29;"
+                        />
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#B87333" />
+                                <stop offset="100%" stop-color="#FF6B35" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="progress-center">
+                        <div class="progress-percentage">40%</div>
+                        <div class="progress-label">Downloaded</div>
+                    </div>
+                    <div class="annotation" style="bottom: -60px; left: 50%; transform: translateX(-50%);">Circular progress - updates every 5%</div>
+                </div>
+
+                <div class="progress-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Downloaded</span>
+                        <span class="detail-value">320 MB / 800 MB</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Time remaining</span>
+                        <span class="detail-value">~2 minutes</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Download speed</span>
+                        <span class="detail-value">4.2 MB/s</span>
+                    </div>
+                </div>
+
+                <div class="status-message">
+                    <span class="status-icon">ℹ️</span>
+                    <span class="status-text">You can leave this screen. Download will continue in the background.</span>
+                </div>
+            </div>
+
+            <!-- Button Section -->
+            <div class="button-section">
+                <button class="secondary-button">Cancel Download</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Download Progress Screen - Phase 0 Onboarding');
+            console.log('Previous: shadow-setup-wifi.html');
+            console.log('Next: shadow-setup-complete.html (at 100%)');
+            console.log('');
+            console.log('KEY INTERACTIONS:');
+            console.log('- Progress updates every 5% (not every byte - too expensive)');
+            console.log('- Background download continues if user navigates away');
+            console.log('- Download resumes if app is killed (state persisted)');
+            console.log('- Cancel shows confirmation dialog');
+        });
+    </script>
+</body>
+</html>

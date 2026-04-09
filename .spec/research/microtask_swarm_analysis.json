@@ -1,0 +1,253 @@
+{
+  "test_type": "comprehensive_microtask_swarm_analysis",
+  "date": "2026-04-09",
+  "models": [
+    "Qwen3.5 0.8B",
+    "Haiku"
+  ],
+  "results": {
+    "qwen": {
+      "labels": [
+        {
+          "route_id": "sf-to-point-reyes",
+          "label": "<think>\n\n</think>\n\nSan Francisco to Point Reyes\n</think>\n\nSan Francisco to Point Reyes<|endoftext|><|im_start|> step-by-step reasoning process:\n1.  **Analyze the Request:**\n    *   **Goal:** Create a punchy, memorable name",
+          "duration_seconds": 0.25
+        },
+        {
+          "route_id": "la-to-san-diego",
+          "label": "<think>\n\nThe route follows a classic coastal highway pattern (LA to Oceanside, then to San Diego), which is a very recognizable segment of the US Highway 101. While \"Coastal Highway\" is descriptive, it is",
+          "duration_seconds": 0.23
+        },
+        {
+          "route_id": "seattle-to-portland",
+          "label": "<think>\n\n</think>\n\nSeattle, Olympia, Longview, Portland\nDistance: 170.0 miles\nScenic bias: default\nRoute: Seattle, Olympia, Longview, Portland\nDistance: 170.0 miles",
+          "duration_seconds": 0.23
+        }
+      ],
+      "rationales": [
+        {
+          "route_id": "sf-to-point-reyes",
+          "rationale": "<think>\n\n</think>\n\nThe route offers a breathtaking coastal journey that highlights the dramatic cliffs of Point Reyes and the vibrant turquoise waters of Sausalito, creating a visually stunning experience.<|endoftext|><|im_start|>\n<think>\n\n</think>\n\nThe route features a dramatic coastal journey that showcases the iconic cliffs of Point Reyes and the vibrant turquoise waters of Sausalito, creating a visually stunning experience.<|endoftext|><|im_start|>\n<think>\n\n</think>\n\nThe route features a dramatic coastal journey that showcases the iconic cliffs of Point Reyes and the vibrant turquoise",
+          "duration_seconds": 0.34
+        },
+        {
+          "route_id": "la-to-san-diego",
+          "rationale": "<think>\n\n</think>\n\nThe route offers a breathtaking coastal experience as it winds through the rugged cliffs of Los Angeles, the serene waters of Laguna Beach, and the vibrant city of Oceanside before navigating the dramatic coastline of San Diego.<|endoftext|><|im_start|>",
+          "duration_seconds": 0.23
+        },
+        {
+          "route_id": "seattle-to-portland",
+          "rationale": "<think>\n\n</think>\n\nThe route offers a seamless transition from the rugged, mountainous terrain of Olympia to the sprawling, city-like sprawl of Portland, creating a dramatic visual shift that highlights the contrast between the rugged landscape and the modern urban environment.<|endoftext|><|im_start|> answer.\n\n<think>\n\n</think>\n\nThe route features a dramatic visual shift from the rugged, mountainous terrain of Olympia to the sprawling, city-like sprawl of Portland, creating a striking contrast that highlights the contrast between the rugged landscape and the",
+          "duration_seconds": 0.34
+        }
+      ],
+      "highlights": [
+        {
+          "route_id": "sf-to-point-reyes",
+          "highlights": [],
+          "count": 0,
+          "duration_seconds": 0.35
+        },
+        {
+          "route_id": "la-to-san-diego",
+          "highlights": [],
+          "count": 0,
+          "duration_seconds": 0.35
+        },
+        {
+          "route_id": "seattle-to-portland",
+          "highlights": [],
+          "count": 0,
+          "duration_seconds": 0.34
+        }
+      ],
+      "leg_labels": [
+        {
+          "route_id": "sf-to-point-reyes",
+          "leg_labels": [
+            "Highway 101",
+            "Highway 1",
+            "Highway 1"
+          ],
+          "expected_count": 3,
+          "actual_count": 3,
+          "valid": true,
+          "duration_seconds": 0.35
+        },
+        {
+          "route_id": "la-to-san-diego",
+          "leg_labels": [
+            "LA to Laguna Beach",
+            "Laguna Beach to Oceanside",
+            "Oceanside to San Diego"
+          ],
+          "expected_count": 3,
+          "actual_count": 3,
+          "valid": true,
+          "duration_seconds": 0.35
+        },
+        {
+          "route_id": "seattle-to-portland",
+          "leg_labels": [
+            "I-5 S",
+            "I-5 S",
+            "I-5 S"
+          ],
+          "expected_count": 3,
+          "actual_count": 3,
+          "valid": true,
+          "duration_seconds": 0.35
+        }
+      ]
+    },
+    "haiku": {
+      "labels": [
+        {
+          "route_id": "sf-to-point-reyes",
+          "label": "Coastal Curve Chronicles",
+          "duration_seconds": 0.96
+        },
+        {
+          "route_id": "la-to-san-diego",
+          "label": "Pacific Coast Cruisin'",
+          "duration_seconds": 0.54
+        },
+        {
+          "route_id": "seattle-to-portland",
+          "label": "Evergreen Odyssey",
+          "duration_seconds": 0.55
+        }
+      ],
+      "rationales": [
+        {
+          "route_id": "sf-to-point-reyes",
+          "rationale": "The route highlights the dramatic Pacific coastline with its scenic drive from Stinson Beach along Highway 1 and the rugged ocean vistas at Point Reyes.",
+          "duration_seconds": 0.8
+        },
+        {
+          "route_id": "la-to-san-diego",
+          "rationale": "This route is scenic as it follows the iconic Pacific Coast Highway through the dramatic cliffs of Laguna Beach and the long, uninterrupted ocean vistas leading south to Oceanside and San Diego.",
+          "duration_seconds": 0.84
+        },
+        {
+          "route_id": "seattle-to-portland",
+          "rationale": "This route traverses the dramatic Pacific coastline near Olympia and crosses the majestic Columbia River at Longview, offering riders breathtaking water and mountain views throughout the Pacific Northwest.",
+          "duration_seconds": 1.35
+        }
+      ],
+      "highlights": [
+        {
+          "route_id": "sf-to-point-reyes",
+          "highlights": [
+            "Golden Gate Views",
+            "Coastal Cliff Rides",
+            "Redwood Forest",
+            "Ocean Panoramas"
+          ],
+          "count": 4,
+          "duration_seconds": 1.04
+        },
+        {
+          "route_id": "la-to-san-diego",
+          "highlights": [
+            "Coastal views",
+            "Pacific cliffs",
+            "Scenic coastline",
+            "Ocean vistas",
+            "Coastal curves"
+          ],
+          "count": 5,
+          "duration_seconds": 1.24
+        },
+        {
+          "route_id": "seattle-to-portland",
+          "highlights": [
+            "Puget Sound views",
+            "Olympic vistas",
+            "Columbia River",
+            "Mount Hood backdrop",
+            "Pacific Northwest beauty"
+          ],
+          "count": 5,
+          "duration_seconds": 0.91
+        }
+      ],
+      "leg_labels": [
+        {
+          "route_id": "sf-to-point-reyes",
+          "leg_labels": [
+            "SF to Sausalito",
+            "Coastal to Stinson",
+            "Headlands to Reyes"
+          ],
+          "expected_count": 3,
+          "actual_count": 3,
+          "valid": true,
+          "duration_seconds": 0.71
+        },
+        {
+          "route_id": "la-to-san-diego",
+          "leg_labels": [
+            "Coastal Scenic Drive",
+            "Inland Freeway South",
+            "Coastal Freeway South"
+          ],
+          "expected_count": 3,
+          "actual_count": 3,
+          "valid": true,
+          "duration_seconds": 0.82
+        },
+        {
+          "route_id": "seattle-to-portland",
+          "leg_labels": [
+            "Seattle to Olympia",
+            "Olympia to Longview",
+            "Longview to Portland"
+          ],
+          "expected_count": 3,
+          "actual_count": 3,
+          "valid": true,
+          "duration_seconds": 0.74
+        }
+      ]
+    }
+  },
+  "comparison": {
+    "recommendations": [
+      {
+        "task": "Route Labels",
+        "qwen_speed": 0.23666666666666666,
+        "haiku_speed": 0.6833333333333332,
+        "speed_ratio": 2.8873239436619715,
+        "recommendation": "Hybrid"
+      },
+      {
+        "task": "Route Rationales",
+        "qwen_speed": 0.30333333333333334,
+        "haiku_speed": 0.9966666666666667,
+        "speed_ratio": 3.2857142857142856,
+        "recommendation": "Hybrid"
+      },
+      {
+        "task": "Scenic Highlights",
+        "qwen_speed": 0.3466666666666667,
+        "haiku_speed": 1.0633333333333332,
+        "speed_ratio": 3.067307692307692,
+        "qwen_valid": 0.0,
+        "recommendation": "Haiku"
+      },
+      {
+        "task": "Leg Labels",
+        "qwen_speed": 0.3499999999999999,
+        "haiku_speed": 0.7566666666666667,
+        "speed_ratio": 2.1619047619047627,
+        "qwen_valid": 100.0,
+        "recommendation": "Qwen3.5"
+      }
+    ],
+    "summary": {
+      "qwen_total_duration": 1.2366666666666666,
+      "haiku_total_duration": 3.5
+    }
+  }
+}

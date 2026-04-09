@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaneShadow - Progressive Enrichment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1B1715;
+            color: #F5F0EB;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .device-frame {
+            width: 375px;
+            height: 812px;
+            background: linear-gradient(180deg, #1B1715 0%, #2B2725 100%);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 8px solid #1A1C1F;
+        }
+
+        .status-bar {
+            height: 44px;
+            padding: 12px 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .content {
+            height: calc(100% - 44px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .map-section {
+            flex: 1;
+            position: relative;
+            background: #24272B;
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1A1C1F 0%, #24272B 100%);
+        }
+
+        .route-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .enrichment-banner {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            right: 16px;
+            background: rgba(43, 154, 235, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(43, 154, 235, 0.4);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .enrichment-icon {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #F5F0EB;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .enrichment-text {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+            color: #F5F0EB;
+        }
+
+        .enrichment-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(244, 240, 235, 0.3);
+            border-top-color: #F5F0EB;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .route-card {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            background: rgba(27, 23, 21, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(184, 115, 51, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .route-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .route-title {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #B87333 0%, #FF6B35 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .enrichment-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(155, 107, 47, 0.15);
+            border: 1px solid rgba(155, 107, 47, 0.3);
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #D98E04;
+        }
+
+        .enrichment-status.complete {
+            background: rgba(49, 163, 98, 0.15);
+            border-color: rgba(49, 163, 98, 0.3);
+            color: #31A362;
+        }
+
+        .route-stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #9CA3AF;
+        }
+
+        .stat-icon {
+            font-size: 16px;
+        }
+
+        .progress-section {
+            margin-bottom: 16px;
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: #9CA3AF;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(244, 240, 235, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #B87333 0%, #FF6B35 100%);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .enrichment-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .enrichment-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(244, 240, 235, 0.03);
+            border-radius: 8px;
+        }
+
+        .item-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .item-icon.done {
+            background: #31A362;
+            color: #F5F0EB;
+        }
+
+        .item-icon.pending {
+            background: rgba(244, 240, 235, 0.1);
+            color: #9CA3AF;
+        }
+
+        .item-icon.loading {
+            background: rgba(184, 115, 51, 0.2);
+            border: 1px solid rgba(184, 115, 51, 0.4);
+            color: #B87333;
+        }
+
+        .item-text {
+            flex: 1;
+            font-size: 13px;
+            color: #F5F0EB;
+        }
+
+        .item-text.loading {
+            color: #9CA3AF;
+        }
+
+        .item-time {
+            font-size: 11px;
+            color: #9CA3AF;
+        }
+
+        .annotation {
+            position: absolute;
+            background: #2B9AEB;
+            color: #F5F0EB;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            max-width: 200px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .annotation::after {
+            content: '';
+            position: absolute;
+            left: 20px;
+            bottom: -6px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #2B9AEB;
+        }
+    </style>
+</head>
+<body>
+    <div class="device-frame">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>📶 📡 🔋</span>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Map Section -->
+            <div class="map-section">
+                <div class="map-placeholder">
+                    <svg class="route-line" viewBox="0 0 100 100">
+                        <path d="M 20 80 Q 30 40 50 50 T 80 20" stroke="#B87333" stroke-width="3" fill="none"/>
+                    </svg>
+                    <div style="font-size: 48px; opacity: 0.3;">🗺️</div>
+                </div>
+
+                <!-- Progressive Enhancement Banner -->
+                <div class="enrichment-banner" style="position: relative;">
+                    <div class="enrichment-icon">⚡</div>
+                    <div class="enrichment-text">Enhancing your route...</div>
+                    <div class="enrichment-spinner"></div>
+                    <div class="annotation" style="top: 100%; left: 0; margin-top: 8px;">UC-OFF-08: Progressive enhancement toast</div>
+                </div>
+
+                <!-- Route Card -->
+                <div class="route-card" style="position: relative;">
+                    <div class="route-header">
+                        <div class="route-title">Coastal Escape</div>
+                        <div class="enrichment-status">Partial</div>
+                    </div>
+
+                    <div class="route-stats">
+                        <div class="stat">
+                            <span class="stat-icon">📍</span>
+                            <span>78 mi</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-icon">⏱️</span>
+                            <span>2h 15m</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-icon">⛅</span>
+                            <span>72°F</span>
+                        </div>
+                    </div>
+
+                    <div class="progress-section">
+                        <div class="progress-label">
+                            <span>Enrichment progress</span>
+                            <span>66%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 66%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="enrichment-items">
+                        <div class="enrichment-item">
+                            <div class="item-icon done">✓</div>
+                            <div class="item-text">Leg labels generated</div>
+                            <div class="item-time">0.35s</div>
+                        </div>
+                        <div class="enrichment-item">
+                            <div class="item-icon done">✓</div>
+                            <div class="item-text">Creative route name</div>
+                            <div class="item-time">1.2s</div>
+                        </div>
+                        <div class="enrichment-item">
+                            <div class="item-icon loading">
+                                <div style="width: 10px; height: 10px; border: 2px solid #B87333; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                            </div>
+                            <div class="item-text loading">Scenic rationale</div>
+                            <div class="item-time">2.5s...</div>
+                        </div>
+                        <div class="enrichment-item">
+                            <div class="item-icon pending">○</div>
+                            <div class="item-text">Highlight tags</div>
+                            <div class="item-time">~3.9s</div>
+                        </div>
+                    </div>
+
+                    <div class="annotation" style="right: -220px; top: 50%; transform: translateY(-50%);">Incremental UI updates - each component appears when ready</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Progressive Enrichment UI - UC-OFF-08');
+            console.log('');
+            console.log('KEY INTERACTIONS:');
+            console.log('- Route displays immediately with leg labels (0.35s)');
+            console.log('- Creative name appears when ready (1.2s)');
+            console.log('- Rationale appears when ready (2.5s)');
+            console.log('- Highlight tags appear when ready (3.9s)');
+            console.log('- Status badge updates: partial → complete');
+            console.log('- User can continue using app during enrichment');
+            console.log('- Toast dismisses automatically when complete');
+            console.log('');
+            console.log('ENRICHMENT STAGES:');
+            console.log('0.0s: Route geometry + leg labels (Qwen3.5 local)');
+            console.log('1.2s: Creative label appears (Haiku)');
+            console.log('2.5s: Rationale appears (Haiku)');
+            console.log('3.9s: Highlight tags appear (Haiku)');
+            console.log('✓ Complete');
+        });
+    </script>
+</body>
+</html>

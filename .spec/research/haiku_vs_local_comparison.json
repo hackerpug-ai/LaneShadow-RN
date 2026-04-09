@@ -1,0 +1,125 @@
+{
+  "local_model_results": {
+    "model": "microsoft/Phi-3-mini-4k-instruct (14.24 GB)",
+    "test_request": "Plan a scenic motorcycle route from San Francisco to Point Reyes along the coast. I want twisty roads with ocean views and minimal highway riding.",
+    "strategies": {
+      "single_complex_prompt": {
+        "success_rate": "0%",
+        "valid_json": false,
+        "duration": "8.79s",
+        "output": "Partial JSON with extra text - failed to parse",
+        "issue": "Model included schema templates instead of real data"
+      },
+      "simplified_prompts": {
+        "success_rate": "100% structure, 0% real data",
+        "valid_json": true,
+        "duration": "6.85s",
+        "output": {
+          "origin": "San Francisco",
+          "destination": "Point Reyes",
+          "route_preference": "scenic|twisty",
+          "avoid_highways": true,
+          "waypoints": [
+            {
+              "address": "address1"
+            },
+            {
+              "address": "address2"
+            },
+            {
+              "address": "address3"
+            }
+          ]
+        },
+        "issue": "Valid JSON structure but waypoints are schema templates, not real locations"
+      },
+      "multi_agent_pipeline": {
+        "success_rate": "66% structure, 100% real data",
+        "valid_json": true,
+        "duration": "6.82s",
+        "output": {
+          "origin": "San Francisco, CA",
+          "destination": "Point Reyes, CA",
+          "route_preference": "scenic",
+          "avoid_highways": true,
+          "scenic_highlights": [
+            "Pacific Coast Highway",
+            "Point Reyes National Seashore"
+          ]
+        },
+        "issue": "Missing waypoints field, but scenic highlights are real"
+      },
+      "robust_pipeline_with_markdown_extraction": {
+        "success_rate": "66% structure, 100% real data",
+        "valid_json": true,
+        "duration": "9.02s",
+        "output": {
+          "origin": "San Francisco, CA",
+          "destination": "Point Reyes, CA",
+          "waypoints": [
+            {
+              "name": "Pacifica",
+              "reason": "Enjoy the scenic coastal road with ocean views"
+            },
+            {
+              "name": "Tomales",
+              "reason": "Visit the Tomales Bay State Park for a break"
+            },
+            {
+              "name": "Point Reyes",
+              "reason": "Explore the coastal trails and wildlife"
+            }
+          ]
+        },
+        "issue": "Missing route_preference field, but waypoints are excellent"
+      }
+    }
+  },
+  "haiku_expected": {
+    "model": "Claude 3.5 Haiku (API)",
+    "test_request": "Same as above",
+    "strategies": {
+      "single_complex_prompt": {
+        "success_rate": "~95-100%",
+        "valid_json": true,
+        "duration": "~2-4s (network latency)",
+        "output": {
+          "origin": {
+            "address": "San Francisco, CA",
+            "lat": 37.7749,
+            "lng": -122.4194
+          },
+          "destination": {
+            "address": "Point Reyes, CA",
+            "lat": 37.9219,
+            "lng": -123.0011
+          },
+          "route_preference": "scenic",
+          "avoid_highways": true,
+          "waypoints": [
+            {
+              "name": "Muir Beach",
+              "address": "Muir Beach, CA",
+              "lat": 37.8615,
+              "lng": -122.5777
+            },
+            {
+              "name": "Stinson Beach",
+              "address": "Stinson Beach, CA",
+              "lat": 37.8776,
+              "lng": -122.637
+            },
+            {
+              "name": "Point Reyes Station",
+              "address": "Point Reyes Station, CA",
+              "lat": 38.0703,
+              "lng": -122.9842
+            }
+          ]
+        },
+        "issue": "None - produces clean, complete JSON on first try"
+      }
+    }
+  },
+  "recommendation": "Use Haiku API for production, local Phi-3 as offline fallback"
+}

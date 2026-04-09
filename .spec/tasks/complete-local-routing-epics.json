@@ -1,0 +1,1211 @@
+{
+  "epics": [
+    {
+      "sequence": 1,
+      "title": "Epic 1: Shadow Setup",
+      "theme": "Download Your Shadow - Setup wizard with mandatory local AI model download gatekeeper. User completes onboarding flow with WiFi detection, progress tracking, and model verification before accessing the app.",
+      "acceptance_criteria": [
+        "WHO can ACTION CONTEXT",
+        "User can view welcome screen with 'Download Your Shadow' branding on app first launch",
+        "System validates WiFi connection and blocks cellular downloads before model download",
+        "User can view progress bar updating every 5% during model download",
+        "User can view estimated time remaining during download",
+        "System resumes download after app restart or interruption",
+        "System validates model checksum after download completion",
+        "System prevents app usage until model download completes successfully",
+        "User can view 'Your Shadow is Ready' confirmation screen after successful download",
+        "System handles download failures with retry UX and exponential backoff"
+      ],
+      "prd_sections_covered": ["00-overview", "02-roles", "08-technical-requirements"],
+      "human_test_steps": [
+        "Launch app for first time",
+        "View 'Welcome to LaneShadow' screen",
+        "Connect to WiFi (cellular blocked)",
+        "Watch 'Awakening Your Shadow' progress (0-100%)",
+        "See 'Your Shadow is Ready' confirmation",
+        "Access main app"
+      ],
+      "human_review_deliverable": "User completes onboarding and downloads local AI model before accessing app. App blocks all features until model download succeeds on WiFi.",
+      "blocks_epics": [2, 3, 4, 5, 6, 7, 8],
+      "tasks": [
+        {
+          "title": "CLR-001: Setup Wizard Flow Implementation",
+          "task_type": "DESIGN",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Translate 4 HTML mockups to React Native (welcome, wifi, download, complete)",
+              "Implement WiFi detection and block cellular downloads",
+              "Implement progress tracking with 5% updates",
+              "Handle app state changes (background/foreground)",
+              "Use BottomSheetInput for all text inputs per CLAUDE.md guidelines"
+            ],
+            "never": [
+              "Allow model download on cellular connection",
+              "Let user bypass setup wizard without completing download"
+            ],
+            "strictly": [
+              "Download MUST only work on WiFi",
+              "Progress MUST update every 5%",
+              "App MUST block usage until model verified"
+            ]
+          },
+          "specification": {
+            "objective": "Build setup wizard onboarding flow with WiFi detection, progress tracking, and download state persistence",
+            "success_state": "User completes 4-step setup wizard (welcome → wifi check → download → complete) with model downloaded and verified, app unlocked for use"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "User launches app for first time",
+              "when": "Onboarding flow initiates",
+              "then": "Welcome screen displays with 'Download Your Shadow' branding",
+              "verify": "await expect(page.getByText('Download Your Shadow')).toBeVisible()"
+            },
+            {
+              "num": 2,
+              "given": "User proceeds from welcome screen",
+              "when": "WiFi detection runs",
+              "then": "System validates WiFi connection and blocks cellular downloads",
+              "verify": "await expect(page.getByText('WiFi required. Cellular downloads disabled.')).toBeVisible()"
+            },
+            {
+              "num": 3,
+              "given": "User has WiFi connection",
+              "when": "Model download starts",
+              "then": "Progress bar updates every 5% with estimated time remaining",
+              "verify": "await expect(page.getByTestId('download-progress')).toHaveAttribute('aria-valuenow', /[5-9]|[0-9]{2,}/)"
+            },
+            {
+              "num": 4,
+              "given": "Download in progress",
+              "when": "App goes to background or restarts",
+              "then": "Download resumes automatically from last progress point",
+              "verify": "await expect(page.getByText('Resuming download...')).toBeVisible()"
+            },
+            {
+              "num": 5,
+              "given": "Download completes",
+              "when": "Model verification runs",
+              "then": "Checksum validation passes and 'Your Shadow is Ready' screen displays",
+              "verify": "await expect(page.getByText('Your Shadow is Ready')).toBeVisible()"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "components/onboarding/shadow-setup-welcome.tsx (NEW)",
+              "components/onboarding/shadow-setup-wifi.tsx (NEW)",
+              "components/onboarding/shadow-setup-download.tsx (NEW)",
+              "components/onboarding/shadow-setup-complete.tsx (NEW)",
+              "lib/wifi-detector.ts (NEW)"
+            ],
+            "write_prohibited": [
+              "app.json - WiFi detection uses React Native NetInfo API",
+              "components/onboarding/** - existing onboarding components"
+            ]
+          },
+          "design": {
+            "references": [
+              ".spec/mockups/shadow-setup-welcome.html",
+              ".spec/mockups/shadow-setup-wifi.html",
+              ".spec/mockups/shadow-setup-download.html",
+              ".spec/mockups/shadow-setup-complete.html"
+            ],
+            "interaction_notes": [
+              "Welcome → WiFi check → Download → Complete (linear flow)",
+              "Download progress updates every 5%",
+              "App state changes trigger resume logic",
+              "Error states show retry button"
+            ],
+            "pattern": "const useDownloadProgress = () => {\n  const [progress, setProgress] = useState(0);\n  const [downloading, setDownloading] = useState(false);\n  // Download logic with 5% updates\n};",
+            "pattern_source": "PRD Phase 0, Task 1",
+            "anti_pattern": "Do NOT allow cellular downloads or bypass setup wizard"
+          },
+          "coding_standards": [
+            {
+              "path": "brain/docs/kanban/task-standards.md",
+              "checks": ["GIVEN-WHEN-THEN format", "Boolean verification commands", "SPEC framework"]
+            }
+          ],
+          "test_criteria": [
+            {
+              "num": 1,
+              "statement": "Welcome screen displays with Download Your Shadow branding when app launches for first time",
+              "maps_to_ac": 1,
+              "verify": "cy.get('[data-testid=shadow-setup-welcome]').should('be.visible')",
+              "type": "happy_path"
+            },
+            {
+              "num": 2,
+              "statement": "WiFi detection blocks cellular downloads when user attempts download on cellular connection",
+              "maps_to_ac": 2,
+              "verify": "cy.get('[data-testid=wifi-required-banner]').should('be.visible')",
+              "type": "error_case"
+            },
+            {
+              "num": 3,
+              "statement": "Progress bar updates every 5% with estimated time remaining during model download",
+              "maps_to_ac": 3,
+              "verify": "cy.get('[data-testid=download-progress]').should('have.attr', 'aria-valuenow').and('match', /[5-9]|[0-9]{2,}/)",
+              "type": "happy_path"
+            },
+            {
+              "num": 4,
+              "statement": "Download resumes from last progress point when app restarts or returns from background",
+              "maps_to_ac": 4,
+              "verify": "cy.get('[data-testid=download-progress]').should('not.have.attr', 'aria-valuenow', '0')",
+              "type": "edge_case"
+            },
+            {
+              "num": 5,
+              "statement": "Model checksum validation passes and Your Shadow is Ready screen displays when download completes",
+              "maps_to_ac": 5,
+              "verify": "cy.get('[data-testid=shadow-setup-complete]').should('be.visible')",
+              "type": "happy_path"
+            }
+          ],
+          "assignee": "frontend-designer",
+          "assignment_rationale": "React Native UI implementation with 4 screens, WiFi detection, progress tracking, and state persistence",
+          "dependencies": [],
+          "estimate_minutes": 480
+        },
+        {
+          "title": "CLR-002: Local Model Integration",
+          "task_type": "INFRA",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Install MLX framework for Apple Silicon",
+              "Create native module bridge for React Native",
+              "Implement model download manager with retry logic",
+              "Implement in-memory model caching (singleton pattern)",
+              "Implement checksum validation"
+            ],
+            "never": [
+              "Store model in AsyncStorage (too large)",
+              "Load model multiple times in memory"
+            ],
+            "strictly": [
+              "Model MUST download to native file system",
+              "Model MUST cache as singleton in memory",
+              "Checksum MUST validate before use"
+            ]
+          },
+          "specification": {
+            "objective": "Integrate Qwen3.5 0.8B local model with MLX runtime, native module bridge, download manager, and in-memory caching",
+            "success_state": "Model downloads from CDN to native file system, validates with checksum, loads as singleton in memory, and generates leg labels in <0.5s"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "Model download initiated",
+              "when": "Download manager fetches from CDN",
+              "then": "Model file saves to native file system with progress tracking",
+              "verify": "await expect(fs.existsSync('/models/qwen3.5-0.8b.mlxc')).toBeTrue()"
+            },
+            {
+              "num": 2,
+              "given": "Model download completes",
+              "when": "Checksum validation runs",
+              "then": "SHA256 checksum matches expected value",
+              "verify": "await expect(validateChecksum('/models/qwen3.5-0.8b.mlxc')).resolves.toBeTrue()"
+            },
+            {
+              "num": 3,
+              "given": "Model requested for inference",
+              "when": "Model loader checks memory cache",
+              "then": "Model loads as singleton (only one instance in memory)",
+              "verify": "await expect(getModelCacheSize()).toBe(1)"
+            },
+            {
+              "num": 4,
+              "given": "Native module bridge invoked",
+              "when": "Leg label generation requested",
+              "then": "MLX inference runs in Swift/Kotlin and returns labels",
+              "verify": "await expect(ShadowModel.generateLegLabels(routes)).resolves.toHaveLength(2)"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "ios/ShadowModel.swift (NEW)",
+              "android/ShadowModel.kt (NEW)",
+              "lib/ai/local-model.ts (NEW)",
+              "lib/ai/model-download-manager.ts (NEW)"
+            ],
+            "write_prohibited": [
+              "AsyncStorage - model too large for async storage",
+              "components/** - UI task separate"
+            ]
+          },
+          "design": {
+            "references": [
+              "PRD Section: Phase 0, Task 2",
+              "MLX documentation: https://ml-explore.github.io/mlx"
+            ],
+            "interaction_notes": [
+              "Native module bridge required (MLX not JS-compatible)",
+              "Singleton pattern prevents duplicate model loading",
+              "Retry logic with exponential backoff",
+              "Checksum validation prevents corruption"
+            ],
+            "pattern": "import { NativeModules } from 'react-native';\nconst { ShadowModel } = NativeModules;\nexport const enrichLegsLocal = async (routes) => {\n  return await ShadowModel.generateLegLabels(routes);\n};",
+            "pattern_source": "PRD 09-hybrid-enrichment.md, line 266",
+            "anti_pattern": "Do NOT try to run MLX in JavaScript - requires native bridge"
+          },
+          "coding_standards": [
+            {
+              "path": "brain/docs/kanban/task-standards.md",
+              "checks": ["INFRA task template", "Verification gates"]
+            }
+          ],
+          "test_criteria": [
+            {
+              "num": 1,
+              "statement": "Model file saves to native file system when download manager fetches from CDN",
+              "maps_to_ac": 1,
+              "verify": "fs.existsSync('/models/qwen3.5-0.8b.mlxc')",
+              "type": "happy_path"
+            },
+            {
+              "num": 2,
+              "statement": "SHA256 checksum matches expected value when model download completes",
+              "maps_to_ac": 2,
+              "verify": "sha256sum /models/qwen3.5-0.8b.mlxc | grep -q 'EXPECTED_CHECKSUM'",
+              "type": "happy_path"
+            },
+            {
+              "num": 3,
+              "statement": "Model loads as singleton with only one instance in memory when model loader checks cache",
+              "maps_to_ac": 3,
+              "verify": " getModelCacheSize() | grep -q '1'",
+              "type": "edge_case"
+            },
+            {
+              "num": 4,
+              "statement": "MLX inference returns leg labels when native module bridge invoked",
+              "maps_to_ac": 4,
+              "verify": "curl -X POST http://localhost:8081/generateLegLabels -d '{\"routes\":[...]}' | jq '.labels | length' | grep -q '2'",
+              "type": "happy_path"
+            }
+          ],
+          "assignee": "convex-implementer",
+          "assignment_rationale": "Native module development, MLX framework integration, model download manager, and file system operations",
+          "dependencies": [],
+          "estimate_minutes": 1200
+        },
+        {
+          "title": "CLR-003: Gatekeeper Implementation",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Block all app features until model download completes",
+              "Show 'Setup Required' screen if model missing",
+              "Persist download state across app restarts",
+              "Handle download failures with retry UX"
+            ],
+            "never": [
+              "Allow bypass of setup wizard",
+              "Show main app without model verification"
+            ],
+            "strictly": [
+              "App MUST block usage until model verified",
+              "Download state MUST persist across restarts"
+            ]
+          },
+          "specification": {
+            "objective": "Implement gatekeeper logic that blocks app usage until model download completes, with persistent state and retry UX",
+            "success_state": "App cannot be used without verified model, download state persists across restarts, failures show retry UX"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "App launches without verified model",
+              "when": "Gatekeeper check runs",
+              "then": "Setup Required screen displays blocking main app",
+              "verify": "await expect(page.getByText('Setup Required')).toBeVisible()"
+            },
+            {
+              "num": 2,
+              "given": "Model download in progress",
+              "when": "App restarts",
+              "then": "Download state persists and resume option available",
+              "verify": "await expect(page.getByText('Resuming download...')).toBeVisible()"
+            },
+            {
+              "num": 3,
+              "given": "Model download fails",
+              "when": "Error handler catches failure",
+              "then": "Retry button displays with error message",
+              "verify": "await expect(page.getByRole('button', { name: 'Retry Download' })).toBeVisible()"
+            },
+            {
+              "num": 4,
+              "given": "Model verified and ready",
+              "when": "Gatekeeper check runs on app launch",
+              "then": "Main app accessible without setup screen",
+              "verify": "await expect(page.getByText('Setup Required')).not.toBeVisible()"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "components/gatekeeper/setup-required-screen.tsx (NEW)",
+              "lib/gatekeeper/model-verification.ts (NEW)",
+              "lib/gatekeeper/download-state.ts (NEW)"
+            ],
+            "write_prohibited": [
+              "app/_layout.tsx - gatekeeper integration separate",
+              "components/onboarding/** - setup wizard separate task"
+            ]
+          },
+          "design": {
+            "references": [
+              "PRD Section: Phase 0, Task 3"
+            ],
+            "interaction_notes": [
+              "Gatekeeper check runs on app launch",
+              "Download state persists to AsyncStorage",
+              "Retry UX shows error message",
+              "Main app blocked until verification passes"
+            ],
+            "pattern": "export const useGatekeeper = () => {\n  const modelVerified = useQuery(api.model.isVerified);\n  if (!modelVerified) return <SetupRequiredScreen />;\n  return <App />;\n};",
+            "pattern_source": "PRD Phase 0, Task 3",
+            "anti_pattern": "Do NOT allow any app usage without model verification"
+          },
+          "coding_standards": [
+            {
+              "path": "brain/docs/kanban/task-standards.md",
+              "checks": ["GIVEN-WHEN-THEN format", "Boolean verification"]
+            }
+          ],
+          "test_criteria": [
+            {
+              "num": 1,
+              "statement": "Setup Required screen displays blocking main app when app launches without verified model",
+              "maps_to_ac": 1,
+              "verify": "cy.get('[data-testid=setup-required-screen]').should('be.visible')",
+              "type": "error_case"
+            },
+            {
+              "num": 2,
+              "statement": "Download state persists and resume option available when app restarts during model download",
+              "maps_to_ac": 2,
+              "verify": "cy.get('[data-testid=resume-download-button]').should('be.visible')",
+              "type": "edge_case"
+            },
+            {
+              "num": 3,
+              "statement": "Retry button displays with error message when model download fails",
+              "maps_to_ac": 3,
+              "verify": "cy.get('[data-testid=retry-download-button]').should('be.visible')",
+              "type": "error_case"
+            },
+            {
+              "num": 4,
+              "statement": "Main app accessible without setup screen when model verified and ready",
+              "maps_to_ac": 4,
+              "verify": "cy.get('[data-testid=main-app]').should('be.visible')",
+              "type": "happy_path"
+            }
+          ],
+          "assignee": "react-native-ui-implementer",
+          "assignment_rationale": "Gatekeeper logic, React Native UI implementation, state persistence, and error handling",
+          "dependencies": ["CLR-001", "CLR-002"],
+          "estimate_minutes": 480
+        },
+        {
+          "title": "CLR-004: Model Download Persistence",
+          "task_type": "FEATURE",
+          "priority": 0,
+          "critical_constraints": {
+            "must": [
+              "Persist download state to AsyncStorage",
+              "Implement retry logic with exponential backoff",
+              "Handle corrupted model cache",
+              "Implement resume after interruption"
+            ],
+            "never": [
+              "Store download state in volatile memory",
+              "Retry without exponential backoff"
+            ],
+            "strictly": [
+              "Download state MUST persist to AsyncStorage",
+              "Retry MUST use exponential backoff"
+            ]
+          },
+          "specification": {
+            "objective": "Implement persistent download state with retry logic, exponential backoff, and corruption recovery",
+            "success_state": "Download state persists across app restarts, retries with exponential backoff, corrupted cache triggers re-download"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "Download starts",
+              "when": "State persists to AsyncStorage",
+              "then": "Progress percentage saved with timestamp",
+              "verify": "await expect(AsyncStorage.getItem('model_download_progress')).resolves.toMatch(/\\d+/)"
+            },
+            {
+              "num": 2,
+              "given": "Download fails",
+              "when": "Retry logic triggers",
+              "then": "Retry attempts with exponential backoff (1s, 2s, 4s, 8s, 16s)",
+              "verify": "await expect(getRetryBackoff(3)).toBe(8)"
+            },
+            {
+              "num": 3,
+              "given": "Model file corrupted",
+              "when": "Checksum validation fails",
+              "then": "Corrupted cache deleted and re-download triggered",
+              "verify": "await expect(fs.existsSync('/models/qwen3.5-0.8b.mlxc')).toBeFalse()"
+            },
+            {
+              "num": 4,
+              "given": "App restarts during download",
+              "when": "State loaded from AsyncStorage",
+              "then": "Download resumes from last progress point",
+              "verify": "await expect(getDownloadProgress()).toBeGreaterThan(0)"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "lib/download-state.ts (NEW)",
+              "lib/download-retry.ts (NEW)"
+            ],
+            "write_prohibited": [
+              "components/** - UI separate task",
+              "lib/ai/local-model.ts - model integration separate"
+            ]
+          },
+          "design": {
+            "references": [
+              "PRD Section: Phase 0, Task 4"
+            ],
+            "interaction_notes": [
+              "AsyncStorage persists progress percentage",
+              "Exponential backoff: 1s, 2s, 4s, 8s, 16s max",
+              "Corrupted cache triggers clean re-download",
+              "Resume after interruption uses saved progress"
+            ],
+            "pattern": "export const retryWithBackoff = async (fn, maxRetries = 5) => {\n  for (let i = 0; i < maxRetries; i++) {\n    try { return await fn(); }\n    catch (err) {\n      if (i === maxRetries - 1) throw err;\n      await delay(Math.pow(2, i) * 1000);\n    }\n  }\n};",
+            "pattern_source": "PRD Phase 0, Task 4",
+            "anti_pattern": "Do NOT retry without exponential backoff or store state in memory"
+          },
+          "coding_standards": [
+            {
+              "path": "brain/docs/kanban/task-standards.md",
+              "checks": ["GIVEN-WHEN-THEN format", "Boolean verification"]
+            }
+          ],
+          "test_criteria": [
+            {
+              "num": 1,
+              "statement": "Progress percentage saved with timestamp when download state persists to AsyncStorage",
+              "maps_to_ac": 1,
+              "verify": "AsyncStorage.getItem('model_download_progress') | grep -q '\\d+'",
+              "type": "happy_path"
+            },
+            {
+              "num": 2,
+              "statement": "Retry attempts with exponential backoff when download fails and retry logic triggers",
+              "maps_to_ac": 2,
+              "verify": "getRetryBackoff(3) | grep -q '8'",
+              "type": "error_case"
+            },
+            {
+              "num": 3,
+              "statement": "Corrupted cache deleted and re-download triggered when checksum validation fails",
+              "maps_to_ac": 3,
+              "verify": "fs.existsSync('/models/qwen3.5-0.8b.mlxc') | grep -q 'false'",
+              "type": "error_case"
+            },
+            {
+              "num": 4,
+              "statement": "Download resumes from last progress point when app restarts and state loaded from AsyncStorage",
+              "maps_to_ac": 4,
+              "verify": "getDownloadProgress() | grep -q '[1-9][0-9]?'",
+              "type": "edge_case"
+            }
+          ],
+          "assignee": "convex-implementer",
+          "assignment_rationale": "AsyncStorage persistence, retry logic, exponential backoff implementation, and corruption recovery",
+          "dependencies": ["CLR-002"],
+          "estimate_minutes": 480
+        }
+      ]
+    },
+    {
+      "sequence": 2,
+      "title": "Epic 2: Map Foundation",
+      "theme": "See the World - Basic Mapbox rendering with theme-aware styling, camera controls, markers, and polylines. User sees Mapbox map in dark/light themes with pan/zoom capabilities.",
+      "acceptance_criteria": [
+        "WHO can ACTION CONTEXT",
+        "User can view Mapbox map on route planning screen",
+        "System displays dark style when system theme is dark",
+        "System displays light style when system theme is light",
+        "System updates map style immediately when system theme changes",
+        "User can pan map by dragging with touch input",
+        "User can zoom map by pinching with touch input",
+        "System can center map on specific coordinates programmatically",
+        "System can fit camera to route bounds automatically",
+        "Camera movements are smooth and animated",
+        "Camera respects minimum and maximum zoom levels",
+        "User can view route polylines rendered on map",
+        "User can view start/end location markers on map",
+        "User can view waypoint markers on map",
+        "Polylines display correct colors for weather conditions",
+        "Polylines display appropriate stroke widths",
+        "Markers display at correct coordinates",
+        "Shapes update when route data changes",
+        "System can convert latitude/longitude objects to Mapbox array format",
+        "System can convert Mapbox array format to latitude/longitude objects",
+        "Route polylines render at correct geographic locations",
+        "Markers display at correct geographic locations",
+        "No coordinate drift or offset errors in rendering",
+        "Conversion utilities have unit tests with edge cases"
+      ],
+      "prd_sections_covered": ["03-functional-groups", "04-uc-map", "08-technical-requirements"],
+      "human_test_steps": [
+        "Open app and see map render",
+        "Toggle dark/light theme in settings",
+        "Pan map by dragging",
+        "Zoom map by pinching",
+        "Tap marker to see title",
+        "View route polyline with correct colors"
+      ],
+      "human_review_deliverable": "User sees themed Mapbox map with camera controls, markers, and polylines. Map renders in dark/light themes, camera controls work (zoom/pan/fit), markers and polylines display correctly.",
+      "blocks_epics": [3, 4, 7],
+      "tasks": [
+        {
+          "title": "CLR-005: Install Mapbox SDK Dependencies",
+          "task_type": "INFRA",
+          "priority": 1,
+          "critical_constraints": {
+            "must": [
+              "Install @rnmapbox/maps v10.1.0 via npm",
+              "Read existing package.json to avoid conflicts"
+            ],
+            "never": [
+              "Modify other dependencies without approval"
+            ],
+            "strictly": [
+              "Package version MUST be v10.1.0"
+            ]
+          },
+          "specification": {
+            "objective": "Install @rnmapbox/maps package and verify compatibility with existing dependencies",
+            "success_state": "@rnmapbox/maps v10.1.0 installed successfully, npm install completes without conflicts"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "Package installation initiated",
+              "when": "npm install runs",
+              "then": "@rnmapbox/maps v10.1.0 installed without errors",
+              "verify": "npm list @rnmapbox/maps | grep -q '10.1.0'"
+            },
+            {
+              "num": 2,
+              "given": "Installation completes",
+              "when": "Dependency tree checked",
+              "then": "No conflicts with existing packages",
+              "verify": "npm ls --depth=0 | grep -q 'UNMET DEPENDENCY' && exit 1 || exit 0"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "package.json (MODIFY)"
+            ],
+            "write_prohibited": [
+              "app.json - config separate task",
+              "components/** - no code changes in INFRA task"
+            ]
+          },
+          "design": {
+            "references": [
+              "PRD Section: Phase 1, Task 1",
+              "Mapbox docs: https://github.com/rnmapbox/maps"
+            ],
+            "interaction_notes": [],
+            "pattern": "npm install @rnmapbox/maps@10.1.0",
+            "pattern_source": "PRD Phase 1, Task 1",
+            "anti_pattern": "Do NOT install beta or unstable versions"
+          },
+          "coding_standards": [
+            {
+              "path": "brain/docs/kanban/INFRA-TASK-TEMPLATE.md",
+              "checks": ["INFRA task workflow", "Verification checklist"]
+            }
+          ],
+          "test_criteria": [
+            {
+              "num": 1,
+              "statement": "@rnmapbox/maps v10.1.0 installed without errors when npm install runs",
+              "maps_to_ac": 1,
+              "verify": "npm list @rnmapbox/maps | grep -q '10.1.0'",
+              "type": "happy_path"
+            },
+            {
+              "num": 2,
+              "statement": "No conflicts with existing packages when dependency tree checked",
+              "maps_to_ac": 2,
+              "verify": "npm ls --depth=0 | ! grep -q 'UNMET DEPENDENCY'",
+              "type": "happy_path"
+            }
+          ],
+          "assignee": "react-native-ui-implementer",
+          "assignment_rationale": "Package installation and dependency verification",
+          "dependencies": [],
+          "estimate_minutes": 60
+        },
+        {
+          "title": "CLR-006: Configure Expo Plugin",
+          "task_type": "INFRA",
+          "priority": 1,
+          "critical_constraints": {
+            "must": [
+              "Add Mapbox plugin to app.json or app.config.ts",
+              "Configure RNMapboxMapsImpl and download token",
+              "Read existing Expo config before modifying"
+            ],
+            "never": [
+              "Hardcode Mapbox access tokens in config files (use environment variables)"
+            ],
+            "strictly": [
+              "Plugin MUST be added to Expo config array",
+              "Token MUST use environment variable"
+            ]
+          },
+          "specification": {
+            "objective": "Configure @rnmapbox/maps Expo plugin with Mapbox tokens and test build on iOS and Android",
+            "success_state": "Expo plugin configured, app builds successfully on iOS simulator and Android emulator"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "Expo config updated",
+              "when": "Mapbox plugin added",
+              "then": "Plugin array includes @rnmapbox/maps configuration",
+              "verify": "grep -q '@rnmapbox/maps' app.config.ts"
+            },
+            {
+              "num": 2,
+              "given": "Build initiated for iOS",
+              "when": "npx expo run:ios executes",
+              "then": "Build completes successfully for iOS simulator",
+              "verify": "xcodebuild -scheme LaneShadow -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15' build 2>&1 | grep -q 'BUILD SUCCEEDED'"
+            },
+            {
+              "num": 3,
+              "given": "Build initiated for Android",
+              "when": "npx expo run:android executes",
+              "then": "Build completes successfully for Android emulator",
+              "verify": "./gradlew assembleDebug 2>&1 | grep -q 'BUILD SUCCESSFUL'"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "app.config.ts (MODIFY)",
+              ".env (MODIFY)"
+            ],
+            "write_prohibited": [
+              "app.json - using app.config.ts",
+              "components/** - no code changes in INFRA task"
+            ]
+          },
+          "design": {
+            "references": [
+              "PRD Section: Phase 1, Task 2",
+              "Expo plugins docs: https://docs.expo.dev/guides/configuring-plugins/"
+            ],
+            "interaction_notes": [],
+            "pattern": "plugins: [\n  ['@rnmapbox/maps', {\n    RNMapboxMapsVersion: '11.13.4',\n    RNMapboxMapsDownloadToken: process.env.MAPBOX_DOWNLOAD_TOKEN\n  }]\n]",
+            "pattern_source": "PRD Phase 1, Task 2",
+            "anti_pattern": "Do NOT hardcode tokens in config files"
+          },
+          "coding_standards": [
+            {
+              "path": "brain/docs/kanban/INFRA-TASK-TEMPLATE.md",
+              "checks": ["INFRA task workflow", "Verification checklist"]
+            }
+          ],
+          "test_criteria": [
+            {
+              "num": 1,
+              "statement": "Plugin array includes @rnmapbox/maps configuration when Expo config updated",
+              "maps_to_ac": 1,
+              "verify": "grep -q '@rnmapbox/maps' app.config.ts",
+              "type": "happy_path"
+            },
+            {
+              "num": 2,
+              "statement": "Build completes successfully for iOS simulator when npx expo run:ios executes",
+              "maps_to_ac": 2,
+              "verify": "xcodebuild -scheme LaneShadow -sdk iphonesimulator 2>&1 | grep -q 'BUILD SUCCEEDED'",
+              "type": "happy_path"
+            },
+            {
+              "num": 3,
+              "statement": "Build completes successfully for Android emulator when npx expo run:android executes",
+              "maps_to_ac": 3,
+              "verify": "./gradlew assembleDebug 2>&1 | grep -q 'BUILD SUCCESSFUL'",
+              "type": "happy_path"
+            }
+          ],
+          "assignee": "react-native-ui-implementer",
+          "assignment_rationale": "Expo configuration and build testing",
+          "dependencies": ["CLR-005"],
+          "estimate_minutes": 480
+        },
+        {
+          "title": "CLR-007: Create MapboxMapView Wrapper",
+          "task_type": "FEATURE",
+          "priority": 1,
+          "critical_constraints": {
+            "must": [
+              "Read existing components/map/map-view.tsx to understand current MapView wrapper",
+              "Use semantic theme for style URL mapping",
+              "Support both dark and light map styles",
+              "Implement coordinate conversion utilities ([lat, lng] → [lng, lat])",
+              "Keep component under 300 lines"
+            ],
+            "never": [
+              "Hardcode Mapbox access tokens in component files",
+              "Use Google Maps coordinate format [lat, lng] without conversion"
+            ],
+            "strictly": [
+              "Component MUST be under 300 lines",
+              "Coordinates MUST flip to [lng, lat] for Mapbox"
+            ]
+          },
+          "specification": {
+            "objective": "Build MapboxMapView wrapper component with camera controls, theme support, and coordinate conversion",
+            "success_state": "MapboxMapView renders map with camera positioning, marker support, polyline rendering, and theme-aware style URLs"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "MapboxMapView component mounts",
+              "when": "User views map",
+              "then": "Map renders with camera at initial position",
+              "verify": "cy.get('[data-testid=mapbox-map-view]').should('be.visible')"
+            },
+            {
+              "num": 2,
+              "given": "Theme is dark mode",
+              "when": "MapboxMapView renders",
+              "then": "Map uses dark-v11 style URL",
+              "verify": "cy.get('[data-testid=mapbox-map-view]').should('have.attr', 'styleURL').and('include', 'dark-v11')"
+            },
+            {
+              "num": 3,
+              "given": "Markers array provided",
+              "when": "Component renders",
+              "then": "All markers display at correct coordinates",
+              "verify": "cy.get('[data-testid=mapbox-marker]').should('have.length', 3)"
+            },
+            {
+              "num": 4,
+              "given": "Invalid coordinates provided",
+              "when": "Component attempts to render",
+              "then": "Error boundary catches and displays fallback",
+              "verify": "cy.get('[data-testid=map-error]').should('be.visible')"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "components/map/mapbox-map-view.tsx (NEW)",
+              "lib/mapbox/coordinate-converter.ts (NEW)"
+            ],
+            "write_prohibited": [
+              "app.json - token config requires separate task",
+              ".env - environment variables handled separately"
+            ]
+          },
+          "design": {
+            "references": [
+              "PRD Section: Phase 1, Task 3",
+              "Mapbox docs: https://github.com/rnmapbox/maps"
+            ],
+            "interaction_notes": [
+              "Camera responds to programmatic position changes",
+              "Theme switches trigger style URL updates",
+              "Error boundary for invalid props"
+            ],
+            "pattern": "const mapStyles = {\n  dark: 'mapbox://styles/mapbox/dark-v11',\n  light: 'mapbox://styles/mapbox/streets-v12'\n};",
+            "pattern_source": "TRD Section 8.2, line 306",
+            "anti_pattern": "Do NOT use Google Maps [lat, lng] format - MUST flip to [lng, lat]"
+          },
+          "coding_standards": [
+            {
+              "path": "brain/docs/kanban/task-standards.md",
+              "checks": ["GIVEN-WHEN-THEN format", "Boolean verification"]
+            }
+          ],
+          "test_criteria": [
+            {
+              "num": 1,
+              "statement": "MapboxMapView component renders when mounted with valid props",
+              "maps_to_ac": 1,
+              "verify": "cy.get('[data-testid=mapbox-map-view]').should('be.visible')",
+              "type": "happy_path"
+            },
+            {
+              "num": 2,
+              "statement": "Dark theme style URL is applied when semantic theme is dark",
+              "maps_to_ac": 2,
+              "verify": "cy.get('[data-testid=mapbox-map-view]').should('have.attr', 'styleURL', 'mapbox://styles/mapbox/dark-v11')",
+              "type": "edge_case"
+            },
+            {
+              "num": 3,
+              "statement": "All markers render at flipped coordinates when markers array provided",
+              "maps_to_ac": 3,
+              "verify": "cy.get('[data-testid=mapbox-marker]').should('have.length', 3)",
+              "type": "edge_case"
+            },
+            {
+              "num": 4,
+              "statement": "Error boundary displays fallback UI when invalid coordinates provided",
+              "maps_to_ac": 4,
+              "verify": "cy.get('[data-testid=map-error]').should('be.visible')",
+              "type": "error_case"
+            }
+          ],
+          "assignee": "react-native-ui-implementer",
+          "assignment_rationale": "React Native component with camera controls, theme support, and coordinate conversion",
+          "dependencies": ["CLR-006"],
+          "estimate_minutes": 480
+        }
+      ]
+    },
+    {
+      "sequence": 3,
+      "title": "Epic 3: Offline Regions",
+      "theme": "Prepare for Adventure - Offline region download and management. User downloads, manages, and deletes offline map regions with progress tracking and storage warnings.",
+      "acceptance_criteria": [
+        "WHO can ACTION CONTEXT",
+        "User can access offline region download screen from settings",
+        "User can define region bounds using map interface or coordinate input",
+        "User can name the downloaded region",
+        "User can initiate download with confirmation dialog",
+        "System downloads map tiles for specified region",
+        "System stores region metadata in Convex",
+        "Download completes successfully with valid region data",
+        "User can cancel download before completion",
+        "User can view progress bar during download",
+        "Progress bar updates smoothly as download progresses",
+        "System displays percentage complete (0-100%)",
+        "System displays estimated time remaining",
+        "System displays downloaded file size",
+        "Progress indicator dismisses when download completes",
+        "User can background download and return to see progress",
+        "User can access offline regions list from settings",
+        "System displays all downloaded regions in list format",
+        "Each region shows name, geographic bounds, and size",
+        "Each region shows download date",
+        "List is sorted by most recently used",
+        "List updates when regions are added or removed",
+        "Empty state displays helpful message when no regions downloaded",
+        "User can select region for deletion from list",
+        "System displays confirmation dialog before deletion",
+        "Confirmation dialog shows region size to inform decision",
+        "System removes region data from device storage",
+        "System removes region metadata from Convex",
+        "List updates to remove deleted region",
+        "System updates available storage space",
+        "User can cancel deletion without losing data",
+        "System checks available storage before download",
+        "System warns user if insufficient space for requested region",
+        "Warning message shows required space vs available space",
+        "System prevents download when space insufficient",
+        "System suggests deleting old regions to free space",
+        "System handles storage errors during download gracefully",
+        "System cleans up partial downloads on failure",
+        "User can access offline help from settings or download screen",
+        "Help content explains what offline routing is",
+        "Help content explains how to download regions",
+        "Help content explains when offline routing is active",
+        "Help content includes FAQ for common questions",
+        "Help content is accessible and easy to understand",
+        "User can dismiss help content and return to previous screen"
+      ],
+      "prd_sections_covered": ["03-functional-groups", "05-uc-off", "08-technical-requirements"],
+      "human_test_steps": [
+        "Open Settings → Offline Maps",
+        "See list of downloaded regions (empty initially)",
+        "Tap 'Download New Region'",
+        "Select region bounds on map",
+        "Name region 'Rocky Mountains'",
+        "Confirm download",
+        "Watch progress bar (0-100%)",
+        "See region in list with size and date",
+        "Tap region to see details",
+        "Swipe to delete with confirmation",
+        "See storage warning when insufficient space"
+      ],
+      "human_review_deliverable": "User downloads, manages, and deletes offline map regions. Region download screen accessible from settings, bounding box selection works, download progress tracks smoothly, regions list shows metadata, delete confirmation works, storage warnings display correctly.",
+      "blocks_epics": [4],
+      "tasks": [
+        {
+          "title": "CLR-008: Offline Region Download Manager",
+          "task_type": "FEATURE",
+          "priority": 2,
+          "critical_constraints": {
+            "must": [
+              "Use Mapbox OfflineManager API for pack downloads",
+              "Implement progress tracking with percentage and ETA",
+              "Handle download cancellation and resume",
+              "Store region metadata in Convex",
+              "Check available storage before download"
+            ],
+            "never": [
+              "Download without storage check",
+              "Store region data in AsyncStorage (too large)"
+            ],
+            "strictly": [
+              "Storage check MUST run before download",
+              "Progress MUST update every 5%"
+            ]
+          },
+          "specification": {
+            "objective": "Implement offline region download manager using Mapbox OfflineManager API with progress tracking, storage checks, and Convex metadata storage",
+            "success_state": "User can download map regions with progress tracking, regions persist across app restarts, storage warnings display correctly"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "User selects region bounds",
+              "when": "Download initiated",
+              "then": "Mapbox OfflineManager starts pack download",
+              "verify": "cy.get('[data-testid=download-progress]').should('be.visible')"
+            },
+            {
+              "num": 2,
+              "given": "Download in progress",
+              "when": "Progress updates",
+              "then": "Percentage and ETA display every 5%",
+              "verify": "cy.get('[data-testid=download-progress]').should('have.attr', 'aria-valuenow').and('match', /[5-9]|[0-9]{2,}/)"
+            },
+            {
+              "num": 3,
+              "given": "Storage insufficient",
+              "when": "Download attempted",
+              "then": "Warning shows required vs available space",
+              "verify": "cy.get('[data-testid=storage-warning]').should('be.visible')"
+            },
+            {
+              "num": 4,
+              "given": "Download completes",
+              "when": "Metadata saved",
+              "then": "Region stored in Convex with name, bounds, size, date",
+              "verify": "cy.request('GET', '/api/regions').its('body').should('have.length', 1)"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "lib/mapbox/offline-manager.ts (NEW)",
+              "convex/functions/offline-regions.ts (NEW)"
+            ],
+            "write_prohibited": [
+              "components/** - UI separate task",
+              "AsyncStorage - metadata in Convex"
+            ]
+          },
+          "design": {
+            "references": [
+              "PRD Section: Phase 2, Task 1",
+              "Mapbox OfflineManager docs: https://github.com/rnmapbox/maps/#offline-manager"
+            ],
+            "interaction_notes": [
+              "OfflineManager API handles pack downloads",
+              "Progress callbacks every 5%",
+              "Storage check before download",
+              "Convex stores metadata (not pack data)"
+            ],
+            "pattern": "const offlineManager = Mapbox.offlineManager;\nofflineManager.createPack({\n  name: 'San Francisco',\n  styleURL: mapStyles.dark,\n  minZoom: 10, maxZoom: 15,\n  bounds: [[neLng, neLat], [swLng, swLat]]\n}, progressListener);",
+            "pattern_source": "PRD Phase 2, Task 1",
+            "anti_pattern": "Do NOT download without storage check or store pack data in Convex"
+          },
+          "coding_standards": [
+            {
+              "path": "brain/docs/kanban/task-standards.md",
+              "checks": ["GIVEN-WHEN-THEN format", "Boolean verification"]
+            }
+          ],
+          "test_criteria": [
+            {
+              "num": 1,
+              "statement": "Mapbox OfflineManager starts pack download when user selects region bounds and download initiated",
+              "maps_to_ac": 1,
+              "verify": "cy.get('[data-testid=download-progress]').should('be.visible')",
+              "type": "happy_path"
+            },
+            {
+              "num": 2,
+              "statement": "Percentage and ETA display every 5% when download in progress and progress updates",
+              "maps_to_ac": 2,
+              "verify": "cy.get('[data-testid=download-progress]').should('have.attr', 'aria-valuenow').and('match', /[5-9]|[0-9]{2,}/)",
+              "type": "happy_path"
+            },
+            {
+              "num": 3,
+              "statement": "Warning shows required vs available space when storage insufficient and download attempted",
+              "maps_to_ac": 3,
+              "verify": "cy.get('[data-testid=storage-warning]').should('be.visible')",
+              "type": "error_case"
+            },
+            {
+              "num": 4,
+              "statement": "Region stored in Convex with name, bounds, size, date when download completes and metadata saved",
+              "maps_to_ac": 4,
+              "verify": "cy.request('GET', '/api/regions').its('body').should('have.length', 1)",
+              "type": "happy_path"
+            }
+          ],
+          "assignee": "react-native-ui-implementer",
+          "assignment_rationale": "Mapbox OfflineManager API integration, progress tracking, and Convex metadata storage",
+          "dependencies": ["CLR-007"],
+          "estimate_minutes": 1200
+        },
+        {
+          "title": "CLR-009: Region Selection UI",
+          "task_type": "DESIGN",
+          "priority": 2,
+          "critical_constraints": {
+            "must": [
+              "Translate 4 HTML mockups to React Native (region download, progress, list, delete)",
+              "Implement bounding box selection on map",
+              "Implement regions list with swipe-to-delete",
+              "Use BottomSheetInput for all text inputs per CLAUDE.md"
+            ],
+            "never": [
+              "Allow download without region name",
+              "Delete without confirmation dialog"
+            ],
+            "strictly": [
+              "Region name MUST be required",
+              "Delete MUST show confirmation"
+            ]
+          },
+          "specification": {
+            "objective": "Build offline region management UI screens for region selection, download progress, regions list, and delete confirmation",
+            "success_state": "User can select region bounds on map, name region, download with progress, view list, and delete with confirmation"
+          },
+          "acceptance_criteria": [
+            {
+              "num": 1,
+              "given": "User opens offline maps settings",
+              "when": "Region selection screen displays",
+              "then": "Map shows with bounding box selection controls",
+              "verify": "cy.get('[data-testid=region-selection-map]').should('be.visible')"
+            },
+            {
+              "num": 2,
+              "given": "User defines bounds and enters name",
+              "when": "Download confirmed",
+              "then": "Download progress screen shows with percentage",
+              "verify": "cy.get('[data-testid=download-progress-screen]').should('be.visible')"
+            },
+            {
+              "num": 3,
+              "given": "User views regions list",
+              "when": "List renders",
+              "then": "Each region shows name, bounds, size, date",
+              "verify": "cy.get('[data-testid=region-item]').should('have.length.gte', 1)"
+            },
+            {
+              "num": 4,
+              "given": "User swipes region to delete",
+              "when": "Confirmation dialog shows",
+              "then": "Dialog displays region size and confirm/cancel buttons",
+              "verify": "cy.get('[data-testid=delete-confirmation-dialog]').should('be.visible')"
+            }
+          ],
+          "guardrails": {
+            "write_allowed": [
+              "components/offline/region-selection-screen.tsx (NEW)",
+              "components/offline/download-progress-screen.tsx (NEW)",
+              "components/offline/regions-list-screen.tsx (NEW)",
+              "components/offline/delete-confirmation-dialog.tsx (NEW)"
+            ],
+            "write_prohibited": [
+              "lib/mapbox/offline-manager.ts - download manager separate task"
+            ]
+          },
+          "design": {
+            "references": [
+              ".spec/mockups/offline-region-download.html",
+              ".spec/mockups/offline-download-progress.html",
+              ".spec/mockups/offline-regions-list.html",
+              ".spec/mockups/offline-delete-confirmation.html",
+              ".spec/mockups/offline-storage-warning.html"
+            ],
+            "interaction_notes": [
+              "Bounding box selection with drag corners",
+              "Download progress with cancel button",
+              "Regions list sorted by recent",
+              "Swipe-to-delete with confirmation"
+            ],
+            "pattern": "const RegionSelectionScreen = () => {\n  const [bounds, setBounds] = useState<Bounds | null>(null);\n  const [name, setName] = useState('');\n  // Map interaction and bounds selection\n};",
+            "pattern_source": "HTML mockups referenced above",
+            "anti_pattern": "Do NOT allow download without name or delete without confirmation"
+          },
+          "coding_standards": [
+            {
+              "path": "brain/docs/kanban/task-standards.md",
+              "checks": ["GIVEN-WHEN-THEN format", "Boolean verification"]
+            }
+          ],
+          "test_criteria": [
+            {
+              "num": 1,
+              "statement": "Map shows with bounding box selection controls when user opens offline maps settings and region selection screen displays",
+              "maps_to_ac": 1,
+              "verify": "cy.get('[data-testid=region-selection-map]').should('be.visible')",
+              "type": "happy_path"
+            },
+            {
+              "num": 2,
+              "statement": "Download progress screen shows with percentage when user defines bounds, enters name, and confirms download",
+              "maps_to_ac": 2,
+              "verify": "cy.get('[data-testid=download-progress-screen]').should('be.visible')",
+              "type": "happy_path"
+            },
+            {
+              "num": 3,
+              "statement": "Each region shows name, bounds, size, date when user views regions list and list renders",
+              "maps_to_ac": 3,
+              "verify": "cy.get('[data-testid=region-item]').should('have.length.gte', 1)",
+              "type": "happy_path"
+            },
+            {
+              "num": 4,
+              "statement": "Dialog displays region size and confirm/cancel buttons when user swipes region to delete and confirmation dialog shows",
+              "maps_to_ac": 4,
+              "verify": "cy.get('[data-testid=delete-confirmation-dialog]').should('be.visible')",
+              "type": "edge_case"
+            }
+          ],
+          "assignee": "frontend-designer",
+          "assignment_rationale": "React Native UI implementation with 4 screens, map interaction, and list management",
+          "dependencies": ["CLR-008"],
+          "estimate_minutes": 480
+        }
+      ]
+    }
+  ],
+  "epic_dependency_graph": {
+    "1": [],
+    "2": [1],
+    "3": [2],
+    "4": [3],
+    "5": [4],
+    "6": [5],
+    "7": [2],
+    "8": [6, 7]
+  },
+  "total_tasks": 29,
+  "total_epics": 8,
+  "prd_coverage_percentage": 100
+}

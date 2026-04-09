@@ -1,0 +1,779 @@
+{
+  "ui_tasks": {
+    "p0_blocking": [
+      {
+        "title": "DESIGN-001: MapboxMapView Wrapper Component",
+        "task_type": "DESIGN",
+        "priority": 0,
+        "critical_constraints": {
+          "must": [
+            "Use @rnmapbox/maps v10.1.0 SDK",
+            "Maintain theme-aware styling (dark/light modes)",
+            "Preserve all MapViewWrapper API surface from components/map/map-view.tsx",
+            "Convert coordinates from Google [lat, lng] to Mapbox [lng, lat] format",
+            "Support camera positioning, markers, and polylines"
+          ],
+          "never": [
+            "Hardcode map style URLs — use semantic.theme.mapStyleURL",
+            "Break existing MapViewWrapper API — this is a drop-in replacement",
+            "Use react-native-maps MapView — only @rnmapbox/maps"
+          ],
+          "strictly": [
+            "Coordinate conversion MUST happen at render boundary, not in storage",
+            "All touch targets ≥ 44x44pt for WCAG AA compliance",
+            "Screen reader labels on all interactive elements"
+          ]
+        },
+        "specification": {
+          "objective": "Create MapboxMapView wrapper as drop-in replacement for Google Maps MapViewWrapper",
+          "success_state": "All existing map rendering works with Mapbox SDK, theme switching works, camera controls function"
+        },
+        "acceptance_criteria": [
+          {
+            "num": 1,
+            "given": "MapboxMapView renders",
+            "when": "Component mounts with dark theme",
+            "then": "Mapbox map displays with dark-v11 style URL",
+            "verify": "cy.get('[data-testid=mapbox-map-view]').should('have.attr', 'style-url', 'mapbox://styles/mapbox/dark-v11')"
+          },
+          {
+            "num": 2,
+            "given": "MapboxMapView receives camera position",
+            "when": "Camera coordinates and zoom are set",
+            "then": "Map camera animates to specified position",
+            "verify": "cy.get('[data-testid=mapbox-map-view]').should('have.attr', 'camera-coordinates')"
+          },
+          {
+            "num": 3,
+            "given": "MapboxMapView receives markers in Google [lat, lng] format",
+            "when": "Markers render on map",
+            "then": "Markers display at correct Mapbox [lng, lat] coordinates",
+            "verify": "cy.get('[data-testid=mapbox-marker]').first().should('have.attr', 'coordinates').and('include', {lng: -122.4194, lat: 37.7749})"
+          },
+          {
+            "num": 4,
+            "given": "Theme switches from dark to light",
+            "when": "User toggles theme preference",
+            "then": "Map style URL changes to streets-v12",
+            "verify": "cy.get('[data-testid=mapbox-map-view]').should('have.attr', 'style-url', 'mapbox://styles/mapbox/streets-v12')"
+          }
+        ],
+        "test_criteria": [
+          {
+            "num": 1,
+            "statement": "Mapbox map renders with correct dark theme style URL when component mounts with dark theme",
+            "maps_to_ac": 1,
+            "verify": "cy.get('[data-testid=mapbox-map-view]').should('have.attr', 'style-url', 'mapbox://styles/mapbox/dark-v11')",
+            "type": "happy_path"
+          },
+          {
+            "num": 2,
+            "statement": "Map camera animates to specified position when camera coordinates and zoom are set",
+            "maps_to_ac": 2,
+            "verify": "cy.get('[data-testid=mapbox-map-view]').should('have.attr', 'camera-coordinates')",
+            "type": "happy_path"
+          },
+          {
+            "num": 3,
+            "statement": "Markers display at correct Mapbox coordinates when converted from Google lat/lng format",
+            "maps_to_ac": 3,
+            "verify": "cy.get('[data-testid=mapbox-marker]').first().should('have.attr', 'coordinates').and('include', {lng: -122.4194, lat: 37.7749})",
+            "type": "edge_case"
+          },
+          {
+            "num": 4,
+            "statement": "Map style URL changes to light theme when user toggles theme preference from dark to light",
+            "maps_to_ac": 4,
+            "verify": "cy.get('[data-testid=mapbox-map-view]').should('have.attr', 'style-url', 'mapbox://styles/mapbox/streets-v12')",
+            "type": "happy_path"
+          }
+        ],
+        "guardrails": {
+          "write_allowed": [
+            "components/map/mapbox-map-view.tsx (NEW)",
+            "lib/mapbox/coordinate-converter.ts (NEW)",
+            "components/map/__tests__/mapbox-map-view.test.tsx (NEW)"
+          ],
+          "write_prohibited": [
+            "components/map/map-view.tsx - preserve existing Google Maps implementation",
+            "app.json - Expo plugin config requires separate task"
+          ]
+        },
+        "design": {
+          "references": [
+            ".spec/designs/README.md - Design system references",
+            "components/map/map-view.tsx:1-159 - Existing MapViewWrapper API to preserve",
+            ".spec/prds/complete-local-routing/08-technical-requirements.md:365-372 - Coordinate system conversion requirements"
+          ],
+          "interaction_notes": [
+            "Camera must animate smoothly (300ms duration)",
+            "Theme toggle must not flash or flicker",
+            "Coordinate conversion must be transparent to callers"
+          ],
+          "pattern": "export const MapViewWrapper = forwardRef<MapViewHandle, MapViewProps> => const { semantic, dark } = useSemanticTheme()",
+          "pattern_source": "components/map/map-view.tsx:73-80",
+          "anti_pattern": "Direct coordinate storage in Mapbox format — always store in Google format, convert at render"
+        },
+        "coding_standards": [
+          {
+            "path": "components/CLAUDE.md",
+            "checks": ["Use useSemanticTheme() for all styling", "No hardcoded color values", "Named export with displayName"]
+          },
+          {
+            "path": ".claude/rules/react_rules.mdc",
+            "checks": ["forwardRef for component with imperative handle", "useMemo for expensive computations", "PropTypes or TypeScript for props"]
+          }
+        ],
+        "assignee": "react-native-ui-implementer",
+        "assignment_rationale": "Requires React Native + Expo expertise with Mapbox SDK integration",
+        "dependencies": [],
+        "estimate_minutes": 180
+      },
+      {
+        "title": "DESIGN-002: CoordinateConverter Utilities",
+        "task_type": "DESIGN",
+        "priority": 0,
+        "critical_constraints": {
+          "must": [
+            "Convert Google [lat, lng] → Mapbox [lng, lat]",
+            "Convert Mapbox [lng, lat] → Google [lat, lng]",
+            "Handle coordinate arrays (polylines)",
+            "Handle bounds objects (southwest/northeast)",
+            "Pure functions — no side effects"
+          ],
+          "never": [
+            "Mutate input arrays — always return new arrays",
+            "Store coordinates in Mapbox format — storage is Google-agnostic",
+            "Throw on invalid input — return null/undefined gracefully"
+          ],
+          "strictly": [
+            "All functions MUST be pure (same input → same output)",
+            "TypeScript strict mode — no 'any' types",
+            "Unit test coverage 100% for edge cases"
+          ]
+        },
+        "specification": {
+          "objective": "Create bidirectional coordinate conversion utilities between Google and Mapbox formats",
+          "success_state": "All coordinate conversions work correctly with full type safety and test coverage"
+        },
+        "acceptance_criteria": [
+          {
+            "num": 1,
+            "given": "Google coordinate {lat: 37.7749, lng: -122.4194}",
+            "when": "Converted to Mapbox format",
+            "then": "Returns {lng: -122.4194, lat: 37.7749}",
+            "verify": "expect(googleToMapbox({lat: 37.7749, lng: -122.4194})).toEqual({lng: -122.4194, lat: 37.7749})"
+          },
+          {
+            "num": 2,
+            "given": "Mapbox coordinate {lng: -122.4194, lat: 37.7749}",
+            "when": "Converted to Google format",
+            "then": "Returns {lat: 37.7749, lng: -122.4194}",
+            "verify": "expect(mapboxToGoogle({lng: -122.4194, lat: 37.7749})).toEqual({lat: 37.7749, lng: -122.4194})"
+          },
+          {
+            "num": 3,
+            "given": "Polyline array in Google format",
+            "when": "Converted to Mapbox format",
+            "then": "All coordinate pairs are swapped",
+            "verify": "expect(googleToMapboxPolyline([{lat: 1, lng: 2}, {lat: 3, lng: 4}])).toEqual([{lng: 2, lat: 1}, {lng: 4, lat: 3}])"
+          },
+          {
+            "num": 4,
+            "given": "Invalid coordinate input",
+            "when": "Conversion function called",
+            "then": "Returns null without throwing",
+            "verify": "expect(googleToMapbox(null)).toBeNull()"
+          }
+        ],
+        "test_criteria": [
+          {
+            "num": 1,
+            "statement": "Coordinate swaps lat/lng order when converting from Google to Mapbox format",
+            "maps_to_ac": 1,
+            "verify": "expect(googleToMapbox({lat: 37.7749, lng: -122.4194})).toEqual({lng: -122.4194, lat: 37.7749})",
+            "type": "happy_path"
+          },
+          {
+            "num": 2,
+            "statement": "Coordinate swaps lng/lat order when converting from Mapbox to Google format",
+            "maps_to_ac": 2,
+            "verify": "expect(mapboxToGoogle({lng: -122.4194, lat: 37.7749})).toEqual({lat: 37.7749, lng: -122.4194})",
+            "type": "happy_path"
+          },
+          {
+            "num": 3,
+            "statement": "Polyline array converts all coordinate pairs when converting array from Google to Mapbox",
+            "maps_to_ac": 3,
+            "verify": "expect(googleToMapboxPolyline([{lat: 1, lng: 2}, {lat: 3, lng: 4}])).toEqual([{lng: 2, lat: 1}, {lng: 4, lat: 3}])",
+            "type": "happy_path"
+          },
+          {
+            "num": 4,
+            "statement": "Null input returns null without throwing when conversion function receives invalid input",
+            "maps_to_ac": 4,
+            "verify": "expect(googleToMapbox(null)).toBeNull()",
+            "type": "error_case"
+          }
+        ],
+        "guardrails": {
+          "write_allowed": [
+            "lib/mapbox/coordinate-converter.ts (NEW)",
+            "lib/mapbox/__tests__/coordinate-converter.test.ts (NEW)"
+          ],
+          "write_prohibited": [
+            "lib/polyline.ts - existing Google polyline utilities",
+            "Any storage layer modifications — conversion is render-time only"
+          ]
+        },
+        "design": {
+          "references": [
+            ".spec/prds/complete-local-routing/08-technical-requirements.md:365-372 - Coordinate system documentation",
+            "components/chat/cards/route-mini-map.tsx:95-102 - Existing bounds calculation pattern"
+          ],
+          "interaction_notes": [
+            "No UI interactions — pure utility functions",
+            "Used by MapboxMapView and RouteMiniMap components"
+          ],
+          "pattern": "export const googleToMapbox = (coord: GoogleCoordinate): MapboxCoordinate => ({lng: coord.lng, lat: coord.lat})",
+          "pattern_source": "New pattern — pure utility functions",
+          "anti_pattern": "Modifying input arrays — always create new arrays with map()"
+        },
+        "coding_standards": [
+          {
+            "path": ".claude/rules/coding_standards.mdc",
+            "checks": ["Pure functions only", "TypeScript strict types", "Jest test coverage 100%"]
+          }
+        ],
+        "assignee": "react-native-ui-implementer",
+        "assignment_rationale": "Requires React Native + TypeScript expertise with utility function patterns",
+        "dependencies": [],
+        "estimate_minutes": 90
+      },
+      {
+        "title": "DESIGN-003: RouteMiniMap Migration to Mapbox",
+        "task_type": "DESIGN",
+        "priority": 0,
+        "critical_constraints": {
+          "must": [
+            "Migrate from Google Maps to @rnmapbox/maps",
+            "Preserve exact same API surface — drop-in replacement",
+            "Convert coordinates using CoordinateConverter",
+            "Maintain 120pt fixed height",
+            "Keep all interaction disabled (read-only thumbnail)"
+          ],
+          "never": [
+            "Change component props API — must be backward compatible",
+            "Enable map interaction — this is a read-only thumbnail",
+            "Hardcode copper color — use semantic.color.primary.default"
+          ],
+          "strictly": [
+            "pointerEvents='none' on wrapping View",
+            "All touch targets ≥ 44x44pt (though this component has none)",
+            "Screen reader labels on map container"
+          ]
+        },
+        "specification": {
+          "objective": "Migrate RouteMiniMap component from Google Maps to Mapbox SDK",
+          "success_state": "RouteMiniMap renders route preview with Mapbox, all existing usage works unchanged"
+        },
+        "acceptance_criteria": [
+          {
+            "num": 1,
+            "given": "RouteMiniMap receives overviewGeometry and bounds",
+            "when": "Component renders",
+            "then": "Mapbox map displays route polyline correctly",
+            "verify": "cy.get('[data-testid=route-mini-map] MapboxGLMapView').should('exist')"
+          },
+          {
+            "num": 2,
+            "given": "Route geometry has coordinates in Google format",
+            "when": "Polyline renders",
+            "then": "Coordinates converted to Mapbox [lng, lat] format",
+            "verify": "cy.get('[data-testid=route-mini-map] MapboxGLPointAnnotation').first().should('have.attr', 'coordinates')"
+          },
+          {
+            "num": 3,
+            "given": "Map fits to bounds with padding",
+            "when": "Component mounts",
+            "then": "Route is centered with 1.3x padding multiplier",
+            "verify": "cy.get('[data-testid=route-mini-map]').should('have.attr', 'camera-padding')"
+          },
+          {
+            "num": 4,
+            "given": "User taps on route mini-map",
+            "when": "Touch event occurs",
+            "then": "Tap passes through to parent (pointerEvents='none')",
+            "verify": "cy.get('[data-testid=route-mini-map]').should('have.attr', 'pointer-events', 'none')"
+          }
+        ],
+        "test_criteria": [
+          {
+            "num": 1,
+            "statement": "Mapbox map displays route polyline when RouteMiniMap receives overviewGeometry and bounds",
+            "maps_to_ac": 1,
+            "verify": "cy.get('[data-testid=route-mini-map] MapboxGLMapView').should('exist')",
+            "type": "happy_path"
+          },
+          {
+            "num": 2,
+            "statement": "Polyline coordinates converted to Mapbox format when route geometry has Google format coordinates",
+            "maps_to_ac": 2,
+            "verify": "cy.get('[data-testid=route-mini-map] MapboxGLPointAnnotation').first().should('have.attr', 'coordinates')",
+            "type": "edge_case"
+          },
+          {
+            "num": 3,
+            "statement": "Route centered with padding when map fits to bounds with 1.3x multiplier",
+            "maps_to_ac": 3,
+            "verify": "cy.get('[data-testid=route-mini-map]').should('have.attr', 'camera-padding')",
+            "type": "happy_path"
+          },
+          {
+            "num": 4,
+            "statement": "Touch events pass through to parent when user taps on mini-map with pointerEvents='none'",
+            "maps_to_ac": 4,
+            "verify": "cy.get('[data-testid=route-mini-map]').should('have.attr', 'pointer-events', 'none')",
+            "type": "happy_path"
+          }
+        ],
+        "guardrails": {
+          "write_allowed": [
+            "components/chat/cards/route-mini-map.tsx (MODIFY)",
+            "components/chat/cards/__tests__/route-mini-map.test.tsx (MODIFY)"
+          ],
+          "write_prohibited": [
+            "components/chat/routing-card.tsx - consuming component, no changes needed",
+            "Any API surface changes — must be backward compatible"
+          ]
+        },
+        "design": {
+          "references": [
+            "components/chat/cards/route-mini-map.tsx:1-159 - Existing implementation to migrate",
+            ".spec/designs/README.md - Design system references",
+            ".spec/prds/complete-local-routing/08-technical-requirements.md:320-327 - Mini-map component specs"
+          ],
+          "interaction_notes": [
+            "No interaction — read-only thumbnail",
+            "pointerEvents='none' ensures taps pass through",
+            "Camera fits bounds with 1.3x padding multiplier"
+          ],
+          "pattern": "const coordinates = useMemo(() => decodePolylineGeometry(overviewGeometry), [overviewGeometry])",
+          "pattern_source": "components/chat/cards/route-mini-map.tsx:55-64",
+          "anti_pattern": "Enabling scrollEnabled/zoomEnabled — this is a static thumbnail"
+        },
+        "coding_standards": [
+          {
+            "path": "components/CLAUDE.md",
+            "checks": ["Use useSemanticTheme() for all styling", "Named export with displayName", "useMemo for expensive computations"]
+          },
+          {
+            "path": ".claude/rules/react_rules.mdc",
+            "checks": ["Pure functional components", "No side effects in render", "PropTypes or TypeScript"]
+          }
+        ],
+        "assignee": "react-native-ui-implementer",
+        "assignment_rationale": "Requires React Native + Expo expertise with Mapbox SDK migration",
+        "dependencies": ["DESIGN-001", "DESIGN-002"],
+        "estimate_minutes": 120
+      }
+    ],
+    "p1_high": [
+      {
+        "title": "DESIGN-004: ShadowSetupWelcome Screen",
+        "task_type": "DESIGN",
+        "priority": 1,
+        "critical_constraints": {
+          "must": [
+            "Follow .spec/designs/shadow-setup-welcome.html mockup exactly",
+            "Use semantic theme tokens only (no hardcoded colors)",
+            "Display feature highlights with copper accent",
+            "Show 'Begin Setup' CTA button",
+            "Support both light and dark themes"
+          ],
+          "never": [
+            "Hardcode copper color #B87333 — use semantic.color.primary.default",
+            "Skip screen reader labels on interactive elements",
+            "Use pixel values — use semantic.space.* tokens"
+          ],
+          "strictly": [
+            "Touch targets ≥ 44x44pt for WCAG AA",
+            "Screen reader labels on all buttons",
+            "Contrast ratio ≥ 4.5:1 for normal text"
+          ]
+        },
+        "specification": {
+          "objective": "Create welcome screen for Shadow Setup onboarding flow",
+          "success_state": "Welcome screen displays with feature highlights, CTA button navigates to WiFi check"
+        },
+        "acceptance_criteria": [
+          {
+            "num": 1,
+            "given": "User launches app for first time",
+            "when": "Welcome screen renders",
+            "then": "Feature highlights display with copper accent",
+            "verify": "cy.get('[data-testid=shadow-setup-welcome]').should('be.visible').and('contain', 'feature highlights')"
+          },
+          {
+            "num": 2,
+            "given": "User taps 'Begin Setup' button",
+            "when": "Button pressed",
+            "then": "Navigation to WiFi check screen",
+            "verify": "cy.get('[data-testid=begin-setup-btn]').click().url().should('include', '/shadow-setup/wifi')"
+          },
+          {
+            "num": 3,
+            "given": "Screen renders in dark theme",
+            "when": "Theme preference is dark",
+            "then": "Background uses semantic.color.surface.default",
+            "verify": "cy.get('[data-testid=shadow-setup-welcome]').should('have.css', 'background-color').and('eq', 'rgba(26, 28, 31, 1)')"
+          },
+          {
+            "num": 4,
+            "given": "Screen reader focuses 'Begin Setup' button",
+            "when": "Button announced",
+            "then": "Label reads 'Begin Setup, button'",
+            "verify": "cy.get('[data-testid=begin-setup-btn]').should('have.attr', 'accessibility-label', 'Begin Setup')"
+          }
+        ],
+        "test_criteria": [
+          {
+            "num": 1,
+            "statement": "Welcome screen displays with feature highlights when user launches app for first time",
+            "maps_to_ac": 1,
+            "verify": "cy.get('[data-testid=shadow-setup-welcome]').should('be.visible').and('contain', 'feature highlights')",
+            "type": "happy_path"
+          },
+          {
+            "num": 2,
+            "statement": "Navigation to WiFi check screen occurs when user taps Begin Setup button",
+            "maps_to_ac": 2,
+            "verify": "cy.get('[data-testid=begin-setup-btn]').click().url().should('include', '/shadow-setup/wifi')",
+            "type": "happy_path"
+          },
+          {
+            "num": 3,
+            "statement": "Background color uses semantic surface token when screen renders in dark theme",
+            "maps_to_ac": 3,
+            "verify": "cy.get('[data-testid=shadow-setup-welcome]').should('have.css', 'background-color').and('eq', 'rgba(26, 28, 31, 1)')",
+            "type": "edge_case"
+          },
+          {
+            "num": 4,
+            "statement": "Screen reader announces button label correctly when focus is on Begin Setup button",
+            "maps_to_ac": 4,
+            "verify": "cy.get('[data-testid=begin-setup-btn]').should('have.attr', 'accessibility-label', 'Begin Setup')",
+            "type": "happy_path"
+          }
+        ],
+        "guardrails": {
+          "write_allowed": [
+            "app/(app)/shadow-setup/welcome.tsx (NEW)",
+            "components/shadow-setup/welcome-header.tsx (NEW)",
+            "components/shadow-setup/feature-highlights.tsx (NEW)"
+          ],
+          "write_prohibited": [
+            "app.json - navigation config requires separate task",
+            "Any hardcoded color values"
+          ]
+        },
+        "design": {
+          "references": [
+            ".spec/designs/shadow-setup-welcome.html - Complete HTML mockup",
+            ".spec/designs/README.md:24-31 - Phase 0 Shadow Setup specifications",
+            ".spec/prds/complete-local-routing/README.md:146-186 - Phase 0 implementation details"
+          ],
+          "interaction_notes": [
+            "'Begin Setup' button navigates to WiFi check screen",
+            "Feature highlights: Offline routing, Local AI, Cost savings",
+            "Gradient copper styling on header text"
+          ],
+          "pattern": "<SubpageLayout title='Welcome to LaneShadow'><View style={{flex: 1, padding: semantic.space.xl}}>",
+          "pattern_source": "components/layouts/subpage-layout.tsx",
+          "anti_pattern": "Hardcoded spacing values — use semantic.space.* tokens"
+        },
+        "coding_standards": [
+          {
+            "path": "components/CLAUDE.md",
+            "checks": ["Use SubpageLayout for non-map screens", "Use useSemanticTheme() for all styling", "No hardcoded colors"]
+          },
+          {
+            "path": ".claude/rules/react_rules.mdc",
+            "checks": ["Named export", "displayName", "TypeScript for props"]
+          }
+        ],
+        "assignee": "react-native-ui-implementer",
+        "assignment_rationale": "Requires React Native + Expo expertise with onboarding flow implementation",
+        "dependencies": [],
+        "estimate_minutes": 150
+      },
+      {
+        "title": "DESIGN-005: ShadowSetupWiFi Screen",
+        "task_type": "DESIGN",
+        "priority": 1,
+        "critical_constraints": {
+          "must": [
+            "Follow .spec/designs/shadow-setup-wifi.html mockup exactly",
+            "Detect WiFi connection state using @react-native-netinfo/netinfo",
+            "Disable continue button until WiFi connected",
+            "Show download size (~800MB) and estimated time (2-5 min)",
+            "Block cellular downloads explicitly"
+          ],
+          "never": [
+            "Allow download over cellular — hard requirement",
+            "Show continue button as enabled without WiFi",
+            "Hardcode download size — fetch from model metadata"
+          ],
+          "strictly": [
+            "Touch targets ≥ 44x44pt for WCAG AA",
+            "Screen reader announces WiFi state changes",
+            "Continue button has disabled state with accessibilityLabel"
+          ]
+        },
+        "specification": {
+          "objective": "Create WiFi requirement check screen for model download",
+          "success_state": "WiFi state detected accurately, continue button disabled until WiFi connected"
+        },
+        "acceptance_criteria": [
+          {
+            "num": 1,
+            "given": "User navigates to WiFi check screen",
+            "when": "No WiFi connection",
+            "then": "Continue button disabled with 'WiFi Required' message",
+            "verify": "cy.get('[data-testid=continue-btn]').should('be.disabled')"
+          },
+          {
+            "num": 2,
+            "given": "User connects to WiFi",
+            "when": "Network state changes to WiFi",
+            "then": "Continue button enabled with 'Download Your Shadow' label",
+            "verify": "cy.get('[data-testid=continue-btn]').should('be.enabled').and('contain', 'Download Your Shadow')"
+          },
+          {
+            "num": 3,
+            "given": "User has cellular connection only",
+            "when": "Network state checked",
+            "then": "Show 'WiFi Required — Cellular downloads blocked' message",
+            "verify": "cy.get('[data-testid=wifi-warning]').should('contain', 'WiFi Required')"
+          },
+          {
+            "num": 4,
+            "given": "Download size fetched from model metadata",
+            "when": "Screen renders",
+            "then": "Display '~800MB' and '2-5 min' estimated time",
+            "verify": "cy.get('[data-testid=download-size]').should('contain', '800MB').and('contain', '2-5 min')"
+          }
+        ],
+        "test_criteria": [
+          {
+            "num": 1,
+            "statement": "Continue button is disabled when user navigates to WiFi check screen without WiFi connection",
+            "maps_to_ac": 1,
+            "verify": "cy.get('[data-testid=continue-btn]').should('be.disabled')",
+            "type": "happy_path"
+          },
+          {
+            "num": 2,
+            "statement": "Continue button enables when user connects to WiFi network",
+            "maps_to_ac": 2,
+            "verify": "cy.get('[data-testid=continue-btn]').should('be.enabled').and('contain', 'Download Your Shadow')",
+            "type": "happy_path"
+          },
+          {
+            "num": 3,
+            "statement": "Warning message displays when user has cellular connection only instead of WiFi",
+            "maps_to_ac": 3,
+            "verify": "cy.get('[data-testid=wifi-warning]').should('contain', 'WiFi Required')",
+            "type": "edge_case"
+          },
+          {
+            "num": 4,
+            "statement": "Download size and estimated time display when screen renders with model metadata",
+            "maps_to_ac": 4,
+            "verify": "cy.get('[data-testid=download-size]').should('contain', '800MB').and('contain', '2-5 min')",
+            "type": "happy_path"
+          }
+        ],
+        "guardrails": {
+          "write_allowed": [
+            "app/(app)/shadow-setup/wifi.tsx (NEW)",
+            "components/shadow-setup/wifi-check-card.tsx (NEW)",
+            "hooks/use-wifi-detection.ts (NEW)"
+          ],
+          "write_prohibited": [
+            "Direct NetInfo usage — must use hook",
+            "Hardcoded download size — fetch from Convex or model metadata"
+          ]
+        },
+        "design": {
+          "references": [
+            ".spec/designs/shadow-setup-wifi.html - Complete HTML mockup",
+            ".spec/designs/README.md:38-39 - WiFi requirement specification",
+            ".spec/prds/complete-local-routing/README.md:154-157 - WiFi detection requirement"
+          ],
+          "interaction_notes": [
+            "Continue button disabled until WiFi detected",
+            "Cellular connections show warning message",
+            "Download size ~800MB, 2-5 min estimated time"
+          ],
+          "pattern": "const netInfo = useNetInfo(); const isWifi = netInfo.type === 'wifi' && netInfo.isConnected",
+          "pattern_source": "@react-native-netinfo/netinfo documentation",
+          "anti_pattern": "Allowing cellular downloads — this is a hard security requirement"
+        },
+        "coding_standards": [
+          {
+            "path": "components/CLAUDE.md",
+            "checks": ["Use SubpageLayout for non-map screens", "Use useSemanticTheme() for all styling"]
+          },
+          {
+            "path": ".claude/rules/react_rules.mdc",
+            "checks": ["Custom hook for network state", "Named export", "displayName"]
+          }
+        ],
+        "assignee": "react-native-ui-implementer",
+        "assignment_rationale": "Requires React Native + Expo expertise with NetInfo integration",
+        "dependencies": ["DESIGN-004"],
+        "estimate_minutes": 120
+      }
+    ],
+    "p2_medium": [
+      {
+        "title": "DESIGN-006: OfflineRegionDownload Screen",
+        "task_type": "DESIGN",
+        "priority": 2,
+        "critical_constraints": {
+          "must": [
+            "Follow .spec/designs/offline-region-download.html mockup",
+            "Integrate Mapbox offline region selection",
+            "Support interactive bounding box with resize handles",
+            "Show region size estimate before download",
+            "Validate storage before initiating download"
+          ],
+          "never": [
+            "Allow download without storage validation",
+            "Hardcode region size limits",
+            "Skip confirmation dialog before download"
+          ],
+          "strictly": [
+            "Touch targets ≥ 44x44pt for resize handles",
+            "Screen reader labels on map controls",
+            "Contrast ratio ≥ 3:1 for map overlay UI"
+          ]
+        },
+        "specification": {
+          "objective": "Create offline region download screen with map-based selection",
+          "success_state": "User can select region on map, see size estimate, and initiate download"
+        },
+        "acceptance_criteria": [
+          {
+            "num": 1,
+            "given": "User opens offline region download screen",
+            "when": "Map renders with selection tool",
+            "then": "Interactive bounding box displays with resize handles",
+            "verify": "cy.get('[data-testid=region-selection-box]').should('be.visible')"
+          },
+          {
+            "num": 2,
+            "given": "User adjusts bounding box",
+            "when": "Resize handle dragged",
+            "then": "Region size estimate updates in real-time",
+            "verify": "cy.get('[data-testid=region-size-estimate]').should('contain', 'MB')"
+          },
+          {
+            "num": 3,
+            "given": "User taps download button",
+            "when": "Insufficient storage available",
+            "then": "Warning dialog shows before download initiates",
+            "verify": "cy.get('[data-testid=storage-warning-dialog]').should('be.visible')"
+          },
+          {
+            "num": 4,
+            "given": "User names region and confirms download",
+            "when": "Download initiated",
+            "then": "Progress screen displays with circular indicator",
+            "verify": "cy.url().should('include', '/offline/download-progress')"
+          }
+        ],
+        "test_criteria": [
+          {
+            "num": 1,
+            "statement": "Interactive bounding box with resize handles displays when user opens offline region download screen",
+            "maps_to_ac": 1,
+            "verify": "cy.get('[data-testid=region-selection-box]').should('be.visible')",
+            "type": "happy_path"
+          },
+          {
+            "num": 2,
+            "statement": "Region size estimate updates in real-time when user adjusts bounding box with resize handles",
+            "maps_to_ac": 2,
+            "verify": "cy.get('[data-testid=region-size-estimate]').should('contain', 'MB')",
+            "type": "happy_path"
+          },
+          {
+            "num": 3,
+            "statement": "Storage warning dialog displays when user taps download with insufficient storage",
+            "maps_to_ac": 3,
+            "verify": "cy.get('[data-testid=storage-warning-dialog]').should('be.visible')",
+            "type": "error_case"
+          },
+          {
+            "num": 4,
+            "statement": "Navigation to progress screen occurs when user names region and confirms download",
+            "maps_to_ac": 4,
+            "verify": "cy.url().should('include', '/offline/download-progress')",
+            "type": "happy_path"
+          }
+        ],
+        "guardrails": {
+          "write_allowed": [
+            "app/(app)/settings/offline/region-download.tsx (NEW)",
+            "components/offline/region-selection-box.tsx (NEW)",
+            "components/offline/size-estimate-card.tsx (NEW)"
+          ],
+          "write_prohibited": [
+            "Mapbox offlineManager direct usage — must use OfflineManager wrapper",
+            "Storage checks without user notification"
+          ]
+        },
+        "design": {
+          "references": [
+            ".spec/designs/offline-region-download.html - Complete HTML mockup",
+            ".spec/designs/README.md:40-56 - Offline Management specifications",
+            ".spec/prds/complete-local-routing/05-uc-off.md:25-37 - UC-OFF-01 requirements"
+          ],
+          "interaction_notes": [
+            "Resize handles on bounding box corners",
+            "Size estimate updates as box resizes",
+            "Storage validation before download",
+            "Confirmation dialog with region name input"
+          ],
+          "pattern": "const offlineManager = Mapbox.offlineManager; const pack = offlineManager.createPack({name, styleURL})",
+          "pattern_source": "@rnmapbox/maps offlineManager documentation",
+          "anti_pattern": "Skipping storage validation — always check before download"
+        },
+        "coding_standards": [
+          {
+            "path": "components/CLAUDE.md",
+            "checks": ["Use SubpageLayout for non-map screens", "Use useSemanticTheme() for all styling"]
+          },
+          {
+            "path": ".claude/rules/react_rules.mdc",
+            "checks": ["Named export", "displayName", "TypeScript for props"]
+          }
+        ],
+        "assignee": "react-native-ui-implementer",
+        "assignment_rationale": "Requires React Native + Expo expertise with Mapbox offline SDK",
+        "dependencies": ["DESIGN-001"],
+        "estimate_minutes": 180
+      }
+    ]
+  },
+  "metadata": {
+    "total_tasks": 6,
+    "p0_blocking": 3,
+    "p1_high": 2,
+    "p2_medium": 1,
+    "total_estimate_minutes": 840,
+    "prd_coverage_percentage": 100
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "strategy": "full_pipeline_robust",
+  "valid": false,
+  "has_real_waypoints": true,
+  "duration": 9.020397901535034,
+  "waypoint_count": 3,
+  "data": {
+    "origin": "San Francisco, CA",
+    "destination": "Point Reyes, CA",
+    "scenic_route": [
+      "Pacific Coast Highway (CA-1)",
+      "Lagunitas-Feldman Road (CA-1)",
+      "Tomales Point Road (CA-1)",
+      "Tomales-Inverness Road (CA-1)",
+      "Inverness Road (CA-1)",
+      "Point Reyes Road (CA-1)"
+    ],
+    "waypoints": [
+      {
+        "name": "Pacifica",
+        "reason": "Enjoy the scenic coastal road with ocean views and a chance to experience the famous Pacifica Bluffs."
+      },
+      {
+        "name": "Tomales",
+        "reason": "Visit the Tomales Bay State Park for a break, picnic, and to admire the bay views."
+      },
+      {
+        "name": "Point Reyes",
+        "reason": "Arrive at the destination, Point Reyes National Seashore, to explore the coastal trails and wildlife."
+      }
+    ]
+  },
+  "steps": [
+    {
+      "step": "locations",
+      "success": true,
+      "method": "outermost_braces"
+    },
+    {
+      "step": "preferences",
+      "success": false,
+      "error": "JSON parse failed: Extra data: line 6 column 1 (char 69)"
+    },
+    {
+      "step": "waypoints",
+      "success": true,
+      "method": "markdown"
+    }
+  ]
+}

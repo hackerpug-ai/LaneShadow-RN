@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaneShadow - Delete Region Confirmation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1B1715;
+            color: #F5F0EB;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .device-frame {
+            width: 375px;
+            height: 812px;
+            background: linear-gradient(180deg, #1B1715 0%, #2B2725 100%);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 8px solid #1A1C1F;
+        }
+
+        .backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .dialog {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #24272B;
+            border-radius: 24px 24px 0 0;
+            padding: 32px 24px 40px;
+            animation: slide-up 0.3s ease-out;
+        }
+
+        @keyframes slide-up {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .dialog-handle {
+            width: 36px;
+            height: 4px;
+            background: rgba(244, 240, 235, 0.2);
+            border-radius: 2px;
+            margin: 0 auto 24px;
+        }
+
+        .dialog-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(227, 93, 106, 0.15);
+            border: 2px solid rgba(227, 93, 106, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 20px;
+        }
+
+        .dialog-title {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            color: #F5F0EB;
+            margin-bottom: 12px;
+        }
+
+        .dialog-message {
+            font-size: 16px;
+            text-align: center;
+            color: #9CA3AF;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .region-info {
+            background: rgba(244, 240, 235, 0.05);
+            border: 1px solid rgba(244, 240, 235, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .region-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #F5F0EB;
+            margin-bottom: 8px;
+        }
+
+        .region-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+            color: #9CA3AF;
+        }
+
+        .warning-box {
+            background: rgba(227, 93, 106, 0.1);
+            border: 1px solid rgba(227, 93, 106, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .warning-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .warning-text {
+            font-size: 14px;
+            color: #E35D6A;
+            line-height: 1.4;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .secondary-button {
+            flex: 1;
+            height: 56px;
+            background: transparent;
+            border: 1px solid rgba(244, 240, 235, 0.2);
+            border-radius: 16px;
+            color: #9CA3AF;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .secondary-button:hover {
+            background: rgba(244, 240, 235, 0.05);
+        }
+
+        .danger-button {
+            flex: 1;
+            height: 56px;
+            background: rgba(227, 93, 106, 0.15);
+            border: 1px solid rgba(227, 93, 106, 0.4);
+            border-radius: 16px;
+            color: #E35D6A;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .danger-button:hover {
+            background: rgba(227, 93, 106, 0.25);
+        }
+
+        .annotation {
+            position: absolute;
+            background: #2B9AEB;
+            color: #F5F0EB;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            max-width: 200px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .annotation::after {
+            content: '';
+            position: absolute;
+            left: 20px;
+            bottom: -6px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #2B9AEB;
+        }
+    </style>
+</head>
+<body>
+    <div class="device-frame">
+        <!-- Backdrop -->
+        <div class="backdrop"></div>
+
+        <!-- Dialog -->
+        <div class="dialog">
+            <div class="dialog-handle"></div>
+
+            <div class="dialog-icon">🗑️</div>
+            <div class="dialog-title">Delete Region?</div>
+            <div class="dialog-message">
+                This action cannot be undone. You'll need to download this region again to use it offline.
+            </div>
+
+            <!-- Region Info -->
+            <div class="region-info" style="position: relative;">
+                <div class="region-name">Bay Area</div>
+                <div class="region-meta">
+                    <span>📦 245 MB</span>
+                    <span>📅 Apr 8, 2026</span>
+                </div>
+                <div class="annotation" style="right: -220px; top: 50%; transform: translateY(-50%);">UC-OFF-04: Shows region size to inform decision</div>
+            </div>
+
+            <!-- Warning -->
+            <div class="warning-box">
+                <span class="warning-icon">⚠️</span>
+                <span class="warning-text">Routes planned in this region will require an internet connection after deletion.</span>
+            </div>
+
+            <!-- Buttons -->
+            <div class="button-group">
+                <button class="secondary-button">Cancel</button>
+                <button class="danger-button" style="position: relative;">
+                    Delete Region
+                    <div class="annotation" style="bottom: 100%; right: 0; margin-bottom: 8px;">Removes from device storage + Convex metadata</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Delete Region Confirmation Dialog - UC-OFF-04');
+            console.log('');
+            console.log('KEY INTERACTIONS:');
+            console.log('- Modal bottom sheet with backdrop blur');
+            console.log('- Shows region name and size prominently');
+            console.log('- Warning explains offline routing impact');
+            console.log('- Cancel button dismisses dialog');
+            console.log('- Delete button removes region from device and Convex');
+            console.log('- List updates to remove deleted region');
+        });
+    </script>
+</body>
+</html>

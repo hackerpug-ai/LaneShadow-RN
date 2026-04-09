@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaneShadow - Offline Route Creation Flow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d0b0a;
+            color: #F5F0EB;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .flow-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .flow-title {
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #B87333 0%, #FF6B35 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .flow-subtitle {
+            font-size: 18px;
+            color: #9CA3AF;
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .flow-steps {
+            display: flex;
+            gap: 24px;
+            overflow-x: auto;
+            padding-bottom: 24px;
+        }
+
+        .flow-step {
+            flex: 0 0 320px;
+            background: linear-gradient(180deg, #1B1715 0%, #2B2725 100%);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 8px solid #1A1C1F;
+            position: relative;
+        }
+
+        .step-number {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #B87333 0%, #FF6B35 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            z-index: 10;
+        }
+
+        .step-header {
+            padding: 16px 16px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .step-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #F5F0EB;
+            text-align: center;
+            flex: 1;
+        }
+
+        .step-duration {
+            font-size: 11px;
+            color: #9CA3AF;
+            padding: 4px 8px;
+            background: rgba(244, 240, 235, 0.05);
+            border-radius: 6px;
+        }
+
+        .step-content {
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-map {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1A1C1F 0%, #24272B 100%);
+            position: relative;
+        }
+
+        .step-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .step-ui > * {
+            pointer-events: auto;
+        }
+
+        .offline-banner {
+            position: absolute;
+            top: 16px;
+            left: 8px;
+            right: 8px;
+            background: rgba(217, 142, 4, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(217, 142, 4, 0.4);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #F5F0EB;
+        }
+
+        .route-card {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            right: 8px;
+            background: rgba(27, 23, 21, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(184, 115, 51, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .route-name {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #B87333 0%, #FF6B35 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .route-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 11px;
+            color: #9CA3AF;
+            margin-bottom: 8px;
+        }
+
+        .enrichment-items {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .enrichment-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: #F5F0EB;
+        }
+
+        .item-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            flex-shrink: 0;
+        }
+
+        .item-icon.done {
+            background: #31A362;
+        }
+
+        .item-icon.loading {
+            background: rgba(184, 115, 51, 0.2);
+            border: 1px solid rgba(184, 115, 51, 0.4);
+        }
+
+        .item-icon.pending {
+            background: rgba(244, 240, 235, 0.1);
+            color: #9CA3AF;
+        }
+
+        .step-footer {
+            padding: 16px;
+            background: rgba(27, 23, 21, 0.95);
+            border-top: 1px solid rgba(184, 115, 51, 0.2);
+        }
+
+        .step-description {
+            font-size: 12px;
+            color: #9CA3AF;
+            line-height: 1.5;
+        }
+
+        .step-tech {
+            margin-top: 12px;
+            padding: 8px;
+            background: rgba(43, 154, 235, 0.1);
+            border: 1px solid rgba(43, 154, 235, 0.3);
+            border-radius: 8px;
+            font-size: 11px;
+            color: #2B9AEB;
+        }
+
+        .tech-label {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .tech-value {
+            color: #F5F0EB;
+        }
+
+        .arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 40px;
+        }
+
+        .arrow-icon {
+            font-size: 24px;
+            color: #B87333;
+        }
+
+        .legend {
+            margin-top: 32px;
+            padding: 20px;
+            background: rgba(184, 115, 51, 0.1);
+            border: 1px solid rgba(184, 115, 51, 0.3);
+            border-radius: 16px;
+        }
+
+        .legend-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #F5F0EB;
+        }
+
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #9CA3AF;
+        }
+
+        .legend-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .legend-icon.done {
+            background: #31A362;
+        }
+
+        .legend-icon.loading {
+            background: rgba(184, 115, 51, 0.2);
+            border: 2px solid #B87333;
+        }
+
+        .legend-icon.pending {
+            background: rgba(244, 240, 235, 0.1);
+            border: 1px solid rgba(244, 240, 235, 0.2);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="flow-container">
+        <div class="flow-title">Offline Route Creation Flow</div>
+        <div class="flow-subtitle">UC-OFF-07: Create Route While Offline + UC-OFF-08: Progressive Enrichment</div>
+
+        <div class="flow-steps">
+            <!-- Step 1: Start Offline -->
+            <div class="flow-step">
+                <div class="step-number">1</div>
+                <div class="step-header">
+                    <div class="step-title">Start Offline</div>
+                    <div class="step-duration">0.0s</div>
+                </div>
+                <div class="step-content">
+                    <div class="step-map">
+                        <div style="font-size: 48px; opacity: 0.3;">🗺️</div>
+                        <div class="step-ui">
+                            <div class="offline-banner">
+                                📴 Offline Mode
+                            </div>
+                            <div class="route-card">
+                                <div class="route-name">Route #123</div>
+                                <div class="route-meta">
+                                    <span>📍 0 mi</span>
+                                    <span>⏱️ 0h 0m</span>
+                                </div>
+                                <div class="enrichment-items">
+                                    <div class="enrichment-item">
+                                        <div class="item-icon pending">○</div>
+                                        <span>Enter waypoints to begin...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-footer">
+                    <div class="step-description">
+                        User opens route planning with no internet connection. System detects offline status and shows banner.
+                    </div>
+                    <div class="step-tech">
+                        <div class="tech-label">TECH</div>
+                        <div class="tech-value">NetInfo detects offline state</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow">
+                <span class="arrow-icon">→</span>
+            </div>
+
+            <!-- Step 2: Enter Waypoints -->
+            <div class="flow-step">
+                <div class="step-number">2</div>
+                <div class="step-header">
+                    <div class="step-title">Enter Waypoints</div>
+                    <div class="step-duration">~30s</div>
+                </div>
+                <div class="step-content">
+                    <div class="step-map">
+                        <div style="font-size: 48px; opacity: 0.3;">🗺️</div>
+                        <div class="step-ui">
+                            <div class="offline-banner">
+                                📴 Offline Mode
+                            </div>
+                            <div class="route-card">
+                                <div class="route-name">Route #123</div>
+                                <div class="route-meta">
+                                    <span>📍 78 mi</span>
+                                    <span>⏱️ 2h 15m</span>
+                                </div>
+                                <div class="enrichment-items">
+                                    <div class="enrichment-item">
+                                        <div class="item-icon loading">
+                                            <div style="width: 8px; height: 8px; border: 2px solid #B87333; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                                        </div>
+                                        <span>Generating leg labels...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-footer">
+                    <div class="step-description">
+                        User enters FROM → TO → waypoints. Qwen3.5 generates leg labels locally.
+                    </div>
+                    <div class="step-tech">
+                        <div class="tech-label">TECH</div>
+                        <div class="tech-value">Qwen3.5 0.8B (local, 0.35s)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow">
+                <span class="arrow-icon">→</span>
+            </div>
+
+            <!-- Step 3: Calculate Route -->
+            <div class="flow-step">
+                <div class="step-number">3</div>
+                <div class="step-header">
+                    <div class="step-title">Calculate Route</div>
+                    <div class="step-duration">0.5s</div>
+                </div>
+                <div class="step-content">
+                    <div class="step-map">
+                        <svg style="position: absolute; width: 100%; height: 100%;" viewBox="0 0 100 100">
+                            <path d="M 20 80 Q 30 40 50 50 T 80 20" stroke="#B87333" stroke-width="3" fill="none"/>
+                        </svg>
+                        <div style="font-size: 48px; opacity: 0.3;">🗺️</div>
+                        <div class="step-ui">
+                            <div class="offline-banner">
+                                📴 Offline Mode - Route calculated locally
+                            </div>
+                            <div class="route-card">
+                                <div class="route-name">Route #123</div>
+                                <div class="route-meta">
+                                    <span>📍 78 mi</span>
+                                    <span>⏱️ 2h 15m</span>
+                                </div>
+                                <div class="enrichment-items">
+                                    <div class="enrichment-item">
+                                        <div class="item-icon done">✓</div>
+                                        <span>Leg labels: SF → Half Moon Bay → Santa Cruz</span>
+                                    </div>
+                                    <div class="enrichment-item">
+                                        <div class="item-icon done">✓</div>
+                                        <span>Route geometry calculated</span>
+                                    </div>
+                                    <div class="enrichment-item">
+                                        <div class="item-icon pending">○</div>
+                                        <span>Sync pending (connect to enrich)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-footer">
+                    <div class="step-description">
+                        Mapbox SDK calculates route geometry from downloaded offline maps. Draft route saved to AsyncStorage.
+                    </div>
+                    <div class="step-tech">
+                        <div class="tech-label">TECH</div>
+                        <div class="tech-value">Mapbox offline routing + AsyncStorage</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow">
+                <span class="arrow-icon">→</span>
+            </div>
+
+            <!-- Step 4: Progressive Enrichment -->
+            <div class="flow-step">
+                <div class="step-number">4</div>
+                <div class="step-header">
+                    <div class="step-title">Progressive Enrichment</div>
+                    <div class="step-duration">3.9s</div>
+                </div>
+                <div class="step-content">
+                    <div class="step-map">
+                        <svg style="position: absolute; width: 100%; height: 100%;" viewBox="0 0 100 100">
+                            <path d="M 20 80 Q 30 40 50 50 T 80 20" stroke="#B87333" stroke-width="3" fill="none"/>
+                        </svg>
+                        <div style="font-size: 48px; opacity: 0.3;">🗺️</div>
+                        <div class="step-ui">
+                            <div class="offline-banner" style="background: rgba(43, 154, 235, 0.9); border-color: rgba(43, 154, 235, 0.4);">
+                                ⚡ Enhancing your route...
+                            </div>
+                            <div class="route-card">
+                                <div class="route-name">Coastal Escape</div>
+                                <div class="route-meta">
+                                    <span>📍 78 mi</span>
+                                    <span>⏱️ 2h 15m</span>
+                                    <span style="color: #31A362;">✓ Complete</span>
+                                </div>
+                                <div class="enrichment-items">
+                                    <div class="enrichment-item">
+                                        <div class="item-icon done">✓</div>
+                                        <span>Leg labels (0.35s)</span>
+                                    </div>
+                                    <div class="enrichment-item">
+                                        <div class="item-icon done">✓</div>
+                                        <span>Creative name "Coastal Escape" (1.2s)</span>
+                                    </div>
+                                    <div class="enrichment-item">
+                                        <div class="item-icon done">✓</div>
+                                        <span>Scenic rationale (2.5s)</span>
+                                    </div>
+                                    <div class="enrichment-item">
+                                        <div class="item-icon done">✓</div>
+                                        <span>Highlight tags: ocean views, cliffs (3.9s)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-footer">
+                    <div class="step-description">
+                        Device connects to WiFi. Route syncs to Convex. Haiku enriches with creative label, rationale, and highlights.
+                    </div>
+                    <div class="step-tech">
+                        <div class="tech-label">TECH</div>
+                        <div class="tech-value">Haiku (cloud) + CRDT sync</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-title">Enrichment Status Legend</div>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-icon done"></div>
+                    <span>Complete - Item finished loading</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon loading"></div>
+                    <span>In Progress - Currently loading</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon pending"></div>
+                    <span>Pending - Waiting to load</span>
+                </div>
+                <div class="legend-item">
+                    <span style="color: #B87333;">→</span>
+                    <span>Flow direction (left to right)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Offline Route Creation Flow - UC-OFF-07 + UC-OFF-08');
+            console.log('');
+            console.log('FLOW SUMMARY:');
+            console.log('1. Start Offline (0.0s) - User opens route planning with no connection');
+            console.log('2. Enter Waypoints (~30s) - User inputs FROM → TO → waypoints');
+            console.log('3. Calculate Route (0.5s) - Qwen3.5 + Mapbox offline routing');
+            console.log('4. Progressive Enrichment (3.9s) - Haiku enriches when connected');
+            console.log('');
+            console.log('KEY BEHAVIORS:');
+            console.log('- Route displays immediately with leg labels (<1s total)');
+            console.log('- Draft persists to AsyncStorage with status: local_only');
+            console.log('- Sync pending badge shows until connected');
+            console.log('- Progressive enrichment: each component appears when ready');
+            console.log('- User can continue using app during enrichment');
+            console.log('- No blocking failures - all paths have fallbacks');
+        });
+    </script>
+</body>
+</html>

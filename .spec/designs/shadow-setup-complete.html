@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaneShadow - Your Shadow is Ready</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1B1715;
+            color: #F5F0EB;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .device-frame {
+            width: 375px;
+            height: 812px;
+            background: linear-gradient(180deg, #1B1715 0%, #2B2725 100%);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 8px solid #1A1C1F;
+        }
+
+        .status-bar {
+            height: 44px;
+            padding: 12px 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 48px 32px;
+            height: calc(100% - 44px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 48px;
+            position: relative;
+        }
+
+        .success-icon {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 32px;
+            position: relative;
+        }
+
+        .success-circle {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #31A362 0%, #2C9F9B 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 72px;
+            animation: success-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes success-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(49, 163, 98, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(49, 163, 98, 0); }
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #31A362 0%, #2C9F9B 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #9CA3AF;
+        }
+
+        .features-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .feature-card {
+            background: rgba(49, 163, 98, 0.1);
+            border: 1px solid rgba(49, 163, 98, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(49, 163, 98, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .feature-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #F5F0EB;
+        }
+
+        .feature-description {
+            font-size: 14px;
+            color: #9CA3AF;
+            line-height: 1.4;
+        }
+
+        .cta-section {
+            padding-top: 24px;
+        }
+
+        .primary-button {
+            width: 100%;
+            height: 56px;
+            background: linear-gradient(135deg, #31A362 0%, #2C9F9B 100%);
+            border: none;
+            border-radius: 16px;
+            color: #F5F0EB;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .primary-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(49, 163, 98, 0.3);
+        }
+
+        .primary-button:active {
+            transform: translateY(0);
+        }
+
+        .annotation {
+            position: absolute;
+            background: #2B9AEB;
+            color: #F5F0EB;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            max-width: 200px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .annotation::after {
+            content: '';
+            position: absolute;
+            left: 20px;
+            bottom: -6px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #2B9AEB;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #31A362;
+            animation: confetti-fall 3s ease-in-out infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(800px) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="device-frame">
+        <!-- Confetti -->
+        <div class="confetti" style="left: 10%; animation-delay: 0s; background: #31A362;"></div>
+        <div class="confetti" style="left: 30%; animation-delay: 0.5s; background: #2C9F9B;"></div>
+        <div class="confetti" style="left: 50%; animation-delay: 1s; background: #B87333;"></div>
+        <div class="confetti" style="left: 70%; animation-delay: 1.5s; background: #FF6B35;"></div>
+        <div class="confetti" style="left: 90%; animation-delay: 2s; background: #31A362;"></div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>📶 📡 🔋</span>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <div class="success-icon">
+                    <div class="success-circle">✓</div>
+                </div>
+                <div class="title">Your Shadow is Ready</div>
+                <div class="subtitle">You're all set to start planning rides</div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="features-section">
+                <div class="feature-card" style="position: relative;">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-text">
+                        <div class="feature-title">Instant Leg Labels</div>
+                        <div class="feature-description">Route segments named in under 0.5 seconds</div>
+                    </div>
+                    <div class="annotation" style="right: -220px; top: 50%; transform: translateY(-50%);">Local Qwen3.5 model enables this</div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📴</div>
+                    <div class="feature-text">
+                        <div class="feature-title">Offline Route Planning</div>
+                        <div class="feature-description">Create routes even without cell service</div>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <div class="feature-text">
+                        <div class="feature-title">Automatic Sync</div>
+                        <div class="feature-description">Changes sync when you reconnect</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="cta-section">
+                <button class="primary-button" style="position: relative;">
+                    Start Planning Routes
+                    <span>→</span>
+                    <div class="annotation" style="bottom: 100%; margin-bottom: 8px;">Navigates to main map screen</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Setup Complete Screen - Phase 0 Onboarding');
+            console.log('Previous: shadow-setup-download.html');
+            console.log('Next: Main app (map screen)');
+            console.log('');
+            console.log('KEY BEHAVIORS:');
+            console.log('- This screen is shown once on first launch');
+            console.log('- Model download state persists across app restarts');
+            console.log('- Hard gate: app CANNOT be used without model');
+            console.log('- Future launches skip directly to main app');
+        });
+    </script>
+</body>
+</html>

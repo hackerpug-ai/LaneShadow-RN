@@ -1,0 +1,49 @@
+{
+  "model": "microsoft/Phi-3-mini-4k-instruct",
+  "test_request": "Plan a scenic motorcycle route from San Francisco to Point Reyes along the coast. I want twisty roads with ocean views and minimal highway riding.",
+  "strategies": [
+    {
+      "strategy": "single_prompt",
+      "valid_json": false,
+      "duration": 8.792,
+      "data": {}
+    },
+    {
+      "strategy": "simplified_prompts",
+      "valid_json": true,
+      "duration": 6.846,
+      "data": {
+        "origin": "San Francisco",
+        "destination": "Point Reyes",
+        "route_preference": "scenic|twisty",
+        "avoid_highways": true,
+        "waypoints": [
+          {
+            "address": "address1"
+          },
+          {
+            "address": "address2"
+          },
+          {
+            "address": "address3"
+          }
+        ]
+      }
+    },
+    {
+      "strategy": "multi_agent",
+      "valid_json": true,
+      "duration": 6.816,
+      "data": {
+        "origin": "San Francisco",
+        "destination": "Point Reyes",
+        "route_preference": "scenic|twisty",
+        "avoid_highways": true,
+        "scenic_highlights": [
+          "Pacific Coast Highway",
+          "Point Reyes National Seashore"
+        ]
+      }
+    }
+  ]
+}

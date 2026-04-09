@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaneShadow - WiFi Required</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1B1715;
+            color: #F5F0EB;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .device-frame {
+            width: 375px;
+            height: 812px;
+            background: linear-gradient(180deg, #1B1715 0%, #2B2725 100%);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 8px solid #1A1C1F;
+        }
+
+        .status-bar {
+            height: 44px;
+            padding: 12px 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 48px 32px;
+            height: calc(100% - 44px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .icon-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .wifi-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            background: rgba(43, 154, 235, 0.15);
+            border: 2px solid rgba(43, 154, 235, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 56px;
+            position: relative;
+        }
+
+        .wifi-icon::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(43, 154, 235, 0.1);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.2; }
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #F5F0EB;
+            text-align: center;
+        }
+
+        .description {
+            font-size: 16px;
+            color: #9CA3AF;
+            line-height: 1.6;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .info-card {
+            background: rgba(43, 154, 235, 0.1);
+            border: 1px solid rgba(43, 154, 235, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: #F5F0EB;
+            line-height: 1.4;
+        }
+
+        .info-text strong {
+            color: #2B9AEB;
+        }
+
+        .status-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            gap: 16px;
+        }
+
+        .connection-status {
+            background: rgba(155, 107, 47, 0.15);
+            border: 1px solid rgba(155, 107, 47, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #D98E04;
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        .status-indicator.connected {
+            background: #31A362;
+            animation: none;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .status-text {
+            font-size: 14px;
+            color: #F5F0EB;
+        }
+
+        .status-text strong {
+            color: #D98E04;
+        }
+
+        .connection-status.connected .status-text strong {
+            color: #31A362;
+        }
+
+        .button-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .primary-button {
+            width: 100%;
+            height: 56px;
+            background: linear-gradient(135deg, #B87333 0%, #FF6B35 100%);
+            border: none;
+            border-radius: 16px;
+            color: #F5F0EB;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .primary-button.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .primary-button.active:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(184, 115, 51, 0.3);
+        }
+
+        .secondary-button {
+            width: 100%;
+            height: 48px;
+            background: transparent;
+            border: 1px solid rgba(244, 240, 235, 0.2);
+            border-radius: 12px;
+            color: #9CA3AF;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .secondary-button:hover {
+            background: rgba(244, 240, 235, 0.05);
+            border-color: rgba(244, 240, 235, 0.3);
+        }
+
+        .annotation {
+            position: absolute;
+            background: #2B9AEB;
+            color: #F5F0EB;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            max-width: 200px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .annotation::after {
+            content: '';
+            position: absolute;
+            left: 20px;
+            bottom: -6px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #2B9AEB;
+        }
+
+        .annotation-top {
+            bottom: 100%;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="device-frame">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>📶 📡 🔋</span>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Icon Section -->
+            <div class="icon-section">
+                <div class="wifi-icon">📶</div>
+                <div class="title">WiFi Required</div>
+                <div class="description">
+                    Your Shadow (AI model) requires a WiFi connection to download. Cellular downloads are not supported.
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="info-card">
+                <div class="info-row">
+                    <span class="info-icon">📦</span>
+                    <span class="info-text"><strong>Download size:</strong> ~800MB</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-icon">⏱️</span>
+                    <span class="info-text"><strong>Estimated time:</strong> 2-5 minutes</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-icon">🔄</span>
+                    <span class="info-text"><strong>Resume support:</strong> Automatic if interrupted</span>
+                </div>
+            </div>
+
+            <!-- Status Section -->
+            <div class="status-section">
+                <div class="connection-status" id="connectionStatus">
+                    <div class="status-indicator"></div>
+                    <div class="status-text">
+                        <span id="statusText">Checking connection...</span>
+                    </div>
+                </div>
+
+                <div class="button-section">
+                    <button class="primary-button" id="continueButton">
+                        Continue to Download
+                    </button>
+                    <button class="secondary-button">
+                        Learn why WiFi is required
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulate WiFi detection
+        setTimeout(() => {
+            const status = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('statusText');
+            const button = document.getElementById('continueButton');
+
+            // Simulate WiFi detected
+            status.classList.add('connected');
+            statusText.innerHTML = '<strong>WiFi connected</strong> - Ready to download';
+            button.classList.add('active');
+            button.setAttribute('data-annotation', 'Enables download - blocked until WiFi detected');
+        }, 2000);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('WiFi Required Screen - Phase 0 Onboarding');
+            console.log('Previous: shadow-setup-welcome.html');
+            console.log('Next: shadow-setup-download.html (when WiFi detected)');
+        });
+    </script>
+</body>
+</html>
