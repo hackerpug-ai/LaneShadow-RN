@@ -49,6 +49,18 @@ const reactNativeStubPlugin = () => ({
     if (source === 'expo-modules-core') {
       return resolve(__dirname, '__mocks__/expo-modules-core.ts')
     }
+    // expo-crypto requires native modules
+    if (source === 'expo-crypto') {
+      return resolve(__dirname, '__mocks__/expo-crypto.ts')
+    }
+    // expo-file-system requires native modules
+    if (source === 'expo-file-system') {
+      return resolve(__dirname, '__mocks__/expo-file-system.ts')
+    }
+    // expo-network requires native modules
+    if (source === 'expo-network') {
+      return resolve(__dirname, '__mocks__/expo-network.ts')
+    }
     // expo has TypeScript files that cannot be parsed
     if (source === 'expo') {
       return resolve(__dirname, '__mocks__/expo.ts')
@@ -136,6 +148,9 @@ export default defineConfig({
       { find: /^expo-modules-core$/, replacement: resolve(__dirname, '__mocks__/expo-modules-core.ts') },
       { find: /^react-native-maps$/, replacement: resolve(__dirname, '__mocks__/react-native-maps.ts') },
       { find: /^expo-haptics$/, replacement: resolve(__dirname, '__mocks__/expo-haptics.ts') },
+      { find: /^expo-crypto$/, replacement: resolve(__dirname, '__mocks__/expo-crypto.ts') },
+      { find: /^expo-file-system$/, replacement: resolve(__dirname, '__mocks__/expo-file-system.ts') },
+      { find: /^expo-network$/, replacement: resolve(__dirname, '__mocks__/expo-network.ts') },
     ],
   },
   esbuild: {

@@ -1,0 +1,15 @@
+$ vitest lib/ai/__tests__/
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow
+
+ ✓ lib/ai/__tests__/model-download.test.ts (2 tests) 2ms
+ ✓ lib/ai/__tests__/storage.test.ts (3 tests) 1ms
+ ✓ lib/ai/__tests__/local-model.test.ts (3 tests) 1ms
+ ✓ lib/ai/__tests__/checksum.test.ts (3 tests) 0ms
+
+ Test Files  4 passed (4)
+      Tests  11 passed (11)
+   Start at  14:46:45
+   Duration  462ms (transform 41ms, setup 63ms, collect 32ms, tests 4ms, environment 224ms, prepare 34ms)
+
+Exit code: 0
