@@ -2,20 +2,18 @@
  * PlanningCard
  *
  * Surfaces the ride-planning orchestrator's work (tool calls, agent dispatches)
- * inline in the chat transcript as a compact, collapsible status row. Shows a
- * rolling status line while planning is in progress, then collapses to a
- * "Planned for Xs" summary when done. Tapping the completed row will open the
- * PlanningBottomSheet (wired in Task 4).
+ * inline in the chat transcript as a compact status row. Shows a rolling status
+ * line while planning is in progress, then collapses to a simple completion
+ * indicator when done.
  *
  * Visual states:
- *   streaming  → pulsing dot + single-line status text (not expandable)
- *   complete   → checkmark + "Planned for Xs" + chevron (tappable)
- *   failed     → X icon + "Planning failed" (not expandable)
+ *   streaming  → pulsing dot + single-line status text
+ *   complete   → checkmark + "Planned for Xs" (static, not interactive)
+ *   failed     → X icon + "Planning failed" (static)
  *
  * Follows the same visual language as ReasoningCard:
  * - Same container/padding (semantic.space.sm / semantic.space.md)
  * - Same streaming tint overlay
- * - Same chevron for expandable state
  * - Route/map pin icon instead of lightbulb
  *
  * Following components/CLAUDE.md: uses useSemanticTheme() exclusively.
@@ -27,7 +25,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Pressable,
   AccessibilityInfo,
 } from 'react-native'
 import Animated, {
@@ -39,8 +36,6 @@ import Animated, {
 } from 'react-native-reanimated'
 import { IconSymbol } from '../../ui/icon-symbol'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import { PlanningBottomSheet } from '../../sheets/planning-bottom-sheet'
-import type { PlanningEvent } from '../../sheets/planning-bottom-sheet'
 import type { Id } from '../../../convex/_generated/dataModel'
 import type { CardAttachment } from '../card-registry'
 
@@ -67,35 +62,20 @@ export type PlanningCardProps = {
 // ---------------------------------------------------------------------------
 
 type PlanningContent = {
-  events: PlanningEvent[]
   statusLine: string
-  thinkingText?: string
   totalDurationMs: number
-}
-
-function isPlanningEvent(value: unknown): value is PlanningEvent {
-  if (typeof value !== 'object' || value === null) return false
-  const v = value as Record<string, unknown>
-  return (
-    (v.type === 'tool_pending' || v.type === 'tool_complete' || v.type === 'agent_complete') &&
-    typeof v.agent === 'string' &&
-    typeof v.ts === 'number'
-  )
 }
 
 function parsePlanningContent(raw: string): PlanningContent {
   try {
     const parsed = JSON.parse(raw)
-    const rawEvents = Array.isArray(parsed.events) ? parsed.events : []
     return {
-      events: rawEvents.filter(isPlanningEvent),
       statusLine: typeof parsed.statusLine === 'string' ? parsed.statusLine : '',
-      thinkingText: typeof parsed.thinkingText === 'string' ? parsed.thinkingText : undefined,
       totalDurationMs:
         typeof parsed.totalDurationMs === 'number' ? parsed.totalDurationMs : 0,
     }
   } catch {
-    return { events: [], statusLine: '', totalDurationMs: 0 }
+    return { statusLine: '', totalDurationMs: 0 }
   }
 }
 
@@ -163,8 +143,6 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
 
   const { semantic } = useSemanticTheme()
 
-  const [expanded, setExpanded] = useState(false)
-  const [sheetVisible, setSheetVisible] = useState(false)
   const [reduceMotion, setReduceMotion] = useState(false)
 
   const status = message.status
@@ -172,37 +150,12 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
   const isComplete = status === 'complete'
   const isFailed = status === 'failed'
 
-  console.info('[PlanningCard] State computed', {
-    status,
-    isStreaming,
-    isComplete,
-    isFailed,
-    canExpand: isComplete,
-  })
-
-  // Only complete rows are tappable/expandable. Streaming and failed are not.
-  const canExpand = isComplete
-
   const content = parsePlanningContent(message.content)
 
   console.info('[PlanningCard] Content parsed', {
-    eventsCount: content.events.length,
     statusLine: content.statusLine,
-    hasThinkingText: !!content.thinkingText,
     totalDurationMs: content.totalDurationMs,
   })
-
-  // Auto-show the bottom sheet during streaming so users can see thinking immediately
-  // Close it when streaming completes
-  React.useEffect(() => {
-    if (isStreaming && content.thinkingText) {
-      console.info('[PlanningCard] Auto-showing sheet for streaming')
-      setSheetVisible(true)
-    } else if (!isStreaming && sheetVisible) {
-      console.info('[PlanningCard] Hiding sheet - streaming complete')
-      setSheetVisible(false)
-    }
-  }, [isStreaming, content.thinkingText, sheetVisible])
 
   // ---------------------------------------------------------------------------
   // Accessibility: reduce-motion support
@@ -246,12 +199,6 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
       ? label
       : 'Planning failed'
 
-  const accessibilityHint = canExpand
-    ? expanded
-      ? 'Double tap to collapse'
-      : 'Double tap to expand planning details'
-    : undefined
-
   const liveRegion: 'polite' | 'none' = isStreaming ? 'polite' : 'none'
 
   // ---------------------------------------------------------------------------
@@ -261,7 +208,6 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
   const mutedColor = semantic.color.onSurface.muted ?? semantic.color.onSurface.default
   const surfaceColor = semantic.color.surfaceVariant.default
   const streamingOverlay = semantic.color.primary.default + '14'
-  const rippleColor = mutedColor + '14'
 
   // Icon selection
   const glyphName = isComplete
@@ -270,45 +216,31 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
       ? 'close-circle-outline'
       : 'map-marker-path'
 
-  const handleToggle = () => {
-    console.info('[PlanningCard] Toggle pressed', { canExpand, expanded })
-    if (!canExpand) return
-    setExpanded((prev) => !prev)
-    setSheetVisible(true)
-  }
-
   return (
     <View
       style={styles.container}
       testID="planning-card"
     >
-      <Pressable
-        onPress={handleToggle}
-        disabled={!canExpand}
-        android_ripple={{ color: rippleColor }}
-        style={({ pressed }) => [
+      <View
+        style={[
           styles.card,
           {
             backgroundColor: surfaceColor,
             borderRadius: semantic.radius.md,
             paddingHorizontal: semantic.space.md,
             paddingVertical: semantic.space.sm,
-            opacity: pressed && canExpand ? 0.7 : 1,
           },
         ]}
-        accessibilityRole="button"
+        accessibilityRole="text"
         accessibilityLabel={accessibilityLabel}
-        accessibilityHint={accessibilityHint}
-        accessibilityState={{ expanded, busy: isStreaming }}
+        accessibilityState={{ busy: isStreaming }}
         accessibilityLiveRegion={liveRegion}
         testID={
           isStreaming
             ? 'planning-card-streaming'
             : isFailed
               ? 'planning-card-error'
-              : expanded
-                ? 'planning-card-expanded'
-                : 'planning-card-collapsed'
+              : 'planning-card-complete'
         }
       >
         {/* Streaming tint overlay */}
@@ -349,26 +281,8 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
               color={semantic.color.primary.default}
             />
           ) : null}
-          {canExpand ? (
-            <IconSymbol
-              name={expanded ? 'chevron-up' : 'chevron-down'}
-              size={16}
-              color={mutedColor}
-              testID="planning-card-chevron"
-            />
-          ) : null}
         </View>
-      </Pressable>
-      {sheetVisible && (
-        <PlanningBottomSheet
-          isVisible={sheetVisible}
-          onClose={() => setSheetVisible(false)}
-          events={content.events}
-          totalDurationMs={content.totalDurationMs}
-          thinkingText={content.thinkingText}
-          isStreaming={isStreaming}
-        />
-      )}
+      </View>
     </View>
   )
 }
