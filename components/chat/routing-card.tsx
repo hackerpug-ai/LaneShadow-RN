@@ -446,7 +446,7 @@ export const RoutingCard = ({ message: _message, attachments, onViewOnMap }: Rou
   return (
     <View
       key={status}
-      style={[styles.container, { maxWidth: '90%' }]}
+      style={[styles.container, { maxWidth: '100%' }]}
       testID="routing-card"
     >
       {renderInner()}
@@ -462,8 +462,7 @@ RoutingCard.displayName = 'RoutingCard'
 
 const styles = StyleSheet.create({
   container: {
-    // Left-aligned — parent must place this in a flex-start row or similar
-    alignSelf: 'flex-start',
+    minWidth: '90%',
   },
   card: {
     // borderRadius, padding, backgroundColor provided inline via semantic tokens

@@ -1,3 +1,17 @@
+/**
+ * RouteAttachmentCard
+ *
+ * Compact route card for chat transcript display.
+ *
+ * Design principles:
+ * - Horizontal layout maximizes space efficiency
+ * - Single row prevents overlap issues with chat content
+ * - Iconography reduces redundancy
+ * - Progressive disclosure: summary by default, details on press
+ *
+ * Following components/CLAUDE.md: uses useSemanticTheme() exclusively.
+ */
+
 import React from 'react';
 import {
   View,
@@ -59,6 +73,17 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
     }
   };
 
+  const getWeatherColor = (type: RouteAttachmentCardProps['weatherBadge']['type']) => {
+    switch (type) {
+      case 'rain':
+        return semantic.color.danger.default;
+      case 'wind':
+        return semantic.color.warning.default;
+      default:
+        return semantic.color.onSurface.muted;
+    }
+  };
+
   // Compact variant (for map overlay) - single line, minimal
   if (variant === 'compact') {
     const renderContent = (pressed: boolean): React.ReactNode => (
@@ -92,25 +117,14 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
                   styles.weatherBadge,
                   styles.weatherBadgeCompact,
                   {
-                    backgroundColor:
-                      weatherBadge.type === 'rain'
-                        ? semantic.color.danger.default + '20'
-                        : weatherBadge.type === 'wind'
-                          ? semantic.color.warning.default + '20'
-                          : semantic.color.surfaceVariant.pressed,
+                    backgroundColor: getWeatherColor(weatherBadge.type) + '20',
                   },
                 ]}
               >
                 <IconSymbol
                   name={getWeatherIcon(weatherBadge.type)}
                   size={10}
-                  color={
-                    weatherBadge.type === 'rain'
-                      ? semantic.color.danger.default
-                      : weatherBadge.type === 'wind'
-                        ? semantic.color.warning.default
-                        : semantic.color.onSurface.muted
-                  }
+                  color={getWeatherColor(weatherBadge.type)}
                 />
               </View>
             )}
@@ -141,10 +155,11 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
     );
   }
 
-  // Full variant (for chat transcript) - detailed, multi-line
+  // Full variant (for chat transcript) - horizontal single-row layout
   const renderContent = (pressed: boolean): React.ReactNode => (
-    <View
-      style={[
+    <Pressable
+      onPress={onPress}
+      style={({ pressed: isPressed }) => [
         styles.card,
         styles.fullCard,
         {
@@ -154,110 +169,70 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
           borderColor: isSelected
             ? semantic.color.primary.default
             : semantic.color.border.default,
-          opacity: pressed && !isSelected ? 0.8 : 1,
+          opacity: (isPressed && !isSelected) ? 0.8 : 1,
         },
         style,
       ]}
     >
-      {/* Header with badges and title */}
-      <View style={styles.fullHeader}>
-        <Text
-          style={[styles.fullLabel, { color: semantic.color.onSurface.default }]}
-          numberOfLines={1}
-        >
-          {label}
-        </Text>
-
-        {/* Badge row */}
-        <View style={styles.badgeRow}>
+      {/* Single horizontal row - no overlap with chat */}
+      <View style={styles.fullContent}>
+        {/* Left: Best badge + Label */}
+        <View style={styles.titleSection}>
           {isBest && (
             <View style={[styles.bestBadge, { backgroundColor: semantic.color.primary.default + '20' }]}>
-              <Text style={[styles.bestBadgeText, { color: semantic.color.primary.default }]}>⭐ Best</Text>
+              <Text style={[styles.bestBadgeText, { color: semantic.color.primary.default }]}>⭐</Text>
             </View>
           )}
+          <Text
+            style={[styles.fullLabel, { color: semantic.color.onSurface.default }]}
+            numberOfLines={1}
+          >
+            {label}
+          </Text>
+        </View>
+
+        {/* Center: Stats as icons with values */}
+        <View style={styles.statsSection}>
+          {/* Distance */}
+          <View style={styles.statItem}>
+            <IconSymbol name="map-marker-distance" size={12} color={semantic.color.onSurface.muted} />
+            <Text style={[styles.statValue, { color: semantic.color.onSurface.subtle }]}>
+              {distance}
+            </Text>
+          </View>
+
+          {/* Duration */}
+          <View style={styles.statItem}>
+            <IconSymbol name="clock-outline" size={12} color={semantic.color.onSurface.muted} />
+            <Text style={[styles.statValue, { color: semantic.color.onSurface.subtle }]}>
+              {duration}
+            </Text>
+          </View>
+
+          {/* Weather */}
           {weatherBadge && (
-            <View
-              style={[
-                styles.weatherBadge,
-                {
-                  backgroundColor:
-                    weatherBadge.type === 'rain'
-                      ? semantic.color.danger.default + '20'
-                      : weatherBadge.type === 'wind'
-                        ? semantic.color.warning.default + '20'
-                        : semantic.color.surfaceVariant.pressed,
-                },
-              ]}
-            >
+            <View style={[styles.statItem, styles.weatherStat]}>
               <IconSymbol
                 name={getWeatherIcon(weatherBadge.type)}
-                size={14}
-                color={
-                  weatherBadge.type === 'rain'
-                    ? semantic.color.danger.default
-                    : weatherBadge.type === 'wind'
-                      ? semantic.color.warning.default
-                      : semantic.color.onSurface.muted
-                }
+                size={12}
+                color={getWeatherColor(weatherBadge.type)}
               />
-              <Text
-                style={[
-                  styles.weatherBadgeText,
-                  {
-                    color:
-                      weatherBadge.type === 'rain'
-                        ? semantic.color.danger.default
-                        : weatherBadge.type === 'wind'
-                          ? semantic.color.warning.default
-                          : semantic.color.onSurface.muted,
-                  },
-                ]}
-              >
-                {weatherBadge.text}
-              </Text>
             </View>
           )}
         </View>
-      </View>
 
-      {/* Description */}
-      {description && (
-        <Text style={[styles.routeDescription, { color: semantic.color.onSurface.subtle }]} numberOfLines={2}>
-          {description}
-        </Text>
-      )}
-
-      {/* Stats row */}
-      <View style={styles.statsRow}>
-        <View style={styles.statItem}>
-          <IconSymbol name="map-marker-distance" size={14} color={semantic.color.onSurface.muted} />
-          <Text style={[styles.statText, { color: semantic.color.onSurface.subtle }]}>
-            {distance}
-          </Text>
-        </View>
-        <View style={styles.statItem}>
-          <IconSymbol name="clock-outline" size={14} color={semantic.color.onSurface.muted} />
-          <Text style={[styles.statText, { color: semantic.color.onSurface.subtle }]}>
-            {duration}
-          </Text>
-        </View>
-        <View style={styles.statItem}>
-          <IconSymbol name="leaf" size={14} color={semantic.color.primary.default} />
-          <Text style={[styles.statText, { color: semantic.color.onSurface.subtle }]}>
-            Scenic: {scenicScore}/10
+        {/* Right: Scenic score */}
+        <View style={styles.scenicSection}>
+          <IconSymbol name="leaf" size={12} color={semantic.color.primary.default} />
+          <Text style={[styles.scenicValue, { color: semantic.color.primary.default }]}>
+            {scenicScore}
           </Text>
         </View>
       </View>
-    </View>
-  );
-
-  return onPress ? (
-    <Pressable onPress={onPress} accessibilityLabel={`Route: ${label}`} accessibilityRole="button">
-      {({ pressed }) => renderContent(pressed)}
     </Pressable>
-  ) : (
-    renderContent(false)
   );
+
+  return renderContent(false);
 };
 
 const styles = StyleSheet.create({
@@ -298,61 +273,73 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
 
-  // Full variant (chat transcript)
+  // Full variant (chat transcript) - horizontal single-row
   fullCard: {
-    padding: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    width: '100%',
+  },
+  fullContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 12,
   },
-  fullHeader: {
-    gap: 8,
+  titleSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexShrink: 1,
   },
   fullLabel: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  routeDescription: {
     fontSize: 14,
-    lineHeight: 20,
+    fontWeight: '600',
+    flex: 1,
   },
-  statsRow: {
+  statsSection: {
     flexDirection: 'row',
-    gap: 16,
+    alignItems: 'center',
+    gap: 10,
+    flexShrink: 0,
   },
   statItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 3,
   },
-  statText: {
-    fontSize: 13,
+  statValue: {
+    fontSize: 12,
     fontWeight: '500',
+  },
+  weatherStat: {
+    // Weather badge gets special styling
+  },
+  scenicSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    flexShrink: 0,
+  },
+  scenicValue: {
+    fontSize: 12,
+    fontWeight: '600',
   },
 
   // Shared badge styles
-  badgeRow: {
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'center',
-  },
   bestBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
   },
   bestBadgeText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
   },
   weatherBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  weatherBadgeText: {
-    fontSize: 12,
-    fontWeight: '600',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
   },
 });

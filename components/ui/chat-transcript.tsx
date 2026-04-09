@@ -253,68 +253,59 @@ const AgentMessage = ({ message, onRoutePress, transparent }: AgentMessageProps)
   const { semantic } = useSemanticTheme();
 
   return (
-    <View style={styles.agentRow} testID="agent-message-row">
-      {/* Avatar column */}
-      <View
-        style={[
-          styles.agentAvatar,
-          {
-            backgroundColor: semantic.color.surfaceVariant.default,
-            borderRadius: semantic.radius.full,
-          },
-        ]}
-      >
-        <MaterialCommunityIcons
-          name="motorbike"
-          size={16}
-          color={semantic.color.primary.default}
-          testID="agent-avatar-icon"
-        />
-      </View>
-
-      {/* Content column — wrap in glass card when overlaid on map */}
-      <View
-        style={[
-          styles.agentContent,
-          transparent && {
-            backgroundColor: semantic.color.surface.default + 'D9', // ~85% opacity
-            borderRadius: semantic.radius.lg,
-            paddingHorizontal: semantic.space.md,
-            paddingVertical: semantic.space.sm,
-          },
-        ]}
-      >
-        <View style={styles.agentTextRow}>
-          <MarkdownText testID="agent-message-content">
-            {message.content}
-          </MarkdownText>
-          {message.status === 'streaming' && (
-            <View
-              style={[styles.typingSlot, { marginLeft: semantic.space.xs }]}
-              testID="agent-message-typing-indicator-slot"
-            >
-              <TypingIndicator size="sm" />
-            </View>
-          )}
-        </View>
-
-        {/* Route attachments inline below agent text */}
-        {message.routeAttachments && message.routeAttachments.length > 0 && (
+    <View
+      style={[
+        styles.agentMessageRow,
+        transparent && {
+          backgroundColor: semantic.color.surface.default + 'D9', // ~85% opacity
+          borderRadius: semantic.radius.lg,
+          paddingHorizontal: semantic.space.md,
+          paddingVertical: semantic.space.sm,
+        },
+      ]}
+      testID="agent-message-row"
+    >
+      <View style={styles.agentTextRow}>
+        <MarkdownText testID="agent-message-content">
+          {message.content}
+        </MarkdownText>
+        {message.status === 'streaming' && (
           <View
-            style={[styles.attachments, { marginTop: semantic.space.sm }]}
-            testID="route-attachments-container"
+            style={[styles.typingSlot, { marginLeft: semantic.space.xs }]}
+            testID="agent-message-typing-indicator-slot"
           >
-            {message.routeAttachments.map((route) => (
-              <RouteAttachmentCard
-                key={route.id}
-                {...route}
-                onPress={onRoutePress ? () => onRoutePress(route.id, message.id) : undefined}
-                variant="full"
-              />
-            ))}
+            <TypingIndicator size="sm" />
           </View>
         )}
       </View>
+    </View>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Route Attachments Row (separate from agent message to prevent overlap)
+// ---------------------------------------------------------------------------
+
+interface RouteAttachmentsRowProps {
+  message: ChatMessage;
+  onRoutePress?: (routeId: string, messageId: string) => void;
+}
+
+const RouteAttachmentsRow = ({ message, onRoutePress }: RouteAttachmentsRowProps) => {
+  if (!message.routeAttachments || message.routeAttachments.length === 0) {
+    return null;
+  }
+
+  return (
+    <View style={styles.routeAttachmentsRow} testID="route-attachments-row">
+      {message.routeAttachments.map((route) => (
+        <RouteAttachmentCard
+          key={route.id}
+          {...route}
+          onPress={onRoutePress ? () => onRoutePress(route.id, message.id) : undefined}
+          variant="full"
+        />
+      ))}
     </View>
   );
 };
@@ -365,19 +356,17 @@ const CardRow = ({ message, onViewOnMap }: CardRowProps) => {
   // layout for visual consistency but skip the avatar since each card has
   // its own visual identity.
   return (
-    <View style={styles.agentRow} testID={`card-row-${kind}`}>
-      <View style={styles.agentContent}>
-        <CardComponent
-          message={{
-            _id: message.id as Id<'session_messages'>,
-            createdAt: message.timestamp.getTime(),
-            content: message.content,
-            status: message.status,
-          }}
-          attachments={attachments}
-          onViewOnMap={onViewOnMap}
-        />
-      </View>
+    <View testID={`card-row-${kind}`}>
+      <CardComponent
+        message={{
+          _id: message.id as Id<'session_messages'>,
+          createdAt: message.timestamp.getTime(),
+          content: message.content,
+          status: message.status,
+        }}
+        attachments={attachments}
+        onViewOnMap={onViewOnMap}
+      />
     </View>
   );
 };
@@ -531,7 +520,13 @@ export const ChatTranscript = ({
             {message.role === 'rider' ? (
               <RiderBubble message={message} />
             ) : (
-              renderAssistantMessage(message, onRoutePress, onViewOnMap, transparent)
+              <>
+                {renderAssistantMessage(message, onRoutePress, onViewOnMap, transparent)}
+                {/* Route attachments render as separate rows to prevent overlap */}
+                {message.role === 'agent' && (
+                  <RouteAttachmentsRow message={message} onRoutePress={onRoutePress} />
+                )}
+              </>
             )}
           </React.Fragment>
         );
@@ -570,23 +565,9 @@ const styles = StyleSheet.create({
   bubbleText: {
     flexShrink: 1,
   },
-  // Agent message (left-aligned, no bubble)
-  agentRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-    maxWidth: '90%',
-  },
-  agentAvatar: {
-    width: 30,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    marginTop: 2,
-  },
-  agentContent: {
-    flex: 1,
+  // Agent text message (full-width, no avatar, no bubble)
+  agentMessageRow: {
+    width: '100%',
   },
   agentTextRow: {
     flexDirection: 'row',
@@ -599,8 +580,10 @@ const styles = StyleSheet.create({
   typingSlot: {
     paddingBottom: 6,
   },
-  attachments: {
-    gap: 10,
+  routeAttachmentsRow: {
+    marginLeft: 0, // Full width - no offset needed for route cards
+    gap: 8,
+    marginTop: 4,
   },
   // Empty state
   emptyState: {

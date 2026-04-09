@@ -142,21 +142,33 @@ export const RoutePolyline: FC<RoutePolylineProps> = ({
 
   return (
     <>
-      {polylines.map((polyline) => {
+      {polylines.map((polyline, index) => {
+        // Skip polylines with invalid coordinates
+        if (!polyline.coordinates || polyline.coordinates.length < 2) {
+          console.warn('[RoutePolylineComponent] Skipping invalid polyline:', {
+            id: polyline.id,
+            coordinatesLength: polyline.coordinates?.length,
+          })
+          return null
+        }
+
         const isHighlighted =
           selectedSegmentId === polyline.id || activeSegment === polyline.id
         const strokeColor = isHighlighted ? semantic.color.tertiary.default : polyline.strokeColor
         const strokeWidth = isHighlighted ? highlightStrokeWidth : (polyline.strokeWidth ?? normalStrokeWidth)
 
+        // Use polyline.id if available, otherwise use index to ensure unique keys
+        const key = polyline.id ?? `polyline-${index}`
+
         return (
           <Polyline
-            key={polyline.id ?? `${polyline.coordinates[0]?.latitude}-${polyline.coordinates[0]?.longitude}`}
+            key={key}
             coordinates={polyline.coordinates}
             strokeColor={strokeColor}
             strokeWidth={strokeWidth}
             tappable
             onPress={() => handlePressRef.current(polyline.id ?? '', polyline.coordinates)}
-            testID={polyline.id ? `${testID}--segment-${polyline.id}` : `${testID}--segment-unknown`}
+            testID={polyline.id ? `${testID}--segment-${polyline.id}` : `${testID}--segment-${index}`}
           />
         )
       })}

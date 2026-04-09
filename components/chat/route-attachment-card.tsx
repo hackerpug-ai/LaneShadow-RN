@@ -1,20 +1,16 @@
 /**
  * RouteAttachmentCard - Displays route options in chat
  *
- * REDESIGNED: Clear route information without overlap
- * - Shows descriptive route name prominently
- * - Shows rationale for route choice
- * - Essential stats in a single row
- * - Weather indicators with icons
- * - No redundant information
- * - Won't overlap with chat messages
+ * REDESIGNED: Full-width layout with proper spacing
+ * - Uses full available width
+ * - Clear visual hierarchy
+ * - No scrunched text
+ * - Weather only when it matters
  *
  * Features:
- * - Two-row layout (name+stats / rationale+badges)
- * - Visual selection state
- * - Tap to view directions, long-press to select
- * - Weather condition badges
- * - Favorite count when applicable
+ * - Three-row layout (route info / rationale / stats+badges)
+ * - Each row has space to breathe
+ * - Tap to view on map, long-press to select
  */
 
 import React, { useState } from 'react'
@@ -70,20 +66,7 @@ const formatDistance = (meters: number): string => {
 }
 
 /**
- * Get weather icon based on conditions
- */
-const getWeatherIcon = (windSummary: string, rainSummary: string): string => {
-  if (rainSummary.toLowerCase().includes('heavy') || rainSummary.toLowerCase().includes('rain')) {
-    return 'weather-rainy'
-  }
-  if (windSummary.toLowerCase().includes('high') || windSummary.toLowerCase().includes('strong')) {
-    return 'weather-windy'
-  }
-  return 'weather-partly-cloudy'
-}
-
-/**
- * Main component - clear two-row layout
+ * Main component - spacious full-width layout
  */
 export const RouteAttachmentCard = ({
   route,
@@ -112,12 +95,34 @@ export const RouteAttachmentCard = ({
 
   // Extract start and end location names from the legs
   const legs = route.map.legs
-  const startLabel = legs[0]?.start.label || legs[0]?.start.placeId || 'Unknown'
-  const endLabel = legs[legs.length - 1]?.end.label || legs[legs.length - 1]?.end.placeId || 'Unknown'
+
+  // Helper to format a location label with coordinate fallback
+  const formatLocationLabel = (
+    label: string | undefined,
+    placeId: string | undefined,
+    lat: number,
+    lng: number
+  ): string => {
+    if (label) return label
+    if (placeId) return placeId
+    // Show coordinates as last resort (more useful than "Unknown")
+    return `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+  }
+
+  const startLabel = formatLocationLabel(
+    legs[0]?.start.label,
+    legs[0]?.start.placeId,
+    legs[0]?.start.lat,
+    legs[0]?.start.lng
+  )
+  const endLabel = formatLocationLabel(
+    legs[legs.length - 1]?.end.label,
+    legs[legs.length - 1]?.end.placeId,
+    legs[legs.length - 1]?.end.lat,
+    legs[legs.length - 1]?.end.lng
+  )
 
   const handlePress = () => {
-    // In 'full' variant (chat context), navigate to map
-    // In 'compact' variant (map context), show directions sheet
     if (variant === 'full') {
       console.info('[RouteAttachmentCard] Press in chat context - navigating to map', { routeId: route.routeOptionId })
       onSelect(route.routeOptionId)
@@ -146,177 +151,143 @@ export const RouteAttachmentCard = ({
           isSelected ? styles.selectedBorder : styles.defaultBorder,
           {
             backgroundColor: isSelected
-              ? semantic.color.primary.default + '33' // 20% opacity
+              ? semantic.color.primary.default + '33'
               : isCompact
-                ? semantic.color.surface.default + 'E6' // 90% opacity
+                ? semantic.color.surface.default + 'E6'
                 : semantic.color.surfaceVariant.default,
             borderColor: isSelected
               ? semantic.color.primary.default
               : semantic.color.border.default + '66',
             borderRadius: isCompact ? semantic.radius.sm : semantic.radius.md,
             paddingHorizontal: isCompact ? semantic.space.sm : semantic.space.md,
-            paddingVertical: isCompact ? semantic.space.xs : semantic.space.sm,
+            paddingVertical: isCompact ? semantic.space.xs : semantic.space.md,
             ...semantic.elevation[isCompact ? 1 : 2],
           },
         ]}
         testID={testID}
         accessible={true}
-        accessibilityLabel={`Route: ${route.label}, ${formatDuration(duration)}, ${formatDistance(distance)}`}
+        accessibilityLabel={`Route from ${startLabel} to ${endLabel}, ${formatDuration(duration)}, ${formatDistance(distance)}`}
         accessibilityHint={variant === 'full' ? 'Tap to view on map, long press to select route' : 'Tap to view directions, long press to select route'}
         accessibilityRole="button"
         accessibilityState={{ selected: isSelected }}
       >
-        {/* Two-row layout for chat, single-row for compact */}
-        <View style={[styles.content, isCompact ? styles.compactContent : styles.fullContent]}>
-          {/* Row 1: Start → End with route name */}
-          <View style={styles.topRow}>
-            <View style={styles.routeInfo}>
-              <Text
-                style={[
-                  styles.locationLabel,
-                  {
-                    color: isSelected
-                      ? semantic.color.primary.default
-                      : semantic.color.onSurface.default,
-                  },
-                ]}
-                numberOfLines={1}
-              >
-                {startLabel}
-              </Text>
+        {/* Spacious layout with room to breathe */}
+        <View style={styles.content}>
+          {/* Row 1: Start → End (prominent) */}
+          <View style={styles.routeHeader}>
+            <Text
+              style={[
+                styles.startLabel,
+                {
+                  color: isSelected
+                    ? semantic.color.primary.default
+                    : semantic.color.onSurface.default,
+                },
+              ]}
+              numberOfLines={1}
+            >
+              {startLabel}
+            </Text>
 
-              <IconSymbol
-                name="arrow-right"
-                size={14}
-                color={isSelected ? semantic.color.primary.default : semantic.color.onSurface.muted}
-              />
+            <IconSymbol
+              name="arrow-right"
+              size={18}
+              color={isSelected ? semantic.color.primary.default : semantic.color.onSurface.muted}
+            />
 
-              <Text
-                style={[
-                  styles.locationLabel,
-                  {
-                    color: isSelected
-                      ? semantic.color.primary.default
-                      : semantic.color.onSurface.default,
-                  },
-                ]}
-                numberOfLines={1}
-              >
-                {endLabel}
-              </Text>
-            </View>
-
-            {/* Stats on the right */}
-            <View style={styles.quickStats}>
-              <Text
-                style={[
-                  styles.quickStatText,
-                  { color: isSelected ? semantic.color.primary.default : semantic.color.onSurface.subtle },
-                ]}
-              >
-                {formatDistance(distance)} • {formatDuration(duration)}
-              </Text>
-            </View>
+            <Text
+              style={[
+                styles.endLabel,
+                {
+                  color: isSelected
+                    ? semantic.color.primary.default
+                    : semantic.color.onSurface.default,
+                },
+              ]}
+              numberOfLines={1}
+            >
+              {endLabel}
+            </Text>
           </View>
 
-          {/* Row 2: Route name + badges (full variant only) */}
+          {/* Full variant: show more details */}
           {!isCompact && (
-            <View style={styles.bottomRow}>
+            <>
+              {/* Row 2: Route description */}
               <Text
                 style={[
-                  styles.routeName,
+                  styles.routeDescription,
                   {
                     color: semantic.color.onSurface.subtle,
-                    flex: 1,
                   },
                 ]}
-                numberOfLines={1}
+                numberOfLines={2}
               >
                 {route.label}
               </Text>
 
-              <View style={styles.badgesSection}>
-                {/* Weather indicator - simple and clear */}
-                {(route.overlaysPreview.rainSummary !== 'none' || route.overlaysPreview.windSummary === 'high') && (
-                  <View style={styles.badgesSection}>
-                    {route.overlaysPreview.rainSummary !== 'none' && route.overlaysPreview.rainSummary !== 'unavailable' && (
-                      <View
-                        style={[
-                          styles.weatherBadge,
-                          {
-                            backgroundColor: semantic.color.danger.default + '20',
-                          },
-                        ]}
-                      >
-                        <IconSymbol
-                          name="weather-rainy"
-                          size={12}
-                          color={semantic.color.danger.default}
-                        />
-                        <Text
-                          style={[
-                            styles.weatherText,
-                            { color: semantic.color.danger.default },
-                          ]}
-                        >
-                          {route.overlaysPreview.rainSummary}
-                        </Text>
-                      </View>
-                    )}
-
-                    {route.overlaysPreview.windSummary === 'high' && (
-                      <View
-                        style={[
-                          styles.weatherBadge,
-                          {
-                            backgroundColor: semantic.color.warning.default + '20',
-                          },
-                        ]}
-                      >
-                        <IconSymbol
-                          name="weather-windy"
-                          size={12}
-                          color={semantic.color.warning.default}
-                        />
-                        <Text
-                          style={[
-                            styles.weatherText,
-                            { color: semantic.color.warning.default },
-                          ]}
-                        >
-                          High wind
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                )}
-
-                {/* Favorites badge */}
-                {includeFavorites && (route.favorites?.count ?? 0) > 0 && (
-                  <Badge
-                    variant="default"
-                    testID={`${testID}-favorite-badge`}
-                    style={{ marginLeft: 4 }}
-                  >
-                    <IconSymbol name="heart" size={10} color={semantic.color.onPrimary.default} />
-                    <Text style={{ color: semantic.color.onPrimary.default, marginLeft: 2 }}>
-                      {route.favorites?.count ?? 0}
+              {/* Row 3: Stats and badges */}
+              <View style={styles.statsRow}>
+                {/* Left: Stats */}
+                <View style={styles.statsSection}>
+                  <View style={styles.statItem}>
+                    <IconSymbol name="map-marker-distance" size={14} color={semantic.color.onSurface.muted} />
+                    <Text style={[styles.statText, { color: semantic.color.onSurface.subtle }]}>
+                      {formatDistance(distance)}
                     </Text>
-                  </Badge>
-                )}
+                  </View>
 
-                {/* Elevation badge */}
-                {elevationGainFt !== undefined && elevationGainFt > 0 && (
-                  <Badge
-                    variant="info"
-                    testID={`${testID}-elevation-badge`}
-                    style={{ marginLeft: 4 }}
-                  >
-                    ↗ {elevationGainFt >= 1000 ? `${Math.round(elevationGainFt / 100) / 10}kft` : `${Math.round(elevationGainFt / 100) * 100}ft`}
-                  </Badge>
-                )}
+                  <View style={styles.statItem}>
+                    <IconSymbol name="clock-outline" size={14} color={semantic.color.onSurface.muted} />
+                    <Text style={[styles.statText, { color: semantic.color.onSurface.subtle }]}>
+                      {formatDuration(duration)}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Right: Badges */}
+                <View style={styles.badgesSection}>
+                  {/* Weather warnings only */}
+                  {route.overlaysPreview.rainSummary !== 'none' && route.overlaysPreview.rainSummary !== 'unavailable' && (
+                    <View
+                      style={[
+                        styles.weatherBadge,
+                        { backgroundColor: semantic.color.danger.default + '20' },
+                      ]}
+                    >
+                      <IconSymbol name="weather-rainy" size={12} color={semantic.color.danger.default} />
+                      <Text style={[styles.badgeText, { color: semantic.color.danger.default }]}>
+                        {route.overlaysPreview.rainSummary}
+                      </Text>
+                    </View>
+                  )}
+
+                  {route.overlaysPreview.windSummary === 'high' && (
+                    <View
+                      style={[
+                        styles.weatherBadge,
+                        { backgroundColor: semantic.color.warning.default + '20' },
+                      ]}
+                    >
+                      <IconSymbol name="weather-windy" size={12} color={semantic.color.warning.default} />
+                      <Text style={[styles.badgeText, { color: semantic.color.warning.default }]}>
+                        High wind
+                      </Text>
+                    </View>
+                  )}
+
+                  {/* Favorites */}
+                  {includeFavorites && (route.favorites?.count ?? 0) > 0 && (
+                    <Badge variant="default" testID={`${testID}-favorite-badge`}>
+                      <IconSymbol name="heart" size={10} color={semantic.color.onPrimary.default} />
+                      <Text style={{ color: semantic.color.onPrimary.default, marginLeft: 2 }}>
+                        {route.favorites?.count ?? 0}
+                      </Text>
+                    </Badge>
+                  )}
+                </View>
               </View>
-            </View>
+            </>
           )}
         </View>
       </TouchableOpacity>
@@ -328,7 +299,7 @@ export const RouteAttachmentCard = ({
         onClose={() => setDirectionsVisible(false)}
         routeLabel={route.label}
         legs={route.map.legs}
-        destinationLabel={route.label.split(' to ')[1] || route.label.split(' → ')[1] || ''}
+        destinationLabel={endLabel}
         testID={`${testID}-directions`}
         onLegSelect={onLegSelect}
         selectedLegIndex={selectedLegIndex}
@@ -344,63 +315,60 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   content: {
-    gap: 6,
-  },
-  compactContent: {
-    gap: 0,
-  },
-  fullContent: {
-    gap: 6,
-  },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     gap: 8,
   },
-  routeInfo: {
+  routeHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    flex: 1,
+    gap: 8,
   },
-  locationLabel: {
-    fontWeight: '600',
+  startLabel: {
+    flex: 1,
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  endLabel: {
+    flex: 1,
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  routeDescription: {
     fontSize: 14,
+    lineHeight: 18,
   },
-  quickStats: {
-    flexShrink: 0,
-  },
-  quickStatText: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  bottomRow: {
+  statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 8,
   },
-  routeName: {
-    flex: 1,
-    fontSize: 12,
-    fontStyle: 'italic',
+  statsSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  statItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  statText: {
+    fontSize: 13,
+    fontWeight: '500',
   },
   badgesSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexShrink: 0,
-    gap: 4,
+    gap: 6,
   },
   weatherBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
-  weatherText: {
+  badgeText: {
     fontSize: 11,
     fontWeight: '600',
   },

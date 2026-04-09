@@ -259,7 +259,7 @@ export const ReasoningCard = ({ message }: ReasoningCardProps) => {
 
   return (
     <View
-      style={[styles.container, { maxWidth: '90%' }]}
+      style={styles.container}
       testID="reasoning-card"
     >
       <Pressable
@@ -371,8 +371,7 @@ ReasoningCard.displayName = 'ReasoningCard'
 
 const styles = StyleSheet.create({
   container: {
-    // Left-aligned — parent must place this in a flex-start row
-    alignSelf: 'flex-start',
+    minWidth: '90%',
   },
   card: {
     // Touch target compliance: 44pt minimum height enforced via padding

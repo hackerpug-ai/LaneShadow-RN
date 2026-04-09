@@ -382,7 +382,7 @@ LocationSearchCard.displayName = 'LocationSearchCard'
 
 const styles = StyleSheet.create({
   card: {
-    width: '100%',
+    minWidth: '90%',
   },
   runningRow: {
     flexDirection: 'row',

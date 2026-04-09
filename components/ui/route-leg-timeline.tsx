@@ -1,8 +1,8 @@
 /**
  * RouteLegTimeline Component
  *
- * Displays a leg-by-leg breakdown of a saved route with per-leg stats
- * and weather badges. Uses the dot + gradient visual language from RouteTimeline
+ * Displays a segment-by-segment breakdown of a saved route with per-segment
+ * stats and weather badges. Uses the dot + gradient visual language from RouteTimeline
  * but with a different API designed for route detail display.
  *
  * Follows project patterns:
@@ -131,8 +131,8 @@ const getLegLabel = (
     return 'Destination'
   }
 
-  // Otherwise, use a leg-based label
-  return `${position === 'start' ? 'Start' : 'End'} of Leg ${legIndex + 1}`
+  // Otherwise, use a segment-based label
+  return `${position === 'start' ? 'Start' : 'End'} of Segment ${legIndex + 1}`
 }
 
 // ---------------------------------------------------------------------------
@@ -161,6 +161,9 @@ type LegItemProps = {
   windOverlay: WindOverlay | undefined
 }
 
+// Note: Component is named LegItem internally but represents a "Segment" in the UI
+// The internal name uses "leg" for code consistency with RouteLeg types
+
 const LegItem = ({
   leg,
   index,
@@ -182,8 +185,8 @@ const LegItem = ({
 
   return (
     <View
-      style={[styles.legRow, { paddingVertical: semantic.space.md }]}
-      testID={`leg-item-${index}`}
+      style={[styles.segmentRow, { paddingVertical: semantic.space.md }]}
+      testID={`segment-item-${index}`}
     >
       {/* Left column: timeline dots + connector */}
       <View style={[styles.leftColumn, { width: semantic.space.xl }]}>
@@ -213,10 +216,10 @@ const LegItem = ({
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
           style={styles.connector}
-          testID={`leg-connector-${index}`}
+          testID={`segment-connector-${index}`}
         />
 
-        {/* End dot - only show on last leg */}
+        {/* End dot - only show on last segment */}
         {isLast && (
           <View
             style={[
@@ -231,7 +234,7 @@ const LegItem = ({
                 ),
               },
             ]}
-            testID={`leg-end-dot-${index}`}
+            testID={`segment-end-dot-${index}`}
           />
         )}
 
@@ -249,7 +252,7 @@ const LegItem = ({
                 borderColor: withAlpha(semantic.color.primary.default, 0.5),
               },
             ]}
-            testID={`leg-waypoint-dot-${index}`}
+            testID={`segment-waypoint-dot-${index}`}
           />
         )}
       </View>
@@ -260,18 +263,18 @@ const LegItem = ({
         <Text
           variant="bodySmall"
           style={{ color: semantic.color.onSurface.subtle, marginBottom: semantic.space.xs }}
-          testID={`leg-start-label-${index}`}
+          testID={`segment-start-label-${index}`}
         >
           {displayStartLabel}
         </Text>
 
-        {/* Leg label */}
+        {/* Segment label */}
         <Text
           variant="bodySmall"
           style={{ color: semantic.color.onSurface.muted, marginBottom: semantic.space.xs }}
           testID={`leg-label-${index}`}
         >
-          {`Leg ${index + 1}`}
+          {`Segment ${index + 1}`}
         </Text>
 
         {/* Distance + Duration row */}
@@ -279,7 +282,7 @@ const LegItem = ({
           <Text
             variant="bodySmall"
             style={{ color: semantic.color.onSurface.default }}
-            testID={`leg-distance-${index}`}
+            testID={`segment-distance-${index}`}
           >
             {formatLegDistance(leg.distanceMeters)}
           </Text>
@@ -292,7 +295,7 @@ const LegItem = ({
           <Text
             variant="bodySmall"
             style={{ color: semantic.color.onSurface.default }}
-            testID={`leg-duration-${index}`}
+            testID={`segment-duration-${index}`}
           >
             {formatLegDuration(leg.durationSeconds)}
           </Text>
@@ -300,16 +303,16 @@ const LegItem = ({
 
         {/* Weather badges row */}
         <View style={[styles.badgesRow, { gap: semantic.space.xs, marginBottom: semantic.space.xs }]}>
-          <WindBadge windLevel={legWind} testID={`leg-wind-badge-${index}`} />
-          <RainBadge rainSummary={legRain} testID={`leg-rain-badge-${index}`} />
+          <WindBadge windLevel={legWind} testID={`segment-wind-badge-${index}`} />
+          <RainBadge rainSummary={legRain} testID={`segment-rain-badge-${index}`} />
         </View>
 
-        {/* End label shown below the last leg */}
+        {/* End label shown below the last segment */}
         {isLast && displayEndLabel && (
           <Text
             variant="bodySmall"
             style={{ color: semantic.color.onSurface.subtle, marginTop: semantic.space.xs }}
-            testID={`leg-end-label-${index}`}
+            testID={`segment-end-label-${index}`}
           >
             {displayEndLabel}
           </Text>
@@ -350,7 +353,7 @@ export const RouteLegTimeline = ({ legs, planInput, overlays, testID }: RouteLeg
 // ---------------------------------------------------------------------------
 
 const styles = StyleSheet.create({
-  legRow: {
+  segmentRow: {
     flexDirection: 'row',
     alignItems: 'stretch',
   },

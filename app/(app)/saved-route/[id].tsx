@@ -1,8 +1,8 @@
 /**
  * Route Detail Screen
  *
- * Full-screen view of a saved route with map, stats, weather badges,
- * and route highlights. Accessed via navigation from saved routes list.
+ * Full-screen view of a saved route with map, stats, and route highlights.
+ * Accessed via navigation from saved routes list.
  */
 
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -21,25 +21,17 @@ import {
 } from '../../../components/map/overlay-toggle'
 import { MapViewWrapper } from '../../../components/map/map-view'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
-import { WindBadge } from '../../../components/planning/wind-badge'
 import { Button } from '../../../components/ui/button'
 import { DeleteRouteDialog } from '../../../components/ui/delete-route-dialog'
-import { RainBadge } from '../../../components/ui/rain-badge'
 import { RenameRouteDialog } from '../../../components/ui/rename-route-dialog'
 import { RouteLegTimeline } from '../../../components/ui/route-leg-timeline'
 import { StatRow } from '../../../components/ui/stat-row'
-import { TemperatureBadge } from '../../../components/ui/temperature-badge'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useSavedRouteDetail } from '../../../hooks/use-saved-routes'
-import {
-  getWorstRainLevel,
-  getWorstTemperatureLevel,
-  getMaxTemperatureFahrenheit,
-} from '../../../models/saved-routes'
 import type { RouteOverlays } from '../../../models/saved-routes'
 
 import { useRouteActions } from './use-route-actions'
-import { deriveWindSummary, formatDistance, formatDuration, formatSavedDate } from './utils'
+import { formatDistance, formatDuration, formatSavedDate } from './utils'
 
 const Z_INDEX_HEADER_ACTIONS = 30
 const Z_INDEX_OVERLAY_TOGGLE = 25
@@ -145,10 +137,6 @@ const SavedRouteDetailScreen = () => {
   }
 
   const overlays: RouteOverlays = data.routeSnapshot.overlays
-  const windSummary = deriveWindSummary(overlays.wind)
-  const rainSummary = getWorstRainLevel(overlays.rain)
-  const tempSummary = getWorstTemperatureLevel(overlays.temperature)
-  const maxTempF = getMaxTemperatureFahrenheit(overlays.temperature)
   const totalDistance = data.routeSnapshot.legs.reduce((s, l) => s + l.distanceMeters, 0)
   const totalDuration = data.routeSnapshot.legs.reduce((s, l) => s + l.durationSeconds, 0)
   const legsCount = data.routeSnapshot.legs.length
@@ -258,23 +246,9 @@ const SavedRouteDetailScreen = () => {
           >
             <StatRow icon="map-marker-distance" value={formatDistance(totalDistance)} />
             <StatRow icon="clock-outline" value={formatDuration(totalDuration)} />
-            <StatRow icon="vector-polyline" value={`${legsCount} legs`} />
+            <StatRow icon="vector-polyline" value={`${legsCount} segments`} />
           </View>
 
-          {/* Weather section */}
-          <SectionHeader label="Weather Conditions" semantic={semantic} />
-          <View
-            style={[styles.weatherRow, { gap: semantic.space.sm }]}
-            testID="route-detail-weather"
-          >
-            <WindBadge windLevel={windSummary} testID="route-detail-wind-badge" />
-            <RainBadge rainSummary={rainSummary} testID="route-detail-rain-badge" />
-            <TemperatureBadge
-              temperatureSummary={tempSummary}
-              temperatureValue={maxTempF}
-              testID="route-detail-temp-badge"
-            />
-          </View>
 
           {/* Highlights section */}
           {annotations.length > 0 && (
@@ -301,10 +275,10 @@ const SavedRouteDetailScreen = () => {
             </>
           )}
 
-          {/* Route Legs timeline section */}
+          {/* Route Segments timeline section */}
           {data.routeSnapshot.legs.length > 0 && (
             <>
-              <SectionHeader label="Route Legs" semantic={semantic} />
+              <SectionHeader label="Route Segments" semantic={semantic} />
               <RouteLegTimeline
                 legs={data.routeSnapshot.legs}
                 planInput={data.planInput}
@@ -401,10 +375,6 @@ const styles = StyleSheet.create({
   },
   notFoundText: {},
   statsCard: {},
-  weatherRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
   bulletRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',

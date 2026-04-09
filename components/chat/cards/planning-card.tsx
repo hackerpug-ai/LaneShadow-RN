@@ -279,7 +279,7 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
 
   return (
     <View
-      style={[styles.container, { maxWidth: '90%' }]}
+      style={styles.container}
       testID="planning-card"
     >
       <Pressable
@@ -381,7 +381,7 @@ PlanningCard.displayName = 'PlanningCard'
 
 const styles = StyleSheet.create({
   container: {
-    alignSelf: 'flex-start',
+    minWidth: '90%',
   },
   card: {
     minHeight: 44,
