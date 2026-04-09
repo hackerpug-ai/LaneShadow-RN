@@ -20,6 +20,7 @@ import type { PlannedRouteOptionsView } from '../../types/routes'
 import { RouteDirectionsSheet } from '../sheets/route-directions-sheet'
 import { Badge } from '../ui/badge'
 import { IconSymbol } from '../ui/icon-symbol'
+import { RouteMiniMap } from './cards/route-mini-map'
 
 type RouteAttachmentCardProps = {
   route: PlannedRouteOptionsView['options'][0]
@@ -171,6 +172,24 @@ export const RouteAttachmentCard = ({
         accessibilityRole="button"
         accessibilityState={{ selected: isSelected }}
       >
+        {/* Mini-map preview (full variant only, when map data exists) */}
+        {!isCompact && route.map?.overviewGeometry?.value && route.map?.bounds && (
+          <RouteMiniMap
+            overviewGeometry={route.map.overviewGeometry}
+            bounds={{
+              southwest: {
+                lat: route.map.bounds.south,
+                lng: route.map.bounds.west,
+              },
+              northeast: {
+                lat: route.map.bounds.north,
+                lng: route.map.bounds.east,
+              },
+            }}
+            testID={`${testID}-mini-map`}
+          />
+        )}
+
         {/* Spacious layout with room to breathe */}
         <View style={styles.content}>
           {/* Row 1: Start → End (prominent) */}
