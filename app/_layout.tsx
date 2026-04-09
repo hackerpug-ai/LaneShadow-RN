@@ -7,6 +7,7 @@ import { useEffect } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { Provider as PaperProvider } from 'react-native-paper'
 import { ErrorBoundary } from '../components/logging/error-boundary'
+import { ModelGatekeeperProvider } from '../components/gatekeeper/model-gatekeeper-provider'
 import { ThemePreferenceProvider, useThemePreference } from '../contexts/theme-preference'
 import { SearchResultsProvider } from '../contexts/search-results'
 import { clerkTokenCache } from '../lib/clerk-token-cache'
@@ -48,12 +49,14 @@ const RootLayoutInner = () => {
         <PaperProvider theme={paperTheme}>
           <SearchResultsProvider>
             <BottomSheetModalProvider>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  animation: 'none',
-                }}
-              />
+              <ModelGatekeeperProvider>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    animation: 'none',
+                  }}
+                />
+              </ModelGatekeeperProvider>
             </BottomSheetModalProvider>
           </SearchResultsProvider>
         </PaperProvider>

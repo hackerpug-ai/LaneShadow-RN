@@ -47,3 +47,15 @@ export type MemoryUsage = {
 export type { ChecksumValidator } from './checksum'
 export type { ModelDownloadManager } from './model-download'
 export type { LocalModelManager } from './local-model'
+
+// Extended interface for ModelDownloadManager with startDownload method
+export interface ModelDownloadManagerExtended {
+  downloadDirectory: string
+  progressCallbacks: Map<string, (progress: number) => void>
+  isOnWiFi(networkStatus: NetworkStatus): boolean
+  ensureDirectoryExists(): Promise<void>
+  downloadModel(url: string, networkStatus: NetworkStatus): Promise<DownloadResult>
+  getFileNameFromUrl(url: string): string
+  getExistingFileSize(filePath: string): Promise<number>
+  startDownload(): Promise<void>
+}
