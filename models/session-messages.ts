@@ -57,6 +57,13 @@ export const sessionMessageAttachmentValidator = v.object({
 })
 export type SessionMessageAttachment = Infer<typeof sessionMessageAttachmentValidator>
 
+/**
+ * Individual step in a thinking card timeline.
+ *
+ * - 'thinking': Agent reasoning delta (text-only)
+ * - 'tool_start': Tool invocation started (toolName required)
+ * - 'tool_finish': Tool invocation finished (toolName required)
+ */
 export const thinkingStepValidator = v.object({
   type: v.union(
     v.literal('thinking'),
@@ -93,7 +100,10 @@ export const sessionMessageValidator = v.object({
    * during widen phase; narrows once agent rewrite lands.
    */
   piMessage: v.optional(v.any()),
-  /** Array of thinking steps showing agent's tool activity and reasoning */
+  /**
+   * Structured thinking steps for thinking_card rows.
+   * Captures agent reasoning deltas and tool activity (start/finish).
+   */
   thinkingSteps: v.optional(v.array(thinkingStepValidator)),
 })
 export type SessionMessage = Infer<typeof sessionMessageValidator>

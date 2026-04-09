@@ -87,193 +87,255 @@ export function reconstructLegacyPiMessage(row: SessionMessageRow): Message | nu
 }
 
 // ---------------------------------------------------------------------------
-// Card callback factory
+// Tool summary helpers (US-057)
 // ---------------------------------------------------------------------------
 
 /**
- * Build the onToolStart / onToolFinish / onAgentTurn / onToolResultPiMessage
- * callbacks for a given session. Extracted as a named function so it can be
- * unit-tested independently.
- *
- * Cards are born complete: onToolStart is a no-op. onToolFinish creates the
- * card row with attachments already set at insert time, then immediately
- * finalizes it — eliminating the empty-placeholder race window.
- *
- * onAgentTurn persists the full AssistantMessage as an agent_turn row so the
- * next session load can reconstruct the full pi-ai Message history.
- *
- * onToolResultPiMessage patches the card row (if any) with the raw
- * ToolResultMessage piMessage for the same reason.
+ * Generate human-readable summary for tool start.
  */
-export function buildCardCallbacks(
-  sessionId: Id<'planning_sessions'>,
-  runMutation: (fn: any, args: any) => Promise<any>
-): ExecuteContext {
-  // Map from toolCallId → card messageId so onToolResultPiMessage can patch
-  // the correct row after onToolFinish creates it.
-  const pendingCardMessages = new Map<string, Id<'session_messages'>>()
-
-  return {
-    // No-op: card rows are created in onToolFinish once the result is known.
-    async onToolStart(_toolName, _args) {
-      return undefined
-    },
-
-    async onToolFinish(toolCallId, toolName, _messageId, result) {
-      // Only card-backed tools (planRoute, compileSketch) produce a card.
-      if (!TOOL_TO_CARD_KIND[toolName]) return
-
-      const routePlanId = (result as { routePlanId?: Id<'route_plans'> })
-        ?.routePlanId
-
-      // If the tool produced no routePlanId there is nothing to render.
-      if (!routePlanId) return
-
-      // Create the card row with the attachment already set — no empty placeholder.
-      const { messageId } = await runMutation(
-        internal.db.sessionMessages.createPendingAssistantMessage,
-        {
-          sessionId,
-          kind: 'routing_card',
-          attachments: [{ type: 'route_options', routePlanId }],
-        }
-      )
-
-      // Store the mapping so onToolResultPiMessage can patch this row with the
-      // full ToolResultMessage piMessage for multi-turn context.
-      pendingCardMessages.set(toolCallId, messageId)
-
-      // Immediately finalize. Both mutations run back-to-back in the same
-      // action — clients see running → complete in one reactive tick.
-      const isError = (result as any)?.type === 'error'
-      await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
-        messageId,
-        status: isError ? 'failed' : 'complete',
-      })
-    },
-
-    async onAgentTurn(assistant: AssistantMessage) {
-      await runMutation(internal.db.sessionMessages.recordAgentTurn, {
-        sessionId,
-        piMessage: assistant as any,
-      })
-    },
-
-    async onToolResultPiMessage(toolCallId: string, result: ToolResultMessage) {
-      if (pendingCardMessages.has(toolCallId)) {
-        await runMutation(internal.db.sessionMessages.recordToolResult, {
-          messageId: pendingCardMessages.get(toolCallId)!,
-          piMessage: result as any,
-        })
-      }
-    },
+function summarizeToolStart(toolName: string, args: unknown): string {
+  switch (toolName) {
+    case 'geocode':
+      return `Searching for ${(args as any)?.query ?? 'location'}...`
+    case 'planRoute':
+      return `Planning route${(args as any)?.end?.label ? ` to ${(args as any).end.label}` : ''}...`
+    case 'fetchWeather':
+      return 'Checking weather conditions...'
+    case 'searchFavorites':
+      return 'Searching favorite roads...'
+    case 'saveRoute':
+      return 'Saving route...'
+    default:
+      return `Running ${toolName}...`
   }
 }
 
 /**
- * Build the streaming callbacks that wire the final-turn text deltas into a
- * pending assistant message row. Also handles reasoning (thinking) deltas.
+ * Generate human-readable summary for tool finish.
+ */
+function summarizeToolFinish(toolName: string, result: unknown): string {
+  switch (toolName) {
+    case 'geocode': {
+      const data = result as any
+      const count = data?.data?.length ?? data?.results?.length ?? 0
+      return `Found ${count} location${count !== 1 ? 's' : ''}`
+    }
+    case 'planRoute': {
+      const data = result as any
+      const count = data?.data?.options?.length ?? 0
+      return count > 0 ? `Generated ${count} route option${count !== 1 ? 's' : ''}` : 'Route planning complete'
+    }
+    case 'fetchWeather':
+      return 'Weather data retrieved'
+    case 'searchFavorites':
+      return 'Favorite roads search complete'
+    case 'saveRoute':
+      return 'Route saved'
+    default:
+      return `${toolName} complete`
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Unified agent callback factory (US-057)
+// ---------------------------------------------------------------------------
+
+/**
+ * Build all agent callbacks for a given session. Merges the former
+ * buildStreamingContext and buildCardCallbacks into a single factory that
+ * shares a thinkingCardId ref via closure.
  *
- * The text row is created lazily — only when the first text delta arrives. If
- * the agent errors or produces no final text turn, no row is written and there
- * is nothing to finalize (no orphaned empty avatar in the chat).
- *
- * The reasoning row is also created lazily on the first thinking delta, then
- * subsequent deltas append to it.
+ * Manages three message types:
+ * 1. Text message (lazy creation on first delta)
+ * 2. Thinking card (lazy creation on first thinking delta or tool start)
+ * 3. Routing card (eager creation on planRoute tool finish)
  *
  * Returns:
- * - `getMessageId()` — getter that returns the (possibly-undefined) message id
- * - `onTextDelta(delta)` — creates the row on first call, then appends chunk
- * - `onThinkingDelta(delta)` — creates reasoning row on first call, then appends
- * - `finalizeOk(piMessage?)` — no-ops if no row was ever created
- * - `finalizeFail()` — no-ops if no row was ever created
+ * - executeCtx: Full ExecuteContext with all callbacks
+ * - getTextMessageId(): Getter for the (possibly-undefined) text message id
+ * - finalizeOk(piMessage?): Finalizes text and thinking as complete
+ * - finalizeFail(): Finalizes text and thinking as failed
  */
-export async function buildStreamingContext(
+export async function buildAgentCallbacks(
   sessionId: Id<'planning_sessions'>,
   runMutation: (fn: any, args: any) => Promise<any>
 ): Promise<{
-  getMessageId: () => Id<'session_messages'> | undefined
-  onTextDelta: (delta: string) => Promise<void>
-  onThinkingDelta: (delta: string) => Promise<void>
-  finalizeOk: (piMessage?: unknown, opts?: { kind?: string; attachments?: unknown[] }) => Promise<void>
+  executeCtx: ExecuteContext
+  getTextMessageId: () => Id<'session_messages'> | undefined
+  finalizeOk: (piMessage?: unknown) => Promise<void>
   finalizeFail: () => Promise<void>
 }> {
-  let messageId: Id<'session_messages'> | undefined = undefined
-  let reasoningMessageId: Id<'session_messages'> | null = null
+  // Shared state via closure
+  let textMessageId: Id<'session_messages'> | undefined = undefined
+  let thinkingCardId: Id<'session_messages'> | undefined = undefined
+
+  // Map from toolCallId → card messageId so onToolResultPiMessage can patch
+  // the correct row after onToolFinish creates it.
+  const pendingCardMessages = new Map<string, Id<'session_messages'>>()
+
+  // Lazy thinking card creation
+  const ensureThinkingCard = async (): Promise<Id<'session_messages'>> => {
+    if (!thinkingCardId) {
+      const result = await runMutation(internal.db.sessionMessages.createThinkingCard, { sessionId })
+      thinkingCardId = result.messageId
+    }
+    return thinkingCardId! // Non-null assertion: we just created it if it was undefined
+  }
 
   const onTextDelta = async (delta: string): Promise<void> => {
-    if (messageId === undefined) {
-      const result = await runMutation(
-        internal.db.sessionMessages.createPendingAssistantMessage,
-        { sessionId, kind: 'text' }
-      )
-      messageId = result.messageId
+    if (textMessageId === undefined) {
+      const result = await runMutation(internal.db.sessionMessages.createPendingAssistantMessage, {
+        sessionId,
+        kind: 'text',
+      })
+      textMessageId = result.messageId
     }
     await runMutation(internal.db.sessionMessages.appendStreamingChunk, {
-      messageId,
+      messageId: textMessageId,
       delta,
     })
   }
 
   const onThinkingDelta = async (delta: string): Promise<void> => {
-    if (!reasoningMessageId) {
-      reasoningMessageId = await runMutation(
-        internal.db.sessionMessages.recordReasoning,
-        {
-          sessionId,
-          content: delta,
-          piMessage: {},
-        }
-      )
-    } else {
-      await runMutation(internal.db.sessionMessages.appendReasoningChunk, {
-        messageId: reasoningMessageId,
-        delta,
-      })
-    }
-  }
-
-  const finalizeOk = async (
-    piMessage?: unknown,
-    opts?: { kind?: string; attachments?: unknown[] }
-  ): Promise<void> => {
-    // Finalize reasoning message first (was left in 'streaming' status)
-    if (reasoningMessageId) {
-      await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
-        messageId: reasoningMessageId,
-        status: 'complete',
-      })
-    }
-    if (messageId === undefined) return // agent produced no text, no row to finalize
-    const args: Record<string, unknown> = { messageId, status: 'complete' }
-    if (piMessage !== undefined) {
-      args.piMessage = piMessage
-    }
-    if (opts?.kind !== undefined) {
-      args.kind = opts.kind
-    }
-    if (opts?.attachments !== undefined) {
-      args.attachments = opts.attachments
-    }
-    await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, args)
-  }
-
-  const finalizeFail = async (): Promise<void> => {
-    // Finalize reasoning message on failure too
-    if (reasoningMessageId) {
-      await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
-        messageId: reasoningMessageId,
-        status: 'failed',
-      })
-    }
-    if (messageId === undefined) return // nothing to finalize
-    await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
-      messageId,
-      status: 'failed',
+    const cardId = await ensureThinkingCard()
+    await runMutation(internal.db.sessionMessages.appendThinkingText, {
+      messageId: cardId,
+      delta,
     })
   }
 
-  return { getMessageId: () => messageId, onTextDelta, onThinkingDelta, finalizeOk, finalizeFail }
+  const onToolStart = async (toolName: string, args: unknown) => {
+    // Ensure thinking card exists (tool may fire before any thinking deltas)
+    const cardId = await ensureThinkingCard()
+
+    // Emit tool_start thinking step
+    await runMutation(internal.db.sessionMessages.appendThinkingStep, {
+      messageId: cardId,
+      step: {
+        type: 'tool_start',
+        toolName,
+        summary: summarizeToolStart(toolName, args),
+        timestamp: Date.now(),
+      },
+    })
+
+    return undefined
+  }
+
+  const onToolFinish = async (
+    toolCallId: string,
+    toolName: string,
+    _messageId: Id<'session_messages'> | undefined,
+    result: unknown
+  ) => {
+    // Ensure thinking card exists
+    const cardId = await ensureThinkingCard()
+
+    // Emit tool_finish thinking step
+    await runMutation(internal.db.sessionMessages.appendThinkingStep, {
+      messageId: cardId,
+      step: {
+        type: 'tool_finish',
+        toolName,
+        summary: summarizeToolFinish(toolName, result),
+        timestamp: Date.now(),
+      },
+    })
+
+    // Card-backed tools (planRoute, compileSketch) also get a routing_card row
+    if (!TOOL_TO_CARD_KIND[toolName]) return
+
+    const routePlanId = (result as { routePlanId?: Id<'route_plans'> })?.routePlanId
+
+    // If the tool produced no routePlanId there is nothing to render.
+    if (!routePlanId) return
+
+    // Create the card row with the attachment already set — no empty placeholder.
+    const { messageId } = await runMutation(internal.db.sessionMessages.createPendingAssistantMessage, {
+      sessionId,
+      kind: 'routing_card',
+      attachments: [{ type: 'route_options', routePlanId }],
+    })
+
+    // Store the mapping so onToolResultPiMessage can patch this row with the
+    // full ToolResultMessage piMessage for multi-turn context.
+    pendingCardMessages.set(toolCallId, messageId)
+
+    // Immediately finalize. Both mutations run back-to-back in the same
+    // action — clients see running → complete in one reactive tick.
+    const isError = (result as any)?.type === 'error'
+    await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
+      messageId,
+      status: isError ? 'failed' : 'complete',
+    })
+  }
+
+  const onAgentTurn = async (assistant: AssistantMessage) => {
+    await runMutation(internal.db.sessionMessages.recordAgentTurn, {
+      sessionId,
+      piMessage: assistant as any,
+    })
+  }
+
+  const onToolResultPiMessage = async (toolCallId: string, result: ToolResultMessage) => {
+    if (pendingCardMessages.has(toolCallId)) {
+      await runMutation(internal.db.sessionMessages.recordToolResult, {
+        messageId: pendingCardMessages.get(toolCallId)!,
+        piMessage: result as any,
+      })
+    }
+  }
+
+  const finalizeOk = async (piMessage?: unknown): Promise<void> => {
+    // Finalize text message (if any)
+    if (textMessageId !== undefined) {
+      const args: Record<string, unknown> = { messageId: textMessageId, status: 'complete' }
+      if (piMessage !== undefined) {
+        args.piMessage = piMessage
+      }
+      await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, args)
+    }
+
+    // Finalize thinking card (if any)
+    if (thinkingCardId !== undefined) {
+      await runMutation(internal.db.sessionMessages.finalizeThinkingCard, {
+        messageId: thinkingCardId,
+      })
+    }
+  }
+
+  const finalizeFail = async (): Promise<void> => {
+    // Finalize text message as failed (if any)
+    if (textMessageId !== undefined) {
+      await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
+        messageId: textMessageId,
+        status: 'failed',
+      })
+    }
+
+    // Finalize thinking card as complete (not failed — it captured what it could)
+    if (thinkingCardId !== undefined) {
+      await runMutation(internal.db.sessionMessages.finalizeThinkingCard, {
+        messageId: thinkingCardId,
+      })
+    }
+  }
+
+  const executeCtx: ExecuteContext = {
+    onToolStart,
+    onToolFinish,
+    onTextDelta,
+    onThinkingDelta,
+    onAgentTurn,
+    onToolResultPiMessage,
+  }
+
+  return {
+    executeCtx,
+    getTextMessageId: () => textMessageId,
+    finalizeOk,
+    finalizeFail,
+  }
 }
 
 /**
@@ -367,16 +429,16 @@ export const sendMessage = action({
 
     // Step 4: Run agent with session context (probabilistic)
     // This is where the agent decides what to do.
-    // We pass card-emission callbacks so card-backed tools (planRoute) create
-    // their card row in onToolFinish — with attachments already set at insert
-    // time — eliminating the empty-placeholder race window.
     //
-    // We also wire a lazy streaming context so that a pending `text` assistant
-    // message row is created only when the first text delta arrives. If the
-    // agent produces no text (or errors before any delta), no row is written.
-    const cardCallbacks = buildCardCallbacks(args.sessionId, ctx.runMutation.bind(ctx))
-    const { getMessageId: getTextMessageId, onTextDelta, onThinkingDelta, finalizeOk, finalizeFail } =
-      await buildStreamingContext(args.sessionId, ctx.runMutation.bind(ctx))
+    // We use buildAgentCallbacks which provides:
+    // - Lazy text message creation (only on first delta)
+    // - Lazy thinking card creation (on first thinking delta or tool start)
+    // - Routing card creation for planRoute tool
+    // - Proper finalization for both success and error paths
+    const { executeCtx, getTextMessageId, finalizeOk, finalizeFail } = await buildAgentCallbacks(
+      args.sessionId,
+      ctx.runMutation.bind(ctx)
+    )
 
     // Create the planning emitter — always create the row immediately
     const planningEmitter = new PlanningEventEmitter({
@@ -388,10 +450,9 @@ export const sendMessage = action({
     // Track the final assistant message for piMessage persistence
     let finalAssistantMessage: AssistantMessage | undefined = undefined
 
-    const executeCtx: ExecuteContext = {
-      ...cardCallbacks,
-      onTextDelta,
-      onThinkingDelta,
+    // Add onFinalAssistant and planning callbacks to the execute context
+    const augmentedExecuteCtx: ExecuteContext = {
+      ...executeCtx,
       onFinalAssistant: async (assistant: AssistantMessage) => {
         finalAssistantMessage = assistant
       },
@@ -418,22 +479,12 @@ export const sendMessage = action({
             runAction: ctx.runAction.bind(ctx),
           },
           args.content,
-          executeCtx
+          augmentedExecuteCtx
         )
         // Step 5a: Finalize the streaming text message as complete, including
         // the final AssistantMessage as piMessage so the next session load has
         // the full pi-ai message stored.
-        // If the orchestrator returned location_search attachments, upgrade
-        // the text message to a location_search_card with those attachments.
-        const searchAttachment = agentResult.attachments?.find(
-          (a: { type: string }) => a.type === 'location_search'
-        )
-        await finalizeOk(
-          finalAssistantMessage as unknown,
-          searchAttachment
-            ? { kind: 'location_search_card', attachments: [searchAttachment] }
-            : undefined
-        )
+        await finalizeOk(finalAssistantMessage as unknown)
 
         // Record performance metrics
         if (agentResult.metrics) {
