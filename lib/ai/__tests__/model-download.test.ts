@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { ModelDownloadManager } from '../model-download'
-import * as FileSystem from 'expo-file-system'
+import * as FileSystem from 'expo-file-system/legacy'
 
 /**
  * AC-002: Edge Case — Download Interruption and Resume

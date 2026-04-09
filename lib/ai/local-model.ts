@@ -6,7 +6,7 @@ import type {
   ModelDownloadManager,
 } from './types'
 import { NativeModules } from 'react-native'
-import * as FileSystem from 'expo-file-system'
+import * as FileSystem from 'expo-file-system/legacy'
 
 /**
  * Native module interface for MLX model operations

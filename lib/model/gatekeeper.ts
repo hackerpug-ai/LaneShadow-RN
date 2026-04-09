@@ -20,7 +20,7 @@
  * - NEVER cache model download state permanently - always verify actual model file existence
  */
 
-import * as FileSystem from 'expo-file-system'
+import * as FileSystem from 'expo-file-system/legacy'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import type { ChecksumResult } from '../ai/checksum'
 

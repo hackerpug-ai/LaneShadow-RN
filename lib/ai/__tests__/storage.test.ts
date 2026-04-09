@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { ModelDownloadManager } from '../model-download'
-import * as FileSystem from 'expo-file-system'
+import * as FileSystem from 'expo-file-system/legacy'
 
 /**
  * AC-004: Error Case — Insufficient Storage Space
