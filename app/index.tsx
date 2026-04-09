@@ -19,12 +19,39 @@ const Index = () => {
 
   const isLoading = sessions === undefined
 
-  // Auto-navigation logic (similar to Holocron):
-  // - On first mount, navigate to tabs immediately (optimistic empty state)
-  // - After sessions load, if sessions exist, redirect to most recent
+  // Auto-navigation logic:
+  // - If Clerk is loaded but user is not signed in, go to auth (tabs will handle this)
+  // - If Clerk is loaded and user is signed in, wait for sessions then redirect
   useEffect(() => {
-    // Skip if still loading or already set redirect
-    if (isLoading || redirectTarget !== null) {
+    console.info('[Index] Navigation state', {
+      clerkLoaded,
+      isSignedIn,
+      isLoading,
+      sessionsCount: sessions?.length ?? 0,
+      redirectTarget,
+    })
+
+    // Skip if already set redirect
+    if (redirectTarget !== null) {
+      return
+    }
+
+    // If Clerk not loaded yet, wait
+    if (!clerkLoaded) {
+      console.info('[Index] Waiting for Clerk to load')
+      return
+    }
+
+    // If user is not signed in, go to tabs (auth screen will show)
+    if (!isSignedIn) {
+      console.info('[Index] User not signed in, navigating to tabs for auth')
+      setRedirectTarget('/(app)/(tabs)')
+      return
+    }
+
+    // If sessions are still loading, wait
+    if (isLoading) {
+      console.info('[Index] Sessions loading, waiting...')
       return
     }
 
@@ -40,7 +67,7 @@ const Index = () => {
       console.info('[Index] No sessions found, navigating to tabs without session')
       setRedirectTarget('/(app)/(tabs)')
     }
-  }, [isLoading, sessions, redirectTarget])
+  }, [clerkLoaded, isSignedIn, isLoading, sessions, redirectTarget])
 
   // While determining redirect, show nothing
   if (redirectTarget === null) {
