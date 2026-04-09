@@ -50,7 +50,12 @@ export class PersistentDownloadManager {
   } {
     const state = useDownloadStore.getState()
 
-    if (state.state === 'downloading' && state.progressPercent < 100 && state.progressPercent > 0) {
+    // Check if there's a resumable download (downloading state OR partial progress)
+    const canResume = state.state === 'downloading' ||
+                      (state.state === 'failed' && state.lastError?.retryable && state.progressPercent > 0) ||
+                      (state.progressPercent > 0 && state.progressPercent < 100)
+
+    if (canResume) {
       return {
         canResume: true,
         progress: {

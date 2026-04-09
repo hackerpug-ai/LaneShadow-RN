@@ -47,7 +47,7 @@ export class GatekeeperDownloadManager {
   constructor() {
     this.persistentManager = new PersistentDownloadManager()
     this.checksumValidator = new ChecksumValidator()
-    this.modelFilePath = `${FileSystem.documentDirectory!}models/qwen3.5-0.8b.gguf`
+    this.modelFilePath = `${FileSystem.documentDirectory!}models/qwen2.5-0.5b-instruct-q4_k_m.gguf`
   }
 
   /**
@@ -64,9 +64,9 @@ export class GatekeeperDownloadManager {
     try {
       // Model configuration (should come from app config/env)
       const config = {
-        url: 'https://example.com/models/qwen3.5-0.8b.gguf', // TODO: Use real URL
-        version: 'qwen3.5-0.8b-v1',
-        totalBytes: 800 * 1024 * 1024, // 800MB
+        url: 'https://huggingface.co/bartowski/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf',
+        version: 'qwen2.5-0.5b-q4_k_m-v1',
+        totalBytes: 398 * 1024 * 1024, // 398MB
       }
 
       // Default network status if not provided
@@ -91,7 +91,7 @@ export class GatekeeperDownloadManager {
 
       // Validate checksum after successful download
       console.log('[GatekeeperDownloadManager] Download complete, validating checksum...')
-      const expectedChecksum = '616263313233646566343536' // TODO: Use real checksum from config
+      const expectedChecksum = '6eb923e7d26e9cea28811e1a8e852009b21242fb157b26149d3b188f3a8c8653'
       const checksumResult = await this.checksumValidator.validate(
         result.filePath!,
         expectedChecksum

@@ -18,8 +18,8 @@ import { ChecksumValidator } from '../lib/ai/checksum'
 import { ModelGatekeeper, type ModelGatekeeperStatus } from '../lib/model/gatekeeper'
 import { GatekeeperDownloadManager, type ModelDownloadProgress } from '../lib/model/download-manager'
 
-const MODEL_FILE_PATH = `${FileSystem.documentDirectory!}models/qwen3.5-0.8b.gguf`
-const EXPECTED_CHECKSUM = '616263313233646566343536' // Placeholder checksum from CLR-002
+const MODEL_FILE_PATH = `${FileSystem.documentDirectory!}models/qwen2.5-0.5b-instruct-q4_k_m.gguf`
+const EXPECTED_CHECKSUM = '6eb923e7d26e9cea28811e1a8e852009b21242fb157b26149d3b188f3a8c8653'
 
 export type ModelSetupStatus = 'checking' | 'required' | 'downloading' | 'valid' | 'corrupted'
 
