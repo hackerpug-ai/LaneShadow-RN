@@ -19,6 +19,7 @@ type RoutePolylineInput = {
     legs: RouteLeg[]
     overlays?: RouteOverlays
   }
+  routeId?: string
   variant?: 'selected' | 'alternate'
   showLegs?: boolean
   showWindOverlay?: boolean
@@ -38,9 +39,11 @@ const decodeLeg = (leg: RouteLeg): MapLatLng[] => decodePolylineGeometry(leg.geo
 const buildWindOverlayPolylines = (
   legCoords: MapLatLng[],
   windOverlay: WindOverlayByLeg,
-  semanticColors: ExtendedTheme['semantic']
+  semanticColors: ExtendedTheme['semantic'],
+  routeId?: string
 ): BuiltPolyline[] => {
   const distances = computeCumulativeDistances(legCoords)
+  const prefix = routeId ? `${routeId}-` : ''
 
   return windOverlay.segments.flatMap((segment: WindOverlaySegment) => {
     const sliced = slicePolylineByMeters(legCoords, distances, segment.startMeters, segment.endMeters)
@@ -48,7 +51,7 @@ const buildWindOverlayPolylines = (
 
     return [
       {
-        id: `wind-${windOverlay.legIndex}-${segment.startMeters}-${segment.endMeters}`,
+        id: `${prefix}wind-${windOverlay.legIndex}-${segment.startMeters}-${segment.endMeters}`,
         coordinates: sliced,
         strokeColor: getWindColor(segment.level, semanticColors),
         strokeWidth: 6,
@@ -60,9 +63,11 @@ const buildWindOverlayPolylines = (
 const buildRainOverlayPolylines = (
   legCoords: MapLatLng[],
   rainOverlay: RainOverlayByLeg,
-  semanticColors: ExtendedTheme['semantic']
+  semanticColors: ExtendedTheme['semantic'],
+  routeId?: string
 ): BuiltPolyline[] => {
   const distances = computeCumulativeDistances(legCoords)
+  const prefix = routeId ? `${routeId}-` : ''
 
   return rainOverlay.segments.flatMap((segment: RainOverlaySegment) => {
     const sliced = slicePolylineByMeters(legCoords, distances, segment.startMeters, segment.endMeters)
@@ -70,7 +75,7 @@ const buildRainOverlayPolylines = (
 
     return [
       {
-        id: `rain-${rainOverlay.legIndex}-${segment.startMeters}-${segment.endMeters}`,
+        id: `${prefix}rain-${rainOverlay.legIndex}-${segment.startMeters}-${segment.endMeters}`,
         coordinates: sliced,
         strokeColor: getRainColor(segment.level, semanticColors),
         strokeWidth: 6,
@@ -82,9 +87,11 @@ const buildRainOverlayPolylines = (
 const buildTemperatureOverlayPolylines = (
   legCoords: MapLatLng[],
   temperatureOverlay: TemperatureOverlayByLeg,
-  semanticColors: ExtendedTheme['semantic']
+  semanticColors: ExtendedTheme['semantic'],
+  routeId?: string
 ): BuiltPolyline[] => {
   const distances = computeCumulativeDistances(legCoords)
+  const prefix = routeId ? `${routeId}-` : ''
 
   return temperatureOverlay.segments.flatMap((segment: TemperatureOverlaySegment) => {
     const sliced = slicePolylineByMeters(legCoords, distances, segment.startMeters, segment.endMeters)
@@ -92,7 +99,7 @@ const buildTemperatureOverlayPolylines = (
 
     return [
       {
-        id: `temp-${temperatureOverlay.legIndex}-${segment.startMeters}-${segment.endMeters}`,
+        id: `${prefix}temp-${temperatureOverlay.legIndex}-${segment.startMeters}-${segment.endMeters}`,
         coordinates: sliced,
         strokeColor: getTemperatureColor(segment.level, semanticColors),
         strokeWidth: 6,
@@ -103,6 +110,7 @@ const buildTemperatureOverlayPolylines = (
 
 export const buildRoutePolylines = ({
   route,
+  routeId,
   variant = 'selected',
   showLegs = true,
   showWindOverlay = true,
@@ -117,11 +125,12 @@ export const buildRoutePolylines = ({
     variant === 'selected' ? semantic.color.routeSelected.default : semantic.color.routeAlternate.default
   const legColor = variant === 'selected' ? semantic.color.routeSelected.default : semantic.color.onSurface.muted
 
+  const prefix = routeId ? `${routeId}-` : ''
   const polylines: BuiltPolyline[] = []
 
   if (overviewCoords.length > 1) {
     polylines.push({
-      id: 'overview',
+      id: `${prefix}overview`,
       coordinates: overviewCoords,
       strokeColor: overviewColor,
       strokeWidth: 6,
@@ -132,7 +141,7 @@ export const buildRoutePolylines = ({
     legCoords.forEach((coords, index) => {
       if (coords.length < 2) return
       polylines.push({
-        id: `leg-${index}`,
+        id: `${prefix}leg-${index}`,
         coordinates: coords,
         strokeColor: legColor,
         strokeWidth: 4,
@@ -146,7 +155,7 @@ export const buildRoutePolylines = ({
       wind.byLeg.forEach((overlay) => {
         const coords = legCoords[overlay.legIndex]
         if (!coords || coords.length < 2) return
-        polylines.push(...buildWindOverlayPolylines(coords, overlay, semantic))
+        polylines.push(...buildWindOverlayPolylines(coords, overlay, semantic, routeId))
       })
     }
   }
@@ -157,7 +166,7 @@ export const buildRoutePolylines = ({
       rain.byLeg.forEach((overlay) => {
         const coords = legCoords[overlay.legIndex]
         if (!coords || coords.length < 2) return
-        polylines.push(...buildRainOverlayPolylines(coords, overlay, semantic))
+        polylines.push(...buildRainOverlayPolylines(coords, overlay, semantic, routeId))
       })
     }
   }
@@ -168,7 +177,7 @@ export const buildRoutePolylines = ({
       temperature.byLeg.forEach((overlay) => {
         const coords = legCoords[overlay.legIndex]
         if (!coords || coords.length < 2) return
-        polylines.push(...buildTemperatureOverlayPolylines(coords, overlay, semantic))
+        polylines.push(...buildTemperatureOverlayPolylines(coords, overlay, semantic, routeId))
       })
     }
   }
