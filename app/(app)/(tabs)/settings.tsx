@@ -76,6 +76,7 @@ const SettingsScreen = () => {
               disabled={isLoggingOut}
               loading={isLoggingOut}
               testID="settings-logout-button"
+              // eslint-disable-next-line react-native/no-inline-styles
               style={{ width: '100%' }}
             >
               Sign Out
