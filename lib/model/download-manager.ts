@@ -47,7 +47,7 @@ export class GatekeeperDownloadManager {
   constructor() {
     this.persistentManager = new PersistentDownloadManager()
     this.checksumValidator = new ChecksumValidator()
-    this.modelFilePath = `${FileSystem.documentDirectory!}models/qwen3.5-0.8b.mlmodel`
+    this.modelFilePath = `${FileSystem.documentDirectory!}models/qwen3.5-0.8b.gguf`
   }
 
   /**
@@ -64,7 +64,7 @@ export class GatekeeperDownloadManager {
     try {
       // Model configuration (should come from app config/env)
       const config = {
-        url: 'https://example.com/models/qwen3.5-0.8b.mlmodel', // TODO: Use real URL
+        url: 'https://example.com/models/qwen3.5-0.8b.gguf', // TODO: Use real URL
         version: 'qwen3.5-0.8b-v1',
         totalBytes: 800 * 1024 * 1024, // 800MB
       }
