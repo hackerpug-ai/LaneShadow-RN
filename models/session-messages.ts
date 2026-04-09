@@ -20,7 +20,7 @@ export const SESSION_MESSAGE_KIND = {
   AGENT_TURN: 'agent_turn',
   TOOL_RESULT_HIDDEN: 'tool_result_hidden',
   PLANNING: 'planning',
-  LOCATION_SEARCH_CARD: 'location_search_card',
+  THINKING_CARD: 'thinking_card',
 } as const
 export type SessionMessageKind = (typeof SESSION_MESSAGE_KIND)[keyof typeof SESSION_MESSAGE_KIND]
 
@@ -33,7 +33,7 @@ export const sessionMessageKindValidator = v.union(
   v.literal('agent_turn'),
   v.literal('tool_result_hidden'),
   v.literal('planning'),
-  v.literal('location_search_card')
+  v.literal('thinking_card')
 )
 
 export const SESSION_MESSAGE_STATUS = {
@@ -51,26 +51,24 @@ export const sessionMessageStatusValidator = v.union(
   v.literal('failed')      // terminal failure
 )
 
-export const sessionMessageAttachmentValidator = v.union(
-  v.object({
-    type: v.literal('route_options'),
-    routePlanId: v.id('route_plans'),
-  }),
-  v.object({
-    type: v.literal('location_search'),
-    searchQuery: v.string(),
-    results: v.array(v.object({
-      id: v.string(),
-      name: v.string(),
-      address: v.string(),
-      types: v.optional(v.array(v.string())),
-      location: v.object({ lat: v.number(), lng: v.number() }),
-      detourMinutes: v.optional(v.number()),
-      distanceMeters: v.optional(v.number()),
-    })),
-  })
-)
+export const sessionMessageAttachmentValidator = v.object({
+  type: v.literal('route_options'),
+  routePlanId: v.id('route_plans'),
+})
 export type SessionMessageAttachment = Infer<typeof sessionMessageAttachmentValidator>
+
+export const thinkingStepValidator = v.object({
+  type: v.union(
+    v.literal('thinking'),
+    v.literal('tool_start'),
+    v.literal('tool_finish')
+  ),
+  toolName: v.optional(v.string()),
+  summary: v.string(),
+  detail: v.optional(v.string()),
+  timestamp: v.number(),
+})
+export type ThinkingStep = Infer<typeof thinkingStepValidator>
 
 /**
  * WIDEN phase of widen-migrate-narrow: `kind` and `status` are optional here
@@ -95,5 +93,7 @@ export const sessionMessageValidator = v.object({
    * during widen phase; narrows once agent rewrite lands.
    */
   piMessage: v.optional(v.any()),
+  /** Array of thinking steps showing agent's tool activity and reasoning */
+  thinkingSteps: v.optional(v.array(thinkingStepValidator)),
 })
 export type SessionMessage = Infer<typeof sessionMessageValidator>
