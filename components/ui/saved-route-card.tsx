@@ -22,6 +22,7 @@ export const SavedRouteCard = ({
   dateSaved,
   distance,
   duration,
+  bounds,
   thumbnailRotation = 0,
   onPress,
 }: SavedRouteCardProps) => {
@@ -49,12 +50,7 @@ export const SavedRouteCard = ({
           <RouteThumbnail
             width={60}
             height={60}
-            bounds={{
-              north: 37.7749,
-              south: 37.7049,
-              east: -122.4049,
-              west: -122.4749,
-            }}
+            bounds={bounds}
             rotation={thumbnailRotation}
           />
         </View>

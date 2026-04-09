@@ -74,7 +74,11 @@ const SuggestionChips = ({
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={[
         styles.chipsContainer,
-        { gap: semantic.space.sm, paddingHorizontal: semantic.space.md },
+        {
+          gap: semantic.space.sm,
+          paddingHorizontal: semantic.space.md,
+          paddingVertical: semantic.space.sm,
+        },
       ]}
     >
       {suggestions.map((suggestion, index) => (

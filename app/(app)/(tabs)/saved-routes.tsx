@@ -168,6 +168,7 @@ const SavedRoutesScreen = () => {
           dateSaved={formatDate(item.createdAt)}
           distance={formatDistance(item.preview.distanceMeters)}
           duration={formatDuration(item.preview.durationSeconds)}
+          bounds={item.preview.bounds}
           thumbnailRotation={THUMBNAIL_ROTATIONS[index % THUMBNAIL_ROTATIONS.length]}
           onPress={() => handlePress(item.savedRouteId)}
         />

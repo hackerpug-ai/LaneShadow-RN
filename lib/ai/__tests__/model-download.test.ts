@@ -17,6 +17,9 @@ describe('ModelDownloadManager - AC-002: Download Interruption and Resume', () =
 
   beforeEach(() => {
     vi.clearAllMocks()
+    // Clear global state to prevent test interference
+    ;(global as any).__mockPartialFiles = {}
+    ;(global as any).__mockDownloadedFiles = {}
     downloadManager = new ModelDownloadManager()
   })
 

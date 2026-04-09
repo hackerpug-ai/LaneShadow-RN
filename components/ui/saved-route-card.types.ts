@@ -2,6 +2,8 @@
  * Type definitions for SavedRouteCard
  */
 
+import type { Bounds } from '../../models/saved-routes'
+
 export type SavedRouteCardProps = {
   /** Route name */
   name: string
@@ -15,6 +17,8 @@ export type SavedRouteCardProps = {
   distance?: string
   /** Optional press handler */
   onPress?: () => void
-  /** Thumbnail rotation */
+  /** Route bounds for thumbnail rendering */
+  bounds?: Bounds
+  /** Thumbnail rotation (deprecated - use bounds instead) */
   thumbnailRotation?: number
 }

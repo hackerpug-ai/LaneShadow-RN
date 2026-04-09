@@ -64,6 +64,13 @@ type DeleteSessionCtx = {
   }
 }
 
+type UpdateSessionTitleCtx = {
+  db: {
+    get: (id: Id<'planning_sessions'>) => Promise<PlanningSessionDoc | null>
+    patch: (id: Id<'planning_sessions'>, fields: object) => Promise<void>
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -135,6 +142,22 @@ export const archiveSessionHandler = async (
 
   await ctx.db.patch(args.sessionId, {
     status: PLANNING_SESSION_STATUS.ARCHIVED,
+    updatedAt: Date.now(),
+  })
+}
+
+export const updateSessionTitleHandler = async (
+  ctx: UpdateSessionTitleCtx,
+  args: { sessionId: Id<'planning_sessions'>; title: string },
+  clerkUserId: string
+): Promise<void> => {
+  const doc = await ctx.db.get(args.sessionId)
+  if (!doc || !isOwnedByUser(doc, clerkUserId)) {
+    throw new ConvexError(ERROR_CODES.SESSION_NOT_FOUND)
+  }
+
+  await ctx.db.patch(args.sessionId, {
+    title: args.title,
     updatedAt: Date.now(),
   })
 }
@@ -268,6 +291,24 @@ export const archiveSession = mutation({
       ctx as unknown as ArchiveSessionCtx,
       args,
       clerkUserId
+    )
+    return null
+  },
+})
+
+export const updateSessionTitle = internalMutation({
+  args: {
+    sessionId: v.id('planning_sessions'),
+    title: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args): Promise<null> => {
+    // For internal use by agent - we'll validate ownership differently
+    // The agent already has the session context from the conversation
+    await updateSessionTitleHandler(
+      ctx as unknown as UpdateSessionTitleCtx,
+      args,
+      '' // clerkUserId not needed - agent only operates on its own session
     )
     return null
   },

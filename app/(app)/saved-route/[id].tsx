@@ -14,11 +14,6 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { IconSymbol } from '../../../components/ui/icon-symbol'
 
 import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
-import {
-  OverlayToggle,
-  type OverlayType,
-  type OverlayAvailability,
-} from '../../../components/map/overlay-toggle'
 import { MapViewWrapper } from '../../../components/map/map-view'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
 import { Button } from '../../../components/ui/button'
@@ -34,7 +29,6 @@ import { useRouteActions } from './use-route-actions'
 import { formatDistance, formatDuration, formatSavedDate } from './utils'
 
 const Z_INDEX_HEADER_ACTIONS = 30
-const Z_INDEX_OVERLAY_TOGGLE = 25
 
 const SavedRouteDetailScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -44,19 +38,6 @@ const SavedRouteDetailScreen = () => {
   const { data, isLoading } = useSavedRouteDetail(id ?? null)
 
   const actions = useRouteActions(id ?? null)
-  const [selectedOverlay, setSelectedOverlay] = useState<OverlayType | ''>('')
-
-  const overlayAvailability: OverlayAvailability = useMemo(() => {
-    if (!data) return { wind: false, rain: false, temperature: false }
-    const overlays = data.routeSnapshot.overlays
-    return {
-      wind: !!overlays.wind,
-      rain: !!overlays.rain,
-      temperature: !!overlays.temperature,
-    }
-  }, [data])
-
-  const hasAnyOverlay = overlayAvailability.wind || overlayAvailability.rain || overlayAvailability.temperature
 
   const polylines = useMemo(() => {
     if (!data) return []
@@ -68,12 +49,12 @@ const SavedRouteDetailScreen = () => {
       },
       variant: 'selected',
       showLegs: true,
-      showWindOverlay: selectedOverlay === 'wind',
-      showRainOverlay: selectedOverlay === 'rain',
-      showTemperatureOverlay: selectedOverlay === 'temperature',
+      showWindOverlay: false,
+      showRainOverlay: false,
+      showTemperatureOverlay: false,
       semantic,
     })
-  }, [data, semantic, selectedOverlay])
+  }, [data, semantic])
 
   if (isLoading) {
     return (
@@ -189,26 +170,6 @@ const SavedRouteDetailScreen = () => {
               accessibilityLabel="Delete route"
             />
           </View>
-
-          {/* Overlay toggle - only shown when overlay data exists (AC4) */}
-          {hasAnyOverlay && (
-            <View
-              style={[
-                styles.overlayToggle,
-                {
-                  top: semantic.space.xl,
-                  right: semantic.space.lg,
-                },
-              ]}
-            >
-              <OverlayToggle
-                value={selectedOverlay}
-                onValueChange={setSelectedOverlay}
-                availability={overlayAvailability}
-                testID="overlay-toggle"
-              />
-            </View>
-          )}
         </View>
 
         {/* Info section */}
@@ -355,10 +316,6 @@ const styles = StyleSheet.create({
     top: 0,
     flexDirection: 'row',
     zIndex: Z_INDEX_HEADER_ACTIONS,
-  },
-  overlayToggle: {
-    position: 'absolute',
-    zIndex: Z_INDEX_OVERLAY_TOGGLE,
   },
   infoSection: {
     flex: 0.5,

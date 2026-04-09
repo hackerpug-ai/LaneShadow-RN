@@ -878,6 +878,34 @@ async function runPlanRoute(
   }
 }
 
+/**
+ * Set the title of the current planning session.
+ * Called by the agent after creating a route to give the session a meaningful name.
+ */
+async function runSetSessionTitle(
+  ctx: AgentContext,
+  args: { title: string }
+): Promise<unknown> {
+  try {
+    await ctx.runMutation(internal.db.planningSessions.updateSessionTitle, {
+      sessionId: ctx.planningSessionId,
+      title: args.title,
+    })
+    console.info('[runSetSessionTitle] Session title updated:', {
+      sessionId: ctx.planningSessionId,
+      title: args.title,
+    })
+    return { type: 'confirmation', message: 'Session title updated' }
+  } catch (error) {
+    console.error('[runSetSessionTitle] Error updating session title:', error)
+    return {
+      type: 'error',
+      message: "I couldn't update the session title.",
+      hint: error instanceof Error ? error.message : String(error),
+    }
+  }
+}
+
 // -----------------------------------------------------------------------------
 // Tool Definitions
 // -----------------------------------------------------------------------------
@@ -912,6 +940,22 @@ const routingTools: RoutingTool[] = [
       "Plan a motorcycle route with 2-3 scenic options using the deterministic orchestrator. Call geocode first if you need coordinates for the start or end. Use the rider's current location (given in the system prompt) as start when they say \"here\" or don't specify. For refinements, consider using createRouteSketch + compileSketch for more control.",
     parameters: AgentToolSchemas.planRoute as any,
     parallelSafe: false,
+  },
+  {
+    name: 'setSessionTitle',
+    description:
+      "Set the title of the current planning session based on the route context. Use this after creating a route to give the session a meaningful name (e.g., 'SF to Oakland Ride', 'Scenic Coast Route'). The title should reflect the route's origin, destination, or character.",
+    parameters: {
+      type: 'object',
+      properties: {
+        title: {
+          type: 'string',
+          description: 'The session title (e.g., "SF to Oakland Ride", "Scenic Coast Route", "Morning Commute")',
+        },
+      },
+      required: ['title'],
+    } as any,
+    parallelSafe: true,
   },
 ]
 
@@ -951,6 +995,9 @@ export async function executeRoutingTool(
         break
       case 'planRoute':
         result = await runPlanRoute(ctx, validated)
+        break
+      case 'setSessionTitle':
+        result = await runSetSessionTitle(ctx, validated)
         break
       default:
         result = { type: 'error', message: `Unknown tool: ${call.name}` }
@@ -1045,6 +1092,12 @@ Your primary tool is planRoute — it generates 2-3 scenic route options using A
 **Presentation**:
 - 1-2 sentences, highlight scenic features, road types, rough duration.
 - Never expose tool names or technical details to the rider.
+
+**Session Naming**:
+- After creating a route with planRoute, call setSessionTitle to give the session a meaningful name
+- Use format: "{Origin} to {Destination} Ride" (e.g., "SF to Oakland Ride")
+- Or use route character: "Scenic Coast Route", "Mountain Loop", etc.
+- This helps riders identify their sessions in the session list
 
 **Errors**: suggest what the rider can try next without surfacing internals.
 
