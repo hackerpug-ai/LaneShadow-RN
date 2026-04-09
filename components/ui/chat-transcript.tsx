@@ -85,6 +85,14 @@ export interface ChatMessage {
   status?: ChatMessageStatus;
   /** Raw session_message attachments passed through to card components. */
   attachments?: CardAttachment[];
+  /** Thinking steps showing agent's tool activity and reasoning */
+  thinkingSteps?: {
+    type: 'thinking' | 'tool_start' | 'tool_finish'
+    toolName?: string
+    summary: string
+    detail?: string
+    timestamp: number
+  }[];
 }
 
 interface ChatTranscriptProps {
@@ -363,6 +371,7 @@ const CardRow = ({ message, onViewOnMap }: CardRowProps) => {
           createdAt: message.timestamp.getTime(),
           content: message.content,
           status: message.status,
+          thinkingSteps: message.thinkingSteps,
         }}
         attachments={attachments}
         onViewOnMap={onViewOnMap}

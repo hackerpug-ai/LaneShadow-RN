@@ -14,6 +14,7 @@ import type { ComponentType } from 'react'
 import type { Id } from '../../convex/_generated/dataModel'
 import { RoutingCard } from './routing-card'
 import { ReasoningCard } from './cards/reasoning-card'
+import { ThinkingCard } from './cards/thinking-card'
 import { PlanningCard } from './cards/planning-card'
 import { LocationSearchCard } from './cards/location-search-card'
 
@@ -43,6 +44,13 @@ export type CardProps = {
     createdAt: number
     status?: 'streaming' | 'running' | 'complete' | 'failed'
     content: string
+    thinkingSteps?: {
+      type: 'thinking' | 'tool_start' | 'tool_finish'
+      toolName?: string
+      summary: string
+      detail?: string
+      timestamp: number
+    }[]
   }
   attachments: CardAttachment[]
   /** Called when the user taps a completed route card to view it on the map. */
@@ -54,6 +62,7 @@ export type CardKind =
   | 'weather_card'
   | 'saved_route_card'
   | 'reasoning'
+  | 'thinking_card'
   | 'planning'
   | 'location_search_card'
 
@@ -73,6 +82,7 @@ export const CARD_REGISTRY: Record<CardKind, ComponentType<CardProps>> = {
   weather_card: PlaceholderCard, // TODO: replace when fetchWeather tool is real
   saved_route_card: PlaceholderCard, // TODO: replace when saveRoute tool is real
   reasoning: ReasoningCard,
+  thinking_card: ThinkingCard,
   planning: PlanningCard,
   location_search_card: LocationSearchCard,
 }

@@ -12,6 +12,7 @@ import {
   thinkingStepValidator,
   type SessionMessageKind,
   type SessionMessageAttachment,
+  type ThinkingStep,
 } from '../../models/session-messages'
 
 type SessionMessageDoc = {
@@ -27,6 +28,8 @@ type SessionMessageDoc = {
   kind?: SessionMessageKind
   status?: 'streaming' | 'running' | 'complete' | 'failed'
   piMessage?: unknown
+  /** Array of thinking steps showing agent's tool activity and reasoning */
+  thinkingSteps?: ThinkingStep[]
 }
 
 type PlanningSessionDoc = {
