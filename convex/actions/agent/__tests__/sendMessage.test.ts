@@ -2,7 +2,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../../_generated/dataModel'
-import { buildCardCallbacks, buildStreamingContext, TOOL_TO_CARD_KIND } from '../sendMessage'
+import { buildAgentCallbacks, TOOL_TO_CARD_KIND } from '../sendMessage'
 
 // -----------------------------------------------------------------------------
 // Test the sendMessage orchestrator logic (without Convex imports)
@@ -35,7 +35,7 @@ vi.mock('../../../db/planningSessions', () => ({
   },
 }))
 
-// Mock internal so buildCardCallbacks can import it without Convex runtime
+// Mock internal so buildAgentCallbacks can import it without Convex runtime
 vi.mock('../../../_generated/api', () => ({
   internal: {
     db: {
@@ -49,6 +49,10 @@ vi.mock('../../../_generated/api', () => ({
         recordToolResult: { __ref: 'recordToolResult' },
         recordReasoning: { __ref: 'recordReasoning' },
         appendReasoningChunk: { __ref: 'appendReasoningChunk' },
+        createThinkingCard: { __ref: 'createThinkingCard' },
+        appendThinkingText: { __ref: 'appendThinkingText' },
+        appendThinkingStep: { __ref: 'appendThinkingStep' },
+        finalizeThinkingCard: { __ref: 'finalizeThinkingCard' },
       },
       planUsage: {
         checkUsageInternal: { __ref: 'checkUsageInternal' },
@@ -379,188 +383,14 @@ describe('TOOL_TO_CARD_KIND', () => {
 })
 
 // -----------------------------------------------------------------------------
-// Tests: buildCardCallbacks
+// Tests: buildAgentCallbacks (merged buildCardCallbacks + buildStreamingContext)
 // -----------------------------------------------------------------------------
 
-describe('buildCardCallbacks', () => {
-  const sessionId = 'session_card_test' as Id<'planning_sessions'>
-  const cardMessageId = 'card_msg_1' as Id<'session_messages'>
-
-  let runMutation: ReturnType<typeof vi.fn>
-
-  beforeEach(() => {
-    runMutation = vi.fn()
-  })
-
-  // onToolStart is a no-op in the new lifecycle — cards are born in onToolFinish
-
-  it('onToolStart is a no-op for planRoute (returns undefined, no mutation called)', async () => {
-    const { onToolStart } = buildCardCallbacks(sessionId, runMutation)
-
-    const result = await onToolStart!('planRoute', {})
-
-    expect(runMutation).not.toHaveBeenCalled()
-    expect(result).toBeUndefined()
-  })
-
-  it('onToolStart is a no-op for non-card tools (geocode)', async () => {
-    const { onToolStart } = buildCardCallbacks(sessionId, runMutation)
-
-    const result = await onToolStart!('geocode', { query: 'Santa Cruz' })
-
-    expect(runMutation).not.toHaveBeenCalled()
-    expect(result).toBeUndefined()
-  })
-
-  it('onToolStart is a no-op for fetchWeather', async () => {
-    const { onToolStart } = buildCardCallbacks(sessionId, runMutation)
-
-    const result = await onToolStart!('fetchWeather', { location: 'San Jose' })
-
-    expect(runMutation).not.toHaveBeenCalled()
-    expect(result).toBeUndefined()
-  })
-
-  it('onToolStart is a no-op for saveRoute', async () => {
-    const { onToolStart } = buildCardCallbacks(sessionId, runMutation)
-
-    const result = await onToolStart!('saveRoute', { routeIndex: 0, name: 'My Route' })
-
-    expect(runMutation).not.toHaveBeenCalled()
-    expect(result).toBeUndefined()
-  })
-
-  // onToolFinish creates + finalizes the card for planRoute with routePlanId
-
-  it('planRoute success: creates card with attachment then finalizes complete', async () => {
-    // First call (createPendingAssistantMessage) returns messageId
-    runMutation.mockResolvedValueOnce({ messageId: cardMessageId })
-    // Second call (finalizeAssistantMessage) returns undefined
-    runMutation.mockResolvedValueOnce(undefined)
-
-    const { onToolFinish } = buildCardCallbacks(sessionId, runMutation)
-
-    await onToolFinish!('tc_1', 'planRoute', undefined, {
-      type: 'routes',
-      data: { planId: 'plan_abc', options: [] },
-      routePlanId: 'rp_1' as Id<'route_plans'>,
-    })
-
-    expect(runMutation).toHaveBeenCalledTimes(2)
-    expect(runMutation).toHaveBeenNthCalledWith(
-      1,
-      { __ref: 'createPendingAssistantMessage' },
-      {
-        sessionId,
-        kind: 'routing_card',
-        attachments: [{ type: 'route_options', routePlanId: 'rp_1' }],
-      }
-    )
-    expect(runMutation).toHaveBeenNthCalledWith(
-      2,
-      { __ref: 'finalizeAssistantMessage' },
-      { messageId: cardMessageId, status: 'complete' }
-    )
-  })
-
-  it('planRoute error: creates card with attachment then finalizes failed', async () => {
-    runMutation.mockResolvedValueOnce({ messageId: cardMessageId })
-    runMutation.mockResolvedValueOnce(undefined)
-
-    const { onToolFinish } = buildCardCallbacks(sessionId, runMutation)
-
-    await onToolFinish!('tc_2', 'planRoute', undefined, {
-      type: 'error',
-      message: 'Something went wrong',
-      routePlanId: 'rp_1' as Id<'route_plans'>,
-    })
-
-    expect(runMutation).toHaveBeenCalledTimes(2)
-    expect(runMutation).toHaveBeenNthCalledWith(
-      2,
-      { __ref: 'finalizeAssistantMessage' },
-      { messageId: cardMessageId, status: 'failed' }
-    )
-  })
-
-  it('planRoute with no routePlanId is a no-op on finish', async () => {
-    const { onToolFinish } = buildCardCallbacks(sessionId, runMutation)
-
-    await onToolFinish!('tc_3', 'planRoute', undefined, {
-      type: 'chat',
-      message: 'No routes to show',
-    })
-
-    expect(runMutation).not.toHaveBeenCalled()
-  })
-
-  it('non-planRoute tools do not emit cards on finish', async () => {
-    const { onToolFinish } = buildCardCallbacks(sessionId, runMutation)
-
-    await onToolFinish!('tc_4', 'geocode', undefined, { results: [] })
-
-    expect(runMutation).not.toHaveBeenCalled()
-  })
-
-  it('fetchWeather does not emit a card on finish', async () => {
-    const { onToolFinish } = buildCardCallbacks(sessionId, runMutation)
-
-    await onToolFinish!('tc_5', 'fetchWeather', undefined, { temperature: 72 })
-
-    expect(runMutation).not.toHaveBeenCalled()
-  })
-
-  it('saveRoute does not emit a card on finish', async () => {
-    const { onToolFinish } = buildCardCallbacks(sessionId, runMutation)
-
-    await onToolFinish!('tc_6', 'saveRoute', undefined, { saved: true })
-
-    expect(runMutation).not.toHaveBeenCalled()
-  })
-
-  it('onToolResultPiMessage patches card row after onToolFinish populates pendingCardMessages', async () => {
-    // onToolFinish creates card → stores toolCallId mapping
-    runMutation.mockResolvedValueOnce({ messageId: cardMessageId }) // createPendingAssistantMessage
-    runMutation.mockResolvedValueOnce(undefined) // finalizeAssistantMessage
-    runMutation.mockResolvedValueOnce(undefined) // recordToolResult
-
-    const callbacks = buildCardCallbacks(sessionId, runMutation)
-
-    await callbacks.onToolFinish!('tc_patch', 'planRoute', undefined, {
-      type: 'routes',
-      data: { planId: 'plan_abc', options: [] },
-      routePlanId: 'rp_1' as Id<'route_plans'>,
-    })
-
-    // Now onToolResultPiMessage should find the mapping and persist
-    const toolResultMsg = { role: 'toolResult', toolCallId: 'tc_patch', content: [] }
-    await callbacks.onToolResultPiMessage!('tc_patch', toolResultMsg as any)
-
-    expect(runMutation).toHaveBeenCalledTimes(3)
-    expect(runMutation).toHaveBeenNthCalledWith(
-      3,
-      { __ref: 'recordToolResult' },
-      { messageId: cardMessageId, piMessage: toolResultMsg }
-    )
-  })
-
-  it('onToolResultPiMessage is a no-op when toolCallId has no pending card', async () => {
-    const callbacks = buildCardCallbacks(sessionId, runMutation)
-
-    const toolResultMsg = { role: 'toolResult', toolCallId: 'tc_unknown', content: [] }
-    await callbacks.onToolResultPiMessage!('tc_unknown', toolResultMsg as any)
-
-    expect(runMutation).not.toHaveBeenCalled()
-  })
-})
-
-// -----------------------------------------------------------------------------
-// Tests: buildStreamingContext
-// -----------------------------------------------------------------------------
-
-describe('buildStreamingContext', () => {
-  const sessionId = 'session_stream_test' as Id<'planning_sessions'>
+describe('buildAgentCallbacks', () => {
+  const sessionId = 'session_agent_test' as Id<'planning_sessions'>
   const textMessageId = 'text_msg_1' as Id<'session_messages'>
+  const cardMessageId = 'card_msg_1' as Id<'session_messages'>
+  const thinkingCardId = 'thinking_msg_1' as Id<'session_messages'>
 
   let runMutation: ReturnType<typeof vi.fn>
 
@@ -568,223 +398,166 @@ describe('buildStreamingContext', () => {
     runMutation = vi.fn()
   })
 
-  it('does NOT create a row immediately on construction (lazy)', async () => {
-    await buildStreamingContext(sessionId, runMutation)
+  it('does NOT create any rows immediately on construction (lazy)', async () => {
+    await buildAgentCallbacks(sessionId, runMutation)
 
     expect(runMutation).not.toHaveBeenCalled()
   })
 
-  it('getMessageId returns undefined before any delta fires', async () => {
-    const { getMessageId } = await buildStreamingContext(sessionId, runMutation)
+  it('getTextMessageId returns undefined before any delta fires', async () => {
+    const { getTextMessageId } = await buildAgentCallbacks(sessionId, runMutation)
 
-    expect(getMessageId()).toBeUndefined()
+    expect(getTextMessageId()).toBeUndefined()
   })
 
-  it('first onTextDelta creates the row and caches messageId', async () => {
-    runMutation.mockResolvedValueOnce({ messageId: textMessageId }) // createPendingAssistantMessage
-    runMutation.mockResolvedValueOnce(null) // appendStreamingChunk
-
-    const { getMessageId, onTextDelta } = await buildStreamingContext(sessionId, runMutation)
-    await onTextDelta('Hello ')
-
-    expect(runMutation).toHaveBeenNthCalledWith(
-      1,
-      { __ref: 'createPendingAssistantMessage' },
-      { sessionId, kind: 'text' }
-    )
-    expect(getMessageId()).toBe(textMessageId)
-  })
-
-  it('first onTextDelta also calls appendStreamingChunk with the delta', async () => {
+  it('first onTextDelta creates the text row and caches messageId', async () => {
     runMutation.mockResolvedValueOnce({ messageId: textMessageId })
-    runMutation.mockResolvedValueOnce(null)
 
-    const { onTextDelta } = await buildStreamingContext(sessionId, runMutation)
-    await onTextDelta('Hello ')
+    const { getTextMessageId, executeCtx } = await buildAgentCallbacks(sessionId, runMutation)
 
-    expect(runMutation).toHaveBeenCalledWith(
-      { __ref: 'appendStreamingChunk' },
-      { messageId: textMessageId, delta: 'Hello ' }
-    )
+    await executeCtx.onTextDelta!('Hello')
+
+    expect(runMutation).toHaveBeenCalledTimes(2) // createPendingAssistantMessage + appendStreamingChunk
+    expect(getTextMessageId()).toBe(textMessageId)
   })
 
-  it('second onTextDelta only calls appendStreamingChunk (no second create)', async () => {
-    runMutation.mockResolvedValueOnce({ messageId: textMessageId }) // createPendingAssistantMessage
-    runMutation.mockResolvedValue(null) // appendStreamingChunk calls
+  it('onToolStart creates thinking card and emits tool_start step', async () => {
+    runMutation.mockResolvedValueOnce({ messageId: thinkingCardId })
 
-    const { onTextDelta } = await buildStreamingContext(sessionId, runMutation)
-    await onTextDelta('Hello ')
-    await onTextDelta('world')
+    const { executeCtx } = await buildAgentCallbacks(sessionId, runMutation)
 
-    const createCalls = runMutation.mock.calls.filter(
-      ([ref]: [any]) => ref?.__ref === 'createPendingAssistantMessage'
-    )
-    const appendCalls = runMutation.mock.calls.filter(
-      ([ref]: [any]) => ref?.__ref === 'appendStreamingChunk'
-    )
-    expect(createCalls).toHaveLength(1)
-    expect(appendCalls).toHaveLength(2)
+    await executeCtx.onToolStart!('geocode', { query: 'Santa Cruz' })
+
+    expect(runMutation).toHaveBeenCalledTimes(2) // createThinkingCard + appendThinkingStep
+    expect(runMutation).toHaveBeenNthCalledWith(1, { __ref: 'createThinkingCard' }, { sessionId })
+    expect(runMutation).toHaveBeenNthCalledWith(2, { __ref: 'appendThinkingStep' }, {
+      messageId: thinkingCardId,
+      step: {
+        type: 'tool_start',
+        toolName: 'geocode',
+        summary: 'Searching for Santa Cruz...',
+        timestamp: expect.any(Number),
+      },
+    })
   })
 
-  it('onTextDelta is called multiple times for multiple chunks', async () => {
+  it('onToolFinish emits tool_finish step and creates routing card for planRoute', async () => {
+    // Thinking card creation (first tool call)
+    runMutation.mockResolvedValueOnce({ messageId: thinkingCardId })
+    // Append tool_finish step
+    runMutation.mockResolvedValueOnce(undefined)
+    // Create routing card
+    runMutation.mockResolvedValueOnce({ messageId: cardMessageId })
+    // Finalize routing card
+    runMutation.mockResolvedValueOnce(undefined)
+
+    const { executeCtx } = await buildAgentCallbacks(sessionId, runMutation)
+
+    await executeCtx.onToolFinish!('tc_1', 'planRoute', undefined, {
+      type: 'routes',
+      data: { planId: 'plan_abc', options: [] },
+      routePlanId: 'rp_1' as Id<'route_plans'>,
+    })
+
+    expect(runMutation).toHaveBeenCalledTimes(4)
+    // Verify tool_finish step was added
+    expect(runMutation).toHaveBeenNthCalledWith(2, { __ref: 'appendThinkingStep' }, {
+      messageId: thinkingCardId,
+      step: {
+        type: 'tool_finish',
+        toolName: 'planRoute',
+        summary: 'Route planning complete', // No options in result
+        timestamp: expect.any(Number),
+      },
+    })
+    // Verify routing card was created
+    expect(runMutation).toHaveBeenNthCalledWith(3, { __ref: 'createPendingAssistantMessage' }, {
+      sessionId,
+      kind: 'routing_card',
+      attachments: [{ type: 'route_options', routePlanId: 'rp_1' }],
+    })
+  })
+
+  it('finalizeOk finalizes both text and thinking cards', async () => {
+    // Mock: createPendingAssistantMessage
     runMutation.mockResolvedValueOnce({ messageId: textMessageId })
-    runMutation.mockResolvedValue(null)
+    // Mock: appendStreamingChunk
+    runMutation.mockResolvedValueOnce(undefined)
+    // Mock: createThinkingCard
+    runMutation.mockResolvedValueOnce({ messageId: thinkingCardId })
+    // Mock: appendThinkingStep
+    runMutation.mockResolvedValueOnce(undefined)
 
-    const { onTextDelta } = await buildStreamingContext(sessionId, runMutation)
-    const chunks = ['Hello ', 'world', '!']
-    for (const chunk of chunks) {
-      await onTextDelta(chunk)
-    }
+    const { getTextMessageId, executeCtx, finalizeOk } = await buildAgentCallbacks(sessionId, runMutation)
 
-    const appendCalls = runMutation.mock.calls.filter(
-      ([ref]: [any]) => ref?.__ref === 'appendStreamingChunk'
-    )
-    expect(appendCalls).toHaveLength(3)
+    // Create both messages
+    await executeCtx.onTextDelta!('Hello')
+    await executeCtx.onToolStart!('geocode', {})
 
-    const allDeltas = appendCalls.map(([, args]: [any, any]) => args.delta).join('')
-    expect(allDeltas).toBe('Hello world!')
+    // Clear mock calls
+    runMutation.mockClear()
+    runMutation.mockResolvedValue(undefined) // All finalization calls return undefined
+
+    // Finalize
+    await finalizeOk({ role: 'assistant', content: [] })
+
+    expect(runMutation).toHaveBeenCalledTimes(2)
+    expect(runMutation).toHaveBeenNthCalledWith(1, { __ref: 'finalizeAssistantMessage' }, {
+      messageId: textMessageId,
+      status: 'complete',
+      piMessage: { role: 'assistant', content: [] },
+    })
+    expect(runMutation).toHaveBeenNthCalledWith(2, { __ref: 'finalizeThinkingCard' }, {
+      messageId: thinkingCardId,
+    })
   })
 
-  it('total streamed content matches the final response text', async () => {
-    const responseText = 'Here are 2 scenic routes for your ride.'
+  it('finalizeFail finalizes text as failed and thinking as complete', async () => {
+    // Mock: createPendingAssistantMessage
     runMutation.mockResolvedValueOnce({ messageId: textMessageId })
-    runMutation.mockResolvedValue(null)
+    // Mock: appendStreamingChunk
+    runMutation.mockResolvedValueOnce(undefined)
+    // Mock: createThinkingCard
+    runMutation.mockResolvedValueOnce({ messageId: thinkingCardId })
+    // Mock: appendThinkingStep
+    runMutation.mockResolvedValueOnce(undefined)
 
-    const { onTextDelta } = await buildStreamingContext(sessionId, runMutation)
+    const { executeCtx, finalizeFail } = await buildAgentCallbacks(sessionId, runMutation)
 
-    // Simulate streaming the full response as individual word deltas
-    const words = responseText.split(' ')
-    for (let i = 0; i < words.length; i++) {
-      const delta = i === 0 ? words[i] : ' ' + words[i]
-      await onTextDelta(delta)
-    }
+    // Create both messages
+    await executeCtx.onTextDelta!('Hello')
+    await executeCtx.onToolStart!('geocode', {})
 
-    const appendCalls = runMutation.mock.calls.filter(
-      ([ref]: [any]) => ref?.__ref === 'appendStreamingChunk'
-    )
-    const reconstructed = appendCalls.map(([, args]: [any, any]) => args.delta).join('')
-    expect(reconstructed).toBe(responseText)
+    // Clear mock calls
+    runMutation.mockClear()
+    runMutation.mockResolvedValue(undefined) // All finalization calls return undefined
+
+    // Finalize with error
+    await finalizeFail()
+
+    expect(runMutation).toHaveBeenCalledTimes(2)
+    expect(runMutation).toHaveBeenNthCalledWith(1, { __ref: 'finalizeAssistantMessage' }, {
+      messageId: textMessageId,
+      status: 'failed',
+    })
+    expect(runMutation).toHaveBeenNthCalledWith(2, { __ref: 'finalizeThinkingCard' }, {
+      messageId: thinkingCardId,
+    })
   })
 
-  it('finalizeOk is a no-op when no delta fired (no row exists)', async () => {
-    const { finalizeOk } = await buildStreamingContext(sessionId, runMutation)
+  it('finalizeOk is a no-op when no rows were created', async () => {
+    const { finalizeOk } = await buildAgentCallbacks(sessionId, runMutation)
+
     await finalizeOk()
 
     expect(runMutation).not.toHaveBeenCalled()
   })
 
-  it('finalizeFail is a no-op when no delta fired (no row exists)', async () => {
-    const { finalizeFail } = await buildStreamingContext(sessionId, runMutation)
+  it('finalizeFail is a no-op when no rows were created', async () => {
+    const { finalizeFail } = await buildAgentCallbacks(sessionId, runMutation)
+
     await finalizeFail()
 
     expect(runMutation).not.toHaveBeenCalled()
-  })
-
-  it('finalizeOk calls finalizeAssistantMessage with status complete when delta fired', async () => {
-    runMutation.mockResolvedValueOnce({ messageId: textMessageId }) // create
-    runMutation.mockResolvedValueOnce(null) // append
-    runMutation.mockResolvedValueOnce(null) // finalize
-
-    const { onTextDelta, finalizeOk } = await buildStreamingContext(sessionId, runMutation)
-    await onTextDelta('Hello ')
-    await finalizeOk()
-
-    expect(runMutation).toHaveBeenCalledWith(
-      { __ref: 'finalizeAssistantMessage' },
-      { messageId: textMessageId, status: 'complete' }
-    )
-  })
-
-  it('finalizeFail calls finalizeAssistantMessage with status failed when delta fired', async () => {
-    runMutation.mockResolvedValueOnce({ messageId: textMessageId }) // create
-    runMutation.mockResolvedValueOnce(null) // append
-    runMutation.mockResolvedValueOnce(null) // finalize
-
-    const { onTextDelta, finalizeFail } = await buildStreamingContext(sessionId, runMutation)
-    await onTextDelta('Hello ')
-    await finalizeFail()
-
-    expect(runMutation).toHaveBeenCalledWith(
-      { __ref: 'finalizeAssistantMessage' },
-      { messageId: textMessageId, status: 'failed' }
-    )
-  })
-})
-
-// -----------------------------------------------------------------------------
-// Tests: streaming integration (sendMessage handler with buildStreamingContext)
-// -----------------------------------------------------------------------------
-
-describe('sendMessage streaming integration', () => {
-  const sessionId = 'session_integration' as Id<'planning_sessions'>
-  const textMessageId = 'text_msg_integration' as Id<'session_messages'>
-  const responseText = 'Your scenic route is ready!'
-
-  it('creates a streaming message, calls appendStreamingChunk at least once, then finalizes complete', async () => {
-    const runMutation = vi.fn()
-
-    // Call 1: createPendingAssistantMessage → returns messageId
-    runMutation.mockResolvedValueOnce({ messageId: textMessageId })
-    // Subsequent calls: appendStreamingChunk + finalizeAssistantMessage return null
-    runMutation.mockResolvedValue(null)
-
-    const { getMessageId, onTextDelta, finalizeOk } = await buildStreamingContext(sessionId, runMutation)
-    expect(getMessageId()).toBeUndefined() // row not yet created — no delta fired
-
-    // Simulate agent streaming deltas
-    await onTextDelta('Your scenic ')
-    await onTextDelta('route is ready!')
-
-    await finalizeOk()
-
-    // Assert createPendingAssistantMessage was called with kind: text
-    expect(runMutation).toHaveBeenNthCalledWith(
-      1,
-      { __ref: 'createPendingAssistantMessage' },
-      { sessionId, kind: 'text' }
-    )
-
-    // Assert appendStreamingChunk called at least once
-    const appendCalls = runMutation.mock.calls.filter(
-      ([ref]: [any]) => ref?.__ref === 'appendStreamingChunk'
-    )
-    expect(appendCalls.length).toBeGreaterThanOrEqual(1)
-
-    // Assert total content equals response text
-    const totalContent = appendCalls.map(([, args]: [any, any]) => args.delta).join('')
-    expect(totalContent).toBe(responseText)
-
-    // Assert finalizeAssistantMessage called with complete
-    expect(runMutation).toHaveBeenCalledWith(
-      { __ref: 'finalizeAssistantMessage' },
-      { messageId: textMessageId, status: 'complete' }
-    )
-  })
-
-  it('finalizeFail is a no-op when no delta fired (agent errored before any text)', async () => {
-    const runMutation = vi.fn()
-
-    const { finalizeFail } = await buildStreamingContext(sessionId, runMutation)
-
-    // Agent error path with no deltas yet — no row was ever created
-    await finalizeFail()
-
-    expect(runMutation).not.toHaveBeenCalled()
-  })
-
-  it('finalizeFail calls finalizeAssistantMessage with status failed when delta was fired', async () => {
-    const runMutation = vi.fn()
-    runMutation.mockResolvedValueOnce({ messageId: textMessageId }) // create
-    runMutation.mockResolvedValueOnce(null) // append
-    runMutation.mockResolvedValueOnce(null) // finalize
-
-    const { onTextDelta, finalizeFail } = await buildStreamingContext(sessionId, runMutation)
-    await onTextDelta('partial text...')
-    await finalizeFail()
-
-    expect(runMutation).toHaveBeenCalledWith(
-      { __ref: 'finalizeAssistantMessage' },
-      { messageId: textMessageId, status: 'failed' }
-    )
   })
 })

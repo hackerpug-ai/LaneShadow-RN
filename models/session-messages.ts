@@ -20,6 +20,7 @@ export const SESSION_MESSAGE_KIND = {
   AGENT_TURN: 'agent_turn',
   TOOL_RESULT_HIDDEN: 'tool_result_hidden',
   PLANNING: 'planning',
+  THINKING_CARD: 'thinking_card',
 } as const
 export type SessionMessageKind = (typeof SESSION_MESSAGE_KIND)[keyof typeof SESSION_MESSAGE_KIND]
 
@@ -31,7 +32,8 @@ export const sessionMessageKindValidator = v.union(
   v.literal('reasoning'),
   v.literal('agent_turn'),
   v.literal('tool_result_hidden'),
-  v.literal('planning')
+  v.literal('planning'),
+  v.literal('thinking_card')
 )
 
 export const SESSION_MESSAGE_STATUS = {
@@ -56,6 +58,26 @@ export const sessionMessageAttachmentValidator = v.object({
 export type SessionMessageAttachment = Infer<typeof sessionMessageAttachmentValidator>
 
 /**
+ * Individual step in a thinking card timeline.
+ *
+ * - 'thinking': Agent reasoning delta (text-only)
+ * - 'tool_start': Tool invocation started (toolName required)
+ * - 'tool_finish': Tool invocation finished (toolName required)
+ */
+export const thinkingStepValidator = v.object({
+  type: v.union(
+    v.literal('thinking'),
+    v.literal('tool_start'),
+    v.literal('tool_finish')
+  ),
+  toolName: v.optional(v.string()),
+  summary: v.string(),
+  detail: v.optional(v.string()),
+  timestamp: v.number(),
+})
+export type ThinkingStep = Infer<typeof thinkingStepValidator>
+
+/**
  * WIDEN phase of widen-migrate-narrow: `kind` and `status` are optional here
  * so existing rows remain valid. Migration backfillSessionMessageKindStatus
  * sets defaults (kind='text', status='complete'), then a follow-up commit
@@ -78,5 +100,10 @@ export const sessionMessageValidator = v.object({
    * during widen phase; narrows once agent rewrite lands.
    */
   piMessage: v.optional(v.any()),
+  /**
+   * Structured thinking steps for thinking_card rows.
+   * Captures agent reasoning deltas and tool activity (start/finish).
+   */
+  thinkingSteps: v.optional(v.array(thinkingStepValidator)),
 })
 export type SessionMessage = Infer<typeof sessionMessageValidator>

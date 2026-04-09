@@ -9,6 +9,7 @@ import {
   sessionMessageAttachmentValidator,
   sessionMessageStatusValidator,
   sessionMessageRoleValidator,
+  thinkingStepValidator,
   type SessionMessageKind,
   type SessionMessageAttachment,
 } from '../../models/session-messages'
@@ -546,5 +547,137 @@ export const appendReasoningChunk = internalMutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     return appendReasoningChunkHandler(ctx as any, args)
+  },
+})
+
+// ---------------------------------------------------------------------------
+// Thinking card lifecycle mutations (US-056)
+// ---------------------------------------------------------------------------
+
+type CreateThinkingCardCtx = {
+  db: {
+    insert: (table: string, fields: object) => Promise<Id<'session_messages'>>
+  }
+}
+
+export const createThinkingCardHandler = async (
+  ctx: CreateThinkingCardCtx,
+  args: { sessionId: Id<'planning_sessions'> }
+): Promise<{ messageId: Id<'session_messages'> }> => {
+  const now = Date.now()
+  const messageId = await ctx.db.insert('session_messages', {
+    sessionId: args.sessionId,
+    role: 'system',
+    content: '',
+    kind: 'thinking_card',
+    status: 'streaming',
+    thinkingSteps: [],
+    createdAt: now,
+  })
+  return { messageId }
+}
+
+type AppendThinkingTextCtx = {
+  db: {
+    get: (id: Id<'session_messages'>) => Promise<{ content: string; [key: string]: unknown } | null>
+    patch: (id: Id<'session_messages'>, fields: object) => Promise<void>
+  }
+}
+
+export const appendThinkingTextHandler = async (
+  ctx: AppendThinkingTextCtx,
+  args: { messageId: Id<'session_messages'>; delta: string }
+): Promise<null> => {
+  const message = await ctx.db.get(args.messageId)
+  if (!message) {
+    throw new ConvexError(ERROR_CODES.SESSION_NOT_FOUND)
+  }
+  await ctx.db.patch(args.messageId, { content: (message.content as string) + args.delta })
+  return null
+}
+
+type AppendThinkingStepCtx = {
+  db: {
+    get: (id: Id<'session_messages'>) => Promise<{ thinkingSteps?: unknown[]; [key: string]: unknown } | null>
+    patch: (id: Id<'session_messages'>, fields: object) => Promise<void>
+  }
+}
+
+export const appendThinkingStepHandler = async (
+  ctx: AppendThinkingStepCtx,
+  args: { messageId: Id<'session_messages'>; step: unknown }
+): Promise<null> => {
+  const message = await ctx.db.get(args.messageId)
+  if (!message) {
+    throw new ConvexError(ERROR_CODES.SESSION_NOT_FOUND)
+  }
+  const steps = (message.thinkingSteps as unknown[]) ?? []
+  steps.push(args.step)
+  await ctx.db.patch(args.messageId, { thinkingSteps: steps })
+  return null
+}
+
+type FinalizeThinkingCardCtx = {
+  db: {
+    get: (id: Id<'session_messages'>) => Promise<{ sessionId: Id<'planning_sessions'>; [key: string]: unknown } | null>
+    patch: (id: Id<'session_messages'> | Id<'planning_sessions'>, fields: object) => Promise<void>
+  }
+}
+
+export const finalizeThinkingCardHandler = async (
+  ctx: FinalizeThinkingCardCtx,
+  args: { messageId: Id<'session_messages'> }
+): Promise<null> => {
+  const message = await ctx.db.get(args.messageId)
+  if (!message) {
+    throw new ConvexError(ERROR_CODES.SESSION_NOT_FOUND)
+  }
+  const now = Date.now()
+  await ctx.db.patch(args.messageId, { status: 'complete' })
+  await ctx.db.patch(message.sessionId, { updatedAt: now })
+  return null
+}
+
+// ---------------------------------------------------------------------------
+// Thinking card public mutations
+// ---------------------------------------------------------------------------
+
+export const createThinkingCard = internalMutation({
+  args: { sessionId: v.id('planning_sessions') },
+  returns: v.object({ messageId: v.id('session_messages') }),
+  handler: async (ctx, args) => {
+    return createThinkingCardHandler(ctx as any, args)
+  },
+})
+
+export const appendThinkingText = internalMutation({
+  args: {
+    messageId: v.id('session_messages'),
+    delta: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    return appendThinkingTextHandler(ctx as any, args)
+  },
+})
+
+export const appendThinkingStep = internalMutation({
+  args: {
+    messageId: v.id('session_messages'),
+    step: thinkingStepValidator,
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    return appendThinkingStepHandler(ctx as any, args)
+  },
+})
+
+export const finalizeThinkingCard = internalMutation({
+  args: {
+    messageId: v.id('session_messages'),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    return finalizeThinkingCardHandler(ctx as any, args)
   },
 })

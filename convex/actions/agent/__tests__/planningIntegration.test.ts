@@ -159,15 +159,19 @@ describe('PlanningEventEmitter wiring — ExecuteContext has planning callbacks'
 // ---------------------------------------------------------------------------
 
 describe('sendMessage PlanningEventEmitter integration', () => {
-  it('buildCardCallbacks still works (no regression)', async () => {
-    const { buildCardCallbacks } = await import('../sendMessage')
+  it('buildAgentCallbacks works (merged buildCardCallbacks + buildStreamingContext)', async () => {
+    const { buildAgentCallbacks } = await import('../sendMessage')
     const sessionId = 'sess1' as Id<'planning_sessions'>
     const runMutation = vi.fn()
 
-    const callbacks = buildCardCallbacks(sessionId, runMutation)
+    const { executeCtx, getTextMessageId, finalizeOk, finalizeFail } = await buildAgentCallbacks(sessionId, runMutation)
 
-    expect(typeof callbacks.onToolStart).toBe('function')
-    expect(typeof callbacks.onToolFinish).toBe('function')
+    expect(typeof executeCtx.onToolStart).toBe('function')
+    expect(typeof executeCtx.onToolFinish).toBe('function')
+    expect(typeof executeCtx.onTextDelta).toBe('function')
+    expect(typeof getTextMessageId).toBe('function')
+    expect(typeof finalizeOk).toBe('function')
+    expect(typeof finalizeFail).toBe('function')
   })
 })
 
