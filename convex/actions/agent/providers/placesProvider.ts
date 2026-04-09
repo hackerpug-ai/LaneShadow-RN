@@ -9,7 +9,7 @@ import type { LatLng } from '../lib/geo'
 const PLACES_ENDPOINT = 'https://places.googleapis.com/v1/places:searchText'
 
 // Base fields always included
-const BASE_FIELD_MASK = 'places.displayName,places.formattedAddress,places.types'
+const BASE_FIELD_MASK = 'places.displayName,places.formattedAddress,places.types,places.location'
 
 // Fields only included when routing is enabled
 const ROUTING_FIELD_MASK = 'routingSummaries'
@@ -24,6 +24,7 @@ export type PlaceResult = {
   name: string
   address: string
   types?: string[]
+  location?: { lat: number; lng: number }
   detourMinutes?: number
   distanceFromRouteMeters?: number
   distanceMeters?: number
@@ -35,6 +36,7 @@ type PlacesApiPlace = {
   displayName?: { text: string }
   formattedAddress?: string
   types?: string[]
+  location?: { latitude: number; longitude: number }
 }
 
 type RoutingSummaryLeg = {
@@ -100,6 +102,7 @@ const mapPlaces = (
       name: place.displayName?.text ?? '',
       address: place.formattedAddress ?? '',
       types: place.types,
+      ...(place.location ? { location: { lat: place.location.latitude, lng: place.location.longitude } } : {}),
       ...(detourMinutes !== undefined ? { detourMinutes } : {}),
       ...(leg?.distanceMeters !== undefined ? { distanceFromRouteMeters: leg.distanceMeters } : {}),
     }

@@ -211,6 +211,10 @@ export const finalizeAssistantMessageHandler = async (
     content?: string
     status: 'complete' | 'failed'
     piMessage?: unknown
+    /** Optional kind upgrade (e.g., text → location_search_card) */
+    kind?: SessionMessageKind
+    /** Optional attachments to add at finalize time */
+    attachments?: SessionMessageAttachment[]
   }
 ): Promise<null> => {
   const message = await ctx.db.get(args.messageId)
@@ -224,6 +228,12 @@ export const finalizeAssistantMessageHandler = async (
   }
   if (args.piMessage !== undefined) {
     patch.piMessage = args.piMessage
+  }
+  if (args.kind !== undefined) {
+    patch.kind = args.kind
+  }
+  if (args.attachments !== undefined) {
+    patch.attachments = args.attachments
   }
   await ctx.db.patch(args.messageId, patch)
   await ctx.db.patch(message.sessionId, { updatedAt: now })
@@ -472,6 +482,8 @@ export const finalizeAssistantMessage = internalMutation({
     content: v.optional(v.string()),
     status: v.union(v.literal('complete'), v.literal('failed')),
     piMessage: v.optional(v.any()),
+    kind: v.optional(sessionMessageKindValidator),
+    attachments: v.optional(v.array(sessionMessageAttachmentValidator)),
   },
   returns: v.null(),
   handler: async (ctx, args) => {

@@ -20,6 +20,7 @@ export const SESSION_MESSAGE_KIND = {
   AGENT_TURN: 'agent_turn',
   TOOL_RESULT_HIDDEN: 'tool_result_hidden',
   PLANNING: 'planning',
+  LOCATION_SEARCH_CARD: 'location_search_card',
 } as const
 export type SessionMessageKind = (typeof SESSION_MESSAGE_KIND)[keyof typeof SESSION_MESSAGE_KIND]
 
@@ -31,7 +32,8 @@ export const sessionMessageKindValidator = v.union(
   v.literal('reasoning'),
   v.literal('agent_turn'),
   v.literal('tool_result_hidden'),
-  v.literal('planning')
+  v.literal('planning'),
+  v.literal('location_search_card')
 )
 
 export const SESSION_MESSAGE_STATUS = {
@@ -49,10 +51,25 @@ export const sessionMessageStatusValidator = v.union(
   v.literal('failed')      // terminal failure
 )
 
-export const sessionMessageAttachmentValidator = v.object({
-  type: v.literal('route_options'),
-  routePlanId: v.id('route_plans'),
-})
+export const sessionMessageAttachmentValidator = v.union(
+  v.object({
+    type: v.literal('route_options'),
+    routePlanId: v.id('route_plans'),
+  }),
+  v.object({
+    type: v.literal('location_search'),
+    searchQuery: v.string(),
+    results: v.array(v.object({
+      id: v.string(),
+      name: v.string(),
+      address: v.string(),
+      types: v.optional(v.array(v.string())),
+      location: v.object({ lat: v.number(), lng: v.number() }),
+      detourMinutes: v.optional(v.number()),
+      distanceMeters: v.optional(v.number()),
+    })),
+  })
+)
 export type SessionMessageAttachment = Infer<typeof sessionMessageAttachmentValidator>
 
 /**

@@ -195,7 +195,7 @@ export async function buildStreamingContext(
   getMessageId: () => Id<'session_messages'> | undefined
   onTextDelta: (delta: string) => Promise<void>
   onThinkingDelta: (delta: string) => Promise<void>
-  finalizeOk: (piMessage?: unknown) => Promise<void>
+  finalizeOk: (piMessage?: unknown, opts?: { kind?: string; attachments?: unknown[] }) => Promise<void>
   finalizeFail: () => Promise<void>
 }> {
   let messageId: Id<'session_messages'> | undefined = undefined
@@ -233,7 +233,10 @@ export async function buildStreamingContext(
     }
   }
 
-  const finalizeOk = async (piMessage?: unknown): Promise<void> => {
+  const finalizeOk = async (
+    piMessage?: unknown,
+    opts?: { kind?: string; attachments?: unknown[] }
+  ): Promise<void> => {
     // Finalize reasoning message first (was left in 'streaming' status)
     if (reasoningMessageId) {
       await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
@@ -245,6 +248,12 @@ export async function buildStreamingContext(
     const args: Record<string, unknown> = { messageId, status: 'complete' }
     if (piMessage !== undefined) {
       args.piMessage = piMessage
+    }
+    if (opts?.kind !== undefined) {
+      args.kind = opts.kind
+    }
+    if (opts?.attachments !== undefined) {
+      args.attachments = opts.attachments
     }
     await runMutation(internal.db.sessionMessages.finalizeAssistantMessage, args)
   }
@@ -414,7 +423,17 @@ export const sendMessage = action({
         // Step 5a: Finalize the streaming text message as complete, including
         // the final AssistantMessage as piMessage so the next session load has
         // the full pi-ai message stored.
-        await finalizeOk(finalAssistantMessage as unknown)
+        // If the orchestrator returned location_search attachments, upgrade
+        // the text message to a location_search_card with those attachments.
+        const searchAttachment = agentResult.attachments?.find(
+          (a: { type: string }) => a.type === 'location_search'
+        )
+        await finalizeOk(
+          finalAssistantMessage as unknown,
+          searchAttachment
+            ? { kind: 'location_search_card', attachments: [searchAttachment] }
+            : undefined
+        )
 
         // Record performance metrics
         if (agentResult.metrics) {

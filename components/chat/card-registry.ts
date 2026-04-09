@@ -15,15 +15,27 @@ import type { Id } from '../../convex/_generated/dataModel'
 import { RoutingCard } from './routing-card'
 import { ReasoningCard } from './cards/reasoning-card'
 import { PlanningCard } from './cards/planning-card'
+import { LocationSearchCard } from './cards/location-search-card'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-export type CardAttachment = {
-  type: 'route_options'
-  routePlanId: Id<'route_plans'>
-}
+export type CardAttachment =
+  | { type: 'route_options'; routePlanId: Id<'route_plans'> }
+  | {
+      type: 'location_search'
+      searchQuery: string
+      results: {
+        id: string
+        name: string
+        address: string
+        types?: string[]
+        location: { lat: number; lng: number }
+        detourMinutes?: number
+        distanceMeters?: number
+      }[]
+    }
 
 export type CardProps = {
   message: {
@@ -43,6 +55,7 @@ export type CardKind =
   | 'saved_route_card'
   | 'reasoning'
   | 'planning'
+  | 'location_search_card'
 
 // ---------------------------------------------------------------------------
 // Placeholder stub — renders nothing until a real tool-backed card exists
@@ -61,4 +74,5 @@ export const CARD_REGISTRY: Record<CardKind, ComponentType<CardProps>> = {
   saved_route_card: PlaceholderCard, // TODO: replace when saveRoute tool is real
   reasoning: ReasoningCard,
   planning: PlanningCard,
+  location_search_card: LocationSearchCard,
 }

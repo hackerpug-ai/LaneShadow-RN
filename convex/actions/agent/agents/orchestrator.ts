@@ -14,7 +14,8 @@ import { runAgent } from '../runAgent'
 import { AI_MODEL, AI_PROVIDER } from '../../../lib/env'
 import type { Id } from '../../../_generated/dataModel'
 import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
-import type { RoutingAgentResult } from './types'
+import type { RoutingAgentResult, SearchAgentResult } from './types'
+import type { PlaceResult } from '../providers/placesProvider'
 import { executeRoutingAgent , getPendingSketchState } from './routingAgent'
 import { executeSearchAgent } from './searchAgent'
 import { executeEnrichmentAgent } from './enrichmentAgent'
@@ -24,9 +25,25 @@ import { summarizeToolResult } from '../lib/summarizeToolResult'
 // Result type
 // -----------------------------------------------------------------------------
 
+export type OrchestratorAttachment =
+  | { type: 'route_options'; routePlanId: Id<'route_plans'> }
+  | {
+      type: 'location_search'
+      searchQuery: string
+      results: {
+        id: string
+        name: string
+        address: string
+        types?: string[]
+        location: { lat: number; lng: number }
+        detourMinutes?: number
+        distanceMeters?: number
+      }[]
+    }
+
 export type OrchestratorResult = {
   response: string
-  attachments?: { type: string; routePlanId?: Id<'route_plans'> }[]
+  attachments?: OrchestratorAttachment[]
   metrics?: import('../runAgent').RunAgentMetrics
 }
 
@@ -251,10 +268,39 @@ async function executeOrchestratorTool(
 // Attachment extraction from orchestrator tool results
 // -----------------------------------------------------------------------------
 
+/**
+ * Extract PlaceResult[] from the search agent's raw toolResults data.
+ * The data is `{ toolName: string; result: unknown }[]` where searchNearby
+ * results are PlaceResult[] arrays.
+ */
+function extractPlaceResults(data: unknown): PlaceResult[] {
+  if (!Array.isArray(data)) return []
+  const places: PlaceResult[] = []
+
+  for (const tr of data) {
+    if (
+      tr &&
+      typeof tr === 'object' &&
+      'toolName' in tr &&
+      (tr.toolName === 'searchNearby' || tr.toolName === 'searchAlongRoute') &&
+      'result' in tr &&
+      Array.isArray(tr.result)
+    ) {
+      for (const place of tr.result) {
+        if (place && typeof place === 'object' && 'name' in place) {
+          places.push(place as PlaceResult)
+        }
+      }
+    }
+  }
+
+  return places
+}
+
 function extractOrchestratorAttachments(
   toolResults: { toolName: string; result: unknown }[]
-): { type: string; routePlanId?: Id<'route_plans'> }[] {
-  const attachments: { type: string; routePlanId?: Id<'route_plans'> }[] = []
+): OrchestratorAttachment[] {
+  const attachments: OrchestratorAttachment[] = []
 
   for (const tr of toolResults) {
     if (tr.toolName === 'routing_agent') {
@@ -264,6 +310,30 @@ function extractOrchestratorAttachments(
           type: 'route_options',
           routePlanId: result.routePlanId,
         })
+      }
+    }
+
+    if (tr.toolName === 'search_agent') {
+      const result = tr.result as SearchAgentResult
+      if (result?.status === 'answered' && result.data) {
+        const placeResults = extractPlaceResults(result.data)
+        // Only create attachment when we have places with coordinates
+        const withLocation = placeResults.filter((p) => p.location !== undefined && p.location !== null)
+        if (withLocation.length > 0) {
+          attachments.push({
+            type: 'location_search',
+            searchQuery: '', // populated by the orchestrator caller if needed
+            results: withLocation.map((p, i) => ({
+              id: `search-${i}`,
+              name: p.name,
+              address: p.address,
+              types: p.types,
+              location: p.location!,
+              detourMinutes: p.detourMinutes,
+              distanceMeters: p.distanceMeters ?? p.distanceFromRouteMeters,
+            })),
+          })
+        }
       }
     }
   }

@@ -41,6 +41,8 @@ import { useActiveSessionRoute } from '../../../hooks/use-active-session-route'
 import { useSelectedRoute } from '../../../contexts/selected-route'
 import type { PlanInput, RouteStop } from '../../../types/routes'
 import { decodePolylineGeometry } from '../../../lib/polyline'
+import { useSearchResults } from '../../../contexts/search-results'
+import { SearchResultMarker } from '../../../components/map/search-result-marker'
 
 type CameraState = {
   center?: { latitude: number; longitude: number }
@@ -131,6 +133,12 @@ const HomeMapScreen = () => {
   } = useChatPlanning(flowDispatch)
   const { polylines, selectRoute } = useRouteComparison(flowState, flowDispatch)
   const { location: currentLocation } = useCurrentLocation()
+  const {
+    results: searchResults,
+    selectedResultId: selectedSearchResultId,
+    setSelectedResultId: setSelectedSearchResultId,
+    clearResults: clearSearchResults,
+  } = useSearchResults()
 
   // Fetch sessions so we can fall back to the most recent one on app open.
   const sessions = useQuery(api.db.planningSessions.listSessions)
@@ -376,6 +384,7 @@ const HomeMapScreen = () => {
     setDisplayedRoutePlanId(null)
     lastFittedPlanIdRef.current = null
     resetSession()
+    clearSearchResults()
     // Mark that we've explicitly started a new session (prevent falling back to old session)
     setExplicitlyNewSession(true)
   }
@@ -473,6 +482,40 @@ const HomeMapScreen = () => {
     setShouldFitToRoute(true)
     doFit()
   }, [agentActiveOption, agentRoutePlan, doFit])
+
+  // Fit camera to search results when they populate
+  const lastSearchResultCountRef = useRef(0)
+  useEffect(() => {
+    if (searchResults.length > 0 && searchResults.length !== lastSearchResultCountRef.current) {
+      lastSearchResultCountRef.current = searchResults.length
+      if (mapRef.current && !chatMode) {
+        const coords = searchResults.map((r) => ({
+          latitude: r.location.lat,
+          longitude: r.location.lng,
+        }))
+        mapRef.current.fitToCoordinates(coords, {
+          edgePadding: { top: insets.top + 80, right: 60, bottom: insets.bottom + 180, left: 60 },
+          animated: true,
+        })
+      }
+    }
+    if (searchResults.length === 0) {
+      lastSearchResultCountRef.current = 0
+    }
+  }, [searchResults, chatMode, insets.top, insets.bottom])
+
+  // Animate to selected search result marker when tapped from chat
+  useEffect(() => {
+    if (!selectedSearchResultId || chatMode) return
+    const result = searchResults.find((r) => r.id === selectedSearchResultId)
+    if (result && mapRef.current) {
+      mapRef.current.setCameraPosition({
+        coordinates: { latitude: result.location.lat, longitude: result.location.lng },
+        zoom: 14,
+        duration: 500,
+      })
+    }
+  }, [selectedSearchResultId, searchResults, chatMode])
 
   // Reset selection when a new plan is created (latest plan = default selected)
   const lastSeenPlanIdRef = useRef<string | null>(null)
@@ -992,6 +1035,18 @@ const HomeMapScreen = () => {
                   selectedSegmentId={highlightedSegmentId}
                   testID="home-route-polyline"
                 />
+                {searchResults.map((result, i) => (
+                  <SearchResultMarker
+                    key={result.id}
+                    id={result.id}
+                    coordinate={{ latitude: result.location.lat, longitude: result.location.lng }}
+                    index={i + 1}
+                    name={result.name}
+                    placeType={result.types?.[0]}
+                    isSelected={result.id === selectedSearchResultId}
+                    onPress={setSelectedSearchResultId}
+                  />
+                ))}
               </MapViewWrapper>
           </Animated.View>
         )}

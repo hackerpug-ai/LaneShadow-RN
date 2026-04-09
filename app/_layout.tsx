@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { Provider as PaperProvider } from 'react-native-paper'
 import { ErrorBoundary } from '../components/logging/error-boundary'
 import { ThemePreferenceProvider, useThemePreference } from '../contexts/theme-preference'
+import { SearchResultsProvider } from '../contexts/search-results'
 import { clerkTokenCache } from '../lib/clerk-token-cache'
 import { env } from '../lib/env'
 import { initLogger, logger } from '../lib/logger/frontend-logger'
@@ -45,14 +46,16 @@ const RootLayoutInner = () => {
     <ClerkProvider publishableKey={env.CLERK_PUBLISHABLE_KEY} tokenCache={clerkTokenCache}>
       <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
         <PaperProvider theme={paperTheme}>
-          <BottomSheetModalProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                animation: 'none',
-              }}
-            />
-          </BottomSheetModalProvider>
+          <SearchResultsProvider>
+            <BottomSheetModalProvider>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: 'none',
+                }}
+              />
+            </BottomSheetModalProvider>
+          </SearchResultsProvider>
         </PaperProvider>
       </ConvexProviderWithClerk>
     </ClerkProvider>
