@@ -782,13 +782,13 @@ async function runPlanRoute(
       })
 
       try {
-        // Check if the route plan was already marked as failed (e.g., agent returned needs_clarification)
+        // Check if the route plan was already cancelled or failed (e.g., agent returned needs_clarification)
         const currentPlan = await ctx.runQuery(internal.db.routePlans.getPlanByIdInternal, {
           routePlanId,
         }) as any
 
-        // Only update to completed if not already failed
-        if (currentPlan?.status !== 'failed') {
+        // Only update to completed if not already cancelled or failed
+        if (currentPlan?.status !== 'cancelled' && currentPlan?.status !== 'failed') {
           await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
             routePlanId,
             status: 'completed',
@@ -799,8 +799,9 @@ async function runPlanRoute(
             optionsCount: built.options?.length,
           })
         } else {
-          console.info('[runPlanRoute] Route plan already failed, skipping completion:', {
+          console.info('[runPlanRoute] Route plan already cancelled/failed, skipping completion:', {
             routePlanId,
+            currentStatus: currentPlan?.status,
           })
         }
       } catch (updateError) {
@@ -837,21 +838,22 @@ async function runPlanRoute(
         attempts: attempt,
       })
 
-      // Check if the route plan was already completed (race condition guard)
+      // Check if the route plan was already completed or cancelled (race condition guard)
       const currentPlan = await ctx.runQuery(internal.db.routePlans.getPlanByIdInternal, {
         routePlanId,
       }) as any
 
-      // Only mark as failed if not already completed
-      if (currentPlan?.status !== 'completed') {
+      // Only mark as failed if not already completed or cancelled
+      if (currentPlan?.status !== 'completed' && currentPlan?.status !== 'cancelled') {
         await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
           routePlanId,
           status: 'failed',
           errorMessage,
         })
       } else {
-        console.info('[runPlanRoute] Route plan already completed, skipping failure mark:', {
+        console.info('[runPlanRoute] Route plan already completed/cancelled, skipping failure mark:', {
           routePlanId,
+          currentStatus: currentPlan?.status,
         })
       }
       return {
@@ -1131,14 +1133,14 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
       }
       if (parsed.status === 'needs_clarification' && parsed.question) {
         // Agent explicitly returned needs_clarification as JSON
-        // If any route plans were created in tool results, mark them as failed
-        // since the agent is saying it needs more info
+        // If any route plans were created in tool results, mark them as cancelled
+        // since the agent interrupted the plan to ask for more info
         for (const tr of result.toolResults) {
           const toolResult = tr.result as any
           if (toolResult?.routePlanId) {
             await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
               routePlanId: toolResult.routePlanId,
-              status: 'failed',
+              status: 'cancelled',
               errorMessage: parsed.question ?? 'Agent needs clarification',
             })
             break
