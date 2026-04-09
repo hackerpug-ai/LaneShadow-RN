@@ -1105,7 +1105,20 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
         return { status: 'route_ready', routePlanId: parsed.routePlanId, summary: parsed.summary ?? '' }
       }
       if (parsed.status === 'needs_clarification' && parsed.question) {
-        // No route plan was created (agent didn't call planRoute), so nothing to update
+        // Agent explicitly returned needs_clarification as JSON
+        // If any route plans were created in tool results, mark them as failed
+        // since the agent is saying it needs more info
+        for (const tr of result.toolResults) {
+          const toolResult = tr.result as any
+          if (toolResult?.routePlanId) {
+            await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+              routePlanId: toolResult.routePlanId,
+              status: 'failed',
+              errorMessage: parsed.question ?? 'Agent needs clarification',
+            })
+            break
+          }
+        }
         return { status: 'needs_clarification', question: parsed.question }
       }
       if (parsed.status === 'failed') {
@@ -1124,7 +1137,28 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
         return { status: 'failed', reason: parsed.reason ?? 'Unknown failure' }
       }
     } catch {
-      // Not JSON — fall through
+      // Not JSON — fall through to handle unstructured response
+    }
+
+    // Agent responded with non-JSON text but has tool results
+    // This is an error - the agent should return structured JSON when it calls tools
+    if (result.toolResults.length > 0) {
+      // Mark any created route plans as failed
+      for (const tr of result.toolResults) {
+        const toolResult = tr.result as any
+        if (toolResult?.routePlanId) {
+          await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+            routePlanId: toolResult.routePlanId,
+            status: 'failed',
+            errorMessage: 'Agent did not return structured response after creating route plan',
+          })
+          break
+        }
+      }
+      return {
+        status: 'failed',
+        reason: 'Agent returned unstructured response after calling tools',
+      }
     }
 
     // Non-JSON response with no tool results — treat as clarification request
