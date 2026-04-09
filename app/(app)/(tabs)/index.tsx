@@ -1,6 +1,7 @@
 import { useRouter, useSegments, useLocalSearchParams } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery } from 'convex/react'
+import { useAuth } from '@clerk/clerk-expo'
 import { api } from '../../../convex/_generated/api'
 import type { Id } from '../../../convex/_generated/dataModel'
 import { Pressable, ScrollView, StyleSheet, View, Keyboard } from 'react-native'
@@ -72,6 +73,7 @@ const HomeMapScreen = () => {
   const mapRef = useRef<MapViewHandle | null>(null)
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
+  const { isLoaded: clerkLoaded, isSignedIn } = useAuth()
   const { sessionId: sessionIdParam, chat: chatParam } = useLocalSearchParams<{
     sessionId?: string
     chat?: string
@@ -141,7 +143,8 @@ const HomeMapScreen = () => {
   } = useSearchResults()
 
   // Fetch sessions so we can fall back to the most recent one on app open.
-  const sessions = useQuery(api.db.planningSessions.listSessions)
+  // Only query when Clerk auth is loaded and user is signed in to prevent race conditions.
+  const sessions = useQuery(api.db.planningSessions.listSessions, clerkLoaded && isSignedIn ? undefined : "skip")
 
   // Resolve which session drives the chat transcript and map route.
   // Priority: explicit URL param → active planning session → most recent session.

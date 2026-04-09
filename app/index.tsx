@@ -1,11 +1,15 @@
 import { Redirect } from 'expo-router'
 import { useQuery } from 'convex/react'
+import { useAuth } from '@clerk/clerk-expo'
 import { useEffect, useRef, useState } from 'react'
 import { api } from '../convex/_generated/api'
 
 const Index = () => {
+  const { isLoaded: clerkLoaded, isSignedIn } = useAuth()
+
   // Fetch sessions for auto-navigation logic
-  const sessions = useQuery(api.db.planningSessions.listSessions)
+  // Only query when Clerk auth is loaded and user is signed in to prevent race conditions.
+  const sessions = useQuery(api.db.planningSessions.listSessions, clerkLoaded && isSignedIn ? undefined : "skip")
 
   // Track redirect target
   const [redirectTarget, setRedirectTarget] = useState<string | null>(null)
