@@ -99,17 +99,36 @@ function ensureNetworkSubscription() {
 
 // --- Convert Mapbox pack bounds to our RegionBounds format ---
 
-function convertPackBounds(packBounds: unknown): RegionBounds {
-  const arr = packBounds as number[][]
-  if (Array.isArray(arr) && arr.length >= 2) {
+function convertPackBounds(packBounds: unknown): RegionBounds | null {
+  try {
+    const arr = packBounds as number[][]
+    if (
+      !Array.isArray(arr) ||
+      arr.length < 2 ||
+      !Array.isArray(arr[0]) ||
+      !Array.isArray(arr[1])
+    ) {
+      return null
+    }
     const ne = arr[0] // [lng, lat]
     const sw = arr[1] // [lng, lat]
-    return {
+    const bounds: RegionBounds = {
       ne: { lat: ne[1], lng: ne[0] },
       sw: { lat: sw[1], lng: sw[0] },
     }
+    // Validate the parsed values are actual numbers and make geographic sense
+    const { ne: bNE, sw: bSW } = bounds
+    if (
+      !isFinite(bNE.lat) || !isFinite(bNE.lng) ||
+      !isFinite(bSW.lat) || !isFinite(bSW.lng) ||
+      bSW.lat >= bNE.lat || bSW.lng >= bNE.lng
+    ) {
+      return null
+    }
+    return bounds
+  } catch {
+    return null
   }
-  return { ne: { lat: 0, lng: 0 }, sw: { lat: 0, lng: 0 } }
 }
 
 // --- Store ---
@@ -166,10 +185,16 @@ export const useOfflineStore = create<OfflineRegionState>()(
           for (const pack of packs) {
             if (existingPackNames.has(pack.name)) continue
 
+            const bounds = convertPackBounds(pack.bounds)
+            if (!bounds) {
+              console.warn(`Skipping pack "${pack.name}" — invalid bounds:`, pack.bounds)
+              continue
+            }
+
             reconciled.push({
               name: pack.name,
               packName: pack.name,
-              bounds: convertPackBounds(pack.bounds),
+              bounds,
               size: 0,
               downloadedAt: (pack.metadata?.downloadedAt as string) ?? new Date().toISOString(),
               state: 'complete',

@@ -74,10 +74,17 @@ export default function RegionSelectorScreen() {
   // Parse existing region params (if editing/re-viewing)
   const existingBounds: SelectionBounds | null = useMemo(() => {
     if (params.swLat && params.swLng && params.neLat && params.neLng) {
-      return {
-        sw: { lat: parseFloat(params.swLat), lng: parseFloat(params.swLng) },
-        ne: { lat: parseFloat(params.neLat), lng: parseFloat(params.neLng) },
+      const sw = { lat: parseFloat(params.swLat), lng: parseFloat(params.swLng) }
+      const ne = { lat: parseFloat(params.neLat), lng: parseFloat(params.neLng) }
+      // Guard against NaN from invalid URL params
+      if (
+        !isFinite(sw.lat) || !isFinite(sw.lng) ||
+        !isFinite(ne.lat) || !isFinite(ne.lng) ||
+        sw.lat >= ne.lat || sw.lng >= ne.lng
+      ) {
+        return null
       }
+      return { sw, ne }
     }
     return null
   }, [params.swLat, params.swLng, params.neLat, params.neLng])
@@ -174,13 +181,19 @@ export default function RegionSelectorScreen() {
     (bounds.sw.lat + bounds.ne.lat) / 2,
   ]
 
+  // Guard against NaN — fall back to Denver area if bounds are corrupted
+  const safeCameraCenter: [number, number] =
+    isFinite(cameraCenter[0]) && isFinite(cameraCenter[1])
+      ? cameraCenter
+      : [FALLBACK_CENTER.lng, FALLBACK_CENTER.lat]
+
   return (
     <View style={styles.container} testID="region-selector-screen">
       <MapboxMapView
         ref={mapRef}
         theme={isDark ? 'dark' : 'light'}
         camera={{
-          center: cameraCenter,
+          center: safeCameraCenter,
           zoom: initialCameraZoom,
         }}
         onCameraMove={handleCameraMove}

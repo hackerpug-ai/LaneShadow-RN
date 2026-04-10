@@ -513,6 +513,14 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
       })
     }, [polylines])
 
+    // Validate camera center — Mapbox throws "coordinates must contain numbers" for NaN/undefined
+    const validCenter = camera?.center
+    const isValidCenter = validCenter &&
+      Array.isArray(validCenter) &&
+      validCenter.length === 2 &&
+      isFinite(validCenter[0]) &&
+      isFinite(validCenter[1])
+
     // Web fallback
     if (isWeb) {
       return (
@@ -535,7 +543,7 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
       >
         <Camera
           ref={cameraRef}
-          centerCoordinate={camera?.center}
+          centerCoordinate={isValidCenter ? validCenter : undefined}
           zoomLevel={camera?.zoom ?? 12}
           pitch={camera?.pitch ?? 0}
           heading={camera?.heading ?? 0}

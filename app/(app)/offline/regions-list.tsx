@@ -51,14 +51,28 @@ export default function OfflineRegionsScreen() {
     (name: string) => {
       const region = regions.find((r) => r.name === name)
       if (region) {
+        const { sw, ne } = region.bounds
+        // Guard against corrupted bounds
+        if (
+          !isFinite(sw.lat) || !isFinite(sw.lng) ||
+          !isFinite(ne.lat) || !isFinite(ne.lng) ||
+          sw.lat >= ne.lat || sw.lng >= ne.lng
+        ) {
+          // Navigate without bounds — region-selector will use fallback center
+          router.push({
+            pathname: '/(app)/offline/region-selector',
+            params: { regionName: region.name },
+          } as any)
+          return
+        }
         router.push({
           pathname: '/(app)/offline/region-selector',
           params: {
             regionName: region.name,
-            swLat: String(region.bounds.sw.lat),
-            swLng: String(region.bounds.sw.lng),
-            neLat: String(region.bounds.ne.lat),
-            neLng: String(region.bounds.ne.lng),
+            swLat: String(sw.lat),
+            swLng: String(sw.lng),
+            neLat: String(ne.lat),
+            neLng: String(ne.lng),
             zoom: '10',
           },
         } as any)
