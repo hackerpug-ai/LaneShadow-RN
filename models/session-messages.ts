@@ -20,6 +20,7 @@ export const SESSION_MESSAGE_KIND = {
   AGENT_TURN: 'agent_turn',
   TOOL_RESULT_HIDDEN: 'tool_result_hidden',
   PLANNING: 'planning',
+  THINKING_CARD: 'thinking_card',
 } as const
 export type SessionMessageKind = (typeof SESSION_MESSAGE_KIND)[keyof typeof SESSION_MESSAGE_KIND]
 
@@ -31,7 +32,8 @@ export const sessionMessageKindValidator = v.union(
   v.literal('reasoning'),
   v.literal('agent_turn'),
   v.literal('tool_result_hidden'),
-  v.literal('planning')
+  v.literal('planning'),
+  v.literal('thinking_card')
 )
 
 export const SESSION_MESSAGE_STATUS = {
@@ -61,6 +63,18 @@ export type SessionMessageAttachment = Infer<typeof sessionMessageAttachmentVali
  * sets defaults (kind='text', status='complete'), then a follow-up commit
  * narrows these fields to required.
  */
+/**
+ * Thinking step validator for thinking_card messages.
+ * Represents a single step in the agent's thinking process.
+ */
+const thinkingStepValidator = v.object({
+  type: v.union(v.literal('thinking'), v.literal('tool_start'), v.literal('tool_finish')),
+  toolName: v.optional(v.string()),
+  summary: v.string(),
+  detail: v.optional(v.string()),
+  timestamp: v.number(),
+})
+
 export const sessionMessageValidator = v.object({
   sessionId: v.id('planning_sessions'),
   role: sessionMessageRoleValidator,
@@ -78,5 +92,10 @@ export const sessionMessageValidator = v.object({
    * during widen phase; narrows once agent rewrite lands.
    */
   piMessage: v.optional(v.any()),
+  /**
+   * Thinking steps for thinking_card messages.
+   * Array of agent reasoning steps (thinking, tool_start, tool_finish).
+   */
+  thinkingSteps: v.optional(v.array(thinkingStepValidator)),
 })
 export type SessionMessage = Infer<typeof sessionMessageValidator>

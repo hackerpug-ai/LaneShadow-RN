@@ -21,7 +21,12 @@ export const favoriteRoadValidator = v.object({
   /**
    * Reference to the user who owns this favorite road
    */
-  userId: v.id('users'),
+  userId: v.optional(v.id('users')),
+
+  /**
+   * Clerk user ID (legacy field for documents created before userId migration)
+   */
+  clerkUserId: v.optional(v.string()),
 
   /**
    * User-defined name for this favorite road
@@ -43,6 +48,11 @@ export const favoriteRoadValidator = v.object({
    * Unix timestamp when this favorite road was created
    */
   createdAt: v.number(),
+
+  /**
+   * Unix timestamp when this favorite road was last updated
+   */
+  updatedAt: v.optional(v.number()),
 })
 
 export type FavoriteRoad = Infer<typeof favoriteRoadValidator>
