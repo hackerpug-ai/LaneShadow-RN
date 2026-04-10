@@ -22,16 +22,18 @@ These are enforced globally across every component below. See `00-overview.md` �
 
 | Component | Description |
 |-----------|-------------|
-| **Python Aggregation Pipeline** | Local script or GitHub Actions that orchestrates scraping, extraction, enrichment, scoring, and **pre-digestion** (generating 10-word one-liners, 15-word summaries, and discrete badges via Haiku) |
-| **Web Scraper** | httpx + BeautifulSoup for static pages, Playwright fallback for JS-rendered content |
-| **LLM Extractor** | Claude Haiku via Anthropic API with Instructor for structured extraction. Also generates lean display text (one-liner, summary, badges) and full enrichment content (description, history) in the same pass |
-| **Geometric Enricher** | OSM curvature analysis via adamfranco/curvature, elevation via SRTM or Mapbox API |
-| **Scoring Engine** | Deterministic composite formula combining LLM and geometric features |
-| **Archetype Classifier** | Decision tree mapping features to ride archetypes (twisties, mountain, coastal, etc.). Outputs one `primaryArchetype` for selection and up to 3 `secondaryTags` for filtering |
+| **Python Aggregation Pipeline** | Local script or GitHub Actions that orchestrates scraping, extraction, enrichment, scoring, and **pre-digestion** (generating 10-word one-liners, 15-word summaries, and discrete badges via Haiku). All LLM calls at `temperature=0`. Reproducibility is a hard requirement. |
+| **Web Scraper** | httpx + BeautifulSoup for static pages, Playwright fallback for JS-rendered content. Every scraped row retains its source URL and fetch timestamp in `enrichment.sources[]` for auditability and re-scrape scheduling |
+| **LLM Extractor** | Claude Haiku via Anthropic API with Instructor for structured extraction. Also generates lean display text (one-liner, summary, badges) and full enrichment content (description, history) in the same pass. Does **text → structure only** (P1) — never asked to list, rank, or recall routes (P2). Schema-versioned via `extractionSchemaVersion` so batches can be re-run after prompt/schema changes |
+| **Geometric Enricher** | OSM curvature analysis via adamfranco/curvature, elevation via SRTM or Mapbox API. Surfaces candidate routes not covered by any listicle — the primary mechanism for catalog originality |
+| **Scoring Engine** | Deterministic composite formula combining LLM-extracted attributes and geometric features. Weights are fit against editorial ground truth (Rider Mag Top 50 + FHWA Scenic Byways) via the Calibration Step below — not hand-tuned |
+| **Calibration Step** | Phase-3 gate: solves for composite-score weights against a labeled ground-truth set. Emits a fit report (weights, residuals, top-10 recovery rate, per-feature sensitivity). **Full-catalog extraction does not run until calibration passes.** Re-run whenever the feature set or ground truth changes |
+| **Archetype Classifier** | Decision tree mapping features to ride archetypes (twisties, mountain, coastal, etc.). Outputs one `primaryArchetype` for selection and up to 3 `secondaryTags` for filtering. Deterministic — no LLM involvement (violates P1) |
 | **Lean Sync Service** | Syncs ONLY the lean tier (curated_routes) from Convex → local op-sqlite. ~50 tokens per route. Tracks `contentVersion` for delta sync |
 | **Enrichment Fetch Service** | Lazy-loads rich enrichment by `routeId` when the device is online. Caches recent enrichments in op-sqlite for offline replay. Keyed on shared stable IDs |
-| **Discovery Service** | Local op-sqlite database with SQL query layer for bounding box and filter searches over the lean tier |
-| **Intent Query Service** | On-device orchestrator for natural language search. Sends user intent to Qwen3.5 0.8B for slot-filling (→ JSON params). Validates enums, detects degeneration loops and retries with suffix prompt. Passes validated params to deterministic `params_to_sql()`, executes against op-sqlite, returns top 10 routes. Qwen never sees route candidates — ranking is SQL `ORDER BY` only. If zero results + online, escalates to Haiku for param clarification. Validated: 93% pass rate, 0.84 F1 (2026-04-10) |
+| **Discovery Service** | Local op-sqlite database with SQL query layer for bounding box and filter searches over the lean tier. Ranking is SQL `ORDER BY` on pre-computed composite scores — never LLM-driven (P1) |
+| **Intent Query Service** | Orchestrator for natural language search. **v1 baseline path (shipping):** (1) normalize user intent string and look up in Intent Cache; (2) cache hit → validated params returned in <5ms; (3) cache miss + online → Haiku extracts params via Instructor with the 10-key schema, enum-validates, caches the result; (4) cache miss + offline → returns `OFFLINE_UNSUPPORTED` so UI can show the "connect to search" empty state with recent-intents shortcuts. Validated params always pass through deterministic `params_to_sql()` → op-sqlite → top 10 routes. **v1.x deferred path:** on-device Qwen3.5 0.8B (Core ML / ONNX) replaces branch (4) once the device latency benchmark passes. The prompt, schema, normalizer, and retry logic are identical across branches — only the inference backend changes. No model ever sees route candidates (P1). Validated: Haiku 100% pass / ~1.0s; Qwen 93% pass / 0.84 F1 on MLX Mac-only (2026-04-10, mobile latency TBD) |
+| **Intent Cache** | op-sqlite table `intent_param_cache(normalized_intent TEXT PRIMARY KEY, params_json TEXT NOT NULL, schema_version INTEGER NOT NULL, hit_count INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, last_hit_at INTEGER)`. Normalization rule: `lower(trim(collapse_ws(strip_stopwords(intent))))` with a stop-word list including common filler ("i want to", "show me", "find me", "some", "a", "the", "please"). Invalidated on `schema_version` mismatch (after a prompt schema bump) — the cache simply stops hitting and is repopulated lazily. No TTL beyond schema version; route discovery intents are very stable over time |
 | **Convex Backend** | Canonical storage for both lean `curated_routes` and rich `curated_route_enrichments` tables (linked by `routeId`), plus user feedback collection and sync endpoints |
 | **Data Flywheel** | Feedback aggregation and auto-annotation for continuous improvement |
 
@@ -237,9 +239,27 @@ CREATE TABLE IF NOT EXISTS curated_route_enrichment_cache (
 );
 
 CREATE INDEX IF NOT EXISTS idx_enrich_fetched ON curated_route_enrichment_cache(fetched_at);
+
+-- ----------------------------------------------------------------
+-- Intent → params cache (normalized user intent → extracted params JSON)
+-- Populated on every successful Haiku extraction; read first on every intent search.
+-- ----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS intent_param_cache (
+  normalized_intent TEXT PRIMARY KEY,     -- lower(trim(collapse_ws(strip_stopwords(intent))))
+  params_json TEXT NOT NULL,              -- validated 10-key params JSON
+  schema_version INTEGER NOT NULL,        -- matches the intent-extraction prompt/schema version
+  hit_count INTEGER NOT NULL DEFAULT 0,
+  created_at INTEGER NOT NULL,
+  last_hit_at INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_intent_hit_count ON intent_param_cache(hit_count DESC);
+CREATE INDEX IF NOT EXISTS idx_intent_schema    ON intent_param_cache(schema_version);
 ```
 
-**Cache eviction:** the enrichment cache is bounded (e.g., 500 most recent rows via LRU). Lean tier is never evicted — it's cheap enough to keep the full synced state on device.
+**Cache eviction:**
+- Enrichment cache: bounded at ~500 most recent rows via LRU. Lean tier is never evicted — it's cheap enough to keep the full synced state on device.
+- Intent param cache: no size cap expected in practice (route search intents are highly repetitive and <100 bytes per row). Invalidated by `schema_version` mismatch after a prompt schema bump; stale rows are ignored and repopulated lazily, and a periodic `DELETE FROM intent_param_cache WHERE schema_version < ?current` runs on app start after a version bump.
 
 **Staleness detection:** the app checks `curated_routes.enrichment_version` against `curated_route_enrichment_cache.enrichment_version` for any route. If they differ (or cache is missing), fetch on next online opportunity.
 
@@ -295,6 +315,15 @@ CREATE INDEX IF NOT EXISTS idx_enrich_fetched ON curated_route_enrichment_cache(
 - Request: `{ routeId, action, rating?, locationLat?, locationLng?, archetypeFilter? }`
 - Response: `{ success: boolean }`
 
+**POST /api/intent/extract-params**
+- Description: Server-side Haiku wrapper for intent → SQL query param extraction. Takes a user intent string and returns the validated 10-key params JSON. Runs the same prompt + Instructor schema + enum validator as the batch research code. Called by the Intent Query Service only on intent-cache misses when the device is online.
+- Auth: User authentication (Clerk) — rate-limited per user
+- Request: `{ intent: string, userLocation?: { lat: number, lng: number }, defaultRadiusMi?: number }`
+- Response: `{ params: IntentParams, schemaVersion: number, latencyMs: number }` where `IntentParams` is the 10-key nullable schema: `archetype`, `state`, `min_length_mi`, `max_length_mi`, `max_technical`, `min_traffic_score`, `min_remoteness`, `max_distance_mi`, `season`, `sort_by`
+- Error: `{ error: "LOW_CONFIDENCE_BROADEN", suggestedParams: Partial<IntentParams> }` when the model returns a result that fails enum validation or produces zero downstream results — the client can retry with a broadened intent.
+- Guarantees: Haiku call is `temperature=0`, Instructor-validated, retry-on-validation-failure up to 2 times. Never writes SQL. Never sees route candidates. Returns only the structured params — all ranking is client-side via `params_to_sql()` + op-sqlite.
+- Note: `schemaVersion` lets the client decide whether to overwrite an existing cache entry.
+
 ## Architecture Diagram
 
 ```
@@ -322,16 +351,32 @@ CREATE INDEX IF NOT EXISTS idx_enrich_fetched ON curated_route_enrichment_cache(
                                   ▼
                     ┌───────────────────────────┐
                     │    Scoring Engine         │
-                    │  (Deterministic Formula)  │
+                    │  (Deterministic Formula,  │
+                    │   weights from Calibration│
+                    │   Step below — NOT hand-  │
+                    │   tuned)                  │
                     │                           │
-                    │ - Curvature: 25%          │
-                    │ - Scenery: 15%            │
-                    │ - Traffic: 15%            │
-                    │ - Condition: 10%          │
-                    │ - Elevation: 10%          │
-                    │ - Designation: 10%        │
-                    │ - Community: 10%          │
-                    │ - Remoteness: 5%          │
+                    │ - Curvature: ~25%         │
+                    │ - Scenery: ~15%           │
+                    │ - Traffic: ~15%           │
+                    │ - Condition: ~10%         │
+                    │ - Elevation: ~10%         │
+                    │ - Designation: ~10%       │
+                    │ - Community: ~10%         │
+                    │ - Remoteness: ~5%         │
+                    └───────────────────────────┘
+                                  │
+                                  ▼
+                    ┌───────────────────────────┐
+                    │   Calibration Step        │
+                    │  (GATE on Phase 3 exit)   │
+                    │                           │
+                    │ Fit weights vs ground     │
+                    │ truth (Rider Mag Top 50   │
+                    │ + FHWA Scenic Byways).    │
+                    │ Emit fit report. Long-    │
+                    │ tail extraction only runs │
+                    │ AFTER this passes.        │
                     └───────────────────────────┘
                                   │
                                   ▼
