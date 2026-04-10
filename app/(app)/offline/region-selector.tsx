@@ -187,16 +187,17 @@ export default function RegionSelectorScreen() {
         mark the capture area — no fill, no draggable handles.
         The user pans the map under the frame.
       */}
-      <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+      <View style={StyleSheet.absoluteFill} pointerEvents="none">
         {/* Top scrim */}
-        <View style={[styles.scrim, { height: '20%', backgroundColor: scrimColor }]} />
+        <View pointerEvents="none" style={[styles.scrim, { height: '20%', backgroundColor: scrimColor }]} />
 
         {/* Middle row: left scrim | viewport | right scrim */}
-        <View style={styles.middleRow}>
-          <View style={[styles.scrim, { width: '10%', backgroundColor: scrimColor }]} />
+        <View pointerEvents="none" style={styles.middleRow}>
+          <View pointerEvents="none" style={[styles.scrim, { width: '10%', backgroundColor: scrimColor }]} />
 
           {/* The viewport window — clear, with edge lines and corners */}
           <View
+            pointerEvents="none"
             style={styles.viewport}
             testID="region-selector-viewport"
             accessibilityLabel="Selected region area. Pan the map to choose what to download."
@@ -229,11 +230,11 @@ export default function RegionSelectorScreen() {
             </View>
           </View>
 
-          <View style={[styles.scrim, { flex: 1, backgroundColor: scrimColor }]} />
+          <View pointerEvents="none" style={[styles.scrim, { flex: 1, backgroundColor: scrimColor }]} />
         </View>
 
         {/* Bottom scrim */}
-        <View style={[styles.scrim, { flex: 1, backgroundColor: scrimColor }]} />
+        <View pointerEvents="none" style={[styles.scrim, { flex: 1, backgroundColor: scrimColor }]} />
       </View>
 
       {/* Bottom overlay */}
@@ -246,7 +247,31 @@ export default function RegionSelectorScreen() {
           },
         ]}
       >
-        {isDownloading || progress?.state === 'complete' || progress?.state === 'failed' ? (
+        {progress?.state === 'complete' ? (
+          <View style={[styles.sizeRow, { gap: semantic.space.sm }]}>
+            <Text
+              variant="headlineSmall"
+              style={{ color: semantic.color.success.default }}
+            >
+              Region Ready
+            </Text>
+            <Text
+              variant="bodySmall"
+              style={{ color: semantic.color.onSurface.muted }}
+            >
+              Offline map downloaded successfully.
+            </Text>
+            <Button
+              variant="default"
+              size="lg"
+              onPress={() => router.push('/(app)/offline/regions-list' as any)}
+              testID="view-offline-maps-button"
+              style={{ width: '100%' }}
+            >
+              View Offline Maps
+            </Button>
+          </View>
+        ) : isDownloading || progress?.state === 'failed' ? (
           progress && (
             <DownloadProgressIndicator
               packName={progress.packName}
