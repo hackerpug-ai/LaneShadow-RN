@@ -5,23 +5,19 @@
  * Prevents app usage until local AI model is downloaded, validated,
  * and verified as complete.
  *
- * AC-001: App Launch Gatekeeper Check
- * AC-004: Navigation Route Guarding
- * AC-006: Setup State Persistence
- * CLR-004: Model Download Persistence
- *
  * This provider:
+ * - Waits for settings store hydration before rendering
  * - Skips onboarding entirely if user has already completed it
  * - Shows welcome + ambient download flow if model is missing
  * - Shows "Setup Required" screen if model is corrupted
  * - Allows main app access only when model is valid
- * - CLR-004: Tracks download progress and supports resume
  */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { View, ActivityIndicator } from 'react-native'
 import { useModelSetup } from '../../hooks/useModelSetup'
 import { useSettingsStore } from '../../stores/settings-store'
+import { useDownloadStore } from '../../stores/download-store'
 import { SetupRequiredScreen } from './setup-required-screen'
 import { WelcomeScreen } from '../onboarding/welcome-screen'
 import { CompletionScreen } from '../onboarding/completion-screen'
@@ -31,16 +27,6 @@ export interface ModelGatekeeperProviderProps {
   testID?: string
 }
 
-/**
- * Model Gatekeeper Provider Component
- *
- * Wraps the app and enforces gatekeeper validation.
- * Only renders children when model is validated.
- *
- * The WelcomeScreen handles both idle and downloading states:
- * - Idle: branding + "Setup Your AI Companion" CTA
- * - Downloading: thin progress pill + feature carousel
- */
 export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = ({
   children,
   testID = 'model-gatekeeper-provider',
@@ -56,20 +42,31 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
   } = useModelSetup()
 
   const hasCompletedOnboarding = useSettingsStore((s) => s.hasCompletedOnboarding)
+  const settingsHydrated = useSettingsStore((s) => s._hydrated)
   const setHasCompletedOnboarding = useSettingsStore((s) => s.setHasCompletedOnboarding)
 
-  // If user already completed onboarding and model is ready, skip gatekeeper entirely
-  if (hasCompletedOnboarding && (status === 'ready' || status === 'valid')) {
+  // Wait for both stores to hydrate before rendering anything
+  const downloadHydrated = useDownloadStore((s) => s._hydrated)
+  const isReady = settingsHydrated && downloadHydrated
+
+  // If stores haven't hydrated yet, show loading
+  if (!isReady) {
+    return (
+      <View style={styles.loadingContainer} testID={`${testID}-hydrating`}>
+        <ActivityIndicator size="large" />
+      </View>
+    )
+  }
+
+  // If user already completed onboarding, skip gatekeeper entirely
+  if (hasCompletedOnboarding) {
     return <View style={styles.fullScreen} testID={`${testID}-main-app`}>{children}</View>
   }
 
-  // Show loading indicator while checking
+  // Show loading indicator while checking model status
   if (isChecking) {
     return (
-      <View
-        style={styles.loadingContainer}
-        testID={`${testID}-loading`}
-      >
+      <View style={styles.loadingContainer} testID={`${testID}-loading`}>
         <ActivityIndicator size="large" />
       </View>
     )
@@ -120,11 +117,6 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
   }
 
   // Model is ready - render main app
-  if (status === 'ready') {
-    return <View style={styles.fullScreen} testID={`${testID}-main-app`}>{children}</View>
-  }
-
-  // Fallback — render main app (should not reach here)
   return <View style={styles.fullScreen} testID={`${testID}-main-app`}>{children}</View>
 }
 

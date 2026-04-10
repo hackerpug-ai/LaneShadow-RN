@@ -18,6 +18,7 @@ import { ChecksumValidator } from '../lib/ai/checksum'
 import { ModelGatekeeper, type ModelGatekeeperStatus } from '../lib/model/gatekeeper'
 import { GatekeeperDownloadManager, type ModelDownloadProgress } from '../lib/model/download-manager'
 import { toast } from '../lib/toast-config'
+import { useDownloadStore } from '../stores/download-store'
 
 const MODEL_FILE_PATH = `${FileSystem.documentDirectory!}models/qwen2.5-0.5b-instruct-q4_k_m.gguf`
 const EXPECTED_CHECKSUM = '6eb923e7d26e9cea28811e1a8e852009b21242fb157b26149d3b188f3a8c8653'
@@ -96,7 +97,13 @@ export const useModelSetup = (): UseModelSetupResult => {
       } else if (!result.modelValid) {
         setStatus('corrupted')
       } else if (result.canProceed) {
-        // Model is valid — check if user already completed setup
+        // Model is valid — clean up stale download state
+        const downloadState = useDownloadStore.getState()
+        if (downloadState.state !== 'idle' && downloadState.state !== 'completed') {
+          downloadState.resetDownload()
+        }
+
+        // Check if user already completed setup
         const alreadyComplete = await gatekeeper.isSetupMarkedComplete()
         setStatus(alreadyComplete ? 'ready' : 'valid')
       } else {
