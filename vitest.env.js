@@ -100,6 +100,7 @@ const STUB_MAP = {
   'expo-modules-core': EXPO_MODULES_CORE_STUB,
   'react-native-notifier': NOTIFIER_STUB,
   'react-native-safe-area-context': SAFE_AREA_STUB,
+  'react-native-svg': path.resolve(__dirname, '__mocks__/react-native-svg.ts'),
 }
 const originalResolveFilename = Module._resolveFilename
 Module._resolveFilename = function (request, parent, ...rest) {
