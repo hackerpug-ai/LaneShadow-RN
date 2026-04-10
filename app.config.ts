@@ -12,6 +12,19 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ...config,
     name: config.name ?? 'LaneShadow',
     slug: config.slug ?? 'laneshadow',
+    plugins: [
+      ...(config.plugins ?? []),
+      [
+        "@rnmapbox/maps",
+        {
+          RNMapboxMapsImpl: "mapbox",
+        },
+      ],
+    ],
+    extra: {
+      ...(config.extra ?? {}),
+      MAPBOX_ACCESS_TOKEN: process.env.MAPBOX_ACCESS_TOKEN,
+    },
     ios: {
       ...config.ios,
       config: {
