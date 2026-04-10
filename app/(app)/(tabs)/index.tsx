@@ -17,8 +17,9 @@ import { MapControls } from '../../../components/map/map-controls'
 import { MapPlanningIndicator } from '../../../components/map/map-planning-indicator'
 import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
 import { MotorcyclePlusIcon } from '../../../components/ui/motorcycle-plus-icon'
-import type { MapViewHandle } from '../../../components/map/map-view'
-import { MapViewWrapper } from '../../../components/map/map-view'
+import type { MapboxMapViewHandle } from '../../../components/map'
+import { MapboxMapView } from '../../../components/map'
+import { useThemePreference } from '../../../contexts/theme-preference'
 import { WeatherPillsRow } from '../../../components/map/weather-pills-row'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
 import { RoutePolyline, type SegmentSelectData } from '../../../components/map/route-polyline-component'
@@ -70,8 +71,9 @@ const CHAT_TRANSITION_MS = 260
 const HomeMapScreen = () => {
   const router = useRouter()
   useSegments()
-  const mapRef = useRef<MapViewHandle | null>(null)
+  const mapRef = useRef<MapboxMapViewHandle | null>(null)
   const { semantic } = useSemanticTheme()
+  const { isDark } = useThemePreference()
   const insets = useSafeAreaInsets()
   const { isLoaded: clerkLoaded, isSignedIn } = useAuth()
   const { sessionId: sessionIdParam, chat: chatParam } = useLocalSearchParams<{
@@ -406,10 +408,7 @@ const HomeMapScreen = () => {
       // and the bottom input bar + suggestions (~160 + safe area bottom).
       const padTop = insets.top + 80
       const padBottom = insets.bottom + 180
-      mapRef.current.fitToCoordinates(coords, {
-        edgePadding: { top: padTop, right: 60, bottom: padBottom, left: 60 },
-        animated: true,
-      })
+      mapRef.current.fitToCoordinates(coords, { top: padTop, right: 60, bottom: padBottom, left: 60 })
     }
     // Clear the flag after fitting so subsequent chat/map toggles preserve position
     setShouldFitToRoute(false)
@@ -497,10 +496,7 @@ const HomeMapScreen = () => {
           latitude: r.location.lat,
           longitude: r.location.lng,
         }))
-        mapRef.current.fitToCoordinates(coords, {
-          edgePadding: { top: insets.top + 80, right: 60, bottom: insets.bottom + 180, left: 60 },
-          animated: true,
-        })
+        mapRef.current.fitToCoordinates(coords, { top: insets.top + 80, right: 60, bottom: insets.bottom + 180, left: 60 })
       }
     }
     if (searchResults.length === 0) {
@@ -1029,8 +1025,9 @@ const HomeMapScreen = () => {
             style={[StyleSheet.absoluteFill, mapLayerStyle]}
             pointerEvents={chatMode ? 'none' : 'auto'}
           >
-              <MapViewWrapper
+              <MapboxMapView
                 ref={mapRef}
+                theme={isDark ? 'dark' : 'light'}
                 markers={markers}
                 onMapClick={handleMapClick}
                 onCameraMove={handleCameraMove}
@@ -1053,7 +1050,7 @@ const HomeMapScreen = () => {
                     onPress={setSelectedSearchResultId}
                   />
                 ))}
-              </MapViewWrapper>
+              </MapboxMapView>
           </Animated.View>
         )}
 

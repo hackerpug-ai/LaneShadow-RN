@@ -14,7 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { IconSymbol } from '../../../components/ui/icon-symbol'
 
 import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
-import { MapViewWrapper } from '../../../components/map/map-view'
+import { MapboxMapView } from '../../../components/map'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
 import { Button } from '../../../components/ui/button'
 import { DeleteRouteDialog } from '../../../components/ui/delete-route-dialog'
@@ -22,6 +22,7 @@ import { RenameRouteDialog } from '../../../components/ui/rename-route-dialog'
 import { RouteLegTimeline } from '../../../components/ui/route-leg-timeline'
 import { StatRow } from '../../../components/ui/stat-row'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
+import { useThemePreference } from '../../../contexts/theme-preference'
 import { useSavedRouteDetail } from '../../../hooks/use-saved-routes'
 import type { RouteOverlays } from '../../../models/saved-routes'
 
@@ -34,6 +35,7 @@ const SavedRouteDetailScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
   const { semantic } = useSemanticTheme()
+  const { isDark } = useThemePreference()
   const insets = useSafeAreaInsets()
   const { data, isLoading } = useSavedRouteDetail(id ?? null)
 
@@ -132,7 +134,7 @@ const SavedRouteDetailScreen = () => {
       <View style={styles.root}>
         {/* Map section */}
         <View style={styles.mapSection} accessibilityLabel={`Route map for ${data.name}`}>
-          <MapViewWrapper polylines={polylines} />
+          <MapboxMapView theme={isDark ? 'dark' : 'light'} polylines={polylines} />
           <MapHeaderOverlay
             title={data.name}
             leftAction={{

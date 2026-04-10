@@ -1,6 +1,8 @@
 export { MapHeaderOverlay } from './map-header-overlay'
 export { MapControls } from './map-controls'
+// Google Maps wrapper (kept for rollback)
 export { MapViewWrapper, type MapViewProps, type MapViewHandle } from './map-view'
+// Mapbox wrapper (primary map component)
 export {
   MapboxMapView,
   type MapboxMapViewProps,
