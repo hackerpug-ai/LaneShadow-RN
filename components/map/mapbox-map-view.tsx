@@ -91,6 +91,12 @@ export interface MapboxMapViewProps {
   theme: 'dark' | 'light'
   /** Camera position settings */
   camera?: MapboxCamera
+  /**
+   * Initial camera position applied once on mount with no animation.
+   * Prefer this over `camera` for app startup to avoid fly-in behavior.
+   * If both are set, `camera` wins for subsequent updates.
+   */
+  initialCamera?: MapboxCamera
   /** Array of markers to display */
   markers?: MapboxMarker[]
   /** Array of polylines to display */
@@ -231,16 +237,20 @@ const styles = StyleSheet.create({
  * ```
  */
 export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapViewProps>(
-  ({ theme, camera, markers, polylines, onCameraChange, onCameraMove, onPress, onMapClick, showsUserLocation = true, style, children }, ref) => {
+  ({ theme, camera, initialCamera, markers, polylines, onCameraChange, onCameraMove, onPress, onMapClick, showsUserLocation = true, style, children }, ref) => {
     const cameraRef = useRef<any>(null)
     const mapViewRef = useRef<any>(null)
     const isWeb = Platform.OS === 'web'
 
-    // Track last known camera state for zoomBy calculations
+    // Track last known camera state for zoomBy calculations.
+    // Seed from initialCamera so the first zoom action doesn't snap to a stale value.
     const [lastCameraState, setLastCameraState] = useState<{
       center: [number, number] | undefined
       zoom: number
-    }>({ center: undefined, zoom: 14 })
+    }>({
+      center: initialCamera?.center,
+      zoom: initialCamera?.zoom ?? 14,
+    })
 
     // Track user location for recenterToUser
     const lastUserLocationRef = useRef<{ latitude: number; longitude: number } | null>(null)
@@ -456,8 +466,10 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
             longitude: coords.longitude,
           }
           if (!hasUserLocation) {
-            // Snap camera to user location without animation
-            if (!camera?.center && cameraRef.current) {
+            // Only auto-snap when there's no camera position at all.
+            // When initialCamera (persisted) or camera (controlled) is supplied,
+            // respect the caller's choice and do not move on first location fix.
+            if (!camera?.center && !initialCamera?.center && cameraRef.current) {
               const center: [number, number] = [coords.longitude, coords.latitude]
               cameraRef.current.setCamera({
                 centerCoordinate: center,
@@ -470,7 +482,7 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
           }
         }
       },
-      [camera?.center, hasUserLocation],
+      [camera?.center, initialCamera?.center, hasUserLocation],
     )
 
     // Convert polylines to Mapbox format
@@ -524,6 +536,22 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
       isFinite(validCenter[0]) &&
       isFinite(validCenter[1])
 
+    // Build defaultSettings from initialCamera — applied once on mount with no animation.
+    // This is the no-fly-in path: the map opens directly at the saved position.
+    const defaultSettings = useMemo(() => {
+      if (!initialCamera?.center) return undefined
+      const [lng, lat] = initialCamera.center
+      if (!isFinite(lng) || !isFinite(lat)) return undefined
+      return {
+        centerCoordinate: initialCamera.center,
+        zoomLevel: initialCamera.zoom,
+        pitch: initialCamera.pitch ?? 0,
+        heading: initialCamera.heading ?? 0,
+        animationDuration: 0,
+        animationMode: 'none' as const,
+      }
+    }, [initialCamera?.center, initialCamera?.zoom, initialCamera?.pitch, initialCamera?.heading])
+
     // Web fallback
     if (isWeb) {
       return (
@@ -546,12 +574,11 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
       >
         <Camera
           ref={cameraRef}
+          defaultSettings={defaultSettings}
           centerCoordinate={isValidCenter ? validCenter : undefined}
-          zoomLevel={camera?.zoom ?? 14}
+          zoomLevel={camera?.zoom ?? (defaultSettings ? undefined : 14)}
           pitch={camera?.pitch ?? 0}
           heading={camera?.heading ?? 0}
-          followUserLocation={!camera?.center && !hasUserLocation}
-          followZoomLevel={14}
         />
 
         {showsUserLocation && (

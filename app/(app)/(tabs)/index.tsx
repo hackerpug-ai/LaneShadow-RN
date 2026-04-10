@@ -45,6 +45,8 @@ import type { PlanInput, RouteStop } from '../../../types/routes'
 import { decodePolylineGeometry } from '../../../lib/polyline'
 import { useSearchResults } from '../../../contexts/search-results'
 import { SearchResultMarker } from '../../../components/map/search-result-marker'
+import { useMapCameraStore } from '../../../stores/map-camera-store'
+import type { MapboxCamera } from '../../../components/map/mapbox-map-view'
 
 type CameraState = {
   center?: { latitude: number; longitude: number }
@@ -98,6 +100,14 @@ const HomeMapScreen = () => {
   const isProgrammaticMoveRef = useRef(false)
   const previousChatModeRef = useRef(chatMode)
 
+  // Cross-session camera persistence — AsyncStorage-backed.
+  // Restores the user's last map position on app launch so the map opens
+  // exactly where they left off, with no fly-in.
+  const persistedCameraCenter = useMapCameraStore((s) => s.center)
+  const persistedCameraZoom = useMapCameraStore((s) => s.zoom)
+  const cameraStoreHydrated = useMapCameraStore((s) => s._hydrated)
+  const saveCameraToStore = useMapCameraStore((s) => s.setCamera)
+
   const { data: planInit } = usePlanInit()
   const {
     planRide,
@@ -137,6 +147,37 @@ const HomeMapScreen = () => {
   } = useChatPlanning(flowDispatch)
   const { polylines, selectRoute } = useRouteComparison(flowState, flowDispatch)
   const { location: currentLocation } = useCurrentLocation()
+
+  // Fallback readiness: after 2.5s let the map mount even without a camera,
+  // so fresh installs with slow/denied location don't see an indefinite blank.
+  const [cameraFallbackReady, setCameraFallbackReady] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setCameraFallbackReady(true), 2500)
+    return () => clearTimeout(t)
+  }, [])
+
+  // Build the initial camera for the next map mount.
+  // Priority: persisted camera (last session / last user interaction) → current location.
+  // Recomputed on every render so chat→map remounts restore the latest known position.
+  const initialCamera: MapboxCamera | undefined = useMemo(() => {
+    if (!cameraStoreHydrated) return undefined
+    if (persistedCameraCenter) {
+      return {
+        center: [persistedCameraCenter.longitude, persistedCameraCenter.latitude],
+        zoom: persistedCameraZoom,
+      }
+    }
+    if (currentLocation) {
+      return {
+        center: [currentLocation.lng, currentLocation.lat],
+        zoom: 14,
+      }
+    }
+    return undefined
+  }, [cameraStoreHydrated, persistedCameraCenter, persistedCameraZoom, currentLocation])
+
+  // Gate the map mount on having a camera, or on the fallback timer.
+  const initialCameraReady = initialCamera !== undefined || cameraFallbackReady
   const {
     results: searchResults,
     selectedResultId: selectedSearchResultId,
@@ -460,14 +501,9 @@ const HomeMapScreen = () => {
     }
   }, [chatMode, mapMounted, persistentCamera, shouldFitToRoute])
 
-  // Zoom to current location on fresh app start
-  const didInitialCenterRef = useRef(false)
-  useEffect(() => {
-    if (currentLocation && mapMounted && mapRef.current && !didInitialCenterRef.current) {
-      didInitialCenterRef.current = true
-      mapRef.current.recenterToUser()
-    }
-  }, [currentLocation, mapMounted])
+  // Initial camera now handled via MapboxMapView's `initialCamera` prop,
+  // which applies Mapbox defaultSettings with animationMode="none" — no fly-in.
+  // See initialCameraRef / initialCameraReady above.
 
   // Register the fit handler so other tabs / chat overlay can trigger it
   useEffect(() => {
@@ -788,9 +824,11 @@ const HomeMapScreen = () => {
           zoom: newCamera.zoom,
           timestamp: Date.now(),
         })
+        // Persist to AsyncStorage so the camera restores across app launches.
+        saveCameraToStore(newCamera.center, newCamera.zoom)
       }
     },
-    []
+    [saveCameraToStore]
   )
 
   const zoom = (delta: number) => {
@@ -1020,7 +1058,7 @@ const HomeMapScreen = () => {
     <MenuLayout testID="home-menu-layout" menuOpen={menuOpen} onMenuOpenChange={setMenuOpen}>
       <View style={styles.container}>
         {/* Map layer — cross-fades out when chat mode is entered */}
-        {mapMounted && (
+        {mapMounted && initialCameraReady && (
           <Animated.View
             style={[StyleSheet.absoluteFill, mapLayerStyle]}
             pointerEvents={chatMode ? 'none' : 'auto'}
@@ -1028,6 +1066,7 @@ const HomeMapScreen = () => {
               <MapboxMapView
                 ref={mapRef}
                 theme={isDark ? 'dark' : 'light'}
+                initialCamera={initialCamera}
                 markers={markers}
                 onMapClick={handleMapClick}
                 onCameraMove={handleCameraMove}
