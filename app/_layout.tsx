@@ -6,11 +6,14 @@ import { Stack } from 'expo-router'
 import { useEffect } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { Provider as PaperProvider } from 'react-native-paper'
+import Toast from 'react-native-toast-message'
 import { ErrorBoundary } from '../components/logging/error-boundary'
+import { DevMenu } from '../components/dev'
 import { ModelGatekeeperProvider } from '../components/gatekeeper/model-gatekeeper-provider'
 import { ThemePreferenceProvider, useThemePreference } from '../contexts/theme-preference'
 import { SearchResultsProvider } from '../contexts/search-results'
 import { clerkTokenCache } from '../lib/clerk-token-cache'
+import { toastConfig } from '../lib/toast-config'
 import { env } from '../lib/env'
 import { initLogger, logger } from '../lib/logger/frontend-logger'
 import { getTheme } from '../styles/theme'
@@ -57,8 +60,10 @@ const RootLayoutInner = () => {
                   }}
                 />
               </ModelGatekeeperProvider>
+              <DevMenu />
             </BottomSheetModalProvider>
           </SearchResultsProvider>
+          <Toast config={toastConfig} />
         </PaperProvider>
       </ConvexProviderWithClerk>
     </ClerkProvider>

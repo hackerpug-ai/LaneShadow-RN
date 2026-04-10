@@ -15,8 +15,8 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import * as FileSystem from 'expo-file-system/legacy'
 import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet'
-import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Dimensions, Pressable, StyleSheet, View } from 'react-native'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
@@ -52,6 +52,12 @@ export const DevMenu = () => {
   const bottomSheetRef = useRef<BottomSheetModal>(null)
   const snapPoints = useMemo(() => ['60%'], [])
 
+  // Debug: Check if modal is mounted
+  useEffect(() => {
+    console.log('[DevMenu] Component mounted, isEnabled:', isEnabled)
+    console.log('[DevMenu] bottomSheetRef.current:', bottomSheetRef.current)
+  }, [isEnabled])
+
   // Drag position — useSharedValue runs on UI thread (like RML EdgeTab)
   const BUTTON_SIZE = 56
   const { width: screenWidth, height: screenHeight } = Dimensions.get('window')
@@ -77,9 +83,16 @@ export const DevMenu = () => {
   }, [])
 
   const handlePresent = useCallback(() => {
+    console.log('[DevMenu] FAB pressed, presenting bottom sheet')
+    console.log('[DevMenu] bottomSheetRef.current:', bottomSheetRef.current)
     setResult(null)
     loadModelInfo()
-    bottomSheetRef.current?.present()
+
+    // Small delay to ensure modal is fully mounted (iOS fix)
+    setTimeout(() => {
+      bottomSheetRef.current?.present()
+      console.log('[DevMenu] present() called after delay')
+    }, 50)
   }, [loadModelInfo])
 
   const handleDismiss = useCallback(() => {
@@ -149,8 +162,7 @@ export const DevMenu = () => {
   if (!isEnabled) return null
 
   return (
-    <BottomSheetModalProvider>
-      <>
+    <>
       {/* Floating FAB */}
       <GestureDetector gesture={panGesture}>
         <Animated.View
@@ -187,9 +199,12 @@ export const DevMenu = () => {
         handleIndicatorStyle={{
           backgroundColor: semantic.color.onSurface.subtle,
         }}
-        style={{ zIndex: 999999 }}
+        animateOnMount={true}
+        android_keyboardInputMode="adjustResize"
+        topInset={0}
+        onChange={(index) => console.log('[DevMenu] BottomSheet onChange:', index)}
       >
-        <View style={[styles.content, { gap: semantic.space.lg }]}>
+        <BottomSheetView style={[styles.content, { gap: semantic.space.lg }]}>
           {/* Header */}
           <View style={styles.header}>
             <Text variant="headlineSmall" style={{ color: semantic.color.onSurface.default }}>
@@ -267,10 +282,9 @@ export const DevMenu = () => {
           <Button variant="secondary" size="lg" onPress={handleDismiss}>
             Close
           </Button>
-        </View>
+        </BottomSheetView>
       </BottomSheetModal>
     </>
-    </BottomSheetModalProvider>
   )
 }
 
