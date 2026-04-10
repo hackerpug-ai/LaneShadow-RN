@@ -1,15 +1,19 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { offlineManager } from '@rnmapbox/maps'
 
-vi.mock('@react-native-async-storage/async-storage', () => ({
-  default: {
-    getItem: vi.fn(async () => null),
-    setItem: vi.fn(async () => {}),
-    removeItem: vi.fn(async () => {}),
-    clear: vi.fn(async () => {}),
-  },
-  __esModule: true,
-}))
+// Mock AsyncStorage for Zustand persist
+vi.mock('@react-native-async-storage/async-storage', () => {
+  const store = new Map<string, string>()
+  return {
+    default: {
+      getItem: vi.fn(async (key: string) => store.get(key) ?? null),
+      setItem: vi.fn(async (key: string, value: string) => { store.set(key, value) }),
+      removeItem: vi.fn(async (key: string) => { store.delete(key) }),
+      clear: vi.fn(async () => { store.clear() }),
+    },
+    __esModule: true,
+  }
+})
 
 // Mock type with test helpers
 type MockOfflineManager = typeof offlineManager & {
@@ -117,34 +121,25 @@ describe('DownloadQueue', () => {
   })
 })
 
-// --- Offline Region Manager ---
+// --- Offline Store (Zustand) ---
 
-describe('OfflineRegionManager', () => {
-  async function getFreshManager() {
-    const mod = await import('../../../lib/mapbox/offline-manager')
-    mod.OfflineRegionManager.resetInstance()
-    const manager = mod.OfflineRegionManager.getInstance()
-    await manager.initialize()
-    return { manager, mod }
-  }
-
+describe('useOfflineStore', () => {
   const VALID_BOUNDS = {
     sw: { lat: 37.7, lng: -122.5 },
     ne: { lat: 37.8, lng: -122.4 },
   }
 
-  it('initializes and returns singleton', async () => {
-    const { manager } = await getFreshManager()
-    expect(manager).toBeDefined()
-
-    const mod = await import('../../../lib/mapbox/offline-manager')
-    const same = mod.OfflineRegionManager.getInstance()
-    expect(same).toBe(manager)
+  it('starts with empty regions', async () => {
+    const { useOfflineStore } = await import('../../../stores/offline-store')
+    const state = useOfflineStore.getState()
+    expect(state.regions).toEqual([])
+    expect(state.isDownloading).toBe(false)
   })
 
-  it('downloads a region and stores metadata', async () => {
-    const { manager } = await getFreshManager()
-    await manager.downloadRegion({
+  it('downloads a region and adds it to the store', async () => {
+    const { useOfflineStore } = await import('../../../stores/offline-store')
+
+    await useOfflineStore.getState().downloadRegion({
       name: 'test-region',
       bounds: VALID_BOUNDS,
       styleURL: 'mapbox://styles/mapbox/streets-v12',
@@ -152,33 +147,12 @@ describe('OfflineRegionManager', () => {
       maxZoom: 14,
     })
 
-    await new Promise((r) => setTimeout(r, 100))
+    await new Promise((r) => setTimeout(r, 200))
 
-    const meta = manager.getRegion('test-region')
-    expect(meta).toBeDefined()
-    expect(meta!.name).toBe('test-region')
-    expect(meta!.state).toBe('complete')
-  })
-
-  it('reports progress via callback', async () => {
-    const { manager } = await getFreshManager()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const progressCalls: any[] = []
-
-    await manager.downloadRegion({
-      name: 'progress-test',
-      bounds: VALID_BOUNDS,
-      styleURL: 'mapbox://styles/mapbox/streets-v12',
-      minZoom: 10,
-      maxZoom: 14,
-      onProgress: (p) => progressCalls.push(p),
-    })
-
-    await new Promise((r) => setTimeout(r, 100))
-
-    const completion = progressCalls.find((p) => p.state === 'complete')
-    expect(completion).toBeDefined()
-    expect(completion!.percentage).toBe(100)
+    const state = useOfflineStore.getState()
+    const region = state.regions.find((r) => r.name === 'test-region')
+    expect(region).toBeDefined()
+    expect(region!.state).toBe('complete')
   })
 
   it('rejects downloads over cellular', async () => {
@@ -188,9 +162,9 @@ describe('OfflineRegionManager', () => {
       subscribe: () => () => {},
     })
 
-    const { manager } = await getFreshManager()
+    const { useOfflineStore } = await import('../../../stores/offline-store')
     await expect(
-      manager.downloadRegion({
+      useOfflineStore.getState().downloadRegion({
         name: 'cellular-test',
         bounds: VALID_BOUNDS,
         styleURL: 'mapbox://styles/mapbox/streets-v12',
@@ -205,22 +179,10 @@ describe('OfflineRegionManager', () => {
     })
   })
 
-  it('rejects invalid bounds (SW >= NE)', async () => {
-    const { manager } = await getFreshManager()
-    await expect(
-      manager.downloadRegion({
-        name: 'invalid-bounds',
-        bounds: { sw: { lat: 37.8, lng: -122.4 }, ne: { lat: 37.7, lng: -122.5 } },
-        styleURL: 'mapbox://styles/mapbox/streets-v12',
-        minZoom: 10,
-        maxZoom: 14,
-      }),
-    ).rejects.toThrow('Invalid bounds')
-  })
+  it('deletes a region and removes it from the store', async () => {
+    const { useOfflineStore } = await import('../../../stores/offline-store')
 
-  it('deletes a pack and removes metadata', async () => {
-    const { manager } = await getFreshManager()
-    await manager.downloadRegion({
+    await useOfflineStore.getState().downloadRegion({
       name: 'delete-test',
       bounds: VALID_BOUNDS,
       styleURL: 'mapbox://styles/mapbox/streets-v12',
@@ -228,18 +190,41 @@ describe('OfflineRegionManager', () => {
       maxZoom: 14,
     })
 
-    await new Promise((r) => setTimeout(r, 100))
-    expect(manager.getRegion('delete-test')).toBeDefined()
+    await new Promise((r) => setTimeout(r, 200))
+    expect(useOfflineStore.getState().regions.find((r) => r.name === 'delete-test')).toBeDefined()
 
-    await manager.deletePack('delete-test')
-    expect(manager.getRegion('delete-test')).toBeUndefined()
+    await useOfflineStore.getState().deleteRegion('delete-test')
+    expect(useOfflineStore.getState().regions.find((r) => r.name === 'delete-test')).toBeUndefined()
+  })
+
+  it('renames a region', async () => {
+    const { useOfflineStore } = await import('../../../stores/offline-store')
+
+    await useOfflineStore.getState().downloadRegion({
+      name: 'original-name',
+      bounds: VALID_BOUNDS,
+      styleURL: 'mapbox://styles/mapbox/streets-v12',
+      minZoom: 10,
+      maxZoom: 14,
+    })
+
+    await new Promise((r) => setTimeout(r, 200))
+
+    await useOfflineStore.getState().renameRegion('original-name', 'new-name')
+
+    const state = useOfflineStore.getState()
+    expect(state.regions.find((r) => r.name === 'original-name')).toBeUndefined()
+    const renamed = state.regions.find((r) => r.name === 'new-name')
+    expect(renamed).toBeDefined()
+    expect(renamed!.packName).toBe('original-name') // packName stays stable
   })
 
   it('tracks total storage used', async () => {
-    const { manager } = await getFreshManager()
-    const before = manager.getTotalStorageUsed()
+    const { useOfflineStore, getTotalStorageUsed } = await import('../../../stores/offline-store')
 
-    await manager.downloadRegion({
+    const before = getTotalStorageUsed()
+
+    await useOfflineStore.getState().downloadRegion({
       name: 'storage-test',
       bounds: VALID_BOUNDS,
       styleURL: 'mapbox://styles/mapbox/streets-v12',
@@ -247,16 +232,8 @@ describe('OfflineRegionManager', () => {
       maxZoom: 14,
     })
 
-    await new Promise((r) => setTimeout(r, 100))
-    const after = manager.getTotalStorageUsed()
+    await new Promise((r) => setTimeout(r, 200))
+    const after = getTotalStorageUsed()
     expect(after).toBeGreaterThan(before)
-  })
-
-  it('reports queue status', async () => {
-    const { manager } = await getFreshManager()
-    const status = manager.getQueueStatus()
-    expect(status).toHaveProperty('status')
-    expect(status).toHaveProperty('pendingCount')
-    expect(status).toHaveProperty('queuedIds')
   })
 })

@@ -120,7 +120,24 @@ vi.mock('react-native-paper', () => {
   return { Dialog, Portal, Button, Text }
 })
 
-// Mock useOfflineDownload
+// Mock useOfflineStore (Zustand)
+vi.mock('../../stores/offline-store', () => ({
+  useOfflineStore: () => ({
+    regions: [],
+    progress: null,
+    error: null,
+    isDownloading: false,
+    _hydrated: true,
+    downloadRegion: vi.fn(async () => {}),
+    deleteRegion: vi.fn(async () => {}),
+    renameRegion: vi.fn(async () => {}),
+    clearError: vi.fn(),
+    hydrateFromMapbox: vi.fn(async () => {}),
+  }),
+  getTotalStorageUsed: () => 0,
+}))
+
+// Mock useOfflineDownload (shim over store)
 vi.mock('../../hooks/useOfflineDownload', () => ({
   useOfflineDownload: () => ({
     progress: null,

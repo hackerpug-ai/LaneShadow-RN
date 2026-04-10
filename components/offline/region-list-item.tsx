@@ -9,7 +9,7 @@ import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { IconSymbol } from '../ui/icon-symbol'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { RegionMetadata } from '../../lib/mapbox/offline-manager'
+import type { RegionMetadata } from '../../stores/offline-store'
 
 export type RegionListItemProps = {
   region: RegionMetadata
