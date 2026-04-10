@@ -137,6 +137,9 @@ export const RouteMiniMap = ({
         zoomEnabled={false}
         rotateEnabled={false}
         pitchEnabled={false}
+        logoEnabled={false}
+        attributionEnabled={false}
+        scaleBarEnabled={false}
       >
         <Camera centerCoordinate={center} zoomLevel={zoom} />
         <ShapeSource id="mini-map-route" shape={feature}>

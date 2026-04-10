@@ -529,6 +529,9 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
         styleURL={styleURL}
         onPress={handlePress}
         onCameraChanged={handleCameraChanged}
+        logoEnabled={false}
+        attributionEnabled={false}
+        scaleBarEnabled={false}
       >
         <Camera
           ref={cameraRef}
