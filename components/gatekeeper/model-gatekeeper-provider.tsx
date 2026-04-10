@@ -12,19 +12,17 @@
  *
  * This provider:
  * - Checks model status on app launch
- * - Shows setup wizard if model is missing
+ * - Shows welcome + ambient download flow if model is missing
  * - Shows "Setup Required" screen if model is corrupted
  * - Allows main app access only when model is valid
- * - Validates on every launch (never caches permanently)
  * - CLR-004: Tracks download progress and supports resume
  */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { View, ActivityIndicator } from 'react-native'
 import { useModelSetup } from '../../hooks/useModelSetup'
 import { SetupRequiredScreen } from './setup-required-screen'
 import { WelcomeScreen } from '../onboarding/welcome-screen'
-import { DownloadProgressScreen } from '../onboarding/download-progress-screen'
 import { CompletionScreen } from '../onboarding/completion-screen'
 
 export interface ModelGatekeeperProviderProps {
@@ -38,7 +36,9 @@ export interface ModelGatekeeperProviderProps {
  * Wraps the app and enforces gatekeeper validation.
  * Only renders children when model is validated.
  *
- * CLR-004: Shows actual download progress from Convex persistence.
+ * The WelcomeScreen handles both idle and downloading states:
+ * - Idle: branding + "Setup Your AI Companion" CTA
+ * - Downloading: thin progress pill + feature carousel
  */
 export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = ({
   children,
@@ -67,13 +67,15 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
     )
   }
 
-  // Show setup wizard if model is missing
-  if (status === 'required') {
+  // Welcome screen handles both "required" and "downloading" states
+  if (status === 'required' || status === 'downloading') {
     return (
-      <View style={styles.fullScreen} testID={`${testID}-setup-wizard`}>
+      <View style={styles.fullScreen} testID={`${testID}-welcome-flow`}>
         <WelcomeScreen
+          isDownloading={status === 'downloading'}
+          downloadProgress={downloadProgress}
           onDownloadPress={startDownload}
-          canResume={canResumeDownload}
+          onCancelPress={status === 'downloading' ? cancelDownload : undefined}
           testID={`${testID}-welcome`}
         />
       </View>
@@ -92,31 +94,7 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
     )
   }
 
-  // Show download progress if downloading
-  if (status === 'downloading') {
-    // CLR-004: Use actual download progress from Convex
-    const progress = downloadProgress || {
-      state: 'downloading' as const,
-      progress: 0,
-      bytesDownloaded: 0,
-      totalBytes: 800 * 1024 * 1024,
-      estimatedTimeRemaining: 0,
-      lastUpdated: Date.now(),
-      networkType: 'wifi' as const,
-    }
-
-    return (
-      <View style={styles.fullScreen} testID={`${testID}-downloading`}>
-        <DownloadProgressScreen
-          progress={progress}
-          onCancelPress={cancelDownload}
-          testID={`${testID}-download-progress`}
-        />
-      </View>
-    )
-  }
-
-  // Show completion screen when download is done
+  // Show completion screen when download is done (but setup not yet confirmed)
   if (status === 'valid') {
     return (
       <View style={styles.fullScreen} testID={`${testID}-completion`}>
@@ -128,7 +106,12 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
     )
   }
 
-  // Model is valid - render main app
+  // Model is ready - render main app
+  if (status === 'ready') {
+    return <View style={styles.fullScreen} testID={`${testID}-main-app`}>{children}</View>
+  }
+
+  // Fallback — render main app (should not reach here)
   return <View style={styles.fullScreen} testID={`${testID}-main-app`}>{children}</View>
 }
 

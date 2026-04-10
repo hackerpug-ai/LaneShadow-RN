@@ -17,11 +17,12 @@ import * as FileSystem from 'expo-file-system/legacy'
 import { ChecksumValidator } from '../lib/ai/checksum'
 import { ModelGatekeeper, type ModelGatekeeperStatus } from '../lib/model/gatekeeper'
 import { GatekeeperDownloadManager, type ModelDownloadProgress } from '../lib/model/download-manager'
+import { toast } from '../lib/toast-config'
 
 const MODEL_FILE_PATH = `${FileSystem.documentDirectory!}models/qwen2.5-0.5b-instruct-q4_k_m.gguf`
 const EXPECTED_CHECKSUM = '6eb923e7d26e9cea28811e1a8e852009b21242fb157b26149d3b188f3a8c8653'
 
-export type ModelSetupStatus = 'checking' | 'required' | 'downloading' | 'valid' | 'corrupted'
+export type ModelSetupStatus = 'checking' | 'required' | 'downloading' | 'valid' | 'ready' | 'corrupted'
 
 export interface UseModelSetupResult {
   // Current status
@@ -95,7 +96,9 @@ export const useModelSetup = (): UseModelSetupResult => {
       } else if (!result.modelValid) {
         setStatus('corrupted')
       } else if (result.canProceed) {
-        setStatus('valid')
+        // Model is valid — check if user already completed setup
+        const alreadyComplete = await gatekeeper.isSetupMarkedComplete()
+        setStatus(alreadyComplete ? 'ready' : 'valid')
       } else {
         setStatus('required')
       }
@@ -103,6 +106,8 @@ export const useModelSetup = (): UseModelSetupResult => {
       gatekeeper.destroy()
     } catch (error) {
       console.error('Error checking model status:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to check model status'
+      toast.error(errorMessage, 'Setup Error')
       setStatus('required')
     }
   }, [createGatekeeper, createDownloadManager])
@@ -127,6 +132,8 @@ export const useModelSetup = (): UseModelSetupResult => {
       setStatus('downloading')
     } catch (error) {
       console.error('Error restoring model:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to restore model'
+      toast.error(errorMessage, 'Restore Failed')
       throw error
     }
   }, [createGatekeeper, createDownloadManager])
@@ -136,41 +143,36 @@ export const useModelSetup = (): UseModelSetupResult => {
     try {
       const downloadManager = createDownloadManager()
 
-      // CLR-004: Check if we can resume first
-      const canResume = await downloadManager.canResume()
-
-      if (canResume) {
-        console.log('[useModelSetup] Resuming existing download...')
-      } else {
-        console.log('[useModelSetup] Starting fresh download...')
-      }
-
-      await downloadManager.startDownload({
-        isConnected: true,
-        type: 'wifi',
-      })
-
+      // Transition to downloading screen immediately, before the async download starts
       setStatus('downloading')
 
-      // Start polling for progress updates
+      downloadManager.startDownload({
+        isConnected: true,
+        type: 'wifi',
+      }).then(() => {
+        setStatus('valid')
+      }).catch((error) => {
+        console.error('Error during download:', error)
+        const errorMessage = error instanceof Error ? error.message : 'Download failed'
+        toast.error(errorMessage, 'Download Error')
+        setStatus('corrupted')
+      })
+
+      // Poll Zustand store for progress updates so the UI stays current
       const pollProgress = setInterval(async () => {
         const progress = await downloadManager.getProgress()
         if (progress) {
           setDownloadProgress(progress)
-
-          // Stop polling when download is complete
-          if (progress.progress >= 100) {
+          if (progress.progress >= 100 || progress.state === 'failed') {
             clearInterval(pollProgress)
-            setStatus('valid')
           }
         }
-      }, 1000) // Poll every second
-
-      // Note: In production, you'd want to store the interval ID for cleanup
-      // For now, we'll let it continue and clear on status change
+      }, 1000)
     } catch (error) {
       console.error('Error starting download:', error)
-      throw error
+      const errorMessage = error instanceof Error ? error.message : 'Failed to start download'
+      toast.error(errorMessage, 'Download Error')
+      setStatus('corrupted')
     }
   }, [createDownloadManager])
 
@@ -186,6 +188,8 @@ export const useModelSetup = (): UseModelSetupResult => {
       setStatus('required')
     } catch (error) {
       console.error('Error cancelling download:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to cancel download'
+      toast.error(errorMessage, 'Cancel Error')
       throw error
     }
   }, [createDownloadManager])
@@ -197,9 +201,11 @@ export const useModelSetup = (): UseModelSetupResult => {
       await gatekeeper.markSetupComplete()
       gatekeeper.destroy()
 
-      setStatus('valid')
+      setStatus('ready')
     } catch (error) {
       console.error('Error marking setup complete:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to complete setup'
+      toast.error(errorMessage, 'Setup Error')
       throw error
     }
   }, [createGatekeeper])
@@ -220,6 +226,6 @@ export const useModelSetup = (): UseModelSetupResult => {
     cancelDownload,
     markSetupComplete,
     isChecking: status === 'checking',
-    canProceed: status === 'valid',
+    canProceed: status === 'valid' || status === 'ready',
   }
 }
