@@ -310,6 +310,7 @@ export const Button = ({
       accessibilityRole="button"
       accessibilityState={{ disabled: disabled || loading }}
       testID={testID}
+      style={style}
     >
       {({ pressed }) => content(pressed)}
     </Pressable>

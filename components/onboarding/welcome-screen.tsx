@@ -4,7 +4,7 @@
  *
  * Two states:
  * 1. Idle — branding + "Setup Your AI Companion" CTA button
- * 2. Downloading — button morphs into a thin progress pill,
+ * 2. Downloading — button area morphs into a thin progress pill,
  *    center content becomes an auto-advancing feature carousel
  *
  * Design: calm, not jarring. The download is ambient — a thin copper line
@@ -12,7 +12,8 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Animated, Dimensions, StyleSheet, View } from 'react-native'
+import { Animated, StyleSheet, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Button } from '../ui/button'
@@ -80,6 +81,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   testID = 'welcome-screen',
 }) => {
   const { semantic } = useSemanticTheme()
+  const insets = useSafeAreaInsets()
 
   // Carousel state
   const [activeSlide, setActiveSlide] = useState(0)
@@ -87,11 +89,11 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 
   // Animation values
   const slideOpacity = useRef(new Animated.Value(1)).current
-  const buttonFade = useRef(new Animated.Value(1)).current
-  const progressFade = useRef(new Animated.Value(0)).current
+  const buttonOpacity = useRef(new Animated.Value(1)).current
+  const progressOpacity = useRef(new Animated.Value(0)).current
 
-  // Derived progress
-  const percent = downloadProgress?.progress ?? 0
+  // Derived progress — clamp to 0-100
+  const percent = Math.max(0, Math.min(100, downloadProgress?.progress ?? 0))
 
   // -----------------------------------------------------------------------
   // Carousel auto-advance
@@ -103,7 +105,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
     }
 
     carouselTimer.current = setInterval(() => {
-      // Fade out → swap → fade in
       Animated.timing(slideOpacity, {
         toValue: 0,
         duration: 250,
@@ -124,63 +125,60 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   }, [isDownloading, slideOpacity])
 
   // -----------------------------------------------------------------------
-  // Button → progress morph
+  // Button ↔ progress cross-fade
   // -----------------------------------------------------------------------
   useEffect(() => {
     if (isDownloading) {
-      Animated.parallel([
-        Animated.timing(buttonFade, {
+      Animated.sequence([
+        Animated.timing(buttonOpacity, {
           toValue: 0,
-          duration: 300,
+          duration: 250,
           useNativeDriver: true,
         }),
-        Animated.timing(progressFade, {
+        Animated.timing(progressOpacity, {
           toValue: 1,
-          duration: 400,
-          delay: 200,
+          duration: 300,
           useNativeDriver: true,
         }),
       ]).start()
     } else {
-      Animated.parallel([
-        Animated.timing(buttonFade, {
-          toValue: 1,
-          duration: 300,
+      Animated.sequence([
+        Animated.timing(progressOpacity, {
+          toValue: 0,
+          duration: 150,
           useNativeDriver: true,
         }),
-        Animated.timing(progressFade, {
-          toValue: 0,
-          duration: 200,
+        Animated.timing(buttonOpacity, {
+          toValue: 1,
+          duration: 250,
           useNativeDriver: true,
         }),
       ]).start()
     }
-  }, [isDownloading, buttonFade, progressFade])
+  }, [isDownloading, buttonOpacity, progressOpacity])
 
   // -----------------------------------------------------------------------
   // Carousel dots
   // -----------------------------------------------------------------------
-  const renderDots = useCallback(() => {
-    return (
-      <View style={[styles.dotsContainer, { gap: semantic.space.sm }]}>
-        {FEATURES.map((_, i) => (
-          <View
-            key={i}
-            style={[
-              styles.dot,
-              {
-                backgroundColor:
-                  i === activeSlide
-                    ? semantic.color.primary.default
-                    : semantic.color.onSurface.subtle,
-                borderRadius: semantic.radius.full,
-              },
-            ]}
-          />
-        ))}
-      </View>
-    )
-  }, [activeSlide, semantic])
+  const renderDots = useCallback(() => (
+    <View style={[styles.dotsContainer, { gap: semantic.space.sm }]}>
+      {FEATURES.map((_, i) => (
+        <View
+          key={i}
+          style={[
+            styles.dot,
+            {
+              backgroundColor:
+                i === activeSlide
+                  ? semantic.color.primary.default
+                  : semantic.color.onSurface.subtle,
+              borderRadius: semantic.radius.full,
+            },
+          ]}
+        />
+      ))}
+    </View>
+  ), [activeSlide, semantic])
 
   // -----------------------------------------------------------------------
   // Render
@@ -189,7 +187,14 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 
   return (
     <View
-      style={[styles.container, { backgroundColor: semantic.color.background.default }]}
+      style={[
+        styles.container,
+        {
+          backgroundColor: semantic.color.background.default,
+          paddingTop: Math.max(insets.top, 24),
+          paddingBottom: Math.max(insets.bottom, 40),
+        },
+      ]}
       testID={testID}
     >
       {/* ── Brand Logo ── */}
@@ -206,185 +211,169 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         <LaneShadowLogo size={64} />
       </View>
 
-      {/* ── Welcome Text (visible when idle) ── */}
-      <Animated.View
-        style={[
-          styles.textContainer,
-          { gap: semantic.space.md, opacity: isDownloading ? 0 : 1 },
-        ]}
-        pointerEvents={isDownloading ? 'none' : 'auto'}
-      >
-        <Text
-          variant="headlineLarge"
-          style={[
-            semantic.type.display.md,
-            { color: semantic.color.onSurface.default, textAlign: 'center' },
-          ]}
-        >
-          Welcome to LaneShadow
-        </Text>
-
-        <Text
-          variant="bodyLarge"
-          style={[
-            semantic.type.body.md,
-            { color: semantic.color.onSurface.muted, textAlign: 'center' },
-          ]}
-        >
-          Your AI-native motorcycle ride planner.{'\n'}Set up your AI Companion to get started.
-        </Text>
-      </Animated.View>
-
-      {/* ── Feature Carousel (visible when downloading) ── */}
-      {isDownloading && (
+      {/* ── Content area: welcome text OR feature carousel ── */}
+      <View style={styles.contentArea}>
+        {/* Welcome text (fades out during download) */}
         <Animated.View
-          style={[styles.carouselContainer, { opacity: slideOpacity }]}
-          testID={`${testID}-carousel`}
+          style={[styles.contentFill, { opacity: isDownloading ? 0 : 1 }]}
+          pointerEvents={isDownloading ? 'none' : 'auto'}
         >
           <Text
+            variant="headlineLarge"
             style={[
-              styles.featureEmoji,
-              { marginBottom: semantic.space.lg },
+              semantic.type.display.md,
+              { color: semantic.color.onSurface.default, textAlign: 'center' },
             ]}
           >
-            {currentFeature.emoji}
-          </Text>
-
-          <Text
-            variant="headlineSmall"
-            style={[
-              semantic.type.heading.lg,
-              {
-                color: semantic.color.onSurface.default,
-                textAlign: 'center',
-                marginBottom: semantic.space.sm,
-              },
-            ]}
-          >
-            {currentFeature.title}
+            Welcome to LaneShadow
           </Text>
 
           <Text
             variant="bodyLarge"
             style={[
               semantic.type.body.md,
+              { color: semantic.color.onSurface.muted, textAlign: 'center', marginTop: semantic.space.md },
+            ]}
+          >
+            Your AI-native motorcycle ride planner.{'\n'}Set up your AI Companion to get started.
+          </Text>
+        </Animated.View>
+
+        {/* Feature carousel (visible during download) */}
+        {isDownloading && (
+          <Animated.View
+            style={[styles.contentFill, styles.carouselInner, { opacity: slideOpacity }]}
+            testID={`${testID}-carousel`}
+          >
+            <Text style={[styles.featureEmoji, { marginBottom: semantic.space.lg }]}>
+              {currentFeature.emoji}
+            </Text>
+
+            <Text
+              variant="headlineSmall"
+              style={[
+                semantic.type.heading.lg,
+                {
+                  color: semantic.color.onSurface.default,
+                  textAlign: 'center',
+                  marginBottom: semantic.space.sm,
+                },
+              ]}
+            >
+              {currentFeature.title}
+            </Text>
+
+            <Text
+              variant="bodyLarge"
+              style={[
+                semantic.type.body.md,
+                {
+                  color: semantic.color.onSurface.muted,
+                  textAlign: 'center',
+                  lineHeight: 24,
+                },
+              ]}
+            >
+              {currentFeature.body}
+            </Text>
+
+            {renderDots()}
+          </Animated.View>
+        )}
+      </View>
+
+      {/* ── Bottom action area: button OR progress pill (cross-fade in place) ── */}
+      <View style={styles.actionArea}>
+        {/* CTA Button */}
+        <Animated.View
+          style={[styles.actionFill, { opacity: buttonOpacity }]}
+          pointerEvents={isDownloading ? 'none' : 'auto'}
+        >
+          <Button
+            variant="default"
+            size="2xl"
+            onPress={onDownloadPress}
+            testID={`${testID}-download-button`}
+            style={{ width: '100%' }}
+          >
+            Setup Your AI Companion
+          </Button>
+
+          <Text
+            variant="bodySmall"
+            style={[
+              semantic.type.body.sm,
               {
-                color: semantic.color.onSurface.muted,
+                color: semantic.color.onSurface.subtle,
                 textAlign: 'center',
-                lineHeight: 24,
+                marginTop: semantic.space.md,
               },
             ]}
           >
-            {currentFeature.body}
+            WiFi connection required (~400MB setup)
           </Text>
-
-          {renderDots()}
         </Animated.View>
-      )}
 
-      {/* ── CTA Button (idle state) ── */}
-      <Animated.View
-        style={[
-          styles.buttonContainer,
-          { opacity: buttonFade },
-          isDownloading && styles.hidden,
-        ]}
-        pointerEvents={isDownloading ? 'none' : 'auto'}
-      >
-        <Button
-          variant="default"
-          size="2xl"
-          onPress={onDownloadPress}
-          testID={`${testID}-download-button`}
-          style={{ width: '100%' }}
+        {/* Progress pill */}
+        <Animated.View
+          style={[styles.actionFill, { opacity: progressOpacity }]}
+          pointerEvents={isDownloading ? 'auto' : 'none'}
+          testID={`${testID}-progress-pill`}
         >
-          Setup Your AI Companion
-        </Button>
-
-        <Text
-          variant="bodySmall"
-          style={[
-            semantic.type.body.sm,
-            {
-              color: semantic.color.onSurface.subtle,
-              textAlign: 'center',
-              marginTop: semantic.space.md,
-            },
-          ]}
-        >
-          WiFi connection required (~400MB setup)
-        </Text>
-      </Animated.View>
-
-      {/* ── Thin Progress Pill (downloading state) ── */}
-      <Animated.View
-        style={[
-          styles.progressPillContainer,
-          { opacity: progressFade },
-          !isDownloading && styles.hidden,
-        ]}
-        pointerEvents={isDownloading ? 'auto' : 'none'}
-        testID={`${testID}-progress-pill`}
-      >
-        {/* Thin progress track */}
-        <View
-          style={[
-            styles.progressTrack,
-            {
-              backgroundColor: semantic.color.secondary.default,
-              borderRadius: semantic.radius.full,
-            },
-          ]}
-        >
+          {/* Progress track */}
           <View
             style={[
-              styles.progressFill,
+              styles.progressTrack,
               {
-                width: `${percent}%`,
-                backgroundColor: semantic.color.primary.default,
+                backgroundColor: semantic.color.secondary.default,
                 borderRadius: semantic.radius.full,
               },
             ]}
-          />
-        </View>
-
-        {/* Subtle label row */}
-        <View style={[styles.progressMeta, { marginTop: semantic.space.sm }]}>
-          <Text
-            variant="bodySmall"
-            style={[
-              semantic.type.body.sm,
-              { color: semantic.color.onSurface.subtle },
-            ]}
           >
-            Setting up your AI companion
-          </Text>
-
-          <Text
-            variant="bodySmall"
-            style={[
-              semantic.type.body.sm,
-              { color: semantic.color.primary.default },
-            ]}
-          >
-            {percent}%
-          </Text>
-        </View>
-
-        {/* Cancel link */}
-        {onCancelPress && (
-          <View style={{ marginTop: semantic.space.lg }}>
-            <Button
-              variant="ghost"
-              size="sm"
-              onPress={onCancelPress}
-              testID={`${testID}-cancel-button`}
-            >
-              Cancel
-            </Button>
+            <View
+              style={[
+                styles.progressFill,
+                {
+                  width: `${percent}%`,
+                  backgroundColor: semantic.color.primary.default,
+                  borderRadius: semantic.radius.full,
+                },
+              ]}
+            />
           </View>
-        )}
-      </Animated.View>
+
+          {/* Label row */}
+          <View style={[styles.progressMeta, { marginTop: semantic.space.sm }]}>
+            <Text
+              variant="bodySmall"
+              style={[semantic.type.body.sm, { color: semantic.color.onSurface.subtle }]}
+            >
+              Setting up your AI companion
+            </Text>
+
+            <Text
+              variant="bodySmall"
+              style={[semantic.type.body.sm, { color: semantic.color.primary.default }]}
+            >
+              {percent}%
+            </Text>
+          </View>
+
+          {/* Cancel */}
+          {onCancelPress && (
+            <View style={{ marginTop: semantic.space.lg, alignItems: 'center' }}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onPress={onCancelPress}
+                testID={`${testID}-cancel-button`}
+              >
+                Cancel
+              </Button>
+            </View>
+          )}
+        </Animated.View>
+      </View>
     </View>
   )
 }
@@ -393,13 +382,11 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 // Styles
 // ---------------------------------------------------------------------------
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
-    justifyContent: 'center',
+    paddingHorizontal: 24,
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   logoContainer: {
@@ -407,19 +394,21 @@ const styles = StyleSheet.create({
     height: 120,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 48,
   },
-  textContainer: {
-    marginBottom: 48,
+  // Middle content area — fills available space, centers its children
+  contentArea: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 400,
+  },
+  contentFill: {
+    width: '100%',
+    alignItems: 'center',
     paddingHorizontal: 16,
-    maxWidth: 400,
-    width: '100%',
   },
-  carouselContainer: {
-    marginBottom: 48,
-    paddingHorizontal: 24,
-    maxWidth: 400,
-    width: '100%',
+  carouselInner: {
     alignItems: 'center',
   },
   featureEmoji: {
@@ -436,17 +425,15 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
   },
-  buttonContainer: {
+  // Bottom action area — fixed-height slot where button and progress cross-fade
+  actionArea: {
     width: '100%',
     maxWidth: 400,
-    alignItems: 'center',
-    marginBottom: 24,
+    position: 'relative',
   },
-  progressPillContainer: {
+  actionFill: {
     width: '100%',
-    maxWidth: 400,
     alignItems: 'center',
-    marginBottom: 24,
   },
   progressTrack: {
     width: '100%',
@@ -461,10 +448,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  hidden: {
-    position: 'absolute',
-    opacity: 0,
-    pointerEvents: 'none',
   },
 })
