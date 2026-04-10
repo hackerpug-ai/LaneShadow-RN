@@ -31,9 +31,6 @@ import {
   mapboxToLatLng,
 } from '../../lib/mapbox/coordinate-converter'
 
-// Default camera center — Denver, CO (used before user location arrives)
-const DEFAULT_CENTER: [number, number] = [-104.95, 39.7]
-
 // Set Mapbox access token
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? '')
 
@@ -243,11 +240,11 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
     const [lastCameraState, setLastCameraState] = useState<{
       center: [number, number] | undefined
       zoom: number
-    }>({ center: undefined, zoom: 12 })
+    }>({ center: undefined, zoom: 14 })
 
     // Track user location for recenterToUser
     const lastUserLocationRef = useRef<{ latitude: number; longitude: number } | null>(null)
-    const [didCenterOnUser, setDidCenterOnUser] = useState(false)
+    const [hasUserLocation, setHasUserLocation] = useState(false)
 
     // Get the appropriate style URL based on theme
     const styleURL = useMemo(() => {
@@ -454,23 +451,26 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
       (location: any) => {
         const coords = location?.coords
         if (coords?.latitude && coords?.longitude) {
-          const userCoord = { latitude: coords.latitude, longitude: coords.longitude }
-          lastUserLocationRef.current = userCoord
-
-          // Auto-center on user location on first update (if no initial camera set)
-          if (!didCenterOnUser && !camera?.center && cameraRef.current) {
-            const center: [number, number] = latLngToMapbox(userCoord)
-            cameraRef.current.setCamera({
-              centerCoordinate: center,
-              zoom: lastCameraState.zoom,
-              duration: 300,
-            })
-            setLastCameraState((prev) => ({ ...prev, center }))
-            setDidCenterOnUser(true)
+          lastUserLocationRef.current = {
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+          }
+          if (!hasUserLocation) {
+            // Snap camera to user location without animation
+            if (!camera?.center && cameraRef.current) {
+              const center: [number, number] = [coords.longitude, coords.latitude]
+              cameraRef.current.setCamera({
+                centerCoordinate: center,
+                zoom: 14,
+                duration: 0,
+              })
+              setLastCameraState({ center, zoom: 14 })
+            }
+            setHasUserLocation(true)
           }
         }
       },
-      [camera?.center, didCenterOnUser, lastCameraState.zoom]
+      [camera?.center, hasUserLocation],
     )
 
     // Convert polylines to Mapbox format
@@ -546,10 +546,12 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
       >
         <Camera
           ref={cameraRef}
-          centerCoordinate={isValidCenter ? validCenter : DEFAULT_CENTER}
-          zoomLevel={camera?.zoom ?? 12}
+          centerCoordinate={isValidCenter ? validCenter : undefined}
+          zoomLevel={camera?.zoom ?? 14}
           pitch={camera?.pitch ?? 0}
           heading={camera?.heading ?? 0}
+          followUserLocation={!camera?.center && !hasUserLocation}
+          followZoomLevel={14}
         />
 
         {showsUserLocation && (
