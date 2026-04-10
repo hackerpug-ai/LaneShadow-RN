@@ -77,12 +77,6 @@ export const thinkingStepValidator = v.object({
 })
 export type ThinkingStep = Infer<typeof thinkingStepValidator>
 
-/**
- * WIDEN phase of widen-migrate-narrow: `kind` and `status` are optional here
- * so existing rows remain valid. Migration backfillSessionMessageKindStatus
- * sets defaults (kind='text', status='complete'), then a follow-up commit
- * narrows these fields to required.
- */
 export const sessionMessageValidator = v.object({
   sessionId: v.id('planning_sessions'),
   role: sessionMessageRoleValidator,
