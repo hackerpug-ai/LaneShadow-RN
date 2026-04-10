@@ -15,7 +15,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import * as FileSystem from 'expo-file-system/legacy'
 import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet'
-import { BottomSheetBackdrop, BottomSheetModal } from '@gorhom/bottom-sheet'
+import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { Dimensions, Pressable, StyleSheet, View } from 'react-native'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
@@ -149,7 +149,8 @@ export const DevMenu = () => {
   if (!isEnabled) return null
 
   return (
-    <>
+    <BottomSheetModalProvider>
+      <>
       {/* Floating FAB */}
       <GestureDetector gesture={panGesture}>
         <Animated.View
@@ -269,6 +270,7 @@ export const DevMenu = () => {
         </View>
       </BottomSheetModal>
     </>
+    </BottomSheetModalProvider>
   )
 }
 
