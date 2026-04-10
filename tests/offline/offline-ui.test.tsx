@@ -323,10 +323,11 @@ describe('RegionListItem', () => {
 
     expect(getByText('Rocky Mountains')).toBeTruthy()
     expect(getByText(/850 MB/)).toBeTruthy()
-    expect(getByText(/Downloaded/)).toBeTruthy()
+    // Date is now part of "Apr 9, 2026 • 39.70, -104.95 area"
+    expect(getByText(/area/)).toBeTruthy()
   })
 
-  it('calls onDelete on long press', async () => {
+  it('calls onDelete when delete button pressed', async () => {
     const { RegionListItem } = await import(
       '../../components/offline/region-list-item'
     )
@@ -336,31 +337,35 @@ describe('RegionListItem', () => {
       <RegionListItem region={mockRegion} onDelete={onDelete} />,
     )
 
-    fireEvent(getByTestId('region-list-item'), 'onLongPress')
+    fireEvent.press(getByTestId('region-list-item-delete'))
     expect(onDelete).toHaveBeenCalledWith('Rocky Mountains')
   })
 
-  it('calls onPress on tap', async () => {
+  it('calls onView when view button pressed', async () => {
     const { RegionListItem } = await import(
       '../../components/offline/region-list-item'
     )
-    const onPress = vi.fn()
+    const onView = vi.fn()
 
     const { getByTestId } = render(
-      <RegionListItem region={mockRegion} onPress={onPress} />,
+      <RegionListItem region={mockRegion} onView={onView} />,
     )
 
-    fireEvent.press(getByTestId('region-list-item'))
-    expect(onPress).toHaveBeenCalledWith('Rocky Mountains')
+    fireEvent.press(getByTestId('region-list-item-view'))
+    expect(onView).toHaveBeenCalledWith('Rocky Mountains')
   })
 
-  it('shows bounds area text', async () => {
+  it('calls onEdit when rename button pressed', async () => {
     const { RegionListItem } = await import(
       '../../components/offline/region-list-item'
     )
+    const onEdit = vi.fn()
 
-    const { getByText } = render(<RegionListItem region={mockRegion} />)
+    const { getByTestId } = render(
+      <RegionListItem region={mockRegion} onEdit={onEdit} />,
+    )
 
-    expect(getByText(/area/)).toBeTruthy()
+    fireEvent.press(getByTestId('region-list-item-edit'))
+    expect(onEdit).toHaveBeenCalledWith('Rocky Mountains')
   })
 })

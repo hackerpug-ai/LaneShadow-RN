@@ -1,26 +1,28 @@
 /**
  * RegionListItem for offline map regions.
  *
- * Displays a card with region name, size, download date, and bounds preview.
- * Supports press-to-view and long-press for delete action.
+ * Card with region name, size, and date. Explicit action row
+ * with view/edit/delete buttons — no hidden long-press gestures.
  */
 
-import { StyleSheet, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { Pressable } from 'react-native'
+import { IconSymbol } from '../ui/icon-symbol'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { RegionMetadata } from '../../lib/mapbox/offline-manager'
 
 export type RegionListItemProps = {
   region: RegionMetadata
-  onPress?: (name: string) => void
+  onView?: (name: string) => void
+  onEdit?: (name: string) => void
   onDelete?: (name: string) => void
   testID?: string
 }
 
 export const RegionListItem = ({
   region,
-  onPress,
+  onView,
+  onEdit,
   onDelete,
   testID = 'region-list-item',
 }: RegionListItemProps) => {
@@ -28,11 +30,11 @@ export const RegionListItem = ({
 
   const formatDate = (isoDate: string) => {
     const date = new Date(isoDate)
-    return `Downloaded ${date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
-    })}`
+    })
   }
 
   const formatSize = (bytes: number) => {
@@ -49,54 +51,159 @@ export const RegionListItem = ({
   }
 
   return (
-    <Pressable
+    <View
       testID={testID}
-      onPress={() => onPress?.(region.name)}
-      onLongPress={() => onDelete?.(region.name)}
-      style={({ pressed }) => [
+      style={[
         styles.container,
         {
-          backgroundColor: pressed
-            ? semantic.color.surface.pressed
-            : semantic.color.card.default,
+          backgroundColor: semantic.color.card.default,
           borderColor: semantic.color.border.default,
           borderRadius: semantic.radius.lg,
           padding: semantic.space.lg,
         },
       ]}
-      accessibilityRole="button"
-      accessibilityLabel={`${region.name}, ${formatSize(region.size)}, ${formatDate(region.downloadedAt)}`}
+      accessibilityLabel={`${region.name}, ${formatSize(region.size)}, Downloaded ${formatDate(region.downloadedAt)}`}
     >
-      <View style={[styles.row, { marginBottom: semantic.space.xs }]}>
+      {/* Main info — tappable to view */}
+      <Pressable
+        onPress={() => onView?.(region.name)}
+        style={({ pressed }) => [
+          styles.infoArea,
+          {
+            opacity: pressed ? 0.7 : 1,
+          },
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel={`View ${region.name}`}
+      >
+        <View style={[styles.row, { marginBottom: semantic.space.xs }]}>
+          <Text
+            variant="titleMedium"
+            style={{ color: semantic.color.onSurface.default, flex: 1 }}
+            numberOfLines={1}
+          >
+            {region.name}
+          </Text>
+          <Text
+            variant="labelMedium"
+            style={{ color: semantic.color.primary.default }}
+          >
+            {formatSize(region.size)}
+          </Text>
+        </View>
+
         <Text
-          variant="titleMedium"
-          style={{ color: semantic.color.onSurface.default, flex: 1 }}
-          numberOfLines={1}
+          variant="bodySmall"
+          style={{ color: semantic.color.onSurface.muted }}
         >
-          {region.name}
+          {formatDate(region.downloadedAt)} • {formatBounds()}
         </Text>
-        <Text
-          variant="labelMedium"
-          style={{ color: semantic.color.primary.default }}
+      </Pressable>
+
+      {/* Action row */}
+      <View
+        style={[
+          styles.actionRow,
+          {
+            marginTop: semantic.space.md,
+            paddingTop: semantic.space.md,
+            borderTopWidth: 1,
+            borderTopColor: semantic.color.border.default,
+            gap: semantic.space.md,
+          },
+        ]}
+      >
+        <Pressable
+          onPress={() => onView?.(region.name)}
+          testID={`${testID}-view`}
+          style={({ pressed }) => [
+            styles.actionButton,
+            {
+              backgroundColor: pressed
+                ? semantic.color.surfaceVariant.pressed
+                : 'transparent',
+              borderRadius: semantic.radius.md,
+              paddingVertical: semantic.space.sm,
+              paddingHorizontal: semantic.space.md,
+            },
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={`View ${region.name} on map`}
         >
-          {region.state === 'complete' ? '' : region.state}
-        </Text>
+          <IconSymbol
+            name="map-outline"
+            size={16}
+            color={semantic.color.onSurface.default}
+          />
+          <Text
+            variant="labelSmall"
+            style={{ color: semantic.color.onSurface.default }}
+          >
+            View
+          </Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() => onEdit?.(region.name)}
+          testID={`${testID}-edit`}
+          style={({ pressed }) => [
+            styles.actionButton,
+            {
+              backgroundColor: pressed
+                ? semantic.color.surfaceVariant.pressed
+                : 'transparent',
+              borderRadius: semantic.radius.md,
+              paddingVertical: semantic.space.sm,
+              paddingHorizontal: semantic.space.md,
+            },
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={`Rename ${region.name}`}
+        >
+          <IconSymbol
+            name="pencil-outline"
+            size={16}
+            color={semantic.color.onSurface.default}
+          />
+          <Text
+            variant="labelSmall"
+            style={{ color: semantic.color.onSurface.default }}
+          >
+            Rename
+          </Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() => onDelete?.(region.name)}
+          testID={`${testID}-delete`}
+          style={({ pressed }) => [
+            styles.actionButton,
+            {
+              backgroundColor: pressed
+                ? `${semantic.color.danger.default}1A`
+                : 'transparent',
+              borderRadius: semantic.radius.md,
+              paddingVertical: semantic.space.sm,
+              paddingHorizontal: semantic.space.md,
+            },
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={`Delete ${region.name}`}
+        >
+          <IconSymbol
+            name="trash-can-outline"
+            size={16}
+            color={semantic.color.danger.default}
+          />
+          <Text
+            variant="labelSmall"
+            style={{ color: semantic.color.danger.default }}
+          >
+            Delete
+          </Text>
+        </Pressable>
       </View>
-
-      <Text
-        variant="bodySmall"
-        style={{ color: semantic.color.onSurface.muted }}
-      >
-        {formatSize(region.size)} • {formatDate(region.downloadedAt)}
-      </Text>
-
-      <Text
-        variant="bodySmall"
-        style={{ color: semantic.color.onSurface.subtle, marginTop: 2 }}
-      >
-        {formatBounds()}
-      </Text>
-    </Pressable>
+    </View>
   )
 }
 
@@ -104,9 +211,21 @@ const styles = StyleSheet.create({
   container: {
     borderWidth: 1,
   },
+  infoArea: {
+    // Tappable info section
+  },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
 })

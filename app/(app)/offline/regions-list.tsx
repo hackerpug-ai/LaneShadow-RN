@@ -1,8 +1,8 @@
 /**
  * Offline Regions List Screen
  *
- * Displays all downloaded offline map regions with storage usage,
- * empty state, and navigation to download new regions.
+ * Displays all downloaded offline map regions with actions
+ * (view, rename, delete), empty state, and subtle storage footer.
  */
 
 import { useRouter } from 'expo-router'
@@ -13,7 +13,6 @@ import { SubpageLayout } from '../../../components/layouts/subpage-layout'
 import { RegionListItem } from '../../../components/offline/region-list-item'
 import { DeleteConfirmationDialog } from '../../../components/offline/delete-confirmation-dialog'
 import { EmptyState } from '../../../components/ui/empty-state'
-import { Button } from '../../../components/ui/button'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useOfflineDownload } from '../../../hooks/useOfflineDownload'
 
@@ -45,15 +44,35 @@ export default function OfflineRegionsScreen() {
     }
   }, [deleteTarget, deleteRegion])
 
+  const handleView = useCallback(
+    (name: string) => {
+      // TODO: navigate to map centered on this region's bounds
+      // For now, just go back to home
+      router.push('/(app)/(tabs)' as any)
+    },
+    [router],
+  )
+
+  const handleEdit = useCallback(
+    (name: string) => {
+      // TODO: open rename bottom sheet
+      // Placeholder — for now just log
+      console.log('Rename region:', name)
+    },
+    [],
+  )
+
   const renderItem = useCallback(
     ({ item }: { item: (typeof regions)[number] }) => (
       <RegionListItem
         region={item}
+        onView={handleView}
+        onEdit={handleEdit}
         onDelete={(name) => setDeleteTarget(name)}
         testID={`region-item-${item.name}`}
       />
     ),
-    [],
+    [handleView, handleEdit],
   )
 
   if (regions.length === 0) {
@@ -100,33 +119,6 @@ export default function OfflineRegionsScreen() {
           },
         ]}
       >
-        {/* Storage usage indicator */}
-        <View
-          style={[
-            styles.storageBar,
-            {
-              backgroundColor: semantic.color.card.default,
-              borderColor: semantic.color.border.default,
-              borderRadius: semantic.radius.md,
-              padding: semantic.space.md,
-              marginBottom: semantic.space.md,
-            },
-          ]}
-        >
-          <Text
-            variant="labelMedium"
-            style={{ color: semantic.color.onSurface.muted }}
-          >
-            Total Storage Used
-          </Text>
-          <Text
-            variant="titleMedium"
-            style={{ color: semantic.color.onSurface.default }}
-          >
-            {formatSize(totalStorageUsed)}
-          </Text>
-        </View>
-
         <FlatList
           data={regions}
           keyExtractor={(item) => item.name}
@@ -136,6 +128,24 @@ export default function OfflineRegionsScreen() {
           contentContainerStyle={{ gap: semantic.space.md }}
           testID="regions-list"
         />
+
+        {/* Subtle storage footer */}
+        <View
+          style={[
+            styles.storageFooter,
+            {
+              paddingTop: semantic.space.md,
+              borderTopColor: semantic.color.border.default,
+            },
+          ]}
+        >
+          <Text
+            variant="bodySmall"
+            style={{ color: semantic.color.onSurface.subtle }}
+          >
+            {regions.length} {regions.length === 1 ? 'region' : 'regions'} • {formatSize(totalStorageUsed)} stored
+          </Text>
+        </View>
 
         <DeleteConfirmationDialog
           visible={deleteTarget !== null}
@@ -154,7 +164,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  storageBar: {
-    borderWidth: 1,
+  storageFooter: {
+    borderTopWidth: 1,
   },
 })
