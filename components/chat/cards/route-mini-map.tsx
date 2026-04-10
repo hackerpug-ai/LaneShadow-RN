@@ -1,7 +1,7 @@
 /**
  * RouteMiniMap - Non-interactive route preview thumbnail
  *
- * A small, read-only MapView component that renders a route polyline as a
+ * A small, read-only Mapbox MapView that renders a route polyline as a
  * preview thumbnail. Used inside route attachment cards to give users a
  * visual preview of the route shape.
  *
@@ -10,7 +10,7 @@
  * - Full width of parent container
  * - All interaction disabled (no scroll, zoom, rotate, pitch)
  * - pointerEvents="none" on wrapping View - taps pass through to parent
- * - Theme-aware styling (dark/light mode)
+ * - Theme-aware styling (dark/light mode) via MAP_STYLES
  * - Returns null when no overviewGeometry provided
  *
  * Following components/CLAUDE.md: uses useSemanticTheme() exclusively.
@@ -19,9 +19,11 @@
 
 import React, { useMemo } from 'react'
 import { StyleSheet, View, Platform } from 'react-native'
-import MapView, { Polyline, PROVIDER_GOOGLE } from 'react-native-maps'
+import { MapView as MapboxMapView, Camera, ShapeSource, LineLayer } from '@rnmapbox/maps'
+import type { FeatureCollection, LineString, Position } from 'geojson'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import { buildMapStyleFromTheme } from '../../map/map-style'
+import { MAP_STYLES } from '../../../lib/mapbox/styles'
+import { convertCoordinateArray } from '../../../lib/mapbox/coordinate-converter'
 import { decodePolylineGeometry } from '../../../lib/polyline'
 import type { MapLatLng } from '../../../lib/polyline'
 import type { PolylineGeometry } from '../../../models/saved-routes'
@@ -63,19 +65,13 @@ export const RouteMiniMap = ({
     }
   }, [overviewGeometry])
 
-  // Build map style for theme-aware dark/light mode
-  // useMemo justified: style object creation is non-trivial
-  const mapStyle = useMemo(() => {
-    return buildMapStyleFromTheme({ semantic, dark } as any)
-  }, [semantic, dark])
-
   // No geometry to render - return null
   // (must be after all hooks per Rules of Hooks)
   if (coordinates.length === 0) {
     return null
   }
 
-  // Web fallback - maps unavailable in web builds
+  // Web fallback - Mapbox is native-only, maps unavailable in web builds
   if (Platform.OS === 'web') {
     return (
       <View
@@ -92,14 +88,40 @@ export const RouteMiniMap = ({
     )
   }
 
-  // Calculate region from bounds with padding
-  // 1.3 multiplier provides visual padding around the route
-  const region = {
-    latitude: (bounds.southwest.lat + bounds.northeast.lat) / 2,
-    longitude: (bounds.southwest.lng + bounds.northeast.lng) / 2,
-    latitudeDelta: Math.abs(bounds.northeast.lat - bounds.southwest.lat) * 1.3,
-    longitudeDelta: Math.abs(bounds.northeast.lng - bounds.southwest.lng) * 1.3,
+  // Convert coordinates from Google [lat, lng] to Mapbox [lng, lat] format
+  const googleCoords = coordinates.map(
+    (c): [number, number] => [c.latitude, c.longitude]
+  )
+  const mapboxCoords: Position[] = convertCoordinateArray(googleCoords)
+
+  // Build GeoJSON FeatureCollection for the route polyline
+  const feature: FeatureCollection<LineString> = {
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: mapboxCoords,
+        },
+      },
+    ],
   }
+
+  // Calculate camera center from bounds (Mapbox format: [lng, lat])
+  const center: [number, number] = [
+    (bounds.southwest.lng + bounds.northeast.lng) / 2,
+    (bounds.southwest.lat + bounds.northeast.lat) / 2,
+  ]
+
+  // Calculate zoom level from latitude span with padding
+  // The -0.5 offset provides visual padding (equivalent to the old 1.3x multiplier)
+  const latSpan = Math.abs(bounds.northeast.lat - bounds.southwest.lat)
+  const zoom = Math.log2(360 / latSpan) - 0.5
+
+  // Select theme-appropriate style URL
+  const styleURL = MAP_STYLES[dark ? 'dark' : 'light']
 
   return (
     <View
@@ -107,30 +129,27 @@ export const RouteMiniMap = ({
       pointerEvents="none"
       testID={testID}
     >
-      <MapView
-        provider={PROVIDER_GOOGLE}
+      <MapboxMapView
         style={styles.map}
-        initialRegion={region}
-        customMapStyle={mapStyle}
+        styleURL={styleURL}
         // Completely disable all interaction
         scrollEnabled={false}
         zoomEnabled={false}
         rotateEnabled={false}
         pitchEnabled={false}
-        toolbarEnabled={false}
-        // Hide all UI chrome
-        showsUserLocation={false}
-        showsMyLocationButton={false}
-        showsCompass={false}
-        showsScale={false}
-        loadingEnabled={false}
       >
-        <Polyline
-          coordinates={coordinates}
-          strokeColor={semantic.color.primary.default}
-          strokeWidth={3}
-        />
-      </MapView>
+        <Camera centerCoordinate={center} zoomLevel={zoom} />
+        <ShapeSource id="mini-map-route" shape={feature}>
+          <LineLayer
+            id="mini-map-route-layer"
+            style={{
+              lineColor: semantic.color.primary.default,
+              lineWidth: 3,
+              lineOpacity: 1.0,
+            }}
+          />
+        </ShapeSource>
+      </MapboxMapView>
     </View>
   )
 }
