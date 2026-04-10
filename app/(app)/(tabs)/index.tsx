@@ -101,10 +101,11 @@ const HomeMapScreen = () => {
   const previousChatModeRef = useRef(chatMode)
 
   // Cross-session camera persistence — AsyncStorage-backed.
-  // Restores the user's last map position on app launch so the map opens
-  // exactly where they left off, with no fly-in.
-  const persistedCameraCenter = useMapCameraStore((s) => s.center)
-  const persistedCameraZoom = useMapCameraStore((s) => s.zoom)
+  // Camera state is cached per planning-session id so that switching between
+  // sessions restores the map to exactly where it was when that session was
+  // last viewed. Also maintains a `default` slot for no-session use.
+  const defaultCameraSlot = useMapCameraStore((s) => s.defaultCamera)
+  const cameraBySession = useMapCameraStore((s) => s.bySession)
   const cameraStoreHydrated = useMapCameraStore((s) => s._hydrated)
   const saveCameraToStore = useMapCameraStore((s) => s.setCamera)
 
@@ -156,28 +157,6 @@ const HomeMapScreen = () => {
     return () => clearTimeout(t)
   }, [])
 
-  // Build the initial camera for the next map mount.
-  // Priority: persisted camera (last session / last user interaction) → current location.
-  // Recomputed on every render so chat→map remounts restore the latest known position.
-  const initialCamera: MapboxCamera | undefined = useMemo(() => {
-    if (!cameraStoreHydrated) return undefined
-    if (persistedCameraCenter) {
-      return {
-        center: [persistedCameraCenter.longitude, persistedCameraCenter.latitude],
-        zoom: persistedCameraZoom,
-      }
-    }
-    if (currentLocation) {
-      return {
-        center: [currentLocation.lng, currentLocation.lat],
-        zoom: 14,
-      }
-    }
-    return undefined
-  }, [cameraStoreHydrated, persistedCameraCenter, persistedCameraZoom, currentLocation])
-
-  // Gate the map mount on having a camera, or on the fallback timer.
-  const initialCameraReady = initialCamera !== undefined || cameraFallbackReady
   const {
     results: searchResults,
     selectedResultId: selectedSearchResultId,
@@ -200,6 +179,40 @@ const HomeMapScreen = () => {
     if (!explicitlyNewSession && sessions && sessions.length > 0) return sessions[0]._id
     return null
   }, [sessionIdParam, planningSessionId, sessions, explicitlyNewSession])
+
+  // Session-scoped camera lookup — use the active session's cached position
+  // when available, otherwise fall back to the default slot, then to current
+  // location. Recomputes when the session id or cache contents change.
+  const activeSessionKey: string | null = activeChatSessionId ?? null
+  const initialCamera: MapboxCamera | undefined = useMemo(() => {
+    if (!cameraStoreHydrated) return undefined
+    const sessionSlot = activeSessionKey ? cameraBySession[activeSessionKey] : null
+    const slot = sessionSlot ?? defaultCameraSlot
+    if (slot) {
+      return {
+        center: [slot.center.longitude, slot.center.latitude],
+        zoom: slot.zoom,
+      }
+    }
+    if (currentLocation) {
+      return {
+        center: [currentLocation.lng, currentLocation.lat],
+        zoom: 14,
+      }
+    }
+    return undefined
+  }, [cameraStoreHydrated, activeSessionKey, cameraBySession, defaultCameraSlot, currentLocation])
+
+  // Gate the map mount on having a camera, or on the fallback timer.
+  const initialCameraReady = initialCamera !== undefined || cameraFallbackReady
+
+  // Keep a ref mirror of the active session id so async camera-move callbacks
+  // always read the latest value without forcing re-renders of the memoized
+  // handleCameraMove callback.
+  const activeSessionKeyRef = useRef<string | null>(activeSessionKey)
+  useEffect(() => {
+    activeSessionKeyRef.current = activeSessionKey
+  }, [activeSessionKey])
 
   // Agent-produced route from Convex (task #258). Subscribes to the latest
   // routing_card in the current session and exposes the active route option.
@@ -503,7 +516,37 @@ const HomeMapScreen = () => {
 
   // Initial camera now handled via MapboxMapView's `initialCamera` prop,
   // which applies Mapbox defaultSettings with animationMode="none" — no fly-in.
-  // See initialCameraRef / initialCameraReady above.
+  // See `initialCamera` memo above.
+
+  // In-place session switch: when the active session changes while the map
+  // stays mounted (e.g. tapping a session in the drawer), jump the camera to
+  // that session's cached position with no animation. The `initialCamera`
+  // prop only runs at mount, so a mounted map needs an imperative hop.
+  const lastSessionKeyRef = useRef<string | null>(activeSessionKey)
+  useEffect(() => {
+    const previous = lastSessionKeyRef.current
+    lastSessionKeyRef.current = activeSessionKey
+    if (previous === activeSessionKey) return
+    if (!mapMounted || !mapRef.current || !cameraStoreHydrated) return
+
+    const slot = activeSessionKey
+      ? cameraBySession[activeSessionKey] ?? defaultCameraSlot
+      : defaultCameraSlot
+    if (!slot) return
+
+    // Mark the move as programmatic so handleCameraMove doesn't overwrite
+    // the destination session's cache with a transient value.
+    isProgrammaticMoveRef.current = true
+    mapRef.current.setCameraPosition({
+      coordinates: slot.center,
+      zoom: slot.zoom,
+      duration: 0,
+    })
+    const t = setTimeout(() => {
+      isProgrammaticMoveRef.current = false
+    }, 100)
+    return () => clearTimeout(t)
+  }, [activeSessionKey, mapMounted, cameraStoreHydrated, cameraBySession, defaultCameraSlot])
 
   // Register the fit handler so other tabs / chat overlay can trigger it
   useEffect(() => {
@@ -817,15 +860,25 @@ const HomeMapScreen = () => {
         zoom: event.zoom,
       }
       setCamera(newCamera)
-      // Only persist camera state for user-initiated moves (not programmatic ones)
-      if (!isProgrammaticMoveRef.current) {
-        setPersistentCamera({
-          center: newCamera.center,
-          zoom: newCamera.zoom,
-          timestamp: Date.now(),
-        })
-        // Persist to AsyncStorage so the camera restores across app launches.
-        saveCameraToStore(newCamera.center, newCamera.zoom)
+      // Skip persistence during programmatic restores (chat→map, session switch).
+      if (isProgrammaticMoveRef.current) return
+
+      // In-memory state that survives chat/map toggles within the same session.
+      setPersistentCamera({
+        center: newCamera.center,
+        zoom: newCamera.zoom,
+        timestamp: Date.now(),
+      })
+
+      // Persist to AsyncStorage keyed by the active session (or default when
+      // there is no session). This is what enables "open where I left off"
+      // both across app launches and when switching between sessions.
+      const sessionKey = activeSessionKeyRef.current
+      saveCameraToStore(sessionKey, newCamera.center, newCamera.zoom)
+      // Also update the default slot so brand-new sessions start at the last
+      // place the user was looking, rather than snapping to a stale default.
+      if (sessionKey) {
+        saveCameraToStore(null, newCamera.center, newCamera.zoom)
       }
     },
     [saveCameraToStore]
