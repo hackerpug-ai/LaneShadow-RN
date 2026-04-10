@@ -68,6 +68,9 @@ type DownloadStoreState = DownloadProgress & {
   // NEW: Model metadata actions
   setModelMetadata: (metadata: ModelMetadata) => void
   clearModelMetadata: () => void
+  // NEW: Dev menu actions
+  clearModel: () => void
+  resetSetup: () => void
   // NEW: Error recovery
   setError: (error: DownloadError) => void
   clearError: () => void
@@ -119,7 +122,7 @@ export const useDownloadStore = create<DownloadStoreState>()(
 
       updateProgress: (bytesDownloaded, totalBytes) =>
         set((state) => {
-          const progressPercent = Math.floor((bytesDownloaded / totalBytes) * 100)
+          const progressPercent = Math.min(100, Math.floor((bytesDownloaded / totalBytes) * 100))
           return {
             progressPercent,
             bytesDownloaded,
@@ -217,6 +220,34 @@ export const useDownloadStore = create<DownloadStoreState>()(
       clearModelMetadata: () =>
         set({
           modelMetadata: null,
+        }),
+
+      // NEW: Dev menu actions
+      clearModel: () =>
+        set({
+          modelMetadata: null,
+          state: 'idle',
+          progressPercent: 0,
+          bytesDownloaded: 0,
+          totalBytes: 0,
+          version: '',
+          checksum: undefined,
+          error: undefined,
+          lastUpdate: 0,
+        }),
+
+      resetSetup: () =>
+        set({
+          state: 'idle',
+          progressPercent: 0,
+          bytesDownloaded: 0,
+          totalBytes: 0,
+          version: '',
+          checksum: undefined,
+          error: undefined,
+          lastUpdate: 0,
+          modelMetadata: null,
+          lastError: null,
         }),
 
       // NEW: Error recovery

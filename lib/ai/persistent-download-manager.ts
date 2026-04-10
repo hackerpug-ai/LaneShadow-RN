@@ -260,11 +260,13 @@ export class PersistentDownloadManager {
     offset: number = 0
   ): void {
     const downloadedBytes = data.totalBytesWritten + offset
-    const totalBytes = data.totalBytesExpectedToWrite > 0 ? data.totalBytesExpectedToWrite : config.totalBytes || downloadedBytes
+    // Use config.totalBytes as the authoritative total — the server's
+    // totalBytesExpectedToWrite can differ (gzip, chunked encoding, partial responses)
+    const totalBytes = config.totalBytes || data.totalBytesExpectedToWrite || downloadedBytes
 
     // Update local callback
     onProgress?.({
-      percent: Math.floor((downloadedBytes / totalBytes) * 100),
+      percent: Math.min(100, Math.floor((downloadedBytes / totalBytes) * 100)),
       downloadedBytes,
       totalBytes,
     })
