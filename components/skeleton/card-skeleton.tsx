@@ -8,8 +8,8 @@
  * Accessibility: screen reader announces "Loading" via accessibilityLabel.
  */
 
-import React, { useEffect, useRef } from 'react'
-import { Animated, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { Animated, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { LabelSkeleton } from './label-skeleton'
 
@@ -52,11 +52,20 @@ export const CardSkeleton = ({
 }: CardSkeletonProps): React.ReactNode => {
   const { semantic } = useSemanticTheme()
 
+  // Capture actual rendered width for shimmer range via onLayout
+  const [cardWidth, setCardWidth] = useState(300)
+
+  const handleLayout = useCallback((event: LayoutChangeEvent) => {
+    setCardWidth(event.nativeEvent.layout.width)
+  }, [])
+
   // Shimmer animation for card body
-  const cardWidth = 300 // approximate card width
-  const translateX = useRef(new Animated.Value(-cardWidth)).current
+  const translateX = useRef(new Animated.Value(-300)).current
 
   useEffect(() => {
+    // Update animation range when card width changes
+    translateX.setValue(-cardWidth)
+
     Animated.loop(
       Animated.timing(translateX, {
         toValue: cardWidth,
@@ -68,7 +77,7 @@ export const CardSkeleton = ({
     return () => {
       translateX.stopAnimation()
     }
-  }, [translateX])
+  }, [translateX, cardWidth])
 
   const shimmerStyle = {
     transform: [{ translateX }],
@@ -79,6 +88,7 @@ export const CardSkeleton = ({
       testID={testID ?? 'card-skeleton'}
       accessibilityLabel="Loading"
       accessibilityRole="progressbar"
+      onLayout={handleLayout}
       style={[
         styles.card,
         {

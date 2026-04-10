@@ -8,8 +8,8 @@
  * Accessibility: screen reader announces "Loading" via accessibilityLabel.
  */
 
-import React, { useEffect, useRef } from 'react'
-import { Animated, StyleSheet, type StyleProp, type ViewStyle } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
+import { Animated, AccessibilityInfo, StyleSheet, type StyleProp, type ViewStyle } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 // ---------------------------------------------------------------------------
@@ -60,6 +60,17 @@ export const LabelSkeleton = ({
 }: LabelSkeletonProps): React.ReactNode => {
   const { semantic } = useSemanticTheme()
 
+  // Track reduce-motion preference
+  const [reduceMotion, setReduceMotion] = useState(false)
+
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((enabled) => setReduceMotion(enabled))
+      .catch(() => {
+        // If API unavailable, leave false (animations enabled)
+      })
+  }, [])
+
   const resolvedWidth = WIDTH_MAP[width]
   const resolvedRadius = borderRadius ?? semantic.radius.md
 
@@ -67,6 +78,8 @@ export const LabelSkeleton = ({
   const translateX = useRef(new Animated.Value(-resolvedWidth)).current
 
   useEffect(() => {
+    if (reduceMotion) return
+
     Animated.loop(
       Animated.timing(translateX, {
         toValue: resolvedWidth,
@@ -78,7 +91,7 @@ export const LabelSkeleton = ({
     return () => {
       translateX.stopAnimation()
     }
-  }, [translateX, resolvedWidth])
+  }, [translateX, resolvedWidth, reduceMotion])
 
   // Shimmer overlay: white 10% opacity, sweeps left-to-right
   const shimmerStyle = {
@@ -101,18 +114,20 @@ export const LabelSkeleton = ({
         style,
       ]}
     >
-      <Animated.View
-        style={[
-          styles.shimmer,
-          {
-            width: resolvedWidth,
-            height,
-            borderRadius: resolvedRadius,
-            backgroundColor: SHIMMER_OVERLAY_COLOR,
-          },
-          shimmerStyle,
-        ]}
-      />
+      {!reduceMotion && (
+        <Animated.View
+          style={[
+            styles.shimmer,
+            {
+              width: resolvedWidth,
+              height,
+              borderRadius: resolvedRadius,
+              backgroundColor: SHIMMER_OVERLAY_COLOR,
+            },
+            shimmerStyle,
+          ]}
+        />
+      )}
     </Animated.View>
   )
 }

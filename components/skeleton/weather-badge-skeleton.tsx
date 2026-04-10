@@ -9,8 +9,8 @@
  * Accessibility: screen reader announces "Loading" via accessibilityLabel.
  */
 
-import React, { useEffect, useRef } from 'react'
-import { Animated, StyleSheet, type StyleProp, type ViewStyle } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
+import { Animated, AccessibilityInfo, StyleSheet, type StyleProp, type ViewStyle } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 // ---------------------------------------------------------------------------
@@ -32,7 +32,7 @@ export type WeatherBadgeSkeletonProps = {
 
 const PULSE_MIN = 0.6
 const PULSE_MAX = 1.0
-const PULSE_DURATION_MS = 1000
+const PULSE_DURATION_MS = 500
 
 // ---------------------------------------------------------------------------
 // Component
@@ -45,9 +45,22 @@ export const WeatherBadgeSkeleton = ({
 }: WeatherBadgeSkeletonProps): React.ReactNode => {
   const { semantic } = useSemanticTheme()
 
+  // Track reduce-motion preference
+  const [reduceMotion, setReduceMotion] = useState(false)
+
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((enabled) => setReduceMotion(enabled))
+      .catch(() => {
+        // If API unavailable, leave false (animations enabled)
+      })
+  }, [])
+
   const opacity = useRef(new Animated.Value(PULSE_MAX)).current
 
   useEffect(() => {
+    if (reduceMotion) return
+
     Animated.loop(
       Animated.sequence([
         Animated.timing(opacity, {
@@ -66,7 +79,7 @@ export const WeatherBadgeSkeleton = ({
     return () => {
       opacity.stopAnimation()
     }
-  }, [opacity])
+  }, [opacity, reduceMotion])
 
   const iconSize = compact ? 12 : 16
   const textWidth = compact ? 40 : 60
@@ -80,7 +93,8 @@ export const WeatherBadgeSkeleton = ({
         styles.pill,
         {
           backgroundColor: semantic.color.surfaceVariant.default,
-          opacity,
+          opacity: reduceMotion ? 1 : opacity,
+          borderRadius: semantic.radius.full,
         },
         style,
       ]}
@@ -126,7 +140,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 20,
+    // borderRadius is set inline via semantic.radius.full
     alignSelf: 'flex-start',
   },
   iconCircle: {
