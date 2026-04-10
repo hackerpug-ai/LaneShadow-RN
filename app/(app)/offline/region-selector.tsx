@@ -17,7 +17,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import * as Location from 'expo-location'
 import { MapboxMapView, MapboxMapViewHandle, MapControls } from '../../../components/map'
 import { RegionNameBottomSheet } from '../../../components/offline/region-name-bottom-sheet'
 import { DownloadProgressIndicator } from '../../../components/offline/download-progress-indicator'
@@ -25,6 +24,7 @@ import { Button } from '../../../components/ui/button'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useThemePreference } from '../../../contexts/theme-preference'
 import { useOfflineDownload } from '../../../hooks/useOfflineDownload'
+import { useCurrentLocation } from '../../../hooks/use-current-location'
 import { StorageUtils } from '../../../lib/mapbox/storage-utils'
 import { WiFiValidator } from '../../../lib/mapbox/wifi-validator'
 
@@ -66,6 +66,7 @@ export default function RegionSelectorScreen() {
   const { isDark } = useThemePreference()
   const insets = useSafeAreaInsets()
   const { downloadRegion, deleteRegion, progress } = useOfflineDownload()
+  const { location: currentLocation } = useCurrentLocation()
   const mapRef = useRef<MapboxMapViewHandle | null>(null)
 
   const zoom = useCallback((delta: number) => mapRef.current?.zoomBy(delta), [])
@@ -93,7 +94,10 @@ export default function RegionSelectorScreen() {
   const existingName = params.regionName ?? null
 
   const [bounds, setBounds] = useState<SelectionBounds>(() =>
-    existingBounds ?? makeBounds(FALLBACK_CENTER.lat, FALLBACK_CENTER.lng),
+    existingBounds ?? makeBounds(
+      currentLocation?.lat ?? FALLBACK_CENTER.lat,
+      currentLocation?.lng ?? FALLBACK_CENTER.lng,
+    ),
   )
   const [showNameSheet, setShowNameSheet] = useState(false)
   const [isWiFi, setIsWiFi] = useState(true)
@@ -101,26 +105,11 @@ export default function RegionSelectorScreen() {
 
   const initialCameraZoom = existingZoom ?? 10
 
-  // Center on user's current location on mount (only if no existing region)
+  // Update bounds when user location resolves (only if no existing region)
   useEffect(() => {
-    if (existingBounds) return
-    let mounted = true
-    ;(async () => {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync()
-        if (status !== 'granted') return
-
-        const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low })
-        if (!mounted) return
-
-        const { latitude, longitude } = pos.coords
-        setBounds(makeBounds(latitude, longitude))
-      } catch {
-        // Keep fallback bounds
-      }
-    })()
-    return () => { mounted = false }
-  }, [existingBounds])
+    if (existingBounds || !currentLocation) return
+    setBounds(makeBounds(currentLocation.lat, currentLocation.lng))
+  }, [existingBounds, currentLocation])
 
   // When camera moves from the initial position, enable download
   const handleCameraMove = useCallback(() => {

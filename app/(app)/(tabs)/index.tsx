@@ -1028,6 +1028,14 @@ const HomeMapScreen = () => {
               <MapboxMapView
                 ref={mapRef}
                 theme={isDark ? 'dark' : 'light'}
+                camera={
+                  currentLocation
+                    ? {
+                        center: [currentLocation.lng, currentLocation.lat],
+                        zoom: 14,
+                      }
+                    : undefined
+                }
                 markers={markers}
                 onMapClick={handleMapClick}
                 onCameraMove={handleCameraMove}
