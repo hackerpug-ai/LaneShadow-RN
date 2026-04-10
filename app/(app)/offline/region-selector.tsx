@@ -1,9 +1,10 @@
 /**
  * Region Selector Screen
  *
- * Full-screen map with draggable region selection overlay.
- * User selects a geographic area for offline download, sees
- * real-time size estimate, and confirms via a bottom sheet.
+ * Full-screen map with a fixed camera-style viewport overlay.
+ * The user pans/zooms the map to position the area they want
+ * inside the viewport frame. The frame acts as a viewfinder —
+ * only the map content visible through it will be downloaded.
  */
 
 import { useRouter } from 'expo-router'
@@ -29,8 +30,6 @@ const BOUNDS_SPAN = 0.2 // ~0.2 degrees each direction from center
 const MIN_ZOOM = 10
 const MAX_ZOOM = 14
 
-type Corner = 'sw' | 'ne' | 'nw' | 'se'
-
 interface SelectionBounds {
   sw: { lat: number; lng: number }
   ne: { lat: number; lng: number }
@@ -42,6 +41,11 @@ function makeBounds(centerLat: number, centerLng: number): SelectionBounds {
     ne: { lat: centerLat + BOUNDS_SPAN, lng: centerLng + BOUNDS_SPAN },
   }
 }
+
+/** Length of each corner bracket arm in pixels */
+const CORNER_ARM = 24
+/** Thickness of the corner bracket lines */
+const CORNER_THICKNESS = 3
 
 export default function RegionSelectorScreen() {
   const router = useRouter()
@@ -98,57 +102,6 @@ export default function RegionSelectorScreen() {
     return mb < 1 ? '< 1 MB' : `${mb.toFixed(0)} MB`
   }
 
-  const handleDragCorner = useCallback(
-    (corner: Corner, latDelta: number, lngDelta: number) => {
-      setBounds((prev) => {
-        const step = 0.02
-        const delta = { lat: latDelta * step, lng: lngDelta * step }
-
-        switch (corner) {
-          case 'ne':
-            return {
-              sw: prev.sw,
-              ne: {
-                lat: Math.min(prev.ne.lat + delta.lat, prev.sw.lat + 10),
-                lng: Math.min(prev.ne.lng + delta.lng, prev.sw.lng + 10),
-              },
-            }
-          case 'sw':
-            return {
-              sw: {
-                lat: Math.max(prev.sw.lat + delta.lat, prev.ne.lat - 10),
-                lng: Math.max(prev.sw.lng + delta.lng, prev.ne.lng - 10),
-              },
-              ne: prev.ne,
-            }
-          case 'nw':
-            return {
-              sw: {
-                ...prev.sw,
-                lat: Math.max(prev.sw.lat + delta.lat, prev.ne.lat - 10),
-              },
-              ne: {
-                ...prev.ne,
-                lng: Math.min(prev.ne.lng + delta.lng, prev.sw.lng + 10),
-              },
-            }
-          case 'se':
-            return {
-              sw: {
-                ...prev.sw,
-                lng: Math.max(prev.sw.lng + delta.lng, prev.ne.lng - 10),
-              },
-              ne: {
-                ...prev.ne,
-                lat: Math.min(prev.ne.lat + delta.lat, prev.sw.lat + 10),
-              },
-            }
-        }
-      })
-    },
-    [],
-  )
-
   const handleDownloadPress = useCallback(async () => {
     const wifi = await WiFiValidator.isWiFi()
     setIsWiFi(wifi)
@@ -171,15 +124,8 @@ export default function RegionSelectorScreen() {
 
   const isDownloading = progress?.state === 'downloading'
 
-  const corners = useMemo(
-    () => [
-      { key: 'nw' as Corner, lat: bounds.ne.lat, lng: bounds.sw.lng },
-      { key: 'ne' as Corner, lat: bounds.ne.lat, lng: bounds.ne.lng },
-      { key: 'sw' as Corner, lat: bounds.sw.lat, lng: bounds.sw.lng },
-      { key: 'se' as Corner, lat: bounds.sw.lat, lng: bounds.ne.lng },
-    ],
-    [bounds],
-  )
+  const primaryColor = semantic.color.primary.default
+  const scrimColor = `${semantic.color.background.default}88`
 
   return (
     <View style={styles.container} testID="region-selector-screen">
@@ -194,9 +140,7 @@ export default function RegionSelectorScreen() {
           zoom: 10,
         }}
         style={StyleSheet.absoluteFill}
-      >
-        {/* Selection overlay rendered as map children - handled by absolute positioned views below */}
-      </MapboxMapView>
+      />
 
       {/* Map controls — zoom and recenter, same position as home screen */}
       <View style={styles.controls} pointerEvents="box-none">
@@ -236,30 +180,60 @@ export default function RegionSelectorScreen() {
         <View style={{ width: 60 }} />
       </View>
 
-      {/* Selection box overlay */}
-      <View style={styles.selectionContainer} pointerEvents="box-none">
-        {/* Selection fill */}
-        <View
-          style={[
-            styles.selectionBox,
-            {
-              borderColor: semantic.color.primary.default,
-              backgroundColor: `${semantic.color.primary.default}33`,
-            },
-          ]}
-        />
+      {/*
+        Camera-style viewport overlay.
+        The four scrim rectangles dim the area OUTSIDE the selection window.
+        Inside the window, only thin edge lines and L-shaped corner brackets
+        mark the capture area — no fill, no draggable handles.
+        The user pans the map under the frame.
+      */}
+      <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+        {/* Top scrim */}
+        <View style={[styles.scrim, { height: '20%', backgroundColor: scrimColor }]} />
 
-        {/* Corner handles */}
-        {corners.map((corner) => (
-          <CornerHandle
-            key={corner.key}
-            corner={corner.key}
-            position={corner}
-            allBounds={bounds}
-            color={semantic.color.primary.default}
-            onDrag={handleDragCorner}
-          />
-        ))}
+        {/* Middle row: left scrim | viewport | right scrim */}
+        <View style={styles.middleRow}>
+          <View style={[styles.scrim, { width: '10%', backgroundColor: scrimColor }]} />
+
+          {/* The viewport window — clear, with edge lines and corners */}
+          <View
+            style={styles.viewport}
+            testID="region-selector-viewport"
+            accessibilityLabel="Selected region area. Pan the map to choose what to download."
+            accessibilityRole="image"
+          >
+            {/* Thin continuous edge border */}
+            <View
+              style={[
+                styles.viewportBorder,
+                { borderColor: `${primaryColor}66` },
+              ]}
+            />
+
+            {/* Corner brackets — solid copper L-shapes */}
+            {/* Top-left */}
+            <View style={[styles.cornerPosition, { left: -1, top: -1 }]}>
+              <View style={[styles.cornerBracket, { borderColor: primaryColor, borderTopWidth: CORNER_THICKNESS, borderLeftWidth: CORNER_THICKNESS, width: CORNER_ARM, height: CORNER_ARM }]} />
+            </View>
+            {/* Top-right */}
+            <View style={[styles.cornerPosition, { right: -1, top: -1 }]}>
+              <View style={[styles.cornerBracket, { borderColor: primaryColor, borderTopWidth: CORNER_THICKNESS, borderRightWidth: CORNER_THICKNESS, width: CORNER_ARM, height: CORNER_ARM }]} />
+            </View>
+            {/* Bottom-left */}
+            <View style={[styles.cornerPosition, { left: -1, bottom: -1 }]}>
+              <View style={[styles.cornerBracket, { borderColor: primaryColor, borderBottomWidth: CORNER_THICKNESS, borderLeftWidth: CORNER_THICKNESS, width: CORNER_ARM, height: CORNER_ARM }]} />
+            </View>
+            {/* Bottom-right */}
+            <View style={[styles.cornerPosition, { right: -1, bottom: -1 }]}>
+              <View style={[styles.cornerBracket, { borderColor: primaryColor, borderBottomWidth: CORNER_THICKNESS, borderRightWidth: CORNER_THICKNESS, width: CORNER_ARM, height: CORNER_ARM }]} />
+            </View>
+          </View>
+
+          <View style={[styles.scrim, { flex: 1, backgroundColor: scrimColor }]} />
+        </View>
+
+        {/* Bottom scrim */}
+        <View style={[styles.scrim, { flex: 1, backgroundColor: scrimColor }]} />
       </View>
 
       {/* Bottom overlay */}
@@ -325,68 +299,6 @@ export default function RegionSelectorScreen() {
   )
 }
 
-/**
- * Draggable corner handle for the region selection box.
- * Uses pan gesture to adjust bounds.
- */
-function CornerHandle({
-  corner,
-  position,
-  allBounds,
-  color,
-  onDrag,
-}: {
-  corner: Corner
-  position: { lat: number; lng: number }
-  allBounds: SelectionBounds
-  color: string
-  onDrag: (corner: Corner, latDelta: number, lngDelta: number) => void
-}) {
-  const HANDLE_SIZE = 24
-
-  // Map corner to screen position (approximate)
-  const getStyle = () => {
-    const { sw, ne } = allBounds
-    const latRange = ne.lat - sw.lat
-    const lngRange = ne.lng - sw.lng
-
-    // Normalize position within bounds (0-1)
-    const yNorm = 1 - (position.lat - sw.lat) / latRange
-    const xNorm = (position.lng - sw.lng) / lngRange
-
-    return {
-      left: `${xNorm * 100}%` as const,
-      top: `${yNorm * 100}%` as const,
-    }
-  }
-
-  return (
-    <Pressable
-      testID={`corner-${corner}`}
-      onPressIn={() => {
-        // In a real implementation, this would start a pan gesture
-        // For now, provide tap-to-expand behavior
-        onDrag(corner, corner.includes('n') ? 1 : -1, corner.includes('e') ? 1 : -1)
-      }}
-      style={[
-        styles.cornerHandle,
-        {
-          backgroundColor: color,
-          width: HANDLE_SIZE,
-          height: HANDLE_SIZE,
-          borderRadius: HANDLE_SIZE / 2,
-          marginLeft: -HANDLE_SIZE / 2,
-          marginTop: -HANDLE_SIZE / 2,
-        },
-        getStyle(),
-      ]}
-      accessibilityRole="button"
-      accessibilityLabel={`Drag ${corner} corner`}
-      hitSlop={12}
-    />
-  )
-}
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -396,33 +308,70 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
+    zIndex: 40,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
-  selectionContainer: {
-    position: 'absolute',
-    top: '20%',
-    left: '15%',
-    right: '15%',
-    bottom: '35%',
+  /**
+   * Scrim rectangles that dim the area outside the viewport.
+   * Each is a non-interactive overlay (pointerEvents handled by parent).
+   */
+  scrim: {
+    flexDirection: 'row',
   },
-  selectionBox: {
-    flex: 1,
-    borderWidth: 2,
+  /**
+   * Middle row sits between the top and bottom scrim bands.
+   * Contains: left-scrim | viewport | right-scrim
+   */
+  middleRow: {
+    height: '55%',
+    flexDirection: 'row',
   },
-  cornerHandle: {
+  /**
+   * The clear viewport window. Map shows through unobstructed.
+   * Thin edge border + corner brackets are the only chrome.
+   */
+  viewport: {
+    width: '80%',
+    position: 'relative',
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
+  },
+  /**
+   * Thin semi-transparent border around the viewport.
+   * Subtler than the corner brackets — gives a sense of the full frame.
+   */
+  viewportBorder: {
+    ...StyleSheet.absoluteFillObject,
+    borderWidth: 1,
+  },
+  /**
+   * Absolute-positioned wrapper for each corner bracket.
+   * Positioned via inline style (left/right/top/bottom) to the
+   * four corners of the viewport. Offset by -1px so the bracket
+   * sits flush with the thin viewport border.
+   */
+  cornerPosition: {
     position: 'absolute',
-    borderWidth: 2,
-    borderColor: 'white',
+    zIndex: 2,
+  },
+  /**
+   * L-shaped corner bracket. Only two sides have borders,
+   * creating the camera viewfinder aesthetic.
+   * Width/height set inline per-corner; borders set inline.
+   */
+  cornerBracket: {
+    backgroundColor: 'transparent',
   },
   footer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
+    zIndex: 40,
     paddingHorizontal: 16,
     paddingTop: 16,
     gap: 12,
