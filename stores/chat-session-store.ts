@@ -12,13 +12,26 @@ export type CameraSlot = {
   zoom: number
 }
 
-type MapCameraState = {
-  /** Camera used when there is no active session (drawer closed, fresh app). */
+type ChatSessionState = {
+  // ---- Camera cache ---------------------------------------------------
+  /** Camera used when no session is active (drawer closed, fresh app). */
   defaultCamera: CameraSlot | null
   /** Per-session camera cache, keyed by session id. */
   bySession: Record<string, CameraSlot>
+
+  // ---- Session selection ----------------------------------------------
+  /**
+   * The session id the user was last viewing. Used on app launch so we
+   * resume where they left off instead of always jumping to the newest
+   * session in the list.
+   */
+  lastViewedSessionId: string | null
+
+  // ---- Lifecycle ------------------------------------------------------
   /** True once Zustand has rehydrated from AsyncStorage. */
   _hydrated: boolean
+
+  // ---- Camera methods -------------------------------------------------
   /**
    * Save camera for a session id. Pass `null`/`undefined` to update the
    * default camera used when no session is active.
@@ -30,17 +43,22 @@ type MapCameraState = {
   ) => void
   /** Read camera for a session id (null → default). Returns null if unset. */
   getCamera: (sessionId: string | null | undefined) => CameraSlot | null
+
+  // ---- Session methods ------------------------------------------------
+  setLastViewedSession: (sessionId: string | null) => void
+
   /** Wipe everything (debug/test only). */
   reset: () => void
 }
 
 const DEFAULT_ZOOM = 14
 
-export const useMapCameraStore = create<MapCameraState>()(
+export const useChatSessionStore = create<ChatSessionState>()(
   persist(
     (set, get) => ({
       defaultCamera: null,
       bySession: {},
+      lastViewedSessionId: null,
       _hydrated: false,
       setCamera: (sessionId, center, zoom) => {
         if (sessionId) {
@@ -57,11 +75,13 @@ export const useMapCameraStore = create<MapCameraState>()(
         }
         return get().defaultCamera
       },
-      reset: () => set({ defaultCamera: null, bySession: {} }),
+      setLastViewedSession: (sessionId) => set({ lastViewedSessionId: sessionId }),
+      reset: () =>
+        set({ defaultCamera: null, bySession: {}, lastViewedSessionId: null }),
     }),
     {
-      name: 'laneshadow-map-camera',
-      version: 2,
+      name: 'laneshadow-chat-session',
+      version: 1,
       storage: createJSONStorage(() => AsyncStorage),
       onRehydrateStorage: () => (state) => {
         if (state) state._hydrated = true
@@ -69,22 +89,8 @@ export const useMapCameraStore = create<MapCameraState>()(
       partialize: (state) => ({
         defaultCamera: state.defaultCamera,
         bySession: state.bySession,
+        lastViewedSessionId: state.lastViewedSessionId,
       }),
-      // v1 stored flat `{center, zoom}` — migrate it into defaultCamera.
-      migrate: (persisted: any, version) => {
-        if (version < 2 && persisted && typeof persisted === 'object') {
-          const legacyCenter = persisted.center
-          const legacyZoom = persisted.zoom
-          return {
-            defaultCamera:
-              legacyCenter && typeof legacyZoom === 'number'
-                ? { center: legacyCenter, zoom: legacyZoom }
-                : null,
-            bySession: {},
-          }
-        }
-        return persisted
-      },
     }
   )
 )

@@ -45,7 +45,7 @@ import type { PlanInput, RouteStop } from '../../../types/routes'
 import { decodePolylineGeometry } from '../../../lib/polyline'
 import { useSearchResults } from '../../../contexts/search-results'
 import { SearchResultMarker } from '../../../components/map/search-result-marker'
-import { useMapCameraStore } from '../../../stores/map-camera-store'
+import { useChatSessionStore } from '../../../stores/chat-session-store'
 import type { MapboxCamera } from '../../../components/map/mapbox-map-view'
 
 type CameraState = {
@@ -100,14 +100,15 @@ const HomeMapScreen = () => {
   const isProgrammaticMoveRef = useRef(false)
   const previousChatModeRef = useRef(chatMode)
 
-  // Cross-session camera persistence — AsyncStorage-backed.
-  // Camera state is cached per planning-session id so that switching between
-  // sessions restores the map to exactly where it was when that session was
-  // last viewed. Also maintains a `default` slot for no-session use.
-  const defaultCameraSlot = useMapCameraStore((s) => s.defaultCamera)
-  const cameraBySession = useMapCameraStore((s) => s.bySession)
-  const cameraStoreHydrated = useMapCameraStore((s) => s._hydrated)
-  const saveCameraToStore = useMapCameraStore((s) => s.setCamera)
+  // Chat session store — persisted to AsyncStorage. Holds the last viewed
+  // session id (so we resume where the user left off) plus the per-session
+  // camera cache (so each session restores its own map position).
+  const defaultCameraSlot = useChatSessionStore((s) => s.defaultCamera)
+  const cameraBySession = useChatSessionStore((s) => s.bySession)
+  const lastViewedSessionId = useChatSessionStore((s) => s.lastViewedSessionId)
+  const cameraStoreHydrated = useChatSessionStore((s) => s._hydrated)
+  const saveCameraToStore = useChatSessionStore((s) => s.setCamera)
+  const setLastViewedSession = useChatSessionStore((s) => s.setLastViewedSession)
 
   const { data: planInit } = usePlanInit()
   const {
@@ -169,16 +170,33 @@ const HomeMapScreen = () => {
   const sessions = useQuery(api.db.planningSessions.listSessions, clerkLoaded && isSignedIn ? undefined : "skip")
 
   // Resolve which session drives the chat transcript and map route.
-  // Priority: explicit URL param → active planning session → most recent session.
+  // Priority:
+  //   1. explicit URL param (deep link / drawer tap)
+  //   2. active planning session (currently-running chat)
+  //   3. last viewed session from persistent store (if it still exists)
+  //   4. most recent session (newest in the list) — only as a last resort
   // Note: we deliberately DO NOT use `flowState.sessionId` — that's a
   // locally-generated string used by the state machine.
   const activeChatSessionId: Id<'planning_sessions'> | null = useMemo(() => {
     if (sessionIdParam) return sessionIdParam as Id<'planning_sessions'>
     if (planningSessionId) return planningSessionId as Id<'planning_sessions'>
-    // Only fall back to most recent session if we haven't explicitly started a new one
-    if (!explicitlyNewSession && sessions && sessions.length > 0) return sessions[0]._id
-    return null
-  }, [sessionIdParam, planningSessionId, sessions, explicitlyNewSession])
+    if (explicitlyNewSession) return null
+    if (!sessions || sessions.length === 0) return null
+    // Prefer the last-viewed session if it still exists in the list.
+    if (lastViewedSessionId) {
+      const match = sessions.find((s) => s._id === lastViewedSessionId)
+      if (match) return match._id
+    }
+    // Fall back to the newest session.
+    return sessions[0]._id
+  }, [sessionIdParam, planningSessionId, sessions, explicitlyNewSession, lastViewedSessionId])
+
+  // Persist the active session id so the next launch resumes here.
+  useEffect(() => {
+    if (!cameraStoreHydrated) return
+    if (activeChatSessionId === lastViewedSessionId) return
+    setLastViewedSession(activeChatSessionId ?? null)
+  }, [activeChatSessionId, lastViewedSessionId, cameraStoreHydrated, setLastViewedSession])
 
   // Session-scoped camera lookup — use the active session's cached position
   // when available, otherwise fall back to the default slot, then to current
