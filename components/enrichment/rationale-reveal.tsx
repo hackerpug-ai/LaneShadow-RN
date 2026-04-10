@@ -152,9 +152,10 @@ export const RationaleReveal = ({
         <Pressable
           onPress={toggleExpanded}
           hitSlop={8}
-          style={[
+          style={({ pressed }) => [
             styles.toggle,
             { marginTop: semantic.space.xs },
+            pressed && { opacity: 0.7 },
           ]}
           accessibilityRole="button"
           accessibilityLabel={expanded ? 'Show less rationale text' : 'Show more rationale text'}

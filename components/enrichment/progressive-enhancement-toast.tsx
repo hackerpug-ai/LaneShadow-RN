@@ -97,7 +97,7 @@ export const ProgressiveEnhancementToast = ({
   }, [progress, progressWidth])
 
   const progressAnimatedStyle = useAnimatedStyle(() => ({
-    width: `${progressWidth.value}%`,
+    transform: [{ scaleX: progressWidth.value / 100 }],
   }))
 
   if (!visible) return null
@@ -154,7 +154,10 @@ export const ProgressiveEnhancementToast = ({
         <Pressable
           onPress={onDismiss}
           hitSlop={12}
-          style={styles.dismissButton}
+          style={({ pressed }) => [
+            styles.dismissButton,
+            pressed && { opacity: 0.7 },
+          ]}
           accessibilityLabel="Dismiss enhancement toast"
           accessibilityRole="button"
           testID={`${testID ?? 'enhancement-toast'}-dismiss`}
@@ -251,5 +254,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
+    width: '100%',
+    transformOrigin: 'left',
   },
 })

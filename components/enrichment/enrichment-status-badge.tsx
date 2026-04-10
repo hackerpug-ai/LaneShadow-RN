@@ -28,8 +28,6 @@ export interface EnrichmentStatusBadgeProps {
   status: EnrichmentStatus
   /** Compact size variant for card headers */
   size?: 'small' | 'medium'
-  /** Optional press handler for interactive badge */
-  onPress?: () => void
   /** Test ID for testing */
   testID?: string
 }
@@ -48,17 +46,17 @@ const STATUS_CONFIG: Record<EnrichmentStatus, StatusConfig> = {
   draft: {
     label: 'Draft',
     icon: 'clock-outline',
-    getColor: (semantic) => semantic.color.onSurface.subtle ?? '#6B7280',
+    getColor: (semantic) => semantic.color.onSurface.subtle!,
   },
   partial: {
     label: 'Partial',
     icon: 'check-circle-outline',
-    getColor: (semantic) => semantic.color.enrichmentFast?.default ?? '#2C9F9B',
+    getColor: (semantic) => semantic.color.enrichmentFast!.default,
   },
   complete: {
     label: 'Complete',
     icon: 'star-outline',
-    getColor: (semantic) => semantic.color.enrichmentExtended?.default ?? '#8B5CF6',
+    getColor: (semantic) => semantic.color.enrichmentExtended!.default,
   },
   failed: {
     label: 'Failed',
