@@ -31,6 +31,9 @@ import {
   mapboxToLatLng,
 } from '../../lib/mapbox/coordinate-converter'
 
+// Default camera center — Denver, CO (used before user location arrives)
+const DEFAULT_CENTER: [number, number] = [-104.95, 39.7]
+
 // Set Mapbox access token
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? '')
 
@@ -543,7 +546,7 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
       >
         <Camera
           ref={cameraRef}
-          centerCoordinate={isValidCenter ? validCenter : undefined}
+          centerCoordinate={isValidCenter ? validCenter : DEFAULT_CENTER}
           zoomLevel={camera?.zoom ?? 12}
           pitch={camera?.pitch ?? 0}
           heading={camera?.heading ?? 0}
