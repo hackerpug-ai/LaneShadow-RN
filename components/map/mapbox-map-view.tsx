@@ -32,12 +32,7 @@ import {
 } from '../../lib/mapbox/coordinate-converter'
 
 // Set Mapbox access token
-Mapbox.setAccessToken(
-  Platform.select({
-    ios: process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN_IOS,
-    android: process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN_ANDROID,
-  }) ?? process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? ''
-)
+Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? '')
 
 /**
  * Marker interface for MapboxMapView.
@@ -298,7 +293,14 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
         const ne: [number, number] = [Math.max(...lngs), Math.max(...lats)]
         const sw: [number, number] = [Math.min(...lngs), Math.min(...lats)]
 
-        cameraRef.current.fitBounds(ne, sw, padding, 500)
+        // Mapbox fitBounds expects padding as [top, right, bottom, left] array
+        const paddingArray: [number, number, number, number] = [
+          padding.top,
+          padding.right,
+          padding.bottom,
+          padding.left,
+        ]
+        cameraRef.current.fitBounds(ne, sw, paddingArray, 500)
       },
 
       // --- Google Maps parity methods ---

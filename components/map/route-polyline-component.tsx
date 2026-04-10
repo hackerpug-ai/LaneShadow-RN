@@ -182,16 +182,19 @@ export const RoutePolyline: FC<RoutePolylineProps> = ({
         const strokeColor = isHighlighted ? semantic.color.tertiary.default : polyline.strokeColor
         const strokeWidth = isHighlighted ? highlightStrokeWidth : (polyline.strokeWidth ?? normalStrokeWidth)
 
-        // Use polyline.id if available, otherwise use index to ensure unique keys and IDs
-        const polylineId = polyline.id ?? `route-polyline-${index}`
-        const layerId = `${polylineId}-layer`
+        // Build unique IDs: always incorporate index to guarantee uniqueness
+        // Mapbox ShapeSource/LineLayer require globally unique ids,
+        // and polylines can share logical ids (e.g. "leg-0" across renders)
+        const uniqueKey = polyline.id ? `${polyline.id}-${index}` : `route-polyline-${index}`
+        const shapeId = `shape-${uniqueKey}`
+        const layerId = `layer-${uniqueKey}`
 
         const feature = buildLineFeature(polyline.coordinates)
 
         return (
           <ShapeSource
-            key={polylineId}
-            id={polylineId}
+            key={uniqueKey}
+            id={shapeId}
             shape={feature}
             onPress={() => handlePressRef.current(polyline.id ?? '', polyline.coordinates)}
             testID={`${testID}--segment-${polyline.id ?? index}`}

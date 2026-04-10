@@ -3,7 +3,7 @@
 **Sequence:** 2
 **Timeline:** Week 2
 **Theme:** "See the World"
-**Status:** Blocked by Epic 1
+**Status:** In Progress (CLR-005 through CLR-007 complete, CLR-008 through CLR-011 remaining)
 
 ---
 
@@ -102,6 +102,87 @@ From PRD Sections:
 - `lib/mapbox/coordinate-converter.ts` (NEW)
 
 **Dependencies:** CLR-006
+
+---
+
+### CLR-008: Migrate RoutePolyline and DeviationPolyline to Mapbox
+**Type:** FEATURE
+**Agent:** react-native-ui-implementer
+**Reviewer:** react-native-ui-reviewer
+**Effort:** M (1 day)
+**Priority:** P1
+
+**Objective:** Replace react-native-maps Polyline imports with @rnmapbox/maps ShapeSource + LineLayer in RoutePolyline and DeviationPolyline components
+
+**Success:** Both polyline components render via Mapbox primitives with coordinate conversion, tap-to-select preserved for RoutePolyline
+
+**Files:**
+- `components/map/route-polyline-component.tsx` (MODIFY)
+- `components/map/deviation-polyline.tsx` (MODIFY)
+
+**Dependencies:** CLR-007
+**Parallel With:** CLR-009, CLR-010
+
+---
+
+### CLR-009: Migrate WaypointMarker and SearchResultMarker to Mapbox
+**Type:** FEATURE
+**Agent:** react-native-ui-implementer
+**Reviewer:** react-native-ui-reviewer
+**Effort:** M (1 day)
+**Priority:** P1
+
+**Objective:** Replace react-native-maps Marker imports with @rnmapbox/maps MarkerView in WaypointMarker and SearchResultMarker components
+
+**Success:** Both marker components render via Mapbox MarkerView with coordinate conversion, SVG visuals preserved, haptic feedback preserved
+
+**Files:**
+- `components/map/waypoint-marker.tsx` (MODIFY)
+- `components/map/search-result-marker.tsx` (MODIFY)
+
+**Dependencies:** CLR-007
+**Parallel With:** CLR-008, CLR-010
+
+---
+
+### CLR-010: Migrate RouteMiniMap to Mapbox
+**Type:** FEATURE
+**Agent:** react-native-ui-implementer
+**Reviewer:** react-native-ui-reviewer
+**Effort:** S (half day)
+**Priority:** P2
+
+**Objective:** Replace Google Maps MapView in RouteMiniMap with Mapbox MapView for consistent provider across the app
+
+**Success:** RouteMiniMap renders non-interactive Mapbox thumbnail with themed style and route polyline
+
+**Files:**
+- `components/chat/cards/route-mini-map.tsx` (MODIFY)
+
+**Dependencies:** CLR-007
+**Parallel With:** CLR-008, CLR-009
+
+---
+
+### CLR-011: Wire MapboxMapView into Home Screen and Saved Route Screen
+**Type:** FEATURE
+**Agent:** react-native-ui-implementer
+**Reviewer:** react-native-ui-reviewer
+**Effort:** L (2-3 days)
+**Priority:** P0
+
+**Objective:** Replace MapViewWrapper (Google Maps) with MapboxMapView in home screen and saved route detail screen — the actual cutover
+
+**Success:** Both screens render Mapbox map with full camera control parity, route polylines, markers, user location tracking, and theme switching. No react-native-maps imports in screen files.
+
+**Files:**
+- `app/(app)/(tabs)/index.tsx` (MODIFY)
+- `app/(app)/saved-route/[id].tsx` (MODIFY)
+- `components/map/mapbox-map-view.tsx` (MODIFY - extend handle)
+- `components/map/index.ts` (MODIFY - update exports)
+
+**Dependencies:** CLR-008, CLR-009, CLR-010
+**Parallel With:** None (final integration task)
 
 ---
 
@@ -204,7 +285,9 @@ const mapStyles = {
 
 ## Next Steps
 
-1. Complete Epic 1 (Shadow Setup)
-2. Implement CLR-005 through CLR-007
-3. Pass human testing gate (60fps rendering)
-4. Proceed to Epic 3 (Offline Regions) and Epic 4 (Local Routing) in parallel
+1. ~~Complete Epic 1 (Shadow Setup)~~ DONE
+2. ~~Implement CLR-005 through CLR-007~~ DONE
+3. Implement CLR-008, CLR-009, CLR-010 in parallel (component migration)
+4. Implement CLR-011 (screen cutover — depends on 8/9/10)
+5. Pass human testing gate (60fps rendering)
+6. Proceed to Epic 3 (Offline Regions) and Epic 4 (Local Routing) in parallel
