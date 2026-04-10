@@ -1,10 +1,12 @@
 import * as Haptics from 'expo-haptics'
 import type { FC } from 'react'
 import { useCallback, useRef, useState } from 'react'
-import { Polyline } from 'react-native-maps'
+import { ShapeSource, LineLayer } from '@rnmapbox/maps'
+import type { FeatureCollection, LineString } from 'geojson'
 import { useTheme } from 'react-native-paper'
 import PolylineEncoder from '@mapbox/polyline'
 import type { ExtendedTheme } from '../../styles/types'
+import { convertCoordinateArray } from '../../lib/mapbox/coordinate-converter'
 
 import type { BuiltPolyline } from './route-polyline'
 
@@ -86,14 +88,37 @@ const parseSegmentId = (id: string): { type: string; legIndex?: number } => {
 }
 
 /**
+ * Build a GeoJSON FeatureCollection from Google-format coordinates.
+ * Converts [lat, lng] to Mapbox [lng, lat].
+ */
+const buildLineFeature = (
+  coordinates: { latitude: number; longitude: number }[]
+): FeatureCollection<LineString> => {
+  const googleCoords = coordinates.map(
+    (c) => [c.latitude, c.longitude] as [number, number]
+  )
+  const mapboxCoords = convertCoordinateArray(googleCoords)
+
+  return {
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: mapboxCoords,
+        },
+      },
+    ],
+  }
+}
+
+/**
  * RoutePolyline Component
  *
  * Renders route polylines on the map with tap-to-select segment support.
- *
- * IMPORTANT: Polyline components from react-native-maps must be direct children
- * of MapView in the native view hierarchy. Wrapping them in View or gesture
- * handler components prevents the native map from recognizing them as overlays,
- * causing them to not render.
+ * Uses Mapbox ShapeSource + LineLayer for native rendering.
  *
  * Acceptance Criteria (US-042):
  * - AC1: Route polyline displayed on map, When: User taps segment, Then: Segment highlights visually
@@ -157,19 +182,31 @@ export const RoutePolyline: FC<RoutePolylineProps> = ({
         const strokeColor = isHighlighted ? semantic.color.tertiary.default : polyline.strokeColor
         const strokeWidth = isHighlighted ? highlightStrokeWidth : (polyline.strokeWidth ?? normalStrokeWidth)
 
-        // Use polyline.id if available, otherwise use index to ensure unique keys
-        const key = polyline.id ?? `polyline-${index}`
+        // Use polyline.id if available, otherwise use index to ensure unique keys and IDs
+        const polylineId = polyline.id ?? `route-polyline-${index}`
+        const layerId = `${polylineId}-layer`
+
+        const feature = buildLineFeature(polyline.coordinates)
 
         return (
-          <Polyline
-            key={key}
-            coordinates={polyline.coordinates}
-            strokeColor={strokeColor}
-            strokeWidth={strokeWidth}
-            tappable
+          <ShapeSource
+            key={polylineId}
+            id={polylineId}
+            shape={feature}
             onPress={() => handlePressRef.current(polyline.id ?? '', polyline.coordinates)}
-            testID={polyline.id ? `${testID}--segment-${polyline.id}` : `${testID}--segment-${index}`}
-          />
+            testID={`${testID}--segment-${polyline.id ?? index}`}
+          >
+            <LineLayer
+              id={layerId}
+              style={{
+                lineColor: strokeColor,
+                lineWidth: strokeWidth,
+                lineOpacity: 1.0,
+                lineCap: 'round',
+                lineJoin: 'round',
+              }}
+            />
+          </ShapeSource>
         )
       })}
     </>

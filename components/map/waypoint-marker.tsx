@@ -1,10 +1,11 @@
+import { MarkerView } from '@rnmapbox/maps'
 import * as Haptics from 'expo-haptics'
 import type { FC } from 'react'
 import { useMemo } from 'react'
-import { StyleSheet, View } from 'react-native'
-import { Marker } from 'react-native-maps'
+import { Pressable, StyleSheet, View } from 'react-native'
 import Svg, { Circle, G, Path } from 'react-native-svg'
 
+import { latLngToMapbox } from '../../lib/mapbox/coordinate-converter'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { ExtendedTheme } from '../../styles/types'
 
@@ -191,65 +192,68 @@ export const WaypointMarker: FC<WaypointMarkerProps> = ({
   // Inner circle for contrast
   const innerRadius = circleRadius * 0.6
 
+  const mapboxCoords = latLngToMapbox(coordinate)
+
   return (
-    <Marker
-      coordinate={coordinate}
-      onPress={handlePress}
-      testID={testID ?? `waypoint-marker-${id}`}
-    >
-      <View style={[styles.container, { width: pinWidth, height: pinHeight }]}>
-        <Svg width={pinWidth} height={pinHeight} viewBox={`0 0 ${pinWidth} ${pinHeight}`}>
-          <G fill={markerColor}>
-            {/* Main pin shape */}
-            <Path d={pinPath} />
+    <MarkerView coordinate={mapboxCoords}>
+      <Pressable
+        onPress={handlePress}
+        testID={testID ?? `waypoint-marker-${id}`}
+      >
+        <View style={[styles.container, { width: pinWidth, height: pinHeight }]}>
+          <Svg width={pinWidth} height={pinHeight} viewBox={`0 0 ${pinWidth} ${pinHeight}`}>
+            <G fill={markerColor}>
+              {/* Main pin shape */}
+              <Path d={pinPath} />
 
-            {/* Inner white circle for contrast */}
-            <Circle
-              cx={pinWidth / 2}
-              cy={circleRadius * 1.5}
-              r={innerRadius}
-              fill={semantic.color.surface.default}
-            />
+              {/* Inner white circle for contrast */}
+              <Circle
+                cx={pinWidth / 2}
+                cy={circleRadius * 1.5}
+                r={innerRadius}
+                fill={semantic.color.surface.default}
+              />
 
-            {/* Status indicator dot */}
-            <Circle
-              cx={pinWidth / 2}
-              cy={circleRadius * 1.5}
-              r={innerRadius * 0.4}
-              fill={markerColor}
-            />
-          </G>
+              {/* Status indicator dot */}
+              <Circle
+                cx={pinWidth / 2}
+                cy={circleRadius * 1.5}
+                r={innerRadius * 0.4}
+                fill={markerColor}
+              />
+            </G>
 
-          {/* Selected state ring */}
-          {state === 'selected' && (
-            <Circle
-              cx={pinWidth / 2}
-              cy={circleRadius * 1.5}
-              r={circleRadius + 2}
-              fill="none"
-              stroke={semantic.color.tertiary.default}
-              strokeWidth={2}
-            />
+            {/* Selected state ring */}
+            {state === 'selected' && (
+              <Circle
+                cx={pinWidth / 2}
+                cy={circleRadius * 1.5}
+                r={circleRadius + 2}
+                fill="none"
+                stroke={semantic.color.tertiary.default}
+                strokeWidth={2}
+              />
+            )}
+          </Svg>
+
+          {/* Optional index label */}
+          {showIndex && (
+            <View
+              style={[
+                styles.labelContainer,
+                {
+                  top: circleRadius * 1.5 - 10,
+                  width: 20,
+                  height: 20,
+                },
+              ]}
+            >
+              {/* Index number would be rendered here with Text component */}
+              {/* For now, the colored dot serves as the indicator */}
+            </View>
           )}
-        </Svg>
-
-        {/* Optional index label */}
-        {showIndex && (
-          <View
-            style={[
-              styles.labelContainer,
-              {
-                top: circleRadius * 1.5 - 10,
-                width: 20,
-                height: 20,
-              },
-            ]}
-          >
-            {/* Index number would be rendered here with Text component */}
-            {/* For now, the colored dot serves as the indicator */}
-          </View>
-        )}
-      </View>
-    </Marker>
+        </View>
+      </Pressable>
+    </MarkerView>
   )
 }

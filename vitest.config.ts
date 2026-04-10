@@ -85,6 +85,14 @@ const reactNativeStubPlugin = () => ({
     if (source === 'react-native-markdown-display') {
       return resolve(__dirname, '__mocks__/react-native-markdown-display.ts')
     }
+    // react-native-svg contains native modules
+    if (source === 'react-native-svg') {
+      return resolve(__dirname, '__mocks__/react-native-svg.ts')
+    }
+    // @rnmapbox/maps requires native modules
+    if (source === '@rnmapbox/maps') {
+      return resolve(__dirname, '__mocks__/rnmapbox-maps.ts')
+    }
     return null
   },
 })
@@ -151,6 +159,8 @@ export default defineConfig({
       { find: /^expo-crypto$/, replacement: resolve(__dirname, '__mocks__/expo-crypto.ts') },
       { find: /^expo-file-system$/, replacement: resolve(__dirname, '__mocks__/expo-file-system.ts') },
       { find: /^expo-network$/, replacement: resolve(__dirname, '__mocks__/expo-network.ts') },
+      { find: /^@rnmapbox\/maps$/, replacement: resolve(__dirname, '__mocks__/rnmapbox-maps.ts') },
+      { find: /^react-native-svg$/, replacement: resolve(__dirname, '__mocks__/react-native-svg.ts') },
     ],
   },
   esbuild: {

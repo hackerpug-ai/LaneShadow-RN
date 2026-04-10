@@ -73,6 +73,9 @@ export const useTheme = () => ({
       scrim: { default: '#000000' },
       routeSelected: { default: '#FF6B35' },
       routeAlternate: { default: '#60a5fa' },
+      deviationOriginalRoute: { default: '#9CA3AF' },
+      deviationDetourPath: { default: '#FF6B35' },
+      deviationReconnectPoint: { default: '#31A362' },
     },
     space: {
       xs: 4,

@@ -1,8 +1,10 @@
 import type { FC } from 'react'
-import { Polyline } from 'react-native-maps'
+import { ShapeSource, LineLayer } from '@rnmapbox/maps'
+import type { FeatureCollection, LineString } from 'geojson'
 
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { ExtendedTheme } from '../../styles/types'
+import { convertCoordinateArray } from '../../lib/mapbox/coordinate-converter'
 
 /**
  * Deviation path segment types
@@ -66,9 +68,37 @@ const getSegmentColor = (
 }
 
 /**
+ * Build a GeoJSON FeatureCollection from Google-format coordinates.
+ * Converts [lat, lng] to Mapbox [lng, lat].
+ */
+const buildLineFeature = (
+  coordinates: { latitude: number; longitude: number }[]
+): FeatureCollection<LineString> => {
+  const googleCoords = coordinates.map(
+    (c) => [c.latitude, c.longitude] as [number, number]
+  )
+  const mapboxCoords = convertCoordinateArray(googleCoords)
+
+  return {
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: mapboxCoords,
+        },
+      },
+    ],
+  }
+}
+
+/**
  * DeviationPolyline Component
  *
  * Renders deviation path visualization showing original route, detour path, and reconnection point.
+ * Uses Mapbox ShapeSource + LineLayer for native rendering.
  *
  * Visual Design:
  * - Original route: Gray/muted (faded to show it's not active)
@@ -96,18 +126,39 @@ export const DeviationPolyline: FC<DeviationPolylineProps> = ({
   return (
     <>
       {segments.map((segment, index) => {
+        // Skip segments with insufficient coordinates for a line
+        if (!segment.coordinates || segment.coordinates.length < 2) {
+          return null
+        }
+
         const segmentColor = getSegmentColor(segment.type, semantic, isActive)
+        const sourceId = `deviation-${segment.type}-${index}`
+        const layerId = `${sourceId}-layer`
+
+        const feature = buildLineFeature(segment.coordinates)
 
         return (
-          <Polyline
-            key={`${segment.type}-${index}`}
-            coordinates={segment.coordinates}
-            strokeColor={segmentColor}
-            strokeWidth={baseStrokeWidth}
-            lineCap="round"
-            lineJoin="round"
-            testID={testID ? `${testID}-${segment.type}-${index}` : `deviation-${segment.type}-${index}`}
-          />
+          <ShapeSource
+            key={sourceId}
+            id={sourceId}
+            shape={feature}
+            testID={
+              testID
+                ? `${testID}-${segment.type}-${index}`
+                : `deviation-${segment.type}-${index}`
+            }
+          >
+            <LineLayer
+              id={layerId}
+              style={{
+                lineColor: segmentColor,
+                lineWidth: baseStrokeWidth,
+                lineOpacity: 1.0,
+                lineCap: 'round',
+                lineJoin: 'round',
+              }}
+            />
+          </ShapeSource>
         )
       })}
     </>

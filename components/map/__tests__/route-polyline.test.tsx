@@ -2,23 +2,22 @@
  * Component tests for RoutePolyline (US-042)
  *
  * Tests the actual RoutePolyline component, including:
- * - Rendering with different polyline configurations
- * - Long-press gesture handling
+ * - Rendering with different polyline configurations (Mapbox ShapeSource + LineLayer)
+ * - Tap gesture handling via ShapeSource onPress
  * - Segment selection callbacks
  * - Visual feedback (highlighting)
- * - Early release behavior (cancellation)
  * - testID prop handling
+ * - Coordinate conversion from Google [lat, lng] to Mapbox [lng, lat]
  *
  * === Acceptance Criteria (US-042) ===
- * - AC1: Route polyline displayed on map, When: User long-presses for 500ms+, Then: Segment highlights visually
+ * - AC1: Route polyline displayed on map, When: User taps segment, Then: Segment highlights visually
  * - AC2: Segment highlighted, When: onSegmentSelect callback provided, Then: Callback receives segment geometry
- * - AC3: Long-press on overlay segment, When: Gesture detected, Then: Returns overlay segment geometry
- * - AC4: User releases early (<500ms), When: Gesture cancelled, Then: No highlight, no callback
+ * - AC3: Tap on overlay segment, When: Gesture detected, Then: Returns overlay segment geometry
+ * - AC4: All polyline coordinates are in [lng, lat] format when rendered via Mapbox
  */
 
 import { describe, it, expect, vi } from 'vitest'
 import { render, fireEvent } from '@testing-library/react-native'
-import { State } from 'react-native-gesture-handler'
 import type { SegmentSelectData } from '../route-polyline-component'
 import { RoutePolyline } from '../route-polyline-component'
 import type { BuiltPolyline } from '../route-polyline'
@@ -189,18 +188,21 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
 )
 
 describe('RoutePolyline Component', () => {
-  describe('Rendering', () => {
-    it('should render all polylines', () => {
+  describe('Rendering (AC1)', () => {
+    it('renders_mapbox_line_layer_for_each_polyline', () => {
       const polylines = createMockPolylines()
-      const { getAllByTestId } = render(
+      const { UNSAFE_root } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} />
         </TestWrapper>
       )
 
-      // Each segment should have a testID (both wrapper and polyline)
-      // So we expect 6 elements total (3 segments * 2 elements each)
-      expect(getAllByTestId(/route-polyline--segment-/)).toHaveLength(6)
+      // Each polyline should render a ShapeSource with a LineLayer child
+      const shapeSources = UNSAFE_root.findAllByType('ShapeSource')
+      const lineLayers = UNSAFE_root.findAllByType('LineLayer')
+
+      expect(shapeSources).toHaveLength(3)
+      expect(lineLayers).toHaveLength(3)
     })
 
     it('should use custom testID when provided', () => {
@@ -215,7 +217,7 @@ describe('RoutePolyline Component', () => {
       expect(getByTestId(`${customTestID}--segment-overview`)).toBeDefined()
     })
 
-    it('should render polylines without IDs', () => {
+    it('should render polylines without IDs using fallback index', () => {
       const polylinesWithoutIds: BuiltPolyline[] = [
         {
           coordinates: [
@@ -227,18 +229,18 @@ describe('RoutePolyline Component', () => {
         },
       ]
 
-      const { getAllByTestId } = render(
+      const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylinesWithoutIds} />
         </TestWrapper>
       )
 
-      // Should still render with fallback testID (wrapper + polyline = 2 elements)
-      expect(getAllByTestId(/route-polyline--segment-/)).toHaveLength(2)
+      // Should render with fallback testID using index
+      expect(getByTestId('route-polyline--segment-0')).toBeDefined()
     })
   })
 
-  describe('Visual Feedback (AC1)', () => {
+  describe('Visual Feedback (AC1 highlight)', () => {
     it('should highlight selected segment via prop', () => {
       const polylines = createMockPolylines()
       const selectedSegmentId = 'leg-0'
@@ -251,33 +253,33 @@ describe('RoutePolyline Component', () => {
 
       const segment = getByTestId(`route-polyline--segment-${selectedSegmentId}`)
       expect(segment).toBeDefined()
-
-      // Verify the polyline is rendered with correct testID
-      const polyline = getByTestId(`route-polyline--segment-${selectedSegmentId}--polyline`)
-      expect(polyline).toBeDefined()
     })
 
     it('should use semantic spacing for stroke widths', () => {
       const polylines = createMockPolylines()
 
-      const { getByTestId } = render(
+      const { UNSAFE_root } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} selectedSegmentId='leg-0' />
         </TestWrapper>
       )
 
-      // The component should use semantic.space.sm (8) for highlighted
-      // and semantic.space.sm / 2 (4) for normal
-      const highlightedPolyline = getByTestId('route-polyline--segment-leg-0--polyline')
-      expect(highlightedPolyline).toBeDefined()
+      // Verify LineLayer components are rendered with stroke widths
+      const lineLayers = UNSAFE_root.findAllByType('LineLayer')
+      expect(lineLayers.length).toBeGreaterThan(0)
 
-      const normalPolyline = getByTestId('route-polyline--segment-leg-1--polyline')
-      expect(normalPolyline).toBeDefined()
+      // The highlighted segment (leg-0) should use highlightStrokeWidth (semantic.space.sm = 8)
+      // Other segments should use their configured strokeWidth
+      const highlightedLayer = lineLayers.find(
+        (layer: any) => layer.props.id === 'leg-0-layer'
+      )
+      expect(highlightedLayer).toBeDefined()
+      expect(highlightedLayer.props.style.lineWidth).toBe(8) // semantic.space.sm
     })
   })
 
   describe('Segment Selection Callback (AC2)', () => {
-    it('should trigger callback on long-press ACTIVE state', () => {
+    it('tap_select_fires_callback_with_geometry', () => {
       const polylines = createMockPolylines()
       const onSegmentSelect = vi.fn()
       const { getByTestId } = render(
@@ -288,12 +290,10 @@ describe('RoutePolyline Component', () => {
 
       const segment = getByTestId('route-polyline--segment-leg-0')
 
-      // Trigger the long-press gesture with ACTIVE state
-      fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
-      })
+      // Trigger the tap via ShapeSource onPress
+      fireEvent.press(segment)
 
-      // Verify callback was actually called
+      // Verify callback was called
       expect(onSegmentSelect).toHaveBeenCalledTimes(1)
       expect(onSegmentSelect).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -320,9 +320,7 @@ describe('RoutePolyline Component', () => {
 
       const segment = getByTestId('route-polyline--segment-leg-1')
 
-      fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
-      })
+      fireEvent.press(segment)
 
       expect(onSegmentSelect).toHaveBeenCalledTimes(1)
 
@@ -347,9 +345,7 @@ describe('RoutePolyline Component', () => {
 
       const segment = getByTestId('route-polyline--segment-overview')
 
-      fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
-      })
+      fireEvent.press(segment)
 
       expect(onSegmentSelect).toHaveBeenCalledTimes(1)
 
@@ -372,9 +368,7 @@ describe('RoutePolyline Component', () => {
 
       const segment = getByTestId('route-polyline--segment-wind-0-0-1000')
 
-      fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
-      })
+      fireEvent.press(segment)
 
       expect(onSegmentSelect).toHaveBeenCalledTimes(1)
       expect(onSegmentSelect).toHaveBeenCalledWith(
@@ -397,9 +391,7 @@ describe('RoutePolyline Component', () => {
 
       const segment = getByTestId('route-polyline--segment-rain-0-1000-2000')
 
-      fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
-      })
+      fireEvent.press(segment)
 
       expect(onSegmentSelect).toHaveBeenCalledTimes(1)
       expect(onSegmentSelect).toHaveBeenCalledWith(
@@ -412,72 +404,46 @@ describe('RoutePolyline Component', () => {
     })
   })
 
-  describe('Early Release Behavior (AC4)', () => {
-    it('should not trigger callback on CANCELLED state', () => {
-      const polylines = createMockPolylines()
-      const onSegmentSelect = vi.fn()
-      const { getByTestId } = render(
+  describe('Coordinate Conversion (AC4)', () => {
+    it('coordinates_converted_from_google_to_mapbox_format', () => {
+      const polylines: BuiltPolyline[] = [
+        {
+          id: 'test-coords',
+          coordinates: [
+            { latitude: 37.7749, longitude: -122.4194 },
+            { latitude: 37.7849, longitude: -122.4094 },
+          ],
+          strokeColor: '#FF6B35',
+          strokeWidth: 4,
+        },
+      ]
+
+      const { UNSAFE_root } = render(
         <TestWrapper>
-          <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
+          <RoutePolyline polylines={polylines} />
         </TestWrapper>
       )
 
-      const segment = getByTestId('route-polyline--segment-leg-0')
+      const shapeSource = UNSAFE_root.findByType('ShapeSource')
+      const shape = shapeSource.props.shape as any
 
-      // Trigger gesture cancellation
-      fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.CANCELLED }
-      })
+      // Verify GeoJSON FeatureCollection structure
+      expect(shape.type).toBe('FeatureCollection')
+      expect(shape.features).toHaveLength(1)
+      expect(shape.features[0].type).toBe('Feature')
+      expect(shape.features[0].geometry.type).toBe('LineString')
 
-      // Callback should NOT be called
-      expect(onSegmentSelect).not.toHaveBeenCalled()
-    })
+      // Verify coordinates are in Mapbox [lng, lat] format (swapped from Google [lat, lng])
+      const coords = shape.features[0].geometry.coordinates
+      expect(coords).toHaveLength(2)
 
-    it('should not trigger callback on FAILED state', () => {
-      const polylines = createMockPolylines()
-      const onSegmentSelect = vi.fn()
-      const { getByTestId } = render(
-        <TestWrapper>
-          <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
-        </TestWrapper>
-      )
+      // First coordinate: Google [37.7749, -122.4194] -> Mapbox [-122.4194, 37.7749]
+      expect(coords[0][0]).toBe(-122.4194) // longitude
+      expect(coords[0][1]).toBe(37.7749)   // latitude
 
-      const segment = getByTestId('route-polyline--segment-leg-0')
-
-      // Trigger gesture failure
-      fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.FAILED }
-      })
-
-      // Callback should NOT be called
-      expect(onSegmentSelect).not.toHaveBeenCalled()
-    })
-
-    it('should handle cancellation after active state', () => {
-      const polylines = createMockPolylines()
-      const onSegmentSelect = vi.fn()
-      const { getByTestId } = render(
-        <TestWrapper>
-          <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
-        </TestWrapper>
-      )
-
-      const segment = getByTestId('route-polyline--segment-leg-0')
-
-      // First trigger active state (should call callback)
-      fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
-      })
-
-      expect(onSegmentSelect).toHaveBeenCalledTimes(1)
-
-      // Then trigger cancellation (should not call callback again)
-      fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.CANCELLED }
-      })
-
-      // Still only 1 call from the ACTIVE state
-      expect(onSegmentSelect).toHaveBeenCalledTimes(1)
+      // Second coordinate: Google [37.7849, -122.4094] -> Mapbox [-122.4094, 37.7849]
+      expect(coords[1][0]).toBe(-122.4094) // longitude
+      expect(coords[1][1]).toBe(37.7849)   // latitude
     })
   })
 
@@ -504,9 +470,7 @@ describe('RoutePolyline Component', () => {
 
       const segment = getByTestId('route-polyline--segment-overview')
 
-      fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
-      })
+      fireEvent.press(segment)
 
       expect(onSegmentSelect).toHaveBeenCalledTimes(1)
       expect(onSegmentSelect).toHaveBeenCalledWith(
@@ -539,9 +503,7 @@ describe('RoutePolyline Component', () => {
 
       const segment = getByTestId('route-polyline--segment-leg-2')
 
-      fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
-      })
+      fireEvent.press(segment)
 
       expect(onSegmentSelect).toHaveBeenCalledTimes(1)
       expect(onSegmentSelect).toHaveBeenCalledWith(
@@ -575,9 +537,7 @@ describe('RoutePolyline Component', () => {
 
       const segment = getByTestId('route-polyline--segment-wind-1-500-1500')
 
-      fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
-      })
+      fireEvent.press(segment)
 
       expect(onSegmentSelect).toHaveBeenCalledTimes(1)
       expect(onSegmentSelect).toHaveBeenCalledWith(
@@ -610,9 +570,7 @@ describe('RoutePolyline Component', () => {
 
       const segment = getByTestId('route-polyline--segment-rain-0-0-1000')
 
-      fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
-      })
+      fireEvent.press(segment)
 
       expect(onSegmentSelect).toHaveBeenCalledTimes(1)
       expect(onSegmentSelect).toHaveBeenCalledWith(
@@ -645,9 +603,7 @@ describe('RoutePolyline Component', () => {
 
       const segment = getByTestId('route-polyline--segment-temp-2-2000-3000')
 
-      fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
-      })
+      fireEvent.press(segment)
 
       expect(onSegmentSelect).toHaveBeenCalledTimes(1)
       expect(onSegmentSelect).toHaveBeenCalledWith(
@@ -683,9 +639,7 @@ describe('RoutePolyline Component', () => {
 
       const segment = getByTestId('route-polyline--segment-test-segment')
 
-      fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
-      })
+      fireEvent.press(segment)
 
       expect(onSegmentSelect).toHaveBeenCalledTimes(1)
 
@@ -698,6 +652,44 @@ describe('RoutePolyline Component', () => {
       expect(callbackData.bounds.southWest.latitude).toBe(37.7749)
       // West should be min longitude
       expect(callbackData.bounds.southWest.longitude).toBe(-122.4194)
+    })
+  })
+
+  describe('Edge Cases', () => {
+    it('should skip polylines with fewer than 2 coordinates', () => {
+      const polylines: BuiltPolyline[] = [
+        {
+          id: 'empty',
+          coordinates: [],
+          strokeColor: '#FF6B35',
+          strokeWidth: 4,
+        },
+        {
+          id: 'single-point',
+          coordinates: [{ latitude: 37.7749, longitude: -122.4194 }],
+          strokeColor: '#FF6B35',
+          strokeWidth: 4,
+        },
+        {
+          id: 'valid',
+          coordinates: [
+            { latitude: 37.7749, longitude: -122.4194 },
+            { latitude: 37.7849, longitude: -122.4094 },
+          ],
+          strokeColor: '#FF6B35',
+          strokeWidth: 4,
+        },
+      ]
+
+      const { UNSAFE_root } = render(
+        <TestWrapper>
+          <RoutePolyline polylines={polylines} />
+        </TestWrapper>
+      )
+
+      // Only the valid polyline should render
+      const shapeSources = UNSAFE_root.findAllByType('ShapeSource')
+      expect(shapeSources).toHaveLength(1)
     })
   })
 })
