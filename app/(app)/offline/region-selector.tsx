@@ -7,11 +7,12 @@
  */
 
 import { useRouter } from 'expo-router'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { MapboxMapView } from '../../../components/map'
+import * as Location from 'expo-location'
+import { MapboxMapView, MapboxMapViewHandle, MapControls } from '../../../components/map'
 import { RegionNameBottomSheet } from '../../../components/offline/region-name-bottom-sheet'
 import { DownloadProgressIndicator } from '../../../components/offline/download-progress-indicator'
 import { Button } from '../../../components/ui/button'
@@ -20,13 +21,10 @@ import { useThemePreference } from '../../../contexts/theme-preference'
 import { useOfflineDownload } from '../../../hooks/useOfflineDownload'
 import { StorageUtils } from '../../../lib/mapbox/storage-utils'
 import { WiFiValidator } from '../../../lib/mapbox/wifi-validator'
-import type { DownloadProgress } from '../../../lib/mapbox/offline-manager'
 
-/** Default region centered on Denver, CO area */
-const DEFAULT_BOUNDS = {
-  sw: { lat: 39.5, lng: -105.2 },
-  ne: { lat: 39.9, lng: -104.7 },
-}
+/** Fallback if location permission denied — Denver, CO area */
+const FALLBACK_CENTER = { lat: 39.7, lng: -104.95 }
+const BOUNDS_SPAN = 0.2 // ~0.2 degrees each direction from center
 
 const MIN_ZOOM = 10
 const MAX_ZOOM = 14
@@ -38,16 +36,49 @@ interface SelectionBounds {
   ne: { lat: number; lng: number }
 }
 
+function makeBounds(centerLat: number, centerLng: number): SelectionBounds {
+  return {
+    sw: { lat: centerLat - BOUNDS_SPAN, lng: centerLng - BOUNDS_SPAN },
+    ne: { lat: centerLat + BOUNDS_SPAN, lng: centerLng + BOUNDS_SPAN },
+  }
+}
+
 export default function RegionSelectorScreen() {
   const router = useRouter()
   const { semantic } = useSemanticTheme()
   const { isDark } = useThemePreference()
   const insets = useSafeAreaInsets()
   const { downloadRegion, progress } = useOfflineDownload()
+  const mapRef = useRef<MapboxMapViewHandle | null>(null)
 
-  const [bounds, setBounds] = useState<SelectionBounds>(DEFAULT_BOUNDS)
+  const zoom = useCallback((delta: number) => mapRef.current?.zoomBy(delta), [])
+  const recenter = useCallback(() => mapRef.current?.recenterToUser(), [])
+
+  const [bounds, setBounds] = useState<SelectionBounds>(() =>
+    makeBounds(FALLBACK_CENTER.lat, FALLBACK_CENTER.lng),
+  )
   const [showNameSheet, setShowNameSheet] = useState(false)
   const [isWiFi, setIsWiFi] = useState(true)
+
+  // Center on user's current location on mount
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync()
+        if (status !== 'granted') return
+
+        const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low })
+        if (!mounted) return
+
+        const { latitude, longitude } = pos.coords
+        setBounds(makeBounds(latitude, longitude))
+      } catch {
+        // Keep fallback bounds
+      }
+    })()
+    return () => { mounted = false }
+  }, [])
 
   const sizeEstimate = useMemo(
     () =>
@@ -153,6 +184,7 @@ export default function RegionSelectorScreen() {
   return (
     <View style={styles.container} testID="region-selector-screen">
       <MapboxMapView
+        ref={mapRef}
         theme={isDark ? 'dark' : 'light'}
         camera={{
           center: [
@@ -165,6 +197,16 @@ export default function RegionSelectorScreen() {
       >
         {/* Selection overlay rendered as map children - handled by absolute positioned views below */}
       </MapboxMapView>
+
+      {/* Map controls — zoom and recenter, same position as home screen */}
+      <View style={styles.controls} pointerEvents="box-none">
+        <MapControls
+          mode="map"
+          onZoomIn={() => zoom(1)}
+          onZoomOut={() => zoom(-1)}
+          onRecenter={recenter}
+        />
+      </View>
 
       {/* Header overlay */}
       <View
@@ -384,6 +426,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
     gap: 12,
+  },
+  controls: {
+    position: 'absolute',
+    zIndex: 30,
+    top: '50%',
+    right: 8,
+    alignItems: 'center',
   },
   sizeRow: {
     alignItems: 'center',
