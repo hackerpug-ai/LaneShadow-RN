@@ -536,7 +536,7 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
         <Camera
           ref={cameraRef}
           centerCoordinate={camera?.center}
-          zoomLevel={camera?.zoom}
+          zoomLevel={camera?.zoom ?? 12}
           pitch={camera?.pitch ?? 0}
           heading={camera?.heading ?? 0}
         />

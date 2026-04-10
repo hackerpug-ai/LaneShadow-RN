@@ -12,6 +12,7 @@ import { Text } from 'react-native-paper'
 import { SubpageLayout } from '../../../components/layouts/subpage-layout'
 import { RegionListItem } from '../../../components/offline/region-list-item'
 import { DeleteConfirmationDialog } from '../../../components/offline/delete-confirmation-dialog'
+import { RenameRegionBottomSheet } from '../../../components/offline/rename-region-bottom-sheet'
 import { EmptyState } from '../../../components/ui/empty-state'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useOfflineDownload } from '../../../hooks/useOfflineDownload'
@@ -23,10 +24,12 @@ export default function OfflineRegionsScreen() {
     regions,
     totalStorageUsed,
     deleteRegion,
+    renameRegion,
     refreshRegions,
   } = useOfflineDownload()
 
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
+  const [renameTarget, setRenameTarget] = useState<string | null>(null)
 
   const deleteRegionMeta = regions.find((r) => r.name === deleteTarget)
 
@@ -46,20 +49,39 @@ export default function OfflineRegionsScreen() {
 
   const handleView = useCallback(
     (name: string) => {
-      // TODO: navigate to map centered on this region's bounds
-      // For now, just go back to home
-      router.push('/(app)/(tabs)' as any)
+      const region = regions.find((r) => r.name === name)
+      if (region) {
+        router.push({
+          pathname: '/(app)/offline/region-selector',
+          params: {
+            regionName: region.name,
+            swLat: String(region.bounds.sw.lat),
+            swLng: String(region.bounds.sw.lng),
+            neLat: String(region.bounds.ne.lat),
+            neLng: String(region.bounds.ne.lng),
+            zoom: '10',
+          },
+        } as any)
+      }
     },
-    [router],
+    [regions, router],
   )
 
   const handleEdit = useCallback(
     (name: string) => {
-      // TODO: open rename bottom sheet
-      // Placeholder — for now just log
-      console.log('Rename region:', name)
+      setRenameTarget(name)
     },
     [],
+  )
+
+  const handleRename = useCallback(
+    async (newName: string) => {
+      if (renameTarget) {
+        await renameRegion(renameTarget, newName)
+        setRenameTarget(null)
+      }
+    },
+    [renameTarget, renameRegion],
   )
 
   const renderItem = useCallback(
@@ -154,6 +176,14 @@ export default function OfflineRegionsScreen() {
           onConfirm={handleDelete}
           onDismiss={() => setDeleteTarget(null)}
           testID="delete-region-dialog"
+        />
+
+        <RenameRegionBottomSheet
+          visible={renameTarget !== null}
+          currentName={renameTarget ?? ''}
+          onConfirm={handleRename}
+          onCancel={() => setRenameTarget(null)}
+          testID="rename-region-sheet"
         />
       </View>
     </SubpageLayout>

@@ -13,6 +13,7 @@
  */
 
 import { offlineManager } from '@rnmapbox/maps'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { DownloadQueue } from './download-queue'
 import { StorageUtils } from './storage-utils'
 import { WiFiValidator } from './wifi-validator'
@@ -46,6 +47,8 @@ export type DownloadState = 'idle' | 'downloading' | 'paused' | 'complete' | 'fa
 
 export interface RegionMetadata {
   name: string
+  /** Internal Mapbox pack name — stays stable across renames */
+  packName: string
   bounds: RegionBounds
   size: number // bytes
   downloadedAt: string // ISO8601
@@ -134,6 +137,7 @@ class OfflineRegionManager {
     // Save initial metadata
     const metadata: RegionMetadata = {
       name: params.name,
+      packName: params.name,
       bounds: params.bounds,
       size: estimatedSize,
       downloadedAt: new Date().toISOString(),
@@ -203,10 +207,28 @@ class OfflineRegionManager {
   }
 
   /** Delete an offline pack */
-  async deletePack(packName: string): Promise<void> {
-    await offlineManager.deletePack(packName)
-    this.metadata.delete(packName)
-    this.progressCallbacks.delete(packName)
+  async deletePack(name: string): Promise<void> {
+    const meta = this.metadata.get(name)
+    if (!meta) return
+    await offlineManager.deletePack(meta.packName)
+    this.metadata.delete(name)
+    this.progressCallbacks.delete(name)
+    await this.persistMetadata()
+  }
+
+  /** Rename a region (updates display name; internal pack name stays the same) */
+  async renameRegion(oldName: string, newName: string): Promise<void> {
+    await this.initialize()
+    const meta = this.metadata.get(oldName)
+    if (!meta) throw new Error(`Region "${oldName}" not found`)
+
+    const trimmed = newName.trim()
+    if (!trimmed || trimmed === oldName) return
+
+    // Update metadata with new display name, keep packName stable
+    this.metadata.delete(oldName)
+    meta.name = trimmed
+    this.metadata.set(trimmed, meta)
     await this.persistMetadata()
   }
 
@@ -336,31 +358,66 @@ class OfflineRegionManager {
   }
 
   private async loadMetadata(): Promise<void> {
+    // 1. Restore persisted metadata from AsyncStorage
     try {
-      // Use a simple JSON storage approach
-      // In production, this would use AsyncStorage or SecureStore
-      // For now, we rely on the in-memory map being populated by getPacks()
-      const packs = await offlineManager.getPacks()
-      for (const pack of packs) {
-        if (!this.metadata.has(pack.name)) {
-          this.metadata.set(pack.name, {
-            name: pack.name,
-            bounds: pack.bounds as unknown as RegionBounds,
-            size: 0,
-            downloadedAt: (pack.metadata?.downloadedAt as string) ?? new Date().toISOString(),
-            state: 'complete',
-          })
+      const raw = await AsyncStorage.getItem(STORAGE_KEY)
+      if (raw) {
+        const entries: [string, RegionMetadata][] = JSON.parse(raw)
+        for (const [key, meta] of entries) {
+          this.metadata.set(key, meta)
         }
       }
     } catch {
-      // No persisted data yet
+      // Corrupted or missing — start fresh
+    }
+
+    // 2. Merge with actual Mapbox packs (pick up any packs we don't know about)
+    try {
+      const packs = await offlineManager.getPacks()
+
+      const existingPackNames = new Set<string>()
+      for (const meta of this.metadata.values()) {
+        existingPackNames.add(meta.packName)
+      }
+
+      for (const pack of packs) {
+        if (existingPackNames.has(pack.name)) continue
+
+        // Mapbox pack.bounds is [[neLng, neLat], [swLng, swLat]] — convert
+        const packBounds = pack.bounds as unknown as number[][]
+        let bounds: RegionBounds
+        if (Array.isArray(packBounds) && packBounds.length >= 2) {
+          const ne = packBounds[0]
+          const sw = packBounds[1]
+          bounds = {
+            ne: { lat: ne[1], lng: ne[0] },
+            sw: { lat: sw[1], lng: sw[0] },
+          }
+        } else {
+          bounds = { ne: { lat: 0, lng: 0 }, sw: { lat: 0, lng: 0 } }
+        }
+
+        this.metadata.set(pack.name, {
+          name: pack.name,
+          packName: pack.name,
+          bounds,
+          size: 0,
+          downloadedAt: (pack.metadata?.downloadedAt as string) ?? new Date().toISOString(),
+          state: 'complete',
+        })
+      }
+    } catch {
+      // Mapbox not available — rely on persisted data
     }
   }
 
   private async persistMetadata(): Promise<void> {
-    // Metadata is persisted via the pack's metadata field in Mapbox
-    // In-memory map serves as the working cache
-    // For full persistence across restarts, we'd serialize to SecureStore
+    try {
+      const entries = Array.from(this.metadata.entries()).map(([key, val]) => [key, val])
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(entries))
+    } catch {
+      // Best-effort persist — don't block operations
+    }
   }
 
   private cleanup(): void {

@@ -64,18 +64,8 @@ export const RegionListItem = ({
       ]}
       accessibilityLabel={`${region.name}, ${formatSize(region.size)}, Downloaded ${formatDate(region.downloadedAt)}`}
     >
-      {/* Main info — tappable to view */}
-      <Pressable
-        onPress={() => onView?.(region.name)}
-        style={({ pressed }) => [
-          styles.infoArea,
-          {
-            opacity: pressed ? 0.7 : 1,
-          },
-        ]}
-        accessibilityRole="button"
-        accessibilityLabel={`View ${region.name}`}
-      >
+      {/* Region info */}
+      <View style={styles.infoArea}>
         <View style={[styles.row, { marginBottom: semantic.space.xs }]}>
           <Text
             variant="titleMedium"
@@ -98,9 +88,9 @@ export const RegionListItem = ({
         >
           {formatDate(region.downloadedAt)} • {formatBounds()}
         </Text>
-      </Pressable>
+      </View>
 
-      {/* Action row */}
+      {/* Action row — evenly distributed */}
       <View
         style={[
           styles.actionRow,
@@ -109,7 +99,6 @@ export const RegionListItem = ({
             paddingTop: semantic.space.md,
             borderTopWidth: 1,
             borderTopColor: semantic.color.border.default,
-            gap: semantic.space.md,
           },
         ]}
       >
@@ -124,7 +113,6 @@ export const RegionListItem = ({
                 : 'transparent',
               borderRadius: semantic.radius.md,
               paddingVertical: semantic.space.sm,
-              paddingHorizontal: semantic.space.md,
             },
           ]}
           accessibilityRole="button"
@@ -154,7 +142,6 @@ export const RegionListItem = ({
                 : 'transparent',
               borderRadius: semantic.radius.md,
               paddingVertical: semantic.space.sm,
-              paddingHorizontal: semantic.space.md,
             },
           ]}
           accessibilityRole="button"
@@ -184,7 +171,6 @@ export const RegionListItem = ({
                 : 'transparent',
               borderRadius: semantic.radius.md,
               paddingVertical: semantic.space.sm,
-              paddingHorizontal: semantic.space.md,
             },
           ]}
           accessibilityRole="button"
@@ -221,11 +207,14 @@ const styles = StyleSheet.create({
   },
   actionRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   actionButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 4,
   },
 })

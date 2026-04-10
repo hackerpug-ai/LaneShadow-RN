@@ -95,6 +95,14 @@ export function useOfflineDownload() {
     await offlineRegionManager.resumeDownload(name)
   }, [])
 
+  const renameRegion = useCallback(
+    async (oldName: string, newName: string) => {
+      await offlineRegionManager.renameRegion(oldName, newName)
+      refreshRegions()
+    },
+    [refreshRegions],
+  )
+
   return {
     progress,
     regions,
@@ -104,12 +112,14 @@ export function useOfflineDownload() {
     totalStorageUsed: offlineRegionManager.getTotalStorageUsed(),
     downloadRegion,
     deleteRegion,
+    renameRegion,
     pauseDownload,
     resumeDownload,
     refreshRegions,
   } satisfies OfflineDownloadState & {
     downloadRegion: typeof downloadRegion
     deleteRegion: typeof deleteRegion
+    renameRegion: typeof renameRegion
     pauseDownload: typeof pauseDownload
     resumeDownload: typeof resumeDownload
     refreshRegions: typeof refreshRegions

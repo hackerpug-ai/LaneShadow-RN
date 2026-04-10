@@ -305,6 +305,7 @@ describe('DownloadProgressIndicator', () => {
 describe('RegionListItem', () => {
   const mockRegion = {
     name: 'Rocky Mountains',
+    packName: 'Rocky Mountains',
     bounds: {
       sw: { lat: 39.5, lng: -105.2 },
       ne: { lat: 39.9, lng: -104.7 },

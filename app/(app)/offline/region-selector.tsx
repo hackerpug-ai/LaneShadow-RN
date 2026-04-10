@@ -5,9 +5,14 @@
  * The user pans/zooms the map to position the area they want
  * inside the viewport frame. The frame acts as a viewfinder —
  * only the map content visible through it will be downloaded.
+ *
+ * When opened with `regionName`/`regionBounds`/`regionZoom` params,
+ * the camera snaps to that region's exact capture and the download
+ * button stays disabled until the user moves or zooms the map.
+ * The old region is only purged when the new download is confirmed.
  */
 
-import { useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
@@ -49,23 +54,49 @@ const CORNER_THICKNESS = 3
 
 export default function RegionSelectorScreen() {
   const router = useRouter()
+  const params = useLocalSearchParams<{
+    regionName?: string
+    swLat?: string
+    swLng?: string
+    neLat?: string
+    neLng?: string
+    zoom?: string
+  }>()
   const { semantic } = useSemanticTheme()
   const { isDark } = useThemePreference()
   const insets = useSafeAreaInsets()
-  const { downloadRegion, progress } = useOfflineDownload()
+  const { downloadRegion, deleteRegion, progress } = useOfflineDownload()
   const mapRef = useRef<MapboxMapViewHandle | null>(null)
 
   const zoom = useCallback((delta: number) => mapRef.current?.zoomBy(delta), [])
   const recenter = useCallback(() => mapRef.current?.recenterToUser(), [])
 
+  // Parse existing region params (if editing/re-viewing)
+  const existingBounds: SelectionBounds | null = useMemo(() => {
+    if (params.swLat && params.swLng && params.neLat && params.neLng) {
+      return {
+        sw: { lat: parseFloat(params.swLat), lng: parseFloat(params.swLng) },
+        ne: { lat: parseFloat(params.neLat), lng: parseFloat(params.neLng) },
+      }
+    }
+    return null
+  }, [params.swLat, params.swLng, params.neLat, params.neLng])
+
+  const existingZoom = params.zoom ? parseFloat(params.zoom) : null
+  const existingName = params.regionName ?? null
+
   const [bounds, setBounds] = useState<SelectionBounds>(() =>
-    makeBounds(FALLBACK_CENTER.lat, FALLBACK_CENTER.lng),
+    existingBounds ?? makeBounds(FALLBACK_CENTER.lat, FALLBACK_CENTER.lng),
   )
   const [showNameSheet, setShowNameSheet] = useState(false)
   const [isWiFi, setIsWiFi] = useState(true)
+  const [hasMoved, setHasMoved] = useState(false)
 
-  // Center on user's current location on mount
+  const initialCameraZoom = existingZoom ?? 10
+
+  // Center on user's current location on mount (only if no existing region)
   useEffect(() => {
+    if (existingBounds) return
     let mounted = true
     ;(async () => {
       try {
@@ -82,7 +113,12 @@ export default function RegionSelectorScreen() {
       }
     })()
     return () => { mounted = false }
-  }, [])
+  }, [existingBounds])
+
+  // When camera moves from the initial position, enable download
+  const handleCameraMove = useCallback(() => {
+    if (!hasMoved) setHasMoved(true)
+  }, [hasMoved])
 
   const sizeEstimate = useMemo(
     () =>
@@ -102,6 +138,8 @@ export default function RegionSelectorScreen() {
     return mb < 1 ? '< 1 MB' : `${mb.toFixed(0)} MB`
   }
 
+  const canDownload = !existingBounds || hasMoved
+
   const handleDownloadPress = useCallback(async () => {
     const wifi = await WiFiValidator.isWiFi()
     setIsWiFi(wifi)
@@ -111,6 +149,10 @@ export default function RegionSelectorScreen() {
   const handleConfirmDownload = useCallback(
     async (name: string) => {
       setShowNameSheet(false)
+      // Purge old region only at the point of confirming new download
+      if (existingName) {
+        await deleteRegion(existingName)
+      }
       await downloadRegion({
         name,
         bounds,
@@ -119,7 +161,7 @@ export default function RegionSelectorScreen() {
         maxZoom: MAX_ZOOM,
       })
     },
-    [downloadRegion, bounds],
+    [downloadRegion, deleteRegion, bounds, existingName],
   )
 
   const isDownloading = progress?.state === 'downloading'
@@ -127,18 +169,21 @@ export default function RegionSelectorScreen() {
   const primaryColor = semantic.color.primary.default
   const scrimColor = `${semantic.color.background.default}88`
 
+  const cameraCenter: [number, number] = [
+    (bounds.sw.lng + bounds.ne.lng) / 2,
+    (bounds.sw.lat + bounds.ne.lat) / 2,
+  ]
+
   return (
     <View style={styles.container} testID="region-selector-screen">
       <MapboxMapView
         ref={mapRef}
         theme={isDark ? 'dark' : 'light'}
         camera={{
-          center: [
-            (bounds.sw.lng + bounds.ne.lng) / 2,
-            (bounds.sw.lat + bounds.ne.lat) / 2,
-          ],
-          zoom: 10,
+          center: cameraCenter,
+          zoom: initialCameraZoom,
         }}
+        onCameraMove={handleCameraMove}
         style={StyleSheet.absoluteFill}
       />
 
@@ -146,8 +191,8 @@ export default function RegionSelectorScreen() {
       <View style={styles.controls} pointerEvents="box-none">
         <MapControls
           mode="map"
-          onZoomIn={() => zoom(1)}
-          onZoomOut={() => zoom(-1)}
+          onZoomIn={() => { zoom(1); setHasMoved(true) }}
+          onZoomOut={() => { zoom(-1); setHasMoved(true) }}
           onRecenter={recenter}
         />
       </View>
@@ -299,15 +344,26 @@ export default function RegionSelectorScreen() {
                 estimated download
               </Text>
             </View>
-            <Button
-              variant="default"
-              size="lg"
-              onPress={handleDownloadPress}
-              testID="download-region-button"
-              style={{ width: '100%' }}
-            >
-              Download Region
-            </Button>
+            {canDownload ? (
+              <Button
+                variant="default"
+                size="lg"
+                onPress={handleDownloadPress}
+                testID="download-region-button"
+                style={{ width: '100%' }}
+              >
+                Download Region
+              </Button>
+            ) : (
+              <View style={[styles.hintBox, { backgroundColor: `${semantic.color.primary.default}15`, borderRadius: semantic.radius.md, padding: semantic.space.md }]}>
+                <Text
+                  variant="bodySmall"
+                  style={{ color: semantic.color.onSurface.muted, textAlign: 'center' }}
+                >
+                  Pan or zoom the map to select a new area
+                </Text>
+              </View>
+            )}
           </>
         )}
       </View>
@@ -340,54 +396,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
-  /**
-   * Scrim rectangles that dim the area outside the viewport.
-   * Each is a non-interactive overlay (pointerEvents handled by parent).
-   */
   scrim: {
     flexDirection: 'row',
   },
-  /**
-   * Middle row sits between the top and bottom scrim bands.
-   * Contains: left-scrim | viewport | right-scrim
-   */
   middleRow: {
     height: '55%',
     flexDirection: 'row',
   },
-  /**
-   * The clear viewport window. Map shows through unobstructed.
-   * Thin edge border + corner brackets are the only chrome.
-   */
   viewport: {
     width: '80%',
     position: 'relative',
     justifyContent: 'flex-start',
     flexWrap: 'wrap',
   },
-  /**
-   * Thin semi-transparent border around the viewport.
-   * Subtler than the corner brackets — gives a sense of the full frame.
-   */
   viewportBorder: {
     ...StyleSheet.absoluteFillObject,
     borderWidth: 1,
   },
-  /**
-   * Absolute-positioned wrapper for each corner bracket.
-   * Positioned via inline style (left/right/top/bottom) to the
-   * four corners of the viewport. Offset by -1px so the bracket
-   * sits flush with the thin viewport border.
-   */
   cornerPosition: {
     position: 'absolute',
     zIndex: 2,
   },
-  /**
-   * L-shaped corner bracket. Only two sides have borders,
-   * creating the camera viewfinder aesthetic.
-   * Width/height set inline per-corner; borders set inline.
-   */
   cornerBracket: {
     backgroundColor: 'transparent',
   },
@@ -411,4 +440,5 @@ const styles = StyleSheet.create({
   sizeRow: {
     alignItems: 'center',
   },
+  hintBox: {},
 })

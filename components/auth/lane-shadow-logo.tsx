@@ -17,13 +17,12 @@ export const LaneShadowLogo = ({ size }: LaneShadowLogoProps) => {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       {/* Thick S-curve “route” glyph with two filled endpoints (matches login mock). */}
-      <Circle cx="8" cy="6" r={dotRadius} fill={semantic.color.onPrimary.default} opacity={0.95} />
+      <Circle cx="8" cy="6" r={dotRadius} fill={semantic.color.onPrimary.default} />
       <Circle
         cx="16"
         cy="18"
         r={dotRadius}
         fill={semantic.color.onPrimary.default}
-        opacity={0.95}
       />
       <Path
         d="M8 6 V12 C8 15 12 15 12 12 V10 C12 7 16 7 16 10 V18"
@@ -32,7 +31,6 @@ export const LaneShadowLogo = ({ size }: LaneShadowLogoProps) => {
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"
-        opacity={0.9}
       />
     </Svg>
   )

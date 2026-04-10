@@ -1,6 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { offlineManager } from '@rnmapbox/maps'
 
+vi.mock('@react-native-async-storage/async-storage', () => ({
+  default: {
+    getItem: vi.fn(async () => null),
+    setItem: vi.fn(async () => {}),
+    removeItem: vi.fn(async () => {}),
+    clear: vi.fn(async () => {}),
+  },
+  __esModule: true,
+}))
+
 // Mock type with test helpers
 type MockOfflineManager = typeof offlineManager & {
   _resetPacks: () => void
