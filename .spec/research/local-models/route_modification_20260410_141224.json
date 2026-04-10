@@ -1,0 +1,936 @@
+{
+  "test_type": "route_modification_validation",
+  "date": "2026-04-10T14:12:24.977128",
+  "model": "mlx-community/Qwen3.5-0.8B-OptiQ-4bit",
+  "fixture": "sf-santa-cruz",
+  "reps_per_scenario": 3,
+  "scenarios": [
+    {
+      "scenario_id": "M1-avoid-highway",
+      "description": "All returned legs must have highway=False",
+      "constraint": "Avoid Highway 1",
+      "runs": [
+        {
+          "rep": 0,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": false,
+            "duration_s": 1.0,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 1.33,
+            "legs": [
+              "ssc-1c",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4c",
+              "ssc-5b"
+            ]
+          }
+        },
+        {
+          "rep": 1,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": false,
+            "duration_s": 1.01,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 1.33,
+            "legs": [
+              "ssc-1c",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4c",
+              "ssc-5b"
+            ]
+          }
+        },
+        {
+          "rep": 2,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": false,
+            "duration_s": 0.95,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 1.33,
+            "legs": [
+              "ssc-1c",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4c",
+              "ssc-5b"
+            ]
+          }
+        }
+      ],
+      "aggregate": {
+        "qwen_constraint_rate": 0.0,
+        "qwen_connectivity_rate": 1.0,
+        "qwen_json_rate": 1.0,
+        "qwen_hallucination_total": 0,
+        "haiku_constraint_ok": true,
+        "qwen_viable": false
+      }
+    },
+    {
+      "scenario_id": "M2-closed-leg",
+      "description": "ssc-3a must not appear; a ssc-3x alternate must appear",
+      "constraint": "Leg ssc-3a (Half Moon Bay to Pescadero) is closed for construction. Find an alternate for that leg only.",
+      "runs": [
+        {
+          "rep": 0,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": false,
+            "duration_s": 0.95,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.87,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3b",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          }
+        },
+        {
+          "rep": 1,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": false,
+            "duration_s": 0.98,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.87,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3b",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          }
+        },
+        {
+          "rep": 2,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": false,
+            "duration_s": 0.94,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.87,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3b",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          }
+        }
+      ],
+      "aggregate": {
+        "qwen_constraint_rate": 0.0,
+        "qwen_connectivity_rate": 1.0,
+        "qwen_json_rate": 1.0,
+        "qwen_hallucination_total": 0,
+        "haiku_constraint_ok": true,
+        "qwen_viable": false
+      }
+    },
+    {
+      "scenario_id": "M3-more-scenic",
+      "description": "Total scenic score must be >= original",
+      "constraint": "Make the route more scenic. Swap any legs where a more scenic alternate exists.",
+      "runs": [
+        {
+          "rep": 0,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.89,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.64,
+            "legs": [
+              "ssc-1c",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4c",
+              "ssc-5b"
+            ]
+          }
+        },
+        {
+          "rep": 1,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.99,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.64,
+            "legs": [
+              "ssc-1c",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4c",
+              "ssc-5b"
+            ]
+          }
+        },
+        {
+          "rep": 2,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 1.01,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.64,
+            "legs": [
+              "ssc-1c",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4c",
+              "ssc-5b"
+            ]
+          }
+        }
+      ],
+      "aggregate": {
+        "qwen_constraint_rate": 1.0,
+        "qwen_connectivity_rate": 1.0,
+        "qwen_json_rate": 1.0,
+        "qwen_hallucination_total": 0,
+        "haiku_constraint_ok": true,
+        "qwen_viable": true
+      }
+    },
+    {
+      "scenario_id": "M4-shorter",
+      "description": "Total distance must not exceed original by more than 5 miles",
+      "constraint": "Make the route shorter. Choose alternates that reduce total distance where possible.",
+      "runs": [
+        {
+          "rep": 0,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 1.0,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.89,
+            "legs": [
+              "ssc-1b",
+              "ssc-2c",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          }
+        },
+        {
+          "rep": 1,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 1.0,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.89,
+            "legs": [
+              "ssc-1b",
+              "ssc-2c",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          }
+        },
+        {
+          "rep": 2,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.98,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.89,
+            "legs": [
+              "ssc-1b",
+              "ssc-2c",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          }
+        }
+      ],
+      "aggregate": {
+        "qwen_constraint_rate": 1.0,
+        "qwen_connectivity_rate": 1.0,
+        "qwen_json_rate": 1.0,
+        "qwen_hallucination_total": 0,
+        "haiku_constraint_ok": true,
+        "qwen_viable": true
+      }
+    },
+    {
+      "scenario_id": "M5-multi-constraint",
+      "description": "No leg has highway=True or toll=True",
+      "constraint": "No Highway 1 AND no toll roads AND prefer the more scenic option at each leg.",
+      "runs": [
+        {
+          "rep": 0,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": false,
+            "duration_s": 0.98,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.94,
+            "legs": [
+              "ssc-1c",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4c",
+              "ssc-5b"
+            ]
+          }
+        },
+        {
+          "rep": 1,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": false,
+            "duration_s": 0.97,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.94,
+            "legs": [
+              "ssc-1c",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4c",
+              "ssc-5b"
+            ]
+          }
+        },
+        {
+          "rep": 2,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": false,
+            "duration_s": 1.02,
+            "legs": [
+              "ssc-1a",
+              "ssc-2a",
+              "ssc-3a",
+              "ssc-4a",
+              "ssc-5a"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.94,
+            "legs": [
+              "ssc-1c",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4c",
+              "ssc-5b"
+            ]
+          }
+        }
+      ],
+      "aggregate": {
+        "qwen_constraint_rate": 0.0,
+        "qwen_connectivity_rate": 1.0,
+        "qwen_json_rate": 1.0,
+        "qwen_hallucination_total": 0,
+        "haiku_constraint_ok": true,
+        "qwen_viable": false
+      }
+    },
+    {
+      "scenario_id": "M6-surgical-swap",
+      "description": "ssc-1a, ssc-3a, ssc-5a must be unchanged; ssc-2a and ssc-4a must be replaced",
+      "constraint": "Replace only legs ssc-2a and ssc-4a with alternates. Keep all other legs exactly as they are.",
+      "runs": [
+        {
+          "rep": 0,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": false,
+            "duration_s": 0.98,
+            "legs": [
+              "ssc-1a",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4b",
+              "ssc-5b"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.84,
+            "legs": [
+              "ssc-1a",
+              "ssc-2b",
+              "ssc-3a",
+              "ssc-4c",
+              "ssc-5a"
+            ]
+          }
+        },
+        {
+          "rep": 1,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": false,
+            "duration_s": 1.15,
+            "legs": [
+              "ssc-1a",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4b",
+              "ssc-5b"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.84,
+            "legs": [
+              "ssc-1a",
+              "ssc-2b",
+              "ssc-3a",
+              "ssc-4c",
+              "ssc-5a"
+            ]
+          }
+        },
+        {
+          "rep": 2,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": false,
+            "duration_s": 0.98,
+            "legs": [
+              "ssc-1a",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4b",
+              "ssc-5b"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.84,
+            "legs": [
+              "ssc-1a",
+              "ssc-2b",
+              "ssc-3a",
+              "ssc-4c",
+              "ssc-5a"
+            ]
+          }
+        }
+      ],
+      "aggregate": {
+        "qwen_constraint_rate": 0.0,
+        "qwen_connectivity_rate": 1.0,
+        "qwen_json_rate": 1.0,
+        "qwen_hallucination_total": 0,
+        "haiku_constraint_ok": true,
+        "qwen_viable": false
+      }
+    },
+    {
+      "scenario_id": "M7-twistiest",
+      "description": "Total curvature score must be >= original",
+      "constraint": "Give me the twistiest possible version of this route. Use the highest-curvature alternate for every leg.",
+      "runs": [
+        {
+          "rep": 0,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.98,
+            "legs": [
+              "ssc-1a",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4b",
+              "ssc-5b"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 1.08,
+            "legs": [
+              "ssc-1c",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4c",
+              "ssc-5c"
+            ]
+          }
+        },
+        {
+          "rep": 1,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 1.11,
+            "legs": [
+              "ssc-1a",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4b",
+              "ssc-5b"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 1.08,
+            "legs": [
+              "ssc-1c",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4c",
+              "ssc-5c"
+            ]
+          }
+        },
+        {
+          "rep": 2,
+          "qwen": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 0.99,
+            "legs": [
+              "ssc-1a",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4b",
+              "ssc-5b"
+            ]
+          },
+          "haiku": {
+            "valid_json": true,
+            "count_correct": true,
+            "actual_count": 5,
+            "expected_count": 5,
+            "hallucinations": [],
+            "hallucination_count": 0,
+            "connectivity_ok": true,
+            "constraint_ok": true,
+            "duration_s": 1.08,
+            "legs": [
+              "ssc-1c",
+              "ssc-2b",
+              "ssc-3b",
+              "ssc-4c",
+              "ssc-5c"
+            ]
+          }
+        }
+      ],
+      "aggregate": {
+        "qwen_constraint_rate": 1.0,
+        "qwen_connectivity_rate": 1.0,
+        "qwen_json_rate": 1.0,
+        "qwen_hallucination_total": 0,
+        "haiku_constraint_ok": true,
+        "qwen_viable": true
+      }
+    }
+  ],
+  "gates": {
+    "modification_viable": false
+  }
+}

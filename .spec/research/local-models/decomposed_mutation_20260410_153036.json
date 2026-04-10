@@ -1,0 +1,4057 @@
+{
+  "test_type": "decomposed_mutation_comparison",
+  "date": "2026-04-10T15:30:36.219105",
+  "qwen_model": "mlx-community/Qwen3.5-0.8B-OptiQ-4bit",
+  "haiku_model": "claude-haiku-4-5-20251001",
+  "scenarios_count": 20,
+  "option_a": {
+    "rows": [
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "avoid_road"
+        ],
+        "op_types_valid": [
+          "avoid_road"
+        ],
+        "pass1_latency": 0.68,
+        "pass2_latencies": [
+          0.67
+        ],
+        "sequential_s": 1.35,
+        "parallel_s": 1.35,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "...",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "remove_waypoint"
+        ],
+        "op_types_valid": [
+          "remove_waypoint"
+        ],
+        "pass1_latency": 0.55,
+        "pass2_latencies": [
+          0.35
+        ],
+        "sequential_s": 0.9,
+        "parallel_s": 0.9,
+        "model_ops": [
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "add_waypoint"
+        ],
+        "op_types_valid": [
+          "add_waypoint"
+        ],
+        "pass1_latency": 0.57,
+        "pass2_latencies": [
+          0.43
+        ],
+        "sequential_s": 1.01,
+        "parallel_s": 1.01,
+        "model_ops": [
+          {
+            "op": "add_waypoint",
+            "place_name": "Pigeon Point Lighthouse",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "avoid_road"
+        ],
+        "op_types_valid": [
+          "avoid_road"
+        ],
+        "pass1_latency": 0.54,
+        "pass2_latencies": [
+          0.34
+        ],
+        "sequential_s": 0.88,
+        "parallel_s": 0.88,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "No toll roads please",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 0.0,
+          "forbidden_violations": 1,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "trim_route"
+        ],
+        "op_types_valid": [
+          "trim_route"
+        ],
+        "pass1_latency": 0.57,
+        "pass2_latencies": [
+          0.46
+        ],
+        "sequential_s": 1.03,
+        "parallel_s": 1.03,
+        "model_ops": [
+          {
+            "op": "trim_route",
+            "keep_through_index": 1,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "avoid_road"
+        ],
+        "op_types_valid": [
+          "avoid_road"
+        ],
+        "pass1_latency": 0.54,
+        "pass2_latencies": [
+          0.67
+        ],
+        "sequential_s": 1.21,
+        "parallel_s": 1.21,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "...",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 0.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "avoid_road"
+        ],
+        "op_types_valid": [
+          "avoid_road"
+        ],
+        "pass1_latency": 0.54,
+        "pass2_latencies": [
+          0.34
+        ],
+        "sequential_s": 0.88,
+        "parallel_s": 0.88,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Avoid any ferry crossings",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 0.0,
+          "forbidden_violations": 1,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "avoid_road"
+        ],
+        "op_types_valid": [
+          "avoid_road"
+        ],
+        "pass1_latency": 0.5,
+        "pass2_latencies": [
+          0.31
+        ],
+        "sequential_s": 0.81,
+        "parallel_s": 0.81,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Half Moon Bay",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 0.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "avoid_road"
+        ],
+        "op_types_valid": [
+          "avoid_road"
+        ],
+        "pass1_latency": 0.54,
+        "pass2_latencies": [
+          0.34
+        ],
+        "sequential_s": 0.87,
+        "parallel_s": 0.87,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Avoid the coastal highway",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "add_waypoint"
+        ],
+        "op_types_valid": [
+          "add_waypoint"
+        ],
+        "pass1_latency": 0.54,
+        "pass2_latencies": [
+          0.82
+        ],
+        "sequential_s": 1.37,
+        "parallel_s": 1.37,
+        "model_ops": [
+          {
+            "op": "add_waypoint",
+            "place_name": "Pescadero, CA",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "remove_waypoint"
+        ],
+        "op_types_valid": [
+          "remove_waypoint"
+        ],
+        "pass1_latency": 0.55,
+        "pass2_latencies": [
+          0.69
+        ],
+        "sequential_s": 1.23,
+        "parallel_s": 1.23,
+        "model_ops": [
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "avoid_road"
+        ],
+        "op_types_valid": [
+          "avoid_road"
+        ],
+        "pass1_latency": 0.55,
+        "pass2_latencies": [
+          0.36
+        ],
+        "sequential_s": 0.91,
+        "parallel_s": 0.91,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Avoid major highways",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 0.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "remove_waypoint"
+        ],
+        "op_types_valid": [
+          "remove_waypoint"
+        ],
+        "pass1_latency": 0.55,
+        "pass2_latencies": [
+          0.35
+        ],
+        "sequential_s": 0.9,
+        "parallel_s": 0.9,
+        "model_ops": [
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "avoid_road"
+        ],
+        "op_types_valid": [
+          "avoid_road"
+        ],
+        "pass1_latency": 0.55,
+        "pass2_latencies": [
+          0.72
+        ],
+        "sequential_s": 1.27,
+        "parallel_s": 1.27,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "...",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 0.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "add_waypoint"
+        ],
+        "op_types_valid": [
+          "add_waypoint"
+        ],
+        "pass1_latency": 0.55,
+        "pass2_latencies": [
+          0.81
+        ],
+        "sequential_s": 1.35,
+        "parallel_s": 1.35,
+        "model_ops": [
+          {
+            "op": "add_waypoint",
+            "place_name": "Pescadero, CA",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "avoid_road",
+          "exclude_feature"
+        ],
+        "op_types_valid": [
+          "avoid_road",
+          "exclude_feature"
+        ],
+        "pass1_latency": 0.55,
+        "pass2_latencies": [
+          0.34,
+          0.59
+        ],
+        "sequential_s": 1.47,
+        "parallel_s": 1.13,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Avoid the coastal highway",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": "toll",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 2
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "add_waypoint",
+          "remove_waypoint"
+        ],
+        "op_types_valid": [
+          "add_waypoint",
+          "remove_waypoint"
+        ],
+        "pass1_latency": 0.56,
+        "pass2_latencies": [
+          0.83,
+          0.7
+        ],
+        "sequential_s": 2.09,
+        "parallel_s": 1.39,
+        "model_ops": [
+          {
+            "op": "add_waypoint",
+            "place_name": "Bodega Bay, CA",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": null,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 0.0,
+          "forbidden_violations": 0,
+          "ops_count": 2
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "remove_waypoint"
+        ],
+        "op_types_valid": [
+          "remove_waypoint"
+        ],
+        "pass1_latency": 0.54,
+        "pass2_latencies": [
+          0.73
+        ],
+        "sequential_s": 1.28,
+        "parallel_s": 1.28,
+        "model_ops": [
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": null,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "trim_route"
+        ],
+        "op_types_valid": [
+          "trim_route"
+        ],
+        "pass1_latency": 0.54,
+        "pass2_latencies": [
+          0.36
+        ],
+        "sequential_s": 0.9,
+        "parallel_s": 0.9,
+        "model_ops": [
+          {
+            "op": "trim_route",
+            "keep_through_index": 1,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "pass1_valid": true,
+        "intent_type": "update",
+        "op_types_raw": [
+          "add_waypoint"
+        ],
+        "op_types_valid": [
+          "add_waypoint"
+        ],
+        "pass1_latency": 0.57,
+        "pass2_latencies": [
+          0.81
+        ],
+        "sequential_s": 1.39,
+        "parallel_s": 1.38,
+        "model_ops": [
+          {
+            "op": "add_waypoint",
+            "place_name": "Petaluma",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      }
+    ],
+    "summary": {
+      "label": "Option A: Sequential (Qwen)",
+      "valid_json_rate": 1.0,
+      "pass_rate": 0.35,
+      "avg_f1": 0.325,
+      "avg_req_hit": 0.65,
+      "forbidden_total": 2,
+      "avg_seq_s": 1.16,
+      "avg_par_s": 1.1,
+      "p95_seq_s": 2.09,
+      "by_difficulty": {
+        "easy": {
+          "pass": 2,
+          "n": 7,
+          "avg_f1": 0.286
+        },
+        "medium": {
+          "pass": 3,
+          "n": 7,
+          "avg_f1": 0.429
+        },
+        "hard": {
+          "pass": 2,
+          "n": 6,
+          "avg_f1": 0.25
+        }
+      }
+    }
+  },
+  "option_b": {
+    "rows": [
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"road_hint\": \"Highway 1\"\n}\n```\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "road_hint": "Highway 1"
+            },
+            "applies": true,
+            "latency": 0.75
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "/\n  applies: true\n  feature: null\n\n```json\n{\n  \"applies\": true,\n  \"feature\": null\n}\n```\n\n```json\n{\n  \"applies\": false,\n  \"feature\": null\n}\n```\n\n```jso",
+            "parsed": {
+              "applies": true,
+              "feature": null
+            },
+            "applies": true,
+            "latency": 0.35
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Pescadero\",\n  \"insert_before_name\": \"Pescadero\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "place_name": "Pescadero",
+              "insert_before_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.89
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "/\n  applies   true | false\n  remove_name   waypoint name or null\n\n```\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pescadero\"\n}\n```\n```\n```\n```json\n",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.34
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n  applies   true | false\n  keep_through_name   last waypoint to keep, or null\n\n```json\n{\n  \"applies\": false,\n  \"keep_through_name\": \"last waypoint t",
+            "parsed": {
+              "applies": false,
+              "keep_through_name": "last waypoint to keep"
+            },
+            "applies": false,
+            "latency": 0.35
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n```json\n{\n  \"applies\": false,\n  \"swap_name_",
+            "parsed": {
+              "applies": false,
+              "swap_name_1": null,
+              "swap_name_2": null
+            },
+            "applies": false,
+            "latency": 0.38
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint"
+        ],
+        "sequential_s": 3.06,
+        "parallel_s": 0.89,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Highway 1",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Pescadero",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.25,
+          "recall": 1.0,
+          "f1": 0.4,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 1,
+          "ops_count": 4
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "/avoid_specific_named_road.json\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n**Reasoning:**\nThe rider's intent is to \"",
+            "parsed": {
+              "applies": false,
+              "road_hint": null
+            },
+            "applies": false,
+            "latency": 0.34
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n```<|endoftext|><|im_sta",
+            "parsed": {
+              "applies": true,
+              "feature": "toll"
+            },
+            "applies": true,
+            "latency": 0.7
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Pescadero\",\n  \"insert_before_name\": \"Pescadero\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "place_name": "Pescadero",
+              "insert_before_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.89
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "/stop/stop.json\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pescadero\"\n}\n```\n\n**Reasoning:**\nThe rider's intent is to skip the ",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.34
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n  applies   true | false\n  keep_through_name   last waypoint to keep, or null\n\n```json\n{\n  \"applies\": true,\n  \"keep_through_name\": \"last waypoint to",
+            "parsed": {
+              "applies": true,
+              "keep_through_name": "last waypoint to keep"
+            },
+            "applies": true,
+            "latency": 0.34
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": f",
+            "parsed": {
+              "applies": false,
+              "swap_name_1": "Pescadero",
+              "swap_name_2": "Santa Cruz"
+            },
+            "applies": false,
+            "latency": 0.4
+          }
+        ],
+        "probes_fired": [
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint",
+          "trim_route"
+        ],
+        "sequential_s": 3.0,
+        "parallel_s": 0.89,
+        "model_ops": [
+          {
+            "op": "exclude_feature",
+            "feature": "toll",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Pescadero",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "trim_route",
+            "keep_through_index": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.25,
+          "recall": 1.0,
+          "f1": 0.4,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 2,
+          "ops_count": 4
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"road_hint\": \"Pigeon Point Lighthouse\"\n}\n```\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n```json\n{\n  \"app",
+            "parsed": {
+              "applies": true,
+              "road_hint": "Pigeon Point Lighthouse"
+            },
+            "applies": true,
+            "latency": 0.69
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "/\n  applies: true\n  feature: null\n\n<think>\nThe user is asking whether the rider wants to exclude a type of road feature.\nThe provided JSON schema is:\n",
+            "parsed": null,
+            "applies": false,
+            "latency": 0.34
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Pigeon Point Lighthouse\",\n  \"insert_before_name\": \"Pigeon Point Lighthouse\"\n}\n```\n\n<think>\n\n</think>\n\n``",
+            "parsed": {
+              "applies": true,
+              "place_name": "Pigeon Point Lighthouse",
+              "insert_before_name": "Pigeon Point Lighthouse"
+            },
+            "applies": true,
+            "latency": 0.88
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pigeon Point Lighthouse\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pigeo",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Pigeon Point Lighthouse"
+            },
+            "applies": true,
+            "latency": 0.64
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n  applies   true | false\n  keep_through_name   last waypoint to keep, or null\n\n```json\n{\n  \"applies\": true,\n  \"keep_through_name\": \"Pigeon Point Lig",
+            "parsed": {
+              "applies": true,
+              "keep_through_name": "Pigeon Point Lighthouse"
+            },
+            "applies": true,
+            "latency": 0.34
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": t",
+            "parsed": {
+              "applies": true,
+              "swap_name_1": "Pigeon Point Lighthouse",
+              "swap_name_2": "Santa Cruz"
+            },
+            "applies": true,
+            "latency": 0.45
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "add_waypoint",
+          "remove_waypoint",
+          "trim_route",
+          "reorder_waypoints"
+        ],
+        "sequential_s": 3.34,
+        "parallel_s": 0.88,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Pigeon Point Lighthouse",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Pigeon Point Lighthouse",
+            "insert_before_index": null,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": null,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "trim_route",
+            "keep_through_index": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          },
+          {
+            "op": "reorder_waypoints",
+            "swap_indices": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 2,
+          "ops_count": 5
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "_road_1.txt\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n**Reasoning:**\nThe rider's intent is \"No toll roads please,\" ",
+            "parsed": {
+              "applies": false,
+              "road_hint": null
+            },
+            "applies": false,
+            "latency": 0.35
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "_road_features.json\n```json\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n```\n\n<think>\nThe user is asking whether the rider wants to exclude a type of ro",
+            "parsed": {
+              "applies": true,
+              "feature": "toll"
+            },
+            "applies": true,
+            "latency": 0.36
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Pescadero\",\n  \"insert_before_name\": \"Pescadero\"\n}\n```\n\n<think>\nThe user is asking whether the rider want",
+            "parsed": {
+              "applies": true,
+              "place_name": "Pescadero",
+              "insert_before_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.9
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pescadero\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pescadero\"\n}\n```\n\n*",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.73
+          },
+          {
+            "op": "trim_route",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"keep_through_name\": \"last waypoint to keep\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"keep_through_nam",
+            "parsed": {
+              "applies": true,
+              "keep_through_name": "last waypoint to keep"
+            },
+            "applies": true,
+            "latency": 0.68
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "_1/true/false\n/swap_name_1/first_waypoint or null\n/swap_name_2/second_waypoint or null\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": false,\n  \"swap_name_",
+            "parsed": {
+              "applies": false,
+              "swap_name_1": "Pescadero",
+              "swap_name_2": "Santa Cruz"
+            },
+            "applies": false,
+            "latency": 0.41
+          }
+        ],
+        "probes_fired": [
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint",
+          "trim_route"
+        ],
+        "sequential_s": 3.43,
+        "parallel_s": 0.9,
+        "model_ops": [
+          {
+            "op": "exclude_feature",
+            "feature": "toll",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Pescadero",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "trim_route",
+            "keep_through_index": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.25,
+          "recall": 1.0,
+          "f1": 0.4,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 1,
+          "ops_count": 4
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"road_hint\": \"Pescadero\"\n}\n```\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "road_hint": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.69
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "/\n  applies: true\n  feature: null\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"feature\": null\n}\n```\n\n**Reasoning:**\nThe rider's intent is to \"s",
+            "parsed": {
+              "applies": true,
+              "feature": null
+            },
+            "applies": true,
+            "latency": 0.34
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Pescadero\",\n  \"insert_before_name\": \"Pescadero\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "place_name": "Pescadero",
+              "insert_before_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.93
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pescadero\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pescadero\"\n}\n```<|e",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.75
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n  applies   true | false\n  keep_through_name   last waypoint to keep, or null\n\n```json\n{\n  \"applies\": true,\n  \"keep_through_name\": \"Pescadero\"\n}\n```",
+            "parsed": {
+              "applies": true,
+              "keep_through_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.36
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": f",
+            "parsed": {
+              "applies": false,
+              "swap_name_1": "Pescadero",
+              "swap_name_2": "Santa Cruz"
+            },
+            "applies": false,
+            "latency": 0.44
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint",
+          "trim_route"
+        ],
+        "sequential_s": 3.52,
+        "parallel_s": 0.93,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Pescadero",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Pescadero",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "trim_route",
+            "keep_through_index": 1,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.2,
+          "recall": 1.0,
+          "f1": 0.333,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 1,
+          "ops_count": 5
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "/\n{\"applies\": false, \"road_hint\": null}\n\n<think>\n\n</think>\n\n```json\n{\"applies\": false, \"road_hint\": null}\n```\n\n**Reasoning:**\nThe rider's intent (\"Can",
+            "parsed": {
+              "applies": false,
+              "road_hint": null
+            },
+            "applies": false,
+            "latency": 0.37
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "/\n  applies: true\n  feature: null\n\n<think>\nThe user is asking whether the rider wants to exclude a type of road feature.\nThe provided JSON schema is:\n",
+            "parsed": null,
+            "applies": false,
+            "latency": 0.35
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Monterey\",\n  \"insert_before_name\": \"Pescadero\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  ",
+            "parsed": {
+              "applies": true,
+              "place_name": "Monterey",
+              "insert_before_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.82
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "/\n  applies   true | false\n  remove_name   waypoint name or null\n\n```\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pescadero\"\n}\n```\n```\n```\n```json\n",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.35
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n  applies   true | false\n  keep_through_name   last waypoint to keep, or null\n\n```json\n{\n  \"applies\": false,\n  \"keep_through_name\": \"last waypoint t",
+            "parsed": {
+              "applies": false,
+              "keep_through_name": "last waypoint to keep"
+            },
+            "applies": false,
+            "latency": 0.35
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n```json\n{\n  \"applies\": true,\n  \"swap_name_1",
+            "parsed": {
+              "applies": true,
+              "swap_name_1": "Pescadero",
+              "swap_name_2": "Santa Cruz"
+            },
+            "applies": true,
+            "latency": 0.43
+          }
+        ],
+        "probes_fired": [
+          "add_waypoint",
+          "remove_waypoint",
+          "reorder_waypoints"
+        ],
+        "sequential_s": 2.67,
+        "parallel_s": 0.82,
+        "model_ops": [
+          {
+            "op": "add_waypoint",
+            "place_name": "Monterey",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "reorder_waypoints",
+            "swap_indices": [
+              1,
+              2
+            ],
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.333,
+          "recall": 1.0,
+          "f1": 0.5,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 1,
+          "ops_count": 3
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"road_hint\": \"Highway 1\"\n}\n```\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "road_hint": "Highway 1"
+            },
+            "applies": true,
+            "latency": 0.84
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "/\n  applies: true\n  feature: null\n\n```json\n{\n  \"applies\": true,\n  \"feature\": null\n}\n```\n\n```json\n{\n  \"applies\": false,\n  \"feature\": \"toll\"\n}\n```\n\n```j",
+            "parsed": {
+              "applies": true,
+              "feature": null
+            },
+            "applies": true,
+            "latency": 0.41
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Pescadero\",\n  \"insert_before_name\": \"Pescadero\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "place_name": "Pescadero",
+              "insert_before_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 1.01
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "/\n  applies   true | false\n  remove_name   waypoint name or null\n\n```\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pescadero\"\n}\n```\n```\n```\n```json\n",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.39
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n```\n\n```\n```json\n{\n  \"applies\": false,\n  \"keep_through_name\": \"last waypoint to keep\"\n}\n```\n```\n```\n```\n```json\n{\n  \"applies\": true,\n  \"keep_through",
+            "parsed": {
+              "applies": false,
+              "keep_through_name": "last waypoint to keep"
+            },
+            "applies": false,
+            "latency": 0.37
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n```json\n{\n  \"applies\": false,\n  \"swap_name_",
+            "parsed": {
+              "applies": false,
+              "swap_name_1": null,
+              "swap_name_2": null
+            },
+            "applies": false,
+            "latency": 0.46
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint"
+        ],
+        "sequential_s": 3.47,
+        "parallel_s": 1.01,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Highway 1",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Pescadero",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 1,
+          "ops_count": 4
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"road_hint\": \"Half Moon Bay\"\n}\n```\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n```json\n{\n  \"applies\": tru",
+            "parsed": {
+              "applies": true,
+              "road_hint": "Half Moon Bay"
+            },
+            "applies": true,
+            "latency": 0.77
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "/\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n\n<think>\nThe user is asking whether the rider wants to exclude a specific road feature.\nThe user provides",
+            "parsed": {
+              "applies": true,
+              "feature": "toll"
+            },
+            "applies": true,
+            "latency": 0.4
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Half Moon Bay\",\n  \"insert_before_name\": \"Pescadero\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": tru",
+            "parsed": {
+              "applies": true,
+              "place_name": "Half Moon Bay",
+              "insert_before_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 1.02
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "/stop/stop_1.json\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"waypoint\"\n}\n```\n\n**Reasoning:**\nThe rider's intent (\"Go through H",
+            "parsed": {
+              "applies": true,
+              "remove_name": "waypoint"
+            },
+            "applies": true,
+            "latency": 0.4
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n  applies   true | false\n  keep_through_name   last waypoint to keep, or null\n\n```json\n{\n  \"applies\": false,\n  \"keep_through_name\": null\n}\n```\n\n```j",
+            "parsed": {
+              "applies": false,
+              "keep_through_name": null
+            },
+            "applies": false,
+            "latency": 0.39
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": f",
+            "parsed": {
+              "applies": false,
+              "swap_name_1": "first waypoint",
+              "swap_name_2": "second waypoint"
+            },
+            "applies": false,
+            "latency": 0.45
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint"
+        ],
+        "sequential_s": 3.44,
+        "parallel_s": 1.02,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Half Moon Bay",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": "toll",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Half Moon Bay",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": null,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.25,
+          "recall": 1.0,
+          "f1": 0.4,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 1,
+          "ops_count": 4
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"road_hint\": \"Highway 1\"\n}\n```\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "road_hint": "Highway 1"
+            },
+            "applies": true,
+            "latency": 0.79
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "/\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n\n<think>\nThe user is asking whether the rider wants to exclude a type of road feature.\nThe provided JSON ",
+            "parsed": {
+              "applies": true,
+              "feature": "toll"
+            },
+            "applies": true,
+            "latency": 0.36
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Pescadero\",\n  \"insert_before_name\": \"Pescadero\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "place_name": "Pescadero",
+              "insert_before_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 1.19
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "/\n  applies   true | false\n  remove_name   waypoint name or null\n\n```\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pescadero\"\n}\n```\n```\n```\n```json\n",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.5
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n```\n```json\n{\n  \"applies\": false,\n  \"keep_through_name\": null\n}\n```\n```\n```\n```\n```json\n{\n  \"applies\": true,\n  \"keep_through_name\": \"Pescadero\"\n}\n``",
+            "parsed": {
+              "applies": false,
+              "keep_through_name": null
+            },
+            "applies": false,
+            "latency": 0.43
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": t",
+            "parsed": {
+              "applies": true,
+              "swap_name_1": "Pescadero",
+              "swap_name_2": "Santa Cruz"
+            },
+            "applies": true,
+            "latency": 0.49
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint",
+          "reorder_waypoints"
+        ],
+        "sequential_s": 3.77,
+        "parallel_s": 1.19,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Highway 1",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": "toll",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Pescadero",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "reorder_waypoints",
+            "swap_indices": [
+              1,
+              2
+            ],
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.2,
+          "recall": 1.0,
+          "f1": 0.333,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 1,
+          "ops_count": 5
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "/\n{\"applies\": true, \"road_hint\": \"Coffee break\"}\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n**Reasoning:**\nThe rider",
+            "parsed": {
+              "applies": true,
+              "road_hint": "Coffee break"
+            },
+            "applies": true,
+            "latency": 0.4
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "/\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n```\n\n**Reasoning:**\nThe rider's in",
+            "parsed": {
+              "applies": true,
+              "feature": "toll"
+            },
+            "applies": true,
+            "latency": 0.39
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Pescadero\",\n  \"insert_before_name\": \"Pescadero\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "place_name": "Pescadero",
+              "insert_before_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 1.23
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "/stop/stop.json\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pescadero\"\n}\n```\n\n**Reasoning:**\nThe rider wants to add a stop in t",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.53
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n```json\n{\n  \"applies\": true,\n  \"keep_through_name\": \"last waypoint to keep\"\n}\n```\n\n<think>\nThe user is asking whether the rider wants to END THE ROU",
+            "parsed": {
+              "applies": true,
+              "keep_through_name": "last waypoint to keep"
+            },
+            "applies": true,
+            "latency": 0.45
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n```json\n{\n  \"applies\": true,\n  \"swap_name_1",
+            "parsed": {
+              "applies": true,
+              "swap_name_1": "Pescadero",
+              "swap_name_2": "Santa Cruz"
+            },
+            "applies": true,
+            "latency": 0.48
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint",
+          "trim_route",
+          "reorder_waypoints"
+        ],
+        "sequential_s": 3.48,
+        "parallel_s": 1.23,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Coffee break",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": "toll",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Pescadero",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "trim_route",
+            "keep_through_index": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          },
+          {
+            "op": "reorder_waypoints",
+            "swap_indices": [
+              1,
+              2
+            ],
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.167,
+          "recall": 1.0,
+          "f1": 0.286,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 2,
+          "ops_count": 6
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"road_hint\": \"Highway 1\"\n}\n```\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "road_hint": "Highway 1"
+            },
+            "applies": true,
+            "latency": 0.86
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "/\n  applies: true\n  feature: null\n\n```json\n{\n  \"applies\": true,\n  \"feature\": null\n}\n```\n\n```json\n{\n  \"applies\": false,\n  \"feature\": \"toll\"\n}\n```\n\n```j",
+            "parsed": {
+              "applies": true,
+              "feature": null
+            },
+            "applies": true,
+            "latency": 0.4
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": null,\n  \"insert_before_name\": null\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"place_name\":",
+            "parsed": {
+              "applies": true,
+              "place_name": null,
+              "insert_before_name": null
+            },
+            "applies": true,
+            "latency": 0.86
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "/stop/stop.json\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pescadero\"\n}\n```\n\n**Reasoning:**\nThe rider's intent is to \"Skip all",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.39
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n```json\n{\n  \"applies\": true,\n  \"keep_through_name\": \"Pescadero\"\n}\n```\n\n```json\n{\n  \"applies\": false,\n  \"keep_through_name\": \"Santa Cruz\"\n}\n```\n\n```j",
+            "parsed": {
+              "applies": true,
+              "keep_through_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.36
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n```json\n{\n  \"applies\": true,\n  \"swap_name_1",
+            "parsed": {
+              "applies": true,
+              "swap_name_1": "Pescadero",
+              "swap_name_2": "Santa Cruz"
+            },
+            "applies": true,
+            "latency": 0.42
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint",
+          "trim_route",
+          "reorder_waypoints"
+        ],
+        "sequential_s": 3.29,
+        "parallel_s": 0.86,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Highway 1",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": null,
+            "insert_before_index": null,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "trim_route",
+            "keep_through_index": 1,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          },
+          {
+            "op": "reorder_waypoints",
+            "swap_indices": [
+              1,
+              2
+            ],
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.167,
+          "recall": 1.0,
+          "f1": 0.286,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 1,
+          "ops_count": 6
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"road_hint\": \"Highway 1\"\n}\n```\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "road_hint": "Highway 1"
+            },
+            "applies": true,
+            "latency": 0.74
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "/\n{\"applies\": true, \"feature\": \"toll\"}\n\n<think>\nThe user is asking whether the rider wants to exclude a specific road feature.\n\nThe user provided a JS",
+            "parsed": {
+              "applies": true,
+              "feature": "toll"
+            },
+            "applies": true,
+            "latency": 0.38
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Pescadero\",\n  \"insert_before_name\": \"Pescadero\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "place_name": "Pescadero",
+              "insert_before_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.94
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pescadero\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pescadero\"\n}\n```\n\n*",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.74
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n```\n```json\n{\n  \"applies\": false,\n  \"keep_through_name\": \"last waypoint to keep\"\n}\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n`",
+            "parsed": {
+              "applies": false,
+              "keep_through_name": "last waypoint to keep"
+            },
+            "applies": false,
+            "latency": 0.38
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": f",
+            "parsed": {
+              "applies": false,
+              "swap_name_1": "first waypoint",
+              "swap_name_2": "second waypoint"
+            },
+            "applies": false,
+            "latency": 0.46
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint"
+        ],
+        "sequential_s": 3.63,
+        "parallel_s": 0.94,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Highway 1",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": "toll",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Pescadero",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 4
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"road_hint\": \"Mill Valley\"\n}\n```\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n```json\n{\n  \"applies\": true,",
+            "parsed": {
+              "applies": true,
+              "road_hint": "Mill Valley"
+            },
+            "applies": true,
+            "latency": 0.76
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n```\n\n**Reasoning:**\nThe ",
+            "parsed": {
+              "applies": true,
+              "feature": "toll"
+            },
+            "applies": true,
+            "latency": 0.87
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Mill Valley\",\n  \"insert_before_name\": \"Point Reyes Station\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"appli",
+            "parsed": {
+              "applies": true,
+              "place_name": "Mill Valley",
+              "insert_before_name": "Point Reyes Station"
+            },
+            "applies": true,
+            "latency": 1.15
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "/\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Mill Valley\"\n}\n```<|endoftext|><|im_start|>\n<think>\n\n</think>\n\n```json\n{\n  \"appli",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Mill Valley"
+            },
+            "applies": true,
+            "latency": 0.39
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n  applies   true | false\n  keep_through_name   last waypoint to keep, or null\n\n```json\n{\n  \"applies\": true,\n  \"keep_through_name\": \"last waypoint to",
+            "parsed": {
+              "applies": true,
+              "keep_through_name": "last waypoint to keep"
+            },
+            "applies": true,
+            "latency": 0.37
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": f",
+            "parsed": {
+              "applies": false,
+              "swap_name_1": "first waypoint",
+              "swap_name_2": "second waypoint"
+            },
+            "applies": false,
+            "latency": 0.41
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint",
+          "trim_route"
+        ],
+        "sequential_s": 3.95,
+        "parallel_s": 1.15,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Mill Valley",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": "toll",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Mill Valley",
+            "insert_before_index": 2,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "trim_route",
+            "keep_through_index": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.2,
+          "recall": 1.0,
+          "f1": 0.333,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 2,
+          "ops_count": 5
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "/\n{\"applies\": true, \"road_hint\": \"Highway 1\"}\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"road_hint\": \"Highway 1\"\n}\n```\n\n**Reasoning:**\nThe ri",
+            "parsed": {
+              "applies": true,
+              "road_hint": "Highway 1"
+            },
+            "applies": true,
+            "latency": 0.36
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n```\n\n**Reasoning:**\nThe ",
+            "parsed": {
+              "applies": true,
+              "feature": "toll"
+            },
+            "applies": true,
+            "latency": 0.83
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Mill Valley\",\n  \"insert_before_name\": \"Mill Valley\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": tru",
+            "parsed": {
+              "applies": true,
+              "place_name": "Mill Valley",
+              "insert_before_name": "Mill Valley"
+            },
+            "applies": true,
+            "latency": 1.43
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "/\n  applies   true | false\n  remove_name   waypoint name or null\n\n```\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Mill Valley\"\n}\n```\n```\n```\n```jso",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Mill Valley"
+            },
+            "applies": true,
+            "latency": 0.52
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n  applies   true | false\n  keep_through_name   last waypoint to keep, or null\n\n```json\n{\n  \"applies\": false,\n  \"keep_through_name\": \"last waypoint t",
+            "parsed": {
+              "applies": false,
+              "keep_through_name": "last waypoint to keep"
+            },
+            "applies": false,
+            "latency": 0.55
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": f",
+            "parsed": {
+              "applies": false,
+              "swap_name_1": "first waypoint",
+              "swap_name_2": "second waypoint"
+            },
+            "applies": false,
+            "latency": 0.62
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint"
+        ],
+        "sequential_s": 4.32,
+        "parallel_s": 1.43,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Highway 1",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": "toll",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Mill Valley",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 1,
+          "ops_count": 4
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "/\n{\"applies\": true, \"road_hint\": \"Highway 1\"}\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n**Reasoning:**\nThe rider's ",
+            "parsed": {
+              "applies": true,
+              "road_hint": "Highway 1"
+            },
+            "applies": true,
+            "latency": 0.54
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n```\n\n<think>\nThe user is asking whether the rider wants to exclude a type of road feature. The ride",
+            "parsed": {
+              "applies": true,
+              "feature": "toll"
+            },
+            "applies": true,
+            "latency": 1.11
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Half Moon Bay\",\n  \"insert_before_name\": \"Pescadero\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": tru",
+            "parsed": {
+              "applies": true,
+              "place_name": "Half Moon Bay",
+              "insert_before_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 1.36
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pescadero\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Pescadero\"\n}\n```\n\n*",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 1.07
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n  applies: true\n  keep_through_name: last waypoint to keep, or null\n\n```json\n{\n  \"applies\": true,\n  \"keep_through_name\": \"last waypoint to keep\"\n}\n`",
+            "parsed": {
+              "applies": true,
+              "keep_through_name": "last waypoint to keep"
+            },
+            "applies": true,
+            "latency": 0.52
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": f",
+            "parsed": {
+              "applies": false,
+              "swap_name_1": "first waypoint",
+              "swap_name_2": "second waypoint"
+            },
+            "applies": false,
+            "latency": 0.54
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint",
+          "trim_route"
+        ],
+        "sequential_s": 5.14,
+        "parallel_s": 1.36,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Highway 1",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": "toll",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Half Moon Bay",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "trim_route",
+            "keep_through_index": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.2,
+          "recall": 0.5,
+          "f1": 0.286,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 1,
+          "ops_count": 5
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "_road_1/\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n**Reasoning:**\nThe rider's intent is \"No tolls and avoid the coa",
+            "parsed": {
+              "applies": false,
+              "road_hint": null
+            },
+            "applies": false,
+            "latency": 0.44
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n```<|endoftext|><|im_sta",
+            "parsed": {
+              "applies": true,
+              "feature": "toll"
+            },
+            "applies": true,
+            "latency": 0.76
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Pescadero\",\n  \"insert_before_name\": \"Pescadero\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "place_name": "Pescadero",
+              "insert_before_name": "Pescadero"
+            },
+            "applies": true,
+            "latency": 0.97
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "/stop/stop_1.json\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"stop_1\"\n}\n```\n\n**Reasoning:**\nThe rider's intent (\"No tolls and a",
+            "parsed": {
+              "applies": true,
+              "remove_name": "stop_1"
+            },
+            "applies": true,
+            "latency": 0.37
+          },
+          {
+            "op": "trim_route",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"keep_through_name\": \"last waypoint to keep\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"keep_through_nam",
+            "parsed": {
+              "applies": true,
+              "keep_through_name": "last waypoint to keep"
+            },
+            "applies": true,
+            "latency": 0.71
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"swap_name_1\": \"Pescadero\",\n  \"swap_name_2\": \"Santa Cruz\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"swa",
+            "parsed": {
+              "applies": true,
+              "swap_name_1": "Pescadero",
+              "swap_name_2": "Santa Cruz"
+            },
+            "applies": true,
+            "latency": 0.96
+          }
+        ],
+        "probes_fired": [
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint",
+          "trim_route",
+          "reorder_waypoints"
+        ],
+        "sequential_s": 4.22,
+        "parallel_s": 0.97,
+        "model_ops": [
+          {
+            "op": "exclude_feature",
+            "feature": "toll",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Pescadero",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": null,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "trim_route",
+            "keep_through_index": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          },
+          {
+            "op": "reorder_waypoints",
+            "swap_indices": [
+              1,
+              2
+            ],
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.2,
+          "recall": 0.5,
+          "f1": 0.286,
+          "required_hit_rate": 0.5,
+          "forbidden_violations": 1,
+          "ops_count": 5
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"road_hint\": \"Highway 1\"\n}\n```\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "road_hint": "Highway 1"
+            },
+            "applies": true,
+            "latency": 0.97
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n```\n\n<think>\nThe user is asking whether the rider wants to exclude a type of road feature. Looking ",
+            "parsed": {
+              "applies": true,
+              "feature": "toll"
+            },
+            "applies": true,
+            "latency": 0.98
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Bodega Bay\",\n  \"insert_before_name\": \"Point Reyes Station\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applie",
+            "parsed": {
+              "applies": true,
+              "place_name": "Bodega Bay",
+              "insert_before_name": "Point Reyes Station"
+            },
+            "applies": true,
+            "latency": 1.28
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "/\n  applies   true | false\n  remove_name   waypoint name or null\n\n```\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Point Reyes Station\"\n}\n```\n\n```js",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Point Reyes Station"
+            },
+            "applies": true,
+            "latency": 0.47
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n  applies: true\n  keep_through_name: last waypoint to keep, or null\n\n```json\n{\n  \"applies\": true,\n  \"keep_through_name\": \"last waypoint to keep\"\n}\n`",
+            "parsed": {
+              "applies": true,
+              "keep_through_name": "last waypoint to keep"
+            },
+            "applies": true,
+            "latency": 0.5
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": f",
+            "parsed": {
+              "applies": false,
+              "swap_name_1": "first waypoint",
+              "swap_name_2": "second waypoint"
+            },
+            "applies": false,
+            "latency": 0.62
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint",
+          "trim_route"
+        ],
+        "sequential_s": 4.84,
+        "parallel_s": 1.28,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Highway 1",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": "toll",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Bodega Bay",
+            "insert_before_index": 2,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 2,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "trim_route",
+            "keep_through_index": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 0.0,
+          "forbidden_violations": 1,
+          "ops_count": 5
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "/\n{\"applies\": true, \"road_hint\": null}\n{\"applies\": false, \"road_hint\": null}\n{\"applies\": false, \"road_hint\": null}\n{\"applies\": false, \"road_hint\": nul",
+            "parsed": {
+              "applies": true,
+              "road_hint": null
+            },
+            "applies": true,
+            "latency": 0.53
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "/\n{\"applies\": true, \"feature\": \"toll\"}\n\n<think>\nThe user is asking whether the rider wants to exclude a specific road feature.\nThe provided JSON schem",
+            "parsed": {
+              "applies": true,
+              "feature": "toll"
+            },
+            "applies": true,
+            "latency": 0.53
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "/\n```\n```\n```json\n{\n  \"applies\": true,\n  \"place_name\": null,\n  \"insert_before_name\": null\n}\n```\n```\n```\n```\n```json\n{\n  \"applies\": true,\n  \"place_name",
+            "parsed": {
+              "applies": true,
+              "place_name": null,
+              "insert_before_name": null
+            },
+            "applies": true,
+            "latency": 0.62
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Mill Valley\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Mill Valley\"\n}\n``",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Mill Valley"
+            },
+            "applies": true,
+            "latency": 0.85
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n  applies   true | false\n  keep_through_name   last waypoint to keep, or null\n\n```json\n{\n  \"applies\": true,\n  \"keep_through_name\": \"last waypoint\"\n}",
+            "parsed": {
+              "applies": true,
+              "keep_through_name": "last waypoint"
+            },
+            "applies": true,
+            "latency": 0.48
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n</think>\n\n```json\n{\n  \"applies\": false,\n  \"swap_name_1\": null,\n  \"swap_name_2\": null\n}\n```<|endoftext|><|im_start|>",
+            "parsed": {
+              "applies": false,
+              "swap_name_1": null,
+              "swap_name_2": null
+            },
+            "applies": false,
+            "latency": 0.31
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint",
+          "trim_route"
+        ],
+        "sequential_s": 3.32,
+        "parallel_s": 0.85,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": "toll",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": null,
+            "insert_before_index": null,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "trim_route",
+            "keep_through_index": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.2,
+          "recall": 0.5,
+          "f1": 0.286,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 1,
+          "ops_count": 5
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"road_hint\": \"Highway 1\"\n}\n```\n\n```json\n{\n  \"applies\": false,\n  \"road_hint\": null\n}\n```\n\n```json\n{\n  \"applies\": true,\n ",
+            "parsed": {
+              "applies": true,
+              "road_hint": "Highway 1"
+            },
+            "applies": true,
+            "latency": 0.76
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n```\n\n**Reasoning:**\nThe ",
+            "parsed": {
+              "applies": true,
+              "feature": "toll"
+            },
+            "applies": true,
+            "latency": 0.77
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Point Reyes Station\",\n  \"insert_before_name\": \"Point Reyes Station\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n",
+            "parsed": {
+              "applies": true,
+              "place_name": "Point Reyes Station",
+              "insert_before_name": "Point Reyes Station"
+            },
+            "applies": true,
+            "latency": 1.01
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "/\n  applies   true | false\n  remove_name   waypoint name or null\n\n```\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"Bodega Bay\"\n}\n```\n\n```json\n{\n  \"a",
+            "parsed": {
+              "applies": true,
+              "remove_name": "Bodega Bay"
+            },
+            "applies": true,
+            "latency": 0.55
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n  applies   true | false\n  keep_through_name   last waypoint to keep, or null\n\n```json\n{\n  \"applies\": true,\n  \"keep_through_name\": \"last waypoint to",
+            "parsed": {
+              "applies": true,
+              "keep_through_name": "last waypoint to keep"
+            },
+            "applies": true,
+            "latency": 0.46
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "/\n  applies   true | false\n  swap_name_1   first waypoint or null\n  swap_name_2   second waypoint or null\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": t",
+            "parsed": {
+              "applies": true,
+              "swap_name_1": "first waypoint",
+              "swap_name_2": "second waypoint"
+            },
+            "applies": true,
+            "latency": 0.52
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint",
+          "trim_route",
+          "reorder_waypoints"
+        ],
+        "sequential_s": 4.06,
+        "parallel_s": 1.01,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Highway 1",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": "toll",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Point Reyes Station",
+            "insert_before_index": 2,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 3,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "trim_route",
+            "keep_through_index": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          },
+          {
+            "op": "reorder_waypoints",
+            "swap_indices": null,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 1,
+          "ops_count": 6
+        }
+      },
+      {
+        "valid_json": true,
+        "probe_results": [
+          {
+            "op": "avoid_road",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"road_hint\": \"Petaluma\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"road_hint\": \"Petaluma\"\n}\n```",
+            "parsed": {
+              "applies": true,
+              "road_hint": "Petaluma"
+            },
+            "applies": true,
+            "latency": 0.81
+          },
+          {
+            "op": "exclude_feature",
+            "raw": "/\n{\n  \"applies\": true,\n  \"feature\": \"toll\"\n}\n\n<think>\nThe user is asking whether the rider wants to exclude a type of road feature.\nThe provided JSON ",
+            "parsed": {
+              "applies": true,
+              "feature": "toll"
+            },
+            "applies": true,
+            "latency": 0.4
+          },
+          {
+            "op": "add_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"place_name\": \"Petaluma\",\n  \"insert_before_name\": \"Mill Valley\"\n}\n```\n\n<think>\nThe user is asking whether the rider wan",
+            "parsed": {
+              "applies": true,
+              "place_name": "Petaluma",
+              "insert_before_name": "Mill Valley"
+            },
+            "applies": true,
+            "latency": 1.06
+          },
+          {
+            "op": "remove_waypoint",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"remove_name\": \"waypoint\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": true,\n  \"remove_name\": \"waypoint\"\n}\n```",
+            "parsed": {
+              "applies": true,
+              "remove_name": "waypoint"
+            },
+            "applies": true,
+            "latency": 0.74
+          },
+          {
+            "op": "trim_route",
+            "raw": "/\n```\n```json\n{\n  \"applies\": false,\n  \"keep_through_name\": \"last waypoint to keep\"\n}\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n`",
+            "parsed": {
+              "applies": false,
+              "keep_through_name": "last waypoint to keep"
+            },
+            "applies": false,
+            "latency": 0.42
+          },
+          {
+            "op": "reorder_waypoints",
+            "raw": "```json\n{\n  \"applies\": true,\n  \"swap_name_1\": \"Mill Valley\",\n  \"swap_name_2\": \"Point Reyes Station\"\n}\n```\n\n<think>\n\n</think>\n\n```json\n{\n  \"applies\": t",
+            "parsed": {
+              "applies": true,
+              "swap_name_1": "Mill Valley",
+              "swap_name_2": "Point Reyes Station"
+            },
+            "applies": true,
+            "latency": 0.99
+          }
+        ],
+        "probes_fired": [
+          "avoid_road",
+          "exclude_feature",
+          "add_waypoint",
+          "remove_waypoint",
+          "reorder_waypoints"
+        ],
+        "sequential_s": 4.42,
+        "parallel_s": 1.06,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "road_hint": "Petaluma",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "exclude_feature",
+            "feature": "toll",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Petaluma",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": null,
+            "place_name": null,
+            "insert_before_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "reorder_waypoints",
+            "swap_indices": [
+              1,
+              2
+            ],
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.2,
+          "recall": 1.0,
+          "f1": 0.333,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 1,
+          "ops_count": 5
+        }
+      }
+    ],
+    "summary": {
+      "label": "Option B: Parallel probes (Qwen)",
+      "valid_json_rate": 1.0,
+      "pass_rate": 0.0,
+      "avg_f1": 0.243,
+      "avg_req_hit": 0.925,
+      "forbidden_total": 23,
+      "avg_seq_s": 3.72,
+      "avg_par_s": 1.03,
+      "p95_seq_s": 5.14,
+      "by_difficulty": {
+        "easy": {
+          "pass": 0,
+          "n": 7,
+          "avg_f1": 0.29
+        },
+        "medium": {
+          "pass": 0,
+          "n": 7,
+          "avg_f1": 0.234
+        },
+        "hard": {
+          "pass": 0,
+          "n": 6,
+          "avg_f1": 0.198
+        }
+      }
+    }
+  },
+  "haiku": {
+    "rows": [
+      {
+        "valid_json": true,
+        "sequential_s": 1.52,
+        "parallel_s": 1.52,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": "Highway 1",
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 1.01,
+        "parallel_s": 1.01,
+        "model_ops": [
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 0.9,
+        "parallel_s": 0.9,
+        "model_ops": [
+          {
+            "op": "add_waypoint",
+            "waypoint_index": null,
+            "insert_before_index": 2,
+            "place_name": "Pigeon Point Lighthouse",
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 1.11,
+        "parallel_s": 1.11,
+        "model_ops": [
+          {
+            "op": "exclude_feature",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": "toll",
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 1.13,
+        "parallel_s": 1.13,
+        "model_ops": [
+          {
+            "op": "trim_route",
+            "keep_through_index": 1,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 1.08,
+        "parallel_s": 1.08,
+        "model_ops": [
+          {
+            "op": "add_waypoint",
+            "place_name": "Monterey",
+            "insert_before_index": null,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 1.03,
+        "parallel_s": 1.03,
+        "model_ops": [
+          {
+            "op": "exclude_feature",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": "ferry",
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 1.26,
+        "parallel_s": 1.26,
+        "model_ops": [
+          {
+            "op": "add_waypoint",
+            "place_name": "Half Moon Bay",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 0.84,
+        "parallel_s": 0.84,
+        "model_ops": [
+          {
+            "op": "avoid_road",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": "Highway 1",
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 0.88,
+        "parallel_s": 0.88,
+        "model_ops": [],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 0.0,
+          "forbidden_violations": 0,
+          "ops_count": 0
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 1.2,
+        "parallel_s": 1.2,
+        "model_ops": [
+          {
+            "op": "trim_route",
+            "keep_through_index": 0,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "required_hit_rate": 0.0,
+          "forbidden_violations": 1,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 1.11,
+        "parallel_s": 1.11,
+        "model_ops": [
+          {
+            "op": "exclude_feature",
+            "feature": "motorway",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 1.0,
+        "parallel_s": 1.0,
+        "model_ops": [
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 0.9,
+        "parallel_s": 0.9,
+        "model_ops": [
+          {
+            "op": "add_waypoint",
+            "place_name": "Stinson Beach",
+            "insert_before_index": 2,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 1.71,
+        "parallel_s": 1.71,
+        "model_ops": [
+          {
+            "op": "add_waypoint",
+            "place_name": "Half Moon Bay",
+            "insert_before_index": 1,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "add_waypoint",
+            "place_name": "Davenport",
+            "insert_before_index": 3,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 2
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 1.29,
+        "parallel_s": 1.29,
+        "model_ops": [
+          {
+            "op": "exclude_feature",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": "toll",
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "avoid_road",
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": "Highway 1",
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 2
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 1.15,
+        "parallel_s": 1.15,
+        "model_ops": [
+          {
+            "op": "reorder_waypoints",
+            "swap_indices": [
+              2,
+              3
+            ],
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 1.57,
+        "parallel_s": 1.57,
+        "model_ops": [
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 1,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          },
+          {
+            "op": "remove_waypoint",
+            "waypoint_index": 2,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 2
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 1.14,
+        "parallel_s": 1.14,
+        "model_ops": [
+          {
+            "op": "trim_route",
+            "keep_through_index": 2,
+            "waypoint_index": null,
+            "insert_before_index": null,
+            "place_name": null,
+            "feature": null,
+            "road_hint": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      },
+      {
+        "valid_json": true,
+        "sequential_s": 0.86,
+        "parallel_s": 0.86,
+        "model_ops": [
+          {
+            "op": "add_waypoint",
+            "place_name": "Petaluma",
+            "insert_before_index": null,
+            "waypoint_index": null,
+            "feature": null,
+            "road_hint": null,
+            "keep_through_index": null,
+            "swap_indices": null
+          }
+        ],
+        "metrics": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "required_hit_rate": 1.0,
+          "forbidden_violations": 0,
+          "ops_count": 1
+        }
+      }
+    ],
+    "summary": {
+      "label": "Haiku: Single-pass",
+      "valid_json_rate": 1.0,
+      "pass_rate": 0.9,
+      "avg_f1": 0.875,
+      "avg_req_hit": 0.9,
+      "forbidden_total": 1,
+      "avg_seq_s": 1.13,
+      "avg_par_s": 1.13,
+      "p95_seq_s": 1.71,
+      "by_difficulty": {
+        "easy": {
+          "pass": 7,
+          "n": 7,
+          "avg_f1": 1.0
+        },
+        "medium": {
+          "pass": 5,
+          "n": 7,
+          "avg_f1": 0.714
+        },
+        "hard": {
+          "pass": 6,
+          "n": 6,
+          "avg_f1": 0.917
+        }
+      }
+    }
+  }
+}

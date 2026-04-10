@@ -1,0 +1,1227 @@
+{
+  "test_type": "intent_to_query_validation",
+  "date": "2026-04-10T14:44:44.491279",
+  "qwen_model": "mlx-community/Qwen3.5-0.8B-OptiQ-4bit",
+  "haiku_model": "claude-haiku-4-5-20251001",
+  "db_size": 20,
+  "scenarios_count": 15,
+  "qwen_results": [
+    {
+      "scenario_id": "S1-coastal",
+      "difficulty": "easy",
+      "intent": "I feel like a beachy coastal ride",
+      "raw_output": "/\n\n<think>\n\n</think>\n\n{\"archetype\":\"coastal\",\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":null}",
+      "valid_json": true,
+      "duration_s": 0.37,
+      "params": {
+        "archetype": "coastal",
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        "coastal",
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364
+      ],
+      "sql_ok": true,
+      "returned": [
+        "ca1-bigsur",
+        "wa101-olympic"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 2
+      }
+    },
+    {
+      "scenario_id": "S2-colorado",
+      "difficulty": "easy",
+      "intent": "Show me something to ride in Colorado",
+      "raw_output": "/\n\n<think>\n\n</think>\n\n{\"archetype\":\"coastal\",\"state\":\"CO\",\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":null}<|endoftext|><|im_start|>\n<think>\n\n</think>\n\n{\"archetype\":\"coastal\",\"state\":\"CO\"",
+      "valid_json": true,
+      "duration_s": 2.23,
+      "params": {
+        "archetype": "coastal",
+        "state": "CO",
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND state = ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        "coastal",
+        "CO"
+      ],
+      "sql_ok": true,
+      "returned": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "required_hit_rate": 0.0,
+        "forbidden_violations": 0,
+        "returned_count": 0
+      }
+    },
+    {
+      "scenario_id": "S3-desert",
+      "difficulty": "easy",
+      "intent": "I want a desert ride",
+      "raw_output": "/\n\n<think>\n\n</think>\n\n{\"archetype\":\"desert\",\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":null}<|endoftext|><|im_start|>\n<think>\n\n</think>\n\n{\"archetype\":\"desert\",\"state\":null,\"",
+      "valid_json": true,
+      "duration_s": 2.19,
+      "params": {
+        "archetype": "desert",
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        "desert",
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364
+      ],
+      "sql_ok": true,
+      "returned": [
+        "nv-extraterrestrial"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 1
+      }
+    },
+    {
+      "scenario_id": "S4-scenic-byway",
+      "difficulty": "easy",
+      "intent": "I want a classic scenic byway",
+      "raw_output": "/\n\n<think>\n\n</think>\n\n{\"archetype\":\"scenic_byway\",\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":\"scenic\"}<|endoftext|><|im_start|>\n<think>\n\n</think>\n\n{\"archetype\":\"scenic_byway",
+      "valid_json": true,
+      "duration_s": 2.16,
+      "params": {
+        "archetype": "scenic_byway",
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": "scenic"
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY scenic_score DESC LIMIT 10",
+      "sql_args": [
+        "scenic_byway",
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364
+      ],
+      "sql_ok": true,
+      "returned": [
+        "ut12-escalante",
+        "id75-sawtooth",
+        "az89a-sedona"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 3
+      }
+    },
+    {
+      "scenario_id": "S5-short",
+      "difficulty": "easy",
+      "intent": "Something short, under 20 miles",
+      "raw_output": "/\n\n<think>\n\n</think>\n\n{\"archetype\":\"short\",\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":null}<|endoftext|><|im_start|>\n<think>\n\n</think>\n\n{\"archetype\":\"short\",\"state\":null,\"mi",
+      "valid_json": true,
+      "duration_s": 2.27,
+      "params": {
+        "archetype": "short",
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        "short",
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364
+      ],
+      "sql_ok": true,
+      "returned": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "required_hit_rate": 0.0,
+        "forbidden_violations": 0,
+        "returned_count": 0
+      }
+    },
+    {
+      "scenario_id": "S6-utah-adventure",
+      "difficulty": "medium",
+      "intent": "Adventure riding in Utah",
+      "raw_output": "/\n\n<think>\n\n</think>\n\n{\"archetype\":\"adventure\",\"state\":\"UT\",\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":null}<|endoftext|><|im_start|>\n<think>\n\n</think>\n\n{\"archetype\":\"adventure\",\"state\":",
+      "valid_json": true,
+      "duration_s": 2.21,
+      "params": {
+        "archetype": "adventure",
+        "state": "UT",
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND state = ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        "adventure",
+        "UT"
+      ],
+      "sql_ok": true,
+      "returned": [
+        "ut-bdr-segment"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 1
+      }
+    },
+    {
+      "scenario_id": "S7-mountain-long",
+      "difficulty": "medium",
+      "intent": "A mountain ride at least 40 miles long",
+      "raw_output": "/\n\n<think>\n\n</think>\n\n{\"archetype\":\"mountain\",\"state\":null,\"min_length_mi\":40,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":null}<|endoftext|><|im_start|>\n<think>\n\n</think>\n\n{\"archetype\":\"mountain\",\"state\":null",
+      "valid_json": true,
+      "duration_s": 2.17,
+      "params": {
+        "archetype": "mountain",
+        "state": null,
+        "min_length_mi": 40,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? AND length_mi >= ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        "mountain",
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364,
+        40
+      ],
+      "sql_ok": true,
+      "returned": [
+        "mt2-glacier"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 1
+      }
+    },
+    {
+      "scenario_id": "S8-yearround-twisty",
+      "difficulty": "medium",
+      "intent": "Twisty roads I can ride any time of year",
+      "raw_output": "_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why",
+      "valid_json": false,
+      "duration_s": 2.19,
+      "params": null,
+      "sql": null,
+      "sql_ok": false,
+      "returned": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "required_hit_rate": 0.0,
+        "forbidden_violations": 0,
+        "returned_count": 0
+      }
+    },
+    {
+      "scenario_id": "S9-twistiest",
+      "difficulty": "hard",
+      "intent": "Give me the twistiest roads possible",
+      "raw_output": "_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why",
+      "valid_json": false,
+      "duration_s": 2.21,
+      "params": null,
+      "sql": null,
+      "sql_ok": false,
+      "returned": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "required_hit_rate": 0.0,
+        "forbidden_violations": 0,
+        "returned_count": 0
+      }
+    },
+    {
+      "scenario_id": "S10-most-scenic",
+      "difficulty": "hard",
+      "intent": "The most scenic rides you have",
+      "raw_output": "/\n\n<think>\n\n</think>\n\n{\"archetype\":null,\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":\"scenic\"}<|endoftext|><|im_start|>\n<think>\n\n</think>\n\n{\"archetype\":null,\"state\":null,\"min_",
+      "valid_json": true,
+      "duration_s": 0.52,
+      "params": {
+        "archetype": null,
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": "scenic"
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY scenic_score DESC LIMIT 10",
+      "sql_args": [
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364
+      ],
+      "sql_ok": true,
+      "returned": [
+        "mt2-glacier",
+        "ca1-bigsur",
+        "ut12-escalante",
+        "wa101-olympic",
+        "id75-sawtooth",
+        "co550-million",
+        "co82-independence",
+        "or242-mckenzie",
+        "ut-bdr-segment",
+        "az89a-sedona"
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.667,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 10
+      }
+    },
+    {
+      "scenario_id": "S11-remote",
+      "difficulty": "hard",
+      "intent": "Something remote, away from crowds and cities",
+      "raw_output": "/\n\n<think>\n\n</think>\n\n{\"archetype\":null,\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":0.7,\"max_distance_mi\":null,\"season\":null,\"sort_by\":null}<|endoftext|><|im_start|>\n<think>\n\n</think>\n\n{\"archetype\":null,\"state\":null,\"min_lengt",
+      "valid_json": true,
+      "duration_s": 2.33,
+      "params": {
+        "archetype": null,
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": 0.7,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? AND remoteness_score >= ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364,
+        0.7
+      ],
+      "sql_ok": true,
+      "returned": [
+        "az-apache-trail",
+        "ca36-mad-river",
+        "co550-million",
+        "co82-independence",
+        "id75-sawtooth",
+        "mt2-glacier",
+        "nm4-jemez",
+        "nv-extraterrestrial",
+        "or242-mckenzie",
+        "ut-bdr-segment"
+      ],
+      "metrics": {
+        "precision": 0.3,
+        "recall": 0.75,
+        "f1": 0.429,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 10
+      }
+    },
+    {
+      "scenario_id": "S12-epic-long",
+      "difficulty": "subjective",
+      "intent": "An epic long distance trip",
+      "raw_output": "/\n\n<think>\n\n</think>\n\n{\"archetype\":\"epic\",\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":null}<|endoftext|><|im_start|>\n<think>\n\n</think>\n\n{\"archetype\":\"epic\",\"state\":null,\"min_",
+      "valid_json": true,
+      "duration_s": 2.17,
+      "params": {
+        "archetype": "epic",
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        "epic",
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364
+      ],
+      "sql_ok": true,
+      "returned": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "required_hit_rate": 0.0,
+        "forbidden_violations": 0,
+        "returned_count": 0
+      }
+    },
+    {
+      "scenario_id": "S13-challenging",
+      "difficulty": "subjective",
+      "intent": "Something challenging and technical for experienced riders",
+      "raw_output": "/\n\n<think>\n\n</think>\n\n{\"archetype\":\"twisties\",\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":0.5,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":\"technical\"}<|endoftext|><|im_start|>\n<think>\n\n</think>\n\n{\"archetype\":\"twisties\",\"sta",
+      "valid_json": true,
+      "duration_s": 2.16,
+      "params": {
+        "archetype": "twisties",
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": 0.5,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": "technical"
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? AND technical_score <= ? ORDER BY technical_score DESC LIMIT 10",
+      "sql_args": [
+        "twisties",
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364,
+        0.5
+      ],
+      "sql_ok": true,
+      "returned": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "required_hit_rate": 0.0,
+        "forbidden_violations": 0,
+        "returned_count": 0
+      }
+    },
+    {
+      "scenario_id": "S14-gentle",
+      "difficulty": "subjective",
+      "intent": "A gentle relaxing ride for beginners, nothing too technical",
+      "raw_output": "_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why_why",
+      "valid_json": false,
+      "duration_s": 2.19,
+      "params": null,
+      "sql": null,
+      "sql_ok": false,
+      "returned": [],
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "required_hit_rate": 0.0,
+        "forbidden_violations": 0,
+        "returned_count": 0
+      }
+    },
+    {
+      "scenario_id": "S15-twisty-mountain",
+      "difficulty": "subjective",
+      "intent": "Twisty mountain roads",
+      "raw_output": "/\n\n<think>\n\n</think>\n\n{\"archetype\":\"mountain\",\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":\"curvature\"}<|endoftext|><|im_start|>\n<think>\n\n</think>\n\n{\"archetype\":\"mountain\",\"st",
+      "valid_json": true,
+      "duration_s": 2.24,
+      "params": {
+        "archetype": "mountain",
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": "curvature"
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY curvature_score DESC LIMIT 10",
+      "sql_args": [
+        "mountain",
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364
+      ],
+      "sql_ok": true,
+      "returned": [
+        "co82-independence",
+        "co550-million",
+        "mt2-glacier",
+        "or242-mckenzie"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 4
+      }
+    }
+  ],
+  "haiku_results": [
+    {
+      "scenario_id": "S1-coastal",
+      "difficulty": "easy",
+      "intent": "I feel like a beachy coastal ride",
+      "raw_output": "```json\n{\"archetype\":\"coastal\",\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":null}\n```",
+      "valid_json": true,
+      "duration_s": 0.86,
+      "params": {
+        "archetype": "coastal",
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        "coastal",
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364
+      ],
+      "sql_ok": true,
+      "returned": [
+        "ca1-bigsur",
+        "wa101-olympic"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 2
+      }
+    },
+    {
+      "scenario_id": "S2-colorado",
+      "difficulty": "easy",
+      "intent": "Show me something to ride in Colorado",
+      "raw_output": "```json\n{\"archetype\":null,\"state\":\"CO\",\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":null}\n```",
+      "valid_json": true,
+      "duration_s": 1.14,
+      "params": {
+        "archetype": null,
+        "state": "CO",
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE state = ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        "CO"
+      ],
+      "sql_ok": true,
+      "returned": [
+        "co550-million",
+        "co82-independence"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 2
+      }
+    },
+    {
+      "scenario_id": "S3-desert",
+      "difficulty": "easy",
+      "intent": "I want a desert ride",
+      "raw_output": "```json\n{\n  \"archetype\": \"desert\",\n  \"state\": null,\n  \"min_length_mi\": null,\n  \"max_length_mi\": null,\n  \"max_technical\": null,\n  \"min_traffic_score\": null,\n  \"min_remoteness\": null,\n  \"max_distance_mi\": null,\n  \"season\": null,\n  \"sort_by\": null\n}\n```",
+      "valid_json": true,
+      "duration_s": 1.02,
+      "params": {
+        "archetype": "desert",
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        "desert",
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364
+      ],
+      "sql_ok": true,
+      "returned": [
+        "nv-extraterrestrial"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 1
+      }
+    },
+    {
+      "scenario_id": "S4-scenic-byway",
+      "difficulty": "easy",
+      "intent": "I want a classic scenic byway",
+      "raw_output": "```json\n{\n  \"archetype\": \"scenic_byway\",\n  \"state\": null,\n  \"min_length_mi\": null,\n  \"max_length_mi\": null,\n  \"max_technical\": null,\n  \"min_traffic_score\": null,\n  \"min_remoteness\": null,\n  \"max_distance_mi\": null,\n  \"season\": null,\n  \"sort_by\": \"scenic\"\n}\n```",
+      "valid_json": true,
+      "duration_s": 1.13,
+      "params": {
+        "archetype": "scenic_byway",
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": "scenic"
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY scenic_score DESC LIMIT 10",
+      "sql_args": [
+        "scenic_byway",
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364
+      ],
+      "sql_ok": true,
+      "returned": [
+        "ut12-escalante",
+        "id75-sawtooth",
+        "az89a-sedona"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 3
+      }
+    },
+    {
+      "scenario_id": "S5-short",
+      "difficulty": "easy",
+      "intent": "Something short, under 20 miles",
+      "raw_output": "```json\n{\"archetype\":null,\"state\":null,\"min_length_mi\":null,\"max_length_mi\":20,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":null}\n```",
+      "valid_json": true,
+      "duration_s": 1.18,
+      "params": {
+        "archetype": null,
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": 20,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? AND length_mi <= ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364,
+        20
+      ],
+      "sql_ok": true,
+      "returned": [
+        "ca-mulholland"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 1
+      }
+    },
+    {
+      "scenario_id": "S6-utah-adventure",
+      "difficulty": "medium",
+      "intent": "Adventure riding in Utah",
+      "raw_output": "```json\n{\"archetype\":\"adventure\",\"state\":\"UT\",\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":null}\n```",
+      "valid_json": true,
+      "duration_s": 1.05,
+      "params": {
+        "archetype": "adventure",
+        "state": "UT",
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND state = ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        "adventure",
+        "UT"
+      ],
+      "sql_ok": true,
+      "returned": [
+        "ut-bdr-segment"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 1
+      }
+    },
+    {
+      "scenario_id": "S7-mountain-long",
+      "difficulty": "medium",
+      "intent": "A mountain ride at least 40 miles long",
+      "raw_output": "```json\n{\"archetype\":\"mountain\",\"state\":null,\"min_length_mi\":40,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":null}\n```",
+      "valid_json": true,
+      "duration_s": 1.05,
+      "params": {
+        "archetype": "mountain",
+        "state": null,
+        "min_length_mi": 40,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? AND length_mi >= ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        "mountain",
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364,
+        40
+      ],
+      "sql_ok": true,
+      "returned": [
+        "mt2-glacier"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 1
+      }
+    },
+    {
+      "scenario_id": "S8-yearround-twisty",
+      "difficulty": "medium",
+      "intent": "Twisty roads I can ride any time of year",
+      "raw_output": "```json\n{\"archetype\":\"twisties\",\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":\"year_round\",\"sort_by\":null}\n```",
+      "valid_json": true,
+      "duration_s": 0.89,
+      "params": {
+        "archetype": "twisties",
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": "year_round",
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? AND season = ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        "twisties",
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364,
+        "year_round"
+      ],
+      "sql_ok": true,
+      "returned": [
+        "ca-mulholland",
+        "ca36-mad-river"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 2
+      }
+    },
+    {
+      "scenario_id": "S9-twistiest",
+      "difficulty": "hard",
+      "intent": "Give me the twistiest roads possible",
+      "raw_output": "```json\n{\"archetype\":null,\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":\"curvature\"}\n```",
+      "valid_json": true,
+      "duration_s": 0.95,
+      "params": {
+        "archetype": null,
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": "curvature"
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY curvature_score DESC LIMIT 10",
+      "sql_args": [
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364
+      ],
+      "sql_ok": true,
+      "returned": [
+        "ca-mulholland",
+        "ca36-mad-river",
+        "co82-independence",
+        "nm4-jemez",
+        "co550-million",
+        "ca1-bigsur",
+        "mt2-glacier",
+        "az-apache-trail",
+        "or242-mckenzie",
+        "ut12-escalante"
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.667,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 10
+      }
+    },
+    {
+      "scenario_id": "S10-most-scenic",
+      "difficulty": "hard",
+      "intent": "The most scenic rides you have",
+      "raw_output": "```json\n{\"archetype\":null,\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":\"scenic\"}\n```",
+      "valid_json": true,
+      "duration_s": 1.08,
+      "params": {
+        "archetype": null,
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": "scenic"
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY scenic_score DESC LIMIT 10",
+      "sql_args": [
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364
+      ],
+      "sql_ok": true,
+      "returned": [
+        "mt2-glacier",
+        "ca1-bigsur",
+        "ut12-escalante",
+        "wa101-olympic",
+        "id75-sawtooth",
+        "co550-million",
+        "co82-independence",
+        "or242-mckenzie",
+        "ut-bdr-segment",
+        "az89a-sedona"
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.667,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 10
+      }
+    },
+    {
+      "scenario_id": "S11-remote",
+      "difficulty": "hard",
+      "intent": "Something remote, away from crowds and cities",
+      "raw_output": "```json\n{\"archetype\":null,\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":0.7,\"max_distance_mi\":null,\"season\":null,\"sort_by\":null}\n```",
+      "valid_json": true,
+      "duration_s": 1.2,
+      "params": {
+        "archetype": null,
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": 0.7,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? AND remoteness_score >= ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364,
+        0.7
+      ],
+      "sql_ok": true,
+      "returned": [
+        "az-apache-trail",
+        "ca36-mad-river",
+        "co550-million",
+        "co82-independence",
+        "id75-sawtooth",
+        "mt2-glacier",
+        "nm4-jemez",
+        "nv-extraterrestrial",
+        "or242-mckenzie",
+        "ut-bdr-segment"
+      ],
+      "metrics": {
+        "precision": 0.3,
+        "recall": 0.75,
+        "f1": 0.429,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 10
+      }
+    },
+    {
+      "scenario_id": "S12-epic-long",
+      "difficulty": "subjective",
+      "intent": "An epic long distance trip",
+      "raw_output": "```json\n{\n  \"archetype\": null,\n  \"state\": null,\n  \"min_length_mi\": 100,\n  \"max_length_mi\": null,\n  \"max_technical\": null,\n  \"min_traffic_score\": null,\n  \"min_remoteness\": null,\n  \"max_distance_mi\": null,\n  \"season\": null,\n  \"sort_by\": \"length\"\n}\n```",
+      "valid_json": true,
+      "duration_s": 1.31,
+      "params": {
+        "archetype": null,
+        "state": null,
+        "min_length_mi": 100,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": "length"
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? AND length_mi >= ? ORDER BY length_mi DESC LIMIT 10",
+      "sql_args": [
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364,
+        100
+      ],
+      "sql_ok": true,
+      "returned": [
+        "wa101-olympic",
+        "ut-bdr-segment",
+        "ut12-escalante",
+        "id75-sawtooth"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 4
+      }
+    },
+    {
+      "scenario_id": "S13-challenging",
+      "difficulty": "subjective",
+      "intent": "Something challenging and technical for experienced riders",
+      "raw_output": "```json\n{\"archetype\":null,\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":\"technical\"}\n```",
+      "valid_json": true,
+      "duration_s": 0.77,
+      "params": {
+        "archetype": null,
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": "technical"
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY technical_score DESC LIMIT 10",
+      "sql_args": [
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364
+      ],
+      "sql_ok": true,
+      "returned": [
+        "ut-bdr-segment",
+        "ca36-mad-river",
+        "az-apache-trail",
+        "ca-mulholland",
+        "co82-independence",
+        "co550-million",
+        "nm4-jemez",
+        "mt2-glacier",
+        "or242-mckenzie",
+        "ca1-bigsur"
+      ],
+      "metrics": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.667,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 10
+      }
+    },
+    {
+      "scenario_id": "S14-gentle",
+      "difficulty": "subjective",
+      "intent": "A gentle relaxing ride for beginners, nothing too technical",
+      "raw_output": "```json\n{\"archetype\":null,\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":0.5,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":null}\n```",
+      "valid_json": true,
+      "duration_s": 0.71,
+      "params": {
+        "archetype": null,
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": 0.5,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": null
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? AND technical_score <= ? ORDER BY route_id LIMIT 10",
+      "sql_args": [
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364,
+        0.5
+      ],
+      "sql_ok": true,
+      "returned": [
+        "az89a-sedona",
+        "id75-sawtooth",
+        "nv-extraterrestrial",
+        "ut12-escalante",
+        "wa101-olympic"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 5
+      }
+    },
+    {
+      "scenario_id": "S15-twisty-mountain",
+      "difficulty": "subjective",
+      "intent": "Twisty mountain roads",
+      "raw_output": "```json\n{\"archetype\":\"mountain\",\"state\":null,\"min_length_mi\":null,\"max_length_mi\":null,\"max_technical\":null,\"min_traffic_score\":null,\"min_remoteness\":null,\"max_distance_mi\":null,\"season\":null,\"sort_by\":\"curvature\"}\n```",
+      "valid_json": true,
+      "duration_s": 0.96,
+      "params": {
+        "archetype": "mountain",
+        "state": null,
+        "min_length_mi": null,
+        "max_length_mi": null,
+        "max_technical": null,
+        "min_traffic_score": null,
+        "min_remoteness": null,
+        "max_distance_mi": null,
+        "season": null,
+        "sort_by": "curvature"
+      },
+      "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY curvature_score DESC LIMIT 10",
+      "sql_args": [
+        "mountain",
+        24.72652173913044,
+        50.813478260869566,
+        -138.78363636363636,
+        -106.05636363636364
+      ],
+      "sql_ok": true,
+      "returned": [
+        "co82-independence",
+        "co550-million",
+        "mt2-glacier",
+        "or242-mckenzie"
+      ],
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "required_hit_rate": 1.0,
+        "forbidden_violations": 0,
+        "returned_count": 4
+      }
+    }
+  ],
+  "qwen_summary": {
+    "valid_json_rate": 0.8,
+    "sql_exec_rate": 0.8,
+    "pass_rate": 0.4666666666666667,
+    "avg_f1": 0.473,
+    "avg_precision": 0.453,
+    "avg_recall": 0.517,
+    "avg_required_hit": 0.533,
+    "forbidden_violations_total": 0
+  },
+  "haiku_summary": {
+    "valid_json_rate": 1.0,
+    "sql_exec_rate": 1.0,
+    "pass_rate": 0.9333333333333333,
+    "avg_f1": 0.895,
+    "avg_precision": 0.853,
+    "avg_recall": 0.983,
+    "avg_required_hit": 1.0,
+    "forbidden_violations_total": 0
+  },
+  "gate_pass": false
+}

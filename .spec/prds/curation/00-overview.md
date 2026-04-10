@@ -1,7 +1,7 @@
 ---
 stability: PRODUCT_CONTEXT
 last_validated: 2026-04-10
-prd_version: 1.2.0
+prd_version: 1.3.0
 ---
 
 # Curation — Route Discovery & Autonomous Data Flywheel
@@ -75,12 +75,12 @@ Build an autonomous curation pipeline that:
 
 8. **Powers discovery via intent → query translation + pre-selected local results:**
    - User expresses natural language intent ("twisty mountain roads", "something remote and challenging")
-   - Qwen3.5 0.8B (on-device, ~1.5s, no network): extracts structured query params via slot-filling — `archetype`, `state`, `sort_by`, `min_length_mi`, `max_technical`, `min_remoteness`, `season`, etc. (10 keys, all nullable). Validated: 93% pass rate, 0.84 F1 against Haiku on 15-scenario test suite (2026-04-10)
-   - Deterministic `params_to_sql()` converts extracted params into a parameterized SQL query — no SQL is ever written by the model, zero injection risk
-   - op-sqlite executes the query against `discovery.db` (<10ms) → returns top 10 routes ordered by pre-computed scores
-   - Qwen **never sees route candidates** — ranking is fully deterministic via SQL `ORDER BY`. The local model's only job is text → structured params (slot-filling), which is where 0.8B models excel
-   - Zero-results + connectivity: escalate to Haiku online for intent clarification → same `params_to_sql()` pipeline → re-query locally. Also used when Qwen produces a state + archetype combination that returns no matches (e.g., "coastal" + "CO" word-similarity edge case)
-   - End-to-end latency <2s fully offline (Qwen ~1.5s + SQL <10ms)
+   - **Baseline shipping path (v1):** Claude Haiku online extracts structured query params (10 nullable keys: `archetype`, `state`, `sort_by`, `min_length_mi`, `max_technical`, `min_remoteness`, `season`, etc.) via Instructor-validated slot-filling. Results are cached on device keyed by normalized intent string (lowercased, whitespace-collapsed, stop-word-stripped), giving a very high cache hit rate for common phrasings — "twisty mountain roads" is Haiku'd once, then returns from cache forever.
+   - **Deterministic `params_to_sql()`** converts extracted params into a parameterized SQL query — no SQL is ever written by any model, zero injection risk. This layer is identical regardless of which model produced the params.
+   - op-sqlite executes the query against `discovery.db` (<10ms) → returns top 10 routes ordered by pre-computed scores. **The LLM never sees route candidates** — ranking is fully deterministic via SQL `ORDER BY` on pre-computed composite scores. This is the hard architectural rule enforced across every stage (see "Pipeline Principles" below).
+   - **Deferred offline optimization path (v1.x, gated on Core ML device benchmark):** Port the same prompt + normalize + retry logic to Qwen3.5 0.8B running on-device for a fully offline non-cached hot path. Only activated after the curation-unrelated Core ML latency validation proves ≤3s on iPhone 15 Pro / iPhone 16 Pro. Until then, non-cached offline intents show "connect to search" state. Validated in principle: 93% pass rate, 0.84 F1 on MLX/Mac (2026-04-10); mobile latency TBD.
+   - Zero-results + connectivity: re-prompt Haiku with a "broaden the query" system message → re-run `params_to_sql()` → re-query locally.
+   - Cached-hit latency: <50ms. Cold Haiku latency: ~1–2s + network. Offline non-cached: unavailable in v1, offline-optimized in v1.x.
 
 9. **Serves via local-first discovery:**
    - op-sqlite `discovery.db` stores lean curated routes locally
@@ -97,14 +97,57 @@ Build an autonomous curation pipeline that:
 **Technical Approach:**
 - Python aggregation pipeline (local script or GitHub Actions)
 - httpx + BeautifulSoup for static page scraping (most sources)
-- Instructor + Claude Haiku for LLM extraction (offline pre-digestion)
+- Instructor + Claude Haiku for LLM extraction (offline pre-digestion) — always temp=0 for reproducibility
 - adamfranco/curvature and/or osm_ways geometry for curvature analysis
 - op-sqlite for local lean discovery database
 - Convex for canonical storage (lean + enrichment tiers) and sync
-- Qwen3.5 0.8B on-device (existing): intent → SQL query param extraction (slot-filling only — not ranking)
+- Claude Haiku (online) for intent → SQL query param extraction in v1
+- Normalized-intent → params cache on device (the primary offline-feeling optimization in v1)
+- Qwen3.5 0.8B on-device as a deferred offline fallback (v1.x, gated on Core ML device benchmark)
 
 **Timeline:** 6 weeks (full feature with polish)
 **Team:** 1 full-stack developer
+
+---
+
+## Pipeline Principles
+
+These principles govern every LLM stage in the curation pipeline and every data-shape decision. They are derived from the 2026-04-10 local-model research cycle (see `.spec/research/local-models/`) and apply regardless of which model is running.
+
+### P1 — LLMs do text → structure, never structure → selection
+
+**Every LLM call in this pipeline extracts structured attributes from unstructured text. No LLM call selects, ranks, or filters a list of candidates.** Ranking, filtering, and sorting are always deterministic — SQL `ORDER BY` on pre-computed composite scores.
+
+The 2026-04-10 research validated this rule definitively: small local models fail at structure → selection (positional bias, score blindness, hallucinated IDs, instruction inversion), and even frontier models show weaker versions of the same failure modes. The architecture must never depend on "ask the model to pick the top N."
+
+**Applied:**
+- Intent → query params: text → flat JSON ✅
+- Source blog/listicle → route attributes: text → structured fields ✅
+- Haiku ranking 20 route candidates: ❌ never — SQL does this
+- Haiku "list great motorcycle roads in Colorado": ❌ never (see P2)
+
+### P2 — Source-grounded only: never ask models to recall routes
+
+**No LLM is ever asked to enumerate, list, or recall motorcycle roads from training knowledge.** Routes enter the system only through verifiable sources: FHWA Scenic Byways open data, scraped community listicles with source URLs, OSM geometric discovery via curvature analysis, and BDR GPX files.
+
+Why: model "recall" is stale, uncalibrated, and silently hallucinates geography (the Qwen research showed it describing I-5 Seattle→Portland as a Pacific-coast route). It also converges on the same 20 famous roads every competing app already has — Tail of the Dragon, PCH, Blue Ridge Parkway — which destroys the originality of the catalog. The moat is the 500 roads nobody has written a listicle about, and those only come from systematic scraping + geometric discovery.
+
+**Applied:**
+- LLM reads a blog post about a specific road → extract attributes ✅
+- LLM "from your training, list the best twisty roads in California": ❌ never
+- OSM curvature pass that surfaces an unnamed county road with curvature score 0.92 → candidate route ✅
+
+### P3 — Calibrate scoring against editorial ground truth before running the long tail
+
+The composite score weights (curvature 25%, scenery 15%, etc.) must be fit against a labeled ground-truth set (Rider Magazine Top 50, FHWA Scenic Byways) **before** running extraction over the 17k-route scrape. Turning "does this scoring feel right?" into a measurable calibration step is cheap and prevents re-scoring the full batch later after we discover the weights are off. Calibration is a gate on Phase 3 completion, not an afterthought.
+
+### P4 — Determinism at temp=0, reproducible pipeline runs
+
+Every LLM extraction stage runs at `temperature=0` with a retry-on-degeneration guard. This gives the pipeline reproducible re-runs: the same source text produces the same extracted attributes on the second run, which means we can safely re-run the batch after schema changes, bug fixes, or prompt updates. Schema version is tracked in `extractionSchemaVersion` so clients know when to refresh.
+
+### P5 — Deterministic boundary between probabilistic and guaranteed
+
+Each pipeline stage has a deterministic parser (StructuredOutputParser / Instructor + Pydantic) between the LLM output and the downstream code. LLM output is validated, enum-checked, and re-prompted on failure before any downstream step runs. The parser is the firewall: everything before it is probabilistic; everything after it is guaranteed. This applies to `params_to_sql()` (validates the 10-key intent schema), the RouteAttributes extractor (validates the Pydantic source-extraction schema), and the archetype classifier (rejects any archetype not in the enum).
 
 ---
 
@@ -138,15 +181,35 @@ The core insight: **Qwen3.5 is good at structured extraction from unstructured t
 
 **Consequence for the discovery architecture:**
 
-The previous v1.1 design (SQL pre-filters to 20 candidates → Qwen ranks them → returns top 5 IDs) inverts this. Qwen must reason over structured route objects, compare scores, and return IDs — exactly the "structure → selection" pattern it cannot reliably do.
+The previous v1.1 design (SQL pre-filters to 20 candidates → Qwen ranks them → returns top 5 IDs) inverts this. The model must reason over structured route objects, compare scores, and return IDs — exactly the "structure → selection" pattern it cannot reliably do.
 
-The v1.2 design corrects this:
-- Qwen receives **only the user's intent string** (~10–20 tokens) and extracts 10 nullable query params
+The v1.2+ design corrects this:
+- The model (Haiku or Qwen) receives **only the user's intent string** (~10–20 tokens) and extracts 10 nullable query params
 - Deterministic `params_to_sql()` constructs the query; SQL handles ranking via `ORDER BY` on pre-computed scores
 - Routes returned are **pre-selected by the database**, not the model
 
-This is also better for offline reliability: a 10-key JSON extraction has much tighter failure modes than a multi-candidate ID selection task. Defensive layers (enum validation, retry-on-degeneration) handle the remaining edge cases.
+### v1.3: Haiku-first with deferred on-device Qwen
 
-**Haiku fallback pattern:**
+The v1.3 revision (this version) addresses a second research finding — the **environment-bias caveat** in `.spec/research/local-models/ENVIRONMENT_BIAS_FINDING_2026-04-10.md`. All Qwen latency numbers were measured on a 2026 MacBook Pro running MLX, a Mac-only runtime. Mobile inference runs Core ML (iOS) or ONNX (Android) with ~4–6× lower memory bandwidth. The estimated iPhone 15/16 Pro latency for Qwen is ~6–15s, not the ~1.5s observed on Mac. This figure is unvalidated and blocks any offline latency promise.
 
-Haiku is the online fallback for two cases: (1) intents Qwen fails on (zero results + mismatched params), (2) vague/subjective intents ("something that feels like freedom") where slot-filling doesn't apply. In both cases Haiku returns the same structured params schema, feeding the same `params_to_sql()` pipeline. The discovery flow is identical regardless of which model produced the params.
+Rather than ship on an unvalidated claim, v1.3 treats the on-device model as a **deferred optimization**:
+
+**v1 shipping path (Haiku online + intent cache):**
+- Intent → params via Haiku online, with Instructor validation
+- Normalized-intent cache on device: `lower(trim(collapse_ws(strip_stopwords(intent))))` → cached params JSON, indefinite TTL (schema-versioned for invalidation)
+- Cache hit → local SQL → results in <50ms, zero network
+- Cache miss + online → Haiku ~1–2s → SQL → results, cache the result
+- Cache miss + offline → "Searching needs a connection right now — or try one of your recent searches" (show recent-intents list)
+- Same `params_to_sql()` layer, same schema, same defensive enums
+
+**v1.x deferred path (on-device Qwen fallback for offline cache misses):**
+- Gated on a Core ML iPhone benchmark: cold-start ≤4s, warm inference ≤3s sustained across 20 scenarios, no thermal throttling within a 10-intent session
+- Same validated prompt + normalize_params + retry-on-degeneration logic, ported from MLX to Core ML (iOS) and ONNX (Android)
+- Enables offline non-cached search; everything online still goes through Haiku + cache for quality
+- If Core ML benchmark fails, the on-device path is dropped permanently and "offline intent search" becomes a non-goal
+
+**Why this ordering is better:**
+- Ships UC-DISC-07 end-to-end on day 1 of Phase 4, not gated on model-conversion work
+- Cache covers ~80%+ of real search traffic (common intents repeat heavily), so the user-visible "offline feel" is delivered by the cache, not the local model
+- De-risks the PRD against the single biggest unknown (mobile Qwen latency)
+- Keeps the on-device Qwen code path optional and swappable — the Core ML port is a one-week spike, not a blocker

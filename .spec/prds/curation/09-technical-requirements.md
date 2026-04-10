@@ -1,10 +1,22 @@
 ---
 stability: CONSTITUTION
 last_validated: 2026-04-10
-prd_version: 1.2.0
+prd_version: 1.3.0
 ---
 
 # Technical Requirements
+
+## Pipeline Principles (Hard Constraints)
+
+These are enforced globally across every component below. See `00-overview.md` § Pipeline Principles for the research backing each one.
+
+| ID | Rule | Enforcement |
+|----|------|-------------|
+| **P1** | LLMs do **text → structure**, never **structure → selection** | Code review + schema design. No component accepts candidate lists as LLM input and returns IDs as LLM output. |
+| **P2** | Routes enter the catalog only from **verifiable sources** (FHWA, scraped URLs, OSM, BDR). No LLM recall. | Ingestion layer refuses unsourced records; every row has a `source` field and enrichment has a `sources[]` array with URLs. |
+| **P3** | **Composite-score weights are calibrated** against ground truth before full-catalog extraction runs | Phase 3 completion gate — see calibration step below. |
+| **P4** | All LLM extraction runs at **`temperature=0`** with retry-on-degeneration | Python wrapper enforces temp=0 for all Instructor/Anthropic calls. |
+| **P5** | **Deterministic parser between LLM and downstream code** (Instructor + Pydantic, `params_to_sql()`, enum validators) | Every LLM call site has an explicit validator that fails loudly on schema violations and retries with a suffix prompt before falling back. |
 
 ## System Components
 

@@ -19,31 +19,28 @@
 
 ## Design Direction
 
-### Influences
+### Design Philosophy
 
-Explored multiple design philosophies before landing on the final direction:
+The logo draws from rugged, durable traditions that mirror motorcycle culture:
 
-| Designer | What They Bring | Fit |
-|----------|----------------|-----|
-| Saul Bass | Bold geometric reduction, negative space storytelling | Strong mark discipline, but too corporate |
-| Erik Nitsche | Mathematical elegance, Swiss modernist precision | Beautiful but too clinical |
-| **Rick Griffin** | Organic flowing forms, psychedelic poster craft, literal counterculture/biker roots | **Soul of the mark** |
-| **Aaron Draplin** | Thick lines, stamp-weight boldness, rugged Americana | **Durability of the mark** |
-| Herb Lubalin | Typographic rebellion, ideas over decoration | Intellectual edge |
-| Sister Corita Kent | Joyful defiance, bold color, radical pop art | Free-spirit energy |
-| David Carson | Deconstructed typography, surfer anti-establishment | Raw texture |
+**Built-to-last execution** — Thick, heavy strokes that read clearly at any size. Stamp-weight boldness. Works embossed on leather, screen-printed on metal, or as a 48px app icon.
 
-**Final direction**: Rick Griffin's organic counterculture soul + Draplin's built-to-last execution weight.
+**Organic motion** — Fluid, energetic curves that capture the feeling of leaning into a canyon curve. The mark should feel alive, like asphalt blurring beneath wheels at golden hour.
+
+**Rugged independence** — No polish, no corporate slickness. Handmade spirit with professional execution. Like something painted on a garage wall or stamped into a tool.
+
+**The final direction**: Organic flowing energy meets thick-lined durability. Free-spirited but built to last.
 
 ### Core Concept
 
 A single mark that fuses a winding road with its shadow. Organic S-curves with flowing energy, but thick, solid, and readable. The mark evokes leaning into a canyon curve at golden hour — the feeling, not the mechanics.
 
 **The mark should feel**:
-- Free, not corporate
-- Rebellious, not polished
+- Rugged and durable, like gear that's seen thousands of miles
+- Free-spirited, not corporate
+- Built for the road, not the boardroom
 - Handmade spirit, professional execution
-- Like it belongs on a leather saddlebag and a phone screen equally
+- At home on a leather saddlebag, a stamped metal tank badge, and a phone screen
 
 ### What to Avoid
 
@@ -72,7 +69,7 @@ The following prompt is ready to use with image generation tools (GPT, Midjourne
 
 > Design a composable logo system for "LaneShadow," an AI-native motorcycle ride planner whose tagline is "Ride the Moment." The app helps riders turn a feeling into a road — like talking to a local who knows every backroad and has strong opinions about which way to go.
 >
-> **Style**: Blend organic, flowing line energy inspired by 1960s psychedelic poster art with the thick-lined, stamp-heavy boldness of American workwear and outdoor branding. The mark should feel like it was hand-drawn by a counterculture artist but constructed with the weight and durability of something pressed into metal or embossed into leather.
+> **Style**: Organic flowing curves with thick, heavy strokes that feel rugged and permanent. The mark should capture the feeling of motion on asphalt — leaning into a curve, road blurring beneath you. Built to last like well-worn leather and stamped metal. No polish, no corporate slickness. Handmade spirit, professional execution.
 >
 > **Colors**: Copper (#B87333) and dark brown (#2B2725) only. No other colors.
 >
@@ -85,4 +82,4 @@ The following prompt is ready to use with image generation tools (GPT, Midjourne
 > 4. **Wordmark only** — stylized "LaneShadow" text without the icon, for inline use
 > 5. **Mark on dark background** (#1B1715) and **mark on light background** (#F7F3EF)
 >
-> **Rules**: One mark, two colors, no gradients. Organic forms are welcome but the silhouette must be bold enough to read at small sizes. No realistic motorcycle illustration. No skulls, flames, or biker cliches. No thin lines. Every variant uses the same mark — scaled, never redrawn. It should work embossed on a leather saddlebag, screen-printed on a tee, and as a 48px app icon. The vibe is a free spirit who builds things that last.
+> **Rules**: One mark, two colors, no gradients. Organic flowing forms with thick, durable strokes. No realistic motorcycle illustration. No skulls, flames, or biker clichés. No thin lines. Every variant uses the same mark — scaled, never redrawn. It should work stamped into metal, embossed on leather, screen-printed on a tank, and as a 48px app icon. The vibe is rugged gear built for the road.

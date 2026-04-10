@@ -5,6 +5,8 @@ prd_version: 1.0.0
 functional_group: RTE
 ---
 
+DEPROCATED: We are no longer doing this offline route calculation
+
 # Use Cases: Route Calculation (RTE)
 
 ## Use Case Summary

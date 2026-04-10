@@ -1,0 +1,1273 @@
+{
+  "test_type": "ranking_accuracy_validation",
+  "date": "2026-04-10T14:14:03.854855",
+  "model": "mlx-community/Qwen3.5-0.8B-OptiQ-4bit",
+  "top_k": 5,
+  "scales": [
+    5,
+    10,
+    20,
+    40,
+    60
+  ],
+  "scale_results": [
+    {
+      "test": "scale",
+      "n": 5,
+      "intent": "twisty-sport",
+      "ground_truth": [
+        "us129-deals-gap",
+        "nc107-whitewater",
+        "ca1-bigsur",
+        "us19e-roan",
+        "or242-mckenzie"
+      ],
+      "qwen": {
+        "picks": [
+          "id=us129-deals-gap",
+          "id=nc107-whitewater",
+          "id=or242-mckenzie",
+          "id=ca1-bigsur",
+          "id=us19e-roan"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=us129-deals-gap",
+          "id=nc107-whitewater",
+          "id=or242-mckenzie",
+          "id=ca1-bigsur",
+          "id=us19e-roan"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.71
+      },
+      "haiku": {
+        "picks": [
+          "us129-deals-gap",
+          "nc107-whitewater",
+          "ca1-bigsur",
+          "us19e-roan",
+          "or242-mckenzie"
+        ],
+        "precision_at_k": 1.0,
+        "hallucination_count": 0,
+        "hallucinated_ids": [],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.7
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 5,
+      "intent": "scenic-mountain",
+      "ground_truth": [
+        "or242-mckenzie",
+        "us19e-roan",
+        "ca1-bigsur",
+        "nc107-whitewater",
+        "us129-deals-gap"
+      ],
+      "qwen": {
+        "picks": [
+          "id=nc107-whitewater",
+          "id=us19e-roan",
+          "id=or242-mckenzie",
+          "id=ca1-bigsur",
+          "id=us129-deals-gap"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=nc107-whitewater",
+          "id=us19e-roan",
+          "id=or242-mckenzie",
+          "id=ca1-bigsur",
+          "id=us129-deals-gap"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.69
+      },
+      "haiku": {
+        "picks": [
+          "us19e-roan",
+          "or242-mckenzie",
+          "nc107-whitewater",
+          "ca1-bigsur",
+          "us129-deals-gap"
+        ],
+        "precision_at_k": 1.0,
+        "hallucination_count": 0,
+        "hallucinated_ids": [],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.64
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 5,
+      "intent": "low-traffic",
+      "ground_truth": [
+        "us19e-roan",
+        "or242-mckenzie",
+        "nc107-whitewater",
+        "us129-deals-gap",
+        "ca1-bigsur"
+      ],
+      "qwen": {
+        "picks": [
+          "id=nc107-whitewater",
+          "id=us19e-roan",
+          "id=ca1-bigsur",
+          "id=or242-mckenzie",
+          "id=us129-deals-gap"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=nc107-whitewater",
+          "id=us19e-roan",
+          "id=ca1-bigsur",
+          "id=or242-mckenzie",
+          "id=us129-deals-gap"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.69
+      },
+      "haiku": {
+        "picks": [
+          "us129-deals-gap",
+          "or242-mckenzie",
+          "nc107-whitewater",
+          "us19e-roan",
+          "ca1-bigsur"
+        ],
+        "precision_at_k": 1.0,
+        "hallucination_count": 0,
+        "hallucinated_ids": [],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 1.57
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 5,
+      "intent": "adventure-dirt",
+      "ground_truth": [
+        "nc107-whitewater",
+        "us129-deals-gap",
+        "us19e-roan",
+        "or242-mckenzie",
+        "ca1-bigsur"
+      ],
+      "qwen": {
+        "picks": [
+          "id=nc107-whitewater",
+          "id=us129-deals-gap",
+          "id=or242-mckenzie",
+          "id=ca1-bigsur",
+          "id=us19e-roan"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=nc107-whitewater",
+          "id=us129-deals-gap",
+          "id=or242-mckenzie",
+          "id=ca1-bigsur",
+          "id=us19e-roan"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.68
+      },
+      "haiku": {
+        "picks": [
+          "or242-mckenzie",
+          "us19e-roan",
+          "nc107-whitewater",
+          "us129-deals-gap",
+          "ca1-bigsur"
+        ],
+        "precision_at_k": 1.0,
+        "hallucination_count": 0,
+        "hallucinated_ids": [],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.69
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 10,
+      "intent": "twisty-sport",
+      "ground_truth": [
+        "us129-deals-gap",
+        "nc107-whitewater",
+        "nm4-jemez",
+        "co550-million",
+        "ca1-bigsur"
+      ],
+      "qwen": {
+        "picks": [
+          "id=ca1-bigsur",
+          "id=brp-nc-southern",
+          "id=ut12-escalante",
+          "id=co550-million",
+          "id=wa20-cascade"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=ca1-bigsur",
+          "id=brp-nc-southern",
+          "id=ut12-escalante",
+          "id=co550-million",
+          "id=wa20-cascade"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.65
+      },
+      "haiku": {
+        "picks": [
+          "us129-deals-gap",
+          "nc107-whitewater",
+          "co550-million",
+          "nm4-jemez",
+          "ca1-bigsur"
+        ],
+        "precision_at_k": 1.0,
+        "hallucination_count": 0,
+        "hallucinated_ids": [],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.71
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 10,
+      "intent": "scenic-mountain",
+      "ground_truth": [
+        "wa20-cascade",
+        "or242-mckenzie",
+        "us19e-roan",
+        "co550-million",
+        "ut12-escalante"
+      ],
+      "qwen": {
+        "picks": [
+          "id=or242-mckenzie",
+          "id=ut12-escalante",
+          "id=co550-million",
+          "id=wa20-cascade",
+          "id=brp-nc-southern"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=or242-mckenzie",
+          "id=ut12-escalante",
+          "id=co550-million",
+          "id=wa20-cascade",
+          "id=brp-nc-southern"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.76
+      },
+      "haiku": {
+        "picks": [
+          "us19e-roan",
+          "or242-mckenzie",
+          "wa20-cascade",
+          "co550-million",
+          "brp-nc-southern"
+        ],
+        "precision_at_k": 0.8,
+        "hallucination_count": 0,
+        "hallucinated_ids": [],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 1.65
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 10,
+      "intent": "low-traffic",
+      "ground_truth": [
+        "ut12-escalante",
+        "wa20-cascade",
+        "nm4-jemez",
+        "us19e-roan",
+        "or242-mckenzie"
+      ],
+      "qwen": {
+        "picks": [
+          "id=ca1-bigsur",
+          "id=brp-nc-southern",
+          "id=ut12-escalante",
+          "id=co550-million",
+          "id=wa20-cascade"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=ca1-bigsur",
+          "id=brp-nc-southern",
+          "id=ut12-escalante",
+          "id=co550-million",
+          "id=wa20-cascade"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.74
+      },
+      "haiku": {
+        "picks": [
+          "us129-deals-gap",
+          "or242-mckenzie",
+          "brp-nc-southern",
+          "ut12-escalante",
+          "co550-million"
+        ],
+        "precision_at_k": 0.4,
+        "hallucination_count": 0,
+        "hallucinated_ids": [],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 1.65
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 10,
+      "intent": "adventure-dirt",
+      "ground_truth": [
+        "nc107-whitewater",
+        "us129-deals-gap",
+        "nm4-jemez",
+        "co550-million",
+        "us19e-roan"
+      ],
+      "qwen": {
+        "picks": [
+          "id=co550-million",
+          "id=brp-nc-southern",
+          "id=ut12-escalante",
+          "id=wa20-cascade",
+          "id=or242-mckenzie"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=co550-million",
+          "id=brp-nc-southern",
+          "id=ut12-escalante",
+          "id=wa20-cascade",
+          "id=or242-mckenzie"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.73
+      },
+      "haiku": {
+        "picks": [
+          "ut12-escalante",
+          "or242-mckenzie",
+          "brp-nc-southern",
+          "nm4-jemez",
+          "wa20-cascade"
+        ],
+        "precision_at_k": 0.2,
+        "hallucination_count": 0,
+        "hallucinated_ids": [],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.67
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 20,
+      "intent": "twisty-sport",
+      "ground_truth": [
+        "us129-deals-gap",
+        "ca36-mad-river",
+        "nc107-whitewater",
+        "nm4-jemez",
+        "tn56-falls"
+      ],
+      "qwen": {
+        "picks": [
+          "id=ca1-bigsur",
+          "id=ca36-mad-river",
+          "id=co550-million",
+          "id=wa20-cascade",
+          "id=tn56-falls"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=ca1-bigsur",
+          "id=ca36-mad-river",
+          "id=co550-million",
+          "id=wa20-cascade",
+          "id=tn56-falls"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.74
+      },
+      "haiku": {
+        "picks": [
+          "us129-deals-gap",
+          "ca36-mad-river",
+          "nc107-whitewater",
+          "co550-million",
+          "nm4-jemez"
+        ],
+        "precision_at_k": 0.8,
+        "hallucination_count": 0,
+        "hallucinated_ids": [],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 1.12
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 20,
+      "intent": "scenic-mountain",
+      "ground_truth": [
+        "mt2-glacier",
+        "wa20-cascade",
+        "or242-mckenzie",
+        "us19e-roan",
+        "co550-million"
+      ],
+      "qwen": {
+        "picks": [
+          "id=us129-deals-gap",
+          "id=nc107-whitewater",
+          "id=or242-mckenzie",
+          "id=ca1-bigsur",
+          "id=brp-nc-southern"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=us129-deals-gap",
+          "id=nc107-whitewater",
+          "id=or242-mckenzie",
+          "id=ca1-bigsur",
+          "id=brp-nc-southern"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.76
+      },
+      "haiku": {
+        "picks": [
+          "mt2-glacier",
+          "us19e-roan",
+          "or242-mckenzie",
+          "wa20-cascade",
+          "brp-nc-southern"
+        ],
+        "precision_at_k": 0.8,
+        "hallucination_count": 0,
+        "hallucinated_ids": [],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 1.04
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 20,
+      "intent": "low-traffic",
+      "ground_truth": [
+        "filler-014",
+        "filler-007",
+        "id75-sawtooth",
+        "ut12-escalante",
+        "ca36-mad-river"
+      ],
+      "qwen": {
+        "picks": [
+          "id=ca36-mad-river",
+          "id=ca1-bigsur",
+          "id=brp-nc-southern",
+          "id=ut12-escalante",
+          "id=co550-million"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=ca36-mad-river",
+          "id=ca1-bigsur",
+          "id=brp-nc-southern",
+          "id=ut12-escalante",
+          "id=co550-million"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.74
+      },
+      "haiku": {
+        "picks": [
+          "id=us129-deals-gap",
+          "id=ca1-bigsur",
+          "id=mt2-glacier",
+          "id=or242-mckenzie",
+          "id=brp-nc-southern"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=us129-deals-gap",
+          "id=ca1-bigsur",
+          "id=mt2-glacier",
+          "id=or242-mckenzie",
+          "id=brp-nc-southern"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 1.09
+      },
+      "qwen_haiku_overlap": 0.4
+    },
+    {
+      "test": "scale",
+      "n": 20,
+      "intent": "adventure-dirt",
+      "ground_truth": [
+        "filler-014",
+        "filler-007",
+        "ca36-mad-river",
+        "nc107-whitewater",
+        "us129-deals-gap"
+      ],
+      "qwen": {
+        "picks": [
+          "id=ca1-bigsur",
+          "id=brp-nc-southern",
+          "id=ut12-escalante",
+          "id=co550-million",
+          "id=wa20-cascade"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=ca1-bigsur",
+          "id=brp-nc-southern",
+          "id=ut12-escalante",
+          "id=co550-million",
+          "id=wa20-cascade"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.76
+      },
+      "haiku": {
+        "picks": [
+          "id=ut12-escalante",
+          "id=id75-sawtooth",
+          "id=nm4-jemez",
+          "id=mt2-glacier",
+          "id=or242-mckenzie"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=ut12-escalante",
+          "id=id75-sawtooth",
+          "id=nm4-jemez",
+          "id=mt2-glacier",
+          "id=or242-mckenzie"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.89
+      },
+      "qwen_haiku_overlap": 0.2
+    },
+    {
+      "test": "scale",
+      "n": 40,
+      "intent": "twisty-sport",
+      "ground_truth": [
+        "us129-deals-gap",
+        "ca36-mad-river",
+        "nc107-whitewater",
+        "nm4-jemez",
+        "tn56-falls"
+      ],
+      "qwen": {
+        "picks": [
+          "id129-deals-gap",
+          "id107-whitewater",
+          "id19e-roan",
+          "id242-mckenzie",
+          "id5-bigsur"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id129-deals-gap",
+          "id107-whitewater",
+          "id19e-roan",
+          "id242-mckenzie",
+          "id5-bigsur"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.9
+      },
+      "haiku": {
+        "picks": [
+          "us129-deals-gap",
+          "ca36-mad-river",
+          "nc107-whitewater",
+          "co550-million",
+          "nm4-jemez"
+        ],
+        "precision_at_k": 0.8,
+        "hallucination_count": 0,
+        "hallucinated_ids": [],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.99
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 40,
+      "intent": "scenic-mountain",
+      "ground_truth": [
+        "mt2-glacier",
+        "wa20-cascade",
+        "or242-mckenzie",
+        "us19e-roan",
+        "co550-million"
+      ],
+      "qwen": {
+        "picks": [
+          "id=us129-deals-gap",
+          "id=nc107-whitewater",
+          "id=or242-mckenzie",
+          "id=ca1-bigsur",
+          "id=brp-nc-southern"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=us129-deals-gap",
+          "id=nc107-whitewater",
+          "id=or242-mckenzie",
+          "id=ca1-bigsur",
+          "id=brp-nc-southern"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.83
+      },
+      "haiku": {
+        "picks": [
+          "mt2-glacier",
+          "us19e-roan",
+          "or242-mckenzie",
+          "wa20-cascade",
+          "id75-sawtooth"
+        ],
+        "precision_at_k": 0.8,
+        "hallucination_count": 0,
+        "hallucinated_ids": [],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 1.9
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 40,
+      "intent": "low-traffic",
+      "ground_truth": [
+        "filler-014",
+        "filler-007",
+        "filler-031",
+        "id75-sawtooth",
+        "filler-026"
+      ],
+      "qwen": {
+        "picks": [
+          "id129-deals-gap",
+          "id107-whitewater",
+          "id19e-roan",
+          "id242-mckenzie",
+          "id5-bigsur"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id129-deals-gap",
+          "id107-whitewater",
+          "id19e-roan",
+          "id242-mckenzie",
+          "id5-bigsur"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.83
+      },
+      "haiku": {
+        "picks": [
+          "id=id75-sawtooth",
+          "id=mt2-glacier",
+          "id=or242-mckenzie",
+          "id=brp-nc-southern",
+          "id=filler-039"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=id75-sawtooth",
+          "id=mt2-glacier",
+          "id=or242-mckenzie",
+          "id=brp-nc-southern",
+          "id=filler-039"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 1.11
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 40,
+      "intent": "adventure-dirt",
+      "ground_truth": [
+        "filler-031",
+        "filler-014",
+        "filler-007",
+        "filler-026",
+        "ca36-mad-river"
+      ],
+      "qwen": {
+        "picks": [
+          "id129-deals-gap",
+          "id107-whitewater",
+          "id19e-roan",
+          "id242-mckenzie",
+          "id5-bigsur"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id129-deals-gap",
+          "id107-whitewater",
+          "id19e-roan",
+          "id242-mckenzie",
+          "id5-bigsur"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.82
+      },
+      "haiku": {
+        "picks": [
+          "id=ut12-escalante",
+          "id=id75-sawtooth",
+          "id=filler-002",
+          "id=filler-014",
+          "id=filler-039"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=ut12-escalante",
+          "id=id75-sawtooth",
+          "id=filler-002",
+          "id=filler-014",
+          "id=filler-039"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.8
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 60,
+      "intent": "twisty-sport",
+      "ground_truth": [
+        "us129-deals-gap",
+        "ca36-mad-river",
+        "nc107-whitewater",
+        "nm4-jemez",
+        "tn56-falls"
+      ],
+      "qwen": {
+        "picks": [
+          "id129-deals-gap",
+          "id107-whitewater",
+          "id19e-roan",
+          "id242-mckenzie",
+          "id5-bigsur"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id129-deals-gap",
+          "id107-whitewater",
+          "id19e-roan",
+          "id242-mckenzie",
+          "id5-bigsur"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 0.88
+      },
+      "haiku": {
+        "picks": [
+          "us129-deals-gap",
+          "ca36-mad-river",
+          "nc107-whitewater",
+          "co550-million",
+          "nm4-jemez"
+        ],
+        "precision_at_k": 0.8,
+        "hallucination_count": 0,
+        "hallucinated_ids": [],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 1.53
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 60,
+      "intent": "scenic-mountain",
+      "ground_truth": [
+        "mt2-glacier",
+        "wa20-cascade",
+        "or242-mckenzie",
+        "us19e-roan",
+        "co550-million"
+      ],
+      "qwen": {
+        "picks": [
+          "id=us129-deals-gap",
+          "id=nc107-whitewater",
+          "id=or242-mckenzie",
+          "id=ca1-bigsur",
+          "id=brp-nc-southern"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=us129-deals-gap",
+          "id=nc107-whitewater",
+          "id=or242-mckenzie",
+          "id=ca1-bigsur",
+          "id=brp-nc-southern"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 1.03
+      },
+      "haiku": {
+        "picks": [
+          "mt2-glacier",
+          "us19e-roan",
+          "or242-mckenzie",
+          "wa20-cascade",
+          "brp-nc-southern"
+        ],
+        "precision_at_k": 0.8,
+        "hallucination_count": 0,
+        "hallucinated_ids": [],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 1.05
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 60,
+      "intent": "low-traffic",
+      "ground_truth": [
+        "filler-014",
+        "filler-007",
+        "filler-031",
+        "id75-sawtooth",
+        "filler-021"
+      ],
+      "qwen": {
+        "picks": [
+          "id129-deals-gap",
+          "id107-whitewater",
+          "id19e-roan",
+          "id242-mckenzie",
+          "ca1-bigsur"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 4,
+        "hallucinated_ids": [
+          "id129-deals-gap",
+          "id107-whitewater",
+          "id19e-roan",
+          "id242-mckenzie"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 1.07
+      },
+      "haiku": {
+        "picks": [
+          "id12-sawtooth",
+          "id75-sawtooth",
+          "mt2-glacier",
+          "brp-nc-southern",
+          "or242-mckenzie"
+        ],
+        "precision_at_k": 0.2,
+        "hallucination_count": 1,
+        "hallucinated_ids": [
+          "id12-sawtooth"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 1.12
+      },
+      "qwen_haiku_overlap": 0.0
+    },
+    {
+      "test": "scale",
+      "n": 60,
+      "intent": "adventure-dirt",
+      "ground_truth": [
+        "filler-031",
+        "filler-021",
+        "filler-014",
+        "filler-007",
+        "filler-026"
+      ],
+      "qwen": {
+        "picks": [
+          "id129-deals-gap",
+          "id107-whitewater",
+          "id19e-roan",
+          "id242-mckenzie",
+          "ca1-bigsur"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 4,
+        "hallucinated_ids": [
+          "id129-deals-gap",
+          "id107-whitewater",
+          "id19e-roan",
+          "id242-mckenzie"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 1.46
+      },
+      "haiku": {
+        "picks": [
+          "id=ut12-escalante",
+          "id=id75-sawtooth",
+          "id=or242-mckenzie",
+          "id=mt2-glacier",
+          "id=filler-039"
+        ],
+        "precision_at_k": 0.0,
+        "hallucination_count": 5,
+        "hallucinated_ids": [
+          "id=ut12-escalante",
+          "id=id75-sawtooth",
+          "id=or242-mckenzie",
+          "id=mt2-glacier",
+          "id=filler-039"
+        ],
+        "duplicate_count": 0,
+        "count_correct": true,
+        "actual_count": 5,
+        "valid_json": true,
+        "duration_s": 1.17
+      },
+      "qwen_haiku_overlap": 0.0
+    }
+  ],
+  "failure_mode_results": [
+    {
+      "mode": "positional_bias",
+      "agreement_across_shuffles": 0.0,
+      "pick_sets": [
+        [
+          "id=filler-015",
+          "id=ca1-bigsur",
+          "id=us129-deals-gap",
+          "id=co550-million",
+          "id=mt2-glacier"
+        ],
+        [
+          "id10",
+          "id18",
+          "id1",
+          "id14",
+          "id12"
+        ],
+        [
+          "id=us129-deals-gap",
+          "id=tn56-falls",
+          "id=wa20-cascade",
+          "id=ca36-mad-river",
+          "id=or242-mckenzie"
+        ],
+        [
+          "id=brp-nc-southern",
+          "id=ut12-escalante",
+          "id=wa20-cascade",
+          "id=filler-001",
+          "id=or242-mckenzie"
+        ],
+        [
+          "id18",
+          "id13",
+          "id14",
+          "id15",
+          "id12"
+        ]
+      ],
+      "verdict": "BIAS_DETECTED"
+    },
+    {
+      "mode": "score_blindness",
+      "correct_pair_picks": 0,
+      "total_pairs": 2,
+      "blindness_rate": 1.0,
+      "verdict": "SCORE_BLIND"
+    },
+    {
+      "mode": "keyword_attraction",
+      "qwen_picks": [
+        "id10",
+        "id12",
+        "id14",
+        "id15",
+        "id18"
+      ],
+      "haiku_picks": [
+        "us129-deals-gap",
+        "ca36-mad-river",
+        "nc107-whitewater",
+        "co550-million",
+        "nm4-jemez"
+      ],
+      "qwen_trap_triggered": false,
+      "haiku_trap_triggered": false,
+      "verdict": "OK"
+    },
+    {
+      "mode": "distractor_susceptibility",
+      "qwen_picks": [
+        "id=ca1-bigsur",
+        "id=brp-nc-southern",
+        "id=ut12-escalante",
+        "id=co550-million",
+        "id=wa20-cascade"
+      ],
+      "haiku_picks": [
+        "mt2-glacier",
+        "ca1-bigsur",
+        "ut12-escalante",
+        "brp-nc-southern",
+        "wa20-cascade"
+      ],
+      "qwen_distracted": false,
+      "haiku_distracted": false,
+      "verdict": "OK"
+    },
+    {
+      "mode": "count_violation",
+      "by_k": {
+        "3": {
+          "requested": 3,
+          "returned": 3,
+          "correct": true
+        },
+        "5": {
+          "requested": 5,
+          "returned": 5,
+          "correct": true
+        },
+        "7": {
+          "requested": 7,
+          "returned": 7,
+          "correct": true
+        },
+        "10": {
+          "requested": 10,
+          "returned": 10,
+          "correct": true
+        }
+      },
+      "verdict": "OK"
+    },
+    {
+      "mode": "hallucination",
+      "total_hallucinations": 20,
+      "per_intent": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "verdict": "HALLUCINATED_20"
+    },
+    {
+      "mode": "instruction_inversion",
+      "qwen_worst_precision": 0.0,
+      "haiku_worst_precision": 0.0,
+      "verdict": "INVERSION_FAILED"
+    },
+    {
+      "mode": "duplicate_output",
+      "intents_with_duplicates": 0,
+      "verdict": "OK"
+    }
+  ],
+  "consistency_results": [
+    {
+      "n": 20,
+      "intent": "twisty-sport",
+      "distinct_outputs": 1,
+      "mode_frequency": 1.0,
+      "verdict": "OK"
+    },
+    {
+      "n": 20,
+      "intent": "low-traffic",
+      "distinct_outputs": 1,
+      "mode_frequency": 1.0,
+      "verdict": "OK"
+    },
+    {
+      "n": 40,
+      "intent": "scenic-mountain",
+      "distinct_outputs": 1,
+      "mode_frequency": 1.0,
+      "verdict": "OK"
+    }
+  ],
+  "gates": {
+    "precision_at_20": 0.0,
+    "json_rate": 1.0,
+    "zero_hallucinations": false,
+    "ranking_viable": false
+  }
+}
