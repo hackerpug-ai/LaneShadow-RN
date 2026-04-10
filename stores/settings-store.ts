@@ -7,6 +7,8 @@ type ThemeMode = 'light' | 'dark' | 'auto'
 type SettingsState = {
   themeMode: ThemeMode
   setThemeMode: (mode: ThemeMode) => void
+  hasCompletedOnboarding: boolean
+  setHasCompletedOnboarding: (value: boolean) => void
   _hydrated: boolean
 }
 
@@ -21,6 +23,8 @@ export const useSettingsStore = create<SettingsState>()(
     (set) => ({
       themeMode: 'auto',
       setThemeMode: (mode) => set({ themeMode: mode }),
+      hasCompletedOnboarding: false,
+      setHasCompletedOnboarding: (value) => set({ hasCompletedOnboarding: value }),
       _hydrated: false,
     }),
     {

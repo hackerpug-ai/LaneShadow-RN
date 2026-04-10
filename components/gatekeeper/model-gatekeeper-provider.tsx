@@ -11,7 +11,7 @@
  * CLR-004: Model Download Persistence
  *
  * This provider:
- * - Checks model status on app launch
+ * - Skips onboarding entirely if user has already completed it
  * - Shows welcome + ambient download flow if model is missing
  * - Shows "Setup Required" screen if model is corrupted
  * - Allows main app access only when model is valid
@@ -21,6 +21,7 @@
 import React from 'react'
 import { View, ActivityIndicator } from 'react-native'
 import { useModelSetup } from '../../hooks/useModelSetup'
+import { useSettingsStore } from '../../stores/settings-store'
 import { SetupRequiredScreen } from './setup-required-screen'
 import { WelcomeScreen } from '../onboarding/welcome-screen'
 import { CompletionScreen } from '../onboarding/completion-screen'
@@ -47,13 +48,20 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
   const {
     status,
     downloadProgress,
-    canResumeDownload,
     restoreModel,
     startDownload,
     cancelDownload,
     markSetupComplete,
     isChecking,
   } = useModelSetup()
+
+  const hasCompletedOnboarding = useSettingsStore((s) => s.hasCompletedOnboarding)
+  const setHasCompletedOnboarding = useSettingsStore((s) => s.setHasCompletedOnboarding)
+
+  // If user already completed onboarding and model is ready, skip gatekeeper entirely
+  if (hasCompletedOnboarding && (status === 'ready' || status === 'valid')) {
+    return <View style={styles.fullScreen} testID={`${testID}-main-app`}>{children}</View>
+  }
 
   // Show loading indicator while checking
   if (isChecking) {
@@ -96,10 +104,15 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
 
   // Show completion screen when download is done (but setup not yet confirmed)
   if (status === 'valid') {
+    const handleStartRiding = async () => {
+      await markSetupComplete()
+      setHasCompletedOnboarding(true)
+    }
+
     return (
       <View style={styles.fullScreen} testID={`${testID}-completion`}>
         <CompletionScreen
-          onStartRiding={markSetupComplete}
+          onStartRiding={handleStartRiding}
           testID={`${testID}-completion-screen`}
         />
       </View>

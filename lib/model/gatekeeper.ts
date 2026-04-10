@@ -139,7 +139,10 @@ export class ModelGatekeeper {
       })
 
       // AC-002: Mark model as corrupted if checksum differs
-      if (!checksumResult.valid) {
+      // Note: ChecksumValidator returns empty string for files >50MB (bypass),
+      // so an empty actualChecksum with no error means "skipped, assume valid"
+      const checksumBypassed = checksumResult.actualChecksum === '' && !checksumResult.error
+      if (!checksumResult.valid && !checksumBypassed) {
         const errorMessage = checksumResult.error || 'Model file checksum validation failed'
         console.log('[ModelGatekeeper] Model corrupted - routing to restore screen')
 
