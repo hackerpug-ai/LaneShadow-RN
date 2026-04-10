@@ -51,6 +51,7 @@ export const RenameRegionBottomSheet = ({
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<RenameFormValues>({
     resolver: zodResolver(renameSchema),
@@ -71,11 +72,9 @@ export const RenameRegionBottomSheet = ({
     }
   }
 
-  // We need the current value to check if name is unchanged
-  // Using watch would re-render on every keystroke; instead we
-  // check inside onSubmit and disable the button via form state
-  const nameValue = control._formValues.name ?? ''
-  const trimmedValue = nameValue.toString().trim()
+  // Watch the name field to reactively check if unchanged
+  const watchedName = watch('name')
+  const trimmedValue = (watchedName ?? '').trim()
   const isUnchanged = trimmedValue === currentName || trimmedValue.length === 0
 
   return (
