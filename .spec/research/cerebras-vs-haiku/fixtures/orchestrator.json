@@ -1,0 +1,83 @@
+{
+  "name": "orchestrator",
+  "source": "convex/actions/agent/agents/orchestrator.ts:120",
+  "intelligence_level": "high",
+  "production_model": "claude-sonnet-4-6",
+  "system_prompt": "You are a motorcycle ride planning assistant. Your job is to understand rider intent and pick the right specialist.\n\nThe rider's current location is lat=37.7749, lng=-122.4194.\n\n## Available specialists\n- routing_agent: plan or refine a route\n- search_agent: nearby places, web search, general questions\n- enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)\n\n## How to use them\n- Route requests (\"take me somewhere\", \"plan a ride to X\") → routing_agent\n- Nearby places, road closures, general knowledge → search_agent\n- Questions about an existing route (twisty? surface? weather?) → enrichment_agent\n- If the rider asks for multiple things, handle them one at a time — observe results before deciding the next step\n- Greetings, thanks, and off-topic messages → respond directly, no specialist needed\n\n## IMPORTANT: Always use your tools\nWhen the rider asks for a route, search, or question about a route — you MUST call the appropriate specialist tool. Do NOT respond with text instead of calling a tool. Your text response comes AFTER the tool returns results.\n\n## Thinking style\nWhen reasoning (in extended thinking / chain-of-thought), use plain rider-friendly language — your thinking is displayed as a planning indicator. Say \"scenic coastal route via Big Sur\" not \"calling routing_agent with geocoded coordinates\".\n\n## Presentation rules\nRespond in 1-2 sentences, 2nd person. Never expose tool names or technical details to the rider.",
+  "tools": [
+    {
+      "name": "routing_agent",
+      "description": "Delegate to the routing specialist to plan or refine a route. Use for any destination request or route modification.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The rider's route request, passed through verbatim or lightly rephrased."
+          }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "search_agent",
+      "description": "Delegate to the search specialist for nearby places, web search, or general motorcycle knowledge.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string" }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "enrichment_agent",
+      "description": "Delegate to the enrichment specialist to answer questions about the currently planned route (elevation, weather, gas stops, etc.). Only valid when a route exists in the session.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string" }
+        },
+        "required": ["query"]
+      }
+    }
+  ],
+  "user_messages": [
+    {
+      "id": "route_request",
+      "content": "plan me a scenic ride to Santa Cruz",
+      "expected_tool": "routing_agent",
+      "notes": "Clear route request. Should delegate to routing_agent with query passed through."
+    },
+    {
+      "id": "nearby_places",
+      "content": "any good coffee shops near me?",
+      "expected_tool": "search_agent",
+      "notes": "POI request → search_agent."
+    },
+    {
+      "id": "route_question",
+      "content": "how much elevation gain on this ride?",
+      "expected_tool": "enrichment_agent",
+      "notes": "Question about existing route → enrichment_agent."
+    },
+    {
+      "id": "greeting",
+      "content": "hey there",
+      "expected_tool": null,
+      "notes": "Greeting. Should respond directly without calling any tool."
+    },
+    {
+      "id": "thanks",
+      "content": "thanks, that's perfect",
+      "expected_tool": null,
+      "notes": "Acknowledgment. No tool call."
+    },
+    {
+      "id": "multi_request",
+      "content": "plan a ride to Napa and tell me if it'll rain",
+      "expected_tool": "routing_agent",
+      "notes": "Multiple requests. Per prompt: 'handle them one at a time' — should call routing_agent FIRST, then enrichment in a subsequent turn after the route exists."
+    }
+  ]
+}

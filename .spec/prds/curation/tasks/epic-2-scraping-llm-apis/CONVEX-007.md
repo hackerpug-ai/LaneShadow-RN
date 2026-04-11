@@ -146,10 +146,10 @@ export const curationMetricsInternal = internalQuery({
       ? Math.max(...routes.map(r => r.extractedAt))
       : null;
 
-    // LLM cost estimate: Haiku ~$0.25/1M input + $1.25/1M output
+    // LLM cost estimate: qwen-3-235b-a22b-instruct-2507 ~$0.60/1M input + $1.20/1M output
     // Average: ~200 input tokens + ~300 output tokens per route
-    // ~= $0.0001 per route extraction
-    const llmCost = routes.length * 0.0001;
+    // ~= (200/1M)*0.60 + (300/1M)*1.20 = $0.000120 + $0.000360 = ~$0.00048 per route extraction
+    const llmCost = routes.length * 0.00048;
 
     // Feedback summary by action type
     const feedbackSummary: Record<string, number> = {};

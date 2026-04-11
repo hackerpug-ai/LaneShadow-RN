@@ -9,11 +9,23 @@
 
 | Metric | Count |
 |--------|-------|
-| Epics | 4 |
-| Tasks | 32 |
+| Epics | 5 |
+| Tasks | 35 |
 | Use Cases Covered | 16/16 |
 
 ## Epic Summary
+
+### Epic 0: AI Provider Abstraction & Cerebras Migration (3 tasks)
+**Scope**: Abstract provider/model selection behind `getAgentModel('low' | 'high')`, switch default to Cerebras
+**Source**: `.spec/proposals/cerebras-provider-migration.md`
+**Human Test**: Chat message → agent responds via Cerebras; swap model in one file → no other code changes needed
+**Wall-clock**: ~0.5 day
+
+| ID | Title | Agent | Priority | Est |
+|----|-------|-------|----------|-----|
+| [AI-001](./epic-0-ai-provider-abstraction/AI-001.md) | Create agent model registry (`lib/models.ts`) | convex-implementer | P0 | 75m |
+| [AI-002](./epic-0-ai-provider-abstraction/AI-002.md) | Env migration: remove AI_PROVIDER/AI_MODEL, add CEREBRAS_API_KEY | convex-implementer | P0 | 30m |
+| [AI-003](./epic-0-ai-provider-abstraction/AI-003.md) | Migrate 6 agent call sites + update tests | convex-implementer | P0 | 150m |
 
 ### Epic 1: Backend Foundation & Seed Pipeline (9 tasks)
 **Scope**: Convex schema, admin ingestion endpoints, Python pipeline scaffold, FHWA seed data
@@ -82,6 +94,11 @@
 ## Dependency Graph
 
 ```
+Epic 0 (AI Provider Abstraction)
+  ├── AI-001 ─┐
+  ├── AI-002 ─┴→ AI-003
+         │
+         ▼ (blocks Epic 2 LLM extraction)
 Epic 1 (Backend + Seed)
   ├── CONVEX-001 → CONVEX-002 → CONVEX-003
   ├── CONVEX-008 ──────────── → CONVEX-003
@@ -115,6 +132,7 @@ Epic 4 (Discovery UI + Flywheel)
 
 ## Parallelization Opportunities
 
+- **Epic 0**: AI-001 (new registry file) ∥ AI-002 (env.ts + .env.example) — different files, no shared state
 - **Epic 1**: CONVEX-001/008 (backend) ∥ PIPE-001 (Python) — no shared state
 - **Epic 1**: PIPE-002 (FHWA) ∥ PIPE-007 (scoring) — different concerns
 - **Epic 2**: PIPE-003 (scrapers) ∥ CONVEX-004/005 (endpoints) — no dependencies

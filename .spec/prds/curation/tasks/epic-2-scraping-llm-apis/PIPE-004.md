@@ -1,4 +1,4 @@
-# PIPE-004: LLM Extraction with Haiku + Instructor
+# PIPE-004: LLM Extraction with Anthropic Haiku + Instructor
 
 **Task ID:** PIPE-004
 **Epic:** Epic 2 - Web Scraping, LLM Extraction & Public APIs
@@ -301,6 +301,7 @@ def extract_batch(routes: list[dict], max_workers: int = 5) -> list[dict]:
 
 ## NOTES
 
+- **Provider split — intentional**: The Convex agent layer (TypeScript) migrates to Cerebras via the `getAgentModel()` registry in Epic 0. This Python pipeline is a separate runtime and deliberately stays on the Anthropic SDK + Instructor. Python has no equivalent pi-ai adapter for Cerebras, and Instructor's structured-output ergonomics are tied to `instructor.from_anthropic()`. A future "Python provider abstraction" task could mirror Epic 0 for the pipeline, but it is out of scope here.
 - **Instructor + Pydantic is the deterministic parser** between LLM and downstream (P5). Every LLM output must pass through this validation before reaching the scoring engine.
 - **Retry-on-validation-failure**: If the first extraction fails Pydantic validation, retry with the validation error appended to the prompt. After 2 retries, mark the route as extraction_failed and continue.
 - **Parallel workers**: max_workers=5 balances throughput against API rate limits. Adjust if hitting Anthropic rate limits.

@@ -1,0 +1,84 @@
+{
+  "name": "search_agent",
+  "source": "convex/actions/agent/agents/searchAgent.ts:53",
+  "intelligence_level": "low",
+  "production_model": "claude-haiku-4-5-20251001",
+  "system_prompt": "You are a helpful motorcycle assistant that answers questions about places, current road conditions, and general motorcycle knowledge.\n\nThe rider's current location is lat=37.7749, lng=-122.4194.\n\n## Tools and When to Use Them\n\n- **searchNearby**: Use for place/POI questions (\"gas station nearby?\", \"any viewpoints around here?\", \"restaurant close to me?\"). Use the rider's current location as the default center.\n- **webSearch**: Use for current information the LLM can't know from training data (\"road closures on Highway 1\", \"current speed limit on PCH\", \"construction on I-5 this week\").\n- **geocode**: Use when the rider names a place and you need coordinates before calling searchNearby (e.g. \"gas stations near Carmel\" → geocode(\"Carmel, CA\") → searchNearby).\n\n## When NOT to Use Tools\n\nFor general knowledge questions (\"how many gallons does a typical motorcycle tank hold?\", \"what does a blinking ABS light mean?\"), answer directly from your knowledge. Do not call a tool unless you genuinely need current or location-specific data.\n\n## Response Style\n\nBe concise — 1-2 sentences. Speak directly to the rider (\"There's a Shell station 0.8 miles north of you\"). Present tool results conversationally, not as raw data.",
+  "tools": [
+    {
+      "name": "searchNearby",
+      "description": "Find nearby places of interest (gas stations, restaurants, viewpoints, etc.) around a lat/lng center point. Use when the rider asks about nearby POIs.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string", "description": "What to search for (e.g. 'gas station', 'viewpoint')" },
+          "location": {
+            "type": "object",
+            "properties": {
+              "lat": { "type": "number" },
+              "lng": { "type": "number" }
+            },
+            "required": ["lat", "lng"]
+          },
+          "radiusMeters": { "type": "number", "nullable": true }
+        },
+        "required": ["query", "location"]
+      }
+    },
+    {
+      "name": "webSearch",
+      "description": "Search the web for current, real-time information — road closures, construction, speed limits, current events.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string" },
+          "maxResults": { "type": "number", "nullable": true }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "geocode",
+      "description": "Resolve a place name or address to GPS coordinates. Use when the rider references a place by name and you need coordinates for a subsequent searchNearby.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string" }
+        },
+        "required": ["query"]
+      }
+    }
+  ],
+  "user_messages": [
+    {
+      "id": "gas_station_nearby",
+      "content": "any gas stations around here?",
+      "expected_first_tool": "searchNearby",
+      "notes": "Happy path POI lookup. Should use rider's current location as center."
+    },
+    {
+      "id": "viewpoints_near_carmel",
+      "content": "any good viewpoints near Carmel?",
+      "expected_first_tool": "geocode",
+      "notes": "Named location → geocode first, then searchNearby."
+    },
+    {
+      "id": "road_closures_hwy1",
+      "content": "are there any road closures on Highway 1 right now?",
+      "expected_first_tool": "webSearch",
+      "notes": "Current/real-time info → webSearch."
+    },
+    {
+      "id": "general_knowledge_tank",
+      "content": "how many gallons does a typical sport touring motorcycle tank hold?",
+      "expected_first_tool": null,
+      "notes": "General knowledge — model should answer directly without calling tools. This is a TRAP — Haiku often over-calls webSearch here. llama3.1-8b may do the same."
+    },
+    {
+      "id": "abs_light",
+      "content": "what does a blinking ABS light mean on my bike?",
+      "expected_first_tool": null,
+      "notes": "General motorcycle knowledge. No tool call expected."
+    }
+  ]
+}

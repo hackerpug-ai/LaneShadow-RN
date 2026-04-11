@@ -1,0 +1,150 @@
+{
+  "name": "routing_agent",
+  "source": "convex/actions/agent/agents/routingAgent.ts:1033",
+  "intelligence_level": "low",
+  "production_model": "claude-haiku-4-5-20251001",
+  "system_prompt": "You are an expert motorcycle navigator with strong opinions about the best routes — think of yourself as a local who has ridden every road in the area. Be concise — 1-2 sentences per response. Use 2nd person (\"your ride\", \"you'll see\").\n\nThe rider's current location is lat=37.7749, lng=-122.4194. Use this as the default origin when the rider asks for a route without specifying where they're starting from. Do NOT ask \"where are you starting from?\" when this location is available — just use it.\n\n## Your Job: Plan Routes Fast\n\nYour primary tool is planRoute — it generates 2-3 scenic route options using AI-suggested roads. Use it for most requests.\n\n**When to use planRoute** (95% of requests):\n- \"scenic ride to Santa Cruz\"\n- \"take me somewhere fun\"\n- \"2-hour ride from here\"\n- Any destination request\n\n**When to use createRouteSketch + compileSketch** (advanced control):\n- Rider specifies exact roads: \"take Highway 1 to PCH\"\n- Rider wants to avoid a specific road: \"avoid I-5\"\n- Rider requests a particular route style you can't achieve with planRoute\n\n**Workflow for sketching** (only when rider specifies roads):\n1. If the rider names a place (not \"here\"), call geocode first to get coordinates.\n2. Call createRouteSketch with specific road names and anchor points.\n3. Call compileSketch with start/end coordinates to generate the route.\n4. Present in 1-2 sentences.\n\n**CRITICAL: Always pass location labels**:\n- When calling planRoute or compileSketch after geocoding, ALWAYS include the label from geocode results\n- Example: planRoute({ start: {..., label: \"San Francisco, CA\"}, end: {..., label: \"Santa Cruz, CA\"}, ... })\n- This ensures route cards show meaningful location names instead of coordinates\n\n**Examples**:\n- \"Scenic ride to Santa Cruz\" → geocode(\"Santa Cruz\") → planRoute(start: {..., label: \"Current Location\"}, end: {..., label: \"Santa Cruz, CA\"}) → done\n- \"Take Highway 1 south\" → geocode → createRouteSketch with Highway 1 → compileSketch(start: {..., label: \"...\"}, end: {..., label: \"...\"}) → done\n- \"Avoid the freeway, get to Napa\" → geocode → createRouteSketch with backroads → compileSketch(start: {..., label: \"...\"}, end: {..., label: \"Napa, CA\"}) → done\n\n**Presentation**:\n- 1-2 sentences, highlight scenic features, road types, rough duration.\n- Never expose tool names or technical details to the rider.\n\nWhen done, respond with a JSON summary:\n{\"status\": \"route_ready\", \"routePlanId\": \"<id>\", \"summary\": \"<1-2 sentence summary>\"}\nOR if clarification needed:\n{\"status\": \"needs_clarification\", \"question\": \"<what you need to know>\"}\nOR if failed:\n{\"status\": \"failed\", \"reason\": \"<why it failed>\"}",
+  "tools": [
+    {
+      "name": "geocode",
+      "description": "Look up coordinates for a place name, address, or landmark. Use before planRoute or compileSketch when the rider names somewhere other than \"here\". Results are biased toward the rider's current location.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string", "description": "Place name, address, or landmark to resolve" }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "createRouteSketch",
+      "description": "Create a high-level route itinerary by specifying road segments. Use when the rider asks to avoid specific roads or requests a particular route.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "segments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "roadName": { "type": "string" },
+                "fromName": { "type": "string" },
+                "toName": { "type": "string" }
+              },
+              "required": ["roadName", "fromName", "toName"]
+            }
+          }
+        },
+        "required": ["segments"]
+      }
+    },
+    {
+      "name": "compileSketch",
+      "description": "Convert a route sketch into a precise route with geometry from Google Maps. Call geocode first if you need coordinates for start/end points.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "object",
+            "properties": {
+              "lat": { "type": "number" },
+              "lng": { "type": "number" },
+              "label": { "type": "string" }
+            },
+            "required": ["lat", "lng", "label"]
+          },
+          "end": {
+            "type": "object",
+            "properties": {
+              "lat": { "type": "number" },
+              "lng": { "type": "number" },
+              "label": { "type": "string" }
+            },
+            "required": ["lat", "lng", "label"]
+          }
+        },
+        "required": ["start", "end"]
+      }
+    },
+    {
+      "name": "planRoute",
+      "description": "Plan a motorcycle route with 2-3 scenic options using the deterministic orchestrator. Call geocode first if you need coordinates for the start or end. Use the rider's current location as start when they say \"here\" or don't specify.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "object",
+            "properties": {
+              "lat": { "type": "number" },
+              "lng": { "type": "number" },
+              "label": { "type": "string" }
+            },
+            "required": ["lat", "lng", "label"]
+          },
+          "end": {
+            "type": "object",
+            "properties": {
+              "lat": { "type": "number" },
+              "lng": { "type": "number" },
+              "label": { "type": "string" }
+            },
+            "required": ["lat", "lng", "label"]
+          },
+          "style": {
+            "type": "string",
+            "enum": ["scenic", "fastest", "twisty", "avoid_highways"]
+          }
+        },
+        "required": ["start", "end"]
+      }
+    },
+    {
+      "name": "setSessionTitle",
+      "description": "Set the title of the current planning session based on the route context. Use after creating a route to give the session a meaningful name.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" }
+        },
+        "required": ["title"]
+      }
+    }
+  ],
+  "user_messages": [
+    {
+      "id": "scenic_to_santa_cruz",
+      "content": "scenic ride to Santa Cruz",
+      "expected_first_tool": "geocode",
+      "expected_final_tool": "planRoute",
+      "notes": "Standard happy path. Should geocode Santa Cruz then call planRoute with the rider's location as start."
+    },
+    {
+      "id": "take_hwy1_south",
+      "content": "take Highway 1 south for about 2 hours",
+      "expected_first_tool": "createRouteSketch",
+      "expected_final_tool": "compileSketch",
+      "notes": "Rider names a specific road — should use sketch workflow, not planRoute."
+    },
+    {
+      "id": "avoid_freeway_to_napa",
+      "content": "I want to ride to Napa but avoid the freeway",
+      "expected_first_tool": "geocode",
+      "expected_final_tool": "compileSketch",
+      "notes": "Avoid constraint → sketch workflow. Should geocode Napa first."
+    },
+    {
+      "id": "somewhere_fun_2_hours",
+      "content": "take me somewhere fun for a 2-hour ride",
+      "expected_first_tool": "planRoute",
+      "expected_final_tool": "planRoute",
+      "notes": "No destination — should use planRoute with current location as start and let the orchestrator pick the destination."
+    },
+    {
+      "id": "ambiguous_needs_clarification",
+      "content": "plan a ride",
+      "expected_first_tool": null,
+      "expected_final_tool": null,
+      "notes": "Too vague. Model should either call planRoute with a default or respond with needs_clarification JSON. Either is acceptable — we want to see which it picks."
+    }
+  ]
+}
