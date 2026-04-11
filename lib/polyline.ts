@@ -51,6 +51,27 @@ const interpolatePoint = (start: MapLatLng, end: MapLatLng, t: number): MapLatLn
  * new coordinate array that begins/ends at the requested distances. This is
  * used to render wind overlay segments with distinct colors.
  */
+// CLR-019: Coordinate conversion re-exports
+export {
+  googleToMapbox,
+  mapboxToGoogle,
+  googleCoordsToMapbox,
+  mapboxCoordsToGoogle,
+  convertWeatherSegments,
+  isValidCoord,
+  clampCoord,
+  isGoogleCoord,
+  isMapboxCoord,
+  detectCoordFormat,
+} from './polyline/conversion'
+export type {
+  GoogleCoord,
+  MapboxCoord,
+  WeatherSegment,
+  ConversionDirection,
+  CoordFormat,
+} from './polyline/conversion'
+
 export const slicePolylineByMeters = (
   coords: MapLatLng[],
   cumulativeDistances: number[] | undefined,
