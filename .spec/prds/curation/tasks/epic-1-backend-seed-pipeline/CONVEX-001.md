@@ -3,9 +3,12 @@ TASK: CONVEX-001 - Create curated routes model validators
 ================================================================================
 
 TASK_TYPE: FEATURE
-STATUS: Backlog
-TDD_PHASE: RED
-CURRENT_AC: AC-1
+STATUS: ✅ Completed
+COMPLETED: 2026-04-11T11:15:00Z
+COMMIT: 0d67ee30c2be75fed4c5018db8a0d87297f886dc
+REVIEWER: convex-reviewer
+TDD_PHASE: REFACTOR
+CURRENT_AC: AC-3
 PRIORITY: P0
 EFFORT: S
 TYPE: DEV
@@ -66,12 +69,12 @@ TEST CRITERIA (Boolean Verification)
 
 | # | Boolean Statement | Maps To AC | Verify | Status |
 |---|-------------------|------------|--------|--------|
-| 1 | curatedRouteValidator exports an object with 20+ fields matching PRD lean tier schema when imported | AC-1 | `npx vitest run models/__tests__/curated-routes.test.ts` | [ ] TRUE  [ ] FALSE |
-| 2 | curatedRouteValidator source field accepts exactly 5 literal values (fhwa, motorcycleroads, bestbikingroads, bdr, editorial) when validated | AC-1 | `npx vitest run models/__tests__/curated-routes.test.ts` | [ ] TRUE  [ ] FALSE |
-| 3 | curatedRouteEnrichmentValidator exports nested photo objects with url, caption, attribution fields when imported | AC-2 | `npx vitest run models/__tests__/curated-route-enrichments.test.ts` | [ ] TRUE  [ ] FALSE |
-| 4 | curatedRouteEnrichmentValidator exports nested source objects with site, url, lastFetched, extractionConfidence fields when imported | AC-2 | `npx vitest run models/__tests__/curated-route-enrichments.test.ts` | [ ] TRUE  [ ] FALSE |
-| 5 | routeFeedbackValidator action field accepts exactly 4 literal values (save, hide, complete, rate) when validated | AC-3 | `npx vitest run models/__tests__/route-feedback.test.ts` | [ ] TRUE  [ ] FALSE |
-| 6 | routeFeedbackValidator rating field is optional (nullable) when validated | AC-3 | `npx vitest run models/__tests__/route-feedback.test.ts` | [ ] TRUE  [ ] FALSE |
+| 1 | curatedRouteValidator exports an object with 20+ fields matching PRD lean tier schema when imported | AC-1 | `npx vitest run models/__tests__/curated-routes.test.ts` | [x] TRUE  [ ] FALSE |
+| 2 | curatedRouteValidator source field accepts exactly 5 literal values (fhwa, motorcycleroads, bestbikingroads, bdr, editorial) when validated | AC-1 | `npx vitest run models/__tests__/curated-routes.test.ts` | [x] TRUE  [ ] FALSE |
+| 3 | curatedRouteEnrichmentValidator exports nested photo objects with url, caption, attribution fields when imported | AC-2 | `npx vitest run models/__tests__/curated-route-enrichments.test.ts` | [x] TRUE  [ ] FALSE |
+| 4 | curatedRouteEnrichmentValidator exports nested source objects with site, url, lastFetched, extractionConfidence fields when imported | AC-2 | `npx vitest run models/__tests__/curated-route-enrichments.test.ts` | [x] TRUE  [ ] FALSE |
+| 5 | routeFeedbackValidator action field accepts exactly 4 literal values (save, hide, complete, rate) when validated | AC-3 | `npx vitest run models/__tests__/route-feedback.test.ts` | [x] TRUE  [ ] FALSE |
+| 6 | routeFeedbackValidator rating field is optional (nullable) when validated | AC-3 | `npx vitest run models/__tests__/route-feedback.test.ts` | [x] TRUE  [ ] FALSE |
 
 TC-1: curatedRouteValidator lean fields complete
   Statement: curatedRouteValidator contains all 20+ lean fields from the PRD schema when the validator object is inspected
