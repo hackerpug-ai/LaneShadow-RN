@@ -19,6 +19,7 @@ import { buildInSessionRouteBlock } from '../sessionContext'
 import { runAgent } from '../runAgent'
 import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
 import type { EnrichmentAgentResult, SubAgentConfig } from './types'
+import { getAgentModel } from '../lib/models'
 
 // -----------------------------------------------------------------------------
 // Tool definitions (all 7 enrichment tools — all parallel-safe)
@@ -217,7 +218,7 @@ export async function executeEnrichmentAgent(
     }
   }
 
-  const model = getModel('anthropic', 'claude-haiku-4-5-20251001')
+  const model = getAgentModel('low')
 
   const systemPrompt = buildEnrichmentPrompt(ctx, routeBlock)
 

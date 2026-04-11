@@ -18,6 +18,7 @@ import type * as actions_agent_enrichment_runEnrichmentJob from "../actions/agen
 import type * as actions_agent_generateTripPlan from "../actions/agent/generateTripPlan.js";
 import type * as actions_agent_lib_enrichmentCache from "../actions/agent/lib/enrichmentCache.js";
 import type * as actions_agent_lib_geo from "../actions/agent/lib/geo.js";
+import type * as actions_agent_lib_models from "../actions/agent/lib/models.js";
 import type * as actions_agent_lib_piTools from "../actions/agent/lib/piTools.js";
 import type * as actions_agent_lib_planRideOrchestrator from "../actions/agent/lib/planRideOrchestrator.js";
 import type * as actions_agent_lib_planningEvents from "../actions/agent/lib/planningEvents.js";
@@ -103,6 +104,7 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/generateTripPlan": typeof actions_agent_generateTripPlan;
   "actions/agent/lib/enrichmentCache": typeof actions_agent_lib_enrichmentCache;
   "actions/agent/lib/geo": typeof actions_agent_lib_geo;
+  "actions/agent/lib/models": typeof actions_agent_lib_models;
   "actions/agent/lib/piTools": typeof actions_agent_lib_piTools;
   "actions/agent/lib/planRideOrchestrator": typeof actions_agent_lib_planRideOrchestrator;
   "actions/agent/lib/planningEvents": typeof actions_agent_lib_planningEvents;

@@ -10,7 +10,7 @@ import { PlanningEventEmitter } from './lib/planningEvents'
 import type { Id } from '../../_generated/dataModel'
 import type { SessionMessageKind } from '../../../models/session-messages'
 import type { Message, AssistantMessage, ToolResultMessage } from '@mariozechner/pi-ai'
-import { AI_MODEL } from '../../lib/env'
+import { getAgentModelInfo } from './lib/models'
 
 // ---------------------------------------------------------------------------
 // Card-backed tool mapping
@@ -67,12 +67,13 @@ export function reconstructLegacyPiMessage(row: SessionMessageRow): Message | nu
   }
 
   // system role → fabricate AssistantMessage with sentinel metadata
+  const modelInfo = getAgentModelInfo('high')
   return {
     role: 'assistant',
     content: [{ type: 'text', text: row.content }],
     api: 'openai-completions',
-    provider: 'openai',
-    model: AI_MODEL,
+    provider: modelInfo.provider,
+    model: modelInfo.model,
     usage: {
       input: 0,
       output: 0,
@@ -489,9 +490,10 @@ export const sendMessage = action({
         // Record performance metrics
         if (agentResult.metrics) {
           const m = agentResult.metrics
+          const modelInfo = getAgentModelInfo('high')
           await ctx.runMutation(internal.db.performance.recordAgentRun, {
             agent: 'orchestrator',
-            model: 'claude-opus-4-6',
+            model: modelInfo.model,
             sessionId: args.sessionId as unknown as string,
             input: args.content.slice(0, 200),
             output: (agentResult.response ?? '').slice(0, 200),
@@ -508,9 +510,10 @@ export const sendMessage = action({
         }
       } catch (error: any) {
         // Record failed run
+        const modelInfo = getAgentModelInfo('high')
         await ctx.runMutation(internal.db.performance.recordAgentRun, {
           agent: 'orchestrator',
-          model: 'claude-opus-4-6',
+          model: modelInfo.model,
           sessionId: args.sessionId as unknown as string,
           input: args.content.slice(0, 200),
           steps: 0,

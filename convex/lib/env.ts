@@ -58,11 +58,17 @@ export const ANTHROPIC_API_KEY = optionalEnv('ANTHROPIC_API_KEY')
 export const isTestEnvironment = process.env.NODE_ENV === 'test'
 
 /**
- * AI provider and model. Hardcoded to avoid env var drift.
- * Change here to switch providers.
+ * AI provider and model configuration.
+ *
+ * Agent model selection is now centralized in convex/actions/agent/lib/models.ts.
+ * Use getAgentModel(level) to get the appropriate model for 'high' or 'low' intelligence.
+ *
+ * Provider-specific API keys:
+ * - CEREBRAS_API_KEY: Required for Cerebras models (zai-glm-4.7, qwen-3-235b)
+ * - ANTHROPIC_API_KEY: Required for Claude models (legacy, unused in current config)
+ * - OPENAI_API_KEY: Required for OpenAI models (legacy, unused in current config)
  */
-export const AI_PROVIDER: 'openai' | 'google' | 'anthropic' = 'anthropic'
-export const AI_MODEL = 'claude-sonnet-4-6'
+
 
 /**
  * Protomaps US URL for tile data.

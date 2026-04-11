@@ -13,6 +13,7 @@ import { runGeocode } from './routingAgent'
 import { runAgent } from '../runAgent'
 import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
 import type { SearchAgentResult, SubAgentConfig } from './types'
+import { getAgentModel } from '../lib/models'
 
 // -----------------------------------------------------------------------------
 // Tool definitions (all 3 search tools — all parallel-safe)
@@ -133,7 +134,7 @@ export async function executeSearchAgent(
 ): Promise<SearchAgentResult> {
   const { ctx, executeCtx, budgetTracker, userMessage } = config
 
-  const model = getModel('anthropic', 'claude-haiku-4-5-20251001')
+  const model = getAgentModel('low')
 
   const systemPrompt = buildSearchPrompt(ctx)
 

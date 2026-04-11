@@ -11,7 +11,7 @@ import {
 import { BudgetTracker } from '../budgetTracker'
 import { buildInSessionRouteBlock } from '../sessionContext'
 import { runAgent } from '../runAgent'
-import { AI_MODEL, AI_PROVIDER } from '../../../lib/env'
+import { getAgentModel } from '../lib/models'
 import type { Id } from '../../../_generated/dataModel'
 import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
 import type { RoutingAgentResult, SearchAgentResult } from './types'
@@ -374,8 +374,8 @@ export async function executeOrchestrator(
   // -------------------------------------------------------------------------
   // 2. BUILD ORCHESTRATOR CONTEXT
   // -------------------------------------------------------------------------
-  // Sonnet for orchestrator — balance of reasoning and latency for intent classification
-  const model = getModel('anthropic', 'claude-sonnet-4-6' as any)
+  // High-reasoning model for orchestrator — intent classification and multi-agent coordination
+  const model = getAgentModel('high')
   const systemPrompt = buildOrchestratorPrompt(ctx, availableToolNames)
 
   const context: Context = {

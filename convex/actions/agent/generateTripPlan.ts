@@ -9,6 +9,7 @@ import { planInputValidator } from '../../../models/saved-routes'
 import { agentTripPlanSchema } from '../../../models/trip-plan'
 import type { TripPlan, TripLeg } from '../../../models/trip-plan'
 import type { Id } from '../../_generated/dataModel'
+import { getAgentModel, getAgentModelInfo } from './lib/models'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -206,7 +207,7 @@ function extractTextFromAssistant(msg: AssistantMessage): string {
 }
 
 async function callLLM(piMessages: Message[]): Promise<string> {
-  const model = getModel('anthropic', 'claude-sonnet-4-6' as any)
+  const model = getAgentModel('high')
 
   const context: Context = {
     systemPrompt: SYSTEM_PROMPT,
@@ -301,12 +302,13 @@ export const generateTripPlan = action({
         }
 
         // Push a minimal assistant message to maintain conversation history for retries
+        const modelInfo = getAgentModelInfo('high')
         piMessages.push({
           role: 'assistant',
           content: [{ type: 'text', text: rawResponse }],
           api: 'anthropic',
-          provider: 'anthropic',
-          model: 'claude-sonnet-4-6',
+          provider: modelInfo.provider,
+          model: modelInfo.model,
           usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, totalTokens: 0, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } },
           stopReason: 'stop',
           timestamp: Date.now(),

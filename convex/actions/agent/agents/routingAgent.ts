@@ -11,7 +11,7 @@ import { createGeocodingProvider } from '../providers/geocodingProvider'
 import { planRideOrchestrator } from '../lib/planRideOrchestrator'
 import { buildOptionsFromResults } from '../planRide'
 import { runAgent } from '../runAgent'
-import { ANTHROPIC_API_KEY } from '../../../lib/env'
+import { getAgentModel } from '../lib/models'
 import { api, internal } from '../../../_generated/api'
 import type { Id } from '../../../_generated/dataModel'
 import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
@@ -1118,14 +1118,10 @@ OR if failed:
  * Owns route creation: geocoding, sketch authoring, compilation, and planRoute fallback.
  */
 export async function executeRoutingAgent(config: SubAgentConfig): Promise<RoutingAgentResult> {
-  if (!ANTHROPIC_API_KEY) {
-    throw new Error('ANTHROPIC_API_KEY not configured')
-  }
-
   const { ctx, executeCtx, budgetTracker, userMessage } = config
 
-  // Routing agent uses Haiku for latency — narrower tool set and focused prompt compensate for smaller model
-  const model = getModel('anthropic', 'claude-haiku-4-5-20251001' as any)
+  // Routing agent uses low-reasoning model for latency — narrower tool set and focused prompt compensate
+  const model = getAgentModel('low')
 
   const systemPrompt = buildRoutingPrompt(ctx)
 

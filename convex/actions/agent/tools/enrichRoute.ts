@@ -9,8 +9,9 @@ import {
   type Tool,
   type ToolCall,
 } from '@mariozechner/pi-ai'
-import { OPENAI_API_KEY, AI_MODEL } from '../../../lib/env'
+import { OPENAI_API_KEY } from '../../../lib/env'
 import { withTimeout } from '../lib/reliability'
+import { getAgentModel } from '../lib/models'
 
 const ENRICH_TIMEOUT_MS = 10_000
 
@@ -87,13 +88,9 @@ export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrich
   const hasExistingLabels = params.routes.some(r => r.existingLegLabels && r.existingLegLabels.length > 0)
 
   try {
-    if (!OPENAI_API_KEY) {
-      throw new Error('OPENAI_API_KEY not set')
-    }
+    console.info(`[enrichRoute] using model=low (enrichment), routes=${params.routes.length}`)
 
-    console.info(`[enrichRoute] using model=${AI_MODEL}, routes=${params.routes.length}`)
-
-    const model = getModel('openai', AI_MODEL as any)
+    const model = getAgentModel('low')
 
     const context: Context = {
       systemPrompt:
