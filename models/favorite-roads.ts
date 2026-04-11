@@ -20,8 +20,11 @@ export type Bounds = Infer<typeof boundsValidator>
 export const favoriteRoadValidator = v.object({
   /**
    * Reference to the user who owns this favorite road
+   * TODO: Migrate existing data from clerkUserId string to userId id('users')
+   * Making both fields optional during migration period
    */
-  userId: v.id('users'),
+  userId: v.optional(v.id('users')),
+  clerkUserId: v.optional(v.string()),
 
   /**
    * User-defined name for this favorite road
@@ -43,6 +46,12 @@ export const favoriteRoadValidator = v.object({
    * Unix timestamp when this favorite road was created
    */
   createdAt: v.number(),
+
+  /**
+   * Unix timestamp when this favorite road was last updated
+   * TODO: Add updatedAt to all new records
+   */
+  updatedAt: v.optional(v.number()),
 })
 
 export type FavoriteRoad = Infer<typeof favoriteRoadValidator>

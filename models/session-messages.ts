@@ -20,6 +20,7 @@ export const SESSION_MESSAGE_KIND = {
   AGENT_TURN: 'agent_turn',
   TOOL_RESULT_HIDDEN: 'tool_result_hidden',
   PLANNING: 'planning',
+  THINKING_CARD: 'thinking_card',
 } as const
 export type SessionMessageKind = (typeof SESSION_MESSAGE_KIND)[keyof typeof SESSION_MESSAGE_KIND]
 
@@ -31,7 +32,8 @@ export const sessionMessageKindValidator = v.union(
   v.literal('reasoning'),
   v.literal('agent_turn'),
   v.literal('tool_result_hidden'),
-  v.literal('planning')
+  v.literal('planning'),
+  v.literal('thinking_card')
 )
 
 export const SESSION_MESSAGE_STATUS = {
@@ -78,5 +80,10 @@ export const sessionMessageValidator = v.object({
    * during widen phase; narrows once agent rewrite lands.
    */
   piMessage: v.optional(v.any()),
+  /**
+   * Thinking steps for thinking_card messages.
+   * TODO: Define proper validator for thinking steps
+   */
+  thinkingSteps: v.optional(v.any()),
 })
 export type SessionMessage = Infer<typeof sessionMessageValidator>
