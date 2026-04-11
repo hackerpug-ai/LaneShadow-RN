@@ -35,15 +35,15 @@ prd_version: 1.2.0
 - Filter by archetype (twisties, mountain, coastal, adventure, scenic_byway, desert)
 - Filter by state/region
 - Sort by composite score or proximity
-- **Intent-based search**: natural language → Qwen3.5 0.8B → structured query params → SQL → pre-selected results
+- **Intent-based search**: natural language → normalized-intent cache (op-sqlite) or Claude Haiku online → structured query params → deterministic SQL → pre-selected results. No on-device LLM.
 - View route details including highlights and key attributes
-- Offline access after initial sync
+- Offline access after initial sync for catalog browse; intent search works offline only for previously-seen (cached) intents
 
 **Technical Context:**
-- Queries local op-sqlite `discovery.db` with SQL
+- Queries local op-sqlite `discovery.db` with SQL; ranking is pure SQL `ORDER BY` on pre-computed composite scores
 - Uses bounding box queries for proximity
 - Integrates with existing MapboxMapView from complete-local-routing
-- Qwen3.5 0.8B performs **slot-filling only** (intent → query params). Ranking is fully deterministic via SQL `ORDER BY` pre-computed scores — Qwen never sees route candidates. Validated 2026-04-10: 93% pass rate, 0.84 F1 on 15-scenario test suite
+- Free-text intent search uses **Claude Haiku (server-side) for slot-filling only** (intent → query params), backed by a normalized-intent cache on device. No LLM ever sees route candidates; ranking is fully deterministic. Haiku validated 2026-04-10: 100% valid JSON, ~1.0s extraction via Instructor. **No on-device LLM** — see P0 in `00-overview.md`.
 
 ### INGEST — Route Ingestion
 **User Value:** Builds comprehensive route database from multiple sources without manual data entry.

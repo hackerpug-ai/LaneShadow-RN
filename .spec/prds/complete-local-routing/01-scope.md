@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
-last_validated: 2026-04-09
-prd_version: 1.0.0
+last_validated: 2026-04-10
+prd_version: 1.3.0
 appetite_weeks: 6
 ---
 
@@ -9,7 +9,7 @@ appetite_weeks: 6
 
 ## Appetite
 
-**6 weeks** (full feature with polish)
+**6 weeks** (full feature with polish). Reduced from 10–12 weeks after the v1.3 on-device LLM rollback removed Phase 0 (Shadow Setup) and Phase 7 (Hybrid Enrichment Polish).
 
 ## In Scope
 
@@ -30,6 +30,7 @@ appetite_weeks: 6
 - Provider-agnostic route geometry storage in Convex
 - Offline region metadata persistence
 - Route caching for replay without internet
+- Local-first route editing via @trestleinc/replicate (Yjs CRDTs + op-sqlite)
 
 ### UI Components
 - Offline region download interface
@@ -43,11 +44,12 @@ appetite_weeks: 6
 - Polyline rendering with coordinate conversion
 - Performance optimization for batch rendering
 
-### Progressive Enrichment
-- Background weather fetching and merging
-- Progressive UI updates (skeleton states, fade-in animations)
+### Progressive Server-Side Enrichment
+- Deterministic leg label derivation from waypoint names (pure code, synchronous, offline-capable)
+- Background weather fetching and merging via Convex scheduled actions (Open-Meteo)
+- Background Haiku creative enrichment (label, rationale, highlights) via Convex scheduled actions
+- Progressive UI updates (skeleton states, fade-in animations) as each enrichment phase arrives
 - Enrichment status tracking and indicators
-- Deterministic leg label generation from waypoint names (pure code)
 
 ### Testing & Launch
 - Unit tests for coordinate conversion utilities
@@ -57,6 +59,16 @@ appetite_weeks: 6
 - Documentation
 
 ## Out of Scope
+
+### Never in Scope (v1.3 Architectural Guard-Rails)
+
+These are removed from scope by the v1.3 on-device LLM rollback and must not be reintroduced without a separate PRD and validated mobile benchmark:
+
+- **On-device language models of any kind.** No Qwen, no Gemma, no Phi, no Core ML `.mlpackage`, no ONNX, no `llama.cpp`, no `whisper.cpp`, no `mlx-local`, no `transformers`, no embedding model. Zero ML runtime on the device.
+- **"Download Your Shadow" onboarding** and any variant of a mandatory model-download gatekeeper screen.
+- **`lib/ai/local-enrichment.ts`** and any sibling file that executes model inference in-app.
+- **Local model cache / download manager / checksum validator.**
+- **Local LLM-generated leg labels.** Leg labels are derived deterministically from waypoint names. If a waypoint lacks a name, online reverse-geocoding or a coordinate placeholder is used — never a model.
 
 ### Deferred for Appetite
 - Cross-device sync of downloaded regions
@@ -82,14 +94,3 @@ appetite_weeks: 6
 - Modifying weather overlay business logic
 - Altering Convex backend architecture
 - Changing user notification system
-
-## Never in Scope (v1.4 Guard-Rails)
-
-The following were explicitly removed from scope to simplify architecture. All route persistence is server-side (Convex). Do not re-introduce these:
-
-- **No @trestleinc/replicate** — Local-first sync engine is removed
-- **No Yjs / CRDTs** — No conflict resolution library of any kind
-- **No op-sqlite / SQLite** — No on-device database; all persistence is Convex
-- **No offline route persistence** — Routes cannot be committed to storage without connectivity
-- **No offline route editing** — Route mutations go directly to Convex; connectivity required
-- **No on-device ML model** — No Qwen, no mlx-local, no local inference; leg labels are deterministic code

@@ -1,9 +1,11 @@
 # Epic 6b: Progressive Partial
 
 **Epic ID:** CLR-E006B
-**Status:** Pending
+**Status:** DEPROCATED/CANCELED
 **Timeline:** Week 6
 **PRD Coverage:** UC-PE-01 (partial), UC-RTE-04
+
+IMPORTANT: WE'RE NOT DOING THIS ANYMORE
 
 ---
 

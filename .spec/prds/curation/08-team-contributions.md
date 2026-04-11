@@ -134,11 +134,11 @@ This PRD synthesizes findings from four research documents:
 1. **autonomous-curation-strategy.md** — Data flywheel patterns, LLM self-curation, RAG vs finetuning decisions
 2. **motorcycle-ride-sources-and-scoring.md** — Route source tiers, scoring framework, archetype classification
 3. **motorcycle-ride-aggregation-architecture.md** — Pipeline architecture, LLM extraction with Instructor, geometric enrichment
-4. **route-discovery-architecture.md** — Local-first SQLite strategy, Convex integration, Qwen3.5 constraints
+4. **route-discovery-architecture.md** — Local-first SQLite strategy, Convex integration. (Earlier versions of this document assumed on-device Qwen3.5 — removed in v1.3 per the 2026-04-10 environment-bias finding. The on-device LLM assumption was never valid for mobile hardware.)
 
 **Key Architectural Decisions:**
-- Local SQLite for discovery (not vector DB) — memory constraints
-- Claude Haiku for extraction (not local model) — reliability and cost
+- Local SQLite for discovery (not vector DB) — no on-device ML runtime at all (P0)
+- Claude Haiku (server-side only) for extraction, never an on-device model — reliability, cost, and validated mobile latency
 - Deterministic scoring (not LLM-based) — consistency and calibration
 - FHWA seed first, web scraping second — bootstrapping strategy
 - Data flywheel foundation now, full flywheel later — phased approach
