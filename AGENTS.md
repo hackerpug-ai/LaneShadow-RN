@@ -1,9 +1,14 @@
-<!-- convex-ai-start -->
-This project uses [Convex](https://convex.dev) as its backend.
+# Agent Instructions for LaneShadow
 
-When working on Convex code, **always read `convex/_generated/ai/guidelines.md` first** for important guidelines on how to correctly use Convex APIs and patterns. The file contains rules that override what you may have learned about Convex from training data.
+**All project rules are documented in [RULES.md](RULES.md).**
 
-Convex agent skills for common tasks can be installed by running `npx convex ai-files install`.
-<!-- convex-ai-end -->
+This is the authoritative instruction document for all agents and subagents. Consult it for:
+- User context and personas
+- Local domain experts to dispatch
+- Agent and commit policies
+- Planning workflows
+- Design rules
+- Convex backend guidelines
+- .spec directory structure
 
-For UI/UX design rules, component patterns, and theme usage, see [`styles/RULES.md`](styles/RULES.md).
+**Start with [RULES.md](RULES.md).**
