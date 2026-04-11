@@ -1,18 +1,20 @@
 ---
 stability: PRODUCT_CONTEXT
 last_validated: 2026-04-10
-prd_version: 1.3.0
+prd_version: 1.4.0
 ---
 
 # Curation — Route Discovery & Autonomous Data Flywheel
 
 ## Product Description
 
-Curation enables LaneShadow's motorcycle riders to discover great routes without relying on community contributions. By combining autonomous web scraping, LLM-based attribute extraction, geometric enrichment (OSM curvature, elevation), and deterministic scoring, the system builds a comprehensive database of curated routes. A local-first architecture using op-sqlite ensures fast discovery queries work offline, while a data flywheel architecture continuously improves route quality as users provide feedback.
+Curation enables LaneShadow's motorcycle riders to discover great routes without relying on community contributions. By combining autonomous web scraping, LLM-based attribute extraction, geometric enrichment (OSM curvature, elevation), and deterministic scoring, the system builds a comprehensive database of curated routes. Routes and all metadata live in Convex — the client queries Convex directly for catalog browse, intent search, and route details. There is no client-side database for curation data.
 
-**Aggregation & Data Shape:** The system aggregates data at the **ride segment** level — coherent 5-50 mile experiences that riders name and talk about (e.g., "Deals Gap stretch of US-129"), not raw road segments or full routes. Data is split across two tiers linked by **stable shared IDs**: a **lean local tier** (~50 tokens per route) optimized for SQL filtering and on-device Qwen3.5 ranking, and a **rich server enrichment tier** with full descriptions, photos, GPX, and community data that is lazy-loaded when the device has connectivity. This split keeps the mobile app fast and offline-capable while still delivering full richness of curated content when the network allows.
+**Aggregation & Data Shape:** The system aggregates data at the **ride segment** level — coherent 5-50 mile experiences that riders name and talk about (e.g., "Deals Gap stretch of US-129"), not raw road segments or full routes. Every route is a **single Convex document** in the `curated_routes` table with all fields — scores, display text, full descriptions, history, photos, sources, and provenance — on one row. Catalog browse queries project only the narrow display fields; detail views fetch the full document by ID. No tier split, no shared-ID version tracking, no client-side sync.
 
-**Product Context:** LaneShadow is an AI-native motorcycle ride planner — map-first, conversation-driven. Tagline: "Ride the Moment" — turn a feeling into a road. Platforms: iOS and Android (React Native + Expo). Aesthetic: Rugged, industrial-warm, copper-accented, dark-first. This PRD extends the local-first routing infrastructure from complete-local-routing with route discovery capabilities.
+**Connectivity requirement:** Route discovery requires an active connection to Convex. This is an intentional design decision — maintaining a local offline mirror of the catalog would require op-sqlite, a sync layer, delta tracking, and cache eviction logic that the architecture has explicitly dropped in favor of Convex's real-time reactive query model. Map-based navigation (Mapbox offline regions) and turn-by-turn routing are unaffected — those work offline via downloaded tile data. Discovery of new routes requires connectivity.
+
+**Product Context:** LaneShadow is an AI-native motorcycle ride planner — map-first, conversation-driven. Tagline: "Ride the Moment" — turn a feeling into a road. Platforms: iOS and Android (React Native + Expo). Aesthetic: Rugged, industrial-warm, copper-accented, dark-first. This PRD extends the Mapbox routing infrastructure from complete-local-routing with route discovery capabilities.
 
 ## Problem Statement
 
@@ -41,11 +43,11 @@ Build an autonomous curation pipeline that:
    - Editorial sources (Rider Magazine Top 50, RevZilla Common Tread)
    - OSM data via curvature analysis (adamfranco/curvature algorithm)
 
-2. **Extracts structured attributes using LLM (offline, Haiku-only):**
+2. **Extracts structured attributes using LLM (Haiku-only, server-side):**
    - Claude Haiku + Instructor for reliable extraction
    - Categorical classification (curviness, scenery, traffic, surface, challenge)
    - Cost-effective: ~$34 for full 17k-route batch
-   - All reasoning happens offline so the local 0.8B model never has to reason
+   - All extraction runs at `temperature=0` for reproducibility
 
 3. **Enriches with geometric data:**
    - OSM curvature scores (meters spent in turns, weighted by tightness)
@@ -56,40 +58,36 @@ Build an autonomous curation pipeline that:
 4. **Computes deterministic composite scores:**
    - Curvature (25%), scenery (15%), traffic (15%), road condition (10%)
    - Elevation drama (10%), scenic designation (10%), community rating (10%), remoteness (5%)
-   - Calibrated against editorial ground truth (Rider Magazine Top 50)
+   - Calibrated against editorial ground truth (Rider Magazine Top 50) before full-batch extraction runs
 
 5. **Classifies into ride archetypes:**
    - Twisties, Mountain Epic, Coastal, Adventure, Scenic Byway, Desert
-   - Decision tree or k-means clustering on normalized features
+   - Decision tree on normalized features — deterministic, no LLM
 
 6. **Aggregates at the ride segment level** (the rider's mental atom):
    - 5–50 mile coherent experiences, not raw OSM ways and not full planned routes
-   - One primary archetype, one set of pre-computed scores, one stable ID
+   - One primary archetype, one set of pre-computed scores, one stable `routeId`
    - Matches how editorial lists name things and how communities vote
-   - Small enough that 40+ fit in a single Qwen3.5 0.8B context window
 
-7. **Splits data into lean local + rich server enrichment (shared-ID linking):**
-   - **Lean Local tier** (op-sqlite `discovery.db`, ~50 tokens per route): pre-computed scores, 10-word one-liner, 15-word summary, discrete badges, location bounds. Optimized for SQL filtering and on-device LLM ranking. Fully offline capable.
-   - **Rich Server tier** (Convex `curated_route_enrichments`): full descriptions, photos, history, GPX, community reviews, elevation profiles, provenance. Stays server-side, lazy-loaded by shared `routeId` when connectivity is available.
-   - **Shared stable ID**: every route uses the same `id` in both tiers. When the device comes online, the app identifies which enrichments are missing or stale via `enrichmentVersion` tracking and prefetches only what's needed. A single call returns full enrichment for any route card.
+7. **Stores as a single canonical Convex document:**
+   - One `curated_routes` table — all fields on one row (scores, display text, full description, history, photos, sources, provenance, extraction metadata)
+   - **No two-table tier split.** The previous lean/enrichment split existed to serve a small local model's context-window constraints. With no on-device model, there is no reason to maintain two tables with cross-tier version tracking.
+   - Catalog browse queries project only the narrow display fields (`routeId`, name, state, archetype, scores, bounds, oneLiner, summary, badges). Convex handles projection server-side.
+   - Detail view queries fetch the full document by `routeId`. Convex caches the result in the reactive client for the duration of the session.
+   - For Haiku call sites: the server projects whatever subset of fields the prompt needs at call time — context trimming happens per-call, not per-storage-layer.
 
-8. **Powers discovery via intent → query translation + pre-selected local results:**
-   - User expresses natural language intent ("twisty mountain roads", "something remote and challenging")
-   - **Baseline shipping path (v1):** Claude Haiku online extracts structured query params (10 nullable keys: `archetype`, `state`, `sort_by`, `min_length_mi`, `max_technical`, `min_remoteness`, `season`, etc.) via Instructor-validated slot-filling. Results are cached on device keyed by normalized intent string (lowercased, whitespace-collapsed, stop-word-stripped), giving a very high cache hit rate for common phrasings — "twisty mountain roads" is Haiku'd once, then returns from cache forever.
-   - **Deterministic `params_to_sql()`** converts extracted params into a parameterized SQL query — no SQL is ever written by any model, zero injection risk. This layer is identical regardless of which model produced the params.
-   - op-sqlite executes the query against `discovery.db` (<10ms) → returns top 10 routes ordered by pre-computed scores. **The LLM never sees route candidates** — ranking is fully deterministic via SQL `ORDER BY` on pre-computed composite scores. This is the hard architectural rule enforced across every stage (see "Pipeline Principles" below).
-   - **Deferred offline optimization path (v1.x, gated on Core ML device benchmark):** Port the same prompt + normalize + retry logic to Qwen3.5 0.8B running on-device for a fully offline non-cached hot path. Only activated after the curation-unrelated Core ML latency validation proves ≤3s on iPhone 15 Pro / iPhone 16 Pro. Until then, non-cached offline intents show "connect to search" state. Validated in principle: 93% pass rate, 0.84 F1 on MLX/Mac (2026-04-10); mobile latency TBD.
-   - Zero-results + connectivity: re-prompt Haiku with a "broaden the query" system message → re-run `params_to_sql()` → re-query locally.
-   - Cached-hit latency: <50ms. Cold Haiku latency: ~1–2s + network. Offline non-cached: unavailable in v1, offline-optimized in v1.x.
+8. **Powers discovery via Convex queries + optional intent extraction:**
+   - **Catalog browse (UC-DISC-01 through UC-DISC-06):** `useQuery(api.routes.listByBbox, { lat, lng, radiusDeg, archetype?, sortBy? })` — typed Convex query, reactive, paginated. Haiku is not involved. Ranking is pure server-side `ORDER BY compositeScore DESC`.
+   - **Intent search (UC-DISC-07):** User types natural language intent → Convex action calls Claude Haiku to extract 10 nullable query params (archetype, state, sort_by, min_length_mi, etc.) → Convex query applies those params server-side → returns top 10 routes. Intent→params pairs are cached in a shared `intent_param_cache` Convex table keyed by normalized intent string — first user to ask "twisty mountain roads" triggers Haiku, every subsequent user (across the whole app) gets an instant cache hit from the shared table.
+   - **No client-side SQL, no `params_to_sql()`.** Filtering and ranking are Convex query arguments with typed validators, not string-interpolated SQL.
 
-9. **Serves via local-first discovery:**
-   - op-sqlite `discovery.db` stores lean curated routes locally
-   - SQL queries by bounding box, archetype, state, composite score
-   - Convex as canonical source with sync on first launch
-   - Works fully offline after initial sync; enrichment is additive when connected
+9. **Route detail on demand:**
+   - `useQuery(api.routes.getById, { routeId })` — fetches the full document from Convex on tap
+   - Convex's reactive cache holds the result in memory for the session; re-tapping the same route is instant
+   - No op-sqlite, no LRU cache table, no explicit cache eviction — Convex manages this
 
 10. **Builds data flywheel for continuous improvement:**
-    - User interaction feedback (save, hide, ride, rate) collected
+    - User interaction feedback (save, hide, ride, rate) written to `route_feedback` via Convex mutation
     - Auto-annotation of routes with user preferences
     - Filter and re-score based on real rider behavior
     - Future: periodic re-scraping to capture new community routes
@@ -97,13 +95,15 @@ Build an autonomous curation pipeline that:
 **Technical Approach:**
 - Python aggregation pipeline (local script or GitHub Actions)
 - httpx + BeautifulSoup for static page scraping (most sources)
-- Instructor + Claude Haiku for LLM extraction (offline pre-digestion) — always temp=0 for reproducibility
+- Instructor + Claude Haiku for LLM extraction (always temp=0, reproducible)
 - adamfranco/curvature and/or osm_ways geometry for curvature analysis
-- op-sqlite for local lean discovery database
-- Convex for canonical storage (lean + enrichment tiers) and sync
-- Claude Haiku (online) for intent → SQL query param extraction in v1
-- Normalized-intent → params cache on device (the primary offline-feeling optimization in v1)
-- Qwen3.5 0.8B on-device as a deferred offline fallback (v1.x, gated on Core ML device benchmark)
+- **Convex as the only database** — no op-sqlite, no local cache, no sync layer for curation data
+- `useQuery` / `useMutation` / Convex actions for all client access
+- Shared `intent_param_cache` Convex table for cross-user intent caching
+
+**No on-device LLM.** All LLM inference is server-side Haiku. See Pipeline Principles P0 below.
+
+**No client-side database for curation.** Discovery requires a connection to Convex. See AD-14.
 
 **Timeline:** 6 weeks (full feature with polish)
 **Team:** 1 full-stack developer
@@ -112,42 +112,36 @@ Build an autonomous curation pipeline that:
 
 ## Pipeline Principles
 
-These principles govern every LLM stage in the curation pipeline and every data-shape decision. They are derived from the 2026-04-10 local-model research cycle (see `.spec/research/local-models/`) and apply regardless of which model is running.
+These principles govern every LLM stage in the curation pipeline and every data-shape decision. Derived from the 2026-04-10 local-model research cycle (`.spec/research/local-models/`).
+
+### P0 — No on-device LLM
+
+All LLM inference is server-side (Claude Haiku). LaneShadow ships zero on-device language models. This is the consequence of the 2026-04-10 environment-bias finding: Qwen3.5 0.8B latency was only measured on Mac-MLX; estimated mobile latency is 6–15s — unusable. No model download, no Core ML bundle, no ONNX bundle, no mlx-local dependency.
 
 ### P1 — LLMs do text → structure, never structure → selection
 
-**Every LLM call in this pipeline extracts structured attributes from unstructured text. No LLM call selects, ranks, or filters a list of candidates.** Ranking, filtering, and sorting are always deterministic — SQL `ORDER BY` on pre-computed composite scores.
+Every LLM call extracts structured attributes from unstructured text. No LLM call selects, ranks, or filters a list of candidates. Ranking is always Convex `ORDER BY compositeScore` — deterministic, not model-driven.
 
-The 2026-04-10 research validated this rule definitively: small local models fail at structure → selection (positional bias, score blindness, hallucinated IDs, instruction inversion), and even frontier models show weaker versions of the same failure modes. The architecture must never depend on "ask the model to pick the top N."
-
-**Applied:**
+Applied:
 - Intent → query params: text → flat JSON ✅
 - Source blog/listicle → route attributes: text → structured fields ✅
-- Haiku ranking 20 route candidates: ❌ never — SQL does this
-- Haiku "list great motorcycle roads in Colorado": ❌ never (see P2)
+- Haiku ranking route candidates: ❌ never
 
 ### P2 — Source-grounded only: never ask models to recall routes
 
-**No LLM is ever asked to enumerate, list, or recall motorcycle roads from training knowledge.** Routes enter the system only through verifiable sources: FHWA Scenic Byways open data, scraped community listicles with source URLs, OSM geometric discovery via curvature analysis, and BDR GPX files.
+No LLM is ever asked to enumerate, list, or recall motorcycle roads from training knowledge. Routes enter the system only through verifiable sources: FHWA open data, scraped community listicles with source URLs, OSM geometric discovery, BDR GPX files. Model recall is stale, hallucinates geography, and converges on the same 20 famous roads every app already has.
 
-Why: model "recall" is stale, uncalibrated, and silently hallucinates geography (the Qwen research showed it describing I-5 Seattle→Portland as a Pacific-coast route). It also converges on the same 20 famous roads every competing app already has — Tail of the Dragon, PCH, Blue Ridge Parkway — which destroys the originality of the catalog. The moat is the 500 roads nobody has written a listicle about, and those only come from systematic scraping + geometric discovery.
+### P3 — Calibrate scoring before running the long tail
 
-**Applied:**
-- LLM reads a blog post about a specific road → extract attributes ✅
-- LLM "from your training, list the best twisty roads in California": ❌ never
-- OSM curvature pass that surfaces an unnamed county road with curvature score 0.92 → candidate route ✅
+Composite-score weights are fit against a labeled ground-truth set (Rider Magazine Top 50, FHWA Scenic Byways) before running extraction over the 17k-route scrape. Calibration is a Phase 3 completion gate — full-batch extraction does not run until calibration passes.
 
-### P3 — Calibrate scoring against editorial ground truth before running the long tail
+### P4 — Determinism at temp=0
 
-The composite score weights (curvature 25%, scenery 15%, etc.) must be fit against a labeled ground-truth set (Rider Magazine Top 50, FHWA Scenic Byways) **before** running extraction over the 17k-route scrape. Turning "does this scoring feel right?" into a measurable calibration step is cheap and prevents re-scoring the full batch later after we discover the weights are off. Calibration is a gate on Phase 3 completion, not an afterthought.
+Every LLM extraction stage runs at `temperature=0` with retry-on-degeneration. Same source text produces the same extracted attributes across pipeline re-runs.
 
-### P4 — Determinism at temp=0, reproducible pipeline runs
+### P5 — Deterministic parser between LLM and downstream code
 
-Every LLM extraction stage runs at `temperature=0` with a retry-on-degeneration guard. This gives the pipeline reproducible re-runs: the same source text produces the same extracted attributes on the second run, which means we can safely re-run the batch after schema changes, bug fixes, or prompt updates. Schema version is tracked in `extractionSchemaVersion` so clients know when to refresh.
-
-### P5 — Deterministic boundary between probabilistic and guaranteed
-
-Each pipeline stage has a deterministic parser (StructuredOutputParser / Instructor + Pydantic) between the LLM output and the downstream code. LLM output is validated, enum-checked, and re-prompted on failure before any downstream step runs. The parser is the firewall: everything before it is probabilistic; everything after it is guaranteed. This applies to `params_to_sql()` (validates the 10-key intent schema), the RouteAttributes extractor (validates the Pydantic source-extraction schema), and the archetype classifier (rejects any archetype not in the enum).
+Instructor + Pydantic (extraction) and enum validators (intent params) validate every LLM output before any downstream step runs. The parser retries on failure before the system falls back.
 
 ---
 
@@ -155,61 +149,20 @@ Each pipeline stage has a deterministic parser (StructuredOutputParser / Instruc
 
 ### Foundation: Complete Local Routing (`complete-local-routing`)
 
-This PRD builds directly on the infrastructure delivered by the **complete-local-routing** initiative (`.spec/prds/complete-local-routing/`). That initiative established:
-- **Mapbox SDK + @rnmapbox/maps** as the map rendering and offline routing engine
-- **op-sqlite** as the on-device database layer (used here for `discovery.db`)
-- Offline-first architecture pattern (download → sync → query locally)
-- Provider-agnostic route storage in Convex
+This PRD builds on the infrastructure delivered by the **complete-local-routing** initiative (`.spec/prds/complete-local-routing/`), which established Mapbox SDK + @rnmapbox/maps as the map rendering and offline tile engine. The `MapboxMapView` component is the direct dependency for UC-DISC-06 (show route on map).
 
-Curation reuses op-sqlite and the offline-first sync pattern to build `discovery.db` as a sibling database alongside the routing data. The `complete-local-routing` MapboxMapView component is the direct dependency for UC-DISC-06 (show route on map).
+Note: v1.4 of the complete-local-routing PRD also removed @trestleinc/replicate and op-sqlite from that initiative. The app bundle contains no SQLite dependency for either curation or route persistence.
 
-### Qwen3.5 0.8B: Validated Role
+### Research History: Why No On-Device LLM and No Client DB
 
-**Research file:** `.spec/research/local-models/INTENT_TO_QUERY_RESULTS_2026-04-10.md`
+**Local model research (2026-04-10):** Three Qwen3.5 0.8B roles were tested:
 
-**Why intent/filter instead of ranking:**
+| Role | Result |
+|---|---|
+| Candidate ranking (pick top N from route pool) | ❌ Positional bias, score blindness, hallucinated IDs |
+| Route modification / leg swap | ❌ Echoes original, can't apply constraints |
+| Intent → SQL param extraction (slot-filling) | ✅ 93% pass on Mac-MLX |
 
-We tested three roles for Qwen3.5 0.8B in this cycle:
+The slot-filling result looked viable — until the **environment-bias finding** showed all benchmarks were Mac-MLX only. Estimated iPhone latency: 6–15s. Shipped as "v1.3 deferred," then dropped entirely in v1.4.
 
-| Role | Result | Why |
-|------|--------|-----|
-| Candidate ranking (select top N from 20 route cards) | ❌ NOT VIABLE | Positional bias, score blindness, hallucinates IDs |
-| Route modification / leg swap | ❌ NOT VIABLE | Echoes original legs, can't apply constraints |
-| Intent → SQL query param extraction (slot-filling) | ✅ **VIABLE** — 93% pass rate, 0.84 F1 | Text → structure is the direction 0.8B models do well |
-
-The core insight: **Qwen3.5 is good at structured extraction from unstructured text, bad at selection from structured candidates.** Every viable use case is "text → structure." Every failed use case is "structure → selection."
-
-**Consequence for the discovery architecture:**
-
-The previous v1.1 design (SQL pre-filters to 20 candidates → Qwen ranks them → returns top 5 IDs) inverts this. The model must reason over structured route objects, compare scores, and return IDs — exactly the "structure → selection" pattern it cannot reliably do.
-
-The v1.2+ design corrects this:
-- The model (Haiku or Qwen) receives **only the user's intent string** (~10–20 tokens) and extracts 10 nullable query params
-- Deterministic `params_to_sql()` constructs the query; SQL handles ranking via `ORDER BY` on pre-computed scores
-- Routes returned are **pre-selected by the database**, not the model
-
-### v1.3: Haiku-first with deferred on-device Qwen
-
-The v1.3 revision (this version) addresses a second research finding — the **environment-bias caveat** in `.spec/research/local-models/ENVIRONMENT_BIAS_FINDING_2026-04-10.md`. All Qwen latency numbers were measured on a 2026 MacBook Pro running MLX, a Mac-only runtime. Mobile inference runs Core ML (iOS) or ONNX (Android) with ~4–6× lower memory bandwidth. The estimated iPhone 15/16 Pro latency for Qwen is ~6–15s, not the ~1.5s observed on Mac. This figure is unvalidated and blocks any offline latency promise.
-
-Rather than ship on an unvalidated claim, v1.3 treats the on-device model as a **deferred optimization**:
-
-**v1 shipping path (Haiku online + intent cache):**
-- Intent → params via Haiku online, with Instructor validation
-- Normalized-intent cache on device: `lower(trim(collapse_ws(strip_stopwords(intent))))` → cached params JSON, indefinite TTL (schema-versioned for invalidation)
-- Cache hit → local SQL → results in <50ms, zero network
-- Cache miss + online → Haiku ~1–2s → SQL → results, cache the result
-- Cache miss + offline → "Searching needs a connection right now — or try one of your recent searches" (show recent-intents list)
-- Same `params_to_sql()` layer, same schema, same defensive enums
-
-**v1.x deferred path (on-device Qwen fallback for offline cache misses):**
-- Gated on a Core ML iPhone benchmark: cold-start ≤4s, warm inference ≤3s sustained across 20 scenarios, no thermal throttling within a 10-intent session
-- Same validated prompt + normalize_params + retry-on-degeneration logic, ported from MLX to Core ML (iOS) and ONNX (Android)
-- Enables offline non-cached search; everything online still goes through Haiku + cache for quality
-- If Core ML benchmark fails, the on-device path is dropped permanently and "offline intent search" becomes a non-goal
-
-**Why this ordering is better:**
-- Ships UC-DISC-07 end-to-end on day 1 of Phase 4, not gated on model-conversion work
-- Cache covers ~80%+ of real search traffic (common intents repeat heavily), so the user-visible "offline feel" is delivered by the cache, not the local model
-- De-risks the PRD against the single biggest unknown (mobile Qwen latency)
-- Keeps the on-device Qwen code path optional and swappable — the Core ML port is a one-week spike, not a blocker
+**Client DB rationale collapse:** The two-table lean/enrichment split was originally justified by (a) Qwen's 0.8B context window and (b) mobile sync payload size. Rationale (a) is dead — no on-device model. Rationale (b) is addressed by Convex's server-side projection at the query boundary, not by a second table and a local DB. With no local DB, the architecture shrinks from: scrape → extract → ingest-lean → ingest-enrichment → sync-lean → op-sqlite → SQL query → enrich-cache → UI ... to: scrape → extract → ingest → Convex query → UI. The offline-browse capability is traded for this simplification. Mapbox offline tile downloads (for navigation) are not affected.

@@ -47,7 +47,7 @@ appetite_weeks: 6
 - Background weather fetching and merging
 - Progressive UI updates (skeleton states, fade-in animations)
 - Enrichment status tracking and indicators
-- Local leg label generation (Qwen3.5)
+- Deterministic leg label generation from waypoint names (pure code)
 
 ### Testing & Launch
 - Unit tests for coordinate conversion utilities
@@ -82,3 +82,14 @@ appetite_weeks: 6
 - Modifying weather overlay business logic
 - Altering Convex backend architecture
 - Changing user notification system
+
+## Never in Scope (v1.4 Guard-Rails)
+
+The following were explicitly removed from scope to simplify architecture. All route persistence is server-side (Convex). Do not re-introduce these:
+
+- **No @trestleinc/replicate** — Local-first sync engine is removed
+- **No Yjs / CRDTs** — No conflict resolution library of any kind
+- **No op-sqlite / SQLite** — No on-device database; all persistence is Convex
+- **No offline route persistence** — Routes cannot be committed to storage without connectivity
+- **No offline route editing** — Route mutations go directly to Convex; connectivity required
+- **No on-device ML model** — No Qwen, no mlx-local, no local inference; leg labels are deterministic code

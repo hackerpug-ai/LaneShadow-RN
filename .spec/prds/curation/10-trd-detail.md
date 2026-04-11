@@ -1,19 +1,22 @@
 ---
 stability: CONSTITUTION
 last_validated: 2026-04-10
-prd_version: 1.1.0
+prd_version: 1.4.0
 ---
 
 # Curation TRD — Route Discovery Pipeline (Detailed)
 
-**Version**: 1.1
+**Version**: 1.4
 **Status**: Draft
 **Related PRD**: `.spec/prds/curation/README.md`
-**Related Research**: 4 docs in `.spec/research/curation/` + `.spec/research/route-discovery-architecture.md`
+**Related Research**: `.spec/research/local-models/` (local-model validation + rollback rationale)
 
-This document provides the complete technical architecture design for the Curation pipeline, synthesizing all four research documents into a single coherent TRD while accounting for the existing codebase (Convex schema, osm_ways/osm_nodes tables, op-sqlite, Qwen3.5 constraints).
+This document provides the complete technical architecture design for the Curation pipeline.
 
-**v1.1 changes**: Adds AD-7 (ride segment aggregation), AD-8 (lean/enrichment tier split), AD-9 (shared-ID linking), and a dedicated §11 explaining the local LLM data shape strategy.
+**v1.1 changes**: Adds AD-7 (ride segment aggregation), AD-8 (lean/enrichment tier split), AD-9 (shared-ID linking).
+**v1.2 changes**: Replaces candidate-ranking with intent→SQL slot-filling.
+**v1.3 changes**: Removes on-device Qwen; establishes Haiku-online + intent-cache as shipping path. Adds AD-10 (Pipeline Principles), AD-11 (Haiku+cache), AD-12 (calibration gate).
+**v1.4 changes**: **Removes all client-side persistence.** AD-8 and AD-9 retired. AD-2 revised. No op-sqlite, no lean-sync, no enrichment-cache, no params_to_sql(). Single `curated_routes` Convex table with server-side projection. `intent_param_cache` moved to Convex as a shared cross-user table. Offline catalog browse removed from scope. Adds AD-13 (single-table), AD-14 (no client DB). §6 (Local SQLite Architecture) retired. §7 (Convex Integration) updated to single table. §11 (intent→Convex) updated.
 
 ---
 
@@ -24,29 +27,38 @@ Before diving into layers, these decisions shape everything downstream:
 **AD-1: Python pipeline is offline, not in-app.**
 Why: The pipeline runs once (or monthly). It has zero runtime footprint on the mobile app. Python is the right tool for scraping + LLM extraction + pandas manipulation. The app only consumes the output via Convex sync.
 
-**AD-2: Convex is canonical source, op-sqlite is local cache.**
-Why: Convex is already the source of truth for osm_ways, saved_routes, etc. Curated routes follow the same pattern. The mobile app never writes to curated_routes — it reads from local SQLite after syncing from Convex.
+**AD-2: Convex is the only database. No client-side cache for curation.**
+Why (v1.4 revision): The mobile app queries Convex directly via typed `useQuery` calls. There is no op-sqlite mirror, no sync layer, no delta-version tracking. Convex's in-memory reactive client cache handles the session-duration locality. Offline catalog browse is out of scope (see AD-14).
 
 **AD-3: Curvature comes from existing osm_ways geometry, not adamfranco/curvature.**
 Why: The research docs explored adamfranco/curvature (OSM PBF pipeline), but the codebase already has `osm_ways.geometry: number[][]` in Convex. A TypeScript curvature proxy computed from bearing changes between geometry points is sufficient for MVP ranking. The full adamfranco pipeline is a Phase 2 enhancement when higher-fidelity scores are needed.
 
-**AD-4: LLM extraction and text pre-digestion are Haiku-only. Qwen3.5 does NOT generate.**
-Why: Qwen3.5 0.8B is validated only for leg labels in-app. Attribute extraction, composition of 10-word one-liners, 15-word summaries, and discrete badges all require reliable structured output (Instructor + tool calling), which Haiku excels at. Cost is ~$34 for 17k routes — amortized over every future query on device. **Qwen3.5's only job at runtime is selecting from a pre-digested candidate pool.**
+**AD-4: All LLM inference is server-side Haiku. No on-device LLM.**
+Why: 2026-04-10 environment-bias finding showed all Qwen latency benchmarks were Mac-MLX only. Estimated iPhone latency: 6–15s. Dropped entirely in v1.3. The runtime for discovery is Convex queries — no model involved.
 
 **AD-5: No vector DB, no embedding model, no fine-tuning in MVP.**
-Why: Qwen3.5 at 1.15GB + embedding model at ~300MB would breach the 1.5GB memory ceiling. SQL-based discovery (bounding box + archetype + score) is sufficient. Semantic search is a future enhancement.
+Why: Convex query filtering on pre-computed composite scores is sufficient for MVP. Semantic search would require its own research cycle and its own PRD.
 
 **AD-6: Scoring is deterministic code, never LLM output.**
 Why: LLM outputs are categorical (curviness: "twisty" | "moderate"). Code maps categories to numeric scores via lookup tables. This ensures reproducible, auditable scores.
 
 **AD-7: Aggregation level is the ride segment, not the road or the route.**
-Why: Raw OSM ways are semantically meaningless (1-5mi fragments). Named roads ("US-129") span hundreds of miles with wildly varying character. Full planned routes are compositions with no single archetype. A **ride segment** (5–50 miles, one name, one coherent experience, one primary archetype) is the atomic unit riders think in and the unit editorial lists enumerate. It's also small enough that 40+ records fit in Qwen3.5's effective context window.
+Why: Raw OSM ways are semantically meaningless (1-5mi fragments). Named roads ("US-129") span hundreds of miles with wildly varying character. A **ride segment** (5–50 miles, one name, one coherent experience, one primary archetype) is the atom riders think in and editorial lists enumerate.
 
-**AD-8: Curation data splits into a lean local tier and a rich server enrichment tier.**
-Why: The lean tier is optimized for **selection** — SQL filters, 0-1 scores, 10-word one-liners, 15-word summaries, discrete badges. Total size: ~50 tokens per record, ~300 bytes on disk. The whole lean tier syncs to every device and stays there. The rich tier is optimized for **display** — full descriptions, photos, GPX, elevation profiles, history, safety notes. It stays server-side and is lazy-loaded per-route only when a user actually needs it. This keeps local memory, sync payload, and LLM context all small without sacrificing richness when online.
+**~~AD-8: Lean/enrichment tier split.~~** (RETIRED in v1.4)
+Rationale: The split was justified by (a) Qwen's 0.8B context window — dead in v1.3 — and (b) mobile sync payload size — addressed by Convex server-side projection, not a second table. With no client-side DB, there is no reason to maintain two tables with cross-tier version tracking. All fields are on one `curated_routes` document; the catalog-browse query projects only the narrow display fields. See AD-13.
 
-**AD-9: Tiers are linked by a stable shared `routeId` and a version contract.**
-Why: Every route has one ID that never changes, reused in `curated_routes.routeId`, `curated_route_enrichments.routeId`, `route_feedback.routeId`, and the local SQLite primary keys. The lean tier carries `enrichmentVersion` (bumped whenever the rich tier is regenerated), letting clients detect stale caches cheaply. When the device is offline, every card renders from lean fields alone; when online, tapping a card fires `GET /routes/enrichment?ids=...` against the shared ID for a single round-trip to the full payload. The version contract means we never guess whether a cache is current.
+**~~AD-9: Shared-ID version contract.~~** (RETIRED in v1.4)
+Rationale: `enrichmentVersion` tracking, the `/routes/missing-enrichments` staleness check, and the cross-table join all exist to serve the lean/enrichment split. With a single table (AD-13) and no client-side DB (AD-14), there is nothing to track staleness against. Document version (`contentVersion`) remains for pipeline re-run detection — not for client sync.
+
+**AD-13: Single `curated_routes` Convex table. Server-side projection at query boundary.**
+Why: One document, all fields. Catalog queries return a narrow projection; detail queries return the full document. Convex handles projection server-side via typed query return types. For Haiku call sites: the server assembles whatever context slice the prompt needs at call time — context trimming is per-call, not per-storage-layer.
+
+**AD-14: No client-side database for curation. Discovery requires connectivity.**
+Why: Maintaining a local mirror of `curated_routes` would require op-sqlite (a native module), a sync layer, delta-version tracking, cache eviction logic, and a separate "is the local data stale?" check. The v1.4 architecture trades offline catalog browse for this simplification. Mapbox offline route *geometry* (downloaded tile regions) and turn-by-turn navigation remain offline-capable — those are Mapbox SDK's own storage, not op-sqlite. Discovery of new curated routes requires a Convex connection.
+
+**AD-15: `intent_param_cache` is a shared Convex table, not a client-side store.**
+Why: Moving the intent cache from device op-sqlite to a Convex table turns per-device cache warming into cross-user cache warming. The first user to type "twisty mountain roads" triggers one Haiku call; every subsequent user gets an instant query hit from the shared table. This compounds: by the time the app has 100 active users, the long tail of common intents is already warm from earlier sessions, with zero per-device cold-start cost.
 
 ---
 
@@ -295,369 +307,169 @@ MVP: most FHWA routes default to `scenic_byway`. Richer archetypes emerge after 
 
 ---
 
-## 6. Local SQLite discovery.db Architecture
+## 6. Client Discovery Architecture (v1.4 — Pure Convex)
 
-The local database holds two tables linked by the shared stable `route_id`:
-1. `curated_routes` — lean tier, bulk-synced, used for SQL discovery + Qwen3.5 ranking
-2. `curated_route_enrichment_cache` — rich tier cache, lazy-filled, used for detail views
+> **v1.4 note:** The Local SQLite discovery.db architecture from v1.1–v1.3 is **retired**. There is no op-sqlite, no sync layer, no offline mirror, and no local SQL for curation. This section describes the replacement: typed Convex queries and actions called directly from the client.
 
-### 6.1 Schema
+### 6.1 Client Access Pattern
 
-```sql
--- ----------------------------------------------------------------
--- LEAN TIER — bulk-synced from Convex, always available offline
--- ----------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS curated_routes (
-  route_id TEXT PRIMARY KEY,              -- shared stable ID (matches Convex)
-  name TEXT NOT NULL,
-  state TEXT NOT NULL,
-  source TEXT NOT NULL,
-
-  -- Aggregation level: ride segment (5-50 mile named experience)
-  primary_archetype TEXT NOT NULL,        -- one of: twisties, mountain, coastal, adventure, scenic_byway, desert
-  secondary_tags TEXT,                    -- JSON array, up to 3
-
-  -- Location (drives bounding box SQL queries)
-  centroid_lat REAL NOT NULL,
-  centroid_lng REAL NOT NULL,
-  bounds_ne_lat REAL, bounds_ne_lng REAL,
-  bounds_sw_lat REAL, bounds_sw_lng REAL,
-  length_miles REAL,
-
-  -- Pre-computed scores (0.0-1.0, deterministic)
-  composite_score REAL NOT NULL,
-  curvature_score REAL,
-  scenic_score REAL,
-  technical_score REAL,
-  traffic_score REAL,                     -- inverted (1.0 = low traffic)
-  remoteness_score REAL,
-
-  -- Pre-digested display text (Haiku-generated, baked in)
-  one_liner TEXT,                         -- ≤10 words
-  summary TEXT,                           -- ≤15 words
-  badges TEXT,                            -- JSON array of 3-5 discrete chips
-  season TEXT,
-
-  -- Version tracking for delta sync + enrichment staleness
-  content_version INTEGER NOT NULL,
-  enrichment_version INTEGER,             -- matches server; null = no enrichment yet
-
-  synced_at INTEGER NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS idx_cr_state        ON curated_routes(state);
-CREATE INDEX IF NOT EXISTS idx_cr_archetype    ON curated_routes(primary_archetype);
-CREATE INDEX IF NOT EXISTS idx_cr_score        ON curated_routes(composite_score DESC);
-CREATE INDEX IF NOT EXISTS idx_cr_centroid     ON curated_routes(centroid_lat, centroid_lng);
-CREATE INDEX IF NOT EXISTS idx_cr_enrich_ver   ON curated_routes(enrichment_version);
-
--- ----------------------------------------------------------------
--- RICH TIER CACHE — lazy-filled per route when device is online
--- ----------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS curated_route_enrichment_cache (
-  route_id TEXT PRIMARY KEY,              -- FK → curated_routes.route_id
-  payload TEXT NOT NULL,                  -- JSON blob: full enrichment
-  enrichment_version INTEGER NOT NULL,    -- version fetched from server
-  fetched_at INTEGER NOT NULL,
-  FOREIGN KEY (route_id) REFERENCES curated_routes(route_id) ON DELETE CASCADE
-);
-
-CREATE INDEX IF NOT EXISTS idx_enrich_fetched ON curated_route_enrichment_cache(fetched_at);
-```
-
-**Cache policy:** the enrichment cache is bounded to ~500 most recently fetched rows (LRU eviction by `fetched_at`). The lean tier is never evicted — it's the offline contract. When a user opens a detail sheet and the cache is empty or stale, the app fires a single fetch by `route_id` and writes the result back.
-
-### 6.2 Query Patterns
-
-**Lean tier (discovery, always local):**
+The client uses Convex's React client (`useQuery`, `useMutation`, `useAction`) exclusively. No intermediate persistence layer.
 
 ```typescript
-// Nearby routes — bounding box + optional archetype filter
-queryNearby(db, lat, lng, radiusDeg=0.5, { archetype?, limit? })
+// Catalog browse — reactive, paginated
+const routes = useQuery(api.routes.listByBbox, {
+  lat: userLocation.lat,
+  lng: userLocation.lng,
+  radiusDeg: 0.5,
+  archetype: activeArchetypeFilter,   // optional
+  sortBy: "compositeScore",           // or "proximity"
+  cursor: paginationCursor,           // optional
+})
 
-// By state
-queryByState(db, state, { archetype?, limit? })
+// Route detail — reactive, fetched on tap
+const route = useQuery(api.routes.getById, { routeId })
 
-// By archetype
-queryByArchetype(db, archetype, { limit? })
+// Intent search — action (async, calls Haiku on cache miss)
+const { results, status } = useAction(api.routes.searchByIntent, {
+  intent: userTypedText,
+  userLat: userLocation.lat,
+  userLng: userLocation.lng,
+})
 
-// Top routes overall
-queryTopRoutes(db, { limit? })
+// Feedback — mutation
+const recordFeedback = useMutation(api.routes.recordFeedback)
+await recordFeedback({ routeId, action: "save" })
 ```
 
-**Enrichment tier (detail, network-aware):**
+### 6.2 Convex Query Contract
+
+Catalog queries return a **narrow projection** — display fields only. Detail queries return the full document. The distinction is enforced by the query's return type validator in Convex, not by a separate table.
 
 ```typescript
-// Returns cached enrichment if present AND version matches lean tier.
-// Otherwise fetches from server, writes cache, returns fresh payload.
-// Throws `OfflineError` if network is required but unavailable.
-getEnrichment(db, routeId): Promise<CuratedRouteEnrichment>
+// Narrow projection (catalog browse)
+type RouteCard = Pick<CuratedRoute,
+  "routeId" | "name" | "state" | "primaryArchetype" | "secondaryTags" |
+  "centroidLat" | "centroidLng" | "boundsNeLat" | "boundsNeLng" |
+  "boundsSwLat" | "boundsSwLng" | "lengthMiles" |
+  "compositeScore" | "curvatureScore" | "scenicScore" |
+  "trafficScore" | "remotenessScore" |
+  "oneLiner" | "summary" | "badges" | "season"
+>
 
-// Pre-warm a batch (e.g., for visible discovery cards)
-prefetchEnrichments(db, routeIds: string[]): Promise<void>
-
-// Cheap staleness check (no payload transfer)
-checkStaleness(db, routeIds: string[]): Promise<string[]>  // returns stale IDs
-```
-
-**Ranking (combines SQL + local LLM):**
-
-```typescript
-// End-to-end discovery: filter → rank → return lean rows ready for rendering
-rankForIntent(db, {
-  center: { lat, lng },
-  archetype?: string,
-  intent?: string,             // free-text user intent; passed to Qwen3.5
-  candidateLimit?: number,     // default 20 — how many pre-filtered rows to hand to the model
-  topN?: number,               // default 5 — how many final picks to return
-}): Promise<CuratedRoute[]>
+// Full document (detail view)
+type RouteDetail = CuratedRoute  // everything on the document
 ```
 
 ### 6.3 File Map (in-app)
 
 ```
-lib/discovery/
-  db.ts                       — op-sqlite discovery.db init + DDL (both tables)
-  sync-lean.ts                — Convex → SQLite bulk/delta pull for lean tier
-  fetch-enrichment.ts         — per-route enrichment fetch + cache write + staleness check
-  query.ts                    — queryNearby(), queryByState(), queryByArchetype(), queryTopRoutes()
-  rank.ts                     — rankForIntent() orchestrator (SQL + Qwen3.5 JSON-only call)
-  prompts.ts                  — Qwen3.5 ranking prompt template (no generation, just selection)
-
 hooks/
-  use-route-discovery.ts      — location + archetype → ranked lean rows
-  use-route-enrichment.ts     — routeId → full enrichment, online-aware, optimistic from cache
+  use-route-discovery.ts   — wraps useQuery(api.routes.listByBbox | listByState)
+  use-route-detail.ts      — wraps useQuery(api.routes.getById), handles loading state
+  use-intent-search.ts     — wraps useAction(api.routes.searchByIntent) + optimistic UI
+  use-route-feedback.ts    — wraps useMutation(api.routes.recordFeedback)
+
+convex/
+  routes.ts                — query/mutation/action implementations (convex-planner output)
+  schema.ts                — curated_routes + intent_param_cache + route_feedback table defs
 ```
+
+**Deleted from the codebase (v1.4 rollback):**
+- `lib/discovery/db.ts` — op-sqlite init
+- `lib/discovery/sync-lean.ts` — bulk/delta sync
+- `lib/discovery/fetch-enrichment.ts` — enrichment cache
+- `lib/discovery/query.ts` — local SQL queries
+- `lib/discovery/intent/` — all of: normalize.ts, cache.ts, params-to-sql.ts, validate.ts, schema.ts, search.ts, haiku-client.ts
+- Any op-sqlite import in the curation domain
 
 ---
 
 ## 7. Convex Integration
 
-Two tables, shared stable `routeId`. Never joined at query time — the app does the join by ID only when it needs the rich tier.
+> **v1.4 note:** The two-table schema (`curated_routes` lean + `curated_route_enrichments` rich) from v1.1–v1.3 is retired (AD-8 and AD-9 retired). This section now describes the single-table architecture.
+
+One `curated_routes` table. All fields. Server-side projection at the query boundary. No client-side DB.
 
 ### 7.1 Schema Additions
 
 ```typescript
-// models/curated-routes.ts — LEAN TIER
-export const curatedRouteValidator = v.object({
-  routeId: v.string(),                   // stable shared ID
+// See 09-technical-requirements.md § Data Schema for the full Convex validator.
+// Single table with all fields. Server-side projection at query boundary.
 
-  name: v.string(),
-  state: v.string(),
-  source: v.union(
-    v.literal('fhwa'), v.literal('bdr'), v.literal('editorial'),
-    v.literal('motorcycleroads'), v.literal('bestbikingroads'),
-    v.literal('twtex'),
-  ),
-
-  // Ride segment aggregation
-  primaryArchetype: v.union(
-    v.literal('twisties'), v.literal('mountain'), v.literal('coastal'),
-    v.literal('adventure'), v.literal('scenic_byway'), v.literal('desert'),
-  ),
-  secondaryTags: v.array(v.string()),    // up to 3
-
-  // Location
-  centroidLat: v.number(),
-  centroidLng: v.number(),
-  boundsNeLat: v.number(),
-  boundsNeLng: v.number(),
-  boundsSwLat: v.number(),
-  boundsSwLng: v.number(),
-  lengthMiles: v.number(),
-
-  // Pre-computed scores
-  compositeScore: v.number(),
-  curvatureScore: v.number(),
-  scenicScore: v.number(),
-  technicalScore: v.number(),
-  trafficScore: v.number(),              // inverted
-  remotenessScore: v.number(),
-
-  // Pre-digested text
-  oneLiner: v.string(),                  // ≤10 words
-  summary: v.string(),                   // ≤15 words
-  badges: v.array(v.string()),           // 3-5 discrete chips
-  season: v.union(
-    v.literal('year_round'), v.literal('apr_nov'),
-    v.literal('may_sep'), v.literal('spring_fall'),
-  ),
-
-  // Version tracking
-  contentVersion: v.number(),
-  enrichmentVersion: v.optional(v.number()),
-
-  seededAt: v.number(),
-})
-
-// models/curated-route-enrichments.ts — RICH TIER
-export const curatedRouteEnrichmentValidator = v.object({
-  routeId: v.string(),                   // FK to curated_routes.routeId
-
-  fullDescription: v.string(),
-  history: v.optional(v.string()),
-
-  photos: v.array(v.object({
-    url: v.string(),
-    caption: v.string(),
-    attribution: v.string(),
-  })),
-
-  roadClassification: v.array(v.string()),
-  surfaceMaterial: v.string(),
-  totalElevationGainM: v.optional(v.number()),
-  elevationProfile: v.optional(v.array(v.number())),
-
-  nearestCities: v.array(v.string()),
-  recommendedStarts: v.array(v.object({
-    lat: v.number(), lng: v.number(), name: v.string(),
-  })),
-  fuelStops: v.array(v.object({
-    lat: v.number(), lng: v.number(), name: v.string(), milesFromStart: v.number(),
-  })),
-
-  ridershipLevel: v.union(
-    v.literal('low'), v.literal('moderate'), v.literal('high'),
-  ),
-  seasonalNotes: v.string(),
-  safetyWarnings: v.array(v.string()),
-
-  gpxUrl: v.optional(v.string()),
-
-  sources: v.array(v.object({
-    site: v.string(),
-    url: v.string(),
-    lastFetched: v.number(),
-    extractionConfidence: v.number(),
-  })),
-
-  extractedBy: v.union(v.literal('haiku'), v.literal('manual')),
-  extractedAt: v.number(),
-  extractionSchemaVersion: v.number(),
-
-  enrichmentVersion: v.number(),
-  lastEnrichedAt: v.number(),
-})
-
-// convex/schema.ts additions:
 curated_routes: defineTable(curatedRouteValidator)
-  .index('by_routeId', ['routeId'])           // primary lookup for enrichment joins
-  .index('by_state', ['state'])
-  .index('by_archetype', ['primaryArchetype'])
-  .index('by_compositeScore', ['compositeScore'])
-  .index('by_contentVersion', ['contentVersion']),  // powers delta sync
+  .index("by_state", ["state"])
+  .index("by_archetype", ["primaryArchetype"])
+  .index("by_score", ["compositeScore"])
+  .index("by_centroid", ["centroidLat", "centroidLng"])
+  .searchIndex("search_name", {
+    searchField: "name",
+    filterFields: ["state", "primaryArchetype"],
+  }),
 
-curated_route_enrichments: defineTable(curatedRouteEnrichmentValidator)
-  .index('by_routeId', ['routeId'])           // the only index you need — lookups are always by ID
-  .index('by_enrichmentVersion', ['enrichmentVersion']),
+intent_param_cache: defineTable({ ... })
+  .index("by_schema", ["schemaVersion"])
+  .index("by_hit_count", ["hitCount"]),
+
+route_feedback: defineTable({ ... })
+  .index("by_route", ["routeId"])
+  .index("by_user", ["userId"]),
+
+// REMOVED: curated_route_enrichments (AD-8 retired)
 ```
 
 ### 7.2 Convex Functions
 
-**HTTP Actions** (receive batches from Python pipeline):
-```typescript
-// convex/http.ts
-POST /ingest-routes       → api.curatedRoutes.ingestBatch         (lean tier)
-POST /ingest-enrichments  → api.curatedRoutes.ingestEnrichments   (rich tier)
+> Full typed function signatures are being produced by the convex-planner agent and will replace this section. The conceptual surface:
+
+**Ingestion (internal — Python pipeline via HTTP action):**
+- `internalMutation: upsertRoute({ route: CuratedRouteInput })` — upsert one document by `routeId`, bump `contentVersion` on change
+- `internalMutation: batchUpsertRoutes({ routes: CuratedRouteInput[] })` — batch ingestion (up to 100 per call)
+
+**Catalog queries (public — mobile client):**
+- `query: listByBbox({ lat, lng, radiusDeg, archetype?, sortBy?, cursor? })` → narrow RouteCard projection, paginated
+- `query: listByState({ state, archetype?, sortBy?, cursor? })` → narrow RouteCard projection, paginated
+- `query: getById({ routeId })` → full CuratedRoute document
+
+**Intent search (action — mobile client):**
+- `action: searchByIntent({ intent, userLat, userLng })` → normalizes intent → checks `intent_param_cache` → calls Haiku on miss → writes cache → runs `listByBbox`-equivalent filter → returns RouteCard[]
+
+**Feedback (mutation — mobile client):**
+- `mutation: recordFeedback({ routeId, action, rating? })` → writes to `route_feedback`
+
+**Metrics (query — admin dashboard):**
+- `query: pipelineMetrics()` → totalRoutes, bySource, lastIngestAt, feedbackSummary
+
+### 7.3 Access Patterns
+
+No sync layer, no delta, no cache eviction. The client calls a query when it needs data; Convex's reactive client invalidates when the server data changes.
+
+**Catalog browse:**
+```
+User opens discovery screen
+  → useQuery(api.routes.listByBbox, { lat, lng, ... })
+  → Convex returns narrow RouteCard projection (display fields only)
+  → Paginated: load more as user scrolls
+  → Requires connectivity — shows connection state if offline
 ```
 
-**Internal Mutations** (batch upsert):
-```typescript
-// convex/curated-routes.ts
-
-ingestBatch: internalMutation({
-  args: { routes: v.array(curatedRouteValidator) },
-  handler: async (ctx, { routes }) => {
-    // Upsert by routeId. Bump contentVersion on any field change.
-    // Do NOT touch enrichmentVersion — that's owned by ingestEnrichments.
-  },
-})
-
-ingestEnrichments: internalMutation({
-  args: { enrichments: v.array(curatedRouteEnrichmentValidator) },
-  handler: async (ctx, { enrichments }) => {
-    // Upsert enrichment by routeId.
-    // Bump curated_routes.enrichmentVersion on the linked record
-    // so clients can detect staleness on next sync.
-  },
-})
+**Route detail:**
+```
+User taps card
+  → useQuery(api.routes.getById, { routeId })
+  → Convex returns full document
+  → Cached in Convex reactive client for session duration
+  → Re-open same route in same session: instant from in-memory cache
 ```
 
-**Public Queries** (for mobile app):
-
-```typescript
-// convex/curated-routes.ts
-
-// Lean tier — bulk/delta sync
-listLean: query({
-  args: {
-    state: v.optional(v.string()),
-    sinceContentVersion: v.optional(v.number()),
-  },
-  handler,  // returns lean rows only, never joins with enrichments
-}),
-
-listLeanByBounds: query({
-  args: { swLat, swLng, neLat, neLng },
-  handler,  // for region-based sync after initial bulk pull
-}),
-
-// Rich tier — per-ID fetch
-getEnrichment: query({
-  args: { routeId: v.string() },
-  handler,  // single lookup by routeId
-}),
-
-getEnrichmentBatch: query({
-  args: { routeIds: v.array(v.string()) },  // up to 50
-  handler,  // parallel lookups, returns { [routeId]: enrichment | null }
-}),
-
-// Cheap staleness check
-checkEnrichmentStaleness: query({
-  args: {
-    pairs: v.array(v.object({
-      routeId: v.string(),
-      cachedVersion: v.number(),
-    })),
-  },
-  handler,  // returns routeIds where server version > cachedVersion
-}),
+**Intent search:**
 ```
-
-### 7.3 Sync Patterns
-
-**Lean tier (bulk + delta):**
-
+User types "twisty mountain roads"
+  → useAction(api.routes.searchByIntent, { intent, userLat, userLng })
+  → Action: normalizeIntent → check intent_param_cache
+  → Cache hit → run filter query → return results (instant if cached)
+  → Cache miss → Haiku at temp=0 → write to intent_param_cache → run filter query
+  → Results: RouteCard[] matching extracted params, ordered by compositeScore
 ```
-App launch → check last_synced_content_version
-  → if null: full listLean → SQLite pull (all lean rows)
-  → if set:  listLean({ sinceContentVersion: X }) → apply delta
-  → record max contentVersion as new watermark
-```
-
-Frequency: on app launch, on manual refresh, on state/region change if the user moves.
-
-**Rich tier (on-demand, per-route):**
-
-```
-User taps card → hook queries enrichment cache by routeId
-  → hit + version matches lean.enrichmentVersion:  use cache
-  → hit + version stale:                           background refetch + optimistic render
-  → miss + online:                                 fetch getEnrichment, write cache, render
-  → miss + offline:                                render lean-only view, show "full details when online" affordance
-```
-
-**Prefetch (optional optimization):**
-
-```
-Discovery list rendered → extract visible routeIds
-  → checkEnrichmentStaleness({ pairs }) → stale list
-  → getEnrichmentBatch({ routeIds: stale }) in background
-  → write cache, no UI change until user taps
-```
-
-This gives instant detail-view opens for any card the user scrolls past, without blowing up the sync payload.
 
 ---
 
@@ -742,25 +554,28 @@ convex/http.ts                            — add POST /ingest-routes and POST /
 
 ---
 
-## 11. Local LLM Data Shape Strategy
+## 11. Discovery Architecture (v1.4 — Convex Queries + Shared Intent Cache)
 
-This section is the reason the data model looks the way it does. Every decision in §6 and §7 is in service of making Qwen3.5 0.8B useful without asking it to reason.
+> **v1.4 rewrite.** This section previously described the "Local LLM Data Shape Strategy" — how data was structured to serve Qwen3.5 0.8B's context-window constraints. That strategy is fully retired. v1.4 has no on-device model, no client-side DB, and no local SQL. Discovery is pure Convex: typed queries and actions from the client.
 
-### 11.1 The Constraint That Shapes Everything
+### 11.1 The Principle That Replaces the Old Constraint
 
-Qwen3.5 0.8B is validated in-app only for leg labels (per swarm research: 100% validity, 2.16x faster than Haiku, ~0.35s inference). For anything requiring reasoning, Haiku is required. This TRD extends the model's responsibilities by exactly one new task: **structured selection from a pre-digested candidate pool**. Nothing else. No generation. No free-text matching. No tool calling. No archetype inference.
+The old constraint: shape data to fit a small model's context window, because the model runs on device and context is expensive.
 
-The principle: **a small model's speed and consistency come from giving it a small, well-defined job. Make the data do the reasoning so the model doesn't have to.**
+The new reality: Convex queries run on the server. There is no context window. The client says what it wants (typed query args); Convex returns what it asked for (typed projection). The only "context shaping" is for Haiku at Instructor call sites, and that's a server-side projection of the relevant fields — not a storage-layer constraint.
 
-### 11.2 Why Ride Segments Are the Right Atom
+**The organizing principle is now: the right query interface, not the right data shape for a local model.**
+
+### 11.2 Why Ride Segments Are Still the Right Atom
+
+Unchanged from prior versions. The aggregation level is a product decision, not a model-context decision:
 
 | Level | Verdict | Reason |
 |-------|---------|--------|
-| OSM way (1-5mi fragment) | ❌ | No semantic identity; 0.8B can't assemble meaning from fragments |
-| Named road ("US-129") | ❌ | Spans 500mi with wildly varying character; can't be labeled with one archetype |
-| **Ride segment (5-50mi, e.g., "Deals Gap stretch of US-129")** | ✅ | One coherent experience, one primary archetype, one set of scores, one stable ID. Matches how editorial lists enumerate and how riders talk. |
-| Full planned route (A → B composition) | ❌ | Composition of segments with mixed character; can't be categorically labeled |
-| Multi-day loop / tour | ❌ | Too high-level for query-time recommendation |
+| OSM way (1-5mi) | ❌ | No semantic identity |
+| Named road ("US-129") | ❌ | Spans 500mi with wildly varying character |
+| **Ride segment (5-50mi)** | ✅ | One coherent experience, one archetype, one set of scores. How editorial lists and riders think. |
+| Full A→B planned route | ❌ | Mixed archetype composition |
 
 ### 11.3 The Pre-Digestion Asymmetry
 
@@ -775,91 +590,73 @@ All hard reasoning happens once, offline, during the Python pipeline. Runtime ge
 - Extract 3-5 discrete `badges` (Haiku, constrained to short phrases)
 - Generate full `fullDescription`, `history`, trip planning context for the rich tier (Haiku)
 
-**Done at query time on device (deterministic + narrow Qwen3.5):**
-- SQL filter the lean tier: `WHERE centroid in bbox AND primary_archetype = X ORDER BY composite_score DESC LIMIT 20` (~10ms)
-- Pass 20 structured cards + user intent to Qwen3.5 with a selection-only prompt
-- Parse JSON output: `{ picks: ["id1", "id2", "id3", "id4", "id5"] }`
-- Render lean fields directly; lazy-load rich enrichment when a card is tapped
+**Done at query time (Convex server — no client-side compute):**
+- `listByBbox(lat, lng, radiusDeg, archetype?, sortBy?)` → Convex query applies index scan on centroid + archetype, orders by `compositeScore`, returns narrow RouteCard projection
+- `getById(routeId)` → Convex returns full document on demand
+- `searchByIntent(intent, userLat, userLng)` → Convex action: normalize → check `intent_param_cache` → Haiku on miss → Convex filter query → RouteCard[]
 
-### 11.4 The Ranking Prompt (Selection Only)
+No model on device. No SQL on device. No selection logic on device.
+
+### 11.4 Intent Search Data Flow
 
 ```
-System: You are a motorcycle ride recommender. You pick rides from a pre-scored list.
-You do not write descriptions. You do not invent facts. You return JSON only.
-
-User intent: {intent}
-
-Candidates (pre-scored, 0.0-1.0):
-1. id=us129-deals-gap  primary=twisties  length=11mi  curvature=0.95 scenic=0.70 technical=0.90 traffic=0.30 remoteness=0.55  "The most famous sport road in America."
-2. id=brp-mile-420     primary=mountain  length=43mi  curvature=0.55 scenic=0.95 technical=0.40 traffic=0.45 remoteness=0.75  "Highest paved peak east of the Mississippi."
-... (18 more)
-
-Task: Return the top 5 IDs that best match the intent, ordered best first.
-Respond with JSON only: {"picks": ["id1","id2","id3","id4","id5"]}
+User: "twisty mountain roads near me"
+    │
+    ▼
+Convex action: searchByIntent
+    │
+    ├─ normalizeIntent("twisty mountain roads near me")
+    │    → "twisty mountain roads"
+    │
+    ├─ db.query("intent_param_cache").withIndex("by_schema", ...).filter(normalizedIntent)
+    │    → HIT: paramsJson cached → skip Haiku call
+    │    → MISS: call Haiku at temp=0, write cache, return params
+    │
+    ├─ params: { archetype: "twisties", sort_by: "curvature" }
+    │
+    └─ db.query("curated_routes")
+         .withIndex("by_centroid", ...)
+         .filter(q => q.and(
+           q.eq(q.field("primaryArchetype"), "twisties"),
+           ... bounding box conditions ...
+         ))
+         .order("desc")    // by compositeScore (default) or curvatureScore
+         .take(10)
+         → RouteCard[]
 ```
 
-Key properties of this prompt:
-- **No free text in the output.** Model returns only pre-existing IDs.
-- **All comparisons are over 0.0-1.0 numbers**, not prose.
-- **One-line summaries are included only for tie-breaking context**, not for the model to paraphrase.
-- **Temperature = 0** for deterministic output.
-- **~2K tokens total**, sub-second inference, same consistency as a SQL query.
+No SQL string interpolation. No `params_to_sql()`. Convex validators enforce the schema at both the action args and the query return type.
 
-### 11.5 Token Budget Math
+### 11.5 Shared Intent Cache — Why It's Better Server-Side
 
-| Component | Tokens |
-|---|---|
-| System prompt | ~300 |
-| Intent text | ~50 |
-| 20 candidate cards × ~50 tokens each | ~1000 |
-| Response format instruction | ~100 |
-| Output (5 IDs as JSON) | ~100 |
-| **Total per query** | **~1550** |
+| | Old: client op-sqlite | New: Convex shared table |
+|---|---|---|
+| Cache scope | Per-device | Across all users globally |
+| First-user experience | Always cold start on new device | Warm after any user searches the same intent |
+| Warming strategy | Usage-per-user | Usage-per-intent across entire userbase |
+| Persistence | Lost on app uninstall | Permanent (server-side) |
+| Implementation | op-sqlite DDL + sync layer | One Convex table + index |
+| Cache invalidation | Schema version bump + DELETE sweep | Schema version bump + Convex filter |
 
-Comfortably inside any 0.8B context window. Inference time: 500-900ms on mid-range mobile hardware. Memory footprint: no change (model stays resident at 1.15GB — the only per-query cost is the prompt).
+### 11.6 What No LLM or Code Must Ever Do
 
-### 11.6 Escalation Path
+- **Rank or select from a list of route candidates.** Ranking is `ORDER BY compositeScore DESC` in a Convex query.
+- **Ask models to recall routes from training.** Sources-only (FHWA, scrape, OSM, BDR).
+- **Run any inference on device.** All LLM calls are Convex actions (server-side).
+- **Touch op-sqlite for curation data.** No local DB for the curation domain.
+- **Write SQL strings.** Convex queries are typed function calls with validated args.
 
-The local path is intentionally narrow. When the intent doesn't fit it, escalate.
+### 11.7 Latency Profile
 
-| Intent type | Path |
-|---|---|
-| "twisty near me" | Local: SQL + Qwen3.5 rank |
-| "best for a Saturday morning" | Local: add time/traffic filter + rank |
-| "something adventurous but beginner-friendly" | Local: multiple score filters + rank |
-| **"something that feels like freedom"** | **Haiku (online)** — returns structured filters, runs local pipeline with them |
-| **"plan me a 3-day loop through the Smokies"** | **Haiku (online)** — composition is a cloud task; local path remains the selection primitive |
-
-The local path is the fast primitive. Haiku is the smart intent-to-filters translator. Both read from the same underlying data tier.
-
-### 11.7 What the Local Model Must Never Do
-
-These are all Haiku's job. Qwen3.5 never touches them:
-
-- **Generate route descriptions.** Pre-baked in `oneLiner`, `summary`, rich tier `fullDescription`.
-- **Assign archetypes.** Decided by the decision tree during ingestion.
-- **Compute scores.** Deterministic lookup tables during ingestion.
-- **Match free-text intent against free-text descriptions.** The SQL filter does the narrowing; the model only ranks a small already-structured pool.
-- **Call tools.** Orchestrator decides what to fetch; model just ranks what's handed to it.
-- **Reason about composition** (multi-ride loops, multi-day trips). These route to Haiku.
-
-### 11.8 Why This Gives Speed + Consistency
-
-**Speed:**
-- SQL filter on indexed op-sqlite: <10ms
-- Qwen3.5 ranking of 20 structured items: 500-900ms
-- No embedding generation, no tool calling, no free-text parsing
-- End-to-end: <1 second from tap to cards on screen
-
-**Consistency:**
-- Scores are deterministic — same data → same ordering every time
-- The model's task is so narrow it can't drift
-- `primaryArchetype` is single-valued, so "twisties" always means the same thing
-- Summaries are pre-written offline, so no generation variance
-- Temperature = 0 on the ranking call → same query twice returns the same top 5
-
-The whole strategy is: prevent the 0.8B model from generating anything substantive. It only picks rows from a pre-validated pool. That's where speed and consistency come from.
+| Operation | Path | Latency |
+|---|---|---|
+| Catalog browse (nearby) | `useQuery(listByBbox)` | ~100–300ms (Convex reactive) |
+| Route detail (first open) | `useQuery(getById)` | ~100–300ms |
+| Route detail (re-open in session) | Convex in-memory cache | <10ms |
+| Intent search (cache hit) | `useAction(searchByIntent)` + cache lookup | ~200ms |
+| Intent search (cache miss, Haiku) | `useAction(searchByIntent)` + Haiku | ~1.5–3s |
+| All operations offline | N/A | Connection required — empty state shown |
 
 ---
 
-This design is ready for sprint breakdown. The Phase 1 seed path (FHWA + BDR + editorial = ~244 routes) can ship discovery UI immediately while the scraping pipeline is built in parallel. The Python pipeline and the mobile app are completely decoupled — the pipeline writes to Convex (both tiers), the app reads lean from the local SQLite mirror and pulls rich enrichment on demand by shared `routeId`.
+The Python pipeline and the mobile app are fully decoupled. The pipeline writes to the single `curated_routes` Convex table; the app queries it. Phase 1 (FHWA + BDR + editorial = ~244 routes) can ship the discovery UI immediately while the full scraping pipeline is built in parallel.

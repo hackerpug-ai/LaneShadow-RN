@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
-last_validated: 2026-04-09
-prd_version: 1.1.0
+last_validated: 2026-04-10
+prd_version: 1.4.0
 functional_group: OFF
 ---
 
@@ -17,8 +17,8 @@ functional_group: OFF
 | UC-OFF-04 | Delete Offline Region | User removes downloaded region to free storage |
 | UC-OFF-05 | Manage Storage Limits | System handles storage limits gracefully |
 | UC-OFF-06 | Learn About Offline Features | User accesses education about offline capabilities |
-| UC-OFF-07 | Create Route While Offline | User plans route with no connection using local leg generation |
-| UC-OFF-08 | Progressive Enrichment | Route enhances incrementally as connectivity returns |
+| UC-OFF-07 | Create Route With Connection Required | Mapbox calculates geometry offline; route commits to Convex when connected |
+| UC-OFF-08 | Progressive Enrichment | Route displays with deterministic leg labels immediately; server-side enrichment trickles in |
 
 ---
 
@@ -99,92 +99,104 @@ functional_group: OFF
 
 ---
 
-## UC-OFF-07: Create Route While Offline
+## UC-OFF-07: Create Route With Connection Required
 
-**Description:** User plans and creates a motorcycle route with no internet connection. Local Qwen3.5 model generates leg labels immediately, Mapbox SDK calculates route geometry offline, and draft route persists to AsyncStorage.
+**Description:** User plans a motorcycle route. Mapbox SDK can calculate route geometry from downloaded map tiles without internet. However, the route must be committed to Convex (requires connectivity) before it is persisted. If the user is offline when they submit, the app shows a "Connect to save your route" prompt. The geometry is NOT lost — the Mapbox route object stays in component state and auto-commits as soon as connectivity returns.
 
 **Acceptance Criteria:**
-- ☐ User can access route planning with no internet connection
-- ☐ System detects offline status and shows "Offline Mode" banner
-- ☐ Qwen3.5 generates leg labels locally within 0.5s
-- ☐ Mapbox SDK calculates route geometry using downloaded maps
-- ☐ Draft route persists to AsyncStorage with status `local_only`
-- ☐ Route displays immediately with leg labels and geometry
-- ☐ System shows "Sync pending" indicator for draft route
-- ☐ Route remains editable while offline
-- ☐ Multiple draft routes can be created and stored locally
+- ☐ User can access route planning at any time (online or offline)
+- ☐ Mapbox SDK calculates route geometry from downloaded map tiles (no internet required for geometry calculation)
+- ☐ System derives leg labels deterministically from waypoint names (e.g., "San Francisco → Daly City") — pure code, no model
+- ☐ Route geometry and leg labels display on map immediately
+- ☐ If user is online: route commits to Convex immediately on submit
+- ☐ If user is offline: system shows "Connect to save your route" banner
+- ☐ Geometry held in component state while offline — NOT lost
+- ☐ When connectivity returns, app auto-commits the pending route to Convex
+- ☐ Auto-commit completes without user re-submitting
 
-**Primary Path:**
+**Primary Path (Online):**
 1. User opens route planning screen
-2. System detects no network connection
-3. User enters route waypoints (FROM → TO → ...)
-4. Qwen3.5 generates leg labels locally: ["SF → Daly City", "Daly City → Santa Cruz"]
-5. Mapbox SDK calculates route geometry from downloaded offline maps
-6. System creates draft route in AsyncStorage with `syncStatus: 'local_only'`
-7. Route displays on map with geometry and leg labels
-8. System shows "Offline - will sync when connected" indicator
+2. User enters route waypoints (FROM → TO → ...)
+3. Mapbox SDK calculates route geometry from downloaded maps (offline-capable)
+4. System derives leg labels from waypoint names: ["San Francisco → Daly City", "Daly City → Santa Cruz"]
+5. Route displays on map with geometry and leg labels
+6. User taps "Save Route"
+7. Route commits to Convex immediately
+8. Haiku enrichment job queued in background
+
+**Offline Path:**
+1. User opens route planning screen
+2. User enters route waypoints
+3. Mapbox SDK calculates route geometry (offline map tiles used)
+4. System derives leg labels from waypoint names
+5. Route displays on map
+6. User taps "Save Route"
+7. System detects no connectivity — shows "Connect to save your route" banner
+8. Route geometry and leg labels remain in component state
+9. When connectivity returns, route auto-commits to Convex
+10. Haiku enrichment job queued after commit
 
 **Error Paths:**
-- Qwen3.5 model unavailable → Use generic labels derived from waypoint names ("Start → End")
 - Offline maps not downloaded → Show "Download offline maps first" prompt
-- AsyncStorage write fails → Show error, retry option
+- Connectivity returns but auto-commit fails → Retry with exponential backoff; user can manually retry
 
 **References:**
-- Hybrid Enrichment Architecture: `09-hybrid-enrichment.md`
-- Local Model Integration: Phase 0 in README.md
+- Progressive Enrichment Architecture: `09-hybrid-enrichment.md`
 
 ---
 
 ## UC-OFF-08: Progressive Enrichment
 
-**Description:** Route created offline displays immediately with basic leg labels, then incrementally enhances with creative label, rationale, and highlights when connectivity returns. UI updates reactively as each enrichment component arrives.
+**Description:** After a route is committed to Convex, it displays immediately with geometry and deterministic leg labels (derived from waypoint names, pure code). Server-side weather and Haiku creative enrichment trickle in as background jobs. UI updates reactively as each enrichment component arrives.
 
 **Acceptance Criteria:**
-- ☐ Route displays immediately with leg labels (0.35s)
-- ☐ System shows "Enhancing..." indicator after connection
+- ☐ Route displays immediately after Convex commit with leg labels and geometry
+- ☐ System shows "Enhancing..." indicator while server jobs run
 - ☐ Haiku enrichment completes in background without blocking UI
 - ☐ Creative route label appears when ready (3.9s avg)
 - ☐ Scenic rationale appears when ready
 - ☐ Highlight tags appear when ready
+- ☐ Weather badges appear when ready (background fetch, <20s)
 - ☐ UI updates incrementally (not all-or-nothing)
 - ☐ Progressive enhancement toast shows current stage
 - ☐ Enrichment status badge updates: partial → complete
 - ☐ User can continue using app during enrichment
 
 **Primary Path:**
-1. User creates route offline (UC-OFF-07)
-2. Route displays with leg labels only
-3. Device connects to WiFi/cellular
-4. System detects connectivity restored
-5. Draft route enqueued for sync with status `pending_sync`
-6. Convex receives route plan and leg labels
-7. Haiku enrichment job queued
-8. Haiku generates: label, rationale, highlights
-9. Each component merged into route document as it arrives
-10. UI updates reactively:
-    - Label appears first (replaces generic "Route #123")
-    - Rationale appears below label
-    - Highlight tags appear in chips
-11. Enrichment status badge changes from "partial" to "complete"
-12. Progressive enhancement toast dismisses automatically
+1. User commits route to Convex (UC-OFF-07 online path)
+2. Route displays with geometry + deterministic leg labels
+3. Haiku enrichment job queued by Convex scheduler
+4. Weather enrichment job queued by Convex scheduler
+5. Jobs run in background:
+   - Haiku generates: creative label, rationale, highlights
+   - Weather API fetches wind, rain, temperature data
+6. Each component merged into route document as it arrives
+7. UI updates reactively:
+   - Creative label appears first (replaces "Route #123")
+   - Rationale appears below label
+   - Highlight tags appear in chips
+   - Weather badges fade in as data arrives
+8. Enrichment status badge changes from "partial" to "complete"
+9. Progressive enhancement toast dismisses automatically
 
 **Progressive Enhancement Stages:**
 ```
-0.0s: Route geometry + leg labels (Qwen3.5 local)
-1.0s: Creative label appears (Haiku)
-2.5s: Rationale appears (Haiku)
-3.9s: Highlight tags appear (Haiku)
+0.0s:  Route geometry + deterministic leg labels (committed to Convex)
+1.0s:  Creative label appears (Haiku)
+2.5s:  Rationale appears (Haiku)
+3.9s:  Highlight tags appear (Haiku)
+<20s:  Weather badges appear (Open-Meteo background fetch)
 ✓ Complete
 ```
 
 **Error Paths:**
-- Haiku enrichment fails → Keep partial enrichment, log error
-- Sync queue timeout → Retry with exponential backoff
-- User goes offline during enrichment → Pause, resume when connected
+- Haiku enrichment fails → Keep partial enrichment (leg labels + geometry), log error
+- Weather fetch fails → Route usable without weather; retry in background
+- User goes offline during enrichment → Pause server jobs, resume when connected
 
 **References:**
-- Hybrid Enrichment Architecture: `09-hybrid-enrichment.md`
-- Sync Queue Processing: `08-technical-requirements.md`
+- Progressive Enrichment Architecture: `09-hybrid-enrichment.md`
+- Enrichment API: `08-technical-requirements.md`
 
 ---
 

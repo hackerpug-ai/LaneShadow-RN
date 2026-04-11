@@ -2,9 +2,11 @@
 
 **Epic ID:** TBD
 **Status:** Planning
-**Last Updated:** 2026-04-09
+**Last Updated:** 2026-04-10
 
-Implement complete offline routing capability for LaneShadow's AI-native motorcycle ride planner by migrating from Google Maps to Mapbox with @rnmapbox/maps and @trestleinc/replicate for local-first sync, eliminating recurring API costs while preserving copper-accented dark theme and weather overlays. All route enrichments (weather, leg labels, AI descriptions) load progressively and asynchronously on the server, returning routes immediately after local routing completes. Routes are editable offline with automatic conflict resolution via Yjs CRDTs.
+> **v1.4 Rollback Notice (2026-04-10):** @trestleinc/replicate, Yjs CRDTs, and op-sqlite have been removed from this architecture. Route persistence is Convex-only. Route editing requires connectivity. Offline route creation is out of scope.
+
+Implement complete offline routing capability for LaneShadow's AI-native motorcycle ride planner by migrating from Google Maps to Mapbox with @rnmapbox/maps, eliminating recurring API costs while preserving copper-accented dark theme and weather overlays. All route enrichments (weather, leg labels, AI descriptions) load progressively and asynchronously on the server, returning routes immediately after local routing completes. Mapbox can calculate route geometry offline from downloaded map tiles, but committing a route to Convex requires connectivity.
 
 **Product Context:** LaneShadow is an AI-native motorcycle ride planner — map-first, conversation-driven. Tagline: "Ride the Moment" — turn a feeling into a road. Platforms: iOS and Android (React Native + Expo). Aesthetic: Rugged, industrial-warm, copper-accented, dark-first.
 
@@ -47,6 +49,8 @@ Implement complete offline routing capability for LaneShadow's AI-native motorcy
 
 | Version | Date | Changes | Trigger |
 |---------|------|---------|---------|
+| 1.4.0 | 2026-04-10 | Remove @trestleinc/replicate, Yjs CRDTs, op-sqlite. Route persistence is Convex-only. Offline route creation is out of scope. | Architectural simplification |
+| 1.3.0 | 2026-04-09 | Rollback Phase 0 (Shadow Setup) and local model download requirement | Scoping decision |
 | 1.1.0 | 2026-04-09 | Add hybrid enrichment architecture, Phase 0 (Shadow Setup), local model integration | Swarm research validation |
 | 1.0.0 | 2026-04-09 | Initial PRD | New initiative |
 
@@ -61,9 +65,9 @@ Implement complete offline routing capability for LaneShadow's AI-native motorcy
 
 ## Executive Summary
 
-**Timeline:** 10-12 weeks (includes local model integration)
+**Timeline:** 8-10 weeks
 **Team:** 1 React Native developer
-**Key Decision:** Hybrid architecture - Mapbox SDK for routing + Qwen3.5 0.8B for local leg labels + Haiku for quality enrichment
+**Key Decision:** Mapbox SDK for offline route geometry + Convex for all persistence + Haiku for quality enrichment (server-side)
 **Cost Savings:** ~$1,470/month after implementation (Mapbox $15 + reduced Haiku usage)
 
 ---
@@ -88,33 +92,32 @@ Implement complete offline routing capability for LaneShadow's AI-native motorcy
 
 ### Solution Overview
 
-Migrate to Mapbox SDK with @rnmapbox/maps for offline routing, implement hybrid enrichment with Qwen3.5 0.8B (local leg labels) and Haiku (cloud quality enrichment), and maintain all UI/UX while reducing costs by 98%.
+Migrate to Mapbox SDK with @rnmapbox/maps for offline route geometry calculation, persist all routes through Convex directly, and maintain all UI/UX while reducing costs by 98%.
 
-**Hybrid Architecture:**
-- **Local (instant):** Route editing with automatic conflict resolution via @trestleinc/replicate (Yjs CRDTs + op-sqlite)
-- **Local (0.35s):** Qwen3.5 generates leg labels ("FROM → TO") on-device
-- **Local (offline):** Mapbox SDK calculates route geometry from downloaded maps
-- **Cloud (3.9s):** Haiku enriches with creative labels, rationales, and highlights
+**Architecture:**
+- **Local (offline):** Mapbox SDK calculates route geometry from downloaded maps — no internet required for geometry
+- **Convex (requires connectivity):** Route saved to Convex on commit — connectivity required to persist
+- **Deterministic leg labels:** Derived from waypoint names at route-creation time (pure code, no model required)
+- **Cloud (3.9s):** Haiku enriches with creative labels, rationales, and highlights (server-side)
 - **Cloud (20s):** Weather data fetched asynchronously and merged progressively
 - **Progressive Enhancement:** Show route immediately (<10s), enhance in background
-- **Offline-First Sync:** Bidirectional CRDT delta sync when online
 
 ---
 
 ## Technical Approach
 
-### Architecture Decision: Mapbox SDK
+### Architecture Decision: Mapbox SDK + Convex-Only Persistence
 
-**Selected Approach:** Mapbox + @rnmapbox/maps
+**Selected Approach:** Mapbox + @rnmapbox/maps + Convex (no on-device database)
 
 **Rationale:**
 - ✅ Preserves current React Native + Expo architecture
 - ✅ Maintains weather overlay system (polyline rendering works identically)
-- ✅ True offline routing without native modules
+- ✅ Offline geometry calculation without native modules (Mapbox SDK's own storage)
 - ✅ Proven technology (BMW, The Weather Channel, etc.)
 - ✅ Reasonable implementation effort (2-3 months vs 6+ months)
-- ✅ First-class React Native support via op-sqlite (no WASM hacks required)
-- ✅ Automatic conflict resolution via Yjs CRDTs
+- ✅ Simplified persistence layer — all data in Convex, no SQLite to manage
+- ✅ No CRDT library or op-sqlite bundle weight
 
 **Rejected Alternative:** Custom routing engine with native bridge
 - Requires iOS/Android native developers (2)
@@ -127,66 +130,21 @@ Migrate to Mapbox SDK with @rnmapbox/maps for offline routing, implement hybrid 
 ```typescript
 // Core Dependencies
 "@rnmapbox/maps": "^10.1.0"     // Mapbox React Native SDK
-"convex": "^1.x"                 // Backend (unchanged)
+"convex": "^1.x"                 // Backend — all persistence (unchanged)
 "expo": "~50.x"                  // Platform (unchanged)
-"@trestleinc/replicate": "^1.x"  // Local-first sync engine (Yjs + op-sqlite)
-"@op-engineering/op-sqlite": "^7.x" // SQLite for React Native
 
 // New Utilities
 lib/mapbox/offline-manager.ts    // Region download management
 lib/mapbox/routing.ts            // Offline route calculation
+lib/routing/leg-labels.ts        // Deterministic leg label derivation from waypoint names
 components/map/mapbox-map-view.tsx // MapView wrapper
-collections/use-routes.ts        // Replicate collection (local-first sync)
 ```
 
 ---
 
 ## Implementation Phases
 
-### Phase 0: Shadow Setup (Week 1)
-
-**Goal:** Onboarding experience with mandatory local model download
-
-**Hard Requirement:** App cannot be used until "Your Shadow" (local AI model) is downloaded
-
-#### Tasks
-
-1. **Setup Wizard Flow**
-   - Create onboarding screens with "Download Your Shadow" branding
-   - WiFi detection and requirement (block cellular downloads)
-   - Progress tracking with "Awakening Your Shadow" messaging
-   - Background download with app state handling
-
-2. **Local Model Integration**
-   - Install Qwen3.5 0.8B runtime (MLX framework)
-   - Create model download manager with retry logic
-   - Implement in-memory model caching (singleton pattern)
-   - Add model verification (checksum validation)
-
-3. **Gatekeeper Implementation**
-   - Block all route planning until model download completes
-   - Show "Setup Required" screen if model missing
-   - Persist download state across app restarts
-   - Handle download failures with retry UX
-
-#### UX Flow
-
-```
-First Launch → "Welcome to LaneShadow" → 
-"Download Your Shadow" → WiFi Check → 
-"Awakening Your Shadow" (0-100%) → 
-"Your Shadow is Ready" → Main App
-```
-
-#### Success Criteria
-- Model downloads successfully on WiFi (>99% completion rate)
-- User cannot bypass setup (hard gate)
-- Progress updates every 5% with estimated time remaining
-- Download resumes after app restart/interruption
-
----
-
-### Phase 1: Foundation (Week 2)
+### Phase 1: Foundation (Week 1)
 
 **Goal:** Install Mapbox SDK and render basic map
 
@@ -215,9 +173,9 @@ First Launch → "Welcome to LaneShadow" →
 
 ---
 
-### Phase 2: Offline Maps & Local Routing (Weeks 3-5)
+### Phase 2: Offline Maps & Local Routing (Weeks 2-4)
 
-**Goal:** Download map regions and calculate routes offline
+**Goal:** Download map regions and calculate routes offline; commit routes to Convex
 
 #### Tasks
 
@@ -233,60 +191,48 @@ First Launch → "Welcome to LaneShadow" →
    - Support for waypoints and multi-stop routes
    - Error handling for insufficient offline data
 
-3. **Local Leg Label Generation**
-   - Implement `lib/ai/local-enrichment.ts`
-   - Qwen3.5 workflow for "FROM → TO" label generation
-   - 0.35s target time with 100% validity
-   - Fallback to generic labels on failure
+3. **Deterministic Leg Label Generation**
+   - Implement `lib/routing/leg-labels.ts`
+   - Derive "FROM → TO" labels from waypoint names (pure code, no model)
+   - Generated at route-creation time and stored on route document
 
-4. **Local-First Sync with Replicate**
-   - Install `@trestleinc/replicate` and `@op-engineering/op-sqlite`
-   - Install crypto polyfills (`react-native-get-random-values`, `react-native-random-uuid`)
-   - Create `collections/use-routes.ts` with Replicate collection
-   - Define route schema with `schema.define()` for versioning
-   - Implement server-side collection with auth hooks
-   - Test offline route editing (add waypoint, rename, reorder)
-   - Verify bidirectional sync when online
-
-5. **Convex Integration**
-   - Install Replicate component in `convex/convex.config.ts`
+4. **Convex Integration**
    - Store route calculations with provider-agnostic format
-   - Implement route plan mutations and queries
+   - Implement route plan mutations and queries (direct Convex — no Replicate)
+   - If offline when user submits: show "Connect to save your route" prompt
+   - Route geometry held in component state until committed; auto-commit on reconnect
 
 #### Success Criteria
 - Can download map region for offline use
-- Route calculation works without internet
+- Route geometry calculation works without internet (Mapbox SDK's own storage)
 - Downloaded regions persist across app restarts (managed by Mapbox SDK)
 - Convex stores route geometry provider-agnostically
-- Leg labels generate locally in <0.5s
-- **Route edits sync automatically via CRDT deltas**
-- **Offline route editing works instantly (no network required)**
-- **Conflict resolution merges concurrent edits automatically**
+- Leg labels derived deterministically from waypoint names at creation time
+- Route commit requires connectivity; user sees clear prompt if offline
 
 ---
 
-### Phase 3: Hybrid Enrichment (Week 6)
+### Phase 3: Server-Side Enrichment (Week 5)
 
-**Goal:** Orchestrate local and cloud enrichment with progressive enhancement
+**Goal:** Orchestrate server-side enrichment with progressive enhancement
 
 #### Tasks
 
-1. **Dual-Model Orchestration**
-   - Implement `lib/ai/hybrid-enrichment.ts`
-   - Local path: Qwen3.5 for leg labels (immediate)
-   - Remote path: Haiku for full enrichment (background)
-   - State machine: draft → partial → complete
+1. **Enrichment Orchestration**
+   - Implement `lib/ai/enrichment.ts`
+   - Deterministic leg labels stored at route-creation time (from waypoint names)
+   - Remote path: Haiku for full enrichment (background, server-side)
+   - State machine: pending → partial → complete
 
 2. **Progressive Enhancement UI**
-   - Show leg labels immediately (0.35s)
+   - Show route with leg labels immediately after Convex commit
    - Display "enhancing..." indicators for cloud enrichment
    - Incremental UI updates as data arrives
    - Enrichment status badges (partial → complete)
 
 #### Success Criteria
-- Local leg labels appear in <0.5s
+- Route displays immediately after Convex commit with leg labels
 - Cloud enrichment completes in background without blocking
-- **CRDT sync completes automatically when online**
 - UI updates reactively as enrichment progresses
 - No blocking failures (all paths have fallbacks)
 
@@ -357,10 +303,10 @@ First Launch → "Welcome to LaneShadow" →
    - Manual testing on physical devices (iOS + Android)
 
 2. **Performance Testing**
-   - Route calculation benchmarks (online vs offline)
-   - Memory usage profiling (Qwen3.5 target <1.5GB)
+   - Route geometry calculation benchmarks (online vs offline)
+   - Memory usage profiling
    - Battery impact analysis
-   - Local model inference benchmarks
+   - Convex mutation latency benchmarks
    - Progressive loading performance verification
 
 3. **Launch Preparation**
@@ -371,29 +317,25 @@ First Launch → "Welcome to LaneShadow" →
 
 ---
 
-### Phase 7: Hybrid Enrichment Polish (Weeks 11-12)
+### Phase 7: Enrichment Polish (Weeks 9-10)
 
-**Goal:** Optimize local model integration and edge cases
+**Goal:** Optimize server-side enrichment and edge cases
 
 #### Tasks
 
 1. **Integration Testing**
-   - Test offline→online sync flow
+   - Test offline geometry → connectivity restored → auto-commit flow
    - Test progressive enhancement UI
-   - Test model download failures and recovery
    - Test concurrent enrichment requests
 
 2. **Performance Optimization**
-   - Profile Qwen3.5 memory usage
-   - Optimize model loading time
-   - Implement model preloading on app launch
    - Batch enrichment queue optimization
+   - Optimize Haiku enrichment latency
 
 3. **Edge Case Handling**
-   - Model download failure → retry UX
-   - Corrupted model cache → re-download
-   - Out-of-disk-space → graceful degradation
-   - Concurrent inference → request queuing
+   - User goes offline after route geometry calculated → hold in state, prompt to save
+   - Enrichment job failure → retry with exponential backoff
+   - Partial enrichment saved → resume on reconnect
 
 4. **Documentation**
    - Migration notes for future developers
@@ -447,14 +389,13 @@ export const saveRoute = mutation({
 |-------|------|--------------|
 | 1,000 routes/day × 30 days | $5/1000 routes | **~$1,500/month** |
 
-### Projected Costs (Hybrid Architecture)
+### Projected Costs (Convex-Only Persistence Architecture)
 
 | Usage | Current | Projected | Monthly Cost |
 |-------|---------|-----------|--------------|
 | Google Maps API | 1,000 routes/day @ $5/1000 | - | **$0** |
 | Mapbox Routing | - | 50k directions/month | **~$15/month** |
-| Haiku Enrichment | 100% of routes @ $0.0003/route | 12.5% of routes (leg labels only) | **~$15/month** |
-| Qwen3.5 Local | - | 87.5% of routes (local inference) | **$0** |
+| Haiku Enrichment | 100% of routes @ $0.0003/route | 100% of routes (server-side) | **~$30/month** |
 
 ### Savings
 
@@ -473,12 +414,15 @@ export const saveRoute = mutation({
 ✅ **Route attachment cards** — Mini-maps work identically
 ✅ **Camera controls** — Zoom, pan, fit to coordinates
 ✅ **User location tracking** — Mapbox has equivalent
-✅ **Offline route replay** — Even better with true offline routing
-✅ **Leg label generation** — Qwen3.5 provides fast local labels (0.35s)
-✅ **Progressive enrichment** — Immediate UX with background enhancement
-✅ **Offline route editing** — Add waypoints, rename, reorder stops (instant, no network)
-✅ **Multi-device sync** — Edit on phone, see on tablet via CRDT sync
-✅ **Automatic conflict resolution** — Yjs merges concurrent edits intelligently  
+✅ **Offline route geometry** — Mapbox SDK calculates geometry from downloaded map tiles without internet
+✅ **Leg label generation** — Derived deterministically from waypoint names at creation time
+✅ **Progressive enrichment** — Route displays immediately after Convex commit; Haiku enriches in background
+✅ **Multi-device sync** — Convex provides real-time sync across devices
+
+**Removed in v1.4 (out of scope):**
+❌ **Offline route persistence** — Route commit requires connectivity (Convex-only persistence)
+❌ **Offline route editing** — No on-device draft store; edits go through Convex directly
+❌ **@trestleinc/replicate / Yjs CRDTs / op-sqlite** — Removed entirely
 
 ---
 
@@ -490,33 +434,26 @@ export const saveRoute = mutation({
 | Offline storage limits | Low | Implement region management UI |
 | Coordinate order bugs | High | Comprehensive unit tests for conversion |
 | Performance regression | Medium | Benchmark before/after, optimize batch rendering |
-| Qwen3.5 model failure | Medium | Fallback to generic labels, preserve functionality |
-| Model download abandonment | High | Hard gate - cannot use app without model |
-| Replicate sync conflicts | Low | Yjs CRDTs resolve automatically |
-| SQLite database corruption | Low | op-sqlite is battle-tested, add backups |
+| User offline when committing route | Low | Hold geometry in state, auto-commit on reconnect, show clear prompt |
 | Weather API rate limits | Low | Free tier, generous limits |
+| Haiku enrichment failure | Low | Keep partial enrichment (leg labels + geometry), log error |
 
 ---
 
 ## Success Metrics
 
 ### Technical Metrics
-- [ ] Route calculation time < 2 seconds (offline)
-- [ ] App size increase < 50MB (offline regions)
-- [ ] 99.9% uptime for offline routing
+- [ ] Route geometry calculation time < 2 seconds (offline, from downloaded maps)
+- [ ] App size increase < 50MB (offline regions, Mapbox SDK only)
+- [ ] 99.9% uptime for offline geometry calculation
 - [ ] Memory usage increase < 20%
-- [ ] Local leg label generation < 0.5s (target: 0.35s)
-- [ ] Qwen3.5 memory usage < 1.5GB
-- [ ] **CRDT sync completion rate > 99%**
+- [ ] Convex route mutation latency < 500ms (p95, when online)
 - [ ] Progressive enrichment UI updates < 100ms
-- [ ] **Offline route editing latency < 50ms**
+- [ ] Time to first route display after commit < 1s
 
 ### Business Metrics
 - [ ] Cost within budget (Mapbox $15/month)
 - [ ] Support tickets for routing < 5/mo
-- [ ] Offline route creation > 15% of total routes
-- [ ] **Offline route edits > 30% of total edits**
-- [ ] Model download completion > 99%
 - [ ] Progressive loading time-to-first-response < 10s
 
 ---
@@ -525,10 +462,9 @@ export const saveRoute = mutation({
 
 1. **Mapbox Token Management:** Should tokens be stored in Convex environment variables or hardcoded?
 2. **Offline Region Size:** What's the optimal default region size for most users?
-3. **Replicate Compaction:** What delta count threshold for CRDT compaction? (default: 500)
-4. **Fallback Behavior:** What happens when a user requests routing outside downloaded regions?
-5. **Weather Cache Duration:** How long should weather data be cached before refresh?
-6. **Conflict Resolution UX:** How should we present concurrent edits to users? (Yjs auto-merges)
+3. **Fallback Behavior:** What happens when a user requests routing outside downloaded regions?
+4. **Weather Cache Duration:** How long should weather data be cached before refresh?
+5. **Auto-commit UX:** When connectivity returns and a pending route geometry is auto-committed, should there be a confirmation dialog or silent commit?
 
 ---
 

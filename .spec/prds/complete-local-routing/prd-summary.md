@@ -1,9 +1,11 @@
 # Complete Local Routing PRD - Summary
 
+> **v1.4 Rollback Note (2026-04-10):** @trestleinc/replicate, Yjs, and op-sqlite removed. Route persistence is Convex-only. Route editing requires connectivity. Offline route creation is out of scope.
+
 ## Status: ✅ COMPLETE
 
 **Created:** 2026-04-09
-**Version:** 1.0.0
+**Version:** 1.4.0
 **Appetite:** 6 weeks (full feature with polish)
 
 ## Deliverables
@@ -27,7 +29,7 @@
 
 - **Functional Groups:** 4
 - **Use Cases:** 20
-- **System Components:** 7
+- **System Components:** 5 (v1.4: LocalEnrichment, HybridEnrichment, ReplicateCollection, DraftRouteStore removed)
 - **Data Entities:** 3
 - **API Endpoints:** 5
 - **External Dependencies:** 3
@@ -60,10 +62,11 @@
 ## Key Technical Decisions
 
 1. **Mapbox SDK over Custom Engine** - 2-3 months vs 6+ months
-2. **Provider-Agnostic Storage** - Routes stored as encoded polylines
-3. **Feature Flag Rollout** - Gradual migration (10% → 50% → 100%)
-4. **Coordinate Conversion** - Utilities for [lat,lng] ↔ [lng,lat]
-5. **Preserved Functionality** - Weather overlays, mini-maps, themes
+2. **Convex-Only Persistence** - No on-device database; all routes stored in Convex
+3. **Provider-Agnostic Storage** - Routes stored as encoded polylines
+4. **Feature Flag Rollout** - Gradual migration (10% → 50% → 100%)
+5. **Coordinate Conversion** - Utilities for [lat,lng] ↔ [lng,lat]
+6. **Preserved Functionality** - Weather overlays, mini-maps, themes, offline geometry calculation
 
 ## Business Impact
 

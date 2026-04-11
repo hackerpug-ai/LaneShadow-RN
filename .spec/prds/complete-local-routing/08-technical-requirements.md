@@ -1,7 +1,7 @@
 ---
 stability: CONSTITUTION
-last_validated: 2026-04-09
-prd_version: 1.1.0
+last_validated: 2026-04-10
+prd_version: 1.4.0
 ---
 
 # Technical Requirements
@@ -13,13 +13,9 @@ prd_version: 1.1.0
 | **MapboxMapView** | React wrapper for @rnmapbox/maps MapView component with theme support | @rnmapbox/maps, use-semantic-theme |
 | **OfflineManager** | Manages offline region download and storage via Mapbox SDK | @rnmapbox/maps offlineManager |
 | **RouteCalculator** | Calculates routes offline using Mapbox Directions API | @rnmapbox/maps requestUrl, Convex |
-| **LocalEnrichment** | Generates leg labels locally using Qwen3.5 0.8B | mlx-local, transformers |
-| **HybridEnrichment** | Orchestrates local (fast) and remote (quality) enrichment | mlx-local, pi-ai, Convex |
+| **LegLabelDeriver** | Derives leg labels deterministically from waypoint names (pure code) | None (pure functions) |
 | **WeatherEnrichmentJob** | Fetches weather data asynchronously as background job | Open-Meteo API, Convex Scheduler |
 | **ProgressiveUI** | Displays routes with progressive loading states and animations | React Native Reanimated, Convex React Client |
-| **DraftRouteStore** | Zustand store with AsyncStorage for local draft persistence (no Convex sync) | zustand, @react-native-async-storage/async-storage |
-| **DraftRouteStore** | Zustand store with AsyncStorage for offline draft persistence | zustand, @react-native-async-storage/async-storage |
-| **ReplicateCollection** | Local-first sync engine via @trestleinc/replicate (Yjs CRDTs + op-sqlite) | @trestleinc/replicate, @op-engineering/op-sqlite, Convex |
 | **CoordinateConverter** | Utilities for converting between coordinate formats | None (pure functions) |
 | **PolylineRenderer** | Renders weather overlay polylines using Mapbox ShapeSource | @rnmapbox/maps, weather data |
 | **RouteMiniMap** | Mini-map component for route attachment cards | MapboxMapView, route data |
@@ -29,88 +25,74 @@ prd_version: 1.1.0
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    React Native (Expo)                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │   Qwen3.5    │  │   Mapbox     │  │   Replicate  │  │
-│  │  (Local LLM) │  │   (Routing)  │  │ (Yjs+SQLite) │  │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘  │
-│         │                  │                  │          │
-│  ┌──────▼──────────────────▼──────────────────▼───────┐  │
-│  │          Immediate UX (Offline-Capable)            │  │
-│  │    Leg Labels (0.35s) + Geometry (Mapbox)          │  │
-│  │    + Instant Route Editing (CRDT Merges)           │  │
-│  └──────┬──────────────────────────────────────────────┘  │
-└─────────┼──────────────────────────────────────────────────┘
-          │ (When Online - CRDT Delta Sync)
-┌─────────▼──────────────────────────────────────────────────┐
-│                    Convex Backend                         │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │   Haiku      │  │   Replicate  │  │   Route      │  │
-│  │ (Enrichment) │  │  Component   │  │   Storage    │  │
-│  └──────────────┘  └──────┬───────┘  └──────────────┘  │
-└─────────────────────────┼──────────────────────────────────┘
-                          │
-                  ┌────────▼─────────┐
-                  │  Progressive     │
-                  │  Enhancement     │
-                  │  (UI Updates)    │
-                  └──────────────────┘
+│  ┌──────────────────────┐  ┌──────────────────────────┐ │
+│  │   Mapbox SDK         │  │   LegLabelDeriver        │ │
+│  │   (Offline Routing)  │  │   (Waypoint names → pure)│ │
+│  └──────────┬───────────┘  └──────────────────────────┘ │
+│             │                                            │
+│  ┌──────────▼────────────────────────────────────────┐  │
+│  │    Route Geometry + Deterministic Leg Labels      │  │
+│  │    (Displayed immediately; commit requires online) │  │
+│  └──────────┬────────────────────────────────────────┘  │
+└─────────────┼──────────────────────────────────────────--┘
+              │ (Requires connectivity — Convex mutation)
+┌─────────────▼──────────────────────────────────────────────┐
+│                    Convex Backend                          │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
+│  │   Haiku      │  │   Weather    │  │   Route      │    │
+│  │ (Enrichment) │  │   Job        │  │   Storage    │    │
+│  └──────────────┘  └──────────────┘  └──────────────┘    │
+└────────────────────────────────────────────────────────────┘
+              │
+      ┌───────▼──────────┐
+      │  Progressive     │
+      │  Enhancement     │
+      │  (UI Updates)    │
+      └──────────────────┘
 ```
 
 ## Data Schema
 
-### routes (Convex Table - Replicate-Backed)
+### routes (Convex Table)
 
 **Schema Definition:**
 
 ```typescript
-// convex/schema/routes.ts
-import { schema } from '@trestleinc/replicate/server';
+// convex/schema.ts
+import { defineSchema, defineTable } from 'convex/server';
 import { v } from 'convex/values';
 
-export const routeSchema = schema.define({
-  version: 1,
-  shape: v.object({
-    id: v.string(),
-    geometry: v.string(),        // Encoded polyline (Mapbox format)
+export default defineSchema({
+  routes: defineTable({
+    ownerId: v.string(),           // Clerk user ID
+    geometry: v.string(),          // Encoded polyline (Mapbox format)
     bounds: v.object({
       northeast: v.object({ lat: v.number(), lng: v.number() }),
       southwest: v.object({ lat: v.number(), lng: v.number() }),
     }),
-    distance: v.number(),        // Route distance in meters
-    duration: v.number(),        // Route duration in seconds
+    distance: v.number(),          // Route distance in meters
+    duration: v.number(),          // Route duration in seconds
     waypoints: v.array(v.object({
       lat: v.number(),
       lng: v.number(),
       name: v.optional(v.string()),
     })),
-    // Local enrichment fields (updated instantly)
-    legLabels: v.optional(v.array(v.string())),
-    localModel: v.optional(v.string()),
-    localGeneratedAt: v.optional(v.number()),
+    // Leg labels derived deterministically from waypoint names at creation time
+    legLabels: v.array(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index('by_owner', ['ownerId']),
+  route_enrichments: defineTable({
+    // ... see routeEnrichments section below
   }),
-  indexes: (t) => t.index('by_distance', ['distance']),
-  defaults: {
-    legLabels: [],
-  },
-});
-
-// Auto-generates: timestamp, by_doc_id, by_timestamp indexes
-```
-
-**Convex Table:**
-
-```typescript
-// convex/schema.ts
-export default defineSchema({
-  routes: routeSchema.table(),
-  route_enrichments: enrichmentSchema.table(),
 });
 ```
+
+**Note:** `legLabels` are derived at route-creation time from waypoint names using pure code (`lib/routing/leg-labels.ts`) and stored directly on the route document. No model inference is required.
 
 **Storage:**
-- **Local:** SQLite via `op-sqlite` with Yjs CRDT state
-- **Cloud:** Convex table with materialized documents
-- **Sync:** Automatic bidirectional delta sync via Replicate component
+- **All persistence:** Convex (server-side only)
+- **No local database:** op-sqlite and on-device SQLite are not used
 
 ### route_plans (Convex Table - Updated)
 
@@ -136,9 +118,8 @@ export default defineSchema({
   // Phase: fast (local), weather (background), or extended (cloud)
   phase: 'fast' | 'weather' | 'extended',
 
-  // Partial enrichment (Qwen3.5 local + weather)
+  // Partial enrichment (weather background fetch)
   partial?: {
-    legLabels: string[],
     weather?: {
       windSummary: 'calm' | 'moderate' | 'high'
       rainSummary: 'none' | 'light' | 'moderate' | 'heavy'
@@ -146,7 +127,6 @@ export default defineSchema({
       conditionsStatus: 'ok' | 'unavailable'
     }
     generatedAt: number,
-    model: 'qwen3.5-0.8b',
   },
 
   // Complete enrichment (Haiku cloud)
@@ -171,56 +151,30 @@ export default defineSchema({
 
 ## API Design
 
-### Replicate Collection Functions
+### Convex Mutations
 
-#### Server-Side (`convex/routes.ts`)
+#### `saveRoute` (Route Persistence)
 
 ```typescript
-import { collection } from '@trestleinc/replicate/server';
-import { components } from './_generated/api';
-import type { Doc } from './_generated/dataModel';
-import { routeSchema } from './schema/routes';
-
-export const { material, delta, replicate, presence, session } =
-  collection.create<Doc<'routes'>>(
-    components.replicate,
-    'routes',
-    {
-      schema: routeSchema,
-      hooks: {
-        // Authorization: users can only edit their own routes
-        evalWrite: async (ctx, route) => {
-          const identity = await ctx.auth.getUserIdentity();
-          if (!identity || route.ownerId !== identity.subject) {
-            throw new Error('Unauthorized');
-          }
-        },
-        evalRemove: async (ctx, routeId) => {
-          const identity = await ctx.auth.getUserIdentity();
-          if (!identity) throw new Error('Unauthorized');
-        },
-        // Side-effect: trigger enrichment when route is created
-        onInsert: async (ctx, route) => {
-          await ctx.scheduler.runAfter(
-            0,
-            api.routes.enrich,
-            { routeId: route._id }
-          );
-        },
-      },
-    }
-  );
+mutation({
+  args: {
+    geometry: v.string(),
+    bounds: v.object({
+      northeast: v.object({ lat: v.number(), lng: v.number() }),
+      southwest: v.object({ lat: v.number(), lng: v.number() }),
+    }),
+    distance: v.number(),
+    duration: v.number(),
+    waypoints: v.array(v.object({
+      lat: v.number(),
+      lng: v.number(),
+      name: v.optional(v.string()),
+    })),
+    legLabels: v.array(v.string()),  // Derived from waypoints before mutation call
+  },
+  returns: v.id("routes"),
+})
 ```
-
-**Generated Endpoints:**
-
-| Endpoint | Type | Purpose |
-|----------|------|---------|
-| `material` | Query | Paginated materialized routes (SSR seeding) |
-| `delta` | Query | Real-time CRDT stream (reactive subscription) |
-| `replicate` | Mutation | Unified insert/update/delete with CRDT sync |
-| `presence` | Mutation | Session management (join/leave/mark/signal) |
-| `session` | Query | Query connected sessions for collaboration |
 
 #### `scheduleWeatherEnrichment` (Background Job)
 
@@ -268,14 +222,9 @@ action({
 | Dependency | Version | Purpose | Documentation |
 |------------|---------|---------|---------------|
 | @rnmapbox/maps | ^10.1.0 | Mapbox React Native SDK | https://github.com/rnmapbox/maps |
-| Convex | ^1.x | Backend storage and queries | https://docs.convex.dev |
-| @trestleinc/replicate | ^1.x | Local-first sync engine (Yjs + op-sqlite) | https://github.com/trestleinc/replicate |
-| @op-engineering/op-sqlite | ^7.x | SQLite database for React Native | https://github.com/op-engineering/op-sqlite |
+| Convex | ^1.x | Backend storage and queries (all persistence) | https://docs.convex.dev |
 | Expo | ~50.x | Platform runtime | https://docs.expo.dev |
-| mlx-local | ^0.x | Local model runtime (Qwen3.5) | https://ml-explore.github.io/mlx |
 | React Native Reanimated | ^3.x | Progressive loading animations | https://docs.swmansion.com/react-native-reanimated |
-| react-native-get-random-values | ^1.x | Crypto polyfill for Replicate RN | https://github.com/LinusU/react-native-get-random-values |
-| react-native-random-uuid | ^0.x | UUID polyfill for Replicate RN | https://github.com/practicalwave/react-native-random-uuid |
 
 ### Mapbox Services
 
@@ -358,8 +307,8 @@ FadeIn.duration(400)  // Highlights
 - `WeatherBadgeSkeleton` - Weather badge loading state (`components/weather/weather-badge-skeleton.tsx`)
 - `useEnrichmentStatus` - Hook for enrichment subscription (`hooks/use-enrichment-status.ts`)
 
-**Replicate Client Collection:**
-- `useRoutes` - Replicate collection with op-sqlite persistence (`collections/use-routes.ts`)
+**Route Utilities:**
+- `lib/routing/leg-labels.ts` - Deterministic leg label derivation from waypoint names
 
 ## Implementation Notes
 
@@ -381,16 +330,16 @@ Implement storage warnings for regions > 500MB.
 
 ### Performance Targets
 
-- **Time to first response:** <10 seconds (local routing only)
-- **Weather enrichment:** <20 seconds (background)
-- **Local leg label generation:** <0.5s (target: 0.35s)
-- **Remote full enrichment:** <5s (target: 3.9s)
+- **Time to first route display after commit:** <1 second
+- **Convex route mutation latency:** <500ms (p95, online)
+- **Weather enrichment:** <20 seconds (background job)
+- **Remote full enrichment (Haiku):** <5s (target: 3.9s)
 - **Progressive UI update:** <100ms
 - **Queue drain rate:** >10 jobs/min
-- **Route calculation:** < 2 seconds offline
+- **Route geometry calculation:** <2 seconds offline (Mapbox SDK)
 - **Map rendering:** 60fps during pan/zoom
 - **Region download:** 5-10 minutes for city-level region
-- **App size increase:** < 50MB (base SDK)
+- **App size increase:** <50MB (base SDK, no on-device model)
 
 ### Error Handling
 

@@ -1,5 +1,7 @@
 # PRD Completion Report: Complete Local Routing
 
+> **v1.4 Rollback Notice (2026-04-10):** The Replicate/Yjs/op-sqlite architecture described in this historical report has since been removed. As of v1.4, @trestleinc/replicate, Yjs CRDTs, and op-sqlite are no longer part of the architecture. Route persistence is Convex-only. The ReplicateCollection, LocalEnrichment (Qwen3.5), and HybridEnrichment components described below are no longer in scope. This report is preserved as historical context only.
+
 **Status:** ✅ COMPLETE
 **Date:** 2026-04-09
 **Version:** 1.0.0

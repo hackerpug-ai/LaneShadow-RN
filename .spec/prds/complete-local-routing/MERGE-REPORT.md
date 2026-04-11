@@ -1,5 +1,7 @@
 # Progressive Route Loading Merge Report
 
+> **v1.4 Rollback Notice (2026-04-10):** The Replicate/Yjs/op-sqlite architecture described in this historical merge report has since been removed. As of v1.4, @trestleinc/replicate, Yjs CRDTs, and op-sqlite are no longer part of the architecture. Route persistence is Convex-only. The Qwen3.5 local model (described in the enrichment flow below) is also removed — leg labels are now derived deterministically from waypoint names. This report is preserved as historical context only.
+
 **Date:** 2026-04-09
 **Merged From:** `.spec/prds/progressive-route-loading/`
 **Merged Into:** `.spec/prds/complete-local-routing/`
