@@ -28,6 +28,15 @@ module.exports = defineConfig([
     '.tmp/**',
     '*.tmp',
   ]),
+  {
+    settings: {
+      'import/resolver': {
+        node: {
+          extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        },
+      },
+    },
+  },
   ...expoConfig,
   {
     plugins: {
@@ -120,6 +129,13 @@ module.exports = defineConfig([
       'react-native/no-inline-styles': 'warn',
       'react-native/no-unused-styles': 'warn', // Downgraded to warn - some styles consumed by libraries
       'react-native/no-color-literals': 'warn',
+    },
+  },
+  // Convex functions: allow @convex-dev packages
+  {
+    files: ['convex/**/*.{ts,tsx}'],
+    rules: {
+      'import/no-unresolved': ['error', { ignore: ['@convex-dev/*'] }],
     },
   },
   // Detox e2e tests: Jest + Detox globals

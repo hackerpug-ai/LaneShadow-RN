@@ -90,6 +90,7 @@ import type * as lib_logger from "../lib/logger.js";
 import type * as migrations_backfillSessionMessageKindStatus from "../migrations/backfillSessionMessageKindStatus.js";
 import type * as migrations_deleteEmptyAssistantMessages from "../migrations/deleteEmptyAssistantMessages.js";
 import type * as queries_osm from "../queries/osm.js";
+import type * as testGeospatialInsert from "../testGeospatialInsert.js";
 import type * as users from "../users.js";
 
 import type {
@@ -181,6 +182,7 @@ declare const fullApi: ApiFromModules<{
   "migrations/backfillSessionMessageKindStatus": typeof migrations_backfillSessionMessageKindStatus;
   "migrations/deleteEmptyAssistantMessages": typeof migrations_deleteEmptyAssistantMessages;
   "queries/osm": typeof queries_osm;
+  testGeospatialInsert: typeof testGeospatialInsert;
   users: typeof users;
 }>;
 

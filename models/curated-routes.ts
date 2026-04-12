@@ -96,6 +96,12 @@ export const CURATED_ROUTE_FIELDS = {
   contentVersion: v.number(),
   enrichmentVersion: v.optional(v.number()), // null = not yet enriched
   seededAt: v.number(), // timestamp
+  location: v.optional(
+    v.object({
+      type: v.literal("Point"),
+      coordinates: v.array(v.number()), // [lng, lat] per GeoJSON
+    })
+  ),
 } as const;
 
 /**
@@ -128,6 +134,7 @@ export type CuratedRoute = {
   contentVersion: number;
   enrichmentVersion?: number | null; // null = not yet enriched
   seededAt: number; // timestamp
+  location?: { type: "Point"; coordinates: [number, number] } | null;
 };
 
 /**
