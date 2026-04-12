@@ -100,7 +100,7 @@ export const IntentSearchSheet = ({
             variant="bodyMedium"
             style={{ color: semantic.color.onSurface.muted }}
           >
-            Say "scenic coastal roads" or "twisty mountain passes"
+            Say &quot;scenic coastal roads&quot; or &quot;twisty mountain passes&quot;
           </Text>
         </View>
 
@@ -205,7 +205,7 @@ export const IntentSearchSheet = ({
                   variant="bodyMedium"
                   style={{ color: semantic.color.onSurface.muted, textAlign: 'center' }}
                 >
-                  You're offline. Try one of these popular rides instead:
+                  You&apos;re offline. Try one of these popular rides instead:
                 </Text>
               </View>
 
