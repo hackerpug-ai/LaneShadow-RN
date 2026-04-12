@@ -14,6 +14,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     slug: config.slug ?? 'laneshadow',
     plugins: [
       ...(config.plugins ?? []),
+      "expo-sqlite",
       [
         "@rnmapbox/maps",
         {
