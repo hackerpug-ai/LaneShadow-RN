@@ -137,6 +137,258 @@ http.route({
   }),
 })
 
+// Admin dashboard metrics endpoint (CONVEX-007)
+http.route({
+  path: '/api/dashboard/metrics',
+  method: 'GET',
+  handler: httpAction(async (ctx, request) => {
+    const deployKey = process.env.CURATION_DEPLOY_KEY
+    if (!deployKey) {
+      return new Response(JSON.stringify({ error: 'configuration_error' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const authHeader = request.headers.get('authorization') ?? ''
+    const expected = `Bearer ${deployKey}`
+    if (authHeader !== expected) {
+      return new Response(JSON.stringify({ error: 'unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const metrics = await ctx.runQuery(convexInternal.db.curation.dashboardMetrics, {})
+    return new Response(JSON.stringify(metrics), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }),
+})
+
+// Public curation endpoints (CONVEX-004) - require Clerk auth
+http.route({
+  path: '/api/routes/lean',
+  method: 'GET',
+  handler: httpAction(async (ctx, request) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) {
+      return new Response(JSON.stringify({ error: 'UNAUTHORIZED' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const url = new URL(request.url)
+    const state = url.searchParams.get('state') ?? undefined
+    const since = url.searchParams.get('since')
+      ? Number(url.searchParams.get('since'))
+      : undefined
+    const numItems = url.searchParams.get('numItems')
+      ? Number(url.searchParams.get('numItems'))
+      : 100
+    const cursor = url.searchParams.get('cursor') ?? undefined
+
+    try {
+      const result = await ctx.runQuery(convexInternal.db.curation.leanSync, {
+        state,
+        since,
+        paginationOpts: {
+          numItems,
+          cursor,
+        },
+      })
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    } catch (e: any) {
+      return new Response(
+        JSON.stringify({ error: (e as Error).message }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+  }),
+})
+
+http.route({
+  path: '/api/routes/enrichment',
+  method: 'GET',
+  handler: httpAction(async (ctx, request) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) {
+      return new Response(JSON.stringify({ error: 'UNAUTHORIZED' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const url = new URL(request.url)
+    const idsParam = url.searchParams.get('ids')
+    if (!idsParam) {
+      return new Response(JSON.stringify({ error: 'MISSING_IDS' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const routeIds = idsParam.split(',').slice(0, 50) // max 50
+
+    try {
+      const enrichments = await ctx.runQuery(
+        convexInternal.db.curation.fetchEnrichments,
+        { routeIds }
+      )
+      return new Response(JSON.stringify({ enrichments }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    } catch (e: any) {
+      return new Response(
+        JSON.stringify({ error: (e as Error).message }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+  }),
+})
+
+http.route({
+  path: '/api/routes/missing-enrichments',
+  method: 'POST',
+  handler: httpAction(async (ctx, request) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) {
+      return new Response(JSON.stringify({ error: 'UNAUTHORIZED' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    let body: { pairs: Array<{ routeId: string; version: number }> }
+    try {
+      body = await request.json()
+    } catch {
+      return new Response(JSON.stringify({ error: 'invalid_body', detail: 'not json' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    try {
+      const stale = await ctx.runQuery(
+        convexInternal.db.curation.checkMissingEnrichments,
+        { pairs: body.pairs }
+      )
+      return new Response(JSON.stringify({ stale }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    } catch (e: any) {
+      return new Response(
+        JSON.stringify({ error: (e as Error).message }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+  }),
+})
+
+// User feedback endpoint (CONVEX-005)
+http.route({
+  path: '/api/feedback',
+  method: 'POST',
+  handler: httpAction(async (ctx, request) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) {
+      return new Response(JSON.stringify({ error: 'UNAUTHORIZED' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    let body: {
+      routeId: string
+      action: string
+      rating?: number
+      locationLat?: number
+      locationLng?: number
+      archetypeFilter?: string
+    }
+    try {
+      body = await request.json()
+    } catch {
+      return new Response(JSON.stringify({ error: 'invalid_body', detail: 'not json' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    try {
+      const result = await ctx.runMutation(
+        convexInternal.db.routeFeedback.recordRouteFeedback,
+        {
+          routeId: body.routeId,
+          action: body.action,
+          rating: body.rating,
+          locationLat: body.locationLat,
+          locationLng: body.locationLng,
+          archetypeFilter: body.archetypeFilter,
+        }
+      )
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    } catch (e: any) {
+      return new Response(
+        JSON.stringify({ error: (e as Error).message }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+  }),
+})
+
+// Intent extraction endpoint (CONVEX-006)
+http.route({
+  path: '/api/intent/extract-params',
+  method: 'POST',
+  handler: httpAction(async (ctx, request) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) {
+      return new Response(JSON.stringify({ error: 'UNAUTHORIZED' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    let body: { intent: string }
+    try {
+      body = await request.json()
+    } catch {
+      return new Response(JSON.stringify({ error: 'invalid_body', detail: 'not json' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    try {
+      const result = await ctx.runAction(
+        convexInternal.actions.curation.intentExtraction.extractIntentParams,
+        { intent: body.intent }
+      )
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    } catch (e: any) {
+      return new Response(
+        JSON.stringify({ error: (e as Error).message }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+  }),
+})
+
 // OSM import endpoints - for ETL pipeline
 http.route({
   path: '/osm/importNodes',
