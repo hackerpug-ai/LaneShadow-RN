@@ -58,6 +58,16 @@ export async function openDiscoveryDB(): Promise<DiscoveryDB> {
     CREATE INDEX IF NOT EXISTS idx_routes_centroid ON routes(centroid_lat, centroid_lng);
     CREATE INDEX IF NOT EXISTS idx_routes_content_version ON routes(content_version);
     CREATE INDEX IF NOT EXISTS idx_enrichment_last_accessed ON route_enrichment(last_accessed);
+
+    CREATE TABLE IF NOT EXISTS intent_param_cache (
+      normalized_intent TEXT PRIMARY KEY,
+      schema_version INTEGER NOT NULL,
+      params TEXT NOT NULL,
+      hit_count INTEGER NOT NULL DEFAULT 1,
+      created_at INTEGER NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_intent_cache_hit_count ON intent_param_cache(hit_count DESC);
   `);
 
   dbInstance = db;
