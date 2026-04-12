@@ -1,0 +1,296 @@
+# Curation Review Protocol
+
+**Purpose:** Every epic MUST execute the full curation pipeline end-to-end as part of its human test steps. This protocol defines the canonical review routine — a scalable set of steps that exercises all curation scripting available at each epic boundary, compares against the prior epic's baseline, and produces a review artifact before the epic can be marked Done.
+
+**Guiding principle:** *Every epic runs all curation scripting that exists at that point in the plan.* No epic is complete until the full pipeline (everything built so far) has been executed, the catalog diffed against the prior epic, and the review artifact written.
+
+---
+
+## When to Execute
+
+- Run at the **end** of every epic's human test steps, **before** marking the epic as Done
+- Rerun any time the pipeline, models, or Convex schema changes mid-epic (to catch regressions early)
+- Results are the gate: no epic proceeds to "Done" without a green review artifact
+
+---
+
+## Prerequisites
+
+- **Baseline catalog:** the previous epic's output (JSONL staging + Convex dev deployment state) must be preserved as a comparison point. Store in `.spec/prds/curation-hardening/tasks/epic-NN-.../baseline/`.
+- **Working Convex dev deployment:** `npx convex dev --once` must pass.
+- **Clean git tree:** all epic task work committed. Review runs against the committed state.
+- **Env vars set:** `ANTHROPIC_API_KEY`, `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `CONVEX_URL` (where applicable).
+
+---
+
+## Review Steps (Conditional by Epic)
+
+Each step runs ONLY if the referenced scripting exists at the current epic boundary. Steps marked "required starting Epic X" are skipped for earlier epics. As the plan progresses, more steps apply — by Epic 12 all steps are mandatory.
+
+### Step 1: Run all source scrapers
+**Required starting:** Epic 2 (existing sources) + grows through Epic 5
+```bash
+# Existing (required from Epic 2 onward)
+python -m scripts.curation.pipeline.sources.fhwa
+python -m scripts.curation.pipeline.sources.motorcycleroads
+python -m scripts.curation.pipeline.sources.bestbikingroads
+
+# New sources (each required starting at its introducing epic)
+python -m scripts.curation.pipeline.sources.scenic_byways       # Epic 4+
+python -m scripts.curation.pipeline.sources.usfs_mvum           # Epic 4+
+python -m scripts.curation.pipeline.sources.rider_mag           # Epic 4+
+python -m scripts.curation.pipeline.sources.bdr                 # Epic 5+
+python -m scripts.curation.pipeline.sources.twtex               # Epic 5+ (if go)
+python -m scripts.curation.pipeline.sources.curvature_discovery # Epic 5+
+
+# Community (required starting Epic 9+)
+python -m scripts.curation.pipeline.sources.advrider            # Epic 9+
+python -m scripts.curation.pipeline.sources.reddit              # Epic 9+
+python -m scripts.curation.pipeline.sources.pushshift           # Epic 9+
+```
+**Verify:** each source produces a JSONL staging file with expected route count. Log discrepancies.
+
+### Step 2: Run enrichment clients
+**Required starting:** Epic 8 (HPMS + NWS) + existing OSM enrichment
+```bash
+python -m scripts.curation.pipeline.enrichment.osm_client       # Existing (Epic 2+)
+python -m scripts.curation.pipeline.enrichment.hpms_client      # Epic 8+
+python -m scripts.curation.pipeline.enrichment.weather_client   # Epic 8+
+```
+**Verify:** enrichment fields populate on Route objects. Spot-check 10 routes.
+
+### Step 3: Run deduplication
+**Required starting:** Epic 6
+```bash
+python -m scripts.curation.pipeline.dedup.deduplicator
+```
+**Verify:** dedup runtime < 10 minutes for full catalog. Merge statistics logged (exact/fuzzy/geospatial counts). No duplicates for known landmarks (Tail of the Dragon appears once).
+
+### Step 4: Run quality floor filter
+**Required starting:** Epic 6
+```bash
+python -m scripts.curation.pipeline.quality.floor_filter --phase=1
+```
+**Verify:** tier distribution (premium/standard/minimal) makes sense. Not 100% minimal. Not 100% premium.
+
+### Step 5: Run calibration gate (ground truth validation)
+**Required starting:** Epic 8
+```bash
+python -m scripts.curation.pipeline.extraction.calibration_gate
+```
+**Verify:** calibration gate returns PASS (or documented --force override with justification). Per-attribute and composite agreement ≥ 80%.
+
+### Step 6: Run Haiku extraction
+**Required starting:** Epic 2 (existing extraction)
+```bash
+python -m scripts.curation.pipeline.extraction.client
+```
+**Verify:** extraction succeeds for all non-minimal routes. Extraction schema version logged. Temperature=0 confirmed.
+
+### Step 7: Run composite scoring
+**Required starting:** Epic 2 (existing scoring)
+```bash
+python -m scripts.curation.pipeline.scoring.composite
+```
+**Verify:** all routes have `composite_score` in [0,1]. Current WEIGHTS logged. Top 10 routes sanity-checked (Rider Mag routes should dominate from Epic 8+).
+
+### Step 8: Run archetype classification
+**Required starting:** Epic 2 (existing classification)
+```bash
+python -m scripts.curation.pipeline.classification.archetype
+```
+**Verify:** every route has `primary_archetype` from the 6 valid values. Distribution across archetypes looks reasonable.
+
+### Step 9: Run NLP extraction & signal merge
+**Required starting:** Epic 10
+```bash
+python -m scripts.curation.pipeline.nlp.quick_filter
+python -m scripts.curation.pipeline.nlp.glm_extractor
+python -m scripts.curation.pipeline.nlp.aggregator
+python -m scripts.curation.pipeline.nlp.merge_signals
+```
+**Verify:** `mention_frequency` populated on target routes. Cost logged. Cache hits on re-run.
+
+### Step 10: Run coverage report
+**Required starting:** Epic 7
+```bash
+python -m scripts.curation.pipeline.quality.coverage_report
+```
+**Verify:** JSON + markdown output. Coverage gaps flagged per tiered thresholds.
+
+### Step 11: Run data quality report
+**Required starting:** Epic 7
+```bash
+python -m scripts.curation.pipeline.quality.data_quality_report
+```
+**Verify:** exit code 0 (clean) or 1 (anomaly). All 5 metrics populated. Delta vs prior run reported.
+
+### Step 12: Convex push (dev deployment, dry-run first)
+**Required starting:** Epic 2 (existing push)
+```bash
+python -m scripts.curation.pipeline.sync.convex_push --dry-run
+python -m scripts.curation.pipeline.sync.convex_push            # Only if dry-run clean
+```
+**Verify:** serialization succeeds. No type errors. Dev Convex deployment reflects the new catalog. Mobile app renders updated catalog without crashes.
+
+### Step 13: Run orchestrator end-to-end (if available)
+**Required starting:** Epic 12
+```bash
+python -m scripts.curation.pipeline.orchestrator
+```
+**Verify:** single command replaces all prior steps. Same outputs as running stages individually.
+
+---
+
+## Review Analysis (Human-Driven)
+
+After the scripting completes, the reviewer performs the following qualitative analysis:
+
+### A. Diff against prior epic's baseline
+Compare the current catalog to the baseline stored in the previous epic folder:
+```bash
+# Count delta
+python -c "import json; prev=json.load(open('../epic-NN-prior/baseline/catalog.jsonl')); curr=json.load(open('./baseline/catalog.jsonl')); print(f'Prev: {len(prev)}, Curr: {len(curr)}, Delta: {len(curr)-len(prev)}')"
+
+# Or simpler wc -l on JSONL
+wc -l ../epic-NN-prior/baseline/catalog.jsonl ./baseline/catalog.jsonl
+```
+Flag:
+- Unexpected deletions (anything more than dedup-driven losses)
+- Unexpected duplicates appearing
+- Score distribution shifts > 10% in any bucket
+- New archetype imbalances
+
+### B. Sample 20 random routes for quality review
+```bash
+shuf -n 20 ./baseline/catalog.jsonl | jq
+```
+Review each for:
+- Name and state accuracy
+- Archetype assignment sensibility
+- Score component plausibility
+- Description coherence (if present)
+- Source provenance correctness
+
+Flag any obvious errors for bug fixes (Boy Scout rule — fix before marking epic Done).
+
+### C. Ground-truth spot checks
+Pick 5 known landmark routes and verify each:
+- Tail of the Dragon (NC/TN) — appears ONCE, curvature_score > 0.9, primary_archetype=twisties
+- Blue Ridge Parkway (NC/VA) — appears ONCE, scenic_score > 0.8, primary_archetype=scenic_byway
+- Beartooth Highway (MT/WY) — appears ONCE, elevation_drama_score > 0.8
+- Pacific Coast Highway (CA) — appears ONCE, scenic_score > 0.8, primary_archetype=coastal
+- Million Dollar Highway (CO) — appears ONCE, mountain archetype or twisties
+
+Flag any missing, duplicated, or mis-scored landmark.
+
+### D. Regression check
+Compare against Epic 2 baseline (the original working pipeline state):
+- FHWA route count unchanged or handled by dedup merge
+- motorcycleroads and bestbikingroads counts still produce data
+- Existing archetypes still assigned correctly
+- No new crashes in any stage
+
+### E. Mobile app smoke test
+- Open Expo dev server, point at Convex dev deployment
+- Open discovery screen — routes render without crashes
+- Tap 3 routes — details load correctly (optional fields handled)
+- Verify any new UI elements from Epic 11 work (if Epic 11 complete)
+
+---
+
+## Review Artifact
+
+At the end of the review, write a `review.md` to the current epic folder with this template:
+
+```markdown
+# Epic NN Curation Review
+
+**Date:** YYYY-MM-DD
+**Reviewer:** [name/agent]
+**Pipeline version:** [git sha]
+**Verdict:** [PASS | PASS WITH ISSUES | FAIL]
+
+## Pipeline Execution
+- [ ] Step 1 Sources — N routes ingested across M sources
+- [ ] Step 2 Enrichment — N routes enriched
+- [ ] Step 3 Dedup — X merges (exact: a, fuzzy: b, geospatial: c), runtime Zs
+- [ ] Step 4 Quality floor — premium: a%, standard: b%, minimal: c%
+- [ ] Step 5 Calibration gate — PASS | FAIL (threshold met?)
+- [ ] Step 6 Extraction — N routes extracted
+- [ ] Step 7 Scoring — current WEIGHTS recorded
+- [ ] Step 8 Classification — archetype distribution
+- [ ] Step 9 NLP + signal merge — mention_frequency populated on N routes
+- [ ] Step 10 Coverage report — generated
+- [ ] Step 11 Data quality report — exit code 0
+- [ ] Step 12 Convex push — dry-run clean; production push [yes/no]
+- [ ] Step 13 Orchestrator — [N/A if not yet built]
+
+## Catalog Diff vs Prior Epic
+- Route count: prev N → curr N (delta +/-)
+- Score distribution: [summary]
+- Archetype shifts: [summary]
+- Quality tier shifts: [summary]
+
+## Sample Review (20 routes)
+- Accurate: N/20
+- Issues found: [list]
+
+## Landmark Spot Check
+- Tail of the Dragon: [PASS|FAIL] — appears once, score X
+- Blue Ridge Parkway: [PASS|FAIL] — …
+- Beartooth Highway: [PASS|FAIL] — …
+- Pacific Coast Highway: [PASS|FAIL] — …
+- Million Dollar Highway: [PASS|FAIL] — …
+
+## Regressions Detected
+- [None, or list]
+
+## Mobile App Smoke Test
+- [PASS|FAIL] — [notes]
+
+## Fixes Applied (Boy Scout rule)
+- [List bugs fixed as part of this review, with commit SHA]
+
+## Outstanding Issues
+- [List issues to track as follow-ups]
+
+## Verdict Rationale
+- [1-3 sentences]
+```
+
+---
+
+## Verdict Rules
+
+- **PASS** — All steps executed, no regressions, all landmarks correct, diff sensible, mobile smoke test clean.
+- **PASS WITH ISSUES** — Executed successfully but minor issues noted (flagged for follow-up, not blocking).
+- **FAIL** — Any regression, any landmark missing/duplicated, any stage crash, mobile smoke test fails. Epic CANNOT be marked Done. Must be remediated and re-reviewed.
+
+---
+
+## Baseline Storage
+
+Each epic saves a snapshot of the catalog state to its folder:
+
+```
+.spec/prds/curation-hardening/tasks/epic-NN-.../baseline/
+├── catalog.jsonl              # Full post-pipeline catalog
+├── scores.json                # Score distributions
+├── archetype_counts.json      # Count per archetype
+├── source_counts.json         # Count per source
+└── review.md                  # Review artifact
+```
+
+The next epic's review uses this as the baseline diff target.
+
+---
+
+## Notes
+
+- **Protocol is conditional by epic** — don't skip it if some steps don't apply; run the steps that do and note the others as "N/A until Epic X"
+- **Boy Scout rule** — if the review finds bugs in existing code, fix them within the epic, commit, re-run the review
+- **This protocol is non-optional** — no epic is marked Done without a green (or PASS WITH ISSUES) review artifact
+- **Review cost is not zero** — later epics may take 1-2 hours to run the full pipeline. Budget for this in epic timelines.
+- **Runtime grows per epic** — Epic 2 review might be 30 minutes; Epic 12 review might be 2+ hours with all stages
+- **Cache aggressively** — OSM cache, NLP extraction cache, HPMS spatial join cache — all help keep review runtime manageable

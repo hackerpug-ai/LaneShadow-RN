@@ -1,0 +1,434 @@
+# LaneShadow — Product Strategy v3.0
+
+**"Ride the Moment"**
+
+**Date**: 2026-04-12
+**Status**: ACTIVE
+**Supersedes**: v2.1 (archived at `.spec/archive/2026-04-12-v2/`)
+**Informed by**: v2.x strategy research, revenue validation, founder goals conversation
+
+---
+
+## What This Is
+
+LaneShadow is a **passion project built by a rider, for riders**. It's AI-agent coded, run as a side project, and designed to be sustainable without becoming a full-time job.
+
+This strategy is honest about that. It's not a venture pitch. It's a plan for building something genuinely useful that covers its own costs and creates a community worth being part of.
+
+### Founder Goals (in priority order)
+
+1. **Find exciting motorcycle experiences for myself** — I ride, I want great roads, this app should help me find them
+2. **Build something genuinely useful to other riders** — if it helps me, it should help them
+3. **Community building — make friends who ride** — the social value matters as much as the product
+4. **Sustainable side project** — willing to self-fund $500-1000/mo, but it should cover its costs within 9-12 months
+5. **Never full-time** — this is a passion, not a job. ~5-10 hours/week of attention
+6. **Passive revenue is nice** — but community and personal use come first
+
+### What This Is NOT
+
+- A venture startup optimizing for ARR and Series A metrics
+- A full-time commitment or a path to "going full-time"
+- A routing app competing with Calimoto, Scenic, or Ridrs on navigation features
+
+---
+
+## Vision
+
+**Help motorcycle riders ride the moment** — find the best experiences, know when conditions are right, stay present on the ride, and build a library of roads worth returning to.
+
+"Ride the moment" means: when weather, time, and desire align, you know exactly where to go. The planning stress is gone. You open the app, see what's rideable today, pick something great, and go. And once you're riding, your hands stay on the bars and your eyes stay on the road — the app works for you through voice, not touch.
+
+---
+
+## Who We Serve
+
+Recreational motorcycle riders who ride for enjoyment, scenery, and the experience of the road. See [User Profiles](./USER-PROFILES.md) for detailed personas.
+
+Our four riders — Mike (weekend cruiser), Terry (touring planner), Rachel (returning rider), Sam (group organizer) — all describe the same core scenario in their success stories: *"I found a great road, saw the weather was good, and went riding."* That's riding the moment.
+
+---
+
+## Strategic Pillars
+
+### Pillar 1: Ride Discovery
+
+**Find roads and experiences you didn't know existed.**
+
+The curation pipeline — scraping community sites, extracting route data with LLM, scoring curvature and scenicness from OSM, classifying by archetype — IS the product. It turns hours of forum-browsing into 30 seconds of "show me the best roads near Asheville."
+
+- Searchable, map-based route discovery by state/region
+- Archetype filtering (scenic cruiser, mountain twisties, coastal, historic, etc.)
+- Composite scoring (scenic quality, curvature, surface, popularity)
+- "What's great near me?" as the primary entry point
+
+**This is the free, open, hero experience.** No gates, no limits.
+
+### Pillar 2: Ride Companion
+
+**Hands on the bars. Eyes on the road. LaneShadow handles the rest.**
+
+During a ride, riders should never touch their phone. The Ride Companion is an always-listening, ambient voice assistant that runs entirely on-device. It hears nothing it doesn't need to hear, recognizes when the rider is talking to it (vs. talking to friends on intercom or singing along to music), and responds with short, accurate audio confirmations. It works on back roads with zero cell coverage, never requires a button press, and knows your route, your weather, and your saved roads.
+
+> **Technical architecture, addressing detection approach, false-trigger mitigation, and validation spike plan**: see [`.spec/research/RIDE-COMPANION-VOICE.md`](./research/RIDE-COMPANION-VOICE.md)
+
+**What riders do through voice:**
+- **Capture**: "Save this road" / "Rate this 5 stars" / "Note: gravel section at mile 40"
+- **Awareness**: "What's the weather in an hour?" / "How far to the next gas station?"
+- **Adaptation**: "Weather's turning — what's a good way home?" / "Extend my ride an hour"
+- **Coordination**: "Tell the group I'm pulling over" / "Where's the nearest rider?"
+- **Comfort**: "Find food near me" / "How long until I'm home?"
+
+**Why on-device, always-listening:**
+- Great motorcycle roads have no cell coverage — cloud assistants die when riders need them most
+- Latency matters — a 3-second pause at 60mph is 264 feet of road
+- Privacy matters — voice audio never leaves the device, ever
+- The system is a layered stack (VAD → STT → addressing detection → intent classification → action), not a single LLM. Most of the time only cheap voice activity detection is running. Heavier layers fire briefly when there's actual speech, then sleep.
+- Bias toward silence — false negatives (missed command, rider repeats) are recoverable; false positives (wrong action at 60mph) erode trust irreversibly
+- See voice research doc for the full architecture and validation plan
+
+#### Quality Gates
+
+The Ride Companion has three non-negotiable quality requirements. If any gate fails, the feature does not ship. These are not aspirational — they are hard constraints.
+
+**1. Safe** — Must not distract or increase risk of accident.
+- Audio-only responses. Never requires the rider to look at the screen.
+- Responses are short and concise — a sentence, not a paragraph.
+- Non-urgent information waits. Critical information (weather warning, fuel range) is brief.
+- Silence is the default. The companion speaks when spoken to, or when safety demands it.
+- If the system is uncertain, it says nothing rather than saying something wrong at 60mph.
+
+**2. Accurate** — Information provided must be correct.
+- Weather data must be current and route-specific — not a stale cache, not the nearest city.
+- Distance and time estimates must be calibrated to motorcycle speeds on the actual road type.
+- POI data (gas stations, restaurants) must be verified current. A closed gas station on a remote road is dangerous, not just annoying.
+- If the system doesn't know, it says "I'm not sure" — never fabricates an answer.
+
+**3. Reliable** — Must consistently work with high intent accuracy.
+- Local processing means it works everywhere — no coverage dependency.
+- Intent recognition accuracy target: >95% for core commands in helmet-mic conditions (wind noise, engine noise, Bluetooth audio compression).
+- Graceful degradation: if it can't understand, it says "I didn't catch that" — never guesses wrong and acts on it.
+- Wake word detection must be robust — no false activations from wind or engine noise, no missed activations when the rider needs it.
+- Consistent behavior ride after ride. A companion riders can't trust is worse than no companion.
+
+### Pillar 3: Conditions Awareness
+
+**Know when the moment is right.**
+
+Weather doesn't complement discovery — it makes discovery *actionable*. A beautiful road in a thunderstorm isn't a ride. Weather answers the question that comes right after "where should I go?": *"Should I go today?"*
+
+Pre-ride (touch):
+- Route-level weather overlays (wind, rain, temperature)
+- "Best day to ride this route this week" (Pro)
+- Weather-informed discovery: "What's rideable this Saturday?"
+- Free: see conditions on any route. Pro: intelligent recommendations.
+
+In-ride (voice via Ride Companion):
+- "What's the weather ahead?" / "Am I going to hit rain?"
+- Proactive weather alerts when conditions change on your route
+
+### Pillar 4: Personal Road Library
+
+**Remember what matters.**
+
+The more you ride with LaneShadow, the more valuable it becomes. Your personal collection of rated roads, notes, and ride memories creates a reason to stay and a reason to come back next season.
+
+Pre-ride (touch):
+- Browse saved roads, filter by rating, search by area
+- "Re-ride this road" from your library
+- Favorites auto-surface in future discovery
+- Seasonal memory: "What was that great road I found last October?"
+
+In-ride (voice via Ride Companion):
+- "Save this road" / "Rate this 5 stars" / "Add a note: amazing overlook at this bend"
+- Capture in the moment instead of trying to remember post-ride
+
+### Pillar 5: Community
+
+**Share knowledge. Find riding partners. Make friends.**
+
+This is not a V2 afterthought — it's core to the founder's goals and to the product's growth. Riders discover roads through other riders. Community contribution creates content no solo developer can match.
+
+- Submit routes and experiences
+- Rate and review community-submitted roads
+- Local riding group partnerships
+- Simple, welcoming — not another bro-y forum
+
+In-ride (voice via Ride Companion):
+- "Note for other riders: gravel at mile 40" — community contributions from the saddle
+- Group coordination: "Tell the group I'm stopping at the next overlook"
+
+---
+
+## Competitive Position
+
+### What We're NOT Competing With
+
+Calimoto, Scenic, Ridrs, Kurviger, and Motobit are **routing apps**. They answer "navigate me from A to B." We don't need to beat them at routing. Riders who want turn-by-turn can export to Google Maps.
+
+### What We ARE Competing With
+
+- **Browsing ADVRider forums** for "best roads near [place]"
+- **Asking friends** what's worth riding
+- **Google searching** "best motorcycle roads in [state]"
+- **The 3-app juggle**: route app + weather app + notes app
+
+### Adjacent Products
+
+| Product | Overlap | Our Difference |
+|---------|---------|----------------|
+| 68 degrees | Community-curated routes, free | We add AI curation + weather intelligence + personal library |
+| REVER | Community routes + Butler Maps | We add weather-informed discovery, not just community sharing |
+| ADVRider forums | Where riders actually discover rides today | We surface that knowledge in a map, with weather, on your phone |
+
+### Our Line
+
+> "LaneShadow finds the rides. Weather tells you when. Your voice companion rides with you. Your library remembers them."
+
+### What Nobody Else Has
+
+No motorcycle app has a local, voice-first, rider-aware companion. Calimoto has cloud-dependent voice nav (turn-by-turn only). Scenic has CarPlay (generic, no rider context). Siri and Google Assistant are general-purpose and require connectivity. Nobody has a purpose-built voice assistant that runs on-device, understands motorcycle-specific intent, and knows your route, weather, and saved roads — without cell coverage.
+
+---
+
+## Revenue Model
+
+Designed for a lifestyle product: diversified, low-maintenance, no customer support desk.
+
+### Free Tier (the product)
+
+Everything in Pillars 1 and 5, plus basic weather overlays:
+- Full route discovery — no plan limits, no gates
+- Community access — submit, rate, browse
+- Basic weather on any route (wind, rain, temp overlays)
+- Personal road library (save up to 10 roads)
+- Basic Ride Companion voice commands (save road, rate, check weather)
+
+### Revenue Streams (priority order)
+
+**1. Affiliate Partnerships — $100-300/mo at scale**
+RevZilla / Cycle Gear contextual gear recommendations on weather and route pages. "Rain in the forecast? Here's the rain gear riders on this route recommend." Natural, useful, not spammy.
+
+**2. Featured Route Sponsorships — $50-200/mo**
+Motorcycle-friendly businesses near popular discovered routes: restaurants, hotels, gear shops, rental outfits. "Rider-recommended stop along this route." Local, relevant, valuable to riders.
+
+**3. Optional Pro Tier — $24.99/yr**
+For riders who want more:
+- Full Ride Companion: adaptive routing ("weather's turning — reroute me"), group coordination, proactive alerts
+- Weather intelligence: "Best day to ride this route this week"
+- Weather push notifications: "Your saved route has clear skies Saturday"
+- Unlimited personal road library
+- Route export (GPX, Google Maps link)
+- AI route descriptions as ride journal entries
+
+**4. Regional Route Collections — $4.99 one-time**
+Premium curated collections: "50 Best Roads in the Blue Ridge," "California Coastal Classics." One-time purchase, no subscription. Optional, not required to use the app.
+
+### Sustainability Math
+
+| Item | Monthly |
+|------|---------|
+| Infrastructure (Convex, LLM, APIs, weather) | ~$113 |
+| Claude Code credits | ~$200 |
+| **Total burn** | **~$313/mo** |
+| Budget ceiling (self-funded) | $500-1000/mo |
+
+**Target**: Cover $313/mo through affiliate + sponsorship within 9-12 months.
+
+At modest scale (500 monthly active users):
+- Affiliate: ~$100-150/mo
+- 2 local sponsorships: ~$100-200/mo
+- Pro subs (30 users): ~$62/mo
+- **Total: $262-412/mo**
+
+This isn't a venture-scale business. It's a sustainable hobby that funds itself. That's the goal.
+
+---
+
+## Feature Sequencing
+
+### Phase 0: Ship Discovery (Now → 60 days)
+
+Complete what's already being built. Make it usable for yourself.
+
+| Task | Status |
+|------|--------|
+| Curation pipeline (scrape → extract → score → push) | ~80% built |
+| Discovery UI (map pins, search, filters, state selector) | ~60% built |
+| Local SQLite for fast mobile queries | Built |
+| Seed data for 10+ states | Not started |
+| Polish enough to share | Not started |
+
+**Gate test**: Open the app, pick a state, find 5 rides you've never done, go ride one this weekend.
+
+### Phase 1: Community + Share (Month 2-3)
+
+Make it useful to other riders. Invite real communities.
+
+| Task | Priority |
+|------|----------|
+| Route submission flow (simple — name, description, map trace) | P0 |
+| 5-star rating + text notes on any route | P0 |
+| Share route via link (works without app installed) | P0 |
+| Post on ADVRider + 2 FB riding groups with invite | P0 |
+| Partner with 2-3 local riding groups | P1 |
+
+**Gate test**: A rider you don't know submits a route, another rider rates it, and a third rider rides it.
+
+### Phase 2: Weather + Revenue (Month 3-5)
+
+Make discovery actionable. Start covering costs.
+
+| Task | Priority |
+|------|----------|
+| Complete weather overlays (rain, wind, temp on routes) | P0 |
+| "Rideable this weekend?" weather-informed discovery | P0 |
+| RevZilla/Cycle Gear affiliate integration | P0 |
+| Approach 3 local businesses for sponsorships | P1 |
+| "Best day to ride" scoring (Pro) | P1 |
+
+**Gate test**: Open the app Saturday morning, see which discovered routes have good weather, pick one, and go.
+
+### Phase 3: Ride Companion v0 (Month 5-8)
+
+Voice-first in-ride experience. This is the differentiator no competitor has. **Architecture and spike plan: [`.spec/research/RIDE-COMPANION-VOICE.md`](./research/RIDE-COMPANION-VOICE.md)**
+
+#### Phase 3.0: Validation Spike (1 week, ideally near-term — not month 5)
+
+Before committing to Phase 3 build, prove the always-listening fundamentals work in real helmet-mic riding conditions.
+
+| Task | Priority |
+|------|----------|
+| Build minimal test app: VAD + on-device STT + hardcoded "save this road" pattern matcher | P0 |
+| Real ride test (≥1 hour) with founder's actual Bluetooth intercom | P0 |
+| Measure: intentional command recognition rate, false positives during normal speech, battery drain, latency | P0 |
+
+**Pass criteria** (from voice research doc): 9/10 intentional commands recognized, 0 false positives, <15% battery drain in 1hr, <2s latency.
+
+**If spike fails**: re-evaluate the pillar before building dependent product.
+
+#### Phase 3.1: Ship Hero Command (Month 5-6)
+
+| Task | Priority |
+|------|----------|
+| Layer 1 (VAD) + Layer 2 (Apple Speech on-device STT) | P0 |
+| Layer 3 (addressing detection): pattern matching for "save this road" with high confidence threshold | P0 |
+| Layer 5: action execution + haptic + brief TTS confirmation | P0 |
+| Bluetooth HFP audio routing through Cardo / Sena | P0 |
+| Quality gate validation (Safe / Accurate / Reliable) — all three must pass | P0 |
+
+**Gate test for Phase 3.1**:
+- **Safe**: Founder completes a 1-hour ride using only voice. Never looks at screen. No distraction events.
+- **Accurate**: 10 "save this road" commands save the correct road segment at the correct timestamp.
+- **Reliable**: 50 commands in real helmet-mic conditions. >95% correctly interpreted. **Zero false positives during non-command speech.**
+
+#### Phase 3.2+: Expand Command Set (Month 6-8)
+
+After hero command ships and gates pass, expand one intent at a time, each with independent gate validation:
+- Rate this road (1-5 stars)
+- What's the weather ahead?
+- How far to the next gas station?
+- (then more, based on real usage patterns)
+
+#### What the Ride Companion is NOT
+
+To stay focused and avoid reinventing Siri, the Companion deliberately does NOT handle:
+- Music control, phone calls, text messages, calendar, timers, general queries
+- These remain the OS assistant's job. LaneShadow's value is **motorcycle-aware context** — your route, your weather, your saved roads, your community. Anything else falls through to Siri / Google Assistant.
+
+### Phase 4: Library + Pro + Revenue (Month 8-10)
+
+Build retention. Launch optional Pro tier. Start covering costs.
+
+| Task | Priority |
+|------|----------|
+| Personal road library (save, rate, annotate, browse) — touch UI | P0 |
+| RevenueCat + Pro paywall | P0 |
+| Pro Ride Companion features (adaptive rerouting, group coordination, proactive alerts) | P1 |
+| Weather push notifications (Pro) | P1 |
+| Route export — GPX, Google Maps link (Pro) | P1 |
+| Regional route collections ($4.99 one-time) | P2 |
+
+**Gate test**: A rider with 15+ saved roads opens the app, sees weather is good, picks a favorite, and gets a "best day to ride" recommendation. On the ride, they voice-save two new roads and rate them without touching the phone.
+
+### Phase 5: Evaluate + Grow (Month 10-12)
+
+Assess sustainability. Decide what's next.
+
+- Is revenue covering costs? If yes, maintain. If no, adjust.
+- Is the community growing organically? If yes, invest in community features. If no, investigate why.
+- Is the Ride Companion being used? What commands are most common? What's missing?
+- Does group ride coordination make sense now?
+- Expand Ride Companion capabilities based on real usage patterns.
+
+---
+
+## KPIs
+
+Metrics for a community product, not a SaaS conversion funnel.
+
+| KPI | Target | Why It Matters |
+|-----|--------|----------------|
+| Monthly Active Discoverers | 500 within 6 months | People using the core product |
+| Routes Discovered Per Session | >3 routes viewed | Engagement depth — are people finding value? |
+| Community Contributions/month | 20 submitted routes | Flywheel health — is content growing? |
+| Cost Coverage Ratio | >1.0 within 12 months | Revenue / burn — are we sustainable? |
+| Riding Group Partnerships | 5 within 6 months | Community distribution — are we plugged in? |
+| Routes Founder Personally Rode | >2/month | Dogfooding — does this help ME find great rides? |
+| Companion Intent Accuracy | >95% in helmet-mic conditions | Reliable gate — companion must work consistently |
+| Companion Safety Incidents | 0 | Safe gate — zero distraction-caused incidents. Non-negotiable. |
+| Voice Commands Per Ride | Track, no target yet | Usage signal — are riders actually using the companion? |
+| Voice-Saved Roads / Total Saved | Track ratio | Adoption signal — is voice capture replacing post-ride manual entry? |
+
+---
+
+## What We Carry Forward
+
+From the v2.x research (archived, still valid data):
+
+- **Market data**: $420-600M motorcycle nav software market, 8.8M US registered motorcycles, 5.4M in target segment (IIHS)
+- **User profiles**: 4 primary + 2 secondary personas, all validated ([User Profiles](./USER-PROFILES.md))
+- **Competitive landscape**: 10+ competitors mapped with pricing, strengths, weaknesses
+- **Weather insight**: Calimoto removed weather (web-only, low engagement); standalone weather apps validate need but have tiny user bases; integration is the differentiator
+- **Design constraints**: Gloved hands (44pt+ touch targets), sunlight-optimized display, median age 50 (simplicity > power)
+- **Technical architecture**: React Native + Convex + pi-agent-core + Mapbox, all proven
+- **Revenue validation finding**: Business structurally viable at $113/mo burn; subscription SaaS path scored NO-GO due to unvalidated unit economics
+
+Full v2.x artifacts: `.spec/archive/2026-04-12-v2/`
+
+### v3.0 Supporting Research
+
+- [`.spec/research/RIDE-COMPANION-VOICE.md`](./research/RIDE-COMPANION-VOICE.md) — Technical architecture, addressing detection, false-trigger mitigation, and validation spike plan for Pillar 2 (Ride Companion)
+
+## What We Leave Behind
+
+| Old Direction | Why Dropped |
+|--------------|-------------|
+| "Replace the 3-app stack" positioning | Competes with routing apps; our value is discovery, not navigation |
+| Subscription SaaS as primary business model | Wrong model for a lifestyle project with $300/mo burn |
+| RevenueCat as P0 blocker | Deferred to Phase 3; affiliate + sponsorship come first |
+| LTV:CAC / conversion funnel optimization | Wrong metrics; replaced with community and sustainability KPIs |
+| NL planning as hero feature | Nice to have, pipeline exists, but not the core value. May complete in Phase 4 |
+| "Weather hero" positioning | Weather is important but it's a pillar, not THE product. Discovery is the product. |
+| Competing with Calimoto/Scenic on features | Exit the routing red ocean entirely |
+
+---
+
+## Risk Factors
+
+| Risk | Likelihood | Mitigation |
+|------|-----------|------------|
+| Community building requires consistent effort (founder said "not full-time") | Medium | Budget ~3 hrs/week: 2 community posts, 1 ride shared. Automate what's possible. |
+| Affiliate/sponsorship revenue is small and irregular | Medium | Diversified streams. At $313/mo burn, even modest revenue covers costs. |
+| Route data quality from scrapers is inconsistent | Medium | LLM extraction + human (founder) curation for initial seed. Community ratings surface quality. |
+| Riders don't contribute routes | Medium | Seed aggressively. Make submission dead simple. Founder contributes first 50 routes. |
+| A competitor adds AI curation (Ridrs, 68 degrees) | Low | Community relationships and personal road library create switching costs. Code is replicable; community isn't. |
+| Ride Companion voice accuracy insufficient in helmet conditions | Medium | Spike early (Phase 3 starts with spikes, not features). If accuracy <95%, don't ship — a companion riders can't trust is worse than none. Helmet mics (Cardo/Sena) are close-to-mouth and wind-buffered, which helps. |
+| On-device LLM capability insufficient on current iPhones | Medium | Start with intent classification (small model, ~50 commands), not free-form conversation. iPhone Neural Engine handles this class of model well. Scale up as Apple Silicon improves. |
+| Liability concerns with in-ride voice features | Low | Quality gates (Safe/Accurate/Reliable) are hard constraints, not aspirations. Feature does not ship unless all three pass. Include standard "keep eyes on road" disclaimers. |
+| Founder loses interest | Low | The product serves the founder's own riding. If it stops being useful to him, something is wrong with the product, not the motivation. |
+
+---
+
+## Brand Promise
+
+**LaneShadow helps you ride the moment — find roads worth riding, know when conditions are right, and never take your hands off the bars to remember every great mile.**

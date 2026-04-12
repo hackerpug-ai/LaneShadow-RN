@@ -1,7 +1,8 @@
 ---
 stability: PRODUCT_CONTEXT
-last_validated: 2026-04-11
+last_validated: 2026-04-12
 prd_scope: cross-cutting
+strategy_version: v3.0 — "Ride the Moment"
 ---
 
 # LaneShadow User Profiles
@@ -10,7 +11,7 @@ This document defines **who** we are building LaneShadow for. Every feature, int
 
 ## Who We Serve
 
-LaneShadow serves **recreational motorcycle riders** who ride for enjoyment, scenery, and the experience of the road — not for speed, competition, or off-road adventure.
+LaneShadow serves **recreational motorcycle riders who ride for the experience** — the scenery, the road, the freedom, the adventure. Our riders share one thing: they care about WHERE they ride, not just getting from A to B.
 
 **We serve:**
 - Cruiser riders (Harley-Davidson, Indian, Honda Shadow, etc.)
@@ -19,9 +20,10 @@ LaneShadow serves **recreational motorcycle riders** who ride for enjoyment, sce
 
 **We do NOT serve:**
 - Sport bike / crotch rocket riders chasing speed
+- Adventure / ADV / dual-sport riders (different roads, different needs, different community)
 - Dirt bike / off-road / motocross riders
 - Track day enthusiasts or racers
-- commuters using motorcycles primarily for transportation
+- Daily commuters using motorcycles for transportation
 
 ---
 
@@ -43,223 +45,120 @@ LaneShadow serves **recreational motorcycle riders** who ride for enjoyment, sce
 
 ### Persona 1: "Weekend Warrior Mike" — The Experienced Cruiser
 
-**Demographics:**
-- Age: 52, married, suburban
-- Household income: ~$85,000
-- Bike: Harley-Davidson Road King or Indian Chief
-- Location: Ohio, Pennsylvania, Wisconsin, or similar Midwest state
-- Riding experience: 15+ years
+**Who**: 52, married, suburban. Harley Road King or Indian Chief. Ohio/PA/Wisconsin. 15+ years riding.
 
-**Psychographics:**
-- Rides for freedom, escape, and mental clarity
-- Treats riding as a meditative practice — the journey IS the point
-- Values the rumble, the open road, and the scenery
-- Not interested in speed records or twisties — wants relaxed, enjoyable roads
-- Strong sense of motorcycle identity — his bike is part of who he is
-- Member of a local riding club or H.O.G. chapter
+**Rides for**: Freedom, escape, mental clarity. The journey IS the point. Values relaxed, enjoyable roads — not speed or twisties.
 
-**Technology Comfort:**
-- Smartphone: iPhone, comfortable with apps
-- Currently uses: Google Maps (with "avoid highways"), maybe tried Scenic or Rever
-- Has a Bluetooth helmet intercom (Cardo or Sena) for music/calls
-- Not a power user — wants things to "just work"
-- Gets frustrated by overly complex apps with too many features
+**Discovery behavior**: Has 5-10 favorite roads he returns to regularly. Wants new options but doesn't want to spend Friday evening researching forums. Plans Thursday/Friday for Saturday rides. Rides 80-150 miles, 2-4 hours.
 
-**Riding Behavior:**
-- Rides 2-3 weekends per month during season (April-October)
-- Typical ride: 80-150 miles, 2-4 hours
-- Plans rides Thursday/Friday for the weekend
-- Has 5-10 "favorite roads" he returns to regularly
-- Occasionally does a longer 2-3 day trip (300-500 miles)
-- Checks weather religiously before departing — rain cancels the ride
+**Technology**: iPhone, comfortable with apps. Wants things to "just work." Not a power user. Currently relies on Google Maps with "avoid highways" — knows it's not great but doesn't have a better option. Member of a local H.O.G. chapter.
 
-**Pain Points:**
-1. Google Maps routes him onto highways — he wants back roads
-2. Can't easily share routes with riding buddies
-3. Weather apps don't show conditions *along the route*, just at start/end
-4. Forgets which roads were great vs. mediocre from last season
-5. Route planning takes too long — wants to spend time riding, not researching
+**"Ride the Moment" scenario**:
+> "Friday evening, I open the app, see there's a 4-star road I've never tried 30 minutes from home, weather looks perfect Saturday morning. I save it, text my buddy the link, and we're riding by 9am. After the ride, I rate it so I remember it next time."
 
-**What Success Looks Like for Mike:**
-> "I open the app Friday evening, see that Saturday looks clear and 72 degrees, pick a 100-mile scenic loop through the county, and text the route to my buddy. Done in 5 minutes."
+**What makes Mike stay**: A growing collection of rated roads that saves him from ever repeating a mediocre route. Community ratings that tell him which roads are worth the ride.
+
+**Community role**: Consumer first, occasional contributor. Will rate roads he's ridden. Won't go out of his way to submit new ones unless it's dead simple.
 
 ---
 
-### Persona 2: "Touring Terry" — The Road Trip Planner
+### Persona 2: "Touring Terry" — The Exploration Planner
 
-**Demographics:**
-- Age: 58, married or recently retired
-- Household income: ~$100,000+
-- Bike: Harley-Davidson Electra Glide, Honda Gold Wing, or BMW K1600
-- Location: California, Florida, Texas, or any warm-weather state
-- Riding experience: 20+ years
+**Who**: 58, married/retired. Gold Wing or BMW K1600. California/Florida/Texas. 20+ years riding.
 
-**Psychographics:**
-- Plans rides the way others plan vacations — meticulous, detailed, anticipatory
-- Riding IS his hobby and social life
-- Values discovering new roads and hidden gems
-- Keeps a mental (or paper) journal of great rides
-- Loves the planning process almost as much as the ride itself
-- Thrives on the sense of accomplishment after a great multi-day tour
+**Rides for**: Discovery. Planning is part of the pleasure. Keeps a mental (or paper) journal of great rides. Thrives on finding roads others don't know about.
 
-**Technology Comfort:**
-- Uses a dedicated GPS unit (Garmin Zumo) or mounted iPad
-- Also uses Scenic, Rever, or Calimoto for route planning
-- Willing to pay for premium features
-- Exports GPX files, uses Butler Motorcycle Maps
-- More patient with complex tools IF they deliver quality results
+**Discovery behavior**: Actively seeks "best motorcycle roads" in new areas. Browses ADVRider, reads Butler Motorcycle Maps, studies topo maps. Several multi-day trips per year (500-1,500 miles). Travels to rallies: Sturgis, Daytona, Laconia.
 
-**Riding Behavior:**
-- Rides 3-4 times per month during season
-- Several multi-day trips per year (500-1,500 miles each)
-- Keeps detailed records of rides (miles, roads, stops)
-- Actively seeks out "best motorcycle roads" in new areas
-- Travels to rallies: Sturgis, Daytona, Laconia, etc.
-- Weather tolerance is higher than Mike's — will ride in light rain with good gear
+**Technology**: Uses Scenic, REVER, or Calimoto for planning. Exports GPX files. Patient with complex tools IF they deliver quality. Willing to pay for value.
 
-**Pain Points:**
-1. Planning a multi-day route with weather awareness is enormously time-consuming
-2. Can't easily compare route options (scenic vs. fast, elevation, road quality)
-3. Loses track of great roads discovered on previous trips
-4. Current tools don't integrate weather INTO the route view
-5. Wants to build a personal library of roads and routes over years
+**"Ride the Moment" scenario**:
+> "I'm planning a 4-day ride through the Blue Ridge area. I open LaneShadow, filter by the region, and find 15 roads I've never heard of — rated by other riders, scored for scenicness and curvature. I build my itinerary from the top-rated ones, check weather for each day, and export the whole thing."
 
-**What Success Looks Like for Terry:**
-> "I'm planning a 4-day ride through the Blue Ridge Parkway. The app shows me each day's route with weather overlays, elevation, and my favorite roads from last time. I can tweak day 2 to avoid a storm system and still hit the good roads."
+**What makes Terry stay**: The depth of the road library. If LaneShadow surfaces roads he can't find on ADVRider, it becomes indispensable. Personal ride library spanning years of touring.
+
+**Community role**: Power contributor. Will submit routes, write detailed notes, rate everything. Terry IS the community — his contributions make the platform valuable for everyone. Treat him as a partner, not just a user.
 
 ---
 
 ### Persona 3: "Returning Rider Rachel" — The Re-Enthusiast
 
-**Demographics:**
-- Age: 42, single or divorced, professional
-- Household income: ~$75,000
-- Bike: Harley-Davidson Sportster, Honda Rebel 500, or similar mid-size cruiser
-- Location: Urban or suburban, any region
-- Riding experience: Rode in her 20s, returned to riding 1-2 years ago
+**Who**: 42, single/divorced, professional. Harley Sportster or Honda Rebel 500. Urban/suburban. Rode in her 20s, returned 1-2 years ago.
 
-**Psychographics:**
-- Riding represents independence, self-reliance, and reclaiming something for herself
-- More cautious than male counterparts — 60% have taken safety courses (vs. 42% of men)
-- Values beautiful scenery and a sense of accomplishment
-- Wants to build confidence gradually — not looking for extreme rides
-- Part of a growing community of women riders (19% of owners, fastest-growing segment)
-- Spends more per person on accessories and maintenance ($574/year vs. $497 for men)
+**Rides for**: Independence, self-reliance, reclaiming something for herself. More cautious than male counterparts — 60% have taken safety courses. Wants to build confidence gradually.
 
-**Technology Comfort:**
-- iPhone, comfortable with apps and social media
-- Active in online riding communities (Reddit, Facebook groups, women's riding clubs)
-- Currently relies on Google Maps and word-of-mouth for routes
-- Wants recommendations from other riders, not just algorithms
-- Appreciates clean, intuitive UI — will abandon apps that feel overwhelming
+**Discovery behavior**: Doesn't know the good roads in her area — relies on friends or Google. Rides 50-80 miles, 1.5-3 hours. Often rides with 1-3 friends. Very weather-sensitive — won't ride in rain or high wind. Building up to longer rides over time.
 
-**Riding Behavior:**
-- Rides 1-2 times per month during season
-- Typical ride: 50-80 miles, 1.5-3 hours
-- Prefers well-maintained roads with scenic views
-- Often rides with 1-3 friends (small group, not large clubs)
-- Very weather-sensitive — won't ride in rain or high wind
-- Building up to longer rides — this is a growth journey
+**Technology**: iPhone, active in online riding communities (Reddit, Facebook groups, women's riding clubs). Appreciates clean, intuitive UI — will abandon apps that feel overwhelming or "bro-y."
 
-**Pain Points:**
-1. Doesn't know the good roads in her area — relies on others to plan
-2. Weather anxiety is real — needs confidence that conditions will be safe
-3. Group ride coordination is a mess (group texts, conflicting apps)
-4. Many motorcycle apps feel "bro-y" and unwelcoming
-5. Wants to track her progress and build confidence over the season
+**"Ride the Moment" scenario**:
+> "My friend says let's ride Saturday. I open the app, find a curated 60-mile scenic route nearby rated beginner-friendly, see that weather is clear all day, and forward her the link. We both know where we're going and what to expect. After the ride, I rate the roads."
 
-**What Success Looks Like for Rachel:**
-> "My friend suggested we ride Saturday. I open the app, find a curated 60-mile scenic route nearby, see that the weather is clear all day, and forward it to her. We both know where we're going and what to expect. After the ride, I rate the roads so I remember what was good."
+**What makes Rachel stay**: Confidence. Routes that match her comfort level. A community where she feels welcome. Weather data she can trust. Tracking her own growth over the season — this year she's doing longer rides than last year.
+
+**Community role**: Active rater and reviewer. Rachel's reviews include practical details power users skip: "parking lot is small," "gas station at mile 40," "road was smooth and well-maintained." These notes are gold for other riders.
 
 ---
 
 ### Persona 4: "Social Rider Sam" — The Group Organizer
 
-**Demographics:**
-- Age: 47, married, works in skilled trades or management
-- Household income: ~$70,000
-- Bike: Harley-Davidson Street Glide or Indian Chieftain (bagger)
-- Location: Any region, often near a metropolitan area
-- Riding experience: 8-12 years
+**Who**: 47, married, skilled trades. Harley Street Glide or Indian Chieftain. Near a metro area. 8-12 years riding.
 
-**Psychographics:**
-- The social connector of his riding group — always organizing the next ride
-- Values camaraderie and shared experience above all
-- The ride is an excuse to get together with friends
-- Prefers routes with good stops (scenic overlooks, biker-friendly restaurants)
-- Competitive in a friendly way — wants to show friends new great roads
-- Takes pride in being "the one who always finds the good routes"
+**Rides for**: Camaraderie. The ride is an excuse to get together with friends. Prefers routes with good stops (scenic overlooks, biker-friendly restaurants). Takes pride in finding great routes for the group.
 
-**Technology Comfort:**
-- Android user, comfortable with tech but not a gearhead about it
-- Uses WhatsApp or Facebook Messenger for group coordination
-- Tried multiple route-sharing apps — none stuck
-- Will adopt a new tool IF it makes organizing easier
-- Values simplicity and shareability over advanced features
+**Discovery behavior**: Organizes 1-2 group rides per month (4-8 riders). Always looking for new routes that are group-friendly. Uses WhatsApp/Messenger for coordination. Has tried multiple route-sharing apps — none stuck.
 
-**Riding Behavior:**
-- Rides 3-4 times per month during season
-- Organizes 1-2 group rides per month (4-8 riders)
-- Typical group ride: 100-150 miles with a lunch stop
-- Plans a big annual trip with the group (4-6 riders, 3-5 days)
-- Has a rotation of favorite routes but always looking for new ones
-- Moderately weather-flexible — will ride in clouds but not rain
+**Technology**: Android, comfortable with tech. Values simplicity and shareability over advanced features.
 
-**Pain Points:**
-1. Herding cats: getting 6 riders to agree on a route, time, and meeting point
-2. Someone always gets lost or takes a wrong turn on group rides
-3. Can't easily share a turn-by-turn route with the group
-4. Finding new routes that are group-friendly (good stops, no tricky navigation)
-5. Weather affects the whole group — one person's hesitation kills the ride
+**"Ride the Moment" scenario**:
+> "I find a new 120-mile loop on LaneShadow with a great BBQ spot at the halfway point. I share the route link in our group chat. Everyone opens it — no app download required — sees the weather looks good, and says they're in. Day of, everyone follows the same route."
 
-**What Success Looks Like for Sam:**
-> "I find a new 120-mile loop with a great BBQ joint at the halfway point. I share the route link in our group chat. Everyone opens it, sees the weather looks good, and taps 'I'm in.' Day of, everyone follows the same route. Nobody gets lost. We're already planning next week's ride on the ride home."
+**What makes Sam stay**: LaneShadow makes him the hero of his riding group. He "finds" great routes (really, the app finds them) and shares them effortlessly. The app makes organizing rides easy, not painful.
+
+**Community role**: Distributor. Sam doesn't contribute individual routes, but he brings entire riding groups to the platform. Every route he shares exposes 4-8 new riders to LaneShadow. He's your organic growth engine.
 
 ---
 
 ## Secondary Personas
 
-### Persona 5: "New Rider Nick" — The Recent Convert
+### "New Rider Nick" — The Recent Convert
 
-**Demographics:**
-- Age: 35, completed MSF course 6-12 months ago
-- Bike: Entry-level cruiser (Honda Rebel, Kawasaki Vulcan S)
-- Lower mileage, still building confidence
-- Not yet a core user — may grow into Mike or Rachel over time
+**Who**: 35, completed MSF course 6-12 months ago. Entry-level cruiser (Honda Rebel, Kawasaki Vulcan S). Still building confidence.
 
-**Key Needs:**
-- Simple, safe routes that don't overwhelm
-- Weather data he can trust (rain = stay home for now)
-- Discovering roads gradually rather than planning epic tours
-- Will grow into the app as confidence builds
+**Key needs**: Simple, safe routes that don't overwhelm. Weather data he trusts. Gradual discovery — not epic tours. Will grow into Mike or Rachel over time.
+
+### "Vintage Val" — The Classic Bike Enthusiast
+
+**Who**: 55, restored vintage cruiser (1980s Honda, classic Harley). Slower pace, shorter distances (50-80 miles). Rides solo or with one friend.
+
+**Key needs**: Routes that avoid highways (vintage bikes + highway speeds = uncomfortable). Scenic, character-rich roads. Weather sensitivity — vintage bikes handle poorly in rain.
 
 ---
 
-### Persona 6: "Vintage Val" — The Classic Bike Enthusiast
+## Design Principles (Derived from Personas)
 
-**Demographics:**
-- Age: 55, rides a restored vintage cruiser (1980s Honda, classic Harley)
-- Values nostalgia and the character of older roads
-- Slower pace, shorter distances (50-80 miles)
-- Often rides solo or with one other vintage bike friend
-
-**Key Needs:**
-- Routes that avoid highways (vintage bikes can't sustain highway speeds comfortably)
-- Scenic, character-rich roads over twisty or challenging ones
-- Weather sensitivity — vintage bikes handle poorly in rain
-- Wants to discover hidden gem roads with personality
+1. **Ride the moment** — Every feature should reduce the gap between "I want to ride" and "I'm on an amazing road." Planning speed matters.
+2. **Discovery over directions** — Our job is to help riders find great roads, not navigate them turn-by-turn. Export to Google Maps handles navigation.
+3. **Weather is make-or-break** — Weather determines whether the ride happens at all. It's not a feature — it's the practical answer to "should I go today?"
+4. **Simple for Mike, deep for Terry** — Default experience is simple and fast. Depth is available but never in the way.
+5. **Community is welcoming** — Rachel and Nick need to feel welcomed, not overwhelmed. No "bro-y" defaults. No gatekeeping.
+6. **Shareable by default** — Routes should work as a link, no app required. Sam shares a link in WhatsApp and his whole group can see it.
+7. **Respect the season** — Riders have limited months. Every ride matters. Make discovery fast so they spend time riding, not researching.
+8. **Scenic by default** — The curvy back road is always preferred. Never optimize for fastest/shortest unless asked.
+9. **Contributions are valued** — Terry and Alex generate the content that makes the platform work. Make contributing easy, visible, and appreciated.
 
 ---
 
-## Design Principles (Derived From Personas)
+## Community Roles Summary
 
-1. **Journey over destination** — Every feature should enhance the riding experience, not just get from A to B
-2. **Weather is make-or-break** — Weather integration isn't a nice-to-have; it determines whether the ride happens
-3. **Simple for Mike, powerful for Terry** — The default experience is simple. Power features are available but never in the way
-4. **Shareable by default** — Routes should be easy to share with a link, not require everyone to have the app
-5. **Respect the season** — Riders have limited riding months. Every ride matters. Make planning fast so they spend time riding
-6. **Scenic by default** — Never route onto highways unless the rider explicitly asks. The curvy back road is always preferred
-7. **Build confidence, don't intimidate** — Rachel and Nick need to feel welcomed, not overwhelmed by pro-level features
+Different personas play different roles in the community ecosystem. A healthy LaneShadow community needs all of these:
+
+| Role | Persona | Behavior | Why They Matter |
+|------|---------|----------|-----------------|
+| **Power Contributor** | Terry | Submits routes, writes detailed notes, rates everything | They CREATE the content library |
+| **Active Rater** | Rachel, Mike | Rate roads they've ridden, add practical notes | They VALIDATE content quality |
+| **Distributor** | Sam | Share routes with riding groups, bring in new riders | They GROW the community |
+| **Consumer** | Nick, Val, most users | Browse, discover, ride | They ARE the community |
 
 ---
 
@@ -267,29 +166,29 @@ LaneShadow serves **recreational motorcycle riders** who ride for enjoyment, sce
 
 | Persona Type | Why Out of Scope |
 |-------------|-----------------|
-| Sport bike rider | Wants speed, twisties, track days — fundamentally different needs |
-| Dirt bike / motocross rider | Off-road navigation, trail maps — different product entirely |
-| MotoGP / track enthusiast | Performance metrics, lap times — not our market |
-| Daily motorcycle commuter | Needs real-time traffic, fastest route — opposite of scenic-first |
+| Sport bike rider | Wants speed, twisties, track days — different needs |
+| Adventure / ADV / dual-sport rider | Different roads, different needs, different community |
+| Off-road / motocross / dirt rider | Trail maps and off-road navigation are a different product |
+| Track / racing enthusiast | Performance metrics, lap times — fundamentally different needs |
+| Daily motorcycle commuter | Fastest route, real-time traffic — opposite of discovery-first |
 | Motorcycle courier / delivery | Utility-focused, not recreational |
-| Can-Am / trike rider | Three-wheel dynamics are different; may add later but not primary |
 
 ---
 
 ## Cross-Cutting Rider Traits
 
-Regardless of persona, ALL LaneShadow users share these traits:
+Regardless of persona, ALL LaneShadow users share these:
 
-| Trait | Implication |
-|-------|-------------|
-| Seasonal riders (Apr-Oct in most states) | Feature usage is concentrated; off-season is for planning |
+| Trait | Design Implication |
+|-------|-------------------|
+| Seasonal riders (Apr-Oct in most US states) | Concentrated usage; off-season is for browsing/planning |
 | Weather-dependent | Weather data must be accurate and prominent |
-| Value safety | Never suggest routes through dangerous conditions |
-| Smartphone-mounted on handlebars | Glanceable UI, large touch targets, voice-friendly |
-| Gloved hands while operating | Large tap targets, minimal text input while riding |
-| Social by nature | Sharing and group features are core, not add-ons |
-| Brand-loyal (especially Harley riders) | Respect motorcycle culture; don't genericize the experience |
-| Plan ahead, ride later | Pre-ride planning is the primary use case, not real-time nav |
+| Value safety | Never surface routes through dangerous conditions without clear warnings |
+| Smartphone-mounted on handlebars | Glanceable UI, large touch targets |
+| Gloved hands while operating | 44pt+ tap targets, minimal text input while riding |
+| Discover through other riders | Community and sharing are core, not add-on features |
+| Plan ahead, ride later | Pre-ride discovery and planning is the primary use case |
+| Remember favorite roads | Personal road library has long-term retention value |
 
 ---
 
@@ -302,4 +201,13 @@ Regardless of persona, ALL LaneShadow users share these traits:
 - Riders Share Market Analysis (2026) — Comprehensive demographics
 - Scenic App Data — Navigation behavior (30M hours ridden, 200K+ routes)
 - Arlington Motorsports — Psychology of motorcycle riding
-- LaneShadow PRD v1.0 — Existing rider persona definition
+- LaneShadow v3.0 Product Strategy — "Ride the Moment" reframe
+
+---
+
+## Change Log
+
+| Date | Version | Change | Reason |
+|------|---------|--------|--------|
+| 2026-04-11 | 2.0 | Initial 4 personas + 2 secondary | v2 strategy |
+| 2026-04-12 | 3.0 | Reframed for discovery/community, added community roles, kept cruiser/touring focus | v3 "Ride the Moment" strategy shift |
