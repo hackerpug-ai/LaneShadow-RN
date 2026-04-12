@@ -18,6 +18,13 @@ import { DownloadQueue } from './download-queue'
 import { StorageUtils } from './storage-utils'
 import { WiFiValidator } from './wifi-validator'
 
+// Import for internal use
+import {
+  WiFiRequiredError,
+  StorageExceededError,
+  InvalidBoundsError,
+} from '../../stores/offline-store'
+
 // --- Types (re-exported from store for backward compat) ---
 
 export type {
@@ -29,13 +36,6 @@ export type {
 } from '../../stores/offline-store'
 
 export {
-  WiFiRequiredError,
-  StorageExceededError,
-  InvalidBoundsError,
-} from '../../stores/offline-store'
-
-// Import for internal use
-import {
   WiFiRequiredError,
   StorageExceededError,
   InvalidBoundsError,

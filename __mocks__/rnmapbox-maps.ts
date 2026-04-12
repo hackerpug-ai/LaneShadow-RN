@@ -56,7 +56,7 @@ export const offlineManager = {
   createPack: vi.fn(async (options: {
     name: string
     styleURL: string
-    bounds: Array<{ ne: [number, number]; sw: [number, number] }>
+    bounds: { ne: [number, number]; sw: [number, number] }[]
     minZoom: number
     maxZoom: number
     metadata?: Record<string, unknown>

@@ -270,7 +270,7 @@ export const useDownloadStore = create<DownloadStoreState>()(
       },
       partialize: (state) => {
         // Don't persist the _hydrated flag itself
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         const { _hydrated, ...rest } = state
         return rest
       },

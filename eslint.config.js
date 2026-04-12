@@ -5,15 +5,22 @@
  * Following coding standards from .cursor/rules/coding_standards.mdc
  */
 
-const { defineConfig } = require('eslint/config')
+const { defineConfig, globalIgnores } = require('eslint/config')
 const expoConfig = require('eslint-config-expo/flat')
 const reactNative = require('eslint-plugin-react-native')
 
 module.exports = defineConfig([
+  globalIgnores([
+    'dist/*',
+    'node_modules/*',
+    '.expo/*',
+    'convex/_generated/*',
+    '.claude/worktrees/**',
+    'scripts/curation/venv/**',
+    'scripts/curation/.venv/**',
+    '**/*.py',
+  ]),
   ...expoConfig,
-  {
-    ignores: ['dist/*', 'node_modules/*', '.expo/*', 'convex/_generated/*', '.claude/worktrees/**', 'scripts/curation/venv/**'],
-  },
   {
     plugins: {
       'react-native': reactNative,

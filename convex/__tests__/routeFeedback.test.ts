@@ -32,7 +32,7 @@ const makeFeedbackInput = (overrides: Record<string, unknown> = {}) => ({
 // Mock context
 // ---------------------------------------------------------------------------
 
-let mockInsertCalls: Array<{ table: string; fields: object }>
+let mockInsertCalls: { table: string; fields: object }[]
 let mockFeedbackId: Id<'route_feedback'>
 
 const mockCtx = {

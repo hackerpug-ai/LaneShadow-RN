@@ -86,14 +86,14 @@ export const leanSync = internalQuery({
     let page = result.page
     if (args.since) {
       // Delta sync: filter to routes with contentVersion > since
-      page = page.filter((r) => r.contentVersion > args.since!)
+      page = page.filter((r: any) => r.contentVersion > args.since!)
     }
 
     return {
       page: page.map(toRouteCard),
       isDone: result.isDone,
       continueCursor: result.continueCursor ?? '',
-      lastUpdated: Math.max(...page.map((r) => r.contentVersion), 0),
+      lastUpdated: Math.max(...page.map((r: any) => r.contentVersion), 0),
     }
   },
 })
@@ -146,7 +146,7 @@ export const fetchEnrichments = internalQuery({
   handler: async (ctx, args) => {
     await requireIdentity(ctx)
 
-    const results: Array<{ routeId: string; enrichment: any } | null> = []
+    const results: ({ routeId: string; enrichment: any } | null)[] = []
 
     for (const routeId of args.routeIds) {
       const doc = await ctx.db

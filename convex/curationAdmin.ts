@@ -9,12 +9,12 @@ import { curatedRouteEnrichmentValidator } from '../models/curated-route-enrichm
 
 export const upsertCuratedRoutesHandler = async (
   ctx: any,
-  { routes }: { routes: Array<any> }
+  { routes }: { routes: any[] }
 ) => {
   let inserted = 0
   let updated = 0
   let skipped = 0
-  const errors: Array<{ routeId: string; message: string }> = []
+  const errors: { routeId: string; message: string }[] = []
 
   for (const route of routes) {
     try {
@@ -48,12 +48,12 @@ export const upsertCuratedRoutesHandler = async (
 
 export const upsertCuratedRouteEnrichmentsHandler = async (
   ctx: any,
-  { enrichments }: { enrichments: Array<any> }
+  { enrichments }: { enrichments: any[] }
 ) => {
   let inserted = 0
   let updated = 0
   let skipped = 0
-  const errors: Array<{ routeId: string; message: string }> = []
+  const errors: { routeId: string; message: string }[] = []
 
   for (const enrichment of enrichments) {
     try {
