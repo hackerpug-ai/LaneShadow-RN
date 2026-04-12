@@ -420,6 +420,59 @@ http.route({
   }),
 })
 
+// User feedback endpoint - for recording route interactions
+http.route({
+  path: '/api/feedback',
+  method: 'POST',
+  handler: httpAction(async (ctx, req) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) {
+      return new Response(JSON.stringify({ error: 'UNAUTHORIZED' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    let body: {
+      routeId: string
+      action: string
+      rating?: number
+      locationLat?: number
+      locationLng?: number
+      archetypeFilter?: string
+    }
+
+    try {
+      body = await req.json()
+    } catch {
+      return new Response(JSON.stringify({ error: 'invalid_body', detail: 'not json' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    try {
+      const result = await ctx.runMutation(convexInternal.db.routeFeedback.recordRouteFeedback, {
+        routeId: body.routeId,
+        action: body.action,
+        rating: body.rating,
+        locationLat: body.locationLat,
+        locationLng: body.locationLng,
+        archetypeFilter: body.archetypeFilter,
+      })
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    } catch (e) {
+      return new Response(
+        JSON.stringify({ error: (e as Error).message }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+  }),
+})
+
 http.route({
   path: '/clerk-webhooks',
   method: 'POST',
