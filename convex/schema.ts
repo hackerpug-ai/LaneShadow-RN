@@ -14,6 +14,9 @@ import { performanceValidator } from '../models/performance'
 import { osmNodeValidator, osmWayValidator, osmImportJobValidator } from '../models/osm-data'
 import { routeEnrichmentValidator } from '../models/route-enrichments'
 import { waypointValidator } from '../models/waypoints'
+import { curatedRouteValidator } from '../models/curated-routes'
+import { curatedRouteEnrichmentValidator } from '../models/curated-route-enrichments'
+import { routeFeedbackValidator } from '../models/route-feedback'
 
 /**
  * Convex Database Schema for React Native + Convex Template
@@ -156,4 +159,35 @@ export default defineSchema({
   waypoints: defineTable(waypointValidator)
     .index('by_routePlanId', ['routePlanId'])
     .index('by_routePlanId_and_status', ['routePlanId', 'status']),
+
+  /**
+   * Curated routes table - Hand-picked motorcycle routes from various sources
+   * Indexed by source for filtering by data source (FHWA, BDR, etc.)
+   * Indexed by primaryArchetype for filtering by route type (twisties, mountain, coastal, etc.)
+   * Indexed by state for geographic filtering
+   * Indexed by compositeScore for sorting by quality ranking
+   */
+  curated_routes: defineTable(curatedRouteValidator)
+    .index('by_source', ['source'])
+    .index('by_archetype', ['primaryArchetype'])
+    .index('by_state', ['state'])
+    .index('by_composite_score', ['compositeScore']),
+
+  /**
+   * Curated route enrichments table - Rich tier data for curated routes
+   * Indexed by routeId for finding enrichments for a specific curated route
+   */
+  curated_route_enrichments: defineTable(curatedRouteEnrichmentValidator)
+    .index('by_routeId', ['routeId']),
+
+  /**
+   * Route feedback table - User feedback on curated routes
+   * Indexed by userId for user-specific feedback queries
+   * Indexed by routeId for route-specific feedback aggregation
+   * Indexed by action for filtering by feedback type (save, hide, complete, rate)
+   */
+  route_feedback: defineTable(routeFeedbackValidator)
+    .index('by_user', ['userId'])
+    .index('by_route', ['routeId'])
+    .index('by_action', ['action']),
 })
