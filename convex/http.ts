@@ -107,6 +107,36 @@ http.route({
   }),
 })
 
+// Dashboard metrics endpoint - for admin monitoring
+http.route({
+  path: '/admin/curation/metrics',
+  method: 'GET',
+  handler: httpAction(async (ctx, req) => {
+    const deployKey = process.env.CURATION_DEPLOY_KEY
+    if (!deployKey) {
+      return new Response(JSON.stringify({ error: 'configuration_error' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const authHeader = req.headers.get('authorization') ?? ''
+    const expected = `Bearer ${deployKey}`
+    if (authHeader !== expected) {
+      return new Response(JSON.stringify({ error: 'unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const metrics = await ctx.runQuery(convexInternal.curationMetrics.curationMetricsInternal, {})
+    return new Response(JSON.stringify(metrics), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }),
+})
+
 // OSM import endpoints - for ETL pipeline
 http.route({
   path: '/osm/importNodes',
