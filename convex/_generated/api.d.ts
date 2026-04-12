@@ -61,6 +61,7 @@ import type * as actions_monitoring from "../actions/monitoring.js";
 import type * as actions_osm from "../actions/osm.js";
 import type * as actions_users from "../actions/users.js";
 import type * as crons from "../crons.js";
+import type * as curationAdmin from "../curationAdmin.js";
 import type * as db_clerkSync from "../db/clerkSync.js";
 import type * as db_favoriteRoads from "../db/favoriteRoads.js";
 import type * as db_osm from "../db/osm.js";
@@ -147,6 +148,7 @@ declare const fullApi: ApiFromModules<{
   "actions/osm": typeof actions_osm;
   "actions/users": typeof actions_users;
   crons: typeof crons;
+  curationAdmin: typeof curationAdmin;
   "db/clerkSync": typeof db_clerkSync;
   "db/favoriteRoads": typeof db_favoriteRoads;
   "db/osm": typeof db_osm;

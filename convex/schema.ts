@@ -166,12 +166,14 @@ export default defineSchema({
    * Indexed by primaryArchetype for filtering by route type (twisties, mountain, coastal, etc.)
    * Indexed by state for geographic filtering
    * Indexed by compositeScore for sorting by quality ranking
+   * Indexed by routeId for upsert operations during curation ingest
    */
   curated_routes: defineTable(curatedRouteValidator)
     .index('by_source', ['source'])
     .index('by_archetype', ['primaryArchetype'])
     .index('by_state', ['state'])
-    .index('by_composite_score', ['compositeScore']),
+    .index('by_composite_score', ['compositeScore'])
+    .index('by_routeId', ['routeId']),
 
   /**
    * Curated route enrichments table - Rich tier data for curated routes
