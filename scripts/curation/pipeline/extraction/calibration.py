@@ -147,14 +147,18 @@ def run_calibration(
             f"({len(pipeline_scores)}) must have same length"
         )
 
-    # Extract editorial rankings
+    # Extract editorial rankings and invert them so higher = better
+    # Editorial rank: 1 is best, so we invert to: max_rank - rank
+    # This makes both editorial and pipeline have "higher is better" semantics
     editorial_ranks = [gt["editorial_rank"] for gt in ground_truth]
+    max_rank = max(editorial_ranks)
+    inverted_ranks = [max_rank - rank for rank in editorial_ranks]
 
     # Compute Spearman rank correlation
     try:
         from scipy import stats
 
-        rho, p_value = stats.spearmanr(editorial_ranks, pipeline_scores)
+        rho, p_value = stats.spearmanr(inverted_ranks, pipeline_scores)
         rho = float(rho)
         p_value = float(p_value)
     except ImportError:
@@ -175,7 +179,7 @@ def run_calibration(
     pipeline_top10_indices = sorted(
         indexed_scores, key=lambda x: x[1], reverse=True
     )[:10]
-    pipeline_top10_ids = set(ground_truth[i][0] for i, _ in pipeline_top10_indices)
+    pipeline_top10_ids = set(ground_truth[i]["route_id"] for i, _ in pipeline_top10_indices)
 
     recovery_rate = len(editorial_top10_ids & pipeline_top10_ids) / 10.0
 
@@ -224,8 +228,8 @@ def run_calibration(
                 for gt in ground_truth
             ]
 
-            # Compute new correlation
-            reduced_rho, _ = stats.spearmanr(editorial_ranks, reduced_scores)
+            # Compute new correlation (using inverted ranks)
+            reduced_rho, _ = stats.spearmanr(inverted_ranks, reduced_scores)
             reduced_rho = float(reduced_rho)
 
             # Sensitivity = drop in correlation when feature is removed

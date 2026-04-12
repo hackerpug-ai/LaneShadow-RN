@@ -15,7 +15,7 @@ import anthropic
 import instructor
 from pydantic import ValidationError
 
-from pipeline.extraction.schema import RouteAttributes
+from scripts.curation.pipeline.extraction.schema import RouteAttributes
 
 logger = logging.getLogger(__name__)
 

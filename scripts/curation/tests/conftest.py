@@ -2,7 +2,7 @@
 
 import pytest
 
-from scripts.curation.pipeline.models import Route, EnrichedRoute
+from pipeline.models import Route, EnrichedRoute
 
 
 @pytest.fixture

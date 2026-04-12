@@ -444,15 +444,15 @@ def test_configurable_threshold_pass(
 
 
 def test_configurable_threshold_fail(
-    sample_ground_truth, correlated_pipeline_scores, sample_weights
+    sample_ground_truth, anti_correlated_pipeline_scores, sample_weights
 ):
     """Test that raising threshold makes it harder to pass."""
-    # Use an impossibly high threshold - should fail
+    # Use anti-correlated scores with a moderate threshold - should fail
     result = run_calibration(
         ground_truth=sample_ground_truth,
-        pipeline_scores=correlated_pipeline_scores,
+        pipeline_scores=anti_correlated_pipeline_scores,
         weights=sample_weights,
-        threshold=0.99,
+        threshold=0.5,
     )
 
     assert result.passed is False
