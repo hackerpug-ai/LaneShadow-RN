@@ -12,7 +12,7 @@ const reactNative = require('eslint-plugin-react-native')
 module.exports = defineConfig([
   ...expoConfig,
   {
-    ignores: ['dist/*', 'node_modules/*', '.expo/*', 'convex/_generated/*', '.claude/worktrees/**'],
+    ignores: ['dist/*', 'node_modules/*', '.expo/*', 'convex/_generated/*', '.claude/worktrees/**', 'scripts/curation/venv/**'],
   },
   {
     plugins: {
