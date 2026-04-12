@@ -10,9 +10,9 @@
 
 ## Executive Summary
 
-- **LaneShadow's V1 strategy is sound but incomplete.** The conversational AI planning + weather-along-route wedge is well-positioned against a fragmented market where no single app solves the full rider workflow. But the research reveals a critical gap: the V1 strategy focuses on planning when the **meta-problem is lifecycle fragmentation** — riders juggle 3-4 apps because no one owns the whole ride.
-- **Ridrs (launched 2025) is a direct threat to the unified-app thesis.** LaneShadow must differentiate beyond routing — weather-along-route and road hazard reporting are the two white spaces Ridrs does NOT address, and they map to every persona's top concern.
-- **The sequencing should change.** Weather-along-route should be the V1 hero feature (not just a companion to NL planning), and the personal road library should be elevated from "nice-to-have" to "must-ship" — it's the primary lock-in mechanism that prevents churn.
+- **LaneShadow's V1 strategy is sound but incomplete.** The conversational AI planning + weather-integrated routing wedge is well-positioned against a fragmented market where no single app solves the full rider workflow. But the research reveals a critical gap: the V1 strategy focuses on planning when the **meta-problem is lifecycle fragmentation** — riders juggle 3-4 apps because no one owns the whole ride.
+- **Ridrs (launched 2025) is a direct threat to the unified-app thesis.** LaneShadow must differentiate beyond routing — weather-integrated routing and road hazard reporting are the two white spaces Ridrs does NOT address, and they map to every persona's top concern.
+- **The sequencing should change.** Weather-integrated routing should be the V1 hero feature (not just a companion to NL planning), and the personal road library should be elevated from "nice-to-have" to "must-ship" — it's the primary lock-in mechanism that prevents churn. Note: standalone weather apps already exist for motorcyclists (MotoMeteo, ClearRide, Weather On The Way, Drive Weather, BikerWeather), but none integrate weather into route planning + ride memory. The differentiator is integration, not the weather feature alone.
 
 ---
 
@@ -23,7 +23,7 @@ LaneShadow exists to **eliminate the fragmented multi-app workflow** that recrea
 We create value through a **conversational interface that understands rider intent** (not just coordinates), **real-time weather intelligence integrated INTO routes** (not alongside them), and a **personal road library** that makes the app more valuable over time.
 
 We differentiate through:
-- **Weather-along-route** — no competitor does this
+- **Weather-integrated routing** — standalone weather apps exist (MotoMeteo, ClearRide, Weather On The Way), but no motorcycle route planning app embeds weather into the planning + routing + ride memory experience. The white space is integration, not invention.
 - **Natural language route planning** — no competitor does this
 - **Personal road library** — creates switching costs through accumulated data
 
@@ -45,6 +45,8 @@ Weather is not a companion feature — it's the **primary planning lens**. Every
 - Conditions-aware route ranking ("Best for today" badge)
 - Weather timeline per route segment
 - Weather determines whether the ride happens at all — this is the hero
+
+**Implementation note (Calimoto lesson):** Calimoto removed its weather features in April 2024 due to "minimal usage." The likely cause was web-only implementation (riders couldn't see weather in the mobile app). LaneShadow's weather must be: (1) mobile-first, in the app riders actually use while riding; (2) the primary planning lens, not a toggle-on overlay; (3) tied to route scoring so riders engage automatically. Standalone weather apps (MotoMeteo, ClearRide, Weather On The Way) validate the need but have tiny user bases — the value comes from integration into the planning workflow, not weather as a standalone feature.
 
 #### Pillar 2: Conversational AI Planning
 
@@ -135,14 +137,15 @@ React Native + Convex + AI agent architecture enabling rapid iteration on the pl
 
 | Competitor | Price | Strength | Weakness | LaneShadow's Line |
 |-----------|-------|----------|----------|-------------------|
-| **Calimoto** | $80/yr | Twisty road algorithm, 3M users | Battery drain, expensive, paywalled basics | "Same twisty roads. No sticker shock. Just tell us where you want to go." |
+| **Calimoto** | $80/yr | Twisty road algorithm, 3M users | Battery drain, expensive, paywalled basics, **removed weather features April 2024** (minimal usage) | "Same twisty roads. No sticker shock. Just tell us where you want to go." |
 | **Scenic** | $60/yr, iOS only | Beautiful UX, CarPlay | V4 rewrite bugs, iOS only, CarPlay broken 6+ months | "Beautiful — but we're on Android too, with AI you can actually talk to." |
 | **Ridrs** (2025) | $50/yr | Unified app, group features, curated routes | Just launched, no weather, no hazard reporting | "Routes that know your weather. Not just another routing app." |
 | **REVER** | $40/yr | Community routes, Butler Maps | Weak planning, fragmented UX | "More than community routes — routes that know your roads and your weather." |
 | **Kurviger** | €30/yr | Customizable, open-source curve algorithm | Beta quality, intimidating UX, no ride tracking | "Powerful routing in plain English. No engineering degree required." |
 | **3-app stack** | Free | Riders use Google Maps + Weather + WhatsApp | No integration, data silos | "Stop juggling. One app that plans, shows conditions, and remembers." |
+| **Standalone weather apps** (MotoMeteo, ClearRide, Weather On The Way, Drive Weather, BikerWeather) | $17-23/yr | Route-based weather with checkpoint forecasts, ride scores, gear recommendations | Not route planners — riders still need a separate navigation app; tiny user bases (MotoMeteo: 1 rating, BikerWeather: 100+ downloads) | "Weather without the juggling. Plan your route and see conditions in one place." |
 
-**Competitive alert**: Ridrs is the most direct threat. They're targeting the unified-app white space. Differentiation opportunities that Ridrs does NOT address: weather-along-route, road hazard reporting, personal road library with AI auto-inclusion.
+**Competitive alert**: Ridrs is the most direct threat. They're targeting the unified-app white space. Differentiation opportunities that Ridrs does NOT address: weather-integrated routing, road hazard reporting, personal road library with AI auto-inclusion. **Standalone weather apps validate the need** but don't solve the integration problem — riders still juggle them alongside a separate navigation app.
 
 ---
 
@@ -236,6 +239,12 @@ Road hazard reporting ranked #9 in rider needs (higher than several V1 features)
 
 **Resolution**: Add to V2 investigation queue. Design data model in V1 to support future hazard reports with time-decay. Community-sourced hazard data could become a significant moat if built correctly.
 
+### Gap 5: Weather Competitive Claim Accuracy
+
+The strategy previously claimed "no competitor does weather-along-route." Research (April 2026 deep dive) reveals at least 7 standalone apps already provide route-based weather for motorcyclists (MotoMeteo, ClearRide, Weather On The Way, Drive Weather, BikerWeather, Rider Weather, Zephyr GPS). The claim is inaccurate as stated.
+
+**Resolution**: Revised differentiation framing: the white space is **integration**, not invention. No motorcycle route planning app combines weather intelligence with twisty road routing, NL planning, and ride memory in a single experience. Standalone weather apps validate the need but have tiny user bases (MotoMeteo: 1 rating, BikerWeather: 100+ downloads) — riders won't switch to a weather-only app, but they will adopt a planning app that eliminates their need for a separate weather app. Updated competitive claim throughout this document.
+
 ---
 
 ## Feature Sequencing (Recommended)
@@ -312,6 +321,8 @@ If that works and feels magical, V1 ships.
 | Ridrs gains traction before launch | Medium | Weather-along-route is our differentiator that Ridrs doesn't have. Speed matters. |
 | Scenic launches Android app | Medium | Our NLP + weather is 12+ months ahead. Ship first. |
 | Riders don't trust AI routing | Medium | Show reasoning: "This route includes your saved SR-1 segment." Build trust progressively. |
+| Standalone weather apps (MotoMeteo, ClearRide, Weather On The Way) already serve route-weather need | Medium | Integration must be demonstrably better — not just weather on a map, but weather driving route scoring, recommendations, and ride memory. Position as "weather intelligence" not "weather data." |
+| Calimoto removed weather due to low engagement — same could happen to LaneShadow | Medium | Calimoto's weather was web-only (not in mobile app). LaneShadow's weather is mobile-first, tied to route scoring, and the primary planning lens. Monitor weather overlay interaction rate KPI closely post-launch. |
 | Weather API downtime | Low | Fallback to cached weather data. Graceful degradation. |
 | Free tier too generous | Low | Conditions scoring + road library are strong Pro motivators. Monitor conversion. |
 
@@ -322,6 +333,7 @@ If that works and feels magical, V1 ships.
 ### A. Research Sources
 
 Full research stored in holocron: `js7f39nkhs8yxzvpr211x1yvqx84q30z`
+Weather differentiator deep dive (holocron: `js77rtpc7sty45w9reha5b1tw984pd8e`, local: `.spec/artifacts/research/weather-differentiator-deep-dive.md`)
 
 ### B. Related Documents
 
@@ -342,3 +354,6 @@ Full research stored in holocron: `js7f39nkhs8yxzvpr211x1yvqx84q30z`
 | Road hazard reporting | Not on roadmap | V2 investigation queue | Ranked #9 in rider needs; no competitor does this |
 | Group coordination | V2 feature | V2 feature (unchanged) | Confirmed by research as high-value but needs critical mass |
 | Positioning | "AI-native planner" | "Weather ON your route" | Differentiation story aligned with rider priorities |
+| Weather competitive claim | "No competitor does this" | "Integration is the differentiator" | Research found 7 standalone weather apps; updated to reflect actual landscape |
+| Calimoto weather | Not mentioned | Added to competitive table + Pillar 1 note | Removed April 2024 due to minimal usage — implementation lesson for LaneShadow |
+| Standalone weather apps | Not in competitive set | Added as indirect competitors | MotoMeteo, ClearRide, Weather On The Way, Drive Weather, BikerWeather validate need but not standalone business model |
