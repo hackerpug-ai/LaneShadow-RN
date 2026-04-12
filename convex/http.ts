@@ -107,6 +107,168 @@ http.route({
   }),
 })
 
+// Public curation endpoints - for mobile client sync
+// NOTE: All endpoints require Clerk authentication
+
+// Lean sync endpoint - GET /api/routes/lean
+// Returns all routes or delta sync with pagination
+http.route({
+  path: '/api/routes/lean',
+  method: 'GET',
+  handler: httpAction(async (ctx, req) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) {
+      return new Response(JSON.stringify({ error: 'UNAUTHORIZED' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const url = new URL(req.url)
+    const state = url.searchParams.get('state')
+    const since = url.searchParams.get('since')
+    const numItems = url.searchParams.get('numItems')
+    const cursor = url.searchParams.get('cursor')
+
+    const paginationOpts = {
+      numItems: numItems ? parseInt(numItems, 10) : 50,
+      cursor,
+    }
+
+    try {
+      const result = await ctx.runQuery(convexInternal.db.curation.leanSync, {
+        state: state || undefined,
+        since: since ? parseInt(since, 10) : undefined,
+        paginationOpts,
+      })
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    } catch (err: any) {
+      if (err.message === 'UNAUTHORIZED') {
+        return new Response(JSON.stringify({ error: 'UNAUTHORIZED' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+      return new Response(
+        JSON.stringify({ error: 'internal_error', detail: err?.message ?? 'unknown error' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+  }),
+})
+
+// Enrichment fetch endpoint - GET /api/routes/enrichment
+// Returns enrichments for requested routeIds (max 50)
+http.route({
+  path: '/api/routes/enrichment',
+  method: 'GET',
+  handler: httpAction(async (ctx, req) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) {
+      return new Response(JSON.stringify({ error: 'UNAUTHORIZED' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const url = new URL(req.url)
+    const idsParam = url.searchParams.get('ids')
+
+    if (!idsParam) {
+      return new Response(JSON.stringify({ error: 'MISSING_IDS' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const routeIds = idsParam.split(',')
+
+    try {
+      const result = await ctx.runQuery(convexInternal.db.curation.fetchEnrichments, {
+        routeIds,
+      })
+      return new Response(JSON.stringify({ enrichments: result }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    } catch (err: any) {
+      if (err.message === 'UNAUTHORIZED') {
+        return new Response(JSON.stringify({ error: 'UNAUTHORIZED' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+      if (err.message === 'MAX_50_ROUTE_IDS') {
+        return new Response(JSON.stringify({ error: 'MAX_50_ROUTE_IDS' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+      return new Response(
+        JSON.stringify({ error: 'internal_error', detail: err?.message ?? 'unknown error' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+  }),
+})
+
+// Staleness check endpoint - POST /api/routes/missing-enrichments
+// Returns routeIds with stale enrichment versions
+http.route({
+  path: '/api/routes/missing-enrichments',
+  method: 'POST',
+  handler: httpAction(async (ctx, req) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) {
+      return new Response(JSON.stringify({ error: 'UNAUTHORIZED' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    let body: { pairs: Array<{ routeId: string; version: number }> }
+    try {
+      body = await req.json()
+    } catch {
+      return new Response(JSON.stringify({ error: 'invalid_body', detail: 'not json' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (!body.pairs || !Array.isArray(body.pairs)) {
+      return new Response(JSON.stringify({ error: 'invalid_body', detail: 'pairs array required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    try {
+      const result = await ctx.runQuery(convexInternal.db.curation.checkStaleEnrichments, {
+        pairs: body.pairs,
+      })
+      return new Response(JSON.stringify({ stale: result }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    } catch (err: any) {
+      if (err.message === 'UNAUTHORIZED') {
+        return new Response(JSON.stringify({ error: 'UNAUTHORIZED' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+      return new Response(
+        JSON.stringify({ error: 'internal_error', detail: err?.message ?? 'unknown error' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+  }),
+})
+
 // OSM import endpoints - for ETL pipeline
 http.route({
   path: '/osm/importNodes',
