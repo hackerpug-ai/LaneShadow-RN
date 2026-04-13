@@ -162,3 +162,119 @@ class ExtractionClient:
     def model(self) -> str:
         """Get the model name."""
         return self._model
+
+
+if __name__ == "__main__":
+    import argparse
+    import json
+    import logging
+    import sys
+    from pathlib import Path
+
+    from scripts.curation.pipeline.extraction.schema import EXTRACTION_SCHEMA_VERSION
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    parser = argparse.ArgumentParser(
+        description="Extract route attributes using Claude Haiku"
+    )
+    parser.add_argument(
+        "--sample",
+        required=True,
+        help="Path to input JSONL of Route records (from FHWA or other source)",
+    )
+    parser.add_argument(
+        "--count",
+        type=int,
+        default=20,
+        help="Number of routes to extract (cost bound, default: 20)",
+    )
+    parser.add_argument(
+        "--out", required=True, help="Output JSONL path for RouteAttributes"
+    )
+    args = parser.parse_args()
+
+    # Verify ANTHROPIC_API_KEY is set
+    if "ANTHROPIC_API_KEY" not in os.environ:
+        logger.error(
+            "ANTHROPIC_API_KEY environment variable is not set. "
+            "Please set it before running extraction."
+        )
+        sys.exit(1)
+
+    # Read sample routes from JSONL
+    sample_path = Path(args.sample)
+    if not sample_path.exists():
+        logger.error(f"Sample file not found: {sample_path}")
+        sys.exit(1)
+
+    routes = []
+    with open(sample_path) as f:
+        for line in f:
+            if line.strip():
+                routes.append(json.loads(line))
+                if len(routes) >= args.count:
+                    break
+
+    logger.info(f"Read {len(routes)} routes from {sample_path}")
+
+    # Initialize extraction client
+    try:
+        client = ExtractionClient()
+    except ValueError as e:
+        logger.error(f"Failed to initialize ExtractionClient: {e}")
+        sys.exit(1)
+
+    # Log critical metadata
+    logger.info(
+        f"EXTRACTION_SCHEMA_VERSION={EXTRACTION_SCHEMA_VERSION} "
+        f"temperature={client.temperature} model={client.model}"
+    )
+
+    # Create output directory
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Extract attributes for each route
+    success_count = 0
+    failure_count = 0
+
+    with open(out_path, "w") as out_f:
+        for i, route in enumerate(routes, 1):
+            try:
+                # Build extraction text from route name and description
+                name = route.get("name", "Unknown Route")
+                state = route.get("state", "")
+                description = route.get("description", "")
+
+                if state:
+                    route_text = f"{name} ({state})\n{description}"
+                else:
+                    route_text = f"{name}\n{description}"
+
+                logger.info(f"Extracting [{i}/{len(routes)}]: {name}")
+
+                # Extract attributes via Haiku
+                attrs = client.extract(route_text)
+
+                # Write as JSON line using Pydantic model_dump_json()
+                out_f.write(attrs.model_dump_json() + "\n")
+                success_count += 1
+
+            except Exception as e:
+                logger.error(f"Failed to extract attributes for route {i}: {e}")
+                failure_count += 1
+                continue
+
+    # Summary
+    logger.info(
+        f"Extraction complete: {success_count} succeeded, {failure_count} failed"
+    )
+    logger.info(f"Output written to: {out_path}")
+
+    if failure_count > 0:
+        logger.warning(
+            f"Some extractions failed ({failure_count}/{len(routes)}). "
+            "Check logs for details."
+        )
+        sys.exit(1)
