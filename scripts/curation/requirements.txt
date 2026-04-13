@@ -7,3 +7,5 @@ anthropic>=0.40.0
 instructor>=1.0.0
 pydantic>=2.0.0
 scipy>=1.11.0
+shapely>=2.0.0
+pyproj>=3.6.0
