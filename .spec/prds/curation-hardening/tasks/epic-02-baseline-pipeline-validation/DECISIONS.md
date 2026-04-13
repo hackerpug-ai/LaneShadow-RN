@@ -35,7 +35,20 @@ pipeline's baseline input has therefore never existed.
 route names**, not the 184 expected. Investigation revealed the layer is not the FHWA
 America's Byways program in isolation — it's a **DOT-compiled superset of all scenic
 byways tracked across agencies**. The `Admin_Org` field holds comma-separated agency
-tags drawn from 22 distinct combinations:
+tags drawn from 22 distinct combinations.
+
+**BASE-000 execution (2026-04-13)** — `fetch_fhwa.py` successfully queried layer 107
+and wrote `data/fhwa_byways.csv` with **645 rows**. Agency tag breakdown from the live query:
+- STATE: 524 routes
+- NSB: 124 routes (federal National Scenic Byways)
+- USFS: 129 routes (Forest Service)
+- BLM: 54 routes (BLM Back Country Byways)
+- NPS: 9 routes (National Park Service)
+- OTHER: 7 routes
+
+All routes had state resolution via point-in-polygon on layer 110. Known landmarks verified:
+- Blue Ridge Parkway: North Carolina / Virginia, AgencyTags "NSB, USFS, NPS", 467.2 miles
+- Beartooth Highway: Montana / Wyoming, AgencyTags "NSB, USFS", 68.3 miles
 
 | Tag | Route count | What it represents |
 |---|---|---|
