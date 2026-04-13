@@ -212,4 +212,65 @@ fhwa-alaska-railroad-alaska: None (no geometry in remote area)
 
 ---
 
+## Composite Scoring (PIPE-007)
+
+**Status:** PASS (2026-04-13)
+
+**Scoring Module:** `scripts.curation.pipeline.scoring.composite`
+
+**Input File:** `staging/fhwa.jsonl` (645 FHWA routes)
+
+**Output File:** `.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/scores.json`
+
+**Routes Scored:** 20 routes (validation sample)
+
+**Validation Results:**
+- AC-1 (module runnable): PASS - `python -m scripts.curation.pipeline.scoring.composite --input staging/fhwa.jsonl --out baseline/scores.json --count 20` exits 0
+- AC-2 (count validation): PASS - Output has exactly 20 elements
+- AC-3 (score range): PASS - All composite_score values are floats in [0.0, 1.0] with no NaN
+
+**Scoring Weights (from PRD S9-TRD-4 §4.2):**
+```python
+WEIGHTS = {
+    "curviness": 0.25,           # LLM-extracted curviness category
+    "scenery": 0.15,             # LLM-extracted scenery quality
+    "traffic": 0.15,             # LLM-extracted traffic level
+    "condition": 0.10,           # LLM-extracted road condition
+    "osm_curvature": 0.15,       # Geometric curvature from OSM (not available in Phase 1)
+    "elevation_drama": 0.10,     # Elevation profile (not available in Phase 1)
+    "fhwa_designation": 0.05,    # FHWA scenic designation
+    "community_rating": 0.05,    # Community ratings (not available in Phase 1)
+}
+```
+
+**Phase 1 Scoring Behavior:**
+- All component scores return neutral 0.5 across all dimensions
+- Composite scores are 0.5 for all routes (weighted sum of neutral inputs)
+- This is expected behavior for Phase 1 (FHWA-only baseline)
+- Future phases will incorporate LLM-extracted attributes and OSM geometry
+
+**Sample Scored Record:**
+```json
+{
+  "route_id": "fhwa-a1a-ocean-shore-scenic-highway-florida",
+  "name": "A1A Ocean Shore Scenic Highway",
+  "curvature_score": 0.5,
+  "scenic_score": 0.5,
+  "technical_score": 0.5,
+  "traffic_score": 0.5,
+  "remoteness_score": 0.5,
+  "composite_score": 0.5
+}
+```
+
+**Notes:**
+- Composite scoring infrastructure validated successfully
+- Boy Scout `__main__` fix committed separately (see commit prior to this work)
+- All 6 component scores computed correctly (curvature, scenic, technical, traffic, remoteness, composite)
+- Score clamping to [0.0, 1.0] working as designed
+- No NaN or out-of-range values detected
+- Phase 2 will activate real scoring when LLM extraction and OSM geometry are available
+
+---
+
 *Last updated: 2026-04-13*

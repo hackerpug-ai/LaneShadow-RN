@@ -1,0 +1,202 @@
+[
+  {
+    "route_id": "fhwa-a1a-ocean-shore-scenic-highway-florida",
+    "name": "A1A Ocean Shore Scenic Highway",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-a1a-river-to-sea-trail-florida",
+    "name": "A1A River to Sea Trail",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-a1a-scenic-historic-coastal-byway-florida",
+    "name": "A1A Scenic & Historic Coastal Byway",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-abo-pass-trail-new-mexico",
+    "name": "Abo Pass Trail",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-accommodation-line-scenic-byway-ohio",
+    "name": "Accommodation Line Scenic Byway",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-adirondack-trail-new-york",
+    "name": "Adirondack Trail",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-alaska-railroad-alaska",
+    "name": "Alaska Railroad",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-alaska-s-marine-highway-alaska",
+    "name": "Alaska's Marine Highway",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-alligator-river-route-north-carolina",
+    "name": "Alligator River Route",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-alpine-loop-national-back-country-byway-colorado",
+    "name": "Alpine Loop National Back Country Byway",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-altamaha-historic-scenic-byway-georgia",
+    "name": "Altamaha Historic Scenic Byway",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-amish-country-byway-ohio",
+    "name": "Amish Country Byway",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-ancient-bristlecone-scenic-byway-route-168-california",
+    "name": "Ancient Bristlecone Scenic Byway (Route 168)",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-angel-lake-road-nevada",
+    "name": "Angel Lake Road",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-angeles-crest-scenic-byway-route-2-california",
+    "name": "Angeles Crest Scenic Byway (Route 2)",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-antietam-campaign-scenic-byway-maryland-pennsylvania-virginia",
+    "name": "Antietam Campaign Scenic Byway",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-apache-trail-historic-road-arizona",
+    "name": "Apache Trail Historic Road",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-apalachee-savannahs-scenic-byway-florida",
+    "name": "Apalachee Savannahs Scenic Byway",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-appalachian-medley-north-carolina",
+    "name": "Appalachian Medley",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  },
+  {
+    "route_id": "fhwa-apple-blossom-scenic-drive-minnesota",
+    "name": "Apple Blossom Scenic Drive",
+    "curvature_score": 0.5,
+    "scenic_score": 0.5,
+    "technical_score": 0.5,
+    "traffic_score": 0.5,
+    "remoteness_score": 0.5,
+    "composite_score": 0.5
+  }
+]
