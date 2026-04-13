@@ -329,4 +329,67 @@ Decision tree priority order:
 
 ---
 
+## Convex Push (BASE-007)
+
+**Status:** PASS (2026-04-13)
+
+**Push Module:** `scripts.curation.pipeline.sync.convex_push`
+
+**Input Files:**
+- `.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/scores.json` (20 scored routes)
+- `staging/fhwa.jsonl` (645 FHWA routes with metadata)
+
+**Routes Validated:** 20 routes
+
+**Validation Results:**
+- AC-1 (dry-run validation): PASS - Exit code 0, 20 routes serialized successfully
+- AC-2 (serialization): PASS - All routes JSON-serializable with no TypeError or ValidationError
+- AC-3 (no HTTP calls): PASS - Zero HTTP requests made in dry-run mode
+- AC-4 (baseline report): PASS - This section documents the results
+
+**Boy Scout Improvements:**
+- Added `dry_run: bool = False` parameter to `push_routes()` function
+- Added early-return validation in dry-run mode (serializes all routes before HTTP calls)
+- Added `__main__` block with argparse CLI interface
+- CLI joins scored routes with staging metadata to reconstruct complete EnrichedRoute objects
+- Default to `--dry-run=True` for safe validation
+
+**Dry-Run Command:**
+```bash
+source .env.local && PYTHONPATH=/Users/justinrich/Projects/LaneShadow .venv/bin/python -m scripts.curation.pipeline.sync.convex_push \
+  --input .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/scores.json \
+  --staging staging/fhwa.jsonl \
+  --dry-run
+```
+
+**Dry-Run Output:**
+```
+INFO: Read 20 routes from .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/scores.json (joined with staging/fhwa.jsonl)
+INFO: DRY RUN: 20 routes serialized successfully (no HTTP calls)
+INFO: Result: sent=20, inserted=0, failed=0
+```
+
+**Environment Variables Required (for live push):**
+- `CONVEX_URL`: Base URL of the Convex deployment (e.g., "https://example.convex.site")
+- `CURATION_DEPLOY_KEY`: Deploy key for authentication (see 09-technical-requirements.md §API Design)
+
+**Infrastructure Quality:**
+- ✅ Module executable via `python -m`
+- ✅ argparse interface with `--input`, `--staging`, `--dry-run`, `--base-url`, `--deploy-key` flags
+- ✅ Route-score join by route_id working correctly
+- ✅ EnrichedRoute reconstruction with all required fields (state, source, centroid_lat, centroid_lng)
+- ✅ JSON serialization validation catches malformed data before HTTP calls
+- ✅ Dry-run mode prevents accidental production pushes
+- ✅ Early-return logic validates all routes without making network requests
+
+**Notes:**
+- Convex push infrastructure validated successfully
+- Boy Scout `__main__` and `--dry-run` improvements committed separately (see commit 1ee29ea)
+- Dry-run validation confirms all 20 routes are serializable and ready for push
+- Live push to Convex requires `CURATION_DEPLOY_KEY` and `CONVEX_URL` environment variables
+- No HTTP requests were made during validation (dry-run mode)
+- Future epics can use `--dry-run=False` to perform actual Convex ingestion
+
+---
+
 *Last updated: 2026-04-13*
