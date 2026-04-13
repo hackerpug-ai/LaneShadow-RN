@@ -3,7 +3,8 @@
 **Sequence:** 2 / 12
 **Priority:** P0
 **Status:** Backlog
-**Estimated Effort:** 240 minutes (~4 hours)
+**Estimated Effort:** 405 minutes (~6.75 hours) — includes BASE-000 data prep inserted 2026-04-13
+**Revised:** 2026-04-13 — BASE-000 inserted as prerequisite after `/kb-run-epic` preflight revealed the FHWA input CSV did not exist and the DOT ArcGIS layer returns 645 routes (not the 184 the PRD originally assumed). See [DECISIONS.md](./DECISIONS.md) for the full rationale and [Preflight Discoveries](#preflight-discoveries-2026-04-13) below.
 
 ---
 
@@ -23,7 +24,7 @@ This epic is the **baseline truth check**: run every existing stage of the curat
 
 After the baseline validation task is complete, an administrator should be able to run each existing pipeline stage and verify correct outputs:
 
-1. **Run FHWA ingestion** — Execute `python -m scripts.curation.pipeline.sources.fhwa`. Verify ~184 All-American/National Scenic Byway routes written to a JSONL staging file. Check: names, states, and centroid coordinates present.
+1. **Run FHWA ingestion** — Execute `python -m scripts.curation.pipeline.sources.fhwa` against `data/fhwa_byways.csv` (produced by BASE-000 from the DOT ArcGIS `US_Scenic_Byways/MapServer/107` layer). Verify ~645 scenic byway routes (NSB + state + USFS + NPS + BLM mixed superset) written to a JSONL staging file. Check: names, states, and centroid coordinates present. **Note:** the original "~184" target was a predecessor-PRD assumption against a non-existent data.gov CSV; the real DOT source is a 645-route superset — see [DECISIONS.md](./DECISIONS.md).
 2. **Run MotorcycleRoads scraper** — Execute `python -m scripts.curation.pipeline.sources.motorcycleroads`. Verify routes scraped with respect for robots.txt and rate limits. Spot-check 5 routes for correct name/state/description.
 3. **Run BestBikingRoads scraper** — Execute `python -m scripts.curation.pipeline.sources.bestbikingroads`. Verify ~17k routes (the known BBR catalog) scraped to JSONL without crashes.
 4. **Run Haiku extraction on a sample** — Pipe a 20-route sample through `extraction/client.py`. Verify each route gets a `RouteAttributes` object with curvature/scenery/traffic/condition/elevation populated. Check `temperature=0` and `EXTRACTION_SCHEMA_VERSION` logged.
@@ -40,15 +41,17 @@ All 9 verifications must pass before proceeding to Epic 3. Any failure means an 
 
 ## Acceptance Criteria (Epic-Level)
 
+- [ ] BASE-000 static CSV committed to `data/fhwa_byways.csv` (~645 routes derived from DOT ArcGIS)
 - [ ] Every existing pipeline stage has been executed at least once against real data
 - [ ] Each stage produces expected output types and ranges
-- [ ] JSONL staging files exist for each source with reasonable counts
+- [ ] JSONL staging files exist for each source with reasonable counts (FHWA: 580-710; MR: >50; BBR: 10k-20k)
 - [ ] Haiku extraction produces valid `RouteAttributes` objects (no schema violations)
 - [ ] Composite scoring produces floats in `[0, 1]` range per dimension
 - [ ] Archetype classification assigns one of 6 archetypes to every route
 - [ ] Convex push (dry-run) serializes without type errors
 - [ ] Any bugs discovered are fixed, committed, and baseline re-validated
 - [ ] Baseline validation report written to `.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline-report.md`
+- [ ] DECISIONS.md records the actual BASE-000 row count and any anomalies encountered
 - [ ] Curation Review Protocol executed end-to-end with PASS verdict
 - [ ] `review.md` + `baseline/catalog.jsonl` committed (this becomes the reference baseline for all future epic reviews)
 
@@ -71,28 +74,58 @@ No curation-hardening-specific UCs are covered here — this epic exists solely 
 
 | ID | Title | Type | Agent | Priority | Effort | Est. Min | Depends On | Blocks |
 |----|-------|------|-------|----------|--------|----------|------------|--------|
-| [BASE-001](./BASE-001.md) | FHWA source validation + Boy Scout __main__ entry point | INFRA | python-implement | P0 | S | 30 | VAL-004 | BASE-003, BASE-006, BASE-008 |
+| [BASE-000](./BASE-000.md) | Fetch FHWA Scenic Byways dataset from DOT ArcGIS and write static CSV baseline | INFRA / DATA_PREP | python-implement | P0 | M | 90 | (none — Wave 0 entry) | BASE-001 |
+| [BASE-001](./BASE-001.md) | FHWA source validation + Boy Scout __main__ entry point | INFRA | python-implement | P0 | S | 30 | VAL-004, BASE-000 | BASE-003, BASE-006, BASE-008 |
 | [BASE-002](./BASE-002.md) | Community scrapers validation — MotorcycleRoads + BestBikingRoads | INFRA | python-implement | P0 | S | 30 | VAL-004 | BASE-008 |
 | [BASE-003](./BASE-003.md) | Haiku extraction validation + Boy Scout __main__ for extraction/client.py | INFRA | python-implement | P0 | S | 45 | BASE-001 | BASE-004, BASE-008 |
 | [BASE-004](./BASE-004.md) | Composite scoring validation + Boy Scout __main__ for scoring/composite.py | INFRA | python-implement | P0 | S | 30 | BASE-003 | BASE-005, BASE-007, BASE-008 |
 | [BASE-005](./BASE-005.md) | Archetype classification validation + Boy Scout __main__ for classification/archetype.py | INFRA | python-implement | P0 | S | 30 | BASE-004 | BASE-008 |
 | [BASE-006](./BASE-006.md) | OSM enrichment validation + Boy Scout __main__ for enrichment/osm_client.py | INFRA | python-implement | P0 | S | 45 | BASE-001 | BASE-008 |
 | [BASE-007](./BASE-007.md) | Convex push dry-run validation + Boy Scout --dry-run flag for sync/convex_push.py | INFRA | python-implement | P0 | S | 45 | BASE-004, VAL-004 | BASE-008 |
-| [BASE-008](./BASE-008.md) | Curation Review Protocol execution + baseline artifacts commit | INFRA | python-implement | P0 | M | 60 | BASE-001..007 | INF-001 |
+| [BASE-008](./BASE-008.md) | Curation Review Protocol execution + baseline artifacts commit | INFRA | python-implement | P0 | M | 60 | BASE-000..007 | INF-001 |
 
-**Total effort:** 315 minutes (~5.25 hours) across 8 tasks. Average quality score ~110/115. Decomposed from archived `BASE-001.md.archived` (240-min single task) on 2026-04-12.
+**Total effort:** 405 minutes (~6.75 hours) across 9 tasks. Average quality score ~110/115. Originally decomposed from archived `BASE-001.md.archived` (240-min single task) on 2026-04-12; expanded 2026-04-13 with BASE-000 data prep after preflight investigation.
 
 ### Decomposition Rationale
 
-The original BASE-001 was a 240-minute single INFRA task with 8 ACs spanning 8 pipeline stages — too big for a single agent context window and impossible to parallelize. The decomposition produces 8 smaller tasks (mostly 30-45 min each) that can be executed across parallelization waves:
+**Round 1 — 2026-04-12:** The original BASE-001 was a 240-minute single INFRA task with 8 ACs spanning 8 pipeline stages — too big for a single agent context window and impossible to parallelize. The decomposition produced 8 smaller tasks (BASE-001 through BASE-008, mostly 30-45 min each) that can be executed across parallelization waves.
+
+**Round 2 — 2026-04-13:** `/kb-run-epic` preflight revealed two premise failures in the 2026-04-12 decomposition:
+1. **Missing input file.** BASE-001 required `data/fhwa_byways.csv` which did not exist anywhere in the repository. The predecessor PRD claimed it would come from data.gov, but data.gov has never published a federal National Scenic Byways CSV.
+2. **Wrong target count.** The canonical authoritative source — DOT ArcGIS `US_Scenic_Byways/MapServer/107` — returns 648 features / 645 distinct routes, NOT the 184 the PRD assumed. The 184 was an aspirational reference to the FHWA "America's Byways" federal program; the DOT layer is a DOT-compiled superset including state-designated, USFS, NPS, and BLM routes.
+
+**Resolution (Option 1 per DECISIONS.md):** Insert BASE-000 as a new Wave 0 data-prep task that fetches layer 107 as GeoJSON, derives the 6-column CSV deterministically, asserts row count in a 580-710 tolerance window (±10% around 645), and commits `data/fhwa_byways.csv` as static data. All downstream BASE-* tasks are hermetic against the committed CSV — no network fetches at pipeline runtime. BASE-001's Boy Scout `__main__` fix is otherwise unchanged; its AC-2 tolerance window updated from 165-203 to 580-710. The "184" references throughout the curation-hardening PRD are updated to reflect the 645-route reality — see the 2026-04-13 diff batch for the full consistency edit list.
+
+**Revised wave plan:**
 
 ```
-Wave 1 (after VAL-004):   BASE-001  ║  BASE-002
+Wave 0 (entry):           BASE-000  (NEW — fetch DOT layer → data/fhwa_byways.csv)
+Wave 1 (after BASE-000):  BASE-001  ║  BASE-002
 Wave 2 (after BASE-001):  BASE-003  ║  BASE-006
 Wave 3 (after BASE-003):  BASE-004
 Wave 4 (after BASE-004):  BASE-005  ║  BASE-007
 Wave 5 (after all above): BASE-008  (Curation Review Protocol + baseline commit)
 ```
+
+## Preflight Discoveries (2026-04-13)
+
+Captured during `/kb-run-epic` preflight investigation before any agent dispatch. Each item represents a premise failure in the original 2026-04-12 task specs that was discovered, documented, and resolved before execution.
+
+1. **FHWA CSV never existed.** The predecessor PRD (`.spec/prds/curation/05-uc-ingest.md:25`) claimed "System downloads FHWA byways CSV from data.gov URL". That statement was aspirational — data.gov does not publish a federal National Scenic Byways CSV (only Iowa, New York, and North Dakota state subsets are indexed). FHWA publishes the "America's Byways" program only as PDF and HTML, neither with coordinates. `parse_fhwa_csv()` was implemented against a schema no public source provides directly.
+
+2. **Canonical source identified.** The authoritative DOT data lives at `https://geo.dot.gov/server/rest/services/US_Scenic_Byways/MapServer/107` — an ArcGIS FeatureServer supporting GeoJSON query format, public domain per 17 USC §101, no API key required.
+
+3. **184 vs 645 reality gap.** Layer 107 returns **648 features / 645 distinct routes**, not 184. The layer is a DOT-compiled superset of scenic byways across all US agencies. `Admin_Org` field breakdown: 127 NSB-tagged, 525 STATE, 130 USFS, 54 BLM, 9 NPS. The `Type` field is uniformly `"National Scenic Byway"` — AAR is not encoded in this layer. Filtering to NSB-only yields 127 (still not 184, since the DOT layer lags program updates).
+
+4. **BASE-000 inserted as prerequisite.** New Wave 0 data-prep task fetches layer 107, derives the 6-column CSV (`RouteName, State, CentroidLat, CentroidLng, LengthMiles, AgencyTags`), asserts 580-710 rows, and commits `data/fhwa_byways.csv` as static data. See [BASE-000.md](./BASE-000.md) and [DECISIONS.md](./DECISIONS.md).
+
+5. **Landmark set verified.** Blue Ridge Parkway, Beartooth Highway, and Pacific Coast (OR+WA segments) are present in layer 107 with NSB tags. Tail of the Dragon and Million Dollar Highway are **NOT** — they're state-designated and will enter the catalog via BBR/MR community scrapers (BASE-002), not via BASE-001. BASE-008's 5-landmark spot check still works because it validates the full post-dedup catalog, not just the FHWA source.
+
+6. **AAR/NSB binary retired.** The proposed `Designation` column (NSB vs AAR) was replaced with `AgencyTags` because the DOT layer doesn't encode AAR at all. Downstream scoring in Epic 8 (SCO-001) can derive a more granular `fhwa_designation` signal from the raw `Admin_Org` tag string than the current binary.
+
+7. **Narrow-execution strategy adopted.** The two spec-drift findings above (both discovered within minutes of preflight kickoff) indicated the 2026-04-12 task specs had significant unverified assumptions. Execution strategy shifted from full-epic parallel dispatch to narrow sequential: BASE-000 → BASE-001 → evaluate preconditions for each remaining task before dispatching. See DECISIONS.md for rationale.
+
+8. **Stale worktrees flagged for cleanup.** Four worktrees from prior `/kb-run-epic` runs remain at `.claude/worktrees/agent-{a217777d,a402df1a,a80e1c46,a828ec83}`. Confirmed as leftover state from already-merged VAL-001, VAL-002, VAL-004 work. Safe to remove before Wave 0 dispatch.
 
 ### Boy Scout __main__ Fixes (inventory)
 

@@ -46,6 +46,7 @@ python -m scripts.curation.pipeline.sources.reddit              # Epic 9+
 python -m scripts.curation.pipeline.sources.pushshift           # Epic 9+
 ```
 *Sources removed 2026-04-12: `bdr` (dropped — V3 lifestyle mismatch + VAL-002 403s), `twtex` (dropped — PRD assumption failed, VAL-003 no-go), `usfs_mvum` (dropped — V3 lifestyle mismatch).*
+*FHWA data lineage (2026-04-13): `scripts/curation/pipeline/sources/fhwa.py` consumes `data/fhwa_byways.csv`, a static committed file produced by Epic 2 BASE-000 from the DOT ArcGIS `US_Scenic_Byways/MapServer/107` layer (~645 routes across NSB / state / USFS / NPS / BLM tags). The predecessor PRD's aspirational "184-route data.gov CSV" reference has been retired — see `epic-02-baseline-pipeline-validation/DECISIONS.md`. Expected FHWA count in each epic's `source_counts.json` is ~645 (tolerance 580–710) unless DOT updates the layer, in which case a new DECISIONS.md entry documents the delta.*
 **Verify:** each source produces a JSONL staging file with expected route count. Log discrepancies.
 
 ### Step 2: Run enrichment clients

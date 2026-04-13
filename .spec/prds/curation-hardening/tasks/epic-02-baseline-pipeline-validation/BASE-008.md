@@ -16,7 +16,7 @@ CRITICAL CONSTRAINTS
 --------------------------------------------------------------------------------
 
 MUST: Execute Curation Review Protocol steps 1, 2, 6, 7, 8, 12 (Epic 2 scope) in order and record each step's result in `review.md`.
-MUST: Run five landmark spot checks — Tail of the Dragon (NC), Blue Ridge Parkway (VA/NC), Beartooth Highway (MT/WY), Pacific Coast Highway (CA), Million Dollar Highway (CO) — and document each route's presence in `staging/fhwa.jsonl`, `primary_archetype`, `composite_score`, and whether it passed AC-2 count checks.
+MUST: Run five landmark spot checks — Tail of the Dragon (NC/TN), Blue Ridge Parkway (VA/NC), Beartooth Highway (MT/WY), Pacific Coast Highway (CA/OR/WA), Million Dollar Highway (CO) — and document each route's presence in the **full post-dedup catalog** (not just `staging/fhwa.jsonl`), `primary_archetype`, `composite_score`, and source of origin. **Note (2026-04-13):** Blue Ridge Parkway and Beartooth Highway are in the FHWA source (layer 107). Pacific Coast exists in FHWA as Oregon and Washington segments separately, with the California Route 1 section tagged STATE-only. **Tail of the Dragon and Million Dollar Highway are NOT in the DOT FHWA layer** — they are state-designated and enter the catalog exclusively via BBR/MR community scrapers (BASE-002). Verify all five across the combined catalog, not any single source.
 MUST: Write `review.md` with verdict PASS, PASS WITH ISSUES, or FAIL using the exact three-value convention — if the honest verdict is FAIL, escalate to the user rather than marking this task done.
 MUST: Commit all baseline artifacts (`baseline/catalog.jsonl`, `baseline/scores.json`, `baseline/archetype_counts.json`, `baseline/source_counts.json`, `baseline-report.md`, `review.md`) in a single git commit before this task is marked done.
 MUST: Document all N/A protocol steps (3-5, 9-11, 13) in `review.md` with "N/A until Epic X" so the review lineage is complete and future reviewers know which steps were skipped and why.
@@ -24,7 +24,7 @@ NEVER: Push routes to the production Convex deployment — protocol step 12 uses
 NEVER: Mark this task done without a committed `review.md` — uncommitted review artifacts are not considered done.
 NEVER: Fabricate a PASS verdict if any pipeline stage crashed or produced output outside expected ranges — report honestly and escalate.
 STRICTLY: Follow the Curation Review Protocol step ordering — do not run step 12 (push) before step 6 (extraction) confirms success.
-STRICTLY: Write `baseline/source_counts.json` as a JSON object mapping source name to route count: `{"fhwa": N, "motorcycleroads": N, "bestbikingroads": N}` — this is a new artifact required by step 1 of the protocol.
+STRICTLY: Write `baseline/source_counts.json` as a JSON object mapping source name to route count: `{"fhwa": N, "motorcycleroads": N, "bestbikingroads": N}` — this is a new artifact required by step 1 of the protocol. **Expected FHWA count ~645** (revised 2026-04-13 from ~184 — see [DECISIONS.md](./DECISIONS.md)).
 
 --------------------------------------------------------------------------------
 SPECIFICATION
@@ -335,6 +335,7 @@ DEPENDENCIES
 --------------------------------------------------------------------------------
 
 Depends On:
+- BASE-000 (FHWA CSV fetch) — produces `data/fhwa_byways.csv` which BASE-001 consumes. Inserted 2026-04-13; see [DECISIONS.md](./DECISIONS.md).
 - BASE-001 (FHWA staging) — needed for source_counts.json and landmark spot checks
 - BASE-002 (community scrapers) — needed for source_counts.json
 - BASE-003 (Haiku extraction) — baseline/catalog.jsonl referenced in review.md step 6

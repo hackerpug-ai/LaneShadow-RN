@@ -24,7 +24,7 @@ The Curation Pipeline Hardening initiative strengthens LaneShadow's route discov
 - No rider-generated signals: ADVRider (7.4M posts), Reddit r/motorcycles (2.3M subscribers), RideWithGPS popular routes — none integrated. The catalog reflects what *someone listed on a website*, not what *riders actually ride and recommend*.
 - No coverage validation: unknown whether Hawaii, Alaska, or Puerto Rico have zero routes. Unknown archetype distribution gaps.
 - No extraction validation: Haiku's attribute accuracy has never been measured against ground truth. The calibration gate exists as an empty scaffold.
-- Government data limited to 184 FHWA routes when 799 Scenic Byways GIS features are freely available.
+- Government data limited to a single FHWA source when richer datasets are available. The Epic 2 baseline ingests ~645 scenic byway routes derived from the DOT ArcGIS `US_Scenic_Byways/MapServer/107` layer (BASE-000, 2026-04-13 — see `tasks/epic-02-baseline-pipeline-validation/DECISIONS.md`). Epic 4 still adds value by layering the Koordinates 799-feature GIS source with higher-quality route polyline geometry and scenic qualities metadata. Note: the legacy "184 route" reference number comes from the FHWA "America's Byways" federal program and appears in predecessor PRD docs; the DOT ArcGIS layer is a broader superset (NSB + state + USFS + NPS + BLM).
 
 **Impact:**
 - Riders in regions underrepresented by BBR see a thin catalog — poor discovery experience

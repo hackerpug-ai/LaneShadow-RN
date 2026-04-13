@@ -23,7 +23,7 @@
 - Job statement: "When I need confidence that my route catalog is comprehensive, accurate, and diverse enough to serve riders across all US regions and ride styles..."
 - Four Forces analysis identified key anxiety: NLP extraction from forums is noisy; calibration gate could block pipeline if threshold is too strict
 - Scope boundaries validated against existing curation PRD — no duplication with UC-INGEST-01 through 04, UC-QUALITY-01 through 03, UC-FLY-01 through 02
-- UC-SRC-01 (Scenic Byways GIS) supersedes existing UC-INGEST-01 (FHWA CSV) for routes with geometry overlap
+- UC-SRC-01 (Scenic Byways GIS) supersedes the Epic 2 baseline FHWA CSV (BASE-000 ArcGIS-derived, ~645 routes from `US_Scenic_Byways/MapServer/107`) for routes with geometry overlap — see `tasks/epic-02-baseline-pipeline-validation/DECISIONS.md` (2026-04-13)
 - All RIDER UCs are net-new scope (forums were explicitly deferred in existing scope as "NLP forum mining")
 
 **Contributors:** product-manager

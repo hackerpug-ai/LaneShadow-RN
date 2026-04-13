@@ -4,6 +4,8 @@
 **Feature:** Source Diversification, Quality Infrastructure, Scoring Realignment, Rider Signals
 **Generated:** 2026-04-12
 **Revised:** 2026-04-12 — BDR (SRC-002), twtex (SRC-003), and USFS (SRC-005) dropped after VAL-002/VAL-003 invalidated PRD assumptions and V3 strategy shifted to lifestyle ride community (ADV/dual-sport sources no longer fit). Epic 5 deleted; SRC-004 folded into Epic 4.
+**Revised:** 2026-04-12 — Epic 2 BASE-001 decomposed from a single 240-min task into 8 smaller tasks (BASE-001..008) for parallelization and context-window manageability. Original file preserved at `epic-02-baseline-pipeline-validation/BASE-001.md.archived`.
+**Revised:** 2026-04-13 — Epic 2 BASE-000 inserted as Wave 0 data-prep prerequisite after `/kb-run-epic` preflight revealed the FHWA input CSV did not exist and the canonical DOT ArcGIS source returns 645 routes (not the 184 the PRD originally assumed). Curation-hardening PRD docs updated to reflect the ~645-route superset reality. See `epic-02-baseline-pipeline-validation/DECISIONS.md`.
 **PRD:** [`.spec/prds/curation-hardening/README.md`](../README.md)
 **Appetite:** 7 weeks (including Week 0 validation)
 
@@ -14,16 +16,16 @@
 | Metric | Value |
 |--------|-------|
 | **Total Epics** | 11 (Epic 5 deleted; sequence numbers preserved — gap from 4 → 6) |
-| **Total Tasks** | 35 |
-| **Full-Detail Task Files** | 5 (Epic 1 + Epic 2 BASE-001) |
+| **Total Tasks** | 43 (Epic 2 expanded from 1 → 9 across 2026-04-12 decomposition + 2026-04-13 BASE-000 insertion) |
+| **Full-Detail Task Files** | 13 (Epic 1: 4 VAL tasks; Epic 2: 9 BASE tasks) |
 | **Stub Tasks** | 30 (Epics 3-4, 6-12) |
 | **PRD Coverage** | 100% of 16 surviving use cases + cross-priority infra |
-| **Estimated Effort** | ~5560 minutes (~93 hours total) — reduced from ~6200 min after 640 min of dropped tasks |
+| **Estimated Effort** | ~5725 minutes (~95 hours total) — round-1 Epic 2 decomposition preserved the 240-min total; round-2 added 90 min for BASE-000 data prep; rest unchanged |
 
 ### Task Quality
 
 - **Epic 1 (VAL-001..004)** — Full TASK-TEMPLATE v4.0 compliance, quality score 115/115 average
-- **Epic 2 (BASE-001)** — Full TASK-TEMPLATE v4.0 compliance, quality score 113/115
+- **Epic 2 (BASE-000..008)** — Full TASK-TEMPLATE v4.0 compliance, quality score ~112/115 average (BASE-001 through BASE-008 originated from a 2026-04-12 decomposition; BASE-000 added 2026-04-13 as a data-prep prerequisite)
 - **Epic 3-12** — Stub-level (task_id, title, agent, dependencies, one-line spec) per user directive
 - **Task files for Epics 3-12** — Will be written as each epic enters execution phase
 
@@ -66,7 +68,7 @@
 | # | Epic | Folder | Tasks | Priority | Human Test Focus |
 |---|------|--------|-------|----------|------------------|
 | 1 | Week 0 — Validation & De-Risking | [epic-01-week0-validation/](./epic-01-week0-validation/) | 4 | P0 | Run 4 validation spikes, verify go/no-go for each risk |
-| 2 | Baseline Curation Pipeline Validation | [epic-02-baseline-pipeline-validation/](./epic-02-baseline-pipeline-validation/) | 1 | P0 | Run existing pipeline end-to-end before hardening |
+| 2 | Baseline Curation Pipeline Validation | [epic-02-baseline-pipeline-validation/](./epic-02-baseline-pipeline-validation/) | 9 | P0 | Fetch FHWA CSV (BASE-000) + run existing pipeline end-to-end before hardening |
 | 3 | Foundation — Models, Schema, Dependencies | [epic-03-foundation-models-schema/](./epic-03-foundation-models-schema/) | 6 | P0 | Install deps, extend models, migrate Convex schema |
 | 4 | Source Diversification — Government, Editorial & Geometric | [epic-04-sources-government-editorial/](./epic-04-sources-government-editorial/) | 3 | P1 | Run 3 surviving sources (Scenic Byways, Rider Mag, curvature) through full pipeline |
 | ~~5~~ | ~~Source Diversification — Community + Geometric~~ | *deleted 2026-04-12* | 0 | — | *BDR + twtex sources invalidated; SRC-004 (curvature) folded into Epic 4* |
@@ -161,7 +163,17 @@ Epic 1: Week 0 Validation (VAL-001..004)
 
 | Task ID | Title | Agent | Effort | Est. Min |
 |---------|-------|-------|--------|----------|
-| [BASE-001](./epic-02-baseline-pipeline-validation/BASE-001.md) | Run and validate existing curation pipeline end-to-end | python-implement | M | 240 |
+| [BASE-000](./epic-02-baseline-pipeline-validation/BASE-000.md) | Fetch FHWA Scenic Byways dataset from DOT ArcGIS and write static CSV baseline | python-implement | M | 90 |
+| [BASE-001](./epic-02-baseline-pipeline-validation/BASE-001.md) | FHWA source validation + Boy Scout __main__ entry point | python-implement | S | 30 |
+| [BASE-002](./epic-02-baseline-pipeline-validation/BASE-002.md) | Community scrapers validation — MotorcycleRoads + BestBikingRoads | python-implement | S | 30 |
+| [BASE-003](./epic-02-baseline-pipeline-validation/BASE-003.md) | Haiku extraction validation + Boy Scout __main__ for extraction/client.py | python-implement | S | 45 |
+| [BASE-004](./epic-02-baseline-pipeline-validation/BASE-004.md) | Composite scoring validation + Boy Scout __main__ for scoring/composite.py | python-implement | S | 30 |
+| [BASE-005](./epic-02-baseline-pipeline-validation/BASE-005.md) | Archetype classification validation + Boy Scout __main__ for classification/archetype.py | python-implement | S | 30 |
+| [BASE-006](./epic-02-baseline-pipeline-validation/BASE-006.md) | OSM enrichment validation + Boy Scout __main__ for enrichment/osm_client.py | python-implement | S | 45 |
+| [BASE-007](./epic-02-baseline-pipeline-validation/BASE-007.md) | Convex push dry-run validation + Boy Scout --dry-run flag for sync/convex_push.py | python-implement | S | 45 |
+| [BASE-008](./epic-02-baseline-pipeline-validation/BASE-008.md) | Curation Review Protocol execution + baseline artifacts commit | python-implement | M | 60 |
+
+**Total Epic 2 effort:** 405 min (~6.75 hours). See `epic-02-baseline-pipeline-validation/EPIC.md` for the wave plan and `epic-02-baseline-pipeline-validation/DECISIONS.md` for the 2026-04-13 resolution of the FHWA CSV data source question.
 
 ### Epic 3: Foundation (STUBS)
 
@@ -267,7 +279,7 @@ Epic 1: Week 0 Validation (VAL-001..004)
 | S6 UC-SCORE-01..04 | SCO-001..004, INF-008, INF-009 |
 | S7 UC-RIDER-01..06 | RID-001..006 |
 | S9 Technical Requirements | INF-001..010, DESIGN-008..011 |
-| Predecessor PRD Baseline | BASE-001 |
+| Predecessor PRD Baseline | BASE-000..008 (Epic 2 — 9 tasks covering FHWA data fetch, pipeline validation, and curation review protocol execution) |
 
 **Coverage:** 100% of the 16 surviving PRD use cases + baseline validation + mobile UI extensions. (Down from 19 use cases after the 3 dropped SRC UCs.)
 
@@ -281,10 +293,12 @@ Epic 1: Week 0 Validation (VAL-001..004)
 | VAL-002 | 15 | 10 | 25 | 15 | 10 | 10 | 15 | 5 | 5 | 5 | **115/115** |
 | VAL-003 | 15 | 10 | 25 | 15 | 10 | 10 | 15 | 5 | 5 | 5 | **115/115** |
 | VAL-004 | 15 | 10 | 25 | 15 | 10 | 10 | 15 | 5 | 5 | 5 | **115/115** |
+| BASE-000 | 15 | 10 | 25 | 15 | 10 | 10 | 15 | 5 | 5 | 5 | **115/115** |
 | BASE-001 | 15 | 10 | 25 | 14 | 10 | 10 | 15 | 5 | 5 | 4 | **113/115** |
-| **Average** | — | — | — | — | — | — | — | — | — | — | **114.6/115** |
+| BASE-002..008 | (scored in epic-02 file reviews; average ~110/115) |||||||||||
+| **Average (VAL + BASE-000/001)** | — | — | — | — | — | — | — | — | — | — | **~114.7/115** |
 
-All 5 full-detail tasks meet the minimum 80/115 quality threshold with substantial headroom.
+All Epic 1 and Epic 2 full-detail tasks meet the minimum 80/115 quality threshold with substantial headroom.
 
 ---
 

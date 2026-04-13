@@ -15,8 +15,9 @@ ITERATION: 1
 CRITICAL CONSTRAINTS
 --------------------------------------------------------------------------------
 
-MUST: Add a `__main__` block to `scripts/curation/pipeline/sources/fhwa.py` (Boy Scout fix) that accepts an optional CSV path argument, calls `parse_fhwa_csv()`, writes `staging/fhwa.jsonl`, and prints the route count — commit this fix separately with the rationale "Epic 2 baseline validation required runnable entry point — Boy Scout fix".
-MUST: Verify the output JSONL contains between 165 and 203 route records (±10% of expected 184) before recording PASS.
+MUST: Add a `__main__` block to `scripts/curation/pipeline/sources/fhwa.py` (Boy Scout fix) that accepts an optional CSV path argument (defaulting to `data/fhwa_byways.csv`), calls `parse_fhwa_csv()`, writes `staging/fhwa.jsonl`, and prints the route count — commit this fix separately with the rationale "Epic 2 baseline validation required runnable entry point — Boy Scout fix".
+MUST: Verify the output JSONL contains between **580 and 710** route records (±10% of expected ~645) before recording PASS. **Note:** tolerance window revised 2026-04-13 from 165-203 (±10% around 184) after preflight discovered the canonical DOT source returns 645 routes, not 184 — see [DECISIONS.md](./DECISIONS.md) and [BASE-000.md](./BASE-000.md).
+MUST: The input CSV at `data/fhwa_byways.csv` is produced and committed by BASE-000. Do NOT regenerate it, do NOT call the DOT ArcGIS endpoint directly in this task, do NOT hand-edit it. If the CSV is missing, fail loud and escalate to BASE-000 — do not paper over the missing-file error.
 MUST: Record the file path, exact line count, and a sample record (first route) in `baseline-report.md` before marking this task done.
 MUST: Use `json.dumps(dataclasses.asdict(r))` to serialize `Route` dataclass instances — `Route` is a stdlib dataclass, not a Pydantic model.
 NEVER: Push routes to any Convex deployment — this task is ingestion-only.
@@ -29,9 +30,11 @@ STRICTLY: Import `json` and `dataclasses` at the top of the `__main__` block —
 SPECIFICATION
 --------------------------------------------------------------------------------
 
-**Objective:** Add a minimal `__main__` block to `fhwa.py` so it can be executed as a module (`python -m scripts.curation.pipeline.sources.fhwa`), run it against live FHWA data, verify the route count is within ±10% of 184, and record the result in `baseline-report.md` as the first entry in the Epic 2 baseline.
+**Objective:** Add a minimal `__main__` block to `fhwa.py` so it can be executed as a module (`python -m scripts.curation.pipeline.sources.fhwa`), run it against the static CSV committed by BASE-000 at `data/fhwa_byways.csv`, verify the route count is within **±10% of 645**, and record the result in `baseline-report.md` as the first entry in the Epic 2 baseline.
 
-**Success looks like:** `staging/fhwa.jsonl` exists with 165–203 lines; each line is valid JSON with non-null `name`, `state`, `centroid_lat`, `centroid_lng`; the module exits 0; `baseline-report.md` contains the FHWA section with exact count, file path, and a sample record; the Boy Scout `__main__` fix is committed separately before the baseline-report commit.
+**Success looks like:** `staging/fhwa.jsonl` exists with **580–710 lines**; each line is valid JSON with non-null `name`, `state`, `centroid_lat`, `centroid_lng`; the module exits 0; `baseline-report.md` contains the FHWA section with exact count, file path, and a sample record; the Boy Scout `__main__` fix is committed separately before the baseline-report commit.
+
+**Spec reality check (added 2026-04-13):** The original task spec expected ~184 routes from a data.gov CSV that did not exist. Preflight investigation revealed the canonical DOT ArcGIS source returns 645 distinct routes. BASE-000 now fetches that source and commits `data/fhwa_byways.csv` as static input to this task. The tolerance window below was revised from 165-203 to 580-710 accordingly. See [DECISIONS.md](./DECISIONS.md) for the full rationale.
 
 --------------------------------------------------------------------------------
 BACKGROUND
@@ -41,9 +44,9 @@ BACKGROUND
 
 **Why it matters:** Epic 2 exists to prove the baseline curation pipeline works before hardening is layered on top. FHWA is the first and smallest source — if it cannot be run, all subsequent pipeline stages inherit the ambiguity. A ~15-line Boy Scout `__main__` fix unblocks the entire baseline run.
 
-**Current state:** `fhwa.py` has `parse_fhwa_csv(path: str) -> list[Route]` as the public API. `Route` is a stdlib `@dataclass` defined in `scripts/curation/pipeline/models.py`. There is no CLI entry point, no JSONL writer, and no staging path convention documented in code. `motorcycleroads.py` (sibling module) has a working `__main__` block that can be used as a reference.
+**Current state:** `fhwa.py` has `parse_fhwa_csv(path: str) -> list[Route]` as the public API. `Route` is a stdlib `@dataclass` defined in `scripts/curation/pipeline/models.py`. There is no CLI entry point, no JSONL writer, and no staging path convention documented in code. `motorcycleroads.py` (sibling module) has a working `__main__` block that can be used as a reference. **Input CSV at `data/fhwa_byways.csv` is produced and committed by BASE-000** (added 2026-04-13 as prerequisite); it contains ~645 routes drawn from the DOT ArcGIS `US_Scenic_Byways/MapServer/107` layer in the 6-column schema `parse_fhwa_csv()` expects.
 
-**Desired state:** `fhwa.py` has a `__main__` block that reads an optional CSV path, calls `parse_fhwa_csv()`, writes the results to `staging/fhwa.jsonl` as JSONL (one `json.dumps(dataclasses.asdict(r))` per line), and prints a route count summary. Running `python -m scripts.curation.pipeline.sources.fhwa` exits 0 and produces a staging file with 165–203 routes, and the result is documented in `baseline-report.md`.
+**Desired state:** `fhwa.py` has a `__main__` block that reads an optional CSV path (defaulting to `data/fhwa_byways.csv`), calls `parse_fhwa_csv()`, writes the results to `staging/fhwa.jsonl` as JSONL (one `json.dumps(dataclasses.asdict(r))` per line), and prints a route count summary. Running `python -m scripts.curation.pipeline.sources.fhwa` exits 0 and produces a staging file with **580–710 routes**, and the result is documented in `baseline-report.md`.
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
@@ -53,7 +56,7 @@ Each AC is a RED → GREEN → REFACTOR micro-cycle.
 Orchestrator advances through ACs sequentially.
 
 AC-1: FHWA module runnable as python -m
-  GIVEN: fhwa.py has been given a __main__ block via Boy Scout fix (committed separately) and a FHWA byways CSV is accessible
+  GIVEN: fhwa.py has been given a __main__ block via Boy Scout fix (committed separately) and `data/fhwa_byways.csv` exists from BASE-000
   WHEN: `python -m scripts.curation.pipeline.sources.fhwa` is executed from the project root
   THEN: staging/fhwa.jsonl is written, the module exits 0, and the terminal prints 'FHWA: N routes' where N is a positive integer
 
@@ -62,15 +65,17 @@ AC-1: FHWA module runnable as python -m
   TEST_FUNCTION: verify_fhwa_module_runnable
   VERIFY: `python -m scripts.curation.pipeline.sources.fhwa && test -f staging/fhwa.jsonl && echo 'FHWA module runnable PASS'`
 
-AC-2: Route count within ±10% of 184
+AC-2: Route count within ±10% of 645
   GIVEN: staging/fhwa.jsonl exists from AC-1
   WHEN: the line count of staging/fhwa.jsonl is checked
-  THEN: the count is between 165 and 203 inclusive
+  THEN: the count is between 580 and 710 inclusive
 
   TDD_STATE: [ ] RED  [ ] VERIFY_RED  [ ] GREEN  [ ] VERIFY_GREEN  [ ] REFACTOR
   TEST_FILE: (validation recorded in baseline-report.md)
   TEST_FUNCTION: verify_fhwa_count_range
-  VERIFY: `COUNT=$(wc -l < staging/fhwa.jsonl | tr -d ' ') && python -c "assert 165 <= int('$COUNT') <= 203, f'FHWA count $COUNT out of range 165-203'" && echo "FHWA count $COUNT PASS"`
+  VERIFY: `COUNT=$(wc -l < staging/fhwa.jsonl | tr -d ' ') && python -c "assert 580 <= int('$COUNT') <= 710, f'FHWA count $COUNT out of range 580-710'" && echo "FHWA count $COUNT PASS"`
+
+  **Note (2026-04-13):** Tolerance revised from 165-203 (±10% around 184) to 580-710 (±10% around 645) after BASE-000 investigation established the DOT ArcGIS source returns ~645 routes. See [DECISIONS.md](./DECISIONS.md).
 
 AC-3: Each record has required fields
   GIVEN: staging/fhwa.jsonl exists from AC-1
@@ -104,7 +109,7 @@ TEST CRITERIA (Boolean Verification)
 | # | Boolean Statement | Maps To AC | Verify | Status |
 |---|-------------------|------------|--------|--------|
 | 1 | `python -m scripts.curation.pipeline.sources.fhwa` exits 0 and writes staging/fhwa.jsonl | AC-1 | `python -m scripts.curation.pipeline.sources.fhwa && test -f staging/fhwa.jsonl` | [ ] TRUE [ ] FALSE |
-| 2 | staging/fhwa.jsonl contains between 165 and 203 lines when parsed | AC-2 | `COUNT=$(wc -l < staging/fhwa.jsonl \| tr -d ' ') && python -c "assert 165 <= int('$COUNT') <= 203"` | [ ] TRUE [ ] FALSE |
+| 2 | staging/fhwa.jsonl contains between 580 and 710 lines when parsed | AC-2 | `COUNT=$(wc -l < staging/fhwa.jsonl \| tr -d ' ') && python -c "assert 580 <= int('$COUNT') <= 710"` | [ ] TRUE [ ] FALSE |
 | 3 | Every record in staging/fhwa.jsonl has non-null name, state, centroid_lat, centroid_lng, and route_id | AC-3 | `python -c "import json; records=[json.loads(l) for l in open('staging/fhwa.jsonl')]; assert all(r.get('name') and r.get('state') and r.get('centroid_lat') and r.get('centroid_lng') and r.get('route_id') for r in records)"` | [ ] TRUE [ ] FALSE |
 | 4 | baseline-report.md contains a FHWA section with the route count and staging/fhwa.jsonl path | AC-4 | `grep -q 'fhwa' .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline-report.md && grep -q 'staging/fhwa.jsonl' .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline-report.md` | [ ] TRUE [ ] FALSE |
 
@@ -309,6 +314,7 @@ DEPENDENCIES
 --------------------------------------------------------------------------------
 
 Depends On:
+- BASE-000 — produces `data/fhwa_byways.csv` (the static CSV input for `parse_fhwa_csv()`). BASE-000 was inserted 2026-04-13 as a prerequisite after preflight discovered no public FHWA CSV ships the expected schema. See [BASE-000.md](./BASE-000.md) and [DECISIONS.md](./DECISIONS.md).
 - VAL-004 — Convex dev deployment (not strictly needed for FHWA standalone, but BASE-008's review protocol step 12 requires it; VAL-004 is the gating epic dependency)
 
 Blocks:
@@ -321,8 +327,8 @@ TASK READINESS
 --------------------------------------------------------------------------------
 
 Prerequisites:
+- [ ] BASE-000 — `data/fhwa_byways.csv` committed to the repo (REQUIRED — if missing, fail loud and escalate, do not regenerate or hand-edit)
 - [ ] VAL-004 — Convex dev deployment validated (REQUIRED)
-- [ ] FHWA CSV is accessible at a known local path (verify before starting; document the path in baseline-report.md)
 
 Can Execute In Parallel With: BASE-002 (community scrapers — no shared files)
 
@@ -332,7 +338,8 @@ NOTES
 
 - This task was extracted from the archived BASE-001.md (the 240-minute single task) during the Epic 2 decomposition on 2026-04-12. The archived file is preserved at `BASE-001.md.archived` for historical reference.
 - The Boy Scout `__main__` fix is intentionally minimal — it wraps `parse_fhwa_csv()` without modifying it. Future epics may add a more sophisticated CLI (argparse flags, output path override, etc.), but that is out of scope for baseline validation.
-- The ±10% tolerance on the 184-route expected count accommodates upstream CSV changes. If the actual count falls outside 165–203, investigate before widening the range — FHWA publishes updates and the data may have legitimately changed.
+- The ±10% tolerance on the 645-route expected count (revised 2026-04-13 from 184) accommodates upstream DOT layer changes. If the actual count falls outside 580–710, investigate before widening the range — DOT may have legitimately updated the `US_Scenic_Byways/MapServer/107` layer, in which case a new DECISIONS.md entry is the right response, not a silent tolerance widening.
+- Historical context: the original 184-route count was a predecessor-PRD assumption against a non-existent data.gov CSV. Preflight investigation on 2026-04-13 established the canonical DOT source returns 645 distinct routes across 22 Admin_Org tag combinations (NSB, STATE, USFS, NPS, BLM, OTHER). See [DECISIONS.md](./DECISIONS.md) for the full resolution path.
 
 --------------------------------------------------------------------------------
 APPROVAL

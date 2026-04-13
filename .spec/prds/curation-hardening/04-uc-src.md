@@ -22,7 +22,7 @@ functional_group: SRC
 
 ## UC-SRC-01: Ingest US Scenic Byways GIS Layer
 
-**Description:** Administrator runs the ingestion module to import the 799-feature US Scenic Byways GIS dataset from Koordinates. This is the full FHWA dataset with route geometry — a 4x expansion beyond the 184-route data.gov CSV currently ingested in UC-INGEST-01. Provides structured route geometry, scenic qualities, and designation data with no scraping required.
+**Description:** Administrator runs the ingestion module to import the 799-feature US Scenic Byways GIS dataset from Koordinates. This is the full FHWA dataset with route geometry — an enrichment layer over the ~645-route Epic 2 baseline FHWA CSV (produced by BASE-000 from DOT ArcGIS `US_Scenic_Byways/MapServer/107`; see `tasks/epic-02-baseline-pipeline-validation/DECISIONS.md`). The Koordinates dataset provides structured route polyline geometry, scenic qualities, and designation data with no scraping required, and is higher-fidelity geometry than the DOT layer. **Note (2026-04-13):** the earlier PRD wording ("4x expansion beyond the 184-route data.gov CSV") was based on the assumption that the FHWA source was the 184-route federal "America's Byways" program ingested via data.gov CSV. Preflight investigation established that no data.gov CSV exists and the canonical DOT source is a 645-route superset — so the Koordinates source is a geometry/quality upgrade rather than a raw volume expansion.
 
 **Acceptance Criteria:**
 - ☐ Administrator can run Scenic Byways GIS ingestion via `python -m pipeline.sources.scenic_byways`
@@ -30,7 +30,7 @@ functional_group: SRC
 - ☐ System parses route geometry (polyline), name, state, designation type, and scenic qualities from GIS fields
 - ☐ System computes centroid coordinates and bounding box from route geometry
 - ☐ System assigns archetype based on scenic qualities and route characteristics
-- ☐ System reconciles against existing FHWA routes from UC-INGEST-01 (184 overlap) by name+state match, preferring GIS geometry over CSV centroids
+- ☐ System reconciles against Epic 2 baseline FHWA routes (~645 from BASE-000 DOT ArcGIS extract) by name+state match, preferring GIS geometry over DOT layer centroids
 - ☐ System writes ingested routes to JSONL staging file before Convex upsert
 - ☐ System logs ingestion count, overlap count with existing FHWA records, and validation errors
 - ☐ System completes ingestion in under 60 seconds for 799 features

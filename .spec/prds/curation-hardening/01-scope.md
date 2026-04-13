@@ -25,7 +25,7 @@ This appetite supports Week 0 validation to de-risk technical assumptions, follo
 - US Scenic Byways GIS Layer ingestion (799 routes from Koordinates, GeoJSON/Shapefile)
 - adamfranco/curvature geometric discovery from US OSM PBF data (top 5% curvature roads)
 - Rider Magazine 50 Best Roads editorial ingestion (ground truth anchor)
-- Reconciliation of new Scenic Byways GIS against existing FHWA CSV routes (184 overlap)
+- Reconciliation of new Scenic Byways GIS against the Epic 2 baseline FHWA CSV (~645 routes derived from DOT ArcGIS `US_Scenic_Byways/MapServer/107` via BASE-000; see `tasks/epic-02-baseline-pipeline-validation/DECISIONS.md`)
 
 ### Priority 2: Quality Infrastructure (Weeks 4-5)
 - Three-stage deduplication engine: exact name+state, fuzzy Levenshtein (>0.85), geospatial proximity (centroid <5km + length <20%)

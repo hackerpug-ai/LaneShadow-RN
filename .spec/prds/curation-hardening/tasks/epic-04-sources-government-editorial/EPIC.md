@@ -12,7 +12,7 @@
 Reduce single-source concentration (currently 98.8% BestBikingRoads) by ingesting three sources: US Scenic Byways GIS (799 routes, government), Rider Magazine 50 Best Roads (editorial ground truth), and adamfranco/curvature geometric discovery (OSM top 5% curvature). These are the three surviving sources after the 2026-04-12 revision that dropped BDR, twtex, and USFS MVUM (see PRD `00-overview.md` and `01-scope.md` Out-of-Scope).
 
 **Why these three:**
-- Scenic Byways GIS — Government, no WAF/legal risk, 4x expansion over existing FHWA CSV
+- Scenic Byways GIS — Government, no WAF/legal risk, higher-fidelity polyline geometry and richer scenic-qualities metadata over the Epic 2 baseline FHWA CSV (~645 routes from DOT ArcGIS via BASE-000). Originally framed as a "4x expansion" against the PRD's aspirational 184-route count; after Epic 2 BASE-000 established the real DOT baseline at ~645 routes, the Koordinates 799-feature set is more accurately a geometry/quality upgrade than a raw volume expansion. See `../epic-02-baseline-pipeline-validation/DECISIONS.md`.
 - Rider Magazine 50 Best — Editorial ground truth anchor for Epic 8 (SCO-002) calibration gate
 - Curvature discovery — Consumes pre-computed adamfranco/curvature output (AD-008); uncovers "hidden gem" twisties that never appear in editorial/community lists
 
@@ -27,7 +27,7 @@ Reduce single-source concentration (currently 98.8% BestBikingRoads) by ingestin
 After all 3 tasks are complete, an administrator should be able to run the full pipeline with these sources and verify:
 
 1. **Run Scenic Byways ingestion** — Execute `python -m scripts.curation.pipeline.sources.scenic_byways`. Verify `scenic_byways.jsonl` contains ~799 routes with `location` (GeoJSON Point), `name`, `state`, `designation`, `description`. Check runtime < 60s. Spot-check 10 routes for valid coordinates.
-2. **Verify reconciliation against existing FHWA** — Inspect the reconciliation log. Confirm ~184 existing FHWA routes from Epic 2 baseline are either merged (GIS geometry preferred) or flagged for manual review. No duplicates in final output.
+2. **Verify reconciliation against existing FHWA** — Inspect the reconciliation log. Confirm the ~645 existing FHWA routes from Epic 2 baseline (BASE-000 DOT ArcGIS extract) are either merged (Koordinates GIS geometry preferred) or flagged for manual review. No duplicates in final output.
 3. **Run Rider Magazine ingestion** — Execute `python -m scripts.curation.pipeline.sources.rider_mag`. Verify all 50 routes are ingested, each tagged `ground_truth=true`, `ground_truth_source="rider_magazine_50_best"`, with editorial descriptions preserved.
 4. **Run curvature discovery** — Execute `python -m scripts.curation.pipeline.sources.curvature_discovery`. Verify top 5% curvature roads are extracted from pre-computed adamfranco/curvature output. Verify routes already in catalog (by name+state) are excluded from candidates. Verify all surfaced candidates have `primary_archetype="twisties"` and populated `curvature_score`.
 5. **Run Haiku extraction on new routes** — Pipe the Rider Mag descriptions + curvature candidates through `extraction/client.py`. Verify Pydantic schema compliance; Rider Mag routes should produce rich attribute extraction (Tail of the Dragon curvature high, scenery high); curvature-only routes may have thin extraction results.
@@ -36,7 +36,7 @@ After all 3 tasks are complete, an administrator should be able to run the full 
 8. **Run Convex push (dev deployment)** — Execute `python -m scripts.curation.pipeline.sync.convex_push`. Verify new routes appear in Convex dashboard with `source` field set correctly (`scenic_byways_gis`, `rider_magazine`, `curvature_discovery`). Verify `location` GeoJSON Point serialized.
 9. **Verify in mobile app** — Open mobile discovery screen. Verify new routes appear on the map. Tap a Rider Mag route — see editorial description in route details. Curvature discoveries should appear as "hidden gem" twisties.
 
-10. **Execute the Curation Review Protocol** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. Applicable steps for Epic 4: 1 (ALL existing sources + 3 new: Scenic Byways, Rider Mag, curvature_discovery), 2, 6, 7, 8, 12. **Diff against Epic 3 baseline — catalog should grow by ~1100-2500 routes (799 Scenic Byways + 50 Rider Mag + 250-1650 curvature candidates - reconciliation overlap). Verify archetype distribution shifts reflect new sources (more scenic_byway, more twisties). Ground-truth spot check: Rider Mag 50 routes should all appear; Tail of the Dragon may appear via both BBR and curvature_discovery — expect duplicate pre-dedup (dedup happens in Epic 6).** Write `review.md` with verdict PASS.
+10. **Execute the Curation Review Protocol** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. Applicable steps for Epic 4: 1 (ALL existing sources + 3 new: Scenic Byways, Rider Mag, curvature_discovery), 2, 6, 7, 8, 12. **Diff against Epic 3 baseline — catalog should grow by ~450-1850 routes (799 Scenic Byways - significant overlap with Epic 2's ~645 DOT baseline + 50 Rider Mag + 250-1650 curvature candidates). Verify archetype distribution shifts reflect new sources (more scenic_byway, more twisties). Ground-truth spot check: Rider Mag 50 routes should all appear; Tail of the Dragon may appear via both BBR and curvature_discovery — expect duplicate pre-dedup (dedup happens in Epic 6).** Write `review.md` with verdict PASS. **Note (2026-04-13):** growth estimate revised — the Epic 2 baseline is ~645 routes (not 184), so Koordinates' net contribution after reconciliation is smaller than originally projected. See `../epic-02-baseline-pipeline-validation/DECISIONS.md`.
 
 All 10 verifications must pass. If a source crashes, debug and fix before proceeding.
 
@@ -47,7 +47,7 @@ All 10 verifications must pass. If a source crashes, debug and fix before procee
 - [ ] `scripts/curation/pipeline/sources/scenic_byways.py` implemented with 799-route ingestion
 - [ ] `scripts/curation/pipeline/sources/rider_mag.py` implemented with `ground_truth` tagging
 - [ ] `scripts/curation/pipeline/sources/curvature_discovery.py` implemented with top 5% filtering
-- [ ] Scenic Byways reconciles against existing FHWA CSV (184 overlap, GIS geometry preferred)
+- [ ] Scenic Byways reconciles against the Epic 2 baseline FHWA CSV (~645 routes from DOT ArcGIS via BASE-000, Koordinates GIS geometry preferred on overlap). See `../epic-02-baseline-pipeline-validation/DECISIONS.md`.
 - [ ] Rider Mag ingestion validates all 50 routes ingested (no partial)
 - [ ] Curvature excludes already-cataloged routes by name+state match
 - [ ] Curvature candidates tagged `primary_archetype="twisties"` with populated `curvature_score`
@@ -108,7 +108,7 @@ All 10 verifications must pass. If a source crashes, debug and fix before procee
 
 ## Notes
 
-- Scenic Byways GIS is 4x expansion beyond existing FHWA CSV — reconciliation is critical to avoid duplicates
+- Scenic Byways GIS overlaps significantly with the Epic 2 baseline FHWA CSV (~645 routes from DOT ArcGIS) — reconciliation is critical to avoid duplicates. The net-new volume from Koordinates is modest (799 total vs ~645 baseline); the primary value is higher-fidelity route polyline geometry and scenic-qualities metadata that the DOT layer does not expose. See `../epic-02-baseline-pipeline-validation/DECISIONS.md` for the 2026-04-13 revision.
 - Rider Mag 50 is tagged `ground_truth=true` — Epic 8 uses these for calibration gate
 - Curvature discovery consumes PRE-COMPUTED adamfranco/curvature output (AD-008) — do NOT run the multi-hour OSM PBF processing in the pipeline
 - The adamfranco/curvature output file location must be documented in `.spec/prds/curation-hardening/09-technical-requirements.md` before SRC-004 starts

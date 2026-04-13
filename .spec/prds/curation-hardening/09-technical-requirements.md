@@ -510,7 +510,7 @@ scenery: 0.15           # unchanged
 traffic: 0.10           # was 0.15 — NOW: HPMS AADT (measured data, not LLM text)
 road_condition: 0.10    # NOW: HPMS IRI (measured pavement quality, not LLM text)
 elevation_drama: 0.10   # unchanged
-fhwa_designation: 0.05  # was 0.10 — relevant for <200 routes
+fhwa_designation: 0.05  # was 0.10 — derived from AgencyTags column (NSB/STATE/USFS/NPS/BLM); see Epic 2 DECISIONS.md (2026-04-13)
 community_rating: 0.15  # was 0.05 — only actual rider experience signal
 mention_frequency: 0.10 # NEW — rider behavior from forums
 remoteness: 0.05        # unchanged
@@ -530,8 +530,8 @@ reddit_r_motorcycles: 0.4
 ### Dedup Source Priority (highest first)
 
 ```yaml
-1. fhwa_gis            # Government, highest authority
-2. scenic_byways       # Government GIS
+1. fhwa_gis            # Epic 2 baseline — DOT ArcGIS layer 107 superset (~645 routes, BASE-000)
+2. scenic_byways       # Epic 4 upgrade — Koordinates 799-feature GIS (higher-fidelity geometry)
 3. rider_magazine      # Editorial ground truth
 4. motorcycleroads     # Community database
 5. bestbikingroads     # Community database (existing ~17k backbone)
@@ -541,3 +541,4 @@ reddit_r_motorcycles: 0.4
 ```
 
 *Revised 2026-04-12: twtex, usfs_mvum, and bdr removed — see `01-scope.md` Out-of-Scope section for rationale.*
+*Revised 2026-04-13: `fhwa_gis` clarified as the Epic 2 baseline (DOT ArcGIS superset ~645 routes, not the predecessor PRD's aspirational "184-route data.gov CSV"). `scenic_byways` clarified as the Epic 4 Koordinates enrichment (geometry quality upgrade over `fhwa_gis`, not a raw volume expansion). Priority order preserves the "Epic 4 wins on geometry overlap" intent. See `tasks/epic-02-baseline-pipeline-validation/DECISIONS.md`.*
