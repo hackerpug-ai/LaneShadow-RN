@@ -114,6 +114,7 @@ def push_routes(
     base_url: str,
     deploy_key: str,
     batch_size: int = 50,
+    dry_run: bool = False,
 ) -> PushSummary:
     """
     Push scored + classified routes to Convex in batches.
@@ -127,22 +128,31 @@ def push_routes(
         base_url: Base URL of the Convex deployment (e.g., "https://example.convex.site")
         deploy_key: Deploy key for authentication (CURATION_DEPLOY_KEY from .env.local)
         batch_size: Number of routes per batch (default: 50)
+        dry_run: If True, validate serialization without making HTTP requests (default: False)
 
     Returns:
         PushSummary with aggregate statistics across all batches
 
     Raises:
-        ConfigurationError: if deploy_key is empty or None
+        ConfigurationError: if deploy_key is empty or None (unless dry_run=True)
         requests.HTTPError: on 4xx errors (not retried)
 
     Source: PRD §API Design Internal (POST /api/ingest-routes) in
             09-technical-requirements.md
     """
-    if not deploy_key:
+    if not deploy_key and not dry_run:
         raise ConfigurationError(
             "CURATION_DEPLOY_KEY is not set. "
             "Add it to .env.local (see 09-technical-requirements.md §API Design)."
         )
+
+    if dry_run:
+        import json as _json
+        for route in routes:
+            d = _route_to_dict(route)
+            _json.dumps(d)  # verify JSON-serializable
+        logger.info(f"DRY RUN: {len(routes)} routes serialized successfully (no HTTP calls)")
+        return PushSummary(sent=len(routes))
 
     url = f"{base_url.rstrip('/')}/api/ingest-routes"
     headers = {
@@ -177,3 +187,80 @@ def push_routes(
                 summary.errors.extend(result["errors"])
 
     return summary
+
+
+if __name__ == "__main__":
+    import argparse
+    import json
+    import logging
+    import os
+    import sys
+    from pathlib import Path
+
+    from scripts.curation.pipeline.models import EnrichedRoute
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    parser = argparse.ArgumentParser(description="Push routes to Convex (dry-run by default)")
+    parser.add_argument("--input", required=True, help="Input JSON file of scored routes")
+    parser.add_argument("--staging", required=True, help="Staging JSONL file with route metadata (e.g., staging/fhwa.jsonl)")
+    parser.add_argument("--dry-run", action="store_true", default=True, help="Dry-run mode (default: True)")
+    parser.add_argument("--base-url", default=os.environ.get("CONVEX_URL", ""), help="Convex base URL")
+    parser.add_argument("--deploy-key", default=os.environ.get("CURATION_DEPLOY_KEY", ""), help="Deploy key")
+    args = parser.parse_args()
+
+    # Read scored routes
+    scores_list = json.load(open(args.input))
+
+    # Build lookup dict from staging file (route_id -> metadata dict)
+    staging_lookup = {}
+    for line in open(args.staging):
+        if line.strip():
+            route_dict = json.loads(line)
+            staging_lookup[route_dict["route_id"]] = route_dict
+
+    # Reconstruct EnrichedRoute objects by joining scores with staging metadata
+    routes = []
+    for s in scores_list:
+        route_id = s["route_id"]
+        if route_id not in staging_lookup:
+            logger.warning(f"Route {route_id} not found in staging file, skipping")
+            continue
+
+        metadata = staging_lookup[route_id]
+        er = EnrichedRoute(
+            route_id=route_id,
+            name=s["name"],
+            state=metadata.get("state", ""),
+            source=metadata.get("source", "fhwa"),
+            centroid_lat=metadata.get("centroid_lat", 0.0),
+            centroid_lng=metadata.get("centroid_lng", 0.0),
+            length_miles=metadata.get("length_miles"),
+            bounds_ne_lat=metadata.get("bounds_ne_lat"),
+            bounds_ne_lng=metadata.get("bounds_ne_lng"),
+            bounds_sw_lat=metadata.get("bounds_sw_lat"),
+            bounds_sw_lng=metadata.get("bounds_sw_lng"),
+            composite_score=s.get("composite_score", 0.0),
+            curvature_score=s.get("curvature_score", 0.0),
+            scenic_score=s.get("scenic_score", 0.0),
+            technical_score=s.get("technical_score", 0.0),
+            traffic_score=s.get("traffic_score", 0.0),
+            remoteness_score=s.get("remoteness_score", 0.0),
+        )
+        routes.append(er)
+
+    logger.info(f"Read {len(routes)} routes from {args.input} (joined with {args.staging})")
+
+    summary = push_routes(
+        routes=routes,
+        base_url=args.base_url,
+        deploy_key=args.deploy_key or "dry-run-placeholder",
+        dry_run=args.dry_run,
+    )
+
+    logger.info(f"Result: sent={summary.sent}, inserted={summary.inserted}, failed={summary.failed}")
+
+    if summary.failed > 0:
+        for err in summary.errors:
+            logger.error(f"Error: {err}")
+        sys.exit(1)

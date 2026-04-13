@@ -273,4 +273,60 @@ WEIGHTS = {
 
 ---
 
+## Archetype Classification (PIPE-008)
+
+**Status:** PASS (2026-04-13)
+
+**Classification Module:** `scripts.curation.pipeline.classification.archetype`
+
+**Input File:** `staging/fhwa.jsonl` (645 FHWA routes)
+
+**Scores File:** `.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/scores.json` (20 scored routes)
+
+**Output File:** `.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/archetype_counts.json`
+
+**Routes Classified:** 20 routes (validation sample)
+
+**Validation Results:**
+- AC-1 (module runnable): PASS - `python -m scripts.curation.pipeline.classification.archetype --routes staging/fhwa.jsonl --scores baseline/scores.json --out baseline/archetype_counts.json --count 20` exits 0
+- AC-2 (count validation): PASS - Output has exactly 20 routes classified
+- AC-3 (archetype validity): PASS - All keys are in the valid 6-value archetype set
+
+**Archetype Distribution:**
+```json
+{
+  "scenic_byway": 20
+}
+```
+
+**Classification Rules (from PRD S9-TRD-5 §5):**
+Decision tree priority order:
+1. adventure (surface or BDR source overrides everything)
+2. coastal (coastal proximity + scenic designation)
+3. mountain (high elevation gain)
+4. twisties (high curvature score)
+5. scenic_byway (FHWA designation — default for most Phase 1 routes)
+6. desert (low curvature, remote, arid — implicit fallback)
+
+**Phase 1 Behavior:**
+- All 20 FHWA routes classified as `scenic_byway` (expected)
+- This skew is expected because curvature/elevation scores are neutral 0.5 in Phase 1
+- Coastal states with FHWA routes still classify as `scenic_byway` because Rule 2 requires coastal state + scenic designation proxy
+- Phase 2 will produce more diverse archetype distribution when real curvature and elevation data are available
+
+**Valid Archetype Set:**
+```
+{'twisties', 'mountain', 'coastal', 'adventure', 'scenic_byway', 'desert'}
+```
+
+**Notes:**
+- Archetype classification infrastructure validated successfully
+- Boy Scout `__main__` fix committed separately (see commit e303aac)
+- All archetypes validated against the 6-value set
+- Phase 1 skew toward `scenic_byway` is expected behavior
+- Route-score join by `route_id` working correctly
+- Phase 2 will activate adventure, mountain, twisties, and desert classifications when real data is available
+
+---
+
 *Last updated: 2026-04-13*
