@@ -106,3 +106,46 @@ def classify(route: Route, scores: dict[str, float]) -> EnrichedRoute:
 
     # Final fallback — should cover all remaining cases
     return replace(enriched, primary_archetype="scenic_byway", secondary_tags=secondary)
+
+
+if __name__ == "__main__":
+    import sys
+    import json
+    import argparse
+    import logging
+    from pathlib import Path
+    from collections import Counter
+    from scripts.curation.pipeline.models import Route
+
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    p = argparse.ArgumentParser()
+    p.add_argument("--routes", required=True, help="Input JSONL of Route records")
+    p.add_argument("--scores", required=True, help="Input JSON array of scored routes")
+    p.add_argument("--out", required=True, help="Output JSON dict of archetype counts")
+    p.add_argument("--count", type=int, default=None)
+    args = p.parse_args()
+
+    routes = [Route(**json.loads(l)) for l in open(args.routes)]
+    scores_list = json.load(open(args.scores))
+    scores_by_id = {s["route_id"]: s for s in scores_list}
+    if args.count:
+        routes = routes[:args.count]
+
+    enriched = [classify(r, scores_by_id.get(r.route_id, {})) for r in routes]
+    dist = Counter(e.primary_archetype for e in enriched)
+
+    # Validate all archetypes are in the valid set
+    valid = {"twisties", "mountain", "coastal", "adventure", "scenic_byway", "desert"}
+    invalid = [a for a in dist if a not in valid]
+    if invalid:
+        logger.error(f"Invalid archetypes found: {invalid}")
+        sys.exit(1)
+
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with open(out, "w") as f:
+        json.dump(dict(dist), f, indent=2)
+
+    print(f"Classified {len(enriched)} routes: {dict(dist)}")
