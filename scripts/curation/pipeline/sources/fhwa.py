@@ -52,11 +52,30 @@ def parse_fhwa_csv(path: str) -> list[Route]:
 
             routes.append(Route(
                 route_id=_make_route_id(name, state),
+                source="fhwa",
                 name=name,
                 state=state,
-                source="fhwa",
                 centroid_lat=centroid_lat,
                 centroid_lng=centroid_lng,
                 length_miles=_safe_float(row.get("LengthMiles")),
             ))
     return routes
+
+
+if __name__ == "__main__":
+    import sys
+    import json
+    import dataclasses
+    import logging
+    from pathlib import Path
+
+    logging.basicConfig(level=logging.INFO)
+    csv_path = sys.argv[1] if len(sys.argv) > 1 else "data/fhwa_byways.csv"
+    routes = parse_fhwa_csv(csv_path)
+
+    out = Path("staging/fhwa.jsonl")
+    out.parent.mkdir(exist_ok=True)
+    with open(out, "w") as f:
+        for r in routes:
+            f.write(json.dumps(dataclasses.asdict(r)) + "\n")
+    print(f"FHWA: {len(routes)} routes -> {out}")
