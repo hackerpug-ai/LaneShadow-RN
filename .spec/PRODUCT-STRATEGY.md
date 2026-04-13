@@ -60,8 +60,11 @@ The curation pipeline — scraping community sites, extracting route data with L
 - Archetype filtering (scenic cruiser, mountain twisties, coastal, historic, etc.)
 - Composite scoring (scenic quality, curvature, surface, popularity)
 - "What's great near me?" as the primary entry point
+- **Natural-language search** powered by an on-device LLM that converts rider intent ("gentle scenic ride nearby, under an hour") into structured queries against the local route database — no server round-trip, no cell signal required.
 
 **This is the free, open, hero experience.** No gates, no limits.
+
+> **On-device LLM as an interface, not a generator:** The LLM turns utterances into query parameters. A deterministic SQL layer does the actual ranking and filtering. This architectural choice is what makes offline-first viable — a 500 MB model can slot-fill a schema; it doesn't have to know every road in America. See [`.spec/research/local-models/ON_DEVICE_LLM_STRATEGY_2026-04-12.md`](./research/local-models/ON_DEVICE_LLM_STRATEGY_2026-04-12.md).
 
 ### Pillar 2: Ride Companion
 
@@ -190,6 +193,62 @@ No motorcycle app has a local, voice-first, rider-aware companion. Calimoto has 
 
 ---
 
+## Technical Strategy: Offline-First, On-Device LLM
+
+**LaneShadow's core discovery and companion loops must work with zero cell coverage.** This is not an optimization or a feature — it is the architectural foundation of "ride the moment." Great motorcycle roads have no cell signal, and a product that breaks in the places riders actually go is not a product for riders.
+
+### Design constraints (hard requirements)
+
+1. **≤2 second on-device latency per LLM query, end-to-end.** A rider stopped on the side of a remote road will not wait 8 seconds for a natural-language query. Anything slower fails the product promise. This constraint drives every model, runtime, and optimization choice below.
+2. **Zero critical-path cloud calls for discovery, search, or in-ride companion commands.** Cloud is a fallback tier, not a default. The offline loop must be complete end-to-end.
+3. **LLMs are interfaces, not generators.** The on-device model's job is to turn utterances and voice commands into structured parameters for deterministic code (SQL, route engine, saved-road lookups). This constraint keeps the model small enough to hit the latency ceiling and small enough to ship in the app binary.
+4. **No user data leaves the device for core operations.** Query audio, query text, and search history are on-device-only. Privacy is an architectural property, not a marketing bullet.
+
+### Stack — per device tier
+
+| Device tier | On-device model | Runtime |
+|---|---|---|
+| iOS 26+ on iPhone 15 Pro or newer | Apple Foundation Models (3 B / 2-bit, ANE-accelerated) | `react-native-apple-llm` |
+| iOS 18–26 on iPhone 12+ | Qwen2 0.5 B Q4 with LaneShadow LoRA adapter | `llama.rn` |
+| Android flagship (SD 8 Gen 3+, Pixel 9+, S24+) | Qwen2 0.5 B Q4 with LaneShadow LoRA adapter | `llama.rn` + QNN/Vulkan delegate |
+| Android mid-range (SD 7 Gen 3+, Dimensity 7200+) | Qwen2 0.5 B Q4 with LaneShadow LoRA adapter | `llama.rn` CPU-only |
+| Android budget (<4 GB RAM), iOS ≤17 | — | cloud Haiku fallback (not in critical path) |
+
+The runtime auto-detects the device tier at launch and picks a backend. One feature-flag system, two code paths. Cloud Haiku is the universal safety net but is not the default for any supported device.
+
+### How we hit 2 seconds
+
+Four compounding optimizations, all v1 requirements:
+
+1. **LoRA fine-tune compresses the prompt.** The schema and few-shot examples for intent→query live in model weights, not in the prompt. The prompt shrinks from ~1,500 tokens to ~20 tokens. Prefill cost effectively disappears. Single highest-leverage optimization.
+2. **GBNF grammar-constrained output.** llama.cpp's grammar sampling forces the model to emit only the required JSON tokens, skipping braces, whitespace, and null fields. Cuts decode time roughly in half.
+3. **KV cache persistence across queries.** The fixed prefix is prefilled once per session and reused on every subsequent query via llama.cpp prompt caching (or `LanguageModelSession` on Apple Foundation Models).
+4. **Launch-time cache warming.** A background thread pre-warms the model and KV cache while the user is still looking at the splash screen, so the first user-felt query is "warm," not "cold."
+
+### Complete offline loop
+
+- **Discovery search:** utterance → on-device LLM (≤2s) → structured query → `op-sqlite` with SpatiaLite spatial extension → top-K routes from ~50 MB bundled curated-route DB.
+- **Map rendering:** MapLibre GL Native with pre-downloaded offline tiles per region (free, no per-user fees).
+- **Turn-by-turn:** Mapbox Navigation SDK offline routing (v1) or Valhalla on-device (v2+).
+- **Ride Companion voice:** layered VAD → on-device STT → on-device LLM intent classification → action, all bundled. Same 2-second ceiling applies.
+- **Fresh data overlays** (weather, traffic, road closures): background sync when cell is available; stale-with-indicator when not.
+
+### What this unlocks
+
+1. **LaneShadow is the app you use where there's no cell signal.** Remote canyons, the Sierra, the Rockies, Baja — exactly where motorcyclists actually ride. This is the competitive position no cloud-first app can match.
+2. **Zero variable cost per query.** Inference is free at the edge. The business model shifts from "how much is each user costing me in cloud LLM bills" to "does acquisition cost pay back over the lifetime" — a much simpler sustainability math for a lifestyle project.
+3. **Privacy as a default.** Voice audio, search queries, and saved roads never leave the device. This is architecturally guaranteed, not a promise.
+4. **Predictable latency.** No network jitter, no cold-start cloud functions, no regional outage risk. The core loop has one performance envelope and it's the same everywhere.
+
+### Research references
+
+- [`.spec/research/local-models/ON_DEVICE_LLM_STRATEGY_2026-04-12.md`](./research/local-models/ON_DEVICE_LLM_STRATEGY_2026-04-12.md) — full technical strategy with measured benchmarks, device matrix, and latency math
+- [`.spec/research/local-models/INTENT_TO_QUERY_RESULTS_2026-04-10.md`](./research/local-models/INTENT_TO_QUERY_RESULTS_2026-04-10.md) — Qwen3.5 0.8 B validated at 93% pass rate on the intent→query fixture
+- [`.spec/research/local-models/MODEL_PRUNING_MOBILE_STRATEGY_2026-04-12.md`](./research/local-models/MODEL_PRUNING_MOBILE_STRATEGY_2026-04-12.md) — prior research on LLM-Sieve pruning (partially superseded)
+- [`.spec/research/RIDE-COMPANION-VOICE.md`](./research/RIDE-COMPANION-VOICE.md) — voice stack architecture for Pillar 2
+
+---
+
 ## Revenue Model
 
 Designed for a lifestyle product: diversified, low-maintenance, no customer support desk.
@@ -227,10 +286,13 @@ Premium curated collections: "50 Best Roads in the Blue Ridge," "California Coas
 
 | Item | Monthly |
 |------|---------|
-| Infrastructure (Convex, LLM, APIs, weather) | ~$113 |
+| Infrastructure (Convex, APIs, weather) | ~$80 |
+| Cloud LLM (Haiku fallback only, not default) | ~$10–30 |
 | Claude Code credits | ~$200 |
-| **Total burn** | **~$313/mo** |
+| **Total burn** | **~$290–310/mo** |
 | Budget ceiling (self-funded) | $500-1000/mo |
+
+> **Note on LLM costs:** The on-device LLM strategy (see Technical Strategy section) structurally eliminates the biggest variable cost of the app. Discovery search, intent extraction, and in-ride voice commands run at the edge for free. Cloud Haiku remains as a fallback for unsupported devices (~25% of install base) and as a quality backstop, but is not in the critical path. This is what makes the lifestyle-project budget actually feasible at scale — infrastructure cost is bounded, not user-proportional.
 
 **Target**: Cover $313/mo through affiliate + sponsorship within 9-12 months.
 
@@ -255,10 +317,18 @@ Complete what's already being built. Make it usable for yourself.
 | Curation pipeline (scrape → extract → score → push) | ~80% built |
 | Discovery UI (map pins, search, filters, state selector) | ~60% built |
 | Local SQLite for fast mobile queries | Built |
+| **On-device LLM validation spike (iPhone 15 Pro, llama.rn + Qwen baseline)** | **Not started — P0** |
+| **LaneShadow calibration dataset (intent → JSON params, 500 samples)** | **Not started — P0** |
 | Seed data for 10+ states | Not started |
 | Polish enough to share | Not started |
 
-**Gate test**: Open the app, pick a state, find 5 rides you've never done, go ride one this weekend.
+**Gate test**: Open the app, pick a state, find 5 rides you've never done, go ride one this weekend. **Natural-language search works on-device in under 2 seconds.**
+
+**Stack validation gate for Phase 0** (before committing to on-device LLM at product scale):
+- Real iPhone 15 Pro cold/warm latency measurement with unoptimized Qwen baseline
+- Confirm `llama.rn` KV cache persistence works across React Native calls
+- Confirm `react-native-apple-llm` session persistence works on iOS 26
+- Fallback tier defined if 2-second ceiling can't be hit with v1 optimizations
 
 ### Phase 1: Community + Share (Month 2-3)
 
@@ -423,7 +493,8 @@ Full v2.x artifacts: `.spec/archive/2026-04-12-v2/`
 | Riders don't contribute routes | Medium | Seed aggressively. Make submission dead simple. Founder contributes first 50 routes. |
 | A competitor adds AI curation (Ridrs, 68 degrees) | Low | Community relationships and personal road library create switching costs. Code is replicable; community isn't. |
 | Ride Companion voice accuracy insufficient in helmet conditions | Medium | Spike early (Phase 3 starts with spikes, not features). If accuracy <95%, don't ship — a companion riders can't trust is worse than none. Helmet mics (Cardo/Sena) are close-to-mouth and wind-buffered, which helps. |
-| On-device LLM capability insufficient on current iPhones | Medium | Start with intent classification (small model, ~50 commands), not free-form conversation. iPhone Neural Engine handles this class of model well. Scale up as Apple Silicon improves. |
+| On-device LLM latency exceeds 2-second ceiling after optimization | Medium | LoRA fine-tune + GBNF grammar + KV cache warming are all v1 requirements, not optimizations. Validation spike on a physical iPhone 15 Pro is the first engineering action — measure before committing. Mid-range Android has the tightest margin (~1.7s extrapolated); real-device validation required before shipping that tier. Fallback: cloud Haiku for devices that can't hit the ceiling. See [`.spec/research/local-models/ON_DEVICE_LLM_STRATEGY_2026-04-12.md`](./research/local-models/ON_DEVICE_LLM_STRATEGY_2026-04-12.md). |
+| On-device LLM capability insufficient on older iPhones / budget Android | Medium | Qwen2 0.5B + LoRA targets the "fat middle" tier. Budget Android (<4 GB RAM) and iOS ≤17 route to cloud Haiku fallback — this is a tier, not a failure. Covered by ~$10–30/mo in cloud costs, not user-proportional. |
 | Liability concerns with in-ride voice features | Low | Quality gates (Safe/Accurate/Reliable) are hard constraints, not aspirations. Feature does not ship unless all three pass. Include standard "keep eyes on road" disclaimers. |
 | Founder loses interest | Low | The product serves the founder's own riding. If it stops being useful to him, something is wrong with the product, not the motivation. |
 
