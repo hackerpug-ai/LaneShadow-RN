@@ -1,0 +1,113 @@
+{
+  "models": [
+    {
+      "model": "mlx-community/Qwen3.5-0.8B-OptiQ-4bit",
+      "load_seconds": 1.11,
+      "n_routes": 3,
+      "n_valid_json": 0,
+      "n_correct_count": 0,
+      "avg_duration_s": 0.894,
+      "avg_tok_per_sec": 294.7,
+      "results": [
+        {
+          "route_id": "sf-to-point-reyes",
+          "duration_s": 1.119,
+          "tok_per_sec": 228.7,
+          "valid_json": false,
+          "correct_count": false,
+          "labels": null,
+          "raw_response": "Thinking Process:\n\n1.  **Analyze the Request:**\n    *   **Role:** Motorcycle route specialist.\n    *   **Task:** Generate descriptive labels for route leg segments.\n    *   **Route:** Sf To Point Reyes (San Francisco to Point Reyes).\n    *   **Legs:**\n        *   Leg 1: San Francisco \u2192 Sausalito via Highway 101\n        *   Leg 2: Sausalito \u2192 Stinson Beach via Highway 1\n        *   Leg 3: Stinson Beach \u2192 Point Reyes via Highway 1\n    *   **Constraint:** Short, descriptive label (max 6 words).\n   "
+        },
+        {
+          "route_id": "la-to-san-diego",
+          "duration_s": 0.765,
+          "tok_per_sec": 334.8,
+          "valid_json": false,
+          "correct_count": false,
+          "labels": null,
+          "raw_response": "Thinking Process:\n\n1.  **Analyze the Request:**\n    *   Role: Motorcycle route specialist.\n    *   Route: La To San Diego (Los Angeles \u2192 Laguna Beach \u2192 Oceanside \u2192 San Diego).\n    *   Legs:\n        *   Leg 1: Los Angeles \u2192 Laguna Beach via Pacific Coast Highway\n        *   Leg 2: Laguna Beach \u2192 Oceanside via I-5 S\n        *   Leg 3: Oceanside \u2192 San Diego via I-5 S\n    *   Task: Generate a short, descriptive label (max 6 words) for each leg that describes the FROM \u2192 TO journey.\n    *   Format: JS"
+        },
+        {
+          "route_id": "seattle-to-portland",
+          "duration_s": 0.798,
+          "tok_per_sec": 320.7,
+          "valid_json": false,
+          "correct_count": false,
+          "labels": null,
+          "raw_response": "Thinking Process:\n\n1.  **Analyze the Request:**\n    *   Role: Motorcycle route specialist.\n    *   Task: Generate descriptive labels for route leg segments.\n    *   Route: Seattle To Portland.\n    *   Legs:\n        *   Leg 1: Seattle \u2192 Olympia via I-5 S\n        *   Leg 2: Olympia \u2192 Longview via I-5 S\n        *   Leg 3: Longview \u2192 Portland via I-5 S\n    *   Constraint: Short, descriptive label (max 6 words).\n    *   Format: JSON.\n    *   Content: Place names and road names.\n    *   Output: ONLY v"
+        }
+      ]
+    }
+  ],
+  "test_routes": [
+    {
+      "route_id": "sf-to-point-reyes",
+      "legs": [
+        {
+          "index": 0,
+          "from": "San Francisco",
+          "to": "Sausalito",
+          "road": "Highway 101"
+        },
+        {
+          "index": 1,
+          "from": "Sausalito",
+          "to": "Stinson Beach",
+          "road": "Highway 1"
+        },
+        {
+          "index": 2,
+          "from": "Stinson Beach",
+          "to": "Point Reyes",
+          "road": "Highway 1"
+        }
+      ]
+    },
+    {
+      "route_id": "la-to-san-diego",
+      "legs": [
+        {
+          "index": 0,
+          "from": "Los Angeles",
+          "to": "Laguna Beach",
+          "road": "Pacific Coast Highway"
+        },
+        {
+          "index": 1,
+          "from": "Laguna Beach",
+          "to": "Oceanside",
+          "road": "I-5 S"
+        },
+        {
+          "index": 2,
+          "from": "Oceanside",
+          "to": "San Diego",
+          "road": "I-5 S"
+        }
+      ]
+    },
+    {
+      "route_id": "seattle-to-portland",
+      "legs": [
+        {
+          "index": 0,
+          "from": "Seattle",
+          "to": "Olympia",
+          "road": "I-5 S"
+        },
+        {
+          "index": 1,
+          "from": "Olympia",
+          "to": "Longview",
+          "road": "I-5 S"
+        },
+        {
+          "index": 2,
+          "from": "Longview",
+          "to": "Portland",
+          "road": "I-5 S"
+        }
+      ]
+    }
+  ]
+}

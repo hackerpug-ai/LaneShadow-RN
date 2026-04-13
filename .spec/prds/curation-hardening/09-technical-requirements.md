@@ -13,10 +13,7 @@ prd_version: 1.0.0
 | Component | Path | Purpose |
 |-----------|------|---------|
 | USDoTScenicBywaysSource | `pipeline/sources/scenic_byways.py` | Ingest 799-route US Scenic Byways GIS layer from Koordinates (GeoJSON/Shapefile) |
-| BDRSource | `pipeline/sources/bdr.py` | Ingest 10 BDR multi-day routes from GPX files, segment into ride-sized chunks |
-| TwtexSource | `pipeline/sources/twtex.py` | Scrape twtex.com Top 100 crowd-sourced motorcycle roads |
 | CurvatureDiscovery | `pipeline/sources/curvature_discovery.py` | Consume adamfranco/curvature output to discover high-curvature unnamed roads from OSM |
-| USFSMVUMSource | `pipeline/sources/usfs_mvum.py` | Ingest USFS Motor Vehicle Use Maps from Data.gov; extract surface_type field ("paved", "gravel", "dirt", "improved", "native") |
 | RiderMagSource | `pipeline/sources/rider_mag.py` | Extract Rider Magazine 50 Best Roads as editorial ground truth |
 | RedditSource | `pipeline/sources/reddit.py` | Fetch motorcycle route mentions from Reddit via public API |
 | ADVRiderSource | `pipeline/sources/advrider.py` | Fetch ADVRider regional forum posts via RSS feeds |
@@ -389,15 +386,17 @@ export const getRoute = query({
 ```
                                     SOURCES
     ┌─────────────┬──────────────┬──────────────┬─────────────┐
-    │ Scenic      │ BDR GPX     │ twtex Top100 │ Curvature   │
-    │ Byways GIS  │             │              │ Discovery   │
-    └──────┬──────┴──────┬──────┴──────┬───────┴──────┬──────┘
-           │             │             │              │
-    ┌──────┴──────┬──────┴──────┬──────┴───────┬──────┴──────┐
-    │ USFS MVUM   │ Rider Mag   │ motorcycl... │ bestbiking..│
-    └──────┬──────┴──────┬──────┴──────┬───────┴──────┬──────┘
-           │             │             │              │
-           └──────┬──────┴──────┬──────┴──────────────┘
+    │ Scenic      │ Curvature    │ Rider Mag    │ motorcycle- │
+    │ Byways GIS  │ Discovery    │ 50 Best      │ roads       │
+    └──────┬──────┴──────┬───────┴──────┬───────┴──────┬──────┘
+           │             │              │              │
+           │             │              │              ▼
+           │             │              │       ┌─────────────┐
+           │             │              │       │ bestbiking- │
+           │             │              │       │ roads (BBR) │
+           │             │              │       └──────┬──────┘
+           │             │              │              │
+           └──────┬──────┴──────┬───────┴──────────────┘
                   │             │
     ┌─────────────┴─────────────┴──────────────┐
     │         MEASURED DATA (Static)          │
@@ -531,16 +530,14 @@ reddit_r_motorcycles: 0.4
 ### Dedup Source Priority (highest first)
 
 ```yaml
-1. fhwa_gis          # Government, highest authority
-2. scenic_byways     # Government GIS
-3. rider_magazine    # Editorial ground truth
-4. twtex             # Crowd-sourced rankings
-5. motorcycleroads   # Community database
-6. bestbikingroads   # Community database
-7. curvature_discovery # Geometric
-8. usfs_mvum         # Government, narrow scope
-9. bdr               # Adventure-specific
-10. ridewithgps      # Rider-generated
-11. reddit            # Forum
-12. advrider          # Forum
+1. fhwa_gis            # Government, highest authority
+2. scenic_byways       # Government GIS
+3. rider_magazine      # Editorial ground truth
+4. motorcycleroads     # Community database
+5. bestbikingroads     # Community database (existing ~17k backbone)
+6. curvature_discovery # Geometric
+7. reddit              # Forum
+8. advrider            # Forum
 ```
+
+*Revised 2026-04-12: twtex, usfs_mvum, and bdr removed — see `01-scope.md` Out-of-Scope section for rationale.*

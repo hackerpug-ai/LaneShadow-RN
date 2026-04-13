@@ -81,6 +81,8 @@ import type * as db_tripPlans from "../db/tripPlans.js";
 import type * as db_users from "../db/users.js";
 import type * as db_waypoints from "../db/waypoints.js";
 import type * as errors from "../errors.js";
+import type * as geospatialIndex from "../geospatialIndex.js";
+import type * as geospatialValidation from "../geospatialValidation.js";
 import type * as guards from "../guards.js";
 import type * as http from "../http.js";
 import type * as lib_conversationalErrors from "../lib/conversationalErrors.js";
@@ -90,7 +92,7 @@ import type * as lib_logger from "../lib/logger.js";
 import type * as migrations_backfillSessionMessageKindStatus from "../migrations/backfillSessionMessageKindStatus.js";
 import type * as migrations_deleteEmptyAssistantMessages from "../migrations/deleteEmptyAssistantMessages.js";
 import type * as queries_osm from "../queries/osm.js";
-import type * as testGeospatialInsert from "../testGeospatialInsert.js";
+import type * as seedGeospatialTest from "../seedGeospatialTest.js";
 import type * as users from "../users.js";
 
 import type {
@@ -173,6 +175,8 @@ declare const fullApi: ApiFromModules<{
   "db/users": typeof db_users;
   "db/waypoints": typeof db_waypoints;
   errors: typeof errors;
+  geospatialIndex: typeof geospatialIndex;
+  geospatialValidation: typeof geospatialValidation;
   guards: typeof guards;
   http: typeof http;
   "lib/conversationalErrors": typeof lib_conversationalErrors;
@@ -182,7 +186,7 @@ declare const fullApi: ApiFromModules<{
   "migrations/backfillSessionMessageKindStatus": typeof migrations_backfillSessionMessageKindStatus;
   "migrations/deleteEmptyAssistantMessages": typeof migrations_deleteEmptyAssistantMessages;
   "queries/osm": typeof queries_osm;
-  testGeospatialInsert: typeof testGeospatialInsert;
+  seedGeospatialTest: typeof seedGeospatialTest;
   users: typeof users;
 }>;
 
@@ -212,4 +216,150 @@ export declare const internal: FilterApi<
   FunctionReference<any, "internal">
 >;
 
-export declare const components: {};
+export declare const components: {
+  geospatial: {
+    document: {
+      get: FunctionReference<
+        "query",
+        "internal",
+        { key: string },
+        {
+          coordinates: { latitude: number; longitude: number };
+          filterKeys: Record<
+            string,
+            | string
+            | number
+            | boolean
+            | null
+            | bigint
+            | Array<string | number | boolean | null | bigint>
+          >;
+          key: string;
+          sortKey: number;
+        } | null
+      >;
+      insert: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          document: {
+            coordinates: { latitude: number; longitude: number };
+            filterKeys: Record<
+              string,
+              | string
+              | number
+              | boolean
+              | null
+              | bigint
+              | Array<string | number | boolean | null | bigint>
+            >;
+            key: string;
+            sortKey: number;
+          };
+          levelMod: number;
+          maxCells: number;
+          maxLevel: number;
+          minLevel: number;
+        },
+        null
+      >;
+      remove: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          key: string;
+          levelMod: number;
+          maxCells: number;
+          maxLevel: number;
+          minLevel: number;
+        },
+        boolean
+      >;
+    };
+    query: {
+      debugCells: FunctionReference<
+        "query",
+        "internal",
+        {
+          levelMod: number;
+          maxCells: number;
+          maxLevel: number;
+          minLevel: number;
+          rectangle: {
+            east: number;
+            north: number;
+            south: number;
+            west: number;
+          };
+        },
+        Array<{
+          token: string;
+          vertices: Array<{ latitude: number; longitude: number }>;
+        }>
+      >;
+      execute: FunctionReference<
+        "query",
+        "internal",
+        {
+          cursor?: string;
+          levelMod: number;
+          logLevel: "DEBUG" | "INFO" | "WARN" | "ERROR";
+          maxCells: number;
+          maxLevel: number;
+          minLevel: number;
+          query: {
+            filtering: Array<{
+              filterKey: string;
+              filterValue: string | number | boolean | null | bigint;
+              occur: "should" | "must";
+            }>;
+            maxResults: number;
+            rectangle: {
+              east: number;
+              north: number;
+              south: number;
+              west: number;
+            };
+            sorting: {
+              interval: { endExclusive?: number; startInclusive?: number };
+            };
+          };
+        },
+        {
+          nextCursor?: string;
+          results: Array<{
+            coordinates: { latitude: number; longitude: number };
+            key: string;
+          }>;
+        }
+      >;
+      nearestPoints: FunctionReference<
+        "query",
+        "internal",
+        {
+          filtering: Array<{
+            filterKey: string;
+            filterValue: string | number | boolean | null | bigint;
+            occur: "should" | "must";
+          }>;
+          levelMod: number;
+          logLevel: "DEBUG" | "INFO" | "WARN" | "ERROR";
+          maxDistance?: number;
+          maxLevel: number;
+          maxResults: number;
+          minLevel: number;
+          nextCursor?: string;
+          point: { latitude: number; longitude: number };
+          sorting: {
+            interval: { endExclusive?: number; startInclusive?: number };
+          };
+        },
+        Array<{
+          coordinates: { latitude: number; longitude: number };
+          distance: number;
+          key: string;
+        }>
+      >;
+    };
+  };
+};

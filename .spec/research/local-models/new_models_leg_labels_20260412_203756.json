@@ -1,0 +1,175 @@
+{
+  "models": [
+    {
+      "model": "mlx-community/gemma-3-1b-it-4bit",
+      "load_seconds": 24.78,
+      "n_routes": 3,
+      "n_valid_json": 3,
+      "n_correct_count": 3,
+      "avg_duration_s": 3.4,
+      "avg_tok_per_sec": 303.0,
+      "results": [
+        {
+          "route_id": "sf-to-point-reyes",
+          "duration_s": 3.735,
+          "tok_per_sec": 274.4,
+          "valid_json": true,
+          "correct_count": true,
+          "labels": [
+            "San Francisco \u2192 Sausalito via Highway 101",
+            "Sausalito \u2192 Stinson Beach via Highway 1",
+            "Stinson Beach \u2192 Point Reyes via Highway 1"
+          ],
+          "raw_response": "```json\n{\n  \"leg_labels\": [\n    \"San Francisco \u2192 Sausalito via Highway 101\",\n    \"Sausalito \u2192 Stinson Beach via Highway 1\",\n    \"Stinson Beach \u2192 Point Reyes via Highway 1\"\n  ]\n}\n```<end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn>\n<end_of_turn><end_of_turn>\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>.<end_of_turn>"
+        },
+        {
+          "route_id": "la-to-san-diego",
+          "duration_s": 3.335,
+          "tok_per_sec": 307.3,
+          "valid_json": true,
+          "correct_count": true,
+          "labels": [
+            "Los Angeles \u2192 Laguna Beach via Pacific Coast Highway",
+            "Laguna Beach \u2192 Oceanside via I-5 S",
+            "Oceanside \u2192 San Diego via I-5 S"
+          ],
+          "raw_response": "```json\n{\n  \"leg_labels\": [\n    \"Los Angeles \u2192 Laguna Beach via Pacific Coast Highway\",\n    \"Laguna Beach \u2192 Oceanside via I-5 S\",\n    \"Oceanside \u2192 San Diego via I-5 S\"\n  ]\n}\n```<end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn>\n<end_of_turn><end_of_turn>\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.<end_of_turn>.\n<end_of_turn>.<end_of_turn>.\n<end_of_turn>.<end_of_turn>.\n<end_of_turn>.<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>.\n<end_of_turn>."
+        },
+        {
+          "route_id": "seattle-to-portland",
+          "duration_s": 3.131,
+          "tok_per_sec": 327.4,
+          "valid_json": true,
+          "correct_count": true,
+          "labels": [
+            "Seattle \u2192 Olympia via I-5 S",
+            "Olympia \u2192 Longview via I-5 S",
+            "Portland via I-5 S"
+          ],
+          "raw_response": "```json\n{\n  \"leg_labels\": [\n    \"Seattle \u2192 Olympia via I-5 S\",\n    \"Olympia \u2192 Longview via I-5 S\",\n    \"Portland via I-5 S\"\n  ]\n}\n```\n<end_of_turn><end_of_turn>\u01f9<end_of_turn>\n<end_of_turn>\u043d\u0438\u0439<end_of_turn>\n<end_of_turn><end_of_turn>\n<end_of_turn><end_of_turn>\n<end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn>\n<end_of_turn><end_of_turn><end_of_turn>\n<end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn>\n<end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn><end_of_turn>"
+        }
+      ]
+    },
+    {
+      "model": "mlx-community/Phi-4-mini-instruct-4bit",
+      "load_seconds": 28.94,
+      "n_routes": 3,
+      "n_valid_json": 3,
+      "n_correct_count": 3,
+      "avg_duration_s": 0.505,
+      "avg_tok_per_sec": 98.7,
+      "results": [
+        {
+          "route_id": "sf-to-point-reyes",
+          "duration_s": 0.729,
+          "tok_per_sec": 72.7,
+          "valid_json": true,
+          "correct_count": true,
+          "labels": [
+            "SF to Sausalito via I-5",
+            "Sausalito to Stinson Beach via I-1",
+            "Stinson Beach to Point Reyes via I-1"
+          ],
+          "raw_response": "```json\n{\n  \"leg_labels\": [\n    \"SF to Sausalito via I-5\",\n    \"Sausalito to Stinson Beach via I-1\",\n    \"Stinson Beach to Point Reyes via I-1\"\n  ]\n}\n```"
+        },
+        {
+          "route_id": "la-to-san-diego",
+          "duration_s": 0.379,
+          "tok_per_sec": 108.3,
+          "valid_json": true,
+          "correct_count": true,
+          "labels": [
+            "Los Angeles to Laguna Beach",
+            "Laguna Beach to Oceanside",
+            "Oceanside to San Diego"
+          ],
+          "raw_response": "```json\n{\n  \"leg_labels\": [\n    \"Los Angeles to Laguna Beach\",\n    \"Laguna Beach to Oceanside\",\n    \"Oceanside to San Diego\"\n  ]\n}\n```"
+        },
+        {
+          "route_id": "seattle-to-portland",
+          "duration_s": 0.408,
+          "tok_per_sec": 115.2,
+          "valid_json": true,
+          "correct_count": true,
+          "labels": [
+            "Seattle to Olympia I-5 South",
+            "Olympia to Longview I-5 South",
+            "Longview to Portland I-5 South"
+          ],
+          "raw_response": "```json\n{\n  \"leg_labels\": [\n    \"Seattle to Olympia I-5 South\",\n    \"Olympia to Longview I-5 South\",\n    \"Longview to Portland I-5 South\"\n  ]\n}\n```"
+        }
+      ]
+    }
+  ],
+  "test_routes": [
+    {
+      "route_id": "sf-to-point-reyes",
+      "legs": [
+        {
+          "index": 0,
+          "from": "San Francisco",
+          "to": "Sausalito",
+          "road": "Highway 101"
+        },
+        {
+          "index": 1,
+          "from": "Sausalito",
+          "to": "Stinson Beach",
+          "road": "Highway 1"
+        },
+        {
+          "index": 2,
+          "from": "Stinson Beach",
+          "to": "Point Reyes",
+          "road": "Highway 1"
+        }
+      ]
+    },
+    {
+      "route_id": "la-to-san-diego",
+      "legs": [
+        {
+          "index": 0,
+          "from": "Los Angeles",
+          "to": "Laguna Beach",
+          "road": "Pacific Coast Highway"
+        },
+        {
+          "index": 1,
+          "from": "Laguna Beach",
+          "to": "Oceanside",
+          "road": "I-5 S"
+        },
+        {
+          "index": 2,
+          "from": "Oceanside",
+          "to": "San Diego",
+          "road": "I-5 S"
+        }
+      ]
+    },
+    {
+      "route_id": "seattle-to-portland",
+      "legs": [
+        {
+          "index": 0,
+          "from": "Seattle",
+          "to": "Olympia",
+          "road": "I-5 S"
+        },
+        {
+          "index": 1,
+          "from": "Olympia",
+          "to": "Longview",
+          "road": "I-5 S"
+        },
+        {
+          "index": 2,
+          "from": "Longview",
+          "to": "Portland",
+          "road": "I-5 S"
+        }
+      ]
+    }
+  ]
+}

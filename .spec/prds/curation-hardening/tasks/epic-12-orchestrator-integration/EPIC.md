@@ -1,6 +1,6 @@
 # Epic 12: Pipeline Orchestrator & End-to-End Integration
 
-**Sequence:** 12 / 12
+**Sequence:** 12 / 11  *(sequence number retained; Epic 5 gap from 2026-04-12 revision)*
 **Priority:** P1
 **Status:** Backlog
 **Estimated Effort:** 120 minutes (~2 hours)
@@ -24,7 +24,7 @@ After the single task is complete, an administrator should be able to:
 1. **Run orchestrator help** — Execute `python -m scripts.curation.pipeline.orchestrator --help`. Verify all stage flags are documented: `--skip-ingest`, `--skip-dedup`, `--skip-floor`, `--skip-extract`, `--skip-score`, `--skip-classify`, `--skip-push`, `--only-stage`, `--dry-run`.
 2. **Run orchestrator dry-run** — Execute `python -m scripts.curation.pipeline.orchestrator --dry-run`. Verify all stages are listed in execution order with estimated counts but no actual writes occur.
 3. **Run full pipeline end-to-end** — Execute `python -m scripts.curation.pipeline.orchestrator`. Verify:
-   - All 6 sources ingested (Scenic Byways 799, USFS, Rider Mag 50, BDR 10, twtex 100, curvature top 5%)
+   - All 6 sources ingested (existing: FHWA, motorcycleroads, bestbikingroads — new from Epic 4: Scenic Byways 799, Rider Mag 50, curvature top 5%)
    - Dedup runs across sources with merge statistics logged
    - Quality floor filter runs (Phase 1 soft)
    - HPMS + NWS enrichment runs
@@ -44,7 +44,7 @@ After the single task is complete, an administrator should be able to:
 9. **Full pipeline timing** — Run full pipeline to completion. Verify total runtime is reasonable (< 2 hours for the full batch, given HPMS enrichment + calibration + extraction + dedup all running sequentially).
 10. **Mobile app final verification** — Open mobile app after full pipeline run. Verify:
     - Catalog shows deduped routes (no duplicates)
-    - Surface filter works with real BDR/MVUM data
+    - Surface filter works with OSM-sourced surface data (and GLM NLP fallback)
     - Rider Mag routes in top 10 by score
     - Community signals visible on detail sheet
     - Quality tier badges appear on minimal routes
@@ -97,8 +97,7 @@ All 11 verifications must pass. This is the final validation of the entire Curat
 - (none — this is the final epic)
 
 **Depends On:**
-- Epic 4: Source Diversification — Government + Editorial (all SRC tasks)
-- Epic 5: Source Diversification — Community + Geometric (all SRC tasks)
+- Epic 4: Source Diversification — Government, Editorial & Geometric (all SRC tasks)
 - Epic 6: Quality Infrastructure — Dedup & Floor (QUAL-001, QUAL-002)
 - Epic 7: Quality Infrastructure — Reports (QUAL-003, QUAL-004)
 - Epic 8: Scoring & Calibration (all SCO + INF tasks)

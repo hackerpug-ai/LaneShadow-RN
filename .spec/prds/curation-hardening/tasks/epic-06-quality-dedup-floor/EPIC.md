@@ -1,6 +1,6 @@
 # Epic 6: Quality Infrastructure — Dedup & Floor
 
-**Sequence:** 6 / 12
+**Sequence:** 6 / 11  *(sequence number retained; Epic 5 gap from 2026-04-12 revision)*
 **Priority:** P1
 **Status:** Backlog
 **Estimated Effort:** 540 minutes (~9 hours)
@@ -23,7 +23,7 @@ After both tasks are complete, an administrator should be able to:
 
 1. **Run dedup on the full catalog** — Execute `python -m scripts.curation.pipeline.dedup.deduplicator`. Verify runtime < 10 minutes for ~20k routes. Verify Pass 1 (exact name+state), Pass 2 (fuzzy Levenshtein >0.85 via rapidfuzz.token_sort_ratio), Pass 3 (geospatial <3mi + Lev >0.75) counts are logged.
 2. **Verify source priority merge** — Spot-check merged routes. For a route appearing in both FHWA and BBR, verify FHWA GIS fields won. Inspect `field_provenance` dict — should show which source contributed each field. Verify `merge_count > 1` on merged records.
-3. **Verify community_rating preservation** — For a merged route with ratings from both twtex and motorcycleroads, verify the HIGHEST rating was retained.
+3. **Verify community_rating preservation** — For a merged route with ratings from multiple community sources (e.g., motorcycleroads + bestbikingroads), verify the HIGHEST rating was retained.
 4. **Verify description preservation** — For a merged route with descriptions from multiple sources, verify the LONGEST non-null description was retained.
 5. **Check dedup report** — Inspect the dedup report markdown. Verify it shows before/after counts per source, and merge rationale for each pair type. Duplicate "Tail of the Dragon" should appear once in the final catalog.
 6. **Run quality floor filter (Phase 1 soft mode)** — Execute `python -m scripts.curation.pipeline.quality.floor_filter --phase=1`. Verify routes get `quality_tier` assignments but are NOT rejected — minimal-tier routes stay in the catalog.
@@ -32,7 +32,7 @@ After both tasks are complete, an administrator should be able to:
 9. **Run allowlist override** — Add a minimal-tier route to the allowlist and re-run. Verify the allowlisted route is promoted to `standard` tier.
 10. **Run full pipeline end-to-end post-dedup** — Execute source ingest → dedup → quality floor → extract → score → classify → push. Verify Convex upsert reflects the deduped, tiered catalog. Mobile app shows no duplicate routes.
 
-11. **Execute the Curation Review Protocol** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. Applicable steps NOW INCLUDE: 3 (dedup) and 4 (quality floor) for the first time. Full steps: 1, 2, 3, 4, 6, 7, 8, 12. **Diff against Epic 5 baseline — catalog should SHRINK due to dedup (~17k → ~15-16k after merging duplicates). Score distributions should tighten. Verify Tail of the Dragon appears EXACTLY ONCE. Verify quality tier distribution is sensible (not 100% minimal). Landmark spot check: all 5 landmarks appear exactly once.** Write `review.md` with verdict PASS.
+11. **Execute the Curation Review Protocol** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. Applicable steps NOW INCLUDE: 3 (dedup) and 4 (quality floor) for the first time. Full steps: 1, 2, 3, 4, 6, 7, 8, 12. **Diff against Epic 4 baseline (Epic 5 deleted 2026-04-12) — catalog should SHRINK due to dedup (~18-19k → ~15-16k after merging duplicates). Score distributions should tighten. Verify Tail of the Dragon appears EXACTLY ONCE. Verify quality tier distribution is sensible (not 100% minimal). Landmark spot check: all 5 landmarks appear exactly once.** Write `review.md` with verdict PASS.
 
 All 11 verifications must pass.
 
@@ -69,7 +69,7 @@ All 11 verifications must pass.
 
 | ID | Title | Type | Agent | Priority | Effort | Est. Min | Depends On | Blocks |
 |----|-------|------|-------|----------|--------|----------|------------|--------|
-| QUAL-001 | Three-Stage Deduplication Engine | FEATURE | python-implement | P1 | L | 360 | SRC-001..006, INF-002, INF-007 | QUAL-002, QUAL-003, QUAL-004 |
+| QUAL-001 | Three-Stage Deduplication Engine | FEATURE | python-implement | P1 | L | 360 | SRC-001, SRC-004, SRC-006, INF-002, INF-007 | QUAL-002, QUAL-003, QUAL-004 |
 | QUAL-002 | Quality Floor Enforcement | FEATURE | python-implement | P1 | M | 180 | QUAL-001 | QUAL-003, QUAL-004 |
 
 **Total Tasks:** 2
@@ -85,9 +85,9 @@ All 11 verifications must pass.
 - Epic 12: Orchestrator & E2E (dedup is a pipeline stage)
 
 **Depends On:**
-- Epic 4: Source Diversification — Government + Editorial (all SRC tasks)
-- Epic 5: Source Diversification — Community + Geometric (all SRC tasks)
+- Epic 4: Source Diversification — Government, Editorial & Geometric (SRC-001, SRC-004, SRC-006)
 - Epic 3: Foundation (INF-002, INF-007)
+- *(Epic 5 deleted 2026-04-12 — see `../INDEX.md` for rationale)*
 
 ---
 
@@ -102,7 +102,7 @@ All 11 verifications must pass.
 - [ ] Mobile app shows no duplicate routes (verify "Tail of the Dragon" appears once)
 - [ ] Curation Review Protocol executed with PASS verdict
 - [ ] `review.md` + updated `baseline/catalog.jsonl` committed
-- [ ] Catalog diff vs Epic 5 baseline shows expected dedup-driven shrink
+- [ ] Catalog diff vs Epic 4 baseline shows expected dedup-driven shrink
 - [ ] User has approved proceeding to Epic 7
 
 ---

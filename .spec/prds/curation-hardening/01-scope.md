@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
 last_validated: 2026-04-12
-prd_version: 1.1.0
+prd_version: 1.2.0
 appetite_weeks: 7
 ---
 
@@ -11,23 +11,19 @@ appetite_weeks: 7
 
 **7 weeks total (including Week 0 validation)**
 
-This appetite supports Week 0 validation to de-risk technical assumptions, followed by 6 weeks of implementation building all four hardening layers: source diversification (6 new sources), quality infrastructure (dedup, quality floor, coverage report, data quality report), scoring realignment with calibration enforcement (measured data integration), and community sources with NLP extraction pipeline.
+This appetite supports Week 0 validation to de-risk technical assumptions, followed by 6 weeks of implementation building all four hardening layers: source diversification (3 new sources), quality infrastructure (dedup, quality floor, coverage report, data quality report), scoring realignment with calibration enforcement (measured data integration), and community sources with NLP extraction pipeline.
 
 ## In Scope
 
 ### Priority 0: Validation & Setup (Week 0)
 - **GLM NLP pilot**: Build and test 100-post labeled dataset, measure accuracy against expectations for road name extraction and attribute classification
-- **BDR GPX verification**: Live accessibility test of ridebdr.com GPX downloads, verify file format and segmentation feasibility
-- **twtex.com comprehensive research**: Full feasibility assessment including WAF bypass, legal/terms-of-use review, and technical scraping approach
 - **Convex Geospatial Index setup**: Install @convex-dev/geospatial (Beta), create GeospatialIndex, validate nearest-neighbor and range query performance
-- **Decision gate**: Only proceed to Week 1 if validation passes (GLM accuracy >0.75, BDR GPX accessible, twtex feasible, Convex Geospatial performant)
+- **Decision gate**: Only proceed to Week 1 if validation passes (GLM accuracy >0.75, Convex Geospatial performant)
+- **Source invalidation spikes (completed, sources dropped)**: VAL-002 (BDR GPX — PRD assumption 403-blocked; source also a V3 lifestyle mismatch) and VAL-003 (twtex.com — PRD assumption invalidated, site is a Texas forum not a curated Top 100 list) produced no-go verdicts. Retained as historical evidence.
 
 ### Priority 1: Source Diversification (Weeks 2-3)
 - US Scenic Byways GIS Layer ingestion (799 routes from Koordinates, GeoJSON/Shapefile)
-- BDR GPX file ingestion (10 multi-day backcountry routes, segmented to ride-segment chunks)
-- twtex.com Top 100 crowd-sourced motorcycle roads ingestion
 - adamfranco/curvature geometric discovery from US OSM PBF data (top 5% curvature roads)
-- USFS Motor Vehicle Use Maps ingestion from Data.gov (forest roads open to motorcycles)
 - Rider Magazine 50 Best Roads editorial ingestion (ground truth anchor)
 - Reconciliation of new Scenic Byways GIS against existing FHWA CSV routes (184 overlap)
 
@@ -74,12 +70,17 @@ This appetite supports Week 0 validation to de-risk technical assumptions, follo
 ### Deferred to Future Cycles
 - **Vector embeddings / semantic search** — quality floor + improved scoring addresses catalog quality without ML runtime on device
 - **Fine-tuned NLP models** — keyword + regex NLP first; upgrade to sentence-transformer only if accuracy < 0.75
-- **State DOT AADT data integration** — varies by state format, high collection effort; USFS + curvature provide sufficient new signals
+- **State DOT AADT data integration** — varies by state format, high collection effort; curvature provides sufficient new signals
 - **International route sources** — US-focused for this initiative
 - **Real-time community monitoring** — weekly batch is sufficient; real-time streaming deferred
 - **Elevation profile enrichment** — SRTM/Mapbox integration is specced but deferred to implementation phase based on API availability
-- **BLM Recreation & Roads** — similar to USFS but lower priority; add after USFS validates the government data ingestion pattern
-- **NPS Roads & Trails** — ArcGIS hub access; add after USFS
+
+### Dropped (2026-04-12) — V3 strategy and PRD-assumption failures
+- **BDR GPX (UC-SRC-02)** — Backcountry Discovery Routes are multi-day ADV/dual-sport routes. V3 pivot (lifestyle ride discovery community) targets street riders; ADV/off-road is a different persona. VAL-002 also found the published GPX URLs return 403. Dropped entirely; no replacement.
+- **twtex.com Top 100 (UC-SRC-03)** — PRD assumption that twtex.com hosts a curated "Top 100 Motorcycle Roads" list is false. VAL-003 confirmed the site is Two Wheeled Texans, a Texas-only motorcycle forum with no structured listing. Dropped entirely; no replacement.
+- **USFS Motor Vehicle Use Maps (UC-SRC-05)** — MVUM data is forest service gravel/dirt roads for dual-sport/ADV use. Same V3 lifestyle mismatch as BDR. Dropped entirely.
+- **BLM Recreation & Roads** — was already deferred behind USFS; with USFS dropped, also removed from the roadmap entirely.
+- **NPS Roads & Trails** — was already deferred behind USFS; with USFS dropped, also removed from the roadmap entirely.
 
 ### Never in Scope (Separate Initiatives)
 - **User-submitted routes** — requires moderation workflow, separate product initiative
@@ -94,4 +95,6 @@ This appetite supports Week 0 validation to de-risk technical assumptions, follo
 
 **Fine-tuned NLP deferred:** The NLP task is narrow — extract road names and classify 6 attribute buckets from motorcycle forum text. Regex handles highway numbers with 95%+ accuracy. Keyword matching for attributes is sufficient for our classification needs. If accuracy falls below 0.75 on validation, the upgrade path to sentence-transformers is specced in AD-002.
 
-**International deferred:** All new sources (Scenic Byways GIS, USFS, BDR, curvature, twtex, Rider Mag) are US-only. International expansion requires localized sources and different government data providers — separate initiative.
+**International deferred:** All new sources (Scenic Byways GIS, curvature, Rider Mag) are US-only. International expansion requires localized sources and different government data providers — separate initiative.
+
+**Initiative thesis revised (2026-04-12):** Original thesis was aggressive source volume diversification to reduce BBR concentration from 98.8% to ~70-75%. With BDR, twtex, and USFS dropped, the achievable reduction is only ~85-90%. The remaining value of this initiative lives in **signal enrichment** — deduplication, quality floor, scoring realignment against research weights, community NLP, and measured traffic/weather data — all of which were already in scope as Epics 6-10. The three retained sources (Scenic Byways, curvature, Rider Mag) still contribute but are no longer the headline outcome.

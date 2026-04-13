@@ -1,6 +1,6 @@
 # Epic 11: Mobile UI — New Field Display
 
-**Sequence:** 11 / 12
+**Sequence:** 11 / 11
 **Priority:** P1
 **Status:** Backlog
 **Estimated Effort:** 345 minutes (~6 hours)
@@ -22,7 +22,7 @@ Surface the new pipeline data fields in the existing React Native mobile app: su
 After all 4 tasks are complete, a user should be able to:
 
 1. **Open discovery screen** — Launch Expo dev server (`npx expo start`), open on device/simulator. Verify existing routes render exactly as before (no visual regression).
-2. **See surface type badges on route cards** — Scroll to a route with `surface='gravel'` (USFS MVUM or BDR route from Epic 5). Verify a gravel-icon chip appears below the archetype row. Verify paved routes show no surface badge (paved is the default, no noise).
+2. **See surface type badges on route cards** — Scroll to a route with `surface='gravel'` (surfaced via OSM enrichment `osm_surface` tag — USFS and BDR were dropped 2026-04-12, so surface data now comes from OSM way tags as primary and GLM NLP extraction as secondary). Verify a gravel-icon chip appears below the archetype row. Verify paved routes show no surface badge (paved is the default, no noise).
 3. **Tap surface filter chip** — Verify a second row of filter chips appears above/below the archetype filter row with options: All, Paved, Gravel, Dirt, Mixed. Tap "Gravel" — verify only gravel routes remain visible on map and list. Deselect and verify full list returns.
 4. **Verify filter hidden when no surface data** — Navigate to a region with only paved routes. Verify the surface filter row is hidden (no empty UI element).
 5. **Verify minimal quality tier badge** — Find a route with `qualityTier='minimal'`. Verify a subtle "Limited data" warning badge appears at reduced opacity. Verify premium routes show no badge (expected quality = invisible).
@@ -105,7 +105,7 @@ These are the 4 DESIGN tasks produced by the UID agent analysis.
 - [ ] Mobile app runs without crashes against pipeline data (from Epic 4+)
 - [ ] Type check + lint + component tests pass
 - [ ] Visual diff on existing routes: zero change
-- [ ] Surface filter works with real USFS MVUM and BDR data
+- [ ] Surface filter works with real OSM-sourced surface data (primary) and GLM NLP extraction (secondary)
 - [ ] Route details sheet shows rich Rider Mag descriptions
 - [ ] Curation Review Protocol executed with PASS verdict (mobile smoke test included)
 - [ ] `review.md` committed with mobile smoke test results

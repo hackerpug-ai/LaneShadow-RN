@@ -25,7 +25,7 @@ functional_group: QUAL
 - ☐ System performs Pass 1: exact match on normalized name + state (case-insensitive, strip "Highway"/"Route"/"US-" prefixes)
 - ☐ System performs Pass 2: fuzzy match where centroid distance < 5 miles AND name Levenshtein similarity > 0.85 using rapidfuzz.token_sort_ratio() for word-order-insensitive matching
 - ☐ System performs Pass 3: geospatial match where centroid distance < 3 miles AND name Levenshtein similarity > 0.75
-- ☐ System merges matched records using source priority order: FHWA GIS > Rider Magazine > twtex > motorcycleroads > bestbikingroads > curvature_discovery > USFS
+- ☐ System merges matched records using source priority order: FHWA GIS > Scenic Byways GIS > Rider Magazine > motorcycleroads > bestbikingroads > curvature_discovery
 - ☐ System tracks source provenance: source_priority (dict[str, int]), field_provenance (dict[str, str]), merged_at (ISO timestamp), merge_count (int)
 - ☐ System retains all source URLs on the merged record for provenance
 - ☐ System preserves the highest community_rating across merged sources

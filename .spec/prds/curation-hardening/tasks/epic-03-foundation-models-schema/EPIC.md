@@ -84,8 +84,7 @@ All 8 verifications must pass to confirm the foundation is solid. Any failure me
 ## Dependencies
 
 **Blocks:**
-- Epic 4: Source Diversification — Government + Editorial (all SRC tasks need extended Route model + Convex schema)
-- Epic 5: Source Diversification — Community + Geometric
+- Epic 4: Source Diversification — Government, Editorial & Geometric (all SRC tasks need extended Route model + Convex schema)
 - Epic 6: Quality Infrastructure — Dedup & Floor (needs `field_provenance` and geospatial queries)
 - Epic 7: Quality Infrastructure — Reports
 - Epic 8: Scoring & Calibration (needs extraction schema v2)

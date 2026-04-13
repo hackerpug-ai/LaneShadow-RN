@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
 last_validated: 2026-04-12
-prd_version: 1.0.0
+prd_version: 1.1.0
 functional_group: SRC
 ---
 
@@ -10,11 +10,13 @@ functional_group: SRC
 | UC ID | Title | Description |
 |-------|-------|-------------|
 | UC-SRC-01 | Ingest US Scenic Byways GIS Layer | System imports 799-feature Scenic Byways GIS dataset from Koordinates |
-| UC-SRC-02 | Ingest Backcountry Discovery Routes GPX Files | System imports 10 multi-day BDR routes from ridebdr.com free GPX downloads |
-| UC-SRC-03 | Ingest twtex.com Top 100 Motorcycle Roads | System scrapes crowd-sourced top 100 motorcycle roads with numeric scores |
 | UC-SRC-04 | Run adamfranco/curvature Geometric Discovery | System discovers high-curvature roads from US OSM data |
-| UC-SRC-05 | Ingest USFS Motor Vehicle Use Maps | System imports forest road data from USFS MVUM datasets |
 | UC-SRC-06 | Ingest Rider Magazine 50 Best Roads | System extracts editorial ground truth routes from Rider Magazine list |
+
+**Dropped 2026-04-12:**
+- ~~UC-SRC-02 (BDR GPX)~~ — V3 lifestyle mismatch (ADV/dual-sport persona) + VAL-002 found published URLs return 403
+- ~~UC-SRC-03 (twtex.com Top 100)~~ — PRD assumption invalidated by VAL-003; site is a Texas motorcycle forum, not a curated Top 100 list
+- ~~UC-SRC-05 (USFS MVUM)~~ — V3 lifestyle mismatch (forest service gravel/dirt roads for dual-sport)
 
 ---
 
@@ -35,37 +37,6 @@ functional_group: SRC
 
 ---
 
-## UC-SRC-02: Ingest Backcountry Discovery Routes GPX Files
-
-**Description:** Administrator runs the BDR ingestion module to import 10 multi-day backcountry routes from ridebdr.com free GPX downloads. BDR routes are the gold standard for adventure riding and provide high-value long-format routes that no other source covers.
-
-**Acceptance Criteria:**
-- ☐ Administrator can run BDR ingestion via `python -m pipeline.sources.bdr`
-- ☐ System downloads free GPX files for all 10 published BDR routes from ridebdr.com
-- ☐ System parses GPX waypoints, tracks, and route metadata (name, description, total distance)
-- ☐ System segments multi-day routes into ride-segment-sized chunks (5-50 miles) where natural breakpoints exist (towns, campgrounds, junctions)
-- ☐ System assigns adventure archetype and tags surface type as mixed/gravel based on BDR documentation
-- ☐ System computes centroid, bounding box, and length in miles for each segment
-- ☐ System stores parent BDR route reference on each segment for reassembly
-- ☐ System logs segment count per BDR route and any parsing errors
-
----
-
-## UC-SRC-03: Ingest twtex.com Top 100 Motorcycle Roads
-
-**Description:** Administrator runs ingestion for twtex.com's crowd-sourced top 100 motorcycle roads. This editorial/community hybrid source provides numeric user scores and rankings that serve as independent calibration data.
-
-**Acceptance Criteria:**
-- ☐ Administrator can run twtex ingestion via `python -m pipeline.sources.twtex`
-- ☐ System scrapes route name, state, rank, user score, and description from twtex.com top 100 list
-- ☐ System respects rate limits (2-4 second delay between requests)
-- ☐ System maps twtex user scores to community_rating field (normalized 0-1)
-- ☐ System stores twtex rank as source metadata for calibration reference
-- ☐ System writes results to JSONL staging file
-- ☐ System logs ingestion count and any scraping errors
-
----
-
 ## UC-SRC-04: Run adamfranco/curvature Geometric Discovery
 
 **Description:** Administrator runs the curvature analysis pipeline on US OSM PBF data to discover high-curvature named roads that may not appear in any editorial or community source. This is the primary mechanism for finding "hidden gem" routes — roads that are genuinely excellent but never written about.
@@ -80,22 +51,6 @@ functional_group: SRC
 - ☐ System assigns twisties archetype to candidates with curvature above threshold
 - ☐ System writes candidate routes to JSONL staging file for review before Convex upsert
 - ☐ System logs total roads analyzed, candidates above threshold, and new-to-catalog count
-
----
-
-## UC-SRC-05: Ingest USFS Motor Vehicle Use Maps
-
-**Description:** Administrator runs ingestion for US Forest Service Motor Vehicle Use Maps (MVUM) data from Data.gov. These maps identify roads open to motorized travel on National Forest lands — critical for adventure riders seeking legal off-pavement routes.
-
-**Acceptance Criteria:**
-- ☐ Administrator can run USFS ingestion via `python -m pipeline.sources.usfs_mvum`
-- ☐ System downloads MVUM datasets from Data.gov for target National Forests
-- ☐ System parses road segments with surface type, vehicle class restrictions, and seasonal closures
-- ☐ System filters to roads open to motorcycles (vehicle class includes motorcycle)
-- ☐ System clusters adjacent road segments into ride-segment-sized routes (5-50 miles)
-- ☐ System assigns adventure archetype and stores surface type (gravel, dirt, improved)
-- ☐ System stores seasonal closure data as route metadata
-- ☐ System logs ingestion count per National Forest and filtering statistics
 
 ---
 

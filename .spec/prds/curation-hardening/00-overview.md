@@ -24,7 +24,7 @@ The Curation Pipeline Hardening initiative strengthens LaneShadow's route discov
 - No rider-generated signals: ADVRider (7.4M posts), Reddit r/motorcycles (2.3M subscribers), RideWithGPS popular routes — none integrated. The catalog reflects what *someone listed on a website*, not what *riders actually ride and recommend*.
 - No coverage validation: unknown whether Hawaii, Alaska, or Puerto Rico have zero routes. Unknown archetype distribution gaps.
 - No extraction validation: Haiku's attribute accuracy has never been measured against ground truth. The calibration gate exists as an empty scaffold.
-- Government data limited to 184 FHWA routes when 799 Scenic Byways GIS features, USFS Motor Vehicle Use Maps, and BLM recreation data are freely available.
+- Government data limited to 184 FHWA routes when 799 Scenic Byways GIS features are freely available.
 
 **Impact:**
 - Riders in regions underrepresented by BBR see a thin catalog — poor discovery experience
@@ -38,7 +38,7 @@ The Curation Pipeline Hardening initiative strengthens LaneShadow's route discov
 
 Build four layers of pipeline hardening:
 
-1. **Source Diversification (SRC)** — Add 6 new data sources: US Scenic Byways GIS (799 routes), BDR GPX (10 adventure routes), twtex Top 100 (crowd-sourced rankings), adamfranco/curvature (geometric discovery from OSM), USFS Motor Vehicle Use Maps (forest roads), Rider Magazine 50 Best (editorial ground truth). Reduces BBR concentration from 98.8% to an estimated 70-75%.
+1. **Source Diversification (SRC)** — Add 3 new data sources: US Scenic Byways GIS (799 routes), adamfranco/curvature (geometric discovery from OSM), Rider Magazine 50 Best (editorial ground truth). Reduces BBR concentration from 98.8% to an estimated 85-90%. *(Revised 2026-04-12: BDR, twtex, and USFS MVUM dropped. BDR + USFS are ADV/dual-sport focused and mismatch the V3 lifestyle ride community target. twtex is a Texas-only forum, not a curated list — PRD assumption invalidated by VAL-003. Initiative thesis shifts from volume diversification toward signal enrichment — Epics 6-10 carry the catalog-quality improvements.)*
 
 2. **Quality Infrastructure (QUAL)** — Three-stage deduplication (exact name+state, fuzzy Levenshtein, geospatial proximity with Convex Native Geospatial). Quality floor filter requiring at least one of: description, rating, designation, or curvature data. Coverage validation report (routes per state, per archetype, score distributions). Comprehensive post-pipeline data quality report with CI gating.
 

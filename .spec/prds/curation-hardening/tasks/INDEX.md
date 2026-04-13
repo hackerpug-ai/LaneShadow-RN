@@ -3,6 +3,7 @@
 **Project:** LaneShadow Curation Pipeline Hardening
 **Feature:** Source Diversification, Quality Infrastructure, Scoring Realignment, Rider Signals
 **Generated:** 2026-04-12
+**Revised:** 2026-04-12 — BDR (SRC-002), twtex (SRC-003), and USFS (SRC-005) dropped after VAL-002/VAL-003 invalidated PRD assumptions and V3 strategy shifted to lifestyle ride community (ADV/dual-sport sources no longer fit). Epic 5 deleted; SRC-004 folded into Epic 4.
 **PRD:** [`.spec/prds/curation-hardening/README.md`](../README.md)
 **Appetite:** 7 weeks (including Week 0 validation)
 
@@ -12,18 +13,19 @@
 
 | Metric | Value |
 |--------|-------|
-| **Total Epics** | 12 |
-| **Total Tasks** | 39 |
-| **Full-Detail Task Files** | 4 (Epic 1 only, per scope directive) |
-| **Stub Tasks** | 35 (Epics 2-12) |
-| **PRD Coverage** | 100% (all 19 use cases + cross-priority infra) |
-| **Estimated Effort** | ~6200 minutes (~103 hours total) |
+| **Total Epics** | 11 (Epic 5 deleted; sequence numbers preserved — gap from 4 → 6) |
+| **Total Tasks** | 35 |
+| **Full-Detail Task Files** | 5 (Epic 1 + Epic 2 BASE-001) |
+| **Stub Tasks** | 30 (Epics 3-4, 6-12) |
+| **PRD Coverage** | 100% of 16 surviving use cases + cross-priority infra |
+| **Estimated Effort** | ~5560 minutes (~93 hours total) — reduced from ~6200 min after 640 min of dropped tasks |
 
 ### Task Quality
 
-- **Epic 1 (VAL-001..004)** — Full TASK-TEMPLATE v4.0 compliance, quality score ~112/115 average
-- **Epic 2-12** — Stub-level (task_id, title, agent, dependencies, one-line spec) per user directive
-- **Task files for Epics 2-12** — Will be written as each epic enters execution phase
+- **Epic 1 (VAL-001..004)** — Full TASK-TEMPLATE v4.0 compliance, quality score 115/115 average
+- **Epic 2 (BASE-001)** — Full TASK-TEMPLATE v4.0 compliance, quality score 113/115
+- **Epic 3-12** — Stub-level (task_id, title, agent, dependencies, one-line spec) per user directive
+- **Task files for Epics 3-12** — Will be written as each epic enters execution phase
 
 ---
 
@@ -45,8 +47,8 @@
 | 1 | 1 (minimal), 6, 7, 8, 12 | Existing baseline only — no change |
 | 2 | 1 (existing), 2 (OSM), 6, 7, 8, 12 | First full baseline run |
 | 3 | Same as Epic 2 + extended models | Regression check after schema extension |
-| 4 | 1 (+ 3 new gov/editorial sources), 2, 6, 7, 8, 12 | +Scenic Byways +USFS +Rider Mag |
-| 5 | 1 (+ BDR, twtex, curvature), 2, 6, 7, 8, 12 | +BDR +twtex +curvature discovery |
+| 4 | 1 (+ 3 new sources: Scenic Byways, Rider Mag, curvature), 2, 6, 7, 8, 12 | All 3 surviving new sources run end-to-end |
+| ~~5~~ | — | *Deleted 2026-04-12 (source invalidations + V3 strategy mismatch)* |
 | 6 | Add step 3 (dedup) + step 4 (quality floor) | First dedup run |
 | 7 | Add steps 10 (coverage report) + 11 (data quality report) | First quality reports |
 | 8 | Add step 2 (HPMS + NWS) + step 5 (calibration gate) | First calibrated run |
@@ -66,8 +68,8 @@
 | 1 | Week 0 — Validation & De-Risking | [epic-01-week0-validation/](./epic-01-week0-validation/) | 4 | P0 | Run 4 validation spikes, verify go/no-go for each risk |
 | 2 | Baseline Curation Pipeline Validation | [epic-02-baseline-pipeline-validation/](./epic-02-baseline-pipeline-validation/) | 1 | P0 | Run existing pipeline end-to-end before hardening |
 | 3 | Foundation — Models, Schema, Dependencies | [epic-03-foundation-models-schema/](./epic-03-foundation-models-schema/) | 6 | P0 | Install deps, extend models, migrate Convex schema |
-| 4 | Source Diversification — Government + Editorial | [epic-04-sources-government-editorial/](./epic-04-sources-government-editorial/) | 3 | P1 | Run 3 gov/editorial sources through full pipeline |
-| 5 | Source Diversification — Community + Geometric | [epic-05-sources-community-geometric/](./epic-05-sources-community-geometric/) | 3 | P1 | Run BDR/twtex/curvature through full pipeline |
+| 4 | Source Diversification — Government, Editorial & Geometric | [epic-04-sources-government-editorial/](./epic-04-sources-government-editorial/) | 3 | P1 | Run 3 surviving sources (Scenic Byways, Rider Mag, curvature) through full pipeline |
+| ~~5~~ | ~~Source Diversification — Community + Geometric~~ | *deleted 2026-04-12* | 0 | — | *BDR + twtex sources invalidated; SRC-004 (curvature) folded into Epic 4* |
 | 6 | Quality Infrastructure — Dedup & Floor | [epic-06-quality-dedup-floor/](./epic-06-quality-dedup-floor/) | 2 | P1 | Run dedup on full catalog, verify tier assignments |
 | 7 | Quality Infrastructure — Reports | [epic-07-quality-reports/](./epic-07-quality-reports/) | 2 | P1 | Generate coverage + data quality reports with CI gating |
 | 8 | Scoring & Calibration | [epic-08-scoring-calibration/](./epic-08-scoring-calibration/) | 6 | P1 | Realign weights, calibration gate, extraction audit |
@@ -83,8 +85,8 @@
 ```
 Epic 1: Week 0 Validation (VAL-001..004)
     │
-    ├─► VAL-002 ──────────────────────────────────► SRC-002 (Epic 5)
-    ├─► VAL-003 ──────────────────────────────────► SRC-003 (Epic 5)
+    ├─► VAL-002 ✗ (BDR source invalidated — SRC-002 dropped)
+    ├─► VAL-003 ✗ (twtex source invalidated — SRC-003 dropped)
     ├─► VAL-001 ──────────────────────────────────► RID-003 (Epic 10)
     └─► VAL-004 ──► Epic 2 (Baseline Validation)
                             │
@@ -92,38 +94,39 @@ Epic 1: Week 0 Validation (VAL-001..004)
                     Epic 3: Foundation
                     (INF-001..010, ex-004)
                             │
-           ┌────────────────┼────────────────┬─────────────┐
-           ▼                ▼                ▼             ▼
-    Epic 4: SRC          Epic 5: SRC    Epic 11: Mobile    (...)
-    (Gov + Editorial)    (Community     UI Display
-    SRC-001, 005, 006     + Geometric)  (DESIGN-008..011)
-           │             SRC-002, 003, 004
-           │                │
-           └────────┬───────┘
-                    ▼
-          Epic 6: Quality Dedup + Floor
-          (QUAL-001, QUAL-002)
-                    │
-                    ▼
-          Epic 7: Quality Reports
-          (QUAL-003, QUAL-004)
-                    │
-                    ▼
-          Epic 8: Scoring & Calibration
-          (INF-008, 009, SCO-001..004)
-                    │
-                    ▼
-          Epic 9: Community Ingestion
-          (RID-001, 002, 006)
-                    │
-                    ▼
-          Epic 10: Community NLP + Signals
-          (RID-003, 004, 005, INF-010)
-                    │
-                    ▼
-          Epic 12: Orchestrator & E2E
-          (INF-004)
+           ┌────────────────┼─────────────┐
+           ▼                ▼             ▼
+    Epic 4: SRC        Epic 11: Mobile    (Epic 5 deleted)
+    (Gov + Editorial   UI Display
+     + Geometric)      (DESIGN-008..011)
+    SRC-001, 006, 004
+           │
+           ▼
+    Epic 6: Quality Dedup + Floor
+    (QUAL-001, QUAL-002)
+           │
+           ▼
+    Epic 7: Quality Reports
+    (QUAL-003, QUAL-004)
+           │
+           ▼
+    Epic 8: Scoring & Calibration
+    (INF-008, 009, SCO-001..004)
+           │
+           ▼
+    Epic 9: Community Ingestion
+    (RID-001, 002, 006)
+           │
+           ▼
+    Epic 10: Community NLP + Signals
+    (RID-003, 004, 005, INF-010)
+           │
+           ▼
+    Epic 12: Orchestrator & E2E
+    (INF-004)
 ```
+
+*Dropped from graph 2026-04-12: SRC-002 (BDR), SRC-003 (twtex), SRC-005 (USFS MVUM). Epic 5 deleted entirely.*
 
 ---
 
@@ -133,8 +136,7 @@ Epic 1: Week 0 Validation (VAL-001..004)
 |---------------|-------|-----------|
 | Epic 1 all 4 VAL | VAL-001, VAL-002, VAL-003, VAL-004 | No inter-task dependencies |
 | Epic 3 INF-005/006/007 | After INF-001/002/003 | Independent infra concerns |
-| Epic 4 all 3 SRC | SRC-001, SRC-005, SRC-006 | Independent source scrapers |
-| Epic 5 all 3 SRC | SRC-002, SRC-003, SRC-004 | Independent source scrapers |
+| Epic 4 all 3 SRC | SRC-001, SRC-006, SRC-004 | Independent source scrapers (absorbed SRC-004 from deleted Epic 5) |
 | Epic 6 QUAL-001 → QUAL-002 | Sequential | QUAL-002 uses dedup output |
 | Epic 7 QUAL-003/004 | Parallel | Independent reports |
 | Epic 8 INF-008/009 parallel → SCO-001/002 → SCO-003/004 | Partial parallel | Enrichment first, then scoring |
@@ -155,11 +157,11 @@ Epic 1: Week 0 Validation (VAL-001..004)
 | [VAL-003](./epic-01-week0-validation/VAL-003.md) | twtex.com Feasibility Research — WAF Detection, ToU Review, Technical Approach | python-implement | S | 90 |
 | [VAL-004](./epic-01-week0-validation/VAL-004.md) | Convex Geospatial Index Setup — Install, Seed, and Validate Query Performance | convex-implementer | S | 120 |
 
-### Epic 2: Baseline Pipeline Validation (STUBS)
+### Epic 2: Baseline Pipeline Validation (FULL DETAIL)
 
 | Task ID | Title | Agent | Effort | Est. Min |
 |---------|-------|-------|--------|----------|
-| BASE-001 | Run and validate existing curation pipeline end-to-end | python-implement | M | 240 |
+| [BASE-001](./epic-02-baseline-pipeline-validation/BASE-001.md) | Run and validate existing curation pipeline end-to-end | python-implement | M | 240 |
 
 ### Epic 3: Foundation (STUBS)
 
@@ -172,21 +174,23 @@ Epic 1: Week 0 Validation (VAL-001..004)
 | INF-006 | Convex Push Serialization Update | convex-implementer | S | 60 |
 | INF-007 | Convex Geospatial Query Mutations — Production Wrappers | convex-implementer | S | 90 |
 
-### Epic 4: Sources — Government + Editorial (STUBS)
+### Epic 4: Sources — Government, Editorial & Geometric (STUBS)
 
 | Task ID | Title | Agent | Effort | Est. Min |
 |---------|-------|-------|--------|----------|
 | SRC-001 | Ingest US Scenic Byways GIS Layer | python-implement | M | 240 |
-| SRC-005 | Ingest USFS Motor Vehicle Use Maps | python-implement | M | 200 |
 | SRC-006 | Ingest Rider Magazine 50 Best Roads | python-implement | S | 150 |
-
-### Epic 5: Sources — Community + Geometric (STUBS)
-
-| Task ID | Title | Agent | Effort | Est. Min |
-|---------|-------|-------|--------|----------|
-| SRC-002 | Ingest BDR GPX Routes | python-implement | M | 240 |
-| SRC-003 | twtex.com Top 100 Scraper | python-implement | M | 200 |
 | SRC-004 | adamfranco/curvature Pre-Computed Output Consumer | python-implement | S | 150 |
+
+**Epic 5 — Deleted 2026-04-12.** Originally held SRC-002 (BDR), SRC-003 (twtex), SRC-004 (curvature). SRC-002 and SRC-003 dropped entirely after VAL-002 and VAL-003 invalidated their PRD assumptions. SRC-004 folded into Epic 4 above.
+
+### Dropped Tasks
+
+| Task ID | Title | Reason | Gate |
+|---------|-------|--------|------|
+| ~~SRC-002~~ | Ingest BDR GPX Routes | V3 lifestyle mismatch (ADV/dual-sport) + VAL-002 found 403s | Dropped 2026-04-12 |
+| ~~SRC-003~~ | twtex.com Top 100 Scraper | PRD assumption invalidated (site is a Texas forum, not a curated list) | Dropped 2026-04-12 via VAL-003 |
+| ~~SRC-005~~ | Ingest USFS Motor Vehicle Use Maps | V3 lifestyle mismatch (forest service gravel/dirt roads) | Dropped 2026-04-12 |
 
 ### Epic 6: Quality — Dedup & Floor (STUBS)
 
@@ -251,24 +255,25 @@ Epic 1: Week 0 Validation (VAL-001..004)
 
 | PRD Section | Covered By |
 |-------------|------------|
-| S1.0 Priority 0: Validation & Setup | VAL-001, VAL-002, VAL-003, VAL-004 |
-| S1.1 Priority 1: Source Diversification | SRC-001..006 |
+| S1.0 Priority 0: Validation & Setup | VAL-001, VAL-002 (source dropped), VAL-003 (source dropped), VAL-004 |
+| S1.1 Priority 1: Source Diversification | SRC-001, SRC-004, SRC-006 *(SRC-002/003/005 dropped)* |
 | S1.2 Priority 2: Quality Infrastructure | QUAL-001..004 |
 | S1.3 Priority 3: Scoring & Calibration | SCO-001..004, INF-008, INF-009 |
 | S1.4 Priority 4: Community Sources & NLP | RID-001..006, INF-010 |
 | S1.5 Cross-Priority Infrastructure | INF-001..007, INF-004 (orchestrator) |
-| S4 UC-SRC-01..06 | SRC-001..006 |
+| S4 UC-SRC-01, 04, 06 | SRC-001, SRC-004, SRC-006 |
+| ~~S4 UC-SRC-02, 03, 05~~ | *Dropped 2026-04-12 — see Dropped Tasks table above* |
 | S5 UC-QUAL-01..04 | QUAL-001..004 |
 | S6 UC-SCORE-01..04 | SCO-001..004, INF-008, INF-009 |
 | S7 UC-RIDER-01..06 | RID-001..006 |
 | S9 Technical Requirements | INF-001..010, DESIGN-008..011 |
 | Predecessor PRD Baseline | BASE-001 |
 
-**Coverage:** 100% of PRD sections + baseline validation + mobile UI extensions.
+**Coverage:** 100% of the 16 surviving PRD use cases + baseline validation + mobile UI extensions. (Down from 19 use cases after the 3 dropped SRC UCs.)
 
 ---
 
-## Quality Metrics (Epic 1 only — full detail)
+## Quality Metrics (Epic 1 + Epic 2 — full detail)
 
 | Task | CRITICAL CONSTRAINTS | SPECIFICATION | ACCEPTANCE CRITERIA | TEST CRITERIA | GUARDRAILS | DESIGN | VERIFICATION GATES | AGENT | ESTIMATE | CODING STANDARDS | Total |
 |------|----------------------|----------------|---------------------|---------------|------------|--------|-------------------|-------|----------|------------------|-------|
@@ -276,9 +281,10 @@ Epic 1: Week 0 Validation (VAL-001..004)
 | VAL-002 | 15 | 10 | 25 | 15 | 10 | 10 | 15 | 5 | 5 | 5 | **115/115** |
 | VAL-003 | 15 | 10 | 25 | 15 | 10 | 10 | 15 | 5 | 5 | 5 | **115/115** |
 | VAL-004 | 15 | 10 | 25 | 15 | 10 | 10 | 15 | 5 | 5 | 5 | **115/115** |
-| **Average** | — | — | — | — | — | — | — | — | — | — | **115/115** |
+| BASE-001 | 15 | 10 | 25 | 14 | 10 | 10 | 15 | 5 | 5 | 4 | **113/115** |
+| **Average** | — | — | — | — | — | — | — | — | — | — | **114.6/115** |
 
-All 4 Epic 1 tasks meet the minimum 80/115 quality threshold with room to spare.
+All 5 full-detail tasks meet the minimum 80/115 quality threshold with substantial headroom.
 
 ---
 
@@ -305,10 +311,11 @@ cat .spec/prds/curation-hardening/tasks/epic-01-week0-validation/VAL-001.md
 
 ## Notes
 
-- **Sequential chains**: Epic 1 → Epic 2 → Epic 3 → (Epic 4 & Epic 5 parallel) → Epic 6 → Epic 7 → Epic 8 → Epic 9 → Epic 10 → Epic 12. Epic 11 can start in parallel with Epic 4 once Epic 3 is done.
+- **Sequential chains**: Epic 1 → Epic 2 → Epic 3 → Epic 4 → Epic 6 → Epic 7 → Epic 8 → Epic 9 → Epic 10 → Epic 12. Epic 11 can start in parallel with Epic 4 once Epic 3 is done. *(Epic 5 deleted 2026-04-12.)*
 - **Human test philosophy**: Every epic's human tests exercise the pipeline end-to-end via the [Curation Review Protocol](./CURATION-REVIEW-PROTOCOL.md). The user hasn't run the existing curation logic before, so Epic 2 establishes the baseline truth before hardening begins.
 - **Curation review is non-optional**: every epic runs all available curation scripting, diffs the catalog against the prior baseline, and writes a `review.md` before being marked Done. No epic proceeds without a green review.
-- **Stub tasks**: Epics 2-12 contain stub-level task references only. Full TASK-TEMPLATE v4.0 files for these epics will be generated as each epic enters active development, to avoid context window bloat at planning time.
-- **Week 0 is the single most important epic**: If any VAL spike fails, the downstream plan needs revision. Budget time for at least one remediation cycle.
+- **Stub tasks**: Epics 3-4, 6-12 contain stub-level task references only. Full TASK-TEMPLATE v4.0 files for these epics will be generated as each epic enters active development, to avoid context window bloat at planning time.
+- **Week 0 proved its worth**: VAL-002 and VAL-003 invalidated two PRD assumptions before any implementation was written. Budget time for source-level pivots — the Week 0 gate is doing exactly what it was designed to do.
 - **Calibration gate is the single biggest risk in Epic 8**: First run is expected to FAIL. Budget time for prompt iteration.
+- **Initiative thesis revised (2026-04-12)**: With 3 of 6 new sources dropped, BBR concentration reduction shifts from ~70% target to ~85-90% achievable. The initiative's real value now lives in Epics 6-10 (signal enrichment — dedup, quality floor, scoring realignment, community NLP, measured data). This is a more honest framing than "volume diversification."
 - **Boy Scout rule**: If Epic 2 baseline validation finds bugs in existing pipeline code, fix them in place before layering hardening. Same rule applies to any later epic's curation review.

@@ -1,0 +1,175 @@
+{
+  "models": [
+    {
+      "model": "mlx-community/Llama-3.2-1B-Instruct-4bit",
+      "load_seconds": 0.75,
+      "n_routes": 3,
+      "n_valid_json": 3,
+      "n_correct_count": 3,
+      "avg_duration_s": 0.194,
+      "avg_tok_per_sec": 253.9,
+      "results": [
+        {
+          "route_id": "sf-to-point-reyes",
+          "duration_s": 0.184,
+          "tok_per_sec": 271.4,
+          "valid_json": true,
+          "correct_count": true,
+          "labels": [
+            "San Francisco to Sausalito: Coastal Highway",
+            "Sausalito to Stinson Beach: Pacific Coast Highway",
+            "Stinson Beach to Point Reyes: Highway 1"
+          ],
+          "raw_response": "{\n  \"leg_labels\": [\n    \"San Francisco to Sausalito: Coastal Highway\",\n    \"Sausalito to Stinson Beach: Pacific Coast Highway\",\n    \"Stinson Beach to Point Reyes: Highway 1\"\n  ]\n}"
+        },
+        {
+          "route_id": "la-to-san-diego",
+          "duration_s": 0.244,
+          "tok_per_sec": 176.6,
+          "valid_json": true,
+          "correct_count": true,
+          "labels": [
+            "From: Santa Monica to Laguna Beach",
+            "From: Laguna Beach to Oceanside",
+            "From: Oceanside to San Diego"
+          ],
+          "raw_response": "{\n  \"leg_labels\": [\n    \"From: Santa Monica to Laguna Beach\",\n    \"From: Laguna Beach to Oceanside\",\n    \"From: Oceanside to San Diego\"\n  ]\n}"
+        },
+        {
+          "route_id": "seattle-to-portland",
+          "duration_s": 0.153,
+          "tok_per_sec": 313.7,
+          "valid_json": true,
+          "correct_count": true,
+          "labels": [
+            "Seattle to Olympia: I-5 South",
+            "Olympia to Longview: I-5 South",
+            "Longview to Portland: I-5 South"
+          ],
+          "raw_response": "{\n  \"leg_labels\": [\n    \"Seattle to Olympia: I-5 South\",\n    \"Olympia to Longview: I-5 South\",\n    \"Longview to Portland: I-5 South\"\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "model": "mlx-community/Llama-3.2-3B-Instruct-4bit",
+      "load_seconds": 0.79,
+      "n_routes": 3,
+      "n_valid_json": 3,
+      "n_correct_count": 3,
+      "avg_duration_s": 0.351,
+      "avg_tok_per_sec": 134.1,
+      "results": [
+        {
+          "route_id": "sf-to-point-reyes",
+          "duration_s": 0.353,
+          "tok_per_sec": 135.9,
+          "valid_json": true,
+          "correct_count": true,
+          "labels": [
+            "San Francisco to Sausalito via 101",
+            "Sausalito to Stinson Beach via 1",
+            "Stinson Beach to Point Reyes via 1"
+          ],
+          "raw_response": "{\n  \"leg_labels\": [\n    \"San Francisco to Sausalito via 101\",\n    \"Sausalito to Stinson Beach via 1\",\n    \"Stinson Beach to Point Reyes via 1\"\n  ]\n}"
+        },
+        {
+          "route_id": "la-to-san-diego",
+          "duration_s": 0.404,
+          "tok_per_sec": 113.9,
+          "valid_json": true,
+          "correct_count": true,
+          "labels": [
+            "LA to Laguna Beach PCH",
+            "Laguna Beach to Oceanside I-5",
+            "Oceanside to San Diego I-5"
+          ],
+          "raw_response": "{\n  \"leg_labels\": [\n    \"LA to Laguna Beach PCH\",\n    \"Laguna Beach to Oceanside I-5\",\n    \"Oceanside to San Diego I-5\"\n  ]\n}"
+        },
+        {
+          "route_id": "seattle-to-portland",
+          "duration_s": 0.295,
+          "tok_per_sec": 152.4,
+          "valid_json": true,
+          "correct_count": true,
+          "labels": [
+            "Seattle to Olympia via I-5",
+            "Olympia to Longview via I-5",
+            "Longview to Portland via I-5"
+          ],
+          "raw_response": "{\n  \"leg_labels\": [\n    \"Seattle to Olympia via I-5\",\n    \"Olympia to Longview via I-5\",\n    \"Longview to Portland via I-5\"\n  ]\n}"
+        }
+      ]
+    }
+  ],
+  "test_routes": [
+    {
+      "route_id": "sf-to-point-reyes",
+      "legs": [
+        {
+          "index": 0,
+          "from": "San Francisco",
+          "to": "Sausalito",
+          "road": "Highway 101"
+        },
+        {
+          "index": 1,
+          "from": "Sausalito",
+          "to": "Stinson Beach",
+          "road": "Highway 1"
+        },
+        {
+          "index": 2,
+          "from": "Stinson Beach",
+          "to": "Point Reyes",
+          "road": "Highway 1"
+        }
+      ]
+    },
+    {
+      "route_id": "la-to-san-diego",
+      "legs": [
+        {
+          "index": 0,
+          "from": "Los Angeles",
+          "to": "Laguna Beach",
+          "road": "Pacific Coast Highway"
+        },
+        {
+          "index": 1,
+          "from": "Laguna Beach",
+          "to": "Oceanside",
+          "road": "I-5 S"
+        },
+        {
+          "index": 2,
+          "from": "Oceanside",
+          "to": "San Diego",
+          "road": "I-5 S"
+        }
+      ]
+    },
+    {
+      "route_id": "seattle-to-portland",
+      "legs": [
+        {
+          "index": 0,
+          "from": "Seattle",
+          "to": "Olympia",
+          "road": "I-5 S"
+        },
+        {
+          "index": 1,
+          "from": "Olympia",
+          "to": "Longview",
+          "road": "I-5 S"
+        },
+        {
+          "index": 2,
+          "from": "Longview",
+          "to": "Portland",
+          "road": "I-5 S"
+        }
+      ]
+    }
+  ]
+}

@@ -90,25 +90,19 @@ Reddit's API restrictions (2024+) require conservative rate limiting and bot det
 
 **Surface Type Extraction (7th Attribute Bucket):**
 
-Three cascading sources for surface_type field:
+Two cascading sources for surface_type field (revised 2026-04-12 — USFS MVUM dropped):
 
-1. **USFS MVUM (Primary)** — Already ingested in pipeline
-   - Field: `surface_type` from MVUM dataset
-   - Values: "paved", "gravel", "dirt", "improved", "native"
-   - Mapping to canonical: "improved" → "gravel", "native" → "dirt"
-   - Coverage: Forest Service roads only (~400k miles)
-
-2. **OSM Tags (Secondary)** — Existing enrichment source
+1. **OSM Tags (Primary)** — Existing enrichment source
    - Field: `osm_surface` from OSM way tags
    - Values: "asphalt" → "paved", "gravel", "dirt", "unpaved" → "dirt"
    - Field: `osm_smoothness` from OSM way tags
    - Values: "excellent" → "paved", "intermediate" → "gravel", "bad" → "dirt"
-   - Coverage: All OSM-mapped roads
+   - Coverage: All OSM-mapped roads — broad coverage sufficient for V3 lifestyle street-rider focus
 
-3. **GLM NLP (Tertiary)** — New extraction from community posts
+2. **GLM NLP (Secondary)** — New extraction from community posts
    - Prompt: "Extract road surface type from this forum post: paved, gravel, dirt, mixed, or unknown?"
    - Values: "paved", "gravel", "dirt", "mixed", "unknown"
-   - Used only when MVUM and OSM are unavailable
+   - Used only when OSM is unavailable or ambiguous
 
 **NLP Attribute Buckets (7 total):**
 1. Twisty level (low/medium/high)

@@ -1,4 +1,5 @@
 {
+  "$schema": "node_modules/convex/schemas/convex.schema.json",
   "node": {
     "externalPackages": [
       "@workos-inc/node",
@@ -10,5 +11,8 @@
       "jose"
     ],
     "nodeVersion": "20"
+  },
+  "aiFiles": {
+    "enabled": false
   }
 }

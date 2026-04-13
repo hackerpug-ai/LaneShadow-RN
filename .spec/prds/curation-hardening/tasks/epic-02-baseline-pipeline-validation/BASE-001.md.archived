@@ -1,0 +1,494 @@
+================================================================================
+TASK: BASE-001 - Run and validate existing curation pipeline end-to-end
+================================================================================
+
+TASK_TYPE: INFRA
+STATUS: Backlog
+TDD_PHASE: RED
+CURRENT_AC: AC-1
+PRIORITY: P0
+EFFORT: M
+TYPE: PROCESS
+ITERATION: 1
+
+--------------------------------------------------------------------------------
+CRITICAL CONSTRAINTS
+--------------------------------------------------------------------------------
+
+MUST: `baseline-report.md` documenting stage-by-stage pass/fail, actual route counts, and the current WEIGHTS dict MUST be committed before this task is marked done.
+MUST: `review.md` following the Curation Review Protocol structure MUST be committed with a verdict of PASS or PASS WITH ISSUES before this task is marked done.
+MUST: `baseline/catalog.jsonl`, `baseline/scores.json`, `baseline/archetype_counts.json`, and `baseline/source_counts.json` MUST all be committed as the Epic 2 reference baseline.
+MUST: `temperature=0` MUST be confirmed in the Haiku extraction logs and recorded in `baseline-report.md`.
+MUST: Any bug discovered in existing pipeline code during validation MUST be fixed in-place under the Boy Scout rule; each fix MUST be committed separately with the commit SHA recorded in `baseline-report.md`.
+NEVER: Push routes to the production Convex deployment — `convex_push.py` MUST only be invoked with the `--dry-run` flag in this task.
+NEVER: Skip a pipeline stage even if a prior stage produced warnings or lower-than-expected counts — record the warning in `baseline-report.md` and continue.
+NEVER: Refactor or restructure existing pipeline code for aesthetic or architectural reasons — this task is pure validation; only Boy Scout bug fixes are permitted.
+STRICTLY: Limit Haiku extraction to a 20-route sample for cost control — do not run extraction over the full corpus in this task.
+STRICTLY: Use the review.md verdict convention: PASS | PASS WITH ISSUES | FAIL — if the honest verdict would be FAIL, stop and escalate to the user rather than marking the task done.
+STRICTLY: Document all N/A Curation Review Protocol steps (3-5, 9-11, 13) in `review.md` with the note "N/A until Epic X" so the review lineage is complete.
+
+--------------------------------------------------------------------------------
+SPECIFICATION
+--------------------------------------------------------------------------------
+
+**Objective:** Execute every existing curation pipeline stage (FHWA, MotorcycleRoads, BestBikingRoads scrapers → Haiku extraction sample → composite scoring → archetype classification → OSM enrichment → Convex push dry-run) against live sources and the dev Convex deployment, running the Curation Review Protocol first full run (Epic 2 steps: 1, 2, 6, 7, 8, 12), fixing any bugs discovered along the way, and committing the resulting baseline artifacts as the reference point for all subsequent hardening epics.
+
+**Success looks like:** `baseline/catalog.jsonl` exists with a meaningful route count, each of the eight pipeline stages ran without crashes against live data, `baseline-report.md` documents stage-by-stage results with actual counts and the current WEIGHTS dict, `review.md` verdict is PASS or PASS WITH ISSUES with rationale, landmark spot checks (Tail of the Dragon, Blue Ridge Parkway, Beartooth Highway, Pacific Coast Highway, Million Dollar Highway) each appear once with expected archetype and scores, the Convex push dry-run completes without type errors, and all baseline artifacts are committed to the repository.
+
+--------------------------------------------------------------------------------
+BACKGROUND
+--------------------------------------------------------------------------------
+
+**Problem:** The curation pipeline at `scripts/curation/pipeline/` was built and unit-tested in isolation, but it has never been run end-to-end against live sources or the dev Convex deployment — no one knows whether all stages compose correctly, whether the current WEIGHTS are reasonable, whether the archetype distribution is sensible, or whether the Convex push serialization is type-safe.
+
+**Why it matters:** Every subsequent hardening epic (INF-001 dependency install, Haiku calibration, OSM enrichment hardening, Convex schema evolution, quality scoring) assumes the baseline pipeline is functional. Layering hardening on top of a broken baseline wastes multiple epics of effort and produces a false confidence that the pipeline is progressing when it may have fundamental defects. The baseline must be proven before any extension is attempted.
+
+**Current state:** The pipeline has source scrapers (`sources/fhwa.py`, `sources/motorcycleroads.py`, `sources/bestbikingroads.py`), Haiku extraction (`extraction/client.py` — Anthropic Instructor), composite scoring with a WEIGHTS dict (`scoring/composite.py`), archetype classification with 6 archetypes (`classification/archetype.py`), OSM enrichment via Overpass API with a disk cache (`enrichment/osm_client.py` + `enrichment/cache.py`), and a Convex push module with a `--dry-run` flag (`sync/convex_push.py`) — all written and individually testable, but never composed into a single end-to-end run. No baseline artifacts exist.
+
+**Desired state:** All pipeline stages have been executed sequentially against live infrastructure; stage-by-stage counts and any discovered bugs are recorded in `baseline-report.md`; the Curation Review Protocol first full run is documented in `review.md` with a PASS verdict; and the `baseline/` directory contains the reference artifacts (`catalog.jsonl`, `scores.json`, `archetype_counts.json`, `source_counts.json`) that all future epics will diff against.
+
+--------------------------------------------------------------------------------
+ACCEPTANCE CRITERIA (TDD Beads)
+--------------------------------------------------------------------------------
+
+Each AC is a RED → GREEN → REFACTOR micro-cycle for a pipeline stage validation.
+Orchestrator advances through ACs sequentially.
+
+AC-1: FHWA ingestion produces JSONL staging file with ~184 routes
+  GIVEN: The FHWA pipeline module is installed with dependencies and network access to the FHWA byways data source is available
+  WHEN: `python -m scripts.curation.pipeline.sources.fhwa` is executed
+  THEN: A JSONL staging file is written containing between 165 and 203 route records (±10% of 184), each record having non-null name, state, and centroid coordinate fields; the module exits 0; the file path and count are recorded in `baseline-report.md`
+
+  TDD_STATE: [ ] RED  [ ] VERIFY_RED  [ ] GREEN  [ ] VERIFY_GREEN  [ ] REFACTOR
+  TEST_FILE: (validation recorded in baseline-report.md — no unit test)
+  TEST_FUNCTION: verify_fhwa_ingestion
+  VERIFY: `python -m scripts.curation.pipeline.sources.fhwa && FHWA_FILE=$(python -c "from scripts.curation.pipeline.sources.fhwa import OUTPUT_PATH; print(OUTPUT_PATH)") && COUNT=$(wc -l < "$FHWA_FILE") && echo "FHWA count: $COUNT" && python -c "import json; lines=[json.loads(l) for l in open('$FHWA_FILE')]; assert all('name' in r and 'state' in r for r in lines), 'Missing name/state'; print('FHWA AC-1 PASS')"`
+
+AC-2: MotorcycleRoads and BestBikingRoads scrapers produce JSONL with reasonable counts
+  GIVEN: robots.txt enforcement and rate limiting are active in the scraper base class and network access to motorcycleroads.com and bestbikingroads.com is available
+  WHEN: `python -m scripts.curation.pipeline.sources.motorcycleroads` and `python -m scripts.curation.pipeline.sources.bestbikingroads` are each executed sequentially
+  THEN: MotorcycleRoads produces a JSONL file with more than 50 routes; BestBikingRoads produces a JSONL file with between 10,000 and 20,000 routes; both modules exit 0 without crashes; robots.txt compliance and rate-limit behavior are confirmed in logs; both counts are recorded in `baseline-report.md`
+
+  TDD_STATE: [ ] RED  [ ] VERIFY_RED  [ ] GREEN  [ ] VERIFY_GREEN  [ ] REFACTOR
+  TEST_FILE: (validation recorded in baseline-report.md)
+  TEST_FUNCTION: verify_community_scrapers
+  VERIFY: `python -m scripts.curation.pipeline.sources.motorcycleroads && python -m scripts.curation.pipeline.sources.bestbikingroads && python -c "import subprocess; mr=int(subprocess.check_output(['wc','-l','staging/motorcycleroads.jsonl']).split()[0]); bbr=int(subprocess.check_output(['wc','-l','staging/bestbikingroads.jsonl']).split()[0]); assert mr > 50, f'MR count {mr} < 50'; assert 10000 <= bbr <= 20000, f'BBR count {bbr} out of range'; print(f'AC-2 PASS: MR={mr} BBR={bbr}')"`
+
+AC-3: Haiku extraction on 20-route sample produces fully-populated RouteAttributes
+  GIVEN: A 20-route sample has been drawn from the FHWA staging JSONL and the `ANTHROPIC_API_KEY` environment variable is set
+  WHEN: The Haiku extraction client is invoked on the 20-route sample
+  THEN: Each of the 20 routes receives a `RouteAttributes` object with `curvature_score`, `scenery_score`, `traffic_level`, `surface_condition`, and `elevation_change` all populated (non-null); `temperature=0` is present in the extraction log; `EXTRACTION_SCHEMA_VERSION` is logged once per batch; the 20 extracted objects are written to `baseline/catalog.jsonl`
+
+  TDD_STATE: [ ] RED  [ ] VERIFY_RED  [ ] GREEN  [ ] VERIFY_GREEN  [ ] REFACTOR
+  TEST_FILE: (validation recorded in baseline-report.md)
+  TEST_FUNCTION: verify_haiku_extraction
+  VERIFY: `python -c "import json; records=[json.loads(l) for l in open('.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/catalog.jsonl')]; required=['curvature_score','scenery_score','traffic_level','surface_condition','elevation_change']; missing=[f for r in records for f in required if f not in r or r[f] is None]; assert len(missing)==0, f'Missing fields: {missing}'; assert len(records)==20, f'Expected 20, got {len(records)}'; print('AC-3 PASS')" && grep -q 'temperature.*0' .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline-report.md && grep -q 'EXTRACTION_SCHEMA_VERSION' .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline-report.md`
+
+AC-4: Composite scoring produces valid floats and WEIGHTS dict is captured
+  GIVEN: The 20 extracted `RouteAttributes` from AC-3 are available as input
+  WHEN: `python -m scripts.curation.pipeline.scoring.composite` is run on the extracted sample
+  THEN: `composite_score`, `curvature_score`, `scenic_score`, and any other dimension scores are all floats in `[0.0, 1.0]`; no route has a null or NaN score; the WEIGHTS dict from `scoring/composite.py` is logged and captured verbatim in `baseline-report.md`; scored routes are written to `baseline/scores.json`
+
+  TDD_STATE: [ ] RED  [ ] VERIFY_RED  [ ] GREEN  [ ] VERIFY_GREEN  [ ] REFACTOR
+  TEST_FILE: (validation recorded in baseline-report.md)
+  TEST_FUNCTION: verify_composite_scoring
+  VERIFY: `python -c "import json; data=json.load(open('.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/scores.json')); assert all(isinstance(r.get('composite_score'),float) and 0.0<=r['composite_score']<=1.0 for r in data), 'composite_score out of range'; print(f'AC-4 PASS: {len(data)} routes scored')" && grep -q 'WEIGHTS' .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline-report.md`
+
+AC-5: Archetype classifier assigns one of 6 valid archetypes to every scored route
+  GIVEN: The scored routes from AC-4 are available as input
+  WHEN: `python -m scripts.curation.pipeline.classification.archetype` is run on the scored sample
+  THEN: Every route has a `primary_archetype` value that is exactly one of `twisties`, `mountain`, `coastal`, `adventure`, `scenic_byway`, `desert`; every route has a `secondary_tags` field that is a list (may be empty); no route has a null `primary_archetype`; archetype distribution counts are written to `baseline/archetype_counts.json`
+
+  TDD_STATE: [ ] RED  [ ] VERIFY_RED  [ ] GREEN  [ ] VERIFY_GREEN  [ ] REFACTOR
+  TEST_FILE: (validation recorded in baseline-report.md)
+  TEST_FUNCTION: verify_archetype_classification
+  VERIFY: `python -c "import json; VALID={'twisties','mountain','coastal','adventure','scenic_byway','desert'}; data=json.load(open('.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/archetype_counts.json')); keys=set(data.keys()); assert keys.issubset(VALID), f'Invalid archetypes: {keys-VALID}'; print(f'AC-5 PASS: archetypes={data}')"`
+
+AC-6: OSM enrichment populates surface/smoothness/curvature and cache hit confirmed on second run
+  GIVEN: A 10-route sample is available and the OSM disk cache directory exists (or is created on first run)
+  WHEN: `python -m scripts.curation.pipeline.enrichment.osm_client` is run on the 10-route sample twice in sequence
+  THEN: The first run populates `surface`, `smoothness`, and `curvature` fields on all 10 routes via live Overpass API calls; the second run retrieves all 10 routes from the disk cache without making live API calls; `cache_hit_rate` of 100% is logged on the second run; both runs exit 0
+
+  TDD_STATE: [ ] RED  [ ] VERIFY_RED  [ ] GREEN  [ ] VERIFY_GREEN  [ ] REFACTOR
+  TEST_FILE: (validation recorded in baseline-report.md)
+  TEST_FUNCTION: verify_osm_enrichment
+  VERIFY: `python -c "import json; records=[json.loads(l) for l in open('.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/catalog.jsonl')]; enriched=[r for r in records if r.get('osm_surface') is not None]; assert len(enriched)>=10, f'Only {len(enriched)} routes have OSM data'; print(f'AC-6 PASS: {len(enriched)} routes enriched')" && grep -q 'cache_hit_rate' .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline-report.md`
+
+AC-7: Convex push dry-run completes without type errors and serialized payload is logged
+  GIVEN: The dev Convex deployment is reachable (VAL-004 dependency satisfied) and `convex_push.py` supports a `--dry-run` flag
+  WHEN: `python -m scripts.curation.pipeline.sync.convex_push --dry-run` is executed against the baseline sample
+  THEN: The module exits 0; no `TypeError` or `ValidationError` appears in stdout/stderr; the batch upsert payload is serialized and logged; the logged payload structure is captured in `baseline-report.md`; NO routes are written to the production deployment
+
+  TDD_STATE: [ ] RED  [ ] VERIFY_RED  [ ] GREEN  [ ] VERIFY_GREEN  [ ] REFACTOR
+  TEST_FILE: (validation recorded in baseline-report.md)
+  TEST_FUNCTION: verify_convex_push_dryrun
+  VERIFY: `python -m scripts.curation.pipeline.sync.convex_push --dry-run 2>&1 | tee /tmp/convex_dryrun.log; RC=$?; test $RC -eq 0 && grep -qi 'TypeError\|ValidationError\|traceback' /tmp/convex_dryrun.log && echo 'FAIL' && exit 1 || echo 'AC-7 PASS: no type errors, exit 0'`
+
+AC-8: All baseline artifacts committed and review.md verdict is PASS or PASS WITH ISSUES
+  GIVEN: All prior ACs (1-7) have been validated and baseline artifacts written
+  WHEN: `git log` and `git diff` are inspected after the final commit
+  THEN: `git log` shows at least one commit containing `baseline-report.md`, `review.md`, `baseline/catalog.jsonl`, `baseline/scores.json`, `baseline/archetype_counts.json`, and `baseline/source_counts.json`; `review.md` contains `Verdict: PASS` (or `PASS WITH ISSUES`) on its verdict line; `review.md` documents N/A steps 3-5, 9-11, 13 with "N/A until Epic X" notes; any bug-fix commits have their SHA recorded in `baseline-report.md`
+
+  TDD_STATE: [ ] RED  [ ] VERIFY_RED  [ ] GREEN  [ ] VERIFY_GREEN  [ ] REFACTOR
+  TEST_FILE: (validation recorded in baseline-report.md)
+  TEST_FUNCTION: verify_baseline_committed
+  VERIFY: `for f in baseline-report.md review.md baseline/catalog.jsonl baseline/scores.json baseline/archetype_counts.json baseline/source_counts.json; do git ls-files --error-unmatch ".spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/$f" || { echo "MISSING from git: $f"; exit 1; }; done && grep -E '^Verdict: PASS' .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/review.md && echo 'AC-8 PASS'`
+
+Quality Criteria:
+- [ ] All 8 ACs verified via their VERIFY commands
+- [ ] baseline-report.md + review.md + baseline/ committed
+- [ ] review.md verdict is PASS or PASS WITH ISSUES (not FAIL)
+- [ ] Any Boy Scout bug fixes have commit SHAs recorded in baseline-report.md
+- [ ] Landmark spot checks (5 landmarks) recorded in review.md
+
+--------------------------------------------------------------------------------
+TEST CRITERIA (Boolean Verification)
+--------------------------------------------------------------------------------
+
+| # | Boolean Statement | Maps To AC | Verify | Status |
+|---|-------------------|------------|--------|--------|
+| 1 | FHWA staging JSONL contains between 165 and 203 routes when the FHWA module runs against the live data source | AC-1 | `python -c "import subprocess; n=int(subprocess.check_output(['wc','-l','staging/fhwa.jsonl']).split()[0]); assert 165<=n<=203, f'FHWA count {n} outside 165-203'; print(f'PASS: {n}')"` | [ ] TRUE [ ] FALSE |
+| 2 | FHWA staging JSONL records all contain non-null name, state, and centroid fields when parsed as JSON | AC-1 | `python -c "import json; lines=[json.loads(l) for l in open('staging/fhwa.jsonl')]; bad=[i for i,r in enumerate(lines) if not r.get('name') or not r.get('state') or not r.get('centroid')]; assert not bad, f'Missing fields at rows {bad[:5]}'; print('PASS')"` | [ ] TRUE [ ] FALSE |
+| 3 | BestBikingRoads staging JSONL contains between 10,000 and 20,000 routes when the scraper runs without crashing | AC-2 | `python -c "import subprocess; n=int(subprocess.check_output(['wc','-l','staging/bestbikingroads.jsonl']).split()[0]); assert 10000<=n<=20000, f'BBR count {n} out of range'; print(f'PASS: {n}')"` | [ ] TRUE [ ] FALSE |
+| 4 | Haiku extraction catalog contains exactly 20 records when invoked on a 20-route sample | AC-3 | `python -c "lines=open('.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/catalog.jsonl').readlines(); assert len(lines)==20, f'Expected 20, got {len(lines)}'; print('PASS')"` | [ ] TRUE [ ] FALSE |
+| 5 | temperature=0 is recorded in baseline-report.md when Haiku extraction runs against the 20-route sample | AC-3 | `grep -c 'temperature.*0\|temperature=0' .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline-report.md` | [ ] TRUE [ ] FALSE |
+| 6 | All composite_score values in scores.json are floats in [0.0, 1.0] when scoring runs on the extracted sample | AC-4 | `python -c "import json; data=json.load(open('.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/scores.json')); bad=[r.get('composite_score') for r in data if not isinstance(r.get('composite_score'),float) or not 0.0<=r['composite_score']<=1.0]; assert not bad, f'Bad scores: {bad}'; print('PASS')"` | [ ] TRUE [ ] FALSE |
+| 7 | archetype_counts.json keys are all members of the valid 6-archetype set when classification runs on the scored sample | AC-5 | `python -c "import json; VALID={'twisties','mountain','coastal','adventure','scenic_byway','desert'}; data=json.load(open('.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/archetype_counts.json')); bad=set(data.keys())-VALID; assert not bad, f'Invalid keys: {bad}'; print('PASS')"` | [ ] TRUE [ ] FALSE |
+| 8 | OSM enrichment second run logs a cache_hit_rate of 100% when the disk cache is populated from the first run | AC-6 | `grep -E 'cache_hit_rate.*1\.0\|cache_hit_rate.*100' .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline-report.md && echo 'PASS'` | [ ] TRUE [ ] FALSE |
+| 9 | Convex push dry-run exits with code 0 and produces no TypeError or ValidationError output when run against the baseline sample | AC-7 | `python -m scripts.curation.pipeline.sync.convex_push --dry-run 2>&1 | grep -Eqi 'TypeError\|ValidationError\|Traceback' && echo 'FAIL' && exit 1 || echo 'PASS'` | [ ] TRUE [ ] FALSE |
+| 10 | review.md verdict line contains PASS when all Curation Review Protocol Epic 2 steps have been executed | AC-8 | `grep -E '^Verdict: PASS' .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/review.md && echo 'PASS'` | [ ] TRUE [ ] FALSE |
+| 11 | All six baseline artifact files are present in the committed working tree when BASE-001 is marked done | AC-8 | `for f in baseline-report.md review.md baseline/catalog.jsonl baseline/scores.json baseline/archetype_counts.json baseline/source_counts.json; do test -f ".spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/$f" && echo "OK: $f" || echo "MISSING: $f"; done` | [ ] TRUE [ ] FALSE |
+| 12 | N/A Curation Review Protocol steps (3-5, 9-11, 13) appear in review.md with 'N/A until Epic' notation when review.md is written | AC-8 | `grep -c 'N/A until Epic' .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/review.md | python -c "import sys; n=int(sys.stdin.read()); assert n>=6, f'Only {n} N/A entries'; print(f'PASS: {n}')"` | [ ] TRUE [ ] FALSE |
+
+--------------------------------------------------------------------------------
+READING LIST
+--------------------------------------------------------------------------------
+
+1. scripts/curation/pipeline/sources/base_scraper.py
+   - Lines: ALL
+   - Focus: Base scraper class — robots.txt enforcement, rate limiting pattern, output JSONL writing convention. Understand before invoking child scrapers.
+
+2. scripts/curation/pipeline/sources/fhwa.py
+   - Lines: ALL
+   - Focus: FHWA entry point — `OUTPUT_PATH` constant, expected ~184 routes, runnable as `python -m`. Verify module-level `__main__` guard.
+
+3. scripts/curation/pipeline/sources/motorcycleroads.py
+   - Lines: ALL
+   - Focus: MotorcycleRoads scraper — entry point, `OUTPUT_PATH`, any rate-limit sleep constants. Confirm >50 routes expected.
+
+4. scripts/curation/pipeline/sources/bestbikingroads.py
+   - Lines: ALL
+   - Focus: BestBikingRoads scraper — entry point, expected ~17k routes, pagination approach. Confirm 10k-20k range is realistic.
+
+5. scripts/curation/pipeline/extraction/client.py
+   - Lines: ALL
+   - Focus: `AnthropicInstructorClient` — `temperature` parameter location, batch invocation pattern, `EXTRACTION_SCHEMA_VERSION` logging. Confirm `temperature=0` is hardcoded or must be passed.
+
+6. scripts/curation/pipeline/extraction/schema.py
+   - Lines: ALL
+   - Focus: `RouteAttributes` Pydantic schema — field names (`curvature_score`, `scenery_score`, `traffic_level`, `surface_condition`, `elevation_change`) and `EXTRACTION_SCHEMA_VERSION` value. Drives AC-3 field assertions.
+
+7. scripts/curation/pipeline/scoring/composite.py
+   - Lines: ALL
+   - Focus: `WEIGHTS` dict — exact keys and values. Capture verbatim in `baseline-report.md`. Score range assertions. Input/output field names.
+
+8. scripts/curation/pipeline/classification/archetype.py
+   - Lines: ALL
+   - Focus: Archetype mapping — the 6 valid values (`twisties`/`mountain`/`coastal`/`adventure`/`scenic_byway`/`desert`), `secondary_tags` logic. Drives AC-5 assertions.
+
+9. scripts/curation/pipeline/enrichment/osm_client.py
+   - Lines: ALL
+   - Focus: Overpass API client — `surface`/`smoothness`/`curvature` field names, cache integration call site, entry point for module invocation.
+
+10. scripts/curation/pipeline/enrichment/cache.py
+    - Lines: ALL
+    - Focus: Disk cache implementation — cache hit logging mechanism, `cache_hit_rate` field. Needed to verify AC-6 second-run cache assertion.
+
+11. scripts/curation/pipeline/sync/convex_push.py
+    - Lines: ALL
+    - Focus: `--dry-run` flag implementation — ensure it does NOT write to production. Serialization logic. Payload logging. Drives AC-7.
+
+12. .spec/prds/curation-hardening/tasks/CURATION-REVIEW-PROTOCOL.md
+    - Lines: ALL
+    - Focus: Authoritative source for `review.md` structure — steps 1, 2, 6, 7, 8, 12 are in scope; steps 3-5, 9-11, 13 are N/A until later epics. Read before writing `review.md`.
+
+13. .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/EPIC.md
+    - Lines: ALL
+    - Focus: Human test steps and `baseline/` artifact spec. Drives deliverable names, landmark spot-check list, and the role of this baseline as the diff reference for all future epics.
+
+--------------------------------------------------------------------------------
+GUARDRAILS
+--------------------------------------------------------------------------------
+
+WRITE-ALLOWED (explicit file list):
+- .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline-report.md (NEW — create from scratch)
+- .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/review.md (NEW — create from scratch per CURATION-REVIEW-PROTOCOL.md structure)
+- .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/catalog.jsonl (NEW — 20-route extracted sample)
+- .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/scores.json (NEW — scored routes)
+- .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/archetype_counts.json (NEW — archetype distribution)
+- .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/source_counts.json (NEW — per-source route counts)
+- Staging JSONL files under the pipeline's own staging directory (path TBD — document the actual path in baseline-report.md before writing)
+- Any existing scripts/curation/pipeline/** file that contains a bug discovered during baseline validation (MODIFY under Boy Scout rule only — document each fix in baseline-report.md with commit SHA; no aesthetic refactors)
+
+WRITE-PROHIBITED:
+- convex/** — no Convex schema changes in this task; Convex schema evolution is Epic 3
+- mobile-app/** — no mobile app work in this task
+- .spec/prds/curation-hardening/** other than tasks/epic-02-baseline-pipeline-validation/** — do not modify other epics, the PRD root, or CURATION-REVIEW-PROTOCOL.md itself
+- Production Convex deployment — convex_push.py MUST only run with --dry-run; no production writes under any circumstances
+- scripts/curation/pipeline/extraction/calibration.py — calibration is Epic 8 territory; do not touch
+- scripts/curation/pipeline/extraction/ground_truth.py — ground truth is Epic 8 territory; do not touch
+- scripts/curation/pipeline/sources/bdr_pilot/** — BDR pilot is out of Epic 2 scope
+- scripts/curation/pipeline/sources/twtex_pilot/** — twtex pilot is out of Epic 2 scope
+
+MUST:
+- [ ] Run pipeline stages in order: sources → extraction (sample) → scoring → classification → enrichment → convex push dry-run
+- [ ] Draw the Haiku extraction sample from the FHWA JSONL (best-quality source) for reproducibility
+- [ ] Record the exact WEIGHTS dict from scoring/composite.py verbatim in baseline-report.md — future epics will diff against this
+- [ ] Run OSM enrichment twice and log cache_hit_rate from the second run
+- [ ] Invoke the landmark spot-check list (Tail of the Dragon, Blue Ridge Parkway, Beartooth Highway, Pacific Coast Highway, Million Dollar Highway) and record presence/archetype/score in baseline-report.md
+- [ ] Commit bug fixes separately from baseline artifacts so each fix has a clean, reviewable SHA
+
+MUST NOT:
+- [ ] Run Haiku extraction on more than 20 routes in this task
+- [ ] Invoke convex_push.py without --dry-run
+- [ ] Mark the task done if review.md verdict is FAIL — escalate to user instead
+- [ ] Rename, move, or delete any existing pipeline module (Boy Scout rule covers fixes only)
+- [ ] Add new pipeline stages, abstractions, or modules (pure validation task)
+- [ ] Skip recording the WEIGHTS dict — this is the primary cost-calibration reference for all hardening epics
+
+--------------------------------------------------------------------------------
+CODE PATTERN (Reference)
+--------------------------------------------------------------------------------
+
+Pattern: driving a pipeline stage and capturing results for baseline-report.md. Run each stage as a subprocess to capture stdout/stderr faithfully, then parse and record key metrics.
+
+```python
+import subprocess
+import json
+import sys
+from pathlib import Path
+
+BASELINE_DIR = Path('.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline')
+BASELINE_DIR.mkdir(parents=True, exist_ok=True)
+
+REPORT_LINES: list[str] = []
+
+def run_stage(module_path: str, args: list[str] | None = None, label: str = '') -> tuple[int, str, str]:
+    """Run a pipeline stage as a subprocess and return (returncode, stdout, stderr)."""
+    cmd = [sys.executable, '-m', module_path] + (args or [])
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    status = 'PASS' if result.returncode == 0 else 'FAIL'
+    REPORT_LINES.append(f'## Stage: {label or module_path}\nStatus: {status}\nReturn code: {result.returncode}')
+    if result.stdout:
+        last = '\n'.join(result.stdout.splitlines()[-20:])
+        REPORT_LINES.append(f'### stdout (last 20 lines)\n```\n{last}\n```')
+    if result.stderr and result.returncode != 0:
+        REPORT_LINES.append(f'### stderr\n```\n{result.stderr[-500:]}\n```')
+    return result.returncode, result.stdout, result.stderr
+
+# FHWA stage
+rc, out, err = run_stage('scripts.curation.pipeline.sources.fhwa', label='FHWA Ingestion')
+if rc == 0:
+    fhwa_count = sum(1 for _ in open('staging/fhwa.jsonl'))
+    REPORT_LINES.append(f'Route count: {fhwa_count} (expected 165-203)')
+    assert 165 <= fhwa_count <= 203, f'FHWA count {fhwa_count} outside tolerance'
+
+# Haiku extraction on 20-route sample (cost-bounded, fixed seed)
+import random
+random.seed(42)  # Document seed in baseline-report.md
+fhwa_routes = [json.loads(l) for l in open('staging/fhwa.jsonl')]
+sample = random.sample(fhwa_routes, 20)
+REPORT_LINES.append('Extraction sample: 20 routes drawn with seed=42 from FHWA JSONL')
+
+# Write report
+report_path = Path('.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline-report.md')
+report_path.write_text('# BASE-001 Baseline Report\n\n' + '\n\n'.join(REPORT_LINES))
+```
+
+**Anti-pattern:** Do NOT write new abstractions, helper scripts, or orchestrator code to "improve" the pipeline run experience during this task. This task is pure validation — the agent must run what exists, observe what it produces, and record the results. Refactoring the pipeline for aesthetic or ergonomic reasons defeats the purpose of establishing a baseline against the current code. The only permitted modifications to existing files are Boy Scout bug fixes, each documented with a commit SHA.
+
+--------------------------------------------------------------------------------
+AGENT INSTRUCTIONS (Verification Flow)
+--------------------------------------------------------------------------------
+
+AGENT: python-implement
+
+This is an INFRA validation task — not a traditional TDD feature. For each AC, the agent runs the pipeline stage, observes the output, and records results in `baseline-report.md`. Bugs discovered trigger Boy Scout fixes (committed separately).
+
+## FOR EACH ACCEPTANCE CRITERION (AC-1 through AC-8):
+
+### RUN PHASE
+  READ: The AC's GIVEN/WHEN/THEN and VERIFY command
+  EXECUTE: The `WHEN` command (pipeline stage, convex push dry-run, or final commit)
+  OBSERVE: stdout, stderr, exit code, output file existence
+  RECORD: Append a `## Stage: <name>` section to `baseline-report.md` with status, counts, and any anomalies
+  RETURN: { phase: "RUN", ac_num, status, recorded_in_report, anomalies }
+
+### FIX PHASE (only if RUN revealed a bug in existing pipeline code)
+  READ: The failing stage's source file
+  WRITE: Minimal fix following existing code patterns (no refactoring)
+  RUN: The stage again to confirm the fix works
+  COMMIT: The fix separately with a descriptive message (e.g., `fix(fhwa): add __main__ guard for python -m invocation`)
+  RECORD: Fix description and commit SHA in `baseline-report.md` Boy Scout section
+  RETURN: { phase: "FIX", ac_num, commit_sha, fix_description }
+
+### VERIFY PHASE (always, after RUN or FIX)
+  RUN: The AC's exact `VERIFY` command
+  EXPECT: Exit code 0 and "PASS" in stdout
+  IF FAIL: Escalate to user — do not proceed to next AC
+  RETURN: { phase: "VERIFY", ac_num, verify_output }
+
+## AFTER ALL 8 ACs:
+
+### REVIEW PROTOCOL PHASE
+  READ: CURATION-REVIEW-PROTOCOL.md (all sections)
+  WRITE: review.md following the protocol's review.md template exactly
+  INCLUDE: All Epic 2 steps (1, 2, 6, 7, 8, 12) with actual counts/outcomes
+  INCLUDE: All N/A steps (3, 4, 5, 9, 10, 11, 13) with "N/A until Epic X" notes
+  INCLUDE: Landmark spot check (5 landmarks)
+  INCLUDE: Sample review (20 routes from catalog.jsonl)
+  INCLUDE: Verdict (PASS | PASS WITH ISSUES | FAIL with rationale)
+  COMMIT: All baseline artifacts + review.md + baseline-report.md in a single commit
+
+--------------------------------------------------------------------------------
+ORCHESTRATOR VERIFICATION PROTOCOL
+--------------------------------------------------------------------------------
+
+AFTER EACH AC RUN PHASE:
+  RUN: The AC's `VERIFY` command
+  EXPECT: Exit code 0, "PASS" in output
+  IF FAIL: Halt progression; request Boy Scout fix or escalate to user
+
+AFTER ALL 8 ACs + REVIEW PHASE:
+  RUN: `for f in baseline-report.md review.md baseline/catalog.jsonl baseline/scores.json baseline/archetype_counts.json baseline/source_counts.json; do git ls-files --error-unmatch ".spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/$f" || exit 1; done`
+  EXPECT: Exit code 0 (all 6 files tracked by git)
+  RUN: `grep -E '^Verdict: PASS' .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/review.md`
+  EXPECT: Exit code 0 (verdict is PASS or PASS WITH ISSUES)
+  RUN: `git diff --name-only HEAD | grep -Ev '^scripts/curation/pipeline/|^\.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/'`
+  EXPECT: No output (no scope violations)
+
+--------------------------------------------------------------------------------
+VERIFICATION GATES
+--------------------------------------------------------------------------------
+
+Gate 1: FHWA JSONL produced with count in tolerance
+  Command: `python -c "n=sum(1 for _ in open('staging/fhwa.jsonl')); assert 165<=n<=203, f'FHWA count {n} outside 165-203'; print(f'Gate 1 PASS: {n} routes')"`
+  Expected: `Gate 1 PASS: <N> routes` (N between 165 and 203)
+
+Gate 2: MotorcycleRoads JSONL produced with >50 routes
+  Command: `python -c "n=sum(1 for _ in open('staging/motorcycleroads.jsonl')); assert n>50, f'MR count {n} <= 50'; print(f'Gate 2 PASS: {n} routes')"`
+  Expected: `Gate 2 PASS: <N> routes` (N > 50)
+
+Gate 3: BestBikingRoads JSONL produced with count in 10k-20k range
+  Command: `python -c "n=sum(1 for _ in open('staging/bestbikingroads.jsonl')); assert 10000<=n<=20000, f'BBR count {n} out of 10k-20k range'; print(f'Gate 3 PASS: {n} routes')"`
+  Expected: `Gate 3 PASS: <N> routes` (N between 10000 and 20000)
+
+Gate 4: Haiku extraction catalog has exactly 20 records
+  Command: `python -c "n=sum(1 for _ in open('.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/catalog.jsonl')); assert n==20, f'Expected 20, got {n}'; print(f'Gate 4 PASS: {n} extracted records')"`
+  Expected: `Gate 4 PASS: 20 extracted records`
+
+Gate 5: Composite scores are valid floats in [0,1]
+  Command: `python -c "import json; data=json.load(open('.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/scores.json')); bad=[r.get('composite_score') for r in data if not isinstance(r.get('composite_score'),float) or not 0.0<=r['composite_score']<=1.0]; assert not bad, f'Bad scores: {bad}'; print(f'Gate 5 PASS: {len(data)} routes with valid scores')"`
+  Expected: `Gate 5 PASS: 20 routes with valid scores`
+
+Gate 6: Archetype counts use only valid archetype keys
+  Command: `python -c "import json; VALID={'twisties','mountain','coastal','adventure','scenic_byway','desert'}; d=json.load(open('.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/archetype_counts.json')); bad=set(d.keys())-VALID; assert not bad, f'Invalid: {bad}'; print(f'Gate 6 PASS: {d}')"`
+  Expected: `Gate 6 PASS: {<archetype distribution dict with only valid keys>}`
+
+Gate 7: OSM enrichment populates surface field on sample routes and cache_hit_rate logged
+  Command: `python -c "import json; records=[json.loads(l) for l in open('.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/catalog.jsonl')]; enriched=[r for r in records if r.get('osm_surface') is not None]; assert len(enriched)>=10, f'Only {len(enriched)} enriched'; print(f'Gate 7 PASS: {len(enriched)} routes with OSM surface')" && grep -q 'cache_hit_rate' .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline-report.md`
+  Expected: `Gate 7 PASS: 10 routes with OSM surface` AND cache_hit_rate present in report
+
+Gate 8: Convex push dry-run exits 0 with no type errors
+  Command: `python -m scripts.curation.pipeline.sync.convex_push --dry-run 2>&1 | tee /tmp/gate8_dryrun.log; RC=$?; test $RC -eq 0 && (grep -Eqi 'TypeError|ValidationError|Traceback' /tmp/gate8_dryrun.log && echo 'Gate 8 FAIL' && exit 1 || echo 'Gate 8 PASS: no type errors')`
+  Expected: Exit 0 followed by `Gate 8 PASS: no type errors`
+
+Gate 9: All 6 baseline artifact files committed to git
+  Command: `for f in baseline-report.md review.md baseline/catalog.jsonl baseline/scores.json baseline/archetype_counts.json baseline/source_counts.json; do git ls-files --error-unmatch ".spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/$f" && echo "OK: $f"; done`
+  Expected: `OK: <each of the 6 files>` (no MISSING lines)
+
+Gate 10: Scope compliance — no writes outside WRITE-ALLOWED paths
+  Command: `git diff --name-only HEAD | grep -Ev '^scripts/curation/pipeline/|^\.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/' && echo 'SCOPE VIOLATION' && exit 1 || echo 'Gate 10 PASS: all changes within scope'`
+  Expected: `Gate 10 PASS: all changes within scope`
+
+--------------------------------------------------------------------------------
+AGENT ASSIGNMENT
+--------------------------------------------------------------------------------
+
+**Implementation Agent**: python-implement
+**Rationale**: The entire curation pipeline is pure Python (scrapers, Haiku extraction client, composite scoring, archetype classifier, OSM enrichment, Convex push) with no UI components and no Convex schema changes — the agent's job is to drive existing module entry points, capture their output, fix any bugs discovered under the Boy Scout rule, and write the baseline artifacts. No frontend tooling and no Convex schema expertise are required.
+
+**Review Agent**: python-review
+**Rationale**: Pure Python pipeline review — validate baseline-report.md completeness, review.md protocol compliance, Boy Scout fix quality, and scope compliance (no writes outside WRITE-ALLOWED).
+
+**Assignment Date**: 2026-04-12
+
+**Assignment Logic**:
+- Task Type: INFRA (validation + first full Curation Review Protocol run)
+- File Patterns: `scripts/curation/pipeline/**` (read/Boy Scout modify), `.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/**` (write)
+- Implementation: `python-implement` — standard Python pipeline work
+- Review: `python-review` — standard Python review
+
+--------------------------------------------------------------------------------
+DESIGN
+--------------------------------------------------------------------------------
+
+**References:**
+- .spec/prds/curation-hardening/tasks/CURATION-REVIEW-PROTOCOL.md
+- .spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/EPIC.md
+- .spec/prds/curation/README.md (predecessor PRD — original use cases)
+
+**Interaction Notes:**
+- Pipeline stages run strictly sequentially: sources (all three scrapers) → extraction (20-route FHWA sample) → scoring → classification → OSM enrichment (10-route sample, two runs) → Convex push dry-run
+- Use a 20-route sample for Haiku extraction drawn from the FHWA JSONL — FHWA routes have higher data quality and the sample must be reproducible (use fixed seed=42 or first-N slice, document the method in baseline-report.md)
+- The OSM enrichment second run MUST demonstrate a 100% cache hit rate — if the disk cache does not persist between runs, that is a bug to fix under the Boy Scout rule
+- baseline-report.md is the single source of truth for current WEIGHTS and stage-by-stage counts at the start of the hardening project — future epics will open this file to understand what "normal" looks like
+- review.md is the first artifact in the Curation Review Protocol lineage — it establishes the baseline that subsequent epics will diff against; write it carefully following the CURATION-REVIEW-PROTOCOL.md section structure exactly
+- The landmark spot-check list (Tail of the Dragon, Blue Ridge Parkway, Beartooth Highway, Pacific Coast Highway, Million Dollar Highway) should appear in the FHWA or BBR source data — if any landmark is missing, log it as "PASS WITH ISSUES" and record the gap in review.md
+
+**Pattern:** Pipeline stage driver pattern — each stage is exposed as a Python module entry point runnable via `python -m scripts.curation.pipeline.<stage>`. The agent drives each stage via subprocess or direct module invocation, captures stdout/stderr, extracts key metrics (counts, scores, field presence), and writes them to baseline-report.md in a structured table. Mirrors the VAL-001 approach of writing a structured results.json/baseline-report.md as the durable output of a process task.
+
+**Pattern Source:** scripts/curation/pipeline/sources/base_scraper.py
+
+**Anti-pattern:** Do NOT write new abstractions, helper scripts, or orchestrator code to "improve" the pipeline run experience during this task. This task is pure validation — the agent must run what exists, observe what it produces, and record the results. Refactoring the pipeline for aesthetic or ergonomic reasons defeats the purpose of establishing a baseline against the current code. The only permitted modifications to existing files are Boy Scout bug fixes, each documented with a commit SHA.
+
+--------------------------------------------------------------------------------
+CODING STANDARDS
+--------------------------------------------------------------------------------
+
+- Python 3.11+, type hints on all new helper functions
+- Use `pathlib.Path` for all file I/O
+- Use `subprocess.run(..., capture_output=True, text=True)` for pipeline stage invocation
+- Boy Scout fixes must match the existing file's style — no new patterns introduced
+- brain/docs/python-standards.md
+- brain/docs/coding-standards.md
+- brain/docs/TDD-METHODOLOGY.md (note: this is an INFRA validation task — TDD applies only insofar as each AC has a VERIFY command that gates progression)
+
+--------------------------------------------------------------------------------
+DEPENDENCIES
+--------------------------------------------------------------------------------
+
+Depends On:
+- **VAL-004** — working dev Convex deployment required for the `convex_push.py --dry-run` step (AC-7)
+
+Blocks:
+- **INF-001** — dependency hardening and `requirements.txt` locking should happen only after the baseline pipeline is proven to run
+
+--------------------------------------------------------------------------------
+NOTES
+--------------------------------------------------------------------------------
+
+- This is the first end-to-end run of the curation pipeline. Expect to encounter at least minor bugs (missing `__main__` guards, hardcoded relative paths, missing `OUTPUT_PATH` constants). Fix them under the Boy Scout rule and commit each fix separately.
+- The 20-route extraction sample should use a fixed random seed (e.g., `seed=42`) for reproducibility. Document the seed and sample selection method in `baseline-report.md`.
+- If any landmark route (Tail of the Dragon, Blue Ridge Parkway, Beartooth Highway, Pacific Coast Highway, Million Dollar Highway) is missing from the FHWA source, this is expected to be a PASS WITH ISSUES not a FAIL — FHWA coverage is known to be incomplete.
+- `baseline-report.md` should include a table with columns: `Stage | Status | Count | Notes`. This table is the primary artifact future engineers will reference.
+- `review.md` N/A section must explicitly enumerate steps 3 (HPMS enrichment), 4 (NWS enrichment), 5 (HPMS+NWS quality gate), 9 (calibration gate), 10 (calibration tuning), 11 (field validation), 13 (hardened push) as "N/A until Epic X" with the appropriate epic number.
+- The OSM cache directory path should be confirmed by reading `enrichment/cache.py` before the first run. If the cache path is relative, it may resolve differently depending on the working directory — fix this under Boy Scout rule if needed.
+- Do not run BestBikingRoads full scrape if it will take more than 60 minutes — if the scraper lacks a `--max-pages` flag, add one as a Boy Scout fix and run with a bounded sample that still exceeds 50 routes, documenting the decision in `baseline-report.md`.
+
+--------------------------------------------------------------------------------
+APPROVAL
+--------------------------------------------------------------------------------
+
+Approved By: pending
+Date: pending

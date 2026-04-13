@@ -71,38 +71,49 @@ No curation-hardening-specific UCs are covered here — this epic exists solely 
 
 | ID | Title | Type | Agent | Priority | Effort | Est. Min | Depends On | Blocks |
 |----|-------|------|-------|----------|--------|----------|------------|--------|
-| BASE-001 | Run and validate existing curation pipeline end-to-end | INFRA | python-implement | P0 | M | 240 | VAL-004 | INF-001 |
+| [BASE-001](./BASE-001.md) | FHWA source validation + Boy Scout __main__ entry point | INFRA | python-implement | P0 | S | 30 | VAL-004 | BASE-003, BASE-006, BASE-008 |
+| [BASE-002](./BASE-002.md) | Community scrapers validation — MotorcycleRoads + BestBikingRoads | INFRA | python-implement | P0 | S | 30 | VAL-004 | BASE-008 |
+| [BASE-003](./BASE-003.md) | Haiku extraction validation + Boy Scout __main__ for extraction/client.py | INFRA | python-implement | P0 | S | 45 | BASE-001 | BASE-004, BASE-008 |
+| [BASE-004](./BASE-004.md) | Composite scoring validation + Boy Scout __main__ for scoring/composite.py | INFRA | python-implement | P0 | S | 30 | BASE-003 | BASE-005, BASE-007, BASE-008 |
+| [BASE-005](./BASE-005.md) | Archetype classification validation + Boy Scout __main__ for classification/archetype.py | INFRA | python-implement | P0 | S | 30 | BASE-004 | BASE-008 |
+| [BASE-006](./BASE-006.md) | OSM enrichment validation + Boy Scout __main__ for enrichment/osm_client.py | INFRA | python-implement | P0 | S | 45 | BASE-001 | BASE-008 |
+| [BASE-007](./BASE-007.md) | Convex push dry-run validation + Boy Scout --dry-run flag for sync/convex_push.py | INFRA | python-implement | P0 | S | 45 | BASE-004, VAL-004 | BASE-008 |
+| [BASE-008](./BASE-008.md) | Curation Review Protocol execution + baseline artifacts commit | INFRA | python-implement | P0 | M | 60 | BASE-001..007 | INF-001 |
 
-**Task file not yet written — per user instruction, only Epic 1 has full task files at this stage.** The stub below captures the required scope.
+**Total effort:** 315 minutes (~5.25 hours) across 8 tasks. Average quality score ~110/115. Decomposed from archived `BASE-001.md.archived` (240-min single task) on 2026-04-12.
 
-### BASE-001 Stub
+### Decomposition Rationale
 
-**Title:** Run and validate existing curation pipeline end-to-end
+The original BASE-001 was a 240-minute single INFRA task with 8 ACs spanning 8 pipeline stages — too big for a single agent context window and impossible to parallelize. The decomposition produces 8 smaller tasks (mostly 30-45 min each) that can be executed across parallelization waves:
 
-**Objective:** Execute every existing curation pipeline stage against live sources and the dev Convex deployment, verifying each stage produces correct output. Fix any discovered bugs under the Boy Scout rule.
+```
+Wave 1 (after VAL-004):   BASE-001  ║  BASE-002
+Wave 2 (after BASE-001):  BASE-003  ║  BASE-006
+Wave 3 (after BASE-003):  BASE-004
+Wave 4 (after BASE-004):  BASE-005  ║  BASE-007
+Wave 5 (after all above): BASE-008  (Curation Review Protocol + baseline commit)
+```
 
-**Scope:**
-- Execute all 3 existing source scrapers (`fhwa`, `motorcycleroads`, `bestbikingroads`) — capture route counts and JSONL paths
-- Run a sample through `extraction/client.py` — verify Pydantic schema compliance and temperature=0
-- Run `scoring/composite.py` — verify score distributions and WEIGHTS currently loaded
-- Run `classification/archetype.py` — verify archetype assignments cover all 6 types
-- Run `enrichment/osm_client.py` — verify OSM lookups and cache behavior
-- Run `sync/convex_push.py --dry-run` — verify serialization without live push
-- Write a `baseline-report.md` capturing: stage-by-stage pass/fail, actual counts, current WEIGHTS values, any bugs found and fixed
+### Boy Scout __main__ Fixes (inventory)
 
-**Acceptance Criteria (high level):**
-1. GIVEN existing pipeline code, WHEN each stage is executed, THEN stage-specific outputs are produced without crashes
-2. GIVEN live FHWA data, WHEN fhwa source runs, THEN ~184 routes are ingested
-3. GIVEN live BBR catalog, WHEN bestbikingroads source runs, THEN ~17k routes are scraped (baseline for dedup later)
-4. GIVEN extracted routes, WHEN composite scoring runs, THEN all routes receive `composite_score` floats in `[0,1]`
-5. GIVEN scored routes, WHEN archetype classifier runs, THEN every route has `primary_archetype` set
-6. GIVEN serialized routes, WHEN Convex push dry-runs, THEN no type errors
+Pipeline reality check (2026-04-12): 6 of the 8 existing pipeline modules had **no `__main__` block** and therefore could not run as `python -m`. Each validation task includes a minimal Boy Scout fix to add one, committed separately so future epics can diff cleanly:
 
-**Agent:** python-implement (existing Python pipeline)
+| Module | Task | Boy Scout Change |
+|---|---|---|
+| `sources/fhwa.py` | BASE-001 | Add `__main__` block (~15 lines) |
+| `sources/motorcycleroads.py` | BASE-002 | None (already has `__main__`) |
+| `sources/bestbikingroads.py` | BASE-002 | None (already has `__main__`) |
+| `extraction/client.py` | BASE-003 | Add `__main__` block with `--sample/--count/--out` |
+| `scoring/composite.py` | BASE-004 | Add `__main__` block with `--input/--out/--count` |
+| `classification/archetype.py` | BASE-005 | Add `__main__` block with `--routes/--scores/--out/--count` |
+| `enrichment/osm_client.py` | BASE-006 | Add `__main__` block with `--input/--count/--cache-dir` |
+| `sync/convex_push.py` | BASE-007 | Add `dry_run: bool` kwarg to `push_routes()` AND `__main__` block with `--dry-run` flag (single commit) |
+
+**Agent:** python-implement for all tasks.
 
 **Dependencies:**
-- Depends on: VAL-004 (needs a working dev Convex deployment for the push dry-run)
-- Blocks: INF-001 (dependency install — no point installing new deps if baseline is broken)
+- Epic 2 depends on Epic 1 (VAL-004 specifically, for dev Convex deployment)
+- Epic 2 blocks Epic 3 (INF-001) — no hardening begins until BASE-008 commits the Epic 2 baseline
 
 ---
 

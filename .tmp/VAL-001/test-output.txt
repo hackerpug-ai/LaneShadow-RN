@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.3, pluggy-1.6.0 -- /Users/justinrich/Projects/LaneShadow/scripts/curation/pipeline/nlp/pilot/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/justinrich/Projects/LaneShadow/scripts/curation
+configfile: pyproject.toml
+plugins: anyio-4.13.0
+collecting ... collected 7 items
+
+scripts/curation/pipeline/nlp/pilot/test_pilot.py::TestDatasetSchema::test_dataset_schema_valid PASSED [ 14%]
+scripts/curation/pipeline/nlp/pilot/test_pilot.py::TestExtractionRuns::test_extraction_runs_without_error PASSED [ 28%]
+scripts/curation/pipeline/nlp/pilot/test_pilot.py::TestRoadNameF1Gate::test_road_name_f1_gate_enforced_pass PASSED [ 42%]
+scripts/curation/pipeline/nlp/pilot/test_pilot.py::TestRoadNameF1Gate::test_road_name_f1_gate_enforced_fail PASSED [ 57%]
+scripts/curation/pipeline/nlp/pilot/test_pilot.py::TestAttributeF1Reported::test_attribute_f1_reported PASSED [ 71%]
+scripts/curation/pipeline/nlp/pilot/test_pilot.py::TestTokenUsageSummary::test_token_usage_summary PASSED [ 85%]
+scripts/curation/pipeline/nlp/pilot/test_pilot.py::TestEndToEnd::test_full_pilot_with_mock_api PASSED [100%]
+
+============================== 7 passed in 13.16s ==============================
+Exit code: 0

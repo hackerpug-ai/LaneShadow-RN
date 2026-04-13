@@ -28,26 +28,24 @@
 Each step runs ONLY if the referenced scripting exists at the current epic boundary. Steps marked "required starting Epic X" are skipped for earlier epics. As the plan progresses, more steps apply — by Epic 12 all steps are mandatory.
 
 ### Step 1: Run all source scrapers
-**Required starting:** Epic 2 (existing sources) + grows through Epic 5
+**Required starting:** Epic 2 (existing sources), grows at Epic 4 (+3 new sources)
 ```bash
 # Existing (required from Epic 2 onward)
 python -m scripts.curation.pipeline.sources.fhwa
 python -m scripts.curation.pipeline.sources.motorcycleroads
 python -m scripts.curation.pipeline.sources.bestbikingroads
 
-# New sources (each required starting at its introducing epic)
+# New sources (all required starting at Epic 4 — Epic 5 deleted 2026-04-12)
 python -m scripts.curation.pipeline.sources.scenic_byways       # Epic 4+
-python -m scripts.curation.pipeline.sources.usfs_mvum           # Epic 4+
 python -m scripts.curation.pipeline.sources.rider_mag           # Epic 4+
-python -m scripts.curation.pipeline.sources.bdr                 # Epic 5+
-python -m scripts.curation.pipeline.sources.twtex               # Epic 5+ (if go)
-python -m scripts.curation.pipeline.sources.curvature_discovery # Epic 5+
+python -m scripts.curation.pipeline.sources.curvature_discovery # Epic 4+
 
 # Community (required starting Epic 9+)
 python -m scripts.curation.pipeline.sources.advrider            # Epic 9+
 python -m scripts.curation.pipeline.sources.reddit              # Epic 9+
 python -m scripts.curation.pipeline.sources.pushshift           # Epic 9+
 ```
+*Sources removed 2026-04-12: `bdr` (dropped — V3 lifestyle mismatch + VAL-002 403s), `twtex` (dropped — PRD assumption failed, VAL-003 no-go), `usfs_mvum` (dropped — V3 lifestyle mismatch).*
 **Verify:** each source produces a JSONL staging file with expected route count. Log discrepancies.
 
 ### Step 2: Run enrichment clients
