@@ -138,6 +138,13 @@ module.exports = defineConfig([
       'import/no-unresolved': ['error', { ignore: ['@convex-dev/*'] }],
     },
   },
+  // AI lib: allow expo-crypto and expo-file-system (Expo SDK packages)
+  {
+    files: ['lib/ai/**/*.{ts,tsx}'],
+    rules: {
+      'import/no-unresolved': ['error', { ignore: ['expo-crypto', 'expo-file-system', 'expo-file-system/legacy'] }],
+    },
+  },
   // Detox e2e tests: Jest + Detox globals
   {
     files: ['e2e/**/*.{js,ts}'],
