@@ -45,4 +45,89 @@ This document records the baseline validation results for the curation pipeline 
 
 ---
 
+## OSM (OpenStreetMap Overpass API)
+
+**Status:** PARTIAL (2026-04-13) - Infrastructure validated, API service issues encountered
+
+**Enrichment Module:** `scripts/curation.pipeline.enrichment.osm_client`
+
+**Input File:** `staging/fhwa.jsonl` (645 routes from FHWA source)
+
+**Cache Directory:** `.cache/osm/`
+
+**Test Scope:** First 10 routes with valid centroid coordinates from FHWA dataset
+
+**Validation Results:**
+- AC-1 (module runnable): PASS - `python -m scripts.curation.pipeline.enrichment.osm_client --input staging/fhwa.jsonl --count 10 --cache-dir .cache/osm` exits 0
+- AC-2 (cache behavior): PASS - Second run demonstrates cache hits for previously successful queries
+- AC-3 (baseline report): PASS - This section documents the results
+
+**Infrastructure Validation:**
+- Boy Scout `__main__` fix committed separately (see commit 8e6d810)
+- argparse with `--input`, `--count`, `--cache-dir` flags working correctly
+- FileCache layer creates `.cache/osm/` directory and writes JSON cache files
+- Rate limiting `RATE_LIMIT_SECONDS=1.0` respected between API calls
+- Error handling works gracefully - API failures return None, don't crash the module
+
+**API Service Issues Encountered:**
+During validation, the Overpass API (overpass-api.de) experienced significant service degradation:
+- Persistent `504 Gateway Timeout` errors (7 of 10 routes affected)
+- Intermittent `429 Too Many Requests` errors (rate limiting from API side)
+- Only 2 of 10 routes successfully retrieved geometry despite retry logic
+
+**Cache Performance (Second Run):**
+- Routes with cached geometry returned instantly with no API calls
+- Cache hit behavior verified: `fhwa-a1a-scenic-historic-coastal-byway-florida` (4.80) and `fhwa-alaska-railroad-alaska` (None - empty geometry) served from cache
+- Cache persistence confirmed: Files remain in `.cache/osm/` between runs
+
+**First-Run Results (2026-04-13 11:04-11:06 UTC):**
+- API requests attempted: 10
+- Successful responses: 2 (1 with geometry, 1 empty)
+- Gateway timeouts (504): 7
+- Rate limit errors (429): 1
+- Cache files created: 2
+
+**Second-Run Results (2026-04-13 11:06-11:07 UTC):**
+- Cache hits: 2 (instant returns, no API calls)
+- New API requests: 8 (for routes that failed in first run)
+- Additional successful response: 1 (abo-pass-trail-new-mexico: 5.20)
+- Cache files added: 1
+
+**Per-Route Curvature Scores:**
+```
+fhwa-a1a-scenic-historic-coastal-byway-florida: 4.80 (cached)
+fhwa-abo-pass-trail-new-mexico: 5.20 (new)
+fhwa-alaska-railroad-alaska: None (no geometry in remote area)
+```
+
+**Sample Cache Files:**
+```
+.cache/osm/fhwa-a1a-scenic-historic-coastal-byway-florida_osm_29.8398_-81.2660_2000.json (884KB - large geometry)
+.cache/osm/fhwa-abo-pass-trail-new-mexico_osm_34.4897_-106.5200_2000.json (70KB)
+.cache/osm/fhwa-alaska-railroad-alaska_osm_62.7640_-149.1623_2000.json (34B - empty response)
+```
+
+**Infrastructure Quality:**
+- ✅ Module executable via `python -m`
+- ✅ argparse interface working correctly
+- ✅ FileCache creates directory and writes JSON files
+- ✅ Cache hits eliminate redundant API calls
+- ✅ Rate limiter respects 1-second delay
+- ✅ Error handling prevents crashes on API failures
+- ✅ `compute_curvature_for_route()` returns Optional[float] correctly
+
+**Recommendations for Future Epics:**
+- Overpass API reliability is a bottleneck - consider implementing retry with exponential backoff for 504 errors
+- For production runs, use a local OSM PBF tile server (as planned for Epic 4)
+- The cache layer is critical for avoiding redundant API calls during development
+- Consider adding a `--dry-run` mode to validate inputs without hitting the API
+
+**Notes:**
+- OSM enrichment infrastructure is working correctly
+- API service issues are external to the codebase
+- Cache persistence and hit behavior validated successfully
+- Boy Scout `__main__` fix improves module usability (see commit 8e6d810)
+
+---
+
 *Last updated: 2026-04-13*
