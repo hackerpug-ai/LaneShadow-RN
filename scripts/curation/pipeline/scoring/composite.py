@@ -194,3 +194,37 @@ def compute_scores(route: Route) -> dict[str, float]:
         "remoteness_score": remoteness_score,
         "composite_score": composite_score,
     }
+
+
+if __name__ == "__main__":
+    import sys
+    import json
+    import argparse
+    import logging
+    from pathlib import Path
+    from scripts.curation.pipeline.models import Route
+
+    logging.basicConfig(level=logging.INFO)
+    p = argparse.ArgumentParser()
+    p.add_argument("--input", required=True, help="Input JSONL of Route records")
+    p.add_argument("--out", required=True, help="Output JSON array of scored routes")
+    p.add_argument("--count", type=int, default=None, help="Optional cap on routes")
+    args = p.parse_args()
+
+    routes = [Route(**json.loads(l)) for l in open(args.input)]
+    if args.count:
+        routes = routes[:args.count]
+
+    logging.info(f"WEIGHTS: {WEIGHTS}")
+
+    results = []
+    for r in routes:
+        scores = compute_scores(r)
+        results.append({"route_id": r.route_id, "name": r.name, **scores})
+
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with open(out, "w") as f:
+        json.dump(results, f, indent=2)
+
+    print(f"Scored {len(results)} routes -> {out}")
