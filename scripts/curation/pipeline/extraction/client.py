@@ -1,6 +1,6 @@
-"""Anthropic + Instructor client for LLM extraction.
+"""OpenAI-compatible + Instructor client for LLM extraction.
 
-This module wraps the Anthropic SDK with Instructor for structured extraction.
+This module wraps the OpenAI SDK (pointed at z.ai) with Instructor for structured extraction.
 Temperature is hardcoded to 0 (Pipeline Principle P4) and cannot be overridden.
 
 Pipeline Principle P5: Deterministic parser between LLM and downstream code.
@@ -11,13 +11,16 @@ import os
 import time
 from typing import Optional
 
-import anthropic
 import instructor
+from openai import OpenAI
 from pydantic import ValidationError
 
 from scripts.curation.pipeline.extraction.schema import RouteAttributes
 
 logger = logging.getLogger(__name__)
+
+# z.ai OpenAI-compatible endpoint
+ZAI_BASE_URL = "https://api.z.ai/api/paas/v4"
 
 
 # System prompt for route attribute extraction
@@ -44,39 +47,43 @@ Always think step-by-step in the reasoning field before assigning scores."""
 
 
 class ExtractionClient:
-    """Anthropic + Instructor client for route attribute extraction.
+    """OpenAI-compatible (z.ai) + Instructor client for route attribute extraction.
 
     Pipeline Principle P4: All extraction runs at temperature=0.
     Pipeline Principle P5: Pydantic validation between LLM and downstream code.
     """
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         """Initialize the extraction client.
 
         Args:
-            api_key: Anthropic API key. If None, reads from ANTHROPIC_API_KEY env var.
+            api_key: z.ai API key. Falls back to ZAI_API_KEY, then ANTHROPIC_API_KEY env vars.
+            model: GLM model name. Defaults to glm-4.7-flash.
 
         Raises:
             ValueError: If API key is not provided or found in environment.
         """
         if api_key is None:
-            api_key = os.environ.get("ANTHROPIC_API_KEY")
+            api_key = (
+                os.environ.get("Z_AI_API_KEY")
+                or os.environ.get("ANTHROPIC_API_KEY")
+            )
 
         if not api_key:
             raise ValueError(
-                "Anthropic API key must be provided via api_key parameter "
-                "or ANTHROPIC_API_KEY environment variable"
+                "z.ai API key must be provided via api_key parameter, "
+                "Z_AI_API_KEY or ANTHROPIC_API_KEY environment variable"
             )
 
-        # Initialize Anthropic client
-        raw_client = anthropic.Anthropic(api_key=api_key)
+        # Initialize OpenAI client pointed at z.ai
+        raw_client = OpenAI(api_key=api_key, base_url=ZAI_BASE_URL)
 
         # Wrap with Instructor for structured extraction
-        self.client = instructor.from_anthropic(raw_client)
+        self.client = instructor.from_openai(raw_client)
 
         # P4: Temperature is hardcoded to 0 - no overrides allowed
         self._temperature = 0
-        self._model = "claude-3-5-haiku-latest"
+        self._model = model or "glm-4.7-flash"
 
         logger.info(
             f"ExtractionClient initialized (model={self._model}, temperature={self._temperature})"
@@ -100,7 +107,7 @@ class ExtractionClient:
 
         Raises:
             ValidationError: If extraction fails after max retries
-            anthropic.APIError: If the Anthropic API call fails
+            Exception: If the API call fails with a non-validation error
         """
         last_error = None
 
@@ -108,7 +115,7 @@ class ExtractionClient:
             try:
                 start_time = time.time()
 
-                # Call Haiku with Instructor for structured extraction
+                # Call GLM with Instructor for structured extraction
                 response = self.client.chat.completions.create(
                     model=self._model,
                     temperature=self._temperature,  # ALWAYS 0 (P4)
@@ -176,7 +183,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
     parser = argparse.ArgumentParser(
-        description="Extract route attributes using Claude Haiku"
+        description="Extract route attributes using GLM via z.ai"
     )
     parser.add_argument(
         "--sample",
@@ -194,11 +201,15 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    # Verify ANTHROPIC_API_KEY is set
-    if "ANTHROPIC_API_KEY" not in os.environ:
+    # Verify API key is set
+    api_key = (
+        os.environ.get("Z_AI_API_KEY")
+        or os.environ.get("ANTHROPIC_API_KEY")
+    )
+    if not api_key:
         logger.error(
-            "ANTHROPIC_API_KEY environment variable is not set. "
-            "Please set it before running extraction."
+            "No API key found. Set Z_AI_API_KEY or ANTHROPIC_API_KEY "
+            "environment variable before running extraction."
         )
         sys.exit(1)
 
@@ -254,7 +265,7 @@ if __name__ == "__main__":
 
                 logger.info(f"Extracting [{i}/{len(routes)}]: {name}")
 
-                # Extract attributes via Haiku
+                # Extract attributes via GLM
                 attrs = client.extract(route_text)
 
                 # Write as JSON line using Pydantic model_dump_json()
