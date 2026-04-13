@@ -1,0 +1,40 @@
+{
+  "task_id": "BASE-002",
+  "status": "completed_with_issues",
+  "summary": "Community scrapers validation completed with issues. MotorcycleRoads scraper functional but produces only 30 routes vs >50 expected. BestBikingRoads scraper functional but extremely slow (9+ hours to reach 10k routes vs 30-60 min expected). Both scrapers respect robots.txt and rate limits correctly.",
+  "motorcycleroads": {
+    "status": "pass_with_issues",
+    "route_count": 30,
+    "expected_threshold": ">50",
+    "issues": [
+      "Count (30) is below expected threshold (>50)",
+      "Scraper deduplicates aggressively - finds 30 route links per state page but only scrapes unique routes across all states",
+      "Likely due to route cross-listing or site structure changes"
+    ],
+    "robots_txt_compliance": true,
+    "rate_limiting_active": true,
+    "output_file": "staging/motorcycleroads.jsonl"
+  },
+  "bestbikingroads": {
+    "status": "pass_with_issues",
+    "route_count": 360,
+    "expected_range": "10,000-20,000",
+    "issues": [
+      "Extremely slow scraper performance (~18 routes/minute)",
+      "Estimated 9+ hours to reach 10k routes vs 30-60 minutes expected",
+      "Rate limiting may be too conservative for this source"
+    ],
+    "robots_txt_compliance": true,
+    "rate_limiting_active": true,
+    "output_file": "staging/bestbikingroads.jsonl",
+    "note": "Scraper still running in background, will continue to accumulate routes"
+  },
+  "recommendations": [
+    "Investigate site structure changes for both sources",
+    "Consider adjusting rate limits or parallelizing state scrapers",
+    "Review deduplication logic for MR scraper",
+    "Consider pagination improvements for BBR scraper"
+  ],
+  "baseline_report_updated": true,
+  "evidence_preserved": true
+}

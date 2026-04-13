@@ -280,25 +280,28 @@ class BestBikingRoadsScraper(BaseScraper):
 
 
 async def main():
-    """Main entry point for testing."""
+    """Main entry point for production scraping."""
     import logging
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
-    output_dir = Path("/Users/justinrich/Projects/LaneShadow/scripts/curation/output")
+    # Production output directory
+    output_dir = Path("/Users/justinrich/Projects/LaneShadow/staging")
 
-    # Scrape just Tennessee for testing
-    scraper = BestBikingRoadsScraper(output_dir, states=["tennessee"])
+    # Scrape all US states (production mode)
+    scraper = BestBikingRoadsScraper(output_dir, states=None)  # None means all US states
 
     try:
         route_count = 0
         async for route in scraper.scrape():
             route_count += 1
-            print(f"Scraped: {route['name']} ({route['state']})")
-            if route_count >= 5:  # Limit for testing
-                break
+            if route_count % 100 == 0:
+                print(f"Progress: {route_count} routes scraped...")
 
-        print(f"\nTotal routes scraped: {route_count}")
+        print(f"\n✓ Total routes scraped: {route_count}")
 
     finally:
         await scraper.close()
