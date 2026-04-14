@@ -66,6 +66,29 @@ The curation pipeline — scraping community sites, extracting route data with L
 
 > **On-device LLM as an interface, not a generator:** The LLM turns utterances into query parameters. A deterministic SQL layer does the actual ranking and filtering. This architectural choice is what makes offline-first viable — a 500 MB model can slot-fill a schema; it doesn't have to know every road in America. See [`.spec/research/local-models/ON_DEVICE_LLM_STRATEGY_2026-04-12.md`](./research/local-models/ON_DEVICE_LLM_STRATEGY_2026-04-12.md).
 
+#### Discovery spans routes AND waypoints
+
+Ride Discovery is not only routes. A route is the ribbon of asphalt; a **waypoint** is a moment of delight along the way — the scenic overlook worth pulling over for, the diner that makes the ride memorable, the roadside landmark worth the detour toward. LaneShadow treats waypoints as a **second content type**, parallel to routes, with their own rider-intent ontology and their own discovery surfaces.
+
+**Rider-intent, not business classification.** Google Places groups POIs by what a business sells — that's an SIC-code ontology, the phonebook model. LaneShadow waypoints are grouped by *why a rider would stop there*, a verb ontology. The difference is what prevents a rider-beloved independent diner from landing in the same bucket as a Taco Bell.
+
+**The four categories** (a waypoint belongs to exactly one):
+
+| Category | Rider's question | Examples |
+|---|---|---|
+| **Pause** | "Should I pull over and look?" | Scenic overlooks, vistas, photo spots, waterfall pullouts, sunset viewpoints |
+| **Wander** | "Is this worth parking the bike and walking around?" | Historic sites, ghost towns, lighthouses, fire lookouts, covered bridges, weird Americana, small museums, historic town districts, interpretive-sign clusters, walkable scenic features (short-hike waterfalls, cliff dwellings, rock formations). *Unifying trait: effort ≈ park, 10–30 min stop, some payoff beyond "look and go."* |
+| **Taste** | "Where's a stop that'll make this ride memorable?" | Independent diners, BBQ joints, small-town cafes, ice cream stands, biker-welcoming spots |
+| **Gather** | "Will I see other riders here?" | Bike-meet locations, moto museums, rally venues, iconic rider hangouts |
+
+Deliberately excluded: **Refuel** (gas is utility, not delight — Google Maps owns it), **Lodging** (out of scope for day-trip riders), **Hazards** (belongs in route metadata), **chain businesses** (filtered at the pipeline layer regardless of source — no Taco Bell, ever).
+
+Every waypoint also carries two orthogonal attributes that drive which UX surface it appears on: **`effort`** (`pullover` / `park` / `side_trip`) and **`trigger_score`** (0–1, how much a single waypoint could justify a ride by itself — high scores power "Surprise Me" / "Ride toward this today," low scores appear only as along-route callouts).
+
+**Why this matters for "Ride the Moment"**: three of four primary personas have scenarios where the waypoint is the *reason* for the ride, not a stop along the way. Rachel's "this cool lighthouse 40 minutes away, weather is fine, we can be home by lunch." Mike's Friday-evening "what's worth riding toward tomorrow morning." Sam's "great BBQ spot at the halfway point." Only Terry (touring planner) rides for the road's own sake. Ship waypoints as a parallel content type or lose three of four personas for waypoint-first discovery.
+
+**Implementation**: PRD lives at `.spec/prds/waypoints/` (Phase 0.5, scoped to 2–3 weeks). The taxonomy is validated against real rider language via [`.spec/research/waypoint-demand/`](./research/waypoint-demand/) before the PRD is written.
+
 ### Pillar 2: Ride Companion
 
 **Hands on the bars. Eyes on the road. LaneShadow handles the rest.**
@@ -329,6 +352,34 @@ Complete what's already being built. Make it usable for yourself.
 - Confirm `llama.rn` KV cache persistence works across React Native calls
 - Confirm `react-native-apple-llm` session persistence works on iOS 26
 - Fallback tier defined if 2-second ceiling can't be hit with v1 optimizations
+
+### Phase 0.5: Waypoints v1 (overlaps with Phase 0 completion / Phase 1 start)
+
+Ship the **second content type**. Waypoints are moments of delight — scenic stops, historic sites, iconic independent diners — discovered via dedicated surfaces (Moments Feed, Surprise Me, along-route bloom) in addition to being linked from routes. Grounded in the rider-intent ontology from Pillar 1 (Pause / Wander / Taste / Gather).
+
+| Task | Status |
+|------|--------|
+| Waypoint ontology (Pause / Wander / Taste / Gather) | Spec'd in Pillar 1 |
+| Market research validating categories against rider-forum language | **Complete** — see [`.spec/research/waypoint-demand/03-findings.md`](./research/waypoint-demand/03-findings.md) (~90% clean fit across sources, ontology validated) |
+| Sourcing alternatives research (Overture Maps + USGS GNIS + Geoapify as free replacements for Google Places / TripAdvisor) | **Complete** — see [`.spec/research/waypoint-demand/06-sourcing-alternatives-deep-research.md`](./research/waypoint-demand/06-sourcing-alternatives-deep-research.md) |
+| Waypoint PRD (`.spec/prds/waypoints/`) | Not started — gated on UC-RIDER-03 completion in `curation-hardening` |
+| **Sourcing stack — PAUSE**: Overture Maps (category=viewpoint/scenic) + OSM `tourism=viewpoint` + USGS GNIS (Summit/Falls/Gap/Arch/Overlook/Cliff feature classes) + NPS/USDA overlook data | Not started |
+| **Sourcing stack — WANDER**: HMDB (191K historical markers) + Overture (category=historic/museum/monument) + NRHP (95K) + OSM `historic=*` + USGS GNIS ghost towns | Not started |
+| **Sourcing stack — TASTE**: Rider-forum NLP extraction (UC-RIDER-03 pipeline, `curation-hardening`) + Overture (category=restaurant/diner/cafe) + deterministic chain blocklist from AllThePlaces inventory + founder-curated regional seed | Not started — Taste quality gated on UC-RIDER-03 |
+| Single `curated_waypoints` Convex table + op-sqlite sync (reuses existing projection pattern) | Not started |
+| 7-layer quality-gate architecture (category filter → chain blocklist → density-aware confidence → Haiku motorcycle-relevance for Taste → multi-source corroboration boost → user downvote loop → freshness SLA) + 6 rural-aware refinements. Full spec: [`07-quality-gates-architecture.md`](./research/waypoint-demand/07-quality-gates-architecture.md) | Not started |
+| Census-tract density classifier (R1) — urban/suburban/rural/remote tagging as enabler for density-aware thresholds, local-uniqueness scoring, and rural-primary source priority | Not started |
+| Founder regional seeding (R6) — 30–50 Taste waypoints per region in 3 regions the founder rides (default proposal: Utah/SW Colorado + Blue Ridge/Smokies + Sierra/Eastern Sierra; final regions per founder selection) | Not started |
+| Claude Vision Street View check for Pause candidates (L6), scoped to ambiguous candidates only — ~$28 one-time + $2–5/month steady state. See [`07-quality-gates-architecture.md`](./research/waypoint-demand/07-quality-gates-architecture.md) §L6 for scoping rule | Not started |
+| AI leverage stack (Thread 4 Option C): Haiku for O1 motorcycle-relevance gate + O2 attribute extraction + O3 rider-voice one-liner + O4 seasonal closure extraction; Voyage embeddings for O5 deduplication; Sonnet Vision for O6 (per L6 above). Prompt caching enabled on all Haiku calls. Total LLM cost Phase 0.5: ~$30–50 one-time batch + modest recurring | Not started |
+| Geoapify free tier (3K credits/day) for in-app real-time POI queries between Overture monthly releases | Not started |
+| Discovery UI — **Moments Near Me only** (map + list + category/effort filter chips + detail sheet + "not a delight" downvote). Surprise Me button, Moments Feed card stack, and along-route bloom all deferred to Phase 1 or Phase 3. Rationale: prove waypoints engage riders *at all* before adding serendipity mechanics on top. Data collection is the Phase 0.5 goal, not UX breadth. | Not started |
+
+**Gate test**: Open the app on a Saturday morning, tap "Moments Near Me," see 8 waypoints you've never heard of within 30 minutes, pick one, and ride there — without touching the route catalog first.
+
+**Sourcing cost profile**: **~$0 one-time + ~$0/month recurring.** All primary sources (Overture Maps, USGS GNIS, HMDB, NRHP, NPS, OSM, Geoapify free tier) are free and commercially-licensed. No Google Places API, no TripAdvisor contract, no Atlas Obscura partner tier at launch. Deep research verified license compatibility across CDLA-Permissive-2.0, Apache-2.0, CC0-1.0, ODbL with attribution, and US Government public domain — all usable in a commercial product with no contract overhead. See [`06-sourcing-alternatives-deep-research.md`](./research/waypoint-demand/06-sourcing-alternatives-deep-research.md) for full license, volume, and fit analysis.
+
+**Scope guardrail**: **6+ weeks, gated on UC-RIDER-03 completion** in `curation-hardening` (community NLP pipeline that sources the Taste category). Pause and Wander can launch on day one using the free structured sources (Overture + HMDB + GNIS + NRHP); Taste launches thin via Overture-with-chain-filter + founder-curated seed and enriches as UC-RIDER-03 comes online. This is additive thin-layer work — reuses existing curation pipeline patterns (sync, op-sqlite, intent→SQL). One new Convex table + one new intent schema extension + one new discovery surface. If scope creeps beyond that, we stop and reconsider.
 
 ### Phase 1: Community + Share (Month 2-3)
 

@@ -140,4 +140,106 @@ export type CuratedRoute = {
 /**
  * Curated route validator (lean tier)
  */
-export const curatedRouteValidator = v.object(CURATED_ROUTE_FIELDS);
+export const curatedRouteValidator = v.object({
+  ...CURATED_ROUTE_FIELDS,
+
+  // ========================================================================
+  // Semantic matching (Epic 3 — INF-003)
+  // ========================================================================
+  searchEmbedding: v.optional(v.array(v.number())),
+  searchText: v.optional(v.string()),
+  candidateIdentifiers: v.optional(v.array(v.string())),
+  matchConfidence: v.optional(v.number()),
+  llmReconciliationLog: v.optional(
+    v.array(
+      v.object({
+        runId: v.string(),
+        reconciledAt: v.number(),
+        conflictsResolved: v.number(),
+        notes: v.string(),
+      }),
+    ),
+  ),
+
+  // ========================================================================
+  // Enrichment outputs
+  // ========================================================================
+  description: v.optional(v.string()),
+  rating: v.optional(v.number()),
+  designation: v.optional(v.string()),
+  sourceUrl: v.optional(v.string()),
+  sourceRefs: v.optional(v.array(v.string())),
+  highwayNumber: v.optional(v.string()),
+  elevationGainM: v.optional(v.number()),
+  surface: v.optional(v.string()),
+  aadt: v.optional(v.number()),
+  aadtMedian: v.optional(v.number()),
+  aadtMax: v.optional(v.number()),
+  pavementIri: v.optional(v.number()),
+  mentionFrequency: v.optional(v.number()),
+
+  // ========================================================================
+  // Scoring outputs
+  // ========================================================================
+  mentionFrequencyScore: v.optional(v.number()),
+  designationScore: v.optional(v.number()),
+  elevationDramaScore: v.optional(v.number()),
+  roadQualityScore: v.optional(v.number()),
+  lowTrafficScore: v.optional(v.number()),
+  weatherSuitability: v.optional(v.number()),
+  bestMonths: v.optional(v.array(v.string())),
+  sourceCount: v.optional(v.number()),
+  qualityTier: v.optional(v.string()),
+});
+
+/**
+ * Route post raw validator (Epic 3 — INF-003)
+ *
+ * Stores raw LLM extraction artifacts per community post.
+ * This is the source of truth for what the LLM extracted, separate from
+ * route matching decisions.
+ */
+export const routePostRawValidator = v.object({
+  postId: v.string(),
+  source: v.string(),
+  postUrl: v.string(),
+  postAuthor: v.optional(v.string()),
+  postScore: v.optional(v.number()),
+  postedAt: v.optional(v.number()),
+  rawText: v.string(),
+  extractionSchemaVersion: v.number(),
+  extractionModel: v.string(),
+  extractionCost: v.number(),
+  extractedAt: v.number(),
+  extractionConfidence: v.optional(v.number()),
+  payload: v.object({
+    roadNameMentions: v.array(v.string()),
+    highwayRefs: v.array(v.string()),
+    stateRefs: v.array(v.string()),
+    landmarkRefs: v.optional(v.array(v.string())),
+    sentiment: v.string(),
+    aspectScores: v.optional(v.record(v.string(), v.number())),
+    attributes: v.optional(v.record(v.string(), v.boolean())),
+    warnings: v.optional(v.array(v.string())),
+  }),
+});
+
+/**
+ * Route match validator (Epic 3 — INF-003)
+ *
+ * Stores audit log of (post → route) match decisions.
+ * One post can match zero, one, or many routes.
+ */
+export const routeMatchValidator = v.object({
+  matchId: v.string(),
+  postId: v.string(),
+  routeId: v.id("curated_routes"),
+  matchConfidence: v.number(),
+  cosineSimilarity: v.number(),
+  matchReasoning: v.string(),
+  rerankModel: v.string(),
+  rerankCost: v.number(),
+  matchedAt: v.number(),
+  isArbitrated: v.boolean(),
+  arbitrationNotes: v.optional(v.string()),
+});

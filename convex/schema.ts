@@ -14,7 +14,7 @@ import { performanceValidator } from '../models/performance'
 import { osmNodeValidator, osmWayValidator, osmImportJobValidator } from '../models/osm-data'
 import { routeEnrichmentValidator } from '../models/route-enrichments'
 import { waypointValidator } from '../models/waypoints'
-import { curatedRouteValidator } from '../models/curated-routes'
+import { curatedRouteValidator, routePostRawValidator, routeMatchValidator } from '../models/curated-routes'
 import { curatedRouteEnrichmentValidator } from '../models/curated-route-enrichments'
 import { routeFeedbackValidator } from '../models/route-feedback'
 
@@ -167,13 +167,19 @@ export default defineSchema({
    * Indexed by state for geographic filtering
    * Indexed by compositeScore for sorting by quality ranking
    * Indexed by routeId for upsert operations during curation ingest
+   * Vector indexed by searchEmbedding for semantic similarity search (INF-003)
    */
   curated_routes: defineTable(curatedRouteValidator)
     .index('by_source', ['source'])
     .index('by_archetype', ['primaryArchetype'])
     .index('by_state', ['state'])
     .index('by_composite_score', ['compositeScore'])
-    .index('by_routeId', ['routeId']),
+    .index('by_routeId', ['routeId'])
+    .vectorIndex('by_embedding', {
+      vectorField: 'searchEmbedding',
+      dimensions: 1536,
+      filterFields: ['state'],
+    }),
 
   /**
    * Curated route enrichments table - Rich tier data for curated routes
@@ -192,4 +198,26 @@ export default defineSchema({
     .index('by_user', ['userId'])
     .index('by_route', ['routeId'])
     .index('by_action', ['action']),
+
+  /**
+   * Route posts raw table - Raw LLM extraction artifacts per community post (INF-003)
+   * Indexed by postId for unique-like access
+   * Indexed by source and extractedAt for time windowing by source
+   * Indexed by extractionSchemaVersion for re-extraction by version
+   */
+  route_posts_raw: defineTable(routePostRawValidator)
+    .index('by_postId', ['postId'])
+    .index('by_source_and_extracted_at', ['source', 'extractedAt'])
+    .index('by_extraction_schema_version', ['extractionSchemaVersion']),
+
+  /**
+   * Route matches table - Audit log of (post → route) match decisions (INF-003)
+   * Indexed by postId for finding all matches for a post
+   * Indexed by routeId for finding all posts matched to a route
+   * Indexed by routeId and matchConfidence for top matches per route
+   */
+  route_matches: defineTable(routeMatchValidator)
+    .index('by_postId', ['postId'])
+    .index('by_routeId', ['routeId'])
+    .index('by_routeId_and_confidence', ['routeId', 'matchConfidence']),
 })

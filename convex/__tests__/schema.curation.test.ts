@@ -16,7 +16,8 @@ describe('curation schema registration', () => {
 
       // Verify table exists
       expect(table).toBeDefined()
-      expect(table.tableName).toBe('curated_routes')
+      expect(table).toHaveProperty('indexes')
+      expect(table).toHaveProperty('validator')
 
       // Verify all required indexes exist
       const indexNames = table.indexes.map((i: any) => i.indexDescriptor)
@@ -48,7 +49,8 @@ describe('curation schema registration', () => {
 
       // Verify table exists
       expect(table).toBeDefined()
-      expect(table.tableName).toBe('curated_route_enrichments')
+      expect(table).toHaveProperty('indexes')
+      expect(table).toHaveProperty('validator')
 
       // Verify by_routeId index exists
       const indexNames = table.indexes.map((i: any) => i.indexDescriptor)
@@ -68,7 +70,8 @@ describe('curation schema registration', () => {
 
       // Verify table exists
       expect(table).toBeDefined()
-      expect(table.tableName).toBe('route_feedback')
+      expect(table).toHaveProperty('indexes')
+      expect(table).toHaveProperty('validator')
 
       // Verify all required indexes exist
       const indexNames = table.indexes.map((i: any) => i.indexDescriptor)

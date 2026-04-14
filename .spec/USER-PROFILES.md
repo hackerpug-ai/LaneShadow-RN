@@ -146,6 +146,7 @@ LaneShadow serves **recreational motorcycle riders who ride for the experience**
 7. **Respect the season** — Riders have limited months. Every ride matters. Make discovery fast so they spend time riding, not researching.
 8. **Scenic by default** — The curvy back road is always preferred. Never optimize for fastest/shortest unless asked.
 9. **Contributions are valued** — Terry and Alex generate the content that makes the platform work. Make contributing easy, visible, and appreciated.
+10. **Moments of delight count as much as roads** — Ride Discovery is more than routes. **Waypoints** — scenic stops, historic sites, iconic diners, community hangouts — are a second content type, organized by **rider intent** (Pause / Wander / Taste / Gather), not by business classification. Three of four primary personas have scenarios where a waypoint is the *reason* for the ride (Rachel's lighthouse, Mike's 4-star diner, Sam's BBQ spot). Waypoint ontology is defined in [`PRODUCT-STRATEGY.md`](./PRODUCT-STRATEGY.md) Pillar 1.
 
 ---
 
