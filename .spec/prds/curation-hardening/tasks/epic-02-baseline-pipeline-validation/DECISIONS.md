@@ -433,3 +433,248 @@ leaving the muddled commit as-is. Framework design review at BASE-009a AC-1 gate
 rules (B) and (C) are honored at implementation time.
 
 ---
+
+## 2026-04-14 (morning) — BASE-009b Phase 5 findings and spec recalibration
+
+**Context.** Overnight autonomous execution of BASE-009a (MotorcycleRoads) and BASE-009b
+(BestBikingRoads) produced measurable results against the specs written on 2026-04-13 PM.
+BASE-009a landed cleanly at commit `cf947d7` (MR crawl-report.md verdict PASS, 1,899/1,908
+routes, 99.5% yield). BASE-009b Phase 1+5 committed at `7d22b42` with inventory 3,226 + 170
+cluster-indices, and Phase 5 execution ran for several hours producing a clean staging file.
+In the course of that execution, four issues surfaced that require spec corrections and
+protocol-level rule additions before Phase 6 + baseline regeneration + review.md verdict
+upgrade can honestly commit.
+
+### 3a — BASE-009b AC-3 gate recalibration from [3500, 5500] to [3100, 3400]
+
+**Context.** AC-3 required BBR Phase 1 route-detail count in `[3500, 5500]`. Measured reality:
+3,226 (below the lower bound by 274 records). Investigation confirmed this is the actual
+measurable BBR universe, not a discovery gap.
+
+**Investigation.**
+
+1. **Clusters ARE recursively crawled.** The framework's `discover()` function walks PT-01
+   state listings AND PT-02 sub-state cluster index pages, harvesting route links from both.
+   Measured distribution in the committed `urls.jsonl`: 2,176 PT-03 route-details discovered
+   from PT-01 state listings + 1,050 PT-03 route-details discovered from PT-02 cluster pages
+   (170 clusters crawled) = 3,226 unique after canonicalize + dedupe. Cluster pages are NOT
+   missed — the 83% additive finding from Phase 0 (measured on Tennessee) replicates at scale.
+2. **Per-state audit confirms banner inflation, not discovery gaps.** Sampled California and
+   Tennessee against the live BBR "NNN Motorcycle Roads" banner:
+   - California: banner "401 Motorcycle Roads", inventory 329 routes, gap 72 (18%)
+   - Tennessee: banner "167 Motorcycle Roads", inventory 154 routes, gap 13 (8%)
+   - 8 California cluster pages are all present in inventory; PT-01 California has 81 inline
+     `/ride/` + 8 `/rides/` cluster links; no pagination on PT-01
+   - The 72-route CA gap is consistent with some legitimately unreachable routes (BBR's banner
+     may include routes that are indexed internally but not linked from state/cluster pages,
+     or routes that exist only on editorial top-10 pages which we deliberately skip per Phase
+     0 scope decision)
+3. **Site-map expected range was a pre-flight estimate, not a measurement.** The
+   `[3500, 5500]` gate in BASE-009b.md AC-3 was derived by summing BBR nav-menu banner numbers
+   for all 50 states (CA 427, TX 394, TN 171, OH 171, NY 160, FL 147, NC 147, KY 141, WA 138,
+   PA 137, ... down to HI/NE 2) ≈ ~4,046 total with ~15% headroom each side. The banner totals
+   are inflated vs what's navigable from state + cluster pages as shown by the CA/TN audits.
+   The site-map's own line 74 explicitly framed this as "expected range" pinned to the user's
+   prior recon — not a measurement.
+
+**Options considered.**
+
+| # | Option | Rejected because |
+|---|---|---|
+| A | Keep `[3500, 5500]` gate and call Phase 5 verdict FAIL | The gate was an estimate, not a measurement. Failing a task on an honest measurement of reality because a pre-flight estimate was wrong is the wrong lesson — it punishes measurement, not guesswork. |
+| B | Loosen gate to `[2800, 5500]` or `[3000, 5500]` | Too wide. Defeats the purpose of the gate (catching discovery regressions on future re-runs). A future re-run that finds only 3,100 routes should be a loud warning, not absorbed noise. |
+| C | Moderate `[3000, 3600]` | Also too wide. ±12% around measured reality is more tolerance than needed for a one-shot remediation. |
+| **D** | **Narrow `[3100, 3400]`** | **Selected.** ~4% below measured 3,226 (catches a ~125-route drop from cluster-recursion regression or one state seed dropping) and ~5% above (headroom for BBR adding new routes or a minor classifier relaxation). Gates should reflect measured truth with a small variance window, not aspiration. |
+
+**Decision.** Recalibrate BASE-009b AC-3 from `[3500, 5500]` to `[3100, 3400]` for Phase 1
+inventory, and AC-9 bestbikingroads staging count from `[3500, 5500]` to `[2900, 3400]` for
+Phase 5 staging (staging = ≥90% of inventory per AC-7, so ≥90% × 3,226 = ~2,903 minimum floor,
+rounded down to 2,900). The two ranges are deliberately distinct — AC-3 is inventory, AC-9 is
+staging, and the 200-record gap reflects expected HTTP error / dead-link attrition.
+
+**Spec files updated in this commit.**
+
+- `BASE-009b.md` AC-3 THEN clause (line 130) — range text updated with DECISIONS.md pointer
+- `BASE-009b.md` AC-3 VERIFY command (line 132) — `assert` updated to `3100 <= ... <= 3400`
+- `BASE-009b.md` AC-9 source_counts assertion (line 215) — `assert sc['bestbikingroads']` range updated to `2900 <= ... <= 3400` with inline comment explaining the inventory-vs-staging distinction
+- `BASE-009b.md` Success-looks-like #1 (line 101) — staging range note updated
+- `BASE-009b.md` Success-looks-like #4 (line 74) — staging count note updated
+- `BASE-009b.md` Boolean test row #3 (line 254) — updated with recalibration pointer
+- `EPIC.md` epic-level AC list (line 49) — BBR range note updated
+- `HANDOFF.md` Current State and Immediate Next Step sections — refreshed for morning-of state
+- `CRAWL-PLAN-PROTOCOL.md` Revision History — new row (2026-04-14 morning) points here
+
+**Files deliberately NOT updated (audit integrity).**
+
+- `crawl-plans/bestbikingroads/site-map.md` — Phase 0 recon artifact committed in `e7f6368`.
+  It represents the hypothesis at the time of recon. Rewriting it to match measured reality
+  would erase the learning loop. The site-map's `[3500, 5500]` is explicitly cited above as
+  the superseded pre-flight estimate.
+- DECISIONS.md earlier entries (lines 231, 234, 396) — historical 2026-04-13 evening records
+  that say "the then-current `[3500, 5500]` was the gate". They are audit entries. This new
+  sub-section 3a supersedes them via chronological layering, not rewriting.
+
+### 3b — BBR single-state schema exemption (states_all design decision)
+
+**Context.** The 2026-04-13 evening cross-cutting rule from BASE-009a states:
+
+> Source records that can span multiple states MUST use `state_primary` (URL-derived) +
+> `states_all` (DOM-parsed list, at least 1 entry matching `state_primary`). Phase 4 fixture
+> tests assert `expected.state in record.states_all` (list membership).
+
+On BBR, there is no authoritative source of multi-state information:
+
+1. **URL is single-state.** BBR route URLs have shape
+   `/motorcycle-roads/united-states/{state-slug}/ride/{route-slug}` — one state in the path.
+2. **DOM does not carry multi-state.** BBR route detail pages do not have a meta description
+   that enumerates states (unlike MR, which has `Route Name | Route Ref. #NNNNN | State1,United
+   States,State2,...` that the parser successfully mines for Natchez Trace Parkway's
+   AL+MS+TN extraction).
+3. **Sidebar is TRAP-01.** The "you might also like" rail on BBR PT-03 pages shows cross-state
+   routes, but those are OTHER routes' states, not the current route's. Using sidebar data
+   for `states_all` would reintroduce the exact sidebar contamination that caused the Epic 2
+   MR Alabama-stamped Blue Ridge Parkway bug.
+4. **Route names sometimes hint multi-state** (e.g., "Hammondville (AL) - Summerville (GA)"
+   on BBR's `/alabama/ride/...`) but parsing these with regex is brittle and NLP is outside
+   scope.
+
+**Decision.** BBR's `states_all` is `[state_primary]` — a single-element list always
+containing only the URL-derived state. This is protocol-compliant:
+
+1. The schema rule is "records MUST use `state_primary` + `states_all` where `states_all` is a
+   list with ≥1 entry containing `state_primary`". BBR satisfies this with length 1.
+2. The rule's INTENT is "don't silently drop state data when a source has multi-state
+   evidence". BBR has no such evidence for route detail pages. The rule is not a mandate to
+   invent multi-state data from unreliable heuristics.
+3. Phase 4 fixture tests for BBR assert `expected.state in record.states_all` correctly —
+   with length-1 lists, the membership check still works, it just reduces to equality.
+
+**Rationale for explicit exemption entry.** Without this decision record, a future reader
+auditing BBR records against the cross-cutting rule might flag all BBR records as rule
+violations. The entry makes the design choice explicit and traceable.
+
+**Future reopening.** If BBR adds a meta-description-style authoritative state list later
+(schema change on BBR's side), or if NLP-over-route-names becomes in-scope for mention
+extraction, revisit this decision and widen BBR's `states_all` to carry true multi-state info.
+Track as non-urgent future work; not blocking for Epic 2, Epic 4, or Epic 9.
+
+### 3c — Anti-pattern: Python module cache during mid-run parser edits
+
+**Context.** During BASE-009a Phase 5 run #1 (MR), the implementing agent noticed that the
+parser's description extraction was targeting the wrong DOM element (`<p>` siblings instead of
+`<span>` siblings under the "Written Directions" h3). It committed the fix as `585852f Fix
+parser.py: description extraction uses span (not p) siblings` WHILE the MR crawler was still
+running in the background. The expectation was that the fix would apply to subsequent fetches.
+
+**What actually happened.** Python imports modules at process start time. When
+`scripts/curation/pipeline/sources/crawl_plan/parser.py` was first imported by the running
+crawler (before the fix commit), the interpreter loaded the file, compiled the AST to
+bytecode, and cached the result in `sys.modules`. Subsequent file changes on disk do NOT
+hot-reload — the running process continues to execute the cached bytecode. Result: the first
+~590 MR records were silently parsed with the pre-fix (buggy) parser, producing 0% description
+yield. The audit counters showed `parse_success=590` because the parser didn't crash — it
+just returned `description=None` for every record.
+
+**How it was detected.** A spot-check on 3 random staged records showed all three had empty
+descriptions. Running the freshly-committed parser against a live fetch of the same URL
+produced a 140-character description — confirming the on-disk code was correct but the running
+process was using a stale copy.
+
+**Recovery.**
+
+1. Killed the running crawler via `kill 64460` (clean SIGTERM, exited cleanly)
+2. Wiped staging files: `rm staging/motorcycleroads.jsonl staging/motorcycleroads.jsonl.progress staging/motorcycleroads.jsonl.audit.json`
+3. Restarted the crawler fresh via `nohup ... & disown` (see sub-section 3d for the nohup part)
+4. Second run imported the committed parser.py at its own process-start and produced 99.6%
+   description yield over 1,899 records. Clean.
+
+**Lesson.** Python module bytecode is snapshotted at import. Editing source files during a
+long-running crawler does not change the crawler's behavior. The only safe way to apply a
+fix to code the crawler depends on is:
+
+1. **Kill the crawler** (preserves .progress file if resume is wanted)
+2. **Fix and commit** the source file
+3. **Restart the crawler** (imports the new bytecode fresh; resume from .progress or wipe and
+   restart fresh depending on whether the bug produced corrupt intermediate output)
+
+**Decision.** Elevate to protocol-level rule in CRAWL-PLAN-PROTOCOL.md Revision History:
+
+> Never edit framework/parser source while a crawler process is live — kill → fix → restart.
+
+This rule is added to BASE-009a CROSS-CUTTING RULES (retroactively) and to every future
+Phase 5 execution brief in the protocol doc's phase descriptions.
+
+**Framework defense considered and deferred.** A hash-at-load-time check
+(`hashlib.sha256(open(__file__,'rb').read())` stored as a module global, re-checked on each
+call, raising if the on-disk file changed) would catch this automatically. Rejected for now
+because (a) the discipline "don't edit during run" is simpler and catches more failure modes
+(including dependency edits, not just parser.py), (b) adding the check to every framework
+module is code bloat for a narrow protection, and (c) this kind of supervisor concern belongs
+to Epic 12 orchestrator, not BASE-009b. Documented for future reference.
+
+### 3d — Anti-pattern: subagent session death orphaning background crawlers
+
+**Context.** BASE-009b Phase 5 was dispatched to a `python-implement` agent with instructions
+to run the crawler in background and poll audit.json periodically. The agent started the
+crawler via a Bash `run_in_background=true` call, reported progress, and then its session
+ended (agents have context budgets; after a certain number of tool uses or token count, they
+return their result and the session terminates). The BBR crawler process was a child of the
+agent's bash subprocess. When the agent session ended, its bash subprocess exited, and the
+bash subprocess's children (including the crawler Python process) were killed.
+
+**What happened at the session boundary.** The crawler had fetched 50 routes cleanly
+(`fetched=50, parse_success=50, schema_validation_fail=0, http_error=0`) and was still rate-
+limited-paced through Alabama routes when the agent session terminated. No crash, no log
+entry, no error — the process simply disappeared from `ps`.
+
+**How it was detected.** The orchestrator (me, root session) checked crawler process status
+several minutes after the agent reported progress, saw `no crawler processes` from
+`ps aux | grep bestbikingroads`, and investigated.
+
+**Recovery.**
+
+1. Verified the crawler was not running (ps clean)
+2. Wiped staging files (50 records is a small loss; fresh restart is simpler than resume)
+3. Restarted the crawler via `nohup bash -c 'PYTHONPATH=... .venv/bin/python -m scripts.curation.pipeline.sources.bestbikingroads > /tmp/bbr_crawl_v2.log 2>&1' & disown`
+   - `nohup` makes the process ignore SIGHUP (the signal bash sends to children when exiting)
+   - `&` detaches from the foreground
+   - `disown` removes the process from the shell's job table so it is not sent SIGHUP even if
+     the disown pre-dates nohup propagation
+4. The crawler then survived all subsequent session changes and ran to ~3 hr 15 min elapsed at
+   measurement time, well past any agent session boundary
+5. Started a separate polling background task that exits when the crawler PID disappears, to
+   get a clean notification when Phase 5 completes
+
+**Lesson.** Long-running crawlers dispatched by subagents die with the subagent if started as
+naive child processes. The fix is process-lifetime independence:
+
+- **Option A (shell-level):** `nohup <cmd> > logfile 2>&1 & disown` from inside a bash call —
+  makes the crawler survive the dispatching session's death
+- **Option B (orchestrator-level):** the orchestrator (root session) dispatches the crawler
+  directly via `run_in_background=true`, not via a subagent — the crawler is a child of the
+  orchestrator's shell, not of a transient subagent
+- **Option C (platform-level):** use systemd/launchd/tmux/screen for true process supervision —
+  overkill for Phase 5 runs but the right long-term answer for Epic 12 orchestrator
+
+**Decision.** Elevate to protocol-level rule in CRAWL-PLAN-PROTOCOL.md Revision History:
+
+> Long-running crawlers MUST be dispatched with process lifetime independent of the dispatching
+> session — either `nohup ... & disown` from inside a shell, or the orchestrator launching with
+> `run_in_background=true` directly, or a systemd/launchd supervisor. Subagent-dispatched child
+> processes die with the subagent.
+
+This rule is added to CRAWL-PLAN-PROTOCOL.md Phase 5 description (via the morning revision
+row) and to BASE-009a/b Phase 5 execution briefs (retroactively via DECISIONS.md cross-ref).
+
+**Framework defense considered and deferred.** A PID file + heartbeat supervisor would catch
+this automatically — the crawler writes its PID + last-progress timestamp periodically, and a
+supervisor process checks heartbeat staleness and alerts or restarts. Rejected for now as
+Epic 12 orchestrator concern, not BASE-009b scope. Documented for future reference.
+
+---
+
+**Signed off.** @justin (2026-04-14 morning) — plan approved in plan mode; remediation
+executed in a single atomic "spec: BBR gate recalibration + operational lessons" commit +
+separate Epic 3 INF-011 stub commit. Plan file at `~/.claude/plans/eventual-cuddling-wombat.md`.
+
+---
