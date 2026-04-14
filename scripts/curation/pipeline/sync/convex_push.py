@@ -19,6 +19,9 @@ from scripts.curation.pipeline.models import Route
 
 logger = logging.getLogger(__name__)
 
+# Batch size reduced from 50 to 10 for embedding payload size (INF-007)
+DEFAULT_BATCH_SIZE: int = 10
+
 
 class ConfigurationError(Exception):
     """Raised when required configuration (e.g., deploy key) is missing."""
@@ -33,6 +36,22 @@ class PushSummary:
     updated: int = 0
     failed: int = 0
     errors: list[str] = field(default_factory=list)
+
+
+def _maybe_set(d: dict, obj, attr: str, camel_key: str) -> None:
+    """Set d[camel_key] = obj.attr if the attribute exists and is not None/empty.
+
+    Helper for serializing optional Route/EnrichedRoute fields to Convex camelCase.
+    Skips None values, empty lists, and missing attributes.
+    """
+    if not hasattr(obj, attr):
+        return
+    val = getattr(obj, attr)
+    if val is None:
+        return
+    if isinstance(val, (list, dict)) and not val:
+        return
+    d[camel_key] = val
 
 
 def _route_to_dict(route: Route) -> dict[str, Any]:
@@ -62,6 +81,35 @@ def _route_to_dict(route: Route) -> dict[str, Any]:
         "boundsSwLng": route.bounds_sw_lng,
     }
 
+    # ========================================================================
+    # Semantic matching fields (Epic 3 — INF-002, INF-007)
+    # ========================================================================
+    # CRITICAL: embedding → searchEmbedding rename
+    if hasattr(route, "embedding") and route.embedding is not None:
+        payload["searchEmbedding"] = route.embedding
+
+    _maybe_set(payload, route, "search_text", "searchText")
+    _maybe_set(payload, route, "candidate_identifiers", "candidateIdentifiers")
+    _maybe_set(payload, route, "match_confidence", "matchConfidence")
+    _maybe_set(payload, route, "llm_reconciliation_log", "llmReconciliationLog")
+
+    # ========================================================================
+    # Enrichment output fields (Epic 9/10 LLM pipeline — INF-007)
+    # ========================================================================
+    _maybe_set(payload, route, "description", "description")
+    _maybe_set(payload, route, "rating", "rating")
+    _maybe_set(payload, route, "designation", "designation")
+    _maybe_set(payload, route, "source_url", "sourceUrl")
+    _maybe_set(payload, route, "source_refs", "sourceRefs")
+    _maybe_set(payload, route, "highway_number", "highwayNumber")
+    _maybe_set(payload, route, "elevation_gain_m", "elevationGainM")
+    _maybe_set(payload, route, "surface", "surface")
+    _maybe_set(payload, route, "aadt", "aadt")
+    _maybe_set(payload, route, "aadt_median", "aadtMedian")
+    _maybe_set(payload, route, "aadt_max", "aadtMax")
+    _maybe_set(payload, route, "pavement_iri", "pavementIri")
+    _maybe_set(payload, route, "mention_frequency", "mentionFrequency")
+
     # Add enriched fields if present (EnrichedRoute extends Route)
     if hasattr(route, "composite_score"):
         payload.update(
@@ -88,6 +136,19 @@ def _route_to_dict(route: Route) -> dict[str, Any]:
             }
         )
 
+        # ========================================================================
+        # Derived scoring fields (EnrichedRoute — INF-007)
+        # ========================================================================
+        _maybe_set(payload, route, "mention_frequency_score", "mentionFrequencyScore")
+        _maybe_set(payload, route, "designation_score", "designationScore")
+        _maybe_set(payload, route, "elevation_drama_score", "elevationDramaScore")
+        _maybe_set(payload, route, "road_quality_score", "roadQualityScore")
+        _maybe_set(payload, route, "low_traffic_score", "lowTrafficScore")
+        _maybe_set(payload, route, "weather_suitability", "weatherSuitability")
+        _maybe_set(payload, route, "best_months", "bestMonths")
+        _maybe_set(payload, route, "source_count", "sourceCount")
+        _maybe_set(payload, route, "quality_tier", "qualityTier")
+
     return payload
 
 
@@ -113,7 +174,7 @@ def push_routes(
     routes: list[Route],
     base_url: str,
     deploy_key: str,
-    batch_size: int = 50,
+    batch_size: int = DEFAULT_BATCH_SIZE,
     dry_run: bool = False,
 ) -> PushSummary:
     """
