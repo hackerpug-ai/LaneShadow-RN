@@ -28,6 +28,42 @@ class Route:
     bounds_sw_lat: Optional[float] = None
     bounds_sw_lng: Optional[float] = None
 
+    # ========================================================================
+    # Semantic matching fields (Epic 3 — INF-002)
+    # ========================================================================
+    candidate_identifiers: list[str] = field(default_factory=list)
+    # e.g. ["Tail of the Dragon", "The Dragon", "Deals Gap", "US-129"]
+
+    search_text: Optional[str] = None
+    # Concatenated string used to generate the embedding (built by INF-004)
+
+    embedding: Optional[list[float]] = None
+    # 1536-dim vector from text-embedding-3-small. None until INF-004 backfill
+
+    match_confidence: Optional[float] = None
+    # 0.0-1.0, confidence from most recent LLM match decision
+
+    llm_reconciliation_log: list[dict] = field(default_factory=list)
+    # List of reconciliation decision records:
+    # [{"run_id": str, "reconciled_at": str, "conflicts_resolved": int, "notes": str}, ...]
+
+    # ========================================================================
+    # Enrichment output fields (populated by Epic 9/10 LLM pipeline)
+    # ========================================================================
+    description: Optional[str] = None
+    rating: Optional[float] = None                 # 0.0-5.0
+    designation: Optional[str] = None              # "National Scenic Byway", "State Route", etc.
+    source_url: Optional[str] = None
+    source_refs: list[str] = field(default_factory=list)
+    highway_number: Optional[str] = None           # "US-129", "SR-28"
+    elevation_gain_m: Optional[float] = None
+    surface: Optional[str] = None                  # paved|gravel|dirt|mixed
+    aadt: Optional[int] = None                     # annual average daily traffic
+    aadt_median: Optional[float] = None
+    aadt_max: Optional[float] = None
+    pavement_iri: Optional[float] = None           # pavement roughness index
+    mention_frequency: Optional[float] = None      # count of community mentions
+
 
 @dataclass
 class EnrichedRoute(Route):
@@ -50,3 +86,59 @@ class EnrichedRoute(Route):
     season: str = "year_round"
     content_version: int = 1
     enrichment_version: Optional[int] = None
+
+    # ========================================================================
+    # Derived scoring fields (Epic 3 — INF-002)
+    # ========================================================================
+    mention_frequency_score: Optional[float] = None
+    designation_score: Optional[float] = None
+    elevation_drama_score: Optional[float] = None
+    road_quality_score: Optional[float] = None
+    low_traffic_score: Optional[float] = None
+    weather_suitability: Optional[float] = None
+    best_months: list[str] = field(default_factory=list)  # e.g. ["May", "Jun", "Sep", "Oct"]
+    source_count: Optional[int] = None
+    quality_tier: Optional[str] = None              # premium|standard|minimal
+
+
+@dataclass
+class LLMExtractionArtifact:
+    """Record of a single LLM extraction run for a community post."""
+    artifact_id: str                    # uuid4
+    post_id: str                        # upstream post identifier
+    post_url: str
+    source: str                         # "reddit", "advrider", "rider_magazine", etc.
+    raw_text: str                       # the post text sent to the LLM
+    extraction_schema_version: int      # EXTRACTION_SCHEMA_VERSION from schema.py
+    extraction_model: str               # "claude-haiku-4-5-20251001", etc.
+    extraction_cost: float              # USD
+    extracted_at: str                   # ISO timestamp
+    payload: dict = field(default_factory=dict)  # serialized PostExtraction.model_dump()
+    extraction_confidence: Optional[float] = None
+
+
+@dataclass
+class RouteMatch:
+    """Audit record for a (post → route) match decision made via vector search + LLM rerank."""
+    match_id: str                       # uuid4
+    post_id: str
+    route_id: str
+    match_confidence: float             # 0.0-1.0 from LLM rerank
+    match_reasoning: str                # LLM's stated reason for the match
+    cosine_similarity: float            # 0.0-1.0 from vector search
+    rerank_model: str                   # "claude-haiku-4-5-20251001"
+    rerank_cost: float                  # USD
+    matched_at: str                     # ISO timestamp
+    is_arbitrated: bool = False         # True if this match required LLM arbitration (mid-confidence)
+    arbitration_notes: Optional[str] = None
+
+
+# Re-export PostExtraction from extraction/schema.py for convenience
+# Note: INF-005 owns the Pydantic PostExtraction definition. This re-export makes it
+# available from the models module for downstream consumers.
+try:
+    from scripts.curation.pipeline.extraction.schema import PostExtraction  # noqa: E402
+except ImportError:
+    # Placeholder stub if INF-005 hasn't run yet
+    # TODO: Remove this stub once INF-005 defines PostExtraction in extraction/schema.py
+    PostExtraction = None  # type: ignore
