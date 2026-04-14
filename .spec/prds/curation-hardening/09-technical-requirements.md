@@ -17,12 +17,11 @@ prd_version: 1.0.0
 | RiderMagSource | `pipeline/sources/rider_mag.py` | Extract Rider Magazine 50 Best Roads as editorial ground truth |
 | RedditSource | `pipeline/sources/reddit.py` | Fetch motorcycle route mentions from Reddit via public API |
 | ADVRiderSource | `pipeline/sources/advrider.py` | Fetch ADVRider regional forum posts via RSS feeds |
-| Deduplicator | `pipeline/dedup/deduplicator.py` | Three-stage cross-source dedup: exact, fuzzy, geospatial |
-| GeospatialIndex | `convex/geospatialIndex.ts` | Convex Native Geospatial index for efficient proximity queries (nearest-neighbor, rectangular range) |
-| GLMExtractor | `pipeline/nlp/glm_extractor.py` | GLM-based extraction of route mentions, sentiment, and attributes |
-| QuickFilter | `pipeline/nlp/quick_filter.py` | Keyword-based pre-filter for road-related posts (Stage 1) |
-| MentionAggregator | `pipeline/nlp/aggregator.py` | Aggregate mentions per road with authority-weighted sentiment |
-| ExtractionCache | `pipeline/nlp/cache.py` | Cache extraction results by post_id to avoid redundant GLM calls |
+| Deduplicator | `pipeline/dedup/deduplicator.py` | Semantic dedup: post embedding → Convex vectorSearch → LLM rerank → auto-merge / arbitration / new route |
+| GeospatialIndex | `convex/geospatialIndex.ts` | `@convex-dev/geospatial` handles mobile map viewport queries (nearest-neighbor, rectangular range); `convex/semanticSearch.ts` (NEW file, Epic 3 INF-006) handles vector search via `ctx.vectorSearch()` on the `by_embedding` index |
+| PostExtractionClient | `pipeline/nlp/extraction_client.py` | Single LLM call per post (Claude Haiku 4.5) returning a structured `PostExtraction` (mentions, sentiment, aspects, attributes, warnings) — replaces the prior GLM two-stage pipeline |
+| MentionAggregator | `pipeline/nlp/aggregator.py` | Aggregate mentions per route with authority-weighted sentiment (reads from `route_posts_raw` via `route_matches`) |
+| ExtractionCache | `pipeline/nlp/cache.py` | Cache PostExtraction artifacts by `(post_id, extraction_schema_version)` to avoid redundant LLM calls |
 | GroundTruthBuilder | `pipeline/extraction/ground_truth_builder.py` | Build ground truth dataset from editorial sources |
 | ExtractionValidator | `pipeline/extraction/validator.py` | Measure Haiku extraction accuracy against ground truth |
 | QualityFloor | `pipeline/quality/floor.py` | Enforce minimum data quality before catalog entry |
@@ -36,18 +35,18 @@ prd_version: 1.0.0
 
 | Component | Path | Changes |
 |-----------|------|---------|
-| Route dataclass | `pipeline/models.py` | Add: location (GeoJSON Point), description, rating, designation, source_url, source_refs, highway_number, elevation_gain_m, surface, aadt, aadt_median, aadt_max, pavement_iri, mention_frequency, source_priority, field_provenance, merged_at, merge_count |
+| Route dataclass | `pipeline/models.py` | Add: location (GeoJSON Point), description, rating, designation, source_url, source_refs, highway_number, elevation_gain_m, surface, aadt, aadt_median, aadt_max, pavement_iri, mention_frequency, candidate_identifiers, search_text, embedding, match_confidence, llm_reconciliation_log |
 | EnrichedRoute dataclass | `pipeline/models.py` | Add: mention_frequency_score, designation_score, elevation_drama_score, road_quality_score, low_traffic_score, weather_suitability, best_months, source_count, quality_tier |
 | Composite scoring | `pipeline/scoring/composite.py` | Realign WEIGHTS to research formula; replace placeholder _compute_traffic_score with HPMS AADT lookup; replace condition proxy with HPMS IRI lookup; wire OSM curvature (already implemented) |
 | Archetype classifier | `pipeline/classification/archetype.py` | Activate adventure/mountain/desert rules using enrichment data (surface, elevation) |
 | Archetype classifier | `pipeline/classification/archetype.py` | Activate adventure/mountain/desert rules using enrichment data |
-| Extraction schema | `pipeline/extraction/schema.py` | Bump EXTRACTION_SCHEMA_VERSION=2; add extraction_confidence field |
-| Extraction client | `pipeline/extraction/client.py` | Add extract_with_context() for community signal context; add token tracking |
+| Extraction schema | `pipeline/extraction/schema.py` | Bump EXTRACTION_SCHEMA_VERSION=2; add `PostExtraction` Pydantic v2 BaseModel (road_name_mentions, highway_refs, state_refs, landmark_refs, sentiment, aspect_scores, attributes, warnings, extraction_confidence, extraction_model, extraction_cost); add `CACHE_POLICY` + `DEFAULT_EXTRACTION_MODEL` constants; preserve v1 `RouteAttributes` for backward compat |
+| Extraction client | `pipeline/extraction/client.py` | Route single-call LLM extractions through the PostExtraction contract; add token tracking |
 | Calibration gate | `pipeline/extraction/calibration.py` | Integrate GroundTruthBuilder; add per-archetype calibration; output to DataQualityReport |
 | OSM client | `pipeline/enrichment/osm_client.py` | Add name-based OSM way lookup; integrate curvature algorithm; extract surface/smoothness tags for surface_type field |
-| Convex push | `pipeline/sync/convex_push.py` | Add new score fields, source_refs, quality_tier, location (GeoJSON) to serialization |
-| GeospatialIndex | `convex/geospatialIndex.ts` | NEW — Create GeospatialIndex using @convex-dev/geospatial component for nearest-neighbor and range queries |
-| Convex schema | `convex/schema.ts` | Add location field (GeoJSON Point), new score fields, route_mentions table |
+| Convex push | `pipeline/sync/convex_push.py` | Add new score fields, source_refs, quality_tier, location (GeoJSON), searchEmbedding, candidateIdentifiers, searchText, matchConfidence, llmReconciliationLog to serialization; reduce batch size to 10 due to embedding payload size |
+| GeospatialIndex | `convex/geospatialIndex.ts` | `@convex-dev/geospatial` handles mobile map viewport queries; `convex/semanticSearch.ts` (NEW file, Epic 3 INF-006) handles vector search via `ctx.vectorSearch()` on the `by_embedding` index |
+| Convex schema | `convex/schema.ts` | Add new optional fields (searchEmbedding, candidateIdentifiers, searchText, matchConfidence, llmReconciliationLog + enrichment outputs + scoring outputs); register `vectorIndex('by_embedding', { dimensions: 1536, filterFields: ['state'] })`; add `route_posts_raw` and `route_matches` tables (replaces the previously-planned `route_mentions` table) |
 | Base scraper | `pipeline/sources/base_scraper.py` | No structural changes — new sources extend BaseScraper as-is |
 
 ## Data Entities
@@ -77,10 +76,11 @@ aadt_median: Optional[float]         # NEW — median AADT across sampled segmen
 aadt_max: Optional[float]            # NEW — highest AADT segment (congestion hotspot)
 pavement_iri: Optional[float]        # NEW — pavement roughness from HPMS IRI
 mention_frequency: Optional[float]   # NEW — NLP-derived
-source_priority: dict[str, int]      # NEW — Priority order used in merge
-field_provenance: dict[str, str]     # NEW — Which source provided each field
-merged_at: str                       # NEW — ISO timestamp of merge
-merge_count: int                     # NEW — How many sources were merged
+candidate_identifiers: list[str]      # NEW — nicknames, aliases, landmarks — used for search_text generation
+search_text: Optional[str]            # NEW — concatenated text used to generate embedding
+embedding: Optional[list[float]]      # NEW — 1536-dim from OpenAI text-embedding-3-small
+match_confidence: Optional[float]     # NEW — 0.0-1.0 from most recent LLM match decision
+llm_reconciliation_log: list[dict]    # NEW — list of LLM reconciliation decision records
 ```
 
 ### EnrichedRoute (extended)
@@ -111,38 +111,62 @@ quality_tier: str                    # NEW — premium|standard|minimal
 content_version: int
 ```
 
-### RouteMention (new)
+### PostExtraction (new — Pydantic v2 BaseModel, Epic 3 INF-005)
+
+Canonical structured output from a single LLM extraction call over a community post. Produced once per raw post and stored in Convex `route_posts_raw.payload`. Downstream matching, enrichment, and reconciliation read from this shape.
 
 ```
-road_name: str
-highway_number: Optional[str]
-state: Optional[str]
-sentiment_score: float               # -1.0 to 1.0
-sentiment_label: str                 # positive|neutral|negative
-aspect_scores: dict[str, float]      # scenery, twistiness, traffic, road_quality
-attributes: dict[str, bool]          # twisty, scenic, low_traffic, technical, surface_type
-confidence: float                    # 0.0 to 1.0 (GLM confidence)
-source: str
-source_authority: float
+road_name_mentions: list[str]        # ["Tail of the Dragon", "The Dragon", "Deals Gap"]
+highway_refs: list[str]              # ["US-129", "I-40", "SR-28"]
+state_refs: list[str]                # ["TN", "Tennessee"]
+landmark_refs: list[str]             # ["Chattanooga", "Great Smoky Mountains"]
+sentiment: Literal["positive", "neutral", "negative"]
+aspect_scores: dict[str, float]      # curvature, scenery, traffic, surface_quality, elevation_drama (0.0-1.0)
+attributes: dict[str, bool]          # has_gas, has_food, wet_weather_ok, beginner_friendly, requires_adv_bike, closed_in_winter
+warnings: list[str]                  # construction, closures, hazards
+extraction_confidence: float         # 0.0-1.0, model-reported
+extraction_model: str                # e.g. "claude-haiku-4-5-20251001"
+extraction_cost: float               # USD
+extracted_at: datetime               # UTC
+extraction_schema_version: int       # = EXTRACTION_SCHEMA_VERSION (2)
+```
+
+Pydantic `model_config = {"extra": "forbid"}` strictly rejects unknown LLM output fields as a mild prompt-injection defense.
+
+### LLMExtractionArtifact (new — module-level dataclass, Epic 3 INF-002)
+
+Python-side record of a single LLM extraction run, used as the canonical shape for push to Convex `route_posts_raw`.
+
+```
+artifact_id: str                     # uuid4
+post_id: str                         # upstream post identifier
 post_url: str
-post_score: int
-mention_date: str
-processed_at: str                    # ISO timestamp
-route_id: Optional[str]              # FK after linking
-extraction_model: str                # claude-3-haiku|glm-4
-extraction_cost: float               # USD per extraction
+source: str                          # "reddit" | "advrider" | "rider_magazine" | ...
+raw_text: str                        # the full post text sent to the LLM
+extraction_schema_version: int       # mirrors EXTRACTION_SCHEMA_VERSION
+extraction_model: str                # "claude-haiku-4-5-20251001"
+extraction_cost: float               # USD
+extracted_at: str                    # ISO timestamp
+payload: dict                        # serialized PostExtraction.model_dump()
+extraction_confidence: Optional[float]
 ```
 
-### AggregatedMention (new)
+### RouteMatch (new — module-level dataclass, Epic 3 INF-002)
+
+Audit record for a (post → route) match decision made via vector search + LLM rerank. Pushed to Convex `route_matches`.
 
 ```
-road_name: str
-state: str
-total_mentions: int
-weighted_sentiment: float
-authority_score: float
-source_breakdown: dict[str, int]
-top_attributes: list[str]
+match_id: str                        # uuid4
+post_id: str
+route_id: str
+match_confidence: float              # 0.0-1.0 from LLM rerank
+match_reasoning: str                 # LLM's stated reason for the match
+cosine_similarity: float             # 0.0-1.0 from vector search
+rerank_model: str                    # "claude-haiku-4-5-20251001"
+rerank_cost: float                   # USD
+matched_at: str                      # ISO timestamp
+is_arbitrated: bool                  # True if mid-confidence required LLM arbitration
+arbitration_notes: Optional[str]
 ```
 
 ### QualityRejection (new)
@@ -181,6 +205,22 @@ export default defineTable({
     coordinates: v.array(v.number()),  // [lng, lat] per GeoJSON
   })),
   
+  // NEW semantic matching fields (Epic 3 INF-003; all v.optional)
+  searchEmbedding: v.optional(v.array(v.number())),   // 1536 floats from text-embedding-3-small
+  searchText: v.optional(v.string()),                 // text used to generate embedding
+  candidateIdentifiers: v.optional(v.array(v.string())),
+  matchConfidence: v.optional(v.number()),            // 0.0-1.0 from most recent LLM match decision
+  llmReconciliationLog: v.optional(
+    v.array(
+      v.object({
+        runId: v.string(),
+        reconciledAt: v.number(),
+        conflictsResolved: v.number(),
+        notes: v.string(),
+      }),
+    ),
+  ),
+
   // NEW enrichment fields (all v.optional for client compatibility)
   description: v.optional(v.string()),
   rating: v.optional(v.number()),
@@ -209,39 +249,93 @@ export default defineTable({
 })
   .index("by_state", ["state"])
   .index("by_source", ["source"])
-  .index("by_quality_tier", ["qualityTier"]);
+  .index("by_quality_tier", ["qualityTier"])
+  // NEW vector index for semantic matching (Epic 3 INF-003)
+  .vectorIndex("by_embedding", {
+    vectorField: "searchEmbedding",
+    dimensions: 1536,
+    filterFields: ["state"],
+  });
 ```
 
-### route_mentions Table (NEW)
+### vectorIndex on curated_routes (NEW — Epic 3 INF-003)
+
+The `curated_routes` table registers a native Convex vector index for semantic matching (already shown inline in the table definition above). Vector dimensions are locked to 1536 to match OpenAI `text-embedding-3-small`. The `filterFields: ["state"]` option enables state-scoped retrieval during vector search.
 
 ```typescript
-import { defineTable, v } from "convex/schema";
-
-route_mentions: defineTable({
-  roadName: v.string(),
-  highwayNumber: v.optional(v.string()),
-  state: v.optional(v.string()),
-  sentimentScore: v.number(),
-  sentimentLabel: v.string(),
-  aspectScores: v.record(v.number()),  // scenery, twistiness, traffic, road_quality
-  attributes: v.record(v.boolean()),    // twisty, scenic, low_traffic, technical, surface_type
-  confidence: v.number(),
-  source: v.string(),
-  sourceAuthority: v.number(),
-  postUrl: v.string(),
-  postScore: v.number(),
-  mentionDate: v.number(),
-  processedAt: v.number(),
-  routeId: v.optional(v.id("curated_routes")),
-  extractionModel: v.string(),          // claude-3-haiku|glm-4
-  extractionCost: v.number(),           // USD per extraction
-})
-  .index("by_routeId", ["routeId"])
-  .index("by_source_and_date", ["source", "mentionDate"])
-  .index("by_roadName_and_state", ["roadName", "state"]);
+curated_routes: defineTable(curatedRouteValidator)
+  // ... existing indexes unchanged
+  .vectorIndex("by_embedding", {
+    vectorField: "searchEmbedding",
+    dimensions: 1536,
+    filterFields: ["state"],
+  })
 ```
 
-### GeospatialIndex (NEW)
+Queried via `ctx.vectorSearch("curated_routes", "by_embedding", { vector, limit, filter })` from a Convex action. Wrapper queries live in `convex/semanticSearch.ts` (Epic 3 INF-006).
+
+### route_posts_raw Table (NEW — Epic 3 INF-003)
+
+Raw LLM extraction artifacts per community post. One row per extracted post. The `payload` nested object preserves the full `PostExtraction` shape so a downstream process can re-run matching against a different model without losing the extraction.
+
+```typescript
+route_posts_raw: defineTable({
+  postId: v.string(),                        // upstream post identifier
+  source: v.string(),                        // reddit|advrider|rider_magazine|...
+  postUrl: v.string(),
+  postAuthor: v.optional(v.string()),
+  postScore: v.optional(v.number()),         // upvotes / engagement
+  postedAt: v.optional(v.number()),          // unix ms
+  rawText: v.string(),                       // full post text
+  extractionSchemaVersion: v.number(),       // mirrors EXTRACTION_SCHEMA_VERSION
+  extractionModel: v.string(),
+  extractionCost: v.number(),
+  extractedAt: v.number(),                   // unix ms
+  extractionConfidence: v.optional(v.number()),
+  payload: v.object({
+    roadNameMentions: v.array(v.string()),
+    highwayRefs: v.array(v.string()),
+    stateRefs: v.array(v.string()),
+    landmarkRefs: v.optional(v.array(v.string())),
+    sentiment: v.string(),                   // positive|neutral|negative
+    aspectScores: v.optional(v.record(v.number())),
+    attributes: v.optional(v.record(v.boolean())),
+    warnings: v.optional(v.array(v.string())),
+  }),
+})
+  .index("by_postId", ["postId"])
+  .index("by_source_and_extracted_at", ["source", "extractedAt"])
+  .index("by_extraction_schema_version", ["extractionSchemaVersion"]);
+```
+
+### route_matches Table (NEW — Epic 3 INF-003)
+
+Audit log of (post → route) match decisions. One row per decision; a single post can yield zero, one, or many match rows (e.g., mid-confidence arbitrated cases, or re-runs with a newer rerank model).
+
+```typescript
+route_matches: defineTable({
+  matchId: v.string(),                       // uuid4
+  postId: v.string(),                        // FK-ish to route_posts_raw.postId
+  routeId: v.id("curated_routes"),
+  matchConfidence: v.number(),               // 0.0-1.0 from LLM rerank
+  cosineSimilarity: v.number(),              // 0.0-1.0 from vector search
+  matchReasoning: v.string(),                // LLM's stated reason
+  rerankModel: v.string(),
+  rerankCost: v.number(),
+  matchedAt: v.number(),                     // unix ms
+  isArbitrated: v.boolean(),                 // true if mid-confidence required LLM arbitration
+  arbitrationNotes: v.optional(v.string()),
+})
+  .index("by_postId", ["postId"])
+  .index("by_routeId", ["routeId"])
+  .index("by_routeId_and_confidence", ["routeId", "matchConfidence"]);
+```
+
+The previously-planned `route_mentions` table is replaced by `route_posts_raw` (raw LLM extraction artifacts) + `route_matches` (audit log of match decisions). This separation preserves the extraction artifact even if matching fails or is re-run with a different model.
+
+### GeospatialIndex (mobile viewport queries only)
+
+Note: After the Epic 3 semantic matching pivot, `@convex-dev/geospatial` is no longer the dedup primitive. It remains as the mobile map viewport primitive — "what routes are near me / inside this map rectangle" — and is distinct from `convex/semanticSearch.ts` (Epic 3 INF-006), which handles vector search on the `by_embedding` index.
 
 ```typescript
 // convex/geospatialIndex.ts
@@ -255,7 +349,7 @@ export const geospatial = new GeospatialIndex(components.curated_routes, {
   fullTextSearchField: "state",
 });
 
-// Usage in pipeline or queries:
+// Usage — mobile viewport queries (nearestRoutes / bounding box):
 const nearby = await geospatial.nearest({
   point: { lat: targetLat, lng: targetLng },
   maxDistance: 5000,  // 5km in meters
@@ -272,6 +366,34 @@ const inBounds = await geospatial.query({
   },
   filter: (q) => q.eq("surface", "paved"),
   limit: 500,
+});
+```
+
+### semanticSearch wrapper (NEW — Epic 3 INF-006)
+
+The canonical vector-search access point. Lives in `convex/semanticSearch.ts` and exposes typed query/action wrappers around `ctx.vectorSearch('curated_routes', 'by_embedding', ...)`.
+
+```typescript
+// convex/semanticSearch.ts (Epic 3 INF-006)
+import { action } from "./_generated/server";
+import { v } from "convex/values";
+
+export const findCandidateRoutesByEmbedding = action({
+  args: {
+    embedding: v.array(v.number()),  // 1536-dim query vector
+    limit: v.optional(v.number()),
+    stateFilter: v.optional(v.string()),
+  },
+  handler: async (ctx, { embedding, limit = 10, stateFilter }) => {
+    const results = await ctx.vectorSearch("curated_routes", "by_embedding", {
+      vector: embedding,
+      limit,
+      filter: stateFilter
+        ? (q) => q.eq("state", stateFilter)
+        : undefined,
+    });
+    return results;  // [{ _id, _score }, ...] sorted by cosine similarity
+  },
 });
 ```
 
@@ -309,7 +431,7 @@ interface Route {
   // ...
   
   // New fields (all optional)
-  location?: {  // GeoJSON Point for Convex GeospatialIndex
+  location?: {  // GeoJSON Point for Convex GeospatialIndex (mobile viewport)
     type: "Point";
     coordinates: [number, number];  // [lng, lat]
   };
@@ -335,6 +457,21 @@ interface Route {
   bestMonths?: string[];
   sourceCount?: number;
   qualityTier?: "premium" | "standard" | "minimal";
+
+  // NEW semantic matching fields (Epic 3 INF-003)
+  // Typically elided on mobile read paths — the 1536-float embedding is
+  // a large payload and mobile clients never need it. Convex pipeline code,
+  // backend actions, and admin tools consume these.
+  searchEmbedding?: number[];          // 1536-dim text-embedding-3-small
+  searchText?: string;
+  candidateIdentifiers?: string[];
+  matchConfidence?: number;            // 0.0-1.0
+  llmReconciliationLog?: Array<{
+    runId: string;
+    reconciledAt: number;
+    conflictsResolved: number;
+    notes: string;
+  }>;
 }
 ```
 
@@ -368,16 +505,16 @@ export const getRoute = query({
 
 | ID | Decision | Rationale |
 |----|----------|-----------|
-| AD-001 | Three-stage cascading dedup (exact → fuzzy → geospatial) with tuned thresholds | Exact match catches 60-70% at O(n). Fuzzy match (0.85 threshold) using rapidfuzz.token_sort_ratio() catches name variants with word-order insensitivity. Geospatial (0.75 threshold) catches renamed roads. ML matching rejected — no training data. |
-| AD-002 | GLM-based NLP with hybrid filtering | Two-stage approach: (1) Keyword quick-filter reduces GLM calls by ~90%. (2) Claude 3 Haiku/GLM-4 extraction for candidates. Expected 85-95% accuracy vs 60-75% regex. Cost: ~$0.0005/post, $370 for 7.4M ADVRider posts with filtering. |
+| AD-001 | Semantic matching via Convex native vectorIndex + LLM reranking | Route catalog is embedded once via OpenAI `text-embedding-3-small` (1536-dim, `search_text` built from name + state + highway + candidate_identifiers). Community posts run through a single LLM extraction call returning a `PostExtraction`, whose identifiers are embedded and searched against the route index via `ctx.vectorSearch('curated_routes', 'by_embedding', ...)`. Top-K candidates are reranked by Claude Haiku 4.5 for the confident match, with reasoning stored in `route_matches.matchReasoning`. Cosine similarity > 0.92 auto-merges, 0.75-0.92 queues LLM arbitration, < 0.75 creates a new route. Replaces the previously-planned rapidfuzz three-stage cascade; see Epic 3 EPIC.md Architectural Decision section for rationale (nicknames, contextual refs, ambiguous names, regional shorthand all handled by semantics + LLM world knowledge where string matching fails). |
+| AD-002 | Single-call LLM extraction returning a structured `PostExtraction` | One LLM call per post (`scripts/curation/pipeline/extraction/schema.py`, Epic 3 INF-005) returns road_name_mentions, highway_refs, state_refs, landmark_refs, sentiment, aspect_scores, attributes, warnings, and extraction_confidence in one round trip. Claude Haiku 4.5 via Anthropic tool-use with the PostExtraction Pydantic schema. Replaces the two-stage GLM pipeline — the single call is cheap enough (~$0.002 per post) that per-stage keyword filtering is no longer a cost lever. Estimated $200 for 100k posts. Pydantic `model_config={'extra': 'forbid'}` provides a mild prompt-injection defense by rejecting unknown LLM output fields. |
 | AD-003 | Realign weights to research formula | community_rating 0.05→0.15 (3x). mention_frequency 0→0.10. Calibration gate validates before deployment. |
 | AD-004 | Quality floor as phased rollout (soft → hard) with tiered marking | Phase 1-2: mark as quality_tier: "minimal", include in catalog, track engagement. Phase 3: hard reject routes with 0 engagement. Allows data-driven threshold tuning. |
-| AD-005 | Convex Native Geospatial for dedup queries | O(log n) nearest-neighbor with maxDistance filter. @convex-dev/geospatial component (Beta, tested to 1M points). Single-DB architecture — no external PostGIS dependency. |
+| AD-005 | Convex Native vectorIndex as the dedup primitive | Cosine-similarity vector search via `ctx.vectorSearch('curated_routes', 'by_embedding', { vector, limit, filter })` against the 1536-dim `by_embedding` index. Single-DB architecture — no external vector DB (Pinecone/Weaviate/pgvector) dependency. `@convex-dev/geospatial` (still used for mobile viewport queries in AD-010) is no longer the dedup primitive; semantic search subsumes the old "nearest route at this coordinate" heuristic. |
 | AD-006 | Pipeline orchestrator as single Python entry point | Replaces ad-hoc script execution. Enables cross-stage error handling, checkpointing, resumability. |
 | AD-007 | Incremental source addition: Scenic Byways → Reddit → ADVRider | Lowest-risk first. Each validated with quality floor + dedup before adding next. |
 | AD-008 | Consume adamfranco/curvature as pre-computed data | Multi-hour batch on 11GB PBF. Run once, cache output. Pipeline consumes lookup table. |
-| AD-009 | Convex nullable columns with client compatibility handling | New fields added as v.optional() to existing curated_routes table. New route_mentions table for NLP pipeline. Requires deployment coordination with mobile app to handle undefined values safely. |
-| AD-010 | Convex Native Geospatial adoption | Use @convex-dev/geospatial (Beta) for all geospatial queries: nearest-neighbor with maxDistance (5km), rectangular range queries, point-in-polygon. Replaces PostGIS external service. Single-DB architecture simplifies deployment and reduces cost. |
+| AD-009 | Convex nullable columns with client compatibility handling | New fields added as v.optional() to existing curated_routes table. New `route_posts_raw` table for raw LLM extraction artifacts and `route_matches` audit table for match decisions (replaces the previously-planned `route_mentions` table). Requires deployment coordination with mobile app to handle undefined values safely. |
+| AD-010 | Convex Native Geospatial adoption | Use @convex-dev/geospatial (Beta) for mobile map viewport queries: nearest-neighbor with maxDistance (5km), rectangular range queries, point-in-polygon. Replaces PostGIS external service. Single-DB architecture simplifies deployment and reduces cost. Note: The primary matching primitive is now `convex/semanticSearch.ts` (Epic 3 INF-006) using the native `ctx.vectorSearch()` API on the `by_embedding` vectorIndex. `@convex-dev/geospatial` handles viewport-style queries (nearestRoutes for "what's near me", bounding box for map panning) — not semantic matching. |
 | AD-011 | Measured data integration (HPMS + NWS Climate) | Replace placeholder scoring with objective telemetry: HPMS AADT → trafficScore, HPMS IRI → roadQualityScore, NWS Climate Normals → weatherSuitability + bestMonths. Single national download, spatial join to route centroids. ~3.5 days extra effort. |
 | AD-012 | Tiered archetype thresholds for coverage gaps | Common archetypes (twisties, mountain, coastal, scenic_byway): 50 routes. Niche archetypes (adventure, desert): 20 routes. Reflects realistic availability by category. |
 
@@ -407,8 +544,9 @@ export const getRoute = query({
                   ▼             ▼
            ┌─────────────────────────┐
            │     DEDUPLICATOR        │
-           │  exact → fuzzy → geo    │
-           │  (Convex Geospatial)    │
+           │  embed → vectorSearch   │
+           │  → LLM rerank → merge/  │
+           │  arbitrate / new route  │
            └───────────┬─────────────┘
                        │
                        ▼
@@ -425,16 +563,21 @@ export const getRoute = query({
     │ GATE         │   │                  │
     │ (ground      │   │ ADVRider RSS     │
     │  truth 80%)  │   │ Reddit API       │
-    └──────┬───────┘   │ Quick Filter     │
-           │           │ (keywords)       │
-           ▼           │     ↓            │
-    ┌──────────────┐   │ GLM Extractor    │
-    │ HAIKU        │   │ (Claude 3 Haiku) │
-    │ EXTRACTION   │   │     ↓            │
-    │ (temp=0,     │   │ Sentiment +      │
-    │  Instructor) │   │ Attributes       │
     └──────┬───────┘   │     ↓            │
-           │           │ Aggregation      │
+           │           │ Single-call LLM  │
+           ▼           │ PostExtraction   │
+    ┌──────────────┐   │ (Claude Haiku    │
+    │ HAIKU        │   │  4.5, Anthropic  │
+    │ EXTRACTION   │   │  tool-use)       │
+    │ (temp=0,     │   │     ↓            │
+    │  Instructor) │   │ route_posts_raw  │
+    └──────┬───────┘   │     ↓            │
+           │           │ embed identifiers│
+           │           │     ↓            │
+           │           │ vectorSearch +   │
+           │           │ LLM rerank       │
+           │           │     ↓            │
+           │           │ route_matches    │
            │           └────────┬─────────┘
            │                    │
            ▼                    ▼
@@ -465,8 +608,11 @@ export const getRoute = query({
     ┌─────────────────────────────────────┐
     │        CONVEX PUSH                  │
     │  curated_routes (ext. table)        │
-    │  route_mentions (new table)         │
-    │  geospatialIndex.ts (GeospatialIndex)│
+    │    + vectorIndex by_embedding       │
+    │  route_posts_raw (NEW)              │
+    │  route_matches (NEW)                │
+    │  geospatialIndex.ts (viewport only) │
+    │  semanticSearch.ts (vector wrapper) │
     │  optional new fields                │
     └─────────────────────────────────────┘
 ```
@@ -475,12 +621,13 @@ export const getRoute = query({
 
 | Library | Purpose | Docs |
 |---------|---------|------|
-| @convex-dev/geospatial | Convex Native Geospatial component for spatial indexing and queries (nearest-neighbor, range) | https://www.convex.dev/components/geospatial |
-| rapidfuzz | Fast Levenshtein distance for fuzzy dedup with token_sort_ratio() for word-order-insensitive matching | https://github.com/maxbachmann/RapidFuzz |
+| @convex-dev/geospatial | Convex Native Geospatial component for mobile map viewport queries (nearest-neighbor, range) — no longer used as a dedup primitive | https://www.convex.dev/components/geospatial |
+| Convex native vectorIndex | Built into Convex core — no extra package. Used via `ctx.vectorSearch('curated_routes', 'by_embedding', {...})` in `convex/semanticSearch.ts` (Epic 3 INF-006). Primary dedup and match primitive. | https://docs.convex.dev/search/vector-search |
+| openai | OpenAI SDK for `text-embedding-3-small` (1536-dim embeddings); used by Epic 3 INF-004 batch embedding pipeline. OpenAI is used **for embeddings only**; all reasoning (extraction, rerank, enrichment, reconciliation) goes through Anthropic/Claude. | https://github.com/openai/openai-python |
 | shapely | Geometry operations for GIS centroid/bounds computation | https://shapely.readthedocs.io/ |
 | fiona | Read Shapefiles/GeoJSON for Scenic Byways GIS | https://fiona.readthedocs.io/ |
 | praw | Reddit API wrapper for subreddit ingestion | https://praw.readthedocs.io/ |
-| anthropic | Claude 3 Haiku API for GLM-based extraction | https://docs.anthropic.com/ |
+| anthropic | Anthropic SDK for Claude Haiku 4.5 (single-call `PostExtraction` extraction, LLM rerank, enrichment, reconciliation) via tool-use / structured output | https://docs.anthropic.com/ |
 | srtm.py | SRTM elevation data access for elevation profiles | https://github.com/tkrajina/srtm.py |
 | scipy | Spearman correlation in calibration (already used) | https://docs.scipy.org/doc/scipy/ |
 | **HPMS Data** | **FHWA Highway Performance Monitoring System — AADT + IRI (pavement quality)** | https://data.transportation.gov/stories/s/Data-Access-for-Highway-Performance-Monitoring-Sys/3uu4-47sa |

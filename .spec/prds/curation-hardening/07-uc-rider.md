@@ -11,7 +11,7 @@ functional_group: RIDER
 |-------|-------|-------------|
 | UC-RIDER-01 | Ingest ADVRider Regional Forum RSS Feeds | Pipeline ingests RSS from 17 ADVRider regional forums |
 | UC-RIDER-02 | Ingest Reddit Motorcycle Subreddit Posts | Pipeline ingests posts from 3 motorcycle subreddits via public API |
-| UC-RIDER-03 | Extract Route Mentions via GLM-Based NLP | Pipeline extracts structured route mentions from community text |
+| UC-RIDER-03 | Extract Route Mentions via LLM PostExtraction | Pipeline extracts structured PostExtraction payloads from community posts via a single Claude call per post |
 | UC-RIDER-04 | Merge Community Signals Into Route Scoring | Pipeline merges mention_frequency and sentiment into composite scores |
 | UC-RIDER-05 | Schedule Incremental Community Ingestion | Administrator configures recurring community source ingestion |
 | UC-RIDER-06 | Historical Backfill from Pushshift | Pipeline backfills Reddit data from 2020-2025 via Pushshift.io |
@@ -65,32 +65,21 @@ Reddit's API restrictions (2024+) require conservative rate limiting and bot det
 
 ---
 
-## UC-RIDER-03: Extract Route Mentions via GLM-Based NLP
+## UC-RIDER-03: Extract Route Mentions via LLM PostExtraction
 
-**Description:** Pipeline runs GLM-based NLP extraction over the community_mentions staging table to identify specific routes being discussed, extract sentiment, and compute mention frequency. This turns unstructured forum chatter into structured route-level signals using Claude 3 Haiku (or GLM-4) for high-accuracy extraction.
+**Description:** Pipeline runs structured LLM extraction over each community post in the community_mentions staging table. A single Claude Haiku 4.5 call per post returns a `PostExtraction` (scripts/curation/pipeline/extraction/schema.py, Epic 3 INF-005) containing road_name_mentions, highway_refs, state_refs, landmark_refs, sentiment, aspect_scores, attributes, warnings, and extraction_confidence. The PostExtraction is persisted to the `route_posts_raw` Convex table as the raw artifact. A separate matching stage (UC-RIDER-04 or Epic 6 dedup) uses Convex vectorSearch + LLM rerank to decide which route(s) each mention refers to, writing the result to `route_matches`.
 
-**GLM Extraction Strategy:**
-
-**Hybrid Approach for Cost Optimization:**
-- **Stage 1 (Quick Filter):** Keyword-based filter for road-related posts
-  - Keywords: "road", "route", "hwy", "highway", "ride", "twisty", "pass", "canyon"
-  - Filters out ~90% of non-road-related posts
-  - Zero cost, fast execution
-
-- **Stage 2 (GLM Extraction):** LLM-based extraction for filtered candidates only
-  - Model: Claude 3 Haiku (or GLM-4)
-  - Cost: ~$0.0005 per post
-  - Speed: ~200-500ms per post
-  - Expected accuracy: 85-95% (vs 60-75% for regex)
-
-**Cost Analysis:**
-- Full backfill (7.4M ADVRider posts without filtering): $3,700
-- Hybrid approach (10% candidate rate): $370
-- Incremental daily updates: ~$0.50-1.00 per day
+**Extraction Strategy:**
+- Model: Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) via Anthropic SDK (`anthropic>=0.39.0`). OpenAI is reserved for embeddings only.
+- Structured output: Uses Anthropic tool-use with the `PostExtraction` Pydantic schema (Epic 3 INF-005) as the tool input. Pydantic enforces strict `Literal['positive'|'neutral'|'negative']` typing on sentiment and `ge=0.0, le=1.0` range constraints on extraction_confidence.
+- Cost: ~$0.002 per post (600 input tokens + 300 output tokens typical). 100k posts ≈ $200 one-time. No keyword pre-filter needed — the single call is cheap enough that per-stage filtering is no longer a cost lever.
+- Caching: Keyed by `(post_id, extraction_schema_version)`. Re-extraction only runs on version bumps (see `CACHE_POLICY` in `scripts/curation/pipeline/extraction/schema.py`). 30-day TTL.
+- Error handling: Pydantic `ValidationError` on malformed LLM output → log + skip. Rate limit errors → exponential backoff retry (up to 3 attempts).
+- Prompt injection defense: `PostExtraction.model_config = {'extra': 'forbid'}` strictly rejects unknown fields in the LLM output.
 
 **Surface Type Extraction (7th Attribute Bucket):**
 
-Two cascading sources for surface_type field (revised 2026-04-12 — USFS MVUM dropped):
+Two cascading sources for surface_type (revised 2026-04-12 — USFS MVUM dropped):
 
 1. **OSM Tags (Primary)** — Existing enrichment source
    - Field: `osm_surface` from OSM way tags
@@ -99,10 +88,7 @@ Two cascading sources for surface_type field (revised 2026-04-12 — USFS MVUM d
    - Values: "excellent" → "paved", "intermediate" → "gravel", "bad" → "dirt"
    - Coverage: All OSM-mapped roads — broad coverage sufficient for V3 lifestyle street-rider focus
 
-2. **GLM NLP (Secondary)** — New extraction from community posts
-   - Prompt: "Extract road surface type from this forum post: paved, gravel, dirt, mixed, or unknown?"
-   - Values: "paved", "gravel", "dirt", "mixed", "unknown"
-   - Used only when OSM is unavailable or ambiguous
+2. **LLM PostExtraction (Secondary)** — Extracted from community posts via the `attributes` dict on `PostExtraction` (keys such as `surface_type_paved`, `surface_type_gravel`, `surface_type_dirt`). Used only when OSM is unavailable or ambiguous.
 
 **NLP Attribute Buckets (7 total):**
 1. Twisty level (low/medium/high)
@@ -118,56 +104,43 @@ Two cascading sources for surface_type field (revised 2026-04-12 — USFS MVUM d
 - Surface type displayed in route details
 - Gravel/dirt routes prioritized for adventure archetype classification
 
-**Extraction Schema:**
-```json
-{
-  "route_mentions": [
-    {
-      "road_name": "Tail of the Dragon",
-      "highway_number": "US-129",
-      "state": "NC/TN",
-      "confidence": 0.92,
-      "context_snippet": "Best ride ever on the Dragon..."
-    }
-  ],
-  "sentiment": {
-    "score": 0.8,
-    "label": "positive",
-    "aspects": {
-      "scenery": 0.9,
-      "twistiness": 0.95,
-      "traffic": 0.3,
-      "road_quality": 0.85,
-      "surface_type": "gravel"
-    }
-  },
-  "route_attributes": {
-    "twisty": true,
-    "scenic": true,
-    "low_traffic": true,
-    "technical": false,
-    "surface_type": "gravel"
-  }
-}
+**PostExtraction Schema (INF-005 contract):**
+```python
+class PostExtraction(BaseModel):
+    # Identifier mentions
+    road_name_mentions: list[str]         # ["Tail of the Dragon", "The Dragon"]
+    highway_refs: list[str]               # ["US-129", "SR-28"]
+    state_refs: list[str]                 # ["TN", "NC"]
+    landmark_refs: list[str]              # ["Fontana Dam", "Great Smoky Mountains"]
+
+    # Sentiment & aspects
+    sentiment: Literal["positive", "neutral", "negative"]
+    aspect_scores: dict[str, float]       # {"curvature": 0.95, "scenery": 0.9, ...}
+    attributes: dict[str, bool]           # {"has_gas": True, "beginner_friendly": False, ...}
+    warnings: list[str]                   # ["gravel on switchbacks", "construction Mile 14"]
+
+    # Extraction metadata
+    extraction_confidence: float          # 0.0 - 1.0
+    extraction_model: str                 # "claude-haiku-4-5-20251001"
+    extraction_cost: float                # USD, >= 0
+    extracted_at: datetime
+    extraction_schema_version: int        # 2
 ```
 
 **Acceptance Criteria:**
-- ☐ Administrator can run NLP extraction via `python -m pipeline.rider.extract_mentions`
-- ☐ System implements Stage 1 quick filter using keyword matching (zero-cost pre-filter)
-- ☐ System runs GLM extraction (Stage 2) only on posts passing Stage 1 filter
-- ☐ System uses Claude 3 Haiku or GLM-4 for structured extraction with JSON schema validation
-- ☐ System identifies route/road name mentions with 85%+ accuracy (measured against ground truth)
-- ☐ System resolves ambiguous mentions (e.g., "the Dragon" → "Tail of the Dragon, NC/TN") using geographic context
-- ☐ System extracts per-mention sentiment (positive/neutral/negative) using GLM's native understanding
-- ☐ System extracts aspect-based sentiment (scenery, twistiness, traffic, road quality, surface_type) for richer signals
-- ☐ System extracts surface_type from community posts when MVUM/OSM data unavailable (paved/gravel/dirt/mixed/unknown)
-- ☐ System computes mention_frequency per route: total mentions across all community sources within configurable time window (default: 12 months)
-- ☐ System computes weighted_mentions using source authority weights: ADVRider post = 1.0, Reddit post = 0.7, Reddit comment = 0.3
-- ☐ System writes extracted signals (route_id, mention_frequency, weighted_mentions, avg_sentiment, aspect_scores) to route_community_signals table
-- ☐ System implements token tracking and cost logging per extraction batch
-- ☐ System logs extraction statistics: total posts processed, Stage 1 filter rate, GLM extractions, routes matched, avg confidence, total cost
-- ☐ System implements retry logic with exponential backoff for GLM API rate limits
-- ☐ System caches extraction results per post_id to avoid redundant GLM calls
+- ☐ Administrator can run extraction via `python -m scripts.curation.pipeline.extraction.extract_posts` (new module, implemented in Epic 9/10)
+- ☐ System runs one LLM call per community post, producing a PostExtraction instance
+- ☐ System uses Claude Haiku 4.5 with Anthropic tool-use for structured output
+- ☐ System validates each extraction against the PostExtraction Pydantic schema
+- ☐ System persists each extraction to `route_posts_raw` with postId, source, postUrl, rawText, extractionSchemaVersion, extractionModel, extractionCost, extractedAt, extractionConfidence, and the payload (serialized PostExtraction)
+- ☐ System extracts sentiment as `Literal['positive', 'neutral', 'negative']`
+- ☐ System extracts aspect_scores as `dict[str, float]` (known aspects: curvature, scenery, traffic, surface_quality, elevation_drama — unknown aspects allowed but ignored by scoring)
+- ☐ System extracts attributes as `dict[str, bool]` (known: has_gas, has_food, wet_weather_ok, beginner_friendly, requires_adv_bike, closed_in_winter)
+- ☐ System extracts warnings as `list[str]` for construction, closures, and hazards
+- ☐ System records `extraction_cost` per call for cost tracking
+- ☐ System logs per-run statistics: total posts processed, successful extractions, Pydantic validation failures, total cost USD, avg extraction_confidence
+- ☐ System implements retry logic with exponential backoff for rate limit errors (up to 3 retries)
+- ☐ System caches extraction results per `(post_id, extraction_schema_version)` tuple to avoid redundant calls
 
 ---
 
@@ -194,7 +167,7 @@ Two cascading sources for surface_type field (revised 2026-04-12 — USFS MVUM d
 **Acceptance Criteria:**
 - ☐ Administrator can configure ingestion schedule via environment variable or config file (default: weekly)
 - ☐ System runs ADVRider RSS fetch (UC-RIDER-01) and Reddit API fetch (UC-RIDER-02) on schedule
-- ☐ System runs NLP extraction (UC-RIDER-03) after fresh data is ingested
+- ☐ System runs LLM PostExtraction (UC-RIDER-03) after fresh data is ingested
 - ☐ System runs signal merge (UC-RIDER-04) after extraction completes
 - ☐ System supports GitHub Actions cron trigger for scheduled runs
 - ☐ System sends summary notification (log or webhook) after each scheduled run with post count, new mentions, and any errors

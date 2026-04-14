@@ -1,38 +1,55 @@
-# Epic 6: Quality Infrastructure — Dedup & Floor
+# Epic 6: Quality Infrastructure — Semantic Dedup & Floor
 
-**Sequence:** 6 / 11  *(sequence number retained; Epic 5 gap from 2026-04-12 revision)*
-**Priority:** P1
+**Sequence:** 6 / 12
+**Priority:** P0
 **Status:** Backlog
-**Estimated Effort:** 540 minutes (~9 hours)
+**Estimated Effort:** 990 minutes (~16.5 hours)
 
 ---
 
 ## Overview
 
-Implement the two core quality gates that clean the merged catalog: three-stage deduplication (exact name+state → fuzzy Levenshtein → geospatial proximity via Convex GeospatialIndex) and a quality floor filter that marks routes as `premium`/`standard`/`minimal` based on data completeness. Dedup uses source-priority merge to preserve the most authoritative data; the quality floor phased rollout (soft → hard) avoids over-rejecting government data.
+Build the quality infrastructure that cleans the merged catalog: **semantic deduplication** via Convex native vectorIndex + LLM reranking (replaces the previously-planned deterministic three-stage cascade) and a **quality floor filter** that marks routes as `premium`/`standard`/`minimal` based on data completeness.
 
-**Theme:** Run dedup on the full merged catalog and see duplicates disappear. Run quality floor and see tier assignments reflect data completeness.
+Dedup reuses the Epic 3 semantic matching primitive: every curated route already has a `searchEmbedding` populated by INF-004, and the `findCandidateRoutesByEmbedding` query wrapper (INF-006) returns the top-K nearest neighbors by cosine similarity. QUAL-001 walks the catalog, fetches candidate neighbors for each route, auto-merges high-confidence pairs, queues mid-confidence pairs for LLM arbitration (QUAL-002), and leaves low-confidence routes standalone. Every merge decision is written to the `route_matches` audit table via the `addRouteMatch` mutation, and reconciliation entries are appended to `curated_routes.llmReconciliationLog` so every merge is traceable.
+
+The quality floor (QUAL-003) runs after dedup on the reconciled catalog, marking routes as `premium` / `standard` / `minimal` based on data completeness. Coverage validation (QUAL-004) and a data quality report with CI gating (QUAL-005) round out the epic.
+
+**Theme:** Run dedup on the full merged catalog and see duplicates disappear via vector similarity + LLM judgment. Run quality floor and see tier assignments reflect real data completeness. Coverage and quality reports gate the pipeline at CI.
 
 **PRD Reference:** [S5.1, S5.2](../../05-uc-qual.md) — UC-QUAL-01, UC-QUAL-02
 
 ---
 
+## Architectural Decision
+
+Epic 6 previously specified a three-stage deterministic cascade for deduplication (exact name+state → fuzzy Levenshtein via `rapidfuzz.token_sort_ratio` → geospatial proximity via Convex GeospatialIndex). That plan was never validated against real community data, and analysis revealed critical blind spots: nicknames (“The Dragon” vs “Tail of the Dragon” vs “US-129”), contextual references (“that twisty road past the dam”), ambiguous names (“Skyline Drive” in multiple states), and regional shorthand (“that Chattanooga ride”) all fail deterministic string matching.
+
+Epic 3 pivoted the matching primitive to **semantic retrieval via Convex vectorIndex + LLM rerank** (see `../epic-03-foundation-models-schema/EPIC.md` for the full rationale). This epic now consumes that primitive:
+
+- **Candidate retrieval:** `findCandidateRoutesByEmbedding` (INF-006) returns top-10 cosine-similar routes — embeddings capture semantic similarity across nicknames, synonyms, and contextual references.
+- **Decision layer:** cosine > 0.92 auto-merges, 0.75–0.92 queues for Claude Haiku 4.5 arbitration, < 0.75 stays standalone.
+- **Audit trail:** every merge decision (auto or arbitrated) is written to `route_matches` via `addRouteMatch` with `matchConfidence`, `cosineSimilarity`, `matchReasoning`, `rerankModel`, and `rerankCost`. Reconciliation summaries are appended to `curated_routes.llmReconciliationLog`.
+
+The old `field_provenance` / `merged_at` / `merge_count` fields and the `route_mentions` table are no longer part of the live schema — reconciliation is now captured by `llmReconciliationLog` on `curated_routes` and by the `route_matches` audit table. Old task files (cascade version) are preserved in git history if revert is ever needed.
+
+---
+
 ## Human Test Steps
 
-After both tasks are complete, an administrator should be able to:
+After all 5 tasks are complete, an administrator should be able to:
 
-1. **Run dedup on the full catalog** — Execute `python -m scripts.curation.pipeline.dedup.deduplicator`. Verify runtime < 10 minutes for ~20k routes. Verify Pass 1 (exact name+state), Pass 2 (fuzzy Levenshtein >0.85 via rapidfuzz.token_sort_ratio), Pass 3 (geospatial <3mi + Lev >0.75) counts are logged.
-2. **Verify source priority merge** — Spot-check merged routes. For a route appearing in both FHWA and BBR, verify FHWA GIS fields won. Inspect `field_provenance` dict — should show which source contributed each field. Verify `merge_count > 1` on merged records.
-3. **Verify community_rating preservation** — For a merged route with ratings from multiple community sources (e.g., motorcycleroads + bestbikingroads), verify the HIGHEST rating was retained.
-4. **Verify description preservation** — For a merged route with descriptions from multiple sources, verify the LONGEST non-null description was retained.
-5. **Check dedup report** — Inspect the dedup report markdown. Verify it shows before/after counts per source, and merge rationale for each pair type. Duplicate "Tail of the Dragon" should appear once in the final catalog.
-6. **Run quality floor filter (Phase 1 soft mode)** — Execute `python -m scripts.curation.pipeline.quality.floor_filter --phase=1`. Verify routes get `quality_tier` assignments but are NOT rejected — minimal-tier routes stay in the catalog.
-7. **Inspect tier distribution** — Verify tier counts: `premium` (all 4 fields), `standard` (core fields), `minimal` (below floor). Should be a reasonable distribution — not 100% minimal.
-8. **Try hard mode (dry run)** — Execute `python -m scripts.curation.pipeline.quality.floor_filter --phase=3 --dry-run`. Verify it would reject N minimal-tier routes with zero engagement, without actually rejecting. Review rejection log.
-9. **Run allowlist override** — Add a minimal-tier route to the allowlist and re-run. Verify the allowlisted route is promoted to `standard` tier.
-10. **Run full pipeline end-to-end post-dedup** — Execute source ingest → dedup → quality floor → extract → score → classify → push. Verify Convex upsert reflects the deduped, tiered catalog. Mobile app shows no duplicate routes.
-
-11. **Execute the Curation Review Protocol** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. Applicable steps NOW INCLUDE: 3 (dedup) and 4 (quality floor) for the first time. Full steps: 1, 2, 3, 4, 6, 7, 8, 12. **Diff against Epic 4 baseline (Epic 5 deleted 2026-04-12) — catalog should SHRINK due to dedup (~18-19k → ~15-16k after merging duplicates). Score distributions should tighten. Verify Tail of the Dragon appears EXACTLY ONCE. Verify quality tier distribution is sensible (not 100% minimal). Landmark spot check: all 5 landmarks appear exactly once.** Write `review.md` with verdict PASS.
+1. **Verify Epic 3 backfill complete** — Query Convex: confirm all `curated_routes` have non-null `searchEmbedding` (length 1536). Any route missing an embedding must be re-embedded before dedup runs.
+2. **Run semantic dedup** — Execute `python -m scripts.curation.pipeline.dedup.semantic_deduplicator`. Verify logged counts at the end of the run: `auto-merge (cosine > 0.92)`, `arbitration queue (0.75 ≤ cosine ≤ 0.92)`, `new routes (cosine < 0.75)`. Confirm runtime under 15 minutes for the full catalog.
+3. **Run LLM arbitration batch** — Execute `python -m scripts.curation.pipeline.dedup.llm_arbitrator`. Verify it consumes the arbitration queue, calls Claude Haiku 4.5 on each pair, and updates `route_matches.isArbitrated = true` with `arbitrationNotes`. Inspect per-batch LLM cost in the run log.
+4. **Inspect route_matches audit table** — Open the Convex dashboard, open `route_matches`. Spot-check 10 random rows: each should have `matchConfidence`, `cosineSimilarity`, `matchReasoning`, and a valid `routeId`. Verify arbitrated rows have non-null `arbitrationNotes`.
+5. **Verify llmReconciliationLog entries** — Query `curated_routes` where `llmReconciliationLog` is non-empty. For each merged route, confirm at least one log entry with `runId`, `reconciledAt`, `conflictsResolved`, and human-readable `notes`.
+6. **Spot-check known duplicates** — Confirm “Tail of the Dragon” / “The Dragon” / “Deals Gap” collapses to a single route with source priority merge applied (FHWA > Scenic Byways > Rider Mag > motorcycleroads > BBR > curvature_discovery).
+7. **Run quality floor filter** — Execute `python -m scripts.curation.pipeline.quality.floor_filter`. Verify `curated_routes.qualityTier` populated with `premium` / `standard` / `minimal`. Confirm tier distribution is reasonable (not 100% minimal).
+8. **Run coverage validation report** — Execute the coverage report generator. Verify `baseline/coverage-report.md` is written with per-state routes, per-archetype routes, and score distribution histograms.
+9. **Run data quality report + CI gate** — Execute the data quality generator. Verify the markdown report is written AND the CI gate exits 0 when thresholds pass (or non-zero with a clear failure message when they don't).
+10. **Full pipeline end-to-end** — Run source ingest → embed → dedup → arbitration → quality floor → extract → score → classify → push. Verify Convex upsert reflects the reconciled, tiered catalog. Mobile app shows no duplicate routes.
+11. **Execute the Curation Review Protocol** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. Applicable steps NOW INCLUDE dedup and quality floor for the first time. **Diff against Epic 4 baseline — catalog should shrink due to dedup. Score distributions should tighten. Verify Tail of the Dragon appears exactly once. Verify quality tier distribution is sensible. Landmark spot check: all 5 landmarks appear exactly once.** Write `review.md` with verdict PASS.
 
 All 11 verifications must pass.
 
@@ -40,19 +57,19 @@ All 11 verifications must pass.
 
 ## Acceptance Criteria (Epic-Level)
 
-- [ ] `scripts/curation/pipeline/dedup/deduplicator.py` implements three-stage dedup
-- [ ] Three-stage cascading logic: exact → fuzzy → geospatial
-- [ ] Fuzzy match uses `rapidfuzz.token_sort_ratio()` with 0.85 threshold
-- [ ] Geospatial match uses Convex GeospatialIndex (`INF-007`) with 3mi threshold
-- [ ] Source priority merge preserves authoritative data per field
-- [ ] `field_provenance`, `merged_at`, `merge_count`, `source_priority` populated on merged records
-- [ ] Dedup completes for 20k routes in under 10 minutes
-- [ ] Dedup report generated (JSON + markdown) with per-source before/after counts
-- [ ] `scripts/curation/pipeline/quality/floor.py` implements quality floor filter
-- [ ] Quality tier: `premium` / `standard` / `minimal` assigned per rules
-- [ ] Phased rollout flags: `--phase=1|2|3`
-- [ ] Allowlist mechanism for manual overrides
-- [ ] Quality floor report lists excluded/minimal routes
+- [ ] `scripts/curation/pipeline/dedup/semantic_deduplicator.py` implements vector-search-based dedup using `findCandidateRoutesByEmbedding`
+- [ ] Cosine similarity thresholds: > 0.92 auto-merge, 0.75–0.92 arbitration queue, < 0.75 separate routes
+- [ ] Source priority merge order: FHWA > Scenic Byways > Rider Mag > motorcycleroads > BBR > curvature_discovery
+- [ ] Every merge decision written to `route_matches` via `addRouteMatch` mutation
+- [ ] Every merged route has an `llmReconciliationLog` entry (`runId`, `reconciledAt`, `conflictsResolved`, `notes`)
+- [ ] `scripts/curation/pipeline/dedup/llm_arbitrator.py` implements batch LLM arbitration of the mid-confidence queue via Claude Haiku 4.5
+- [ ] Arbitrated `route_matches` rows have `isArbitrated = true` and non-null `arbitrationNotes`
+- [ ] Per-batch LLM cost logged to the run ledger
+- [ ] Dedup end-to-end completes under 15 minutes for the full catalog
+- [ ] `scripts/curation/pipeline/quality/floor_filter.py` populates `curated_routes.qualityTier` with `premium` / `standard` / `minimal`
+- [ ] Quality tier distribution is sensible (not 100% minimal, not 100% premium)
+- [ ] `baseline/coverage-report.md` generated with per-state / per-archetype / score-distribution sections
+- [ ] Data quality report generated with CI pass/fail thresholds; CI gate exits 0 on pass, non-zero on fail
 - [ ] Full pipeline runs end-to-end with dedup + quality floor active
 - [ ] Mobile app shows no duplicate routes
 
@@ -60,44 +77,66 @@ All 11 verifications must pass.
 
 ## PRD Sections Covered
 
-- **S5.1** — UC-QUAL-01 Deduplicate Routes Across Sources
+- **S5.1** — UC-QUAL-01 Deduplicate Routes Across Sources (via semantic matching)
 - **S5.2** — UC-QUAL-02 Enforce Quality Floor Filter
 
 ---
 
-## Tasks (2 stubs)
+## Tasks
 
-| ID | Title | Type | Agent | Priority | Effort | Est. Min | Depends On | Blocks |
-|----|-------|------|-------|----------|--------|----------|------------|--------|
-| QUAL-001 | Three-Stage Deduplication Engine | FEATURE | python-implement | P1 | L | 360 | SRC-001, SRC-004, SRC-006, INF-002, INF-007 | QUAL-002, QUAL-003, QUAL-004 |
-| QUAL-002 | Quality Floor Enforcement | FEATURE | python-implement | P1 | M | 180 | QUAL-001 | QUAL-003, QUAL-004 |
+| ID | Title | Type | Agent | Priority | Effort | Est. Min | Depends On | Blocks | File |
+|----|-------|------|-------|----------|--------|----------|------------|--------|------|
+| QUAL-001 | Semantic Deduplication Engine | FEATURE | python-implement | P0 | L | 360 | INF-003, INF-004, INF-006 | QUAL-002, Epic 7 | [QUAL-001.md](QUAL-001.md) *(not yet written)* |
+| QUAL-002 | LLM Arbitration Batch Runner | FEATURE | python-implement | P0 | M | 180 | QUAL-001 | QUAL-003 | [QUAL-002.md](QUAL-002.md) *(not yet written)* |
+| QUAL-003 | Quality Floor Filter (premium/standard/minimal) | FEATURE | python-implement | P0 | S | 90 | QUAL-001 | QUAL-004 | [QUAL-003.md](QUAL-003.md) *(not yet written)* |
+| QUAL-004 | Coverage Validation Report | FEATURE | python-implement | P1 | M | 180 | QUAL-003 | Epic 7 | [QUAL-004.md](QUAL-004.md) *(not yet written)* |
+| QUAL-005 | Data Quality Report with CI Gating | FEATURE | python-implement | P1 | M | 180 | QUAL-004 | Epic 12 | [QUAL-005.md](QUAL-005.md) *(not yet written)* |
 
-**Total Tasks:** 2
-**Total Estimated Effort:** 540 minutes (~9 hours)
-**Parallelization:** Sequential — QUAL-001 must complete before QUAL-002
+**Total Tasks:** 5
+**Total Estimated Effort:** 990 minutes (~16.5 hours)
+**Parallelization:** QUAL-001 first → QUAL-002 and QUAL-003 can run in parallel → QUAL-004 → QUAL-005
+
+### Task Summaries
+
+- **QUAL-001: Semantic Deduplication Engine** — For each `curated_route`, call `findCandidateRoutesByEmbedding` (Epic 3 INF-006) to fetch the top-10 nearest neighbors by cosine similarity. Auto-merge when similarity > 0.92. Queue 0.75–0.92 pairs for LLM arbitration in QUAL-002. Create separate routes below 0.75. Merge using the source priority order (FHWA > Scenic Byways > Rider Mag > motorcycleroads > BBR > curvature_discovery). Append reconciliation entries to `curated_routes.llmReconciliationLog` and audit rows to `route_matches` via the `addRouteMatch` mutation. Cost target: ~$0 (pure vector retrieval; LLM arbitration is QUAL-002's budget).
+
+- **QUAL-002: LLM Arbitration Batch Runner** — Consume the arbitration queue (cosine similarity 0.75–0.92) produced by QUAL-001. Send batched `(route_a, route_b)` pairs to Claude Haiku 4.5 with a "same road?" decision prompt. On a positive decision, merge the pair using the same source priority rules and append to `llmReconciliationLog`. Update `route_matches.isArbitrated = true` and `arbitrationNotes` with the LLM's stated reasoning. Track per-batch LLM cost in the run ledger.
+
+- **QUAL-003: Quality Floor Filter** — Read the reconciled routes post-dedup. Mark each route as `premium` / `standard` / `minimal` based on data completeness (description, rating, designation, curvature data, elevation, surface). Write `curated_routes.qualityTier`. Log tier distribution counts at the end of the run.
+
+- **QUAL-004: Coverage Validation Report** — Generate `baseline/coverage-report.md` with routes per state, routes per archetype, and score distributions. Sanity-checks the reconciled catalog's breadth.
+
+- **QUAL-005: Data Quality Report with CI Gating** — Comprehensive post-pipeline report with CI pass/fail thresholds (minimum routes per state, minimum routes per archetype, maximum percentage `minimal` tier, non-null description rate, etc.). CI gate exits 0 on pass, non-zero with a clear failure message on fail. Blocks Epic 12 orchestrator if thresholds are violated.
 
 ---
 
 ## Dependencies
 
-**Blocks:**
-- Epic 7: Quality Infrastructure — Reports (coverage/data quality reports depend on deduped catalog)
-- Epic 12: Orchestrator & E2E (dedup is a pipeline stage)
-
 **Depends On:**
-- Epic 4: Source Diversification — Government, Editorial & Geometric (SRC-001, SRC-004, SRC-006)
-- Epic 3: Foundation (INF-002, INF-007)
-- *(Epic 5 deleted 2026-04-12 — see `../INDEX.md` for rationale)*
+- Epic 3: Foundation — Semantic Matching Infrastructure
+  - INF-003 (Convex vector index + `route_matches` + `route_posts_raw` tables)
+  - INF-004 (all curated routes backfilled with `searchEmbedding`)
+  - INF-006 (`findCandidateRoutesByEmbedding`, `addRouteMatch` query wrappers)
+- Epic 4: Source Diversification (catalog must contain the full merged source set before dedup)
+
+**Blocks:**
+- Epic 7: Quality Infrastructure — Reports
+- Epic 8: Scoring & Calibration (reads reconciled catalog)
+- Epic 12: Orchestrator & E2E Integration (dedup + quality floor are pipeline stages)
 
 ---
 
 ## Definition of Done
 
-- [ ] Both task files written and merged
-- [ ] Both tasks moved to `Done`
-- [ ] Dedup runs on full catalog in under 10 minutes
-- [ ] Dedup report shows per-source merge statistics
-- [ ] Quality floor produces tier distribution that makes sense (not 100% minimal)
+- [ ] All 5 task files written and merged
+- [ ] All 5 tasks moved to `Done`
+- [ ] Semantic dedup runs on full catalog in under 15 minutes
+- [ ] LLM arbitration batch processes the full mid-confidence queue within budget
+- [ ] `route_matches` audit table populated; spot-checks show coherent `matchReasoning`
+- [ ] `curated_routes.llmReconciliationLog` populated on all merged routes
+- [ ] Quality floor produces a tier distribution that makes sense (not 100% minimal)
+- [ ] Coverage report generated with per-state / per-archetype / score-distribution sections
+- [ ] Data quality report generated; CI gate passes
 - [ ] Full pipeline end-to-end test passes with dedup + quality floor active
 - [ ] Mobile app shows no duplicate routes (verify "Tail of the Dragon" appears once)
 - [ ] Curation Review Protocol executed with PASS verdict
@@ -109,9 +148,12 @@ All 11 verifications must pass.
 
 ## Notes
 
-- **Dedup is the single highest-risk QUAL task** — performance AND correctness both matter
-- Test dedup against known duplicates (Tail of the Dragon appearing in FHWA + BBR + motorcycleroads)
-- If geospatial query latency (from INF-007) exceeds budget, dedup runtime will exceed 10 minutes — may need to batch or pre-cluster
-- Quality floor should start in Phase 1 (soft mode) — Phase 3 hard rejection only after Week 3-4 engagement analysis
-- The allowlist mechanism is critical for government data sources that may lack rich descriptions but are authoritative
-- Document dedup threshold tuning decisions in the epic close-out notes (they may need adjustment based on FP/FN analysis)
+- **Cosine similarity thresholds (0.92 auto-merge, 0.75 arbitration floor) are initial guesses** — QUAL-001 must emit a held-out test set of known-duplicate pairs so thresholds can be calibrated. Document any adjustment in this epic's close-out notes.
+- **Source priority merge order** is fixed: FHWA > Scenic Byways > Rider Mag > motorcycleroads > BBR > curvature_discovery. Higher-priority sources win on conflicting fields.
+- **Reconciliation is traceable, not destructive** — `llmReconciliationLog` preserves every merge decision, and `route_matches` preserves the full cosine similarity + LLM reasoning. Nothing is silently overwritten.
+- **LLM arbitration is bounded** — batch size should be tuned to keep per-run cost under a documented budget. QUAL-002 must log per-batch cost to the run ledger.
+- **Quality floor starts non-destructive** — QUAL-003 only writes `qualityTier`; no routes are rejected in this epic. Hard rejection (if ever wanted) belongs to a follow-up opt-in flag, not to the default pipeline.
+- **The allowlist mechanism** for manual overrides of quality tier is in scope for QUAL-003 — government data sources may lack rich descriptions but are authoritative and must not be marked `minimal` by default.
+- **The previously-planned `route_mentions` table and `field_provenance` / `merged_at` / `merge_count` fields are gone** — replaced by `route_matches` (audit log) and `llmReconciliationLog` (reconciliation summary on the route itself). See `../epic-03-foundation-models-schema/INF-003.md` for the schema contract.
+- **Old QUAL task files (rapidfuzz cascade version)** are preserved in git history. Don't reference them from the new task files — they will be rewritten in a separate pass.
+- **Boy Scout rule applies** — if the dedup run surfaces a latent bug in the embedding pipeline (INF-004) or the query wrappers (INF-006), fix it as part of this epic and document in the close-out notes.

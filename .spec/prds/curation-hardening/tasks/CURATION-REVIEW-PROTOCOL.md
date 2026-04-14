@@ -78,9 +78,15 @@ python -m scripts.curation.pipeline.enrichment.weather_client   # Epic 8+
 ### Step 3: Run deduplication
 **Required starting:** Epic 6
 ```bash
-python -m scripts.curation.pipeline.dedup.deduplicator
+python -m scripts.curation.pipeline.dedup.semantic_deduplicator
 ```
-**Verify:** dedup runtime < 10 minutes for full catalog. Merge statistics logged (exact/fuzzy/geospatial counts). No duplicates for known landmarks (Tail of the Dragon appears once).
+**Verify:** dedup runtime < 15 minutes for full catalog (vector search + LLM arbitration adds latency vs the previously-planned rapidfuzz cascade — see Epic 3 Architectural Decision). Merge statistics logged (auto-merge count >0.92, arbitration queue 0.75-0.92, new routes <0.75). No duplicates for known landmarks (Tail of the Dragon appears once).
+
+Then run the arbitration batch runner:
+```bash
+python -m scripts.curation.pipeline.dedup.llm_arbitrator
+```
+**Verify:** Arbitration batch completes without errors. `route_matches.isArbitrated=true` rows are populated with `arbitrationNotes` from Claude.
 
 ### Step 4: Run quality floor filter
 **Required starting:** Epic 6
@@ -117,15 +123,16 @@ python -m scripts.curation.pipeline.classification.archetype
 ```
 **Verify:** every route has `primary_archetype` from the 6 valid values. Distribution across archetypes looks reasonable.
 
-### Step 9: Run NLP extraction & signal merge
+### Step 9: Run community post matching & signal merge
 **Required starting:** Epic 10
+
+Note: per-post LLM extraction into `route_posts_raw` (PostExtraction contract from Epic 3 INF-005) runs upstream in Epic 9 ingestion. Epic 10 handles the semantic matching, reconciliation, and signal merge.
 ```bash
-python -m scripts.curation.pipeline.nlp.quick_filter
-python -m scripts.curation.pipeline.nlp.glm_extractor
-python -m scripts.curation.pipeline.nlp.aggregator
-python -m scripts.curation.pipeline.nlp.merge_signals
+python -m scripts.curation.pipeline.nlp.post_matcher       # vector search + LLM rerank against route_posts_raw
+python -m scripts.curation.pipeline.nlp.reconciler         # llm_reconciliation_log + temporal decay
+python -m scripts.curation.pipeline.nlp.merge_signals      # merge reconciled signals into composite scoring
 ```
-**Verify:** `mention_frequency` populated on target routes. Cost logged. Cache hits on re-run.
+**Verify:** `route_matches` rows populated with `matchConfidence`, `llm_reconciliation_log` populated on multi-match routes, `mention_frequency` populated on target routes. Cost logged. Cache hits on re-run.
 
 ### Step 10: Run coverage report
 **Required starting:** Epic 7
@@ -230,13 +237,13 @@ At the end of the review, write a `review.md` to the current epic folder with th
 ## Pipeline Execution
 - [ ] Step 1 Sources — N routes ingested across M sources
 - [ ] Step 2 Enrichment — N routes enriched
-- [ ] Step 3 Dedup — X merges (exact: a, fuzzy: b, geospatial: c), runtime Zs
+- [ ] Step 3 Dedup — X merges (auto: a, arbitrated: b, new: c), runtime Zs, arbitration cost $Y
 - [ ] Step 4 Quality floor — premium: a%, standard: b%, minimal: c%
 - [ ] Step 5 Calibration gate — PASS | FAIL (threshold met?)
 - [ ] Step 6 Extraction — N routes extracted
 - [ ] Step 7 Scoring — current WEIGHTS recorded
 - [ ] Step 8 Classification — archetype distribution
-- [ ] Step 9 NLP + signal merge — mention_frequency populated on N routes
+- [ ] Step 9 Community post matching + signal merge — N routes matched via vector search + LLM rerank, mention_frequency populated on N routes
 - [ ] Step 10 Coverage report — generated
 - [ ] Step 11 Data quality report — exit code 0
 - [ ] Step 12 Convex push — dry-run clean; production push [yes/no]

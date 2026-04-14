@@ -16,7 +16,9 @@ This appetite supports Week 0 validation to de-risk technical assumptions, follo
 ## In Scope
 
 ### Priority 0: Validation & Setup (Week 0)
-- **GLM NLP pilot**: Build and test 100-post labeled dataset, measure accuracy against expectations for road name extraction and attribute classification
+*Historical (Week 0, COMPLETED): The original Week 0 validation included a GLM NLP pilot. Epic 3's semantic matching pivot (2026-04-14) superseded that approach — LLM extraction now uses the `PostExtraction` contract (Epic 3 INF-005) returning structured output via Claude Haiku 4.5 tool-use. The bullets below describe what was validated at the time; they remain for historical traceability but are no longer the forward plan.*
+
+- **GLM NLP pilot** *(historical)*: Build and test 100-post labeled dataset, measure accuracy against expectations for road name extraction and attribute classification
 - **Convex Geospatial Index setup**: Install @convex-dev/geospatial (Beta), create GeospatialIndex, validate nearest-neighbor and range query performance
 - **Decision gate**: Only proceed to Week 1 if validation passes (GLM accuracy >0.75, Convex Geospatial performant)
 - **Source invalidation spikes (completed, sources dropped)**: VAL-002 (BDR GPX — PRD assumption 403-blocked; source also a V3 lifestyle mismatch) and VAL-003 (twtex.com — PRD assumption invalidated, site is a Texas forum not a curated Top 100 list) produced no-go verdicts. Retained as historical evidence.
@@ -28,7 +30,7 @@ This appetite supports Week 0 validation to de-risk technical assumptions, follo
 - Reconciliation of new Scenic Byways GIS against the Epic 2 baseline FHWA CSV (~645 routes derived from DOT ArcGIS `US_Scenic_Byways/MapServer/107` via BASE-000; see `tasks/epic-02-baseline-pipeline-validation/DECISIONS.md`)
 
 ### Priority 2: Quality Infrastructure (Weeks 4-5)
-- Three-stage deduplication engine: exact name+state, fuzzy Levenshtein (>0.85), geospatial proximity (centroid <5km + length <20%)
+- Semantic deduplication engine: Convex native vectorIndex (cosine similarity via ctx.vectorSearch) + LLM arbitration via Claude Haiku. Auto-merge above 0.92 similarity, LLM arbitration for 0.75-0.92, create new route below 0.75. Uses the findCandidateRoutesByEmbedding query wrapper from Epic 3 INF-006.
 - Convex Native Geospatial index for efficient proximity queries (nearest-neighbor with maxDistance)
 - Source-priority merge policy (FHWA > editorial > community database > forum)
 - Quality floor filter: require description OR rating OR designation OR curvature data
@@ -52,11 +54,11 @@ This appetite supports Week 0 validation to de-risk technical assumptions, follo
 ### Priority 4: Community Sources & NLP (Weeks 5-7)
 - ADVRider regional forum RSS feed ingestion (17 forums)
 - Reddit motorcycle subreddit ingestion via public API (r/motorcycles, r/advrider, r/motorcyclesroadtrip)
-- NLP extraction pipeline: Road NER (regex + gazetteer), sentiment analysis (TextBlob/VADER), attribute classification (keyword → 6 buckets)
+- LLM extraction pipeline: single Claude Haiku 4.5 call per post returning the PostExtraction contract (Epic 3 INF-005) — road_name_mentions, highway_refs, state_refs, landmark_refs, sentiment, aspect_scores, attributes, warnings — replacing the previously-planned Road NER (regex + gazetteer) + TextBlob/VADER sentiment + keyword bucketing approach
 - Mention aggregation: mention_frequency score, authority-weighted sentiment
 - Community signal merge into composite scoring (mention_frequency at 10% weight)
 - Incremental community ingestion scheduling (weekly via GitHub Actions)
-- *Note: Community source implementation depends on Week 0 GLM pilot validation*
+- *Note: Community source implementation depends on Epic 3 semantic matching foundation (embeddings + PostExtraction contract) rather than the previously-planned Week 0 GLM pilot.*
 
 ### Cross-Priority Infrastructure
 - Pipeline orchestrator: single entry point sequencing all stages (scrape → dedup → floor → extract → enrich → score → classify → calibrate → push → report)
@@ -68,8 +70,10 @@ This appetite supports Week 0 validation to de-risk technical assumptions, follo
 ## Out of Scope
 
 ### Deferred to Future Cycles
-- **Vector embeddings / semantic search** — quality floor + improved scoring addresses catalog quality without ML runtime on device
-- **Fine-tuned NLP models** — keyword + regex NLP first; upgrade to sentence-transformer only if accuracy < 0.75
+
+**Note (2026-04-14):** Vector embeddings were moved IN-SCOPE during the Epic 3 semantic matching pivot. The previously-planned rapidfuzz three-stage cascade was never validated against real community data; analysis revealed critical blind spots (nicknames, contextual refs, ambiguous names). See Epic 3 EPIC.md 'Architectural Decision' section for rationale.
+
+- **Fine-tuned NLP models** — LLM extraction via the PostExtraction contract (Epic 3 INF-005) is accurate enough at ~90% on road name extraction via Claude Haiku 4.5. Sentence-transformers and fine-tuned BERT are not needed. Bumping to a larger embedding model (text-embedding-3-large, 3072-dim) is deferred — 1536-dim is sufficient for the current catalog size.
 - **State DOT AADT data integration** — varies by state format, high collection effort; curvature provides sufficient new signals
 - **International route sources** — US-focused for this initiative
 - **Real-time community monitoring** — weekly batch is sufficient; real-time streaming deferred
@@ -93,7 +97,7 @@ This appetite supports Week 0 validation to de-risk technical assumptions, follo
 
 **AADT INCLUDED:** HPMS (Highway Performance Monitoring System) provides national AADT data in a single GeoJSON download — not per-state collection. Measured traffic data replaces LLM-extracted text signals with objective telemetry from instrument readings. The NLP pipeline's mention_frequency remains valuable as a complementary signal for route popularity and rider engagement.
 
-**Fine-tuned NLP deferred:** The NLP task is narrow — extract road names and classify 6 attribute buckets from motorcycle forum text. Regex handles highway numbers with 95%+ accuracy. Keyword matching for attributes is sufficient for our classification needs. If accuracy falls below 0.75 on validation, the upgrade path to sentence-transformers is specced in AD-002.
+**Fine-tuned NLP deferred:** LLM extraction deferred the need for fine-tuned models: the single-call PostExtraction contract (Epic 3 INF-005) gives structured road names, highways, states, landmarks, sentiment, aspects, attributes, and warnings in one Claude Haiku 4.5 call at ~$0.002/post. Total extraction cost for the 100k-post corpus is ~$200 — cheap enough that per-stage keyword filtering is no longer a cost lever. If extraction_confidence averages drop below 0.75 on validation, the upgrade path is a larger Claude model, not a smaller fine-tuned model.
 
 **International deferred:** All new sources (Scenic Byways GIS, curvature, Rider Mag) are US-only. International expansion requires localized sources and different government data providers — separate initiative.
 

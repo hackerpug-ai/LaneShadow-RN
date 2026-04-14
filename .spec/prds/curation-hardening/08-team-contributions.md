@@ -5,8 +5,8 @@
 **Deliverable:** Complete technical architecture for pipeline hardening — 17 new components, 10 modified components, 8 data entities, dedup algorithm, NLP pipeline, calibration system, data quality report format, 8 new dependencies, 9 architecture decisions.
 
 **Key Findings:**
-- Three-stage cascading dedup (exact → fuzzy → geospatial) with Convex Native Geospatial is the right approach — ML record linkage rejected due to lack of training data
-- Keyword + regex NLP pipeline first, with upgrade path to sentence-transformer if accuracy < 0.75
+- Semantic deduplication (Convex vector search + LLM arbitration) replaces the original string-matching cascade; thresholds: >0.92 auto-merge, 0.75-0.92 arbitration, <0.75 new route — see Epic 3 EPIC.md "Architectural Decision"
+- Community post matching via single-call LLM extraction (PostExtraction contract, Epic 3 INF-005) → Convex `vectorIndex` retrieval → LLM rerank; raw extractions land in `route_posts_raw`, match audit in `route_matches`, conflicts resolved via `llm_reconciliation_log`
 - adamfranco/curvature should be consumed as pre-computed data (multi-hour batch run on US OSM PBF), not run per-pipeline-execution
 - Quality floor as hard gate (reject routes) rather than soft scoring penalty — routes with no description/rating/designation produce extraction garbage
 - Convex schema evolution via nullable columns (non-breaking for existing mobile app)

@@ -9,7 +9,7 @@
 
 ## Overview
 
-Ingest raw community content from ADVRider's 17 regional forum RSS feeds, Reddit's 3 motorcycle subreddits (via public API with strict rate limiting + jitter), and Pushshift historical archives (2020-2025 backfill). These sources populate the `community_mentions` staging table. NLP extraction and signal merge happen in Epic 10.
+Ingest raw community content from ADVRider's 17 regional forum RSS feeds, Reddit's 3 motorcycle subreddits (via public API with strict rate limiting + jitter), and Pushshift historical archives (2020-2025 backfill). These sources populate the `community_mentions` staging table. Each ingested post then runs through a single Claude Haiku 4.5 extraction call returning a structured `PostExtraction` (Epic 3 INF-005 contract) and the artifact is persisted to the `route_posts_raw` Convex table. Matching (post → route via vectorSearch + LLM rerank) and reconciliation (multi-mention routes) happen in Epic 10.
 
 **Theme:** Run community source ingests and see raw posts land in staging. No NLP yet — just raw text.
 
@@ -52,7 +52,7 @@ After all 3 tasks are complete, an administrator should be able to:
 
 1. **Run ADVRider RSS ingestion** — Execute `python -m scripts.curation.pipeline.sources.advrider`. Verify posts from all 17 regional forums are fetched via RSS XML parsing. Verify rate limit (1 req/5s) was respected.
 2. **Inspect parsed ADVRider posts** — Query `community_mentions` staging table (SQLite or local storage). Verify fields: `post_id`, `source='advrider'`, `forum_id`, `title`, `author`, `preview_text`, `published_at`. Spot-check 5 posts match the live forum view.
-3. **Verify ADVRider filtering** — Confirm only route-mentioning posts were retained (keyword match on road/route/highway/pass/canyon etc.). Raw non-filtered count vs filtered count should be logged.
+3. **Verify ADVRider posts land in `route_posts_raw`** — each post has a `PostExtraction` payload (road_name_mentions, highway_refs, sentiment, etc.) extracted via a single Claude Haiku 4.5 call (Epic 3 INF-005 contract). Log total posts processed + total extraction cost + avg extraction_confidence.
 4. **Verify ADVRider incremental tracking** — Check that `last_fetched_at` is stored per forum. Run ingestion again — should only fetch new posts since last run (idempotent).
 5. **Run Reddit API ingestion** — Execute `python -m scripts.curation.pipeline.sources.reddit`. Verify 50 req/min rate limit enforced with 1.3s base + 0.1-0.5s random jitter. Verify round-robin across r/motorcycles, r/advrider, r/motorcyclesroadtrip.
 6. **Verify Reddit OAuth2** — Confirm `ANTHROPIC_*` or `REDDIT_CLIENT_ID` env vars are set and Reddit API responds 200. Spot-check posts in staging table.

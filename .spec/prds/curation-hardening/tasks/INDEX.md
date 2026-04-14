@@ -117,7 +117,7 @@ Epic 1: Week 0 Validation (VAL-001..004)
                             │
                             ▼
                     Epic 3: Foundation
-                    (INF-001..010, ex-004)
+                    (INF-001..007, INF-011)
                             │
            ┌────────────────┼─────────────┐
            ▼                ▼             ▼
@@ -144,11 +144,11 @@ Epic 1: Week 0 Validation (VAL-001..004)
            │
            ▼
     Epic 10: Community NLP + Signals
-    (RID-003, 004, 005, INF-010)
+    (RID-003, 005, 004)
            │
            ▼
     Epic 12: Orchestrator & E2E
-    (INF-004)
+    (INF-012)
 ```
 
 *Dropped from graph 2026-04-12: SRC-002 (BDR), SRC-003 (twtex), SRC-005 (USFS MVUM). Epic 5 deleted entirely.*
@@ -204,12 +204,14 @@ Epic 1: Week 0 Validation (VAL-001..004)
 
 | Task ID | Title | Agent | Effort | Est. Min |
 |---------|-------|-------|--------|----------|
-| INF-001 | Install New Python Dependencies | python-implement | XS | 30 |
-| INF-002 | Route and EnrichedRoute Model Extension | python-implement | S | 60 |
-| INF-003 | Convex Schema Migration — New Fields and route_mentions Table | convex-implementer | M | 90 |
-| INF-005 | Extraction Schema v2 — Add extraction_confidence Field | python-implement | XS | 30 |
-| INF-006 | Convex Push Serialization Update | convex-implementer | S | 60 |
-| INF-007 | Convex Geospatial Query Mutations — Production Wrappers | convex-implementer | S | 90 |
+| INF-001 | Install Semantic Matching Dependencies | python-implement | XS | 30 |
+| INF-002 | Extended Route Models — Embedding, Identifiers, LLM Artifacts | python-implement | S | 90 |
+| INF-003 | Convex Vector Index + Match Audit Schema | convex-implementer | M | 120 |
+| INF-004 | Route Embedding Generation Pipeline | python-implement | M | 120 |
+| INF-005 | LLM Extraction Schema Contract — PostExtraction v2 | python-implement | S | 90 |
+| INF-006 | Convex Vector Search Query Wrappers | convex-implementer | S | 90 |
+| INF-007 | Convex Push Serialization — Embedding + Artifacts | convex-implementer | S | 60 |
+| INF-011 | US_STATES Allowlist in Crawl Plan Inventory | python-implement | S | 60 *(Phase 1 DONE)* |
 
 ### Epic 4: Sources — Government, Editorial & Geometric (STUBS)
 
@@ -233,15 +235,15 @@ Epic 1: Week 0 Validation (VAL-001..004)
 
 | Task ID | Title | Agent | Effort | Est. Min |
 |---------|-------|-------|--------|----------|
-| QUAL-001 | Three-Stage Deduplication Engine | python-implement | L | 360 |
-| QUAL-002 | Quality Floor Enforcement | python-implement | M | 180 |
+| QUAL-001 | Semantic Deduplication Engine | python-implement | L | 360 |
+| QUAL-002 | LLM Arbitration Batch Runner | python-implement | M | 180 |
+| QUAL-003 | Quality Floor Filter (premium/standard/minimal) | python-implement | S | 90 |
+| QUAL-004 | Coverage Validation Report | python-implement | M | 180 |
+| QUAL-005 | Data Quality Report with CI Gating | python-implement | M | 180 |
 
-### Epic 7: Quality — Reports (STUBS)
+### Epic 7: Quality — Reports (CONSOLIDATED INTO EPIC 6 — 2026-04-14)
 
-| Task ID | Title | Agent | Effort | Est. Min |
-|---------|-------|-------|--------|----------|
-| QUAL-003 | Coverage Report Generator | python-implement | M | 180 |
-| QUAL-004 | Data Quality Report with CI Gate | python-implement | M | 150 |
+QUAL-003 (Coverage Report) and QUAL-004 (Data Quality Report) were absorbed into Epic 6 during the semantic matching pivot (Agent 4 rewrite). Epic 7 EPIC.md still exists as a placeholder but its tasks now live under Epic 6 as QUAL-004 and QUAL-005. Resolve this structural cleanup in a follow-up: either delete the Epic 7 directory or re-expand it with a different set of tasks.
 
 ### Epic 8: Scoring & Calibration (STUBS)
 
@@ -266,10 +268,11 @@ Epic 1: Week 0 Validation (VAL-001..004)
 
 | Task ID | Title | Agent | Effort | Est. Min |
 |---------|-------|-------|--------|----------|
-| RID-003 | GLM NLP Extractor — Two-Stage Pipeline | python-implement | L | 480 |
-| RID-004 | Community Signal Merge into Scoring | python-implement | M | 180 |
-| RID-005 | Incremental Community Ingest Scheduling | python-implement | S | 60 |
-| INF-010 | GitHub Actions Community Ingest Cron Workflow | python-implement | S | 60 |
+| RID-003 | Community Post Matching — Semantic Search + LLM Rerank | python-implement | L | 360 |
+| RID-005 | Route Reconciliation & Temporal Decay | python-implement | L | 300 |
+| RID-004 | Merge Community Signals into Composite Scoring | python-implement | M | 180 |
+
+*Note 2026-04-14: Old INF-010 (GitHub Actions Community Ingest Cron Workflow) was removed during the semantic matching pivot — scheduling now belongs to Epic 12 Orchestrator. Effort dropped ~40% vs the old two-stage GLM plan because custom NLP (sentiment classifier, aspect scorer, attribute detector) is now folded into the single Claude Haiku 4.5 call at the Epic 9 ingestion boundary (PostExtraction contract, Epic 3 INF-005).*
 
 ### Epic 11: Mobile UI — New Field Display (STUBS)
 
@@ -284,7 +287,9 @@ Epic 1: Week 0 Validation (VAL-001..004)
 
 | Task ID | Title | Agent | Effort | Est. Min |
 |---------|-------|-------|--------|----------|
-| INF-004 | Pipeline Orchestrator — Single Entry Point | python-implement | M | 120 |
+| INF-012 | Pipeline Orchestrator — Single Entry Point | python-implement | M | 120 |
+
+*Note 2026-04-14: Renamed from INF-004 → INF-012 to resolve task ID collision with Epic 3 INF-004 (Route Embedding Generation Pipeline), which was added during the semantic matching pivot.*
 
 ---
 
@@ -297,7 +302,7 @@ Epic 1: Week 0 Validation (VAL-001..004)
 | S1.2 Priority 2: Quality Infrastructure | QUAL-001..004 |
 | S1.3 Priority 3: Scoring & Calibration | SCO-001..004, INF-008, INF-009 |
 | S1.4 Priority 4: Community Sources & NLP | RID-001..006, INF-010 |
-| S1.5 Cross-Priority Infrastructure | INF-001..007, INF-004 (orchestrator) |
+| S1.5 Cross-Priority Infrastructure | INF-001..007, INF-011, INF-012 (orchestrator in Epic 12) |
 | S4 UC-SRC-01, 04, 06 | SRC-001, SRC-004, SRC-006 |
 | ~~S4 UC-SRC-02, 03, 05~~ | *Dropped 2026-04-12 — see Dropped Tasks table above* |
 | S5 UC-QUAL-01..04 | QUAL-001..004 |
