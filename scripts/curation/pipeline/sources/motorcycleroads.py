@@ -147,12 +147,23 @@ class MotorcycleRoadsScraper(BaseScraper):
                     if not route_name or route_name.lower() in ["read road guide", "more"]:
                         continue
 
+                    # Extract state from route URL pattern: /motorcycle-roads/{state-slug}/{route-slug}
+                    # The listing page contains cross-state sidebar links, so the listing
+                    # page state is unreliable — the URL always has the correct state.
+                    url_parts = route_url.split("?")[0].rstrip("/").split("/motorcycle-roads/")
+                    if len(url_parts) > 1:
+                        path_parts = url_parts[1].split("/")
+                        route_state_slug = path_parts[0] if path_parts else None
+                        route_state = route_state_slug.replace("-", " ").title() if route_state_slug else state
+                    else:
+                        route_state = state
+
                     # Fetch the route detail page
                     route_html = await self.fetch(route_url)
                     route_soup = BeautifulSoup(route_html, "html.parser")
 
                     # Extract detailed information
-                    record = self._extract_route_data(route_soup, route_url, route_name, state)
+                    record = self._extract_route_data(route_soup, route_url, route_name, route_state)
 
                     if record:
                         self.write_jsonl(record)
