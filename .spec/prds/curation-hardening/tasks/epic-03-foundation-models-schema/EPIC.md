@@ -64,20 +64,21 @@ All 8 verifications must pass to confirm the foundation is solid. Any failure me
 
 ---
 
-## Tasks (6 stubs — full task files not written per scope)
+## Tasks (6 tasks with full TASK-TEMPLATE v4.0 files + 1 completed stub)
 
-| ID | Title | Type | Agent | Priority | Effort | Est. Min | Depends On | Blocks |
-|----|-------|------|-------|----------|--------|----------|------------|--------|
-| INF-001 | Install New Python Dependencies | INFRA | python-implement | P0 | XS | 30 | VAL-*, BASE-001 | All SRC/QUAL/SCO/RID tasks |
-| INF-002 | Route and EnrichedRoute Model Extension | INFRA | python-implement | P0 | S | 60 | INF-001 | All SRC/QUAL/SCO/RID tasks |
-| INF-003 | Convex Schema Migration — New Fields and route_mentions Table | INFRA | convex-implementer | P0 | M | 90 | VAL-004 | SRC-*, QUAL-*, SCO-*, RID-004, INF-007 |
-| INF-005 | Extraction Schema v2 — Add extraction_confidence Field | INFRA | python-implement | P1 | XS | 30 | INF-002 | SCO-003, SCO-004 |
-| INF-006 | Convex Push Serialization Update | INFRA | convex-implementer | P1 | S | 60 | INF-002, INF-003 | INF-004 |
-| INF-007 | Convex Geospatial Query Mutations — Production Wrappers | INFRA | convex-implementer | P1 | S | 90 | VAL-004, INF-003 | INF-004, QUAL-001 |
+| ID | Title | Type | Agent | Priority | Effort | Est. Min | Depends On | Blocks | File |
+|----|-------|------|-------|----------|--------|----------|------------|--------|------|
+| INF-001 | Install New Python Dependencies | INFRA | python-implement | P0 | XS | 30 | VAL-*, BASE-001 | INF-002 | [INF-001.md](INF-001.md) |
+| INF-002 | Route and EnrichedRoute Model Extension | INFRA | python-implement | P0 | S | 60 | INF-001 | INF-003, INF-005, INF-006 | [INF-002.md](INF-002.md) |
+| INF-003 | Convex Schema Migration — New Fields and route_mentions Table | INFRA | convex-implementer | P0 | M | 90 | VAL-004, INF-002 | INF-006, INF-007 | [INF-003.md](INF-003.md) |
+| INF-005 | Extraction Schema v2 — Add extraction_confidence Field | INFRA | python-implement | P1 | XS | 30 | INF-002 | SCO-003, SCO-004 | [INF-005.md](INF-005.md) |
+| INF-006 | Convex Push Serialization Update | INFRA | convex-implementer | P1 | S | 60 | INF-002, INF-003 | INF-004 | [INF-006.md](INF-006.md) |
+| INF-007 | Convex Geospatial Query Mutations — Production Wrappers | INFRA | convex-implementer | P1 | S | 90 | VAL-004, INF-003 | INF-004, QUAL-001 | [INF-007.md](INF-007.md) |
+| INF-011 | US_STATES Allowlist in Crawl Plan Inventory | INFRA | python-implement | P2 | S | 60 | BASE-009b | None | [INF-011-us-states-allowlist.md](INF-011-us-states-allowlist.md) (Phase 1 DONE) |
 
-**Total Tasks:** 6
-**Total Estimated Effort:** 360 minutes (~6 hours)
-**Parallelization:** INF-001 must complete first, then INF-002/INF-003 in parallel, then INF-005/INF-006/INF-007 in parallel
+**Total Tasks:** 7 (6 backlog + 1 phase-1 complete)
+**Total Estimated Effort:** 360 minutes (~6 hours) for backlog tasks
+**Parallelization:** INF-001 first → INF-002 parallel with INF-003 → INF-005/INF-006/INF-007 in parallel
 
 ---
 
