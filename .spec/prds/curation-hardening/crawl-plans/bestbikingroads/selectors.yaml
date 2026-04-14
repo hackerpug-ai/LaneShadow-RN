@@ -55,21 +55,21 @@ PT-03-route-detail:
     # Handled in parser.py: backfill from state_primary.slug.title()
 
   rating:
-    # Rating appears in the header div text as "(N.NN)" immediately after h1.
-    # Example: " (4.43)  97 kms Orson | May 11, 2006 | America > ..."
+    # Rating appears as "(N.NN)" in text after the star rating image.
+    # Example raw HTML: '<img alt="Star Rating Graphic"> (4.43)  97 kms'
     # Fixture validated: 5/5 landmark fixtures have rating.
-    # HOWEVER: routes with zero reviews may have no rating value.
-    # The inline JS (responseA[i].comments_ave_rating) is the canonical source
-    # but requires JS execution or regex on raw HTML — not CSS-addressable.
-    # This DOM extraction captures the displayed value which matches the JS value.
-    selector: "div.col-xs-12.col-sm-9.m-0.p-4.white-background"
-    regex: "\\((\\d+\\.?\\d*)\\)"
-    capture_group: 1
+    # HOWEVER: routes with zero reviews may have no rating.
+    # Extracted in bestbikingroads.py parse_fn via regex (not by framework selector):
+    #   re.search(r'Star Rating Graphic[^(]*\((\d+\.?\d*)\)', html)
+    # The inline JS (responseA[i].comments_ave_rating) is the server-side source
+    # but the rendered value in HTML is identical and extractable via regex.
+    selector: null
+    regex: "Star Rating Graphic[^(]*\\((\\d+\\.?\\d*)\\)"
     parse_as: float
     bounds: [0.0, 5.0]
     required: false
     fixture_yield: "5/5"
-    note: "Extracts displayed rating from header text, not inline JS. Required=false because routes with 0 reviews have no rating."
+    note: "Extracted via regex in glue parse_fn, not CSS selector. Required=false."
 
   description:
     # BBR PT-03 pages have no dedicated description section.
