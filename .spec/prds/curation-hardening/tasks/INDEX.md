@@ -6,6 +6,7 @@
 **Revised:** 2026-04-12 — BDR (SRC-002), twtex (SRC-003), and USFS (SRC-005) dropped after VAL-002/VAL-003 invalidated PRD assumptions and V3 strategy shifted to lifestyle ride community (ADV/dual-sport sources no longer fit). Epic 5 deleted; SRC-004 folded into Epic 4.
 **Revised:** 2026-04-12 — Epic 2 BASE-001 decomposed from a single 240-min task into 8 smaller tasks (BASE-001..008) for parallelization and context-window manageability. Original file preserved at `epic-02-baseline-pipeline-validation/BASE-001.md.archived`.
 **Revised:** 2026-04-13 — Epic 2 BASE-000 inserted as Wave 0 data-prep prerequisite after `/kb-run-epic` preflight revealed the FHWA input CSV did not exist and the canonical DOT ArcGIS source returns 645 routes (not the 184 the PRD originally assumed). Curation-hardening PRD docs updated to reflect the ~645-route superset reality. See `epic-02-baseline-pipeline-validation/DECISIONS.md`.
+**Revised:** 2026-04-13 (evening) — BASE-009 inserted as Epic 2 Wave 6 remediation task. [`tasks/CRAWL-PLAN-PROTOCOL.md`](./CRAWL-PLAN-PROTOCOL.md) adopted as mandatory pre-extraction gate for all source tasks (Forms A/B/C/D; Form E pre-computed file consumers exempt). New pipeline principle **P6** added to `00-overview.md` ("Committed crawl plan before extraction at scale"). Step 1 of `CURATION-REVIEW-PROTOCOL.md` upgraded to require a committed verdict-PASS `crawl-report.md` per in-scope source. See `epic-02-baseline-pipeline-validation/DECISIONS.md` "Crawl Plan Protocol adoption" for the full rationale.
 **PRD:** [`.spec/prds/curation-hardening/README.md`](../README.md)
 **Appetite:** 7 weeks (including Week 0 validation)
 
@@ -16,16 +17,16 @@
 | Metric | Value |
 |--------|-------|
 | **Total Epics** | 11 (Epic 5 deleted; sequence numbers preserved — gap from 4 → 6) |
-| **Total Tasks** | 43 (Epic 2 expanded from 1 → 9 across 2026-04-12 decomposition + 2026-04-13 BASE-000 insertion) |
-| **Full-Detail Task Files** | 13 (Epic 1: 4 VAL tasks; Epic 2: 9 BASE tasks) |
+| **Total Tasks** | 44 (Epic 2 expanded from 1 → 10 across 2026-04-12 decomposition + 2026-04-13 AM BASE-000 insertion + 2026-04-13 PM BASE-009 Crawl Plan Protocol remediation) |
+| **Full-Detail Task Files** | 14 (Epic 1: 4 VAL tasks; Epic 2: 10 BASE tasks) |
 | **Stub Tasks** | 30 (Epics 3-4, 6-12) |
 | **PRD Coverage** | 100% of 16 surviving use cases + cross-priority infra |
-| **Estimated Effort** | ~5725 minutes (~95 hours total) — round-1 Epic 2 decomposition preserved the 240-min total; round-2 added 90 min for BASE-000 data prep; rest unchanged |
+| **Estimated Effort** | ~6205 minutes (~103.4 hours total) — round-1 Epic 2 decomposition preserved the 240-min total; round-2 (2026-04-13 AM) added 90 min for BASE-000 data prep; round-3 (2026-04-13 PM) added 480 min for BASE-009 Crawl Plan Protocol remediation |
 
 ### Task Quality
 
 - **Epic 1 (VAL-001..004)** — Full TASK-TEMPLATE v4.0 compliance, quality score 115/115 average
-- **Epic 2 (BASE-000..008)** — Full TASK-TEMPLATE v4.0 compliance, quality score ~112/115 average (BASE-001 through BASE-008 originated from a 2026-04-12 decomposition; BASE-000 added 2026-04-13 as a data-prep prerequisite)
+- **Epic 2 (BASE-000..009)** — Full TASK-TEMPLATE v4.0 compliance, quality score ~112/115 average (BASE-001 through BASE-008 originated from a 2026-04-12 decomposition; BASE-000 added 2026-04-13 AM as a data-prep prerequisite; BASE-009 added 2026-04-13 PM as a Crawl Plan Protocol remediation task — see `tasks/CRAWL-PLAN-PROTOCOL.md`)
 - **Epic 3-12** — Stub-level (task_id, title, agent, dependencies, one-line spec) per user directive
 - **Task files for Epics 3-12** — Will be written as each epic enters execution phase
 
@@ -63,12 +64,34 @@
 
 ---
 
+## Crawl Plan Protocol (MANDATORY pre-extraction gate)
+
+**Every task that extracts data from a remote source at scale MUST produce a committed crawl plan artifact before running execution.** Enforced via [`CRAWL-PLAN-PROTOCOL.md`](./CRAWL-PLAN-PROTOCOL.md), adopted 2026-04-13 PM after Epic 2 BBR/MR "PASS WITH ISSUES" findings. The Crawl Plan Protocol is the **pre-extraction** companion to the Curation Review Protocol (which is the **post-pipeline** gate). See `epic-02-baseline-pipeline-validation/DECISIONS.md` "Crawl Plan Protocol adoption" entry for the cascade-failure rationale.
+
+**Source modality coverage:**
+
+| Form | Description | Sources (initiative-wide) |
+|---|---|---|
+| A | HTML scraper (editorial or listing pages) | MR, BBR (via BASE-009 remediation), Rider Magazine 50 Best (SRC-006) |
+| B | Structured API (GIS / JSON / OpenAPI) | Scenic Byways GIS from Koordinates (SRC-001) |
+| C | RSS / syndication feed | ADVRider 17 regional forums (RID-001) |
+| D | Paginated authenticated API | Reddit OAuth2 (RID-002), Pushshift historical backfill (RID-006) |
+| E | Pre-computed file consumer (**EXEMPT**) | FHWA CSV via BASE-000, adamfranco/curvature (SRC-004) |
+
+**Protocol execution rhythm per source task:** Phase 0 RECON (manual, ~30-60 min) → Phase 1 INVENTORY (committed `urls.jsonl`) → Phase 2 FIXTURES (committed HTML/JSON/XML samples + manifest) → Phase 3 SELECTOR SPEC (AI-assisted, committed `selectors.yaml` with `fixture_yield` scoring) → Phase 4 DRY-RUN PARSE (committed pytest contract tests) → Phase 5 EXECUTION (rate-limited, resumable, audited) → Phase 6 ACCOUNTING (committed `crawl-report.md` with binary PASS verdict).
+
+**Integration point with the Curation Review Protocol:** Step 1 of the review protocol requires that every in-scope source for the current epic has a committed, verdict-PASS `crawl-report.md`. Missing or failing crawl reports fail the curation review at Step 1, blocking the epic from being marked Done.
+
+**First application:** [BASE-009](./epic-02-baseline-pipeline-validation/BASE-009.md) — retroactive remediation of MR + BBR under the protocol; builds the shared `scripts/curation/pipeline/sources/crawl_plan/` framework module that Epic 4 SRC-001/006 and Epic 9 RID-001/002/006 subsequently consume.
+
+---
+
 ## Epic Summary
 
 | # | Epic | Folder | Tasks | Priority | Human Test Focus |
 |---|------|--------|-------|----------|------------------|
 | 1 | Week 0 — Validation & De-Risking | [epic-01-week0-validation/](./epic-01-week0-validation/) | 4 | P0 | Run 4 validation spikes, verify go/no-go for each risk |
-| 2 | Baseline Curation Pipeline Validation | [epic-02-baseline-pipeline-validation/](./epic-02-baseline-pipeline-validation/) | 9 | P0 | Fetch FHWA CSV (BASE-000) + run existing pipeline end-to-end before hardening |
+| 2 | Baseline Curation Pipeline Validation | [epic-02-baseline-pipeline-validation/](./epic-02-baseline-pipeline-validation/) | 10 | P0 | Fetch FHWA CSV (BASE-000) + run existing pipeline end-to-end before hardening + BASE-009 Crawl Plan Protocol remediation (re-crawl MR + BBR under new methodology to replace the PASS WITH ISSUES baseline) |
 | 3 | Foundation — Models, Schema, Dependencies | [epic-03-foundation-models-schema/](./epic-03-foundation-models-schema/) | 6 | P0 | Install deps, extend models, migrate Convex schema |
 | 4 | Source Diversification — Government, Editorial & Geometric | [epic-04-sources-government-editorial/](./epic-04-sources-government-editorial/) | 3 | P1 | Run 3 surviving sources (Scenic Byways, Rider Mag, curvature) through full pipeline |
 | ~~5~~ | ~~Source Diversification — Community + Geometric~~ | *deleted 2026-04-12* | 0 | — | *BDR + twtex sources invalidated; SRC-004 (curvature) folded into Epic 4* |
@@ -172,8 +195,9 @@ Epic 1: Week 0 Validation (VAL-001..004)
 | [BASE-006](./epic-02-baseline-pipeline-validation/BASE-006.md) | OSM enrichment validation + Boy Scout __main__ for enrichment/osm_client.py | python-implement | S | 45 |
 | [BASE-007](./epic-02-baseline-pipeline-validation/BASE-007.md) | Convex push dry-run validation + Boy Scout --dry-run flag for sync/convex_push.py | python-implement | S | 45 |
 | [BASE-008](./epic-02-baseline-pipeline-validation/BASE-008.md) | Curation Review Protocol execution + baseline artifacts commit | python-implement | M | 60 |
+| [BASE-009](./epic-02-baseline-pipeline-validation/BASE-009.md) | Crawl Plan Protocol remediation — re-crawl MR + BBR under new methodology | python-implement | L | 480 |
 
-**Total Epic 2 effort:** 405 min (~6.75 hours). See `epic-02-baseline-pipeline-validation/EPIC.md` for the wave plan and `epic-02-baseline-pipeline-validation/DECISIONS.md` for the 2026-04-13 resolution of the FHWA CSV data source question.
+**Total Epic 2 effort:** 885 min (~14.75 hours) across 10 tasks. See `epic-02-baseline-pipeline-validation/EPIC.md` for the wave plan and `epic-02-baseline-pipeline-validation/DECISIONS.md` for both the 2026-04-13 AM FHWA CSV data source resolution and the 2026-04-13 PM Crawl Plan Protocol adoption decisions.
 
 ### Epic 3: Foundation (STUBS)
 

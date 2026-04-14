@@ -22,6 +22,38 @@ Reduce single-source concentration (currently 98.8% BestBikingRoads) by ingestin
 
 ---
 
+## Crawl Plan Protocol Compliance (MANDATORY)
+
+Epic 4 is the first full application of the [Crawl Plan Protocol](../CRAWL-PLAN-PROTOCOL.md) to new sources. Adopted 2026-04-13 after Epic 2 BBR/MR findings (see [`../epic-02-baseline-pipeline-validation/DECISIONS.md`](../epic-02-baseline-pipeline-validation/DECISIONS.md)), the protocol is non-negotiable for any task that extracts data from a remote source at scale.
+
+**Per-task protocol applicability:**
+
+| Task | Source | Form | Crawl Plan Required? | Reason |
+|---|---|---|---|---|
+| SRC-001 | US Scenic Byways GIS (Koordinates) | **Form B** — structured GIS API | **Yes** | 799-feature API query, schema-bearing endpoint; JSONPath selectors + fixture-based type/bounds assertions prevent silent field mismatches |
+| SRC-006 | Rider Magazine 50 Best Roads | **Form A** — editorial HTML scrape | **Yes** | Small site (50 routes), high-stakes because the output becomes Epic 8 SCO-002's calibration ground truth — sloppy scraping here poisons Epic 8's calibration gate |
+| SRC-004 | adamfranco/curvature pre-computed output | **Form E** — file consumer | **Exempt** | Not a crawl; consumes a pre-computed file. Must still produce a small `.spec/prds/curation-hardening/crawl-plans/curvature_discovery/README.md` landing page pointing at the source file, per protocol convention |
+
+**Shared framework dependency:** SRC-001 and SRC-006 consume the `scripts/curation/pipeline/sources/crawl_plan/` framework module built in [BASE-009](../epic-02-baseline-pipeline-validation/BASE-009.md). If BASE-009 has not landed, the framework does not exist yet and Epic 4 cannot begin. BASE-009 is a hard blocker for this epic — not an optional prerequisite.
+
+**Per-task acceptance criteria additions (MUST be present when task files are written):**
+
+For SRC-001 and SRC-006, add to Acceptance Criteria:
+- [ ] Phase 0: `.spec/prds/curation-hardening/crawl-plans/{source}/site-map.md` committed with page/endpoint taxonomy, URL patterns, transition graph, sample URLs, known traps
+- [ ] Phase 1: `.../crawl-plans/{source}/urls.jsonl` committed with row count in expected range (SRC-001: ~799 GIS features; SRC-006: exactly 50 editorial route URLs)
+- [ ] Phase 2: `fixtures/{source}/` committed with ≥3 samples per page/endpoint type + `fixtures.manifest.yaml` with expected values
+- [ ] Phase 3: `.../crawl-plans/{source}/selectors.yaml` committed; all `required: true` fields at fixture_yield 5/5
+- [ ] Phase 4: `scripts/curation/tests/sources/test_{source}_fixtures.py` exists and passes locally
+- [ ] Phase 5: Executor runs against committed inventory, produces resumable `staging/{source}.jsonl` with `.audit.json`
+- [ ] Phase 6: `.../crawl-plans/{source}/crawl-report.md` committed with verdict PASS (fetch ≥95%, parse ≥99%, all required fields at 100% yield, all applicable landmarks present)
+
+For SRC-004 (exempt):
+- [ ] `.spec/prds/curation-hardening/crawl-plans/curvature_discovery/README.md` committed with one-line pointer to the source file location and provenance note
+
+**Calibration gate cascade risk:** Rider Magazine 50 Best (SRC-006) is the upstream supplier of Epic 8's calibration ground truth. If SRC-006's crawl plan is sloppily executed or the verdict is softened to PASS WITH ISSUES, Epic 8's calibration gate becomes noise and the entire scoring-realignment work is compromised. Epic 4's protocol compliance is Epic 8's insurance policy. Do not proceed past SRC-006 without a PASS verdict on its crawl-report.md.
+
+---
+
 ## Human Test Steps
 
 After all 3 tasks are complete, an administrator should be able to run the full pipeline with these sources and verify:

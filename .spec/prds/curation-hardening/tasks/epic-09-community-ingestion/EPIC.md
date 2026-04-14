@@ -17,6 +17,35 @@ Ingest raw community content from ADVRider's 17 regional forum RSS feeds, Reddit
 
 ---
 
+## Crawl Plan Protocol Compliance (MANDATORY)
+
+Epic 9 extends the [Crawl Plan Protocol](../CRAWL-PLAN-PROTOCOL.md) to the community-source modalities (Forms C and D — RSS feeds and authenticated paginated APIs). The protocol was adopted 2026-04-13 after Epic 2 BBR/MR findings (see [`../epic-02-baseline-pipeline-validation/DECISIONS.md`](../epic-02-baseline-pipeline-validation/DECISIONS.md)) and is mandatory for every task that extracts data from a remote source at scale.
+
+**Per-task protocol applicability:**
+
+| Task | Source | Form | Phase 0 Focus |
+|---|---|---|---|
+| RID-001 | ADVRider 17 regional forum RSS feeds | **Form C** — RSS/syndication | Each of 17 feeds may have a different RSS version/schema (RSS 1.0 vs 2.0 vs Atom). Phase 0 must document each feed's item schema; Phase 2 captures one sample response per feed (17 × ~50KB ≈ trivial). Phase 3 selectors are XPath/element names. The ADVRider "Forum 12 returns RSS 1.0 instead of 2.0" failure mode dies at Phase 4. |
+| RID-002 | Reddit OAuth2 API | **Form D** — paginated auth API | Phase 0 documents auth flow, rate limit, pagination cursor, endpoint schema. Phase 1 inventory is the initial query/endpoint list (pagination cursor lives in executor, not committed inventory). Phase 2 fixtures = sample JSON responses per endpoint. Phase 4 tests assert JSON field types/enums. |
+| RID-006 | Pushshift historical backfill | **Form D variant** | Same as RID-002 but with a historical date-range wrinkle. Pushshift's reliability is flagged in this epic's Notes ("may need a third-party mirror"). Phase 4 fixture tests become the early-warning system for format drift across mirrors — if Pushshift's output changes format, tests catch it offline before a multi-hour backfill run. |
+
+**Shared framework dependency:** All three RID tasks extend the `scripts/curation/pipeline/sources/crawl_plan/` framework module built in [BASE-009](../epic-02-baseline-pipeline-validation/BASE-009.md). Forms C and D add adapter layers for RSS parsing and paginated JSON extraction on top of the Form A framework. If BASE-009 has not landed, Epic 9 cannot begin.
+
+**Per-task acceptance criteria additions (MUST be present when task files are written):**
+
+For RID-001, RID-002, and RID-006, add to Acceptance Criteria:
+- [ ] Phase 0: `.spec/prds/curation-hardening/crawl-plans/{source}/site-map.md` committed with endpoint/feed taxonomy, schema variants, pagination model, rate limits, known traps
+- [ ] Phase 1: `.../crawl-plans/{source}/urls.jsonl` committed — initial endpoint/feed list (RID-001: 17 feeds; RID-002: 3 subreddit endpoints; RID-006: 3 subreddit × date-range windows)
+- [ ] Phase 2: `fixtures/{source}/` committed with ≥3 sample responses per endpoint/feed + `fixtures.manifest.yaml` with expected item-schema assertions
+- [ ] Phase 3: `.../crawl-plans/{source}/selectors.yaml` committed; XML/JSONPath selectors for `required: true` fields at fixture_yield 5/5
+- [ ] Phase 4: `scripts/curation/tests/sources/test_{source}_fixtures.py` exists and passes locally (RID-001: must include a separate test class per RSS variant discovered in Phase 0)
+- [ ] Phase 5: Executor runs against committed inventory with idempotent last-fetched tracking per feed/endpoint; resumable `.progress` file; `.audit.json` with per-endpoint counters
+- [ ] Phase 6: `.../crawl-plans/{source}/crawl-report.md` committed with verdict PASS — rate-limit compliance confirmed, no bans, incremental-tracking verified
+
+**Rate-limit risk coordination:** This epic's existing AC on rate limiting (ADVRider 1 req/5s, Reddit 50 req/min with jitter, Pushshift 100 req/min) remains binding. The Crawl Plan Protocol's Phase 5 executor must inherit these limits from the existing `base_scraper.py` patterns — the protocol does NOT loosen rate-limit discipline, it adds observability and accountability on top of it.
+
+---
+
 ## Human Test Steps
 
 After all 3 tasks are complete, an administrator should be able to:

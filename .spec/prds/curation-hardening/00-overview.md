@@ -54,5 +54,8 @@ Build four layers of pipeline hardening:
 - P4: temperature=0, reproducible runs
 - P5: Deterministic parser boundary between probabilistic and guaranteed
 
+**New Principle Added (2026-04-13):**
+- **P6: Committed crawl plan before extraction at scale.** Every task that extracts data from a remote source at scale (HTML scraper, paginated API, RSS feed, GIS layer) MUST produce a committed crawl plan artifact (site-map, URL inventory, fixtures, selectors, fixture-based parser tests, audit report) before running execution. Extraction without a committed crawl plan is prohibited. This principle is mandated by [`tasks/CRAWL-PLAN-PROTOCOL.md`](./tasks/CRAWL-PLAN-PROTOCOL.md) and enforced at every source task's acceptance criteria and at Step 1 of the Curation Review Protocol. Adopted after Epic 2's BBR/MR findings revealed a systemic failure mode where blind selectors, interleaved discovery/fetch/parse logic, and swallowed errors produced a 10% yield of the true BBR universe and sidebar-contaminated MR records — all before anyone could diff the output against a truth file. See [`tasks/epic-02-baseline-pipeline-validation/DECISIONS.md`](./tasks/epic-02-baseline-pipeline-validation/DECISIONS.md) "Crawl Plan Protocol adoption" for the full rationale.
+
 **Timeline:** 6 weeks (full feature with polish)
 **Team:** 1 full-stack developer

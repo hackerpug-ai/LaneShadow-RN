@@ -2,6 +2,8 @@
 
 **Purpose:** Every epic MUST execute the full curation pipeline end-to-end as part of its human test steps. This protocol defines the canonical review routine — a scalable set of steps that exercises all curation scripting available at each epic boundary, compares against the prior epic's baseline, and produces a review artifact before the epic can be marked Done.
 
+**Companion protocol:** [`CRAWL-PLAN-PROTOCOL.md`](./CRAWL-PLAN-PROTOCOL.md) is the *pre-extraction* gate adopted on 2026-04-13 after Epic 2's BBR/MR "PASS WITH ISSUES" findings. Every task that extracts data from a remote source (HTML scraper, GIS API, RSS feed, paginated authenticated API) MUST produce a committed crawl plan artifact before running at scale. This review protocol is the *post-pipeline* gate that runs after extraction. The two protocols are non-overlapping and both mandatory — see Step 1 below for the integration point.
+
 **Guiding principle:** *Every epic runs all curation scripting that exists at that point in the plan.* No epic is complete until the full pipeline (everything built so far) has been executed, the catalog diffed against the prior epic, and the review artifact written.
 
 ---
@@ -29,25 +31,40 @@ Each step runs ONLY if the referenced scripting exists at the current epic bound
 
 ### Step 1: Run all source scrapers
 **Required starting:** Epic 2 (existing sources), grows at Epic 4 (+3 new sources)
+
+**Pre-verification — Crawl Plan Protocol gate (MANDATORY starting 2026-04-13):**
+
+Before running any source scraper, verify that the source has passed the [Crawl Plan Protocol](./CRAWL-PLAN-PROTOCOL.md) and produced a committed verdict-PASS crawl report. This gate is non-negotiable for any source that extracts data from a remote endpoint (Form A HTML scraper, Form B structured API, Form C RSS feed, Form D authenticated paginated API). Form E pre-computed file consumers (FHWA CSV, curvature pre-computed output) are exempt.
+
+For each source in scope at this epic, the following MUST exist and be committed:
+1. `.spec/prds/curation-hardening/crawl-plans/{source}/site-map.md` (Phase 0)
+2. `.spec/prds/curation-hardening/crawl-plans/{source}/urls.jsonl` (Phase 1)
+3. `fixtures/{source}/` directory with ≥3 fixtures per page type + `fixtures.manifest.yaml` (Phase 2)
+4. `.spec/prds/curation-hardening/crawl-plans/{source}/selectors.yaml` with fixture_yield 5/5 on all required fields (Phase 3)
+5. `scripts/curation/tests/sources/test_{source}_fixtures.py` passing locally (Phase 4)
+6. `.spec/prds/curation-hardening/crawl-plans/{source}/crawl-report.md` with verdict PASS from the most recent execution (Phase 6)
+
+**Gate rule:** If any of the above are missing or the most-recent `crawl-report.md` verdict is not PASS, Step 1 FAILS and the curation review CANNOT proceed to the scraper bash commands below. The fix is to run (or re-run) the relevant Crawl Plan Protocol phases, not to soften the verdict.
+
 ```bash
 # Existing (required from Epic 2 onward)
-python -m scripts.curation.pipeline.sources.fhwa
-python -m scripts.curation.pipeline.sources.motorcycleroads
-python -m scripts.curation.pipeline.sources.bestbikingroads
+python -m scripts.curation.pipeline.sources.fhwa                # Form E — pre-computed CSV, Crawl Plan Protocol exempt
+python -m scripts.curation.pipeline.sources.motorcycleroads     # Form A — requires crawl plan (see BASE-009)
+python -m scripts.curation.pipeline.sources.bestbikingroads     # Form A — requires crawl plan (see BASE-009)
 
 # New sources (all required starting at Epic 4 — Epic 5 deleted 2026-04-12)
-python -m scripts.curation.pipeline.sources.scenic_byways       # Epic 4+
-python -m scripts.curation.pipeline.sources.rider_mag           # Epic 4+
-python -m scripts.curation.pipeline.sources.curvature_discovery # Epic 4+
+python -m scripts.curation.pipeline.sources.scenic_byways       # Epic 4+ — Form B (Koordinates GIS API), requires crawl plan
+python -m scripts.curation.pipeline.sources.rider_mag           # Epic 4+ — Form A (editorial HTML), requires crawl plan
+python -m scripts.curation.pipeline.sources.curvature_discovery # Epic 4+ — Form E (pre-computed), exempt
 
 # Community (required starting Epic 9+)
-python -m scripts.curation.pipeline.sources.advrider            # Epic 9+
-python -m scripts.curation.pipeline.sources.reddit              # Epic 9+
-python -m scripts.curation.pipeline.sources.pushshift           # Epic 9+
+python -m scripts.curation.pipeline.sources.advrider            # Epic 9+ — Form C (RSS feeds × 17), requires crawl plan
+python -m scripts.curation.pipeline.sources.reddit              # Epic 9+ — Form D (OAuth2 paginated API), requires crawl plan
+python -m scripts.curation.pipeline.sources.pushshift           # Epic 9+ — Form D variant (historical backfill), requires crawl plan
 ```
 *Sources removed 2026-04-12: `bdr` (dropped — V3 lifestyle mismatch + VAL-002 403s), `twtex` (dropped — PRD assumption failed, VAL-003 no-go), `usfs_mvum` (dropped — V3 lifestyle mismatch).*
 *FHWA data lineage (2026-04-13): `scripts/curation/pipeline/sources/fhwa.py` consumes `data/fhwa_byways.csv`, a static committed file produced by Epic 2 BASE-000 from the DOT ArcGIS `US_Scenic_Byways/MapServer/107` layer (~645 routes across NSB / state / USFS / NPS / BLM tags). The predecessor PRD's aspirational "184-route data.gov CSV" reference has been retired — see `epic-02-baseline-pipeline-validation/DECISIONS.md`. Expected FHWA count in each epic's `source_counts.json` is ~645 (tolerance 580–710) unless DOT updates the layer, in which case a new DECISIONS.md entry documents the delta.*
-**Verify:** each source produces a JSONL staging file with expected route count. Log discrepancies.
+**Verify:** each source produces a JSONL staging file with record count matching the Phase 1 inventory (±5% for dead links); the source's `.audit.json` shows fetch ≥95%, parse ≥99%, schema_validation_fail <1%. Log discrepancies against the committed `crawl-report.md`.
 
 ### Step 2: Run enrichment clients
 **Required starting:** Epic 8 (HPMS + NWS) + existing OSM enrichment

@@ -92,3 +92,9 @@ yarn-error.*
 # @end expo-cli.claude/worktrees/
 
 keys
+
+# Scratch / evidence bundles / scraper data
+.tmp/
+.cache/
+staging/
+tmp/
