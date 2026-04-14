@@ -1,6 +1,6 @@
-"""BestBikingRoads.com scraper for international motorcycle route data.
+"""BestBikingRoads.com scraper for US motorcycle route data.
 
-Scrapes route listings by country from bestbikingroads.com, extracting:
+Scrapes route listings by state from bestbikingroads.com, extracting:
 - Route name
 - Location (country/state)
 - Description
@@ -8,9 +8,11 @@ Scrapes route listings by country from bestbikingroads.com, extracting:
 - Source URL (required for P2 compliance)
 
 The site is organized by country with pagination. Contains 17,976+ routes.
+This scraper focuses on US routes only.
 """
 
 import asyncio
+import json
 import logging
 import re
 from pathlib import Path
@@ -28,14 +30,17 @@ logger = logging.getLogger(__name__)
 class BestBikingRoadsScraper(BaseScraper):
     """Scraper for bestbikingroads.com community-sourced routes.
 
-    Country-paginated scraper with US state sub-pages. Extracts route data
-    from listing pages with pagination support.
+    State-paginated scraper that extracts US-only route data from state
+    listing pages. Includes state-level progress tracking for resumability.
     """
 
     BASE_URL = "https://www.bestbikingroads.com"
     ROADS_LISTING_URL = f"{BASE_URL}/roads/"
 
-    # Focus on US routes initially (can be expanded)
+    # Progress file for state-level resume
+    PROGRESS_FILE = "bestbikingroads_progress.json"
+
+    # Focus on US routes only
     US_STATES = [
         "alabama", "alaska", "arizona", "arkansas", "california",
         "colorado", "connecticut", "florida", "georgia", "hawaii",
@@ -59,6 +64,33 @@ class BestBikingRoadsScraper(BaseScraper):
         super().__init__("bestbikingroads", output_dir)
         self.states = states or self.US_STATES
         self.robots_checker = RobotsChecker()
+        self._progress_path = self.output_dir / self.PROGRESS_FILE
+        self._completed_states: set[str] = self._load_progress()
+
+    def _load_progress(self) -> set[str]:
+        """Load completed states from progress file for resume capability."""
+        if not self._progress_path.exists():
+            return set()
+
+        try:
+            with open(self._progress_path, "r", encoding="utf-8") as f:
+                data = json.loads(f.read())
+                completed = set(data.get("completed_states", []))
+                if completed:
+                    logger.info(f"Resuming: {len(completed)} states already completed ({', '.join(sorted(completed)[:5])}...)")
+                return completed
+        except (json.JSONDecodeError, Exception) as e:
+            logger.warning(f"Could not load progress file: {e}")
+            return set()
+
+    def _save_progress(self, state: str) -> None:
+        """Mark a state as completed and persist progress."""
+        self._completed_states.add(state)
+        try:
+            with open(self._progress_path, "w", encoding="utf-8") as f:
+                json.dump({"completed_states": sorted(self._completed_states)}, f, indent=2)
+        except Exception as e:
+            logger.warning(f"Could not save progress file: {e}")
 
     async def scrape(self) -> AsyncIterator[dict]:
         """Scrape routes from bestbikingroads.com.
@@ -85,22 +117,36 @@ class BestBikingRoadsScraper(BaseScraper):
             logger.warning(f"Could not check robots.txt: {e}")
 
         total_routes = 0
+        skipped_states = 0
 
         for state in self.states:
+            # Skip states already completed in a previous run
+            if state in self._completed_states:
+                logger.info(f"Skipping completed state: {state}")
+                skipped_states += 1
+                continue
+
             logger.info(f"Scraping state: {state}")
 
             try:
+                state_routes = 0
                 async for route in self._scrape_state(state):
                     total_routes += 1
+                    state_routes += 1
                     if total_routes % 10 == 0:
                         logger.info(f"Scraped {total_routes} routes so far")
                     yield route
 
+                # Mark state as completed after processing all its routes
+                self._save_progress(state)
+                logger.info(f"Completed {state}: {state_routes} routes")
+
             except Exception as e:
                 logger.error(f"Error scraping state {state}: {e}")
+                # Don't mark as completed on error — will retry on next run
                 continue
 
-        logger.info(f"Completed scraping {total_routes} routes from {len(self.states)} states")
+        logger.info(f"Completed scraping {total_routes} routes from {len(self.states)} states ({skipped_states} resumed)")
 
     async def _scrape_state(self, state: str) -> AsyncIterator[dict]:
         """Scrape all routes for a specific state.
@@ -118,7 +164,6 @@ class BestBikingRoadsScraper(BaseScraper):
             soup = BeautifulSoup(html, "html.parser")
 
             # Find all route links on the state page
-            # BestBikingRoads uses various link structures
             route_links = soup.select("a[href*='/motorcycle-roads/']")
 
             logger.info(f"Found {len(route_links)} route links for {state}")
@@ -126,12 +171,16 @@ class BestBikingRoadsScraper(BaseScraper):
             for link in route_links:
                 href = link.get("href", "")
 
-                # Skip if not a direct route link (exclude country/state listings)
+                # Skip if not a direct route link
                 if not href or "/motorcycle-roads/" not in href:
                     continue
 
-                # Skip navigation/filter links
+                # Skip navigation/filter/listing links
                 if any(skip in href for skip in ["/country/", "/routes/", "/roads/"]):
+                    continue
+
+                # US-only filter: skip any route not in /united-states/
+                if "/united-states/" not in href:
                     continue
 
                 # Build full URL
@@ -149,12 +198,23 @@ class BestBikingRoadsScraper(BaseScraper):
                     if not route_name or len(route_name) < 3:
                         continue
 
+                    # Extract state from route URL: /united-states/{state}/ride/{slug}
+                    # The listing page contains cross-state links, so use the URL's state.
+                    route_state = state  # default to listing state
+                    url_path = route_url.split("/united-states/")[-1]
+                    parts = url_path.split("/")
+                    if len(parts) >= 1:
+                        url_state_slug = parts[0]
+                        # Verify it's a known US state slug
+                        if url_state_slug in self.US_STATES:
+                            route_state = url_state_slug
+
                     # Fetch the route detail page
                     route_html = await self.fetch(route_url)
                     route_soup = BeautifulSoup(route_html, "html.parser")
 
                     # Extract detailed information
-                    record = self._extract_route_data(route_soup, route_url, route_name, state)
+                    record = self._extract_route_data(route_soup, route_url, route_name, route_state)
 
                     if record:
                         self.write_jsonl(record)
