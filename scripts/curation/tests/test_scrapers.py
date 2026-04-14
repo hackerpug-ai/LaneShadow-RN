@@ -19,7 +19,6 @@ from scripts.curation.pipeline.sources.base_scraper import (
     UserAgentRotator,
 )
 from scripts.curation.pipeline.sources.robots_checker import RobotsChecker
-from scripts.curation.pipeline.sources.motorcycleroads import MotorcycleRoadsScraper
 from scripts.curation.pipeline.sources.bestbikingroads import BestBikingRoadsScraper
 
 
@@ -126,6 +125,15 @@ class TestRobotsChecker:
             assert result2 is True
 
 
+class _ConcreteBaseScraper(BaseScraper):
+    """Concrete subclass for testing BaseScraper abstract methods."""
+
+    async def scrape(self):
+        """Stub implementation of abstract method."""
+        return
+        yield  # make it an async generator
+
+
 class TestBaseScraper:
     """Test base scraper functionality."""
 
@@ -138,7 +146,7 @@ class TestBaseScraper:
     @pytest.mark.asyncio
     async def test_jsonl_write_and_resume(self, temp_output_dir):
         """Test that JSONL writes are resumable with deduplication."""
-        scraper = BaseScraper("test_source", temp_output_dir)
+        scraper = _ConcreteBaseScraper("test_source", temp_output_dir)
 
         # Write a record
         record1 = {
@@ -184,13 +192,13 @@ class TestBaseScraper:
             }) + "\n")
 
         # Create scraper and check it loaded the existing URL
-        scraper = BaseScraper("test_source", temp_output_dir)
+        scraper = _ConcreteBaseScraper("test_source", temp_output_dir)
 
         assert scraper.is_already_scraped("https://example.com/existing")
 
     def test_requires_source_url(self, temp_output_dir):
         """Test that records without source_url are rejected."""
-        scraper = BaseScraper("test_source", temp_output_dir)
+        scraper = _ConcreteBaseScraper("test_source", temp_output_dir)
 
         record_without_url = {
             "name": "Test Route",
@@ -199,75 +207,6 @@ class TestBaseScraper:
 
         with pytest.raises(ValueError, match="must include source_url"):
             scraper.write_jsonl(record_without_url)
-
-
-class TestMotorcycleRoadsScraper:
-    """Test motorcycleroads.com scraper."""
-
-    @pytest.fixture
-    def temp_output_dir(self):
-        """Create a temporary directory for test output."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
-
-    @pytest.mark.asyncio
-    async def test_scrape_state_with_mock_data(self, temp_output_dir):
-        """Test scraping a state with mocked HTML responses."""
-        scraper = MotorcycleRoadsScraper(temp_output_dir, states=["Tennessee"])
-
-        # Mock the fetch method
-        mock_html = """
-        <html>
-            <body>
-                <a href="/motorcycle-roads/tennessey/test-route">Test Route</a>
-            </body>
-        </html>
-        """
-
-        scraper.fetch = AsyncMock(return_value=mock_html)
-
-        # Mock robots.txt check
-        scraper.robots_checker.can_fetch = AsyncMock(return_value=True)
-
-        routes = []
-        async for route in scraper.scrape():
-            routes.append(route)
-            if len(routes) >= 1:  # Just test one
-                break
-
-        # Verify we got a route
-        assert len(routes) > 0
-
-    def test_extract_route_data(self, temp_output_dir):
-        """Test route data extraction from HTML."""
-        scraper = MotorcycleRoadsScraper(temp_output_dir)
-
-        html = """
-        <html>
-            <body>
-                <div class="field-field-scenery">
-                    Beautiful scenic route through mountains.
-                </div>
-                <div class="rating">
-                    4.5 out of 5
-                </div>
-            </body>
-        </html>
-        """
-
-        soup = BeautifulSoup(html, "html.parser")
-        record = scraper._extract_route_data(
-            soup,
-            "https://example.com/route",
-            "Test Route",
-            "Tennessee"
-        )
-
-        assert record is not None
-        assert record["name"] == "Test Route"
-        assert record["state"] == "Tennessee"
-        assert record["source_url"] == "https://example.com/route"
-        assert record["source"] == "motorcycleroads"
 
 
 class TestBestBikingRoadsScraper:
@@ -284,16 +223,27 @@ class TestBestBikingRoadsScraper:
         """Test scraping a state with mocked HTML responses."""
         scraper = BestBikingRoadsScraper(temp_output_dir, states=["tennessee"])
 
-        # Mock the fetch method
-        mock_html = """
+        # Mock HTML for the state listing page — must include proper BBR route URL format
+        # BBR URLs: /motorcycle-roads/united-states/{state}/ride/{slug}
+        state_listing_html = """
         <html>
             <body>
-                <a href="/motorcycle-roads/test-route">Test Route</a>
+                <a href="/motorcycle-roads/united-states/tennessee/ride/test-route">Test Route</a>
+            </body>
+        </html>
+        """
+        # Mock HTML for the route detail page
+        route_detail_html = """
+        <html>
+            <body>
+                <div class="route-description">Beautiful scenic route through mountains.</div>
+                <div class="rating">4.5 out of 5</div>
             </body>
         </html>
         """
 
-        scraper.fetch = AsyncMock(return_value=mock_html)
+        # Return state listing first, then route detail for subsequent calls
+        scraper.fetch = AsyncMock(side_effect=[state_listing_html, route_detail_html])
 
         # Mock robots.txt check
         scraper.robots_checker.can_fetch = AsyncMock(return_value=True)
@@ -347,62 +297,3 @@ class TestBestBikingRoadsScraper:
         assert record["source"] == "bestbikingroads"
 
 
-class TestIntegration:
-    """Integration tests for scraper workflows."""
-
-    @pytest.fixture
-    def temp_output_dir(self):
-        """Create a temporary directory for test output."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
-
-    @pytest.mark.asyncio
-    async def test_resume_after_interruption(self, temp_output_dir):
-        """Test that scraper resumes correctly after interruption."""
-        scraper = MotorcycleRoadsScraper(temp_output_dir, states=["Tennessee"])
-
-        # Write some initial data
-        jsonl_path = temp_output_dir / "motorcycleroads.jsonl"
-        with open(jsonl_path, "w") as f:
-            f.write(json.dumps({
-                "name": "Existing Route",
-                "state": "TN",
-                "source_url": "https://example.com/existing",
-                "source": "motorcycleroads",
-            }) + "\n")
-
-        # Create new scraper instance (simulating restart)
-        new_scraper = MotorcycleRoadsScraper(temp_output_dir, states=["Tennessee"])
-
-        # Verify it knows about the existing route
-        assert new_scraper.is_already_scraped("https://example.com/existing")
-
-        # Write a new route
-        new_route = {
-            "name": "New Route",
-            "state": "TN",
-            "source_url": "https://example.com/new",
-            "source": "motorcycleroads",
-        }
-
-        new_scraper.write_jsonl(new_route)
-
-        # Verify both routes are in the file
-        with open(jsonl_path, "r") as f:
-            lines = f.readlines()
-
-        assert len(lines) == 2
-
-        # Try to write the existing route again
-        new_scraper.write_jsonl({
-            "name": "Existing Route",
-            "state": "TN",
-            "source_url": "https://example.com/existing",
-            "source": "motorcycleroads",
-        })
-
-        # Should still be only 2 lines (duplicate prevented)
-        with open(jsonl_path, "r") as f:
-            lines = f.readlines()
-
-        assert len(lines) == 2
