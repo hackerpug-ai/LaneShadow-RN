@@ -81,7 +81,7 @@ export const findCandidateRoutesByEmbedding = query({
 
     // Fetch full documents and join with _score
     const routes = await Promise.all(
-      results.map(async ({ _id, _score }) => {
+      results.map(async ({ _id, _score }: { _id: any; _score: number }) => {
         const doc = await ctx.db.get(_id) as CuratedRouteDoc | null;
         if (!doc) {
           return null;
