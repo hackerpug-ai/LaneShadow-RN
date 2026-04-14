@@ -29,7 +29,7 @@ Epic 9 extends the [Crawl Plan Protocol](../CRAWL-PLAN-PROTOCOL.md) to the commu
 | RID-002 | Reddit OAuth2 API | **Form D** — paginated auth API | Phase 0 documents auth flow, rate limit, pagination cursor, endpoint schema. Phase 1 inventory is the initial query/endpoint list (pagination cursor lives in executor, not committed inventory). Phase 2 fixtures = sample JSON responses per endpoint. Phase 4 tests assert JSON field types/enums. |
 | RID-006 | Pushshift historical backfill | **Form D variant** | Same as RID-002 but with a historical date-range wrinkle. Pushshift's reliability is flagged in this epic's Notes ("may need a third-party mirror"). Phase 4 fixture tests become the early-warning system for format drift across mirrors — if Pushshift's output changes format, tests catch it offline before a multi-hour backfill run. |
 
-**Shared framework dependency:** All three RID tasks extend the `scripts/curation/pipeline/sources/crawl_plan/` framework module built in [BASE-009](../epic-02-baseline-pipeline-validation/BASE-009.md). Forms C and D add adapter layers for RSS parsing and paginated JSON extraction on top of the Form A framework. If BASE-009 has not landed, Epic 9 cannot begin.
+**Shared framework dependency:** All three RID tasks extend the `scripts/curation/pipeline/sources/crawl_plan/` framework module built in [BASE-009a](../epic-02-baseline-pipeline-validation/BASE-009a.md) and proven on Form A (MR + BBR) via [BASE-009b](../epic-02-baseline-pipeline-validation/BASE-009b.md). Forms C and D add adapter layers for RSS parsing and paginated JSON extraction on top of the Form A framework. If BASE-009a/b have not landed, Epic 9 cannot begin.
 
 **Per-task acceptance criteria additions (MUST be present when task files are written):**
 

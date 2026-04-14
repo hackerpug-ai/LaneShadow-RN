@@ -34,7 +34,7 @@ Epic 4 is the first full application of the [Crawl Plan Protocol](../CRAWL-PLAN-
 | SRC-006 | Rider Magazine 50 Best Roads | **Form A** — editorial HTML scrape | **Yes** | Small site (50 routes), high-stakes because the output becomes Epic 8 SCO-002's calibration ground truth — sloppy scraping here poisons Epic 8's calibration gate |
 | SRC-004 | adamfranco/curvature pre-computed output | **Form E** — file consumer | **Exempt** | Not a crawl; consumes a pre-computed file. Must still produce a small `.spec/prds/curation-hardening/crawl-plans/curvature_discovery/README.md` landing page pointing at the source file, per protocol convention |
 
-**Shared framework dependency:** SRC-001 and SRC-006 consume the `scripts/curation/pipeline/sources/crawl_plan/` framework module built in [BASE-009](../epic-02-baseline-pipeline-validation/BASE-009.md). If BASE-009 has not landed, the framework does not exist yet and Epic 4 cannot begin. BASE-009 is a hard blocker for this epic — not an optional prerequisite.
+**Shared framework dependency:** SRC-001 and SRC-006 consume the `scripts/curation/pipeline/sources/crawl_plan/` framework module built in [BASE-009a](../epic-02-baseline-pipeline-validation/BASE-009a.md) and proven on BBR in [BASE-009b](../epic-02-baseline-pipeline-validation/BASE-009b.md). If BASE-009a/b have not landed, the framework does not exist yet and Epic 4 cannot begin. BASE-009b is a hard blocker for this epic — not an optional prerequisite.
 
 **Per-task acceptance criteria additions (MUST be present when task files are written):**
 
@@ -51,6 +51,8 @@ For SRC-004 (exempt):
 - [ ] `.spec/prds/curation-hardening/crawl-plans/curvature_discovery/README.md` committed with one-line pointer to the source file location and provenance note
 
 **Calibration gate cascade risk:** Rider Magazine 50 Best (SRC-006) is the upstream supplier of Epic 8's calibration ground truth. If SRC-006's crawl plan is sloppily executed or the verdict is softened to PASS WITH ISSUES, Epic 8's calibration gate becomes noise and the entire scoring-realignment work is compromised. Epic 4's protocol compliance is Epic 8's insurance policy. Do not proceed past SRC-006 without a PASS verdict on its crawl-report.md.
+
+**Note on BASE-009 references:** BASE-009 was split into BASE-009a (framework + MR) and BASE-009b (BBR + baseline regeneration) on 2026-04-13 evening for risk isolation. All references to "BASE-009" in Epic 4 task files should be read as "BASE-009a/b"; Epic 4 depends on BASE-009b (the final remediation task in Epic 2) being complete before any Epic 4 task starts. See `epic-02-baseline-pipeline-validation/DECISIONS.md` "Crawl Plan Protocol adoption" split sub-section.
 
 ---
 

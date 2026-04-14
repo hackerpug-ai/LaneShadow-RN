@@ -17,16 +17,16 @@
 | Metric | Value |
 |--------|-------|
 | **Total Epics** | 11 (Epic 5 deleted; sequence numbers preserved — gap from 4 → 6) |
-| **Total Tasks** | 44 (Epic 2 expanded from 1 → 10 across 2026-04-12 decomposition + 2026-04-13 AM BASE-000 insertion + 2026-04-13 PM BASE-009 Crawl Plan Protocol remediation) |
-| **Full-Detail Task Files** | 14 (Epic 1: 4 VAL tasks; Epic 2: 10 BASE tasks) |
+| **Total Tasks** | 45 (Epic 2 expanded from 1 → 11 across 2026-04-12 decomposition + 2026-04-13 AM BASE-000 insertion + 2026-04-13 PM BASE-009 Crawl Plan Protocol remediation split into BASE-009a + BASE-009b) |
+| **Full-Detail Task Files** | 15 (Epic 1: 4 VAL tasks; Epic 2: 11 BASE tasks) |
 | **Stub Tasks** | 30 (Epics 3-4, 6-12) |
 | **PRD Coverage** | 100% of 16 surviving use cases + cross-priority infra |
-| **Estimated Effort** | ~6205 minutes (~103.4 hours total) — round-1 Epic 2 decomposition preserved the 240-min total; round-2 (2026-04-13 AM) added 90 min for BASE-000 data prep; round-3 (2026-04-13 PM) added 480 min for BASE-009 Crawl Plan Protocol remediation |
+| **Estimated Effort** | ~6355 minutes (~105.9 hours total) — round-1 Epic 2 decomposition preserved the 240-min total; round-2 (2026-04-13 AM) added 90 min for BASE-000 data prep; round-3 (2026-04-13 PM) added 480 min for BASE-009 Crawl Plan Protocol remediation; round-4 (2026-04-13 PM) split BASE-009 into BASE-009a (270 min) + BASE-009b (300 min), adding 90 min of split overhead for risk isolation; round-5 (2026-04-13 PM, later same evening) revised BASE-009a upward to 330 min after Phase 0 recon corrected the MR route universe from 300-1000 to ~2,044 routes (see `epic-02-baseline-pipeline-validation/DECISIONS.md` "Phase 0 recon findings") |
 
 ### Task Quality
 
 - **Epic 1 (VAL-001..004)** — Full TASK-TEMPLATE v4.0 compliance, quality score 115/115 average
-- **Epic 2 (BASE-000..009)** — Full TASK-TEMPLATE v4.0 compliance, quality score ~112/115 average (BASE-001 through BASE-008 originated from a 2026-04-12 decomposition; BASE-000 added 2026-04-13 AM as a data-prep prerequisite; BASE-009 added 2026-04-13 PM as a Crawl Plan Protocol remediation task — see `tasks/CRAWL-PLAN-PROTOCOL.md`)
+- **Epic 2 (BASE-000..009b)** — Full TASK-TEMPLATE v4.0 compliance, quality score ~112/115 average (BASE-001 through BASE-008 originated from a 2026-04-12 decomposition; BASE-000 added 2026-04-13 AM as a data-prep prerequisite; BASE-009 added 2026-04-13 PM as a Crawl Plan Protocol remediation task and same-evening split into BASE-009a [framework + MR, 270 min] + BASE-009b [BBR + baseline regeneration + review.md verdict upgrade, 300 min] for risk isolation — see `tasks/CRAWL-PLAN-PROTOCOL.md` and the "Crawl Plan Protocol adoption" decision in Epic 2 DECISIONS.md)
 - **Epic 3-12** — Stub-level (task_id, title, agent, dependencies, one-line spec) per user directive
 - **Task files for Epics 3-12** — Will be written as each epic enters execution phase
 
@@ -82,7 +82,7 @@
 
 **Integration point with the Curation Review Protocol:** Step 1 of the review protocol requires that every in-scope source for the current epic has a committed, verdict-PASS `crawl-report.md`. Missing or failing crawl reports fail the curation review at Step 1, blocking the epic from being marked Done.
 
-**First application:** [BASE-009](./epic-02-baseline-pipeline-validation/BASE-009.md) — retroactive remediation of MR + BBR under the protocol; builds the shared `scripts/curation/pipeline/sources/crawl_plan/` framework module that Epic 4 SRC-001/006 and Epic 9 RID-001/002/006 subsequently consume.
+**First application:** [BASE-009a](./epic-02-baseline-pipeline-validation/BASE-009a.md) (framework + MotorcycleRoads) → [BASE-009b](./epic-02-baseline-pipeline-validation/BASE-009b.md) (BestBikingRoads + baseline regeneration + review.md verdict upgrade). Split by source for risk isolation: framework bugs surfaced on MR's ~30 min Phase 5 cost one re-run; the same bugs surfaced on BBR's ~3.75 hr Phase 5 would cost 3.75 hr per re-run. BASE-009a builds the shared `scripts/curation/pipeline/sources/crawl_plan/` framework module that BASE-009b + Epic 4 SRC-001/006 + Epic 9 RID-001/002/006 subsequently consume.
 
 ---
 
@@ -91,7 +91,7 @@
 | # | Epic | Folder | Tasks | Priority | Human Test Focus |
 |---|------|--------|-------|----------|------------------|
 | 1 | Week 0 — Validation & De-Risking | [epic-01-week0-validation/](./epic-01-week0-validation/) | 4 | P0 | Run 4 validation spikes, verify go/no-go for each risk |
-| 2 | Baseline Curation Pipeline Validation | [epic-02-baseline-pipeline-validation/](./epic-02-baseline-pipeline-validation/) | 10 | P0 | Fetch FHWA CSV (BASE-000) + run existing pipeline end-to-end before hardening + BASE-009 Crawl Plan Protocol remediation (re-crawl MR + BBR under new methodology to replace the PASS WITH ISSUES baseline) |
+| 2 | Baseline Curation Pipeline Validation | [epic-02-baseline-pipeline-validation/](./epic-02-baseline-pipeline-validation/) | 11 | P0 | Fetch FHWA CSV (BASE-000) + run existing pipeline end-to-end before hardening + BASE-009a/b Crawl Plan Protocol remediation (framework + MR → human checkpoint → BBR + baseline regen + review.md PASS) |
 | 3 | Foundation — Models, Schema, Dependencies | [epic-03-foundation-models-schema/](./epic-03-foundation-models-schema/) | 6 | P0 | Install deps, extend models, migrate Convex schema |
 | 4 | Source Diversification — Government, Editorial & Geometric | [epic-04-sources-government-editorial/](./epic-04-sources-government-editorial/) | 3 | P1 | Run 3 surviving sources (Scenic Byways, Rider Mag, curvature) through full pipeline |
 | ~~5~~ | ~~Source Diversification — Community + Geometric~~ | *deleted 2026-04-12* | 0 | — | *BDR + twtex sources invalidated; SRC-004 (curvature) folded into Epic 4* |
@@ -195,9 +195,10 @@ Epic 1: Week 0 Validation (VAL-001..004)
 | [BASE-006](./epic-02-baseline-pipeline-validation/BASE-006.md) | OSM enrichment validation + Boy Scout __main__ for enrichment/osm_client.py | python-implement | S | 45 |
 | [BASE-007](./epic-02-baseline-pipeline-validation/BASE-007.md) | Convex push dry-run validation + Boy Scout --dry-run flag for sync/convex_push.py | python-implement | S | 45 |
 | [BASE-008](./epic-02-baseline-pipeline-validation/BASE-008.md) | Curation Review Protocol execution + baseline artifacts commit | python-implement | M | 60 |
-| [BASE-009](./epic-02-baseline-pipeline-validation/BASE-009.md) | Crawl Plan Protocol remediation — re-crawl MR + BBR under new methodology | python-implement | L | 480 |
+| [BASE-009a](./epic-02-baseline-pipeline-validation/BASE-009a.md) | Crawl Plan Protocol framework + MotorcycleRoads remediation | python-implement | M | 330 |
+| [BASE-009b](./epic-02-baseline-pipeline-validation/BASE-009b.md) | Apply Crawl Plan Protocol to BestBikingRoads + regenerate Epic 2 baseline | python-implement | L | 300 |
 
-**Total Epic 2 effort:** 885 min (~14.75 hours) across 10 tasks. See `epic-02-baseline-pipeline-validation/EPIC.md` for the wave plan and `epic-02-baseline-pipeline-validation/DECISIONS.md` for both the 2026-04-13 AM FHWA CSV data source resolution and the 2026-04-13 PM Crawl Plan Protocol adoption decisions.
+**Total Epic 2 effort:** 1,035 min (~17.25 hours) across 11 tasks. See `epic-02-baseline-pipeline-validation/EPIC.md` for the wave plan and `epic-02-baseline-pipeline-validation/DECISIONS.md` for the 2026-04-13 AM FHWA CSV data source resolution, the 2026-04-13 PM Crawl Plan Protocol adoption, its same-evening split into BASE-009a + BASE-009b, and the Phase 0 recon findings that revised BASE-009a's route universe from 300-1000 to ~2,044 (BASE-009a effort 270 → 330 min).
 
 ### Epic 3: Foundation (STUBS)
 

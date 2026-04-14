@@ -3,9 +3,10 @@
 **Sequence:** 2 / 12
 **Priority:** P0
 **Status:** Backlog
-**Estimated Effort:** 885 minutes (~14.75 hours) — includes BASE-000 data prep (2026-04-13 AM) and BASE-009 Crawl Plan Protocol remediation (2026-04-13 PM)
+**Estimated Effort:** 1,035 minutes (~17.25 hours) — includes BASE-000 data prep (2026-04-13 AM), BASE-009a/b Crawl Plan Protocol remediation (2026-04-13 PM, split by source for risk isolation), and a same-evening upward revision of BASE-009a from 270 → 330 min after Phase 0 recon corrected the MR route universe from 300-1000 to ~2,044 routes
 **Revised:** 2026-04-13 AM — BASE-000 inserted as prerequisite after `/kb-run-epic` preflight revealed the FHWA input CSV did not exist and the DOT ArcGIS layer returns 645 routes (not the 184 the PRD originally assumed). See [DECISIONS.md](./DECISIONS.md) for the full rationale and [Preflight Discoveries](#preflight-discoveries-2026-04-13) below.
 **Revised:** 2026-04-13 PM — BASE-009 inserted as Wave 6 remediation after BASE-008 surfaced "PASS WITH ISSUES" verdict for the community scrapers (MR: 30 routes vs expected >50 with Alabama-stamped Blue Ridge Parkway entries; BBR: 413 routes vs ~4,100 true US universe). Root-cause analysis identified a systemic failure mode (blind selectors, interleaved discovery/fetch/parse, swallowed errors, no committed URL inventory) that would have reproduced in Epics 4 and 9. Triggered adoption of [`tasks/CRAWL-PLAN-PROTOCOL.md`](../CRAWL-PLAN-PROTOCOL.md) as a mandatory pre-extraction gate for all source tasks. See [DECISIONS.md](./DECISIONS.md) "Crawl Plan Protocol adoption" entry for the full rationale.
+**Revised:** 2026-04-13 PM (second revision) — BASE-009 split into BASE-009a (framework + MotorcycleRoads, ~270 min) and BASE-009b (BestBikingRoads + baseline regeneration + review.md verdict upgrade, ~300 min). Split rationale: isolate framework risk to the cheap MR case (~30 min Phase 5) before burning BBR's ~3.75 hr Phase 5 execution. Framework bugs discovered on MR cost one 30-min re-run; same bugs on BBR would cost 3.75 hr per re-run. The split also introduces a human checkpoint between 009a and 009b — user reviews MR crawl-report.md before BBR is dispatched. See [DECISIONS.md](./DECISIONS.md) "Crawl Plan Protocol adoption" entry, split sub-section.
 
 ---
 
@@ -45,7 +46,7 @@ All 9 verifications must pass before proceeding to Epic 3. Any failure means an 
 - [ ] BASE-000 static CSV committed to `data/fhwa_byways.csv` (~645 routes derived from DOT ArcGIS)
 - [ ] Every existing pipeline stage has been executed at least once against real data
 - [ ] Each stage produces expected output types and ranges
-- [ ] JSONL staging files exist for each source with reasonable counts (FHWA: 580-710; MR: 300-1000; BBR: 3,500-5,500) — MR/BBR ranges revised 2026-04-13 PM to reflect real US-only site universes, replacing the PRD's aspirational "MR: >50" and "BBR: 10k-20k" numbers; see [DECISIONS.md](./DECISIONS.md) "Crawl Plan Protocol adoption"
+- [ ] JSONL staging files exist for each source with reasonable counts (FHWA: 580-710; MR: 1,800-2,200; BBR: 3,500-5,500) — MR/BBR ranges revised 2026-04-13 PM to reflect real US-only site universes, replacing the PRD's aspirational "MR: >50" and "BBR: 10k-20k" numbers. MR range further revised the same evening from [300, 1000] to [1800, 2200] after Phase 0 recon measured the true master-index universe at ~2,044 routes (103 paginated pages × 20 routes). See [DECISIONS.md](./DECISIONS.md) "Crawl Plan Protocol adoption" and its "Phase 0 recon findings" sub-section.
 - [ ] Haiku extraction produces valid `RouteAttributes` objects (no schema violations)
 - [ ] Composite scoring produces floats in `[0, 1]` range per dimension
 - [ ] Archetype classification assigns one of 6 archetypes to every route
@@ -55,12 +56,14 @@ All 9 verifications must pass before proceeding to Epic 3. Any failure means an 
 - [ ] DECISIONS.md records the actual BASE-000 row count and any anomalies encountered
 - [ ] Curation Review Protocol executed end-to-end with PASS verdict
 - [ ] `review.md` + `baseline/catalog.jsonl` committed (this becomes the reference baseline for all future epic reviews)
-- [ ] BASE-009 Crawl Plan Protocol remediation complete — MR and BBR re-crawled under the new methodology; `review.md` verdict upgraded from "PASS WITH ISSUES" to "PASS" (2026-04-13 PM)
+- [ ] BASE-009a complete — `crawl_plan/` framework module committed with unit tests; MotorcycleRoads re-crawled under the new methodology; `crawl-plans/motorcycleroads/crawl-report.md` verdict PASS; `staging/motorcycleroads.jsonl` replaced with clean data; user has reviewed the MR crawl-report and approved proceeding to BASE-009b
+- [ ] BASE-009b complete — BestBikingRoads re-crawled under the new methodology using the BASE-009a framework unchanged; `crawl-plans/bestbikingroads/crawl-report.md` verdict PASS; `staging/bestbikingroads.jsonl` replaced with clean data; Epic 2 baseline artifacts regenerated from clean FHWA+MR+BBR staging; `review.md` verdict upgraded from "PASS WITH ISSUES" to "PASS"
 - [ ] `.spec/prds/curation-hardening/crawl-plans/motorcycleroads/` and `.../bestbikingroads/` artifacts committed (site-map.md, urls.jsonl, selectors.yaml, crawl-report.md — all four files per source with verdict PASS)
 - [ ] `scripts/curation/pipeline/sources/crawl_plan/` shared framework module committed, unit-tested, and importable by future source tasks (Epic 4 SRC-001/006, Epic 9 RID-001/002/006)
 - [ ] `fixtures/motorcycleroads/` and `fixtures/bestbikingroads/` committed with ≥3 samples per page type + `fixtures.manifest.yaml` with expected field values
 - [ ] `scripts/curation/tests/sources/test_motorcycleroads_fixtures.py` and `test_bestbikingroads_fixtures.py` exist and pass locally
 - [ ] `scripts/curation/tests/sources/test_crawl_plan_framework.py` unit tests for the shared framework pass locally
+- [ ] BASE-009b final commit is atomic — BBR crawl plan + regenerated baseline + upgraded review.md in a single commit
 
 ---
 
@@ -89,10 +92,11 @@ No curation-hardening-specific UCs are covered here — this epic exists solely 
 | [BASE-005](./BASE-005.md) | Archetype classification validation + Boy Scout __main__ for classification/archetype.py | INFRA | python-implement | P0 | S | 30 | BASE-004 | BASE-008 |
 | [BASE-006](./BASE-006.md) | OSM enrichment validation + Boy Scout __main__ for enrichment/osm_client.py | INFRA | python-implement | P0 | S | 45 | BASE-001 | BASE-008 |
 | [BASE-007](./BASE-007.md) | Convex push dry-run validation + Boy Scout --dry-run flag for sync/convex_push.py | INFRA | python-implement | P0 | S | 45 | BASE-004, VAL-004 | BASE-008 |
-| [BASE-008](./BASE-008.md) | Curation Review Protocol execution + baseline artifacts commit | INFRA | python-implement | P0 | M | 60 | BASE-000..007 | BASE-009 |
-| [BASE-009](./BASE-009.md) | Crawl Plan Protocol remediation — re-crawl MR + BBR under new methodology | INFRA / REMEDIATION | python-implement | P0 | L | 480 | BASE-008 | INF-001 |
+| [BASE-008](./BASE-008.md) | Curation Review Protocol execution + baseline artifacts commit | INFRA | python-implement | P0 | M | 60 | BASE-000..007 | BASE-009a |
+| [BASE-009a](./BASE-009a.md) | Crawl Plan Protocol framework + MotorcycleRoads remediation | INFRA / REMEDIATION | python-implement | P0 | M | 330 | BASE-008 | BASE-009b |
+| [BASE-009b](./BASE-009b.md) | Apply Crawl Plan Protocol to BestBikingRoads + regenerate Epic 2 baseline | INFRA / REMEDIATION | python-implement | P0 | L | 300 | BASE-009a | INF-001 |
 
-**Total effort:** 885 minutes (~14.75 hours) across 10 tasks. Average quality score ~110/115. Originally decomposed from archived `BASE-001.md.archived` (240-min single task) on 2026-04-12; expanded 2026-04-13 AM with BASE-000 data prep after preflight investigation; further expanded 2026-04-13 PM with BASE-009 Crawl Plan Protocol remediation after the community-scraper failure mode was diagnosed as systemic (see [DECISIONS.md](./DECISIONS.md) "Crawl Plan Protocol adoption").
+**Total effort:** 1,035 minutes (~17.25 hours) across 11 tasks. Average quality score ~110/115. Originally decomposed from archived `BASE-001.md.archived` (240-min single task) on 2026-04-12; expanded 2026-04-13 AM with BASE-000 data prep after preflight investigation; further expanded 2026-04-13 PM with BASE-009 Crawl Plan Protocol remediation after the community-scraper failure mode was diagnosed as systemic (see [DECISIONS.md](./DECISIONS.md) "Crawl Plan Protocol adoption"); BASE-009 then split 2026-04-13 PM into BASE-009a (framework + MR, initially 270 min) and BASE-009b (BBR + baseline regen + verdict upgrade, 300 min) to isolate framework risk to MR's Phase 5 before burning BBR's ~3.75 hr execution; BASE-009a then revised upward later the same evening to 330 min after Phase 0 recon established the true MR route universe at ~2,044 routes (not 300-1000) — see DECISIONS.md "Phase 0 recon findings" sub-section.
 
 ### Decomposition Rationale
 
@@ -112,9 +116,12 @@ Wave 1 (after BASE-000):  BASE-001  ║  BASE-002
 Wave 2 (after BASE-001):  BASE-003  ║  BASE-006
 Wave 3 (after BASE-003):  BASE-004
 Wave 4 (after BASE-004):  BASE-005  ║  BASE-007
-Wave 5 (after all above): BASE-008  (Curation Review Protocol + baseline commit)
-Wave 6 (after BASE-008):  BASE-009  (Crawl Plan Protocol remediation — MR + BBR re-crawl, 2026-04-13 PM)
+Wave 5 (after all above): BASE-008   (Curation Review Protocol + baseline commit)
+Wave 6 (after BASE-008):  BASE-009a  (Crawl Plan Protocol framework + MR remediation, ~270 min)
+Wave 7 (after BASE-009a): BASE-009b  (BBR remediation + baseline regen + review.md verdict upgrade, ~300 min)
 ```
+
+**Human checkpoint between Wave 6 and Wave 7:** User reviews `crawl-plans/motorcycleroads/crawl-report.md` and spot-checks 5 random records in `staging/motorcycleroads.jsonl` before BASE-009b is dispatched. This is the risk-isolation payoff of the split — if framework bugs surface, they are fixed here (cost: ~30 min MR re-run) rather than during BBR's ~3.75 hr Phase 5 execution.
 
 ## Preflight Discoveries (2026-04-13)
 
@@ -176,7 +183,8 @@ Pipeline reality check (2026-04-12): 6 of the 8 existing pipeline modules had **
 - [ ] `baseline-report.md` committed to this epic directory
 - [ ] Every pipeline stage verified with actual counts and output samples
 - [ ] Any discovered bugs fixed in a separate commit (Boy Scout rule)
-- [ ] BASE-009 Crawl Plan Protocol remediation complete; `review.md` verdict upgraded from "PASS WITH ISSUES" to "PASS"
+- [ ] BASE-009a Crawl Plan Protocol framework + MR remediation complete (~270 min); user has reviewed the MR crawl-report.md at the human checkpoint between 009a and 009b
+- [ ] BASE-009b BBR remediation + Epic 2 baseline regeneration complete (~300 min); `review.md` verdict upgraded from "PASS WITH ISSUES" to "PASS"
 - [ ] `scripts/curation/pipeline/sources/crawl_plan/` shared framework module committed (consumed by Epic 4 and Epic 9 source tasks)
 - [ ] `.spec/prds/curation-hardening/crawl-plans/motorcycleroads/` and `.../bestbikingroads/` protocol artifacts committed (site-map, inventory, selectors, crawl-report.md with verdict PASS)
 - [ ] User has explicitly approved proceeding to Epic 3
