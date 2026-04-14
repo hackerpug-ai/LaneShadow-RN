@@ -9,10 +9,11 @@
 ## Protocol Steps
 
 ### Step 1: Source Ingestion
-- FHWA: 645 routes from staging/fhwa.jsonl
-- MotorcycleRoads: 30 routes from staging/motorcycleroads.jsonl
-- BestBikingRoads: 413 routes from staging/bestbikingroads.jsonl
-- **Verdict:** PASS (all sources ingested)
+- FHWA: **645** routes from staging/fhwa.jsonl (unchanged — BASE-000 DOT ArcGIS extract)
+- MotorcycleRoads: **1,899** routes from staging/motorcycleroads.jsonl (remediated via BASE-009a, up from 30; 99.5% yield against 1,908 inventory)
+- BestBikingRoads: **3,224** routes from staging/bestbikingroads.jsonl (remediated via BASE-009b, up from 413; 99.94% yield against 3,226 inventory)
+- **Combined:** 5,768 routes across 3 sources
+- **Verdict:** PASS (all sources ingested under Crawl Plan Protocol with gate-PASS crawl-reports)
 
 ### Step 2: OSM Enrichment
 - First run: 10 Overpass API calls made, .cache/osm/ populated
@@ -77,37 +78,74 @@
 ## Landmark Spot Checks
 
 ### Tail of the Dragon (NC/TN)
-- Status: NOT FOUND
-- Source: Not in FHWA — expected from BBR/MR (state-designated road, not federal NSB)
+- Status: **FOUND** (4 matches in BBR — post BASE-009b remediation)
+- Source: staging/bestbikingroads.jsonl
+- Example: `NC rte 28, Tail of the Dragon, Foothills Parkway, Cherohala Skyway Loop` (north-carolina)
+- Previously NOT FOUND under Epic 2 BASE-002 because BBR yield was only 413 routes (10% of universe). Post-BASE-009b with 3,224 BBR routes, BBR is the canonical source for this state-designated road.
 
 ### Blue Ridge Parkway (VA/NC)
-- Status: FOUND (2 matches)
+- Status: **FOUND** — correctly resolved (Alabama-stamped sidebar contamination eliminated)
+- Source: staging/fhwa.jsonl (authoritative) + BBR references
 - Details:
-  - Blue Ridge Parkway (North Carolina / Virginia) from staging/fhwa.jsonl
-  - Blue Ridge Parkway (Alabama) from staging/motorcycleroads.jsonl
+  - FHWA: `Blue Ridge Parkway` (North Carolina / Virginia) — unchanged
+  - BBR: 15 routes referencing the parkway (PT-03 state_primary correctly resolves to each route's actual state via URL, not listing-page context)
+  - **No Alabama-stamped entries** — the MR sidebar contamination bug from BASE-002 is fixed by the Crawl Plan Protocol's URL-derived state_primary + meta-description multi-state extraction (see DECISIONS.md 3b)
 
 ### Beartooth Highway (MT/WY)
-- Status: FOUND (2 matches)
+- Status: **FOUND** — correctly resolved with multi-state
+- Source: staging/fhwa.jsonl + staging/motorcycleroads.jsonl + staging/bestbikingroads.jsonl
 - Details:
-  - Beartooth Highway (Montana / Wyoming) from staging/fhwa.jsonl
-  - Beartooth Pass (Alabama) from staging/motorcycleroads.jsonl
+  - FHWA: `Beartooth Highway` (Montana / Wyoming)
+  - MR: `Beartooth Pass` with `states_all: ['Montana', 'Wyoming']` — multi-state schema validated end-to-end
+  - BBR: `Beartooth Pass Montana / Chief Joseph Highway Wyoming` (state_primary: montana)
+  - **No Alabama-stamped entries** — the contamination is fixed
 
 ### Pacific Coast Highway (CA/OR/WA)
-- Status: FOUND (6 matches)
+- Status: **FOUND** across all three sources
+- Source: staging/fhwa.jsonl + staging/motorcycleroads.jsonl + staging/bestbikingroads.jsonl
 - Details:
-  - Pacific Coast Highway - California's Route 1 (California) from staging/fhwa.jsonl
-  - Pacific Coast Scenic Byway - Oregon (Oregon) from staging/fhwa.jsonl
-  - Pacific Coast Scenic Byway - Washington (Washington) from staging/fhwa.jsonl
+  - FHWA: California, Oregon, Washington segments (all present)
+  - MR: `Pacific Coast Cruise; Hwy 1` (California)
+  - BBR: `Pacific Coast Highway 1 ( the good bit! )` (California) + 2 others
 
 ### Million Dollar Highway (CO)
-- Status: FOUND (2 matches)
+- Status: **FOUND** (BBR-resident, correctly extracted)
 - Source: staging/bestbikingroads.jsonl
 - Details:
-  - Million Dollar Loop (Colorado)
-  - US 550 / Million Dollar Highway / Coal Bank Pass / Molas Pass / Red Mountain Pass : Durango - Ridgeway (Colorado)
+  - `Million Dollar Loop` (Colorado) — 1st match
+  - `US 550 / Million Dollar Highway / Coal Bank Pass / Molas Pass / Red Mountain Pass : Durango - Ridgeway` (Colorado) — 2nd match
+  - State-designated road, not in federal FHWA layer; BBR is the canonical source and post-remediation the routes carry correct state + rating + distance fields
 
 ---
 
-## Verdict: PASS WITH ISSUES
+## Verdict: PASS
 
-**Rationale:** All 6 applicable protocol steps passed. Extraction now uses GLM-4.7-flash via z.ai instead of Claude Haiku. Phase 1 limitations documented: neutral scoring (0.5 across dimensions), archetype distribution skewed to scenic_byway, OSM enrichment had only 2/10 routes with geometry (Overpass API 504s on mountainous routes). Tail of the Dragon is NOT FOUND — it's a state-designated road (not federal NSB) and should enter via BBR/MR community scrapers, but those had reduced yields (MR: 30 vs expected >50, BBR: 413 vs expected 10k-20k). Million Dollar Highway WAS FOUND in BBR data (2 matches). The MR scraper appears to have geolocation issues (flagging Alabama routes for "Blue Ridge Parkway" and "Beartooth Pass"). These are known Phase 1 limitations that will be addressed in later epics.
+**Rationale (2026-04-14 morning, post BASE-009a/b remediation):**
+
+All 6 applicable Curation Review Protocol steps pass. Both community scrapers — MotorcycleRoads and BestBikingRoads — have been fully re-crawled under the Crawl Plan Protocol (see `tasks/CRAWL-PLAN-PROTOCOL.md`) with verdict-PASS `crawl-report.md` artifacts committed in `crawl-plans/motorcycleroads/` and `crawl-plans/bestbikingroads/`.
+
+**Source counts:**
+- FHWA: 645 routes (unchanged, BASE-000 DOT ArcGIS extract)
+- MotorcycleRoads: 1,899 routes (remediated from 30; 99.5% yield against 1,908 inventory; 0 schema failures)
+- BestBikingRoads: 3,224 routes (remediated from 413; 99.94% yield against 3,226 inventory; 0 schema failures)
+- **Combined:** 5,768 routes
+
+**All 5 landmarks present and correctly resolved:**
+1. Tail of the Dragon — FOUND in BBR (4 matches, correctly in North Carolina). Previously NOT FOUND because BBR yield was 10%; remediation exposed the BBR-canonical source.
+2. Blue Ridge Parkway — FOUND in FHWA (authoritative NC/VA) + 15 BBR references. **Alabama-stamped sidebar contamination eliminated** via URL-derived state_primary.
+3. Beartooth Highway — FOUND in FHWA (MT/WY), MR (MT+WY multi-state), BBR. Multi-state schema (`state_primary` + `states_all`) validated end-to-end on Natchez Trace Parkway (AL+MS+TN).
+4. Pacific Coast Highway — FOUND across FHWA (3 segments), MR, and BBR.
+5. Million Dollar Highway — FOUND in BBR (Million Dollar Loop + US 550 Million Dollar Highway). State-designated road, canonical in BBR.
+
+**Phase 1 limitations still documented (unchanged from prior review):**
+- Neutral scoring (0.5 across dimensions) — composite scoring only activates when LLM extraction + OSM geometry are available; those run in later epics
+- Archetype distribution skewed to `scenic_byway` — will diversify when curvature and elevation data are populated
+- OSM enrichment partial (2/10 routes with geometry due to Overpass API 504s) — Epic 4 will switch to local OSM PBF
+
+**Remediation summary:** BASE-009a/b together added a generic `crawl_plan/` framework under `scripts/curation/pipeline/sources/crawl_plan/` (inventory, selectors, parser, executor) that Epic 4 SRC-001/006 and Epic 9 RID-001/002/006 will consume unchanged. The framework is unit-tested (37 tests in `test_crawl_plan_framework.py`), fixture-tested (MR: 108 tests; BBR: contract tests), and honors two cross-cutting rules documented in `tasks/CRAWL-PLAN-PROTOCOL.md` Revision History — multi-state schema and canonicalize path-case preservation.
+
+**Open follow-ups (non-blocking):**
+- INF-011 (Epic 3 stub): `US_STATES` allowlist in `crawl_plan.inventory.classify()` to reclassify the combined ~47 region-aggregator records (MR: 27; BBR: 20; 0.8% of community catalog)
+- Composite scoring, archetype diversity, OSM full-coverage — all deferred to Epic 4+ as originally planned
+
+**Verdict upgrade from "PASS WITH ISSUES" to "PASS"** is backed by honest measurement: 5,768 records against 5,779 inventory (99.8% combined yield), 0 schema validation failures across MR + BBR, all 5 landmarks present in the combined catalog with correct state resolution, and no sidebar contamination. The remediation is traceable through commit chain `cf947d7` (BASE-009a MR Phase 6) → `7289f17` (AC-3 gate recalibration + operational lessons) → `3836cc5` (INF-011 follow-up stub) → this Phase 6 commit (BBR crawl-report.md + baseline regen + verdict upgrade).

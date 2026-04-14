@@ -132,83 +132,74 @@ fhwa-alaska-railroad-alaska: None (no geometry in remote area)
 
 ## Community Scrapers (MotorcycleRoads + BestBikingRoads)
 
-**Status:** PASS WITH ISSUES (2026-04-13)
+**Status:** PASS (2026-04-14) — remediated via BASE-009a/b under the Crawl Plan Protocol.
 
-### MotorcycleRoads (motorcycleroads.com)
+Both community scrapers were completely rewritten as thin glue over the `scripts/curation/pipeline/sources/crawl_plan/` framework module (built in BASE-009a, consumed unchanged by BASE-009b). The prior "PASS WITH ISSUES" section from 2026-04-13 documented systemic failures (MR 30 routes with Alabama-stamped Blue Ridge Parkway sidebar contamination, BBR 413 routes at 10% yield). Both are now replaced with clean, crawl-plan-protocol-gated outputs.
 
-**Source Module:** `scripts.curation.pipeline.sources.motorcycleroads`
+### MotorcycleRoads (motorcycleroads.com) — REMEDIATED
+
+**Source Module:** `scripts.curation.pipeline.sources.motorcycleroads` (rewritten as 93-line framework glue)
+
+**Crawl Plan:** `.spec/prds/curation-hardening/crawl-plans/motorcycleroads/` — site-map.md, urls.jsonl, selectors.yaml, crawl-report.md (verdict PASS)
 
 **Output File:** `staging/motorcycleroads.jsonl`
 
-**Route Count:** 30 routes (BELOW EXPECTED >50 threshold)
+**Route Count:** **1,899 routes** (was 30) — from committed inventory of 1,908 PT-03 route-details
+**Yield:** 99.5% (1,899 staging / 1,908 inventory; 9 http_errors)
+**Schema validation failures:** 0 / 1,899
 
-**Validation Results:**
-- AC-1 (module runnable): PASS - `python -m scripts.curation.pipeline.sources.motorcycleroads` exits 0
-- AC-1 (count threshold): FAIL WITH ISSUES - 30 routes is below the >50 threshold
-- robots.txt compliance: PASS - RobotsChecker loaded and respected robots.txt
-- rate limiting: PASS - requests spaced 2-5 seconds apart (rate limiter active)
+**Field yield:**
+- `route_name` (required): 100.0% (1,899/1,899)
+- `state_primary` (required): 100.0% (1,899/1,899) — *except 27 region-aggregator slugs (1.4%) tracked as non-blocking INF-011*
+- `description`: 99.6% (1,891/1,899) — from "Written Directions" section
+- `rating`: 100.0%
+- `distance_mi`: 96.5% (1,833/1,899)
+- `states_all` (multi-state list): **7.4% multi-state records** (140/1,899); Natchez Trace Parkway correctly resolves to `['Alabama', 'Mississippi', 'Tennessee']` via meta-description extraction
 
-**Sample Record (first route):**
-```json
-{
-  "name": "Hwy N - Douglas/Ozark Counties",
-  "state": "Alabama",
-  "description": null,
-  "rating": 0.0,
-  "source_url": "https://www.motorcycleroads.com/motorcycle-roads/missouri/hwy-n-douglasozark-counties?s=32",
-  "source": "motorcycleroads",
-  "scraped_at": 1776099889
-}
-```
+**Key remediation vs 2026-04-13 version:**
+- Prior scraper hit `/motorcycle-roads/{state}` which returned the homepage with a 30-route global sidebar rail — the EXACT root cause of the 30-route yield. Phase 0 recon traced this; new framework uses `/motorcycle-rides-in/united-states` as the master index (103 paginated pages × ~20 routes).
+- Alabama-stamped Blue Ridge Parkway / Beartooth Pass sidebar contamination is **gone**: `state_primary` is URL-derived; `states_all` is parsed from the authoritative meta description (not DOM sidebar).
+- Blind CSS selectors (`.field-field-rating`, etc.) replaced with validated selectors from `crawl-plans/motorcycleroads/selectors.yaml` with `fixture_yield: 5/5` on all required fields.
 
-**Issues:**
-- Count (30) is below expected threshold (>50)
-- Scraper appears to deduplicate aggressively - finds 30 route links per state page but only scrapes unique routes across all states
-- This may be due to route cross-listing (same route appears on multiple state pages)
-- Scraper is functioning correctly but site structure may have changed since initial requirements were written
+**Phase 5 runtime:** ~2 hr 35 min at 2-3s rate limit (first run aborted at 590 routes due to Python module cache trap — parser fix was committed mid-crawl and the running process kept using the old bytecode; killed cleanly and restarted fresh; see DECISIONS.md 3c).
 
-### BestBikingRoads (bestbikingroads.com)
+### BestBikingRoads (bestbikingroads.com) — REMEDIATED
 
-**Source Module:** `scripts.curation.pipeline.sources.bestbikingroads`
+**Source Module:** `scripts.curation.pipeline.sources.bestbikingroads` (rewritten as ≤100-line framework glue)
+
+**Crawl Plan:** `.spec/prds/curation-hardening/crawl-plans/bestbikingroads/` — site-map.md, urls.jsonl, selectors.yaml, crawl-report.md (verdict PASS)
 
 **Output File:** `staging/bestbikingroads.jsonl`
 
-**Route Count:** 360+ routes and climbing (IN PROGRESS - significantly slower than expected)
+**Route Count:** **3,224 routes** (was 413) — from committed inventory of 3,226 PT-03 route-details
+**Yield:** 99.94% (3,224 staging / 3,226 inventory; 2 http_errors)
+**Schema validation failures:** 0 / 3,224
 
-**Validation Results:**
-- AC-2 (module runnable): PASS - scraper running successfully
-- AC-2 (count threshold): PASS WITH ISSUES - scraper functional but much slower than expected 30-60 minute runtime
-- robots.txt compliance: PASS - RobotsChecker loaded and respected robots.txt
-- rate limiting: PASS - requests spaced 3-4 seconds apart (rate limiter active)
+**Field yield:**
+- `route_name` (required): 100.0%
+- `state_primary` (required): 100.0% *(except 20 region-aggregator slugs, 0.6% — tracked as INF-011)*
+- `rating`: 100.0% (extracted via regex on "Star Rating Graphic" text — BBR stores rating in inline JS as `responseA[i].comments_ave_rating`, not CSS-addressable)
+- `distance_km`: 99.9%
+- `description`: 60.6% (1,954/3,224) — extracted from first user review paragraph; ~40% of BBR routes have no user reviews and thus no description (declared `required: false` in selectors.yaml; honest source reality)
+- `states_all`: single-state by design per DECISIONS.md 3b (`[state_primary]` length-1; BBR has no authoritative multi-state DOM source — see exemption entry)
 
-**Progress Notes:**
-- Scraper started at 11:11 AM, currently at 360+ routes after 21 minutes
-- Arkansas state page alone has 899 route links
-- Processing all 50 US states sequentially
-- Current rate: ~18 routes/minute (much slower than expected)
-- Estimated time to 10k routes: ~9 hours at current rate
-- Estimated time to 20k routes: ~18.5 hours at current rate
+**Key remediation vs 2026-04-13 version:**
+- Prior scraper was declared "slow but functional" at ~18 routes/minute with a 9-hour projected runtime that would have produced a junk baseline. The new framework runs at ~4s/route (rate-limited + parse overhead) and completed in **~3 hr 35 min** for all 3,224 routes.
+- `/rides/{cluster}` sub-state cluster pages are now IN-SCOPE and ADDITIVE: 1,050 of 3,226 PT-03 routes (33%) are discovered from cluster pages that Phase 0 recon proved are 83% additive (measured on Tennessee).
+- Cross-state sidebar contamination (TRAP-01) defended via URL-derived `state_primary` — Blue Ridge Parkway never gets stamped with the wrong state.
+- Mixed-case slugs like `Columbia-2` are preserved (canonicalize() lowercases scheme + host only, preserves path case — framework-wide rule from DECISIONS.md 3b evening session).
 
-**Sample Log Excerpt (robots.txt compliance):**
-```
-2026-04-13 11:11:21,886 - httpx - INFO - HTTP Request: GET https://www.bestbikingroads.com/robots.txt "HTTP/1.1 200 OK"
-2026-04-13 11:11:21,886 - scripts.curation.pipeline.sources.robots_checker - INFO - Loaded robots.txt for https://www.bestbikingroads.com
-```
+**Phase 5 runtime:** ~3 hr 35 min at 3-4s rate limit (first run died at 50 routes because the dispatching python-implement agent session ended and the crawler was its child process; restarted under `nohup ... & disown` so it survived independently — see DECISIONS.md 3d).
 
-**Sample Log Excerpt (rate limiting):**
-```
-2026-04-13 11:20:33,850 - httpx - INFO - HTTP Request: GET https://www.bestbikingroads.com/motorcycle-roads/united-states/arizona/ride/the-laughlin-loop-bullhead-city-needles "HTTP/1.1 200 OK"
-2026-04-13 11:20:37,030 - httpx - INFO - HTTP Request: GET https://www.bestbikingroads.com/motorcycle-roads/united-states/arizona/ride/tucson-sedona-jerome-prescott-phoenix-tucson "HTTP/1.1 200 OK"
-2026-04-13 11:20:40,153 - httpx - INFO - HTTP Request: GET https://www.bestbikingroads.com/motorcycle-roads/united-states/arizona/ride/salt-river-canyon "HTTP/1.1 200 OK"
-```
+**BBR inventory gate recalibration (2026-04-14 morning):** AC-3 was `[3,500, 5,500]` based on summed BBR nav-menu banner totals. Measured reality is 3,226 route-details. Per-state audits confirmed the nav-menu banners are inflated vs what's navigable from state + cluster pages (California banner 401 vs measurable 329). Gate recalibrated to `[3,100, 3,400]` with full audit trail in DECISIONS.md sub-section 3a.
 
-**Overall Assessment:**
-- Both scrapers respect robots.txt and rate limits
-- MR scraper: PASS WITH ISSUES - functional but produces only 30 routes vs >50 expected
-- BBR scraper: PASS WITH ISSUES - functional but extremely slow (9+ hours to reach 10k vs 30-60 min expected)
-- Rate limiting working as designed (2-5 second delays between requests)
-- Both scrapers have correct infrastructure but site structures may have changed since requirements were written
-- Recommendations: Investigate site structure changes, consider adjusting rate limits, or parallelizing state scrapers
+### Overall Assessment — PASS
+
+- **Both scrapers respect robots.txt and rate limits** (unchanged from prior assessment)
+- **MR scraper:** PASS — 1,899 routes (from 30), 99.5% yield, 0 schema failures, Natchez Trace multi-state validated, no Alabama-stamped BRP
+- **BBR scraper:** PASS — 3,224 routes (from 413), 99.94% yield, 0 schema failures, all 5 landmarks present including BBR-resident Tail of the Dragon and Million Dollar Highway
+- **Framework is generic:** `scripts/curation/pipeline/sources/crawl_plan/` is re-usable for Epic 4 SRC-001/006 (Form B + Form A) and Epic 9 RID-001/002/006 (Form C + Form D) without modification
+- **Open follow-ups (non-blocking):** INF-011 Epic 3 stub tracks the `US_STATES` allowlist improvement for the combined ~47 region-aggregator records across MR (27) and BBR (20) = 1.0% of combined community catalog
 
 ---
 

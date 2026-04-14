@@ -1,11 +1,50 @@
 # Crawl Plan Protocol Execution — Session Handoff
 
-**Handoff written:** 2026-04-13 evening
-**Written by:** Claude (session ending; user going to bed)
-**Author context:** This handoff was written immediately after committing `a623e3d` and being about to dispatch BASE-009a Phase 1, when the user requested a full handoff doc instead.
-**For:** The next Claude session (or you when you wake up) to continue the Curation Hardening initiative's Crawl Plan Protocol execution without losing context.
+**Handoff written:** 2026-04-13 evening; **refreshed 2026-04-14 morning** (post-remediation, mid-BBR Phase 5)
+**Written by:** Claude (multiple session generations across the Epic 2 remediation arc)
+**For:** The next Claude session (or user picking up cold after an "ai sleep") to continue the Curation Hardening initiative's Crawl Plan Protocol execution without losing context.
 
-**IF YOU ARE A FRESH AGENT: read this entire document first, then read the "Key Documents (reading order)" list, then proceed from "Immediate Next Step".**
+---
+
+## 🔴 SESSION RESUMPTION PROTOCOL (read first if you are a fresh agent)
+
+If your context was just loaded and you don't remember what's happening:
+
+### Step 1 — orient (60 seconds)
+```bash
+cd /Users/justinrich/Projects/LaneShadow
+git log --oneline -10
+ps -p 66201 -o pid,etime,stat 2>&1    # is the BBR crawler still alive?
+cat staging/bestbikingroads.jsonl.audit.json    # phase 5 progress
+```
+
+### Step 2 — read these in order (5 minutes)
+1. `~/.claude/projects/-Users-justinrich-Projects-LaneShadow/memory/MEMORY.md` — your own memory index; the Epic 2 arc, Crawl Plan Protocol, and operational rules are documented there
+2. **THIS FILE** — continue reading below for Current State + Immediate Next Step
+3. `.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/DECISIONS.md` — scroll to `## 2026-04-14 (morning)` section for the four most recent sub-decisions (gate recalibration 3a, BBR single-state 3b, module cache anti-pattern 3c, session death anti-pattern 3d)
+4. `.spec/prds/curation-hardening/crawl-plans/motorcycleroads/crawl-report.md` — the template for BBR's Phase 6 crawl-report.md
+5. `.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/BASE-009b.md` — the spec driving what's still pending
+
+### Step 3 — figure out which scenario you're in
+
+**Scenario A: BBR crawler is still running (PID 66201 alive, audit.fetched < 3226)**
+- Do nothing. Wait for the background poller `bltmck5n0` to notify when PID 66201 exits.
+- If the poller is also dead (no background tasks visible), restart the polling: `while kill -0 66201 2>/dev/null; do sleep 120; done; cat staging/bestbikingroads.jsonl.audit.json` with `run_in_background=true`.
+- If the crawler itself is dead but incomplete, follow Scenario C.
+
+**Scenario B: BBR crawler exited cleanly (PID 66201 gone, audit.fetched ~= 3226, `crawl-plans/bestbikingroads/crawl-report.md` does NOT exist yet)**
+- Proceed to "Immediate Next Step → Phase 6" below. This is the normal post-crawl path.
+
+**Scenario C: BBR crawler died mid-run (PID 66201 gone, audit.fetched < 3226, no crawl-report.md)**
+- First: check if there's a session-death artifact (tail `/tmp/bbr_crawl_v2.log` or `/tmp/bbr_crawl.log`). If the log just stops with no error, it was probably session-death (see DECISIONS.md 3d).
+- DO NOT edit parser.py or selectors.yaml during recovery — that triggers the module cache trap (DECISIONS.md 3c).
+- Option A: restart the crawler from the progress file — `staging/bestbikingroads.jsonl.progress` tracks already-fetched URLs, the executor resumes from there. Dispatch: `nohup bash -c 'PYTHONPATH=$(pwd):$(pwd)/scripts/curation .venv/bin/python -m scripts.curation.pipeline.sources.bestbikingroads > /tmp/bbr_crawl_v3.log 2>&1' & disown`
+- Option B: wipe staging and restart fresh (costs ~3.5 hr). Only if progress file is corrupt or you need a clean run.
+
+**Scenario D: BBR Phase 6 already committed (crawl-report.md exists with verdict PASS, review.md verdict PASS)**
+- BASE-009b is DONE. Epic 2 is unblocked. Next action is Epic 3 (INF-001) — see `tasks/INDEX.md` for the task catalog.
+
+### Step 4 — proceed with Immediate Next Step section below
 
 ---
 
