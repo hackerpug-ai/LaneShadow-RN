@@ -31,6 +31,7 @@ import logging
 from typing import Any, Optional
 
 from .selector_map import SelectorMap
+from .us_states import US_STATES, normalize_state_primary
 
 logger = logging.getLogger(__name__)
 
@@ -359,6 +360,25 @@ def parse_with_selectors(
     sp = record.get("state_primary")
     if sp and not record["states_all"]:
         record["states_all"] = [sp.replace("-", " ").title()]
+
+    # INF-011: normalize non-canonical state_primary slugs to US states.
+    # MR publishes cross-region "trip" pages under slugs like "east-coast",
+    # "southeast", etc., and BBR has county-group cluster slugs like
+    # "ny-jefferson-lewis" that slip through URL-regex extraction as non-US
+    # state_primary values.  The normalize_state_primary cascade (identity →
+    # USPS prefix → states_all fallback → give up) maps them to canonical
+    # slugs where possible while preserving records for ones that genuinely
+    # cannot be normalized.  See DECISIONS.md "INF-011 us_states normalization"
+    # and scripts/curation/pipeline/sources/crawl_plan/us_states.py.
+    sp = record.get("state_primary")
+    if sp and sp not in US_STATES:
+        normalized = normalize_state_primary(sp, record.get("states_all"))
+        if normalized:
+            record["state_primary"] = normalized
+            normalized_title = normalized.replace("-", " ").title()
+            sa = record.get("states_all") or []
+            if normalized_title not in sa:
+                record["states_all"] = [normalized_title] + list(sa)
 
     # Store source URL
     if url and "source_url" not in record:

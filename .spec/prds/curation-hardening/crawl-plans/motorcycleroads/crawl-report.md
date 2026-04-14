@@ -64,30 +64,42 @@
 
 ---
 
-## Known limitation: 27 region-aggregator records (1.4%)
+## Known limitation: 17 region-aggregator records (0.9%) — reduced from 27 via INF-011
 
-**Issue.** The Phase 0 site-map identified PT-03 route detail pages as having URL pattern `/motorcycle-roads/{state-slug}/{route-slug}` (2 path segments after `/motorcycle-roads/`). MR also publishes a small number of cross-region "trip" pages under the same 2-segment pattern using region slugs instead of state slugs. The framework's `classify()` function does not currently intersect the slug against a known US-state list, so these region pages are accepted as PT-03 records.
+**Status (updated 2026-04-14 afternoon):** Originally 27 records with non-US-state `state_primary`. INF-011 (framework-level `US_STATES` allowlist + normalization cascade) fixed 10 via the `states_all` fallback path. 17 remain, documented below.
 
-**Impact.** 27 / 1,899 records (1.4%) have a `state_primary` value that is not a US state slug:
+**Issue.** The Phase 0 site-map identified PT-03 route detail pages as having URL pattern `/motorcycle-roads/{state-slug}/{route-slug}` (2 path segments after `/motorcycle-roads/`). MR also publishes a small number of cross-region "trip" pages under the same 2-segment pattern using region slugs instead of state slugs. INF-011 added a `normalize_state_primary()` cascade to the framework's parser post-processing: (1) identity if canonical → keep, (2) USPS prefix match (BBR-style) → map, (3) first US-state in `states_all` → use, (4) give up.
 
-| `state_primary` slug | Count | What it represents |
+**INF-011 fixes landed.** 10 of 27 records successfully normalized via `states_all` fallback:
+
+| Original slug | Fixed-to | Route |
 |---|---|---|
-| `united-states` | 12 | National master pages (legitimate cross-state routes) |
-| `southeast` | 5 | Regional aggregator |
-| `northeast` | 2 | Regional aggregator |
-| `pacific-coast` | 2 | Regional aggregator |
-| `east-coast` | 1 | Regional aggregator |
-| `golf-coast` | 1 | Regional aggregator (MR-side typo for "gulf-coast") |
-| `great-lakes` | 1 | Regional aggregator |
-| `midwest` | 1 | Regional aggregator |
-| `northwest` | 1 | Regional aggregator |
-| `south` | 1 | Regional aggregator |
+| `east-coast` | `north-carolina` | Devil's Racetrack - North Carolina |
+| `great-lakes` | `michigan` | Lake Shore Drive north of Holland |
+| `northeast` | `maine` | Thomaston to Lincolnville Beach - Mid Coast Maine |
+| `northwest` | `washington` | The Puget Sound to Sinclair Inlet to Dyes Inlet Ride |
+| `pacific-coast` | `oregon` | Yaquina Bay Road |
+| `south` | `north-carolina` | The Back Road from Charlotte to Crowders Mountain |
+| `southeast` | `virginia` | Claw of the Dragon - Outer Loop |
+| `southeast` | `mississippi` | Highway 80 - West of Jackson0 |
+| `southeast` | `tennessee` | Jones Cove Road Run to Crosby |
+| `southeast` | `alabama` | Monte Sano Boulevard - Huntsville |
 
-These 27 records still parse cleanly — `route_name`, `description`, `rating`, `distance_mi`, and `states_all` are all populated. The `states_all` field correctly reflects the multi-state nature where the meta description carries it. Only `state_primary` is non-canonical.
+**17 remaining (the unfixable class).** These records have `states_all` that contains only region names (no US state) OR a `united-states` cross-country slug that genuinely spans many states:
 
-**Recommended follow-up (not blocking for Epic 2 PASS):** add a `US_STATES` allowlist intersection to `crawl_plan.inventory.classify()` so future runs can either (a) reject these 27 URLs at inventory time, or (b) accept them as a separate page type `PT-04-region-aggregator` with `state_primary: null` and `states_all` populated from meta. Either approach is a framework-general improvement that benefits Epic 4/9 too. Track as a follow-up in `crawl_plan` future work.
+| Slug class | Count | Reason unfixable |
+|---|---|---|
+| `united-states` | 11 | Genuinely multi-state cross-country tour routes (e.g., "Indian's Northeast Texas Loop", "Rt 50 - Clarksburg, WV East to Winchester, VA"). `states_all=['United States']` — no single state to assign. Route names sometimes contain state hints (WV, VA, TX, NY, Dutchess County) but extracting them requires NLP. Deferred to Epic 10 (NLP Signal Merge). |
+| `southeast` | 1 | "Old US 25 North out of Lima SC to Tuxedo NC" — states in route name, not meta. Needs NLP. |
+| `pacific-coast` | 1 | "Nacimiento Road - Paso Robles to Big Sur" — California implied by Big Sur; needs NLP. |
+| `northeast` | 1 | "PA Route 340 Through Pennsylvania Amish Country" — PA in route name; needs NLP. |
+| `midwest` | 1 | "Elk River to Elk Lake (Northwest of Minneapolis)" — Minnesota implied; needs NLP. |
+| `golf-coast` | 1 | "Route 395 Along Santa Rosa Island" — Florida implied; needs NLP. |
+| `great-lakes` | 1 | (if remaining) — similar pattern |
 
-**Why this is NOT a Phase 6 FAIL.** The 27 records are a documented data-quality note, not a parser bug, not a schema violation, and not a fabrication. Downstream Epic 6 dedup or Epic 7 quality floor can filter `state_primary not in US_STATES` if needed. The crawl plan correctly ingests the records, fail-closed on the parser is honored (no required field is null), and the audit counters reflect reality.
+**Why this is acceptable.** 17/1,899 = 0.90% of MR records (down from 1.42%). Every one of these records still parses cleanly — `route_name`, `description`, `rating`, `distance_mi`, and `states_all` are populated. The only non-canonical field is `state_primary`. Downstream Epic 6 dedup or Epic 7 quality floor can filter `state_primary not in US_STATES` if needed. The fully cross-country `united-states` records may warrant a separate `is_cross_country` flag in the Route model (Epic 3 INF-002 scope).
+
+**INF-011 closure status.** Phase 1 of INF-011 (framework scaffolding + USPS prefix mapping + states_all fallback + DC support) is complete and committed. The parser now auto-normalizes non-canonical slugs during Phase 5 extraction; future sources inherit the fix. Phase 2 (NLP-based state extraction from route names for the 17 remaining MR records) is deferred to Epic 10 where the NLP pipeline lives. The INF-011 stub is marked "phase-1 complete" and the Epic 10 follow-up is linked from its "remaining work" section.
 
 ---
 

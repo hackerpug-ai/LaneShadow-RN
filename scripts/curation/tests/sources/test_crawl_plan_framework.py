@@ -29,6 +29,12 @@ from scripts.curation.pipeline.sources.crawl_plan.parser import (
     parse_with_selectors,
 )
 from scripts.curation.pipeline.sources.crawl_plan.selector_map import SelectorMap
+from scripts.curation.pipeline.sources.crawl_plan.us_states import (
+    US_STATES,
+    is_us_state,
+    normalize_state_primary,
+    slugify_state_name,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -449,3 +455,237 @@ class TestDiscover:
             link_extractor=self._link_extractor,
         )
         assert rows == []
+
+
+# ---------------------------------------------------------------------------
+# us_states module (INF-011)
+# ---------------------------------------------------------------------------
+
+class TestUSStates:
+    """US_STATES allowlist is 50 states + DC = 51 canonical slugs."""
+
+    def test_us_states_has_51_entries(self):
+        # 50 states + Washington DC (federal district, treated as state-equivalent
+        # slug for URL classification — see us_states.py docstring)
+        assert len(US_STATES) == 51
+
+    def test_us_states_contains_canonical_slugs(self):
+        # Spot check — all hyphenated, lowercase
+        for expected in ("alabama", "california", "new-york", "north-carolina", "west-virginia", "washington-dc"):
+            assert expected in US_STATES
+
+    def test_us_states_includes_dc(self):
+        # Washington DC is included for inventory-classification purposes
+        assert "washington-dc" in US_STATES
+
+    def test_us_states_no_uppercase(self):
+        for slug in US_STATES:
+            assert slug == slug.lower()
+
+    def test_us_states_is_frozen(self):
+        # frozenset — cannot be mutated
+        with pytest.raises(AttributeError):
+            US_STATES.add("puerto-rico")  # type: ignore
+
+
+class TestIsUSState:
+    def test_canonical_state(self):
+        assert is_us_state("tennessee") is True
+        assert is_us_state("north-carolina") is True
+
+    def test_non_state(self):
+        assert is_us_state("east-coast") is False
+        assert is_us_state("ny-jefferson-lewis") is False
+        assert is_us_state("midwest") is False
+
+    def test_none(self):
+        assert is_us_state(None) is False
+
+    def test_empty(self):
+        assert is_us_state("") is False
+
+    def test_case_sensitive(self):
+        # US_STATES is lowercase; uppercase input is not accepted
+        assert is_us_state("Tennessee") is False
+
+
+class TestSlugifyStateName:
+    def test_title_case_name(self):
+        assert slugify_state_name("North Carolina") == "north-carolina"
+        assert slugify_state_name("New York") == "new-york"
+
+    def test_lowercase_name(self):
+        assert slugify_state_name("north carolina") == "north-carolina"
+        assert slugify_state_name("tennessee") == "tennessee"
+
+    def test_already_hyphenated_slug(self):
+        assert slugify_state_name("north-carolina") == "north-carolina"
+        assert slugify_state_name("new-york") == "new-york"
+
+    def test_non_state_returns_none(self):
+        assert slugify_state_name("East coast") is None
+        assert slugify_state_name("Midwest") is None
+        assert slugify_state_name("New England") is None
+
+    def test_empty_or_none(self):
+        assert slugify_state_name("") is None
+        assert slugify_state_name(None) is None
+
+    def test_whitespace_trimmed(self):
+        assert slugify_state_name("  Tennessee  ") == "tennessee"
+
+
+class TestNormalizeStatePrimary:
+    """Cascade: identity → USPS prefix → states_all fallback → None."""
+
+    # Case 1: identity (canonical US state slug)
+    def test_canonical_state_returns_self(self):
+        assert normalize_state_primary("tennessee") == "tennessee"
+        assert normalize_state_primary("north-carolina") == "north-carolina"
+
+    def test_canonical_state_with_states_all_ignored(self):
+        # Even with states_all, if raw_slug is canonical, case 1 wins
+        assert normalize_state_primary("tennessee", ["Alabama"]) == "tennessee"
+
+    # Case 2: USPS prefix (BBR cluster slugs)
+    def test_bbr_ny_prefix(self):
+        assert normalize_state_primary("ny-jefferson-lewis") == "new-york"
+
+    def test_bbr_wa_prefix(self):
+        assert normalize_state_primary("wa-adams-franklin") == "washington"
+
+    def test_bbr_mt_prefix(self):
+        assert normalize_state_primary("mt-lincoln-flathead") == "montana"
+
+    def test_bbr_ca_prefix(self):
+        assert normalize_state_primary("ca-kern-tulare") == "california"
+
+    def test_bbr_prefix_takes_precedence_over_states_all(self):
+        # Case 2 wins over Case 3
+        result = normalize_state_primary(
+            "ny-jefferson-lewis",
+            ["California"],  # states_all says CA but prefix says NY
+        )
+        assert result == "new-york"
+
+    def test_bbr_prefix_case_insensitive(self):
+        # Prefix lookup is lowered
+        assert normalize_state_primary("NY-Jefferson-Lewis") == "new-york"
+
+    def test_unknown_prefix_falls_through(self):
+        # "ab-" is not a USPS code; falls through to case 3 (no states_all) → None
+        assert normalize_state_primary("ab-something") is None
+
+    def test_hyphen_at_wrong_position(self):
+        # "new-" is only 4 chars; slug[2]='w' not '-'; falls through
+        # "east-coast" → slug[2]='s' not '-'; falls through
+        assert normalize_state_primary("east-coast") is None
+
+    # Case 3: states_all fallback
+    def test_states_all_picks_first_us_state(self):
+        assert normalize_state_primary(
+            "east-coast",
+            ["East coast", "North Carolina", "Southeast"],
+        ) == "north-carolina"
+
+    def test_states_all_with_region_and_state(self):
+        # Great Lakes is not a state; Michigan is
+        assert normalize_state_primary(
+            "great-lakes",
+            ["Great Lakes", "Michigan"],
+        ) == "michigan"
+
+    def test_states_all_all_regions_returns_none(self):
+        # None of these are US states
+        assert normalize_state_primary(
+            "midwest",
+            ["Midwest"],
+        ) is None
+
+    def test_states_all_first_match_wins(self):
+        # "Pacific Coast" is not a state; "Oregon" is
+        assert normalize_state_primary(
+            "pacific-coast",
+            ["Pacific Coast", "Oregon", "Washington", "California"],
+        ) == "oregon"
+
+    def test_states_all_empty_list(self):
+        assert normalize_state_primary("east-coast", []) is None
+
+    # Case 4: None
+    def test_none_input(self):
+        assert normalize_state_primary(None) is None
+        assert normalize_state_primary(None, ["Tennessee"]) is None
+
+    def test_pure_region_no_states_all(self):
+        assert normalize_state_primary("southeast") is None
+
+
+class TestParserNormalizesStatePrimary:
+    """parse_with_selectors() post-normalizes non-canonical state_primary."""
+
+    def _make_map(self) -> SelectorMap:
+        # Mirror the production MR selector map: state_primary URL-derived,
+        # states_all extracted from meta description via the parser's
+        # built-in _extract_states_from_meta special-case.
+        return SelectorMap({
+            "PT-03-route-detail": {
+                "route_name": {"selector": "h1", "required": True, "parse_as": "str"},
+                "state_primary": {
+                    "derived": "url_regex",
+                    "pattern": r"/motorcycle-roads/([a-z-]+)/",
+                    "capture_group": 1,
+                    "required": True,
+                    "parse_as": "str",
+                },
+                "states_all": {
+                    "selector": "meta[name='description']",
+                    "required": False,
+                    "parse_as": "state_list",
+                },
+            }
+        })
+
+    def test_mr_east_coast_normalized_via_states_all(self):
+        # MR record with region slug but states_all has NC
+        sel_map = self._make_map()
+        html = (
+            "<html><body><h1>Devils Racetrack - North Carolina</h1>"
+            '<meta name="description" '
+            'content="Devils Racetrack - NC | Ref #42 | East coast,North Carolina,United States,Southeast">'
+            "</body></html>"
+        )
+        url = "https://www.motorcycleroads.com/motorcycle-roads/east-coast/devils-racetrack-north-carolina"
+        record = parse_with_selectors(html, sel_map, "PT-03-route-detail", url)
+        assert record["state_primary"] == "north-carolina"
+        # North Carolina should be at the front of states_all after normalization
+        assert "North Carolina" in record["states_all"]
+
+    def test_bbr_cluster_slug_normalized_via_prefix(self):
+        # BBR record with ny-jefferson-lewis cluster slug
+        sel_map = self._make_map()
+        html = '<html><body><h1>Buffalo - Pennsylvania Loop</h1></body></html>'
+        url = "https://www.bestbikingroads.com/motorcycle-roads/ny-jefferson-lewis/ride/buffalo-pennsylvania-loop"
+        record = parse_with_selectors(html, sel_map, "PT-03-route-detail", url)
+        assert record["state_primary"] == "new-york"
+
+    def test_canonical_state_unchanged(self):
+        # Tennessee passes through without modification
+        sel_map = self._make_map()
+        html = (
+            '<html><body><h1>Tail of the Dragon</h1>'
+            '<meta name="description" content="Tail of the Dragon | Ref #1 | Tennessee,United States">'
+            "</body></html>"
+        )
+        url = "https://www.motorcycleroads.com/motorcycle-roads/tennessee/tail-of-the-dragon"
+        record = parse_with_selectors(html, sel_map, "PT-03-route-detail", url)
+        assert record["state_primary"] == "tennessee"
+
+    def test_unmappable_region_preserved(self):
+        # "midwest" with no states_all US entries — state_primary stays as-is
+        sel_map = self._make_map()
+        html = '<html><body><h1>Elk River Route</h1></body></html>'
+        url = "https://www.motorcycleroads.com/motorcycle-roads/midwest/elk-river"
+        record = parse_with_selectors(html, sel_map, "PT-03-route-detail", url)
+        # Without a states_all US match, state_primary remains "midwest" (unfixable)
+        assert record["state_primary"] == "midwest"

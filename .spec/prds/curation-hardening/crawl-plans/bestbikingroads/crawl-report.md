@@ -66,15 +66,29 @@
 
 ---
 
-## Known limitation: 20 region-aggregator records (0.6%)
+## Known limitation: RESOLVED via INF-011 (0 remaining)
 
-**Issue.** Same class as MR's 27 region-aggregator records (documented in MR crawl-report.md). The framework's `crawl_plan.inventory.classify()` function has no `US_STATES` allowlist intersection, so a small number of BBR cross-region URLs with non-state slugs slip through as PT-03 route-details.
+**Status (updated 2026-04-14 afternoon):** Originally 20 records with non-US-state `state_primary`. **INF-011 (framework-level `US_STATES` allowlist + normalization cascade) fixed all 20.** BBR is now at 0/3,224 = 0.00% non-canonical `state_primary` values.
 
-**Impact.** 20 / 3,224 records (0.6%) have a `state_primary` value that is not a US state slug. These records still parse cleanly — route_name, rating, distance_km, description, states_all all populated. Only `state_primary` is non-canonical.
+**How the 20 broke down:**
 
-**Recommended follow-up.** Tracked in Epic 3 as `INF-011-us-states-allowlist.md` (stub committed 2026-04-14 in `3836cc5`). The fix is framework-general and will benefit Epic 4 SRC-001/006 (Scenic Byways GIS + Rider Magazine) and Epic 9 RID-001/002/006 (ADVRider + Reddit + Pushshift) which inherit the same `classify()` logic.
+| Slug class | Count | Fix path |
+|---|---|---|
+| `ny-jefferson-lewis`, `ny-niagara-orleans` | 5 | USPS prefix `ny-` → `new-york` |
+| `wa-adams-franklin` | 4 | USPS prefix `wa-` → `washington` |
+| `mt-lincoln-flathead` | 1 | USPS prefix `mt-` → `montana` |
+| `washington-dc` | 7 | Added to `US_STATES` allowlist (federal district, treated as state-equivalent slug for URL classification) |
+| Other USPS-prefixed cluster slugs | 3 | USPS prefix mapping |
 
-**Why this is NOT a Phase 6 FAIL.** The 20 records are a documented data-quality note, not a parser bug, not a schema violation, and not a fabrication. Downstream Epic 6 dedup or Epic 7 quality floor can filter `state_primary not in US_STATES` if needed. The crawl plan correctly ingests the records, fail-closed on the parser is honored, and the audit counters reflect reality. Combined with MR's 27 region-aggregators, the total cross-source region-aggregator rate is 47 / 5,123 ≈ 0.9% of community catalog.
+**Framework changes that enabled this fix.**
+- New `scripts/curation/pipeline/sources/crawl_plan/us_states.py` module with `US_STATES` frozenset (51 entries: 50 states + DC), `is_us_state()`, `slugify_state_name()`, `normalize_state_primary()` helpers
+- `parser.py` post-extraction cascade: identity → USPS prefix → `states_all` fallback → give up
+- `scripts/curation/pipeline/sources/crawl_plan/fix_regional.py` — one-shot CLI for retroactively normalizing existing staging files (applied 2026-04-14 to both MR and BBR staging)
+- 40+ new framework unit tests in `test_crawl_plan_framework.py`
+
+**Why DC was missed initially.** My first US_STATES draft was strictly the 50 states; BBR's 7 DC records had `state_primary="washington-dc"` which failed the US_STATES check. Fix: DC is included in the framework's US_STATES set with a docstring noting it's a federal district included for URL-classification purposes, not geographic/legal semantics. If a future consumer needs strict 50-state-only semantics, they can filter `US_STATES - {"washington-dc"}` at the call site.
+
+**Epic 4/9 inheritance.** The `normalize_state_primary()` cascade is in the framework's parser post-processing, so Epic 4 SRC-001/006 and Epic 9 RID-001/002/006 inherit the fix without any task-level changes. Future sources with similar region-aggregator patterns will be automatically normalized.
 
 ---
 

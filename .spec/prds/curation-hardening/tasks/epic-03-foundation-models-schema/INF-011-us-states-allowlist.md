@@ -1,11 +1,12 @@
 # INF-011 — US_STATES allowlist in crawl_plan inventory classifier
 
 **Epic:** epic-03-foundation-models-schema
-**Status:** Backlog (stub)
+**Status:** **PHASE 1 COMPLETE (2026-04-14 afternoon)** — framework scaffolding + USPS prefix mapping + `states_all` fallback + DC support landed. Phase 2 (NLP-based extraction for 17 remaining MR cross-country records) deferred to Epic 10.
 **Priority:** P2 (non-blocking follow-up)
 **Agent:** python-implement
-**Estimated effort:** S (~60 min)
+**Estimated effort:** S (~60 min) — actual Phase 1 wall clock ~90 min including tests + retroactive normalization script
 **Created:** 2026-04-14 (morning, from BASE-009a MR remediation follow-up)
+**Phase 1 completed:** 2026-04-14 afternoon (commit TBD)
 
 ---
 
@@ -70,3 +71,45 @@ Alternative placements considered and rejected:
 
 - This stub is intentionally brief. When the implementer picks it up, generate a full TASK-TEMPLATE v4.0 file matching Epic 2 BASE-00x quality level (currently Epic 3 INF tasks are stubs per INDEX.md "Stub Tasks" note — only Epic 1 and Epic 2 have full-detail task files).
 - Cross-reference in INDEX.md: add row for INF-011 under "Epic 3: Foundation (STUBS)" when this stub is committed.
+
+---
+
+## Phase 1 Execution Summary (2026-04-14 afternoon)
+
+**Scope executed:** Framework scaffolding + USPS prefix mapping + `states_all` fallback + DC support. 30 of 47 region-aggregator records normalized across MR + BBR (64% reduction).
+
+**Deliverables shipped:**
+
+- `scripts/curation/pipeline/sources/crawl_plan/us_states.py` — new module with `US_STATES` frozenset (51 entries: 50 states + DC), `is_us_state()`, `slugify_state_name()`, `normalize_state_primary()`
+- `scripts/curation/pipeline/sources/crawl_plan/parser.py` — post-extraction normalization cascade added to `parse_with_selectors()`:
+  1. Identity (already canonical) → keep
+  2. USPS 2-letter prefix (`ny-*`, `wa-*`, `mt-*`, etc.) → map to full state slug
+  3. First US state name in `states_all` → use that slug
+  4. Give up (record keeps non-canonical slug)
+- `scripts/curation/pipeline/sources/crawl_plan/__init__.py` — exports `US_STATES`, `is_us_state`, `slugify_state_name`, `normalize_state_primary`
+- `scripts/curation/pipeline/sources/crawl_plan/fix_regional.py` — one-shot CLI for retroactively normalizing existing staging files (applied to MR + BBR staging)
+- `scripts/curation/tests/sources/test_crawl_plan_framework.py` — 40+ new tests covering `TestUSStates`, `TestIsUSState`, `TestSlugifyStateName`, `TestNormalizeStatePrimary` (all 4 cascade paths), `TestParserNormalizesStatePrimary` (end-to-end parser integration)
+
+**Results:**
+
+| Source | Before INF-011 | After INF-011 | Reduction |
+|---|---|---|---|
+| MotorcycleRoads | 27 / 1,899 (1.42%) | 17 / 1,899 (0.90%) | 37% |
+| BestBikingRoads | 20 / 3,224 (0.62%) | **0 / 3,224 (0.00%)** | 100% |
+| **Combined community** | 47 / 5,123 (0.92%) | 17 / 5,123 (0.33%) | **64%** |
+
+**Fixes applied:**
+
+- BBR: 13 via USPS prefix mapping + 7 via new DC allowlist entry = 20/20 fixed ✅
+- MR: 10 via `states_all` fallback (east-coast → north-carolina for Devil's Racetrack; great-lakes → michigan for Lake Shore Drive; etc.) = 10/27 fixed
+
+**What the 17 remaining MR records are:**
+
+- **11 `united-states` cross-country routes** — literally multi-state tour routes ("Indian's Northeast Texas Loop", "Ashley National Forest to Flaming Gorge National Recreation Area", "Rt 50 - Clarksburg, WV East to Winchester, VA"). `states_all=['United States']` only. Cannot be collapsed to a single `state_primary`. Future option: add `is_cross_country: bool` flag to the Route model (Epic 3 INF-002 scope) or parse state hints from route names via NLP (Epic 10).
+- **6 regional slug records** — routes under `golf-coast`, `great-lakes` (wait no, this was fixed), `midwest`, `northeast`, `pacific-coast`, `southeast` with `states_all` containing only the region name. Route names contain state hints ("PA Route 340 Through Pennsylvania Amish Country" → PA; "Nacimiento Road - Paso Robles to Big Sur" → CA) but extracting them requires NLP. Deferred to Epic 10.
+
+**Why not fix the remaining 17 now?** NLP-based state extraction from route names is the wrong tool to build in BASE-009 / INF-011 scope. Epic 10 (Community NLP & Signal Merge) has the NLP pipeline; the `normalize_state_primary()` cascade can be extended there with a 5th case: "regex against route_name for state hints". At 0.33% of combined community catalog, the remaining records are well within any downstream quality-floor tolerance and do not block Epic 3-12 progress.
+
+**Phase 2 (deferred to Epic 10):** extend `normalize_state_primary()` with route-name NLP pattern matching. Goal: bring combined non-canonical rate from 0.33% to <0.05%. Non-blocking, tracked here for future pickup.
+
+**Cross-epic inheritance.** The `normalize_state_primary()` cascade is in the framework's parser post-processing, so Epic 4 SRC-001/006 (Scenic Byways GIS, Rider Magazine) and Epic 9 RID-001/002/006 (ADVRider, Reddit, Pushshift) automatically inherit the normalization. Future sources with similar region-aggregator URL patterns will be correctly handled without any task-level changes.

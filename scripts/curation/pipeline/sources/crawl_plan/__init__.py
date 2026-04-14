@@ -24,6 +24,7 @@ from .executor import AuditCounters, run_crawl
 from .inventory import InventoryRow, canonicalize, classify, discover
 from .parser import SchemaViolation, parse_with_selectors
 from .selector_map import SelectorMap, load_selectors
+from .us_states import US_STATES, is_us_state, normalize_state_primary, slugify_state_name
 
 # Expose selector_map as the `selectors` submodule so callers can do:
 #   from scripts.curation.pipeline.sources.crawl_plan import selectors
@@ -46,4 +47,9 @@ __all__ = [
     # executor
     "run_crawl",
     "AuditCounters",
+    # us_states (INF-011)
+    "US_STATES",
+    "is_us_state",
+    "normalize_state_primary",
+    "slugify_state_name",
 ]
