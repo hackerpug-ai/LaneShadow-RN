@@ -242,7 +242,13 @@ class TestParseWithSelectors:
         assert isinstance(record["states_all"], list)
 
     def test_states_all_contains_state_primary(self):
-        """states_all must contain state_primary as at least one entry."""
+        """states_all must contain a title-case form of state_primary.
+
+        state_primary is a URL slug (e.g. 'tennessee') while states_all
+        contains proper names (e.g. 'Tennessee').  The contract is that
+        the title-cased version of state_primary is always in states_all
+        when the parser falls back to the backfill path (no meta states found).
+        """
         sm = self._make_selector_map()
         record = parse_with_selectors(
             html="<html></html>",
@@ -251,7 +257,11 @@ class TestParseWithSelectors:
             url="https://www.motorcycleroads.com/motorcycle-roads/tennessee/deals-gap",
             url_derived_fields={"state_primary": "tennessee"},
         )
-        assert record["state_primary"] in record["states_all"]
+        # states_all holds proper names (title case); state_primary holds URL slug
+        state_primary_title = record["state_primary"].replace("-", " ").title()
+        assert state_primary_title in record["states_all"], (
+            f"Expected '{state_primary_title}' in states_all={record['states_all']}"
+        )
 
     def test_raises_schema_violation_for_required_field_null(self):
         """A required field with None value must raise SchemaViolation."""

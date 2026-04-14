@@ -3,15 +3,13 @@
 Provides :func:`parse_with_selectors` — the function that takes an HTML string
 and a :class:`.selectors.SelectorMap` and returns a structured record dict.
 
-**Schema guarantee (mandatory in every phase including this stub):**
+**Schema guarantee (mandatory for all records):**
 Every record dict returned by :func:`parse_with_selectors` MUST contain:
 - ``state_primary`` (str | None): URL-derived primary state.  Always populated
-  in Phase 5 full implementation (required field); may be ``None`` here if the
-  caller does not supply a url.
+  for PT-03 route detail pages (required field); None for index pages.
 - ``states_all`` (list[str]): All states the route traverses.  At minimum
-  contains ``[state_primary]`` when the primary state is known.  Empty list is
-  acceptable in stub / error paths, but Phase 4 fixture tests will assert
-  ``expected.state in record.states_all``.
+  contains a title-cased version of ``state_primary`` when primary state is known.
+  Empty list acceptable for index page types.
 
 **Multi-state rationale (from DECISIONS.md Phase 0 recon):**
 The Natchez Trace Parkway crosses AL/MS/TN.  Blue Ridge Parkway crosses VA/NC.
@@ -21,18 +19,20 @@ consumer downstream (Convex schema, scoring, Epic 4/9) must treat
 
 **Fail-closed via SchemaViolation:**
 If a field with ``required: true`` yields a null/empty value, the parser raises
-:exc:`SchemaViolation` rather than returning a record with a silent null.  This
-is the Phase 3/5 contract; the stub enforces the same contract on the declared
-schema structure.
+:exc:`SchemaViolation` rather than returning a record with a silent null.
 
 Crawl Plan Protocol: Phase 3 — SELECTOR SPEC, Phase 5 — EXECUTION
 """
 
 from __future__ import annotations
 
+import re
+import logging
 from typing import Any, Optional
 
 from .selector_map import SelectorMap
+
+logger = logging.getLogger(__name__)
 
 
 class SchemaViolation(Exception):
@@ -59,6 +59,217 @@ class SchemaViolation(Exception):
         )
 
 
+# ---------------------------------------------------------------------------
+# Internal extraction helpers
+# ---------------------------------------------------------------------------
+
+def _extract_css(soup: Any, selector: str, attr: Optional[str] = None) -> Optional[str]:
+    """Extract text or attribute from the first CSS-matched element."""
+    elem = soup.select_one(selector)
+    if elem is None:
+        return None
+    if attr:
+        val = elem.get(attr)
+        return str(val) if val is not None else None
+    return elem.get_text(strip=True) or None
+
+
+def _apply_regex(text: Optional[str], pattern: str, group: int = 1) -> Optional[str]:
+    """Apply a regex to *text* and return the specified capture group."""
+    if text is None:
+        return None
+    m = re.search(pattern, text)
+    if m:
+        try:
+            return m.group(group)
+        except IndexError:
+            return None
+    return None
+
+
+def _coerce(value: Optional[str], parse_as: str) -> Any:
+    """Coerce a string value to the declared type."""
+    if value is None:
+        return None
+    if parse_as == "str":
+        return str(value)
+    if parse_as == "int":
+        try:
+            return int(value)
+        except (ValueError, TypeError):
+            return None
+    if parse_as == "float":
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return None
+    if parse_as == "bool":
+        return bool(value)
+    # state_list and link_list are handled separately
+    return value
+
+
+def _extract_state_list(raw: Optional[str]) -> list[str]:
+    """Parse a 'State1,United States,State2,...' string into a state list.
+
+    Filters out 'United States' and empty strings.  Returns title-cased state
+    names.
+    """
+    if not raw:
+        return []
+    parts = [s.strip() for s in raw.split(",")]
+    return [p for p in parts if p and p not in ("United States", "United States ")]
+
+
+def _extract_states_from_meta(soup: Any) -> list[str]:
+    """Extract states_all from the <meta name='description'> content.
+
+    The meta content format is:
+    'Route Name | Route Ref. #NNNNN | State1,United States,State2,...'
+
+    Returns a list of state names (title case), excluding 'United States'.
+    """
+    meta = soup.select_one("meta[name='description']")
+    if not meta:
+        return []
+    content = meta.get("content", "")
+    # Capture everything after the last pipe separator
+    m = re.search(r"\|\s*([\w ,]+United States[\w ,]*?)(?:\"|$)", content)
+    if m:
+        return _extract_state_list(m.group(1))
+    return []
+
+
+def _extract_rating(soup: Any) -> Optional[float]:
+    """Extract the route rating as a float from 'X.XX out of 5' text."""
+    # Search full page text for the first rating occurrence
+    all_texts = soup.find_all(string=re.compile(r"\d+\.\d+ out of 5"))
+    for text in all_texts:
+        m = re.search(r"(\d+\.\d+) out of 5", str(text))
+        if m:
+            try:
+                return float(m.group(1))
+            except ValueError:
+                continue
+    return None
+
+
+def _extract_distance_mi(soup: Any) -> Optional[int]:
+    """Extract distance in miles from span#mile strong:first-child."""
+    mile_span = soup.select_one("span#mile")
+    if not mile_span:
+        return None
+    strongs = mile_span.find_all("strong")
+    if strongs:
+        text = strongs[0].get_text(strip=True)
+        try:
+            return int(text)
+        except ValueError:
+            return None
+    return None
+
+
+def _extract_description(soup: Any) -> Optional[str]:
+    """Extract route description from the Written Directions section.
+
+    Finds the h3 containing 'Written Directions' and collects all following
+    sibling paragraph text until the next h3 heading.
+    """
+    all_h3 = soup.find_all("h3")
+    for h3 in all_h3:
+        if "Written Directions" in h3.get_text():
+            paragraphs = []
+            for sibling in h3.next_siblings:
+                if hasattr(sibling, "name"):
+                    if sibling.name == "h3":
+                        break
+                    if sibling.name == "p":
+                        text = sibling.get_text(strip=True)
+                        if text:
+                            paragraphs.append(text)
+            if paragraphs:
+                return " ".join(paragraphs)
+    return None
+
+
+def _extract_url_derived(
+    url: str, field_name: str, field_def: dict[str, Any]
+) -> Optional[str]:
+    """Extract a url_regex derived field from *url*."""
+    pattern = field_def.get("pattern", "")
+    group = field_def.get("capture_group", 1)
+    m = re.search(pattern, url)
+    if m:
+        try:
+            return m.group(group)
+        except IndexError:
+            return None
+    return None
+
+
+def _extract_field(
+    soup: Any,
+    html: str,
+    url: str,
+    field_name: str,
+    field_def: dict[str, Any],
+) -> Any:
+    """Dispatch extraction for a single field based on its definition.
+
+    Returns the extracted value (may be None, list, str, int, float).
+    """
+    # Special-case fields with custom extraction logic
+    if field_name == "states_all":
+        return _extract_states_from_meta(soup)
+
+    if field_name == "rating":
+        return _extract_rating(soup)
+
+    if field_name == "distance_mi":
+        return _extract_distance_mi(soup)
+
+    if field_name == "description":
+        return _extract_description(soup)
+
+    derived = field_def.get("derived")
+    if derived == "url_regex":
+        return _extract_url_derived(url, field_name, field_def)
+
+    # Generic CSS + regex + attr extraction
+    selector = field_def.get("selector")
+    if not selector:
+        # No selector, no derived — field cannot be extracted
+        return None
+
+    attr = field_def.get("attr")
+    raw = _extract_css(soup, selector, attr)
+
+    # Apply regex if specified
+    regex = field_def.get("regex")
+    if regex and raw is not None:
+        group = field_def.get("capture_group", 1)
+        raw = _apply_regex(raw, regex, group)
+
+    parse_as = field_def.get("parse_as", "str")
+    if parse_as == "state_list":
+        return _extract_state_list(raw)
+    if parse_as == "link_list":
+        # link_list requires iterating all matching elements, not just first
+        filter_regex = field_def.get("filter_regex")
+        links = []
+        for elem in soup.select(selector):
+            href = elem.get(attr or "href", "")
+            if href and (not filter_regex or re.search(filter_regex, href)):
+                links.append(href)
+        return links
+
+    return _coerce(raw, parse_as)
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
 def parse_with_selectors(
     html: str,
     selector_map: SelectorMap,
@@ -69,32 +280,18 @@ def parse_with_selectors(
     """Parse *html* using the field definitions in *selector_map[page_type]*.
 
     Returns a record dict.  The record ALWAYS contains:
-    - ``state_primary``: from *url_derived_fields* if provided, else ``None``.
-    - ``states_all``: list containing ``state_primary`` when non-null, else
-      empty list.
-
-    **STUB — Phase 3 full implementation.**  In Phase 1 the function:
-    - Does NOT perform real CSS selector extraction.
-    - DOES enforce the ``SchemaViolation`` contract: if *url_derived_fields*
-      marks a field as required but supplies ``None``, ``SchemaViolation`` is
-      raised.
-    - DOES return a skeleton record with the mandatory schema fields declared.
-    - DOES pass the unit tests in ``test_crawl_plan_framework.py``.
-
-    In Phase 3+5, this function will:
-    - Import BeautifulSoup and run each field's CSS selector.
-    - Handle ``attr``, ``regex``, ``parse_as``, ``bounds`` transformations.
-    - Support the ``derived: url_regex`` extraction mode.
-    - Raise ``SchemaViolation`` for any ``required: true`` field that yields
-      null after extraction.
+    - ``state_primary``: from url_derived_fields or url_regex derived field,
+      else ``None``.
+    - ``states_all``: list of all states; defaults to ``[state_primary_title]``
+      if states_all extraction returns empty and state_primary is known.
 
     Args:
         html: Raw HTML string of the page to parse.
-        selector_map: A :class:`.selectors.SelectorMap` instance.  Must contain
+        selector_map: A :class:`.selector_map.SelectorMap` instance.  Must contain
             field definitions for *page_type*.
         page_type: The page type key (e.g. ``"PT-03-route-detail"``).
         url: The source URL; used in ``SchemaViolation`` messages and for
-            URL-derived field extraction in Phase 3+5.
+            URL-derived field extraction.
         url_derived_fields: Optional dict of pre-computed URL-derived field
             values (e.g. ``{"state_primary": "tennessee"}``).  Values here take
             precedence over selector extraction.  If a required field appears
@@ -102,49 +299,66 @@ def parse_with_selectors(
 
     Returns:
         Dict with at minimum ``state_primary`` and ``states_all`` keys, plus
-        any fields defined in *selector_map* for *page_type*.
+        all fields defined in *selector_map* for *page_type*.
 
     Raises:
         SchemaViolation: If any ``required: true`` field resolves to null.
     """
-    url_derived = url_derived_fields or {}
+    from bs4 import BeautifulSoup
 
-    # Build skeleton record with mandatory schema fields
+    soup = BeautifulSoup(html, "html.parser")
+    url_derived = url_derived_fields or {}
     record: dict[str, Any] = {}
 
-    # Populate url-derived fields first
-    for field_name, value in url_derived.items():
-        record[field_name] = value
+    # Process fields in selector_map order
+    fields = selector_map.fields(page_type)
+    for field_name, field_def in fields.items():
+        required = field_def.get("required", False)
 
-    # Enforce required-field contract on url_derived_fields
-    required = selector_map.required_fields(page_type)
-    for field_name in required:
-        if field_name in record and record[field_name] is None:
+        # Pre-computed url_derived_fields take precedence
+        if field_name in url_derived:
+            value = url_derived[field_name]
+        else:
+            try:
+                value = _extract_field(soup, html, url, field_name, field_def)
+            except Exception as exc:
+                logger.warning(
+                    "parse_with_selectors: error extracting %s for %s url=%s: %s",
+                    field_name,
+                    page_type,
+                    url,
+                    exc,
+                )
+                value = None
+
+        # Fail-closed for required fields
+        if required and (value is None or value == "" or value == []):
             raise SchemaViolation(field=field_name, page_type=page_type, url=url)
 
-    # Stub: mark remaining defined fields as None (Phase 3 fills these in)
-    for field_name, defn in selector_map.fields(page_type).items():
-        if field_name not in record:
-            # In Phase 1 stub, non-url-derived fields default to None.
-            # Required fields that were not pre-populated via url_derived_fields
-            # will be treated as null here — raise SchemaViolation.
-            if defn.get("required", False):
-                raise SchemaViolation(field=field_name, page_type=page_type, url=url)
-            record[field_name] = None
+        record[field_name] = value
 
     # Ensure mandatory multi-state schema fields are always present
     if "state_primary" not in record:
-        record["state_primary"] = None
+        # Try to derive from url if not in selector_map
+        if url:
+            m = re.search(r"/motorcycle-roads/([a-z-]+)/", url)
+            record["state_primary"] = m.group(1) if m else None
+        else:
+            record["state_primary"] = None
+
     if "states_all" not in record:
         sp = record.get("state_primary")
-        record["states_all"] = [sp] if sp is not None else []
+        record["states_all"] = [sp.replace("-", " ").title()] if sp else []
     elif not isinstance(record["states_all"], list):
-        # Coerce to list if caller accidentally passed a string
         record["states_all"] = [record["states_all"]]
 
-    # If state_primary was just set and states_all is empty, backfill
+    # Backfill states_all from state_primary if empty
     sp = record.get("state_primary")
-    if sp is not None and not record["states_all"]:
-        record["states_all"] = [sp]
+    if sp and not record["states_all"]:
+        record["states_all"] = [sp.replace("-", " ").title()]
+
+    # Store source URL
+    if url and "source_url" not in record:
+        record["source_url"] = url
 
     return record

@@ -1,0 +1,127 @@
+# MotorcycleRoads.com Selector Specification
+# Protocol: Crawl Plan Protocol Phase 3 — SELECTOR SPEC
+# Form: A (HTML scraper)
+# Validated: 2026-04-14 against 5 PT-03 fixtures, 3 PT-01 fixtures, 3 PT-02 fixtures
+#
+# Key design decisions:
+#   - state_primary: derived from URL (url_regex), not DOM. URL slug is the authoritative primary state.
+#   - states_all: extracted from <meta name="description"> content field which carries a
+#     comma-separated list "State1,United States,State2,...". This is the ONLY reliable
+#     source for the multi-state list on route detail pages. DOM sidebar selectors
+#     (.views-field-field-old-motorcycle-type) return sidebar route states, NOT the
+#     current page's route states.
+#   - rating: found as plain text "X.XX out of 5" — use regex against full page text.
+#   - distance_mi: in span#mile strong:first-child.
+#   - route_name: in #route_title element (unique id, reliable).
+#   - description: text following "Written Directions" heading (h3 sibling content).
+#
+# fixture_yield notation: N/M = N fixtures where selector returned a non-null value / M total fixtures
+
+PT-03-route-detail:
+  route_name:
+    selector: "#route_title"
+    parse_as: str
+    required: true
+    fixture_yield: "5/5"
+    notes: "h1.page-header contains a div#route_title with the route name. Unique element, never null on valid route pages."
+
+  state_primary:
+    derived: url_regex
+    pattern: "/motorcycle-roads/([a-z-]+)/"
+    capture_group: 1
+    parse_as: str
+    required: true
+    fixture_yield: "5/5"
+    notes: "Derived from the first path segment after /motorcycle-roads/. URL slug is lowercased and hyphenated (e.g. 'north-carolina'). This is the authoritative primary state — the breadcrumb and meta may disagree for multi-state routes."
+
+  states_all:
+    selector: "meta[name='description']"
+    attr: content
+    regex: "\\|\\s*([\\w ,]+United States[\\w ,]*?)(?:\"|$)"
+    capture_group: 1
+    parse_as: state_list
+    required: false
+    fixture_yield: "5/5"
+    notes: >
+      Parses the meta description tag which has format 'Route Name | Route Ref. #NNNNN | State1,United States,State2,...'.
+      The regex captures everything after the last pipe separator. Results are split on comma,
+      stripped, and filtered to remove 'United States' and empty strings.
+      Returns a list of state name strings (title case). state_primary is always included.
+      Falls back to [state_primary_title_case] if regex fails.
+
+  rating:
+    selector: null
+    regex: "(\\d+\\.\\d+) out of 5"
+    parse_as: float
+    required: false
+    fixture_yield: "5/5"
+    notes: >
+      Rating appears as plain text 'X.XX out of 5' in the route header area.
+      No stable CSS class; use regex on full page text. 5/5 fixtures have a numeric
+      rating in the header. Routes with 0 reviews return 'Route has not been rated yet'
+      and should yield None (not an error — required: false).
+
+  distance_mi:
+    selector: "span#mile strong:first-child"
+    parse_as: int
+    required: false
+    fixture_yield: "5/5"
+    notes: "The span#mile element contains two <strong> children: 'NNN' and 'Miles'. The first child is the distance. Not all routes have this field populated."
+
+  description:
+    selector: null
+    after_heading: "Written Directions"
+    heading_selector: "h3"
+    sibling_selector: "p"
+    parse_as: str
+    required: false
+    fixture_yield: "5/5"
+    notes: >
+      The 'Written Directions' h3 heading is followed by one or more <p> elements
+      containing the route description text. Concatenate all sibling p elements until
+      the next h3. Falls back to empty string if no Written Directions section found.
+
+PT-01-us-listing:
+  # PT-01 is an INDEX page — no fields to scrape as records.
+  # The only extraction is: list of route links for inventory.
+  route_links:
+    selector: "a[href]"
+    attr: href
+    filter_regex: "^/motorcycle-roads/[a-z-]+/[a-z0-9-]+$"
+    parse_as: link_list
+    required: true
+    fixture_yield: "3/3"
+    notes: >
+      Extract all anchor hrefs matching the two-segment route detail pattern.
+      Deduplication happens at inventory level (canonicalize + seen set).
+      The global sidebars (Best Roads, Newest Roads) are included but collapse
+      to ~50 unique URLs across the full 103-page crawl — acceptable.
+
+  no_results_sentinel:
+    selector: null
+    text_pattern: "No Results Found"
+    parse_as: bool
+    required: false
+    fixture_yield: "0/3"
+    notes: "Pagination termination signal: page returns HTTP 200 but contains 'No Results Found'. When True, stop pagination. Fixture pages are real data pages so sentinel is not present."
+
+PT-02-state-listing:
+  # PT-02 is a SECONDARY INDEX used for coverage audit only.
+  # The state name is extractable from the H1 heading.
+  state_name:
+    selector: "h1"
+    regex: "Motorcycle Roads in (.+)"
+    capture_group: 1
+    parse_as: str
+    required: true
+    fixture_yield: "3/3"
+    notes: "The H1 reads 'Motorcycle Roads in {State Name}'. Regex captures the state name."
+
+  route_links:
+    selector: "a[href]"
+    attr: href
+    filter_regex: "^/motorcycle-roads/[a-z-]+/[a-z0-9-]+$"
+    parse_as: link_list
+    required: true
+    fixture_yield: "3/3"
+    notes: "Same extraction as PT-01. Used for cross-check audit only — not for inventory building."

@@ -3,17 +3,12 @@
 Provides loading, validation, and querying of ``selectors.yaml`` files that
 specify how to extract structured fields from HTML fixtures.
 
-**Phase 1 status (STUB):** The public API is declared here so that
-``__init__.py`` can export it and Phase 4 tests can import it.  The full
-implementation (running selectors against BeautifulSoup trees, computing
-``fixture_yield``, YAML schema validation) is delivered in Phase 3.
-
 Crawl Plan Protocol: Phase 3 — SELECTOR SPEC
 """
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 
 class SelectorMap:
@@ -23,14 +18,21 @@ class SelectorMap:
     mapping of field name → field definition dict.  Field definition keys
     (following Phase 3 selectors.yaml format):
 
-    - ``selector``: CSS selector string
+    - ``selector``: CSS selector string (or null for derived/regex-only fields)
     - ``attr``: Optional attribute to extract (default: inner text)
     - ``regex``: Optional regex applied to the extracted string
-    - ``parse_as``: Optional type coercion ("float", "int", "str")
+    - ``capture_group``: Which regex capture group to use (default: 1)
+    - ``parse_as``: Optional type coercion ("float", "int", "str", "state_list", "link_list", "bool")
     - ``bounds``: Optional ``[min, max]`` for numeric fields
     - ``required``: ``true`` / ``false`` — drives :class:`.parser.SchemaViolation`
     - ``fixture_yield``: e.g. ``"5/5"`` — recorded after Phase 3 validation
     - ``derived``: Alternative extraction mode (e.g. ``"url_regex"``)
+    - ``pattern``: Regex pattern for url_regex derived fields
+    - ``filter_regex``: For link_list fields, filter hrefs matching this pattern
+    - ``after_heading``: For description fields, text of heading to search after
+    - ``heading_selector``: CSS selector for the heading element type
+    - ``sibling_selector``: CSS selector for sibling elements to collect
+    - ``text_pattern``: For sentinel/bool fields, text string to search for
     """
 
     def __init__(self, data: dict[str, dict[str, Any]]):
@@ -74,10 +76,6 @@ class SelectorMap:
 def load_selectors(path: str) -> SelectorMap:
     """Load a ``selectors.yaml`` file and return a :class:`SelectorMap`.
 
-    **STUB — Phase 3 full implementation.**  In Phase 1 this function raises
-    ``NotImplementedError``; Phase 3 will implement YAML loading plus schema
-    validation.
-
     Args:
         path: Filesystem path to the ``selectors.yaml`` file.
 
@@ -85,11 +83,37 @@ def load_selectors(path: str) -> SelectorMap:
         :class:`SelectorMap` instance.
 
     Raises:
-        NotImplementedError: Always in Phase 1.
-        FileNotFoundError: In Phase 3, when *path* does not exist.
-        ValueError: In Phase 3, when the YAML fails schema validation.
+        FileNotFoundError: When *path* does not exist.
+        ValueError: When the YAML cannot be parsed or has invalid structure.
     """
-    raise NotImplementedError(
-        "load_selectors() is a Phase 3 deliverable.  "
-        "The Phase 1 stub raises NotImplementedError intentionally."
-    )
+    import yaml
+    from pathlib import Path
+
+    p = Path(path)
+    if not p.exists():
+        raise FileNotFoundError(f"selectors.yaml not found: {path}")
+
+    try:
+        with open(p, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+    except yaml.YAMLError as exc:
+        raise ValueError(f"Failed to parse selectors.yaml at {path}: {exc}") from exc
+
+    if not isinstance(data, dict):
+        raise ValueError(f"selectors.yaml must be a top-level dict, got {type(data)}")
+
+    # Validate structure: each top-level key must map to a dict of field defs
+    for page_type, fields in data.items():
+        if not isinstance(fields, dict):
+            raise ValueError(
+                f"selectors.yaml: page_type '{page_type}' must map to a dict of fields, "
+                f"got {type(fields)}"
+            )
+        for field_name, field_def in fields.items():
+            if not isinstance(field_def, dict):
+                raise ValueError(
+                    f"selectors.yaml: {page_type}/{field_name} must be a dict, "
+                    f"got {type(field_def)}"
+                )
+
+    return SelectorMap(data)
