@@ -173,22 +173,25 @@ def _extract_description(soup: Any) -> Optional[str]:
     """Extract route description from the Written Directions section.
 
     Finds the h3 containing 'Written Directions' and collects all following
-    sibling paragraph text until the next h3 heading.
+    sibling element text until the next h3 heading.  MR wraps description
+    text in <span> elements (not <p>), so we collect any non-empty text
+    element (p, span, div) that isn't structural noise.
     """
     all_h3 = soup.find_all("h3")
     for h3 in all_h3:
         if "Written Directions" in h3.get_text():
-            paragraphs = []
+            parts = []
             for sibling in h3.next_siblings:
-                if hasattr(sibling, "name"):
-                    if sibling.name == "h3":
-                        break
-                    if sibling.name == "p":
-                        text = sibling.get_text(strip=True)
-                        if text:
-                            paragraphs.append(text)
-            if paragraphs:
-                return " ".join(paragraphs)
+                if not hasattr(sibling, "name"):
+                    continue
+                if sibling.name == "h3":
+                    break
+                if sibling.name in ("p", "span", "div"):
+                    text = sibling.get_text(strip=True)
+                    if text:
+                        parts.append(text)
+            if parts:
+                return " ".join(parts)
     return None
 
 
