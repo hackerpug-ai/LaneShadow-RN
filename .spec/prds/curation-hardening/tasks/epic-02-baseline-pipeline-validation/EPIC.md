@@ -43,27 +43,27 @@ All 9 verifications must pass before proceeding to Epic 3. Any failure means an 
 
 ## Acceptance Criteria (Epic-Level)
 
-- [ ] BASE-000 static CSV committed to `data/fhwa_byways.csv` (~645 routes derived from DOT ArcGIS)
-- [ ] Every existing pipeline stage has been executed at least once against real data
-- [ ] Each stage produces expected output types and ranges
-- [ ] JSONL staging files exist for each source with reasonable counts (FHWA: 580-710; MR: 1,800-2,200; BBR: 2,900-3,400 staging / 3,100-3,400 inventory) — ranges reflect measured reality after the first Phase 5 execution replaced pre-flight site-banner estimates with observed counts. MR revised 2026-04-13 PM from [300, 1000] to [1800, 2200] after Phase 0 recon measured ~2,044 routes. BBR revised 2026-04-14 morning from inventory [3500, 5500] to [3100, 3400] and staging [2900, 3400] after Phase 5 measured 3,226 route-details (the [3500, 5500] range was summed from BBR nav-menu banner numbers which turned out to inflate vs what's actually navigable from state + cluster pages). See [DECISIONS.md](./DECISIONS.md) "Crawl Plan Protocol adoption" → "Phase 0 recon findings" → "BASE-009b Phase 5 findings" chain.
-- [ ] Haiku extraction produces valid `RouteAttributes` objects (no schema violations)
-- [ ] Composite scoring produces floats in `[0, 1]` range per dimension
-- [ ] Archetype classification assigns one of 6 archetypes to every route
-- [ ] Convex push (dry-run) serializes without type errors
-- [ ] Any bugs discovered are fixed, committed, and baseline re-validated
-- [ ] Baseline validation report written to `.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline-report.md`
-- [ ] DECISIONS.md records the actual BASE-000 row count and any anomalies encountered
-- [ ] Curation Review Protocol executed end-to-end with PASS verdict
-- [ ] `review.md` + `baseline/catalog.jsonl` committed (this becomes the reference baseline for all future epic reviews)
-- [ ] BASE-009a complete — `crawl_plan/` framework module committed with unit tests; MotorcycleRoads re-crawled under the new methodology; `crawl-plans/motorcycleroads/crawl-report.md` verdict PASS; `staging/motorcycleroads.jsonl` replaced with clean data; user has reviewed the MR crawl-report and approved proceeding to BASE-009b
-- [ ] BASE-009b complete — BestBikingRoads re-crawled under the new methodology using the BASE-009a framework unchanged; `crawl-plans/bestbikingroads/crawl-report.md` verdict PASS; `staging/bestbikingroads.jsonl` replaced with clean data; Epic 2 baseline artifacts regenerated from clean FHWA+MR+BBR staging; `review.md` verdict upgraded from "PASS WITH ISSUES" to "PASS"
-- [ ] `.spec/prds/curation-hardening/crawl-plans/motorcycleroads/` and `.../bestbikingroads/` artifacts committed (site-map.md, urls.jsonl, selectors.yaml, crawl-report.md — all four files per source with verdict PASS)
-- [ ] `scripts/curation/pipeline/sources/crawl_plan/` shared framework module committed, unit-tested, and importable by future source tasks (Epic 4 SRC-001/006, Epic 9 RID-001/002/006)
-- [ ] `fixtures/motorcycleroads/` and `fixtures/bestbikingroads/` committed with ≥3 samples per page type + `fixtures.manifest.yaml` with expected field values
-- [ ] `scripts/curation/tests/sources/test_motorcycleroads_fixtures.py` and `test_bestbikingroads_fixtures.py` exist and pass locally
-- [ ] `scripts/curation/tests/sources/test_crawl_plan_framework.py` unit tests for the shared framework pass locally
-- [ ] BASE-009b final commit is atomic — BBR crawl plan + regenerated baseline + upgraded review.md in a single commit
+- [x] BASE-000 static CSV committed to `data/fhwa_byways.csv` (~645 routes derived from DOT ArcGIS)
+- [x] Every existing pipeline stage has been executed at least once against real data
+- [x] Each stage produces expected output types and ranges
+- [x] JSONL staging files exist for each source with reasonable counts (FHWA: 580-710; MR: 1,800-2,200; BBR: 2,900-3,400 staging / 3,100-3,400 inventory) — ranges reflect measured reality after the first Phase 5 execution replaced pre-flight site-banner estimates with observed counts. MR revised 2026-04-13 PM from [300, 1000] to [1800, 2200] after Phase 0 recon measured ~2,044 routes. BBR revised 2026-04-14 morning from inventory [3500, 5500] to [3100, 3400] and staging [2900, 3400] after Phase 5 measured 3,226 route-details (the [3500, 5500] range was summed from BBR nav-menu banner numbers which turned out to inflate vs what's actually navigable from state + cluster pages). See [DECISIONS.md](./DECISIONS.md) "Crawl Plan Protocol adoption" → "Phase 0 recon findings" → "BASE-009b Phase 5 findings" chain.
+- [x] Haiku extraction produces valid `RouteAttributes` objects (no schema violations)
+- [x] Composite scoring produces floats in `[0, 1]` range per dimension
+- [x] Archetype classification assigns one of 6 archetypes to every route
+- [x] Convex push (dry-run) serializes without type errors
+- [x] Any bugs discovered are fixed, committed, and baseline re-validated
+- [x] Baseline validation report written to `.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline-report.md`
+- [x] DECISIONS.md records the actual BASE-000 row count and any anomalies encountered
+- [x] Curation Review Protocol executed end-to-end with PASS verdict
+- [x] `review.md` + `baseline/catalog.jsonl` committed (this becomes the reference baseline for all future epic reviews)
+- [x] BASE-009a complete — `crawl_plan/` framework module committed with unit tests; MotorcycleRoads re-crawled under the new methodology; `crawl-plans/motorcycleroads/crawl-report.md` verdict PASS; `staging/motorcycleroads.jsonl` replaced with clean data; user has reviewed the MR crawl-report and approved proceeding to BASE-009b
+- [x] BASE-009b complete — BestBikingRoads re-crawled under the new methodology using the BASE-009a framework unchanged; `crawl-plans/bestbikingroads/crawl-report.md` verdict PASS; `staging/bestbikingroads.jsonl` replaced with clean data; Epic 2 baseline artifacts regenerated from clean FHWA+MR+BBR staging; `review.md` verdict upgraded from "PASS WITH ISSUES" to "PASS"
+- [x] `.spec/prds/curation-hardening/crawl-plans/motorcycleroads/` and `.../bestbikingroads/` artifacts committed (site-map.md, urls.jsonl, selectors.yaml, crawl-report.md — all four files per source with verdict PASS)
+- [x] `scripts/curation/pipeline/sources/crawl_plan/` shared framework module committed, unit-tested, and importable by future source tasks (Epic 4 SRC-001/006, Epic 9 RID-001/002/006)
+- [x] `fixtures/motorcycleroads/` and `fixtures/bestbikingroads/` committed with ≥3 samples per page type + `fixtures.manifest.yaml` with expected field values
+- [x] `scripts/curation/tests/sources/test_motorcycleroads_fixtures.py` and `test_bestbikingroads_fixtures.py` exist and pass locally
+- [x] `scripts/curation/tests/sources/test_crawl_plan_framework.py` unit tests for the shared framework pass locally
+- [x] BASE-009b final commit is atomic — BBR crawl plan + regenerated baseline + upgraded review.md in a single commit
 
 ---
 
@@ -179,15 +179,15 @@ Pipeline reality check (2026-04-12): 6 of the 8 existing pipeline modules had **
 
 ## Definition of Done
 
-- [ ] BASE-001 task file written and tasks moved to `Done`
-- [ ] `baseline-report.md` committed to this epic directory
-- [ ] Every pipeline stage verified with actual counts and output samples
-- [ ] Any discovered bugs fixed in a separate commit (Boy Scout rule)
-- [ ] BASE-009a Crawl Plan Protocol framework + MR remediation complete (~270 min); user has reviewed the MR crawl-report.md at the human checkpoint between 009a and 009b
-- [ ] BASE-009b BBR remediation + Epic 2 baseline regeneration complete (~300 min); `review.md` verdict upgraded from "PASS WITH ISSUES" to "PASS"
-- [ ] `scripts/curation/pipeline/sources/crawl_plan/` shared framework module committed (consumed by Epic 4 and Epic 9 source tasks)
-- [ ] `.spec/prds/curation-hardening/crawl-plans/motorcycleroads/` and `.../bestbikingroads/` protocol artifacts committed (site-map, inventory, selectors, crawl-report.md with verdict PASS)
-- [ ] User has explicitly approved proceeding to Epic 3
+- [x] BASE-001 task file written and tasks moved to `Done`
+- [x] `baseline-report.md` committed to this epic directory
+- [x] Every pipeline stage verified with actual counts and output samples
+- [x] Any discovered bugs fixed in a separate commit (Boy Scout rule)
+- [x] BASE-009a Crawl Plan Protocol framework + MR remediation complete (~270 min); user has reviewed the MR crawl-report.md at the human checkpoint between 009a and 009b
+- [x] BASE-009b BBR remediation + Epic 2 baseline regeneration complete (~300 min); `review.md` verdict upgraded from "PASS WITH ISSUES" to "PASS"
+- [x] `scripts/curation/pipeline/sources/crawl_plan/` shared framework module committed (consumed by Epic 4 and Epic 9 source tasks)
+- [x] `.spec/prds/curation-hardening/crawl-plans/motorcycleroads/` and `.../bestbikingroads/` protocol artifacts committed (site-map, inventory, selectors, crawl-report.md with verdict PASS)
+- [x] User has explicitly approved proceeding to Epic 3
 
 ---
 

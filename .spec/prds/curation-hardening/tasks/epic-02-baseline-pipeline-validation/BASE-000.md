@@ -3,9 +3,9 @@ TASK: BASE-000 - Fetch FHWA Scenic Byways dataset and write static CSV baseline
 ================================================================================
 
 TASK_TYPE: INFRA / DATA_PREP
-STATUS: Backlog
-TDD_PHASE: RED
-CURRENT_AC: AC-1
+STATUS: Done
+TDD_PHASE: GREEN
+CURRENT_AC: complete
 PRIORITY: P0
 EFFORT: M
 TYPE: PROCESS

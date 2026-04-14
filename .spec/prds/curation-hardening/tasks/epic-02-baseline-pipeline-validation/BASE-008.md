@@ -3,9 +3,9 @@ TASK: BASE-008 - Curation Review Protocol execution + baseline artifacts commit
 ================================================================================
 
 TASK_TYPE: INFRA
-STATUS: Backlog
-TDD_PHASE: RED
-CURRENT_AC: AC-1
+STATUS: Done
+TDD_PHASE: GREEN
+CURRENT_AC: complete
 PRIORITY: P0
 EFFORT: M
 TYPE: PROCESS

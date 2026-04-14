@@ -3,9 +3,9 @@ TASK: BASE-009b - Apply Crawl Plan Protocol to BestBikingRoads + regenerate Epic
 ================================================================================
 
 TASK_TYPE: INFRA / REMEDIATION
-STATUS: Backlog
-TDD_PHASE: RED
-CURRENT_AC: AC-1
+STATUS: Done
+TDD_PHASE: GREEN
+CURRENT_AC: complete
 PRIORITY: P0
 EFFORT: L
 TYPE: REMEDIATION

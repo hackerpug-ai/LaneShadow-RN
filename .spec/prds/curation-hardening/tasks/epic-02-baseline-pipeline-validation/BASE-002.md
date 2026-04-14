@@ -3,9 +3,9 @@ TASK: BASE-002 - Community scrapers validation — MotorcycleRoads + BestBikingR
 ================================================================================
 
 TASK_TYPE: INFRA
-STATUS: Backlog
-TDD_PHASE: RED
-CURRENT_AC: AC-1
+STATUS: Done
+TDD_PHASE: GREEN
+CURRENT_AC: complete
 PRIORITY: P0
 EFFORT: S
 TYPE: PROCESS

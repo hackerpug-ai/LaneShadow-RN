@@ -3,9 +3,9 @@ TASK: BASE-007 - Convex push dry-run validation + Boy Scout --dry-run flag for s
 ================================================================================
 
 TASK_TYPE: INFRA
-STATUS: Backlog
-TDD_PHASE: RED
-CURRENT_AC: AC-1
+STATUS: Done
+TDD_PHASE: GREEN
+CURRENT_AC: complete
 PRIORITY: P0
 EFFORT: S
 TYPE: PROCESS

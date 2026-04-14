@@ -3,9 +3,9 @@ TASK: BASE-009a - Crawl Plan Protocol framework + MotorcycleRoads remediation
 ================================================================================
 
 TASK_TYPE: INFRA / REMEDIATION
-STATUS: Backlog
-TDD_PHASE: RED
-CURRENT_AC: AC-1
+STATUS: Done
+TDD_PHASE: GREEN
+CURRENT_AC: complete
 PRIORITY: P0
 EFFORT: M
 TYPE: REMEDIATION
