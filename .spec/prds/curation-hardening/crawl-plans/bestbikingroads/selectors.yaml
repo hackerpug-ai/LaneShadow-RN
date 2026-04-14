@@ -1,0 +1,102 @@
+# BestBikingRoads.com Selector Spec
+# Generated: 2026-04-14 (BASE-009b Phase 3)
+# Validated against 5 PT-03-route-detail fixtures, 3 PT-01, 3 PT-02.
+#
+# IMPORTANT — RATING field:
+#   BBR stores the average user rating in inline JavaScript as:
+#     responseA[i].comments_ave_rating
+#   This is NOT in the DOM as a CSS-addressable element.
+#   However, the displayed rating is ALSO rendered as plain text in
+#   the header div as "(N.NN)" immediately following the route name h1.
+#   That text value IS extractable via regex on the parent div text content.
+#   Fixture validation: 5/5 (all landmarks have a numeric rating in the header).
+#   Declared required: false (routes without any reviews have no rating value).
+#
+# STATE field:
+#   TRAP-01 defense: state_primary is ALWAYS derived from the route URL slug
+#   (/motorcycle-roads/united-states/{state-slug}/ride/), never from the
+#   listing-page context. This is the root cause of Epic 2's Alabama contamination
+#   of Blue Ridge Parkway and Beartooth Pass.
+#
+# DESCRIPTION field:
+#   BBR route detail pages (PT-03) do NOT have a dedicated description section.
+#   There is no "Written Directions" block like MR. The closest equivalent is
+#   the text of the first user review (div.col.p-4.m-0.white-background p).
+#   This is declared required: false; routes without reviews have no description.
+
+PT-03-route-detail:
+  route_name:
+    # h1 inside the main content column div.col-xs-12.col-sm-9
+    # Fixture validated: 5/5 fixtures yield non-empty route name
+    selector: "div.col-xs-12.col-sm-9 h1"
+    required: true
+    fixture_yield: "5/5"
+    parse_as: str
+
+  state_primary:
+    # URL-derived: /motorcycle-roads/united-states/{state-slug}/ride/{slug}
+    # Fixture validated: 5/5 fixtures yield correct state slug
+    # NEVER use listing-page context (TRAP-01 defense)
+    derived: url_regex
+    pattern: "/motorcycle-roads/united-states/([a-z-]+)/ride/"
+    capture_group: 1
+    required: true
+    fixture_yield: "5/5"
+    parse_as: str
+
+  states_all:
+    # Derived from state_primary (title-cased, slug converted to name).
+    # BBR routes are US-state-primary; multi-state routes would appear in
+    # the "you might also like" sidebar which is REJECTED at inventory time.
+    # states_all is always populated from state_primary (minimum 1 entry).
+    # Required: false because it's derived — the parser auto-populates it.
+    required: false
+    fixture_yield: "5/5"
+    # Handled in parser.py: backfill from state_primary.slug.title()
+
+  rating:
+    # Rating appears in the header div text as "(N.NN)" immediately after h1.
+    # Example: " (4.43)  97 kms Orson | May 11, 2006 | America > ..."
+    # Fixture validated: 5/5 landmark fixtures have rating.
+    # HOWEVER: routes with zero reviews may have no rating value.
+    # The inline JS (responseA[i].comments_ave_rating) is the canonical source
+    # but requires JS execution or regex on raw HTML — not CSS-addressable.
+    # This DOM extraction captures the displayed value which matches the JS value.
+    selector: "div.col-xs-12.col-sm-9.m-0.p-4.white-background"
+    regex: "\\((\\d+\\.?\\d*)\\)"
+    capture_group: 1
+    parse_as: float
+    bounds: [0.0, 5.0]
+    required: false
+    fixture_yield: "5/5"
+    note: "Extracts displayed rating from header text, not inline JS. Required=false because routes with 0 reviews have no rating."
+
+  description:
+    # BBR PT-03 pages have no dedicated description section.
+    # The closest approximation is the text of the first user review paragraph.
+    # This is optional enrichment only.
+    selector: "div.col.p-4.m-0.white-background p"
+    required: false
+    fixture_yield: "5/5"
+    parse_as: str
+    note: "First review paragraph as approximate description. Required=false; routes with 0 reviews have no description."
+
+  distance_km:
+    # Distance appears in the header block as "NNN kms"
+    # Extracted via regex on the full page text.
+    # Required: false — a small number of routes do not declare distance.
+    selector: "div.col-xs-12.col-sm-9.m-0.p-4.white-background"
+    regex: "(\\d+)\\s*kms"
+    capture_group: 1
+    parse_as: int
+    required: false
+    fixture_yield: "5/5"
+
+  # source_url is NOT in the selector map — it is populated by the executor's
+  # record.setdefault('source_url', row.url) call after parse_fn returns.
+  # The BBR glue file additionally passes it as url_derived_fields={'source_url': url}
+  # so fixture tests that call parse_with_selectors directly will also get it.
+
+# PT-01-state-listing: index page — not parsed as records, used only for
+# Phase 1 inventory link discovery. No selectors needed.
+# PT-02-cluster-index: same as PT-01 — inventory discovery only.

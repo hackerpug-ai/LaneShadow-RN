@@ -1,0 +1,122 @@
+# BestBikingRoads.com fixture manifest
+# Generated: 2026-04-14 (BASE-009b Phase 2)
+# All fixtures downloaded as real HTTP 200 responses from www.bestbikingroads.com
+
+PT-01-state-listing:
+  - file: tennessee.html
+    url: https://www.bestbikingroads.com/motorcycle-roads/united-states/routes/tennessee
+    fetched_at: 2026-04-14T04:48:00Z
+    sha256: 0a90d990beb42026
+    expected:
+      route_count_min: 60
+      cluster_count_min: 3
+      has_cluster_links: true
+
+  - file: california.html
+    url: https://www.bestbikingroads.com/motorcycle-roads/united-states/routes/california
+    fetched_at: 2026-04-14T04:48:10Z
+    sha256: 46a207a729b89758
+    expected:
+      route_count_min: 80
+      cluster_count_min: 5
+      has_cluster_links: true
+
+  - file: alabama.html
+    url: https://www.bestbikingroads.com/motorcycle-roads/united-states/routes/alabama
+    fetched_at: 2026-04-14T04:48:20Z
+    sha256: 8d24eaadf62c4bac
+    expected:
+      route_count_min: 50
+      cluster_count_min: 3
+      has_cluster_links: true
+
+PT-02-cluster-index:
+  - file: tennessee-lake-obion-weakley.html
+    url: https://www.bestbikingroads.com/motorcycle-roads/united-states/tennessee/rides/lake-obion-weakley
+    fetched_at: 2026-04-14T04:48:30Z
+    sha256: 98b5282f37546615
+    expected:
+      route_count_min: 40
+      has_ride_links: true
+
+  - file: california-monterey-san-benito.html
+    url: https://www.bestbikingroads.com/motorcycle-roads/united-states/california/rides/monterey-san-benito
+    fetched_at: 2026-04-14T04:48:40Z
+    sha256: d84bd88d0f616546
+    expected:
+      route_count_min: 30
+      has_ride_links: true
+
+  - file: alabama-madison-jackson-marshall.html
+    url: https://www.bestbikingroads.com/motorcycle-roads/united-states/alabama/rides/madison-jackson-marshall
+    fetched_at: 2026-04-14T04:48:50Z
+    sha256: d75adc34e55be3e1
+    expected:
+      route_count_min: 10
+      has_ride_links: true
+
+PT-03-route-detail:
+  - file: tail-of-the-dragon.html
+    url: https://www.bestbikingroads.com/motorcycle-roads/united-states/north-carolina/ride/us-129-robbinsville-maryville-deal-s-gap-tail-of-the-dragon
+    fetched_at: 2026-04-14T04:49:00Z
+    sha256: 9148c0c53cf39235
+    expected:
+      route_name: "US 129 : Robbinsville - Maryville ( Deal's Gap - Tail of The Dragon )"
+      state: "north-carolina"
+      states_all:
+        - "North Carolina"
+      rating_min: 4.0
+      rating_max: 5.0
+      has_distance: true
+
+  - file: million-dollar-highway.html
+    url: https://www.bestbikingroads.com/motorcycle-roads/united-states/colorado/ride/us-550-million-dollar-highway-coal-bank-pass-molas-pass-red-mountain-pass-durango-ridgeway
+    fetched_at: 2026-04-14T04:49:10Z
+    sha256: d5632194f75cfd17
+    expected:
+      route_name: "US 550 / Million Dollar Highway / Coal Bank Pass / Molas Pass / Red Mountain Pass : Durango - Ridgeway"
+      state: "colorado"
+      states_all:
+        - "Colorado"
+      rating_min: 4.0
+      rating_max: 5.0
+      has_distance: true
+
+  - file: beartooth-highway.html
+    url: https://www.bestbikingroads.com/motorcycle-roads/united-states/montana/ride/us-212-beartooth-hwy-red-lodge-cooke-city
+    fetched_at: 2026-04-14T04:49:20Z
+    sha256: 5236420653946509
+    expected:
+      route_name: "US 212 / Beartooth Hwy : Red Lodge - Cooke City"
+      state: "montana"
+      states_all:
+        - "Montana"
+      rating_min: 4.5
+      rating_max: 5.0
+      has_distance: true
+
+  - file: pacific-coast-hwy.html
+    url: https://www.bestbikingroads.com/motorcycle-roads/united-states/california/ride/pacific-coast-hwy-1-monterey-morro-bay
+    fetched_at: 2026-04-14T04:49:30Z
+    sha256: b4949ec389f805a0
+    expected:
+      route_name: "Pacific Coast Hwy 1 : Monterey - Morro Bay"
+      state: "california"
+      states_all:
+        - "California"
+      rating_min: 4.0
+      rating_max: 5.0
+      has_distance: true
+
+  - file: coronado-trail.html
+    url: https://www.bestbikingroads.com/motorcycle-roads/united-states/arizona/ride/us-191-coronado-trail-scenic-byway-clifton-alpine
+    fetched_at: 2026-04-14T04:49:40Z
+    sha256: 24ee173e3cc56ce5
+    expected:
+      route_name: "US 191 / Coronado Trail Scenic Byway : Clifton - Alpine"
+      state: "arizona"
+      states_all:
+        - "Arizona"
+      rating_min: 4.5
+      rating_max: 5.0
+      has_distance: true
