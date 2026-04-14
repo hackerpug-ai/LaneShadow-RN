@@ -175,8 +175,8 @@ class BestBikingRoadsScraper(BaseScraper):
                 if not href or "/motorcycle-roads/" not in href:
                     continue
 
-                # Skip navigation/filter/listing links
-                if any(skip in href for skip in ["/country/", "/routes/", "/roads/"]):
+                # Skip navigation/filter/listing/top-10 pages
+                if any(skip in href for skip in ["/country/", "/routes/", "/roads/", "/top-10-best-rides/"]):
                     continue
 
                 # US-only filter: skip any route not in /united-states/
@@ -204,7 +204,7 @@ class BestBikingRoadsScraper(BaseScraper):
                     url_path = route_url.split("/united-states/")[-1]
                     parts = url_path.split("/")
                     if len(parts) >= 1:
-                        url_state_slug = parts[0]
+                        url_state_slug = parts[0].lower()
                         # Verify it's a known US state slug
                         if url_state_slug in self.US_STATES:
                             route_state = url_state_slug
