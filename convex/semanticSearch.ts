@@ -21,11 +21,10 @@ const EMBEDDING_DIMENSIONS = 1536;
 // Types
 // ---------------------------------------------------------------------------
 
-// Use any for types that don't exist in generated dataModel yet
-// This will be fixed once Convex generates types with the new tables
-type CuratedRouteDoc = any;
-type RouteMatchDoc = any;
-type RoutePostRawDoc = any;
+// Proper Convex types for our document tables
+type CuratedRouteDoc = Doc<"curated_routes">;
+type RouteMatchDoc = Doc<"route_matches">;
+type RoutePostRawDoc = Doc<"route_posts_raw">;
 
 // ---------------------------------------------------------------------------
 // Query: findCandidateRoutesByEmbedding

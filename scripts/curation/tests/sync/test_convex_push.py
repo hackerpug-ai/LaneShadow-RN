@@ -3,17 +3,11 @@
 import pytest
 import responses as responses_mock
 from scripts.curation.pipeline.models import Route
-
-# These imports will fail until we create the module - that's expected for RED
-try:
-    from scripts.curation.pipeline.sync.convex_push import (
-        push_routes,
-        PushSummary,
-        ConfigurationError,
-    )
-    IMPORTS_AVAILABLE = True
-except ImportError:
-    IMPORTS_AVAILABLE = False
+from scripts.curation.pipeline.sync.convex_push import (
+    push_routes,
+    PushSummary,
+    ConfigurationError,
+)
 
 
 BASE_URL = "https://fake-convex.convex.site"
@@ -37,7 +31,6 @@ def _make_routes(count: int) -> list[Route]:
     return [_make_route(i) for i in range(count)]
 
 
-@pytest.mark.skipif(not IMPORTS_AVAILABLE, reason="Module not created yet - RED phase")
 @responses_mock.activate
 def test_push_routes_batches_120_routes_into_three_calls():
     """AC-1: push_routes batches 120 routes into 3 HTTP calls of 50/50/20.
@@ -81,7 +74,6 @@ def test_push_routes_batches_120_routes_into_three_calls():
     assert summary.sent == 120
 
 
-@pytest.mark.skipif(not IMPORTS_AVAILABLE, reason="Module not created yet - RED phase")
 @responses_mock.activate
 def test_push_routes_aggregates_inserted_and_updated_counts():
     """AC-2: push_routes aggregates inserted and updated counts across batches.
@@ -122,7 +114,6 @@ def test_push_routes_aggregates_inserted_and_updated_counts():
     assert summary.errors == [], f"Expected no errors, got {summary.errors}"
 
 
-@pytest.mark.skipif(not IMPORTS_AVAILABLE, reason="Module not created yet - RED phase")
 @responses_mock.activate
 def test_push_routes_retries_batch_once_on_503():
     """AC-3: push_routes retries a failing batch once before logging error and continuing.
@@ -182,7 +173,6 @@ def test_push_routes_retries_batch_once_on_503():
     assert "permanent failure" in summary.errors[0].lower(), f"Expected error message to mention 'permanent failure', got: {summary.errors[0]}"
 
 
-@pytest.mark.skipif(not IMPORTS_AVAILABLE, reason="Module not created yet - RED phase")
 def test_push_routes_raises_configuration_error_on_missing_deploy_key():
     """AC-4: push_routes raises ConfigurationError when deploy_key is empty or None.
 
@@ -212,7 +202,6 @@ def test_push_routes_raises_configuration_error_on_missing_deploy_key():
     assert "CURATION_DEPLOY_KEY" in str(exc_info.value)
 
 
-@pytest.mark.skipif(not IMPORTS_AVAILABLE, reason="Module not created yet - RED phase")
 @responses_mock.activate
 def test_push_routes_raises_configuration_error_before_http_call():
     """AC-4 verification: No HTTP request is made when ConfigurationError is raised.
