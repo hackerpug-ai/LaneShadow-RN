@@ -12,7 +12,7 @@
 
 import { v } from "convex/values";
 
-import type { Doc, Id } from "./_generated/dataModel";
+import type { Doc, Id, TableNames } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 
 const EMBEDDING_DIMENSIONS = 1536;
@@ -25,6 +25,18 @@ const EMBEDDING_DIMENSIONS = 1536;
 type CuratedRouteDoc = Doc<"curated_routes">;
 type RouteMatchDoc = Doc<"route_matches">;
 type RoutePostRawDoc = Doc<"route_posts_raw">;
+
+// Vector search result types
+type VectorSearchHit<TTableName extends TableNames> = {
+  _id: Id<TTableName>;
+  _score: number;
+};
+
+// Vector filter predicate type (simplified - Convex doesn't export proper types)
+type VectorFilter = (q: {
+  eq(fieldName: string, value: string): any;
+  or(...expressions: any[]): any;
+}) => any;
 
 // ---------------------------------------------------------------------------
 // Query: findCandidateRoutesByEmbedding
@@ -67,8 +79,8 @@ export const findCandidateRoutesByEmbedding = query({
     }
 
     // Build vector filter
-    const filter = stateFilter
-      ? (q: any) => q.eq("state", stateFilter)
+    const filter: VectorFilter | undefined = stateFilter
+      ? (q) => q.eq("state", stateFilter)
       : undefined;
 
     // Execute vector search
@@ -80,7 +92,7 @@ export const findCandidateRoutesByEmbedding = query({
 
     // Fetch full documents and join with _score
     const routes = await Promise.all(
-      results.map(async ({ _id, _score }: { _id: any; _score: number }) => {
+      results.map(async ({ _id, _score }: VectorSearchHit<"curated_routes">) => {
         const doc = await ctx.db.get(_id) as CuratedRouteDoc | null;
         if (!doc) {
           return null;
@@ -621,15 +633,18 @@ export const findCandidateRoutesHybrid = query({
     const { embedding, identifier, stateFilter, limit = 20 } = args;
 
     // Execute vector search
+    const filter: VectorFilter | undefined = stateFilter
+      ? (q) => q.eq("state", stateFilter)
+      : undefined;
     const vectorResults = await (ctx as any).vectorSearch("curated_routes", "by_embedding", {
       vector: embedding,
       limit,
-      filter: stateFilter ? (q: any) => q.eq("state", stateFilter) : undefined,
+      filter,
     });
 
     // Fetch full documents for vector results
     const vectorRoutes = await Promise.all(
-      vectorResults.map(async ({ _id, _score }: { _id: any; _score: number }) => {
+      vectorResults.map(async ({ _id, _score }: VectorSearchHit<"curated_routes">) => {
         const doc = await ctx.db.get(_id) as CuratedRouteDoc | null;
         if (!doc) {
           return null;
