@@ -1,6 +1,6 @@
-"""OpenAI-compatible + Instructor client for LLM extraction.
+"""LLM extraction client for route attribute extraction.
 
-This module wraps the OpenAI SDK (pointed at z.ai) with Instructor for structured extraction.
+Supports Anthropic Claude Haiku (high throughput) and z.ai (fallback).
 Temperature is hardcoded to 0 (Pipeline Principle P4) and cannot be overridden.
 
 Pipeline Principle P5: Deterministic parser between LLM and downstream code.
@@ -12,14 +12,13 @@ import time
 from typing import Optional
 
 import instructor
-from openai import OpenAI
 from pydantic import ValidationError
 
 from scripts.curation.pipeline.extraction.schema import RouteAttributes
 
 logger = logging.getLogger(__name__)
 
-# z.ai OpenAI-compatible endpoint
+# z.ai OpenAI-compatible endpoint (fallback)
 ZAI_BASE_URL = "https://api.z.ai/api/paas/v4"
 
 
@@ -47,7 +46,10 @@ Always think step-by-step in the reasoning field before assigning scores."""
 
 
 class ExtractionClient:
-    """OpenAI-compatible (z.ai) + Instructor client for route attribute extraction.
+    """LLM + Instructor client for route attribute extraction.
+
+    Uses Claude Haiku by default (high throughput, ~$0.25/1M input tokens).
+    Falls back to z.ai glm-4.7-flash if no Anthropic key is available.
 
     Pipeline Principle P4: All extraction runs at temperature=0.
     Pipeline Principle P5: Pydantic validation between LLM and downstream code.
@@ -57,36 +59,61 @@ class ExtractionClient:
         """Initialize the extraction client.
 
         Args:
-            api_key: z.ai API key. Falls back to ZAI_API_KEY, then ANTHROPIC_API_KEY env vars.
-            model: GLM model name. Defaults to glm-4.7-flash.
+            api_key: API key. Falls back to ANTHROPIC_API_KEY, then OPENAI_API_KEY,
+                     then Z_AI_API_KEY env vars.
+            model: Model name. Defaults based on which key is found.
 
         Raises:
             ValueError: If API key is not provided or found in environment.
         """
+        self._backend = "anthropic"  # default assumption
+
         if api_key is None:
-            api_key = (
-                os.environ.get("Z_AI_API_KEY")
-                or os.environ.get("ANTHROPIC_API_KEY")
-            )
+            api_key = os.environ.get("ANTHROPIC_API_KEY")
+            if not api_key:
+                api_key = os.environ.get("OPENAI_API_KEY")
+                if api_key:
+                    self._backend = "openai"
+                else:
+                    api_key = os.environ.get("Z_AI_API_KEY")
+                    if api_key:
+                        self._backend = "zai"
+        else:
+            # Explicit key provided — assume Anthropic
+            self._backend = "anthropic"
 
         if not api_key:
             raise ValueError(
-                "z.ai API key must be provided via api_key parameter, "
-                "Z_AI_API_KEY or ANTHROPIC_API_KEY environment variable"
+                "API key must be provided via api_key parameter, "
+                "ANTHROPIC_API_KEY, OPENAI_API_KEY, or Z_AI_API_KEY environment variable"
             )
 
-        # Initialize OpenAI client pointed at z.ai
-        raw_client = OpenAI(api_key=api_key, base_url=ZAI_BASE_URL)
+        # Initialize client based on backend
+        if self._backend == "anthropic":
+            import anthropic
 
-        # Wrap with Instructor for structured extraction
-        self.client = instructor.from_openai(raw_client)
+            raw_client = anthropic.Anthropic(api_key=api_key)
+            self.client = instructor.from_anthropic(raw_client)
+            self._model = model or "claude-haiku-4-5-20251001"
+        elif self._backend == "openai":
+            from openai import OpenAI
+
+            raw_client = OpenAI(api_key=api_key)
+            self.client = instructor.from_openai(raw_client)
+            self._model = model or "gpt-4o-mini"
+        else:
+            from openai import OpenAI
+
+            raw_client = OpenAI(api_key=api_key, base_url=ZAI_BASE_URL)
+            self.client = instructor.from_openai(raw_client)
+            self._model = model or "glm-4.7-flash"
 
         # P4: Temperature is hardcoded to 0 - no overrides allowed
         self._temperature = 0
-        self._model = model or "glm-4.7-flash"
 
         logger.info(
-            f"ExtractionClient initialized (model={self._model}, temperature={self._temperature})"
+            f"ExtractionClient initialized (backend={self._backend}, "
+            f"model={self._model}, temperature={self._temperature})"
         )
 
     def extract(
@@ -115,17 +142,29 @@ class ExtractionClient:
             try:
                 start_time = time.time()
 
-                # Call GLM with Instructor for structured extraction
-                response = self.client.chat.completions.create(
-                    model=self._model,
-                    temperature=self._temperature,  # ALWAYS 0 (P4)
-                    max_tokens=1024,
-                    response_model=RouteAttributes,
-                    messages=[
-                        {"role": "system", "content": EXTRACTION_SYSTEM_PROMPT},
-                        {"role": "user", "content": route_text},
-                    ],
-                )
+                if self._backend == "anthropic":
+                    response = self.client.messages.create(
+                        model=self._model,
+                        temperature=self._temperature,
+                        max_tokens=1024,
+                        response_model=RouteAttributes,
+                        messages=[
+                            {"role": "system", "content": EXTRACTION_SYSTEM_PROMPT},
+                            {"role": "user", "content": route_text},
+                        ],
+                    )
+                else:
+                    # OpenAI-compatible (openai or zai)
+                    response = self.client.chat.completions.create(
+                        model=self._model,
+                        temperature=self._temperature,
+                        max_tokens=1024,
+                        response_model=RouteAttributes,
+                        messages=[
+                            {"role": "system", "content": EXTRACTION_SYSTEM_PROMPT},
+                            {"role": "user", "content": route_text},
+                        ],
+                    )
 
                 latency_ms = (time.time() - start_time) * 1000
 
@@ -183,7 +222,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
     parser = argparse.ArgumentParser(
-        description="Extract route attributes using GLM via z.ai"
+        description="Extract route attributes using LLM"
     )
     parser.add_argument(
         "--sample",
@@ -203,12 +242,13 @@ if __name__ == "__main__":
 
     # Verify API key is set
     api_key = (
-        os.environ.get("Z_AI_API_KEY")
-        or os.environ.get("ANTHROPIC_API_KEY")
+        os.environ.get("ANTHROPIC_API_KEY")
+        or os.environ.get("OPENAI_API_KEY")
+        or os.environ.get("Z_AI_API_KEY")
     )
     if not api_key:
         logger.error(
-            "No API key found. Set Z_AI_API_KEY or ANTHROPIC_API_KEY "
+            "No API key found. Set ANTHROPIC_API_KEY, OPENAI_API_KEY or Z_AI_API_KEY "
             "environment variable before running extraction."
         )
         sys.exit(1)
@@ -265,7 +305,7 @@ if __name__ == "__main__":
 
                 logger.info(f"Extracting [{i}/{len(routes)}]: {name}")
 
-                # Extract attributes via GLM
+                # Extract attributes via LLM
                 attrs = client.extract(route_text)
 
                 # Write as JSON line using Pydantic model_dump_json()
