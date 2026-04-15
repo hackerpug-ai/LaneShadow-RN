@@ -717,4 +717,179 @@ describe('INF-006: Convex Vector Search Query Wrappers', () => {
       }
     })
   })
+
+  // ============================================================================
+  // B3: Hybrid Search + addCommunityWaypointMention
+  // ============================================================================
+
+  describe('B3-AC-1: findCandidateRoutesHybrid entry point', () => {
+    it('should export findCandidateRoutesHybrid function', () => {
+      // GIVEN: semanticSearch.ts exists
+      // WHEN: We read the file
+      // THEN: It should export findCandidateRoutesHybrid
+
+      const semanticSearchPath = resolve(__dirname, '../semanticSearch.ts')
+      const content = readFileSync(semanticSearchPath, 'utf-8')
+
+      expect(content).toContain('export const findCandidateRoutesHybrid')
+    })
+
+    it('should accept embedding and identifier args', () => {
+      // GIVEN: findCandidateRoutesHybrid is a query
+      // WHEN: We check its args
+      // THEN: It should accept embedding, identifier, and optional filters
+
+      const semanticSearchPath = resolve(__dirname, '../semanticSearch.ts')
+      const content = readFileSync(semanticSearchPath, 'utf-8')
+
+      const functionStart = content.indexOf('export const findCandidateRoutesHybrid')
+      const functionEnd = content.indexOf('\nexport const', functionStart + 10)
+      const functionBody = content.substring(functionStart, functionEnd > -1 ? functionEnd : content.length)
+
+      // Should have embedding and identifier args
+      expect(functionBody).toContain('embedding:')
+      expect(functionBody).toContain('identifier:')
+      expect(functionBody).toContain('stateFilter:')
+      expect(functionBody).toContain('limit:')
+    })
+
+    it('should call both vector and text search functions', () => {
+      // GIVEN: findCandidateRoutesHybrid exists
+      // WHEN: It executes
+      // THEN: It should call both findCandidateRoutesByEmbedding and findRoutesByIdentifier
+
+      const semanticSearchPath = resolve(__dirname, '../semanticSearch.ts')
+      const content = readFileSync(semanticSearchPath, 'utf-8')
+
+      const functionStart = content.indexOf('export const findCandidateRoutesHybrid')
+      const functionEnd = content.indexOf('\nexport const', functionStart + 10)
+      const functionBody = content.substring(functionStart, functionEnd > -1 ? functionEnd : content.length)
+
+      // Should call both search functions (via internal references or direct implementation)
+      expect(functionBody).toMatch(/vectorSearch|findCandidateRoutesByEmbedding/)
+      expect(functionBody).toMatch(/findRoutesByIdentifier|text.*search|identifier.*search/)
+    })
+
+    it('should return union of results without duplicates', () => {
+      // GIVEN: Both searches return results
+      // WHEN: Results are combined
+      // THEN: Duplicates should be removed by routeId
+
+      const semanticSearchPath = resolve(__dirname, '../semanticSearch.ts')
+      const content = readFileSync(semanticSearchPath, 'utf-8')
+
+      const functionStart = content.indexOf('export const findCandidateRoutesHybrid')
+      const functionEnd = content.indexOf('\nexport const', functionStart + 10)
+      const functionBody = content.substring(functionStart, functionEnd > -1 ? functionEnd : content.length)
+
+      // Should deduplicate by routeId
+      expect(functionBody).toMatch(/dedup|duplicate|unique.*routeId|routeId.*unique|Set|Map/)
+    })
+  })
+
+  describe('B3-AC-2: addCommunityWaypointMention mutation', () => {
+    it('should export addCommunityWaypointMention as mutation', () => {
+      // GIVEN: semanticSearch.ts exists
+      // WHEN: We read the file
+      // THEN: It should export addCommunityWaypointMention as mutation
+
+      const semanticSearchPath = resolve(__dirname, '../semanticSearch.ts')
+      const content = readFileSync(semanticSearchPath, 'utf-8')
+
+      expect(content).toContain('export const addCommunityWaypointMention')
+      expect(content).toContain('addCommunityWaypointMention = mutation')
+    })
+
+    it('should accept all CommunityWaypointMention fields', () => {
+      // GIVEN: addCommunityWaypointMention is a mutation
+      // WHEN: We check its args
+      // THEN: It should accept all required fields from the validator
+
+      const semanticSearchPath = resolve(__dirname, '../semanticSearch.ts')
+      const content = readFileSync(semanticSearchPath, 'utf-8')
+
+      const functionStart = content.indexOf('export const addCommunityWaypointMention')
+      const functionEnd = content.indexOf('\nexport const', functionStart + 10)
+      const functionBody = content.substring(functionStart, functionEnd > -1 ? functionEnd : content.length)
+
+      // Should have all required fields
+      expect(functionBody).toContain('postId:')
+      expect(functionBody).toContain('postUrl:')
+      expect(functionBody).toContain('name:')
+      expect(functionBody).toContain('region:')
+      expect(functionBody).toContain('proposedCategory:')
+      expect(functionBody).toContain('riderQuote:')
+      expect(functionBody).toContain('confidenceScore:')
+      expect(functionBody).toContain('extractedAt:')
+    })
+
+    it('should accept optional lat/lng fields', () => {
+      // GIVEN: addCommunityWaypointMention is a mutation
+      // WHEN: We check its args
+      // THEN: It should accept optional lat and lng fields
+
+      const semanticSearchPath = resolve(__dirname, '../semanticSearch.ts')
+      const content = readFileSync(semanticSearchPath, 'utf-8')
+
+      const functionStart = content.indexOf('export const addCommunityWaypointMention')
+      const functionEnd = content.indexOf('\nexport const', functionStart + 10)
+      const functionBody = content.substring(functionStart, functionEnd > -1 ? functionEnd : content.length)
+
+      // Should have optional lat/lng
+      expect(functionBody).toContain('lat:')
+      expect(functionBody).toContain('lng:')
+      expect(functionBody).toContain('v.optional(')
+    })
+
+    it('should insert into community_waypoint_mentions table', () => {
+      // GIVEN: Valid waypoint mention args
+      // WHEN: I call addCommunityWaypointMention
+      // THEN: The new row should be inserted into community_waypoint_mentions
+
+      const semanticSearchPath = resolve(__dirname, '../semanticSearch.ts')
+      const content = readFileSync(semanticSearchPath, 'utf-8')
+
+      const functionStart = content.indexOf('export const addCommunityWaypointMention')
+      const functionEnd = content.indexOf('\nexport const', functionStart + 10)
+      const functionBody = content.substring(functionStart, functionEnd > -1 ? functionEnd : content.length)
+
+      // Should insert into community_waypoint_mentions
+      expect(functionBody).toContain('ctx.db.insert("community_waypoint_mentions"')
+    })
+
+    it('should return inserted document ID', () => {
+      // GIVEN: addCommunityWaypointMention inserts a row
+      // WHEN: It returns
+      // THEN: Return type should be v.id("community_waypoint_mentions")
+
+      const semanticSearchPath = resolve(__dirname, '../semanticSearch.ts')
+      const content = readFileSync(semanticSearchPath, 'utf-8')
+
+      const functionStart = content.indexOf('export const addCommunityWaypointMention')
+      const functionEnd = content.indexOf('\nexport const', functionStart + 10)
+      const functionBody = content.substring(functionStart, functionEnd > -1 ? functionEnd : content.length)
+
+      // Should return the inserted ID
+      expect(functionBody).toContain('returns:')
+      expect(functionBody).toContain('v.id("community_waypoint_mentions")')
+    })
+
+    it('should validate confidenceScore is in [0,1]', () => {
+      // GIVEN: confidenceScore = 1.5 (out of [0,1])
+      // WHEN: I call addCommunityWaypointMention
+      // THEN: Handler should throw an error before insert
+
+      const semanticSearchPath = resolve(__dirname, '../semanticSearch.ts')
+      const content = readFileSync(semanticSearchPath, 'utf-8')
+
+      const functionStart = content.indexOf('export const addCommunityWaypointMention')
+      const functionEnd = content.indexOf('\nexport const', functionStart + 10)
+      const functionBody = content.substring(functionStart, functionEnd > -1 ? functionEnd : content.length)
+
+      // Should validate confidenceScore
+      expect(functionBody).toContain('confidenceScore')
+      expect(functionBody).toMatch(/confidenceScore\s*[<>]=?\s*[01]/)
+      expect(functionBody).toContain('throw new Error')
+    })
+  })
 })

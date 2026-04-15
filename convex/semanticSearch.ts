@@ -583,3 +583,212 @@ export const getRawPostsForRoute = query({
     return results.filter((result): result is NonNullable<typeof result> => result !== null);
   },
 });
+
+// ---------------------------------------------------------------------------
+// Query: findCandidateRoutesHybrid (B3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Hybrid search for routes using both vector and text search.
+ *
+ * Executes vector search and text search in parallel, then unions the results
+ * without duplicates. This provides the best of both semantic similarity and
+ * exact identifier matching.
+ *
+ * @param embedding - OpenAI text-embedding-3-small vector (1536 dimensions)
+ * @param identifier - Search string for text fallback
+ * @param stateFilter - Optional state filter for both searches
+ * @param limit - Maximum number of results (default: 20)
+ * @returns List of routes with { routeId, name, state, cosineSimilarity?, matchType? }
+ */
+export const findCandidateRoutesHybrid = query({
+  args: {
+    embedding: v.array(v.number()),
+    identifier: v.string(),
+    stateFilter: v.optional(v.string()),
+    limit: v.optional(v.number()),
+  },
+  returns: v.array(
+    v.object({
+      routeId: v.id("curated_routes"),
+      name: v.string(),
+      state: v.string(),
+      cosineSimilarity: v.optional(v.number()),
+      matchType: v.optional(v.union(v.literal("name"), v.literal("highway"), v.literal("identifier"))),
+    })
+  ),
+  handler: async (ctx, args) => {
+    const { embedding, identifier, stateFilter, limit = 20 } = args;
+
+    // Execute vector search
+    const vectorResults = await (ctx as any).vectorSearch("curated_routes", "by_embedding", {
+      vector: embedding,
+      limit,
+      filter: stateFilter ? (q: any) => q.eq("state", stateFilter) : undefined,
+    });
+
+    // Fetch full documents for vector results
+    const vectorRoutes = await Promise.all(
+      vectorResults.map(async ({ _id, _score }: { _id: any; _score: number }) => {
+        const doc = await ctx.db.get(_id) as CuratedRouteDoc | null;
+        if (!doc) {
+          return null;
+        }
+        return {
+          routeId: _id,
+          name: doc.name,
+          state: doc.state,
+          cosineSimilarity: _score,
+        };
+      })
+    );
+
+    // Execute text search (identifier-based)
+    const searchTerm = identifier.toLowerCase();
+    // Use a large limit for text search since we're filtering in-memory
+    const textSearchLimit = 1000;
+    const textRoutes = stateFilter
+      ? await ctx.db.query("curated_routes").withIndex("by_state", (q) => q.eq("state", stateFilter)).take(textSearchLimit)
+      : await ctx.db.query("curated_routes").take(textSearchLimit);
+
+    const textMatches: {
+      routeId: Id<"curated_routes">;
+      name: string;
+      state: string;
+      cosineSimilarity: undefined;
+      matchType: "name" | "highway" | "identifier";
+    }[] = [];
+
+    for (const route of textRoutes) {
+      // Match by name (case-insensitive)
+      if (route.name.toLowerCase().includes(searchTerm)) {
+        textMatches.push({
+          routeId: route._id,
+          name: route.name,
+          state: route.state,
+          cosineSimilarity: undefined,
+          matchType: "name",
+        });
+        continue;
+      }
+
+      // Match by highwayNumber
+      if (route.highwayNumber && route.highwayNumber.toLowerCase().includes(searchTerm)) {
+        textMatches.push({
+          routeId: route._id,
+          name: route.name,
+          state: route.state,
+          cosineSimilarity: undefined,
+          matchType: "highway",
+        });
+        continue;
+      }
+
+      // Match by candidateIdentifiers
+      if (route.candidateIdentifiers) {
+        const identifierMatch = route.candidateIdentifiers.find((id) =>
+          id.toLowerCase().includes(searchTerm)
+        );
+        if (identifierMatch) {
+          textMatches.push({
+            routeId: route._id,
+            name: route.name,
+            state: route.state,
+            cosineSimilarity: undefined,
+            matchType: "identifier",
+          });
+          continue;
+        }
+      }
+
+      // Stop if we've hit the limit
+      if (textMatches.length >= limit) {
+        break;
+      }
+    }
+
+    // Union results without duplicates (deduplicate by routeId)
+    const seen = new Set<Id<"curated_routes">>();
+    const results: typeof vectorRoutes = [];
+
+    // Add vector results first (they have similarity scores)
+    for (const route of vectorRoutes) {
+      if (route && !seen.has(route.routeId)) {
+        seen.add(route.routeId);
+        results.push(route);
+      }
+    }
+
+    // Add text results that aren't already in the set
+    for (const route of textMatches) {
+      if (!seen.has(route.routeId)) {
+        seen.add(route.routeId);
+        results.push(route);
+      }
+    }
+
+    // Return up to limit
+    return results.slice(0, limit) as typeof vectorRoutes;
+  },
+});
+
+// ---------------------------------------------------------------------------
+// Mutation: addCommunityWaypointMention (B3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Add a community waypoint mention from a post.
+ *
+ * Records waypoint mentions extracted from community posts by the LLM
+ * extraction pipeline. These mentions are used for waypoint discovery
+ * and matching.
+ *
+ * @param postId - Community post ID
+ * @param postUrl - URL of the community post
+ * @param name - Name of the waypoint
+ * @param lat - Optional latitude
+ * @param lng - Optional longitude
+ * @param region - Geographic region
+ * @param proposedCategory - Proposed waypoint category
+ * @param riderQuote - Quote from the rider mentioning the waypoint
+ * @param confidenceScore - Extraction confidence score [0, 1]
+ * @param extractedAt - Timestamp of extraction
+ * @returns Inserted document ID
+ */
+export const addCommunityWaypointMention = mutation({
+  args: {
+    postId: v.string(),
+    postUrl: v.string(),
+    name: v.string(),
+    lat: v.optional(v.nullable(v.number())),
+    lng: v.optional(v.nullable(v.number())),
+    region: v.string(),
+    proposedCategory: v.union(
+      v.literal("pause"),
+      v.literal("wander"),
+      v.literal("taste"),
+      v.literal("gather"),
+      v.literal("other")
+    ),
+    riderQuote: v.string(),
+    confidenceScore: v.number(),
+    extractedAt: v.number(),
+  },
+  returns: v.id("community_waypoint_mentions"),
+  handler: async (ctx, args) => {
+    const { confidenceScore, ...rest } = args;
+
+    // Validate confidenceScore is in [0, 1]
+    if (confidenceScore < 0 || confidenceScore > 1) {
+      throw new Error(`Invalid confidenceScore: must be [0, 1], got ${confidenceScore}`);
+    }
+
+    // Insert waypoint mention
+    const mentionId = await ctx.db.insert("community_waypoint_mentions", {
+      confidenceScore,
+      ...rest,
+    });
+
+    return mentionId;
+  },
+});
