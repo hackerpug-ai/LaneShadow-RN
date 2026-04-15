@@ -651,23 +651,23 @@ export const findCandidateRoutesHybrid = query({
   handler: async (ctx, args) => {
     const { embedding, identifier, stateFilter, limit = 20 } = args;
 
-    // Execute vector search
+    // Execute vector and text searches in parallel
     const filter = stateFilter
       ? (q: any) => q.eq("state", stateFilter)
       : undefined;
 
-    // Execute text search (identifier-based) using indexes
     const searchTermLower = identifier.toLowerCase();
 
-    // Kick off all searches in parallel
+    // Vector search
     const vectorCtx = withVectorSearch(ctx);
-    const [vectorResults, byName, byHighway, allRoutes] = await Promise.all([
-      // Vector search
-      vectorCtx.vectorSearch("curated_routes", "by_embedding", {
-        vector: embedding,
-        limit,
-        filter,
-      }),
+    const vectorSearch = vectorCtx.vectorSearch("curated_routes", "by_embedding", {
+      vector: embedding,
+      limit,
+      filter,
+    });
+
+    // Text search (identifier-based) - run all index lookups in parallel
+    const textSearch = Promise.all([
       // Index lookup for exact name match (case-insensitive)
       ctx.db
         .query("curated_routes")
@@ -685,9 +685,15 @@ export const findCandidateRoutesHybrid = query({
         : ctx.db.query("curated_routes").take(limit * 2),
     ]);
 
+    // Run vector and text searches in parallel
+    const [vectorHits, [byName, byHighway, allRoutes]] = await Promise.all([
+      vectorSearch,
+      textSearch,
+    ]);
+
     // Fetch full documents for vector results
     const vectorRoutes = await Promise.all(
-      vectorResults.map(async ({ _id, _score }: VectorSearchHit<"curated_routes">) => {
+      vectorHits.map(async ({ _id, _score }: VectorSearchHit<"curated_routes">) => {
         const doc = await ctx.db.get(_id) as CuratedRouteDoc | null;
         if (!doc) {
           return null;
@@ -768,7 +774,13 @@ export const findCandidateRoutesHybrid = query({
 
     // Union results without duplicates (deduplicate by routeId)
     const seen = new Set<Id<"curated_routes">>();
-    const results: typeof vectorRoutes = [];
+    const results: Array<{
+      routeId: Id<"curated_routes">;
+      name: string;
+      state: string;
+      cosineSimilarity?: number;
+      matchType?: "name" | "highway" | "identifier";
+    }> = [];
 
     // Add vector results first (they have similarity scores)
     for (const route of vectorRoutes) {
@@ -787,7 +799,7 @@ export const findCandidateRoutesHybrid = query({
     }
 
     // Return up to limit
-    return results.slice(0, limit) as typeof vectorRoutes;
+    return results.slice(0, limit);
   },
 });
 
