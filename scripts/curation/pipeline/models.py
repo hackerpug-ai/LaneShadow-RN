@@ -133,7 +133,22 @@ class RouteMatch:
     arbitration_notes: Optional[str] = None
 
 
+@dataclass
+class CommunityWaypointMention:
+    """A waypoint mention extracted from a community post.
+
+    Produced by PostExtraction v3 waypoint_mentions field and consumed
+    by waypoint reconciliation logic to match against the waypoints database.
+    """
+    post_id: str                        # ID of the post this mention came from
+    waypoint_name: str                  # Name or identifier of the waypoint
+    category_hint: str                  # "viewpoint" | "gas_station" | "food" | "lodging" | "other"
+    confidence: float                   # 0.0-1.0, LLM's confidence in this mention
+    context: str                        # Surrounding text that led to this identification
+    extracted_at: str                   # ISO timestamp of when this was extracted
+
+
 # Re-export PostExtraction from extraction/schema.py for convenience
 # Note: INF-005 owns the Pydantic PostExtraction definition. This re-export makes it
 # available from the models module for downstream consumers.
-from scripts.curation.pipeline.extraction.schema import PostExtraction  # noqa: E402
+from pipeline.extraction.schema import PostExtraction  # noqa: E402

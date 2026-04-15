@@ -15,7 +15,7 @@ import instructor
 from openai import OpenAI
 from pydantic import ValidationError
 
-from scripts.curation.pipeline.extraction.schema import RouteAttributes
+from pipeline.extraction.schema import RouteAttributes
 
 logger = logging.getLogger(__name__)
 

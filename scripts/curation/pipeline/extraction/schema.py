@@ -8,6 +8,12 @@ Version 2 (Epic 3 — INF-005):
 - Preserves RouteAttributes for backward compatibility with v1 data.
 - Adds CACHE_POLICY for (post_id, schema_version) caching.
 
+Version 3 (Epic 3 — B1):
+- Adds waypoint_mentions: list of waypoint identifiers mentioned in the post.
+- Adds waypoint_category_hints: list of category hints for waypoint classification.
+- Adds WaypointMentionHint: nested model for waypoint mention details.
+- Adds post_extraction_to_mentions: helper function to convert to CommunityWaypointMention.
+
 Cost model (reference only, not enforced here):
 - Claude Haiku 4.5: ~$0.001 per extraction (600 input + 300 output tokens typical)
 - 100k posts -> ~$100 one-time for full backfill (Epic 9/10 budget)
@@ -40,7 +46,7 @@ class RoadSurface(str, Enum):
     MIXED = "mixed"
 
 
-EXTRACTION_SCHEMA_VERSION: int = 2
+EXTRACTION_SCHEMA_VERSION: int = 3
 
 DEFAULT_EXTRACTION_MODEL: str = "claude-haiku-4-5-20251001"
 
@@ -139,6 +145,35 @@ class RouteAttributes(BaseModel):
 # ============================================================================
 
 
+class WaypointMentionHint(BaseModel):
+    """Structured hint for a waypoint mentioned in a community post.
+
+    Produced by the LLM during post extraction and consumed by waypoint
+    reconciliation logic to match against the waypoints database.
+    """
+
+    waypoint_name: str = Field(
+        ...,
+        description="Name or identifier of the waypoint as mentioned in the post",
+    )
+    category_hint: Literal["viewpoint", "gas_station", "food", "lodging", "other"] = Field(
+        ...,
+        description="LLM's best guess at the waypoint category based on context",
+    )
+    confidence: float = Field(
+        ...,
+        ge=0.0,
+        le=1.0,
+        description="LLM's confidence that this is a real waypoint mention (0.0 = guess, 1.0 = high confidence)",
+    )
+    context: str = Field(
+        ...,
+        description="Surrounding text or context that led to this waypoint identification",
+    )
+
+    model_config = ConfigDict(extra="forbid")
+
+
 class PostExtraction(BaseModel):
     """
     Structured output from a single LLM call over a community post.
@@ -191,6 +226,19 @@ class PostExtraction(BaseModel):
         description="Caveats or warnings the post raised (construction, closures, hazards, etc.)",
     )
 
+    # Waypoint mentions (v3)
+    waypoint_mentions: list[WaypointMentionHint] = Field(
+        default_factory=list,
+        description="Structured waypoint mentions extracted from the post. "
+                    "Each includes the waypoint name, category hint, confidence, and context.",
+    )
+    waypoint_category_hints: list[str] = Field(
+        default_factory=list,
+        description="Category hints for waypoints mentioned in the post. "
+                    "Examples: ['viewpoint', 'gas_station', 'food', 'lodging']. "
+                    "This is a simplified list for quick filtering without full structure.",
+    )
+
     # Extraction metadata
     extraction_confidence: float = Field(
         ...,
@@ -219,3 +267,31 @@ class PostExtraction(BaseModel):
 def is_v1_extraction(payload: dict) -> bool:
     """Return True if the payload looks like v1 RouteAttributes (not v2 PostExtraction)."""
     return "curvature_score" in payload and "road_name_mentions" not in payload
+
+
+def post_extraction_to_mentions(extraction: PostExtraction, post_id: str) -> list[dict]:
+    """Convert a PostExtraction's waypoint_mentions to CommunityWaypointMention format.
+
+    This helper transforms the structured WaypointMentionHint objects from the
+    LLM extraction into the shape expected by the CommunityWaypointMention dataclass
+    for storage and further processing.
+
+    Args:
+        extraction: The PostExtraction instance containing waypoint_mentions
+        post_id: The ID of the post this extraction came from
+
+    Returns:
+        List of dictionaries matching CommunityWaypointMention structure
+    """
+    mentions = []
+    for hint in extraction.waypoint_mentions:
+        mention = {
+            "post_id": post_id,
+            "waypoint_name": hint.waypoint_name,
+            "category_hint": hint.category_hint,
+            "confidence": hint.confidence,
+            "context": hint.context,
+            "extracted_at": extraction.extracted_at.isoformat(),
+        }
+        mentions.append(mention)
+    return mentions

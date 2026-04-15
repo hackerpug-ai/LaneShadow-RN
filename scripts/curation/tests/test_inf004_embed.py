@@ -311,16 +311,38 @@ def test_retry_fails_after_max_retries(mock_openai_client):
 # =============================================================================
 
 
-@pytest.mark.skip(reason="Complex import mocking - CLI behavior tested manually")
-def test_cli_dry_run_no_push(
-    mock_openai_client
-):
-    """AC-6: --dry-run should NOT call convex_push.
+def test_cli_dry_run_no_push(mock_openai_client):
+    """AC-6: --dry-run should NOT call convex_push.push_routes."""
+    # Mock sample routes
+    sample_routes = [
+        Route(
+            route_id="r1",
+            name="Test Route",
+            state="TX",
+            source="test",
+            centroid_lat=30.0,
+            centroid_lng=-97.0,
+        )
+    ]
 
-    Note: Skipped due to complex import mocking structure.
-    CLI behavior is tested manually with --help flag.
-    """
-    pass
+    # Mock load_routes_needing_embedding to return sample routes
+    with patch("pipeline.embed.batch_embed_routes.load_routes_needing_embedding", return_value=sample_routes):
+        # Mock push_routes to track if it's called
+        # We need to patch it in the module namespace where it's imported
+        with patch("pipeline.embed.batch_embed_routes.push_routes") as mock_push:
+            # Set up environment
+            with patch.dict(
+                "os.environ",
+                {"OPENAI_API_KEY": "test-key", "CONVEX_URL": "http://test", "CURATION_DEPLOY_KEY": "test-key"},
+            ):
+                # Run CLI with --dry-run
+                exit_code = main(["--dry-run"])
+
+                # Should succeed
+                assert exit_code == 0
+
+                # Should NOT call push_routes
+                mock_push.assert_not_called()
 
 
 # =============================================================================
@@ -328,16 +350,58 @@ def test_cli_dry_run_no_push(
 # =============================================================================
 
 
-@pytest.mark.skip(reason="Complex import mocking - CLI behavior tested manually")
-def test_cli_commit_pushes(
-    mock_openai_client
-):
-    """AC-7: --commit SHOULD call convex_push with embedded routes.
+def test_cli_commit_pushes(mock_openai_client):
+    """AC-7: --commit SHOULD call convex_push.push_routes with embedded routes."""
+    # Mock sample routes
+    sample_routes = [
+        Route(
+            route_id="r1",
+            name="Test Route",
+            state="TX",
+            source="test",
+            centroid_lat=30.0,
+            centroid_lng=-97.0,
+        )
+    ]
 
-    Note: Skipped due to complex import mocking structure.
-    CLI behavior is tested manually with --help flag.
-    """
-    pass
+    # Mock load_routes_needing_embedding to return sample routes
+    with patch("pipeline.embed.batch_embed_routes.load_routes_needing_embedding", return_value=sample_routes):
+        # Mock push_routes to track if it's called and capture arguments
+        # We need to patch it in the module namespace where it's imported
+        with patch("pipeline.embed.batch_embed_routes.push_routes") as mock_push:
+            # Mock successful push summary
+            from pipeline.sync.convex_push import PushSummary
+
+            mock_push.return_value = PushSummary(
+                inserted=1, updated=0, failed=0
+            )
+
+            # Set up environment
+            with patch.dict(
+                "os.environ",
+                {"OPENAI_API_KEY": "test-key", "CONVEX_URL": "http://test", "CURATION_DEPLOY_KEY": "test-key"},
+            ):
+                # Run CLI with --commit
+                exit_code = main(["--commit"])
+
+                # Should succeed
+                assert exit_code == 0
+
+                # SHOULD call push_routes exactly once
+                mock_push.assert_called_once()
+
+                # Verify push_routes was called with correct arguments
+                call_args = mock_push.call_args
+                assert call_args.kwargs["dry_run"] is False
+                assert call_args.kwargs["base_url"] == "http://test"
+                assert call_args.kwargs["deploy_key"] == "test-key"
+                # Verify routes were passed (should have embeddings populated)
+                assert len(call_args.kwargs["routes"]) == 1
+                pushed_route = call_args.kwargs["routes"][0]
+                assert pushed_route.route_id == "r1"
+                # Verify embedding was populated
+                assert pushed_route.embedding is not None
+                assert len(pushed_route.embedding) == 1536
 
 
 # =============================================================================

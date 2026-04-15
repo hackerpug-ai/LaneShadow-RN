@@ -24,11 +24,11 @@ class TestAC1_SchemaVersionBumped:
     """AC-1: Schema version bumped to 2"""
 
     def test_schema_version_is_2(self):
-        """GIVEN: EXTRACTION_SCHEMA_VERSION = 1 in schema.py
-        WHEN: I increment the version constant
-        THEN: EXTRACTION_SCHEMA_VERSION == 2 and module docstring documents v2 changes
+        """GIVEN: EXTRACTION_SCHEMA_VERSION = 2 in schema.py
+        WHEN: I increment the version constant to 3
+        THEN: EXTRACTION_SCHEMA_VERSION == 3 and module docstring documents v3 changes
         """
-        assert EXTRACTION_SCHEMA_VERSION == 2
+        assert EXTRACTION_SCHEMA_VERSION == 3
 
     def test_module_docstring_documents_v2(self):
         """Verify the module docstring mentions v2 changes."""
@@ -48,8 +48,9 @@ class TestAC2_PostExtractionFieldsDefined:
         """GIVEN: Need a structured LLM output contract
         WHEN: I define PostExtraction as a Pydantic v2 BaseModel
         THEN: It has road_name_mentions, highway_refs, state_refs, landmark_refs,
-              sentiment, aspect_scores, attributes, warnings, extraction_confidence,
-              extraction_model, extraction_cost, extracted_at, extraction_schema_version fields
+              sentiment, aspect_scores, attributes, warnings, waypoint_mentions,
+              waypoint_category_hints, extraction_confidence, extraction_model,
+              extraction_cost, extracted_at, extraction_schema_version fields
         """
         required_fields = {
             "road_name_mentions",
@@ -60,6 +61,8 @@ class TestAC2_PostExtractionFieldsDefined:
             "aspect_scores",
             "attributes",
             "warnings",
+            "waypoint_mentions",
+            "waypoint_category_hints",
             "extraction_confidence",
             "extraction_model",
             "extraction_cost",
@@ -360,12 +363,12 @@ class TestAC8_PostExtractionReexport:
     """AC-8: PostExtraction is re-exportable from models.py"""
 
     def test_post_extraction_reexport_from_models(self):
-        """GIVEN: INF-002 defines `from scripts.curation.pipeline.extraction.schema import PostExtraction`
+        """GIVEN: INF-002 defines `from pipeline.extraction.schema import PostExtraction`
         WHEN: I import it from models.py
-        THEN: `from scripts.curation.pipeline.models import PostExtraction` succeeds
+        THEN: `from pipeline.models import PostExtraction` succeeds
         """
-        from scripts.curation.pipeline.models import PostExtraction as ReexportedPostExtraction
-        from scripts.curation.pipeline.extraction.schema import PostExtraction as OriginalPostExtraction
+        from pipeline.models import PostExtraction as ReexportedPostExtraction
+        from pipeline.extraction.schema import PostExtraction as OriginalPostExtraction
 
         # Verify it's the same class
         assert ReexportedPostExtraction is OriginalPostExtraction

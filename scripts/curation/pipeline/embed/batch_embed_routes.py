@@ -450,12 +450,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        default=True,
+        default=False,
         help="Generate embeddings without pushing to Convex (default)",
     )
     parser.add_argument(
         "--commit",
         action="store_true",
+        default=False,
         help="Push embedded routes to Convex",
     )
     parser.add_argument(
@@ -465,6 +466,10 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     args = parser.parse_args(argv)
+
+    # If no flag specified, default to dry-run
+    if not args.dry_run and not args.commit:
+        args.dry_run = True
 
     # Mutually exclusive flags
     if args.dry_run and args.commit:

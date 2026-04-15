@@ -13,8 +13,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Optional
 
-from scripts.curation.pipeline.extraction.client import ExtractionClient
-from scripts.curation.pipeline.extraction.schema import EXTRACTION_SCHEMA_VERSION, RouteAttributes
+from pipeline.extraction.client import ExtractionClient
+from pipeline.extraction.schema import EXTRACTION_SCHEMA_VERSION, RouteAttributes
 
 logger = logging.getLogger(__name__)
 
