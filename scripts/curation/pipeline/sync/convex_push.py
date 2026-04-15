@@ -164,15 +164,50 @@ def _push_batch(
     batch: list[Route],
 ) -> dict[str, Any]:
     """
-    POST one batch to the Convex ingest endpoint.
+    POST one batch to the Convex ingest endpoint using CLI.
 
     Returns the parsed JSON response body.
     Raises requests.HTTPError on non-2xx that is not retried.
     """
-    payload = {"routes": [_route_to_dict(r) for r in batch]}
-    resp = session.post(url, json=payload, headers=headers, timeout=30)
-    resp.raise_for_status()
-    return resp.json()
+    import subprocess
+    import json
+
+    # Prepare minimal payload for embedding backfill (only routeId + searchEmbedding)
+    updates = [
+        {
+            "routeId": route.route_id,
+            "searchEmbedding": route.embedding,
+        }
+        for route in batch
+        if route.embedding is not None
+    ]
+
+    if not updates:
+        return {"updated": 0, "errors": []}
+
+    payload = {"updates": updates}
+    payload_json = json.dumps(payload)
+
+    # Call Convex CLI with JSON argument
+    cmd = [
+        "npx",
+        "convex",
+        "run",
+        "curationAdmin:backfillRouteEmbeddings",
+        payload_json,
+    ]
+
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(f"Convex CLI failed: {result.stderr}")
+
+    return json.loads(result.stdout)
 
 
 def push_routes(

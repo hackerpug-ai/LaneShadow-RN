@@ -87,25 +87,39 @@ def fetch_routes_needing_embedding(
             "Add it to .env.local (see 09-technical-requirements.md §API Design)."
         )
 
-    url = f"{base_url.rstrip('/')}/api/semanticSearch/getRoutesNeedingEmbedding"
-    headers = {
-        "Authorization": f"Bearer {deploy_key}",
-        "Content-Type": "application/json",
-    }
+    # Use Convex CLI to call the function directly (HTTP API format issues)
+    import subprocess
+    import json
 
     logger.info(
         f"Fetching routes from Convex (incremental={incremental}, limit={limit})..."
     )
 
-    params = {
-        "incremental": incremental,
-        "limit": limit,
-    }
+    # Build arguments for the Convex function
+    args = {"incremental": incremental, "limit": limit}
+    args_json = json.dumps(args)
 
-    response = requests.get(url, headers=headers, params=params, timeout=30)
-    response.raise_for_status()
+    cmd = [
+        "npx",
+        "convex",
+        "run",
+        "semanticSearch:getRoutesNeedingEmbedding",
+        args_json,
+    ]
 
-    data = response.json()
+    logger.debug(f"Running: {' '.join(cmd)}")
+
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(f"Convex CLI failed: {result.stderr}")
+
+    data = json.loads(result.stdout)
     routes = [_dict_to_route(route_data) for route_data in data]
 
     logger.info(f"Fetched {len(routes)} routes from Convex")

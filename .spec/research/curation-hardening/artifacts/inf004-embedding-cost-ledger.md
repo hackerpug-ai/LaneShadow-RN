@@ -1,20 +1,20 @@
 # INF-004 Embedding Cost Ledger
 
-**Generated**: 2026-04-14T19:16:05.878084
+**Generated**: 2026-04-14T21:20:15.225743
 **Model**: text-embedding-3-small
 
 ## Summary
 
-- **Total routes**: 1
-- **Embedded**: 0
+- **Total routes**: 200
+- **Embedded**: 200
 - **Skipped**: 0
-- **Batches**: 1
+- **Batches**: 2
 
 ## Cost
 
-- **Input tokens**: 0
+- **Input tokens**: 1,450
 - **Total cost**: $0.0000
 
 ## Errors
 
-- Batch 1 failed: Error code: 401 - {'error': {'message': 'Incorrect API key provided: test-key. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+No errors.

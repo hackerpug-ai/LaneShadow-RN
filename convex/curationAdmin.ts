@@ -94,6 +94,66 @@ export const internalUpsertCuratedRoutes = internalMutation({
   handler: upsertCuratedRoutesHandler,
 })
 
+// ---------------------------------------------------------------------------
+// Public mutation for embedding backfill (INF-004)
+// ---------------------------------------------------------------------------
+
+import { mutation } from './_generated/server'
+
+export const upsertCuratedRoutes = mutation({
+  args: { routes: v.array(curatedRouteValidator) },
+  handler: upsertCuratedRoutesHandler,
+})
+
+// ---------------------------------------------------------------------------
+// Embedding backfill mutation (INF-004)
+// ---------------------------------------------------------------------------
+
+export const backfillRouteEmbeddings = mutation({
+  args: {
+    updates: v.array(
+      v.object({
+        routeId: v.string(),
+        searchEmbedding: v.array(v.number()),
+      })
+    ),
+  },
+  handler: async (ctx, { updates }) => {
+    let updated = 0
+    const errors: { routeId: string; message: string }[] = []
+
+    for (const update of updates) {
+      try {
+        // Find existing route by routeId
+        const existing = await ctx.db
+          .query('curated_routes')
+          .withIndex('by_routeId', (q: any) => q.eq('routeId', update.routeId))
+          .first()
+
+        if (existing) {
+          // Update only the searchEmbedding field
+          await ctx.db.patch(existing._id, {
+            searchEmbedding: update.searchEmbedding,
+          })
+          updated++
+        } else {
+          errors.push({
+            routeId: update.routeId,
+            message: 'Route not found',
+          })
+        }
+      } catch (e: any) {
+        errors.push({
+          routeId: update.routeId,
+          message: e?.message ?? 'unknown error',
+        })
+      }
+    }
+
+    return { updated, errors }
+  },
+})
+
 export const internalUpsertCuratedRouteEnrichments = internalMutation({
   args: { enrichments: v.array(curatedRouteEnrichmentValidator) },
   handler: upsertCuratedRouteEnrichmentsHandler,
