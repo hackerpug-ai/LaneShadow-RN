@@ -660,21 +660,32 @@ export const findCandidateRoutesHybrid = query({
       ? (q) => q.eq("state", stateFilter)
       : undefined;
 
-    // Execute text search (identifier-based)
-    const searchTerm = identifier.toLowerCase();
-    // Use a large limit for text search since we're filtering in-memory
-    const textSearchLimit = 1000;
+    // Execute text search (identifier-based) using indexes
+    const searchTermLower = identifier.toLowerCase();
 
-    // Kick off both searches in parallel
-    const [vectorResults, textRoutes] = await Promise.all([
+    // Kick off all searches in parallel
+    const [vectorResults, byName, byHighway, allRoutes] = await Promise.all([
+      // Vector search
       (ctx as any).vectorSearch("curated_routes", "by_embedding", {
         vector: embedding,
         limit,
         filter,
       }),
+      // Index lookup for exact name match (case-insensitive)
+      ctx.db
+        .query("curated_routes")
+        .withIndex("by_name_lower", (q) => q.eq("name_lower", searchTermLower))
+        .take(limit),
+      // Index lookup for highway number
+      ctx.db
+        .query("curated_routes")
+        .withIndex("by_highway_number", (q) => q.eq("highwayNumber", searchTermLower))
+        .take(limit),
+      // Scan for candidateIdentifiers (no array-contains index in Convex)
+      // Use state filter if provided to reduce scan set
       stateFilter
-        ? ctx.db.query("curated_routes").withIndex("by_state", (q) => q.eq("state", stateFilter)).take(textSearchLimit)
-        : ctx.db.query("curated_routes").take(textSearchLimit),
+        ? ctx.db.query("curated_routes").withIndex("by_state", (q) => q.eq("state", stateFilter)).take(limit * 2)
+        : ctx.db.query("curated_routes").take(limit * 2),
     ]);
 
     // Fetch full documents for vector results
@@ -693,58 +704,67 @@ export const findCandidateRoutesHybrid = query({
       })
     );
 
-    const textMatches: {
-      routeId: Id<"curated_routes">;
-      name: string;
-      state: string;
-      cosineSimilarity: undefined;
-      matchType: "name" | "highway" | "identifier";
-    }[] = [];
-
-    for (const route of textRoutes) {
-      // Match by name (case-insensitive)
-      if (route.name.toLowerCase().includes(searchTerm)) {
-        textMatches.push({
-          routeId: route._id,
-          name: route.name,
-          state: route.state,
-          cosineSimilarity: undefined,
-          matchType: "name",
-        });
-        continue;
+    // Collect and deduplicate text matches by _id
+    const textMatchMap = new Map<
+      Id<"curated_routes">,
+      {
+        routeId: Id<"curated_routes">;
+        name: string;
+        state: string;
+        cosineSimilarity: undefined;
+        matchType: "name" | "highway" | "identifier";
       }
+    >();
 
-      // Match by highwayNumber
-      if (route.highwayNumber && route.highwayNumber.toLowerCase().includes(searchTerm)) {
-        textMatches.push({
+    // Add name matches (highest priority)
+    for (const route of byName) {
+      textMatchMap.set(route._id, {
+        routeId: route._id,
+        name: route.name,
+        state: route.state,
+        cosineSimilarity: undefined,
+        matchType: "name",
+      });
+    }
+
+    // Add highway matches (second priority)
+    for (const route of byHighway) {
+      if (!textMatchMap.has(route._id)) {
+        textMatchMap.set(route._id, {
           routeId: route._id,
           name: route.name,
           state: route.state,
           cosineSimilarity: undefined,
           matchType: "highway",
         });
+      }
+    }
+
+    // Add candidateIdentifiers matches (lowest priority - requires scan)
+    for (const route of allRoutes) {
+      // Skip if already matched by name or highway
+      if (textMatchMap.has(route._id)) {
         continue;
       }
 
       // Match by candidateIdentifiers
       if (route.candidateIdentifiers) {
         const identifierMatch = route.candidateIdentifiers.find((id) =>
-          id.toLowerCase().includes(searchTerm)
+          id.toLowerCase().includes(searchTermLower)
         );
         if (identifierMatch) {
-          textMatches.push({
+          textMatchMap.set(route._id, {
             routeId: route._id,
             name: route.name,
             state: route.state,
             cosineSimilarity: undefined,
             matchType: "identifier",
           });
-          continue;
         }
       }
 
       // Stop if we've hit the limit
-      if (textMatches.length >= limit) {
+      if (textMatchMap.size >= limit) {
         break;
       }
     }
@@ -762,7 +782,7 @@ export const findCandidateRoutesHybrid = query({
     }
 
     // Add text results that aren't already in the set
-    for (const route of textMatches) {
+    for (const route of textMatchMap.values()) {
       if (!seen.has(route.routeId)) {
         seen.add(route.routeId);
         results.push(route);
