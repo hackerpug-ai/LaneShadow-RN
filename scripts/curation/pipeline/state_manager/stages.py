@@ -200,9 +200,12 @@ def extract(
         )
 
     stats = {"processed": 0, "succeeded": 0, "failed": 0, "cost_usd": 0.0}
+    # Rate limit backoff state
+    _rate_limit_backoff = 5.0  # seconds to wait after a 429
 
     def _process_row(row) -> dict[str, Any]:
-        """Extract a single route row. Returns result dict."""
+        """Extract a single route row with 429-aware retry. Returns result dict."""
+        nonlocal _rate_limit_backoff
         route_id = row["route_id"]
         try:
             normalized = json.loads(row["normalized_route_json"])
@@ -214,7 +217,24 @@ def extract(
                 "cost_usd": 0.0,
             }
 
-        result = extract_single(normalized, client)
+        # Retry loop with exponential backoff for 429s
+        max_rate_limit_retries = 5
+        for attempt in range(max_rate_limit_retries):
+            result = extract_single(normalized, client)
+            error_msg = result.get("extraction_error", "") or ""
+            if result.get("extraction_status") == "success":
+                _rate_limit_backoff = 5.0  # reset on success
+                break
+            elif "429" in str(error_msg) or "Rate limit" in str(error_msg) or "1302" in str(error_msg):
+                backoff = _rate_limit_backoff * (2 ** attempt)
+                logger.warning(
+                    f"Rate limit for {route_id} (attempt {attempt+1}), "
+                    f"waiting {backoff:.1f}s..."
+                )
+                time.sleep(backoff)
+                _rate_limit_backoff = min(_rate_limit_backoff * 1.5, 60.0)
+            else:
+                break  # Non-rate-limit error, don't retry
 
         if result.get("extraction_status") == "success":
             attrs = result.get("attributes", {})
@@ -238,70 +258,71 @@ def extract(
                 "cost_usd": 0.0,
             }
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_to_row = {executor.submit(_process_row, row): row for row in rows}
+    # Sequential processing (max_workers=1 by default for z.ai rate limit compliance)
+    # Use ThreadPoolExecutor only for max_workers > 1
+    if max_workers <= 1:
+        row_iterator = iter(rows)
 
-        for future in as_completed(future_to_row):
-            try:
-                result = future.result()
-            except Exception as e:
-                row = future_to_row[future]
-                result = {
-                    "route_id": row["route_id"],
-                    "status": "failed",
-                    "error": str(e),
-                    "cost_usd": 0.0,
-                }
+        def _sequential_results():
+            for row in row_iterator:
+                yield row, _process_row(row)
 
-            stats["processed"] += 1
-            stats["cost_usd"] += result.get("cost_usd", 0.0)
+        result_pairs = _sequential_results()
+    else:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_row = {executor.submit(_process_row, row): row for row in rows}
+            result_pairs = ((future_to_row[f], f.result()) for f in as_completed(future_to_row))
 
-            if dry_run:
-                logger.info(
-                    f"[DRY RUN] route={result['route_id']} "
-                    f"status={result['status']} "
-                    f"cost=${result.get('cost_usd', 0):.4f}"
-                )
-                if result["status"] == "success":
-                    stats["succeeded"] += 1
-                else:
-                    stats["failed"] += 1
-                continue
+    for row, result in result_pairs:
+        stats["processed"] += 1
+        stats["cost_usd"] += result.get("cost_usd", 0.0)
 
-            # Commit to state table
+        if dry_run:
+            logger.info(
+                f"[DRY RUN] route={result['route_id']} "
+                f"status={result['status']} "
+                f"cost=${result.get('cost_usd', 0):.4f}"
+            )
             if result["status"] == "success":
                 stats["succeeded"] += 1
-                upsert_route_state(
-                    conn,
-                    route_id=result["route_id"],
-                    source=future_to_row[future]["source"],
-                    raw_staging_json=future_to_row[future]["raw_staging_json"],
-                    extracted_at=result.get("extracted_at", int(time.time())),
-                    extraction_cost_usd=result["cost_usd"],
-                    extraction_model=result.get("model"),
-                    extraction_payload_json=json.dumps(result.get("attributes", {})),
-                    last_error=None,
-                    error_stage=None,
-                )
             else:
                 stats["failed"] += 1
-                upsert_route_state(
-                    conn,
-                    route_id=result["route_id"],
-                    source=future_to_row[future]["source"],
-                    raw_staging_json=future_to_row[future]["raw_staging_json"],
-                    last_error=result.get("error", "unknown"),
-                    error_stage="extract",
-                    retry_count_delta=1,
-                )
+            continue
 
-            # Progress log every 50 routes
-            if stats["processed"] % 50 == 0:
-                logger.info(
-                    f"Progress: {stats['processed']}/{len(rows)} "
-                    f"succeeded={stats['succeeded']} failed={stats['failed']} "
-                    f"cost=${stats['cost_usd']:.4f}"
-                )
+        # Commit to state table
+        if result["status"] == "success":
+            stats["succeeded"] += 1
+            upsert_route_state(
+                conn,
+                route_id=result["route_id"],
+                source=row["source"],
+                raw_staging_json=row["raw_staging_json"],
+                extracted_at=result.get("extracted_at", int(time.time())),
+                extraction_cost_usd=result["cost_usd"],
+                extraction_model=result.get("model"),
+                extraction_payload_json=json.dumps(result.get("attributes", {})),
+                last_error=None,
+                error_stage=None,
+            )
+        else:
+            stats["failed"] += 1
+            upsert_route_state(
+                conn,
+                route_id=result["route_id"],
+                source=row["source"],
+                raw_staging_json=row["raw_staging_json"],
+                last_error=result.get("error", "unknown"),
+                error_stage="extract",
+                retry_count_delta=1,
+            )
+
+        # Progress log every 50 routes
+        if stats["processed"] % 50 == 0:
+            logger.info(
+                f"Progress: {stats['processed']}/{len(rows)} "
+                f"succeeded={stats['succeeded']} failed={stats['failed']} "
+                f"cost=${stats['cost_usd']:.4f}"
+            )
 
     if not dry_run and run_id:
         record_run_finish(
