@@ -179,6 +179,24 @@ def cmd_geocode(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_enrich_bbr(args: argparse.Namespace) -> int:
+    """Enrich BBR routes with real polyline geometry."""
+    from scripts.curation.pipeline.state_manager.stages import enrich_bbr
+
+    conn = _get_conn()
+    try:
+        stats = enrich_bbr(conn, limit=args.limit, retry_errors=args.retry_errors)
+    finally:
+        conn.close()
+
+    print("\n=== BBR Polyline Enrichment Results ===")
+    print(f"  processed={stats['processed']}")
+    print(f"  succeeded={stats['succeeded']}")
+    print(f"  failed={stats['failed']}")
+    print()
+    return 0
+
+
 def cmd_embed(args: argparse.Namespace) -> int:
     """Embed all pushed routes."""
     from scripts.curation.pipeline.state_manager.stages import embed
@@ -471,6 +489,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_embed = sub.add_parser("embed", help="Embed all pushed routes")
     p_embed.add_argument("--limit", type=int, default=None, help="Max routes to embed")
 
+    # enrich-bbr
+    p_enrich = sub.add_parser("enrich-bbr", help="Enrich BBR routes with polyline geometry")
+    p_enrich.add_argument("--limit", type=int, default=None, help="Max routes to enrich")
+    p_enrich.add_argument(
+        "--retry-errors",
+        action="store_true",
+        help="Retry routes that previously errored during enrichment",
+    )
+
     # grade
     p_grade = sub.add_parser("grade", help="Grade route quality (tier + flags)")
     p_grade.add_argument("--source", default=None, help="Limit to a specific source")
@@ -523,6 +550,7 @@ COMMAND_MAP = {
     "grade": cmd_grade,
     "push": cmd_push,
     "embed": cmd_embed,
+    "enrich-bbr": cmd_enrich_bbr,
     "exclude": cmd_exclude,
     "quality-report": cmd_quality_report,
     "wipe-test-seeds": cmd_wipe_test_seeds,

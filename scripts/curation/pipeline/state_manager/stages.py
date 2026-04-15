@@ -468,6 +468,122 @@ def geocode(
     return stats
 
 
+def enrich_bbr(
+    conn,
+    limit: Optional[int] = None,
+    retry_errors: bool = False,
+) -> dict[str, Any]:
+    """Enrich BBR routes with real polyline geometry from BBR pages.
+
+    Upgrades BBR routes from centroid-only (nominatim) to real route shapes
+    with waypoints scraped from BBR's /droute.php API.
+
+    Args:
+        conn: SQLite connection
+        limit: Max routes to process
+        retry_errors: Retry routes that previously errored at enrich stage
+
+    Returns:
+        Stats dict with processed, succeeded, failed
+    """
+    from scripts.curation.pipeline.state_manager.db import (
+        record_run_start, record_run_finish, upsert_route_state
+    )
+
+    # Query BBR routes that currently have centroid-only geometry
+    where_clauses = [
+        "source = 'bestbikingroads'",
+        "geocoded_at IS NOT NULL",
+        "excluded_at IS NULL",
+    ]
+    if retry_errors:
+        where_clauses.append("(error_stage IS NULL OR error_stage != 'enrich_bbr')")
+    else:
+        # Only routes that haven't been enriched yet
+        where_clauses.append("geometry_source = 'nominatim'")
+
+    params: list[Any] = []
+    sql = f"SELECT * FROM route_state WHERE {' AND '.join(where_clauses)}"
+    if limit:
+        sql += f" LIMIT {int(limit)}"
+
+    rows = conn.execute(sql, params).fetchall()
+
+    if not rows:
+        logger.info("No BBR routes pending for polyline enrichment")
+        return {"processed": 0, "succeeded": 0, "failed": 0}
+
+    logger.info(f"Enriching {len(rows)} BBR routes with polyline geometry")
+
+    run_id = record_run_start(conn, "enrich_bbr", notes=f"limit={limit}")
+    stats = {"processed": 0, "succeeded": 0, "failed": 0}
+
+    for row in rows:
+        route_id = row["route_id"]
+        source_url = row["canonical_url"] or ""
+        raw_json = row["raw_staging_json"]
+
+        stats["processed"] += 1
+
+        try:
+            from scripts.curation.pipeline.geometry.bbr_polyline import fetch_polyline_geometry
+            geometry = fetch_polyline_geometry(
+                route_id=route_id,
+                source_url=source_url,
+            )
+
+            if geometry is not None:
+                stats["succeeded"] += 1
+                upsert_route_state(
+                    conn,
+                    route_id=route_id,
+                    source="bestbikingroads",
+                    raw_staging_json=raw_json,
+                    geocoded_at=row["geocoded_at"],  # preserve existing
+                    geometry_json=geometry.model_dump_json(),
+                    geometry_source=geometry.geometry_source,
+                    last_error=None,
+                    error_stage=None,
+                )
+            else:
+                stats["failed"] += 1
+                logger.debug(f"No polyline for BBR route {route_id}")
+
+        except Exception as e:
+            stats["failed"] += 1
+            logger.error(f"Polyline scrape error for {route_id}: {e}")
+            upsert_route_state(
+                conn,
+                route_id=route_id,
+                source="bestbikingroads",
+                raw_staging_json=raw_json,
+                last_error=str(e),
+                error_stage="enrich_bbr",
+                retry_count_delta=1,
+            )
+
+        if stats["processed"] % 50 == 0:
+            logger.info(
+                f"BBR enrichment progress: {stats['processed']}/{len(rows)} "
+                f"succeeded={stats['succeeded']} failed={stats['failed']}"
+            )
+
+    record_run_finish(
+        conn,
+        run_id,
+        status="success" if stats["failed"] == 0 else "partial",
+        routes_processed=stats["processed"],
+        routes_succeeded=stats["succeeded"],
+        routes_failed=stats["failed"],
+    )
+
+    logger.info(
+        f"BBR enrichment complete: processed={stats['processed']} "
+        f"succeeded={stats['succeeded']} failed={stats['failed']}"
+    )
+    return stats
+
+
 def push(
     conn,
     limit: Optional[int] = None,
@@ -508,7 +624,7 @@ def push(
     stats = {"sent": 0, "inserted": 0, "updated": 0, "failed": 0}
 
     # Process in batches of 10
-    batch_size = 10
+    batch_size = 50
     now = int(time.time())
 
     for i in range(0, len(rows), batch_size):
@@ -870,19 +986,49 @@ def _call_convex_upsert(
     base_url: str,
     deploy_key: str,
 ) -> dict[str, Any]:
-    """POST batch to /admin/curation/routes with Bearer auth.
+    """Push routes to Convex via `npx convex run` CLI.
 
-    Returns parsed JSON response from Convex.
+    The HTTP endpoint was returning 404 due to Convex routing issues,
+    so we use the CLI approach instead (same as wipe-test-seeds).
     """
-    import requests
+    import subprocess
 
-    url = f"{base_url}/admin/curation/routes"
-    headers = {
-        "Authorization": f"Bearer {deploy_key}",
-        "Content-Type": "application/json",
-    }
-    body = json.dumps({"routes": routes})
+    args_json = json.dumps({"routes": routes})
 
-    resp = requests.post(url, data=body, headers=headers, timeout=60)
-    resp.raise_for_status()
-    return resp.json()
+    cmd = [
+        "npx", "convex", "run",
+        "curationAdmin:internalUpsertCuratedRoutes",
+        args_json,
+    ]
+    # Use --url flag to ensure correct deployment
+    if base_url:
+        cmd.extend(["--url", base_url])
+
+    # Build clean env — clear CONVEX_DEPLOYMENT which may have inline
+    # comments from .env.local that confuse npx convex
+    env = os.environ.copy()
+    env.pop("CONVEX_DEPLOYMENT", None)
+
+    result = subprocess.run(
+        cmd,
+        cwd=str(_REPO_ROOT),
+        capture_output=True,
+        text=True,
+        timeout=120,
+        env=env,
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(f"convex run failed: {result.stderr}")
+
+    output = result.stdout.strip()
+    # Convex CLI wraps output in quotes sometimes
+    if output.startswith('"') and output.endswith('"'):
+        import json as _json
+        output = _json.loads(output)
+
+    try:
+        return json.loads(output) if isinstance(output, str) else output
+    except json.JSONDecodeError:
+        logger.warning(f"Could not parse convex output: {output[:200]}")
+        return {"inserted": 0, "updated": 0, "errors": []}
