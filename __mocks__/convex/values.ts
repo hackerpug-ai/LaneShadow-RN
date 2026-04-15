@@ -7,6 +7,7 @@ export const v = {
   bytes: () => ({ kind: 'bytes', isOptional: 'required' }),
   id: (tableName: string) => ({ kind: 'id', tableName, isOptional: 'required' }),
   optional: (value: any) => ({ ...(value as object), isOptional: 'optional' }),
+  nullable: (value: any) => ({ ...(value as object), isNullable: true }),
   array: (value: unknown) => ({ kind: 'array', element: value, isOptional: 'required' }),
   object: (shape: Record<string, unknown>) => ({ kind: 'object', fields: shape, isOptional: 'required' }),
   record: (key: unknown, value: unknown) => ({ kind: 'record', key, value, isOptional: 'required' }),
