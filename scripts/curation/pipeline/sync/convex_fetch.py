@@ -109,17 +109,28 @@ def fetch_routes_needing_embedding(
 
     logger.debug(f"Running: {' '.join(cmd)}")
 
-    result = subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-        timeout=60,
-    )
+    # Use temp file to avoid buffering issues with large JSON output
+    import tempfile
+    with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.json') as tmp_file:
+        result = subprocess.run(
+            cmd,
+            stdout=tmp_file,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=60,
+        )
+        tmp_path = tmp_file.name
 
     if result.returncode != 0:
         raise RuntimeError(f"Convex CLI failed: {result.stderr}")
 
-    data = json.loads(result.stdout)
+    # Read from temp file
+    with open(tmp_path, 'r') as f:
+        data = json.load(f)
+
+    # Clean up temp file
+    import os
+    os.unlink(tmp_path)
     routes = [_dict_to_route(route_data) for route_data in data]
 
     logger.info(f"Fetched {len(routes)} routes from Convex")
