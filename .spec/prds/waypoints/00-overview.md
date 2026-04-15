@@ -85,6 +85,22 @@ Waypoints inherit all six pipeline principles from [`../curation/00-overview.md`
 - **P5 — Deterministic parser boundary** between probabilistic and guaranteed stages.
 - **P6 — Committed crawl plan before extraction at scale.** Overture is bulk-download (not crawl); HMDB scraping (if used) needs a crawl plan per `CRAWL-PLAN-PROTOCOL.md`.
 
+## Epic 3 Foundation Coordination
+
+This Waypoints PRD builds directly on the semantic matching infrastructure from **Epic 3** ([`../curation-hardening/tasks/epic-03-foundation-models-schema/`](../curation-hardening/tasks/epic-03-foundation-models-schema/)).
+
+**Shared schema patterns**:
+- `candidate_route_ids: v.optional(v.array(v.string()))` — Array of route IDs that pass near this waypoint, populated via the same geospatial proximity logic used in route deduplication (Epic 6)
+- `searchEmbedding: v.optional(v.array(v.number()))` — 1536-dim vector for semantic search, using the same embedding model (`text-embedding-3-small`) and vector index pattern as `curated_routes`
+
+**Epic 3 completion status** (as of 2026-04-14):
+- ✅ INF-001 through INF-007 implemented — semantic search infrastructure is production-ready
+- ✅ Convex `vectorIndex("by_embedding", {dimensions: 1536})` deployed
+- ✅ `semanticSearch.ts` query wrappers available for waypoint reuse
+- ⚠️ Waypoints PRD coordination task (B5) required to document these cross-references
+
+See the red-hat review at [`.spec/reviews/red-hat-epic-03-20260414T2210Z.md`](../../../.spec/reviews/red-hat-epic-03-20260414T2210Z.md) for full Epic 3 status and technical details.
+
 ## What this initiative is NOT
 
 - **Not a community submission feature.** Riders can downvote existing waypoints; submitting new ones is Phase 1.
@@ -102,3 +118,4 @@ Waypoints inherit all six pipeline principles from [`../curation/00-overview.md`
 - [`../../research/waypoint-demand/07-quality-gates-architecture.md`](../../research/waypoint-demand/07-quality-gates-architecture.md)
 - [`../curation/00-overview.md`](../curation/00-overview.md) — parent pipeline
 - [`../curation-hardening/07-uc-rider.md`](../curation-hardening/07-uc-rider.md) — UC-RIDER-03 community NLP (hard dependency)
+- [`../curation-hardening/tasks/epic-03-foundation-models-schema/`](../curation-hardening/tasks/epic-03-foundation-models-schema/) — Epic 3 semantic matching foundation (this PRD builds on these patterns)

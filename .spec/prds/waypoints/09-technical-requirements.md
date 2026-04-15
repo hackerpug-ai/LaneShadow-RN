@@ -87,6 +87,8 @@ defineTable({
   is_pullover_safe: v.optional(v.boolean()),  // from L6 Vision (Pause only)
   nearest_route_id: v.optional(v.string()),   // for R4
   distance_to_nearest_route_mi: v.optional(v.number()),
+  candidate_route_ids: v.optional(v.array(v.string())),  // Routes that pass near this waypoint (Epic 3 foundation)
+  searchEmbedding: v.optional(v.array(v.number())),       // 1536-dim vector for semantic search (Epic 3 foundation)
   last_verified: v.number(),              // epoch ms
   content_version: v.number(),
   status: v.union(
