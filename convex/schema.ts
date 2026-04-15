@@ -228,11 +228,11 @@ export default defineSchema({
   /**
    * Community waypoint mentions table - Waypoint mentions from community posts (B2)
    * Indexed by postId for finding all mentions for a post
-   * Indexed by region for geographic filtering
+   * Indexed by proposedCategory for category-based filtering
    * Indexed by extractedAt for time-based queries
    */
   community_waypoint_mentions: defineTable(communityWaypointMentionValidator)
     .index('by_postId', ['postId'])
-    .index('by_region', ['region'])
+    .index('by_proposed_category', ['proposedCategory'])
     .index('by_extractedAt', ['extractedAt']),
 })

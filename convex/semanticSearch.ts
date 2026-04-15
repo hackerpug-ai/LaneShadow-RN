@@ -120,11 +120,11 @@ export const findCandidateRoutesByEmbedding = query({
  * Text fallback for exact route matches by identifier.
  *
  * Searches curated_routes for exact matches on:
- * - name (case-insensitive)
- * - highwayNumber
- * - candidateIdentifiers array
+ * - name (case-insensitive) via by_name_lower index
+ * - highwayNumber via by_highway_number index
+ * - candidateIdentifiers array (requires scan, no array-contains index)
  *
- * For 5k routes, scan + filter is acceptable.
+ * Uses parallel index queries for optimal performance, then unions and deduplicates.
  *
  * @param identifier - Search string (route name, highway number, or alias)
  * @param stateFilter - Optional state filter
@@ -147,67 +147,90 @@ export const findRoutesByIdentifier = query({
   ),
   handler: async (ctx, args) => {
     const { identifier, stateFilter, limit = 20 } = args;
-    const searchTerm = identifier.toLowerCase();
+    const searchTermLower = identifier.toLowerCase();
 
-    // Use index for state filtering to reduce scan set
-    const routes = stateFilter
-      ? await ctx.db.query("curated_routes").withIndex("by_state", (q) => q.eq("state", stateFilter)).collect()
-      : await ctx.db.query("curated_routes").collect();
+    // Query indexes in parallel
+    const [byName, byHighway, allRoutes] = await Promise.all([
+      // Index lookup for exact name match (case-insensitive)
+      ctx.db
+        .query("curated_routes")
+        .withIndex("by_name_lower", (q) => q.eq("name_lower", searchTermLower))
+        .take(limit),
+      // Index lookup for highway number
+      ctx.db
+        .query("curated_routes")
+        .withIndex("by_highway_number", (q) => q.eq("highwayNumber", searchTermLower))
+        .take(limit),
+      // Scan for candidateIdentifiers (no array-contains index in Convex)
+      // Use state filter if provided to reduce scan set
+      stateFilter
+        ? ctx.db.query("curated_routes").withIndex("by_state", (q) => q.eq("state", stateFilter)).take(limit * 2)
+        : ctx.db.query("curated_routes").take(limit * 2),
+    ]);
 
-    // Find matches
-    const matches: {
-      routeId: Id<"curated_routes">;
-      name: string;
-      state: string;
-      matchType: "name" | "highway" | "identifier";
-    }[] = [];
-
-    for (const route of routes) {
-      // Match by name (case-insensitive)
-      if (route.name.toLowerCase().includes(searchTerm)) {
-        matches.push({
-          routeId: route._id,
-          name: route.name,
-          state: route.state,
-          matchType: "name",
-        });
-        continue;
+    // Collect and deduplicate matches by _id
+    const matchMap = new Map<
+      Id<"curated_routes">,
+      {
+        routeId: Id<"curated_routes">;
+        name: string;
+        state: string;
+        matchType: "name" | "highway" | "identifier";
       }
+    >();
 
-      // Match by highwayNumber
-      if (route.highwayNumber && route.highwayNumber.toLowerCase().includes(searchTerm)) {
-        matches.push({
+    // Add name matches (highest priority)
+    for (const route of byName) {
+      matchMap.set(route._id, {
+        routeId: route._id,
+        name: route.name,
+        state: route.state,
+        matchType: "name",
+      });
+    }
+
+    // Add highway matches (second priority)
+    for (const route of byHighway) {
+      if (!matchMap.has(route._id)) {
+        matchMap.set(route._id, {
           routeId: route._id,
           name: route.name,
           state: route.state,
           matchType: "highway",
         });
+      }
+    }
+
+    // Add candidateIdentifiers matches (lowest priority - requires scan)
+    for (const route of allRoutes) {
+      // Skip if already matched by name or highway
+      if (matchMap.has(route._id)) {
         continue;
       }
 
       // Match by candidateIdentifiers
       if (route.candidateIdentifiers) {
         const identifierMatch = route.candidateIdentifiers.find((id) =>
-          id.toLowerCase().includes(searchTerm)
+          id.toLowerCase().includes(searchTermLower)
         );
         if (identifierMatch) {
-          matches.push({
+          matchMap.set(route._id, {
             routeId: route._id,
             name: route.name,
             state: route.state,
             matchType: "identifier",
           });
-          continue;
         }
       }
 
       // Stop if we've hit the limit
-      if (matches.length >= limit) {
+      if (matchMap.size >= limit) {
         break;
       }
     }
 
-    return matches.slice(0, limit);
+    // Convert map to array and apply limit
+    return Array.from(matchMap.values()).slice(0, limit);
   },
 });
 
@@ -636,11 +659,23 @@ export const findCandidateRoutesHybrid = query({
     const filter: VectorFilter | undefined = stateFilter
       ? (q) => q.eq("state", stateFilter)
       : undefined;
-    const vectorResults = await (ctx as any).vectorSearch("curated_routes", "by_embedding", {
-      vector: embedding,
-      limit,
-      filter,
-    });
+
+    // Execute text search (identifier-based)
+    const searchTerm = identifier.toLowerCase();
+    // Use a large limit for text search since we're filtering in-memory
+    const textSearchLimit = 1000;
+
+    // Kick off both searches in parallel
+    const [vectorResults, textRoutes] = await Promise.all([
+      (ctx as any).vectorSearch("curated_routes", "by_embedding", {
+        vector: embedding,
+        limit,
+        filter,
+      }),
+      stateFilter
+        ? ctx.db.query("curated_routes").withIndex("by_state", (q) => q.eq("state", stateFilter)).take(textSearchLimit)
+        : ctx.db.query("curated_routes").take(textSearchLimit),
+    ]);
 
     // Fetch full documents for vector results
     const vectorRoutes = await Promise.all(
@@ -657,14 +692,6 @@ export const findCandidateRoutesHybrid = query({
         };
       })
     );
-
-    // Execute text search (identifier-based)
-    const searchTerm = identifier.toLowerCase();
-    // Use a large limit for text search since we're filtering in-memory
-    const textSearchLimit = 1000;
-    const textRoutes = stateFilter
-      ? await ctx.db.query("curated_routes").withIndex("by_state", (q) => q.eq("state", stateFilter)).take(textSearchLimit)
-      : await ctx.db.query("curated_routes").take(textSearchLimit);
 
     const textMatches: {
       routeId: Id<"curated_routes">;
