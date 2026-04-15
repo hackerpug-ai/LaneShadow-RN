@@ -17,7 +17,7 @@ import requests
 
 try:
     # Try relative import first (when running as module)
-    from pipeline.models import Route
+    from scripts.curation.pipeline.models import Route
 except ImportError:
     # Fallback to absolute import (when running from scripts/curation)
     from scripts.curation.pipeline.models import Route

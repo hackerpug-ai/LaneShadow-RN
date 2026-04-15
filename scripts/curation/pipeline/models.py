@@ -151,4 +151,4 @@ class CommunityWaypointMention:
 # Re-export PostExtraction from extraction/schema.py for convenience
 # Note: INF-005 owns the Pydantic PostExtraction definition. This re-export makes it
 # available from the models module for downstream consumers.
-from pipeline.extraction.schema import PostExtraction  # noqa: E402
+from scripts.curation.pipeline.extraction.schema import PostExtraction  # noqa: E402

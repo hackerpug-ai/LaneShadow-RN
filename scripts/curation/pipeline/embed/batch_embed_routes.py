@@ -336,7 +336,7 @@ def load_routes_needing_embedding(incremental: bool = False) -> list[Route]:
 
     try:
         # Try relative import first (when running as module)
-        from pipeline.sync.convex_fetch import fetch_routes_needing_embedding
+        from scripts.curation.pipeline.sync.convex_fetch import fetch_routes_needing_embedding
     except ImportError:
         # Fallback to absolute import (when running from scripts/curation)
         from scripts.curation.pipeline.sync.convex_fetch import fetch_routes_needing_embedding
@@ -521,7 +521,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.commit:
         try:
             # Try relative import first (when running as module)
-            from pipeline.sync.convex_push import push_routes
+            from scripts.curation.pipeline.sync.convex_push import push_routes
         except ImportError:
             # Fallback to absolute import (when running from scripts/curation)
             from scripts.curation.pipeline.sync.convex_push import push_routes
