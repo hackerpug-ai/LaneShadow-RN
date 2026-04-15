@@ -326,9 +326,9 @@ def test_cli_dry_run_no_push(mock_openai_client):
     ]
 
     # Mock load_routes_needing_embedding to return sample routes
-    with patch("pipeline.embed.batch_embed_routes.load_routes_needing_embedding", return_value=sample_routes):
+    with patch("scripts.curation.pipeline.embed.batch_embed_routes.load_routes_needing_embedding", return_value=sample_routes):
         # Mock push_routes at its source location to track if it's called
-        with patch("pipeline.sync.convex_push.push_routes") as mock_push:
+        with patch("scripts.curation.pipeline.sync.convex_push.push_routes") as mock_push:
             # Set up environment
             with patch.dict(
                 "os.environ",
@@ -364,10 +364,10 @@ def test_cli_commit_pushes(mock_openai_client):
     ]
 
     # Mock load_routes_needing_embedding to return sample routes
-    with patch("pipeline.embed.batch_embed_routes.load_routes_needing_embedding", return_value=sample_routes):
+    with patch("scripts.curation.pipeline.embed.batch_embed_routes.load_routes_needing_embedding", return_value=sample_routes):
         # Mock push_routes at its source location
         # This patches the function before it's imported by batch_embed_routes
-        with patch("pipeline.sync.convex_push.push_routes") as mock_push:
+        with patch("scripts.curation.pipeline.sync.convex_push.push_routes") as mock_push:
             # Mock successful push summary using a simple Mock object
             mock_summary = Mock()
             mock_summary.inserted = 1
@@ -409,7 +409,7 @@ def test_cli_commit_pushes(mock_openai_client):
 
 def test_incremental_mode_filters():
     """AC-8: incremental=True should only return routes without embeddings."""
-    with patch("pipeline.embed.batch_embed_routes.load_routes_needing_embedding") as mock_load:
+    with patch("scripts.curation.pipeline.embed.batch_embed_routes.load_routes_needing_embedding") as mock_load:
         # Mock: some routes have embeddings, some don't
         mock_load.return_value = [
             Route(
@@ -475,7 +475,6 @@ def test_cli_requires_api_key_for_commit():
     """CLI should require OPENAI_API_KEY for --commit mode."""
     with patch.dict("os.environ", {}, clear=True):
         with patch("sys.argv", ["prog", "--commit"]):
-            with pytest.raises(SystemExit) as exc_info:
-                main(["--commit"])
-            # Should exit with error
-            assert exc_info.value.code != 0
+            result = main(["--commit"])
+            # Should return error code
+            assert result != 0

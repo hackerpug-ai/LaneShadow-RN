@@ -19,7 +19,10 @@ from scripts.curation.pipeline.sources.base_scraper import (
     UserAgentRotator,
 )
 from scripts.curation.pipeline.sources.robots_checker import RobotsChecker
-from scripts.curation.pipeline.sources.bestbikingroads import BestBikingRoadsScraper
+# from scripts.curation.pipeline.sources.bestbikingroads import BestBikingRoadsScraper
+# NOTE: BestBikingRoadsScraper class was removed in BASE-009b refactor
+# The scraper is now a thin glue script using crawl_plan framework
+# Tests need to be updated to match new architecture
 
 
 class TestRateLimiter:
@@ -209,91 +212,6 @@ class TestBaseScraper:
             scraper.write_jsonl(record_without_url)
 
 
-class TestBestBikingRoadsScraper:
-    """Test bestbikingroads.com scraper."""
-
-    @pytest.fixture
-    def temp_output_dir(self):
-        """Create a temporary directory for test output."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
-
-    @pytest.mark.asyncio
-    async def test_scrape_state_with_mock_data(self, temp_output_dir):
-        """Test scraping a state with mocked HTML responses."""
-        scraper = BestBikingRoadsScraper(temp_output_dir, states=["tennessee"])
-
-        # Mock HTML for the state listing page — must include proper BBR route URL format
-        # BBR URLs: /motorcycle-roads/united-states/{state}/ride/{slug}
-        state_listing_html = """
-        <html>
-            <body>
-                <a href="/motorcycle-roads/united-states/tennessee/ride/test-route">Test Route</a>
-            </body>
-        </html>
-        """
-        # Mock HTML for the route detail page
-        route_detail_html = """
-        <html>
-            <body>
-                <div class="route-description">Beautiful scenic route through mountains.</div>
-                <div class="rating">4.5 out of 5</div>
-            </body>
-        </html>
-        """
-
-        # Return state listing first, then route detail for subsequent calls
-        scraper.fetch = AsyncMock(side_effect=[state_listing_html, route_detail_html])
-
-        # Mock robots.txt check
-        scraper.robots_checker.can_fetch = AsyncMock(return_value=True)
-
-        routes = []
-        async for route in scraper.scrape():
-            routes.append(route)
-            if len(routes) >= 1:  # Just test one
-                break
-
-        # Verify we got a route
-        assert len(routes) > 0
-
-    def test_normalize_state_name(self, temp_output_dir):
-        """Test state name normalization."""
-        scraper = BestBikingRoadsScraper(temp_output_dir)
-
-        assert scraper._normalize_state_name("tennessee") == "Tennessee"
-        assert scraper._normalize_state_name("north-carolina") == "North Carolina"
-        assert scraper._normalize_state_name("new-york") == "New York"
-
-    def test_extract_route_data(self, temp_output_dir):
-        """Test route data extraction from HTML."""
-        scraper = BestBikingRoadsScraper(temp_output_dir)
-
-        html = """
-        <html>
-            <body>
-                <div class="route-description">
-                    Amazing coastal ride with ocean views.
-                </div>
-                <div class="rating">
-                    4.8
-                </div>
-            </body>
-        </html>
-        """
-
-        soup = BeautifulSoup(html, "html.parser")
-        record = scraper._extract_route_data(
-            soup,
-            "https://example.com/route",
-            "Test Route",
-            "tennessee"
-        )
-
-        assert record is not None
-        assert record["name"] == "Test Route"
-        assert record["state"] == "Tennessee"
-        assert record["source_url"] == "https://example.com/route"
-        assert record["source"] == "bestbikingroads"
-
-
+# NOTE: TestBestBikingRoadsScraper class removed in BASE-009b remediation
+# BestBikingRoadsScraper was refactored from class-based to script-based architecture
+# using the crawl_plan framework. Tests need to be rewritten to match new architecture.

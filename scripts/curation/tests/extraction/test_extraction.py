@@ -147,14 +147,14 @@ class TestExtractionClient:
         """Test client initialization with explicit API key."""
         client = ExtractionClient(api_key="test-key-123")
         assert client.temperature == 0
-        assert client.model == "claude-3-5-haiku-latest"
+        assert client.model == "glm-4.7-flash"
 
     def test_init_with_env_var(self):
         """Test client initialization with environment variable."""
         with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "env-key-456"}):
             client = ExtractionClient()
             assert client.temperature == 0
-            assert client.model == "claude-3-5-haiku-latest"
+            assert client.model == "glm-4.7-flash"
 
     def test_init_without_api_key_raises_error(self):
         """Test that missing API key raises ValueError."""
@@ -184,7 +184,7 @@ class TestExtractionClient:
             primary_archetype_hint="twisties",
         )
 
-        with patch("pipeline.extraction.client.instructor.from_anthropic") as mock_instructor:
+        with patch("scripts.curation.pipeline.extraction.client.instructor.from_openai") as mock_instructor:
             mock_client = Mock()
             mock_client.chat.completions.create.return_value = mock_response
             mock_instructor.return_value = mock_client
@@ -236,7 +236,7 @@ class TestExtractSingle:
             "description": "A beautiful mountain road with stunning views.",
         }
 
-        with patch("pipeline.extraction.extractor.ExtractionClient") as mock_client_class:
+        with patch("scripts.curation.pipeline.extraction.extractor.ExtractionClient") as mock_client_class:
             mock_client = Mock()
             mock_client.extract.return_value = mock_attrs
             mock_client_class.return_value = mock_client
@@ -257,7 +257,7 @@ class TestExtractSingle:
             "description": "Bad description",
         }
 
-        with patch("pipeline.extraction.extractor.ExtractionClient") as mock_client_class:
+        with patch("scripts.curation.pipeline.extraction.extractor.ExtractionClient") as mock_client_class:
             mock_client = Mock()
             mock_client.extract.side_effect = Exception("API error")
             mock_client_class.return_value = mock_client
@@ -304,7 +304,7 @@ class TestExtractBatch:
 
         try:
             with patch(
-                "pipeline.extraction.extractor.ExtractionClient"
+                "scripts.curation.pipeline.extraction.extractor.ExtractionClient"
             ) as mock_client_class:
                 mock_client = Mock()
                 mock_client.extract.return_value = mock_attrs
@@ -375,7 +375,7 @@ class TestExtractBatch:
                     )
 
             with patch(
-                "pipeline.extraction.extractor.ExtractionClient"
+                "scripts.curation.pipeline.extraction.extractor.ExtractionClient"
             ) as mock_client_class:
                 mock_client = Mock()
                 mock_client.extract.return_value = mock_attrs
@@ -431,7 +431,7 @@ class TestExtractBatch:
 
         try:
             with patch(
-                "pipeline.extraction.extractor.ExtractionClient"
+                "scripts.curation.pipeline.extraction.extractor.ExtractionClient"
             ) as mock_client_class:
                 mock_client = Mock()
                 # Fail on routes 1, 3, 4 (3 failures)
