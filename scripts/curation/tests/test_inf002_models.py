@@ -7,7 +7,7 @@ Tests AC-1 through AC-6 as defined in the task specification.
 import pytest
 from dataclasses import fields
 
-from pipeline.models import (
+from scripts.curation.pipeline.models import (
     Route,
     EnrichedRoute,
     LLMExtractionArtifact,

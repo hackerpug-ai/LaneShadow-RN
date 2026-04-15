@@ -7,9 +7,9 @@ from unittest.mock import MagicMock, patch
 import httpx
 import pytest
 
-from pipeline.enrichment.cache import FileCache
-from pipeline.enrichment.curvature import compute_bearing, compute_curvature_score
-from pipeline.enrichment.osm_client import OSMClient
+from scripts.curation.pipeline.enrichment.cache import FileCache
+from scripts.curation.pipeline.enrichment.curvature import compute_bearing, compute_curvature_score
+from scripts.curation.pipeline.enrichment.osm_client import OSMClient
 
 
 class TestBearingComputation:

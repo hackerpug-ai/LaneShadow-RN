@@ -5,16 +5,11 @@ from pathlib import Path
 
 import pytest
 
-# Support two invocation patterns:
+# Use absolute imports to support all invocation patterns:
 #   1. From repo root:      PYTHONPATH=$(pwd) pytest scripts/curation/tests/...
 #   2. From scripts/curation: pytest tests/...
-# In case 1, 'pipeline' is not directly importable — only 'scripts.curation.pipeline' is.
-# Add scripts/curation to sys.path so 'from pipeline.models import ...' works in both cases.
-_scripts_curation = str(Path(__file__).resolve().parent.parent)
-if _scripts_curation not in sys.path:
-    sys.path.insert(0, _scripts_curation)
-
-from pipeline.models import Route, EnrichedRoute
+# Absolute imports work in both cases without sys.path manipulation.
+from scripts.curation.pipeline.models import Route, EnrichedRoute
 
 
 @pytest.fixture

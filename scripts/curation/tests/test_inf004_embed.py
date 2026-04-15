@@ -13,7 +13,7 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 from openai import RateLimitError
 
-from pipeline.embed.batch_embed_routes import (
+from scripts.curation.pipeline.embed.batch_embed_routes import (
     EmbeddingCostLedger,
     batch_embed_routes,
     build_search_text,
@@ -22,7 +22,7 @@ from pipeline.embed.batch_embed_routes import (
     main,
     write_cost_ledger,
 )
-from pipeline.models import Route
+from scripts.curation.pipeline.models import Route
 
 
 

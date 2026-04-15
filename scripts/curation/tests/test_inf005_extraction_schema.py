@@ -8,7 +8,7 @@ import pytest
 from datetime import datetime, timezone
 from pydantic import ValidationError
 
-from pipeline.extraction.schema import (
+from scripts.curation.pipeline.extraction.schema import (
     PostExtraction,
     RouteAttributes,
     EXTRACTION_SCHEMA_VERSION,
@@ -363,12 +363,12 @@ class TestAC8_PostExtractionReexport:
     """AC-8: PostExtraction is re-exportable from models.py"""
 
     def test_post_extraction_reexport_from_models(self):
-        """GIVEN: INF-002 defines `from pipeline.extraction.schema import PostExtraction`
+        """GIVEN: INF-002 defines `from scripts.curation.pipeline.extraction.schema import PostExtraction`
         WHEN: I import it from models.py
-        THEN: `from pipeline.models import PostExtraction` succeeds
+        THEN: `from scripts.curation.pipeline.models import PostExtraction` succeeds
         """
-        from pipeline.models import PostExtraction as ReexportedPostExtraction
-        from pipeline.extraction.schema import PostExtraction as OriginalPostExtraction
+        from scripts.curation.pipeline.models import PostExtraction as ReexportedPostExtraction
+        from scripts.curation.pipeline.extraction.schema import PostExtraction as OriginalPostExtraction
 
         # Verify it's the same class
         assert ReexportedPostExtraction is OriginalPostExtraction

@@ -8,14 +8,14 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 from pydantic import ValidationError
 
-from pipeline.extraction.schema import (
+from scripts.curation.pipeline.extraction.schema import (
     RouteAttributes,
     Season,
     RoadSurface,
     EXTRACTION_SCHEMA_VERSION,
 )
-from pipeline.extraction.client import ExtractionClient
-from pipeline.extraction.extractor import (
+from scripts.curation.pipeline.extraction.client import ExtractionClient
+from scripts.curation.pipeline.extraction.extractor import (
     extract_single,
     extract_batch,
     load_raw_responses,
