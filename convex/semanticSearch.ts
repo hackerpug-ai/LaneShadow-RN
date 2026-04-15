@@ -14,6 +14,7 @@ import { v } from "convex/values";
 
 import type { Doc, Id, TableNames } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
+import { withVectorSearch } from "./types";
 
 const EMBEDDING_DIMENSIONS = 1536;
 
@@ -31,12 +32,6 @@ type VectorSearchHit<TTableName extends TableNames> = {
   _id: Id<TTableName>;
   _score: number;
 };
-
-// Vector filter predicate type (simplified - Convex doesn't export proper types)
-type VectorFilter = (q: {
-  eq(fieldName: string, value: string): any;
-  or(...expressions: any[]): any;
-}) => any;
 
 // ---------------------------------------------------------------------------
 // Query: findCandidateRoutesByEmbedding
@@ -79,12 +74,13 @@ export const findCandidateRoutesByEmbedding = query({
     }
 
     // Build vector filter
-    const filter: VectorFilter | undefined = stateFilter
-      ? (q) => q.eq("state", stateFilter)
+    const filter = stateFilter
+      ? (q: any) => q.eq("state", stateFilter)
       : undefined;
 
     // Execute vector search
-    const results = await (ctx as any).vectorSearch("curated_routes", "by_embedding", {
+    const vectorCtx = withVectorSearch(ctx);
+    const results = await vectorCtx.vectorSearch("curated_routes", "by_embedding", {
       vector: embedding,
       limit,
       filter,
@@ -656,17 +652,18 @@ export const findCandidateRoutesHybrid = query({
     const { embedding, identifier, stateFilter, limit = 20 } = args;
 
     // Execute vector search
-    const filter: VectorFilter | undefined = stateFilter
-      ? (q) => q.eq("state", stateFilter)
+    const filter = stateFilter
+      ? (q: any) => q.eq("state", stateFilter)
       : undefined;
 
     // Execute text search (identifier-based) using indexes
     const searchTermLower = identifier.toLowerCase();
 
     // Kick off all searches in parallel
+    const vectorCtx = withVectorSearch(ctx);
     const [vectorResults, byName, byHighway, allRoutes] = await Promise.all([
       // Vector search
-      (ctx as any).vectorSearch("curated_routes", "by_embedding", {
+      vectorCtx.vectorSearch("curated_routes", "by_embedding", {
         vector: embedding,
         limit,
         filter,
