@@ -136,9 +136,4 @@ class RouteMatch:
 # Re-export PostExtraction from extraction/schema.py for convenience
 # Note: INF-005 owns the Pydantic PostExtraction definition. This re-export makes it
 # available from the models module for downstream consumers.
-try:
-    from scripts.curation.pipeline.extraction.schema import PostExtraction  # noqa: E402
-except ImportError:
-    # Placeholder stub if INF-005 hasn't run yet
-    # TODO: Remove this stub once INF-005 defines PostExtraction in extraction/schema.py
-    PostExtraction = None  # type: ignore
+from scripts.curation.pipeline.extraction.schema import PostExtraction  # noqa: E402
