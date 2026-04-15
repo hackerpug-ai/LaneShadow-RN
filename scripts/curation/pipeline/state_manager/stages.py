@@ -154,7 +154,7 @@ def extract(
     limit: Optional[int] = None,
     retry_errors: bool = False,
     dry_run: bool = False,
-    max_workers: int = 5,
+    max_workers: int = 1,
 ) -> dict[str, Any]:
     """Run LLM extraction on pending routes.
 
