@@ -98,3 +98,6 @@ keys
 .cache/
 staging/
 tmp/
+
+# Pipeline state DB (local SQLite, not committed)
+.pipeline-state/
