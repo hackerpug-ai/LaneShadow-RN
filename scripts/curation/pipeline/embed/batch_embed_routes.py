@@ -282,7 +282,8 @@ def batch_embed_routes(
 
         try:
             # Generate embeddings for this batch
-            texts = [route.search_text for route in batch]
+            # All routes in batch have non-None search_text (filtered above)
+            texts = [route.search_text for route in batch if route.search_text]
             embeddings = generate_embeddings(texts, client)
 
             # Update routes with embeddings (in-place modification)
@@ -324,16 +325,37 @@ def load_routes_needing_embedding(incremental: bool = False) -> list[Route]:
         List of Route objects
 
     Raises:
-        NotImplementedError: Not yet wired to Convex fetch helper
+        OSError: If CONVEX_URL or CURATION_DEPLOY_KEY environment variables are missing
 
-    Note:
-        This function is a placeholder for INF-004. It will be implemented
-        when the Convex query helper is available.
+    Examples:
+        >>> routes = load_routes_needing_embedding(incremental=True)
+        >>> len(routes) > 0
+        True
     """
-    raise NotImplementedError(
-        "load_routes_needing_embedding is not yet implemented. "
-        "Convex query helper needs to be wired."
+    import os
+
+    from scripts.curation.pipeline.sync.convex_fetch import fetch_routes_needing_embedding
+
+    convex_url = os.environ.get("CONVEX_URL")
+    deploy_key = os.environ.get("CURATION_DEPLOY_KEY")
+
+    if not convex_url:
+        raise OSError("CONVEX_URL environment variable is required")
+
+    if not deploy_key:
+        raise OSError("CURATION_DEPLOY_KEY environment variable is required")
+
+    logger.info(f"Loading routes from Convex (incremental={incremental})...")
+
+    routes = fetch_routes_needing_embedding(
+        base_url=convex_url,
+        deploy_key=deploy_key,
+        incremental=incremental,
     )
+
+    logger.info(f"Loaded {len(routes)} routes from Convex")
+
+    return routes
 
 
 # =============================================================================

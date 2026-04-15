@@ -370,9 +370,9 @@ def test_incremental_mode_filters():
             ),
         ]
 
-        # Note: load_routes_needing_embedding raises NotImplementedError
-        # This test verifies the contract when it's implemented
-        with pytest.raises(NotImplementedError):
+        # Note: load_routes_needing_embedding now requires CONVEX_URL and CURATION_DEPLOY_KEY
+        # This test verifies the contract raises OSError without credentials
+        with pytest.raises(OSError, match="CONVEX_URL environment variable is required"):
             load_routes_needing_embedding(incremental=True)
 
 
