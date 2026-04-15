@@ -32,7 +32,7 @@ class TestAC1_SchemaVersionBumped:
 
     def test_module_docstring_documents_v2(self):
         """Verify the module docstring mentions v2 changes."""
-        from pipeline.extraction import schema
+        from scripts.curation.pipeline.extraction import schema
 
         docstring = schema.__doc__
         assert docstring is not None
@@ -215,7 +215,7 @@ class TestAC5_V1RouteAttributesPreserved:
         THEN: Parsing succeeds; RouteAttributes is still importable from schema.py
         """
         # Verify RouteAttributes is importable
-        from pipeline.extraction.schema import RouteAttributes
+        from scripts.curation.pipeline.extraction.schema import RouteAttributes
 
         # Sample v1 JSON
         v1_json = """{
@@ -440,7 +440,7 @@ class TestAdditionalConstraints:
 
     def test_no_rapidfuzz_import(self):
         """Verify rapidfuzz is not imported in schema.py (spec constraint)."""
-        import pipeline.extraction.schema as schema_module
+        import scripts.curation.pipeline.extraction.schema as schema_module
 
         import sys
 
