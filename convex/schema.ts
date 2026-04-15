@@ -14,7 +14,7 @@ import { performanceValidator } from '../models/performance'
 import { osmNodeValidator, osmWayValidator, osmImportJobValidator } from '../models/osm-data'
 import { routeEnrichmentValidator } from '../models/route-enrichments'
 import { waypointValidator } from '../models/waypoints'
-import { curatedRouteValidator, routePostRawValidator, routeMatchValidator } from '../models/curated-routes'
+import { curatedRouteValidator, routePostRawValidator, routeMatchValidator, communityWaypointMentionValidator } from '../models/curated-routes'
 import { curatedRouteEnrichmentValidator } from '../models/curated-route-enrichments'
 import { routeFeedbackValidator } from '../models/route-feedback'
 
@@ -224,4 +224,15 @@ export default defineSchema({
     .index('by_postId', ['postId'])
     .index('by_routeId', ['routeId'])
     .index('by_routeId_and_confidence', ['routeId', 'matchConfidence']),
+
+  /**
+   * Community waypoint mentions table - Waypoint mentions from community posts (B2)
+   * Indexed by postId for finding all mentions for a post
+   * Indexed by region for geographic filtering
+   * Indexed by extractedAt for time-based queries
+   */
+  community_waypoint_mentions: defineTable(communityWaypointMentionValidator)
+    .index('by_postId', ['postId'])
+    .index('by_region', ['region'])
+    .index('by_extractedAt', ['extractedAt']),
 })

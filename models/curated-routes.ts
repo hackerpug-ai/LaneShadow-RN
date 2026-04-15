@@ -166,6 +166,7 @@ export const curatedRouteValidator = v.object({
   // Enrichment outputs
   // ========================================================================
   description: v.optional(v.string()),
+  descriptiveSummary: v.optional(v.string()), // Rich description for waypoint matching (B2)
   rating: v.optional(v.number()),
   designation: v.optional(v.string()),
   sourceUrl: v.optional(v.string()),
@@ -213,6 +214,7 @@ export const routePostRawValidator = v.object({
   extractionCost: v.number(),
   extractedAt: v.number(),
   extractionConfidence: v.optional(v.number()),
+  postEmbedding: v.optional(v.array(v.number())), // Semantic embedding for waypoint matching (B2)
   payload: v.object({
     roadNameMentions: v.array(v.string()),
     highwayRefs: v.array(v.string()),
@@ -243,4 +245,29 @@ export const routeMatchValidator = v.object({
   matchedAt: v.number(),
   isArbitrated: v.boolean(),
   arbitrationNotes: v.optional(v.string()),
+});
+
+/**
+ * Community waypoint mention validator (B2 — Epic 3)
+ *
+ * Stores waypoint mentions extracted from community posts (UC-RIDER-03).
+ * Emitted by the LLM extraction pipeline when processing forum content.
+ */
+export const communityWaypointMentionValidator = v.object({
+  postId: v.string(),
+  postUrl: v.string(),
+  name: v.string(),
+  lat: v.optional(v.nullable(v.number())),
+  lng: v.optional(v.nullable(v.number())),
+  region: v.string(),
+  proposedCategory: v.union(
+    v.literal("pause"),
+    v.literal("wander"),
+    v.literal("taste"),
+    v.literal("gather"),
+    v.literal("other")
+  ),
+  riderQuote: v.string(),
+  confidenceScore: v.number(),
+  extractedAt: v.number(),
 });
