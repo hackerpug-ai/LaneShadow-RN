@@ -15,7 +15,12 @@ from typing import Any
 
 import requests
 
-from scripts.curation.pipeline.models import Route
+try:
+    # Try relative import first (when running as module)
+    from pipeline.models import Route
+except ImportError:
+    # Fallback to absolute import (when running from scripts/curation)
+    from scripts.curation.pipeline.models import Route
 
 logger = logging.getLogger(__name__)
 

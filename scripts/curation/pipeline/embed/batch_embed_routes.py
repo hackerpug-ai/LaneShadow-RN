@@ -334,7 +334,12 @@ def load_routes_needing_embedding(incremental: bool = False) -> list[Route]:
     """
     import os
 
-    from scripts.curation.pipeline.sync.convex_fetch import fetch_routes_needing_embedding
+    try:
+        # Try relative import first (when running as module)
+        from pipeline.sync.convex_fetch import fetch_routes_needing_embedding
+    except ImportError:
+        # Fallback to absolute import (when running from scripts/curation)
+        from scripts.curation.pipeline.sync.convex_fetch import fetch_routes_needing_embedding
 
     convex_url = os.environ.get("CONVEX_URL")
     deploy_key = os.environ.get("CURATION_DEPLOY_KEY")
@@ -514,7 +519,12 @@ def main(argv: list[str] | None = None) -> int:
 
     # Push to Convex if --commit
     if args.commit:
-        from scripts.curation.pipeline.sync.convex_push import push_routes
+        try:
+            # Try relative import first (when running as module)
+            from pipeline.sync.convex_push import push_routes
+        except ImportError:
+            # Fallback to absolute import (when running from scripts/curation)
+            from scripts.curation.pipeline.sync.convex_push import push_routes
 
         convex_url = os.environ.get("CONVEX_URL")
         deploy_key = os.environ.get("CURATION_DEPLOY_KEY")
