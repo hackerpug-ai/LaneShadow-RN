@@ -267,20 +267,17 @@ def push_routes(
             batch = routes[i : i + batch_size]
             try:
                 result = _push_batch(session, url, headers, batch)
-            except requests.HTTPError as exc:
-                if exc.response is not None and exc.response.status_code >= 500:
-                    # Retry once on 5xx
-                    logger.warning("Batch %d: 5xx on first attempt, retrying once", i)
-                    try:
-                        result = _push_batch(session, url, headers, batch)
-                    except requests.HTTPError as retry_exc:
-                        msg = f"Batch {i}-{i + len(batch)}: permanent failure — {retry_exc}"
-                        logger.error(msg)
-                        summary.failed += len(batch)
-                        summary.errors.append(msg)
-                        continue
-                else:
-                    raise  # 4xx errors are not retried — re-raise immediately
+            except (requests.HTTPError, RuntimeError) as exc:
+                # Retry once on any error (HTTP 5xx or CLI RuntimeError)
+                logger.warning("Batch %d: error on first attempt, retrying once: %s", i, exc)
+                try:
+                    result = _push_batch(session, url, headers, batch)
+                except (requests.HTTPError, RuntimeError) as retry_exc:
+                    msg = f"Batch {i}-{i + len(batch)}: permanent failure — {retry_exc}"
+                    logger.error(msg)
+                    summary.failed += len(batch)
+                    summary.errors.append(msg)
+                    continue
 
             summary.inserted += result.get("created", 0)
             summary.updated += result.get("updated", 0)

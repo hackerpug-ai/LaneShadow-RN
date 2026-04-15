@@ -5,6 +5,11 @@ from pathlib import Path
 
 import pytest
 
+# Add project root to Python path for imports
+project_root = Path(__file__).parent.parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
 # Use absolute imports to support all invocation patterns:
 #   1. From repo root:      PYTHONPATH=$(pwd) pytest scripts/curation/tests/...
 #   2. From scripts/curation: pytest tests/...
