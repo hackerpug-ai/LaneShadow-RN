@@ -147,14 +147,14 @@ class TestExtractionClient:
         """Test client initialization with explicit API key."""
         client = ExtractionClient(api_key="test-key-123")
         assert client.temperature == 0
-        assert client.model == "glm-4.7-flash"
+        assert client.model == "claude-haiku-4-5-20251001"
 
     def test_init_with_env_var(self):
         """Test client initialization with environment variable."""
         with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "env-key-456"}):
             client = ExtractionClient()
             assert client.temperature == 0
-            assert client.model == "glm-4.7-flash"
+            assert client.model == "claude-haiku-4-5-20251001"
 
     def test_init_without_api_key_raises_error(self):
         """Test that missing API key raises ValueError."""
@@ -184,9 +184,9 @@ class TestExtractionClient:
             primary_archetype_hint="twisties",
         )
 
-        with patch("scripts.curation.pipeline.extraction.client.instructor.from_openai") as mock_instructor:
+        with patch("scripts.curation.pipeline.extraction.client.instructor.from_anthropic") as mock_instructor:
             mock_client = Mock()
-            mock_client.chat.completions.create.return_value = mock_response
+            mock_client.messages.create.return_value = mock_response
             mock_instructor.return_value = mock_client
 
             client = ExtractionClient(api_key="test-key")

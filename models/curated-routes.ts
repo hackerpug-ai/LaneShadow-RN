@@ -192,6 +192,13 @@ export const curatedRouteValidator = v.object({
   bestMonths: v.optional(v.array(v.string())),
   sourceCount: v.optional(v.number()),
   qualityTier: v.optional(v.string()),
+
+  // ========================================================================
+  // Geometry (geocode stage)
+  // ========================================================================
+  routePolyline: v.optional(v.string()),  // Encoded polyline for map rendering
+  waypointCount: v.optional(v.number()),  // Number of waypoints from source
+  geometrySource: v.optional(v.string()), // "scraped" | "nominatim" | "fhwa_existing" | "osrm"
 });
 
 /**

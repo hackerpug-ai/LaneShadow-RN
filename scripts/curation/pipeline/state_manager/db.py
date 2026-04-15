@@ -37,6 +37,9 @@ CREATE TABLE IF NOT EXISTS route_state (
   extracted_at INTEGER,
   pushed_at INTEGER,
   embedded_at INTEGER,
+  geocoded_at INTEGER,
+  geometry_json TEXT,
+  geometry_source TEXT,
 
   last_error TEXT,
   error_stage TEXT,
@@ -75,12 +78,34 @@ CREATE TABLE IF NOT EXISTS pipeline_runs (
 
 
 def init_db(db_path: Path = DB_PATH) -> None:
-    """Create DB directory + tables if they do not exist."""
+    """Create DB directory + tables if they do not exist.
+
+    Also runs idempotent migrations for schema additions.
+    """
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(str(db_path)) as conn:
         conn.executescript(DDL)
         conn.commit()
+
+        # Migration: add geocode columns (idempotent)
+        _migrate_add_columns(conn)
+
     logger.info(f"DB initialized at {db_path}")
+
+
+def _migrate_add_columns(conn: sqlite3.Connection) -> None:
+    """Add new columns if they don't exist (ALTER TABLE is idempotent with IF NOT EXISTS)."""
+    migrations = [
+        ("geocoded_at", "INTEGER"),
+        ("geometry_json", "TEXT"),
+        ("geometry_source", "TEXT"),
+    ]
+    for col_name, col_type in migrations:
+        try:
+            conn.execute(f"ALTER TABLE route_state ADD COLUMN {col_name} {col_type}")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
+    conn.commit()
 
 
 def get_connection(db_path: Path = DB_PATH) -> sqlite3.Connection:
@@ -106,6 +131,9 @@ def upsert_route_state(
     extracted_at: Optional[int] = None,
     pushed_at: Optional[int] = None,
     embedded_at: Optional[int] = None,
+    geocoded_at: Optional[int] = None,
+    geometry_json: Optional[str] = None,
+    geometry_source: Optional[str] = None,
     last_error: Optional[str] = None,
     error_stage: Optional[str] = None,
     retry_count_delta: int = 0,
@@ -140,17 +168,19 @@ def upsert_route_state(
                     route_id, source, canonical_url, route_name, state_primary,
                     raw_staging_json, normalized_route_json,
                     ingested_at, extracted_at, pushed_at, embedded_at,
+                    geocoded_at, geometry_json, geometry_source,
                     last_error, error_stage, retry_count,
                     extraction_cost_usd, extraction_model, extraction_payload_json,
                     convex_doc_id, updated_at
                 ) VALUES (
-                    ?,?,?,?,?, ?,?, ?,?,?,?, ?,?,0, ?,?,?, ?,?
+                    ?,?,?,?,?, ?,?, ?,?,?,?, ?,?,?, ?,?,0, ?,?,?, ?,?
                 )
                 """,
                 (
                     route_id, source, canonical_url, route_name, state_primary,
                     raw_staging_json, normalized_route_json,
                     ingested_at_val, extracted_at, pushed_at, embedded_at,
+                    geocoded_at, geometry_json, geometry_source,
                     last_error, error_stage,
                     extraction_cost_usd, extraction_model, extraction_payload_json,
                     convex_doc_id, now,
@@ -176,6 +206,12 @@ def upsert_route_state(
                 updates.append(("pushed_at", pushed_at))
             if embedded_at is not None:
                 updates.append(("embedded_at", embedded_at))
+            if geocoded_at is not None:
+                updates.append(("geocoded_at", geocoded_at))
+            if geometry_json is not None:
+                updates.append(("geometry_json", geometry_json))
+            if geometry_source is not None:
+                updates.append(("geometry_source", geometry_source))
             if last_error is not None:
                 updates.append(("last_error", last_error))
                 updates.append(("error_stage", error_stage))
@@ -232,6 +268,10 @@ def get_routes_for_stage(
     elif stage == "embed":
         where_clauses.append("pushed_at IS NOT NULL")
         where_clauses.append("embedded_at IS NULL")
+    elif stage == "geocode":
+        where_clauses.append("ingested_at IS NOT NULL")
+        where_clauses.append("geocoded_at IS NULL")
+        where_clauses.append("(error_stage IS NULL OR error_stage != 'geocode')")
     else:
         raise ValueError(f"Unknown stage: {stage!r}")
 
@@ -384,6 +424,7 @@ def reset_stage(
     col_map = {
         "ingest": "ingested_at",
         "extract": "extracted_at",
+        "geocode": "geocoded_at",
         "push": "pushed_at",
         "embed": "embedded_at",
     }

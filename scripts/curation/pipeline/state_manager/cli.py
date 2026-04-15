@@ -160,6 +160,24 @@ def cmd_push(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_geocode(args: argparse.Namespace) -> int:
+    """Geocode routes — fetch lat/lng coordinates."""
+    from scripts.curation.pipeline.state_manager.stages import geocode
+
+    conn = _get_conn()
+    try:
+        stats = geocode(conn, limit=args.limit, retry_errors=args.retry_errors)
+    finally:
+        conn.close()
+
+    print("\n=== Geocode Results ===")
+    print(f"  processed={stats['processed']}")
+    print(f"  succeeded={stats['succeeded']}")
+    print(f"  failed={stats['failed']}")
+    print()
+    return 0
+
+
 def cmd_embed(args: argparse.Namespace) -> int:
     """Embed all pushed routes."""
     from scripts.curation.pipeline.state_manager.stages import embed
@@ -363,6 +381,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_push = sub.add_parser("push", help="Push extracted routes to Convex")
     p_push.add_argument("--limit", type=int, default=None, help="Max routes to push")
 
+    # geocode
+    p_geocode = sub.add_parser("geocode", help="Fetch lat/lng coordinates for routes")
+    p_geocode.add_argument("--limit", type=int, default=None, help="Max routes to geocode")
+    p_geocode.add_argument(
+        "--retry-errors",
+        action="store_true",
+        help="Retry routes that previously errored at geocode stage",
+    )
+
     # embed
     p_embed = sub.add_parser("embed", help="Embed all pushed routes")
     p_embed.add_argument("--limit", type=int, default=None, help="Max routes to embed")
@@ -377,7 +404,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_reset = sub.add_parser("reset", help="Clear stage timestamps for re-run")
     p_reset.add_argument(
         "--stage",
-        choices=["ingest", "extract", "push", "embed"],
+        choices=["ingest", "extract", "geocode", "push", "embed"],
         required=True,
         help="Stage to reset",
     )
@@ -390,6 +417,7 @@ COMMAND_MAP = {
     "status": cmd_status,
     "ingest": cmd_ingest,
     "extract": cmd_extract,
+    "geocode": cmd_geocode,
     "push": cmd_push,
     "embed": cmd_embed,
     "quality-report": cmd_quality_report,

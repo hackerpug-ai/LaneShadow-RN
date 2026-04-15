@@ -343,6 +343,131 @@ def extract(
     return stats
 
 
+def geocode(
+    conn,
+    limit: Optional[int] = None,
+    retry_errors: bool = False,
+) -> dict[str, Any]:
+    """Geocode routes — fetch lat/lng coordinates for each route.
+
+    Dispatches to per-source geometry fetchers:
+      - FHWA: reads existing centroid from staging data (no HTTP)
+      - motorcycleroads: re-scrapes pages for waypoint lat/lng pairs
+      - bestbikingroads: Nominatim geocoding on route name + state
+
+    Args:
+        conn: SQLite connection
+        limit: Max routes to process
+        retry_errors: Retry routes that previously errored at geocode stage
+
+    Returns:
+        Stats dict with processed, succeeded, failed
+    """
+    from scripts.curation.pipeline.geometry.geocoder import fetch_geometry_for_route
+    from scripts.curation.pipeline.state_manager.db import (
+        record_run_start, record_run_finish, upsert_route_state
+    )
+
+    if retry_errors:
+        rows = get_routes_for_stage_internal(conn, "geocode", limit=limit)
+        # Also pick up routes that errored at geocode stage
+        from scripts.curation.pipeline.state_manager.db import get_routes_with_errors
+        error_rows = get_routes_with_errors(conn, "geocode", limit=limit)
+        seen = {r["route_id"] for r in rows}
+        rows.extend(r for r in error_rows if r["route_id"] not in seen)
+    else:
+        rows = get_routes_for_stage_internal(conn, "geocode", limit=limit)
+
+    if not rows:
+        logger.info("No routes pending for geocode")
+        return {"processed": 0, "succeeded": 0, "failed": 0}
+
+    logger.info(f"Geocoding {len(rows)} routes")
+
+    run_id = record_run_start(conn, "geocode")
+    stats = {"processed": 0, "succeeded": 0, "failed": 0}
+
+    for row in rows:
+        route_id = row["route_id"]
+        source = row["source"]
+        route_name = row["route_name"] or ""
+        state_primary = row["state_primary"] or ""
+        raw_json = row["raw_staging_json"]
+        canonical_url = row["canonical_url"] or ""
+
+        stats["processed"] += 1
+
+        try:
+            geometry = fetch_geometry_for_route(
+                route_id=route_id,
+                source=source,
+                raw_staging_json=raw_json,
+                route_name=route_name,
+                state_primary=state_primary,
+                source_url=canonical_url,
+            )
+
+            if geometry is not None:
+                stats["succeeded"] += 1
+                upsert_route_state(
+                    conn,
+                    route_id=route_id,
+                    source=source,
+                    raw_staging_json=raw_json,
+                    geocoded_at=int(time.time()),
+                    geometry_json=geometry.model_dump_json(),
+                    geometry_source=geometry.geometry_source,
+                    last_error=None,
+                    error_stage=None,
+                )
+            else:
+                stats["failed"] += 1
+                upsert_route_state(
+                    conn,
+                    route_id=route_id,
+                    source=source,
+                    raw_staging_json=raw_json,
+                    last_error="geometry fetch returned None",
+                    error_stage="geocode",
+                    retry_count_delta=1,
+                )
+
+        except Exception as e:
+            stats["failed"] += 1
+            logger.error(f"Geocode error for {route_id}: {e}")
+            upsert_route_state(
+                conn,
+                route_id=route_id,
+                source=source,
+                raw_staging_json=raw_json,
+                last_error=str(e),
+                error_stage="geocode",
+                retry_count_delta=1,
+            )
+
+        # Progress log every 50 routes
+        if stats["processed"] % 50 == 0:
+            logger.info(
+                f"Geocode progress: {stats['processed']}/{len(rows)} "
+                f"succeeded={stats['succeeded']} failed={stats['failed']}"
+            )
+
+    record_run_finish(
+        conn,
+        run_id,
+        status="success" if stats["failed"] == 0 else "partial",
+        routes_processed=stats["processed"],
+        routes_succeeded=stats["succeeded"],
+        routes_failed=stats["failed"],
+    )
+
+    logger.info(
+        f"Geocode complete: processed={stats['processed']} "
+        f"succeeded={stats['succeeded']} failed={stats['failed']}"
+    )
+    return stats
+
+
 def push(
     conn,
     limit: Optional[int] = None,
@@ -620,7 +745,8 @@ def _build_convex_route_payload(row) -> dict[str, Any]:
     """Build a Convex-compatible route dict from a route_state row.
 
     Merges normalized_route_json (base fields) with extraction_payload_json
-    (LLM scores). Applies required field defaults for the Convex validator.
+    (LLM scores) and geometry_json (spatial data). Applies required field
+    defaults for the Convex validator.
     """
     normalized = json.loads(row["normalized_route_json"])
     attrs: dict[str, Any] = {}
@@ -629,6 +755,18 @@ def _build_convex_route_payload(row) -> dict[str, Any]:
             attrs = json.loads(row["extraction_payload_json"])
         except json.JSONDecodeError:
             attrs = {}
+
+    # Parse geometry if available (from geocode stage)
+    geom: dict[str, Any] = {}
+    if row["geometry_json"]:
+        try:
+            geom = json.loads(row["geometry_json"])
+        except json.JSONDecodeError:
+            geom = {}
+
+    # Use geometry data for coordinates, fall back to normalized staging data
+    centroid_lat = geom.get("centroid_lat") or normalized.get("centroid_lat") or 0.0
+    centroid_lng = geom.get("centroid_lng") or normalized.get("centroid_lng") or 0.0
 
     # Build the payload matching curatedRouteValidator
     payload: dict[str, Any] = {
@@ -639,13 +777,13 @@ def _build_convex_route_payload(row) -> dict[str, Any]:
         # Required by validator — use extraction output or defaults
         "primaryArchetype": attrs.get("primary_archetype_hint", "scenic_byway"),
         "secondaryTags": [],
-        # Coordinates — default to 0.0 if missing (scraper sources)
-        "centroidLat": normalized.get("centroid_lat") or 0.0,
-        "centroidLng": normalized.get("centroid_lng") or 0.0,
-        "boundsNeLat": normalized.get("bounds_ne_lat") or 0.0,
-        "boundsNeLng": normalized.get("bounds_ne_lng") or 0.0,
-        "boundsSwLat": normalized.get("bounds_sw_lat") or 0.0,
-        "boundsSwLng": normalized.get("bounds_sw_lng") or 0.0,
+        # Coordinates — prefer geometry stage data, fall back to staging data
+        "centroidLat": centroid_lat,
+        "centroidLng": centroid_lng,
+        "boundsNeLat": geom.get("bounds_ne_lat") or normalized.get("bounds_ne_lat") or 0.0,
+        "boundsNeLng": geom.get("bounds_ne_lng") or normalized.get("bounds_ne_lng") or 0.0,
+        "boundsSwLat": geom.get("bounds_sw_lat") or normalized.get("bounds_sw_lat") or 0.0,
+        "boundsSwLng": geom.get("bounds_sw_lng") or normalized.get("bounds_sw_lng") or 0.0,
         "lengthMiles": normalized.get("length_miles") or 0.0,
         # Scores from extraction
         "compositeScore": _avg_scores(attrs),
@@ -662,6 +800,21 @@ def _build_convex_route_payload(row) -> dict[str, Any]:
         "contentVersion": 1,
         "seededAt": int(time.time()),
     }
+
+    # Geometry metadata fields
+    if geom.get("geometry_source"):
+        payload["geometrySource"] = geom["geometry_source"]
+    if geom.get("waypoints"):
+        payload["waypointCount"] = len(geom["waypoints"])
+    if geom.get("polyline_encoded"):
+        payload["routePolyline"] = geom["polyline_encoded"]
+
+    # GeoJSON location field for geospatial queries
+    if centroid_lat != 0.0 and centroid_lng != 0.0:
+        payload["location"] = {
+            "type": "Point",
+            "coordinates": [centroid_lng, centroid_lat],  # GeoJSON: [lng, lat]
+        }
 
     # Optional fields
     if normalized.get("description"):
