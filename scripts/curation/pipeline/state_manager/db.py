@@ -99,6 +99,11 @@ def _migrate_add_columns(conn: sqlite3.Connection) -> None:
         ("geocoded_at", "INTEGER"),
         ("geometry_json", "TEXT"),
         ("geometry_source", "TEXT"),
+        ("quality_tier", "TEXT"),
+        ("quality_score", "REAL"),
+        ("quality_flags_json", "TEXT"),
+        ("quality_graded_at", "INTEGER"),
+        ("excluded_at", "INTEGER"),
     ]
     for col_name, col_type in migrations:
         try:
@@ -141,6 +146,11 @@ def upsert_route_state(
     extraction_model: Optional[str] = None,
     extraction_payload_json: Optional[str] = None,
     convex_doc_id: Optional[str] = None,
+    quality_tier: Optional[str] = None,
+    quality_score: Optional[float] = None,
+    quality_flags_json: Optional[str] = None,
+    quality_graded_at: Optional[int] = None,
+    excluded_at: Optional[int] = None,
 ) -> None:
     """Insert or update a route_state row.
 
@@ -223,6 +233,16 @@ def upsert_route_state(
                 updates.append(("extraction_payload_json", extraction_payload_json))
             if convex_doc_id is not None:
                 updates.append(("convex_doc_id", convex_doc_id))
+            if quality_tier is not None:
+                updates.append(("quality_tier", quality_tier))
+            if quality_score is not None:
+                updates.append(("quality_score", quality_score))
+            if quality_flags_json is not None:
+                updates.append(("quality_flags_json", quality_flags_json))
+            if quality_graded_at is not None:
+                updates.append(("quality_graded_at", quality_graded_at))
+            if excluded_at is not None:
+                updates.append(("excluded_at", excluded_at))
             if retry_count_delta != 0:
                 updates.append(
                     ("retry_count", existing["retry_count"] + retry_count_delta)
@@ -253,6 +273,9 @@ def get_routes_for_stage(
     """
     where_clauses: list[str] = []
     params: list[Any] = []
+
+    # Always exclude soft-deleted routes
+    where_clauses.append("excluded_at IS NULL")
 
     if stage == "extract":
         where_clauses.append("extracted_at IS NULL")
@@ -376,6 +399,7 @@ def get_status_summary(conn: sqlite3.Connection) -> dict[str, Any]:
             SUM(CASE WHEN pushed_at IS NOT NULL THEN 1 ELSE 0 END) AS pushed,
             SUM(CASE WHEN embedded_at IS NOT NULL THEN 1 ELSE 0 END) AS embedded,
             SUM(CASE WHEN error_stage IS NOT NULL THEN 1 ELSE 0 END) AS errors,
+            SUM(CASE WHEN excluded_at IS NOT NULL THEN 1 ELSE 0 END) AS excluded,
             SUM(COALESCE(extraction_cost_usd, 0.0)) AS cost
         FROM route_state
         GROUP BY source
@@ -391,6 +415,7 @@ def get_status_summary(conn: sqlite3.Connection) -> dict[str, Any]:
             SUM(CASE WHEN pushed_at IS NOT NULL THEN 1 ELSE 0 END) AS pushed,
             SUM(CASE WHEN embedded_at IS NOT NULL THEN 1 ELSE 0 END) AS embedded,
             SUM(CASE WHEN error_stage IS NOT NULL THEN 1 ELSE 0 END) AS errors,
+            SUM(CASE WHEN excluded_at IS NOT NULL THEN 1 ELSE 0 END) AS excluded,
             SUM(COALESCE(extraction_cost_usd, 0.0)) AS cost
         FROM route_state
         """

@@ -26,6 +26,7 @@ NOMINATIM_USER_AGENT = "LaneShadowCuration/1.0 (laneshadow.com)"
 # Nominatim policy: max 1 req/s
 _MIN_NOMINATIM_INTERVAL = 1.1
 _last_nominatim_time: float = 0.0
+_nominatim_429_count: int = 0
 
 
 def _nominatim_rate_limit() -> None:
@@ -41,7 +42,7 @@ def _geocode_nominatim(query: str) -> Optional[tuple[float, float]]:
 
     Returns (lat, lng) or None if no result.
     """
-    global _last_nominatim_time
+    global _last_nominatim_time, _nominatim_429_count
     _nominatim_rate_limit()
 
     params = {
@@ -60,6 +61,7 @@ def _geocode_nominatim(query: str) -> Optional[tuple[float, float]]:
         )
         _last_nominatim_time = time.monotonic()
         response.raise_for_status()
+        _nominatim_429_count = 0  # Reset on success
         results = response.json()
 
         if results:
@@ -69,6 +71,20 @@ def _geocode_nominatim(query: str) -> Optional[tuple[float, float]]:
 
         return None
 
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 429:
+            # Exponential backoff on rate limit — Nominatim Varnish blocks
+            # aggressively and needs longer cooldowns on repeated 429s
+            _nominatim_429_count += 1
+            backoff = min(60.0 * (2 ** (_nominatim_429_count - 1)), 300.0)
+            logger.warning(
+                f"Nominatim 429 rate limit for '{query}' "
+                f"(consecutive 429s: {_nominatim_429_count}), backing off {backoff:.0f}s"
+            )
+            time.sleep(backoff)
+        else:
+            logger.warning(f"Nominatim geocoding failed for '{query}': {e}")
+        return None
     except (httpx.HTTPError, httpx.TimeoutException, KeyError, ValueError) as e:
         logger.warning(f"Nominatim geocoding failed for '{query}': {e}")
         return None

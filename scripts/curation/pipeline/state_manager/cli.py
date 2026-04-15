@@ -69,22 +69,23 @@ def cmd_status(args: argparse.Namespace) -> int:
         return 0
 
     # Header
-    print(f"{'Source':<20} {'Total':>7} {'Ingested':>10} {'Extracted':>11} {'Pushed':>8} {'Embedded':>9} {'Errors':>8} {'Cost':>10}")
-    print("-" * 90)
+    print(f"{'Source':<20} {'Total':>7} {'Ingested':>10} {'Extracted':>11} {'Pushed':>8} {'Embedded':>9} {'Errors':>8} {'Excluded':>10} {'Cost':>10}")
+    print("-" * 100)
     for row in by_source:
         print(
             f"{row['source']:<20} {row['total']:>7} {row['ingested']:>10} "
             f"{row['extracted']:>11} {row['pushed']:>8} {row['embedded']:>9} "
-            f"{row['errors']:>8} ${row['cost']:>9.4f}"
+            f"{row['errors']:>8} {row.get('excluded', 0):>10} ${row['cost']:>9.4f}"
         )
 
     totals = summary.get("totals", {})
     if totals:
-        print("-" * 90)
+        print("-" * 100)
         print(
             f"{'TOTAL':<20} {totals.get('total', 0):>7} {totals.get('ingested', 0):>10} "
             f"{totals.get('extracted', 0):>11} {totals.get('pushed', 0):>8} "
             f"{totals.get('embedded', 0):>9} {totals.get('errors', 0):>8} "
+            f"{totals.get('excluded', 0):>10} "
             f"${totals.get('cost', 0):>9.4f}"
         )
 
@@ -192,6 +193,82 @@ def cmd_embed(args: argparse.Namespace) -> int:
     print(f"  embedded={stats['embedded']}")
     print(f"  failed={stats['failed']}")
     print()
+    return 0
+
+
+def cmd_grade(args: argparse.Namespace) -> int:
+    """Grade route quality (tier + flags)."""
+    from scripts.curation.pipeline.state_manager.grading import grade_all
+
+    conn = _get_conn()
+    try:
+        stats = grade_all(
+            conn,
+            source=args.source,
+            tier_filter=args.tier_filter,
+        )
+    finally:
+        conn.close()
+
+    print("\n=== Quality Grading Results ===")
+    print(f"  Total graded: {stats['total']}")
+    print(f"  HIGH:   {stats['HIGH']}")
+    print(f"  MEDIUM: {stats['MEDIUM']}")
+    print(f"  LOW:    {stats['LOW']}")
+    print(f"  UNUSABLE: {stats['UNUSABLE']}")
+    print(f"  Flagged: {stats['flagged_count']}")
+
+    if stats["flagged_routes"]:
+        print(f"\n  Top flagged routes (showing {min(len(stats['flagged_routes']), 20)}):")
+        for r in stats["flagged_routes"][:20]:
+            print(f"    [{r['tier']}] {r['route_id']}: {r['name'] or '(unnamed)'} — flags={r['flags']}")
+
+    print()
+    return 0
+
+
+def cmd_exclude(args: argparse.Namespace) -> int:
+    """Soft-exclude routes by quality tier."""
+    import time as _time
+    from scripts.curation.pipeline.state_manager.db import upsert_route_state
+
+    conn = _get_conn()
+    try:
+        where_clauses = ["quality_tier = ?"]
+        params: list[str] = [args.tier]
+        if args.source:
+            where_clauses.append("source = ?")
+            params.append(args.source)
+        where_clauses.append("excluded_at IS NULL")
+
+        sql = f"SELECT route_id, source, route_name, raw_staging_json FROM route_state WHERE {' AND '.join(where_clauses)}"
+        rows = conn.execute(sql, params).fetchall()
+
+        if not rows:
+            print(f"\nNo {args.tier} routes to exclude.")
+            return 0
+
+        if args.dry_run:
+            print(f"\nWould exclude {len(rows)} {args.tier} routes:")
+            for r in rows[:20]:
+                print(f"  {r['route_id']}: {r['route_name'] or '(unnamed)'}")
+            if len(rows) > 20:
+                print(f"  ... and {len(rows) - 20} more")
+            return 0
+
+        now = int(_time.time())
+        for row in rows:
+            upsert_route_state(
+                conn,
+                route_id=row["route_id"],
+                source=row["source"],
+                raw_staging_json=row["raw_staging_json"],
+                excluded_at=now,
+            )
+
+        print(f"\nExcluded {len(rows)} {args.tier} routes (set excluded_at={now})")
+    finally:
+        conn.close()
     return 0
 
 
@@ -394,8 +471,33 @@ def build_parser() -> argparse.ArgumentParser:
     p_embed = sub.add_parser("embed", help="Embed all pushed routes")
     p_embed.add_argument("--limit", type=int, default=None, help="Max routes to embed")
 
+    # grade
+    p_grade = sub.add_parser("grade", help="Grade route quality (tier + flags)")
+    p_grade.add_argument("--source", default=None, help="Limit to a specific source")
+    p_grade.add_argument(
+        "--tier-filter",
+        choices=["HIGH", "MEDIUM", "LOW", "UNUSABLE"],
+        default=None,
+        help="Show only flagged routes matching this tier",
+    )
+
     # quality-report
     sub.add_parser("quality-report", help="Write markdown quality report")
+
+    # exclude
+    p_exclude = sub.add_parser("exclude", help="Soft-exclude routes by quality tier")
+    p_exclude.add_argument(
+        "--tier",
+        choices=["UNUSABLE", "LOW"],
+        required=True,
+        help="Quality tier to exclude",
+    )
+    p_exclude.add_argument("--source", default=None, help="Limit to a specific source")
+    p_exclude.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be excluded without making changes",
+    )
 
     # wipe-test-seeds
     sub.add_parser("wipe-test-seeds", help="Delete editorial test seeds from Convex")
@@ -418,8 +520,10 @@ COMMAND_MAP = {
     "ingest": cmd_ingest,
     "extract": cmd_extract,
     "geocode": cmd_geocode,
+    "grade": cmd_grade,
     "push": cmd_push,
     "embed": cmd_embed,
+    "exclude": cmd_exclude,
     "quality-report": cmd_quality_report,
     "wipe-test-seeds": cmd_wipe_test_seeds,
     "reset": cmd_reset,
