@@ -2,7 +2,7 @@
 
 **Sequence:** 3 / 12
 **Priority:** P0
-**Status:** Backlog
+**Status:** Done
 **Estimated Effort:** 600 minutes (~10 hours)
 
 ---
@@ -67,22 +67,22 @@ All 9 verifications must pass to confirm the foundation is solid. Any failure me
 
 ## Acceptance Criteria (Epic-Level)
 
-- [ ] All new Python dependencies installed and importable (LLM SDKs + geometry libs)
-- [ ] `Route` and `EnrichedRoute` dataclasses extended with semantic matching + LLM artifact fields
-- [ ] `LLMExtractionArtifact`, `RouteMatch`, `PostExtraction` dataclasses defined at module level
-- [ ] `convex/schema.ts` has `vectorIndex("by_embedding", {dimensions: 1536})` on `curated_routes`
-- [ ] `route_posts_raw` and `route_matches` tables created with proper indexes
-- [ ] All 5,000 existing curated routes have non-null `searchEmbedding` field
-- [ ] `findCandidateRoutesByEmbedding` query wrapper implemented and callable via CLI
-- [ ] `addRouteMatch` mutation validates and persists match audit records
-- [ ] Extraction schema bumped to v2 with full `PostExtraction` structured contract
-- [ ] `sync/convex_push.py` serializes embedding + identifier + artifact fields correctly
-- [ ] Existing baseline pipeline (Epic 2) still runs end-to-end without regression
-- [ ] Mobile app renders existing routes without crashes
-- [ ] `npx tsc --noEmit` passes
-- [ ] `npx convex dev --once` passes
-- [ ] Curation Review Protocol executed with PASS verdict
-- [ ] `review.md` + updated `baseline/catalog.jsonl` committed
+- [x] All new Python dependencies installed and importable (LLM SDKs + geometry libs)
+- [x] `Route` and `EnrichedRoute` dataclasses extended with semantic matching + LLM artifact fields
+- [x] `LLMExtractionArtifact`, `RouteMatch`, `PostExtraction` dataclasses defined at module level
+- [x] `convex/schema.ts` has `vectorIndex("by_embedding", {dimensions: 1536})` on `curated_routes`
+- [x] `route_posts_raw` and `route_matches` tables created with proper indexes
+- [x] All 5,000 existing curated routes have non-null `searchEmbedding` field
+- [x] `findCandidateRoutesByEmbedding` query wrapper implemented and callable via CLI
+- [x] `addRouteMatch` mutation validates and persists match audit records
+- [x] Extraction schema bumped to v2 with full `PostExtraction` structured contract
+- [x] `sync/convex_push.py` serializes embedding + identifier + artifact fields correctly
+- [x] Existing baseline pipeline (Epic 2) still runs end-to-end without regression
+- [x] Mobile app renders existing routes without crashes
+- [x] `npx tsc --noEmit` passes
+- [x] `npx convex dev --once` passes
+- [x] Curation Review Protocol executed with PASS verdict
+- [x] `review.md` + updated `baseline/catalog.jsonl` committed
 
 ---
 
@@ -184,16 +184,16 @@ Same sources ingested, same raw data flow. Extraction becomes uniform across sou
 
 ## Definition of Done
 
-- [ ] All 7 INF task files written and merged
-- [ ] All 7 tasks moved to `Done`
-- [ ] `pip install` clean on a fresh virtualenv
-- [ ] `npx convex dev --once` passes
-- [ ] All 5,000 existing routes have non-null `searchEmbedding`
-- [ ] Baseline pipeline (Epic 2) re-runs successfully against extended models
-- [ ] Mobile app smoke-tested on device — no regression
-- [ ] Cost ledger for embedding backfill documented (expected ~$0.05 one-time)
-- [ ] Epic 6/9/10 downstream ripple effects documented in each epic's EPIC.md (can be deferred but flagged)
-- [ ] User has approved proceeding to Epic 4
+- [x] All 7 INF task files written and merged
+- [x] All 7 tasks moved to `Done`
+- [x] `pip install` clean on a fresh virtualenv
+- [x] `npx convex dev --once` passes
+- [x] All 5,000 existing routes have non-null `searchEmbedding`
+- [x] Baseline pipeline (Epic 2) re-runs successfully against extended models
+- [x] Mobile app smoke-tested on device — no regression
+- [x] Cost ledger for embedding backfill documented (expected ~$0.05 one-time)
+- [x] Epic 6/9/10 downstream ripple effects documented in each epic's EPIC.md (can be deferred but flagged)
+- [x] User has approved proceeding to Epic 4
 
 ---
 
@@ -222,6 +222,7 @@ Downstream pipeline LLM costs (extraction, rerank, enrichment, reconciliation) a
 - **Boy Scout rule applies** — if INF-002 reveals an existing bug in `models.py`, fix it as part of this epic.
 - **Vector dimension choice:** 1536 (OpenAI `text-embedding-3-small`). Chosen for low cost + broad ecosystem support. Can upgrade later without schema break — the field is `v.array(v.number())`, dimensions are enforced only at the index level.
 - **Cosine similarity thresholds (0.92 auto-merge, 0.75 arbitration)** are initial guesses — Epic 6 should calibrate against a held-out test set.
-- **Convex has native vector search** via `.vectorIndex()` and `ctx.vectorSearch()` — no external vector DB needed. One source of truth, simpler ops.
+- **Convex has native vector search** via `.vectorIndex()` and `.vectorSearch()` — no external vector DB needed. One source of truth, simpler ops.
 - **LLM provider split:** OpenAI for embeddings (cheap, broad), Anthropic/Claude for all reasoning calls (extraction, rerank, enrichment, reconciliation) per project convention.
 - **Old INF-001 through INF-007 task files** are preserved in git commit `0bae608` if revert is needed.
+
