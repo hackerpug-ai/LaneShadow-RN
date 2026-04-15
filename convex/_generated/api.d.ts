@@ -93,6 +93,7 @@ import type * as migrations_backfillSessionMessageKindStatus from "../migrations
 import type * as migrations_deleteEmptyAssistantMessages from "../migrations/deleteEmptyAssistantMessages.js";
 import type * as queries_osm from "../queries/osm.js";
 import type * as seedGeospatialTest from "../seedGeospatialTest.js";
+import type * as semanticSearch from "../semanticSearch.js";
 import type * as users from "../users.js";
 
 import type {
@@ -187,6 +188,7 @@ declare const fullApi: ApiFromModules<{
   "migrations/deleteEmptyAssistantMessages": typeof migrations_deleteEmptyAssistantMessages;
   "queries/osm": typeof queries_osm;
   seedGeospatialTest: typeof seedGeospatialTest;
+  semanticSearch: typeof semanticSearch;
   users: typeof users;
 }>;
 

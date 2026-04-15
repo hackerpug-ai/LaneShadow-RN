@@ -137,21 +137,18 @@ export const findRoutesByIdentifier = query({
     const { identifier, stateFilter, limit = 20 } = args;
     const searchTerm = identifier.toLowerCase();
 
-    // Scan all routes (acceptable for 5k records)
-    let routes = await ctx.db.query("curated_routes").collect();
-
-    // Apply state filter if provided
-    if (stateFilter) {
-      routes = routes.filter((route) => route.state === stateFilter);
-    }
+    // Use index for state filtering to reduce scan set
+    const routes = stateFilter
+      ? await ctx.db.query("curated_routes").withIndex("by_state", (q) => q.eq("state", stateFilter)).collect()
+      : await ctx.db.query("curated_routes").collect();
 
     // Find matches
-    const matches: Array<{
+    const matches: {
       routeId: Id<"curated_routes">;
       name: string;
       state: string;
       matchType: "name" | "highway" | "identifier";
-    }> = [];
+    }[] = [];
 
     for (const route of routes) {
       // Match by name (case-insensitive)
@@ -424,6 +421,76 @@ export const getRouteMatchesForRoute = query({
       .slice(0, limit);
 
     return filtered;
+  },
+});
+
+// ---------------------------------------------------------------------------
+// Query: getRoutesNeedingEmbedding
+// ---------------------------------------------------------------------------
+
+/**
+ * Get routes that need embeddings generated.
+ *
+ * Fetches all routes if incremental=false, or only routes without
+ * searchEmbedding if incremental=true.
+ *
+ * @param incremental - If true, only return routes without searchEmbedding
+ * @param limit - Maximum number of results (default: 1000)
+ * @returns List of route documents
+ */
+export const getRoutesNeedingEmbedding = query({
+  args: {
+    incremental: v.optional(v.boolean()),
+    limit: v.optional(v.number()),
+  },
+  returns: v.array(
+    v.object({
+      _id: v.id("curated_routes"),
+      routeId: v.string(),
+      name: v.string(),
+      state: v.string(),
+      source: v.string(),
+      centroidLat: v.number(),
+      centroidLng: v.number(),
+      lengthMiles: v.optional(v.float64()),
+      boundsNeLat: v.optional(v.float64()),
+      boundsNeLng: v.optional(v.float64()),
+      boundsSwLat: v.optional(v.float64()),
+      boundsSwLng: v.optional(v.float64()),
+      candidateIdentifiers: v.optional(v.array(v.string())),
+      highwayNumber: v.optional(v.string()),
+      searchEmbedding: v.optional(v.array(v.number())),
+    })
+  ),
+  handler: async (ctx, args) => {
+    const { incremental = false, limit = 1000 } = args;
+
+    // Fetch all routes (acceptable for 5k records)
+    let routes = await ctx.db.query("curated_routes").take(limit);
+
+    // Filter by searchEmbedding if incremental
+    if (incremental) {
+      routes = routes.filter((route) => !route.searchEmbedding);
+    }
+
+    // Map to the expected output format
+    return routes.map((route) => ({
+      _id: route._id,
+      routeId: route.routeId,
+      name: route.name,
+      state: route.state,
+      source: route.source,
+      centroidLat: route.centroidLat,
+      centroidLng: route.centroidLng,
+      lengthMiles: route.lengthMiles,
+      boundsNeLat: route.boundsNeLat,
+      boundsNeLng: route.boundsNeLng,
+      boundsSwLat: route.boundsSwLat,
+      boundsSwLng: route.boundsSwLng,
+      candidateIdentifiers: route.candidateIdentifiers,
+      highwayNumber: route.highwayNumber,
+      searchEmbedding: route.searchEmbedding,
+    }));
   },
 });
 

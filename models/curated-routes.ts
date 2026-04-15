@@ -146,6 +146,7 @@ export const curatedRouteValidator = v.object({
   // ========================================================================
   // Semantic matching (Epic 3 — INF-003)
   // ========================================================================
+  name_lower: v.optional(v.string()), // Case-insensitive search index (INF-006 A8)
   searchEmbedding: v.optional(v.array(v.number())),
   searchText: v.optional(v.string()),
   candidateIdentifiers: v.optional(v.array(v.string())),

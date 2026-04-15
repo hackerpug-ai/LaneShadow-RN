@@ -167,6 +167,8 @@ export default defineSchema({
    * Indexed by state for geographic filtering
    * Indexed by compositeScore for sorting by quality ranking
    * Indexed by routeId for upsert operations during curation ingest
+   * Indexed by name_lower for case-insensitive name searches (INF-006 A8)
+   * Indexed by highwayNumber for highway number searches (INF-006 A8)
    * Vector indexed by searchEmbedding for semantic similarity search (INF-003)
    */
   curated_routes: defineTable(curatedRouteValidator)
@@ -175,6 +177,8 @@ export default defineSchema({
     .index('by_state', ['state'])
     .index('by_composite_score', ['compositeScore'])
     .index('by_routeId', ['routeId'])
+    .index('by_name_lower', ['name_lower'])
+    .index('by_highway_number', ['highwayNumber'])
     .vectorIndex('by_embedding', {
       vectorField: 'searchEmbedding',
       dimensions: 1536,
