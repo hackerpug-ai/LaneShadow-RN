@@ -9,7 +9,7 @@
 
 ## Overview
 
-Ingest raw community content from ADVRider's 17 regional forum RSS feeds, Reddit's 3 motorcycle subreddits (via public API with strict rate limiting + jitter), and Pushshift historical archives (2020-2025 backfill). These sources populate the `community_mentions` staging table. Each ingested post then runs through a single Claude Haiku 4.5 extraction call returning a structured `PostExtraction` (Epic 3 INF-005 contract) and the artifact is persisted to the `route_posts_raw` Convex table. Matching (post → route via vectorSearch + LLM rerank) and reconciliation (multi-mention routes) happen in Epic 10.
+Ingest raw community content from ADVRider's 17 regional forum RSS feeds, Reddit's 3 motorcycle subreddits (via public API with strict rate limiting + jitter), and Pushshift historical archives (2020-2025 backfill). These sources populate the `community_mentions` staging table. Each ingested post then runs through a single Claude Haiku 4.5 extraction call returning a structured `PostExtraction` (**✅ Epic 03 INF-005 schema v3 deployed in production**) and the artifact is persisted to the `route_posts_raw` Convex table. Matching (post → route via vectorSearch + LLM rerank) and reconciliation (multi-mention routes) happen in Epic 10.
 
 **Theme:** Run community source ingests and see raw posts land in staging. No NLP yet — just raw text.
 
@@ -29,7 +29,7 @@ Epic 9 extends the [Crawl Plan Protocol](../CRAWL-PLAN-PROTOCOL.md) to the commu
 | RID-002 | Reddit OAuth2 API | **Form D** — paginated auth API | Phase 0 documents auth flow, rate limit, pagination cursor, endpoint schema. Phase 1 inventory is the initial query/endpoint list (pagination cursor lives in executor, not committed inventory). Phase 2 fixtures = sample JSON responses per endpoint. Phase 4 tests assert JSON field types/enums. |
 | RID-006 | Pushshift historical backfill | **Form D variant** | Same as RID-002 but with a historical date-range wrinkle. Pushshift's reliability is flagged in this epic's Notes ("may need a third-party mirror"). Phase 4 fixture tests become the early-warning system for format drift across mirrors — if Pushshift's output changes format, tests catch it offline before a multi-hour backfill run. |
 
-**Shared framework dependency:** All three RID tasks extend the `scripts/curation/pipeline/sources/crawl_plan/` framework module built in [BASE-009a](../epic-02-baseline-pipeline-validation/BASE-009a.md) and proven on Form A (MR + BBR) via [BASE-009b](../epic-02-baseline-pipeline-validation/BASE-009b.md). Forms C and D add adapter layers for RSS parsing and paginated JSON extraction on top of the Form A framework. If BASE-009a/b have not landed, Epic 9 cannot begin.
+**Shared framework dependency:** All three RID tasks extend the `scripts/curation/pipeline/sources/crawl_plan/` framework module built in [BASE-009a](../epic-02-baseline-pipeline-validation/BASE-009a.md) and proven on Form A (MR + BBR) via [BASE-009b](../epic-02-baseline-pipeline-validation/BASE-009b.md). **✅ SATISFIED** — BASE-009a/b completed 2026-04-14. The framework module is production-ready. Epic 09 will extend it with Form C (RSS feeds) and Form D (paginated auth API) adapters on top of the proven Form A foundation.
 
 **Per-task acceptance criteria additions (MUST be present when task files are written):**
 
@@ -113,7 +113,11 @@ All 12 verifications must pass. Rate limiting is the biggest risk.
 - Epic 10: Community NLP & Signals (RID-003 NLP extraction depends on ingested raw posts)
 
 **Depends On:**
-- Epic 3: Foundation (INF-001 deps, INF-002 models)
+- **✅ SATISFIED** — Epic 03 completed 2026-04-15:
+  - INF-001: Dependencies ✅
+  - INF-002: Python models ✅
+  - INF-005: PostExtraction v3 schema ✅
+  - See [Epic 03 RETRO](../epic-03-foundation-models-schema/RETRO.md).
 
 ---
 

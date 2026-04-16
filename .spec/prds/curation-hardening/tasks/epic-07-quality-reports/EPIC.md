@@ -68,8 +68,8 @@ All 12 verifications must pass.
 
 | ID | Title | Type | Agent | Priority | Effort | Est. Min | Depends On | Blocks |
 |----|-------|------|-------|----------|--------|----------|------------|--------|
-| QUAL-003 | Coverage Report Generator | FEATURE | python-implement | P1 | M | 180 | QUAL-002 | INF-004 |
-| QUAL-004 | Data Quality Report with CI Gate | FEATURE | python-implement | P1 | M | 150 | QUAL-002 | INF-004 |
+| QUAL-006 | Coverage Report Generator | FEATURE | python-implement | P1 | M | 180 | QUAL-002 | INF-004 |
+| QUAL-007 | Data Quality Report with CI Gate | FEATURE | python-implement | P1 | M | 150 | QUAL-002 | INF-004 |
 
 **Total Tasks:** 2
 **Total Estimated Effort:** 330 minutes (~5.5 hours)
@@ -83,7 +83,7 @@ All 12 verifications must pass.
 - Epic 12: Orchestrator & E2E (reports are pipeline stages)
 
 **Depends On:**
-- Epic 6: Quality Infrastructure — Dedup & Floor (reports need deduped, tiered catalog)
+- Epic 06: Quality Infrastructure — Dedup & Floor (reports need deduped, tiered catalog). **NOTE**: Epic 06 QUAL-002 (LLM Arbitration) must complete before these reports run — reports consume the reconciled catalog.
 
 ---
 

@@ -29,7 +29,7 @@ These feed Epic 8's composite scoring. **All custom NLP (sentiment classifier, a
 
 Epic 10 previously specified a two-stage NLP pipeline: Stage 1 was a keyword quick-filter (prune ~90% of posts) and Stage 2 was a GLM-4 / Claude Haiku extraction call with custom sentiment classification, custom aspect scoring, custom attribute bucketing, and custom surface-type extraction. Matching was deterministic (road-name + state lookup) and reconciliation was a bespoke aggregation step.
 
-Epic 3's semantic matching pivot folded all of that into a **single Claude Haiku 4.5 call per post** that returns a structured `PostExtraction` (see `../epic-03-foundation-models-schema/INF-005.md`). Epic 9 runs that call once per post and persists the artifact to `route_posts_raw`. This epic now focuses only on:
+Epic 3's semantic matching pivot folded all of that into a **single Claude Haiku 4.5 call per post** that returns a structured `PostExtraction` (see `../epic-03-foundation-models-schema/INF-005.md`). **✅ DEPLOYED** — The PostExtraction v3 schema referenced here is in production Convex as of Epic 03 completion (2026-04-15). Epic 9 runs that call once per post and persists the artifact to `route_posts_raw`. This epic now focuses only on:
 
 1. **Matching** — `findCandidateRoutesByEmbedding` (Epic 3 INF-006) returns top-10 cosine-similar routes for each post embedding; Claude Haiku reranks them and picks the confident match (if any).
 2. **Reconciliation** — routes with multiple matches run through Claude Haiku 4.5 to resolve conflicts (e.g., one post says paved, another says gravel) with recency decay and source authority weighting.
@@ -43,7 +43,7 @@ The Stage 1 keyword filter is gone: a single LLM call is cheap enough (~$0.001 p
 
 After all 3 tasks are complete, an administrator should be able to:
 
-1. **Confirm Epic 9 has populated `route_posts_raw`** — Query Convex: sample 100 rows, verify `payload` is a well-formed `PostExtraction` blob (road_name_mentions, highway_refs, sentiment, etc.) and `extractionSchemaVersion = 2`.
+1. **Confirm Epic 9 has populated `route_posts_raw`** — Query Convex: sample 100 rows, verify `payload` is a well-formed `PostExtraction` blob (road_name_mentions, highway_refs, sentiment, etc.) and `extractionSchemaVersion = 3`. **NOTE**: PostExtraction v3 schema (EXTRACTION_SCHEMA_VERSION=3) is deployed in production from Epic 03. Epic 09 will populate route_posts_raw using this schema.
 2. **Run post matching** — Execute `python -m scripts.curation.pipeline.match.post_matcher`. Verify `route_matches` table populated with `matchConfidence`, `cosineSimilarity`, `matchReasoning`, `rerankModel`, and `rerankCost`. Log the counts for high-confidence (> 0.92), arbitration (0.75–0.92), and no-match (< 0.75).
 3. **Spot-check high-confidence matches** — Pick 10 `route_matches` rows with `matchConfidence > 0.92` and read the `matchReasoning`. Each should be coherent and cite specific identifiers from the post.
 4. **Spot-check arbitration matches** — Pick 10 rows with `matchConfidence` in [0.75, 0.92] and verify `isArbitrated = true` and `arbitrationNotes` explains the LLM's reasoning.
@@ -102,7 +102,7 @@ All 11 verifications must pass.
 
 ### Task Summaries
 
-- **RID-003: Community Post Matching — Semantic Search + LLM Rerank** — For each row in `route_posts_raw` that has no associated `route_matches` row yet, build a post embedding from the `PostExtraction` payload (concatenation of `road_name_mentions` + `highway_refs` + `landmark_refs` + a `rawText` prefix) via OpenAI `text-embedding-3-small`. Call `findCandidateRoutesByEmbedding` for the top-10 candidates. LLM-rerank via Claude Haiku 4.5 with the prompt "which candidate is this post about, if any?". Write one `route_matches` row per decision via `addRouteMatch`, including `matchConfidence`, `cosineSimilarity`, and the LLM's stated `matchReasoning`. Mid-confidence matches (0.75–0.92) set `isArbitrated = true` with LLM `arbitrationNotes`. Idempotent: skip posts already present in `route_matches` on re-run.
+- **RID-003: Community Post Matching — Semantic Search + LLM Rerank** — For each row in `route_posts_raw` that has no associated `route_matches` row yet, build a post embedding from the `PostExtraction` payload (concatenation of `road_name_mentions` + `highway_refs` + `landmark_refs` + a `rawText` prefix) via OpenAI `text-embedding-3-small`. Call `findCandidateRoutesByEmbedding` for the top-10 candidates. LLM-rerank via Claude Haiku 4.5 with the prompt "which candidate is this post about, if any?". Write one `route_matches` row per decision via `addRouteMatch`, including `matchConfidence`, `cosineSimilarity`, and the LLM's stated `matchReasoning`. Mid-confidence matches (0.75–0.92) set `isArbitrated = true` with LLM `arbitrationNotes`. Idempotent: skip posts already present in `route_matches` on re-run. **Epic 03 infrastructure**: `findCandidateRoutesByEmbedding` (INF-006) is production-ready and has been verified against 5,608 embedded routes. Post matching can run against the full production catalog.
 
 - **RID-005: Route Reconciliation & Temporal Decay** — For each curated route with more than one `route_matches` row, run LLM reconciliation via Claude Haiku 4.5. Resolve conflicts across mentions (e.g., one post says paved, another says gravel), apply temporal decay (older mentions weighted less by recency half-life), and weight by source authority (Reddit post score, ADVRider reputation, etc.). Compute `mentionFrequencyScore` (percentile-normalized 0–1 across the catalog), aggregate aspect scores from `PostExtraction.aspect_scores`, and compute authority-weighted sentiment. Append a summary entry to `curated_routes.llmReconciliationLog` (`runId`, `reconciledAt`, `conflictsResolved`, `notes`). Track per-batch LLM cost.
 
@@ -127,10 +127,11 @@ Net effort drops ~40% compared to the old plan.
 ## Dependencies
 
 **Depends On:**
-- Epic 3: Foundation — Semantic Matching Infrastructure
-  - INF-003 (`route_posts_raw` table, `route_matches` table, `curated_routes.llmReconciliationLog`)
-  - INF-005 (`PostExtraction` v2 schema contract)
-  - INF-006 (`findCandidateRoutesByEmbedding`, `addRouteMatch`, `getRouteMatchesForPost`, `getRawPostsForRoute` query wrappers)
+- **✅ SATISFIED** — Epic 03 completed 2026-04-15:
+  - INF-003: `route_posts_raw` table, `route_matches` table, `curated_routes.llmReconciliationLog` ✅
+  - INF-005: `PostExtraction` v3 schema contract ✅
+  - INF-006: `findCandidateRoutesByEmbedding`, `addRouteMatch`, `getRouteMatchesForPost`, `getRawPostsForRoute` query wrappers ✅
+  - See [Epic 03 RETRO](../epic-03-foundation-models-schema/RETRO.md) for production verification.
 - Epic 9: Community Sources — Ingestion (populates `route_posts_raw` with `PostExtraction` artifacts)
 
 **Blocks:**

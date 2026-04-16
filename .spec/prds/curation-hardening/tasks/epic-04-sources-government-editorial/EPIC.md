@@ -34,7 +34,7 @@ Epic 4 is the first full application of the [Crawl Plan Protocol](../CRAWL-PLAN-
 | SRC-006 | Rider Magazine 50 Best Roads | **Form A** — editorial HTML scrape | **Yes** | Small site (50 routes), high-stakes because the output becomes Epic 8 SCO-002's calibration ground truth — sloppy scraping here poisons Epic 8's calibration gate |
 | SRC-004 | adamfranco/curvature pre-computed output | **Form E** — file consumer | **Exempt** | Not a crawl; consumes a pre-computed file. Must still produce a small `.spec/prds/curation-hardening/crawl-plans/curvature_discovery/README.md` landing page pointing at the source file, per protocol convention |
 
-**Shared framework dependency:** SRC-001 and SRC-006 consume the `scripts/curation/pipeline/sources/crawl_plan/` framework module built in [BASE-009a](../epic-02-baseline-pipeline-validation/BASE-009a.md) and proven on BBR in [BASE-009b](../epic-02-baseline-pipeline-validation/BASE-009b.md). If BASE-009a/b have not landed, the framework does not exist yet and Epic 4 cannot begin. BASE-009b is a hard blocker for this epic — not an optional prerequisite.
+**Shared framework dependency:** SRC-001 and SRC-006 consume the `scripts/curation/pipeline/sources/crawl_plan/` framework module built in [BASE-009a](../epic-02-baseline-pipeline-validation/BASE-009a.md) and proven on BBR in [BASE-009b](../epic-02-baseline-pipeline-validation/BASE-009b.md). **✅ SATISFIED** — BASE-009a (framework + MR) and BASE-009b (BBR + baseline regeneration) completed 2026-04-14. The crawl_plan framework module is production-ready with 192 passing tests. See [Epic 02 RETRO](../epic-02-baseline-pipeline-validation/RETRO.md) for evidence.
 
 **Per-task acceptance criteria additions (MUST be present when task files are written):**
 
@@ -52,7 +52,7 @@ For SRC-004 (exempt):
 
 **Calibration gate cascade risk:** Rider Magazine 50 Best (SRC-006) is the upstream supplier of Epic 8's calibration ground truth. If SRC-006's crawl plan is sloppily executed or the verdict is softened to PASS WITH ISSUES, Epic 8's calibration gate becomes noise and the entire scoring-realignment work is compromised. Epic 4's protocol compliance is Epic 8's insurance policy. Do not proceed past SRC-006 without a PASS verdict on its crawl-report.md.
 
-**Note on BASE-009 references:** BASE-009 was split into BASE-009a (framework + MR) and BASE-009b (BBR + baseline regeneration) on 2026-04-13 evening for risk isolation. All references to "BASE-009" in Epic 4 task files should be read as "BASE-009a/b"; Epic 4 depends on BASE-009b (the final remediation task in Epic 2) being complete before any Epic 4 task starts. See `epic-02-baseline-pipeline-validation/DECISIONS.md` "Crawl Plan Protocol adoption" split sub-section.
+**Note on BASE-009 references:** BASE-009 was split into BASE-009a (framework + MR) and BASE-009b (BBR + baseline regeneration) on 2026-04-13 evening for risk isolation. All references to "BASE-009" in Epic 4 task files should be read as "BASE-009a/b"; Epic 4 depends on BASE-009b (the final remediation task in Epic 2) being complete before any Epic 4 task starts. **✅ COMPLETED 2026-04-14** — BASE-009a/b both complete. See `epic-02-baseline-pipeline-validation/DECISIONS.md` "Crawl Plan Protocol adoption" split sub-section and [Epic 02 RETRO](../epic-02-baseline-pipeline-validation/RETRO.md) for evidence.
 
 ---
 
@@ -61,7 +61,7 @@ For SRC-004 (exempt):
 After all 3 tasks are complete, an administrator should be able to run the full pipeline with these sources and verify:
 
 1. **Run Scenic Byways ingestion** — Execute `python -m scripts.curation.pipeline.sources.scenic_byways`. Verify `scenic_byways.jsonl` contains ~799 routes with `location` (GeoJSON Point), `name`, `state`, `designation`, `description`. Check runtime < 60s. Spot-check 10 routes for valid coordinates.
-2. **Verify reconciliation against existing FHWA** — Inspect the reconciliation log. Confirm the ~645 existing FHWA routes from Epic 2 baseline (BASE-000 DOT ArcGIS extract) are either merged (Koordinates GIS geometry preferred) or flagged for manual review. No duplicates in final output.
+2. **Verify reconciliation against existing FHWA** — Inspect the reconciliation log. Confirm the ~645 existing FHWA routes from Epic 02 baseline (BASE-000) AND the ~2,084 MotorcycleRoads + ~2,817 BestBikingRoads routes from Epic 03 are correctly reconciled. Scenic Byways GIS geometry should be preferred on overlap. No duplicates in final output.
 3. **Run Rider Magazine ingestion** — Execute `python -m scripts.curation.pipeline.sources.rider_mag`. Verify all 50 routes are ingested, each tagged `ground_truth=true`, `ground_truth_source="rider_magazine_50_best"`, with editorial descriptions preserved.
 4. **Run curvature discovery** — Execute `python -m scripts.curation.pipeline.sources.curvature_discovery`. Verify top 5% curvature roads are extracted from pre-computed adamfranco/curvature output. Verify routes already in catalog (by name+state) are excluded from candidates. Verify all surfaced candidates have `primary_archetype="twisties"` and populated `curvature_score`.
 5. **Run Haiku extraction on new routes** — Pipe the Rider Mag descriptions + curvature candidates through `extraction/client.py`. Verify Pydantic schema compliance; Rider Mag routes should produce rich attribute extraction (Tail of the Dragon curvature high, scenery high); curvature-only routes may have thin extraction results.
@@ -91,7 +91,7 @@ All 10 verifications must pass. If a source crashes, debug and fix before procee
 - [ ] New routes visible in mobile app discovery
 - [ ] Curation Review Protocol executed with PASS verdict
 - [ ] `review.md` + updated `baseline/catalog.jsonl` committed
-- [ ] Catalog diff vs Epic 3 baseline shows expected growth (~1100-2500 new routes)
+- [ ] Catalog diff vs Epic 03 baseline shows expected growth (~450-1850 net-new routes after reconciliation: 799 Scenic Byways - ~645 FHWA overlap + 50 Rider Mag + 250-1650 curvature candidates)
 
 ---
 

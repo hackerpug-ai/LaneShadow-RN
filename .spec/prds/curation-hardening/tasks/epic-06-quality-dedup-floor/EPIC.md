@@ -39,7 +39,7 @@ The old `field_provenance` / `merged_at` / `merge_count` fields and the `route_m
 
 After all 5 tasks are complete, an administrator should be able to:
 
-1. **Verify Epic 3 backfill complete** — Query Convex: confirm all `curated_routes` have non-null `searchEmbedding` (length 1536). Any route missing an embedding must be re-embedded before dedup runs.
+1. **Verify Epic 3 backfill complete** — ✅ **PASS CONDITION** — Epic 03 completed 2026-04-15 with all 5,608 routes embedded (1536-dim vectors). Verify: `npx convex run --prod semanticSearch:getRoutesNeedingEmbedding '{"incremental": false, "limit": 1}'` returns 0 routes needing embedding.
 2. **Run semantic dedup** — Execute `python -m scripts.curation.pipeline.dedup.semantic_deduplicator`. Verify logged counts at the end of the run: `auto-merge (cosine > 0.92)`, `arbitration queue (0.75 ≤ cosine ≤ 0.92)`, `new routes (cosine < 0.75)`. Confirm runtime under 15 minutes for the full catalog.
 3. **Run LLM arbitration batch** — Execute `python -m scripts.curation.pipeline.dedup.llm_arbitrator`. Verify it consumes the arbitration queue, calls Claude Haiku 4.5 on each pair, and updates `route_matches.isArbitrated = true` with `arbitrationNotes`. Inspect per-batch LLM cost in the run log.
 4. **Inspect route_matches audit table** — Open the Convex dashboard, open `route_matches`. Spot-check 10 random rows: each should have `matchConfidence`, `cosineSimilarity`, `matchReasoning`, and a valid `routeId`. Verify arbitrated rows have non-null `arbitrationNotes`.
@@ -98,7 +98,7 @@ All 11 verifications must pass.
 
 ### Task Summaries
 
-- **QUAL-001: Semantic Deduplication Engine** — For each `curated_route`, call `findCandidateRoutesByEmbedding` (Epic 3 INF-006) to fetch the top-10 nearest neighbors by cosine similarity. Auto-merge when similarity > 0.92. Queue 0.75–0.92 pairs for LLM arbitration in QUAL-002. Create separate routes below 0.75. Merge using the source priority order (FHWA > Scenic Byways > Rider Mag > motorcycleroads > BBR > curvature_discovery). Append reconciliation entries to `curated_routes.llmReconciliationLog` and audit rows to `route_matches` via the `addRouteMatch` mutation. Cost target: ~$0 (pure vector retrieval; LLM arbitration is QUAL-002's budget).
+- **QUAL-001: Semantic Deduplication Engine** — For each `curated_route`, call `findCandidateRoutesByEmbedding` (Epic 3 INF-006) to fetch the top-10 nearest neighbors by cosine similarity. Auto-merge when similarity > 0.92. Queue 0.75–0.92 pairs for LLM arbitration in QUAL-002. Create separate routes below 0.75. Merge using the source priority order (FHWA > Scenic Byways > Rider Mag > motorcycleroads > BBR > curvature_discovery). Append reconciliation entries to `curated_routes.llmReconciliationLog` and audit rows to `route_matches` via the `addRouteMatch` mutation. Cost target: ~$0 (pure vector retrieval; LLM arbitration is QUAL-002's budget). **NOTE**: INF-006 completed in Epic 03 — `findCandidateRoutesByEmbedding` is production-ready and has been verified against 5,608 embedded routes.
 
 - **QUAL-002: LLM Arbitration Batch Runner** — Consume the arbitration queue (cosine similarity 0.75–0.92) produced by QUAL-001. Send batched `(route_a, route_b)` pairs to Claude Haiku 4.5 with a "same road?" decision prompt. On a positive decision, merge the pair using the same source priority rules and append to `llmReconciliationLog`. Update `route_matches.isArbitrated = true` and `arbitrationNotes` with the LLM's stated reasoning. Track per-batch LLM cost in the run ledger.
 
@@ -113,10 +113,11 @@ All 11 verifications must pass.
 ## Dependencies
 
 **Depends On:**
-- Epic 3: Foundation — Semantic Matching Infrastructure
-  - INF-003 (Convex vector index + `route_matches` + `route_posts_raw` tables)
-  - INF-004 (all curated routes backfilled with `searchEmbedding`)
-  - INF-006 (`findCandidateRoutesByEmbedding`, `addRouteMatch` query wrappers)
+- **✅ SATISFIED** — Epic 03 completed 2026-04-15:
+  - INF-003: Convex vector index + `route_matches` + `route_posts_raw` tables ✅
+  - INF-004: All 5,608 routes backfilled with `searchEmbedding` ✅
+  - INF-006: `findCandidateRoutesByEmbedding`, `addRouteMatch` query wrappers ✅
+  - See [Epic 03 RETRO](../epic-03-foundation-models-schema/RETRO.md) for verification evidence.
 - Epic 4: Source Diversification (catalog must contain the full merged source set before dedup)
 
 **Blocks:**
@@ -155,5 +156,6 @@ All 11 verifications must pass.
 - **Quality floor starts non-destructive** — QUAL-003 only writes `qualityTier`; no routes are rejected in this epic. Hard rejection (if ever wanted) belongs to a follow-up opt-in flag, not to the default pipeline.
 - **The allowlist mechanism** for manual overrides of quality tier is in scope for QUAL-003 — government data sources may lack rich descriptions but are authoritative and must not be marked `minimal` by default.
 - **The previously-planned `route_mentions` table and `field_provenance` / `merged_at` / `merge_count` fields are gone** — replaced by `route_matches` (audit log) and `llmReconciliationLog` (reconciliation summary on the route itself). See `../epic-03-foundation-models-schema/INF-003.md` for the schema contract.
+- **Epic 03 completion note**: The INF-003 schema contract referenced here is now deployed in production Convex. All 5,608 routes have populated `searchEmbedding` fields. Dedup can run against the full production catalog without requiring a re-embed. See [Epic 03 RETRO](../epic-03-foundation-models-schema/RETRO.md) for production verification evidence.
 - **Old QUAL task files (rapidfuzz cascade version)** are preserved in git history. Don't reference them from the new task files — they will be rewritten in a separate pass.
 - **Boy Scout rule applies** — if the dedup run surfaces a latent bug in the embedding pipeline (INF-004) or the query wrappers (INF-006), fix it as part of this epic and document in the close-out notes.
