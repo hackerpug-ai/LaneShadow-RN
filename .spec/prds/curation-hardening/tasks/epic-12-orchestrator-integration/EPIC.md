@@ -1,6 +1,6 @@
 # Epic 12: Pipeline Orchestrator & End-to-End Integration
 
-**Sequence:** 12 / 11  *(sequence number retained; Epic 5 gap from 2026-04-12 revision)*
+**Sequence:** 12 / 10  *(sequence numbers retained; gaps at 5 [deleted 2026-04-12] and 11 [deferred 2026-04-16])*
 **Priority:** P1
 **Status:** Backlog
 **Estimated Effort:** 120 minutes (~2 hours)
@@ -42,13 +42,14 @@ After the single task is complete, an administrator should be able to:
 7. **Verify report-gated push** — Data quality report exit code 1 (anomaly) should block Convex push. Test by injecting an anomaly and verifying push is skipped.
 8. **Verify resumability** — Kill the orchestrator mid-run (e.g., Ctrl-C during extraction). Re-run. Verify it can resume from the checkpoint without re-running completed stages.
 9. **Full pipeline timing** — Run full pipeline to completion. Verify total runtime is reasonable (< 2 hours for the full batch, given HPMS enrichment + calibration + extraction + dedup all running sequentially).
-10. **Mobile app final verification** — Open mobile app after full pipeline run. Verify:
-    - Catalog shows deduped routes (no duplicates)
-    - Surface filter works with OSM-sourced surface data (and GLM NLP fallback)
+10. **Convex field verification** — After full pipeline run, query Convex to verify all new data fields are present in the catalog. Verify:
+    - Deduped routes (no duplicates within same source)
+    - Surface data present on OSM-enriched routes (`surface` field)
     - Rider Mag routes in top 10 by score
-    - Community signals visible on detail sheet
-    - Quality tier badges appear on minimal routes
-    - Best months visible on detail sheet
+    - Community signals present (`sourceCount`, `mentionFrequency` on routes with community data)
+    - Quality tier assigned (`qualityTier` field on all routes)
+    - Best months present on weather-enriched routes (`bestMonths` field)
+    - All new optional fields are `undefined`-safe (no crashes on routes missing enrichment data)
 
 11. **Execute the Curation Review Protocol (FINAL RUN)** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. **ALL 13 protocol steps are now active, including Step 13 (orchestrator). Run once using individual stages, then once via `python -m scripts.curation.pipeline.orchestrator` — verify outputs are byte-identical.** Diff against every prior epic baseline to see the full journey: Epic 2 baseline → Epic 12 final. **Produce a final initiative close-out `review.md` capturing the full journey: route count evolution, score distribution evolution, top-10 routes evolution, dedup merge counts, calibration gate history, cost totals, regressions found + fixed.** This review.md is the final artifact of the Curation Pipeline Hardening initiative. Verdict PASS is required to close the initiative.
 
@@ -68,7 +69,7 @@ All 11 verifications must pass. This is the final validation of the entire Curat
 - [ ] Report-gated Convex push (data quality report exit code must be 0)
 - [ ] Full pipeline runs end-to-end without manual intervention
 - [ ] Catalog in Convex reflects all hardening outputs
-- [ ] Mobile app displays correctly against final catalog
+- [ ] All new data fields (surface, qualityTier, bestMonths, description, rating, sourceCount, mentionFrequency, weatherSuitability) queryable from Convex
 
 ---
 
@@ -83,7 +84,7 @@ All 11 verifications must pass. This is the final validation of the entire Curat
 
 | ID | Title | Type | Agent | Priority | Effort | Est. Min | Depends On | Blocks |
 |----|-------|------|-------|----------|--------|----------|------------|--------|
-| INF-004 | Pipeline Orchestrator — Single Entry Point | INFRA | python-implement | P1 | M | 120 | All Epic 4-10 tasks | — |
+| INF-012 | Pipeline Orchestrator — Single Entry Point | INFRA | python-implement | P1 | M | 120 | All Epic 4-10 tasks | — |
 
 **Total Tasks:** 1
 **Total Estimated Effort:** 120 minutes (~2 hours)
@@ -108,14 +109,14 @@ All 11 verifications must pass. This is the final validation of the entire Curat
 
 ## Definition of Done
 
-- [ ] INF-004 task file written and merged
+- [ ] INF-012 task file written and merged
 - [ ] Task moved to `Done`
 - [ ] Full pipeline runs end-to-end in one command
 - [ ] Total runtime < 2 hours
 - [ ] All quality gates enforced (calibration, coverage, data quality)
 - [ ] Report-gated Convex push verified
 - [ ] Resumability verified (kill + resume)
-- [ ] Mobile app verified against final catalog
+- [ ] Convex field verification passed (all new enrichment fields present and queryable)
 - [ ] Curation Review Protocol executed (BOTH stage-by-stage AND via orchestrator — outputs identical)
 - [ ] Final initiative close-out `review.md` committed documenting full journey (Epic 2 → Epic 12)
 - [ ] All 12 epics moved to `Done`

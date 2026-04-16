@@ -1,5 +1,7 @@
 # Task Index: LaneShadow
 
+> Deprecated: `.spec/tasks/` is legacy storage only. Active task execution now lives in each PRD folder at `.spec/prd/{feature-name}/tasks/`.
+
 > Generated: 2026-04-02
 > PRD: .spec/prd/ROADMAP.md
 > Total Epics: 3 active (Epic 4 complete, Epics 5-6 ready)

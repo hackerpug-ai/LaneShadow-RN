@@ -7,6 +7,7 @@
 **Revised:** 2026-04-12 — Epic 2 BASE-001 decomposed from a single 240-min task into 8 smaller tasks (BASE-001..008) for parallelization and context-window manageability. Original file preserved at `epic-02-baseline-pipeline-validation/BASE-001.md.archived`.
 **Revised:** 2026-04-13 — Epic 2 BASE-000 inserted as Wave 0 data-prep prerequisite after `/kb-run-epic` preflight revealed the FHWA input CSV did not exist and the canonical DOT ArcGIS source returns 645 routes (not the 184 the PRD originally assumed). Curation-hardening PRD docs updated to reflect the ~645-route superset reality. See `epic-02-baseline-pipeline-validation/DECISIONS.md`.
 **Revised:** 2026-04-13 (evening) — BASE-009 inserted as Epic 2 Wave 6 remediation task. [`tasks/CRAWL-PLAN-PROTOCOL.md`](./CRAWL-PLAN-PROTOCOL.md) adopted as mandatory pre-extraction gate for all source tasks (Forms A/B/C/D; Form E pre-computed file consumers exempt). New pipeline principle **P6** added to `00-overview.md` ("Committed crawl plan before extraction at scale"). Step 1 of `CURATION-REVIEW-PROTOCOL.md` upgraded to require a committed verdict-PASS `crawl-report.md` per in-scope source. See `epic-02-baseline-pipeline-validation/DECISIONS.md` "Crawl Plan Protocol adoption" for the full rationale.
+**Revised:** 2026-04-16 — Epic 11 (Mobile UI — New Field Display) deferred to native-rewrite PRD (`.spec/prds/native-rewrite/07-native-app-backlog.md`). Client transitioning to native Kotlin/Swift; React Native UI work would be throwaway. Pipeline still produces all data fields — only the consumption layer is deferred. Task count 45→41, epics 11→10. Path references updated from `convex/` to `server/convex/` for parallel execution with native-rewrite restructure.
 **PRD:** [`.spec/prds/curation-hardening/README.md`](../README.md)
 **Appetite:** 7 weeks (including Week 0 validation)
 
@@ -16,12 +17,12 @@
 
 | Metric | Value |
 |--------|-------|
-| **Total Epics** | 11 (Epic 5 deleted; sequence numbers preserved — gap from 4 → 6) |
-| **Total Tasks** | 45 (Epic 2 expanded from 1 → 11 across 2026-04-12 decomposition + 2026-04-13 AM BASE-000 insertion + 2026-04-13 PM BASE-009 Crawl Plan Protocol remediation split into BASE-009a + BASE-009b) |
+| **Total Epics** | 10 (Epic 5 deleted; Epic 11 deferred 2026-04-16 to native-rewrite; sequence numbers preserved — gaps at 5 and 11) |
+| **Total Tasks** | 41 (Epic 2 expanded from 1 → 11 across 2026-04-12 decomposition + 2026-04-13 AM BASE-000 insertion + 2026-04-13 PM BASE-009 Crawl Plan Protocol remediation split into BASE-009a + BASE-009b; Epic 11's 4 DESIGN tasks deferred 2026-04-16) |
 | **Full-Detail Task Files** | 15 (Epic 1: 4 VAL tasks; Epic 2: 11 BASE tasks) |
-| **Stub Tasks** | 30 (Epics 3-4, 6-12) |
-| **PRD Coverage** | 100% of 16 surviving use cases + cross-priority infra |
-| **Estimated Effort** | ~6355 minutes (~105.9 hours total) — round-1 Epic 2 decomposition preserved the 240-min total; round-2 (2026-04-13 AM) added 90 min for BASE-000 data prep; round-3 (2026-04-13 PM) added 480 min for BASE-009 Crawl Plan Protocol remediation; round-4 (2026-04-13 PM) split BASE-009 into BASE-009a (270 min) + BASE-009b (300 min), adding 90 min of split overhead for risk isolation; round-5 (2026-04-13 PM, later same evening) revised BASE-009a upward to 330 min after Phase 0 recon corrected the MR route universe from 300-1000 to ~2,044 routes (see `epic-02-baseline-pipeline-validation/DECISIONS.md` "Phase 0 recon findings") |
+| **Stub Tasks** | 26 (Epics 3-4, 6-10, 12) |
+| **PRD Coverage** | 100% of 16 surviving use cases + cross-priority infra (mobile UI consumption deferred to native-rewrite) |
+| **Estimated Effort** | ~6010 minutes (~100.2 hours total) — round-1 Epic 2 decomposition preserved the 240-min total; round-2 (2026-04-13 AM) added 90 min for BASE-000 data prep; round-3 (2026-04-13 PM) added 480 min for BASE-009 Crawl Plan Protocol remediation; round-4 (2026-04-13 PM) split BASE-009 into BASE-009a (270 min) + BASE-009b (300 min), adding 90 min of split overhead for risk isolation; round-5 (2026-04-13 PM, later same evening) revised BASE-009a upward to 330 min after Phase 0 recon corrected the MR route universe from 300-1000 to ~2,044 routes; round-6 (2026-04-16) subtracted 345 min for deferred Epic 11 (DESIGN-008..011) |
 
 ### Task Quality
 
@@ -37,7 +38,7 @@
 1. **Start with Epic 1** — Run `/kb-run-epic epic-01-week0-validation`. This executes all 4 Week 0 validation spikes. No code is written beyond the validation pilot directories.
 2. **Gate on Week 0 report** — Before proceeding to Epic 2, review `results.json` / `verification_report.json` / `feasibility_report.json` from each VAL task. Any FAIL requires remediation or descope.
 3. **Run Epic 2 (Baseline Validation)** — Validate the EXISTING curation pipeline works end-to-end before adding hardening.
-4. **Sequential epic execution** — Epics 3-12 depend on earlier epics (see dependency graph below). Most tasks within an epic can run in parallel.
+4. **Sequential epic execution** — Epics 3-4, 6-10, 12 depend on earlier epics (see dependency graph below). Most tasks within an epic can run in parallel. Epic 11 (Mobile UI) has been deferred to the native-rewrite PRD.
 5. **Write task files just-in-time** — When an epic enters active development, generate full task files from the stubs via `/kb-project-plan` targeted at that epic.
 6. **Every epic runs the full curation pipeline** — Per the [Curation Review Protocol](./CURATION-REVIEW-PROTOCOL.md), NO epic is marked Done until the full pipeline (every curation script available at that epic boundary) has been executed, the catalog diffed against the prior epic baseline, landmark spot checks pass, and a `review.md` artifact is committed with verdict PASS. The protocol scales — Epic 1 runs a minimal subset, Epic 12 runs everything.
 
@@ -57,8 +58,8 @@
 | 8 | Add step 2 (HPMS + NWS) + step 5 (calibration gate) | First calibrated run |
 | 9 | Same as Epic 8 (community staging only, no curated_routes impact) | Regression check |
 | 10 | Add step 9 (NLP + signal merge) | First NLP run |
-| 11 | Same as Epic 10 + mobile smoke test | Consumer-side only |
-| 12 | ALL 13 steps + orchestrator | Final initiative close-out |
+| ~~11~~ | — | *Deferred 2026-04-16 to native-rewrite PRD (React Native UI → native Kotlin/Swift)* |
+| 12 | ALL 13 steps + orchestrator + Convex field verification | Final initiative close-out |
 
 **Runtime budget grows per epic.** Epic 2 review may take ~30 minutes. Epic 12 review may take 2+ hours. Cache aggressively (OSM cache, NLP extraction cache, HPMS spatial join cache).
 
@@ -100,7 +101,7 @@
 | 8 | Scoring & Calibration | [epic-08-scoring-calibration/](./epic-08-scoring-calibration/) | 6 | P1 | Realign weights, calibration gate, extraction audit |
 | 9 | Community Sources — Ingestion | [epic-09-community-ingestion/](./epic-09-community-ingestion/) | 3 | P2 | Run ADVRider/Reddit/Pushshift ingest, verify staging |
 | 10 | Community NLP & Signal Merge | [epic-10-community-nlp-signals/](./epic-10-community-nlp-signals/) | 4 | P2 | Run NLP extraction, see mention_frequency in scores |
-| 11 | Mobile UI — New Field Display | [epic-11-mobile-ui-fields/](./epic-11-mobile-ui-fields/) | 4 | P1 | Open app, see surface/bestMonths/community signals |
+| ~~11~~ | ~~Mobile UI — New Field Display~~ | *deferred 2026-04-16 to [native-rewrite PRD](../../native-rewrite/07-native-app-backlog.md)* | ~~4~~ | — | *React Native UI deferred; client transitioning to native Kotlin/Swift* |
 | 12 | Pipeline Orchestrator & E2E Integration | [epic-12-orchestrator-integration/](./epic-12-orchestrator-integration/) | 1 | P1 | Run one command, entire pipeline runs end-to-end |
 
 ---
@@ -119,39 +120,40 @@ Epic 1: Week 0 Validation (VAL-001..004)
                     Epic 3: Foundation
                     (INF-001..007, INF-011)
                             │
-           ┌────────────────┼─────────────┐
-           ▼                ▼             ▼
-    Epic 4: SRC        Epic 11: Mobile    (Epic 5 deleted)
-    (Gov + Editorial   UI Display
-     + Geometric)      (DESIGN-008..011)
-    SRC-001, 006, 004
-           │
-           ▼
-    Epic 6: Quality Dedup + Floor
-    (QUAL-001, QUAL-002)
-           │
-           ▼
-    Epic 7: Quality Reports
-    (QUAL-003, QUAL-004)
-           │
-           ▼
-    Epic 8: Scoring & Calibration
-    (INF-008, 009, SCO-001..004)
-           │
-           ▼
-    Epic 9: Community Ingestion
-    (RID-001, 002, 006)
-           │
-           ▼
-    Epic 10: Community NLP + Signals
-    (RID-003, 005, 004)
-           │
-           ▼
-    Epic 12: Orchestrator & E2E
-    (INF-012)
+                    ┌───────┴───────┐
+                    ▼               ▼
+             Epic 4: SRC      (Epic 5 deleted)
+             (Gov + Editorial
+              + Geometric)
+             SRC-001, 006, 004
+                    │
+                    ▼
+             Epic 6: Quality Dedup + Floor
+             (QUAL-001, QUAL-002)
+                    │
+                    ▼
+             Epic 7: Quality Reports
+             (QUAL-003, QUAL-004)
+                    │
+                    ▼
+             Epic 8: Scoring & Calibration
+             (INF-008, 009, SCO-001..004)
+                    │
+                    ▼
+             Epic 9: Community Ingestion
+             (RID-001, 002, 006)
+                    │
+                    ▼
+             Epic 10: Community NLP + Signals
+             (RID-003, 005, 004)
+                    │
+                    ▼
+             Epic 12: Orchestrator & E2E
+             (INF-012)
 ```
 
 *Dropped from graph 2026-04-12: SRC-002 (BDR), SRC-003 (twtex), SRC-005 (USFS MVUM). Epic 5 deleted entirely.*
+*Deferred from graph 2026-04-16: Epic 11 (Mobile UI) deferred to native-rewrite PRD.*
 
 ---
 
@@ -167,7 +169,7 @@ Epic 1: Week 0 Validation (VAL-001..004)
 | Epic 8 INF-008/009 parallel → SCO-001/002 → SCO-003/004 | Partial parallel | Enrichment first, then scoring |
 | Epic 9 RID-001/002 parallel → RID-006 | Sequential after RID-002 | Pushshift depends on Reddit schema |
 | Epic 10 RID-003 → RID-004 → RID-005/INF-010 | Mostly sequential | NLP pipeline chain |
-| Epic 11 DESIGN-011 → DESIGN-008/009 → DESIGN-010 | Mostly parallel | Schema first, then UI |
+| ~~Epic 11~~ | *Deferred 2026-04-16* | *React Native UI work moved to native-rewrite PRD* |
 
 ---
 
@@ -274,14 +276,18 @@ QUAL-003 (Coverage Report) and QUAL-004 (Data Quality Report) were absorbed into
 
 *Note 2026-04-14: Old INF-010 (GitHub Actions Community Ingest Cron Workflow) was removed during the semantic matching pivot — scheduling now belongs to Epic 12 Orchestrator. Effort dropped ~40% vs the old two-stage GLM plan because custom NLP (sentiment classifier, aspect scorer, attribute detector) is now folded into the single Claude Haiku 4.5 call at the Epic 9 ingestion boundary (PostExtraction contract, Epic 3 INF-005).*
 
-### Epic 11: Mobile UI — New Field Display (STUBS)
+### Epic 11: Mobile UI — New Field Display (DEFERRED 2026-04-16)
 
-| Task ID | Title | Agent | Effort | Est. Min |
-|---------|-------|-------|--------|----------|
-| DESIGN-008 | RouteDiscoveryCard: Surface type badge, best months, and quality tier display | frontend-designer | M | 120 |
-| DESIGN-009 | Discovery surface-type filter chip in DiscoveryFilterBar | frontend-designer | S | 75 |
-| DESIGN-010 | RouteDetailsSheet: description, best months, and community signals section | frontend-designer | M | 90 |
-| DESIGN-011 | Lean sync schema extension: surface, bestMonths, qualityTier in local SQLite | frontend-designer | S | 60 |
+**Deferred to native-rewrite PRD:** `.spec/prds/native-rewrite/07-native-app-backlog.md`
+
+The client is transitioning from React Native to native Kotlin (Android) + Swift (iOS). React Native UI work would be throwaway. The pipeline still produces all data fields (surface, qualityTier, bestMonths, etc.) — only the consumption layer is deferred.
+
+| Task ID | Title | Agent | Effort | Est. Min | Status |
+|---------|-------|-------|--------|----------|--------|
+| ~~DESIGN-008~~ | ~~RouteDiscoveryCard: Surface type badge, best months, and quality tier display~~ | ~~frontend-designer~~ | ~~M~~ | ~~120~~ | Deferred |
+| ~~DESIGN-009~~ | ~~Discovery surface-type filter chip in DiscoveryFilterBar~~ | ~~frontend-designer~~ | ~~S~~ | ~~75~~ | Deferred |
+| ~~DESIGN-010~~ | ~~RouteDetailsSheet: description, best months, and community signals section~~ | ~~frontend-designer~~ | ~~M~~ | ~~90~~ | Deferred |
+| ~~DESIGN-011~~ | ~~Lean sync schema extension: surface, bestMonths, qualityTier in local SQLite~~ | ~~frontend-designer~~ | ~~S~~ | ~~60~~ | Deferred |
 
 ### Epic 12: Orchestrator & E2E (STUBS)
 
@@ -308,10 +314,10 @@ QUAL-003 (Coverage Report) and QUAL-004 (Data Quality Report) were absorbed into
 | S5 UC-QUAL-01..04 | QUAL-001..004 |
 | S6 UC-SCORE-01..04 | SCO-001..004, INF-008, INF-009 |
 | S7 UC-RIDER-01..06 | RID-001..006 |
-| S9 Technical Requirements | INF-001..010, DESIGN-008..011 |
+| S9 Technical Requirements | INF-001..010, ~~DESIGN-008..011~~ *(deferred to native-rewrite)* |
 | Predecessor PRD Baseline | BASE-000..008 (Epic 2 — 9 tasks covering FHWA data fetch, pipeline validation, and curation review protocol execution) |
 
-**Coverage:** 100% of the 16 surviving PRD use cases + baseline validation + mobile UI extensions. (Down from 19 use cases after the 3 dropped SRC UCs.)
+**Coverage:** 100% of the 16 surviving PRD use cases + baseline validation. (Down from 19 use cases after the 3 dropped SRC UCs. Mobile UI consumption layer deferred to native-rewrite PRD.)
 
 ---
 
@@ -355,7 +361,7 @@ cat .spec/prds/curation-hardening/tasks/epic-01-week0-validation/VAL-001.md
 
 ## Notes
 
-- **Sequential chains**: Epic 1 → Epic 2 → Epic 3 → Epic 4 → Epic 6 → Epic 7 → Epic 8 → Epic 9 → Epic 10 → Epic 12. Epic 11 can start in parallel with Epic 4 once Epic 3 is done. *(Epic 5 deleted 2026-04-12.)*
+- **Sequential chains**: Epic 1 → Epic 2 → Epic 3 → Epic 4 → Epic 6 → Epic 7 → Epic 8 → Epic 9 → Epic 10 → Epic 12. *(Epic 5 deleted 2026-04-12. Epic 11 deferred 2026-04-16 to native-rewrite PRD.)*
 - **Human test philosophy**: Every epic's human tests exercise the pipeline end-to-end via the [Curation Review Protocol](./CURATION-REVIEW-PROTOCOL.md). The user hasn't run the existing curation logic before, so Epic 2 establishes the baseline truth before hardening begins.
 - **Curation review is non-optional**: every epic runs all available curation scripting, diffs the catalog against the prior baseline, and writes a `review.md` before being marked Done. No epic proceeds without a green review.
 - **Stub tasks**: Epics 3-4, 6-12 contain stub-level task references only. Full TASK-TEMPLATE v4.0 files for these epics will be generated as each epic enters active development, to avoid context window bloat at planning time.

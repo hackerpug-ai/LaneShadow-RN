@@ -16,6 +16,7 @@ module.exports = defineConfig([
     '.expo/*',
     'convex/_generated/*',
     '.claude/worktrees/**',
+    '.worktrees/**',
     'scripts/curation/venv/**',
     'scripts/curation/.venv/**',
     'scripts/curation/pipeline/nlp/pilot/venv/**',
