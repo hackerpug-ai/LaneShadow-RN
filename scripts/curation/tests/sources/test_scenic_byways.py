@@ -2,11 +2,19 @@
 
 from __future__ import annotations
 
+import json
+
 from scripts.curation.pipeline.sources.scenic_byways import (
+    AUDIT_PATH,
     _load_fhwa_routes,
-    _load_feature_records,
-    _route_from_feature,
+    _load_inventory,
+    _load_manifest,
+    _load_selectors,
+    _extract_feature,
+    _resolve_fixture_path,
+    _route_from_extracted,
     load_routes,
+    main,
     reconcile_with_fhwa,
 )
 
@@ -27,9 +35,25 @@ def test_scenic_byways_ingest_emits_required_metadata() -> None:
         assert route.source_label == "America's Byways"
         assert route.source_url
 
+    output = main()
+    assert output.is_file()
+    assert AUDIT_PATH.is_file()
+    audit = json.loads(AUDIT_PATH.read_text(encoding="utf-8"))
+    assert audit["inventory_size"] == 3
+    assert audit["written"] == 3
+
 
 def test_scenic_byways_prefers_gis_geometry_on_fhwa_overlap() -> None:
-    scenic_routes = [_route_from_feature(feature) for feature in _load_feature_records()]
+    manifest = _load_manifest()
+    selectors = _load_selectors()
+    scenic_routes = []
+    for row in _load_inventory():
+        fixture_path = _resolve_fixture_path(row, manifest)
+        payload = json.loads(fixture_path.read_text(encoding="utf-8"))
+        extracted = _extract_feature(payload, selectors, row["canonical_url"])
+        extracted["length_miles"] = payload.get("length_miles")
+        extracted["source_refs"] = payload.get("source_refs", [])
+        scenic_routes.append(_route_from_extracted(extracted))
     fhwa_routes = _load_fhwa_routes()
     reconciled = reconcile_with_fhwa(scenic_routes, fhwa_routes)
 

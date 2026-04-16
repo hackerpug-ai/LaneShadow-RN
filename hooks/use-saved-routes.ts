@@ -8,6 +8,7 @@ import { getUserFacingError } from '../lib/convex-error'
 import { showErrorNotification, showSuccessNotification } from '../lib/notifier-helpers'
 import type {
   PlanInput,
+  RouteProvenance,
   RouteIndex,
   RouteSnapshot,
   SavedRouteDetailView,
@@ -23,6 +24,7 @@ type SaveRouteArgs = {
   routeSnapshot: RouteSnapshot
   routeIndex: RouteIndex
   snapshotMeta: SnapshotMeta
+  routeProvenance?: RouteProvenance
 }
 
 type SavedRoutesListArgs = {

@@ -6,6 +6,7 @@ import {
   planInputValidator,
   routeIndexValidator,
   routePreviewValidator,
+  routeProvenanceValidator,
   routeSnapshotValidator,
   savedRouteCapabilitiesValidator,
   savedRouteValidator,
@@ -140,6 +141,7 @@ export const insertHandler = async (
     routeSnapshot: SavedRoute['routeSnapshot']
     routeIndex: SavedRoute['routeIndex']
     snapshotMeta: SavedRoute['snapshotMeta']
+    routeProvenance?: SavedRoute['routeProvenance']
   },
   clerkUserId: string
 ): Promise<{ savedRouteId: Id<'saved_routes'> }> => {
@@ -163,6 +165,7 @@ export const insertHandler = async (
     routeSnapshot: args.routeSnapshot,
     routeIndex: args.routeIndex,
     snapshotMeta: args.snapshotMeta,
+    routeProvenance: args.routeProvenance,
     createdAt: now,
     updatedAt: now,
   })
@@ -264,6 +267,7 @@ export const insert = internalMutation({
     routeSnapshot: routeSnapshotValidator,
     routeIndex: routeIndexValidator,
     snapshotMeta: snapshotMetaValidator,
+    routeProvenance: v.optional(routeProvenanceValidator),
   },
   returns: v.object({ savedRouteId: v.id('saved_routes') }),
   handler: async (ctx, args) => {
@@ -367,13 +371,14 @@ export const getSavedRoutesList = query({
   },
 })
 
-const savedRouteDetailViewValidator = v.object({
+export const savedRouteDetailViewValidator = v.object({
   savedRouteId: v.string(),
   name: v.string(),
   planInput: planInputValidator,
   routeSnapshot: routeSnapshotValidator,
   routeIndex: routeIndexValidator,
   snapshotMeta: snapshotMetaValidator,
+  routeProvenance: v.optional(routeProvenanceValidator),
   capabilities: savedRouteCapabilitiesValidator,
 })
 
@@ -397,6 +402,7 @@ export const getSavedRouteDetail = query({
       routeSnapshot: savedRoute.routeSnapshot,
       routeIndex: savedRoute.routeIndex,
       snapshotMeta: savedRoute.snapshotMeta,
+      routeProvenance: savedRoute.routeProvenance,
       capabilities: defaultCapabilities,
     }
   },
@@ -409,6 +415,7 @@ export const saveRoute = mutation({
     routeSnapshot: routeSnapshotValidator,
     routeIndex: routeIndexValidator,
     snapshotMeta: snapshotMetaValidator,
+    routeProvenance: v.optional(routeProvenanceValidator),
   },
   returns: v.object({ savedRouteId: v.string() }),
   handler: async (

@@ -349,6 +349,14 @@ export const snapshotMetaValidator = v.object({
 })
 export type SnapshotMeta = Infer<typeof snapshotMetaValidator>
 
+export const routeProvenanceValidator = v.object({
+  sourceLabel: v.optional(v.string()),
+  designation: v.optional(v.string()),
+  description: v.optional(v.string()),
+  sourceUrl: v.optional(v.string()),
+})
+export type RouteProvenance = Infer<typeof routeProvenanceValidator>
+
 export const savedRouteCapabilitiesValidator = v.object({
   canRead: v.boolean(),
   canRename: v.boolean(),
@@ -374,6 +382,7 @@ export const savedRouteValidator = v.object({
   routeSnapshot: routeSnapshotValidator,
   routeIndex: routeIndexValidator,
   snapshotMeta: snapshotMetaValidator,
+  routeProvenance: v.optional(routeProvenanceValidator),
   createdAt: v.number(),
   updatedAt: v.number(),
   deletedAt: v.optional(v.number()),

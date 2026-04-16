@@ -5,6 +5,7 @@ import {
   CURATED_ROUTE_SOURCE,
   curatedRouteValidator,
 } from '../../../models/curated-routes';
+import { savedRouteDetailViewValidator } from '../../../convex/db/savedRoutes';
 
 // Mock console methods before importing
 const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -107,6 +108,7 @@ describe('Map Data Actions', () => {
       expect(curatedRouteValidator.fields.designation).toBeDefined();
       expect(curatedRouteValidator.fields.description).toBeDefined();
       expect(curatedRouteValidator.fields.location).toBeDefined();
+      expect(savedRouteDetailViewValidator.fields.routeProvenance).toBeDefined();
     });
   });
 });

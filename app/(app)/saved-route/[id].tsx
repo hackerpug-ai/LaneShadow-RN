@@ -131,14 +131,7 @@ const SavedRouteDetailScreen = () => {
   const totalDuration = data.routeSnapshot.legs.reduce((s, l) => s + l.durationSeconds, 0)
   const legsCount = data.routeSnapshot.legs.length
   const annotations = data.routeSnapshot.annotations
-  const routeProvenance = (data as any).routeProvenance as
-    | {
-        sourceLabel?: string
-        designation?: string
-        description?: string
-        sourceUrl?: string
-      }
-    | undefined
+  const routeProvenance = data.routeProvenance
 
   return (
     <SafeAreaView

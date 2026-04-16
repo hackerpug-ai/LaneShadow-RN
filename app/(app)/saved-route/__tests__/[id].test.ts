@@ -198,14 +198,9 @@ const makeTemperatureOverlay = (tempC: number): TemperatureOverlay => ({
 const makeSavedRouteDetail = (
   overrides?: Partial<{
     overlays: RouteOverlays
-    routeProvenance: {
-      sourceLabel?: string
-      designation?: string
-      description?: string
-      sourceUrl?: string
-    }
+    routeProvenance: SavedRouteDetailView['routeProvenance']
   }>
-): SavedRouteDetailView & { routeProvenance?: { sourceLabel?: string; designation?: string; description?: string; sourceUrl?: string } } => ({
+): SavedRouteDetailView => ({
   savedRouteId: 'test-route-id',
   name: 'Morning Commute',
   planInput: {
