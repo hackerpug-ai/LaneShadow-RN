@@ -42,6 +42,15 @@ LaneShadow/
 | [07-native-app-backlog.md](./07-native-app-backlog.md) | Deferred route data display work | FEATURE_SPEC |
 | [08-design-system.md](./08-design-system.md) | Cross-platform token architecture, Style Dictionary, atomic components | FEATURE_SPEC |
 
+### Component Architecture (Atomic Design)
+
+| File | Purpose | Lines |
+|------|---------|-------|
+| [08a-atomic-component-catalog.md](./08a-atomic-component-catalog.md) | RN component inventory + atomic classification (170 components) | 686 |
+| [08b-android-component-map.md](./08b-android-component-map.md) | Android Compose architecture + composable signatures | 933 |
+| [08c-ios-component-map.md](./08c-ios-component-map.md) | iOS SwiftUI architecture + View signatures | 946 |
+| [08d-component-parity-spec.md](./08d-component-parity-spec.md) | Cross-platform parity guarantees + acceptance criteria | — |
+
 ### Core Use Cases (Native App)
 
 | File | UCs | Domain | Description |
