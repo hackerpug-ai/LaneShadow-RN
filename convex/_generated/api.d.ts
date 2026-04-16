@@ -94,6 +94,7 @@ import type * as migrations_deleteEmptyAssistantMessages from "../migrations/del
 import type * as queries_osm from "../queries/osm.js";
 import type * as seedGeospatialTest from "../seedGeospatialTest.js";
 import type * as semanticSearch from "../semanticSearch.js";
+import type * as types from "../types.js";
 import type * as users from "../users.js";
 
 import type {
@@ -189,6 +190,7 @@ declare const fullApi: ApiFromModules<{
   "queries/osm": typeof queries_osm;
   seedGeospatialTest: typeof seedGeospatialTest;
   semanticSearch: typeof semanticSearch;
+  types: typeof types;
   users: typeof users;
 }>;
 

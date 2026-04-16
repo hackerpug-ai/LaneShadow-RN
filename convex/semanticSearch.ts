@@ -456,6 +456,49 @@ export const getRouteMatchesForRoute = query({
 });
 
 // ---------------------------------------------------------------------------
+// Query: verifyEmbeddings
+// ---------------------------------------------------------------------------
+
+/**
+ * One-off query to verify embeddings in production.
+ * Confirms all routes have embeddings and checks dimensions.
+ */
+export const verifyEmbeddings = query({
+  args: {},
+  returns: v.object({
+    totalRoutes: v.number(),
+    withEmbedding: v.number(),
+    withoutEmbedding: v.number(),
+    sampleRoute: v.optional(v.object({
+      routeId: v.string(),
+      name: v.string(),
+      embeddingDimensions: v.number(),
+      hasEmbedding: v.boolean(),
+    })),
+  }),
+  handler: async (ctx) => {
+    const routes = await ctx.db.query("curated_routes").take(10000);
+
+    const withEmbedding = routes.filter(r => r.searchEmbedding && r.searchEmbedding.length > 0);
+    const withoutEmbedding = routes.filter(r => !r.searchEmbedding || r.searchEmbedding.length === 0);
+
+    const sample = withEmbedding[0];
+
+    return {
+      totalRoutes: routes.length,
+      withEmbedding: withEmbedding.length,
+      withoutEmbedding: withoutEmbedding.length,
+      sampleRoute: sample ? {
+        routeId: sample.routeId,
+        name: sample.name,
+        embeddingDimensions: sample.searchEmbedding?.length || 0,
+        hasEmbedding: !!sample.searchEmbedding,
+      } : undefined,
+    };
+  },
+});
+
+// ---------------------------------------------------------------------------
 // Query: getRoutesNeedingEmbedding
 // ---------------------------------------------------------------------------
 

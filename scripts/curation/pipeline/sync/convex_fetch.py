@@ -105,6 +105,8 @@ def fetch_routes_needing_embedding(
         "run",
         "semanticSearch:getRoutesNeedingEmbedding",
         args_json,
+        "--url",
+        base_url,
     ]
 
     logger.debug(f"Running: {' '.join(cmd)}")
