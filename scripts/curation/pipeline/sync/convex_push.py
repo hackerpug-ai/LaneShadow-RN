@@ -80,6 +80,7 @@ def _route_to_dict(route: Route) -> dict[str, Any]:
         "centroidLat": route.centroid_lat,
         "centroidLng": route.centroid_lng,
         "lengthMiles": route.length_miles,
+        "location": route.location,
         "boundsNeLat": route.bounds_ne_lat,
         "boundsNeLng": route.bounds_ne_lng,
         "boundsSwLat": route.bounds_sw_lat,
@@ -104,6 +105,7 @@ def _route_to_dict(route: Route) -> dict[str, Any]:
     _maybe_set(payload, route, "description", "description")
     _maybe_set(payload, route, "rating", "rating")
     _maybe_set(payload, route, "designation", "designation")
+    _maybe_set(payload, route, "source_label", "sourceLabel")
     _maybe_set(payload, route, "source_url", "sourceUrl")
     _maybe_set(payload, route, "source_refs", "sourceRefs")
     _maybe_set(payload, route, "highway_number", "highwayNumber")

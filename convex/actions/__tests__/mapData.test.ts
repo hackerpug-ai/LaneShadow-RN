@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { checkFreshnessWithAlertLogic } from '../mapData';
+import {
+  CURATED_ROUTE_SOURCE,
+  curatedRouteValidator,
+} from '../../../models/curated-routes';
+import { savedRouteDetailViewValidator } from '../../../convex/db/savedRoutes';
 
 // Mock console methods before importing
 const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -93,6 +98,17 @@ describe('Map Data Actions', () => {
         status: 'fresh',
         ageInDays: 5,
       });
+    });
+  });
+
+  describe('SRC-001 curated route contract widening', () => {
+    it('AC-4: scenic byways provenance survives contracts', () => {
+      expect(CURATED_ROUTE_SOURCE.SCENIC_BYWAYS).toBe('scenic_byways');
+      expect(curatedRouteValidator.fields.sourceLabel).toBeDefined();
+      expect(curatedRouteValidator.fields.designation).toBeDefined();
+      expect(curatedRouteValidator.fields.description).toBeDefined();
+      expect(curatedRouteValidator.fields.location).toBeDefined();
+      expect(savedRouteDetailViewValidator.fields.routeProvenance).toBeDefined();
     });
   });
 });

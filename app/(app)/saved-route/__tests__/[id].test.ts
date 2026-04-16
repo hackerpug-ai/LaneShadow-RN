@@ -42,7 +42,15 @@ const mockHookReturn: {
 
 vi.mock('react-native', () => ({
   ActivityIndicator: 'ActivityIndicator',
+  Platform: {
+    OS: 'ios',
+    select: (values: Record<string, unknown>) => values.ios ?? values.default,
+  },
   StyleSheet: { create: (s: Record<string, unknown>) => s },
+  TurboModuleRegistry: {
+    getEnforcing: () => ({}),
+    get: () => null,
+  },
   View: 'View',
 }))
 vi.mock('react-native-gesture-handler', () => ({
@@ -84,6 +92,9 @@ vi.mock('../../../../components/map/overlay-toggle', () => ({
 }))
 vi.mock('../../../../components/map/map-header-overlay', () => ({
   MapHeaderOverlay: 'MapHeaderOverlay',
+}))
+vi.mock('../../../../components/map', () => ({
+  MapboxMapView: 'MapboxMapView',
 }))
 vi.mock('../../../../components/map/map-view', () => ({
   MapViewWrapper: 'MapViewWrapper',
@@ -184,7 +195,12 @@ const makeTemperatureOverlay = (tempC: number): TemperatureOverlay => ({
   byLeg: [{ legIndex: 0, segments: [{ startMeters: 0, endMeters: 5000, level: 'warm', temperatureCelsius: tempC }] }],
 })
 
-const makeSavedRouteDetail = (overrides?: Partial<{ overlays: RouteOverlays }>): SavedRouteDetailView => ({
+const makeSavedRouteDetail = (
+  overrides?: Partial<{
+    overlays: RouteOverlays
+    routeProvenance: SavedRouteDetailView['routeProvenance']
+  }>
+): SavedRouteDetailView => ({
   savedRouteId: 'test-route-id',
   name: 'Morning Commute',
   planInput: {
@@ -223,6 +239,7 @@ const makeSavedRouteDetail = (overrides?: Partial<{ overlays: RouteOverlays }>):
     metaVersion: 1,
   },
   capabilities: { canRead: true, canRename: true, canDelete: true },
+  routeProvenance: overrides?.routeProvenance,
 })
 
 // ---------------------------------------------------------------------------
@@ -258,6 +275,32 @@ describe('AC1: Route detail screen data rendering', () => {
     const detail = makeSavedRouteDetail()
     expect(detail.routeSnapshot.annotations).toHaveLength(2)
     expect(detail.routeSnapshot.annotations[0].label).toBe('Scenic overlook')
+  })
+
+  it('AC-5: scenic byways detail renders provenance without new flow', async () => {
+    mockHookReturn.data = makeSavedRouteDetail({
+      routeProvenance: {
+        sourceLabel: "America's Byways",
+        designation: 'National Scenic Byway',
+        description: 'Drive through high desert and forests.',
+        sourceUrl: 'https://fhwaapps.fhwa.dot.gov/bywaysp/StateMaps/Show/byway/2059',
+      },
+    })
+    mockHookReturn.isLoading = false
+
+    let tree: renderer.ReactTestRenderer
+    await act(async () => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+
+    const provenance = tree!.root.findByProps({ testID: 'route-detail-provenance' })
+    expect(provenance).toBeTruthy()
+    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-source-label' }).props.children)
+      .toBe("America's Byways")
+    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-designation' }).props.children)
+      .toBe('National Scenic Byway')
+    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-description' }).props.children)
+      .toBe('Drive through high desert and forests.')
   })
 
   it('should format saved date from snapshotMeta.savedAt', () => {

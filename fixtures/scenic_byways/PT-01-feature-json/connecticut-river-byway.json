@@ -1,0 +1,18 @@
+{
+  "feature_id": "2487",
+  "name": "Connecticut River Byway",
+  "state": "New Hampshire / Vermont",
+  "designation": "National Scenic Byway",
+  "description": "New England's longest, most powerful river tells the story of clashing continental plates and glaciers, of Abenaki living on the land, and of colonial settlement among fields and forests.",
+  "length_miles": 500.0,
+  "location": {
+    "type": "Point",
+    "coordinates": [-72.5363, 43.7824]
+  },
+  "source_label": "America's Byways",
+  "source_url": "https://fhwaapps.fhwa.dot.gov/bywaysp/StateMaps/Show/byway/2487",
+  "source_refs": [
+    "https://fhwaapps.fhwa.dot.gov/bywaysp/StateMaps/Show/byway/2487",
+    "https://fhwaapps.fhwa.dot.gov/bywaysp/byway/2487/map"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "inventory_size": 3,
+  "processed": 3,
+  "written": 3,
+  "overlaps_reconciled": 3,
+  "required_fields": {
+    "name": 3,
+    "state": 3,
+    "location": 3,
+    "designation": 3,
+    "description": 3,
+    "source_label": 3
+  },
+  "status": "pass"
+}

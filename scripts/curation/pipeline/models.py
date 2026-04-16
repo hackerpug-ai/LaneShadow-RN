@@ -19,10 +19,11 @@ class Route:
     route_id: str
     name: str
     state: str
-    source: str  # "fhwa" | "motorcycleroads" | "bestbikingroads" | "bdr" | "editorial"
+    source: str  # "fhwa" | "scenic_byways" | "motorcycleroads" | "bestbikingroads" | "bdr" | "editorial"
     centroid_lat: float
     centroid_lng: float
     length_miles: Optional[float] = None
+    location: Optional[dict] = None
     bounds_ne_lat: Optional[float] = None
     bounds_ne_lng: Optional[float] = None
     bounds_sw_lat: Optional[float] = None
@@ -53,6 +54,7 @@ class Route:
     description: Optional[str] = None
     rating: Optional[float] = None                 # 0.0-5.0
     designation: Optional[str] = None              # "National Scenic Byway", "State Route", etc.
+    source_label: Optional[str] = None
     source_url: Optional[str] = None
     source_refs: list[str] = field(default_factory=list)
     highway_number: Optional[str] = None           # "US-129", "SR-28"

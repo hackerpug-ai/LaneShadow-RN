@@ -2,6 +2,7 @@ import type {
   PlanInput,
   PlanPreferences,
   RainSummary,
+  RouteProvenance,
   RouteIndex,
   RoutePreview,
   RouteSnapshot,
@@ -22,6 +23,7 @@ export type {
   RouteOverlays,
   RoutePreview,
   RouteSnapshot,
+  RouteProvenance,
   RouteStop,
   RouteStep,
   SavedRouteCapabilities,
@@ -61,6 +63,7 @@ export type SavedRouteDetailView = {
   routeSnapshot: RouteSnapshot
   routeIndex: RouteIndex
   snapshotMeta: SnapshotMeta
+  routeProvenance?: RouteProvenance
   capabilities: SavedRouteCapabilities
 }
 
