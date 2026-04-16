@@ -303,6 +303,52 @@ describe('AC1: Route detail screen data rendering', () => {
       .toBe('Drive through high desert and forests.')
   })
 
+  it('AC-4: Rider Magazine provenance stays in the existing detail card', async () => {
+    mockHookReturn.data = makeSavedRouteDetail({
+      routeProvenance: {
+        sourceLabel: 'Rider Magazine',
+        designation: 'Rider Magazine 50 Best Motorcycle Roads in America',
+        description: 'This legendary road follows California’s rugged coastline and offers world-class scenery and epic riding.',
+        sourceUrl: 'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-07-pacific-coast-highway',
+      },
+    })
+    mockHookReturn.isLoading = false
+
+    let tree: renderer.ReactTestRenderer
+    await act(async () => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+
+    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-source-label' }).props.children)
+      .toBe('Rider Magazine')
+    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-designation' }).props.children)
+      .toBe('Rider Magazine 50 Best Motorcycle Roads in America')
+    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-description' }).props.children)
+      .toContain('rugged coastline')
+    expect(JSON.stringify(tree!.toJSON())).not.toContain('ground_truth')
+    expect(JSON.stringify(tree!.toJSON())).not.toContain('alphabetical_by_state_order')
+  })
+
+  it('AC-5: Rider Magazine partial editorial data omits empty provenance rows cleanly', async () => {
+    mockHookReturn.data = makeSavedRouteDetail({
+      routeProvenance: {
+        sourceLabel: 'Rider Magazine',
+        sourceUrl: 'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-50-beartooth-highway',
+      },
+    })
+    mockHookReturn.isLoading = false
+
+    let tree: renderer.ReactTestRenderer
+    await act(async () => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+
+    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-source-label' }).props.children)
+      .toBe('Rider Magazine')
+    expect(tree!.root.findAllByProps({ testID: 'route-detail-provenance-designation' })).toHaveLength(0)
+    expect(tree!.root.findAllByProps({ testID: 'route-detail-provenance-description' })).toHaveLength(0)
+  })
+
   it('should format saved date from snapshotMeta.savedAt', () => {
     const detail = makeSavedRouteDetail()
     const formatted = formatSavedDate(detail.snapshotMeta.savedAt)
