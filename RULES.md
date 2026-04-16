@@ -34,6 +34,12 @@ When dispatching subagents for planning, review, or implementation, prefer these
 | `react-native-ui-planner` | Mobile planning | Expo, react-native-paper, mobile-specific patterns |
 | `react-native-ui-implementer` | Mobile implementation | React Native components using TDD with Expo |
 | `react-native-ui-reviewer` | Mobile review | Theme compliance, accessibility, TDD quality with Expo |
+| `kotlin-planner` | Android planning | Kotlin/Compose architecture, Hilt DI, Room schemas, Material 3 |
+| `kotlin-implementer` | Android implementation | Kotlin/Compose code using TDD with Hilt, Room, Material 3 |
+| `kotlin-reviewer` | Android review | Compose patterns, coroutine safety, Hilt DI correctness, TDD quality |
+| `swift-planner` | iOS planning | Swift/SwiftUI architecture, SwiftData schemas, @Observable design, navigation |
+| `swift-implementer` | iOS implementation | Swift/SwiftUI code using TDD with @Observable, SwiftData, XcodeBuildMCP |
+| `swift-reviewer` | iOS review | Swift 6 concurrency safety, memory management, modern API usage, TDD quality |
 | `frontend-designer` | Visual presentation | Layout, styling, animations ONLY — not for logic or state management |
 | `pi-agent-planner` | pi agent planning | Extension design, tools, workflows, event handlers |
 | `pi-agent-implementer` | pi agent implementation | Extensions, tools, workflows using pi coding-agent SDK |
@@ -77,11 +83,11 @@ The `.spec/` directory is your centralized artifact store for planning, research
 | What You Need | File/Folder | When to Read | What's Inside |
 |---|---|---|---|
 | **📋 Quick project overview** | `.spec/PRD.md` | First time setup, sprint kickoff | 1-page executive summary of LaneShadow features |
-| **🎯 Detailed feature requirements** | `.spec/prds/{feature}/README.md` | Planning a specific feature | Full PRD for one feature (e.g., `waypoints-enrichment/`) |
+| **🎯 Detailed feature requirements** | `.spec/prd/{feature}/README.md` | Planning a specific feature | Full PRD for one feature (e.g., `waypoints-enrichment/`) |
 | **🔬 Research & validation** | `.spec/research/CHANNELS.md` | Before implementing data pipeline | Motorcycle rider research channels, scraping strategy, data quality metrics |
-| **🎨 Design specs & components** | `.spec/prds/{feature}/designs/` | Building UI/UX | Component hierarchies, Figma links, design tokens |
-| **✅ Task breakdown & tracking** | `.spec/prds/{feature}/plan/{phase}/` | Daily work, sprint management | Atomic tasks by phase (01-research, 02-design, 03-implementation) |
-| **🎬 Design reviews & feedback** | `.spec/prds/{feature}/reviews/` | Post-implementation refinement | Design review notes, feedback from stakeholders |
+| **🎨 Design specs & components** | `.spec/prd/{feature}/designs/` | Building UI/UX | Component hierarchies, Figma links, design tokens |
+| **✅ Task breakdown & tracking** | `.spec/prd/{feature}/tasks/` | Daily work, sprint management | Epic folders, task markdown, and execution state for that PRD only |
+| **🎬 Design reviews & feedback** | `.spec/prd/{feature}/reviews/` | Post-implementation refinement | Design review notes, feedback from stakeholders |
 
 ### Folder Structure Map
 
@@ -92,21 +98,21 @@ The `.spec/` directory is your centralized artifact store for planning, research
 ├── research/                        # Research artifacts
 │   ├── CHANNELS.md                  # Rider research channels & scraping
 │   └── ...
-├── prds/                            # Feature PRDs (detailed)
+├── prd/                             # Feature PRDs (detailed)
 │   ├── feature-name/
 │   │   ├── README.md                # PRD document
-│   │   ├── plan/                    # Plan & tasks (when using EnterPlanMode)
-│   │   │   ├── 01-research/         # Research phase tasks
-│   │   │   ├── 02-design/           # Design phase tasks
-│   │   │   └── 03-implementation/   # Implementation phase tasks
+│   │   ├── tasks/                   # Epic/task execution artifacts for this PRD
+│   │   │   ├── epic-1/
+│   │   │   │   ├── EPIC.md
+│   │   │   │   └── US-001.md
+│   │   │   └── INDEX.md
 │   │   ├── designs/                 # Design artifacts (Figma links, comps)
 │   │   └── reviews/                 # Review feedback & decisions
 │   └── waypoints-enrichment/
 │       ├── README.md
-│       ├── plan/
-│       │   ├── 01-research/
-│       │   ├── 02-design/
-│       │   └── 03-implementation/
+│       ├── tasks/
+│       │   ├── epic-1/
+│       │   └── INDEX.md
 │       └── ...
 ├── brand/                           # Brand guidelines
 └── artifacts/                       # Supporting artifacts (sketches, etc.)
@@ -114,85 +120,77 @@ The `.spec/` directory is your centralized artifact store for planning, research
 
 ### Plan + Task Workflow
 
-**When to use EnterPlanMode:**
-1. You enter plan mode for a feature in a PRD
-2. Plan is approved and finalized
-3. Run `/kb-project-plan {prd-file}` to generate task structure
-4. Tasks are created in `.spec/prds/{feature-name}/plan/{phase}/`
-5. Follow the phase-based folder structure (01-research, 02-design, 03-implementation)
+**Canonical task location:**
+1. Each PRD lives in its own folder at `.spec/prd/{feature-name}/`
+2. The only source-of-truth task location for that PRD is `.spec/prd/{feature-name}/tasks/`
+3. Epic folders live under that sibling `tasks/` directory
+4. `/kb-run-epic` must execute against that PRD-local `tasks/` folder, not a repo-global task directory
+5. The legacy repo-global directory `.spec/tasks/` is deprecated and read-only
 
 **Task files follow kb-project-plan conventions:**
-- Each phase gets a folder with human-readable label
-- Task files contain atomic, actionable work items
-- Reference tasks from CLI with `/kb-run-epic` to execute
+- Each PRD gets a sibling `tasks/` directory
+- Each epic gets its own folder with `EPIC.md` and task files
+- Reference tasks from CLI with `/kb-run-epic --prd .spec/prd/{feature-name}/README.md {epic-id}` or the explicit epic path
 
 ### Reading Order by Role
 
 **Product Manager**
 1. `.spec/PRD.md` (overview)
-2. `.spec/prds/{feature-name}/README.md` (detailed feature)
-3. `.spec/prds/{feature-name}/reviews/` (feedback loops)
+2. `.spec/prd/{feature-name}/README.md` (detailed feature)
+3. `.spec/prd/{feature-name}/reviews/` (feedback loops)
 
 **Engineer**
 1. `.spec/PRD.md` (context)
-2. `.spec/prds/{feature-name}/README.md` (requirements)
-3. `.spec/prds/{feature-name}/plan/` (your task breakdown)
-4. `.spec/prds/{feature-name}/designs/` (if UI-related)
+2. `.spec/prd/{feature-name}/README.md` (requirements)
+3. `.spec/prd/{feature-name}/tasks/` (your task breakdown)
+4. `.spec/prd/{feature-name}/designs/` (if UI-related)
 5. `.spec/research/` (if data pipeline work)
 
 **Designer**
-1. `.spec/prds/{feature-name}/designs/` (start here)
-2. `.spec/prds/{feature-name}/README.md` (requirements)
-3. `.spec/prds/{feature-name}/reviews/` (feedback)
+1. `.spec/prd/{feature-name}/designs/` (start here)
+2. `.spec/prd/{feature-name}/README.md` (requirements)
+3. `.spec/prd/{feature-name}/reviews/` (feedback)
 
 **Research / Data**
 1. `.spec/research/` (primary source)
 2. `.spec/PRD.md` (context)
-3. `.spec/prds/{feature-name}/plan/01-research/` (research phase tasks)
+3. `.spec/prd/{feature-name}/tasks/` (epics and task scopes for that PRD)
 
 ### Plan + Task Execution Workflow
 
-**Step 1: Enter Plan Mode**
-```bash
-# While working on a PRD feature
-/EnterPlanMode
-```
-Explore the codebase, design your approach, then exit with:
-```bash
-/ExitPlanMode
-```
-
-**Step 2: Generate Tasks from Plan**
+**Step 1: Generate Tasks from Plan**
 Once the plan is approved, run:
 ```bash
-/kb-project-plan .spec/prds/{feature-name}/README.md
+/kb-project-plan .spec/prd/{feature-name}/README.md
 ```
-This generates phase-based task folders:
-- `.spec/prds/{feature-name}/plan/01-research/`
-- `.spec/prds/{feature-name}/plan/02-design/`
-- `.spec/prds/{feature-name}/plan/03-implementation/`
+This generates a PRD-local task package:
+- `.spec/prd/{feature-name}/tasks/INDEX.md`
+- `.spec/prd/{feature-name}/tasks/{epic-id}/EPIC.md`
+- `.spec/prd/{feature-name}/tasks/{epic-id}/{task-id}.md`
 
-**Step 3: Execute Tasks**
+**Step 2: Execute Tasks**
 Run the epic to execute all tasks:
 ```bash
-/kb-run-epic {feature-name}
+/kb-run-epic --prd .spec/prd/{feature-name}/README.md {epic-id}
 ```
 
-**Step 4: Organize by Phase**
-- Tasks in `01-research/` run first (investigation, spike)
-- Tasks in `02-design/` run second (architecture, specs)
-- Tasks in `03-implementation/` run last (code, tests, docs)
+**Step 3: Keep Execution Scoped**
+- Tasks for one PRD stay inside that PRD's sibling `tasks/` folder
+- Multiple PRDs may have epics with the same slug, so do not rely on repo-global epic names
+- Prefer the `--prd` form when invoking `/kb-run-epic`
+- Treat `.spec/tasks/` as legacy history only; do not write new tasks there
 
 ### Best Practices
 
 - ✅ **Read the PRD** before starting any feature work
 - ✅ **Use EnterPlanMode** for non-trivial features (3+ steps)
 - ✅ **Run kb-project-plan** after plan approval to generate tasks
-- ✅ **Organize tasks by phase** (01-research, 02-design, 03-implementation)
+- ✅ **Keep tasks in the PRD's sibling `tasks/` directory**
 - ✅ **Reference tasks** from PRD for context and acceptance criteria
 - ✅ **Check .spec/research/** for existing analysis before researching
 - ✅ **Update relevant .spec/ files** after major decisions
-- ❌ **Don't create standalone task files** — tasks live in `.spec/prds/{feature}/plan/`
+- ❌ **Don't create standalone repo-global task files** — tasks live in the PRD folder's `tasks/` directory
+- ❌ **Don't write new work into `.spec/tasks/`** — it is deprecated legacy storage
 - ❌ **Don't duplicate** — if it exists in .spec/, link to it instead of copying
 - ❌ **Don't let .spec/ get stale** — mark files with dates, archive old plans
 
@@ -209,9 +207,9 @@ All plans (PRDs, specs, design docs) MUST be stored in `.spec/prd/` — each pla
 ```
 
 ### Plan → Task Pipeline
-After generating a plan, ALWAYS run `/kb-project-plan` to create task files from the plan. This produces structured task files in `.spec/tasks/{epic-id}/` that are compatible with `/kb-run-epic` for execution.
+After generating a plan, ALWAYS run `/kb-project-plan` to create task files from the plan. This produces structured task files in the PRD's sibling `tasks/` directory, for example `.spec/prd/{feature-name}/tasks/{epic-id}/`, which `/kb-run-epic` consumes.
 
 **Workflow:**
 1. Create plan in `.spec/prd/{feature-name}/`
 2. Run `/kb-project-plan` to generate task files
-3. Run `/kb-run-epic` to execute tasks
+3. Run `/kb-run-epic --prd .spec/prd/{feature-name}/README.md {epic-id}` to execute tasks
