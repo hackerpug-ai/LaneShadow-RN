@@ -64,6 +64,12 @@ LaneShadow/
 | [15-uc-ride-flow.md](./15-uc-ride-flow.md) | 11 | FLOW | Full ride lifecycle state machine (discovery → completion) |
 | [16-uc-gatekeeper.md](./16-uc-gatekeeper.md) | 8 | GATE | Trial counter, feature gating, subscription billing |
 
+### State & Data Architecture
+
+| File | Purpose | Stability |
+|------|---------|-----------|
+| [17-state-convex-architecture.md](./17-state-convex-architecture.md) | Convex cache-first data flow, repository pattern, local DB schema, offline strategy | CONSTITUTION |
+
 ## Quick Stats
 
 | Metric | Value |
