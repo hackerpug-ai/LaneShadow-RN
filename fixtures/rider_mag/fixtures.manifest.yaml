@@ -1,0 +1,87 @@
+source_article:
+  file: source_article.html
+  url: https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/
+  fetched_at: '2026-04-16T00:00:00Z'
+  sha256: e52408abd9157c75263d479ef1d5bbb21e8b1b584083a06b2f49098217a420f0
+  expected:
+    article_title: 50 Best Motorcycle Roads in America
+    route_count: 50
+    source_label: Rider Magazine
+    source_collection: Rider Magazine 50 Best Motorcycle Roads in America
+    source_rank_kind: alphabetical_by_state_order
+    ordering_note: The roads are listed more or less alphabetically by state rather
+      than in rank order.
+    last_modified: '2026-02-04T16:32:04Z'
+PT-01-route-section:
+- file: 01-dalton-highway.html
+  url: https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-01-dalton-highway
+  fetched_at: '2026-04-16T00:00:00Z'
+  sha256: 161d0abf19b278a58199e40acd2d042ac9317f936dc5082610861a68cd7f766c
+  expected:
+    route_name: Dalton Highway
+    state_text: Alaska
+    states_all:
+    - Alaska
+    description_excerpt: "Paralleling the Trans\u2011Alaska Pipeline, this gravel\
+      \ supply road that goes from Fairbanks to Prudhoe Bay is a bucket\u2011list "
+    source_rank: 1
+    related_url: https://ridermagazine.com/2024/03/26/alaska-motorcycle-ride-discovering-americas-last-frontier/
+- file: 07-pacific-coast-highway.html
+  url: https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-07-pacific-coast-highway
+  fetched_at: '2026-04-16T00:00:00Z'
+  sha256: c4946d0e35559b6ebb6102f88ac51b5d0f253f18fb5573cf150bafd58540ed21
+  expected:
+    route_name: Pacific Coast Highway
+    state_text: California
+    states_all:
+    - California
+    description_excerpt: "Rides up and down CA 1 have been a regular part of Rider\
+      \ \u2019s history since our first issue. This legendary road follows C"
+    source_rank: 7
+    related_url: https://ridermagazine.com/2015/06/03/savoring-summer-along-california-route-1/
+- file: 14-route-66.html
+  url: https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-14-route-66
+  fetched_at: '2026-04-16T00:00:00Z'
+  sha256: ec8be8217ec991226af20878a60f30e8e4123d7fcab4b7f74286f1c6944bc984
+  expected:
+    route_name: Route 66
+    state_text: Illinois, Missouri, Oklahoma, Texas, New Mexico, Arizona, California
+    states_all:
+    - Illinois
+    - Missouri
+    - Oklahoma
+    - Texas
+    - New Mexico
+    - Arizona
+    - California
+    description_excerpt: "Dubbed the \u201CMother Road\u201D by John Steinbeck in\
+      \ The Grapes of Wrath, U.S. Route 66 was once the shortest, fastest, and mos"
+    source_rank: 14
+    related_url: https://ridermagazine.com/2024/03/25/get-your-kickstart-on-route-66/
+- file: 42-utah-scenic-byway-12.html
+  url: https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-42-utah-scenic-byway-12
+  fetched_at: '2026-04-16T00:00:00Z'
+  sha256: d93d1be3b677ff26546c9c353e3b6149d62d512b2df1df0eac5388518915b844
+  expected:
+    route_name: Utah Scenic Byway 12
+    state_text: Utah
+    states_all:
+    - Utah
+    description_excerpt: UT 12, aka A Journey Through Time Scenic Byway, connects
+      state parks, Bryce Canyon and Capitol Reef national parks, Gran
+    source_rank: 42
+    related_url: https://ridermagazine.com/2012/12/06/southwest-touring-ride-on-a-2013-victory-vision-tour/
+- file: 50-beartooth-highway.html
+  url: https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-50-beartooth-highway
+  fetched_at: '2026-04-16T00:00:00Z'
+  sha256: 38f5743b5164c0bf47f9506271a4e7a2dcb48d7d3f3e2d673e0abb4881121446
+  expected:
+    route_name: Beartooth Highway
+    state_text: Wyoming, Montana
+    states_all:
+    - Wyoming
+    - Montana
+    description_excerpt: "U.S. 212 between Red Lodge, Montana, and Yellowstone National\
+      \ Park in Wyoming summits 10,947\u2011foot Bearfoot Pass. Journal"
+    source_rank: 50
+    related_url: https://ridermagazine.com/2008/07/01/road-to-wisdom-u-s-and-canadian-rockies-motorcycle-tour/

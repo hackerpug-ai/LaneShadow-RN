@@ -27,10 +27,12 @@ import type { SavedRouteDetailView } from '../../../../types/routes'
 import type { WindOverlay, RainOverlay, TemperatureOverlay, RouteOverlays } from '../../../../models/saved-routes'
 import { buildRoutePolylines } from '../../../../components/map/route-polyline'
 import { getWorstRainLevel, getWorstTemperatureLevel } from '../../../../models/saved-routes'
+import { SaveRouteSheet, buildSaveRoutePayload } from '../../../../components/ui/save-favorite-sheet'
 import { deriveWindSummary, formatDistance, formatDuration, formatSavedDate } from '../../saved-route.utils/utils'
 import SavedRouteDetailScreen from '../[id]'
 
 const mockBack = vi.fn()
+const mockSaveRouteMutation = vi.fn()
 
 const mockHookReturn: {
   data: import('../../../../types/routes').SavedRouteDetailView | null | undefined
@@ -47,6 +49,7 @@ vi.mock('react-native', () => ({
     select: (values: Record<string, unknown>) => values.ios ?? values.default,
   },
   StyleSheet: { create: (s: Record<string, unknown>) => s },
+  TextInput: 'TextInput',
   TurboModuleRegistry: {
     getEnforcing: () => ({}),
     get: () => null,
@@ -57,6 +60,7 @@ vi.mock('react-native-gesture-handler', () => ({
   ScrollView: 'ScrollView',
 }))
 vi.mock('react-native-paper', () => ({
+  Provider: ({ children }: { children: React.ReactNode }) => React.createElement(React.Fragment, null, children),
   Text: 'Text',
 }))
 vi.mock('react-native-safe-area-context', () => ({
@@ -86,6 +90,9 @@ vi.mock('../../../../hooks/use-semantic-theme', () => ({
 }))
 vi.mock('../../../../hooks/use-saved-routes', () => ({
   useSavedRouteDetail: () => mockHookReturn,
+}))
+vi.mock('convex/react', () => ({
+  useMutation: () => mockSaveRouteMutation,
 }))
 vi.mock('../../../../components/map/overlay-toggle', () => ({
   OverlayToggle: 'OverlayToggle',
@@ -129,7 +136,16 @@ vi.mock('../../../../components/ui/icon-symbol', () => ({
   IconSymbol: 'IconSymbol',
 }))
 vi.mock('../../../../components/ui/button', () => ({
-  Button: 'Button',
+  Button: ({ children, ...props }: { children?: React.ReactNode } & Record<string, unknown>) =>
+    React.createElement('Button', props, children),
+}))
+vi.mock('../../../../components/ui/bottom-action-sheet', () => ({
+  BottomActionSheet: ({ children, visible, ...props }: { children?: React.ReactNode; visible?: boolean } & Record<string, unknown>) =>
+    visible ? React.createElement('BottomActionSheet', props, children) : null,
+}))
+vi.mock('../../../../components/ui/bottom-sheet-input', () => ({
+  BottomSheetInput: (props: Record<string, unknown>) =>
+    React.createElement('BottomSheetInput', props),
 }))
 vi.mock('../../../../components/ui/delete-route-dialog', () => ({
   DeleteRouteDialog: 'DeleteRouteDialog',
@@ -247,6 +263,11 @@ const makeSavedRouteDetail = (
 // ---------------------------------------------------------------------------
 
 describe('AC1: Route detail screen data rendering', () => {
+  beforeEach(() => {
+    mockSaveRouteMutation.mockReset()
+    mockSaveRouteMutation.mockResolvedValue({ savedRouteId: 'saved-route-id' })
+  })
+
   it('should compute total distance from legs', () => {
     const detail = makeSavedRouteDetail()
     const totalMeters = detail.routeSnapshot.legs.reduce((s, l) => s + l.distanceMeters, 0)
@@ -301,6 +322,115 @@ describe('AC1: Route detail screen data rendering', () => {
       .toBe('National Scenic Byway')
     expect(tree!.root.findByProps({ testID: 'route-detail-provenance-description' }).props.children)
       .toBe('Drive through high desert and forests.')
+  })
+
+  it('AC-4: Rider Magazine provenance stays in the existing detail card', async () => {
+    mockHookReturn.data = makeSavedRouteDetail({
+      routeProvenance: {
+        sourceLabel: 'Rider Magazine',
+        designation: 'Rider Magazine 50 Best Motorcycle Roads in America',
+        description: 'This legendary road follows California’s rugged coastline and offers world-class scenery and epic riding.',
+        sourceUrl: 'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-07-pacific-coast-highway',
+      },
+    })
+    mockHookReturn.isLoading = false
+
+    let tree: renderer.ReactTestRenderer
+    await act(async () => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+
+    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-source-label' }).props.children)
+      .toBe('Rider Magazine')
+    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-designation' }).props.children)
+      .toBe('Rider Magazine 50 Best Motorcycle Roads in America')
+    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-description' }).props.children)
+      .toContain('rugged coastline')
+    expect(JSON.stringify(tree!.toJSON())).not.toContain('ground_truth')
+    expect(JSON.stringify(tree!.toJSON())).not.toContain('alphabetical_by_state_order')
+  })
+
+  it('AC-5: Rider Magazine partial editorial data omits empty provenance rows cleanly', async () => {
+    mockHookReturn.data = makeSavedRouteDetail({
+      routeProvenance: {
+        sourceLabel: 'Rider Magazine',
+        sourceUrl: 'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-50-beartooth-highway',
+      },
+    })
+    mockHookReturn.isLoading = false
+
+    let tree: renderer.ReactTestRenderer
+    await act(async () => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+
+    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-source-label' }).props.children)
+      .toBe('Rider Magazine')
+    expect(tree!.root.findAllByProps({ testID: 'route-detail-provenance-designation' })).toHaveLength(0)
+    expect(tree!.root.findAllByProps({ testID: 'route-detail-provenance-description' })).toHaveLength(0)
+  })
+
+  it('AC-4: real save payload preserves Rider provenance into the saved-route contract', async () => {
+    const detail = makeSavedRouteDetail()
+    const routeData = {
+      suggestedName: 'Pacific Coast Highway',
+      planInput: detail.planInput,
+      routeSnapshot: detail.routeSnapshot,
+      routeIndex: detail.routeIndex,
+      snapshotMeta: detail.snapshotMeta,
+      routeProvenance: {
+        sourceLabel: 'Rider Magazine',
+        designation: 'Rider Magazine 50 Best Motorcycle Roads in America',
+        description: 'This legendary road follows California’s rugged coastline and offers world-class scenery and epic riding.',
+        sourceUrl: 'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-07-pacific-coast-highway',
+      },
+    }
+
+    const payload = buildSaveRoutePayload('Pacific Coast Highway', routeData)
+
+    expect(payload.routeProvenance).toEqual({
+      sourceLabel: 'Rider Magazine',
+      designation: 'Rider Magazine 50 Best Motorcycle Roads in America',
+      description: 'This legendary road follows California’s rugged coastline and offers world-class scenery and epic riding.',
+      sourceUrl: 'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-07-pacific-coast-highway',
+    })
+
+    let tree: renderer.ReactTestRenderer
+    await act(async () => {
+      tree = renderer.create(
+        React.createElement(SaveRouteSheet, {
+          visible: true,
+          onClose: vi.fn(),
+          routeData,
+          onSuccess: vi.fn(),
+        })
+      )
+    })
+
+    const nameInput = tree!.root.findByProps({ testID: 'save-route-name-input' })
+    const saveButton = tree!.root.findByProps({ testID: 'save-route-save-button' })
+
+    await act(async () => {
+      nameInput.props.onChangeText('Pacific Coast Highway')
+    })
+
+    await act(async () => {
+      await saveButton.props.onPress()
+    })
+
+    expect(mockSaveRouteMutation).toHaveBeenCalledWith({
+      name: 'Pacific Coast Highway',
+      planInput: detail.planInput,
+      routeSnapshot: detail.routeSnapshot,
+      routeIndex: detail.routeIndex,
+      snapshotMeta: detail.snapshotMeta,
+      routeProvenance: {
+        sourceLabel: 'Rider Magazine',
+        designation: 'Rider Magazine 50 Best Motorcycle Roads in America',
+        description: 'This legendary road follows California’s rugged coastline and offers world-class scenery and epic riding.',
+        sourceUrl: 'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-07-pacific-coast-highway',
+      },
+    })
   })
 
   it('should format saved date from snapshotMeta.savedAt', () => {

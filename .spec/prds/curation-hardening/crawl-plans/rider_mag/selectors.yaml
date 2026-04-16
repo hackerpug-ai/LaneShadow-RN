@@ -1,0 +1,42 @@
+PT-01-route-section:
+  heading_text:
+    selector: h2
+    required: true
+    fixture_yield: 5/5
+  route_name:
+    derived: heading_regex
+    regex: ^(?P<rank>\\d+)\\.\\s*(?P<route_name>.+?)\\s*\\((?P<state_text>.+?)\\s*/\\s*(?P<distance>[\\d,]+)\\s*miles\\):?$
+    required: true
+    fixture_yield: 5/5
+  state_text:
+    derived: heading_regex_group
+    group: state_text
+    required: true
+    fixture_yield: 5/5
+  states_all:
+    derived: split_commas
+    required: true
+    fixture_yield: 5/5
+  distance_miles:
+    derived: heading_regex_group
+    group: distance
+    required: true
+    fixture_yield: 5/5
+  description:
+    selector: p:not(.has-text-align-center)
+    required: true
+    fixture_yield: 5/5
+  related_url:
+    selector: p.has-text-align-center a
+    attr: href
+    required: true
+    fixture_yield: 5/5
+  related_title:
+    selector: p.has-text-align-center a
+    required: true
+    fixture_yield: 5/5
+  source_rank:
+    derived: heading_regex_group
+    group: rank
+    required: true
+    fixture_yield: 5/5
