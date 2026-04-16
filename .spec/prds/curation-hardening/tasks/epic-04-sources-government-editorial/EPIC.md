@@ -112,4 +112,4 @@ All 7 steps must pass.
 - Rider Magazine is upstream of the calibration gate. A partial or softened ingest here poisons Epic 8.
 - Curvature discovery must consume a precomputed artifact only. Running raw OSM curvature generation is out of scope for this epic.
 - The current mobile lean sync path only persists route-card fields. That gap is folded into `SRC-001` so provenance survives to existing detail surfaces without adding a fourth task.
-- Curvature storage follow-up is now implemented: the full US artifact, manifest, and 51 state shards were published to Convex File Storage, release/shard metadata is live in `curation_artifact_releases` and `curation_artifact_shards`, and the active release is `adamfranco-us-curvature-51-states-sha256-ab590f7234b9`.
+- Curvature storage follow-up is now implemented: the full US artifact, manifest, and 51 state shards were published to Convex File Storage, release/shard metadata is live in `curation_artifact_releases` and `curation_artifact_shards`, and the active release `adamfranco-us-curvature-51-states-sha256-ab590f7234b9` is verified on both dev (`quirky-panther-164`) and prod (`fantastic-owl-967`).

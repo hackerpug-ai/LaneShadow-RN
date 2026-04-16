@@ -38,6 +38,7 @@ Current release checkpoint:
 - shard count: `51`
 - published row count: `1013985`
 - published sha256: `ab590f7234b94c088fa1fdaa5c82cbcd3a410af9796ebd235488168075b137ed`
+- verified active on dev `quirky-panther-164` and prod `fantastic-owl-967` on `2026-04-16`
 
 Operator runbook:
 - [`US-ARTIFACT-PLAN.md`](./US-ARTIFACT-PLAN.md)

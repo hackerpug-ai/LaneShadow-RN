@@ -94,7 +94,10 @@ Publisher contract notes:
 
 ## Current Published Release
 
-Development deployment `quirky-panther-164` now has the full national release published and activated:
+Both Convex deployments now report the same active full national release:
+
+- dev: `quirky-panther-164`
+- prod: `fantastic-owl-967`
 
 - active release id: `adamfranco-us-curvature-51-states-sha256-ab590f7234b9`
 - manifest storage id: `kg294vqwcb9pt1307n3d7wehd984zgwn`
@@ -102,6 +105,7 @@ Development deployment `quirky-panther-164` now has the full national release pu
 - shard count: `51`
 - row count: `1013985`
 - sha256: `ab590f7234b94c088fa1fdaa5c82cbcd3a410af9796ebd235488168075b137ed`
+- verified via `npx convex run curationArtifacts:getActiveArtifactReleaseWithShards '{"source":"curvature"}' --url ...` on both deployments on `2026-04-16`
 
 ## Why State Sharding
 
