@@ -39,12 +39,12 @@ functional_group: SRC
 
 ## UC-SRC-04: Run adamfranco/curvature Geometric Discovery
 
-**Description:** Administrator runs the curvature analysis pipeline on US OSM PBF data to discover high-curvature named roads that may not appear in any editorial or community source. This is the primary mechanism for finding "hidden gem" routes — roads that are genuinely excellent but never written about.
+**Description:** Administrator runs the curvature discovery consumer against **precomputed** `adamfranco/curvature` output to discover high-curvature named roads that may not appear in any editorial or community source. The expensive curvature batch over the US OSM PBF runs outside Epic 4 and its cached output is then consumed by the pipeline. This is the primary mechanism for finding "hidden gem" routes — roads that are genuinely excellent but never written about.
 
 **Acceptance Criteria:**
 - ☐ Administrator can run curvature discovery via `python -m pipeline.sources.curvature_discovery`
-- ☐ System downloads or references current US OSM PBF extract
-- ☐ System runs adamfranco/curvature algorithm on all named roads in the PBF
+- ☐ System reads precomputed `adamfranco/curvature` output from the canonical artifact path `data/curvature/adamfranco-us-curvature.jsonl`, or from an explicit override supplied via `--artifact` / `CURVATURE_ARTIFACT_PATH`
+- ☐ System does **not** run the expensive `adamfranco/curvature` batch inside Epic 4
 - ☐ System filters results to roads with curvature score above configurable threshold (default: top 5% by curvature score)
 - ☐ System excludes roads already in the catalog by name+state match
 - ☐ System creates candidate route records with curvature score, name, state, computed centroid, and length

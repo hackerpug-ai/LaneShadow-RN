@@ -16,6 +16,7 @@ import { routeEnrichmentValidator } from '../models/route-enrichments'
 import { waypointValidator } from '../models/waypoints'
 import { curatedRouteValidator, routePostRawValidator, routeMatchValidator, communityWaypointMentionValidator } from '../models/curated-routes'
 import { curatedRouteEnrichmentValidator } from '../models/curated-route-enrichments'
+import { curationArtifactReleaseValidator, curationArtifactShardValidator } from '../models/curation-artifacts'
 import { routeFeedbackValidator } from '../models/route-feedback'
 
 /**
@@ -235,4 +236,23 @@ export default defineSchema({
     .index('by_postId', ['postId'])
     .index('by_proposed_category', ['proposedCategory'])
     .index('by_extractedAt', ['extractedAt']),
+
+  /**
+   * Curation artifact releases table - Metadata for batch artifact releases stored in Convex File Storage
+   * Indexed by source and releaseId for upserts
+   * Indexed by source and active for resolving the current release
+   */
+  curation_artifact_releases: defineTable(curationArtifactReleaseValidator)
+    .index('by_source', ['source'])
+    .index('by_source_and_releaseId', ['source', 'releaseId'])
+    .index('by_source_and_active', ['source', 'active']),
+
+  /**
+   * Curation artifact shards table - Metadata for release shards stored in Convex File Storage
+   * Indexed by source and releaseId for release lookups
+   * Indexed by source, releaseId, and state for shard upserts
+   */
+  curation_artifact_shards: defineTable(curationArtifactShardValidator)
+    .index('by_source_and_releaseId', ['source', 'releaseId'])
+    .index('by_source_and_releaseId_and_state', ['source', 'releaseId', 'state']),
 })

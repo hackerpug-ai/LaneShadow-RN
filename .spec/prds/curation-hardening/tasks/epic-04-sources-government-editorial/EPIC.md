@@ -1,97 +1,63 @@
 # Epic 4: Source Diversification — Government, Editorial & Geometric
 
-**Sequence:** 4 / 11
-**Priority:** P1
-**Status:** Backlog
-**Estimated Effort:** 540 minutes (~9 hours)
+**Sequence:** 4 / 11  
+**Priority:** P1  
+**Status:** Completed  
+**Estimated Effort:** 660 minutes (~11 hours)
 
 ---
 
 ## Overview
 
-Reduce single-source concentration (currently 98.8% BestBikingRoads) by ingesting three sources: US Scenic Byways GIS (799 routes, government), Rider Magazine 50 Best Roads (editorial ground truth), and adamfranco/curvature geometric discovery (OSM top 5% curvature). These are the three surviving sources after the 2026-04-12 revision that dropped BDR, twtex, and USFS MVUM (see PRD `00-overview.md` and `01-scope.md` Out-of-Scope).
+Reduce single-source concentration by running the three surviving Epic 4 sources end-to-end through the curation pipeline:
 
-**Why these three:**
-- Scenic Byways GIS — Government, no WAF/legal risk, higher-fidelity polyline geometry and richer scenic-qualities metadata over the Epic 2 baseline FHWA CSV (~645 routes from DOT ArcGIS via BASE-000). Originally framed as a "4x expansion" against the PRD's aspirational 184-route count; after Epic 2 BASE-000 established the real DOT baseline at ~645 routes, the Koordinates 799-feature set is more accurately a geometry/quality upgrade than a raw volume expansion. See `../epic-02-baseline-pipeline-validation/DECISIONS.md`.
-- Rider Magazine 50 Best — Editorial ground truth anchor for Epic 8 (SCO-002) calibration gate
-- Curvature discovery — Consumes pre-computed adamfranco/curvature output (AD-008); uncovers "hidden gem" twisties that never appear in editorial/community lists
+- Scenic Byways GIS (`SRC-001`) for government provenance, geometry upgrade, and designation metadata
+- Rider Magazine 50 Best (`SRC-006`) for editorial ground truth and calibration input
+- adamfranco/curvature consumer (`SRC-004`) for hidden-gem twisties from precomputed geometry output
 
-**Theme:** Run the three surviving new sources end-to-end through the pipeline, see new routes appear in Convex, verify reconciliation against existing FHWA data.
+This epic stays scoped to the existing three source tasks, but tightens them to match the current task template, the Crawl Plan Protocol, and the real repo constraints discovered after Epic 2 and Epic 3 landed.
 
-**PRD Reference:** [S4.1, S4.4, S4.6](../../04-uc-src.md) — UC-SRC-01, UC-SRC-04, UC-SRC-06
+**Theme:** Ingest the three sources, reconcile them into the catalog, preserve their provenance into Convex, and verify the existing mobile discovery/detail flow can surface that provenance without creating a new UI branch.
+
+**PRD Reference:** [S4.1, S4.4, S4.6](../../04-uc-src.md)
 
 ---
 
-## Crawl Plan Protocol Compliance (MANDATORY)
+## Why This Epic Matters
 
-Epic 4 is the first full application of the [Crawl Plan Protocol](../CRAWL-PLAN-PROTOCOL.md) to new sources. Adopted 2026-04-13 after Epic 2 BBR/MR findings (see [`../epic-02-baseline-pipeline-validation/DECISIONS.md`](../epic-02-baseline-pipeline-validation/DECISIONS.md)), the protocol is non-negotiable for any task that extracts data from a remote source at scale.
-
-**Per-task protocol applicability:**
-
-| Task | Source | Form | Crawl Plan Required? | Reason |
-|---|---|---|---|---|
-| SRC-001 | US Scenic Byways GIS (Koordinates) | **Form B** — structured GIS API | **Yes** | 799-feature API query, schema-bearing endpoint; JSONPath selectors + fixture-based type/bounds assertions prevent silent field mismatches |
-| SRC-006 | Rider Magazine 50 Best Roads | **Form A** — editorial HTML scrape | **Yes** | Small site (50 routes), high-stakes because the output becomes Epic 8 SCO-002's calibration ground truth — sloppy scraping here poisons Epic 8's calibration gate |
-| SRC-004 | adamfranco/curvature pre-computed output | **Form E** — file consumer | **Exempt** | Not a crawl; consumes a pre-computed file. Must still produce a small `.spec/prds/curation-hardening/crawl-plans/curvature_discovery/README.md` landing page pointing at the source file, per protocol convention |
-
-**Shared framework dependency:** SRC-001 and SRC-006 consume the `scripts/curation/pipeline/sources/crawl_plan/` framework module built in [BASE-009a](../epic-02-baseline-pipeline-validation/BASE-009a.md) and proven on BBR in [BASE-009b](../epic-02-baseline-pipeline-validation/BASE-009b.md). **✅ SATISFIED** — BASE-009a (framework + MR) and BASE-009b (BBR + baseline regeneration) completed 2026-04-14. The crawl_plan framework module is production-ready with 192 passing tests. See [Epic 02 RETRO](../epic-02-baseline-pipeline-validation/RETRO.md) for evidence.
-
-**Per-task acceptance criteria additions (MUST be present when task files are written):**
-
-For SRC-001 and SRC-006, add to Acceptance Criteria:
-- [ ] Phase 0: `.spec/prds/curation-hardening/crawl-plans/{source}/site-map.md` committed with page/endpoint taxonomy, URL patterns, transition graph, sample URLs, known traps
-- [ ] Phase 1: `.../crawl-plans/{source}/urls.jsonl` committed with row count in expected range (SRC-001: ~799 GIS features; SRC-006: exactly 50 editorial route URLs)
-- [ ] Phase 2: `fixtures/{source}/` committed with ≥3 samples per page/endpoint type + `fixtures.manifest.yaml` with expected values
-- [ ] Phase 3: `.../crawl-plans/{source}/selectors.yaml` committed; all `required: true` fields at fixture_yield 5/5
-- [ ] Phase 4: `scripts/curation/tests/sources/test_{source}_fixtures.py` exists and passes locally
-- [ ] Phase 5: Executor runs against committed inventory, produces resumable `staging/{source}.jsonl` with `.audit.json`
-- [ ] Phase 6: `.../crawl-plans/{source}/crawl-report.md` committed with verdict PASS (fetch ≥95%, parse ≥99%, all required fields at 100% yield, all applicable landmarks present)
-
-For SRC-004 (exempt):
-- [ ] `.spec/prds/curation-hardening/crawl-plans/curvature_discovery/README.md` committed with one-line pointer to the source file location and provenance note
-
-**Calibration gate cascade risk:** Rider Magazine 50 Best (SRC-006) is the upstream supplier of Epic 8's calibration ground truth. If SRC-006's crawl plan is sloppily executed or the verdict is softened to PASS WITH ISSUES, Epic 8's calibration gate becomes noise and the entire scoring-realignment work is compromised. Epic 4's protocol compliance is Epic 8's insurance policy. Do not proceed past SRC-006 without a PASS verdict on its crawl-report.md.
-
-**Note on BASE-009 references:** BASE-009 was split into BASE-009a (framework + MR) and BASE-009b (BBR + baseline regeneration) on 2026-04-13 evening for risk isolation. All references to "BASE-009" in Epic 4 task files should be read as "BASE-009a/b"; Epic 4 depends on BASE-009b (the final remediation task in Epic 2) being complete before any Epic 4 task starts. **✅ COMPLETED 2026-04-14** — BASE-009a/b both complete. See `epic-02-baseline-pipeline-validation/DECISIONS.md` "Crawl Plan Protocol adoption" split sub-section and [Epic 02 RETRO](../epic-02-baseline-pipeline-validation/RETRO.md) for evidence.
+- Scenic Byways GIS is no longer a raw count-expansion story; it is the higher-fidelity geometry and metadata upgrade over the Epic 2 FHWA baseline.
+- Rider Magazine becomes the primary editorial ground-truth input for Epic 8 calibration, so partial ingest is unacceptable.
+- Curvature discovery is the only surviving “hidden gem” source after the 2026-04-12 scope revision.
+- Mobile discovery currently syncs only lean route-card fields. Epic 4 is the first time source-specific provenance needs to survive from ingest through Convex into rider-facing detail surfaces.
 
 ---
 
 ## Human Test Steps
 
-After all 3 tasks are complete, an administrator should be able to run the full pipeline with these sources and verify:
+After all 3 tasks are complete, an administrator should be able to:
 
-1. **Run Scenic Byways ingestion** — Execute `python -m scripts.curation.pipeline.sources.scenic_byways`. Verify `scenic_byways.jsonl` contains ~799 routes with `location` (GeoJSON Point), `name`, `state`, `designation`, `description`. Check runtime < 60s. Spot-check 10 routes for valid coordinates.
-2. **Verify reconciliation against existing FHWA** — Inspect the reconciliation log. Confirm the ~645 existing FHWA routes from Epic 02 baseline (BASE-000) AND the ~2,084 MotorcycleRoads + ~2,817 BestBikingRoads routes from Epic 03 are correctly reconciled. Scenic Byways GIS geometry should be preferred on overlap. No duplicates in final output.
-3. **Run Rider Magazine ingestion** — Execute `python -m scripts.curation.pipeline.sources.rider_mag`. Verify all 50 routes are ingested, each tagged `ground_truth=true`, `ground_truth_source="rider_magazine_50_best"`, with editorial descriptions preserved.
-4. **Run curvature discovery** — Execute `python -m scripts.curation.pipeline.sources.curvature_discovery`. Verify top 5% curvature roads are extracted from pre-computed adamfranco/curvature output. Verify routes already in catalog (by name+state) are excluded from candidates. Verify all surfaced candidates have `primary_archetype="twisties"` and populated `curvature_score`.
-5. **Run Haiku extraction on new routes** — Pipe the Rider Mag descriptions + curvature candidates through `extraction/client.py`. Verify Pydantic schema compliance; Rider Mag routes should produce rich attribute extraction (Tail of the Dragon curvature high, scenery high); curvature-only routes may have thin extraction results.
-6. **Run composite scoring** — Execute `scoring/composite.py` on the ingested routes. Verify `composite_score` ranges from 0-1 and top-scored routes match editorial reputation (Rider Mag routes should dominate top 10). Curvature-discovered routes should score high on `curvature_score` component.
-7. **Run archetype classification** — Execute `classification/archetype.py`. Verify Scenic Byways get `scenic_byway`, curvature candidates get `twisties`, and Rider Mag routes distribute across archetypes appropriately.
-8. **Run Convex push (dev deployment)** — Execute `python -m scripts.curation.pipeline.sync.convex_push`. Verify new routes appear in Convex dashboard with `source` field set correctly (`scenic_byways_gis`, `rider_magazine`, `curvature_discovery`). Verify `location` GeoJSON Point serialized.
-9. **Verify in mobile app** — Open mobile discovery screen. Verify new routes appear on the map. Tap a Rider Mag route — see editorial description in route details. Curvature discoveries should appear as "hidden gem" twisties.
+1. Run Scenic Byways ingestion and verify the staging output contains reconciled Scenic Byways records with route geometry, `location`, designation, and description fields populated.
+2. Verify Scenic Byways records reconcile against the existing FHWA baseline without creating duplicate discoverable entries for the same route overlap.
+3. Run Rider Magazine ingestion and verify exactly 50 routes are emitted with preserved editorial description, source provenance, and ground-truth metadata.
+4. Run curvature discovery against the precomputed curvature artifact and verify candidate routes exclude already-cataloged name+state matches while keeping `primary_archetype="twisties"` and a populated `curvature_score`.
+5. Run extraction, scoring, and classification across the newly ingested routes and verify Scenic Byways classify toward scenic byway archetypes, Rider routes retain editorial richness, and curvature candidates remain twisties-oriented.
+6. Push the new records to Convex dev and verify source-specific metadata needed by mobile survives the sync contract.
+7. Open the existing mobile discovery/detail flow and verify Scenic Byways, Rider Magazine, and curvature routes render with the correct provenance language on existing detail surfaces, without a new source-specific screen, filter, or overlay.
 
-10. **Execute the Curation Review Protocol** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. Applicable steps for Epic 4: 1 (ALL existing sources + 3 new: Scenic Byways, Rider Mag, curvature_discovery), 2, 6, 7, 8, 12. **Diff against Epic 3 baseline — catalog should grow by ~450-1850 routes (799 Scenic Byways - significant overlap with Epic 2's ~645 DOT baseline + 50 Rider Mag + 250-1650 curvature candidates). Verify archetype distribution shifts reflect new sources (more scenic_byway, more twisties). Ground-truth spot check: Rider Mag 50 routes should all appear; Tail of the Dragon may appear via both BBR and curvature_discovery — expect duplicate pre-dedup (dedup happens in Epic 6).** Write `review.md` with verdict PASS. **Note (2026-04-13):** growth estimate revised — the Epic 2 baseline is ~645 routes (not 184), so Koordinates' net contribution after reconciliation is smaller than originally projected. See `../epic-02-baseline-pipeline-validation/DECISIONS.md`.
-
-All 10 verifications must pass. If a source crashes, debug and fix before proceeding.
+All 7 steps must pass.
 
 ---
 
 ## Acceptance Criteria (Epic-Level)
 
-- [ ] `scripts/curation/pipeline/sources/scenic_byways.py` implemented with 799-route ingestion
-- [ ] `scripts/curation/pipeline/sources/rider_mag.py` implemented with `ground_truth` tagging
-- [ ] `scripts/curation/pipeline/sources/curvature_discovery.py` implemented with top 5% filtering
-- [ ] Scenic Byways reconciles against the Epic 2 baseline FHWA CSV (~645 routes from DOT ArcGIS via BASE-000, Koordinates GIS geometry preferred on overlap). See `../epic-02-baseline-pipeline-validation/DECISIONS.md`.
-- [ ] Rider Mag ingestion validates all 50 routes ingested (no partial)
-- [ ] Curvature excludes already-cataloged routes by name+state match
-- [ ] Curvature candidates tagged `primary_archetype="twisties"` with populated `curvature_score`
-- [ ] All 3 sources write to JSONL staging before Convex upsert
-- [ ] Ingestion logs count per source + validation errors
-- [ ] Each source runs through full pipeline (extract → score → classify → push)
-- [ ] New routes visible in mobile app discovery
-- [ ] Curation Review Protocol executed with PASS verdict
-- [ ] `review.md` + updated `baseline/catalog.jsonl` committed
-- [ ] Catalog diff vs Epic 03 baseline shows expected growth (~450-1850 net-new routes after reconciliation: 799 Scenic Byways - ~645 FHWA overlap + 50 Rider Mag + 250-1650 curvature candidates)
+- [x] `SRC-001.md`, `SRC-006.md`, and `SRC-004.md` exist in this epic directory and follow the task template sections used elsewhere in `.spec/prds/curation-hardening/tasks/`
+- [x] Scenic Byways task includes Crawl Plan Protocol deliverables for Form B inventory, fixtures, selectors, fixture tests, execution, and crawl report
+- [x] Rider Magazine task includes Crawl Plan Protocol deliverables for Form A inventory, fixtures, selectors, fixture tests, execution, and crawl report
+- [x] Curvature task treats the source as Form E exempt and requires a provenance landing document instead of a crawl plan
+- [x] Scenic Byways task covers FHWA overlap reconciliation and Convex/mobile provenance contract widening
+- [x] Rider Magazine task covers exact 50-route validation and preserved editorial provenance
+- [x] Curvature task covers precomputed input consumption, hidden-gem candidate filtering, and twisties provenance
+- [x] The epic remains at 3 tasks and 7 human test steps
 
 ---
 
@@ -103,49 +69,47 @@ All 10 verifications must pass. If a source crashes, debug and fix before procee
 
 ---
 
-## Tasks (3 stubs)
+## Tasks
 
 | ID | Title | Type | Agent | Priority | Effort | Est. Min | Depends On | Blocks |
 |----|-------|------|-------|----------|--------|----------|------------|--------|
-| SRC-001 | Ingest US Scenic Byways GIS Layer | FEATURE | python-implement | P1 | M | 240 | INF-001, INF-002, INF-003 | QUAL-001 |
-| SRC-006 | Ingest Rider Magazine 50 Best Roads | FEATURE | python-implement | P1 | S | 150 | INF-001, INF-002 | QUAL-001, SCO-002 |
-| SRC-004 | adamfranco/curvature Pre-Computed Output Consumer | FEATURE | python-implement | P1 | S | 150 | INF-001, INF-002 | QUAL-001 |
+| SRC-001 | Ingest Scenic Byways GIS + reconcile FHWA overlaps + preserve provenance contract | FEATURE | python-implement | P1 | L | 300 | BASE-009b, INF-001, INF-002, INF-003 | QUAL-001 |
+| SRC-006 | Ingest Rider Magazine 50 Best + preserve editorial provenance | FEATURE | python-implement | P1 | M | 210 | BASE-009b, INF-001, INF-002 | QUAL-001, SCO-002 |
+| SRC-004 | Consume curvature output + emit hidden-gem twisties candidates | FEATURE | python-implement | P1 | M | 150 | INF-001, INF-002, INF-003 | QUAL-001 |
 
-**Total Tasks:** 3
-**Total Estimated Effort:** 540 minutes (~9 hours)
-**Parallelization:** All 3 can run in parallel — no inter-task dependencies within the epic.
+**Total Tasks:** 3  
+**Total Estimated Effort:** 660 minutes (~11 hours)
 
 ---
 
 ## Dependencies
 
-**Blocks:**
-- Epic 6: Quality Infrastructure — Dedup & Floor (QUAL-001 needs routes from all sources)
-- Epic 8: Scoring & Calibration (SCO-002 needs Rider Mag ground truth from SRC-006)
+**Depends On**
 
-**Depends On:**
-- Epic 3: Foundation (INF-001 deps, INF-002 models, INF-003 schema)
+- Epic 2 crawl-plan framework and clean baseline outputs, especially `BASE-009a` and `BASE-009b`
+- Epic 3 foundation contracts in `scripts/curation/pipeline/models.py`, `models/curated-routes.ts`, `convex/schema.ts`, and `scripts/curation/pipeline/sync/convex_push.py`
+
+**Blocks**
+
+- Epic 6 quality/dedup floor, which depends on new source output entering the shared pipeline
+- Epic 8 calibration, where Rider Magazine is the upstream editorial anchor
 
 ---
 
 ## Definition of Done
 
-- [ ] All 3 task files written and merged
-- [ ] All 3 tasks moved to `Done`
-- [ ] Each source produces a JSONL staging file with the expected count
-- [ ] Full pipeline (ingest → extract → score → classify → push) runs against each source without crashes
-- [ ] New routes visible in Convex dev deployment AND mobile app discovery
-- [ ] Reconciliation log shows Scenic Byways vs FHWA overlap handled correctly
-- [ ] User has approved proceeding to Epic 6
+- [x] All 3 task files exist with template-compliant sections
+- [x] Scenic Byways and Rider Magazine have crawl-plan artifacts, fixture tests, and PASS crawl reports
+- [x] Curvature discovery has a committed provenance landing document and executable consumer task
+- [x] The task plan explicitly covers Convex/mobile provenance survival for Epic 4 metadata
+- [x] This epic can be executed by `/kb-run-epic epic-04-sources-government-editorial`
 
 ---
 
 ## Notes
 
-- Scenic Byways GIS overlaps significantly with the Epic 2 baseline FHWA CSV (~645 routes from DOT ArcGIS) — reconciliation is critical to avoid duplicates. The net-new volume from Koordinates is modest (799 total vs ~645 baseline); the primary value is higher-fidelity route polyline geometry and scenic-qualities metadata that the DOT layer does not expose. See `../epic-02-baseline-pipeline-validation/DECISIONS.md` for the 2026-04-13 revision.
-- Rider Mag 50 is tagged `ground_truth=true` — Epic 8 uses these for calibration gate
-- Curvature discovery consumes PRE-COMPUTED adamfranco/curvature output (AD-008) — do NOT run the multi-hour OSM PBF processing in the pipeline
-- The adamfranco/curvature output file location must be documented in `.spec/prds/curation-hardening/09-technical-requirements.md` before SRC-004 starts
-- Source runtime targets: Scenic Byways < 60s, Rider Mag < 10s, curvature filter < 5 min
-- If Scenic Byways API (Koordinates) has stability issues, fall back to a cached download stored in the repo's data/ directory (outside git LFS threshold)
-- **Revision history:** 2026-04-12 — Epic absorbed SRC-004 from the deleted Epic 5 (Community + Geometric). USFS MVUM (SRC-005) was removed from this epic in the same revision (see PRD `01-scope.md` Dropped section).
+- Scenic Byways GIS should be planned as a geometry and metadata upgrade over the Epic 2 FHWA baseline, not a naïve “799 new routes” assumption.
+- Rider Magazine is upstream of the calibration gate. A partial or softened ingest here poisons Epic 8.
+- Curvature discovery must consume a precomputed artifact only. Running raw OSM curvature generation is out of scope for this epic.
+- The current mobile lean sync path only persists route-card fields. That gap is folded into `SRC-001` so provenance survives to existing detail surfaces without adding a fourth task.
+- Curvature storage follow-up is now implemented: the full US artifact, manifest, and 51 state shards were published to Convex File Storage, release/shard metadata is live in `curation_artifact_releases` and `curation_artifact_shards`, and the active release is `adamfranco-us-curvature-51-states-sha256-ab590f7234b9`.

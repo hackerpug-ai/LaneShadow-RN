@@ -31,5 +31,13 @@ Recommended metadata to record once the real artifact is placed:
 - row count
 - sha256 checksum
 
+Current release checkpoint:
+- active Convex release id: `adamfranco-us-curvature-51-states-sha256-ab590f7234b9`
+- manifest storage id: `kg294vqwcb9pt1307n3d7wehd984zgwn`
+- full artifact storage id: `kg2717wv7a84y06frxvz22aj4184yyt8`
+- shard count: `51`
+- published row count: `1013985`
+- published sha256: `ab590f7234b94c088fa1fdaa5c82cbcd3a410af9796ebd235488168075b137ed`
+
 Operator runbook:
 - [`US-ARTIFACT-PLAN.md`](./US-ARTIFACT-PLAN.md)

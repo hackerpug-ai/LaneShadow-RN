@@ -63,6 +63,7 @@ import type * as actions_osm from "../actions/osm.js";
 import type * as actions_users from "../actions/users.js";
 import type * as crons from "../crons.js";
 import type * as curationAdmin from "../curationAdmin.js";
+import type * as curationArtifacts from "../curationArtifacts.js";
 import type * as curationMetrics from "../curationMetrics.js";
 import type * as db_clerkSync from "../db/clerkSync.js";
 import type * as db_curation from "../db/curation.js";
@@ -159,6 +160,7 @@ declare const fullApi: ApiFromModules<{
   "actions/users": typeof actions_users;
   crons: typeof crons;
   curationAdmin: typeof curationAdmin;
+  curationArtifacts: typeof curationArtifacts;
   curationMetrics: typeof curationMetrics;
   "db/clerkSync": typeof db_clerkSync;
   "db/curation": typeof db_curation;
