@@ -1,11 +1,12 @@
 import { httpRouter } from 'convex/server'
 import { Webhook } from 'svix'
-import { internal } from './_generated/api'
+import { api, internal } from './_generated/api'
 import { httpAction } from './_generated/server'
 import { CLERK_WEBHOOK_SECRET } from './lib/env'
 
 const http = httpRouter()
 const convexInternal = internal as any
+const convexApi = api as any
 
 // Curation admin endpoints - for Python seed pipeline
 // NOTE: CURATION_DEPLOY_KEY must be set in Convex environment
@@ -93,6 +94,104 @@ http.route({
       const result = await ctx.runMutation(
         convexInternal.curationAdmin.internalUpsertCuratedRouteEnrichments,
         { enrichments: (parsed as any).enrichments }
+      )
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    } catch (err: any) {
+      return new Response(
+        JSON.stringify({ error: 'invalid_body', detail: err?.message ?? 'validation failed' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+  }),
+})
+
+http.route({
+  path: '/admin/curation/routes/delete',
+  method: 'POST',
+  handler: httpAction(async (ctx, req) => {
+    const deployKey = process.env.CURATION_DEPLOY_KEY
+    if (!deployKey) {
+      return new Response(JSON.stringify({ error: 'configuration_error' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const authHeader = req.headers.get('authorization') ?? ''
+    const expected = `Bearer ${deployKey}`
+    if (authHeader !== expected) {
+      return new Response(JSON.stringify({ error: 'unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    let parsed: { routeIds: unknown }
+    try {
+      parsed = await req.json()
+    } catch {
+      return new Response(JSON.stringify({ error: 'invalid_body', detail: 'not json' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    try {
+      const result = await ctx.runMutation(
+        convexApi.curationAdmin.deleteCuratedRoutesByRouteIds,
+        { routeIds: (parsed as any).routeIds }
+      )
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    } catch (err: any) {
+      return new Response(
+        JSON.stringify({ error: 'invalid_body', detail: err?.message ?? 'validation failed' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+  }),
+})
+
+http.route({
+  path: '/admin/curation/embeddings',
+  method: 'POST',
+  handler: httpAction(async (ctx, req) => {
+    const deployKey = process.env.CURATION_DEPLOY_KEY
+    if (!deployKey) {
+      return new Response(JSON.stringify({ error: 'configuration_error' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    const authHeader = req.headers.get('authorization') ?? ''
+    const expected = `Bearer ${deployKey}`
+    if (authHeader !== expected) {
+      return new Response(JSON.stringify({ error: 'unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    let parsed: { updates: unknown }
+    try {
+      parsed = await req.json()
+    } catch {
+      return new Response(JSON.stringify({ error: 'invalid_body', detail: 'not json' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    try {
+      const result = await ctx.runMutation(
+        convexApi.curationAdmin.backfillRouteEmbeddings,
+        { updates: (parsed as any).updates }
       )
       return new Response(JSON.stringify(result), {
         status: 200,

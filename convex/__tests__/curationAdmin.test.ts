@@ -10,6 +10,7 @@ import type { Id } from '../_generated/dataModel'
 import {
   upsertCuratedRoutesHandler,
   upsertCuratedRouteEnrichmentsHandler,
+  deleteCuratedRoutesByRouteIdsHandler,
 } from '../curationAdmin'
 
 // ---------------------------------------------------------------------------
@@ -262,6 +263,47 @@ describe('upsertCuratedRouteEnrichmentsHandler - AC-5: Enrichments upsert', () =
 
     expect(ctx2.db.patch).toHaveBeenCalledTimes(1)
     expect(ctx2.db.insert).not.toHaveBeenCalled()
+  })
+})
+
+describe('deleteCuratedRoutesByRouteIdsHandler', () => {
+  it('should delete existing routes and report missing ones', async () => {
+    const existingDoc = {
+      _id: ':route-1' as Id<'curated_routes'>,
+      ...makeCuratedRoute({ routeId: 'route-1' }),
+    }
+
+    const withIndex = vi.fn()
+    withIndex
+      .mockImplementationOnce((_: string, callback: any) => {
+        const queryBuilder = { eq: vi.fn().mockReturnThis() }
+        if (callback) callback(queryBuilder)
+        return createMockQueryBuilder([existingDoc])
+      })
+      .mockImplementationOnce((_: string, callback: any) => {
+        const queryBuilder = { eq: vi.fn().mockReturnThis() }
+        if (callback) callback(queryBuilder)
+        return createMockQueryBuilder([])
+      })
+
+    const ctx = {
+      db: {
+        query: vi.fn(() => ({ withIndex })),
+        delete: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    const result = await deleteCuratedRoutesByRouteIdsHandler(ctx as any, {
+      routeIds: ['route-1', 'route-2'],
+    })
+
+    expect(result).toEqual({
+      deleted: 1,
+      missing: ['route-2'],
+      errors: [],
+    })
+    expect(ctx.db.delete).toHaveBeenCalledTimes(1)
+    expect(ctx.db.delete).toHaveBeenCalledWith(':route-1')
   })
 })
 

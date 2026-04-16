@@ -85,6 +85,39 @@ export const upsertCuratedRouteEnrichmentsHandler = async (
   return { inserted, updated, skipped, errors }
 }
 
+export const deleteCuratedRoutesByRouteIdsHandler = async (
+  ctx: any,
+  { routeIds }: { routeIds: string[] }
+) => {
+  let deleted = 0
+  const missing: string[] = []
+  const errors: { routeId: string; message: string }[] = []
+
+  for (const routeId of routeIds) {
+    try {
+      const existing = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
+        .first()
+
+      if (!existing) {
+        missing.push(routeId)
+        continue
+      }
+
+      await ctx.db.delete(existing._id)
+      deleted++
+    } catch (e: any) {
+      errors.push({
+        routeId,
+        message: e?.message ?? 'unknown error',
+      })
+    }
+  }
+
+  return { deleted, missing, errors }
+}
+
 // ---------------------------------------------------------------------------
 // Internal mutations for Convex backend
 // ---------------------------------------------------------------------------
@@ -103,6 +136,11 @@ import { mutation } from './_generated/server'
 export const upsertCuratedRoutes = mutation({
   args: { routes: v.array(curatedRouteValidator) },
   handler: upsertCuratedRoutesHandler,
+})
+
+export const deleteCuratedRoutesByRouteIds = mutation({
+  args: { routeIds: v.array(v.string()) },
+  handler: deleteCuratedRoutesByRouteIdsHandler,
 })
 
 // ---------------------------------------------------------------------------
