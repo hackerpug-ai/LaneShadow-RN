@@ -1,0 +1,36 @@
+PT-01-feature-json:
+  name:
+    selector: "$.name"
+    required: true
+    fixture_yield: "3/3"
+    parse_as: str
+  state:
+    selector: "$.state"
+    required: true
+    fixture_yield: "3/3"
+    parse_as: str
+  designation:
+    selector: "$.designation"
+    required: true
+    fixture_yield: "3/3"
+    parse_as: str
+  description:
+    selector: "$.description"
+    required: true
+    fixture_yield: "3/3"
+    parse_as: str
+  location:
+    selector: "$.location.coordinates"
+    required: true
+    fixture_yield: "3/3"
+    parse_as: list
+  source_url:
+    selector: "$.source_url"
+    required: true
+    fixture_yield: "3/3"
+    parse_as: str
+  source_label:
+    selector: "$.source_label"
+    required: true
+    fixture_yield: "3/3"
+    parse_as: str

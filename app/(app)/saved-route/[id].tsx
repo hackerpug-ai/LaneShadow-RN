@@ -14,6 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { IconSymbol } from '../../../components/ui/icon-symbol'
 
 import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
+import { OverlayToggle } from '../../../components/map/overlay-toggle'
 import { MapboxMapView } from '../../../components/map'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
 import { Button } from '../../../components/ui/button'
@@ -38,6 +39,7 @@ const SavedRouteDetailScreen = () => {
   const { isDark } = useThemePreference()
   const insets = useSafeAreaInsets()
   const { data, isLoading } = useSavedRouteDetail(id ?? null)
+  const [selectedOverlay, setSelectedOverlay] = useState<'wind' | 'rain' | 'temperature' | ''>('')
 
   const actions = useRouteActions(id ?? null)
 
@@ -50,13 +52,13 @@ const SavedRouteDetailScreen = () => {
         overlays: data.routeSnapshot.overlays,
       },
       variant: 'selected',
-      showLegs: true,
-      showWindOverlay: false,
-      showRainOverlay: false,
-      showTemperatureOverlay: false,
-      semantic,
-    })
-  }, [data, semantic])
+        showLegs: true,
+        showWindOverlay: selectedOverlay === 'wind',
+        showRainOverlay: selectedOverlay === 'rain',
+        showTemperatureOverlay: selectedOverlay === 'temperature',
+        semantic,
+      })
+  }, [data, semantic, selectedOverlay])
 
   if (isLoading) {
     return (
@@ -120,10 +122,23 @@ const SavedRouteDetailScreen = () => {
   }
 
   const overlays: RouteOverlays = data.routeSnapshot.overlays
+  const overlayAvailability = {
+    wind: Boolean(overlays.wind),
+    rain: Boolean(overlays.rain),
+    temperature: Boolean(overlays.temperature),
+  }
   const totalDistance = data.routeSnapshot.legs.reduce((s, l) => s + l.distanceMeters, 0)
   const totalDuration = data.routeSnapshot.legs.reduce((s, l) => s + l.durationSeconds, 0)
   const legsCount = data.routeSnapshot.legs.length
   const annotations = data.routeSnapshot.annotations
+  const routeProvenance = (data as any).routeProvenance as
+    | {
+        sourceLabel?: string
+        designation?: string
+        description?: string
+        sourceUrl?: string
+      }
+    | undefined
 
   return (
     <SafeAreaView
@@ -135,6 +150,14 @@ const SavedRouteDetailScreen = () => {
         {/* Map section */}
         <View style={styles.mapSection} accessibilityLabel={`Route map for ${data.name}`}>
           <MapboxMapView theme={isDark ? 'dark' : 'light'} polylines={polylines} />
+          {(overlayAvailability.wind || overlayAvailability.rain || overlayAvailability.temperature) ? (
+            <OverlayToggle
+              testID="overlay-toggle"
+              value={selectedOverlay}
+              availability={overlayAvailability}
+              onValueChange={setSelectedOverlay}
+            />
+          ) : null}
           <MapHeaderOverlay
             title={data.name}
             leftAction={{
@@ -211,6 +234,55 @@ const SavedRouteDetailScreen = () => {
             <StatRow icon="clock-outline" value={formatDuration(totalDuration)} />
             <StatRow icon="vector-polyline" value={`${legsCount} segments`} />
           </View>
+
+          {routeProvenance &&
+            (routeProvenance.sourceLabel ||
+              routeProvenance.designation ||
+              routeProvenance.description) && (
+              <>
+                <SectionHeader label="Route Source" semantic={semantic} />
+                <View
+                  style={[
+                    styles.statsCard,
+                    {
+                      backgroundColor: semantic.color.surfaceVariant.default,
+                      borderRadius: semantic.radius.lg,
+                      padding: semantic.space.lg,
+                      gap: semantic.space.sm,
+                    },
+                  ]}
+                  testID="route-detail-provenance"
+                >
+                  {routeProvenance.sourceLabel ? (
+                    <Text
+                      variant="titleMedium"
+                      style={{ color: semantic.color.onSurface.default }}
+                      testID="route-detail-provenance-source-label"
+                    >
+                      {routeProvenance.sourceLabel}
+                    </Text>
+                  ) : null}
+                  {routeProvenance.designation ? (
+                    <Text
+                      variant="bodyMedium"
+                      style={{ color: semantic.color.onSurface.default }}
+                      testID="route-detail-provenance-designation"
+                    >
+                      {routeProvenance.designation}
+                    </Text>
+                  ) : null}
+                  {routeProvenance.description ? (
+                    <Text
+                      variant="bodyMedium"
+                      style={{ color: semantic.color.onSurface.subtle }}
+                      testID="route-detail-provenance-description"
+                    >
+                      {routeProvenance.description}
+                    </Text>
+                  ) : null}
+                </View>
+              </>
+            )}
 
 
           {/* Highlights section */}

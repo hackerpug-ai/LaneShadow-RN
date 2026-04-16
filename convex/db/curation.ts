@@ -26,6 +26,7 @@ export const routeCardValidator = v.object({
   name: v.string(),
   state: v.string(),
   source: v.string(),
+  sourceLabel: v.optional(v.string()),
   primaryArchetype: v.string(),
   secondaryTags: v.array(v.string()),
   centroidLat: v.number(),
@@ -47,6 +48,15 @@ export const routeCardValidator = v.object({
   season: v.optional(v.string()),
   contentVersion: v.number(),
   enrichmentVersion: v.optional(v.number()),
+  location: v.optional(
+    v.object({
+      type: v.literal("Point"),
+      coordinates: v.array(v.number()),
+    }),
+  ),
+  designation: v.optional(v.string()),
+  description: v.optional(v.string()),
+  sourceUrl: v.optional(v.string()),
 })
 
 // ---------------------------------------------------------------------------
@@ -277,6 +287,7 @@ function toRouteCard(doc: CuratedRouteDoc): any {
     name: doc.name,
     state: doc.state,
     source: doc.source,
+    sourceLabel: doc.sourceLabel,
     primaryArchetype: doc.primaryArchetype,
     secondaryTags: doc.secondaryTags,
     centroidLat: doc.centroidLat,
@@ -298,5 +309,9 @@ function toRouteCard(doc: CuratedRouteDoc): any {
     season: doc.season,
     contentVersion: doc.contentVersion,
     enrichmentVersion: doc.enrichmentVersion,
+    location: doc.location,
+    designation: doc.designation,
+    description: doc.description,
+    sourceUrl: doc.sourceUrl,
   }
 }

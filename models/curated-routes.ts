@@ -13,6 +13,7 @@ import { v } from "convex/values";
  */
 export const CURATED_ROUTE_SOURCE = {
   FHWA: "fhwa",
+  SCENIC_BYWAYS: "scenic_byways",
   MOTORCYCLEROADS: "motorcycleroads",
   BESTBIKINGROADS: "bestbikingroads",
   BDR: "bdr",
@@ -57,6 +58,7 @@ export const CURATED_ROUTE_FIELDS = {
   state: v.string(),
   source: v.union(
     v.literal("fhwa"),
+    v.literal("scenic_byways"),
     v.literal("motorcycleroads"),
     v.literal("bestbikingroads"),
     v.literal("bdr"),
@@ -135,6 +137,7 @@ export type CuratedRoute = {
   enrichmentVersion?: number | null; // null = not yet enriched
   seededAt: number; // timestamp
   location?: { type: "Point"; coordinates: [number, number] } | null;
+  sourceLabel?: string | null;
 };
 
 /**
@@ -169,6 +172,7 @@ export const curatedRouteValidator = v.object({
   descriptiveSummary: v.optional(v.string()), // Rich description for waypoint matching (B2)
   rating: v.optional(v.number()),
   designation: v.optional(v.string()),
+  sourceLabel: v.optional(v.string()),
   sourceUrl: v.optional(v.string()),
   sourceRefs: v.optional(v.array(v.string())),
   highwayNumber: v.optional(v.string()),
