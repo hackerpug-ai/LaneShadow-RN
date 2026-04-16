@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
 last_validated: 2026-04-16
-prd_version: 1.0.0
+prd_version: 2.0.0
 functional_group: NATIVE-APP
 ---
 
@@ -57,7 +57,85 @@ The curation-hardening pipeline produces the following fields in Convex `curated
 **Original task:** DESIGN-011
 **Platform-specific:** Native persistence layer must store `surface`, `qualityTier`, `bestMonths` locally for offline access.
 - Android: Room database entity extension
-- iOS: CoreData model extension
+- iOS: SwiftData model extension
+
+---
+
+## Complete Feature Parity Checklist
+
+These items must all be implemented in native apps before React Native can be deleted. Source column references the React Native file that currently provides each feature.
+
+### Authentication & User Management
+
+- [ ] OAuth sign-in (Google/Apple) — `app/(auth)/oauth-callback.tsx`, `hooks/use-oauth-flow.ts`
+- [ ] Session management — `providers/auth-provider.tsx`
+- [ ] Auth state persistence (secure storage) — `hooks/use-async-storage.ts`
+
+### Map & Location
+
+- [ ] Interactive map with route overlays — `components/map/interactive-map.tsx`, `components/map/route-overlays.tsx`
+- [ ] Camera controls and style switching — `components/map/camera-controls.tsx`, `components/map/map-styles.tsx`
+- [ ] Location marker — `components/map/location-marker.tsx`
+- [ ] Background location provider — `providers/location-provider.tsx`
+- [ ] Place autocomplete search — `hooks/use-place-autocomplete.ts`
+
+### Ride Discovery & Planning
+
+- [ ] Discovery feed with route cards — `components/discovery/discovery-feed.tsx`, `components/discovery/route-card.tsx`
+- [ ] Filter bar (archetype + surface) — `components/discovery/filter-bar.tsx`
+- [ ] Chat-based ride planning — `hooks/use-chat-planning.ts`, `components/chat/`
+- [ ] Route planner with waypoints — `components/planning/route-planner.tsx`, `components/planning/waypoint-search.tsx`
+- [ ] Route preview — `components/planning/route-preview.tsx`
+- [ ] Intent search (NLP) — `hooks/use-intent-search.ts`
+- [ ] Route enrichment — `hooks/use-route-enrichment.ts`
+- [ ] Route comparison — `hooks/use-route-comparison.ts`
+
+### Active Ride
+
+- [ ] Ride flow state machine — `hooks/use-ride-flow.ts`
+- [ ] Turn-by-turn navigation — See UC-NAV (09)
+- [ ] Ride recording with background tracking — `hooks/use-ride-recording.ts`, `hooks/use-active-session-route.ts`
+- [ ] Ride controls sheet — `components/sheets/ride-controls-sheet.tsx`
+- [ ] Route sharing — `hooks/use-route-sharing.ts`
+
+### Offline & Data
+
+- [ ] Offline region download — `hooks/useOfflineDownload.ts`
+- [ ] Region selector and list — `app/(app)/offline/`
+- [ ] Download progress UI — `components/offline/download-progress.tsx`
+- [ ] Offline provider — `providers/offline-provider.tsx`
+
+### Voice Assistant
+
+- [ ] Voice interaction (STT/TTS) — `components/assistant/voice-assistant.tsx`
+- [ ] Voice prompt card — `components/assistant/voice-prompt-card.tsx`
+
+### UI/UX Systems
+
+- [ ] Bottom sheet system (18+ sheets) — `components/sheets/`
+- [ ] Toast notifications — `components/toasts/`, `hooks/use-toast-messages.ts`
+- [ ] Theme switching (dark/light) — `hooks/use-semantic-theme.ts`
+- [ ] Onboarding flow — `components/onboarding/`
+- [ ] Gatekeeper/trial system — `components/gatekeeper/`
+- [ ] Skeleton loading states — `components/skeleton/`
+
+### Route Details & Enrichment
+
+- [ ] Route details card — `components/enrichment/route-details-card.tsx`
+- [ ] Photo gallery — `components/enrichment/photo-gallery.tsx`
+- [ ] Curvature card — `components/enrichment/curvature-card.tsx`
+- [ ] Waypoint management — `components/waypoints/`
+- [ ] Saved routes CRUD — `hooks/use-saved-routes.ts`
+- [ ] Settings screen — `components/settings/`
+
+### Platform Infrastructure
+
+- [ ] Deep linking (Universal Links / App Links)
+- [ ] Push notifications (APNs / FCM)
+- [ ] Permissions system (location, microphone, notifications, storage)
+- [ ] Foreground service architecture (Android)
+- [ ] Room/SwiftData schema design and migration
+- [ ] Crash reporting & analytics
 
 ---
 
@@ -82,6 +160,8 @@ The curation-hardening pipeline produces the following fields in Convex `curated
 - [ ] Quality tier badge appears on `minimal` tier routes at reduced opacity
 - [ ] Local persistence extended with surface, qualityTier, bestMonths fields
 - [ ] TypeScript strict mode passes (or equivalent native type safety)
+- [ ] **All items in Feature Parity Checklist above are implemented**
+- [ ] React Native app can be deleted with zero lost functionality
 
 ---
 
@@ -90,3 +170,4 @@ The curation-hardening pipeline produces the following fields in Convex `curated
 - **Curation-hardening Epic 3** — Convex schema must have the new optional fields
 - **Curation-hardening Epic 12** — Pipeline must produce and push the data
 - **Native-rewrite restructure** — Repo must be restructured before native app development begins
+- **UC files 09-16** — Core use cases must be implemented before RN deletion
