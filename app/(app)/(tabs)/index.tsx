@@ -42,6 +42,7 @@ import { useRouteComparison } from '../../../hooks/use-route-comparison'
 import { useActiveSessionRoute } from '../../../hooks/use-active-session-route'
 import { useSelectedRoute } from '../../../contexts/selected-route'
 import type { PlanInput, RouteStop } from '../../../types/routes'
+import type { RouteProvenance } from '../../../models/saved-routes'
 import { decodePolylineGeometry } from '../../../lib/polyline'
 import { useSearchResults } from '../../../contexts/search-results'
 import { SearchResultMarker } from '../../../components/map/search-result-marker'
@@ -135,6 +136,7 @@ const HomeMapScreen = () => {
     routeSnapshot: any
     routeIndex: any
     snapshotMeta: any
+    routeProvenance?: RouteProvenance
   } | null>(null)
   const [selectedSegment, setSelectedSegment] = useState<SegmentSelectData | null>(null)
   const [highlightedSegmentId, setHighlightedSegmentId] = useState<string | undefined>(undefined)
@@ -984,6 +986,24 @@ const HomeMapScreen = () => {
     resetError()
   }
 
+  const buildRouteProvenance = useCallback((routeOption: any): RouteProvenance | undefined => {
+    const direct = routeOption?.routeProvenance
+    if (direct?.sourceLabel || direct?.designation || direct?.description || direct?.sourceUrl) {
+      return direct
+    }
+
+    const fallback = {
+      sourceLabel: routeOption?.sourceLabel,
+      designation: routeOption?.designation,
+      description: routeOption?.description,
+      sourceUrl: routeOption?.sourceUrl,
+    }
+
+    return fallback.sourceLabel || fallback.designation || fallback.description || fallback.sourceUrl
+      ? fallback
+      : undefined
+  }, [])
+
   // US-050: Handle segment long-press for route saving
   const handleSegmentSelect = useCallback((segment: SegmentSelectData) => {
     console.log('[handleSegmentSelect] Called with segment:', segment)
@@ -1040,6 +1060,7 @@ const HomeMapScreen = () => {
       routeSnapshot,
       routeIndex,
       snapshotMeta,
+      routeProvenance: buildRouteProvenance(agentActiveOption),
     }
 
     console.log('[handleSegmentSelect] Setting route data:', routeData)
@@ -1049,7 +1070,7 @@ const HomeMapScreen = () => {
     setTimeout(() => {
       setSaveRouteSheetVisible(true)
     }, 100)
-  }, [agentRoutePlan, agentActiveOption])
+  }, [agentRoutePlan, agentActiveOption, buildRouteProvenance])
 
   // US-050: Handle save route button press
   const handleSaveRoutePress = useCallback(() => {
@@ -1104,12 +1125,13 @@ const HomeMapScreen = () => {
       routeSnapshot,
       routeIndex,
       snapshotMeta,
+      routeProvenance: buildRouteProvenance(agentActiveOption),
     }
 
     console.log('[handleSaveRoutePress] Setting route data:', routeData)
     setSaveRouteData(routeData)
     setSaveRouteSheetVisible(true)
-  }, [agentRoutePlan, agentActiveOption])
+  }, [agentRoutePlan, agentActiveOption, buildRouteProvenance])
 
   const handleCloseSaveRouteSheet = useCallback(() => {
     setSaveRouteSheetVisible(false)

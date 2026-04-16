@@ -22,6 +22,15 @@ import { BottomSheetInput } from './bottom-sheet-input'
 import { Button } from './button'
 import type { SavedRoute } from '../../models/saved-routes'
 
+export type SaveRoutePayload = {
+  name: string
+  planInput: SavedRoute['planInput']
+  routeSnapshot: SavedRoute['routeSnapshot']
+  routeIndex: SavedRoute['routeIndex']
+  snapshotMeta: SavedRoute['snapshotMeta']
+  routeProvenance?: SavedRoute['routeProvenance']
+}
+
 export type SaveRouteSheetProps = {
   visible: boolean
   onClose: () => void
@@ -31,10 +40,23 @@ export type SaveRouteSheetProps = {
     routeSnapshot: SavedRoute['routeSnapshot']
     routeIndex: SavedRoute['routeIndex']
     snapshotMeta: SavedRoute['snapshotMeta']
+    routeProvenance?: SavedRoute['routeProvenance']
   } | null
   onSuccess?: () => void
   onCancel?: () => void
 }
+
+export const buildSaveRoutePayload = (
+  trimmedName: string,
+  routeData: NonNullable<SaveRouteSheetProps['routeData']>
+): SaveRoutePayload => ({
+  name: trimmedName,
+  planInput: routeData.planInput,
+  routeSnapshot: routeData.routeSnapshot,
+  routeIndex: routeData.routeIndex,
+  snapshotMeta: routeData.snapshotMeta,
+  routeProvenance: routeData.routeProvenance,
+})
 
 /**
  * Save Route Sheet component
@@ -88,20 +110,16 @@ export const SaveRouteSheet: React.FC<SaveRouteSheetProps> = ({
     setError(null)
 
     try {
+      const payload = buildSaveRoutePayload(trimmedName, routeData)
       console.log('[SaveRouteSheet] Calling saveRoute with:', {
-        name: trimmedName,
-        planInput: routeData.planInput,
-        hasRouteSnapshot: !!routeData.routeSnapshot,
-        hasRouteIndex: !!routeData.routeIndex,
-        snapshotMeta: routeData.snapshotMeta,
+        name: payload.name,
+        planInput: payload.planInput,
+        hasRouteSnapshot: !!payload.routeSnapshot,
+        hasRouteIndex: !!payload.routeIndex,
+        snapshotMeta: payload.snapshotMeta,
+        hasRouteProvenance: !!payload.routeProvenance,
       })
-      await saveRoute({
-        name: trimmedName,
-        planInput: routeData.planInput,
-        routeSnapshot: routeData.routeSnapshot,
-        routeIndex: routeData.routeIndex,
-        snapshotMeta: routeData.snapshotMeta,
-      })
+      await saveRoute(payload)
       console.log('[SaveRouteSheet] saveRoute succeeded')
       onSuccess?.()
       onClose()
