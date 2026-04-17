@@ -140,7 +140,7 @@ describe('summarizeToolResult', () => {
 describe('PlanningEventEmitter wiring — ExecuteContext has planning callbacks', () => {
   it('ExecuteContext type includes onSubToolPending', async () => {
     // If this import resolves and the type has the field, we can assign it
-    await import('../ridePlanningAgent.js')
+    void (await import('../ridePlanningAgent.js'))
 
     // If onSubToolPending doesn't exist on ExecuteContext, TypeScript would fail
     // at compile time. At runtime we just verify we can construct the shape.
