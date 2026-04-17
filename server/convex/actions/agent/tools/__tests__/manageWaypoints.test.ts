@@ -1,21 +1,21 @@
 // Set env variables before imports
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
-  addWaypoint,
-  listWaypoints,
-  applyWaypointDecisions,
-  presentDeviationOptions,
-  optimizeWaypointOrder,
   type AddWaypointResult,
-  type WaypointApprovalResult,
+  addWaypoint,
+  applyWaypointDecisions,
   isAddWaypointError,
   isWaypointApprovalError,
+  listWaypoints,
+  optimizeWaypointOrder,
+  presentDeviationOptions,
+  type WaypointApprovalResult,
 } from '../manageWaypoints'
 
 process.env.GOOGLE_MAPS_API_KEY = 'test-api-key'
 process.env.CLERK_WEBHOOK_SECRET = 'test-secret'
 
-'use node'
+;('use node')
 
 // Mock Id type for tests
 type Id<T> = string
@@ -35,7 +35,7 @@ describe('manageWaypoints', () => {
   describe('addWaypoint', () => {
     it('should add waypoint from coordinates', async () => {
       const result = await addWaypoint({
-        // @ts-ignore - Using mock ID for testing
+        // @ts-expect-error - Using mock ID for testing
         routePlanId: mockRoutePlanId,
         location: {
           type: 'coordinates',
@@ -57,17 +57,19 @@ describe('manageWaypoints', () => {
         ok: true,
         json: async () => ({
           status: 'OK',
-          results: [{
-            geometry: { location: { lat: 37.8199, lng: -122.4783 } },
-            formatted_address: 'Golden Gate Bridge, San Francisco, CA',
-            place_id: 'test-place-id',
-            types: ['establishment'],
-          }],
+          results: [
+            {
+              geometry: { location: { lat: 37.8199, lng: -122.4783 } },
+              formatted_address: 'Golden Gate Bridge, San Francisco, CA',
+              place_id: 'test-place-id',
+              types: ['establishment'],
+            },
+          ],
         }),
       })) as any
 
       const result = await addWaypoint({
-        // @ts-ignore - Using mock ID for testing
+        // @ts-expect-error - Using mock ID for testing
         routePlanId: mockRoutePlanId,
         location: {
           type: 'natural_language',
@@ -96,7 +98,7 @@ describe('manageWaypoints', () => {
       })) as any
 
       const result = await addWaypoint({
-        // @ts-ignore - Using mock ID for testing
+        // @ts-expect-error - Using mock ID for testing
         routePlanId: mockRoutePlanId,
         location: {
           type: 'natural_language',
@@ -116,7 +118,7 @@ describe('manageWaypoints', () => {
   describe('listWaypoints', () => {
     it('should list waypoints for route plan', async () => {
       const result = await listWaypoints({
-        // @ts-ignore - Using mock ID for testing
+        // @ts-expect-error - Using mock ID for testing
         routePlanId: mockRoutePlanId,
       })
 
@@ -130,9 +132,9 @@ describe('manageWaypoints', () => {
   describe('applyWaypointDecisions', () => {
     it('should approve and reject waypoints', async () => {
       const result = await applyWaypointDecisions({
-        // @ts-ignore - Using mock IDs for testing
+        // @ts-expect-error - Using mock IDs for testing
         routePlanId: mockRoutePlanId,
-        // @ts-ignore - Using mock IDs for testing
+        // @ts-expect-error - Using mock IDs for testing
         approvedWaypointIds: [mockWaypointId],
         rejectedWaypointIds: [],
       })
@@ -146,17 +148,16 @@ describe('manageWaypoints', () => {
 
     it('should enforce maximum waypoint limit', async () => {
       const result = await applyWaypointDecisions({
-        // @ts-ignore - Using mock IDs for testing
+        // @ts-expect-error - Using mock IDs for testing
         routePlanId: mockRoutePlanId,
-        // @ts-ignore - Using mock IDs for testing
         approvedWaypointIds: [
-          // @ts-ignore - Using mock IDs for testing
+          // @ts-expect-error - Using mock IDs for testing
           'wp1' as Id<'waypoints'>,
-          // @ts-ignore - Using mock IDs for testing
+          // @ts-expect-error - Using mock IDs for testing
           'wp2' as Id<'waypoints'>,
-          // @ts-ignore - Using mock IDs for testing
+          // @ts-expect-error - Using mock IDs for testing
           'wp3' as Id<'waypoints'>,
-          // @ts-ignore - Using mock IDs for testing
+          // @ts-expect-error - Using mock IDs for testing
           'wp4' as Id<'waypoints'>,
         ],
         rejectedWaypointIds: [],
@@ -173,7 +174,7 @@ describe('manageWaypoints', () => {
   describe('presentDeviationOptions', () => {
     it('should present deviation options for waypoint', async () => {
       const result = await presentDeviationOptions({
-        // @ts-ignore - Using mock ID for testing
+        // @ts-expect-error - Using mock ID for testing
         waypointId: mockWaypointId,
       })
 
@@ -184,15 +185,14 @@ describe('manageWaypoints', () => {
   describe('optimizeWaypointOrder', () => {
     it('should optimize waypoint order', async () => {
       const result = await optimizeWaypointOrder({
-        // @ts-ignore - Using mock IDs for testing
+        // @ts-expect-error - Using mock IDs for testing
         routePlanId: mockRoutePlanId,
-        // @ts-ignore - Using mock IDs for testing
         waypointIds: [
-          // @ts-ignore - Using mock IDs for testing
+          // @ts-expect-error - Using mock IDs for testing
           'wp1' as Id<'waypoints'>,
-          // @ts-ignore - Using mock IDs for testing
+          // @ts-expect-error - Using mock IDs for testing
           'wp2' as Id<'waypoints'>,
-          // @ts-ignore - Using mock IDs for testing
+          // @ts-expect-error - Using mock IDs for testing
           'wp3' as Id<'waypoints'>,
         ],
       })

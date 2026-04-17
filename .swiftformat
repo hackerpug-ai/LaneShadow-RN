@@ -1,0 +1,11 @@
+--indent 4
+--swiftversion 5.9
+--maxwidth 120
+--linebreaks lf
+--semicolons never
+--trailingCommas always
+--stripunusedargs closure-only
+--importgrouping testable-bottom
+--self remove
+--header strip
+--disable unusedArguments

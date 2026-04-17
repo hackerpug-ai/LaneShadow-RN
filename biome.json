@@ -1,0 +1,106 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.12/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": [
+      "**",
+      "!!**/dist",
+      "!!**/.expo",
+      "!!**/convex/_generated",
+      "!!**/.claude/worktrees",
+      "!!**/.worktrees",
+      "!!**/.tmp",
+      "!!**/venv",
+      "!!**/__mocks__",
+      "!!**/.spec",
+      "!!**/.husky",
+      "!!**/e2e",
+      "!!**/stories",
+      "!!**/fixtures",
+      "!!**/.rnstorybook",
+      "!!**/ios",
+      "!!**/android"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100,
+    "lineEnding": "lf"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "correctness": {
+        "useExhaustiveDependencies": "warn",
+        "noUnusedFunctionParameters": "off",
+        "noUnusedVariables": "warn",
+        "noChildrenProp": "off",
+        "useHookAtTopLevel": "warn",
+        "noUnsafeOptionalChaining": "warn",
+        "noInvalidUseBeforeDeclaration": "warn",
+        "noEmptyPattern": "warn"
+      },
+      "complexity": {
+        "noUselessCatch": "off"
+      },
+      "style": {
+        "useConst": "error",
+        "noNonNullAssertion": "off"
+      },
+      "suspicious": {
+        "noConsole": "warn",
+        "noDoubleEquals": "error",
+        "noExplicitAny": "off",
+        "noArrayIndexKey": "off",
+        "noImplicitAnyLet": "off",
+        "useIterableCallbackReturn": "off"
+      },
+      "a11y": {
+        "noSvgWithoutTitle": "off",
+        "useButtonType": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "semicolons": "asNeeded",
+      "trailingCommas": "all",
+      "arrowParentheses": "always"
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["*.json"],
+      "formatter": {
+        "lineWidth": 80
+      }
+    },
+    {
+      "includes": ["*.d.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noRedeclare": "off"
+          }
+        }
+      }
+    }
+  ],
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  }
+}

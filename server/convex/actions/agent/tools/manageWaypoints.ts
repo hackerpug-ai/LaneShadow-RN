@@ -1,18 +1,18 @@
 'use node'
 
 import {
+  type Context,
   complete,
   getModel,
-  Type,
-  type Context,
   type Tool,
   type ToolCall,
+  Type,
 } from '@mariozechner/pi-ai'
+import type { RouteSnapshot } from '../../../../models/saved-routes'
 import { internal } from '../../../_generated/api'
 import type { Id } from '../../../_generated/dataModel'
-import type { RouteSnapshot } from '../../../../models/saved-routes'
-import { calculateDeviation, type DeviationResult } from '../providers/waypointService'
 import { createRoutingProvider } from '../providers/routingProvider'
+import { calculateDeviation, type DeviationResult } from '../providers/waypointService'
 
 // ---------------------------------------------------------------------------
 // Type Definitions
@@ -127,7 +127,9 @@ export interface OptimizeWaypointOrderResultError {
   error: string
 }
 
-export type OptimizeWaypointOrderResult = OptimizeWaypointOrderResultSuccess | OptimizeWaypointOrderResultError
+export type OptimizeWaypointOrderResult =
+  | OptimizeWaypointOrderResultSuccess
+  | OptimizeWaypointOrderResultError
 
 // ---------------------------------------------------------------------------
 // Helper Functions
@@ -141,15 +143,21 @@ function isListWaypointsError(result: ListWaypointsResult): result is ListWaypoi
   return result.success === false
 }
 
-function isPresentDeviationError(result: PresentDeviationResult): result is PresentDeviationResultError {
+function isPresentDeviationError(
+  result: PresentDeviationResult,
+): result is PresentDeviationResultError {
   return result.success === false
 }
 
-function isWaypointApprovalError(result: WaypointApprovalResult): result is WaypointApprovalResultError {
+function isWaypointApprovalError(
+  result: WaypointApprovalResult,
+): result is WaypointApprovalResultError {
   return result.success === false
 }
 
-function isOptimizeWaypointOrderError(result: OptimizeWaypointOrderResult): result is OptimizeWaypointOrderResultError {
+function isOptimizeWaypointOrderError(
+  result: OptimizeWaypointOrderResult,
+): result is OptimizeWaypointOrderResultError {
   return result.success === false
 }
 
@@ -182,15 +190,19 @@ export const addWaypointFromLocation = {
       location: string | { lat: number; lng: number }
       routePlanId: string
     },
-    ctx: Context
+    ctx: Context,
   ) => {
     // Call the implementation function
-    const result = await addWaypointImpl({
-      routePlanId: args.routePlanId as Id<'route_plans'>,
-      location: typeof args.location === 'string'
-        ? { type: 'natural_language' as const, query: args.location }
-        : { type: 'coordinates' as const, lat: args.location.lat, lng: args.location.lng },
-    }, ctx)
+    const result = await addWaypointImpl(
+      {
+        routePlanId: args.routePlanId as Id<'route_plans'>,
+        location:
+          typeof args.location === 'string'
+            ? { type: 'natural_language' as const, query: args.location }
+            : { type: 'coordinates' as const, lat: args.location.lat, lng: args.location.lng },
+      },
+      ctx,
+    )
 
     if (isAddWaypointError(result)) {
       throw new Error(result.error)
@@ -215,7 +227,10 @@ export const listWaypointsTool = {
     routePlanId: Type.String(),
   }),
   handler: async (args: { routePlanId: string }, ctx: Context) => {
-    const result = await listWaypointsImpl({ routePlanId: args.routePlanId as Id<'route_plans'> }, ctx)
+    const result = await listWaypointsImpl(
+      { routePlanId: args.routePlanId as Id<'route_plans'> },
+      ctx,
+    )
     if (isListWaypointsError(result)) {
       throw new Error(result.error)
     }
@@ -235,11 +250,11 @@ export const presentDeviationOptionsTool = {
     waypointId: Type.String(),
     showApprovalUI: Type.Boolean(),
   }),
-  handler: async (
-    args: { waypointId: string; showApprovalUI: boolean },
-    ctx: Context
-  ) => {
-    const result = await presentDeviationOptionsImpl({ waypointId: args.waypointId as Id<'waypoints'> }, ctx)
+  handler: async (args: { waypointId: string; showApprovalUI: boolean }, ctx: Context) => {
+    const result = await presentDeviationOptionsImpl(
+      { waypointId: args.waypointId as Id<'waypoints'> },
+      ctx,
+    )
     if (isPresentDeviationError(result)) {
       throw new Error(result.error)
     }
@@ -269,13 +284,16 @@ export const applyWaypointDecisionsTool = {
       rejectedWaypointIds: string[]
       routePlanId: string
     },
-    ctx: Context
+    ctx: Context,
   ) => {
-    const result = await applyWaypointDecisionsImpl({
-      routePlanId: args.routePlanId as Id<'route_plans'>,
-      approvedWaypointIds: args.approvedWaypointIds as Id<'waypoints'>[],
-      rejectedWaypointIds: args.rejectedWaypointIds as Id<'waypoints'>[],
-    }, ctx)
+    const result = await applyWaypointDecisionsImpl(
+      {
+        routePlanId: args.routePlanId as Id<'route_plans'>,
+        approvedWaypointIds: args.approvedWaypointIds as Id<'waypoints'>[],
+        rejectedWaypointIds: args.rejectedWaypointIds as Id<'waypoints'>[],
+      },
+      ctx,
+    )
 
     if (isWaypointApprovalError(result)) {
       throw new Error(result.error)
@@ -302,10 +320,13 @@ export const optimizeWaypointOrderTool = {
     waypointIds: Type.Array(Type.String()),
   }),
   handler: async (args: { waypointIds: string[] }, ctx: Context) => {
-    const result = await optimizeWaypointOrderImpl({
-      routePlanId: '' as Id<'route_plans'>, // Not used in stub
-      waypointIds: args.waypointIds as Id<'waypoints'>[],
-    }, ctx)
+    const result = await optimizeWaypointOrderImpl(
+      {
+        routePlanId: '' as Id<'route_plans'>, // Not used in stub
+        waypointIds: args.waypointIds as Id<'waypoints'>[],
+      },
+      ctx,
+    )
 
     if (isOptimizeWaypointOrderError(result)) {
       throw new Error(result.error)
@@ -328,7 +349,7 @@ export async function addWaypointImpl(
     location: AddWaypointLocation
     locationBias?: { lat: number; lng: number }
   },
-  ctx: Context
+  ctx: Context,
 ): Promise<AddWaypointResult> {
   const ctxAny = ctx as any
   try {
@@ -339,26 +360,37 @@ export async function addWaypointImpl(
     if (args.location.type === 'natural_language') {
       // TODO: Implement geocoding via Google Geocoding API
       // For now, return error since geocoding isn't implemented
-      return { success: false, error: 'Geocoding not implemented', reason: 'geocoding_failed', } as AddWaypointResultError
+      return {
+        success: false,
+        error: 'Geocoding not implemented',
+        reason: 'geocoding_failed',
+      } as AddWaypointResultError
     } else {
       coordinates = { lat: args.location.lat, lng: args.location.lng }
     }
 
     // 2. Get route geometry for deviation calculation
-    const routePlan = await ctxAny.runQuery(
-      internal.db.routePlans.getPlanByIdInternal,
-      { routePlanId: args.routePlanId }
-    )
+    const routePlan = await ctxAny.runQuery(internal.db.routePlans.getPlanByIdInternal, {
+      routePlanId: args.routePlanId,
+    })
 
     if (!routePlan.result) {
-      return { success: false, error: 'Route plan not found', reason: 'route_not_found', } as AddWaypointResultError
+      return {
+        success: false,
+        error: 'Route plan not found',
+        reason: 'route_not_found',
+      } as AddWaypointResultError
     }
 
     const routeSnapshot = routePlan.result as RouteSnapshot
-    // @ts-ignore - RouteSnapshot type doesn't include map property in current type definition
+    // @ts-expect-error - RouteSnapshot type doesn't include map property in current type definition
     const routeGeometry = routeSnapshot.map?.polyline
     if (!routeGeometry) {
-      return { success: false, error: 'Route geometry not available', reason: 'route_not_found', } as AddWaypointResultError
+      return {
+        success: false,
+        error: 'Route geometry not available',
+        reason: 'route_not_found',
+      } as AddWaypointResultError
     }
 
     // 3. Calculate deviation using waypoint service
@@ -368,13 +400,15 @@ export async function addWaypointImpl(
     })
 
     // 4. Store waypoint with proper status workflow
-    // @ts-ignore - internal.waypoints type not fully defined in generated types
     const waypointId = await ctxAny.runMutation(internal.db.waypoints.createWaypoint, {
       routePlanId: args.routePlanId,
       kind: deviation.kind,
       location: coordinates,
       name: locationName,
-      description: deviation.kind === 'off_route' ? `+${Math.round(deviation.detourInfo.distanceAddedMeters)}m detour` : undefined,
+      description:
+        deviation.kind === 'off_route'
+          ? `+${Math.round(deviation.detourInfo.distanceAddedMeters)}m detour`
+          : undefined,
       detourInfo:
         deviation.kind === 'off_route'
           ? {
@@ -387,11 +421,14 @@ export async function addWaypointImpl(
     })
 
     // Fetch the created waypoint to return full data
-    // @ts-ignore - internal.waypoints type not fully defined in generated types
     const waypoint = await ctxAny.runQuery(internal.db.waypoints.getWaypoint, { waypointId })
 
     if (!waypoint) {
-      return { success: false, error: 'Failed to create waypoint', reason: 'unknown', } as AddWaypointResultError
+      return {
+        success: false,
+        error: 'Failed to create waypoint',
+        reason: 'unknown',
+      } as AddWaypointResultError
     }
 
     return {
@@ -400,7 +437,11 @@ export async function addWaypointImpl(
       deviation,
     }
   } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : String(error), reason: 'unknown', } as AddWaypointResultError
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+      reason: 'unknown',
+    } as AddWaypointResultError
   }
 }
 
@@ -409,11 +450,10 @@ export async function addWaypointImpl(
  */
 export async function listWaypointsImpl(
   args: { routePlanId: Id<'route_plans'> },
-  ctx: Context
+  ctx: Context,
 ): Promise<ListWaypointsResult> {
   const ctxAny = ctx as any
   try {
-    // @ts-ignore - internal.waypoints type not fully defined in generated types
     const waypoints = await ctxAny.runQuery(internal.db.waypoints.listWaypointsByRoutePlan, {
       routePlanId: args.routePlanId,
     })
@@ -423,7 +463,10 @@ export async function listWaypointsImpl(
       waypoints,
     }
   } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : String(error), } as ListWaypointsResultError
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    } as ListWaypointsResultError
   }
 }
 
@@ -432,11 +475,10 @@ export async function listWaypointsImpl(
  */
 export async function presentDeviationOptionsImpl(
   args: { waypointId: Id<'waypoints'> },
-  ctx: Context
+  ctx: Context,
 ): Promise<PresentDeviationResult> {
   const ctxAny = ctx as any
   try {
-    // @ts-ignore - internal.waypoints type not fully defined in generated types
     const waypoint = await ctxAny.runQuery(internal.db.waypoints.getWaypoint, {
       waypointId: args.waypointId,
     })
@@ -463,7 +505,10 @@ export async function presentDeviationOptionsImpl(
       deviationCost,
     }
   } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : String(error), } as ListWaypointsResultError
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    } as ListWaypointsResultError
   }
 }
 
@@ -476,22 +521,27 @@ export async function applyWaypointDecisionsImpl(
     approvedWaypointIds: Id<'waypoints'>[]
     rejectedWaypointIds: Id<'waypoints'>[]
   },
-  ctx: Context
+  ctx: Context,
 ): Promise<WaypointApprovalResult> {
   const ctxAny = ctx as any
   try {
     // Validate input
     if (args.approvedWaypointIds.length === 0) {
-      return { success: false, error: 'At least one waypoint must be approved', } as ListWaypointsResultError
+      return {
+        success: false,
+        error: 'At least one waypoint must be approved',
+      } as ListWaypointsResultError
     }
 
     if (args.approvedWaypointIds.length > 3) {
-      return { success: false, error: 'Cannot apply more than 3 waypoints (Google API limit)', } as ListWaypointsResultError
+      return {
+        success: false,
+        error: 'Cannot apply more than 3 waypoints (Google API limit)',
+      } as ListWaypointsResultError
     }
 
     // 1. Update statuses for approved waypoints
     for (const waypointId of args.approvedWaypointIds) {
-      // @ts-ignore - internal.waypoints type not fully defined in generated types
       await ctxAny.runMutation(internal.db.waypoints.updateWaypoint, {
         waypointId,
         status: 'approved',
@@ -500,7 +550,6 @@ export async function applyWaypointDecisionsImpl(
 
     // 2. Update statuses for rejected waypoints
     for (const waypointId of args.rejectedWaypointIds) {
-      // @ts-ignore - internal.waypoints type not fully defined in generated types
       await ctxAny.runMutation(internal.db.waypoints.updateWaypoint, {
         waypointId,
         status: 'rejected',
@@ -508,11 +557,13 @@ export async function applyWaypointDecisionsImpl(
     }
 
     // 3. Get approved waypoints sorted by order (if on-route)
-    // @ts-ignore - internal.waypoints type not fully defined in generated types
-    const approvedWaypoints = await ctxAny.runQuery(internal.db.waypoints.listWaypointsByRoutePlanAndStatus, {
-      routePlanId: args.routePlanId,
-      status: 'approved',
-    })
+    const approvedWaypoints = await ctxAny.runQuery(
+      internal.db.waypoints.listWaypointsByRoutePlanAndStatus,
+      {
+        routePlanId: args.routePlanId,
+        status: 'approved',
+      },
+    )
 
     // 4. Sort on-route waypoints by order, off-route don't need order
     const sortedWaypoints = approvedWaypoints.sort((a: any, b: any) => {
@@ -538,7 +589,10 @@ export async function applyWaypointDecisionsImpl(
       intermediates,
     }
   } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : String(error), } as ListWaypointsResultError
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    } as ListWaypointsResultError
   }
 }
 
@@ -551,7 +605,7 @@ export async function optimizeWaypointOrderImpl(
     routePlanId: Id<'route_plans'>
     waypointIds: Id<'waypoints'>[]
   },
-  ctx: Context
+  ctx: Context,
 ): Promise<OptimizeWaypointOrderResult> {
   try {
     // STUB: Full implementation would:
@@ -566,7 +620,10 @@ export async function optimizeWaypointOrderImpl(
       optimizedOrder: args.waypointIds,
     }
   } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : String(error), } as ListWaypointsResultError
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    } as ListWaypointsResultError
   }
 }
 
@@ -574,13 +631,11 @@ export async function optimizeWaypointOrderImpl(
 // Public API (exports for tests and direct calls)
 // ---------------------------------------------------------------------------
 
-export async function addWaypoint(
-  args: {
-    routePlanId: Id<'route_plans'>
-    location: AddWaypointLocation
-    locationBias?: { lat: number; lng: number }
-  }
-): Promise<AddWaypointResult> {
+export async function addWaypoint(args: {
+  routePlanId: Id<'route_plans'>
+  location: AddWaypointLocation
+  locationBias?: { lat: number; lng: number }
+}): Promise<AddWaypointResult> {
   // For test/direct calls, provide a mock implementation
   if (args.location.type === 'coordinates') {
     return {
@@ -599,10 +654,10 @@ export async function addWaypoint(
   // Natural language geocoding - uses global.fetch (mocked in tests)
   try {
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(args.location.query)}&key=${process.env.GOOGLE_MAPS_API_KEY || 'test-key'}`
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(args.location.query)}&key=${process.env.GOOGLE_MAPS_API_KEY || 'test-key'}`,
     )
 
-    const data = await response.json() as {
+    const data = (await response.json()) as {
       status: string
       results: {
         geometry: { location: { lat: number; lng: number } }
@@ -612,7 +667,11 @@ export async function addWaypoint(
     }
 
     if (data.status !== 'OK' || !data.results || data.results.length === 0) {
-      return { success: false, error: `Geocoding failed: ${data.status}`, reason: 'geocoding_failed' }
+      return {
+        success: false,
+        error: `Geocoding failed: ${data.status}`,
+        reason: 'geocoding_failed',
+      }
     }
 
     const result = data.results[0]
@@ -629,13 +688,17 @@ export async function addWaypoint(
       deviation: { kind: 'on_route' },
     }
   } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : String(error), reason: 'geocoding_failed' }
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+      reason: 'geocoding_failed',
+    }
   }
 }
 
-export async function listWaypoints(
-  args: { routePlanId: Id<'route_plans'> }
-): Promise<ListWaypointsResult> {
+export async function listWaypoints(args: {
+  routePlanId: Id<'route_plans'>
+}): Promise<ListWaypointsResult> {
   // For test/direct calls, return mock data
   return {
     success: true,
@@ -643,9 +706,9 @@ export async function listWaypoints(
   }
 }
 
-export async function presentDeviationOptions(
-  args: { waypointId: Id<'waypoints'> }
-): Promise<PresentDeviationResult> {
+export async function presentDeviationOptions(args: {
+  waypointId: Id<'waypoints'>
+}): Promise<PresentDeviationResult> {
   // For test/direct calls, return mock data
   return {
     success: true,
@@ -660,20 +723,24 @@ export async function presentDeviationOptions(
   }
 }
 
-export async function applyWaypointDecisions(
-  args: {
-    routePlanId: Id<'route_plans'>
-    approvedWaypointIds: Id<'waypoints'>[]
-    rejectedWaypointIds: Id<'waypoints'>[]
-  }
-): Promise<WaypointApprovalResult> {
+export async function applyWaypointDecisions(args: {
+  routePlanId: Id<'route_plans'>
+  approvedWaypointIds: Id<'waypoints'>[]
+  rejectedWaypointIds: Id<'waypoints'>[]
+}): Promise<WaypointApprovalResult> {
   // Validate input
   if (args.approvedWaypointIds.length === 0) {
-    return { success: false, error: 'At least one waypoint must be approved', } as ListWaypointsResultError
+    return {
+      success: false,
+      error: 'At least one waypoint must be approved',
+    } as ListWaypointsResultError
   }
 
   if (args.approvedWaypointIds.length > 3) {
-    return { success: false, error: 'Maximum is 3 waypoints (Google API limit)', } as ListWaypointsResultError
+    return {
+      success: false,
+      error: 'Maximum is 3 waypoints (Google API limit)',
+    } as ListWaypointsResultError
   }
 
   return {
@@ -683,12 +750,10 @@ export async function applyWaypointDecisions(
   }
 }
 
-export async function optimizeWaypointOrder(
-  args: {
-    routePlanId: Id<'route_plans'>
-    waypointIds: Id<'waypoints'>[]
-  }
-): Promise<OptimizeWaypointOrderResult> {
+export async function optimizeWaypointOrder(args: {
+  routePlanId: Id<'route_plans'>
+  waypointIds: Id<'waypoints'>[]
+}): Promise<OptimizeWaypointOrderResult> {
   // For test/direct calls, return input as optimized
   return {
     success: true,
@@ -699,7 +764,7 @@ export async function optimizeWaypointOrder(
 export {
   isAddWaypointError,
   isListWaypointsError,
+  isOptimizeWaypointOrderError,
   isPresentDeviationError,
   isWaypointApprovalError,
-  isOptimizeWaypointOrderError,
 }
