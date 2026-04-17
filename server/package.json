@@ -13,6 +13,9 @@
     "convex:codegen": "sh -c 'if [ ! -d convex ]; then echo \"Missing server/convex. Establish backend code in a downstream restructure task before running Convex commands.\"; exit 1; fi; if [ \"${1:-}\" = \"--\" ]; then shift; fi; npx convex codegen \"$@\"' --",
     "convex:dashboard": "sh -c 'if [ ! -d convex ]; then echo \"Missing server/convex. Establish backend code in a downstream restructure task before running Convex commands.\"; exit 1; fi; if [ \"${1:-}\" = \"--\" ]; then shift; fi; npx convex dashboard \"$@\"' --"
   },
+  "dependencies": {
+    "convex": "^1.34.1"
+  },
   "engines": {
     "node": ">=20"
   }
