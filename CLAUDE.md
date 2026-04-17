@@ -17,7 +17,7 @@ Consult it for:
 
 - Backend operational root: `server/`
 - Convex code root: `server/convex/`
-- Mobile app root: repository root today; planned migration target is `react-native/`
+- Mobile app root: `react-native/`
 
 ## Toolchain Baseline
 

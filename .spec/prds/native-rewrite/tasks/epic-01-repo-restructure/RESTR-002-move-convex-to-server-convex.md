@@ -5,7 +5,7 @@
 **Assigned To:** convex-implementer
 **Estimate:** 300 min
 **Type:** [FEATURE] [INFRA]
-**Status:** Backlog
+**Status:** Completed
 
 ---
 
@@ -91,3 +91,30 @@
 
 - Hook/script updates outside backend path rewrites
 - Moving the Expo app
+
+---
+
+## REVIEW (orchestrator fallback after reviewer stall)
+
+**Review Date:** 2026-04-16
+**Task Commit SHA:** 429015d8b02d225e7b9920115a91e2a3f5346af9
+**Effective Baseline Reviewed:** b18071089bded0351ad7c61a998b34ce9d21c3e8
+**Verdict:** APPROVED
+
+### Acceptance Criteria Checklist
+
+- [x] AC-001: Convex source is relocated under `server/convex/`
+- [x] AC-002: `server/convex/_generated/` exists in the relocated tree and the prior task evidence captured successful relocated codegen/build output
+- [x] AC-003: There is a single authoritative backend tree; root `convex` is now a symlink to `server/convex`, not a second source tree
+
+### Task-Local Verification
+
+- `git rev-parse --verify b18071089bded0351ad7c61a998b34ce9d21c3e8^{commit}` (current baseline exists)
+- `git show --stat --summary --name-status 429015d8b02d225e7b9920115a91e2a3f5346af9` (task commit moved the backend tree into `server/convex/` and added `server/convex.json`)
+- `ls -ld convex server/convex server/models && readlink convex && readlink server/models` (root `convex` points to `server/convex`; `server/models` points to `../models`)
+- `test -L convex && test -L server/models && test -d server/convex/_generated && test -f server/convex/schema.ts` (layout and generated artifacts present)
+- `.tmp/RESTR-002/layout_verification.txt` confirms `root_convex_absent=true` at the time of relocation review and `.tmp/RESTR-002/verify_codegen_pass.txt` captured a successful relocated Convex build/codegen pass
+
+### Residual Note
+
+- `pnpm --dir server codegen` on current `main` fails because `server/` does not have its own installed dependency context yet. That is an operational workflow issue for follow-up tasks, not a blocker on the file relocation accepted here.

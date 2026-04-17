@@ -50,8 +50,9 @@ const reactNativeStubPlugin = () => ({
       return resolve(__dirname, '__mocks__/expo-modules-core.ts')
     }
     // @convex-dev/geospatial is a Convex component that needs to be resolved
+    // node_modules are hoisted to repo root by pnpm
     if (source === '@convex-dev/geospatial' || source.startsWith('@convex-dev/geospatial/')) {
-      return resolve(__dirname, 'node_modules/@convex-dev/geospatial/dist/client/index.js')
+      return resolve(__dirname, '../node_modules/@convex-dev/geospatial/dist/client/index.js')
     }
     // expo-crypto requires native modules
     if (source === 'expo-crypto') {

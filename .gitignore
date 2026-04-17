@@ -38,9 +38,11 @@ yarn-error.*
 
 app-example
 
-# generated native folders
+# generated native folders (Expo prebuild output — not tracked)
 /ios
 /android
+/react-native/ios
+/react-native/android
 
 # Detox
 .detox/

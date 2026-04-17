@@ -3,6 +3,7 @@
     "version": ">= 18.4.0",
     "appVersionSource": "remote"
   },
+  "projectRoot": "./react-native",
   "build": {
     "development": {
       "developmentClient": true,

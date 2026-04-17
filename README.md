@@ -11,12 +11,20 @@ Tooling/runtime command truth for this restructure baseline is defined by this R
 
 ```text
 LaneShadow/
+├── react-native/           # Expo app workspace
+│   ├── app/                # Expo Router app directory
+│   ├── components/         # React Native components
+│   ├── hooks/              # Custom hooks
+│   ├── screens/            # Screen components
+│   ├── stores/             # State management
+│   ├── providers/          # Context providers
+│   ├── app.config.ts       # Expo configuration
+│   └── package.json        # App workspace entry
 ├── server/                 # Backend workspace root
 │   ├── convex/             # Convex functions, schema, generated files
 │   └── package.json        # Backend command entry points
-├── react-native/           # Planned Expo app root (created in RESTR-005)
-├── app/ components/ ...    # Current Expo app location (temporary)
 ├── lefthook.yml            # Git hook configuration
+├── pnpm-workspace.yaml     # Monorepo workspace config
 └── package.json            # Root command delegator
 ```
 
@@ -43,9 +51,7 @@ LaneShadow/
 - `pnpm android`
 - `pnpm web`
 
-App scripts are migration-safe:
-- If `react-native/` exists, commands run there.
-- If it does not exist yet, commands run from repository root.
+App scripts delegate to the `react-native/` workspace.
 
 ### Combined workflow
 
@@ -60,7 +66,7 @@ Hooks are managed with `lefthook`:
 
 ## Environment
 
-Create `.env.local` at the active app root (currently repo root; later `react-native/`) and set:
+Create `.env.local` at `react-native/` and set:
 
 - `EXPO_PUBLIC_CONVEX_URL`
 

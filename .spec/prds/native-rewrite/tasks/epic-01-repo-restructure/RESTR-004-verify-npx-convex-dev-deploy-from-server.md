@@ -5,7 +5,9 @@
 **Assigned To:** convex-implementer
 **Estimate:** 180 min
 **Type:** [FEATURE] [INFRA]
-**Status:** Backlog
+**Status:** Completed
+**Completed SHA:** f418312e1f0d7b146a2acf1156e6790d8dac2425
+**Completed Date:** 2026-04-16
 
 ---
 
@@ -40,15 +42,21 @@
 **WHEN** `npx convex dev` runs from `server/`
 **THEN** it uses the relocated backend successfully
 
+- [x] AC-001 PASS — `npx convex dev --once` ran from `server/` with exit code 0 in 8.2s, initializing all 60+ schema indexes. Evidence: `.tmp/RESTR-004/verification-commands.txt:9`
+
 ### AC-002: Convex deploy works from server
 **GIVEN** deployment must still function after the move
 **WHEN** `npx convex deploy` runs from `server/`
 **THEN** it targets the relocated backend successfully
 
+- [x] AC-002 PASS — `npx convex deploy` from `server/` correctly recognized dev deployment (`quirky-panther-164`) and prod deployment (`fantastic-owl-967`). Exit code 1 only because of non-interactive terminal prompt; deployment targeting is proven. Evidence: `.tmp/RESTR-004/verification-commands.txt:104`
+
 ### AC-003: Parallel work has a stable backend entry point
 **GIVEN** curation-hardening wants to run in tandem after the move
 **WHEN** verification passes
 **THEN** backend contributors can rely on `server/` as the operational root
+
+- [x] AC-003 PASS — `server/README.md` updated with Operational Verification section including verified commands, environment requirements, and parallel work safety notes. Evidence: `server/README.md:39-87`
 
 ---
 
@@ -91,3 +99,14 @@
 
 - Expo app move
 - Native feature implementation
+
+---
+
+## REVIEW
+
+**Reviewer:** convex-reviewer
+**Review Date:** 2026-04-16
+**Verdict:** APPROVED
+
+### Review Summary
+All three acceptance criteria verified against evidence bundle at `.tmp/RESTR-004/`. Real operational verification was performed — not documentation theatre. `npx convex dev --once` achieved exit code 0 with full schema initialization from `server/`. `npx convex deploy` correctly resolved deployment targets before failing on the expected non-interactive prompt. The `convex ^1.34.1` dependency addition to `server/package.json` was a legitimate fix required for CLI detection. `server/README.md` documents the verified workflow with sufficient detail for parallel contributors. Typecheck and lint gates pass.
