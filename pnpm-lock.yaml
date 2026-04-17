@@ -4,300 +4,310 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-dependencies:
-  '@aws-sdk/client-s3':
-    specifier: ^3.1026.0
-    version: 3.1026.0
-  '@aws-sdk/s3-request-presigner':
-    specifier: ^3.1026.0
-    version: 3.1026.0
-  '@clerk/backend':
-    specifier: ^1.9.0
-    version: 1.34.0(react-dom@19.1.0)(react@19.1.0)(svix@1.84.1)
-  '@clerk/clerk-expo':
-    specifier: ^2.19.17
-    version: 2.19.17(@solana/web3.js@1.98.4)(@types/react@19.1.17)(bs58@6.0.0)(expo-auth-session@7.0.10)(expo-crypto@15.0.8)(expo-secure-store@15.0.8)(expo-web-browser@15.0.10)(fastestsmallesttextencoderdecoder@1.0.22)(react-dom@19.1.0)(react-native@0.81.5)(react@19.1.0)(typescript@5.9.3)(zod@3.25.76)
-  '@convex-dev/geospatial':
-    specifier: ^0.2.1
-    version: 0.2.1(convex@1.34.1)
-  '@expo/vector-icons':
-    specifier: ^15.0.3
-    version: 15.0.3(expo-font@14.0.10)(react-native@0.81.5)(react@19.1.0)
-  '@gorhom/bottom-sheet':
-    specifier: ^5.2.8
-    version: 5.2.8(@types/react@19.1.17)(react-native-gesture-handler@2.28.0)(react-native-reanimated@4.1.7)(react-native@0.81.5)(react@19.1.0)
-  '@hookform/resolvers':
-    specifier: ^5.2.2
-    version: 5.2.2(react-hook-form@7.71.0)
-  '@mapbox/polyline':
-    specifier: ^1.2.1
-    version: 1.2.1
-  '@mapbox/vector-tile':
-    specifier: ^2.0.4
-    version: 2.0.4
-  '@mariozechner/pi-agent-core':
-    specifier: ^0.63.1
-    version: 0.63.1(ws@8.18.3)(zod@3.25.76)
-  '@mariozechner/pi-ai':
-    specifier: ^0.63.1
-    version: 0.63.1(ws@8.18.3)(zod@3.25.76)
-  '@osmix/pbf':
-    specifier: ^0.0.9
-    version: 0.0.9
-  '@osmix/shared':
-    specifier: ^0.0.13
-    version: 0.0.13
-  '@react-native-async-storage/async-storage':
-    specifier: ^2.2.0
-    version: 2.2.0(react-native@0.81.5)
-  '@react-native-community/datetimepicker':
-    specifier: ^8.6.0
-    version: 8.6.0(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
-  '@react-native-community/netinfo':
-    specifier: 11.4.1
-    version: 11.4.1(react-native@0.81.5)
-  '@react-navigation/bottom-tabs':
-    specifier: ^7.4.0
-    version: 7.4.8(@react-navigation/native@7.1.18)(react-native-safe-area-context@5.6.1)(react-native-screens@4.16.0)(react-native@0.81.5)(react@19.1.0)
-  '@react-navigation/elements':
-    specifier: ^2.6.3
-    version: 2.6.5(@react-navigation/native@7.1.18)(react-native-safe-area-context@5.6.1)(react-native@0.81.5)(react@19.1.0)
-  '@react-navigation/native':
-    specifier: ^7.1.8
-    version: 7.1.18(react-native@0.81.5)(react@19.1.0)
-  '@rnmapbox/maps':
-    specifier: ^10.1.0
-    version: 10.3.0(expo@54.0.31)(react-dom@19.1.0)(react-native@0.81.5)(react@19.1.0)
-  '@sinclair/typebox':
-    specifier: ^0.33.0
-    version: 0.33.22
-  '@testing-library/react-native':
-    specifier: ^13.3.3
-    version: 13.3.3(react-native@0.81.5)(react-test-renderer@19.1.0)(react@19.1.0)
-  convex:
-    specifier: ^1.34.1
-    version: 1.34.1(react@19.1.0)
-  convex-helpers:
-    specifier: ^0.1.60
-    version: 0.1.104(convex@1.34.1)(react@19.1.0)(typescript@5.9.3)(zod@3.25.76)
-  date-fns:
-    specifier: ^4.1.0
-    version: 4.1.0
-  expo:
-    specifier: ~54.0.31
-    version: 54.0.31(@babel/core@7.29.0)(@expo/metro-runtime@6.1.2)(expo-router@6.0.21)(react-native@0.81.5)(react@19.1.0)
-  expo-auth-session:
-    specifier: ^7.0.10
-    version: 7.0.10(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
-  expo-background-fetch:
-    specifier: ^14.0.9
-    version: 14.0.9(expo@54.0.31)(react-native@0.81.5)
-  expo-constants:
-    specifier: ~18.0.13
-    version: 18.0.13(expo@54.0.31)(react-native@0.81.5)
-  expo-crypto:
-    specifier: ~15.0.8
-    version: 15.0.8(expo@54.0.31)
-  expo-dev-client:
-    specifier: ~6.0.20
-    version: 6.0.20(expo@54.0.31)
-  expo-file-system:
-    specifier: ~19.0.21
-    version: 19.0.21(expo@54.0.31)(react-native@0.81.5)
-  expo-font:
-    specifier: ~14.0.10
-    version: 14.0.10(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
-  expo-haptics:
-    specifier: ~15.0.8
-    version: 15.0.8(expo@54.0.31)
-  expo-image-picker:
-    specifier: ~17.0.10
-    version: 17.0.10(expo@54.0.31)
-  expo-linear-gradient:
-    specifier: ~15.0.8
-    version: 15.0.8(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
-  expo-linking:
-    specifier: ~8.0.11
-    version: 8.0.11(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
-  expo-location:
-    specifier: ~19.0.8
-    version: 19.0.8(expo@54.0.31)
-  expo-notifications:
-    specifier: ^55.0.18
-    version: 55.0.18(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)(typescript@5.9.3)
-  expo-router:
-    specifier: ~6.0.21
-    version: 6.0.21(@expo/metro-runtime@6.1.2)(@testing-library/react-native@13.3.3)(@types/react@19.1.17)(expo-constants@18.0.13)(expo-linking@8.0.11)(expo@54.0.31)(react-dom@19.1.0)(react-native-gesture-handler@2.28.0)(react-native-reanimated@4.1.7)(react-native-safe-area-context@5.6.1)(react-native-screens@4.16.0)(react-native-web@0.21.1)(react-native@0.81.5)(react@19.1.0)
-  expo-secure-store:
-    specifier: ~15.0.8
-    version: 15.0.8(expo@54.0.31)
-  expo-splash-screen:
-    specifier: ~31.0.13
-    version: 31.0.13(expo@54.0.31)
-  expo-sqlite:
-    specifier: ~16.0.10
-    version: 16.0.10(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
-  expo-status-bar:
-    specifier: ~3.0.9
-    version: 3.0.9(react-native@0.81.5)(react@19.1.0)
-  expo-symbols:
-    specifier: ~1.0.8
-    version: 1.0.8(expo@54.0.31)(react-native@0.81.5)
-  expo-system-ui:
-    specifier: ~6.0.9
-    version: 6.0.9(expo@54.0.31)(react-native-web@0.21.1)(react-native@0.81.5)
-  expo-task-manager:
-    specifier: ^14.0.9
-    version: 14.0.9(expo@54.0.31)(react-native@0.81.5)
-  expo-web-browser:
-    specifier: ~15.0.10
-    version: 15.0.10(expo@54.0.31)(react-native@0.81.5)
-  nodes2ts:
-    specifier: ^4.0.2
-    version: 4.0.2
-  osm-pbf-parser:
-    specifier: ^2.3.0
-    version: 2.3.0
-  osmtogeojson:
-    specifier: 3.0.0-beta.5
-    version: 3.0.0-beta.5
-  pbf:
-    specifier: ^4.0.1
-    version: 4.0.1
-  pmtiles:
-    specifier: ^4.4.0
-    version: 4.4.0
-  react:
-    specifier: 19.1.0
-    version: 19.1.0
-  react-dom:
-    specifier: 19.1.0
-    version: 19.1.0(react@19.1.0)
-  react-hook-form:
-    specifier: ^7.71.0
-    version: 7.71.0(react@19.1.0)
-  react-native:
-    specifier: 0.81.5
-    version: 0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0)
-  react-native-gesture-handler:
-    specifier: ~2.28.0
-    version: 2.28.0(react-native@0.81.5)(react@19.1.0)
-  react-native-maps:
-    specifier: 1.14.0
-    version: 1.14.0(react-native-web@0.21.1)(react-native@0.81.5)(react@19.1.0)
-  react-native-markdown-display:
-    specifier: ^7.0.2
-    version: 7.0.2(react-native@0.81.5)(react@19.1.0)
-  react-native-notifier:
-    specifier: ^2.0.0
-    version: 2.0.0(react-native-gesture-handler@2.28.0)(react-native@0.81.5)(react@19.1.0)
-  react-native-paper:
-    specifier: ^5.14.5
-    version: 5.14.5(react-native-safe-area-context@5.6.1)(react-native@0.81.5)(react@19.1.0)
-  react-native-reanimated:
-    specifier: ~4.1.7
-    version: 4.1.7(react-native-worklets@0.5.1)(react-native@0.81.5)(react@19.1.0)
-  react-native-safe-area-context:
-    specifier: ~5.6.1
-    version: 5.6.1(react-native@0.81.5)(react@19.1.0)
-  react-native-screens:
-    specifier: ~4.16.0
-    version: 4.16.0(react-native@0.81.5)(react@19.1.0)
-  react-native-svg:
-    specifier: 15.12.1
-    version: 15.12.1(react-native@0.81.5)(react@19.1.0)
-  react-native-toast-message:
-    specifier: ^2.3.3
-    version: 2.3.3(react-native@0.81.5)(react@19.1.0)
-  react-native-web:
-    specifier: ~0.21.0
-    version: 0.21.1(react-dom@19.1.0)(react@19.1.0)
-  react-native-worklets:
-    specifier: 0.5.1
-    version: 0.5.1(@babel/core@7.29.0)(react-native@0.81.5)(react@19.1.0)
-  svix:
-    specifier: ^1.30.0
-    version: 1.84.1
-  zod:
-    specifier: ^3.24.1
-    version: 3.25.76
-  zustand:
-    specifier: ^5.0.8
-    version: 5.0.8(@types/react@19.1.17)(react@19.1.0)
+importers:
 
-devDependencies:
-  '@aws-sdk/lib-storage':
-    specifier: ^3.1026.0
-    version: 3.1026.0(@aws-sdk/client-s3@3.1026.0)
-  '@biomejs/biome':
-    specifier: ^2.4.12
-    version: 2.4.12
-  '@langchain/core':
-    specifier: ^1.1.12
-    version: 1.1.39(ws@8.18.3)
-  '@langchain/langgraph':
-    specifier: ^1.0.15
-    version: 1.2.7(@langchain/core@1.1.39)(react-dom@19.1.0)(react@19.1.0)(zod@3.25.76)
-  '@langchain/openai':
-    specifier: ^1.2.1
-    version: 1.4.2(@langchain/core@1.1.39)(ws@8.18.3)
-  '@storybook/addon-ondevice-actions':
-    specifier: ^10.2.3
-    version: 10.2.3(react-native@0.81.5)(react@19.1.0)(storybook@10.3.4)
-  '@storybook/addon-ondevice-controls':
-    specifier: ^10.2.3
-    version: 10.2.3(@gorhom/bottom-sheet@5.2.8)(@react-native-community/datetimepicker@8.6.0)(@react-native-community/slider@5.2.0)(react-dom@19.1.0)(react-native@0.81.5)(react@19.1.0)(storybook@10.3.4)(typescript@5.9.3)
-  '@storybook/react-native':
-    specifier: ^10.2.3
-    version: 10.2.3(@gorhom/bottom-sheet@5.2.8)(esbuild@0.28.0)(react-dom@19.1.0)(react-native-gesture-handler@2.28.0)(react-native-reanimated@4.1.7)(react-native-safe-area-context@5.6.1)(react-native-svg@15.12.1)(react-native@0.81.5)(react@19.1.0)(storybook@10.3.4)(typescript@5.9.3)
-  '@testing-library/jest-dom':
-    specifier: ^6.9.1
-    version: 6.9.1
-  '@testing-library/react':
-    specifier: ^16.3.2
-    version: 16.3.2(@testing-library/dom@10.4.1)(@types/react@19.1.17)(react-dom@19.1.0)(react@19.1.0)
-  '@types/node':
-    specifier: ^22.18.10
-    version: 22.18.10
-  '@types/pbf':
-    specifier: ^3.0.5
-    version: 3.0.5
-  '@types/react':
-    specifier: ~19.1.17
-    version: 19.1.17
-  '@typescript/native-preview':
-    specifier: 7.0.0-dev.20260416.2
-    version: 7.0.0-dev.20260416.2
-  '@vitest/ui':
-    specifier: ^3.0.9
-    version: 3.2.4(vitest@3.2.4)
-  dotenv:
-    specifier: ^16.6.0
-    version: 16.6.1
-  jsdom:
-    specifier: ^29.0.1
-    version: 29.0.1
-  langchain:
-    specifier: ^1.2.7
-    version: 1.3.0(@langchain/core@1.1.39)(react-dom@19.1.0)(react@19.1.0)(ws@8.18.3)
-  langsmith:
-    specifier: ^0.5.16
-    version: 0.5.16(ws@8.18.3)
-  lefthook:
-    specifier: ^2.1.6
-    version: 2.1.6
-  react-test-renderer:
-    specifier: 19.1.0
-    version: 19.1.0(react@19.1.0)
-  tsx:
-    specifier: ^4.20.6
-    version: 4.20.6
-  typescript:
-    specifier: ~5.9.2
-    version: 5.9.3
-  vitest:
-    specifier: ^3.0.9
-    version: 3.2.4(@types/node@22.18.10)(@vitest/ui@3.2.4)(jsdom@29.0.1)(tsx@4.20.6)
+  .:
+    dependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.1026.0
+        version: 3.1026.0
+      '@aws-sdk/s3-request-presigner':
+        specifier: ^3.1026.0
+        version: 3.1026.0
+      '@clerk/backend':
+        specifier: ^1.9.0
+        version: 1.34.0(react-dom@19.1.0)(react@19.1.0)(svix@1.84.1)
+      '@clerk/clerk-expo':
+        specifier: ^2.19.17
+        version: 2.19.17(@solana/web3.js@1.98.4)(@types/react@19.1.17)(bs58@6.0.0)(expo-auth-session@7.0.10)(expo-crypto@15.0.8)(expo-secure-store@15.0.8)(expo-web-browser@15.0.10)(fastestsmallesttextencoderdecoder@1.0.22)(react-dom@19.1.0)(react-native@0.81.5)(react@19.1.0)(typescript@5.9.3)(zod@3.25.76)
+      '@convex-dev/geospatial':
+        specifier: ^0.2.1
+        version: 0.2.1(convex@1.34.1)
+      '@expo/vector-icons':
+        specifier: ^15.0.3
+        version: 15.0.3(expo-font@14.0.10)(react-native@0.81.5)(react@19.1.0)
+      '@gorhom/bottom-sheet':
+        specifier: ^5.2.8
+        version: 5.2.8(@types/react@19.1.17)(react-native-gesture-handler@2.28.0)(react-native-reanimated@4.1.7)(react-native@0.81.5)(react@19.1.0)
+      '@hookform/resolvers':
+        specifier: ^5.2.2
+        version: 5.2.2(react-hook-form@7.71.0)
+      '@mapbox/polyline':
+        specifier: ^1.2.1
+        version: 1.2.1
+      '@mapbox/vector-tile':
+        specifier: ^2.0.4
+        version: 2.0.4
+      '@mariozechner/pi-agent-core':
+        specifier: ^0.63.1
+        version: 0.63.1(ws@8.18.3)(zod@3.25.76)
+      '@mariozechner/pi-ai':
+        specifier: ^0.63.1
+        version: 0.63.1(ws@8.18.3)(zod@3.25.76)
+      '@osmix/pbf':
+        specifier: ^0.0.9
+        version: 0.0.9
+      '@osmix/shared':
+        specifier: ^0.0.13
+        version: 0.0.13
+      '@react-native-async-storage/async-storage':
+        specifier: ^2.2.0
+        version: 2.2.0(react-native@0.81.5)
+      '@react-native-community/datetimepicker':
+        specifier: ^8.6.0
+        version: 8.6.0(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
+      '@react-native-community/netinfo':
+        specifier: 11.4.1
+        version: 11.4.1(react-native@0.81.5)
+      '@react-navigation/bottom-tabs':
+        specifier: ^7.4.0
+        version: 7.4.8(@react-navigation/native@7.1.18)(react-native-safe-area-context@5.6.1)(react-native-screens@4.16.0)(react-native@0.81.5)(react@19.1.0)
+      '@react-navigation/elements':
+        specifier: ^2.6.3
+        version: 2.6.5(@react-navigation/native@7.1.18)(react-native-safe-area-context@5.6.1)(react-native@0.81.5)(react@19.1.0)
+      '@react-navigation/native':
+        specifier: ^7.1.8
+        version: 7.1.18(react-native@0.81.5)(react@19.1.0)
+      '@rnmapbox/maps':
+        specifier: ^10.1.0
+        version: 10.3.0(expo@54.0.31)(react-dom@19.1.0)(react-native@0.81.5)(react@19.1.0)
+      '@sinclair/typebox':
+        specifier: ^0.33.0
+        version: 0.33.22
+      '@testing-library/react-native':
+        specifier: ^13.3.3
+        version: 13.3.3(react-native@0.81.5)(react-test-renderer@19.1.0)(react@19.1.0)
+      convex:
+        specifier: ^1.34.1
+        version: 1.34.1(react@19.1.0)
+      convex-helpers:
+        specifier: ^0.1.60
+        version: 0.1.104(convex@1.34.1)(react@19.1.0)(typescript@5.9.3)(zod@3.25.76)
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
+      expo:
+        specifier: ~54.0.31
+        version: 54.0.31(@babel/core@7.29.0)(@expo/metro-runtime@6.1.2)(expo-router@6.0.21)(react-native@0.81.5)(react@19.1.0)
+      expo-auth-session:
+        specifier: ^7.0.10
+        version: 7.0.10(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
+      expo-background-fetch:
+        specifier: ^14.0.9
+        version: 14.0.9(expo@54.0.31)(react-native@0.81.5)
+      expo-constants:
+        specifier: ~18.0.13
+        version: 18.0.13(expo@54.0.31)(react-native@0.81.5)
+      expo-crypto:
+        specifier: ~15.0.8
+        version: 15.0.8(expo@54.0.31)
+      expo-dev-client:
+        specifier: ~6.0.20
+        version: 6.0.20(expo@54.0.31)
+      expo-file-system:
+        specifier: ~19.0.21
+        version: 19.0.21(expo@54.0.31)(react-native@0.81.5)
+      expo-font:
+        specifier: ~14.0.10
+        version: 14.0.10(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
+      expo-haptics:
+        specifier: ~15.0.8
+        version: 15.0.8(expo@54.0.31)
+      expo-image-picker:
+        specifier: ~17.0.10
+        version: 17.0.10(expo@54.0.31)
+      expo-linear-gradient:
+        specifier: ~15.0.8
+        version: 15.0.8(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
+      expo-linking:
+        specifier: ~8.0.11
+        version: 8.0.11(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
+      expo-location:
+        specifier: ~19.0.8
+        version: 19.0.8(expo@54.0.31)
+      expo-notifications:
+        specifier: ^55.0.18
+        version: 55.0.18(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)(typescript@5.9.3)
+      expo-router:
+        specifier: ~6.0.21
+        version: 6.0.21(@expo/metro-runtime@6.1.2)(@testing-library/react-native@13.3.3)(@types/react@19.1.17)(expo-constants@18.0.13)(expo-linking@8.0.11)(expo@54.0.31)(react-dom@19.1.0)(react-native-gesture-handler@2.28.0)(react-native-reanimated@4.1.7)(react-native-safe-area-context@5.6.1)(react-native-screens@4.16.0)(react-native-web@0.21.1)(react-native@0.81.5)(react@19.1.0)
+      expo-secure-store:
+        specifier: ~15.0.8
+        version: 15.0.8(expo@54.0.31)
+      expo-splash-screen:
+        specifier: ~31.0.13
+        version: 31.0.13(expo@54.0.31)
+      expo-sqlite:
+        specifier: ~16.0.10
+        version: 16.0.10(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
+      expo-status-bar:
+        specifier: ~3.0.9
+        version: 3.0.9(react-native@0.81.5)(react@19.1.0)
+      expo-symbols:
+        specifier: ~1.0.8
+        version: 1.0.8(expo@54.0.31)(react-native@0.81.5)
+      expo-system-ui:
+        specifier: ~6.0.9
+        version: 6.0.9(expo@54.0.31)(react-native-web@0.21.1)(react-native@0.81.5)
+      expo-task-manager:
+        specifier: ^14.0.9
+        version: 14.0.9(expo@54.0.31)(react-native@0.81.5)
+      expo-web-browser:
+        specifier: ~15.0.10
+        version: 15.0.10(expo@54.0.31)(react-native@0.81.5)
+      nodes2ts:
+        specifier: ^4.0.2
+        version: 4.0.2
+      osm-pbf-parser:
+        specifier: ^2.3.0
+        version: 2.3.0
+      osmtogeojson:
+        specifier: 3.0.0-beta.5
+        version: 3.0.0-beta.5
+      pbf:
+        specifier: ^4.0.1
+        version: 4.0.1
+      pmtiles:
+        specifier: ^4.4.0
+        version: 4.4.0
+      react:
+        specifier: 19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: 19.1.0
+        version: 19.1.0(react@19.1.0)
+      react-hook-form:
+        specifier: ^7.71.0
+        version: 7.71.0(react@19.1.0)
+      react-native:
+        specifier: 0.81.5
+        version: 0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0)
+      react-native-gesture-handler:
+        specifier: ~2.28.0
+        version: 2.28.0(react-native@0.81.5)(react@19.1.0)
+      react-native-maps:
+        specifier: 1.14.0
+        version: 1.14.0(react-native-web@0.21.1)(react-native@0.81.5)(react@19.1.0)
+      react-native-markdown-display:
+        specifier: ^7.0.2
+        version: 7.0.2(react-native@0.81.5)(react@19.1.0)
+      react-native-notifier:
+        specifier: ^2.0.0
+        version: 2.0.0(react-native-gesture-handler@2.28.0)(react-native@0.81.5)(react@19.1.0)
+      react-native-paper:
+        specifier: ^5.14.5
+        version: 5.14.5(react-native-safe-area-context@5.6.1)(react-native@0.81.5)(react@19.1.0)
+      react-native-reanimated:
+        specifier: ~4.1.7
+        version: 4.1.7(react-native-worklets@0.5.1)(react-native@0.81.5)(react@19.1.0)
+      react-native-safe-area-context:
+        specifier: ~5.6.1
+        version: 5.6.1(react-native@0.81.5)(react@19.1.0)
+      react-native-screens:
+        specifier: ~4.16.0
+        version: 4.16.0(react-native@0.81.5)(react@19.1.0)
+      react-native-svg:
+        specifier: 15.12.1
+        version: 15.12.1(react-native@0.81.5)(react@19.1.0)
+      react-native-toast-message:
+        specifier: ^2.3.3
+        version: 2.3.3(react-native@0.81.5)(react@19.1.0)
+      react-native-web:
+        specifier: ~0.21.0
+        version: 0.21.1(react-dom@19.1.0)(react@19.1.0)
+      react-native-worklets:
+        specifier: 0.5.1
+        version: 0.5.1(@babel/core@7.29.0)(react-native@0.81.5)(react@19.1.0)
+      svix:
+        specifier: ^1.30.0
+        version: 1.84.1
+      zod:
+        specifier: ^3.24.1
+        version: 3.25.76
+      zustand:
+        specifier: ^5.0.8
+        version: 5.0.8(@types/react@19.1.17)(react@19.1.0)
+    devDependencies:
+      '@aws-sdk/lib-storage':
+        specifier: ^3.1026.0
+        version: 3.1026.0(@aws-sdk/client-s3@3.1026.0)
+      '@biomejs/biome':
+        specifier: ^2.4.12
+        version: 2.4.12
+      '@langchain/core':
+        specifier: ^1.1.12
+        version: 1.1.39(ws@8.18.3)
+      '@langchain/langgraph':
+        specifier: ^1.0.15
+        version: 1.2.7(@langchain/core@1.1.39)(react-dom@19.1.0)(react@19.1.0)(zod@3.25.76)
+      '@langchain/openai':
+        specifier: ^1.2.1
+        version: 1.4.2(@langchain/core@1.1.39)(ws@8.18.3)
+      '@storybook/addon-ondevice-actions':
+        specifier: ^10.2.3
+        version: 10.2.3(react-native@0.81.5)(react@19.1.0)(storybook@10.3.4)
+      '@storybook/addon-ondevice-controls':
+        specifier: ^10.2.3
+        version: 10.2.3(@gorhom/bottom-sheet@5.2.8)(@react-native-community/datetimepicker@8.6.0)(@react-native-community/slider@5.2.0)(react-dom@19.1.0)(react-native@0.81.5)(react@19.1.0)(storybook@10.3.4)(typescript@5.9.3)
+      '@storybook/react-native':
+        specifier: ^10.2.3
+        version: 10.2.3(@gorhom/bottom-sheet@5.2.8)(esbuild@0.28.0)(react-dom@19.1.0)(react-native-gesture-handler@2.28.0)(react-native-reanimated@4.1.7)(react-native-safe-area-context@5.6.1)(react-native-svg@15.12.1)(react-native@0.81.5)(react@19.1.0)(storybook@10.3.4)(typescript@5.9.3)
+      '@testing-library/jest-dom':
+        specifier: ^6.9.1
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^16.3.2
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react@19.1.17)(react-dom@19.1.0)(react@19.1.0)
+      '@types/node':
+        specifier: ^22.18.10
+        version: 22.18.10
+      '@types/pbf':
+        specifier: ^3.0.5
+        version: 3.0.5
+      '@types/react':
+        specifier: ~19.1.17
+        version: 19.1.17
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260416.2
+        version: 7.0.0-dev.20260416.2
+      '@vitest/ui':
+        specifier: ^3.0.9
+        version: 3.2.4(vitest@3.2.4)
+      dotenv:
+        specifier: ^16.6.0
+        version: 16.6.1
+      jsdom:
+        specifier: ^29.0.1
+        version: 29.0.1
+      langchain:
+        specifier: ^1.2.7
+        version: 1.3.0(@langchain/core@1.1.39)(react-dom@19.1.0)(react@19.1.0)(ws@8.18.3)
+      langsmith:
+        specifier: ^0.5.16
+        version: 0.5.16(ws@8.18.3)
+      lefthook:
+        specifier: ^2.1.6
+        version: 2.1.6
+      react-test-renderer:
+        specifier: 19.1.0
+        version: 19.1.0(react@19.1.0)
+      tsx:
+        specifier: ^4.20.6
+        version: 4.20.6
+      typescript:
+        specifier: ~5.9.2
+        version: 5.9.3
+      vitest:
+        specifier: ^3.0.9
+        version: 3.2.4(@types/node@22.18.10)(@vitest/ui@3.2.4)(jsdom@29.0.1)(tsx@4.20.6)
+
+  react-native: {}
+
+  server:
+    dependencies:
+      convex:
+        specifier: ^1.34.1
+        version: 1.34.1(react@19.1.0)
 
 packages:
 
