@@ -5,7 +5,7 @@
  * Import and use in Convex actions, mutations, queries.
  */
 
-import type { LogLevel, LogCategory } from '../../lib/logger/types'
+import type { LogLevel, LogCategory } from '../../../lib/logger/types'
 
 /**
  * Log a structured message from Convex backend.

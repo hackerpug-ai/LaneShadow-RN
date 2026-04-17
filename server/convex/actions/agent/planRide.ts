@@ -15,7 +15,7 @@ import {
   temperatureSummaryValidator,
   windSummaryValidator,
 } from '../../../models/saved-routes'
-import type { PlannedRouteOptionsView } from '../../../types/routes'
+import type { PlannedRouteOptionsView } from '../../../../types/routes'
 import { requireSession } from '../../guards'
 import { internal } from '../../_generated/api'
 import { backend } from '../../lib/logger'
