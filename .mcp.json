@@ -9,7 +9,9 @@
         "mcp",
         "start",
         "--project-dir",
-        "/Users/justinrich/Projects/LaneShadow"
+        "/Users/justinrich/Projects/LaneShadow",
+        "--env-file",
+        ".env.local"
       ]
     }
   }
