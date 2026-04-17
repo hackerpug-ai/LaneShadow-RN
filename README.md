@@ -5,6 +5,7 @@ LaneShadow is a React Native + Convex project in the middle of a repo restructur
 ## Canonical Rules
 
 Project operating rules live in [RULES.md](./RULES.md).
+Tooling/runtime command truth for this restructure baseline is defined by this README, `lefthook.yml`, and workspace `package.json` scripts until `RULES.md` is fully synchronized.
 
 ## Current Repository Layout
 

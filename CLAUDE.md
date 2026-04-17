@@ -1,8 +1,8 @@
 # LaneShadow Project Instructions
 
-**All project rules are documented in [RULES.md](RULES.md).**
+**Core project governance is documented in [RULES.md](RULES.md).**
 
-This is the authoritative instruction document for all agents, subagents, and team members. Consult it for:
+Consult it for:
 - User context and personas
 - Local domain experts to dispatch
 - Agent and commit policies
@@ -11,7 +11,7 @@ This is the authoritative instruction document for all agents, subagents, and te
 - Convex backend guidelines
 - .spec directory structure
 
-**Start with [RULES.md](RULES.md).**
+**Start with [RULES.md](RULES.md).** For active hook/tooling commands during this restructure, follow `lefthook.yml` and workspace `package.json` scripts.
 
 ## Repo Layout (Current)
 

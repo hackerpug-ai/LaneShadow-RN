@@ -8,10 +8,10 @@
     "deploy": "pnpm run convex:deploy",
     "codegen": "pnpm run convex:codegen",
     "dashboard": "pnpm run convex:dashboard",
-    "convex:dev": "sh -c 'if [ ! -d convex ]; then echo \"Missing server/convex. Establish backend code in a downstream restructure task before running Convex commands.\"; exit 1; fi; npx convex dev'",
-    "convex:deploy": "sh -c 'if [ ! -d convex ]; then echo \"Missing server/convex. Establish backend code in a downstream restructure task before running Convex commands.\"; exit 1; fi; npx convex deploy'",
-    "convex:codegen": "sh -c 'if [ ! -d convex ]; then echo \"Missing server/convex. Establish backend code in a downstream restructure task before running Convex commands.\"; exit 1; fi; npx convex codegen'",
-    "convex:dashboard": "sh -c 'if [ ! -d convex ]; then echo \"Missing server/convex. Establish backend code in a downstream restructure task before running Convex commands.\"; exit 1; fi; npx convex dashboard'"
+    "convex:dev": "sh -c 'if [ ! -d convex ]; then echo \"Missing server/convex. Establish backend code in a downstream restructure task before running Convex commands.\"; exit 1; fi; if [ \"${1:-}\" = \"--\" ]; then shift; fi; npx convex dev \"$@\"' --",
+    "convex:deploy": "sh -c 'if [ ! -d convex ]; then echo \"Missing server/convex. Establish backend code in a downstream restructure task before running Convex commands.\"; exit 1; fi; if [ \"${1:-}\" = \"--\" ]; then shift; fi; npx convex deploy \"$@\"' --",
+    "convex:codegen": "sh -c 'if [ ! -d convex ]; then echo \"Missing server/convex. Establish backend code in a downstream restructure task before running Convex commands.\"; exit 1; fi; if [ \"${1:-}\" = \"--\" ]; then shift; fi; npx convex codegen \"$@\"' --",
+    "convex:dashboard": "sh -c 'if [ ! -d convex ]; then echo \"Missing server/convex. Establish backend code in a downstream restructure task before running Convex commands.\"; exit 1; fi; if [ \"${1:-}\" = \"--\" ]; then shift; fi; npx convex dashboard \"$@\"' --"
   },
   "engines": {
     "node": ">=20"
