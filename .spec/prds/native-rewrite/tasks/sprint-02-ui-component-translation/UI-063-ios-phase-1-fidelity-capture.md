@@ -77,7 +77,7 @@ Sprint 2 translates the React Native baseline into native platform components an
 | TC-3 | AC-3 | Animations are frozen or disabled, deterministic fixtures are used, and screenshots remain reproducible across runs. | `rg -n "deterministic\|fixtures\|Animation parity" .spec/prds/native-rewrite/08d-component-parity-spec.md .spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/SPRINT.md` |
 | TC-4 | AC-4 | Review findings clearly distinguish acceptable platform variance from parity failures that block downstream sprints. | `printf "review artifact expected for UI-063
 "` |
-| TC-5 | ALL | Repo validation gates remain green for the touched workspace when this task is complete. | `swiftformat --lint ios/LaneShadow --config .swiftformat && xcodebuild -workspace ios/LaneShadow.xcworkspace -scheme LaneShadow -destination "platform=iOS Simulator,name=iPhone 16" test` |
+| TC-5 | ALL | Repo validation gates remain green for the touched workspace when this task is complete. | `pnpm type-check:native && swiftformat --lint ios/LaneShadow --config .swiftformat && xcodebuild -workspace ios/LaneShadow.xcworkspace -scheme LaneShadow -destination "platform=iOS Simulator,name=iPhone 16" test` |
 
 ## READING LIST
 
@@ -130,6 +130,7 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 - Run the approved screenshot harness for the phase-1 set
 - Produce a variance report keyed by scenario ID
+- pnpm type-check:native
 - swiftformat --lint ios/LaneShadow --config .swiftformat
 - xcodebuild -workspace ios/LaneShadow.xcworkspace -scheme LaneShadow -destination "platform=iOS Simulator,name=iPhone 16" test
 
