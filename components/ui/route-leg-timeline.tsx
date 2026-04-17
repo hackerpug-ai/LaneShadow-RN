@@ -15,11 +15,19 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import type {
+  PlanInput,
+  RainOverlay,
+  RainSummary,
+  RouteLeg,
+  RouteOverlays,
+  WindOverlay,
+  WindSummary,
+} from '../../models/saved-routes'
+import { getWorstRainLevel, RAIN_SUMMARY, WIND_SUMMARY } from '../../models/saved-routes'
 import { WindBadge } from '../planning/wind-badge'
 import { RainBadge } from './rain-badge'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { getWorstRainLevel, RAIN_SUMMARY, WIND_SUMMARY } from '../../models/saved-routes'
-import type { RouteLeg, RouteOverlays, PlanInput, RainOverlay, WindOverlay , WindSummary, RainSummary } from '../../models/saved-routes'
 
 // ---------------------------------------------------------------------------
 // withAlpha utility (same as route-timeline.tsx, colocated for independence)
@@ -35,9 +43,9 @@ const withAlpha = (color: string, alpha: number): string => {
     const expand = (v: string) => v + v
     const toInt = (v: string) => Number.parseInt(v, 16)
 
-    const r = toInt(isShort ? expand(hex[0] ?? '0') : (hex.slice(0, 2) || '00'))
-    const g = toInt(isShort ? expand(hex[1] ?? '0') : (hex.slice(2, 4) || '00'))
-    const b = toInt(isShort ? expand(hex[2] ?? '0') : (hex.slice(4, 6) || '00'))
+    const r = toInt(isShort ? expand(hex[0] ?? '0') : hex.slice(0, 2) || '00')
+    const g = toInt(isShort ? expand(hex[1] ?? '0') : hex.slice(2, 4) || '00')
+    const b = toInt(isShort ? expand(hex[2] ?? '0') : hex.slice(4, 6) || '00')
     return `rgba(${r},${g},${b},${alpha})`
   }
 
@@ -60,7 +68,10 @@ const withAlpha = (color: string, alpha: number): string => {
 // Per-leg weather derivation utilities
 // ---------------------------------------------------------------------------
 
-const getWorstRainForLeg = (rainOverlay: RainOverlay | undefined, legIndex: number): RainSummary => {
+const getWorstRainForLeg = (
+  rainOverlay: RainOverlay | undefined,
+  legIndex: number,
+): RainSummary => {
   if (!rainOverlay) return RAIN_SUMMARY.UNAVAILABLE
   const legData = rainOverlay.byLeg.find((l) => l.legIndex === legIndex)
   if (!legData) return RAIN_SUMMARY.UNAVAILABLE
@@ -74,7 +85,10 @@ const getWorstRainForLeg = (rainOverlay: RainOverlay | undefined, legIndex: numb
   return getWorstRainLevel(singleLegOverlay)
 }
 
-const getWorstWindForLeg = (windOverlay: WindOverlay | undefined, legIndex: number): WindSummary => {
+const getWorstWindForLeg = (
+  windOverlay: WindOverlay | undefined,
+  legIndex: number,
+): WindSummary => {
   if (!windOverlay) return WIND_SUMMARY.UNAVAILABLE
   const legData = windOverlay.byLeg.find((l) => l.legIndex === legIndex)
   if (!legData || legData.segments.length === 0) return WIND_SUMMARY.UNAVAILABLE
@@ -113,7 +127,7 @@ const getLegLabel = (
   legIndex: number,
   position: 'start' | 'end',
   isFirstLeg: boolean,
-  isLastLeg: boolean
+  isLastLeg: boolean,
 ): string => {
   // Priority 1: Use AI-generated label if available
   if (stop.label) {
@@ -230,7 +244,7 @@ const LegItem = ({
                 borderRadius: semantic.radius.full,
                 backgroundColor: withAlpha(
                   semantic.color.onSurface.muted ?? semantic.color.onSurface.default,
-                  0.5
+                  0.5,
                 ),
               },
             ]}
@@ -278,7 +292,9 @@ const LegItem = ({
         </Text>
 
         {/* Distance + Duration row */}
-        <View style={[styles.statsRow, { gap: semantic.space.sm, marginBottom: semantic.space.xs }]}>
+        <View
+          style={[styles.statsRow, { gap: semantic.space.sm, marginBottom: semantic.space.xs }]}
+        >
           <Text
             variant="bodySmall"
             style={{ color: semantic.color.onSurface.default }}
@@ -286,10 +302,7 @@ const LegItem = ({
           >
             {formatLegDistance(leg.distanceMeters)}
           </Text>
-          <Text
-            variant="bodySmall"
-            style={{ color: semantic.color.onSurface.subtle }}
-          >
+          <Text variant="bodySmall" style={{ color: semantic.color.onSurface.subtle }}>
             {'\u00B7'}
           </Text>
           <Text
@@ -302,7 +315,9 @@ const LegItem = ({
         </View>
 
         {/* Weather badges row */}
-        <View style={[styles.badgesRow, { gap: semantic.space.xs, marginBottom: semantic.space.xs }]}>
+        <View
+          style={[styles.badgesRow, { gap: semantic.space.xs, marginBottom: semantic.space.xs }]}
+        >
           <WindBadge windLevel={legWind} testID={`segment-wind-badge-${index}`} />
           <RainBadge rainSummary={legRain} testID={`segment-rain-badge-${index}`} />
         </View>

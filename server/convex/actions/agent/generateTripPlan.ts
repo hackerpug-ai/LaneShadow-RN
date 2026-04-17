@@ -1,14 +1,14 @@
 'use node'
 
-import { v } from 'convex/values'
-import { action } from '../../_generated/server'
-import { api, internal } from '../../_generated/api'
-import { complete, getModel } from '@mariozechner/pi-ai'
 import type { AssistantMessage, Context, Message } from '@mariozechner/pi-ai'
+import { complete, getModel } from '@mariozechner/pi-ai'
+import { v } from 'convex/values'
 import { planInputValidator } from '../../../models/saved-routes'
+import type { TripLeg, TripPlan } from '../../../models/trip-plan'
 import { agentTripPlanSchema } from '../../../models/trip-plan'
-import type { TripPlan, TripLeg } from '../../../models/trip-plan'
+import { api, internal } from '../../_generated/api'
 import type { Id } from '../../_generated/dataModel'
+import { action } from '../../_generated/server'
 import { getAgentModel, getAgentModelInfo } from './lib/models'
 
 // ---------------------------------------------------------------------------
@@ -49,7 +49,7 @@ function buildUserMessage(
     nlpText?: string
     preferences?: { avoidHighways?: boolean; avoidTolls?: boolean }
   },
-  context?: GenerateContext
+  context?: GenerateContext,
 ): string {
   const startLabel = planInput.start.label ?? `${planInput.start.lat},${planInput.start.lng}`
   const endLabel = planInput.end.label ?? `${planInput.end.lat},${planInput.end.lng}`
@@ -74,7 +74,7 @@ function buildUserMessage(
 
   if (context?.suggestedWaypoints && context.suggestedWaypoints.length > 0) {
     parts.push(
-      `If these waypoints are naturally along your route, use them as leg transition points (omit silently if off-route): ${context.suggestedWaypoints.join(', ')}`
+      `If these waypoints are naturally along your route, use them as leg transition points (omit silently if off-route): ${context.suggestedWaypoints.join(', ')}`,
     )
   }
 
@@ -120,9 +120,7 @@ function validateLegs(legs: TripLeg[]): LegValidationFailure[] {
 
     // geographic continuity: leg[n].to === leg[n+1].from
     if (i < legs.length - 1 && leg.to !== legs[i + 1].from) {
-      reasons.push(
-        `leg.to "${leg.to}" does not match next leg.from "${legs[i + 1].from}"`
-      )
+      reasons.push(`leg.to "${leg.to}" does not match next leg.from "${legs[i + 1].from}"`)
     }
 
     // no duplicate via values
@@ -149,10 +147,11 @@ function validateLegs(legs: TripLeg[]): LegValidationFailure[] {
 function buildRetryMessage(
   failures: LegValidationFailure[],
   currentPlan: TripPlan,
-  isFinalAttempt: boolean
+  isFinalAttempt: boolean,
 ): string {
   const failureLines = failures.map(
-    (f) => `Leg ${f.legIndex}: '${currentPlan.legs[f.legIndex]?.googleMapsQuery ?? ''}' — ${f.failureReason}`
+    (f) =>
+      `Leg ${f.legIndex}: '${currentPlan.legs[f.legIndex]?.googleMapsQuery ?? ''}' — ${f.failureReason}`,
   )
 
   const parts = [
@@ -182,9 +181,10 @@ function tagPersistedWaypoints(legs: TripLeg[], suggestedWaypoints: string[]): T
       const matchesFrom = leg.from.toLowerCase().includes(waypointLower)
       const matchesTo = leg.to.toLowerCase().includes(waypointLower)
       const viaTokens = leg.via.split(/[\s,/]+/)
-      const matchesVia = viaTokens.some((token) =>
-        token.toLowerCase().includes(waypointLower) ||
-        waypointLower.includes(token.toLowerCase())
+      const matchesVia = viaTokens.some(
+        (token) =>
+          token.toLowerCase().includes(waypointLower) ||
+          waypointLower.includes(token.toLowerCase()),
       )
 
       if (matchesFrom || matchesTo || matchesVia) {
@@ -224,7 +224,10 @@ async function callLLM(piMessages: Message[]): Promise<string> {
 
 function parseTripPlan(rawText: string): TripPlan {
   // Strip any accidental markdown fences
-  const cleaned = rawText.replace(/^```(?:json)?\n?/m, '').replace(/\n?```$/m, '').trim()
+  const cleaned = rawText
+    .replace(/^```(?:json)?\n?/m, '')
+    .replace(/\n?```$/m, '')
+    .trim()
   const parsed = JSON.parse(cleaned)
   return agentTripPlanSchema.parse(parsed) as TripPlan
 }
@@ -240,7 +243,7 @@ export const generateTripPlan = action({
       v.object({
         previousPlanSummary: v.optional(v.string()),
         suggestedWaypoints: v.optional(v.array(v.string())),
-      })
+      }),
     ),
   },
   returns: v.id('trip_plans'),
@@ -309,7 +312,14 @@ export const generateTripPlan = action({
           api: 'anthropic',
           provider: modelInfo.provider,
           model: modelInfo.model,
-          usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, totalTokens: 0, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } },
+          usage: {
+            input: 0,
+            output: 0,
+            cacheRead: 0,
+            cacheWrite: 0,
+            totalTokens: 0,
+            cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
+          },
           stopReason: 'stop',
           timestamp: Date.now(),
         } as AssistantMessage)
@@ -325,7 +335,8 @@ export const generateTripPlan = action({
           if (attempt < MAX_ATTEMPTS) {
             piMessages.push({
               role: 'user',
-              content: 'Your response was not valid JSON matching the TripPlan schema. Return ONLY valid JSON, no prose or markdown fences.',
+              content:
+                'Your response was not valid JSON matching the TripPlan schema. Return ONLY valid JSON, no prose or markdown fences.',
               timestamp: Date.now(),
             })
           }

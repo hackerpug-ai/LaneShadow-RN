@@ -1,5 +1,5 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { ConvexError } from 'convex/values'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { insertHandler } from '../savedRoutes'
 
@@ -59,10 +59,10 @@ describe('insert name validation', () => {
   it('AC-1: throws ConvexError for whitespace-only name', async () => {
     const ctx = makeCtx()
     await expect(
-      insertHandler(ctx as any, { ...baseArgs, name: '   ' } as any, CLERK_USER_ID)
+      insertHandler(ctx as any, { ...baseArgs, name: '   ' } as any, CLERK_USER_ID),
     ).rejects.toThrow(ConvexError)
     await expect(
-      insertHandler(ctx as any, { ...baseArgs, name: '   ' } as any, CLERK_USER_ID)
+      insertHandler(ctx as any, { ...baseArgs, name: '   ' } as any, CLERK_USER_ID),
     ).rejects.toThrow('Route name cannot be empty')
   })
 
@@ -70,10 +70,10 @@ describe('insert name validation', () => {
     const ctx = makeCtx()
     const longName = 'a'.repeat(101)
     await expect(
-      insertHandler(ctx as any, { ...baseArgs, name: longName } as any, CLERK_USER_ID)
+      insertHandler(ctx as any, { ...baseArgs, name: longName } as any, CLERK_USER_ID),
     ).rejects.toThrow(ConvexError)
     await expect(
-      insertHandler(ctx as any, { ...baseArgs, name: longName } as any, CLERK_USER_ID)
+      insertHandler(ctx as any, { ...baseArgs, name: longName } as any, CLERK_USER_ID),
     ).rejects.toThrow('Route name must be 100 characters or less')
   })
 
@@ -82,7 +82,7 @@ describe('insert name validation', () => {
     await insertHandler(ctx as any, { ...baseArgs, name: '  My Route  ' } as any, CLERK_USER_ID)
     expect(ctx.db.insert).toHaveBeenCalledWith(
       'saved_routes',
-      expect.objectContaining({ name: 'My Route' })
+      expect.objectContaining({ name: 'My Route' }),
     )
   })
 
@@ -90,7 +90,7 @@ describe('insert name validation', () => {
     const ctx = makeCtx()
     const validName = 'a'.repeat(100)
     await expect(
-      insertHandler(ctx as any, { ...baseArgs, name: validName } as any, CLERK_USER_ID)
+      insertHandler(ctx as any, { ...baseArgs, name: validName } as any, CLERK_USER_ID),
     ).resolves.toEqual({ savedRouteId: 'saved_routes_id_new123' })
   })
 })

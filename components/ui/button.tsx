@@ -15,7 +15,7 @@ import type { StyleProp, TextStyle, ViewStyle } from 'react-native'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { IconSymbol, type IconName } from './icon-symbol'
+import { type IconName, IconSymbol } from './icon-symbol'
 
 /**
  * Button size variants

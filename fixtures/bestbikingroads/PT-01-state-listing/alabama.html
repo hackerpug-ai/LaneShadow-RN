@@ -3,10 +3,9 @@
     <html class="" lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
     <head>
         
-        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        <script>((w,d,s,l,i)=> {w[l]=w[l]||[];w[l].push({'gtm.start':Date.now(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!=='dataLayer'?`&l=${l}`:'';j.async=true;j.src=
+    `https://www.googletagmanager.com/gtm.js?id=${i}${dl}`;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-WX4KNH');</script>
             
     <meta charset="UTF-8">
@@ -83,33 +82,33 @@
  
     <script>  
         
-    $(document).ready(function () { 
-        $("#q").on('input', function(e){
+    $(document).ready(() => { 
+        $("#q").on('input', function(_e){
             var q = $(this).val();
             var urlEndpoint = "/dsearch.php";
-            urlEndpoint += "?q=" + q;
-            var textContent = "No Results Returned For '"+q+"'";
+            urlEndpoint += `?q=${q}`;
+            var textContent = `No Results Returned For '${q}'`;
             
-            $.getJSON(urlEndpoint, function (responseA) {
+            $.getJSON(urlEndpoint, (responseA) => {
                 rLen = responseA.length;
                 textContent ="";
                 var listLength = responseA[0].list_size;
                 var additionResults = listLength - 19;
                                 textContent += "<span style=\"color:red\">Please Login or <a href=\"touring-biker-community/member-signup1\">Register</a> to view these results as links</span><br>";
                 for (i = 0; i < rLen; i++) {  
-                   if (responseA[i].result_type == 2) 
+                   if (responseA[i].result_type === 2) 
                    {
-                       textContent += responseA[i].two_name+" ("+responseA[i].two_routes_count+" Routes)<br>";
+                       textContent += `${responseA[i].two_name} (${responseA[i].two_routes_count} Routes)<br>`;
                    }
-                   if (responseA[i].result_type == 1) 
+                   if (responseA[i].result_type === 1) 
                    {
-                                              textContent += responseA[i].title+" ("+responseA[i].area_name+", "+responseA[i].country_name+" Rating "+responseA[i].comments_ave_rating+"/5)<br>";
+                                              textContent += `${responseA[i].title} (${responseA[i].area_name}, ${responseA[i].country_name} Rating ${responseA[i].comments_ave_rating}/5)<br>`;
                    }
                    
                                }   
                 if (listLength > 39)
                 {
-                                        textContent += "And "+additionResults+" Additional Results";
+                                        textContent += `And ${additionResults} Additional Results`;
                 }
                 document.getElementById("results").innerHTML = textContent; 
  
@@ -119,33 +118,33 @@
         });
     });   
 
-$(document).ready(function () { 
-        $("#s").on('input', function(e){
+$(document).ready(() => { 
+        $("#s").on('input', function(_e){
             var q = $(this).val();
             var urlEndpoint = "/dsearch.php";
-            urlEndpoint += "?q=" + q;
-            var textContent = "No Results Returned For '"+q+"'";
+            urlEndpoint += `?q=${q}`;
+            var textContent = `No Results Returned For '${q}'`;
             
-            $.getJSON(urlEndpoint, function (responseA) {
+            $.getJSON(urlEndpoint, (responseA) => {
                 rLen = responseA.length;
                 textContent ="";
                 var listLength = responseA[0].list_size;
                 var additionResults = listLength - 19;
                                 textContent += "<span style=\"color:red\">Please Login or <a href=\"touring-biker-community/member-signup1\">Register</a> to view these results as links</span><br>";
                 for (i = 0; i < rLen; i++) {  
-                   if (responseA[i].result_type == 2) 
+                   if (responseA[i].result_type === 2) 
                    {
-                       textContent += responseA[i].two_name+" ("+responseA[i].two_routes_count+" Routes)<br>";
+                       textContent += `${responseA[i].two_name} (${responseA[i].two_routes_count} Routes)<br>`;
                    }
-                   if (responseA[i].result_type == 1) 
+                   if (responseA[i].result_type === 1) 
                    {
-                       textContent += responseA[i].title+" ("+responseA[i].area_name+", "+responseA[i].country_name+" Rating "+responseA[i].comments_ave_rating+"/5 : "+responseA[i].no_of_comments+" Reviews)<br>";
+                       textContent += `${responseA[i].title} (${responseA[i].area_name}, ${responseA[i].country_name} Rating ${responseA[i].comments_ave_rating}/5 : ${responseA[i].no_of_comments} Reviews)<br>`;
                    }
                    
                                }   
                 if (listLength > 39)
                 {
-                                        textContent += "And "+additionResults+" Additional Results";
+                                        textContent += `And ${additionResults} Additional Results`;
                 }
                 document.getElementById("results").innerHTML = textContent; 
  
@@ -163,7 +162,7 @@ $(document).ready(function () {
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
              
         <script src="/js/banner10-newsite.js"></script>
-        <script type="text/javascript">$(function() { $.smartbanner() } )</script><script type="text/javascript" src="/forum/includes/js/vendor/plupload.full.min.js"></script>
+        <script type="text/javascript">$(() => { $.smartbanner() } )</script><script type="text/javascript" src="/forum/includes/js/vendor/plupload.full.min.js"></script>
 <!--<script type="text/javascript" src="/js/vendor/jquery.form.js"></script>-->
 <script type="text/javascript" src="/forum/includes/js/vendor/jquery.validate.min.js"></script>
 <script type="text/javascript" src="/forum/includes/js/vendor/jquery-ui.min.js"></script>
@@ -455,14 +454,14 @@ $(document).ready(function () {
 
 <script> 
         
-    $('.click-list').click(function(e){
+    $('.click-list').click(function(_e){
         
         if ($($(this).attr("data-target")).is(':visible'))
         {
             var text1 = $(this).text().trimStart();
             var text1a = text1.trimEnd();
             var text2 = text1a.substring(2);
-            var text3 = "+ "+text2;
+            var text3 = `+ ${text2}`;
             $(this).text(text3);   
         }
         else
@@ -470,7 +469,7 @@ $(document).ready(function () {
             var text1 = $(this).text().trimStart();
             var text1a = text1.trimEnd();
             var text2 = text1a.substring(2);
-            var text3 = "- "+text2;
+            var text3 = `- ${text2}`;
             $(this).text(text3);  
         }
         
@@ -501,7 +500,7 @@ $(document).ready(function () {
 
     
       
-  button.addEventListener("click", function() {
+  button.addEventListener("click", () => {
     if (tooltip.getAttribute('data-show') == null)
     {
         show();
@@ -523,14 +522,14 @@ function hide() {
   tooltip.removeAttribute('data-show');
 }
 
-function showProfile() {
+function _showProfile() {
     profileTooltip.setAttribute('data-show', '');
     // We need to tell Popper to update the tooltip position
     // after we show the tooltip, otherwise it will be incorrect
     profilePopperInstance.update();
 }
 
-function hideProfile() {
+function _hideProfile() {
     profileTooltip.removeAttribute('data-show');
 }
 </script>
@@ -606,38 +605,38 @@ function hideProfile() {
 	<script type="text/javascript">
             
                 var s = false;
-        var abc = function()
+        var abc = ()=> 
         {
-            if ($(window).scrollTop() == $(document).height() - $(window).height() && s == false)
+            if ($(window).scrollTop() === $(document).height() - $(window).height() && s === false)
             {
                                 s = true; 		
                                                 $(".reviewholder").last().after("<div id=\"loading\" class=\"reviewholder\">LOADING...<div class=\"usersummary\"></div></div>");
                 $.getJSON("/droutesummaries.php?code=23",
-                function(json){
+                (json)=> {
                                 var length = json.reviews.length;
                 for (var i=0;i<length;i++)
                 { 
-                    var userurl = json.reviews[i]['userurl'];
-                    var username = json.reviews[i]['username'];
-                    var avatarurl = json.reviews[i]['avatarurl'];
-                    var userscore = json.reviews[i]['userscore'];
-                    var mainbike = json.reviews[i]['mainbike'];
-                    var title = json.reviews[i]['title']; 
-                    var routeurl = json.reviews[i]['routeurl'];
-                    var areaname = json.reviews[i]['areaname'];
-                    var countryname = json.reviews[i]['countryname'];
-                    var cutdowncomment = json.reviews[i]['cutdowncomment'];
-                    var dateentered= json.reviews[i]['dateentered'];
-                    var ratingsinfo = json.reviews[i]['ratingsinfo'];
+                    var userurl = json.reviews[i].userurl;
+                    var username = json.reviews[i].username;
+                    var avatarurl = json.reviews[i].avatarurl;
+                    var userscore = json.reviews[i].userscore;
+                    var mainbike = json.reviews[i].mainbike;
+                    var title = json.reviews[i].title; 
+                    var routeurl = json.reviews[i].routeurl;
+                    var areaname = json.reviews[i].areaname;
+                    var countryname = json.reviews[i].countryname;
+                    var cutdowncomment = json.reviews[i].cutdowncomment;
+                    var dateentered= json.reviews[i].dateentered;
+                    var ratingsinfo = json.reviews[i].ratingsinfo;
 
-                    var text = '<div class="reviewholder"><div class="usersummary"> \
-                    <a href="'+userurl+'" title="Community Member '+username+'"> \
-                    <img alt="'+username+' Avatar" title="Avatar Image For '+username+'" src="'+avatarurl+'"/>\
-                    </a><ul class="nobullets"><li><a href="'+userurl+'" title="Community Member '+username+'">'+username+'</a>\
-                    </li><li>'+mainbike+'</li><li>Score: '+userscore+'</li></ul></div>\
-                    <div class="textcontent"><h2><a href="'+routeurl+'" title="Community Member '+username+'">'+title+'</a>\
-                    <br />'+areaname+', '+countryname+'<br />'+dateentered+' - '+ratingsinfo+'</h2>'+cutdowncomment+'<br /><br />\
-                    </div><!-- end textcontent --></div><!-- end reviewholder -->';
+                    var text = `<div class="reviewholder"><div class="usersummary"> \
+                    <a href="${userurl}" title="Community Member ${username}"> \
+                    <img alt="${username} Avatar" title="Avatar Image For ${username}" src="${avatarurl}"/>\
+                    </a><ul class="nobullets"><li><a href="${userurl}" title="Community Member ${username}">${username}</a>\
+                    </li><li>${mainbike}</li><li>Score: ${userscore}</li></ul></div>\
+                    <div class="textcontent"><h2><a href="${routeurl}" title="Community Member ${username}">${title}</a>\
+                    <br />${areaname}, ${countryname}<br />${dateentered} - ${ratingsinfo}</h2>${cutdowncomment}<br /><br />\
+                    </div><!-- end textcontent --></div><!-- end reviewholder -->`;
                                                                                 $(".reviewholder").last().after(text);	
                                         $('#loading').remove();
                 }
@@ -3383,10 +3382,10 @@ function hideProfile() {
      
     
     var clicks = 0;
-    $("#map-port").click(function(){
+    $("#map-port").click(()=> {
     
                  
-        if (clicks == 0)
+        if (clicks === 0)
         {
             
                         $('#map-ad').hide();
@@ -3400,7 +3399,7 @@ function hideProfile() {
     var map;
     var polyline;
     var polylines_props = [];
-    var route1;
+    var _route1;
     window.onload = map3.innerHTML = "Click/Tap Here To Load Map";
     
     var mapAlreadyLoaded = false;
@@ -3408,9 +3407,9 @@ function hideProfile() {
     function loadMap()
     {	
          
-            if (request.readyState == 4) 
+            if (request.readyState === 4) 
             {
-                if (request.status == 200) 
+                if (request.status === 200) 
                 {	
                         	
                         var options = 
@@ -3434,7 +3433,7 @@ function hideProfile() {
                         const legend = document.getElementById("legend");
                         const div = document.createElement("div");
 
-                        let foo = String.raw`<fieldset>
+                        const foo = String.raw`<fieldset>
                         <input type="radio" name="show-hide" onclick="showOnlyRedPolylines()">Show Top Rated<br>
                         <input type="radio" name="show-hide" onclick="showOnlyCurvyRoutes()">Show Twistiest<br>    
                         <input type="radio" name="show-hide" onclick="hideLongRoutes()">Hide Long Routes<br>
@@ -3449,7 +3448,7 @@ function hideProfile() {
                         legend.appendChild(div);
                         map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(legend);
 
-                        itemsArray=eval('('+mapDataRequest.responseText+')');
+                        itemsArray=eval(`(${mapDataRequest.responseText})`);
 
                         var bounds = new google.maps.LatLngBounds();
                         var strokeOpacity = 0.5;
@@ -3478,7 +3477,7 @@ function hideProfile() {
 
                             bounds.extend(s);
                             bounds.extend(e);
-                            (function(i, polyline)
+                            ((i, polyline)=> 
                             {
                                 google.maps.event.addListener(polyline, 'click', function(event) 
                                 {
@@ -3506,7 +3505,7 @@ function hideProfile() {
                                         infowindow.open(map,this);
 
                                 });
-                                google.maps.event.addListener(polyline, 'dblclick', function() 
+                                google.maps.event.addListener(polyline, 'dblclick', () => 
                                 {
                                     location.href=itemsArray[i].url;
                                 }); 
@@ -3534,7 +3533,7 @@ function hideProfile() {
         $('#heat-map-btn-div').show();
 
 
-        if (mapAlreadyLoaded == false)
+        if (mapAlreadyLoaded === false)
         {
             replaceNodeText("map3","Loading 69 routes please be patient");
 
@@ -3555,21 +3554,21 @@ function hideProfile() {
     }
     
         
-    function hideAllPolylines(){
+    function _hideAllPolylines(){
         for (i=0; i<polylines_props.length; i++){                           
             polylines_props[i][0].setVisible(false);
         }
     }
   
-    function showAllPolylines(){
+    function _showAllPolylines(){
         for (i=0; i<polylines_props.length; i++){                           
             polylines_props[i][0].setVisible(true);
         }
     }
     s
-    function showOnlyRedPolylines(){
+    function _showOnlyRedPolylines(){
         for (i=0; i<polylines_props.length; i++){ 
-            if (polylines_props[i][0].strokeColor == "#FF0000"){
+            if (polylines_props[i][0].strokeColor === "#FF0000"){
                 polylines_props[i][0].setVisible(true);
             }
             else{
@@ -3578,7 +3577,7 @@ function hideProfile() {
         }
     }
     
-    function hideLongRoutes(){
+    function _hideLongRoutes(){
         for (i=0; i<polylines_props.length; i++){ 
             if (polylines_props[i][1].length > 250){
                 polylines_props[i][0].setVisible(false);
@@ -3589,9 +3588,9 @@ function hideProfile() {
         }
     }
     
-    function showOnlyOffRoadRoutes(){
+    function _showOnlyOffRoadRoutes(){
         for (i=0; i<polylines_props.length; i++){ 
-            if (polylines_props[i][1].road_type_id==9){
+            if (polylines_props[i][1].road_type_id===9){
                 polylines_props[i][0].setVisible(true);
             }
             else{
@@ -3601,7 +3600,7 @@ function hideProfile() {
     }
     
         
-    function showOnlyCurvyRoutes(){
+    function _showOnlyCurvyRoutes(){
         for (i=0; i<polylines_props.length; i++){
                         if (polylines_props[i][1].curviness>1.8){
                 polylines_props[i][0].setVisible(true);
@@ -3612,9 +3611,9 @@ function hideProfile() {
         }
     }
     
-    function voteThisItem(v,o,t){
-    var jqxhr = $.ajax( "/capture-vote.php?v="+v+"&o="+o+"&t="+t )
-    .done(function(data) {
+    function _voteThisItem(v,o,t){
+    var _jqxhr = $.ajax( `/capture-vote.php?v=${v}&o=${o}&t=${t}` )
+    .done((data) => {
                 refreshVoteResult(o,t,data);
         return data;
     })
@@ -3622,7 +3621,7 @@ function hideProfile() {
     
     function refreshVoteResult(o,t,d)
     {
-        var divId= "#votes-"+o+"-"+t;
+        var divId= `#votes-${o}-${t}`;
         $(divId).text(d);
     }
     
@@ -3636,7 +3635,7 @@ function hideProfile() {
 
 <script>
 // Can also be used with $(document).ready()
-$(window).on('load', function(){
+$(window).on('load', ()=> {
   $('.flexslider').flexslider({
     animation: "slide",
     animationLoop: false,
@@ -3761,18 +3760,18 @@ if (localStorage.getItem("cookieBannerDisplayed"))
     localStorage.setItem("consentGiven", "consent:true"); 
 }
 
-cookieButton.addEventListener("click", function() {
+cookieButton.addEventListener("click", () => {
     cookieContainer.classList.remove("active");
     localStorage.setItem("cookieBannerDisplayed", "true");
     localStorage.setItem("consentGiven", "consent:true");
 });
 
-rejectButton.addEventListener("click", function() {
+rejectButton.addEventListener("click", () => {
     cookieContainer.classList.remove("active");
     localStorage.setItem("consentGiven", "consent:false");
     });
 
-setTimeout( function() { 
+setTimeout( () => { 
     if (!localStorage.getItem("cookieBannerDisplayed"))
     cookieContainer.classList.add("active");
 }, 1000);
@@ -3782,17 +3781,17 @@ setTimeout( function() {
 <script>
 function getCookie(name) {
     var dc = document.cookie;
-    var prefix = name + "=";
-    var begin = dc.indexOf("; " + prefix);
-    if (begin == -1) {
+    var prefix = `${name}=`;
+    var begin = dc.indexOf(`; ${prefix}`);
+    if (begin === -1) {
         begin = dc.indexOf(prefix);
-        if (begin != 0) return null;
+        if (begin !== 0) return null;
     }
     else
     {
         begin += 2;
         var end = document.cookie.indexOf(";", begin);
-        if (end == -1) {
+        if (end === -1) {
         end = dc.length;
         }
     }

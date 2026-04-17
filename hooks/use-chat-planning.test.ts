@@ -14,9 +14,9 @@
  * - AC5: TypeScript compilation succeeds
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 import React from 'react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // -------------------------------------------------------------------------
 // Imports after mocks
@@ -30,7 +30,9 @@ import type { RideFlowAction } from './use-ride-flow'
 // -------------------------------------------------------------------------
 
 const mockCreateSession = vi.fn(() => Promise.resolve({ sessionId: 'session123' }))
-const mockSendMessage = vi.fn(() => Promise.resolve({ response: 'OK', messageId: 'msg123' as const, attachments: [] }))
+const mockSendMessage = vi.fn(() =>
+  Promise.resolve({ response: 'OK', messageId: 'msg123' as const, attachments: [] }),
+)
 
 vi.mock('convex/react', () => ({
   ConvexProvider: ({ children }: any) => React.createElement('div', { children }),
@@ -50,7 +52,9 @@ describe('useChatPlanning', () => {
       dispatchedActions.push(action)
     }
     mockCreateSession.mockImplementation(() => Promise.resolve({ sessionId: 'session123' }))
-    mockSendMessage.mockImplementation(() => Promise.resolve({ response: 'OK', messageId: 'msg123' as const, attachments: [] }))
+    mockSendMessage.mockImplementation(() =>
+      Promise.resolve({ response: 'OK', messageId: 'msg123' as const, attachments: [] }),
+    )
   })
 
   describe('AC1: Hook exposes the minimal API surface', () => {

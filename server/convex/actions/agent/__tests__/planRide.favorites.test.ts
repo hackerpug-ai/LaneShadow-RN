@@ -7,9 +7,9 @@
  * Following TDD principles: RED → GREEN → REFACTOR
  */
 
-import { describe, it, expect, vi } from 'vitest'
-import type { PlanInput } from '../../../../models/saved-routes'
+import { describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../../../convex/_generated/dataModel'
+import type { PlanInput } from '../../../../models/saved-routes'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -316,7 +316,7 @@ describe('planRide action - Favorites Integration', () => {
       // Verify warning was logged
       expect(mockConsoleWarn).toHaveBeenCalledWith(
         '[planRide] Failed to fetch favorites, continuing without them:',
-        expect.any(Error)
+        expect.any(Error),
       )
 
       // favorites should be empty array, not undefined

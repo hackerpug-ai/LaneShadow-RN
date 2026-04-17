@@ -8,7 +8,7 @@ import { action } from '../_generated/server'
 import { requireSession } from '../guards'
 
 const buildNameParts = (
-  name?: string | null
+  name?: string | null,
 ): { first_name?: string | null; last_name?: string | null } => {
   if (!name) return {}
   const trimmed = name.trim()
@@ -63,7 +63,7 @@ export const updateCurrentProfile = action({
       internal.db.users.getUserIdByClerkId,
       {
         clerkUserId: clerkUser.id,
-      }
+      },
     )
 
     return { userId: local.userId }

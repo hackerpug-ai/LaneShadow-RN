@@ -7,10 +7,10 @@
  * - RegionListItem
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import React from 'react'
-import { render, fireEvent } from '@testing-library/react-native'
-import { View, Text as RNText, Pressable } from 'react-native'
+import { fireEvent, render } from '@testing-library/react-native'
+import type React from 'react'
+import { Pressable, Text as RNText, View } from 'react-native'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // --- Semantic theme mock ---
 
@@ -114,8 +114,7 @@ vi.mock('react-native-paper', () => {
       createElement(RNText, { style: { color: textColor } }, children),
     )
 
-  const Text = ({ children, style, variant }: any) =>
-    createElement(RNText, { style }, children)
+  const Text = ({ children, style, variant }: any) => createElement(RNText, { style }, children)
 
   return { Dialog, Portal, Button, Text }
 })
@@ -333,9 +332,7 @@ describe('RegionListItem', () => {
   }
 
   it('renders region name, size, and date', async () => {
-    const { RegionListItem } = await import(
-      '../../components/offline/region-list-item'
-    )
+    const { RegionListItem } = await import('../../components/offline/region-list-item')
 
     const { getByText } = render(<RegionListItem region={mockRegion} />)
 
@@ -346,42 +343,30 @@ describe('RegionListItem', () => {
   })
 
   it('calls onDelete when delete button pressed', async () => {
-    const { RegionListItem } = await import(
-      '../../components/offline/region-list-item'
-    )
+    const { RegionListItem } = await import('../../components/offline/region-list-item')
     const onDelete = vi.fn()
 
-    const { getByTestId } = render(
-      <RegionListItem region={mockRegion} onDelete={onDelete} />,
-    )
+    const { getByTestId } = render(<RegionListItem region={mockRegion} onDelete={onDelete} />)
 
     fireEvent.press(getByTestId('region-list-item-delete'))
     expect(onDelete).toHaveBeenCalledWith('Rocky Mountains')
   })
 
   it('calls onView when view button pressed', async () => {
-    const { RegionListItem } = await import(
-      '../../components/offline/region-list-item'
-    )
+    const { RegionListItem } = await import('../../components/offline/region-list-item')
     const onView = vi.fn()
 
-    const { getByTestId } = render(
-      <RegionListItem region={mockRegion} onView={onView} />,
-    )
+    const { getByTestId } = render(<RegionListItem region={mockRegion} onView={onView} />)
 
     fireEvent.press(getByTestId('region-list-item-view'))
     expect(onView).toHaveBeenCalledWith('Rocky Mountains')
   })
 
   it('calls onEdit when rename button pressed', async () => {
-    const { RegionListItem } = await import(
-      '../../components/offline/region-list-item'
-    )
+    const { RegionListItem } = await import('../../components/offline/region-list-item')
     const onEdit = vi.fn()
 
-    const { getByTestId } = render(
-      <RegionListItem region={mockRegion} onEdit={onEdit} />,
-    )
+    const { getByTestId } = render(<RegionListItem region={mockRegion} onEdit={onEdit} />)
 
     fireEvent.press(getByTestId('region-list-item-edit'))
     expect(onEdit).toHaveBeenCalledWith('Rocky Mountains')

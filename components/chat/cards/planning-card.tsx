@@ -21,22 +21,17 @@
  */
 
 import React, { useEffect, useState } from 'react'
-import {
-  View,
-  Text,
-  StyleSheet,
-  AccessibilityInfo,
-} from 'react-native'
+import { AccessibilityInfo, StyleSheet, Text, View } from 'react-native'
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withRepeat,
   withSequence,
   withTiming,
 } from 'react-native-reanimated'
-import { IconSymbol } from '../../ui/icon-symbol'
-import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import type { Id } from '../../../convex/_generated/dataModel'
+import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
+import { IconSymbol } from '../../ui/icon-symbol'
 import type { CardAttachment } from '../card-registry'
 
 // ---------------------------------------------------------------------------
@@ -71,8 +66,7 @@ function parsePlanningContent(raw: string): PlanningContent {
     const parsed = JSON.parse(raw)
     return {
       statusLine: typeof parsed.statusLine === 'string' ? parsed.statusLine : '',
-      totalDurationMs:
-        typeof parsed.totalDurationMs === 'number' ? parsed.totalDurationMs : 0,
+      totalDurationMs: typeof parsed.totalDurationMs === 'number' ? parsed.totalDurationMs : 0,
     }
   } catch {
     return { statusLine: '', totalDurationMs: 0 }
@@ -107,12 +101,9 @@ const PulsingDot = ({ reduceMotion, color }: PulsingDotProps) => {
       return
     }
     opacity.value = withRepeat(
-      withSequence(
-        withTiming(1.0, { duration: 600 }),
-        withTiming(0.4, { duration: 600 })
-      ),
+      withSequence(withTiming(1.0, { duration: 600 }), withTiming(0.4, { duration: 600 })),
       -1,
-      false
+      false,
     )
   }, [reduceMotion, opacity])
 
@@ -167,10 +158,7 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
       .catch(() => {
         // API unavailable — leave animations enabled
       })
-    const sub = AccessibilityInfo.addEventListener(
-      'reduceMotionChanged',
-      setReduceMotion
-    )
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion)
     return () => sub.remove()
   }, [])
 
@@ -217,10 +205,7 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
       : 'map-marker-path'
 
   return (
-    <View
-      style={styles.container}
-      testID="planning-card"
-    >
+    <View style={styles.container} testID="planning-card">
       <View
         style={[
           styles.card,
@@ -259,27 +244,16 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
 
         {/* Header row: glyph | label | pulsing dot? | chevron */}
         <View style={[styles.headerRow, { gap: semantic.space.sm }]}>
-          <IconSymbol
-            name={glyphName}
-            size={16}
-            color={mutedColor}
-            testID="planning-card-glyph"
-          />
+          <IconSymbol name={glyphName} size={16} color={mutedColor} testID="planning-card-glyph" />
           <Text
-            style={[
-              semantic.type.label.md,
-              { color: mutedColor, flex: 1 },
-            ]}
+            style={[semantic.type.label.md, { color: mutedColor, flex: 1 }]}
             testID="planning-card-label"
             numberOfLines={1}
           >
             {label}
           </Text>
           {isStreaming ? (
-            <PulsingDot
-              reduceMotion={reduceMotion}
-              color={semantic.color.primary.default}
-            />
+            <PulsingDot reduceMotion={reduceMotion} color={semantic.color.primary.default} />
           ) : null}
         </View>
       </View>

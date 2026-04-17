@@ -70,7 +70,7 @@ const createColorSet = (
   hover?: string,
   pressed?: string,
   disabled?: string,
-  focus?: string
+  focus?: string,
 ) => ({
   default: base,
   ...(hover && { hover }),

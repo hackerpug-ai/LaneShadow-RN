@@ -1,8 +1,8 @@
 'use node'
 
-import { traceableToolAsync } from '../lib/tracing'
-import { haversineDistance, samplePolyline } from '../lib/geo'
 import type { LatLng } from '../lib/geo'
+import { haversineDistance, samplePolyline } from '../lib/geo'
+import { traceableToolAsync } from '../lib/tracing'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -72,7 +72,7 @@ const queryElevationApi = async (points: LatLng[]): Promise<ElevationApiResult[]
 
 const computeProfile = (
   points: LatLng[],
-  elevationsM: number[]
+  elevationsM: number[],
 ): Omit<Extract<ElevationResult, { status: 'ok' }>, 'status'> => {
   let totalGainM = 0
   let totalLossM = 0

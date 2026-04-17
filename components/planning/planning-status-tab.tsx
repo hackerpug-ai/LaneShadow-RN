@@ -51,10 +51,7 @@ export type PlanningStatusTabProps = {
 /**
  * Returns the status label shown at the bottom of the center column.
  */
-function getStatusText(
-  status: PlanningStatus,
-  statusMessage: string | undefined
-): string {
+function getStatusText(status: PlanningStatus, statusMessage: string | undefined): string {
   switch (status) {
     case 'pending':
       return 'Queued...'
@@ -122,12 +119,9 @@ export const PlanningStatusTab = ({
   useEffect(() => {
     if (status === 'pending') {
       pulseOpacity.value = withRepeat(
-        withSequence(
-          withTiming(0.25, { duration: 600 }),
-          withTiming(1, { duration: 600 })
-        ),
+        withSequence(withTiming(0.25, { duration: 600 }), withTiming(1, { duration: 600 })),
         -1,
-        false
+        false,
       )
     } else {
       pulseOpacity.value = withTiming(1, { duration: 200 })
@@ -164,21 +158,9 @@ export const PlanningStatusTab = ({
           />
         )
       case 'completed':
-        return (
-          <IconSymbol
-            name="check-circle"
-            size={22}
-            color={semantic.color.success.default}
-          />
-        )
+        return <IconSymbol name="check-circle" size={22} color={semantic.color.success.default} />
       case 'failed':
-        return (
-          <IconSymbol
-            name="alert-circle"
-            size={22}
-            color={semantic.color.danger.default}
-          />
-        )
+        return <IconSymbol name="alert-circle" size={22} color={semantic.color.danger.default} />
       case 'cancelled':
         return null
     }
@@ -190,7 +172,7 @@ export const PlanningStatusTab = ({
   const routeLabel =
     startLabel && endLabel
       ? `${startLabel} → ${endLabel}`
-      : startLabel ?? endLabel ?? 'Planning route'
+      : (startLabel ?? endLabel ?? 'Planning route')
 
   // -------------------------------------------------------------------------
   // Render
@@ -234,11 +216,7 @@ export const PlanningStatusTab = ({
           style={[styles.iconArea, { marginLeft: semantic.space.sm }]}
           testID={`${testID}-icon-area`}
         >
-          <IconSymbol
-            name="motorbike"
-            size={20}
-            color={accentColor}
-          />
+          <IconSymbol name="motorbike" size={20} color={accentColor} />
         </View>
 
         {/* Center column */}
@@ -261,10 +239,7 @@ export const PlanningStatusTab = ({
           <Text
             numberOfLines={1}
             ellipsizeMode="tail"
-            style={[
-              semantic.type.label.sm,
-              { color: statusTextColor },
-            ]}
+            style={[semantic.type.label.sm, { color: statusTextColor }]}
             testID={`${testID}-status-text`}
           >
             {getStatusText(status, statusMessage)}

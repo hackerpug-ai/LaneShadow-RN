@@ -5,12 +5,12 @@
  * unit-tested without a running Convex backend.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Id } from '../_generated/dataModel'
 import {
-  upsertCuratedRoutesHandler,
-  upsertCuratedRouteEnrichmentsHandler,
   deleteCuratedRoutesByRouteIdsHandler,
+  upsertCuratedRouteEnrichmentsHandler,
+  upsertCuratedRoutesHandler,
 } from '../curationAdmin'
 
 // ---------------------------------------------------------------------------
@@ -147,9 +147,7 @@ describe('upsertCuratedRoutesHandler - AC-1: Happy-path routes ingest', () => {
 
 describe('upsertCuratedRoutesHandler - AC-4: Idempotent upsert', () => {
   it('should insert on first call and update on second call', async () => {
-    const routes = [
-      makeCuratedRoute({ routeId: 'duplicate-route' }),
-    ]
+    const routes = [makeCuratedRoute({ routeId: 'duplicate-route' })]
 
     // First call - route doesn't exist
     const ctx1 = {
@@ -210,9 +208,7 @@ describe('upsertCuratedRoutesHandler - AC-4: Idempotent upsert', () => {
 
 describe('upsertCuratedRouteEnrichmentsHandler - AC-5: Enrichments upsert', () => {
   it('should insert new enrichment and update existing one', async () => {
-    const enrichments = [
-      makeCuratedRouteEnrichment({ routeId: 'test-route-1' }),
-    ]
+    const enrichments = [makeCuratedRouteEnrichment({ routeId: 'test-route-1' })]
 
     // Test insert - enrichment doesn't exist
     const ctx1 = {

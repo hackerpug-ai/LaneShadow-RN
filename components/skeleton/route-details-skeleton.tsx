@@ -12,12 +12,12 @@
  * Accessibility: screen reader announces "Loading" via accessibilityLabel.
  */
 
-import React from 'react'
-import { View, StyleSheet, type StyleProp, type ViewStyle } from 'react-native'
+import type React from 'react'
+import { type StyleProp, StyleSheet, View, type ViewStyle } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { CardSkeleton } from './card-skeleton'
 import { LabelSkeleton } from './label-skeleton'
 import { WeatherBadgeSkeleton } from './weather-badge-skeleton'
-import { CardSkeleton } from './card-skeleton'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -77,29 +77,17 @@ export const RouteDetailsSkeleton = ({
 
       {/* Weather strip section */}
       <View style={styles.section}>
-        <LabelSkeleton
-          width="short"
-          height={14}
-          testID="route-details-skeleton-weather-label"
-        />
+        <LabelSkeleton width="short" height={14} testID="route-details-skeleton-weather-label" />
         <View style={styles.weatherStrip}>
           {Array.from({ length: weatherCount }).map((_, i) => (
-            <WeatherBadgeSkeleton
-              key={i}
-              compact
-              testID={`route-details-skeleton-weather-${i}`}
-            />
+            <WeatherBadgeSkeleton key={i} compact testID={`route-details-skeleton-weather-${i}`} />
           ))}
         </View>
       </View>
 
       {/* Stats section */}
       <View style={[styles.section, { gap: semantic.space.sm }]}>
-        <LabelSkeleton
-          width="short"
-          height={14}
-          testID="route-details-skeleton-stats-label"
-        />
+        <LabelSkeleton width="short" height={14} testID="route-details-skeleton-stats-label" />
         {Array.from({ length: statRowCount }).map((_, i) => (
           <View
             key={i}

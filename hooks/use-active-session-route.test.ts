@@ -8,8 +8,8 @@
  * run outside a React Native / Convex provider tree.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ---------------------------------------------------------------------------
 // Imports after mocks
@@ -280,9 +280,7 @@ describe('useActiveSessionRoute', () => {
       mockQueryResults.set(JSON.stringify({ sessionId: 'pinned-session' }), msgs)
       mockQueryResults.set(JSON.stringify({ routePlanId: 'plan-x' }), planDoc)
 
-      const { result } = renderHook(() =>
-        useActiveSessionRoute('pinned-session' as never)
-      )
+      const { result } = renderHook(() => useActiveSessionRoute('pinned-session' as never))
 
       expect(result.current.activeOption?.routeOptionId).toBe('opt-a')
     })

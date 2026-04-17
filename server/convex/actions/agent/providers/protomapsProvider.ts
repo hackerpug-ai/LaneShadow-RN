@@ -1,4 +1,4 @@
-'use node';
+'use node'
 
 /**
  * Protomaps OSM Provider
@@ -45,14 +45,14 @@
  *   Applied via: wrangler r2 bucket cors set laneshadow --file scripts/r2-cors.json
  */
 
-import { PMTiles } from 'pmtiles';
-import { VectorTile } from '@mapbox/vector-tile';
-import Pbf from 'pbf';
-import { S2LatLng, S2CellId } from 'nodes2ts';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { ProtomapsError } from '../../../lib/errors/protomaps';
-import { recordProtomapsFailureHandler, recordProtomapsQueryHandler } from '../../monitoring';
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { VectorTile } from '@mapbox/vector-tile'
+import { S2CellId, S2LatLng } from 'nodes2ts'
+import Pbf from 'pbf'
+import { PMTiles } from 'pmtiles'
+import { ProtomapsError } from '../../../lib/errors/protomaps'
+import { recordProtomapsFailureHandler, recordProtomapsQueryHandler } from '../../monitoring'
 
 // Protomaps layer names (from https://protomaps.com/styles/)
 const LAYERS = {
@@ -60,77 +60,92 @@ const LAYERS = {
   PLACES: 'places',
   POIS: 'pois',
   NATURAL: 'natural',
-} as const;
+} as const
 
 // S2 level for tile calculations (z14 tiles ≈ 1km resolution)
-const TILE_ZOOM = 14;
-const S2_LEVEL = 10;
+const TILE_ZOOM = 14
+const S2_LEVEL = 10
 
 interface BoundingBox {
-  south: number;
-  west: number;
-  north: number;
-  east: number;
+  south: number
+  west: number
+  north: number
+  east: number
 }
 
 interface OsmNode {
-  osmId: number;
-  type: 'viewpoint' | 'peak' | 'mountain_pass';
-  name?: string;
-  lat: number;
-  lon: number;
-  tags: Record<string, any>;
+  osmId: number
+  type: 'viewpoint' | 'peak' | 'mountain_pass'
+  name?: string
+  lat: number
+  lon: number
+  tags: Record<string, any>
 }
 
 interface OsmWay {
-  osmId: number;
-  name?: string;
-  highwayClass?: string;
-  surface?: string;
-  geometry: number[][];
-  bounds: BoundingBox;
+  osmId: number
+  name?: string
+  highwayClass?: string
+  surface?: string
+  geometry: number[][]
+  bounds: BoundingBox
 }
 
 /**
  * Convert bbox to tile coordinates
  */
-function bboxToTiles(bbox: BoundingBox, zoom: number): { minX: number; minY: number; maxX: number; maxY: number } {
-  const minX = lonToTile(bbox.west, zoom);
-  const maxX = lonToTile(bbox.east, zoom);
-  const minY = latToTile(bbox.north, zoom);
-  const maxY = latToTile(bbox.south, zoom);
+function bboxToTiles(
+  bbox: BoundingBox,
+  zoom: number,
+): { minX: number; minY: number; maxX: number; maxY: number } {
+  const minX = lonToTile(bbox.west, zoom)
+  const maxX = lonToTile(bbox.east, zoom)
+  const minY = latToTile(bbox.north, zoom)
+  const maxY = latToTile(bbox.south, zoom)
 
-  return { minX, minY, maxX, maxY };
+  return { minX, minY, maxX, maxY }
 }
 
 function lonToTile(lon: number, zoom: number): number {
-  return Math.floor((lon + 180) / 360 * Math.pow(2, zoom));
+  return Math.floor(((lon + 180) / 360) * 2 ** zoom)
 }
 
 function latToTile(lat: number, zoom: number): number {
-  return Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
+  return Math.floor(
+    ((1 -
+      Math.log(Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)) / Math.PI) /
+      2) *
+      2 ** zoom,
+  )
 }
 
 /**
  * Convert tile pixel coordinates to geographic coordinates.
  * MVT features use loadGeometry() which returns Points in tile-local coords (0-4096 extent).
  */
-function tilePixelToLonLat(px: number, py: number, tileX: number, tileY: number, zoom: number, extent: number = 4096): [number, number] {
-  const n = Math.pow(2, zoom);
-  const lon = (tileX + px / extent) / n * 360 - 180;
-  const latRad = Math.atan(Math.sinh(Math.PI * (1 - 2 * (tileY + py / extent) / n)));
-  const lat = latRad * 180 / Math.PI;
-  return [lon, lat];
+function tilePixelToLonLat(
+  px: number,
+  py: number,
+  tileX: number,
+  tileY: number,
+  zoom: number,
+  extent: number = 4096,
+): [number, number] {
+  const n = 2 ** zoom
+  const lon = ((tileX + px / extent) / n) * 360 - 180
+  const latRad = Math.atan(Math.sinh(Math.PI * (1 - (2 * (tileY + py / extent)) / n)))
+  const lat = (latRad * 180) / Math.PI
+  return [lon, lat]
 }
 
 /** Feature with tile context for coordinate conversion */
 type TileFeature = {
-  feature: any;
-  tileX: number;
-  tileY: number;
-  tileZoom: number;
-  extent: number;
-};
+  feature: any
+  tileX: number
+  tileY: number
+  tileZoom: number
+  extent: number
+}
 
 /**
  * Decode raw MVT ArrayBuffer into a VectorTile, then extract features from a layer.
@@ -141,24 +156,24 @@ function extractFeaturesFromTile(
   tileX: number,
   tileY: number,
   tileZoom: number,
-  filter?: (feature: any) => boolean
+  filter?: (feature: any) => boolean,
 ): TileFeature[] {
-  if (!tileData || !tileData.data || tileData.data.byteLength === 0) return [];
+  if (!tileData || !tileData.data || tileData.data.byteLength === 0) return []
 
   // Decode the raw protobuf MVT bytes
-  const tile = new VectorTile(new Pbf(tileData.data));
-  const layerData = tile.layers[layer];
-  if (!layerData) return [];
+  const tile = new VectorTile(new Pbf(tileData.data))
+  const layerData = tile.layers[layer]
+  if (!layerData) return []
 
-  const features: TileFeature[] = [];
+  const features: TileFeature[] = []
   for (let i = 0; i < layerData.length; i++) {
-    const feature = layerData.feature(i);
+    const feature = layerData.feature(i)
     if (!filter || filter(feature)) {
-      features.push({ feature, tileX, tileY, tileZoom, extent: layerData.extent });
+      features.push({ feature, tileX, tileY, tileZoom, extent: layerData.extent })
     }
   }
 
-  return features;
+  return features
 }
 
 /**
@@ -169,32 +184,39 @@ function extractFeaturesFromTile(
  * Otherwise uses PROTOMAPS_US_URL directly (for public URLs).
  */
 export async function getProtomapsPresignedUrl(): Promise<string> {
-  const baseUrl = process.env.PROTOMAPS_US_URL;
-  const r2Endpoint = process.env.R2_S3_API;
-  const r2KeyId = process.env.R2_S3_KEY_ID;
-  const r2Secret = process.env.R2_S3_SECRET;
-  const r2Bucket = process.env.R2_S3_BUCKET_NAME;
+  const baseUrl = process.env.PROTOMAPS_US_URL
+  const r2Endpoint = process.env.R2_S3_API
+  const r2KeyId = process.env.R2_S3_KEY_ID
+  const r2Secret = process.env.R2_S3_SECRET
+  const r2Bucket = process.env.R2_S3_BUCKET_NAME
 
   // If URL points to R2 and we have credentials, generate presigned URL
-  if (baseUrl && r2Endpoint && r2KeyId && r2Secret && r2Bucket && baseUrl.includes('r2.cloudflarestorage.com')) {
+  if (
+    baseUrl &&
+    r2Endpoint &&
+    r2KeyId &&
+    r2Secret &&
+    r2Bucket &&
+    baseUrl.includes('r2.cloudflarestorage.com')
+  ) {
     try {
       const client = new S3Client({
         region: 'auto',
         endpoint: r2Endpoint,
         credentials: { accessKeyId: r2KeyId, secretAccessKey: r2Secret },
-      });
+      })
 
       // Extract key from URL: endpoint/bucket/key → key
-      const key = baseUrl.replace(`${r2Endpoint}/${r2Bucket}/`, '');
+      const key = baseUrl.replace(`${r2Endpoint}/${r2Bucket}/`, '')
 
-      const command = new GetObjectCommand({ Bucket: r2Bucket, Key: key });
-      const presignedUrl = await getSignedUrl(client, command, { expiresIn: 3600 });
+      const command = new GetObjectCommand({ Bucket: r2Bucket, Key: key })
+      const presignedUrl = await getSignedUrl(client, command, { expiresIn: 3600 })
 
-      console.info(`[Protomaps] Generated presigned R2 URL for ${key}`);
-      return presignedUrl;
+      console.info(`[Protomaps] Generated presigned R2 URL for ${key}`)
+      return presignedUrl
     } catch (error) {
       // Record the failure with monitoring
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error)
       await recordProtomapsFailureHandler(null, {
         operation: 'generatePresignedUrl',
         error: errorMessage,
@@ -204,32 +226,34 @@ export async function getProtomapsPresignedUrl(): Promise<string> {
           hasR2Secret: !!r2Secret,
           hasR2Bucket: !!r2Bucket,
         },
-      });
+      })
 
       // Check if we're in production
-      const isProduction = process.env.CONVEX_CLOUD === 'production';
+      const isProduction = process.env.CONVEX_CLOUD === 'production'
 
       if (isProduction) {
         // In production, throw an error to prevent serving wrong geographic data
         throw new ProtomapsError(
           `Failed to generate presigned URL: ${errorMessage}`,
           'R2_AUTH_FAILED',
-          error
-        );
+          error,
+        )
       }
 
       // In development, fall back to sample data
-      console.warn(`[Protomaps] R2 presigned URL generation failed, falling back to sample data: ${errorMessage}`);
+      console.warn(
+        `[Protomaps] R2 presigned URL generation failed, falling back to sample data: ${errorMessage}`,
+      )
     }
   }
 
   // Direct URL (public hosting, custom CDN, etc.)
   if (baseUrl) {
-    return baseUrl;
+    return baseUrl
   }
 
   // Fallback sample (Florence, Italy — for dev only)
-  return 'https://pmtiles.io/protomaps(vector)ODbL_firenze.pmtiles';
+  return 'https://pmtiles.io/protomaps(vector)ODbL_firenze.pmtiles'
 }
 
 /**
@@ -239,33 +263,33 @@ export async function getProtomapsPresignedUrl(): Promise<string> {
 export function getProtomapsUrl(): string {
   // Direct URL override (e.g., public R2 URL or custom hosting)
   if (process.env.PROTOMAPS_US_URL) {
-    const url = process.env.PROTOMAPS_US_URL;
+    const url = process.env.PROTOMAPS_US_URL
 
     // Validate URL format
     try {
-      new URL(url);
+      new URL(url)
 
       // Check if it's a .pmtiles file
       if (!url.endsWith('.pmtiles')) {
-        console.warn(`[Protomaps] PROTOMAPS_US_URL does not point to a .pmtiles file: ${url}`);
+        console.warn(`[Protomaps] PROTOMAPS_US_URL does not point to a .pmtiles file: ${url}`)
       }
     } catch {
-      console.warn(`[Protomaps] Invalid PROTOMAPS_US_URL format: ${url}`);
+      console.warn(`[Protomaps] Invalid PROTOMAPS_US_URL format: ${url}`)
     }
 
-    return url;
+    return url
   }
 
   // Fallback sample (Florence, Italy — for dev only)
-  return 'https://pmtiles.io/protomaps(vector)ODbL_firenze.pmtiles';
+  return 'https://pmtiles.io/protomaps(vector)ODbL_firenze.pmtiles'
 }
 
 /**
  * Create Protomaps OSM provider
  */
 export function createProtomapsProvider(pmtilesUrl: string) {
-  let pmtiles: PMTiles | null = null;
-  let currentUrl: string = pmtilesUrl;
+  let pmtiles: PMTiles | null = null
+  let currentUrl: string = pmtilesUrl
 
   /**
    * Initialize PMTiles connection
@@ -273,66 +297,63 @@ export function createProtomapsProvider(pmtilesUrl: string) {
   async function init(url?: string): Promise<void> {
     // Re-initialize if URL changed (e.g., new presigned URL)
     if (url && url !== currentUrl) {
-      pmtiles = null;
-      currentUrl = url;
+      pmtiles = null
+      currentUrl = url
     }
 
-    if (pmtiles) return;
+    if (pmtiles) return
 
-    pmtiles = new PMTiles(currentUrl);
+    pmtiles = new PMTiles(currentUrl)
 
     // Warm up the connection
-    await pmtiles.getHeader();
+    await pmtiles.getHeader()
 
-    console.log(`[Protomaps] Connected to ${currentUrl.substring(0, 80)}...`);
+    console.log(`[Protomaps] Connected to ${currentUrl.substring(0, 80)}...`)
   }
 
   /**
    * Query scenic nodes in bbox
    */
-  async function queryNodesInBbox(
-    bbox: BoundingBox,
-    types?: string[]
-  ): Promise<OsmNode[]> {
-    await init();
-    if (!pmtiles) throw new ProtomapsError('Protomaps not initialized', 'R2_AUTH_FAILED');
+  async function queryNodesInBbox(bbox: BoundingBox, types?: string[]): Promise<OsmNode[]> {
+    await init()
+    if (!pmtiles) throw new ProtomapsError('Protomaps not initialized', 'R2_AUTH_FAILED')
 
-    const startTime = Date.now();
-    const tiles = bboxToTiles(bbox, TILE_ZOOM);
-    const nodes: OsmNode[] = [];
-    let tilesFetched = 0;
+    const startTime = Date.now()
+    const tiles = bboxToTiles(bbox, TILE_ZOOM)
+    const nodes: OsmNode[] = []
+    let tilesFetched = 0
 
     // Fetch all tiles in bbox
     for (let x = tiles.minX; x <= tiles.maxX; x++) {
       for (let y = tiles.minY; y <= tiles.maxY; y++) {
-        const tileData = await pmtiles.getZxy(TILE_ZOOM, x, y);
-        tilesFetched++;
+        const tileData = await pmtiles.getZxy(TILE_ZOOM, x, y)
+        tilesFetched++
 
         // Extract POIs (viewpoints, mountain passes)
         const pois = extractFeaturesFromTile(tileData, LAYERS.POIS, x, y, TILE_ZOOM, (f) => {
-          const props = f.properties;
+          const props = f.properties
           return (
             props.tourism === 'viewpoint' ||
             props.mountain_pass === 'yes' ||
             (props.natural === 'peak' && props.name)
-          );
-        });
+          )
+        })
 
         for (const { feature: poi, tileX, tileY, tileZoom, extent } of pois) {
-          const props = poi.properties;
-          const geom = poi.loadGeometry();
-          if (geom.length === 0 || geom[0].length === 0) continue;
+          const props = poi.properties
+          const geom = poi.loadGeometry()
+          if (geom.length === 0 || geom[0].length === 0) continue
 
-          const pt = geom[0][0];
-          const [lon, lat] = tilePixelToLonLat(pt.x, pt.y, tileX, tileY, tileZoom, extent);
+          const pt = geom[0][0]
+          const [lon, lat] = tilePixelToLonLat(pt.x, pt.y, tileX, tileY, tileZoom, extent)
 
           // Classify node type
-          let type: 'viewpoint' | 'peak' | 'mountain_pass' = 'viewpoint';
-          if (props.natural === 'peak') type = 'peak';
-          else if (props.mountain_pass === 'yes') type = 'mountain_pass';
+          let type: 'viewpoint' | 'peak' | 'mountain_pass' = 'viewpoint'
+          if (props.natural === 'peak') type = 'peak'
+          else if (props.mountain_pass === 'yes') type = 'mountain_pass'
 
           // Filter by type if specified
-          if (types && !types.includes(type)) continue;
+          if (types && !types.includes(type)) continue
 
           nodes.push({
             osmId: props.id || Math.random(),
@@ -341,25 +362,25 @@ export function createProtomapsProvider(pmtilesUrl: string) {
             lat,
             lon,
             tags: props,
-          });
+          })
         }
 
         // Extract natural features (peaks)
         const natural = extractFeaturesFromTile(tileData, LAYERS.NATURAL, x, y, TILE_ZOOM, (f) => {
-          const props = f.properties;
-          return props.natural === 'peak' && props.name;
-        });
+          const props = f.properties
+          return props.natural === 'peak' && props.name
+        })
 
         for (const { feature: feat, tileX: tx, tileY: ty, tileZoom: tz, extent: ext } of natural) {
-          const props = feat.properties;
-          const geom = feat.loadGeometry();
-          if (geom.length === 0 || geom[0].length === 0) continue;
+          const props = feat.properties
+          const geom = feat.loadGeometry()
+          if (geom.length === 0 || geom[0].length === 0) continue
 
-          const pt = geom[0][0];
-          const [lon, lat] = tilePixelToLonLat(pt.x, pt.y, tx, ty, tz, ext);
+          const pt = geom[0][0]
+          const [lon, lat] = tilePixelToLonLat(pt.x, pt.y, tx, ty, tz, ext)
 
           // Filter by type if specified
-          if (types && !types.includes('peak')) continue;
+          if (types && !types.includes('peak')) continue
 
           nodes.push({
             osmId: props.id || Math.random(),
@@ -368,86 +389,83 @@ export function createProtomapsProvider(pmtilesUrl: string) {
             lat,
             lon,
             tags: props,
-          });
+          })
         }
       }
     }
 
     // Record query metrics
-    const durationMs = Date.now() - startTime;
+    const durationMs = Date.now() - startTime
     await recordProtomapsQueryHandler(null, {
       operation: 'queryNodesInBbox',
       durationMs,
       tilesFetched,
       resultCount: nodes.length,
       bbox: `${bbox.west},${bbox.south},${bbox.east},${bbox.north}`,
-    });
+    })
 
-    return nodes;
+    return nodes
   }
 
   /**
    * Query road ways in bbox
    */
-  async function queryWaysInBbox(
-    bbox: BoundingBox,
-    highwayClasses?: string[]
-  ): Promise<OsmWay[]> {
-    await init();
-    if (!pmtiles) throw new ProtomapsError('Protomaps not initialized', 'R2_AUTH_FAILED');
+  async function queryWaysInBbox(bbox: BoundingBox, highwayClasses?: string[]): Promise<OsmWay[]> {
+    await init()
+    if (!pmtiles) throw new ProtomapsError('Protomaps not initialized', 'R2_AUTH_FAILED')
 
-    const startTime = Date.now();
-    const tiles = bboxToTiles(bbox, TILE_ZOOM);
-    const waysMap = new Map<number, OsmWay>();
-    let tilesFetched = 0;
+    const startTime = Date.now()
+    const tiles = bboxToTiles(bbox, TILE_ZOOM)
+    const waysMap = new Map<number, OsmWay>()
+    let tilesFetched = 0
 
     // Fetch all tiles in bbox
     for (let x = tiles.minX; x <= tiles.maxX; x++) {
       for (let y = tiles.minY; y <= tiles.maxY; y++) {
-        const tileData = await pmtiles.getZxy(TILE_ZOOM, x, y);
-        tilesFetched++;
+        const tileData = await pmtiles.getZxy(TILE_ZOOM, x, y)
+        tilesFetched++
 
         // Extract roads
         const roads = extractFeaturesFromTile(tileData, LAYERS.ROADS, x, y, TILE_ZOOM, (f) => {
-          const props = f.properties;
-          if (!props.highway) return false;
-          if (highwayClasses && !highwayClasses.includes(props.highway)) return false;
-          return true;
-        });
+          const props = f.properties
+          if (!props.highway) return false
+          if (highwayClasses && !highwayClasses.includes(props.highway)) return false
+          return true
+        })
 
         for (const { feature: road, tileX, tileY, tileZoom, extent } of roads) {
-          const props = road.properties;
-          const geometry = road.loadGeometry();
+          const props = road.properties
+          const geometry = road.loadGeometry()
 
           // loadGeometry returns Point[][] — first array is the line ring
-          if (geometry.length === 0 || geometry[0].length < 2) continue;
+          if (geometry.length === 0 || geometry[0].length < 2) continue
 
           // Convert tile pixel coords to [[lon, lat], ...]
           const coords: number[][] = geometry[0].map((pt: any) =>
-            tilePixelToLonLat(pt.x, pt.y, tileX, tileY, tileZoom, extent)
-          );
+            tilePixelToLonLat(pt.x, pt.y, tileX, tileY, tileZoom, extent),
+          )
 
           // Calculate bounds
-          const lats = coords.map((c) => c[1]);
-          const lons = coords.map((c) => c[0]);
+          const lats = coords.map((c) => c[1])
+          const lons = coords.map((c) => c[0])
           const bounds: BoundingBox = {
             south: Math.min(...lats),
             west: Math.min(...lons),
             north: Math.max(...lats),
             east: Math.max(...lons),
-          };
+          }
 
           // Use pmtiles id as osmId
-          const osmId = props.id || Math.random();
+          const osmId = props.id || Math.random()
 
           // Merge if we already have this road
           if (waysMap.has(osmId)) {
-            const existing = waysMap.get(osmId)!;
+            const existing = waysMap.get(osmId)!
             // Expand bounds
-            existing.bounds.south = Math.min(existing.bounds.south, bounds.south);
-            existing.bounds.west = Math.min(existing.bounds.west, bounds.west);
-            existing.bounds.north = Math.max(existing.bounds.north, bounds.north);
-            existing.bounds.east = Math.max(existing.bounds.east, bounds.east);
+            existing.bounds.south = Math.min(existing.bounds.south, bounds.south)
+            existing.bounds.west = Math.min(existing.bounds.west, bounds.west)
+            existing.bounds.north = Math.max(existing.bounds.north, bounds.north)
+            existing.bounds.east = Math.max(existing.bounds.east, bounds.east)
           } else {
             waysMap.set(osmId, {
               osmId,
@@ -456,23 +474,23 @@ export function createProtomapsProvider(pmtilesUrl: string) {
               surface: props.surface,
               geometry: coords,
               bounds,
-            });
+            })
           }
         }
       }
     }
 
     // Record query metrics
-    const durationMs = Date.now() - startTime;
+    const durationMs = Date.now() - startTime
     await recordProtomapsQueryHandler(null, {
       operation: 'queryWaysInBbox',
       durationMs,
       tilesFetched,
       resultCount: waysMap.size,
       bbox: `${bbox.west},${bbox.south},${bbox.east},${bbox.north}`,
-    });
+    })
 
-    return Array.from(waysMap.values());
+    return Array.from(waysMap.values())
   }
 
   /**
@@ -480,8 +498,8 @@ export function createProtomapsProvider(pmtilesUrl: string) {
    * Note: This function uses queryWaysInBbox which will throw ProtomapsError if not initialized
    */
   async function queryWaysByName(name: string, bbox: BoundingBox): Promise<OsmWay[]> {
-    const ways = await queryWaysInBbox(bbox);
-    return ways.filter((w) => w.name?.toLowerCase().includes(name.toLowerCase()));
+    const ways = await queryWaysInBbox(bbox)
+    return ways.filter((w) => w.name?.toLowerCase().includes(name.toLowerCase()))
   }
 
   return {
@@ -489,5 +507,5 @@ export function createProtomapsProvider(pmtilesUrl: string) {
     queryNodesInBbox,
     queryWaysInBbox,
     queryWaysByName,
-  };
+  }
 }

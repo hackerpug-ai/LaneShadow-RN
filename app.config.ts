@@ -14,11 +14,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     slug: config.slug ?? 'laneshadow',
     plugins: [
       ...(config.plugins ?? []),
-      "expo-sqlite",
+      'expo-sqlite',
       [
-        "@rnmapbox/maps",
+        '@rnmapbox/maps',
         {
-          RNMapboxMapsImpl: "mapbox",
+          RNMapboxMapsImpl: 'mapbox',
         },
       ],
     ],

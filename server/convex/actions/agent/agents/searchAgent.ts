@@ -1,19 +1,14 @@
 'use node'
 
-import {
-  getModel,
-  validateToolCall,
-  type Tool,
-  type ToolCall,
-} from '@mariozechner/pi-ai'
+import { getModel, type Tool, type ToolCall, validateToolCall } from '@mariozechner/pi-ai'
+import { getAgentModel } from '../lib/models'
 import { AgentToolSchemas } from '../lib/piTools'
+import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
+import { runAgent } from '../runAgent'
 import { searchNearby } from '../tools/searchNearby'
 import { webSearch } from '../tools/webSearch'
 import { runGeocode } from './routingAgent'
-import { runAgent } from '../runAgent'
-import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
 import type { SearchAgentResult, SubAgentConfig } from './types'
-import { getAgentModel } from '../lib/models'
 
 // -----------------------------------------------------------------------------
 // Tool definitions (all 3 search tools — all parallel-safe)
@@ -45,7 +40,7 @@ const searchTools: ToolWithParallelSafe[] = [
   },
 ]
 
-const searchToolNames = new Set(searchTools.filter(t => t.parallelSafe).map(t => t.name))
+const searchToolNames = new Set(searchTools.filter((t) => t.parallelSafe).map((t) => t.name))
 
 // -----------------------------------------------------------------------------
 // Search Prompt
@@ -81,14 +76,14 @@ Be concise — 1-2 sentences. Speak directly to the rider ("There's a Shell stat
 
 async function runSearchNearby(
   _ctx: AgentContext,
-  args: { query: string; location: { lat: number; lng: number }; radiusMeters?: number | null }
+  args: { query: string; location: { lat: number; lng: number }; radiusMeters?: number | null },
 ): Promise<unknown> {
   return searchNearby(args)
 }
 
 async function runWebSearch(
   _ctx: AgentContext,
-  args: { query: string; maxResults?: number | null }
+  args: { query: string; maxResults?: number | null },
 ): Promise<unknown> {
   return webSearch(args)
 }
@@ -97,10 +92,7 @@ async function runWebSearch(
 // Tool Dispatcher
 // -----------------------------------------------------------------------------
 
-export async function executeSearchTool(
-  ctx: AgentContext,
-  call: ToolCall
-): Promise<unknown> {
+export async function executeSearchTool(ctx: AgentContext, call: ToolCall): Promise<unknown> {
   const validated = validateToolCall(searchTools, call)
 
   switch (call.name) {
@@ -129,9 +121,7 @@ export async function executeSearchTool(
  * - Does NOT forward card callbacks (search results don't emit cards).
  * - Forwards onAgentTurn and onToolResultPiMessage for message persistence.
  */
-export async function executeSearchAgent(
-  config: SubAgentConfig
-): Promise<SearchAgentResult> {
+export async function executeSearchAgent(config: SubAgentConfig): Promise<SearchAgentResult> {
   const { ctx, executeCtx, budgetTracker, userMessage } = config
 
   const model = getAgentModel('low')
@@ -177,13 +167,13 @@ export async function executeSearchAgent(
         typeof tr.result === 'object' &&
         tr.result !== null &&
         'status' in tr.result &&
-        tr.result.status === 'error'
+        tr.result.status === 'error',
     )
 
     if (failedTools.length > 0) {
       // Extract error reasons for debugging
       const errorDetails = failedTools
-        .map(ft => `${ft.toolName}: ${(ft.result as any).reason ?? 'unknown error'}`)
+        .map((ft) => `${ft.toolName}: ${(ft.result as any).reason ?? 'unknown error'}`)
         .join('; ')
 
       console.warn(`[executeSearchAgent] ${failedTools.length} tool(s) failed: ${errorDetails}`)

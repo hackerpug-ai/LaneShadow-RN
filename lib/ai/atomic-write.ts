@@ -33,10 +33,7 @@ export interface AtomicWriteResult {
  * @param data - Data to write (base64 encoded string)
  * @returns Write result with success status
  */
-export async function atomicWrite(
-  filePath: string,
-  data: string
-): Promise<AtomicWriteResult> {
+export async function atomicWrite(filePath: string, data: string): Promise<AtomicWriteResult> {
   const tempPath = `${filePath}.tmp`
 
   try {
@@ -90,7 +87,7 @@ export async function atomicWrite(
 export async function atomicAppend(
   filePath: string,
   chunk: string,
-  offset: number
+  offset: number,
 ): Promise<AtomicWriteResult> {
   const tempPath = `${filePath}.tmp.${offset}`
 
@@ -171,7 +168,7 @@ export async function atomicDelete(filePath: string): Promise<boolean> {
 export async function verifyFile(
   filePath: string,
   expectedSize: number,
-  tolerance: number = 0
+  tolerance: number = 0,
 ): Promise<{ valid: boolean; actualSize?: number; error?: string }> {
   try {
     const fileInfo = await FileSystem.getInfoAsync(filePath)

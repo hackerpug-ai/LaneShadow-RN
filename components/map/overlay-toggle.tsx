@@ -12,9 +12,9 @@
  */
 
 import { Pressable, StyleSheet, View } from 'react-native'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { IconSymbol } from '../ui/icon-symbol'
 import { ToggleGroup, useToggleGroup } from '../ui/toggle-group'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 /**
  * Add opacity to a hex color
@@ -103,13 +103,14 @@ export const OverlayToggle = ({
   /**
    * Handle value change, preventing selection of unavailable overlays
    */
-  const handleValueChange = (newValue: string) => {
-    if (newValue === '') {
+  const handleValueChange = (newValue: string | string[]) => {
+    const val = Array.isArray(newValue) ? (newValue[0] ?? '') : newValue
+    if (val === '') {
       onValueChange('')
       return
     }
 
-    const overlayType = newValue as OverlayType
+    const overlayType = val as OverlayType
     if (availability[overlayType]) {
       onValueChange(overlayType)
     }
@@ -210,12 +211,12 @@ const OverlayToggleItem = ({
   // Get icon color based on state
   const getIconColor = (): string => {
     if (isDisabled) {
-      return semantic.color.onSurface.disabled || semantic.color.onSurface.muted
+      return semantic.color.onSurface.disabled ?? semantic.color.onSurface.muted ?? 'transparent'
     }
     if (isSelected) {
       return semantic.color.onSurface.default
     }
-    return semantic.color.onSurface.muted || semantic.color.onSurface.default
+    return semantic.color.onSurface.muted ?? semantic.color.onSurface.default ?? 'transparent'
   }
 
   return (
@@ -240,11 +241,7 @@ const OverlayToggleItem = ({
           },
         ]}
       >
-        <IconSymbol
-          name={icon as any}
-          size={semantic.space.lg}
-          color={getIconColor()}
-        />
+        <IconSymbol name={icon as any} size={semantic.space.lg} color={getIconColor()} />
       </View>
     </Pressable>
   )

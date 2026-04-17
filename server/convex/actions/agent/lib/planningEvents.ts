@@ -11,7 +11,14 @@ export type PlanningEventType = 'tool_pending' | 'tool_complete' | 'agent_comple
 
 export type PlanningEvent =
   | { type: 'tool_pending'; tool: string; agent: string; ts: number }
-  | { type: 'tool_complete'; tool: string; agent: string; summary: string; durationMs: number; ts: number }
+  | {
+      type: 'tool_complete'
+      tool: string
+      agent: string
+      summary: string
+      durationMs: number
+      ts: number
+    }
   | { type: 'agent_complete'; agent: string; summary: string; durationMs: number; ts: number }
 
 export type PlanningContent = {
@@ -37,8 +44,7 @@ const TOOL_STATUS_LINE: Record<string, string> = {
   enrichment_agent: 'Checking your route...',
 }
 
-const getToolStatusLine = (tool: string): string =>
-  TOOL_STATUS_LINE[tool] ?? 'Working...'
+const getToolStatusLine = (tool: string): string => TOOL_STATUS_LINE[tool] ?? 'Working...'
 
 // ---------------------------------------------------------------------------
 // PlanningEventEmitter
@@ -56,7 +62,7 @@ export class PlanningEventEmitter {
     private opts: {
       runMutation: (fn: any, args: any) => Promise<any>
       sessionId: Id<'planning_sessions'>
-    }
+    },
   ) {
     this.startTime = Date.now()
   }
@@ -71,7 +77,7 @@ export class PlanningEventEmitter {
       {
         sessionId: this.opts.sessionId,
         kind: 'planning' as const,
-      }
+      },
     )
     this.messageId = result.messageId
     console.info(`[PlanningEmitter] Planning row created: ${this.messageId}`)
@@ -175,9 +181,11 @@ export class PlanningEventEmitter {
     tool: string,
     agent: string,
     summary: string,
-    durationMs: number
+    durationMs: number,
   ): Promise<void> {
-    console.info(`[PlanningEmitter] toolComplete: ${agent}/${tool} → "${summary}" (${durationMs}ms)`)
+    console.info(
+      `[PlanningEmitter] toolComplete: ${agent}/${tool} → "${summary}" (${durationMs}ms)`,
+    )
     await this.ensureInit()
 
     const event: PlanningEvent = {
@@ -194,11 +202,7 @@ export class PlanningEventEmitter {
     await this.persistContent(statusLine)
   }
 
-  async agentComplete(
-    agent: string,
-    summary: string,
-    durationMs: number
-  ): Promise<void> {
+  async agentComplete(agent: string, summary: string, durationMs: number): Promise<void> {
     console.info(`[PlanningEmitter] agentComplete: ${agent} → "${summary}" (${durationMs}ms)`)
     await this.ensureInit()
 
@@ -225,12 +229,15 @@ export class PlanningEventEmitter {
     }
 
     const totalDurationMs = Date.now() - this.startTime
-    console.info(`[PlanningEmitter] done() — ${this.events.length} events, ${totalDurationMs}ms total`)
+    console.info(
+      `[PlanningEmitter] done() — ${this.events.length} events, ${totalDurationMs}ms total`,
+    )
     const content: PlanningContent = {
       events: this.events,
-      statusLine: this.events.length > 0
-        ? (this.events[this.events.length - 1] as any).summary ?? 'Done'
-        : 'Done',
+      statusLine:
+        this.events.length > 0
+          ? ((this.events[this.events.length - 1] as any).summary ?? 'Done')
+          : 'Done',
       totalDurationMs,
     }
 

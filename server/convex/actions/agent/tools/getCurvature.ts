@@ -1,7 +1,7 @@
 'use node'
 
-import { circumcircleRadius, haversineDistance } from '../lib/geo'
 import type { LatLng } from '../lib/geo'
+import { circumcircleRadius, haversineDistance } from '../lib/geo'
 import { traceableToolAsync } from '../lib/tracing'
 
 // ---------------------------------------------------------------------------
@@ -25,10 +25,10 @@ export type CurvatureResult = {
 
 /** Weight by circumcircle radius in meters */
 const curvatureWeight = (radiusMeters: number): number => {
-  if (radiusMeters < 60) return 4   // hairpin
-  if (radiusMeters < 100) return 2  // tight
-  if (radiusMeters < 175) return 1  // sweeping
-  return 0                           // straight
+  if (radiusMeters < 60) return 4 // hairpin
+  if (radiusMeters < 100) return 2 // tight
+  if (radiusMeters < 175) return 1 // sweeping
+  return 0 // straight
 }
 
 const ratingFromScore = (score: number): CurvatureRating => {
@@ -51,7 +51,7 @@ const ratingFromScore = (score: number): CurvatureRating => {
  * weight by tightness, multiply by the segment length, and sum.
  */
 export const calculateCurvatureScore = (
-  coords: { lat: number; lng: number }[]
+  coords: { lat: number; lng: number }[],
 ): Omit<CurvatureResult, 'surface' | 'status' | 'segmentCount'> => {
   if (coords.length < 3) {
     return { score: 0, rating: 'straight', kmCornering: 0 }

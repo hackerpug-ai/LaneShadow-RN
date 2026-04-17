@@ -20,14 +20,14 @@
  */
 
 import React, { useEffect } from 'react'
-import { View, StyleSheet, AccessibilityInfo } from 'react-native'
+import { AccessibilityInfo, StyleSheet, View } from 'react-native'
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
+  withDelay,
   withRepeat,
   withSequence,
   withTiming,
-  withDelay,
 } from 'react-native-reanimated'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
@@ -87,11 +87,11 @@ const Dot = ({ diameter, color, delayMs, reduceMotion, testID }: DotProps) => {
           withTiming(SCALE_MIN, { duration: ANIMATION_DURATION_MS }),
           withTiming(SCALE_MAX, { duration: ANIMATION_DURATION_MS }),
           // Pause at max scale so the full cycle is ~900 ms per dot
-          withTiming(SCALE_MAX, { duration: LOOP_DELAY_MS })
+          withTiming(SCALE_MAX, { duration: LOOP_DELAY_MS }),
         ),
         -1,
-        false
-      )
+        false,
+      ),
     )
   }, [reduceMotion, scale, delayMs])
 

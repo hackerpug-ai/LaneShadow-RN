@@ -10,8 +10,8 @@
  * AC-6: Existing reasoning kind still valid, no regression
  */
 
-import { describe, it, expect } from 'vitest'
 import { v } from 'convex/values'
+import { describe, expect, it } from 'vitest'
 
 describe('US-055: thinking_card kind + thinkingSteps validators', () => {
   describe('AC-1: SESSION_MESSAGE_KIND constant contains THINKING_CARD', () => {
@@ -29,9 +29,7 @@ describe('US-055: thinking_card kind + thinkingSteps validators', () => {
 
       // The validator should be a union that includes 'thinking_card'
       const unionMembers = (sessionMessageKindValidator as any).members
-      const hasThinkingCard = unionMembers?.some(
-        (member: any) => member.value === 'thinking_card'
-      )
+      const hasThinkingCard = unionMembers?.some((member: any) => member.value === 'thinking_card')
       expect(hasThinkingCard).toBe(true)
     })
   })
@@ -105,9 +103,7 @@ describe('US-055: thinking_card kind + thinkingSteps validators', () => {
       const { sessionMessageKindValidator } = await import('../session-messages')
       const unionMembers = (sessionMessageKindValidator as any).members
 
-      const hasReasoning = unionMembers?.some(
-        (member: any) => member.value === 'reasoning'
-      )
+      const hasReasoning = unionMembers?.some((member: any) => member.value === 'reasoning')
       expect(hasReasoning).toBe(true)
     })
   })

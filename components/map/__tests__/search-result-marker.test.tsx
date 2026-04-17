@@ -6,9 +6,9 @@
  * - AC-4: Selected state fills outer circle with info color
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { render } from '@testing-library/react-native'
 import { ThemeProvider } from 'react-native-paper'
+import { describe, expect, it, vi } from 'vitest'
 import type { ExtendedTheme } from '../../../styles/types'
 import { SearchResultMarker } from '../search-result-marker'
 
@@ -53,10 +53,23 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     routeAlternate: { default: '#60a5fa' },
   },
   space: {
-    xs: 4, sm: 8, md: 12, lg: 16, xl: 24, '2xl': 32, '3xl': 48, '4xl': 64,
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 24,
+    '2xl': 32,
+    '3xl': 48,
+    '4xl': 64,
   },
   radius: {
-    none: 0, sm: 4, md: 8, lg: 12, xl: 16, '2xl': 20, full: 9999,
+    none: 0,
+    sm: 4,
+    md: 8,
+    lg: 12,
+    xl: 16,
+    '2xl': 20,
+    full: 9999,
   },
   type: {
     label: {
@@ -86,12 +99,48 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.35, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.2,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.3,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.35,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -124,7 +173,7 @@ describe('SearchResultMarker', () => {
             index={1}
             name="Test Place"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       // MarkerView should render with coordinate in [lng, lat] format
@@ -137,7 +186,7 @@ describe('SearchResultMarker', () => {
       expect(markerViewInstances).toHaveLength(1)
       const markerCoordinate = markerViewInstances[0].props.coordinate as [number, number]
       expect(markerCoordinate[0]).toBe(-122.4194) // longitude
-      expect(markerCoordinate[1]).toBe(37.7749)   // latitude
+      expect(markerCoordinate[1]).toBe(37.7749) // latitude
     })
 
     it('displays the correct index number', () => {
@@ -149,12 +198,12 @@ describe('SearchResultMarker', () => {
             index={5}
             name="Fifth Result"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       // The index number should appear in the rendered output
       const textElements = UNSAFE_root.findAllByType('Text')
-      const indexText = textElements.find((el: { props: { children: number } }) => el.props.children === 5)
+      const indexText = textElements.find((el) => (el.props as { children: number }).children === 5)
       expect(indexText).toBeDefined()
     })
 
@@ -168,7 +217,7 @@ describe('SearchResultMarker', () => {
             name="Custom"
             testID="custom-search-marker"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       expect(getByTestId('custom-search-marker')).toBeDefined()
@@ -186,7 +235,7 @@ describe('SearchResultMarker', () => {
             name="Selected Place"
             isSelected={true}
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       // When selected, the inner circle fill should use info color (#2B9AEB)
@@ -217,7 +266,7 @@ describe('SearchResultMarker', () => {
             name="Default Place"
             isSelected={false}
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const circleElements = UNSAFE_root.findAllByType('Circle')
@@ -243,12 +292,12 @@ describe('SearchResultMarker', () => {
             name="Inverted Place"
             isSelected={true}
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       // When selected, text color should be onPrimary (#FFFFFF)
       const textElements = UNSAFE_root.findAllByType('Text')
-      const indexText = textElements.find((el: { props: { children: number } }) => el.props.children === 4)
+      const indexText = textElements.find((el) => (el.props as { children: number }).children === 4)
       expect(indexText).toBeDefined()
       // Style is an array: [styles.indexText, { color, fontSize, fontWeight }]
       const styleArr = indexText!.props.style as Record<string, unknown>[]
@@ -266,12 +315,12 @@ describe('SearchResultMarker', () => {
             name="Default Text Place"
             isSelected={false}
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       // When not selected, text color should be info color (#2B9AEB)
       const textElements = UNSAFE_root.findAllByType('Text')
-      const indexText = textElements.find((el: { props: { children: number } }) => el.props.children === 6)
+      const indexText = textElements.find((el) => (el.props as { children: number }).children === 6)
       expect(indexText).toBeDefined()
       // Style is an array: [styles.indexText, { color, fontSize, fontWeight }]
       const styleArr = indexText!.props.style as Record<string, unknown>[]
@@ -289,7 +338,7 @@ describe('SearchResultMarker', () => {
             name="Scaled Place"
             isSelected={true}
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       // The container View (child of Pressable) should have the scale transform
@@ -298,11 +347,9 @@ describe('SearchResultMarker', () => {
         const style = el.props.style
         if (!style) return false
         // Style may be an array of style objects
-        const merged = Array.isArray(style)
-          ? Object.assign({}, ...style.filter(Boolean))
-          : style
-        return merged.transform?.some((t: unknown) =>
-          typeof t === 'object' && t !== null && 'scale' in t
+        const merged = Array.isArray(style) ? Object.assign({}, ...style.filter(Boolean)) : style
+        return merged.transform?.some(
+          (t: unknown) => typeof t === 'object' && t !== null && 'scale' in t,
         )
       })
       expect(containerView).toBeDefined()
@@ -326,7 +373,7 @@ describe('SearchResultMarker', () => {
             name="Pressable Place"
             onPress={onPress}
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       // onPress is on the Pressable child of MarkerView
@@ -349,7 +396,7 @@ describe('SearchResultMarker', () => {
             index={9}
             name="No Press Place"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const pressableElement = UNSAFE_root.findAllByType('Pressable')[0]

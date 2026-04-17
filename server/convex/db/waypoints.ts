@@ -1,5 +1,5 @@
-import { mutation, query } from '../_generated/server'
 import { v } from 'convex/values'
+import { mutation, query } from '../_generated/server'
 
 /**
  * Create a new waypoint
@@ -20,7 +20,7 @@ export const createWaypoint = mutation({
         distanceKm: v.number(),
         durationMinutes: v.number(),
         reason: v.optional(v.string()),
-      })
+      }),
     ),
   },
   handler: async (ctx, args) => {
@@ -81,14 +81,14 @@ export const listWaypointsByRoutePlanAndStatus = query({
       v.literal('ready'),
       v.literal('approved'),
       v.literal('rejected'),
-      v.literal('applied')
+      v.literal('applied'),
     ),
   },
   handler: async (ctx, args) => {
     const waypoints = await ctx.db
       .query('waypoints')
       .withIndex('by_routePlanId_and_status', (q) =>
-        q.eq('routePlanId', args.routePlanId).eq('status', args.status)
+        q.eq('routePlanId', args.routePlanId).eq('status', args.status),
       )
       .collect()
     return waypoints
@@ -106,7 +106,7 @@ export const listWaypointsByStatus = query({
       v.literal('ready'),
       v.literal('approved'),
       v.literal('rejected'),
-      v.literal('applied')
+      v.literal('applied'),
     ),
   },
   handler: async (ctx, args) => {
@@ -133,8 +133,8 @@ export const updateWaypoint = mutation({
         v.literal('ready'),
         v.literal('approved'),
         v.literal('rejected'),
-        v.literal('applied')
-      )
+        v.literal('applied'),
+      ),
     ),
     name: v.optional(v.string()),
     description: v.optional(v.string()),
@@ -144,7 +144,7 @@ export const updateWaypoint = mutation({
         distanceKm: v.number(),
         durationMinutes: v.number(),
         reason: v.optional(v.string()),
-      })
+      }),
     ),
   },
   handler: async (ctx, args) => {

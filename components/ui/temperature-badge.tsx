@@ -5,10 +5,10 @@
  * Follows the design system badge patterns
  */
 
-import { IconSymbol } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Badge } from './badge'
+import { IconSymbol } from './icon-symbol'
 
 export type TemperatureSummary = 'cold' | 'mild' | 'warm' | 'hot' | 'unavailable'
 
@@ -69,11 +69,41 @@ export const TemperatureBadge = ({
 
   // Partial map: only define icons we know
   const ICONS: Partial<Record<TemperatureLevelKnown, React.ReactNode>> = {
-    cold: <IconSymbol name="snowflake-thermometer" size={14} color={semantic.color.onSurface.subtle} />,
-    mild: <IconSymbol name="thermometer" size={14} color={semantic.color.onSurface.subtle} />,
-    warm: <IconSymbol name="thermometer-low" size={14} color={semantic.color.onSurface.subtle} />,
-    hot: <IconSymbol name="thermometer-high" size={14} color={semantic.color.onSurface.subtle} />,
-    unavailable: <IconSymbol name="help-circle-outline" size={14} color={semantic.color.onSurface.subtle} />,
+    cold: (
+      <IconSymbol
+        name="snowflake-thermometer"
+        size={14}
+        color={semantic.color.onSurface.subtle ?? 'transparent'}
+      />
+    ),
+    mild: (
+      <IconSymbol
+        name="thermometer"
+        size={14}
+        color={semantic.color.onSurface.subtle ?? 'transparent'}
+      />
+    ),
+    warm: (
+      <IconSymbol
+        name="thermometer-low"
+        size={14}
+        color={semantic.color.onSurface.subtle ?? 'transparent'}
+      />
+    ),
+    hot: (
+      <IconSymbol
+        name="thermometer-high"
+        size={14}
+        color={semantic.color.onSurface.subtle ?? 'transparent'}
+      />
+    ),
+    unavailable: (
+      <IconSymbol
+        name="help-circle-outline"
+        size={14}
+        color={semantic.color.onSurface.subtle ?? 'transparent'}
+      />
+    ),
   }
 
   // Safe getter with dev warning + graceful fallback
@@ -83,7 +113,9 @@ export const TemperatureBadge = ({
 
     // Unknown type (new backend value) - warn in dev, show fallback
     if (__DEV__) {
-      console.warn(`⚠️ Unmapped temperature level: "${level}" - add to LABELS in temperature-badge.tsx`)
+      console.warn(
+        `⚠️ Unmapped temperature level: "${level}" - add to LABELS in temperature-badge.tsx`,
+      )
     }
 
     // Graceful fallback: CAPS_CASE with underscores converted to spaces
@@ -107,9 +139,8 @@ export const TemperatureBadge = ({
     return ICONS[temperatureSummary as TemperatureLevelKnown]
   }
 
-  const displayLabel = temperatureValue !== undefined
-    ? `${temperatureValue}°`
-    : getLabel(temperatureSummary)
+  const displayLabel =
+    temperatureValue !== undefined ? `${temperatureValue}°` : getLabel(temperatureSummary)
 
   return (
     <View style={styles.container} testID={testID}>

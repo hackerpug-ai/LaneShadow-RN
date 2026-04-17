@@ -1,8 +1,8 @@
 import { v } from 'convex/values'
-import { query } from '../_generated/server'
+import type { PlanInitView } from '../../../types/routes'
 
 import { planPreferencesValidator } from '../../models/saved-routes'
-import type { PlanInitView } from '../../../types/routes'
+import { query } from '../_generated/server'
 import { requireIdentity } from '../guards'
 
 const planInitViewValidator = v.object({

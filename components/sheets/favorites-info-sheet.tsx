@@ -48,12 +48,7 @@ export const FavoritesInfoSheet = ({
   const { semantic } = useSemanticTheme()
 
   return (
-    <BottomActionSheet
-      visible={visible}
-      onDismiss={onClose}
-      snapPoints={['60%']}
-      testID={testID}
-    >
+    <BottomActionSheet visible={visible} onDismiss={onClose} snapPoints={['60%']} testID={testID}>
       <View
         style={[
           styles.container,
@@ -124,12 +119,7 @@ export const FavoritesInfoSheet = ({
         </Text>
 
         {/* Close button */}
-        <Button
-          variant="default"
-          size="lg"
-          onPress={onClose}
-          testID={`${testID}-close-button`}
-        >
+        <Button variant="default" size="lg" onPress={onClose} testID={`${testID}-close-button`}>
           Got it
         </Button>
       </View>

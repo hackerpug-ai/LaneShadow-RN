@@ -14,7 +14,8 @@
  * Tokens: primary.default with 10%/30% opacity backgrounds/borders
  */
 
-import React, { useEffect, useState } from 'react'
+import type React from 'react'
+import { useEffect, useState } from 'react'
 import { AccessibilityInfo, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import Animated, {
@@ -98,9 +99,7 @@ const TagItem = ({
     transform: [{ scale: scale.value }],
   }))
 
-  const enterConfig = reduceMotion
-    ? { duration: 0 }
-    : { duration: fadeDuration }
+  const enterConfig = reduceMotion ? { duration: 0 } : { duration: fadeDuration }
 
   return (
     <Animated.View
@@ -120,17 +119,8 @@ const TagItem = ({
       accessibilityRole="text"
       testID={testID}
     >
-      {tag.icon && (
-        <Text style={styles.tagIcon}>
-          {tag.icon}
-        </Text>
-      )}
-      <Text
-        style={[
-          semantic.type.label.md,
-          { color: semantic.color.primary.default },
-        ]}
-      >
+      {tag.icon && <Text style={styles.tagIcon}>{tag.icon}</Text>}
+      <Text style={[semantic.type.label.md, { color: semantic.color.primary.default }]}>
         {tag.label}
       </Text>
     </Animated.View>

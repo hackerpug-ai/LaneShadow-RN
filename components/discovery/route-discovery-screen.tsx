@@ -19,7 +19,7 @@
  * - AC-006: Empty state when no routes
  */
 
-import { useState, useMemo, type ReactNode } from 'react'
+import { type ReactNode, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -113,7 +113,7 @@ const MOCK_ROUTES = [
  */
 const calculateArchetypeCounts = (
   routes: typeof MOCK_ROUTES,
-  _selectedArchetypes: RouteArchetype[]
+  _selectedArchetypes: RouteArchetype[],
 ): Record<RouteArchetype, number> => {
   return {
     all: routes.length,
@@ -149,7 +149,7 @@ export const RouteDiscoveryScreen = (): ReactNode => {
   // Calculate archetype counts
   const archetypeCounts = useMemo(
     () => calculateArchetypeCounts(MOCK_ROUTES, selectedArchetypes),
-    [selectedArchetypes]
+    [selectedArchetypes],
   )
 
   // Sort routes based on sort mode
@@ -202,26 +202,34 @@ export const RouteDiscoveryScreen = (): ReactNode => {
 
         {/* Sort Toggle - positioned below filter bar */}
         <View
-          style={[
-            styles.sortToggleContainer,
-            {
-              top: insets.top + 70, // Position below filter bar
-              right: semantic.space.lg,
-            },
-          ] as any}
+          style={
+            [
+              styles.sortToggleContainer,
+              {
+                top: insets.top + 70, // Position below filter bar
+                right: semantic.space.lg,
+              },
+            ] as any
+          }
         >
-          <DiscoverySortToggle mode={sortMode} onModeChange={setSortMode} testID="discovery-sort-toggle" />
+          <DiscoverySortToggle
+            mode={sortMode}
+            onModeChange={setSortMode}
+            testID="discovery-sort-toggle"
+          />
         </View>
 
         {/* Empty State Overlay - shown when no routes match filter */}
         {filteredRoutes.length === 0 && (
           <View
-            style={[
-              styles.emptyState,
-              {
-                backgroundColor: `${semantic.color.surface.default}CC`, // 80% opacity
-              },
-            ] as any}
+            style={
+              [
+                styles.emptyState,
+                {
+                  backgroundColor: `${semantic.color.surface.default}CC`, // 80% opacity
+                },
+              ] as any
+            }
             testID="empty-state"
           >
             <Text
@@ -245,14 +253,16 @@ export const RouteDiscoveryScreen = (): ReactNode => {
           sortedRoutes.slice(0, 10).map((route, index) => (
             <View
               key={`rank-${route.id}`}
-              style={[
-                styles.rankBadge,
-                {
-                  backgroundColor: semantic.color.primary.default,
-                  top: 100 + index * 20, // Mock positioning for design validation
-                  left: semantic.space.lg,
-                },
-              ] as any}
+              style={
+                [
+                  styles.rankBadge,
+                  {
+                    backgroundColor: semantic.color.primary.default,
+                    top: 100 + index * 20, // Mock positioning for design validation
+                    left: semantic.space.lg,
+                  },
+                ] as any
+              }
               testID={`rank-badge-${index + 1}`}
             >
               <Text variant="labelSmall" style={{ color: semantic.color.onPrimary.default }}>

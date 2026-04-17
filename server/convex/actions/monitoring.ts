@@ -59,7 +59,7 @@ const logMessage = (
   level: 'error' | 'warn' | 'info',
   category: string,
   message: string,
-  data: unknown
+  data: unknown,
 ): void => {
   const logEntry: LogEntry = {
     timestamp: new Date().toISOString(),
@@ -69,7 +69,8 @@ const logMessage = (
     data,
   }
 
-  const consoleFn = level === 'error' ? console.error : level === 'warn' ? console.warn : console.info
+  const consoleFn =
+    level === 'error' ? console.error : level === 'warn' ? console.warn : console.info
   consoleFn('[LOG]', JSON.stringify(logEntry))
 }
 
@@ -83,7 +84,7 @@ const logMessage = (
  */
 export const recordProtomapsFailureHandler = async (
   _ctx: any,
-  args: ProtomapsFailureArgs
+  args: ProtomapsFailureArgs,
 ): Promise<void> => {
   logMessage('error', 'protomaps.error', `Protomaps failure: ${args.operation}`, args)
 }
@@ -94,7 +95,7 @@ export const recordProtomapsFailureHandler = async (
  */
 export const recordProtomapsFallbackHandler = async (
   _ctx: any,
-  args: ProtomapsFallbackArgs
+  args: ProtomapsFallbackArgs,
 ): Promise<void> => {
   logMessage('warn', 'protomaps.fallback', `Protomaps fallback: ${args.tool}`, args)
 }
@@ -105,7 +106,7 @@ export const recordProtomapsFallbackHandler = async (
  */
 export const recordProtomapsQueryHandler = async (
   _ctx: any,
-  args: ProtomapsQueryArgs
+  args: ProtomapsQueryArgs,
 ): Promise<void> => {
   logMessage('info', 'protomaps.query', `Protomaps query: ${args.operation}`, args)
 }

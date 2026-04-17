@@ -330,14 +330,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "coastal"
-      ],
+      "sql_args": ["coastal"],
       "sql_ok": true,
-      "returned": [
-        "ca1-bigsur",
-        "wa101-olympic"
-      ],
+      "returned": ["ca1-bigsur", "wa101-olympic"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -369,14 +364,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE state = ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "CO"
-      ],
+      "sql_args": ["CO"],
       "sql_ok": true,
-      "returned": [
-        "co550-million",
-        "co82-independence"
-      ],
+      "returned": ["co550-million", "co82-independence"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -408,14 +398,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "desert"
-      ],
+      "sql_args": ["desert"],
       "sql_ok": true,
-      "returned": [
-        "nv-extraterrestrial",
-        "tx170-river-road"
-      ],
+      "returned": ["nv-extraterrestrial", "tx170-river-road"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -447,9 +432,7 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "scenic_byway"
-      ],
+      "sql_args": ["scenic_byway"],
       "sql_ok": true,
       "returned": [
         "az89a-sedona",
@@ -489,15 +472,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE length_mi <= ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        20
-      ],
+      "sql_args": [20],
       "sql_ok": true,
-      "returned": [
-        "ca-mulholland",
-        "nc107-whitewater",
-        "us129-deals-gap"
-      ],
+      "returned": ["ca-mulholland", "nc107-whitewater", "us129-deals-gap"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -529,14 +506,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND state = ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "adventure",
-        "UT"
-      ],
+      "sql_args": ["adventure", "UT"],
       "sql_ok": true,
-      "returned": [
-        "ut-bdr-segment"
-      ],
+      "returned": ["ut-bdr-segment"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -568,14 +540,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND length_mi >= ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "mountain",
-        40
-      ],
+      "sql_args": ["mountain", 40],
       "sql_ok": true,
-      "returned": [
-        "mt2-glacier"
-      ],
+      "returned": ["mt2-glacier"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -607,17 +574,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND season = ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "twisties",
-        "year_round"
-      ],
+      "sql_args": ["twisties", "year_round"],
       "sql_ok": true,
-      "returned": [
-        "ca-mulholland",
-        "ca36-mad-river",
-        "nc107-whitewater",
-        "us129-deals-gap"
-      ],
+      "returned": ["ca-mulholland", "ca36-mad-river", "nc107-whitewater", "us129-deals-gap"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -739,10 +698,7 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE traffic_score >= ? AND remoteness_score >= ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        0.7,
-        0.7
-      ],
+      "sql_args": [0.7, 0.7],
       "sql_ok": true,
       "returned": [
         "az-apache-trail",
@@ -787,9 +743,7 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE length_mi >= ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        100
-      ],
+      "sql_args": [100],
       "sql_ok": true,
       "returned": [
         "brp-south",
@@ -829,9 +783,7 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE technical_score >= ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        0.7
-      ],
+      "sql_args": [0.7],
       "sql_ok": true,
       "returned": [
         "az-apache-trail",
@@ -875,16 +827,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE technical_score <= ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        0.4
-      ],
+      "sql_args": [0.4],
       "sql_ok": true,
-      "returned": [
-        "id75-sawtooth",
-        "nv-extraterrestrial",
-        "vt100-mad-river",
-        "wa101-olympic"
-      ],
+      "returned": ["id75-sawtooth", "nv-extraterrestrial", "vt100-mad-river", "wa101-olympic"],
       "metrics": {
         "precision": 1.0,
         "recall": 0.571,
@@ -916,16 +861,9 @@
         "sort_by": "curvature"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? ORDER BY curvature_score DESC LIMIT 10",
-      "sql_args": [
-        "mountain"
-      ],
+      "sql_args": ["mountain"],
       "sql_ok": true,
-      "returned": [
-        "co82-independence",
-        "co550-million",
-        "mt2-glacier",
-        "or242-mckenzie"
-      ],
+      "returned": ["co82-independence", "co550-million", "mt2-glacier", "or242-mckenzie"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,

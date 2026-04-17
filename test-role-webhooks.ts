@@ -326,7 +326,7 @@ async function runRoleTests() {
 
   // 8. Test hyphenated assistant-teacher
   console.log(
-    '\n🎯 Testing HYPHENATED format: "assistant-teacher" (should map to assistant_teacher)...'
+    '\n🎯 Testing HYPHENATED format: "assistant-teacher" (should map to assistant_teacher)...',
   )
   await sendWebhook('organization_membership.updated', membershipUpdatedWithHyphenatedAssistant)
   await new Promise((resolve) => setTimeout(resolve, 1000))

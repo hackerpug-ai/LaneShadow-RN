@@ -1,10 +1,14 @@
-import { describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react-native'
 import React from 'react'
-import { WeatherOverlay } from '../weather-overlay'
-import { createWindOverlay, createRainOverlay, createTemperatureOverlay } from '../../../test-helpers/overlays'
-import type { RouteLeg, PolylineGeometry, RouteStop } from '../../../models/saved-routes'
+import { describe, expect, it } from 'vitest'
+import type { PolylineGeometry, RouteLeg, RouteStop } from '../../../models/saved-routes'
 import type { ExtendedTheme } from '../../../styles/types'
+import {
+  createRainOverlay,
+  createTemperatureOverlay,
+  createWindOverlay,
+} from '../../../test-helpers/overlays'
+import { WeatherOverlay } from '../weather-overlay'
 
 // ---------------------------------------------------------------------------
 // Mock semantic theme
@@ -58,12 +62,7 @@ describe('CLR-020: WeatherOverlay', () => {
   describe('AC-001: ShapeSource configuration', () => {
     it('renders null when no overlays provided', () => {
       const { toJSON } = render(
-        <WeatherOverlay
-          legs={mockLegs}
-          overlays={undefined}
-          semantic={mockSemantic}
-          testID="wo"
-        />,
+        <WeatherOverlay legs={mockLegs} overlays={undefined} semantic={mockSemantic} testID="wo" />,
       )
       expect(toJSON()).toBeNull()
     })
@@ -72,12 +71,7 @@ describe('CLR-020: WeatherOverlay', () => {
       const wind = createWindOverlay(['low'])
 
       const { getAllByTestId } = render(
-        <WeatherOverlay
-          legs={mockLegs}
-          overlays={{ wind }}
-          semantic={mockSemantic}
-          testID="wo"
-        />,
+        <WeatherOverlay legs={mockLegs} overlays={{ wind }} semantic={mockSemantic} testID="wo" />,
       )
 
       const windElements = getAllByTestId(/wo--wind/)
@@ -90,12 +84,7 @@ describe('CLR-020: WeatherOverlay', () => {
       const wind = createWindOverlay(['low', 'moderate', 'high'])
 
       const { getAllByTestId } = render(
-        <WeatherOverlay
-          legs={mockLegs}
-          overlays={{ wind }}
-          semantic={mockSemantic}
-          testID="wo"
-        />,
+        <WeatherOverlay legs={mockLegs} overlays={{ wind }} semantic={mockSemantic} testID="wo" />,
       )
 
       // 3 levels = 3 segments
@@ -109,12 +98,7 @@ describe('CLR-020: WeatherOverlay', () => {
       const rain = createRainOverlay(['light'])
 
       const { getAllByTestId } = render(
-        <WeatherOverlay
-          legs={mockLegs}
-          overlays={{ rain }}
-          semantic={mockSemantic}
-          testID="wo"
-        />,
+        <WeatherOverlay legs={mockLegs} overlays={{ rain }} semantic={mockSemantic} testID="wo" />,
       )
 
       const rainElements = getAllByTestId(/wo--rain/)
@@ -125,12 +109,7 @@ describe('CLR-020: WeatherOverlay', () => {
       const rain = createRainOverlay(['heavy'])
 
       const { getAllByTestId } = render(
-        <WeatherOverlay
-          legs={mockLegs}
-          overlays={{ rain }}
-          semantic={mockSemantic}
-          testID="wo"
-        />,
+        <WeatherOverlay legs={mockLegs} overlays={{ rain }} semantic={mockSemantic} testID="wo" />,
       )
 
       expect(getAllByTestId(/wo--rain/).length).toBeGreaterThan(0)
@@ -194,12 +173,7 @@ describe('CLR-020: WeatherOverlay', () => {
   describe('AC-006: Missing data handling', () => {
     it('renders null when overlays object has no data', () => {
       const { toJSON } = render(
-        <WeatherOverlay
-          legs={mockLegs}
-          overlays={{}}
-          semantic={mockSemantic}
-          testID="wo"
-        />,
+        <WeatherOverlay legs={mockLegs} overlays={{}} semantic={mockSemantic} testID="wo" />,
       )
       expect(toJSON()).toBeNull()
     })
@@ -208,12 +182,7 @@ describe('CLR-020: WeatherOverlay', () => {
       const wind = createWindOverlay(['low'])
 
       const { getAllByTestId, queryAllByTestId } = render(
-        <WeatherOverlay
-          legs={mockLegs}
-          overlays={{ wind }}
-          semantic={mockSemantic}
-          testID="wo"
-        />,
+        <WeatherOverlay legs={mockLegs} overlays={{ wind }} semantic={mockSemantic} testID="wo" />,
       )
 
       expect(getAllByTestId(/wo--wind/).length).toBeGreaterThan(0)

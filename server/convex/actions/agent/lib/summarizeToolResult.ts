@@ -64,8 +64,8 @@ export function summarizeToolResult(toolName: string, result: unknown): string {
         // Check if data contains errors
         const data = r?.data
         if (Array.isArray(data) && data.length > 0) {
-          const hasErrors = data.some((item: any) =>
-            item?.result?.status === 'error' || item?.result?.type === 'error'
+          const hasErrors = data.some(
+            (item: any) => item?.result?.status === 'error' || item?.result?.type === 'error',
           )
           if (hasErrors) {
             return 'Some searches failed — trying my best'
@@ -84,8 +84,8 @@ export function summarizeToolResult(toolName: string, result: unknown): string {
         // Check if data contains errors
         const data = r?.data
         if (Array.isArray(data) && data.length > 0) {
-          const hasErrors = data.some((item: any) =>
-            item?.result?.type === 'error' || item?.result?.status === 'error'
+          const hasErrors = data.some(
+            (item: any) => item?.result?.type === 'error' || item?.result?.status === 'error',
           )
           if (hasErrors) {
             return 'Some checks failed — partial results'

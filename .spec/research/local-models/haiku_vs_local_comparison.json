@@ -42,10 +42,7 @@
           "destination": "Point Reyes, CA",
           "route_preference": "scenic",
           "avoid_highways": true,
-          "scenic_highlights": [
-            "Pacific Coast Highway",
-            "Point Reyes National Seashore"
-          ]
+          "scenic_highlights": ["Pacific Coast Highway", "Point Reyes National Seashore"]
         },
         "issue": "Missing waypoints field, but scenic highlights are real"
       },

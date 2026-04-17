@@ -6,7 +6,7 @@
  * Uses BottomSheetInput for proper Gorhom keyboard handling.
  */
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -63,17 +63,11 @@ export const RegionNameBottomSheet = ({
       preset="content"
       hasTextInput
     >
-      <Text
-        variant="titleMedium"
-        style={{ color: semantic.color.onSurface.default }}
-      >
+      <Text variant="titleMedium" style={{ color: semantic.color.onSurface.default }}>
         Name Your Region
       </Text>
 
-      <Text
-        variant="bodyMedium"
-        style={{ color: semantic.color.onSurface.muted }}
-      >
+      <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.muted }}>
         Download size: {formatMB(sizeEstimate)}
       </Text>
 
@@ -112,10 +106,7 @@ export const RegionNameBottomSheet = ({
             },
           ]}
         >
-          <Text
-            variant="bodySmall"
-            style={{ color: semantic.color.warning.default }}
-          >
+          <Text variant="bodySmall" style={{ color: semantic.color.warning.default }}>
             WiFi required for downloads. Connect to WiFi to continue.
           </Text>
         </View>

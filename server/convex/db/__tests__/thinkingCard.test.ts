@@ -5,16 +5,16 @@
  * and finalizeThinkingCard via exported handler functions.
  */
 
-import { vi, describe, it, expect } from 'vitest'
 import { ConvexError } from 'convex/values'
+import { describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../_generated/dataModel'
+import { ERROR_CODES } from '../../errors'
 import {
-  createThinkingCardHandler,
-  appendThinkingTextHandler,
   appendThinkingStepHandler,
+  appendThinkingTextHandler,
+  createThinkingCardHandler,
   finalizeThinkingCardHandler,
 } from '../sessionMessages'
-import { ERROR_CODES } from '../../errors'
 
 // ---------------------------------------------------------------------------
 // Shared fixtures
@@ -51,7 +51,7 @@ describe('createThinkingCardHandler', () => {
         status: 'streaming',
         thinkingSteps: [],
         createdAt: expect.any(Number),
-      })
+      }),
     )
   })
 
@@ -105,7 +105,7 @@ describe('appendThinkingTextHandler', () => {
     expect(result).toBeNull()
     expect(ctx.db.patch).toHaveBeenCalledWith(
       MESSAGE_ID,
-      expect.objectContaining({ content: 'Hello world' })
+      expect.objectContaining({ content: 'Hello world' }),
     )
   })
 
@@ -132,7 +132,7 @@ describe('appendThinkingTextHandler', () => {
 
     expect(ctx.db.patch).toHaveBeenCalledWith(
       MESSAGE_ID,
-      expect.objectContaining({ content: 'first' })
+      expect.objectContaining({ content: 'first' }),
     )
   })
 
@@ -148,13 +148,13 @@ describe('appendThinkingTextHandler', () => {
       appendThinkingTextHandler(ctx as any, {
         messageId: MESSAGE_ID,
         delta: 'x',
-      })
+      }),
     ).rejects.toThrow(ConvexError)
     await expect(
       appendThinkingTextHandler(ctx as any, {
         messageId: MESSAGE_ID,
         delta: 'x',
-      })
+      }),
     ).rejects.toThrow(ERROR_CODES.SESSION_NOT_FOUND)
   })
 })
@@ -200,7 +200,7 @@ describe('appendThinkingStepHandler', () => {
       MESSAGE_ID,
       expect.objectContaining({
         thinkingSteps: [step],
-      })
+      }),
     )
   })
 
@@ -238,7 +238,7 @@ describe('appendThinkingStepHandler', () => {
       MESSAGE_ID,
       expect.objectContaining({
         thinkingSteps: expect.any(Array),
-      })
+      }),
     )
   })
 
@@ -285,13 +285,13 @@ describe('appendThinkingStepHandler', () => {
       appendThinkingStepHandler(ctx as any, {
         messageId: MESSAGE_ID,
         step: { type: 'thinking' as const, summary: 'test', timestamp: Date.now() },
-      })
+      }),
     ).rejects.toThrow(ConvexError)
     await expect(
       appendThinkingStepHandler(ctx as any, {
         messageId: MESSAGE_ID,
         step: { type: 'thinking' as const, summary: 'test', timestamp: Date.now() },
-      })
+      }),
     ).rejects.toThrow(ERROR_CODES.SESSION_NOT_FOUND)
   })
 })
@@ -328,7 +328,7 @@ describe('finalizeThinkingCardHandler', () => {
     expect(result).toBeNull()
     expect(ctx.db.patch).toHaveBeenCalledWith(
       MESSAGE_ID,
-      expect.objectContaining({ status: 'complete' })
+      expect.objectContaining({ status: 'complete' }),
     )
   })
 
@@ -355,7 +355,7 @@ describe('finalizeThinkingCardHandler', () => {
     expect(ctx.db.patch).toHaveBeenCalledTimes(2)
     expect(ctx.db.patch).toHaveBeenCalledWith(
       SESSION_ID,
-      expect.objectContaining({ updatedAt: expect.any(Number) })
+      expect.objectContaining({ updatedAt: expect.any(Number) }),
     )
   })
 
@@ -370,12 +370,12 @@ describe('finalizeThinkingCardHandler', () => {
     await expect(
       finalizeThinkingCardHandler(ctx as any, {
         messageId: MESSAGE_ID,
-      })
+      }),
     ).rejects.toThrow(ConvexError)
     await expect(
       finalizeThinkingCardHandler(ctx as any, {
         messageId: MESSAGE_ID,
-      })
+      }),
     ).rejects.toThrow(ERROR_CODES.SESSION_NOT_FOUND)
   })
 })

@@ -1,4 +1,4 @@
-import React from 'react'
+import type React from 'react'
 import type { ImageSourcePropType } from 'react-native'
 import { ImageBackground, StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'

@@ -1,21 +1,16 @@
 'use node'
 
-import {
-  getModel,
-  validateToolCall,
-  type Tool,
-  type ToolCall,
-} from '@mariozechner/pi-ai'
-import { AgentToolSchemas } from '../lib/piTools'
-import { createGeocodingProvider } from '../providers/geocodingProvider'
-import { planRideOrchestrator } from '../lib/planRideOrchestrator'
-import { buildOptionsFromResults } from '../planRide'
-import { runAgent } from '../runAgent'
-import { getAgentModel } from '../lib/models'
+import { getModel, type Tool, type ToolCall, validateToolCall } from '@mariozechner/pi-ai'
 import { api, internal } from '../../../_generated/api'
 import type { Id } from '../../../_generated/dataModel'
+import { getAgentModel } from '../lib/models'
+import { AgentToolSchemas } from '../lib/piTools'
+import { planRideOrchestrator } from '../lib/planRideOrchestrator'
+import { buildOptionsFromResults } from '../planRide'
+import { createGeocodingProvider } from '../providers/geocodingProvider'
 import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
-import type { SubAgentConfig, RoutingAgentResult } from './types'
+import { runAgent } from '../runAgent'
+import type { RoutingAgentResult, SubAgentConfig } from './types'
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -88,7 +83,7 @@ export function segmentKey(seg: SegmentIdentity): string {
  */
 export function findUnchangedSegments(
   newSegments: SegmentIdentity[],
-  cached: CachedSegmentResult[]
+  cached: CachedSegmentResult[],
 ): Map<number, CachedSegmentResult> {
   const cachedByKey = new Map(cached.map((r) => [segmentKey(r.identity), r]))
   const unchanged = new Map<number, CachedSegmentResult>()
@@ -110,7 +105,7 @@ export function findUnchangedSegments(
 export function mergeSegmentResults(
   newSegments: SegmentIdentity[],
   unchanged: Map<number, CachedSegmentResult>,
-  newResults: import('../tools/compileSketch').SegmentCompileResult[]
+  newResults: import('../tools/compileSketch').SegmentCompileResult[],
 ): import('../tools/compileSketch').SegmentCompileResult[] {
   // newResults are indexed relative to the toCompile subset — remap them
   // The compile call was given segments in order; map back to sketch index
@@ -141,10 +136,7 @@ export function mergeSegmentResults(
  * Geocode a place name to coordinates.
  * Exported for reuse by searchAgent (US-078).
  */
-export async function runGeocode(
-  ctx: AgentContext,
-  args: { query: string }
-): Promise<unknown> {
+export async function runGeocode(ctx: AgentContext, args: { query: string }): Promise<unknown> {
   const provider = createGeocodingProvider()
   const results = await provider.geocode(args.query, ctx.currentLocation)
   if (results.length === 0) {
@@ -163,7 +155,7 @@ async function runLookupRoad(
   args: {
     roadName: string
     bbox: { south: number; west: number; north: number; east: number }
-  }
+  },
 ): Promise<unknown> {
   const lookupRoad = await import('../tools/lookupRoad')
 
@@ -214,14 +206,14 @@ async function runCreateRouteSketch(
       lat: number
       lng: number
     }[]
-  }
+  },
 ): Promise<unknown> {
   // Store the sketch for use with compileSketch
   const sessionId = ctx.planningSessionId
   const sketch = {
     label: args.label,
     rationale: args.rationale,
-    segments: args.segments.map(s => ({
+    segments: args.segments.map((s) => ({
       roadName: s.roadName,
       fromName: s.fromName,
       toName: s.toName,
@@ -270,7 +262,7 @@ async function runCompileSketch(
         lng?: number
       }[]
     }
-  }
+  },
 ): Promise<unknown> {
   const sessionId = ctx.planningSessionId
 
@@ -281,8 +273,9 @@ async function runCompileSketch(
     if (!sketch) {
       return {
         type: 'error',
-        message: "No route sketch found. Call createRouteSketch first to define your route itinerary.",
-        hint: "Use createRouteSketch to specify the roads and waypoints for your route.",
+        message:
+          'No route sketch found. Call createRouteSketch first to define your route itinerary.',
+        hint: 'Use createRouteSketch to specify the roads and waypoints for your route.',
         retryGuidance: 'create_sketch',
       }
     }
@@ -318,16 +311,13 @@ async function runCompileSketch(
     preferences: args.preferences,
   }
 
-  const { routePlanId } = await ctx.runMutation(
-    internal.db.routePlans.createForAgentInternal,
-    {
-      clerkUserId: ctx.clerkUserId,
-      planningSessionId: sessionId,
-      planInput,
-      startLabel: args.start.label ?? undefined,
-      endLabel: args.end.label ?? undefined,
-    }
-  )
+  const { routePlanId } = await ctx.runMutation(internal.db.routePlans.createForAgentInternal, {
+    clerkUserId: ctx.clerkUserId,
+    planningSessionId: sessionId,
+    planInput,
+    startLabel: args.start.label ?? undefined,
+    endLabel: args.end.label ?? undefined,
+  })
 
   // Invalidate stale enrichments from previous route plans in this session
   await ctx.runMutation(internal.db.routeEnrichments.invalidateStaleEnrichments, {
@@ -337,7 +327,11 @@ async function runCompileSketch(
 
   try {
     // Import compilation tools dynamically to avoid circular deps
-    const { compileSketch: compileSketchImpl, compileSegments, stitchSegments } = await import('../tools/compileSketch')
+    const {
+      compileSketch: compileSketchImpl,
+      compileSegments,
+      stitchSegments,
+    } = await import('../tools/compileSketch')
     const { normalizeRoute } = await import('../tools/normalizeRoute')
     const { buildOptionsFromResults: buildOpts } = await import('../planRide')
 
@@ -370,7 +364,11 @@ async function runCompileSketch(
       // ------------------------------------------------------------------
       const attemptsRemaining = MAX_COMPILE_ATTEMPTS - attemptCount
 
-      if (attemptCount >= MAX_COMPILE_ATTEMPTS && cachedSucceeded.length > 0 && toCompile.length > 0) {
+      if (
+        attemptCount >= MAX_COMPILE_ATTEMPTS &&
+        cachedSucceeded.length > 0 &&
+        toCompile.length > 0
+      ) {
         // Compile the remaining failed segments one last time to see if any succeed
         const lastResults = await compileSegments({
           planInput,
@@ -378,13 +376,17 @@ async function runCompileSketch(
           locationBias: ctx.currentLocation,
         })
         const allResults = mergeSegmentResults(newSegments, unchanged, lastResults)
-        const stillFailed = allResults.filter(r => r.status === 'failed')
-        const nowSucceeded = allResults.filter(r => r.status === 'ok')
+        const stillFailed = allResults.filter((r) => r.status === 'failed')
+        const nowSucceeded = allResults.filter((r) => r.status === 'ok')
 
         if (stillFailed.length > 0 && nowSucceeded.length > 0) {
           // Build a partial route from the succeeded segments and return it with a message
           const partialRoute = stitchSegments(nowSucceeded)
-          const routeSnapshot = await normalizeRoute({ providerRoute: partialRoute, planInput, sketch })
+          const routeSnapshot = await normalizeRoute({
+            providerRoute: partialRoute,
+            planInput,
+            sketch,
+          })
           const results = [{ routeSnapshot, sketch }]
 
           let built
@@ -417,7 +419,9 @@ async function runCompileSketch(
             clerkUserId: ctx.clerkUserId,
           })
 
-          const failedRoadNames = stillFailed.map(f => newSegments[f.segmentIndex]?.roadName ?? 'unknown road').join(', ')
+          const failedRoadNames = stillFailed
+            .map((f) => newSegments[f.segmentIndex]?.roadName ?? 'unknown road')
+            .join(', ')
           return {
             type: 'routes',
             data: {
@@ -436,7 +440,9 @@ async function runCompileSketch(
             status: 'failed',
             errorMessage: `All segments failed after ${MAX_COMPILE_ATTEMPTS} attempts`,
           })
-          const failedRoadNames = stillFailed.map(f => newSegments[f.segmentIndex]?.roadName ?? 'unknown road').join(', ')
+          const failedRoadNames = stillFailed
+            .map((f) => newSegments[f.segmentIndex]?.roadName ?? 'unknown road')
+            .join(', ')
           return {
             type: 'chat',
             message: `I wasn't able to find a path for ${failedRoadNames} after several attempts. Try a different route?`,
@@ -464,14 +470,18 @@ async function runCompileSketch(
 
         try {
           await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
-            routePlanId, status: 'completed', result: built,
+            routePlanId,
+            status: 'completed',
+            result: built,
           })
         } catch (updateError) {
           console.error('[runCompileSketch] Error updating status to completed:', updateError)
           throw updateError
         }
 
-        await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, { clerkUserId: ctx.clerkUserId })
+        await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, {
+          clerkUserId: ctx.clerkUserId,
+        })
         return { type: 'routes', data: built, routePlanId }
       }
 
@@ -486,13 +496,13 @@ async function runCompileSketch(
 
       // Merge new results with cached unchanged segments
       const mergedResults = mergeSegmentResults(newSegments, unchanged, segmentResults)
-      const failed = mergedResults.filter(r => r.status === 'failed')
-      const succeeded = mergedResults.filter(r => r.status === 'ok')
+      const failed = mergedResults.filter((r) => r.status === 'failed')
+      const succeeded = mergedResults.filter((r) => r.status === 'ok')
 
       if (failed.length > 0) {
         // Total failure: all segments failed - throw exception to terminate agent
         if (succeeded.length === 0) {
-          const errorDetails = failed.map(f => ({
+          const errorDetails = failed.map((f) => ({
             segmentIndex: f.segmentIndex,
             roadName: newSegments[f.segmentIndex].roadName,
             fromName: newSegments[f.segmentIndex].fromName,
@@ -508,14 +518,14 @@ async function runCompileSketch(
 
           throw new Error(
             `All road segments couldn't be routed. ` +
-            `Failed segments: ${errorDetails.map(e => `${e.roadName} (${e.fromName} → ${e.toName}): ${e.error}`).join(', ')}. ` +
-            `Try using more specific location names or major highways.`
+              `Failed segments: ${errorDetails.map((e) => `${e.roadName} (${e.fromName} → ${e.toName}): ${e.error}`).join(', ')}. ` +
+              `Try using more specific location names or major highways.`,
           )
         }
 
         // Partial failure: some segments succeeded - return error for retry
         // Update the succeeded segment cache for the next retry attempt
-        const newCachedSucceeded: CachedSegmentResult[] = succeeded.map(s => ({
+        const newCachedSucceeded: CachedSegmentResult[] = succeeded.map((s) => ({
           segmentIndex: s.segmentIndex,
           route: (s as Extract<typeof s, { status: 'ok' }>).route,
           identity: newSegments[s.segmentIndex],
@@ -539,11 +549,11 @@ async function runCompileSketch(
           hint: JSON.stringify({
             type: 'partial_route',
             attemptsRemaining,
-            succeeded: succeeded.map(s => ({
+            succeeded: succeeded.map((s) => ({
               segmentIndex: s.segmentIndex,
               roadName: newSegments[s.segmentIndex].roadName,
             })),
-            failed: failed.map(f => ({
+            failed: failed.map((f) => ({
               segmentIndex: f.segmentIndex,
               roadName: newSegments[f.segmentIndex].roadName,
               fromName: newSegments[f.segmentIndex].fromName,
@@ -576,10 +586,12 @@ async function runCompileSketch(
     })
 
     // Build the result
-    const results = [{
-      routeSnapshot,
-      sketch,
-    }]
+    const results = [
+      {
+        routeSnapshot,
+        sketch,
+      },
+    ]
 
     let built
     try {
@@ -602,13 +614,16 @@ async function runCompileSketch(
       routePlanId,
       status: 'completed',
       optionsCount: built.options?.length,
-      firstOption: built.options?.[0] ? {
-        routeOptionId: built.options[0].routeOptionId,
-        hasMap: !!built.options[0].map,
-        hasOverviewGeometry: !!built.options[0].map?.overviewGeometry,
-        overviewGeometryValue: built.options[0].map?.overviewGeometry?.value?.substring(0, 50) + '...',
-        legsCount: built.options[0].map?.legs?.length,
-      } : null,
+      firstOption: built.options?.[0]
+        ? {
+            routeOptionId: built.options[0].routeOptionId,
+            hasMap: !!built.options[0].map,
+            hasOverviewGeometry: !!built.options[0].map?.overviewGeometry,
+            overviewGeometryValue:
+              built.options[0].map?.overviewGeometry?.value?.substring(0, 50) + '...',
+            legsCount: built.options[0].map?.legs?.length,
+          }
+        : null,
     })
 
     // Finalize the route_plans row
@@ -634,9 +649,10 @@ async function runCompileSketch(
     const errorMessage = error instanceof Error ? error.message : String(error)
 
     // Check if it's a routing compilation error (e.g., invalid road, no connection)
-    const isRoutingError = errorMessage.includes('ROUTING_COMPILE_FAILED') ||
-                          errorMessage.includes('ZERO_RESULTS') ||
-                          errorMessage.includes('NOT_FOUND')
+    const isRoutingError =
+      errorMessage.includes('ROUTING_COMPILE_FAILED') ||
+      errorMessage.includes('ZERO_RESULTS') ||
+      errorMessage.includes('NOT_FOUND')
 
     await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
       routePlanId,
@@ -647,7 +663,8 @@ async function runCompileSketch(
     if (isRoutingError) {
       return {
         type: 'error',
-        message: "I couldn't route that way — the roads may not connect or one might not exist. Let me try a different approach.",
+        message:
+          "I couldn't route that way — the roads may not connect or one might not exist. Let me try a different approach.",
         hint: `The route sketch "${sketch.label}" couldn't be compiled. Try using different roads or check if they connect.`,
         retryGuidance: 'revise_sketch',
         routePlanId,
@@ -657,9 +674,10 @@ async function runCompileSketch(
     return {
       type: 'error',
       message: "I couldn't plan your route right now. Please try again.",
-      hint: error instanceof Error && error.message.includes('timeout')
-        ? 'The route calculation timed out. Try a shorter distance or simpler route.'
-        : 'Suggest an alternate destination or relax preferences (e.g. remove avoid-highways).',
+      hint:
+        error instanceof Error && error.message.includes('timeout')
+          ? 'The route calculation timed out. Try a shorter distance or simpler route.'
+          : 'Suggest an alternate destination or relax preferences (e.g. remove avoid-highways).',
       retryGuidance: 'ask_rider',
       routePlanId,
     }
@@ -677,7 +695,7 @@ async function runPlanRoute(
       avoidHighways: boolean
       avoidTolls: boolean
     }
-  }
+  },
 ): Promise<unknown> {
   // Rate-limit check (limit configurable via RATE_LIMIT_OVERRIDE env var; 0 = unlimited)
   const usage = await ctx.runQuery(internal.db.planUsage.checkUsageInternal, {
@@ -710,16 +728,13 @@ async function runPlanRoute(
     preferences: args.preferences,
   }
 
-  const { routePlanId } = await ctx.runMutation(
-    internal.db.routePlans.createForAgentInternal,
-    {
-      clerkUserId: ctx.clerkUserId,
-      planningSessionId: ctx.planningSessionId,
-      planInput,
-      startLabel: args.start.label ?? undefined,
-      endLabel: args.end.label ?? undefined,
-    }
-  )
+  const { routePlanId } = await ctx.runMutation(internal.db.routePlans.createForAgentInternal, {
+    clerkUserId: ctx.clerkUserId,
+    planningSessionId: ctx.planningSessionId,
+    planInput,
+    startLabel: args.start.label ?? undefined,
+    endLabel: args.end.label ?? undefined,
+  })
 
   // Invalidate stale enrichments from previous route plans in this session
   await ctx.runMutation(internal.db.routeEnrichments.invalidateStaleEnrichments, {
@@ -772,20 +787,23 @@ async function runPlanRoute(
         routePlanId,
         status: 'completed',
         optionsCount: built.options?.length,
-        firstOption: built.options?.[0] ? {
-          routeOptionId: built.options[0].routeOptionId,
-          hasMap: !!built.options[0].map,
-          hasOverviewGeometry: !!built.options[0].map?.overviewGeometry,
-          overviewGeometryValue: built.options[0].map?.overviewGeometry?.value?.substring(0, 50) + '...',
-          legsCount: built.options[0].map?.legs?.length,
-        } : null,
+        firstOption: built.options?.[0]
+          ? {
+              routeOptionId: built.options[0].routeOptionId,
+              hasMap: !!built.options[0].map,
+              hasOverviewGeometry: !!built.options[0].map?.overviewGeometry,
+              overviewGeometryValue:
+                built.options[0].map?.overviewGeometry?.value?.substring(0, 50) + '...',
+              legsCount: built.options[0].map?.legs?.length,
+            }
+          : null,
       })
 
       try {
         // Check if the route plan was already cancelled or failed (e.g., agent returned needs_clarification)
-        const currentPlan = await ctx.runQuery(internal.db.routePlans.getPlanByIdInternal, {
+        const currentPlan = (await ctx.runQuery(internal.db.routePlans.getPlanByIdInternal, {
           routePlanId,
-        }) as any
+        })) as any
 
         // Only update to completed if not already cancelled or failed
         if (currentPlan?.status !== 'cancelled' && currentPlan?.status !== 'failed') {
@@ -820,7 +838,10 @@ async function runPlanRoute(
       const errorMessage = error instanceof Error ? error.message : String(error)
 
       if (attempt < MAX_ORCHESTRATOR_RETRIES) {
-        console.warn(`[runPlanRoute] Attempt ${attempt}/${MAX_ORCHESTRATOR_RETRIES} failed, retrying:`, errorMessage)
+        console.warn(
+          `[runPlanRoute] Attempt ${attempt}/${MAX_ORCHESTRATOR_RETRIES} failed, retrying:`,
+          errorMessage,
+        )
         // Update status to show retry in progress (not "failed")
         await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
           routePlanId,
@@ -839,9 +860,9 @@ async function runPlanRoute(
       })
 
       // Check if the route plan was already completed or cancelled (race condition guard)
-      const currentPlan = await ctx.runQuery(internal.db.routePlans.getPlanByIdInternal, {
+      const currentPlan = (await ctx.runQuery(internal.db.routePlans.getPlanByIdInternal, {
         routePlanId,
-      }) as any
+      })) as any
 
       // Only mark as failed if not already completed or cancelled
       if (currentPlan?.status !== 'completed' && currentPlan?.status !== 'cancelled') {
@@ -851,17 +872,21 @@ async function runPlanRoute(
           errorMessage,
         })
       } else {
-        console.info('[runPlanRoute] Route plan already completed/cancelled, skipping failure mark:', {
-          routePlanId,
-          currentStatus: currentPlan?.status,
-        })
+        console.info(
+          '[runPlanRoute] Route plan already completed/cancelled, skipping failure mark:',
+          {
+            routePlanId,
+            currentStatus: currentPlan?.status,
+          },
+        )
       }
       return {
         type: 'error',
         message: "I couldn't plan your route right now. Please try again.",
-        hint: error instanceof Error && error.message.includes('timeout')
-          ? 'The route calculation timed out. Try a shorter distance or simpler route.'
-          : 'Suggest an alternate destination or relax preferences (e.g. remove avoid-highways).',
+        hint:
+          error instanceof Error && error.message.includes('timeout')
+            ? 'The route calculation timed out. Try a shorter distance or simpler route.'
+            : 'Suggest an alternate destination or relax preferences (e.g. remove avoid-highways).',
         retryGuidance: 'ask_rider',
         routePlanId,
       }
@@ -882,10 +907,7 @@ async function runPlanRoute(
  * Set the title of the current planning session.
  * Called by the agent after creating a route to give the session a meaningful name.
  */
-async function runSetSessionTitle(
-  ctx: AgentContext,
-  args: { title: string }
-): Promise<unknown> {
+async function runSetSessionTitle(ctx: AgentContext, args: { title: string }): Promise<unknown> {
   try {
     await ctx.runMutation(internal.db.planningSessions.updateSessionTitle, {
       sessionId: ctx.planningSessionId,
@@ -916,28 +938,28 @@ const routingTools: RoutingTool[] = [
   {
     name: 'geocode',
     description:
-      "Look up coordinates for a place name, address, or landmark. Use before planRoute or compileSketch when the rider names somewhere other than \"here\". Results are biased toward the rider's current location.",
+      'Look up coordinates for a place name, address, or landmark. Use before planRoute or compileSketch when the rider names somewhere other than "here". Results are biased toward the rider\'s current location.',
     parameters: AgentToolSchemas.geocode as any,
     parallelSafe: true,
   },
   {
     name: 'createRouteSketch',
     description:
-      "Create a high-level route itinerary by specifying road segments (think \"take Highway 5 to Highway 405 to PCH\"). Use this when the rider asks to avoid specific roads (\"avoid Highway 1\") or requests a particular route (\"take Skyline Blvd\"). After creating the sketch, call compileSketch with start/end coordinates to generate the precise route.",
+      'Create a high-level route itinerary by specifying road segments (think "take Highway 5 to Highway 405 to PCH"). Use this when the rider asks to avoid specific roads ("avoid Highway 1") or requests a particular route ("take Skyline Blvd"). After creating the sketch, call compileSketch with start/end coordinates to generate the precise route.',
     parameters: AgentToolSchemas.createRouteSketch as any,
     parallelSafe: true,
   },
   {
     name: 'compileSketch',
     description:
-      "Convert a route sketch into a precise route with geometry from Google Maps. Call geocode first if you need coordinates for start/end points. This validates that your sketch roads actually connect and returns detailed turn-by-turn geometry. If routing fails, revise your sketch and try again.",
+      'Convert a route sketch into a precise route with geometry from Google Maps. Call geocode first if you need coordinates for start/end points. This validates that your sketch roads actually connect and returns detailed turn-by-turn geometry. If routing fails, revise your sketch and try again.',
     parameters: AgentToolSchemas.compileSketch as any,
     parallelSafe: false,
   },
   {
     name: 'planRoute',
     description:
-      "Plan a motorcycle route with 2-3 scenic options using the deterministic orchestrator. Call geocode first if you need coordinates for the start or end. Use the rider's current location (given in the system prompt) as start when they say \"here\" or don't specify. For refinements, consider using createRouteSketch + compileSketch for more control.",
+      'Plan a motorcycle route with 2-3 scenic options using the deterministic orchestrator. Call geocode first if you need coordinates for the start or end. Use the rider\'s current location (given in the system prompt) as start when they say "here" or don\'t specify. For refinements, consider using createRouteSketch + compileSketch for more control.',
     parameters: AgentToolSchemas.planRoute as any,
     parallelSafe: false,
   },
@@ -950,7 +972,8 @@ const routingTools: RoutingTool[] = [
       properties: {
         title: {
           type: 'string',
-          description: 'The session title (e.g., "SF to Oakland Ride", "Scenic Coast Route", "Morning Commute")',
+          description:
+            'The session title (e.g., "SF to Oakland Ride", "Scenic Coast Route", "Morning Commute")',
         },
       },
       required: ['title'],
@@ -959,7 +982,9 @@ const routingTools: RoutingTool[] = [
   },
 ]
 
-const routingParallelSafeTools = new Set(routingTools.filter(t => t.parallelSafe).map(t => t.name))
+const routingParallelSafeTools = new Set(
+  routingTools.filter((t) => t.parallelSafe).map((t) => t.name),
+)
 
 // -----------------------------------------------------------------------------
 // Tool Dispatcher
@@ -968,7 +993,7 @@ const routingParallelSafeTools = new Set(routingTools.filter(t => t.parallelSafe
 export async function executeRoutingTool(
   ctx: AgentContext,
   call: ToolCall,
-  executeCtx?: ExecuteContext
+  executeCtx?: ExecuteContext,
 ): Promise<unknown> {
   const validated = validateToolCall(routingTools, call)
 
@@ -1128,9 +1153,7 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
   const context = {
     systemPrompt,
     // Sub-agent gets NO conversation history — only the current user message
-    messages: [
-      { role: 'user' as const, content: userMessage, timestamp: Date.now() },
-    ],
+    messages: [{ role: 'user' as const, content: userMessage, timestamp: Date.now() }],
     tools: routingTools,
   }
 
@@ -1138,13 +1161,15 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
     model,
     context,
     executor: (call: ToolCall) => executeRoutingTool(ctx, call, executeCtx),
-    callbacks: executeCtx ? {
-      onToolStart: executeCtx.onToolStart,
-      onToolFinish: executeCtx.onToolFinish,
-      onAgentTurn: executeCtx.onAgentTurn,
-      onToolResultPiMessage: executeCtx.onToolResultPiMessage,
-      // NOT forwarding onTextDelta or onThinkingDelta — sub-agent text doesn't stream to UI
-    } : undefined,
+    callbacks: executeCtx
+      ? {
+          onToolStart: executeCtx.onToolStart,
+          onToolFinish: executeCtx.onToolFinish,
+          onAgentTurn: executeCtx.onAgentTurn,
+          onToolResultPiMessage: executeCtx.onToolResultPiMessage,
+          // NOT forwarding onTextDelta or onThinkingDelta — sub-agent text doesn't stream to UI
+        }
+      : undefined,
     maxSteps: 20, // uncapped for now — levelsetting resource needs
     timeoutMs: 300_000, // 5 min — uncapped for levelsetting
     budgetTracker,
@@ -1178,7 +1203,11 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
     try {
       const parsed = JSON.parse(result.response)
       if (parsed.status === 'route_ready' && parsed.routePlanId) {
-        return { status: 'route_ready', routePlanId: parsed.routePlanId, summary: parsed.summary ?? '' }
+        return {
+          status: 'route_ready',
+          routePlanId: parsed.routePlanId,
+          summary: parsed.summary ?? '',
+        }
       }
       if (parsed.status === 'needs_clarification' && parsed.question) {
         // Agent explicitly returned needs_clarification as JSON

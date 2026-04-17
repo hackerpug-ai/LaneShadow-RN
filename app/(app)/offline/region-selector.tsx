@@ -17,14 +17,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { MapboxMapView, MapboxMapViewHandle, MapControls } from '../../../components/map'
-import { RegionNameBottomSheet } from '../../../components/offline/region-name-bottom-sheet'
+import { MapboxMapView, type MapboxMapViewHandle, MapControls } from '../../../components/map'
 import { DownloadProgressIndicator } from '../../../components/offline/download-progress-indicator'
+import { RegionNameBottomSheet } from '../../../components/offline/region-name-bottom-sheet'
 import { Button } from '../../../components/ui/button'
-import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useThemePreference } from '../../../contexts/theme-preference'
-import { useOfflineDownload } from '../../../hooks/useOfflineDownload'
 import { useCurrentLocation } from '../../../hooks/use-current-location'
+import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
+import { useOfflineDownload } from '../../../hooks/useOfflineDownload'
 import { StorageUtils } from '../../../lib/mapbox/storage-utils'
 import { WiFiValidator } from '../../../lib/mapbox/wifi-validator'
 
@@ -79,9 +79,12 @@ export default function RegionSelectorScreen() {
       const ne = { lat: parseFloat(params.neLat), lng: parseFloat(params.neLng) }
       // Guard against NaN from invalid URL params
       if (
-        !isFinite(sw.lat) || !isFinite(sw.lng) ||
-        !isFinite(ne.lat) || !isFinite(ne.lng) ||
-        sw.lat >= ne.lat || sw.lng >= ne.lng
+        !isFinite(sw.lat) ||
+        !isFinite(sw.lng) ||
+        !isFinite(ne.lat) ||
+        !isFinite(ne.lng) ||
+        sw.lat >= ne.lat ||
+        sw.lng >= ne.lng
       ) {
         return null
       }
@@ -93,11 +96,13 @@ export default function RegionSelectorScreen() {
   const existingZoom = params.zoom ? parseFloat(params.zoom) : null
   const existingName = params.regionName ?? null
 
-  const [bounds, setBounds] = useState<SelectionBounds>(() =>
-    existingBounds ?? makeBounds(
-      currentLocation?.lat ?? FALLBACK_CENTER.lat,
-      currentLocation?.lng ?? FALLBACK_CENTER.lng,
-    ),
+  const [bounds, setBounds] = useState<SelectionBounds>(
+    () =>
+      existingBounds ??
+      makeBounds(
+        currentLocation?.lat ?? FALLBACK_CENTER.lat,
+        currentLocation?.lng ?? FALLBACK_CENTER.lng,
+      ),
   )
   const [showNameSheet, setShowNameSheet] = useState(false)
   const [isWiFi, setIsWiFi] = useState(true)
@@ -193,8 +198,14 @@ export default function RegionSelectorScreen() {
       <View style={styles.controls} pointerEvents="box-none">
         <MapControls
           mode="map"
-          onZoomIn={() => { zoom(1); setHasMoved(true) }}
-          onZoomOut={() => { zoom(-1); setHasMoved(true) }}
+          onZoomIn={() => {
+            zoom(1)
+            setHasMoved(true)
+          }}
+          onZoomOut={() => {
+            zoom(-1)
+            setHasMoved(true)
+          }}
           onRecenter={recenter}
         />
       </View>
@@ -211,17 +222,11 @@ export default function RegionSelectorScreen() {
           testID="region-selector-back"
           accessibilityLabel="Go back"
         >
-          <Text
-            variant="labelLarge"
-            style={{ color: semantic.color.primary.default }}
-          >
+          <Text variant="labelLarge" style={{ color: semantic.color.primary.default }}>
             Cancel
           </Text>
         </Pressable>
-        <Text
-          variant="titleMedium"
-          style={{ color: semantic.color.onSurface.default }}
-        >
+        <Text variant="titleMedium" style={{ color: semantic.color.onSurface.default }}>
           Select Region
         </Text>
         <View style={{ width: 60 }} />
@@ -236,11 +241,17 @@ export default function RegionSelectorScreen() {
       */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
         {/* Top scrim */}
-        <View pointerEvents="none" style={[styles.scrim, { height: '20%', backgroundColor: scrimColor }]} />
+        <View
+          pointerEvents="none"
+          style={[styles.scrim, { height: '20%', backgroundColor: scrimColor }]}
+        />
 
         {/* Middle row: left scrim | viewport | right scrim */}
         <View pointerEvents="none" style={styles.middleRow}>
-          <View pointerEvents="none" style={[styles.scrim, { width: '10%', backgroundColor: scrimColor }]} />
+          <View
+            pointerEvents="none"
+            style={[styles.scrim, { width: '10%', backgroundColor: scrimColor }]}
+          />
 
           {/* The viewport window — clear, with edge lines and corners */}
           <View
@@ -251,37 +262,82 @@ export default function RegionSelectorScreen() {
             accessibilityRole="image"
           >
             {/* Thin continuous edge border */}
-            <View
-              style={[
-                styles.viewportBorder,
-                { borderColor: `${primaryColor}66` },
-              ]}
-            />
+            <View style={[styles.viewportBorder, { borderColor: `${primaryColor}66` }]} />
 
             {/* Corner brackets — solid copper L-shapes */}
             {/* Top-left */}
             <View style={[styles.cornerPosition, { left: -1, top: -1 }]}>
-              <View style={[styles.cornerBracket, { borderColor: primaryColor, borderTopWidth: CORNER_THICKNESS, borderLeftWidth: CORNER_THICKNESS, width: CORNER_ARM, height: CORNER_ARM }]} />
+              <View
+                style={[
+                  styles.cornerBracket,
+                  {
+                    borderColor: primaryColor,
+                    borderTopWidth: CORNER_THICKNESS,
+                    borderLeftWidth: CORNER_THICKNESS,
+                    width: CORNER_ARM,
+                    height: CORNER_ARM,
+                  },
+                ]}
+              />
             </View>
             {/* Top-right */}
             <View style={[styles.cornerPosition, { right: -1, top: -1 }]}>
-              <View style={[styles.cornerBracket, { borderColor: primaryColor, borderTopWidth: CORNER_THICKNESS, borderRightWidth: CORNER_THICKNESS, width: CORNER_ARM, height: CORNER_ARM }]} />
+              <View
+                style={[
+                  styles.cornerBracket,
+                  {
+                    borderColor: primaryColor,
+                    borderTopWidth: CORNER_THICKNESS,
+                    borderRightWidth: CORNER_THICKNESS,
+                    width: CORNER_ARM,
+                    height: CORNER_ARM,
+                  },
+                ]}
+              />
             </View>
             {/* Bottom-left */}
             <View style={[styles.cornerPosition, { left: -1, bottom: -1 }]}>
-              <View style={[styles.cornerBracket, { borderColor: primaryColor, borderBottomWidth: CORNER_THICKNESS, borderLeftWidth: CORNER_THICKNESS, width: CORNER_ARM, height: CORNER_ARM }]} />
+              <View
+                style={[
+                  styles.cornerBracket,
+                  {
+                    borderColor: primaryColor,
+                    borderBottomWidth: CORNER_THICKNESS,
+                    borderLeftWidth: CORNER_THICKNESS,
+                    width: CORNER_ARM,
+                    height: CORNER_ARM,
+                  },
+                ]}
+              />
             </View>
             {/* Bottom-right */}
             <View style={[styles.cornerPosition, { right: -1, bottom: -1 }]}>
-              <View style={[styles.cornerBracket, { borderColor: primaryColor, borderBottomWidth: CORNER_THICKNESS, borderRightWidth: CORNER_THICKNESS, width: CORNER_ARM, height: CORNER_ARM }]} />
+              <View
+                style={[
+                  styles.cornerBracket,
+                  {
+                    borderColor: primaryColor,
+                    borderBottomWidth: CORNER_THICKNESS,
+                    borderRightWidth: CORNER_THICKNESS,
+                    width: CORNER_ARM,
+                    height: CORNER_ARM,
+                  },
+                ]}
+              />
             </View>
           </View>
 
-          <View pointerEvents="none" style={[styles.scrim, { flex: 1, backgroundColor: scrimColor }]} />
+          <View
+            pointerEvents="none"
+            style={[styles.scrim, { flex: 1, backgroundColor: scrimColor }]}
+          />
         </View>
 
         {/* Bottom scrim */}
-        <View pointerEvents="none" style={[styles.scrim, { flex: 1, backgroundColor: scrimColor }]} />
+        <View
+          pointerEvents="none"
+          style={[styles.scrim, { flex: 1, backgroundColor: scrimColor }]}
+        />
       </View>
 
       {/* Bottom overlay */}
@@ -296,16 +352,10 @@ export default function RegionSelectorScreen() {
       >
         {progress?.state === 'complete' ? (
           <View style={[styles.sizeRow, { gap: semantic.space.sm }]}>
-            <Text
-              variant="headlineSmall"
-              style={{ color: semantic.color.success.default }}
-            >
+            <Text variant="headlineSmall" style={{ color: semantic.color.success.default }}>
               Region Ready
             </Text>
-            <Text
-              variant="bodySmall"
-              style={{ color: semantic.color.onSurface.muted }}
-            >
+            <Text variant="bodySmall" style={{ color: semantic.color.onSurface.muted }}>
               Offline map downloaded successfully.
             </Text>
             <Button
@@ -333,16 +383,10 @@ export default function RegionSelectorScreen() {
         ) : (
           <>
             <View style={styles.sizeRow}>
-              <Text
-                variant="headlineSmall"
-                style={{ color: semantic.color.onSurface.default }}
-              >
+              <Text variant="headlineSmall" style={{ color: semantic.color.onSurface.default }}>
                 {formatMB(sizeEstimate)}
               </Text>
-              <Text
-                variant="bodySmall"
-                style={{ color: semantic.color.onSurface.muted }}
-              >
+              <Text variant="bodySmall" style={{ color: semantic.color.onSurface.muted }}>
                 estimated download
               </Text>
             </View>
@@ -357,7 +401,16 @@ export default function RegionSelectorScreen() {
                 Download Region
               </Button>
             ) : (
-              <View style={[styles.hintBox, { backgroundColor: `${semantic.color.primary.default}15`, borderRadius: semantic.radius.md, padding: semantic.space.md }]}>
+              <View
+                style={[
+                  styles.hintBox,
+                  {
+                    backgroundColor: `${semantic.color.primary.default}15`,
+                    borderRadius: semantic.radius.md,
+                    padding: semantic.space.md,
+                  },
+                ]}
+              >
                 <Text
                   variant="bodySmall"
                   style={{ color: semantic.color.onSurface.muted, textAlign: 'center' }}

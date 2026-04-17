@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import type { RouteSketch } from '../../../../../models/route-sketch'
 import type { PlanInput } from '../../../../../models/saved-routes'
 import type { ProviderRouteResponse } from '../../providers/routingProvider'
-import type { RouteSketch } from '../../../../../models/route-sketch'
 import { normalizeRoute } from '../normalizeRoute'
 
 describe('normalizeRoute', () => {
@@ -68,7 +68,12 @@ describe('normalizeRoute', () => {
             end: { lat: 37.2, lng: -122.2 },
             distanceMeters: 5_000,
             durationSeconds: 600,
-            geometry: { format: 'polyline', encoding: 'mock_polyline', precision: 5, value: 'leg1' },
+            geometry: {
+              format: 'polyline',
+              encoding: 'mock_polyline',
+              precision: 5,
+              value: 'leg1',
+            },
           },
           {
             legIndex: 1,
@@ -76,7 +81,12 @@ describe('normalizeRoute', () => {
             end: { lat: 37.5, lng: -122.5 },
             distanceMeters: 5_000,
             durationSeconds: 600,
-            geometry: { format: 'polyline', encoding: 'mock_polyline', precision: 5, value: 'leg2' },
+            geometry: {
+              format: 'polyline',
+              encoding: 'mock_polyline',
+              precision: 5,
+              value: 'leg2',
+            },
           },
         ],
       }
@@ -103,7 +113,11 @@ describe('normalizeRoute', () => {
         anchorPoints: [],
       }
 
-      const snapshot = await normalizeRoute({ providerRoute: multiLegProviderRoute, planInput, sketch })
+      const snapshot = await normalizeRoute({
+        providerRoute: multiLegProviderRoute,
+        planInput,
+        sketch,
+      })
 
       // First leg start uses planInput.start.label (origin takes precedence)
       expect(snapshot.legs[0].start.label).toBe('Start')
@@ -125,7 +139,12 @@ describe('normalizeRoute', () => {
             end: { lat: 37.2, lng: -122.2 },
             distanceMeters: 5_000,
             durationSeconds: 600,
-            geometry: { format: 'polyline', encoding: 'mock_polyline', precision: 5, value: 'leg1' },
+            geometry: {
+              format: 'polyline',
+              encoding: 'mock_polyline',
+              precision: 5,
+              value: 'leg1',
+            },
           },
           {
             legIndex: 1,
@@ -133,7 +152,12 @@ describe('normalizeRoute', () => {
             end: { lat: 37.5, lng: -122.5 },
             distanceMeters: 5_000,
             durationSeconds: 600,
-            geometry: { format: 'polyline', encoding: 'mock_polyline', precision: 5, value: 'leg2' },
+            geometry: {
+              format: 'polyline',
+              encoding: 'mock_polyline',
+              precision: 5,
+              value: 'leg2',
+            },
           },
         ],
       }
@@ -156,7 +180,11 @@ describe('normalizeRoute', () => {
         anchorPoints: [],
       }
 
-      const snapshot = await normalizeRoute({ providerRoute: multiLegProviderRoute, planInput, sketch })
+      const snapshot = await normalizeRoute({
+        providerRoute: multiLegProviderRoute,
+        planInput,
+        sketch,
+      })
 
       // First leg start uses planInput.start.label (origin takes precedence)
       expect(snapshot.legs[0].start.label).toBe('Start')

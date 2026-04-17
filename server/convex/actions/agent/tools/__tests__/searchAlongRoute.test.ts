@@ -1,6 +1,6 @@
-import { vi, describe, it, expect, afterEach } from 'vitest'
-import { searchAlongRoute } from '../searchAlongRoute'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { PlaceResult } from '../searchAlongRoute'
+import { searchAlongRoute } from '../searchAlongRoute'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -8,7 +8,6 @@ import type { PlaceResult } from '../searchAlongRoute'
 
 const SAMPLE_POLYLINE = 'u{~vFvyys@fS]'
 
- 
 const setupFetch = (jsonPayload: unknown, ok = true, status = 200) => {
   ;(globalThis as unknown as { fetch: unknown }).fetch = vi.fn(async () => ({
     ok,
@@ -40,21 +39,21 @@ describe('searchAlongRoute', () => {
     setupFetch({
       places: [
         {
-          displayName: { text: "Shell Gas Station" },
-          formattedAddress: "123 Main St, Springfield",
-          types: ["gas_station"],
+          displayName: { text: 'Shell Gas Station' },
+          formattedAddress: '123 Main St, Springfield',
+          types: ['gas_station'],
         },
         {
-          displayName: { text: "Chevron" },
-          formattedAddress: "456 Elm Ave, Springfield",
-          types: ["gas_station"],
+          displayName: { text: 'Chevron' },
+          formattedAddress: '456 Elm Ave, Springfield',
+          types: ['gas_station'],
         },
       ],
     })
 
     const result = await searchAlongRoute({
       routePolyline: SAMPLE_POLYLINE,
-      query: "gas station",
+      query: 'gas station',
     })
 
     expect(assertIsArray(result)).toBe(true)
@@ -70,8 +69,8 @@ describe('searchAlongRoute', () => {
       expect(place.address.length).toBeGreaterThan(0)
     }
 
-    expect(result[0].name).toBe("Shell Gas Station")
-    expect(result[0].address).toBe("123 Main St, Springfield")
+    expect(result[0].name).toBe('Shell Gas Station')
+    expect(result[0].address).toBe('123 Main St, Springfield')
   })
 
   it('offset search: returns places biased toward origin offset with detour time when offset provided', async () => {
@@ -79,18 +78,16 @@ describe('searchAlongRoute', () => {
       places: [
         {
           displayName: { text: "Alice's Restaurant" },
-          formattedAddress: "789 Oak Rd, Midpoint",
-          types: ["restaurant"],
+          formattedAddress: '789 Oak Rd, Midpoint',
+          types: ['restaurant'],
         },
       ],
-      routingSummaries: [
-        { legs: [{ duration: "180s", distanceMeters: 350 }] },
-      ],
+      routingSummaries: [{ legs: [{ duration: '180s', distanceMeters: 350 }] }],
     })
 
     const result = await searchAlongRoute({
       routePolyline: SAMPLE_POLYLINE,
-      query: "restaurant",
+      query: 'restaurant',
       originOffset: 2,
     })
 
@@ -108,9 +105,15 @@ describe('searchAlongRoute', () => {
 
     // Verify the fetch was called with routing parameters including origin
     const fetchMock = (globalThis as unknown as { fetch: ReturnType<typeof vi.fn> }).fetch
-    const callBody = JSON.parse(fetchMock.mock.calls[0][1].body as string) as Record<string, unknown>
+    const callBody = JSON.parse(fetchMock.mock.calls[0][1].body as string) as Record<
+      string,
+      unknown
+    >
     expect(callBody.routingParameters).toBeDefined()
-    const origin = (callBody.routingParameters as Record<string, unknown>).origin as { latitude: number; longitude: number }
+    const origin = (callBody.routingParameters as Record<string, unknown>).origin as {
+      latitude: number
+      longitude: number
+    }
     expect(origin).toBeDefined()
 
     // CRITICAL: origin must NOT be the hardcoded SF fallback — it must reflect
@@ -118,19 +121,30 @@ describe('searchAlongRoute', () => {
     const SF_LAT = 37.7749
     const SF_LNG = -122.4194
     const isSFDefault =
-      Math.abs(origin.latitude - SF_LAT) < 0.001 &&
-      Math.abs(origin.longitude - SF_LNG) < 0.001
+      Math.abs(origin.latitude - SF_LAT) < 0.001 && Math.abs(origin.longitude - SF_LNG) < 0.001
     expect(isSFDefault).toBe(false)
 
     // Also verify that different offsets produce different origin points
     setupFetch({
-      places: [{ displayName: { text: "Burger Barn" }, formattedAddress: "1 Route Rd", types: ["restaurant"] }],
+      places: [
+        {
+          displayName: { text: 'Burger Barn' },
+          formattedAddress: '1 Route Rd',
+          types: ['restaurant'],
+        },
+      ],
     })
     // Capture the NEW fetch mock after setupFetch replaces it
     const fetchMock2 = (globalThis as unknown as { fetch: ReturnType<typeof vi.fn> }).fetch
-    await searchAlongRoute({ routePolyline: SAMPLE_POLYLINE, query: "restaurant", originOffset: 0 })
-    const callBodyOffset0 = JSON.parse(fetchMock2.mock.calls[0][1].body as string) as Record<string, unknown>
-    const originOffset0 = (callBodyOffset0.routingParameters as Record<string, unknown>).origin as { latitude: number; longitude: number }
+    await searchAlongRoute({ routePolyline: SAMPLE_POLYLINE, query: 'restaurant', originOffset: 0 })
+    const callBodyOffset0 = JSON.parse(fetchMock2.mock.calls[0][1].body as string) as Record<
+      string,
+      unknown
+    >
+    const originOffset0 = (callBodyOffset0.routingParameters as Record<string, unknown>).origin as {
+      latitude: number
+      longitude: number
+    }
 
     // offset=0 should give the route start; offset=2 should give a different point
     // (for any real polyline these differ unless the route has zero length)
@@ -150,7 +164,7 @@ describe('searchAlongRoute', () => {
 
     const result = await searchAlongRoute({
       routePolyline: SAMPLE_POLYLINE,
-      query: "scuba shop",
+      query: 'scuba shop',
     })
 
     expect(assertIsArray(result)).toBe(true)
@@ -164,7 +178,7 @@ describe('searchAlongRoute', () => {
 
     const result = await searchAlongRoute({
       routePolyline: SAMPLE_POLYLINE,
-      query: "gas station",
+      query: 'gas station',
     })
 
     expect(result).toEqual({ status: 'error', reason: 'places_api_error' })
@@ -175,7 +189,7 @@ describe('searchAlongRoute', () => {
 
     const result = await searchAlongRoute({
       routePolyline: SAMPLE_POLYLINE,
-      query: "gas station",
+      query: 'gas station',
     })
 
     expect(result).toEqual({ status: 'error', reason: 'places_api_error' })

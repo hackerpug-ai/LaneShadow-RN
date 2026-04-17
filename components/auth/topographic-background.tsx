@@ -81,4 +81,3 @@ export const TopographicBackground = ({ opacity = 0.1 }: TopographicBackgroundPr
     </View>
   )
 }
-

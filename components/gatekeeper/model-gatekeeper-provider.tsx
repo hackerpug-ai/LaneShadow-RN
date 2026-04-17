@@ -13,14 +13,15 @@
  * - Allows main app access only when model is valid
  */
 
-import React, { useEffect } from 'react'
-import { View, ActivityIndicator } from 'react-native'
+import type React from 'react'
+import { useEffect } from 'react'
+import { ActivityIndicator, View } from 'react-native'
 import { useModelSetup } from '../../hooks/useModelSetup'
-import { useSettingsStore } from '../../stores/settings-store'
 import { useDownloadStore } from '../../stores/download-store'
-import { SetupRequiredScreen } from './setup-required-screen'
-import { WelcomeScreen } from '../onboarding/welcome-screen'
+import { useSettingsStore } from '../../stores/settings-store'
 import { CompletionScreen } from '../onboarding/completion-screen'
+import { WelcomeScreen } from '../onboarding/welcome-screen'
+import { SetupRequiredScreen } from './setup-required-screen'
 
 export interface ModelGatekeeperProviderProps {
   children: React.ReactNode
@@ -60,7 +61,11 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
 
   // If user already completed onboarding, skip gatekeeper entirely
   if (hasCompletedOnboarding) {
-    return <View style={styles.fullScreen} testID={`${testID}-main-app`}>{children}</View>
+    return (
+      <View style={styles.fullScreen} testID={`${testID}-main-app`}>
+        {children}
+      </View>
+    )
   }
 
   // Show loading indicator while checking model status
@@ -91,10 +96,7 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
   if (status === 'corrupted') {
     return (
       <View style={styles.fullScreen} testID={`${testID}-setup-required`}>
-        <SetupRequiredScreen
-          onRestorePress={restoreModel}
-          testID={`${testID}-restore-screen`}
-        />
+        <SetupRequiredScreen onRestorePress={restoreModel} testID={`${testID}-restore-screen`} />
       </View>
     )
   }
@@ -117,7 +119,11 @@ export const ModelGatekeeperProvider: React.FC<ModelGatekeeperProviderProps> = (
   }
 
   // Model is ready - render main app
-  return <View style={styles.fullScreen} testID={`${testID}-main-app`}>{children}</View>
+  return (
+    <View style={styles.fullScreen} testID={`${testID}-main-app`}>
+      {children}
+    </View>
+  )
 }
 
 const styles = {

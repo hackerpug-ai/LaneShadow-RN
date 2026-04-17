@@ -22,7 +22,7 @@ export const useTeacherDrawerConfig = (): DrawerConfig => {
       open: () => {},
       close: () => {},
     }),
-    []
+    [],
   )
 
   return api

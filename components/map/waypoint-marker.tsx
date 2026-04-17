@@ -4,9 +4,8 @@ import type { FC } from 'react'
 import { useMemo } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import Svg, { Circle, G, Path } from 'react-native-svg'
-
-import { latLngToMapbox } from '../../lib/mapbox/coordinate-converter'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { latLngToMapbox } from '../../lib/mapbox/coordinate-converter'
 import type { ExtendedTheme } from '../../styles/types'
 
 /**
@@ -94,7 +93,7 @@ const getKindColor = (kind: WaypointKind, semantic: ExtendedTheme['semantic']): 
 const getStateColor = (
   kind: WaypointKind,
   state: MarkerState,
-  semantic: ExtendedTheme['semantic']
+  semantic: ExtendedTheme['semantic'],
 ): string => {
   const baseColor = getKindColor(kind, semantic)
 
@@ -196,10 +195,7 @@ export const WaypointMarker: FC<WaypointMarkerProps> = ({
 
   return (
     <MarkerView coordinate={mapboxCoords}>
-      <Pressable
-        onPress={handlePress}
-        testID={testID ?? `waypoint-marker-${id}`}
-      >
+      <Pressable onPress={handlePress} testID={testID ?? `waypoint-marker-${id}`}>
         <View style={[styles.container, { width: pinWidth, height: pinHeight }]}>
           <Svg width={pinWidth} height={pinHeight} viewBox={`0 0 ${pinWidth} ${pinHeight}`}>
             <G fill={markerColor}>

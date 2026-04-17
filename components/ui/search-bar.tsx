@@ -5,10 +5,10 @@
  * Follows the design system search patterns
  */
 
-import { IconSymbol } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
+import { IconSymbol } from './icon-symbol'
 
 export type SearchBarProps = {
   /** Placeholder text */
@@ -23,11 +23,7 @@ export type SearchBarProps = {
  * SearchBar component for search input
  * Displays a search bar with icon and placeholder
  */
-export const SearchBar = ({
-  placeholder,
-  value,
-  onPress,
-}: SearchBarProps) => {
+export const SearchBar = ({ placeholder, value, onPress }: SearchBarProps) => {
   const theme = useTheme<ExtendedTheme>()
   const { semantic } = theme
 
@@ -43,13 +39,10 @@ export const SearchBar = ({
       <IconSymbol
         name="magnify"
         size={20}
-        color={semantic.color.onSurface.subtle}
+        color={semantic.color.onSurface.subtle ?? 'transparent'}
       />
       <Text
-        style={[
-          styles.placeholder,
-          { color: semantic.color.onSurface.subtle },
-        ]}
+        style={[styles.placeholder, { color: semantic.color.onSurface.subtle }]}
         onPress={onPress}
       >
         {value || placeholder}

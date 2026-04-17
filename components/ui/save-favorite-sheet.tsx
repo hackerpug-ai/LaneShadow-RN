@@ -11,16 +11,16 @@
  * - AC4: Error message displayed on save failure, sheet stays open
  */
 
+import { useMutation } from 'convex/react'
+import { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { useEffect, useState } from 'react'
-import { useMutation } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import type { SavedRoute } from '../../models/saved-routes'
 import { BottomActionSheet } from './bottom-action-sheet'
 import { BottomSheetInput } from './bottom-sheet-input'
 import { Button } from './button'
-import type { SavedRoute } from '../../models/saved-routes'
 
 export type SaveRoutePayload = {
   name: string
@@ -48,7 +48,7 @@ export type SaveRouteSheetProps = {
 
 export const buildSaveRoutePayload = (
   trimmedName: string,
-  routeData: NonNullable<SaveRouteSheetProps['routeData']>
+  routeData: NonNullable<SaveRouteSheetProps['routeData']>,
 ): SaveRoutePayload => ({
   name: trimmedName,
   planInput: routeData.planInput,
@@ -148,89 +148,77 @@ export const SaveRouteSheet: React.FC<SaveRouteSheetProps> = ({
       hasTextInput={true}
     >
       <View style={styles.container}>
-          <View style={styles.content}>
-            {/* Title */}
-            <Text
-              variant="headlineSmall"
-              style={[
-                styles.title,
-                { color: semantic.color.onSurface.default },
-              ]}
-            >
-              Save Route
-            </Text>
+        <View style={styles.content}>
+          {/* Title */}
+          <Text
+            variant="headlineSmall"
+            style={[styles.title, { color: semantic.color.onSurface.default }]}
+          >
+            Save Route
+          </Text>
 
-            {/* Caption */}
-            <Text
-              variant="bodyMedium"
-              style={[
-                styles.caption,
-                { color: semantic.color.onSurface.subtle },
-              ]}
-            >
-              Name your route to save it for later
-            </Text>
+          {/* Caption */}
+          <Text
+            variant="bodyMedium"
+            style={[styles.caption, { color: semantic.color.onSurface.subtle }]}
+          >
+            Name your route to save it for later
+          </Text>
 
-            {/* Name Input */}
-            <BottomSheetInput
-              testID="save-route-name-input"
-              value={name}
-              onChangeText={handleNameChange}
-              placeholder="e.g., Hwy 9 - Skyline Blvd"
-              maxLength={100}
-              autoFocus
-              error={!!error}
-            />
+          {/* Name Input */}
+          <BottomSheetInput
+            testID="save-route-name-input"
+            value={name}
+            onChangeText={handleNameChange}
+            placeholder="e.g., Hwy 9 - Skyline Blvd"
+            maxLength={100}
+            autoFocus
+            error={!!error}
+          />
 
-            {/* Character Count */}
+          {/* Character Count */}
+          <Text variant="bodySmall" style={{ color: semantic.color.onSurface.subtle }}>
+            {name.length}/100 characters
+          </Text>
+
+          {/* Error Message */}
+          {error && (
             <Text
               variant="bodySmall"
-              style={{ color: semantic.color.onSurface.subtle }}
+              style={[styles.errorText, { color: semantic.color.danger.default }]}
             >
-              {name.length}/100 characters
+              {error}
             </Text>
+          )}
 
-            {/* Error Message */}
-            {error && (
-              <Text
-                variant="bodySmall"
-                style={[
-                  styles.errorText,
-                  { color: semantic.color.danger.default },
-                ]}
-              >
-                {error}
-              </Text>
-            )}
+          {/* Save Button */}
+          <View style={styles.buttonContainer}>
+            <Button
+              testID="save-route-save-button"
+              onPress={handleSave}
+              disabled={isSaving || !name.trim()}
+              loading={isSaving}
+              size="lg"
+              style={styles.saveButton}
+            >
+              Save Route
+            </Button>
 
-            {/* Save Button */}
-            <View style={styles.buttonContainer}>
-              <Button
-                testID="save-route-save-button"
-                onPress={handleSave}
-                disabled={isSaving || !name.trim()}
-                loading={isSaving}
-                size="lg"
-                style={styles.saveButton}
-              >
-                Save Route
-              </Button>
-
-              {/* Cancel Button */}
-              <Button
-                testID="save-route-cancel-button"
-                onPress={() => {
-                  onCancel?.()
-                  onClose()
-                }}
-                variant="outline"
-                disabled={isSaving}
-                style={styles.cancelButton}
-              >
-                Cancel
-              </Button>
-            </View>
+            {/* Cancel Button */}
+            <Button
+              testID="save-route-cancel-button"
+              onPress={() => {
+                onCancel?.()
+                onClose()
+              }}
+              variant="outline"
+              disabled={isSaving}
+              style={styles.cancelButton}
+            >
+              Cancel
+            </Button>
           </View>
+        </View>
       </View>
     </BottomActionSheet>
   )

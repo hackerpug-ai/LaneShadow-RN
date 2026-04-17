@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock console methods before importing
 const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -22,7 +22,8 @@ describe('protomapsProvider', () => {
       const { getProtomapsPresignedUrl } = await import('../agent/providers/protomapsProvider')
 
       // Set up R2 config but with missing credentials to trigger error
-      process.env.PROTOMAPS_US_URL = 'https://account.r2.cloudflarestorage.com/laneshadow/map-data/us.pmtiles'
+      process.env.PROTOMAPS_US_URL =
+        'https://account.r2.cloudflarestorage.com/laneshadow/map-data/us.pmtiles'
       process.env.R2_S3_API = 'https://account.r2.cloudflarestorage.com'
       process.env.R2_S3_KEY_ID = '' // Missing - should cause presigned URL to fail
       process.env.R2_S3_SECRET = ''
@@ -42,7 +43,8 @@ describe('protomapsProvider', () => {
       process.env.CONVEX_CLOUD = 'production'
 
       // Set up R2 config with malformed URL to trigger error during presigned URL generation
-      process.env.PROTOMAPS_US_URL = 'https://account.r2.cloudflarestorage.com/laneshadow/map-data/us.pmtiles'
+      process.env.PROTOMAPS_US_URL =
+        'https://account.r2.cloudflarestorage.com/laneshadow/map-data/us.pmtiles'
       process.env.R2_S3_API = 'not-a-valid-url' // Invalid endpoint - will cause presigned URL generation to fail
       process.env.R2_S3_KEY_ID = 'test-key'
       process.env.R2_S3_SECRET = 'test-secret'

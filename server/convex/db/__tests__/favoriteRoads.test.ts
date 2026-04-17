@@ -8,14 +8,14 @@
  * - Verify db operations called correctly
  */
 
-import { describe, expect, it, vi } from 'vitest'
 import { ConvexError } from 'convex/values'
+import { describe, expect, it, vi } from 'vitest'
 import type { Doc, Id } from '../../_generated/dataModel'
 import {
+  insertFavoriteRoadInputValidator,
   insertHandler,
   listHandler,
   removeHandler,
-  insertFavoriteRoadInputValidator,
 } from '../favoriteRoads'
 
 // Mock types for testing (matching internal types from favoriteRoads.ts)
@@ -25,10 +25,11 @@ type InsertCtx = {
 
 type ListCtx = {
   db: {
-    query: (
-      table: string
-    ) => {
-      withIndex: (indexName: string, fn: (q: any) => any) => {
+    query: (table: string) => {
+      withIndex: (
+        indexName: string,
+        fn: (q: any) => any,
+      ) => {
         order: (direction: 'asc' | 'desc') => {
           collect: () => Promise<Doc<'favorite_roads'>[]>
         }
@@ -44,15 +45,13 @@ type RemoveCtx = {
   }
 }
 
-type MockInsert = (
-  table: string,
-  fields: object
-) => Promise<Id<'favorite_roads'>>
+type MockInsert = (table: string, fields: object) => Promise<Id<'favorite_roads'>>
 type MockGet = (id: Id<'favorite_roads'>) => Promise<Doc<'favorite_roads'> | null>
-type MockQuery = (
-  table: string
-) => {
-  withIndex: (indexName: string, fn: (q: any) => any) => {
+type MockQuery = (table: string) => {
+  withIndex: (
+    indexName: string,
+    fn: (q: any) => any,
+  ) => {
     order: (direction: 'asc' | 'desc') => {
       collect: () => Promise<Doc<'favorite_roads'>[]>
     }
@@ -193,11 +192,9 @@ describe('favoriteRoads', () => {
       const mockQuery = vi.fn<MockQuery>().mockReturnValue({
         withIndex: vi.fn().mockReturnValue({
           order: vi.fn().mockReturnValue({
-            collect: vi.fn().mockResolvedValue([
-              mockFavorites[0],
-              mockFavorites[1],
-              mockFavorites[2],
-            ]),
+            collect: vi
+              .fn()
+              .mockResolvedValue([mockFavorites[0], mockFavorites[1], mockFavorites[2]]),
           }),
         }),
       })
@@ -314,7 +311,7 @@ describe('favoriteRoads', () => {
       // Act & Assert
       await expect(removeHandler(mockCtx, args, clerkUserId)).rejects.toThrow(ConvexError)
       await expect(removeHandler(mockCtx, args, clerkUserId)).rejects.toThrow(
-        'Favorite road not found'
+        'Favorite road not found',
       )
     })
 
@@ -336,7 +333,7 @@ describe('favoriteRoads', () => {
       // Act & Assert
       await expect(removeHandler(mockCtx, args, clerkUserId)).rejects.toThrow(ConvexError)
       await expect(removeHandler(mockCtx, args, clerkUserId)).rejects.toThrow(
-        'Favorite road not found'
+        'Favorite road not found',
       )
     })
   })
@@ -357,9 +354,7 @@ describe('favoriteRoads', () => {
 
       // Act & Assert
       await expect(removeHandler(mockCtx, args, '')).rejects.toThrow(ConvexError)
-      await expect(removeHandler(mockCtx, args, '')).rejects.toThrow(
-        'Authentication required'
-      )
+      await expect(removeHandler(mockCtx, args, '')).rejects.toThrow('Authentication required')
     })
   })
 

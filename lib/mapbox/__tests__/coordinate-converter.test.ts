@@ -3,11 +3,11 @@
  */
 
 import {
-  googleToMapbox,
-  mapboxToGoogle,
   convertCoordinateArray,
   convertCoordinateArrayToGoogle,
+  googleToMapbox,
   latLngToMapbox,
+  mapboxToGoogle,
   mapboxToLatLng,
 } from '../coordinate-converter'
 

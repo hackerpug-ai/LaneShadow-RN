@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config'
 import { resolve } from 'node:path'
+import { defineConfig } from 'vitest/config'
 
 /**
  * Vite plugin that stubs React-Native / Expo packages at the Vite resolver
@@ -147,24 +147,51 @@ export default defineConfig({
       { find: /^convex\/values$/, replacement: resolve(__dirname, '__mocks__/convex/values.ts') },
       { find: /^convex\/server$/, replacement: resolve(__dirname, '__mocks__/convex/server.ts') },
       { find: /^.*\/_generated\/api$/, replacement: resolve(__dirname, '__mocks__/convex/api.ts') },
-      { find: /^.*\/_generated\/server$/, replacement: resolve(__dirname, '__mocks__/convex/server.ts') },
-      { find: /^.*\/_generated\/dataModel$/, replacement: resolve(__dirname, '__mocks__/convex/dataModel.ts') },
-      { find: /^convex-helpers\/server\/zod$/, replacement: resolve(__dirname, '__mocks__/convex-helpers/server/zod.ts') },
+      {
+        find: /^.*\/_generated\/server$/,
+        replacement: resolve(__dirname, '__mocks__/convex/server.ts'),
+      },
+      {
+        find: /^.*\/_generated\/dataModel$/,
+        replacement: resolve(__dirname, '__mocks__/convex/dataModel.ts'),
+      },
+      {
+        find: /^convex-helpers\/server\/zod$/,
+        replacement: resolve(__dirname, '__mocks__/convex-helpers/server/zod.ts'),
+      },
       { find: /^convex-test$/, replacement: resolve(__dirname, '__mocks__/convex-test.ts') },
-      { find: /^@react-native-community\/datetimepicker$/, replacement: resolve(__dirname, '__mocks__/datetimepicker.ts') },
+      {
+        find: /^@react-native-community\/datetimepicker$/,
+        replacement: resolve(__dirname, '__mocks__/datetimepicker.ts'),
+      },
       // Stub react-native so tests can import RN components without running the native runtime.
       // Must match `react-native` exactly (not `react-native-*` like react-native-paper).
       { find: /^react-native$/, replacement: resolve(__dirname, '__mocks__/react-native.ts') },
-      { find: /^react-native-paper$/, replacement: resolve(__dirname, '__mocks__/react-native-paper.ts') },
+      {
+        find: /^react-native-paper$/,
+        replacement: resolve(__dirname, '__mocks__/react-native-paper.ts'),
+      },
       { find: /^expo$/, replacement: resolve(__dirname, '__mocks__/expo.ts') },
-      { find: /^expo-modules-core$/, replacement: resolve(__dirname, '__mocks__/expo-modules-core.ts') },
-      { find: /^react-native-maps$/, replacement: resolve(__dirname, '__mocks__/react-native-maps.ts') },
+      {
+        find: /^expo-modules-core$/,
+        replacement: resolve(__dirname, '__mocks__/expo-modules-core.ts'),
+      },
+      {
+        find: /^react-native-maps$/,
+        replacement: resolve(__dirname, '__mocks__/react-native-maps.ts'),
+      },
       { find: /^expo-haptics$/, replacement: resolve(__dirname, '__mocks__/expo-haptics.ts') },
       { find: /^expo-crypto$/, replacement: resolve(__dirname, '__mocks__/expo-crypto.ts') },
-      { find: /^expo-file-system$/, replacement: resolve(__dirname, '__mocks__/expo-file-system.ts') },
+      {
+        find: /^expo-file-system$/,
+        replacement: resolve(__dirname, '__mocks__/expo-file-system.ts'),
+      },
       { find: /^expo-network$/, replacement: resolve(__dirname, '__mocks__/expo-network.ts') },
       { find: /^@rnmapbox\/maps$/, replacement: resolve(__dirname, '__mocks__/rnmapbox-maps.ts') },
-      { find: /^react-native-svg$/, replacement: resolve(__dirname, '__mocks__/react-native-svg.ts') },
+      {
+        find: /^react-native-svg$/,
+        replacement: resolve(__dirname, '__mocks__/react-native-svg.ts'),
+      },
     ],
   },
   esbuild: {

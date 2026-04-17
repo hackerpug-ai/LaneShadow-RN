@@ -1,21 +1,17 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-import { checkFreshnessWithAlertLogic } from '../mapData';
-import {
-  CURATED_ROUTE_SOURCE,
-  curatedRouteValidator,
-} from '../../../models/curated-routes';
-import { savedRouteDetailViewValidator } from '../../../convex/db/savedRoutes';
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { savedRouteDetailViewValidator } from '../../../convex/db/savedRoutes'
+import { CURATED_ROUTE_SOURCE, curatedRouteValidator } from '../../../models/curated-routes'
+import { checkFreshnessWithAlertLogic } from '../mapData'
 
 // Mock console methods before importing
-const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
 describe('Map Data Actions', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   describe('checkFreshnessWithAlert', () => {
     it('AC-1: stale data triggers protomaps.error log', async () => {
@@ -24,18 +20,18 @@ describe('Map Data Actions', () => {
         status: 'stale',
         ageInDays: 45,
         message: 'PMTiles file is 45 days old. Run: npx tsx scripts/sync-protomaps-r2.ts',
-      });
+      })
 
       // Call the logic function with mocked checkFreshness
-      await checkFreshnessWithAlertLogic(mockCheckFreshness);
+      await checkFreshnessWithAlertLogic(mockCheckFreshness)
 
       // Verify error log was called
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-      const logCall = consoleErrorSpy.mock.calls[0][0] as string;
-      expect(logCall).toBe('[LOG]');
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+      const logCall = consoleErrorSpy.mock.calls[0][0] as string
+      expect(logCall).toBe('[LOG]')
 
-      const jsonLog = consoleErrorSpy.mock.calls[0][1] as string;
-      const parsedLog = JSON.parse(jsonLog);
+      const jsonLog = consoleErrorSpy.mock.calls[0][1] as string
+      const parsedLog = JSON.parse(jsonLog)
       expect(parsedLog).toMatchObject({
         level: 'error',
         category: 'protomaps.error',
@@ -45,28 +41,28 @@ describe('Map Data Actions', () => {
           ageInDays: 45,
           message: expect.stringContaining('45 days old'),
         },
-      });
-      expect(parsedLog.timestamp).toBeDefined();
-      expect(new Date(parsedLog.timestamp)).toBeInstanceOf(Date);
-    });
+      })
+      expect(parsedLog.timestamp).toBeDefined()
+      expect(new Date(parsedLog.timestamp)).toBeInstanceOf(Date)
+    })
 
     it('AC-2: missing data triggers protomaps.error log', async () => {
       // Mock checkFreshness to return missing status
       const mockCheckFreshness = vi.fn().mockResolvedValue({
         status: 'missing',
         message: 'No PMTiles file found on R2. Run: npx tsx scripts/sync-protomaps-r2.ts',
-      });
+      })
 
       // Call the logic function with mocked checkFreshness
-      await checkFreshnessWithAlertLogic(mockCheckFreshness);
+      await checkFreshnessWithAlertLogic(mockCheckFreshness)
 
       // Verify error log was called
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-      const logCall = consoleErrorSpy.mock.calls[0][0] as string;
-      expect(logCall).toBe('[LOG]');
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+      const logCall = consoleErrorSpy.mock.calls[0][0] as string
+      expect(logCall).toBe('[LOG]')
 
-      const jsonLog = consoleErrorSpy.mock.calls[0][1] as string;
-      const parsedLog = JSON.parse(jsonLog);
+      const jsonLog = consoleErrorSpy.mock.calls[0][1] as string
+      const parsedLog = JSON.parse(jsonLog)
       expect(parsedLog).toMatchObject({
         level: 'error',
         category: 'protomaps.error',
@@ -75,9 +71,9 @@ describe('Map Data Actions', () => {
           status: 'missing',
           message: expect.stringContaining('No PMTiles file found'),
         },
-      });
-      expect(parsedLog.timestamp).toBeDefined();
-    });
+      })
+      expect(parsedLog.timestamp).toBeDefined()
+    })
 
     it('AC-3: fresh data logs nothing (normal operation)', async () => {
       // Mock checkFreshness to return fresh status
@@ -85,30 +81,30 @@ describe('Map Data Actions', () => {
         status: 'fresh',
         ageInDays: 5,
         message: 'PMTiles file is 5 days old',
-      });
+      })
 
       // Call the logic function with mocked checkFreshness
-      const result = await checkFreshnessWithAlertLogic(mockCheckFreshness);
+      const result = await checkFreshnessWithAlertLogic(mockCheckFreshness)
 
       // Verify NO error log was called
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      expect(consoleErrorSpy).not.toHaveBeenCalled()
 
       // Verify result is returned correctly
       expect(result).toMatchObject({
         status: 'fresh',
         ageInDays: 5,
-      });
-    });
-  });
+      })
+    })
+  })
 
   describe('SRC-001 curated route contract widening', () => {
     it('AC-4: scenic byways provenance survives contracts', () => {
-      expect(CURATED_ROUTE_SOURCE.SCENIC_BYWAYS).toBe('scenic_byways');
-      expect(curatedRouteValidator.fields.sourceLabel).toBeDefined();
-      expect(curatedRouteValidator.fields.designation).toBeDefined();
-      expect(curatedRouteValidator.fields.description).toBeDefined();
-      expect(curatedRouteValidator.fields.location).toBeDefined();
-      expect(savedRouteDetailViewValidator.fields.routeProvenance).toBeDefined();
-    });
-  });
-});
+      expect(CURATED_ROUTE_SOURCE.SCENIC_BYWAYS).toBe('scenic_byways')
+      expect(curatedRouteValidator.fields.sourceLabel).toBeDefined()
+      expect(curatedRouteValidator.fields.designation).toBeDefined()
+      expect(curatedRouteValidator.fields.description).toBeDefined()
+      expect(curatedRouteValidator.fields.location).toBeDefined()
+      expect(savedRouteDetailViewValidator.fields.routeProvenance).toBeDefined()
+    })
+  })
+})

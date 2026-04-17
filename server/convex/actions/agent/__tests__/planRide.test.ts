@@ -1,7 +1,7 @@
 'use node'
 
 import { describe, expect, it } from 'vitest'
-import { buildUserPrompt, buildOptionsFromResults } from '../planRide'
+import { buildOptionsFromResults, buildUserPrompt } from '../planRide'
 
 // -----------------------------------------------------------------------------
 // Test Data
@@ -20,7 +20,12 @@ const makeSnapshot = () => ({
   origin: { lat: 0, lng: 0 },
   destination: { lat: 1, lng: 1 },
   waypoints: [],
-  overviewGeometry: { format: 'polyline' as const, encoding: 'encoded_polyline', precision: 5, value: 'test' },
+  overviewGeometry: {
+    format: 'polyline' as const,
+    encoding: 'encoded_polyline',
+    precision: 5,
+    value: 'test',
+  },
   legs: [
     {
       legIndex: 0,
@@ -28,7 +33,12 @@ const makeSnapshot = () => ({
       end: { lat: 1, lng: 1 },
       distanceMeters: 15000,
       durationSeconds: 900,
-      geometry: { format: 'polyline' as const, encoding: 'encoded_polyline', precision: 5, value: 'test_leg' },
+      geometry: {
+        format: 'polyline' as const,
+        encoding: 'encoded_polyline',
+        precision: 5,
+        value: 'test_leg',
+      },
     },
   ],
   annotations: [],
@@ -106,9 +116,7 @@ describe('buildOptionsFromResults', () => {
   })
 
   it('sets conditionsStatus to unavailable', () => {
-    const results = [
-      { routeSnapshot: makeSnapshot(), sketch: { label: 'Test', rationale: '' } },
-    ]
+    const results = [{ routeSnapshot: makeSnapshot(), sketch: { label: 'Test', rationale: '' } }]
     const view = buildOptionsFromResults(results, 'plan-id')
 
     expect(view.options[0].overlaysPreview.conditionsStatus).toBe('unavailable')
@@ -124,7 +132,12 @@ describe('buildOptionsFromResults', () => {
           end: { lat: 0.5, lng: 0.5 },
           distanceMeters: 10000,
           durationSeconds: 600,
-          geometry: { format: 'polyline' as const, encoding: 'encoded_polyline', precision: 5, value: 'leg1' },
+          geometry: {
+            format: 'polyline' as const,
+            encoding: 'encoded_polyline',
+            precision: 5,
+            value: 'leg1',
+          },
         },
         {
           legIndex: 1,
@@ -132,7 +145,12 @@ describe('buildOptionsFromResults', () => {
           end: { lat: 1, lng: 1 },
           distanceMeters: 20000,
           durationSeconds: 1200,
-          geometry: { format: 'polyline' as const, encoding: 'encoded_polyline', precision: 5, value: 'leg2' },
+          geometry: {
+            format: 'polyline' as const,
+            encoding: 'encoded_polyline',
+            precision: 5,
+            value: 'leg2',
+          },
         },
       ],
     }
@@ -155,9 +173,7 @@ describe('buildOptionsFromResults', () => {
   })
 
   it('preserves route geometry encoding details', () => {
-    const results = [
-      { routeSnapshot: makeSnapshot(), sketch: { label: 'Test', rationale: '' } },
-    ]
+    const results = [{ routeSnapshot: makeSnapshot(), sketch: { label: 'Test', rationale: '' } }]
     const view = buildOptionsFromResults(results, 'plan-id')
 
     const route = view.options[0]
@@ -197,7 +213,7 @@ describe('AC-1: planRide accepts favorites parameter', () => {
 // AC-4: Missing favorites don't break planning
 // -----------------------------------------------------------------------------
 
-describe('AC-4: Missing favorites don\'t break planning', () => {
+describe("AC-4: Missing favorites don't break planning", () => {
   it('should handle planInput without includeFavorites gracefully', async () => {
     // When includeFavorites is not provided, planning should proceed normally
     const planInputNoFlag = {

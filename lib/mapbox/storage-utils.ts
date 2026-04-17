@@ -40,7 +40,11 @@ export const StorageUtils = {
    * Uses a tile-count heuristic: estimate tiles needed at each zoom level,
    * multiply by average tile size (~15KB for vector tiles).
    */
-  estimateRegionSize(bounds: [[number, number], [number, number]], minZoom: number, maxZoom: number): number {
+  estimateRegionSize(
+    bounds: [[number, number], [number, number]],
+    minZoom: number,
+    maxZoom: number,
+  ): number {
     const [[swLng, swLat], [neLng, neLat]] = bounds
     const avgTileSizeBytes = 15 * 1024 // 15KB average for vector tiles
 
@@ -77,7 +81,7 @@ export const StorageUtils = {
 
 /** Convert longitude range to tile count at a zoom level */
 function lngToTileCount(west: number, east: number, zoom: number): number {
-  const n = Math.pow(2, zoom)
+  const n = 2 ** zoom
   const tileWest = Math.floor(((west + 180) / 360) * n)
   const tileEast = Math.ceil(((east + 180) / 360) * n)
   return Math.max(tileEast - tileWest, 1)
@@ -85,7 +89,7 @@ function lngToTileCount(west: number, east: number, zoom: number): number {
 
 /** Convert latitude range to tile count at a zoom level */
 function latToTileCount(south: number, north: number, zoom: number): number {
-  const n = Math.pow(2, zoom)
+  const n = 2 ** zoom
   const tileSouth = Math.floor(latToTileY(south, n))
   const tileNorth = Math.ceil(latToTileY(north, n))
   return Math.max(tileSouth - tileNorth, 1)

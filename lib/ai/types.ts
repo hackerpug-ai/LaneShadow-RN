@@ -46,6 +46,6 @@ export type MemoryUsage = {
 
 // Forward declarations for classes
 export type { ChecksumValidator } from './checksum'
-export type { ModelDownloadManager } from './model-download'
 export type { LocalModelManager } from './local-model'
+export type { ModelDownloadManager } from './model-download'
 export type { PersistentDownloadManager } from './persistent-download-manager'

@@ -350,7 +350,11 @@
       "type": "line",
       "source": "composite",
       "source-layer": "road",
-      "filter": ["all", ["==", ["get", "class"], "service"], ["==", ["get", "structure"], "tunnel"]],
+      "filter": [
+        "all",
+        ["==", ["get", "class"], "service"],
+        ["==", ["get", "structure"], "tunnel"]
+      ],
       "paint": {
         "line-color": "#1a1715",
         "line-width": { "base": 1.2, "stops": [[13, 0.5], [18, 3]] }
@@ -374,7 +378,11 @@
       "type": "line",
       "source": "composite",
       "source-layer": "road",
-      "filter": ["all", ["in", ["get", "class"], ["literal", ["secondary", "tertiary"]]], ["==", ["get", "structure"], "tunnel"]],
+      "filter": [
+        "all",
+        ["in", ["get", "class"], ["literal", ["secondary", "tertiary"]]],
+        ["==", ["get", "structure"], "tunnel"]
+      ],
       "paint": {
         "line-color": "#3a3430",
         "line-width": { "base": 1.2, "stops": [[8, 0.5], [20, 7]] }
@@ -386,7 +394,11 @@
       "type": "line",
       "source": "composite",
       "source-layer": "road",
-      "filter": ["all", ["==", ["get", "class"], "primary"], ["==", ["get", "structure"], "tunnel"]],
+      "filter": [
+        "all",
+        ["==", ["get", "class"], "primary"],
+        ["==", ["get", "structure"], "tunnel"]
+      ],
       "paint": {
         "line-color": "#3a3430",
         "line-width": { "base": 1.2, "stops": [[6, 0.5], [20, 9]] }
@@ -410,7 +422,11 @@
       "type": "line",
       "source": "composite",
       "source-layer": "road",
-      "filter": ["all", ["==", ["get", "class"], "motorway"], ["==", ["get", "structure"], "tunnel"]],
+      "filter": [
+        "all",
+        ["==", ["get", "class"], "motorway"],
+        ["==", ["get", "structure"], "tunnel"]
+      ],
       "paint": {
         "line-color": "#26221f",
         "line-width": { "base": 1.2, "stops": [[6, 0.5], [20, 12]] }
@@ -461,7 +477,11 @@
       "type": "line",
       "source": "composite",
       "source-layer": "road",
-      "filter": ["all", ["==", ["get", "class"], "street_limited"], ["==", ["get", "structure"], "none"]],
+      "filter": [
+        "all",
+        ["==", ["get", "class"], "street_limited"],
+        ["==", ["get", "structure"], "none"]
+      ],
       "paint": {
         "line-color": "#1a1715",
         "line-width": { "base": 1.2, "stops": [[12, 0.5], [20, 5]] }
@@ -473,7 +493,11 @@
       "type": "line",
       "source": "composite",
       "source-layer": "road",
-      "filter": ["all", ["in", ["get", "class"], ["literal", ["secondary", "tertiary"]]], ["==", ["get", "structure"], "none"]],
+      "filter": [
+        "all",
+        ["in", ["get", "class"], ["literal", ["secondary", "tertiary"]]],
+        ["==", ["get", "structure"], "none"]
+      ],
       "paint": {
         "line-color": "#3a3430",
         "line-width": { "base": 1.2, "stops": [[8, 0.5], [20, 7]] }
@@ -535,7 +559,11 @@
       "type": "line",
       "source": "composite",
       "source-layer": "road",
-      "filter": ["all", ["==", ["get", "class"], "service"], ["==", ["get", "structure"], "bridge"]],
+      "filter": [
+        "all",
+        ["==", ["get", "class"], "service"],
+        ["==", ["get", "structure"], "bridge"]
+      ],
       "paint": {
         "line-color": "#1a1715",
         "line-width": { "base": 1.2, "stops": [[13, 0.5], [18, 3]] }
@@ -559,7 +587,11 @@
       "type": "line",
       "source": "composite",
       "source-layer": "road",
-      "filter": ["all", ["in", ["get", "class"], ["literal", ["secondary", "tertiary"]]], ["==", ["get", "structure"], "bridge"]],
+      "filter": [
+        "all",
+        ["in", ["get", "class"], ["literal", ["secondary", "tertiary"]]],
+        ["==", ["get", "structure"], "bridge"]
+      ],
       "paint": {
         "line-color": "#3a3430",
         "line-width": { "base": 1.2, "stops": [[8, 0.5], [20, 7]] }
@@ -571,7 +603,11 @@
       "type": "line",
       "source": "composite",
       "source-layer": "road",
-      "filter": ["all", ["==", ["get", "class"], "primary"], ["==", ["get", "structure"], "bridge"]],
+      "filter": [
+        "all",
+        ["==", ["get", "class"], "primary"],
+        ["==", ["get", "structure"], "bridge"]
+      ],
       "paint": {
         "line-color": "#3a3430",
         "line-width": { "base": 1.2, "stops": [[6, 0.5], [20, 9]] }
@@ -595,7 +631,11 @@
       "type": "line",
       "source": "composite",
       "source-layer": "road",
-      "filter": ["all", ["==", ["get", "class"], "motorway"], ["==", ["get", "structure"], "bridge"]],
+      "filter": [
+        "all",
+        ["==", ["get", "class"], "motorway"],
+        ["==", ["get", "structure"], "bridge"]
+      ],
       "paint": {
         "line-color": "#34302b",
         "line-width": { "base": 1.2, "stops": [[6, 0.5], [20, 12]] }

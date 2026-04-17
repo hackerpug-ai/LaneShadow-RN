@@ -58,7 +58,7 @@ const compileSketchImpl = async (params: {
             planInput: params.planInput,
             sketch: params.sketch,
           }),
-        { ms: ROUTING_TIMEOUT_MS, label: 'routing' }
+        { ms: ROUTING_TIMEOUT_MS, label: 'routing' },
       )
 
     return await retryOnce(runOnce)
@@ -86,7 +86,7 @@ export type SegmentCompilationResult = {
 }
 
 const mergeBounds = (
-  bounds: { north: number; south: number; east: number; west: number }[]
+  bounds: { north: number; south: number; east: number; west: number }[],
 ): { north: number; south: number; east: number; west: number } => ({
   north: Math.max(...bounds.map((b) => b.north)),
   south: Math.min(...bounds.map((b) => b.south)),
@@ -96,7 +96,7 @@ const mergeBounds = (
 
 export const stitchSegments = (results: SegmentCompileResult[]): ProviderRouteResponse => {
   const ok = results.filter(
-    (r): r is Extract<SegmentCompileResult, { status: 'ok' }> => r.status === 'ok'
+    (r): r is Extract<SegmentCompileResult, { status: 'ok' }> => r.status === 'ok',
   )
 
   if (ok.length === 0) {
@@ -109,8 +109,7 @@ export const stitchSegments = (results: SegmentCompileResult[]): ProviderRouteRe
 
   // Deduplicate boundary points where segments meet (avoid duplicate coordinates)
   const deduped = allPoints.filter(
-    (p, i) =>
-      i === 0 || p.lat !== allPoints[i - 1].lat || p.lng !== allPoints[i - 1].lng
+    (p, i) => i === 0 || p.lat !== allPoints[i - 1].lat || p.lng !== allPoints[i - 1].lng,
   )
 
   const value = encodePolyline(deduped)
@@ -128,7 +127,7 @@ export const stitchSegments = (results: SegmentCompileResult[]): ProviderRouteRe
       r.route.legs.map((leg) => ({
         ...leg,
         legIndex: i,
-      }))
+      })),
     ),
   }
 }
@@ -142,7 +141,7 @@ export const compileSegments = async (params: {
 
   if (sketch.segments.length > MAX_SEGMENTS_FOR_PER_SEGMENT_COMPILATION) {
     throw new Error(
-      `Too many segments: ${sketch.segments.length} exceeds the per-segment compilation limit of ${MAX_SEGMENTS_FOR_PER_SEGMENT_COMPILATION}`
+      `Too many segments: ${sketch.segments.length} exceeds the per-segment compilation limit of ${MAX_SEGMENTS_FOR_PER_SEGMENT_COMPILATION}`,
     )
   }
 
@@ -150,8 +149,8 @@ export const compileSegments = async (params: {
 
   const settledResults = await Promise.allSettled(
     sketch.segments.map((segment) =>
-      provider.routeSegment({ segment, anchorPoints: sketch.anchorPoints, locationBias })
-    )
+      provider.routeSegment({ segment, anchorPoints: sketch.anchorPoints, locationBias }),
+    ),
   )
 
   return settledResults.map((result, idx) => {

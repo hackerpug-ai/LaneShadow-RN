@@ -11,7 +11,7 @@ import { Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import { IconSymbol, type IconName } from '../icon-symbol'
+import { type IconName, IconSymbol } from '../icon-symbol'
 
 const DRAWER_WIDTH = 280
 

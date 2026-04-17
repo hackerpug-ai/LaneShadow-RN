@@ -9,7 +9,7 @@
  * mapped in index.tsx line 250.
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { ChatMessage } from '../chat-transcript'
 
 describe('Task #77: thinkingSteps data flow integration', () => {

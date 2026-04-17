@@ -89,10 +89,7 @@ const parseDurationToMinutes = (duration: string | undefined): number | undefine
   return undefined
 }
 
-const mapPlaces = (
-  places: PlacesApiPlace[],
-  routingSummaries: RoutingSummary[]
-): PlaceResult[] =>
+const mapPlaces = (places: PlacesApiPlace[], routingSummaries: RoutingSummary[]): PlaceResult[] =>
   places.map((place, index) => {
     const summary = routingSummaries[index]
     const leg = summary?.legs?.[0]
@@ -102,7 +99,9 @@ const mapPlaces = (
       name: place.displayName?.text ?? '',
       address: place.formattedAddress ?? '',
       types: place.types,
-      ...(place.location ? { location: { lat: place.location.latitude, lng: place.location.longitude } } : {}),
+      ...(place.location
+        ? { location: { lat: place.location.latitude, lng: place.location.longitude } }
+        : {}),
       ...(detourMinutes !== undefined ? { detourMinutes } : {}),
       ...(leg?.distanceMeters !== undefined ? { distanceFromRouteMeters: leg.distanceMeters } : {}),
     }
@@ -111,7 +110,7 @@ const mapPlaces = (
 const fetchPlaces = async (
   body: Record<string, unknown>,
   apiKey: string,
-  includeRouting: boolean = false
+  includeRouting: boolean = false,
 ): Promise<PlaceResult[]> => {
   // Validate API key presence
   if (!apiKey) {
@@ -120,9 +119,7 @@ const fetchPlaces = async (
   }
 
   // Build field mask based on whether routing is included
-  const fieldMask = includeRouting
-    ? `${BASE_FIELD_MASK},${ROUTING_FIELD_MASK}`
-    : BASE_FIELD_MASK
+  const fieldMask = includeRouting ? `${BASE_FIELD_MASK},${ROUTING_FIELD_MASK}` : BASE_FIELD_MASK
 
   console.log('fetchPlaces: Request body:', JSON.stringify(body, null, 2))
   console.log('fetchPlaces: Field mask:', fieldMask)

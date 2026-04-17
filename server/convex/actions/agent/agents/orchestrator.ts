@@ -1,25 +1,25 @@
 'use node'
 
 import {
+  type Context,
   getModel,
-  validateToolCall,
+  type Message,
   type Tool,
   type ToolCall,
-  type Context,
-  type Message,
+  validateToolCall,
 } from '@mariozechner/pi-ai'
-import { BudgetTracker } from '../budgetTracker'
-import { buildInSessionRouteBlock } from '../sessionContext'
-import { runAgent } from '../runAgent'
-import { getAgentModel } from '../lib/models'
 import type { Id } from '../../../_generated/dataModel'
-import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
-import type { RoutingAgentResult, SearchAgentResult } from './types'
-import type { PlaceResult } from '../providers/placesProvider'
-import { executeRoutingAgent , getPendingSketchState } from './routingAgent'
-import { executeSearchAgent } from './searchAgent'
-import { executeEnrichmentAgent } from './enrichmentAgent'
+import { BudgetTracker } from '../budgetTracker'
+import { getAgentModel } from '../lib/models'
 import { summarizeToolResult } from '../lib/summarizeToolResult'
+import type { PlaceResult } from '../providers/placesProvider'
+import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
+import { runAgent } from '../runAgent'
+import { buildInSessionRouteBlock } from '../sessionContext'
+import { executeEnrichmentAgent } from './enrichmentAgent'
+import { executeRoutingAgent, getPendingSketchState } from './routingAgent'
+import { executeSearchAgent } from './searchAgent'
+import type { RoutingAgentResult, SearchAgentResult } from './types'
 
 // -----------------------------------------------------------------------------
 // Result type
@@ -60,10 +60,7 @@ export type OrchestratorResult = {
  * | Has routes, no pending sketch    | routing_agent, search_agent, enrichment_agent|
  * | Has pending sketch with failures | routing_agent only                           |
  */
-export function determineAvailableTools(
-  hasRoutes: boolean,
-  hasPendingSketch: boolean
-): Tool[] {
+export function determineAvailableTools(hasRoutes: boolean, hasPendingSketch: boolean): Tool[] {
   if (hasPendingSketch) {
     return [routingAgentTool]
   }
@@ -82,7 +79,7 @@ const subAgentQuerySchema = {
   properties: {
     query: {
       type: 'string',
-      description: 'The rider\'s request, verbatim or closely paraphrased.',
+      description: "The rider's request, verbatim or closely paraphrased.",
     },
   },
   required: ['query'],
@@ -117,10 +114,7 @@ const enrichmentAgentTool: Tool = {
  * Build the orchestrator system prompt.
  * Injects current location, in-session route block, and dynamic tool list.
  */
-export function buildOrchestratorPrompt(
-  ctx: AgentContext,
-  availableTools: string[]
-): string {
+export function buildOrchestratorPrompt(ctx: AgentContext, availableTools: string[]): string {
   const locBlock = ctx.currentLocation
     ? `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng}.`
     : `The rider's current location is unknown.`
@@ -128,8 +122,10 @@ export function buildOrchestratorPrompt(
   const toolLines = availableTools
     .map((name) => {
       if (name === 'routing_agent') return '- routing_agent: plan or refine a route'
-      if (name === 'search_agent') return '- search_agent: nearby places, web search, general questions'
-      if (name === 'enrichment_agent') return '- enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)'
+      if (name === 'search_agent')
+        return '- search_agent: nearby places, web search, general questions'
+      if (name === 'enrichment_agent')
+        return '- enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)'
       return `- ${name}`
     })
     .join('\n')
@@ -165,7 +161,7 @@ Respond in 1-2 sentences, 2nd person. Never expose tool names or technical detai
 async function executeOrchestratorTool(
   ctx: AgentContext,
   call: ToolCall,
-  executeCtx: ExecuteContext | undefined
+  executeCtx: ExecuteContext | undefined,
 ): Promise<unknown> {
   const validated = validateToolCall([routingAgentTool, searchAgentTool, enrichmentAgentTool], call)
   const query = (validated as { query: string }).query
@@ -298,7 +294,7 @@ function extractPlaceResults(data: unknown): PlaceResult[] {
 }
 
 function extractOrchestratorAttachments(
-  toolResults: { toolName: string; result: unknown }[]
+  toolResults: { toolName: string; result: unknown }[],
 ): OrchestratorAttachment[] {
   const attachments: OrchestratorAttachment[] = []
 
@@ -318,7 +314,9 @@ function extractOrchestratorAttachments(
       if (result?.status === 'answered' && result.data) {
         const placeResults = extractPlaceResults(result.data)
         // Only create attachment when we have places with coordinates
-        const withLocation = placeResults.filter((p) => p.location !== undefined && p.location !== null)
+        const withLocation = placeResults.filter(
+          (p) => p.location !== undefined && p.location !== null,
+        )
         if (withLocation.length > 0) {
           attachments.push({
             type: 'location_search',
@@ -354,14 +352,14 @@ function extractOrchestratorAttachments(
 export async function executeOrchestrator(
   ctx: AgentContext,
   userMessage: string,
-  executeCtx?: ExecuteContext
+  executeCtx?: ExecuteContext,
 ): Promise<OrchestratorResult> {
   // -------------------------------------------------------------------------
   // 1. DETERMINISTIC PRE-CHECK: query session state before entering the loop
   // -------------------------------------------------------------------------
   const routeBlock = await buildInSessionRouteBlock(
     { runQuery: ctx.runQuery },
-    ctx.planningSessionId
+    ctx.planningSessionId,
   )
   const hasRoutes = routeBlock.length > 0
 
@@ -391,7 +389,7 @@ export async function executeOrchestrator(
   // -------------------------------------------------------------------------
   // 3. SHARED BUDGET TRACKER (log mode — orchestrator spans all sub-agents)
   // -------------------------------------------------------------------------
-  const budgetTracker = new BudgetTracker(0.50, { mode: 'log' })
+  const budgetTracker = new BudgetTracker(0.5, { mode: 'log' })
 
   // -------------------------------------------------------------------------
   // 4. REACT LOOP
@@ -399,8 +397,7 @@ export async function executeOrchestrator(
   const result = await runAgent({
     model,
     context,
-    executor: (call: ToolCall) =>
-      executeOrchestratorTool(ctx, call, executeCtx),
+    executor: (call: ToolCall) => executeOrchestratorTool(ctx, call, executeCtx),
     callbacks: executeCtx
       ? {
           onTextDelta: executeCtx.onTextDelta,

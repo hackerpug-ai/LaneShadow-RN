@@ -63,13 +63,7 @@ function isToastWorthy(msg: ChatMessage): boolean {
  * in-place content updates).
  */
 export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessagesReturn {
-  const {
-    transcriptMessages,
-    chatMode,
-    sessionId,
-    maxVisible = 3,
-    isLoading = false,
-  } = opts
+  const { transcriptMessages, chatMode, sessionId, maxVisible = 3, isLoading = false } = opts
 
   const [toasts, setToasts] = useState<ToastMessage[]>([])
 

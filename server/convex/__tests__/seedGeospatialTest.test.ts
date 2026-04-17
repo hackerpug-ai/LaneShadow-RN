@@ -5,9 +5,9 @@
  * AC-7: Seeded routes span at least 5 distinct US states
  */
 
-import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
+import { describe, expect, it } from 'vitest'
 
 describe('AC-3: 100 seed routes inserted with valid coordinates', () => {
   it('seedGeospatialTest.ts file exists', () => {

@@ -1,15 +1,14 @@
 import { useCallback, useRef } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
-import { Text } from 'react-native-paper'
 import { Swipeable } from 'react-native-gesture-handler'
-import { IconSymbol } from '../../../components/ui/icon-symbol'
-
-import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import { Skeleton } from '../../../components/ui/skeleton'
-import { RouteSearchBar } from '../../../components/ui/route-search-bar'
-import { DateRangePicker } from '../../../components/ui/date-range-picker'
+import { Text } from 'react-native-paper'
 import { SubpageLayout } from '../../../components/layouts/subpage-layout'
 import type { DateRangePickerProps } from '../../../components/ui/date-range-picker'
+import { DateRangePicker } from '../../../components/ui/date-range-picker'
+import { IconSymbol } from '../../../components/ui/icon-symbol'
+import { RouteSearchBar } from '../../../components/ui/route-search-bar'
+import { Skeleton } from '../../../components/ui/skeleton'
+import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 
 // ---------------------------------------------------------------------------
 // SkeletonCard – loading placeholder for a single saved-route row
@@ -69,7 +68,6 @@ export const EmptyPlaceholder = () => {
 const SKELETON_COUNT = 3
 
 export const LoadingState = () => {
-  const { semantic } = useSemanticTheme()
   return (
     <SubpageLayout title="Saved Routes" testID="saved-routes-loading">
       {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
@@ -124,21 +122,13 @@ export const FilterHeader = ({
       {filtersActive && (
         <View style={[styles.filterMeta, { gap: semantic.space.sm }]}>
           <Pressable onPress={onClearFilters} testID="clear-filters-button">
-            <Text
-              style={[
-                semantic.type.label.sm,
-                { color: semantic.color.primary.default },
-              ]}
-            >
+            <Text style={[semantic.type.label.sm, { color: semantic.color.primary.default }]}>
               Clear all filters
             </Text>
           </Pressable>
           <Text
             testID="result-count"
-            style={[
-              semantic.type.body.sm,
-              { color: semantic.color.onSurface.muted },
-            ]}
+            style={[semantic.type.body.sm, { color: semantic.color.onSurface.muted }]}
           >
             {resultCount} {resultCount === 1 ? 'route' : 'routes'} found
           </Text>
@@ -204,14 +194,10 @@ export const SwipeableRouteCard = ({
           },
         ]}
       >
-        <IconSymbol
-          name="trash-can-outline"
-          size={24}
-          color={semantic.color.onSecondary.default}
-        />
+        <IconSymbol name="trash-can-outline" size={24} color={semantic.color.onSecondary.default} />
       </Pressable>
     ),
-    [onDelete, semantic]
+    [onDelete, semantic],
   )
 
   return (

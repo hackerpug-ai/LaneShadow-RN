@@ -1,9 +1,13 @@
 'use node'
-import type { RouteSketch, RouteSketchAnchorPoint, RouteSketchSegment } from '../../../../models/route-sketch'
+import type {
+  RouteSketch,
+  RouteSketchAnchorPoint,
+  RouteSketchSegment,
+} from '../../../../models/route-sketch'
 import type { PlanInput } from '../../../../models/saved-routes'
 import { GOOGLE_MAPS_API_KEY } from '../../../lib/env'
-import { createGeocodingProvider } from './geocodingProvider'
 import { haversineKm } from '../lib/geo'
+import { createGeocodingProvider } from './geocodingProvider'
 
 export type ProviderLatLng = { lat: number; lng: number }
 
@@ -174,7 +178,7 @@ export type ResolvedWaypoint = { lat: number; lng: number }
  */
 export const resolveViaWaypoints = (
   viaNames: string[],
-  anchorPoints: RouteSketch['anchorPoints']
+  anchorPoints: RouteSketch['anchorPoints'],
 ): ResolvedWaypoint[] => {
   if (viaNames.length === 0) return []
 
@@ -182,7 +186,7 @@ export const resolveViaWaypoints = (
     const excess = viaNames.slice(MAX_VIA_WAYPOINTS_PER_SEGMENT)
     console.warn(
       `[resolveViaWaypoints] Segment has ${viaNames.length} viaNames; max is ${MAX_VIA_WAYPOINTS_PER_SEGMENT}. ` +
-        `Skipping excess: ${excess.join(', ')}`
+        `Skipping excess: ${excess.join(', ')}`,
     )
   }
 
@@ -191,10 +195,13 @@ export const resolveViaWaypoints = (
   return capped.reduce<ResolvedWaypoint[]>((acc, name) => {
     const normalised = name.trim().toLowerCase()
     const anchor = anchorPoints.find(
-      (a) => a.name.trim().toLowerCase() === normalised && a.lat !== undefined && a.lng !== undefined
+      (a) =>
+        a.name.trim().toLowerCase() === normalised && a.lat !== undefined && a.lng !== undefined,
     )
     if (!anchor) {
-      console.warn(`[resolveViaWaypoints] Could not resolve viaName "${name}" to an anchorPoint with coordinates — skipping.`)
+      console.warn(
+        `[resolveViaWaypoints] Could not resolve viaName "${name}" to an anchorPoint with coordinates — skipping.`,
+      )
       return acc
     }
     acc.push({ lat: anchor.lat as number, lng: anchor.lng as number })
@@ -215,7 +222,7 @@ const resolveSketchIntermediates = (sketch: RouteSketch) => {
 const buildGoogleRequestBody = (
   planInput: PlanInput,
   sketch: RouteSketch,
-  options?: { computeAlternativeRoutes?: boolean }
+  options?: { computeAlternativeRoutes?: boolean },
 ) => {
   const origin = toGoogleWaypoint(planInput.start.lat, planInput.start.lng)
   const destination = toGoogleWaypoint(planInput.end.lat, planInput.end.lng)
@@ -266,7 +273,7 @@ const fetchGoogleRoutes = async (apiKey: string, body: any): Promise<any> => {
 
 const findAnchorPoint = (
   anchorPoints: RouteSketchAnchorPoint[],
-  name: string
+  name: string,
 ): RouteSketchAnchorPoint | undefined => {
   const normalized = name.trim().toLowerCase()
   return anchorPoints.find((a) => a.name.trim().toLowerCase() === normalized)
@@ -304,13 +311,15 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
         return { lat: anchor.lat, lng: anchor.lng }
       }
       // Auto-geocode missing anchor points with location bias
-      console.info(`[routeSegment] Geocoding missing anchor: "${name}"${locationBias ? ` (bias: ${locationBias.lat.toFixed(2)},${locationBias.lng.toFixed(2)})` : ''}`)
+      console.info(
+        `[routeSegment] Geocoding missing anchor: "${name}"${locationBias ? ` (bias: ${locationBias.lat.toFixed(2)},${locationBias.lng.toFixed(2)})` : ''}`,
+      )
       const geocoder = createGeocodingProvider()
       const results = await geocoder.geocode(name, locationBias)
       if (results.length === 0) {
         throw new Error(
           `Could not geocode "${name}". Try being more specific: include city/state (e.g., "${name}, CA"), ` +
-          `use nearby landmarks, or provide coordinates directly.`
+            `use nearby landmarks, or provide coordinates directly.`,
         )
       }
       const coords = { lat: results[0].lat, lng: results[0].lng }
@@ -321,7 +330,7 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
         const distKm = haversineKm(coords, locationBias)
         if (distKm > 500) {
           throw new Error(
-            `Geocoded "${name}" to ${results[0].label} which is ${Math.round(distKm)}km away — likely wrong location`
+            `Geocoded "${name}" to ${results[0].label} which is ${Math.round(distKm)}km away — likely wrong location`,
           )
         }
       }
@@ -340,7 +349,9 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
       for (const via of segment.viaNames) {
         try {
           const coords = await resolveCoords(via)
-          intermediates.push({ location: { latLng: { latitude: coords.lat, longitude: coords.lng } } })
+          intermediates.push({
+            location: { latLng: { latitude: coords.lat, longitude: coords.lng } },
+          })
         } catch {
           console.warn(`[routeSegment] Skipping via "${via}" — geocode failed`)
         }
@@ -369,16 +380,16 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
       origin: toGoogleWaypoint(origin.lat, origin.lng),
       destination: toGoogleWaypoint(destination.lat, destination.lng),
       intermediates: [toGoogleWaypoint(waypoint.lat, waypoint.lng)],
-      travelMode: "DRIVE",
-      routingPreference: "TRAFFIC_UNAWARE",
-      polylineQuality: "OVERVIEW",
-      polylineEncoding: "ENCODED_POLYLINE",
+      travelMode: 'DRIVE',
+      routingPreference: 'TRAFFIC_UNAWARE',
+      polylineQuality: 'OVERVIEW',
+      polylineEncoding: 'ENCODED_POLYLINE',
     }
 
     const data: any = await fetchGoogleRoutes(apiKey, body)
     const route = data?.routes?.[0]
     if (!route) {
-      throw new Error("Google Routes response missing routes[0]")
+      throw new Error('Google Routes response missing routes[0]')
     }
     return parseGoogleRoute(route)
   },

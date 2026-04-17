@@ -5,13 +5,13 @@
  * Following TDD RED-GREEN-REFACTOR cycle
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { TemperatureOverlay } from '../../models/saved-routes'
 import {
   calculateTempRange,
   formatTempRange,
-  hasExtremeTemp,
   getTempRangeDisplay,
+  hasExtremeTemp,
   type TempRangeResult,
 } from './temp-calculator'
 

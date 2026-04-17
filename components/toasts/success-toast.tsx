@@ -4,11 +4,11 @@
  * Green-themed toast for success notifications
  */
 
-import { View, StyleSheet, Pressable } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { IconSymbol } from '../ui/icon-symbol'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol } from '../ui/icon-symbol'
 
 export type SuccessToastProps = {
   title: string
@@ -16,11 +16,7 @@ export type SuccessToastProps = {
   showCloseButton?: boolean
 }
 
-export const SuccessToast = ({
-  title,
-  description,
-  showCloseButton = true,
-}: SuccessToastProps) => {
+export const SuccessToast = ({ title, description, showCloseButton = true }: SuccessToastProps) => {
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
 
@@ -45,15 +41,8 @@ export const SuccessToast = ({
     >
       <View style={[styles.header, { gap: semantic.space.sm }]}>
         <View style={styles.iconRow}>
-          <IconSymbol
-            name="check-circle"
-            size={20}
-            color={semantic.color.onPrimary.default}
-          />
-          <Text
-            variant="titleSmall"
-            style={{ color: semantic.color.onPrimary.default, flex: 1 }}
-          >
+          <IconSymbol name="check-circle" size={20} color={semantic.color.onPrimary.default} />
+          <Text variant="titleSmall" style={{ color: semantic.color.onPrimary.default, flex: 1 }}>
             {title}
           </Text>
         </View>
@@ -65,11 +54,7 @@ export const SuccessToast = ({
             }}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <IconSymbol
-              name="close-circle"
-              size={20}
-              color={semantic.color.onPrimary.default}
-            />
+            <IconSymbol name="close-circle" size={20} color={semantic.color.onPrimary.default} />
           </Pressable>
         )}
       </View>

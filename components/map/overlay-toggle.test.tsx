@@ -8,12 +8,12 @@
  * - AC4: No route selected → Overlay toggle is hidden
  */
 
-import { vi, describe, it, expect } from 'vitest'
-import { render, fireEvent } from '@testing-library/react-native'
-import { PaperProvider, MD3DarkTheme } from 'react-native-paper'
+import { fireEvent, render } from '@testing-library/react-native'
+import { MD3DarkTheme, PaperProvider } from 'react-native-paper'
+import { describe, expect, it, vi } from 'vitest'
+import type { ExtendedTheme } from '../../styles/types'
 import type { OverlayAvailability, OverlayType } from './overlay-toggle'
 import { OverlayToggle } from './overlay-toggle'
-import type { ExtendedTheme } from '../../styles/types'
 
 // Mock semantic theme for testing
 const mockSemanticTheme: ExtendedTheme['semantic'] = {
@@ -104,12 +104,48 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.3, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -120,11 +156,7 @@ vi.mock('../../hooks/use-semantic-theme', () => ({
 
 // Helper wrapper with PaperProvider
 const renderWithPaper = (ui: React.ReactElement) => {
-  return render(
-    <PaperProvider theme={MD3DarkTheme}>
-      {ui}
-    </PaperProvider>
-  )
+  return render(<PaperProvider theme={MD3DarkTheme}>{ui}</PaperProvider>)
 }
 
 describe('overlay-toggle', () => {
@@ -147,7 +179,7 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       // Tap rain toggle
@@ -171,7 +203,7 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       // Tap rain toggle
@@ -201,7 +233,7 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       const rainToggle = getByTestId('overlay-item-rain')
@@ -230,7 +262,7 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       const rainToggle = getByTestId('overlay-item-rain')
@@ -253,7 +285,7 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       // All toggles should be disabled
@@ -282,7 +314,7 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       // Tap wind toggle
@@ -306,7 +338,7 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       // Tap rain toggle
@@ -330,7 +362,7 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       // Tap rain toggle (already selected)
@@ -364,7 +396,7 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       // Component should be visible when route is selected
@@ -385,7 +417,7 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       // Component should render with no active overlay
@@ -417,7 +449,7 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       const windToggle = getByTestId('overlay-item-wind')
@@ -446,7 +478,7 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       // Wind and temperature should be enabled
@@ -471,7 +503,7 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       // Wind should be selected
@@ -486,7 +518,7 @@ describe('overlay-toggle', () => {
             availability={availability}
             testID="overlay-toggle"
           />
-        </PaperProvider>
+        </PaperProvider>,
       )
 
       // Rain should now be selected
@@ -514,12 +546,14 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       expect(getByTestId('overlay-item-wind').props.accessibilityLabel).toBe('Wind overlay')
       expect(getByTestId('overlay-item-rain').props.accessibilityLabel).toBe('Rain overlay')
-      expect(getByTestId('overlay-item-temperature').props.accessibilityLabel).toBe('Temperature overlay')
+      expect(getByTestId('overlay-item-temperature').props.accessibilityLabel).toBe(
+        'Temperature overlay',
+      )
     })
 
     it('should have proper accessibility roles', () => {
@@ -536,7 +570,7 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       expect(getByTestId('overlay-item-wind').props.accessibilityRole).toBe('button')
@@ -558,7 +592,7 @@ describe('overlay-toggle', () => {
           onValueChange={onValueChange}
           availability={availability}
           testID="overlay-toggle"
-        />
+        />,
       )
 
       // Rain should be selected

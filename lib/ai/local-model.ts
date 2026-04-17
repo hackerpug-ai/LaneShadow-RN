@@ -1,12 +1,12 @@
+import * as FileSystem from 'expo-file-system/legacy'
+import { NativeModules } from 'react-native'
 import type {
-  ModelLoadResult,
+  ChecksumValidator,
   InferenceResult,
   MemoryUsage,
-  ChecksumValidator,
   ModelDownloadManager,
+  ModelLoadResult,
 } from './types'
-import { NativeModules } from 'react-native'
-import * as FileSystem from 'expo-file-system/legacy'
 
 /**
  * Native module interface for MLX model operations
@@ -49,10 +49,7 @@ export class LocalModelManager {
   private downloadManager: ModelDownloadManager
   private nativeModule: MLXNativeModule | null = null
 
-  constructor(
-    downloadManager: any,
-    checksumValidator: any
-  ) {
+  constructor(downloadManager: any, checksumValidator: any) {
     this.downloadManager = downloadManager
     this.checksumValidator = checksumValidator
 
@@ -70,10 +67,7 @@ export class LocalModelManager {
   /**
    * Get singleton instance
    */
-  static getInstance(
-    downloadManager?: any,
-    checksumValidator?: any
-  ): LocalModelManager {
+  static getInstance(downloadManager?: any, checksumValidator?: any): LocalModelManager {
     if (!LocalModelManager.instance) {
       if (!downloadManager || !checksumValidator) {
         throw new Error('downloadManager and checksumValidator required for first initialization')
@@ -98,7 +92,7 @@ export class LocalModelManager {
       if (!this.nativeModule) {
         // Fallback: Simulate loading without validation
         // In production, this would never execute on iOS/macOS
-        await new Promise(resolve => setTimeout(resolve, 100)) // Simulate async loading
+        await new Promise((resolve) => setTimeout(resolve, 100)) // Simulate async loading
 
         this.modelPath = modelPath
         this.modelLoaded = true
@@ -124,7 +118,7 @@ export class LocalModelManager {
       // Step 2: Validate checksum before loading
       const checksumResult = await this.checksumValidator.validate(
         modelPath,
-        '616263313233646566343536' // Placeholder checksum
+        '616263313233646566343536', // Placeholder checksum
       )
 
       if (!checksumResult.valid) {

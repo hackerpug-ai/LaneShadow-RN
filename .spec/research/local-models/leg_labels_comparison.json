@@ -1,10 +1,7 @@
 {
   "test_type": "route_leg_labels_only",
   "date": "2026-04-09",
-  "models": [
-    "Qwen3.5 0.8B",
-    "Haiku"
-  ],
+  "models": ["Qwen3.5 0.8B", "Haiku"],
   "qwen_results": [
     {
       "route_id": "sf-to-point-reyes",
@@ -77,11 +74,7 @@
       "route_id": "seattle-to-portland",
       "model": "Haiku",
       "duration_seconds": 0.79,
-      "leg_labels": [
-        "Seattle to Olympia",
-        "Olympia to Longview",
-        "Longview to Portland"
-      ],
+      "leg_labels": ["Seattle to Olympia", "Olympia to Longview", "Longview to Portland"],
       "expected_count": 3,
       "actual_count": 3,
       "valid": true

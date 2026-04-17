@@ -8,8 +8,8 @@
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { Progress } from '../ui/progress'
 import { Button } from '../ui/button'
+import { Progress } from '../ui/progress'
 
 export type DownloadProgressIndicatorProps = {
   /** Pack name being downloaded */
@@ -54,57 +54,41 @@ export const DownloadProgressIndicator = ({
 
   const statusText = () => {
     switch (state) {
-      case 'complete': return 'Download complete'
-      case 'failed': return 'Download failed'
-      case 'paused': return 'Paused'
-      default: return formatETA(eta)
+      case 'complete':
+        return 'Download complete'
+      case 'failed':
+        return 'Download failed'
+      case 'paused':
+        return 'Paused'
+      default:
+        return formatETA(eta)
     }
   }
 
   return (
     <View testID={testID} style={[styles.container, { gap: semantic.space.sm }]}>
       <View style={styles.row}>
-        <Text
-          variant="titleMedium"
-          style={{ color: semantic.color.onSurface.default }}
-        >
+        <Text variant="titleMedium" style={{ color: semantic.color.onSurface.default }}>
           {state === 'complete' ? 'Complete' : 'Downloading...'}
         </Text>
-        <Text
-          variant="labelMedium"
-          style={{ color: semantic.color.primary.default }}
-        >
+        <Text variant="labelMedium" style={{ color: semantic.color.primary.default }}>
           {percentage}%
         </Text>
       </View>
 
-      <Progress
-        value={percentage}
-        accessibilityLabel={`Download progress: ${percentage}%`}
-      />
+      <Progress value={percentage} accessibilityLabel={`Download progress: ${percentage}%`} />
 
       <View style={styles.row}>
-        <Text
-          variant="bodySmall"
-          style={{ color: semantic.color.onSurface.muted }}
-        >
+        <Text variant="bodySmall" style={{ color: semantic.color.onSurface.muted }}>
           {formatMB(bytesDownloaded)} / {formatMB(totalBytes)}
         </Text>
-        <Text
-          variant="bodySmall"
-          style={{ color: semantic.color.onSurface.muted }}
-        >
+        <Text variant="bodySmall" style={{ color: semantic.color.onSurface.muted }}>
           {statusText()}
         </Text>
       </View>
 
       {state === 'downloading' && onCancel && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onPress={onCancel}
-          testID={`${testID}-cancel`}
-        >
+        <Button variant="ghost" size="sm" onPress={onCancel} testID={`${testID}-cancel`}>
           Cancel Download
         </Button>
       )}

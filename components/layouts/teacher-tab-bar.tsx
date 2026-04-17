@@ -5,12 +5,12 @@
  * Following theme_rules.mdc - StyleSheet for static, inline for theme
  */
 
-import { IconSymbol, type IconName } from '../ui/icon-symbol'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 // Camera helpers are no longer used directly here; assistant overlay handles camera via sheet
 import { useRouter } from 'expo-router'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { type IconName, IconSymbol } from '../ui/icon-symbol'
 
 export type TeacherTabBarProps = {
   currentRoute: string

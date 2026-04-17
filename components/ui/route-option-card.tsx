@@ -9,7 +9,7 @@
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
-import { IconSymbol, type IconName } from './icon-symbol'
+import { type IconName, IconSymbol } from './icon-symbol'
 import { RouteBadge } from './route-badge'
 import { StatRow } from './stat-row'
 import { WeatherPill } from './weather-pill'
@@ -58,9 +58,7 @@ export const RouteOptionCard = ({
         styles.card,
         {
           backgroundColor: semantic.color.card.default,
-          borderColor: isSelected
-            ? semantic.color.primary.default
-            : 'rgba(255, 255, 255, 0.05)',
+          borderColor: isSelected ? semantic.color.primary.default : 'rgba(255, 255, 255, 0.05)',
           borderWidth: isSelected ? 2 : 1,
           padding: isCompact ? 12 : 16,
           opacity: isCompact ? 0.8 : 1,
@@ -69,20 +67,10 @@ export const RouteOptionCard = ({
     >
       {isCompact ? (
         <View style={styles.compactRow}>
-          <Text
-            style={[
-              styles.compactName,
-              { color: semantic.color.onSurface.default },
-            ]}
-          >
+          <Text style={[styles.compactName, { color: semantic.color.onSurface.default }]}>
             {name}
           </Text>
-          <Text
-            style={[
-              styles.compactStats,
-              { color: semantic.color.onSurface.subtle },
-            ]}
-          >
+          <Text style={[styles.compactStats, { color: semantic.color.onSurface.subtle }]}>
             {compactStats}
           </Text>
         </View>
@@ -90,22 +78,13 @@ export const RouteOptionCard = ({
         <>
           <View style={styles.cardHeader}>
             <View>
-              <Text
-                style={[
-                  styles.routeName,
-                  { color: semantic.color.onSurface.default },
-                ]}
-              >
+              <Text style={[styles.routeName, { color: semantic.color.onSurface.default }]}>
                 {name}
               </Text>
               {badges.length > 0 && (
                 <View style={styles.badges}>
                   {badges.map((badge, index) => (
-                    <RouteBadge
-                      key={index}
-                      icon={badge.icon}
-                      variant={badge.variant}
-                    >
+                    <RouteBadge key={index} icon={badge.icon} variant={badge.variant}>
                       {badge.label}
                     </RouteBadge>
                   ))}
@@ -122,9 +101,7 @@ export const RouteOptionCard = ({
             </View>
           )}
 
-          {weatherSummary && (
-            <WeatherPill icon={weatherIcon} description={weatherSummary} />
-          )}
+          {weatherSummary && <WeatherPill icon={weatherIcon} description={weatherSummary} />}
         </>
       )}
     </View>

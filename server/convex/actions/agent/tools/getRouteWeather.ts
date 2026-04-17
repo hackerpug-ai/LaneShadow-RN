@@ -1,8 +1,8 @@
 'use node'
-import { createWeatherProvider } from '../providers/weatherProvider'
-import { traceableToolAsync } from '../lib/tracing'
-import { samplePolyline } from '../lib/geo'
 import type { LatLng } from '../lib/geo'
+import { samplePolyline } from '../lib/geo'
+import { traceableToolAsync } from '../lib/tracing'
+import { createWeatherProvider } from '../providers/weatherProvider'
 
 const MAX_WEATHER_SAMPLES = 5
 const FOG_VISIBILITY_THRESHOLD_M = 1000
@@ -48,7 +48,9 @@ const buildSummary = (segments: WeatherSegment[]): string => {
   const parts: string[] = []
 
   const tempStr =
-    minTemp === maxTemp ? `${Math.round(minTemp)}°C` : `${Math.round(minTemp)}–${Math.round(maxTemp)}°C`
+    minTemp === maxTemp
+      ? `${Math.round(minTemp)}°C`
+      : `${Math.round(minTemp)}–${Math.round(maxTemp)}°C`
   parts.push(`Temperature: ${tempStr}`)
 
   if (maxWind >= 50) {

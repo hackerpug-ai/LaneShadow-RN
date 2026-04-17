@@ -1,9 +1,9 @@
 'use node'
 
-import { randomUUID } from 'crypto'
 import { v } from 'convex/values'
-import { action, internalAction } from '../../_generated/server'
-
+import { randomUUID } from 'crypto'
+import type { PlannedRouteOptionsView } from '../../../../types/routes'
+import { ROUTE_PLAN_STATUS } from '../../../models/route-plans'
 import {
   boundsValidator,
   conditionsStatusValidator,
@@ -15,16 +15,15 @@ import {
   temperatureSummaryValidator,
   windSummaryValidator,
 } from '../../../models/saved-routes'
-import type { PlannedRouteOptionsView } from '../../../../types/routes'
-import { requireSession } from '../../guards'
 import { internal } from '../../_generated/api'
-import { backend } from '../../lib/logger'
-import { ERROR_CODES } from '../../errors'
 import type { Id } from '../../_generated/dataModel'
-import { ROUTE_PLAN_STATUS } from '../../../models/route-plans'
-import { planRideOrchestrator } from './lib/planRideOrchestrator'
-import type { OrchestratorResult } from './lib/planRideOrchestrator'
+import { action, internalAction } from '../../_generated/server'
+import { ERROR_CODES } from '../../errors'
+import { requireSession } from '../../guards'
 import { getConversationalError } from '../../lib/conversationalErrors'
+import { backend } from '../../lib/logger'
+import type { OrchestratorResult } from './lib/planRideOrchestrator'
+import { planRideOrchestrator } from './lib/planRideOrchestrator'
 
 const plannedRouteOptionValidator = v.object({
   routeOptionId: v.string(),
@@ -54,8 +53,8 @@ const plannedRouteOptionValidator = v.object({
       v.object({
         id: v.string(),
         reason: v.string(),
-      })
-    )
+      }),
+    ),
   ), // Favorites that were excluded with reasons
 })
 
@@ -68,8 +67,8 @@ const plannedRouteOptionsViewValidator = v.object({
       v.object({
         id: v.string(),
         reason: v.string(),
-      })
-    )
+      }),
+    ),
   ), // Overall excluded favorites
 })
 
@@ -104,7 +103,7 @@ export const buildUserPrompt = (planInput: any): string => {
  */
 export const buildOptionsFromResults = (
   results: OrchestratorResult[],
-  planId: string
+  planId: string,
 ): PlannedRouteOptionsView => {
   // Collect all included and excluded favorites across all routes
   const allIncludedFavorites = new Set<string>()
@@ -215,8 +214,10 @@ export const planRide = action({
       // Convert error to conversational error for chat interface
       const errorMessage = error instanceof Error ? error.message : String(error)
       const errorValues = Object.values(ERROR_CODES)
-      const errorCode = errorValues.includes(errorMessage as typeof ERROR_CODES[keyof typeof ERROR_CODES])
-        ? (errorMessage as typeof ERROR_CODES[keyof typeof ERROR_CODES])
+      const errorCode = errorValues.includes(
+        errorMessage as (typeof ERROR_CODES)[keyof typeof ERROR_CODES],
+      )
+        ? (errorMessage as (typeof ERROR_CODES)[keyof typeof ERROR_CODES])
         : ERROR_CODES.GENERATION_FAILED
 
       const conversationalError = getConversationalError(errorCode, {
@@ -224,10 +225,12 @@ export const planRide = action({
       })
 
       // Return conversational error instead of throwing
-      throw new Error(JSON.stringify({
-        error: conversationalError,
-        originalError: errorMessage,
-      }))
+      throw new Error(
+        JSON.stringify({
+          error: conversationalError,
+          originalError: errorMessage,
+        }),
+      )
     }
   },
 })
@@ -256,17 +259,16 @@ type ExecutePlanCtx = {
 export const executePlanHandler = async (
   ctx: ExecutePlanCtx,
   args: { routePlanId: Id<'route_plans'> },
-  orchestratorFn: typeof planRideOrchestrator = planRideOrchestrator
+  orchestratorFn: typeof planRideOrchestrator = planRideOrchestrator,
 ): Promise<void> => {
   const { routePlanId } = args
 
   console.info('[planRide] executePlanHandler started', { routePlanId })
 
   // Step 1: Read the plan record
-  const plan = await ctx.runQuery(
-    (internal as any).db.routePlans.getPlanByIdInternal,
-    { routePlanId }
-  ) as any
+  const plan = (await ctx.runQuery((internal as any).db.routePlans.getPlanByIdInternal, {
+    routePlanId,
+  })) as any
 
   console.info('[planRide] Plan retrieved', { planId: plan?._id, status: plan?.status })
 
@@ -278,24 +280,25 @@ export const executePlanHandler = async (
   // Step 3: Update status to 'running'
   // Note: Auth was already validated in createPlan mutation that scheduled this job.
   // Background jobs (internalAction via scheduler) have no JWT context.
-  await ctx.runMutation(
-    (internal as any).db.routePlans.updatePlanStatus,
-    { routePlanId, status: ROUTE_PLAN_STATUS.RUNNING, statusMessage: 'Starting route planning...' }
-  )
+  await ctx.runMutation((internal as any).db.routePlans.updatePlanStatus, {
+    routePlanId,
+    status: ROUTE_PLAN_STATUS.RUNNING,
+    statusMessage: 'Starting route planning...',
+  })
 
   try {
     // Step 4: Update status message
-    await ctx.runMutation(
-      (internal as any).db.routePlans.updatePlanStatus,
-      { routePlanId, status: ROUTE_PLAN_STATUS.RUNNING, statusMessage: 'Generating route options...' }
-    )
+    await ctx.runMutation((internal as any).db.routePlans.updatePlanStatus, {
+      routePlanId,
+      status: ROUTE_PLAN_STATUS.RUNNING,
+      statusMessage: 'Generating route options...',
+    })
 
     // Step 5: Check for cancellation before running orchestrator
     const checkCancelled = async (): Promise<boolean> => {
-      const current = await ctx.runQuery(
-        (internal as any).db.routePlans.getPlanByIdInternal,
-        { routePlanId }
-      ) as any
+      const current = (await ctx.runQuery((internal as any).db.routePlans.getPlanByIdInternal, {
+        routePlanId,
+      })) as any
       return current?.status === ROUTE_PLAN_STATUS.CANCELLED
     }
 
@@ -333,10 +336,11 @@ export const executePlanHandler = async (
       throw new Error(ERROR_CODES.INVALID_AGENT_RESPONSE_STRUCTURE)
     }
 
-    await ctx.runMutation(
-      (internal as any).db.routePlans.updatePlanStatus,
-      { routePlanId, status: ROUTE_PLAN_STATUS.RUNNING, statusMessage: 'Finalizing route...' }
-    )
+    await ctx.runMutation((internal as any).db.routePlans.updatePlanStatus, {
+      routePlanId,
+      status: ROUTE_PLAN_STATUS.RUNNING,
+      statusMessage: 'Finalizing route...',
+    })
 
     const result: PlannedRouteOptionsView = buildOptionsFromResults(results, randomUUID())
 
@@ -348,7 +352,12 @@ export const executePlanHandler = async (
       firstLegKeys: firstLeg ? Object.keys(firstLeg) : [],
       firstLegHasGeometry: !!firstLeg?.geometry,
       firstLegGeometry: firstLeg?.geometry
-        ? { format: firstLeg.geometry.format, encoding: firstLeg.geometry.encoding, hasValue: !!firstLeg.geometry.value, valueLen: firstLeg.geometry.value?.length }
+        ? {
+            format: firstLeg.geometry.format,
+            encoding: firstLeg.geometry.encoding,
+            hasValue: !!firstLeg.geometry.value,
+            valueLen: firstLeg.geometry.value?.length,
+          }
         : 'MISSING',
     })
 
@@ -362,10 +371,10 @@ export const executePlanHandler = async (
     })
 
     // AC-2: Check cache for existing enrichment before scheduling new job
-    const cached = await ctx.runQuery(
+    const cached = (await ctx.runQuery(
       (internal as any).db.routeEnrichments.findByContentFingerprint,
-      { contentFingerprint: fingerprint, phase: 'fast' }
-    ) as any
+      { contentFingerprint: fingerprint, phase: 'fast' },
+    )) as any
 
     if (cached) {
       console.info('[planRide] Cache hit for enrichment - skipping job scheduling', {
@@ -380,7 +389,7 @@ export const executePlanHandler = async (
       })
 
       // AC-3: Schedule background enrichment job (100ms delay)
-      const { enrichmentId } = await ctx.runMutation(
+      const { enrichmentId } = (await ctx.runMutation(
         (internal as any).db.routeEnrichments.createEnrichment,
         {
           routePlanId,
@@ -388,8 +397,8 @@ export const executePlanHandler = async (
           clerkUserId: plan.clerkUserId,
           contentFingerprint: fingerprint,
           phase: 'fast',
-        }
-      ) as { enrichmentId: Id<'route_enrichments'> }
+        },
+      )) as { enrichmentId: Id<'route_enrichments'> }
 
       console.info('[planRide] Enrichment record created', {
         enrichmentId,
@@ -400,7 +409,7 @@ export const executePlanHandler = async (
       const scheduledJobId = await ctx.scheduler.runAfter(
         100,
         (internal as any).actions.agent.enrichment.runEnrichmentJob,
-        { enrichmentId, phase: 'fast' }
+        { enrichmentId, phase: 'fast' },
       )
 
       console.info('[planRide] Background enrichment job scheduled', {
@@ -410,13 +419,10 @@ export const executePlanHandler = async (
       })
 
       // AC-5: Store scheduledJobId in enrichment record
-      await ctx.runMutation(
-        (internal as any).db.routeEnrichments.updateEnrichment,
-        {
-          enrichmentId,
-          scheduledJobId,
-        }
-      )
+      await ctx.runMutation((internal as any).db.routeEnrichments.updateEnrichment, {
+        enrichmentId,
+        scheduledJobId,
+      })
 
       console.info('[planRide] Enrichment record updated with scheduled job ID', {
         enrichmentId,
@@ -425,15 +431,12 @@ export const executePlanHandler = async (
     }
 
     // AC-4: Return immediate results with fallback labels (non-blocking)
-    await ctx.runMutation(
-      (internal as any).db.routePlans.updatePlanStatus,
-      {
-        routePlanId,
-        status: ROUTE_PLAN_STATUS.COMPLETED,
-        result,
-        statusMessage: 'Route ready!',
-      }
-    )
+    await ctx.runMutation((internal as any).db.routePlans.updatePlanStatus, {
+      routePlanId,
+      status: ROUTE_PLAN_STATUS.COMPLETED,
+      result,
+      statusMessage: 'Route ready!',
+    })
   } catch (error) {
     // On any failure, write 'failed' to DB - never leave plan stuck in 'running'
     const errorMessage = error instanceof Error ? error.message : String(error)
@@ -444,7 +447,7 @@ export const executePlanHandler = async (
     })
 
     // Determine error code for conversational error
-    let errorCode: typeof ERROR_CODES[keyof typeof ERROR_CODES] = ERROR_CODES.GENERATION_FAILED
+    let errorCode: (typeof ERROR_CODES)[keyof typeof ERROR_CODES] = ERROR_CODES.GENERATION_FAILED
     if (errorMessage === ERROR_CODES.AGENT_TIMEOUT) {
       errorCode = ERROR_CODES.AGENT_TIMEOUT
     } else if (errorMessage === ERROR_CODES.NO_ROUTES_GENERATED) {
@@ -455,16 +458,13 @@ export const executePlanHandler = async (
 
     const conversationalError = getConversationalError(errorCode)
 
-    await ctx.runMutation(
-      (internal as any).db.routePlans.updatePlanStatus,
-      {
-        routePlanId,
-        status: ROUTE_PLAN_STATUS.FAILED,
-        errorCode: errorCode,
-        errorMessage: conversationalError.message,
-        statusMessage: conversationalError.message,
-      }
-    )
+    await ctx.runMutation((internal as any).db.routePlans.updatePlanStatus, {
+      routePlanId,
+      status: ROUTE_PLAN_STATUS.FAILED,
+      errorCode: errorCode,
+      errorMessage: conversationalError.message,
+      statusMessage: conversationalError.message,
+    })
   }
 }
 

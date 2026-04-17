@@ -7,8 +7,8 @@
  * - Test full flow end-to-end
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { ConvexError } from 'convex/values'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../_generated/dataModel'
 import { ERROR_CODES } from '../../errors'
 import { getConversationalError } from '../../lib/conversationalErrors'
@@ -61,9 +61,7 @@ describe('planUsage integration with createPlan', () => {
   describe('AC1: Given user has 5 plans this month, when attempts 6th plan, then conversational upsell message returned', () => {
     it('should throw RATE_LIMIT_EXCEEDED when user has reached monthly limit', async () => {
       // Arrange - User at limit (5 plans)
-      const mockCheckUsage = vi.fn().mockResolvedValue(
-        createUsageCheckMock(false, 5)
-      )
+      const mockCheckUsage = vi.fn().mockResolvedValue(createUsageCheckMock(false, 5))
 
       const ctx = {
         db: {
@@ -94,16 +92,12 @@ describe('planUsage integration with createPlan', () => {
         createPlanHandler(
           ctx as any,
           { planInput: basePlanInput, startLabel: 'Start City', endLabel: 'End City' },
-          CLERK_USER_ID
-        )
+          CLERK_USER_ID,
+        ),
       ).rejects.toThrow(ConvexError)
 
       await expect(
-        createPlanHandler(
-          ctx as any,
-          { planInput: basePlanInput },
-          CLERK_USER_ID
-        )
+        createPlanHandler(ctx as any, { planInput: basePlanInput }, CLERK_USER_ID),
       ).rejects.toThrow(ERROR_CODES.RATE_LIMIT_EXCEEDED)
 
       // Verify checkUsage was called
@@ -128,13 +122,9 @@ describe('planUsage integration with createPlan', () => {
   describe('AC2: Given rate limit OK, when plan created successfully, then usage incremented', () => {
     it('should check usage, create plan, and increment usage when under limit', async () => {
       // Arrange - User has 3 plans (2 remaining)
-      const mockCheckUsage = vi.fn().mockResolvedValue(
-        createUsageCheckMock(true, 3)
-      )
+      const mockCheckUsage = vi.fn().mockResolvedValue(createUsageCheckMock(true, 3))
 
-      const mockIncrementUsage = vi.fn().mockResolvedValue(
-        createUsageCheckMock(true, 4)
-      )
+      const mockIncrementUsage = vi.fn().mockResolvedValue(createUsageCheckMock(true, 4))
 
       const ctx = {
         db: {
@@ -165,7 +155,7 @@ describe('planUsage integration with createPlan', () => {
       const result = await createPlanHandler(
         ctx as any,
         { planInput: basePlanInput, startLabel: 'Start City', endLabel: 'End City' },
-        CLERK_USER_ID
+        CLERK_USER_ID,
       )
 
       // Assert
@@ -178,18 +168,16 @@ describe('planUsage integration with createPlan', () => {
           clerkUserId: CLERK_USER_ID,
           status: 'pending',
           planInput: basePlanInput,
-        })
+        }),
       )
 
       // Verify usage was incremented
       expect(mockIncrementUsage).toHaveBeenCalled()
 
       // Verify execution was scheduled
-      expect(ctx.scheduler.runAfter).toHaveBeenCalledWith(
-        0,
-        expect.anything(),
-        { routePlanId: PLAN_ID }
-      )
+      expect(ctx.scheduler.runAfter).toHaveBeenCalledWith(0, expect.anything(), {
+        routePlanId: PLAN_ID,
+      })
 
       expect(result).toEqual({ routePlanId: PLAN_ID })
     })
@@ -235,13 +223,9 @@ describe('planUsage integration with createPlan', () => {
   describe('AC5: Integration test - Full flow from plan creation through rate limit check to error message', () => {
     it('should test complete rate limiting flow end-to-end for successful plan creation', async () => {
       // Test - User with 4 plans (1 remaining) should succeed
-      const mockCheckUsage = vi.fn().mockResolvedValue(
-        createUsageCheckMock(true, 4)
-      )
+      const mockCheckUsage = vi.fn().mockResolvedValue(createUsageCheckMock(true, 4))
 
-      const mockIncrementUsage = vi.fn().mockResolvedValue(
-        createUsageCheckMock(true, 5)
-      )
+      const mockIncrementUsage = vi.fn().mockResolvedValue(createUsageCheckMock(true, 5))
 
       // Mock functions
       const planUsageModule = await import('../planUsage')
@@ -272,7 +256,7 @@ describe('planUsage integration with createPlan', () => {
       const result = await createPlanHandler(
         ctx as any,
         { planInput: basePlanInput },
-        CLERK_USER_ID
+        CLERK_USER_ID,
       )
 
       // Assert - Plan created successfully
@@ -283,9 +267,7 @@ describe('planUsage integration with createPlan', () => {
 
     it('should test complete rate limiting flow end-to-end for rate limit exceeded', async () => {
       // Test - User with 5 plans (at limit) should fail
-      const mockCheckUsage = vi.fn().mockResolvedValue(
-        createUsageCheckMock(false, 5)
-      )
+      const mockCheckUsage = vi.fn().mockResolvedValue(createUsageCheckMock(false, 5))
 
       // Mock functions
       const planUsageModule = await import('../planUsage')
@@ -313,11 +295,7 @@ describe('planUsage integration with createPlan', () => {
 
       // Act & Assert - Plan creation should fail
       await expect(
-        createPlanHandler(
-          ctx as any,
-          { planInput: basePlanInput },
-          CLERK_USER_ID
-        )
+        createPlanHandler(ctx as any, { planInput: basePlanInput }, CLERK_USER_ID),
       ).rejects.toThrow(ERROR_CODES.RATE_LIMIT_EXCEEDED)
 
       // Verify plan was NOT created

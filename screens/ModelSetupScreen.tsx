@@ -6,13 +6,10 @@
  */
 
 import React, { useEffect } from 'react'
-import { View, StyleSheet, ScrollView, SafeAreaView } from 'react-native'
-import { Text, Button, Portal } from 'react-native-paper'
+import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native'
+import { Button, Portal, Text } from 'react-native-paper'
+import { DownloadProgressBanner, ModelManagerSection } from '../components/model'
 import { useModelSetup } from '../hooks/useModelSetup'
-import {
-  DownloadProgressBanner,
-  ModelManagerSection,
-} from '../components/model'
 import { toast } from '../lib/toast-system'
 import { useDownloadStore } from '../stores/download-store'
 
@@ -20,14 +17,8 @@ import { useDownloadStore } from '../stores/download-store'
  * Model setup screen example
  */
 export const ModelSetupScreen: React.FC = () => {
-  const {
-    status,
-    downloadProgress,
-    startDownload,
-    cancelDownload,
-    isChecking,
-    canProceed,
-  } = useModelSetup()
+  const { status, downloadProgress, startDownload, cancelDownload, isChecking, canProceed } =
+    useModelSetup()
 
   const [showBanner, setShowBanner] = React.useState(false)
 
@@ -42,7 +33,7 @@ export const ModelSetupScreen: React.FC = () => {
       toast.error(
         downloadProgress?.state === 'failed'
           ? 'Setup failed. Please check your connection and try again.'
-          : 'Setup failed'
+          : 'Setup failed',
       )
     }
   }, [status, downloadProgress])
@@ -55,7 +46,7 @@ export const ModelSetupScreen: React.FC = () => {
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Failed to start setup. Please check your connection and try again.'
+          : 'Failed to start setup. Please check your connection and try again.',
       )
     }
   }
@@ -121,9 +112,7 @@ export const ModelSetupScreen: React.FC = () => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Text style={styles.title}>Setup Your AI Companion</Text>
-          <Text style={styles.subtitle}>
-            Your local AI ride planner needs to set up its model.
-          </Text>
+          <Text style={styles.subtitle}>Your local AI ride planner needs to set up its model.</Text>
         </View>
 
         {status === 'downloading' && downloadProgress ? (
@@ -131,9 +120,7 @@ export const ModelSetupScreen: React.FC = () => {
             {/* Setup progress indicator */}
             <View style={styles.setupProgress}>
               <View style={styles.progressRing}>
-                <Text style={styles.progressPercent}>
-                  {Math.round(downloadProgress.progress)}%
-                </Text>
+                <Text style={styles.progressPercent}>{Math.round(downloadProgress.progress)}%</Text>
               </View>
               <Text style={styles.setupTitle}>Setting up your AI Companion...</Text>
               <Text style={styles.setupSubtitle}>
@@ -144,10 +131,7 @@ export const ModelSetupScreen: React.FC = () => {
               <View style={styles.progressBarContainer}>
                 <View style={styles.progressBarBackground}>
                   <View
-                    style={[
-                      styles.progressBarFill,
-                      { width: `${downloadProgress.progress}%` },
-                    ]}
+                    style={[styles.progressBarFill, { width: `${downloadProgress.progress}%` }]}
                   />
                 </View>
               </View>
@@ -157,7 +141,10 @@ export const ModelSetupScreen: React.FC = () => {
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Setting up model</Text>
                   <Text style={styles.detailValue}>
-                    {Math.round((downloadProgress.bytesDownloaded / downloadProgress.totalBytes) * 100)}%
+                    {Math.round(
+                      (downloadProgress.bytesDownloaded / downloadProgress.totalBytes) * 100,
+                    )}
+                    %
                   </Text>
                 </View>
 

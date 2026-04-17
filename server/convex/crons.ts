@@ -1,7 +1,7 @@
-import { cronJobs } from 'convex/server';
-import { internal } from './_generated/api';
+import { cronJobs } from 'convex/server'
+import { internal } from './_generated/api'
 
-const crons = cronJobs();
+const crons = cronJobs()
 
 /**
  * Daily cleanup of old empty planning sessions.
@@ -19,7 +19,7 @@ crons.daily(
   'cleanup-empty-sessions',
   { hourUTC: 0, minuteUTC: 0 },
   internal.db.planningSessions.cleanupOldEmptySessions,
-);
+)
 
 /**
  * Weekly map data freshness check.
@@ -45,6 +45,6 @@ crons.weekly(
   'map-data-freshness-check',
   { dayOfWeek: 'monday', hourUTC: 9, minuteUTC: 0 },
   internal.actions.mapData.checkFreshnessWithAlert,
-);
+)
 
-export default crons;
+export default crons

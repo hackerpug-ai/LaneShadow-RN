@@ -1,8 +1,8 @@
-import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import type { RouteSketch } from '../../../../../models/route-sketch'
 import type { PlanInput } from '../../../../../models/saved-routes'
-import { compileSketch, compileSegments, stitchSegments } from '../compileSketch'
 import type { SegmentCompileResult } from '../compileSketch'
+import { compileSegments, compileSketch, stitchSegments } from '../compileSketch'
 import { normalizeRoute } from '../normalizeRoute'
 
 const mockGoogleRoutesOkFetch = (): Mock => {
@@ -132,7 +132,7 @@ describe('compileSegments', () => {
       callCount++
       if (callCount === 1) {
         // First segment fails
-        return { ok: false, status: 400, text: async () => 'ROUTE_NOT_FOUND' }
+        return { ok: false, status: 400, text: async (): Promise<string> => 'ROUTE_NOT_FOUND' }
       }
       // Second segment succeeds
       const json = {
@@ -155,7 +155,12 @@ describe('compileSegments', () => {
           },
         ],
       }
-      return { ok: true, status: 200, json: async () => json, text: async () => JSON.stringify(json) }
+      return {
+        ok: true,
+        status: 200,
+        json: async () => json,
+        text: async () => JSON.stringify(json),
+      }
     })
 
     const results = await compileSegments({ planInput, sketch: validSketch })
@@ -195,7 +200,12 @@ describe('compileSegments', () => {
           },
         ],
       }
-      return { ok: true, status: 200, json: async () => json, text: async () => JSON.stringify(json) }
+      return {
+        ok: true,
+        status: 200,
+        json: async () => json,
+        text: async () => JSON.stringify(json),
+      }
     })
 
     const start = Date.now()
@@ -234,7 +244,7 @@ describe('compileSegments', () => {
     }
 
     await expect(compileSegments({ planInput, sketch: tooManySegments })).rejects.toThrow(
-      /segment/i
+      /segment/i,
     )
     expect(fetchMock).not.toHaveBeenCalled()
   })
@@ -245,7 +255,7 @@ describe('compileSegments', () => {
 const makeOkSegment = (
   segmentIndex: number,
   overridePolyline?: string,
-  bounds?: { north: number; south: number; east: number; west: number }
+  bounds?: { north: number; south: number; east: number; west: number },
 ): SegmentCompileResult => ({
   status: 'ok',
   segmentIndex,

@@ -12,10 +12,10 @@
  * Following coding standards: composition over inheritance, named exports
  */
 
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { ImageSourcePropType, ViewStyle } from 'react-native'
 import { Image, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 /**
  * Avatar size variants

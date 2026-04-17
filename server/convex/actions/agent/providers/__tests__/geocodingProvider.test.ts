@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, afterEach, type Mock } from 'vitest'
+import { afterEach, describe, expect, it, type Mock, vi } from 'vitest'
 
 import { createGeocodingProvider } from '../geocodingProvider'
 

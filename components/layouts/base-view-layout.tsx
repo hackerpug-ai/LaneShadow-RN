@@ -6,9 +6,9 @@
  * Following theme_rules.mdc - StyleSheet for static, inline for theme
  */
 
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 export type BaseViewLayoutProps = {
   children: React.ReactNode

@@ -8,12 +8,11 @@
  * - AC4: Swipe gesture still works inside SwipeableRouteCard (no conflict)
  */
 
-import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
-
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
-import SavedRoutesScreen from '../saved-routes'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import type { SavedRouteListItemView } from '../../../../types/routes'
+import SavedRoutesScreen from '../saved-routes'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 
@@ -107,14 +106,12 @@ vi.mock('react-native-gesture-handler', () => {
   return {
     Swipeable: React.forwardRef(function MockSwipeable(
       props: Record<string, unknown>,
-      ref: React.Ref<unknown>
+      ref: React.Ref<unknown>,
     ) {
       const instance = {
         close: mockSwipeableClose,
         renderRightActions: props.renderRightActions as (() => unknown) | null,
-        onSwipeableOpen: props.onSwipeableOpen as
-          | ((direction: string) => void)
-          | null,
+        onSwipeableOpen: props.onSwipeableOpen as ((direction: string) => void) | null,
       }
       mockSwipeableInstances.push(instance)
 
@@ -123,7 +120,7 @@ vi.mock('react-native-gesture-handler', () => {
       return React.createElement(
         'Swipeable',
         { ...props, testID: 'swipeable-wrapper' },
-        props.children
+        props.children,
       )
     }),
   }
@@ -245,14 +242,14 @@ vi.mock('../saved-routes.components', () => {
       return React.createElement(
         'Swipeable',
         { testID: 'swipeable-wrapper', renderRightActions },
-        children
+        children,
       )
     },
   }
 })
 
 const makeRoute = (
-  overrides: Partial<SavedRouteListItemView> & { savedRouteId: string }
+  overrides: Partial<SavedRouteListItemView> & { savedRouteId: string },
 ): SavedRouteListItemView => ({
   name: 'Test Route',
   startLabel: 'Start',
@@ -288,15 +285,12 @@ beforeEach(() => {
 // ---------------------------------------------------------------------------
 describe('AC1: Tapping card body navigates to detail screen', () => {
   it('should fire onPress when the SavedRouteCard prop is called from the list', () => {
-    const routes = [
-      makeRoute({ savedRouteId: 'route-1', name: 'Morning Ride' }),
-    ]
+    const routes = [makeRoute({ savedRouteId: 'route-1', name: 'Morning Ride' })]
     mockHookReturn.data = { routes }
     mockHookReturn.isLoading = false
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -316,21 +310,16 @@ describe('AC1: Tapping card body navigates to detail screen', () => {
       card.props.onPress()
     })
 
-    expect(mockPush).toHaveBeenCalledWith(
-      expect.stringContaining('route-1')
-    )
+    expect(mockPush).toHaveBeenCalledWith(expect.stringContaining('route-1'))
   })
 
   it('should pass onPress prop to SavedRouteCard (not to chevron)', () => {
-    const routes = [
-      makeRoute({ savedRouteId: 'route-2', name: 'Evening Ride' }),
-    ]
+    const routes = [makeRoute({ savedRouteId: 'route-2', name: 'Evening Ride' })]
     mockHookReturn.data = { routes }
     mockHookReturn.isLoading = false
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -353,15 +342,12 @@ describe('AC1: Tapping card body navigates to detail screen', () => {
 // ---------------------------------------------------------------------------
 describe('AC2: Chevron fires same navigation, no double-fire', () => {
   it('should render exactly one SavedRouteCard per list item (not nested Pressables from screen)', () => {
-    const routes = [
-      makeRoute({ savedRouteId: 'route-1', name: 'Morning Ride' }),
-    ]
+    const routes = [makeRoute({ savedRouteId: 'route-1', name: 'Morning Ride' })]
     mockHookReturn.data = { routes }
     mockHookReturn.isLoading = false
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -374,9 +360,7 @@ describe('AC2: Chevron fires same navigation, no double-fire', () => {
     })
 
     // Should be exactly one SavedRouteCard (not duplicated)
-    const cards = itemTree!.root.findAllByType(
-      'SavedRouteCard' as unknown as React.ComponentClass
-    )
+    const cards = itemTree!.root.findAllByType('SavedRouteCard' as unknown as React.ComponentClass)
     expect(cards.length).toBe(1)
 
     // The card should have exactly one onPress prop — no second onPress on chevron
@@ -386,15 +370,12 @@ describe('AC2: Chevron fires same navigation, no double-fire', () => {
   })
 
   it('should NOT have a Pressable wrapping SavedRouteCard in the screen renderItem', () => {
-    const routes = [
-      makeRoute({ savedRouteId: 'route-1', name: 'Morning Ride' }),
-    ]
+    const routes = [makeRoute({ savedRouteId: 'route-1', name: 'Morning Ride' })]
     mockHookReturn.data = { routes }
     mockHookReturn.isLoading = false
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -408,14 +389,10 @@ describe('AC2: Chevron fires same navigation, no double-fire', () => {
 
     // There should be NO extra Pressable at the screen level wrapping SavedRouteCard
     // (navigation is handled by SavedRouteCard's own Pressable wrapper)
-    const pressables = itemTree!.root.findAllByType(
-      'Pressable' as unknown as React.ComponentClass
-    )
+    const pressables = itemTree!.root.findAllByType('Pressable' as unknown as React.ComponentClass)
     // Only the SwipeableRouteCard delete action Pressable should exist at this level
     // SavedRouteCard's internal Pressable is inside the mocked component
-    const nonDeletePressables = pressables.filter(
-      (p) => p.props.testID !== 'swipe-delete-action'
-    )
+    const nonDeletePressables = pressables.filter((p) => p.props.testID !== 'swipe-delete-action')
     expect(nonDeletePressables.length).toBe(0)
   })
 })
@@ -425,15 +402,12 @@ describe('AC2: Chevron fires same navigation, no double-fire', () => {
 // ---------------------------------------------------------------------------
 describe('AC3: Accessibility role and label on SavedRouteCard', () => {
   it('should pass name prop to SavedRouteCard for accessibility label generation', () => {
-    const routes = [
-      makeRoute({ savedRouteId: 'route-1', name: 'Evening Ride' }),
-    ]
+    const routes = [makeRoute({ savedRouteId: 'route-1', name: 'Evening Ride' })]
     mockHookReturn.data = { routes }
     mockHookReturn.isLoading = false
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -446,9 +420,7 @@ describe('AC3: Accessibility role and label on SavedRouteCard', () => {
     })
 
     // SavedRouteCard receives name prop — the component uses this for accessibilityLabel
-    const card = itemTree!.root.findByType(
-      'SavedRouteCard' as unknown as React.ComponentClass
-    )
+    const card = itemTree!.root.findByType('SavedRouteCard' as unknown as React.ComponentClass)
     expect(card.props.name).toBe('Evening Ride')
   })
 
@@ -459,10 +431,11 @@ describe('AC3: Accessibility role and label on SavedRouteCard', () => {
     const path = require('path') as typeof import('path')
     const source = fs.readFileSync(
       path.resolve(__dirname, '../../../../components/ui/saved-route-card.tsx'),
-      'utf-8'
+      'utf-8',
     )
     expect(source).toContain('accessibilityRole="button"')
     expect(source).toContain('accessibilityLabel')
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: testing literal string in source file
     expect(source).toContain('${name}')
   })
 })
@@ -472,15 +445,12 @@ describe('AC3: Accessibility role and label on SavedRouteCard', () => {
 // ---------------------------------------------------------------------------
 describe('AC4: Swipe gesture unaffected by Pressable wrapper', () => {
   it('should still wrap each route card in Swipeable', () => {
-    const routes = [
-      makeRoute({ savedRouteId: 'route-1', name: 'Morning Ride' }),
-    ]
+    const routes = [makeRoute({ savedRouteId: 'route-1', name: 'Morning Ride' })]
     mockHookReturn.data = { routes }
     mockHookReturn.isLoading = false
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -504,7 +474,6 @@ describe('AC4: Swipe gesture unaffected by Pressable wrapper', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 

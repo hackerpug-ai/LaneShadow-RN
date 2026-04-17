@@ -18,7 +18,7 @@ export type TraceConfig = {
  */
 export const traceableToolAsync = <T extends any[], R>(
   fn: (...args: T) => Promise<R>,
-  config: TraceConfig
+  config: TraceConfig,
 ): ((...args: T) => Promise<R>) => {
   return async (...args: T): Promise<R> => {
     // In production, this would create a LangSmith span
@@ -32,7 +32,7 @@ export const traceableToolAsync = <T extends any[], R>(
  */
 export const traceableToolSync = <T extends any[], R>(
   fn: (...args: T) => R,
-  config: TraceConfig
+  config: TraceConfig,
 ): ((...args: T) => Promise<R>) => {
   return async (...args: T): Promise<R> => {
     // In production, this would create a LangSmith span

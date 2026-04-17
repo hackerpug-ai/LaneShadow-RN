@@ -17,8 +17,8 @@
  * ```
  */
 
-import React from 'react'
-import { StyleSheet, Platform } from 'react-native'
+import type React from 'react'
+import { Platform, StyleSheet } from 'react-native'
 import Markdown from 'react-native-markdown-display'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
@@ -41,7 +41,7 @@ export const MarkdownText = ({ children, style, testID }: MarkdownTextProps) => 
   const { semantic } = useSemanticTheme()
 
   // Default styles that integrate with semantic theme
-   
+
   const defaultStyles = StyleSheet.create({
     body: {
       color: semantic.color.onSurface.default,

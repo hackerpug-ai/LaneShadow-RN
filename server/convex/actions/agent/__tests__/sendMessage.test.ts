@@ -111,7 +111,14 @@ const mockMessages = [
       api: 'openai-completions',
       provider: 'openai',
       model: 'gpt-4o',
-      usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, totalTokens: 0, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } },
+      usage: {
+        input: 0,
+        output: 0,
+        cacheRead: 0,
+        cacheWrite: 0,
+        totalTokens: 0,
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
+      },
       stopReason: 'stop',
       timestamp: 2000,
     },
@@ -119,7 +126,8 @@ const mockMessages = [
 ]
 
 const mockAgentResult = {
-  response: "Here are 2 scenic routes for your ride to Santa Cruz. The first takes Highway 9 for beautiful redwood views.",
+  response:
+    'Here are 2 scenic routes for your ride to Santa Cruz. The first takes Highway 9 for beautiful redwood views.',
   attachments: [
     {
       type: 'route_options',
@@ -154,36 +162,31 @@ type SendMessageCtx = typeof mockActionCtx & {
  */
 async function sendMessageHandler(
   ctx: SendMessageCtx,
-  args: { sessionId: Id<'planning_sessions'>; content: string; currentLocation?: { lat: number; lng: number } },
-  clerkUserId: string
+  args: {
+    sessionId: Id<'planning_sessions'>
+    content: string
+    currentLocation?: { lat: number; lng: number }
+  },
+  clerkUserId: string,
 ): Promise<{ response: string; messageId: Id<'session_messages'>; attachments?: any[] }> {
   // Step 1: Validate session ownership (deterministic)
-  await mockGetSessionByIdHandler(
-    ctx as any,
-    { sessionId: args.sessionId },
-    clerkUserId
-  )
+  await mockGetSessionByIdHandler(ctx as any, { sessionId: args.sessionId }, clerkUserId)
 
   // Step 2: Persist rider message (deterministic)
   await mockSendHandler(
     ctx as any,
     { sessionId: args.sessionId, content: args.content },
-    clerkUserId
+    clerkUserId,
   )
 
   // Step 3: Build pi-ai Message[] history for the agent
-  const rows = await mockListWithPiMessagesHandler(
-    ctx as any,
-    { sessionId: args.sessionId }
-  )
+  const rows = await mockListWithPiMessagesHandler(ctx as any, { sessionId: args.sessionId })
 
   // Build piMessages from rows (excluding the just-persisted rider turn)
-  const piMessages = rows
-    .slice(0, -1)
-    .flatMap((row: any) => {
-      if (row.piMessage) return [row.piMessage]
-      return []
-    })
+  const piMessages = rows.slice(0, -1).flatMap((row: any) => {
+    if (row.piMessage) return [row.piMessage]
+    return []
+  })
 
   // Step 4: Run agent with session context (probabilistic)
   let agentResult
@@ -197,7 +200,7 @@ async function sendMessageHandler(
         runQuery: ctx.runQuery.bind(ctx),
         runMutation: ctx.runMutation.bind(ctx),
       },
-      args.content
+      args.content,
     )
   } catch (error) {
     // Convert agent errors to conversational messages
@@ -209,14 +212,11 @@ async function sendMessageHandler(
   }
 
   // Step 5: Persist system response (deterministic) - mocked for test
-  const systemMessageResult = await ctx.runMutation(
-    'internalMutation',
-    {
-      sessionId: args.sessionId,
-      content: agentResult.response,
-      attachments: agentResult.attachments,
-    }
-  )
+  const systemMessageResult = await ctx.runMutation('internalMutation', {
+    sessionId: args.sessionId,
+    content: agentResult.response,
+    attachments: agentResult.attachments,
+  })
 
   // Step 6: Return response to client
   return {
@@ -243,45 +243,63 @@ describe('sendMessage', () => {
   })
 
   it('should validate session ownership', async () => {
-    await sendMessageHandler(mockActionCtx, {
-      sessionId: 'session123' as Id<'planning_sessions'>,
-      content: 'Plan a scenic route to Santa Cruz',
-    }, 'user123')
+    await sendMessageHandler(
+      mockActionCtx,
+      {
+        sessionId: 'session123' as Id<'planning_sessions'>,
+        content: 'Plan a scenic route to Santa Cruz',
+      },
+      'user123',
+    )
 
     expect(mockGetSessionByIdHandler).toHaveBeenCalledWith(
       mockActionCtx,
       { sessionId: 'session123' },
-      'user123'
+      'user123',
     )
   })
 
   it('should persist rider message', async () => {
-    await sendMessageHandler(mockActionCtx, {
-      sessionId: 'session123' as Id<'planning_sessions'>,
-      content: 'Plan a scenic route to Santa Cruz',
-    }, 'user123')
+    await sendMessageHandler(
+      mockActionCtx,
+      {
+        sessionId: 'session123' as Id<'planning_sessions'>,
+        content: 'Plan a scenic route to Santa Cruz',
+      },
+      'user123',
+    )
 
     expect(mockSendHandler).toHaveBeenCalledWith(
       mockActionCtx,
       { sessionId: 'session123', content: 'Plan a scenic route to Santa Cruz' },
-      'user123'
+      'user123',
     )
   })
 
   it('should load pi-ai message history for agent context', async () => {
-    await sendMessageHandler(mockActionCtx, {
-      sessionId: 'session123' as Id<'planning_sessions'>,
-      content: 'avoid Highway 1',
-    }, 'user123')
+    await sendMessageHandler(
+      mockActionCtx,
+      {
+        sessionId: 'session123' as Id<'planning_sessions'>,
+        content: 'avoid Highway 1',
+      },
+      'user123',
+    )
 
-    expect(mockListWithPiMessagesHandler).toHaveBeenCalledWith(mockActionCtx, { sessionId: 'session123' })
+    expect(mockListWithPiMessagesHandler).toHaveBeenCalledWith(mockActionCtx, {
+      sessionId: 'session123',
+    })
   })
 
   it('should execute agent with piMessages session context', async () => {
-    await sendMessageHandler(mockActionCtx, {
-      sessionId: 'session123' as Id<'planning_sessions'>,
-      content: 'Plan a scenic route to Santa Cruz',
-    }, 'user123')
+    await sendMessageHandler(
+      mockActionCtx,
+      {
+        sessionId: 'session123' as Id<'planning_sessions'>,
+        content: 'Plan a scenic route to Santa Cruz',
+      },
+      'user123',
+    )
 
     expect(mockExecuteRidePlanningAgent).toHaveBeenCalledWith(
       {
@@ -294,32 +312,37 @@ describe('sendMessage', () => {
         runQuery: expect.any(Function),
         runMutation: expect.any(Function),
       },
-      'Plan a scenic route to Santa Cruz'
+      'Plan a scenic route to Santa Cruz',
     )
   })
 
   it('should persist system response (deterministic)', async () => {
-    const result = await sendMessageHandler(mockActionCtx, {
-      sessionId: 'session123' as Id<'planning_sessions'>,
-      content: 'Plan a scenic route to Santa Cruz',
-    }, 'user123')
-
-    expect(mockActionCtx.runMutation).toHaveBeenCalledWith(
-      'internalMutation',
+    const result = await sendMessageHandler(
+      mockActionCtx,
       {
-        sessionId: 'session123',
-        content: mockAgentResult.response,
-        attachments: mockAgentResult.attachments,
-      }
+        sessionId: 'session123' as Id<'planning_sessions'>,
+        content: 'Plan a scenic route to Santa Cruz',
+      },
+      'user123',
     )
+
+    expect(mockActionCtx.runMutation).toHaveBeenCalledWith('internalMutation', {
+      sessionId: 'session123',
+      content: mockAgentResult.response,
+      attachments: mockAgentResult.attachments,
+    })
     expect(result.messageId).toBe('msg2')
   })
 
   it('should return response with attachments to client', async () => {
-    const result = await sendMessageHandler(mockActionCtx, {
-      sessionId: 'session123' as Id<'planning_sessions'>,
-      content: 'Plan a scenic route to Santa Cruz',
-    }, 'user123')
+    const result = await sendMessageHandler(
+      mockActionCtx,
+      {
+        sessionId: 'session123' as Id<'planning_sessions'>,
+        content: 'Plan a scenic route to Santa Cruz',
+      },
+      'user123',
+    )
 
     expect(result.response).toBe(mockAgentResult.response)
     expect(result.attachments).toEqual(mockAgentResult.attachments)
@@ -329,21 +352,29 @@ describe('sendMessage', () => {
   it('should convert agent errors to conversational messages', async () => {
     mockExecuteRidePlanningAgent.mockRejectedValue(new Error('Agent timeout'))
 
-    const result = await sendMessageHandler(mockActionCtx, {
-      sessionId: 'session123' as Id<'planning_sessions'>,
-      content: 'Plan a scenic route to Santa Cruz',
-    }, 'user123')
+    const result = await sendMessageHandler(
+      mockActionCtx,
+      {
+        sessionId: 'session123' as Id<'planning_sessions'>,
+        content: 'Plan a scenic route to Santa Cruz',
+      },
+      'user123',
+    )
 
     expect(result.response).toContain('trouble')
     expect(mockActionCtx.runMutation).toHaveBeenCalled() // Still persists the error message
   })
 
   it('should include current location in agent context when provided', async () => {
-    await sendMessageHandler(mockActionCtx, {
-      sessionId: 'session123' as Id<'planning_sessions'>,
-      content: 'Plan a scenic route to Santa Cruz',
-      currentLocation: { lat: 37.7749, lng: -122.4194 },
-    }, 'user123')
+    await sendMessageHandler(
+      mockActionCtx,
+      {
+        sessionId: 'session123' as Id<'planning_sessions'>,
+        content: 'Plan a scenic route to Santa Cruz',
+        currentLocation: { lat: 37.7749, lng: -122.4194 },
+      },
+      'user123',
+    )
 
     expect(mockExecuteRidePlanningAgent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -351,7 +382,7 @@ describe('sendMessage', () => {
         planningSessionId: 'session123',
         piMessages: expect.any(Array),
       }),
-      expect.any(String)
+      expect.any(String),
     )
   })
 })
@@ -430,15 +461,19 @@ describe('buildAgentCallbacks', () => {
 
     expect(runMutation).toHaveBeenCalledTimes(2) // createThinkingCard + appendThinkingStep
     expect(runMutation).toHaveBeenNthCalledWith(1, { __ref: 'createThinkingCard' }, { sessionId })
-    expect(runMutation).toHaveBeenNthCalledWith(2, { __ref: 'appendThinkingStep' }, {
-      messageId: thinkingCardId,
-      step: {
-        type: 'tool_start',
-        toolName: 'geocode',
-        summary: 'Searching for Santa Cruz...',
-        timestamp: expect.any(Number),
+    expect(runMutation).toHaveBeenNthCalledWith(
+      2,
+      { __ref: 'appendThinkingStep' },
+      {
+        messageId: thinkingCardId,
+        step: {
+          type: 'tool_start',
+          toolName: 'geocode',
+          summary: 'Searching for Santa Cruz...',
+          timestamp: expect.any(Number),
+        },
       },
-    })
+    )
   })
 
   it('onToolFinish emits tool_finish step and creates routing card for planRoute', async () => {
@@ -461,21 +496,29 @@ describe('buildAgentCallbacks', () => {
 
     expect(runMutation).toHaveBeenCalledTimes(4)
     // Verify tool_finish step was added
-    expect(runMutation).toHaveBeenNthCalledWith(2, { __ref: 'appendThinkingStep' }, {
-      messageId: thinkingCardId,
-      step: {
-        type: 'tool_finish',
-        toolName: 'planRoute',
-        summary: 'Route planning complete', // No options in result
-        timestamp: expect.any(Number),
+    expect(runMutation).toHaveBeenNthCalledWith(
+      2,
+      { __ref: 'appendThinkingStep' },
+      {
+        messageId: thinkingCardId,
+        step: {
+          type: 'tool_finish',
+          toolName: 'planRoute',
+          summary: 'Route planning complete', // No options in result
+          timestamp: expect.any(Number),
+        },
       },
-    })
+    )
     // Verify routing card was created
-    expect(runMutation).toHaveBeenNthCalledWith(3, { __ref: 'createPendingAssistantMessage' }, {
-      sessionId,
-      kind: 'routing_card',
-      attachments: [{ type: 'route_options', routePlanId: 'rp_1' }],
-    })
+    expect(runMutation).toHaveBeenNthCalledWith(
+      3,
+      { __ref: 'createPendingAssistantMessage' },
+      {
+        sessionId,
+        kind: 'routing_card',
+        attachments: [{ type: 'route_options', routePlanId: 'rp_1' }],
+      },
+    )
   })
 
   it('finalizeOk finalizes both text and thinking cards', async () => {
@@ -488,7 +531,10 @@ describe('buildAgentCallbacks', () => {
     // Mock: appendThinkingStep
     runMutation.mockResolvedValueOnce(undefined)
 
-    const { getTextMessageId, executeCtx, finalizeOk } = await buildAgentCallbacks(sessionId, runMutation)
+    const { getTextMessageId, executeCtx, finalizeOk } = await buildAgentCallbacks(
+      sessionId,
+      runMutation,
+    )
 
     // Create both messages
     await executeCtx.onTextDelta!('Hello')
@@ -502,14 +548,22 @@ describe('buildAgentCallbacks', () => {
     await finalizeOk({ role: 'assistant', content: [] })
 
     expect(runMutation).toHaveBeenCalledTimes(2)
-    expect(runMutation).toHaveBeenNthCalledWith(1, { __ref: 'finalizeAssistantMessage' }, {
-      messageId: textMessageId,
-      status: 'complete',
-      piMessage: { role: 'assistant', content: [] },
-    })
-    expect(runMutation).toHaveBeenNthCalledWith(2, { __ref: 'finalizeThinkingCard' }, {
-      messageId: thinkingCardId,
-    })
+    expect(runMutation).toHaveBeenNthCalledWith(
+      1,
+      { __ref: 'finalizeAssistantMessage' },
+      {
+        messageId: textMessageId,
+        status: 'complete',
+        piMessage: { role: 'assistant', content: [] },
+      },
+    )
+    expect(runMutation).toHaveBeenNthCalledWith(
+      2,
+      { __ref: 'finalizeThinkingCard' },
+      {
+        messageId: thinkingCardId,
+      },
+    )
   })
 
   it('finalizeFail finalizes text as failed and thinking as complete', async () => {
@@ -536,13 +590,21 @@ describe('buildAgentCallbacks', () => {
     await finalizeFail()
 
     expect(runMutation).toHaveBeenCalledTimes(2)
-    expect(runMutation).toHaveBeenNthCalledWith(1, { __ref: 'finalizeAssistantMessage' }, {
-      messageId: textMessageId,
-      status: 'failed',
-    })
-    expect(runMutation).toHaveBeenNthCalledWith(2, { __ref: 'finalizeThinkingCard' }, {
-      messageId: thinkingCardId,
-    })
+    expect(runMutation).toHaveBeenNthCalledWith(
+      1,
+      { __ref: 'finalizeAssistantMessage' },
+      {
+        messageId: textMessageId,
+        status: 'failed',
+      },
+    )
+    expect(runMutation).toHaveBeenNthCalledWith(
+      2,
+      { __ref: 'finalizeThinkingCard' },
+      {
+        messageId: thinkingCardId,
+      },
+    )
   })
 
   it('finalizeOk is a no-op when no rows were created', async () => {

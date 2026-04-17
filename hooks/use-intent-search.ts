@@ -1,19 +1,19 @@
-import { useState, useCallback } from 'react';
-import NetInfo from '@react-native-community/netinfo';
-import type { IntentSearchState, IntentParams } from '../lib/discovery/intent/types';
-import { openDiscoveryDB } from '../lib/discovery/db';
-import { normalizeIntent, CURRENT_SCHEMA_VERSION } from '../lib/discovery/intent/normalize';
+import NetInfo from '@react-native-community/netinfo'
+import { useCallback, useState } from 'react'
+import { openDiscoveryDB } from '../lib/discovery/db'
 import {
-  lookupIntentCache,
-  writeIntentCache,
   bumpHitCount,
+  lookupIntentCache,
   topHitIntents,
-} from '../lib/discovery/intent/cache';
-import { validateEnums } from '../lib/discovery/intent/validate';
-import { runParamsQuery } from '../lib/discovery/intent/params-to-sql';
+  writeIntentCache,
+} from '../lib/discovery/intent/cache'
+import { CURRENT_SCHEMA_VERSION, normalizeIntent } from '../lib/discovery/intent/normalize'
+import { runParamsQuery } from '../lib/discovery/intent/params-to-sql'
+import type { IntentParams, IntentSearchState } from '../lib/discovery/intent/types'
+import { validateEnums } from '../lib/discovery/intent/validate'
 
 export interface IntentSearchParams {
-  center: { lat: number; lng: number };
+  center: { lat: number; lng: number }
 }
 
 /**
@@ -22,77 +22,80 @@ export interface IntentSearchParams {
  * Returns OFFLINE_UNSUPPORTED for cache-miss + offline.
  */
 export function useIntentSearch({ center }: IntentSearchParams) {
-  const [state, setState] = useState<IntentSearchState>({ status: 'idle' });
+  const [state, setState] = useState<IntentSearchState>({ status: 'idle' })
 
   /**
    * Search for routes matching the user's intent.
    */
-  const search = useCallback(async (rawIntent: string) => {
-    setState(prev => ({ ...prev, status: 'searching' }));
+  const search = useCallback(
+    async (rawIntent: string) => {
+      setState((prev) => ({ ...prev, status: 'searching' }))
 
-    try {
-      const db = await openDiscoveryDB();
-      const normalized = normalizeIntent(rawIntent);
+      try {
+        const db = await openDiscoveryDB()
+        const normalized = normalizeIntent(rawIntent)
 
-      // Step 1: Check cache
-      const cached = await lookupIntentCache(db, normalized, CURRENT_SCHEMA_VERSION);
+        // Step 1: Check cache
+        const cached = await lookupIntentCache(db, normalized, CURRENT_SCHEMA_VERSION)
 
-      if (cached) {
-        // Cache hit - return immediately
-        await bumpHitCount(db, normalized);
-        const routes = await runParamsQuery(db, cached, center);
+        if (cached) {
+          // Cache hit - return immediately
+          await bumpHitCount(db, normalized)
+          const routes = await runParamsQuery(db, cached, center)
+          setState({
+            status: 'ok',
+            routes,
+            params: cached,
+            source: 'cache',
+          })
+          return
+        }
+
+        // Step 2: Check online status
+        const netState = await NetInfo.fetch()
+        const isOnline = netState.isConnected && netState.isInternetReachable
+
+        if (!isOnline) {
+          // Offline + cache miss = unsupported
+          const recentIntents = await topHitIntents(db, 6)
+          setState({ status: 'offline_unsupported', recentIntents })
+          return
+        }
+
+        // Step 3: Call Haiku (server-side)
+        const params = await fetchHaikuParams(rawIntent, center)
+
+        // Step 4: Validate enums (drop hallucinated values)
+        const validated = validateEnums(params)
+
+        // Step 5: Write to cache
+        await writeIntentCache(db, normalized, validated, CURRENT_SCHEMA_VERSION)
+
+        // Step 6: Run SQL query
+        const routes = await runParamsQuery(db, validated, center)
+
         setState({
           status: 'ok',
           routes,
-          params: cached,
-          source: 'cache',
-        });
-        return;
+          params: validated,
+          source: 'haiku',
+        })
+      } catch (error) {
+        console.error('Intent search error:', error)
+        setState({ status: 'idle' })
       }
-
-      // Step 2: Check online status
-      const netState = await NetInfo.fetch();
-      const isOnline = netState.isConnected && netState.isInternetReachable;
-
-      if (!isOnline) {
-        // Offline + cache miss = unsupported
-        const recentIntents = await topHitIntents(db, 6);
-        setState({ status: 'offline_unsupported', recentIntents });
-        return;
-      }
-
-      // Step 3: Call Haiku (server-side)
-      const params = await fetchHaikuParams(rawIntent, center);
-
-      // Step 4: Validate enums (drop hallucinated values)
-      const validated = validateEnums(params);
-
-      // Step 5: Write to cache
-      await writeIntentCache(db, normalized, validated, CURRENT_SCHEMA_VERSION);
-
-      // Step 6: Run SQL query
-      const routes = await runParamsQuery(db, validated, center);
-
-      setState({
-        status: 'ok',
-        routes,
-        params: validated,
-        source: 'haiku',
-      });
-    } catch (error) {
-      console.error('Intent search error:', error);
-      setState({ status: 'idle' });
-    }
-  }, [center]);
+    },
+    [center],
+  )
 
   /**
    * Clear the current search state.
    */
   const clear = useCallback(() => {
-    setState({ status: 'idle' });
-  }, []);
+    setState({ status: 'idle' })
+  }, [])
 
-  return { ...state, search, clear };
+  return { ...state, search, clear }
 }
 
 /**
@@ -101,40 +104,40 @@ export function useIntentSearch({ center }: IntentSearchParams) {
  */
 async function fetchHaikuParams(
   rawIntent: string,
-  center: { lat: number; lng: number }
+  center: { lat: number; lng: number },
 ): Promise<IntentParams> {
   // TODO: Implement with Convex HTTP action
   // For now, return a basic extraction based on keywords
   const params: IntentParams = {
     keywords: [],
-  };
+  }
 
-  const lower = rawIntent.toLowerCase();
+  const lower = rawIntent.toLowerCase()
 
   // Detect archetypes
-  const archetypes: string[] = [];
+  const archetypes: string[] = []
   if (lower.includes('twist') || lower.includes('curvy')) {
-    archetypes.push('twisties');
+    archetypes.push('twisties')
   }
   if (lower.includes('mountain')) {
-    archetypes.push('mountain');
+    archetypes.push('mountain')
   }
   if (lower.includes('coast') || lower.includes('ocean') || lower.includes('beach')) {
-    archetypes.push('coastal');
+    archetypes.push('coastal')
   }
   if (lower.includes('adventure') || lower.includes('dual sport')) {
-    archetypes.push('adventure');
+    archetypes.push('adventure')
   }
   if (lower.includes('scenic') || lower.includes('byway')) {
-    archetypes.push('scenic_byway');
+    archetypes.push('scenic_byway')
   }
   if (lower.includes('desert')) {
-    archetypes.push('desert');
+    archetypes.push('desert')
   }
 
   if (archetypes.length > 0) {
-    params.archetypes = archetypes;
+    params.archetypes = archetypes
   }
 
-  return params;
+  return params
 }

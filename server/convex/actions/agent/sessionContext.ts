@@ -1,9 +1,9 @@
 'use node'
 
+import type { PlanPreferences } from '../../../models/saved-routes'
 import { internal } from '../../_generated/api'
 import type { Id } from '../../_generated/dataModel'
 import type { RoutePlanSummary } from '../../db/routePlans'
-import type { PlanPreferences } from '../../../models/saved-routes'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -40,7 +40,7 @@ function formatPreferences(prefs: PlanPreferences): string {
 function formatLabel(
   label: string | undefined,
   fallbackLat?: number,
-  fallbackLng?: number
+  fallbackLng?: number,
 ): string {
   if (label) return label
   if (fallbackLat !== undefined && fallbackLng !== undefined) {
@@ -81,12 +81,13 @@ function formatRoute(summary: RoutePlanSummary, index: number): string {
 
 export async function buildInSessionRouteBlock(
   ctx: SessionContextRunQuery,
-  planningSessionId: Id<'planning_sessions'>
+  planningSessionId: Id<'planning_sessions'>,
 ): Promise<string> {
-  const routes: RoutePlanSummary[] = await ctx.runQuery(
-    internal.db.routePlans.listBySession,
-    { sessionId: planningSessionId, limit: 5, status: 'completed' }
-  )
+  const routes: RoutePlanSummary[] = await ctx.runQuery(internal.db.routePlans.listBySession, {
+    sessionId: planningSessionId,
+    limit: 5,
+    status: 'completed',
+  })
 
   if (!routes || routes.length === 0) {
     return ''

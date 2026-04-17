@@ -11,9 +11,9 @@
  * The actual backend functions are mocked to simulate responses.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { renderHook, waitFor, act } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import React from 'react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // -------------------------------------------------------------------------
 // Imports after mocks
@@ -77,7 +77,7 @@ const mockRouteOptions = {
       map: {
         bounds: { north: 37.8, south: 37.7, east: -122.4, west: -122.5 },
         origin: { lat: 37.7749, lng: -122.4194 },
-        destination: { lat: 37.4419, lng: -122.1430 },
+        destination: { lat: 37.4419, lng: -122.143 },
         waypoints: [],
         overviewGeometry: {
           format: 'polyline' as const,
@@ -89,7 +89,7 @@ const mockRouteOptions = {
           {
             legIndex: 0,
             start: { lat: 37.7749, lng: -122.4194 },
-            end: { lat: 37.4419, lng: -122.1430 },
+            end: { lat: 37.4419, lng: -122.143 },
             distanceMeters: 15000,
             durationSeconds: 900,
             geometry: {
@@ -122,7 +122,7 @@ const mockRouteOptions = {
       map: {
         bounds: { north: 37.8, south: 37.7, east: -122.4, west: -122.5 },
         origin: { lat: 37.7749, lng: -122.4194 },
-        destination: { lat: 37.4419, lng: -122.1430 },
+        destination: { lat: 37.4419, lng: -122.143 },
         waypoints: [],
         overviewGeometry: {
           format: 'polyline' as const,
@@ -134,7 +134,7 @@ const mockRouteOptions = {
           {
             legIndex: 0,
             start: { lat: 37.7749, lng: -122.4194 },
-            end: { lat: 37.4419, lng: -122.1430 },
+            end: { lat: 37.4419, lng: -122.143 },
             distanceMeters: 12000,
             durationSeconds: 700,
             geometry: {
@@ -336,9 +336,7 @@ describe('useChatPlanning - Integration Tests', () => {
   describe('AC4: Error UI tested', () => {
     it('should dispatch PLANNING_ERROR when backend throws network error', async () => {
       // Override the sendMessage mock to throw an error
-      mockSendMessage.mockImplementation(() =>
-        Promise.reject(new Error('Network request failed'))
-      )
+      mockSendMessage.mockImplementation(() => Promise.reject(new Error('Network request failed')))
 
       const { actions, dispatch } = createDispatchTracker()
 
@@ -357,7 +355,7 @@ describe('useChatPlanning - Integration Tests', () => {
         () => {
           expect(actions.some((a) => a.type === 'PLANNING_ERROR')).toBe(true)
         },
-        { timeout: 3000 }
+        { timeout: 3000 },
       )
 
       const errorAction = actions.find((a) => a.type === 'PLANNING_ERROR')

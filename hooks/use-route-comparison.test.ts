@@ -1,8 +1,7 @@
-import { describe, it, expect, vi } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
-
-import { useRouteComparison } from './use-route-comparison'
+import { act, renderHook } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import type { RideFlowState } from './use-ride-flow'
+import { useRouteComparison } from './use-route-comparison'
 
 // Mock useSemanticTheme so route-polyline can read semantic.color.* without
 // needing the real styles/theme.ts pipeline (which depends on RNP's runtime
@@ -35,8 +34,8 @@ describe('useRouteComparison', () => {
     const { result } = renderHook(() =>
       useRouteComparison(
         { phase: 'IDLE', sessionId: null, routeOptions: null, selectedRouteId: null },
-        mockDispatch
-      )
+        mockDispatch,
+      ),
     )
 
     expect(result.current.polylines).toEqual([])
@@ -65,9 +64,7 @@ describe('useRouteComparison', () => {
       selectedRouteId: null,
     }
 
-    const { result } = renderHook(() =>
-      useRouteComparison(mockState, mockDispatch)
-    )
+    const { result } = renderHook(() => useRouteComparison(mockState, mockDispatch))
 
     expect(result.current.polylines.length).toBe(1)
     expect(result.current.polylines[0].routeOptionId).toBe('route-1')
@@ -79,8 +76,8 @@ describe('useRouteComparison', () => {
     const { result } = renderHook(() =>
       useRouteComparison(
         { phase: 'IDLE', sessionId: null, routeOptions: null, selectedRouteId: null },
-        mockDispatch
-      )
+        mockDispatch,
+      ),
     )
 
     act(() => {

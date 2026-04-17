@@ -35,7 +35,7 @@ const normalizeLocationOptions = (bias?: GeocodeBias): LocationBiasOptions | und
 const geocodeWithKey = async (
   apiKey: string,
   query: string,
-  locationOptions?: GeocodeBias
+  locationOptions?: GeocodeBias,
 ): Promise<GeocodeResult[]> => {
   const makeUrl = (bias?: { lat: number; lng: number }, radius?: number) => {
     let url = `${GEOCODING_ENDPOINT}?address=${encodeURIComponent(query)}&key=${encodeURIComponent(apiKey)}`
@@ -56,7 +56,7 @@ const geocodeWithKey = async (
           const response = await fetch(url, { signal })
           return response.json()
         },
-        { ms: GEOCODING_TIMEOUT_MS, label: 'geocode' }
+        { ms: GEOCODING_TIMEOUT_MS, label: 'geocode' },
       )
 
       if (data?.status === 'ZERO_RESULTS') {
@@ -116,9 +116,7 @@ export const createGeocodingProvider = (apiKeyParam?: string) => {
   }
 
   return {
-    geocode: async (
-      query: string,
-      bias?: GeocodeBias
-    ): Promise<GeocodeResult[]> => geocodeWithKey(apiKey, query, bias),
+    geocode: async (query: string, bias?: GeocodeBias): Promise<GeocodeResult[]> =>
+      geocodeWithKey(apiKey, query, bias),
   }
 }

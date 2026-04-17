@@ -9,8 +9,15 @@
  * Accessibility: screen reader announces "Loading" via accessibilityLabel.
  */
 
-import React, { useEffect, useRef, useState } from 'react'
-import { Animated, AccessibilityInfo, StyleSheet, type StyleProp, type ViewStyle } from 'react-native'
+import type React from 'react'
+import { useEffect, useRef, useState } from 'react'
+import {
+  AccessibilityInfo,
+  Animated,
+  type StyleProp,
+  StyleSheet,
+  type ViewStyle,
+} from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 // ---------------------------------------------------------------------------
@@ -73,7 +80,7 @@ export const WeatherBadgeSkeleton = ({
           duration: PULSE_DURATION_MS,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start()
 
     return () => {

@@ -9,13 +9,13 @@
  * - AC4: Empty legs array → timeline section hidden, no crash
  */
 
-import { vi, describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react-native'
-import { PaperProvider, MD3DarkTheme } from 'react-native-paper'
-import { RouteLegTimeline } from './route-leg-timeline'
-import type { RouteLegTimelineProps } from './route-leg-timeline'
+import { MD3DarkTheme, PaperProvider } from 'react-native-paper'
+import { describe, expect, it, vi } from 'vitest'
+import type { PlanInput, RouteLeg, RouteOverlays } from '../../models/saved-routes'
 import type { ExtendedTheme } from '../../styles/types'
-import type { RouteLeg, PlanInput, RouteOverlays } from '../../models/saved-routes'
+import type { RouteLegTimelineProps } from './route-leg-timeline'
+import { RouteLegTimeline } from './route-leg-timeline'
 
 // ---------------------------------------------------------------------------
 // Mock semantic theme
@@ -109,12 +109,48 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.3, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -209,11 +245,7 @@ const overlays: RouteOverlays = {
 // ---------------------------------------------------------------------------
 
 const renderWithPaper = (ui: React.ReactElement) => {
-  return render(
-    <PaperProvider theme={MD3DarkTheme}>
-      {ui}
-    </PaperProvider>
-  )
+  return render(<PaperProvider theme={MD3DarkTheme}>{ui}</PaperProvider>)
 }
 
 // ---------------------------------------------------------------------------
@@ -230,14 +262,24 @@ describe('RouteLegTimeline', () => {
 
     it('renders the timeline container', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       expect(getByTestId('timeline')).toBeTruthy()
     })
 
     it('renders all 3 leg items', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       expect(getByTestId('leg-item-0')).toBeTruthy()
       expect(getByTestId('leg-item-1')).toBeTruthy()
@@ -246,7 +288,12 @@ describe('RouteLegTimeline', () => {
 
     it('renders distance for each leg', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       expect(getByTestId('leg-distance-0')).toBeTruthy()
       expect(getByTestId('leg-distance-1')).toBeTruthy()
@@ -255,7 +302,12 @@ describe('RouteLegTimeline', () => {
 
     it('renders duration for each leg', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       expect(getByTestId('leg-duration-0')).toBeTruthy()
       expect(getByTestId('leg-duration-1')).toBeTruthy()
@@ -264,7 +316,12 @@ describe('RouteLegTimeline', () => {
 
     it('renders wind badge for each leg', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       expect(getByTestId('leg-wind-badge-0')).toBeTruthy()
       expect(getByTestId('leg-wind-badge-1')).toBeTruthy()
@@ -273,7 +330,12 @@ describe('RouteLegTimeline', () => {
 
     it('renders rain badge for each leg', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       expect(getByTestId('leg-rain-badge-0')).toBeTruthy()
       expect(getByTestId('leg-rain-badge-1')).toBeTruthy()
@@ -282,7 +344,12 @@ describe('RouteLegTimeline', () => {
 
     it('shows planInput start label as first leg start label', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       const startLabel = getByTestId('leg-start-label-0')
       expect(startLabel.props.children).toBe('Home')
@@ -290,7 +357,12 @@ describe('RouteLegTimeline', () => {
 
     it('shows planInput end label below last leg', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       const endLabel = getByTestId('leg-end-label-2')
       expect(endLabel.props.children).toBe('Destination')
@@ -298,7 +370,12 @@ describe('RouteLegTimeline', () => {
 
     it('renders gradient connectors (LinearGradient) for each leg', () => {
       const { getAllByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       const connectors = getAllByTestId(/^leg-connector-/)
       expect(connectors).toHaveLength(3)
@@ -306,14 +383,24 @@ describe('RouteLegTimeline', () => {
 
     it('renders start dot for first leg', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       expect(getByTestId('leg-start-dot-0')).toBeTruthy()
     })
 
     it('renders end dot on last leg', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       expect(getByTestId('leg-end-dot-2')).toBeTruthy()
     })
@@ -328,14 +415,24 @@ describe('RouteLegTimeline', () => {
 
     it('renders the timeline', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       expect(getByTestId('timeline')).toBeTruthy()
     })
 
     it('renders exactly one leg item', () => {
       const { getByTestId, queryByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       expect(getByTestId('leg-item-0')).toBeTruthy()
       expect(queryByTestId('leg-item-1')).toBeNull()
@@ -343,7 +440,12 @@ describe('RouteLegTimeline', () => {
 
     it('shows start label from planInput', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       const startLabel = getByTestId('leg-start-label-0')
       expect(startLabel.props.children).toBe('Home')
@@ -351,7 +453,12 @@ describe('RouteLegTimeline', () => {
 
     it('shows end label from planInput on single leg', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       const endLabel = getByTestId('leg-end-label-0')
       expect(endLabel.props.children).toBe('Destination')
@@ -359,14 +466,24 @@ describe('RouteLegTimeline', () => {
 
     it('renders end dot on the only leg (isLast)', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       expect(getByTestId('leg-end-dot-0')).toBeTruthy()
     })
 
     it('does NOT render waypoint dot (no intermediate stop)', () => {
       const { queryByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} overlays={overlays} testID="timeline" />
+        <RouteLegTimeline
+          legs={legs}
+          planInput={planInput}
+          overlays={overlays}
+          testID="timeline"
+        />,
       )
       expect(queryByTestId('leg-waypoint-dot-0')).toBeNull()
     })
@@ -381,10 +498,12 @@ describe('RouteLegTimeline', () => {
         ...planInput,
         start: { lat: 34.0, lng: -118.0 }, // no label
       }
-      const legs = [makeLeg(0, { start: { lat: 34.0, lng: -118.0 }, end: { lat: 34.1, lng: -118.1 } })]
+      const legs = [
+        makeLeg(0, { start: { lat: 34.0, lng: -118.0 }, end: { lat: 34.1, lng: -118.1 } }),
+      ]
 
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={noLabelPlanInput} testID="timeline" />
+        <RouteLegTimeline legs={legs} planInput={noLabelPlanInput} testID="timeline" />,
       )
       const startLabel = getByTestId('leg-start-label-0')
       expect(startLabel.props.children).toBe('Start')
@@ -395,10 +514,12 @@ describe('RouteLegTimeline', () => {
         ...planInput,
         end: { lat: 34.3, lng: -118.3 }, // no label
       }
-      const legs = [makeLeg(0, { start: { lat: 34.0, lng: -118.0 }, end: { lat: 34.1, lng: -118.1 } })]
+      const legs = [
+        makeLeg(0, { start: { lat: 34.0, lng: -118.0 }, end: { lat: 34.1, lng: -118.1 } }),
+      ]
 
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={noLabelPlanInput} testID="timeline" />
+        <RouteLegTimeline legs={legs} planInput={noLabelPlanInput} testID="timeline" />,
       )
       const endLabel = getByTestId('leg-end-label-0')
       expect(endLabel.props.children).toBe('Destination')
@@ -406,13 +527,19 @@ describe('RouteLegTimeline', () => {
 
     it('uses leg-based label for intermediate stops without labels', () => {
       const legs = [
-        makeLeg(0, { start: { lat: 34.0, lng: -118.0, label: 'Home' }, end: { lat: 34.1, lng: -118.1 } }),
+        makeLeg(0, {
+          start: { lat: 34.0, lng: -118.0, label: 'Home' },
+          end: { lat: 34.1, lng: -118.1 },
+        }),
         makeLeg(1, { start: { lat: 34.1, lng: -118.1 }, end: { lat: 34.2, lng: -118.2 } }),
-        makeLeg(2, { start: { lat: 34.2, lng: -118.2 }, end: { lat: 34.3, lng: -118.3, label: 'Work' } }),
+        makeLeg(2, {
+          start: { lat: 34.2, lng: -118.2 },
+          end: { lat: 34.3, lng: -118.3, label: 'Work' },
+        }),
       ]
 
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} testID="timeline" />
+        <RouteLegTimeline legs={legs} planInput={planInput} testID="timeline" />,
       )
       // Second leg start has no label → falls back to "Start of Leg 2"
       const secondLegStart = getByTestId('leg-start-label-1')
@@ -433,7 +560,7 @@ describe('RouteLegTimeline', () => {
       }
 
       const { getAllByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={noLabelPlanInput} testID="timeline" />
+        <RouteLegTimeline legs={legs} planInput={noLabelPlanInput} testID="timeline" />,
       )
 
       // Get all label elements
@@ -453,16 +580,14 @@ describe('RouteLegTimeline', () => {
   describe('AC4: empty legs → renders nothing', () => {
     it('returns null for empty legs array (no crash)', () => {
       const { queryByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={[]} planInput={planInput} testID="timeline" />
+        <RouteLegTimeline legs={[]} planInput={planInput} testID="timeline" />,
       )
       expect(queryByTestId('timeline')).toBeNull()
     })
 
     it('does not throw when legs is empty', () => {
       expect(() =>
-        renderWithPaper(
-          <RouteLegTimeline legs={[]} planInput={planInput} testID="timeline" />
-        )
+        renderWithPaper(<RouteLegTimeline legs={[]} planInput={planInput} testID="timeline" />),
       ).not.toThrow()
     })
   })
@@ -474,7 +599,7 @@ describe('RouteLegTimeline', () => {
     it('renders without overlays (graceful fallback)', () => {
       const legs = [makeLeg(0)]
       const { getByTestId } = renderWithPaper(
-        <RouteLegTimeline legs={legs} planInput={planInput} testID="timeline" />
+        <RouteLegTimeline legs={legs} planInput={planInput} testID="timeline" />,
       )
       expect(getByTestId('timeline')).toBeTruthy()
       expect(getByTestId('leg-wind-badge-0')).toBeTruthy()

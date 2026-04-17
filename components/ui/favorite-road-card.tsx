@@ -9,8 +9,8 @@ import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { Bounds } from '../../models/favorite-roads'
-import { RouteThumbnail } from './route-thumbnail'
 import { IconSymbol } from './icon-symbol'
+import { RouteThumbnail } from './route-thumbnail'
 
 export type FavoriteRoadCardProps = {
   /** Unique identifier for the favorite road */
@@ -60,21 +60,13 @@ export const FavoriteRoadCard = ({
     >
       <View style={[styles.content, { gap: semantic.space.md }]}>
         {/* Mini map preview */}
-        <RouteThumbnail
-          width={80}
-          height={80}
-          bounds={bounds}
-          testID={`${testID}-thumbnail`}
-        />
+        <RouteThumbnail width={80} height={80} bounds={bounds} testID={`${testID}-thumbnail`} />
 
         {/* Road name */}
         <View style={styles.textContainer}>
           <Text
             numberOfLines={2}
-            style={[
-              semantic.type.title.md,
-              { color: semantic.color.onSurface.default },
-            ]}
+            style={[semantic.type.title.md, { color: semantic.color.onSurface.default }]}
           >
             {name}
           </Text>
@@ -90,10 +82,7 @@ export const FavoriteRoadCard = ({
             testID={`${testID}-delete`}
             accessibilityRole="button"
             accessibilityLabel="Delete favorite"
-            style={({ pressed }) => [
-              styles.deleteButtonContent,
-              { opacity: pressed ? 0.6 : 1 },
-            ]}
+            style={({ pressed }) => [styles.deleteButtonContent, { opacity: pressed ? 0.6 : 1 }]}
           >
             <IconSymbol name="trash-can-outline" size={20} color={semantic.color.danger.default} />
           </Pressable>

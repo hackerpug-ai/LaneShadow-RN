@@ -1,9 +1,9 @@
 // Fallback for using MaterialCommunityIcons on Android and web.
 
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import { SymbolWeight } from 'expo-symbols'
+import type { SymbolWeight } from 'expo-symbols'
 
-import { OpaqueColorValue, type StyleProp, type TextStyle } from 'react-native'
+import type { OpaqueColorValue, StyleProp, TextStyle } from 'react-native'
 
 export type IconName = keyof typeof MaterialCommunityIcons.glyphMap
 
@@ -26,5 +26,7 @@ export function IconSymbol({
   weight?: SymbolWeight
   testID?: string
 }) {
-  return <MaterialCommunityIcons color={color} size={size} name={name} style={style} testID={testID} />
+  return (
+    <MaterialCommunityIcons color={color} size={size} name={name} style={style} testID={testID} />
+  )
 }

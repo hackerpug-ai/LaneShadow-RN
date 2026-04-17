@@ -18,7 +18,7 @@ export interface ConversationalError {
  */
 export function getConversationalError(
   errorCode: string,
-  context?: Record<string, unknown>
+  context?: Record<string, unknown>,
 ): ConversationalError {
   switch (errorCode) {
     case ERROR_CODES.RATE_LIMIT_EXCEEDED:
@@ -127,7 +127,7 @@ export function formatErrorForChat(error: ConversationalError): string {
  */
 export function createChatError(
   errorCode: string,
-  context?: Record<string, unknown>
+  context?: Record<string, unknown>,
 ): { error: ConversationalError } {
   return {
     error: getConversationalError(errorCode, context),

@@ -12,12 +12,12 @@
  * - Given Enrichment fails, When error occurs, Then Error indicator shown with retry option
  */
 
-import type { Id } from '../../convex/_generated/dataModel'
 import { useMemo } from 'react'
-import { RouteOptionCard } from '../ui/route-option-card'
-import type { RouteOptionCardProps } from '../ui/route-option-card'
-import { EnrichmentStatusIndicator } from '../planning/enrichment-status-indicator'
+import type { Id } from '../../convex/_generated/dataModel'
 import { useEnrichmentStatus } from '../../hooks/use-enrichment-status'
+import { EnrichmentStatusIndicator } from '../planning/enrichment-status-indicator'
+import type { RouteOptionCardProps } from '../ui/route-option-card'
+import { RouteOptionCard } from '../ui/route-option-card'
 
 /**
  * Props for EnrichedRouteCard
@@ -61,15 +61,16 @@ export const EnrichedRouteCard = ({
 
     // Find enrichment for this route option (by matching name)
     const routeEnrichment = enrichment.enrichments.find((e) =>
-      e.label.toLowerCase().includes(routeCardProps.name.toLowerCase())
+      e.label.toLowerCase().includes(routeCardProps.name.toLowerCase()),
     )
 
     // If we have enrichment data, prefer it
     if (routeEnrichment) {
       // Merge highlights with existing weather summary
-      const highlightsText = routeEnrichment.highlights.length > 0
-        ? routeEnrichment.highlights.slice(0, 2).join(' • ')
-        : null
+      const highlightsText =
+        routeEnrichment.highlights.length > 0
+          ? routeEnrichment.highlights.slice(0, 2).join(' • ')
+          : null
 
       return highlightsText || routeCardProps.weatherSummary
     }
@@ -101,10 +102,7 @@ export const EnrichedRouteCard = ({
       )}
 
       {/* Route option card with potentially enriched weather summary */}
-      <RouteOptionCard
-        {...routeCardProps}
-        weatherSummary={enrichedWeatherSummary}
-      />
+      <RouteOptionCard {...routeCardProps} weatherSummary={enrichedWeatherSummary} />
     </>
   )
 }

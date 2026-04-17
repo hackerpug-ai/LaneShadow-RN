@@ -5,7 +5,7 @@
  * These tests inspect the schema and validators to ensure proper registration.
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 describe('INF-003: Convex Vector Index + Match Audit Schema', () => {
   describe('AC-1: curated_routes validator extended with new optional fields', () => {
@@ -101,10 +101,14 @@ describe('INF-003: Convex Vector Index + Match Audit Schema', () => {
       const byPostIdIndex = table.indexes.find((i: any) => i.indexDescriptor === 'by_postId')
       expect(byPostIdIndex?.fields).toEqual(['postId'])
 
-      const bySourceAndExtractedAtIndex = table.indexes.find((i: any) => i.indexDescriptor === 'by_source_and_extracted_at')
+      const bySourceAndExtractedAtIndex = table.indexes.find(
+        (i: any) => i.indexDescriptor === 'by_source_and_extracted_at',
+      )
       expect(bySourceAndExtractedAtIndex?.fields).toEqual(['source', 'extractedAt'])
 
-      const byExtractionSchemaVersionIndex = table.indexes.find((i: any) => i.indexDescriptor === 'by_extraction_schema_version')
+      const byExtractionSchemaVersionIndex = table.indexes.find(
+        (i: any) => i.indexDescriptor === 'by_extraction_schema_version',
+      )
       expect(byExtractionSchemaVersionIndex?.fields).toEqual(['extractionSchemaVersion'])
     })
   })
@@ -141,7 +145,9 @@ describe('INF-003: Convex Vector Index + Match Audit Schema', () => {
       const byRouteIdIndex = table.indexes.find((i: any) => i.indexDescriptor === 'by_routeId')
       expect(byRouteIdIndex?.fields).toEqual(['routeId'])
 
-      const byRouteIdAndConfidenceIndex = table.indexes.find((i: any) => i.indexDescriptor === 'by_routeId_and_confidence')
+      const byRouteIdAndConfidenceIndex = table.indexes.find(
+        (i: any) => i.indexDescriptor === 'by_routeId_and_confidence',
+      )
       expect(byRouteIdAndConfidenceIndex?.fields).toEqual(['routeId', 'matchConfidence'])
     })
   })
@@ -153,14 +159,36 @@ describe('INF-003: Convex Vector Index + Match Audit Schema', () => {
 
       // Verify all existing fields are still present
       const requiredFields = [
-        'routeId', 'name', 'state', 'source', 'primaryArchetype', 'secondaryTags',
-        'centroidLat', 'centroidLng', 'boundsNeLat', 'boundsNeLng', 'boundsSwLat', 'boundsSwLng',
-        'lengthMiles', 'compositeScore', 'curvatureScore', 'scenicScore', 'technicalScore',
-        'trafficScore', 'remotenessScore', 'oneLiner', 'summary', 'badges', 'season',
-        'contentVersion', 'enrichmentVersion', 'seededAt', 'location'
+        'routeId',
+        'name',
+        'state',
+        'source',
+        'primaryArchetype',
+        'secondaryTags',
+        'centroidLat',
+        'centroidLng',
+        'boundsNeLat',
+        'boundsNeLng',
+        'boundsSwLat',
+        'boundsSwLng',
+        'lengthMiles',
+        'compositeScore',
+        'curvatureScore',
+        'scenicScore',
+        'technicalScore',
+        'trafficScore',
+        'remotenessScore',
+        'oneLiner',
+        'summary',
+        'badges',
+        'season',
+        'contentVersion',
+        'enrichmentVersion',
+        'seededAt',
+        'location',
       ]
 
-      requiredFields.forEach(field => {
+      requiredFields.forEach((field) => {
         expect(validatorFields[field]).toBeDefined()
       })
     })

@@ -19,7 +19,7 @@
  */
 
 import { useEffect } from 'react'
-import { StyleSheet, View, Pressable } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { ActivityIndicator, Text } from 'react-native-paper'
 import Animated, {
   FadeIn,
@@ -31,8 +31,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { IconSymbol } from '../ui/icon-symbol'
 import { Badge } from '../ui/badge'
+import { IconSymbol } from '../ui/icon-symbol'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -96,10 +96,7 @@ function getStatusLabel(status: EnrichmentStatus, phase?: EnrichmentPhase): stri
 /**
  * Get accessibility label for screen readers
  */
-function getAccessibilityLabel(
-  status: EnrichmentStatus,
-  phase?: EnrichmentPhase
-): string {
+function getAccessibilityLabel(status: EnrichmentStatus, phase?: EnrichmentPhase): string {
   const statusLabel = getStatusLabel(status, phase)
   const phaseLabel = phase === 'fast' ? 'quick analysis' : 'deep analysis'
 
@@ -149,7 +146,7 @@ export const EnrichmentStatusIndicator = ({
       case 'failed':
         return semantic.color.danger.default + '15'
       case 'cancelled':
-        return semantic.color.surfaceVariant.pressed
+        return semantic.color.surfaceVariant.pressed ?? semantic.color.surfaceVariant.default
       case 'running-extended':
         return semantic.color.info.default + '15'
       default:
@@ -163,16 +160,14 @@ export const EnrichmentStatusIndicator = ({
   const pulseOpacity = useSharedValue(1)
 
   useEffect(() => {
-    const isRunning = status === 'pending' || status === 'running-fast' || status === 'running-extended'
+    const isRunning =
+      status === 'pending' || status === 'running-fast' || status === 'running-extended'
 
     if (isRunning) {
       pulseOpacity.value = withRepeat(
-        withSequence(
-          withTiming(0.4, { duration: 800 }),
-          withTiming(1, { duration: 800 })
-        ),
+        withSequence(withTiming(0.4, { duration: 800 }), withTiming(1, { duration: 800 })),
         -1,
-        false
+        false,
       )
     } else {
       pulseOpacity.value = withTiming(1, { duration: 200 })
@@ -187,7 +182,8 @@ export const EnrichmentStatusIndicator = ({
   // Status icon
   // -------------------------------------------------------------------------
   const renderIcon = (): React.ReactNode => {
-    const isRunning = status === 'pending' || status === 'running-fast' || status === 'running-extended'
+    const isRunning =
+      status === 'pending' || status === 'running-fast' || status === 'running-extended'
 
     if (isRunning) {
       return (
@@ -239,11 +235,7 @@ export const EnrichmentStatusIndicator = ({
     if (!isRunning || variant === 'minimal') return null
 
     return (
-      <Badge
-        variant="outline"
-        opacity={0.6}
-        style={{ marginLeft: semantic.space.xs }}
-      >
+      <Badge variant="outline" opacity={0.6} style={{ marginLeft: semantic.space.xs }}>
         {phase === 'fast' ? 'Fast' : 'Extended'}
       </Badge>
     )
@@ -312,7 +304,7 @@ export const EnrichmentStatusIndicator = ({
                 backgroundColor,
                 borderColor: accentColor + '40',
               },
-              (status === 'pending' || status === 'running-fast' || status === 'running-extended')
+              status === 'pending' || status === 'running-fast' || status === 'running-extended'
                 ? pulseAnimatedStyle
                 : undefined,
             ]}
@@ -330,13 +322,7 @@ export const EnrichmentStatusIndicator = ({
               </Text>
               {renderPhaseBadge()}
             </View>
-            {isInteractive && (
-              <IconSymbol
-                name="refresh"
-                size={14}
-                color={accentColor}
-              />
-            )}
+            {isInteractive && <IconSymbol name="refresh" size={14} color={accentColor} />}
           </Animated.View>
         </Container>
         {status === 'failed' && error && (
@@ -396,11 +382,7 @@ export const EnrichmentStatusIndicator = ({
             accessibilityRole="button"
             accessibilityLabel="Retry enrichment"
           >
-            <IconSymbol
-              name="refresh"
-              size={16}
-              color={accentColor}
-            />
+            <IconSymbol name="refresh" size={16} color={accentColor} />
           </Pressable>
         )}
       </View>
@@ -433,9 +415,7 @@ export const EnrichmentStatusIndicator = ({
               { color: semantic.color.onSurface.muted, marginTop: semantic.space.xs },
             ]}
           >
-            {phase === 'fast'
-              ? 'Gathering basic route metadata...'
-              : 'Performing deep analysis...'}
+            {phase === 'fast' ? 'Gathering basic route metadata...' : 'Performing deep analysis...'}
           </Text>
         </View>
       )}

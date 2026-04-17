@@ -11,14 +11,14 @@
  * - Supports loading state
  */
 
-import { IconSymbol } from '../ui/icon-symbol'
-import { StyleSheet, View, ScrollView, Pressable, ActivityIndicator } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { PlannedRouteOptionView } from '../../types/routes'
-import { Button } from '../ui/button'
 import { SubpageLayout } from '../layouts/subpage-layout'
+import { Button } from '../ui/button'
+import { IconSymbol } from '../ui/icon-symbol'
 
 export type RouteComparisonViewProps = {
   routes: PlannedRouteOptionView[]
@@ -93,7 +93,7 @@ export const RouteComparisonView = ({
           <IconSymbol
             name="map-marker-off"
             size={48}
-            color={semantic.color.onSurface.muted}
+            color={semantic.color.onSurface.muted ?? 'transparent'}
           />
           <Text
             variant="titleMedium"
@@ -113,16 +113,10 @@ export const RouteComparisonView = ({
   }
 
   return (
-    <SubpageLayout
-      title="Compare Routes"
-      testID={testID || 'route-comparison-view'}
-    >
+    <SubpageLayout title="Compare Routes" testID={testID || 'route-comparison-view'}>
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingHorizontal: semantic.space.lg },
-        ]}
+        contentContainerStyle={[styles.scrollContent, { paddingHorizontal: semantic.space.lg }]}
         showsVerticalScrollIndicator={false}
         testID={`${testID}-scroll-view`}
       >
@@ -173,12 +167,20 @@ export const RouteComparisonView = ({
                         <IconSymbol
                           name="map-marker-path"
                           size={14}
-                          color={isSelected ? semantic.color.primary.default : semantic.color.onSurface.muted}
+                          color={
+                            isSelected
+                              ? semantic.color.primary.default
+                              : (semantic.color.onSurface.muted ?? 'transparent')
+                          }
                         />
                         <Text
                           style={[
                             styles.routeBadgeText,
-                            { color: isSelected ? semantic.color.primary.default : semantic.color.onSurface.muted },
+                            {
+                              color: isSelected
+                                ? semantic.color.primary.default
+                                : semantic.color.onSurface.muted,
+                            },
                           ]}
                         >
                           {route.label}
@@ -211,12 +213,9 @@ export const RouteComparisonView = ({
                       <IconSymbol
                         name="map-marker-distance"
                         size={16}
-                        color={semantic.color.onSurface.muted}
+                        color={semantic.color.onSurface.muted ?? 'transparent'}
                       />
-                      <Text
-                        variant="bodySmall"
-                        style={{ color: semantic.color.onSurface.subtle }}
-                      >
+                      <Text variant="bodySmall" style={{ color: semantic.color.onSurface.subtle }}>
                         {formatDistance(route.stats.distanceMeters)}
                       </Text>
                     </View>
@@ -224,12 +223,9 @@ export const RouteComparisonView = ({
                       <IconSymbol
                         name="clock-outline"
                         size={16}
-                        color={semantic.color.onSurface.muted}
+                        color={semantic.color.onSurface.muted ?? 'transparent'}
                       />
-                      <Text
-                        variant="bodySmall"
-                        style={{ color: semantic.color.onSurface.subtle }}
-                      >
+                      <Text variant="bodySmall" style={{ color: semantic.color.onSurface.subtle }}>
                         {formatDuration(route.stats.durationSeconds)}
                       </Text>
                     </View>
@@ -237,12 +233,9 @@ export const RouteComparisonView = ({
                       <IconSymbol
                         name="vector-polyline"
                         size={16}
-                        color={semantic.color.onSurface.muted}
+                        color={semantic.color.onSurface.muted ?? 'transparent'}
                       />
-                      <Text
-                        variant="bodySmall"
-                        style={{ color: semantic.color.onSurface.subtle }}
-                      >
+                      <Text variant="bodySmall" style={{ color: semantic.color.onSurface.subtle }}>
                         {route.stats.legsCount} legs
                       </Text>
                     </View>
@@ -291,7 +284,7 @@ export const RouteComparisonView = ({
                         <IconSymbol
                           name="information-outline"
                           size={16}
-                          color={semantic.color.onSurface.subtle}
+                          color={semantic.color.onSurface.subtle ?? 'transparent'}
                         />
                       }
                       testID={`${testID}-route-${route.routeOptionId}-details`}
@@ -310,7 +303,7 @@ export const RouteComparisonView = ({
                           color={
                             isSelected
                               ? semantic.color.onPrimary.default
-                              : semantic.color.onSurface.muted
+                              : (semantic.color.onSurface.muted ?? 'transparent')
                           }
                         />
                       }

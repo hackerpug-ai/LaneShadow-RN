@@ -14,31 +14,30 @@
  */
 
 import { offlineManager } from '@rnmapbox/maps'
+// Import for internal use
+import {
+  InvalidBoundsError,
+  StorageExceededError,
+  WiFiRequiredError,
+} from '../../stores/offline-store'
 import { DownloadQueue } from './download-queue'
 import { StorageUtils } from './storage-utils'
 import { WiFiValidator } from './wifi-validator'
 
-// Import for internal use
-import {
-  WiFiRequiredError,
-  StorageExceededError,
-  InvalidBoundsError,
-} from '../../stores/offline-store'
-
 // --- Types (re-exported from store for backward compat) ---
 
 export type {
-  RegionBounds,
-  RegionMetadata,
   DownloadProgress,
   DownloadState,
+  RegionBounds,
   RegionDownloadParams,
+  RegionMetadata,
 } from '../../stores/offline-store'
 
 export {
-  WiFiRequiredError,
-  StorageExceededError,
   InvalidBoundsError,
+  StorageExceededError,
+  WiFiRequiredError,
 } from '../../stores/offline-store'
 
 const MAX_REGION_SIZE = 500 * 1024 * 1024 // 500MB limit
@@ -101,14 +100,14 @@ class OfflineRegionManager {
 
     if (estimatedSize > MAX_REGION_SIZE) {
       throw new StorageExceededError(
-        `Region too large (${StorageUtils.formatBytes(estimatedSize)}). Maximum is ${StorageUtils.formatBytes(MAX_REGION_SIZE)}.`
+        `Region too large (${StorageUtils.formatBytes(estimatedSize)}). Maximum is ${StorageUtils.formatBytes(MAX_REGION_SIZE)}.`,
       )
     }
 
     const hasSpace = await StorageUtils.hasEnoughStorage(estimatedSize)
     if (!hasSpace) {
       throw new StorageExceededError(
-        `Not enough storage. Need ${StorageUtils.formatBytes(estimatedSize)} free.`
+        `Not enough storage. Need ${StorageUtils.formatBytes(estimatedSize)} free.`,
       )
     }
 

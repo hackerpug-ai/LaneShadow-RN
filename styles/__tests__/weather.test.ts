@@ -1,13 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
-  windColors,
-  rainColors,
-  temperatureColors,
-  getWeatherColors,
-  toLineLayerStyle,
-  getWindLineStyle,
   getRainLineStyle,
   getTempLineStyle,
+  getWeatherColors,
+  getWindLineStyle,
+  rainColors,
+  temperatureColors,
+  toLineLayerStyle,
+  windColors,
 } from '../weather'
 
 // Mock semantic theme
@@ -27,15 +27,15 @@ const mockSemantic = {
 describe('CLR-021: Weather Theme Color Mapping', () => {
   describe('Wind colors', () => {
     it('maps low/moderate/high to severity colors in dark theme', () => {
-      expect(windColors.dark.low).toBe('#31A362')     // Green
+      expect(windColors.dark.low).toBe('#31A362') // Green
       expect(windColors.dark.moderate).toBe('#F59E0B') // Amber
-      expect(windColors.dark.high).toBe('#E35D6A')     // Red
+      expect(windColors.dark.high).toBe('#E35D6A') // Red
     })
 
     it('maps severity colors in light theme with higher contrast', () => {
-      expect(windColors.light.low).toBe('#268A4D')     // Darker green
+      expect(windColors.light.low).toBe('#268A4D') // Darker green
       expect(windColors.light.moderate).toBe('#D98E04') // Darker amber
-      expect(windColors.light.high).toBe('#C94352')     // Darker red
+      expect(windColors.light.high).toBe('#C94352') // Darker red
     })
 
     it('green is safe, red is dangerous (semantic consistency)', () => {
@@ -61,16 +61,20 @@ describe('CLR-021: Weather Theme Color Mapping', () => {
 
     it('opacity increases with intensity', () => {
       const extractOpacity = (s: string) => parseFloat(s.match(/0\.\d+/)?.[0] ?? '0')
-      expect(extractOpacity(rainColors.dark.light)).toBeLessThan(extractOpacity(rainColors.dark.moderate))
-      expect(extractOpacity(rainColors.dark.moderate)).toBeLessThan(extractOpacity(rainColors.dark.heavy))
+      expect(extractOpacity(rainColors.dark.light)).toBeLessThan(
+        extractOpacity(rainColors.dark.moderate),
+      )
+      expect(extractOpacity(rainColors.dark.moderate)).toBeLessThan(
+        extractOpacity(rainColors.dark.heavy),
+      )
     })
   })
 
   describe('Temperature colors', () => {
     it('maps cold/mild/hot to thermal gradient', () => {
-      expect(temperatureColors.dark.cold).toBe('#2B9AEB')   // Blue
-      expect(temperatureColors.dark.mild).toBe('#B87333')    // Copper (brand)
-      expect(temperatureColors.dark.hot).toBe('#E35D6A')     // Red
+      expect(temperatureColors.dark.cold).toBe('#2B9AEB') // Blue
+      expect(temperatureColors.dark.mild).toBe('#B87333') // Copper (brand)
+      expect(temperatureColors.dark.hot).toBe('#E35D6A') // Red
     })
 
     it('uses copper for mild (brand color)', () => {

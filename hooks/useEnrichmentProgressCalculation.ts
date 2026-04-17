@@ -21,11 +21,10 @@ export function useEnrichmentProgressCalculation(): UseEnrichmentProgressCalcula
   const { progress: contextProgress } = useEnrichmentProgress()
 
   const status = contextProgress.status === 'failed' ? 'error' : contextProgress.status
-  const phaseStartTime = contextProgress.progress > 0 ? Date.now() - (contextProgress.progress / 100) * 3900 : null
+  const phaseStartTime =
+    contextProgress.progress > 0 ? Date.now() - (contextProgress.progress / 100) * 3900 : null
 
-  const [progress, setProgress] = useState(() =>
-    calculateProgress(status, phaseStartTime),
-  )
+  const [progress, setProgress] = useState(() => calculateProgress(status, phaseStartTime))
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState(() =>
     estimateTimeRemaining(status, phaseStartTime),
   )

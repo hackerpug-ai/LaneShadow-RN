@@ -13,18 +13,18 @@
  */
 
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import * as FileSystem from 'expo-file-system/legacy'
 import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet'
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet'
+import * as FileSystem from 'expo-file-system/legacy'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Dimensions, Pressable, StyleSheet, View } from 'react-native'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
 import { Text } from 'react-native-paper'
-import { Button } from '../ui/button'
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { useDevMenuEnabled } from '../../lib/is-dev-menu'
 import { useDownloadStore } from '../../stores/download-store'
+import { Button } from '../ui/button'
 
 // Test IDs for E2E
 const TEST_IDS = {
@@ -73,7 +73,9 @@ export const DevMenu = () => {
 
       if (info.exists) {
         const sizeInMB = (info.size || 0) / (1024 * 1024)
-        setModelInfo(`Model: qwen2.5-0.5b-instruct-q4_k_m.gguf\nSize: ${sizeInMB.toFixed(2)} MB\nPath: ${modelPath}`)
+        setModelInfo(
+          `Model: qwen2.5-0.5b-instruct-q4_k_m.gguf\nSize: ${sizeInMB.toFixed(2)} MB\nPath: ${modelPath}`,
+        )
       } else {
         setModelInfo('No model file found')
       }
@@ -110,7 +112,10 @@ export const DevMenu = () => {
       setResult({ type: 'success', text: 'Model file deleted. Reload app to see setup flow.' })
       loadModelInfo()
     } catch (error) {
-      setResult({ type: 'error', text: `Failed to delete: ${error instanceof Error ? error.message : 'Unknown error'}` })
+      setResult({
+        type: 'error',
+        text: `Failed to delete: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      })
     } finally {
       setLoading(null)
     }
@@ -126,7 +131,10 @@ export const DevMenu = () => {
 
       setResult({ type: 'success', text: 'Setup state reset. Reload app to see setup flow.' })
     } catch (error) {
-      setResult({ type: 'error', text: `Failed to reset: ${error instanceof Error ? error.message : 'Unknown error'}` })
+      setResult({
+        type: 'error',
+        text: `Failed to reset: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      })
     } finally {
       setLoading(null)
     }
@@ -156,7 +164,7 @@ export const DevMenu = () => {
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} />
     ),
-    []
+    [],
   )
 
   if (!isEnabled) return null
@@ -221,7 +229,10 @@ export const DevMenu = () => {
               variant="bodyMedium"
               style={[
                 styles.infoText,
-                { backgroundColor: semantic.color.surfaceVariant.default, color: semantic.color.onSurface.default },
+                {
+                  backgroundColor: semantic.color.surfaceVariant.default,
+                  color: semantic.color.onSurface.default,
+                },
               ]}
               testID={TEST_IDS.MODEL_INFO_TEXT}
             >
@@ -269,10 +280,7 @@ export const DevMenu = () => {
                 },
               ]}
             >
-              <Text
-                variant="bodyMedium"
-                style={{ color: semantic.color.onPrimary.default }}
-              >
+              <Text variant="bodyMedium" style={{ color: semantic.color.onPrimary.default }}>
                 {result.text}
               </Text>
             </View>

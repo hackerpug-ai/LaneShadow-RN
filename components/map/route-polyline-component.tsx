@@ -1,12 +1,12 @@
+import PolylineEncoder from '@mapbox/polyline'
+import { LineLayer, ShapeSource } from '@rnmapbox/maps'
 import * as Haptics from 'expo-haptics'
+import type { FeatureCollection, LineString } from 'geojson'
 import type { FC } from 'react'
 import { useCallback, useRef, useState } from 'react'
-import { ShapeSource, LineLayer } from '@rnmapbox/maps'
-import type { FeatureCollection, LineString } from 'geojson'
 import { useTheme } from 'react-native-paper'
-import PolylineEncoder from '@mapbox/polyline'
-import type { ExtendedTheme } from '../../styles/types'
 import { convertCoordinateArray } from '../../lib/mapbox/coordinate-converter'
+import type { ExtendedTheme } from '../../styles/types'
 
 import type { BuiltPolyline } from './route-polyline'
 
@@ -92,11 +92,9 @@ const parseSegmentId = (id: string): { type: string; legIndex?: number } => {
  * Converts [lat, lng] to Mapbox [lng, lat].
  */
 const buildLineFeature = (
-  coordinates: { latitude: number; longitude: number }[]
+  coordinates: { latitude: number; longitude: number }[],
 ): FeatureCollection<LineString> => {
-  const googleCoords = coordinates.map(
-    (c) => [c.latitude, c.longitude] as [number, number]
-  )
+  const googleCoords = coordinates.map((c) => [c.latitude, c.longitude] as [number, number])
   const mapboxCoords = convertCoordinateArray(googleCoords)
 
   return {
@@ -158,7 +156,7 @@ export const RoutePolyline: FC<RoutePolylineProps> = ({
         })
       }
     },
-    [onSegmentSelect]
+    [onSegmentSelect],
   )
 
   // Store stable callback refs per polyline to avoid re-creating closures
@@ -177,10 +175,11 @@ export const RoutePolyline: FC<RoutePolylineProps> = ({
           return null
         }
 
-        const isHighlighted =
-          selectedSegmentId === polyline.id || activeSegment === polyline.id
+        const isHighlighted = selectedSegmentId === polyline.id || activeSegment === polyline.id
         const strokeColor = isHighlighted ? semantic.color.tertiary.default : polyline.strokeColor
-        const strokeWidth = isHighlighted ? highlightStrokeWidth : (polyline.strokeWidth ?? normalStrokeWidth)
+        const strokeWidth = isHighlighted
+          ? highlightStrokeWidth
+          : (polyline.strokeWidth ?? normalStrokeWidth)
 
         // Build unique IDs: always incorporate index to guarantee uniqueness
         // Mapbox ShapeSource/LineLayer require globally unique ids,

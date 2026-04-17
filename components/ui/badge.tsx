@@ -11,10 +11,10 @@
  * Following coding standards: composition over inheritance, named exports
  */
 
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { TextStyle, ViewStyle } from 'react-native'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 /**
  * Badge variant types
@@ -78,9 +78,13 @@ export const Badge = ({
         baseColor = semantic.color.primary.default
         break
     }
-    
+
     // Apply opacity if specified (less than 1)
-    return opacity < 1 ? `${baseColor}${Math.round(opacity * 255).toString(16).padStart(2, '0')}` : baseColor
+    return opacity < 1
+      ? `${baseColor}${Math.round(opacity * 255)
+          .toString(16)
+          .padStart(2, '0')}`
+      : baseColor
   }
 
   // Get text color based on variant

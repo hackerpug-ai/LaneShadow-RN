@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import type { RouteIndex, RouteIndexPoint } from '../../../../../models/saved-routes'
 import { createWeatherProvider } from '../../providers/weatherProvider'
 import { probeConditions } from '../probeConditions'
@@ -84,7 +84,7 @@ describe('probeConditions', () => {
     expect(result[result.length - 1].distanceFromStartMeters).toBe(59_000)
     for (let i = 1; i < result.length; i += 1) {
       expect(result[i].distanceFromStartMeters).toBeGreaterThanOrEqual(
-        result[i - 1].distanceFromStartMeters
+        result[i - 1].distanceFromStartMeters,
       )
     }
   })

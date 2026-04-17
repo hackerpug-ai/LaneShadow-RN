@@ -106,7 +106,7 @@ export class ModelManifestService {
       const response = await fetch(this.manifestUrl, {
         cache: 'no-store',
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       })
 
@@ -125,7 +125,7 @@ export class ModelManifestService {
         JSON.stringify({
           manifest,
           timestamp: Date.now(),
-        })
+        }),
       )
 
       console.log('[ModelManifestService] Manifest fetched successfully')
@@ -186,7 +186,7 @@ export class ModelManifestService {
 
       if (!localMetadata) {
         // No local model - first download needed
-        const remoteModel = manifest.models.find(m => m.id === modelId)
+        const remoteModel = manifest.models.find((m) => m.id === modelId)
 
         if (!remoteModel) {
           throw new Error(`Model ${modelId} not found in manifest`)
@@ -201,7 +201,7 @@ export class ModelManifestService {
       }
 
       // Compare versions
-      const remoteModel = manifest.models.find(m => m.id === modelId)
+      const remoteModel = manifest.models.find((m) => m.id === modelId)
 
       if (!remoteModel) {
         // Model removed from manifest
@@ -239,7 +239,7 @@ export class ModelManifestService {
    */
   async getModelEntry(modelId: string): Promise<ModelManifestEntry> {
     const manifest = await this.fetchManifest()
-    const entry = manifest.models.find(m => m.id === modelId)
+    const entry = manifest.models.find((m) => m.id === modelId)
 
     if (!entry) {
       throw new Error(`Model ${modelId} not found in manifest`)
@@ -334,10 +334,7 @@ export class ModelManifestService {
 
     if (localMetadata) {
       // Save current model metadata for rollback
-      await AsyncStorage.setItem(
-        `model-backup-${modelId}`,
-        JSON.stringify(localMetadata)
-      )
+      await AsyncStorage.setItem(`model-backup-${modelId}`, JSON.stringify(localMetadata))
       console.log('[ModelManifestService] Update backup prepared')
     }
   }

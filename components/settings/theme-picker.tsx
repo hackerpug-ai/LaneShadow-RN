@@ -1,8 +1,8 @@
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { IconSymbol } from '../ui/icon-symbol'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { useSettingsStore } from '../../stores/settings-store'
+import { IconSymbol } from '../ui/icon-symbol'
 
 /**
  * Hardcoded preview colors extracted from theme.ts so the cards
@@ -30,7 +30,11 @@ const PREVIEW = {
 
 type ThemeMode = 'light' | 'dark' | 'auto'
 
-const OPTIONS: { value: ThemeMode; label: string; icon: 'white-balance-sunny' | 'moon-waning-crescent' | 'theme-light-dark' }[] = [
+const OPTIONS: {
+  value: ThemeMode
+  label: string
+  icon: 'white-balance-sunny' | 'moon-waning-crescent' | 'theme-light-dark'
+}[] = [
   { value: 'light', label: 'Light', icon: 'white-balance-sunny' },
   { value: 'dark', label: 'Dark', icon: 'moon-waning-crescent' },
   { value: 'auto', label: 'System', icon: 'theme-light-dark' },
@@ -67,7 +71,9 @@ const PhonePreview = ({ variant }: { variant: 'light' | 'dark' }) => {
       </View>
 
       {/* Bottom nav */}
-      <View style={[previewStyles.navBar, { backgroundColor: p.surface, borderTopColor: p.border }]}>
+      <View
+        style={[previewStyles.navBar, { backgroundColor: p.surface, borderTopColor: p.border }]}
+      >
         <View style={[previewStyles.navDot, { backgroundColor: p.accent }]} />
         <View style={[previewStyles.navDot, { backgroundColor: p.muted }]} />
         <View style={[previewStyles.navDot, { backgroundColor: p.muted }]} />
@@ -88,13 +94,35 @@ const SplitPreview = () => {
     <View style={previewStyles.phone}>
       <View style={previewStyles.splitContainer}>
         {/* Light half */}
-        <View style={[previewStyles.splitHalf, { backgroundColor: l.bg, borderColor: l.border, borderRightWidth: 0, borderTopLeftRadius: 10, borderBottomLeftRadius: 10 }]}>
+        <View
+          style={[
+            previewStyles.splitHalf,
+            {
+              backgroundColor: l.bg,
+              borderColor: l.border,
+              borderRightWidth: 0,
+              borderTopLeftRadius: 10,
+              borderBottomLeftRadius: 10,
+            },
+          ]}
+        >
           <View style={[previewStyles.splitLine, { backgroundColor: l.text, width: 14 }]} />
           <View style={[previewStyles.splitLine, { backgroundColor: l.muted, width: 10 }]} />
           <View style={[previewStyles.splitAccent, { backgroundColor: l.accent }]} />
         </View>
         {/* Dark half */}
-        <View style={[previewStyles.splitHalf, { backgroundColor: d.bg, borderColor: d.border, borderLeftWidth: 0, borderTopRightRadius: 10, borderBottomRightRadius: 10 }]}>
+        <View
+          style={[
+            previewStyles.splitHalf,
+            {
+              backgroundColor: d.bg,
+              borderColor: d.border,
+              borderLeftWidth: 0,
+              borderTopRightRadius: 10,
+              borderBottomRightRadius: 10,
+            },
+          ]}
+        >
           <View style={[previewStyles.splitLine, { backgroundColor: d.text, width: 14 }]} />
           <View style={[previewStyles.splitLine, { backgroundColor: d.muted, width: 10 }]} />
           <View style={[previewStyles.splitAccent, { backgroundColor: d.accent }]} />
@@ -176,7 +204,7 @@ export const ThemePicker = ({ testID }: { testID?: string }) => {
                   color={
                     selected
                       ? semantic.color.primary.default
-                      : semantic.color.onSurface.muted
+                      : (semantic.color.onSurface.muted ?? 'transparent')
                   }
                 />
                 <Text

@@ -17,8 +17,8 @@ import { useState } from 'react'
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { ScenicBias } from '../ui/scenic-bias-segmented'
 import { IconSymbol } from '../ui/icon-symbol'
+import type { ScenicBias } from '../ui/scenic-bias-segmented'
 
 export type PreferencesRowProps = {
   scenicBias: ScenicBias
@@ -96,8 +96,8 @@ export const PreferencesRow = ({
   const activeIconColor = semantic.color.onPrimary.default
   const activeTextColor = semantic.color.onPrimary.default
   const inactiveBackground = semantic.color.surfaceVariant.default
-  const inactiveIconColor = semantic.color.onSurface.muted
-  const inactiveTextColor = semantic.color.onSurface.muted
+  const inactiveIconColor = semantic.color.onSurface.muted ?? semantic.color.onSurface.default
+  const inactiveTextColor = semantic.color.onSurface.muted ?? semantic.color.onSurface.default
 
   const isScenicActive = scenicBias === 'high'
 
@@ -222,7 +222,10 @@ export const PreferencesRow = ({
             color={includeFavorites ? activeIconColor : inactiveIconColor}
           />
           <Text
-            style={[styles.chipText, { color: includeFavorites ? activeTextColor : inactiveTextColor }]}
+            style={[
+              styles.chipText,
+              { color: includeFavorites ? activeTextColor : inactiveTextColor },
+            ]}
           >
             Favorites
           </Text>

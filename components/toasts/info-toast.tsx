@@ -4,11 +4,11 @@
  * Blue-themed toast for informational notifications
  */
 
-import { View, StyleSheet, Pressable } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { IconSymbol } from '../ui/icon-symbol'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol } from '../ui/icon-symbol'
 
 export type InfoToastProps = {
   title: string
@@ -16,11 +16,7 @@ export type InfoToastProps = {
   showCloseButton?: boolean
 }
 
-export const InfoToast = ({
-  title,
-  description,
-  showCloseButton = true,
-}: InfoToastProps) => {
+export const InfoToast = ({ title, description, showCloseButton = true }: InfoToastProps) => {
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
 
@@ -45,15 +41,8 @@ export const InfoToast = ({
     >
       <View style={[styles.header, { gap: semantic.space.sm }]}>
         <View style={styles.iconRow}>
-          <IconSymbol
-            name="information"
-            size={20}
-            color={semantic.color.onPrimary.default}
-          />
-          <Text
-            variant="titleSmall"
-            style={{ color: semantic.color.onPrimary.default, flex: 1 }}
-          >
+          <IconSymbol name="information" size={20} color={semantic.color.onPrimary.default} />
+          <Text variant="titleSmall" style={{ color: semantic.color.onPrimary.default, flex: 1 }}>
             {title}
           </Text>
         </View>
@@ -65,11 +54,7 @@ export const InfoToast = ({
             }}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <IconSymbol
-              name="close-circle"
-              size={20}
-              color={semantic.color.onPrimary.default}
-            />
+            <IconSymbol name="close-circle" size={20} color={semantic.color.onPrimary.default} />
           </Pressable>
         )}
       </View>

@@ -2,13 +2,13 @@ import { ConvexError, v } from 'convex/values'
 
 import {
   lastKnownLocationValidator,
-  planningSessionStatusValidator,
   PLANNING_SESSION_STATUS,
+  planningSessionStatusValidator,
 } from '../../models/planning-sessions'
 import type { Doc, Id } from '../_generated/dataModel'
 import { internalMutation, mutation, query } from '../_generated/server'
-import { requireIdentity } from '../guards'
 import { ERROR_CODES } from '../errors'
+import { requireIdentity } from '../guards'
 
 type PlanningSessionDoc = Doc<'planning_sessions'>
 
@@ -27,7 +27,7 @@ type ListSessionsCtx = {
     query: (table: 'planning_sessions') => {
       withIndex: (
         index: 'by_clerkUserId' | 'by_clerkUserId_and_updatedAt',
-        callback: (q: { eq: (field: string, value: string) => void }) => void
+        callback: (q: { eq: (field: string, value: string) => void }) => void,
       ) => {
         order: (direction: 'asc' | 'desc') => {
           collect: () => Promise<PlanningSessionDoc[]>
@@ -85,7 +85,7 @@ const isOwnedByUser = (doc: PlanningSessionDoc, clerkUserId: string): boolean =>
 export const createSessionHandler = async (
   ctx: CreateSessionCtx,
   args: { firstMessage: string },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<{ sessionId: Id<'planning_sessions'> }> => {
   const now = Date.now()
   const title = args.firstMessage.slice(0, 50)
@@ -103,14 +103,12 @@ export const createSessionHandler = async (
 
 export const listSessionsHandler = async (
   ctx: ListSessionsCtx,
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<PlanningSessionDoc[]> => {
   // Use composite index for efficient sorting by updatedAt descending
   const sessions = await ctx.db
     .query('planning_sessions')
-    .withIndex('by_clerkUserId_and_updatedAt', (q) =>
-      q.eq('clerkUserId', clerkUserId)
-    )
+    .withIndex('by_clerkUserId_and_updatedAt', (q) => q.eq('clerkUserId', clerkUserId))
     .order('desc')
     .collect()
 
@@ -121,7 +119,7 @@ export const listSessionsHandler = async (
 export const getSessionByIdHandler = async (
   ctx: GetSessionByIdCtx,
   args: { sessionId: Id<'planning_sessions'> },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<PlanningSessionDoc> => {
   const doc = await ctx.db.get(args.sessionId)
   if (!doc || !isOwnedByUser(doc, clerkUserId)) {
@@ -133,7 +131,7 @@ export const getSessionByIdHandler = async (
 export const archiveSessionHandler = async (
   ctx: ArchiveSessionCtx,
   args: { sessionId: Id<'planning_sessions'> },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<void> => {
   const doc = await ctx.db.get(args.sessionId)
   if (!doc || !isOwnedByUser(doc, clerkUserId)) {
@@ -149,7 +147,7 @@ export const archiveSessionHandler = async (
 export const updateSessionTitleHandler = async (
   ctx: UpdateSessionTitleCtx,
   args: { sessionId: Id<'planning_sessions'>; title: string },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<void> => {
   const doc = await ctx.db.get(args.sessionId)
   if (!doc || !isOwnedByUser(doc, clerkUserId)) {
@@ -164,7 +162,7 @@ export const updateSessionTitleHandler = async (
 
 export const updateLastKnownLocationHandler = async (
   ctx: UpdateLastKnownLocationCtx,
-  args: { sessionId: Id<'planning_sessions'>; lat: number; lng: number }
+  args: { sessionId: Id<'planning_sessions'>; lat: number; lng: number },
 ): Promise<void> => {
   await ctx.db.patch(args.sessionId, {
     lastKnownLocation: {
@@ -178,7 +176,7 @@ export const updateLastKnownLocationHandler = async (
 export const deleteSessionHandler = async (
   ctx: DeleteSessionCtx,
   args: { sessionId: Id<'planning_sessions'> },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<void> => {
   const doc = await ctx.db.get(args.sessionId)
   if (!doc || !isOwnedByUser(doc, clerkUserId)) {
@@ -202,11 +200,7 @@ export const createSession = mutation({
   returns: v.object({ sessionId: v.id('planning_sessions') }),
   handler: async (ctx, args): Promise<{ sessionId: Id<'planning_sessions'> }> => {
     const { clerkUserId } = await requireIdentity(ctx)
-    return createSessionHandler(
-      ctx as unknown as CreateSessionCtx,
-      args,
-      clerkUserId
-    )
+    return createSessionHandler(ctx as unknown as CreateSessionCtx, args, clerkUserId)
   },
 })
 
@@ -222,7 +216,7 @@ export const listSessions = query({
       createdAt: v.number(),
       updatedAt: v.number(),
       lastKnownLocation: v.optional(lastKnownLocationValidator),
-    })
+    }),
   ),
   handler: async (ctx): Promise<PlanningSessionDoc[]> => {
     const { clerkUserId } = await requireIdentity(ctx)
@@ -244,11 +238,7 @@ export const getSessionById = query({
   }),
   handler: async (ctx, args): Promise<PlanningSessionDoc> => {
     const { clerkUserId } = await requireIdentity(ctx)
-    return getSessionByIdHandler(
-      ctx as unknown as GetSessionByIdCtx,
-      args,
-      clerkUserId
-    )
+    return getSessionByIdHandler(ctx as unknown as GetSessionByIdCtx, args, clerkUserId)
   },
 })
 
@@ -260,10 +250,7 @@ export const updateLastKnownLocation = internalMutation({
   },
   returns: v.null(),
   handler: async (ctx, args): Promise<null> => {
-    await updateLastKnownLocationHandler(
-      ctx as unknown as UpdateLastKnownLocationCtx,
-      args
-    )
+    await updateLastKnownLocationHandler(ctx as unknown as UpdateLastKnownLocationCtx, args)
     return null
   },
 })
@@ -273,11 +260,7 @@ export const deleteSession = mutation({
   returns: v.null(),
   handler: async (ctx, args): Promise<null> => {
     const { clerkUserId } = await requireIdentity(ctx)
-    await deleteSessionHandler(
-      ctx as unknown as DeleteSessionCtx,
-      args,
-      clerkUserId
-    )
+    await deleteSessionHandler(ctx as unknown as DeleteSessionCtx, args, clerkUserId)
     return null
   },
 })
@@ -287,11 +270,7 @@ export const archiveSession = mutation({
   returns: v.null(),
   handler: async (ctx, args): Promise<null> => {
     const { clerkUserId } = await requireIdentity(ctx)
-    await archiveSessionHandler(
-      ctx as unknown as ArchiveSessionCtx,
-      args,
-      clerkUserId
-    )
+    await archiveSessionHandler(ctx as unknown as ArchiveSessionCtx, args, clerkUserId)
     return null
   },
 })
@@ -308,7 +287,7 @@ export const updateSessionTitle = internalMutation({
     await updateSessionTitleHandler(
       ctx as unknown as UpdateSessionTitleCtx,
       args,
-      '' // clerkUserId not needed - agent only operates on its own session
+      '', // clerkUserId not needed - agent only operates on its own session
     )
     return null
   },
@@ -328,7 +307,7 @@ type CleanupOldEmptySessionsCtx = {
 const ONE_HOUR_MS = 60 * 60 * 1000
 
 export const cleanupOldEmptySessionsHandler = async (
-  ctx: CleanupOldEmptySessionsCtx
+  ctx: CleanupOldEmptySessionsCtx,
 ): Promise<{ deletedCount: number }> => {
   const now = Date.now()
   const cutoffTime = now - ONE_HOUR_MS

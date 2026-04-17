@@ -11,10 +11,10 @@
  * Following coding standards: composition over inheritance, named exports
  */
 
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { TextStyle, ViewStyle } from 'react-native'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 /**
  * Toggle size variants

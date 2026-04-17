@@ -5,16 +5,11 @@
  * unit-tested without a running Convex backend.
  */
 
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { ConvexError } from 'convex/values'
-
-import { ERROR_CODES } from '../../../errors'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../../_generated/dataModel'
-import {
-  sendHandler,
-  listHandler,
-  addSystemMessageHandler,
-} from '../../sessionMessages'
+import { ERROR_CODES } from '../../../errors'
+import { addSystemMessageHandler, listHandler, sendHandler } from '../../sessionMessages'
 
 // ---------------------------------------------------------------------------
 // Shared fixtures
@@ -64,19 +59,11 @@ describe('sendHandler', () => {
     }
 
     await expect(
-      sendHandler(
-        ctx as any,
-        { sessionId: SESSION_ID, content: 'Test message' },
-        CLERK_USER_ID
-      )
+      sendHandler(ctx as any, { sessionId: SESSION_ID, content: 'Test message' }, CLERK_USER_ID),
     ).rejects.toThrow(ConvexError)
 
     await expect(
-      sendHandler(
-        ctx as any,
-        { sessionId: SESSION_ID, content: 'Test message' },
-        CLERK_USER_ID
-      )
+      sendHandler(ctx as any, { sessionId: SESSION_ID, content: 'Test message' }, CLERK_USER_ID),
     ).rejects.toThrow(ERROR_CODES.SESSION_NOT_FOUND)
 
     // Verify message was NOT inserted
@@ -95,11 +82,7 @@ describe('sendHandler', () => {
 
     const content = 'I want to plan a scenic route'
 
-    const result = await sendHandler(
-      ctx as any,
-      { sessionId: SESSION_ID, content },
-      CLERK_USER_ID
-    )
+    const result = await sendHandler(ctx as any, { sessionId: SESSION_ID, content }, CLERK_USER_ID)
 
     // Verify message was inserted with rider role
     expect(ctx.db.insert).toHaveBeenCalledWith(
@@ -108,7 +91,7 @@ describe('sendHandler', () => {
         sessionId: SESSION_ID,
         role: 'rider',
         content,
-      })
+      }),
     )
 
     // Verify session updatedAt was bumped
@@ -116,7 +99,7 @@ describe('sendHandler', () => {
       SESSION_ID,
       expect.objectContaining({
         updatedAt: expect.any(Number),
-      })
+      }),
     )
 
     expect(result).toEqual({ messageId: MESSAGE_ID })
@@ -132,19 +115,11 @@ describe('sendHandler', () => {
     }
 
     await expect(
-      sendHandler(
-        ctx as any,
-        { sessionId: SESSION_ID, content: 'Test' },
-        CLERK_USER_ID
-      )
+      sendHandler(ctx as any, { sessionId: SESSION_ID, content: 'Test' }, CLERK_USER_ID),
     ).rejects.toThrow(ConvexError)
 
     await expect(
-      sendHandler(
-        ctx as any,
-        { sessionId: SESSION_ID, content: 'Test' },
-        CLERK_USER_ID
-      )
+      sendHandler(ctx as any, { sessionId: SESSION_ID, content: 'Test' }, CLERK_USER_ID),
     ).rejects.toThrow(ERROR_CODES.SESSION_NOT_FOUND)
   })
 
@@ -159,11 +134,7 @@ describe('sendHandler', () => {
     }
 
     await expect(
-      sendHandler(
-        ctx as any,
-        { sessionId: SESSION_ID, content: 'Test' },
-        CLERK_USER_ID
-      )
+      sendHandler(ctx as any, { sessionId: SESSION_ID, content: 'Test' }, CLERK_USER_ID),
     ).rejects.toThrow(ERROR_CODES.SESSION_NOT_FOUND)
   })
 
@@ -178,11 +149,7 @@ describe('sendHandler', () => {
     }
 
     const beforeTime = Date.now()
-    await sendHandler(
-      ctx as any,
-      { sessionId: SESSION_ID, content: 'Test' },
-      CLERK_USER_ID
-    )
+    await sendHandler(ctx as any, { sessionId: SESSION_ID, content: 'Test' }, CLERK_USER_ID)
     const afterTime = Date.now()
 
     const insertCall = (ctx.db.insert as any).mock.calls[0]
@@ -252,13 +219,13 @@ describe('listHandler', () => {
       },
     }
 
-    await expect(
-      listHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID)
-    ).rejects.toThrow(ConvexError)
+    await expect(listHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID)).rejects.toThrow(
+      ConvexError,
+    )
 
-    await expect(
-      listHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID)
-    ).rejects.toThrow(ERROR_CODES.SESSION_NOT_FOUND)
+    await expect(listHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID)).rejects.toThrow(
+      ERROR_CODES.SESSION_NOT_FOUND,
+    )
   })
 
   it('AC-2: returns messages in createdAt ascending order', async () => {
@@ -387,7 +354,7 @@ describe('addSystemMessageHandler', () => {
         role: 'system',
         content: 'Here are your route options',
         attachments,
-      })
+      }),
     )
 
     // Verify session updatedAt was bumped
@@ -395,7 +362,7 @@ describe('addSystemMessageHandler', () => {
       SESSION_ID,
       expect.objectContaining({
         updatedAt: expect.any(Number),
-      })
+      }),
     )
   })
 
@@ -420,7 +387,7 @@ describe('addSystemMessageHandler', () => {
         role: 'system',
         content: 'Processing your request...',
         attachments: undefined,
-      })
+      }),
     )
   })
 
@@ -462,7 +429,7 @@ describe('addSystemMessageHandler', () => {
             routePlanId: 'route2' as Id<'route_plans'>,
           }),
         ]),
-      })
+      }),
     )
   })
 

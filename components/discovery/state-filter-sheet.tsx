@@ -21,7 +21,7 @@
  * AC-004: Clear resets to proximity mode
  */
 
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -132,16 +132,13 @@ export const StateFilterSheet = ({
   const filteredStates = useMemo(() => {
     return states.filter(
       (state) =>
-        state.routeCount > 0 &&
-        state.name.toLowerCase().includes(searchQuery.toLowerCase())
+        state.routeCount > 0 && state.name.toLowerCase().includes(searchQuery.toLowerCase()),
     )
   }, [states, searchQuery])
 
   // Calculate total routes across selected states
   const totalSelectedRoutes = useMemo(() => {
-    return states
-      .filter((s) => selected.includes(s.code))
-      .reduce((sum, s) => sum + s.routeCount, 0)
+    return states.filter((s) => selected.includes(s.code)).reduce((sum, s) => sum + s.routeCount, 0)
   }, [states, selected])
 
   // Handle state toggle (multi-select)
@@ -169,16 +166,10 @@ export const StateFilterSheet = ({
       <View style={styles.container}>
         {/* Header */}
         <View style={[styles.header, { borderBottomColor: semantic.color.border.default }]}>
-          <Text
-            variant="titleLarge"
-            style={{ color: semantic.color.onSurface.default }}
-          >
+          <Text variant="titleLarge" style={{ color: semantic.color.onSurface.default }}>
             Filter by State
           </Text>
-          <Text
-            variant="bodyMedium"
-            style={{ color: semantic.color.onSurface.muted }}
-          >
+          <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.muted }}>
             {selected.length > 0
               ? `${selected.length} state${selected.length > 1 ? 's' : ''} selected · ${totalSelectedRoutes} routes`
               : 'Select states to filter routes'}
@@ -213,7 +204,7 @@ export const StateFilterSheet = ({
               <IconSymbol
                 name="map-search"
                 size={48}
-                color={semantic.color.onSurface.subtle}
+                color={semantic.color.onSurface.subtle ?? 'transparent'}
                 testID={`${testID}-empty-icon`}
               />
               <Text

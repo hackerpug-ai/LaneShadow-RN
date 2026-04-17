@@ -8,11 +8,7 @@ const config = getDefaultConfig(path)
 config.watchFolders = config.watchFolders || []
 config.resolver = {
   ...config.resolver,
-  blockList: [
-    /\.claude\/worktrees\/.*/,
-    /\.spec\/.*/,
-    /\.git\/worktrees\/.*/,
-  ],
+  blockList: [/\.claude\/worktrees\/.*/, /\.spec\/.*/, /\.git\/worktrees\/.*/],
 }
 
 // Exclude test files from Metro bundler
@@ -27,13 +23,15 @@ config.resolver = {
         : context.resolveRequest(context, moduleName, platform)
     }
     // Exclude test files from being bundled
-    if (moduleName.endsWith('.test.ts') ||
-        moduleName.endsWith('.test.tsx') ||
-        moduleName.endsWith('.spec.ts') ||
-        moduleName.endsWith('.spec.tsx') ||
-        moduleName.includes('__tests__') ||
-        moduleName.endsWith('.mock.ts') ||
-        moduleName.endsWith('.mock.tsx')) {
+    if (
+      moduleName.endsWith('.test.ts') ||
+      moduleName.endsWith('.test.tsx') ||
+      moduleName.endsWith('.spec.ts') ||
+      moduleName.endsWith('.spec.tsx') ||
+      moduleName.includes('__tests__') ||
+      moduleName.endsWith('.mock.ts') ||
+      moduleName.endsWith('.mock.tsx')
+    ) {
       return { type: 'empty' }
     }
     // Use default resolution for other modules

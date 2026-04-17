@@ -7,11 +7,11 @@
  * This hook bridges the route planning state with map rendering.
  */
 
-import { useMemo, useCallback } from 'react'
-import { useSemanticTheme } from './use-semantic-theme'
-import type { RideFlowState } from './use-ride-flow'
-import type { PlannedRouteOptionsView } from '../types/routes'
+import { useCallback, useMemo } from 'react'
 import { buildRoutePolylines } from '../components/map/route-polyline'
+import type { PlannedRouteOptionsView } from '../types/routes'
+import type { RideFlowState } from './use-ride-flow'
+import { useSemanticTheme } from './use-semantic-theme'
 
 /**
  * Route polyline data for map rendering
@@ -52,7 +52,7 @@ type UseRouteComparisonReturn = {
  */
 export const useRouteComparison = (
   state: RideFlowState,
-  dispatch: (action: any) => void
+  dispatch: (action: any) => void,
 ): UseRouteComparisonReturn => {
   const { semantic } = useSemanticTheme()
 
@@ -120,7 +120,7 @@ export const useRouteComparison = (
         routeId,
       })
     },
-    [dispatch]
+    [dispatch],
   )
 
   // Clear selection

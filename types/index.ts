@@ -34,6 +34,11 @@ export type ThemeMode = 'light' | 'dark'
  * All types are inferred from Convex schema for single source of truth
  */
 
+export type {
+  RouteSketch,
+  RouteSketchAnchorPoint,
+  RouteSketchSegment,
+} from '../models/route-sketch'
 /**
  * Re-export theme types for convenience
  */
@@ -51,11 +56,5 @@ export type {
   ShadowStyle,
   TypographyStyle,
 } from '../styles/types'
-
-export type {
-  RouteSketch,
-  RouteSketchAnchorPoint,
-  RouteSketchSegment,
-} from '../models/route-sketch'
 
 export * from './routes'

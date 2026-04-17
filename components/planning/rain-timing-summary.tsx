@@ -14,8 +14,8 @@
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { RainOverlay, RouteLeg } from '../../models/saved-routes'
 import { getRainTimingDisplay } from '../../lib/weather/timing-calculator'
+import type { RainOverlay, RouteLeg } from '../../models/saved-routes'
 import { IconSymbol } from '../ui/icon-symbol'
 
 export type RainTimingSummaryProps = {
@@ -68,14 +68,12 @@ export const RainTimingSummary = ({
       <IconSymbol
         name="weather-rainy"
         size={16}
-        color={semantic.color.onSurface.muted}
+        color={semantic.color.onSurface.muted ?? 'transparent'}
       />
       <Text
         variant="bodySmall"
         style={{
-          color: isUnavailable
-            ? semantic.color.onSurface.muted
-            : semantic.color.onSurface.default,
+          color: isUnavailable ? semantic.color.onSurface.muted : semantic.color.onSurface.default,
         }}
       >
         {displayText}

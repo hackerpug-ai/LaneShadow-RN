@@ -86,8 +86,18 @@ export function DiscoveryLoadingOverlay({
         {/* Skeleton chips for archetypes */}
         <View style={styles.chipRow}>
           <Skeleton width={80} height={32} shape="rounded" />
-          <Skeleton width={100} height={32} shape="rounded" style={{ marginLeft: semantic.space.sm }} />
-          <Skeleton width={90} height={32} shape="rounded" style={{ marginLeft: semantic.space.sm }} />
+          <Skeleton
+            width={100}
+            height={32}
+            shape="rounded"
+            style={{ marginLeft: semantic.space.sm }}
+          />
+          <Skeleton
+            width={90}
+            height={32}
+            shape="rounded"
+            style={{ marginLeft: semantic.space.sm }}
+          />
         </View>
       </View>
 

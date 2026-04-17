@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { ChecksumValidator } from '../checksum'
-import * as FileSystem from 'expo-file-system/legacy'
 import * as Crypto from 'expo-crypto'
+import * as FileSystem from 'expo-file-system/legacy'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ChecksumValidator } from '../checksum'
 
 /**
  * AC-003: Edge Case — Corrupted Model File Detection

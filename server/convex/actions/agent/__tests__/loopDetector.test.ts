@@ -15,7 +15,7 @@ describe('LoopDetector', () => {
       const call = { name: 'search', arguments: { query: 'foo' } }
       expect(detector.record(call)).toBe(false) // 1
       expect(detector.record(call)).toBe(false) // 2
-      expect(detector.record(call)).toBe(true)  // 3 — threshold reached
+      expect(detector.record(call)).toBe(true) // 3 — threshold reached
     })
 
     it('returns true on every subsequent call past threshold', () => {
@@ -57,7 +57,7 @@ describe('LoopDetector', () => {
       const call2 = { name: 'fetch', arguments: { b: 2, a: 1 } }
       expect(detector.record(call1)).toBe(false) // 1
       expect(detector.record(call2)).toBe(false) // 2
-      expect(detector.record(call1)).toBe(true)  // 3 — same hash
+      expect(detector.record(call1)).toBe(true) // 3 — same hash
     })
 
     it('handles deeply nested key reordering', () => {

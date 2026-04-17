@@ -1,17 +1,17 @@
 import { ConvexError, v } from 'convex/values'
 
 import {
-  routePlanStatusValidator,
   ROUTE_PLAN_STATUS,
-  type RoutePlanStatus,
   type RoutePlan,
+  type RoutePlanStatus,
+  routePlanStatusValidator,
 } from '../../models/route-plans'
 import { planInputValidator, planPreferencesValidator } from '../../models/saved-routes'
 import { internal } from '../_generated/api'
 import type { Doc, Id } from '../_generated/dataModel'
 import { internalMutation, internalQuery, mutation, query } from '../_generated/server'
-import { requireIdentity } from '../guards'
 import { ERROR_CODES } from '../errors'
+import { requireIdentity } from '../guards'
 import { checkUsage, incrementUsage } from './planUsage'
 
 type RoutePlanDoc = Doc<'route_plans'>
@@ -21,7 +21,10 @@ type RoutePlanDoc = Doc<'route_plans'>
 // ---------------------------------------------------------------------------
 
 type IndexQueryResult = {
-  withIndex: (indexName: string, range: (q: any) => any) => {
+  withIndex: (
+    indexName: string,
+    range: (q: any) => any,
+  ) => {
     filter: (pred: (q: any) => any) => {
       first: () => Promise<RoutePlanDoc | null>
     }
@@ -84,12 +87,12 @@ const isOwnedByUser = (doc: RoutePlanDoc, clerkUserId: string): boolean =>
 const queryFirstByStatus = async (
   ctx: GetActivePlanCtx,
   clerkUserId: string,
-  status: RoutePlanStatus
+  status: RoutePlanStatus,
 ): Promise<RoutePlanDoc | null> => {
   return ctx.db
     .query('route_plans')
     .withIndex('by_clerkUserId_and_status', (q: any) =>
-      q.eq('clerkUserId', clerkUserId).eq('status', status)
+      q.eq('clerkUserId', clerkUserId).eq('status', status),
     )
     .filter((_q: any) => _q.eq(true, true))
     .first()
@@ -106,7 +109,7 @@ export const createPlanHandler = async (
     startLabel?: string
     endLabel?: string
   },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<{ routePlanId: Id<'route_plans'> }> => {
   // Check usage rate limit before creating plan
   const usageCheck = await checkUsage(ctx as unknown as any, clerkUserId)
@@ -115,12 +118,20 @@ export const createPlanHandler = async (
   }
 
   // Check no active (pending or running) plan already exists
-  const pendingPlan = await queryFirstByStatus(ctx as unknown as GetActivePlanCtx, clerkUserId, ROUTE_PLAN_STATUS.PENDING)
+  const pendingPlan = await queryFirstByStatus(
+    ctx as unknown as GetActivePlanCtx,
+    clerkUserId,
+    ROUTE_PLAN_STATUS.PENDING,
+  )
   if (pendingPlan) {
     throw new ConvexError(ERROR_CODES.PLAN_ALREADY_ACTIVE)
   }
 
-  const runningPlan = await queryFirstByStatus(ctx as unknown as GetActivePlanCtx, clerkUserId, ROUTE_PLAN_STATUS.RUNNING)
+  const runningPlan = await queryFirstByStatus(
+    ctx as unknown as GetActivePlanCtx,
+    clerkUserId,
+    ROUTE_PLAN_STATUS.RUNNING,
+  )
   if (runningPlan) {
     throw new ConvexError(ERROR_CODES.PLAN_ALREADY_ACTIVE)
   }
@@ -141,9 +152,13 @@ export const createPlanHandler = async (
   await incrementUsage(ctx as unknown as any, clerkUserId)
 
   // Schedule execution
-  const scheduledActionId = await ctx.scheduler.runAfter(0, internal.actions.agent.planRide.executePlan, {
-    routePlanId,
-  })
+  const scheduledActionId = await ctx.scheduler.runAfter(
+    0,
+    internal.actions.agent.planRide.executePlan,
+    {
+      routePlanId,
+    },
+  )
 
   await ctx.db.patch(routePlanId, { scheduledActionId })
 
@@ -152,7 +167,7 @@ export const createPlanHandler = async (
 
 export const getActivePlanHandler = async (
   ctx: GetActivePlanCtx,
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<RoutePlanDoc | null> => {
   const pending = await queryFirstByStatus(ctx, clerkUserId, ROUTE_PLAN_STATUS.PENDING)
   if (pending) return pending
@@ -164,7 +179,7 @@ export const getActivePlanHandler = async (
 export const getPlanByIdHandler = async (
   ctx: GetPlanByIdCtx,
   args: { routePlanId: Id<'route_plans'> },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<RoutePlanDoc> => {
   const doc = await ctx.db.get(args.routePlanId)
   if (!doc || !isOwnedByUser(doc, clerkUserId)) {
@@ -182,7 +197,7 @@ export const updatePlanStatusHandler = async (
     result?: unknown
     errorCode?: string
     errorMessage?: string
-  }
+  },
 ): Promise<void> => {
   const now = Date.now()
   const isTerminal =
@@ -205,7 +220,7 @@ export const updatePlanStatusHandler = async (
 export const cancelPlanHandler = async (
   ctx: CancelPlanCtx,
   args: { routePlanId: Id<'route_plans'> },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<void> => {
   const doc = await ctx.db.get(args.routePlanId)
   if (!doc || !isOwnedByUser(doc, clerkUserId)) {
@@ -319,8 +334,8 @@ export const createForAgentInternal = internalMutation({
         .filter((q) =>
           q.and(
             q.eq(q.field('planningSessionId'), args.planningSessionId),
-            q.eq(q.field('status'), ROUTE_PLAN_STATUS.FAILED)
-          )
+            q.eq(q.field('status'), ROUTE_PLAN_STATUS.FAILED),
+          ),
         )
         .collect()
 
@@ -398,7 +413,7 @@ export const listBySessionHandler = async (
     sessionId: Id<'planning_sessions'>
     limit?: number
     status?: RoutePlanStatus
-  }
+  },
 ): Promise<RoutePlanSummary[]> => {
   const limit = args.limit ?? DEFAULT_LIST_BY_SESSION_LIMIT
   const docs: RoutePlanDoc[] = await ctx.db
@@ -434,7 +449,7 @@ export const listBySession = internalQuery({
       durationSeconds: v.optional(v.number()),
       routeLabel: v.optional(v.string()),
       routeRationale: v.optional(v.string()),
-    })
+    }),
   ),
   handler: async (ctx, args): Promise<RoutePlanSummary[]> => {
     return listBySessionHandler(ctx as any, args)
@@ -470,7 +485,7 @@ export const mergeEnrichmentHandler = async (
       elevation?: unknown
       weather?: unknown
     }[]
-  }
+  },
 ): Promise<void> => {
   const plan = await ctx.db.get(args.routePlanId)
   if (!plan || !plan.result) {
@@ -554,7 +569,7 @@ export const mergeEnrichment = internalMutation({
         legLabels: v.optional(v.array(v.string())),
         elevation: v.optional(v.any()),
         weather: v.optional(v.any()),
-      })
+      }),
     ),
   },
   returns: v.null(),
@@ -576,20 +591,15 @@ export const getActiveRoutePlansForSession = query({
     v.object({
       _id: v.id('route_plans'),
       status: routePlanStatusValidator,
-    })
+    }),
   ),
   handler: async (ctx, args): Promise<{ _id: Id<'route_plans'>; status: RoutePlanStatus }[]> => {
     const docs = await ctx.db
       .query('route_plans')
       .withIndex('by_planningSessionId_and_status', (q) =>
-        q.eq('planningSessionId', args.sessionId)
+        q.eq('planningSessionId', args.sessionId),
       )
-      .filter((q) =>
-        q.or(
-          q.eq(q.field('status'), 'pending'),
-          q.eq(q.field('status'), 'running')
-        )
-      )
+      .filter((q) => q.or(q.eq(q.field('status'), 'pending'), q.eq(q.field('status'), 'running')))
       .collect()
 
     return docs.map((doc) => ({

@@ -1,6 +1,6 @@
 // @convex-dev/geospatial version: 0.2.1
-import { GeospatialIndex } from "@convex-dev/geospatial";
-import { components } from "./_generated/api";
+import { GeospatialIndex } from '@convex-dev/geospatial'
+import { components } from './_generated/api'
 
 /**
  * Geospatial index for curated_routes table
@@ -18,7 +18,10 @@ import { components } from "./_generated/api";
  * - filterKeys: { state, primaryArchetype } - for filtering queries
  * - sortKey: compositeScore - for result ranking
  */
-export const geospatial = new GeospatialIndex<string, {
-  state: string;
-  primaryArchetype: string;
-}>(components.geospatial);
+export const geospatial = new GeospatialIndex<
+  string,
+  {
+    state: string
+    primaryArchetype: string
+  }
+>(components.geospatial)

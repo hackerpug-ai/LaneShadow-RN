@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Pressable, StyleSheet, TextInput, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { IconSymbol } from './icon-symbol'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol } from './icon-symbol'
 
 type RouteSearchBarProps = {
   onSearch: (query: string) => void
@@ -30,7 +30,7 @@ export const RouteSearchBar = ({ onSearch, testID = 'route-search-bar' }: RouteS
     () => () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     },
-    []
+    [],
   )
 
   return (
@@ -50,7 +50,7 @@ export const RouteSearchBar = ({ onSearch, testID = 'route-search-bar' }: RouteS
       <IconSymbol
         name="magnify"
         size={20}
-        color={semantic.color.onSurface.subtle}
+        color={semantic.color.onSurface.subtle ?? 'transparent'}
         testID={`${testID}-icon`}
       />
       <TextInput
@@ -58,7 +58,7 @@ export const RouteSearchBar = ({ onSearch, testID = 'route-search-bar' }: RouteS
         value={text}
         onChangeText={handleChange}
         placeholder="Search routes..."
-        placeholderTextColor={semantic.color.onSurface.subtle}
+        placeholderTextColor={semantic.color.onSurface.subtle ?? 'transparent'}
         style={[
           styles.input,
           {
@@ -72,7 +72,7 @@ export const RouteSearchBar = ({ onSearch, testID = 'route-search-bar' }: RouteS
           <IconSymbol
             name="close-circle"
             size={18}
-            color={semantic.color.onSurface.subtle}
+            color={semantic.color.onSurface.subtle ?? 'transparent'}
           />
         </Pressable>
       )}

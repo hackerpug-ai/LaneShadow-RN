@@ -1,15 +1,15 @@
 import { ConvexError, v } from 'convex/values'
-import type { Id } from './_generated/dataModel'
-import { mutation, query, type MutationCtx, type QueryCtx } from './_generated/server'
 import {
   CURATION_ARTIFACT_RELEASE_METADATA_FIELDS,
   CURATION_ARTIFACT_SHARD_METADATA_FIELDS,
-  curationArtifactSourceValidator,
   type CurationArtifactRelease,
   type CurationArtifactReleaseMetadata,
   type CurationArtifactShard,
   type CurationArtifactShardMetadata,
+  curationArtifactSourceValidator,
 } from '../models/curation-artifacts'
+import type { Id } from './_generated/dataModel'
+import { type MutationCtx, mutation, type QueryCtx, query } from './_generated/server'
 
 type ArtifactReleaseDoc = CurationArtifactRelease & {
   _id: Id<'curation_artifact_releases'>
@@ -28,19 +28,19 @@ const activeArtifactReleaseResultValidator = v.object({
 const findReleaseBySourceAndId = async (
   ctx: QueryCtx | MutationCtx,
   source: CurationArtifactReleaseMetadata['source'],
-  releaseId: string
+  releaseId: string,
 ): Promise<ArtifactReleaseDoc | null> => {
   return await ctx.db
     .query('curation_artifact_releases')
     .withIndex('by_source_and_releaseId', (q: any) =>
-      q.eq('source', source).eq('releaseId', releaseId)
+      q.eq('source', source).eq('releaseId', releaseId),
     )
     .first()
 }
 
 const mapReleaseResult = (
   release: ArtifactReleaseDoc,
-  shards: ArtifactShardDoc[]
+  shards: ArtifactShardDoc[],
 ): {
   source: CurationArtifactReleaseMetadata['source']
   releaseId: string
@@ -83,7 +83,7 @@ export const generateArtifactUploadUrlHandler = async (ctx: MutationCtx) => {
 
 export const upsertArtifactReleaseHandler = async (
   ctx: MutationCtx,
-  args: CurationArtifactReleaseMetadata
+  args: CurationArtifactReleaseMetadata,
 ) => {
   const now = Date.now()
   const existing = await findReleaseBySourceAndId(ctx, args.source, args.releaseId)
@@ -115,7 +115,7 @@ export const upsertArtifactReleaseHandler = async (
 
 export const upsertArtifactShardsHandler = async (
   ctx: MutationCtx,
-  args: { shards: CurationArtifactShardMetadata[] }
+  args: { shards: CurationArtifactShardMetadata[] },
 ) => {
   const now = Date.now()
   let inserted = 0
@@ -125,7 +125,7 @@ export const upsertArtifactShardsHandler = async (
     const existing = await ctx.db
       .query('curation_artifact_shards')
       .withIndex('by_source_and_releaseId_and_state', (q: any) =>
-        q.eq('source', shard.source).eq('releaseId', shard.releaseId).eq('state', shard.state)
+        q.eq('source', shard.source).eq('releaseId', shard.releaseId).eq('state', shard.state),
       )
       .first()
 
@@ -154,7 +154,7 @@ export const activateArtifactReleaseHandler = async (
   args: {
     source: CurationArtifactReleaseMetadata['source']
     releaseId: string
-  }
+  },
 ) => {
   const releases = (await ctx.db
     .query('curation_artifact_releases')
@@ -192,13 +192,11 @@ export const activateArtifactReleaseHandler = async (
 
 export const getActiveArtifactReleaseWithShardsHandler = async (
   ctx: QueryCtx,
-  args: { source: CurationArtifactReleaseMetadata['source'] }
+  args: { source: CurationArtifactReleaseMetadata['source'] },
 ) => {
   const release = (await ctx.db
     .query('curation_artifact_releases')
-    .withIndex('by_source_and_active', (q: any) =>
-      q.eq('source', args.source).eq('active', true)
-    )
+    .withIndex('by_source_and_active', (q: any) => q.eq('source', args.source).eq('active', true))
     .first()) as ArtifactReleaseDoc | null
 
   if (!release) {
@@ -208,7 +206,7 @@ export const getActiveArtifactReleaseWithShardsHandler = async (
   const shards = (await ctx.db
     .query('curation_artifact_shards')
     .withIndex('by_source_and_releaseId', (q: any) =>
-      q.eq('source', release.source).eq('releaseId', release.releaseId)
+      q.eq('source', release.source).eq('releaseId', release.releaseId),
     )
     .collect()) as ArtifactShardDoc[]
 

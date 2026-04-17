@@ -1,10 +1,10 @@
-import type { FC } from 'react'
-import { ShapeSource, LineLayer } from '@rnmapbox/maps'
+import { LineLayer, ShapeSource } from '@rnmapbox/maps'
 import type { FeatureCollection, LineString } from 'geojson'
+import type { FC } from 'react'
 
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { ExtendedTheme } from '../../styles/types'
 import { convertCoordinateArray } from '../../lib/mapbox/coordinate-converter'
+import type { ExtendedTheme } from '../../styles/types'
 
 /**
  * Deviation path segment types
@@ -53,7 +53,7 @@ export type DeviationPolylineProps = {
 const getSegmentColor = (
   type: DeviationSegmentType,
   semantic: ExtendedTheme['semantic'],
-  isActive: boolean
+  isActive: boolean,
 ): string => {
   switch (type) {
     case 'original':
@@ -72,11 +72,9 @@ const getSegmentColor = (
  * Converts [lat, lng] to Mapbox [lng, lat].
  */
 const buildLineFeature = (
-  coordinates: { latitude: number; longitude: number }[]
+  coordinates: { latitude: number; longitude: number }[],
 ): FeatureCollection<LineString> => {
-  const googleCoords = coordinates.map(
-    (c) => [c.latitude, c.longitude] as [number, number]
-  )
+  const googleCoords = coordinates.map((c) => [c.latitude, c.longitude] as [number, number])
   const mapboxCoords = convertCoordinateArray(googleCoords)
 
   return {
@@ -143,9 +141,7 @@ export const DeviationPolyline: FC<DeviationPolylineProps> = ({
             id={sourceId}
             shape={feature}
             testID={
-              testID
-                ? `${testID}-${segment.type}-${index}`
-                : `deviation-${segment.type}-${index}`
+              testID ? `${testID}-${segment.type}-${index}` : `deviation-${segment.type}-${index}`
             }
           >
             <LineLayer
@@ -172,7 +168,7 @@ export const DeviationPolyline: FC<DeviationPolylineProps> = ({
 export const buildDeviationSegments = (
   originalRouteCoordinates: { latitude: number; longitude: number }[],
   detourPathCoordinates: { latitude: number; longitude: number }[],
-  reconnectPoint: { latitude: number; longitude: number }
+  reconnectPoint: { latitude: number; longitude: number },
 ): DeviationSegment[] => {
   const segments: DeviationSegment[] = []
 

@@ -1,36 +1,34 @@
+import { useRouter } from 'expo-router'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useRouter } from 'expo-router'
-import { Notifier } from 'react-native-notifier'
 import type { Swipeable } from 'react-native-gesture-handler'
-
-import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
+import { Notifier } from 'react-native-notifier'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { SubpageLayout } from '../../../components/layouts/subpage-layout'
+import { DeleteRouteDialog } from '../../../components/ui/delete-route-dialog'
+import { EmptyState } from '../../../components/ui/empty-state'
+import { SavedRouteCard } from '../../../components/ui/saved-route-card'
+import { formatDate } from '../../../components/ui/saved-route-card.utils'
+import type { Id } from '../../../convex/_generated/dataModel'
 import {
   useSavedRoutesList,
   useSoftDeleteRoute,
   useUndoDeleteRoute,
 } from '../../../hooks/use-saved-routes'
+import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { showSuccessNotification } from '../../../lib/notifier-helpers'
-import { SavedRouteCard } from '../../../components/ui/saved-route-card'
-import { formatDate } from '../../../components/ui/saved-route-card.utils'
-import { DeleteRouteDialog } from '../../../components/ui/delete-route-dialog'
+import type { SavedRouteListItemView } from '../../../types/routes'
 import {
-  LoadingState,
-  FilterHeader,
   FilteredEmptyState,
+  FilterHeader,
+  LoadingState,
   SwipeableRouteCard,
 } from './saved-routes.components'
-import { EmptyState } from '../../../components/ui/empty-state'
-import { SubpageLayout } from '../../../components/layouts/subpage-layout'
-import type { SavedRouteListItemView } from '../../../types/routes'
-import type { Id } from '../../../convex/_generated/dataModel'
 
 export const SKELETON_COUNT = 3
 export const THUMBNAIL_ROTATIONS = [-12, -8, -5, -10, -7] as const
 
-export const formatDistance = (meters: number): string =>
-  `${(meters / 1609.344).toFixed(1)} mi`
+export const formatDistance = (meters: number): string => `${(meters / 1609.344).toFixed(1)} mi`
 
 export const formatDuration = (seconds: number): string => {
   const m = Math.round(seconds / 60)
@@ -38,9 +36,8 @@ export const formatDuration = (seconds: number): string => {
   return `${Math.floor(m / 60)}h ${m % 60}m`
 }
 
-export const getSortedRoutes = (
-  routes: SavedRouteListItemView[]
-): SavedRouteListItemView[] => [...routes].sort((a, b) => b.createdAt - a.createdAt)
+export const getSortedRoutes = (routes: SavedRouteListItemView[]): SavedRouteListItemView[] =>
+  [...routes].sort((a, b) => b.createdAt - a.createdAt)
 
 const UNDO_TOAST_DURATION = 5000
 
@@ -66,7 +63,8 @@ const SavedRoutesScreen = () => {
   const didUndoRef = useRef(false)
   const openSwipeableRef = useRef<Swipeable | null>(null)
 
-  const filtersActive = searchQuery.length > 0 || afterDate !== undefined || beforeDate !== undefined
+  const filtersActive =
+    searchQuery.length > 0 || afterDate !== undefined || beforeDate !== undefined
 
   const { data, isLoading } = useSavedRoutesList({
     searchQuery: searchQuery || undefined,
@@ -76,7 +74,7 @@ const SavedRoutesScreen = () => {
 
   const sortedRoutes = useMemo(
     () => (data?.routes ? getSortedRoutes(data.routes) : []),
-    [data?.routes]
+    [data?.routes],
   )
 
   const handleSearch = useCallback((query: string) => setSearchQuery(query), [])
@@ -85,7 +83,7 @@ const SavedRoutesScreen = () => {
       setAfterDate(range.afterDate)
       setBeforeDate(range.beforeDate)
     },
-    []
+    [],
   )
   const handleClearFilters = useCallback(() => {
     setSearchQuery('')
@@ -96,16 +94,13 @@ const SavedRoutesScreen = () => {
 
   const handlePress = useCallback(
     (savedRouteId: string) => router.push(`/(app)/saved-route/${savedRouteId}`),
-    [router]
+    [router],
   )
 
-  const handleSwipeDelete = useCallback(
-    (item: SavedRouteListItemView) => {
-      setDeleteTarget({ id: item.savedRouteId, name: item.name })
-      setDeleteDialogVisible(true)
-    },
-    []
-  )
+  const handleSwipeDelete = useCallback((item: SavedRouteListItemView) => {
+    setDeleteTarget({ id: item.savedRouteId, name: item.name })
+    setDeleteDialogVisible(true)
+  }, [])
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!deleteTarget) return
@@ -158,13 +153,14 @@ const SavedRoutesScreen = () => {
 
   const renderItem = useCallback(
     ({ item, index }: { item: SavedRouteListItemView; index: number }) => (
-      <SwipeableRouteCard
-        onDelete={() => handleSwipeDelete(item)}
-        onSwipeOpen={handleSwipeOpen}
-      >
+      <SwipeableRouteCard onDelete={() => handleSwipeDelete(item)} onSwipeOpen={handleSwipeOpen}>
         <SavedRouteCard
           name={item.name}
-          path={item.startLabel && item.endLabel ? `${item.startLabel} → ${item.endLabel}` : item.startLabel || item.endLabel}
+          path={
+            item.startLabel && item.endLabel
+              ? `${item.startLabel} → ${item.endLabel}`
+              : item.startLabel || item.endLabel
+          }
           dateSaved={formatDate(item.createdAt)}
           distance={formatDistance(item.preview.distanceMeters)}
           duration={formatDuration(item.preview.durationSeconds)}
@@ -174,21 +170,15 @@ const SavedRoutesScreen = () => {
         />
       </SwipeableRouteCard>
     ),
-    [handlePress, handleSwipeDelete, handleSwipeOpen]
+    [handlePress, handleSwipeDelete, handleSwipeOpen],
   )
 
-  const keyExtractor = useCallback(
-    (item: SavedRouteListItemView) => item.savedRouteId,
-    []
-  )
+  const keyExtractor = useCallback((item: SavedRouteListItemView) => item.savedRouteId, [])
 
   if (isLoading) return <LoadingState />
 
   return (
-    <SubpageLayout
-      title="Saved Routes"
-      testID="saved-routes-screen"
-    >
+    <SubpageLayout title="Saved Routes" testID="saved-routes-screen">
       <FlatList
         testID="saved-routes-list"
         data={sortedRoutes}

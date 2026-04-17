@@ -30,7 +30,9 @@ import { internalMutation } from '../_generated/server'
  */
 export const backfillSessionMessageKindStatusHandler = async (ctx: {
   db: {
-    query: (table: string) => { collect: () => Promise<{ _id: string; kind?: unknown; status?: unknown }[]> }
+    query: (table: string) => {
+      collect: () => Promise<{ _id: string; kind?: unknown; status?: unknown }[]>
+    }
     patch: (id: string, fields: object) => Promise<void>
   }
 }): Promise<{ patched: number; skipped: number }> => {

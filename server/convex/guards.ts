@@ -1,6 +1,6 @@
 import { ConvexError } from 'convex/values'
 
-import { Session } from '../models/users'
+import type { Session } from '../models/users'
 import { api, internal } from './_generated/api'
 import type { ActionCtx, MutationCtx, QueryCtx } from './_generated/server'
 

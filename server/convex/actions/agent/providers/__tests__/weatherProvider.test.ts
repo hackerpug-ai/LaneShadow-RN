@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, afterEach, type Mock } from 'vitest'
+import { afterEach, describe, expect, it, type Mock, vi } from 'vitest'
 import * as reliability from '../../lib/reliability'
 import { createWeatherProvider } from '../weatherProvider'
 
@@ -55,7 +55,7 @@ describe('weather provider reliability', () => {
             ;(err as any).name = 'AbortError'
             reject(err)
           })
-        })
+        }),
     )
 
     const provider = createWeatherProvider()

@@ -88,14 +88,14 @@ export const mapClerkMembership = ({
 
 export const shouldSkipWebhookUpdate = (
   localTimestamp: number,
-  remoteTimestamp: number
+  remoteTimestamp: number,
 ): boolean => {
   return localTimestamp > remoteTimestamp
 }
 
 const getUserIdByClerkId = async (
   ctx: MutationCtx,
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<Id<'users'> | null> => {
   const existing = await ctx.db
     .query('users')
@@ -106,7 +106,7 @@ const getUserIdByClerkId = async (
 
 const getOrgIdByClerkId = async (
   ctx: MutationCtx,
-  clerkOrgId: string
+  clerkOrgId: string,
 ): Promise<Id<'orgs'> | null> => {
   const existing = await ctx.db
     .query('orgs')
@@ -271,7 +271,7 @@ export const internalUpsertOrgMembershipFromClerk = internalMutation({
           last_name: v.optional(v.union(v.string(), v.null())),
           profile_image_url: v.optional(v.union(v.string(), v.null())),
           email_address: v.optional(v.union(v.string(), v.null())),
-        })
+        }),
       ),
       role: v.string(),
       updated_at: v.number(),

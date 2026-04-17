@@ -1,5 +1,5 @@
 'use node'
-import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import { getRouteWeather } from '../getRouteWeather'
 
 type LatLng = { lat: number; lng: number }
@@ -16,12 +16,12 @@ const makeFoggyPolyline = (): LatLng[] => [
   { lat: 37.9, lng: -122.9 }, // end
 ]
 
-const makeOkFetch = (overrides?: { visibility?: number; temperature?: number; rain?: number }): Mock => {
-  const times = [
-    '2026-01-13T11:00:00.000Z',
-    '2026-01-13T12:00:00.000Z',
-    '2026-01-13T13:00:00.000Z',
-  ]
+const makeOkFetch = (overrides?: {
+  visibility?: number
+  temperature?: number
+  rain?: number
+}): Mock => {
+  const times = ['2026-01-13T11:00:00.000Z', '2026-01-13T12:00:00.000Z', '2026-01-13T13:00:00.000Z']
 
   const json = {
     hourly: {
@@ -85,7 +85,11 @@ describe('getRouteWeather', () => {
       ;(globalThis as any).fetch = vi.fn(async () => {
         callCount += 1
         const isFoggy = callCount === 2 // second sample point is foggy
-        const times = ['2026-01-13T11:00:00.000Z', '2026-01-13T12:00:00.000Z', '2026-01-13T13:00:00.000Z']
+        const times = [
+          '2026-01-13T11:00:00.000Z',
+          '2026-01-13T12:00:00.000Z',
+          '2026-01-13T13:00:00.000Z',
+        ]
         const json = {
           hourly: {
             time: times,

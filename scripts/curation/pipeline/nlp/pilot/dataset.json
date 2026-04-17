@@ -3,9 +3,7 @@
     "post_id": "adv001_synth_0",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -17,9 +15,7 @@
     "post_id": "adv002_synth_1",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -31,9 +27,7 @@
     "post_id": "reddit001_synth_2",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -45,9 +39,7 @@
     "post_id": "adv001_synth_3",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -59,9 +51,7 @@
     "post_id": "adv002_synth_4",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -73,9 +63,7 @@
     "post_id": "reddit001_synth_5",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -87,9 +75,7 @@
     "post_id": "adv001_synth_6",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -101,9 +87,7 @@
     "post_id": "adv002_synth_7",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -115,9 +99,7 @@
     "post_id": "reddit001_synth_8",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -129,9 +111,7 @@
     "post_id": "adv001_synth_9",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -143,9 +123,7 @@
     "post_id": "adv002_synth_10",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -157,9 +135,7 @@
     "post_id": "reddit001_synth_11",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -171,9 +147,7 @@
     "post_id": "adv001_synth_12",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -185,9 +159,7 @@
     "post_id": "adv002_synth_13",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -199,9 +171,7 @@
     "post_id": "reddit001_synth_14",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -213,9 +183,7 @@
     "post_id": "adv001_synth_15",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -227,9 +195,7 @@
     "post_id": "adv002_synth_16",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -241,9 +207,7 @@
     "post_id": "reddit001_synth_17",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -255,9 +219,7 @@
     "post_id": "adv001_synth_18",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -269,9 +231,7 @@
     "post_id": "adv002_synth_19",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -283,9 +243,7 @@
     "post_id": "reddit001_synth_20",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -297,9 +255,7 @@
     "post_id": "adv001_synth_21",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -311,9 +267,7 @@
     "post_id": "adv002_synth_22",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -325,9 +279,7 @@
     "post_id": "reddit001_synth_23",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -339,9 +291,7 @@
     "post_id": "adv001_synth_24",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -353,9 +303,7 @@
     "post_id": "adv002_synth_25",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -367,9 +315,7 @@
     "post_id": "reddit001_synth_26",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -381,9 +327,7 @@
     "post_id": "adv001_synth_27",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -395,9 +339,7 @@
     "post_id": "adv002_synth_28",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -409,9 +351,7 @@
     "post_id": "reddit001_synth_29",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -423,9 +363,7 @@
     "post_id": "adv001_synth_30",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -437,9 +375,7 @@
     "post_id": "adv002_synth_31",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -451,9 +387,7 @@
     "post_id": "reddit001_synth_32",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -465,9 +399,7 @@
     "post_id": "adv001_synth_33",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -479,9 +411,7 @@
     "post_id": "adv002_synth_34",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -493,9 +423,7 @@
     "post_id": "reddit001_synth_35",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -507,9 +435,7 @@
     "post_id": "adv001_synth_36",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -521,9 +447,7 @@
     "post_id": "adv002_synth_37",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -535,9 +459,7 @@
     "post_id": "reddit001_synth_38",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -549,9 +471,7 @@
     "post_id": "adv001_synth_39",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -563,9 +483,7 @@
     "post_id": "adv002_synth_40",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -577,9 +495,7 @@
     "post_id": "reddit001_synth_41",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -591,9 +507,7 @@
     "post_id": "adv001_synth_42",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -605,9 +519,7 @@
     "post_id": "adv002_synth_43",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -619,9 +531,7 @@
     "post_id": "reddit001_synth_44",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -633,9 +543,7 @@
     "post_id": "adv001_synth_45",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -647,9 +555,7 @@
     "post_id": "adv002_synth_46",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -661,9 +567,7 @@
     "post_id": "reddit001_synth_47",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -675,9 +579,7 @@
     "post_id": "adv001_synth_48",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -689,9 +591,7 @@
     "post_id": "adv002_synth_49",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -703,9 +603,7 @@
     "post_id": "reddit001_synth_50",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -717,9 +615,7 @@
     "post_id": "adv001_synth_51",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -731,9 +627,7 @@
     "post_id": "adv002_synth_52",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -745,9 +639,7 @@
     "post_id": "reddit001_synth_53",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -759,9 +651,7 @@
     "post_id": "adv001_synth_54",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -773,9 +663,7 @@
     "post_id": "adv002_synth_55",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -787,9 +675,7 @@
     "post_id": "reddit001_synth_56",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -801,9 +687,7 @@
     "post_id": "adv001_synth_57",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -815,9 +699,7 @@
     "post_id": "adv002_synth_58",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -829,9 +711,7 @@
     "post_id": "reddit001_synth_59",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -843,9 +723,7 @@
     "post_id": "adv001_synth_60",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -857,9 +735,7 @@
     "post_id": "adv002_synth_61",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -871,9 +747,7 @@
     "post_id": "reddit001_synth_62",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -885,9 +759,7 @@
     "post_id": "adv001_synth_63",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -899,9 +771,7 @@
     "post_id": "adv002_synth_64",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -913,9 +783,7 @@
     "post_id": "reddit001_synth_65",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -927,9 +795,7 @@
     "post_id": "adv001_synth_66",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -941,9 +807,7 @@
     "post_id": "adv002_synth_67",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -955,9 +819,7 @@
     "post_id": "reddit001_synth_68",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -969,9 +831,7 @@
     "post_id": "adv001_synth_69",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -983,9 +843,7 @@
     "post_id": "adv002_synth_70",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -997,9 +855,7 @@
     "post_id": "reddit001_synth_71",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -1011,9 +867,7 @@
     "post_id": "adv001_synth_72",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -1025,9 +879,7 @@
     "post_id": "adv002_synth_73",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -1039,9 +891,7 @@
     "post_id": "reddit001_synth_74",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -1053,9 +903,7 @@
     "post_id": "adv001_synth_75",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -1067,9 +915,7 @@
     "post_id": "adv002_synth_76",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -1081,9 +927,7 @@
     "post_id": "reddit001_synth_77",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -1095,9 +939,7 @@
     "post_id": "adv001_synth_78",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -1109,9 +951,7 @@
     "post_id": "adv002_synth_79",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -1123,9 +963,7 @@
     "post_id": "reddit001_synth_80",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -1137,9 +975,7 @@
     "post_id": "adv001_synth_81",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -1151,9 +987,7 @@
     "post_id": "adv002_synth_82",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -1165,9 +999,7 @@
     "post_id": "reddit001_synth_83",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -1179,9 +1011,7 @@
     "post_id": "adv001_synth_84",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -1193,9 +1023,7 @@
     "post_id": "adv002_synth_85",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -1207,9 +1035,7 @@
     "post_id": "reddit001_synth_86",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -1221,9 +1047,7 @@
     "post_id": "adv001_synth_87",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -1235,9 +1059,7 @@
     "post_id": "adv002_synth_88",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -1249,9 +1071,7 @@
     "post_id": "reddit001_synth_89",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -1263,9 +1083,7 @@
     "post_id": "adv001_synth_90",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -1277,9 +1095,7 @@
     "post_id": "adv002_synth_91",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -1291,9 +1107,7 @@
     "post_id": "reddit001_synth_92",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -1305,9 +1119,7 @@
     "post_id": "adv001_synth_93",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -1319,9 +1131,7 @@
     "post_id": "adv002_synth_94",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -1333,9 +1143,7 @@
     "post_id": "reddit001_synth_95",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -1347,9 +1155,7 @@
     "post_id": "adv001_synth_96",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",
@@ -1361,9 +1167,7 @@
     "post_id": "adv002_synth_97",
     "source": "advrider",
     "text_snippet": "Ride report: Going-to-the-Sun Road in Glacier NP. Absolutely stunning views but slow going due to construction. Road is in good shape otherwise.",
-    "label_road_names": [
-      "Going-to-the-Sun Road"
-    ],
+    "label_road_names": ["Going-to-the-Sun Road"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "neutral",
@@ -1375,9 +1179,7 @@
     "post_id": "reddit001_synth_98",
     "source": "reddit",
     "text_snippet": "Avoid I-95 through Jersey - bumper to bumper trucks and potholes everywhere. Took me 3 hours to go 50 miles.",
-    "label_road_names": [
-      "I-95"
-    ],
+    "label_road_names": ["I-95"],
     "label_attributes": {
       "scenery": "absent",
       "twistiness": "absent",
@@ -1389,9 +1191,7 @@
     "post_id": "adv001_synth_99",
     "source": "advrider",
     "text_snippet": "Just finished the Tail of the Dragon - 318 curves in 11 miles! The road surface is pristine but there was too much traffic today. Scenery is amazing with the Smoky Mountains.",
-    "label_road_names": [
-      "Tail of the Dragon"
-    ],
+    "label_road_names": ["Tail of the Dragon"],
     "label_attributes": {
       "scenery": "positive",
       "twistiness": "positive",

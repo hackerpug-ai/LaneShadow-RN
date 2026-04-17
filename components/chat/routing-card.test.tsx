@@ -15,17 +15,17 @@
  * - useSemanticTheme is stubbed with a minimal token set
  */
 
-import { vi, describe, it, expect, beforeEach } from 'vitest'
-import React from 'react'
 import { render } from '@testing-library/react-native'
+import React from 'react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtendedTheme } from '../../styles/types'
 
 // ---------------------------------------------------------------------------
 // Import after mocks
 // ---------------------------------------------------------------------------
 
-import { RoutingCard } from './routing-card'
 import type { RoutingCardProps } from './routing-card'
+import { RoutingCard } from './routing-card'
 
 // ---------------------------------------------------------------------------
 // Mock: react-native-reanimated
@@ -54,15 +54,18 @@ vi.mock('react-native-reanimated', () => {
 
   const useSharedValue = (initial: unknown) => ({ value: initial })
   const useAnimatedStyle = (fn: () => Record<string, unknown>) => {
-    try { fn() } catch { /* ignore */ }
+    try {
+      fn()
+    } catch {
+      /* ignore */
+    }
     return {}
   }
   const withRepeat = (_a: unknown) => undefined
   const withSequence = (..._args: unknown[]) => undefined
   const withTiming = (_val: unknown, _cfg?: unknown) => undefined
 
-  const AnimatedView = (props: Record<string, unknown>) =>
-    createElement(View, props)
+  const AnimatedView = (props: Record<string, unknown>) => createElement(View, props)
   AnimatedView.displayName = 'AnimatedView'
 
   return {
@@ -83,7 +86,13 @@ vi.mock('react-native-reanimated', () => {
 
 const mockSemantic: ExtendedTheme['semantic'] = {
   color: {
-    primary: { default: '#B87333', hover: '#C98544', pressed: '#9A6229', disabled: '#4A4458', focus: '#B87333' },
+    primary: {
+      default: '#B87333',
+      hover: '#C98544',
+      pressed: '#9A6229',
+      disabled: '#4A4458',
+      focus: '#B87333',
+    },
     secondary: { default: '#625B71' },
     tertiary: { default: '#7D5260' },
     success: { default: '#22c55e' },
@@ -169,12 +178,48 @@ const mockSemantic: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.3, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -289,7 +334,7 @@ describe('RoutingCard', () => {
       mockUseQuery.mockReturnValue(undefined)
 
       const { getByTestId } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByTestId('routing-card-pending')).toBeTruthy()
     })
@@ -298,7 +343,7 @@ describe('RoutingCard', () => {
       mockUseQuery.mockReturnValue({ _id: 'plan1', status: 'pending' })
 
       const { getByTestId } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByTestId('routing-card-pending')).toBeTruthy()
     })
@@ -307,7 +352,7 @@ describe('RoutingCard', () => {
       mockUseQuery.mockReturnValue({ _id: 'plan1', status: 'pending' })
 
       const { getByText } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByText('Preparing route…')).toBeTruthy()
     })
@@ -327,7 +372,7 @@ describe('RoutingCard', () => {
       })
 
       const { getByTestId } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByTestId('routing-card-running')).toBeTruthy()
     })
@@ -340,7 +385,7 @@ describe('RoutingCard', () => {
       })
 
       const { getByTestId } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByTestId('phase-pill-reading')).toBeTruthy()
       expect(getByTestId('phase-pill-finding')).toBeTruthy()
@@ -358,7 +403,7 @@ describe('RoutingCard', () => {
       })
 
       const { getByTestId } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       const msgEl = getByTestId('routing-card-status-message')
       expect(msgEl).toBeTruthy()
@@ -372,7 +417,7 @@ describe('RoutingCard', () => {
       })
 
       const { getByText } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByText('Planning route…')).toBeTruthy()
     })
@@ -381,7 +426,7 @@ describe('RoutingCard', () => {
       mockUseQuery.mockReturnValue({ _id: 'plan1', status: 'running' })
 
       const { getByTestId } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByTestId('routing-card-running')).toBeTruthy()
     })
@@ -400,7 +445,7 @@ describe('RoutingCard', () => {
       })
 
       const { getByTestId } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByTestId('routing-card-completed')).toBeTruthy()
     })
@@ -413,7 +458,7 @@ describe('RoutingCard', () => {
       })
 
       const { getByTestId } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByTestId('routing-card-route-opt-1')).toBeTruthy()
       expect(getByTestId('routing-card-route-opt-2')).toBeTruthy()
@@ -427,7 +472,7 @@ describe('RoutingCard', () => {
       })
 
       const { getByTestId } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByTestId('routing-card-pending')).toBeTruthy()
     })
@@ -446,7 +491,7 @@ describe('RoutingCard', () => {
       })
 
       const { getByTestId } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByTestId('routing-card-failed')).toBeTruthy()
     })
@@ -460,7 +505,7 @@ describe('RoutingCard', () => {
       })
 
       const { getByText } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByText(errorMessage)).toBeTruthy()
     })
@@ -469,7 +514,7 @@ describe('RoutingCard', () => {
       mockUseQuery.mockReturnValue({ _id: 'plan1', status: 'failed' })
 
       const { getByText } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByText('Planning failed.')).toBeTruthy()
     })
@@ -484,7 +529,7 @@ describe('RoutingCard', () => {
       mockUseQuery.mockReturnValue({ _id: 'plan1', status: 'cancelled' })
 
       const { getByTestId } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByTestId('routing-card-cancelled')).toBeTruthy()
     })
@@ -493,7 +538,7 @@ describe('RoutingCard', () => {
       mockUseQuery.mockReturnValue({ _id: 'plan1', status: 'cancelled' })
 
       const { getByText } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByText('Cancelled')).toBeTruthy()
     })
@@ -508,7 +553,7 @@ describe('RoutingCard', () => {
       mockUseQuery.mockReturnValue({ _id: 'plan1', status: 'pending' })
 
       const { getByTestId } = render(
-        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
       )
       expect(getByTestId('routing-card')).toBeTruthy()
     })
@@ -516,9 +561,7 @@ describe('RoutingCard', () => {
     it('does not crash when attachments array is empty', () => {
       mockUseQuery.mockReturnValue(undefined)
 
-      expect(() =>
-        render(<RoutingCard message={BASE_MESSAGE} attachments={[]} />)
-      ).not.toThrow()
+      expect(() => render(<RoutingCard message={BASE_MESSAGE} attachments={[]} />)).not.toThrow()
     })
   })
 })

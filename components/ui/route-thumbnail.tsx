@@ -56,7 +56,7 @@ export const deriveRotationFromBounds = (bounds: Bounds): number => {
 export const deriveRouteDimensions = (
   bounds: Bounds,
   thumbnailWidth: number,
-  thumbnailHeight: number
+  thumbnailHeight: number,
 ): { top: number; left: number; width: number; height: number } => {
   const latSpan = Math.abs(bounds.north - bounds.south)
   const lngSpan = Math.abs(bounds.east - bounds.west)
@@ -116,9 +116,7 @@ export const RouteThumbnail = ({
 }: RouteThumbnailProps) => {
   const { semantic } = useSemanticTheme()
 
-  const derivedRotation = bounds
-    ? deriveRotationFromBounds(bounds)
-    : rotation
+  const derivedRotation = bounds ? deriveRotationFromBounds(bounds) : rotation
   const derivedDimensions = bounds
     ? deriveRouteDimensions(bounds, width, height)
     : { top: routeTop, left: routeLeft, width: routeWidth, height: routeHeight }

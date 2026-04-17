@@ -1,7 +1,7 @@
 'use node'
 import type { RouteIndex, RouteIndexPoint } from '../../../../models/saved-routes'
-import type { WeatherProvider, WindSample } from '../providers/weatherProvider'
 import { traceableToolAsync } from '../lib/tracing'
+import type { WeatherProvider, WindSample } from '../providers/weatherProvider'
 
 const MAX_PROBES = 25
 

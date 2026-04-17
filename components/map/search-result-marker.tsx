@@ -15,9 +15,8 @@ import { useMemo } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import Svg, { Circle } from 'react-native-svg'
-
-import { latLngToMapbox } from '../../lib/mapbox/coordinate-converter'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { latLngToMapbox } from '../../lib/mapbox/coordinate-converter'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -71,10 +70,7 @@ export const SearchResultMarker = ({
 
   return (
     <MarkerView coordinate={mapboxCoords}>
-      <Pressable
-        onPress={handlePress}
-        testID={testID ?? `search-result-marker-${id}`}
-      >
+      <Pressable onPress={handlePress} testID={testID ?? `search-result-marker-${id}`}>
         <View
           style={[
             styles.container,
@@ -85,7 +81,11 @@ export const SearchResultMarker = ({
             },
           ]}
         >
-          <Svg width={MARKER_SIZE} height={MARKER_SIZE} viewBox={`0 0 ${MARKER_SIZE} ${MARKER_SIZE}`}>
+          <Svg
+            width={MARKER_SIZE}
+            height={MARKER_SIZE}
+            viewBox={`0 0 ${MARKER_SIZE} ${MARKER_SIZE}`}
+          >
             {/* Outer ring: dashed when default, solid when selected */}
             <Circle
               cx={radius}

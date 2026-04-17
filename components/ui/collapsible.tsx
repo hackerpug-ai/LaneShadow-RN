@@ -1,4 +1,4 @@
-import { PropsWithChildren, useState } from 'react'
+import { type PropsWithChildren, useState } from 'react'
 import { StyleSheet, TouchableOpacity } from 'react-native'
 
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'

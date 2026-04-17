@@ -1,6 +1,6 @@
-import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 
 type ThemeMode = 'light' | 'dark' | 'auto'
 
@@ -33,14 +33,14 @@ export const useSettingsStore = create<SettingsState>()(
       onRehydrateStorage: () => (state) => {
         // Mark as hydrated after rehydration completes
         // This fires both when there IS data to rehydrate AND when there isn't
-        state._hydrated = true
+        if (state) state._hydrated = true
       },
       partialize: (state) => {
         // Don't persist the _hydrated flag itself
-         
+
         const { _hydrated, ...rest } = state
         return rest
       },
-    }
-  )
+    },
+  ),
 )

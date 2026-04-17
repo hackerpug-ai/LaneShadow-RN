@@ -22,11 +22,7 @@ export type DragHandleProps = {
  * DragHandle component for bottom sheets
  * Visual affordance for draggable bottom sheets
  */
-export const DragHandle = ({
-  width = 36,
-  height = 4,
-  borderRadius = 2,
-}: DragHandleProps) => {
+export const DragHandle = ({ width = 36, height = 4, borderRadius = 2 }: DragHandleProps) => {
   const theme = useTheme<ExtendedTheme>()
   const { semantic } = theme
 

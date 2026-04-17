@@ -22,9 +22,7 @@ export const haversineDistance = (a: LatLng, b: LatLng): number => {
   const sinDLat = Math.sin(dLat / 2)
   const sinDLng = Math.sin(dLng / 2)
 
-  const x =
-    sinDLat * sinDLat +
-    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * sinDLng * sinDLng
+  const x = sinDLat * sinDLat + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * sinDLng * sinDLng
 
   return 2 * EARTH_RADIUS_METERS * Math.asin(Math.sqrt(x))
 }
@@ -33,8 +31,7 @@ export const haversineDistance = (a: LatLng, b: LatLng): number => {
  * Haversine distance in kilometers between two lat/lng points.
  * Thin wrapper over haversineDistance.
  */
-export const haversineKm = (a: LatLng, b: LatLng): number =>
-  haversineDistance(a, b) / 1000
+export const haversineKm = (a: LatLng, b: LatLng): number => haversineDistance(a, b) / 1000
 
 /**
  * Circumcircle radius of the triangle formed by three lat/lng points.

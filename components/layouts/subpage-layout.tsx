@@ -11,11 +11,11 @@
 
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
-import { Pressable, StyleSheet, View, type ColorValue } from 'react-native'
+import { type ColorValue, Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { IconSymbol, type IconName } from '../ui/icon-symbol'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { type IconName, IconSymbol } from '../ui/icon-symbol'
 
 export type SubpageLayoutProps = {
   title: string
@@ -83,7 +83,7 @@ export const SubpageLayout = ({
               styles.backButton,
               {
                 backgroundColor: pressed
-                  ? semantic.color.surfaceVariant.pressed ?? semantic.color.surfaceVariant.default
+                  ? (semantic.color.surfaceVariant.pressed ?? semantic.color.surfaceVariant.default)
                   : semantic.color.surfaceVariant.default,
                 borderRadius: semantic.radius.full,
                 borderWidth: 1,
@@ -91,11 +91,7 @@ export const SubpageLayout = ({
               },
             ]}
           >
-            <IconSymbol
-              name="arrow-left"
-              size={20}
-              color={semantic.color.onSurface.default}
-            />
+            <IconSymbol name="arrow-left" size={20} color={semantic.color.onSurface.default} />
           </Pressable>
 
           {rightAction ? (
@@ -106,7 +102,8 @@ export const SubpageLayout = ({
                 styles.backButton,
                 {
                   backgroundColor: pressed
-                    ? semantic.color.surfaceVariant.pressed ?? semantic.color.surfaceVariant.default
+                    ? (semantic.color.surfaceVariant.pressed ??
+                      semantic.color.surfaceVariant.default)
                     : semantic.color.surfaceVariant.default,
                   borderRadius: semantic.radius.full,
                   borderWidth: 1,

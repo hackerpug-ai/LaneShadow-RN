@@ -39,10 +39,7 @@
         "destination": "Point Reyes",
         "route_preference": "scenic|twisty",
         "avoid_highways": true,
-        "scenic_highlights": [
-          "Pacific Coast Highway",
-          "Point Reyes National Seashore"
-        ]
+        "scenic_highlights": ["Pacific Coast Highway", "Point Reyes National Seashore"]
       }
     }
   ]

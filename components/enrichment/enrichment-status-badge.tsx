@@ -12,11 +12,11 @@
  * Reuses Badge component pattern from components/ui/badge.tsx
  */
 
-import React from 'react'
+import type React from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { IconSymbol, type IconName } from '../ui/icon-symbol'
+import { type IconName, IconSymbol } from '../ui/icon-symbol'
 import type { EnrichmentStatus } from './enrichment-progress-provider'
 
 // ---------------------------------------------------------------------------

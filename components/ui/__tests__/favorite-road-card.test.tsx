@@ -8,14 +8,14 @@
  * - AC4: Given card rendered, when user taps card, then onPress callback triggered with ID
  */
 
-import { vi, describe, it, expect, beforeEach } from 'vitest'
-import React from 'react'
+import type React from 'react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ---------------------------------------------------------------------------
 // Import after mocks
 // ---------------------------------------------------------------------------
 
-import { render, fireEvent } from '@testing-library/react-native'
+import { fireEvent, render } from '@testing-library/react-native'
 import { FavoriteRoadCard } from '../favorite-road-card'
 
 // ---------------------------------------------------------------------------
@@ -31,8 +31,15 @@ vi.mock('../../../hooks/use-semantic-theme', () => ({
 vi.mock('react-native-paper', () => {
   const { createElement } = require('react')
 
-  const Text = ({ children, style, ...props }) =>
-    createElement('Text', { style, ...props }, children)
+  const Text = ({
+    children,
+    style,
+    ...props
+  }: {
+    children?: React.ReactNode
+    style?: object
+    [key: string]: unknown
+  }) => createElement('Text', { style, ...props }, children)
 
   return { Text }
 })
@@ -59,7 +66,7 @@ vi.mock('../button', () => {
           accessibilityLabel,
           accessibilityRole: 'button',
         },
-        children || icon
+        children || icon,
       )
     },
   }
@@ -69,7 +76,10 @@ vi.mock('../button', () => {
 vi.mock('../icon-symbol', () => ({
   IconSymbol: ({ name, size, color, testID }: any) => {
     const { createElement } = require('react')
-    return createElement('View', { testID: testID || `icon-${name}`, style: { width: size, height: size, backgroundColor: color } })
+    return createElement('View', {
+      testID: testID || `icon-${name}`,
+      style: { width: size, height: size, backgroundColor: color },
+    })
   },
 }))
 
@@ -143,12 +153,48 @@ const mockSemanticTheme = {
     },
   },
   elevation: {
-    0: { shadowColor: 'transparent', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.35, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: 'transparent',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.2,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.3,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.35,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -202,7 +248,7 @@ describe('FavoriteRoadCard', () => {
         expect.objectContaining({
           width: 80,
           height: 80,
-        })
+        }),
       )
     })
   })
@@ -227,10 +273,7 @@ describe('FavoriteRoadCard', () => {
       }
 
       const { getByTestId, getByText } = render(
-        <FavoriteRoadCard
-          {...defaultProps}
-          bounds={differentBounds}
-        />
+        <FavoriteRoadCard {...defaultProps} bounds={differentBounds} />,
       )
 
       // Should still render thumbnail
@@ -254,15 +297,13 @@ describe('FavoriteRoadCard', () => {
       const { getByTestId } = render(<FavoriteRoadCard {...defaultProps} />)
 
       expect(getByTestId('favorite-road-card-delete').props.accessibilityLabel).toBe(
-        'Delete favorite'
+        'Delete favorite',
       )
     })
 
     it('should call onDelete with ID when delete button is pressed', () => {
       const mockOnDelete = vi.fn()
-      const { getByTestId } = render(
-        <FavoriteRoadCard {...defaultProps} onDelete={mockOnDelete} />
-      )
+      const { getByTestId } = render(<FavoriteRoadCard {...defaultProps} onDelete={mockOnDelete} />)
 
       fireEvent.press(getByTestId('favorite-road-card-delete'))
 
@@ -286,9 +327,7 @@ describe('FavoriteRoadCard', () => {
   describe('AC4: Card press triggers callback', () => {
     it('should call onPress with ID when card is pressed', () => {
       const mockOnPress = vi.fn()
-      const { getByTestId } = render(
-        <FavoriteRoadCard {...defaultProps} onPress={mockOnPress} />
-      )
+      const { getByTestId } = render(<FavoriteRoadCard {...defaultProps} onPress={mockOnPress} />)
 
       fireEvent.press(getByTestId('favorite-road-card'))
 
@@ -309,11 +348,7 @@ describe('FavoriteRoadCard', () => {
       const mockOnPress = vi.fn()
       const mockOnDelete = vi.fn()
       const { getByTestId } = render(
-        <FavoriteRoadCard
-          {...defaultProps}
-          onPress={mockOnPress}
-          onDelete={mockOnDelete}
-        />
+        <FavoriteRoadCard {...defaultProps} onPress={mockOnPress} onDelete={mockOnDelete} />,
       )
 
       // Press delete button
@@ -328,7 +363,7 @@ describe('FavoriteRoadCard', () => {
       const { getByTestId } = render(<FavoriteRoadCard {...defaultProps} />)
 
       expect(getByTestId('favorite-road-card').props.accessibilityLabel).toBe(
-        'View Scenic Coastal Drive'
+        'View Scenic Coastal Drive',
       )
     })
   })

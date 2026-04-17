@@ -6,9 +6,9 @@
  */
 
 import { useQuery } from 'convex/react'
+import { useSelectedRoute } from '../contexts/selected-route'
 import { api } from '../convex/_generated/api'
 import type { Id } from '../convex/_generated/dataModel'
-import { useSelectedRoute } from '../contexts/selected-route'
 
 type RoutePlanResult = {
   routePlanId: Id<'route_plans'> | null
@@ -25,14 +25,13 @@ type RoutePlanResult = {
  *
  * Also returns the selected route option within that plan (based on selectedRouteId).
  */
-export const useActiveSessionRoute = (sessionId: Id<'planning_sessions'> | null): RoutePlanResult => {
+export const useActiveSessionRoute = (
+  sessionId: Id<'planning_sessions'> | null,
+): RoutePlanResult => {
   const { selectedRouteId, displayedRoutePlanId } = useSelectedRoute()
 
   // Fetch messages to find the newest routing_card
-  const messages = useQuery(
-    api.db.sessionMessages.list,
-    sessionId ? { sessionId } : 'skip'
-  )
+  const messages = useQuery(api.db.sessionMessages.list, sessionId ? { sessionId } : 'skip')
 
   // Always find the newest routing_card message (independent of display override)
   let newestRoutePlanId: Id<'route_plans'> | null = null
@@ -60,15 +59,15 @@ export const useActiveSessionRoute = (sessionId: Id<'planning_sessions'> | null)
   // Fetch the route plan using the public query (requires auth)
   const routePlan = useQuery(
     api.db.routePlans.getPlanById,
-    targetRoutePlanId ? { routePlanId: targetRoutePlanId } : 'skip'
+    targetRoutePlanId ? { routePlanId: targetRoutePlanId } : 'skip',
   )
 
   // Session isolation: only return the route plan if it belongs to the current session
   // This prevents plans from rendering on wrong/new sessions
-  const isValidRoutePlan = routePlan && (
-    !sessionId || // No session filter needed if we're not in a session
-    routePlan.planningSessionId === sessionId // Plan must belong to current session
-  )
+  const isValidRoutePlan =
+    routePlan &&
+    (!sessionId || // No session filter needed if we're not in a session
+      routePlan.planningSessionId === sessionId) // Plan must belong to current session
   const validatedRoutePlan = isValidRoutePlan ? routePlan : null
 
   // Determine the active route option
@@ -83,13 +82,16 @@ export const useActiveSessionRoute = (sessionId: Id<'planning_sessions'> | null)
       status: validatedRoutePlan.status,
       hasResult: !!validatedRoutePlan.result,
       optionsCount: options.length,
-      firstOption: options[0] ? {
-        routeOptionId: options[0].routeOptionId,
-        hasMap: !!(options[0] as any).map,
-        hasOverviewGeometry: !!(options[0] as any).map?.overviewGeometry,
-        overviewGeometryPreview: (options[0] as any).map?.overviewGeometry?.value?.substring(0, 50) + '...',
-        legsCount: (options[0] as any).map?.legs?.length,
-      } : null,
+      firstOption: options[0]
+        ? {
+            routeOptionId: options[0].routeOptionId,
+            hasMap: !!(options[0] as any).map,
+            hasOverviewGeometry: !!(options[0] as any).map?.overviewGeometry,
+            overviewGeometryPreview:
+              (options[0] as any).map?.overviewGeometry?.value?.substring(0, 50) + '...',
+            legsCount: (options[0] as any).map?.legs?.length,
+          }
+        : null,
     })
     if (options.length > 0) {
       if (selectedRouteId === null) {

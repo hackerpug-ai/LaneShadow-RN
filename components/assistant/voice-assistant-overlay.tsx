@@ -48,7 +48,11 @@ export const VoiceAssistantOverlay = ({
         </Text>
       )}
       {onDismiss ? (
-        <Text variant="labelSmall" onPress={onDismiss} style={{ color: semantic.color.primary.default }}>
+        <Text
+          variant="labelSmall"
+          onPress={onDismiss}
+          style={{ color: semantic.color.primary.default }}
+        >
           Dismiss
         </Text>
       ) : null}

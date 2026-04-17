@@ -16,13 +16,13 @@
  * - AC4: All polyline coordinates are in [lng, lat] format when rendered via Mapbox
  */
 
-import { describe, it, expect, vi } from 'vitest'
-import { render, fireEvent } from '@testing-library/react-native'
+import { fireEvent, render } from '@testing-library/react-native'
+import { ThemeProvider } from 'react-native-paper'
+import { describe, expect, it, vi } from 'vitest'
+import type { ExtendedTheme } from '../../../styles/types'
+import type { BuiltPolyline } from '../route-polyline'
 import type { SegmentSelectData } from '../route-polyline-component'
 import { RoutePolyline } from '../route-polyline-component'
-import type { BuiltPolyline } from '../route-polyline'
-import { ThemeProvider } from 'react-native-paper'
-import type { ExtendedTheme } from '../../../styles/types'
 
 // Mock theme provider wrapper
 const mockSemanticTheme: ExtendedTheme['semantic'] = {
@@ -108,12 +108,48 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.35, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.2,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.3,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.35,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -182,9 +218,7 @@ const createMockOverlayPolylines = (): BuiltPolyline[] => [
 
 // Wrapper component to provide theme
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <ThemeProvider theme={mockTheme}>
-    {children}
-  </ThemeProvider>
+  <ThemeProvider theme={mockTheme}>{children}</ThemeProvider>
 )
 
 describe('RoutePolyline Component', () => {
@@ -194,7 +228,7 @@ describe('RoutePolyline Component', () => {
       const { UNSAFE_root } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       // Each polyline should render a ShapeSource with a LineLayer child
@@ -211,7 +245,7 @@ describe('RoutePolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} testID={customTestID} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       expect(getByTestId(`${customTestID}--segment-overview`)).toBeDefined()
@@ -232,7 +266,7 @@ describe('RoutePolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylinesWithoutIds} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       // Should render with fallback testID using index
@@ -248,7 +282,7 @@ describe('RoutePolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} selectedSegmentId={selectedSegmentId} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId(`route-polyline--segment-${selectedSegmentId}`)
@@ -260,8 +294,8 @@ describe('RoutePolyline Component', () => {
 
       const { UNSAFE_root } = render(
         <TestWrapper>
-          <RoutePolyline polylines={polylines} selectedSegmentId='leg-0' />
-        </TestWrapper>
+          <RoutePolyline polylines={polylines} selectedSegmentId="leg-0" />
+        </TestWrapper>,
       )
 
       // Verify LineLayer components are rendered with stroke widths
@@ -270,11 +304,9 @@ describe('RoutePolyline Component', () => {
 
       // The highlighted segment (leg-0) should use highlightStrokeWidth (semantic.space.sm = 8)
       // Other segments should use their configured strokeWidth
-      const highlightedLayer = lineLayers.find(
-        (layer: any) => layer.props.id === 'leg-0-layer'
-      )
+      const highlightedLayer = lineLayers.find((layer: any) => layer.props.id === 'leg-0-layer')
       expect(highlightedLayer).toBeDefined()
-      expect(highlightedLayer.props.style.lineWidth).toBe(8) // semantic.space.sm
+      expect(highlightedLayer!.props.style.lineWidth).toBe(8) // semantic.space.sm
     })
   })
 
@@ -285,7 +317,7 @@ describe('RoutePolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-leg-0')
@@ -301,11 +333,11 @@ describe('RoutePolyline Component', () => {
           geometry: expect.any(String),
           bounds: expect.objectContaining({
             northEast: expect.any(Object),
-            southWest: expect.any(Object)
+            southWest: expect.any(Object),
           }),
           segmentType: 'leg',
-          legIndex: 0
-        })
+          legIndex: 0,
+        }),
       )
     })
 
@@ -315,7 +347,7 @@ describe('RoutePolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-leg-1')
@@ -340,7 +372,7 @@ describe('RoutePolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-overview')
@@ -363,7 +395,7 @@ describe('RoutePolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={overlayPolylines} onSegmentSelect={onSegmentSelect} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-wind-0-0-1000')
@@ -375,8 +407,8 @@ describe('RoutePolyline Component', () => {
         expect.objectContaining({
           segmentId: 'wind-0-0-1000',
           segmentType: 'wind',
-          legIndex: 0
-        })
+          legIndex: 0,
+        }),
       )
     })
 
@@ -386,7 +418,7 @@ describe('RoutePolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={overlayPolylines} onSegmentSelect={onSegmentSelect} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-rain-0-1000-2000')
@@ -398,8 +430,8 @@ describe('RoutePolyline Component', () => {
         expect.objectContaining({
           segmentId: 'rain-0-1000-2000',
           segmentType: 'rain',
-          legIndex: 0
-        })
+          legIndex: 0,
+        }),
       )
     })
   })
@@ -421,7 +453,7 @@ describe('RoutePolyline Component', () => {
       const { UNSAFE_root } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const shapeSource = UNSAFE_root.findByType('ShapeSource')
@@ -439,11 +471,11 @@ describe('RoutePolyline Component', () => {
 
       // First coordinate: Google [37.7749, -122.4194] -> Mapbox [-122.4194, 37.7749]
       expect(coords[0][0]).toBe(-122.4194) // longitude
-      expect(coords[0][1]).toBe(37.7749)   // latitude
+      expect(coords[0][1]).toBe(37.7749) // latitude
 
       // Second coordinate: Google [37.7849, -122.4094] -> Mapbox [-122.4094, 37.7849]
       expect(coords[1][0]).toBe(-122.4094) // longitude
-      expect(coords[1][1]).toBe(37.7849)   // latitude
+      expect(coords[1][1]).toBe(37.7849) // latitude
     })
   })
 
@@ -465,7 +497,7 @@ describe('RoutePolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-overview')
@@ -476,8 +508,8 @@ describe('RoutePolyline Component', () => {
       expect(onSegmentSelect).toHaveBeenCalledWith(
         expect.objectContaining({
           segmentType: 'overview',
-          segmentId: 'overview'
-        })
+          segmentId: 'overview',
+        }),
       )
     })
 
@@ -498,7 +530,7 @@ describe('RoutePolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-leg-2')
@@ -510,8 +542,8 @@ describe('RoutePolyline Component', () => {
         expect.objectContaining({
           segmentType: 'leg',
           legIndex: 2,
-          segmentId: 'leg-2'
-        })
+          segmentId: 'leg-2',
+        }),
       )
     })
 
@@ -532,7 +564,7 @@ describe('RoutePolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-wind-1-500-1500')
@@ -543,8 +575,8 @@ describe('RoutePolyline Component', () => {
       expect(onSegmentSelect).toHaveBeenCalledWith(
         expect.objectContaining({
           segmentType: 'wind',
-          legIndex: 1
-        })
+          legIndex: 1,
+        }),
       )
     })
 
@@ -565,7 +597,7 @@ describe('RoutePolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-rain-0-0-1000')
@@ -576,8 +608,8 @@ describe('RoutePolyline Component', () => {
       expect(onSegmentSelect).toHaveBeenCalledWith(
         expect.objectContaining({
           segmentType: 'rain',
-          legIndex: 0
-        })
+          legIndex: 0,
+        }),
       )
     })
 
@@ -598,7 +630,7 @@ describe('RoutePolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-temp-2-2000-3000')
@@ -609,8 +641,8 @@ describe('RoutePolyline Component', () => {
       expect(onSegmentSelect).toHaveBeenCalledWith(
         expect.objectContaining({
           segmentType: 'temp',
-          legIndex: 2
-        })
+          legIndex: 2,
+        }),
       )
     })
   })
@@ -634,7 +666,7 @@ describe('RoutePolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} onSegmentSelect={onSegmentSelect} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-test-segment')
@@ -684,7 +716,7 @@ describe('RoutePolyline Component', () => {
       const { UNSAFE_root } = render(
         <TestWrapper>
           <RoutePolyline polylines={polylines} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       // Only the valid polyline should render

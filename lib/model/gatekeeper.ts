@@ -20,8 +20,8 @@
  * - NEVER cache model download state permanently - always verify actual model file existence
  */
 
-import * as FileSystem from 'expo-file-system/legacy'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as FileSystem from 'expo-file-system/legacy'
 import type { ChecksumResult } from '../ai/checksum'
 
 /**
@@ -73,7 +73,7 @@ export class ModelGatekeeper {
   constructor(
     modelFilePath: string,
     expectedChecksum: string,
-    checksumValidator: ChecksumValidator
+    checksumValidator: ChecksumValidator,
   ) {
     this.config = {
       modelFilePath,
@@ -130,7 +130,7 @@ export class ModelGatekeeper {
       console.log('[ModelGatekeeper] Model exists - validating checksum...')
       const checksumResult = await this.checksumValidator.validate(
         this.config.modelFilePath,
-        this.config.expectedChecksum
+        this.config.expectedChecksum,
       )
 
       console.log('[ModelGatekeeper] Checksum validation result:', {
@@ -308,11 +308,7 @@ export class ModelGatekeeper {
  */
 export const createModelGatekeeper = (
   config: GatekeeperConfig,
-  checksumValidator: ChecksumValidator
+  checksumValidator: ChecksumValidator,
 ): ModelGatekeeper => {
-  return new ModelGatekeeper(
-    config.modelFilePath,
-    config.expectedChecksum,
-    checksumValidator
-  )
+  return new ModelGatekeeper(config.modelFilePath, config.expectedChecksum, checksumValidator)
 }

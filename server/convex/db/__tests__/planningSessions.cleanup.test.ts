@@ -120,7 +120,7 @@ describe('cleanupOldEmptySessions', () => {
     let currentSessionIndex = 0
     const sessionMessages: any[][] = [[{ _id: 'msg1' }], []] // session1 has messages, session2 doesn't
 
-    mockDb.query = (table: string) => ({
+    ;(mockDb as any).query = (table: string) => ({
       filter: (callback: any) => ({
         collect: async () => {
           if (table === 'planning_sessions') {

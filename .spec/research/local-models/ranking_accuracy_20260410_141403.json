@@ -3,13 +3,7 @@
   "date": "2026-04-10T14:14:03.854855",
   "model": "mlx-community/Qwen3.5-0.8B-OptiQ-4bit",
   "top_k": 5,
-  "scales": [
-    5,
-    10,
-    20,
-    40,
-    60
-  ],
+  "scales": [5, 10, 20, 40, 60],
   "scale_results": [
     {
       "test": "scale",
@@ -523,13 +517,7 @@
         "duration_s": 0.76
       },
       "haiku": {
-        "picks": [
-          "mt2-glacier",
-          "us19e-roan",
-          "or242-mckenzie",
-          "wa20-cascade",
-          "brp-nc-southern"
-        ],
+        "picks": ["mt2-glacier", "us19e-roan", "or242-mckenzie", "wa20-cascade", "brp-nc-southern"],
         "precision_at_k": 0.8,
         "hallucination_count": 0,
         "hallucinated_ids": [],
@@ -747,13 +735,7 @@
         "duration_s": 0.83
       },
       "haiku": {
-        "picks": [
-          "mt2-glacier",
-          "us19e-roan",
-          "or242-mckenzie",
-          "wa20-cascade",
-          "id75-sawtooth"
-        ],
+        "picks": ["mt2-glacier", "us19e-roan", "or242-mckenzie", "wa20-cascade", "id75-sawtooth"],
         "precision_at_k": 0.8,
         "hallucination_count": 0,
         "hallucinated_ids": [],
@@ -769,13 +751,7 @@
       "test": "scale",
       "n": 40,
       "intent": "low-traffic",
-      "ground_truth": [
-        "filler-014",
-        "filler-007",
-        "filler-031",
-        "id75-sawtooth",
-        "filler-026"
-      ],
+      "ground_truth": ["filler-014", "filler-007", "filler-031", "id75-sawtooth", "filler-026"],
       "qwen": {
         "picks": [
           "id129-deals-gap",
@@ -828,13 +804,7 @@
       "test": "scale",
       "n": 40,
       "intent": "adventure-dirt",
-      "ground_truth": [
-        "filler-031",
-        "filler-014",
-        "filler-007",
-        "filler-026",
-        "ca36-mad-river"
-      ],
+      "ground_truth": ["filler-031", "filler-014", "filler-007", "filler-026", "ca36-mad-river"],
       "qwen": {
         "picks": [
           "id129-deals-gap",
@@ -971,13 +941,7 @@
         "duration_s": 1.03
       },
       "haiku": {
-        "picks": [
-          "mt2-glacier",
-          "us19e-roan",
-          "or242-mckenzie",
-          "wa20-cascade",
-          "brp-nc-southern"
-        ],
+        "picks": ["mt2-glacier", "us19e-roan", "or242-mckenzie", "wa20-cascade", "brp-nc-southern"],
         "precision_at_k": 0.8,
         "hallucination_count": 0,
         "hallucinated_ids": [],
@@ -993,13 +957,7 @@
       "test": "scale",
       "n": 60,
       "intent": "low-traffic",
-      "ground_truth": [
-        "filler-014",
-        "filler-007",
-        "filler-031",
-        "id75-sawtooth",
-        "filler-021"
-      ],
+      "ground_truth": ["filler-014", "filler-007", "filler-031", "id75-sawtooth", "filler-021"],
       "qwen": {
         "picks": [
           "id129-deals-gap",
@@ -1010,12 +968,7 @@
         ],
         "precision_at_k": 0.0,
         "hallucination_count": 4,
-        "hallucinated_ids": [
-          "id129-deals-gap",
-          "id107-whitewater",
-          "id19e-roan",
-          "id242-mckenzie"
-        ],
+        "hallucinated_ids": ["id129-deals-gap", "id107-whitewater", "id19e-roan", "id242-mckenzie"],
         "duplicate_count": 0,
         "count_correct": true,
         "actual_count": 5,
@@ -1032,9 +985,7 @@
         ],
         "precision_at_k": 0.2,
         "hallucination_count": 1,
-        "hallucinated_ids": [
-          "id12-sawtooth"
-        ],
+        "hallucinated_ids": ["id12-sawtooth"],
         "duplicate_count": 0,
         "count_correct": true,
         "actual_count": 5,
@@ -1047,13 +998,7 @@
       "test": "scale",
       "n": 60,
       "intent": "adventure-dirt",
-      "ground_truth": [
-        "filler-031",
-        "filler-021",
-        "filler-014",
-        "filler-007",
-        "filler-026"
-      ],
+      "ground_truth": ["filler-031", "filler-021", "filler-014", "filler-007", "filler-026"],
       "qwen": {
         "picks": [
           "id129-deals-gap",
@@ -1064,12 +1009,7 @@
         ],
         "precision_at_k": 0.0,
         "hallucination_count": 4,
-        "hallucinated_ids": [
-          "id129-deals-gap",
-          "id107-whitewater",
-          "id19e-roan",
-          "id242-mckenzie"
-        ],
+        "hallucinated_ids": ["id129-deals-gap", "id107-whitewater", "id19e-roan", "id242-mckenzie"],
         "duplicate_count": 0,
         "count_correct": true,
         "actual_count": 5,
@@ -1114,13 +1054,7 @@
           "id=co550-million",
           "id=mt2-glacier"
         ],
-        [
-          "id10",
-          "id18",
-          "id1",
-          "id14",
-          "id12"
-        ],
+        ["id10", "id18", "id1", "id14", "id12"],
         [
           "id=us129-deals-gap",
           "id=tn56-falls",
@@ -1135,13 +1069,7 @@
           "id=filler-001",
           "id=or242-mckenzie"
         ],
-        [
-          "id18",
-          "id13",
-          "id14",
-          "id15",
-          "id12"
-        ]
+        ["id18", "id13", "id14", "id15", "id12"]
       ],
       "verdict": "BIAS_DETECTED"
     },
@@ -1154,13 +1082,7 @@
     },
     {
       "mode": "keyword_attraction",
-      "qwen_picks": [
-        "id10",
-        "id12",
-        "id14",
-        "id15",
-        "id18"
-      ],
+      "qwen_picks": ["id10", "id12", "id14", "id15", "id18"],
       "haiku_picks": [
         "us129-deals-gap",
         "ca36-mad-river",
@@ -1221,12 +1143,7 @@
     {
       "mode": "hallucination",
       "total_hallucinations": 20,
-      "per_intent": [
-        5,
-        5,
-        5,
-        5
-      ],
+      "per_intent": [5, 5, 5, 5],
       "verdict": "HALLUCINATED_20"
     },
     {

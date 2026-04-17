@@ -11,9 +11,9 @@
  * Following coding standards: composition over inheritance, named exports
  */
 
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { ViewStyle } from 'react-native'
 import { StyleSheet, View } from 'react-native'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 /**
  * Separator orientation

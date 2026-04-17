@@ -18,8 +18,9 @@ export const CompassPlusIcon = ({ size = 28 }: CompassPlusIconProps) => {
   const center = size / 2
   const radius = (size - strokeWidth * 2) / 2
 
-  const needlePath = `M ${center} ${center - radius * 0.6} L ${center + radius * 0.2} ${center +
-    radius * 0.4} L ${center - radius * 0.2} ${center + radius * 0.4} Z`
+  const needlePath = `M ${center} ${center - radius * 0.6} L ${center + radius * 0.2} ${
+    center + radius * 0.4
+  } L ${center - radius * 0.2} ${center + radius * 0.4} Z`
 
   const badgeCenterX = center + radius * 0.5
   const badgeCenterY = center + radius * 0.5

@@ -8,12 +8,12 @@
  * - AC4: Route has only 1 leg → Segment detail view renders → Shows single segment without collapse controls (always expanded)
  */
 
-import { vi, describe, it, expect } from 'vitest'
-import { render, fireEvent } from '@testing-library/react-native'
-import { PaperProvider, MD3DarkTheme } from 'react-native-paper'
+import { fireEvent, render } from '@testing-library/react-native'
+import { MD3DarkTheme, PaperProvider } from 'react-native-paper'
+import { describe, expect, it, vi } from 'vitest'
 import type { RouteLeg, RouteOverlays } from '../../models/saved-routes'
-import { SegmentDetailView } from './segment-detail-view'
 import type { ExtendedTheme } from '../../styles/types'
+import { SegmentDetailView } from './segment-detail-view'
 
 // Mock semantic theme for testing
 const mockSemanticTheme: ExtendedTheme['semantic'] = {
@@ -99,12 +99,48 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.3, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -132,7 +168,7 @@ const createLegs = (count: number): RouteLeg[] =>
 // Helper to create mock overlays
 const createOverlays = (
   legs: RouteLeg[],
-  conditions: { rain?: string; wind?: string; temperature?: string }[]
+  conditions: { rain?: string; wind?: string; temperature?: string }[],
 ): RouteOverlays => ({
   rain: {
     generatedAt: Date.now(),
@@ -202,11 +238,7 @@ const createOverlays = (
 
 // Helper wrapper with PaperProvider
 const renderWithPaper = (ui: React.ReactElement) => {
-  return render(
-    <PaperProvider theme={MD3DarkTheme}>
-      {ui}
-    </PaperProvider>
-  )
+  return render(<PaperProvider theme={MD3DarkTheme}>{ui}</PaperProvider>)
 }
 
 describe('segment-detail-view', () => {
@@ -226,7 +258,7 @@ describe('segment-detail-view', () => {
       ])
 
       const { queryByTestId, getByText } = renderWithPaper(
-        <SegmentDetailView legs={legs} overlays={overlays} testID="segment-detail-view" />
+        <SegmentDetailView legs={legs} overlays={overlays} testID="segment-detail-view" />,
       )
 
       // Initially collapsed: header present, segments not visible
@@ -268,7 +300,7 @@ describe('segment-detail-view', () => {
       ])
 
       const { queryByTestId, getByText } = renderWithPaper(
-        <SegmentDetailView legs={legs} overlays={overlays} testID="segment-detail-view" />
+        <SegmentDetailView legs={legs} overlays={overlays} testID="segment-detail-view" />,
       )
 
       // Expand view
@@ -301,7 +333,7 @@ describe('segment-detail-view', () => {
       ])
 
       const { queryByTestId, getByText } = renderWithPaper(
-        <SegmentDetailView legs={legs} overlays={overlays} testID="segment-detail-view" />
+        <SegmentDetailView legs={legs} overlays={overlays} testID="segment-detail-view" />,
       )
 
       // Initially collapsed
@@ -324,10 +356,12 @@ describe('segment-detail-view', () => {
   describe('single segment', () => {
     it('should satisfy AC4: show single segment without collapse controls', () => {
       const legs = createLegs(1)
-      const overlays = createOverlays(legs, [{ rain: 'moderate', wind: 'low', temperature: 'warm' }])
+      const overlays = createOverlays(legs, [
+        { rain: 'moderate', wind: 'low', temperature: 'warm' },
+      ])
 
       const { queryByTestId, queryByText } = renderWithPaper(
-        <SegmentDetailView legs={legs} overlays={overlays} testID="segment-detail-view" />
+        <SegmentDetailView legs={legs} overlays={overlays} testID="segment-detail-view" />,
       )
 
       // No header text "View segment details"
@@ -343,7 +377,7 @@ describe('segment-detail-view', () => {
     it('should handle empty legs array gracefully', () => {
       const overlays = createOverlays([], [])
       const { queryByTestId } = renderWithPaper(
-        <SegmentDetailView legs={[]} overlays={overlays} testID="segment-detail-view" />
+        <SegmentDetailView legs={[]} overlays={overlays} testID="segment-detail-view" />,
       )
       // Should render without crashing
       expect(queryByTestId('segment-detail-view')).toBeTruthy()
@@ -372,7 +406,7 @@ describe('segment-detail-view', () => {
         },
       }
       const { queryByTestId, getByText } = renderWithPaper(
-        <SegmentDetailView legs={legs} overlays={overlays} testID="segment-detail-view" />
+        <SegmentDetailView legs={legs} overlays={overlays} testID="segment-detail-view" />,
       )
       fireEvent.press(getByText('View segment details'))
       // Segments should render without weather badges

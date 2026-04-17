@@ -3,17 +3,16 @@
  * Extracted to keep the screen file lean (<150 lines).
  */
 
-import { useCallback, useRef, useState } from 'react'
 import { useRouter } from 'expo-router'
+import { useCallback, useRef, useState } from 'react'
 import { Notifier } from 'react-native-notifier'
-
+import type { Id } from '../../../convex/_generated/dataModel'
 import {
   useRenameRoute,
   useSoftDeleteRoute,
   useUndoDeleteRoute,
 } from '../../../hooks/use-saved-routes'
 import { showSuccessNotification } from '../../../lib/notifier-helpers'
-import type { Id } from '../../../convex/_generated/dataModel'
 
 const UNDO_TOAST_DURATION = 5000
 
@@ -44,7 +43,7 @@ export const useRouteActions = (savedRouteId: string | null) => {
       // Always close dialog — errors are shown via notification toast
       setRenameDialogVisible(false)
     },
-    [savedRouteId, rename]
+    [savedRouteId, rename],
   )
 
   const handleDeleteConfirm = useCallback(async () => {

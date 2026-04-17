@@ -10,8 +10,8 @@ import { useCallback, useState } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { SubpageLayout } from '../../../components/layouts/subpage-layout'
-import { RegionListItem } from '../../../components/offline/region-list-item'
 import { DeleteConfirmationDialog } from '../../../components/offline/delete-confirmation-dialog'
+import { RegionListItem } from '../../../components/offline/region-list-item'
 import { RenameRegionBottomSheet } from '../../../components/offline/rename-region-bottom-sheet'
 import { EmptyState } from '../../../components/ui/empty-state'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
@@ -20,13 +20,8 @@ import { useOfflineDownload } from '../../../hooks/useOfflineDownload'
 export default function OfflineRegionsScreen() {
   const router = useRouter()
   const { semantic } = useSemanticTheme()
-  const {
-    regions,
-    totalStorageUsed,
-    deleteRegion,
-    renameRegion,
-    refreshRegions,
-  } = useOfflineDownload()
+  const { regions, totalStorageUsed, deleteRegion, renameRegion, refreshRegions } =
+    useOfflineDownload()
 
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [renameTarget, setRenameTarget] = useState<string | null>(null)
@@ -54,9 +49,12 @@ export default function OfflineRegionsScreen() {
         const { sw, ne } = region.bounds
         // Guard against corrupted bounds
         if (
-          !isFinite(sw.lat) || !isFinite(sw.lng) ||
-          !isFinite(ne.lat) || !isFinite(ne.lng) ||
-          sw.lat >= ne.lat || sw.lng >= ne.lng
+          !isFinite(sw.lat) ||
+          !isFinite(sw.lng) ||
+          !isFinite(ne.lat) ||
+          !isFinite(ne.lng) ||
+          sw.lat >= ne.lat ||
+          sw.lng >= ne.lng
         ) {
           // Navigate without bounds — region-selector will use fallback center
           router.push({
@@ -81,12 +79,9 @@ export default function OfflineRegionsScreen() {
     [regions, router],
   )
 
-  const handleEdit = useCallback(
-    (name: string) => {
-      setRenameTarget(name)
-    },
-    [],
-  )
+  const handleEdit = useCallback((name: string) => {
+    setRenameTarget(name)
+  }, [])
 
   const handleRename = useCallback(
     async (newName: string) => {
@@ -113,16 +108,8 @@ export default function OfflineRegionsScreen() {
 
   if (regions.length === 0) {
     return (
-      <SubpageLayout
-        title="Offline Maps"
-        testID="offline-regions-screen"
-      >
-        <View
-          style={[
-            styles.container,
-            { backgroundColor: semantic.color.background.default },
-          ]}
-        >
+      <SubpageLayout title="Offline Maps" testID="offline-regions-screen">
+        <View style={[styles.container, { backgroundColor: semantic.color.background.default }]}>
           <EmptyState
             icon="map-marker-radius"
             headline="No Offline Maps Yet"
@@ -175,11 +162,9 @@ export default function OfflineRegionsScreen() {
             },
           ]}
         >
-          <Text
-            variant="bodySmall"
-            style={{ color: semantic.color.onSurface.subtle }}
-          >
-            {regions.length} {regions.length === 1 ? 'region' : 'regions'} • {formatSize(totalStorageUsed)} stored
+          <Text variant="bodySmall" style={{ color: semantic.color.onSurface.subtle }}>
+            {regions.length} {regions.length === 1 ? 'region' : 'regions'} •{' '}
+            {formatSize(totalStorageUsed)} stored
           </Text>
         </View>
 

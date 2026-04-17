@@ -550,21 +550,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('Offline Route Creation Flow - UC-OFF-07 + UC-OFF-08');
-            console.log('');
-            console.log('FLOW SUMMARY:');
-            console.log('1. Start Offline (0.0s) - User opens route planning with no connection');
-            console.log('2. Enter Waypoints (~30s) - User inputs FROM → TO → waypoints');
-            console.log('3. Calculate Route (0.5s) - Qwen3.5 + Mapbox offline routing');
-            console.log('4. Progressive Enrichment (3.9s) - Haiku enriches when connected');
-            console.log('');
-            console.log('KEY BEHAVIORS:');
-            console.log('- Route displays immediately with leg labels (<1s total)');
-            console.log('- Draft persists to AsyncStorage with status: local_only');
-            console.log('- Sync pending badge shows until connected');
-            console.log('- Progressive enrichment: each component appears when ready');
-            console.log('- User can continue using app during enrichment');
-            console.log('- No blocking failures - all paths have fallbacks');
         });
     </script>
 </body>

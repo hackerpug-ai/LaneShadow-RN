@@ -10,16 +10,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "avoid_road"
-        ],
-        "op_types_valid": [
-          "avoid_road"
-        ],
+        "op_types_raw": ["avoid_road"],
+        "op_types_valid": ["avoid_road"],
         "pass1_latency": 0.68,
-        "pass2_latencies": [
-          0.67
-        ],
+        "pass2_latencies": [0.67],
         "sequential_s": 1.35,
         "parallel_s": 1.35,
         "model_ops": [
@@ -47,16 +41,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "remove_waypoint"
-        ],
-        "op_types_valid": [
-          "remove_waypoint"
-        ],
+        "op_types_raw": ["remove_waypoint"],
+        "op_types_valid": ["remove_waypoint"],
         "pass1_latency": 0.55,
-        "pass2_latencies": [
-          0.35
-        ],
+        "pass2_latencies": [0.35],
         "sequential_s": 0.9,
         "parallel_s": 0.9,
         "model_ops": [
@@ -84,16 +72,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "add_waypoint"
-        ],
-        "op_types_valid": [
-          "add_waypoint"
-        ],
+        "op_types_raw": ["add_waypoint"],
+        "op_types_valid": ["add_waypoint"],
         "pass1_latency": 0.57,
-        "pass2_latencies": [
-          0.43
-        ],
+        "pass2_latencies": [0.43],
         "sequential_s": 1.01,
         "parallel_s": 1.01,
         "model_ops": [
@@ -121,16 +103,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "avoid_road"
-        ],
-        "op_types_valid": [
-          "avoid_road"
-        ],
+        "op_types_raw": ["avoid_road"],
+        "op_types_valid": ["avoid_road"],
         "pass1_latency": 0.54,
-        "pass2_latencies": [
-          0.34
-        ],
+        "pass2_latencies": [0.34],
         "sequential_s": 0.88,
         "parallel_s": 0.88,
         "model_ops": [
@@ -158,16 +134,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "trim_route"
-        ],
-        "op_types_valid": [
-          "trim_route"
-        ],
+        "op_types_raw": ["trim_route"],
+        "op_types_valid": ["trim_route"],
         "pass1_latency": 0.57,
-        "pass2_latencies": [
-          0.46
-        ],
+        "pass2_latencies": [0.46],
         "sequential_s": 1.03,
         "parallel_s": 1.03,
         "model_ops": [
@@ -195,16 +165,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "avoid_road"
-        ],
-        "op_types_valid": [
-          "avoid_road"
-        ],
+        "op_types_raw": ["avoid_road"],
+        "op_types_valid": ["avoid_road"],
         "pass1_latency": 0.54,
-        "pass2_latencies": [
-          0.67
-        ],
+        "pass2_latencies": [0.67],
         "sequential_s": 1.21,
         "parallel_s": 1.21,
         "model_ops": [
@@ -232,16 +196,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "avoid_road"
-        ],
-        "op_types_valid": [
-          "avoid_road"
-        ],
+        "op_types_raw": ["avoid_road"],
+        "op_types_valid": ["avoid_road"],
         "pass1_latency": 0.54,
-        "pass2_latencies": [
-          0.34
-        ],
+        "pass2_latencies": [0.34],
         "sequential_s": 0.88,
         "parallel_s": 0.88,
         "model_ops": [
@@ -269,16 +227,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "avoid_road"
-        ],
-        "op_types_valid": [
-          "avoid_road"
-        ],
+        "op_types_raw": ["avoid_road"],
+        "op_types_valid": ["avoid_road"],
         "pass1_latency": 0.5,
-        "pass2_latencies": [
-          0.31
-        ],
+        "pass2_latencies": [0.31],
         "sequential_s": 0.81,
         "parallel_s": 0.81,
         "model_ops": [
@@ -306,16 +258,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "avoid_road"
-        ],
-        "op_types_valid": [
-          "avoid_road"
-        ],
+        "op_types_raw": ["avoid_road"],
+        "op_types_valid": ["avoid_road"],
         "pass1_latency": 0.54,
-        "pass2_latencies": [
-          0.34
-        ],
+        "pass2_latencies": [0.34],
         "sequential_s": 0.87,
         "parallel_s": 0.87,
         "model_ops": [
@@ -343,16 +289,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "add_waypoint"
-        ],
-        "op_types_valid": [
-          "add_waypoint"
-        ],
+        "op_types_raw": ["add_waypoint"],
+        "op_types_valid": ["add_waypoint"],
         "pass1_latency": 0.54,
-        "pass2_latencies": [
-          0.82
-        ],
+        "pass2_latencies": [0.82],
         "sequential_s": 1.37,
         "parallel_s": 1.37,
         "model_ops": [
@@ -380,16 +320,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "remove_waypoint"
-        ],
-        "op_types_valid": [
-          "remove_waypoint"
-        ],
+        "op_types_raw": ["remove_waypoint"],
+        "op_types_valid": ["remove_waypoint"],
         "pass1_latency": 0.55,
-        "pass2_latencies": [
-          0.69
-        ],
+        "pass2_latencies": [0.69],
         "sequential_s": 1.23,
         "parallel_s": 1.23,
         "model_ops": [
@@ -417,16 +351,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "avoid_road"
-        ],
-        "op_types_valid": [
-          "avoid_road"
-        ],
+        "op_types_raw": ["avoid_road"],
+        "op_types_valid": ["avoid_road"],
         "pass1_latency": 0.55,
-        "pass2_latencies": [
-          0.36
-        ],
+        "pass2_latencies": [0.36],
         "sequential_s": 0.91,
         "parallel_s": 0.91,
         "model_ops": [
@@ -454,16 +382,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "remove_waypoint"
-        ],
-        "op_types_valid": [
-          "remove_waypoint"
-        ],
+        "op_types_raw": ["remove_waypoint"],
+        "op_types_valid": ["remove_waypoint"],
         "pass1_latency": 0.55,
-        "pass2_latencies": [
-          0.35
-        ],
+        "pass2_latencies": [0.35],
         "sequential_s": 0.9,
         "parallel_s": 0.9,
         "model_ops": [
@@ -491,16 +413,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "avoid_road"
-        ],
-        "op_types_valid": [
-          "avoid_road"
-        ],
+        "op_types_raw": ["avoid_road"],
+        "op_types_valid": ["avoid_road"],
         "pass1_latency": 0.55,
-        "pass2_latencies": [
-          0.72
-        ],
+        "pass2_latencies": [0.72],
         "sequential_s": 1.27,
         "parallel_s": 1.27,
         "model_ops": [
@@ -528,16 +444,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "add_waypoint"
-        ],
-        "op_types_valid": [
-          "add_waypoint"
-        ],
+        "op_types_raw": ["add_waypoint"],
+        "op_types_valid": ["add_waypoint"],
         "pass1_latency": 0.55,
-        "pass2_latencies": [
-          0.81
-        ],
+        "pass2_latencies": [0.81],
         "sequential_s": 1.35,
         "parallel_s": 1.35,
         "model_ops": [
@@ -565,19 +475,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "avoid_road",
-          "exclude_feature"
-        ],
-        "op_types_valid": [
-          "avoid_road",
-          "exclude_feature"
-        ],
+        "op_types_raw": ["avoid_road", "exclude_feature"],
+        "op_types_valid": ["avoid_road", "exclude_feature"],
         "pass1_latency": 0.55,
-        "pass2_latencies": [
-          0.34,
-          0.59
-        ],
+        "pass2_latencies": [0.34, 0.59],
         "sequential_s": 1.47,
         "parallel_s": 1.13,
         "model_ops": [
@@ -615,19 +516,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "add_waypoint",
-          "remove_waypoint"
-        ],
-        "op_types_valid": [
-          "add_waypoint",
-          "remove_waypoint"
-        ],
+        "op_types_raw": ["add_waypoint", "remove_waypoint"],
+        "op_types_valid": ["add_waypoint", "remove_waypoint"],
         "pass1_latency": 0.56,
-        "pass2_latencies": [
-          0.83,
-          0.7
-        ],
+        "pass2_latencies": [0.83, 0.7],
         "sequential_s": 2.09,
         "parallel_s": 1.39,
         "model_ops": [
@@ -665,16 +557,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "remove_waypoint"
-        ],
-        "op_types_valid": [
-          "remove_waypoint"
-        ],
+        "op_types_raw": ["remove_waypoint"],
+        "op_types_valid": ["remove_waypoint"],
         "pass1_latency": 0.54,
-        "pass2_latencies": [
-          0.73
-        ],
+        "pass2_latencies": [0.73],
         "sequential_s": 1.28,
         "parallel_s": 1.28,
         "model_ops": [
@@ -702,16 +588,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "trim_route"
-        ],
-        "op_types_valid": [
-          "trim_route"
-        ],
+        "op_types_raw": ["trim_route"],
+        "op_types_valid": ["trim_route"],
         "pass1_latency": 0.54,
-        "pass2_latencies": [
-          0.36
-        ],
+        "pass2_latencies": [0.36],
         "sequential_s": 0.9,
         "parallel_s": 0.9,
         "model_ops": [
@@ -739,16 +619,10 @@
         "valid_json": true,
         "pass1_valid": true,
         "intent_type": "update",
-        "op_types_raw": [
-          "add_waypoint"
-        ],
-        "op_types_valid": [
-          "add_waypoint"
-        ],
+        "op_types_raw": ["add_waypoint"],
+        "op_types_valid": ["add_waypoint"],
         "pass1_latency": 0.57,
-        "pass2_latencies": [
-          0.81
-        ],
+        "pass2_latencies": [0.81],
         "sequential_s": 1.39,
         "parallel_s": 1.38,
         "model_ops": [
@@ -870,12 +744,7 @@
             "latency": 0.38
           }
         ],
-        "probes_fired": [
-          "avoid_road",
-          "exclude_feature",
-          "add_waypoint",
-          "remove_waypoint"
-        ],
+        "probes_fired": ["avoid_road", "exclude_feature", "add_waypoint", "remove_waypoint"],
         "sequential_s": 3.06,
         "parallel_s": 0.89,
         "model_ops": [
@@ -995,12 +864,7 @@
             "latency": 0.4
           }
         ],
-        "probes_fired": [
-          "exclude_feature",
-          "add_waypoint",
-          "remove_waypoint",
-          "trim_route"
-        ],
+        "probes_fired": ["exclude_feature", "add_waypoint", "remove_waypoint", "trim_route"],
         "sequential_s": 3.0,
         "parallel_s": 0.89,
         "model_ops": [
@@ -1253,12 +1117,7 @@
             "latency": 0.41
           }
         ],
-        "probes_fired": [
-          "exclude_feature",
-          "add_waypoint",
-          "remove_waypoint",
-          "trim_route"
-        ],
+        "probes_fired": ["exclude_feature", "add_waypoint", "remove_waypoint", "trim_route"],
         "sequential_s": 3.43,
         "parallel_s": 0.9,
         "model_ops": [
@@ -1511,11 +1370,7 @@
             "latency": 0.43
           }
         ],
-        "probes_fired": [
-          "add_waypoint",
-          "remove_waypoint",
-          "reorder_waypoints"
-        ],
+        "probes_fired": ["add_waypoint", "remove_waypoint", "reorder_waypoints"],
         "sequential_s": 2.67,
         "parallel_s": 0.82,
         "model_ops": [
@@ -1541,10 +1396,7 @@
           },
           {
             "op": "reorder_waypoints",
-            "swap_indices": [
-              1,
-              2
-            ],
+            "swap_indices": [1, 2],
             "waypoint_index": null,
             "insert_before_index": null,
             "place_name": null,
@@ -1628,12 +1480,7 @@
             "latency": 0.46
           }
         ],
-        "probes_fired": [
-          "avoid_road",
-          "exclude_feature",
-          "add_waypoint",
-          "remove_waypoint"
-        ],
+        "probes_fired": ["avoid_road", "exclude_feature", "add_waypoint", "remove_waypoint"],
         "sequential_s": 3.47,
         "parallel_s": 1.01,
         "model_ops": [
@@ -1753,12 +1600,7 @@
             "latency": 0.45
           }
         ],
-        "probes_fired": [
-          "avoid_road",
-          "exclude_feature",
-          "add_waypoint",
-          "remove_waypoint"
-        ],
+        "probes_fired": ["avoid_road", "exclude_feature", "add_waypoint", "remove_waypoint"],
         "sequential_s": 3.44,
         "parallel_s": 1.02,
         "model_ops": [
@@ -1930,10 +1772,7 @@
           },
           {
             "op": "reorder_waypoints",
-            "swap_indices": [
-              1,
-              2
-            ],
+            "swap_indices": [1, 2],
             "waypoint_index": null,
             "insert_before_index": null,
             "place_name": null,
@@ -2080,10 +1919,7 @@
           },
           {
             "op": "reorder_waypoints",
-            "swap_indices": [
-              1,
-              2
-            ],
+            "swap_indices": [1, 2],
             "waypoint_index": null,
             "insert_before_index": null,
             "place_name": null,
@@ -2230,10 +2066,7 @@
           },
           {
             "op": "reorder_waypoints",
-            "swap_indices": [
-              1,
-              2
-            ],
+            "swap_indices": [1, 2],
             "waypoint_index": null,
             "insert_before_index": null,
             "place_name": null,
@@ -2317,12 +2150,7 @@
             "latency": 0.46
           }
         ],
-        "probes_fired": [
-          "avoid_road",
-          "exclude_feature",
-          "add_waypoint",
-          "remove_waypoint"
-        ],
+        "probes_fired": ["avoid_road", "exclude_feature", "add_waypoint", "remove_waypoint"],
         "sequential_s": 3.63,
         "parallel_s": 0.94,
         "model_ops": [
@@ -2578,12 +2406,7 @@
             "latency": 0.62
           }
         ],
-        "probes_fired": [
-          "avoid_road",
-          "exclude_feature",
-          "add_waypoint",
-          "remove_waypoint"
-        ],
+        "probes_fired": ["avoid_road", "exclude_feature", "add_waypoint", "remove_waypoint"],
         "sequential_s": 4.32,
         "parallel_s": 1.43,
         "model_ops": [
@@ -2891,10 +2714,7 @@
           },
           {
             "op": "reorder_waypoints",
-            "swap_indices": [
-              1,
-              2
-            ],
+            "swap_indices": [1, 2],
             "waypoint_index": null,
             "insert_before_index": null,
             "place_name": null,
@@ -3449,10 +3269,7 @@
           },
           {
             "op": "reorder_waypoints",
-            "swap_indices": [
-              1,
-              2
-            ],
+            "swap_indices": [1, 2],
             "waypoint_index": null,
             "insert_before_index": null,
             "place_name": null,
@@ -3918,10 +3735,7 @@
         "model_ops": [
           {
             "op": "reorder_waypoints",
-            "swap_indices": [
-              2,
-              3
-            ],
+            "swap_indices": [2, 3],
             "waypoint_index": null,
             "insert_before_index": null,
             "place_name": null,

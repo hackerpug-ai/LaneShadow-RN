@@ -5,10 +5,10 @@
  * Follows the design system stat display patterns
  */
 
-import { IconSymbol, type IconName } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
+import { type IconName, IconSymbol } from './icon-symbol'
 
 export type StatRowProps = {
   /** Icon name from MaterialCommunityIcons */
@@ -33,11 +33,9 @@ export const StatRow = ({ icon, value, iconSize = 18, testID }: StatRowProps) =>
       <IconSymbol
         name={icon}
         size={iconSize}
-        color={semantic.color.onSurface.subtle}
+        color={semantic.color.onSurface.subtle ?? 'transparent'}
       />
-      <Text style={[styles.value, { color: semantic.color.onSurface.default }]}>
-        {value}
-      </Text>
+      <Text style={[styles.value, { color: semantic.color.onSurface.default }]}>{value}</Text>
     </View>
   )
 }

@@ -19,16 +19,28 @@
 // Mocks — must be declared before imports
 // ---------------------------------------------------------------------------
 
-import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
-
-import type { SavedRouteDetailView } from '../../../../types/routes'
-import type { WindOverlay, RainOverlay, TemperatureOverlay, RouteOverlays } from '../../../../models/saved-routes'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import { buildRoutePolylines } from '../../../../components/map/route-polyline'
+import {
+  buildSaveRoutePayload,
+  SaveRouteSheet,
+} from '../../../../components/ui/save-favorite-sheet'
+import type {
+  RainOverlay,
+  RouteOverlays,
+  TemperatureOverlay,
+  WindOverlay,
+} from '../../../../models/saved-routes'
 import { getWorstRainLevel, getWorstTemperatureLevel } from '../../../../models/saved-routes'
-import { SaveRouteSheet, buildSaveRoutePayload } from '../../../../components/ui/save-favorite-sheet'
-import { deriveWindSummary, formatDistance, formatDuration, formatSavedDate } from '../../saved-route.utils/utils'
+import type { SavedRouteDetailView } from '../../../../types/routes'
+import {
+  deriveWindSummary,
+  formatDistance,
+  formatDuration,
+  formatSavedDate,
+} from '../../saved-route.utils/utils'
 import SavedRouteDetailScreen from '../[id]'
 
 const mockBack = vi.fn()
@@ -60,7 +72,8 @@ vi.mock('react-native-gesture-handler', () => ({
   ScrollView: 'ScrollView',
 }))
 vi.mock('react-native-paper', () => ({
-  Provider: ({ children }: { children: React.ReactNode }) => React.createElement(React.Fragment, null, children),
+  Provider: ({ children }: { children: React.ReactNode }) =>
+    React.createElement(React.Fragment, null, children),
   Text: 'Text',
 }))
 vi.mock('react-native-safe-area-context', () => ({
@@ -140,7 +153,11 @@ vi.mock('../../../../components/ui/button', () => ({
     React.createElement('Button', props, children),
 }))
 vi.mock('../../../../components/ui/bottom-action-sheet', () => ({
-  BottomActionSheet: ({ children, visible, ...props }: { children?: React.ReactNode; visible?: boolean } & Record<string, unknown>) =>
+  BottomActionSheet: ({
+    children,
+    visible,
+    ...props
+  }: { children?: React.ReactNode; visible?: boolean } & Record<string, unknown>) =>
     visible ? React.createElement('BottomActionSheet', props, children) : null,
 }))
 vi.mock('../../../../components/ui/bottom-sheet-input', () => ({
@@ -208,14 +225,19 @@ const makeTemperatureOverlay = (tempC: number): TemperatureOverlay => ({
   generatedAt: Date.now(),
   modelVersion: '1.0',
   legend: [],
-  byLeg: [{ legIndex: 0, segments: [{ startMeters: 0, endMeters: 5000, level: 'warm', temperatureCelsius: tempC }] }],
+  byLeg: [
+    {
+      legIndex: 0,
+      segments: [{ startMeters: 0, endMeters: 5000, level: 'warm', temperatureCelsius: tempC }],
+    },
+  ],
 })
 
 const makeSavedRouteDetail = (
   overrides?: Partial<{
     overlays: RouteOverlays
     routeProvenance: SavedRouteDetailView['routeProvenance']
-  }>
+  }>,
 ): SavedRouteDetailView => ({
   savedRouteId: 'test-route-id',
   name: 'Morning Commute',
@@ -316,12 +338,15 @@ describe('AC1: Route detail screen data rendering', () => {
 
     const provenance = tree!.root.findByProps({ testID: 'route-detail-provenance' })
     expect(provenance).toBeTruthy()
-    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-source-label' }).props.children)
-      .toBe("America's Byways")
-    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-designation' }).props.children)
-      .toBe('National Scenic Byway')
-    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-description' }).props.children)
-      .toBe('Drive through high desert and forests.')
+    expect(
+      tree!.root.findByProps({ testID: 'route-detail-provenance-source-label' }).props.children,
+    ).toBe("America's Byways")
+    expect(
+      tree!.root.findByProps({ testID: 'route-detail-provenance-designation' }).props.children,
+    ).toBe('National Scenic Byway')
+    expect(
+      tree!.root.findByProps({ testID: 'route-detail-provenance-description' }).props.children,
+    ).toBe('Drive through high desert and forests.')
   })
 
   it('AC-4: Rider Magazine provenance stays in the existing detail card', async () => {
@@ -329,8 +354,10 @@ describe('AC1: Route detail screen data rendering', () => {
       routeProvenance: {
         sourceLabel: 'Rider Magazine',
         designation: 'Rider Magazine 50 Best Motorcycle Roads in America',
-        description: 'This legendary road follows California’s rugged coastline and offers world-class scenery and epic riding.',
-        sourceUrl: 'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-07-pacific-coast-highway',
+        description:
+          'This legendary road follows California’s rugged coastline and offers world-class scenery and epic riding.',
+        sourceUrl:
+          'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-07-pacific-coast-highway',
       },
     })
     mockHookReturn.isLoading = false
@@ -340,12 +367,15 @@ describe('AC1: Route detail screen data rendering', () => {
       tree = renderer.create(React.createElement(SavedRouteDetailScreen))
     })
 
-    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-source-label' }).props.children)
-      .toBe('Rider Magazine')
-    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-designation' }).props.children)
-      .toBe('Rider Magazine 50 Best Motorcycle Roads in America')
-    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-description' }).props.children)
-      .toContain('rugged coastline')
+    expect(
+      tree!.root.findByProps({ testID: 'route-detail-provenance-source-label' }).props.children,
+    ).toBe('Rider Magazine')
+    expect(
+      tree!.root.findByProps({ testID: 'route-detail-provenance-designation' }).props.children,
+    ).toBe('Rider Magazine 50 Best Motorcycle Roads in America')
+    expect(
+      tree!.root.findByProps({ testID: 'route-detail-provenance-description' }).props.children,
+    ).toContain('rugged coastline')
     expect(JSON.stringify(tree!.toJSON())).not.toContain('ground_truth')
     expect(JSON.stringify(tree!.toJSON())).not.toContain('alphabetical_by_state_order')
   })
@@ -354,7 +384,8 @@ describe('AC1: Route detail screen data rendering', () => {
     mockHookReturn.data = makeSavedRouteDetail({
       routeProvenance: {
         sourceLabel: 'Rider Magazine',
-        sourceUrl: 'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-50-beartooth-highway',
+        sourceUrl:
+          'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-50-beartooth-highway',
       },
     })
     mockHookReturn.isLoading = false
@@ -364,10 +395,15 @@ describe('AC1: Route detail screen data rendering', () => {
       tree = renderer.create(React.createElement(SavedRouteDetailScreen))
     })
 
-    expect(tree!.root.findByProps({ testID: 'route-detail-provenance-source-label' }).props.children)
-      .toBe('Rider Magazine')
-    expect(tree!.root.findAllByProps({ testID: 'route-detail-provenance-designation' })).toHaveLength(0)
-    expect(tree!.root.findAllByProps({ testID: 'route-detail-provenance-description' })).toHaveLength(0)
+    expect(
+      tree!.root.findByProps({ testID: 'route-detail-provenance-source-label' }).props.children,
+    ).toBe('Rider Magazine')
+    expect(
+      tree!.root.findAllByProps({ testID: 'route-detail-provenance-designation' }),
+    ).toHaveLength(0)
+    expect(
+      tree!.root.findAllByProps({ testID: 'route-detail-provenance-description' }),
+    ).toHaveLength(0)
   })
 
   it('AC-4: real save payload preserves Rider provenance into the saved-route contract', async () => {
@@ -381,8 +417,10 @@ describe('AC1: Route detail screen data rendering', () => {
       routeProvenance: {
         sourceLabel: 'Rider Magazine',
         designation: 'Rider Magazine 50 Best Motorcycle Roads in America',
-        description: 'This legendary road follows California’s rugged coastline and offers world-class scenery and epic riding.',
-        sourceUrl: 'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-07-pacific-coast-highway',
+        description:
+          'This legendary road follows California’s rugged coastline and offers world-class scenery and epic riding.',
+        sourceUrl:
+          'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-07-pacific-coast-highway',
       },
     }
 
@@ -391,8 +429,10 @@ describe('AC1: Route detail screen data rendering', () => {
     expect(payload.routeProvenance).toEqual({
       sourceLabel: 'Rider Magazine',
       designation: 'Rider Magazine 50 Best Motorcycle Roads in America',
-      description: 'This legendary road follows California’s rugged coastline and offers world-class scenery and epic riding.',
-      sourceUrl: 'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-07-pacific-coast-highway',
+      description:
+        'This legendary road follows California’s rugged coastline and offers world-class scenery and epic riding.',
+      sourceUrl:
+        'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-07-pacific-coast-highway',
     })
 
     let tree: renderer.ReactTestRenderer
@@ -403,7 +443,7 @@ describe('AC1: Route detail screen data rendering', () => {
           onClose: vi.fn(),
           routeData,
           onSuccess: vi.fn(),
-        })
+        }),
       )
     })
 
@@ -427,8 +467,10 @@ describe('AC1: Route detail screen data rendering', () => {
       routeProvenance: {
         sourceLabel: 'Rider Magazine',
         designation: 'Rider Magazine 50 Best Motorcycle Roads in America',
-        description: 'This legendary road follows California’s rugged coastline and offers world-class scenery and epic riding.',
-        sourceUrl: 'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-07-pacific-coast-highway',
+        description:
+          'This legendary road follows California’s rugged coastline and offers world-class scenery and epic riding.',
+        sourceUrl:
+          'https://ridermagazine.com/2024/12/17/50-best-motorcycle-roads-in-america/#rider-mag-route-07-pacific-coast-highway',
       },
     })
   })
@@ -525,7 +567,9 @@ describe('AC3: Partial weather data - wind only', () => {
 
   it('should return unavailable for empty wind overlay', () => {
     expect(deriveWindSummary(undefined)).toBe('unavailable')
-    expect(deriveWindSummary({ generatedAt: 0, modelVersion: '1.0', legend: [], byLeg: [] })).toBe('unavailable')
+    expect(deriveWindSummary({ generatedAt: 0, modelVersion: '1.0', legend: [], byLeg: [] })).toBe(
+      'unavailable',
+    )
   })
 })
 
@@ -720,7 +764,8 @@ describe('US-016 AC1: OverlayToggle renders with availability when route has ove
     })
 
     // Verify buildRoutePolylines was called with showRainOverlay: true
-    const lastCall = mockBuildRoutePolylines.mock.calls[mockBuildRoutePolylines.mock.calls.length - 1][0]
+    const lastCall =
+      mockBuildRoutePolylines.mock.calls[mockBuildRoutePolylines.mock.calls.length - 1][0]
     expect(lastCall).toEqual(expect.objectContaining({ showRainOverlay: true }))
   })
 
@@ -805,12 +850,15 @@ describe('US-016 AC3: Deselecting overlay reverts polyline to default', () => {
     expect(toggleAfterDeselect.props.value).toBe('')
 
     // Verify buildRoutePolylines was called with all overlay flags false
-    const lastCall = mockBuildRoutePolylines.mock.calls[mockBuildRoutePolylines.mock.calls.length - 1][0]
-    expect(lastCall).toEqual(expect.objectContaining({
-      showWindOverlay: false,
-      showRainOverlay: false,
-      showTemperatureOverlay: false,
-    }))
+    const lastCall =
+      mockBuildRoutePolylines.mock.calls[mockBuildRoutePolylines.mock.calls.length - 1][0]
+    expect(lastCall).toEqual(
+      expect.objectContaining({
+        showWindOverlay: false,
+        showRainOverlay: false,
+        showTemperatureOverlay: false,
+      }),
+    )
   })
 })
 

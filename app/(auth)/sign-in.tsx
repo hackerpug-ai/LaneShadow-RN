@@ -11,7 +11,11 @@ import { AuthScreenLayout } from '../../components/auth/auth-screen-layout'
 import { Button } from '../../components/ui/button'
 import { IconSymbol } from '../../components/ui/icon-symbol'
 import { Input } from '../../components/ui/input'
-import { OAUTH_FLOW_PROVIDERS, OAuthFlowProvider, useOAuthFlow } from '../../hooks/use-oauth-flow'
+import {
+  OAUTH_FLOW_PROVIDERS,
+  type OAuthFlowProvider,
+  useOAuthFlow,
+} from '../../hooks/use-oauth-flow'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 type AuthStep = 'start' | 'email' | 'password' | 'signUp'
@@ -92,7 +96,7 @@ export const SignInScreen = () => {
     try {
       const attempt = await signIn.create({ identifier: email })
       const supportsPassword = attempt.supportedFirstFactors?.some(
-        (factor: any) => factor.strategy === 'password'
+        (factor: any) => factor.strategy === 'password',
       )
       setStep(supportsPassword ? 'password' : 'signUp')
     } catch (err) {

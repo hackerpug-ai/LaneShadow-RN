@@ -1,19 +1,18 @@
 import { ConvexError, v } from 'convex/values'
-
+import type { SavedRouteDetailView, SavedRoutesListView } from '../../../types/routes'
 import {
   OWNER_TYPE,
-  VISIBILITY,
   planInputValidator,
   routeIndexValidator,
   routePreviewValidator,
   routeProvenanceValidator,
   routeSnapshotValidator,
+  type SavedRoute,
   savedRouteCapabilitiesValidator,
   savedRouteValidator,
   snapshotMetaValidator,
-  type SavedRoute,
+  VISIBILITY,
 } from '../../models/saved-routes'
-import type { SavedRouteDetailView, SavedRoutesListView } from '../../../types/routes'
 import { internal } from '../_generated/api'
 import type { Doc, Id } from '../_generated/dataModel'
 import { internalMutation, internalQuery, mutation, query } from '../_generated/server'
@@ -32,7 +31,7 @@ const isOwnedByViewer = (doc: SavedRouteDoc, clerkUserId: string): boolean => {
 
 export const buildSoftDeletePatch = (
   deletedAt: number,
-  scheduledDeletionId: Id<'_scheduled_functions'>
+  scheduledDeletionId: Id<'_scheduled_functions'>,
 ): { deletedAt: number; scheduledDeletionId: Id<'_scheduled_functions'> } => ({
   deletedAt,
   scheduledDeletionId,
@@ -46,23 +45,27 @@ export const buildUndoPatch = (): {
   scheduledDeletionId: undefined,
 })
 
-export const shouldExcludeFromList = (doc: {
-  deletedAt?: number | undefined
-}): boolean => doc.deletedAt !== undefined && doc.deletedAt !== null
+export const shouldExcludeFromList = (doc: { deletedAt?: number | undefined }): boolean =>
+  doc.deletedAt !== undefined && doc.deletedAt !== null
 
 // ---------------------------------------------------------------------------
 // Exported handler functions (testable without Convex runtime)
 // ---------------------------------------------------------------------------
 
 type SoftDeleteCtx = {
-  db: { get: (id: string) => Promise<SavedRouteDoc | null>; patch: (id: string, fields: object) => Promise<void> }
-  scheduler: { runAfter: (ms: number, fn: unknown, args: object) => Promise<Id<'_scheduled_functions'>> }
+  db: {
+    get: (id: string) => Promise<SavedRouteDoc | null>
+    patch: (id: string, fields: object) => Promise<void>
+  }
+  scheduler: {
+    runAfter: (ms: number, fn: unknown, args: object) => Promise<Id<'_scheduled_functions'>>
+  }
 }
 
 export const softDeleteRouteHandler = async (
   ctx: SoftDeleteCtx,
   args: { savedRouteId: Id<'saved_routes'> },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<{ scheduledDeletionId: Id<'_scheduled_functions'> }> => {
   const doc = await ctx.db.get(args.savedRouteId)
   if (!doc || !isOwnedByViewer(doc as SavedRouteDoc, clerkUserId)) {
@@ -71,7 +74,9 @@ export const softDeleteRouteHandler = async (
 
   if (doc.deletedAt !== undefined) {
     if (!doc.scheduledDeletionId) {
-      throw new ConvexError('Route is in an inconsistent state: soft-deleted without scheduledDeletionId')
+      throw new ConvexError(
+        'Route is in an inconsistent state: soft-deleted without scheduledDeletionId',
+      )
     }
     return { scheduledDeletionId: doc.scheduledDeletionId }
   }
@@ -79,7 +84,7 @@ export const softDeleteRouteHandler = async (
   const scheduledDeletionId = await ctx.scheduler.runAfter(
     5000,
     internalSavedRoutes.permanentlyDeleteRoute,
-    { savedRouteId: args.savedRouteId }
+    { savedRouteId: args.savedRouteId },
   )
 
   await ctx.db.patch(args.savedRouteId, buildSoftDeletePatch(Date.now(), scheduledDeletionId))
@@ -87,14 +92,17 @@ export const softDeleteRouteHandler = async (
 }
 
 type UndoDeleteCtx = {
-  db: { get: (id: string) => Promise<SavedRouteDoc | null>; patch: (id: string, fields: object) => Promise<void> }
+  db: {
+    get: (id: string) => Promise<SavedRouteDoc | null>
+    patch: (id: string, fields: object) => Promise<void>
+  }
   scheduler: { cancel: (id: string) => Promise<void> }
 }
 
 export const undoDeleteRouteHandler = async (
   ctx: UndoDeleteCtx,
   args: { savedRouteId: Id<'saved_routes'> },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<null> => {
   const doc = await ctx.db.get(args.savedRouteId)
   if (!doc || !isOwnedByViewer(doc as SavedRouteDoc, clerkUserId)) {
@@ -115,7 +123,7 @@ type PermanentlyDeleteCtx = {
 
 export const permanentlyDeleteRouteHandler = async (
   ctx: PermanentlyDeleteCtx,
-  args: { savedRouteId: Id<'saved_routes'> }
+  args: { savedRouteId: Id<'saved_routes'> },
 ): Promise<null> => {
   const doc = await ctx.db.get(args.savedRouteId)
   if (!doc) {
@@ -143,7 +151,7 @@ export const insertHandler = async (
     snapshotMeta: SavedRoute['snapshotMeta']
     routeProvenance?: SavedRoute['routeProvenance']
   },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<{ savedRouteId: Id<'saved_routes'> }> => {
   const trimmed = args.name.trim()
   if (trimmed.length === 0) {
@@ -189,11 +197,11 @@ const defaultCapabilities = {
 const computePreview = (savedRoute: SavedRoute) => {
   const distanceMeters = savedRoute.routeSnapshot.legs.reduce(
     (total, leg) => total + leg.distanceMeters,
-    0
+    0,
   )
   const durationSeconds = savedRoute.routeSnapshot.legs.reduce(
     (total, leg) => total + leg.durationSeconds,
-    0
+    0,
   )
 
   return {
@@ -230,7 +238,7 @@ export const listByOwner = internalQuery({
     v.object({
       savedRouteId: v.id('saved_routes'),
       savedRoute: savedRouteValidator,
-    })
+    }),
   ),
   handler: async (ctx, { limit, searchQuery, afterDate, beforeDate }) => {
     const { clerkUserId } = await requireIdentity(ctx)
@@ -238,7 +246,7 @@ export const listByOwner = internalQuery({
     const query = ctx.db
       .query('saved_routes')
       .withIndex('by_ownerType_and_ownerId', (q) =>
-        q.eq('ownerType', OWNER_TYPE.USER).eq('ownerId', clerkUserId)
+        q.eq('ownerType', OWNER_TYPE.USER).eq('ownerId', clerkUserId),
       )
       .order('desc')
 
@@ -335,10 +343,13 @@ export const getSavedRoutesList = query({
         preview: routePreviewValidator,
         capabilities: savedRouteCapabilitiesValidator,
         routeIndex: routeIndexValidator,
-      })
+      }),
     ),
   }),
-  handler: async (ctx, { limit, searchQuery, afterDate, beforeDate }): Promise<SavedRoutesListView> => {
+  handler: async (
+    ctx,
+    { limit, searchQuery, afterDate, beforeDate },
+  ): Promise<SavedRoutesListView> => {
     await requireIdentity(ctx)
     const boundedLimit =
       limit && Number.isFinite(limit)
@@ -420,7 +431,7 @@ export const saveRoute = mutation({
   returns: v.object({ savedRouteId: v.string() }),
   handler: async (
     ctx,
-    args
+    args,
   ): Promise<{
     savedRouteId: string
   }> => {
@@ -428,7 +439,7 @@ export const saveRoute = mutation({
 
     const { savedRouteId }: { savedRouteId: Id<'saved_routes'> } = await ctx.runMutation(
       internalSavedRoutes.insert,
-      args
+      args,
     )
 
     return { savedRouteId: `${savedRouteId}` }

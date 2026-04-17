@@ -1,5 +1,5 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { ConvexError } from 'convex/values'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { deleteById } from '../savedRoutes'
 
@@ -31,20 +31,20 @@ describe('deleteById not-found', () => {
   it('AC-US034-2: throws ConvexError("Route not found") when doc does not exist', async () => {
     const ctx = makeCtx(null)
     await expect(
-      (deleteById as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID })
+      (deleteById as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID }),
     ).rejects.toThrow(ConvexError)
     await expect(
-      (deleteById as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID })
+      (deleteById as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID }),
     ).rejects.toThrow('Route not found')
   })
 
   it('AC-US034-2: throws ConvexError("Route not found") when doc is owned by different user', async () => {
     const ctx = makeCtx({ ...makeDoc(), ownerId: 'other_user' })
     await expect(
-      (deleteById as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID })
+      (deleteById as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID }),
     ).rejects.toThrow(ConvexError)
     await expect(
-      (deleteById as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID })
+      (deleteById as any).handler(ctx, { savedRouteId: SAVED_ROUTE_ID }),
     ).rejects.toThrow('Route not found')
   })
 })

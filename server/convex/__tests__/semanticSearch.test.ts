@@ -17,16 +17,16 @@
  * - AC-10: getRawPostsForRoute joins route_matches and route_posts_raw
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { Id } from '../_generated/dataModel'
 import {
+  addRouteMatch,
   findCandidateRoutesByEmbedding,
   findRoutesByIdentifier,
-  updateRouteEmbedding,
-  addRouteMatch,
+  getRawPostsForRoute,
   getRouteMatchesForPost,
   getRouteMatchesForRoute,
-  getRawPostsForRoute,
+  updateRouteEmbedding,
 } from '../semanticSearch'
 
 // Helper to call the handler from a Convex query/mutation
@@ -104,7 +104,7 @@ const createMockRoutePostRaw = (overrides: Record<string, unknown> = {}) => ({
     roadNameMentions: ['Tail of the Dragon', 'US-129'],
     highwayRefs: ['US-129'],
     stateRefs: ['TN', 'NC'],
-    landmarkRefs: ['Deal\'s Gap Motorcycle Resort'],
+    landmarkRefs: ["Deal's Gap Motorcycle Resort"],
     sentiment: 'positive',
     aspectScores: { scenic: 0.9, technical: 0.85 },
     attributes: { scenic: true, technical: true },
@@ -128,8 +128,16 @@ describe('AC-1: findCandidateRoutesByEmbedding uses ctx.vectorSearch', () => {
     ]
 
     const mockRoutes = [
-      createMockCuratedRoute({ _id: ':route1' as Id<'curated_routes'>, name: 'Route 1', state: 'CA' }),
-      createMockCuratedRoute({ _id: ':route2' as Id<'curated_routes'>, name: 'Route 2', state: 'CO' }),
+      createMockCuratedRoute({
+        _id: ':route1' as Id<'curated_routes'>,
+        name: 'Route 1',
+        state: 'CA',
+      }),
+      createMockCuratedRoute({
+        _id: ':route2' as Id<'curated_routes'>,
+        name: 'Route 2',
+        state: 'CO',
+      }),
     ]
 
     const vectorSearch = vi.fn().mockResolvedValue(vectorResults)
@@ -152,7 +160,7 @@ describe('AC-1: findCandidateRoutesByEmbedding uses ctx.vectorSearch', () => {
       expect.objectContaining({
         vector: embedding,
         limit: 10,
-      })
+      }),
     )
 
     expect(result).toHaveLength(2)
@@ -179,7 +187,8 @@ describe('AC-1: findCandidateRoutesByEmbedding uses ctx.vectorSearch', () => {
 
     const vectorSearch = vi.fn().mockResolvedValue(vectorResults)
     const dbGet = vi.fn((id) => {
-      if (id === ':route1') return createMockCuratedRoute({ _id: ':route1' as Id<'curated_routes'> })
+      if (id === ':route1')
+        return createMockCuratedRoute({ _id: ':route1' as Id<'curated_routes'> })
       if (id === ':deleted-route') return null // Deleted route
       return null
     })
@@ -201,12 +210,12 @@ describe('AC-1: findCandidateRoutesByEmbedding uses ctx.vectorSearch', () => {
 describe('AC-2: findCandidateRoutesByEmbedding supports state filter', () => {
   it('should apply state filter when provided', async () => {
     const embedding = createValidEmbedding()
-    const vectorResults = [
-      createMockVectorSearchResult(':route1', 0.95),
-    ]
+    const vectorResults = [createMockVectorSearchResult(':route1', 0.95)]
 
     const vectorSearch = vi.fn().mockResolvedValue(vectorResults)
-    const dbGet = vi.fn(() => createMockCuratedRoute({ _id: ':route1' as Id<'curated_routes'>, state: 'TN' }))
+    const dbGet = vi.fn(() =>
+      createMockCuratedRoute({ _id: ':route1' as Id<'curated_routes'>, state: 'TN' }),
+    )
 
     const ctx = { db: { get: dbGet } } as any
     ;(ctx as any).vectorSearch = vectorSearch
@@ -220,7 +229,7 @@ describe('AC-2: findCandidateRoutesByEmbedding supports state filter', () => {
         vector: embedding,
         limit: 10,
         filter: expect.any(Function),
-      })
+      }),
     )
 
     // Verify filter function works correctly
@@ -249,7 +258,7 @@ describe('AC-2: findCandidateRoutesByEmbedding supports state filter', () => {
         vector: embedding,
         limit: 10,
         filter: undefined,
-      })
+      }),
     )
   })
 })
@@ -280,7 +289,9 @@ describe('AC-3: findRoutesByIdentifier matches by name, highway, and candidateId
       },
     } as any
 
-    const result = await callHandler(findRoutesByIdentifier, ctx, { identifier: 'TAIL OF THE DRAGON' })
+    const result = await callHandler(findRoutesByIdentifier, ctx, {
+      identifier: 'TAIL OF THE DRAGON',
+    })
 
     expect(result).toHaveLength(1)
     expect(result[0]).toMatchObject({
@@ -432,7 +443,11 @@ describe('AC-4: updateRouteEmbedding patches only the embedding fields', () => {
 
     const ctx = { db: { patch: dbPatch } } as any
 
-    const result = await callHandler(updateRouteEmbedding, ctx, { routeId, searchText, searchEmbedding })
+    const result = await callHandler(updateRouteEmbedding, ctx, {
+      routeId,
+      searchText,
+      searchEmbedding,
+    })
 
     expect(dbPatch).toHaveBeenCalledWith(routeId, {
       searchText,
@@ -473,7 +488,11 @@ describe('AC-5: updateRouteEmbedding rejects wrong-dimension embeddings', () => 
     const ctx = { db: { patch: vi.fn() } } as any
 
     await expect(
-      callHandler(updateRouteEmbedding, ctx, { routeId, searchText, searchEmbedding: wrongEmbedding })
+      callHandler(updateRouteEmbedding, ctx, {
+        routeId,
+        searchText,
+        searchEmbedding: wrongEmbedding,
+      }),
     ).rejects.toThrow('Invalid embedding dimensions: expected 1536, got 768')
   })
 
@@ -485,7 +504,11 @@ describe('AC-5: updateRouteEmbedding rejects wrong-dimension embeddings', () => 
     const ctx = { db: { patch: vi.fn() } } as any
 
     await expect(
-      callHandler(updateRouteEmbedding, ctx, { routeId, searchText, searchEmbedding: emptyEmbedding })
+      callHandler(updateRouteEmbedding, ctx, {
+        routeId,
+        searchText,
+        searchEmbedding: emptyEmbedding,
+      }),
     ).rejects.toThrow('Invalid embedding dimensions: expected 1536, got 0')
   })
 
@@ -498,7 +521,11 @@ describe('AC-5: updateRouteEmbedding rejects wrong-dimension embeddings', () => 
     const ctx = { db: { patch: dbPatch } } as any
 
     await expect(
-      callHandler(updateRouteEmbedding, ctx, { routeId, searchText, searchEmbedding: correctEmbedding })
+      callHandler(updateRouteEmbedding, ctx, {
+        routeId,
+        searchText,
+        searchEmbedding: correctEmbedding,
+      }),
     ).resolves.toEqual({ ok: true })
 
     expect(dbPatch).toHaveBeenCalled()
@@ -531,13 +558,16 @@ describe('AC-6: addRouteMatch validates input and returns the new match id', () 
 
     const result = await callHandler(addRouteMatch, ctx, matchArgs)
 
-    expect(dbInsert).toHaveBeenCalledWith('route_matches', expect.objectContaining({
-      matchId: 'match-123',
-      postId: 'post-456',
-      routeId: ':test-route',
-      matchConfidence: 0.95,
-      cosineSimilarity: 0.88,
-    }))
+    expect(dbInsert).toHaveBeenCalledWith(
+      'route_matches',
+      expect.objectContaining({
+        matchId: 'match-123',
+        postId: 'post-456',
+        routeId: ':test-route',
+        matchConfidence: 0.95,
+        cosineSimilarity: 0.88,
+      }),
+    )
 
     expect(result).toBe(insertedId)
   })
@@ -565,7 +595,7 @@ describe('AC-7: addRouteMatch rejects out-of-range confidence/similarity', () =>
     const ctx = { db: { insert: vi.fn() } } as any
 
     await expect(callHandler(addRouteMatch, ctx, matchArgs)).rejects.toThrow(
-      'Invalid matchConfidence: must be [0, 1], got 1.5'
+      'Invalid matchConfidence: must be [0, 1], got 1.5',
     )
   })
 
@@ -586,7 +616,7 @@ describe('AC-7: addRouteMatch rejects out-of-range confidence/similarity', () =>
     const ctx = { db: { insert: vi.fn() } } as any
 
     await expect(callHandler(addRouteMatch, ctx, matchArgs)).rejects.toThrow(
-      'Invalid matchConfidence: must be [0, 1], got -0.1'
+      'Invalid matchConfidence: must be [0, 1], got -0.1',
     )
   })
 
@@ -607,7 +637,7 @@ describe('AC-7: addRouteMatch rejects out-of-range confidence/similarity', () =>
     const ctx = { db: { insert: vi.fn() } } as any
 
     await expect(callHandler(addRouteMatch, ctx, matchArgs)).rejects.toThrow(
-      'Invalid cosineSimilarity: must be [0, 1], got 1.2'
+      'Invalid cosineSimilarity: must be [0, 1], got 1.2',
     )
   })
 
@@ -628,7 +658,7 @@ describe('AC-7: addRouteMatch rejects out-of-range confidence/similarity', () =>
     const ctx = { db: { insert: vi.fn() } } as any
 
     await expect(callHandler(addRouteMatch, ctx, matchArgs)).rejects.toThrow(
-      'Invalid cosineSimilarity: must be [0, 1], got -0.1'
+      'Invalid cosineSimilarity: must be [0, 1], got -0.1',
     )
   })
 
@@ -649,7 +679,7 @@ describe('AC-7: addRouteMatch rejects out-of-range confidence/similarity', () =>
     const ctx = { db: { insert: vi.fn() } } as any
 
     await expect(callHandler(addRouteMatch, ctx, matchArgs)).rejects.toThrow(
-      'Invalid rerankCost: must be >= 0, got -0.01'
+      'Invalid rerankCost: must be >= 0, got -0.01',
     )
   })
 
@@ -786,13 +816,13 @@ describe('AC-9: getRouteMatchesForRoute uses by_routeId_and_confidence index', (
     const result = await callHandler(getRouteMatchesForRoute, ctx, { routeId, minConfidence: 0.8 })
 
     expect(result).toHaveLength(2)
-    expect(result.every(m => m.matchConfidence >= 0.8)).toBe(true)
+    expect(result.every((m: { matchConfidence: number }) => m.matchConfidence >= 0.8)).toBe(true)
   })
 
   it('should limit results', async () => {
     const routeId = ':test-route' as Id<'curated_routes'>
     const mockMatches = Array.from({ length: 20 }, (_, i) =>
-      createMockRouteMatch({ routeId, matchConfidence: 0.9 - i * 0.01 })
+      createMockRouteMatch({ routeId, matchConfidence: 0.9 - i * 0.01 }),
     )
 
     const withIndex = vi.fn((indexName, callback) => {
@@ -883,9 +913,7 @@ describe('AC-10: getRawPostsForRoute joins route_matches and route_posts_raw', (
       createMockRouteMatch({ routeId, postId: 'post-missing' }), // Post doesn't exist
     ]
 
-    const mockPosts = [
-      createMockRoutePostRaw({ postId: 'post-1' }),
-    ]
+    const _mockPosts = [createMockRoutePostRaw({ postId: 'post-1' })]
 
     const matchWithIndex = vi.fn((indexName, callback) => {
       const qb = { eq: vi.fn().mockReturnThis() }

@@ -6,8 +6,8 @@
  * This module provides type-safe wrappers to work around this limitation.
  */
 
-import type { DataModel, Id, TableNames } from "./_generated/dataModel";
-import type { GenericQueryCtx } from "convex/server";
+import type { GenericQueryCtx } from 'convex/server'
+import type { DataModel, Id, TableNames } from './_generated/dataModel'
 
 /**
  * Extended QueryCtx type that includes vectorSearch
@@ -20,11 +20,11 @@ interface QueryCtxWithVectorSearch extends GenericQueryCtx<DataModel> {
     tableName: TableName,
     indexName: string,
     query: {
-      vector: number[];
-      limit?: number;
-      filter?: any;
-    }
-  ): Promise<Array<{ _id: Id<TableName>; _score: number }>>;
+      vector: number[]
+      limit?: number
+      filter?: any
+    },
+  ): Promise<Array<{ _id: Id<TableName>; _score: number }>>
 }
 
 /**
@@ -36,8 +36,6 @@ interface QueryCtxWithVectorSearch extends GenericQueryCtx<DataModel> {
  * @param ctx - The QueryCtx from a query function
  * @returns The same ctx with vectorSearch properly typed
  */
-export function withVectorSearch(
-  ctx: GenericQueryCtx<DataModel>
-): QueryCtxWithVectorSearch {
-  return ctx as QueryCtxWithVectorSearch;
+export function withVectorSearch(ctx: GenericQueryCtx<DataModel>): QueryCtxWithVectorSearch {
+  return ctx as QueryCtxWithVectorSearch
 }

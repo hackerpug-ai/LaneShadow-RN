@@ -1,4 +1,4 @@
-"use node";
+'use node'
 
 import { getModel } from '@mariozechner/pi-ai'
 

@@ -18,32 +18,27 @@
  * Following react-rules.md: named export, no unnecessary useCallback/useMemo.
  */
 
+import { useQuery } from 'convex/react'
 import React, { useEffect } from 'react'
-import {
-  View,
-  Text,
-  StyleSheet,
-  AccessibilityInfo,
-} from 'react-native'
+import { AccessibilityInfo, StyleSheet, Text, View } from 'react-native'
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withRepeat,
   withSequence,
   withTiming,
 } from 'react-native-reanimated'
-import { useQuery } from 'convex/react'
+import { useSelectedRoute } from '../../contexts/selected-route'
 import { api } from '../../convex/_generated/api'
 import type { Id } from '../../convex/_generated/dataModel'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { useSelectedRoute } from '../../contexts/selected-route'
-import { RouteAttachmentCard } from './route-attachment-card'
-import type { PlannedRouteOptionsView } from '../../types/routes'
 import {
   ROUTE_PLAN_PHASE,
   type RoutePlanPhase,
   type RoutePlanStatus,
 } from '../../models/route-plans'
+import type { PlannedRouteOptionsView } from '../../types/routes'
+import { RouteAttachmentCard } from './route-attachment-card'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -101,12 +96,9 @@ const PhasePill = ({ label, isActive, reduceMotion, testID }: PhasePillProps) =>
   useEffect(() => {
     if (isActive && !reduceMotion) {
       scale.value = withRepeat(
-        withSequence(
-          withTiming(1.05, { duration: 600 }),
-          withTiming(1.0, { duration: 600 })
-        ),
+        withSequence(withTiming(1.05, { duration: 600 }), withTiming(1.0, { duration: 600 })),
         -1,
-        false
+        false,
       )
     } else {
       scale.value = withTiming(1.0, { duration: 200 })
@@ -137,9 +129,7 @@ const PhasePill = ({ label, isActive, reduceMotion, testID }: PhasePillProps) =>
         style={[
           semantic.type.label.sm,
           {
-            color: isActive
-              ? semantic.color.onPrimary.default
-              : semantic.color.onSurface.muted,
+            color: isActive ? semantic.color.onPrimary.default : semantic.color.onSurface.muted,
           },
         ]}
       >
@@ -171,12 +161,7 @@ const PendingCard = ({ semantic }: PendingCardProps) => (
     accessibilityLiveRegion="polite"
     accessibilityLabel="Preparing route…"
   >
-    <Text
-      style={[
-        semantic.type.body.sm,
-        { color: semantic.color.onSurface.muted },
-      ]}
-    >
+    <Text style={[semantic.type.body.sm, { color: semantic.color.onSurface.muted }]}>
       Preparing route…
     </Text>
   </View>
@@ -192,9 +177,7 @@ const RunningCard = ({ routePlan, semantic, reduceMotion }: RunningCardProps) =>
   const activePhase = routePlan.phase ?? null
   const statusText = routePlan.statusMessage ?? 'Planning route…'
 
-  const accessibilityLabel = activePhase
-    ? `Phase: ${activePhase}. ${statusText}`
-    : statusText
+  const accessibilityLabel = activePhase ? `Phase: ${activePhase}. ${statusText}` : statusText
 
   console.info('[RoutingCard] RunningCard render:', {
     activePhase,
@@ -232,10 +215,7 @@ const RunningCard = ({ routePlan, semantic, reduceMotion }: RunningCardProps) =>
 
       {/* Status message below pills */}
       <Text
-        style={[
-          semantic.type.body.sm,
-          { color: semantic.color.onSurface.muted },
-        ]}
+        style={[semantic.type.body.sm, { color: semantic.color.onSurface.muted }]}
         testID="routing-card-status-message"
       >
         {statusText}
@@ -252,7 +232,12 @@ interface CompletedCardProps {
 }
 
 const CompletedCard = ({ result, semantic, routePlanId, onViewOnMap }: CompletedCardProps) => {
-  const { selectedRouteId, setSelectedRouteId, setDisplayedRoutePlanId, requestFitToRouteWithReset } = useSelectedRoute()
+  const {
+    selectedRouteId,
+    setSelectedRouteId,
+    setDisplayedRoutePlanId,
+    requestFitToRouteWithReset,
+  } = useSelectedRoute()
 
   // When no route is selected, default to the first route option
   const defaultSelectedRouteId = selectedRouteId ?? result.options[0]?.routeOptionId ?? null
@@ -308,12 +293,7 @@ const FailedCard = ({ routePlan, semantic }: FailedCardProps) => {
       accessibilityLiveRegion="polite"
       accessibilityLabel={`Route planning failed: ${message}`}
     >
-      <Text
-        style={[
-          semantic.type.body.sm,
-          { color: semantic.color.danger.default },
-        ]}
-      >
+      <Text style={[semantic.type.body.sm, { color: semantic.color.danger.default }]}>
         {message}
       </Text>
     </View>
@@ -338,12 +318,7 @@ const CancelledCard = ({ semantic }: CancelledCardProps) => (
     accessibilityLiveRegion="polite"
     accessibilityLabel="Route planning cancelled"
   >
-    <Text
-      style={[
-        semantic.type.body.sm,
-        { color: semantic.color.onSurface.subtle },
-      ]}
-    >
+    <Text style={[semantic.type.body.sm, { color: semantic.color.onSurface.subtle }]}>
       Cancelled
     </Text>
   </View>
@@ -353,7 +328,11 @@ const CancelledCard = ({ semantic }: CancelledCardProps) => (
 // RoutingCard
 // ---------------------------------------------------------------------------
 
-export const RoutingCard = ({ message: _message, attachments, onViewOnMap }: RoutingCardProps & { onViewOnMap?: () => void }) => {
+export const RoutingCard = ({
+  message: _message,
+  attachments,
+  onViewOnMap,
+}: RoutingCardProps & { onViewOnMap?: () => void }) => {
   console.info('[RoutingCard] Component mounting', { attachmentsCount: attachments.length })
 
   const { semantic } = useSemanticTheme()
@@ -377,7 +356,7 @@ export const RoutingCard = ({ message: _message, attachments, onViewOnMap }: Rou
   // the query is dormant. Pattern copied from hooks/use-chat-planning.ts:114-117.
   const routePlan = useQuery(
     api.db.routePlans.getPlanById,
-    routePlanId ? { routePlanId } : ('skip' as any)
+    routePlanId ? { routePlanId } : ('skip' as any),
   ) as RoutePlanDoc | null | undefined
 
   console.info('[RoutingCard] Route plan query result', {
@@ -405,11 +384,7 @@ export const RoutingCard = ({ message: _message, attachments, onViewOnMap }: Rou
 
       case 'running':
         return (
-          <RunningCard
-            routePlan={routePlan!}
-            semantic={semantic}
-            reduceMotion={reduceMotion}
-          />
+          <RunningCard routePlan={routePlan!} semantic={semantic} reduceMotion={reduceMotion} />
         )
 
       case 'completed': {
@@ -423,7 +398,14 @@ export const RoutingCard = ({ message: _message, attachments, onViewOnMap }: Rou
           })
           return <PendingCard semantic={semantic} />
         }
-        return <CompletedCard result={result} semantic={semantic} routePlanId={routePlanId!} onViewOnMap={onViewOnMap} />
+        return (
+          <CompletedCard
+            result={result}
+            semantic={semantic}
+            routePlanId={routePlanId!}
+            onViewOnMap={onViewOnMap}
+          />
+        )
       }
 
       case 'failed':
@@ -444,11 +426,7 @@ export const RoutingCard = ({ message: _message, attachments, onViewOnMap }: Rou
   // are still "mounted" from Reanimated's perspective, causing the
   // "Attempt to recycle a mounted view" crash.
   return (
-    <View
-      key={status}
-      style={[styles.container, { maxWidth: '100%' }]}
-      testID="routing-card"
-    >
+    <View key={status} style={[styles.container, { maxWidth: '100%' }]} testID="routing-card">
       {renderInner()}
     </View>
   )

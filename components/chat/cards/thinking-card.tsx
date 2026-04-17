@@ -18,28 +18,21 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react'
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  ScrollView,
-  AccessibilityInfo,
-} from 'react-native'
+import { AccessibilityInfo, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withRepeat,
   withSequence,
   withTiming,
 } from 'react-native-reanimated'
-import { IconSymbol } from '../../ui/icon-symbol'
-import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import { BottomSheetWrapper } from '../../sheets/bottom-sheet-wrapper'
 import type { Id } from '../../../convex/_generated/dataModel'
-import type { CardAttachment } from '../card-registry'
+import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import type { ThinkingStep } from '../../../models/session-messages'
+import { BottomSheetWrapper } from '../../sheets/bottom-sheet-wrapper'
 import type { IconName } from '../../ui/icon-symbol'
+import { IconSymbol } from '../../ui/icon-symbol'
+import type { CardAttachment } from '../card-registry'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -65,7 +58,7 @@ export type ThinkingCardProps = {
 function formatDurationLabel(
   status: ThinkingCardProps['message']['status'],
   startedAt: number,
-  completedAt: number | null
+  completedAt: number | null,
 ): string {
   if (status === 'streaming' || status === 'running') {
     return 'Thinking…'
@@ -87,7 +80,7 @@ function formatDurationLabel(
 function formatDurationForA11y(
   status: ThinkingCardProps['message']['status'],
   startedAt: number,
-  completedAt: number | null
+  completedAt: number | null,
 ): string {
   if (status === 'failed') return 'briefly'
   if (completedAt === null) return 'briefly'
@@ -115,12 +108,9 @@ const PulsingDot = ({ reduceMotion, color }: PulsingDotProps) => {
       return
     }
     opacity.value = withRepeat(
-      withSequence(
-        withTiming(1.0, { duration: 600 }),
-        withTiming(0.4, { duration: 600 })
-      ),
+      withSequence(withTiming(1.0, { duration: 600 }), withTiming(0.4, { duration: 600 })),
       -1,
-      false
+      false,
     )
   }, [reduceMotion, opacity])
 
@@ -181,9 +171,7 @@ const StepRow = ({ step, isFirst, isLast, baseTimestamp, semantic }: StepRowProp
   // Relative timestamp
   const elapsedMs = step.timestamp - baseTimestamp
   const timestampLabel =
-    elapsedMs < 1000
-      ? `${Math.round(elapsedMs)}ms`
-      : `${Math.round(elapsedMs / 1000)}s`
+    elapsedMs < 1000 ? `${Math.round(elapsedMs)}ms` : `${Math.round(elapsedMs / 1000)}s`
 
   const iconColor = getIconColor()
   const mutedColor = semantic.color.onSurface.muted ?? semantic.color.onSurface.default
@@ -200,11 +188,7 @@ const StepRow = ({ step, isFirst, isLast, baseTimestamp, semantic }: StepRowProp
     >
       {/* Icon column */}
       <View style={styles.iconColumn}>
-        <IconSymbol
-          name={getIconName()}
-          size={20}
-          color={iconColor}
-        />
+        <IconSymbol name={getIconName()} size={20} color={iconColor} />
         {/* Timeline connector - only show if not last step */}
         {!isLast ? (
           <View style={[styles.timelineConnector, { backgroundColor: dividerColor }]} />
@@ -215,10 +199,7 @@ const StepRow = ({ step, isFirst, isLast, baseTimestamp, semantic }: StepRowProp
       <View style={[styles.contentColumn, { gap: semantic.space.xs }]}>
         {/* Summary line - bold tool name if present */}
         <Text
-          style={[
-            semantic.type.body.md,
-            { color: semantic.color.onSurface.default },
-          ]}
+          style={[semantic.type.body.md, { color: semantic.color.onSurface.default }]}
           numberOfLines={2}
         >
           {step.toolName && step.type === 'tool_start' ? (
@@ -234,26 +215,13 @@ const StepRow = ({ step, isFirst, isLast, baseTimestamp, semantic }: StepRowProp
 
         {/* Detail line (optional) */}
         {step.detail ? (
-          <Text
-            style={[
-              semantic.type.body.sm,
-              { color: mutedColor },
-            ]}
-            numberOfLines={3}
-          >
+          <Text style={[semantic.type.body.sm, { color: mutedColor }]} numberOfLines={3}>
             {step.detail}
           </Text>
         ) : null}
 
         {/* Timestamp */}
-        <Text
-          style={[
-            semantic.type.label.sm,
-            { color: mutedColor },
-          ]}
-        >
-          {timestampLabel}
-        </Text>
+        <Text style={[semantic.type.label.sm, { color: mutedColor }]}>{timestampLabel}</Text>
       </View>
     </View>
   )
@@ -287,20 +255,13 @@ export const ThinkingCard = ({ message }: ThinkingCardProps) => {
       .catch(() => {
         // API unavailable — leave animations enabled
       })
-    const sub = AccessibilityInfo.addEventListener(
-      'reduceMotionChanged',
-      setReduceMotion
-    )
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion)
     return () => sub.remove()
   }, [])
 
   useEffect(() => {
     // Only capture completedAt on a LIVE streaming → complete transition
-    if (
-      prevIsStreamingRef.current === true &&
-      !isStreaming &&
-      completedAtRef.current === null
-    ) {
+    if (prevIsStreamingRef.current === true && !isStreaming && completedAtRef.current === null) {
       const now = Date.now()
       completedAtRef.current = now
       setCompletedAt(now)
@@ -334,9 +295,7 @@ export const ThinkingCard = ({ message }: ThinkingCardProps) => {
       ? `Agent thought for ${a11yDuration}. Double tap to see full thinking process.`
       : `Agent thought for ${a11yDuration}`
 
-  const accessibilityHint = canExpand
-    ? 'Double tap to expand'
-    : undefined
+  const accessibilityHint = canExpand ? 'Double tap to expand' : undefined
 
   // Color computations
   const mutedColor = semantic.color.onSurface.muted ?? semantic.color.onSurface.default
@@ -352,10 +311,7 @@ export const ThinkingCard = ({ message }: ThinkingCardProps) => {
 
   return (
     <>
-      <View
-        style={styles.container}
-        testID="thinking-card"
-      >
+      <View style={styles.container} testID="thinking-card">
         <Pressable
           onPress={handleToggle}
           disabled={!canExpand}
@@ -406,10 +362,7 @@ export const ThinkingCard = ({ message }: ThinkingCardProps) => {
               testID="thinking-card-glyph"
             />
             <Text
-              style={[
-                semantic.type.label.md,
-                { color: mutedColor, flex: 1 },
-              ]}
+              style={[semantic.type.label.md, { color: mutedColor, flex: 1 }]}
               testID="thinking-card-label"
               numberOfLines={1}
             >
@@ -445,12 +398,7 @@ export const ThinkingCard = ({ message }: ThinkingCardProps) => {
               size={20}
               color={semantic.color.onSurface.default}
             />
-            <Text
-              style={[
-                semantic.type.heading.lg,
-                { color: semantic.color.onSurface.default },
-              ]}
-            >
+            <Text style={[semantic.type.heading.lg, { color: semantic.color.onSurface.default }]}>
               Agent Thinking
             </Text>
           </View>
@@ -467,12 +415,7 @@ export const ThinkingCard = ({ message }: ThinkingCardProps) => {
               },
             ]}
           >
-            <Text
-              style={[
-                semantic.type.label.md,
-                { color: mutedColor },
-              ]}
-            >
+            <Text style={[semantic.type.label.md, { color: mutedColor }]}>
               {formatDurationLabel(status, message.createdAt, completedAt)}
             </Text>
           </View>
@@ -481,10 +424,7 @@ export const ThinkingCard = ({ message }: ThinkingCardProps) => {
         {/* Steps Timeline */}
         <ScrollView
           style={styles.timelineContainer}
-          contentContainerStyle={[
-            styles.timelineContent,
-            { gap: semantic.space.lg },
-          ]}
+          contentContainerStyle={[styles.timelineContent, { gap: semantic.space.lg }]}
           testID="thinking-card-timeline"
         >
           {steps.map((step, index) => (
@@ -500,12 +440,7 @@ export const ThinkingCard = ({ message }: ThinkingCardProps) => {
 
           {/* Empty state */}
           {steps.length === 0 ? (
-            <Text
-              style={[
-                semantic.type.body.md,
-                { color: mutedColor, textAlign: 'center' },
-              ]}
-            >
+            <Text style={[semantic.type.body.md, { color: mutedColor, textAlign: 'center' }]}>
               No thinking steps recorded
             </Text>
           ) : null}

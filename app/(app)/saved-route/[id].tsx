@@ -11,24 +11,23 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from 'react-native-paper'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
-import { IconSymbol } from '../../../components/ui/icon-symbol'
+import { MapboxMapView } from '../../../components/map'
 
 import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
 import { OverlayToggle } from '../../../components/map/overlay-toggle'
-import { MapboxMapView } from '../../../components/map'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
 import { Button } from '../../../components/ui/button'
 import { DeleteRouteDialog } from '../../../components/ui/delete-route-dialog'
+import { IconSymbol } from '../../../components/ui/icon-symbol'
 import { RenameRouteDialog } from '../../../components/ui/rename-route-dialog'
 import { RouteLegTimeline } from '../../../components/ui/route-leg-timeline'
 import { StatRow } from '../../../components/ui/stat-row'
-import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useThemePreference } from '../../../contexts/theme-preference'
 import { useSavedRouteDetail } from '../../../hooks/use-saved-routes'
+import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import type { RouteOverlays } from '../../../models/saved-routes'
-
-import { useRouteActions } from './use-route-actions'
 import { formatDistance, formatDuration, formatSavedDate } from '../saved-route.utils/utils'
+import { useRouteActions } from './use-route-actions'
 
 const Z_INDEX_HEADER_ACTIONS = 30
 
@@ -52,12 +51,12 @@ const SavedRouteDetailScreen = () => {
         overlays: data.routeSnapshot.overlays,
       },
       variant: 'selected',
-        showLegs: true,
-        showWindOverlay: selectedOverlay === 'wind',
-        showRainOverlay: selectedOverlay === 'rain',
-        showTemperatureOverlay: selectedOverlay === 'temperature',
-        semantic,
-      })
+      showLegs: true,
+      showWindOverlay: selectedOverlay === 'wind',
+      showRainOverlay: selectedOverlay === 'rain',
+      showTemperatureOverlay: selectedOverlay === 'temperature',
+      semantic,
+    })
   }, [data, semantic, selectedOverlay])
 
   if (isLoading) {
@@ -94,7 +93,7 @@ const SavedRouteDetailScreen = () => {
           <IconSymbol
             name="map-marker-question"
             size={48}
-            color={semantic.color.onSurface.subtle}
+            color={semantic.color.onSurface.subtle ?? ''}
           />
           <Text
             variant="bodyLarge"
@@ -110,10 +109,7 @@ const SavedRouteDetailScreen = () => {
           >
             Route not found
           </Text>
-          <Text
-            variant="bodyMedium"
-            style={{ color: semantic.color.onSurface.subtle }}
-          >
+          <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.subtle }}>
             This route may have been deleted.
           </Text>
         </View>
@@ -143,7 +139,9 @@ const SavedRouteDetailScreen = () => {
         {/* Map section */}
         <View style={styles.mapSection} accessibilityLabel={`Route map for ${data.name}`}>
           <MapboxMapView theme={isDark ? 'dark' : 'light'} polylines={polylines} />
-          {(overlayAvailability.wind || overlayAvailability.rain || overlayAvailability.temperature) ? (
+          {overlayAvailability.wind ||
+          overlayAvailability.rain ||
+          overlayAvailability.temperature ? (
             <OverlayToggle
               testID="overlay-toggle"
               value={selectedOverlay}
@@ -277,7 +275,6 @@ const SavedRouteDetailScreen = () => {
               </>
             )}
 
-
           {/* Highlights section */}
           {annotations.length > 0 && (
             <>
@@ -285,10 +282,7 @@ const SavedRouteDetailScreen = () => {
               <View style={{ gap: semantic.space.xs }}>
                 {annotations.map((a) => (
                   <View key={a.id} style={[styles.bulletRow, { gap: semantic.space.sm }]}>
-                    <Text
-                      variant="bodyMedium"
-                      style={{ color: semantic.color.onSurface.subtle }}
-                    >
+                    <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.subtle }}>
                       {'\u2022'}
                     </Text>
                     <Text

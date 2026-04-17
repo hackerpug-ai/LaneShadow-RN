@@ -7,7 +7,7 @@
  * - AC3: weather_card and saved_route_card map to placeholder stubs
  */
 
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { CARD_REGISTRY } from './card-registry'
 import { RoutingCard } from './routing-card'

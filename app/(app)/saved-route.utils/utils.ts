@@ -3,7 +3,7 @@
  * Extracted for testability and to keep the screen file lean.
  */
 
-import type { WindSummary, WindOverlay } from '../../../models/saved-routes'
+import type { WindOverlay, WindSummary } from '../../../models/saved-routes'
 
 /**
  * Derive worst wind summary from WindOverlay data.

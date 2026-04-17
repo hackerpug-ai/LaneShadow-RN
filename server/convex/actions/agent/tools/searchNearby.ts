@@ -1,7 +1,11 @@
 'use node'
 
-import { createPlacesProvider, type PlaceResult, type SearchNearbyResult } from '../providers/placesProvider'
 import { traceableToolAsync } from '../lib/tracing'
+import {
+  createPlacesProvider,
+  type PlaceResult,
+  type SearchNearbyResult,
+} from '../providers/placesProvider'
 
 // ---------------------------------------------------------------------------
 // Types

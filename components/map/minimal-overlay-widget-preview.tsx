@@ -6,9 +6,9 @@
  */
 
 import React, { useState } from 'react'
-import { View, StyleSheet, Text, Pressable, ScrollView } from 'react-native'
-import { MinimalOverlayWidget } from './minimal-overlay-widget'
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import type { OverlayType } from './minimal-overlay-widget'
+import { MinimalOverlayWidget } from './minimal-overlay-widget'
 
 // Demo scenarios with different availability states
 type Scenario = {
@@ -75,17 +75,13 @@ export const MinimalOverlayWidgetPreview = () => {
             {/* Current selection display */}
             {activeOverlay && (
               <View style={styles.selectionBadge}>
-                <Text style={styles.selectionText}>
-                  Active: {activeOverlay}
-                </Text>
+                <Text style={styles.selectionText}>Active: {activeOverlay}</Text>
               </View>
             )}
           </>
         ) : (
           <View style={styles.hiddenState}>
-            <Text style={styles.hiddenText}>
-              Widget hidden - no overlay data available
-            </Text>
+            <Text style={styles.hiddenText}>Widget hidden - no overlay data available</Text>
           </View>
         )}
       </View>
@@ -105,10 +101,7 @@ export const MinimalOverlayWidgetPreview = () => {
                 setSelectedScenario(index)
                 setActiveOverlay('')
               }}
-              style={[
-                styles.scenarioCard,
-                selectedScenario === index && styles.scenarioCardActive,
-              ]}
+              style={[styles.scenarioCard, selectedScenario === index && styles.scenarioCardActive]}
             >
               <Text
                 style={[
@@ -159,12 +152,8 @@ export const MinimalOverlayWidgetPreview = () => {
         <Text style={styles.instructionsText}>
           • Tap an overlay icon to select it (tap again to deselect)
         </Text>
-        <Text style={styles.instructionsText}>
-          • Disabled icons show when data is unavailable
-        </Text>
-        <Text style={styles.instructionsText}>
-          • Active overlay shows with copper glow ring
-        </Text>
+        <Text style={styles.instructionsText}>• Disabled icons show when data is unavailable</Text>
+        <Text style={styles.instructionsText}>• Active overlay shows with copper glow ring</Text>
       </View>
     </View>
   )

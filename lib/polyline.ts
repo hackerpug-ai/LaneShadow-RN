@@ -6,7 +6,7 @@ export type MapLatLng = { latitude: number; longitude: number }
 
 export const decodePolylineGeometry = (geometry: PolylineGeometry): MapLatLng[] => {
   const decoded = polyline.decode(geometry.value, geometry.precision)
-  return decoded.map(([latitude, longitude]) => ({ latitude, longitude }))
+  return decoded.map(([latitude, longitude]: [number, number]) => ({ latitude, longitude }))
 }
 
 const toRadians = (value: number): number => (value * Math.PI) / 180
@@ -46,6 +46,13 @@ const interpolatePoint = (start: MapLatLng, end: MapLatLng, t: number): MapLatLn
   }
 }
 
+export type {
+  ConversionDirection,
+  CoordFormat,
+  GoogleCoord,
+  MapboxCoord,
+  WeatherSegment,
+} from './polyline/conversion'
 /**
  * Slice a decoded polyline by distance (meters) along the path, returning a
  * new coordinate array that begins/ends at the requested distances. This is
@@ -53,30 +60,23 @@ const interpolatePoint = (start: MapLatLng, end: MapLatLng, t: number): MapLatLn
  */
 // CLR-019: Coordinate conversion re-exports
 export {
-  googleToMapbox,
-  mapboxToGoogle,
-  googleCoordsToMapbox,
-  mapboxCoordsToGoogle,
-  convertWeatherSegments,
-  isValidCoord,
   clampCoord,
+  convertWeatherSegments,
+  detectCoordFormat,
+  googleCoordsToMapbox,
+  googleToMapbox,
   isGoogleCoord,
   isMapboxCoord,
-  detectCoordFormat,
-} from './polyline/conversion'
-export type {
-  GoogleCoord,
-  MapboxCoord,
-  WeatherSegment,
-  ConversionDirection,
-  CoordFormat,
+  isValidCoord,
+  mapboxCoordsToGoogle,
+  mapboxToGoogle,
 } from './polyline/conversion'
 
 export const slicePolylineByMeters = (
   coords: MapLatLng[],
   cumulativeDistances: number[] | undefined,
   startMeters: number,
-  endMeters: number
+  endMeters: number,
 ): MapLatLng[] => {
   if (coords.length < 2 || endMeters <= startMeters) {
     return []

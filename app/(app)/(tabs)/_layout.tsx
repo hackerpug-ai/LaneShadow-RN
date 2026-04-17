@@ -5,9 +5,9 @@ import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 
 const TabsLayout = () => {
   const { semantic } = useSemanticTheme()
-  const insets = useSafeAreaInsets()
-  const activeColor = semantic.color.primary.default
-  const inactiveColor = semantic.color.onSurface.muted
+  const _insets = useSafeAreaInsets()
+  const activeColor: string = semantic.color.primary.default ?? ''
+  const inactiveColor: string = semantic.color.onSurface.muted ?? ''
 
   return (
     <Tabs
@@ -41,11 +41,7 @@ const TabsLayout = () => {
         options={{
           title: 'Settings',
           tabBarIcon: ({ focused }) => (
-            <IconSymbol
-              name="cog"
-              size={22}
-              color={focused ? activeColor : inactiveColor}
-            />
+            <IconSymbol name="cog" size={22} color={focused ? activeColor : inactiveColor} />
           ),
         }}
       />

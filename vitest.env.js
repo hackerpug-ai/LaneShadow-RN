@@ -2,12 +2,8 @@
  * Vitest environment setup - runs before tests
  * Sets NODE_ENV=test to disable LangSmith tracing during tests
  */
-import { fileURLToPath } from 'node:url'
-import dotenv from 'dotenv'
-import fs from 'node:fs'
-import path from 'node:path'
-import { vi } from 'vitest'
 
+import fs from 'node:fs'
 // Globally stub react-native before any test imports it (directly or transitively
 // via @testing-library/react-native). React Native 0.81 ships Flow-annotated
 // source files (`import typeof * as ...`) that Node's parser cannot handle, so
@@ -19,6 +15,10 @@ import { vi } from 'vitest'
 // apply to files that Vite transforms; the testing-library package is loaded by
 // Node's native CJS loader which bypasses Vite entirely.
 import Module from 'node:module'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import dotenv from 'dotenv'
+import { vi } from 'vitest'
 
 process.env.NODE_ENV = 'test'
 
@@ -39,19 +39,19 @@ globalThis.ExpoGlobal = {
       this.listeners[event].push(listener)
       return {
         remove: () => {
-          this.listeners[event] = this.listeners[event].filter(l => l !== listener)
-        }
+          this.listeners[event] = this.listeners[event].filter((l) => l !== listener)
+        },
       }
     }
 
     removeEventListener(event, listener) {
       if (!this.listeners[event]) return
-      this.listeners[event] = this.listeners[event].filter(l => l !== listener)
+      this.listeners[event] = this.listeners[event].filter((l) => l !== listener)
     }
 
     emit(event, data) {
       if (!this.listeners[event]) return
-      this.listeners[event].forEach(listener => listener(data))
+      this.listeners[event].forEach((listener) => listener(data))
     }
 
     removeAllListeners(event) {
@@ -61,7 +61,7 @@ globalThis.ExpoGlobal = {
         this.listeners = {}
       }
     }
-  }
+  },
 }
 
 const __filename = fileURLToPath(import.meta.url)
@@ -113,7 +113,11 @@ Module._resolveFilename = function (request, parent, ...rest) {
     // Fallback: try .ts / .tsx / index.ts / index.tsx for relative requires.
     // Node's native CJS resolver only knows .js/.json/.node; test files that
     // do `require('./saved-routes')` against a TSX sibling need this hook.
-    if (err.code === 'MODULE_NOT_FOUND' && (request.startsWith('./') || request.startsWith('../')) && parent?.filename) {
+    if (
+      err.code === 'MODULE_NOT_FOUND' &&
+      (request.startsWith('./') || request.startsWith('../')) &&
+      parent?.filename
+    ) {
       const baseDir = path.dirname(parent.filename)
       const candidates = [
         path.resolve(baseDir, request + '.ts'),
@@ -141,8 +145,8 @@ configure({ defaultHidden: true })
 
 const loadFirstEnvFile = () => {
   const rootDir = path.resolve(__dirname)
-  const candidates = ['.env.test.local', '.env.test', '.env.local', '.env'].map(
-    (p) => path.join(rootDir, p)
+  const candidates = ['.env.test.local', '.env.test', '.env.local', '.env'].map((p) =>
+    path.join(rootDir, p),
   )
 
   for (const candidate of candidates) {
@@ -200,6 +204,8 @@ global.jest = {
   runOnlyPendingTimers: vi.runOnlyPendingTimers,
   resetModules: () => {
     // Vitest doesn't have module reset, so we warn and skip
-    console.warn('jest.resetModules() is not supported in Vitest - modules are automatically reloaded between tests')
+    console.warn(
+      'jest.resetModules() is not supported in Vitest - modules are automatically reloaded between tests',
+    )
   },
 }

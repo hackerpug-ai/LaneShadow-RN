@@ -1,14 +1,14 @@
+import { useAuth } from '@clerk/clerk-expo'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
 import { Alert, Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { useAuth } from '@clerk/clerk-expo'
 import { MenuLayout } from '../../../components/layouts/menu-layout'
 import { SubpageLayout } from '../../../components/layouts/subpage-layout'
+import { ThemePicker } from '../../../components/settings/theme-picker'
 import { Button } from '../../../components/ui/button'
 import { IconSymbol } from '../../../components/ui/icon-symbol'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import { ThemePicker } from '../../../components/settings/theme-picker'
 
 const SettingsScreen = () => {
   const router = useRouter()
@@ -31,8 +31,7 @@ const SettingsScreen = () => {
             setIsLoggingOut(true)
             await signOut()
             router.replace('/(auth)/sign-in' as any)
-          } catch (error) {
-            console.error('Logout failed:', error)
+          } catch (_error) {
             Alert.alert('Error', 'Failed to sign out. Please try again.')
             setIsLoggingOut(false)
           }
@@ -95,23 +94,17 @@ const SettingsScreen = () => {
                 />
               </View>
               <View style={settingsNavStyles.textWrap}>
-                <Text
-                  variant="bodyMedium"
-                  style={{ color: semantic.color.onSurface.default }}
-                >
+                <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.default }}>
                   Offline Maps
                 </Text>
-                <Text
-                  variant="bodySmall"
-                  style={{ color: semantic.color.onSurface.subtle }}
-                >
+                <Text variant="bodySmall" style={{ color: semantic.color.onSurface.subtle }}>
                   Download regions for offline use
                 </Text>
               </View>
               <IconSymbol
                 name="chevron-right"
                 size={20}
-                color={semantic.color.onSurface.subtle}
+                color={semantic.color.onSurface.subtle ?? ''}
               />
             </Pressable>
           </View>

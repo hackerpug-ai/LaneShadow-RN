@@ -1,19 +1,14 @@
-import React from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
-import { Text } from 'react-native-paper';
-import { useSemanticTheme } from '../../hooks/use-semantic-theme';
+import type React from 'react'
+import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
-export type ProgressStep =
-  | 'reading'
-  | 'finding'
-  | 'weather'
-  | 'building'
-  | 'complete';
+export type ProgressStep = 'reading' | 'finding' | 'weather' | 'building' | 'complete'
 
 interface ProgressStepConfig {
-  id: ProgressStep;
-  label: string;
-  icon: string;
+  id: ProgressStep
+  label: string
+  icon: string
 }
 
 const PROGRESS_STEPS: ProgressStepConfig[] = [
@@ -21,21 +16,22 @@ const PROGRESS_STEPS: ProgressStepConfig[] = [
   { id: 'finding', label: 'Finding scenic roads...', icon: '🛣️' },
   { id: 'weather', label: 'Checking weather...', icon: '🌤️' },
   { id: 'building', label: 'Building options...', icon: '⚙️' },
-];
+]
 
 interface PlanningProgressIndicatorProps {
-  currentStep: ProgressStep;
-  visible?: boolean;
+  currentStep: ProgressStep
+  visible?: boolean
 }
 
-export const PlanningProgressIndicator: React.FC<
-  PlanningProgressIndicatorProps
-> = ({ currentStep, visible = true }) => {
-  const { semantic } = useSemanticTheme();
+export const PlanningProgressIndicator: React.FC<PlanningProgressIndicatorProps> = ({
+  currentStep,
+  visible = true,
+}) => {
+  const { semantic } = useSemanticTheme()
 
-  if (!visible || currentStep === 'complete') return null;
+  if (!visible || currentStep === 'complete') return null
 
-  const currentIndex = PROGRESS_STEPS.findIndex((s) => s.id === currentStep);
+  const currentIndex = PROGRESS_STEPS.findIndex((s) => s.id === currentStep)
 
   return (
     <View
@@ -49,9 +45,9 @@ export const PlanningProgressIndicator: React.FC<
       ]}
     >
       {PROGRESS_STEPS.map((step, index) => {
-        const isCompleted = index < currentIndex;
-        const isCurrent = index === currentIndex;
-        const isPending = index > currentIndex;
+        const isCompleted = index < currentIndex
+        const isCurrent = index === currentIndex
+        const isPending = index > currentIndex
 
         return (
           <View key={step.id} style={styles.step}>
@@ -79,7 +75,9 @@ export const PlanningProgressIndicator: React.FC<
                 <Text style={styles.icon}>{step.icon}</Text>
               )}
               {isCurrent && (
-                <View style={[styles.activeDot, { backgroundColor: semantic.color.primary.default }]} />
+                <View
+                  style={[styles.activeDot, { backgroundColor: semantic.color.primary.default }]}
+                />
               )}
             </View>
 
@@ -115,11 +113,11 @@ export const PlanningProgressIndicator: React.FC<
               />
             )}
           </View>
-        );
+        )
       })}
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -170,4 +168,4 @@ const styles = StyleSheet.create({
     height: 2,
     zIndex: -1,
   },
-});
+})

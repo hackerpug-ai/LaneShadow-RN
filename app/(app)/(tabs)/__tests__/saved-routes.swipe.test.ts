@@ -9,13 +9,12 @@
  * - AC5: Delete area uses semantic.color.danger.default, icon is white trash can
  */
 
-import { vi, describe, it, expect, beforeEach, afterEach, type Mock } from 'vitest'
-
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
+import type { SavedRouteListItemView } from '../../../../types/routes'
 import SavedRoutesScreen from '../saved-routes'
 import { SwipeableRouteCard } from '../saved-routes.components'
-import type { SavedRouteListItemView } from '../../../../types/routes'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 
@@ -79,14 +78,12 @@ vi.mock('react-native-gesture-handler', () => {
   return {
     Swipeable: React.forwardRef(function MockSwipeable(
       props: Record<string, unknown>,
-      ref: React.Ref<unknown>
+      ref: React.Ref<unknown>,
     ) {
       const instance = {
         close: mockSwipeableClose,
         renderRightActions: props.renderRightActions as (() => unknown) | null,
-        onSwipeableOpen: props.onSwipeableOpen as
-          | ((direction: string) => void)
-          | null,
+        onSwipeableOpen: props.onSwipeableOpen as ((direction: string) => void) | null,
       }
       mockSwipeableInstances.push(instance)
 
@@ -95,7 +92,7 @@ vi.mock('react-native-gesture-handler', () => {
       return React.createElement(
         'Swipeable',
         { ...props, testID: 'swipeable-wrapper' },
-        props.children
+        props.children,
       )
     }),
   }
@@ -198,7 +195,7 @@ vi.mock('../../../../components/ui/delete-route-dialog', () => ({
 }))
 
 const makeRoute = (
-  overrides: Partial<SavedRouteListItemView> & { savedRouteId: string }
+  overrides: Partial<SavedRouteListItemView> & { savedRouteId: string },
 ): SavedRouteListItemView => ({
   name: 'Test Route',
   startLabel: 'Start',
@@ -295,7 +292,9 @@ describe('AC1: Swipe reveals delete action', () => {
     expect(deleteAction).toBeDefined()
 
     // Should have trash icon
-    const icon = actionsTree!.root.findByType('MaterialCommunityIcons' as unknown as React.ComponentClass)
+    const icon = actionsTree!.root.findByType(
+      'MaterialCommunityIcons' as unknown as React.ComponentClass,
+    )
     expect(icon.props.name).toBe('trash-can-outline')
   })
 })
@@ -399,7 +398,7 @@ describe('AC3: Delete confirmation triggers soft-delete + undo toast', () => {
       expect.objectContaining({
         title: 'Route deleted',
         description: 'Tap to undo.',
-      })
+      }),
     )
   })
 })
@@ -412,13 +411,10 @@ describe('AC5: Semantic theme tokens used for delete area', () => {
     let tree: renderer.ReactTestRenderer
     act(() => {
       tree = renderer.create(
-        React.createElement(
-          SwipeableRouteCard,
-          {
-            onDelete: vi.fn(),
-            children: React.createElement('View'),
-          }
-        )
+        React.createElement(SwipeableRouteCard, {
+          onDelete: vi.fn(),
+          children: React.createElement('View'),
+        }),
       )
     })
 
@@ -434,12 +430,14 @@ describe('AC5: Semantic theme tokens used for delete area', () => {
 
     // Background should use danger color (from mock: #EF4444)
     const bgStyle = deleteAction.props.style.find(
-      (s: Record<string, unknown>) => s && s.backgroundColor
+      (s: Record<string, unknown>) => s && s.backgroundColor,
     )
     expect(bgStyle.backgroundColor).toBe('#EF4444')
 
     // Icon should use onSecondary (white from mock: #fff)
-    const icon = actionsTree!.root.findByType('MaterialCommunityIcons' as unknown as React.ComponentClass)
+    const icon = actionsTree!.root.findByType(
+      'MaterialCommunityIcons' as unknown as React.ComponentClass,
+    )
     expect(icon.props.color).toBe('#fff')
   })
 })

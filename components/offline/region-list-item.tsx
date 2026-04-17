@@ -7,9 +7,9 @@
 
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { IconSymbol } from '../ui/icon-symbol'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { RegionMetadata } from '../../stores/offline-store'
+import { IconSymbol } from '../ui/icon-symbol'
 
 export type RegionListItemProps = {
   region: RegionMetadata
@@ -74,18 +74,12 @@ export const RegionListItem = ({
           >
             {region.name}
           </Text>
-          <Text
-            variant="labelMedium"
-            style={{ color: semantic.color.primary.default }}
-          >
+          <Text variant="labelMedium" style={{ color: semantic.color.primary.default }}>
             {formatSize(region.size)}
           </Text>
         </View>
 
-        <Text
-          variant="bodySmall"
-          style={{ color: semantic.color.onSurface.muted }}
-        >
+        <Text variant="bodySmall" style={{ color: semantic.color.onSurface.muted }}>
           {formatDate(region.downloadedAt)} • {formatBounds()}
         </Text>
       </View>
@@ -108,9 +102,7 @@ export const RegionListItem = ({
           style={({ pressed }) => [
             styles.actionButton,
             {
-              backgroundColor: pressed
-                ? semantic.color.surfaceVariant.pressed
-                : 'transparent',
+              backgroundColor: pressed ? semantic.color.surfaceVariant.pressed : 'transparent',
               borderRadius: semantic.radius.md,
               paddingVertical: semantic.space.sm,
             },
@@ -118,15 +110,8 @@ export const RegionListItem = ({
           accessibilityRole="button"
           accessibilityLabel={`View ${region.name} on map`}
         >
-          <IconSymbol
-            name="map-outline"
-            size={16}
-            color={semantic.color.onSurface.default}
-          />
-          <Text
-            variant="labelSmall"
-            style={{ color: semantic.color.onSurface.default }}
-          >
+          <IconSymbol name="map-outline" size={16} color={semantic.color.onSurface.default} />
+          <Text variant="labelSmall" style={{ color: semantic.color.onSurface.default }}>
             View
           </Text>
         </Pressable>
@@ -137,9 +122,7 @@ export const RegionListItem = ({
           style={({ pressed }) => [
             styles.actionButton,
             {
-              backgroundColor: pressed
-                ? semantic.color.surfaceVariant.pressed
-                : 'transparent',
+              backgroundColor: pressed ? semantic.color.surfaceVariant.pressed : 'transparent',
               borderRadius: semantic.radius.md,
               paddingVertical: semantic.space.sm,
             },
@@ -147,15 +130,8 @@ export const RegionListItem = ({
           accessibilityRole="button"
           accessibilityLabel={`Rename ${region.name}`}
         >
-          <IconSymbol
-            name="pencil-outline"
-            size={16}
-            color={semantic.color.onSurface.default}
-          />
-          <Text
-            variant="labelSmall"
-            style={{ color: semantic.color.onSurface.default }}
-          >
+          <IconSymbol name="pencil-outline" size={16} color={semantic.color.onSurface.default} />
+          <Text variant="labelSmall" style={{ color: semantic.color.onSurface.default }}>
             Rename
           </Text>
         </Pressable>
@@ -166,9 +142,7 @@ export const RegionListItem = ({
           style={({ pressed }) => [
             styles.actionButton,
             {
-              backgroundColor: pressed
-                ? `${semantic.color.danger.default}1A`
-                : 'transparent',
+              backgroundColor: pressed ? `${semantic.color.danger.default}1A` : 'transparent',
               borderRadius: semantic.radius.md,
               paddingVertical: semantic.space.sm,
             },
@@ -176,15 +150,8 @@ export const RegionListItem = ({
           accessibilityRole="button"
           accessibilityLabel={`Delete ${region.name}`}
         >
-          <IconSymbol
-            name="trash-can-outline"
-            size={16}
-            color={semantic.color.danger.default}
-          />
-          <Text
-            variant="labelSmall"
-            style={{ color: semantic.color.danger.default }}
-          >
+          <IconSymbol name="trash-can-outline" size={16} color={semantic.color.danger.default} />
+          <Text variant="labelSmall" style={{ color: semantic.color.danger.default }}>
             Delete
           </Text>
         </Pressable>

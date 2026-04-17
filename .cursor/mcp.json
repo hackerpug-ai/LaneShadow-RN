@@ -2,37 +2,26 @@
   "mcpServers": {
     "gluestack-ui": {
       "command": "node",
-      "args": [
-        "/Users/justinrich/Projects/gluestack-mcp/index.js"
-      ]
+      "args": ["/Users/justinrich/Projects/gluestack-mcp/index.js"]
     },
     "everything": {
       "command": "npx",
-      "args": [
-        "@modelcontextprotocol/server-everything"
-      ]
+      "args": ["@modelcontextprotocol/server-everything"]
     },
     "filesystem": {
       "command": "npx",
-      "args": [
-        "@modelcontextprotocol/server-filesystem"
-      ],
+      "args": ["@modelcontextprotocol/server-filesystem"],
       "env": {
         "ALLOWED_PATHS": "/Users/justinrich/Projects/our-nanny"
       }
     },
     "memory": {
       "command": "npx",
-      "args": [
-        "@modelcontextprotocol/server-memory"
-      ]
+      "args": ["@modelcontextprotocol/server-memory"]
     },
     "sequentialthinking": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ]
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
     },
     "context7": {
       "type": "http",
@@ -43,20 +32,12 @@
     },
     "convex": {
       "command": "npx",
-      "args": [
-        "-y",
-        "convex@latest",
-        "mcp",
-        "start"
-      ],
+      "args": ["-y", "convex@latest", "mcp", "start"],
       "env": {}
     },
     "flyctl": {
       "command": "/opt/homebrew/bin/flyctl",
-      "args": [
-        "mcp",
-        "server"
-      ]
+      "args": ["mcp", "server"]
     }
   }
 }

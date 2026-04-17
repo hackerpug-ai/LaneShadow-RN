@@ -21,9 +21,9 @@ const withAlpha = (color: string, alpha: number): string => {
     const expand = (value: string) => value + value
     const toInt = (value: string) => Number.parseInt(value, 16)
 
-    const r = toInt(isShort ? expand(hex[0] ?? '0') : (hex.slice(0, 2) || '00'))
-    const g = toInt(isShort ? expand(hex[1] ?? '0') : (hex.slice(2, 4) || '00'))
-    const b = toInt(isShort ? expand(hex[2] ?? '0') : (hex.slice(4, 6) || '00'))
+    const r = toInt(isShort ? expand(hex[0] ?? '0') : hex.slice(0, 2) || '00')
+    const g = toInt(isShort ? expand(hex[1] ?? '0') : hex.slice(2, 4) || '00')
+    const b = toInt(isShort ? expand(hex[2] ?? '0') : hex.slice(4, 6) || '00')
     return `rgba(${r},${g},${b},${alpha})`
   }
 
@@ -55,7 +55,10 @@ export const ScenicBiasSegmented = ({
     <View style={[styles.container, { gap: semantic.space.sm }, style]}>
       <Text
         variant="labelSmall"
-        style={{ color: withAlpha(semantic.color.onSurface.muted, 0.8), marginLeft: semantic.space.xs }}
+        style={{
+          color: withAlpha(semantic.color.onSurface.muted ?? '', 0.8),
+          marginLeft: semantic.space.xs,
+        }}
       >
         Scenic Bias
       </Text>
@@ -118,8 +121,7 @@ export const ScenicBiasSegmented = ({
                 paddingVertical: buttonPaddingY,
                 paddingHorizontal: semantic.space.md,
                 borderRadius: semantic.radius.lg,
-                backgroundColor:
-                  value === 'high' ? semantic.color.primary.default : 'transparent',
+                backgroundColor: value === 'high' ? semantic.color.primary.default : 'transparent',
               },
             ],
             labelStyle: [

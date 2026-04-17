@@ -5,8 +5,8 @@
  * Returns storage ID for use in ingest/mutations
  */
 
-import { api } from '../../convex/_generated/api'
 import type { ConvexReactClient } from 'convex/react'
+import { api } from '../../convex/_generated/api'
 
 /**
  * Convert audio file to base64 string for direct ingestion
@@ -73,14 +73,17 @@ export const uploadImage = async (
     width?: number
     height?: number
     organizationId?: string
-  }
+  },
 ): Promise<{ storageId: string; mediaAssetId: string } | null> => {
   try {
     // 1. Get upload URL from Convex mutation (faster than action, no Node.js overhead)
     // Convex file path: convex/db/storage/getUploadUrl.ts → api.db.storage.getUploadUrl.getUploadUrl
-    const uploadUrlResult = await convex.mutation((api as any).db?.storage?.getUploadUrl ?? api.users.create, {
-      contentType: mimeType,
-    } as any)
+    const uploadUrlResult = await convex.mutation(
+      (api as any).db?.storage?.getUploadUrl ?? api.users.create,
+      {
+        contentType: mimeType,
+      } as any,
+    )
 
     if (!uploadUrlResult?.uploadUrl) {
       throw new Error('Failed to get upload URL')
@@ -112,15 +115,18 @@ export const uploadImage = async (
     }
 
     // 5. Create media asset (backend mutation)
-    const mediaAssetResult = await convex.mutation((api as any).db?.fileAssets?.createMediaAssetFromStorage ?? api.users.create, {
-      storageId,
-      mime: mimeType,
-      scopeType,
-      scopeId,
-      width: options?.width,
-      height: options?.height,
-      organizationId: options?.organizationId,
-    } as any)
+    const mediaAssetResult = await convex.mutation(
+      (api as any).db?.fileAssets?.createMediaAssetFromStorage ?? api.users.create,
+      {
+        storageId,
+        mime: mimeType,
+        scopeType,
+        scopeId,
+        width: options?.width,
+        height: options?.height,
+        organizationId: options?.organizationId,
+      } as any,
+    )
 
     if (!mediaAssetResult?.id) {
       throw new Error('Failed to create media asset')

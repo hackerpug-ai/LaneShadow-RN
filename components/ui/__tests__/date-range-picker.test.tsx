@@ -11,9 +11,9 @@
  * - AC4: Tapping the same preset again deselects it back to "All time"
  */
 
-import { vi, describe, it, expect, beforeEach } from 'vitest'
+import { fireEvent, render } from '@testing-library/react-native'
 import React from 'react'
-import { render, fireEvent } from '@testing-library/react-native'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ---------------------------------------------------------------------------
 // Import after mocks
@@ -79,12 +79,48 @@ const mockSemanticTheme = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.3, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -112,44 +148,34 @@ describe('DateRangePicker', () => {
    */
   describe('AC1: renders all preset chips', () => {
     it('renders "All time" chip', () => {
-      const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={vi.fn()} />
-      )
+      const { getByTestId } = render(<DateRangePicker onDateRangeChange={vi.fn()} />)
       expect(getByTestId('date-range-picker-chip-all')).toBeTruthy()
     })
 
     it('renders "Last week" chip', () => {
-      const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={vi.fn()} />
-      )
+      const { getByTestId } = render(<DateRangePicker onDateRangeChange={vi.fn()} />)
       expect(getByTestId('date-range-picker-chip-week')).toBeTruthy()
     })
 
     it('renders "Last month" chip', () => {
-      const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={vi.fn()} />
-      )
+      const { getByTestId } = render(<DateRangePicker onDateRangeChange={vi.fn()} />)
       expect(getByTestId('date-range-picker-chip-month')).toBeTruthy()
     })
 
     it('renders "Last 3 months" chip', () => {
-      const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={vi.fn()} />
-      )
+      const { getByTestId } = render(<DateRangePicker onDateRangeChange={vi.fn()} />)
       expect(getByTestId('date-range-picker-chip-3months')).toBeTruthy()
     })
 
     it('renders with custom testID', () => {
       const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={vi.fn()} testID="my-picker" />
+        <DateRangePicker onDateRangeChange={vi.fn()} testID="my-picker" />,
       )
       expect(getByTestId('my-picker')).toBeTruthy()
     })
 
     it('"All time" chip is initially active (primary background color)', () => {
-      const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={vi.fn()} />
-      )
+      const { getByTestId } = render(<DateRangePicker onDateRangeChange={vi.fn()} />)
       const allChip = getByTestId('date-range-picker-chip-all')
       const style = Array.isArray(allChip.props.style)
         ? Object.assign({}, ...allChip.props.style.flat().filter(Boolean))
@@ -165,9 +191,7 @@ describe('DateRangePicker', () => {
     it('calls onDateRangeChange with afterDate when "Last week" is tapped', () => {
       const onDateRangeChange = vi.fn()
       const before = Date.now()
-      const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={onDateRangeChange} />
-      )
+      const { getByTestId } = render(<DateRangePicker onDateRangeChange={onDateRangeChange} />)
       fireEvent.press(getByTestId('date-range-picker-chip-week'))
       const after = Date.now()
 
@@ -179,9 +203,7 @@ describe('DateRangePicker', () => {
     })
 
     it('"Last week" chip becomes active after being tapped', () => {
-      const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={vi.fn()} />
-      )
+      const { getByTestId } = render(<DateRangePicker onDateRangeChange={vi.fn()} />)
       fireEvent.press(getByTestId('date-range-picker-chip-week'))
       const weekChip = getByTestId('date-range-picker-chip-week')
       const style = Array.isArray(weekChip.props.style)
@@ -197,9 +219,7 @@ describe('DateRangePicker', () => {
   describe('AC3: tapping "All time" clears the filter', () => {
     it('fires { afterDate: undefined, beforeDate: undefined } when "All time" is tapped after a preset', () => {
       const onDateRangeChange = vi.fn()
-      const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={onDateRangeChange} />
-      )
+      const { getByTestId } = render(<DateRangePicker onDateRangeChange={onDateRangeChange} />)
       fireEvent.press(getByTestId('date-range-picker-chip-week'))
       fireEvent.press(getByTestId('date-range-picker-chip-all'))
 
@@ -209,9 +229,7 @@ describe('DateRangePicker', () => {
     })
 
     it('"All time" chip is active after being tapped', () => {
-      const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={vi.fn()} />
-      )
+      const { getByTestId } = render(<DateRangePicker onDateRangeChange={vi.fn()} />)
       fireEvent.press(getByTestId('date-range-picker-chip-week'))
       fireEvent.press(getByTestId('date-range-picker-chip-all'))
 
@@ -229,9 +247,7 @@ describe('DateRangePicker', () => {
   describe('AC4: tapping same preset twice deselects back to "All time"', () => {
     it('fires { afterDate: undefined, beforeDate: undefined } when selected preset is tapped again', () => {
       const onDateRangeChange = vi.fn()
-      const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={onDateRangeChange} />
-      )
+      const { getByTestId } = render(<DateRangePicker onDateRangeChange={onDateRangeChange} />)
       fireEvent.press(getByTestId('date-range-picker-chip-month'))
       fireEvent.press(getByTestId('date-range-picker-chip-month'))
 
@@ -241,9 +257,7 @@ describe('DateRangePicker', () => {
     })
 
     it('"All time" chip becomes active again after deselect', () => {
-      const { getByTestId } = render(
-        <DateRangePicker onDateRangeChange={vi.fn()} />
-      )
+      const { getByTestId } = render(<DateRangePicker onDateRangeChange={vi.fn()} />)
       fireEvent.press(getByTestId('date-range-picker-chip-month'))
       fireEvent.press(getByTestId('date-range-picker-chip-month'))
 

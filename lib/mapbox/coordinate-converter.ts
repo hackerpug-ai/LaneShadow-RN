@@ -84,9 +84,10 @@ export const convertCoordinateArrayToGoogle = (coords: [number, number][]): [num
  * @param coord - Object with latitude and longitude properties
  * @returns Coordinates in Mapbox format [lng, lat]
  */
-export const latLngToMapbox = (
-  coord: { latitude: number; longitude: number }
-): [number, number] => {
+export const latLngToMapbox = (coord: {
+  latitude: number
+  longitude: number
+}): [number, number] => {
   return googleToMapbox([coord.latitude, coord.longitude])
 }
 
@@ -97,7 +98,7 @@ export const latLngToMapbox = (
  * @returns Object with latitude and longitude properties
  */
 export const mapboxToLatLng = (
-  coords: [number, number]
+  coords: [number, number],
 ): { latitude: number; longitude: number } => {
   const [lat, lng] = mapboxToGoogle(coords)
   return { latitude: lat, longitude: lng }

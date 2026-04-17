@@ -1,19 +1,19 @@
-import React from 'react';
-import { View, TouchableOpacity, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Text } from 'react-native-paper';
-import { useSemanticTheme } from '../../hooks/use-semantic-theme';
+import type React from 'react'
+import { Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 export interface SuggestionChip {
-  id: string;
-  label: string;
-  icon?: string; // Emoji icon
+  id: string
+  label: string
+  icon?: string // Emoji icon
 }
 
 interface SuggestionChipsProps {
-  suggestions: SuggestionChip[];
-  onPress: (suggestion: SuggestionChip) => void;
-  disabled?: boolean;
-  horizontal?: boolean;
+  suggestions: SuggestionChip[]
+  onPress: (suggestion: SuggestionChip) => void
+  disabled?: boolean
+  horizontal?: boolean
 }
 
 export const SuggestionChips: React.FC<SuggestionChipsProps> = ({
@@ -22,12 +22,10 @@ export const SuggestionChips: React.FC<SuggestionChipsProps> = ({
   disabled = false,
   horizontal = false,
 }) => {
-  const { semantic } = useSemanticTheme();
+  const { semantic } = useSemanticTheme()
 
-  const Container = horizontal ? ScrollView : View;
-  const containerStyle = horizontal
-    ? styles.horizontalContainer
-    : styles.verticalContainer;
+  const Container = horizontal ? ScrollView : View
+  const containerStyle = horizontal ? styles.horizontalContainer : styles.verticalContainer
 
   return (
     <Container
@@ -69,8 +67,8 @@ export const SuggestionChips: React.FC<SuggestionChipsProps> = ({
         </Pressable>
       ))}
     </Container>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   horizontalContainer: {
@@ -103,4 +101,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-});
+})

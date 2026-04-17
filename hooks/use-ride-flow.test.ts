@@ -9,9 +9,9 @@
  * - AC5: Given IDLE state, when LOAD_SESSION dispatched, then populates routeOptions from attachment
  */
 
-import { describe, it, expect } from 'vitest'
-import { rideFlowReducer, initialState } from './use-ride-flow'
+import { describe, expect, it } from 'vitest'
 import type { PlannedRouteOptionsView } from '../types/routes'
+import { initialState, rideFlowReducer } from './use-ride-flow'
 
 /**
  * Helper to create mock route options matching the actual types

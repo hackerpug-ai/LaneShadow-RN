@@ -92,7 +92,7 @@ export const DiscoveryFilterBar = ({
     if (isSelected) {
       // If deselecting and this was the only one, show all
       onArchetypeChange(
-        selectedArchetypes.length === 1 ? [] : selectedArchetypes.filter((a) => a !== archetype)
+        selectedArchetypes.length === 1 ? [] : selectedArchetypes.filter((a) => a !== archetype),
       )
     } else {
       // Add to selection
@@ -129,19 +129,19 @@ export const DiscoveryFilterBar = ({
         />
 
         {/* Archetype chips */}
-        {(['twisties', 'scenic', 'technical', 'cruising', 'sport', 'adventure'] as RouteArchetype[]).map(
-          (archetype, index) => (
-            <View key={archetype} style={index > 0 ? { marginLeft: semantic.space.sm } : undefined}>
-              <Chip
-                label={`${ARCHETYPE_LABELS[archetype]} (${formatCount(counts[archetype])})`}
-                icon={ARCHETYPE_ICONS[archetype] as any}
-                selected={selectedArchetypes.includes(archetype)}
-                onPress={() => handleChipPress(archetype)}
-                testID={`${testID}-chip-${archetype}`}
-              />
-            </View>
-          )
-        )}
+        {(
+          ['twisties', 'scenic', 'technical', 'cruising', 'sport', 'adventure'] as RouteArchetype[]
+        ).map((archetype, index) => (
+          <View key={archetype} style={index > 0 ? { marginLeft: semantic.space.sm } : undefined}>
+            <Chip
+              label={`${ARCHETYPE_LABELS[archetype]} (${formatCount(counts[archetype])})`}
+              icon={ARCHETYPE_ICONS[archetype] as any}
+              selected={selectedArchetypes.includes(archetype)}
+              onPress={() => handleChipPress(archetype)}
+              testID={`${testID}-chip-${archetype}`}
+            />
+          </View>
+        ))}
       </ScrollView>
     </View>
   )

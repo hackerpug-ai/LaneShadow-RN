@@ -5,20 +5,20 @@
  * and appendStreamingChunk via exported handler functions.
  */
 
-import { vi, describe, it, expect } from 'vitest'
 import { ConvexError } from 'convex/values'
+import { describe, expect, it, vi } from 'vitest'
 import type { Id } from '../_generated/dataModel'
+import { ERROR_CODES } from '../errors'
 import {
+  appendReasoningChunkHandler,
+  appendStreamingChunkHandler,
   createPendingAssistantMessageHandler,
   finalizeAssistantMessageHandler,
-  appendStreamingChunkHandler,
-  recordAgentTurnHandler,
-  recordToolResultHandler,
-  recordReasoningHandler,
-  appendReasoningChunkHandler,
   listWithPiMessagesHandler,
+  recordAgentTurnHandler,
+  recordReasoningHandler,
+  recordToolResultHandler,
 } from './sessionMessages'
-import { ERROR_CODES } from '../errors'
 
 // ---------------------------------------------------------------------------
 // Shared fixtures
@@ -56,11 +56,11 @@ describe('createPendingAssistantMessageHandler', () => {
         kind: 'text',
         status: 'streaming',
         createdAt: expect.any(Number),
-      })
+      }),
     )
     expect(ctx.db.patch).toHaveBeenCalledWith(
       SESSION_ID,
-      expect.objectContaining({ updatedAt: expect.any(Number) })
+      expect.objectContaining({ updatedAt: expect.any(Number) }),
     )
   })
 
@@ -83,7 +83,7 @@ describe('createPendingAssistantMessageHandler', () => {
       expect.objectContaining({
         kind: 'routing_card',
         status: 'running',
-      })
+      }),
     )
   })
 
@@ -109,7 +109,7 @@ describe('createPendingAssistantMessageHandler', () => {
       expect.objectContaining({
         attachments,
         status: 'running',
-      })
+      }),
     )
   })
 })
@@ -142,7 +142,7 @@ describe('appendStreamingChunkHandler', () => {
     expect(result).toBeNull()
     expect(ctx.db.patch).toHaveBeenCalledWith(
       MESSAGE_ID,
-      expect.objectContaining({ content: 'Hello world' })
+      expect.objectContaining({ content: 'Hello world' }),
     )
   })
 
@@ -225,7 +225,7 @@ describe('finalizeAssistantMessageHandler', () => {
       expect.objectContaining({
         status: 'complete',
         content: 'Final content',
-      })
+      }),
     )
   })
 
@@ -255,7 +255,7 @@ describe('finalizeAssistantMessageHandler', () => {
     expect(result).toBeNull()
     expect(ctx.db.patch).toHaveBeenCalledWith(
       MESSAGE_ID,
-      expect.objectContaining({ status: 'failed' })
+      expect.objectContaining({ status: 'failed' }),
     )
   })
 
@@ -283,7 +283,7 @@ describe('finalizeAssistantMessageHandler', () => {
     expect(ctx.db.patch).toHaveBeenCalledTimes(2)
     expect(ctx.db.patch).toHaveBeenCalledWith(
       SESSION_ID,
-      expect.objectContaining({ updatedAt: expect.any(Number) })
+      expect.objectContaining({ updatedAt: expect.any(Number) }),
     )
   })
 
@@ -334,7 +334,7 @@ describe('createPendingAssistantMessageHandler with piMessage', () => {
 
     expect(ctx.db.insert).toHaveBeenCalledWith(
       'session_messages',
-      expect.objectContaining({ piMessage })
+      expect.objectContaining({ piMessage }),
     )
   })
 
@@ -379,7 +379,7 @@ describe('finalizeAssistantMessageHandler with piMessage', () => {
 
     expect(ctx.db.patch).toHaveBeenCalledWith(
       MESSAGE_ID,
-      expect.objectContaining({ piMessage, status: 'complete' })
+      expect.objectContaining({ piMessage, status: 'complete' }),
     )
   })
 
@@ -434,7 +434,7 @@ describe('recordAgentTurnHandler', () => {
         content: '',
         piMessage,
         createdAt: expect.any(Number),
-      })
+      }),
     )
   })
 
@@ -516,7 +516,7 @@ describe('recordReasoningHandler', () => {
         status: 'streaming',
         piMessage,
         createdAt: expect.any(Number),
-      })
+      }),
     )
   })
 })
@@ -545,7 +545,7 @@ describe('appendReasoningChunkHandler', () => {
     expect(result).toBeNull()
     expect(ctx.db.patch).toHaveBeenCalledWith(
       MESSAGE_ID,
-      expect.objectContaining({ content: 'Hello world' })
+      expect.objectContaining({ content: 'Hello world' }),
     )
   })
 
@@ -561,13 +561,13 @@ describe('appendReasoningChunkHandler', () => {
       appendReasoningChunkHandler(ctx as any, {
         messageId: MESSAGE_ID,
         delta: ' x',
-      })
+      }),
     ).rejects.toThrow(ConvexError)
     await expect(
       appendReasoningChunkHandler(ctx as any, {
         messageId: MESSAGE_ID,
         delta: ' x',
-      })
+      }),
     ).rejects.toThrow(ERROR_CODES.SESSION_NOT_FOUND)
   })
 

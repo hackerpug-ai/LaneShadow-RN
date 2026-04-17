@@ -54,9 +54,7 @@ const extractTemperatures = (overlay: TemperatureOverlay | undefined): number[] 
  * @param overlay - Temperature overlay data with segments by leg
  * @returns Temperature range result
  */
-export const calculateTempRange = (
-  overlay: TemperatureOverlay | undefined
-): TempRangeResult => {
+export const calculateTempRange = (overlay: TemperatureOverlay | undefined): TempRangeResult => {
   const temps = extractTemperatures(overlay)
 
   // No temperature data available
@@ -123,9 +121,7 @@ export const hasExtremeTemp = (result: TempRangeResult): 'cold' | 'hot' | null =
  * @param overlay - Temperature overlay data
  * @returns Formatted temperature range string
  */
-export const getTempRangeDisplay = (
-  overlay: TemperatureOverlay | undefined
-): string => {
+export const getTempRangeDisplay = (overlay: TemperatureOverlay | undefined): string => {
   const result = calculateTempRange(overlay)
   return formatTempRange(result)
 }

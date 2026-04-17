@@ -10,13 +10,12 @@
  * - AC6: Filtered empty state shown when 0 results with active filters
  */
 
-import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest'
-
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
-import SavedRoutesScreen from '../saved-routes'
-import { FilterHeader, FilteredEmptyState } from '../saved-routes.components'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { SavedRouteListItemView } from '../../../../types/routes'
+import SavedRoutesScreen from '../saved-routes'
+import { FilteredEmptyState, FilterHeader } from '../saved-routes.components'
 
 const mockPush = vi.fn()
 
@@ -92,7 +91,7 @@ vi.mock('react-native-gesture-handler', () => {
   return {
     Swipeable: React.forwardRef(function MockSwipeable(
       props: Record<string, unknown>,
-      _ref: React.Ref<unknown>
+      _ref: React.Ref<unknown>,
     ) {
       return React.createElement('Swipeable', props, props.children)
     }),
@@ -147,7 +146,7 @@ vi.mock('../../../../lib/notifier-helpers', () => ({
 }))
 
 const makeRoute = (
-  overrides: Partial<SavedRouteListItemView> & { savedRouteId: string }
+  overrides: Partial<SavedRouteListItemView> & { savedRouteId: string },
 ): SavedRouteListItemView => ({
   name: 'Test Route',
   startLabel: 'Start',
@@ -186,7 +185,6 @@ describe('AC1: Search filters routes via hook', () => {
     mockHookReturn.isLoading = false
 
     act(() => {
-      
       renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -214,7 +212,6 @@ describe('AC2: Date chip filters via hook', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -249,7 +246,6 @@ describe('AC3: Clear all filters', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -281,7 +277,7 @@ describe('AC4: Result count with active filters', () => {
           onClearFilters: vi.fn(),
           resultCount: 3,
           datePickerKey: 0,
-        })
+        }),
       )
     })
 
@@ -305,7 +301,7 @@ describe('AC4: Result count with active filters', () => {
           onClearFilters: vi.fn(),
           resultCount: 1,
           datePickerKey: 0,
-        })
+        }),
       )
     })
 
@@ -329,7 +325,7 @@ describe('AC5: No filters active', () => {
           onClearFilters: vi.fn(),
           resultCount: 5,
           datePickerKey: 0,
-        })
+        }),
       )
     })
 
@@ -363,7 +359,6 @@ describe('AC6: Filtered empty state', () => {
 
     let tree: renderer.ReactTestRenderer
     act(() => {
-      
       tree = renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -400,7 +395,6 @@ describe('Hook integration: useSavedRoutesList args', () => {
     mockHookReturn.isLoading = false
 
     act(() => {
-      
       renderer.create(React.createElement(SavedRoutesScreen))
     })
 
@@ -427,7 +421,7 @@ describe('FilterHeader: clear button interaction', () => {
           onClearFilters,
           resultCount: 2,
           datePickerKey: 0,
-        })
+        }),
       )
     })
 

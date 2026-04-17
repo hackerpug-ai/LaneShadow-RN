@@ -11,29 +11,23 @@
  * - HighlightTagsStagger: Staggered fade-in for highlight tags
  */
 
-export { EnrichedRouteCard } from './enriched-route-card'
+export type { CreativeLabelFadeInProps } from './creative-label-fade-in'
+export { CreativeLabelFadeIn } from './creative-label-fade-in'
 export type { EnrichedRouteCardProps } from './enriched-route-card'
-
-export { EnrichmentProgressProvider, useEnrichmentProgress } from './enrichment-progress-provider'
+export { EnrichedRouteCard } from './enriched-route-card'
 export type {
   EnrichmentProgress,
-  EnrichmentProgressProviderProps,
   EnrichmentProgressContextValue,
+  EnrichmentProgressProviderProps,
   EnrichmentStage,
   EnrichmentStatus as EnrichmentProgressStatus,
 } from './enrichment-progress-provider'
-
-export { EnrichmentStatusBadge } from './enrichment-status-badge'
+export { EnrichmentProgressProvider, useEnrichmentProgress } from './enrichment-progress-provider'
 export type { EnrichmentStatusBadgeProps } from './enrichment-status-badge'
-
-export { ProgressiveEnhancementToast } from './progressive-enhancement-toast'
-export type { ProgressiveEnhancementToastProps } from './progressive-enhancement-toast'
-
-export { CreativeLabelFadeIn } from './creative-label-fade-in'
-export type { CreativeLabelFadeInProps } from './creative-label-fade-in'
-
-export { RationaleReveal } from './rationale-reveal'
-export type { RationaleRevealProps } from './rationale-reveal'
-
+export { EnrichmentStatusBadge } from './enrichment-status-badge'
+export type { HighlightTag, HighlightTagsStaggerProps } from './highlight-tags-stagger'
 export { HighlightTagsStagger } from './highlight-tags-stagger'
-export type { HighlightTagsStaggerProps, HighlightTag } from './highlight-tags-stagger'
+export type { ProgressiveEnhancementToastProps } from './progressive-enhancement-toast'
+export { ProgressiveEnhancementToast } from './progressive-enhancement-toast'
+export type { RationaleRevealProps } from './rationale-reveal'
+export { RationaleReveal } from './rationale-reveal'

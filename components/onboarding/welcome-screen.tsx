@@ -11,14 +11,15 @@
  * growing at the bottom while the user reads about what the assistant can do.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import type React from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Animated, StyleSheet, View } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Text } from 'react-native-paper'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { Button } from '../ui/button'
-import { LaneShadowLogo } from '../auth/lane-shadow-logo'
 import type { ModelDownloadProgress } from '../../lib/model/download-manager'
+import { LaneShadowLogo } from '../auth/lane-shadow-logo'
+import { Button } from '../ui/button'
 
 // ---------------------------------------------------------------------------
 // Feature carousel data
@@ -160,25 +161,28 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   // -----------------------------------------------------------------------
   // Carousel dots
   // -----------------------------------------------------------------------
-  const renderDots = useCallback(() => (
-    <View style={[styles.dotsContainer, { gap: semantic.space.sm }]}>
-      {FEATURES.map((_, i) => (
-        <View
-          key={i}
-          style={[
-            styles.dot,
-            {
-              backgroundColor:
-                i === activeSlide
-                  ? semantic.color.primary.default
-                  : semantic.color.onSurface.subtle,
-              borderRadius: semantic.radius.full,
-            },
-          ]}
-        />
-      ))}
-    </View>
-  ), [activeSlide, semantic])
+  const renderDots = useCallback(
+    () => (
+      <View style={[styles.dotsContainer, { gap: semantic.space.sm }]}>
+        {FEATURES.map((_, i) => (
+          <View
+            key={i}
+            style={[
+              styles.dot,
+              {
+                backgroundColor:
+                  i === activeSlide
+                    ? semantic.color.primary.default
+                    : semantic.color.onSurface.subtle,
+                borderRadius: semantic.radius.full,
+              },
+            ]}
+          />
+        ))}
+      </View>
+    ),
+    [activeSlide, semantic],
+  )
 
   // -----------------------------------------------------------------------
   // Render
@@ -232,7 +236,11 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
             variant="bodyLarge"
             style={[
               semantic.type.body.md,
-              { color: semantic.color.onSurface.muted, textAlign: 'center', marginTop: semantic.space.md },
+              {
+                color: semantic.color.onSurface.muted,
+                textAlign: 'center',
+                marginTop: semantic.space.md,
+              },
             ]}
           >
             Your AI-native motorcycle ride planner.{'\n'}Set up your AI Companion to get started.

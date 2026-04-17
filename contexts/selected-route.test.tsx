@@ -8,10 +8,10 @@
  * - AC4: useSelectedRoute throws when used outside SelectedRouteProvider
  */
 
-import { vi, describe, it, expect } from 'vitest'
+import { act, render } from '@testing-library/react-native'
 import React from 'react'
-import { render, act } from '@testing-library/react-native'
 import { Text } from 'react-native'
+import { describe, expect, it, vi } from 'vitest'
 import { SelectedRouteProvider, useSelectedRoute } from './selected-route'
 
 // ---------------------------------------------------------------------------
@@ -84,9 +84,7 @@ describe('SelectedRouteProvider', () => {
    */
   it('useSelectedRoute does not crash when used without provider (uses default value)', () => {
     const rendered: (string | null)[] = []
-    expect(() =>
-      render(<Consumer onRender={(id) => rendered.push(id)} />),
-    ).not.toThrow()
+    expect(() => render(<Consumer onRender={(id) => rendered.push(id)} />)).not.toThrow()
     expect(rendered[0]).toBeNull()
   })
 })

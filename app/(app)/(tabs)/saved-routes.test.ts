@@ -17,17 +17,17 @@
 // Mocks
 // ---------------------------------------------------------------------------
 
-import { vi, describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { SavedRouteListItemView } from '../../../types/routes'
 import SavedRoutesScreen, {
   formatDistance,
   formatDuration,
-  THUMBNAIL_ROTATIONS,
   getSortedRoutes,
   SKELETON_COUNT,
+  THUMBNAIL_ROTATIONS,
 } from './saved-routes'
-import type { SavedRouteListItemView } from '../../../types/routes'
 
 const mockPush = vi.fn()
 
@@ -94,7 +94,7 @@ vi.mock('react-native-gesture-handler', () => {
   return {
     Swipeable: React.forwardRef(function MockSwipeable(
       props: Record<string, unknown>,
-      _ref: React.Ref<unknown>
+      _ref: React.Ref<unknown>,
     ) {
       return React.createElement('Swipeable', props, props.children)
     }),
@@ -164,7 +164,7 @@ vi.mock('../../../components/layouts/subpage-layout', () => {
 // ---------------------------------------------------------------------------
 
 const makeRoute = (
-  overrides: Partial<SavedRouteListItemView> & { savedRouteId: string }
+  overrides: Partial<SavedRouteListItemView> & { savedRouteId: string },
 ): SavedRouteListItemView => ({
   name: 'Test Route',
   startLabel: 'Start',
@@ -368,7 +368,7 @@ describe('US-018: Scroll position preservation', () => {
     // As long as isLoading stays false, the FlatList component stays in the tree,
     // preserving its internal scroll state across re-renders.
     const routes = Array.from({ length: 10 }, (_, i) =>
-      makeRoute({ savedRouteId: `route-${i}`, createdAt: 1000 + i })
+      makeRoute({ savedRouteId: `route-${i}`, createdAt: 1000 + i }),
     )
     mockHookReturn.data = { routes }
     mockHookReturn.isLoading = false
@@ -434,7 +434,7 @@ describe('US-018: Scroll position preservation', () => {
     // The FlatList has no ref-based scrollToOffset or scrollToIndex calls
     // that would reset position on mount or re-render.
     const routes = Array.from({ length: 5 }, (_, i) =>
-      makeRoute({ savedRouteId: `route-${i}`, createdAt: 1000 + i })
+      makeRoute({ savedRouteId: `route-${i}`, createdAt: 1000 + i }),
     )
     mockHookReturn.data = { routes }
     mockHookReturn.isLoading = false

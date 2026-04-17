@@ -5,16 +5,15 @@
  * unit-tested without a running Convex backend.
  */
 
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { ConvexError } from 'convex/values'
-
-import { ERROR_CODES } from '../../errors'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../_generated/dataModel'
+import { ERROR_CODES } from '../../errors'
 import {
-  createSessionHandler,
-  listSessionsHandler,
-  getSessionByIdHandler,
   archiveSessionHandler,
+  createSessionHandler,
+  getSessionByIdHandler,
+  listSessionsHandler,
   updateLastKnownLocationHandler,
 } from '../planningSessions'
 
@@ -50,11 +49,7 @@ describe('createSessionHandler', () => {
 
     const firstMessage = 'I want to plan a ride from downtown to the airport with multiple stops'
 
-    const result = await createSessionHandler(
-      ctx as any,
-      { firstMessage },
-      CLERK_USER_ID
-    )
+    const result = await createSessionHandler(ctx as any, { firstMessage }, CLERK_USER_ID)
 
     expect(ctx.db.insert).toHaveBeenCalledWith(
       'planning_sessions',
@@ -62,7 +57,7 @@ describe('createSessionHandler', () => {
         clerkUserId: CLERK_USER_ID,
         status: 'active',
         title: firstMessage.slice(0, 50),
-      })
+      }),
     )
     expect(result).toEqual({ sessionId: SESSION_ID })
   })
@@ -74,7 +69,8 @@ describe('createSessionHandler', () => {
       },
     }
 
-    const longMessage = 'This is a very long message that exceeds fifty characters and should be truncated'
+    const longMessage =
+      'This is a very long message that exceeds fifty characters and should be truncated'
 
     await createSessionHandler(ctx as any, { firstMessage: longMessage }, CLERK_USER_ID)
 
@@ -82,7 +78,7 @@ describe('createSessionHandler', () => {
       'planning_sessions',
       expect.objectContaining({
         title: longMessage.slice(0, 50),
-      })
+      }),
     )
   })
 })
@@ -165,11 +161,7 @@ describe('getSessionByIdHandler', () => {
       },
     }
 
-    const result = await getSessionByIdHandler(
-      ctx as any,
-      { sessionId: SESSION_ID },
-      CLERK_USER_ID
-    )
+    const result = await getSessionByIdHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID)
 
     expect(result).toEqual(session)
   })
@@ -182,11 +174,11 @@ describe('getSessionByIdHandler', () => {
     }
 
     await expect(
-      getSessionByIdHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID)
+      getSessionByIdHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID),
     ).rejects.toThrow(ConvexError)
 
     await expect(
-      getSessionByIdHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID)
+      getSessionByIdHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID),
     ).rejects.toThrow(ERROR_CODES.SESSION_NOT_FOUND)
   })
 
@@ -199,7 +191,7 @@ describe('getSessionByIdHandler', () => {
     }
 
     await expect(
-      getSessionByIdHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID)
+      getSessionByIdHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID),
     ).rejects.toThrow(ERROR_CODES.SESSION_NOT_FOUND)
   })
 })
@@ -225,7 +217,7 @@ describe('archiveSessionHandler', () => {
       expect.objectContaining({
         status: 'archived',
         updatedAt: expect.any(Number),
-      })
+      }),
     )
   })
 
@@ -238,7 +230,7 @@ describe('archiveSessionHandler', () => {
     }
 
     await expect(
-      archiveSessionHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID)
+      archiveSessionHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID),
     ).rejects.toThrow(ERROR_CODES.SESSION_NOT_FOUND)
   })
 
@@ -252,7 +244,7 @@ describe('archiveSessionHandler', () => {
     }
 
     await expect(
-      archiveSessionHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID)
+      archiveSessionHandler(ctx as any, { sessionId: SESSION_ID }, CLERK_USER_ID),
     ).rejects.toThrow(ERROR_CODES.SESSION_NOT_FOUND)
   })
 
@@ -330,7 +322,7 @@ describe('updateLastKnownLocationHandler', () => {
     expect(secondCallFields.lastKnownLocation.lat).toBe(47.6062)
     expect(secondCallFields.lastKnownLocation.lng).toBe(-122.3321)
     expect(secondCallFields.lastKnownLocation.updatedAt).toBeGreaterThanOrEqual(
-      firstCallFields.lastKnownLocation.updatedAt
+      firstCallFields.lastKnownLocation.updatedAt,
     )
   })
 })

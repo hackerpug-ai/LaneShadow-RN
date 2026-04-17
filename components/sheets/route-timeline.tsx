@@ -27,9 +27,9 @@ const withAlpha = (color: string, alpha: number): string => {
     const expand = (v: string) => v + v
     const toInt = (v: string) => Number.parseInt(v, 16)
 
-    const r = toInt(isShort ? expand(hex[0] ?? '0') : (hex.slice(0, 2) || '00'))
-    const g = toInt(isShort ? expand(hex[1] ?? '0') : (hex.slice(2, 4) || '00'))
-    const b = toInt(isShort ? expand(hex[2] ?? '0') : (hex.slice(4, 6) || '00'))
+    const r = toInt(isShort ? expand(hex[0] ?? '0') : hex.slice(0, 2) || '00')
+    const g = toInt(isShort ? expand(hex[1] ?? '0') : hex.slice(2, 4) || '00')
+    const b = toInt(isShort ? expand(hex[2] ?? '0') : hex.slice(4, 6) || '00')
     return `rgba(${r},${g},${b},${alpha})`
   }
 
@@ -75,7 +75,7 @@ export const RouteTimeline = ({ startPoint, endPoint }: RouteTimelineProps) => {
         colors={[
           semantic.color.primary.default,
           withAlpha(semantic.color.primary.default, 0.5),
-          withAlpha(semantic.color.onSurface.muted, 0.3),
+          withAlpha(semantic.color.onSurface.muted ?? semantic.color.onSurface.default, 0.3),
         ]}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
@@ -90,7 +90,10 @@ export const RouteTimeline = ({ startPoint, endPoint }: RouteTimelineProps) => {
             width: semantic.space.md, // 12
             height: semantic.space.md, // 12
             borderRadius: semantic.radius.full,
-            backgroundColor: withAlpha(semantic.color.onSurface.muted, 0.5),
+            backgroundColor: withAlpha(
+              semantic.color.onSurface.muted ?? semantic.color.onSurface.default,
+              0.5,
+            ),
           },
         ]}
         testID="timeline-end-dot"

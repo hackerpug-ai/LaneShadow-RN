@@ -9,13 +9,13 @@
  * - AC4: Undefined/malformed geometry -> graceful fallback, no crash
  */
 
-import { vi, describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react-native'
-import { PaperProvider, MD3DarkTheme } from 'react-native-paper'
-import { RouteThumbnail } from './route-thumbnail'
-import type { RouteThumbnailProps } from './route-thumbnail'
+import { MD3DarkTheme, PaperProvider } from 'react-native-paper'
+import { describe, expect, it, vi } from 'vitest'
 import type { ExtendedTheme } from '../../styles/types'
 import type { Bounds } from '../../types/routes'
+import type { RouteThumbnailProps } from './route-thumbnail'
+import { RouteThumbnail } from './route-thumbnail'
 
 // Mock semantic theme for testing
 const mockSemanticTheme: ExtendedTheme['semantic'] = {
@@ -106,12 +106,48 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.3, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -131,11 +167,7 @@ vi.mock('expo-linear-gradient', () => {
 })
 
 const renderWithPaper = (ui: React.ReactElement) => {
-  return render(
-    <PaperProvider theme={MD3DarkTheme}>
-      {ui}
-    </PaperProvider>
-  )
+  return render(<PaperProvider theme={MD3DarkTheme}>{ui}</PaperProvider>)
 }
 
 describe('RouteThumbnail', () => {
@@ -153,21 +185,19 @@ describe('RouteThumbnail', () => {
 
     it('should render at default 96x96 size', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteThumbnail bounds={validBounds} testID="thumbnail" />
+        <RouteThumbnail bounds={validBounds} testID="thumbnail" />,
       )
       const thumbnail = getByTestId('thumbnail')
       const style = thumbnail.props.style
       // Flatten styles to check width/height
-      const flatStyle = Array.isArray(style)
-        ? Object.assign({}, ...style.flat())
-        : style
+      const flatStyle = Array.isArray(style) ? Object.assign({}, ...style.flat()) : style
       expect(flatStyle.width).toBe(96)
       expect(flatStyle.height).toBe(96)
     })
 
     it('should use LinearGradient instead of CSS linear-gradient', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteThumbnail bounds={validBounds} testID="thumbnail" />
+        <RouteThumbnail bounds={validBounds} testID="thumbnail" />,
       )
       // LinearGradient should be present (mocked as View with testID)
       expect(getByTestId('linear-gradient')).toBeTruthy()
@@ -175,14 +205,14 @@ describe('RouteThumbnail', () => {
 
     it('should render a route line view', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteThumbnail bounds={validBounds} testID="thumbnail" />
+        <RouteThumbnail bounds={validBounds} testID="thumbnail" />,
       )
       expect(getByTestId('route-line')).toBeTruthy()
     })
 
     it('should derive rotation from bounds when provided', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteThumbnail bounds={validBounds} testID="thumbnail" />
+        <RouteThumbnail bounds={validBounds} testID="thumbnail" />,
       )
       const routeLine = getByTestId('route-line')
       const flatStyle = Array.isArray(routeLine.props.style)
@@ -191,15 +221,13 @@ describe('RouteThumbnail', () => {
       // Should have a transform with rotation
       expect(flatStyle.transform).toBeDefined()
       expect(flatStyle.transform).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ rotate: expect.any(String) }),
-        ])
+        expect.arrayContaining([expect.objectContaining({ rotate: expect.any(String) })]),
       )
     })
 
     it('should use semantic primary color for route line border', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteThumbnail bounds={validBounds} testID="thumbnail" />
+        <RouteThumbnail bounds={validBounds} testID="thumbnail" />,
       )
       const routeLine = getByTestId('route-line')
       const flatStyle = Array.isArray(routeLine.props.style)
@@ -215,38 +243,28 @@ describe('RouteThumbnail', () => {
    */
   describe('AC2: no geometry props (backward compatible)', () => {
     it('should render without any props', () => {
-      const { getByTestId } = renderWithPaper(
-        <RouteThumbnail testID="thumbnail" />
-      )
+      const { getByTestId } = renderWithPaper(<RouteThumbnail testID="thumbnail" />)
       expect(getByTestId('thumbnail')).toBeTruthy()
     })
 
     it('should use LinearGradient even without bounds', () => {
-      const { getByTestId } = renderWithPaper(
-        <RouteThumbnail testID="thumbnail" />
-      )
+      const { getByTestId } = renderWithPaper(<RouteThumbnail testID="thumbnail" />)
       expect(getByTestId('linear-gradient')).toBeTruthy()
     })
 
     it('should render default decorative route line', () => {
-      const { getByTestId } = renderWithPaper(
-        <RouteThumbnail testID="thumbnail" />
-      )
+      const { getByTestId } = renderWithPaper(<RouteThumbnail testID="thumbnail" />)
       expect(getByTestId('route-line')).toBeTruthy()
     })
 
     it('should use default rotation when no bounds provided', () => {
-      const { getByTestId } = renderWithPaper(
-        <RouteThumbnail testID="thumbnail" />
-      )
+      const { getByTestId } = renderWithPaper(<RouteThumbnail testID="thumbnail" />)
       const routeLine = getByTestId('route-line')
       const flatStyle = Array.isArray(routeLine.props.style)
         ? Object.assign({}, ...routeLine.props.style.flat())
         : routeLine.props.style
       // Default rotation should be -10 degrees
-      expect(flatStyle.transform).toEqual(
-        expect.arrayContaining([{ rotate: '-10deg' }])
-      )
+      expect(flatStyle.transform).toEqual(expect.arrayContaining([{ rotate: '-10deg' }]))
     })
   })
 
@@ -264,14 +282,14 @@ describe('RouteThumbnail', () => {
 
     it('should render without crashing for tiny bounds', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteThumbnail bounds={tinyBounds} testID="thumbnail" />
+        <RouteThumbnail bounds={tinyBounds} testID="thumbnail" />,
       )
       expect(getByTestId('thumbnail')).toBeTruthy()
     })
 
     it('should still show a visible route line for tiny bounds', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteThumbnail bounds={tinyBounds} testID="thumbnail" />
+        <RouteThumbnail bounds={tinyBounds} testID="thumbnail" />,
       )
       const routeLine = getByTestId('route-line')
       const flatStyle = Array.isArray(routeLine.props.style)
@@ -290,7 +308,7 @@ describe('RouteThumbnail', () => {
   describe('AC4: malformed geometry fallback', () => {
     it('should handle undefined bounds gracefully', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteThumbnail bounds={undefined} testID="thumbnail" />
+        <RouteThumbnail bounds={undefined} testID="thumbnail" />,
       )
       expect(getByTestId('thumbnail')).toBeTruthy()
       expect(getByTestId('route-line')).toBeTruthy()
@@ -304,7 +322,7 @@ describe('RouteThumbnail', () => {
         west: -118.0,
       }
       const { getByTestId } = renderWithPaper(
-        <RouteThumbnail bounds={zeroBounds} testID="thumbnail" />
+        <RouteThumbnail bounds={zeroBounds} testID="thumbnail" />,
       )
       expect(getByTestId('thumbnail')).toBeTruthy()
       expect(getByTestId('route-line')).toBeTruthy()
@@ -318,7 +336,7 @@ describe('RouteThumbnail', () => {
         west: -116.0,
       }
       const { getByTestId } = renderWithPaper(
-        <RouteThumbnail bounds={invertedBounds} testID="thumbnail" />
+        <RouteThumbnail bounds={invertedBounds} testID="thumbnail" />,
       )
       expect(getByTestId('thumbnail')).toBeTruthy()
       expect(getByTestId('route-line')).toBeTruthy()
@@ -331,7 +349,7 @@ describe('RouteThumbnail', () => {
   describe('custom sizing', () => {
     it('should accept custom width and height', () => {
       const { getByTestId } = renderWithPaper(
-        <RouteThumbnail width={64} height={64} testID="thumbnail" />
+        <RouteThumbnail width={64} height={64} testID="thumbnail" />,
       )
       const thumbnail = getByTestId('thumbnail')
       const flatStyle = Array.isArray(thumbnail.props.style)

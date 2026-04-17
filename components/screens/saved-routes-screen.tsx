@@ -7,14 +7,14 @@
  * Follows the design system screen patterns
  */
 
-import { StyleSheet, View, ScrollView, Pressable } from 'react-native'
-import { Text , useTheme } from 'react-native-paper'
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
+import { Text, useTheme } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import type { ExtendedTheme } from '../../styles/types'
+import { SubpageLayout } from '../layouts/subpage-layout'
+import { FAB } from '../ui/fab'
 import { SavedRouteCard } from '../ui/saved-route-card'
 import { SearchBar } from '../ui/search-bar'
-import { FAB } from '../ui/fab'
-import { SubpageLayout } from '../layouts/subpage-layout'
 
 export type SavedRouteData = {
   id: string
@@ -69,7 +69,7 @@ export const SavedRoutesScreen = ({
     ? routes.filter(
         (route) =>
           route.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          route.path.toLowerCase().includes(searchQuery.toLowerCase())
+          route.path.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : routes
 
@@ -83,26 +83,24 @@ export const SavedRoutesScreen = ({
     <SubpageLayout
       title="Saved Routes"
       testID={testID || 'saved-routes-screen'}
-      rightAction={onPressAdd ? {
-        icon: 'plus',
-        onPress: onPressAdd,
-        testID: testID ? `${testID}-add` : 'saved-routes-add',
-      } : undefined}
+      rightAction={
+        onPressAdd
+          ? {
+              icon: 'plus',
+              onPress: onPressAdd,
+              testID: testID ? `${testID}-add` : 'saved-routes-add',
+            }
+          : undefined
+      }
     >
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingHorizontal: semantic.space.lg },
-        ]}
+        contentContainerStyle={[styles.scrollContent, { paddingHorizontal: semantic.space.lg }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Route count subtitle */}
         <View style={styles.subtitleContainer}>
-          <Text
-            variant="bodyMedium"
-            style={{ color: semantic.color.onSurface.subtle }}
-          >
+          <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.subtle }}>
             {routes.length} {routes.length === 1 ? 'route' : 'routes'}
           </Text>
         </View>
@@ -130,18 +128,8 @@ export const SavedRoutesScreen = ({
           </View>
         ) : filteredRoutes.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <View
-              style={[
-                styles.emptyThumbnail,
-                { borderColor: semantic.color.divider.default },
-              ]}
-            >
-              <View
-                style={[
-                  styles.emptyRoute,
-                  { borderColor: semantic.color.divider.default },
-                ]}
-              />
+            <View style={[styles.emptyThumbnail, { borderColor: semantic.color.divider.default }]}>
+              <View style={[styles.emptyRoute, { borderColor: semantic.color.divider.default }]} />
             </View>
             <View style={styles.emptyTextContainer}>
               <View

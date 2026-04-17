@@ -1,4 +1,4 @@
-import { Infer, v } from 'convex/values'
+import { type Infer, v } from 'convex/values'
 import { z } from 'zod'
 
 export const MAX_ROUTE_SKETCH_SEGMENTS = 20

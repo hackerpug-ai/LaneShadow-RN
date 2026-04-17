@@ -4,13 +4,7 @@ module.exports = {
   roots: ['<rootDir>'],
   setupFiles: ['<rootDir>/jest.env.js'],
   testMatch: ['**/?(*.)+(spec|test).tsx'],
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/e2e/',
-    '/.expo/',
-    '/android/',
-    '/ios/',
-  ],
+  testPathIgnorePatterns: ['/node_modules/', '/e2e/', '/.expo/', '/android/', '/ios/'],
   // Transform all node_modules that use ESM or Flow syntax
   transformIgnorePatterns: [
     'node_modules/(?!(expo-linear-gradient|expo-modules-core|@expo|@testing-library)/)',

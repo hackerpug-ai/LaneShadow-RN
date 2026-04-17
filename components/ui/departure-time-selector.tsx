@@ -5,12 +5,12 @@
  * Uses native date picker with styled trigger button
  */
 
-import { IconSymbol } from './icon-symbol'
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker'
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker'
 import { useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
+import { IconSymbol } from './icon-symbol'
 
 export type DepartureTimeSelectorProps = {
   /** Currently selected departure time */
@@ -82,9 +82,7 @@ export const DepartureTimeSelector = ({
 
   return (
     <View style={styles.container} testID={testID}>
-      <Text style={[styles.label, { color: semantic.color.onSurface.subtle }]}>
-        {label}
-      </Text>
+      <Text style={[styles.label, { color: semantic.color.onSurface.subtle }]}>{label}</Text>
       <Pressable
         style={({ pressed }) => [
           styles.button,
@@ -102,12 +100,10 @@ export const DepartureTimeSelector = ({
           color={semantic.color.primary.default}
           style={styles.icon}
         />
-        <Text style={[styles.buttonText, { color: semantic.color.onSurface.default }]}>{displayText}</Text>
-        <IconSymbol
-          name="chevron-down"
-          size={18}
-          color={semantic.color.primary.default}
-        />
+        <Text style={[styles.buttonText, { color: semantic.color.onSurface.default }]}>
+          {displayText}
+        </Text>
+        <IconSymbol name="chevron-down" size={18} color={semantic.color.primary.default} />
       </Pressable>
 
       {showPicker && (

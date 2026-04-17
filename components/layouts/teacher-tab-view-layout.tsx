@@ -3,17 +3,17 @@
  *
  * Composed layout for teacher views with tab bar (Feed, Reports)
  * Includes MenuLayout with drawer and safe area handling
- * 
+ *
  * Sprint 06: Integrated with voice assistant (push-to-talk pattern)
  * Following theme_rules.mdc
  */
 
-import { Banner } from '../ui/banner'
-import { useTeacherDrawerConfig } from '../../hooks/use-teacher-drawer-config'
-import { useVoiceAssistant } from '../../hooks/use-voice-assistant'
 import * as Haptics from 'expo-haptics'
 import { StyleSheet, View } from 'react-native'
+import { useTeacherDrawerConfig } from '../../hooks/use-teacher-drawer-config'
+import { useVoiceAssistant } from '../../hooks/use-voice-assistant'
 import { VoiceAssistantOverlay } from '../assistant/voice-assistant-overlay'
+import { Banner } from '../ui/banner'
 import { BaseViewLayout } from './base-view-layout'
 import { Header } from './header'
 import { MenuLayout } from './menu-layout'
@@ -33,7 +33,7 @@ export const TeacherTabViewLayout = ({
   testID,
 }: TeacherTabViewLayoutProps) => {
   const { sections, footerItems } = useTeacherDrawerConfig()
-  
+
   // Sprint 06: Voice assistant with push-to-talk
   // TODO: Get actual classroom context from route/user state
   const voiceAssistant = useVoiceAssistant({
@@ -52,7 +52,7 @@ export const TeacherTabViewLayout = ({
   const handleMicPressOut = async () => {
     // Stop recording and send
     await voiceAssistant.stopRecording()
-    
+
     // Success haptic on release
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
   }

@@ -8,9 +8,9 @@
  * - AC4: Rain overlay has no segment data for a leg → Leg renders in default neutral color (gray)
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { ExtendedTheme } from '../../styles/types'
-import { getRainColor, getWindColor, getTemperatureColor } from './overlay-colors'
+import { getRainColor, getTemperatureColor, getWindColor } from './overlay-colors'
 
 describe('overlay-colors', () => {
   // Mock semantic theme for testing
@@ -21,8 +21,8 @@ describe('overlay-colors', () => {
       tertiary: { default: '#7D5260' },
       success: { default: '#22c55e' },
       warning: { default: '#f59e0b' },
-    warningContainer: { default: 'FFF8E7' },
-    onWarningContainer: { default: '#5C3E00' },
+      warningContainer: { default: 'FFF8E7' },
+      onWarningContainer: { default: '#5C3E00' },
       danger: { default: '#ef4444' },
       info: { default: '#3b82f6' },
       surface: { default: '#FEF7FF' },
@@ -36,10 +36,10 @@ describe('overlay-colors', () => {
       border: { default: '#CAC4D0' },
       input: { default: '#CAC4D0' },
       ring: { default: '#6750A4' },
-    locationPoiFill: { default: '#EDEDED' },
-    locationPoiRing: { default: '#B87333' },
-    locationPoiMuted: { default: '#A3A3A3' },
-    locationPoiBg: { default: '#F3EFE8' },
+      locationPoiFill: { default: '#EDEDED' },
+      locationPoiRing: { default: '#B87333' },
+      locationPoiMuted: { default: '#A3A3A3' },
+      locationPoiBg: { default: '#F3EFE8' },
       card: { default: '#FFFFFF' },
       popover: { default: '#FFFFFF' },
       accent: { default: '#FF6B35' },
@@ -97,12 +97,48 @@ describe('overlay-colors', () => {
       },
     },
     elevation: {
-      0: { shadowColor: '#000000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-      1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },
-      2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4, elevation: 2 },
-      3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
-      4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 4 },
-      5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.3, shadowRadius: 24, elevation: 5 },
+      0: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0,
+        shadowRadius: 0,
+        elevation: 0,
+      },
+      1: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 1,
+      },
+      2: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 2,
+      },
+      3: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 3,
+      },
+      4: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.25,
+        shadowRadius: 16,
+        elevation: 4,
+      },
+      5: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.3,
+        shadowRadius: 24,
+        elevation: 5,
+      },
     },
   }
 

@@ -12,16 +12,16 @@
  * - Glassmorphic design matching project aesthetic
  */
 
-import React, { useMemo } from 'react'
-import { StyleSheet, View, Platform, Linking, Pressable } from 'react-native'
-import { Text } from 'react-native-paper'
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet'
+import React, { useMemo } from 'react'
+import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native'
+import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { IconSymbol } from '../ui/icon-symbol'
-import { Button } from '../ui/button'
-import { BottomSheetWrapper } from './bottom-sheet-wrapper'
 import type { RouteLeg } from '../../models/saved-routes'
+import { Button } from '../ui/button'
+import { IconSymbol } from '../ui/icon-symbol'
+import { BottomSheetWrapper } from './bottom-sheet-wrapper'
 
 export type RouteDirectionsSheetProps = {
   isVisible: boolean
@@ -87,7 +87,9 @@ const generateLegSummary = (leg: RouteLeg): string | null => {
   }
 
   // Filter steps to get meaningful instructions (skip empty ones)
-  const meaningfulSteps = leg.steps.filter((step) => step.instruction && step.instruction.trim().length > 0)
+  const meaningfulSteps = leg.steps.filter(
+    (step) => step.instruction && step.instruction.trim().length > 0,
+  )
 
   if (meaningfulSteps.length === 0) {
     return null
@@ -193,11 +195,7 @@ export const RouteDirectionsSheet = ({
               style={styles.footerButton}
               testID={`${testID}-navigate-button`}
               icon={
-                <IconSymbol
-                  name="navigation"
-                  size={20}
-                  color={semantic.color.onPrimary.default}
-                />
+                <IconSymbol name="navigation" size={20} color={semantic.color.onPrimary.default} />
               }
             >
               Navigate
@@ -237,277 +235,278 @@ export const RouteDirectionsSheet = ({
         {/* Scrollable step-by-step directions */}
         <View style={styles.scrollWrapper}>
           <BottomSheetScrollView
-            contentContainerStyle={[
-              styles.legsContent,
-              { paddingHorizontal: semantic.space.lg },
-            ]}
+            contentContainerStyle={[styles.legsContent, { paddingHorizontal: semantic.space.lg }]}
             showsVerticalScrollIndicator={true}
             testID={`${testID}-steps-scroll`}
           >
-          {legs.map((leg, legIndex) => {
-            // If leg has steps, show them individually
-            if (leg.steps && leg.steps.length > 0) {
-              return (
-                <View key={leg.legIndex} style={styles.legSection}>
-                  {/* Leg header */}
-                  <View style={styles.legSectionHeader}>
-                    <Text
-                      variant="labelMedium"
-                      style={[styles.legSectionLabel, { color: semantic.color.onSurface.subtle }]}
-                    >
-                      Segment {legIndex + 1}
-                    </Text>
-                    <Text
-                      variant="bodySmall"
-                      style={{ color: semantic.color.onSurface.muted }}
-                    >
-                      {formatDistance(leg.distanceMeters)} • {formatDuration(leg.durationSeconds)}
-                    </Text>
-                  </View>
+            {legs.map((leg, legIndex) => {
+              // If leg has steps, show them individually
+              if (leg.steps && leg.steps.length > 0) {
+                return (
+                  <View key={leg.legIndex} style={styles.legSection}>
+                    {/* Leg header */}
+                    <View style={styles.legSectionHeader}>
+                      <Text
+                        variant="labelMedium"
+                        style={[styles.legSectionLabel, { color: semantic.color.onSurface.subtle }]}
+                      >
+                        Segment {legIndex + 1}
+                      </Text>
+                      <Text variant="bodySmall" style={{ color: semantic.color.onSurface.muted }}>
+                        {formatDistance(leg.distanceMeters)} • {formatDuration(leg.durationSeconds)}
+                      </Text>
+                    </View>
 
-                  {/* Steps */}
-                  {leg.steps.map((step, stepIndex) => (
-                    <View
-                      key={`step-${leg.legIndex}-${step.stepIndex}-${step.instruction.slice(0, 20)}`}
-                      style={[
-                        styles.stepCard,
-                        {
-                          backgroundColor: semantic.color.surface.default + 'E6',
-                          borderColor: semantic.color.border.default + '4D',
-                          marginBottom: stepIndex === leg.steps.length - 1 ? semantic.space.md : semantic.space.xs,
-                        },
-                      ]}
-                    >
-                      <View style={styles.stepContent}>
-                        {/* Step number */}
-                        <View
-                          style={[
-                            styles.stepNumber,
-                            { backgroundColor: semantic.color.primary.default + '1A' },
-                          ]}
-                        >
-                          <Text
-                            style={[styles.stepNumberText, { color: semantic.color.primary.default }]}
+                    {/* Steps */}
+                    {leg.steps.map((step, stepIndex) => (
+                      <View
+                        key={`step-${leg.legIndex}-${step.stepIndex}-${step.instruction.slice(0, 20)}`}
+                        style={[
+                          styles.stepCard,
+                          {
+                            backgroundColor: semantic.color.surface.default + 'E6',
+                            borderColor: semantic.color.border.default + '4D',
+                            marginBottom:
+                              stepIndex === (leg.steps?.length ?? 0) - 1
+                                ? semantic.space.md
+                                : semantic.space.xs,
+                          },
+                        ]}
+                      >
+                        <View style={styles.stepContent}>
+                          {/* Step number */}
+                          <View
+                            style={[
+                              styles.stepNumber,
+                              { backgroundColor: semantic.color.primary.default + '1A' },
+                            ]}
                           >
-                            {stepIndex + 1}
-                          </Text>
-                        </View>
-
-                        {/* Step instruction */}
-                        <View style={styles.stepInfo}>
-                          <Text
-                            variant="bodyMedium"
-                            style={[styles.instruction, { color: semantic.color.onSurface.default }]}
-                          >
-                            {step.instruction}
-                          </Text>
-                          <View style={styles.stepMeta}>
-                            <IconSymbol
-                              name="map-marker-distance"
-                              size={12}
-                              color={semantic.color.onSurface.muted}
-                            />
                             <Text
-                              variant="bodySmall"
-                              style={{ color: semantic.color.onSurface.subtle }}
+                              style={[
+                                styles.stepNumberText,
+                                { color: semantic.color.primary.default },
+                              ]}
                             >
-                              {formatDistance(step.distanceMeters)}
+                              {stepIndex + 1}
                             </Text>
+                          </View>
+
+                          {/* Step instruction */}
+                          <View style={styles.stepInfo}>
                             <Text
-                              variant="bodySmall"
-                              style={[styles.stepSeparator, { color: semantic.color.onSurface.muted }]}
+                              variant="bodyMedium"
+                              style={[
+                                styles.instruction,
+                                { color: semantic.color.onSurface.default },
+                              ]}
                             >
+                              {step.instruction}
+                            </Text>
+                            <View style={styles.stepMeta}>
+                              <IconSymbol
+                                name="map-marker-distance"
+                                size={12}
+                                color={semantic.color.onSurface.muted ?? 'transparent'}
+                              />
+                              <Text
+                                variant="bodySmall"
+                                style={{ color: semantic.color.onSurface.subtle }}
+                              >
+                                {formatDistance(step.distanceMeters)}
+                              </Text>
+                              <Text
+                                variant="bodySmall"
+                                style={[
+                                  styles.stepSeparator,
+                                  { color: semantic.color.onSurface.muted },
+                                ]}
+                              >
                                 •
                               </Text>
-                            <IconSymbol
-                              name="clock-outline"
-                              size={12}
-                              color={semantic.color.onSurface.muted}
-                            />
-                            <Text
-                              variant="bodySmall"
-                              style={{ color: semantic.color.onSurface.subtle }}
-                            >
-                              {formatDuration(step.durationSeconds)}
-                            </Text>
+                              <IconSymbol
+                                name="clock-outline"
+                                size={12}
+                                color={semantic.color.onSurface.muted ?? 'transparent'}
+                              />
+                              <Text
+                                variant="bodySmall"
+                                style={{ color: semantic.color.onSurface.subtle }}
+                              >
+                                {formatDuration(step.durationSeconds)}
+                              </Text>
+                            </View>
                           </View>
                         </View>
                       </View>
-                    </View>
-                  ))}
-                </View>
-              )
-            }
+                    ))}
+                  </View>
+                )
+              }
 
-            // Fallback: show leg without steps
-            const legSummary = generateLegSummary(leg)
-            const isSelected = selectedLegIndex === legIndex
+              // Fallback: show leg without steps
+              const legSummary = generateLegSummary(leg)
+              const isSelected = selectedLegIndex === legIndex
 
-            return (
-              <Pressable
-                key={leg.legIndex}
-                onPress={() => handleLegPress(legIndex)}
-                style={({ pressed }) => [
-                  styles.legCard,
-                  {
-                    backgroundColor: isSelected
-                      ? semantic.color.primary.default + '1A'
-                      : pressed
-                        ? semantic.color.surface.default + 'CC'
-                        : semantic.color.surface.default + 'E6',
-                    borderColor: isSelected
-                      ? semantic.color.primary.default
-                      : semantic.color.border.default + '4D',
-                    marginBottom: legIndex === legs.length - 1 ? semantic.space.xl : semantic.space.sm,
-                  },
-                ]}
-                testID={`${testID}-leg-${legIndex}`}
-              >
-                {/* Leg header with number and stats */}
-                <View style={styles.legHeader}>
-                  <View
-                    style={[
-                      styles.legNumber,
-                      { backgroundColor: semantic.color.primary.default + '1A' },
-                    ]}
-                  >
-                    <Text
+              return (
+                <Pressable
+                  key={leg.legIndex}
+                  onPress={() => handleLegPress(legIndex)}
+                  style={({ pressed }) => [
+                    styles.legCard,
+                    {
+                      backgroundColor: isSelected
+                        ? semantic.color.primary.default + '1A'
+                        : pressed
+                          ? semantic.color.surface.default + 'CC'
+                          : semantic.color.surface.default + 'E6',
+                      borderColor: isSelected
+                        ? semantic.color.primary.default
+                        : semantic.color.border.default + '4D',
+                      marginBottom:
+                        legIndex === legs.length - 1 ? semantic.space.xl : semantic.space.sm,
+                    },
+                  ]}
+                  testID={`${testID}-leg-${legIndex}`}
+                >
+                  {/* Leg header with number and stats */}
+                  <View style={styles.legHeader}>
+                    <View
                       style={[
-                        styles.legNumberText,
-                        { color: semantic.color.primary.default },
+                        styles.legNumber,
+                        { backgroundColor: semantic.color.primary.default + '1A' },
                       ]}
                     >
-                      {legIndex + 1}
-                    </Text>
+                      <Text
+                        style={[styles.legNumberText, { color: semantic.color.primary.default }]}
+                      >
+                        {legIndex + 1}
+                      </Text>
+                    </View>
+
+                    <View style={styles.legStats}>
+                      <View style={styles.statPair}>
+                        <IconSymbol
+                          name="map-marker-distance"
+                          size={14}
+                          color={semantic.color.onSurface.subtle ?? 'transparent'}
+                        />
+                        <Text
+                          variant="bodySmall"
+                          style={[styles.statText, { color: semantic.color.onSurface.subtle }]}
+                        >
+                          {formatDistance(leg.distanceMeters)}
+                        </Text>
+                      </View>
+                      <View style={styles.statPair}>
+                        <IconSymbol
+                          name="clock-outline"
+                          size={14}
+                          color={semantic.color.onSurface.subtle ?? 'transparent'}
+                        />
+                        <Text
+                          variant="bodySmall"
+                          style={[styles.statText, { color: semantic.color.onSurface.subtle }]}
+                        >
+                          {formatDuration(leg.durationSeconds)}
+                        </Text>
+                      </View>
+                    </View>
                   </View>
 
-                  <View style={styles.legStats}>
-                    <View style={styles.statPair}>
+                  {/* From/To locations */}
+                  <View style={styles.legLocations}>
+                    <View style={styles.locationGroup}>
                       <IconSymbol
-                        name="map-marker-distance"
+                        name="circle-small"
+                        size={12}
+                        color={semantic.color.primary.default}
+                      />
+                      <Text
+                        variant="bodyMedium"
+                        style={[styles.locationText, { color: semantic.color.onSurface.default }]}
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
+                      >
+                        {leg.start.label || `Starting point`}
+                      </Text>
+                    </View>
+
+                    <IconSymbol
+                      name="arrow-down"
+                      size={16}
+                      color={semantic.color.onSurface.muted ?? 'transparent'}
+                    />
+
+                    <View style={styles.locationGroup}>
+                      <IconSymbol
+                        name="map-marker"
                         size={14}
-                        color={semantic.color.onSurface.subtle}
+                        color={semantic.color.primary.default}
+                      />
+                      <Text
+                        variant="bodyMedium"
+                        style={[styles.locationText, { color: semantic.color.onSurface.default }]}
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
+                      >
+                        {leg.end.label || `Waypoint ${legIndex + 1}`}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Human-readable leg summary */}
+                  {legSummary && (
+                    <View style={styles.legSummary}>
+                      <IconSymbol
+                        name="information"
+                        size={12}
+                        color={semantic.color.onSurface.subtle ?? 'transparent'}
                       />
                       <Text
                         variant="bodySmall"
-                        style={[styles.statText, { color: semantic.color.onSurface.subtle }]}
+                        style={[styles.legSummaryText, { color: semantic.color.onSurface.subtle }]}
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
                       >
-                        {formatDistance(leg.distanceMeters)}
+                        {legSummary}
                       </Text>
                     </View>
-                    <View style={styles.statPair}>
-                      <IconSymbol
-                        name="clock-outline"
-                        size={14}
-                        color={semantic.color.onSurface.subtle}
-                      />
-                      <Text
-                        variant="bodySmall"
-                        style={[styles.statText, { color: semantic.color.onSurface.subtle }]}
-                      >
-                        {formatDuration(leg.durationSeconds)}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
+                  )}
 
-                {/* From/To locations */}
-                <View style={styles.legLocations}>
-                  <View style={styles.locationGroup}>
-                    <IconSymbol
-                      name="circle-small"
-                      size={12}
-                      color={semantic.color.primary.default}
-                    />
-                    <Text
-                      variant="bodyMedium"
-                      style={[styles.locationText, { color: semantic.color.onSurface.default }]}
-                      numberOfLines={2}
-                      ellipsizeMode="tail"
-                    >
-                      {leg.start.label || `Starting point`}
+                  {/* Distance/duration inline for this leg */}
+                  <View style={styles.legDetails}>
+                    <Text variant="bodySmall" style={{ color: semantic.color.onSurface.subtle }}>
+                      {formatDistance(leg.distanceMeters)} • {formatDuration(leg.durationSeconds)}
                     </Text>
                   </View>
+                </Pressable>
+              )
+            })}
 
-                  <IconSymbol
-                    name="arrow-down"
-                    size={16}
-                    color={semantic.color.onSurface.muted}
-                  />
-
-                  <View style={styles.locationGroup}>
-                    <IconSymbol
-                      name="map-marker"
-                      size={14}
-                      color={semantic.color.primary.default}
-                    />
-                    <Text
-                      variant="bodyMedium"
-                      style={[styles.locationText, { color: semantic.color.onSurface.default }]}
-                      numberOfLines={2}
-                      ellipsizeMode="tail"
-                    >
-                      {leg.end.label || `Waypoint ${legIndex + 1}`}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Human-readable leg summary */}
-                {legSummary && (
-                  <View style={styles.legSummary}>
-                    <IconSymbol
-                      name="information"
-                      size={12}
-                      color={semantic.color.onSurface.subtle}
-                    />
-                    <Text
-                      variant="bodySmall"
-                      style={[styles.legSummaryText, { color: semantic.color.onSurface.subtle }]}
-                      numberOfLines={2}
-                      ellipsizeMode="tail"
-                    >
-                      {legSummary}
-                    </Text>
-                  </View>
-                )}
-
-                {/* Distance/duration inline for this leg */}
-                <View style={styles.legDetails}>
-                  <Text
-                    variant="bodySmall"
-                    style={{ color: semantic.color.onSurface.subtle }}
-                  >
-                    {formatDistance(leg.distanceMeters)} • {formatDuration(leg.durationSeconds)}
-                  </Text>
-                </View>
-              </Pressable>
-            )
-          })}
-
-          {/* Summary footer in scroll area */}
-          <View
-            style={[
-              styles.summaryCard,
-              {
-                backgroundColor: semantic.color.primary.default + '0D',
-                borderColor: semantic.color.primary.default + '33',
-              },
-            ]}
-          >
-            <IconSymbol
-              name="information-outline"
-              size={16}
-              color={semantic.color.onSurface.subtle}
-            />
-            <Text
-              variant="bodySmall"
-              style={[styles.summaryText, { color: semantic.color.onSurface.subtle }]}
+            {/* Summary footer in scroll area */}
+            <View
+              style={[
+                styles.summaryCard,
+                {
+                  backgroundColor: semantic.color.primary.default + '0D',
+                  borderColor: semantic.color.primary.default + '33',
+                },
+              ]}
             >
-              Total distance: {formatDistance(
-                legs.reduce((sum, leg) => sum + leg.distanceMeters, 0)
-              )} • Total time: {formatDuration(legs.reduce((sum, leg) => sum + leg.durationSeconds, 0))}
-            </Text>
-          </View>
+              <IconSymbol
+                name="information-outline"
+                size={16}
+                color={semantic.color.onSurface.subtle ?? 'transparent'}
+              />
+              <Text
+                variant="bodySmall"
+                style={[styles.summaryText, { color: semantic.color.onSurface.subtle }]}
+              >
+                Total distance:{' '}
+                {formatDistance(legs.reduce((sum, leg) => sum + leg.distanceMeters, 0))} • Total
+                time: {formatDuration(legs.reduce((sum, leg) => sum + leg.durationSeconds, 0))}
+              </Text>
+            </View>
           </BottomSheetScrollView>
         </View>
       </View>

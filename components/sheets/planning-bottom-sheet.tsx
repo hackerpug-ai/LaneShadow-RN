@@ -18,19 +18,19 @@
  * Following components/CLAUDE.md: named export, no hardcoded colors or spacing.
  */
 
-import { FlatList, StyleSheet, View, ScrollView , AccessibilityInfo } from 'react-native'
-import { Text } from 'react-native-paper'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { IconSymbol } from '../ui/icon-symbol'
-import { BottomSheetWrapper } from './bottom-sheet-wrapper'
 import { useEffect, useState } from 'react'
+import { AccessibilityInfo, FlatList, ScrollView, StyleSheet, View } from 'react-native'
+import { Text } from 'react-native-paper'
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withRepeat,
   withSequence,
   withTiming,
 } from 'react-native-reanimated'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol } from '../ui/icon-symbol'
+import { BottomSheetWrapper } from './bottom-sheet-wrapper'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -75,10 +75,7 @@ const StreamingThinking = ({ text }: StreamingThinkingProps) => {
       .catch(() => {
         // API unavailable — leave animations enabled
       })
-    const sub = AccessibilityInfo.addEventListener(
-      'reduceMotionChanged',
-      setReduceMotion
-    )
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion)
     return () => sub.remove()
   }, [])
 
@@ -88,12 +85,9 @@ const StreamingThinking = ({ text }: StreamingThinkingProps) => {
       return
     }
     opacity.value = withRepeat(
-      withSequence(
-        withTiming(1.0, { duration: 600 }),
-        withTiming(0.4, { duration: 600 })
-      ),
+      withSequence(withTiming(1.0, { duration: 600 }), withTiming(0.4, { duration: 600 })),
       -1,
-      false
+      false,
     )
   }, [reduceMotion, opacity])
 
@@ -123,10 +117,7 @@ const StreamingThinking = ({ text }: StreamingThinkingProps) => {
             animatedStyle,
           ]}
         />
-        <Text
-          variant="labelMedium"
-          style={{ color: semantic.color.primary.default }}
-        >
+        <Text variant="labelMedium" style={{ color: semantic.color.primary.default }}>
           Thinking
         </Text>
       </View>
@@ -136,10 +127,7 @@ const StreamingThinking = ({ text }: StreamingThinkingProps) => {
       >
         <Text
           variant="bodyMedium"
-          style={[
-            styles.thinkingText,
-            { color: semantic.color.onSurface.default },
-          ]}
+          style={[styles.thinkingText, { color: semantic.color.onSurface.default }]}
         >
           {text}
         </Text>
@@ -187,10 +175,7 @@ const EventRow = ({ summary, durationMs, testID }: EventRowProps) => {
       />
       <Text
         variant="bodyMedium"
-        style={[
-          styles.rowSummary,
-          { color: semantic.color.onSurface.default },
-        ]}
+        style={[styles.rowSummary, { color: semantic.color.onSurface.default }]}
         numberOfLines={2}
         testID={`${testID}-summary`}
       >
@@ -200,7 +185,12 @@ const EventRow = ({ summary, durationMs, testID }: EventRowProps) => {
         variant="labelMedium"
         style={[
           styles.rowDuration,
-          { color: semantic.color.onSurface.subtle ?? semantic.color.onSurface.muted ?? semantic.color.onSurface.default },
+          {
+            color:
+              semantic.color.onSurface.subtle ??
+              semantic.color.onSurface.muted ??
+              semantic.color.onSurface.default,
+          },
         ]}
         testID={`${testID}-duration`}
       >
@@ -226,7 +216,7 @@ export const PlanningBottomSheet = ({
 
   // Only show completed steps — filter out pending events
   const completedEvents = events.filter(
-    (e) => e.type === 'tool_complete' || e.type === 'agent_complete'
+    (e) => e.type === 'tool_complete' || e.type === 'agent_complete',
   )
 
   return (
@@ -262,10 +252,7 @@ export const PlanningBottomSheet = ({
         )}
         ItemSeparatorComponent={() => (
           <View
-            style={[
-              styles.itemSeparator,
-              { backgroundColor: semantic.color.border.default },
-            ]}
+            style={[styles.itemSeparator, { backgroundColor: semantic.color.border.default }]}
           />
         )}
         testID="planning-bottom-sheet-list"
@@ -273,10 +260,7 @@ export const PlanningBottomSheet = ({
 
       {/* Divider before total */}
       <View
-        style={[
-          styles.divider,
-          { backgroundColor: semantic.color.border.default },
-        ]}
+        style={[styles.divider, { backgroundColor: semantic.color.border.default }]}
         testID="planning-bottom-sheet-divider"
       />
 

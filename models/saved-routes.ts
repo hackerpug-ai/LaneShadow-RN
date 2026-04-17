@@ -1,4 +1,4 @@
-import { Infer, v } from 'convex/values'
+import { type Infer, v } from 'convex/values'
 import { z } from 'zod'
 
 export const OWNER_TYPE = {
@@ -29,7 +29,7 @@ export type ConditionsStatus = (typeof CONDITIONS_STATUS)[keyof typeof CONDITION
 
 export const conditionsStatusValidator = v.union(
   v.literal(CONDITIONS_STATUS.OK),
-  v.literal(CONDITIONS_STATUS.UNAVAILABLE)
+  v.literal(CONDITIONS_STATUS.UNAVAILABLE),
 )
 
 export const WIND_SUMMARY = {
@@ -44,7 +44,7 @@ export const windSummaryValidator = v.union(
   v.literal(WIND_SUMMARY.LOW),
   v.literal(WIND_SUMMARY.MODERATE),
   v.literal(WIND_SUMMARY.HIGH),
-  v.literal(WIND_SUMMARY.UNAVAILABLE)
+  v.literal(WIND_SUMMARY.UNAVAILABLE),
 )
 
 export const RAIN_SUMMARY = {
@@ -61,7 +61,7 @@ export const rainSummaryValidator = v.union(
   v.literal(RAIN_SUMMARY.LIGHT),
   v.literal(RAIN_SUMMARY.MODERATE),
   v.literal(RAIN_SUMMARY.HEAVY),
-  v.literal(RAIN_SUMMARY.UNAVAILABLE)
+  v.literal(RAIN_SUMMARY.UNAVAILABLE),
 )
 
 export const boundsValidator = v.object({
@@ -177,7 +177,7 @@ export const windLegendItemValidator = v.object({
       min: v.optional(v.number()),
       max: v.optional(v.number()),
       unit: v.optional(v.string()),
-    })
+    }),
   ),
 })
 export type WindLegendItem = Infer<typeof windLegendItemValidator>
@@ -212,7 +212,7 @@ export const rainLegendItemValidator = v.object({
       min: v.optional(v.number()),
       max: v.optional(v.number()),
       unit: v.optional(v.string()),
-    })
+    }),
   ),
 })
 export type RainLegendItem = Infer<typeof rainLegendItemValidator>
@@ -253,7 +253,7 @@ export const temperatureSummaryValidator = v.union(
   v.literal(TEMPERATURE_SUMMARY.MILD),
   v.literal(TEMPERATURE_SUMMARY.WARM),
   v.literal(TEMPERATURE_SUMMARY.HOT),
-  v.literal(TEMPERATURE_SUMMARY.UNAVAILABLE)
+  v.literal(TEMPERATURE_SUMMARY.UNAVAILABLE),
 )
 
 export const temperatureLegendItemValidator = v.object({
@@ -264,7 +264,7 @@ export const temperatureLegendItemValidator = v.object({
       min: v.optional(v.number()),
       max: v.optional(v.number()),
       unit: v.optional(v.string()),
-    })
+    }),
   ),
 })
 export type TemperatureLegendItem = Infer<typeof temperatureLegendItemValidator>
@@ -341,7 +341,7 @@ export const snapshotMetaValidator = v.object({
       v.object({
         generatedAt: v.number(),
         modelVersion: v.string(),
-      })
+      }),
     ),
   }),
   conditionsStatus: conditionsStatusValidator,
@@ -368,14 +368,14 @@ export const savedRouteValidator = v.object({
   ownerType: v.union(
     v.literal(OWNER_TYPE.USER),
     v.literal(OWNER_TYPE.GROUP),
-    v.literal(OWNER_TYPE.ORG)
+    v.literal(OWNER_TYPE.ORG),
   ),
   ownerId: v.string(),
   createdByUserId: v.string(),
   visibility: v.union(
     v.literal(VISIBILITY.PRIVATE),
     v.literal(VISIBILITY.SHARED),
-    v.literal(VISIBILITY.PUBLIC)
+    v.literal(VISIBILITY.PUBLIC),
   ),
   name: v.string(),
   planInput: planInputValidator,
@@ -463,9 +463,7 @@ export const getWorstRainLevel = (overlay?: RainOverlay): RainSummary => {
  * }
  * getWorstTemperatureLevel(overlay) // Returns 'hot'
  */
-export const getWorstTemperatureLevel = (
-  overlay?: TemperatureOverlay
-): TemperatureSummary => {
+export const getWorstTemperatureLevel = (overlay?: TemperatureOverlay): TemperatureSummary => {
   // Handle missing or malformed overlay
   if (!overlay?.byLeg?.length) return TEMPERATURE_SUMMARY.UNAVAILABLE
 
@@ -476,10 +474,7 @@ export const getWorstTemperatureLevel = (
   for (const leg of overlay.byLeg) {
     for (const segment of leg.segments) {
       if (segment.temperatureCelsius !== undefined) {
-        if (
-          maxTempCelsius === null ||
-          segment.temperatureCelsius > maxTempCelsius
-        ) {
+        if (maxTempCelsius === null || segment.temperatureCelsius > maxTempCelsius) {
           maxTempCelsius = segment.temperatureCelsius
         }
       }
@@ -511,9 +506,7 @@ export const getWorstTemperatureLevel = (
  * }
  * getMaxTemperatureFahrenheit(overlay) // Returns 86
  */
-export const getMaxTemperatureFahrenheit = (
-  overlay?: TemperatureOverlay
-): number | undefined => {
+export const getMaxTemperatureFahrenheit = (overlay?: TemperatureOverlay): number | undefined => {
   if (!overlay?.byLeg?.length) return undefined
 
   let maxTempCelsius: number | null = null
@@ -602,9 +595,7 @@ export const getWorstWindLevel = (overlay?: WindOverlay): WindSummary => {
  * }
  * getMaxWindSpeedMph(overlay) // Returns 15
  */
-export const getMaxWindSpeedMph = (
-  overlay?: WindOverlay
-): number | undefined => {
+export const getMaxWindSpeedMph = (overlay?: WindOverlay): number | undefined => {
   const worstLevel = getWorstWindLevel(overlay)
 
   // Placeholder values based on wind level

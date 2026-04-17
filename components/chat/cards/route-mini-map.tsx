@@ -17,15 +17,15 @@
  * Following react-rules.md: named export, displayName, useMemo for decode.
  */
 
-import React, { useMemo } from 'react'
-import { StyleSheet, View, Platform } from 'react-native'
-import { MapView as MapboxMapView, Camera, ShapeSource, LineLayer } from '@rnmapbox/maps'
+import { Camera, LineLayer, MapView as MapboxMapView, ShapeSource } from '@rnmapbox/maps'
 import type { FeatureCollection, LineString, Position } from 'geojson'
+import React, { useMemo } from 'react'
+import { Platform, StyleSheet, View } from 'react-native'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import { MAP_STYLES } from '../../../lib/mapbox/styles'
 import { convertCoordinateArray } from '../../../lib/mapbox/coordinate-converter'
-import { decodePolylineGeometry } from '../../../lib/polyline'
+import { MAP_STYLES } from '../../../lib/mapbox/styles'
 import type { MapLatLng } from '../../../lib/polyline'
+import { decodePolylineGeometry } from '../../../lib/polyline'
 import type { PolylineGeometry } from '../../../models/saved-routes'
 
 // ---------------------------------------------------------------------------
@@ -89,9 +89,7 @@ export const RouteMiniMap = ({
   }
 
   // Convert coordinates from Google [lat, lng] to Mapbox [lng, lat] format
-  const googleCoords = coordinates.map(
-    (c): [number, number] => [c.latitude, c.longitude]
-  )
+  const googleCoords = coordinates.map((c): [number, number] => [c.latitude, c.longitude])
   const mapboxCoords: Position[] = convertCoordinateArray(googleCoords)
 
   // Build GeoJSON FeatureCollection for the route polyline
@@ -124,11 +122,7 @@ export const RouteMiniMap = ({
   const styleURL = MAP_STYLES[dark ? 'dark' : 'light']
 
   return (
-    <View
-      style={styles.container}
-      pointerEvents="none"
-      testID={testID}
-    >
+    <View style={styles.container} pointerEvents="none" testID={testID}>
       <MapboxMapView
         style={styles.map}
         styleURL={styleURL}

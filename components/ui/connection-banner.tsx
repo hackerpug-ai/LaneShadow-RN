@@ -1,6 +1,6 @@
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 export const ConnectionBanner = () => {
   const { semantic } = useSemanticTheme()
@@ -33,4 +33,3 @@ const styles = StyleSheet.create({
     width: '100%',
   },
 })
-

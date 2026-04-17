@@ -1,11 +1,11 @@
 // Set env variables before imports
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { runEnrichmentJobHandler } from '../runEnrichmentJob'
 
 process.env.GOOGLE_MAPS_API_KEY = 'test-api-key'
 process.env.CLERK_WEBHOOK_SECRET = 'test-secret'
 
-'use node'
+;('use node')
 
 // Mock Id type for tests
 type Id<T> = string
@@ -122,7 +122,7 @@ describe('runEnrichmentJob', () => {
 
       // Run the job
       await runEnrichmentJobHandler(mockCtx as any, {
-        // @ts-ignore - Using mock IDs for testing
+        // @ts-expect-error - Using mock IDs for testing
         enrichmentId: ENRICHMENT_ID,
         phase: 'fast',
       })
@@ -182,7 +182,7 @@ describe('runEnrichmentJob', () => {
 
       // Run the job
       await runEnrichmentJobHandler(mockCtx as any, {
-        // @ts-ignore - Using mock IDs for testing
+        // @ts-expect-error - Using mock IDs for testing
         enrichmentId: ENRICHMENT_ID,
         phase: 'fast',
       })
@@ -210,7 +210,7 @@ describe('runEnrichmentJob', () => {
 
       // Run the job
       await runEnrichmentJobHandler(mockCtx as any, {
-        // @ts-ignore - Using mock IDs for testing
+        // @ts-expect-error - Using mock IDs for testing
         enrichmentId: ENRICHMENT_ID,
         phase: 'fast',
       })
@@ -314,7 +314,7 @@ describe('runEnrichmentJob', () => {
 
       // Run the job
       await runEnrichmentJobHandler(mockCtx as any, {
-        // @ts-ignore - Using mock IDs for testing
+        // @ts-expect-error - Using mock IDs for testing
         enrichmentId: ENRICHMENT_ID,
         phase: 'fast',
       })
@@ -383,7 +383,7 @@ describe('runEnrichmentJob', () => {
 
       // Run the job
       await runEnrichmentJobHandler(mockCtx as any, {
-        // @ts-ignore - Using mock IDs for testing
+        // @ts-expect-error - Using mock IDs for testing
         enrichmentId: ENRICHMENT_ID,
         phase: 'fast',
       })
@@ -430,7 +430,7 @@ describe('runEnrichmentJob', () => {
 
       // Run the job
       await runEnrichmentJobHandler(mockCtx as any, {
-        // @ts-ignore - Using mock IDs for testing
+        // @ts-expect-error - Using mock IDs for testing
         enrichmentId: ENRICHMENT_ID,
         phase: 'fast',
       })

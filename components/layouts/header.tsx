@@ -5,10 +5,10 @@
  * Following theme_rules.mdc - StyleSheet for static, inline for theme
  */
 
-import { IconSymbol } from '../ui/icon-symbol'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol } from '../ui/icon-symbol'
 
 export type HeaderProps = {
   title: string

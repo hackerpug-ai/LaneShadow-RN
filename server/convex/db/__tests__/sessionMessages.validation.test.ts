@@ -7,8 +7,8 @@
  * - Test that handlers accept valid data
  */
 
-import { describe, expect, it, vi } from 'vitest'
 import { ConvexError } from 'convex/values'
+import { describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../_generated/dataModel'
 import { sendHandler } from '../sessionMessages'
 
@@ -41,7 +41,7 @@ describe('sessionMessages validation', () => {
 
       // Test empty string - should be rejected
       await expect(
-        sendHandler(ctx as any, { sessionId: SESSION_ID, content: '' }, CLERK_USER_ID)
+        sendHandler(ctx as any, { sessionId: SESSION_ID, content: '' }, CLERK_USER_ID),
       ).rejects.toThrow()
 
       // Verify no insert happened
@@ -61,7 +61,7 @@ describe('sessionMessages validation', () => {
       const content = 'Valid message content'
 
       await expect(
-        sendHandler(ctx as any, { sessionId: SESSION_ID, content }, CLERK_USER_ID)
+        sendHandler(ctx as any, { sessionId: SESSION_ID, content }, CLERK_USER_ID),
       ).resolves.toEqual({ messageId: MESSAGE_ID })
 
       // Verify insert happened
@@ -82,7 +82,7 @@ describe('sessionMessages validation', () => {
 
       // Test whitespace only - should be rejected
       await expect(
-        sendHandler(ctx as any, { sessionId: SESSION_ID, content: '   ' }, CLERK_USER_ID)
+        sendHandler(ctx as any, { sessionId: SESSION_ID, content: '   ' }, CLERK_USER_ID),
       ).rejects.toThrow()
 
       // Verify no insert happened
@@ -92,7 +92,7 @@ describe('sessionMessages validation', () => {
 })
 
 describe('planUsage validation', () => {
-  const MONTH_REGEX = /^(\d{4})-(\d{2})$/  // Capture year and month groups
+  const MONTH_REGEX = /^(\d{4})-(\d{2})$/ // Capture year and month groups
 
   describe('AC-3: Store plan usage with invalid month', () => {
     it('should reject invalid month formats', () => {
@@ -117,7 +117,7 @@ describe('planUsage validation', () => {
       semanticallyInvalid.forEach(({ month, reason }) => {
         const match = month.match(MONTH_REGEX)
         if (match) {
-          const monthNum = parseInt(match[2], 10)  // Second capture group is month
+          const monthNum = parseInt(match[2], 10) // Second capture group is month
           // These should fail semantic validation
           const isValidMonth = monthNum >= 1 && monthNum <= 12
           expect(isValidMonth).toBe(false)
@@ -128,13 +128,7 @@ describe('planUsage validation', () => {
 
   describe('AC-4: Store plan usage with valid month', () => {
     it('should accept valid month format', () => {
-      const validMonths = [
-        '2026-01',
-        '2026-04',
-        '2026-12',
-        '2025-12',
-        '2024-01',
-      ]
+      const validMonths = ['2026-01', '2026-04', '2026-12', '2025-12', '2024-01']
 
       validMonths.forEach((month) => {
         expect(MONTH_REGEX.test(month)).toBe(true)
@@ -142,7 +136,7 @@ describe('planUsage validation', () => {
         // Also verify semantic validity
         const match = month.match(MONTH_REGEX)
         if (match) {
-          const monthNum = parseInt(match[2], 10)  // Second capture group is month
+          const monthNum = parseInt(match[2], 10) // Second capture group is month
           expect(monthNum).toBeGreaterThanOrEqual(1)
           expect(monthNum).toBeLessThanOrEqual(12)
         }

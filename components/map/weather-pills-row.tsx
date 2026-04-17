@@ -14,19 +14,19 @@
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { IconName } from '../ui/icon-symbol'
-import { IconSymbol } from '../ui/icon-symbol'
 import {
-  getWorstWindLevel,
-  getWorstTemperatureLevel,
-  getWorstRainLevel,
   getMaxTemperatureFahrenheit,
   getMaxWindSpeedMph,
-  type RouteOverlays,
-  type WindSummary,
-  type TemperatureSummary,
+  getWorstRainLevel,
+  getWorstTemperatureLevel,
+  getWorstWindLevel,
   type RainSummary,
+  type RouteOverlays,
+  type TemperatureSummary,
+  type WindSummary,
 } from '../../models/saved-routes'
+import type { IconName } from '../ui/icon-symbol'
+import { IconSymbol } from '../ui/icon-symbol'
 
 export type WeatherPillsRowProps = {
   /** Route overlays containing wind, rain, and temperature data */
@@ -87,7 +87,7 @@ const getRainLabel = (level: RainSummary): string => {
  */
 const getSeverityTint = (
   level: string,
-  semantic: ReturnType<typeof useSemanticTheme>['semantic']
+  semantic: ReturnType<typeof useSemanticTheme>['semantic'],
 ): string => {
   // Determine severity-based tint
   if (level === 'high' || level === 'heavy') {
@@ -111,7 +111,10 @@ const getSeverityTint = (
  * Displays three compact weather pills: wind, temperature, and conditions (rain).
  * Uses glassmorphic styling for map overlay placement.
  */
-export const WeatherPillsRow = ({ overlays, testID = 'weather-pills-row' }: WeatherPillsRowProps) => {
+export const WeatherPillsRow = ({
+  overlays,
+  testID = 'weather-pills-row',
+}: WeatherPillsRowProps) => {
   const { semantic } = useSemanticTheme()
 
   // Handle missing overlays
@@ -154,11 +157,7 @@ export const WeatherPillsRow = ({ overlays, testID = 'weather-pills-row' }: Weat
           ]}
           testID={`${testID}-wind`}
         >
-          <IconSymbol
-            name="weather-windy"
-            size={14}
-            color={semantic.color.onSurface.default}
-          />
+          <IconSymbol name="weather-windy" size={14} color={semantic.color.onSurface.default} />
           <Text
             style={[
               styles.pillText,

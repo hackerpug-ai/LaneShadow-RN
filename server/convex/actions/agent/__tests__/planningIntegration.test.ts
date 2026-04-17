@@ -1,6 +1,6 @@
 'use node'
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../../_generated/dataModel'
 
 // ---------------------------------------------------------------------------
@@ -44,7 +44,9 @@ describe('summarizeToolResult', () => {
   it('maps createRouteSketch with label to Sketched message', async () => {
     const { summarizeToolResult } = await import('../lib/summarizeToolResult')
 
-    const result = summarizeToolResult('createRouteSketch', { sketch: { label: 'Skyline Blvd → Hwy 9 → SC' } })
+    const result = summarizeToolResult('createRouteSketch', {
+      sketch: { label: 'Skyline Blvd → Hwy 9 → SC' },
+    })
 
     expect(result).toBe('Sketched: Skyline Blvd → Hwy 9 → SC')
   })
@@ -84,7 +86,10 @@ describe('summarizeToolResult', () => {
   it('maps routing_agent with summary to that summary', async () => {
     const { summarizeToolResult } = await import('../lib/summarizeToolResult')
 
-    const result = summarizeToolResult('routing_agent', { status: 'route_ready', summary: 'Route to Santa Cruz ready' })
+    const result = summarizeToolResult('routing_agent', {
+      status: 'route_ready',
+      summary: 'Route to Santa Cruz ready',
+    })
 
     expect(result).toBe('Route to Santa Cruz ready')
   })
@@ -100,7 +105,10 @@ describe('summarizeToolResult', () => {
   it('maps search_agent with summary to that summary', async () => {
     const { summarizeToolResult } = await import('../lib/summarizeToolResult')
 
-    const result = summarizeToolResult('search_agent', { status: 'done', summary: 'Found gas stations nearby' })
+    const result = summarizeToolResult('search_agent', {
+      status: 'done',
+      summary: 'Found gas stations nearby',
+    })
 
     expect(result).toBe('Found gas stations nearby')
   })
@@ -108,7 +116,10 @@ describe('summarizeToolResult', () => {
   it('maps enrichment_agent with summary to that summary', async () => {
     const { summarizeToolResult } = await import('../lib/summarizeToolResult')
 
-    const result = summarizeToolResult('enrichment_agent', { status: 'done', summary: 'Route analysis complete' })
+    const result = summarizeToolResult('enrichment_agent', {
+      status: 'done',
+      summary: 'Route analysis complete',
+    })
 
     expect(result).toBe('Route analysis complete')
   })
@@ -129,7 +140,7 @@ describe('summarizeToolResult', () => {
 describe('PlanningEventEmitter wiring — ExecuteContext has planning callbacks', () => {
   it('ExecuteContext type includes onSubToolPending', async () => {
     // If this import resolves and the type has the field, we can assign it
-    const { } = await import('../ridePlanningAgent')
+    const {} = await import('../ridePlanningAgent')
 
     // If onSubToolPending doesn't exist on ExecuteContext, TypeScript would fail
     // at compile time. At runtime we just verify we can construct the shape.
@@ -141,7 +152,12 @@ describe('PlanningEventEmitter wiring — ExecuteContext has planning callbacks'
 
   it('ExecuteContext type includes onSubToolComplete', async () => {
     const ctx: import('../ridePlanningAgent').ExecuteContext = {
-      onSubToolComplete: async (_tool: string, _agent: string, _summary: string, _durationMs: number) => {},
+      onSubToolComplete: async (
+        _tool: string,
+        _agent: string,
+        _summary: string,
+        _durationMs: number,
+      ) => {},
     }
     expect(typeof ctx.onSubToolComplete).toBe('function')
   })
@@ -164,7 +180,10 @@ describe('sendMessage PlanningEventEmitter integration', () => {
     const sessionId = 'sess1' as Id<'planning_sessions'>
     const runMutation = vi.fn()
 
-    const { executeCtx, getTextMessageId, finalizeOk, finalizeFail } = await buildAgentCallbacks(sessionId, runMutation)
+    const { executeCtx, getTextMessageId, finalizeOk, finalizeFail } = await buildAgentCallbacks(
+      sessionId,
+      runMutation,
+    )
 
     expect(typeof executeCtx.onToolStart).toBe('function')
     expect(typeof executeCtx.onToolFinish).toBe('function')

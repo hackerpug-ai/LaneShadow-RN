@@ -35,7 +35,7 @@ export const Text = ({
   style?: unknown
   testID?: string
   [key: string]: unknown
-}) => React.createElement(RNText, { style, testID, ...props }, children)
+}) => React.createElement(RNText, { style, testID, ...props } as React.ComponentProps<typeof RNText>, children)
 
 // useTheme hook - returns empty theme (components should use useSemanticTheme mock instead)
 export const useTheme = () => ({
@@ -142,4 +142,4 @@ export const Badge = ({
   style?: unknown
   testID?: string
   [key: string]: unknown
-}) => React.createElement(View, { style, testID, ...props }, children)
+}) => React.createElement(View, { style, testID, ...props } as React.ComponentProps<typeof View>, children)

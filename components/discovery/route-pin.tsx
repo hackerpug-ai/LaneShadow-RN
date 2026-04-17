@@ -21,7 +21,7 @@
 
 import { useState } from 'react'
 import type { StyleProp, ViewStyle } from 'react-native'
-import { StyleSheet, View, Pressable, Animated } from 'react-native'
+import { Animated, Pressable, StyleSheet, View } from 'react-native'
 import MapView, { Marker } from 'react-native-maps'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'

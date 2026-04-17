@@ -38,10 +38,7 @@
               "Skip accessibility considerations",
               "Forget touch target size (44×44px minimum)"
             ],
-            "strictly": [
-              "Use semantic color tokens",
-              "Follow WCAG 2.1 AA standards"
-            ]
+            "strictly": ["Use semantic color tokens", "Follow WCAG 2.1 AA standards"]
           },
           "specification": {
             "objective": "Create complete interaction specification for long-press on route polylines with visual feedback, haptics, and accessibility",
@@ -68,10 +65,7 @@
               "Include character counter specification",
               "Specify button states (disabled/enabled/loading)"
             ],
-            "never": [
-              "Skip empty or duplicate name states",
-              "Forget loading state"
-            ],
+            "never": ["Skip empty or duplicate name states", "Forget loading state"],
             "strictly": [
               "Use BottomActionSheet component",
               "Match backend validation (max 100 chars)"
@@ -103,10 +97,7 @@
               "Include empty state design",
               "Specify accessibility labels"
             ],
-            "never": [
-              "Skip delete button interaction",
-              "Forget press states"
-            ],
+            "never": ["Skip delete button interaction", "Forget press states"],
             "strictly": [
               "Use existing RouteThumbnail component",
               "Follow WCAG 2.1 AA (44×44px touch targets)"
@@ -138,10 +129,7 @@
               "Include empty state design",
               "Specify delete confirmation dialog (iOS + Android)"
             ],
-            "never": [
-              "Skip platform-specific dialog patterns",
-              "Forget navigation flow"
-            ],
+            "never": ["Skip platform-specific dialog patterns", "Forget navigation flow"],
             "strictly": [
               "Use existing EmptyState component",
               "Follow platform conventions (iOS sheets, Android alerts)"
@@ -173,14 +161,8 @@
               "Include placement in RouteOptionCard",
               "Specify pluralization rules"
             ],
-            "never": [
-              "Skip muted state (count=0)",
-              "Forget accessibility labels"
-            ],
-            "strictly": [
-              "Use existing Badge component",
-              "Place after rain/wind/temp badges"
-            ]
+            "never": ["Skip muted state (count=0)", "Forget accessibility labels"],
+            "strictly": ["Use existing Badge component", "Place after rain/wind/temp badges"]
           },
           "specification": {
             "objective": "Create complete badge specification for showing favorite road inclusion in routes",

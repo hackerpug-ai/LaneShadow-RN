@@ -9,8 +9,9 @@
  * surrounded by orbital particles that accelerate as progress increases.
  */
 
-import React, { useEffect, useState } from 'react'
-import { View, StyleSheet, Animated } from 'react-native'
+import type React from 'react'
+import { useEffect, useState } from 'react'
+import { Animated, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { formatBytes, formatETA } from './formatters'
 
@@ -191,12 +192,7 @@ export const DownloadProgressIndicator: React.FC<DownloadProgressIndicatorProps>
                 },
               ]}
             >
-              <View
-                style={[
-                  styles.particleDot,
-                  { backgroundColor: colors[0] },
-                ]}
-              />
+              <View style={[styles.particleDot, { backgroundColor: colors[0] }]} />
             </Animated.View>
           ))}
 
@@ -254,11 +250,7 @@ export const DownloadProgressIndicator: React.FC<DownloadProgressIndicatorProps>
           style={[
             styles.statusDot,
             {
-              backgroundColor: isFailed
-                ? '#EF4444'
-                : isCompleted
-                  ? '#10B981'
-                  : '#F59E0B',
+              backgroundColor: isFailed ? '#EF4444' : isCompleted ? '#10B981' : '#F59E0B',
             },
           ]}
         />

@@ -1,5 +1,5 @@
 import * as FileSystem from 'expo-file-system/legacy'
-import type { NetworkStatus, ModelConfig, DownloadResult } from './types'
+import type { DownloadResult, NetworkStatus } from './types'
 
 /**
  * Model download manager with progress tracking and resume support
@@ -12,7 +12,6 @@ import type { NetworkStatus, ModelConfig, DownloadResult } from './types'
  */
 export class ModelDownloadManager {
   private downloadDirectory: string
-  private progressCallbacks: Map<string, (progress: number) => void> = new Map()
 
   constructor() {
     this.downloadDirectory = `/mock/documents/models/`
@@ -56,7 +55,8 @@ export class ModelDownloadManager {
 
       // Check if file already exists (resume support)
       const existingBytes = await this.getExistingFileSize(filePath)
-      const resumeHeader = existingBytes > 0 ? { Range: `bytes=${existingBytes}-` } : {}
+      const resumeHeader: Record<string, string> =
+        existingBytes > 0 ? { Range: `bytes=${existingBytes}-` } : {}
 
       // Download file
       const downloadResult = await FileSystem.downloadAsync(url, filePath, {
@@ -102,8 +102,8 @@ export class ModelDownloadManager {
       if (!dirInfo.exists) {
         await FileSystem.makeDirectoryAsync(this.downloadDirectory, { intermediates: true })
       }
-    } catch (error) {
-      console.error('Failed to create download directory:', error)
+    } catch {
+      // Ignore: directory creation failure is non-fatal
     }
   }
 
@@ -124,7 +124,7 @@ export class ModelDownloadManager {
       if (fileInfo.exists && fileInfo.size) {
         return fileInfo.size
       }
-    } catch (error) {
+    } catch {
       // File doesn't exist or error reading
     }
     return 0

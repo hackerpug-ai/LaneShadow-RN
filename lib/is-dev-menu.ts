@@ -17,8 +17,7 @@
  * Check if dev menu is enabled
  * Enabled when EXPO_PUBLIC_DEV_MENU=1 OR __DEV__ is true
  */
-export const isDevMenuEnabled =
-  process.env.EXPO_PUBLIC_DEV_MENU === '1' || __DEV__
+export const isDevMenuEnabled = process.env.EXPO_PUBLIC_DEV_MENU === '1' || __DEV__
 
 /**
  * Hook to check if dev menu should be enabled

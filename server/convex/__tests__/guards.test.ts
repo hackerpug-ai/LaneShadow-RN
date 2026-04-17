@@ -1,5 +1,5 @@
-import { vi, describe, it, expect } from 'vitest'
 import { ConvexError } from 'convex/values'
+import { describe, expect, it, vi } from 'vitest'
 
 import { ensureSession, requireIdentity } from '../guards'
 
@@ -20,7 +20,17 @@ const clerkIdentity = {
   family_name: 'Rider',
 }
 
-const fakeSession = { user: { _id: 'users:abc' as any, clerkUserId: 'user_clerk123', email: 'rider@example.com', name: 'Test Rider', createdAt: 1, updatedAt: 1, lastLocalUpdateAt: 1 } }
+const fakeSession = {
+  user: {
+    _id: 'users:abc' as any,
+    clerkUserId: 'user_clerk123',
+    email: 'rider@example.com',
+    name: 'Test Rider',
+    createdAt: 1,
+    updatedAt: 1,
+    lastLocalUpdateAt: 1,
+  },
+}
 
 describe('ensureSession', () => {
   it('AC-1: returns session immediately when user already exists in DB', async () => {
@@ -35,22 +45,17 @@ describe('ensureSession', () => {
 
   it('AC-2: calls upsertCurrent and re-queries when DB returns null on first query', async () => {
     const ctx = makeCtx(clerkIdentity)
-    ctx.runQuery
-      .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce(fakeSession)
+    ctx.runQuery.mockResolvedValueOnce(null).mockResolvedValueOnce(fakeSession)
     ctx.runMutation.mockResolvedValue({ userId: 'users:abc' })
 
     const result = await ensureSession(ctx as any)
 
     expect(ctx.runMutation).toHaveBeenCalledTimes(1)
-    expect(ctx.runMutation).toHaveBeenCalledWith(
-      expect.anything(),
-      {
-        clerkUserId: 'user_clerk123',
-        email: 'rider@example.com',
-        name: 'Test Rider',
-      }
-    )
+    expect(ctx.runMutation).toHaveBeenCalledWith(expect.anything(), {
+      clerkUserId: 'user_clerk123',
+      email: 'rider@example.com',
+      name: 'Test Rider',
+    })
     expect(result).toEqual(fakeSession)
   })
 

@@ -42,7 +42,10 @@ export type WebSearchProvider = {
 export function createWebSearchProvider(): WebSearchProvider {
   const apiKey = process.env.JINA_API_KEY
 
-  const search: WebSearchProvider['search'] = async ({ query, maxResults = DEFAULT_MAX_RESULTS }) => {
+  const search: WebSearchProvider['search'] = async ({
+    query,
+    maxResults = DEFAULT_MAX_RESULTS,
+  }) => {
     const url = `${JINA_SEARCH_ENDPOINT}?q=${encodeURIComponent(query)}`
 
     const headers: Record<string, string> = {
@@ -62,22 +65,20 @@ export function createWebSearchProvider(): WebSearchProvider {
           }
           return (await response.json()) as JinaResponse
         },
-        { ms: SEARCH_TIMEOUT_MS, label: 'webSearch' }
+        { ms: SEARCH_TIMEOUT_MS, label: 'webSearch' },
       )
 
       if (!data?.data) return []
 
-      return data.data
-        .slice(0, maxResults)
-        .map((item) => ({
-          title: item.title ?? '',
-          snippet: (item.description ?? '')
-            .replace(/<[^>]*>/g, '')
-            .replace(/&[a-z]+;/gi, ' ')
-            .trim()
-            .slice(0, SNIPPET_MAX_CHARS),
-          url: item.url ?? '',
-        }))
+      return data.data.slice(0, maxResults).map((item) => ({
+        title: item.title ?? '',
+        snippet: (item.description ?? '')
+          .replace(/<[^>]*>/g, '')
+          .replace(/&[a-z]+;/gi, ' ')
+          .trim()
+          .slice(0, SNIPPET_MAX_CHARS),
+        url: item.url ?? '',
+      }))
     } catch (error) {
       console.warn('webSearchProvider.search: Jina search failed', error)
       return []

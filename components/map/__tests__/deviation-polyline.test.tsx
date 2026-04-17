@@ -15,12 +15,12 @@
  * - AC5: Active state increases stroke width
  */
 
-import { describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react-native'
-import { DeviationPolyline } from '../deviation-polyline'
-import type { DeviationSegment } from '../deviation-polyline'
 import { ThemeProvider } from 'react-native-paper'
+import { describe, expect, it } from 'vitest'
 import type { ExtendedTheme } from '../../../styles/types'
+import type { DeviationSegment } from '../deviation-polyline'
+import { DeviationPolyline } from '../deviation-polyline'
 
 const mockSemanticTheme: ExtendedTheme['semantic'] = {
   color: {
@@ -108,12 +108,48 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.35, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.2,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.3,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.35,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -154,9 +190,7 @@ const createMockSegments = (): DeviationSegment[] => [
 ]
 
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <ThemeProvider theme={mockTheme}>
-    {children}
-  </ThemeProvider>
+  <ThemeProvider theme={mockTheme}>{children}</ThemeProvider>
 )
 
 describe('DeviationPolyline Component', () => {
@@ -166,7 +200,7 @@ describe('DeviationPolyline Component', () => {
       const { UNSAFE_root } = render(
         <TestWrapper>
           <DeviationPolyline segments={segments} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       // Each segment should render a ShapeSource + LineLayer pair
@@ -178,24 +212,24 @@ describe('DeviationPolyline Component', () => {
 
       // Verify original segment uses muted/gray color
       const originalLayer = lineLayers.find(
-        (layer: any) => layer.props.id === 'deviation-original-0-layer'
+        (layer: any) => layer.props.id === 'deviation-original-0-layer',
       )
       expect(originalLayer).toBeDefined()
-      expect(originalLayer.props.style.lineColor).toBe('#9CA3AF')
+      expect(originalLayer!.props.style.lineColor).toBe('#9CA3AF')
 
       // Verify detour segment uses orange color
       const detourLayer = lineLayers.find(
-        (layer: any) => layer.props.id === 'deviation-detour-1-layer'
+        (layer: any) => layer.props.id === 'deviation-detour-1-layer',
       )
       expect(detourLayer).toBeDefined()
-      expect(detourLayer.props.style.lineColor).toBe('#FF6B35')
+      expect(detourLayer!.props.style.lineColor).toBe('#FF6B35')
 
       // Verify reconnect segment uses green/success color
       const reconnectLayer = lineLayers.find(
-        (layer: any) => layer.props.id === 'deviation-reconnect-2-layer'
+        (layer: any) => layer.props.id === 'deviation-reconnect-2-layer',
       )
       expect(reconnectLayer).toBeDefined()
-      expect(reconnectLayer.props.style.lineColor).toBe('#31A362')
+      expect(reconnectLayer!.props.style.lineColor).toBe('#31A362')
     })
 
     it('should use custom testID when provided', () => {
@@ -203,7 +237,7 @@ describe('DeviationPolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <DeviationPolyline segments={segments} testID="custom-deviation" />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       expect(getByTestId('custom-deviation-original-0')).toBeDefined()
@@ -216,7 +250,7 @@ describe('DeviationPolyline Component', () => {
       const { getByTestId } = render(
         <TestWrapper>
           <DeviationPolyline segments={segments} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       expect(getByTestId('deviation-original-0')).toBeDefined()
@@ -231,7 +265,7 @@ describe('DeviationPolyline Component', () => {
       const { UNSAFE_root } = render(
         <TestWrapper>
           <DeviationPolyline segments={segments} isActive={true} strokeWidth={4} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const lineLayers = UNSAFE_root.findAllByType('LineLayer')
@@ -246,7 +280,7 @@ describe('DeviationPolyline Component', () => {
       const { UNSAFE_root } = render(
         <TestWrapper>
           <DeviationPolyline segments={segments} isActive={false} strokeWidth={4} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const lineLayers = UNSAFE_root.findAllByType('LineLayer')
@@ -272,7 +306,7 @@ describe('DeviationPolyline Component', () => {
       const { UNSAFE_root } = render(
         <TestWrapper>
           <DeviationPolyline segments={segments} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const shapeSource = UNSAFE_root.findByType('ShapeSource')
@@ -317,7 +351,7 @@ describe('DeviationPolyline Component', () => {
       const { UNSAFE_root } = render(
         <TestWrapper>
           <DeviationPolyline segments={segments} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       // Only the reconnect segment with 2+ coordinates should render
@@ -329,7 +363,7 @@ describe('DeviationPolyline Component', () => {
       const { UNSAFE_root } = render(
         <TestWrapper>
           <DeviationPolyline segments={[]} />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const shapeSources = UNSAFE_root.findAllByType('ShapeSource')

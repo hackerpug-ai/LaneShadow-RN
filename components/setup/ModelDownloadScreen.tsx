@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native'
-import type { NetworkStatus } from '../../lib/ai/types'
-import { ModelDownloadManager } from '../../lib/ai/model-download'
+import React, { useEffect, useState } from 'react'
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 import { ChecksumValidator } from '../../lib/ai/checksum'
 import { LocalModelManager } from '../../lib/ai/local-model'
+import { ModelDownloadManager } from '../../lib/ai/model-download'
+import type { NetworkStatus } from '../../lib/ai/types'
 
 /**
  * ModelDownloadScreen - Setup wizard screen for downloading local AI model
@@ -59,7 +59,7 @@ export function ModelDownloadScreen({ onComplete }: { onComplete: () => void }) 
       // Download model
       const result = await downloadManager.downloadModel(
         'https://example.com/model.bin', // This would come from config
-        networkStatus
+        networkStatus,
       )
 
       if (!result.success) {
@@ -74,7 +74,7 @@ export function ModelDownloadScreen({ onComplete }: { onComplete: () => void }) 
       if (result.filePath) {
         const checksumResult = await checksumValidator.validate(
           result.filePath,
-          '616263313233646566343536' // Expected checksum from config
+          '616263313233646566343536', // Expected checksum from config
         )
 
         if (!checksumResult.valid) {
@@ -120,9 +120,7 @@ export function ModelDownloadScreen({ onComplete }: { onComplete: () => void }) 
 
         {!isOnWiFi() && (
           <View style={styles.warningBox}>
-            <Text style={styles.warningText}>
-              WiFi connection required for model download
-            </Text>
+            <Text style={styles.warningText}>WiFi connection required for model download</Text>
           </View>
         )}
 
@@ -135,9 +133,7 @@ export function ModelDownloadScreen({ onComplete }: { onComplete: () => void }) 
         {isDownloading && (
           <View style={styles.progressBox}>
             <ActivityIndicator size="large" />
-            <Text style={styles.progressText}>
-              Downloading model... {downloadProgress}%
-            </Text>
+            <Text style={styles.progressText}>Downloading model... {downloadProgress}%</Text>
           </View>
         )}
 

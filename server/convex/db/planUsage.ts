@@ -1,15 +1,15 @@
+import { ConvexError, v } from 'convex/values'
+import {
+  FREE_TIER_MONTHLY_LIMIT,
+  isValidMonth,
+  type PlanUsage,
+  type UsageCheckResult,
+} from '../../models/plan-usage'
 import type { Doc, Id } from '../_generated/dataModel'
 import type { MutationCtx, QueryCtx } from '../_generated/server'
 import { internalMutation, internalQuery } from '../_generated/server'
-import { v, ConvexError } from 'convex/values'
-import {
-  type UsageCheckResult,
-  FREE_TIER_MONTHLY_LIMIT,
-  type PlanUsage,
-  isValidMonth,
-} from '../../models/plan-usage'
-import { RATE_LIMIT_OVERRIDE } from '../lib/env'
 import { ERROR_CODES } from '../errors'
+import { RATE_LIMIT_OVERRIDE } from '../lib/env'
 
 /** Effective monthly limit: env override (0 = unlimited) > hardcoded default */
 const UNLIMITED = 999_999_999
@@ -39,7 +39,7 @@ export function getCurrentMonth(date: Date = new Date()): string {
 export async function checkUsage(
   ctx: QueryCtx,
   clerkUserId: string,
-  month: string = getCurrentMonth()
+  month: string = getCurrentMonth(),
 ): Promise<UsageCheckResult> {
   // AC-3: Validate month format
   if (!isValidMonth(month)) {
@@ -49,7 +49,7 @@ export async function checkUsage(
   const record = await ctx.db
     .query('plan_usage')
     .withIndex('by_clerkUserId_and_month', (q) =>
-      q.eq('clerkUserId', clerkUserId).eq('month', month)
+      q.eq('clerkUserId', clerkUserId).eq('month', month),
     )
     .unique()
 
@@ -77,7 +77,7 @@ export async function checkUsage(
 export async function incrementUsage(
   ctx: MutationCtx,
   clerkUserId: string,
-  month: string = getCurrentMonth()
+  month: string = getCurrentMonth(),
 ): Promise<UsageCheckResult> {
   // AC-3: Validate month format
   if (!isValidMonth(month)) {
@@ -87,7 +87,7 @@ export async function incrementUsage(
   const record = await ctx.db
     .query('plan_usage')
     .withIndex('by_clerkUserId_and_month', (q) =>
-      q.eq('clerkUserId', clerkUserId).eq('month', month)
+      q.eq('clerkUserId', clerkUserId).eq('month', month),
     )
     .unique()
 

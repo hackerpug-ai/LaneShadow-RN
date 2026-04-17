@@ -1,10 +1,7 @@
 {
   "test_type": "comprehensive_microtask_swarm_analysis",
   "date": "2026-04-09",
-  "models": [
-    "Qwen3.5 0.8B",
-    "Haiku"
-  ],
+  "models": ["Qwen3.5 0.8B", "Haiku"],
   "results": {
     "qwen": {
       "labels": [
@@ -64,11 +61,7 @@
       "leg_labels": [
         {
           "route_id": "sf-to-point-reyes",
-          "leg_labels": [
-            "Highway 101",
-            "Highway 1",
-            "Highway 1"
-          ],
+          "leg_labels": ["Highway 101", "Highway 1", "Highway 1"],
           "expected_count": 3,
           "actual_count": 3,
           "valid": true,
@@ -88,11 +81,7 @@
         },
         {
           "route_id": "seattle-to-portland",
-          "leg_labels": [
-            "I-5 S",
-            "I-5 S",
-            "I-5 S"
-          ],
+          "leg_labels": ["I-5 S", "I-5 S", "I-5 S"],
           "expected_count": 3,
           "actual_count": 3,
           "valid": true,
@@ -175,11 +164,7 @@
       "leg_labels": [
         {
           "route_id": "sf-to-point-reyes",
-          "leg_labels": [
-            "SF to Sausalito",
-            "Coastal to Stinson",
-            "Headlands to Reyes"
-          ],
+          "leg_labels": ["SF to Sausalito", "Coastal to Stinson", "Headlands to Reyes"],
           "expected_count": 3,
           "actual_count": 3,
           "valid": true,
@@ -187,11 +172,7 @@
         },
         {
           "route_id": "la-to-san-diego",
-          "leg_labels": [
-            "Coastal Scenic Drive",
-            "Inland Freeway South",
-            "Coastal Freeway South"
-          ],
+          "leg_labels": ["Coastal Scenic Drive", "Inland Freeway South", "Coastal Freeway South"],
           "expected_count": 3,
           "actual_count": 3,
           "valid": true,
@@ -199,11 +180,7 @@
         },
         {
           "route_id": "seattle-to-portland",
-          "leg_labels": [
-            "Seattle to Olympia",
-            "Olympia to Longview",
-            "Longview to Portland"
-          ],
+          "leg_labels": ["Seattle to Olympia", "Olympia to Longview", "Longview to Portland"],
           "expected_count": 3,
           "actual_count": 3,
           "valid": true,

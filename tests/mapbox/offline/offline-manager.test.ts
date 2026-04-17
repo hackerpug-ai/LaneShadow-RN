@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { offlineManager } from '@rnmapbox/maps'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock AsyncStorage for Zustand persist
 vi.mock('@react-native-async-storage/async-storage', () => {
@@ -7,9 +7,15 @@ vi.mock('@react-native-async-storage/async-storage', () => {
   return {
     default: {
       getItem: vi.fn(async (key: string) => store.get(key) ?? null),
-      setItem: vi.fn(async (key: string, value: string) => { store.set(key, value) }),
-      removeItem: vi.fn(async (key: string) => { store.delete(key) }),
-      clear: vi.fn(async () => { store.clear() }),
+      setItem: vi.fn(async (key: string, value: string) => {
+        store.set(key, value)
+      }),
+      removeItem: vi.fn(async (key: string) => {
+        store.delete(key)
+      }),
+      clear: vi.fn(async () => {
+        store.clear()
+      }),
     },
     __esModule: true,
   }
@@ -33,7 +39,10 @@ beforeEach(() => {
 describe('StorageUtils', () => {
   it('estimates region size based on bounds and zoom', async () => {
     const { StorageUtils } = await import('../../../lib/mapbox/storage-utils')
-    const bounds: [[number, number], [number, number]] = [[-122.5, 37.7], [-122.4, 37.8]]
+    const bounds: [[number, number], [number, number]] = [
+      [-122.5, 37.7],
+      [-122.4, 37.8],
+    ]
     const size = StorageUtils.estimateRegionSize(bounds, 10, 14)
     expect(size).toBeGreaterThan(0)
   })
@@ -88,11 +97,15 @@ describe('DownloadQueue', () => {
 
     queue.enqueue({
       id: 'first',
-      execute: async () => { order.push('first') },
+      execute: async () => {
+        order.push('first')
+      },
     })
     queue.enqueue({
       id: 'second',
-      execute: async () => { order.push('second') },
+      execute: async () => {
+        order.push('second')
+      },
     })
 
     await new Promise((r) => setTimeout(r, 50))

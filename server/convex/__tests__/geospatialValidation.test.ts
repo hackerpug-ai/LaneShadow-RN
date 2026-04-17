@@ -5,9 +5,9 @@
  * AC-5: Rectangular range query returns correct results under 500ms
  */
 
-import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
+import { describe, expect, it } from 'vitest'
 
 describe('AC-4: Nearest-neighbor query returns correct results under 500ms', () => {
   it('geospatialValidation.ts file exists', () => {

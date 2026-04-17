@@ -1,11 +1,10 @@
 import { ConvexError, v } from 'convex/values'
-
-import { type TripPlan, tripPlanValidator } from '../../models/trip-plan'
 import { planInputValidator } from '../../models/saved-routes'
+import { type TripPlan, tripPlanValidator } from '../../models/trip-plan'
 import type { Doc, Id } from '../_generated/dataModel'
 import { internalMutation, internalQuery, mutation, query } from '../_generated/server'
-import { requireIdentity } from '../guards'
 import { ERROR_CODES } from '../errors'
+import { requireIdentity } from '../guards'
 
 type TripPlanDoc = Doc<'trip_plans'>
 
@@ -54,7 +53,7 @@ export const createTripPlanHandler = async (
   args: {
     clerkUserId: string
     planInput: TripPlanDoc['planInput']
-  }
+  },
 ): Promise<{ tripPlanId: Id<'trip_plans'> }> => {
   const now = Date.now()
   const tripPlanId = await ctx.db.insert('trip_plans', {
@@ -76,7 +75,7 @@ export const updateTripPlanHandler = async (
     result?: TripPlan
     attemptCount?: number
     error?: string
-  }
+  },
 ): Promise<void> => {
   const doc = await ctx.db.get(args.tripPlanId)
   if (!doc) {
@@ -97,7 +96,7 @@ export const updateTripPlanHandler = async (
 export const getTripPlanHandler = async (
   ctx: GetTripPlanCtx,
   args: { tripPlanId: Id<'trip_plans'> },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<TripPlanDoc> => {
   const doc = await ctx.db.get(args.tripPlanId)
   if (!doc || !isOwnedByUser(doc, clerkUserId)) {
@@ -108,7 +107,7 @@ export const getTripPlanHandler = async (
 
 export const listTripPlansByUserHandler = async (
   ctx: ListTripPlansByUserCtx,
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<TripPlanDoc[]> => {
   return ctx.db
     .query('trip_plans')
@@ -141,8 +140,8 @@ export const updateTripPlan = internalMutation({
         v.literal('generating'),
         v.literal('needs_retry'),
         v.literal('completed'),
-        v.literal('failed')
-      )
+        v.literal('failed'),
+      ),
     ),
     result: v.optional(tripPlanValidator),
     attemptCount: v.optional(v.number()),

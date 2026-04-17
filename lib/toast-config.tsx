@@ -5,9 +5,9 @@
  * Provides success, error, warning, and info toast variants.
  */
 
-import Toast from 'react-native-toast-message'
-import { View, Text, StyleSheet } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { StyleSheet, Text, View } from 'react-native'
+import Toast from 'react-native-toast-message'
 import { useSemanticTheme } from '../hooks/use-semantic-theme'
 
 const SuccessToast = ({ text1, text2 }: any) => {

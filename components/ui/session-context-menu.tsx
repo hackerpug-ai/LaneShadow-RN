@@ -8,11 +8,11 @@
  * Following react_rules.mdc: Named exports, simple state management
  */
 
-import React from 'react'
+import type React from 'react'
 import { Modal, Platform, Pressable, StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
-import { IconSymbol, type IconName } from './icon-symbol'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { type IconName, IconSymbol } from './icon-symbol'
 
 export type SessionContextMenuItem = {
   label: string
@@ -46,11 +46,11 @@ export const SessionContextMenu: React.FC<SessionContextMenuProps> = ({
   // Calculate menu position to stay on screen
   const menuLeft = Math.max(
     insets.left + 8,
-    Math.min(position.x - MENU_WIDTH / 2, position.x - MENU_WIDTH / 2)
+    Math.min(position.x - MENU_WIDTH / 2, position.x - MENU_WIDTH / 2),
   )
   const menuTop = Math.max(
     insets.top + 8,
-    Math.min(position.y - MENU_ITEM_HEIGHT * items.length - 16, position.y)
+    Math.min(position.y - MENU_ITEM_HEIGHT * items.length - 16, position.y),
   )
 
   return (

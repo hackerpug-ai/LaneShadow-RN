@@ -1,4 +1,4 @@
-import { Infer, v } from 'convex/values'
+import { type Infer, v } from 'convex/values'
 
 /**
  * Plan Usage Model
@@ -58,6 +58,5 @@ export const RATE_LIMIT_MESSAGES = {
   EXCEEDED: `You've reached your monthly limit of 5 route plans. Upgrade to Premium for unlimited plans!`,
   APPROACHING: (remaining: number) =>
     `You have ${remaining} route plan${remaining > 1 ? 's' : ''} remaining this month.`,
-  RESET_INFO: (month: string) =>
-    `Your plan count resets at the end of ${month}.`,
+  RESET_INFO: (month: string) => `Your plan count resets at the end of ${month}.`,
 } as const

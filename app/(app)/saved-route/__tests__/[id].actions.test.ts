@@ -14,8 +14,6 @@
  * (react-test-renderer is broken in React 19, no jsdom available).
  */
 
- 
-
 // ---------------------------------------------------------------------------
 // React hook mocks — simulate useState, useCallback, useRef
 // ---------------------------------------------------------------------------
@@ -24,7 +22,7 @@
 // Import after mocks
 // ---------------------------------------------------------------------------
 
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useRouteActions } from '../use-route-actions'
 
 const stateStore = new Map<number, any>()
@@ -116,7 +114,7 @@ vi.mock('../../../../lib/notifier-helpers', () => ({
  */
 function callHook(savedRouteId: string | null) {
   stateCounter = 0
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+  // biome-ignore lint/correctness/useHookAtTopLevel: intentional test helper
   return useRouteActions(savedRouteId)
 }
 
@@ -190,7 +188,7 @@ describe('useRouteActions', () => {
         title: 'Route deleted',
         description: 'Tap to undo.',
         duration: 5000,
-      })
+      }),
     )
   })
 

@@ -1,6 +1,6 @@
 'use node'
-import type { ProviderPolylineGeometry, ProviderLatLng } from './routingProvider'
 import { decodePolyline, haversineDistance, type LatLng } from '../lib/geo'
+import type { ProviderLatLng, ProviderPolylineGeometry } from './routingProvider'
 import { createRoutingProvider } from './routingProvider'
 export type NearestPointResult = { point: ProviderLatLng; distanceMeters: number }
 export type DetourInfo = {
@@ -9,12 +9,10 @@ export type DetourInfo = {
   reconnectPoint: ProviderLatLng
   nearestPointOnRoute: ProviderLatLng
 }
-export type DeviationResult =
-  | { kind: 'on_route' }
-  | { kind: 'off_route'; detourInfo: DetourInfo }
+export type DeviationResult = { kind: 'on_route' } | { kind: 'off_route'; detourInfo: DetourInfo }
 export const findNearestPointOnPolyline = (
   waypoint: { lat: number; lng: number; name: string },
-  routeGeometry: ProviderPolylineGeometry
+  routeGeometry: ProviderPolylineGeometry,
 ): NearestPointResult => {
   const points = decodePolyline(routeGeometry.value)
   if (points.length === 0) {
@@ -29,11 +27,7 @@ export const findNearestPointOnPolyline = (
   for (let i = 0; i < points.length - 1; i++) {
     const segmentStart = points[i]
     const segmentEnd = points[i + 1]
-    const { point, distance } = findClosestPointOnSegment(
-      waypoint,
-      segmentStart,
-      segmentEnd
-    )
+    const { point, distance } = findClosestPointOnSegment(waypoint, segmentStart, segmentEnd)
     if (distance < minDistance) {
       minDistance = distance
       nearestPoint = point
@@ -44,7 +38,7 @@ export const findNearestPointOnPolyline = (
 const findClosestPointOnSegment = (
   point: LatLng,
   segmentStart: LatLng,
-  segmentEnd: LatLng
+  segmentEnd: LatLng,
 ): { point: LatLng; distance: number } => {
   const dx = segmentEnd.lng - segmentStart.lng
   const dy = segmentEnd.lat - segmentStart.lat
@@ -53,8 +47,7 @@ const findClosestPointOnSegment = (
     return { point: segmentStart, distance }
   }
   const t =
-    ((point.lng - segmentStart.lng) * dx +
-      (point.lat - segmentStart.lat) * dy) /
+    ((point.lng - segmentStart.lng) * dx + (point.lat - segmentStart.lat) * dy) /
     (dx * dx + dy * dy)
   let closest: LatLng
   if (t <= 0) {
@@ -87,14 +80,8 @@ export const calculateDeviation = async (params: {
     destination: reconnectPoint,
     waypoint: { lat: waypoint.lat, lng: waypoint.lng },
   })
-  const distanceAddedMeters = detourRoute.legs.reduce(
-    (sum, leg) => sum + leg.distanceMeters,
-    0
-  )
-  const timeAddedSeconds = detourRoute.legs.reduce(
-    (sum, leg) => sum + leg.durationSeconds,
-    0
-  )
+  const distanceAddedMeters = detourRoute.legs.reduce((sum, leg) => sum + leg.distanceMeters, 0)
+  const timeAddedSeconds = detourRoute.legs.reduce((sum, leg) => sum + leg.durationSeconds, 0)
   return {
     kind: 'off_route',
     detourInfo: {
@@ -108,7 +95,7 @@ export const calculateDeviation = async (params: {
 const findOptimalReconnectionPoint = (
   waypoint: { lat: number; lng: number; name: string },
   routeGeometry: ProviderPolylineGeometry,
-  nearestPoint: LatLng
+  nearestPoint: LatLng,
 ): LatLng => {
   return nearestPoint
 }

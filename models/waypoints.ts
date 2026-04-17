@@ -1,4 +1,4 @@
-import { Infer, v } from 'convex/values'
+import { type Infer, v } from 'convex/values'
 
 export const WAYPOINT_KIND = {
   ON_ROUTE: 'on_route',
@@ -6,10 +6,7 @@ export const WAYPOINT_KIND = {
 } as const
 export type WaypointKind = (typeof WAYPOINT_KIND)[keyof typeof WAYPOINT_KIND]
 
-export const waypointKindValidator = v.union(
-  v.literal('on_route'),
-  v.literal('off_route')
-)
+export const waypointKindValidator = v.union(v.literal('on_route'), v.literal('off_route'))
 
 export const WAYPOINT_STATUS = {
   PENDING: 'pending',
@@ -27,7 +24,7 @@ export const waypointStatusValidator = v.union(
   v.literal('ready'),
   v.literal('approved'),
   v.literal('rejected'),
-  v.literal('applied')
+  v.literal('applied'),
 )
 
 export const detourInfoValidator = v.object({

@@ -12,16 +12,16 @@
  * - AC8: Given waypoint card, when rendered, then uses semantic theme tokens for all styling
  */
 
-import { vi, describe, it, expect, beforeEach } from 'vitest'
+import { fireEvent, render } from '@testing-library/react-native'
 import React from 'react'
-import { render, fireEvent } from '@testing-library/react-native'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ---------------------------------------------------------------------------
 // Import after mocks
 // ---------------------------------------------------------------------------
 
-import { WaypointCard } from '../waypoint-card'
 import type { Doc } from '../../../convex/_generated/dataModel'
+import { WaypointCard } from '../waypoint-card'
 
 // ---------------------------------------------------------------------------
 // Mock semantic theme
@@ -95,12 +95,48 @@ const mockSemanticTheme = {
     },
   },
   elevation: {
-    0: { shadowColor: 'transparent', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.35, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: 'transparent',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.2,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.3,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.35,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -125,11 +161,7 @@ vi.mock('../../ui/badge', () => {
 
   return {
     Badge: ({ children, variant, testID }: any) =>
-      createElement(
-        View,
-        { testID },
-        createElement(RNText, {}, `Badge:${variant}`)
-      ),
+      createElement(View, { testID }, createElement(RNText, {}, `Badge:${variant}`)),
   }
 })
 
@@ -141,8 +173,13 @@ vi.mock('../../ui/button', () => {
   const Button = (props: any) =>
     createElement(
       Pressable,
-      { onPress: props.disabled ? undefined : props.onPress, testID: props.testID, disabled: props.disabled, accessibilityRole: 'button' },
-      createElement(RNText, {}, `${props.variant}:${props.children}`)
+      {
+        onPress: props.disabled ? undefined : props.onPress,
+        testID: props.testID,
+        disabled: props.disabled,
+        accessibilityRole: 'button',
+      },
+      createElement(RNText, {}, `${props.variant}:${props.children}`),
     )
 
   return { Button }
@@ -233,9 +270,7 @@ describe('WaypointCard', () => {
    */
   describe('AC2: Drag handle for on-route waypoints', () => {
     it('should show drag handle for on-route waypoint when onReorder provided', () => {
-      const { getByTestId } = render(
-        <WaypointCard {...defaultProps} onReorder={vi.fn()} />
-      )
+      const { getByTestId } = render(<WaypointCard {...defaultProps} onReorder={vi.fn()} />)
 
       expect(getByTestId('waypoint-card-drag-handle')).toBeTruthy()
     })
@@ -249,7 +284,7 @@ describe('WaypointCard', () => {
     it('should not show drag handle for off-route waypoints', () => {
       const offRouteWaypoint = createMockWaypoint({ kind: 'off_route' })
       const { queryByTestId } = render(
-        <WaypointCard {...defaultProps} waypoint={offRouteWaypoint} onReorder={vi.fn()} />
+        <WaypointCard {...defaultProps} waypoint={offRouteWaypoint} onReorder={vi.fn()} />,
       )
 
       expect(queryByTestId('waypoint-card-drag-handle')).toBeNull()
@@ -310,7 +345,7 @@ describe('WaypointCard', () => {
     it('should show approve/reject buttons for ready status', () => {
       const readyWaypoint = createMockWaypoint({ status: 'ready' })
       const { getByTestId } = render(
-        <WaypointCard {...defaultProps} waypoint={readyWaypoint} onApprove={vi.fn()} />
+        <WaypointCard {...defaultProps} waypoint={readyWaypoint} onApprove={vi.fn()} />,
       )
 
       expect(getByTestId('waypoint-card-approve')).toBeTruthy()
@@ -320,7 +355,7 @@ describe('WaypointCard', () => {
     it('should show approve/reject buttons for pending status', () => {
       const pendingWaypoint = createMockWaypoint({ status: 'pending' })
       const { getByTestId } = render(
-        <WaypointCard {...defaultProps} waypoint={pendingWaypoint} onApprove={vi.fn()} />
+        <WaypointCard {...defaultProps} waypoint={pendingWaypoint} onApprove={vi.fn()} />,
       )
 
       expect(getByTestId('waypoint-card-approve')).toBeTruthy()
@@ -330,7 +365,7 @@ describe('WaypointCard', () => {
     it('should not show approve/reject buttons for approved status', () => {
       const approvedWaypoint = createMockWaypoint({ status: 'approved' })
       const { queryByTestId } = render(
-        <WaypointCard {...defaultProps} waypoint={approvedWaypoint} onApprove={vi.fn()} />
+        <WaypointCard {...defaultProps} waypoint={approvedWaypoint} onApprove={vi.fn()} />,
       )
 
       expect(queryByTestId('waypoint-card-approve')).toBeNull()
@@ -354,11 +389,7 @@ describe('WaypointCard', () => {
       const mockOnApprove = vi.fn()
       const readyWaypoint = createMockWaypoint({ status: 'ready', _id: 'wp456' as any })
       const { getByTestId } = render(
-        <WaypointCard
-          {...defaultProps}
-          waypoint={readyWaypoint}
-          onApprove={mockOnApprove}
-        />
+        <WaypointCard {...defaultProps} waypoint={readyWaypoint} onApprove={mockOnApprove} />,
       )
 
       fireEvent.press(getByTestId('waypoint-card-approve'))
@@ -376,11 +407,7 @@ describe('WaypointCard', () => {
       const mockOnReject = vi.fn()
       const readyWaypoint = createMockWaypoint({ status: 'ready', _id: 'wp789' as any })
       const { getByTestId } = render(
-        <WaypointCard
-          {...defaultProps}
-          waypoint={readyWaypoint}
-          onReject={mockOnReject}
-        />
+        <WaypointCard {...defaultProps} waypoint={readyWaypoint} onReject={mockOnReject} />,
       )
 
       fireEvent.press(getByTestId('waypoint-card-reject'))
@@ -397,7 +424,7 @@ describe('WaypointCard', () => {
           waypoint={approvedWaypoint}
           onApprove={vi.fn()}
           onReject={vi.fn()}
-        />
+        />,
       )
 
       const rejectButton = getByTestId('waypoint-card-reject')
@@ -411,9 +438,7 @@ describe('WaypointCard', () => {
   describe('AC7: Visual feedback for rejected waypoints', () => {
     it('should apply danger border styling for rejected status', () => {
       const rejectedWaypoint = createMockWaypoint({ status: 'rejected' })
-      const { getByTestId } = render(
-        <WaypointCard {...defaultProps} waypoint={rejectedWaypoint} />
-      )
+      const { getByTestId } = render(<WaypointCard {...defaultProps} waypoint={rejectedWaypoint} />)
 
       const card = getByTestId('waypoint-card')
       expect(card.props.style).toEqual(
@@ -421,15 +446,13 @@ describe('WaypointCard', () => {
           expect.objectContaining({
             borderColor: '#E35D6A', // danger color
           }),
-        ])
+        ]),
       )
     })
 
     it('should use default border for non-rejected waypoints', () => {
       const pendingWaypoint = createMockWaypoint({ status: 'pending' })
-      const { getByTestId } = render(
-        <WaypointCard {...defaultProps} waypoint={pendingWaypoint} />
-      )
+      const { getByTestId } = render(<WaypointCard {...defaultProps} waypoint={pendingWaypoint} />)
 
       const card = getByTestId('waypoint-card')
       expect(card.props.style).toEqual(
@@ -437,7 +460,7 @@ describe('WaypointCard', () => {
           expect.objectContaining({
             borderColor: '#3A3431', // default border color
           }),
-        ])
+        ]),
       )
     })
   })
@@ -455,7 +478,7 @@ describe('WaypointCard', () => {
           expect.objectContaining({
             borderRadius: 16, // semantic.radius.lg
           }),
-        ])
+        ]),
       )
     })
 
@@ -468,7 +491,7 @@ describe('WaypointCard', () => {
           expect.objectContaining({
             padding: 16, // semantic.space.lg
           }),
-        ])
+        ]),
       )
     })
 
@@ -481,16 +504,14 @@ describe('WaypointCard', () => {
           expect.objectContaining({
             backgroundColor: '#24272B', // semantic.color.card.default
           }),
-        ])
+        ]),
       )
     })
 
     it('should use semantic waypoint colors for kind badges', () => {
       // This is tested indirectly through the kind badge rendering
       const onRouteWaypoint = createMockWaypoint({ kind: 'on_route' })
-      const { getByText } = render(
-        <WaypointCard {...defaultProps} waypoint={onRouteWaypoint} />
-      )
+      const { getByText } = render(<WaypointCard {...defaultProps} waypoint={onRouteWaypoint} />)
 
       // Should render with on-route color
       expect(getByText(/Badge:outline/)).toBeTruthy()

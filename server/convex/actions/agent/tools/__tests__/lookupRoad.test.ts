@@ -1,8 +1,7 @@
-import { vi, describe, it, expect, afterEach, beforeEach } from 'vitest'
-import { lookupRoad } from '../lookupRoad'
-import type { LookupRoadResult, RoadMatch } from '../lookupRoad'
-
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { recordProtomapsFallbackHandler } from '../../../monitoring'
+import type { LookupRoadResult, RoadMatch } from '../lookupRoad'
+import { lookupRoad } from '../lookupRoad'
 
 // Mock the monitoring module before importing
 vi.mock('../../../monitoring', () => ({
@@ -28,7 +27,7 @@ const makeWay = (
   geometry: { lat: number; lon: number }[] = [
     { lat: 37.5, lon: -119.5 },
     { lat: 37.6, lon: -119.4 },
-  ]
+  ],
 ): OverpassWay => ({
   type: 'way',
   id,
@@ -243,7 +242,7 @@ describe('lookupRoad', () => {
     // Verify console.warn was called with structured context
     expect(consoleWarnSpy).toHaveBeenCalled()
     const warnCall = consoleWarnSpy.mock.calls.find((call) =>
-      call[0]?.includes?.('[lookupRoad] Protomaps failed, falling back to Overpass')
+      call[0]?.includes?.('[lookupRoad] Protomaps failed, falling back to Overpass'),
     )
     expect(warnCall).toBeDefined()
     if (warnCall && warnCall[1]) {

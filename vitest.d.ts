@@ -18,5 +18,3 @@ declare global {
   const beforeEach: typeof beforeEach
   const afterEach: typeof afterEach
 }
-
-export {}

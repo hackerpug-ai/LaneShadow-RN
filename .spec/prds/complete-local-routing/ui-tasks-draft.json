@@ -117,11 +117,19 @@
         "coding_standards": [
           {
             "path": "components/CLAUDE.md",
-            "checks": ["Use useSemanticTheme() for all styling", "No hardcoded color values", "Named export with displayName"]
+            "checks": [
+              "Use useSemanticTheme() for all styling",
+              "No hardcoded color values",
+              "Named export with displayName"
+            ]
           },
           {
             "path": ".claude/rules/react_rules.mdc",
-            "checks": ["forwardRef for component with imperative handle", "useMemo for expensive computations", "PropTypes or TypeScript for props"]
+            "checks": [
+              "forwardRef for component with imperative handle",
+              "useMemo for expensive computations",
+              "PropTypes or TypeScript for props"
+            ]
           }
         ],
         "assignee": "react-native-ui-implementer",
@@ -365,11 +373,19 @@
         "coding_standards": [
           {
             "path": "components/CLAUDE.md",
-            "checks": ["Use useSemanticTheme() for all styling", "Named export with displayName", "useMemo for expensive computations"]
+            "checks": [
+              "Use useSemanticTheme() for all styling",
+              "Named export with displayName",
+              "useMemo for expensive computations"
+            ]
           },
           {
             "path": ".claude/rules/react_rules.mdc",
-            "checks": ["Pure functional components", "No side effects in render", "PropTypes or TypeScript"]
+            "checks": [
+              "Pure functional components",
+              "No side effects in render",
+              "PropTypes or TypeScript"
+            ]
           }
         ],
         "assignee": "react-native-ui-implementer",
@@ -495,7 +511,11 @@
         "coding_standards": [
           {
             "path": "components/CLAUDE.md",
-            "checks": ["Use SubpageLayout for non-map screens", "Use useSemanticTheme() for all styling", "No hardcoded colors"]
+            "checks": [
+              "Use SubpageLayout for non-map screens",
+              "Use useSemanticTheme() for all styling",
+              "No hardcoded colors"
+            ]
           },
           {
             "path": ".claude/rules/react_rules.mdc",
@@ -623,7 +643,10 @@
         "coding_standards": [
           {
             "path": "components/CLAUDE.md",
-            "checks": ["Use SubpageLayout for non-map screens", "Use useSemanticTheme() for all styling"]
+            "checks": [
+              "Use SubpageLayout for non-map screens",
+              "Use useSemanticTheme() for all styling"
+            ]
           },
           {
             "path": ".claude/rules/react_rules.mdc",
@@ -754,7 +777,10 @@
         "coding_standards": [
           {
             "path": "components/CLAUDE.md",
-            "checks": ["Use SubpageLayout for non-map screens", "Use useSemanticTheme() for all styling"]
+            "checks": [
+              "Use SubpageLayout for non-map screens",
+              "Use useSemanticTheme() for all styling"
+            ]
           },
           {
             "path": ".claude/rules/react_rules.mdc",

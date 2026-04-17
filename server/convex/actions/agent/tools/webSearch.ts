@@ -1,8 +1,8 @@
 'use node'
 
 import { traceableToolAsync } from '../lib/tracing'
-import { createWebSearchProvider } from '../providers/webSearchProvider'
 import type { WebSearchHit } from '../providers/webSearchProvider'
+import { createWebSearchProvider } from '../providers/webSearchProvider'
 
 // ---------------------------------------------------------------------------
 // Re-export WebSearchHit for external consumers

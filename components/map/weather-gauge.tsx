@@ -35,7 +35,8 @@ export const WeatherGauge = ({ data, testID = 'weather-gauge' }: WeatherGaugePro
 
   // Format functions
   const formatWind = (speed: number) => Math.round(speed)
-  const formatRain = (intensity: number) => (intensity < 1 ? intensity.toFixed(2) : intensity.toFixed(1))
+  const formatRain = (intensity: number) =>
+    intensity < 1 ? intensity.toFixed(2) : intensity.toFixed(1)
   const formatTemp = (temp: number) => Math.round(temp)
 
   const hasWind = data.wind !== null

@@ -10,10 +10,10 @@
  * 3. UI renders immediately from persisted data, then updates after Mapbox sync
  */
 
-import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { offlineManager } from '@rnmapbox/maps'
+import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 import { DownloadQueue } from '../lib/mapbox/download-queue'
 import { StorageUtils } from '../lib/mapbox/storage-utils'
 import { WiFiValidator } from '../lib/mapbox/wifi-validator'
@@ -102,12 +102,7 @@ function ensureNetworkSubscription() {
 function convertPackBounds(packBounds: unknown): RegionBounds | null {
   try {
     const arr = packBounds as number[][]
-    if (
-      !Array.isArray(arr) ||
-      arr.length < 2 ||
-      !Array.isArray(arr[0]) ||
-      !Array.isArray(arr[1])
-    ) {
+    if (!Array.isArray(arr) || arr.length < 2 || !Array.isArray(arr[0]) || !Array.isArray(arr[1])) {
       return null
     }
     const ne = arr[0] // [lng, lat]
@@ -119,9 +114,12 @@ function convertPackBounds(packBounds: unknown): RegionBounds | null {
     // Validate the parsed values are actual numbers and make geographic sense
     const { ne: bNE, sw: bSW } = bounds
     if (
-      !isFinite(bNE.lat) || !isFinite(bNE.lng) ||
-      !isFinite(bSW.lat) || !isFinite(bSW.lng) ||
-      bSW.lat >= bNE.lat || bSW.lng >= bNE.lng
+      !isFinite(bNE.lat) ||
+      !isFinite(bNE.lng) ||
+      !isFinite(bSW.lat) ||
+      !isFinite(bSW.lng) ||
+      bSW.lat >= bNE.lat ||
+      bSW.lng >= bNE.lng
     ) {
       return null
     }
@@ -235,18 +233,22 @@ export const useOfflineStore = create<OfflineRegionState>()(
           [params.bounds.sw.lng, params.bounds.sw.lat],
           [params.bounds.ne.lng, params.bounds.ne.lat],
         ]
-        const estimatedSize = StorageUtils.estimateRegionSize(boundsArray, params.minZoom, params.maxZoom)
+        const estimatedSize = StorageUtils.estimateRegionSize(
+          boundsArray,
+          params.minZoom,
+          params.maxZoom,
+        )
 
         if (estimatedSize > MAX_REGION_SIZE) {
           throw new StorageExceededError(
-            `Region too large (${StorageUtils.formatBytes(estimatedSize)}). Maximum is ${StorageUtils.formatBytes(MAX_REGION_SIZE)}.`
+            `Region too large (${StorageUtils.formatBytes(estimatedSize)}). Maximum is ${StorageUtils.formatBytes(MAX_REGION_SIZE)}.`,
           )
         }
 
         const hasSpace = await StorageUtils.hasEnoughStorage(estimatedSize)
         if (!hasSpace) {
           throw new StorageExceededError(
-            `Not enough storage. Need ${StorageUtils.formatBytes(estimatedSize)} free.`
+            `Not enough storage. Need ${StorageUtils.formatBytes(estimatedSize)} free.`,
           )
         }
 
@@ -286,7 +288,7 @@ export const useOfflineStore = create<OfflineRegionState>()(
           onError: (error) => {
             set((state) => ({
               regions: state.regions.map((r) =>
-                r.packName === params.name ? { ...r, state: 'failed' as const } : r
+                r.packName === params.name ? { ...r, state: 'failed' as const } : r,
               ),
               progress: {
                 packName: params.name,
@@ -329,9 +331,7 @@ export const useOfflineStore = create<OfflineRegionState>()(
         if (!trimmed || trimmed === oldName) return
 
         set((state) => ({
-          regions: state.regions.map((r) =>
-            r.name === oldName ? { ...r, name: trimmed } : r
-          ),
+          regions: state.regions.map((r) => (r.name === oldName ? { ...r, name: trimmed } : r)),
         }))
       },
 
@@ -351,8 +351,8 @@ export const useOfflineStore = create<OfflineRegionState>()(
         // Only persist regions — progress/error/downloading are transient
         return { regions: state.regions } as OfflineRegionState
       },
-    }
-  )
+    },
+  ),
 )
 
 // --- Computed helpers (not in store, accessed via getState) ---
@@ -366,13 +366,17 @@ export function getTotalStorageUsed(): number {
 async function executeDownload(
   params: RegionDownloadParams,
   meta: RegionMetadata,
-  set: (partial: Partial<OfflineRegionState> | ((state: OfflineRegionState) => Partial<OfflineRegionState>)) => void,
+  set: (
+    partial:
+      | Partial<OfflineRegionState>
+      | ((state: OfflineRegionState) => Partial<OfflineRegionState>),
+  ) => void,
   get: () => OfflineRegionState,
 ): Promise<void> {
   // Mark as downloading
   set((state) => ({
     regions: state.regions.map((r) =>
-      r.packName === params.name ? { ...r, state: 'downloading' as const } : r
+      r.packName === params.name ? { ...r, state: 'downloading' as const } : r,
     ),
   }))
 
@@ -386,7 +390,8 @@ async function executeDownload(
     const eta = percentage > 0 ? Math.round((elapsedSec / percentage) * (100 - percentage)) : null
 
     // Throttle to 5% increments
-    if (Math.floor(percentage / 5) === Math.floor(lastReportedPercent / 5) && percentage < 100) return
+    if (Math.floor(percentage / 5) === Math.floor(lastReportedPercent / 5) && percentage < 100)
+      return
     lastReportedPercent = percentage
 
     set({
@@ -403,9 +408,14 @@ async function executeDownload(
 
   try {
     // Create the offline pack
-    await (offlineManager as unknown as {
-      createPack: (opts: Record<string, unknown>, onProg?: (...args: unknown[]) => void) => Promise<unknown>
-    }).createPack(
+    await (
+      offlineManager as unknown as {
+        createPack: (
+          opts: Record<string, unknown>,
+          onProg?: (...args: unknown[]) => void,
+        ) => Promise<unknown>
+      }
+    ).createPack(
       {
         name: params.name,
         styleURL: params.styleURL,
@@ -417,7 +427,7 @@ async function executeDownload(
         maxZoom: params.maxZoom,
         metadata: { name: params.name, downloadedAt: meta.downloadedAt },
       },
-      onProgress,
+      onProgress as (...args: unknown[]) => void,
     )
   } catch {
     // Pack creation may fail in test environments
@@ -425,14 +435,17 @@ async function executeDownload(
 
   // Mark complete
   const finalSize = StorageUtils.estimateRegionSize(
-    [[params.bounds.sw.lng, params.bounds.sw.lat], [params.bounds.ne.lng, params.bounds.ne.lat]],
+    [
+      [params.bounds.sw.lng, params.bounds.sw.lat],
+      [params.bounds.ne.lng, params.bounds.ne.lat],
+    ],
     params.minZoom,
     params.maxZoom,
   )
 
   set((state) => ({
     regions: state.regions.map((r) =>
-      r.packName === params.name ? { ...r, state: 'complete' as const, size: finalSize } : r
+      r.packName === params.name ? { ...r, state: 'complete' as const, size: finalSize } : r,
     ),
     progress: {
       packName: params.name,

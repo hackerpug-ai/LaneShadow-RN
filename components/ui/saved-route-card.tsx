@@ -9,8 +9,8 @@ import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { RouteThumbnail } from './route-thumbnail'
-import { formatDate } from './saved-route-card.utils'
 import type { SavedRouteCardProps } from './saved-route-card.types'
+import { formatDate } from './saved-route-card.utils'
 
 /**
  * SavedRouteCard component for saved routes list
@@ -47,12 +47,7 @@ export const SavedRouteCard = ({
       <View style={[styles.content, { gap: semantic.space.md }]}>
         {/* Mini map preview */}
         <View style={styles.thumbnailContainer}>
-          <RouteThumbnail
-            width={60}
-            height={60}
-            bounds={bounds}
-            rotation={thumbnailRotation}
-          />
+          <RouteThumbnail width={60} height={60} bounds={bounds} rotation={thumbnailRotation} />
         </View>
 
         {/* Route info */}
@@ -60,10 +55,7 @@ export const SavedRouteCard = ({
           {/* Route name */}
           <Text
             numberOfLines={2}
-            style={[
-              semantic.type.title.sm,
-              { color: semantic.color.onSurface.default },
-            ]}
+            style={[semantic.type.title.sm, { color: semantic.color.onSurface.default }]}
           >
             {name}
           </Text>
@@ -71,50 +63,30 @@ export const SavedRouteCard = ({
           {/* Route path */}
           <Text
             numberOfLines={1}
-            style={[
-              semantic.type.body.sm,
-              { color: semantic.color.onSurface.subtle },
-            ]}
+            style={[semantic.type.body.sm, { color: semantic.color.onSurface.subtle }]}
           >
             {path}
           </Text>
 
           {/* Stats row */}
-          <View
-            style={[styles.statsRow, { gap: semantic.space.sm }]}
-          >
+          <View style={[styles.statsRow, { gap: semantic.space.sm }]}>
             {/* Distance */}
             {distance && (
-              <Text
-                style={[
-                  semantic.type.body.sm,
-                  { color: semantic.color.onSurface.muted },
-                ]}
-              >
+              <Text style={[semantic.type.body.sm, { color: semantic.color.onSurface.muted }]}>
                 {distance}
               </Text>
             )}
 
             {/* Duration */}
             {duration && (
-              <Text
-                style={[
-                  semantic.type.body.sm,
-                  { color: semantic.color.onSurface.muted },
-                ]}
-              >
+              <Text style={[semantic.type.body.sm, { color: semantic.color.onSurface.muted }]}>
                 {duration}
               </Text>
             )}
 
             {/* Date saved */}
             {dateSaved && (
-              <Text
-                style={[
-                  semantic.type.body.sm,
-                  { color: semantic.color.onSurface.muted },
-                ]}
-              >
+              <Text style={[semantic.type.body.sm, { color: semantic.color.onSurface.muted }]}>
                 {dateSaved}
               </Text>
             )}

@@ -12,18 +12,18 @@
  * - AC8: Message doesn't duplicate for same exclusions in session
  */
 
-import { vi, describe, it, expect, beforeEach } from 'vitest'
-import React from 'react'
-import { render, fireEvent } from '@testing-library/react-native'
-import { PaperProvider, MD3DarkTheme } from 'react-native-paper'
+import { fireEvent, render } from '@testing-library/react-native'
+import type React from 'react'
+import { MD3DarkTheme, PaperProvider } from 'react-native-paper'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtendedTheme } from '../../../styles/types'
 
 // ---------------------------------------------------------------------------
 // Import after mocks are registered
 // ---------------------------------------------------------------------------
 
-import { FavoriteExclusionAlert } from '../favorite-exclusion-alert'
 import type { ExcludedFavorite } from '../favorite-exclusion-alert'
+import { FavoriteExclusionAlert } from '../favorite-exclusion-alert'
 
 // ---------------------------------------------------------------------------
 // Mock semantic theme (dark mode)
@@ -117,12 +117,48 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.3, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -174,7 +210,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={excludedFavorites}
           includeFavorites={true}
           onDismiss={() => {}}
-        />
+        />,
       )
 
       expect(getByTestId('favorite-exclusion-alert')).toBeTruthy()
@@ -187,7 +223,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={[]}
           includeFavorites={true}
           onDismiss={() => {}}
-        />
+        />,
       )
 
       expect(queryByTestId('favorite-exclusion-alert')).toBeNull()
@@ -199,7 +235,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={undefined}
           includeFavorites={true}
           onDismiss={() => {}}
-        />
+        />,
       )
 
       expect(queryByTestId('favorite-exclusion-alert')).toBeNull()
@@ -209,7 +245,7 @@ describe('FavoriteExclusionAlert', () => {
   describe('AC2: Message lists names of excluded favorites', () => {
     it('should show one favorite name', () => {
       const excludedFavorites: ExcludedFavorite[] = [
-        { id: 'fav1', name: 'Pacific Coast Highway', reason: 'distance' }
+        { id: 'fav1', name: 'Pacific Coast Highway', reason: 'distance' },
       ]
 
       const { getByText } = renderWithPaper(
@@ -217,7 +253,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={excludedFavorites}
           includeFavorites={true}
           onDismiss={() => {}}
-        />
+        />,
       )
 
       expect(getByText(/Pacific Coast Highway/)).toBeTruthy()
@@ -234,7 +270,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={excludedFavorites}
           includeFavorites={true}
           onDismiss={() => {}}
-        />
+        />,
       )
 
       expect(getByText(/Pacific Coast Highway/)).toBeTruthy()
@@ -253,7 +289,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={excludedFavorites}
           includeFavorites={true}
           onDismiss={() => {}}
-        />
+        />,
       )
 
       expect(getByText(/Pacific Coast Highway/)).toBeTruthy()
@@ -275,7 +311,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={excludedFavorites}
           includeFavorites={true}
           onDismiss={() => {}}
-        />
+        />,
       )
 
       // First 3 should be visible
@@ -292,16 +328,14 @@ describe('FavoriteExclusionAlert', () => {
     })
 
     it('should handle favorites without names gracefully', () => {
-      const excludedFavorites: ExcludedFavorite[] = [
-        { id: 'fav1', reason: 'distance' }
-      ]
+      const excludedFavorites: ExcludedFavorite[] = [{ id: 'fav1', reason: 'distance' }]
 
       const { getByText } = renderWithPaper(
         <FavoriteExclusionAlert
           excludedFavorites={excludedFavorites}
           includeFavorites={true}
           onDismiss={() => {}}
-        />
+        />,
       )
 
       // Should still show message with generic text
@@ -316,7 +350,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={[]}
           includeFavorites={true}
           onDismiss={() => {}}
-        />
+        />,
       )
 
       expect(queryByTestId('favorite-exclusion-alert')).toBeNull()
@@ -334,7 +368,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={excludedFavorites}
           includeFavorites={false}
           onDismiss={() => {}}
-        />
+        />,
       )
 
       expect(queryByTestId('favorite-exclusion-alert')).toBeNull()
@@ -353,7 +387,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={excludedFavorites}
           includeFavorites={true}
           onDismiss={onDismiss}
-        />
+        />,
       )
 
       const dismissButton = getByTestId('favorite-exclusion-alert-dismiss')
@@ -373,7 +407,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={excludedFavorites}
           includeFavorites={true}
           onDismiss={onDismiss}
-        />
+        />,
       )
 
       const alertContainer = getByTestId('favorite-exclusion-alert')
@@ -395,7 +429,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={excludedFavorites}
           includeFavorites={true}
           onDismiss={onDismiss}
-        />
+        />,
       )
 
       // Fast-forward 9 seconds - should not dismiss yet
@@ -420,7 +454,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={excludedFavorites}
           includeFavorites={true}
           onDismiss={onDismiss}
-        />
+        />,
       )
 
       // Manually dismiss after 5 seconds
@@ -450,7 +484,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={excludedFavorites}
           includeFavorites={true}
           onDismiss={() => {}}
-        />
+        />,
       )
 
       const alert = getByTestId('favorite-exclusion-alert')
@@ -471,7 +505,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={excludedFavorites}
           includeFavorites={true}
           onDismiss={() => {}}
-        />
+        />,
       )
 
       const alert = getByTestId('favorite-exclusion-alert')
@@ -493,7 +527,7 @@ describe('FavoriteExclusionAlert', () => {
           includeFavorites={true}
           onDismiss={() => {}}
           sessionKey={initialSessionKey}
-        />
+        />,
       )
 
       // Should render initially
@@ -506,7 +540,7 @@ describe('FavoriteExclusionAlert', () => {
           includeFavorites={true}
           onDismiss={() => {}}
           sessionKey={initialSessionKey}
-        />
+        />,
       )
 
       // After internal state update, it should recognize it was already shown
@@ -525,7 +559,7 @@ describe('FavoriteExclusionAlert', () => {
           includeFavorites={true}
           onDismiss={() => {}}
           sessionKey="session-123"
-        />
+        />,
       )
 
       expect(getByTestId1('favorite-exclusion-alert')).toBeTruthy()
@@ -540,7 +574,7 @@ describe('FavoriteExclusionAlert', () => {
           includeFavorites={true}
           onDismiss={() => {}}
           sessionKey="session-456"
-        />
+        />,
       )
 
       expect(getByTestId2('favorite-exclusion-alert')).toBeTruthy()
@@ -560,7 +594,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={excludedFavorites}
           includeFavorites={true}
           onDismiss={() => {}}
-        />
+        />,
       )
 
       // Should still show message
@@ -580,7 +614,7 @@ describe('FavoriteExclusionAlert', () => {
           excludedFavorites={excludedFavorites}
           includeFavorites={true}
           onDismiss={() => {}}
-        />
+        />,
       )
 
       // First 3 should be visible

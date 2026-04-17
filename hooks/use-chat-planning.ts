@@ -15,24 +15,17 @@
  * instant feedback while preventing race conditions via the isSending flag.
  */
 
-import { useRef, useCallback, useState } from 'react'
 import { useAction, useMutation, useQuery } from 'convex/react'
+import { useRouter } from 'expo-router'
+import { useCallback, useRef, useState } from 'react'
+import { useSelectedRoute } from '../contexts/selected-route'
+import { api } from '../convex/_generated/api'
 import type { Id } from '../convex/_generated/dataModel'
 import type { RideFlowAction } from './use-ride-flow'
-import { api } from '../convex/_generated/api'
-import { useSelectedRoute } from '../contexts/selected-route'
-import { useRouter } from 'expo-router'
 
 /**
  * Type for sendMessage action result
  */
-type SendMessageResult = {
-  response: string
-  messageId: Id<'session_messages'>
-  sessionId?: Id<'planning_sessions'>
-  attachments?: { type: string; routePlanId?: Id<'route_plans'> }[]
-}
-
 /**
  * Optimistic message type (client-side only)
  */
@@ -58,12 +51,12 @@ type OptimisticMessage = {
  * ```
  */
 export const useChatPlanning = (
-  dispatch: (action: RideFlowAction) => void
+  dispatch: (action: RideFlowAction) => void,
 ): {
   sessionId: Id<'planning_sessions'> | null
   sendPlanningMessage: (
     message: string,
-    currentLocation?: { lat: number; lng: number }
+    currentLocation?: { lat: number; lng: number },
   ) => Promise<void>
   cancel: () => void
   resetSession: () => void
@@ -87,7 +80,7 @@ export const useChatPlanning = (
   const cancelPlan = useMutation(api.db.routePlans.cancelPlan)
   const getActiveRoutePlansForSession = useQuery(
     api.db.routePlans.getActiveRoutePlansForSession,
-    sessionId !== null ? { sessionId } : 'skip'
+    sessionId !== null ? { sessionId } : 'skip',
   )
 
   // Reset displayed route when starting a new plan so newest shows
@@ -112,7 +105,6 @@ export const useChatPlanning = (
     async (message: string, currentLocation?: { lat: number; lng: number }) => {
       // Prevent race conditions - don't allow concurrent sends
       if (isSending) {
-        console.info('[useChatPlanning] Already sending, ignoring duplicate send')
         return
       }
 
@@ -154,7 +146,6 @@ export const useChatPlanning = (
           sessionIdToUse = sessionId
         } else {
           // Create new session for first message (without firstMessage in create call)
-          console.info('[useChatPlanning] Creating new session for message')
           const sessionResult = await createSession({ firstMessage: '' })
           sessionIdToUse = sessionResult.sessionId
           setSessionId(sessionIdToUse)
@@ -169,22 +160,17 @@ export const useChatPlanning = (
         // Step 2: Send message to backend agent. The action persists the rider
         // message immediately (before agent processing starts), so it appears
         // in the transcript right away.
-        const result = await sendMessage({
+        await sendMessage({
           sessionId: sessionIdToUse,
           content: message,
           currentLocation,
-        }) as SendMessageResult
-
-        console.info('[useChatPlanning] Backend persisted message:', result.messageId)
+        })
 
         // Replace optimistic message with real message (remove from optimistic list)
         setOptimisticMessages((prev) => prev.filter((m) => m.id !== tempId))
 
         // If this was a new session, update URL to include the session ID
         if (isNewSession && sessionIdToUse) {
-          console.info('[useChatPlanning] New session created, updating URL', {
-            sessionId: sessionIdToUse,
-          })
           // Update the current route's search params with the session ID
           router.setParams({ sessionId: sessionIdToUse } as any)
         }
@@ -198,11 +184,8 @@ export const useChatPlanning = (
 
         // Ignore cancelled requests
         if (signal.aborted || (error as Error).name === 'AbortError') {
-          console.log('Planning cancelled')
           return
         }
-
-        console.error('Planning failed:', error)
 
         // Surface errors that happen BEFORE the backend has had a chance to
         // write a failed message row (e.g. createSession failure, network
@@ -228,7 +211,7 @@ export const useChatPlanning = (
         setIsSending(false)
       }
     },
-    [dispatch, createSession, sendMessage, sessionId, isSending, router, setDisplayedRoutePlanId]
+    [dispatch, createSession, sendMessage, sessionId, isSending, router, setDisplayedRoutePlanId],
   )
 
   /**
@@ -242,7 +225,9 @@ export const useChatPlanning = (
     // Cancel any active route plans on the backend
     if (sessionId && getActiveRoutePlansForSession) {
       await Promise.all(
-        getActiveRoutePlansForSession.map((plan) => cancelPlan({ routePlanId: plan._id }))
+        getActiveRoutePlansForSession.map((plan: { _id: Id<'route_plans'> }) =>
+          cancelPlan({ routePlanId: plan._id }),
+        ),
       )
     }
 

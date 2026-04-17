@@ -6,15 +6,15 @@
  * Provides approve/reject/reorder actions for waypoint management
  */
 
-import { useState } from 'react'
-import { StyleSheet, View, Pressable } from 'react-native'
-import { Text, useTheme } from 'react-native-paper'
-import type { ExtendedTheme } from '../../styles/types'
 import { useQuery } from 'convex/react'
+import { useState } from 'react'
+import { Pressable, StyleSheet, View } from 'react-native'
+import { Text, useTheme } from 'react-native-paper'
 import { api } from '../../convex/_generated/api'
 import type { Id } from '../../convex/_generated/dataModel'
-import { IconSymbol } from '../ui/icon-symbol'
+import type { ExtendedTheme } from '../../styles/types'
 import { DragHandle } from '../ui/drag-handle'
+import { IconSymbol } from '../ui/icon-symbol'
 import { WaypointCard } from './waypoint-card'
 
 /**
@@ -125,7 +125,7 @@ export const WaypointList = ({
   }
 
   const hasPendingApprovals = sortedWaypoints.some(
-    (wp) => wp.status === 'ready' || wp.status === 'pending'
+    (wp) => wp.status === 'ready' || wp.status === 'pending',
   )
 
   return (
@@ -158,28 +158,15 @@ export const WaypointList = ({
         testID={`${testID}-header`}
       >
         <View style={styles.headerLeft}>
-          <Text
-            style={[
-              styles.headerTitle,
-              { color: semantic.color.onSurface.default },
-            ]}
-          >
+          <Text style={[styles.headerTitle, { color: semantic.color.onSurface.default }]}>
             Waypoints
           </Text>
-          <Text
-            style={[
-              styles.headerCount,
-              { color: semantic.color.onSurface.subtle },
-            ]}
-          >
+          <Text style={[styles.headerCount, { color: semantic.color.onSurface.subtle }]}>
             ({sortedWaypoints.length})
           </Text>
           {hasPendingApprovals && (
             <View
-              style={[
-                styles.pendingIndicator,
-                { backgroundColor: semantic.color.warning.default },
-              ]}
+              style={[styles.pendingIndicator, { backgroundColor: semantic.color.warning.default }]}
               accessible={false}
             />
           )}
@@ -187,7 +174,7 @@ export const WaypointList = ({
         <IconSymbol
           name={isCollapsed ? 'chevron-down' : 'chevron-up'}
           size={24}
-          color={semantic.color.onSurface.subtle}
+          color={semantic.color.onSurface.subtle ?? 'transparent'}
         />
       </Pressable>
 

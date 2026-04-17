@@ -11,7 +11,7 @@ import { Text } from 'react-native-paper'
 import { usePlaceAutocomplete } from '../hooks/use-place-autocomplete'
 import { useSemanticTheme } from '../hooks/use-semantic-theme'
 import type { RouteStop } from '../models/saved-routes'
-import { IconSymbol, type IconName } from './ui/icon-symbol'
+import { type IconName, IconSymbol } from './ui/icon-symbol'
 import { Input } from './ui/input'
 
 type LocationInputProps = {
@@ -57,7 +57,7 @@ export const LocationInput = ({
       clear()
       setFocusedInput(null)
     },
-    [clear, onChangeText, onPlaceSelected, selectPlace, setFocusedInput]
+    [clear, onChangeText, onPlaceSelected, selectPlace, setFocusedInput],
   )
 
   return (
@@ -76,10 +76,12 @@ export const LocationInput = ({
             inputStyle={{
               paddingHorizontal: semantic.space.sm,
               // Remove bottom border radius when suggestions are showing
-              ...(hasSuggestions ? {
-                borderBottomLeftRadius: 0,
-                borderBottomRightRadius: 0,
-              } : {}),
+              ...(hasSuggestions
+                ? {
+                    borderBottomLeftRadius: 0,
+                    borderBottomRightRadius: 0,
+                  }
+                : {}),
             }}
             testID={testID}
             onFocus={() => setFocusedInput(inputType)}
@@ -131,7 +133,9 @@ export const LocationInput = ({
             : limitedPredictions.map((item, index) => (
                 <Pressable
                   key={item.placeId}
-                  onPress={() => handleSelectPlace(item.placeId, item.primaryText || item.description)}
+                  onPress={() =>
+                    handleSelectPlace(item.placeId, item.primaryText || item.description)
+                  }
                   style={({ pressed }) => [
                     styles.suggestionRow,
                     {

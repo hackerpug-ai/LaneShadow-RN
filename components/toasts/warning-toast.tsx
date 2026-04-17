@@ -4,11 +4,11 @@
  * Amber-themed toast for warning notifications
  */
 
-import { View, StyleSheet, Pressable } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { IconSymbol } from '../ui/icon-symbol'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol } from '../ui/icon-symbol'
 
 export type WarningToastProps = {
   title: string
@@ -16,11 +16,7 @@ export type WarningToastProps = {
   showCloseButton?: boolean
 }
 
-export const WarningToast = ({
-  title,
-  description,
-  showCloseButton = true,
-}: WarningToastProps) => {
+export const WarningToast = ({ title, description, showCloseButton = true }: WarningToastProps) => {
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
 
@@ -45,15 +41,8 @@ export const WarningToast = ({
     >
       <View style={[styles.header, { gap: semantic.space.sm }]}>
         <View style={styles.iconRow}>
-          <IconSymbol
-            name="alert"
-            size={20}
-            color={semantic.color.onPrimary.default}
-          />
-          <Text
-            variant="titleSmall"
-            style={{ color: semantic.color.onPrimary.default, flex: 1 }}
-          >
+          <IconSymbol name="alert" size={20} color={semantic.color.onPrimary.default} />
+          <Text variant="titleSmall" style={{ color: semantic.color.onPrimary.default, flex: 1 }}>
             {title}
           </Text>
         </View>
@@ -65,11 +54,7 @@ export const WarningToast = ({
             }}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <IconSymbol
-              name="close-circle"
-              size={20}
-              color={semantic.color.onPrimary.default}
-            />
+            <IconSymbol name="close-circle" size={20} color={semantic.color.onPrimary.default} />
           </Pressable>
         )}
       </View>

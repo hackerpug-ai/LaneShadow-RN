@@ -29,7 +29,10 @@ export type GetUserFavoritesArgs = {
   bbox: BoundingBox
 }
 
-type GetUserFavoritesResult = Pick<UserFavorite, 'roadName' | 'rating' | 'rideCount' | 'lastRidden'>[]
+type GetUserFavoritesResult = Pick<
+  UserFavorite,
+  'roadName' | 'rating' | 'rideCount' | 'lastRidden'
+>[]
 
 const MAX_RESULTS = 10
 
@@ -57,7 +60,7 @@ const compareFavorites = (a: UserFavorite, b: UserFavorite): number => {
  */
 export const getUserFavorites = async (
   args: GetUserFavoritesArgs,
-  allFavorites: UserFavorite[]
+  allFavorites: UserFavorite[],
 ): Promise<GetUserFavoritesResult> => {
   const { bbox } = args
 

@@ -5,12 +5,12 @@
  * No need to pass semantic theme - handled by custom components
  */
 
-import { PermissionNotification } from '../components/ui/permission-notification'
 import { Notifier } from 'react-native-notifier'
+import { PermissionNotification } from '../components/ui/permission-notification'
 
 export const showCameraPermissionNotification = (
   onRequestPermission?: () => void | Promise<void>,
-  canAskAgain = true
+  canAskAgain = true,
 ) => {
   console.log('Showing camera permission notification with callback:', !!onRequestPermission)
 
@@ -35,7 +35,7 @@ export const showCameraPermissionNotification = (
     onPress: async () => {
       console.log(
         'Notification tapped -',
-        canAskAgain ? 'requesting permission' : 'opening Settings'
+        canAskAgain ? 'requesting permission' : 'opening Settings',
       )
       if (onRequestPermission) {
         await onRequestPermission()

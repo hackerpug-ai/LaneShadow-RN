@@ -1,4 +1,4 @@
-import { Infer, v } from 'convex/values'
+import { type Infer, v } from 'convex/values'
 
 export const SESSION_MESSAGE_ROLE = {
   RIDER: 'rider',
@@ -6,10 +6,7 @@ export const SESSION_MESSAGE_ROLE = {
 } as const
 export type SessionMessageRole = (typeof SESSION_MESSAGE_ROLE)[keyof typeof SESSION_MESSAGE_ROLE]
 
-export const sessionMessageRoleValidator = v.union(
-  v.literal('rider'),
-  v.literal('system')
-)
+export const sessionMessageRoleValidator = v.union(v.literal('rider'), v.literal('system'))
 
 export const SESSION_MESSAGE_KIND = {
   TEXT: 'text',
@@ -33,7 +30,7 @@ export const sessionMessageKindValidator = v.union(
   v.literal('agent_turn'),
   v.literal('tool_result_hidden'),
   v.literal('planning'),
-  v.literal('thinking_card')
+  v.literal('thinking_card'),
 )
 
 export const SESSION_MESSAGE_STATUS = {
@@ -42,13 +39,14 @@ export const SESSION_MESSAGE_STATUS = {
   COMPLETE: 'complete',
   FAILED: 'failed',
 } as const
-export type SessionMessageStatus = (typeof SESSION_MESSAGE_STATUS)[keyof typeof SESSION_MESSAGE_STATUS]
+export type SessionMessageStatus =
+  (typeof SESSION_MESSAGE_STATUS)[keyof typeof SESSION_MESSAGE_STATUS]
 
 export const sessionMessageStatusValidator = v.union(
-  v.literal('streaming'),  // assistant text currently arriving token-by-token
-  v.literal('running'),    // long-running tool card still working
-  v.literal('complete'),   // terminal success
-  v.literal('failed')      // terminal failure
+  v.literal('streaming'), // assistant text currently arriving token-by-token
+  v.literal('running'), // long-running tool card still working
+  v.literal('complete'), // terminal success
+  v.literal('failed'), // terminal failure
 )
 
 export const sessionMessageAttachmentValidator = v.object({
@@ -65,11 +63,7 @@ export type SessionMessageAttachment = Infer<typeof sessionMessageAttachmentVali
  * - 'tool_finish': Tool invocation finished (toolName required)
  */
 export const thinkingStepValidator = v.object({
-  type: v.union(
-    v.literal('thinking'),
-    v.literal('tool_start'),
-    v.literal('tool_finish')
-  ),
+  type: v.union(v.literal('thinking'), v.literal('tool_start'), v.literal('tool_finish')),
   toolName: v.optional(v.string()),
   summary: v.string(),
   detail: v.optional(v.string()),

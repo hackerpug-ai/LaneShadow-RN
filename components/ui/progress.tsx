@@ -10,10 +10,10 @@
  * Following coding standards: composition over inheritance, named exports
  */
 
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { useEffect, useRef } from 'react'
 import type { ViewStyle } from 'react-native'
 import { Animated, StyleSheet, View } from 'react-native'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 /**
  * Progress component props
@@ -59,7 +59,7 @@ export const Progress = ({
             duration: 1500,
             useNativeDriver: true,
           }),
-        ])
+        ]),
       ).start()
     } else {
       // Determinate animation - smooth transition

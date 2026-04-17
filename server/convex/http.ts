@@ -44,7 +44,7 @@ http.route({
     try {
       const result = await ctx.runMutation(
         convexInternal.curationAdmin.internalUpsertCuratedRoutes,
-        { routes: (parsed as any).routes }
+        { routes: (parsed as any).routes },
       )
       return new Response(JSON.stringify(result), {
         status: 200,
@@ -53,7 +53,7 @@ http.route({
     } catch (err: any) {
       return new Response(
         JSON.stringify({ error: 'invalid_body', detail: err?.message ?? 'validation failed' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json' } },
       )
     }
   }),
@@ -93,7 +93,7 @@ http.route({
     try {
       const result = await ctx.runMutation(
         convexInternal.curationAdmin.internalUpsertCuratedRouteEnrichments,
-        { enrichments: (parsed as any).enrichments }
+        { enrichments: (parsed as any).enrichments },
       )
       return new Response(JSON.stringify(result), {
         status: 200,
@@ -102,7 +102,7 @@ http.route({
     } catch (err: any) {
       return new Response(
         JSON.stringify({ error: 'invalid_body', detail: err?.message ?? 'validation failed' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json' } },
       )
     }
   }),
@@ -140,10 +140,9 @@ http.route({
     }
 
     try {
-      const result = await ctx.runMutation(
-        convexApi.curationAdmin.deleteCuratedRoutesByRouteIds,
-        { routeIds: (parsed as any).routeIds }
-      )
+      const result = await ctx.runMutation(convexApi.curationAdmin.deleteCuratedRoutesByRouteIds, {
+        routeIds: (parsed as any).routeIds,
+      })
       return new Response(JSON.stringify(result), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
@@ -151,7 +150,7 @@ http.route({
     } catch (err: any) {
       return new Response(
         JSON.stringify({ error: 'invalid_body', detail: err?.message ?? 'validation failed' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json' } },
       )
     }
   }),
@@ -189,10 +188,9 @@ http.route({
     }
 
     try {
-      const result = await ctx.runMutation(
-        convexApi.curationAdmin.backfillRouteEmbeddings,
-        { updates: (parsed as any).updates }
-      )
+      const result = await ctx.runMutation(convexApi.curationAdmin.backfillRouteEmbeddings, {
+        updates: (parsed as any).updates,
+      })
       return new Response(JSON.stringify(result), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
@@ -200,7 +198,7 @@ http.route({
     } catch (err: any) {
       return new Response(
         JSON.stringify({ error: 'invalid_body', detail: err?.message ?? 'validation failed' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json' } },
       )
     }
   }),
@@ -281,9 +279,7 @@ http.route({
 
     const url = new URL(request.url)
     const state = url.searchParams.get('state') ?? undefined
-    const since = url.searchParams.get('since')
-      ? Number(url.searchParams.get('since'))
-      : undefined
+    const since = url.searchParams.get('since') ? Number(url.searchParams.get('since')) : undefined
     const numItems = url.searchParams.get('numItems')
       ? Number(url.searchParams.get('numItems'))
       : 100
@@ -303,10 +299,10 @@ http.route({
         headers: { 'Content-Type': 'application/json' },
       })
     } catch (e: any) {
-      return new Response(
-        JSON.stringify({ error: (e as Error).message }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: (e as Error).message }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
     }
   }),
 })
@@ -335,19 +331,18 @@ http.route({
     const routeIds = idsParam.split(',').slice(0, 50) // max 50
 
     try {
-      const enrichments = await ctx.runQuery(
-        convexInternal.db.curation.fetchEnrichments,
-        { routeIds }
-      )
+      const enrichments = await ctx.runQuery(convexInternal.db.curation.fetchEnrichments, {
+        routeIds,
+      })
       return new Response(JSON.stringify({ enrichments }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       })
     } catch (e: any) {
-      return new Response(
-        JSON.stringify({ error: (e as Error).message }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: (e as Error).message }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
     }
   }),
 })
@@ -375,19 +370,18 @@ http.route({
     }
 
     try {
-      const stale = await ctx.runQuery(
-        convexInternal.db.curation.checkMissingEnrichments,
-        { pairs: body.pairs }
-      )
+      const stale = await ctx.runQuery(convexInternal.db.curation.checkMissingEnrichments, {
+        pairs: body.pairs,
+      })
       return new Response(JSON.stringify({ stale }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       })
     } catch (e: any) {
-      return new Response(
-        JSON.stringify({ error: (e as Error).message }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: (e as Error).message }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
     }
   }),
 })
@@ -423,26 +417,23 @@ http.route({
     }
 
     try {
-      const result = await ctx.runMutation(
-        convexInternal.db.routeFeedback.recordRouteFeedback,
-        {
-          routeId: body.routeId,
-          action: body.action,
-          rating: body.rating,
-          locationLat: body.locationLat,
-          locationLng: body.locationLng,
-          archetypeFilter: body.archetypeFilter,
-        }
-      )
+      const result = await ctx.runMutation(convexInternal.db.routeFeedback.recordRouteFeedback, {
+        routeId: body.routeId,
+        action: body.action,
+        rating: body.rating,
+        locationLat: body.locationLat,
+        locationLng: body.locationLng,
+        archetypeFilter: body.archetypeFilter,
+      })
       return new Response(JSON.stringify(result), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       })
     } catch (e: any) {
-      return new Response(
-        JSON.stringify({ error: (e as Error).message }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: (e as Error).message }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
     }
   }),
 })
@@ -473,17 +464,17 @@ http.route({
     try {
       const result = await ctx.runAction(
         convexInternal.actions.curation.intentExtraction.extractIntentParams,
-        { intent: body.intent }
+        { intent: body.intent },
       )
       return new Response(JSON.stringify(result), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       })
     } catch (e: any) {
-      return new Response(
-        JSON.stringify({ error: (e as Error).message }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: (e as Error).message }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
     }
   }),
 })
@@ -550,7 +541,7 @@ http.route({
     const data = event.data as any
 
     const sanitizeEmailAddresses = (
-      emailAddresses: any
+      emailAddresses: any,
     ): { id: string; email_address: string }[] | undefined => {
       if (!Array.isArray(emailAddresses)) return undefined
       return emailAddresses

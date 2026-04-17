@@ -21,23 +21,17 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react'
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  AccessibilityInfo,
-} from 'react-native'
+import { AccessibilityInfo, Pressable, StyleSheet, Text, View } from 'react-native'
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withRepeat,
   withSequence,
   withTiming,
 } from 'react-native-reanimated'
-import { IconSymbol } from '../../ui/icon-symbol'
-import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import type { Id } from '../../../convex/_generated/dataModel'
+import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
+import { IconSymbol } from '../../ui/icon-symbol'
 import type { CardAttachment } from '../card-registry'
 
 // ---------------------------------------------------------------------------
@@ -73,7 +67,7 @@ export type ReasoningCardProps = {
 function formatDurationLabel(
   status: ReasoningCardProps['message']['status'],
   startedAt: number,
-  completedAt: number | null
+  completedAt: number | null,
 ): string {
   if (status === 'streaming' || status === 'running') {
     return 'Thinking…'
@@ -103,7 +97,7 @@ function formatDurationLabel(
 function formatDurationForA11y(
   status: ReasoningCardProps['message']['status'],
   startedAt: number,
-  completedAt: number | null
+  completedAt: number | null,
 ): string {
   if (status === 'failed') return 'briefly'
   if (completedAt === null) return 'briefly'
@@ -131,12 +125,9 @@ const PulsingDot = ({ reduceMotion, color }: PulsingDotProps) => {
       return
     }
     opacity.value = withRepeat(
-      withSequence(
-        withTiming(1.0, { duration: 600 }),
-        withTiming(0.4, { duration: 600 })
-      ),
+      withSequence(withTiming(1.0, { duration: 600 }), withTiming(0.4, { duration: 600 })),
       -1,
-      false
+      false,
     )
   }, [reduceMotion, opacity])
 
@@ -190,10 +181,7 @@ export const ReasoningCard = ({ message }: ReasoningCardProps) => {
       })
     // Subscribe to live reduce-motion toggles so users who flip the iOS
     // setting mid-session see the animation behaviour update immediately.
-    const sub = AccessibilityInfo.addEventListener(
-      'reduceMotionChanged',
-      setReduceMotion
-    )
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion)
     return () => sub.remove()
   }, [])
 
@@ -202,11 +190,7 @@ export const ReasoningCard = ({ message }: ReasoningCardProps) => {
     // On first render, prevIsStreamingRef.current is null, so historical
     // already-complete messages correctly skip this assignment and fall
     // through to the "Thought briefly" default.
-    if (
-      prevIsStreamingRef.current === true &&
-      !isStreaming &&
-      completedAtRef.current === null
-    ) {
+    if (prevIsStreamingRef.current === true && !isStreaming && completedAtRef.current === null) {
       const now = Date.now()
       completedAtRef.current = now
       setCompletedAt(now)
@@ -219,20 +203,12 @@ export const ReasoningCard = ({ message }: ReasoningCardProps) => {
     setExpanded((prev) => !prev)
   }
 
-  const durationLabel = formatDurationLabel(
-    status,
-    message.createdAt,
-    completedAt
-  )
+  const durationLabel = formatDurationLabel(status, message.createdAt, completedAt)
 
   // Accessibility label per design spec §8.3. Uses full words so VoiceOver
   // reads "3 seconds" (not "three ess") and "briefly" for historical or
   // sub-second durations.
-  const a11yDuration = formatDurationForA11y(
-    status,
-    message.createdAt,
-    completedAt
-  )
+  const a11yDuration = formatDurationForA11y(status, message.createdAt, completedAt)
   const accessibilityLabel = isStreaming
     ? 'Agent is thinking'
     : `Agent reasoning, thought for ${a11yDuration}`
@@ -258,10 +234,7 @@ export const ReasoningCard = ({ message }: ReasoningCardProps) => {
   const liveRegion: 'polite' | 'none' = isStreaming ? 'polite' : 'none'
 
   return (
-    <View
-      style={styles.container}
-      testID="reasoning-card"
-    >
+    <View style={styles.container} testID="reasoning-card">
       <Pressable
         onPress={handleToggle}
         disabled={!canExpand}
@@ -315,10 +288,7 @@ export const ReasoningCard = ({ message }: ReasoningCardProps) => {
             testID="reasoning-card-glyph"
           />
           <Text
-            style={[
-              semantic.type.label.md,
-              { color: mutedColor, flex: 1 },
-            ]}
+            style={[semantic.type.label.md, { color: mutedColor, flex: 1 }]}
             testID="reasoning-card-label"
             numberOfLines={1}
           >
@@ -351,11 +321,7 @@ export const ReasoningCard = ({ message }: ReasoningCardProps) => {
             ]}
             testID="reasoning-card-body"
           >
-            <Text
-              style={[semantic.type.body.sm, { color: mutedColor }]}
-            >
-              {message.content}
-            </Text>
+            <Text style={[semantic.type.body.sm, { color: mutedColor }]}>{message.content}</Text>
           </View>
         ) : null}
       </Pressable>

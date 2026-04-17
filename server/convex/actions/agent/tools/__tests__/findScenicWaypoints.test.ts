@@ -1,4 +1,4 @@
-import { vi, describe, it, expect } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { findScenicWaypoints } from '../findScenicWaypoints'
 
 const START = { lat: 37.0, lng: -120.0 }
@@ -55,7 +55,7 @@ describe('findScenicWaypoints', () => {
     })
 
     const nyToBoston = await findScenicWaypoints({
-      start: { lat: 40.7128, lng: -74.0060 },
+      start: { lat: 40.7128, lng: -74.006 },
       end: { lat: 42.3601, lng: -71.0589 },
     })
 

@@ -14,7 +14,7 @@
  */
 
 import React, { useState } from 'react'
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { PlannedRouteOptionsView } from '../../types/routes'
 import { RouteDirectionsSheet } from '../sheets/route-directions-sheet'
@@ -102,7 +102,7 @@ export const RouteAttachmentCard = ({
     label: string | undefined,
     placeId: string | undefined,
     lat: number,
-    lng: number
+    lng: number,
   ): string => {
     if (label) return label
     if (placeId) return placeId
@@ -114,28 +114,34 @@ export const RouteAttachmentCard = ({
     legs[0]?.start.label,
     legs[0]?.start.placeId,
     legs[0]?.start.lat,
-    legs[0]?.start.lng
+    legs[0]?.start.lng,
   )
   const endLabel = formatLocationLabel(
     legs[legs.length - 1]?.end.label,
     legs[legs.length - 1]?.end.placeId,
     legs[legs.length - 1]?.end.lat,
-    legs[legs.length - 1]?.end.lng
+    legs[legs.length - 1]?.end.lng,
   )
 
   const handlePress = () => {
     if (variant === 'full') {
-      console.info('[RouteAttachmentCard] Press in chat context - navigating to map', { routeId: route.routeOptionId })
+      console.info('[RouteAttachmentCard] Press in chat context - navigating to map', {
+        routeId: route.routeOptionId,
+      })
       onSelect(route.routeOptionId)
       onViewOnMap?.()
     } else {
-      console.info('[RouteAttachmentCard] Press in map context - opening directions sheet', { routeId: route.routeOptionId })
+      console.info('[RouteAttachmentCard] Press in map context - opening directions sheet', {
+        routeId: route.routeOptionId,
+      })
       setDirectionsVisible(true)
     }
   }
 
   const handleLongPress = () => {
-    console.info('[RouteAttachmentCard] Long press - selecting route', { routeId: route.routeOptionId })
+    console.info('[RouteAttachmentCard] Long press - selecting route', {
+      routeId: route.routeOptionId,
+    })
     onSelect(route.routeOptionId)
   }
 
@@ -168,7 +174,11 @@ export const RouteAttachmentCard = ({
         testID={testID}
         accessible={true}
         accessibilityLabel={`Route from ${startLabel} to ${endLabel}, ${formatDuration(duration)}, ${formatDistance(distance)}`}
-        accessibilityHint={variant === 'full' ? 'Tap to view on map, long press to select route' : 'Tap to view directions, long press to select route'}
+        accessibilityHint={
+          variant === 'full'
+            ? 'Tap to view on map, long press to select route'
+            : 'Tap to view directions, long press to select route'
+        }
         accessibilityRole="button"
         accessibilityState={{ selected: isSelected }}
       >
@@ -211,7 +221,11 @@ export const RouteAttachmentCard = ({
             <IconSymbol
               name="arrow-right"
               size={18}
-              color={isSelected ? semantic.color.primary.default : semantic.color.onSurface.muted}
+              color={
+                isSelected
+                  ? semantic.color.primary.default
+                  : (semantic.color.onSurface.muted ?? 'transparent')
+              }
             />
 
             <Text
@@ -250,14 +264,22 @@ export const RouteAttachmentCard = ({
                 {/* Left: Stats */}
                 <View style={styles.statsSection}>
                   <View style={styles.statItem}>
-                    <IconSymbol name="map-marker-distance" size={14} color={semantic.color.onSurface.muted} />
+                    <IconSymbol
+                      name="map-marker-distance"
+                      size={14}
+                      color={semantic.color.onSurface.muted ?? 'transparent'}
+                    />
                     <Text style={[styles.statText, { color: semantic.color.onSurface.subtle }]}>
                       {formatDistance(distance)}
                     </Text>
                   </View>
 
                   <View style={styles.statItem}>
-                    <IconSymbol name="clock-outline" size={14} color={semantic.color.onSurface.muted} />
+                    <IconSymbol
+                      name="clock-outline"
+                      size={14}
+                      color={semantic.color.onSurface.muted ?? 'transparent'}
+                    />
                     <Text style={[styles.statText, { color: semantic.color.onSurface.subtle }]}>
                       {formatDuration(duration)}
                     </Text>
@@ -267,19 +289,24 @@ export const RouteAttachmentCard = ({
                 {/* Right: Badges */}
                 <View style={styles.badgesSection}>
                   {/* Weather warnings only */}
-                  {route.overlaysPreview.rainSummary !== 'none' && route.overlaysPreview.rainSummary !== 'unavailable' && (
-                    <View
-                      style={[
-                        styles.weatherBadge,
-                        { backgroundColor: semantic.color.danger.default + '20' },
-                      ]}
-                    >
-                      <IconSymbol name="weather-rainy" size={12} color={semantic.color.danger.default} />
-                      <Text style={[styles.badgeText, { color: semantic.color.danger.default }]}>
-                        {route.overlaysPreview.rainSummary}
-                      </Text>
-                    </View>
-                  )}
+                  {route.overlaysPreview.rainSummary !== 'none' &&
+                    route.overlaysPreview.rainSummary !== 'unavailable' && (
+                      <View
+                        style={[
+                          styles.weatherBadge,
+                          { backgroundColor: semantic.color.danger.default + '20' },
+                        ]}
+                      >
+                        <IconSymbol
+                          name="weather-rainy"
+                          size={12}
+                          color={semantic.color.danger.default}
+                        />
+                        <Text style={[styles.badgeText, { color: semantic.color.danger.default }]}>
+                          {route.overlaysPreview.rainSummary}
+                        </Text>
+                      </View>
+                    )}
 
                   {route.overlaysPreview.windSummary === 'high' && (
                     <View
@@ -288,7 +315,11 @@ export const RouteAttachmentCard = ({
                         { backgroundColor: semantic.color.warning.default + '20' },
                       ]}
                     >
-                      <IconSymbol name="weather-windy" size={12} color={semantic.color.warning.default} />
+                      <IconSymbol
+                        name="weather-windy"
+                        size={12}
+                        color={semantic.color.warning.default}
+                      />
                       <Text style={[styles.badgeText, { color: semantic.color.warning.default }]}>
                         High wind
                       </Text>
@@ -311,21 +342,21 @@ export const RouteAttachmentCard = ({
         </View>
       </TouchableOpacity>
 
-    {/* Route directions sheet */}
-    {directionsVisible && (
-      <RouteDirectionsSheet
-        isVisible={directionsVisible}
-        onClose={() => setDirectionsVisible(false)}
-        routeLabel={route.label}
-        legs={route.map.legs}
-        destinationLabel={endLabel}
-        testID={`${testID}-directions`}
-        onLegSelect={onLegSelect}
-        selectedLegIndex={selectedLegIndex}
-      />
-    )}
-  </View>
-)
+      {/* Route directions sheet */}
+      {directionsVisible && (
+        <RouteDirectionsSheet
+          isVisible={directionsVisible}
+          onClose={() => setDirectionsVisible(false)}
+          routeLabel={route.label}
+          legs={route.map.legs}
+          destinationLabel={endLabel}
+          testID={`${testID}-directions`}
+          onLegSelect={onLegSelect}
+          selectedLegIndex={selectedLegIndex}
+        />
+      )}
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({

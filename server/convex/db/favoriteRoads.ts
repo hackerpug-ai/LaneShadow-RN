@@ -32,7 +32,7 @@ export const insertHandler = async (
     geometry: string
     bounds?: FavoriteRoad['bounds']
   },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<{ favoriteRoadId: Id<'favorite_roads'> }> => {
   const now = Date.now()
   const favoriteRoadId = await ctx.db.insert('favorite_roads', {
@@ -49,12 +49,10 @@ export const insertHandler = async (
 
 type ListCtx = {
   db: {
-    query: (
-      table: string
-    ) => {
+    query: (table: string) => {
       withIndex: (
         indexName: string,
-        fn: (q: any) => any
+        fn: (q: any) => any,
       ) => {
         order: (direction: 'asc' | 'desc') => {
           collect: () => Promise<FavoriteRoadDoc[]>
@@ -66,7 +64,7 @@ type ListCtx = {
 
 export const listHandler = async (
   ctx: ListCtx,
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<FavoriteRoadDoc[]> => {
   const favorites = await ctx.db
     .query('favorite_roads')
@@ -89,7 +87,7 @@ type RemoveCtx = {
 export const removeHandler = async (
   ctx: RemoveCtx,
   args: { favoriteRoadId: Id<'favorite_roads'> },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<{ success: true }> => {
   // Validate clerkUserId is provided (auth check happens at Convex function level)
   if (!clerkUserId) {

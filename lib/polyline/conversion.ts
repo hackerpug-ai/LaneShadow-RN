@@ -72,9 +72,7 @@ export function convertWeatherSegments(
   segments: WeatherSegment[],
   direction: ConversionDirection,
 ): WeatherSegment[] {
-  const converter = direction === 'googleToMapbox'
-    ? googleCoordsToMapbox
-    : mapboxCoordsToGoogle
+  const converter = direction === 'googleToMapbox' ? googleCoordsToMapbox : mapboxCoordsToGoogle
 
   return segments.map((segment) => ({
     startIndex: segment.startIndex,
@@ -118,10 +116,7 @@ export function isValidCoord(
 
 /** Clamp a [lat, lng] coordinate to valid ranges. */
 export function clampCoord(coord: [number, number]): [number, number] {
-  return [
-    Math.max(-90, Math.min(90, coord[0])),
-    Math.max(-180, Math.min(180, coord[1])),
-  ]
+  return [Math.max(-90, Math.min(90, coord[0])), Math.max(-180, Math.min(180, coord[1]))]
 }
 
 // ---------------------------------------------------------------------------

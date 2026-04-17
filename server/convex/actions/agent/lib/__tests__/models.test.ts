@@ -1,5 +1,5 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
 import { getModel } from '@mariozechner/pi-ai'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { getAgentModel, getAgentModelInfo } from '../models'
 
 // Mock @mariozechner/pi-ai to avoid live API calls

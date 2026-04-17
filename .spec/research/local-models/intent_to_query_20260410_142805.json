@@ -28,18 +28,7 @@
         "sort_by": "scenic"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND season = ? AND curvature_score >= ? AND scenic_score >= ? AND technical_score >= ? AND technical_score <= ? AND traffic_score >= ? AND remoteness_score >= ? AND length_mi >= ? AND length_mi <= ? ORDER BY scenic_score DESC LIMIT 10",
-      "sql_args": [
-        "coastal",
-        "apr_nov",
-        0.7,
-        0.7,
-        0.7,
-        0.5,
-        0.0,
-        0.7,
-        0.0,
-        0.0
-      ],
+      "sql_args": ["coastal", "apr_nov", 0.7, 0.7, 0.7, 0.5, 0.0, 0.7, 0.0, 0.0],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -73,19 +62,7 @@
         "sort_by": "curvature"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND state = ? AND season = ? AND curvature_score >= ? AND scenic_score >= ? AND technical_score >= ? AND technical_score <= ? AND traffic_score >= ? AND remoteness_score >= ? AND length_mi >= ? AND length_mi <= ? ORDER BY curvature_score DESC LIMIT 10",
-      "sql_args": [
-        "mountain",
-        "CO",
-        "apr_nov",
-        0.7,
-        0.7,
-        0.7,
-        0.5,
-        0.0,
-        0.7,
-        80,
-        20
-      ],
+      "sql_args": ["mountain", "CO", "apr_nov", 0.7, 0.7, 0.7, 0.5, 0.0, 0.7, 80, 20],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -119,18 +96,7 @@
         "sort_by": "curvature"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND season = ? AND curvature_score >= ? AND scenic_score >= ? AND technical_score >= ? AND technical_score <= ? AND traffic_score >= ? AND remoteness_score >= ? AND length_mi >= ? AND length_mi <= ? ORDER BY curvature_score DESC LIMIT 10",
-      "sql_args": [
-        "desert",
-        "apr_nov",
-        0.7,
-        0.7,
-        0.7,
-        0.5,
-        0.0,
-        0.7,
-        80,
-        20
-      ],
+      "sql_args": ["desert", "apr_nov", 0.7, 0.7, 0.7, 0.5, 0.0, 0.7, 80, 20],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -164,18 +130,7 @@
         "sort_by": "scenic"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND season = ? AND curvature_score >= ? AND scenic_score >= ? AND technical_score >= ? AND technical_score <= ? AND traffic_score >= ? AND remoteness_score >= ? AND length_mi >= ? AND length_mi <= ? ORDER BY scenic_score DESC LIMIT 10",
-      "sql_args": [
-        "scenic_byway",
-        "apr_nov",
-        0.7,
-        0.7,
-        0.7,
-        0.5,
-        0.0,
-        0.7,
-        80,
-        20
-      ],
+      "sql_args": ["scenic_byway", "apr_nov", 0.7, 0.7, 0.7, 0.5, 0.0, 0.7, 80, 20],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -209,17 +164,7 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND curvature_score >= ? AND scenic_score >= ? AND technical_score >= ? AND technical_score <= ? AND traffic_score >= ? AND remoteness_score >= ? AND length_mi >= ? AND length_mi <= ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "scenic_byway",
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
+      "sql_args": ["scenic_byway", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -253,19 +198,7 @@
         "sort_by": "curvature"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND state = ? AND season = ? AND curvature_score >= ? AND scenic_score >= ? AND technical_score >= ? AND technical_score <= ? AND traffic_score >= ? AND remoteness_score >= ? AND length_mi >= ? AND length_mi <= ? ORDER BY curvature_score DESC LIMIT 10",
-      "sql_args": [
-        "adventure",
-        "UT",
-        "apr_nov",
-        0.7,
-        0.7,
-        0.7,
-        0.5,
-        0.0,
-        0.7,
-        80,
-        20
-      ],
+      "sql_args": ["adventure", "UT", "apr_nov", 0.7, 0.7, 0.7, 0.5, 0.0, 0.7, 80, 20],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -299,19 +232,7 @@
         "sort_by": "curvature"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND state = ? AND season = ? AND curvature_score >= ? AND scenic_score >= ? AND technical_score >= ? AND technical_score <= ? AND traffic_score >= ? AND remoteness_score >= ? AND length_mi >= ? AND length_mi <= ? ORDER BY curvature_score DESC LIMIT 10",
-      "sql_args": [
-        "mountain",
-        "UT",
-        "apr_nov",
-        0.7,
-        0.7,
-        0.7,
-        0.5,
-        0.0,
-        0.7,
-        40,
-        20
-      ],
+      "sql_args": ["mountain", "UT", "apr_nov", 0.7, 0.7, 0.7, 0.5, 0.0, 0.7, 40, 20],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -345,18 +266,7 @@
         "sort_by": "curvature"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND season = ? AND curvature_score >= ? AND scenic_score >= ? AND technical_score >= ? AND technical_score <= ? AND traffic_score >= ? AND remoteness_score >= ? AND length_mi >= ? AND length_mi <= ? ORDER BY curvature_score DESC LIMIT 10",
-      "sql_args": [
-        "twisties",
-        "year_round",
-        0.7,
-        0.7,
-        0.7,
-        0.5,
-        0.0,
-        0.7,
-        80,
-        20
-      ],
+      "sql_args": ["twisties", "year_round", 0.7, 0.7, 0.7, 0.5, 0.0, 0.7, 80, 20],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -390,18 +300,7 @@
         "sort_by": "curvature"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND season = ? AND curvature_score >= ? AND scenic_score >= ? AND technical_score >= ? AND technical_score <= ? AND traffic_score >= ? AND remoteness_score >= ? AND length_mi >= ? AND length_mi <= ? ORDER BY curvature_score DESC LIMIT 10",
-      "sql_args": [
-        "twisties",
-        "year_round",
-        0.7,
-        0.7,
-        0.7,
-        0.5,
-        0.0,
-        0.7,
-        80,
-        20
-      ],
+      "sql_args": ["twisties", "year_round", 0.7, 0.7, 0.7, 0.5, 0.0, 0.7, 80, 20],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -435,18 +334,7 @@
         "sort_by": "scenic"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND season = ? AND curvature_score >= ? AND scenic_score >= ? AND technical_score >= ? AND technical_score <= ? AND traffic_score >= ? AND remoteness_score >= ? AND length_mi >= ? AND length_mi <= ? ORDER BY scenic_score DESC LIMIT 10",
-      "sql_args": [
-        "scenic_byway",
-        "apr_nov",
-        0.7,
-        0.7,
-        0.7,
-        0.5,
-        0.0,
-        0.7,
-        80,
-        20
-      ],
+      "sql_args": ["scenic_byway", "apr_nov", 0.7, 0.7, 0.7, 0.5, 0.0, 0.7, 80, 20],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -480,18 +368,7 @@
         "sort_by": "remoteness"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND season = ? AND curvature_score >= ? AND scenic_score >= ? AND technical_score >= ? AND technical_score <= ? AND traffic_score >= ? AND remoteness_score >= ? AND length_mi >= ? AND length_mi <= ? ORDER BY remoteness_score DESC LIMIT 10",
-      "sql_args": [
-        "scenic_byway",
-        "apr_nov",
-        0.7,
-        0.7,
-        0.7,
-        0.5,
-        0.7,
-        0.7,
-        80,
-        20
-      ],
+      "sql_args": ["scenic_byway", "apr_nov", 0.7, 0.7, 0.7, 0.5, 0.7, 0.7, 80, 20],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -525,18 +402,7 @@
         "sort_by": "length"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND season = ? AND curvature_score >= ? AND scenic_score >= ? AND technical_score >= ? AND technical_score <= ? AND traffic_score >= ? AND remoteness_score >= ? AND length_mi >= ? AND length_mi <= ? ORDER BY length_mi DESC LIMIT 10",
-      "sql_args": [
-        "adventure",
-        "year_round",
-        0.7,
-        0.7,
-        0.7,
-        0.5,
-        0.0,
-        0.7,
-        80,
-        20
-      ],
+      "sql_args": ["adventure", "year_round", 0.7, 0.7, 0.7, 0.5, 0.0, 0.7, 80, 20],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -570,17 +436,7 @@
         "sort_by": "technical"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND curvature_score >= ? AND scenic_score >= ? AND technical_score >= ? AND technical_score <= ? AND traffic_score >= ? AND remoteness_score >= ? AND length_mi >= ? AND length_mi <= ? ORDER BY technical_score DESC LIMIT 10",
-      "sql_args": [
-        "twisties",
-        0.7,
-        0.7,
-        0.7,
-        0.5,
-        0.0,
-        0.7,
-        0.0,
-        0.0
-      ],
+      "sql_args": ["twisties", 0.7, 0.7, 0.7, 0.5, 0.0, 0.7, 0.0, 0.0],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -614,18 +470,7 @@
         "sort_by": "technical"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND season = ? AND curvature_score >= ? AND scenic_score >= ? AND technical_score >= ? AND technical_score <= ? AND traffic_score >= ? AND remoteness_score >= ? AND length_mi >= ? AND length_mi <= ? ORDER BY technical_score DESC LIMIT 10",
-      "sql_args": [
-        "adventure",
-        "year_round",
-        0.7,
-        0.7,
-        0.7,
-        0.5,
-        0.0,
-        0.7,
-        0.0,
-        0.0
-      ],
+      "sql_args": ["adventure", "year_round", 0.7, 0.7, 0.7, 0.5, 0.0, 0.7, 0.0, 0.0],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -659,19 +504,7 @@
         "sort_by": "curvature"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND state = ? AND season = ? AND curvature_score >= ? AND scenic_score >= ? AND technical_score >= ? AND technical_score <= ? AND traffic_score >= ? AND remoteness_score >= ? AND length_mi >= ? AND length_mi <= ? ORDER BY curvature_score DESC LIMIT 10",
-      "sql_args": [
-        "mountain",
-        "UT",
-        "apr_nov",
-        0.7,
-        0.7,
-        0.7,
-        0.5,
-        0.0,
-        0.7,
-        80,
-        20
-      ],
+      "sql_args": ["mountain", "UT", "apr_nov", 0.7, 0.7, 0.7, 0.5, 0.0, 0.7, 80, 20],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -707,14 +540,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "coastal"
-      ],
+      "sql_args": ["coastal"],
       "sql_ok": true,
-      "returned": [
-        "ca1-bigsur",
-        "wa101-olympic"
-      ],
+      "returned": ["ca1-bigsur", "wa101-olympic"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -746,14 +574,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE state = ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "CO"
-      ],
+      "sql_args": ["CO"],
       "sql_ok": true,
-      "returned": [
-        "co550-million",
-        "co82-independence"
-      ],
+      "returned": ["co550-million", "co82-independence"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -785,14 +608,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "desert"
-      ],
+      "sql_args": ["desert"],
       "sql_ok": true,
-      "returned": [
-        "nv-extraterrestrial",
-        "tx170-river-road"
-      ],
+      "returned": ["nv-extraterrestrial", "tx170-river-road"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -824,10 +642,7 @@
         "sort_by": "scenic"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND scenic_score >= ? ORDER BY scenic_score DESC LIMIT 10",
-      "sql_args": [
-        "scenic_byway",
-        0.7
-      ],
+      "sql_args": ["scenic_byway", 0.7],
       "sql_ok": true,
       "returned": [
         "brp-south",
@@ -867,15 +682,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE length_mi <= ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        20
-      ],
+      "sql_args": [20],
       "sql_ok": true,
-      "returned": [
-        "ca-mulholland",
-        "nc107-whitewater",
-        "us129-deals-gap"
-      ],
+      "returned": ["ca-mulholland", "nc107-whitewater", "us129-deals-gap"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -907,14 +716,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND state = ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "adventure",
-        "UT"
-      ],
+      "sql_args": ["adventure", "UT"],
       "sql_ok": true,
-      "returned": [
-        "ut-bdr-segment"
-      ],
+      "returned": ["ut-bdr-segment"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -946,14 +750,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND length_mi >= ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "mountain",
-        40
-      ],
+      "sql_args": ["mountain", 40],
       "sql_ok": true,
-      "returned": [
-        "mt2-glacier"
-      ],
+      "returned": ["mt2-glacier"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -985,18 +784,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND season = ? AND curvature_score >= ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "twisties",
-        "year_round",
-        0.7
-      ],
+      "sql_args": ["twisties", "year_round", 0.7],
       "sql_ok": true,
-      "returned": [
-        "ca-mulholland",
-        "ca36-mad-river",
-        "nc107-whitewater",
-        "us129-deals-gap"
-      ],
+      "returned": ["ca-mulholland", "ca36-mad-river", "nc107-whitewater", "us129-deals-gap"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -1028,16 +818,9 @@
         "sort_by": "curvature"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND curvature_score >= ? ORDER BY curvature_score DESC LIMIT 10",
-      "sql_args": [
-        "twisties",
-        0.9
-      ],
+      "sql_args": ["twisties", 0.9],
       "sql_ok": true,
-      "returned": [
-        "us129-deals-gap",
-        "ca-mulholland",
-        "ca36-mad-river"
-      ],
+      "returned": ["us129-deals-gap", "ca-mulholland", "ca36-mad-river"],
       "metrics": {
         "precision": 1.0,
         "recall": 0.6,
@@ -1069,9 +852,7 @@
         "sort_by": "scenic"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE scenic_score >= ? ORDER BY scenic_score DESC LIMIT 10",
-      "sql_args": [
-        0.7
-      ],
+      "sql_args": [0.7],
       "sql_ok": true,
       "returned": [
         "mt2-glacier",
@@ -1116,10 +897,7 @@
         "sort_by": "remoteness"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE traffic_score >= ? AND remoteness_score >= ? ORDER BY remoteness_score DESC LIMIT 10",
-      "sql_args": [
-        0.8,
-        0.8
-      ],
+      "sql_args": [0.8, 0.8],
       "sql_ok": true,
       "returned": [
         "nv-extraterrestrial",
@@ -1160,9 +938,7 @@
         "sort_by": "length"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE length_mi >= ? ORDER BY length_mi DESC LIMIT 10",
-      "sql_args": [
-        80
-      ],
+      "sql_args": [80],
       "sql_ok": true,
       "returned": [
         "wa101-olympic",
@@ -1204,9 +980,7 @@
         "sort_by": "technical"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE technical_score >= ? ORDER BY technical_score DESC LIMIT 10",
-      "sql_args": [
-        0.7
-      ],
+      "sql_args": [0.7],
       "sql_ok": true,
       "returned": [
         "us129-deals-gap",
@@ -1250,16 +1024,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE technical_score <= ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        0.4
-      ],
+      "sql_args": [0.4],
       "sql_ok": true,
-      "returned": [
-        "id75-sawtooth",
-        "nv-extraterrestrial",
-        "vt100-mad-river",
-        "wa101-olympic"
-      ],
+      "returned": ["id75-sawtooth", "nv-extraterrestrial", "vt100-mad-river", "wa101-olympic"],
       "metrics": {
         "precision": 1.0,
         "recall": 0.571,
@@ -1291,16 +1058,9 @@
         "sort_by": "curvature"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND curvature_score >= ? ORDER BY curvature_score DESC LIMIT 10",
-      "sql_args": [
-        "mountain",
-        0.7
-      ],
+      "sql_args": ["mountain", 0.7],
       "sql_ok": true,
-      "returned": [
-        "co82-independence",
-        "co550-million",
-        "mt2-glacier"
-      ],
+      "returned": ["co82-independence", "co550-million", "mt2-glacier"],
       "metrics": {
         "precision": 1.0,
         "recall": 0.75,

@@ -56,7 +56,7 @@ const pickSemanticHex = (semantic: ExtendedTheme['semantic'], key: string): stri
 const pickSemanticColor = (
   semantic: ExtendedTheme['semantic'],
   colorKey: string,
-  stateKey: string = 'default'
+  stateKey: string = 'default',
 ): string | undefined => {
   const record = semantic.color as unknown as Record<string, unknown>
   const colorGroup = record[colorKey]

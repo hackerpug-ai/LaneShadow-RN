@@ -1,10 +1,10 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { ProtomapsError } from '../../../../lib/errors/protomaps'
 import {
   createProtomapsProvider,
-  getProtomapsUrl,
   getProtomapsPresignedUrl,
+  getProtomapsUrl,
 } from '../protomapsProvider'
-import { ProtomapsError } from '../../../../lib/errors/protomaps'
 
 // Mock PMTiles module - use a class to ensure methods are properly attached
 vi.mock('pmtiles', () => {
@@ -107,7 +107,8 @@ describe('Protomaps Provider', () => {
     })
 
     it('returns direct URL when R2 URL but missing some credentials', async () => {
-      process.env.PROTOMAPS_US_URL = 'https://account.r2.cloudflarestorage.com/laneshadow/map-data/us.pmtiles'
+      process.env.PROTOMAPS_US_URL =
+        'https://account.r2.cloudflarestorage.com/laneshadow/map-data/us.pmtiles'
       process.env.R2_S3_API = 'https://endpoint.r2.cloudflarestorage.com'
       // Missing R2_S3_KEY_ID, R2_S3_SECRET, R2_S3_BUCKET_NAME - should fall back to direct URL
 
@@ -160,7 +161,7 @@ describe('Protomaps Provider', () => {
 
       const mockFeature = createMockFeature(
         { id: 1, name: 'Scenic Overlook', tourism: 'viewpoint' },
-        [{ x: 2048, y: 2048 }]
+        [{ x: 2048, y: 2048 }],
       )
 
       setupMockLayer('pois', [mockFeature], 4096)
@@ -175,15 +176,13 @@ describe('Protomaps Provider', () => {
     it('should filter by type (viewpoint, peak, pass)', async () => {
       const provider = createProtomapsProvider('https://example.com/test.pmtiles')
 
-      const mockViewpoint = createMockFeature(
-        { id: 1, name: 'Viewpoint', tourism: 'viewpoint' },
-        [{ x: 1000, y: 1000 }]
-      )
+      const mockViewpoint = createMockFeature({ id: 1, name: 'Viewpoint', tourism: 'viewpoint' }, [
+        { x: 1000, y: 1000 },
+      ])
 
-      const mockPeak = createMockFeature(
-        { id: 2, name: 'Mountain Peak', natural: 'peak' },
-        [{ x: 2000, y: 2000 }]
-      )
+      const mockPeak = createMockFeature({ id: 2, name: 'Mountain Peak', natural: 'peak' }, [
+        { x: 2000, y: 2000 },
+      ])
 
       setupMockLayer('pois', [mockViewpoint])
       setupMockLayer('natural', [mockPeak])
@@ -249,13 +248,10 @@ describe('Protomaps Provider', () => {
     it('should return roads within bbox', async () => {
       const provider = createProtomapsProvider('https://example.com/test.pmtiles')
 
-      const mockRoad = createMockFeature(
-        { id: 1, name: 'Main Street', highway: 'residential' },
-        [
-          { x: 0, y: 0 },
-          { x: 1000, y: 1000 },
-        ]
-      )
+      const mockRoad = createMockFeature({ id: 1, name: 'Main Street', highway: 'residential' }, [
+        { x: 0, y: 0 },
+        { x: 1000, y: 1000 },
+      ])
 
       setupMockLayer('roads', [mockRoad], 4096)
 
@@ -269,20 +265,17 @@ describe('Protomaps Provider', () => {
     it('should filter by highway class', async () => {
       const provider = createProtomapsProvider('https://example.com/test.pmtiles')
 
-      const mockPrimary = createMockFeature(
-        { id: 1, name: 'Primary Road', highway: 'primary' },
-        [
-          { x: 0, y: 0 },
-          { x: 1000, y: 1000 },
-        ]
-      )
+      const mockPrimary = createMockFeature({ id: 1, name: 'Primary Road', highway: 'primary' }, [
+        { x: 0, y: 0 },
+        { x: 1000, y: 1000 },
+      ])
 
       const mockResidential = createMockFeature(
         { id: 2, name: 'Residential Street', highway: 'residential' },
         [
           { x: 500, y: 500 },
           { x: 1500, y: 1500 },
-        ]
+        ],
       )
 
       setupMockLayer('roads', [mockPrimary, mockResidential], 4096)
@@ -306,7 +299,7 @@ describe('Protomaps Provider', () => {
         [
           { x: 0, y: 0 },
           { x: 1000, y: 1000 },
-        ]
+        ],
       )
 
       setupMockLayer('roads', [mockRoad], 4096)
@@ -352,13 +345,10 @@ describe('Protomaps Provider', () => {
     it('should find roads by exact name match', async () => {
       const provider = createProtomapsProvider('https://example.com/test.pmtiles')
 
-      const mockRoad = createMockFeature(
-        { id: 1, name: 'Highway 1', highway: 'primary' },
-        [
-          { x: 0, y: 0 },
-          { x: 1000, y: 1000 },
-        ]
-      )
+      const mockRoad = createMockFeature({ id: 1, name: 'Highway 1', highway: 'primary' }, [
+        { x: 0, y: 0 },
+        { x: 1000, y: 1000 },
+      ])
 
       setupMockLayer('roads', [mockRoad], 4096)
 
@@ -379,16 +369,13 @@ describe('Protomaps Provider', () => {
         [
           { x: 0, y: 0 },
           { x: 1000, y: 1000 },
-        ]
+        ],
       )
 
-      const mockRoad2 = createMockFeature(
-        { id: 2, name: 'Highway 101', highway: 'secondary' },
-        [
-          { x: 500, y: 500 },
-          { x: 1500, y: 1500 },
-        ]
-      )
+      const mockRoad2 = createMockFeature({ id: 2, name: 'Highway 101', highway: 'secondary' }, [
+        { x: 500, y: 500 },
+        { x: 1500, y: 1500 },
+      ])
 
       setupMockLayer('roads', [mockRoad1, mockRoad2], 4096)
 
@@ -409,13 +396,10 @@ describe('Protomaps Provider', () => {
     it('should handle no results', async () => {
       const provider = createProtomapsProvider('https://example.com/test.pmtiles')
 
-      const mockRoad = createMockFeature(
-        { id: 1, name: 'Main Street', highway: 'residential' },
-        [
-          { x: 0, y: 0 },
-          { x: 1000, y: 1000 },
-        ]
-      )
+      const mockRoad = createMockFeature({ id: 1, name: 'Main Street', highway: 'residential' }, [
+        { x: 0, y: 0 },
+        { x: 1000, y: 1000 },
+      ])
 
       setupMockLayer('roads', [mockRoad], 4096)
 
@@ -436,7 +420,7 @@ describe('Protomaps Provider', () => {
 
       const mockFeature = createMockFeature(
         { id: 1, name: 'Test Point', tourism: 'viewpoint' },
-        [{ x: 2048, y: 2048 }] // Center of tile for extent 4096
+        [{ x: 2048, y: 2048 }], // Center of tile for extent 4096
       )
 
       setupMockLayer('pois', [mockFeature], 4096)
@@ -461,7 +445,7 @@ describe('Protomaps Provider', () => {
       // Test with extent 4096
       const mockFeature4096 = createMockFeature(
         { id: 1, name: 'Point 4096', tourism: 'viewpoint' },
-        [{ x: 2048, y: 2048 }]
+        [{ x: 2048, y: 2048 }],
       )
 
       setupMockLayer('pois', [mockFeature4096], 4096)
@@ -474,7 +458,7 @@ describe('Protomaps Provider', () => {
       // Test with extent 8192
       const mockFeature8192 = createMockFeature(
         { id: 2, name: 'Point 8192', tourism: 'viewpoint' },
-        [{ x: 4096, y: 4096 }]
+        [{ x: 4096, y: 4096 }],
       )
 
       setupMockLayer('pois', [mockFeature8192], 8192)

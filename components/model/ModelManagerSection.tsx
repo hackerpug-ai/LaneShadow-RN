@@ -8,9 +8,9 @@
  * Design: Card-based layout with subtle gradients and clear action hierarchy
  */
 
-import React from 'react'
-import { View, StyleSheet, ScrollView } from 'react-native'
-import { Text, Card, Button, IconButton } from 'react-native-paper'
+import type React from 'react'
+import { ScrollView, StyleSheet, View } from 'react-native'
+import { Button, Card, IconButton, Text } from 'react-native-paper'
 import { formatBytes } from './formatters'
 
 interface ModelMetadata {
@@ -72,9 +72,7 @@ export const ModelManagerSection: React.FC<ModelManagerSectionProps> = ({
             <View style={styles.statusInfo}>
               <Text style={styles.statusLabel}>Status</Text>
               <View style={styles.statusBadge}>
-                <View
-                  style={[styles.statusDot, { backgroundColor: getStatusColor() }]}
-                />
+                <View style={[styles.statusDot, { backgroundColor: getStatusColor() }]} />
                 <Text style={[styles.statusText, { color: getStatusColor() }]}>
                   {getStatusText()}
                 </Text>
@@ -105,23 +103,17 @@ export const ModelManagerSection: React.FC<ModelManagerSectionProps> = ({
 
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Size</Text>
-              <Text style={styles.infoValue}>
-                {formatBytes(modelMetadata.sizeBytes)}
-              </Text>
+              <Text style={styles.infoValue}>{formatBytes(modelMetadata.sizeBytes)}</Text>
             </View>
 
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Downloaded</Text>
-              <Text style={styles.infoValue}>
-                {formatDate(modelMetadata.downloadDate)}
-              </Text>
+              <Text style={styles.infoValue}>{formatDate(modelMetadata.downloadDate)}</Text>
             </View>
 
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Last Validated</Text>
-              <Text style={styles.infoValue}>
-                {formatDate(modelMetadata.lastValidated)}
-              </Text>
+              <Text style={styles.infoValue}>{formatDate(modelMetadata.lastValidated)}</Text>
             </View>
 
             <View style={styles.infoRow}>
@@ -185,12 +177,11 @@ export const ModelManagerSection: React.FC<ModelManagerSectionProps> = ({
             <Text style={styles.infoTitle}>About your AI Companion</Text>
           </View>
           <Text style={styles.infoText}>
-            Your AI Companion is a local model that powers ride planning features.
-            It runs entirely on your device — no data is sent to the cloud.
+            Your AI Companion is a local model that powers ride planning features. It runs entirely
+            on your device — no data is sent to the cloud.
           </Text>
           <Text style={styles.infoText}>
-            The model is approximately 400MB and requires periodic updates for
-            improved performance.
+            The model is approximately 400MB and requires periodic updates for improved performance.
           </Text>
         </Card.Content>
       </Card>

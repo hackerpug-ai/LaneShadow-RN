@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { RouteIndex, RouteSnapshot } from '../../../../../models/saved-routes'
 import { mapConditions } from '../mapConditions'
 
@@ -34,7 +34,7 @@ const index: RouteIndex = {
 describe('mapConditions reliability', () => {
   it('throws deterministic error code when no probed points are provided', async () => {
     await expect(
-      mapConditions({ routeSnapshot: snapshot, routeIndex: index, probed: [] })
+      mapConditions({ routeSnapshot: snapshot, routeIndex: index, probed: [] }),
     ).rejects.toThrow('CONDITIONS_LOOKUP_FAILED')
   })
 })

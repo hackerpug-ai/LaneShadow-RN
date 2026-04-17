@@ -60,7 +60,9 @@ export const RenameRouteDialog = ({
             Cancel
           </Button>
           <Button
-            onPress={() => { if (canSave) onRename(trimmed) }}
+            onPress={() => {
+              if (canSave) onRename(trimmed)
+            }}
             disabled={!canSave}
             testID={`${testID}-save`}
             textColor={canSave ? semantic.color.primary.default : semantic.color.onSurface.disabled}

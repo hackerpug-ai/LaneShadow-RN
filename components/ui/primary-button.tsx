@@ -5,10 +5,10 @@
  * Follows the design system button patterns
  */
 
-import { IconSymbol, type IconName } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
+import { type IconName, IconSymbol } from './icon-symbol'
 
 export type PrimaryButtonProps = {
   /** Button text */
@@ -44,9 +44,7 @@ export const PrimaryButton = ({
     ? semantic.color.primary.disabled
     : semantic.color.primary.default
 
-  const glowColor = disabled
-    ? 'transparent'
-    : 'rgba(184, 115, 50, 0.4)'
+  const glowColor = disabled ? 'transparent' : 'rgba(184, 115, 50, 0.4)'
 
   return (
     <View
@@ -64,21 +62,11 @@ export const PrimaryButton = ({
       ]}
     >
       {loading ? (
-        <Text style={[styles.text, { color: semantic.color.onPrimary.default }]}>
-          Loading...
-        </Text>
+        <Text style={[styles.text, { color: semantic.color.onPrimary.default }]}>Loading...</Text>
       ) : (
         <View style={styles.content}>
-          {icon && (
-            <IconSymbol
-              name={icon}
-              size={20}
-              color={semantic.color.onPrimary.default}
-            />
-          )}
-          <Text style={[styles.text, { color: semantic.color.onPrimary.default }]}>
-            {children}
-          </Text>
+          {icon && <IconSymbol name={icon} size={20} color={semantic.color.onPrimary.default} />}
+          <Text style={[styles.text, { color: semantic.color.onPrimary.default }]}>{children}</Text>
         </View>
       )}
     </View>

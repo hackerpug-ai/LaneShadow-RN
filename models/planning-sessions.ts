@@ -1,16 +1,17 @@
-import { Infer, v } from 'convex/values'
+import { type Infer, v } from 'convex/values'
 
 export const PLANNING_SESSION_STATUS = {
   ACTIVE: 'active',
   COMPLETED: 'completed',
   ARCHIVED: 'archived',
 } as const
-export type PlanningSessionStatus = (typeof PLANNING_SESSION_STATUS)[keyof typeof PLANNING_SESSION_STATUS]
+export type PlanningSessionStatus =
+  (typeof PLANNING_SESSION_STATUS)[keyof typeof PLANNING_SESSION_STATUS]
 
 export const planningSessionStatusValidator = v.union(
   v.literal('active'),
   v.literal('completed'),
-  v.literal('archived')
+  v.literal('archived'),
 )
 
 export const lastKnownLocationValidator = v.object({

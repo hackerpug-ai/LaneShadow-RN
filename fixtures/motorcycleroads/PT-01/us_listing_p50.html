@@ -1551,7 +1551,7 @@
 
     			 		      <div id="DSlot4" style="text-align:center"> 
                       <script>
-                       googletag.cmd.push(function() {
+                       googletag.cmd.push(() => {
                          googletag.display('DSlot4');
                        });
                       </script> 
@@ -2289,8 +2289,8 @@ We have a beautiful located near Kings Mountain that is a great…</div></div><d
     <script type="text/javascript" src="https://motorcycleroads.atlassian.net/s/d41d8cd98f00b204e9800998ecf8427e-T/-qb22sg/b/18/a44af77267a987a660377e5c46e0fb64/_/download/batch/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector.js?locale=en-US&collectorId=fad4355b" async></script>
     <script type="text/javascript" async>
       window.ATL_JQ_PAGE_PROPS = {
-        "triggerFunction": function(showCollectorDialog) {
-          jQuery(".myFeedbackTrigger").click(function(e) {
+        "triggerFunction": (showCollectorDialog) => {
+          jQuery(".myFeedbackTrigger").click((e) => {
             e.preventDefault();
             showCollectorDialog();
           });
@@ -2303,16 +2303,16 @@ We have a beautiful located near Kings Mountain that is a great…</div></div><d
         background-color: #870000;
       }
       #atlwdg-frame .aui-message.hint, #atlwdg-frame .aui-message-hint,#atlwdg-frame .aui-message.info,#atlwdg-frame .aui-message-info{
-        border-color: #870000 !important;
+        border-color: #870000;
       }
       #atlwdg-frame .aui-message.hint:before,#atlwdg-frame .aui-message-hint:before, #atlwdg-frame .aui-message.info:before, #atlwdg-frame .aui-message-info:before{
-        background-color: #870000!important;
+        background-color: #870000;
       }
       #atlwdg-frame .aui-button.aui-button-primary,#atlwdg-frame .aui-button.aui-button-primary:visited {
-        background: #870000!important;
+        background: #870000;
       }
       #atlwdg-frame .collector-dialog a {
-        color: #870000!important;
+        color: #870000;
         text-decoration: none;
       }
     </style>
@@ -2327,13 +2327,13 @@ We have a beautiful located near Kings Mountain that is a great…</div></div><d
 
 
         <div id="fb-root"></div>
-    <script async>(function(d, s, id) {
+    <script async>(((d, s, id) => {
       var js, fjs = d.getElementsByTagName(s)[0];
       if (d.getElementById(id)) return;
       js = d.createElement(s); js.id = id;
       js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0";
       fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));</script>
+    })(document, 'script', 'facebook-jssdk'));</script>
 
     <!--- UNDERDOGMEDIA EDGE_MotorcycleRoads.com --->
     <script data-cfasync="false" language="javascript" async src="//udmserve.net/udm/img.fetch?sid=16063;tid=1;dt=6;" async></script>
@@ -2342,7 +2342,7 @@ We have a beautiful located near Kings Mountain that is a great…</div></div><d
 
         <div id='dt_13473328'>
     <script type='text/javascript' async>
-      apntag.anq.push(function() {apntag.showTag('dt_13473328'); });
+      apntag.anq.push(() => {apntag.showTag('dt_13473328'); });
     </script>
   </div>
   </html>

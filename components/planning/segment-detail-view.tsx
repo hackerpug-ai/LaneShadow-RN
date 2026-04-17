@@ -11,12 +11,12 @@
 import { useState } from 'react'
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { IconSymbol } from '../ui/icon-symbol'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import type { RouteLeg, RouteOverlays } from '../../models/saved-routes'
+import { IconSymbol } from '../ui/icon-symbol'
 import { RainBadge } from '../ui/rain-badge'
 import { TemperatureBadge } from '../ui/temperature-badge'
 import { WindBadge } from './wind-badge'
-import type { RouteLeg, RouteOverlays } from '../../models/saved-routes'
 
 export type SegmentDetailViewProps = {
   /** Route legs to display as segments */
@@ -71,10 +71,7 @@ const getLegTemperatureLevel = (overlays: RouteOverlays, legIndex: number): stri
 /**
  * Check if a leg has concerning weather that should be highlighted
  */
-const hasConcerningWeather = (
-  overlays: RouteOverlays,
-  legIndex: number
-): boolean => {
+const hasConcerningWeather = (overlays: RouteOverlays, legIndex: number): boolean => {
   const rainLevel = getLegRainLevel(overlays, legIndex)
   const windLevel = getLegWindLevel(overlays, legIndex)
   const tempLevel = getLegTemperatureLevel(overlays, legIndex)
@@ -149,9 +146,7 @@ const SegmentRow = ({
       )}
 
       {/* Leg number */}
-      <Text style={styles.legNumber}>
-        {legIndex + 1}
-      </Text>
+      <Text style={styles.legNumber}>{legIndex + 1}</Text>
 
       {/* Distance and duration */}
       <Text style={styles.distance}>
@@ -161,16 +156,10 @@ const SegmentRow = ({
       {/* Weather badges */}
       <View style={styles.weatherBadges}>
         {rainLevel !== 'none' && (
-          <RainBadge
-            rainSummary={rainLevel as any}
-            testID={`segment-row-${legIndex}-rain-badge`}
-          />
+          <RainBadge rainSummary={rainLevel as any} testID={`segment-row-${legIndex}-rain-badge`} />
         )}
         {windLevel !== 'low' && (
-          <WindBadge
-            windLevel={windLevel as any}
-            testID={`segment-row-${legIndex}-wind-badge`}
-          />
+          <WindBadge windLevel={windLevel as any} testID={`segment-row-${legIndex}-wind-badge`} />
         )}
         {tempLevel !== 'mild' && (
           <TemperatureBadge
@@ -231,12 +220,7 @@ export const SegmentDetailView = ({
       {isExpanded && (
         <ScrollView style={styles.segmentsList}>
           {legs.map((leg) => (
-            <SegmentRow
-              key={leg.legIndex}
-              leg={leg}
-              overlays={overlays}
-              legIndex={leg.legIndex}
-            />
+            <SegmentRow key={leg.legIndex} leg={leg} overlays={overlays} legIndex={leg.legIndex} />
           ))}
         </ScrollView>
       )}

@@ -8,12 +8,12 @@
 
 import { LinearGradient } from 'expo-linear-gradient'
 import type { ReactNode } from 'react'
-import { StyleSheet, View, type ColorValue, type StyleProp, type ViewStyle } from 'react-native'
+import { type ColorValue, type StyleProp, StyleSheet, View, type ViewStyle } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Button } from '../ui/button'
-import { IconName, IconSymbol } from '../ui/icon-symbol'
+import { type IconName, IconSymbol } from '../ui/icon-symbol'
 
 type Action = {
   icon: IconName

@@ -16,17 +16,17 @@
  * - useSemanticTheme is stubbed with a minimal token set
  */
 
-import { vi, describe, it, expect, beforeEach } from 'vitest'
+import { fireEvent, render } from '@testing-library/react-native'
 import React from 'react'
-import { render, fireEvent } from '@testing-library/react-native'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtendedTheme } from '../../styles/types'
 
 // ---------------------------------------------------------------------------
 // Import after mocks
 // ---------------------------------------------------------------------------
 
-import { RouteAttachmentCard } from './route-attachment-card'
 import type { PlannedRouteOptionsView } from '../../types/routes'
+import { RouteAttachmentCard } from './route-attachment-card'
 
 // ---------------------------------------------------------------------------
 // Mock: react-native-maps
@@ -55,9 +55,9 @@ vi.mock('../chat/cards/route-mini-map', () => ({
     if (!overviewGeometry || !bounds) return null
     return React.createElement('View', {
       testID: testID || 'route-mini-map',
-      style: { height: 120, width: '100%' }
+      style: { height: 120, width: '100%' },
     })
-  }
+  },
 }))
 
 // ---------------------------------------------------------------------------
@@ -66,7 +66,13 @@ vi.mock('../chat/cards/route-mini-map', () => ({
 
 const mockSemantic = {
   color: {
-    primary: { default: '#B87333', hover: '#C98544', pressed: '#9A6229', disabled: '#4A4458', focus: '#B87333' },
+    primary: {
+      default: '#B87333',
+      hover: '#C98544',
+      pressed: '#9A6229',
+      disabled: '#4A4458',
+      focus: '#B87333',
+    },
     secondary: { default: '#625B71' },
     tertiary: { default: '#7D5260' },
     success: { default: '#22c55e' },
@@ -133,7 +139,12 @@ const createMockRoute = (withMapData = true): PlannedRouteOptionsView['options']
       end: { lat: 37.7849, lng: -122.4094, label: 'Mid', placeId: 'mid' },
       distanceMeters: 2000,
       durationSeconds: 600,
-      geometry: { format: 'polyline' as const, encoding: 'google', precision: 5, value: 'encoded_leg_1' },
+      geometry: {
+        format: 'polyline' as const,
+        encoding: 'google',
+        precision: 5,
+        value: 'encoded_leg_1',
+      },
       legIndex: 0,
       steps: [],
     },
@@ -142,7 +153,12 @@ const createMockRoute = (withMapData = true): PlannedRouteOptionsView['options']
       end: { lat: 37.7949, lng: -122.3994, label: 'End', placeId: 'end' },
       distanceMeters: 3000,
       durationSeconds: 1200,
-      geometry: { format: 'polyline' as const, encoding: 'google', precision: 5, value: 'encoded_leg_2' },
+      geometry: {
+        format: 'polyline' as const,
+        encoding: 'google',
+        precision: 5,
+        value: 'encoded_leg_2',
+      },
       legIndex: 1,
       steps: [],
     },
@@ -165,7 +181,12 @@ const createMockRoute = (withMapData = true): PlannedRouteOptionsView['options']
         west: -122.4194,
       },
       overviewGeometry: withMapData
-        ? { format: 'polyline' as const, encoding: 'google', precision: 5, value: 'encoded_polyline_string' }
+        ? {
+            format: 'polyline' as const,
+            encoding: 'google',
+            precision: 5,
+            value: 'encoded_polyline_string',
+          }
         : { format: 'polyline' as const, encoding: 'google', precision: 5, value: '' },
       legs,
     },
@@ -236,7 +257,7 @@ describe('RouteAttachmentCard - Mini-map Integration (US-061)', () => {
     it('should not render mini-map when overviewGeometry is empty', () => {
       const routeWithoutMap = createMockRoute(false)
       const { queryByTestId } = render(
-        <RouteAttachmentCard {...defaultProps} route={routeWithoutMap} />
+        <RouteAttachmentCard {...defaultProps} route={routeWithoutMap} />,
       )
 
       expect(queryByTestId('test-route-card-mini-map')).toBeNull()
@@ -245,7 +266,7 @@ describe('RouteAttachmentCard - Mini-map Integration (US-061)', () => {
     it('should still render route label without map data', () => {
       const routeWithoutMap = createMockRoute(false)
       const { getByText } = render(
-        <RouteAttachmentCard {...defaultProps} route={routeWithoutMap} />
+        <RouteAttachmentCard {...defaultProps} route={routeWithoutMap} />,
       )
 
       expect(getByText('Via Downtown')).toBeTruthy()
@@ -254,7 +275,7 @@ describe('RouteAttachmentCard - Mini-map Integration (US-061)', () => {
     it('should still render stats without map data', () => {
       const routeWithoutMap = createMockRoute(false)
       const { getByText } = render(
-        <RouteAttachmentCard {...defaultProps} route={routeWithoutMap} />
+        <RouteAttachmentCard {...defaultProps} route={routeWithoutMap} />,
       )
 
       expect(getByText(/3.1mi/)).toBeTruthy()
@@ -276,7 +297,7 @@ describe('RouteAttachmentCard - Mini-map Integration (US-061)', () => {
           onSelect={onSelect}
           onViewOnMap={onViewOnMap}
           variant="full"
-        />
+        />,
       )
 
       const card = getByTestId('test-route-card')
@@ -288,11 +309,7 @@ describe('RouteAttachmentCard - Mini-map Integration (US-061)', () => {
     it('should call onViewOnMap when tapping card in full variant', () => {
       const onViewOnMap = vi.fn()
       const { getByTestId } = render(
-        <RouteAttachmentCard
-          {...defaultProps}
-          onViewOnMap={onViewOnMap}
-          variant="full"
-        />
+        <RouteAttachmentCard {...defaultProps} onViewOnMap={onViewOnMap} variant="full" />,
       )
 
       const card = getByTestId('test-route-card')
@@ -308,17 +325,13 @@ describe('RouteAttachmentCard - Mini-map Integration (US-061)', () => {
    */
   describe('AC4: Selected state with mini-map', () => {
     it('should still render mini-map when card is selected', () => {
-      const { getByTestId } = render(
-        <RouteAttachmentCard {...defaultProps} isSelected={true} />
-      )
+      const { getByTestId } = render(<RouteAttachmentCard {...defaultProps} isSelected={true} />)
 
       expect(getByTestId('test-route-card-mini-map')).toBeTruthy()
     })
 
     it('should show selected border style when selected', () => {
-      const { getByTestId } = render(
-        <RouteAttachmentCard {...defaultProps} isSelected={true} />
-      )
+      const { getByTestId } = render(<RouteAttachmentCard {...defaultProps} isSelected={true} />)
 
       const card = getByTestId('test-route-card')
       expect(card).toBeTruthy()
@@ -331,17 +344,13 @@ describe('RouteAttachmentCard - Mini-map Integration (US-061)', () => {
    */
   describe('AC5: Unselected state with mini-map', () => {
     it('should still render mini-map when card is not selected', () => {
-      const { getByTestId } = render(
-        <RouteAttachmentCard {...defaultProps} isSelected={false} />
-      )
+      const { getByTestId } = render(<RouteAttachmentCard {...defaultProps} isSelected={false} />)
 
       expect(getByTestId('test-route-card-mini-map')).toBeTruthy()
     })
 
     it('should show default border style when not selected', () => {
-      const { getByTestId } = render(
-        <RouteAttachmentCard {...defaultProps} isSelected={false} />
-      )
+      const { getByTestId } = render(<RouteAttachmentCard {...defaultProps} isSelected={false} />)
 
       const card = getByTestId('test-route-card')
       expect(card).toBeTruthy()
@@ -364,17 +373,9 @@ describe('RouteAttachmentCard - Mini-map Integration (US-061)', () => {
 
       const { getByTestId } = render(
         <>
-          <RouteAttachmentCard
-            {...defaultProps}
-            route={route1}
-            testID="route-card-1"
-          />
-          <RouteAttachmentCard
-            {...defaultProps}
-            route={route2}
-            testID="route-card-2"
-          />
-        </>
+          <RouteAttachmentCard {...defaultProps} route={route1} testID="route-card-1" />
+          <RouteAttachmentCard {...defaultProps} route={route2} testID="route-card-2" />
+        </>,
       )
 
       expect(getByTestId('route-card-1-mini-map')).toBeTruthy()

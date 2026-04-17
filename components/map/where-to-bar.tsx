@@ -35,7 +35,7 @@ export const WhereToBar = ({ onPlaceSelected, onClear }: WhereToBarProps) => {
       setShouldShowSuggestions(false)
       onPlaceSelected(details)
     },
-    [clear, onPlaceSelected, selectPlace]
+    [clear, onPlaceSelected, selectPlace],
   )
 
   return (

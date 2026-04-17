@@ -5,14 +5,8 @@
   "vibe": "Rugged, industrial-warm, copper-accented, dark-first, utilitarian motorcycle aesthetic with glassmorphic overlays",
   "spec": "epics/epic-1/PRD.md",
   "paradigm": "epics/epic-1/designs/paradigm.yaml",
-  "references": [
-    "epics/epic-1/designs/mocks/",
-    "epics/epic-1/designs/legacy/TOKENS.md"
-  ],
-  "platforms": [
-    "mobile-ios",
-    "mobile-android"
-  ],
+  "references": ["epics/epic-1/designs/mocks/", "epics/epic-1/designs/legacy/TOKENS.md"],
+  "platforms": ["mobile-ios", "mobile-android"],
   "tools": {
     "framework": "expo",
     "framework_docs": "https://docs.expo.dev",
@@ -309,7 +303,14 @@
       "file": "components/screens/route-options-screen.tsx",
       "story": "stories/screens/RouteOptionsScreen.stories.tsx",
       "status": "verified",
-      "atoms": ["RouteOptionCard", "WeatherPill", "StatRow", "RouteBadge", "PrimaryButton", "SectionHeader"]
+      "atoms": [
+        "RouteOptionCard",
+        "WeatherPill",
+        "StatRow",
+        "RouteBadge",
+        "PrimaryButton",
+        "SectionHeader"
+      ]
     },
     {
       "name": "SavedRoutesScreen",

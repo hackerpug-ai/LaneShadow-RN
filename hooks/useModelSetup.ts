@@ -12,18 +12,27 @@
  * - CLR-004: Download progress tracking with resume capability
  */
 
-import { useCallback, useEffect, useState } from 'react'
 import * as FileSystem from 'expo-file-system/legacy'
+import { useCallback, useEffect, useState } from 'react'
 import { ChecksumValidator } from '../lib/ai/checksum'
+import {
+  GatekeeperDownloadManager,
+  type ModelDownloadProgress,
+} from '../lib/model/download-manager'
 import { ModelGatekeeper, type ModelGatekeeperStatus } from '../lib/model/gatekeeper'
-import { GatekeeperDownloadManager, type ModelDownloadProgress } from '../lib/model/download-manager'
 import { toast } from '../lib/toast-config'
 import { useDownloadStore } from '../stores/download-store'
 
 const MODEL_FILE_PATH = `${FileSystem.documentDirectory!}models/qwen2.5-0.5b-instruct-q4_k_m.gguf`
 const EXPECTED_CHECKSUM = '6eb923e7d26e9cea28811e1a8e852009b21242fb157b26149d3b188f3a8c8653'
 
-export type ModelSetupStatus = 'checking' | 'required' | 'downloading' | 'valid' | 'ready' | 'corrupted'
+export type ModelSetupStatus =
+  | 'checking'
+  | 'required'
+  | 'downloading'
+  | 'valid'
+  | 'ready'
+  | 'corrupted'
 
 export interface UseModelSetupResult {
   // Current status
@@ -153,17 +162,20 @@ export const useModelSetup = (): UseModelSetupResult => {
       // Transition to downloading screen immediately, before the async download starts
       setStatus('downloading')
 
-      downloadManager.startDownload({
-        isConnected: true,
-        type: 'wifi',
-      }).then(() => {
-        setStatus('valid')
-      }).catch((error) => {
-        console.error('Error during download:', error)
-        const errorMessage = error instanceof Error ? error.message : 'Download failed'
-        toast.error(errorMessage, 'Download Error')
-        setStatus('corrupted')
-      })
+      downloadManager
+        .startDownload({
+          isConnected: true,
+          type: 'wifi',
+        })
+        .then(() => {
+          setStatus('valid')
+        })
+        .catch((error) => {
+          console.error('Error during download:', error)
+          const errorMessage = error instanceof Error ? error.message : 'Download failed'
+          toast.error(errorMessage, 'Download Error')
+          setStatus('corrupted')
+        })
 
       // Poll Zustand store for progress updates so the UI stays current
       const pollProgress = setInterval(async () => {

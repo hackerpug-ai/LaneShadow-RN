@@ -17,8 +17,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { StyleSheet, TouchableOpacity, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
-import { IconSymbol } from './icon-symbol'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol } from './icon-symbol'
 
 export type ExcludedFavorite = {
   id: string
@@ -68,7 +68,7 @@ const getAccessibilityLabel = (favorites: ExcludedFavorite[]): string => {
   const namedFavorites = favorites.filter((f) => f.name)
   const names = namedFavorites.map((f) => f.name!)
 
-  const baseMessage = 'Some favorites couldn\'t be included'
+  const baseMessage = "Some favorites couldn't be included"
   const reasonMessage = 'These favorites are too far from your route'
 
   if (names.length === 0) {
@@ -198,10 +198,7 @@ export const FavoriteExclusionAlert = ({
             Some favorites couldn&apos;t be included
           </Text>
 
-          <Text
-            variant="bodyMedium"
-            style={{ color: semantic.color.onWarningContainer.default }}
-          >
+          <Text variant="bodyMedium" style={{ color: semantic.color.onWarningContainer.default }}>
             These favorites are too far from your route: {excludedList}
           </Text>
         </View>
@@ -214,11 +211,7 @@ export const FavoriteExclusionAlert = ({
           accessibilityLabel="Dismiss"
           accessibilityRole="button"
         >
-          <IconSymbol
-            name="close"
-            size={20}
-            color={semantic.color.onWarningContainer.default}
-          />
+          <IconSymbol name="close" size={20} color={semantic.color.onWarningContainer.default} />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>

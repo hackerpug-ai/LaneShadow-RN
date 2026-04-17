@@ -1,13 +1,13 @@
 'use node'
 
-import { findScenicWaypoints, type RouteVariant } from '../tools/findScenicWaypoints'
-import { compileSketch } from '../tools/compileSketch'
-import { normalizeRoute } from '../tools/normalizeRoute'
-import { computeRouteIndex } from '../tools/computeRouteIndex'
-import { probeConditions } from '../tools/probeConditions'
-import { mapConditions } from '../tools/mapConditions'
-import { createWeatherProvider } from '../providers/weatherProvider'
 import type { PlanInput, RouteSnapshot } from '../../../../models/saved-routes'
+import { createWeatherProvider } from '../providers/weatherProvider'
+import { compileSketch } from '../tools/compileSketch'
+import { computeRouteIndex } from '../tools/computeRouteIndex'
+import { findScenicWaypoints, type RouteVariant } from '../tools/findScenicWaypoints'
+import { mapConditions } from '../tools/mapConditions'
+import { normalizeRoute } from '../tools/normalizeRoute'
+import { probeConditions } from '../tools/probeConditions'
 
 export type OrchestratorResult = {
   routeSnapshot: RouteSnapshot
@@ -60,15 +60,19 @@ export const planRideOrchestrator = async (params: {
         ? { ...planInput, preferences: variant.preferences }
         : planInput
       const providerRoute = await compileSketch({ planInput: variantPlanInput, sketch })
-      const routeSnapshot = await normalizeRoute({ providerRoute, planInput: variantPlanInput, sketch })
+      const routeSnapshot = await normalizeRoute({
+        providerRoute,
+        planInput: variantPlanInput,
+        sketch,
+      })
       return { routeSnapshot, sketch }
-    })
+    }),
   )
 
   const successful = compiled
     .filter(
       (r): r is PromiseFulfilledResult<{ routeSnapshot: RouteSnapshot; sketch: any }> =>
-        r.status === 'fulfilled'
+        r.status === 'fulfilled',
     )
     .map((r) => r.value)
 
@@ -79,7 +83,7 @@ export const planRideOrchestrator = async (params: {
   }
 
   console.info(
-    `[planRideOrchestrator] ${variants.length} variants, ${successful.length} routes compiled, ${failed.length} failed`
+    `[planRideOrchestrator] ${variants.length} variants, ${successful.length} routes compiled, ${failed.length} failed`,
   )
 
   if (successful.length === 0) {
@@ -102,19 +106,19 @@ export const planRideOrchestrator = async (params: {
         return { routeSnapshot: updatedSnapshot, sketch }
       } catch {
         console.warn(
-          '[planRideOrchestrator] conditions failed for one route, continuing without weather'
+          '[planRideOrchestrator] conditions failed for one route, continuing without weather',
         )
         return { routeSnapshot, sketch }
       }
-    })
+    }),
   )
 
   const conditionsCount = withConditions.filter(
-    (r) => r.routeSnapshot.overlays?.wind !== undefined
+    (r) => r.routeSnapshot.overlays?.wind !== undefined,
   ).length
 
   console.info(
-    `[planRideOrchestrator] ${variants.length} variants, ${successful.length} succeeded, conditions: ${conditionsCount}/${successful.length}`
+    `[planRideOrchestrator] ${variants.length} variants, ${successful.length} succeeded, conditions: ${conditionsCount}/${successful.length}`,
   )
 
   // Note: enrichRoute (US-052) will be wired in after it exists.

@@ -1,36 +1,36 @@
-import React from 'react';
+import type React from 'react'
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
   Dimensions,
   Pressable,
-} from 'react-native';
-import { IconSymbol } from './icon-symbol';
-import { useSemanticTheme } from '../../hooks/use-semantic-theme';
-import { SessionCard } from './session-card';
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol } from './icon-symbol'
+import { SessionCard } from './session-card'
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const SIDEBAR_WIDTH = SCREEN_WIDTH * 0.8;
+const SCREEN_WIDTH = Dimensions.get('window').width
+const SIDEBAR_WIDTH = SCREEN_WIDTH * 0.8
 
 export interface ChatSession {
-  id: string;
-  title: string;
-  date: Date;
-  routeCount: number;
-  status: 'active' | 'completed' | 'saved';
-  previewMessage: string;
+  id: string
+  title: string
+  date: Date
+  routeCount: number
+  status: 'active' | 'completed' | 'saved'
+  previewMessage: string
 }
 
 interface SessionSidebarProps {
-  visible: boolean;
-  sessions: ChatSession[];
-  onClose: () => void;
-  onSessionPress: (sessionId: string) => void;
-  onNewSession: () => void;
-  activeSessionId?: string;
+  visible: boolean
+  sessions: ChatSession[]
+  onClose: () => void
+  onSessionPress: (sessionId: string) => void
+  onNewSession: () => void
+  activeSessionId?: string
 }
 
 export const SessionSidebar: React.FC<SessionSidebarProps> = ({
@@ -41,40 +41,33 @@ export const SessionSidebar: React.FC<SessionSidebarProps> = ({
   onNewSession,
   activeSessionId,
 }) => {
-  const { semantic } = useSemanticTheme();
+  const { semantic } = useSemanticTheme()
 
-  if (!visible) return null;
+  if (!visible) return null
 
   const groupedSessions = {
-    today: sessions.filter(
-      (s) =>
-        new Date(s.date).toDateString() === new Date().toDateString()
-    ),
+    today: sessions.filter((s) => new Date(s.date).toDateString() === new Date().toDateString()),
     yesterday: sessions.filter(
-      (s) =>
-        new Date(s.date).toDateString() ===
-        new Date(Date.now() - 86400000).toDateString()
+      (s) => new Date(s.date).toDateString() === new Date(Date.now() - 86400000).toDateString(),
     ),
     older: sessions.filter(
       (s) =>
-        new Date(s.date).toDateString() !==
-          new Date().toDateString() &&
-        new Date(s.date).toDateString() !==
-          new Date(Date.now() - 86400000).toDateString()
+        new Date(s.date).toDateString() !== new Date().toDateString() &&
+        new Date(s.date).toDateString() !== new Date(Date.now() - 86400000).toDateString(),
     ),
-  };
+  }
 
   const formatDate = (date: Date) => {
-    const now = new Date();
-    const sessionDate = new Date(date);
-    const diffMs = now.getTime() - sessionDate.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const now = new Date()
+    const sessionDate = new Date(date)
+    const diffMs = now.getTime() - sessionDate.getTime()
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
 
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    return sessionDate.toLocaleDateString();
-  };
+    if (diffDays === 0) return 'Today'
+    if (diffDays === 1) return 'Yesterday'
+    if (diffDays < 7) return `${diffDays} days ago`
+    return sessionDate.toLocaleDateString()
+  }
 
   const renderSessionCard = (session: ChatSession) => (
     <SessionCard
@@ -84,35 +77,23 @@ export const SessionSidebar: React.FC<SessionSidebarProps> = ({
       onPress={() => onSessionPress(session.id)}
       compact={false}
     />
-  );
+  )
 
   const renderGroup = (title: string, sessions: ChatSession[]) => {
-    if (sessions.length === 0) return null;
+    if (sessions.length === 0) return null
     return (
       <View key={title} style={styles.group}>
-        <Text style={[styles.groupTitle, { color: semantic.color.onSurface.subtle }]}>
-          {title}
-        </Text>
+        <Text style={[styles.groupTitle, { color: semantic.color.onSurface.subtle }]}>{title}</Text>
         <View style={styles.groupSessions}>{sessions.map(renderSessionCard)}</View>
       </View>
-    );
-  };
+    )
+  }
 
   return (
     <View style={styles.overlay}>
-      <View
-        style={[
-          styles.sidebar,
-          { backgroundColor: semantic.color.background.default },
-        ]}
-      >
+      <View style={[styles.sidebar, { backgroundColor: semantic.color.background.default }]}>
         {/* Header */}
-        <View
-          style={[
-            styles.header,
-            { borderBottomColor: semantic.color.border.default },
-          ]}
-        >
+        <View style={[styles.header, { borderBottomColor: semantic.color.border.default }]}>
           <Text style={[styles.headerTitle, { color: semantic.color.onSurface.default }]}>
             Sessions
           </Text>
@@ -123,18 +104,22 @@ export const SessionSidebar: React.FC<SessionSidebarProps> = ({
             accessibilityRole="button"
           >
             {({ pressed }) => (
-              <View style={[styles.pressableButton, { backgroundColor: pressed ? semantic.color.primary.pressed + '20' : 'transparent' }]}>
+              <View
+                style={[
+                  styles.pressableButton,
+                  {
+                    backgroundColor: pressed
+                      ? semantic.color.primary.pressed + '20'
+                      : 'transparent',
+                  },
+                ]}
+              >
                 <IconSymbol
                   name="plus-circle-outline"
                   size={26}
                   color={semantic.color.primary.default}
                 />
-                <Text
-                  style={[
-                    styles.newSessionText,
-                    { color: semantic.color.primary.default },
-                  ]}
-                >
+                <Text style={[styles.newSessionText, { color: semantic.color.primary.default }]}>
                   New
                 </Text>
               </View>
@@ -143,20 +128,19 @@ export const SessionSidebar: React.FC<SessionSidebarProps> = ({
         </View>
 
         {/* Sessions list */}
-        <ScrollView
-          style={styles.sessionsList}
-          contentContainerStyle={styles.sessionsListContent}
-        >
+        <ScrollView style={styles.sessionsList} contentContainerStyle={styles.sessionsListContent}>
           {renderGroup('Today', groupedSessions.today)}
           {renderGroup('Yesterday', groupedSessions.yesterday)}
           {renderGroup('Older', groupedSessions.older)}
 
           {sessions.length === 0 && (
             <View style={styles.emptyState}>
-              <IconSymbol name="message-outline" size={48} color={semantic.color.onSurface.subtle} />
-              <Text
-                style={[styles.emptyStateText, { color: semantic.color.onSurface.subtle }]}
-              >
+              <IconSymbol
+                name="message-outline"
+                size={48}
+                color={semantic.color.onSurface.subtle ?? 'transparent'}
+              />
+              <Text style={[styles.emptyStateText, { color: semantic.color.onSurface.subtle }]}>
                 No sessions yet. Start a new conversation!
               </Text>
             </View>
@@ -167,12 +151,17 @@ export const SessionSidebar: React.FC<SessionSidebarProps> = ({
       {/* Backdrop */}
       <Pressable style={styles.backdrop} onPress={onClose}>
         {({ pressed }) => (
-          <View style={[styles.backdropInner, { backgroundColor: pressed ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0.5)' }]} />
+          <View
+            style={[
+              styles.backdropInner,
+              { backgroundColor: pressed ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0.5)' },
+            ]}
+          />
         )}
       </Pressable>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   overlay: {
@@ -247,4 +236,4 @@ const styles = StyleSheet.create({
   backdropInner: {
     flex: 1,
   },
-});
+})

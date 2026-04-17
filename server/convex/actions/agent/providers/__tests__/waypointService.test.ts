@@ -1,7 +1,8 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
-import type { ProviderPolylineGeometry } from '../routingProvider'
-import { findNearestPointOnPolyline, calculateDeviation } from '../waypointService'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { encodePolyline } from '../../lib/geo'
+import type { ProviderPolylineGeometry } from '../routingProvider'
+import { calculateDeviation, findNearestPointOnPolyline } from '../waypointService'
+
 vi.mock('../../../../lib/env', () => ({ GOOGLE_MAPS_API_KEY: 'test-api-key' }))
 describe('waypointService - findNearestPointOnPolyline', () => {
   const straightLinePolyline = (): ProviderPolylineGeometry => ({
@@ -73,29 +74,31 @@ describe('waypointService - calculateDeviation', () => {
   })
   const makeGoogleDetourFetch = () => {
     const json = {
-      routes: [{
-        viewport: {
-          low: { latitude: 37.0, longitude: -122.0 },
-          high: { latitude: 37.3, longitude: -121.9 },
+      routes: [
+        {
+          viewport: {
+            low: { latitude: 37.0, longitude: -122.0 },
+            high: { latitude: 37.3, longitude: -121.9 },
+          },
+          polyline: { encodedPolyline: 'DETOUR_POLYLINE' },
+          legs: [
+            {
+              distanceMeters: 15_000,
+              duration: '900s',
+              polyline: { encodedPolyline: 'LEG0_POLYLINE' },
+              startLocation: { latLng: { latitude: 37.2, longitude: -122.0 } },
+              endLocation: { latLng: { latitude: 37.2, longitude: -121.9 } },
+            },
+            {
+              distanceMeters: 15_000,
+              duration: '900s',
+              polyline: { encodedPolyline: 'LEG1_POLYLINE' },
+              startLocation: { latLng: { latitude: 37.2, longitude: -121.9 } },
+              endLocation: { latLng: { latitude: 37.2, longitude: -122.0 } },
+            },
+          ],
         },
-        polyline: { encodedPolyline: 'DETOUR_POLYLINE' },
-        legs: [
-          {
-            distanceMeters: 15_000,
-            duration: '900s',
-            polyline: { encodedPolyline: 'LEG0_POLYLINE' },
-            startLocation: { latLng: { latitude: 37.2, longitude: -122.0 } },
-            endLocation: { latLng: { latitude: 37.2, longitude: -121.9 } },
-          },
-          {
-            distanceMeters: 15_000,
-            duration: '900s',
-            polyline: { encodedPolyline: 'LEG1_POLYLINE' },
-            startLocation: { latLng: { latitude: 37.2, longitude: -121.9 } },
-            endLocation: { latLng: { latitude: 37.2, longitude: -122.0 } },
-          },
-        ],
-      }],
+      ],
     }
     return vi.fn(async () => ({
       ok: true,

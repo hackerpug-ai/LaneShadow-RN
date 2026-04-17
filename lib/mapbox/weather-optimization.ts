@@ -11,21 +11,22 @@
  */
 
 import type { FeatureCollection, LineString, Position } from 'geojson'
-import { computeCumulativeDistances, decodePolylineGeometry, slicePolylineByMeters, type MapLatLng } from '../polyline'
-import { convertCoordinateArray } from '../mapbox/coordinate-converter'
 import type {
+  RainOverlayByLeg,
   RouteLeg,
   RouteOverlays,
-  WindOverlayByLeg,
-  RainOverlayByLeg,
   TemperatureOverlayByLeg,
+  WindOverlayByLeg,
 } from '../../models/saved-routes'
-import {
-  getWindColor,
-  getRainColor,
-  getTemperatureColor,
-} from '../map/overlay-colors'
 import type { ExtendedTheme } from '../../styles/types'
+import { getRainColor, getTemperatureColor, getWindColor } from '../map/overlay-colors'
+import { convertCoordinateArray } from '../mapbox/coordinate-converter'
+import {
+  computeCumulativeDistances,
+  decodePolylineGeometry,
+  type MapLatLng,
+  slicePolylineByMeters,
+} from '../polyline'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -58,10 +59,10 @@ export interface BatchedWeatherLayer {
  * @returns Tolerance for Douglas-Peucker simplification
  */
 export const calculateLOD = (zoom: number): number => {
-  if (zoom >= 16) return 0       // Street level: no simplification
-  if (zoom >= 13) return 0.0001  // City level: light simplification
-  if (zoom >= 10) return 0.001   // Country level: moderate simplification
-  return 0.005                    // World level: heavy simplification
+  if (zoom >= 16) return 0 // Street level: no simplification
+  if (zoom >= 13) return 0.0001 // City level: light simplification
+  if (zoom >= 10) return 0.001 // Country level: moderate simplification
+  return 0.005 // World level: heavy simplification
 }
 
 // ---------------------------------------------------------------------------
@@ -71,11 +72,7 @@ export const calculateLOD = (zoom: number): number => {
 /**
  * Calculate perpendicular distance from a point to a line segment.
  */
-const perpendicularDistance = (
-  point: Position,
-  lineStart: Position,
-  lineEnd: Position,
-): number => {
+const perpendicularDistance = (point: Position, lineStart: Position, lineEnd: Position): number => {
   const dx = lineEnd[0] - lineStart[0]
   const dy = lineEnd[1] - lineStart[1]
 
@@ -99,10 +96,7 @@ const perpendicularDistance = (
  * @param tolerance - Simplification tolerance (0 = no simplification)
  * @returns Simplified array of positions
  */
-export const simplifyDouglasPeucker = (
-  points: Position[],
-  tolerance: number,
-): Position[] => {
+export const simplifyDouglasPeucker = (points: Position[], tolerance: number): Position[] => {
   if (points.length <= 2) return [...points]
   if (tolerance <= 0) return [...points]
 
@@ -158,7 +152,12 @@ const buildWindBatch = (
     const distances = computeCumulativeDistances(coords)
 
     for (const segment of overlay.segments) {
-      const sliced = slicePolylineByMeters(coords, distances, segment.startMeters, segment.endMeters)
+      const sliced = slicePolylineByMeters(
+        coords,
+        distances,
+        segment.startMeters,
+        segment.endMeters,
+      )
       if (sliced.length < 2) continue
 
       let mapboxCoords = toMapboxCoords(sliced)
@@ -210,7 +209,12 @@ const buildRainBatch = (
     const distances = computeCumulativeDistances(coords)
 
     for (const segment of overlay.segments) {
-      const sliced = slicePolylineByMeters(coords, distances, segment.startMeters, segment.endMeters)
+      const sliced = slicePolylineByMeters(
+        coords,
+        distances,
+        segment.startMeters,
+        segment.endMeters,
+      )
       if (sliced.length < 2) continue
 
       let mapboxCoords = toMapboxCoords(sliced)
@@ -265,7 +269,12 @@ const buildTemperatureBatch = (
     const distances = computeCumulativeDistances(coords)
 
     for (const segment of overlay.segments) {
-      const sliced = slicePolylineByMeters(coords, distances, segment.startMeters, segment.endMeters)
+      const sliced = slicePolylineByMeters(
+        coords,
+        distances,
+        segment.startMeters,
+        segment.endMeters,
+      )
       if (sliced.length < 2) continue
 
       let mapboxCoords = toMapboxCoords(sliced)

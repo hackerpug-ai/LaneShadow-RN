@@ -8,15 +8,15 @@
  * - Supports save functionality with loading state
  */
 
-import { IconSymbol } from '../ui/icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { PlannedRouteOptionView } from '../../types/routes'
-import { StatRow } from '../ui/stat-row'
 import { WindBadge } from '../planning/wind-badge'
 import { Button } from '../ui/button'
+import { IconSymbol } from '../ui/icon-symbol'
+import { StatRow } from '../ui/stat-row'
 import { BottomSheetWrapper } from './bottom-sheet-wrapper'
 
 /**
@@ -94,7 +94,9 @@ export const RouteDetailsSheet = ({
             ]}
           >
             <IconSymbol name="routes" size={14} color={semantic.color.primary.default} />
-            <Text style={[styles.badgeText, { color: semantic.color.primary.default }]}>{route.label}</Text>
+            <Text style={[styles.badgeText, { color: semantic.color.primary.default }]}>
+              {route.label}
+            </Text>
           </View>
         </View>
 
@@ -127,7 +129,12 @@ export const RouteDetailsSheet = ({
             >
               Route Statistics
             </Text>
-            <View style={[styles.statsCard, { backgroundColor: addOpacity(semantic.color.surface.default, 0.8) }]}>
+            <View
+              style={[
+                styles.statsCard,
+                { backgroundColor: addOpacity(semantic.color.surface.default, 0.8) },
+              ]}
+            >
               <StatRow
                 icon="map-marker-distance"
                 value={formatDistance(route.stats.distanceMeters)}
@@ -154,12 +161,14 @@ export const RouteDetailsSheet = ({
             >
               Conditions
             </Text>
-            <View style={[styles.conditionsCard, { backgroundColor: addOpacity(semantic.color.surface.default, 0.8) }]}>
+            <View
+              style={[
+                styles.conditionsCard,
+                { backgroundColor: addOpacity(semantic.color.surface.default, 0.8) },
+              ]}
+            >
               <View style={styles.conditionRow}>
-                <Text
-                  variant="bodyMedium"
-                  style={{ color: semantic.color.onSurface.default }}
-                >
+                <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.default }}>
                   Wind
                 </Text>
                 <WindBadge
@@ -168,25 +177,35 @@ export const RouteDetailsSheet = ({
                 />
               </View>
               <View style={styles.conditionRow}>
-                <Text
-                  variant="bodyMedium"
-                  style={{ color: semantic.color.onSurface.default }}
-                >
+                <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.default }}>
                   Status
                 </Text>
                 <View style={styles.statusRow}>
                   <IconSymbol
-                    name={route.overlaysPreview.conditionsStatus === 'ok' ? 'check-circle' : 'alert-circle'}
+                    name={
+                      route.overlaysPreview.conditionsStatus === 'ok'
+                        ? 'check-circle'
+                        : 'alert-circle'
+                    }
                     size={16}
-                    color={route.overlaysPreview.conditionsStatus === 'ok' ? semantic.color.success.default : semantic.color.warning.default}
+                    color={
+                      route.overlaysPreview.conditionsStatus === 'ok'
+                        ? semantic.color.success.default
+                        : semantic.color.warning.default
+                    }
                   />
                   <Text
                     variant="bodySmall"
                     style={{
-                      color: route.overlaysPreview.conditionsStatus === 'ok' ? semantic.color.success.default : semantic.color.warning.default,
+                      color:
+                        route.overlaysPreview.conditionsStatus === 'ok'
+                          ? semantic.color.success.default
+                          : semantic.color.warning.default,
                     }}
                   >
-                    {route.overlaysPreview.conditionsStatus === 'ok' ? 'Good conditions' : 'Data unavailable'}
+                    {route.overlaysPreview.conditionsStatus === 'ok'
+                      ? 'Good conditions'
+                      : 'Data unavailable'}
                   </Text>
                 </View>
               </View>

@@ -81,7 +81,7 @@ const isRetryableWeatherError = (error: unknown): boolean => {
 const fetchFullWeatherForPoint = async (
   lat: number,
   lng: number,
-  departureTimeMs: number
+  departureTimeMs: number,
 ): Promise<FullWeatherSample> => {
   const dateStr = toUtcDateString(departureTimeMs)
   const url =
@@ -97,7 +97,7 @@ const fetchFullWeatherForPoint = async (
           if (!response.ok) {
             throw markRetryable(
               new Error(`Open-Meteo request failed: ${response.status}`),
-              response.status >= 500 || response.status === 429
+              response.status >= 500 || response.status === 429,
             )
           }
           const data: any = await response.json()
@@ -137,7 +137,7 @@ const fetchFullWeatherForPoint = async (
           throw new Error('Unknown weather provider error')
         }
       },
-      { ms: DEFAULT_WEATHER_TIMEOUT_MS, label: 'weather' }
+      { ms: DEFAULT_WEATHER_TIMEOUT_MS, label: 'weather' },
     )
 
   return await retryOnce(fetchOnce, {
@@ -148,7 +148,7 @@ const fetchFullWeatherForPoint = async (
 const fetchWindForPoint = async (
   lat: number,
   lng: number,
-  departureTimeMs: number
+  departureTimeMs: number,
 ): Promise<WindSample> => {
   const dateStr = toUtcDateString(departureTimeMs)
   const url = `${OPEN_METEO_ENDPOINT}?latitude=${lat}&longitude=${lng}&hourly=windspeed_10m,winddirection_10m,windgusts_10m&timezone=UTC&start_date=${dateStr}&end_date=${dateStr}`
@@ -161,7 +161,7 @@ const fetchWindForPoint = async (
           if (!response.ok) {
             throw markRetryable(
               new Error(`Open-Meteo request failed: ${response.status}`),
-              response.status >= 500 || response.status === 429
+              response.status >= 500 || response.status === 429,
             )
           }
           const data: any = await response.json()
@@ -199,7 +199,7 @@ const fetchWindForPoint = async (
           throw new Error('Unknown weather provider error')
         }
       },
-      { ms: DEFAULT_WEATHER_TIMEOUT_MS, label: 'weather' }
+      { ms: DEFAULT_WEATHER_TIMEOUT_MS, label: 'weather' },
     )
 
   return await retryOnce(fetchOnce, {
@@ -218,7 +218,7 @@ export const createWeatherProvider = (): WeatherProvider => {
     const limiter = createConcurrencyLimiter(MAX_CONCURRENT)
 
     const samples = await Promise.all(
-      cappedPoints.map((pt) => limiter(() => fetchWindForPoint(pt.lat, pt.lng, departureTimeMs)))
+      cappedPoints.map((pt) => limiter(() => fetchWindForPoint(pt.lat, pt.lng, departureTimeMs))),
     )
 
     return samples
@@ -234,7 +234,9 @@ export const createWeatherProvider = (): WeatherProvider => {
     const limiter = createConcurrencyLimiter(MAX_CONCURRENT)
 
     const samples = await Promise.all(
-      cappedPoints.map((pt) => limiter(() => fetchFullWeatherForPoint(pt.lat, pt.lng, departureTimeMs)))
+      cappedPoints.map((pt) =>
+        limiter(() => fetchFullWeatherForPoint(pt.lat, pt.lng, departureTimeMs)),
+      ),
     )
 
     return samples

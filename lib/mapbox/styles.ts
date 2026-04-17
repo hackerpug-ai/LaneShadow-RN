@@ -20,12 +20,12 @@ export const MAP_STYLES = {
    * Used when the app is in light mode.
    */
   light: 'mapbox://styles/justincrich/cmnsyu0or006001sr5ljn6gg2',
-} as const;
+} as const
 
 /**
  * Map theme type corresponding to LaneShadow's theme system.
  */
-export type MapTheme = keyof typeof MAP_STYLES;
+export type MapTheme = keyof typeof MAP_STYLES
 
 /**
  * Get the appropriate map style URL for the current color scheme.
@@ -34,5 +34,5 @@ export type MapTheme = keyof typeof MAP_STYLES;
  * @returns The Mapbox style URL for the given scheme
  */
 export function getMapStyleUrl(colorScheme: 'light' | 'dark'): string {
-  return MAP_STYLES[colorScheme];
+  return MAP_STYLES[colorScheme]
 }

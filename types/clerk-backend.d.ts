@@ -7,7 +7,7 @@ declare module '@clerk/backend' {
           firstName?: string
           lastName?: string
           emailAddress?: string
-        }
+        },
       ) => Promise<any>
       getUser: (userId: string) => Promise<any>
     }

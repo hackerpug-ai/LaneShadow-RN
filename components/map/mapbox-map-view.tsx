@@ -10,26 +10,26 @@
  * @see https://github.com/rnmapbox/maps
  */
 
-import { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react'
-import type { ReactNode } from 'react'
-import type { StyleProp, ViewStyle } from 'react-native'
-import { Platform, StyleSheet, View } from 'react-native'
 import Mapbox, {
-  MapView,
   Camera,
+  LineLayer,
+  MapView,
   MarkerView,
   ShapeSource,
-  LineLayer,
   UserLocation,
 } from '@rnmapbox/maps'
 import type { FeatureCollection, LineString, Position } from 'geojson'
+import type { ReactNode } from 'react'
+import { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import type { StyleProp, ViewStyle } from 'react-native'
+import { Platform, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { MAP_STYLES } from '../../lib/mapbox/styles'
 import {
-  latLngToMapbox,
   convertCoordinateArray,
+  latLngToMapbox,
   mapboxToLatLng,
 } from '../../lib/mapbox/coordinate-converter'
+import { MAP_STYLES } from '../../lib/mapbox/styles'
 
 // Set Mapbox access token
 Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? '')
@@ -117,9 +117,7 @@ export interface MapboxMapViewProps {
    * Callback when map is pressed (Google Maps parity format).
    * Used by screens migrating from Google Maps MapViewWrapper.
    */
-  onMapClick?: (event: {
-    coordinates?: { latitude: number; longitude: number }
-  }) => void
+  onMapClick?: (event: { coordinates?: { latitude: number; longitude: number } }) => void
   /** Whether to show the user location indicator (default: true) */
   showsUserLocation?: boolean
   /** Optional style prop for the map container */
@@ -144,7 +142,7 @@ export interface MapboxMapViewHandle {
   /** Fit map to show all specified coordinates (Google Maps format {lat, lng}) */
   fitToCoordinates: (
     coordinates: { latitude: number; longitude: number }[],
-    padding?: { top: number; right: number; bottom: number; left: number }
+    padding?: { top: number; right: number; bottom: number; left: number },
   ) => void
 
   // --- Google Maps parity methods ---
@@ -182,7 +180,7 @@ export interface MapboxMapViewHandle {
       latitudeDelta: number
       longitudeDelta: number
     },
-    duration?: number
+    duration?: number,
   ) => void
 }
 
@@ -237,7 +235,23 @@ const styles = StyleSheet.create({
  * ```
  */
 export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapViewProps>(
-  ({ theme, camera, initialCamera, markers, polylines, onCameraChange, onCameraMove, onPress, onMapClick, showsUserLocation = true, style, children }, ref) => {
+  (
+    {
+      theme,
+      camera,
+      initialCamera,
+      markers,
+      polylines,
+      onCameraChange,
+      onCameraMove,
+      onPress,
+      onMapClick,
+      showsUserLocation = true,
+      style,
+      children,
+    },
+    ref,
+  ) => {
     const cameraRef = useRef<any>(null)
     const mapViewRef = useRef<any>(null)
     const isWeb = Platform.OS === 'web'
@@ -422,7 +436,7 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
           })
         }
       },
-      [onPress, onMapClick]
+      [onPress, onMapClick],
     )
 
     // Handle camera change, routing to both onCameraChange and onCameraMove
@@ -453,7 +467,7 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
           }
         }
       },
-      [onCameraChange, onCameraMove]
+      [onCameraChange, onCameraMove],
     )
 
     // Handle user location updates
@@ -491,7 +505,9 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
 
       return polylines.map((polyline) => {
         // Convert coordinates from Google format to Mapbox format
-        const googleCoords = polyline.coordinates.map((c) => [c.latitude, c.longitude] as [number, number])
+        const googleCoords = polyline.coordinates.map(
+          (c) => [c.latitude, c.longitude] as [number, number],
+        )
         const mapboxCoords: Position[] = convertCoordinateArray(googleCoords)
 
         // Create GeoJSON LineString feature
@@ -530,7 +546,8 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
 
     // Validate camera center — Mapbox throws "coordinates must contain numbers" for NaN/undefined
     const validCenter = camera?.center
-    const isValidCenter = validCenter &&
+    const isValidCenter =
+      validCenter &&
       Array.isArray(validCenter) &&
       validCenter.length === 2 &&
       isFinite(validCenter[0]) &&
@@ -581,19 +598,14 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
           heading={camera?.heading ?? 0}
         />
 
-        {showsUserLocation && (
-          <UserLocation
-            visible={true}
-            onUpdate={handleUserLocationUpdate}
-          />
-        )}
+        {showsUserLocation && <UserLocation visible={true} onUpdate={handleUserLocationUpdate} />}
 
         {markerElements}
         {polylineElements}
         {children}
       </MapView>
     )
-  }
+  },
 )
 
 MapboxMapView.displayName = 'MapboxMapView'

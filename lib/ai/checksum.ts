@@ -91,13 +91,15 @@ export class ChecksumValidator {
         fileContent,
         {
           encoding: Crypto.CryptoEncoding.BASE64,
-        }
+        },
       )
 
       // Convert base64 to hex
       return this.base64ToHex(digest)
     } catch (error) {
-      throw new Error(`Failed to compute checksum: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      throw new Error(
+        `Failed to compute checksum: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      )
     }
   }
 

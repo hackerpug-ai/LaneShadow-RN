@@ -70,8 +70,7 @@ function summarizePlanRoute(result: Record<string, unknown>): unknown {
       }
 
       // label may be on the option directly
-      const label =
-        typeof option['label'] === 'string' ? option['label'] : `Route ${index + 1}`
+      const label = typeof option['label'] === 'string' ? option['label'] : `Route ${index + 1}`
 
       // stats.distanceMeters / stats.durationSeconds
       const stats = isObject(option['stats']) ? option['stats'] : {}
@@ -102,7 +101,8 @@ function summarizePlanRoute(result: Record<string, unknown>): unknown {
 
     // Preserve any partial-route user-facing message embedded in data
     // (e.g. "I routed most of the trip but couldn't find a path for Bad Road").
-    const dataMessage = isObject(data) && typeof data['message'] === 'string' ? data['message'] : undefined
+    const dataMessage =
+      isObject(data) && typeof data['message'] === 'string' ? data['message'] : undefined
     if (dataMessage) {
       summarized.message = dataMessage
     }

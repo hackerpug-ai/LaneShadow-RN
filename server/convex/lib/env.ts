@@ -69,7 +69,6 @@ export const isTestEnvironment = process.env.NODE_ENV === 'test'
  * - OPENAI_API_KEY: Required for OpenAI models (legacy, unused in current config)
  */
 
-
 /**
  * Protomaps US URL for tile data.
  * Optional environment variable for custom tile source.
@@ -81,10 +80,7 @@ if (protomapsUrl) {
     new URL(protomapsUrl)
 
     // Warn if not a .pmtiles URL
-    if (
-      !protomapsUrl.endsWith('.pmtiles') &&
-      !protomapsUrl.includes('.pmtiles?')
-    ) {
+    if (!protomapsUrl.endsWith('.pmtiles') && !protomapsUrl.includes('.pmtiles?')) {
       console.warn(
         `Warning: PROTOMAPS_US_URL does not appear to be a .pmtiles URL: ${protomapsUrl}`,
       )

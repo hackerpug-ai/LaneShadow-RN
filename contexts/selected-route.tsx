@@ -1,5 +1,5 @@
-import { createContext, useCallback, useContext, useRef, useState } from 'react'
 import type React from 'react'
+import { createContext, useCallback, useContext, useRef, useState } from 'react'
 
 type SelectedRouteContextValue = {
   selectedRouteId: string | null
@@ -49,7 +49,17 @@ export const SelectedRouteProvider = ({ children }: { children: React.ReactNode 
   }, [])
 
   return (
-    <SelectedRouteContext.Provider value={{ selectedRouteId, setSelectedRouteId, displayedRoutePlanId, setDisplayedRoutePlanId, requestFitToRoute, requestFitToRouteWithReset, registerFitHandler }}>
+    <SelectedRouteContext.Provider
+      value={{
+        selectedRouteId,
+        setSelectedRouteId,
+        displayedRoutePlanId,
+        setDisplayedRoutePlanId,
+        requestFitToRoute,
+        requestFitToRouteWithReset,
+        registerFitHandler,
+      }}
+    >
       {children}
     </SelectedRouteContext.Provider>
   )

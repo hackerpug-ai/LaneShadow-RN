@@ -14,8 +14,12 @@
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import {
+  calculateTempRange,
+  formatTempRange,
+  hasExtremeTemp,
+} from '../../lib/weather/temp-calculator'
 import type { TemperatureOverlay } from '../../models/saved-routes'
-import { calculateTempRange, formatTempRange, hasExtremeTemp } from '../../lib/weather/temp-calculator'
 import { IconSymbol } from '../ui/icon-symbol'
 
 export type TempRangeSummaryProps = {
@@ -31,10 +35,7 @@ export type TempRangeSummaryProps = {
  * Displays temperature range information in the route summary.
  * Shows high/low, consistent temperature, or unavailable message.
  */
-export const TempRangeSummary = ({
-  temperatureOverlay,
-  testID,
-}: TempRangeSummaryProps) => {
+export const TempRangeSummary = ({ temperatureOverlay, testID }: TempRangeSummaryProps) => {
   const { semantic } = useSemanticTheme()
 
   // Calculate temperature range
@@ -43,9 +44,9 @@ export const TempRangeSummary = ({
   const extreme = hasExtremeTemp(result)
 
   // Determine text color based on extreme status (AC4)
-  const getTextColor = () => {
+  const getTextColor = (): string => {
     if (result.status === 'unavailable') {
-      return semantic.color.onSurface.muted
+      return semantic.color.onSurface.muted ?? semantic.color.onSurface.default
     }
     if (extreme === 'cold') {
       return semantic.color.info.default // blue for cold
@@ -67,15 +68,8 @@ export const TempRangeSummary = ({
       ]}
       testID={testID}
     >
-      <IconSymbol
-        name="thermometer"
-        size={16}
-        color={getTextColor()}
-      />
-      <Text
-        variant="bodySmall"
-        style={{ color: getTextColor() }}
-      >
+      <IconSymbol name="thermometer" size={16} color={getTextColor()} />
+      <Text variant="bodySmall" style={{ color: getTextColor() }}>
         {displayText}
       </Text>
     </View>

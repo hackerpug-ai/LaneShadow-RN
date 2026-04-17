@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { ModelDownloadManager } from '../model-download'
 import * as FileSystem from 'expo-file-system/legacy'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ModelDownloadManager } from '../model-download'
 
 /**
  * AC-002: Edge Case — Download Interruption and Resume
@@ -68,53 +68,57 @@ describe('ModelDownloadManager - AC-002: Download Interruption and Resume', () =
       }
 
       // Mock that a partial file exists initially
-      const getInfoMock = vi.spyOn(FileSystem, 'getInfoAsync').mockImplementation(async (filePath) => {
-        const partialFiles = (global as any).__mockPartialFiles || {}
-        const downloadedFiles = (global as any).__mockDownloadedFiles || {}
+      const getInfoMock = vi
+        .spyOn(FileSystem, 'getInfoAsync')
+        .mockImplementation(async (filePath) => {
+          const partialFiles = (global as any).__mockPartialFiles || {}
+          const downloadedFiles = (global as any).__mockDownloadedFiles || {}
 
-        if (downloadedFiles[filePath]) {
+          if (downloadedFiles[filePath]) {
+            return {
+              exists: true,
+              size: downloadedFiles[filePath].size,
+              uri: filePath,
+              isDirectory: false,
+              modificationTime: 1234567890,
+            } as any
+          }
+
+          if (partialFiles[filePath]) {
+            return {
+              exists: true,
+              size: partialFiles[filePath].size,
+              uri: filePath,
+              isDirectory: false,
+              modificationTime: 1234567890,
+            } as any
+          }
+
           return {
-            exists: true,
-            size: downloadedFiles[filePath].size,
+            exists: false,
             uri: filePath,
             isDirectory: false,
-            modificationTime: 1234567890,
+            modificationTime: 0,
           } as any
-        }
-
-        if (partialFiles[filePath]) {
-          return {
-            exists: true,
-            size: partialFiles[filePath].size,
-            uri: filePath,
-            isDirectory: false,
-            modificationTime: 1234567890,
-          } as any
-        }
-
-        return {
-          exists: false,
-          uri: filePath,
-          isDirectory: false,
-          modificationTime: 0,
-        } as any
-      })
+        })
 
       // Mock download to resume from byte offset
-      const downloadSpy = vi.spyOn(FileSystem, 'downloadAsync').mockImplementation(async (url, filePath, options) => {
-        // Store the completed download size
-        ;(global as any).__mockDownloadedFiles = (global as any).__mockDownloadedFiles || {}
-        ;(global as any).__mockDownloadedFiles[filePath] = {
-          size: totalSize, // Full 800MB after resume completes
-        }
+      const downloadSpy = vi
+        .spyOn(FileSystem, 'downloadAsync')
+        .mockImplementation(async (url, filePath, options) => {
+          // Store the completed download size
+          ;(global as any).__mockDownloadedFiles = (global as any).__mockDownloadedFiles || {}
+          ;(global as any).__mockDownloadedFiles[filePath] = {
+            size: totalSize, // Full 800MB after resume completes
+          }
 
-        return {
-          status: 206, // Partial Content status for resume
-          headers: { 'content-range': `bytes ${downloadedSize}-${totalSize - 1}/${totalSize}` },
-          mimeType: 'application/octet-stream',
-          uri: filePath,
-        } as any
-      })
+          return {
+            status: 206, // Partial Content status for resume
+            headers: { 'content-range': `bytes ${downloadedSize}-${totalSize - 1}/${totalSize}` },
+            mimeType: 'application/octet-stream',
+            uri: filePath,
+          } as any
+        })
 
       // Act: Resume download
       const result = await downloadManager.downloadModel(mockUrl, mockNetworkStatus)
@@ -127,7 +131,7 @@ describe('ModelDownloadManager - AC-002: Download Interruption and Resume', () =
           headers: expect.objectContaining({
             Range: `bytes=${downloadedSize}-`,
           }),
-        })
+        }),
       )
 
       expect(result.success).toBe(true)

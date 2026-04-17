@@ -22,13 +22,7 @@
             "connectivity_ok": true,
             "constraint_ok": false,
             "duration_s": 1.0,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3a", "ssc-4a", "ssc-5a"]
           },
           "haiku": {
             "valid_json": true,
@@ -40,13 +34,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 1.33,
-            "legs": [
-              "ssc-1c",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4c",
-              "ssc-5b"
-            ]
+            "legs": ["ssc-1c", "ssc-2b", "ssc-3b", "ssc-4c", "ssc-5b"]
           }
         },
         {
@@ -61,13 +49,7 @@
             "connectivity_ok": true,
             "constraint_ok": false,
             "duration_s": 1.01,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3a", "ssc-4a", "ssc-5a"]
           },
           "haiku": {
             "valid_json": true,
@@ -79,13 +61,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 1.33,
-            "legs": [
-              "ssc-1c",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4c",
-              "ssc-5b"
-            ]
+            "legs": ["ssc-1c", "ssc-2b", "ssc-3b", "ssc-4c", "ssc-5b"]
           }
         },
         {
@@ -100,13 +76,7 @@
             "connectivity_ok": true,
             "constraint_ok": false,
             "duration_s": 0.95,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3a", "ssc-4a", "ssc-5a"]
           },
           "haiku": {
             "valid_json": true,
@@ -118,13 +88,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 1.33,
-            "legs": [
-              "ssc-1c",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4c",
-              "ssc-5b"
-            ]
+            "legs": ["ssc-1c", "ssc-2b", "ssc-3b", "ssc-4c", "ssc-5b"]
           }
         }
       ],
@@ -154,13 +118,7 @@
             "connectivity_ok": true,
             "constraint_ok": false,
             "duration_s": 0.95,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3a", "ssc-4a", "ssc-5a"]
           },
           "haiku": {
             "valid_json": true,
@@ -172,13 +130,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.87,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3b",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3b", "ssc-4a", "ssc-5a"]
           }
         },
         {
@@ -193,13 +145,7 @@
             "connectivity_ok": true,
             "constraint_ok": false,
             "duration_s": 0.98,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3a", "ssc-4a", "ssc-5a"]
           },
           "haiku": {
             "valid_json": true,
@@ -211,13 +157,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.87,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3b",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3b", "ssc-4a", "ssc-5a"]
           }
         },
         {
@@ -232,13 +172,7 @@
             "connectivity_ok": true,
             "constraint_ok": false,
             "duration_s": 0.94,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3a", "ssc-4a", "ssc-5a"]
           },
           "haiku": {
             "valid_json": true,
@@ -250,13 +184,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.87,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3b",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3b", "ssc-4a", "ssc-5a"]
           }
         }
       ],
@@ -286,13 +214,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.89,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3a", "ssc-4a", "ssc-5a"]
           },
           "haiku": {
             "valid_json": true,
@@ -304,13 +226,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.64,
-            "legs": [
-              "ssc-1c",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4c",
-              "ssc-5b"
-            ]
+            "legs": ["ssc-1c", "ssc-2b", "ssc-3b", "ssc-4c", "ssc-5b"]
           }
         },
         {
@@ -325,13 +241,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.99,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3a", "ssc-4a", "ssc-5a"]
           },
           "haiku": {
             "valid_json": true,
@@ -343,13 +253,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.64,
-            "legs": [
-              "ssc-1c",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4c",
-              "ssc-5b"
-            ]
+            "legs": ["ssc-1c", "ssc-2b", "ssc-3b", "ssc-4c", "ssc-5b"]
           }
         },
         {
@@ -364,13 +268,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 1.01,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3a", "ssc-4a", "ssc-5a"]
           },
           "haiku": {
             "valid_json": true,
@@ -382,13 +280,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.64,
-            "legs": [
-              "ssc-1c",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4c",
-              "ssc-5b"
-            ]
+            "legs": ["ssc-1c", "ssc-2b", "ssc-3b", "ssc-4c", "ssc-5b"]
           }
         }
       ],
@@ -418,13 +310,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 1.0,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3a", "ssc-4a", "ssc-5a"]
           },
           "haiku": {
             "valid_json": true,
@@ -436,13 +322,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.89,
-            "legs": [
-              "ssc-1b",
-              "ssc-2c",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1b", "ssc-2c", "ssc-3a", "ssc-4a", "ssc-5a"]
           }
         },
         {
@@ -457,13 +337,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 1.0,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3a", "ssc-4a", "ssc-5a"]
           },
           "haiku": {
             "valid_json": true,
@@ -475,13 +349,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.89,
-            "legs": [
-              "ssc-1b",
-              "ssc-2c",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1b", "ssc-2c", "ssc-3a", "ssc-4a", "ssc-5a"]
           }
         },
         {
@@ -496,13 +364,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.98,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3a", "ssc-4a", "ssc-5a"]
           },
           "haiku": {
             "valid_json": true,
@@ -514,13 +376,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.89,
-            "legs": [
-              "ssc-1b",
-              "ssc-2c",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1b", "ssc-2c", "ssc-3a", "ssc-4a", "ssc-5a"]
           }
         }
       ],
@@ -550,13 +406,7 @@
             "connectivity_ok": true,
             "constraint_ok": false,
             "duration_s": 0.98,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3a", "ssc-4a", "ssc-5a"]
           },
           "haiku": {
             "valid_json": true,
@@ -568,13 +418,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.94,
-            "legs": [
-              "ssc-1c",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4c",
-              "ssc-5b"
-            ]
+            "legs": ["ssc-1c", "ssc-2b", "ssc-3b", "ssc-4c", "ssc-5b"]
           }
         },
         {
@@ -589,13 +433,7 @@
             "connectivity_ok": true,
             "constraint_ok": false,
             "duration_s": 0.97,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3a", "ssc-4a", "ssc-5a"]
           },
           "haiku": {
             "valid_json": true,
@@ -607,13 +445,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.94,
-            "legs": [
-              "ssc-1c",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4c",
-              "ssc-5b"
-            ]
+            "legs": ["ssc-1c", "ssc-2b", "ssc-3b", "ssc-4c", "ssc-5b"]
           }
         },
         {
@@ -628,13 +460,7 @@
             "connectivity_ok": true,
             "constraint_ok": false,
             "duration_s": 1.02,
-            "legs": [
-              "ssc-1a",
-              "ssc-2a",
-              "ssc-3a",
-              "ssc-4a",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2a", "ssc-3a", "ssc-4a", "ssc-5a"]
           },
           "haiku": {
             "valid_json": true,
@@ -646,13 +472,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.94,
-            "legs": [
-              "ssc-1c",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4c",
-              "ssc-5b"
-            ]
+            "legs": ["ssc-1c", "ssc-2b", "ssc-3b", "ssc-4c", "ssc-5b"]
           }
         }
       ],
@@ -682,13 +502,7 @@
             "connectivity_ok": true,
             "constraint_ok": false,
             "duration_s": 0.98,
-            "legs": [
-              "ssc-1a",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4b",
-              "ssc-5b"
-            ]
+            "legs": ["ssc-1a", "ssc-2b", "ssc-3b", "ssc-4b", "ssc-5b"]
           },
           "haiku": {
             "valid_json": true,
@@ -700,13 +514,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.84,
-            "legs": [
-              "ssc-1a",
-              "ssc-2b",
-              "ssc-3a",
-              "ssc-4c",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2b", "ssc-3a", "ssc-4c", "ssc-5a"]
           }
         },
         {
@@ -721,13 +529,7 @@
             "connectivity_ok": true,
             "constraint_ok": false,
             "duration_s": 1.15,
-            "legs": [
-              "ssc-1a",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4b",
-              "ssc-5b"
-            ]
+            "legs": ["ssc-1a", "ssc-2b", "ssc-3b", "ssc-4b", "ssc-5b"]
           },
           "haiku": {
             "valid_json": true,
@@ -739,13 +541,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.84,
-            "legs": [
-              "ssc-1a",
-              "ssc-2b",
-              "ssc-3a",
-              "ssc-4c",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2b", "ssc-3a", "ssc-4c", "ssc-5a"]
           }
         },
         {
@@ -760,13 +556,7 @@
             "connectivity_ok": true,
             "constraint_ok": false,
             "duration_s": 0.98,
-            "legs": [
-              "ssc-1a",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4b",
-              "ssc-5b"
-            ]
+            "legs": ["ssc-1a", "ssc-2b", "ssc-3b", "ssc-4b", "ssc-5b"]
           },
           "haiku": {
             "valid_json": true,
@@ -778,13 +568,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.84,
-            "legs": [
-              "ssc-1a",
-              "ssc-2b",
-              "ssc-3a",
-              "ssc-4c",
-              "ssc-5a"
-            ]
+            "legs": ["ssc-1a", "ssc-2b", "ssc-3a", "ssc-4c", "ssc-5a"]
           }
         }
       ],
@@ -814,13 +598,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.98,
-            "legs": [
-              "ssc-1a",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4b",
-              "ssc-5b"
-            ]
+            "legs": ["ssc-1a", "ssc-2b", "ssc-3b", "ssc-4b", "ssc-5b"]
           },
           "haiku": {
             "valid_json": true,
@@ -832,13 +610,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 1.08,
-            "legs": [
-              "ssc-1c",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4c",
-              "ssc-5c"
-            ]
+            "legs": ["ssc-1c", "ssc-2b", "ssc-3b", "ssc-4c", "ssc-5c"]
           }
         },
         {
@@ -853,13 +625,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 1.11,
-            "legs": [
-              "ssc-1a",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4b",
-              "ssc-5b"
-            ]
+            "legs": ["ssc-1a", "ssc-2b", "ssc-3b", "ssc-4b", "ssc-5b"]
           },
           "haiku": {
             "valid_json": true,
@@ -871,13 +637,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 1.08,
-            "legs": [
-              "ssc-1c",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4c",
-              "ssc-5c"
-            ]
+            "legs": ["ssc-1c", "ssc-2b", "ssc-3b", "ssc-4c", "ssc-5c"]
           }
         },
         {
@@ -892,13 +652,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 0.99,
-            "legs": [
-              "ssc-1a",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4b",
-              "ssc-5b"
-            ]
+            "legs": ["ssc-1a", "ssc-2b", "ssc-3b", "ssc-4b", "ssc-5b"]
           },
           "haiku": {
             "valid_json": true,
@@ -910,13 +664,7 @@
             "connectivity_ok": true,
             "constraint_ok": true,
             "duration_s": 1.08,
-            "legs": [
-              "ssc-1c",
-              "ssc-2b",
-              "ssc-3b",
-              "ssc-4c",
-              "ssc-5c"
-            ]
+            "legs": ["ssc-1c", "ssc-2b", "ssc-3b", "ssc-4c", "ssc-5c"]
           }
         }
       ],

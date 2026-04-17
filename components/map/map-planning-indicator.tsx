@@ -10,8 +10,8 @@
 
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { Text } from 'react-native-paper'
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { TypingIndicator } from '../chat/typing-indicator'
 
@@ -55,10 +55,7 @@ export const MapPlanningIndicator = ({
           },
         ]}
       >
-        <Text
-          variant="bodySmall"
-          style={{ color: semantic.color.onSurface.muted }}
-        >
+        <Text variant="bodySmall" style={{ color: semantic.color.onSurface.muted }}>
           Planning route
         </Text>
         <TypingIndicator size="sm" />

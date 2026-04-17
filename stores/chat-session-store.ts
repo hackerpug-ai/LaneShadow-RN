@@ -1,6 +1,6 @@
-import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 
 export type PersistedCameraCenter = {
   latitude: number
@@ -39,7 +39,7 @@ type ChatSessionState = {
   setCamera: (
     sessionId: string | null | undefined,
     center: PersistedCameraCenter,
-    zoom: number
+    zoom: number,
   ) => void
   /** Read camera for a session id (null → default). Returns null if unset. */
   getCamera: (sessionId: string | null | undefined) => CameraSlot | null
@@ -76,8 +76,7 @@ export const useChatSessionStore = create<ChatSessionState>()(
         return get().defaultCamera
       },
       setLastViewedSession: (sessionId) => set({ lastViewedSessionId: sessionId }),
-      reset: () =>
-        set({ defaultCamera: null, bySession: {}, lastViewedSessionId: null }),
+      reset: () => set({ defaultCamera: null, bySession: {}, lastViewedSessionId: null }),
     }),
     {
       name: 'laneshadow-chat-session',
@@ -91,8 +90,8 @@ export const useChatSessionStore = create<ChatSessionState>()(
         bySession: state.bySession,
         lastViewedSessionId: state.lastViewedSessionId,
       }),
-    }
-  )
+    },
+  ),
 )
 
 export { DEFAULT_ZOOM }

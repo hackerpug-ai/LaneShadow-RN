@@ -5,15 +5,11 @@
  * unit-tested without a running Convex backend.
  */
 
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { ConvexError } from 'convex/values'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { Id } from '../../_generated/dataModel'
-import {
-  buildSoftDeletePatch,
-  buildUndoPatch,
-  shouldExcludeFromList,
-} from '../savedRoutes'
+import { buildSoftDeletePatch, buildUndoPatch, shouldExcludeFromList } from '../savedRoutes'
 
 describe('buildSoftDeletePatch', () => {
   it('AC-1: returns deletedAt and scheduledDeletionId patch', () => {
@@ -83,7 +79,7 @@ describe('soft-delete handler logic', () => {
 
     const { undoDeleteRouteHandler } = await import('../savedRoutes')
     await expect(
-      undoDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any }, 'user_1')
+      undoDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any }, 'user_1'),
     ).rejects.toThrow(ConvexError)
   })
 
@@ -108,7 +104,7 @@ describe('soft-delete handler logic', () => {
     expect(ctx.scheduler.cancel).toHaveBeenCalledWith('sched_xyz')
     expect(ctx.db.patch).toHaveBeenCalledWith(
       'route_abc',
-      expect.objectContaining({ deletedAt: undefined, scheduledDeletionId: undefined })
+      expect.objectContaining({ deletedAt: undefined, scheduledDeletionId: undefined }),
     )
   })
 
@@ -126,16 +122,18 @@ describe('soft-delete handler logic', () => {
     }
 
     const { softDeleteRouteHandler } = await import('../savedRoutes')
-    const result = await softDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any }, 'user_1')
-
-    expect(ctx.scheduler.runAfter).toHaveBeenCalledWith(
-      5000,
-      expect.anything(),
-      { savedRouteId: 'route_abc' }
+    const result = await softDeleteRouteHandler(
+      ctx as any,
+      { savedRouteId: 'route_abc' as any },
+      'user_1',
     )
+
+    expect(ctx.scheduler.runAfter).toHaveBeenCalledWith(5000, expect.anything(), {
+      savedRouteId: 'route_abc',
+    })
     expect(ctx.db.patch).toHaveBeenCalledWith(
       'route_abc',
-      expect.objectContaining({ scheduledDeletionId: scheduledId })
+      expect.objectContaining({ scheduledDeletionId: scheduledId }),
     )
     expect(result).toEqual({ scheduledDeletionId: scheduledId })
   })
@@ -196,7 +194,11 @@ describe('soft-delete race condition guards', () => {
     }
 
     const { softDeleteRouteHandler } = await import('../savedRoutes')
-    const result = await softDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any }, 'user_1')
+    const result = await softDeleteRouteHandler(
+      ctx as any,
+      { savedRouteId: 'route_abc' as any },
+      'user_1',
+    )
 
     expect(ctx.scheduler.runAfter).not.toHaveBeenCalled()
     expect(ctx.db.patch).not.toHaveBeenCalled()
@@ -213,7 +215,9 @@ describe('soft-delete race condition guards', () => {
     }
 
     const { permanentlyDeleteRouteHandler } = await import('../savedRoutes')
-    const result = await permanentlyDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any })
+    const result = await permanentlyDeleteRouteHandler(ctx as any, {
+      savedRouteId: 'route_abc' as any,
+    })
 
     expect(ctx.db.delete).not.toHaveBeenCalled()
     expect(result).toBeNull()
@@ -248,10 +252,19 @@ describe('soft-delete race condition guards', () => {
     }
 
     const { softDeleteRouteHandler } = await import('../savedRoutes')
-    const result = await softDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any }, 'user_1')
+    const result = await softDeleteRouteHandler(
+      ctx as any,
+      { savedRouteId: 'route_abc' as any },
+      'user_1',
+    )
 
-    expect(ctx.scheduler.runAfter).toHaveBeenCalledWith(5000, expect.anything(), { savedRouteId: 'route_abc' })
-    expect(ctx.db.patch).toHaveBeenCalledWith('route_abc', expect.objectContaining({ scheduledDeletionId: scheduledId }))
+    expect(ctx.scheduler.runAfter).toHaveBeenCalledWith(5000, expect.anything(), {
+      savedRouteId: 'route_abc',
+    })
+    expect(ctx.db.patch).toHaveBeenCalledWith(
+      'route_abc',
+      expect.objectContaining({ scheduledDeletionId: scheduledId }),
+    )
     expect(result).toEqual({ scheduledDeletionId: scheduledId })
   })
 })

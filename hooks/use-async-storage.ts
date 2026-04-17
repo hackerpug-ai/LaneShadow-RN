@@ -182,7 +182,7 @@ export const asyncStorage = {
  * Returns [value, setValue, removeValue, isLoading]
  */
 export const useAsyncStorage = <K extends StorageKey>(
-  key: K
+  key: K,
 ): [
   StorageSchema[K] | null,
   (value: NonNullable<StorageSchema[K]>) => Promise<void>,
@@ -210,7 +210,7 @@ export const useAsyncStorage = <K extends StorageKey>(
       setValue(newValue)
       await asyncStorage.setItem(key, newValue)
     },
-    [key]
+    [key],
   )
 
   // Remove value (updates state and storage)
@@ -226,7 +226,7 @@ export const useAsyncStorage = <K extends StorageKey>(
  * Hook for multiple storage keys
  */
 export const useMultipleAsyncStorage = <K extends StorageKey>(
-  keys: K[]
+  keys: K[],
 ): [Record<K, StorageSchema[K] | null>, boolean] => {
   const [values, setValues] = useState<Record<K, StorageSchema[K] | null>>({} as any)
   const [isLoading, setIsLoading] = useState(true)

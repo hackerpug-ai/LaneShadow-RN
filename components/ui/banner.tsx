@@ -5,9 +5,9 @@
  * Following theme_rules.mdc: StyleSheet.create() + semantic tokens
  */
 
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { StyleSheet } from 'react-native'
 import { Banner as PaperBanner } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 export type BannerProps = {
   visible: boolean

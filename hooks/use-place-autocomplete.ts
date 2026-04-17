@@ -1,21 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-
-import { env } from '../lib/env'
 import { getUserFacingError } from '../lib/convex-error'
+import { env } from '../lib/env'
 import { showErrorNotification } from '../lib/notifier-helpers'
 import {
-  parseAutocompletePredictions,
-  parsePlaceDetails,
   type PlaceDetails,
   type PlacePrediction,
+  parseAutocompletePredictions,
+  parsePlaceDetails,
 } from './use-place-autocomplete.helpers'
 
-export {
-  parseAutocompletePredictions,
-  parsePlaceDetails,
-  type PlaceDetails,
-  type PlacePrediction,
-}
+export { type PlaceDetails, type PlacePrediction, parseAutocompletePredictions, parsePlaceDetails }
 
 const AUTOCOMPLETE_URL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json'
 const DETAILS_URL = 'https://maps.googleapis.com/maps/api/place/details/json'
@@ -25,7 +19,7 @@ const buildAutocompleteUrl = (query: string, apiKey: string) =>
 
 const buildDetailsUrl = (placeId: string, apiKey: string) =>
   `${DETAILS_URL}?placeid=${encodeURIComponent(
-    placeId
+    placeId,
   )}&fields=geometry/location,name,formatted_address,place_id&key=${apiKey}`
 
 export const usePlaceAutocomplete = (options?: { debounceMs?: number }) => {
@@ -84,38 +78,39 @@ export const usePlaceAutocomplete = (options?: { debounceMs?: number }) => {
   }, [apiKey, debounceMs, query])
 
   const selectPlace = useMemo(
-    () => async (placeId: string): Promise<PlaceDetails | null> => {
-      if (!apiKey) {
-        const message = 'Places API key not configured.'
-        setError(message)
-        showErrorNotification(message)
-        return null
-      }
-
-      const controller = new AbortController()
-      setIsLoading(true)
-      setError(null)
-      try {
-        const response = await fetch(buildDetailsUrl(placeId, apiKey), {
-          signal: controller.signal,
-        })
-        const json = await response.json()
-        const details = parsePlaceDetails(json)
-        if (!details) {
-          throw new Error('PLACE_DETAILS_UNAVAILABLE')
+    () =>
+      async (placeId: string): Promise<PlaceDetails | null> => {
+        if (!apiKey) {
+          const message = 'Places API key not configured.'
+          setError(message)
+          showErrorNotification(message)
+          return null
         }
-        return details
-      } catch (err) {
-        if (controller.signal.aborted) return null
-        const parsed = getUserFacingError(err)
-        setError(parsed.message)
-        showErrorNotification(parsed.message)
-        return null
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    [apiKey]
+
+        const controller = new AbortController()
+        setIsLoading(true)
+        setError(null)
+        try {
+          const response = await fetch(buildDetailsUrl(placeId, apiKey), {
+            signal: controller.signal,
+          })
+          const json = await response.json()
+          const details = parsePlaceDetails(json)
+          if (!details) {
+            throw new Error('PLACE_DETAILS_UNAVAILABLE')
+          }
+          return details
+        } catch (err) {
+          if (controller.signal.aborted) return null
+          const parsed = getUserFacingError(err)
+          setError(parsed.message)
+          showErrorNotification(parsed.message)
+          return null
+        } finally {
+          setIsLoading(false)
+        }
+      },
+    [apiKey],
   )
 
   const clear = useMemo(
@@ -125,7 +120,7 @@ export const usePlaceAutocomplete = (options?: { debounceMs?: number }) => {
       setQuery('')
       abortController.current?.abort()
     },
-    []
+    [],
   )
 
   return {

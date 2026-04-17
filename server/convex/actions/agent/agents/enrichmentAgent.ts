@@ -1,25 +1,20 @@
 'use node'
 
-import {
-  getModel,
-  validateToolCall,
-  type Tool,
-  type ToolCall,
-} from '@mariozechner/pi-ai'
-import { AgentToolSchemas } from '../lib/piTools'
-import { lookupRoad } from '../tools/lookupRoad'
-import { getCurvature } from '../tools/getCurvature'
-import { classifySurface } from '../tools/checkSurface'
-import { getElevation } from '../tools/getElevation'
-import { searchAlongRoute } from '../tools/searchAlongRoute'
-import { getRouteWeather } from '../tools/getRouteWeather'
-import { getUserFavorites } from '../tools/getUserFavorites'
-import type { UserFavorite } from '../tools/getUserFavorites'
-import { buildInSessionRouteBlock } from '../sessionContext'
-import { runAgent } from '../runAgent'
-import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
-import type { EnrichmentAgentResult, SubAgentConfig } from './types'
+import { getModel, type Tool, type ToolCall, validateToolCall } from '@mariozechner/pi-ai'
 import { getAgentModel } from '../lib/models'
+import { AgentToolSchemas } from '../lib/piTools'
+import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
+import { runAgent } from '../runAgent'
+import { buildInSessionRouteBlock } from '../sessionContext'
+import { classifySurface } from '../tools/checkSurface'
+import { getCurvature } from '../tools/getCurvature'
+import { getElevation } from '../tools/getElevation'
+import { getRouteWeather } from '../tools/getRouteWeather'
+import type { UserFavorite } from '../tools/getUserFavorites'
+import { getUserFavorites } from '../tools/getUserFavorites'
+import { lookupRoad } from '../tools/lookupRoad'
+import { searchAlongRoute } from '../tools/searchAlongRoute'
+import type { EnrichmentAgentResult, SubAgentConfig } from './types'
 
 // -----------------------------------------------------------------------------
 // Tool definitions (all 7 enrichment tools — all parallel-safe)
@@ -38,7 +33,7 @@ const enrichmentTools: ToolWithParallelSafe[] = [
   {
     name: 'searchAlongRoute',
     description:
-      "Find places of interest along a compiled route using Google Places. Pass the encoded polyline from compileSketch output. Useful for finding gas stations, restaurants, or scenic stops. Use originOffset (hours) to bias results toward a specific point in the trip.",
+      'Find places of interest along a compiled route using Google Places. Pass the encoded polyline from compileSketch output. Useful for finding gas stations, restaurants, or scenic stops. Use originOffset (hours) to bias results toward a specific point in the trip.',
     parameters: AgentToolSchemas.searchAlongRoute as any,
     parallelSafe: true,
   },
@@ -58,7 +53,7 @@ const enrichmentTools: ToolWithParallelSafe[] = [
   },
 ]
 
-const enrichmentToolNames = new Set(enrichmentTools.map(t => t.name))
+const enrichmentToolNames = new Set(enrichmentTools.map((t) => t.name))
 
 // -----------------------------------------------------------------------------
 // Tool handler functions (extracted from ridePlanningAgent.ts)
@@ -69,7 +64,7 @@ async function runLookupRoad(
   args: {
     roadName: string
     bbox: { south: number; west: number; north: number; east: number }
-  }
+  },
 ): Promise<unknown> {
   return lookupRoad(args)
 }
@@ -80,7 +75,7 @@ async function runGetCurvature(
     roadName: string
     geometry: { lat: number; lng: number }[]
     surface: string | null
-  }
+  },
 ): Promise<unknown> {
   return getCurvature(args)
 }
@@ -90,14 +85,14 @@ async function runCheckSurface(
   args: {
     surface: string | null
     highway: string | null
-  }
+  },
 ): Promise<unknown> {
   return classifySurface(args)
 }
 
 async function runGetElevation(
   _ctx: AgentContext,
-  args: { polyline: { lat: number; lng: number }[] }
+  args: { polyline: { lat: number; lng: number }[] },
 ): Promise<unknown> {
   return getElevation(args)
 }
@@ -108,7 +103,7 @@ async function runSearchAlongRoute(
     routePolyline: string
     query: string
     originOffset: number | null
-  }
+  },
 ): Promise<unknown> {
   return searchAlongRoute({
     routePolyline: args.routePolyline,
@@ -122,7 +117,7 @@ async function runGetRouteWeather(
   args: {
     polyline: { lat: number; lng: number }[]
     departureTimeMs: number
-  }
+  },
 ): Promise<unknown> {
   return getRouteWeather(args)
 }
@@ -131,7 +126,7 @@ async function runGetUserFavorites(
   _ctx: AgentContext,
   args: {
     bbox: { north: number; south: number; east: number; west: number }
-  }
+  },
 ): Promise<unknown> {
   // Epic 6 will provide a richer favorite_roads schema with rating/rideCount/lastRidden/lat/lng.
   // Until then, pass an empty list — the tool gracefully returns no favorites.
@@ -143,10 +138,7 @@ async function runGetUserFavorites(
 // Tool Executor Dispatch
 // -----------------------------------------------------------------------------
 
-export async function executeEnrichmentTool(
-  ctx: AgentContext,
-  call: ToolCall
-): Promise<unknown> {
+export async function executeEnrichmentTool(ctx: AgentContext, call: ToolCall): Promise<unknown> {
   const validated = validateToolCall(enrichmentTools, call)
 
   switch (call.name) {
@@ -201,20 +193,21 @@ Be concise — 1-2 sentences. Answer with data from the tool results.`
  * Gets NO conversation history — only the userMessage from SubAgentConfig.
  */
 export async function executeEnrichmentAgent(
-  config: SubAgentConfig
+  config: SubAgentConfig,
 ): Promise<EnrichmentAgentResult> {
   const { ctx, executeCtx, budgetTracker, userMessage } = config
 
   // Short-circuit: no route to enrich
   const routeBlock = await buildInSessionRouteBlock(
     { runQuery: ctx.runQuery },
-    ctx.planningSessionId
+    ctx.planningSessionId,
   )
 
   if (!routeBlock) {
     return {
       status: 'not_applicable',
-      reason: 'No route has been planned in this session yet. Plan a route first, then ask questions about it.',
+      reason:
+        'No route has been planned in this session yet. Plan a route first, then ask questions about it.',
     }
   }
 
@@ -261,13 +254,13 @@ export async function executeEnrichmentAgent(
         typeof tr.result === 'object' &&
         tr.result !== null &&
         'type' in tr.result &&
-        tr.result.type === 'error'
+        tr.result.type === 'error',
     )
 
     if (failedTools.length > 0) {
       // Extract error reasons for debugging
       const errorDetails = failedTools
-        .map(ft => `${ft.toolName}: ${(ft.result as any).message ?? 'unknown error'}`)
+        .map((ft) => `${ft.toolName}: ${(ft.result as any).message ?? 'unknown error'}`)
         .join('; ')
 
       console.warn(`[executeEnrichmentAgent] ${failedTools.length} tool(s) failed: ${errorDetails}`)

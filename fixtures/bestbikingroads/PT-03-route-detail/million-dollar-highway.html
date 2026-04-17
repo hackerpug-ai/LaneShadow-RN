@@ -3,10 +3,9 @@
     <html class="" lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
     <head>
         
-        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        <script>((w,d,s,l,i)=> {w[l]=w[l]||[];w[l].push({'gtm.start':Date.now(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!=='dataLayer'?`&l=${l}`:'';j.async=true;j.src=
+    `https://www.googletagmanager.com/gtm.js?id=${i}${dl}`;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-WX4KNH');</script>
             
     <meta charset="UTF-8">
@@ -83,33 +82,33 @@
  
     <script>  
         
-    $(document).ready(function () { 
-        $("#q").on('input', function(e){
+    $(document).ready(() => { 
+        $("#q").on('input', function(_e){
             var q = $(this).val();
             var urlEndpoint = "/dsearch.php";
-            urlEndpoint += "?q=" + q;
-            var textContent = "No Results Returned For '"+q+"'";
+            urlEndpoint += `?q=${q}`;
+            var textContent = `No Results Returned For '${q}'`;
             
-            $.getJSON(urlEndpoint, function (responseA) {
+            $.getJSON(urlEndpoint, (responseA) => {
                 rLen = responseA.length;
                 textContent ="";
                 var listLength = responseA[0].list_size;
                 var additionResults = listLength - 19;
                                 textContent += "<span style=\"color:red\">Please Login or <a href=\"touring-biker-community/member-signup1\">Register</a> to view these results as links</span><br>";
                 for (i = 0; i < rLen; i++) {  
-                   if (responseA[i].result_type == 2) 
+                   if (responseA[i].result_type === 2) 
                    {
-                       textContent += responseA[i].two_name+" ("+responseA[i].two_routes_count+" Routes)<br>";
+                       textContent += `${responseA[i].two_name} (${responseA[i].two_routes_count} Routes)<br>`;
                    }
-                   if (responseA[i].result_type == 1) 
+                   if (responseA[i].result_type === 1) 
                    {
-                                              textContent += responseA[i].title+" ("+responseA[i].area_name+", "+responseA[i].country_name+" Rating "+responseA[i].comments_ave_rating+"/5)<br>";
+                                              textContent += `${responseA[i].title} (${responseA[i].area_name}, ${responseA[i].country_name} Rating ${responseA[i].comments_ave_rating}/5)<br>`;
                    }
                    
                                }   
                 if (listLength > 39)
                 {
-                                        textContent += "And "+additionResults+" Additional Results";
+                                        textContent += `And ${additionResults} Additional Results`;
                 }
                 document.getElementById("results").innerHTML = textContent; 
  
@@ -119,33 +118,33 @@
         });
     });   
 
-$(document).ready(function () { 
-        $("#s").on('input', function(e){
+$(document).ready(() => { 
+        $("#s").on('input', function(_e){
             var q = $(this).val();
             var urlEndpoint = "/dsearch.php";
-            urlEndpoint += "?q=" + q;
-            var textContent = "No Results Returned For '"+q+"'";
+            urlEndpoint += `?q=${q}`;
+            var textContent = `No Results Returned For '${q}'`;
             
-            $.getJSON(urlEndpoint, function (responseA) {
+            $.getJSON(urlEndpoint, (responseA) => {
                 rLen = responseA.length;
                 textContent ="";
                 var listLength = responseA[0].list_size;
                 var additionResults = listLength - 19;
                                 textContent += "<span style=\"color:red\">Please Login or <a href=\"touring-biker-community/member-signup1\">Register</a> to view these results as links</span><br>";
                 for (i = 0; i < rLen; i++) {  
-                   if (responseA[i].result_type == 2) 
+                   if (responseA[i].result_type === 2) 
                    {
-                       textContent += responseA[i].two_name+" ("+responseA[i].two_routes_count+" Routes)<br>";
+                       textContent += `${responseA[i].two_name} (${responseA[i].two_routes_count} Routes)<br>`;
                    }
-                   if (responseA[i].result_type == 1) 
+                   if (responseA[i].result_type === 1) 
                    {
-                       textContent += responseA[i].title+" ("+responseA[i].area_name+", "+responseA[i].country_name+" Rating "+responseA[i].comments_ave_rating+"/5 : "+responseA[i].no_of_comments+" Reviews)<br>";
+                       textContent += `${responseA[i].title} (${responseA[i].area_name}, ${responseA[i].country_name} Rating ${responseA[i].comments_ave_rating}/5 : ${responseA[i].no_of_comments} Reviews)<br>`;
                    }
                    
                                }   
                 if (listLength > 39)
                 {
-                                        textContent += "And "+additionResults+" Additional Results";
+                                        textContent += `And ${additionResults} Additional Results`;
                 }
                 document.getElementById("results").innerHTML = textContent; 
  
@@ -163,7 +162,7 @@ $(document).ready(function () {
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
              
         <script src="/js/banner10-newsite.js"></script>
-        <script type="text/javascript">$(function() { $.smartbanner() } )</script><script type="text/javascript" src="/forum/includes/js/vendor/plupload.full.min.js"></script>
+        <script type="text/javascript">$(() => { $.smartbanner() } )</script><script type="text/javascript" src="/forum/includes/js/vendor/plupload.full.min.js"></script>
 <!--<script type="text/javascript" src="/js/vendor/jquery.form.js"></script>-->
 <script type="text/javascript" src="/forum/includes/js/vendor/jquery.validate.min.js"></script>
 <script type="text/javascript" src="/forum/includes/js/vendor/jquery-ui.min.js"></script>
@@ -455,14 +454,14 @@ $(document).ready(function () {
 
 <script> 
         
-    $('.click-list').click(function(e){
+    $('.click-list').click(function(_e){
         
         if ($($(this).attr("data-target")).is(':visible'))
         {
             var text1 = $(this).text().trimStart();
             var text1a = text1.trimEnd();
             var text2 = text1a.substring(2);
-            var text3 = "+ "+text2;
+            var text3 = `+ ${text2}`;
             $(this).text(text3);   
         }
         else
@@ -470,7 +469,7 @@ $(document).ready(function () {
             var text1 = $(this).text().trimStart();
             var text1a = text1.trimEnd();
             var text2 = text1a.substring(2);
-            var text3 = "- "+text2;
+            var text3 = `- ${text2}`;
             $(this).text(text3);  
         }
         
@@ -501,7 +500,7 @@ $(document).ready(function () {
 
     
       
-  button.addEventListener("click", function() {
+  button.addEventListener("click", () => {
     if (tooltip.getAttribute('data-show') == null)
     {
         show();
@@ -523,14 +522,14 @@ function hide() {
   tooltip.removeAttribute('data-show');
 }
 
-function showProfile() {
+function _showProfile() {
     profileTooltip.setAttribute('data-show', '');
     // We need to tell Popper to update the tooltip position
     // after we show the tooltip, otherwise it will be incorrect
     profilePopperInstance.update();
 }
 
-function hideProfile() {
+function _hideProfile() {
     profileTooltip.removeAttribute('data-show');
 }
 </script>
@@ -776,8 +775,8 @@ One of The best roads in Colorado.  </p><span><a href="/touring-biker-community/
             <!-- mapscript -->
             <script type="text/javascript">
                 var clicks = 0;
-                $("#map-holder").click(function(){
-                                       if (clicks == 0)
+                $("#map-holder").click(()=> {
+                                       if (clicks === 0)
                    {
                        $('#map-ad').hide();
                        //set height for map div here
@@ -789,7 +788,7 @@ One of The best roads in Colorado.  </p><span><a href="/touring-biker-community/
 
                 var map;
                 var polyline;
-                var route1;
+                var _route1;
                 
                 window.onload = map3.innerHTML = "Click/Tap Here To Load Map";       
                         
@@ -828,7 +827,7 @@ One of The best roads in Colorado.  </p><span><a href="/touring-biker-community/
                                     if (itemsArray[i].rating>=4.5){strokeColor = "#FF0000"; strokeOpacity = 1; }
 
                                     var strokeWeight = 2; 
-                                                                        if (i==0)
+                                                                        if (i===0)
                                     { 
                                         strokeColor = "#FF00FF";
                                         strokeWeight = 8;
@@ -845,8 +844,8 @@ One of The best roads in Colorado.  </p><span><a href="/touring-biker-community/
                                         strokeOpacity: strokeOpacity,
                                         map: map                                     });
 
-                if (i!=0)                 { 
-                    (function(i, polyline)
+                if (i!==0)                 { 
+                    ((i, polyline)=> 
                     {
                         google.maps.event.addListener(polyline, 'click', function(event) 
                         {
@@ -873,7 +872,7 @@ One of The best roads in Colorado.  </p><span><a href="/touring-biker-community/
                             infowindow.open(map,this);
 
                         });
-                        google.maps.event.addListener(polyline, 'dblclick', function() 
+                        google.maps.event.addListener(polyline, 'dblclick', () => 
                         {
                             location.href=itemsArray[i].url;
                         }); 
@@ -894,7 +893,7 @@ One of The best roads in Colorado.  </p><span><a href="/touring-biker-community/
         replaceNodeText("map3","Map Loading 50 routes Please be patient ....");
         document.getElementById('map3').className = "loading";
         var url="/droute.php?code=c0151";
-        $.getJSON(url, function(result){
+        $.getJSON(url, (result)=> {
                 loadMap(result);
     });      
     } 
@@ -904,13 +903,13 @@ One of The best roads in Colorado.  </p><span><a href="/touring-biker-community/
                   
                 <script>
                  var myCookie = getCookie("crif");
-                 var myCookie3 = getCookie("crdbkif");
+                 var _myCookie3 = getCookie("crdbkif");
                  var myCookie2 = getCookie("user_id");
                 
-                                  if (myCookie2 != null & myCookie2 != 0)
+                                  if (myCookie2 != null & myCookie2 !== 0)
                  {
                                          
-                    if (myCookie == "0") 
+                    if (myCookie === "0") 
                     {
                                                 var url = window.location.href.split('?')[0];
                         var el = document.getElementById('favourite_div');
@@ -933,35 +932,35 @@ One of The best roads in Colorado.  </p><span><a href="/touring-biker-community/
                  }
 
 
-                    function setCookie(name,value,days) {
+                    function _setCookie(name,value,days) {
                         var expires = "";
                         if (days) {
                             var date = new Date();
                             date.setTime(date.getTime() + (days*24*60*60*1000));
-                            expires = "; expires=" + date.toUTCString();
+                            expires = `; expires=${date.toUTCString()}`;
                         }
-                        document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+                        document.cookie = `${name}=${value || ""}${expires}; path=/`;
                     }
 
                     function getCookie(name) {
-                        var nameEQ = name + "=";
+                        var nameEQ = `${name}=`;
                         var ca = document.cookie.split(';');
                         for(var i=0;i < ca.length;i++) {
                             var c = ca[i];
-                            while (c.charAt(0)==' ') c = c.substring(1,c.length);
-                            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+                            while (c.charAt(0)===' ') c = c.substring(1,c.length);
+                            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
                         }
                         return null;
                     }
 
-                    function eraseCookie(name) {   
-                        document.cookie = name+'=; Max-Age=-99999999;';  
+                    function _eraseCookie(name) {   
+                        document.cookie = `${name}=; Max-Age=-99999999;`;  
                     }
                     
-                    function voteThisItem(v,o,t)
+                    function _voteThisItem(v,o,t)
 {
-    var jqxhr = $.ajax( "/capture-vote.php?v="+v+"&o="+o+"&t="+t )
-    .done(function(data) {
+    var _jqxhr = $.ajax( `/capture-vote.php?v=${v}&o=${o}&t=${t}` )
+    .done((data) => {
                 refreshVoteResult(o,t,data);
         return data;
     })
@@ -970,7 +969,7 @@ One of The best roads in Colorado.  </p><span><a href="/touring-biker-community/
 
 function refreshVoteResult(o,t,d)
 {
-    var divId= "#votes-"+o+"-"+t;
+    var divId= `#votes-${o}-${t}`;
     $(divId).text(d);
 }
 </script>
@@ -981,7 +980,7 @@ function refreshVoteResult(o,t,d)
 
 <script>
 // Can also be used with $(document).ready()
-$(window).on('load', function(){
+$(window).on('load', ()=> {
   $('.flexslider').flexslider({
     animation: "slide",
     animationLoop: false,
@@ -1106,18 +1105,18 @@ if (localStorage.getItem("cookieBannerDisplayed"))
     localStorage.setItem("consentGiven", "consent:true"); 
 }
 
-cookieButton.addEventListener("click", function() {
+cookieButton.addEventListener("click", () => {
     cookieContainer.classList.remove("active");
     localStorage.setItem("cookieBannerDisplayed", "true");
     localStorage.setItem("consentGiven", "consent:true");
 });
 
-rejectButton.addEventListener("click", function() {
+rejectButton.addEventListener("click", () => {
     cookieContainer.classList.remove("active");
     localStorage.setItem("consentGiven", "consent:false");
     });
 
-setTimeout( function() { 
+setTimeout( () => { 
     if (!localStorage.getItem("cookieBannerDisplayed"))
     cookieContainer.classList.add("active");
 }, 1000);
@@ -1127,17 +1126,17 @@ setTimeout( function() {
 <script>
 function getCookie(name) {
     var dc = document.cookie;
-    var prefix = name + "=";
-    var begin = dc.indexOf("; " + prefix);
-    if (begin == -1) {
+    var prefix = `${name}=`;
+    var begin = dc.indexOf(`; ${prefix}`);
+    if (begin === -1) {
         begin = dc.indexOf(prefix);
-        if (begin != 0) return null;
+        if (begin !== 0) return null;
     }
     else
     {
         begin += 2;
         var end = document.cookie.indexOf(";", begin);
-        if (end == -1) {
+        if (end === -1) {
         end = dc.length;
         }
     }

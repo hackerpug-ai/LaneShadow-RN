@@ -13,10 +13,10 @@
  * This follows the anti-stub mandate: stubbed implementations = FAIL.
  */
 
-import { vi, describe, it, expect, beforeEach } from 'vitest'
-import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react-native'
-import { PaperProvider, MD3DarkTheme } from 'react-native-paper'
+import { fireEvent, render, screen } from '@testing-library/react-native'
+import type React from 'react'
+import { MD3DarkTheme, PaperProvider } from 'react-native-paper'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtendedTheme } from '../../../styles/types'
 
 import { RouteOptionCard } from '../route-option-card'
@@ -122,12 +122,48 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.3, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -159,7 +195,12 @@ const mockRouteOption = {
       east: -122.4094,
       west: -122.4094,
     },
-    overviewGeometry: { format: 'polyline' as const, encoding: 'google' as const, precision: 5, value: 'test' },
+    overviewGeometry: {
+      format: 'polyline' as const,
+      encoding: 'google' as const,
+      precision: 5,
+      value: 'test',
+    },
     legs: [],
   },
   overlaysPreview: {
@@ -174,10 +215,8 @@ const mockRouteOption = {
 // Test wrapper
 // ---------------------------------------------------------------------------
 
-const wrapper = ({ children }) => (
-  <PaperProvider theme={MD3DarkTheme}>
-    {children}
-  </PaperProvider>
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <PaperProvider theme={MD3DarkTheme}>{children}</PaperProvider>
 )
 
 describe('RouteOptionCard favorite indicator (US-048)', () => {
@@ -203,7 +242,7 @@ describe('RouteOptionCard favorite indicator (US-048)', () => {
         testID="route-card"
         includeFavorites={true}
       />,
-      { wrapper }
+      { wrapper },
     )
 
     // Then: Favorite badge should be visible
@@ -239,7 +278,7 @@ describe('RouteOptionCard favorite indicator (US-048)', () => {
         testID="route-card"
         includeFavorites={true}
       />,
-      { wrapper }
+      { wrapper },
     )
 
     // Then: Favorite badge should still be visible
@@ -274,7 +313,7 @@ describe('RouteOptionCard favorite indicator (US-048)', () => {
         testID="route-card"
         includeFavorites={false}
       />,
-      { wrapper }
+      { wrapper },
     )
 
     // Then: Favorite badge should NOT be visible
@@ -307,7 +346,7 @@ describe('RouteOptionCard favorite indicator (US-048)', () => {
         testID="route-card"
         includeFavorites={true}
       />,
-      { wrapper }
+      { wrapper },
     )
 
     // Then: Badge should display "1 favorite" (singular)
@@ -336,7 +375,7 @@ describe('RouteOptionCard favorite indicator (US-048)', () => {
         testID="route-card"
         includeFavorites={true}
       />,
-      { wrapper }
+      { wrapper },
     )
 
     // Then: Badge should display "2 favorites" (plural)
@@ -365,7 +404,7 @@ describe('RouteOptionCard favorite indicator (US-048)', () => {
         testID="route-card"
         includeFavorites={true}
       />,
-      { wrapper }
+      { wrapper },
     )
 
     // Then: Favorite list should NOT be visible initially
@@ -410,7 +449,7 @@ describe('RouteOptionCard favorite indicator (US-048)', () => {
         testID="route-card"
         includeFavorites={true}
       />,
-      { wrapper }
+      { wrapper },
     )
 
     // Then: Accessibility label should announce "Route includes 1 favorite"
@@ -436,7 +475,7 @@ describe('RouteOptionCard favorite indicator (US-048)', () => {
         testID="route-card"
         includeFavorites={true}
       />,
-      { wrapper }
+      { wrapper },
     )
 
     // Then: Accessibility label should announce "Route includes 3 favorites"
@@ -462,7 +501,7 @@ describe('RouteOptionCard favorite indicator (US-048)', () => {
         testID="route-card"
         includeFavorites={true}
       />,
-      { wrapper }
+      { wrapper },
     )
 
     // Then: Accessibility label should announce "Route includes 0 favorites"
@@ -488,7 +527,7 @@ describe('RouteOptionCard favorite indicator (US-048)', () => {
         testID="route-card"
         includeFavorites={true}
       />,
-      { wrapper }
+      { wrapper },
     )
 
     // Then: Should default to 0 favorites and show badge

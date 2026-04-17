@@ -7,14 +7,14 @@
  * Follows the design system screen patterns
  */
 
-import { StyleSheet, View, ScrollView, Pressable } from 'react-native'
-import { Text , useTheme } from 'react-native-paper'
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
+import { Text, useTheme } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import type { ExtendedTheme } from '../../styles/types'
-import { RouteOptionCard } from '../ui/route-option-card'
-import { PrimaryButton } from '../ui/primary-button'
 import { SubpageLayout } from '../layouts/subpage-layout'
 import type { IconName } from '../ui/icon-symbol'
+import { PrimaryButton } from '../ui/primary-button'
+import { RouteOptionCard } from '../ui/route-option-card'
 
 export type RouteOptionData = {
   id: string
@@ -110,11 +110,21 @@ export const RouteOptionsScreen = ({
                   { backgroundColor: semantic.color.danger.default + '26' }, // Add 15% alpha
                 ]}
               >
-                <View style={[styles.errorDot, { backgroundColor: semantic.color.danger.default }]} />
+                <View
+                  style={[styles.errorDot, { backgroundColor: semantic.color.danger.default }]}
+                />
               </View>
               <View style={styles.errorTextContainer}>
-                <View style={[styles.errorLine, { backgroundColor: semantic.color.onSurface.muted }]} />
-                <View style={[styles.errorLine, { backgroundColor: semantic.color.onSurface.muted }, styles.errorLineShort]} />
+                <View
+                  style={[styles.errorLine, { backgroundColor: semantic.color.onSurface.muted }]}
+                />
+                <View
+                  style={[
+                    styles.errorLine,
+                    { backgroundColor: semantic.color.onSurface.muted },
+                    styles.errorLineShort,
+                  ]}
+                />
               </View>
             </View>
           </View>
@@ -131,10 +141,7 @@ export const RouteOptionsScreen = ({
     >
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingHorizontal: semantic.space.lg },
-        ]}
+        contentContainerStyle={[styles.scrollContent, { paddingHorizontal: semantic.space.lg }]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.subtitleContainer}>
@@ -154,9 +161,7 @@ export const RouteOptionsScreen = ({
             >
               <RouteOptionCard
                 name={route.name}
-                variant={
-                  route.id === selectedRouteId ? 'selected' : 'compact'
-                }
+                variant={route.id === selectedRouteId ? 'selected' : 'compact'}
                 badges={route.badges}
                 stats={route.stats}
                 weatherSummary={route.weatherSummary}
@@ -178,11 +183,7 @@ export const RouteOptionsScreen = ({
           },
         ]}
       >
-        <PrimaryButton
-          onPress={handleStartNavigation}
-          icon="navigation"
-          disabled={!selectedRoute}
-        >
+        <PrimaryButton onPress={handleStartNavigation} icon="navigation" disabled={!selectedRoute}>
           Start Navigation
         </PrimaryButton>
       </View>

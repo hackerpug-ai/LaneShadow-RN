@@ -34,7 +34,7 @@ export const ThemePreferenceProvider = ({ children }: { children: React.ReactNod
 
   const isDark = useMemo(
     () => (themeMode === 'auto' ? systemScheme === 'dark' : themeMode === 'dark'),
-    [themeMode, systemScheme]
+    [themeMode, systemScheme],
   )
 
   // Don't render until hydrated to avoid flash of wrong theme

@@ -12,7 +12,7 @@
  * - Deletes corrupted model file before re-downloading
  */
 
-import React from 'react'
+import type React from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -37,31 +37,20 @@ export const SetupRequiredScreen: React.FC<SetupRequiredScreenProps> = ({
 
   return (
     <View
-      style={[
-        styles.container,
-        { backgroundColor: semantic.color.background.default },
-      ]}
+      style={[styles.container, { backgroundColor: semantic.color.background.default }]}
       testID={testID}
     >
       <View style={styles.content}>
         {/* Warning Icon */}
         <View
-          style={[
-            styles.iconContainer,
-            { backgroundColor: semantic.color.warning.default + '20' },
-          ]}
+          style={[styles.iconContainer, { backgroundColor: semantic.color.warning.default + '20' }]}
         >
-          <Text style={[styles.icon, { color: semantic.color.warning.default }]}>
-            ⚠️
-          </Text>
+          <Text style={[styles.icon, { color: semantic.color.warning.default }]}>⚠️</Text>
         </View>
 
         {/* Title */}
         <Text
-          style={[
-            styles.title,
-            { color: semantic.color.onSurface.default },
-          ]}
+          style={[styles.title, { color: semantic.color.onSurface.default }]}
           variant="headlineMedium"
         >
           Setup Required
@@ -69,10 +58,7 @@ export const SetupRequiredScreen: React.FC<SetupRequiredScreenProps> = ({
 
         {/* Description */}
         <Text
-          style={[
-            styles.description,
-            { color: semantic.color.onSurface.muted },
-          ]}
+          style={[styles.description, { color: semantic.color.onSurface.muted }]}
           variant="bodyLarge"
         >
           Your Shadow needs to be restored. Please download again.

@@ -1,6 +1,6 @@
 export const applySearchFilter = <T extends { name: string }>(
   items: T[],
-  searchQuery: string | undefined
+  searchQuery: string | undefined,
 ): T[] => {
   if (!searchQuery) return items
   const lower = searchQuery.toLowerCase()
@@ -10,7 +10,7 @@ export const applySearchFilter = <T extends { name: string }>(
 export const applyDateFilter = <T extends { createdAt: number }>(
   items: T[],
   afterDate: number | undefined,
-  beforeDate: number | undefined
+  beforeDate: number | undefined,
 ): T[] => {
   let filtered = items
   if (afterDate !== undefined) {

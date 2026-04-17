@@ -34,10 +34,7 @@
         -106.05636363636364
       ],
       "sql_ok": true,
-      "returned": [
-        "ca1-bigsur",
-        "wa101-olympic"
-      ],
+      "returned": ["ca1-bigsur", "wa101-olympic"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -67,10 +64,7 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND state = ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "coastal",
-        "CO"
-      ],
+      "sql_args": ["coastal", "CO"],
       "sql_ok": true,
       "returned": [],
       "metrics": {
@@ -110,9 +104,7 @@
         -106.05636363636364
       ],
       "sql_ok": true,
-      "returned": [
-        "nv-extraterrestrial"
-      ],
+      "returned": ["nv-extraterrestrial"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -150,11 +142,7 @@
         -106.05636363636364
       ],
       "sql_ok": true,
-      "returned": [
-        "az89a-sedona",
-        "id75-sawtooth",
-        "ut12-escalante"
-      ],
+      "returned": ["az89a-sedona", "id75-sawtooth", "ut12-escalante"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -185,16 +173,10 @@
       },
       "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? AND length_mi <= ? ORDER BY route_id LIMIT 10",
       "sql_args": [
-        24.72652173913044,
-        50.813478260869566,
-        -138.78363636363636,
-        -106.05636363636364,
-        20
+        24.72652173913044, 50.813478260869566, -138.78363636363636, -106.05636363636364, 20
       ],
       "sql_ok": true,
-      "returned": [
-        "ca-mulholland"
-      ],
+      "returned": ["ca-mulholland"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -224,14 +206,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND state = ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "adventure",
-        "UT"
-      ],
+      "sql_args": ["adventure", "UT"],
       "sql_ok": true,
-      "returned": [
-        "ut-bdr-segment"
-      ],
+      "returned": ["ut-bdr-segment"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -270,9 +247,7 @@
         40
       ],
       "sql_ok": true,
-      "returned": [
-        "mt2-glacier"
-      ],
+      "returned": ["mt2-glacier"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -330,11 +305,7 @@
         -106.05636363636364
       ],
       "sql_ok": true,
-      "returned": [
-        "ca-mulholland",
-        "ca36-mad-river",
-        "nm4-jemez"
-      ],
+      "returned": ["ca-mulholland", "ca36-mad-river", "nm4-jemez"],
       "metrics": {
         "precision": 1.0,
         "recall": 0.6,
@@ -364,12 +335,7 @@
         "sort_by": "scenic"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY scenic_score DESC LIMIT 10",
-      "sql_args": [
-        24.72652173913044,
-        50.813478260869566,
-        -138.78363636363636,
-        -106.05636363636364
-      ],
+      "sql_args": [24.72652173913044, 50.813478260869566, -138.78363636363636, -106.05636363636364],
       "sql_ok": true,
       "returned": [
         "mt2-glacier",
@@ -413,11 +379,7 @@
       },
       "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? AND remoteness_score >= ? ORDER BY remoteness_score DESC LIMIT 10",
       "sql_args": [
-        24.72652173913044,
-        50.813478260869566,
-        -138.78363636363636,
-        -106.05636363636364,
-        0.7
+        24.72652173913044, 50.813478260869566, -138.78363636363636, -106.05636363636364, 0.7
       ],
       "sql_ok": true,
       "returned": [
@@ -566,12 +528,7 @@
         -106.05636363636364
       ],
       "sql_ok": true,
-      "returned": [
-        "co82-independence",
-        "co550-million",
-        "mt2-glacier",
-        "or242-mckenzie"
-      ],
+      "returned": ["co82-independence", "co550-million", "mt2-glacier", "or242-mckenzie"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -611,10 +568,7 @@
         -106.05636363636364
       ],
       "sql_ok": true,
-      "returned": [
-        "ca1-bigsur",
-        "wa101-olympic"
-      ],
+      "returned": ["ca1-bigsur", "wa101-olympic"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -644,14 +598,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE state = ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "CO"
-      ],
+      "sql_args": ["CO"],
       "sql_ok": true,
-      "returned": [
-        "co550-million",
-        "co82-independence"
-      ],
+      "returned": ["co550-million", "co82-independence"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -689,9 +638,7 @@
         -106.05636363636364
       ],
       "sql_ok": true,
-      "returned": [
-        "nv-extraterrestrial"
-      ],
+      "returned": ["nv-extraterrestrial"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -729,11 +676,7 @@
         -106.05636363636364
       ],
       "sql_ok": true,
-      "returned": [
-        "az89a-sedona",
-        "id75-sawtooth",
-        "ut12-escalante"
-      ],
+      "returned": ["az89a-sedona", "id75-sawtooth", "ut12-escalante"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -764,16 +707,10 @@
       },
       "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? AND length_mi <= ? ORDER BY route_id LIMIT 10",
       "sql_args": [
-        24.72652173913044,
-        50.813478260869566,
-        -138.78363636363636,
-        -106.05636363636364,
-        20
+        24.72652173913044, 50.813478260869566, -138.78363636363636, -106.05636363636364, 20
       ],
       "sql_ok": true,
-      "returned": [
-        "ca-mulholland"
-      ],
+      "returned": ["ca-mulholland"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -803,14 +740,9 @@
         "sort_by": null
       },
       "sql": "SELECT route_id FROM curated_routes WHERE primary_archetype = ? AND state = ? ORDER BY route_id LIMIT 10",
-      "sql_args": [
-        "adventure",
-        "UT"
-      ],
+      "sql_args": ["adventure", "UT"],
       "sql_ok": true,
-      "returned": [
-        "ut-bdr-segment"
-      ],
+      "returned": ["ut-bdr-segment"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -849,9 +781,7 @@
         40
       ],
       "sql_ok": true,
-      "returned": [
-        "mt2-glacier"
-      ],
+      "returned": ["mt2-glacier"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -890,10 +820,7 @@
         "year_round"
       ],
       "sql_ok": true,
-      "returned": [
-        "ca-mulholland",
-        "ca36-mad-river"
-      ],
+      "returned": ["ca-mulholland", "ca36-mad-river"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -923,12 +850,7 @@
         "sort_by": "curvature"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY curvature_score DESC LIMIT 10",
-      "sql_args": [
-        24.72652173913044,
-        50.813478260869566,
-        -138.78363636363636,
-        -106.05636363636364
-      ],
+      "sql_args": [24.72652173913044, 50.813478260869566, -138.78363636363636, -106.05636363636364],
       "sql_ok": true,
       "returned": [
         "ca-mulholland",
@@ -971,12 +893,7 @@
         "sort_by": "scenic"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY scenic_score DESC LIMIT 10",
-      "sql_args": [
-        24.72652173913044,
-        50.813478260869566,
-        -138.78363636363636,
-        -106.05636363636364
-      ],
+      "sql_args": [24.72652173913044, 50.813478260869566, -138.78363636363636, -106.05636363636364],
       "sql_ok": true,
       "returned": [
         "mt2-glacier",
@@ -1020,11 +937,7 @@
       },
       "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? AND remoteness_score >= ? ORDER BY remoteness_score DESC LIMIT 10",
       "sql_args": [
-        24.72652173913044,
-        50.813478260869566,
-        -138.78363636363636,
-        -106.05636363636364,
-        0.7
+        24.72652173913044, 50.813478260869566, -138.78363636363636, -106.05636363636364, 0.7
       ],
       "sql_ok": true,
       "returned": [
@@ -1069,19 +982,10 @@
       },
       "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? AND length_mi >= ? ORDER BY length_mi DESC LIMIT 10",
       "sql_args": [
-        24.72652173913044,
-        50.813478260869566,
-        -138.78363636363636,
-        -106.05636363636364,
-        100
+        24.72652173913044, 50.813478260869566, -138.78363636363636, -106.05636363636364, 100
       ],
       "sql_ok": true,
-      "returned": [
-        "wa101-olympic",
-        "ut-bdr-segment",
-        "ut12-escalante",
-        "id75-sawtooth"
-      ],
+      "returned": ["wa101-olympic", "ut-bdr-segment", "ut12-escalante", "id75-sawtooth"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,
@@ -1111,12 +1015,7 @@
         "sort_by": "technical"
       },
       "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? ORDER BY technical_score DESC LIMIT 10",
-      "sql_args": [
-        24.72652173913044,
-        50.813478260869566,
-        -138.78363636363636,
-        -106.05636363636364
-      ],
+      "sql_args": [24.72652173913044, 50.813478260869566, -138.78363636363636, -106.05636363636364],
       "sql_ok": true,
       "returned": [
         "ut-bdr-segment",
@@ -1160,11 +1059,7 @@
       },
       "sql": "SELECT route_id FROM curated_routes WHERE centroid_lat BETWEEN ? AND ? AND centroid_lng BETWEEN ? AND ? AND technical_score <= ? ORDER BY route_id LIMIT 10",
       "sql_args": [
-        24.72652173913044,
-        50.813478260869566,
-        -138.78363636363636,
-        -106.05636363636364,
-        0.5
+        24.72652173913044, 50.813478260869566, -138.78363636363636, -106.05636363636364, 0.5
       ],
       "sql_ok": true,
       "returned": [
@@ -1211,12 +1106,7 @@
         -106.05636363636364
       ],
       "sql_ok": true,
-      "returned": [
-        "co82-independence",
-        "co550-million",
-        "mt2-glacier",
-        "or242-mckenzie"
-      ],
+      "returned": ["co82-independence", "co550-million", "mt2-glacier", "or242-mckenzie"],
       "metrics": {
         "precision": 1.0,
         "recall": 1.0,

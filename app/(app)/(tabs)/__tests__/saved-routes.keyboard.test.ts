@@ -10,9 +10,9 @@
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SavedRoutesScreen from '../saved-routes'
 
 const mockPush = vi.fn()
@@ -88,7 +88,7 @@ vi.mock('react-native-gesture-handler', () => {
   return {
     Swipeable: React.forwardRef(function MockSwipeable(
       props: Record<string, unknown>,
-      _ref: React.Ref<unknown>
+      _ref: React.Ref<unknown>,
     ) {
       return React.createElement('Swipeable', props, props.children)
     }),

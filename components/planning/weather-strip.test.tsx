@@ -8,12 +8,12 @@
  * - AC4: All conditions are favorable (low wind, no rain, mild temp) → Shows 'Good conditions' summary in green
  */
 
-import { vi, describe, it, expect } from 'vitest'
-import { render, fireEvent } from '@testing-library/react-native'
-import { PaperProvider, MD3DarkTheme } from 'react-native-paper'
+import { fireEvent, render } from '@testing-library/react-native'
+import { MD3DarkTheme, PaperProvider } from 'react-native-paper'
+import { describe, expect, it, vi } from 'vitest'
 import type { RouteOverlays } from '../../models/saved-routes'
-import { WeatherStrip } from './weather-strip'
 import type { ExtendedTheme } from '../../styles/types'
+import { WeatherStrip } from './weather-strip'
 
 // Mock semantic theme for testing
 const mockSemanticTheme: ExtendedTheme['semantic'] = {
@@ -99,12 +99,48 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.3, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -132,9 +168,7 @@ const createMockOverlays = (conditions: {
     byLeg: [
       {
         legIndex: 0,
-        segments: [
-          { startMeters: 0, endMeters: 1000, level: conditions.rain ?? 'none' },
-        ],
+        segments: [{ startMeters: 0, endMeters: 1000, level: conditions.rain ?? 'none' }],
       },
     ],
   },
@@ -150,9 +184,7 @@ const createMockOverlays = (conditions: {
     byLeg: [
       {
         legIndex: 0,
-        segments: [
-          { startMeters: 0, endMeters: 1000, level: conditions.wind ?? 'low' },
-        ],
+        segments: [{ startMeters: 0, endMeters: 1000, level: conditions.wind ?? 'low' }],
       },
     ],
   },
@@ -178,10 +210,10 @@ const createMockOverlays = (conditions: {
               conditions.temperature === 'hot'
                 ? 35
                 : conditions.temperature === 'warm'
-                ? 25
-                : conditions.temperature === 'cold'
-                ? 0
-                : 15,
+                  ? 25
+                  : conditions.temperature === 'cold'
+                    ? 0
+                    : 15,
           },
         ],
       },
@@ -191,11 +223,7 @@ const createMockOverlays = (conditions: {
 
 // Helper wrapper with PaperProvider
 const renderWithPaper = (ui: React.ReactElement) => {
-  return render(
-    <PaperProvider theme={MD3DarkTheme}>
-      {ui}
-    </PaperProvider>
-  )
+  return render(<PaperProvider theme={MD3DarkTheme}>{ui}</PaperProvider>)
 }
 
 describe('weather-strip', () => {
@@ -212,7 +240,7 @@ describe('weather-strip', () => {
       })
 
       const { queryByTestId } = renderWithPaper(
-        <WeatherStrip overlays={overlays} testID="weather-strip" />
+        <WeatherStrip overlays={overlays} testID="weather-strip" />,
       )
 
       // Rain badge should be present for worst condition
@@ -236,7 +264,7 @@ describe('weather-strip', () => {
       })
 
       const { queryByTestId } = renderWithPaper(
-        <WeatherStrip overlays={overlays} testID="weather-strip" />
+        <WeatherStrip overlays={overlays} testID="weather-strip" />,
       )
 
       // Rain badge should be present (rain has priority over wind when both are severe)
@@ -255,7 +283,7 @@ describe('weather-strip', () => {
       })
 
       const { queryByTestId } = renderWithPaper(
-        <WeatherStrip overlays={overlays} testID="weather-strip" />
+        <WeatherStrip overlays={overlays} testID="weather-strip" />,
       )
 
       // Wind badge should be present
@@ -278,7 +306,7 @@ describe('weather-strip', () => {
       })
 
       const { queryByTestId, getByTestId } = renderWithPaper(
-        <WeatherStrip overlays={overlays} testID="weather-strip" />
+        <WeatherStrip overlays={overlays} testID="weather-strip" />,
       )
 
       // Initially, only worst condition (rain) is shown with additional warnings indicator
@@ -302,7 +330,7 @@ describe('weather-strip', () => {
       })
 
       const { queryByTestId, getByTestId } = renderWithPaper(
-        <WeatherStrip overlays={overlays} testID="weather-strip" />
+        <WeatherStrip overlays={overlays} testID="weather-strip" />,
       )
 
       // Tap to expand
@@ -331,7 +359,7 @@ describe('weather-strip', () => {
       })
 
       const { queryByTestId, getByText } = renderWithPaper(
-        <WeatherStrip overlays={overlays} testID="weather-strip" />
+        <WeatherStrip overlays={overlays} testID="weather-strip" />,
       )
 
       // Good conditions badge should be present
@@ -353,7 +381,7 @@ describe('weather-strip', () => {
       })
 
       const { queryByTestId } = renderWithPaper(
-        <WeatherStrip overlays={overlays} testID="weather-strip" />
+        <WeatherStrip overlays={overlays} testID="weather-strip" />,
       )
 
       expect(queryByTestId('weather-strip-temp-badge')).toBeTruthy()
@@ -367,7 +395,7 @@ describe('weather-strip', () => {
       })
 
       const { queryByTestId } = renderWithPaper(
-        <WeatherStrip overlays={overlays} testID="weather-strip" />
+        <WeatherStrip overlays={overlays} testID="weather-strip" />,
       )
 
       expect(queryByTestId('weather-strip-temp-badge')).toBeTruthy()
@@ -385,7 +413,7 @@ describe('weather-strip', () => {
       })
 
       const { queryByTestId } = renderWithPaper(
-        <WeatherStrip overlays={overlays} testID="weather-strip" />
+        <WeatherStrip overlays={overlays} testID="weather-strip" />,
       )
 
       expect(queryByTestId('weather-strip-rain-badge')).toBeTruthy()
@@ -402,7 +430,7 @@ describe('weather-strip', () => {
       })
 
       const { queryByTestId } = renderWithPaper(
-        <WeatherStrip overlays={overlays} testID="weather-strip" />
+        <WeatherStrip overlays={overlays} testID="weather-strip" />,
       )
 
       expect(queryByTestId('weather-strip-wind-badge')).toBeTruthy()
@@ -434,7 +462,7 @@ describe('weather-strip', () => {
       }
 
       const { queryByTestId } = renderWithPaper(
-        <WeatherStrip overlays={overlays} testID="weather-strip" />
+        <WeatherStrip overlays={overlays} testID="weather-strip" />,
       )
 
       // Should show good conditions since no bad weather is detected

@@ -1,6 +1,6 @@
 // Mock the env module to prevent requireEnv from throwing on missing Clerk secrets
 // and to control the GOOGLE_MAPS_API_KEY value in tests.
-import { vi, describe, it, expect, afterEach, Mock } from 'vitest'
+import { afterEach, describe, expect, it, type Mock, vi } from 'vitest'
 import type { RouteSketch } from '../../../../../models/route-sketch'
 import type { PlanInput } from '../../../../../models/saved-routes'
 
@@ -108,7 +108,7 @@ describe('routing provider', () => {
 
     const provider = createRoutingProvider()
     await expect(provider.routeFromSketch({ planInput, sketch })).rejects.toThrow(
-      /Google Routes request failed: 500/
+      /Google Routes request failed: 500/,
     )
   })
 
@@ -117,7 +117,7 @@ describe('routing provider', () => {
 
     const provider = createRoutingProvider()
     await expect(provider.routeFromSketch({ planInput, sketch })).rejects.toThrow(
-      /missing overview polyline/i
+      /missing overview polyline/i,
     )
   })
 
@@ -176,7 +176,10 @@ describe('routeSegment', () => {
 
     const provider = createRoutingProvider()
     const segment = sketchWithAnchors.segments[0]
-    const result = await provider.routeSegment({ segment, anchorPoints: sketchWithAnchors.anchorPoints })
+    const result = await provider.routeSegment({
+      segment,
+      anchorPoints: sketchWithAnchors.anchorPoints,
+    })
 
     expect(result.provider).toBe('google')
     expect(result.overviewGeometry.value).toBe('OVERVIEW_POLYLINE')
@@ -205,7 +208,7 @@ describe('routeSegment', () => {
     const provider = createRoutingProvider()
     const segment = { roadName: 'Road', fromName: 'Unknown Start', toName: 'Mid Junction' }
     await expect(
-      provider.routeSegment({ segment, anchorPoints: sketchWithAnchors.anchorPoints })
+      provider.routeSegment({ segment, anchorPoints: sketchWithAnchors.anchorPoints }),
     ).rejects.toThrow(/anchorPoint/)
   })
 
@@ -214,7 +217,10 @@ describe('routeSegment', () => {
 
     const provider = createRoutingProvider()
     const segment = { roadName: 'Road', fromName: '  start town  ', toName: '  MID JUNCTION  ' }
-    const result = await provider.routeSegment({ segment, anchorPoints: sketchWithAnchors.anchorPoints })
+    const result = await provider.routeSegment({
+      segment,
+      anchorPoints: sketchWithAnchors.anchorPoints,
+    })
 
     expect(result.provider).toBe('google')
   })
@@ -258,7 +264,7 @@ describe('resolveViaWaypoints', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const result = resolveViaWaypoints(
       ['Alice Springs', 'Bob Peak', 'Charlie Junction', 'Delta Landmark'],
-      anchorPoints
+      anchorPoints,
     )
     expect(result).toHaveLength(3)
     expect(result[0]).toEqual({ lat: 37.1, lng: -122.1 })

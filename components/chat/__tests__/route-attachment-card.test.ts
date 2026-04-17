@@ -12,7 +12,7 @@
  * - AC6: Waypoint summary badge displays count and detour time
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 // Import the parseRouteLabel function
 // Note: This would need to be exported from the component file for testing

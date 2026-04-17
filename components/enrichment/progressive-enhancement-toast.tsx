@@ -14,8 +14,9 @@
  * Reuses glassmorphic overlay pattern from styles/RULES.md section 10
  */
 
-import React, { useEffect, useState } from 'react'
-import { AccessibilityInfo, StyleSheet, Pressable, View } from 'react-native'
+import type React from 'react'
+import { useEffect, useState } from 'react'
+import { AccessibilityInfo, Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import Animated, {
   FadeInDown,
@@ -109,8 +110,8 @@ export const ProgressiveEnhancementToast = ({
   const statusColor = isFailed
     ? semantic.color.danger.default
     : isComplete
-      ? semantic.color.enrichmentExtended?.default ?? semantic.color.success.default
-      : semantic.color.enrichmentFast?.default ?? semantic.color.primary.default
+      ? (semantic.color.enrichmentExtended?.default ?? semantic.color.success.default)
+      : (semantic.color.enrichmentFast?.default ?? semantic.color.primary.default)
 
   return (
     <Animated.View
@@ -134,17 +135,9 @@ export const ProgressiveEnhancementToast = ({
       <View style={styles.header}>
         <View style={styles.stageRow}>
           {/* Status dot */}
-          <View
-            style={[
-              styles.statusDot,
-              { backgroundColor: statusColor },
-            ]}
-          />
+          <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
           <Text
-            style={[
-              semantic.type.label.md,
-              { color: semantic.color.onSurface.default },
-            ]}
+            style={[semantic.type.label.md, { color: semantic.color.onSurface.default }]}
             testID={`${testID ?? 'enhancement-toast'}-stage`}
           >
             {stage}
@@ -154,10 +147,7 @@ export const ProgressiveEnhancementToast = ({
         <Pressable
           onPress={onDismiss}
           hitSlop={12}
-          style={({ pressed }) => [
-            styles.dismissButton,
-            pressed && { opacity: 0.7 },
-          ]}
+          style={({ pressed }) => [styles.dismissButton, pressed && { opacity: 0.7 }]}
           accessibilityLabel="Dismiss enhancement toast"
           accessibilityRole="button"
           testID={`${testID ?? 'enhancement-toast'}-dismiss`}

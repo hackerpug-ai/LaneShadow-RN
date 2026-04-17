@@ -16,8 +16,8 @@ import React, { useEffect, useRef } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { TypingIndicator } from '../chat/typing-indicator'
 import type { ToastMessage } from '../../hooks/use-toast-messages'
+import { TypingIndicator } from '../chat/typing-indicator'
 
 // ---------------------------------------------------------------------------
 // Constants

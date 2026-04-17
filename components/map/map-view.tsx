@@ -1,5 +1,5 @@
-import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
+import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import type { StyleProp, ViewStyle } from 'react-native'
 import { Platform, StyleSheet, View } from 'react-native'
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps'
@@ -50,11 +50,14 @@ export type MapViewHandle = {
       latitudeDelta: number
       longitudeDelta: number
     },
-    duration?: number
+    duration?: number,
   ) => void
   fitToCoordinates: (
     coordinates: { latitude: number; longitude: number }[],
-    options?: { edgePadding?: { top: number; right: number; bottom: number; left: number }; animated?: boolean }
+    options?: {
+      edgePadding?: { top: number; right: number; bottom: number; left: number }
+      animated?: boolean
+    },
   ) => void
 }
 
@@ -107,7 +110,7 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
             center: centerToUse,
             zoom: zoom ?? lastCamera.zoom,
           },
-          { duration }
+          { duration },
         )
       },
       zoomBy: (delta: number) => {
@@ -120,8 +123,8 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
 
         const scale =
           delta > 0
-            ? Math.pow(0.5, delta) // zoom in
-            : Math.pow(2, Math.abs(delta)) // zoom out
+            ? 0.5 ** delta // zoom in
+            : 2 ** Math.abs(delta) // zoom out
 
         const latitudeDelta = Math.min(90, Math.max(0.0005, baseLatitudeDelta * scale))
         const longitudeDelta = Math.min(90, Math.max(0.0005, baseLongitudeDelta * scale))
@@ -133,7 +136,7 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
             latitudeDelta,
             longitudeDelta,
           },
-          300
+          300,
         )
 
         setLastRegion((prev) => ({ ...prev, center: centerToUse, latitudeDelta, longitudeDelta }))
@@ -151,7 +154,7 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
             latitudeDelta: baseLatitudeDelta,
             longitudeDelta: baseLongitudeDelta,
           },
-          300
+          300,
         )
 
         setLastCamera((prev) => ({ ...prev, center: lastUserLocation }))
@@ -266,7 +269,9 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
         onRegionChangeComplete={onRegionChangeComplete}
         initialCamera={initialCamera}
         moveOnMarkerPress={false}
-        onUserLocationChange={(event) => {
+        onUserLocationChange={(event: {
+          nativeEvent?: { coordinate?: { latitude: number; longitude: number } }
+        }) => {
           const coord = event?.nativeEvent?.coordinate
           if (coord?.latitude && coord?.longitude) {
             const userCoord = { latitude: coord.latitude, longitude: coord.longitude }
@@ -277,7 +282,7 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
                   center: userCoord,
                   zoom: lastCamera.zoom ?? 14,
                 },
-                { duration: 300 }
+                { duration: 300 },
               )
               setLastCamera((prev) => ({ ...prev, center: userCoord }))
               setDidCenterOnUser(true)
@@ -305,7 +310,7 @@ export const MapViewWrapper = forwardRef<MapViewHandle | null, MapViewProps>(
         {children}
       </MapView>
     )
-  }
+  },
 )
 
 MapViewWrapper.displayName = 'MapViewWrapper'

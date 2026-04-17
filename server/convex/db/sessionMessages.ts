@@ -1,18 +1,17 @@
 import { ConvexError, v } from 'convex/values'
-
-import { ERROR_CODES } from '../errors'
+import {
+  type SessionMessageAttachment,
+  type SessionMessageKind,
+  sessionMessageAttachmentValidator,
+  sessionMessageKindValidator,
+  sessionMessageRoleValidator,
+  sessionMessageStatusValidator,
+  thinkingStepValidator,
+} from '../../models/session-messages'
 import type { Id } from '../_generated/dataModel'
 import { internalMutation, internalQuery, mutation, query } from '../_generated/server'
+import { ERROR_CODES } from '../errors'
 import { requireIdentity } from '../guards'
-import {
-  sessionMessageKindValidator,
-  sessionMessageAttachmentValidator,
-  sessionMessageStatusValidator,
-  sessionMessageRoleValidator,
-  thinkingStepValidator,
-  type SessionMessageKind,
-  type SessionMessageAttachment,
-} from '../../models/session-messages'
 
 type SessionMessageDoc = {
   _id: Id<'session_messages'>
@@ -27,7 +26,13 @@ type SessionMessageDoc = {
   kind?: SessionMessageKind
   status?: 'streaming' | 'running' | 'complete' | 'failed'
   piMessage?: unknown
-  thinkingSteps?: { type: 'thinking' | 'tool_start' | 'tool_finish'; toolName?: string; summary: string; detail?: string; timestamp: number }[]
+  thinkingSteps?: {
+    type: 'thinking' | 'tool_start' | 'tool_finish'
+    toolName?: string
+    summary: string
+    detail?: string
+    timestamp: number
+  }[]
 }
 
 type PlanningSessionDoc = {
@@ -75,7 +80,11 @@ type CreatePendingAssistantMessageCtx = {
 
 type FinalizeAssistantMessageCtx = {
   db: {
-    get: (id: Id<'session_messages'>) => Promise<{ sessionId: Id<'planning_sessions'>; content: string; [key: string]: unknown } | null>
+    get: (id: Id<'session_messages'>) => Promise<{
+      sessionId: Id<'planning_sessions'>
+      content: string
+      [key: string]: unknown
+    } | null>
     patch: (id: Id<'session_messages'> | Id<'planning_sessions'>, fields: object) => Promise<void>
   }
 }
@@ -101,7 +110,7 @@ const isOwnedByUser = (doc: PlanningSessionDoc, clerkUserId: string): boolean =>
 export const sendHandler = async (
   ctx: SendMessageCtx,
   args: { sessionId: Id<'planning_sessions'>; content: string },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<{ messageId: Id<'session_messages'> }> => {
   const session = await ctx.db.get(args.sessionId)
   if (!session || !isOwnedByUser(session, clerkUserId)) {
@@ -130,7 +139,7 @@ export const sendHandler = async (
 export const listHandler = async (
   ctx: ListMessagesCtx,
   args: { sessionId: Id<'planning_sessions'> },
-  clerkUserId: string
+  clerkUserId: string,
 ): Promise<SessionMessageDoc[]> => {
   // CRITICAL: Validate session ownership first
   const session = await ctx.db.get(args.sessionId)
@@ -154,7 +163,7 @@ export const addSystemMessageHandler = async (
     sessionId: Id<'planning_sessions'>
     content: string
     attachments?: { type: 'route_options'; routePlanId: Id<'route_plans'> }[]
-  }
+  },
 ): Promise<{ messageId: Id<'session_messages'> }> => {
   // AC-1 & AC-2: Validate content is not empty or whitespace-only
   const trimmedContent = args.content.trim()
@@ -183,7 +192,7 @@ export const createPendingAssistantMessageHandler = async (
     kind: SessionMessageKind
     attachments?: SessionMessageAttachment[]
     piMessage?: unknown
-  }
+  },
 ): Promise<{ messageId: Id<'session_messages'> }> => {
   const status = args.kind === 'text' || args.kind === 'planning' ? 'streaming' : 'running'
   const now = Date.now()
@@ -213,7 +222,7 @@ export const finalizeAssistantMessageHandler = async (
     content?: string
     status: 'complete' | 'failed'
     piMessage?: unknown
-  }
+  },
 ): Promise<null> => {
   const message = await ctx.db.get(args.messageId)
   if (!message) {
@@ -265,7 +274,7 @@ export const recordAgentTurnHandler = async (
   args: {
     sessionId: Id<'planning_sessions'>
     piMessage: unknown
-  }
+  },
 ): Promise<Id<'session_messages'>> => {
   const now = Date.now()
   const messageId = await ctx.db.insert('session_messages', {
@@ -284,7 +293,7 @@ export const recordToolResultHandler = async (
   args: {
     messageId: Id<'session_messages'>
     piMessage: unknown
-  }
+  },
 ): Promise<null> => {
   await ctx.db.patch(args.messageId, { piMessage: args.piMessage })
   return null
@@ -296,7 +305,7 @@ export const recordReasoningHandler = async (
     sessionId: Id<'planning_sessions'>
     content: string
     piMessage: unknown
-  }
+  },
 ): Promise<Id<'session_messages'>> => {
   const now = Date.now()
   const messageId = await ctx.db.insert('session_messages', {
@@ -316,7 +325,7 @@ export const appendReasoningChunkHandler = async (
   args: {
     messageId: Id<'session_messages'>
     delta: string
-  }
+  },
 ): Promise<null> => {
   const message = await ctx.db.get(args.messageId)
   if (!message) {
@@ -328,16 +337,14 @@ export const appendReasoningChunkHandler = async (
 
 export const listWithPiMessagesHandler = async (
   ctx: ListWithPiMessagesCtx,
-  args: { sessionId: Id<'planning_sessions'> }
+  args: { sessionId: Id<'planning_sessions'> },
 ): Promise<SessionMessageDoc[]> => {
   const messages = await ctx.db
     .query('session_messages')
     .withIndex('by_sessionId', (q: any) => q.eq('sessionId', args.sessionId))
     .filter((q: any) => q.eq(true, true))
     .collect()
-  return messages.sort(
-    (a: SessionMessageDoc, b: SessionMessageDoc) => a.createdAt - b.createdAt
-  )
+  return messages.sort((a: SessionMessageDoc, b: SessionMessageDoc) => a.createdAt - b.createdAt)
 }
 
 export const appendStreamingChunkHandler = async (
@@ -345,7 +352,7 @@ export const appendStreamingChunkHandler = async (
   args: {
     messageId: Id<'session_messages'>
     delta: string
-  }
+  },
 ): Promise<null> => {
   const message = await ctx.db.get(args.messageId)
   if (!message) {
@@ -367,7 +374,7 @@ export const updatePlanningContentHandler = async (
   args: {
     messageId: Id<'session_messages'>
     content: string
-  }
+  },
 ): Promise<null> => {
   const message = await ctx.db.get(args.messageId)
   if (!message) {
@@ -414,8 +421,8 @@ export const addSystemMessage = internalMutation({
         v.object({
           type: v.literal('route_options'),
           routePlanId: v.id('route_plans'),
-        })
-      )
+        }),
+      ),
     ),
   },
   returns: v.object({ messageId: v.id('session_messages') }),
@@ -487,8 +494,8 @@ const sessionMessageRowValidator = v.object({
       v.object({
         type: v.literal('route_options'),
         routePlanId: v.id('route_plans'),
-      })
-    )
+      }),
+    ),
   ),
   createdAt: v.number(),
   kind: v.optional(sessionMessageKindValidator),
@@ -563,7 +570,7 @@ type CreateThinkingCardCtx = {
 
 export const createThinkingCardHandler = async (
   ctx: CreateThinkingCardCtx,
-  args: { sessionId: Id<'planning_sessions'> }
+  args: { sessionId: Id<'planning_sessions'> },
 ): Promise<{ messageId: Id<'session_messages'> }> => {
   const now = Date.now()
   const messageId = await ctx.db.insert('session_messages', {
@@ -587,7 +594,7 @@ type AppendThinkingTextCtx = {
 
 export const appendThinkingTextHandler = async (
   ctx: AppendThinkingTextCtx,
-  args: { messageId: Id<'session_messages'>; delta: string }
+  args: { messageId: Id<'session_messages'>; delta: string },
 ): Promise<null> => {
   const message = await ctx.db.get(args.messageId)
   if (!message) {
@@ -599,14 +606,16 @@ export const appendThinkingTextHandler = async (
 
 type AppendThinkingStepCtx = {
   db: {
-    get: (id: Id<'session_messages'>) => Promise<{ thinkingSteps?: unknown[]; [key: string]: unknown } | null>
+    get: (
+      id: Id<'session_messages'>,
+    ) => Promise<{ thinkingSteps?: unknown[]; [key: string]: unknown } | null>
     patch: (id: Id<'session_messages'>, fields: object) => Promise<void>
   }
 }
 
 export const appendThinkingStepHandler = async (
   ctx: AppendThinkingStepCtx,
-  args: { messageId: Id<'session_messages'>; step: unknown }
+  args: { messageId: Id<'session_messages'>; step: unknown },
 ): Promise<null> => {
   const message = await ctx.db.get(args.messageId)
   if (!message) {
@@ -620,14 +629,16 @@ export const appendThinkingStepHandler = async (
 
 type FinalizeThinkingCardCtx = {
   db: {
-    get: (id: Id<'session_messages'>) => Promise<{ sessionId: Id<'planning_sessions'>; [key: string]: unknown } | null>
+    get: (
+      id: Id<'session_messages'>,
+    ) => Promise<{ sessionId: Id<'planning_sessions'>; [key: string]: unknown } | null>
     patch: (id: Id<'session_messages'> | Id<'planning_sessions'>, fields: object) => Promise<void>
   }
 }
 
 export const finalizeThinkingCardHandler = async (
   ctx: FinalizeThinkingCardCtx,
-  args: { messageId: Id<'session_messages'> }
+  args: { messageId: Id<'session_messages'> },
 ): Promise<null> => {
   const message = await ctx.db.get(args.messageId)
   if (!message) {

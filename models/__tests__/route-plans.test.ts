@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { v } from 'convex/values'
+import { describe, expect, it } from 'vitest'
 
 // AC-1: routePlanValidator exports a valid v.object() shape with all required fields
 describe('routePlanValidator', () => {

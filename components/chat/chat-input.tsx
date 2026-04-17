@@ -19,13 +19,24 @@
  * so the cancel affordance stays in sync with actual agent activity.
  */
 
-import { useState, useCallback, useEffect } from 'react'
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Keyboard, Pressable } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useCallback, useEffect, useState } from 'react'
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import { Icon } from 'react-native-paper'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import type { RideFlowState } from '../../hooks/use-ride-flow'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { ErrorMessage } from './error-message'
-import type { RideFlowState } from '../../hooks/use-ride-flow'
 
 type ChatInputProps = {
   onSend: (message: string) => void
@@ -97,12 +108,7 @@ const SuggestionChips = ({
           accessibilityLabel={`Suggestion: ${suggestion}`}
           accessibilityRole="button"
         >
-          <Text
-            style={[
-              semantic.type.body.sm,
-              { color: semantic.color.primary.default },
-            ]}
-          >
+          <Text style={[semantic.type.body.sm, { color: semantic.color.primary.default }]}>
             {suggestion}
           </Text>
         </TouchableOpacity>
@@ -177,7 +183,7 @@ export const ChatInput = ({
       // This avoids potential memory leaks from uncleaned timeouts
       onSend(suggestion)
     },
-    [onSend]
+    [onSend],
   )
 
   return (
@@ -189,7 +195,8 @@ export const ChatInput = ({
     >
       <Pressable
         style={{
-          paddingBottom: (keyboardVisible ? 0 : insets.bottom) + semantic.space.md + extraBottomOffset,
+          paddingBottom:
+            (keyboardVisible ? 0 : insets.bottom) + semantic.space.md + extraBottomOffset,
         }}
         onPress={Keyboard.dismiss}
       >
@@ -202,164 +209,153 @@ export const ChatInput = ({
 
         {/* Suggestion chips when idle AND no messages have been sent yet */}
         {isIdle && !hasMessages && suggestions.length > 0 && !isPlanning && (
-          <SuggestionChips
-            suggestions={suggestions}
-            onSelect={handleSelectSuggestion}
-          />
+          <SuggestionChips suggestions={suggestions} onSelect={handleSelectSuggestion} />
         )}
 
         {/* Input row: input container + toggle button */}
         <View style={[styles.inputRow, { paddingHorizontal: semantic.space.md }]}>
-        {/* Input bar */}
-        <Pressable
-          style={[
-            styles.inputContainer,
-            {
-              backgroundColor: semantic.color.surface.default,
-              borderRadius: semantic.radius.xl,
-              borderWidth: 1,
-              borderColor: semantic.color.border.default,
-            },
-          ]}
-          onPress={Keyboard.dismiss}
-        >
-          {/* Manual planning mode icon */}
-          {onManualModePress && (
+          {/* Input bar */}
+          <Pressable
+            style={[
+              styles.inputContainer,
+              {
+                backgroundColor: semantic.color.surface.default,
+                borderRadius: semantic.radius.xl,
+                borderWidth: 1,
+                borderColor: semantic.color.border.default,
+              },
+            ]}
+            onPress={Keyboard.dismiss}
+          >
+            {/* Manual planning mode icon */}
+            {onManualModePress && (
+              <TouchableOpacity
+                onPress={onManualModePress}
+                style={[
+                  styles.manualModeButton,
+                  {
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  },
+                ]}
+                testID="chat-input-manual-mode-button"
+                accessibilityLabel="Switch to manual planning"
+                accessibilityHint="Opens the manual ride planning sheet with preferences from your conversation"
+                accessibilityRole="button"
+              >
+                <Icon source="map-marker-path" size={18} color={semantic.color.onSurface.muted} />
+              </TouchableOpacity>
+            )}
+
+            {/* Text input */}
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={[
+                  semantic.type.body.md,
+                  styles.textInput,
+                  {
+                    color: semantic.color.onSurface.default,
+                  },
+                  isPlanning && styles.inputDisabled,
+                ]}
+                placeholder="Where would you like to ride?"
+                placeholderTextColor={semantic.color.onSurface.muted}
+                value={text}
+                onChangeText={setText}
+                multiline
+                textAlignVertical="center"
+                blurOnSubmit={false}
+                editable={!isPlanning}
+                testID="chat-input-text-field"
+                accessibilityLabel="Chat input field"
+                accessibilityHint={
+                  isPlanning
+                    ? 'Input is disabled while planning'
+                    : 'Type your ride request and tap send'
+                }
+              />
+            </View>
+
+            {/* Action button */}
             <TouchableOpacity
-              onPress={onManualModePress}
+              onPress={isPlanning ? onCancel : handleSend}
+              hitSlop={{
+                top: semantic.space.xs,
+                bottom: semantic.space.xs,
+                left: semantic.space.xs,
+                right: semantic.space.xs,
+              }}
               style={[
-                styles.manualModeButton,
+                styles.sendButton,
                 {
-                  width: 32,
-                  height: 32,
-                  borderRadius: 16,
+                  backgroundColor: isPlanning
+                    ? semantic.color.danger.default
+                    : semantic.color.primary.default,
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
                   alignItems: 'center',
                   justifyContent: 'center',
                 },
               ]}
-              testID="chat-input-manual-mode-button"
-              accessibilityLabel="Switch to manual planning"
-              accessibilityHint="Opens the manual ride planning sheet with preferences from your conversation"
+              testID="chat-input-send-button"
+              accessibilityLabel={isPlanning ? 'Cancel planning' : 'Send message'}
+              accessibilityHint={
+                isPlanning
+                  ? 'Cancels the current ride planning operation'
+                  : 'Sends your ride request to the planning assistant'
+              }
               accessibilityRole="button"
             >
               <Icon
-                source="map-marker-path"
-                size={18}
-                color={semantic.color.onSurface.muted}
+                source={isPlanning ? 'close' : 'arrow-up'}
+                size={20}
+                color={semantic.color.onPrimary.default}
+              />
+            </TouchableOpacity>
+          </Pressable>
+
+          {/* Mode toggle button */}
+          {onToggleChatMode && (
+            <TouchableOpacity
+              onPress={onToggleChatMode}
+              style={[
+                styles.toggleButton,
+                {
+                  backgroundColor: semantic.color.surfaceVariant.default,
+                  borderColor: semantic.color.border.default,
+                  borderWidth: 1.5,
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  ...semantic.elevation[3],
+                },
+              ]}
+              testID="chat-input-toggle-button"
+              accessibilityLabel={chatMode ? 'Switch to map view' : 'Switch to chat view'}
+              accessibilityHint={
+                chatMode ? 'Returns to the map view' : 'Opens the chat transcript view'
+              }
+              accessibilityRole="button"
+              hitSlop={{
+                top: semantic.space.xs,
+                bottom: semantic.space.xs,
+                left: semantic.space.xs,
+                right: semantic.space.xs,
+              }}
+            >
+              <Icon
+                source={chatMode ? 'map-outline' : 'message-text-outline'}
+                size={20}
+                color={semantic.color.onSurface.default}
               />
             </TouchableOpacity>
           )}
-
-          {/* Text input */}
-          <View style={styles.inputWrapper}>
-            <TextInput
-              style={[
-                semantic.type.body.md,
-                styles.textInput,
-                {
-                  color: semantic.color.onSurface.default,
-                },
-                isPlanning && styles.inputDisabled,
-              ]}
-              placeholder="Where would you like to ride?"
-              placeholderTextColor={semantic.color.onSurface.muted}
-              value={text}
-              onChangeText={setText}
-              multiline
-              textAlignVertical="center"
-              blurOnSubmit={false}
-              editable={!isPlanning}
-              testID="chat-input-text-field"
-              accessibilityLabel="Chat input field"
-              accessibilityHint={
-                isPlanning
-                  ? 'Input is disabled while planning'
-                  : 'Type your ride request and tap send'
-              }
-            />
-          </View>
-
-          {/* Action button */}
-          <TouchableOpacity
-            onPress={isPlanning ? onCancel : handleSend}
-            hitSlop={{
-              top: semantic.space.xs,
-              bottom: semantic.space.xs,
-              left: semantic.space.xs,
-              right: semantic.space.xs,
-            }}
-            style={[
-              styles.sendButton,
-              {
-                backgroundColor: isPlanning
-                  ? semantic.color.danger.default
-                  : semantic.color.primary.default,
-                width: 40,
-                height: 40,
-                borderRadius: 20,
-                alignItems: 'center',
-                justifyContent: 'center',
-              },
-            ]}
-            testID="chat-input-send-button"
-            accessibilityLabel={isPlanning ? 'Cancel planning' : 'Send message'}
-            accessibilityHint={
-              isPlanning
-                ? 'Cancels the current ride planning operation'
-                : 'Sends your ride request to the planning assistant'
-            }
-            accessibilityRole="button"
-          >
-            <Icon
-              source={isPlanning ? 'close' : 'arrow-up'}
-              size={20}
-              color={semantic.color.onPrimary.default}
-            />
-          </TouchableOpacity>
-        </Pressable>
-
-        {/* Mode toggle button */}
-        {onToggleChatMode && (
-          <TouchableOpacity
-            onPress={onToggleChatMode}
-            style={[
-              styles.toggleButton,
-              {
-                backgroundColor: semantic.color.surfaceVariant.default,
-                borderColor: semantic.color.border.default,
-                borderWidth: 1.5,
-                width: 40,
-                height: 40,
-                borderRadius: 20,
-                alignItems: 'center',
-                justifyContent: 'center',
-                ...semantic.elevation[3],
-              },
-            ]}
-            testID="chat-input-toggle-button"
-            accessibilityLabel={
-              chatMode ? 'Switch to map view' : 'Switch to chat view'
-            }
-            accessibilityHint={
-              chatMode
-                ? 'Returns to the map view'
-                : 'Opens the chat transcript view'
-            }
-            accessibilityRole="button"
-            hitSlop={{
-              top: semantic.space.xs,
-              bottom: semantic.space.xs,
-              left: semantic.space.xs,
-              right: semantic.space.xs,
-            }}
-          >
-            <Icon
-              source={chatMode ? 'map-outline' : 'message-text-outline'}
-              size={20}
-              color={semantic.color.onSurface.default}
-            />
-          </TouchableOpacity>
-        )}
         </View>
       </Pressable>
     </KeyboardAvoidingView>

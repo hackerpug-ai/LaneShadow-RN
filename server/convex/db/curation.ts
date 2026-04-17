@@ -5,14 +5,12 @@
  * Requires Clerk authentication for all endpoints.
  */
 
+// Import paginationOptsValidator from convex/server
+import { paginationOptsValidator } from 'convex/server'
 import { ConvexError, v } from 'convex/values'
-
 import type { Doc } from '../_generated/dataModel'
 import { internalQuery } from '../_generated/server'
 import { requireIdentity } from '../guards'
-
-// Import paginationOptsValidator from convex/server
-import { paginationOptsValidator } from 'convex/server'
 
 type CuratedRouteDoc = Doc<'curated_routes'>
 type CuratedRouteEnrichmentDoc = Doc<'curated_route_enrichments'>
@@ -50,7 +48,7 @@ export const routeCardValidator = v.object({
   enrichmentVersion: v.optional(v.number()),
   location: v.optional(
     v.object({
-      type: v.literal("Point"),
+      type: v.literal('Point'),
       coordinates: v.array(v.number()),
     }),
   ),
@@ -88,9 +86,7 @@ export const leanSync = internalQuery({
 
     const result = await dbQuery.paginate({
       numItems: args.paginationOpts.numItems,
-      cursor: args.paginationOpts.cursor
-        ? ({ id: args.paginationOpts.cursor } as any)
-        : undefined,
+      cursor: args.paginationOpts.cursor ? ({ id: args.paginationOpts.cursor } as any) : undefined,
     })
 
     let page = result.page
@@ -130,8 +126,8 @@ export const fetchEnrichments = internalQuery({
                   url: v.string(),
                   caption: v.string(),
                   attribution: v.string(),
-                })
-              )
+                }),
+              ),
             ),
             roadClassification: v.optional(v.array(v.string())),
             surfaceMaterial: v.optional(v.string()),
@@ -144,14 +140,14 @@ export const fetchEnrichments = internalQuery({
                   lat: v.number(),
                   lng: v.number(),
                   name: v.string(),
-                })
-              )
+                }),
+              ),
             ),
-          })
+          }),
         ),
       }),
-      v.null()
-    )
+      v.null(),
+    ),
   ),
   handler: async (ctx, args) => {
     await requireIdentity(ctx)
@@ -181,7 +177,7 @@ export const checkMissingEnrichments = internalQuery({
       v.object({
         routeId: v.string(),
         version: v.number(),
-      })
+      }),
     ),
   },
   returns: v.array(v.string()),
@@ -218,7 +214,7 @@ export const dashboardMetrics = internalQuery({
       v.object({
         source: v.string(),
         count: v.number(),
-      })
+      }),
     ),
     lastScrape: v.optional(v.number()),
     llmCost: v.optional(v.number()),
@@ -228,7 +224,7 @@ export const dashboardMetrics = internalQuery({
         hide: v.number(),
         complete: v.number(),
         rate: v.number(),
-      })
+      }),
     ),
   }),
   handler: async (ctx) => {
@@ -251,9 +247,8 @@ export const dashboardMetrics = internalQuery({
     }))
 
     // Find last scrape timestamp (max contentVersion)
-    const lastScrape = routes.length > 0
-      ? Math.max(...routes.map((r) => r.contentVersion))
-      : undefined
+    const lastScrape =
+      routes.length > 0 ? Math.max(...routes.map((r) => r.contentVersion)) : undefined
 
     // Aggregate feedback counts
     const feedbackSummary = {

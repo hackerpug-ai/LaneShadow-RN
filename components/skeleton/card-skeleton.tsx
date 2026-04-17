@@ -8,8 +8,16 @@
  * Accessibility: screen reader announces "Loading" via accessibilityLabel.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Animated, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from 'react-native'
+import type React from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  Animated,
+  type LayoutChangeEvent,
+  type StyleProp,
+  StyleSheet,
+  View,
+  type ViewStyle,
+} from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { LabelSkeleton } from './label-skeleton'
 
@@ -71,7 +79,7 @@ export const CardSkeleton = ({
         toValue: cardWidth,
         duration: SHIMMER_DURATION_MS,
         useNativeDriver: true,
-      })
+      }),
     ).start()
 
     return () => {
@@ -276,4 +284,3 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
 })
-

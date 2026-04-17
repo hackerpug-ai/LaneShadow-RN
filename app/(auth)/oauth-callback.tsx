@@ -27,4 +27,3 @@ export const OAuthCallbackScreen = () => {
 }
 
 export default OAuthCallbackScreen
-

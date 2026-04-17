@@ -1,7 +1,7 @@
 'use node'
 
-import type { PlanInput, RouteLeg, RouteSnapshot, RouteStop } from '../../../../models/saved-routes'
 import type { RouteSketch } from '../../../../models/route-sketch'
+import type { PlanInput, RouteLeg, RouteSnapshot, RouteStop } from '../../../../models/saved-routes'
 import { traceableToolSync } from '../lib/tracing'
 import type { ProviderRouteResponse } from '../providers/routingProvider'
 
@@ -18,18 +18,22 @@ const toRouteStop = (lat: number, lng: number, label?: string, placeId?: string)
   placeId,
 })
 
-const normalizeRouteImpl = ({ providerRoute, planInput, sketch }: NormalizeRouteParams): RouteSnapshot => {
+const normalizeRouteImpl = ({
+  providerRoute,
+  planInput,
+  sketch,
+}: NormalizeRouteParams): RouteSnapshot => {
   const origin = toRouteStop(
     planInput.start.lat,
     planInput.start.lng,
     planInput.start.label,
-    planInput.start.placeId
+    planInput.start.placeId,
   )
   const destination = toRouteStop(
     planInput.end.lat,
     planInput.end.lng,
     planInput.end.label,
-    planInput.end.placeId
+    planInput.end.placeId,
   )
 
   // Build label map from sketch segments and anchor points
@@ -55,12 +59,8 @@ const normalizeRouteImpl = ({ providerRoute, planInput, sketch }: NormalizeRoute
 
     // Priority: origin/destination labels > LLM segment names > undefined
     const labels = labelMap.get(idx)
-    const startLabel = isFirstLeg
-      ? planInput.start.label
-      : labels?.startLabel
-    const endLabel = isLastLeg
-      ? planInput.end.label
-      : labels?.endLabel
+    const startLabel = isFirstLeg ? planInput.start.label : labels?.startLabel
+    const endLabel = isLastLeg ? planInput.end.label : labels?.endLabel
 
     return {
       legIndex: leg.legIndex,

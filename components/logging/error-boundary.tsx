@@ -4,7 +4,8 @@
  * Catches React component errors and logs them to the frontend logger.
  */
 
-import React, { Component, ReactNode } from 'react'
+import type React from 'react'
+import { Component, type ReactNode } from 'react'
 import { View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { logger } from '../../lib/logger/frontend-logger'

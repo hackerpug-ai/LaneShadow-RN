@@ -8,8 +8,8 @@ import { getUserFacingError } from '../lib/convex-error'
 import { showErrorNotification, showSuccessNotification } from '../lib/notifier-helpers'
 import type {
   PlanInput,
-  RouteProvenance,
   RouteIndex,
+  RouteProvenance,
   RouteSnapshot,
   SavedRouteDetailView,
   SavedRoutesListView,
@@ -35,7 +35,7 @@ type SavedRoutesListArgs = {
 }
 
 export const useSavedRoutesList = (
-  args?: SavedRoutesListArgs
+  args?: SavedRoutesListArgs,
 ): { data: SavedRoutesListView | undefined; isLoading: boolean } => {
   const data = useQuery(api.db.savedRoutes.getSavedRoutesList, {
     limit: args?.limit,
@@ -50,16 +50,16 @@ export const useSavedRoutesList = (
       data: data as SavedRoutesListResult | undefined,
       isLoading,
     }),
-    [data, isLoading]
+    [data, isLoading],
   )
 }
 
 export const useSavedRouteDetail = (
-  savedRouteId: string | null
+  savedRouteId: string | null,
 ): { data: SavedRouteDetailView | null | undefined; isLoading: boolean } => {
   const data = useQuery(
     api.db.savedRoutes.getSavedRouteDetail,
-    savedRouteId ? { savedRouteId: savedRouteId as Id<'saved_routes'> } : 'skip'
+    savedRouteId ? { savedRouteId: savedRouteId as Id<'saved_routes'> } : 'skip',
   )
   const isLoading = data === undefined
 
@@ -68,13 +68,13 @@ export const useSavedRouteDetail = (
       data: (data as SavedRouteDetailResult | null | undefined) ?? null,
       isLoading,
     }),
-    [data, isLoading]
+    [data, isLoading],
   )
 }
 
 const useMutationRunner = <Args extends Record<string, unknown>, Result>(
   mutationRef: (args: Args) => Promise<Result>,
-  successMessage: string
+  successMessage: string,
 ): {
   run: (args: Args) => Promise<Result | null>
   isRunning: boolean
@@ -101,7 +101,7 @@ const useMutationRunner = <Args extends Record<string, unknown>, Result>(
         setIsRunning(false)
       }
     },
-    [mutationRef, successMessage]
+    [mutationRef, successMessage],
   )
 
   const resetError = useCallback(() => setError(null), [])
@@ -113,7 +113,7 @@ const useMutationRunner = <Args extends Record<string, unknown>, Result>(
       error,
       resetError,
     }),
-    [error, isRunning, resetError, run]
+    [error, isRunning, resetError, run],
   )
 }
 
@@ -121,7 +121,7 @@ export const useSaveRoute = () => {
   const mutation = useMutation(api.db.savedRoutes.saveRoute)
   return useMutationRunner<SaveRouteArgs, { savedRouteId: string }>(
     mutation,
-    'Route saved successfully.'
+    'Route saved successfully.',
   )
 }
 
@@ -129,7 +129,7 @@ export const useRenameRoute = () => {
   const mutation = useMutation(api.db.savedRoutes.renameRoute)
   return useMutationRunner<{ savedRouteId: Id<'saved_routes'>; name: string }, null>(
     mutation,
-    'Route renamed.'
+    'Route renamed.',
   )
 }
 
@@ -143,8 +143,5 @@ export const useSoftDeleteRoute = () => {
 
 export const useUndoDeleteRoute = () => {
   const mutation = useMutation(api.db.savedRoutes.undoDeleteRoute)
-  return useMutationRunner<{ savedRouteId: Id<'saved_routes'> }, null>(
-    mutation,
-    ''
-  )
+  return useMutationRunner<{ savedRouteId: Id<'saved_routes'> }, null>(mutation, '')
 }

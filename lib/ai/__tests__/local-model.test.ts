@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { LocalModelManager } from '../local-model'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ChecksumValidator } from '../checksum'
+import { LocalModelManager } from '../local-model'
 import { ModelDownloadManager } from '../model-download'
 
 /**
@@ -43,7 +43,7 @@ describe('LocalModelManager - AC-001: Happy Path', () => {
       // Act: Download and load model
       const downloadResult = await downloadManager.downloadModel(
         mockModelConfig.url,
-        mockNetworkStatus
+        mockNetworkStatus,
       )
 
       expect(downloadResult.success).toBe(true)
@@ -51,14 +51,14 @@ describe('LocalModelManager - AC-001: Happy Path', () => {
 
       // Validate checksum
       const checksumResult = await checksumValidator.validate(
-        downloadResult.filePath,
-        mockModelConfig.expectedChecksum
+        downloadResult.filePath!,
+        mockModelConfig.expectedChecksum,
       )
 
       expect(checksumResult.valid).toBe(true)
 
       // Load model into memory
-      const loadResult = await localModelManager.loadModel(downloadResult.filePath)
+      const loadResult = await localModelManager.loadModel(downloadResult.filePath!)
 
       // Assert: Model loaded successfully
       expect(loadResult.success).toBe(true)

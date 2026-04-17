@@ -29,7 +29,7 @@ const isRainyLevel = (level: string): boolean => {
 const calculateArrivalTime = (
   departureTime: number,
   legs: RouteLeg[],
-  targetLegIndex: number
+  targetLegIndex: number,
 ): number => {
   let cumulativeDuration = 0
 
@@ -52,7 +52,7 @@ const calculateArrivalTime = (
 export const calculateRainTiming = (
   rainOverlay: RainOverlay | undefined,
   legs: RouteLeg[],
-  departureTime: number
+  departureTime: number,
 ): RainTimingResult => {
   // Handle missing or empty overlay
   if (!rainOverlay?.byLeg?.length) {
@@ -142,7 +142,7 @@ export const formatRainTiming = (result: RainTimingResult): string | null => {
 export const getRainTimingDisplay = (
   rainOverlay: RainOverlay | undefined,
   legs: RouteLeg[],
-  departureTime: number
+  departureTime: number,
 ): string | null => {
   const result = calculateRainTiming(rainOverlay, legs, departureTime)
   return formatRainTiming(result)

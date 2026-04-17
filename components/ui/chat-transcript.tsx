@@ -33,58 +33,49 @@
  * Following react-rules.md: named export, no unnecessary useCallback/useMemo.
  */
 
-import React, { useRef, useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-} from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useSemanticTheme } from '../../hooks/use-semantic-theme';
-import { RouteAttachmentCard } from './route-attachment-card';
-import { TypingIndicator } from '../chat/typing-indicator';
-import { MarkdownText } from './markdown-text';
-import {
-  CARD_REGISTRY,
-  type CardAttachment,
-  type CardKind,
-} from '../chat/card-registry';
-import type { Id } from '../../convex/_generated/dataModel';
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import React, { useEffect, useMemo, useRef } from 'react'
+import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import type { Id } from '../../convex/_generated/dataModel'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { CARD_REGISTRY, type CardAttachment, type CardKind } from '../chat/card-registry'
+import { TypingIndicator } from '../chat/typing-indicator'
+import { MarkdownText } from './markdown-text'
+import { RouteAttachmentCard } from './route-attachment-card'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 export interface RouteAttachmentProps {
-  id: string;
-  label: string;
-  description: string;
-  distance: string;
-  duration: string;
-  scenicScore: number;
+  id: string
+  label: string
+  description: string
+  distance: string
+  duration: string
+  scenicScore: number
   weatherBadge?: {
-    type: 'clear' | 'rain' | 'wind' | 'cloudy';
-    text: string;
-  };
-  isBest?: boolean;
+    type: 'clear' | 'rain' | 'wind' | 'cloudy'
+    text: string
+  }
+  isBest?: boolean
 }
 
-export type ChatMessageKind = 'text' | CardKind;
-export type ChatMessageStatus = 'streaming' | 'running' | 'complete' | 'failed';
+export type ChatMessageKind = 'text' | CardKind
+export type ChatMessageStatus = 'streaming' | 'running' | 'complete' | 'failed'
 
 export interface ChatMessage {
-  id: string;
-  role: 'rider' | 'agent';
-  content: string;
-  timestamp: Date;
-  routeAttachments?: RouteAttachmentProps[];
+  id: string
+  role: 'rider' | 'agent'
+  content: string
+  timestamp: Date
+  routeAttachments?: RouteAttachmentProps[]
   /** Discriminates content type — defaults to 'text' when undefined. */
-  kind?: ChatMessageKind;
+  kind?: ChatMessageKind
   /** Per-message lifecycle state. Used to render streaming indicators. */
-  status?: ChatMessageStatus;
+  status?: ChatMessageStatus
   /** Raw session_message attachments passed through to card components. */
-  attachments?: CardAttachment[];
+  attachments?: CardAttachment[]
   /** Thinking steps showing agent's tool activity and reasoning */
   thinkingSteps?: {
     type: 'thinking' | 'tool_start' | 'tool_finish'
@@ -92,26 +83,26 @@ export interface ChatMessage {
     summary: string
     detail?: string
     timestamp: number
-  }[];
+  }[]
 }
 
 interface ChatTranscriptProps {
-  messages: ChatMessage[];
-  onRoutePress?: (routeId: string, messageId: string) => void;
+  messages: ChatMessage[]
+  onRoutePress?: (routeId: string, messageId: string) => void
   /** Called when the user taps a completed route card to view it on the map. */
-  onViewOnMap?: () => void;
+  onViewOnMap?: () => void
   /** Extra top padding inside the scroll content, e.g. to clear a
    *  floating header overlay rendered above the transcript. */
-  topInset?: number;
+  topInset?: number
   /** Extra bottom padding inside the scroll content, e.g. to clear a
    *  floating input bar rendered above the transcript. */
-  bottomInset?: number;
+  bottomInset?: number
   /** When true, the transcript's own background is transparent so the
    *  parent can provide its own backdrop (e.g. a semi-transparent scrim
    *  over the map). */
-  transparent?: boolean;
+  transparent?: boolean
   /** Called when the user begins dragging (scrolling) the transcript. */
-  onScrollBeginDrag?: () => void;
+  onScrollBeginDrag?: () => void
 }
 
 // ---------------------------------------------------------------------------
@@ -120,38 +111,35 @@ interface ChatTranscriptProps {
 
 /** Format a Date as a friendly time string */
 function formatMessageTime(date: Date): string {
-  const hours = date.getHours();
-  const mins = date.getMinutes();
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  const h = hours % 12 || 12;
-  const m = mins.toString().padStart(2, '0');
-  return `${h}:${m} ${ampm}`;
+  const hours = date.getHours()
+  const mins = date.getMinutes()
+  const ampm = hours >= 12 ? 'PM' : 'AM'
+  const h = hours % 12 || 12
+  const m = mins.toString().padStart(2, '0')
+  return `${h}:${m} ${ampm}`
 }
 
 /** Format a Date as a day label (Today / Yesterday / weekday / date) */
 function formatDayLabel(date: Date): string {
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const msgDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const diffDays = Math.round((today.getTime() - msgDay.getTime()) / (1000 * 60 * 60 * 24));
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const msgDay = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const diffDays = Math.round((today.getTime() - msgDay.getTime()) / (1000 * 60 * 60 * 24))
 
-  if (diffDays === 0) return 'Today';
-  if (diffDays === 1) return 'Yesterday';
+  if (diffDays === 0) return 'Today'
+  if (diffDays === 1) return 'Yesterday'
   if (diffDays < 7) {
-    return date.toLocaleDateString('en-US', { weekday: 'long' });
+    return date.toLocaleDateString('en-US', { weekday: 'long' })
   }
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
 /** Returns true when a timestamp divider should be shown before this message */
-function shouldShowTimestamp(
-  current: ChatMessage,
-  previous: ChatMessage | undefined,
-): boolean {
-  if (!previous) return true; // Always show on the first message
+function shouldShowTimestamp(current: ChatMessage, previous: ChatMessage | undefined): boolean {
+  if (!previous) return true // Always show on the first message
 
-  const curr = new Date(current.timestamp);
-  const prev = new Date(previous.timestamp);
+  const curr = new Date(current.timestamp)
+  const prev = new Date(previous.timestamp)
 
   // New calendar day
   if (
@@ -159,12 +147,12 @@ function shouldShowTimestamp(
     curr.getMonth() !== prev.getMonth() ||
     curr.getDate() !== prev.getDate()
   ) {
-    return true;
+    return true
   }
 
   // Gap > 5 minutes
-  const gapMs = curr.getTime() - prev.getTime();
-  return gapMs > 5 * 60 * 1000;
+  const gapMs = curr.getTime() - prev.getTime()
+  return gapMs > 5 * 60 * 1000
 }
 
 // ---------------------------------------------------------------------------
@@ -173,26 +161,26 @@ function shouldShowTimestamp(
 
 /** Centred timestamp divider shown between message clusters */
 interface TimestampDividerProps {
-  message: ChatMessage;
-  previous: ChatMessage | undefined;
+  message: ChatMessage
+  previous: ChatMessage | undefined
 }
 
 const TimestampDivider = ({ message, previous }: TimestampDividerProps) => {
-  const { semantic } = useSemanticTheme();
+  const { semantic } = useSemanticTheme()
 
-  const curr = new Date(message.timestamp);
-  const prev = previous ? new Date(previous.timestamp) : undefined;
+  const curr = new Date(message.timestamp)
+  const prev = previous ? new Date(previous.timestamp) : undefined
 
   // Determine label: "Day, Time" on day-boundary, just "Time" within same day
   const isNewDay =
     !prev ||
     curr.getFullYear() !== prev.getFullYear() ||
     curr.getMonth() !== prev.getMonth() ||
-    curr.getDate() !== prev.getDate();
+    curr.getDate() !== prev.getDate()
 
   const label = isNewDay
     ? `${formatDayLabel(curr)} · ${formatMessageTime(curr)}`
-    : formatMessageTime(curr);
+    : formatMessageTime(curr)
 
   return (
     <View style={styles.timestampDivider}>
@@ -208,16 +196,16 @@ const TimestampDivider = ({ message, previous }: TimestampDividerProps) => {
         {label}
       </Text>
     </View>
-  );
-};
+  )
+}
 
 /** Right-aligned rider bubble */
 interface RiderBubbleProps {
-  message: ChatMessage;
+  message: ChatMessage
 }
 
 const RiderBubble = ({ message }: RiderBubbleProps) => {
-  const { semantic } = useSemanticTheme();
+  const { semantic } = useSemanticTheme()
 
   return (
     <View style={styles.riderRow} testID="rider-message-row">
@@ -246,19 +234,19 @@ const RiderBubble = ({ message }: RiderBubbleProps) => {
         </Text>
       </View>
     </View>
-  );
-};
+  )
+}
 
 /** Left-aligned agent message with optional motorbike avatar */
 interface AgentMessageProps {
-  message: ChatMessage;
-  onRoutePress?: (routeId: string, messageId: string) => void;
+  message: ChatMessage
+  onRoutePress?: (routeId: string, messageId: string) => void
   /** When true, adds a semi-transparent glass container for readability over map */
-  transparent?: boolean;
+  transparent?: boolean
 }
 
 const AgentMessage = ({ message, onRoutePress, transparent }: AgentMessageProps) => {
-  const { semantic } = useSemanticTheme();
+  const { semantic } = useSemanticTheme()
 
   return (
     <View
@@ -274,9 +262,7 @@ const AgentMessage = ({ message, onRoutePress, transparent }: AgentMessageProps)
       testID="agent-message-row"
     >
       <View style={styles.agentTextRow}>
-        <MarkdownText testID="agent-message-content">
-          {message.content}
-        </MarkdownText>
+        <MarkdownText testID="agent-message-content">{message.content}</MarkdownText>
         {message.status === 'streaming' && (
           <View
             style={[styles.typingSlot, { marginLeft: semantic.space.xs }]}
@@ -287,21 +273,21 @@ const AgentMessage = ({ message, onRoutePress, transparent }: AgentMessageProps)
         )}
       </View>
     </View>
-  );
-};
+  )
+}
 
 // ---------------------------------------------------------------------------
 // Route Attachments Row (separate from agent message to prevent overlap)
 // ---------------------------------------------------------------------------
 
 interface RouteAttachmentsRowProps {
-  message: ChatMessage;
-  onRoutePress?: (routeId: string, messageId: string) => void;
+  message: ChatMessage
+  onRoutePress?: (routeId: string, messageId: string) => void
 }
 
 const RouteAttachmentsRow = ({ message, onRoutePress }: RouteAttachmentsRowProps) => {
   if (!message.routeAttachments || message.routeAttachments.length === 0) {
-    return null;
+    return null
   }
 
   return (
@@ -315,37 +301,37 @@ const RouteAttachmentsRow = ({ message, onRoutePress }: RouteAttachmentsRowProps
         />
       ))}
     </View>
-  );
-};
+  )
+}
 
 // ---------------------------------------------------------------------------
 // Card row (left-aligned, no bubble — mirrors AgentMessage layout)
 // ---------------------------------------------------------------------------
 
 interface CardRowProps {
-  message: ChatMessage;
-  onViewOnMap?: () => void;
+  message: ChatMessage
+  onViewOnMap?: () => void
 }
 
 const CardRow = ({ message, onViewOnMap }: CardRowProps) => {
-  const kind = message.kind as CardKind | undefined;
+  const kind = message.kind as CardKind | undefined
   console.info('[ChatTranscript] CardRow called:', {
     kind,
     messageId: message.id,
     isText: kind === ('text' as CardKind),
     hasKind: !!kind,
-  });
+  })
 
   if (!kind || kind === ('text' as CardKind)) {
-    console.info('[ChatTranscript] CardRow returning null (text or no kind)');
-    return null;
+    console.info('[ChatTranscript] CardRow returning null (text or no kind)')
+    return null
   }
 
-  const CardComponent = CARD_REGISTRY[kind];
+  const CardComponent = CARD_REGISTRY[kind]
   // Defensive: if kind isn't in the registry, render nothing.
   if (!CardComponent) {
-    console.warn('[ChatTranscript] Unknown card kind:', kind);
-    return null;
+    console.warn('[ChatTranscript] Unknown card kind:', kind)
+    return null
   }
 
   // Debug logging to see what's being rendered
@@ -355,10 +341,10 @@ const CardRow = ({ message, onViewOnMap }: CardRowProps) => {
     hasAttachments: !!message.attachments,
     attachmentsCount: message.attachments?.length ?? 0,
     attachments: message.attachments,
-  });
+  })
 
   // Shape attachments to match the CardProps contract.
-  const attachments: CardAttachment[] = message.attachments ?? [];
+  const attachments: CardAttachment[] = message.attachments ?? []
 
   // Cards are always assistant-side, left-aligned. We reuse the agentRow
   // layout for visual consistency but skip the avatar since each card has
@@ -377,8 +363,8 @@ const CardRow = ({ message, onViewOnMap }: CardRowProps) => {
         onViewOnMap={onViewOnMap}
       />
     </View>
-  );
-};
+  )
+}
 
 // ---------------------------------------------------------------------------
 // Assistant message router — branches on message.kind
@@ -390,13 +376,13 @@ function renderAssistantMessage(
   onViewOnMap: (() => void) | undefined,
   transparent?: boolean,
 ): React.ReactElement {
-  const kind: ChatMessageKind = message.kind ?? 'text';
+  const kind: ChatMessageKind = message.kind ?? 'text'
 
   if (kind === 'text') {
-    return <AgentMessage message={message} onRoutePress={onRoutePress} transparent={transparent} />;
+    return <AgentMessage message={message} onRoutePress={onRoutePress} transparent={transparent} />
   }
 
-  return <CardRow message={message} onViewOnMap={onViewOnMap} />;
+  return <CardRow message={message} onViewOnMap={onViewOnMap} />
 }
 
 // ---------------------------------------------------------------------------
@@ -404,7 +390,7 @@ function renderAssistantMessage(
 // ---------------------------------------------------------------------------
 
 const EmptyState = () => {
-  const { semantic } = useSemanticTheme();
+  const { semantic } = useSemanticTheme()
 
   return (
     <View style={styles.emptyState}>
@@ -427,8 +413,8 @@ const EmptyState = () => {
         Start a conversation from the home screen
       </Text>
     </View>
-  );
-};
+  )
+}
 
 // ---------------------------------------------------------------------------
 // ChatTranscript
@@ -443,54 +429,60 @@ export const ChatTranscript = ({
   transparent = false,
   onScrollBeginDrag,
 }: ChatTranscriptProps) => {
-  const { semantic } = useSemanticTheme();
-  const scrollRef = useRef<ScrollView>(null);
+  const { semantic } = useSemanticTheme()
+  const scrollRef = useRef<ScrollView>(null)
 
   // Track whether the user has manually scrolled away from the bottom
   // This prevents auto-scroll from interrupting the user reading history
-  const [userHasScrolled, setUserHasScrolled] = React.useState(false);
+  const [userHasScrolled, setUserHasScrolled] = React.useState(false)
 
   // Track message IDs to detect when NEW messages arrive (vs existing messages updating)
-  const messageIds = useMemo(
-    () => messages.map(m => m.id).join(','),
-    [messages]
-  );
+  const messageIds = useMemo(() => messages.map((m) => m.id).join(','), [messages])
 
   // Track the previous message IDs to detect new messages
-  const prevMessageIdsRef = React.useRef<string>('');
+  const prevMessageIdsRef = React.useRef<string>('')
 
   // Auto-scroll to bottom on mount and when NEW messages arrive (not just status updates)
   useEffect(() => {
-    const hasNewMessages = messageIds !== prevMessageIdsRef.current && messages.length > 0;
+    const hasNewMessages = messageIds !== prevMessageIdsRef.current && messages.length > 0
 
     if (hasNewMessages && !userHasScrolled) {
       // Use a short timeout to ensure layout is complete before scrolling
       const timer = setTimeout(() => {
-        scrollRef.current?.scrollToEnd({ animated: true });
-      }, 100);
-      return () => clearTimeout(timer);
+        scrollRef.current?.scrollToEnd({ animated: true })
+      }, 100)
+      return () => clearTimeout(timer)
     }
 
     // Update the ref for next comparison
-    prevMessageIdsRef.current = messageIds;
-  }, [messageIds, messages.length, userHasScrolled]);
+    prevMessageIdsRef.current = messageIds
+  }, [messageIds, messages.length, userHasScrolled])
 
   // Detect when user manually scrolls away from bottom
-  const handleScroll = React.useCallback((event: { nativeEvent: { contentOffset: { y: number }; contentSize: { height: number }; layoutMeasurement: { height: number } } }) => {
-    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
-    const isNearBottom = contentSize.height - contentOffset.y - layoutMeasurement.height < 50;
+  const handleScroll = React.useCallback(
+    (event: {
+      nativeEvent: {
+        contentOffset: { y: number }
+        contentSize: { height: number }
+        layoutMeasurement: { height: number }
+      }
+    }) => {
+      const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent
+      const isNearBottom = contentSize.height - contentOffset.y - layoutMeasurement.height < 50
 
-    // Mark that user has scrolled if they're not near the bottom
-    if (!isNearBottom) {
-      setUserHasScrolled(true);
-    } else {
-      // User is back at the bottom, reset the flag
-      setUserHasScrolled(false);
-    }
-  }, []);
+      // Mark that user has scrolled if they're not near the bottom
+      if (!isNearBottom) {
+        setUserHasScrolled(true)
+      } else {
+        // User is back at the bottom, reset the flag
+        setUserHasScrolled(false)
+      }
+    },
+    [],
+  )
 
   if (messages.length === 0) {
-    return <EmptyState />;
+    return <EmptyState />
   }
 
   return (
@@ -518,14 +510,12 @@ export const ChatTranscript = ({
       testID="chat-transcript-scroll"
     >
       {messages.map((message, index) => {
-        const previous = index > 0 ? messages[index - 1] : undefined;
-        const showTimestamp = shouldShowTimestamp(message, previous);
+        const previous = index > 0 ? messages[index - 1] : undefined
+        const showTimestamp = shouldShowTimestamp(message, previous)
 
         return (
           <React.Fragment key={message.id}>
-            {showTimestamp && (
-              <TimestampDivider message={message} previous={previous} />
-            )}
+            {showTimestamp && <TimestampDivider message={message} previous={previous} />}
             {message.role === 'rider' ? (
               <RiderBubble message={message} />
             ) : (
@@ -538,11 +528,11 @@ export const ChatTranscript = ({
               </>
             )}
           </React.Fragment>
-        );
+        )
       })}
     </ScrollView>
-  );
-};
+  )
+}
 
 // ---------------------------------------------------------------------------
 // Styles
@@ -605,4 +595,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
   },
-});
+})

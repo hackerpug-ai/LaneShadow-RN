@@ -7,11 +7,11 @@
 
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
+import type { Doc, Id } from '../../convex/_generated/dataModel'
 import type { ExtendedTheme, SemanticTheme } from '../../styles/types'
-import { IconSymbol, type IconName } from '../ui/icon-symbol'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import type { Doc, Id } from '../../convex/_generated/dataModel'
+import { type IconName, IconSymbol } from '../ui/icon-symbol'
 
 export type WaypointCardProps = {
   /** Waypoint document */
@@ -52,19 +52,19 @@ const getStatusBadgeVariant = (status: string): 'success' | 'warning' | 'info' |
  */
 const getKindDisplay = (
   kind: 'on_route' | 'off_route',
-  semantic: SemanticTheme
+  semantic: SemanticTheme,
 ): { label: string; icon: IconName; color: string } => {
   if (kind === 'on_route') {
     return {
       label: 'On Route',
       icon: 'routes',
-      color: semantic.color.waypointOnRoute.default,
+      color: semantic.color.waypointOnRoute?.default ?? 'transparent',
     }
   }
   return {
     label: 'Off Route',
     icon: 'map-marker-path',
-    color: semantic.color.waypointOffRoute.default,
+    color: semantic.color.waypointOffRoute?.default ?? 'transparent',
   }
 }
 
@@ -83,7 +83,11 @@ export const WaypointCard = ({
   const theme = useTheme<ExtendedTheme>()
   const { semantic } = theme
 
-  const { label: kindLabel, icon: kindIcon, color: kindColor } = getKindDisplay(waypoint.kind, semantic)
+  const {
+    label: kindLabel,
+    icon: kindIcon,
+    color: kindColor,
+  } = getKindDisplay(waypoint.kind, semantic)
   const statusVariant = getStatusBadgeVariant(waypoint.status)
   const canReorder = waypoint.kind === 'on_route' && onReorder !== undefined
   const canApprove = waypoint.status === 'ready' || waypoint.status === 'pending'
@@ -134,7 +138,7 @@ export const WaypointCard = ({
           <IconSymbol
             name="drag-horizontal-variant"
             size={20}
-            color={semantic.color.onSurface.subtle}
+            color={semantic.color.onSurface.subtle ?? 'transparent'}
             testID={`${testID}-drag-handle`}
           />
         )}
@@ -167,7 +171,8 @@ export const WaypointCard = ({
         style={[
           styles.statusRow,
           {
-            marginBottom: waypoint.kind === 'off_route' && waypoint.detourInfo ? semantic.space.md : 0,
+            marginBottom:
+              waypoint.kind === 'off_route' && waypoint.detourInfo ? semantic.space.md : 0,
           },
         ]}
       >
@@ -202,7 +207,7 @@ export const WaypointCard = ({
             <IconSymbol
               name="map-marker-distance"
               size={14}
-              color={semantic.color.onSurface.subtle}
+              color={semantic.color.onSurface.subtle ?? 'transparent'}
             />
             <Text style={[styles.deviationText, { color: semantic.color.onSurface.subtle }]}>
               +{waypoint.detourInfo.distanceKm.toFixed(1)} km detour
@@ -216,7 +221,11 @@ export const WaypointCard = ({
               },
             ]}
           >
-            <IconSymbol name="clock-outline" size={14} color={semantic.color.onSurface.subtle} />
+            <IconSymbol
+              name="clock-outline"
+              size={14}
+              color={semantic.color.onSurface.subtle ?? 'transparent'}
+            />
             <Text style={[styles.deviationText, { color: semantic.color.onSurface.subtle }]}>
               +{waypoint.detourInfo.durationMinutes} min
             </Text>

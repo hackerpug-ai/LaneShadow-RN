@@ -1,5 +1,9 @@
-import { describe, it, expect } from 'vitest'
-import { decodePolylineGeometry, computeCumulativeDistances, slicePolylineByMeters } from './polyline'
+import { describe, expect, it } from 'vitest'
+import {
+  computeCumulativeDistances,
+  decodePolylineGeometry,
+  slicePolylineByMeters,
+} from './polyline'
 
 describe('polyline utils', () => {
   it('decodes encoded polyline geometry with expected coordinates', () => {

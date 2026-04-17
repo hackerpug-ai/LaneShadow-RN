@@ -11,10 +11,10 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { executePlanHandler } from '../planRide'
-import { planRideOrchestrator } from '../lib/planRideOrchestrator'
-import type { Id } from '../../../_generated/dataModel'
 import { ROUTE_PLAN_STATUS } from '../../../../models/route-plans'
+import type { Id } from '../../../_generated/dataModel'
+import { planRideOrchestrator } from '../lib/planRideOrchestrator'
+import { executePlanHandler } from '../planRide'
 
 // ---------------------------------------------------------------------------
 // Env check
@@ -30,7 +30,7 @@ if (!GOOGLE_MAPS_API_KEY) throw new Error('GOOGLE_MAPS_API_KEY required for inte
 
 const planInput = {
   start: { lat: 37.7749, lng: -122.4194, label: 'San Francisco' },
-  end: { lat: 37.4419, lng: -122.1430, label: 'Palo Alto' },
+  end: { lat: 37.4419, lng: -122.143, label: 'Palo Alto' },
   departureTime: Date.UTC(2026, 3, 3, 12, 0, 0),
   preferences: { scenicBias: 'default' as const, avoidHighways: false, avoidTolls: false },
 }
@@ -52,13 +52,23 @@ const basePlanDoc = {
 // ---------------------------------------------------------------------------
 
 const makeFakeCtx = () => {
-  const mutations: { status: string; result?: unknown; errorCode?: string; statusMessage?: string }[] = []
+  const mutations: {
+    status: string
+    result?: unknown
+    errorCode?: string
+    statusMessage?: string
+  }[] = []
 
   const ctx = {
     runQuery: async (_ref: unknown, _args: unknown) => basePlanDoc,
     runMutation: async (_ref: unknown, args: any) => {
       mutations.push(args)
-      console.info('[test] runMutation:', args.status, args.statusMessage ?? '', args.errorCode ?? '')
+      console.info(
+        '[test] runMutation:',
+        args.status,
+        args.statusMessage ?? '',
+        args.errorCode ?? '',
+      )
       return null
     },
   }
@@ -90,9 +100,13 @@ describe('planRide integration (real APIs)', () => {
     const completed = mutations.find((m) => m.status === ROUTE_PLAN_STATUS.COMPLETED)
     const failed = mutations.find((m) => m.status === ROUTE_PLAN_STATUS.FAILED)
 
-    console.info('[test] All mutation statuses:', mutations.map((m) => m.status))
+    console.info(
+      '[test] All mutation statuses:',
+      mutations.map((m) => m.status),
+    )
     if (failed) console.error('[test] FAILED:', failed.errorCode)
-    if (completed) console.info('[test] Result options count:', (completed.result as any)?.options?.length)
+    if (completed)
+      console.info('[test] Result options count:', (completed.result as any)?.options?.length)
 
     expect(failed, `Plan failed: ${failed?.errorCode}`).toBeUndefined()
     expect(completed).toBeDefined()

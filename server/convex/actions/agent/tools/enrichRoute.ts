@@ -1,17 +1,17 @@
 'use node'
 
 import {
-  complete,
-  getModel,
-  Type,
   type AssistantMessage,
   type Context,
+  complete,
+  getModel,
   type Tool,
   type ToolCall,
+  Type,
 } from '@mariozechner/pi-ai'
 import { OPENAI_API_KEY } from '../../../lib/env'
-import { withTimeout } from '../lib/reliability'
 import { getAgentModel } from '../lib/models'
+import { withTimeout } from '../lib/reliability'
 
 const ENRICH_TIMEOUT_MS = 10_000
 
@@ -30,15 +30,14 @@ const EnrichmentToolSchema = Type.Object({
       rationale: Type.String({
         description: '1-2 sentences about why this route is scenic (mention waypoints)',
       }),
-      highlights: Type.Array(
-        Type.String({ description: 'Short phrase (max 4 words)' })
-      ),
+      highlights: Type.Array(Type.String({ description: 'Short phrase (max 4 words)' })),
       legLabels: Type.Array(
         Type.String({
-          description: 'Descriptive label for each leg (max 6 words). Use place names, road names, or landmarks. Format as "From → To". NEVER use "waypoint" as a label.',
-        })
+          description:
+            'Descriptive label for each leg (max 6 words). Use place names, road names, or landmarks. Format as "From → To". NEVER use "waypoint" as a label.',
+        }),
       ),
-    })
+    }),
   ),
 })
 
@@ -85,7 +84,9 @@ const enrichmentTool: Tool = {
  */
 export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrichment[]> => {
   // Check if we have existing leg labels from sketch
-  const hasExistingLabels = params.routes.some(r => r.existingLegLabels && r.existingLegLabels.length > 0)
+  const hasExistingLabels = params.routes.some(
+    (r) => r.existingLegLabels && r.existingLegLabels.length > 0,
+  )
 
   try {
     console.info(`[enrichRoute] using model=low (enrichment), routes=${params.routes.length}`)
@@ -110,8 +111,7 @@ export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrich
             '- Use road names for highway segments\n' +
             '- NEVER use "waypoint" as a label\n' +
             '- Max 6 words per label\n' +
-            '- Examples: "San Francisco → Daly City", "Highway 1 → Santa Cruz", "Golden Gate Bridge → Sausalito"\n'
-        ) +
+            '- Examples: "San Francisco → Daly City", "Highway 1 → Santa Cruz", "Golden Gate Bridge → Sausalito"\n') +
         'Always respond by calling the emit_enrichments tool exactly once with one entry per input route, in order.',
       messages: [
         {
@@ -123,13 +123,13 @@ export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrich
       tools: [enrichmentTool],
     }
 
-    const assistant: AssistantMessage = await withTimeout(
-      async () => complete(model, context),
-      { ms: ENRICH_TIMEOUT_MS, label: 'enrichRoute' }
-    )
+    const assistant: AssistantMessage = await withTimeout(async () => complete(model, context), {
+      ms: ENRICH_TIMEOUT_MS,
+      label: 'enrichRoute',
+    })
 
     const call = assistant.content.find(
-      (b): b is ToolCall => b.type === 'toolCall' && b.name === 'emit_enrichments'
+      (b): b is ToolCall => b.type === 'toolCall' && b.name === 'emit_enrichments',
     )
     if (!call) {
       throw new Error('Model did not emit enrichments tool call')
@@ -152,7 +152,7 @@ export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrich
   } catch (error) {
     console.warn('[enrichRoute] LLM call failed, using fallback labels', error)
     return params.routes.map((route, idx) =>
-      fallbackEnrichment(idx, route.legContext?.length ?? 0, route.existingLegLabels)
+      fallbackEnrichment(idx, route.legContext?.length ?? 0, route.existingLegLabels),
     )
   }
 }
@@ -163,7 +163,7 @@ export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrich
 const fallbackEnrichment = (
   idx: number,
   legCount: number,
-  existingLegLabels?: string[]
+  existingLegLabels?: string[],
 ): RouteEnrichment => ({
   label: `Route ${idx + 1}`,
   rationale: 'A scenic route through the area.',
@@ -174,7 +174,10 @@ const fallbackEnrichment = (
 /**
  * Builds the user prompt for the LLM with route details.
  */
-const buildUserPrompt = (routes: EnrichRouteInput['routes'], hasExistingLabels: boolean): string => {
+const buildUserPrompt = (
+  routes: EnrichRouteInput['routes'],
+  hasExistingLabels: boolean,
+): string => {
   const parts: string[] = []
 
   parts.push(`Name and describe these ${routes.length} motorcycle routes.\n`)
@@ -183,7 +186,7 @@ const buildUserPrompt = (routes: EnrichRouteInput['routes'], hasExistingLabels: 
     parts.push(`\nRoute ${idx + 1}:`)
     parts.push(`Waypoints: ${route.waypoints.map((w) => w.name).join(', ')}`)
     parts.push(
-      `Distance: ${(route.stats.distanceMeters / 1609.34).toFixed(1)} miles, Duration: ${Math.round(route.stats.durationSeconds / 60)} minutes`
+      `Distance: ${(route.stats.distanceMeters / 1609.34).toFixed(1)} miles, Duration: ${Math.round(route.stats.durationSeconds / 60)} minutes`,
     )
 
     if (route.preferences?.scenicBias) {
@@ -215,8 +218,8 @@ const buildUserPrompt = (routes: EnrichRouteInput['routes'], hasExistingLabels: 
 
   parts.push(
     '\n\nCall emit_enrichments with a name, description' +
-    (hasExistingLabels ? ' and highlights' : ', leg labels, and highlights') +
-    ' for each route.'
+      (hasExistingLabels ? ' and highlights' : ', leg labels, and highlights') +
+      ' for each route.',
   )
 
   return parts.join('\n')

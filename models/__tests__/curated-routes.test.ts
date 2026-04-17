@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { v } from 'convex/values'
+import { describe, expect, it } from 'vitest'
 
 // AC-1: curatedRouteValidator has all 20+ lean fields
 describe('curatedRouteValidator', () => {

@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from 'convex/react'
+import { useMutation, useQuery } from 'convex/react'
 import { useRouter, useSegments } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { Animated, StyleSheet, View } from 'react-native'
@@ -40,7 +40,9 @@ export const MenuLayout = ({
 
   // Context menu state for session deletion
   const [contextMenuVisible, setContextMenuVisible] = useState(false)
-  const [contextMenuSessionId, setContextMenuSessionId] = useState<Id<'planning_sessions'> | null>(null)
+  const [contextMenuSessionId, setContextMenuSessionId] = useState<Id<'planning_sessions'> | null>(
+    null,
+  )
 
   const [contentOffset] = useState(new Animated.Value(0))
 
@@ -68,7 +70,7 @@ export const MenuLayout = ({
               testID: 'drawer-sessions-empty',
             },
           ]
-        : sessions.slice(0, 20).map((s) => ({
+        : sessions.slice(0, 20).map((s: (typeof sessions)[0]) => ({
             label: s.title || 'Untitled ride',
             icon: 'motorbike' as const,
             onPress: () => {
@@ -131,7 +133,7 @@ export const MenuLayout = ({
   const wrappedFooterItems: DrawerMenuItem[] = footerItems.map((item) => ({
     ...item,
     onPress: () => {
-      onMenuOpenChange(false)
+      onMenuOpenChange?.(false)
       item.onPress()
     },
   }))
@@ -141,7 +143,7 @@ export const MenuLayout = ({
     items: section.items.map((item) => ({
       ...item,
       onPress: () => {
-        onMenuOpenChange(false)
+        onMenuOpenChange?.(false)
         item.onPress()
       },
     })),
@@ -151,7 +153,7 @@ export const MenuLayout = ({
     <View style={styles.container}>
       <DrawerMenu
         isOpen={menuOpen}
-        onClose={() => onMenuOpenChange(false)}
+        onClose={() => onMenuOpenChange?.(false)}
         header={{ title: headerTitle, testID: `${testID}-drawer-header` }}
         sections={wrappedSections}
         footer={{ items: wrappedFooterItems }}

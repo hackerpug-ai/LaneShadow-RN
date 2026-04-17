@@ -12,10 +12,10 @@
  */
 
 import { Notifier } from 'react-native-notifier'
-import { SuccessToast } from '../components/toasts/success-toast'
 import { ErrorToast } from '../components/toasts/error-toast'
-import { WarningToast } from '../components/toasts/warning-toast'
 import { InfoToast } from '../components/toasts/info-toast'
+import { SuccessToast } from '../components/toasts/success-toast'
+import { WarningToast } from '../components/toasts/warning-toast'
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info'
 
@@ -34,13 +34,7 @@ export interface ToastOptions {
  * @param options - Toast options
  */
 export const showToast = (type: ToastType, options: ToastOptions) => {
-  const {
-    title,
-    message,
-    duration = 4000,
-    showCloseButton = true,
-    onDismiss,
-  } = options
+  const { title, message, duration = 4000, showCloseButton = true, onDismiss } = options
 
   const Component = {
     success: SuccessToast,

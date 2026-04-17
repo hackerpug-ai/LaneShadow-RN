@@ -10,28 +10,28 @@
  * - INF-003: route_matches table with by_postId and by_routeId_and_confidence indexes
  */
 
-import { v } from "convex/values";
+import { v } from 'convex/values'
 
-import type { Doc, Id, TableNames } from "./_generated/dataModel";
-import { mutation, query } from "./_generated/server";
-import { withVectorSearch } from "./types";
+import type { Doc, Id, TableNames } from './_generated/dataModel'
+import { mutation, query } from './_generated/server'
+import { withVectorSearch } from './types'
 
-const EMBEDDING_DIMENSIONS = 1536;
+const EMBEDDING_DIMENSIONS = 1536
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 // Proper Convex types for our document tables
-type CuratedRouteDoc = Doc<"curated_routes">;
-type RouteMatchDoc = Doc<"route_matches">;
-type RoutePostRawDoc = Doc<"route_posts_raw">;
+type CuratedRouteDoc = Doc<'curated_routes'>
+type RouteMatchDoc = Doc<'route_matches'>
+type RoutePostRawDoc = Doc<'route_posts_raw'>
 
 // Vector search result types
 type VectorSearchHit<TTableName extends TableNames> = {
-  _id: Id<TTableName>;
-  _score: number;
-};
+  _id: Id<TTableName>
+  _score: number
+}
 
 // ---------------------------------------------------------------------------
 // Query: findCandidateRoutesByEmbedding
@@ -56,42 +56,40 @@ export const findCandidateRoutesByEmbedding = query({
   },
   returns: v.array(
     v.object({
-      routeId: v.id("curated_routes"),
+      routeId: v.id('curated_routes'),
       cosineSimilarity: v.number(),
       name: v.string(),
       state: v.string(),
       candidateIdentifiers: v.optional(v.array(v.string())),
-    })
+    }),
   ),
   handler: async (ctx, args) => {
-    const { embedding, limit = 10, stateFilter } = args;
+    const { embedding, limit = 10, stateFilter } = args
 
     // Validate embedding dimensions
     if (embedding.length !== EMBEDDING_DIMENSIONS) {
       throw new Error(
-        `Invalid embedding dimensions: expected ${EMBEDDING_DIMENSIONS}, got ${embedding.length}`
-      );
+        `Invalid embedding dimensions: expected ${EMBEDDING_DIMENSIONS}, got ${embedding.length}`,
+      )
     }
 
     // Build vector filter
-    const filter = stateFilter
-      ? (q: any) => q.eq("state", stateFilter)
-      : undefined;
+    const filter = stateFilter ? (q: any) => q.eq('state', stateFilter) : undefined
 
     // Execute vector search
-    const vectorCtx = withVectorSearch(ctx);
-    const results = await vectorCtx.vectorSearch("curated_routes", "by_embedding", {
+    const vectorCtx = withVectorSearch(ctx)
+    const results = await vectorCtx.vectorSearch('curated_routes', 'by_embedding', {
       vector: embedding,
       limit,
       filter,
-    });
+    })
 
     // Fetch full documents and join with _score
     const routes = await Promise.all(
-      results.map(async ({ _id, _score }: VectorSearchHit<"curated_routes">) => {
-        const doc = await ctx.db.get(_id) as CuratedRouteDoc | null;
+      results.map(async ({ _id, _score }: VectorSearchHit<'curated_routes'>) => {
+        const doc = (await ctx.db.get(_id)) as CuratedRouteDoc | null
         if (!doc) {
-          return null;
+          return null
         }
         return {
           routeId: _id,
@@ -99,14 +97,14 @@ export const findCandidateRoutesByEmbedding = query({
           name: doc.name,
           state: doc.state,
           candidateIdentifiers: doc.candidateIdentifiers,
-        };
-      })
-    );
+        }
+      }),
+    )
 
     // Filter out nulls
-    return routes.filter((route): route is NonNullable<typeof route> => route !== null);
+    return routes.filter((route): route is NonNullable<typeof route> => route !== null)
   },
-});
+})
 
 // ---------------------------------------------------------------------------
 // Query: findRoutesByIdentifier
@@ -135,45 +133,48 @@ export const findRoutesByIdentifier = query({
   },
   returns: v.array(
     v.object({
-      routeId: v.id("curated_routes"),
+      routeId: v.id('curated_routes'),
       name: v.string(),
       state: v.string(),
-      matchType: v.union(v.literal("name"), v.literal("highway"), v.literal("identifier")),
-    })
+      matchType: v.union(v.literal('name'), v.literal('highway'), v.literal('identifier')),
+    }),
   ),
   handler: async (ctx, args) => {
-    const { identifier, stateFilter, limit = 20 } = args;
-    const searchTermLower = identifier.toLowerCase();
+    const { identifier, stateFilter, limit = 20 } = args
+    const searchTermLower = identifier.toLowerCase()
 
     // Query indexes in parallel
     const [byName, byHighway, allRoutes] = await Promise.all([
       // Index lookup for exact name match (case-insensitive)
       ctx.db
-        .query("curated_routes")
-        .withIndex("by_name_lower", (q) => q.eq("name_lower", searchTermLower))
+        .query('curated_routes')
+        .withIndex('by_name_lower', (q) => q.eq('name_lower', searchTermLower))
         .take(limit),
       // Index lookup for highway number
       ctx.db
-        .query("curated_routes")
-        .withIndex("by_highway_number", (q) => q.eq("highwayNumber", searchTermLower))
+        .query('curated_routes')
+        .withIndex('by_highway_number', (q) => q.eq('highwayNumber', searchTermLower))
         .take(limit),
       // Scan for candidateIdentifiers (no array-contains index in Convex)
       // Use state filter if provided to reduce scan set
       stateFilter
-        ? ctx.db.query("curated_routes").withIndex("by_state", (q) => q.eq("state", stateFilter)).take(limit * 2)
-        : ctx.db.query("curated_routes").take(limit * 2),
-    ]);
+        ? ctx.db
+            .query('curated_routes')
+            .withIndex('by_state', (q) => q.eq('state', stateFilter))
+            .take(limit * 2)
+        : ctx.db.query('curated_routes').take(limit * 2),
+    ])
 
     // Collect and deduplicate matches by _id
     const matchMap = new Map<
-      Id<"curated_routes">,
+      Id<'curated_routes'>,
       {
-        routeId: Id<"curated_routes">;
-        name: string;
-        state: string;
-        matchType: "name" | "highway" | "identifier";
+        routeId: Id<'curated_routes'>
+        name: string
+        state: string
+        matchType: 'name' | 'highway' | 'identifier'
       }
-    >();
+    >()
 
     // Add name matches (highest priority)
     for (const route of byName) {
@@ -181,8 +182,8 @@ export const findRoutesByIdentifier = query({
         routeId: route._id,
         name: route.name,
         state: route.state,
-        matchType: "name",
-      });
+        matchType: 'name',
+      })
     }
 
     // Add highway matches (second priority)
@@ -192,8 +193,8 @@ export const findRoutesByIdentifier = query({
           routeId: route._id,
           name: route.name,
           state: route.state,
-          matchType: "highway",
-        });
+          matchType: 'highway',
+        })
       }
     }
 
@@ -201,34 +202,34 @@ export const findRoutesByIdentifier = query({
     for (const route of allRoutes) {
       // Skip if already matched by name or highway
       if (matchMap.has(route._id)) {
-        continue;
+        continue
       }
 
       // Match by candidateIdentifiers
       if (route.candidateIdentifiers) {
         const identifierMatch = route.candidateIdentifiers.find((id) =>
-          id.toLowerCase().includes(searchTermLower)
-        );
+          id.toLowerCase().includes(searchTermLower),
+        )
         if (identifierMatch) {
           matchMap.set(route._id, {
             routeId: route._id,
             name: route.name,
             state: route.state,
-            matchType: "identifier",
-          });
+            matchType: 'identifier',
+          })
         }
       }
 
       // Stop if we've hit the limit
       if (matchMap.size >= limit) {
-        break;
+        break
       }
     }
 
     // Convert map to array and apply limit
-    return Array.from(matchMap.values()).slice(0, limit);
+    return Array.from(matchMap.values()).slice(0, limit)
   },
-});
+})
 
 // ---------------------------------------------------------------------------
 // Mutation: updateRouteEmbedding
@@ -247,30 +248,30 @@ export const findRoutesByIdentifier = query({
  */
 export const updateRouteEmbedding = mutation({
   args: {
-    routeId: v.id("curated_routes"),
+    routeId: v.id('curated_routes'),
     searchText: v.string(),
     searchEmbedding: v.array(v.number()),
   },
   returns: v.object({ ok: v.boolean() }),
   handler: async (ctx, args) => {
-    const { routeId, searchText, searchEmbedding } = args;
+    const { routeId, searchText, searchEmbedding } = args
 
     // Validate embedding dimensions
     if (searchEmbedding.length !== EMBEDDING_DIMENSIONS) {
       throw new Error(
-        `Invalid embedding dimensions: expected ${EMBEDDING_DIMENSIONS}, got ${searchEmbedding.length}`
-      );
+        `Invalid embedding dimensions: expected ${EMBEDDING_DIMENSIONS}, got ${searchEmbedding.length}`,
+      )
     }
 
     // Update route with embedding data
     await ctx.db.patch(routeId, {
       searchText,
       searchEmbedding,
-    });
+    })
 
-    return { ok: true };
+    return { ok: true }
   },
-});
+})
 
 // ---------------------------------------------------------------------------
 // Mutation: addRouteMatch
@@ -299,7 +300,7 @@ export const addRouteMatch = mutation({
   args: {
     matchId: v.string(),
     postId: v.string(),
-    routeId: v.id("curated_routes"),
+    routeId: v.id('curated_routes'),
     matchConfidence: v.number(),
     cosineSimilarity: v.number(),
     matchReasoning: v.string(),
@@ -309,31 +310,24 @@ export const addRouteMatch = mutation({
     isArbitrated: v.boolean(),
     arbitrationNotes: v.optional(v.string()),
   },
-  returns: v.id("route_matches"),
+  returns: v.id('route_matches'),
   handler: async (ctx, args) => {
-    const {
-      matchId,
-      postId,
-      routeId,
-      matchConfidence,
-      cosineSimilarity,
-      rerankCost,
-      ...rest
-    } = args;
+    const { matchId, postId, routeId, matchConfidence, cosineSimilarity, rerankCost, ...rest } =
+      args
 
     // Validate ranges
     if (matchConfidence < 0 || matchConfidence > 1) {
-      throw new Error(`Invalid matchConfidence: must be [0, 1], got ${matchConfidence}`);
+      throw new Error(`Invalid matchConfidence: must be [0, 1], got ${matchConfidence}`)
     }
     if (cosineSimilarity < 0 || cosineSimilarity > 1) {
-      throw new Error(`Invalid cosineSimilarity: must be [0, 1], got ${cosineSimilarity}`);
+      throw new Error(`Invalid cosineSimilarity: must be [0, 1], got ${cosineSimilarity}`)
     }
     if (rerankCost < 0) {
-      throw new Error(`Invalid rerankCost: must be >= 0, got ${rerankCost}`);
+      throw new Error(`Invalid rerankCost: must be >= 0, got ${rerankCost}`)
     }
 
     // Insert match record
-    const matchIdDoc = await ctx.db.insert("route_matches", {
+    const matchIdDoc = await ctx.db.insert('route_matches', {
       matchId,
       postId,
       routeId,
@@ -341,11 +335,11 @@ export const addRouteMatch = mutation({
       cosineSimilarity,
       rerankCost,
       ...rest,
-    });
+    })
 
-    return matchIdDoc;
+    return matchIdDoc
   },
-});
+})
 
 // ---------------------------------------------------------------------------
 // Query: getRouteMatchesForPost
@@ -367,7 +361,7 @@ export const getRouteMatchesForPost = query({
   returns: v.array(
     v.object({
       matchId: v.string(),
-      routeId: v.id("curated_routes"),
+      routeId: v.id('curated_routes'),
       matchConfidence: v.number(),
       cosineSimilarity: v.number(),
       matchReasoning: v.string(),
@@ -376,23 +370,23 @@ export const getRouteMatchesForPost = query({
       matchedAt: v.number(),
       isArbitrated: v.boolean(),
       arbitrationNotes: v.optional(v.string()),
-    })
+    }),
   ),
   handler: async (ctx, args) => {
-    const { postId } = args;
+    const { postId } = args
 
     // Query by postId index
     const matches = await ctx.db
-      .query("route_matches")
-      .withIndex("by_postId", (q) => q.eq("postId", postId))
-      .collect();
+      .query('route_matches')
+      .withIndex('by_postId', (q) => q.eq('postId', postId))
+      .collect()
 
     // Sort by matchConfidence descending
-    matches.sort((a, b) => b.matchConfidence - a.matchConfidence);
+    matches.sort((a, b) => b.matchConfidence - a.matchConfidence)
 
-    return matches;
+    return matches
   },
-});
+})
 
 // ---------------------------------------------------------------------------
 // Query: getRouteMatchesForRoute
@@ -415,7 +409,7 @@ export const getRouteMatchesForPost = query({
  */
 export const getRouteMatchesForRoute = query({
   args: {
-    routeId: v.id("curated_routes"),
+    routeId: v.id('curated_routes'),
     minConfidence: v.optional(v.number()),
     limit: v.optional(v.number()),
   },
@@ -431,29 +425,29 @@ export const getRouteMatchesForRoute = query({
       matchedAt: v.number(),
       isArbitrated: v.boolean(),
       arbitrationNotes: v.optional(v.string()),
-    })
+    }),
   ),
   handler: async (ctx, args) => {
-    const { routeId, minConfidence = 0.0, limit = 50 } = args;
+    const { routeId, minConfidence = 0.0, limit = 50 } = args
 
     // Over-fetch by 2x to account for filtering
-    const overFetchLimit = limit * 2;
+    const overFetchLimit = limit * 2
 
     // Query by routeId index
     const matches = await ctx.db
-      .query("route_matches")
-      .withIndex("by_routeId_and_confidence", (q) => q.eq("routeId", routeId))
-      .order("desc")
-      .take(overFetchLimit);
+      .query('route_matches')
+      .withIndex('by_routeId_and_confidence', (q) => q.eq('routeId', routeId))
+      .order('desc')
+      .take(overFetchLimit)
 
     // Filter by minConfidence and limit
     const filtered = matches
       .filter((match) => match.matchConfidence >= minConfidence)
-      .slice(0, limit);
+      .slice(0, limit)
 
-    return filtered;
+    return filtered
   },
-});
+})
 
 // ---------------------------------------------------------------------------
 // Query: verifyEmbeddings
@@ -469,34 +463,40 @@ export const verifyEmbeddings = query({
     totalRoutes: v.number(),
     withEmbedding: v.number(),
     withoutEmbedding: v.number(),
-    sampleRoute: v.optional(v.object({
-      routeId: v.string(),
-      name: v.string(),
-      embeddingDimensions: v.number(),
-      hasEmbedding: v.boolean(),
-    })),
+    sampleRoute: v.optional(
+      v.object({
+        routeId: v.string(),
+        name: v.string(),
+        embeddingDimensions: v.number(),
+        hasEmbedding: v.boolean(),
+      }),
+    ),
   }),
   handler: async (ctx) => {
-    const routes = await ctx.db.query("curated_routes").take(10000);
+    const routes = await ctx.db.query('curated_routes').take(10000)
 
-    const withEmbedding = routes.filter(r => r.searchEmbedding && r.searchEmbedding.length > 0);
-    const withoutEmbedding = routes.filter(r => !r.searchEmbedding || r.searchEmbedding.length === 0);
+    const withEmbedding = routes.filter((r) => r.searchEmbedding && r.searchEmbedding.length > 0)
+    const withoutEmbedding = routes.filter(
+      (r) => !r.searchEmbedding || r.searchEmbedding.length === 0,
+    )
 
-    const sample = withEmbedding[0];
+    const sample = withEmbedding[0]
 
     return {
       totalRoutes: routes.length,
       withEmbedding: withEmbedding.length,
       withoutEmbedding: withoutEmbedding.length,
-      sampleRoute: sample ? {
-        routeId: sample.routeId,
-        name: sample.name,
-        embeddingDimensions: sample.searchEmbedding?.length || 0,
-        hasEmbedding: !!sample.searchEmbedding,
-      } : undefined,
-    };
+      sampleRoute: sample
+        ? {
+            routeId: sample.routeId,
+            name: sample.name,
+            embeddingDimensions: sample.searchEmbedding?.length || 0,
+            hasEmbedding: !!sample.searchEmbedding,
+          }
+        : undefined,
+    }
   },
-});
+})
 
 // ---------------------------------------------------------------------------
 // Query: getRoutesNeedingEmbedding
@@ -519,7 +519,7 @@ export const getRoutesNeedingEmbedding = query({
   },
   returns: v.array(
     v.object({
-      _id: v.id("curated_routes"),
+      _id: v.id('curated_routes'),
       routeId: v.string(),
       name: v.string(),
       state: v.string(),
@@ -534,17 +534,17 @@ export const getRoutesNeedingEmbedding = query({
       candidateIdentifiers: v.optional(v.array(v.string())),
       highwayNumber: v.optional(v.string()),
       searchEmbedding: v.optional(v.array(v.number())),
-    })
+    }),
   ),
   handler: async (ctx, args) => {
-    const { incremental = false, limit = 1000 } = args;
+    const { incremental = false, limit = 1000 } = args
 
     // Fetch all routes (acceptable for 5k records)
-    let routes = await ctx.db.query("curated_routes").take(limit);
+    let routes = await ctx.db.query('curated_routes').take(limit)
 
     // Filter by searchEmbedding if incremental
     if (incremental) {
-      routes = routes.filter((route) => !route.searchEmbedding);
+      routes = routes.filter((route) => !route.searchEmbedding)
     }
 
     // Map to the expected output format
@@ -564,9 +564,9 @@ export const getRoutesNeedingEmbedding = query({
       candidateIdentifiers: route.candidateIdentifiers,
       highwayNumber: route.highwayNumber,
       searchEmbedding: route.searchEmbedding,
-    }));
+    }))
   },
-});
+})
 
 // ---------------------------------------------------------------------------
 // Query: getRawPostsForRoute
@@ -584,7 +584,7 @@ export const getRoutesNeedingEmbedding = query({
  */
 export const getRawPostsForRoute = query({
   args: {
-    routeId: v.id("curated_routes"),
+    routeId: v.id('curated_routes'),
     limit: v.optional(v.number()),
   },
   returns: v.array(
@@ -625,38 +625,38 @@ export const getRawPostsForRoute = query({
           warnings: v.optional(v.array(v.string())),
         }),
       }),
-    })
+    }),
   ),
   handler: async (ctx, args) => {
-    const { routeId, limit = 50 } = args;
+    const { routeId, limit = 50 } = args
 
     // Get route matches
     const matches = await ctx.db
-      .query("route_matches")
-      .withIndex("by_routeId_and_confidence", (q) => q.eq("routeId", routeId))
-      .order("desc")
-      .take(limit);
+      .query('route_matches')
+      .withIndex('by_routeId_and_confidence', (q) => q.eq('routeId', routeId))
+      .order('desc')
+      .take(limit)
 
     // Fetch raw posts for each match
     const results = await Promise.all(
       matches.map(async (match) => {
         const post = await ctx.db
-          .query("route_posts_raw")
-          .withIndex("by_postId", (q) => q.eq("postId", match.postId))
-          .first();
+          .query('route_posts_raw')
+          .withIndex('by_postId', (q) => q.eq('postId', match.postId))
+          .first()
 
         if (!post) {
-          return null;
+          return null
         }
 
-        return { match, post };
-      })
-    );
+        return { match, post }
+      }),
+    )
 
     // Filter out nulls
-    return results.filter((result): result is NonNullable<typeof result> => result !== null);
+    return results.filter((result): result is NonNullable<typeof result> => result !== null)
   },
-});
+})
 
 // ---------------------------------------------------------------------------
 // Query: findCandidateRoutesHybrid (B3)
@@ -684,83 +684,86 @@ export const findCandidateRoutesHybrid = query({
   },
   returns: v.array(
     v.object({
-      routeId: v.id("curated_routes"),
+      routeId: v.id('curated_routes'),
       name: v.string(),
       state: v.string(),
       cosineSimilarity: v.optional(v.number()),
-      matchType: v.optional(v.union(v.literal("name"), v.literal("highway"), v.literal("identifier"))),
-    })
+      matchType: v.optional(
+        v.union(v.literal('name'), v.literal('highway'), v.literal('identifier')),
+      ),
+    }),
   ),
   handler: async (ctx, args) => {
-    const { embedding, identifier, stateFilter, limit = 20 } = args;
+    const { embedding, identifier, stateFilter, limit = 20 } = args
 
     // Execute vector and text searches in parallel
-    const filter = stateFilter
-      ? (q: any) => q.eq("state", stateFilter)
-      : undefined;
+    const filter = stateFilter ? (q: any) => q.eq('state', stateFilter) : undefined
 
-    const searchTermLower = identifier.toLowerCase();
+    const searchTermLower = identifier.toLowerCase()
 
     // Vector search
-    const vectorCtx = withVectorSearch(ctx);
-    const vectorSearch = vectorCtx.vectorSearch("curated_routes", "by_embedding", {
+    const vectorCtx = withVectorSearch(ctx)
+    const vectorSearch = vectorCtx.vectorSearch('curated_routes', 'by_embedding', {
       vector: embedding,
       limit,
       filter,
-    });
+    })
 
     // Text search (identifier-based) - run all index lookups in parallel
     const textSearch = Promise.all([
       // Index lookup for exact name match (case-insensitive)
       ctx.db
-        .query("curated_routes")
-        .withIndex("by_name_lower", (q) => q.eq("name_lower", searchTermLower))
+        .query('curated_routes')
+        .withIndex('by_name_lower', (q) => q.eq('name_lower', searchTermLower))
         .take(limit),
       // Index lookup for highway number
       ctx.db
-        .query("curated_routes")
-        .withIndex("by_highway_number", (q) => q.eq("highwayNumber", searchTermLower))
+        .query('curated_routes')
+        .withIndex('by_highway_number', (q) => q.eq('highwayNumber', searchTermLower))
         .take(limit),
       // Scan for candidateIdentifiers (no array-contains index in Convex)
       // Use state filter if provided to reduce scan set
       stateFilter
-        ? ctx.db.query("curated_routes").withIndex("by_state", (q) => q.eq("state", stateFilter)).take(limit * 2)
-        : ctx.db.query("curated_routes").take(limit * 2),
-    ]);
+        ? ctx.db
+            .query('curated_routes')
+            .withIndex('by_state', (q) => q.eq('state', stateFilter))
+            .take(limit * 2)
+        : ctx.db.query('curated_routes').take(limit * 2),
+    ])
 
     // Run vector and text searches in parallel
     const [vectorHits, [byName, byHighway, allRoutes]] = await Promise.all([
       vectorSearch,
       textSearch,
-    ]);
+    ])
 
     // Fetch full documents for vector results
     const vectorRoutes = await Promise.all(
-      vectorHits.map(async ({ _id, _score }: VectorSearchHit<"curated_routes">) => {
-        const doc = await ctx.db.get(_id) as CuratedRouteDoc | null;
+      vectorHits.map(async ({ _id, _score }: VectorSearchHit<'curated_routes'>) => {
+        const doc = (await ctx.db.get(_id)) as CuratedRouteDoc | null
         if (!doc) {
-          return null;
+          return null
         }
         return {
           routeId: _id,
           name: doc.name,
           state: doc.state,
           cosineSimilarity: _score,
-        };
-      })
-    );
+        }
+      }),
+    )
 
     // Collect and deduplicate text matches by _id
     const textMatchMap = new Map<
-      Id<"curated_routes">,
+      Id<'curated_routes'>,
       {
-        routeId: Id<"curated_routes">;
-        name: string;
-        state: string;
-        cosineSimilarity: undefined;
-        matchType: "name" | "highway" | "identifier";
+        routeId: Id<'curated_routes'>
+        name: string
+        state: string
+        cosineSimilarity: undefined
+        matchType: 'name' | 'highway' | 'identifier'
       }
-    >();
+    >()
 
     // Add name matches (highest priority)
     for (const route of byName) {
@@ -769,8 +772,8 @@ export const findCandidateRoutesHybrid = query({
         name: route.name,
         state: route.state,
         cosineSimilarity: undefined,
-        matchType: "name",
-      });
+        matchType: 'name',
+      })
     }
 
     // Add highway matches (second priority)
@@ -781,8 +784,8 @@ export const findCandidateRoutesHybrid = query({
           name: route.name,
           state: route.state,
           cosineSimilarity: undefined,
-          matchType: "highway",
-        });
+          matchType: 'highway',
+        })
       }
     }
 
@@ -790,61 +793,61 @@ export const findCandidateRoutesHybrid = query({
     for (const route of allRoutes) {
       // Skip if already matched by name or highway
       if (textMatchMap.has(route._id)) {
-        continue;
+        continue
       }
 
       // Match by candidateIdentifiers
       if (route.candidateIdentifiers) {
         const identifierMatch = route.candidateIdentifiers.find((id) =>
-          id.toLowerCase().includes(searchTermLower)
-        );
+          id.toLowerCase().includes(searchTermLower),
+        )
         if (identifierMatch) {
           textMatchMap.set(route._id, {
             routeId: route._id,
             name: route.name,
             state: route.state,
             cosineSimilarity: undefined,
-            matchType: "identifier",
-          });
+            matchType: 'identifier',
+          })
         }
       }
 
       // Stop if we've hit the limit
       if (textMatchMap.size >= limit) {
-        break;
+        break
       }
     }
 
     // Union results without duplicates (deduplicate by routeId)
-    const seen = new Set<Id<"curated_routes">>();
+    const seen = new Set<Id<'curated_routes'>>()
     const results: Array<{
-      routeId: Id<"curated_routes">;
-      name: string;
-      state: string;
-      cosineSimilarity?: number;
-      matchType?: "name" | "highway" | "identifier";
-    }> = [];
+      routeId: Id<'curated_routes'>
+      name: string
+      state: string
+      cosineSimilarity?: number
+      matchType?: 'name' | 'highway' | 'identifier'
+    }> = []
 
     // Add vector results first (they have similarity scores)
     for (const route of vectorRoutes) {
       if (route && !seen.has(route.routeId)) {
-        seen.add(route.routeId);
-        results.push(route);
+        seen.add(route.routeId)
+        results.push(route)
       }
     }
 
     // Add text results that aren't already in the set
     for (const route of textMatchMap.values()) {
       if (!seen.has(route.routeId)) {
-        seen.add(route.routeId);
-        results.push(route);
+        seen.add(route.routeId)
+        results.push(route)
       }
     }
 
     // Return up to limit
-    return results.slice(0, limit);
+    return results.slice(0, limit)
   },
-});
+})
 
 // ---------------------------------------------------------------------------
 // Mutation: addCommunityWaypointMention (B3)
@@ -878,31 +881,31 @@ export const addCommunityWaypointMention = mutation({
     lng: v.optional(v.nullable(v.number())),
     region: v.string(),
     proposedCategory: v.union(
-      v.literal("pause"),
-      v.literal("wander"),
-      v.literal("taste"),
-      v.literal("gather"),
-      v.literal("other")
+      v.literal('pause'),
+      v.literal('wander'),
+      v.literal('taste'),
+      v.literal('gather'),
+      v.literal('other'),
     ),
     riderQuote: v.string(),
     confidenceScore: v.number(),
     extractedAt: v.number(),
   },
-  returns: v.id("community_waypoint_mentions"),
+  returns: v.id('community_waypoint_mentions'),
   handler: async (ctx, args) => {
-    const { confidenceScore, ...rest } = args;
+    const { confidenceScore, ...rest } = args
 
     // Validate confidenceScore is in [0, 1]
     if (confidenceScore < 0 || confidenceScore > 1) {
-      throw new Error(`Invalid confidenceScore: must be [0, 1], got ${confidenceScore}`);
+      throw new Error(`Invalid confidenceScore: must be [0, 1], got ${confidenceScore}`)
     }
 
     // Insert waypoint mention
-    const mentionId = await ctx.db.insert("community_waypoint_mentions", {
+    const mentionId = await ctx.db.insert('community_waypoint_mentions', {
       confidenceScore,
       ...rest,
-    });
+    })
 
-    return mentionId;
+    return mentionId
   },
-});
+})

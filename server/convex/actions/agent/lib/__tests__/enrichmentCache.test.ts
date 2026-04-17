@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import type { PlanInput } from '../../../../../models/saved-routes'
 
 // ---------------------------------------------------------------------------
@@ -66,7 +66,7 @@ describe('generateContentFingerprint', () => {
         start: { lat: 37.7749, lng: -122.4194 },
       })
       const planInput2 = buildPlanInput({
-        start: { lat: 37.7750, lng: -122.4194 }, // Slightly different lat
+        start: { lat: 37.775, lng: -122.4194 }, // Slightly different lat
       })
 
       const fingerprint1 = generateContentFingerprint(planInput1)

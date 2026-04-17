@@ -11,7 +11,10 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "query": { "type": "string", "description": "What to search for (e.g. 'gas station', 'viewpoint')" },
+          "query": {
+            "type": "string",
+            "description": "What to search for (e.g. 'gas station', 'viewpoint')"
+          },
           "location": {
             "type": "object",
             "properties": {

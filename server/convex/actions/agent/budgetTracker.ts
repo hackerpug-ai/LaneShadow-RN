@@ -1,7 +1,7 @@
-"use node";
+'use node'
 
-import { ConvexError } from 'convex/values'
 import type { Usage } from '@mariozechner/pi-ai'
+import { ConvexError } from 'convex/values'
 
 import { ERROR_CODES } from '../../errors'
 
@@ -33,7 +33,7 @@ export class BudgetTracker {
 
   constructor(
     private readonly limitUSD: number = 0.25,
-    options: BudgetTrackerOptions = {}
+    options: BudgetTrackerOptions = {},
   ) {
     this.mode = options.mode ?? 'log'
   }
@@ -58,7 +58,7 @@ export class BudgetTracker {
       } else {
         const label = agentLabel ? ` agent=${agentLabel}` : ''
         console.warn(
-          `[BudgetTracker]${label} cost=${usage.cost.total} cumulative=${this.cumulativeUSD} limit=${this.limitUSD} exceeded`
+          `[BudgetTracker]${label} cost=${usage.cost.total} cumulative=${this.cumulativeUSD} limit=${this.limitUSD} exceeded`,
         )
       }
     }

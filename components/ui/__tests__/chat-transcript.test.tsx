@@ -9,17 +9,17 @@
  * - AC5: Empty state renders friendly copy when messages = []
  */
 
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { act, render } from '@testing-library/react-native'
 import React from 'react'
-import { render, act } from '@testing-library/react-native'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtendedTheme } from '../../../styles/types'
 
 // ---------------------------------------------------------------------------
 // Import after mocks
 // ---------------------------------------------------------------------------
 
-import { ChatTranscript } from '../chat-transcript'
 import type { ChatMessage } from '../chat-transcript'
+import { ChatTranscript } from '../chat-transcript'
 
 // ---------------------------------------------------------------------------
 // Mock semantic theme
@@ -27,7 +27,13 @@ import type { ChatMessage } from '../chat-transcript'
 
 const mockSemanticTheme: ExtendedTheme['semantic'] = {
   color: {
-    primary: { default: '#B87333', hover: '#C98544', pressed: '#9A6229', disabled: '#4A4458', focus: '#B87333' },
+    primary: {
+      default: '#B87333',
+      hover: '#C98544',
+      pressed: '#9A6229',
+      disabled: '#4A4458',
+      focus: '#B87333',
+    },
     secondary: { default: '#625B71' },
     tertiary: { default: '#7D5260' },
     success: { default: '#22c55e' },
@@ -113,12 +119,48 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.3, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -132,7 +174,10 @@ vi.mock('@expo/vector-icons', () => {
   const { createElement } = require('react')
   return {
     MaterialCommunityIcons: (props: Record<string, unknown>) =>
-      createElement(View, { testID: props.testID ?? `icon-${props.name}`, 'data-name': props.name }),
+      createElement(View, {
+        testID: props.testID ?? `icon-${props.name}`,
+        'data-name': props.name,
+      }),
   }
 })
 
@@ -162,7 +207,10 @@ vi.mock('../../chat/card-registry', () => {
   const { View } = require('react-native')
   const { createElement } = require('react')
   const RoutingCardStub = (props: Record<string, unknown>) =>
-    createElement(View, { testID: 'registry-routing-card', 'data-attachments-count': (props.attachments as unknown[])?.length ?? 0 })
+    createElement(View, {
+      testID: 'registry-routing-card',
+      'data-attachments-count': (props.attachments as unknown[])?.length ?? 0,
+    })
   const PlaceholderStub = () => createElement(View, { testID: 'registry-placeholder-card' })
   return {
     CARD_REGISTRY: {
@@ -237,24 +285,18 @@ describe('ChatTranscript', () => {
    */
   describe('AC1: rider messages are right-aligned', () => {
     it('renders the rider message row with testID rider-message-row', () => {
-      const { getByTestId } = render(
-        <ChatTranscript messages={[RIDER_MESSAGE]} />
-      )
+      const { getByTestId } = render(<ChatTranscript messages={[RIDER_MESSAGE]} />)
       const riderRow = getByTestId('rider-message-row')
       expect(riderRow).toBeTruthy()
     })
 
     it('rider bubble contains the message content', () => {
-      const { getByText } = render(
-        <ChatTranscript messages={[RIDER_MESSAGE]} />
-      )
+      const { getByText } = render(<ChatTranscript messages={[RIDER_MESSAGE]} />)
       expect(getByText('Two-hour coastal ride please')).toBeTruthy()
     })
 
     it('rider bubble has flex-end justification (right-aligned row)', () => {
-      const { getByTestId } = render(
-        <ChatTranscript messages={[RIDER_MESSAGE]} />
-      )
+      const { getByTestId } = render(<ChatTranscript messages={[RIDER_MESSAGE]} />)
       const riderRow = getByTestId('rider-message-row')
       const style = riderRow.props.style
       // style can be a flat object or array — normalize to flat
@@ -268,24 +310,18 @@ describe('ChatTranscript', () => {
    */
   describe('AC2: agent messages are left-aligned', () => {
     it('renders the agent message row with testID agent-message-row', () => {
-      const { getByTestId } = render(
-        <ChatTranscript messages={[AGENT_MESSAGE]} />
-      )
+      const { getByTestId } = render(<ChatTranscript messages={[AGENT_MESSAGE]} />)
       const agentRow = getByTestId('agent-message-row')
       expect(agentRow).toBeTruthy()
     })
 
     it('agent message contains the message content', () => {
-      const { getByText } = render(
-        <ChatTranscript messages={[AGENT_MESSAGE]} />
-      )
+      const { getByText } = render(<ChatTranscript messages={[AGENT_MESSAGE]} />)
       expect(getByText('Here are three great options for you.')).toBeTruthy()
     })
 
     it('agent row does NOT have flex-end justification', () => {
-      const { getByTestId } = render(
-        <ChatTranscript messages={[AGENT_MESSAGE]} />
-      )
+      const { getByTestId } = render(<ChatTranscript messages={[AGENT_MESSAGE]} />)
       const agentRow = getByTestId('agent-message-row')
       const style = agentRow.props.style
       const flat = Array.isArray(style) ? Object.assign({}, ...style) : style
@@ -293,9 +329,7 @@ describe('ChatTranscript', () => {
     })
 
     it('renders the motorbike avatar icon for agent messages', () => {
-      const { getByTestId } = render(
-        <ChatTranscript messages={[AGENT_MESSAGE]} />
-      )
+      const { getByTestId } = render(<ChatTranscript messages={[AGENT_MESSAGE]} />)
       expect(getByTestId('agent-avatar-icon')).toBeTruthy()
     })
   })
@@ -305,24 +339,18 @@ describe('ChatTranscript', () => {
    */
   describe('AC3: route attachments render inline on agent messages', () => {
     it('renders a RouteAttachmentCard for each attachment', () => {
-      const { getByTestId } = render(
-        <ChatTranscript messages={[AGENT_WITH_ROUTES]} />
-      )
+      const { getByTestId } = render(<ChatTranscript messages={[AGENT_WITH_ROUTES]} />)
       expect(getByTestId('route-card-r1')).toBeTruthy()
       expect(getByTestId('route-card-r2')).toBeTruthy()
     })
 
     it('renders the attachments container testID', () => {
-      const { getByTestId } = render(
-        <ChatTranscript messages={[AGENT_WITH_ROUTES]} />
-      )
+      const { getByTestId } = render(<ChatTranscript messages={[AGENT_WITH_ROUTES]} />)
       expect(getByTestId('route-attachments-container')).toBeTruthy()
     })
 
     it('does NOT render attachments container when there are no attachments', () => {
-      const { queryByTestId } = render(
-        <ChatTranscript messages={[AGENT_MESSAGE]} />
-      )
+      const { queryByTestId } = render(<ChatTranscript messages={[AGENT_MESSAGE]} />)
       expect(queryByTestId('route-attachments-container')).toBeNull()
     })
 
@@ -333,7 +361,7 @@ describe('ChatTranscript', () => {
       // through the onPress prop the component passes down. We verify onRoutePress
       // is passed as a function — deeper invocation testing belongs in route-attachment-card.test
       const { getByTestId } = render(
-        <ChatTranscript messages={[AGENT_WITH_ROUTES]} onRoutePress={onRoutePress} />
+        <ChatTranscript messages={[AGENT_WITH_ROUTES]} onRoutePress={onRoutePress} />,
       )
       // Route cards are rendered — wiring is confirmed by their presence
       expect(getByTestId('route-card-r1')).toBeTruthy()
@@ -353,13 +381,17 @@ describe('ChatTranscript', () => {
     it('schedules a scroll timer when messages are present and does not crash when it fires', () => {
       const { rerender } = render(<ChatTranscript messages={[RIDER_MESSAGE]} />)
       expect(() => {
-        act(() => { vi.advanceTimersByTime(150) })
+        act(() => {
+          vi.advanceTimersByTime(150)
+        })
       }).not.toThrow()
 
       // Adding a new message triggers the effect again via messages.length dep
       rerender(<ChatTranscript messages={[RIDER_MESSAGE, AGENT_MESSAGE]} />)
       expect(() => {
-        act(() => { vi.advanceTimersByTime(150) })
+        act(() => {
+          vi.advanceTimersByTime(150)
+        })
       }).not.toThrow()
     })
   })
@@ -369,23 +401,17 @@ describe('ChatTranscript', () => {
    */
   describe('AC5: empty state when messages = []', () => {
     it('renders empty state testID when no messages', () => {
-      const { getByTestId } = render(
-        <ChatTranscript messages={[]} />
-      )
+      const { getByTestId } = render(<ChatTranscript messages={[]} />)
       expect(getByTestId('chat-transcript-empty')).toBeTruthy()
     })
 
     it('shows the friendly empty state copy', () => {
-      const { getByText } = render(
-        <ChatTranscript messages={[]} />
-      )
+      const { getByText } = render(<ChatTranscript messages={[]} />)
       expect(getByText('Start a conversation from the home screen')).toBeTruthy()
     })
 
     it('does NOT render the scroll view when messages is empty', () => {
-      const { queryByTestId } = render(
-        <ChatTranscript messages={[]} />
-      )
+      const { queryByTestId } = render(<ChatTranscript messages={[]} />)
       expect(queryByTestId('chat-transcript-scroll')).toBeNull()
     })
   })
@@ -395,9 +421,7 @@ describe('ChatTranscript', () => {
    */
   describe('mixed conversation', () => {
     it('renders both rider and agent rows', () => {
-      const { getByTestId } = render(
-        <ChatTranscript messages={[RIDER_MESSAGE, AGENT_MESSAGE]} />
-      )
+      const { getByTestId } = render(<ChatTranscript messages={[RIDER_MESSAGE, AGENT_MESSAGE]} />)
       expect(getByTestId('rider-message-row')).toBeTruthy()
       expect(getByTestId('agent-message-row')).toBeTruthy()
     })
@@ -409,7 +433,7 @@ describe('ChatTranscript', () => {
   describe('kind + status routing (task #234)', () => {
     it('renders existing text messages unchanged when kind is undefined (backwards compat)', () => {
       const { getByTestId, getByText, queryByTestId } = render(
-        <ChatTranscript messages={[AGENT_MESSAGE]} />
+        <ChatTranscript messages={[AGENT_MESSAGE]} />,
       )
       // Agent row still renders with existing testID
       expect(getByTestId('agent-message-row')).toBeTruthy()
@@ -426,9 +450,7 @@ describe('ChatTranscript', () => {
         kind: 'text',
         status: 'complete',
       }
-      const { getByTestId, queryByTestId } = render(
-        <ChatTranscript messages={[textMsg]} />
-      )
+      const { getByTestId, queryByTestId } = render(<ChatTranscript messages={[textMsg]} />)
       expect(getByTestId('agent-message-row')).toBeTruthy()
       expect(queryByTestId('agent-message-typing-indicator-slot')).toBeNull()
     })
@@ -442,9 +464,7 @@ describe('ChatTranscript', () => {
         kind: 'text',
         status: 'streaming',
       }
-      const { getByTestId } = render(
-        <ChatTranscript messages={[streamingMsg]} />
-      )
+      const { getByTestId } = render(<ChatTranscript messages={[streamingMsg]} />)
       // Agent row renders
       expect(getByTestId('agent-message-row')).toBeTruthy()
       // Typing indicator slot is present
@@ -462,9 +482,7 @@ describe('ChatTranscript', () => {
         kind: 'text',
         status: 'complete',
       }
-      const { queryByTestId } = render(
-        <ChatTranscript messages={[completeMsg]} />
-      )
+      const { queryByTestId } = render(<ChatTranscript messages={[completeMsg]} />)
       expect(queryByTestId('agent-message-typing-indicator-slot')).toBeNull()
     })
 
@@ -483,9 +501,7 @@ describe('ChatTranscript', () => {
           },
         ],
       }
-      const { getByTestId, queryByTestId } = render(
-        <ChatTranscript messages={[routingCardMsg]} />
-      )
+      const { getByTestId, queryByTestId } = render(<ChatTranscript messages={[routingCardMsg]} />)
       // Card row wrapper with kind suffix
       expect(getByTestId('card-row-routing_card')).toBeTruthy()
       // The registry-mocked RoutingCard renders
@@ -503,9 +519,7 @@ describe('ChatTranscript', () => {
         kind: 'weather_card',
         status: 'complete',
       }
-      const { getByTestId } = render(
-        <ChatTranscript messages={[weatherMsg]} />
-      )
+      const { getByTestId } = render(<ChatTranscript messages={[weatherMsg]} />)
       expect(getByTestId('card-row-weather_card')).toBeTruthy()
       expect(getByTestId('registry-placeholder-card')).toBeTruthy()
     })
@@ -518,13 +532,9 @@ describe('ChatTranscript', () => {
         timestamp: new Date('2026-04-04T10:06:00Z'),
         kind: 'routing_card',
         status: 'running',
-        attachments: [
-          { type: 'route_options', routePlanId: 'route_plans:a' as any },
-        ],
+        attachments: [{ type: 'route_options', routePlanId: 'route_plans:a' as any }],
       }
-      const { getByTestId } = render(
-        <ChatTranscript messages={[cardMsg]} />
-      )
+      const { getByTestId } = render(<ChatTranscript messages={[cardMsg]} />)
       const card = getByTestId('registry-routing-card')
       // The mock wrote the attachments count into a prop we can read
       expect(card.props['data-attachments-count']).toBe(1)
@@ -540,9 +550,7 @@ describe('ChatTranscript', () => {
         status: 'running',
         // attachments intentionally omitted
       }
-      const { getByTestId } = render(
-        <ChatTranscript messages={[cardMsg]} />
-      )
+      const { getByTestId } = render(<ChatTranscript messages={[cardMsg]} />)
       const card = getByTestId('registry-routing-card')
       expect(card.props['data-attachments-count']).toBe(0)
     })
@@ -553,9 +561,7 @@ describe('ChatTranscript', () => {
         // A rider message should never be a card, but we verify kind is ignored for rider role
         kind: 'routing_card' as any,
       }
-      const { getByTestId, queryByTestId } = render(
-        <ChatTranscript messages={[riderWithKind]} />
-      )
+      const { getByTestId, queryByTestId } = render(<ChatTranscript messages={[riderWithKind]} />)
       expect(getByTestId('rider-message-row')).toBeTruthy()
       expect(queryByTestId('card-row-routing_card')).toBeNull()
     })
@@ -575,7 +581,7 @@ describe('ChatTranscript', () => {
     const collectOrderedTestIDs = (
       node: { props?: { testID?: string; children?: unknown }; children?: unknown[] } | null,
       wanted: (id: string) => boolean,
-      out: string[] = []
+      out: string[] = [],
     ): string[] => {
       if (!node || typeof node !== 'object') return out
       const id = node.props?.testID
@@ -583,11 +589,7 @@ describe('ChatTranscript', () => {
       const kids = (node as { children?: unknown[] }).children
       if (Array.isArray(kids)) {
         for (const child of kids) {
-          collectOrderedTestIDs(
-            child as { props?: { testID?: string } } | null,
-            wanted,
-            out
-          )
+          collectOrderedTestIDs(child as { props?: { testID?: string } } | null, wanted, out)
         }
       }
       return out
@@ -609,20 +611,17 @@ describe('ChatTranscript', () => {
         timestamp: new Date('2026-04-04T10:00:03.500Z'),
         kind: 'routing_card',
         status: 'complete',
-        attachments: [
-          { type: 'route_options', routePlanId: 'route_plans:plan-1' as any },
-        ],
+        attachments: [{ type: 'route_options', routePlanId: 'route_plans:plan-1' as any }],
       }
 
-      const { toJSON } = render(
-        <ChatTranscript messages={[reasoning, card]} />
-      )
+      const { toJSON } = render(<ChatTranscript messages={[reasoning, card]} />)
       const tree = toJSON() as unknown as {
         props?: { testID?: string }
         children?: unknown[]
       }
-      const order = collectOrderedTestIDs(tree, (id) =>
-        id === 'card-row-reasoning' || id === 'card-row-routing_card'
+      const order = collectOrderedTestIDs(
+        tree,
+        (id) => id === 'card-row-reasoning' || id === 'card-row-routing_card',
       )
       expect(order).toEqual(['card-row-reasoning', 'card-row-routing_card'])
     })
@@ -644,9 +643,7 @@ describe('ChatTranscript', () => {
           timestamp: new Date('2026-04-04T10:00:02.000Z'),
           kind: 'routing_card',
           status: 'complete',
-          attachments: [
-            { type: 'route_options', routePlanId: 'route_plans:plan-1' as any },
-          ],
+          attachments: [{ type: 'route_options', routePlanId: 'route_plans:plan-1' as any }],
         },
         {
           id: 'rider-1',
@@ -669,9 +666,7 @@ describe('ChatTranscript', () => {
           timestamp: new Date('2026-04-04T10:01:07.000Z'),
           kind: 'routing_card',
           status: 'complete',
-          attachments: [
-            { type: 'route_options', routePlanId: 'route_plans:plan-2' as any },
-          ],
+          attachments: [{ type: 'route_options', routePlanId: 'route_plans:plan-2' as any }],
         },
       ]
 
@@ -680,10 +675,12 @@ describe('ChatTranscript', () => {
         props?: { testID?: string }
         children?: unknown[]
       }
-      const order = collectOrderedTestIDs(tree, (id) =>
-        id === 'card-row-reasoning' ||
-        id === 'card-row-routing_card' ||
-        id === 'rider-message-row'
+      const order = collectOrderedTestIDs(
+        tree,
+        (id) =>
+          id === 'card-row-reasoning' ||
+          id === 'card-row-routing_card' ||
+          id === 'rider-message-row',
       )
       // Expect both reasoning rows to appear directly before their paired
       // routing_card, with the rider message separating the two turns.
@@ -719,9 +716,7 @@ describe('ChatTranscript', () => {
         },
       ]
 
-      const { getByTestId, queryAllByTestId } = render(
-        <ChatTranscript messages={messages} />
-      )
+      const { getByTestId, queryAllByTestId } = render(<ChatTranscript messages={messages} />)
       // Rider bubble still rendered correctly
       expect(getByTestId('rider-message-row')).toBeTruthy()
       // Reasoning row present as its own card row (not fused into rider)

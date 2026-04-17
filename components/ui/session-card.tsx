@@ -1,26 +1,20 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ViewStyle,
-  Pressable,
-} from 'react-native';
-import { IconSymbol } from './icon-symbol';
-import { useSemanticTheme } from '../../hooks/use-semantic-theme';
+import type React from 'react'
+import { Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol } from './icon-symbol'
 
 export interface SessionCardProps {
-  id: string;
-  title: string;
-  date: Date;
-  routeCount: number;
-  status: 'active' | 'completed' | 'saved';
-  previewMessage: string;
-  isActive?: boolean;
-  onPress?: () => void;
-  onLongPress?: () => void;
-  style?: ViewStyle;
-  compact?: boolean;
+  id: string
+  title: string
+  date: Date
+  routeCount: number
+  status: 'active' | 'completed' | 'saved'
+  previewMessage: string
+  isActive?: boolean
+  onPress?: () => void
+  onLongPress?: () => void
+  style?: ViewStyle
+  compact?: boolean
 }
 
 export const SessionCard: React.FC<SessionCardProps> = ({
@@ -36,34 +30,34 @@ export const SessionCard: React.FC<SessionCardProps> = ({
   style,
   compact = false,
 }) => {
-  const { semantic } = useSemanticTheme();
+  const { semantic } = useSemanticTheme()
 
   const formatDate = (date: Date) => {
-    const now = new Date();
-    const sessionDate = new Date(date);
-    const diffMs = now.getTime() - sessionDate.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const now = new Date()
+    const sessionDate = new Date(date)
+    const diffMs = now.getTime() - sessionDate.getTime()
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
 
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    return sessionDate.toLocaleDateString();
-  };
+    if (diffDays === 0) return 'Today'
+    if (diffDays === 1) return 'Yesterday'
+    if (diffDays < 7) return `${diffDays} days ago`
+    return sessionDate.toLocaleDateString()
+  }
 
   const getStatusIcon = () => {
     switch (status) {
       case 'active':
-        return 'radiobox-marked';
+        return 'radiobox-marked'
       case 'completed':
-        return 'check-circle';
+        return 'check-circle'
       case 'saved':
-        return 'bookmark';
+        return 'bookmark'
       default:
-        return 'circle-outline';
+        return 'circle-outline'
     }
-  };
+  }
 
-  const Container = onPress || onLongPress ? Pressable : View;
+  const Container = onPress || onLongPress ? Pressable : View
   const renderContent = (pressed: boolean): React.ReactNode => (
     <View
       style={[
@@ -72,9 +66,7 @@ export const SessionCard: React.FC<SessionCardProps> = ({
           backgroundColor: isActive
             ? semantic.color.primary.default + '15'
             : semantic.color.surfaceVariant.default,
-          borderColor: isActive
-            ? semantic.color.primary.default
-            : semantic.color.border.default,
+          borderColor: isActive ? semantic.color.primary.default : semantic.color.border.default,
           opacity: pressed && !isActive ? 0.8 : 1,
           ...(!isActive && pressed ? semantic.elevation[3] : semantic.elevation[1]),
         },
@@ -96,10 +88,10 @@ export const SessionCard: React.FC<SessionCardProps> = ({
             size={18}
             color={
               status === 'active'
-                ? semantic.color.primary.default
+                ? (semantic.color.primary.default ?? 'transparent')
                 : status === 'completed'
-                  ? semantic.color.success.default
-                  : semantic.color.onSurface.subtle
+                  ? (semantic.color.success.default ?? 'transparent')
+                  : (semantic.color.onSurface.subtle ?? 'transparent')
             }
           />
         </View>
@@ -151,11 +143,11 @@ export const SessionCard: React.FC<SessionCardProps> = ({
         {previewMessage}
       </Text>
     </View>
-  );
+  )
 
-  const content = renderContent(false);
+  const content = renderContent(false)
 
-  return (onPress || onLongPress) ? (
+  return onPress || onLongPress ? (
     <Pressable
       onPress={onPress}
       onLongPress={onLongPress}
@@ -169,9 +161,7 @@ export const SessionCard: React.FC<SessionCardProps> = ({
           backgroundColor: isActive
             ? semantic.color.primary.default + '15'
             : semantic.color.surfaceVariant.default,
-          borderColor: isActive
-            ? semantic.color.primary.default
-            : semantic.color.border.default,
+          borderColor: isActive ? semantic.color.primary.default : semantic.color.border.default,
           opacity: pressed && !isActive ? 0.8 : 1,
           ...(!isActive && pressed ? semantic.elevation[3] : semantic.elevation[1]),
         },
@@ -189,9 +179,7 @@ export const SessionCard: React.FC<SessionCardProps> = ({
           backgroundColor: isActive
             ? semantic.color.primary.default + '15'
             : semantic.color.surfaceVariant.default,
-          borderColor: isActive
-            ? semantic.color.primary.default
-            : semantic.color.border.default,
+          borderColor: isActive ? semantic.color.primary.default : semantic.color.border.default,
         },
         compact && styles.compactCard,
         style,
@@ -199,8 +187,8 @@ export const SessionCard: React.FC<SessionCardProps> = ({
     >
       {content}
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   card: {
@@ -251,4 +239,4 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     fontWeight: '400',
   },
-});
+})

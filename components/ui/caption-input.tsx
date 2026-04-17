@@ -5,10 +5,10 @@
  * Following theme_rules.mdc - semantic theme usage throughout
  */
 
-import { IconSymbol } from '../ui/icon-symbol'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Pressable, StyleSheet, TextInput, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol } from '../ui/icon-symbol'
 
 export type CaptionInputProps = {
   value: string

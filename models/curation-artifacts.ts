@@ -1,4 +1,4 @@
-import { Infer, v } from 'convex/values'
+import { type Infer, v } from 'convex/values'
 
 export const CURATION_ARTIFACT_SOURCE = {
   CURVATURE: 'curvature',
@@ -27,13 +27,11 @@ export const CURATION_ARTIFACT_RELEASE_FIELDS = {
 } as const
 
 export const curationArtifactReleaseMetadataValidator = v.object(
-  CURATION_ARTIFACT_RELEASE_METADATA_FIELDS
+  CURATION_ARTIFACT_RELEASE_METADATA_FIELDS,
 )
 export const curationArtifactReleaseValidator = v.object(CURATION_ARTIFACT_RELEASE_FIELDS)
 
-export type CurationArtifactReleaseMetadata = Infer<
-  typeof curationArtifactReleaseMetadataValidator
->
+export type CurationArtifactReleaseMetadata = Infer<typeof curationArtifactReleaseMetadataValidator>
 export type CurationArtifactRelease = Infer<typeof curationArtifactReleaseValidator>
 
 export const CURATION_ARTIFACT_SHARD_METADATA_FIELDS = {
@@ -52,7 +50,7 @@ export const CURATION_ARTIFACT_SHARD_FIELDS = {
 } as const
 
 export const curationArtifactShardMetadataValidator = v.object(
-  CURATION_ARTIFACT_SHARD_METADATA_FIELDS
+  CURATION_ARTIFACT_SHARD_METADATA_FIELDS,
 )
 export const curationArtifactShardValidator = v.object(CURATION_ARTIFACT_SHARD_FIELDS)
 

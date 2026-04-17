@@ -28,7 +28,7 @@ export const list = query({
       _id: v.id('users'),
       _creationTime: v.number(),
       ...USER_FIELDS,
-    })
+    }),
   ),
   handler: async (ctx): Promise<ListedUser[]> => {
     const users: ListedUser[] = await ctx.db.query('users').collect()

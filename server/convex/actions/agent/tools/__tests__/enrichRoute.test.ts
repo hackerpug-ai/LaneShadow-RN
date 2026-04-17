@@ -1,6 +1,5 @@
-import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest'
-
 import { complete, getModel } from '@mariozechner/pi-ai'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { enrichRoute } from '../enrichRoute'
 
 // Mock env so OPENAI_API_KEY is deterministic across the whole suite.
@@ -46,7 +45,7 @@ const buildTestRoutes = (count: number = 3) =>
   }))
 
 const makeAssistant = (
-  routes: { label: string; rationale: string; highlights: string[]; legLabels?: string[] }[]
+  routes: { label: string; rationale: string; highlights: string[]; legLabels?: string[] }[],
 ) =>
   ({
     role: 'assistant',
@@ -93,7 +92,8 @@ describe('enrichRoute', () => {
         makeAssistant([
           {
             label: 'High Sierra Crest via Tioga Pass',
-            rationale: 'A scenic mountain route crossing the Sierra Nevada through the famous Tioga Pass.',
+            rationale:
+              'A scenic mountain route crossing the Sierra Nevada through the famous Tioga Pass.',
             highlights: ['Mountain pass', 'Alpine meadows', 'Sweeping views'],
           },
           {
@@ -106,7 +106,7 @@ describe('enrichRoute', () => {
             rationale: 'A journey through high desert valleys with unique geological formations.',
             highlights: ['Desert landscape', 'Rock formations', 'Open roads'],
           },
-        ])
+        ]),
       )
 
       const routes = buildTestRoutes(3)
@@ -115,7 +115,8 @@ describe('enrichRoute', () => {
       expect(result).toHaveLength(3)
       expect(result[0]).toEqual({
         label: 'High Sierra Crest via Tioga Pass',
-        rationale: 'A scenic mountain route crossing the Sierra Nevada through the famous Tioga Pass.',
+        rationale:
+          'A scenic mountain route crossing the Sierra Nevada through the famous Tioga Pass.',
         highlights: ['Mountain pass', 'Alpine meadows', 'Sweeping views'],
         legLabels: [],
       })
@@ -186,7 +187,7 @@ describe('enrichRoute', () => {
       vi.mocked(complete).mockResolvedValue(
         makeAssistant([
           { label: 'Yosemite Tioga Pass', rationale: 'Scenic route', highlights: ['Mountain'] },
-        ])
+        ]),
       )
 
       const routes = [
@@ -212,7 +213,7 @@ describe('enrichRoute', () => {
 
     it('includes distance and duration stats', async () => {
       vi.mocked(complete).mockResolvedValue(
-        makeAssistant([{ label: 'Test', rationale: 'Test', highlights: ['A'] }])
+        makeAssistant([{ label: 'Test', rationale: 'Test', highlights: ['A'] }]),
       )
 
       const routes = [
@@ -237,7 +238,7 @@ describe('enrichRoute', () => {
   describe('tool schema', () => {
     it('registers emit_enrichments as the only tool', async () => {
       vi.mocked(complete).mockResolvedValue(
-        makeAssistant([{ label: 'X', rationale: 'Y', highlights: ['Z'] }])
+        makeAssistant([{ label: 'X', rationale: 'Y', highlights: ['Z'] }]),
       )
 
       await enrichRoute({ routes: buildTestRoutes(1) })
@@ -252,7 +253,7 @@ describe('enrichRoute', () => {
   describe('AI_MODEL integration', () => {
     it('forwards AI_MODEL to getModel()', async () => {
       vi.mocked(complete).mockResolvedValue(
-        makeAssistant([{ label: 'Test', rationale: 'Test', highlights: ['A'], legLabels: [] }])
+        makeAssistant([{ label: 'Test', rationale: 'Test', highlights: ['A'], legLabels: [] }]),
       )
 
       await enrichRoute({ routes: buildTestRoutes(1) })
@@ -273,7 +274,7 @@ describe('enrichRoute', () => {
             highlights: ['Ocean views'],
             legLabels: ['San Francisco → Daly City', 'Daly City → Santa Cruz'],
           },
-        ])
+        ]),
       )
 
       const routes = [
@@ -283,8 +284,20 @@ describe('enrichRoute', () => {
             { name: 'Santa Cruz', type: 'city' },
           ],
           legContext: [
-            { index: 0, fromName: 'San Francisco', toName: 'Daly City', roadName: 'CA-1', distance: 10000 },
-            { index: 1, fromName: 'Daly City', toName: 'Santa Cruz', roadName: 'CA-1', distance: 40000 },
+            {
+              index: 0,
+              fromName: 'San Francisco',
+              toName: 'Daly City',
+              roadName: 'CA-1',
+              distance: 10000,
+            },
+            {
+              index: 1,
+              fromName: 'Daly City',
+              toName: 'Santa Cruz',
+              roadName: 'CA-1',
+              distance: 40000,
+            },
           ],
           stats: { distanceMeters: 50000, durationSeconds: 3600 },
         },
@@ -297,7 +310,7 @@ describe('enrichRoute', () => {
 
     it('returns empty legLabels array when no legContext provided', async () => {
       vi.mocked(complete).mockResolvedValue(
-        makeAssistant([{ label: 'Test', rationale: 'Test', highlights: ['A'], legLabels: [] }])
+        makeAssistant([{ label: 'Test', rationale: 'Test', highlights: ['A'], legLabels: [] }]),
       )
 
       const routes = [
@@ -321,7 +334,7 @@ describe('enrichRoute', () => {
             highlights: ['A'],
             legLabels: ['San Francisco → Half Moon Bay', 'Half Moon Bay → Santa Cruz'],
           },
-        ])
+        ]),
       )
 
       const routes = [
@@ -331,8 +344,20 @@ describe('enrichRoute', () => {
             { name: 'Santa Cruz', type: 'city' },
           ],
           legContext: [
-            { index: 0, fromName: 'San Francisco', toName: 'Half Moon Bay', roadName: 'CA-1', distance: 20000 },
-            { index: 1, fromName: 'Half Moon Bay', toName: 'Santa Cruz', roadName: 'CA-1', distance: 30000 },
+            {
+              index: 0,
+              fromName: 'San Francisco',
+              toName: 'Half Moon Bay',
+              roadName: 'CA-1',
+              distance: 20000,
+            },
+            {
+              index: 1,
+              fromName: 'Half Moon Bay',
+              toName: 'Santa Cruz',
+              roadName: 'CA-1',
+              distance: 30000,
+            },
           ],
           stats: { distanceMeters: 50000, durationSeconds: 3600 },
         },

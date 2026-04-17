@@ -1,4 +1,4 @@
-import { Infer, v } from 'convex/values'
+import { type Infer, v } from 'convex/values'
 import { planInputValidator } from './saved-routes'
 
 export const ROUTE_PLAN_STATUS = {
@@ -15,7 +15,7 @@ export const routePlanStatusValidator = v.union(
   v.literal('running'),
   v.literal('completed'),
   v.literal('failed'),
-  v.literal('cancelled')
+  v.literal('cancelled'),
 )
 
 export const ROUTE_PLAN_PHASE = {
@@ -30,7 +30,7 @@ export const routePlanPhaseValidator = v.union(
   v.literal('reading'),
   v.literal('finding'),
   v.literal('weather'),
-  v.literal('building')
+  v.literal('building'),
 )
 
 export const routePlanValidator = v.object({

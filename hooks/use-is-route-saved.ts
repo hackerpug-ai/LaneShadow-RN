@@ -6,8 +6,8 @@
  * when the user is viewing a route they've previously saved.
  */
 
-import { useMemo } from 'react'
 import { useQuery } from 'convex/react'
+import { useMemo } from 'react'
 import { api } from '../convex/_generated/api'
 
 /**
@@ -28,9 +28,11 @@ export function useIsRouteSaved(routeFingerprint?: string | null): boolean {
     }
 
     // Check if any saved route has a matching routeFingerprint
-    return savedRoutesData.routes.some((route) => {
-      // The routeFingerprint is stored in the routeIndex
-      return route.routeIndex?.routeFingerprint === routeFingerprint
-    })
+    return savedRoutesData.routes.some(
+      (route: { routeIndex?: { routeFingerprint?: string } | null }) => {
+        // The routeFingerprint is stored in the routeIndex
+        return route.routeIndex?.routeFingerprint === routeFingerprint
+      },
+    )
   }, [routeFingerprint, savedRoutesData])
 }

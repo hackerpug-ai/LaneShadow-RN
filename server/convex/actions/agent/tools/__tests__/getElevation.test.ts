@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, afterEach } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { getElevation, samplePolyline } from '../getElevation'
 
 // ---------------------------------------------------------------------------
@@ -43,7 +43,7 @@ const setupFetchError = (error: Error) => {
  * 800m gain over ~2km = ~40% max grade segment.
  */
 const MOUNTAIN_POLYLINE: LatLng[] = [
-  { lat: 37.000, lng: -122.000 }, // base: ~200m
+  { lat: 37.0, lng: -122.0 }, // base: ~200m
   { lat: 37.018, lng: -121.998 }, // climb: ~500m  (~2km)
   { lat: 37.036, lng: -121.996 }, // peak: ~1100m  (~2km)
   { lat: 37.054, lng: -121.994 }, // descent: ~700m (~2km)

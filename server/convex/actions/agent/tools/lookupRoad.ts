@@ -119,7 +119,11 @@ const fetchOverpass = async (query: string, signal: AbortSignal): Promise<Overpa
 }
 
 const runOverpassQuery = (query: string): Promise<OverpassResponse> => {
-  const runOnce = () => withTimeout((signal) => fetchOverpass(query, signal), { ms: OVERPASS_TIMEOUT_MS, label: 'overpass' })
+  const runOnce = () =>
+    withTimeout((signal) => fetchOverpass(query, signal), {
+      ms: OVERPASS_TIMEOUT_MS,
+      label: 'overpass',
+    })
   return retryOnce(runOnce)
 }
 
@@ -128,7 +132,7 @@ const runOverpassQuery = (query: string): Promise<OverpassResponse> => {
 // ---------------------------------------------------------------------------
 
 const simplifyGeometry = (
-  geometry: { lat: number; lon: number }[] | undefined
+  geometry: { lat: number; lon: number }[] | undefined,
 ): { lat: number; lng: number }[] => {
   if (!geometry || geometry.length === 0) return []
 

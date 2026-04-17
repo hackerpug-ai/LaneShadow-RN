@@ -24,21 +24,14 @@ export type SectionHeaderProps = {
  * SectionHeader component for section titles
  * Displays title with optional subtitle and action button
  */
-export const SectionHeader = ({
-  title,
-  subtitle,
-  action,
-  onActionPress,
-}: SectionHeaderProps) => {
+export const SectionHeader = ({ title, subtitle, action, onActionPress }: SectionHeaderProps) => {
   const theme = useTheme<ExtendedTheme>()
   const { semantic } = theme
 
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
-        <Text style={[styles.title, { color: semantic.color.onSurface.default }]}>
-          {title}
-        </Text>
+        <Text style={[styles.title, { color: semantic.color.onSurface.default }]}>{title}</Text>
         {subtitle && (
           <Text style={[styles.subtitle, { color: semantic.color.onSurface.subtle }]}>
             {subtitle}

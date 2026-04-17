@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View, Text } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { Icon } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -101,7 +101,7 @@ export const MapControls = ({
                     backgroundColor: semantic.color.border.default,
                   },
                 ]}
-                />
+              />
 
               <ControlButton
                 icon="minus"
@@ -214,9 +214,7 @@ const ControlButton = ({
             : accent
               ? semantic.color.primary.default
               : semantic.color.surfaceVariant.default,
-          borderColor: accent
-            ? semantic.color.primary.default
-            : semantic.color.border.default,
+          borderColor: accent ? semantic.color.primary.default : semantic.color.border.default,
           borderWidth: 1.5,
           ...semantic.elevation[3],
           paddingHorizontal: label ? semantic.space.sm : undefined,

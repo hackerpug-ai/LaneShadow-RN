@@ -9,31 +9,24 @@
  * - Test atomic increment operations
  */
 
-import { describe, expect, it, vi } from 'vitest'
 import { ConvexError } from 'convex/values'
+import { describe, expect, it, vi } from 'vitest'
 import type { Doc, Id } from '../../_generated/dataModel'
 import type { MutationCtx, QueryCtx } from '../../_generated/server'
-import {
-  checkUsage,
-  incrementUsage,
-  getCurrentMonth,
-} from '../planUsage'
+import { checkUsage, getCurrentMonth, incrementUsage } from '../planUsage'
 
 // Mock types for testing
 type MockQuery = (table: string) => {
-  withIndex: (indexName: string, fn: (q: any) => any) => {
+  withIndex: (
+    indexName: string,
+    fn: (q: any) => any,
+  ) => {
     unique: () => Promise<Doc<'plan_usage'> | null>
   }
 }
 type MockGet = (id: Id<'plan_usage'>) => Promise<Doc<'plan_usage'> | null>
-type MockInsert = (
-  table: string,
-  fields: object
-) => Promise<Id<'plan_usage'>>
-type MockPatch = (
-  id: Id<'plan_usage'>,
-  patch: object
-) => Promise<void>
+type MockInsert = (table: string, fields: object) => Promise<Id<'plan_usage'>>
+type MockPatch = (id: Id<'plan_usage'>, patch: object) => Promise<void>
 
 describe('planUsage', () => {
   describe('getCurrentMonth utility', () => {

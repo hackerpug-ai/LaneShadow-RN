@@ -27,9 +27,9 @@ type VoiceAssistantAPI = {
 }
 
 /**
-  * Minimal voice assistant stub for compile-time satisfaction.
-  * Replace with real audio capture + assistant integration when available.
-  */
+ * Minimal voice assistant stub for compile-time satisfaction.
+ * Replace with real audio capture + assistant integration when available.
+ */
 export const useVoiceAssistant = (_config?: VoiceAssistantConfig): VoiceAssistantAPI => {
   const [state, setState] = useState<VoiceAssistantState>({ status: 'idle' })
   const [isOverlayOpen, setOverlayOpen] = useState(false)
@@ -79,6 +79,6 @@ export const useVoiceAssistant = (_config?: VoiceAssistantConfig): VoiceAssistan
       state,
       stopRecording,
       submitDraft,
-    ]
+    ],
   )
 }

@@ -8,13 +8,12 @@
  * - AC4: Given: User deletes saved route, When: savedRoutes.softDeleteRoute called, Then: Card removed, list updates
  */
 
-import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest'
+import { fireEvent, render, waitFor } from '@testing-library/react-native'
+import { useMutation, useQuery } from 'convex/react'
 import React from 'react'
-import { render, waitFor, fireEvent } from '@testing-library/react-native'
+import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import type { Doc } from '../../../convex/_generated/dataModel'
-
 import { SavedRoutesSection } from '../favorite-roads-section'
-import { useQuery, useMutation } from 'convex/react'
 
 // ---------------------------------------------------------------------------
 // Mock semantic theme
@@ -170,21 +169,20 @@ vi.mock('react-native-paper', () => {
   const Portal = ({ children }: any) => createElement(View, null, children)
 
   const Dialog = ({ visible, onDismiss, children, testID }: any) =>
-    visible
-      ? createElement(View, { testID }, children)
-      : null
+    visible ? createElement(View, { testID }, children) : null
 
-  const DialogTitle = ({ children, style }: any) =>
-    createElement(RNText, { style }, children)
+  const DialogTitle = ({ children, style }: any) => createElement(RNText, { style }, children)
 
-  const DialogContent = ({ children }: any) =>
-    createElement(View, null, children)
+  const DialogContent = ({ children }: any) => createElement(View, null, children)
 
-  const DialogActions = ({ children }: any) =>
-    createElement(View, null, children)
+  const DialogActions = ({ children }: any) => createElement(View, null, children)
 
   const Button = ({ children, onPress, testID, textColor }: any) =>
-    createElement(Pressable, { testID, onPress }, createElement(RNText, { style: { color: textColor } }, children))
+    createElement(
+      Pressable,
+      { testID, onPress },
+      createElement(RNText, { style: { color: textColor } }, children),
+    )
 
   return {
     Text,
@@ -206,7 +204,7 @@ vi.mock('../../../components/ui/empty-state', () => ({
       View,
       { testID },
       createElement(Text, null, headline),
-      createElement(Text, null, body)
+      createElement(Text, null, body),
     )
   },
 }))
@@ -239,7 +237,7 @@ vi.mock('../../../components/ui/saved-route-card', () => ({
       View,
       { testID: 'saved-route-card' },
       createElement(Text, null, name),
-      createElement(Text, null, path)
+      createElement(Text, null, path),
     )
   },
 }))
@@ -359,9 +357,7 @@ describe('SavedRoutesSection', () => {
     await waitFor(() => {
       expect(getByText('Saved Routes')).toBeTruthy()
       expect(getByText('No saved routes yet')).toBeTruthy()
-      expect(
-        getByText('Plan a route and save it to see it here')
-      ).toBeTruthy()
+      expect(getByText('Plan a route and save it to see it here')).toBeTruthy()
     })
 
     expect(getByTestId('empty-state')).toBeTruthy()

@@ -22,7 +22,7 @@ export const routeFeedbackActionValidator = v.union(
   v.literal('save'),
   v.literal('hide'),
   v.literal('complete'),
-  v.literal('rate')
+  v.literal('rate'),
 )
 
 export const recordRouteFeedbackInputValidator = v.object({
@@ -52,7 +52,7 @@ export const recordRouteFeedbackHandler = async (
     locationLng?: number
     archetypeFilter?: string
   },
-  userId: string
+  userId: string,
 ): Promise<{ feedbackId: Id<'route_feedback'> }> => {
   // Validate rating rules
   if (args.action === 'rate') {

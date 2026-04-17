@@ -71,7 +71,7 @@ export function createBackendLogEntry(
   category: LogCategory,
   message: string,
   data?: Record<string, unknown>,
-  error?: Error
+  error?: Error,
 ): string {
   const entry: LogEntry = {
     timestamp: new Date().toISOString(),

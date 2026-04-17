@@ -11,10 +11,10 @@
  * - Recovers from app being killed
  */
 
-import * as TaskManager from 'expo-task-manager'
-import * as Notifications from 'expo-notifications'
 import * as BackgroundFetch from 'expo-background-fetch'
-import { AppState, AppStateStatus } from 'react-native'
+import * as Notifications from 'expo-notifications'
+import * as TaskManager from 'expo-task-manager'
+import { AppState, type AppStateStatus } from 'react-native'
 import { useDownloadStore } from '../../stores/download-store'
 import { PersistentDownloadManager } from './persistent-download-manager'
 import type { ModelConfig, NetworkStatus } from './types'
@@ -107,16 +107,13 @@ export class BackgroundDownloadService {
           await this.updateProgressNotification(
             state.progressPercent,
             state.bytesDownloaded,
-            state.totalBytes
+            state.totalBytes,
           )
 
           // Check if download is complete
           if (state.progressPercent >= 100) {
             await this.showCompletionNotification()
-            useDownloadStore.getState().completeDownload(
-              state.checksum || '',
-              state.totalBytes
-            )
+            useDownloadStore.getState().completeDownload(state.checksum || '', state.totalBytes)
           }
         }
 
@@ -195,17 +192,16 @@ export class BackgroundDownloadService {
           })
 
           // Mark as background task in store
-          useDownloadStore.getState().setBackgroundTask(
-            BACKGROUND_DOWNLOAD_TASK,
-            'model-download-progress'
-          )
+          useDownloadStore
+            .getState()
+            .setBackgroundTask(BACKGROUND_DOWNLOAD_TASK, 'model-download-progress')
         }
 
         // Show initial notification
         await this.updateProgressNotification(
           state.progressPercent,
           state.bytesDownloaded,
-          state.totalBytes
+          state.totalBytes,
         )
 
         console.log('[BackgroundDownloadService] Background task registered on app background')
@@ -236,7 +232,11 @@ export class BackgroundDownloadService {
     const state = useDownloadStore.getState()
 
     if (state.state === 'downloading' && state.progressPercent < 100) {
-      console.log('[BackgroundDownloadService] Found incomplete download at', state.progressPercent, '%')
+      console.log(
+        '[BackgroundDownloadService] Found incomplete download at',
+        state.progressPercent,
+        '%',
+      )
 
       // Show notification to user about incomplete download
       await this.showResumeNotification(state.progressPercent)
@@ -249,7 +249,7 @@ export class BackgroundDownloadService {
   private async updateProgressNotification(
     progress: number,
     downloadedBytes: number,
-    totalBytes: number
+    totalBytes: number,
   ): Promise<void> {
     // Only update if progress changed by at least NOTIFICATION_UPDATE_THRESHOLD
     if (Math.abs(progress - this.lastNotificationProgress) < NOTIFICATION_UPDATE_THRESHOLD) {
@@ -331,36 +331,36 @@ export class BackgroundDownloadService {
   async startDownload(
     config: ModelConfig,
     networkStatus: NetworkStatus,
-    onProgress?: (progress: { percent: number; downloadedBytes: number; totalBytes: number }) => void
+    onProgress?: (progress: {
+      percent: number
+      downloadedBytes: number
+      totalBytes: number
+    }) => void,
   ): Promise<void> {
     try {
       // Initialize download in store
       useDownloadStore.getState().startDownload(config.version, config.totalBytes || 0)
 
       // Start download via persistent manager
-      const result = await this.downloadManager.downloadModel(
-        config,
-        networkStatus,
-        (progress) => {
-          // Update store
-          useDownloadStore.getState().updateProgress(
+      const result = await this.downloadManager.downloadModel(config, networkStatus, (progress) => {
+        // Update store
+        useDownloadStore.getState().updateProgress(progress.downloadedBytes, progress.totalBytes)
+
+        // Call UI callback
+        onProgress?.(progress)
+
+        // Update notification if significant progress
+        if (
+          Math.abs(progress.percent - this.lastNotificationProgress) >=
+          NOTIFICATION_UPDATE_THRESHOLD
+        ) {
+          this.updateProgressNotification(
+            progress.percent,
             progress.downloadedBytes,
-            progress.totalBytes
+            progress.totalBytes,
           )
-
-          // Call UI callback
-          onProgress?.(progress)
-
-          // Update notification if significant progress
-          if (Math.abs(progress.percent - this.lastNotificationProgress) >= NOTIFICATION_UPDATE_THRESHOLD) {
-            this.updateProgressNotification(
-              progress.percent,
-              progress.downloadedBytes,
-              progress.totalBytes
-            )
-          }
         }
-      )
+      })
 
       if (!result.success) {
         throw new Error(result.error || 'Download failed')
@@ -373,9 +373,9 @@ export class BackgroundDownloadService {
       await this.showCompletionNotification()
     } catch (error) {
       console.error('[BackgroundDownloadService] Download failed:', error)
-      useDownloadStore.getState().failDownload(
-        error instanceof Error ? error.message : 'Unknown download error'
-      )
+      useDownloadStore
+        .getState()
+        .failDownload(error instanceof Error ? error.message : 'Unknown download error')
       throw error
     }
   }

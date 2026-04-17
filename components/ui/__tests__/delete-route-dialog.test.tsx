@@ -8,9 +8,11 @@
  * - AC4: Delete button text uses semantic.color.danger.default color
  */
 
-import { vi, describe, it, expect, beforeEach } from 'vitest'
-import React from 'react'
-import { render, fireEvent } from '@testing-library/react-native'
+import { fireEvent, render } from '@testing-library/react-native'
+import type React from 'react'
+import type { StyleProp, ViewStyle } from 'react-native'
+import type { ReactTestInstance } from 'react-test-renderer'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ---------------------------------------------------------------------------
 // Import after mocks
@@ -87,12 +89,48 @@ const mockSemanticTheme = {
     },
   },
   elevation: {
-    0: { shadowColor: 'transparent', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.35, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: 'transparent',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.2,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.3,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.35,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -106,31 +144,58 @@ vi.mock('react-native-paper', () => {
   const { View, Text: RNText, Pressable } = require('react-native')
   const { createElement } = require('react')
 
-  const Dialog = ({ children, visible, onDismiss, testID, style }) => {
+  const Dialog = ({
+    children,
+    visible,
+    onDismiss,
+    testID,
+    style,
+  }: {
+    children: React.ReactNode
+    visible: boolean
+    onDismiss: () => void
+    testID: string
+    style: StyleProp<ViewStyle>
+  }) => {
     if (!visible) return null
     return createElement(View, { testID, style }, children)
   }
 
-  Dialog.Title = ({ children, style }) =>
-    createElement(RNText, { testID: 'dialog-title', style }, children)
+  Dialog.Title = ({
+    children,
+    style,
+  }: {
+    children: React.ReactNode
+    style: StyleProp<ViewStyle>
+  }) => createElement(RNText, { testID: 'dialog-title', style }, children)
 
-  Dialog.Content = ({ children }) =>
+  Dialog.Content = ({ children }: { children: React.ReactNode }) =>
     createElement(View, { testID: 'dialog-content' }, children)
 
-  Dialog.Actions = ({ children }) =>
+  Dialog.Actions = ({ children }: { children: React.ReactNode }) =>
     createElement(View, { testID: 'dialog-actions' }, children)
 
-  const Portal = ({ children }) =>
+  const Portal = ({ children }: { children: React.ReactNode }) =>
     createElement(View, null, children)
 
-  const Button = ({ children, onPress, testID, textColor }) =>
+  const Button = ({
+    children,
+    onPress,
+    testID,
+    textColor,
+  }: {
+    children: React.ReactNode
+    onPress: () => void
+    testID: string
+    textColor: string
+  }) =>
     createElement(
       Pressable,
       { onPress, testID, accessibilityRole: 'button' },
-      createElement(RNText, { style: { color: textColor } }, children)
+      createElement(RNText, { style: { color: textColor } }, children),
     )
 
-  const Text = ({ children, style }) =>
+  const Text = ({ children, style }: { children: React.ReactNode; style: StyleProp<ViewStyle> }) =>
     createElement(RNText, { style }, children)
 
   return { Dialog, Portal, Button, Text }
@@ -166,9 +231,7 @@ describe('DeleteRouteDialog', () => {
     })
 
     it('does not render when visible is false', () => {
-      const { queryByTestId } = render(
-        <DeleteRouteDialog {...defaultProps} visible={false} />
-      )
+      const { queryByTestId } = render(<DeleteRouteDialog {...defaultProps} visible={false} />)
       expect(queryByTestId('delete-route-dialog')).toBeNull()
     })
 
@@ -179,9 +242,7 @@ describe('DeleteRouteDialog', () => {
 
     it('renders the confirmation message containing the routeName', () => {
       const { getByText } = render(<DeleteRouteDialog {...defaultProps} />)
-      expect(
-        getByText(/Are you sure you want to delete/)
-      ).toBeTruthy()
+      expect(getByText(/Are you sure you want to delete/)).toBeTruthy()
       expect(getByText(/Morning Ride/)).toBeTruthy()
     })
 
@@ -201,9 +262,7 @@ describe('DeleteRouteDialog', () => {
     })
 
     it('uses custom testID prefix when provided', () => {
-      const { getByTestId } = render(
-        <DeleteRouteDialog {...defaultProps} testID="custom-dialog" />
-      )
+      const { getByTestId } = render(<DeleteRouteDialog {...defaultProps} testID="custom-dialog" />)
       expect(getByTestId('custom-dialog')).toBeTruthy()
       expect(getByTestId('custom-dialog-cancel')).toBeTruthy()
       expect(getByTestId('custom-dialog-confirm')).toBeTruthy()
@@ -216,9 +275,7 @@ describe('DeleteRouteDialog', () => {
   describe('AC2: Cancel button fires onDismiss', () => {
     it('calls onDismiss when Cancel is pressed', () => {
       const onDismiss = vi.fn()
-      const { getByTestId } = render(
-        <DeleteRouteDialog {...defaultProps} onDismiss={onDismiss} />
-      )
+      const { getByTestId } = render(<DeleteRouteDialog {...defaultProps} onDismiss={onDismiss} />)
       fireEvent.press(getByTestId('delete-route-dialog-cancel'))
       expect(onDismiss).toHaveBeenCalledTimes(1)
     })
@@ -227,7 +284,7 @@ describe('DeleteRouteDialog', () => {
       const onConfirm = vi.fn()
       const onDismiss = vi.fn()
       const { getByTestId } = render(
-        <DeleteRouteDialog {...defaultProps} onConfirm={onConfirm} onDismiss={onDismiss} />
+        <DeleteRouteDialog {...defaultProps} onConfirm={onConfirm} onDismiss={onDismiss} />,
       )
       fireEvent.press(getByTestId('delete-route-dialog-cancel'))
       expect(onConfirm).not.toHaveBeenCalled()
@@ -240,9 +297,7 @@ describe('DeleteRouteDialog', () => {
   describe('AC3: Delete button fires onConfirm', () => {
     it('calls onConfirm when Delete is pressed', () => {
       const onConfirm = vi.fn()
-      const { getByTestId } = render(
-        <DeleteRouteDialog {...defaultProps} onConfirm={onConfirm} />
-      )
+      const { getByTestId } = render(<DeleteRouteDialog {...defaultProps} onConfirm={onConfirm} />)
       fireEvent.press(getByTestId('delete-route-dialog-confirm'))
       expect(onConfirm).toHaveBeenCalledTimes(1)
     })
@@ -251,7 +306,7 @@ describe('DeleteRouteDialog', () => {
       const onConfirm = vi.fn()
       const onDismiss = vi.fn()
       const { getByTestId } = render(
-        <DeleteRouteDialog {...defaultProps} onConfirm={onConfirm} onDismiss={onDismiss} />
+        <DeleteRouteDialog {...defaultProps} onConfirm={onConfirm} onDismiss={onDismiss} />,
       )
       fireEvent.press(getByTestId('delete-route-dialog-confirm'))
       expect(onDismiss).not.toHaveBeenCalled()
@@ -266,7 +321,7 @@ describe('DeleteRouteDialog', () => {
       const { getByTestId } = render(<DeleteRouteDialog {...defaultProps} />)
       const confirmButton = getByTestId('delete-route-dialog-confirm')
       // The Button mock renders a Pressable with a Text child whose style has color
-      const textChild = confirmButton.children[0]
+      const textChild = confirmButton.children[0] as ReactTestInstance
       const flatStyle = Array.isArray(textChild.props.style)
         ? Object.assign({}, ...textChild.props.style.flat().filter(Boolean))
         : textChild.props.style
@@ -276,7 +331,7 @@ describe('DeleteRouteDialog', () => {
     it('Cancel button does not use destructive color', () => {
       const { getByTestId } = render(<DeleteRouteDialog {...defaultProps} />)
       const cancelButton = getByTestId('delete-route-dialog-cancel')
-      const textChild = cancelButton.children[0]
+      const textChild = cancelButton.children[0] as ReactTestInstance
       const flatStyle = Array.isArray(textChild.props.style)
         ? Object.assign({}, ...textChild.props.style.flat().filter(Boolean))
         : textChild.props.style

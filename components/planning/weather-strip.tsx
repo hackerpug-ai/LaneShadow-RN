@@ -13,11 +13,11 @@ import { useState } from 'react'
 import { StyleSheet, TouchableWithoutFeedback, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import type { RouteOverlays } from '../../models/saved-routes'
+import { getWorstRainLevel, getWorstTemperatureLevel } from '../../models/saved-routes'
 import { RainBadge } from '../ui/rain-badge'
 import { TemperatureBadge } from '../ui/temperature-badge'
 import { WindBadge } from './wind-badge'
-import { getWorstRainLevel , getWorstTemperatureLevel } from '../../models/saved-routes'
-import type { RouteOverlays } from '../../models/saved-routes'
 
 /**
  * Severity level for comparing weather conditions
@@ -72,7 +72,7 @@ const getWorstWindLevel = (overlay?: RouteOverlays['wind']): string => {
  * Returns the type and level of the most severe weather condition
  */
 const getWorstCondition = (
-  overlays: RouteOverlays
+  overlays: RouteOverlays,
 ): { type: 'rain' | 'wind' | 'temp'; level: string } | null => {
   const rainLevel = getWorstRainLevel(overlays.rain)
   const windLevel = getWorstWindLevel(overlays.wind)
@@ -158,7 +158,12 @@ export const WeatherStrip = ({ overlays, testID }: WeatherStripProps) => {
       onPress={() => setIsExpanded(!isExpanded)}
       testID={testID || 'weather-strip'}
     >
-      <View style={[styles.container, { backgroundColor: addOpacity(semantic.color.success.default, 0.08) }]}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: addOpacity(semantic.color.success.default, 0.08) },
+        ]}
+      >
         {isGoodConditions ? (
           <View style={styles.goodConditionsBadge} testID="weather-strip-good-conditions">
             <GoodConditionsBadge semantic={semantic} />
@@ -168,16 +173,10 @@ export const WeatherStrip = ({ overlays, testID }: WeatherStripProps) => {
             {/* Worst condition badge */}
             <View style={styles.badgeContainer}>
               {worst?.type === 'rain' && (
-                <RainBadge
-                  rainSummary={rainLevel as any}
-                  testID="weather-strip-rain-badge"
-                />
+                <RainBadge rainSummary={rainLevel as any} testID="weather-strip-rain-badge" />
               )}
               {worst?.type === 'wind' && (
-                <WindBadge
-                  windLevel={windLevel as any}
-                  testID="weather-strip-wind-badge"
-                />
+                <WindBadge windLevel={windLevel as any} testID="weather-strip-wind-badge" />
               )}
               {worst?.type === 'temp' && (
                 <TemperatureBadge
@@ -198,16 +197,10 @@ export const WeatherStrip = ({ overlays, testID }: WeatherStripProps) => {
             {isExpanded && (
               <View style={styles.expandedBadges}>
                 {rainLevel !== 'none' && worst?.type !== 'rain' && (
-                  <RainBadge
-                    rainSummary={rainLevel as any}
-                    testID="weather-strip-rain-badge"
-                  />
+                  <RainBadge rainSummary={rainLevel as any} testID="weather-strip-rain-badge" />
                 )}
                 {windLevel !== 'low' && worst?.type !== 'wind' && (
-                  <WindBadge
-                    windLevel={windLevel as any}
-                    testID="weather-strip-wind-badge"
-                  />
+                  <WindBadge windLevel={windLevel as any} testID="weather-strip-wind-badge" />
                 )}
                 {tempLevel !== 'mild' && worst?.type !== 'temp' && (
                   <TemperatureBadge
@@ -243,9 +236,16 @@ const addOpacity = (hexColor: string, opacity: number): string => {
  * Good conditions badge showing all weather is favorable
  */
 const GoodConditionsBadge = ({ semantic }: { semantic: any }) => (
-  <View style={[goodStyles.badge, { backgroundColor: addOpacity(semantic.color.success.default, 0.15) }]}>
+  <View
+    style={[
+      goodStyles.badge,
+      { backgroundColor: addOpacity(semantic.color.success.default, 0.15) },
+    ]}
+  >
     <Text style={[goodStyles.icon, { color: semantic.color.success.default }]}>✓</Text>
-    <Text style={[goodStyles.label, { color: semantic.color.success.default }]}>Good conditions</Text>
+    <Text style={[goodStyles.label, { color: semantic.color.success.default }]}>
+      Good conditions
+    </Text>
   </View>
 )
 
@@ -253,7 +253,12 @@ const GoodConditionsBadge = ({ semantic }: { semantic: any }) => (
  * Additional warnings badge showing +N for more warnings
  */
 const AdditionalWarningBadge = ({ count, semantic }: { count: number; semantic: any }) => (
-  <View style={[warningStyles.badge, { backgroundColor: addOpacity(semantic.color.warning.default, 0.15) }]}>
+  <View
+    style={[
+      warningStyles.badge,
+      { backgroundColor: addOpacity(semantic.color.warning.default, 0.15) },
+    ]}
+  >
     <Text style={[warningStyles.label, { color: semantic.color.warning.default }]}>+{count}</Text>
   </View>
 )

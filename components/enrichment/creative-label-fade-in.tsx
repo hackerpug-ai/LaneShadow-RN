@@ -13,7 +13,8 @@
  * Animation: 300ms fade-in, 100ms stagger between lines, 500ms highlight pulse
  */
 
-import React, { useEffect, useState } from 'react'
+import type React from 'react'
+import { useEffect, useState } from 'react'
 import { AccessibilityInfo } from 'react-native'
 import { Text } from 'react-native-paper'
 import Animated, {
@@ -85,7 +86,7 @@ export const CreativeLabelFadeIn = ({
     if (visible && !reduceMotion) {
       scale.value = withSequence(
         withTiming(1.02, { duration: highlightDuration / 2 }),
-        withTiming(1.0, { duration: highlightDuration / 2 })
+        withTiming(1.0, { duration: highlightDuration / 2 }),
       )
     }
   }, [visible, reduceMotion, highlightDuration, scale])
@@ -106,9 +107,7 @@ export const CreativeLabelFadeIn = ({
       testID={testID ?? 'creative-label'}
     >
       {/* Main label line */}
-      <Animated.View
-        entering={reduceMotion ? undefined : FadeIn.duration(enterConfig.duration)}
-      >
+      <Animated.View entering={reduceMotion ? undefined : FadeIn.duration(enterConfig.duration)}>
         <Text
           style={[
             semantic.type.display.md,
@@ -126,9 +125,7 @@ export const CreativeLabelFadeIn = ({
       {subtitle && (
         <Animated.View
           entering={
-            reduceMotion
-              ? undefined
-              : FadeIn.duration(enterConfig.duration).delay(staggerDelay)
+            reduceMotion ? undefined : FadeIn.duration(enterConfig.duration).delay(staggerDelay)
           }
         >
           <Text

@@ -5,9 +5,9 @@
  * following TDD principles: RED → GREEN → REFACTOR
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Doc, Id } from '../../../../../convex/_generated/dataModel'
 import type { PlanInput } from '../../../../../models/saved-routes'
-import type { Id , Doc } from '../../../../../convex/_generated/dataModel'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -77,7 +77,12 @@ describe('executePlanHandler - Enrichment Integration', () => {
             origin: { lat: 0, lng: 0 },
             destination: { lat: 1, lng: 1 },
             waypoints: [],
-            overviewGeometry: { format: 'polyline' as const, encoding: 'encoded_polyline', precision: 5, value: 'test' },
+            overviewGeometry: {
+              format: 'polyline' as const,
+              encoding: 'encoded_polyline',
+              precision: 5,
+              value: 'test',
+            },
             legs: [],
             annotations: [],
             overlays: {},
@@ -120,7 +125,7 @@ describe('executePlanHandler - Enrichment Integration', () => {
 
       // Verify cache was checked with the correct fingerprint
       const cacheCheckCalls = mockCtx.runQuery.mock.calls.filter(
-        (call) => call[1]?.contentFingerprint !== undefined
+        (call) => call[1]?.contentFingerprint !== undefined,
       )
 
       // This will fail until we implement the cache check
@@ -187,7 +192,12 @@ describe('executePlanHandler - Enrichment Integration', () => {
             origin: { lat: 0, lng: 0 },
             destination: { lat: 1, lng: 1 },
             waypoints: [],
-            overviewGeometry: { format: 'polyline' as const, encoding: 'encoded_polyline', precision: 5, value: 'test' },
+            overviewGeometry: {
+              format: 'polyline' as const,
+              encoding: 'encoded_polyline',
+              precision: 5,
+              value: 'test',
+            },
             legs: [],
             annotations: [],
             overlays: {},
@@ -232,7 +242,12 @@ describe('executePlanHandler - Enrichment Integration', () => {
             origin: { lat: 0, lng: 0 },
             destination: { lat: 1, lng: 1 },
             waypoints: [],
-            overviewGeometry: { format: 'polyline' as const, encoding: 'encoded_polyline', precision: 5, value: 'test' },
+            overviewGeometry: {
+              format: 'polyline' as const,
+              encoding: 'encoded_polyline',
+              precision: 5,
+              value: 'test',
+            },
             legs: [],
             annotations: [],
             overlays: {},
@@ -296,7 +311,8 @@ describe('executePlanHandler - Enrichment Integration', () => {
           }
           return Promise.resolve(null)
         }),
-        runMutation: vi.fn()
+        runMutation: vi
+          .fn()
           .mockResolvedValueOnce({ _id: mockRoutePlanId, status: 'running' })
           .mockResolvedValueOnce({ _id: mockRoutePlanId, status: 'running' })
           .mockResolvedValue({ enrichmentId: mockEnrichmentId })
@@ -316,7 +332,12 @@ describe('executePlanHandler - Enrichment Integration', () => {
             origin: { lat: 0, lng: 0 },
             destination: { lat: 1, lng: 1 },
             waypoints: [],
-            overviewGeometry: { format: 'polyline' as const, encoding: 'encoded_polyline', precision: 5, value: 'test' },
+            overviewGeometry: {
+              format: 'polyline' as const,
+              encoding: 'encoded_polyline',
+              precision: 5,
+              value: 'test',
+            },
             legs: [],
             annotations: [],
             overlays: {},
@@ -328,12 +349,10 @@ describe('executePlanHandler - Enrichment Integration', () => {
       await executePlanHandler(mockCtx as any, { routePlanId: mockRoutePlanId }, mockOrchestrator)
 
       // Verify updateEnrichment was called with scheduledJobId
-      const updateEnrichmentCalls = mockCtx.runMutation.mock.calls.filter(
-        (call) => {
-          // Check if any argument has scheduledJobId
-          return call.some((arg: any) => arg?.scheduledJobId === mockScheduledJobId)
-        }
-      )
+      const updateEnrichmentCalls = mockCtx.runMutation.mock.calls.filter((call) => {
+        // Check if any argument has scheduledJobId
+        return call.some((arg: any) => arg?.scheduledJobId === mockScheduledJobId)
+      })
 
       expect(updateEnrichmentCalls.length).toBeGreaterThan(0)
     })

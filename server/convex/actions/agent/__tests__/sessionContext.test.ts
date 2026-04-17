@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { buildInSessionRouteBlock } from '../sessionContext'
 import type { RoutePlanSummary } from '../../../db/routePlans'
+import { buildInSessionRouteBlock } from '../sessionContext'
 
 // ---------------------------------------------------------------------------
 // Mock _generated/api so internal.db.routePlans.listBySession resolves to a
@@ -60,7 +60,7 @@ describe('buildInSessionRouteBlock', () => {
       await buildInSessionRouteBlock(ctx, SESSION_ID)
       expect(ctx.runQuery).toHaveBeenCalledWith(
         { __fake: 'listBySession' },
-        { sessionId: SESSION_ID, limit: 5, status: 'completed' }
+        { sessionId: SESSION_ID, limit: 5, status: 'completed' },
       )
     })
   })
@@ -75,7 +75,9 @@ describe('buildInSessionRouteBlock', () => {
       expect(result).toContain('1. Home \u2192 Santa Cruz:')
       expect(result).toContain('42mi')
       expect(result).toContain('75min')
-      expect(result).toContain('When refining, reference these by endpoint pair and only change what the rider asks.')
+      expect(result).toContain(
+        'When refining, reference these by endpoint pair and only change what the rider asks.',
+      )
       // Default preferences are not shown
       expect(result).not.toContain('Preferences:')
     })
@@ -89,7 +91,9 @@ describe('buildInSessionRouteBlock', () => {
       expect(lines).toHaveLength(3)
       expect(lines[0]).toBe('Routes already planned this session:')
       expect(lines[1]).toMatch(/^1\./)
-      expect(lines[2]).toBe('When refining, reference these by endpoint pair and only change what the rider asks.')
+      expect(lines[2]).toBe(
+        'When refining, reference these by endpoint pair and only change what the rider asks.',
+      )
     })
   })
 
@@ -97,7 +101,13 @@ describe('buildInSessionRouteBlock', () => {
     it('renders all 5 routes numbered 1-5', async () => {
       const routes = [
         makeRoute({ _id: 'r1' as any, startLabel: 'Home', endLabel: 'Santa Cruz' }),
-        makeRoute({ _id: 'r2' as any, startLabel: 'Home', endLabel: 'Half Moon Bay', distanceMeters: 45060, durationSeconds: 2700 }),
+        makeRoute({
+          _id: 'r2' as any,
+          startLabel: 'Home',
+          endLabel: 'Half Moon Bay',
+          distanceMeters: 45060,
+          durationSeconds: 2700,
+        }),
         makeRoute({ _id: 'r3' as any, startLabel: 'Home', endLabel: 'Stinson Beach' }),
         makeRoute({ _id: 'r4' as any, startLabel: 'Home', endLabel: 'Muir Beach' }),
         makeRoute({ _id: 'r5' as any, startLabel: 'Home', endLabel: 'Point Reyes' }),

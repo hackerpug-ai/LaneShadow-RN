@@ -1,16 +1,16 @@
 'use node'
 
+import type { AssistantMessage, Message, ToolResultMessage } from '@mariozechner/pi-ai'
 import { v } from 'convex/values'
-import { action } from '../../_generated/server'
-import { api, internal } from '../../_generated/api'
-import { requireIdentity } from '../../guards'
-import { executeRidePlanningAgent } from './ridePlanningAgent'
-import type { ExecuteContext } from './ridePlanningAgent'
-import { PlanningEventEmitter } from './lib/planningEvents'
-import type { Id } from '../../_generated/dataModel'
 import type { SessionMessageKind } from '../../../models/session-messages'
-import type { Message, AssistantMessage, ToolResultMessage } from '@mariozechner/pi-ai'
+import { api, internal } from '../../_generated/api'
+import type { Id } from '../../_generated/dataModel'
+import { action } from '../../_generated/server'
+import { requireIdentity } from '../../guards'
 import { getAgentModelInfo } from './lib/models'
+import { PlanningEventEmitter } from './lib/planningEvents'
+import type { ExecuteContext } from './ridePlanningAgent'
+import { executeRidePlanningAgent } from './ridePlanningAgent'
 
 // ---------------------------------------------------------------------------
 // Card-backed tool mapping
@@ -56,7 +56,7 @@ export function reconstructLegacyPiMessage(row: SessionMessageRow): Message | nu
   // Skip failed turns
   if (row.status === 'failed') return null
   // Skip empty content
-  if (!row.content || !row.content.trim()) return null
+  if (!row.content?.trim()) return null
 
   if (row.role === 'rider') {
     return {
@@ -124,7 +124,9 @@ function summarizeToolFinish(toolName: string, result: unknown): string {
     case 'planRoute': {
       const data = result as any
       const count = data?.data?.options?.length ?? 0
-      return count > 0 ? `Generated ${count} route option${count !== 1 ? 's' : ''}` : 'Route planning complete'
+      return count > 0
+        ? `Generated ${count} route option${count !== 1 ? 's' : ''}`
+        : 'Route planning complete'
     }
     case 'fetchWeather':
       return 'Weather data retrieved'
@@ -159,7 +161,7 @@ function summarizeToolFinish(toolName: string, result: unknown): string {
  */
 export async function buildAgentCallbacks(
   sessionId: Id<'planning_sessions'>,
-  runMutation: (fn: any, args: any) => Promise<any>
+  runMutation: (fn: any, args: any) => Promise<any>,
 ): Promise<{
   executeCtx: ExecuteContext
   getTextMessageId: () => Id<'session_messages'> | undefined
@@ -167,8 +169,8 @@ export async function buildAgentCallbacks(
   finalizeFail: () => Promise<void>
 }> {
   // Shared state via closure
-  let textMessageId: Id<'session_messages'> | undefined = undefined
-  let thinkingCardId: Id<'session_messages'> | undefined = undefined
+  let textMessageId: Id<'session_messages'> | undefined
+  let thinkingCardId: Id<'session_messages'> | undefined
 
   // Map from toolCallId → card messageId so onToolResultPiMessage can patch
   // the correct row after onToolFinish creates it.
@@ -177,7 +179,9 @@ export async function buildAgentCallbacks(
   // Lazy thinking card creation
   const ensureThinkingCard = async (): Promise<Id<'session_messages'>> => {
     if (!thinkingCardId) {
-      const result = await runMutation(internal.db.sessionMessages.createThinkingCard, { sessionId })
+      const result = await runMutation(internal.db.sessionMessages.createThinkingCard, {
+        sessionId,
+      })
       thinkingCardId = result.messageId
     }
     return thinkingCardId! // Non-null assertion: we just created it if it was undefined
@@ -227,7 +231,7 @@ export async function buildAgentCallbacks(
     toolCallId: string,
     toolName: string,
     _messageId: Id<'session_messages'> | undefined,
-    result: unknown
+    result: unknown,
   ) => {
     // Ensure thinking card exists
     const cardId = await ensureThinkingCard()
@@ -252,11 +256,14 @@ export async function buildAgentCallbacks(
     if (!routePlanId) return
 
     // Create the card row with the attachment already set — no empty placeholder.
-    const { messageId } = await runMutation(internal.db.sessionMessages.createPendingAssistantMessage, {
-      sessionId,
-      kind: 'routing_card',
-      attachments: [{ type: 'route_options', routePlanId }],
-    })
+    const { messageId } = await runMutation(
+      internal.db.sessionMessages.createPendingAssistantMessage,
+      {
+        sessionId,
+        kind: 'routing_card',
+        attachments: [{ type: 'route_options', routePlanId }],
+      },
+    )
 
     // Store the mapping so onToolResultPiMessage can patch this row with the
     // full ToolResultMessage piMessage for multi-turn context.
@@ -360,7 +367,7 @@ export const sendMessage = action({
       v.object({
         lat: v.number(),
         lng: v.number(),
-      })
+      }),
     ),
   },
   returns: v.object({
@@ -371,11 +378,14 @@ export const sendMessage = action({
         v.object({
           type: v.string(),
           routePlanId: v.optional(v.id('route_plans')),
-        })
-      )
+        }),
+      ),
     ),
   }),
-  handler: async (ctx, args): Promise<{
+  handler: async (
+    ctx,
+    args,
+  ): Promise<{
     response: string
     messageId: Id<'session_messages'>
     attachments?: { type: string; routePlanId?: Id<'route_plans'> }[]
@@ -418,7 +428,7 @@ export const sendMessage = action({
     // Build the pi-ai Message[] from rows, excluding the just-persisted rider turn.
     const piMessages: Message[] = rows
       .slice(0, -1)
-      .flatMap((row): Message[] => {
+      .flatMap((row: (typeof rows)[number]): Message[] => {
         if (row.piMessage) {
           // Row has a full pi-ai Message stored — use it directly.
           return [row.piMessage as Message]
@@ -438,7 +448,7 @@ export const sendMessage = action({
     // - Proper finalization for both success and error paths
     const { executeCtx, getTextMessageId, finalizeOk, finalizeFail } = await buildAgentCallbacks(
       args.sessionId,
-      ctx.runMutation.bind(ctx)
+      ctx.runMutation.bind(ctx),
     )
 
     // Create the planning emitter — always create the row immediately
@@ -449,7 +459,7 @@ export const sendMessage = action({
     await planningEmitter.init()
 
     // Track the final assistant message for piMessage persistence
-    let finalAssistantMessage: AssistantMessage | undefined = undefined
+    let finalAssistantMessage: AssistantMessage | undefined
 
     // Add onFinalAssistant and planning callbacks to the execute context
     const augmentedExecuteCtx: ExecuteContext = {
@@ -480,7 +490,7 @@ export const sendMessage = action({
             runAction: ctx.runAction.bind(ctx),
           },
           args.content,
-          augmentedExecuteCtx
+          augmentedExecuteCtx,
         )
         // Step 5a: Finalize the streaming text message as complete, including
         // the final AssistantMessage as piMessage so the next session load has
@@ -523,9 +533,6 @@ export const sendMessage = action({
           success: false,
           error: (error?.message ?? String(error)).slice(0, 500),
         })
-
-        // Convert agent errors to conversational messages
-        console.error('[sendMessage] Agent error:', error)
 
         // Finalize the streaming text message as failed before building the
         // fallback response — the fallback will be stored in a new message below.
@@ -572,7 +579,7 @@ export const sendMessage = action({
             errorMessage.includes('timeout') ||
             errorMessage.includes('timed out')
           ) {
-            return "Request timed out. Please try again."
+            return 'Request timed out. Please try again.'
           }
 
           // Generic fallback
@@ -590,7 +597,7 @@ export const sendMessage = action({
           {
             sessionId: args.sessionId,
             content: agentResult.response,
-          }
+          },
         )
 
         return {
@@ -611,7 +618,9 @@ export const sendMessage = action({
     return {
       response: agentResult.response,
       messageId: textMessageId ?? riderMessageResult.messageId,
-      attachments: agentResult.attachments as { type: string; routePlanId?: Id<'route_plans'> }[] | undefined,
+      attachments: agentResult.attachments as
+        | { type: string; routePlanId?: Id<'route_plans'> }[]
+        | undefined,
     }
   },
 })

@@ -98,7 +98,9 @@ const createMockCtx = ({
       callback(range)
 
       const docs = getTableDocs(table).filter((doc) =>
-        [...filters.entries()].every(([field, value]) => (doc as Record<string, unknown>)[field] === value)
+        [...filters.entries()].every(
+          ([field, value]) => (doc as Record<string, unknown>)[field] === value,
+        ),
       )
 
       return {
@@ -188,7 +190,7 @@ describe('curationArtifacts handlers', () => {
         active: false,
         createdAt: NOW,
         updatedAt: NOW,
-      })
+      }),
     )
 
     const updatedResult = await upsertArtifactReleaseHandler(ctx as any, {
@@ -214,7 +216,7 @@ describe('curationArtifacts handlers', () => {
         rowCount: 100,
         sha256: 'updated-sha',
         updatedAt: NOW,
-      })
+      }),
     )
   })
 
@@ -259,7 +261,7 @@ describe('curationArtifacts handlers', () => {
         rowCount: 28_723,
         sha256: 'updated-alabama',
         updatedAt: NOW,
-      })
+      }),
     )
     expect(shardDocs).toContainEqual(
       expect.objectContaining({
@@ -269,7 +271,7 @@ describe('curationArtifacts handlers', () => {
         sha256: 'colorado-sha',
         createdAt: NOW,
         updatedAt: NOW,
-      })
+      }),
     )
   })
 

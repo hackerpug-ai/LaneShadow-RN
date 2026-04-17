@@ -20,7 +20,7 @@ const buildFingerprintInput = (route: RouteSnapshot): string => {
   const legParts = route.legs
     .map(
       (leg) =>
-        `${leg.distanceMeters}|${leg.durationSeconds}|${leg.geometry.encoding}|${leg.geometry.precision}|${leg.geometry.value}`
+        `${leg.distanceMeters}|${leg.durationSeconds}|${leg.geometry.encoding}|${leg.geometry.precision}|${leg.geometry.value}`,
     )
     .join(';')
   return `${route.provider}|${route.overviewGeometry.encoding}|${route.overviewGeometry.precision}|${route.overviewGeometry.value}|${legParts}`
@@ -29,7 +29,7 @@ const buildFingerprintInput = (route: RouteSnapshot): string => {
 const interpolatePoint = (
   start: { lat: number; lng: number },
   end: { lat: number; lng: number },
-  t: number
+  t: number,
 ): { lat: number; lng: number } => ({
   lat: start.lat + (end.lat - start.lat) * t,
   lng: start.lng + (end.lng - start.lng) * t,
@@ -44,7 +44,7 @@ type LegAllocation = {
 
 const allocatePointsPerLeg = (
   totalPoints: number,
-  legs: { distanceMeters: number; legIndex: number }[]
+  legs: { distanceMeters: number; legIndex: number }[],
 ): LegAllocation[] => {
   const totalDistance = legs.reduce((sum, leg) => sum + leg.distanceMeters, 0)
   if (totalDistance === 0) {
@@ -99,7 +99,7 @@ const computeRouteIndexImpl = (routeSnapshot: RouteSnapshot): RouteIndex => {
     routeSnapshot.legs.map((leg) => ({
       distanceMeters: leg.distanceMeters,
       legIndex: leg.legIndex,
-    }))
+    })),
   )
 
   allocations.forEach((allocation) => {

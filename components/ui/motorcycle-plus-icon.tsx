@@ -1,6 +1,5 @@
-import { View, StyleSheet } from 'react-native'
-
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import { StyleSheet, View } from 'react-native'
 
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 

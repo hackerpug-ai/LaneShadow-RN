@@ -10,7 +10,7 @@
  * Following project patterns: semantic theme, composition over inheritance
  */
 
-import { View, StyleSheet, ViewStyle } from 'react-native'
+import { StyleSheet, View, type ViewStyle } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { IconSymbol } from '../ui/icon-symbol'
@@ -78,7 +78,7 @@ export const TogglesContainer = ({
             <IconSymbol
               name="road-variant"
               size={20}
-              color={semantic.color.onSurface.muted}
+              color={semantic.color.onSurface.muted ?? 'transparent'}
             />
           </View>
           <Text
@@ -117,7 +117,11 @@ export const TogglesContainer = ({
               },
             ]}
           >
-            <IconSymbol name="cash" size={20} color={semantic.color.onSurface.muted} />
+            <IconSymbol
+              name="cash"
+              size={20}
+              color={semantic.color.onSurface.muted ?? 'transparent'}
+            />
           </View>
           <Text
             variant="bodyMedium"
@@ -126,11 +130,7 @@ export const TogglesContainer = ({
             Avoid tolls
           </Text>
         </View>
-        <Switch
-          value={avoidTolls}
-          onValueChange={onToggleAvoidTolls}
-          testID="pref-avoid-tolls"
-        />
+        <Switch value={avoidTolls} onValueChange={onToggleAvoidTolls} testID="pref-avoid-tolls" />
       </View>
     </View>
   )

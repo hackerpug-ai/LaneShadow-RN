@@ -12,9 +12,9 @@
  */
 
 // Import only the pure function and type — avoids pulling in React Native runtime
-import { describe, it, expect } from 'vitest'
-import { formatDate } from './saved-route-card.utils'
+import { describe, expect, it } from 'vitest'
 import type { SavedRouteCardProps } from './saved-route-card.types'
+import { formatDate } from './saved-route-card.utils'
 
 describe('SavedRouteCard', () => {
   describe('formatDate', () => {

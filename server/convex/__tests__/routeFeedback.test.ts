@@ -5,8 +5,8 @@
  * unit-tested without a running Convex backend.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { ConvexError } from 'convex/values'
+import { beforeEach, describe, expect, it } from 'vitest'
 import type { Id } from '../_generated/dataModel'
 import {
   recordRouteFeedbackHandler,
@@ -140,28 +140,28 @@ describe('routeFeedback', () => {
     it('should reject rate action with missing rating', async () => {
       const input = makeFeedbackInput({ action: 'rate', rating: undefined })
 
-      await expect(
-        recordRouteFeedbackHandler(mockCtx as any, input, 'user-123')
-      ).rejects.toThrow(ConvexError)
-      await expect(
-        recordRouteFeedbackHandler(mockCtx as any, input, 'user-123')
-      ).rejects.toThrow('INVALID_RATING')
+      await expect(recordRouteFeedbackHandler(mockCtx as any, input, 'user-123')).rejects.toThrow(
+        ConvexError,
+      )
+      await expect(recordRouteFeedbackHandler(mockCtx as any, input, 'user-123')).rejects.toThrow(
+        'INVALID_RATING',
+      )
     })
 
     it('should reject rate action with rating below 1', async () => {
       const input = makeFeedbackInput({ action: 'rate', rating: 0 })
 
-      await expect(
-        recordRouteFeedbackHandler(mockCtx as any, input, 'user-123')
-      ).rejects.toThrow('INVALID_RATING')
+      await expect(recordRouteFeedbackHandler(mockCtx as any, input, 'user-123')).rejects.toThrow(
+        'INVALID_RATING',
+      )
     })
 
     it('should reject rate action with rating above 5', async () => {
       const input = makeFeedbackInput({ action: 'rate', rating: 6 })
 
-      await expect(
-        recordRouteFeedbackHandler(mockCtx as any, input, 'user-123')
-      ).rejects.toThrow('INVALID_RATING')
+      await expect(recordRouteFeedbackHandler(mockCtx as any, input, 'user-123')).rejects.toThrow(
+        'INVALID_RATING',
+      )
     })
   })
 
@@ -169,25 +169,25 @@ describe('routeFeedback', () => {
     it('should reject save action with rating', async () => {
       const input = makeFeedbackInput({ action: 'save', rating: 3 })
 
-      await expect(
-        recordRouteFeedbackHandler(mockCtx as any, input, 'user-123')
-      ).rejects.toThrow('RATING_ONLY_ALLOWED_ON_RATE')
+      await expect(recordRouteFeedbackHandler(mockCtx as any, input, 'user-123')).rejects.toThrow(
+        'RATING_ONLY_ALLOWED_ON_RATE',
+      )
     })
 
     it('should reject hide action with rating', async () => {
       const input = makeFeedbackInput({ action: 'hide', rating: 4 })
 
-      await expect(
-        recordRouteFeedbackHandler(mockCtx as any, input, 'user-123')
-      ).rejects.toThrow('RATING_ONLY_ALLOWED_ON_RATE')
+      await expect(recordRouteFeedbackHandler(mockCtx as any, input, 'user-123')).rejects.toThrow(
+        'RATING_ONLY_ALLOWED_ON_RATE',
+      )
     })
 
     it('should reject complete action with rating', async () => {
       const input = makeFeedbackInput({ action: 'complete', rating: 5 })
 
-      await expect(
-        recordRouteFeedbackHandler(mockCtx as any, input, 'user-123')
-      ).rejects.toThrow('RATING_ONLY_ALLOWED_ON_RATE')
+      await expect(recordRouteFeedbackHandler(mockCtx as any, input, 'user-123')).rejects.toThrow(
+        'RATING_ONLY_ALLOWED_ON_RATE',
+      )
     })
   })
 

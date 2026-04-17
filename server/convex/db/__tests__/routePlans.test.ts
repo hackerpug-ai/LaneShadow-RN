@@ -6,17 +6,16 @@
  */
 
 import { ConvexError } from 'convex/values'
-import { vi, describe, it, expect } from 'vitest'
-
-import { ERROR_CODES } from '../../errors'
+import { describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../_generated/dataModel'
+import { ERROR_CODES } from '../../errors'
 import {
+  cancelPlanHandler,
   createPlanHandler,
   getActivePlanHandler,
   getPlanByIdHandler,
-  updatePlanStatusHandler,
-  cancelPlanHandler,
   listBySessionHandler,
+  updatePlanStatusHandler,
 } from '../routePlans'
 
 // Mock planUsage functions
@@ -91,7 +90,7 @@ describe('createPlanHandler', () => {
     const result = await createPlanHandler(
       ctx as any,
       { planInput: basePlanInput, startLabel: 'Start City', endLabel: 'End City' },
-      CLERK_USER_ID
+      CLERK_USER_ID,
     )
 
     expect(ctx.db.insert).toHaveBeenCalledWith(
@@ -102,7 +101,7 @@ describe('createPlanHandler', () => {
         planInput: basePlanInput,
         startLabel: 'Start City',
         endLabel: 'End City',
-      })
+      }),
     )
     expect(result).toEqual({ routePlanId: PLAN_ID })
   })
@@ -125,20 +124,14 @@ describe('createPlanHandler', () => {
       },
     }
 
-    await createPlanHandler(
-      ctx as any,
-      { planInput: basePlanInput },
-      CLERK_USER_ID
-    )
+    await createPlanHandler(ctx as any, { planInput: basePlanInput }, CLERK_USER_ID)
 
-    expect(ctx.scheduler.runAfter).toHaveBeenCalledWith(
-      0,
-      expect.anything(),
-      { routePlanId: PLAN_ID }
-    )
+    expect(ctx.scheduler.runAfter).toHaveBeenCalledWith(0, expect.anything(), {
+      routePlanId: PLAN_ID,
+    })
     expect(ctx.db.patch).toHaveBeenCalledWith(
       PLAN_ID,
-      expect.objectContaining({ scheduledActionId: SCHEDULED_ACTION_ID })
+      expect.objectContaining({ scheduledActionId: SCHEDULED_ACTION_ID }),
     )
   })
 
@@ -162,11 +155,11 @@ describe('createPlanHandler', () => {
     }
 
     await expect(
-      createPlanHandler(ctx as any, { planInput: basePlanInput }, CLERK_USER_ID)
+      createPlanHandler(ctx as any, { planInput: basePlanInput }, CLERK_USER_ID),
     ).rejects.toThrow(ConvexError)
 
     await expect(
-      createPlanHandler(ctx as any, { planInput: basePlanInput }, CLERK_USER_ID)
+      createPlanHandler(ctx as any, { planInput: basePlanInput }, CLERK_USER_ID),
     ).rejects.toThrow(ERROR_CODES.PLAN_ALREADY_ACTIVE)
   })
 
@@ -196,7 +189,7 @@ describe('createPlanHandler', () => {
     }
 
     await expect(
-      createPlanHandler(ctx as any, { planInput: basePlanInput }, CLERK_USER_ID)
+      createPlanHandler(ctx as any, { planInput: basePlanInput }, CLERK_USER_ID),
     ).rejects.toThrow(ERROR_CODES.PLAN_ALREADY_ACTIVE)
   })
 })
@@ -278,11 +271,7 @@ describe('getPlanByIdHandler', () => {
       },
     }
 
-    const result = await getPlanByIdHandler(
-      ctx as any,
-      { routePlanId: PLAN_ID },
-      CLERK_USER_ID
-    )
+    const result = await getPlanByIdHandler(ctx as any, { routePlanId: PLAN_ID }, CLERK_USER_ID)
 
     expect(result).toEqual(plan)
   })
@@ -295,11 +284,11 @@ describe('getPlanByIdHandler', () => {
     }
 
     await expect(
-      getPlanByIdHandler(ctx as any, { routePlanId: PLAN_ID }, CLERK_USER_ID)
+      getPlanByIdHandler(ctx as any, { routePlanId: PLAN_ID }, CLERK_USER_ID),
     ).rejects.toThrow(ConvexError)
 
     await expect(
-      getPlanByIdHandler(ctx as any, { routePlanId: PLAN_ID }, CLERK_USER_ID)
+      getPlanByIdHandler(ctx as any, { routePlanId: PLAN_ID }, CLERK_USER_ID),
     ).rejects.toThrow(ERROR_CODES.PLAN_NOT_FOUND)
   })
 
@@ -312,7 +301,7 @@ describe('getPlanByIdHandler', () => {
     }
 
     await expect(
-      getPlanByIdHandler(ctx as any, { routePlanId: PLAN_ID }, CLERK_USER_ID)
+      getPlanByIdHandler(ctx as any, { routePlanId: PLAN_ID }, CLERK_USER_ID),
     ).rejects.toThrow(ERROR_CODES.PLAN_NOT_FOUND)
   })
 })
@@ -341,7 +330,7 @@ describe('updatePlanStatusHandler', () => {
       expect.objectContaining({
         status: 'running',
         updatedAt: expect.any(Number),
-      })
+      }),
     )
   })
 
@@ -366,7 +355,7 @@ describe('updatePlanStatusHandler', () => {
         status: 'completed',
         completedAt: expect.any(Number),
         result: { routes: [] },
-      })
+      }),
     )
   })
 
@@ -393,7 +382,7 @@ describe('updatePlanStatusHandler', () => {
         completedAt: expect.any(Number),
         errorCode: 'SOME_ERROR',
         errorMessage: 'Something went wrong',
-      })
+      }),
     )
   })
 
@@ -416,7 +405,7 @@ describe('updatePlanStatusHandler', () => {
       PLAN_ID,
       expect.objectContaining({
         statusMessage: 'Planning your route...',
-      })
+      }),
     )
   })
 })
@@ -446,7 +435,7 @@ describe('cancelPlanHandler', () => {
     expect(ctx.scheduler.cancel).toHaveBeenCalledWith(SCHEDULED_ACTION_ID)
     expect(ctx.db.patch).toHaveBeenCalledWith(
       PLAN_ID,
-      expect.objectContaining({ status: 'cancelled', updatedAt: expect.any(Number) })
+      expect.objectContaining({ status: 'cancelled', updatedAt: expect.any(Number) }),
     )
   })
 
@@ -487,7 +476,7 @@ describe('cancelPlanHandler', () => {
     expect(ctx.scheduler.cancel).not.toHaveBeenCalled()
     expect(ctx.db.patch).toHaveBeenCalledWith(
       PLAN_ID,
-      expect.objectContaining({ status: 'cancelled' })
+      expect.objectContaining({ status: 'cancelled' }),
     )
   })
 
@@ -503,7 +492,7 @@ describe('cancelPlanHandler', () => {
     }
 
     await expect(
-      cancelPlanHandler(ctx as any, { routePlanId: PLAN_ID }, CLERK_USER_ID)
+      cancelPlanHandler(ctx as any, { routePlanId: PLAN_ID }, CLERK_USER_ID),
     ).rejects.toThrow(ERROR_CODES.PLAN_NOT_FOUND)
   })
 
@@ -520,7 +509,7 @@ describe('cancelPlanHandler', () => {
     }
 
     await expect(
-      cancelPlanHandler(ctx as any, { routePlanId: PLAN_ID }, CLERK_USER_ID)
+      cancelPlanHandler(ctx as any, { routePlanId: PLAN_ID }, CLERK_USER_ID),
     ).rejects.toThrow(ERROR_CODES.PLAN_NOT_FOUND)
   })
 })

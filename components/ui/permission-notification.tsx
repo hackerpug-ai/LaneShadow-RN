@@ -6,11 +6,11 @@
  * Following theme_rules.mdc - Paper Text components
  */
 
-import { IconSymbol } from '../ui/icon-symbol'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Pressable, StyleSheet, TouchableWithoutFeedback, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol } from '../ui/icon-symbol'
 
 export type PermissionNotificationProps = {
   title: string

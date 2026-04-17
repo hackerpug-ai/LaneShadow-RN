@@ -33,13 +33,8 @@
               "Follow existing table naming conventions",
               "Include proper indexes for queries"
             ],
-            "never": [
-              "Modify existing tables (saved_routes, routes)",
-              "Break existing migrations"
-            ],
-            "strictly": [
-              "Follow Convex schema validation patterns"
-            ]
+            "never": ["Modify existing tables (saved_routes, routes)", "Break existing migrations"],
+            "strictly": ["Follow Convex schema validation patterns"]
           },
           "specification": {
             "objective": "Add favorite_roads table with proper schema for storing user's favorite road segments",
@@ -76,24 +71,15 @@
             }
           ],
           "guardrails": {
-            "write_allowed": [
-              "convex/schema.ts (MODIFY)",
-              "models/favorite-roads.ts (NEW)"
-            ],
+            "write_allowed": ["convex/schema.ts (MODIFY)", "models/favorite-roads.ts (NEW)"],
             "write_prohibited": [
               "convex/schema.ts - existing table definitions",
               "convex/* - other files"
             ]
           },
           "design": {
-            "references": [
-              "Existing saved_routes schema pattern",
-              "Convex schema documentation"
-            ],
-            "interaction_notes": [
-              "This is backend-only work",
-              "No UI changes in this task"
-            ],
+            "references": ["Existing saved_routes schema pattern", "Convex schema documentation"],
+            "interaction_notes": ["This is backend-only work", "No UI changes in this task"],
             "pattern": "See existing tables for pattern",
             "pattern_source": "convex/schema.ts",
             "anti_pattern": "Don't add unnecessary fields or complex relationships"
@@ -124,10 +110,7 @@
               "Use requireIdentity for authentication",
               "Validate name (not empty, <= 100 chars)"
             ],
-            "never": [
-              "Skip ownership checks on delete",
-              "Modify existing savedRoutes functions"
-            ],
+            "never": ["Skip ownership checks on delete", "Modify existing savedRoutes functions"],
             "strictly": [
               "Use internalQuery/internalMutation for backend functions",
               "Export public query/mutation wrappers"
@@ -186,9 +169,7 @@
             ]
           },
           "design": {
-            "references": [
-              "convex/db/savedRoutes.ts - exact pattern to follow"
-            ],
+            "references": ["convex/db/savedRoutes.ts - exact pattern to follow"],
             "interaction_notes": [
               "No soft delete needed (unlike saved_routes)",
               "Use internalQuery/internalMutation for backend functions"
@@ -320,10 +301,7 @@
               "Implement mutation (use existing from US-041)",
               "Break BottomActionSheet patterns"
             ],
-            "strictly": [
-              "Show loading state while saving",
-              "Trigger onSuccess/onCancel callbacks"
-            ]
+            "strictly": ["Show loading state while saving", "Trigger onSuccess/onCancel callbacks"]
           },
           "specification": {
             "objective": "Provide UI for naming and saving selected road segments as favorites",
@@ -474,10 +452,7 @@
               "components/ui/route-thumbnail.tsx",
               "components/saved-routes-screen.tsx (card patterns)"
             ],
-            "interaction_notes": [
-              "Mini map size: 80x80px",
-              "Delete button uses error color"
-            ],
+            "interaction_notes": ["Mini map size: 80x80px", "Delete button uses error color"],
             "pattern": "Follow saved-routes-screen card patterns",
             "pattern_source": "components/saved-routes-screen.tsx",
             "anti_pattern": "Don't implement delete confirmation inline"
@@ -485,11 +460,7 @@
           "coding_standards": [
             {
               "path": "components/ui/favorite-road-card.tsx",
-              "checks": [
-                "Reuses RouteThumbnail",
-                "Semantic tokens",
-                "Proper callbacks"
-              ]
+              "checks": ["Reuses RouteThumbnail", "Semantic tokens", "Proper callbacks"]
             }
           ],
           "assignee": "tdd-ui-implementer",
@@ -509,14 +480,8 @@
               "Show EmptyState when list is empty",
               "Use delete confirmation dialog"
             ],
-            "never": [
-              "Implement pagination (not needed)",
-              "Add search/filter (out of scope)"
-            ],
-            "strictly": [
-              "Auto-refresh list after delete",
-              "Order by createdAt desc (newest first)"
-            ]
+            "never": ["Implement pagination (not needed)", "Add search/filter (out of scope)"],
+            "strictly": ["Auto-refresh list after delete", "Order by createdAt desc (newest first)"]
           },
           "specification": {
             "objective": "Create settings section to display and manage user's favorite roads",
@@ -567,10 +532,7 @@
               "components/ui/empty-state.tsx",
               "components/screens/saved-routes-screen.tsx"
             ],
-            "interaction_notes": [
-              "Limit: 50 favorites",
-              "Auto-refresh via Convex reactivity"
-            ],
+            "interaction_notes": ["Limit: 50 favorites", "Auto-refresh via Convex reactivity"],
             "pattern": "Follow saved-routes-screen list pattern",
             "pattern_source": "components/screens/saved-routes-screen.tsx",
             "anti_pattern": "Don't implement delete inline without confirmation"
@@ -578,11 +540,7 @@
           "coding_standards": [
             {
               "path": "components/settings/favorite-roads-section.tsx",
-              "checks": [
-                "Reuses components",
-                "Proper Convex integration",
-                "Error handling"
-              ]
+              "checks": ["Reuses components", "Proper Convex integration", "Error handling"]
             }
           ],
           "assignee": "tdd-ui-implementer",
@@ -602,10 +560,7 @@
               "Use heart icon",
               "Use Switch component"
             ],
-            "never": [
-              "Modify existing toggles",
-              "Add favorites loading (parent's responsibility)"
-            ],
+            "never": ["Modify existing toggles", "Add favorites loading (parent's responsibility)"],
             "strictly": [
               "Support disabled state when no favorites exist",
               "Show helper text when disabled"
@@ -792,10 +747,7 @@
               "Use heart icon in badge",
               "Show count in badge text"
             ],
-            "never": [
-              "Break existing badge layout",
-              "Show favorite names (out of scope)"
-            ],
+            "never": ["Break existing badge layout", "Show favorite names (out of scope)"],
             "strictly": [
               "Use primary color when count > 0",
               "Use muted color when count = 0",
@@ -847,10 +799,7 @@
             ]
           },
           "design": {
-            "references": [
-              "components/planning/route-option-card.tsx",
-              "components/ui/badge.tsx"
-            ],
+            "references": ["components/planning/route-option-card.tsx", "components/ui/badge.tsx"],
             "interaction_notes": [
               "Badge shows count, not names",
               "Heart icon for semantic clarity"
@@ -886,10 +835,7 @@
               "Show count in message",
               "Use info icon in banner"
             ],
-            "never": [
-              "Show favorite names (just count)",
-              "Break existing view layout"
-            ],
+            "never": ["Show favorite names (just count)", "Break existing view layout"],
             "strictly": [
               "Only show when includeFavorites was true",
               "Use info variant (not warning/error)"

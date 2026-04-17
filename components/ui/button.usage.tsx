@@ -29,10 +29,7 @@ export function OldButtonExample() {
  */
 export function NewButtonExample() {
   return (
-    <Button
-      icon="motorbike"
-      onPress={() => console.log('clicked')}
-    >
+    <Button icon="motorbike" onPress={() => console.log('clicked')}>
       Plan Ride
     </Button>
   )
@@ -61,11 +58,7 @@ export function IconExamples() {
       <Button icon="close" size="icon" />
 
       {/* Custom icon element (old way still works for full control) */}
-      <Button
-        icon={<IconSymbol name="star" size={24} color="gold" />}
-      >
-        Favorite
-      </Button>
+      <Button icon={<IconSymbol name="star" size={24} color="gold" />}>Favorite</Button>
     </>
   )
 }

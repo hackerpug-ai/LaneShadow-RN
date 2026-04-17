@@ -8,8 +8,8 @@
  * - Uses BottomSheetInput for proper Gorhom keyboard handling
  */
 
-import { useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
@@ -85,10 +85,7 @@ export const RenameRegionBottomSheet = ({
       preset="content"
       hasTextInput
     >
-      <Text
-        variant="titleMedium"
-        style={{ color: semantic.color.onSurface.default }}
-      >
+      <Text variant="titleMedium" style={{ color: semantic.color.onSurface.default }}>
         Rename Region
       </Text>
 
@@ -125,10 +122,7 @@ export const RenameRegionBottomSheet = ({
       />
 
       {errors.name && (
-        <Text
-          variant="bodySmall"
-          style={{ color: semantic.color.danger.default }}
-        >
+        <Text variant="bodySmall" style={{ color: semantic.color.danger.default }}>
           {errors.name.message}
         </Text>
       )}

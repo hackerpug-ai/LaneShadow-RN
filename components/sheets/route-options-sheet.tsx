@@ -9,7 +9,6 @@
  */
 
 import { useState } from 'react'
-import { IconSymbol } from '../ui/icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from 'react-native-paper'
@@ -18,6 +17,7 @@ import type { PlannedRouteOptionsView, PlannedRouteOptionView } from '../../type
 import { RouteOptionCard } from '../planning/route-option-card'
 import { Button } from '../ui/button'
 import { FavoriteExclusionAlert } from '../ui/favorite-exclusion-alert'
+import { IconSymbol } from '../ui/icon-symbol'
 import { BottomSheetWrapper } from './bottom-sheet-wrapper'
 
 export type RouteOptionsSheetProps = {
@@ -69,7 +69,7 @@ export const RouteOptionsSheet = ({
   const handleViewDetails = () => {
     if (planningResult && selectedRouteId) {
       const selectedRoute = planningResult.options.find(
-        (option) => option.routeOptionId === selectedRouteId
+        (option) => option.routeOptionId === selectedRouteId,
       )
       if (selectedRoute) {
         onViewDetails(selectedRoute)
@@ -101,14 +101,16 @@ export const RouteOptionsSheet = ({
       </View>
 
       {/* Favorite exclusion alert */}
-      {!exclusionAlertDismissed && planningResult?.excludedFavorites && planningResult.excludedFavorites.length > 0 && (
-        <FavoriteExclusionAlert
-          excludedFavorites={planningResult.excludedFavorites}
-          includeFavorites={includeFavorites}
-          onDismiss={handleExclusionAlertDismiss}
-          sessionKey={sessionKey}
-        />
-      )}
+      {!exclusionAlertDismissed &&
+        planningResult?.excludedFavorites &&
+        planningResult.excludedFavorites.length > 0 && (
+          <FavoriteExclusionAlert
+            excludedFavorites={planningResult.excludedFavorites}
+            includeFavorites={includeFavorites}
+            onDismiss={handleExclusionAlertDismiss}
+            sessionKey={sessionKey}
+          />
+        )}
 
       <ScrollView
         style={styles.scrollView}
@@ -146,11 +148,7 @@ export const RouteOptionsSheet = ({
             disabled={!isDetailsButtonEnabled || isSaving}
             testID={`${testID}-save-button`}
             icon={
-              <IconSymbol
-                name="content-save"
-                size={18}
-                color={semantic.color.onPrimary.default}
-              />
+              <IconSymbol name="content-save" size={18} color={semantic.color.onPrimary.default} />
             }
           >
             {isSaving ? 'Saving...' : 'Save Route'}

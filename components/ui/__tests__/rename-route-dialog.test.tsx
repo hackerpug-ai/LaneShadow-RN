@@ -9,9 +9,9 @@
  * - AC5: User taps Cancel → onDismiss fires, onRename not called
  */
 
-import { vi, describe, it, expect, beforeEach } from 'vitest'
-import React from 'react'
-import { render, fireEvent } from '@testing-library/react-native'
+import { fireEvent, render } from '@testing-library/react-native'
+import type React from 'react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtendedTheme } from '../../../styles/types'
 
 // ---------------------------------------------------------------------------
@@ -112,12 +112,48 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.3, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -134,35 +170,51 @@ vi.mock('react-native-paper', () => {
   const { View, Text, TextInput: RNTextInput, Pressable } = require('react-native')
   const { createElement } = require('react')
 
-  const Portal = (props) =>
-    createElement(View, { testID: 'portal' }, props.children)
+  const Portal = (props: Record<string, unknown>) =>
+    createElement(View, { testID: 'portal' }, props.children as React.ReactNode)
 
-  const Dialog = (props) => {
+  const Dialog = (props: Record<string, unknown>) => {
     if (!props.visible) return null
-    return createElement(View, { testID: props.testID, style: props.style, accessibilityRole: 'none' }, props.children)
+    return createElement(
+      View,
+      { testID: props.testID as string, style: props.style, accessibilityRole: 'none' },
+      props.children as React.ReactNode,
+    )
   }
 
-  Dialog.Title = (props) => createElement(Text, { style: props.style }, props.children)
+  Dialog.Title = (props: Record<string, unknown>) =>
+    createElement(Text, { style: props.style }, props.children as React.ReactNode)
 
-  Dialog.Content = (props) => createElement(View, null, props.children)
+  Dialog.Content = (props: Record<string, unknown>) =>
+    createElement(View, null, props.children as React.ReactNode)
 
-  Dialog.Actions = (props) => createElement(View, null, props.children)
+  Dialog.Actions = (props: Record<string, unknown>) =>
+    createElement(View, null, props.children as React.ReactNode)
 
-  const Button = (props) =>
+  const Button = (props: Record<string, unknown>) =>
     createElement(
       Pressable,
-      { onPress: props.disabled ? undefined : props.onPress, testID: props.testID, disabled: props.disabled, accessibilityRole: 'button' },
-      createElement(Text, { style: { color: props.textColor } }, props.children)
+      {
+        onPress: props.disabled ? undefined : (props.onPress as () => void),
+        testID: props.testID as string,
+        disabled: props.disabled as boolean,
+        accessibilityRole: 'button',
+      },
+      createElement(
+        Text,
+        { style: { color: props.textColor as string } },
+        props.children as React.ReactNode,
+      ),
     )
 
-  const TextInput = (props) =>
+  const TextInput = (props: Record<string, unknown>) =>
     createElement(RNTextInput, {
-      value: props.value,
-      onChangeText: props.onChangeText,
-      maxLength: props.maxLength,
-      autoFocus: props.autoFocus,
-      testID: props.testID,
-      style: { color: props.textColor },
+      value: props.value as string,
+      onChangeText: props.onChangeText as (text: string) => void,
+      maxLength: props.maxLength as number,
+      autoFocus: props.autoFocus as boolean,
+      testID: props.testID as string,
+      style: { color: props.textColor as string },
     })
 
   return {
@@ -231,7 +283,7 @@ describe('RenameRouteDialog', () => {
           onRename={vi.fn()}
           onDismiss={vi.fn()}
           testID="custom-dialog"
-        />
+        />,
       )
       expect(getByTestId('custom-dialog')).toBeTruthy()
       expect(getByTestId('custom-dialog-input')).toBeTruthy()
@@ -352,7 +404,7 @@ describe('RenameRouteDialog', () => {
           currentName="Afternoon Ride"
           onRename={vi.fn()}
           onDismiss={vi.fn()}
-        />
+        />,
       )
       const updatedInput = getByTestId('rename-route-dialog-input')
       expect(updatedInput.props.value).toBe('Afternoon Ride')

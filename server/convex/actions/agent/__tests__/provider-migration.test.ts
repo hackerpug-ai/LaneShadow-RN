@@ -1,8 +1,8 @@
 'use node'
 
-import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { describe, expect, it } from 'vitest'
 
 /**
  * Provider Migration Tests (AI-002 + AI-003)

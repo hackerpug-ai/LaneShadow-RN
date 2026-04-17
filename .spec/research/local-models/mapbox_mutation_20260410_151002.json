@@ -1511,10 +1511,7 @@
         "model_ops": [
           {
             "op": "reorder_waypoints",
-            "swap_indices": [
-              2,
-              3
-            ],
+            "swap_indices": [2, 3],
             "waypoint_index": null,
             "insert_before_index": null,
             "place_name": null,

@@ -1,11 +1,11 @@
 import { v } from 'convex/values'
 
 import {
-  routeEnrichmentStatusValidator,
   ROUTE_ENRICHMENT_STATUS,
-  routeEnrichmentPhaseValidator,
   type RouteEnrichment,
   type RouteEnrichmentStatus,
+  routeEnrichmentPhaseValidator,
+  routeEnrichmentStatusValidator,
 } from '../../models/route-enrichments'
 import { internal } from '../_generated/api'
 import type { Doc, Id } from '../_generated/dataModel'
@@ -79,7 +79,7 @@ export const createEnrichmentHandler = async (
     clerkUserId: string
     contentFingerprint: string
     phase: 'fast' | 'extended'
-  }
+  },
 ): Promise<{ enrichmentId: Id<'route_enrichments'> }> => {
   const now = Date.now()
 
@@ -99,7 +99,7 @@ export const createEnrichmentHandler = async (
 
 export const getByIdHandler = async (
   ctx: GetEnrichmentCtx,
-  args: { enrichmentId: Id<'route_enrichments'> }
+  args: { enrichmentId: Id<'route_enrichments'> },
 ): Promise<RouteEnrichmentDoc | null> => {
   return await ctx.db.get(args.enrichmentId)
 }
@@ -109,7 +109,7 @@ export const updateStatusHandler = async (
   args: {
     enrichmentId: Id<'route_enrichments'>
     status: RouteEnrichmentStatus
-  }
+  },
 ): Promise<void> => {
   const now = Date.now()
 
@@ -124,7 +124,7 @@ export const updateEnrichmentHandler = async (
   args: {
     enrichmentId: Id<'route_enrichments'>
     scheduledJobId: Id<'_scheduled_functions'>
-  }
+  },
 ): Promise<void> => {
   const now = Date.now()
 
@@ -139,7 +139,7 @@ export const completeEnrichmentHandler = async (
   args: {
     enrichmentId: Id<'route_enrichments'>
     enrichments: RouteEnrichment['enrichments']
-  }
+  },
 ): Promise<void> => {
   const now = Date.now()
 
@@ -156,7 +156,7 @@ export const failEnrichmentHandler = async (
   args: {
     enrichmentId: Id<'route_enrichments'>
     error: string
-  }
+  },
 ): Promise<void> => {
   const now = Date.now()
 
@@ -169,7 +169,7 @@ export const failEnrichmentHandler = async (
 
 export const cancelEnrichmentHandler = async (
   ctx: CancelEnrichmentCtx,
-  args: { enrichmentId: Id<'route_enrichments'> }
+  args: { enrichmentId: Id<'route_enrichments'> },
 ): Promise<void> => {
   const doc = await ctx.db.get(args.enrichmentId)
   if (!doc) return
@@ -193,7 +193,7 @@ export const cancelEnrichmentHandler = async (
 
 export const findByRoutePlanIdHandler = async (
   ctx: FindByRoutePlanCtx,
-  args: { routePlanId: Id<'route_plans'> }
+  args: { routePlanId: Id<'route_plans'> },
 ): Promise<RouteEnrichmentDoc[]> => {
   return await ctx.db
     .query('route_enrichments')
@@ -206,12 +206,12 @@ export const findByContentFingerprintHandler = async (
   args: {
     contentFingerprint: string
     phase: 'fast' | 'extended'
-  }
+  },
 ): Promise<RouteEnrichmentDoc | null> => {
   return await ctx.db
     .query('route_enrichments')
     .withIndex('by_contentFingerprint_and_phase', (q: any) =>
-      q.eq('contentFingerprint', args.contentFingerprint).eq('phase', args.phase)
+      q.eq('contentFingerprint', args.contentFingerprint).eq('phase', args.phase),
     )
     .unique()
 }
@@ -231,13 +231,13 @@ export const invalidateStaleEnrichmentsHandler = async (
   args: {
     planningSessionId: Id<'planning_sessions'>
     newRoutePlanId: Id<'route_plans'>
-  }
+  },
 ): Promise<void> => {
   // Single query: Find all pending/running enrichments for this planning session
   const enrichments = await ctx.db
     .query('route_enrichments')
     .withIndex('by_planningSessionId_and_status', (q: any) =>
-      q.eq('planningSessionId', args.planningSessionId)
+      q.eq('planningSessionId', args.planningSessionId),
     )
     .collect()
 
@@ -339,14 +339,17 @@ export const completeEnrichment = internalMutation({
           highlights: v.array(v.string()),
           elevation: v.optional(v.any()),
           weather: v.optional(v.any()),
-        })
-      )
+        }),
+      ),
     ),
   },
   returns: v.null(),
   handler: async (ctx, args): Promise<null> => {
     if (args.enrichments) {
-      await completeEnrichmentHandler(ctx as any, { enrichmentId: args.enrichmentId, enrichments: args.enrichments })
+      await completeEnrichmentHandler(ctx as any, {
+        enrichmentId: args.enrichmentId,
+        enrichments: args.enrichments,
+      })
     }
     return null
   },

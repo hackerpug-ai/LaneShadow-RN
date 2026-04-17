@@ -1,25 +1,26 @@
+import { LineLayer, ShapeSource } from '@rnmapbox/maps'
+import type { FeatureCollection, LineString } from 'geojson'
 import type { FC } from 'react'
 import { useMemo } from 'react'
-import { ShapeSource, LineLayer } from '@rnmapbox/maps'
-import type { FeatureCollection, LineString } from 'geojson'
-import type { ExtendedTheme } from '../../styles/types'
-import { computeCumulativeDistances, decodePolylineGeometry, slicePolylineByMeters, type MapLatLng } from '../../lib/polyline'
-import {
-  getRainColor,
-  getWindColor,
-  getTemperatureColor,
-} from '../../lib/map/overlay-colors'
+import { getRainColor, getTemperatureColor, getWindColor } from '../../lib/map/overlay-colors'
 import { convertCoordinateArray } from '../../lib/mapbox/coordinate-converter'
+import {
+  computeCumulativeDistances,
+  decodePolylineGeometry,
+  type MapLatLng,
+  slicePolylineByMeters,
+} from '../../lib/polyline'
 import type {
-  RouteOverlays,
-  RouteLeg,
-  WindOverlayByLeg,
-  WindOverlaySegment,
   RainOverlayByLeg,
   RainOverlaySegment,
+  RouteLeg,
+  RouteOverlays,
   TemperatureOverlayByLeg,
   TemperatureOverlaySegment,
+  WindOverlayByLeg,
+  WindOverlaySegment,
 } from '../../models/saved-routes'
+import type { ExtendedTheme } from '../../styles/types'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -61,9 +62,9 @@ type WeatherFeature = {
 
 /** Line width scale factors by zoom range */
 const ZOOM_WIDTH_SCALE = {
-  low: 1.5,    // zoom < 12 (country level)
+  low: 1.5, // zoom < 12 (country level)
   medium: 1.0, // zoom 12-15 (city level)
-  high: 0.75,  // zoom > 15 (street level)
+  high: 0.75, // zoom > 15 (street level)
 } as const
 
 const BASE_STROKE_WIDTH = 6
@@ -104,7 +105,12 @@ const buildWindFeatures = (
   const distances = computeCumulativeDistances(legCoords)
 
   return overlay.segments.reduce<WeatherFeature[]>((acc, segment: WindOverlaySegment) => {
-    const sliced = slicePolylineByMeters(legCoords, distances, segment.startMeters, segment.endMeters)
+    const sliced = slicePolylineByMeters(
+      legCoords,
+      distances,
+      segment.startMeters,
+      segment.endMeters,
+    )
     if (sliced.length < 2) return acc
 
     acc.push({
@@ -128,7 +134,12 @@ const buildRainFeatures = (
   const distances = computeCumulativeDistances(legCoords)
 
   return overlay.segments.reduce<WeatherFeature[]>((acc, segment: RainOverlaySegment) => {
-    const sliced = slicePolylineByMeters(legCoords, distances, segment.startMeters, segment.endMeters)
+    const sliced = slicePolylineByMeters(
+      legCoords,
+      distances,
+      segment.startMeters,
+      segment.endMeters,
+    )
     if (sliced.length < 2) return acc
 
     const opacity = segment.level === 'heavy' ? 0.95 : segment.level === 'moderate' ? 0.85 : 0.75
@@ -154,7 +165,12 @@ const buildTemperatureFeatures = (
   const distances = computeCumulativeDistances(legCoords)
 
   return overlay.segments.reduce<WeatherFeature[]>((acc, segment: TemperatureOverlaySegment) => {
-    const sliced = slicePolylineByMeters(legCoords, distances, segment.startMeters, segment.endMeters)
+    const sliced = slicePolylineByMeters(
+      legCoords,
+      distances,
+      segment.startMeters,
+      segment.endMeters,
+    )
     if (sliced.length < 2) return acc
 
     acc.push({
@@ -243,7 +259,13 @@ export const WeatherOverlay: FC<WeatherOverlayProps> = ({
         >
           <LineLayer
             id={`layer-${wf.id}`}
-            aboveLayerID={wf.type === 'rain' ? `layer-${prefix}weather-wind` : wf.type === 'temperature' ? `layer-${prefix}weather-rain` : undefined}
+            aboveLayerID={
+              wf.type === 'rain'
+                ? `layer-${prefix}weather-wind`
+                : wf.type === 'temperature'
+                  ? `layer-${prefix}weather-rain`
+                  : undefined
+            }
             style={{
               lineColor: wf.color,
               lineWidth: wf.width,

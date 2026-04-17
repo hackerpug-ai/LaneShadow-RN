@@ -6,11 +6,11 @@
  * Following theme_rules.mdc - StyleSheet for static, inline for theme
  */
 
-import { IconSymbol } from '../ui/icon-symbol'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { useRouter } from 'expo-router'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol } from '../ui/icon-symbol'
 import { BaseViewLayout } from './base-view-layout'
 
 export type TeacherSimpleViewLayoutProps = {

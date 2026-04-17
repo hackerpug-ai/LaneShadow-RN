@@ -23,32 +23,64 @@ export const AgentToolSchemas = {
       description: 'A brief label for this route (e.g., "Highway 280 to Skyline Blvd")',
     }),
     rationale: Type.String({
-      description: 'Explanation of why this route matches the rider\'s request (e.g., "Avoids Highway 1 and uses scenic mountain roads")',
+      description:
+        'Explanation of why this route matches the rider\'s request (e.g., "Avoids Highway 1 and uses scenic mountain roads")',
     }),
     segments: Type.Array(
       Type.Object({
-        roadName: Type.String({ description: 'Name of the road (e.g., "Highway 280", "Skyline Blvd")' }),
-        fromName: Type.String({ description: 'Starting point or junction (e.g., "San Jose", "Highway 85")' }),
-        toName: Type.String({ description: 'Ending point or junction (e.g., "San Bruno", "Highway 92")' }),
-        viaNames: Type.Optional(Type.Array(Type.String(), { description: 'Optional intermediate places this road passes through' })),
-        fromLabel: Type.Optional(Type.String({ description: 'Descriptive label for the starting point (e.g., "Downtown San Jose", "Highway 85 interchange"). Use this to provide more context than fromName alone.' })),
-        toLabel: Type.Optional(Type.String({ description: 'Descriptive label for the ending point (e.g., "San Bruno city limits", "Highway 92 junction"). Use this to provide more context than toName alone.' })),
+        roadName: Type.String({
+          description: 'Name of the road (e.g., "Highway 280", "Skyline Blvd")',
+        }),
+        fromName: Type.String({
+          description: 'Starting point or junction (e.g., "San Jose", "Highway 85")',
+        }),
+        toName: Type.String({
+          description: 'Ending point or junction (e.g., "San Bruno", "Highway 92")',
+        }),
+        viaNames: Type.Optional(
+          Type.Array(Type.String(), {
+            description: 'Optional intermediate places this road passes through',
+          }),
+        ),
+        fromLabel: Type.Optional(
+          Type.String({
+            description:
+              'Descriptive label for the starting point (e.g., "Downtown San Jose", "Highway 85 interchange"). Use this to provide more context than fromName alone.',
+          }),
+        ),
+        toLabel: Type.Optional(
+          Type.String({
+            description:
+              'Descriptive label for the ending point (e.g., "San Bruno city limits", "Highway 92 junction"). Use this to provide more context than toName alone.',
+          }),
+        ),
       }),
       { description: 'Road segments that make up the route - think "take 5 to 405 to PCH"' },
     ),
     anchorPoints: Type.Array(
       Type.Object({
-        name: Type.String({ description: 'Name of the waypoint (e.g., "Half Moon Bay", "Junction 92")' }),
-        kind: Type.Union([
-          Type.Literal('town'),
-          Type.Literal('junction'),
-          Type.Literal('landmark'),
-          Type.Literal('pass'),
-        ], { description: 'Type of waypoint. MUST be one of: "town", "junction", "landmark", "pass". Use "landmark" for parks, scenic spots, restaurants, or any named place that isn\'t a town, junction, or mountain pass.' }),
+        name: Type.String({
+          description: 'Name of the waypoint (e.g., "Half Moon Bay", "Junction 92")',
+        }),
+        kind: Type.Union(
+          [
+            Type.Literal('town'),
+            Type.Literal('junction'),
+            Type.Literal('landmark'),
+            Type.Literal('pass'),
+          ],
+          {
+            description:
+              'Type of waypoint. MUST be one of: "town", "junction", "landmark", "pass". Use "landmark" for parks, scenic spots, restaurants, or any named place that isn\'t a town, junction, or mountain pass.',
+          },
+        ),
         lat: Type.Number({ description: 'Latitude — use coordinates from geocode results' }),
         lng: Type.Number({ description: 'Longitude — use coordinates from geocode results' }),
       }),
-      { description: 'Key waypoints along the route (cities, junctions, landmarks, mountain passes). Coordinates are REQUIRED and should come from geocode results.' },
+      {
+        description:
+          'Key waypoints along the route (cities, junctions, landmarks, mountain passes). Coordinates are REQUIRED and should come from geocode results.',
+      },
     ),
   }),
 
@@ -68,13 +100,14 @@ export const AgentToolSchemas = {
       }),
     }),
     departureTime: Type.Integer({
-      description: 'Departure time as unix timestamp in milliseconds. Default to Date.now() + 3600000 (1 hour from now) when not specified by the rider.',
+      description:
+        'Departure time as unix timestamp in milliseconds. Default to Date.now() + 3600000 (1 hour from now) when not specified by the rider.',
     }),
     preferences: Type.Object({
-      scenicBias: Type.Union(
-        [Type.Literal('default'), Type.Literal('high')],
-        { description: 'Use "high" when the rider asks for scenic/twisty/backroads, "default" otherwise' },
-      ),
+      scenicBias: Type.Union([Type.Literal('default'), Type.Literal('high')], {
+        description:
+          'Use "high" when the rider asks for scenic/twisty/backroads, "default" otherwise',
+      }),
       avoidHighways: Type.Boolean({
         description: 'True when the rider wants to avoid highways/interstates',
       }),
@@ -85,25 +118,32 @@ export const AgentToolSchemas = {
     sketch: Type.Object({
       label: Type.String(),
       rationale: Type.String(),
-      segments: Type.Array(Type.Object({
-        roadName: Type.String(),
-        fromName: Type.String(),
-        toName: Type.String(),
-        viaNames: Type.Optional(Type.Array(Type.String())),
-        fromLabel: Type.Optional(Type.String()),
-        toLabel: Type.Optional(Type.String()),
-      })),
-      anchorPoints: Type.Array(Type.Object({
-        name: Type.String(),
-        kind: Type.Union([
-          Type.Literal('town'),
-          Type.Literal('junction'),
-          Type.Literal('landmark'),
-          Type.Literal('pass'),
-        ], { description: 'MUST be one of: "town", "junction", "landmark", "pass"' }),
-        lat: Type.Number({ description: 'Latitude — use coordinates from geocode results' }),
-        lng: Type.Number({ description: 'Longitude — use coordinates from geocode results' }),
-      })),
+      segments: Type.Array(
+        Type.Object({
+          roadName: Type.String(),
+          fromName: Type.String(),
+          toName: Type.String(),
+          viaNames: Type.Optional(Type.Array(Type.String())),
+          fromLabel: Type.Optional(Type.String()),
+          toLabel: Type.Optional(Type.String()),
+        }),
+      ),
+      anchorPoints: Type.Array(
+        Type.Object({
+          name: Type.String(),
+          kind: Type.Union(
+            [
+              Type.Literal('town'),
+              Type.Literal('junction'),
+              Type.Literal('landmark'),
+              Type.Literal('pass'),
+            ],
+            { description: 'MUST be one of: "town", "junction", "landmark", "pass"' },
+          ),
+          lat: Type.Number({ description: 'Latitude — use coordinates from geocode results' }),
+          lng: Type.Number({ description: 'Longitude — use coordinates from geocode results' }),
+        }),
+      ),
     }),
   }),
 
@@ -127,10 +167,10 @@ export const AgentToolSchemas = {
         'Departure time as unix timestamp in milliseconds. Default to Date.now() + 3600000 (1 hour from now) when not specified by the rider.',
     }),
     preferences: Type.Object({
-      scenicBias: Type.Union(
-        [Type.Literal('default'), Type.Literal('high')],
-        { description: 'Use "high" when the rider asks for scenic/twisty/backroads, "default" otherwise' },
-      ),
+      scenicBias: Type.Union([Type.Literal('default'), Type.Literal('high')], {
+        description:
+          'Use "high" when the rider asks for scenic/twisty/backroads, "default" otherwise',
+      }),
       avoidHighways: Type.Boolean({
         description: 'True when the rider wants to avoid highways/interstates',
       }),
@@ -160,12 +200,23 @@ export const AgentToolSchemas = {
   }),
 
   getUserFavorites: Type.Object({
-    bbox: Type.Object({
-      north: Type.Number({ description: 'Northern latitude boundary of the region in decimal degrees' }),
-      south: Type.Number({ description: 'Southern latitude boundary of the region in decimal degrees' }),
-      east: Type.Number({ description: 'Eastern longitude boundary of the region in decimal degrees' }),
-      west: Type.Number({ description: 'Western longitude boundary of the region in decimal degrees' }),
-    }, { description: 'Geographic bounding box of the planned route region' }),
+    bbox: Type.Object(
+      {
+        north: Type.Number({
+          description: 'Northern latitude boundary of the region in decimal degrees',
+        }),
+        south: Type.Number({
+          description: 'Southern latitude boundary of the region in decimal degrees',
+        }),
+        east: Type.Number({
+          description: 'Eastern longitude boundary of the region in decimal degrees',
+        }),
+        west: Type.Number({
+          description: 'Western longitude boundary of the region in decimal degrees',
+        }),
+      },
+      { description: 'Geographic bounding box of the planned route region' },
+    ),
   }),
 
   getElevation: Type.Object({
@@ -177,7 +228,7 @@ export const AgentToolSchemas = {
       {
         description:
           'Array of lat/lng points representing the route polyline. Sampled at ~500m intervals; max 100 points sent to API.',
-      }
+      },
     ),
   }),
 
@@ -195,7 +246,8 @@ export const AgentToolSchemas = {
 
   checkSurface: Type.Object({
     surface: Type.Union([Type.String(), Type.Null()], {
-      description: 'OSM surface tag value (e.g. "asphalt", "gravel", "dirt"); null if not present in OSM data',
+      description:
+        'OSM surface tag value (e.g. "asphalt", "gravel", "dirt"); null if not present in OSM data',
     }),
     highway: Type.Union([Type.String(), Type.Null()], {
       description: 'OSM highway class (e.g. "primary", "track", "path"); null if not available',
@@ -207,21 +259,27 @@ export const AgentToolSchemas = {
       description: 'Encoded polyline of the compiled route (from compileSegments output)',
     }),
     query: Type.String({
-      description: 'Natural language search query for places (e.g., "gas station", "restaurant", "scenic overlook")',
+      description:
+        'Natural language search query for places (e.g., "gas station", "restaurant", "scenic overlook")',
     }),
     originOffset: Type.Union([Type.Number(), Type.Null()], {
-      description: 'Optional offset in hours into the trip to bias results toward that point (e.g., 2 for "find food 2 hours in"). Null to search along the entire route without bias.',
+      description:
+        'Optional offset in hours into the trip to bias results toward that point (e.g., 2 for "find food 2 hours in"). Null to search along the entire route without bias.',
     }),
   }),
 
   searchNearby: Type.Object({
     query: Type.String({
-      description: 'Natural language search query (e.g., "gas station", "scenic overlook", "coffee shop")',
+      description:
+        'Natural language search query (e.g., "gas station", "scenic overlook", "coffee shop")',
     }),
-    location: Type.Object({
-      lat: Type.Number({ description: 'Latitude in decimal degrees' }),
-      lng: Type.Number({ description: 'Longitude in decimal degrees' }),
-    }, { description: "Center point for the search — use rider's current location" }),
+    location: Type.Object(
+      {
+        lat: Type.Number({ description: 'Latitude in decimal degrees' }),
+        lng: Type.Number({ description: 'Longitude in decimal degrees' }),
+      },
+      { description: "Center point for the search — use rider's current location" },
+    ),
     radiusMeters: Type.Union([Type.Number(), Type.Null()], {
       description: 'Search radius in meters. Null for default (5000m / ~3mi). Max 50000m.',
     }),
@@ -237,8 +295,9 @@ export const AgentToolSchemas = {
         lng: Type.Number({ description: 'Longitude in decimal degrees' }),
       }),
       {
-        description: 'Array of lat/lng points representing the road geometry from OSM. Use geometry returned by lookupRoad.',
-      }
+        description:
+          'Array of lat/lng points representing the road geometry from OSM. Use geometry returned by lookupRoad.',
+      },
     ),
     surface: Type.Union([Type.String(), Type.Null()], {
       description: 'Road surface type from OSM tags (e.g. "asphalt", "gravel"), or null if unknown',
@@ -251,7 +310,7 @@ export const AgentToolSchemas = {
         lat: Type.Number({ description: 'Latitude in decimal degrees' }),
         lng: Type.Number({ description: 'Longitude in decimal degrees' }),
       }),
-      { description: 'Array of lat/lng points representing the route polyline' }
+      { description: 'Array of lat/lng points representing the route polyline' },
     ),
     departureTimeMs: Type.Integer({
       description:
@@ -275,39 +334,58 @@ export const AgentToolSchemas = {
 
   addWaypoint: Type.Object({
     routePlanId: Type.String({ description: 'ID of the route plan to add the waypoint to' }),
-    location: Type.Union([
-      Type.String({ description: 'Natural language location (e.g., "gas station in Santa Cruz", " viewpoints on Highway 1")' }),
-      Type.Object({
-        lat: Type.Number({ description: 'Latitude in decimal degrees' }),
-        lng: Type.Number({ description: 'Longitude in decimal degrees' }),
-      }),
-    ], { description: 'Location as natural language query or coordinates' }),
-    locationBias: Type.Union([
-      Type.Object({
-        lat: Type.Number({ description: 'Bias latitude for geocoding' }),
-        lng: Type.Number({ description: 'Bias longitude for geocoding' }),
-      }),
-      Type.Null(),
-    ], { description: 'Optional location bias for geocoding (e.g., route start point). Null for no bias.' }),
+    location: Type.Union(
+      [
+        Type.String({
+          description:
+            'Natural language location (e.g., "gas station in Santa Cruz", " viewpoints on Highway 1")',
+        }),
+        Type.Object({
+          lat: Type.Number({ description: 'Latitude in decimal degrees' }),
+          lng: Type.Number({ description: 'Longitude in decimal degrees' }),
+        }),
+      ],
+      { description: 'Location as natural language query or coordinates' },
+    ),
+    locationBias: Type.Union(
+      [
+        Type.Object({
+          lat: Type.Number({ description: 'Bias latitude for geocoding' }),
+          lng: Type.Number({ description: 'Bias longitude for geocoding' }),
+        }),
+        Type.Null(),
+      ],
+      {
+        description:
+          'Optional location bias for geocoding (e.g., route start point). Null for no bias.',
+      },
+    ),
   }),
 
   listWaypoints: Type.Object({
     routePlanId: Type.String({ description: 'ID of the route plan to list waypoints for' }),
-    status: Type.Union([
-      Type.Literal('pending'),
-      Type.Literal('evaluating'),
-      Type.Literal('ready'),
-      Type.Literal('approved'),
-      Type.Literal('rejected'),
-      Type.Literal('applied'),
-      Type.Null(),
-    ], { description: 'Filter by waypoint status. Null to list all waypoints.' }),
+    status: Type.Union(
+      [
+        Type.Literal('pending'),
+        Type.Literal('evaluating'),
+        Type.Literal('ready'),
+        Type.Literal('approved'),
+        Type.Literal('rejected'),
+        Type.Literal('applied'),
+        Type.Null(),
+      ],
+      { description: 'Filter by waypoint status. Null to list all waypoints.' },
+    ),
   }),
 
   applyWaypointDecisions: Type.Object({
     routePlanId: Type.String({ description: 'ID of the route plan' }),
-    approvedWaypointIds: Type.Array(Type.String(), { description: 'List of waypoint IDs to approve' }),
-    rejectedWaypointIds: Type.Array(Type.String(), { description: 'List of waypoint IDs to reject' }),
+    approvedWaypointIds: Type.Array(Type.String(), {
+      description: 'List of waypoint IDs to approve',
+    }),
+    rejectedWaypointIds: Type.Array(Type.String(), {
+      description: 'List of waypoint IDs to reject',
+    }),
   }),
 
   presentDeviationOptions: Type.Object({
@@ -339,31 +417,39 @@ export const RoutePlanningValidators = {
       placeId: Type.Optional(Type.String()),
     }),
     departureTime: Type.Integer(),
-    preferences: Type.Optional(Type.Object({
-      scenicBias: Type.Optional(Type.Union([Type.Literal('low'), Type.Literal('default'), Type.Literal('high')])),
-    })),
+    preferences: Type.Optional(
+      Type.Object({
+        scenicBias: Type.Optional(
+          Type.Union([Type.Literal('low'), Type.Literal('default'), Type.Literal('high')]),
+        ),
+      }),
+    ),
   }),
 
   RouteSketch: Type.Object({
     label: Type.String(),
     rationale: Type.String(),
-    segments: Type.Array(Type.Object({
-      roadName: Type.String(),
-      fromName: Type.String(),
-      toName: Type.String(),
-      viaNames: Type.Optional(Type.Array(Type.String())),
-    })),
-    anchorPoints: Type.Array(Type.Object({
-      name: Type.String(),
-      kind: Type.Union([
-        Type.Literal('junction'),
-        Type.Literal('pass'),
-        Type.Literal('vista'),
-        Type.Literal('town'),
-      ]),
-      lat: Type.Optional(Type.Number()),
-      lng: Type.Optional(Type.Number()),
-    })),
+    segments: Type.Array(
+      Type.Object({
+        roadName: Type.String(),
+        fromName: Type.String(),
+        toName: Type.String(),
+        viaNames: Type.Optional(Type.Array(Type.String())),
+      }),
+    ),
+    anchorPoints: Type.Array(
+      Type.Object({
+        name: Type.String(),
+        kind: Type.Union([
+          Type.Literal('junction'),
+          Type.Literal('pass'),
+          Type.Literal('vista'),
+          Type.Literal('town'),
+        ]),
+        lat: Type.Optional(Type.Number()),
+        lng: Type.Optional(Type.Number()),
+      }),
+    ),
   }),
 
   RouteSnapshot: Type.Object({
@@ -389,23 +475,27 @@ export const RoutePlanningValidators = {
 
   RouteIndex: Type.Object({
     routeFingerprint: Type.String(),
-    sampledPoints: Type.Array(Type.Object({
-      lat: Type.Number(),
-      lng: Type.Number(),
-      distanceFromStartMeters: Type.Number(),
-    })),
+    sampledPoints: Type.Array(
+      Type.Object({
+        lat: Type.Number(),
+        lng: Type.Number(),
+        distanceFromStartMeters: Type.Number(),
+      }),
+    ),
   }),
 
-  ProbedConditions: Type.Array(Type.Object({
-    distanceFromStartMeters: Type.Number(),
-    lat: Type.Number(),
-    lng: Type.Number(),
-    wind: Type.Object({
-      windSpeed: Type.Number(),
-      windDirectionDeg: Type.Number(),
-      windGust: Type.Optional(Type.Number()),
-      unit: Type.Union([Type.Literal('m/s'), Type.Literal('km/h')]),
-      timeIso: Type.String(),
+  ProbedConditions: Type.Array(
+    Type.Object({
+      distanceFromStartMeters: Type.Number(),
+      lat: Type.Number(),
+      lng: Type.Number(),
+      wind: Type.Object({
+        windSpeed: Type.Number(),
+        windDirectionDeg: Type.Number(),
+        windGust: Type.Optional(Type.Number()),
+        unit: Type.Union([Type.Literal('m/s'), Type.Literal('km/h')]),
+        timeIso: Type.String(),
+      }),
     }),
-  })),
+  ),
 }

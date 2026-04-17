@@ -1,4 +1,4 @@
-import { Infer, v } from 'convex/values'
+import { type Infer, v } from 'convex/values'
 
 export const ROUTE_ENRICHMENT_STATUS = {
   PENDING: 'pending',
@@ -7,21 +7,23 @@ export const ROUTE_ENRICHMENT_STATUS = {
   CANCELLED: 'cancelled',
   FAILED: 'failed',
 } as const
-export type RouteEnrichmentStatus = (typeof ROUTE_ENRICHMENT_STATUS)[keyof typeof ROUTE_ENRICHMENT_STATUS]
+export type RouteEnrichmentStatus =
+  (typeof ROUTE_ENRICHMENT_STATUS)[keyof typeof ROUTE_ENRICHMENT_STATUS]
 
 export const routeEnrichmentStatusValidator = v.union(
   v.literal('pending'),
   v.literal('running'),
   v.literal('completed'),
   v.literal('cancelled'),
-  v.literal('failed')
+  v.literal('failed'),
 )
 
 export const ROUTE_ENRICHMENT_PHASE = {
   FAST: 'fast',
   EXTENDED: 'extended',
 } as const
-export type RouteEnrichmentPhase = (typeof ROUTE_ENRICHMENT_PHASE)[keyof typeof ROUTE_ENRICHMENT_PHASE]
+export type RouteEnrichmentPhase =
+  (typeof ROUTE_ENRICHMENT_PHASE)[keyof typeof ROUTE_ENRICHMENT_PHASE]
 
 export const routeEnrichmentPhaseValidator = v.union(v.literal('fast'), v.literal('extended'))
 
@@ -52,8 +54,8 @@ export const routeEnrichmentValidator = v.object({
         highlights: v.array(v.string()),
         elevation: v.optional(v.any()),
         weather: v.optional(v.any()),
-      })
-    )
+      }),
+    ),
   ),
 
   // Error tracking

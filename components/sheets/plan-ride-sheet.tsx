@@ -124,12 +124,15 @@ export const PlanRideSheet = ({
       hasTextInput={true}
     >
       <BottomSheetScrollView
-        contentContainerStyle={[styles.container, {
-          gap: semantic.space.lg,
-          paddingHorizontal: semantic.space.lg,
-          paddingTop: semantic.space.md,
-          paddingBottom: semantic.space.lg,
-        }]}
+        contentContainerStyle={[
+          styles.container,
+          {
+            gap: semantic.space.lg,
+            paddingHorizontal: semantic.space.lg,
+            paddingTop: semantic.space.md,
+            paddingBottom: semantic.space.lg,
+          },
+        ]}
         keyboardShouldPersistTaps="handled"
       >
         <SheetHandle />
@@ -193,7 +196,13 @@ export const PlanRideSheet = ({
             <View style={styles.swapButtonContainer}>
               <Button
                 size="icon"
-                icon={<IconSymbol name="swap-vertical" size={20} color={semantic.color.onSurface.muted} />}
+                icon={
+                  <IconSymbol
+                    name="swap-vertical"
+                    size={20}
+                    color={semantic.color.onSurface.muted ?? 'transparent'}
+                  />
+                }
                 variant="ghost"
                 onPress={handleSwap}
                 testID="swap-locations-button"

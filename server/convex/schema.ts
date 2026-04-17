@@ -1,23 +1,31 @@
 import { defineSchema, defineTable } from 'convex/server'
 import { v } from 'convex/values'
+import { curatedRouteEnrichmentValidator } from '../models/curated-route-enrichments'
+import {
+  communityWaypointMentionValidator,
+  curatedRouteValidator,
+  routeMatchValidator,
+  routePostRawValidator,
+} from '../models/curated-routes'
+import {
+  curationArtifactReleaseValidator,
+  curationArtifactShardValidator,
+} from '../models/curation-artifacts'
 import { favoriteRoadValidator } from '../models/favorite-roads'
 import { orgMembershipValidator } from '../models/org-memberships'
 import { orgValidator } from '../models/orgs'
+import { osmImportJobValidator, osmNodeValidator, osmWayValidator } from '../models/osm-data'
+import { performanceValidator } from '../models/performance'
 import { planUsageValidator } from '../models/plan-usage'
 import { planningSessionValidator } from '../models/planning-sessions'
+import { routeEnrichmentValidator } from '../models/route-enrichments'
+import { routeFeedbackValidator } from '../models/route-feedback'
 import { routePlanValidator } from '../models/route-plans'
-import { planInputValidator , savedRouteValidator } from '../models/saved-routes'
+import { planInputValidator, savedRouteValidator } from '../models/saved-routes'
 import { sessionMessageValidator } from '../models/session-messages'
 import { tripPlanValidator } from '../models/trip-plan'
 import { userValidator } from '../models/users'
-import { performanceValidator } from '../models/performance'
-import { osmNodeValidator, osmWayValidator, osmImportJobValidator } from '../models/osm-data'
-import { routeEnrichmentValidator } from '../models/route-enrichments'
 import { waypointValidator } from '../models/waypoints'
-import { curatedRouteValidator, routePostRawValidator, routeMatchValidator, communityWaypointMentionValidator } from '../models/curated-routes'
-import { curatedRouteEnrichmentValidator } from '../models/curated-route-enrichments'
-import { curationArtifactReleaseValidator, curationArtifactShardValidator } from '../models/curation-artifacts'
-import { routeFeedbackValidator } from '../models/route-feedback'
 
 /**
  * Convex Database Schema for React Native + Convex Template
@@ -63,10 +71,10 @@ export default defineSchema({
    * Free tier: 5 plans per month
    * Indexed by clerkUserId and month for efficient usage queries
    */
-  plan_usage: defineTable(planUsageValidator).index(
-    'by_clerkUserId_and_month',
-    ['clerkUserId', 'month']
-  ),
+  plan_usage: defineTable(planUsageValidator).index('by_clerkUserId_and_month', [
+    'clerkUserId',
+    'month',
+  ]),
 
   /**
    * Planning sessions table - Agentic conversational planning sessions
@@ -117,8 +125,7 @@ export default defineSchema({
    * OSM import jobs table - Tracks ETL import progress
    * Indexed by status for job queue queries
    */
-  osm_import_jobs: defineTable(osmImportJobValidator)
-    .index('by_status', ['status']),
+  osm_import_jobs: defineTable(osmImportJobValidator).index('by_status', ['status']),
 
   /**
    * Trip plans table - Stores no-tool LLM trip plan generation records
@@ -132,7 +139,7 @@ export default defineSchema({
       v.literal('generating'),
       v.literal('needs_retry'),
       v.literal('completed'),
-      v.literal('failed')
+      v.literal('failed'),
     ),
     result: v.optional(tripPlanValidator),
     attemptCount: v.number(),
@@ -190,8 +197,9 @@ export default defineSchema({
    * Curated route enrichments table - Rich tier data for curated routes
    * Indexed by routeId for finding enrichments for a specific curated route
    */
-  curated_route_enrichments: defineTable(curatedRouteEnrichmentValidator)
-    .index('by_routeId', ['routeId']),
+  curated_route_enrichments: defineTable(curatedRouteEnrichmentValidator).index('by_routeId', [
+    'routeId',
+  ]),
 
   /**
    * Route feedback table - User feedback on curated routes

@@ -1,4 +1,5 @@
 #!/usr/bin/env tsx
+
 /**
  * OSM Data Import Script (CLI-based)
  *
@@ -9,102 +10,96 @@
  *   npx tsx scripts/import-osm-cli.ts --region=district-of-columbia
  */
 
-import { S2LatLng, S2CellId } from "nodes2ts";
-import fs from "fs";
-import path from "path";
-import { execSync } from "child_process";
+import { execSync } from 'child_process'
+import fs from 'fs'
+import { S2CellId, S2LatLng } from 'nodes2ts'
+import path from 'path'
 
 interface ImportOptions {
-  region: string;
-  sourceUrl?: string;
+  region: string
+  sourceUrl?: string
 }
 
 interface BoundingBox {
-  south: number;
-  west: number;
-  north: number;
-  east: number;
+  south: number
+  west: number
+  north: number
+  east: number
 }
 
 // S2 level 10 ≈ 10km cells - balances query efficiency and precision
-const S2_LEVEL = 10;
+const S2_LEVEL = 10
 
 /**
  * Generate S2 token for spatial indexing
  */
 function generateS2Token(lat: number, lon: number): string {
-  const cellId = S2CellId.fromPoint(
-    S2LatLng.fromDegrees(lat, lon).toPoint()
-  ).parentL(S2_LEVEL);
-  return cellId.toToken();
+  const cellId = S2CellId.fromPoint(S2LatLng.fromDegrees(lat, lon).toPoint()).parentL(S2_LEVEL)
+  return cellId.toToken()
 }
 
 /**
  * Simplify geometry to first, last, and midpoint (reduces storage)
  */
 function simplifyGeometry(coords: number[][]): number[][] {
-  if (coords.length <= 3) return coords;
-  return [
-    coords[0],
-    coords[Math.floor(coords.length / 2)],
-    coords[coords.length - 1],
-  ];
+  if (coords.length <= 3) return coords
+  return [coords[0], coords[Math.floor(coords.length / 2)], coords[coords.length - 1]]
 }
 
 /**
  * Calculate bounding box from geometry coordinates
  */
 function calculateBounds(coords: number[][]): BoundingBox {
-  const lats = coords.map((c) => c[1]);
-  const lons = coords.map((c) => c[0]);
+  const lats = coords.map((c) => c[1])
+  const lons = coords.map((c) => c[0])
   return {
     south: Math.min(...lats),
     west: Math.min(...lons),
     north: Math.max(...lats),
     east: Math.max(...lons),
-  };
+  }
 }
 
 /**
  * Download OSM PBF file
  */
 async function downloadOsmPbf(url: string, outputPath: string): Promise<void> {
-  console.log(`📥 Downloading OSM data from: ${url}`);
+  console.log(`📥 Downloading OSM data from: ${url}`)
 
-  const response = await fetch(url);
+  const response = await fetch(url)
   if (!response.ok) {
-    throw new Error(`Failed to download: ${response.statusText}`);
+    throw new Error(`Failed to download: ${response.statusText}`)
   }
 
-  const buffer = await response.arrayBuffer();
-  fs.writeFileSync(outputPath, Buffer.from(buffer));
+  const buffer = await response.arrayBuffer()
+  fs.writeFileSync(outputPath, Buffer.from(buffer))
 
-  const sizeMB = (buffer.byteLength / 1024 / 1024).toFixed(2);
-  console.log(`✅ Downloaded ${sizeMB}MB to: ${outputPath}`);
+  const sizeMB = (buffer.byteLength / 1024 / 1024).toFixed(2)
+  console.log(`✅ Downloaded ${sizeMB}MB to: ${outputPath}`)
 }
 
 /**
  * Extract scenic nodes from GeoJSON
  */
 function extractScenicNodes(features: any[]): any[] {
-  const nodes: any[] = [];
+  const nodes: any[] = []
 
   for (const feature of features) {
-    const { type, geometry, properties } = feature;
+    const { type, geometry, properties } = feature
 
     // Only process node features with Point geometry
-    if (type !== "node" || geometry?.type !== "Point") continue;
+    if (type !== 'node' || geometry?.type !== 'Point') continue
 
-    const [lon, lat] = geometry.coordinates;
+    const [lon, lat] = geometry.coordinates
 
     // Classify node type
-    let nodeType: string | null = null;
-    if (properties?.tourism === "viewpoint") {
-      nodeType = "viewpoint";
-    } else if (properties?.mountain_pass === "yes") {
-      nodeType = "mountain_pass";
-    } else if (properties?.natural === "peak" && properties?.name) {
-      nodeType = "peak";
+    let nodeType: string | null = null
+    if (properties?.tourism === 'viewpoint') {
+      nodeType = 'viewpoint'
+    } else if (properties?.mountain_pass === 'yes') {
+      nodeType = 'mountain_pass'
+    } else if (properties?.natural === 'peak' && properties?.name) {
+      nodeType = 'peak'
     }
 
     if (nodeType) {
@@ -117,36 +112,36 @@ function extractScenicNodes(features: any[]): any[] {
         tags: properties,
         s2Token: generateS2Token(lat, lon),
         importedAt: Date.now(),
-      });
+      })
     }
   }
 
-  return nodes;
+  return nodes
 }
 
 /**
  * Extract road ways from GeoJSON
  */
 function extractRoadWays(features: any[]): any[] {
-  const ways: any[] = [];
+  const ways: any[] = []
 
   for (const feature of features) {
-    const { type, geometry, properties } = feature;
+    const { type, geometry, properties } = feature
 
     // Only process way features with LineString geometry
-    if (type !== "way" || geometry?.type !== "LineString") continue;
+    if (type !== 'way' || geometry?.type !== 'LineString') continue
 
     // Skip unnamed ways or ways without highway tag
-    if (!properties?.highway) continue;
+    if (!properties?.highway) continue
 
-    const coords = geometry.coordinates as number[][];
-    const bounds = calculateBounds(coords);
+    const coords = geometry.coordinates as number[][]
+    const bounds = calculateBounds(coords)
 
     // Generate S2 tokens for bbox coverage (ways can span cells)
     const s2Tokens = [
       generateS2Token(bounds.south, bounds.west),
       generateS2Token(bounds.north, bounds.east),
-    ];
+    ]
 
     ways.push({
       osmId: properties?.id,
@@ -157,10 +152,10 @@ function extractRoadWays(features: any[]): any[] {
       bounds,
       s2Tokens,
       importedAt: Date.now(),
-    });
+    })
   }
 
-  return ways;
+  return ways
 }
 
 /**
@@ -168,19 +163,19 @@ function extractRoadWays(features: any[]): any[] {
  */
 function importBatchViaCli(
   action: string,
-  data: any[]
+  data: any[],
 ): { inserted: number; updated: number; total: number } {
-  const argsKey = action === "importNodes" ? "nodes" : "ways";
-  const argsJson = JSON.stringify({ [argsKey]: data });
+  const argsKey = action === 'importNodes' ? 'nodes' : 'ways'
+  const argsJson = JSON.stringify({ [argsKey]: data })
 
   try {
     const result = execSync(
       `npx convex run actions/osm:${action} '${argsJson.replace(/'/g, "'\"'\"'")}'`,
-      { encoding: "utf-8", stdio: ["ignore", "pipe", "pipe"] }
-    );
-    return JSON.parse(result) as { inserted: number; updated: number; total: number };
+      { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'] },
+    )
+    return JSON.parse(result) as { inserted: number; updated: number; total: number }
   } catch (error: any) {
-    throw new Error(`Import failed: ${error.message}`);
+    throw new Error(`Import failed: ${error.message}`)
   }
 }
 
@@ -188,88 +183,92 @@ function importBatchViaCli(
  * Main import function
  */
 async function main(options: ImportOptions): Promise<void> {
-  console.log(`\n🌍 OSM Data Import for: ${options.region}`);
-  console.log(`━`.repeat(50));
+  console.log(`\n🌍 OSM Data Import for: ${options.region}`)
+  console.log(`━`.repeat(50))
 
   // Default Geofabrik URLs if not provided
   const sourceUrl =
     options.sourceUrl ||
-    `https://download.geofabrik.de/north-america/us/${options.region}-latest.osm.pbf`;
+    `https://download.geofabrik.de/north-america/us/${options.region}-latest.osm.pbf`
 
-  const tmpDir = "/tmp";
-  const pbfPath = path.join(tmpDir, `${options.region}.osm.pbf`);
+  const tmpDir = '/tmp'
+  const pbfPath = path.join(tmpDir, `${options.region}.osm.pbf`)
 
   try {
     // Step 1: Download OSM PBF
-    await downloadOsmPbf(sourceUrl, pbfPath);
+    await downloadOsmPbf(sourceUrl, pbfPath)
 
     // Step 2: Convert to GeoJSON using CLI tool
-    console.log(`\n🔄 Converting OSM PBF to GeoJSON...`);
-    const geojsonPath = pbfPath.replace('.osm.pbf', '.geojson');
-    execSync(`npx osmtogeojson "${pbfPath}" > "${geojsonPath}"`, { stdio: "inherit" });
-    const geojson = JSON.parse(fs.readFileSync(geojsonPath, 'utf-8'));
-    console.log(`✅ Converted ${geojson.features.length} features`);
+    console.log(`\n🔄 Converting OSM PBF to GeoJSON...`)
+    const geojsonPath = pbfPath.replace('.osm.pbf', '.geojson')
+    execSync(`npx osmtogeojson "${pbfPath}" > "${geojsonPath}"`, { stdio: 'inherit' })
+    const geojson = JSON.parse(fs.readFileSync(geojsonPath, 'utf-8'))
+    console.log(`✅ Converted ${geojson.features.length} features`)
 
     // Step 3: Extract nodes and ways
-    console.log(`\n🔍 Extracting scenic nodes...`);
-    const nodes = extractScenicNodes(geojson.features);
-    console.log(`✅ Found ${nodes.length} scenic nodes`);
+    console.log(`\n🔍 Extracting scenic nodes...`)
+    const nodes = extractScenicNodes(geojson.features)
+    console.log(`✅ Found ${nodes.length} scenic nodes`)
 
-    console.log(`\n🔍 Extracting road ways...`);
-    const ways = extractRoadWays(geojson.features);
-    console.log(`✅ Found ${ways.length} road ways`);
+    console.log(`\n🔍 Extracting road ways...`)
+    const ways = extractRoadWays(geojson.features)
+    console.log(`✅ Found ${ways.length} road ways`)
 
     // Step 4: Import to Convex in batches
-    const BATCH_SIZE = 100;
+    const BATCH_SIZE = 100
 
     if (nodes.length > 0) {
-      console.log(`\n📦 Importing nodes to Convex...`);
-      let nodesInserted = 0;
-      let nodesUpdated = 0;
+      console.log(`\n📦 Importing nodes to Convex...`)
+      let nodesInserted = 0
+      let nodesUpdated = 0
       for (let i = 0; i < nodes.length; i += BATCH_SIZE) {
-        const batch = nodes.slice(i, i + BATCH_SIZE);
-        const result = importBatchViaCli("importNodes", batch);
-        nodesInserted += result.inserted;
-        nodesUpdated += result.updated;
-        process.stdout.write(`\r   Progress: ${Math.min(i + BATCH_SIZE, nodes.length)}/${nodes.length}`);
+        const batch = nodes.slice(i, i + BATCH_SIZE)
+        const result = importBatchViaCli('importNodes', batch)
+        nodesInserted += result.inserted
+        nodesUpdated += result.updated
+        process.stdout.write(
+          `\r   Progress: ${Math.min(i + BATCH_SIZE, nodes.length)}/${nodes.length}`,
+        )
       }
-      console.log(`\n✅ Nodes: ${nodesInserted} inserted, ${nodesUpdated} updated`);
+      console.log(`\n✅ Nodes: ${nodesInserted} inserted, ${nodesUpdated} updated`)
     } else {
-      console.log(`\n⚠️  No scenic nodes found to import`);
+      console.log(`\n⚠️  No scenic nodes found to import`)
     }
 
     if (ways.length > 0) {
-      console.log(`\n📦 Importing ways to Convex...`);
-      let waysInserted = 0;
-      let waysUpdated = 0;
+      console.log(`\n📦 Importing ways to Convex...`)
+      let waysInserted = 0
+      let waysUpdated = 0
       for (let i = 0; i < ways.length; i += BATCH_SIZE) {
-        const batch = ways.slice(i, i + BATCH_SIZE);
-        const result = importBatchViaCli("importWays", batch);
-        waysInserted += result.inserted;
-        waysUpdated += result.updated;
-        process.stdout.write(`\r   Progress: ${Math.min(i + BATCH_SIZE, ways.length)}/${ways.length}`);
+        const batch = ways.slice(i, i + BATCH_SIZE)
+        const result = importBatchViaCli('importWays', batch)
+        waysInserted += result.inserted
+        waysUpdated += result.updated
+        process.stdout.write(
+          `\r   Progress: ${Math.min(i + BATCH_SIZE, ways.length)}/${ways.length}`,
+        )
       }
-      console.log(`\n✅ Ways: ${waysInserted} inserted, ${waysUpdated} updated`);
+      console.log(`\n✅ Ways: ${waysInserted} inserted, ${waysUpdated} updated`)
     } else {
-      console.log(`\n⚠️  No road ways found to import`);
+      console.log(`\n⚠️  No road ways found to import`)
     }
 
     // Summary
-    console.log(`\n` + "━".repeat(50));
-    console.log(`✨ Import complete!`);
-    console.log(`   Nodes: ${nodes.length} processed`);
-    console.log(`   Ways: ${ways.length} processed`);
-    console.log(`\n🎯 Next steps:`);
-    console.log(`   1. Verify data in Convex dashboard`);
-    console.log(`   2. Test queries with the routing agent`);
+    console.log(`\n` + '━'.repeat(50))
+    console.log(`✨ Import complete!`)
+    console.log(`   Nodes: ${nodes.length} processed`)
+    console.log(`   Ways: ${ways.length} processed`)
+    console.log(`\n🎯 Next steps:`)
+    console.log(`   1. Verify data in Convex dashboard`)
+    console.log(`   2. Test queries with the routing agent`)
   } finally {
     // Cleanup temp files
     if (fs.existsSync(pbfPath)) {
-      fs.unlinkSync(pbfPath);
+      fs.unlinkSync(pbfPath)
     }
-    const geojsonPath = pbfPath.replace('.osm.pbf', '.geojson');
+    const geojsonPath = pbfPath.replace('.osm.pbf', '.geojson')
     if (fs.existsSync(geojsonPath)) {
-      fs.unlinkSync(geojsonPath);
+      fs.unlinkSync(geojsonPath)
     }
   }
 }
@@ -278,24 +277,24 @@ async function main(options: ImportOptions): Promise<void> {
  * CLI entry point
  */
 async function cli() {
-  const args = process.argv.slice(2);
-  const regionArg = args.find((a) => a.startsWith("--region="));
+  const args = process.argv.slice(2)
+  const regionArg = args.find((a) => a.startsWith('--region='))
 
   if (!regionArg) {
-    console.error("Usage: npx tsx scripts/import-osm-cli.ts --region=district-of-columbia");
-    process.exit(1);
+    console.error('Usage: npx tsx scripts/import-osm-cli.ts --region=district-of-columbia')
+    process.exit(1)
   }
 
-  const region = regionArg.split("=")[1];
+  const region = regionArg.split('=')[1]
 
-  await main({ region });
+  await main({ region })
 }
 
 if (require.main === module) {
   cli().catch((error) => {
-    console.error("\n❌ Import failed:", error.message);
-    process.exit(1);
-  });
+    console.error('\n❌ Import failed:', error.message)
+    process.exit(1)
+  })
 }
 
-export { main };
+export { main }

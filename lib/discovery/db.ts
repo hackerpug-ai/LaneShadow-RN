@@ -1,7 +1,7 @@
-import * as SQLite from 'expo-sqlite';
+import * as SQLite from 'expo-sqlite'
 
 // Discovery database singleton
-let dbInstance: SQLite.SQLiteDatabase | null = null;
+let dbInstance: SQLite.SQLiteDatabase | null = null
 
 export interface DiscoveryDB extends SQLite.SQLiteDatabase {
   // Type alias for clarity
@@ -13,15 +13,15 @@ export interface DiscoveryDB extends SQLite.SQLiteDatabase {
  */
 export async function openDiscoveryDB(): Promise<DiscoveryDB> {
   if (dbInstance) {
-    return dbInstance as DiscoveryDB;
+    return dbInstance as DiscoveryDB
   }
 
   // Get the documents directory for the app
   // Use a hardcoded path that will work in React Native
-  const documentsDir = '.';
-  const dbPath = `${documentsDir}discovery.db`;
+  const documentsDir = '.'
+  const dbPath = `${documentsDir}discovery.db`
 
-  const db = await SQLite.openDatabaseAsync(dbPath);
+  const db = await SQLite.openDatabaseAsync(dbPath)
 
   // Create schema
   await db.execAsync(`
@@ -68,10 +68,10 @@ export async function openDiscoveryDB(): Promise<DiscoveryDB> {
     );
 
     CREATE INDEX IF NOT EXISTS idx_intent_cache_hit_count ON intent_param_cache(hit_count DESC);
-  `);
+  `)
 
-  dbInstance = db;
-  return db as DiscoveryDB;
+  dbInstance = db
+  return db as DiscoveryDB
 }
 
 /**
@@ -79,7 +79,7 @@ export async function openDiscoveryDB(): Promise<DiscoveryDB> {
  */
 export async function closeDiscoveryDB(): Promise<void> {
   if (dbInstance) {
-    await dbInstance.closeAsync();
-    dbInstance = null;
+    await dbInstance.closeAsync()
+    dbInstance = null
   }
 }

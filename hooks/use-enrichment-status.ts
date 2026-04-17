@@ -5,10 +5,10 @@
  * for route option cards to display enrichment progress
  */
 
-import { useMemo } from 'react'
 import { useQuery } from 'convex/react'
-import type { Id } from '../convex/_generated/dataModel'
+import { useMemo } from 'react'
 import { api } from '../convex/_generated/api'
+import type { Id } from '../convex/_generated/dataModel'
 
 /**
  * Enrichment status types matching the backend schema
@@ -59,12 +59,12 @@ export interface UseEnrichmentStatusResult {
  * ```
  */
 export const useEnrichmentStatus = (
-  routePlanId: Id<'route_plans'> | null | undefined
+  routePlanId: Id<'route_plans'> | null | undefined,
 ): UseEnrichmentStatusResult => {
   // Query enrichment record for this route plan
   const enrichmentRecord = useQuery(
     api.db.routeEnrichments.getByRoutePlanId,
-    routePlanId ? { routePlanId } : 'skip'
+    routePlanId ? { routePlanId } : 'skip',
   )
 
   // Transform backend data to hook format (memoized for stability)

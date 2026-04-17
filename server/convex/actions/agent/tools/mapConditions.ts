@@ -1,4 +1,4 @@
-"use node"
+'use node'
 import type {
   RouteIndex,
   RouteSnapshot,
@@ -7,8 +7,8 @@ import type {
   WindOverlayByLeg,
   WindOverlaySegment,
 } from '../../../../models/saved-routes'
-import type { ProbedWindPoint } from './probeConditions'
 import { traceableToolSync } from '../lib/tracing'
+import type { ProbedWindPoint } from './probeConditions'
 
 const MODEL_VERSION = 'open-meteo:v1'
 
@@ -32,7 +32,7 @@ const normalizeDeg = (deg: number): number => {
 
 const bearingBetween = (
   from: { lat: number; lng: number },
-  to: { lat: number; lng: number }
+  to: { lat: number; lng: number },
 ): number => {
   const lat1 = degToRad(from.lat)
   const lat2 = degToRad(to.lat)
@@ -47,7 +47,7 @@ const levelFromWind = (
   windSpeed: number,
   windDirection: number,
   routeBearing: number,
-  gust?: number
+  gust?: number,
 ) => {
   const angleDiff = degToRad(Math.abs(normalizeDeg(windDirection - routeBearing)))
   const crosswind = Math.abs(windSpeed * Math.sin(angleDiff))
@@ -60,7 +60,7 @@ const levelFromWind = (
 }
 
 const buildLegOffsets = (
-  routeSnapshot: RouteSnapshot
+  routeSnapshot: RouteSnapshot,
 ): { legIndex: number; start: number; distance: number }[] => {
   const offsets: { legIndex: number; start: number; distance: number }[] = []
   let cumulative = 0
@@ -73,7 +73,7 @@ const buildLegOffsets = (
 
 const findLegForDistance = (
   distance: number,
-  offsets: { legIndex: number; start: number; distance: number }[]
+  offsets: { legIndex: number; start: number; distance: number }[],
 ): { legIndex: number; start: number; distance: number } | null => {
   for (const leg of offsets) {
     if (distance >= leg.start && distance <= leg.start + leg.distance) return leg
@@ -113,7 +113,7 @@ const mapConditionsImpl = ({
   const byLegMap: Map<number, WindOverlaySegment[]> = new Map()
 
   const sortedProbed = [...probed].sort(
-    (a, b) => a.distanceFromStartMeters - b.distanceFromStartMeters
+    (a, b) => a.distanceFromStartMeters - b.distanceFromStartMeters,
   )
 
   const getBearingAtDistance = (distance: number): number => {

@@ -5,11 +5,10 @@
  * Prefer using `useOfflineStore` directly in new code.
  */
 
-import { useOfflineStore, getTotalStorageUsed } from '../stores/offline-store'
-import type { RegionBounds, RegionMetadata, DownloadProgress } from '../stores/offline-store'
+import type { DownloadProgress, RegionBounds, RegionMetadata } from '../stores/offline-store'
+import { getTotalStorageUsed, useOfflineStore } from '../stores/offline-store'
 
-export type { RegionBounds, RegionMetadata, DownloadProgress }
-export type { OfflineDownloadState }
+export type { DownloadProgress, OfflineDownloadState, RegionBounds, RegionMetadata }
 
 interface OfflineDownloadState {
   progress: DownloadProgress | null

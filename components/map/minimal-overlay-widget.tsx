@@ -12,14 +12,14 @@
 
 import { Pressable, StyleSheet, View } from 'react-native'
 import Animated, {
-  useSharedValue,
+  runOnJS,
   useAnimatedStyle,
+  useSharedValue,
   withSpring,
   withTiming,
-  runOnJS,
 } from 'react-native-reanimated'
-import { IconSymbol } from '../ui/icon-symbol'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol } from '../ui/icon-symbol'
 
 const AnimatedIcon = Animated.createAnimatedComponent(IconSymbol)
 
@@ -180,20 +180,22 @@ export const MinimalOverlayWidget = ({
             <Pressable
               onPress={() => selectOverlay(overlay)}
               disabled={!isAvailable}
-              style={({ pressed }) => [
-                styles.iconButton,
-                {
-                  backgroundColor: isActive
-                    ? semantic.color.primary.default + '33'
-                    : pressed
-                      ? semantic.color.surfaceVariant.pressed
-                      : semantic.color.surfaceVariant.default,
-                  borderColor: isActive
-                    ? semantic.color.primary.default
-                    : semantic.color.border.default,
-                  opacity: isAvailable ? 1 : 0.4,
-                },
-              ] as any}
+              style={({ pressed }) =>
+                [
+                  styles.iconButton,
+                  {
+                    backgroundColor: isActive
+                      ? semantic.color.primary.default + '33'
+                      : pressed
+                        ? semantic.color.surfaceVariant.pressed
+                        : semantic.color.surfaceVariant.default,
+                    borderColor: isActive
+                      ? semantic.color.primary.default
+                      : semantic.color.border.default,
+                    opacity: isAvailable ? 1 : 0.4,
+                  },
+                ] as any
+              }
               hitSlop={8}
             >
               <IconSymbol
@@ -202,7 +204,7 @@ export const MinimalOverlayWidget = ({
                 color={
                   isActive
                     ? semantic.color.primary.default
-                    : semantic.color.onSurface.muted
+                    : (semantic.color.onSurface.muted ?? 'transparent')
                 }
               />
             </Pressable>
@@ -220,9 +222,7 @@ export const MinimalOverlayWidget = ({
               backgroundColor: pressed
                 ? semantic.color.surfaceVariant.pressed
                 : semantic.color.surfaceVariant.default,
-              borderColor: value
-                ? semantic.color.primary.default
-                : semantic.color.border.default,
+              borderColor: value ? semantic.color.primary.default : semantic.color.border.default,
             },
           ]}
           hitSlop={12}
@@ -231,22 +231,13 @@ export const MinimalOverlayWidget = ({
         >
           {/* Active indicator ring */}
           {value ? (
-            <View
-              style={[
-                styles.activeRing,
-                { borderColor: semantic.color.primary.default },
-              ]}
-            />
+            <View style={[styles.activeRing, { borderColor: semantic.color.primary.default }]} />
           ) : null}
 
           <IconSymbol
             name={getCurrentIcon() as any}
             size={20}
-            color={
-              value
-                ? semantic.color.primary.default
-                : semantic.color.onSurface.default
-            }
+            color={value ? semantic.color.primary.default : semantic.color.onSurface.default}
           />
         </Pressable>
       </Animated.View>

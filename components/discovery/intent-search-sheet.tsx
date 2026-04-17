@@ -25,7 +25,7 @@ import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { BottomSheetWrapper } from '../sheets/bottom-sheet-wrapper'
 import { Button } from '../ui/button'
-import { IconSymbol, type IconName } from '../ui/icon-symbol'
+import { type IconName, IconSymbol } from '../ui/icon-symbol'
 import { IntentSummaryPill } from './intent-summary-pill'
 
 /**
@@ -90,16 +90,10 @@ export const IntentSearchSheet = ({
       <View style={styles.container}>
         {/* Header */}
         <View style={[styles.header, { borderBottomColor: semantic.color.border.default }]}>
-          <Text
-            variant="titleLarge"
-            style={{ color: semantic.color.onSurface.default }}
-          >
+          <Text variant="titleLarge" style={{ color: semantic.color.onSurface.default }}>
             Describe your ideal ride
           </Text>
-          <Text
-            variant="bodyMedium"
-            style={{ color: semantic.color.onSurface.muted }}
-          >
+          <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.muted }}>
             Say &quot;scenic coastal roads&quot; or &quot;twisty mountain passes&quot;
           </Text>
         </View>
@@ -120,7 +114,7 @@ export const IntentSearchSheet = ({
             <IconSymbol
               name="magnify"
               size={20}
-              color={semantic.color.onSurface.muted}
+              color={semantic.color.onSurface.muted ?? 'transparent'}
               style={styles.searchIcon}
             />
             {/* Note: Using regular TextInput for design mock.
@@ -142,7 +136,13 @@ export const IntentSearchSheet = ({
 
           <Button
             size="icon"
-            icon={<IconSymbol name="close" size={20} color={semantic.color.onSurface.muted} />}
+            icon={
+              <IconSymbol
+                name="close"
+                size={20}
+                color={semantic.color.onSurface.muted ?? 'transparent'}
+              />
+            }
             variant="ghost"
             onPress={onClear}
             disabled={!query && !isSearching}
@@ -192,7 +192,7 @@ export const IntentSearchSheet = ({
                 <IconSymbol
                   name="wifi-off"
                   size={48}
-                  color={semantic.color.onSurface.subtle}
+                  color={semantic.color.onSurface.subtle ?? 'transparent'}
                   testID="offline-icon"
                 />
                 <Text

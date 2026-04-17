@@ -10,7 +10,7 @@ export type TimeoutOptions = {
  */
 export const withTimeout = async <T>(
   operation: (signal: AbortSignal) => Promise<T>,
-  { ms, label }: TimeoutOptions
+  { ms, label }: TimeoutOptions,
 ): Promise<T> => {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), ms)
@@ -39,7 +39,7 @@ export type RetryOnceOptions = {
  */
 export const retryOnce = async <T>(
   operation: () => Promise<T>,
-  options?: RetryOnceOptions
+  options?: RetryOnceOptions,
 ): Promise<T> => {
   const shouldRetry = options?.shouldRetry ?? (() => true)
   try {

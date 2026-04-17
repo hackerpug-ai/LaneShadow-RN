@@ -12,11 +12,11 @@
 
 import type { ComponentType } from 'react'
 import type { Id } from '../../convex/_generated/dataModel'
-import { RoutingCard } from './routing-card'
+import { LocationSearchCard } from './cards/location-search-card'
+import { PlanningCard } from './cards/planning-card'
 import { ReasoningCard } from './cards/reasoning-card'
 import { ThinkingCard } from './cards/thinking-card'
-import { PlanningCard } from './cards/planning-card'
-import { LocationSearchCard } from './cards/location-search-card'
+import { RoutingCard } from './routing-card'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -78,7 +78,7 @@ PlaceholderCard.displayName = 'PlaceholderCard'
 // ---------------------------------------------------------------------------
 
 export const CARD_REGISTRY: Record<CardKind, ComponentType<CardProps>> = {
-  routing_card: RoutingCard,
+  routing_card: RoutingCard as ComponentType<CardProps>,
   weather_card: PlaceholderCard, // TODO: replace when fetchWeather tool is real
   saved_route_card: PlaceholderCard, // TODO: replace when saveRoute tool is real
   reasoning: ReasoningCard,

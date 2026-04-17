@@ -8,8 +8,8 @@
  * AC-4: Migration backfills existing rows with kind:'text', status:'complete'
  */
 
-import { describe, it, expect, vi } from 'vitest'
 import { v } from 'convex/values'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('session_messages schema extension', () => {
   describe('AC-1: kind field on sessionMessageValidator', () => {
@@ -18,12 +18,14 @@ describe('session_messages schema extension', () => {
       // Should be a v.union with 4 literals
       expect(sessionMessageKindValidator).toBeDefined()
       // Validate each literal works
-      expect(() => v.union(
-        v.literal('text'),
-        v.literal('routing_card'),
-        v.literal('weather_card'),
-        v.literal('saved_route_card'),
-      )).not.toThrow()
+      expect(() =>
+        v.union(
+          v.literal('text'),
+          v.literal('routing_card'),
+          v.literal('weather_card'),
+          v.literal('saved_route_card'),
+        ),
+      ).not.toThrow()
     })
 
     it('sessionMessageValidator should accept a message without kind (optional)', () => {
@@ -34,7 +36,7 @@ describe('session_messages schema extension', () => {
           role: v.union(v.literal('rider'), v.literal('system')),
           content: v.string(),
           createdAt: v.number(),
-        })
+        }),
       ).not.toThrow()
     })
 
@@ -86,10 +88,30 @@ describe('session_messages schema extension', () => {
         db: {
           query: vi.fn().mockReturnValue({
             collect: vi.fn().mockResolvedValue([
-              { _id: 'msg_1', sessionId: 'session_1', role: 'rider', content: 'hello', createdAt: 1000 },
-              { _id: 'msg_2', sessionId: 'session_1', role: 'system', content: 'world', createdAt: 2000 },
+              {
+                _id: 'msg_1',
+                sessionId: 'session_1',
+                role: 'rider',
+                content: 'hello',
+                createdAt: 1000,
+              },
+              {
+                _id: 'msg_2',
+                sessionId: 'session_1',
+                role: 'system',
+                content: 'world',
+                createdAt: 2000,
+              },
               // Already migrated row — should not be patched
-              { _id: 'msg_3', sessionId: 'session_1', role: 'rider', content: 'hi', createdAt: 3000, kind: 'text', status: 'complete' },
+              {
+                _id: 'msg_3',
+                sessionId: 'session_1',
+                role: 'rider',
+                content: 'hi',
+                createdAt: 3000,
+                kind: 'text',
+                status: 'complete',
+              },
             ]),
           }),
           patch: vi.fn().mockImplementation((id: string, fields: object) => {
@@ -99,7 +121,9 @@ describe('session_messages schema extension', () => {
         },
       }
 
-      const { backfillSessionMessageKindStatusHandler } = await import('../migrations/backfillSessionMessageKindStatus')
+      const { backfillSessionMessageKindStatusHandler } = await import(
+        '../migrations/backfillSessionMessageKindStatus'
+      )
       await backfillSessionMessageKindStatusHandler(mockCtx as any)
 
       // Should patch only the two rows without kind/status

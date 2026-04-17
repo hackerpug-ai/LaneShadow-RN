@@ -124,7 +124,11 @@
           "coding_standards": [
             {
               "path": "brain/docs/kanban/task-standards.md",
-              "checks": ["GIVEN-WHEN-THEN format", "Boolean verification commands", "SPEC framework"]
+              "checks": [
+                "GIVEN-WHEN-THEN format",
+                "Boolean verification commands",
+                "SPEC framework"
+              ]
             }
           ],
           "test_criteria": [
@@ -304,10 +308,7 @@
               "Persist download state across app restarts",
               "Handle download failures with retry UX"
             ],
-            "never": [
-              "Allow bypass of setup wizard",
-              "Show main app without model verification"
-            ],
+            "never": ["Allow bypass of setup wizard", "Show main app without model verification"],
             "strictly": [
               "App MUST block usage until model verified",
               "Download state MUST persist across restarts"
@@ -359,9 +360,7 @@
             ]
           },
           "design": {
-            "references": [
-              "PRD Section: Phase 0, Task 3"
-            ],
+            "references": ["PRD Section: Phase 0, Task 3"],
             "interaction_notes": [
               "Gatekeeper check runs on app launch",
               "Download state persists to AsyncStorage",
@@ -468,19 +467,14 @@
             }
           ],
           "guardrails": {
-            "write_allowed": [
-              "lib/download-state.ts (NEW)",
-              "lib/download-retry.ts (NEW)"
-            ],
+            "write_allowed": ["lib/download-state.ts (NEW)", "lib/download-retry.ts (NEW)"],
             "write_prohibited": [
               "components/** - UI separate task",
               "lib/ai/local-model.ts - model integration separate"
             ]
           },
           "design": {
-            "references": [
-              "PRD Section: Phase 0, Task 4"
-            ],
+            "references": ["PRD Section: Phase 0, Task 4"],
             "interaction_notes": [
               "AsyncStorage persists progress percentage",
               "Exponential backoff: 1s, 2s, 4s, 8s, 16s max",
@@ -585,12 +579,8 @@
               "Install @rnmapbox/maps v10.1.0 via npm",
               "Read existing package.json to avoid conflicts"
             ],
-            "never": [
-              "Modify other dependencies without approval"
-            ],
-            "strictly": [
-              "Package version MUST be v10.1.0"
-            ]
+            "never": ["Modify other dependencies without approval"],
+            "strictly": ["Package version MUST be v10.1.0"]
           },
           "specification": {
             "objective": "Install @rnmapbox/maps package and verify compatibility with existing dependencies",
@@ -613,9 +603,7 @@
             }
           ],
           "guardrails": {
-            "write_allowed": [
-              "package.json (MODIFY)"
-            ],
+            "write_allowed": ["package.json (MODIFY)"],
             "write_prohibited": [
               "app.json - config separate task",
               "components/** - no code changes in INFRA task"
@@ -668,9 +656,7 @@
               "Configure RNMapboxMapsImpl and download token",
               "Read existing Expo config before modifying"
             ],
-            "never": [
-              "Hardcode Mapbox access tokens in config files (use environment variables)"
-            ],
+            "never": ["Hardcode Mapbox access tokens in config files (use environment variables)"],
             "strictly": [
               "Plugin MUST be added to Expo config array",
               "Token MUST use environment variable"
@@ -704,10 +690,7 @@
             }
           ],
           "guardrails": {
-            "write_allowed": [
-              "app.config.ts (MODIFY)",
-              ".env (MODIFY)"
-            ],
+            "write_allowed": ["app.config.ts (MODIFY)", ".env (MODIFY)"],
             "write_prohibited": [
               "app.json - using app.config.ts",
               "components/** - no code changes in INFRA task"
@@ -963,10 +946,7 @@
               "Download without storage check",
               "Store region data in AsyncStorage (too large)"
             ],
-            "strictly": [
-              "Storage check MUST run before download",
-              "Progress MUST update every 5%"
-            ]
+            "strictly": ["Storage check MUST run before download", "Progress MUST update every 5%"]
           },
           "specification": {
             "objective": "Implement offline region download manager using Mapbox OfflineManager API with progress tracking, storage checks, and Convex metadata storage",
@@ -1079,14 +1059,8 @@
               "Implement regions list with swipe-to-delete",
               "Use BottomSheetInput for all text inputs per CLAUDE.md"
             ],
-            "never": [
-              "Allow download without region name",
-              "Delete without confirmation dialog"
-            ],
-            "strictly": [
-              "Region name MUST be required",
-              "Delete MUST show confirmation"
-            ]
+            "never": ["Allow download without region name", "Delete without confirmation dialog"],
+            "strictly": ["Region name MUST be required", "Delete MUST show confirmation"]
           },
           "specification": {
             "objective": "Build offline region management UI screens for region selection, download progress, regions list, and delete confirmation",
@@ -1129,9 +1103,7 @@
               "components/offline/regions-list-screen.tsx (NEW)",
               "components/offline/delete-confirmation-dialog.tsx (NEW)"
             ],
-            "write_prohibited": [
-              "lib/mapbox/offline-manager.ts - download manager separate task"
-            ]
+            "write_prohibited": ["lib/mapbox/offline-manager.ts - download manager separate task"]
           },
           "design": {
             "references": [

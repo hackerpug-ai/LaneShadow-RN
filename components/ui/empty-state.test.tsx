@@ -9,18 +9,19 @@
  * - AC4: No onCtaPress callback -> CTA button is hidden, no crash
  */
 
-import { vi, describe, it, expect, beforeEach } from 'vitest'
-import React from 'react'
-import { render, fireEvent } from '@testing-library/react-native'
-import { PaperProvider, MD3DarkTheme } from 'react-native-paper'
+import { fireEvent, render } from '@testing-library/react-native'
+import type React from 'react'
+import { MD3DarkTheme, PaperProvider } from 'react-native-paper'
+import type { ReactTestInstance } from 'react-test-renderer'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtendedTheme } from '../../styles/types'
 
 // ---------------------------------------------------------------------------
 // Import after mocks are registered
 // ---------------------------------------------------------------------------
 
-import { EmptyState } from './empty-state'
 import type { EmptyStateProps } from './empty-state'
+import { EmptyState } from './empty-state'
 
 // ---------------------------------------------------------------------------
 // Mock semantic theme (dark mode)
@@ -114,12 +115,48 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.3, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -152,7 +189,7 @@ vi.mock('./button', () => {
       createElement(
         Pressable,
         { onPress, testID, style, accessibilityRole: 'button' },
-        typeof children === 'string' ? createElement(Text, null, children) : children
+        typeof children === 'string' ? createElement(Text, null, children) : children,
       ),
   }
 })
@@ -194,14 +231,14 @@ describe('EmptyState', () => {
       const { getByTestId } = renderWithPaper(<EmptyState {...defaultProps} />)
       const iconWrapper = getByTestId('empty-state-icon')
       // The icon is the first child of the wrapper
-      const icon = iconWrapper.children[0]
+      const icon = iconWrapper.children[0] as ReactTestInstance
       expect(icon.props.size).toBe(64)
     })
 
     it('renders the icon with the muted onSurface color', () => {
       const { getByTestId } = renderWithPaper(<EmptyState {...defaultProps} />)
       const iconWrapper = getByTestId('empty-state-icon')
-      const icon = iconWrapper.children[0]
+      const icon = iconWrapper.children[0] as ReactTestInstance
       expect(icon.props.color).toBe(mockSemanticTheme.color.onSurface.muted)
     })
 
@@ -228,14 +265,14 @@ describe('EmptyState', () => {
           body="Plan a route."
           ctaLabel="Plan your first route"
           onCtaPress={vi.fn()}
-        />
+        />,
       )
       expect(getByTestId('empty-state')).toBeTruthy()
     })
 
     it('renders with custom testID when provided', () => {
       const { getByTestId } = renderWithPaper(
-        <EmptyState {...defaultProps} testID="saved-routes-empty-state" />
+        <EmptyState {...defaultProps} testID="saved-routes-empty-state" />,
       )
       expect(getByTestId('saved-routes-empty-state')).toBeTruthy()
     })
@@ -248,7 +285,7 @@ describe('EmptyState', () => {
     it('calls onCtaPress when CTA button is pressed', () => {
       const onCtaPress = vi.fn()
       const { getByTestId } = renderWithPaper(
-        <EmptyState {...defaultProps} onCtaPress={onCtaPress} testID="empty-state" />
+        <EmptyState {...defaultProps} onCtaPress={onCtaPress} testID="empty-state" />,
       )
       fireEvent.press(getByTestId('empty-state-cta'))
       expect(onCtaPress).toHaveBeenCalledTimes(1)
@@ -280,7 +317,7 @@ describe('EmptyState', () => {
     it('icon color uses semantic.color.onSurface.muted', () => {
       const { getByTestId } = renderWithPaper(<EmptyState {...defaultProps} />)
       const iconWrapper = getByTestId('empty-state-icon')
-      const icon = iconWrapper.children[0]
+      const icon = iconWrapper.children[0] as ReactTestInstance
       expect(icon.props.color).toBe(mockSemanticTheme.color.onSurface.muted)
     })
   })
@@ -296,7 +333,7 @@ describe('EmptyState', () => {
           headline="No saved routes yet"
           body="Plan a route and save it to see it here."
           ctaLabel="Plan your first route"
-        />
+        />,
       )
       expect(getByTestId('empty-state')).toBeTruthy()
     })
@@ -308,7 +345,7 @@ describe('EmptyState', () => {
           headline="No saved routes yet"
           body="Plan a route and save it to see it here."
           ctaLabel="Plan your first route"
-        />
+        />,
       )
       expect(queryByTestId('empty-state-cta')).toBeNull()
     })
@@ -319,7 +356,7 @@ describe('EmptyState', () => {
           icon="map-marker-path"
           headline="No saved routes yet"
           body="Plan a route and save it to see it here."
-        />
+        />,
       )
       expect(queryByTestId('empty-state-cta')).toBeNull()
     })

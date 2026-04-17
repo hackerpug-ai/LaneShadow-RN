@@ -12,13 +12,13 @@
  * - AC8: Route is planned (not active), When: User long-presses segment, Then: Highlight and sheet work as expected
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, fireEvent } from '@testing-library/react-native'
-import { State } from 'react-native-gesture-handler'
+import { fireEvent, render } from '@testing-library/react-native'
 import * as Haptics from 'expo-haptics'
+import { State } from 'react-native-gesture-handler'
+import { ThemeProvider } from 'react-native-paper'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { BuiltPolyline } from '../../../../components/map/route-polyline'
 import { RoutePolyline } from '../../../../components/map/route-polyline-component'
-import { ThemeProvider } from 'react-native-paper'
 import type { ExtendedTheme } from '../../../../styles/types'
 
 // Mock theme provider wrapper
@@ -105,12 +105,48 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.35, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.2,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.3,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.35,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -125,9 +161,7 @@ const mockTheme = {
 }
 
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <ThemeProvider theme={mockTheme}>
-    {children}
-  </ThemeProvider>
+  <ThemeProvider theme={mockTheme}>{children}</ThemeProvider>
 )
 
 describe('HomeMap Long-Press Integration (US-050)', () => {
@@ -136,7 +170,7 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
       id: 'leg-0',
       coordinates: [
         { latitude: 37.7749, longitude: -122.4194 },
-        { latitude: 37.7750, longitude: -122.4195 },
+        { latitude: 37.775, longitude: -122.4195 },
       ],
       strokeColor: '#6750A4',
       strokeWidth: 4,
@@ -144,7 +178,7 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
     {
       id: 'leg-1',
       coordinates: [
-        { latitude: 37.7750, longitude: -122.4195 },
+        { latitude: 37.775, longitude: -122.4195 },
         { latitude: 37.7751, longitude: -122.4196 },
       ],
       strokeColor: '#6750A4',
@@ -166,7 +200,7 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
             onSegmentSelect={onSegmentSelect}
             testID="route-polyline"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       // Verify both segments are rendered
@@ -183,14 +217,14 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
             onSegmentSelect={onSegmentSelect}
             testID="route-polyline"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-leg-0')
 
       // Simulate long-press gesture completing
       fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
+        nativeEvent: { state: State.ACTIVE },
       })
 
       // Verify callback was invoked with correct data
@@ -201,11 +235,11 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
           geometry: expect.any(String),
           bounds: expect.objectContaining({
             northEast: expect.any(Object),
-            southWest: expect.any(Object)
+            southWest: expect.any(Object),
           }),
           segmentType: 'leg',
-          legIndex: 0
-        })
+          legIndex: 0,
+        }),
       )
     })
 
@@ -218,13 +252,13 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
             onSegmentSelect={onSegmentSelect}
             testID="route-polyline"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-leg-0')
 
       fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
+        nativeEvent: { state: State.ACTIVE },
       })
 
       const callbackData = onSegmentSelect.mock.calls[0][0]
@@ -245,13 +279,13 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
             onSegmentSelect={onSegmentSelect}
             testID="route-polyline"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-leg-0')
 
       fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
+        nativeEvent: { state: State.ACTIVE },
       })
 
       // Verify haptic feedback was triggered
@@ -268,7 +302,7 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
             selectedSegmentId="leg-0"
             testID="route-polyline"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       // Both segments should be rendered
@@ -281,15 +315,15 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
       // Trigger long-press on leg-1
       const segment1Wrapper = getByTestId('route-polyline--segment-leg-1')
       fireEvent(segment1Wrapper, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
+        nativeEvent: { state: State.ACTIVE },
       })
 
       // Callback should only be for leg-1
       expect(onSegmentSelect).toHaveBeenCalledTimes(1)
       expect(onSegmentSelect).toHaveBeenCalledWith(
         expect.objectContaining({
-          segmentId: 'leg-1'
-        })
+          segmentId: 'leg-1',
+        }),
       )
     })
 
@@ -302,7 +336,7 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
             onSegmentSelect={onSegmentSelect}
             testID="route-polyline"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment0 = getByTestId('route-polyline--segment-leg-0')
@@ -310,26 +344,26 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
 
       // Press leg-0 first
       fireEvent(segment0, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
+        nativeEvent: { state: State.ACTIVE },
       })
 
       expect(onSegmentSelect).toHaveBeenCalledWith(
         expect.objectContaining({
-          segmentId: 'leg-0'
-        })
+          segmentId: 'leg-0',
+        }),
       )
 
       // Then press leg-1
       fireEvent(segment1, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
+        nativeEvent: { state: State.ACTIVE },
       })
 
       // Should have two calls, one for each segment
       expect(onSegmentSelect).toHaveBeenCalledTimes(2)
       expect(onSegmentSelect).toHaveBeenLastCalledWith(
         expect.objectContaining({
-          segmentId: 'leg-1'
-        })
+          segmentId: 'leg-1',
+        }),
       )
     })
   })
@@ -344,14 +378,14 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
             onSegmentSelect={onSegmentSelect}
             testID="route-polyline"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-leg-0')
 
       // Simulate gesture cancellation (user drags beyond maxDist)
       fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.CANCELLED }
+        nativeEvent: { state: State.CANCELLED },
       })
 
       // Callback should NOT be invoked
@@ -367,14 +401,14 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
             onSegmentSelect={onSegmentSelect}
             testID="route-polyline"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-leg-0')
 
       // Simulate gesture failure
       fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.FAILED }
+        nativeEvent: { state: State.FAILED },
       })
 
       // Callback should NOT be invoked
@@ -391,13 +425,13 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
             onSegmentSelect={onSegmentSelect}
             testID="route-polyline"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('route-polyline--segment-leg-0')
 
       fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.CANCELLED }
+        nativeEvent: { state: State.CANCELLED },
       })
 
       // Haptic feedback should NOT be triggered
@@ -412,7 +446,7 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
           id: 'overview',
           coordinates: [
             { latitude: 37.7749, longitude: -122.4194 },
-            { latitude: 37.7750, longitude: -122.4195 },
+            { latitude: 37.775, longitude: -122.4195 },
           ],
           strokeColor: '#6750A4',
           strokeWidth: 6,
@@ -427,13 +461,13 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
             onSegmentSelect={onSegmentSelect}
             testID="active-route-polyline"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('active-route-polyline--segment-overview')
 
       fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
+        nativeEvent: { state: State.ACTIVE },
       })
 
       // Should trigger callback with overview segment type
@@ -441,8 +475,8 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
       expect(onSegmentSelect).toHaveBeenCalledWith(
         expect.objectContaining({
           segmentId: 'overview',
-          segmentType: 'overview'
-        })
+          segmentType: 'overview',
+        }),
       )
     })
 
@@ -452,7 +486,7 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
           id: 'leg-0',
           coordinates: [
             { latitude: 37.7749, longitude: -122.4194 },
-            { latitude: 37.7750, longitude: -122.4195 },
+            { latitude: 37.775, longitude: -122.4195 },
           ],
           strokeColor: '#6750A4',
           strokeWidth: 4,
@@ -467,13 +501,13 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
             onSegmentSelect={onSegmentSelect}
             testID="planned-route-polyline"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('planned-route-polyline--segment-leg-0')
 
       fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
+        nativeEvent: { state: State.ACTIVE },
       })
 
       // Should trigger callback with leg segment type
@@ -482,8 +516,8 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
         expect.objectContaining({
           segmentId: 'leg-0',
           segmentType: 'leg',
-          legIndex: 0
-        })
+          legIndex: 0,
+        }),
       )
     })
 
@@ -493,7 +527,7 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
           id: 'wind-0-0-1000',
           coordinates: [
             { latitude: 37.7749, longitude: -122.4194 },
-            { latitude: 37.7750, longitude: -122.4195 },
+            { latitude: 37.775, longitude: -122.4195 },
           ],
           strokeColor: '#31A362',
           strokeWidth: 6,
@@ -508,13 +542,13 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
             onSegmentSelect={onSegmentSelect}
             testID="overlay-polyline"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('overlay-polyline--segment-wind-0-0-1000')
 
       fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
+        nativeEvent: { state: State.ACTIVE },
       })
 
       // Should trigger callback with wind segment type
@@ -523,8 +557,8 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
         expect.objectContaining({
           segmentId: 'wind-0-0-1000',
           segmentType: 'wind',
-          legIndex: 0
-        })
+          legIndex: 0,
+        }),
       )
     })
   })
@@ -552,13 +586,13 @@ describe('HomeMap Long-Press Integration (US-050)', () => {
             onSegmentSelect={onSegmentSelect}
             testID="bounds-test"
           />
-        </TestWrapper>
+        </TestWrapper>,
       )
 
       const segment = getByTestId('bounds-test--segment-test-segment')
 
       fireEvent(segment, 'onHandlerStateChange', {
-        nativeEvent: { state: State.ACTIVE }
+        nativeEvent: { state: State.ACTIVE },
       })
 
       const callbackData = onSegmentSelect.mock.calls[0][0]

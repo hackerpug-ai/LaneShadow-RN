@@ -14,7 +14,8 @@
  * Tokens: onSurface.muted for text, primary.default for links
  */
 
-import React, { useEffect, useState } from 'react'
+import type React from 'react'
+import { useEffect, useState } from 'react'
 import { AccessibilityInfo, Pressable, StyleSheet } from 'react-native'
 import { Text } from 'react-native-paper'
 import Animated, {
@@ -124,10 +125,7 @@ export const RationaleReveal = ({
           numberOfLines={expanded ? undefined : maxCollapsedLines}
           onTextLayout={(event) => {
             // Capture the full text height and the collapsed height
-            const totalHeight = event.nativeEvent.lines.reduce(
-              (sum, line) => sum + line.height,
-              0
-            )
+            const totalHeight = event.nativeEvent.lines.reduce((sum, line) => sum + line.height, 0)
             setTextHeight(totalHeight)
 
             // Calculate collapsed height from the first N lines
@@ -161,12 +159,7 @@ export const RationaleReveal = ({
           accessibilityLabel={expanded ? 'Show less rationale text' : 'Show more rationale text'}
           testID={`${testID ?? 'rationale-reveal'}-toggle`}
         >
-          <Text
-            style={[
-              semantic.type.label.md,
-              { color: semantic.color.primary.default },
-            ]}
-          >
+          <Text style={[semantic.type.label.md, { color: semantic.color.primary.default }]}>
             {expanded ? 'Read less' : 'Read more'}
           </Text>
         </Pressable>

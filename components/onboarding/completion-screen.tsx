@@ -8,12 +8,12 @@
  * - Permanently dismisses setup wizard
  */
 
-import React from 'react'
+import type React from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { Button } from '../ui/button'
 import { LaneShadowLogo } from '../auth/lane-shadow-logo'
+import { Button } from '../ui/button'
 
 export interface CompletionScreenProps {
   onStartRiding: () => void

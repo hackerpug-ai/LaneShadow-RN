@@ -23,7 +23,7 @@ export const usePlanInit = (): {
       data: data as PlanInitData | undefined,
       isLoading,
     }),
-    [data, isLoading]
+    [data, isLoading],
   )
 }
 
@@ -72,7 +72,7 @@ export const usePlanRide = (): {
         return result as PlanRideResult
       } catch (err) {
         // Ignore aborted errors
-        if (err.name === 'AbortError') {
+        if ((err as Error).name === 'AbortError') {
           logger.info('ui.action', 'planRide aborted')
           return null
         }
@@ -89,7 +89,7 @@ export const usePlanRide = (): {
         abortControllerRef.current = null
       }
     },
-    [planRideAction]
+    [planRideAction],
   )
 
   const resetError = useCallback(() => setError(null), [])
@@ -110,6 +110,6 @@ export const usePlanRide = (): {
       resetError,
       cancelPlanning,
     }),
-    [error, isRunning, planRide, resetError, cancelPlanning]
+    [error, isRunning, planRide, resetError, cancelPlanning],
   )
 }

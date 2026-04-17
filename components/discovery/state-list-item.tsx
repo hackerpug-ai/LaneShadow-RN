@@ -11,7 +11,7 @@
  * - Minimum 44px touch target
  */
 
-import { StyleSheet, View, Pressable } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { IconSymbol } from '../ui/icon-symbol'
@@ -40,12 +40,7 @@ export type StateListItemProps = {
  * - Selection indicator (checkmark when selected)
  * - Pressable with visual feedback
  */
-export const StateListItem = ({
-  state,
-  isSelected,
-  onPress,
-  testID,
-}: StateListItemProps) => {
+export const StateListItem = ({ state, isSelected, onPress, testID }: StateListItemProps) => {
   const { semantic } = useSemanticTheme()
 
   return (
@@ -60,9 +55,7 @@ export const StateListItem = ({
             : isSelected
               ? semantic.color.primary.default + '1A' // 10% opacity per copper opacity pattern
               : semantic.color.surface.default,
-          borderColor: isSelected
-            ? semantic.color.primary.default
-            : semantic.color.border.default,
+          borderColor: isSelected ? semantic.color.primary.default : semantic.color.border.default,
           minHeight: 48, // WCAG AA minimum touch target
         },
       ]}
@@ -73,9 +66,7 @@ export const StateListItem = ({
           <Text
             variant="bodyLarge"
             style={{
-              color: isSelected
-                ? semantic.color.primary.default
-                : semantic.color.onSurface.default,
+              color: isSelected ? semantic.color.primary.default : semantic.color.onSurface.default,
               fontWeight: isSelected ? '600' : '400',
             }}
           >

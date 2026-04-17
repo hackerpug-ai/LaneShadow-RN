@@ -9,7 +9,7 @@
  * - No technical error codes shown to users
  */
 
-import React from 'react'
+import type React from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
@@ -39,12 +39,7 @@ export const DownloadErrorSheet: React.FC<DownloadErrorSheetProps> = ({
   const showSupportLink = retryCount >= 3
 
   return (
-    <BottomSheetWrapper
-      isVisible={isVisible}
-      onClose={onClose}
-      testID={testID}
-      preset="content"
-    >
+    <BottomSheetWrapper isVisible={isVisible} onClose={onClose} testID={testID} preset="content">
       <View style={[styles.content, { gap: semantic.space.lg }]}>
         {/* Icon */}
         <View
@@ -88,7 +83,8 @@ export const DownloadErrorSheet: React.FC<DownloadErrorSheetProps> = ({
             { color: semantic.color.onSurface.muted, textAlign: 'center' },
           ]}
         >
-          {error || 'There was a problem downloading your Shadow. Please check your connection and try again.'}
+          {error ||
+            'There was a problem downloading your Shadow. Please check your connection and try again.'}
         </Text>
 
         {/* Retry Button */}

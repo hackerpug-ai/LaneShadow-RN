@@ -11,9 +11,9 @@
  * Following coding standards: composition over inheritance, named exports
  */
 
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { useEffect, useRef } from 'react'
-import { Animated, StyleSheet, type StyleProp, type ViewStyle } from 'react-native'
+import { Animated, type StyleProp, StyleSheet, type ViewStyle } from 'react-native'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 /**
  * Skeleton shape variants
@@ -57,7 +57,7 @@ export const Skeleton = ({
           duration: 750,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start()
   }, [opacity])
 

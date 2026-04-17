@@ -5,9 +5,9 @@
  * AC-2: GeospatialIndex defined with location field
  */
 
-import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
+import { describe, expect, it } from 'vitest'
 
 describe('AC-1: @convex-dev/geospatial installed and importable', () => {
   it('geospatialIndex.ts file exists', () => {

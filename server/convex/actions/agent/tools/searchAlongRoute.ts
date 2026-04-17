@@ -1,9 +1,9 @@
 'use node'
 
-import { traceableToolAsync } from '../lib/tracing'
 import { decodePolyline, haversineKm } from '../lib/geo'
-import { createPlacesProvider } from '../providers/placesProvider'
+import { traceableToolAsync } from '../lib/tracing'
 import type { PlaceResult } from '../providers/placesProvider'
+import { createPlacesProvider } from '../providers/placesProvider'
 
 // ---------------------------------------------------------------------------
 // Re-export PlaceResult for external consumers
@@ -43,7 +43,7 @@ const AVERAGE_SPEED_KMH = 60
 
 const estimateOriginPoint = (
   routePolyline: string,
-  offsetHours: number
+  offsetHours: number,
 ): { lat: number; lng: number } => {
   const points = decodePolyline(routePolyline)
 
@@ -98,7 +98,7 @@ const estimateOriginPoint = (
 // ---------------------------------------------------------------------------
 
 const searchAlongRouteImpl = async (
-  params: SearchAlongRouteParams
+  params: SearchAlongRouteParams,
 ): Promise<SearchAlongRouteResult> => {
   const provider = createPlacesProvider()
 

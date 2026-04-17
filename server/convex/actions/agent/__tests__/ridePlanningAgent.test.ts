@@ -1,7 +1,11 @@
 'use node'
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { buildSystemPrompt, executeRidePlanningAgent, extractRouteAttachments } from '../ridePlanningAgent'
+import {
+  buildSystemPrompt,
+  executeRidePlanningAgent,
+  extractRouteAttachments,
+} from '../ridePlanningAgent'
 
 // -----------------------------------------------------------------------------
 // Mocks
@@ -10,12 +14,14 @@ import { buildSystemPrompt, executeRidePlanningAgent, extractRouteAttachments } 
 // Mock pi-ai: keep TypeBox Type/Static exports intact (piTools.ts needs them),
 // only replace the runtime functions the agent uses.
 vi.mock('@mariozechner/pi-ai', async () => {
-  const actual = await vi.importActual('@mariozechner/pi-ai') as Record<string, unknown>
+  const actual = (await vi.importActual('@mariozechner/pi-ai')) as Record<string, unknown>
   return {
     ...actual,
     stream: vi.fn(),
     getModel: vi.fn(() => ({ api: 'openai-completions', provider: 'openai', name: 'gpt-4o' })),
-    validateToolCall: vi.fn((_tools: unknown, toolCall: { arguments: unknown }) => toolCall.arguments),
+    validateToolCall: vi.fn(
+      (_tools: unknown, toolCall: { arguments: unknown }) => toolCall.arguments,
+    ),
   }
 })
 
@@ -23,7 +29,13 @@ vi.mock('@mariozechner/pi-ai', async () => {
 vi.mock('../providers/geocodingProvider', () => ({
   createGeocodingProvider: vi.fn(() => ({
     geocode: vi.fn().mockResolvedValue([
-      { lat: 36.97, lng: -122.03, label: 'Santa Cruz, CA', placeId: 'place_sc', types: ['locality'] },
+      {
+        lat: 36.97,
+        lng: -122.03,
+        label: 'Santa Cruz, CA',
+        placeId: 'place_sc',
+        types: ['locality'],
+      },
     ]),
   })),
 }))
@@ -91,7 +103,15 @@ vi.mock('../tools/lookupRoad', () => ({
     exists: true,
     status: 'found',
     matches: [
-      { name: 'Skyline Blvd', highway: 'secondary', surface: 'asphalt', geometry: [{ lat: 37.3, lng: -122.1 }, { lat: 37.4, lng: -122.2 }] },
+      {
+        name: 'Skyline Blvd',
+        highway: 'secondary',
+        surface: 'asphalt',
+        geometry: [
+          { lat: 37.3, lng: -122.1 },
+          { lat: 37.4, lng: -122.2 },
+        ],
+      },
     ],
   }),
 }))
@@ -128,22 +148,30 @@ vi.mock('../tools/getElevation', () => ({
 
 vi.mock('../tools/searchAlongRoute', () => ({
   searchAlongRoute: vi.fn().mockResolvedValue([
-    { name: 'Alice\'s Restaurant', address: '17288 Skyline Blvd, Woodside, CA', types: ['restaurant'] },
+    {
+      name: "Alice's Restaurant",
+      address: '17288 Skyline Blvd, Woodside, CA',
+      types: ['restaurant'],
+    },
   ]),
 }))
 
 vi.mock('../tools/getRouteWeather', () => ({
   getRouteWeather: vi.fn().mockResolvedValue({
     status: 'ok',
-    segments: [{ lat: 37.3, lng: -122.1, tempC: 15, windSpeedKph: 10, rainProbabilityPct: 5, fog: false }],
+    segments: [
+      { lat: 37.3, lng: -122.1, tempC: 15, windSpeedKph: 10, rainProbabilityPct: 5, fog: false },
+    ],
     routeWeatherSummary: 'Temperature: 15°C. Light winds (10 km/h). Low rain probability (5%).',
   }),
 }))
 
 vi.mock('../tools/getUserFavorites', () => ({
-  getUserFavorites: vi.fn().mockResolvedValue([
-    { roadName: 'Skyline Blvd', rating: 5, rideCount: 12, lastRidden: '2024-03-15' },
-  ]),
+  getUserFavorites: vi
+    .fn()
+    .mockResolvedValue([
+      { roadName: 'Skyline Blvd', rating: 5, rideCount: 12, lastRidden: '2024-03-15' },
+    ]),
 }))
 
 // Mock compileSketch tools so per-segment path can be unit-tested without HTTP calls.
@@ -170,7 +198,7 @@ const makeAssistantMessage = (
     | { type: 'text'; text: string }
     | { type: 'toolCall'; id: string; name: string; arguments: Record<string, unknown> }
   )[],
-  stopReason: 'stop' | 'toolUse' = 'stop'
+  stopReason: 'stop' | 'toolUse' = 'stop',
 ) => ({
   role: 'assistant' as const,
   content,
@@ -202,7 +230,10 @@ const makeAssistantMessage = (
  */
 type MockEvent = { type: string; [key: string]: unknown }
 
-const makeMockStream = (events: MockEvent[], resultMessage: ReturnType<typeof makeAssistantMessage>) => {
+const makeMockStream = (
+  events: MockEvent[],
+  resultMessage: ReturnType<typeof makeAssistantMessage>,
+) => {
   const mockStream = {
     [Symbol.asyncIterator]: async function* () {
       for (const ev of events) {
@@ -252,7 +283,7 @@ describe('buildSystemPrompt', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks()
-    const sessionContextMod = await import('../sessionContext') as any
+    const sessionContextMod = (await import('../sessionContext')) as any
     buildInSessionRouteBlockMock = sessionContextMod.buildInSessionRouteBlock
     buildInSessionRouteBlockMock.mockResolvedValue('')
   })
@@ -316,7 +347,7 @@ describe('buildSystemPrompt', () => {
 
   it('includes route summary block when buildInSessionRouteBlock returns content', async () => {
     buildInSessionRouteBlockMock.mockResolvedValue(
-      'Routes already planned this session:\n1. SF → Santa Cruz: 75mi · 90min · scenic'
+      'Routes already planned this session:\n1. SF → Santa Cruz: 75mi · 90min · scenic',
     )
     const ctx = {
       planningSessionId: 'session_test' as any,
@@ -529,13 +560,13 @@ describe('executeRidePlanningAgent', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     // Re-acquire mock references after clearAllMocks.
-    const piAi = await import('@mariozechner/pi-ai') as any
+    const piAi = (await import('@mariozechner/pi-ai')) as any
     mockStream = piAi.stream
 
-    const orchestratorMod = await import('../lib/planRideOrchestrator') as any
+    const orchestratorMod = (await import('../lib/planRideOrchestrator')) as any
     planRideOrchestrator = orchestratorMod.planRideOrchestrator
 
-    const planRideMod = await import('../planRide') as any
+    const planRideMod = (await import('../planRide')) as any
     buildOptionsFromResults = planRideMod.buildOptionsFromResults
     // Restore the default return value after clearAllMocks wiped it.
     buildOptionsFromResults.mockReturnValue({
@@ -544,12 +575,15 @@ describe('executeRidePlanningAgent', () => {
     })
 
     // Restore buildInSessionRouteBlock default (returns "" so no route block in prompt).
-    const sessionContextMod = await import('../sessionContext') as any
+    const sessionContextMod = (await import('../sessionContext')) as any
     sessionContextMod.buildInSessionRouteBlock.mockResolvedValue('')
   })
 
   it('returns text response with no attachments for a single-turn chat', async () => {
-    const msg = makeAssistantMessage([{ type: 'text', text: 'Hello! How can I help you plan your ride?' }], 'stop')
+    const msg = makeAssistantMessage(
+      [{ type: 'text', text: 'Hello! How can I help you plan your ride?' }],
+      'stop',
+    )
     mockStream.mockReturnValueOnce(makeSimpleStream(msg))
 
     const ctx = makeAgentContext()
@@ -577,10 +611,13 @@ describe('executeRidePlanningAgent', () => {
           },
         },
       ],
-      'toolUse'
+      'toolUse',
     )
     // Second call: agent summarises.
-    const textMsg = makeAssistantMessage([{ type: 'text', text: 'Here are 3 scenic routes to Santa Cruz.' }], 'stop')
+    const textMsg = makeAssistantMessage(
+      [{ type: 'text', text: 'Here are 3 scenic routes to Santa Cruz.' }],
+      'stop',
+    )
     mockStream
       .mockReturnValueOnce(makeSimpleStream(toolCallMsg))
       .mockReturnValueOnce(makeSimpleStream(textMsg))
@@ -596,9 +633,7 @@ describe('executeRidePlanningAgent', () => {
     // increments usage after a successful planRoute: three mutations.
     expect(ctx.runMutation).toHaveBeenCalledTimes(3)
     expect(result.response).toBe('Here are 3 scenic routes to Santa Cruz.')
-    expect(result.attachments).toEqual([
-      { type: 'route_options', routePlanId: 'rp_test' },
-    ])
+    expect(result.attachments).toEqual([{ type: 'route_options', routePlanId: 'rp_test' }])
   })
 
   it('passes planningSessionId to createForAgentInternal when planRoute tool runs', async () => {
@@ -616,7 +651,7 @@ describe('executeRidePlanningAgent', () => {
           },
         },
       ],
-      'toolUse'
+      'toolUse',
     )
     const textMsg = makeAssistantMessage([{ type: 'text', text: 'Routes ready.' }], 'stop')
     mockStream
@@ -630,7 +665,7 @@ describe('executeRidePlanningAgent', () => {
 
     // The first runMutation call must be createForAgentInternal.
     // Verify it received planningSessionId from ctx.planningSessionId.
-    const { internal: internalApi } = await import('../../../_generated/api') as any
+    const { internal: internalApi } = (await import('../../../_generated/api')) as any
     const firstCall = ctx.runMutation.mock.calls[0]
     expect(firstCall[0]).toBe(internalApi.db.routePlans.createForAgentInternal)
     expect(firstCall[1]).toMatchObject({ planningSessionId: 'session_test' })
@@ -652,12 +687,12 @@ describe('executeRidePlanningAgent', () => {
           },
         },
       ],
-      'toolUse'
+      'toolUse',
     )
     // Second stream call: agent returns the upsell text from the tool result.
     const upsellMsg = makeAssistantMessage(
       [{ type: 'text', text: "You've reached your monthly limit. Upgrade to Premium!" }],
-      'stop'
+      'stop',
     )
     mockStream
       .mockReturnValueOnce(makeSimpleStream(toolCallMsg))
@@ -683,7 +718,7 @@ describe('executeRidePlanningAgent', () => {
     // Step 1: geocode.
     const geoMsg = makeAssistantMessage(
       [{ type: 'toolCall', id: 'tc_geo', name: 'geocode', arguments: { query: 'Santa Cruz' } }],
-      'toolUse'
+      'toolUse',
     )
     // Step 2: planRoute using geocoded coords.
     const planMsg = makeAssistantMessage(
@@ -700,12 +735,12 @@ describe('executeRidePlanningAgent', () => {
           },
         },
       ],
-      'toolUse'
+      'toolUse',
     )
     // Step 3: final text.
     const textMsg = makeAssistantMessage(
       [{ type: 'text', text: 'Here are 3 scenic routes to Santa Cruz.' }],
-      'stop'
+      'stop',
     )
     mockStream
       .mockReturnValueOnce(makeSimpleStream(geoMsg))
@@ -722,16 +757,14 @@ describe('executeRidePlanningAgent', () => {
     // create + finalize + incrementUsage = 3 mutations
     expect(ctx.runMutation).toHaveBeenCalledTimes(3)
     expect(result.response).toBe('Here are 3 scenic routes to Santa Cruz.')
-    expect(result.attachments).toEqual([
-      { type: 'route_options', routePlanId: 'rp_test' },
-    ])
+    expect(result.attachments).toEqual([{ type: 'route_options', routePlanId: 'rp_test' }])
   })
 
   it('caps the loop at MAX_STEPS (10) if stream keeps returning toolUse', async () => {
     // Simulate an agent that never stops — always requests a tool call.
     const neverStop = makeAssistantMessage(
       [{ type: 'toolCall', id: 'tc_loop', name: 'fetchWeather', arguments: { location: null } }],
-      'toolUse'
+      'toolUse',
     )
     // mockReturnValue sets a default that applies to all calls not covered by Once mocks.
     mockStream.mockReturnValue(makeSimpleStream(neverStop))
@@ -787,7 +820,7 @@ describe('executeRidePlanningAgent', () => {
     }
     const finalMsg = makeAssistantMessage(
       [{ type: 'toolCall', id: 'tc_partial', name: 'geocode', arguments: { query: 'Santa Cruz' } }],
-      'toolUse'
+      'toolUse',
     )
     const textMsg = makeAssistantMessage([{ type: 'text', text: 'Found it.' }], 'stop')
 
@@ -816,7 +849,7 @@ describe('executeRidePlanningAgent', () => {
     // Two-step loop: tool call then text.
     const toolMsg = makeAssistantMessage(
       [{ type: 'toolCall', id: 'tc_step', name: 'fetchWeather', arguments: { location: null } }],
-      'toolUse'
+      'toolUse',
     )
     const textMsg = makeAssistantMessage([{ type: 'text', text: 'Weather is nice.' }], 'stop')
     mockStream
@@ -835,9 +868,12 @@ describe('executeRidePlanningAgent', () => {
   it('fires onAgentTurn once per assistant turn that has tool calls', async () => {
     const toolMsg = makeAssistantMessage(
       [{ type: 'toolCall', id: 'tc_turn', name: 'fetchWeather', arguments: { location: null } }],
-      'toolUse'
+      'toolUse',
     )
-    const textMsg = makeAssistantMessage([{ type: 'text', text: 'The weather looks good.' }], 'stop')
+    const textMsg = makeAssistantMessage(
+      [{ type: 'text', text: 'The weather looks good.' }],
+      'stop',
+    )
     mockStream
       .mockReturnValueOnce(makeSimpleStream(toolMsg))
       .mockReturnValueOnce(makeSimpleStream(textMsg))
@@ -854,7 +890,7 @@ describe('executeRidePlanningAgent', () => {
   it('fires onToolResultPiMessage after each tool result with correct toolCallId and ToolResultMessage', async () => {
     const toolMsg = makeAssistantMessage(
       [{ type: 'toolCall', id: 'tc_result', name: 'fetchWeather', arguments: { location: null } }],
-      'toolUse'
+      'toolUse',
     )
     const textMsg = makeAssistantMessage([{ type: 'text', text: 'Done.' }], 'stop')
     mockStream
@@ -880,7 +916,7 @@ describe('executeRidePlanningAgent', () => {
   it('back-compat: runs normally with no callbacks provided (no crashes, tools execute)', async () => {
     const toolMsg = makeAssistantMessage(
       [{ type: 'toolCall', id: 'tc_compat', name: 'fetchWeather', arguments: { location: null } }],
-      'toolUse'
+      'toolUse',
     )
     const textMsg = makeAssistantMessage([{ type: 'text', text: 'Looks sunny!' }], 'stop')
     mockStream
@@ -911,7 +947,10 @@ describe('executeRidePlanningAgent', () => {
     const step1 = makeAssistantMessage([identicalCall], 'toolUse')
     const step2 = makeAssistantMessage([{ ...identicalCall, id: 'tc_loop2' }], 'toolUse')
     const step3 = makeAssistantMessage([{ ...identicalCall, id: 'tc_loop3' }], 'toolUse')
-    const finalMsg = makeAssistantMessage([{ type: 'text', text: 'Sorry, something went wrong.' }], 'stop')
+    const finalMsg = makeAssistantMessage(
+      [{ type: 'text', text: 'Sorry, something went wrong.' }],
+      'stop',
+    )
 
     mockStream
       .mockReturnValueOnce(makeSimpleStream(step1))
@@ -929,7 +968,7 @@ describe('executeRidePlanningAgent', () => {
     // The 3rd call (id: tc_loop3) should be intercepted — onToolResultPiMessage
     // should have been called for it with isError: true.
     const loopInterceptCall = onToolResultPiMessage.mock.calls.find(
-      ([id]: [string]) => id === 'tc_loop3'
+      (args: unknown[]) => args[0] === 'tc_loop3',
     )
     expect(loopInterceptCall).toBeDefined()
     const loopMsg = loopInterceptCall![1]
@@ -944,11 +983,11 @@ describe('executeRidePlanningAgent', () => {
     // Two calls with the same tool name but different arguments — should NOT trigger loop.
     const call1 = makeAssistantMessage(
       [{ type: 'toolCall', id: 'tc_geo1', name: 'geocode', arguments: { query: 'Santa Cruz' } }],
-      'toolUse'
+      'toolUse',
     )
     const call2 = makeAssistantMessage(
       [{ type: 'toolCall', id: 'tc_geo2', name: 'geocode', arguments: { query: 'San Francisco' } }],
-      'toolUse'
+      'toolUse',
     )
     const finalMsg = makeAssistantMessage([{ type: 'text', text: 'Got both locations.' }], 'stop')
 
@@ -979,7 +1018,7 @@ describe('executeRidePlanningAgent', () => {
       cacheRead: 0,
       cacheWrite: 0,
       totalTokens: 2000,
-      cost: { input: 0.1, output: 0.2, cacheRead: 0, cacheWrite: 0, total: 0.30 },
+      cost: { input: 0.1, output: 0.2, cacheRead: 0, cacheWrite: 0, total: 0.3 },
     }
 
     mockStream.mockReturnValueOnce(makeSimpleStream(expensiveMsg))
@@ -1024,26 +1063,32 @@ describe('executeRidePlanningAgent', () => {
     const twoGeoMsg = makeAssistantMessage(
       [
         { type: 'toolCall', id: 'tc_geo_sc', name: 'geocode', arguments: { query: 'Santa Cruz' } },
-        { type: 'toolCall', id: 'tc_geo_hmb', name: 'geocode', arguments: { query: 'Half Moon Bay' } },
+        {
+          type: 'toolCall',
+          id: 'tc_geo_hmb',
+          name: 'geocode',
+          arguments: { query: 'Half Moon Bay' },
+        },
       ],
-      'toolUse'
+      'toolUse',
     )
     const textMsg = makeAssistantMessage([{ type: 'text', text: 'Got both.' }], 'stop')
     mockStream
       .mockReturnValueOnce(makeSimpleStream(twoGeoMsg))
       .mockReturnValueOnce(makeSimpleStream(textMsg))
 
-    const { createGeocodingProvider } = await import('../providers/geocodingProvider') as any
+    const { createGeocodingProvider } = (await import('../providers/geocodingProvider')) as any
     const ctx = makeAgentContext()
     await executeRidePlanningAgent(ctx, 'geocode Santa Cruz and Half Moon Bay')
 
     // createGeocodingProvider is called once per geocode tool invocation.
     // Collect all geocode mock calls across every instance.
-    const allGeocodeCalls: unknown[][] = (createGeocodingProvider.mock.results as { value: any }[])
-      .flatMap(r => (r.value.geocode.mock.calls as unknown[][]))
+    const allGeocodeCalls: unknown[][] = (
+      createGeocodingProvider.mock.results as { value: any }[]
+    ).flatMap((r) => r.value.geocode.mock.calls as unknown[][])
 
     expect(allGeocodeCalls).toHaveLength(2)
-    const queries = allGeocodeCalls.map(args => args[0])
+    const queries = allGeocodeCalls.map((args) => args[0])
     expect(queries).toContain('Santa Cruz')
     expect(queries).toContain('Half Moon Bay')
   })
@@ -1065,7 +1110,7 @@ describe('executeRidePlanningAgent', () => {
           },
         },
       ],
-      'toolUse'
+      'toolUse',
     )
     const textMsg = makeAssistantMessage([{ type: 'text', text: 'Done.' }], 'stop')
     mockStream
@@ -1076,11 +1121,13 @@ describe('executeRidePlanningAgent', () => {
 
     const onToolResultPiMessage = vi.fn().mockResolvedValue(undefined)
     const ctx = makeAgentContext()
-    const result = await executeRidePlanningAgent(ctx, 'ride to Monterey', { onToolResultPiMessage })
+    const result = await executeRidePlanningAgent(ctx, 'ride to Monterey', {
+      onToolResultPiMessage,
+    })
 
     // Both tool results must be present.
     expect(onToolResultPiMessage).toHaveBeenCalledTimes(2)
-    const ids = onToolResultPiMessage.mock.calls.map(([id]: [string]) => id)
+    const ids = onToolResultPiMessage.mock.calls.map((args: unknown[]) => args[0] as string)
     expect(ids).toContain('tc_geo_mix')
     expect(ids).toContain('tc_plan_mix')
 
@@ -1094,9 +1141,14 @@ describe('executeRidePlanningAgent', () => {
     const twoGeoMsg = makeAssistantMessage(
       [
         { type: 'toolCall', id: 'tc_order_1', name: 'geocode', arguments: { query: 'Santa Cruz' } },
-        { type: 'toolCall', id: 'tc_order_2', name: 'geocode', arguments: { query: 'Half Moon Bay' } },
+        {
+          type: 'toolCall',
+          id: 'tc_order_2',
+          name: 'geocode',
+          arguments: { query: 'Half Moon Bay' },
+        },
       ],
-      'toolUse'
+      'toolUse',
     )
     const textMsg = makeAssistantMessage([{ type: 'text', text: 'Ordered.' }], 'stop')
     mockStream
@@ -1119,12 +1171,19 @@ describe('executeRidePlanningAgent', () => {
 
   describe('per-segment dispatch (US-023)', () => {
     // Helpers shared across US-023 tests
-    const makeCompileSketchCall = (sketchOverride?: Partial<{
-      label: string
-      rationale: string
-      segments: { roadName: string; fromName: string; toName: string; viaNames?: string[] }[]
-      anchorPoints: { name: string; kind: 'town' | 'junction' | 'landmark' | 'pass'; lat?: number; lng?: number }[]
-    }>) =>
+    const makeCompileSketchCall = (
+      sketchOverride?: Partial<{
+        label: string
+        rationale: string
+        segments: { roadName: string; fromName: string; toName: string; viaNames?: string[] }[]
+        anchorPoints: {
+          name: string
+          kind: 'town' | 'junction' | 'landmark' | 'pass'
+          lat?: number
+          lng?: number
+        }[]
+      }>,
+    ) =>
       makeAssistantMessage(
         [
           {
@@ -1150,13 +1209,18 @@ describe('executeRidePlanningAgent', () => {
             },
           },
         ],
-        'toolUse'
+        'toolUse',
       )
 
     const makeProviderRoute = () => ({
       provider: 'google',
       bounds: { north: 37.8, south: 36.9, east: -121.9, west: -122.5 },
-      overviewGeometry: { format: 'polyline' as const, encoding: 'google_encoded_polyline', precision: 5, value: 'abc123' },
+      overviewGeometry: {
+        format: 'polyline' as const,
+        encoding: 'google_encoded_polyline',
+        precision: 5,
+        value: 'abc123',
+      },
       legs: [
         {
           legIndex: 0,
@@ -1164,7 +1228,12 @@ describe('executeRidePlanningAgent', () => {
           end: { lat: 36.97, lng: -122.03 },
           distanceMeters: 100_000,
           durationSeconds: 5_400,
-          geometry: { format: 'polyline' as const, encoding: 'google_encoded_polyline', precision: 5, value: 'leg_abc' },
+          geometry: {
+            format: 'polyline' as const,
+            encoding: 'google_encoded_polyline',
+            precision: 5,
+            value: 'leg_abc',
+          },
         },
       ],
     })
@@ -1186,12 +1255,12 @@ describe('executeRidePlanningAgent', () => {
     let normalizeRouteMock: ReturnType<typeof vi.fn>
 
     beforeEach(async () => {
-      const compileSketchMod = await import('../tools/compileSketch') as any
+      const compileSketchMod = (await import('../tools/compileSketch')) as any
       compileSegmentsMock = compileSketchMod.compileSegments
       stitchSegmentsMock = compileSketchMod.stitchSegments
       compileSketchImplMock = compileSketchMod.compileSketch
 
-      const normalizeRouteMod = await import('../tools/normalizeRoute') as any
+      const normalizeRouteMod = (await import('../tools/normalizeRoute')) as any
       normalizeRouteMock = normalizeRouteMod.normalizeRoute
 
       // Default: normalize returns a route snapshot
@@ -1237,17 +1306,22 @@ describe('executeRidePlanningAgent', () => {
       compileSegmentsMock.mockResolvedValue(segmentResults)
 
       const toolMsg = makeCompileSketchCall()
-      const textMsg = makeAssistantMessage([{ type: 'text', text: 'Some segments failed.' }], 'stop')
+      const textMsg = makeAssistantMessage(
+        [{ type: 'text', text: 'Some segments failed.' }],
+        'stop',
+      )
       mockStream
         .mockReturnValueOnce(makeSimpleStream(toolMsg))
         .mockReturnValueOnce(makeSimpleStream(textMsg))
 
       let capturedToolResult: unknown
-      const onToolResultPiMessage = vi.fn().mockImplementation(async (_id: string, msg: unknown) => {
-        if ((_id as string) === 'tc_compile') {
-          capturedToolResult = msg
-        }
-      })
+      const onToolResultPiMessage = vi
+        .fn()
+        .mockImplementation(async (_id: string, msg: unknown) => {
+          if ((_id as string) === 'tc_compile') {
+            capturedToolResult = msg
+          }
+        })
 
       const ctx = makeAgentContext()
       await executeRidePlanningAgent(ctx, 'plan a sketch route', { onToolResultPiMessage })
@@ -1286,7 +1360,10 @@ describe('executeRidePlanningAgent', () => {
         segments: [],
         anchorPoints: [],
       })
-      const textMsg = makeAssistantMessage([{ type: 'text', text: 'Single-shot route ready.' }], 'stop')
+      const textMsg = makeAssistantMessage(
+        [{ type: 'text', text: 'Single-shot route ready.' }],
+        'stop',
+      )
       mockStream
         .mockReturnValueOnce(makeSimpleStream(toolMsg))
         .mockReturnValueOnce(makeSimpleStream(textMsg))
@@ -1316,11 +1393,13 @@ describe('executeRidePlanningAgent', () => {
         .mockReturnValueOnce(makeSimpleStream(textMsg))
 
       let capturedToolResult: unknown
-      const onToolResultPiMessage = vi.fn().mockImplementation(async (_id: string, msg: unknown) => {
-        if ((_id as string) === 'tc_compile') {
-          capturedToolResult = msg
-        }
-      })
+      const onToolResultPiMessage = vi
+        .fn()
+        .mockImplementation(async (_id: string, msg: unknown) => {
+          if ((_id as string) === 'tc_compile') {
+            capturedToolResult = msg
+          }
+        })
 
       const ctx = makeAgentContext()
       await executeRidePlanningAgent(ctx, 'plan a sketch route', { onToolResultPiMessage })
@@ -1360,11 +1439,13 @@ describe('executeRidePlanningAgent', () => {
         .mockReturnValueOnce(makeSimpleStream(textMsg))
 
       let capturedToolResult: unknown
-      const onToolResultPiMessage = vi.fn().mockImplementation(async (_id: string, msg: unknown) => {
-        if ((_id as string) === 'tc_compile') {
-          capturedToolResult = msg
-        }
-      })
+      const onToolResultPiMessage = vi
+        .fn()
+        .mockImplementation(async (_id: string, msg: unknown) => {
+          if ((_id as string) === 'tc_compile') {
+            capturedToolResult = msg
+          }
+        })
 
       const ctx = makeAgentContext()
       await executeRidePlanningAgent(ctx, 'plan a sketch route', { onToolResultPiMessage })
@@ -1400,10 +1481,16 @@ describe('executeRidePlanningAgent', () => {
     const RETRY_SESSION = 'session_retry_025' as any
 
     const makeSegment = (roadName: string, fromName: string, toName: string) => ({
-      roadName, fromName, toName,
+      roadName,
+      fromName,
+      toName,
     })
 
-    const makeCompileCall = (sessionId: string, segments: { roadName: string; fromName: string; toName: string }[], callId = 'tc_retry') =>
+    const makeCompileCall = (
+      sessionId: string,
+      segments: { roadName: string; fromName: string; toName: string }[],
+      callId = 'tc_retry',
+    ) =>
       makeAssistantMessage(
         [
           {
@@ -1424,13 +1511,18 @@ describe('executeRidePlanningAgent', () => {
             },
           },
         ],
-        'toolUse'
+        'toolUse',
       )
 
     const makeProviderRoute = (value = 'abc123') => ({
       provider: 'google' as const,
       bounds: { north: 37.8, south: 36.9, east: -121.9, west: -122.5 },
-      overviewGeometry: { format: 'polyline' as const, encoding: 'google_encoded_polyline', precision: 5, value },
+      overviewGeometry: {
+        format: 'polyline' as const,
+        encoding: 'google_encoded_polyline',
+        precision: 5,
+        value,
+      },
       legs: [
         {
           legIndex: 0,
@@ -1438,7 +1530,12 @@ describe('executeRidePlanningAgent', () => {
           end: { lat: 36.97, lng: -122.03 },
           distanceMeters: 100_000,
           durationSeconds: 5_400,
-          geometry: { format: 'polyline' as const, encoding: 'google_encoded_polyline', precision: 5, value: 'leg_abc' },
+          geometry: {
+            format: 'polyline' as const,
+            encoding: 'google_encoded_polyline',
+            precision: 5,
+            value: 'leg_abc',
+          },
         },
       ],
     })
@@ -1459,11 +1556,11 @@ describe('executeRidePlanningAgent', () => {
     let normalizeRouteMock: ReturnType<typeof vi.fn>
 
     beforeEach(async () => {
-      const compileSketchMod = await import('../tools/compileSketch') as any
+      const compileSketchMod = (await import('../tools/compileSketch')) as any
       compileSegmentsMock = compileSketchMod.compileSegments
       stitchSegmentsMock = compileSketchMod.stitchSegments
 
-      const normalizeRouteMod = await import('../tools/normalizeRoute') as any
+      const normalizeRouteMod = (await import('../tools/normalizeRoute')) as any
       normalizeRouteMock = normalizeRouteMod.normalizeRoute
       normalizeRouteMock.mockResolvedValue(makeRouteSnapshot())
     })
@@ -1473,13 +1570,13 @@ describe('executeRidePlanningAgent', () => {
       const segs = [
         makeSegment('I-280 S', 'SF', 'CA-92 junction'),
         makeSegment('Skyline Blvd', 'CA-92', "Alice's Restaurant"),
-        makeSegment('Old La Honda Rd', "Alice's Restaurant", 'Half Moon Bay'),  // this will fail on first attempt
+        makeSegment('Old La Honda Rd', "Alice's Restaurant", 'Half Moon Bay'), // this will fail on first attempt
         makeSegment('CA-1 N', 'Half Moon Bay', 'Santa Cruz'),
       ]
       // Revised segment 2 (different road)
       const segsRevised = [
         ...segs.slice(0, 2),
-        makeSegment('CA-84', "Alice's Restaurant", 'Half Moon Bay'),  // revised
+        makeSegment('CA-84', "Alice's Restaurant", 'Half Moon Bay'), // revised
         segs[3],
       ]
 
@@ -1496,9 +1593,7 @@ describe('executeRidePlanningAgent', () => {
         { status: 'ok', segmentIndex: 2, route: makeProviderRoute('seg2_revised') },
       ]
 
-      compileSegmentsMock
-        .mockResolvedValueOnce(firstResults)
-        .mockResolvedValueOnce(secondResults)
+      compileSegmentsMock.mockResolvedValueOnce(firstResults).mockResolvedValueOnce(secondResults)
 
       stitchSegmentsMock.mockReturnValue(makeProviderRoute('stitched'))
 
@@ -1508,7 +1603,10 @@ describe('executeRidePlanningAgent', () => {
       ctx2.runMutation = vi.fn().mockResolvedValue({ routePlanId: 'rp_retry_2' })
 
       // First call: attempt 1, segment 2 fails
-      const errorTextMsg = makeAssistantMessage([{ type: 'text', text: 'Segment 2 failed.' }], 'stop')
+      const errorTextMsg = makeAssistantMessage(
+        [{ type: 'text', text: 'Segment 2 failed.' }],
+        'stop',
+      )
       mockStream
         .mockReturnValueOnce(makeSimpleStream(makeCompileCall(RETRY_SESSION, segs, 'tc_attempt1')))
         .mockReturnValueOnce(makeSimpleStream(errorTextMsg))
@@ -1516,9 +1614,14 @@ describe('executeRidePlanningAgent', () => {
       await executeRidePlanningAgent(ctx1, 'plan a route')
 
       // Second call: attempt 2 with revised segment 2
-      const successTextMsg = makeAssistantMessage([{ type: 'text', text: 'Route compiled.' }], 'stop')
+      const successTextMsg = makeAssistantMessage(
+        [{ type: 'text', text: 'Route compiled.' }],
+        'stop',
+      )
       mockStream
-        .mockReturnValueOnce(makeSimpleStream(makeCompileCall(RETRY_SESSION, segsRevised, 'tc_attempt2')))
+        .mockReturnValueOnce(
+          makeSimpleStream(makeCompileCall(RETRY_SESSION, segsRevised, 'tc_attempt2')),
+        )
         .mockReturnValueOnce(makeSimpleStream(successTextMsg))
 
       await executeRidePlanningAgent(ctx2, 'try revised segment 2')
@@ -1554,13 +1657,9 @@ describe('executeRidePlanningAgent', () => {
         { status: 'ok', segmentIndex: 3, route: makeProviderRoute('s3') },
       ]
       // On retry, only seg 2 is compiled
-      const secondResults = [
-        { status: 'ok', segmentIndex: 2, route: makeProviderRoute('s2_new') },
-      ]
+      const secondResults = [{ status: 'ok', segmentIndex: 2, route: makeProviderRoute('s2_new') }]
 
-      compileSegmentsMock
-        .mockResolvedValueOnce(firstResults)
-        .mockResolvedValueOnce(secondResults)
+      compileSegmentsMock.mockResolvedValueOnce(firstResults).mockResolvedValueOnce(secondResults)
 
       stitchSegmentsMock.mockReturnValue(makeProviderRoute('stitched_full'))
       normalizeRouteMock.mockResolvedValue(makeRouteSnapshot())
@@ -1576,7 +1675,10 @@ describe('executeRidePlanningAgent', () => {
         .mockReturnValueOnce(makeSimpleStream(errMsg))
       await executeRidePlanningAgent(ctx1, 'plan route')
 
-      const successMsg = makeAssistantMessage([{ type: 'text', text: 'Here is your route.' }], 'stop')
+      const successMsg = makeAssistantMessage(
+        [{ type: 'text', text: 'Here is your route.' }],
+        'stop',
+      )
       mockStream
         .mockReturnValueOnce(makeSimpleStream(makeCompileCall(MERGE_SESSION, segsRevised, 'tc_m2')))
         .mockReturnValueOnce(makeSimpleStream(successMsg))
@@ -1586,7 +1688,9 @@ describe('executeRidePlanningAgent', () => {
         if (id === 'tc_m2') capturedResult = msg
       })
 
-      const result = await executeRidePlanningAgent(ctx2, 'revised route', { onToolResultPiMessage })
+      const result = await executeRidePlanningAgent(ctx2, 'revised route', {
+        onToolResultPiMessage,
+      })
 
       // stitchSegments must have been called with all 4 segments (3 cached + 1 new)
       expect(stitchSegmentsMock).toHaveBeenCalledTimes(1)
@@ -1666,10 +1770,7 @@ describe('executeRidePlanningAgent', () => {
 
     it('max retries: returns partial route with user message after 3 failed attempts on same session', async () => {
       const MAX_SESSION = 'session_max_025' as any
-      const segs = [
-        makeSegment('Road X', 'A', 'B'),
-        makeSegment('Bad Road', 'B', 'C'),
-      ]
+      const segs = [makeSegment('Road X', 'A', 'B'), makeSegment('Bad Road', 'B', 'C')]
 
       // Segment 1 fails every time
       const firstAttemptResults = [
@@ -1715,7 +1816,10 @@ describe('executeRidePlanningAgent', () => {
       const onResult3 = vi.fn().mockImplementation(async (id: string, msg: unknown) => {
         if (id === 'tc_mx3') capturedResult = msg
       })
-      const finalMsg = makeAssistantMessage([{ type: 'text', text: 'Partial route delivered.' }], 'stop')
+      const finalMsg = makeAssistantMessage(
+        [{ type: 'text', text: 'Partial route delivered.' }],
+        'stop',
+      )
       mockStream
         .mockReturnValueOnce(makeSimpleStream(makeCompileCall(MAX_SESSION, segs, 'tc_mx3')))
         .mockReturnValueOnce(makeSimpleStream(finalMsg))
@@ -1727,7 +1831,7 @@ describe('executeRidePlanningAgent', () => {
       // Returns a chat/routes result with a partial-route message
       expect(['routes', 'chat']).toContain(parsed.type)
       // The message must mention the failed road and indicate partial routing
-      const msgContent = parsed.message ?? parsed.data?.message ?? ''
+      const _msgContent = parsed.message ?? parsed.data?.message ?? ''
       const fullContent = JSON.stringify(parsed)
       expect(fullContent).toMatch(/Bad Road|couldn't find a path|partial|routed most/)
     })
@@ -1747,8 +1851,15 @@ describe('executeRidePlanningAgent', () => {
             rationale: 'Great views',
             stats: { distanceMeters: 80_000, durationSeconds: 5_400 },
             highlights: ['Ocean views', 'Redwood forest'],
-            waypoints: [{ lat: 37.1, lng: -122.1 }, { lat: 36.9, lng: -122.0 }],
-            geometry: [{ lat: 37.1, lng: -122.1 }, { lat: 37.0, lng: -122.05 }, { lat: 36.9, lng: -122.0 }],
+            waypoints: [
+              { lat: 37.1, lng: -122.1 },
+              { lat: 36.9, lng: -122.0 },
+            ],
+            geometry: [
+              { lat: 37.1, lng: -122.1 },
+              { lat: 37.0, lng: -122.05 },
+              { lat: 36.9, lng: -122.0 },
+            ],
             legs: [{ steps: [{ instruction: 'Turn left', distance: 1000 }] }],
           },
         ],
@@ -1763,8 +1874,8 @@ describe('executeRidePlanningAgent', () => {
     const ctx = makeAgentContext()
     ctx.runMutation
       .mockResolvedValueOnce({ routePlanId: 'rp_summary_test' }) // createForAgentInternal
-      .mockResolvedValueOnce(null)                                  // updatePlanStatus
-      .mockResolvedValueOnce(null)                                  // incrementUsageInternal
+      .mockResolvedValueOnce(null) // updatePlanStatus
+      .mockResolvedValueOnce(null) // incrementUsageInternal
 
     const toolCallMsg = makeAssistantMessage(
       [
@@ -1780,7 +1891,7 @@ describe('executeRidePlanningAgent', () => {
           },
         },
       ],
-      'toolUse'
+      'toolUse',
     )
     const textMsg = makeAssistantMessage([{ type: 'text', text: 'Here are your routes.' }], 'stop')
     mockStream
@@ -1851,7 +1962,7 @@ describe('executeRidePlanningAgent', () => {
           },
         },
       ],
-      'toolUse'
+      'toolUse',
     )
     const textMsg2 = makeAssistantMessage([{ type: 'text', text: 'Routes ready.' }], 'stop')
     mockStream
@@ -1865,9 +1976,7 @@ describe('executeRidePlanningAgent', () => {
       .mockResolvedValueOnce(null)
 
     const result2 = await executeRidePlanningAgent(ctx2, 'plan a ride to Santa Cruz')
-    expect(result2.attachments).toEqual([
-      { type: 'route_options', routePlanId: 'rp_summary_test' },
-    ])
+    expect(result2.attachments).toEqual([{ type: 'route_options', routePlanId: 'rp_summary_test' }])
   })
 
   // ---------------------------------------------------------------------------
@@ -1876,7 +1985,7 @@ describe('executeRidePlanningAgent', () => {
 
   describe('tool registration', () => {
     it('all 7 new tools appear in the agent context passed to stream', async () => {
-      const { stream: mockStreamFn } = await import('@mariozechner/pi-ai') as any
+      const { stream: mockStreamFn } = (await import('@mariozechner/pi-ai')) as any
 
       // Capture the context object passed to stream to inspect available tools.
       let capturedContext: any = null
@@ -1913,7 +2022,7 @@ describe('executeRidePlanningAgent', () => {
     })
 
     it('lookupRoad tool executes and returns road match data when called', async () => {
-      const { lookupRoad: lookupRoadMock } = await import('../tools/lookupRoad') as any
+      const { lookupRoad: lookupRoadMock } = (await import('../tools/lookupRoad')) as any
 
       const lookupCall = makeAssistantMessage(
         [
@@ -1927,11 +2036,11 @@ describe('executeRidePlanningAgent', () => {
             },
           },
         ],
-        'toolUse'
+        'toolUse',
       )
       const textMsg = makeAssistantMessage(
         [{ type: 'text', text: 'Skyline Blvd is verified — very twisty with asphalt surface.' }],
-        'stop'
+        'stop',
       )
       mockStream
         .mockReturnValueOnce(makeSimpleStream(lookupCall))
@@ -1960,7 +2069,7 @@ describe('executeRidePlanningAgent', () => {
     })
 
     it('getCurvature tool executes and returns score data when called', async () => {
-      const { getCurvature: getCurvatureMock } = await import('../tools/getCurvature') as any
+      const { getCurvature: getCurvatureMock } = (await import('../tools/getCurvature')) as any
 
       const curvatureCall = makeAssistantMessage(
         [
@@ -1970,16 +2079,19 @@ describe('executeRidePlanningAgent', () => {
             name: 'getCurvature',
             arguments: {
               roadName: 'Skyline Blvd',
-              geometry: [{ lat: 37.3, lng: -122.1 }, { lat: 37.4, lng: -122.2 }],
+              geometry: [
+                { lat: 37.3, lng: -122.1 },
+                { lat: 37.4, lng: -122.2 },
+              ],
               surface: 'asphalt',
             },
           },
         ],
-        'toolUse'
+        'toolUse',
       )
       const textMsg = makeAssistantMessage(
         [{ type: 'text', text: 'Skyline Blvd scores 2400 — very twisty!' }],
-        'stop'
+        'stop',
       )
       mockStream
         .mockReturnValueOnce(makeSimpleStream(curvatureCall))
@@ -2018,7 +2130,7 @@ describe('executeRidePlanningAgent', () => {
     })
 
     it('getElevation tool executes and returns elevation profile when called', async () => {
-      const { getElevation: getElevationMock } = await import('../tools/getElevation') as any
+      const { getElevation: getElevationMock } = (await import('../tools/getElevation')) as any
 
       const elevCall = makeAssistantMessage(
         [
@@ -2027,15 +2139,18 @@ describe('executeRidePlanningAgent', () => {
             id: 'tc_elev',
             name: 'getElevation',
             arguments: {
-              polyline: [{ lat: 37.3, lng: -122.1 }, { lat: 37.5, lng: -122.3 }],
+              polyline: [
+                { lat: 37.3, lng: -122.1 },
+                { lat: 37.5, lng: -122.3 },
+              ],
             },
           },
         ],
-        'toolUse'
+        'toolUse',
       )
       const textMsg = makeAssistantMessage(
         [{ type: 'text', text: 'Your route climbs 1200ft to a peak of 2800ft.' }],
-        'stop'
+        'stop',
       )
       mockStream
         .mockReturnValueOnce(makeSimpleStream(elevCall))
@@ -2049,7 +2164,9 @@ describe('executeRidePlanningAgent', () => {
     })
 
     it('getRouteWeather tool executes and returns weather summary when called', async () => {
-      const { getRouteWeather: getRouteWeatherMock } = await import('../tools/getRouteWeather') as any
+      const { getRouteWeather: getRouteWeatherMock } = (await import(
+        '../tools/getRouteWeather'
+      )) as any
 
       const weatherCall = makeAssistantMessage(
         [
@@ -2058,16 +2175,19 @@ describe('executeRidePlanningAgent', () => {
             id: 'tc_weather',
             name: 'getRouteWeather',
             arguments: {
-              polyline: [{ lat: 37.3, lng: -122.1 }, { lat: 37.5, lng: -122.3 }],
+              polyline: [
+                { lat: 37.3, lng: -122.1 },
+                { lat: 37.5, lng: -122.3 },
+              ],
               departureTimeMs: Date.now() + 3_600_000,
             },
           },
         ],
-        'toolUse'
+        'toolUse',
       )
       const textMsg = makeAssistantMessage(
         [{ type: 'text', text: 'Weather looks great: 15°C, light winds.' }],
-        'stop'
+        'stop',
       )
       mockStream
         .mockReturnValueOnce(makeSimpleStream(weatherCall))
@@ -2081,7 +2201,9 @@ describe('executeRidePlanningAgent', () => {
     })
 
     it('searchAlongRoute tool executes and returns nearby places when called', async () => {
-      const { searchAlongRoute: searchAlongRouteMock } = await import('../tools/searchAlongRoute') as any
+      const { searchAlongRoute: searchAlongRouteMock } = (await import(
+        '../tools/searchAlongRoute'
+      )) as any
 
       const sarCall = makeAssistantMessage(
         [
@@ -2096,11 +2218,11 @@ describe('executeRidePlanningAgent', () => {
             },
           },
         ],
-        'toolUse'
+        'toolUse',
       )
       const textMsg = makeAssistantMessage(
         [{ type: 'text', text: "Alice's Restaurant is a great stop along Skyline." }],
-        'stop'
+        'stop',
       )
       mockStream
         .mockReturnValueOnce(makeSimpleStream(sarCall))

@@ -6,9 +6,9 @@
  * - AC-2: Press fires haptic feedback and onPress callback with waypoint id
  */
 
-import { describe, it, expect, vi } from 'vitest'
-import { render, fireEvent } from '@testing-library/react-native'
+import { fireEvent, render } from '@testing-library/react-native'
 import { ThemeProvider } from 'react-native-paper'
+import { describe, expect, it, vi } from 'vitest'
 import type { ExtendedTheme } from '../../../styles/types'
 import { WaypointMarker } from '../waypoint-marker'
 
@@ -53,10 +53,23 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     routeAlternate: { default: '#60a5fa' },
   },
   space: {
-    xs: 4, sm: 8, md: 12, lg: 16, xl: 24, '2xl': 32, '3xl': 48, '4xl': 64,
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 24,
+    '2xl': 32,
+    '3xl': 48,
+    '4xl': 64,
   },
   radius: {
-    none: 0, sm: 4, md: 8, lg: 12, xl: 16, '2xl': 20, full: 9999,
+    none: 0,
+    sm: 4,
+    md: 8,
+    lg: 12,
+    xl: 16,
+    '2xl': 20,
+    full: 9999,
   },
   type: {
     label: {
@@ -86,12 +99,48 @@ const mockSemanticTheme: ExtendedTheme['semantic'] = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.35, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.2,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.3,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.35,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -118,12 +167,8 @@ describe('WaypointMarker', () => {
     it('renders_marker_view_at_converted_coordinates', () => {
       const { getByTestId, UNSAFE_root } = render(
         <TestWrapper>
-          <WaypointMarker
-            id="wp-1"
-            coordinate={defaultCoordinate}
-            kind="on_route"
-          />
-        </TestWrapper>
+          <WaypointMarker id="wp-1" coordinate={defaultCoordinate} kind="on_route" />
+        </TestWrapper>,
       )
 
       // MarkerView should render with coordinate in [lng, lat] format
@@ -136,18 +181,14 @@ describe('WaypointMarker', () => {
       expect(markerViewInstances).toHaveLength(1)
       const markerCoordinate = markerViewInstances[0].props.coordinate as [number, number]
       expect(markerCoordinate[0]).toBe(-122.4194) // longitude
-      expect(markerCoordinate[1]).toBe(37.7749)   // latitude
+      expect(markerCoordinate[1]).toBe(37.7749) // latitude
     })
 
     it('applies kind-based color for on_route', () => {
       const { getByTestId } = render(
         <TestWrapper>
-          <WaypointMarker
-            id="wp-on"
-            coordinate={defaultCoordinate}
-            kind="on_route"
-          />
-        </TestWrapper>
+          <WaypointMarker id="wp-on" coordinate={defaultCoordinate} kind="on_route" />
+        </TestWrapper>,
       )
 
       expect(getByTestId('waypoint-marker-wp-on')).toBeDefined()
@@ -156,12 +197,8 @@ describe('WaypointMarker', () => {
     it('applies kind-based color for off_route', () => {
       const { getByTestId } = render(
         <TestWrapper>
-          <WaypointMarker
-            id="wp-off"
-            coordinate={defaultCoordinate}
-            kind="off_route"
-          />
-        </TestWrapper>
+          <WaypointMarker id="wp-off" coordinate={defaultCoordinate} kind="off_route" />
+        </TestWrapper>,
       )
 
       expect(getByTestId('waypoint-marker-wp-off')).toBeDefined()
@@ -170,12 +207,8 @@ describe('WaypointMarker', () => {
     it('applies kind-based color for mixed', () => {
       const { getByTestId } = render(
         <TestWrapper>
-          <WaypointMarker
-            id="wp-mixed"
-            coordinate={defaultCoordinate}
-            kind="mixed"
-          />
-        </TestWrapper>
+          <WaypointMarker id="wp-mixed" coordinate={defaultCoordinate} kind="mixed" />
+        </TestWrapper>,
       )
 
       expect(getByTestId('waypoint-marker-wp-mixed')).toBeDefined()
@@ -184,12 +217,8 @@ describe('WaypointMarker', () => {
     it('uses custom testID when provided', () => {
       const { getByTestId } = render(
         <TestWrapper>
-          <WaypointMarker
-            id="wp-custom"
-            coordinate={defaultCoordinate}
-            testID="custom-marker"
-          />
-        </TestWrapper>
+          <WaypointMarker id="wp-custom" coordinate={defaultCoordinate} testID="custom-marker" />
+        </TestWrapper>,
       )
 
       expect(getByTestId('custom-marker')).toBeDefined()
@@ -201,12 +230,8 @@ describe('WaypointMarker', () => {
       const onPress = vi.fn()
       const { UNSAFE_root } = render(
         <TestWrapper>
-          <WaypointMarker
-            id="wp-press"
-            coordinate={defaultCoordinate}
-            onPress={onPress}
-          />
-        </TestWrapper>
+          <WaypointMarker id="wp-press" coordinate={defaultCoordinate} onPress={onPress} />
+        </TestWrapper>,
       )
 
       // onPress is on the Pressable child of MarkerView (not on MarkerView itself,
@@ -227,11 +252,8 @@ describe('WaypointMarker', () => {
     it('does not attach onPress handler when no callback provided', () => {
       const { UNSAFE_root } = render(
         <TestWrapper>
-          <WaypointMarker
-            id="wp-no-press"
-            coordinate={defaultCoordinate}
-          />
-        </TestWrapper>
+          <WaypointMarker id="wp-no-press" coordinate={defaultCoordinate} />
+        </TestWrapper>,
       )
 
       const pressableElement = UNSAFE_root.findAllByType('Pressable')[0]

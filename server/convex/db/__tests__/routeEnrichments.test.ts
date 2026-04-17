@@ -5,20 +5,20 @@
  * unit-tested without a running Convex backend.
  */
 
-import { vi, describe, it, expect } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../_generated/dataModel'
 
 // These imports will fail until we implement the module
 import {
-  createEnrichmentHandler,
-  getByIdHandler,
-  updateStatusHandler,
-  completeEnrichmentHandler,
-  failEnrichmentHandler,
   cancelEnrichmentHandler,
-  findByRoutePlanIdHandler,
+  completeEnrichmentHandler,
+  createEnrichmentHandler,
+  failEnrichmentHandler,
   findByContentFingerprintHandler,
+  findByRoutePlanIdHandler,
+  getByIdHandler,
   invalidateStaleEnrichmentsHandler,
+  updateStatusHandler,
 } from '../routeEnrichments'
 
 // ---------------------------------------------------------------------------
@@ -51,16 +51,13 @@ describe('createEnrichmentHandler', () => {
       },
     }
 
-    const result = await createEnrichmentHandler(
-      ctx as any,
-      {
-        routePlanId: ROUTE_PLAN_ID,
-        planningSessionId: PLANNING_SESSION_ID,
-        clerkUserId: CLERK_USER_ID,
-        contentFingerprint: 'abc123',
-        phase: 'fast',
-      }
-    )
+    const result = await createEnrichmentHandler(ctx as any, {
+      routePlanId: ROUTE_PLAN_ID,
+      planningSessionId: PLANNING_SESSION_ID,
+      clerkUserId: CLERK_USER_ID,
+      contentFingerprint: 'abc123',
+      phase: 'fast',
+    })
 
     expect(ctx.db.insert).toHaveBeenCalledWith(
       'route_enrichments',
@@ -70,7 +67,7 @@ describe('createEnrichmentHandler', () => {
         contentFingerprint: 'abc123',
         phase: 'fast',
         status: 'pending',
-      })
+      }),
     )
     expect(result).toEqual({ enrichmentId: ENRICHMENT_ID })
   })
@@ -122,7 +119,7 @@ describe('updateStatusHandler', () => {
       expect.objectContaining({
         status: 'running',
         updatedAt: expect.any(Number),
-      })
+      }),
     )
   })
 })
@@ -155,7 +152,7 @@ describe('completeEnrichmentHandler', () => {
         enrichments,
         completedAt: expect.any(Number),
         updatedAt: expect.any(Number),
-      })
+      }),
     )
   })
 })
@@ -179,7 +176,7 @@ describe('failEnrichmentHandler', () => {
         status: 'failed',
         error: 'API rate limit exceeded',
         updatedAt: expect.any(Number),
-      })
+      }),
     )
   })
 })
@@ -210,7 +207,7 @@ describe('cancelEnrichmentHandler', () => {
       expect.objectContaining({
         status: 'cancelled',
         updatedAt: expect.any(Number),
-      })
+      }),
     )
   })
 
@@ -238,14 +235,17 @@ describe('cancelEnrichmentHandler', () => {
       ENRICHMENT_ID,
       expect.objectContaining({
         status: 'cancelled',
-      })
+      }),
     )
   })
 })
 
 describe('findByRoutePlanIdHandler', () => {
   it('AC-3: returns all enrichments for a route plan', async () => {
-    const docs = [makeEnrichmentDoc(), makeEnrichmentDoc({ _id: 'other_id' as Id<'route_enrichments'> })]
+    const docs = [
+      makeEnrichmentDoc(),
+      makeEnrichmentDoc({ _id: 'other_id' as Id<'route_enrichments'> }),
+    ]
     const ctx = {
       db: {
         query: vi.fn().mockReturnValue({
@@ -439,7 +439,7 @@ describe('invalidateStaleEnrichmentsHandler', () => {
       expect.objectContaining({
         status: 'cancelled',
         updatedAt: expect.any(Number),
-      })
+      }),
     )
   })
 
@@ -550,14 +550,14 @@ describe('invalidateStaleEnrichmentsHandler', () => {
       'pending_enrich' as Id<'route_enrichments'>,
       expect.objectContaining({
         status: 'cancelled',
-      })
+      }),
     )
     // Completed enrichment should NOT be patched
     expect(ctx.db.patch).not.toHaveBeenCalledWith(
       'completed_enrich' as Id<'route_enrichments'>,
       expect.objectContaining({
         status: 'cancelled',
-      })
+      }),
     )
   })
 
@@ -598,7 +598,7 @@ describe('invalidateStaleEnrichmentsHandler', () => {
       expect.objectContaining({
         status: 'cancelled',
         updatedAt: expect.any(Number),
-      })
+      }),
     )
   })
 

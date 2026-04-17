@@ -5,7 +5,7 @@
  * These tests inspect the schema export to ensure tables and indexes are properly defined.
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 describe('curation schema registration', () => {
   describe('AC-1: curated_routes table', () => {
@@ -36,7 +36,9 @@ describe('curation schema registration', () => {
       const byStateIndex = table.indexes.find((i: any) => i.indexDescriptor === 'by_state')
       expect(byStateIndex?.fields).toEqual(['state'])
 
-      const byCompositeScoreIndex = table.indexes.find((i: any) => i.indexDescriptor === 'by_composite_score')
+      const byCompositeScoreIndex = table.indexes.find(
+        (i: any) => i.indexDescriptor === 'by_composite_score',
+      )
       expect(byCompositeScoreIndex?.fields).toEqual(['compositeScore'])
     })
   })

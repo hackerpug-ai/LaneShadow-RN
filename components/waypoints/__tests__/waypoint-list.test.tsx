@@ -12,17 +12,17 @@
  * - AC8: Given waypoint list, when rendered, then has proper accessibility labels and hints
  */
 
-import { vi, describe, it, expect, beforeEach } from 'vitest'
+import { fireEvent, render } from '@testing-library/react-native'
 import React from 'react'
-import { render, fireEvent } from '@testing-library/react-native'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ---------------------------------------------------------------------------
 // Import after mocks
 // ---------------------------------------------------------------------------
 
-import { WaypointList } from '../waypoint-list'
-import type { Id } from '../../../convex/_generated/dataModel'
 import { useQuery } from 'convex/react'
+import type { Id } from '../../../convex/_generated/dataModel'
+import { WaypointList } from '../waypoint-list'
 
 // ---------------------------------------------------------------------------
 // Mock convex before imports
@@ -109,12 +109,48 @@ const mockSemanticTheme = {
     },
   },
   elevation: {
-    0: { shadowColor: '#000', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
-    1: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },
-    2: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4, elevation: 2 },
-    3: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
-    4: { shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.25, shadowRadius: 16, elevation: 4 },
-    5: { shadowColor: '#000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.3, shadowRadius: 24, elevation: 5 },
+    0: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
+    },
+    1: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    2: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    3: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    4: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    5: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 5,
+    },
   },
 }
 
@@ -181,10 +217,7 @@ describe('WaypointList', () => {
       vi.mocked(useQuery).mockReturnValue(mockWaypoints)
 
       const { getByTestId } = render(
-        <WaypointList
-          routePlanId={'rp1' as Id<'route_plans'>}
-          testID="waypoint-list"
-        />
+        <WaypointList routePlanId={'rp1' as Id<'route_plans'>} testID="waypoint-list" />,
       )
 
       const container = getByTestId('waypoint-list')
@@ -201,10 +234,7 @@ describe('WaypointList', () => {
       vi.mocked(useQuery).mockReturnValue(mockWaypoints)
 
       const { getByTestId } = render(
-        <WaypointList
-          routePlanId={'rp1' as Id<'route_plans'>}
-          testID="waypoint-list"
-        />
+        <WaypointList routePlanId={'rp1' as Id<'route_plans'>} testID="waypoint-list" />,
       )
 
       const container = getByTestId('waypoint-list')
@@ -227,10 +257,7 @@ describe('WaypointList', () => {
       vi.mocked(useQuery).mockReturnValue(mockWaypoints)
 
       const { getByText } = render(
-        <WaypointList
-          routePlanId={'rp1' as Id<'route_plans'>}
-          testID="waypoint-list"
-        />
+        <WaypointList routePlanId={'rp1' as Id<'route_plans'>} testID="waypoint-list" />,
       )
 
       expect(getByText('Scenic Overlook')).toBeTruthy()
@@ -246,7 +273,7 @@ describe('WaypointList', () => {
           routePlanId={'rp1' as Id<'route_plans'>}
           initiallyCollapsed={true}
           testID="waypoint-list"
-        />
+        />,
       )
 
       // Header should be visible but waypoint cards should not
@@ -258,10 +285,7 @@ describe('WaypointList', () => {
       vi.mocked(useQuery).mockReturnValue(mockWaypoints)
 
       const { getByText, getByTestId, queryByText } = render(
-        <WaypointList
-          routePlanId={'rp1' as Id<'route_plans'>}
-          testID="waypoint-list"
-        />
+        <WaypointList routePlanId={'rp1' as Id<'route_plans'>} testID="waypoint-list" />,
       )
 
       expect(getByText('Scenic Overlook')).toBeTruthy()
@@ -292,7 +316,7 @@ describe('WaypointList', () => {
           routePlanId={'rp1' as Id<'route_plans'>}
           onReorder={mockReorder}
           testID="waypoint-list"
-        />
+        />,
       )
 
       const container = getByTestId('waypoint-list')
@@ -303,10 +327,7 @@ describe('WaypointList', () => {
       vi.mocked(useQuery).mockReturnValue(mockWaypoints)
 
       const { getByTestId } = render(
-        <WaypointList
-          routePlanId={'rp1' as Id<'route_plans'>}
-          testID="waypoint-list"
-        />
+        <WaypointList routePlanId={'rp1' as Id<'route_plans'>} testID="waypoint-list" />,
       )
 
       const container = getByTestId('waypoint-list')
@@ -322,10 +343,7 @@ describe('WaypointList', () => {
       vi.mocked(useQuery).mockReturnValue(mockWaypoints)
 
       const { getByText } = render(
-        <WaypointList
-          routePlanId={'rp1' as Id<'route_plans'>}
-          testID="waypoint-list"
-        />
+        <WaypointList routePlanId={'rp1' as Id<'route_plans'>} testID="waypoint-list" />,
       )
 
       expect(getByText('(3)')).toBeTruthy()
@@ -335,10 +353,7 @@ describe('WaypointList', () => {
       vi.mocked(useQuery).mockReturnValue(mockWaypoints)
 
       const { getByTestId } = render(
-        <WaypointList
-          routePlanId={'rp1' as Id<'route_plans'>}
-          testID="waypoint-list"
-        />
+        <WaypointList routePlanId={'rp1' as Id<'route_plans'>} testID="waypoint-list" />,
       )
 
       const container = getByTestId('waypoint-list')
@@ -353,10 +368,7 @@ describe('WaypointList', () => {
       vi.mocked(useQuery).mockReturnValue(approvedWaypoints)
 
       const { getByText } = render(
-        <WaypointList
-          routePlanId={'rp1' as Id<'route_plans'>}
-          testID="waypoint-list"
-        />
+        <WaypointList routePlanId={'rp1' as Id<'route_plans'>} testID="waypoint-list" />,
       )
 
       expect(getByText('(3)')).toBeTruthy()
@@ -371,10 +383,7 @@ describe('WaypointList', () => {
       vi.mocked(useQuery).mockReturnValue(mockWaypoints)
 
       const { getByTestId } = render(
-        <WaypointList
-          routePlanId={'rp1' as Id<'route_plans'>}
-          testID="waypoint-list"
-        />
+        <WaypointList routePlanId={'rp1' as Id<'route_plans'>} testID="waypoint-list" />,
       )
 
       const container = getByTestId('waypoint-list')
@@ -390,10 +399,7 @@ describe('WaypointList', () => {
       vi.mocked(useQuery).mockReturnValue(undefined)
 
       const { getByText } = render(
-        <WaypointList
-          routePlanId={'rp1' as Id<'route_plans'>}
-          testID="waypoint-list"
-        />
+        <WaypointList routePlanId={'rp1' as Id<'route_plans'>} testID="waypoint-list" />,
       )
 
       expect(getByText('Loading waypoints...')).toBeTruthy()
@@ -408,10 +414,7 @@ describe('WaypointList', () => {
       vi.mocked(useQuery).mockReturnValue([])
 
       const { getByText } = render(
-        <WaypointList
-          routePlanId={'rp1' as Id<'route_plans'>}
-          testID="waypoint-list"
-        />
+        <WaypointList routePlanId={'rp1' as Id<'route_plans'>} testID="waypoint-list" />,
       )
 
       expect(getByText('No waypoints for this route')).toBeTruthy()
@@ -426,10 +429,7 @@ describe('WaypointList', () => {
       vi.mocked(useQuery).mockReturnValue(mockWaypoints)
 
       const { getByTestId } = render(
-        <WaypointList
-          routePlanId={'rp1' as Id<'route_plans'>}
-          testID="waypoint-list"
-        />
+        <WaypointList routePlanId={'rp1' as Id<'route_plans'>} testID="waypoint-list" />,
       )
 
       const container = getByTestId('waypoint-list')
@@ -441,10 +441,7 @@ describe('WaypointList', () => {
       vi.mocked(useQuery).mockReturnValue(mockWaypoints)
 
       const { getByTestId } = render(
-        <WaypointList
-          routePlanId={'rp1' as Id<'route_plans'>}
-          testID="waypoint-list"
-        />
+        <WaypointList routePlanId={'rp1' as Id<'route_plans'>} testID="waypoint-list" />,
       )
 
       const container = getByTestId('waypoint-list')
@@ -456,10 +453,7 @@ describe('WaypointList', () => {
       vi.mocked(useQuery).mockReturnValue(mockWaypoints)
 
       const { getByTestId } = render(
-        <WaypointList
-          routePlanId={'rp1' as Id<'route_plans'>}
-          testID="waypoint-list"
-        />
+        <WaypointList routePlanId={'rp1' as Id<'route_plans'>} testID="waypoint-list" />,
       )
 
       const header = getByTestId('waypoint-list-header')
@@ -475,7 +469,7 @@ describe('WaypointList', () => {
           routePlanId={'rp1' as Id<'route_plans'>}
           initiallyCollapsed={true}
           testID="waypoint-list"
-        />
+        />,
       )
 
       const header = getByTestId('waypoint-list-header')

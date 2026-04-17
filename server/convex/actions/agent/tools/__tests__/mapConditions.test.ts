@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { RouteIndex, RouteSnapshot } from '../../../../../models/saved-routes'
 import { mapConditions } from '../mapConditions'
 import type { ProbedWindPoint } from '../probeConditions'
@@ -70,7 +70,7 @@ describe('mapConditions', () => {
     const overlay = await mapConditions({ routeSnapshot: snapshot, routeIndex: index, probed })
 
     expect(overlay.legend.map((l) => l.level)).toEqual(
-      expect.arrayContaining(['low', 'moderate', 'high'])
+      expect.arrayContaining(['low', 'moderate', 'high']),
     )
     expect(overlay.byLeg.length).toBe(1)
     const leg = overlay.byLeg[0]
@@ -97,7 +97,7 @@ describe('mapConditions', () => {
     const snapshot = makeSnapshot()
     const index = makeIndex()
     await expect(
-      mapConditions({ routeSnapshot: snapshot, routeIndex: index, probed: [] })
+      mapConditions({ routeSnapshot: snapshot, routeIndex: index, probed: [] }),
     ).rejects.toThrow()
   })
 })

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { RouteSnapshot } from '../../../../../models/saved-routes'
 import { computeRouteIndex } from '../computeRouteIndex'
 
@@ -51,7 +51,7 @@ describe('computeRouteIndex', () => {
     expect(index.sampledPoints[0].distanceFromStartMeters).toBe(0)
     for (let i = 1; i < index.sampledPoints.length; i += 1) {
       expect(index.sampledPoints[i].distanceFromStartMeters).toBeGreaterThanOrEqual(
-        index.sampledPoints[i - 1].distanceFromStartMeters
+        index.sampledPoints[i - 1].distanceFromStartMeters,
       )
     }
     const totalDistance = snapshot.legs.reduce((sum, l) => sum + l.distanceMeters, 0)

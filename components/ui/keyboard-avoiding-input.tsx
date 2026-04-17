@@ -21,7 +21,7 @@
  */
 
 import type { ReactNode } from 'react'
-import { StyleSheet, View, Platform, KeyboardAvoidingView } from 'react-native'
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export type KeyboardAvoidingInputProps = {

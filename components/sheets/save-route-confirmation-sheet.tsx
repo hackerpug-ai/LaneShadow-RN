@@ -9,12 +9,12 @@
  */
 
 import { useState } from 'react'
-import { IconSymbol } from '../ui/icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { Button } from '../ui/button'
 import { BottomSheetInput } from '../ui/bottom-sheet-input'
+import { Button } from '../ui/button'
+import { IconSymbol } from '../ui/icon-symbol'
 import { BottomSheetWrapper } from './bottom-sheet-wrapper'
 
 export type SaveRouteConfirmationSheetProps = {
@@ -68,11 +68,7 @@ export const SaveRouteConfirmationSheet = ({
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.iconContainer}>
-            <IconSymbol
-              name="bookmark-plus"
-              size={28}
-              color={semantic.color.primary.default}
-            />
+            <IconSymbol name="bookmark-plus" size={28} color={semantic.color.primary.default} />
           </View>
           <Text variant="titleLarge" style={{ color: semantic.color.onSurface.default }}>
             Save Route
@@ -122,7 +118,11 @@ export const SaveRouteConfirmationSheet = ({
               <IconSymbol
                 name="check"
                 size={20}
-                color={isValid ? semantic.color.onPrimary.default : semantic.color.onSurface.disabled}
+                color={
+                  isValid
+                    ? semantic.color.onPrimary.default
+                    : (semantic.color.onSurface.disabled ?? 'transparent')
+                }
               />
             }
             style={styles.confirmButton}

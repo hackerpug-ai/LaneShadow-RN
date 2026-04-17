@@ -1,11 +1,11 @@
 'use node'
 
 import { v } from 'convex/values'
-import { internalAction } from '../../../_generated/server'
+import type { PlanInput, RouteLeg, RouteSnapshot } from '../../../../models/saved-routes'
 import { internal } from '../../../_generated/api'
 import type { Id } from '../../../_generated/dataModel'
-import type { RouteSnapshot , PlanInput, RouteLeg } from '../../../../models/saved-routes'
-import { enrichRoute, type EnrichRouteInput } from '../tools/enrichRoute'
+import { internalAction } from '../../../_generated/server'
+import { type EnrichRouteInput, enrichRoute } from '../tools/enrichRoute'
 
 /**
  * Background enrichment job runner
@@ -15,79 +15,70 @@ import { enrichRoute, type EnrichRouteInput } from '../tools/enrichRoute'
  */
 export const runEnrichmentJobHandler = async (
   ctx: any,
-  args: { enrichmentId: Id<'route_enrichments'>; phase: 'fast' | 'extended' }
+  args: { enrichmentId: Id<'route_enrichments'>; phase: 'fast' | 'extended' },
 ): Promise<null> => {
-    const enrichment = await ctx.runQuery(
-      internal.db.routeEnrichments.getById,
-      { enrichmentId: args.enrichmentId }
-    )
+  const enrichment = await ctx.runQuery(internal.db.routeEnrichments.getById, {
+    enrichmentId: args.enrichmentId,
+  })
 
-    // Early return if cancelled or not found
-    if (!enrichment || enrichment.status === 'cancelled') {
+  // Early return if cancelled or not found
+  if (!enrichment || enrichment.status === 'cancelled') {
+    return null
+  }
+
+  // Update status to running
+  await ctx.runMutation(internal.db.routeEnrichments.updateStatus, {
+    enrichmentId: args.enrichmentId,
+    status: 'running',
+  })
+
+  try {
+    // Get route plan details
+    const routePlan = await ctx.runQuery(internal.db.routePlans.getPlanByIdInternal, {
+      routePlanId: enrichment.routePlanId,
+    })
+
+    if (!routePlan) {
+      throw new Error('Route plan not found')
+    }
+
+    // Run enrichment based on phase
+    const results = await runEnrichmentPhase({
+      phase: args.phase,
+      routePlan: routePlan.result,
+      planInput: routePlan.planInput,
+    })
+
+    // Check for cancellation again
+    const current = await ctx.runQuery(internal.db.routeEnrichments.getById, {
+      enrichmentId: args.enrichmentId,
+    })
+
+    if (current?.status === 'cancelled') {
       return null
     }
 
-    // Update status to running
-    await ctx.runMutation(
-      internal.db.routeEnrichments.updateStatus,
-      { enrichmentId: args.enrichmentId, status: 'running' }
-    )
+    // Save results to route_enrichments table
+    await ctx.runMutation(internal.db.routeEnrichments.completeEnrichment, {
+      enrichmentId: args.enrichmentId,
+      enrichments: results,
+    })
 
-    try {
-      // Get route plan details
-      const routePlan = await ctx.runQuery(
-        internal.db.routePlans.getPlanByIdInternal,
-        { routePlanId: enrichment.routePlanId }
-      )
+    // Merge enrichment into route_plans table for reactive UI updates
+    await ctx.runMutation(internal.db.routePlans.mergeEnrichment, {
+      routePlanId: enrichment.routePlanId,
+      enrichments: results,
+    })
 
-      if (!routePlan) {
-        throw new Error('Route plan not found')
-      }
+    console.log(`Enrichment ${args.phase} completed for routePlan ${enrichment.routePlanId}`)
+  } catch (error) {
+    await ctx.runMutation(internal.db.routeEnrichments.failEnrichment, {
+      enrichmentId: args.enrichmentId,
+      error: error instanceof Error ? error.message : String(error),
+    })
+  }
 
-      // Run enrichment based on phase
-      const results = await runEnrichmentPhase({
-        phase: args.phase,
-        routePlan: routePlan.result,
-        planInput: routePlan.planInput,
-      })
-
-      // Check for cancellation again
-      const current = await ctx.runQuery(
-        internal.db.routeEnrichments.getById,
-        { enrichmentId: args.enrichmentId }
-      )
-
-      if (current?.status === 'cancelled') {
-        return null
-      }
-
-      // Save results to route_enrichments table
-      await ctx.runMutation(
-        internal.db.routeEnrichments.completeEnrichment,
-        { enrichmentId: args.enrichmentId, enrichments: results }
-      )
-
-      // Merge enrichment into route_plans table for reactive UI updates
-      await ctx.runMutation(
-        internal.db.routePlans.mergeEnrichment,
-        {
-          routePlanId: enrichment.routePlanId,
-          enrichments: results,
-        }
-      )
-
-      console.log(`Enrichment ${args.phase} completed for routePlan ${enrichment.routePlanId}`)
-    } catch (error) {
-      await ctx.runMutation(
-        internal.db.routeEnrichments.failEnrichment,
-        {
-          enrichmentId: args.enrichmentId,
-          error: error instanceof Error ? error.message : String(error),
-        }
-      )
-    }
-
-    return null
+  return null
 }
 
 export const runEnrichmentJob = internalAction({
@@ -110,13 +101,15 @@ async function runEnrichmentPhase(params: {
   phase: 'fast' | 'extended'
   routePlan: RouteSnapshot
   planInput: PlanInput
-}): Promise<{
-  routeOptionId: string
-  label: string
-  rationale: string
-  highlights: string[]
-  legLabels?: string[]
-}[]> {
+}): Promise<
+  {
+    routeOptionId: string
+    label: string
+    rationale: string
+    highlights: string[]
+    legLabels?: string[]
+  }[]
+> {
   const { phase, routePlan, planInput } = params
 
   // Extract leg context for AI labeling
@@ -128,10 +121,12 @@ async function runEnrichmentPhase(params: {
   }))
 
   // Extract existing leg labels from the route plan (these were set by normalizeRoute from sketch labels)
-  const existingLegLabels = routePlan.legs.map((leg) => {
-    // Use the end label as the leg label (e.g., "Downtown San Jose" for leg ending there)
-    return leg.end.label || undefined
-  }).filter((label): label is string => label !== undefined)
+  const existingLegLabels = routePlan.legs
+    .map((leg) => {
+      // Use the end label as the leg label (e.g., "Downtown San Jose" for leg ending there)
+      return leg.end.label || undefined
+    })
+    .filter((label): label is string => label !== undefined)
 
   // Extract waypoints from route for AI context
   const waypoints = routePlan.legs.map((leg, idx) => ({

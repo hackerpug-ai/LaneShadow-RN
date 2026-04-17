@@ -18,7 +18,7 @@ function makeRouteOption(index: number, geometrySize = 100) {
     rationale: 'A nice scenic ride',
     stats: {
       distanceMeters: 80_000 + index * 10_000, // 80–100 km
-      durationSeconds: 3600 + index * 600,       // 60–70 min
+      durationSeconds: 3600 + index * 600, // 60–70 min
       legsCount: 2,
     },
     map: {
@@ -198,9 +198,7 @@ describe('summarizeForContext — planRoute chat', () => {
 describe('summarizeForContext — pass-through tools', () => {
   it('geocode passes through unchanged', () => {
     const result = {
-      results: [
-        { lat: 36.97, lng: -122.03, label: 'Santa Cruz, CA', placeId: 'place_sc' },
-      ],
+      results: [{ lat: 36.97, lng: -122.03, label: 'Santa Cruz, CA', placeId: 'place_sc' }],
     }
     expect(summarizeForContext('geocode', result)).toEqual(result)
   })
@@ -250,10 +248,13 @@ describe('summarizeForContext — compileSketch success', () => {
 
   it('compileSketch partial route preserves data.message in the summarized output', () => {
     const result = makeSuccessResult(1)
-    ;(result.data as any).message = "I routed most of the trip but couldn't find a path for Bad Road."
+    ;(result.data as any).message =
+      "I routed most of the trip but couldn't find a path for Bad Road."
     const summarized = summarizeForContext('compileSketch', result) as any
 
-    expect(summarized.message).toBe("I routed most of the trip but couldn't find a path for Bad Road.")
+    expect(summarized.message).toBe(
+      "I routed most of the trip but couldn't find a path for Bad Road.",
+    )
   })
 
   it('compileSketch error passes through unchanged', () => {

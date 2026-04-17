@@ -1,17 +1,17 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
-  googleToMapbox,
-  mapboxToGoogle,
-  googleCoordsToMapbox,
-  mapboxCoordsToGoogle,
-  convertWeatherSegments,
-  isValidCoord,
   clampCoord,
-  isGoogleCoord,
-  isMapboxCoord,
+  convertWeatherSegments,
   detectCoordFormat,
   type GoogleCoord,
+  googleCoordsToMapbox,
+  googleToMapbox,
+  isGoogleCoord,
+  isMapboxCoord,
+  isValidCoord,
   type MapboxCoord,
+  mapboxCoordsToGoogle,
+  mapboxToGoogle,
   type WeatherSegment,
 } from '../conversion'
 
@@ -208,11 +208,21 @@ describe('CLR-019: Polyline Coordinate Conversion', () => {
   // =========================================================================
   describe('AC-004: Format detection', () => {
     it('detects Google format for typical US coordinates', () => {
-      expect(detectCoordFormat([[37.7749, -122.4194], [34.0522, -118.2437]])).toBe('google')
+      expect(
+        detectCoordFormat([
+          [37.7749, -122.4194],
+          [34.0522, -118.2437],
+        ]),
+      ).toBe('google')
     })
 
     it('detects Mapbox format for Mapbox-ordered coordinates', () => {
-      expect(detectCoordFormat([[-122.4194, 37.7749], [-118.2437, 34.0522]])).toBe('mapbox')
+      expect(
+        detectCoordFormat([
+          [-122.4194, 37.7749],
+          [-118.2437, 34.0522],
+        ]),
+      ).toBe('mapbox')
     })
 
     it('returns unknown for empty array', () => {
@@ -235,8 +245,8 @@ describe('CLR-019: Polyline Coordinate Conversion', () => {
   describe('AC-005: Performance', () => {
     it('converts 10,000 coordinates in under 50ms', () => {
       const coords: GoogleCoord[] = Array.from({ length: 10000 }, (_, i) => [
-        37 + (i * 0.001) % 90,
-        -122 + (i * 0.001) % 360 - 180,
+        37 + ((i * 0.001) % 90),
+        -122 + ((i * 0.001) % 360) - 180,
       ])
 
       const start = performance.now()
@@ -249,8 +259,8 @@ describe('CLR-019: Polyline Coordinate Conversion', () => {
 
     it('round-trips 10,000 coordinates in under 100ms', () => {
       const original: GoogleCoord[] = Array.from({ length: 10000 }, (_, i) => [
-        37 + (i * 0.001) % 90,
-        -122 + (i * 0.001) % 360 - 180,
+        37 + ((i * 0.001) % 90),
+        -122 + ((i * 0.001) % 360) - 180,
       ])
 
       const start = performance.now()

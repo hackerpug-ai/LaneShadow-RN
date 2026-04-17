@@ -1,19 +1,19 @@
 'use node'
 
 import {
-  stream,
   type Api,
   type AssistantMessage,
   type AssistantMessageEvent,
   type Context,
   type Message,
   type Model,
+  stream,
   type ToolCall,
   type ToolResultMessage,
 } from '@mariozechner/pi-ai'
-import { LoopDetector } from './loopDetector'
-import { BudgetTracker } from './budgetTracker'
 import { ERROR_CODES } from '../../errors'
+import type { BudgetTracker } from './budgetTracker'
+import type { LoopDetector } from './loopDetector'
 import type { ExecuteContext } from './ridePlanningAgent'
 
 // -----------------------------------------------------------------------------
@@ -103,11 +103,15 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
   let stepCount = 0
   const toolNames = new Set<string>()
 
-  console.info(`[runAgent] Starting agent loop: maxSteps=${maxSteps}, timeoutMs=${timeoutMs}, tools=${(context.tools ?? []).map(t => t.name).join(', ')}`)
+  console.info(
+    `[runAgent] Starting agent loop: maxSteps=${maxSteps}, timeoutMs=${timeoutMs}, tools=${(context.tools ?? []).map((t) => t.name).join(', ')}`,
+  )
 
   for (let step = 0; step < maxSteps; step++) {
     if (Date.now() > deadline) {
-      console.warn(`[runAgent] TIMEOUT at step ${step} — breaking loop (levelsetting: log, don't throw)`)
+      console.warn(
+        `[runAgent] TIMEOUT at step ${step} — breaking loop (levelsetting: log, don't throw)`,
+      )
       break
     }
 
@@ -160,10 +164,10 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
       break
     }
 
-    const toolCalls = assistant.content.filter(
-      (b): b is ToolCall => b.type === 'toolCall'
+    const toolCalls = assistant.content.filter((b): b is ToolCall => b.type === 'toolCall')
+    console.info(
+      `[runAgent] Step ${step + 1} stopReason=${assistant.stopReason}, toolCalls=[${toolCalls.map((c) => c.name).join(', ')}]`,
     )
-    console.info(`[runAgent] Step ${step + 1} stopReason=${assistant.stopReason}, toolCalls=[${toolCalls.map(c => c.name).join(', ')}]`)
     if (toolCalls.length === 0) break
 
     // Notify caller that the assistant turn with tool calls is complete.
@@ -171,8 +175,8 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
 
     // Partition tool calls into parallel-safe and sequential groups.
     // LoopDetector check runs for ALL calls before any execution.
-    const safeCalls = toolCalls.filter(c => parallelSafeTools.has(c.name))
-    const unsafeCalls = toolCalls.filter(c => !parallelSafeTools.has(c.name))
+    const safeCalls = toolCalls.filter((c) => parallelSafeTools.has(c.name))
+    const unsafeCalls = toolCalls.filter((c) => !parallelSafeTools.has(c.name))
 
     // Pre-allocate results map keyed by call id to preserve original ordering.
     type CallOutcome = { result: unknown; isError: boolean; loopDetected: boolean }
@@ -192,9 +196,11 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
     }
 
     // Execute safe calls in parallel (excluding loop-detected ones).
-    const safeCallsToRun = safeCalls.filter(c => !outcomes.has(c.id))
+    const safeCallsToRun = safeCalls.filter((c) => !outcomes.has(c.id))
     if (safeCallsToRun.length > 0) {
-      console.info(`[runAgent] Executing ${safeCallsToRun.length} parallel-safe tools: [${safeCallsToRun.map(c => c.name).join(', ')}]`)
+      console.info(
+        `[runAgent] Executing ${safeCallsToRun.length} parallel-safe tools: [${safeCallsToRun.map((c) => c.name).join(', ')}]`,
+      )
     }
     await Promise.all(
       safeCallsToRun.map(async (call) => {
@@ -203,7 +209,9 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
         const t0 = Date.now()
         try {
           result = await executor(call)
-          console.info(`[runAgent] ✅ ${call.name} completed in ${Date.now() - t0}ms → ${JSON.stringify(result ?? null).slice(0, 200)}`)
+          console.info(
+            `[runAgent] ✅ ${call.name} completed in ${Date.now() - t0}ms → ${JSON.stringify(result ?? null).slice(0, 200)}`,
+          )
         } catch (err) {
           const errMsg = err instanceof Error ? err.message : String(err)
           const isValidation = errMsg.includes('Validation failed')
@@ -219,7 +227,7 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
           console.error(`[runAgent] ❌ ${call.name} FAILED in ${Date.now() - t0}ms: ${errMsg}`)
         }
         outcomes.set(call.id, { result, isError, loopDetected: false })
-      })
+      }),
     )
 
     // Execute unsafe calls sequentially (excluding loop-detected ones).
@@ -231,7 +239,9 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
       console.info(`[runAgent] Executing sequential tool: ${call.name}`)
       try {
         result = await executor(call)
-        console.info(`[runAgent] ✅ ${call.name} completed in ${Date.now() - t0}ms → ${JSON.stringify(result ?? null).slice(0, 200)}`)
+        console.info(
+          `[runAgent] ✅ ${call.name} completed in ${Date.now() - t0}ms → ${JSON.stringify(result ?? null).slice(0, 200)}`,
+        )
       } catch (err) {
         const errMsg = err instanceof Error ? err.message : String(err)
         const isValidation = errMsg.includes('Validation failed')
@@ -258,14 +268,22 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
           role: 'toolResult',
           toolCallId: call.id,
           toolName: call.name,
-          content: [{ type: 'text', text: JSON.stringify({
-            type: 'error',
-            message: `Already called ${call.name} with identical arguments ${loopDetector!.getCount(call)} times. Try different arguments or ask the rider for clarification.`,
-          }) }],
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                type: 'error',
+                message: `Already called ${call.name} with identical arguments ${loopDetector!.getCount(call)} times. Try different arguments or ask the rider for clarification.`,
+              }),
+            },
+          ],
           isError: true,
           timestamp: Date.now(),
         }
-        toolResults.push({ toolName: call.name, result: { type: 'error', message: 'Loop detected' } })
+        toolResults.push({
+          toolName: call.name,
+          result: { type: 'error', message: 'Loop detected' },
+        })
         context.messages.push(loopResult)
         await callbacks?.onToolResultPiMessage?.(call.id, loopResult)
         continue
@@ -278,9 +296,7 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
       toolNames.add(call.name)
 
       // Optionally trimmed result goes into the LLM context.
-      const contextResult = summarizeForContext
-        ? summarizeForContext(call.name, result)
-        : result
+      const contextResult = summarizeForContext ? summarizeForContext(call.name, result) : result
 
       const toolResultMsg: ToolResultMessage = {
         role: 'toolResult',
@@ -295,7 +311,9 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
     }
   }
 
-  console.info(`[runAgent] Agent loop finished after ${context.messages.length} messages, ${toolResults.length} tool calls: [${toolResults.map(r => r.toolName).join(', ')}]`)
+  console.info(
+    `[runAgent] Agent loop finished after ${context.messages.length} messages, ${toolResults.length} tool calls: [${toolResults.map((r) => r.toolName).join(', ')}]`,
+  )
 
   // Extract final text from the last assistant message.
   const last = context.messages[context.messages.length - 1]
@@ -319,7 +337,9 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
     totalCostUsd: totalCostUsd,
   }
 
-  console.info(`[runAgent] metrics: steps=${metrics.steps} tools=[${metrics.tools.join(',')}] duration=${metrics.durationMs}ms cost=$${metrics.totalCostUsd.toFixed(4)} tokens(in=${metrics.inputTokens} out=${metrics.outputTokens} cache=${metrics.cacheReadTokens})`)
+  console.info(
+    `[runAgent] metrics: steps=${metrics.steps} tools=[${metrics.tools.join(',')}] duration=${metrics.durationMs}ms cost=$${metrics.totalCostUsd.toFixed(4)} tokens(in=${metrics.inputTokens} out=${metrics.outputTokens} cache=${metrics.cacheReadTokens})`,
+  )
 
   return {
     response,

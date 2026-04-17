@@ -5,7 +5,7 @@
  * Import and use in Convex actions, mutations, queries.
  */
 
-import type { LogLevel, LogCategory } from '../../../lib/logger/types'
+import type { LogCategory, LogLevel } from '../../../lib/logger/types'
 
 /**
  * Log a structured message from Convex backend.
@@ -16,7 +16,7 @@ export function logBackend(
   category: LogCategory,
   message: string,
   data?: Record<string, unknown>,
-  error?: Error
+  error?: Error,
 ): void {
   const entry = {
     timestamp: new Date().toISOString(),

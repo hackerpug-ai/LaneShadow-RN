@@ -7,10 +7,10 @@
  * CLR-004: Model Download Persistence
  */
 
-import { PersistentDownloadManager } from '../ai/persistent-download-manager'
-import { ChecksumValidator } from '../ai/checksum'
 import * as FileSystem from 'expo-file-system/legacy'
 import { useDownloadStore } from '../../stores/download-store'
+import { ChecksumValidator } from '../ai/checksum'
+import { PersistentDownloadManager } from '../ai/persistent-download-manager'
 
 /**
  * Model download progress state
@@ -82,7 +82,7 @@ export class GatekeeperDownloadManager {
         (progress) => {
           console.log('[GatekeeperDownloadManager] Download progress:', progress)
           // Progress is automatically persisted to Zustand store by PersistentDownloadManager
-        }
+        },
       )
 
       if (!result.success) {
@@ -94,7 +94,7 @@ export class GatekeeperDownloadManager {
       const expectedChecksum = '6eb923e7d26e9cea28811e1a8e852009b21242fb157b26149d3b188f3a8c8653'
       const checksumResult = await this.checksumValidator.validate(
         result.filePath!,
-        expectedChecksum
+        expectedChecksum,
       )
 
       if (!checksumResult.valid && checksumResult.error) {
@@ -108,10 +108,7 @@ export class GatekeeperDownloadManager {
       const actualChecksum = checksumResult.actualChecksum || expectedChecksum
 
       // Mark download as complete in Zustand store
-      this.persistentManager.markComplete(
-        actualChecksum,
-        result.downloadedBytes
-      )
+      this.persistentManager.markComplete(actualChecksum, result.downloadedBytes)
 
       console.log('[GatekeeperDownloadManager] Download complete and validated')
     } catch (error) {
@@ -141,7 +138,12 @@ export class GatekeeperDownloadManager {
     const estimatedTimeRemaining = Math.ceil(bytesRemaining / averageSpeed)
 
     return {
-      state: state.state === 'downloading' ? 'downloading' : state.state === 'completed' ? 'completed' : 'failed',
+      state:
+        state.state === 'downloading'
+          ? 'downloading'
+          : state.state === 'completed'
+            ? 'completed'
+            : 'failed',
       progress: state.progressPercent,
       bytesDownloaded: state.bytesDownloaded,
       totalBytes: state.totalBytes,

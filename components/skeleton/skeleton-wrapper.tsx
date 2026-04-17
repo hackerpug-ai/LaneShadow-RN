@@ -21,8 +21,9 @@
  * Following react-rules.md: named export, no unnecessary useCallback/useMemo.
  */
 
-import React, { useState, useEffect } from 'react'
-import { View, AccessibilityInfo, StyleSheet, type StyleProp, type ViewStyle } from 'react-native'
+import type React from 'react'
+import { useEffect, useState } from 'react'
+import { AccessibilityInfo, type StyleProp, StyleSheet, View, type ViewStyle } from 'react-native'
 import Animated, { FadeIn } from 'react-native-reanimated'
 
 // ---------------------------------------------------------------------------
@@ -74,15 +75,10 @@ export const SkeletonWrapper = ({
   }, [])
 
   // When reduce-motion is preferred, skip animated transitions
-  const fadeConfig = reduceMotion
-    ? { duration: 0 }
-    : { duration: fadeDuration }
+  const fadeConfig = reduceMotion ? { duration: 0 } : { duration: fadeDuration }
 
   return (
-    <View
-      testID={testID ?? 'skeleton-wrapper'}
-      style={[styles.wrapper, style]}
-    >
+    <View testID={testID ?? 'skeleton-wrapper'} style={[styles.wrapper, style]}>
       {loading ? (
         <Animated.View
           entering={FadeIn.duration(fadeConfig.duration)}

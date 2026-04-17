@@ -31,7 +31,7 @@ export const parseAutocompletePredictions = (response: any): PlacePrediction[] =
         description: prediction.description ?? '',
       }
     })
-    .filter((item) => Boolean(item.placeId))
+    .filter((item: PlacePrediction) => Boolean(item.placeId))
 }
 
 export const parsePlaceDetails = (response: any): PlaceDetails | null => {

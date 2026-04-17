@@ -10,13 +10,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
-  useEnrichmentProgress,
   type EnrichmentStatus,
+  useEnrichmentProgress,
 } from '../components/enrichment/enrichment-progress-provider'
 import { calculateProgress, estimateTimeRemaining } from '../lib/enrichment/status-tracker'
 import { shouldShowToast } from '../lib/enrichment/toast-notifications'
 
-export { type EnrichmentStatus }
+export type { EnrichmentStatus }
 
 export interface UseEnrichmentStatusResult {
   status: EnrichmentStatus
@@ -39,7 +39,8 @@ export function useEnrichmentStatus(
   const { progress: contextProgress, updateProgress } = useEnrichmentProgress()
 
   const status = contextProgress.status
-  const phaseStartTime = contextProgress.progress > 0 ? Date.now() - (contextProgress.progress / 100) * 3900 : null
+  const phaseStartTime =
+    contextProgress.progress > 0 ? Date.now() - (contextProgress.progress / 100) * 3900 : null
 
   // Local reactive state for live progress updates
   const [liveProgress, setLiveProgress] = useState(() =>
@@ -77,7 +78,12 @@ export function useEnrichmentStatus(
     const prevStatus = prevStatusRef.current
     prevStatusRef.current = status
 
-    if (shouldShowToast(prevStatus === 'failed' ? 'error' : prevStatus, status === 'failed' ? 'error' : status)) {
+    if (
+      shouldShowToast(
+        prevStatus === 'failed' ? 'error' : prevStatus,
+        status === 'failed' ? 'error' : status,
+      )
+    ) {
       options?.onComplete?.()
     }
   }, [status, options])

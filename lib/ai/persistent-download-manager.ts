@@ -8,20 +8,18 @@
  */
 
 import * as FileSystem from 'expo-file-system/legacy'
-import type { NetworkStatus, ModelConfig, DownloadResult } from './types'
-import { atomicWrite, verifyFile } from './atomic-write'
 import { useDownloadStore } from '../../stores/download-store'
+import { atomicWrite, verifyFile } from './atomic-write'
+import type { DownloadResult, ModelConfig, NetworkStatus } from './types'
 
 /**
  * Download progress callback
  */
-export interface ProgressCallback {
-  (progress: {
-    percent: number
-    downloadedBytes: number
-    totalBytes: number
-  }): void
-}
+export type ProgressCallback = (progress: {
+  percent: number
+  downloadedBytes: number
+  totalBytes: number
+}) => void
 
 /**
  * Persistent download manager with resume support
@@ -51,9 +49,10 @@ export class PersistentDownloadManager {
     const state = useDownloadStore.getState()
 
     // Check if there's a resumable download (downloading state OR partial progress)
-    const canResume = state.state === 'downloading' ||
-                      (state.state === 'failed' && state.lastError?.retryable && state.progressPercent > 0) ||
-                      (state.progressPercent > 0 && state.progressPercent < 100)
+    const canResume =
+      state.state === 'downloading' ||
+      (state.state === 'failed' && state.lastError?.retryable && state.progressPercent > 0) ||
+      (state.progressPercent > 0 && state.progressPercent < 100)
 
     if (canResume) {
       return {
@@ -81,7 +80,7 @@ export class PersistentDownloadManager {
   async downloadModel(
     config: ModelConfig,
     networkStatus: NetworkStatus,
-    onProgress?: ProgressCallback
+    onProgress?: ProgressCallback,
   ): Promise<DownloadResult> {
     // Validate WiFi requirement
     if (!this.isOnWiFi(networkStatus)) {
@@ -140,9 +139,10 @@ export class PersistentDownloadManager {
       useDownloadStore.getState().startDownload(config.version, config.totalBytes || 0)
 
       // Perform download
-      const result = startByte > 0
-        ? await this.resumeDownload(filePath, startByte, config, onProgress)
-        : await this.freshDownload(filePath, config, onProgress)
+      const result =
+        startByte > 0
+          ? await this.resumeDownload(filePath, startByte, config, onProgress)
+          : await this.freshDownload(filePath, config, onProgress)
 
       this.currentDownload = null
       return result
@@ -167,7 +167,7 @@ export class PersistentDownloadManager {
   private async freshDownload(
     filePath: string,
     config: ModelConfig,
-    onProgress?: ProgressCallback
+    onProgress?: ProgressCallback,
   ): Promise<DownloadResult> {
     console.log('[PersistentDownloadManager] Starting fresh download')
 
@@ -177,7 +177,7 @@ export class PersistentDownloadManager {
         config.url,
         filePath,
         {},
-        (data) => this.handleProgress(data, config, onProgress)
+        (data) => this.handleProgress(data, config, onProgress),
       )
 
       // Start the download
@@ -210,7 +210,7 @@ export class PersistentDownloadManager {
     filePath: string,
     startByte: number,
     config: ModelConfig,
-    onProgress?: ProgressCallback
+    onProgress?: ProgressCallback,
   ): Promise<DownloadResult> {
     console.log('[PersistentDownloadManager] Resuming download from byte:', startByte)
 
@@ -224,7 +224,7 @@ export class PersistentDownloadManager {
             Range: `bytes=${startByte}-`,
           },
         },
-        (data) => this.handleProgress(data, config, onProgress, startByte)
+        (data) => this.handleProgress(data, config, onProgress, startByte),
       )
 
       // Resume the download
@@ -257,7 +257,7 @@ export class PersistentDownloadManager {
     data: { totalBytesWritten: number; totalBytesExpectedToWrite: number },
     config: ModelConfig,
     onProgress?: ProgressCallback,
-    offset: number = 0
+    offset: number = 0,
   ): void {
     const downloadedBytes = data.totalBytesWritten + offset
     // Use config.totalBytes as the authoritative total — the server's

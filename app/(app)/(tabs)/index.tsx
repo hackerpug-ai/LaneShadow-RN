@@ -1,53 +1,56 @@
-import { useRouter, useSegments, useLocalSearchParams } from 'expo-router'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useMutation, useQuery } from 'convex/react'
 import { useAuth } from '@clerk/clerk-expo'
-import { api } from '../../../convex/_generated/api'
-import type { Id } from '../../../convex/_generated/dataModel'
-import { Pressable, ScrollView, StyleSheet, View, Keyboard } from 'react-native'
+import { useQuery } from 'convex/react'
+import { useLocalSearchParams, useRouter, useSegments } from 'expo-router'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import Animated, {
+  FadeInDown,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
-  FadeInDown,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { ChatInput, RouteAttachmentCard } from '../../../components/chat'
 import { MenuLayout } from '../../../components/layouts/menu-layout'
-import { MapControls } from '../../../components/map/map-controls'
-import { MapPlanningIndicator } from '../../../components/map/map-planning-indicator'
-import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
-import { MotorcyclePlusIcon } from '../../../components/ui/motorcycle-plus-icon'
 import type { MapboxMapViewHandle } from '../../../components/map'
 import { MapboxMapView } from '../../../components/map'
-import { useThemePreference } from '../../../contexts/theme-preference'
-import { WeatherPillsRow } from '../../../components/map/weather-pills-row'
+import { MapControls } from '../../../components/map/map-controls'
+import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
+import { MapPlanningIndicator } from '../../../components/map/map-planning-indicator'
+import { MapToastStack } from '../../../components/map/map-toast-stack'
+import type { MapboxCamera } from '../../../components/map/mapbox-map-view'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
-import { RoutePolyline, type SegmentSelectData } from '../../../components/map/route-polyline-component'
+import {
+  RoutePolyline,
+  type SegmentSelectData,
+} from '../../../components/map/route-polyline-component'
+import { SearchResultMarker } from '../../../components/map/search-result-marker'
+import { WeatherPillsRow } from '../../../components/map/weather-pills-row'
 import { PlanRideSheet } from '../../../components/sheets/plan-ride-sheet'
-import { SaveRouteSheet } from '../../../components/ui/save-favorite-sheet'
 import { PlanningErrorSheet } from '../../../components/sheets/planning-error-sheet'
 import { RoutePlannerLoading } from '../../../components/sheets/planning-loading'
-import { ChatInput, RouteAttachmentCard } from '../../../components/chat'
-import { ChatTranscript } from '../../../components/ui/chat-transcript'
 import type { ChatMessage as TranscriptMessage } from '../../../components/ui/chat-transcript'
-import { useIsRouteSaved } from '../../../hooks/use-is-route-saved'
-import { useCurrentLocation } from '../../../hooks/use-current-location'
-import { useToastMessages } from '../../../hooks/use-toast-messages'
-import { MapToastStack } from '../../../components/map/map-toast-stack'
-import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
-import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import { useRideFlow } from '../../../hooks/use-ride-flow'
-import { useChatPlanning } from '../../../hooks/use-chat-planning'
-import { useRouteComparison } from '../../../hooks/use-route-comparison'
-import { useActiveSessionRoute } from '../../../hooks/use-active-session-route'
-import { useSelectedRoute } from '../../../contexts/selected-route'
-import type { PlanInput, RouteStop } from '../../../types/routes'
-import type { RouteProvenance } from '../../../models/saved-routes'
-import { decodePolylineGeometry } from '../../../lib/polyline'
+import { ChatTranscript } from '../../../components/ui/chat-transcript'
+import { MotorcyclePlusIcon } from '../../../components/ui/motorcycle-plus-icon'
+import { SaveRouteSheet } from '../../../components/ui/save-favorite-sheet'
 import { useSearchResults } from '../../../contexts/search-results'
-import { SearchResultMarker } from '../../../components/map/search-result-marker'
+import { useSelectedRoute } from '../../../contexts/selected-route'
+import { useThemePreference } from '../../../contexts/theme-preference'
+import { api } from '../../../convex/_generated/api'
+import type { Doc, Id } from '../../../convex/_generated/dataModel'
+import { useActiveSessionRoute } from '../../../hooks/use-active-session-route'
+import { useChatPlanning } from '../../../hooks/use-chat-planning'
+import { useCurrentLocation } from '../../../hooks/use-current-location'
+import { useIsRouteSaved } from '../../../hooks/use-is-route-saved'
+import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
+import { type RideFlowAction, useRideFlow } from '../../../hooks/use-ride-flow'
+import { useRouteComparison } from '../../../hooks/use-route-comparison'
+import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
+import { useToastMessages } from '../../../hooks/use-toast-messages'
+import { decodePolylineGeometry } from '../../../lib/polyline'
+import type { RouteProvenance } from '../../../models/saved-routes'
 import { useChatSessionStore } from '../../../stores/chat-session-store'
-import type { MapboxCamera } from '../../../components/map/mapbox-map-view'
+import type { PlanInput, RouteStop } from '../../../types/routes'
 
 type CameraState = {
   center?: { latitude: number; longitude: number }
@@ -138,7 +141,7 @@ const HomeMapScreen = () => {
     snapshotMeta: any
     routeProvenance?: RouteProvenance
   } | null>(null)
-  const [selectedSegment, setSelectedSegment] = useState<SegmentSelectData | null>(null)
+  const [_selectedSegment, setSelectedSegment] = useState<SegmentSelectData | null>(null)
   const [highlightedSegmentId, setHighlightedSegmentId] = useState<string | undefined>(undefined)
 
   // Chat infrastructure
@@ -169,7 +172,10 @@ const HomeMapScreen = () => {
 
   // Fetch sessions so we can fall back to the most recent one on app open.
   // Only query when Clerk auth is loaded and user is signed in to prevent race conditions.
-  const sessions = useQuery(api.db.planningSessions.listSessions, clerkLoaded && isSignedIn ? undefined : "skip")
+  const sessions = useQuery(
+    api.db.planningSessions.listSessions,
+    clerkLoaded && isSignedIn ? undefined : 'skip',
+  )
 
   // Resolve which session drives the chat transcript and map route.
   // Priority:
@@ -186,7 +192,7 @@ const HomeMapScreen = () => {
     if (!sessions || sessions.length === 0) return null
     // Prefer the last-viewed session if it still exists in the list.
     if (lastViewedSessionId) {
-      const match = sessions.find((s) => s._id === lastViewedSessionId)
+      const match = sessions.find((s: Doc<'planning_sessions'>) => s._id === lastViewedSessionId)
       if (match) return match._id
     }
     // Fall back to the newest session.
@@ -240,7 +246,7 @@ const HomeMapScreen = () => {
     activeOption: agentActiveOption,
     routePlan: agentRoutePlan,
     newestRoutePlanId,
-  } = useActiveSessionRoute(activeChatSessionId ?? undefined)
+  } = useActiveSessionRoute(activeChatSessionId)
 
   // Track the last plan id we animated the camera to, so we only fit once
   // per newly resolved plan (not on every re-render).
@@ -287,7 +293,7 @@ const HomeMapScreen = () => {
 
   const rawTranscriptMessages = useQuery(
     api.db.sessionMessages.list,
-    activeChatSessionId ? { sessionId: activeChatSessionId } : 'skip'
+    activeChatSessionId ? { sessionId: activeChatSessionId } : 'skip',
   )
 
   // Derive isPlanning from live message statuses: if any assistant row is
@@ -295,9 +301,9 @@ const HomeMapScreen = () => {
   const isPlanning = useMemo(
     () =>
       rawTranscriptMessages?.some(
-        (msg) => msg.status === 'running' || msg.status === 'streaming'
+        (msg: Doc<'session_messages'>) => msg.status === 'running' || msg.status === 'streaming',
       ) ?? false,
-    [rawTranscriptMessages]
+    [rawTranscriptMessages],
   )
 
   // Dismiss planning indicator when agent finishes (fallback for cancel or no-message scenarios)
@@ -306,9 +312,10 @@ const HomeMapScreen = () => {
   }, [isPlanning])
 
   const transcriptMessages: TranscriptMessage[] = useMemo(() => {
-    const filtered = rawTranscriptMessages
+    const filtered =
+      rawTranscriptMessages
         ?.filter(
-          (msg) =>
+          (msg: Doc<'session_messages'>) =>
             msg.kind !== 'agent_turn' &&
             msg.kind !== 'tool_result_hidden' &&
             !(
@@ -316,9 +323,9 @@ const HomeMapScreen = () => {
               (msg.kind === 'text' || !msg.kind) &&
               !msg.content?.trim() &&
               msg.status !== 'streaming'
-            )
+            ),
         )
-        .map((msg) => ({
+        .map((msg: Doc<'session_messages'>) => ({
           id: msg._id,
           role: (msg.role === 'system' ? 'agent' : 'rider') as 'rider' | 'agent',
           content: msg.content,
@@ -330,17 +337,8 @@ const HomeMapScreen = () => {
         })) ?? []
 
     // Debug logging to see what messages are being passed to the transcript
-    const routingCardMessages = filtered.filter(m => m.kind === 'routing_card')
+    const routingCardMessages = filtered.filter((m: TranscriptMessage) => m.kind === 'routing_card')
     if (routingCardMessages.length > 0) {
-      console.info('[index.tsx] Routing card messages in transcript:', {
-        totalCount: filtered.length,
-        routingCardCount: routingCardMessages.length,
-        routingCardMessages: routingCardMessages.map(m => ({
-          id: m.id,
-          hasAttachments: !!m.attachments,
-          attachments: m.attachments,
-        })),
-      })
     }
 
     return filtered
@@ -349,13 +347,16 @@ const HomeMapScreen = () => {
   // Toast-style messages for map mode — lightweight pills instead of
   // the full transcript overlay. The hook manages baseline tracking,
   // filtering (agent text only), and per-toast lifecycle.
-  const { toasts, dismissToast, clearAll: clearToasts } = useToastMessages({
+  const {
+    toasts,
+    dismissToast,
+    clearAll: clearToasts,
+  } = useToastMessages({
     transcriptMessages,
     chatMode,
-    sessionId: activeChatSessionId,
+    sessionId: activeChatSessionId ?? undefined,
     isLoading: rawTranscriptMessages === undefined,
   })
-
 
   const handleSendMessage = useCallback(
     (message: string) => {
@@ -364,10 +365,10 @@ const HomeMapScreen = () => {
       }
       void sendPlanningMessage(
         message,
-        currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lng } : undefined
+        currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lng } : undefined,
       )
     },
-    [chatMode, sendPlanningMessage, currentLocation]
+    [chatMode, sendPlanningMessage, currentLocation],
   )
 
   // Cancel handler that routes to the appropriate cancel function
@@ -403,7 +404,7 @@ const HomeMapScreen = () => {
       setChatMode(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatParam, sessionIdParam])
+  }, [chatParam, chatMode])
 
   // Opacity orchestration — map fades out when chat mode is active,
   // transcript fades in. No transient scrim needed — toasts handle map mode.
@@ -420,7 +421,7 @@ const HomeMapScreen = () => {
     }, CHAT_TRANSITION_MS + 60)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatMode])
+  }, [chatMode, mapOpacity, chatOpacity])
 
   // Track previous chat mode for restoration logic
   useEffect(() => {
@@ -431,7 +432,9 @@ const HomeMapScreen = () => {
   // Also updates flowState when already in ROUTE_RESULTS and a new plan arrives.
   useEffect(() => {
     if (
-      (flowState.phase === 'PLANNING' || flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'IDLE') &&
+      (flowState.phase === 'PLANNING' ||
+        flowState.phase === 'ROUTE_RESULTS' ||
+        flowState.phase === 'IDLE') &&
       agentRoutePlan?.status === 'completed' &&
       agentRoutePlan?.result
     ) {
@@ -452,7 +455,12 @@ const HomeMapScreen = () => {
   }, [flowState.phase, agentRoutePlan?.status, flowDispatch])
 
   // Fit camera to agent-produced route.
-  const { setSelectedRouteId, setDisplayedRoutePlanId, registerFitHandler, requestFitToRouteWithReset } = useSelectedRoute()
+  const {
+    setSelectedRouteId,
+    setDisplayedRoutePlanId,
+    registerFitHandler,
+    requestFitToRouteWithReset,
+  } = useSelectedRoute()
   const pendingFitRef = useRef(false)
 
   const handleNewSession = () => {
@@ -482,7 +490,12 @@ const HomeMapScreen = () => {
       // and the bottom input bar + suggestions (~160 + safe area bottom).
       const padTop = insets.top + 80
       const padBottom = insets.bottom + 180
-      mapRef.current.fitToCoordinates(coords, { top: padTop, right: 60, bottom: padBottom, left: 60 })
+      mapRef.current.fitToCoordinates(coords, {
+        top: padTop,
+        right: 60,
+        bottom: padBottom,
+        left: 60,
+      })
     }
     // Clear the flag after fitting so subsequent chat/map toggles preserve position
     setShouldFitToRoute(false)
@@ -550,7 +563,7 @@ const HomeMapScreen = () => {
     if (!mapMounted || !mapRef.current || !cameraStoreHydrated) return
 
     const slot = activeSessionKey
-      ? cameraBySession[activeSessionKey] ?? defaultCameraSlot
+      ? (cameraBySession[activeSessionKey] ?? defaultCameraSlot)
       : defaultCameraSlot
     if (!slot) return
 
@@ -595,7 +608,12 @@ const HomeMapScreen = () => {
           latitude: r.location.lat,
           longitude: r.location.lng,
         }))
-        mapRef.current.fitToCoordinates(coords, { top: insets.top + 80, right: 60, bottom: insets.bottom + 180, left: 60 })
+        mapRef.current.fitToCoordinates(coords, {
+          top: insets.top + 80,
+          right: 60,
+          bottom: insets.bottom + 180,
+          left: 60,
+        })
       }
     }
     if (searchResults.length === 0) {
@@ -619,7 +637,7 @@ const HomeMapScreen = () => {
   // Reset selection when a new plan is created (latest plan = default selected)
   const lastSeenPlanIdRef = useRef<string | null>(null)
   useEffect(() => {
-    const currentPlanId = agentRoutePlan?._id as string | null
+    const _currentPlanId = agentRoutePlan?._id as string | null
     const newestPlanId = newestRoutePlanId as string | null
 
     // Reset when the newest plan changes (not just the displayed plan)
@@ -630,7 +648,7 @@ const HomeMapScreen = () => {
       // Clear any pinned plan override so the newest plan shows
       setDisplayedRoutePlanId(null)
     }
-  }, [newestRoutePlanId, setSelectedRouteId, setDisplayedRoutePlanId])
+  }, [newestRoutePlanId, setSelectedRouteId, setDisplayedRoutePlanId, agentRoutePlan?._id])
 
   const mapLayerStyle = useAnimatedStyle(() => ({ opacity: mapOpacity.value }))
   const chatLayerStyle = useAnimatedStyle(() => ({ opacity: chatOpacity.value }))
@@ -672,19 +690,20 @@ const HomeMapScreen = () => {
     if (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS') {
       if (!flowState.routeOptions?.options?.length) return null
       const explicit = flowState.routeOptions.options.find(
-        (opt) => opt.routeOptionId === flowState.selectedRouteId
+        (opt) => opt.routeOptionId === flowState.selectedRouteId,
       )
       return explicit ?? flowState.routeOptions.options[0]
     }
     // Fallback to manual mode
     if (!manualRouteOptions?.options?.length) return null
-    return manualRouteOptions.options.find(
-      (opt: any) => opt.routeOptionId === selectedRouteOptionId
-    ) ?? manualRouteOptions.options[0]
+    return (
+      manualRouteOptions.options.find((opt: any) => opt.routeOptionId === selectedRouteOptionId) ??
+      manualRouteOptions.options[0]
+    )
   }, [flowState, manualRouteOptions, selectedRouteOptionId])
 
   // Determine overlay availability based on selected route option
-  const overlayAvailability = useMemo(() => {
+  const _overlayAvailability = useMemo(() => {
     // Only show overlays when the route actually has overlay data
     const hasOverlayData = selectedOption?.overlaysPreview?.conditionsStatus === 'ok'
 
@@ -703,17 +722,16 @@ const HomeMapScreen = () => {
     // This includes ROUTE_RESULTS, ROUTE_DETAILS, and PLANNING (when refining existing routes).
     // During PLANNING, existing route options are preserved so the old route stays
     // visible on the map until a new one arrives.
-    const hasRouteOptions = (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS' || flowState.phase === 'PLANNING') && 'routeOptions' in flowState && flowState.routeOptions
+    const hasRouteOptions =
+      (flowState.phase === 'ROUTE_RESULTS' ||
+        flowState.phase === 'ROUTE_DETAILS' ||
+        flowState.phase === 'PLANNING') &&
+      'routeOptions' in flowState &&
+      flowState.routeOptions
 
     if (hasRouteOptions) {
-      const flattened = polylines.flatMap(routePolyline => routePolyline.polylines)
-      console.info('[routePolylines] Using useRouteComparison polylines:', {
-        flowPhase: flowState.phase,
-        routeComparisonCount: polylines.length,
-        flattenedCount: flattened.length,
-        selectedRouteId: 'selectedRouteId' in flowState ? flowState.selectedRouteId : 'n/a',
-        firstPolylineCoords: flattened[0]?.coordinates?.length ?? 0,
-      })
+      const flattened = polylines.flatMap((routePolyline) => routePolyline.polylines)
+
       return flattened
     }
 
@@ -721,11 +739,6 @@ const HomeMapScreen = () => {
     // has planned a route but the flow state machine hasn't transitioned into
     // ROUTE_RESULTS yet (e.g. agent chat flow, task #258).
     if (agentActiveOption) {
-      console.info('[routePolylines] Using agentActiveOption:', {
-        hasOverviewGeometry: !!agentActiveOption.map?.overviewGeometry,
-        overviewValue: agentActiveOption.map?.overviewGeometry?.value?.substring(0, 30),
-        legsCount: agentActiveOption.map?.legs?.length,
-      })
       return buildRoutePolylines({
         route: {
           overviewGeometry: agentActiveOption.map.overviewGeometry,
@@ -740,12 +753,6 @@ const HomeMapScreen = () => {
       })
     }
 
-    // Fallback to manual mode
-    console.info('[routePolylines] No agentActiveOption, falling back:', {
-      flowPhase: flowState.phase,
-      hasSelectedOption: !!selectedOption,
-      agentActiveOption: agentActiveOption === null ? 'null' : agentActiveOption === undefined ? 'undefined' : 'exists',
-    })
     if (!selectedOption) return []
     return buildRoutePolylines({
       route: {
@@ -817,7 +824,7 @@ const HomeMapScreen = () => {
       setManualRouteOptions(null)
       setSelectedRouteOptionId(null)
     },
-    [startStop, endStop, sheetVisible]
+    [startStop, endStop, sheetVisible],
   )
 
   const handlePlanRide = useCallback(async () => {
@@ -901,7 +908,7 @@ const HomeMapScreen = () => {
         saveCameraToStore(null, newCamera.center, newCamera.zoom)
       }
     },
-    [saveCameraToStore]
+    [saveCameraToStore],
   )
 
   const zoom = (delta: number) => {
@@ -920,24 +927,19 @@ const HomeMapScreen = () => {
   // --- Manual planning mode fallback (US-018) ---
   // Extract routing preferences the rider has expressed in chat messages so
   // that PlanRideSheet can be pre-populated when they switch to manual mode.
-  const extractPreferencesFromMessages = useCallback(
-    (messages: TranscriptMessage[]) => {
-      const allText = messages
-        .filter((m) => m.role === 'rider')
-        .map((m) => m.content.toLowerCase())
-        .join(' ')
+  const extractPreferencesFromMessages = useCallback((messages: TranscriptMessage[]) => {
+    const allText = messages
+      .filter((m) => m.role === 'rider')
+      .map((m) => m.content.toLowerCase())
+      .join(' ')
 
-      return {
-        avoidHighways: allText.includes('avoid highway') || allText.includes('no highways'),
-        avoidTolls: allText.includes('avoid toll') || allText.includes('no tolls'),
-        scenic:
-          allText.includes('scenic') ||
-          allText.includes('twisties') ||
-          allText.includes('curvy'),
-      }
-    },
-    []
-  )
+    return {
+      avoidHighways: allText.includes('avoid highway') || allText.includes('no highways'),
+      avoidTolls: allText.includes('avoid toll') || allText.includes('no tolls'),
+      scenic:
+        allText.includes('scenic') || allText.includes('twisties') || allText.includes('curvy'),
+    }
+  }, [])
 
   const handleManualModePress = useCallback(() => {
     // Carry over preferences from the chat conversation
@@ -999,85 +1001,84 @@ const HomeMapScreen = () => {
       sourceUrl: routeOption?.sourceUrl,
     }
 
-    return fallback.sourceLabel || fallback.designation || fallback.description || fallback.sourceUrl
+    return fallback.sourceLabel ||
+      fallback.designation ||
+      fallback.description ||
+      fallback.sourceUrl
       ? fallback
       : undefined
   }, [])
 
   // US-050: Handle segment long-press for route saving
-  const handleSegmentSelect = useCallback((segment: SegmentSelectData) => {
-    console.log('[handleSegmentSelect] Called with segment:', segment)
+  const handleSegmentSelect = useCallback(
+    (segment: SegmentSelectData) => {
+      // When long-pressing a segment, we want to save the full route, not just the segment
+      // So we use the same data flow as the bookmark button
+      if (!agentRoutePlan || !agentActiveOption) {
+        return
+      }
 
-    // When long-pressing a segment, we want to save the full route, not just the segment
-    // So we use the same data flow as the bookmark button
-    if (!agentRoutePlan || !agentActiveOption) {
-      console.log('[handleSegmentSelect] Missing route data', { hasAgentRoutePlan: !!agentRoutePlan, hasAgentActiveOption: !!agentActiveOption })
-      return
-    }
+      setSelectedSegment(segment)
+      setHighlightedSegmentId(segment.segmentId)
 
-    setSelectedSegment(segment)
-    setHighlightedSegmentId(segment.segmentId)
+      // Build the same route data as the bookmark button
+      const startLabel = agentRoutePlan.startLabel ?? 'Start'
+      const endLabel = agentRoutePlan.endLabel ?? 'Destination'
+      const suggestedName = `${startLabel} → ${endLabel}`
 
-    // Build the same route data as the bookmark button
-    const startLabel = agentRoutePlan.startLabel ?? 'Start'
-    const endLabel = agentRoutePlan.endLabel ?? 'Destination'
-    const suggestedName = `${startLabel} → ${endLabel}`
+      const routeIndex = {
+        routeFingerprint: agentActiveOption.routeOptionId,
+        sampledPoints: [],
+      }
 
-    const routeIndex = {
-      routeFingerprint: agentActiveOption.routeOptionId,
-      sampledPoints: [],
-    }
+      const snapshotMeta = {
+        savedAt: Date.now(),
+        routingProvider: 'route_plans',
+        overlays: {
+          wind: agentActiveOption.overlaysPreview?.windSummary
+            ? { generatedAt: Date.now(), modelVersion: '1.0' }
+            : undefined,
+        },
+        conditionsStatus: agentActiveOption.overlaysPreview?.conditionsStatus ?? 'unavailable',
+        metaVersion: 1,
+      }
 
-    const snapshotMeta = {
-      savedAt: Date.now(),
-      routingProvider: 'route_plans',
-      overlays: {
-        wind: agentActiveOption.overlaysPreview?.windSummary
-          ? { generatedAt: Date.now(), modelVersion: '1.0' }
-          : undefined,
-      },
-      conditionsStatus: agentActiveOption.overlaysPreview?.conditionsStatus ?? 'unavailable',
-      metaVersion: 1,
-    }
+      // Build complete RouteSnapshot from agentActiveOption.map
+      // The map object only has bounds, overviewGeometry, legs - we need to add missing fields
+      const routeSnapshot = {
+        provider: 'route_plans',
+        bounds: agentActiveOption.map.bounds,
+        origin: agentRoutePlan.planInput.start,
+        destination: agentRoutePlan.planInput.end,
+        waypoints: [], // No waypoints for simple A->B routes
+        overviewGeometry: agentActiveOption.map.overviewGeometry,
+        legs: agentActiveOption.map.legs,
+        annotations: [], // Will be populated by enrichment if needed
+        overlays: agentActiveOption.map.overlays || {},
+      }
 
-    // Build complete RouteSnapshot from agentActiveOption.map
-    // The map object only has bounds, overviewGeometry, legs - we need to add missing fields
-    const routeSnapshot = {
-      provider: 'route_plans',
-      bounds: agentActiveOption.map.bounds,
-      origin: agentRoutePlan.planInput.start,
-      destination: agentRoutePlan.planInput.end,
-      waypoints: [], // No waypoints for simple A->B routes
-      overviewGeometry: agentActiveOption.map.overviewGeometry,
-      legs: agentActiveOption.map.legs,
-      annotations: [], // Will be populated by enrichment if needed
-      overlays: agentActiveOption.map.overlays || {},
-    }
+      const routeData = {
+        suggestedName,
+        planInput: agentRoutePlan.planInput,
+        routeSnapshot,
+        routeIndex,
+        snapshotMeta,
+        routeProvenance: buildRouteProvenance(agentActiveOption),
+      }
 
-    const routeData = {
-      suggestedName,
-      planInput: agentRoutePlan.planInput,
-      routeSnapshot,
-      routeIndex,
-      snapshotMeta,
-      routeProvenance: buildRouteProvenance(agentActiveOption),
-    }
+      setSaveRouteData(routeData)
 
-    console.log('[handleSegmentSelect] Setting route data:', routeData)
-    setSaveRouteData(routeData)
-
-    // Small delay to show highlight before sheet appears
-    setTimeout(() => {
-      setSaveRouteSheetVisible(true)
-    }, 100)
-  }, [agentRoutePlan, agentActiveOption, buildRouteProvenance])
+      // Small delay to show highlight before sheet appears
+      setTimeout(() => {
+        setSaveRouteSheetVisible(true)
+      }, 100)
+    },
+    [agentRoutePlan, agentActiveOption, buildRouteProvenance],
+  )
 
   // US-050: Handle save route button press
   const handleSaveRoutePress = useCallback(() => {
-    console.log('[handleSaveRoutePress] Called', { agentRoutePlan, agentActiveOption })
-
     if (!agentRoutePlan || !agentActiveOption) {
-      console.log('[handleSaveRoutePress] Missing data', { hasAgentRoutePlan: !!agentRoutePlan, hasAgentActiveOption: !!agentActiveOption })
       return
     }
 
@@ -1128,7 +1129,6 @@ const HomeMapScreen = () => {
       routeProvenance: buildRouteProvenance(agentActiveOption),
     }
 
-    console.log('[handleSaveRoutePress] Setting route data:', routeData)
     setSaveRouteData(routeData)
     setSaveRouteSheetVisible(true)
   }, [agentRoutePlan, agentActiveOption, buildRouteProvenance])
@@ -1156,33 +1156,33 @@ const HomeMapScreen = () => {
             style={[StyleSheet.absoluteFill, mapLayerStyle]}
             pointerEvents={chatMode ? 'none' : 'auto'}
           >
-              <MapboxMapView
-                ref={mapRef}
-                theme={isDark ? 'dark' : 'light'}
-                initialCamera={initialCamera}
-                markers={markers}
-                onMapClick={handleMapClick}
-                onCameraMove={handleCameraMove}
-              >
-                <RoutePolyline
-                  polylines={routePolylines}
-                  onSegmentSelect={handleSegmentSelect}
-                  selectedSegmentId={highlightedSegmentId}
-                  testID="home-route-polyline"
+            <MapboxMapView
+              ref={mapRef}
+              theme={isDark ? 'dark' : 'light'}
+              initialCamera={initialCamera}
+              markers={markers}
+              onMapClick={handleMapClick}
+              onCameraMove={handleCameraMove}
+            >
+              <RoutePolyline
+                polylines={routePolylines}
+                onSegmentSelect={handleSegmentSelect}
+                selectedSegmentId={highlightedSegmentId}
+                testID="home-route-polyline"
+              />
+              {searchResults.map((result, i) => (
+                <SearchResultMarker
+                  key={result.id}
+                  id={result.id}
+                  coordinate={{ latitude: result.location.lat, longitude: result.location.lng }}
+                  index={i + 1}
+                  name={result.name}
+                  placeType={result.types?.[0]}
+                  isSelected={result.id === selectedSearchResultId}
+                  onPress={setSelectedSearchResultId}
                 />
-                {searchResults.map((result, i) => (
-                  <SearchResultMarker
-                    key={result.id}
-                    id={result.id}
-                    coordinate={{ latitude: result.location.lat, longitude: result.location.lng }}
-                    index={i + 1}
-                    name={result.name}
-                    placeType={result.types?.[0]}
-                    isSelected={result.id === selectedSearchResultId}
-                    onPress={setSelectedSearchResultId}
-                  />
-                ))}
-              </MapboxMapView>
+              ))}
+            </MapboxMapView>
           </Animated.View>
         )}
 
@@ -1193,10 +1193,7 @@ const HomeMapScreen = () => {
             style={[StyleSheet.absoluteFill, chatLayerStyle, styles.chatLayer]}
             pointerEvents={chatMode ? 'auto' : 'none'}
           >
-            <View
-              style={StyleSheet.absoluteFill}
-              testID="chat-dismiss-keyboard-pressable"
-            >
+            <View style={StyleSheet.absoluteFill} testID="chat-dismiss-keyboard-pressable">
               <Pressable
                 style={[
                   StyleSheet.absoluteFill,
@@ -1251,10 +1248,7 @@ const HomeMapScreen = () => {
               testID="weather-pills-container"
               pointerEvents="box-none"
             >
-              <WeatherPillsRow
-                overlays={selectedOption.overlays}
-                testID="weather-pills-row"
-              />
+              <WeatherPillsRow overlays={selectedOption.overlays} testID="weather-pills-row" />
             </View>
           )}
         </View>
@@ -1291,7 +1285,9 @@ const HomeMapScreen = () => {
         {!chatMode &&
           toasts.length === 0 &&
           !mapPlanningVisible &&
-          (flowState.phase === 'ROUTE_RESULTS' || flowState.phase === 'ROUTE_DETAILS' || flowState.phase === 'PLANNING') &&
+          (flowState.phase === 'ROUTE_RESULTS' ||
+            flowState.phase === 'ROUTE_DETAILS' ||
+            flowState.phase === 'PLANNING') &&
           'routeOptions' in flowState &&
           flowState.routeOptions?.options && (
             <Animated.View
@@ -1358,7 +1354,7 @@ const HomeMapScreen = () => {
           onToggleChatMode={cycleTranscript}
           onManualModePress={handleManualModePress}
           hasMessages={transcriptMessages.length > 0}
-          dispatch={flowDispatch}
+          dispatch={(action: { type: string }) => flowDispatch(action as RideFlowAction)}
         />
 
         <PlanRideSheet

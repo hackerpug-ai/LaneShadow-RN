@@ -10,9 +10,9 @@
  * - Shows favorite inclusion indicator when favorites are used
  */
 
+import { useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { useState } from 'react'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { PlannedRouteOptionView } from '../../types/routes'
 import { Badge } from '../ui/badge'
@@ -198,12 +198,19 @@ export const RouteOptionCard = ({
                   <IconSymbol
                     name="heart"
                     size={12}
-                    color={favoriteCount === 0 ? semantic.color.onSurface.muted : semantic.color.onPrimary.default}
+                    color={
+                      favoriteCount === 0
+                        ? (semantic.color.onSurface.muted ?? 'transparent')
+                        : semantic.color.onPrimary.default
+                    }
                   />
                   <Text
                     variant="labelSmall"
                     style={{
-                      color: favoriteCount === 0 ? semantic.color.onSurface.muted : semantic.color.onPrimary.default,
+                      color:
+                        favoriteCount === 0
+                          ? semantic.color.onSurface.muted
+                          : semantic.color.onPrimary.default,
                       marginLeft: 4,
                     }}
                   >

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
 import { ConvexError } from 'convex/values'
+import { describe, expect, it, vi } from 'vitest'
 
 // Note: Testing environment variables is tricky because modules cache their values at load time.
 // The PROTOMAPS_US_URL validation runs at module load time, so we need to test the
@@ -59,9 +59,7 @@ describe('PROTOMAPS_US_URL validation', () => {
     it('exports PROTOMAPS_US_URL (optional, can be undefined)', async () => {
       const { PROTOMAPS_US_URL } = await import('../lib/env')
       // PROTOMAPS_US_URL is optional, so undefined is valid
-      expect(typeof PROTOMAPS_US_URL === 'string' || PROTOMAPS_US_URL === undefined).toBe(
-        true,
-      )
+      expect(typeof PROTOMAPS_US_URL === 'string' || PROTOMAPS_US_URL === undefined).toBe(true)
     })
   })
 })

@@ -7,9 +7,10 @@
  * Design: Slim horizontal bar with animated progress line
  */
 
-import React, { useEffect, useState } from 'react'
-import { View, StyleSheet, Animated, TouchableOpacity } from 'react-native'
-import { Text, IconButton } from 'react-native-paper'
+import type React from 'react'
+import { useEffect, useState } from 'react'
+import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { IconButton, Text } from 'react-native-paper'
 import { formatBytes } from './formatters'
 
 interface DownloadProgressBannerProps {
@@ -70,11 +71,7 @@ export const DownloadProgressBanner: React.FC<DownloadProgressBannerProps> = ({
         },
       ]}
     >
-      <TouchableOpacity
-        style={styles.touchable}
-        onPress={onPress}
-        activeOpacity={0.7}
-      >
+      <TouchableOpacity style={styles.touchable} onPress={onPress} activeOpacity={0.7}>
         {/* Progress bar background */}
         <View style={styles.progressBarBackground}>
           <Animated.View

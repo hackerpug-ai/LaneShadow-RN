@@ -1,4 +1,4 @@
-'use node';
+'use node'
 
 /**
  * Map Data Actions — R2 PMTiles Management
@@ -9,30 +9,28 @@
  * - Syncing PMTiles from Protomaps daily builds (extract + upload)
  */
 
-import { internalAction, action } from '../_generated/server';
-import { v } from 'convex/values';
 import {
-  S3Client,
-  HeadObjectCommand,
   GetObjectCommand,
-  PutObjectCommand,
+  HeadObjectCommand,
   ListObjectsV2Command,
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { v } from 'convex/values'
+import { action, internalAction } from '../_generated/server'
 
 // ---------------------------------------------------------------------------
 // R2 Client
 // ---------------------------------------------------------------------------
 
 function getR2Client(): S3Client {
-  const endpoint = process.env.R2_S3_API;
-  const accessKeyId = process.env.R2_S3_KEY_ID;
-  const secretAccessKey = process.env.R2_S3_SECRET;
+  const endpoint = process.env.R2_S3_API
+  const accessKeyId = process.env.R2_S3_KEY_ID
+  const secretAccessKey = process.env.R2_S3_SECRET
 
   if (!endpoint || !accessKeyId || !secretAccessKey) {
-    throw new Error(
-      'Missing R2 credentials. Set R2_S3_API, R2_S3_KEY_ID, R2_S3_SECRET env vars.'
-    );
+    throw new Error('Missing R2 credentials. Set R2_S3_API, R2_S3_KEY_ID, R2_S3_SECRET env vars.')
   }
 
   return new S3Client({
@@ -42,26 +40,26 @@ function getR2Client(): S3Client {
       accessKeyId,
       secretAccessKey,
     },
-  });
+  })
 }
 
 function getBucket(): string {
-  const bucket = process.env.R2_S3_BUCKET_NAME;
-  if (!bucket) throw new Error('Missing R2_S3_BUCKET_NAME env var');
-  return bucket;
+  const bucket = process.env.R2_S3_BUCKET_NAME
+  if (!bucket) throw new Error('Missing R2_S3_BUCKET_NAME env var')
+  return bucket
 }
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-const PMTILES_KEY = 'map-data/us-canada.pmtiles';
-const PRESIGNED_URL_EXPIRY_SECONDS = 3600; // 1 hour
-const PROTOMAPS_BUILD_BASE = 'https://build.protomaps.com';
+const PMTILES_KEY = 'map-data/us-canada.pmtiles'
+const PRESIGNED_URL_EXPIRY_SECONDS = 3600 // 1 hour
+const PROTOMAPS_BUILD_BASE = 'https://build.protomaps.com'
 
 // US + Canada bounding box: all 50 states + all Canadian provinces/territories
-const US_CANADA_BBOX = '-170,24,-52,72';
-const MAX_ZOOM = 14;
+const US_CANADA_BBOX = '-170,24,-52,72'
+const MAX_ZOOM = 14
 
 // ---------------------------------------------------------------------------
 // Health Check
@@ -74,33 +72,31 @@ const MAX_ZOOM = 14;
 export const healthCheck = internalAction({
   args: {},
   handler: async (): Promise<{
-    exists: boolean;
-    sizeBytes?: number;
-    lastModified?: string;
-    key: string;
+    exists: boolean
+    sizeBytes?: number
+    lastModified?: string
+    key: string
   }> => {
-    const client = getR2Client();
-    const bucket = getBucket();
+    const client = getR2Client()
+    const bucket = getBucket()
 
     try {
-      const result = await client.send(
-        new HeadObjectCommand({ Bucket: bucket, Key: PMTILES_KEY })
-      );
+      const result = await client.send(new HeadObjectCommand({ Bucket: bucket, Key: PMTILES_KEY }))
 
       return {
         exists: true,
         sizeBytes: result.ContentLength,
         lastModified: result.LastModified?.toISOString(),
         key: PMTILES_KEY,
-      };
+      }
     } catch (error: any) {
       if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
-        return { exists: false, key: PMTILES_KEY };
+        return { exists: false, key: PMTILES_KEY }
       }
-      throw error;
+      throw error
     }
   },
-});
+})
 
 // ---------------------------------------------------------------------------
 // Generate Presigned URL
@@ -113,22 +109,24 @@ export const healthCheck = internalAction({
 export const getPresignedUrl = internalAction({
   args: {},
   handler: async (): Promise<string> => {
-    const client = getR2Client();
-    const bucket = getBucket();
+    const client = getR2Client()
+    const bucket = getBucket()
 
     const command = new GetObjectCommand({
       Bucket: bucket,
       Key: PMTILES_KEY,
-    });
+    })
 
     const url = await getSignedUrl(client, command, {
       expiresIn: PRESIGNED_URL_EXPIRY_SECONDS,
-    });
+    })
 
-    console.log(`[mapData] Generated presigned URL for ${PMTILES_KEY} (expires in ${PRESIGNED_URL_EXPIRY_SECONDS}s)`);
-    return url;
+    console.log(
+      `[mapData] Generated presigned URL for ${PMTILES_KEY} (expires in ${PRESIGNED_URL_EXPIRY_SECONDS}s)`,
+    )
+    return url
   },
-});
+})
 
 // ---------------------------------------------------------------------------
 // List R2 Objects
@@ -139,26 +137,24 @@ export const getPresignedUrl = internalAction({
  */
 export const listMapData = internalAction({
   args: {},
-  handler: async (): Promise<
-    { key: string; size: number; lastModified: string }[]
-  > => {
-    const client = getR2Client();
-    const bucket = getBucket();
+  handler: async (): Promise<{ key: string; size: number; lastModified: string }[]> => {
+    const client = getR2Client()
+    const bucket = getBucket()
 
     const result = await client.send(
       new ListObjectsV2Command({
         Bucket: bucket,
         Prefix: 'map-data/',
-      })
-    );
+      }),
+    )
 
     return (result.Contents ?? []).map((obj) => ({
       key: obj.Key ?? '',
       size: obj.Size ?? 0,
       lastModified: obj.LastModified?.toISOString() ?? '',
-    }));
+    }))
   },
-});
+})
 
 // ---------------------------------------------------------------------------
 // Sync PMTiles from Protomaps
@@ -182,59 +178,56 @@ export const listMapData = internalAction({
  */
 export const checkFreshness = internalAction({
   args: {},
-  handler: async (ctx): Promise<{
-    status: 'fresh' | 'stale' | 'missing';
-    ageInDays?: number;
-    message: string;
+  handler: async (
+    ctx,
+  ): Promise<{
+    status: 'fresh' | 'stale' | 'missing'
+    ageInDays?: number
+    message: string
   }> => {
-    const client = getR2Client();
-    const bucket = getBucket();
+    const client = getR2Client()
+    const bucket = getBucket()
 
     try {
-      const result = await client.send(
-        new HeadObjectCommand({ Bucket: bucket, Key: PMTILES_KEY })
-      );
+      const result = await client.send(new HeadObjectCommand({ Bucket: bucket, Key: PMTILES_KEY }))
 
       if (!result.LastModified) {
         return {
           status: 'stale',
           message: 'PMTiles file exists but has no last-modified date',
-        };
+        }
       }
 
-      const ageMs = Date.now() - result.LastModified.getTime();
-      const ageDays = Math.floor(ageMs / (1000 * 60 * 60 * 24));
+      const ageMs = Date.now() - result.LastModified.getTime()
+      const ageDays = Math.floor(ageMs / (1000 * 60 * 60 * 24))
 
       if (ageDays > 30) {
-        console.warn(
-          `[mapData] PMTiles file is ${ageDays} days old — consider updating`
-        );
+        console.warn(`[mapData] PMTiles file is ${ageDays} days old — consider updating`)
         return {
           status: 'stale',
           ageInDays: ageDays,
           message: `PMTiles file is ${ageDays} days old. Run: npx tsx scripts/sync-protomaps-r2.ts`,
-        };
+        }
       }
 
-      console.log(`[mapData] PMTiles file is ${ageDays} days old — fresh`);
+      console.log(`[mapData] PMTiles file is ${ageDays} days old — fresh`)
       return {
         status: 'fresh',
         ageInDays: ageDays,
         message: `PMTiles file is ${ageDays} days old`,
-      };
+      }
     } catch (error: any) {
       if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
-        console.warn('[mapData] No PMTiles file found on R2');
+        console.warn('[mapData] No PMTiles file found on R2')
         return {
           status: 'missing',
-          message:
-            'No PMTiles file found on R2. Run: npx tsx scripts/sync-protomaps-r2.ts',
-        };
+          message: 'No PMTiles file found on R2. Run: npx tsx scripts/sync-protomaps-r2.ts',
+        }
       }
-      throw error;
+      throw error
     }
   },
-});
+})
 
 // ---------------------------------------------------------------------------
 // Check Freshness with Alert
@@ -248,17 +241,17 @@ export const checkFreshness = internalAction({
  */
 export async function checkFreshnessWithAlertLogic(
   checkFreshnessFn: () => Promise<{
-    status: 'fresh' | 'stale' | 'missing';
-    ageInDays?: number;
-    message: string;
-  }>
+    status: 'fresh' | 'stale' | 'missing'
+    ageInDays?: number
+    message: string
+  }>,
 ): Promise<{
-  status: 'fresh' | 'stale' | 'missing';
-  ageInDays?: number;
-  message: string;
+  status: 'fresh' | 'stale' | 'missing'
+  ageInDays?: number
+  message: string
 }> {
   // Call the provided checkFreshness function
-  const result = await checkFreshnessFn();
+  const result = await checkFreshnessFn()
 
   // Emit error log for stale or missing data
   if (result.status === 'stale' || result.status === 'missing') {
@@ -270,11 +263,11 @@ export async function checkFreshnessWithAlertLogic(
         category: 'protomaps.error',
         message: 'Map data is stale or missing',
         data: result,
-      })
-    );
+      }),
+    )
   }
 
-  return result;
+  return result
 }
 
 /**
@@ -285,58 +278,58 @@ export async function checkFreshnessWithAlertLogic(
  */
 export const checkFreshnessWithAlert = internalAction({
   args: {},
-  handler: async (ctx): Promise<{
-    status: 'fresh' | 'stale' | 'missing';
-    ageInDays?: number;
-    message: string;
+  handler: async (
+    ctx,
+  ): Promise<{
+    status: 'fresh' | 'stale' | 'missing'
+    ageInDays?: number
+    message: string
   }> => {
     // Get the R2 client and bucket
-    const client = getR2Client();
-    const bucket = getBucket();
+    const client = getR2Client()
+    const bucket = getBucket()
 
     try {
-      const result = await client.send(
-        new HeadObjectCommand({ Bucket: bucket, Key: PMTILES_KEY })
-      );
+      const result = await client.send(new HeadObjectCommand({ Bucket: bucket, Key: PMTILES_KEY }))
 
       if (!result.LastModified) {
         const staleResult = {
           status: 'stale' as const,
           message: 'PMTiles file exists but has no last-modified date',
-        };
-        return checkFreshnessWithAlertLogic(async () => staleResult);
+        }
+        return checkFreshnessWithAlertLogic(async () => staleResult)
       }
 
-      const ageMs = Date.now() - result.LastModified.getTime();
-      const ageDays = Math.floor(ageMs / (1000 * 60 * 60 * 24));
+      const ageMs = Date.now() - result.LastModified.getTime()
+      const ageDays = Math.floor(ageMs / (1000 * 60 * 60 * 24))
 
       if (ageDays > 30) {
         const staleResult = {
           status: 'stale' as const,
           ageInDays: ageDays,
           message: `PMTiles file is ${ageDays} days old. Run: npx tsx scripts/sync-protomaps-r2.ts`,
-        };
-        return checkFreshnessWithAlertLogic(async () => staleResult);
+        }
+        return checkFreshnessWithAlertLogic(async () => staleResult)
       }
 
       const freshResult = {
         status: 'fresh' as const,
         ageInDays: ageDays,
         message: `PMTiles file is ${ageDays} days old`,
-      };
-      return checkFreshnessWithAlertLogic(async () => freshResult);
+      }
+      return checkFreshnessWithAlertLogic(async () => freshResult)
     } catch (error: any) {
       if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
         const missingResult = {
           status: 'missing' as const,
           message: 'No PMTiles file found on R2. Run: npx tsx scripts/sync-protomaps-r2.ts',
-        };
-        return checkFreshnessWithAlertLogic(async () => missingResult);
+        }
+        return checkFreshnessWithAlertLogic(async () => missingResult)
       }
-      throw error;
+      throw error
     }
   },
-});
+})
 
 // ---------------------------------------------------------------------------
 // Upload PMTiles chunk (for script-driven upload)
@@ -354,10 +347,10 @@ export const uploadChunk = internalAction({
     data: v.string(), // base64-encoded chunk
   },
   handler: async (_ctx, args): Promise<{ uploaded: boolean }> => {
-    const client = getR2Client();
-    const bucket = getBucket();
+    const client = getR2Client()
+    const bucket = getBucket()
 
-    const buffer = Buffer.from(args.data, 'base64');
+    const buffer = Buffer.from(args.data, 'base64')
 
     await client.send(
       new PutObjectCommand({
@@ -365,13 +358,13 @@ export const uploadChunk = internalAction({
         Key: args.key,
         Body: buffer,
         ContentType: 'application/octet-stream',
-      })
-    );
+      }),
+    )
 
     console.log(
-      `[mapData] Uploaded chunk ${args.partNumber}/${args.totalParts} for ${args.key} (${buffer.length} bytes)`
-    );
+      `[mapData] Uploaded chunk ${args.partNumber}/${args.totalParts} for ${args.key} (${buffer.length} bytes)`,
+    )
 
-    return { uploaded: true };
+    return { uploaded: true }
   },
-});
+})

@@ -1,12 +1,21 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import type {
+  PolylineGeometry,
+  RouteLeg,
+  RouteOverlays,
+  RouteStop,
+} from '../../../models/saved-routes'
+import type { ExtendedTheme } from '../../../styles/types'
 import {
+  createRainOverlay,
+  createTemperatureOverlay,
+  createWindOverlay,
+} from '../../../test-helpers/overlays'
+import {
+  batchWeatherPolylines,
   calculateLOD,
   simplifyDouglasPeucker,
-  batchWeatherPolylines,
 } from '../weather-optimization'
-import { createWindOverlay, createRainOverlay, createTemperatureOverlay } from '../../../test-helpers/overlays'
-import type { RouteLeg, PolylineGeometry, RouteOverlays, RouteStop } from '../../../models/saved-routes'
-import type { ExtendedTheme } from '../../../styles/types'
 
 // ---------------------------------------------------------------------------
 // Mock semantic theme
@@ -129,28 +138,51 @@ describe('CLR-022: Batch Rendering Optimization', () => {
 
   describe('AC-003: Douglas-Peucker simplification', () => {
     it('returns original points when tolerance is 0', () => {
-      const points: [number, number][] = [[0, 0], [1, 1], [2, 0]]
+      const points: [number, number][] = [
+        [0, 0],
+        [1, 1],
+        [2, 0],
+      ]
       const result = simplifyDouglasPeucker(points, 0)
       expect(result).toEqual(points)
     })
 
     it('returns original points when only 2 points', () => {
-      const points: [number, number][] = [[0, 0], [1, 1]]
+      const points: [number, number][] = [
+        [0, 0],
+        [1, 1],
+      ]
       const result = simplifyDouglasPeucker(points, 0.1)
       expect(result).toEqual(points)
     })
 
     it('simplifies collinear points to start and end', () => {
-      const points: [number, number][] = [[0, 0], [1, 0], [2, 0], [3, 0]]
+      const points: [number, number][] = [
+        [0, 0],
+        [1, 0],
+        [2, 0],
+        [3, 0],
+      ]
       const result = simplifyDouglasPeucker(points, 0.1)
-      expect(result).toEqual([[0, 0], [3, 0]])
+      expect(result).toEqual([
+        [0, 0],
+        [3, 0],
+      ])
     })
 
     it('preserves points that deviate beyond tolerance', () => {
       // Triangle: middle point deviates significantly
-      const points: [number, number][] = [[0, 0], [1, 10], [2, 0]]
+      const points: [number, number][] = [
+        [0, 0],
+        [1, 10],
+        [2, 0],
+      ]
       const result = simplifyDouglasPeucker(points, 0.1)
-      expect(result).toEqual([[0, 0], [1, 10], [2, 0]])
+      expect(result).toEqual([
+        [0, 0],
+        [1, 10],
+        [2, 0],
+      ])
     })
 
     it('reduces point count for a large route', () => {
@@ -167,7 +199,11 @@ describe('CLR-022: Batch Rendering Optimization', () => {
     it('preserves route recognizability', () => {
       // Right angle route (L-shape) should be preserved
       const points: [number, number][] = [
-        [0, 0], [1, 0], [2, 0], [2, 1], [2, 2],
+        [0, 0],
+        [1, 0],
+        [2, 0],
+        [2, 1],
+        [2, 2],
       ]
       const result = simplifyDouglasPeucker(points, 0.001)
       // Should keep the corner point

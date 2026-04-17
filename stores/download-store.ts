@@ -1,6 +1,6 @@
-import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 
 /**
  * Model download progress state
@@ -266,14 +266,14 @@ export const useDownloadStore = create<DownloadStoreState>()(
       storage: createJSONStorage(() => AsyncStorage),
       onRehydrateStorage: () => (state) => {
         // Mark as hydrated after rehydration completes
-        state._hydrated = true
+        if (state) state._hydrated = true
       },
       partialize: (state) => {
         // Don't persist the _hydrated flag itself
-         
+
         const { _hydrated, ...rest } = state
         return rest
       },
-    }
-  )
+    },
+  ),
 )

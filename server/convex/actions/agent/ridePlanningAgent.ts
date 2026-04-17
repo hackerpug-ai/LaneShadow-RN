@@ -11,10 +11,10 @@
  * - searchAgent.ts (nearby/web search)
  */
 
-import type { ActionCtx } from '../../_generated/server'
-import type { Id } from '../../_generated/dataModel'
 import type { AssistantMessage, Message, ToolResultMessage } from '@mariozechner/pi-ai'
-import { executeOrchestrator, buildOrchestratorPrompt } from './agents/orchestrator'
+import type { Id } from '../../_generated/dataModel'
+import type { ActionCtx } from '../../_generated/server'
+import { buildOrchestratorPrompt, executeOrchestrator } from './agents/orchestrator'
 
 // -----------------------------------------------------------------------------
 // Re-exported types (used by sub-agents, runAgent, sendMessage)
@@ -32,15 +32,29 @@ export type AgentContext = {
 
 export type ToolResult =
   | { type: 'routes'; data: { planId: string; options: any[] }; routePlanId: Id<'route_plans'> }
-  | { type: 'error'; message: string; hint?: string; retryGuidance?: string; routePlanId?: Id<'route_plans'> }
+  | {
+      type: 'error'
+      message: string
+      hint?: string
+      retryGuidance?: string
+      routePlanId?: Id<'route_plans'>
+    }
   | { type: 'confirmation'; message: string }
   | { type: 'search_results'; data: any[] }
   | { type: 'weather'; data: any }
   | { type: 'chat'; message: string; hint?: string; retryGuidance?: string }
 
 export type ExecuteContext = {
-  onToolStart?: (toolName: string, args: unknown) => Promise<{ messageId: Id<'session_messages'> } | void>
-  onToolFinish?: (toolCallId: string, toolName: string, messageId: Id<'session_messages'> | undefined, result: unknown) => Promise<void>
+  onToolStart?: (
+    toolName: string,
+    args: unknown,
+  ) => Promise<{ messageId: Id<'session_messages'> } | void>
+  onToolFinish?: (
+    toolCallId: string,
+    toolName: string,
+    messageId: Id<'session_messages'> | undefined,
+    result: unknown,
+  ) => Promise<void>
   onTextDelta?: (delta: string) => Promise<void>
   onThinkingDelta?: (delta: string) => Promise<void>
   onToolPending?: (partial: { name: string }) => Promise<void>
@@ -50,7 +64,12 @@ export type ExecuteContext = {
   onFinalAssistant?: (assistant: AssistantMessage) => Promise<void>
   /** Planning event callbacks — wired by sendMessage to PlanningEventEmitter */
   onSubToolPending?: (tool: string, agent: string) => Promise<void>
-  onSubToolComplete?: (tool: string, agent: string, summary: string, durationMs: number) => Promise<void>
+  onSubToolComplete?: (
+    tool: string,
+    agent: string,
+    summary: string,
+    durationMs: number,
+  ) => Promise<void>
   onSubAgentComplete?: (agent: string, summary: string, durationMs: number) => Promise<void>
   onSubThinkingDelta?: (delta: string) => Promise<void>
 }
@@ -60,7 +79,7 @@ export type ExecuteContext = {
 // -----------------------------------------------------------------------------
 
 export function extractRouteAttachments(
-  toolResults: { toolName: string; result: unknown }[]
+  toolResults: { toolName: string; result: unknown }[],
 ): { type: string; routePlanId?: Id<'route_plans'> }[] {
   const attachments: { type: string; routePlanId?: Id<'route_plans'> }[] = []
 
@@ -94,8 +113,12 @@ export const buildSystemPrompt = async (ctx: AgentContext): Promise<string> => {
 export async function executeRidePlanningAgent(
   ctx: AgentContext,
   userMessage: string,
-  executeCtx?: ExecuteContext
-): Promise<{ response: string; attachments?: { type: string; routePlanId?: Id<'route_plans'> }[]; metrics?: import('./runAgent').RunAgentMetrics }> {
+  executeCtx?: ExecuteContext,
+): Promise<{
+  response: string
+  attachments?: { type: string; routePlanId?: Id<'route_plans'> }[]
+  metrics?: import('./runAgent').RunAgentMetrics
+}> {
   const result = await executeOrchestrator(ctx, userMessage, executeCtx)
   return {
     response: result.response,

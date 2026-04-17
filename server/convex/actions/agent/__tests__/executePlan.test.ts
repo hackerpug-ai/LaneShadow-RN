@@ -1,9 +1,9 @@
 'use node'
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { executePlanHandler } from '../planRide'
 import { ROUTE_PLAN_STATUS } from '../../../../models/route-plans'
 import type { Id } from '../../../_generated/dataModel'
+import { executePlanHandler } from '../planRide'
 
 // -----------------------------------------------------------------------------
 // Test Data
@@ -32,7 +32,12 @@ const makeSnapshot = () => ({
   origin: { lat: 0, lng: 0 },
   destination: { lat: 1, lng: 1 },
   waypoints: [],
-  overviewGeometry: { format: 'polyline' as const, encoding: 'encoded_polyline', precision: 5, value: 'test' },
+  overviewGeometry: {
+    format: 'polyline' as const,
+    encoding: 'encoded_polyline',
+    precision: 5,
+    value: 'test',
+  },
   legs: [
     {
       legIndex: 0,
@@ -40,7 +45,12 @@ const makeSnapshot = () => ({
       end: { lat: 1, lng: 1 },
       distanceMeters: 25000,
       durationSeconds: 1800,
-      geometry: { format: 'polyline' as const, encoding: 'encoded_polyline', precision: 5, value: 'leg_val' },
+      geometry: {
+        format: 'polyline' as const,
+        encoding: 'encoded_polyline',
+        precision: 5,
+        value: 'leg_val',
+      },
     },
   ],
   annotations: [],

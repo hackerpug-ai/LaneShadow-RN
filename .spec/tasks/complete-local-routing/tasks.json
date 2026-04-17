@@ -20,7 +20,12 @@
           "type": "FEATURE",
           "priority": "P0",
           "effort": "L",
-          "tags": ["epic:complete-local-routing", "milestone:phase-0", "area:frontend", "type:feature"],
+          "tags": [
+            "epic:complete-local-routing",
+            "milestone:phase-0",
+            "area:frontend",
+            "type:feature"
+          ],
           "agent": "frontend-designer",
           "critical_constraints": [
             "MUST: Block all app functionality until model download completes",
@@ -119,23 +124,46 @@
             ]
           },
           "constraints": [
-            {"constraint": "Progress updates every 5%", "reason": "UX requirement"},
-            {"constraint": "WiFi detection accuracy 100%", "reason": "Prevent unexpected data charges"},
-            {"constraint": "Max download time 30 minutes", "reason": "UX requirement"}
+            { "constraint": "Progress updates every 5%", "reason": "UX requirement" },
+            {
+              "constraint": "WiFi detection accuracy 100%",
+              "reason": "Prevent unexpected data charges"
+            },
+            { "constraint": "Max download time 30 minutes", "reason": "UX requirement" }
           ],
           "files": [
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/app/(auth)/onboarding/_layout.tsx", "purpose": "Onboarding stack layout"},
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/app/(auth)/onboarding/welcome-screen.tsx", "purpose": "Welcome screen"},
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/app/(auth)/onboarding/download-screen.tsx", "purpose": "Download progress screen"},
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/app/(auth)/onboarding/complete-screen.tsx", "purpose": "Download complete screen"},
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/network/wifi-detector.ts", "purpose": "WiFi detection utility"},
-            {"action": "MODIFY", "path": "/Users/justinrich/Projects/LaneShadow/app/_layout.tsx", "purpose": "Root layout with onboarding gate"}
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/app/(auth)/onboarding/_layout.tsx",
+              "purpose": "Onboarding stack layout"
+            },
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/app/(auth)/onboarding/welcome-screen.tsx",
+              "purpose": "Welcome screen"
+            },
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/app/(auth)/onboarding/download-screen.tsx",
+              "purpose": "Download progress screen"
+            },
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/app/(auth)/onboarding/complete-screen.tsx",
+              "purpose": "Download complete screen"
+            },
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/lib/network/wifi-detector.ts",
+              "purpose": "WiFi detection utility"
+            },
+            {
+              "action": "MODIFY",
+              "path": "/Users/justinrich/Projects/LaneShadow/app/_layout.tsx",
+              "purpose": "Root layout with onboarding gate"
+            }
           ],
-          "verification": [
-            "pnpm test:unit -- setupWizard",
-            "pnpm typecheck",
-            "pnpm lint"
-          ],
+          "verification": ["pnpm test:unit -- setupWizard", "pnpm typecheck", "pnpm lint"],
           "design": {
             "patterns": [
               "File-based routing (app directory)",
@@ -161,7 +189,12 @@
           "type": "FEATURE",
           "priority": "P0",
           "effort": "XL",
-          "tags": ["epic:complete-local-routing", "milestone:phase-0", "area:backend", "type:feature"],
+          "tags": [
+            "epic:complete-local-routing",
+            "milestone:phase-0",
+            "area:backend",
+            "type:feature"
+          ],
           "agent": "convex-implementer",
           "critical_constraints": [
             "MUST: Download Qwen3.5 0.8B model files to device storage",
@@ -260,22 +293,38 @@
             ]
           },
           "constraints": [
-            {"constraint": "Model file size ~1.5GB", "reason": "Qwen3.5 0.8B size"},
-            {"constraint": "Checksum validation required", "reason": "Security"},
-            {"constraint": "Max 3 retry attempts", "reason": "UX requirement"}
+            { "constraint": "Model file size ~1.5GB", "reason": "Qwen3.5 0.8B size" },
+            { "constraint": "Checksum validation required", "reason": "Security" },
+            { "constraint": "Max 3 retry attempts", "reason": "UX requirement" }
           ],
           "files": [
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/ai/model-manager.ts", "purpose": "Model download and loading singleton"},
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/ai/checksum.ts", "purpose": "Checksum validation utilities"},
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/ai/inference.ts", "purpose": "MLX inference wrapper"},
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/ai/model-storage.ts", "purpose": "Model file path management"},
-            {"action": "MODIFY", "path": "/Users/justinrich/Projects/LaneShadow/package.json", "purpose": "Add MLX dependencies"}
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/lib/ai/model-manager.ts",
+              "purpose": "Model download and loading singleton"
+            },
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/lib/ai/checksum.ts",
+              "purpose": "Checksum validation utilities"
+            },
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/lib/ai/inference.ts",
+              "purpose": "MLX inference wrapper"
+            },
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/lib/ai/model-storage.ts",
+              "purpose": "Model file path management"
+            },
+            {
+              "action": "MODIFY",
+              "path": "/Users/justinrich/Projects/LaneShadow/package.json",
+              "purpose": "Add MLX dependencies"
+            }
           ],
-          "verification": [
-            "pnpm test:unit -- modelManager",
-            "pnpm typecheck",
-            "pnpm lint"
-          ],
+          "verification": ["pnpm test:unit -- modelManager", "pnpm typecheck", "pnpm lint"],
           "design": {
             "patterns": [
               "Singleton pattern for model instance",
@@ -301,7 +350,12 @@
           "type": "FEATURE",
           "priority": "P0",
           "effort": "M",
-          "tags": ["epic:complete-local-routing", "milestone:phase-0", "area:frontend", "type:feature"],
+          "tags": [
+            "epic:complete-local-routing",
+            "milestone:phase-0",
+            "area:frontend",
+            "type:feature"
+          ],
           "agent": "frontend-designer",
           "critical_constraints": [
             "MUST: Block ALL navigation to main app until model download complete",
@@ -389,9 +443,7 @@
               "Persist first-launch flag to AsyncStorage",
               "Show 'Setup Required' for returning users without model"
             ],
-            "ask_first": [
-              "Allow navigation to settings if download blocked by storage"
-            ],
+            "ask_first": ["Allow navigation to settings if download blocked by storage"],
             "never": [
               "Allow bypass of model check",
               "Cache model status beyond current session",
@@ -399,20 +451,31 @@
             ]
           },
           "constraints": [
-            {"constraint": "Gate check time < 100ms", "reason": "UX requirement"},
-            {"constraint": "No navigation flash to main app", "reason": "UX requirement"},
-            {"constraint": "Model status check runs synchronously", "reason": "Prevent race conditions"}
+            { "constraint": "Gate check time < 100ms", "reason": "UX requirement" },
+            { "constraint": "No navigation flash to main app", "reason": "UX requirement" },
+            {
+              "constraint": "Model status check runs synchronously",
+              "reason": "Prevent race conditions"
+            }
           ],
           "files": [
-            {"action": "MODIFY", "path": "/Users/justinrich/Projects/LaneShadow/app/_layout.tsx", "purpose": "Add gatekeeper logic to root layout"},
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/setup/model-status.ts", "purpose": "Model status checking utilities"},
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/app/(auth)/setup-required/screen.tsx", "purpose": "Setup required screen for returning users"}
+            {
+              "action": "MODIFY",
+              "path": "/Users/justinrich/Projects/LaneShadow/app/_layout.tsx",
+              "purpose": "Add gatekeeper logic to root layout"
+            },
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/lib/setup/model-status.ts",
+              "purpose": "Model status checking utilities"
+            },
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/app/(auth)/setup-required/screen.tsx",
+              "purpose": "Setup required screen for returning users"
+            }
           ],
-          "verification": [
-            "pnpm test:unit -- gatekeeper",
-            "pnpm typecheck",
-            "pnpm lint"
-          ],
+          "verification": ["pnpm test:unit -- gatekeeper", "pnpm typecheck", "pnpm lint"],
           "design": {
             "patterns": [
               "Expo Router file-based routing",
@@ -545,31 +608,40 @@
             ]
           },
           "constraints": [
-            {"constraint": "Build time increase < 30 seconds", "reason": "Developer experience"},
-            {"constraint": "App size increase < 20MB", "reason": "UX requirement"},
-            {"constraint": "No breaking changes to existing builds", "reason": "Stability"}
+            { "constraint": "Build time increase < 30 seconds", "reason": "Developer experience" },
+            { "constraint": "App size increase < 20MB", "reason": "UX requirement" },
+            { "constraint": "No breaking changes to existing builds", "reason": "Stability" }
           ],
           "files": [
-            {"action": "MODIFY", "path": "/Users/justinrich/Projects/LaneShadow/package.json", "purpose": "Add @rnmapbox/maps dependency"},
-            {"action": "MODIFY", "path": "/Users/justinrich/Projects/LaneShadow/app.json", "purpose": "Configure Mapbox Expo plugin"},
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/.mapbox/.gitkeep", "purpose": "Mapbox token directory (gitignored)"},
-            {"action": "MODIFY", "path": "/Users/justinrich/Projects/LaneShadow/.gitignore", "purpose": "Ignore Mapbox tokens"}
+            {
+              "action": "MODIFY",
+              "path": "/Users/justinrich/Projects/LaneShadow/package.json",
+              "purpose": "Add @rnmapbox/maps dependency"
+            },
+            {
+              "action": "MODIFY",
+              "path": "/Users/justinrich/Projects/LaneShadow/app.json",
+              "purpose": "Configure Mapbox Expo plugin"
+            },
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/.mapbox/.gitkeep",
+              "purpose": "Mapbox token directory (gitignored)"
+            },
+            {
+              "action": "MODIFY",
+              "path": "/Users/justinrich/Projects/LaneShadow/.gitignore",
+              "purpose": "Ignore Mapbox tokens"
+            }
           ],
-          "verification": [
-            "pnpm install",
-            "pnpm iOS-build",
-            "pnpm android-build"
-          ],
+          "verification": ["pnpm install", "pnpm iOS-build", "pnpm android-build"],
           "design": {
             "patterns": [
               "Expo plugin configuration",
               "Environment variable for tokens",
               "Platform-specific build testing"
             ],
-            "anti_patterns": [
-              "Avoid hardcoded tokens",
-              "Avoid version ranges in dependencies"
-            ],
+            "anti_patterns": ["Avoid hardcoded tokens", "Avoid version ranges in dependencies"],
             "references": [
               {
                 "file": "/Users/justinrich/Projects/LaneShadow/app.json",
@@ -585,7 +657,12 @@
           "type": "FEATURE",
           "priority": "P0",
           "effort": "L",
-          "tags": ["epic:complete-local-routing", "milestone:phase-1", "area:frontend", "type:feature"],
+          "tags": [
+            "epic:complete-local-routing",
+            "milestone:phase-1",
+            "area:frontend",
+            "type:feature"
+          ],
           "agent": "frontend-designer",
           "critical_constraints": [
             "MUST: Support camera positioning (zoom, center, bounds)",
@@ -684,31 +761,40 @@
             ]
           },
           "constraints": [
-            {"constraint": "Component re-renders < 60fps", "reason": "Performance"},
-            {"constraint": "Camera animation duration 300-500ms", "reason": "UX requirement"},
-            {"constraint": "Coordinate conversion overhead < 1ms", "reason": "Performance"}
+            { "constraint": "Component re-renders < 60fps", "reason": "Performance" },
+            { "constraint": "Camera animation duration 300-500ms", "reason": "UX requirement" },
+            { "constraint": "Coordinate conversion overhead < 1ms", "reason": "Performance" }
           ],
           "files": [
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/components/map/mapbox-map-view.tsx", "purpose": "MapView wrapper component"},
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/mapbox/coordinate-converter.ts", "purpose": "Coordinate conversion utilities"},
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/lib/mapbox/camera.ts", "purpose": "Camera control utilities"},
-            {"action": "CREATE", "path": "/Users/justinrich/Projects/LaneShadow/hooks/use-mapbox-camera.ts", "purpose": "Camera animation hook"}
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/components/map/mapbox-map-view.tsx",
+              "purpose": "MapView wrapper component"
+            },
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/lib/mapbox/coordinate-converter.ts",
+              "purpose": "Coordinate conversion utilities"
+            },
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/lib/mapbox/camera.ts",
+              "purpose": "Camera control utilities"
+            },
+            {
+              "action": "CREATE",
+              "path": "/Users/justinrich/Projects/LaneShadow/hooks/use-mapbox-camera.ts",
+              "purpose": "Camera animation hook"
+            }
           ],
-          "verification": [
-            "pnpm test:unit -- MapboxMapView",
-            "pnpm typecheck",
-            "pnpm lint"
-          ],
+          "verification": ["pnpm test:unit -- MapboxMapView", "pnpm typecheck", "pnpm lint"],
           "design": {
             "patterns": [
               "Component composition",
               "Hook-based state management",
               "TypeScript strict types"
             ],
-            "anti_patterns": [
-              "Avoid class-based components",
-              "Avoid imperative camera mutations"
-            ],
+            "anti_patterns": ["Avoid class-based components", "Avoid imperative camera mutations"],
             "references": [
               {
                 "file": "/Users/justinrich/Projects/LaneShadow/.claude/rules/coding_standards.mdc",

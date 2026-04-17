@@ -11,19 +11,19 @@
  * - AC4: Delete removes card and updates list
  */
 
-import type { Id } from '../../convex/_generated/dataModel'
 import { useMutation, useQuery } from 'convex/react'
-import { api } from '../../convex/_generated/api'
-import { FlatList, Pressable, StyleSheet, View } from 'react-native'
 import { useState } from 'react'
+import { FlatList, Pressable, StyleSheet, View } from 'react-native'
+import { api } from '../../convex/_generated/api'
+import type { Id } from '../../convex/_generated/dataModel'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import type { SavedRoutesListView } from '../../types/routes'
 import { DeleteFavoriteDialog } from '../ui/delete-favorite-dialog'
 import { EmptyState } from '../ui/empty-state'
+import { IconSymbol } from '../ui/icon-symbol'
 import { SavedRouteCard } from '../ui/saved-route-card'
 import { formatDate } from '../ui/saved-route-card.utils'
 import { SectionHeader } from '../ui/section-header'
-import { IconSymbol } from '../ui/icon-symbol'
-import type { SavedRoutesListView } from '../../types/routes'
 
 /**
  * Wrapper component that adds delete button to SavedRouteCard
@@ -61,10 +61,7 @@ const SavedRouteCardWithDelete: React.FC<{
         onPress={() => onDelete(item.savedRouteId)}
         accessibilityRole="button"
         accessibilityLabel="Delete saved route"
-        style={({ pressed }) => [
-          styles.deleteButton,
-          { opacity: pressed ? 0.6 : 1 },
-        ]}
+        style={({ pressed }) => [styles.deleteButton, { opacity: pressed ? 0.6 : 1 }]}
       >
         <IconSymbol name="trash-can-outline" size={20} color={semantic.color.danger.default} />
       </Pressable>
@@ -119,7 +116,9 @@ export const SavedRoutesSection: React.FC = () => {
   }
 
   // Get the name of the route being deleted for the dialog
-  const routeToDelete = savedRoutesData?.routes.find((r) => r.savedRouteId === deleteTarget)
+  const routeToDelete = savedRoutesData?.routes.find(
+    (r: (typeof savedRoutesData.routes)[0]) => r.savedRouteId === deleteTarget,
+  )
 
   // Loading state - show skeleton
   if (savedRoutesData === undefined) {
@@ -194,9 +193,7 @@ export const SavedRoutesSection: React.FC = () => {
       <FlatList
         data={savedRoutesData.routes}
         keyExtractor={(item) => item.savedRouteId}
-        renderItem={({ item }) => (
-          <SavedRouteCardWithDelete item={item} onDelete={handleDelete} />
-        )}
+        renderItem={({ item }) => <SavedRouteCardWithDelete item={item} onDelete={handleDelete} />}
         ItemSeparatorComponent={() => <View style={{ height: semantic.space.md }} />}
         ListEmptyComponent={
           <EmptyState

@@ -4,7 +4,7 @@
  * These tests exercise the dashboard metrics aggregation behavior.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Id } from '../_generated/dataModel'
 
 // ---------------------------------------------------------------------------
@@ -99,9 +99,21 @@ const makeRouteFeedback = (overrides: Record<string, unknown> = {}) => ({
 describe('curationMetricsInternal - AC-001: Metrics return complete dashboard data', () => {
   it('should aggregate totalRoutes, totalEnrichments, bySource, lastScrape, llmCost, and feedbackSummary', async () => {
     const routes = [
-      makeCuratedRoute({ routeId: 'route-1', source: 'fhwa' as const, extractedAt: Date.now() - 5000 }),
-      makeCuratedRoute({ routeId: 'route-2', source: 'bdr' as const, extractedAt: Date.now() - 10000 }),
-      makeCuratedRoute({ routeId: 'route-3', source: 'fhwa' as const, extractedAt: Date.now() - 15000 }),
+      makeCuratedRoute({
+        routeId: 'route-1',
+        source: 'fhwa' as const,
+        extractedAt: Date.now() - 5000,
+      }),
+      makeCuratedRoute({
+        routeId: 'route-2',
+        source: 'bdr' as const,
+        extractedAt: Date.now() - 10000,
+      }),
+      makeCuratedRoute({
+        routeId: 'route-3',
+        source: 'fhwa' as const,
+        extractedAt: Date.now() - 15000,
+      }),
     ]
 
     const enrichments = [
@@ -249,11 +261,36 @@ describe('HTTP Auth - AC-002: Bearer token validation', () => {
 describe('curationMetricsInternal - AC-003: No individual user data exposed', () => {
   it('should aggregate feedback without exposing userIds or individual route data', async () => {
     const feedback = [
-      makeRouteFeedback({ routeId: 'route-1', action: 'save' as const, userId: 'user-1', rating: 5 }),
-      makeRouteFeedback({ routeId: 'route-2', action: 'hide' as const, userId: 'user-2', rating: 2 }),
-      makeRouteFeedback({ routeId: 'route-1', action: 'complete' as const, userId: 'user-3', rating: 4 }),
-      makeRouteFeedback({ routeId: 'route-3', action: 'save' as const, userId: 'user-1', rating: 5 }),
-      makeRouteFeedback({ routeId: 'route-1', action: 'rate' as const, userId: 'user-4', rating: 3 }),
+      makeRouteFeedback({
+        routeId: 'route-1',
+        action: 'save' as const,
+        userId: 'user-1',
+        rating: 5,
+      }),
+      makeRouteFeedback({
+        routeId: 'route-2',
+        action: 'hide' as const,
+        userId: 'user-2',
+        rating: 2,
+      }),
+      makeRouteFeedback({
+        routeId: 'route-1',
+        action: 'complete' as const,
+        userId: 'user-3',
+        rating: 4,
+      }),
+      makeRouteFeedback({
+        routeId: 'route-3',
+        action: 'save' as const,
+        userId: 'user-1',
+        rating: 5,
+      }),
+      makeRouteFeedback({
+        routeId: 'route-1',
+        action: 'rate' as const,
+        userId: 'user-4',
+        rating: 3,
+      }),
     ]
 
     const ctx = {
@@ -347,7 +384,7 @@ describe('curationMetricsInternal - AC-004: Last scrape timestamp', () => {
 describe('curationMetricsInternal - AC-005: LLM cost estimation', () => {
   it('should estimate LLM cost based on route count using documented formula', async () => {
     const routes = Array.from({ length: 100 }, (_, i) =>
-      makeCuratedRoute({ routeId: `route-${i}` })
+      makeCuratedRoute({ routeId: `route-${i}` }),
     )
 
     const ctx = {

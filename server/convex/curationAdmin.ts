@@ -1,16 +1,13 @@
 import { v } from 'convex/values'
-import { internalMutation } from './_generated/server'
-import { curatedRouteValidator } from '../models/curated-routes'
 import { curatedRouteEnrichmentValidator } from '../models/curated-route-enrichments'
+import { curatedRouteValidator } from '../models/curated-routes'
+import { internalMutation } from './_generated/server'
 
 // ---------------------------------------------------------------------------
 // Handler functions for unit testing
 // ---------------------------------------------------------------------------
 
-export const upsertCuratedRoutesHandler = async (
-  ctx: any,
-  { routes }: { routes: any[] }
-) => {
+export const upsertCuratedRoutesHandler = async (ctx: any, { routes }: { routes: any[] }) => {
   let inserted = 0
   let updated = 0
   let skipped = 0
@@ -48,7 +45,7 @@ export const upsertCuratedRoutesHandler = async (
 
 export const upsertCuratedRouteEnrichmentsHandler = async (
   ctx: any,
-  { enrichments }: { enrichments: any[] }
+  { enrichments }: { enrichments: any[] },
 ) => {
   let inserted = 0
   let updated = 0
@@ -87,7 +84,7 @@ export const upsertCuratedRouteEnrichmentsHandler = async (
 
 export const deleteCuratedRoutesByRouteIdsHandler = async (
   ctx: any,
-  { routeIds }: { routeIds: string[] }
+  { routeIds }: { routeIds: string[] },
 ) => {
   let deleted = 0
   const missing: string[] = []
@@ -153,7 +150,7 @@ export const backfillRouteEmbeddings = mutation({
       v.object({
         routeId: v.string(),
         searchEmbedding: v.array(v.number()),
-      })
+      }),
     ),
   },
   handler: async (ctx, { updates }) => {

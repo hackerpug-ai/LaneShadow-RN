@@ -7,11 +7,11 @@
  */
 
 import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet'
-import { StyleSheet } from 'react-native'
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet'
-import { Provider as PaperProvider } from 'react-native-paper'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { StyleSheet } from 'react-native'
+import { Provider as PaperProvider } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
@@ -90,7 +90,7 @@ export const BottomActionSheet = ({
         pressBehavior="close"
       />
     ),
-    []
+    [],
   )
 
   // Capture the theme object to pass to PaperProvider

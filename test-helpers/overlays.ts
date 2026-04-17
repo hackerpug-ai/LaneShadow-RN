@@ -8,7 +8,9 @@ import type { RouteOverlays } from '../models/saved-routes'
 /**
  * Create a minimal valid RainOverlay
  */
-export const createRainOverlay = (levels: ('none' | 'light' | 'moderate' | 'heavy' | 'unavailable')[]): RouteOverlays['rain'] => ({
+export const createRainOverlay = (
+  levels: ('none' | 'light' | 'moderate' | 'heavy' | 'unavailable')[],
+): RouteOverlays['rain'] => ({
   generatedAt: Date.now(),
   modelVersion: 'test-v1',
   legend: [
@@ -25,7 +27,8 @@ export const createRainOverlay = (levels: ('none' | 'light' | 'moderate' | 'heav
         startMeters: index * 1000,
         endMeters: (index + 1) * 1000,
         level,
-        probability: level === 'none' ? 0 : level === 'light' ? 0.3 : level === 'moderate' ? 0.6 : 0.9,
+        probability:
+          level === 'none' ? 0 : level === 'light' ? 0.3 : level === 'moderate' ? 0.6 : 0.9,
       })),
     },
   ],
@@ -34,7 +37,9 @@ export const createRainOverlay = (levels: ('none' | 'light' | 'moderate' | 'heav
 /**
  * Create a minimal valid WindOverlay
  */
-export const createWindOverlay = (levels: ('low' | 'moderate' | 'high' | 'unavailable')[]): RouteOverlays['wind'] => ({
+export const createWindOverlay = (
+  levels: ('low' | 'moderate' | 'high' | 'unavailable')[],
+): RouteOverlays['wind'] => ({
   generatedAt: Date.now(),
   modelVersion: 'test-v1',
   legend: [
@@ -59,7 +64,9 @@ export const createWindOverlay = (levels: ('low' | 'moderate' | 'high' | 'unavai
 /**
  * Create a minimal valid TemperatureOverlay
  */
-export const createTemperatureOverlay = (levels: ('cold' | 'mild' | 'warm' | 'hot' | 'unavailable')[]): RouteOverlays['temperature'] => ({
+export const createTemperatureOverlay = (
+  levels: ('cold' | 'mild' | 'warm' | 'hot' | 'unavailable')[],
+): RouteOverlays['temperature'] => ({
   generatedAt: Date.now(),
   modelVersion: 'test-v1',
   legend: [
@@ -76,7 +83,8 @@ export const createTemperatureOverlay = (levels: ('cold' | 'mild' | 'warm' | 'ho
         startMeters: index * 1000,
         endMeters: (index + 1) * 1000,
         level,
-        temperatureCelsius: level === 'cold' ? 5 : level === 'mild' ? 20 : level === 'warm' ? 28 : 35,
+        temperatureCelsius:
+          level === 'cold' ? 5 : level === 'mild' ? 20 : level === 'warm' ? 28 : 35,
       })),
     },
   ],

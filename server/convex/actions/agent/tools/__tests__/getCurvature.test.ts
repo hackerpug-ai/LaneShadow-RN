@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { calculateCurvatureScore, getCurvature } from '../getCurvature'
+import { describe, expect, it } from 'vitest'
 import type { CurvatureResult } from '../getCurvature'
+import { calculateCurvatureScore, getCurvature } from '../getCurvature'
 
 // ---------------------------------------------------------------------------
 // Fixture geometry helpers
@@ -21,7 +21,7 @@ const makeTwistyGeometry = (): { lat: number; lng: number }[] => {
 
   // ~50m steps in lat ≈ 0.000449 deg, 100m in lng ≈ 0.001 deg at this latitude
   const stepLat = 0.000449 // ~50m
-  const swingLng = 0.0005  // ~50m side-to-side swing
+  const swingLng = 0.0005 // ~50m side-to-side swing
 
   for (let i = 0; i < 60; i++) {
     const lat = baseLat + i * stepLat
@@ -63,8 +63,8 @@ const makeTinyGeometry = (): { lat: number; lng: number }[] => [
  */
 const makeHairpinOnlyGeometry = (): { lat: number; lng: number }[] => [
   { lat: 37.0, lng: -122.0 },
-  { lat: 37.00010, lng: -122.00050 }, // ~45m segment, tight turn
-  { lat: 37.00020, lng: -122.0 },     // back to center — radius ~23m
+  { lat: 37.0001, lng: -122.0005 }, // ~45m segment, tight turn
+  { lat: 37.0002, lng: -122.0 }, // back to center — radius ~23m
 ]
 
 /**
@@ -73,8 +73,8 @@ const makeHairpinOnlyGeometry = (): { lat: number; lng: number }[] => [
  */
 const makeSweepingOnlyGeometry = (): { lat: number; lng: number }[] => [
   { lat: 37.0, lng: -122.0 },
-  { lat: 37.0010, lng: -122.0010 }, // ~142m segment, gentle arc
-  { lat: 37.0020, lng: -122.0 },    // radius ~114m
+  { lat: 37.001, lng: -122.001 }, // ~142m segment, gentle arc
+  { lat: 37.002, lng: -122.0 }, // radius ~114m
 ]
 
 // ---------------------------------------------------------------------------
@@ -84,7 +84,11 @@ const makeSweepingOnlyGeometry = (): { lat: number; lng: number }[] => [
 describe('twisty road', () => {
   it('getCurvature returns score >= 1000 and rating very_twisty for geometry with many tight curves', async () => {
     const twistyCoords = makeTwistyGeometry()
-    const result: CurvatureResult = await getCurvature({ geometry: twistyCoords, roadName: 'Skyline Boulevard', surface: null })
+    const result: CurvatureResult = await getCurvature({
+      geometry: twistyCoords,
+      roadName: 'Skyline Boulevard',
+      surface: null,
+    })
 
     expect(result.score).toBeGreaterThanOrEqual(1000)
     expect(result.rating).toBe('very_twisty')
@@ -101,7 +105,11 @@ describe('twisty road', () => {
 describe('straight road', () => {
   it('getCurvature returns score < 100 and rating straight for geometry with minimal curves', async () => {
     const straightCoords = makeStraightGeometry()
-    const result: CurvatureResult = await getCurvature({ geometry: straightCoords, roadName: 'Interstate 5', surface: null })
+    const result: CurvatureResult = await getCurvature({
+      geometry: straightCoords,
+      roadName: 'Interstate 5',
+      surface: null,
+    })
 
     expect(result.score).toBeLessThan(100)
     expect(result.rating).toBe('straight')

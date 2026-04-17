@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { ModelDownloadManager } from '../model-download'
 import * as FileSystem from 'expo-file-system/legacy'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ModelDownloadManager } from '../model-download'
 
 /**
  * AC-004: Error Case — Insufficient Storage Space
@@ -83,9 +83,7 @@ describe('ModelDownloadManager - AC-004: Insufficient Storage Space', () => {
       }
 
       // Act & Assert: Attempt download doesn't throw exception
-      await expect(
-        downloadManager.downloadModel(mockUrl, mockNetworkStatus)
-      ).resolves.toBeDefined()
+      await expect(downloadManager.downloadModel(mockUrl, mockNetworkStatus)).resolves.toBeDefined()
 
       // Verify the result structure is valid
       const result = await downloadManager.downloadModel(mockUrl, mockNetworkStatus)

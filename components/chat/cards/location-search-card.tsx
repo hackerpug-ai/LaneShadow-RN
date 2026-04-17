@@ -10,6 +10,7 @@
  *   failed     → red-tinted error message
  */
 
+import * as Haptics from 'expo-haptics'
 import { useEffect, useMemo, useRef } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
@@ -21,10 +22,8 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated'
-import * as Haptics from 'expo-haptics'
-
+import { type LocationSearchResult, useSearchResults } from '../../../contexts/search-results'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import { useSearchResults, type LocationSearchResult } from '../../../contexts/search-results'
 import { Badge, type BadgeVariant } from '../../ui/badge'
 import type { CardProps } from '../card-registry'
 
@@ -75,7 +74,7 @@ const PulsingDot = ({ reduceMotion, color }: { reduceMotion: boolean; color: str
     opacity.value = withRepeat(
       withSequence(withTiming(1.0, { duration: 600 }), withTiming(0.4, { duration: 600 })),
       -1,
-      false
+      false,
     )
   }, [reduceMotion, opacity])
 
@@ -156,9 +155,7 @@ const PlaceResultRow = ({ result, index, isSelected, onPress }: PlaceResultRowPr
           style={[
             semantic.type.label.sm,
             {
-              color: isSelected
-                ? semantic.color.onPrimary.default
-                : semantic.color.info.default,
+              color: isSelected ? semantic.color.onPrimary.default : semantic.color.info.default,
               fontWeight: '700',
             },
           ]}
@@ -184,10 +181,7 @@ const PlaceResultRow = ({ result, index, isSelected, onPress }: PlaceResultRowPr
           </Badge>
         </View>
         <Text
-          style={[
-            semantic.type.body.sm,
-            { color: semantic.color.muted.default },
-          ]}
+          style={[semantic.type.body.sm, { color: semantic.color.muted.default }]}
           numberOfLines={1}
         >
           {result.address}
@@ -196,23 +190,20 @@ const PlaceResultRow = ({ result, index, isSelected, onPress }: PlaceResultRowPr
 
       {/* Right info */}
       <View style={styles.rightInfo}>
-        {result.detourMinutes !== null && result.detourMinutes !== undefined && result.detourMinutes > 0 && (
-          <Text
-            style={[
-              semantic.type.label.sm,
-              { color: semantic.color.warning.default, fontWeight: '600' },
-            ]}
-          >
-            +{result.detourMinutes} min
-          </Text>
-        )}
+        {result.detourMinutes !== null &&
+          result.detourMinutes !== undefined &&
+          result.detourMinutes > 0 && (
+            <Text
+              style={[
+                semantic.type.label.sm,
+                { color: semantic.color.warning.default, fontWeight: '600' },
+              ]}
+            >
+              +{result.detourMinutes} min
+            </Text>
+          )}
         {distanceLabel && (
-          <Text
-            style={[
-              semantic.type.label.sm,
-              { color: semantic.color.muted.default },
-            ]}
-          >
+          <Text style={[semantic.type.label.sm, { color: semantic.color.muted.default }]}>
             {distanceLabel}
           </Text>
         )}
@@ -332,13 +323,14 @@ export const LocationSearchCard = ({ message, attachments, onViewOnMap }: CardPr
     >
       {/* Header text (agent's conversational summary) */}
       {contentText.length > 0 && (
-        <View style={{ paddingHorizontal: semantic.space.md, paddingTop: semantic.space.md, paddingBottom: semantic.space.xs }}>
-          <Text
-            style={[
-              semantic.type.body.sm,
-              { color: semantic.color.onSurface.default },
-            ]}
-          >
+        <View
+          style={{
+            paddingHorizontal: semantic.space.md,
+            paddingTop: semantic.space.md,
+            paddingBottom: semantic.space.xs,
+          }}
+        >
+          <Text style={[semantic.type.body.sm, { color: semantic.color.onSurface.default }]}>
             {contentText}
           </Text>
         </View>
@@ -360,12 +352,7 @@ export const LocationSearchCard = ({ message, attachments, onViewOnMap }: CardPr
       {/* Empty state */}
       {locationResults.length === 0 && (
         <View style={{ padding: semantic.space.md }}>
-          <Text
-            style={[
-              semantic.type.body.sm,
-              { color: semantic.color.muted.default },
-            ]}
-          >
+          <Text style={[semantic.type.body.sm, { color: semantic.color.muted.default }]}>
             No places found.
           </Text>
         </View>

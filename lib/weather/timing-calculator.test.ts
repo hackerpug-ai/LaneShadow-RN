@@ -4,7 +4,7 @@
  * Tests pure functions for rain timing calculation
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { RainOverlay, RouteLeg } from '../../models/saved-routes'
 import {
   calculateRainTiming,
@@ -168,9 +168,7 @@ describe('timing-calculator', () => {
         generatedAt: Date.now(),
         modelVersion: '1.0',
         legend: [{ level: 'light', label: 'Light rain' }],
-        byLeg: [
-          { legIndex: 0, segments: [{ startMeters: 0, endMeters: 10000, level: 'light' }] },
-        ],
+        byLeg: [{ legIndex: 0, segments: [{ startMeters: 0, endMeters: 10000, level: 'light' }] }],
       }
 
       const result = calculateRainTiming(overlay, mockLegs, departureTime)
@@ -262,9 +260,7 @@ describe('timing-calculator', () => {
         generatedAt: Date.now(),
         modelVersion: '1.0',
         legend: [{ level: 'none', label: 'No rain' }],
-        byLeg: [
-          { legIndex: 0, segments: [{ startMeters: 0, endMeters: 10000, level: 'none' }] },
-        ],
+        byLeg: [{ legIndex: 0, segments: [{ startMeters: 0, endMeters: 10000, level: 'none' }] }],
       }
 
       const result = getRainTimingDisplay(overlay, mockLegs, Date.now())

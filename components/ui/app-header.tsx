@@ -6,10 +6,10 @@
  * Following react_rules.mdc: Named exports, composition pattern
  */
 
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Avatar } from './avatar'
 import { IconSymbol } from './icon-symbol'
 

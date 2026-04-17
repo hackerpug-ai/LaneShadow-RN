@@ -191,10 +191,7 @@ const generateSessionId = (): string => {
  * Pure state machine reducer
  * No side effects, no async operations, just state transitions
  */
-const rideFlowReducer = (
-  state: RideFlowState,
-  action: RideFlowAction
-): RideFlowState => {
+const rideFlowReducer = (state: RideFlowState, action: RideFlowAction): RideFlowState => {
   switch (state.phase) {
     case 'IDLE':
       return handleIdleState(state, action)
@@ -217,20 +214,18 @@ const rideFlowReducer = (
     case 'NAVIGATION_EXPORT':
       return handleNavigationExportState(state, action)
 
-    default:
+    default: {
       // Exhaustive check - should never reach here
       const _exhaustiveCheck: never = state
       return _exhaustiveCheck
+    }
   }
 }
 
 /**
  * IDLE state handlers
  */
-const handleIdleState = (
-  state: IdleState,
-  action: RideFlowAction
-): RideFlowState => {
+const handleIdleState = (state: IdleState, action: RideFlowAction): RideFlowState => {
   switch (action.type) {
     case 'SEND_MESSAGE':
       // Guard: Must have content
@@ -266,10 +261,7 @@ const handleIdleState = (
 /**
  * PLANNING state handlers
  */
-const handlePlanningState = (
-  state: PlanningState,
-  action: RideFlowAction
-): RideFlowState => {
+const handlePlanningState = (state: PlanningState, action: RideFlowAction): RideFlowState => {
   switch (action.type) {
     case 'PLANNING_SUCCESS':
       return {
@@ -314,10 +306,7 @@ const handlePlanningState = (
 /**
  * ERROR state handlers
  */
-const handleErrorState = (
-  state: ErrorState,
-  action: RideFlowAction
-): RideFlowState => {
+const handleErrorState = (state: ErrorState, action: RideFlowAction): RideFlowState => {
   switch (action.type) {
     case 'CLEAR_ERROR':
       // Auto-dismiss error - return to IDLE
@@ -351,7 +340,7 @@ const handleErrorState = (
  */
 const handleRouteResultsState = (
   state: RouteResultsState,
-  action: RideFlowAction
+  action: RideFlowAction,
 ): RideFlowState => {
   switch (action.type) {
     case 'SEND_MESSAGE':
@@ -413,7 +402,7 @@ const handleRouteResultsState = (
  */
 const handleRouteDetailsState = (
   state: RouteDetailsState,
-  action: RideFlowAction
+  action: RideFlowAction,
 ): RideFlowState => {
   switch (action.type) {
     case 'SEND_MESSAGE':
@@ -467,7 +456,7 @@ const handleRouteDetailsState = (
  */
 const handleSessionHistoryState = (
   state: SessionHistoryState,
-  action: RideFlowAction
+  action: RideFlowAction,
 ): RideFlowState => {
   switch (action.type) {
     case 'CLOSE_HISTORY':
@@ -510,7 +499,7 @@ const handleSessionHistoryState = (
  */
 const handleNavigationExportState = (
   state: NavigationExportState,
-  action: RideFlowAction
+  action: RideFlowAction,
 ): RideFlowState => {
   switch (action.type) {
     case 'CLOSE_EXPORT':
@@ -556,7 +545,7 @@ export const useRideFlow = () => {
 }
 
 // Export reducer and initialState for testing
-export { rideFlowReducer, initialState }
+export { initialState, rideFlowReducer }
 
 /**
  * Type guards for state checking
@@ -573,26 +562,18 @@ export const isError = (state: RideFlowState): state is ErrorState => {
   return state.phase === 'ERROR'
 }
 
-export const isRouteResults = (
-  state: RideFlowState
-): state is RouteResultsState => {
+export const isRouteResults = (state: RideFlowState): state is RouteResultsState => {
   return state.phase === 'ROUTE_RESULTS'
 }
 
-export const isRouteDetails = (
-  state: RideFlowState
-): state is RouteDetailsState => {
+export const isRouteDetails = (state: RideFlowState): state is RouteDetailsState => {
   return state.phase === 'ROUTE_DETAILS'
 }
 
-export const isSessionHistory = (
-  state: RideFlowState
-): state is SessionHistoryState => {
+export const isSessionHistory = (state: RideFlowState): state is SessionHistoryState => {
   return state.phase === 'SESSION_HISTORY'
 }
 
-export const isNavigationExport = (
-  state: RideFlowState
-): state is NavigationExportState => {
+export const isNavigationExport = (state: RideFlowState): state is NavigationExportState => {
   return state.phase === 'NAVIGATION_EXPORT'
 }
