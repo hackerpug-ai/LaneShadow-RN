@@ -31,6 +31,20 @@ Offline download management enables riders to download map regions for use witho
 ### Description
 Riders view available map regions for offline download with storage estimates and region metadata.
 
+**UI Components (from Sprint 2):**
+- `SubpageLayout` (template) — screen chrome with title and back navigation
+- `RegionListItem` (molecule) — per-region row showing name, size, bounds
+- `SearchBar` (molecule) — filter available regions
+- `SectionHeader` (molecule) — group regions by category or proximity
+- `Banner` (molecule) — "Last updated: [timestamp]" stale-cache notice
+- `ConnectionBanner` (molecule) — surfaces offline state while browsing
+- `EmptyState` (molecule) — "No regions available" fallback
+- `Skeleton` (atom) — loading placeholder while metadata fetches
+- `IconSymbol` (atom) — region type and status glyphs
+
+**New Compositions Needed:**
+- `RegionBoundsPreview` (proposed molecule) — static Mapbox Snapshot thumbnail of region bounds; not represented in the catalog's existing map atoms/molecules
+
 ### Preconditions
 - User is logged in
 - App has storage permissions
@@ -90,6 +104,19 @@ And show "Last updated: [timestamp]" subtitle
 ### Description
 Riders select a geographic region for offline download using an interactive map interface with bounding box preview.
 
+**UI Components (from Sprint 2):**
+- `MapViewWrapper` (organism) — interactive map canvas for selecting bounds
+- `MapControls` (molecule) — zoom and recenter controls
+- `MapHeaderOverlay` (molecule) — screen title and action overlay on the map
+- `OverlayPill` (molecule) — live size estimate display (e.g., "~245 MB")
+- `Banner` (molecule) — warning when region exceeds 500 MB limit
+- `Button` (atom) — "Confirm" action to proceed
+- `FAB` (atom) — secondary map action (recenter to current location)
+- `IconSymbol` (atom) — map overlay glyphs
+
+**New Compositions Needed:**
+- `BoundingBoxOverlay` (proposed molecule) — draggable/zoom-reactive polygon overlay rendered atop the map; not expressible with existing polyline atoms
+
 ### Preconditions
 - Rider is on Offline Maps screen
 - Map component is initialized
@@ -146,6 +173,19 @@ And warn if size exceeds 500 MB limit
 
 ### Description
 Riders confirm and initiate offline map download after region selection and naming.
+
+**UI Components (from Sprint 2):**
+- `RegionNameBottomSheet` (molecule) — name-entry sheet for the new region
+- `BottomSheetWrapper` (template) — sheet chrome hosting the name input
+- `KeyboardAvoidingInput` (molecule) — keyboard-aware wrapper for the name field
+- `Input` (atom) — region name text field with validation errors
+- `Button` (atom) — "Confirm Download" primary action
+- `Banner` (molecule) — "WiFi required" warning when not connected
+- `WifiRequiredSheet` (molecule) — blocking sheet prompting WiFi connection
+- `DownloadProgressIndicator` (molecule) — initial 0% progress display
+- `IconSymbol` (atom) — WiFi / warning glyphs
+
+**New Compositions Needed:** None
 
 ### Preconditions
 - Region has been selected (bounds defined)
@@ -228,6 +268,17 @@ And do not start download
 ### Description
 Riders view real-time download progress including percentage, data transferred, speed, and estimated time remaining.
 
+**UI Components (from Sprint 2):**
+- `DownloadProgressIndicator` (molecule) — per-region progress bar with percentage
+- `DownloadProgressBanner` (molecule) — persistent top banner with progress and cancel
+- `Progress` (atom) — raw progress primitive
+- `RegionListItem` (molecule) — row variant showing in-flight progress state
+- `StatRow` (molecule) — "124 MB / 245 MB" and ETA display
+- `SuccessToast` (molecule) — "Download complete" confirmation
+- `IconSymbol` (atom) — download status glyphs
+
+**New Compositions Needed:** None
+
 ### Preconditions
 - Download is in progress
 - Rider is viewing the Offline Maps screen or download notification
@@ -303,6 +354,17 @@ And show "Download complete" alert
 
 ### Description
 Riders control active downloads with pause, resume, and cancel actions.
+
+**UI Components (from Sprint 2):**
+- `DownloadProgressIndicator` (molecule) — in-progress visual
+- `DownloadProgressBanner` (molecule) — banner with inline pause/resume/cancel
+- `Button` (atom) — Pause / Resume / Cancel controls
+- `Toggle` (atom) — paired pause/resume pressed-state control
+- `DeleteConfirmationDialog` (molecule) — cancel confirmation ("discard partial download?")
+- `BottomActionSheet` (template) — action sheet hosting pause/resume/cancel on long-press
+- `IconSymbol` (atom) — pause/resume/cancel glyphs
+
+**New Compositions Needed:** None
 
 ### Preconditions
 - Download is in progress or paused
@@ -391,6 +453,19 @@ And dismiss progress indicator
 
 ### Description
 Riders view, delete, rename, and update downloaded offline regions.
+
+**UI Components (from Sprint 2):**
+- `SubpageLayout` (template) — downloaded-regions screen chrome
+- `RegionListItem` (molecule) — row with name, size, download date, actions
+- `RenameRegionBottomSheet` (molecule) — pre-filled rename sheet
+- `DeleteConfirmationDialog` (molecule) — deletion confirmation with size context
+- `BottomActionSheet` (template) — Rename/Delete/Update action menu
+- `Button` (atom) — action triggers
+- `EmptyState` (molecule) — "No downloaded regions" state
+- `SectionHeader` (molecule) — "Downloaded Regions" section label
+- `IconSymbol` (atom) — action glyphs
+
+**New Compositions Needed:** None
 
 ### Preconditions
 - At least one region has been downloaded
@@ -485,6 +560,17 @@ And refresh region list
 ### Description
 Riders automatically use downloaded offline maps when network connectivity is unavailable or poor.
 
+**UI Components (from Sprint 2):**
+- `MapViewWrapper` (organism) — renders cached tiles when offline
+- `MapboxMapView` (organism) — native Mapbox layer consuming offline pack tiles
+- `ConnectionBanner` (molecule) — "Offline Mode" status bar indicator
+- `OverlayPill` (molecule) — compact offline-mode pill over the map
+- `Banner` (molecule) — "Area not downloaded" out-of-bounds warning
+- `InfoToast` (molecule) — transient "Switched to online tiles" notification
+- `IconSymbol` (atom) — offline / cloud status glyphs
+
+**New Compositions Needed:** None
+
 ### Preconditions
 - At least one offline region is downloaded
 - Rider's current location is within a downloaded region
@@ -565,6 +651,20 @@ And continue displaying map without interruption
 ### Description
 Riders monitor device storage usage, receive warnings for low space, and can clean up old offline regions.
 
+**UI Components (from Sprint 2):**
+- `SubpageLayout` (template) — storage-management screen chrome
+- `SectionHeader` (molecule) — "Total used" / "Available" summary headers
+- `StatRow` (molecule) — storage metrics rows (used, available)
+- `RegionListItem` (molecule) — per-region size and last-accessed row
+- `Banner` (molecule) — low-storage warning banner
+- `WarningToast` (molecule) — transient low-storage alert
+- `Button` (atom) — "Delete" / "Delete All" actions
+- `DeleteConfirmationDialog` (molecule) — bulk/single delete confirmation
+- `ToggleGroup` (molecule) — sort-by toggle (size vs. date)
+- `IconSymbol` (atom) — warning and storage glyphs
+
+**New Compositions Needed:** None
+
 ### Preconditions
 - Rider is on Offline Maps screen
 - At least one region is downloaded
@@ -639,6 +739,18 @@ And provide "Delete All" button for bulk cleanup
 
 ### Description
 Downloads continue when the app is backgrounded, paused, or device is locked, resuming automatically when the app reopens.
+
+**UI Components (from Sprint 2):**
+- `DownloadProgressBanner` (molecule) — persistent in-app progress banner when app reopens
+- `DownloadProgressIndicator` (molecule) — updated progress on return to foreground
+- `SuccessToast` (molecule) — "Download complete" alert on resume
+- `WarningToast` (molecule) — "Paused - WiFi required" notice
+- `ConnectionBanner` (molecule) — WiFi-disconnected banner driving auto-pause
+- `Banner` (molecule) — background-state advisory message
+- `IconSymbol` (atom) — notification-state glyphs
+
+**New Compositions Needed:**
+- `BackgroundDownloadNotification` (proposed molecule) — OS-level notification surface (Android foreground-service notification / iOS background task) with progress; not a Sprint-2 in-app component since it lives outside the app's view tree
 
 ### Preconditions
 - Download is in progress

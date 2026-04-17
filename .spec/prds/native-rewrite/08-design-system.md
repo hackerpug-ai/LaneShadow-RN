@@ -17,6 +17,14 @@ This PRD defines a three-layer architecture:
 2. **Build-Time Transformer** — Style Dictionary compiles tokens to Swift enums, Kotlin objects, TS constants
 3. **Platform-Native Theming** — SwiftUI Environment + Compose MaterialTheme consume tokens idiomatically
 
+### Atom-First Delivery Model (effective 2026-04-17)
+
+Tokens are the foundation of a larger **atom-first** commitment: all 195 UI components defined in `08a-atomic-component-catalog.md`, `08b-android-component-map.md`, `08c-ios-component-map.md`, and `08d-component-parity-spec.md` are built **up-front in Sprint 2** before any feature wiring begins.
+
+Every use case in files `09-` through `16-` declares its consumed components inline via a `UI Components (from Sprint 2)` block. Feature sprints 3–10 consume these components by exact name; they never build new UI components inline.
+
+When a UC requires a composition not in the 195-component catalog (flagged under `New Compositions Needed:` in the UC file), the composition is added to `08a` (with parity spec in `08d`) and absorbed into Sprint 2 via `/kb-sprint-plan --delta-replan` before the consuming feature sprint begins. The delta flow preserves unchanged Sprint-2 tasks, regenerates only affected sprints, and appends new composition tasks with dual Android/iOS coverage.
+
 ### Key Mappings (LaneShadow → Native)
 
 | Token Path (TypeScript) | SwiftUI | Compose |

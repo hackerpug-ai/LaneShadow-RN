@@ -49,6 +49,5 @@ Source diversification, quality infrastructure, scoring realignment, and rider-g
 
 ## Next Steps
 
-- `/kb-project-plan` — Build implementation plan with epics and tasks
+- `/kb-sprint-plan` — Build implementation plan with epics and tasks
 - `/trd-plan` — Generate detailed TRD for pipeline extensions
-- `/kb-project-status` — Portfolio dashboard

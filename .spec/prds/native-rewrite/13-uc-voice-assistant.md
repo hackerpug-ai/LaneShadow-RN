@@ -24,6 +24,16 @@ The voice assistant enables hands-free operation for motorcycle riders, allowing
 
 **Description**: User activates the voice assistant via wake word ("Hey LaneShadow") or manual tap, triggering microphone permission check and audio session setup.
 
+**UI Components (from Sprint 2):**
+- `VoiceAssistantOverlay` (organism) — primary listening/idle surface shown when the assistant activates
+- `FAB` (atom) — microphone trigger button for manual activation
+- `IconSymbol` (atom) — microphone glyph inside the FAB and overlay
+- `PermissionNotification` (molecule) — pre-permission rationale and request prompt
+- `Banner` (molecule) — inline status feedback ("Listening…") when overlay is not appropriate
+- `InfoToast` (molecule) — transient activation confirmation cue
+
+**New Compositions Needed:** None
+
 ### Preconditions
 - App is in foreground or backgrounded
 - Device has microphone hardware
@@ -85,6 +95,18 @@ And visual indicator shows "Listening..." state
 ## UC-VOICE-02: Voice Command Recognition
 
 **Description**: System converts speech to text, parses command structure, and classifies intent (plan ride, navigate, control ride, settings).
+
+**UI Components (from Sprint 2):**
+- `VoiceAssistantOverlay` (organism) — hosts the live transcript surface
+- `IconSymbol` (atom) — waveform/mic indicator inside the overlay
+- `TypingIndicator` (atom) — animated pulse while awaiting finalization
+- `ChatTranscript` (organism) — render partial and final transcription turns
+- `MarkdownText` (molecule) — display transcribed text with inline formatting
+- `ErrorMessage` (molecule) — surfaces recognizer errors (no match, busy)
+- `Progress` (atom) — intent classification inflight indicator
+
+**New Compositions Needed:**
+- `VoiceListeningVisualizer` (proposed atom) — real-time audio-level waveform/orb visualization; existing atoms (Progress, TypingIndicator) cannot express continuous mic amplitude, and `VoiceAssistantOverlay` treats it as an opaque child
 
 ### Preconditions
 - Voice assistant is active and listening
@@ -148,6 +170,16 @@ And final transcription replaces partial when speech ends
 
 **Description**: System converts assistant response text to speech and plays audio through helmet headset, managing audio focus and music ducking.
 
+**UI Components (from Sprint 2):**
+- `VoiceAssistantOverlay` (organism) — shows "speaking" state while TTS plays
+- `IconSymbol` (atom) — speaker/waveform glyph for playback state
+- `MarkdownText` (molecule) — displays assistant response text alongside TTS
+- `Progress` (atom) — indeterminate progress while utterance streams
+- `Banner` (molecule) — audio-focus ducking notice when background audio is affected
+- `InfoToast` (molecule) — completion/return-to-idle cue
+
+**New Compositions Needed:** None
+
 ### Preconditions
 - Voice command was recognized and processed
 - Response text is ready for playback
@@ -209,6 +241,19 @@ And voice assistant returns to idle state
 
 **Description**: User plans a ride by voice command, specifying location and route preferences ("find me a curvy route near [city]").
 
+**UI Components (from Sprint 2):**
+- `VoiceAssistantOverlay` (organism) — active listening/speaking surface during planning
+- `PlanningCard` (molecule) — in-chat planning status with progress
+- `PlanningBottomSheet` (organism) — expanded planning detail while routes compute
+- `PlanningLoading` (molecule) — "Planning routes near Malibu…" loading state
+- `PlanningProgressIndicator` (molecule) — step progress for the plan pipeline
+- `RouteOptionsSheet` (organism) — presents the returned route options
+- `RouteOptionCard` (molecule) — per-route result card inside the options sheet
+- `PlanningErrorSheet` (molecule) — surfaces failures (ambiguous location, network)
+- `IconSymbol` (atom) — shared iconography
+
+**New Compositions Needed:** None
+
 ### Preconditions
 - Voice assistant is active
 - User has authenticated
@@ -269,6 +314,18 @@ And route results screen displays 3 route cards
 ## UC-VOICE-05: Voice Command: Navigate
 
 **Description**: User starts navigation to a saved route by voice ("navigate to saved route [name]").
+
+**UI Components (from Sprint 2):**
+- `VoiceAssistantOverlay` (organism) — active voice context during navigation invocation
+- `SavedRouteCard` (molecule) — render disambiguation candidates when multiple matches
+- `BottomActionSheet` (template) — disambiguation picker listing matches
+- `RouteDetailsSheet` (organism) — summary of the selected saved route before launch
+- `MapViewWrapper` (organism) — map surface that animates to route start
+- `RoutePolyline` (atom) — draw the saved route geometry on the map
+- `EmptyState` (molecule) — "Route not found" fallback UI
+- `IconSymbol` (atom) — shared iconography
+
+**New Compositions Needed:** None
 
 ### Preconditions
 - User has saved routes in their library
@@ -336,6 +393,17 @@ And system waits for user clarification
 ## UC-VOICE-06: Voice Command: Control Ride
 
 **Description**: User controls active ride state via voice ("pause ride", "end ride", "resume").
+
+**UI Components (from Sprint 2):**
+- `VoiceAssistantOverlay` (organism) — listening context during ride control
+- `MapViewWrapper` (organism) — underlying active-ride map surface
+- `MapHeaderOverlay` (molecule) — shows updated ride state (paused/active)
+- `OverlayPill` (molecule) — compact "Ride paused" / "Ride resumed" indicator
+- `SuccessToast` (molecule) — confirmation feedback for control actions
+- `InfoToast` (molecule) — state-transition messaging
+- `IconSymbol` (atom) — shared iconography for pause/play/stop glyphs
+
+**New Compositions Needed:** None
 
 ### Preconditions
 - Ride is currently active (navigation or tracking mode)
@@ -429,6 +497,17 @@ And ride summary screen displays
 
 **Description**: System applies noise cancellation and audio gain adjustment to handle motorcycle wind noise and engine sounds at highway speeds.
 
+**UI Components (from Sprint 2):**
+- `VoiceAssistantOverlay` (organism) — communicates degraded-audio state to the rider
+- `WarningToast` (molecule) — "Too much wind noise. Please repeat." prompt
+- `Banner` (molecule) — persistent audio-quality advisory when SNR is low
+- `Progress` (atom) — visualize signal level / noise floor
+- `IconSymbol` (atom) — wind/mic iconography
+- `ErrorMessage` (molecule) — inline failure when recognition aborts
+
+**New Compositions Needed:**
+- `AudioQualityMeter` (proposed molecule) — continuous SNR/gain visualization tuned for motorcycle noise; no existing atom exposes dual signal-vs-noise levels needed for rider glanceability
+
 ### Preconditions
 - Voice assistant is active
 - User is wearing helmet with integrated or paired Bluetooth headset
@@ -490,6 +569,17 @@ And command succeeds on first attempt
 ## UC-VOICE-08: Permission Handling
 
 **Description**: System requests microphone permission at first use and handles denial gracefully with clear user guidance.
+
+**UI Components (from Sprint 2):**
+- `PermissionNotification` (molecule) — pre-permission rationale card
+- `BottomActionSheet` (template) — host for the pre-prompt dialog with Continue/Cancel
+- `Button` (atom) — Continue / Open Settings / Cancel actions
+- `IconSymbol` (atom) — microphone/lock glyph
+- `EmptyState` (molecule) — post-denial guidance explaining feature gating
+- `Banner` (molecule) — persistent "Microphone disabled" reminder when permanently denied
+- `WarningToast` (molecule) — transient denial feedback
+
+**New Compositions Needed:** None
 
 ### Preconditions
 - User taps microphone button or speaks wake word for the first time

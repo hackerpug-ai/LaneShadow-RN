@@ -23,6 +23,16 @@ This document defines the gatekeeper and trial system for LaneShadow's native re
 ### Description
 Display the remaining number of free route plans to the user. The counter decrements with each plan and persists across app restarts.
 
+**UI Components (from Sprint 2):**
+- `AppHeader` (molecule) — host location for trial count display
+- `Badge` (atom) — pill rendering of "X free rides left"
+- `IconSymbol` (atom) — decorative counter icon
+- `Banner` (molecule) — fallback presentation when count is low
+- `ConnectionBanner` (molecule) — displayed alongside when offline sync pending
+
+**New Compositions Needed:**
+- `TrialCountIndicator` (proposed molecule) — purpose-built header slot binding subscription store → Badge + IconSymbol, handles "X free rides left" formatting and decrement animation
+
 ### Preconditions
 - User is not subscribed
 - User has not exhausted free trial
@@ -66,6 +76,17 @@ Display the remaining number of free route plans to the user. The counter decrem
 
 ### Description
 Before executing premium actions (route planning, AI chat), check if the user has an active subscription or remaining trials. Block access if neither condition is met.
+
+**UI Components (from Sprint 2):**
+- `ModelGatekeeperProvider` (template) — existing provider pattern to extend for subscription gating
+- `Button` (atom) — the "Plan Ride" / send CTAs that trigger the gate
+- `PlanFAB` (molecule) — primary planning entry point intercepted by the gate
+- `ChatInput` (organism) — chat send action intercepted by the gate
+- `Banner` (molecule) — inline feedback if gate defers action
+- `ConnectionBanner` (molecule) — shown if status fetch requires network
+
+**New Compositions Needed:**
+- `SubscriptionGatekeeperProvider` (proposed template) — parallel to `ModelGatekeeperProvider`, wraps premium actions, coordinates cache/network check + trial decrement + upgrade prompt dispatch
 
 ### Preconditions
 - User attempts a premium action
@@ -123,6 +144,19 @@ Before executing premium actions (route planning, AI chat), check if the user ha
 ### Description
 When the user exhausts their free trials, display a modal prompting them to subscribe. Show subscription tiers and benefits clearly.
 
+**UI Components (from Sprint 2):**
+- `BottomSheetWrapper` (template) — modal container with Gorhom-style presentation
+- `Card` (atom) — tier container (Monthly / Annual)
+- `Badge` (atom) — "Best Value" / "Save 20%" markers
+- `Button` (atom) — "Subscribe" and "Maybe Later" CTAs
+- `IconSymbol` (atom) — benefit bullet icons
+- `MarkdownText` (molecule) — rich body / benefits copy
+- `Separator` (atom) — divider between tiers
+
+**New Compositions Needed:**
+- `GatekeeperUpgradePrompt` (proposed organism) — modal composition over `BottomSheetWrapper` presenting tier cards, benefits list, CTAs; launches platform billing on subscribe, dismisses on "Maybe Later"
+- `SubscriptionTierCard` (proposed molecule) — price + badge + selection state for a single tier
+
 ### Preconditions
 - User attempts premium action
 - Trial count == 0
@@ -168,6 +202,18 @@ When the user exhausts their free trials, display a modal prompting them to subs
 
 ### Description
 Handle the subscription purchase flow through platform billing systems. Verify purchases and update subscription status.
+
+**UI Components (from Sprint 2):**
+- `Button` (atom) — "Subscribe" action that hands off to platform billing
+- `Progress` (atom) — verification spinner while backend confirms purchase
+- `SuccessToast` (molecule) — "Subscription activated!" confirmation
+- `ErrorToast` (molecule) — purchase / verification failure feedback
+- `Banner` (molecule) — pending-verification state
+- `ConnectionBanner` (molecule) — surfaced when network drops mid-purchase
+- `IconSymbol` (atom) — status iconography
+
+**New Compositions Needed:**
+- `PurchaseVerificationOverlay` (proposed molecule) — covers the brief window between platform-billing success and backend verification; composes `Progress` + status text; no existing atomic equivalent
 
 ### Preconditions
 - User tapped "Subscribe" in upgrade prompt
@@ -219,6 +265,19 @@ Handle the subscription purchase flow through platform billing systems. Verify p
 ### Description
 Allow users to view their current subscription plan, change tiers, or cancel. Link to platform subscription management.
 
+**UI Components (from Sprint 2):**
+- `SubpageLayout` (template) — settings page scaffolding
+- `SectionHeader` (molecule) — "Subscription" section title
+- `Card` (atom) — container for current plan summary
+- `Badge` (atom) — "Active" / tier indicator
+- `Button` (atom) — "Manage Subscription" CTA (opens platform UI)
+- `StatRow` (molecule) — rows showing plan, renewal date, price
+- `Separator` (atom) — row dividers
+- `IconSymbol` (atom) — external-link / chevron icons
+
+**New Compositions Needed:**
+- `SubscriptionSettingsSection` (proposed organism) — settings-embedded summary card binding subscription store to `Card` + `StatRow` + manage-CTA, parallels `FavoriteRoadsSection`
+
 ### Preconditions
 - User has an active subscription
 - User is in settings screen
@@ -263,6 +322,17 @@ Allow users to view their current subscription plan, change tiers, or cancel. Li
 
 ### Description
 Allow users to restore purchases on a new device or after reinstalling the app. Verify past purchases with the platform.
+
+**UI Components (from Sprint 2):**
+- `Button` (atom) — "Restore Purchases" trigger in settings
+- `Progress` (atom) — indeterminate indicator while querying platform
+- `SuccessToast` (molecule) — "Subscription restored!" confirmation
+- `ErrorToast` (molecule) — "No purchases found" / failure feedback
+- `InfoToast` (molecule) — neutral progress messaging
+- `ConnectionBanner` (molecule) — surfaced if network unavailable during query
+- `IconSymbol` (atom) — restore icon
+
+**New Compositions Needed:** None
 
 ### Preconditions
 - User is on a new device or reinstalled
@@ -313,6 +383,17 @@ Allow users to restore purchases on a new device or after reinstalling the app. 
 ### Description
 Reset the trial counter when a new user completes onboarding. Ensure the gatekeeper recognizes first-time users.
 
+**UI Components (from Sprint 2):**
+- `WelcomeScreen` (screen) — onboarding entry that precedes trial init
+- `CompletionScreen` (screen) — terminal onboarding screen that triggers trial seed
+- `DownloadProgressScreen` (screen) — model download step in onboarding flow
+- `SetupRequiredScreen` (screen) — fallback if onboarding prerequisites unmet
+- `Button` (atom) — "Finish" CTA that transitions into gated app shell
+- `AppHeader` (molecule) — where the seeded "3 free rides left" first appears
+- `Badge` (atom) — count rendering post-seed
+
+**New Compositions Needed:** None
+
 ### Preconditions
 - User is installing the app for the first time
 - User has completed onboarding
@@ -351,6 +432,18 @@ Reset the trial counter when a new user completes onboarding. Ensure the gatekee
 
 ### Description
 Cache subscription status locally to allow gate checks when offline. Prevent blocking premium users due to network issues.
+
+**UI Components (from Sprint 2):**
+- `ConnectionBanner` (molecule) — persistent offline indicator
+- `Banner` (molecule) — "Connect to internet to subscribe" note inside upgrade prompt
+- `Button` (atom) — "Subscribe" CTA rendered disabled when offline
+- `BottomSheetWrapper` (template) — hosts offline-variant upgrade prompt
+- `IconSymbol` (atom) — offline / cloud-off iconography
+- `WarningToast` (molecule) — surfaced when cached status is stale
+- `InfoToast` (molecule) — confirms action allowed from cache
+
+**New Compositions Needed:**
+- `GatekeeperUpgradePrompt` (proposed organism, offline variant) — reuses the UC-GATE-03 composition with a disabled subscribe CTA + offline note; no new component, but the prompt MUST support an offline state prop
 
 ### Preconditions
 - User has active subscription

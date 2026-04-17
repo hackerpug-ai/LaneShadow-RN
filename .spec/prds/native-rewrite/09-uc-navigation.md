@@ -12,6 +12,20 @@
 
 **Description**: User initiates turn-by-turn navigation for a selected route. The system verifies GPS accuracy, launches foreground navigation service, and displays the map view with voice instructions enabled.
 
+**UI Components (from Sprint 2):**
+- `MapViewWrapper` (organism) — base map canvas centered on user location
+- `RoutePolyline` (atom) — renders the active route overlay
+- `MapHeaderOverlay` (molecule) — destination title/subtitle at top of nav screen
+- `MapControls` (molecule) — zoom/recenter controls
+- `Button` (atom) — "Start Navigation" CTA and GPS retry/cancel actions
+- `Banner` (molecule) — "Acquiring GPS signal..." loading state
+- `PermissionNotification` (molecule) — prompt if location permissions missing
+- `IconSymbol` (atom) — navigation/GPS iconography
+
+**New Compositions Needed:**
+- `NavigationStartScreen` (proposed screen) — full-bleed map + turn card scaffolding distinct from `RouteDiscoveryScreen`; composes MapViewWrapper, RoutePolyline, MapHeaderOverlay, MapControls, and the new TurnInstructionCard
+- `GpsAcquisitionOverlay` (proposed molecule) — modal overlay combining Progress + retry/cancel Buttons during GPS lock; not expressible via generic Banner because it requires centered loading, countdown, and dual-action footer
+
 **Preconditions**:
 - User has selected a route (from ROUTE_DETAILS state)
 - Route geometry is cached locally (from Convex route plan)
@@ -78,6 +92,18 @@ And navigation session is saved to SwiftData with status="ACTIVE"
 ## UC-NAV-02: Follow Route with Voice Instructions
 
 **Description**: System provides voice and visual guidance at key waypoints (500m and 100m before turns, plus complex maneuvers). User can mute/unmute voice instructions.
+
+**UI Components (from Sprint 2):**
+- `MapViewWrapper` (organism) — live map canvas tracking user
+- `RoutePolyline` (atom) — active route line
+- `IconSymbol` (atom) — maneuver icons (left/right/u-turn/exit)
+- `Toggle` (atom) — mute/unmute voice toggle
+- `OverlayPill` (molecule) — distance countdown/street name pill
+- `MinimalOverlayWidget` (molecule) — compact data widgets on map
+- `Banner` (molecule) — transient "approaching turn" visual alert
+
+**New Compositions Needed:**
+- `TurnInstructionCard` (proposed molecule) — top-of-screen card with maneuver icon, street name, distance countdown, and optional lane guidance strip; not expressible via OverlayPill/Banner which lack lane-guidance slot and maneuver iconography layout
 
 **Preconditions**:
 - Navigation is active (UC-NAV-01 completed)
@@ -157,6 +183,19 @@ And visual turn cards continue to display
 
 **Description**: System detects when user deviates from route (distance > 50m from route line) and triggers rerouting. Rerouting uses cached route geometry or fetches new route from Convex if offline.
 
+**UI Components (from Sprint 2):**
+- `MapViewWrapper` (organism) — map canvas
+- `RoutePolyline` (atom) — updated route after reroute
+- `DeviationPolyline` (atom) — visualizes divergence from original route
+- `Banner` (molecule) — "You've left the route. Recalculating..." notice
+- `ConnectionBanner` (molecule) — surfaces offline/network-error state during reroute
+- `Progress` (atom) — rerouting progress indicator
+- `Button` (atom) — "Continue" / "End Navigation" recovery actions
+- `ErrorToast` (molecule) — rerouting failure feedback
+
+**New Compositions Needed:**
+- `ReroutingFailureDialog` (proposed molecule) — modal with title/body + two-action footer ("Continue original route" / "End Navigation"); similar to DeleteRouteDialog pattern but semantically distinct and navigation-scoped
+
 **Preconditions**:
 - Navigation is active
 - GPS lock maintained
@@ -225,6 +264,19 @@ Or if offline, offline routing calculates new path
 
 **Description**: Navigation screen displays real-time metrics: speedometer, distance remaining, ETA, and curvature score (if route includes curvature data). Metrics update every 1 second.
 
+**UI Components (from Sprint 2):**
+- `MinimalOverlayWidget` (molecule) — individual metric widgets (distance, ETA, curvature)
+- `MinimalOverlayWidgetPreview` (molecule) — grouped widget stack
+- `StatRow` (molecule) — value + icon row for secondary metrics
+- `Badge` (atom) — color-coded speed-limit status indicator
+- `IconSymbol` (atom) — metric iconography
+- `TemperatureBadge` (molecule) — optional weather context during ride
+- `WeatherPill` (molecule) — optional weather summary
+
+**New Compositions Needed:**
+- `Speedometer` (proposed molecule) — circular/radial speed gauge with speed-limit color state (green/yellow/red); no existing atom renders a radial numeric gauge
+- `NavigationMetricsBar` (proposed molecule) — bottom-of-screen horizontal bar that composes Speedometer + StatRow metrics + ETA; not expressible via MinimalOverlayWidgetPreview which lacks the fixed nav-bar layout
+
 **Preconditions**:
 - Navigation is active
 - GPS lock maintained with accuracy < 20m
@@ -283,6 +335,17 @@ And all metrics update in real-time
 
 **Description**: User pauses navigation (e.g., for a stop) and resumes later. GPS tracking continues in background but voice instructions are muted.
 
+**UI Components (from Sprint 2):**
+- `Button` (atom) — pause/resume action button
+- `IconSymbol` (atom) — pause/play icons
+- `MapViewWrapper` (organism) — map remains visible in paused state
+- `RoutePolyline` (atom) — dimmed route overlay when paused
+- `Banner` (molecule) — "Navigation paused" state banner
+- `InfoToast` (molecule) — "Resuming navigation..." feedback
+- `OverlayPill` (molecule) — pause-state pill on map
+
+**New Compositions Needed:** None
+
 **Preconditions**:
 - Navigation is active
 
@@ -339,6 +402,20 @@ And GPS tracking continues in background
 ## UC-NAV-06: End Navigation
 
 **Description**: User ends navigation (either by tapping "End" or reaching destination). System saves ride data, uploads to Convex, and displays completion screen.
+
+**UI Components (from Sprint 2):**
+- `SubpageLayout` (template) — completion screen scaffold
+- `Button` (atom) — "Save Ride" / "Discard" / "End Navigation" actions
+- `StatRow` (molecule) — distance, duration, average speed rows
+- `Card` (atom) — summary card container
+- `Badge` (atom) — curvature score badge
+- `IconSymbol` (atom) — completion iconography
+- `RouteThumbnail` (molecule) — preview of completed ride polyline
+- `DeleteRouteDialog` (molecule) — confirmation for "Discard" action
+- `SuccessToast` (molecule) — save confirmation feedback
+
+**New Compositions Needed:**
+- `RideCompletionScreen` (proposed screen) — composes SubpageLayout + RouteThumbnail + StatRow stack + dual-action footer; distinct from existing `RouteComparisonView` / `SavedRoutesScreen` because it summarizes a just-completed ride with metrics not present in saved-route cards
 
 **Preconditions**:
 - Navigation is active or paused
@@ -420,6 +497,18 @@ And completion screen displays with metrics
 
 **Description**: Navigation continues when app is backgrounded or device is locked. Foreground service (Android) or background location task (iOS) maintains GPS tracking and voice instructions.
 
+**UI Components (from Sprint 2):**
+- `MapViewWrapper` (organism) — restored map state on foreground return
+- `RoutePolyline` (atom) — restored route overlay
+- `MinimalOverlayWidget` (molecule) — metric widgets re-synced on return
+- `Banner` (molecule) — "Navigation interrupted — tap to resume" recovery banner
+- `IconSymbol` (atom) — notification iconography
+- `Button` (atom) — resume action on restore prompt
+- `InfoToast` (molecule) — state-restored feedback
+
+**New Compositions Needed:**
+- `NavigationNotification` (proposed molecule) — platform-notification content composition (destination + distance remaining); OS notifications aren't in the RN catalog because they render outside the React tree, but spec still requires a cross-platform template
+
 **Preconditions**:
 - Navigation is active
 - User backgrounds app or locks device
@@ -490,6 +579,19 @@ And navigation state is restored from saved session
 ## UC-NAV-08: Error Handling
 
 **Description**: System handles navigation errors gracefully: GPS loss, network timeout, TTS failure, low battery. Each error type has specific recovery flow.
+
+**UI Components (from Sprint 2):**
+- `Banner` (molecule) — "GPS signal lost" / "Network error" status banners
+- `ConnectionBanner` (molecule) — network-loss specific banner
+- `ErrorToast` (molecule) — transient error feedback
+- `WarningToast` (molecule) — low-battery warning
+- `Button` (atom) — "End Navigation" / "Continue" dialog actions
+- `IconSymbol` (atom) — error iconography
+- `Progress` (atom) — GPS retry countdown indicator
+- `PermissionNotification` (molecule) — re-prompt when permissions lapse
+
+**New Compositions Needed:**
+- `NavigationErrorDialog` (proposed molecule) — parameterized two-action dialog for GPS-unavailable and low-battery prompts; existing DeleteRouteDialog/DeleteConfirmationDialog are domain-specific (route/region deletion) and not reusable as a generic nav error prompt
 
 **Preconditions**:
 - Navigation is active

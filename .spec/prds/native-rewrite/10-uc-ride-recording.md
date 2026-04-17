@@ -12,6 +12,20 @@
 
 **Description**: User initiates ride recording. System verifies GPS lock, launches foreground service with notification, and displays recording UI with real-time metrics.
 
+**UI Components (from Sprint 2):**
+- `BaseViewLayout` (template) — root container for the Record Ride screen
+- `MapViewWrapper` (organism) — live map showing current location and trace
+- `Button` (atom) — "Start Recording" primary action and GPS retry/cancel controls
+- `StatRow` (molecule) — real-time speed, distance, duration metrics
+- `MinimalOverlayWidget` (molecule) — floating speedometer/distance/timer readouts over map
+- `MinimalOverlayWidgetPreview` (molecule) — composes overlay widgets into the recording HUD
+- `Banner` (molecule) — GPS lock status and "acquiring signal" messaging
+- `PermissionNotification` (molecule) — location permission prompt when not yet granted
+- `FAB` (atom) — primary record trigger in map-forward layout
+- `IconSymbol` (atom) — iconography across HUD and controls
+
+**New Compositions Needed:** None
+
 **Preconditions**:
 - User is authenticated with Convex
 - Location permissions are granted
@@ -99,6 +113,17 @@ And GPS points continue recording to SwiftData
 
 **Description**: User pauses recording (e.g., for a stop) and resumes later. GPS tracking pauses but session remains active. Resume checks for deviation from last recorded point.
 
+**UI Components (from Sprint 2):**
+- `Button` (atom) — "Pause" / "Resume" primary controls
+- `StatRow` (molecule) — frozen distance/duration during pause
+- `MinimalOverlayWidget` (molecule) — paused-state HUD indicators
+- `Banner` (molecule) — "Recording paused" status banner
+- `BottomActionSheet` (template) — "Continue" vs "New Segment" deviation prompt
+- `IconSymbol` (atom) — pause/resume icons
+- `MapViewWrapper` (organism) — shows last recorded point vs current location on resume
+
+**New Compositions Needed:** None
+
 **Preconditions**:
 - Recording is active (UC-REC-01 completed)
 
@@ -185,6 +210,17 @@ And timer resumes
 ## UC-REC-03: Background Location Tracking
 
 **Description**: Recording continues when app is backgrounded or device is locked. Foreground service (Android) or background location task (iOS) maintains GPS tracking with battery optimization.
+
+**UI Components (from Sprint 2):**
+- `Banner` (molecule) — "Recording (power saving)" / interrupted-session banner on foreground return
+- `InfoToast` (molecule) — background-mode status notifications
+- `WarningToast` (molecule) — low-battery / reduced-sampling notifications
+- `StatRow` (molecule) — metrics refresh when user returns to app
+- `MinimalOverlayWidget` (molecule) — restored HUD state post-background
+- `Button` (atom) — "Resume interrupted recording" confirmation
+- `IconSymbol` (atom) — battery / power-save iconography
+
+**New Compositions Needed:** None
 
 **Preconditions**:
 - Recording is active
@@ -284,6 +320,17 @@ And recording state is restored from saved session
 
 **Description**: System analyzes GPS points in real-time to detect curved road segments and calculate curvature scores. Algorithm identifies changes in heading and radius of curvature.
 
+**UI Components (from Sprint 2):**
+- `RoutePolyline` (atom) — draws the recorded GPS trace on the map
+- `MapViewWrapper` (organism) — renders detected curve segments in real-time
+- `Badge` (atom) — curvature score indicator (0-10)
+- `StatRow` (molecule) — live curvature score / lateral-G readouts
+- `InfoToast` (molecule) — "Curvy road detected! Score: X/10" notification
+- `MinimalOverlayWidget` (molecule) — floating curvature-score HUD widget
+- `IconSymbol` (atom) — curve/flag icons for flagged segments
+
+**New Compositions Needed:** None
+
 **Preconditions**:
 - Recording is active
 - At least 3 GPS points recorded
@@ -375,6 +422,20 @@ And curve segment is linked to ride session
 
 **Description**: User stops recording. System compiles ride data, saves to local database, uploads to Convex, and displays completion screen with metrics.
 
+**UI Components (from Sprint 2):**
+- `SubpageLayout` (template) — completion screen chrome with back/close
+- `Card` (atom) — container for aggregated ride metrics
+- `StatRow` (molecule) — distance, duration, avg speed, max speed rows
+- `Badge` (atom) — max curvature score indicator
+- `RoutePolyline` (atom) — renders the completed GPS trace preview
+- `MapViewWrapper` (organism) — preview map with full ride polyline
+- `Button` (atom) — "Save Ride" and "Discard" actions
+- `DeleteRouteDialog` (molecule) — confirm discard flow (reused for ride discard confirmation)
+- `IconSymbol` (atom) — metric iconography
+
+**New Compositions Needed:**
+- `CompletionSummaryCard` (proposed organism) — dedicated post-ride summary composition that arranges ride stats (StatRow), curvature badge, map polyline preview, and Save/Discard actions into a cohesive "ride completed" hero card. Existing Card + StatRow cover atoms, but the specific composition (hero metrics header, curvature highlight, trace preview, dual-CTA footer) is not expressible through any single Sprint-2 catalog entry — `RouteDetailsSheet` is the closest analog but is route-planning focused, not ride-completion focused.
+
 **Preconditions**:
 - Recording is active or paused
 
@@ -461,6 +522,18 @@ And completion screen displays with metrics
 ## UC-REC-06: Share Recorded Ride
 
 **Description**: User shares a recorded ride via GPX export, share sheet, or link sharing. Ride data is exported and shared via native sharing mechanisms.
+
+**UI Components (from Sprint 2):**
+- `SavedRoutesScreen` (screen) — entry point listing saved rides to share
+- `SavedRouteCard` (molecule) — individual ride row with share affordance
+- `BottomActionSheet` (template) — "Export GPX / Share link / Share summary" options sheet
+- `Button` (atom) — "Share" trigger and sheet actions
+- `IconSymbol` (atom) — share / link / file iconography
+- `SuccessToast` (molecule) — "Link copied to clipboard" confirmation
+- `ErrorToast` (molecule) — share/export failure notification
+
+**New Compositions Needed:**
+- `RideShareSheet` (proposed organism) — ride-specific share options sheet that surfaces GPX export, Convex link, and text summary with preview. `BottomActionSheet` provides the template-level container but only handles generic action lists; a share sheet with ride-context header (distance/duration preview), three distinctly-styled share modes, and summary-text preview requires composition beyond the generic actions template. Could be built atop `BottomActionSheet` + `StatRow` + `Button` but warrants a named organism.
 
 **Preconditions**:
 - Ride is saved (status="SAVED")
@@ -557,6 +630,19 @@ And user can select app to share GPX file
 ## UC-REC-07: Recording Error Handling
 
 **Description**: System handles recording errors gracefully: GPS loss, storage full, upload failure. Each error type has specific recovery flow.
+
+**UI Components (from Sprint 2):**
+- `Banner` (molecule) — "GPS signal lost" / "Storage full" persistent error banners
+- `ConnectionBanner` (molecule) — network/upload connectivity state
+- `ErrorToast` (molecule) — transient upload-failure notifications
+- `WarningToast` (molecule) — GPS-degraded / storage warnings
+- `SuccessToast` (molecule) — "GPS signal recovered" confirmation
+- `BottomActionSheet` (template) — "End recording or continue?" / "End or free up space?" decision sheets
+- `Button` (atom) — "Retry Upload" / "End Recording" / "Free Up Space" actions
+- `IconSymbol` (atom) — warning / error / retry iconography
+- `Progress` (atom) — upload-retry progress indicator
+
+**New Compositions Needed:** None
 
 **Preconditions**:
 - Recording is active

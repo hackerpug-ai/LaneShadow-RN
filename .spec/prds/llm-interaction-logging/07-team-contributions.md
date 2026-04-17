@@ -37,7 +37,7 @@ This PRD was synthesized in conversation from a live thread between Justin and C
 
 ## Phase 4: Holdout Scenarios
 
-Holdout scenarios for each use case should be generated via `/kb-project-groom` or `/kb-prd-refine` in a follow-up pass. Seed scenarios to consider:
+Holdout scenarios for each use case should be generated via `/kb-sprint-tasks-plan` or `/kb-prd-refine` in a follow-up pass. Seed scenarios to consider:
 
 - **UC-LOG-03 security:** What happens if `complete()` throws a synchronous error before the timer starts? (Answer: logging should capture it with `latencyMs: 0` and `status: 'error'`.)
 - **UC-LOG-03 edge case:** What if the user is anonymous and there is no `ctx.auth.getUserIdentity()` result? (Answer: log with `userId: undefined`, never block on auth.)

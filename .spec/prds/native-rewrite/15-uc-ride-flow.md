@@ -67,6 +67,16 @@ interface Guards {
 ### Description
 The ride flow state machine provides a type-safe, predictable way to manage ride lifecycle transitions. It ensures invalid states are unreachable and all transitions are explicit and guarded.
 
+**UI Components (from Sprint 2):**
+- `BaseViewLayout` (template) — root container observing state machine output
+- `MenuLayout` (template) — shell hosting map + drawer for all ride-flow states
+- `ErrorBoundary` (template) — catches state machine render errors
+- `ConnectionBanner` (molecule) — surfaces connectivity gating for transitions
+- `Banner` (molecule) — conveys state-driven informational messaging
+
+**New Compositions Needed:**
+- `RideFlowStateProvider` (proposed template) — wraps children with StateFlow/@Observable state and dispatch context; no existing RN analog
+
 ### Preconditions
 - App is initialized
 - Storage layer is hydrated
@@ -104,6 +114,18 @@ The ride flow state machine provides a type-safe, predictable way to manage ride
 
 ### Description
 The IDLE state is the resting state of the app. The map is visible, no ride is active, and the user can discover routes or start planning.
+
+**UI Components (from Sprint 2):**
+- `MenuLayout` (template) — full-screen shell with drawer access
+- `MapViewWrapper` (organism) — full-bleed map centered on user location
+- `MapHeaderOverlay` (molecule) — floating title/menu control over map
+- `MapControls` (molecule) — zoom and recenter controls
+- `WhereToBar` (molecule) — chat input placeholder "Describe the ride you want..."
+- `PlanFAB` (molecule) — floating search/plan entry action
+- `WeatherPillsRow` (molecule) — ambient conditions surface in idle state
+- `NewSessionButton` (molecule) — resets session from idle
+
+**New Compositions Needed:** None
 
 ### Preconditions
 - App is in foreground
@@ -143,6 +165,21 @@ The IDLE state is the resting state of the app. The map is visible, no ride is a
 ### Description
 The DISCOVERING state allows users to browse routes, filter by criteria, and search for specific ride types without entering the planning flow.
 
+**UI Components (from Sprint 2):**
+- `MenuLayout` (template) — persistent shell beneath discovery UI
+- `MapViewWrapper` (organism) — dimmed map behind search sheet
+- `RouteDiscoveryScreen` (screen) — composed discovery entry view
+- `DiscoveryFilterBar` (molecule) — archetype filter chips
+- `DiscoverySortToggle` (molecule) — sort mode control
+- `IntentSearchSheet` (organism) — bottom sheet for freeform discovery query
+- `StateFilterSheet` (organism) — geographic filter
+- `RoutePin` (molecule) — map markers for discoverable routes
+- `DiscoveryEmptyOverlay` (molecule) — empty-result state
+- `DiscoveryLoadingOverlay` (molecule) — loading indicator
+- `WhereToBar` (molecule) — chat input to escalate to PLANNING
+
+**New Compositions Needed:** None
+
 ### Preconditions
 - State machine is in IDLE or DISCOVERING
 - User has tapped search or browse
@@ -179,6 +216,21 @@ The DISCOVERING state allows users to browse routes, filter by criteria, and sea
 
 ### Description
 The PLANNING state is active while the AI processes natural language input and generates route options. This is the core planning experience.
+
+**UI Components (from Sprint 2):**
+- `MapViewWrapper` (organism) — background map behind planning sheet
+- `PlanningBottomSheet` (organism) — primary planning surface
+- `ChatInput` (organism) — natural language input with cancel
+- `ChatTranscript` (organism) — conversation history
+- `PlanningCard` (molecule) — progress card inside transcript
+- `PlanningProgressIndicator` (molecule) — phase progress bar
+- `PlanningStatusTab` (molecule) — current planning phase label
+- `MapPlanningIndicator` (molecule) — map-level planning overlay
+- `ThinkingCard` (molecule) — AI reasoning steps
+- `PlanningErrorSheet` (molecule) — surface failed planning
+- `PlanningLoading` (molecule) — loading state within sheet
+
+**New Compositions Needed:** None
 
 ### Preconditions
 - State machine is in IDLE, DISCOVERING, PREVIEWING, or ROUTE_DETAILS
@@ -222,6 +274,21 @@ The PLANNING state is active while the AI processes natural language input and g
 ### Description
 The PREVIEWING state displays generated routes and allows the user to compare options, view details, and prepare to ride.
 
+**UI Components (from Sprint 2):**
+- `MapViewWrapper` (organism) — displays selected route polyline
+- `RoutePolylineComponent` (atom) — highlights selected vs alternate routes
+- `RouteOptionsSheet` (organism) — bottom sheet with route cards
+- `RouteOptionCard` (molecule) — individual route summary card
+- `RouteDetailsSheet` (organism) — detail view when a card is tapped
+- `RouteTimeline` (organism) — leg-by-leg timeline
+- `RouteComparisonView` (screen) — side-by-side compare mode
+- `EnrichedRouteCard` (organism) — enriched route presentation
+- `ChatInput` (organism) — refinement input that kicks back to PLANNING
+- `WeatherStrip` (molecule) — route weather summary
+- `Button` (atom) — "Start Riding" primary action
+
+**New Compositions Needed:** None
+
 ### Preconditions
 - State machine is in PLANNING (success) or ROUTE_DETAILS
 - Route options are available
@@ -262,6 +329,20 @@ The PREVIEWING state displays generated routes and allows the user to compare op
 
 ### Description
 The NAVIGATING state is active during turn-by-turn navigation. The user is following the planned route.
+
+**UI Components (from Sprint 2):**
+- `MapViewWrapper` (organism) — locked-to-user heading-up map
+- `RoutePolylineComponent` (atom) — highlighted active route path
+- `WaypointMarker` (molecule) — upcoming turn and waypoint markers
+- `MinimalOverlayWidgetPreview` (molecule) — speed/distance/elevation metrics strip
+- `MinimalOverlayWidget` (molecule) — individual metric widget
+- `OverlayPill` (molecule) — current turn banner
+- `MapControls` (molecule) — zoom/recenter during nav
+- `MapToastStack` (organism) — transient nav alerts
+- `Button` (atom) — abort navigation control
+
+**New Compositions Needed:**
+- `TurnInstructionBanner` (proposed organism) — top banner with turn arrow + maneuver text + distance-to-maneuver; no equivalent component exists in 08a
 
 ### Preconditions
 - State machine is in ROUTE_DETAILS or NAVIGATION_EXPORT
@@ -307,6 +388,19 @@ The NAVIGATING state is active during turn-by-turn navigation. The user is follo
 ### Description
 The RECORDING state captures ride data after navigation completes. Waypoints, metrics, and route data are saved.
 
+**UI Components (from Sprint 2):**
+- `MapViewWrapper` (organism) — follows user with recording trail
+- `RoutePolylineComponent` (atom) — renders in-progress recorded path
+- `WaypointMarker` (molecule) — marks captured waypoints
+- `MinimalOverlayWidgetPreview` (molecule) — live metrics display
+- `OverlayPill` (molecule) — recording status pill in status area
+- `Button` (atom) — "Stop Recording" action
+- `Banner` (molecule) — backgrounded recording reminder
+- `MapToastStack` (organism) — ephemeral capture notifications
+
+**New Compositions Needed:**
+- `RecordingStatusIndicator` (proposed molecule) — animated red-dot + "REC" label with elapsed time for status bar; not present in 08a
+
 ### Preconditions
 - State machine is in NAVIGATING
 - Navigation session completed successfully
@@ -347,6 +441,21 @@ The RECORDING state captures ride data after navigation completes. Waypoints, me
 
 ### Description
 The COMPLETED state shows the ride summary with metrics, route map, and options to save or share the ride.
+
+**UI Components (from Sprint 2):**
+- `SubpageLayout` (template) — summary screen chrome with back action
+- `MapViewWrapper` (organism) — static map rendering completed path
+- `RoutePolylineComponent` (atom) — finalized route path
+- `StatRow` (molecule) — distance/time/elevation/avg-speed metrics
+- `Card` (atom) — groups summary metric sections
+- `SectionHeader` (molecule) — labels summary groupings
+- `CaptionInput` (molecule) — optional ride note
+- `Button` (atom) — "Save Ride" and "Share" actions
+- `SaveRouteConfirmationSheet` (molecule) — confirmation when saving
+- `SuccessToast` (molecule) — persistence confirmation
+
+**New Compositions Needed:**
+- `RideSummaryScreen` (proposed screen) — composes map + metrics + save/share actions into the COMPLETED-state summary view; 08a has RouteComparisonView/SavedRoutesScreen but no completed-ride summary screen
 
 ### Preconditions
 - State machine is in RECORDING
@@ -390,6 +499,19 @@ The COMPLETED state shows the ride summary with metrics, route map, and options 
 ### Description
 The state machine must survive app restarts and restore to the last active state, preserving session data and route options.
 
+**UI Components (from Sprint 2):**
+- `BaseViewLayout` (template) — root layout that gates render on hydration
+- `ErrorBoundary` (template) — catches hydration errors
+- `Skeleton` (atom) — placeholder while state rehydrates
+- `SkeletonWrapper` (molecule) — conditional skeleton wrapper during hydration
+- `RouteDetailsSkeleton` (organism) — skeleton for PREVIEWING-state restore
+- `CardSkeleton` (molecule) — generic card skeleton for restoring lists
+- `Progress` (atom) — indeterminate hydration indicator
+- `ConnectionBanner` (molecule) — surfaces offline state that may affect restore
+
+**New Compositions Needed:**
+- `HydrationGate` (proposed template) — suspends child render until persisted state is validated and loaded; no direct analog in 08a
+
 ### Preconditions
 - State machine has active state
 - App is backgrounded or killed
@@ -431,6 +553,18 @@ The state machine must survive app restarts and restore to the last active state
 ### Description
 The state machine must handle corrupt or invalid persisted state gracefully, resetting to IDLE without crashing.
 
+**UI Components (from Sprint 2):**
+- `ErrorBoundary` (template) — catches hydration-time validation errors
+- `BaseViewLayout` (template) — renders fallback IDLE after reset
+- `Banner` (molecule) — "Session restored to default" notice (Android)
+- `InfoToast` (molecule) — toast variant for reset notice
+- `WarningToast` (molecule) — alternate corruption warning surface
+- `ErrorToast` (molecule) — surfaces recovery error if needed
+- `EmptyState` (molecule) — fallback content when routeOptions are discarded
+
+**New Compositions Needed:**
+- `SessionResetAlert` (proposed molecule) — platform-adaptive alert/toast abstraction for "Session restored to default" copy; maps to native alert on iOS, toast on Android
+
 ### Preconditions
 - Persisted state is corrupted
 - App launches or attempts to hydrate
@@ -469,6 +603,19 @@ The state machine must handle corrupt or invalid persisted state gracefully, res
 
 ### Description
 Screen transitions must match state changes, providing smooth visual feedback as users move through the ride flow.
+
+**UI Components (from Sprint 2):**
+- `BaseViewLayout` (template) — outer shell across state transitions
+- `MenuLayout` (template) — persistent layout that survives transitions
+- `SubpageLayout` (template) — provides back-nav semantics per state
+- `BottomSheetWrapper` (template) — animated presentation of state-scoped sheets
+- `SheetHandle` (atom) — drag handle on animated sheets
+- `MapViewWrapper` (organism) — continuous map across state transitions
+- `RouteOptionsSheet` (organism) — target sheet for PLANNING → ROUTE_RESULTS animation
+- `PlanningBottomSheet` (organism) — source sheet when transitioning out of PLANNING
+
+**New Compositions Needed:**
+- `RideFlowNavigator` (proposed template) — observes RideFlowState and drives Compose Navigation / NavigationStack with 300ms slide transitions and state-graph-aware back stack; no equivalent in 08a
 
 ### Preconditions
 - State machine transitions

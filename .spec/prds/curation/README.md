@@ -52,6 +52,6 @@ Autonomous route curation and discovery system enabling motorcycle riders to fin
 
 ## Next Steps
 
-- `/kb-project-plan` - Build implementation plan
-- `/kb-project-groom` - groom tasks into sprints
-- `/kb-run-epic` - execute implementation tasks
+- `/kb-sprint-plan` - Build implementation plan
+- `/kb-sprint-tasks-plan` - groom tasks into sprints
+- `/kb-run-sprint` - execute implementation tasks

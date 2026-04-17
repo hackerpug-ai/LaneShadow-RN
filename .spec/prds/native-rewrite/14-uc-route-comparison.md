@@ -24,6 +24,21 @@ Route comparison enables users to evaluate multiple route options side-by-side a
 
 **Description**: After AI planning completes, user views 2-3 route options displayed side-by-side as cards with summary metrics and map preview.
 
+**UI Components (from Sprint 2):**
+- `RouteComparisonView` (screen) — top-level comparison screen hosting cards + map
+- `SubpageLayout` (template) — screen chrome (title, back action, right action)
+- `RouteOptionCard` (molecule) — per-route summary card (name, badges, stats, weather)
+- `RouteOptionsSheet` (organism) — horizontal swipeable container of route option cards
+- `MapboxMapView` (organism) — map layer rendering all route polylines
+- `RoutePolyline` (atom) — individual route polyline with stroke/color
+- `RoutePolylineComponent` (atom) — selected/unselected polyline variant wrapper
+- `StatRow` (molecule) — primary/secondary metric rows (distance, duration)
+- `RouteBadge` (molecule) — curvature score and route label badges
+- `EnrichmentStatusBadge` (molecule) — per-route enrichment progress indicator
+- `WeatherPill` (molecule) — at-a-glance weather summary on each card
+
+**New Compositions Needed:** None
+
 ### Preconditions
 - User completed ride planning flow (origin, destination, preferences)
 - AI planning returned 2-3 route options from Convex `routes:planAI`
@@ -94,6 +109,20 @@ And current card index is highlighted
 ## UC-COMP-02: Compare Route Metrics
 
 **Description**: Each route card displays key metrics for comparison: distance, duration, curvature score, elevation gain, scenic score.
+
+**UI Components (from Sprint 2):**
+- `RouteOptionCard` (molecule) — host card displaying the metric grid
+- `StatRow` (molecule) — individual metric cells (distance, duration, elevation, scenic)
+- `RouteBadge` (molecule) — color-coded curvature/scenic rank badges
+- `IconSymbol` (atom) — per-metric icons
+- `Badge` (atom) — rank indicators (best/middle/worst)
+- `RouteDetailsSheet` (organism) — detail breakdown bottom sheet when a metric cell is tapped
+- `BottomSheetWrapper` (template) — sheet presentation chrome
+- `SegmentDetailView` (molecule) — detailed curvature breakdown content inside the sheet
+- `EnrichedRouteCard` (organism) — enriched variant when enrichment metrics are available
+
+**New Compositions Needed:**
+- `MetricGrid` (proposed molecule) — grid layout of StatRow cells with rank color coding and tappable drill-down; used by route card
 
 ### Preconditions
 - Route results screen is displayed
@@ -169,6 +198,19 @@ And sheet shows curvature breakdown:
 
 **Description**: User taps a route card to highlight that route on the map and fly camera to overview position.
 
+**UI Components (from Sprint 2):**
+- `RouteComparisonView` (screen) — coordinates card selection and map camera
+- `MapboxMapView` (organism) — map with camera animation API
+- `RoutePolyline` (atom) — stroke width / color / opacity updates on select
+- `RoutePolylineComponent` (atom) — isSelected variant toggle
+- `WaypointMarker` (molecule) — start/end point markers for selected route
+- `SearchResultMarker` (molecule) — endpoint markers
+- `RouteOptionCard` (molecule) — selected state (border, elevation)
+- `RouteOptionsSheet` (organism) — scroll container; tracks selected card
+- `MapControls` (molecule) — zoom/recenter controls during highlight
+
+**New Compositions Needed:** None
+
 ### Preconditions
 - Route results screen is displayed
 - Map is visible with all routes rendered
@@ -243,6 +285,20 @@ And camera animates to third route bounds
 ## UC-COMP-04: View Elevation Profile
 
 **Description**: User views elevation profile chart for each route, showing climbing/descending segments and total elevation gain.
+
+**UI Components (from Sprint 2):**
+- `RouteOptionCard` (molecule) — hosts the "Elevation" action button
+- `Button` (atom) — "Elevation" CTA on the card
+- `BottomSheetWrapper` (template) — sheet presentation for the elevation chart
+- `RouteDetailsSheet` (organism) — reusable details sheet shell
+- `RouteTimeline` (organism) — timeline-style visualization for segmented route data
+- `RouteLegTimeline` (molecule) — per-leg visualization with elevation/grade segments
+- `StatRow` (molecule) — summary stats (start elevation, peak, total gain/loss)
+- `IconSymbol` (atom) — axis/tooltip iconography
+- `Badge` (atom) — grade legend swatches (green/yellow/red)
+
+**New Compositions Needed:**
+- `ElevationProfileChart` (proposed organism) — interactive line chart (Vico on Android, Swift Charts on iOS) with grade-colored segments, tap tooltip, and draggable crosshair; not a reusable RN chart exists today
 
 ### Preconditions
 - Route card is selected
@@ -327,6 +383,19 @@ And overlay updates in real-time
 
 **Description**: User selects their preferred route from options, confirms selection, and proceeds to navigation or ride planning.
 
+**UI Components (from Sprint 2):**
+- `RouteComparisonView` (screen) — dispatches SELECT_ROUTE and transitions state
+- `RouteOptionCard` (molecule) — hosts the "Select Route" CTA
+- `Button` (atom) — "Select Route", "Confirm", "Cancel", "View other options"
+- `PrimaryButton` (atom) — primary confirm action styling
+- `SaveRouteConfirmationSheet` (molecule) — confirmation sheet pattern with route summary
+- `BottomSheetWrapper` (template) — presentation chrome for confirmation sheet
+- `StatRow` (molecule) — summary line (distance • duration • curvature)
+- `RouteDetailsSheet` (organism) — post-selection route detail surface
+- `SubpageLayout` (template) — ROUTE_DETAILS screen wrapper
+
+**New Compositions Needed:** None
+
 ### Preconditions
 - Route results screen is displayed
 - User has reviewed route options
@@ -393,6 +462,21 @@ And previous selection is cleared
 ## UC-COMP-06: Compare with Current Route
 
 **Description**: If user already has a route planned, new AI planning options are compared against the existing route.
+
+**UI Components (from Sprint 2):**
+- `RouteComparisonView` (screen) — orchestrates 4-card layout (3 new + current)
+- `RouteOptionsSheet` (organism) — horizontal container of all option cards
+- `RouteOptionCard` (molecule) — used for both new options and the current route (dimmed variant)
+- `SavedRouteCard` (molecule) — alternate styling reference for the "current route" card
+- `Badge` (atom) — "Current Route" label and delta indicators
+- `RouteBadge` (molecule) — delta chips ("15% curvier than current")
+- `StatRow` (molecule) — per-metric delta rows
+- `SaveRouteConfirmationSheet` (molecule) — "Replace current route?" confirmation
+- `Button` (atom) — "Replace", "Keep current route" actions
+- `BottomSheetWrapper` (template) — sheet chrome
+
+**New Compositions Needed:**
+- `RouteDeltaRow` (proposed molecule) — formats a single metric delta ("+8 min longer than current") with directional icon and color; reused across all comparison cards
 
 ### Preconditions
 - User has an existing planned route in `ROUTE_DETAILS` state

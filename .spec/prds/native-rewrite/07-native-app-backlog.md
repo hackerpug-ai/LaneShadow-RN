@@ -11,6 +11,19 @@ Deferred from [Curation Pipeline Hardening PRD](../../curation-hardening/tasks/I
 
 ---
 
+## Atom-First Execution Strategy (effective 2026-04-17)
+
+All 195 UI components are built in **Sprint 2 (`sprint-02-ui-component-translation/`)** before any feature sprint begins. Sprint 2 ships token-accurate Kotlin/Compose + Swift/SwiftUI components with sandbox verification, **no** backend wiring, nav logic, or state management.
+
+Consequences for this backlog:
+
+- **No feature sprint builds components.** Sprints 3–10 are wiring waves only. They consume Sprint-2 components by name (see `08a-atomic-component-catalog.md`) and attach data/state/nav/backend behavior.
+- **Every UC in files `09–16` lists its `UI Components`** referenced from the Sprint-2 catalog. Feature tasks in each sprint cite the same components by name under a `Components Consumed` subsection.
+- **Missing compositions** — any UI need not covered by the 195-component catalog — are added to Sprint 2 via `/kb-sprint-plan --delta-replan` before the consuming sprint begins. They never get built inline in a feature sprint.
+- The "Deferred UI Work" items below are therefore **wiring atop existing Sprint-2 components** (e.g., Surface Badge = configure `RouteBadge` variant with the `surface` field), not net-new component work.
+
+---
+
 ## Data Contract
 
 The curation-hardening pipeline produces the following fields in Convex `curated_routes` for native apps to consume. All fields are `v.optional()` — native apps must tolerate `undefined`/`null` without crash.
@@ -30,27 +43,32 @@ The curation-hardening pipeline produces the following fields in Convex `curated
 
 ---
 
-## Deferred UI Work
+## Deferred UI Work (as wiring against Sprint-2 components)
 
 ### 1. Route Discovery Card — Surface Badge
 
 **Original task:** DESIGN-008
-**Display:** Surface type chip (gravel/dirt/mixed icon) below the archetype row on route discovery cards. Paved routes show no badge (paved is default, no noise). Quality tier badge for `qualityTier='minimal'` at reduced opacity (0.7).
+**Components consumed (Sprint 2):** `RouteOptionCard` (molecule), `RouteBadge` (atom), `Chip` (atom) for discovery filter bar.
+**Wiring:** Bind `surface` field → `RouteBadge` variant. Paved routes render no badge (suppress when `surface === 'paved'` or `undefined`). For `qualityTier === 'minimal'`, reduce RouteBadge opacity to 0.7.
 
 ### 2. Discovery Filter — Surface Type Filter Chips
 
 **Original task:** DESIGN-009
-**Display:** Second row of filter chips above/below archetype filter: All, Paved, Gravel, Dirt, Mixed. Tap to filter map and list. AND with archetype filter (not OR). Hidden when no surface data exists in current viewport.
+**Components consumed (Sprint 2):** `DiscoveryFilterBar` (molecule), `Chip` (atom).
+**Wiring:** Add a second chip row with options `All | Paved | Gravel | Dirt | Mixed`. AND-combine with archetype filter state. Hide row when no route in viewport has non-paved surface. No new component work.
 
 ### 3. Route Details Sheet — Expanded Fields
 
 **Original task:** DESIGN-010
-**Display:** Expanded route details sheet showing:
-- Description (from pipeline, replacing any AI rationale slot)
-- Community rating as a StatRow
-- "Community Signals" section when `sourceCount >= 2` and `mentionFrequency > 0`
-- "Best Months" row with month pills (Apr, May, Oct, etc.)
-- "Weather suitability" as a percentage StatRow
+**Components consumed (Sprint 2):** `RouteDetailsSheet` (organism), `StatRow` (atom/molecule), `SectionHeader` (molecule), `Badge` (atom).
+**Wiring:** Populate the existing sheet layout with:
+- Description → markdown text block
+- Community rating → `StatRow`
+- Community Signals → conditionally rendered `SectionHeader` + `StatRow` list when `sourceCount >= 2 && mentionFrequency > 0`
+- Best Months → horizontal `Badge` row
+- Weather suitability → `StatRow`
+
+All slots already exist in `RouteDetailsSheet`. No new component work.
 
 ### 4. Local Persistence — Schema Extension
 
@@ -58,6 +76,8 @@ The curation-hardening pipeline produces the following fields in Convex `curated
 **Platform-specific:** Native persistence layer must store `surface`, `qualityTier`, `bestMonths` locally for offline access.
 - Android: Room database entity extension
 - iOS: SwiftData model extension
+
+(Persistence is out of scope for UI components; this task stays as pure wiring/backend work.)
 
 ---
 

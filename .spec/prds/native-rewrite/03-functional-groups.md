@@ -11,7 +11,7 @@ prd_version: 2.0.0
 | Group | Prefix | File | Description |
 |-------|--------|------|-------------|
 | Repo Restructure | RESTR | 04-uc-restructure.md | Move Convex to server/, RN app to react-native/, create placeholder dirs |
-| Design System | DESIGN | 08-design-system.md | W3C DTCG token pipeline, Style Dictionary, atomic component library |
+| Design System | DESIGN | 08-design-system.md, 08a–08d | W3C DTCG token pipeline, Style Dictionary, **atomic component library — all 195 components delivered up-front in Sprint 2** (atoms → molecules → organisms → templates → screens). Feature sprints consume these components by name; see each UC's `UI Components` block. New compositions flow through Sprint 2 via `/kb-sprint-plan --delta-replan` — never inline in a feature sprint. |
 | Turn-by-Turn Navigation | NAV | 09-uc-navigation.md | Mapbox Navigation SDK, voice instructions, route deviation detection |
 | Ride Recording | REC | 10-uc-ride-recording.md | Background location tracking, sensor fusion, curvature detection |
 | Offline Downloads | OFFL | 11-uc-offline.md | Map tile region download, storage management, background download |
@@ -51,3 +51,5 @@ These concerns span multiple functional groups and are documented in 06-technica
 | Room/SwiftData Schema | REC, OFFL, CHAT, FLOW, GATE | Both |
 | Convex SDK Integration | All groups | Both |
 | Design Token Consumption | All UI groups | Both |
+| UI Composition (per-UC) | All UI groups | Both — each UC in files 09–16 declares its components inline; see `08a` for catalog |
+| Component Deltas | All UI groups that need compositions beyond the 195 in `08a` | Absorbed into Sprint 2 via `/kb-sprint-plan --delta-replan` before the consuming feature sprint begins |
