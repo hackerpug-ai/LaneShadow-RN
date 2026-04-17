@@ -12,34 +12,28 @@
  * Following components/CLAUDE.md: uses useSemanticTheme() exclusively.
  */
 
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ViewStyle,
-  Pressable,
-} from 'react-native';
-import { IconSymbol } from './icon-symbol';
-import { useSemanticTheme } from '../../hooks/use-semantic-theme';
+import type React from 'react'
+import { Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol } from './icon-symbol'
 
 export interface RouteAttachmentCardProps {
-  id: string;
-  label: string;
-  description: string;
-  distance: string;
-  duration: string;
-  scenicScore: number;
+  id: string
+  label: string
+  description: string
+  distance: string
+  duration: string
+  scenicScore: number
   weatherBadge?: {
-    type: 'clear' | 'rain' | 'wind' | 'cloudy';
-    text: string;
-  };
-  isBest?: boolean;
-  isSelected?: boolean;
-  onPress?: () => void;
-  style?: ViewStyle;
+    type: 'clear' | 'rain' | 'wind' | 'cloudy'
+    text: string
+  }
+  isBest?: boolean
+  isSelected?: boolean
+  onPress?: () => void
+  style?: ViewStyle
   /** Visual variant: 'compact' for map overlay (one-line), 'full' for chat transcript (detailed) */
-  variant?: 'compact' | 'full';
+  variant?: 'compact' | 'full'
 }
 
 export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
@@ -56,33 +50,35 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
   style,
   variant = 'compact',
 }) => {
-  const { semantic } = useSemanticTheme();
+  const { semantic } = useSemanticTheme()
 
-  const getWeatherIcon = (type: RouteAttachmentCardProps['weatherBadge']['type']) => {
+  const getWeatherIcon = (type: NonNullable<RouteAttachmentCardProps['weatherBadge']>['type']) => {
     switch (type) {
       case 'clear':
-        return 'weather-sunny';
+        return 'weather-sunny'
       case 'rain':
-        return 'weather-rainy';
+        return 'weather-rainy'
       case 'wind':
-        return 'weather-windy';
+        return 'weather-windy'
       case 'cloudy':
-        return 'weather-cloudy';
+        return 'weather-cloudy'
       default:
-        return 'weather-partly-cloudy';
+        return 'weather-partly-cloudy'
     }
-  };
+  }
 
-  const getWeatherColor = (type: RouteAttachmentCardProps['weatherBadge']['type']) => {
+  const getWeatherColor = (
+    type: NonNullable<RouteAttachmentCardProps['weatherBadge']>['type'],
+  ): string => {
     switch (type) {
       case 'rain':
-        return semantic.color.danger.default;
+        return semantic.color.danger.default ?? 'transparent'
       case 'wind':
-        return semantic.color.warning.default;
+        return semantic.color.warning.default ?? 'transparent'
       default:
-        return semantic.color.onSurface.muted;
+        return semantic.color.onSurface.muted ?? 'transparent'
     }
-  };
+  }
 
   // Compact variant (for map overlay) - single line, minimal
   if (variant === 'compact') {
@@ -93,7 +89,7 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
           styles.compactCard,
           {
             backgroundColor: isSelected
-              ? semantic.color.primary.default + '15'
+              ? `${semantic.color.primary.default}15`
               : semantic.color.surfaceVariant.default,
             borderColor: isSelected
               ? semantic.color.primary.default
@@ -107,8 +103,22 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
           {/* Badge row - compact */}
           <View style={styles.compactBadges}>
             {isBest && (
-              <View style={[styles.bestBadge, styles.bestBadgeCompact, { backgroundColor: semantic.color.primary.default + '20' }]}>
-                <Text style={[styles.bestBadgeText, styles.compactText, { color: semantic.color.primary.default }]}>⭐</Text>
+              <View
+                style={[
+                  styles.bestBadge,
+                  styles.bestBadgeCompact,
+                  { backgroundColor: `${semantic.color.primary.default}20` },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.bestBadgeText,
+                    styles.compactText,
+                    { color: semantic.color.primary.default },
+                  ]}
+                >
+                  ⭐
+                </Text>
               </View>
             )}
             {weatherBadge && (
@@ -117,7 +127,7 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
                   styles.weatherBadge,
                   styles.weatherBadgeCompact,
                   {
-                    backgroundColor: getWeatherColor(weatherBadge.type) + '20',
+                    backgroundColor: `${getWeatherColor(weatherBadge.type)}20`,
                   },
                 ]}
               >
@@ -144,15 +154,19 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
           </Text>
         </View>
       </View>
-    );
+    )
 
     return onPress ? (
-      <Pressable onPress={onPress} accessibilityLabel={`Route: ${label}`} accessibilityRole="button">
+      <Pressable
+        onPress={onPress}
+        accessibilityLabel={`Route: ${label}`}
+        accessibilityRole="button"
+      >
         {({ pressed }) => renderContent(pressed)}
       </Pressable>
     ) : (
       renderContent(false)
-    );
+    )
   }
 
   // Full variant (for chat transcript) - horizontal single-row layout
@@ -164,12 +178,10 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
         styles.fullCard,
         {
           backgroundColor: isSelected
-            ? semantic.color.primary.default + '15'
+            ? `${semantic.color.primary.default}15`
             : semantic.color.surfaceVariant.default,
-          borderColor: isSelected
-            ? semantic.color.primary.default
-            : semantic.color.border.default,
-          opacity: (isPressed && !isSelected) ? 0.8 : 1,
+          borderColor: isSelected ? semantic.color.primary.default : semantic.color.border.default,
+          opacity: isPressed && !isSelected ? 0.8 : 1,
         },
         style,
       ]}
@@ -179,8 +191,12 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
         {/* Left: Best badge + Label */}
         <View style={styles.titleSection}>
           {isBest && (
-            <View style={[styles.bestBadge, { backgroundColor: semantic.color.primary.default + '20' }]}>
-              <Text style={[styles.bestBadgeText, { color: semantic.color.primary.default }]}>⭐</Text>
+            <View
+              style={[styles.bestBadge, { backgroundColor: `${semantic.color.primary.default}20` }]}
+            >
+              <Text style={[styles.bestBadgeText, { color: semantic.color.primary.default }]}>
+                ⭐
+              </Text>
             </View>
           )}
           <Text
@@ -195,7 +211,11 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
         <View style={styles.statsSection}>
           {/* Distance */}
           <View style={styles.statItem}>
-            <IconSymbol name="map-marker-distance" size={12} color={semantic.color.onSurface.muted} />
+            <IconSymbol
+              name="map-marker-distance"
+              size={12}
+              color={semantic.color.onSurface.muted ?? 'transparent'}
+            />
             <Text style={[styles.statValue, { color: semantic.color.onSurface.subtle }]}>
               {distance}
             </Text>
@@ -203,7 +223,11 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
 
           {/* Duration */}
           <View style={styles.statItem}>
-            <IconSymbol name="clock-outline" size={12} color={semantic.color.onSurface.muted} />
+            <IconSymbol
+              name="clock-outline"
+              size={12}
+              color={semantic.color.onSurface.muted ?? 'transparent'}
+            />
             <Text style={[styles.statValue, { color: semantic.color.onSurface.subtle }]}>
               {duration}
             </Text>
@@ -230,10 +254,10 @@ export const RouteAttachmentCard: React.FC<RouteAttachmentCardProps> = ({
         </View>
       </View>
     </Pressable>
-  );
+  )
 
-  return renderContent(false);
-};
+  return renderContent(false)
+}
 
 const styles = StyleSheet.create({
   card: {
@@ -342,4 +366,4 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 8,
   },
-});
+})

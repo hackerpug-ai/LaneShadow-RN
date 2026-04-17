@@ -5,10 +5,10 @@
  * Follows the design system badge patterns
  */
 
-import { IconSymbol, type IconName } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
+import { type IconName, IconSymbol } from './icon-symbol'
 
 export type RouteBadgeVariant = 'primary' | 'neutral'
 
@@ -39,15 +39,14 @@ export const RouteBadge = ({
   const isPrimary = variant === 'primary'
 
   const backgroundColor = isPrimary
-    ? semantic.color.primary.default + '33' // Add 20% alpha
+    ? `${semantic.color.primary.default}33` // Add 20% alpha
     : semantic.color.divider.default
 
-  const color = isPrimary
-    ? semantic.color.primary.default
-    : semantic.color.onSurface.subtle
+  const color =
+    (isPrimary ? semantic.color.primary.default : semantic.color.onSurface.subtle) ?? 'transparent'
 
   const borderColor = isPrimary
-    ? semantic.color.primary.default + '4D' // Add 30% alpha
+    ? `${semantic.color.primary.default}4D` // Add 30% alpha
     : semantic.color.border.default
 
   return (
@@ -60,14 +59,7 @@ export const RouteBadge = ({
         },
       ]}
     >
-      {icon && (
-        <IconSymbol
-          name={icon}
-          size={iconSize}
-          color={color}
-          style={styles.icon}
-        />
-      )}
+      {icon && <IconSymbol name={icon} size={iconSize} color={color} style={styles.icon} />}
       <Text style={[styles.text, { color }]}>{children}</Text>
     </View>
   )

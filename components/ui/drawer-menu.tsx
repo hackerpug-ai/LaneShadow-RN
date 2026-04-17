@@ -6,12 +6,12 @@
  * Following react_rules.mdc: Named exports, simple state management
  */
 
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { useEffect, useState } from 'react'
 import { Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { IconSymbol, type IconName } from './icon-symbol'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { type IconName, IconSymbol } from './icon-symbol'
 
 const DRAWER_WIDTH = 280
 
@@ -144,7 +144,7 @@ export const DrawerMenu = ({
                       borderRadius: semantic.radius.lg,
                       marginBottom: semantic.space.xs,
                       backgroundColor: item.active
-                        ? semantic.color.primary.default + '1A'
+                        ? `${semantic.color.primary.default}1A`
                         : pressed
                           ? semantic.color.surface.pressed
                           : 'transparent',
@@ -156,11 +156,11 @@ export const DrawerMenu = ({
                     name={item.icon}
                     size={24}
                     color={
-                      item.disabled
+                      (item.disabled
                         ? semantic.color.onSurface.subtle
                         : item.active
                           ? semantic.color.primary.default
-                          : semantic.color.onSurface.default
+                          : semantic.color.onSurface.default) ?? 'transparent'
                     }
                   />
                   <Text

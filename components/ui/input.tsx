@@ -33,7 +33,7 @@ import type { TextInputProps, TextStyle, ViewStyle } from 'react-native'
 import { StyleSheet, TextInput, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { IconSymbol, type IconName } from './icon-symbol'
+import { type IconName, IconSymbol } from './icon-symbol'
 
 /**
  * Input component props
@@ -102,10 +102,10 @@ export const Input = ({
       return semantic.color.danger.default
     }
     if (!editable) {
-      return semantic.color.onSurface.disabled ?? semantic.color.onSurface.muted
+      return semantic.color.onSurface.disabled ?? semantic.color.onSurface.muted ?? ''
     }
     // Design: muted when idle, primary on focus.
-    return isFocused ? semantic.color.primary.default : semantic.color.onSurface.muted
+    return (isFocused ? semantic.color.primary.default : semantic.color.onSurface.muted) ?? ''
   }
 
   // Render an icon by name

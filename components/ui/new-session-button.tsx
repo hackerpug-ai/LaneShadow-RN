@@ -1,20 +1,14 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  GestureResponderEvent,
-  Pressable,
-} from 'react-native';
-import { IconSymbol } from './icon-symbol';
-import { useSemanticTheme } from '../../hooks/use-semantic-theme';
+import type React from 'react'
+import { type GestureResponderEvent, Pressable, StyleSheet, Text, View } from 'react-native'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { IconSymbol } from './icon-symbol'
 
 interface NewSessionButtonProps {
-  onPress?: (event: GestureResponderEvent) => void;
-  disabled?: boolean;
-  variant?: 'header' | 'fab' | 'text';
-  label?: string;
-  size?: 'sm' | 'md' | 'lg';
+  onPress?: (event: GestureResponderEvent) => void
+  disabled?: boolean
+  variant?: 'header' | 'fab' | 'text'
+  label?: string
+  size?: 'sm' | 'md' | 'lg'
 }
 
 export const NewSessionButton: React.FC<NewSessionButtonProps> = ({
@@ -24,20 +18,20 @@ export const NewSessionButton: React.FC<NewSessionButtonProps> = ({
   label = 'Session',
   size = 'md',
 }) => {
-  const { semantic } = useSemanticTheme();
+  const { semantic } = useSemanticTheme()
 
   const getSizeStyle = () => {
     switch (size) {
       case 'sm':
-        return { iconSize: 20 as const, fontSize: 13 as const, padding: 4 };
+        return { iconSize: 20 as const, fontSize: 13 as const, padding: 4 }
       case 'lg':
-        return { iconSize: 28 as const, fontSize: 16 as const, padding: 8 };
+        return { iconSize: 28 as const, fontSize: 16 as const, padding: 8 }
       default:
-        return { iconSize: 24 as const, fontSize: 14 as const, padding: 6 };
+        return { iconSize: 24 as const, fontSize: 14 as const, padding: 6 }
     }
-  };
+  }
 
-  const { iconSize, fontSize, padding } = getSizeStyle();
+  const { iconSize, fontSize, padding } = getSizeStyle()
 
   if (variant === 'fab') {
     return (
@@ -68,12 +62,15 @@ export const NewSessionButton: React.FC<NewSessionButtonProps> = ({
             <IconSymbol
               name="plus"
               size={iconSize}
-              color={disabled ? semantic.color.onSurface.subtle : semantic.color.onPrimary.default}
+              color={
+                (disabled ? semantic.color.onSurface.subtle : semantic.color.onPrimary.default) ??
+                'transparent'
+              }
             />
           </View>
         )}
       </Pressable>
-    );
+    )
   }
 
   if (variant === 'text') {
@@ -85,17 +82,24 @@ export const NewSessionButton: React.FC<NewSessionButtonProps> = ({
         accessibilityRole="button"
       >
         {({ pressed }) => (
-          <View style={[styles.textButton, { padding, opacity: disabled ? 0.5 : pressed ? 0.8 : 1 }]}>
+          <View
+            style={[styles.textButton, { padding, opacity: disabled ? 0.5 : pressed ? 0.8 : 1 }]}
+          >
             <IconSymbol
               name="plus-circle-outline"
               size={iconSize}
-              color={disabled ? semantic.color.onSurface.subtle : semantic.color.primary.default}
+              color={
+                (disabled ? semantic.color.onSurface.subtle : semantic.color.primary.default) ??
+                'transparent'
+              }
             />
             <Text
               style={[
                 styles.text,
                 {
-                  color: disabled ? semantic.color.onSurface.subtle : semantic.color.primary.default,
+                  color: disabled
+                    ? semantic.color.onSurface.subtle
+                    : semantic.color.primary.default,
                   fontSize,
                 },
               ]}
@@ -105,7 +109,7 @@ export const NewSessionButton: React.FC<NewSessionButtonProps> = ({
           </View>
         )}
       </Pressable>
-    );
+    )
   }
 
   // Header variant (default)
@@ -117,11 +121,16 @@ export const NewSessionButton: React.FC<NewSessionButtonProps> = ({
       accessibilityRole="button"
     >
       {({ pressed }) => (
-        <View style={[styles.headerButton, { padding, opacity: disabled ? 0.5 : pressed ? 0.8 : 1 }]}>
+        <View
+          style={[styles.headerButton, { padding, opacity: disabled ? 0.5 : pressed ? 0.8 : 1 }]}
+        >
           <IconSymbol
             name="plus-circle-outline"
             size={iconSize}
-            color={disabled ? semantic.color.onSurface.subtle : semantic.color.primary.default}
+            color={
+              (disabled ? semantic.color.onSurface.subtle : semantic.color.primary.default) ??
+              'transparent'
+            }
           />
           <Text
             style={[
@@ -137,8 +146,8 @@ export const NewSessionButton: React.FC<NewSessionButtonProps> = ({
         </View>
       )}
     </Pressable>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   headerButton: {
@@ -164,4 +173,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+})

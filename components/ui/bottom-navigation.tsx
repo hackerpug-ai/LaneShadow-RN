@@ -7,8 +7,8 @@
 
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
-import { IconSymbol, type IconName } from './icon-symbol'
 import type { ExtendedTheme } from '../../styles/types'
+import { type IconName, IconSymbol } from './icon-symbol'
 
 export type NavItem = {
   /** Icon name from MaterialCommunityIcons */
@@ -32,10 +32,7 @@ export type BottomNavigationProps = {
  * BottomNavigation component for 4-tab navigation bar
  * Displays Explore, Saved, Rides, and Profile tabs
  */
-export const BottomNavigation = ({
-  items,
-  backgroundColor,
-}: BottomNavigationProps) => {
+export const BottomNavigation = ({ items, backgroundColor }: BottomNavigationProps) => {
   const theme = useTheme<ExtendedTheme>()
   const { semantic } = theme
 
@@ -50,17 +47,13 @@ export const BottomNavigation = ({
       ]}
     >
       {items.map((item, index) => {
-        const color = item.active
-          ? semantic.color.primary.default
-          : semantic.color.onSurface.subtle
+        const color =
+          (item.active ? semantic.color.primary.default : semantic.color.onSurface.subtle) ??
+          'transparent'
 
         return (
           <View key={index} style={styles.navItem}>
-            <IconSymbol
-              name={item.icon}
-              size={24}
-              color={color}
-            />
+            <IconSymbol name={item.icon} size={24} color={color} />
             <Text style={[styles.navLabel, { color }]}>{item.label}</Text>
           </View>
         )

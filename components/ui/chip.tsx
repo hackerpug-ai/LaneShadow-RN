@@ -5,10 +5,10 @@
  * Following theme_rules.mdc: StyleSheet.create() + semantic tokens
  */
 
-import { IconSymbol, type IconName } from '../ui/icon-symbol'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { type IconName, IconSymbol } from '../ui/icon-symbol'
 
 export type ChipProps = {
   label: string
@@ -29,14 +29,14 @@ export const Chip = ({ label, icon, selected = false, onPress, testID }: ChipPro
         styles.chip,
         {
           backgroundColor: selected
-            ? semantic.color.primary.default + '20' // ~12% opacity
+            ? `${semantic.color.primary.default}20` // ~12% opacity
             : pressed
               ? semantic.color.muted.default
               : 'transparent',
           borderRadius: semantic.radius.full,
           borderWidth: 1,
           borderColor: selected
-            ? semantic.color.primary.default + '60' // ~40% opacity
+            ? `${semantic.color.primary.default}60` // ~40% opacity
             : semantic.color.border.default,
           paddingHorizontal: semantic.space.md,
           paddingVertical: 6,
@@ -48,7 +48,10 @@ export const Chip = ({ label, icon, selected = false, onPress, testID }: ChipPro
           <IconSymbol
             name={icon}
             size={16}
-            color={selected ? semantic.color.primary.default : semantic.color.onSurface.muted}
+            color={
+              (selected ? semantic.color.primary.default : semantic.color.onSurface.muted) ??
+              'transparent'
+            }
           />
         )}
         <Text

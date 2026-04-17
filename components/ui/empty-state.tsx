@@ -14,12 +14,11 @@
  * ```
  */
 
-import { IconSymbol, type IconName } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Button } from './button'
+import { type IconName, IconSymbol } from './icon-symbol'
 
 export type EmptyStateProps = {
   icon: IconName
@@ -50,7 +49,7 @@ export const EmptyState = ({
         <IconSymbol
           name={icon as IconName}
           size={64}
-          color={semantic.color.onSurface.muted}
+          color={semantic.color.onSurface.muted ?? 'transparent'}
         />
       </View>
       <View

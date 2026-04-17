@@ -5,10 +5,10 @@
  * Follows the design system toggle patterns
  */
 
-import { IconSymbol, type IconName } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
+import { type IconName, IconSymbol } from './icon-symbol'
 
 export type OverlayPillProps = {
   /** Icon name from MaterialCommunityIcons */
@@ -38,15 +38,14 @@ export const OverlayPill = ({
   const { semantic } = theme
 
   const backgroundColor = active
-    ? semantic.color.primary.default + '33' // Add 20% alpha
+    ? `${semantic.color.primary.default}33` // Add 20% alpha
     : semantic.color.divider.default
 
-  const color = active
-    ? semantic.color.primary.default
-    : semantic.color.onSurface.subtle
+  const color =
+    (active ? semantic.color.primary.default : semantic.color.onSurface.subtle) ?? 'transparent'
 
   const borderColor = active
-    ? semantic.color.primary.default + '4D' // Add 30% alpha
+    ? `${semantic.color.primary.default}4D` // Add 30% alpha
     : 'transparent'
 
   return (
@@ -59,11 +58,7 @@ export const OverlayPill = ({
         },
       ]}
     >
-      <IconSymbol
-        name={icon}
-        size={iconSize}
-        color={color}
-      />
+      <IconSymbol name={icon} size={iconSize} color={color} />
       <Text style={[styles.label, { color }]}>{label}</Text>
     </View>
   )

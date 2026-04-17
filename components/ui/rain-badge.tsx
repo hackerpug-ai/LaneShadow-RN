@@ -5,10 +5,10 @@
  * Follows the design system badge patterns
  */
 
-import { IconSymbol } from './icon-symbol'
 import { StyleSheet, View } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { Badge } from './badge'
+import { IconSymbol } from './icon-symbol'
 
 export type RainSummary = 'none' | 'light' | 'moderate' | 'heavy' | 'unavailable'
 
@@ -70,7 +70,7 @@ export const RainBadge = ({ rainSummary, testID }: RainBadgeProps) => {
       heavy: semantic.color.danger.default,
       unavailable: semantic.color.onSurface.subtle,
     }
-    return colorMap[rainSummary as RainLevelKnown] || semantic.color.onSurface.subtle
+    return colorMap[rainSummary as RainLevelKnown] || semantic.color.onSurface.subtle || ''
   }
 
   // Partial map: only define icons we know
@@ -89,7 +89,6 @@ export const RainBadge = ({ rainSummary, testID }: RainBadgeProps) => {
 
     // Unknown type (new backend value) - warn in dev, show fallback
     if (__DEV__) {
-      console.warn(`⚠️ Unmapped rain level: "${level}" - add to LABELS in rain-badge.tsx`)
     }
 
     // Graceful fallback: CAPS_CASE with underscores converted to spaces
