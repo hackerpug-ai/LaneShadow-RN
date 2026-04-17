@@ -13,7 +13,7 @@ pre-commit:
     # ios/ and android/ are gitignored so they never appear in {staged_files}.
     - name: biome
       glob: "*.{js,jsx,ts,tsx,json,jsonc}"
-      run: pnpm biome check --no-errors-on-unmatched {staged_files}
+      run: pnpm exec biome check --no-errors-on-unmatched {staged_files}
 
     # SwiftFormat: format Swift files in ios/ only.
     # ios/ is gitignored (Expo prebuild), so this only fires if you add custom Swift files
@@ -31,6 +31,6 @@ pre-commit:
 
 pre-push:
   jobs:
-    # Convex schema + codegen validation — only needs to pass before push
+    # Convex schema + codegen validation from backend workspace.
     - name: convex build
-      run: CONVEX_DEPLOYMENT=dev:quirky-panther-164 npx convex dev --once
+      run: pnpm --dir server run convex:dev -- --once
