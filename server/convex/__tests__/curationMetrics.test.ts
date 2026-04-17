@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import type { Id } from '../_generated/dataModel'
+import type { Id } from '../_generated/dataModel.js'
 
 // ---------------------------------------------------------------------------
 // Test data helpers
@@ -152,7 +152,7 @@ describe('curationMetricsInternal - AC-001: Metrics return complete dashboard da
     }
 
     // Import the handler function
-    const { curationMetricsInternalHandler } = await import('../curationMetrics')
+    const { curationMetricsInternalHandler } = await import('../curationMetrics.js')
 
     const result = await curationMetricsInternalHandler(ctx as any)
 
@@ -197,7 +197,7 @@ describe('curationMetricsInternal - AC-001: Metrics return complete dashboard da
       },
     }
 
-    const { curationMetricsInternalHandler } = await import('../curationMetrics')
+    const { curationMetricsInternalHandler } = await import('../curationMetrics.js')
 
     const result = await curationMetricsInternalHandler(ctx as any)
 
@@ -301,7 +301,7 @@ describe('curationMetricsInternal - AC-003: No individual user data exposed', ()
       },
     }
 
-    const { curationMetricsInternalHandler } = await import('../curationMetrics')
+    const { curationMetricsInternalHandler } = await import('../curationMetrics.js')
 
     const result = await curationMetricsInternalHandler(ctx as any)
 
@@ -352,7 +352,7 @@ describe('curationMetricsInternal - AC-004: Last scrape timestamp', () => {
       },
     }
 
-    const { curationMetricsInternalHandler } = await import('../curationMetrics')
+    const { curationMetricsInternalHandler } = await import('../curationMetrics.js')
 
     const result = await curationMetricsInternalHandler(ctx as any)
 
@@ -369,7 +369,7 @@ describe('curationMetricsInternal - AC-004: Last scrape timestamp', () => {
       },
     }
 
-    const { curationMetricsInternalHandler } = await import('../curationMetrics')
+    const { curationMetricsInternalHandler } = await import('../curationMetrics.js')
 
     const result = await curationMetricsInternalHandler(ctx as any)
 
@@ -395,7 +395,7 @@ describe('curationMetricsInternal - AC-005: LLM cost estimation', () => {
       },
     }
 
-    const { curationMetricsInternalHandler } = await import('../curationMetrics')
+    const { curationMetricsInternalHandler } = await import('../curationMetrics.js')
 
     const result = await curationMetricsInternalHandler(ctx as any)
 
@@ -412,7 +412,7 @@ describe('curationMetricsInternal - AC-005: LLM cost estimation', () => {
       },
     }
 
-    const { curationMetricsInternalHandler } = await import('../curationMetrics')
+    const { curationMetricsInternalHandler } = await import('../curationMetrics.js')
 
     const result = await curationMetricsInternalHandler(ctx as any)
 

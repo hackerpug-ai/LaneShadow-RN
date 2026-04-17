@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest'
 describe('curation schema registration', () => {
   describe('AC-1: curated_routes table', () => {
     it('curated_routes table is registered with required indexes', async () => {
-      const schema = await import('../schema')
+      const schema = await import('../schema.js')
       const tables = (schema.default as any).tables
       const table = tables.curated_routes
 
@@ -45,7 +45,7 @@ describe('curation schema registration', () => {
 
   describe('AC-2: curated_route_enrichments table', () => {
     it('curated_route_enrichments table is registered with by_routeId index', async () => {
-      const schema = await import('../schema')
+      const schema = await import('../schema.js')
       const tables = (schema.default as any).tables
       const table = tables.curated_route_enrichments
 
@@ -66,7 +66,7 @@ describe('curation schema registration', () => {
 
   describe('AC-3: route_feedback table', () => {
     it('route_feedback table is registered with required indexes', async () => {
-      const schema = await import('../schema')
+      const schema = await import('../schema.js')
       const tables = (schema.default as any).tables
       const table = tables.route_feedback
 

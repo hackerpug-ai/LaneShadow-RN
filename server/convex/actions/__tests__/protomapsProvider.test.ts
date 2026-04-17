@@ -19,7 +19,7 @@ describe('protomapsProvider', () => {
     it('AC-1: presigned URL failures emit structured monitoring logs', async () => {
       // This test verifies that when R2 presigned URL generation fails,
       // it calls recordProtomapsFailure with structured error data
-      const { getProtomapsPresignedUrl } = await import('../agent/providers/protomapsProvider')
+      const { getProtomapsPresignedUrl } = await import('../agent/providers/protomapsProvider.js')
 
       // Set up R2 config but with missing credentials to trigger error
       process.env.PROTOMAPS_US_URL =
@@ -37,7 +37,7 @@ describe('protomapsProvider', () => {
     })
 
     it('AC-2: production environment throws error on R2 failure (not silent fallback)', async () => {
-      const { getProtomapsPresignedUrl } = await import('../agent/providers/protomapsProvider')
+      const { getProtomapsPresignedUrl } = await import('../agent/providers/protomapsProvider.js')
 
       // Set production environment
       process.env.CONVEX_CLOUD = 'production'
@@ -58,7 +58,7 @@ describe('protomapsProvider', () => {
 
   describe('getProtomapsUrl', () => {
     it('AC-3: URL validation checks for .pmtiles extension', async () => {
-      const { getProtomapsUrl } = await import('../agent/providers/protomapsProvider')
+      const { getProtomapsUrl } = await import('../agent/providers/protomapsProvider.js')
 
       // Set URL without .pmtiles extension
       process.env.PROTOMAPS_US_URL = 'https://example.com/map-data.txt'
@@ -72,7 +72,7 @@ describe('protomapsProvider', () => {
 
   describe('queryNodesInBbox', () => {
     it('AC-4: uses ProtomapsError for better error discrimination', async () => {
-      const { createProtomapsProvider } = await import('../agent/providers/protomapsProvider')
+      const { createProtomapsProvider } = await import('../agent/providers/protomapsProvider.js')
 
       // Create a provider with a URL that will fail
       const provider = createProtomapsProvider('https://example.com/nonexistent.pmtiles')
@@ -96,8 +96,7 @@ describe('protomapsProvider', () => {
 
   describe('queryWaysInBbox', () => {
     it('AC-5: uses ProtomapsError for better error discrimination', async () => {
-      const { createProtomapsProvider } = await import('../agent/providers/protomapsProvider')
-      const { ProtomapsError } = await import('../../lib/errors/protomaps')
+      const { createProtomapsProvider } = await import('../agent/providers/protomapsProvider.js')
 
       // Create a provider with a URL that will fail
       const provider = createProtomapsProvider('https://example.com/nonexistent.pmtiles')
@@ -121,8 +120,7 @@ describe('protomapsProvider', () => {
 
   describe('queryWaysByName', () => {
     it('AC-6: uses ProtomapsError for better error discrimination', async () => {
-      const { createProtomapsProvider } = await import('../agent/providers/protomapsProvider')
-      const { ProtomapsError } = await import('../../lib/errors/protomaps')
+      const { createProtomapsProvider } = await import('../agent/providers/protomapsProvider.js')
 
       // Create a provider with a URL that will fail
       const provider = createProtomapsProvider('https://example.com/nonexistent.pmtiles')

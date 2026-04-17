@@ -55,7 +55,7 @@ describe('PROTOMAPS_US_URL validation', () => {
   // Integration test - verify the module exports are correct
   describe('env module', () => {
     it('exports PROTOMAPS_US_URL (optional, can be undefined)', async () => {
-      const { PROTOMAPS_US_URL } = await import('../lib/env')
+      const { PROTOMAPS_US_URL } = await import('../lib/env.js')
       // PROTOMAPS_US_URL is optional, so undefined is valid
       expect(typeof PROTOMAPS_US_URL === 'string' || PROTOMAPS_US_URL === undefined).toBe(true)
     })

@@ -339,7 +339,7 @@ export const executePlanHandler = async (
     const _firstLeg = firstOption?.map?.legs?.[0]
 
     // AC-1: Generate content fingerprint for enrichment caching
-    const { generateContentFingerprint } = await import('./lib/enrichmentCache')
+    const { generateContentFingerprint } = await import('./lib/enrichmentCache.js')
     const fingerprint = generateContentFingerprint(plan.planInput)
 
     // AC-2: Check cache for existing enrichment before scheduling new job

@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest'
 describe('INF-003: Convex Vector Index + Match Audit Schema', () => {
   describe('AC-1: curated_routes validator extended with new optional fields', () => {
     it('should include semantic matching fields', async () => {
-      const { curatedRouteValidator } = await import('../../models/curated-routes')
+      const { curatedRouteValidator } = await import('../../models/curated-routes.js')
       const validatorFields = (curatedRouteValidator as any).fields
 
       // Semantic matching fields
@@ -22,7 +22,7 @@ describe('INF-003: Convex Vector Index + Match Audit Schema', () => {
     })
 
     it('should include enrichment output fields', async () => {
-      const { curatedRouteValidator } = await import('../../models/curated-routes')
+      const { curatedRouteValidator } = await import('../../models/curated-routes.js')
       const validatorFields = (curatedRouteValidator as any).fields
 
       // Enrichment output fields
@@ -42,7 +42,7 @@ describe('INF-003: Convex Vector Index + Match Audit Schema', () => {
     })
 
     it('should include scoring output fields', async () => {
-      const { curatedRouteValidator } = await import('../../models/curated-routes')
+      const { curatedRouteValidator } = await import('../../models/curated-routes.js')
       const validatorFields = (curatedRouteValidator as any).fields
 
       // Scoring output fields
@@ -60,7 +60,7 @@ describe('INF-003: Convex Vector Index + Match Audit Schema', () => {
 
   describe('AC-2: vectorIndex registered on curated_routes', () => {
     it('should have by_embedding vector index with dimensions 1536', async () => {
-      const schema = await import('../schema')
+      const schema = await import('../schema.js')
       const tables = (schema.default as any).tables
       const table = tables.curated_routes
 
@@ -74,10 +74,10 @@ describe('INF-003: Convex Vector Index + Match Audit Schema', () => {
 
   describe('AC-3: route_posts_raw table created', () => {
     it('should have route_posts_raw table with routePostRawValidator', async () => {
-      const { routePostRawValidator } = await import('../../models/curated-routes')
+      const { routePostRawValidator } = await import('../../models/curated-routes.js')
       expect(routePostRawValidator).toBeDefined()
 
-      const schema = await import('../schema')
+      const schema = await import('../schema.js')
       const tables = (schema.default as any).tables
       const table = tables.route_posts_raw
 
@@ -88,7 +88,7 @@ describe('INF-003: Convex Vector Index + Match Audit Schema', () => {
     })
 
     it('should have all required indexes on route_posts_raw', async () => {
-      const schema = await import('../schema')
+      const schema = await import('../schema.js')
       const tables = (schema.default as any).tables
       const table = tables.route_posts_raw
 
@@ -115,10 +115,10 @@ describe('INF-003: Convex Vector Index + Match Audit Schema', () => {
 
   describe('AC-4: route_matches table created', () => {
     it('should have route_matches table with routeMatchValidator', async () => {
-      const { routeMatchValidator } = await import('../../models/curated-routes')
+      const { routeMatchValidator } = await import('../../models/curated-routes.js')
       expect(routeMatchValidator).toBeDefined()
 
-      const schema = await import('../schema')
+      const schema = await import('../schema.js')
       const tables = (schema.default as any).tables
       const table = tables.route_matches
 
@@ -129,7 +129,7 @@ describe('INF-003: Convex Vector Index + Match Audit Schema', () => {
     })
 
     it('should have all required indexes on route_matches', async () => {
-      const schema = await import('../schema')
+      const schema = await import('../schema.js')
       const tables = (schema.default as any).tables
       const table = tables.route_matches
 
@@ -154,7 +154,7 @@ describe('INF-003: Convex Vector Index + Match Audit Schema', () => {
 
   describe('AC-5: Schema migration is non-breaking', () => {
     it('should not remove any existing curated_routes fields', async () => {
-      const { curatedRouteValidator } = await import('../../models/curated-routes')
+      const { curatedRouteValidator } = await import('../../models/curated-routes.js')
       const validatorFields = (curatedRouteValidator as any).fields
 
       // Verify all existing fields are still present
@@ -196,7 +196,7 @@ describe('INF-003: Convex Vector Index + Match Audit Schema', () => {
 
   describe('AC-6: No legacy route_mentions table', () => {
     it('should not have route_mentions table', async () => {
-      const schema = await import('../schema')
+      const schema = await import('../schema.js')
       const tables = (schema.default as any).tables
 
       // Verify route_mentions table does NOT exist

@@ -26,7 +26,7 @@ vi.mock('../../../_generated/api', () => ({
 
 describe('summarizeToolResult', () => {
   it('maps geocode with label to Geocoded message', async () => {
-    const { summarizeToolResult } = await import('../lib/summarizeToolResult')
+    const { summarizeToolResult } = await import('../lib/summarizeToolResult.js')
 
     const result = summarizeToolResult('geocode', { results: [{ label: 'Santa Cruz, CA' }] })
 
@@ -34,7 +34,7 @@ describe('summarizeToolResult', () => {
   })
 
   it('maps geocode with no results to default message', async () => {
-    const { summarizeToolResult } = await import('../lib/summarizeToolResult')
+    const { summarizeToolResult } = await import('../lib/summarizeToolResult.js')
 
     const result = summarizeToolResult('geocode', { results: [] })
 
@@ -42,7 +42,7 @@ describe('summarizeToolResult', () => {
   })
 
   it('maps createRouteSketch with label to Sketched message', async () => {
-    const { summarizeToolResult } = await import('../lib/summarizeToolResult')
+    const { summarizeToolResult } = await import('../lib/summarizeToolResult.js')
 
     const result = summarizeToolResult('createRouteSketch', {
       sketch: { label: 'Skyline Blvd → Hwy 9 → SC' },
@@ -52,7 +52,7 @@ describe('summarizeToolResult', () => {
   })
 
   it('maps compileSketch with options to Compiled segments message', async () => {
-    const { summarizeToolResult } = await import('../lib/summarizeToolResult')
+    const { summarizeToolResult } = await import('../lib/summarizeToolResult.js')
 
     const result = summarizeToolResult('compileSketch', { data: { options: [1, 2, 3, 4] } })
 
@@ -60,7 +60,7 @@ describe('summarizeToolResult', () => {
   })
 
   it('maps planRoute to planned route message', async () => {
-    const { summarizeToolResult } = await import('../lib/summarizeToolResult')
+    const { summarizeToolResult } = await import('../lib/summarizeToolResult.js')
 
     const result = summarizeToolResult('planRoute', {})
 
@@ -68,7 +68,7 @@ describe('summarizeToolResult', () => {
   })
 
   it('maps searchNearby with results to Found N nearby places', async () => {
-    const { summarizeToolResult } = await import('../lib/summarizeToolResult')
+    const { summarizeToolResult } = await import('../lib/summarizeToolResult.js')
 
     const result = summarizeToolResult('searchNearby', [{ name: 'Place A' }, { name: 'Place B' }])
 
@@ -76,7 +76,7 @@ describe('summarizeToolResult', () => {
   })
 
   it('maps webSearch to Searched the web', async () => {
-    const { summarizeToolResult } = await import('../lib/summarizeToolResult')
+    const { summarizeToolResult } = await import('../lib/summarizeToolResult.js')
 
     const result = summarizeToolResult('webSearch', { results: [] })
 
@@ -84,7 +84,7 @@ describe('summarizeToolResult', () => {
   })
 
   it('maps routing_agent with summary to that summary', async () => {
-    const { summarizeToolResult } = await import('../lib/summarizeToolResult')
+    const { summarizeToolResult } = await import('../lib/summarizeToolResult.js')
 
     const result = summarizeToolResult('routing_agent', {
       status: 'route_ready',
@@ -95,7 +95,7 @@ describe('summarizeToolResult', () => {
   })
 
   it('maps routing_agent with no summary to Route ready', async () => {
-    const { summarizeToolResult } = await import('../lib/summarizeToolResult')
+    const { summarizeToolResult } = await import('../lib/summarizeToolResult.js')
 
     const result = summarizeToolResult('routing_agent', { status: 'route_ready' })
 
@@ -103,7 +103,7 @@ describe('summarizeToolResult', () => {
   })
 
   it('maps search_agent with summary to that summary', async () => {
-    const { summarizeToolResult } = await import('../lib/summarizeToolResult')
+    const { summarizeToolResult } = await import('../lib/summarizeToolResult.js')
 
     const result = summarizeToolResult('search_agent', {
       status: 'done',
@@ -114,7 +114,7 @@ describe('summarizeToolResult', () => {
   })
 
   it('maps enrichment_agent with summary to that summary', async () => {
-    const { summarizeToolResult } = await import('../lib/summarizeToolResult')
+    const { summarizeToolResult } = await import('../lib/summarizeToolResult.js')
 
     const result = summarizeToolResult('enrichment_agent', {
       status: 'done',
@@ -125,7 +125,7 @@ describe('summarizeToolResult', () => {
   })
 
   it('maps unknown tool to toolName complete', async () => {
-    const { summarizeToolResult } = await import('../lib/summarizeToolResult')
+    const { summarizeToolResult } = await import('../lib/summarizeToolResult.js')
 
     const result = summarizeToolResult('someUnknownTool', {})
 
@@ -140,18 +140,18 @@ describe('summarizeToolResult', () => {
 describe('PlanningEventEmitter wiring — ExecuteContext has planning callbacks', () => {
   it('ExecuteContext type includes onSubToolPending', async () => {
     // If this import resolves and the type has the field, we can assign it
-    const {} = await import('../ridePlanningAgent')
+    await import('../ridePlanningAgent.js')
 
     // If onSubToolPending doesn't exist on ExecuteContext, TypeScript would fail
     // at compile time. At runtime we just verify we can construct the shape.
-    const ctx: import('../ridePlanningAgent').ExecuteContext = {
+    const ctx: import('../ridePlanningAgent.js').ExecuteContext = {
       onSubToolPending: async (_tool: string, _agent: string) => {},
     }
     expect(typeof ctx.onSubToolPending).toBe('function')
   })
 
   it('ExecuteContext type includes onSubToolComplete', async () => {
-    const ctx: import('../ridePlanningAgent').ExecuteContext = {
+    const ctx: import('../ridePlanningAgent.js').ExecuteContext = {
       onSubToolComplete: async (
         _tool: string,
         _agent: string,
@@ -163,7 +163,7 @@ describe('PlanningEventEmitter wiring — ExecuteContext has planning callbacks'
   })
 
   it('ExecuteContext type includes onSubAgentComplete', async () => {
-    const ctx: import('../ridePlanningAgent').ExecuteContext = {
+    const ctx: import('../ridePlanningAgent.js').ExecuteContext = {
       onSubAgentComplete: async (_agent: string, _summary: string, _durationMs: number) => {},
     }
     expect(typeof ctx.onSubAgentComplete).toBe('function')
@@ -176,7 +176,7 @@ describe('PlanningEventEmitter wiring — ExecuteContext has planning callbacks'
 
 describe('sendMessage PlanningEventEmitter integration', () => {
   it('buildAgentCallbacks works (merged buildCardCallbacks + buildStreamingContext)', async () => {
-    const { buildAgentCallbacks } = await import('../sendMessage')
+    const { buildAgentCallbacks } = await import('../sendMessage.js')
     const sessionId = 'sess1' as Id<'planning_sessions'>
     const runMutation = vi.fn()
 
@@ -200,20 +200,20 @@ describe('sendMessage PlanningEventEmitter integration', () => {
 
 describe('orchestrator executeOrchestratorTool — planning callback forwarding', () => {
   it('determineAvailableTools returns routing_agent and search_agent when no routes', async () => {
-    const { determineAvailableTools } = await import('../agents/orchestrator')
+    const { determineAvailableTools } = await import('../agents/orchestrator.js')
 
     const tools = determineAvailableTools(false, false)
 
-    expect(tools.map((t) => t.name)).toContain('routing_agent')
-    expect(tools.map((t) => t.name)).toContain('search_agent')
-    expect(tools.map((t) => t.name)).not.toContain('enrichment_agent')
+    expect(tools.map((t: { name: string }) => t.name)).toContain('routing_agent')
+    expect(tools.map((t: { name: string }) => t.name)).toContain('search_agent')
+    expect(tools.map((t: { name: string }) => t.name)).not.toContain('enrichment_agent')
   })
 
   it('determineAvailableTools includes enrichment_agent when routes exist', async () => {
-    const { determineAvailableTools } = await import('../agents/orchestrator')
+    const { determineAvailableTools } = await import('../agents/orchestrator.js')
 
     const tools = determineAvailableTools(true, false)
 
-    expect(tools.map((t) => t.name)).toContain('enrichment_agent')
+    expect(tools.map((t: { name: string }) => t.name)).toContain('enrichment_agent')
   })
 })

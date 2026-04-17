@@ -77,7 +77,7 @@ describe('soft-delete handler logic', () => {
       },
     }
 
-    const { undoDeleteRouteHandler } = await import('../savedRoutes')
+    const { undoDeleteRouteHandler } = await import('../savedRoutes.js')
     await expect(
       undoDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any }, 'user_1'),
     ).rejects.toThrow(ConvexError)
@@ -98,7 +98,7 @@ describe('soft-delete handler logic', () => {
       },
     }
 
-    const { undoDeleteRouteHandler } = await import('../savedRoutes')
+    const { undoDeleteRouteHandler } = await import('../savedRoutes.js')
     await undoDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any }, 'user_1')
 
     expect(ctx.scheduler.cancel).toHaveBeenCalledWith('sched_xyz')
@@ -121,7 +121,7 @@ describe('soft-delete handler logic', () => {
       },
     }
 
-    const { softDeleteRouteHandler } = await import('../savedRoutes')
+    const { softDeleteRouteHandler } = await import('../savedRoutes.js')
     const result = await softDeleteRouteHandler(
       ctx as any,
       { savedRouteId: 'route_abc' as any },
@@ -147,7 +147,7 @@ describe('soft-delete handler logic', () => {
       },
     }
 
-    const { permanentlyDeleteRouteHandler } = await import('../savedRoutes')
+    const { permanentlyDeleteRouteHandler } = await import('../savedRoutes.js')
     await permanentlyDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any })
 
     expect(ctx.db.delete).toHaveBeenCalledWith('route_abc')
@@ -161,7 +161,7 @@ describe('soft-delete handler logic', () => {
       },
     }
 
-    const { permanentlyDeleteRouteHandler } = await import('../savedRoutes')
+    const { permanentlyDeleteRouteHandler } = await import('../savedRoutes.js')
     await permanentlyDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any })
 
     expect(ctx.db.delete).not.toHaveBeenCalled()
@@ -193,7 +193,7 @@ describe('soft-delete race condition guards', () => {
       },
     }
 
-    const { softDeleteRouteHandler } = await import('../savedRoutes')
+    const { softDeleteRouteHandler } = await import('../savedRoutes.js')
     const result = await softDeleteRouteHandler(
       ctx as any,
       { savedRouteId: 'route_abc' as any },
@@ -214,7 +214,7 @@ describe('soft-delete race condition guards', () => {
       },
     }
 
-    const { permanentlyDeleteRouteHandler } = await import('../savedRoutes')
+    const { permanentlyDeleteRouteHandler } = await import('../savedRoutes.js')
     const result = await permanentlyDeleteRouteHandler(ctx as any, {
       savedRouteId: 'route_abc' as any,
     })
@@ -232,7 +232,7 @@ describe('soft-delete race condition guards', () => {
       },
     }
 
-    const { permanentlyDeleteRouteHandler } = await import('../savedRoutes')
+    const { permanentlyDeleteRouteHandler } = await import('../savedRoutes.js')
     await permanentlyDeleteRouteHandler(ctx as any, { savedRouteId: 'route_abc' as any })
 
     expect(ctx.db.delete).toHaveBeenCalledWith('route_abc')
@@ -251,7 +251,7 @@ describe('soft-delete race condition guards', () => {
       },
     }
 
-    const { softDeleteRouteHandler } = await import('../savedRoutes')
+    const { softDeleteRouteHandler } = await import('../savedRoutes.js')
     const result = await softDeleteRouteHandler(
       ctx as any,
       { savedRouteId: 'route_abc' as any },

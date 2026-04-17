@@ -24,4 +24,4 @@ export const geospatial = new GeospatialIndex<
     state: string
     primaryArchetype: string
   }
->(components.geospatial)
+>(components.geospatial as any)

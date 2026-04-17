@@ -5,7 +5,7 @@ import {
   buildSystemPrompt,
   executeRidePlanningAgent,
   extractRouteAttachments,
-} from '../ridePlanningAgent'
+} from '../ridePlanningAgent.js'
 
 // -----------------------------------------------------------------------------
 // Mocks
@@ -283,7 +283,7 @@ describe('buildSystemPrompt', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks()
-    const sessionContextMod = (await import('../sessionContext')) as any
+    const sessionContextMod = (await import('../sessionContext.js')) as any
     buildInSessionRouteBlockMock = sessionContextMod.buildInSessionRouteBlock
     buildInSessionRouteBlockMock.mockResolvedValue('')
   })
@@ -563,10 +563,10 @@ describe('executeRidePlanningAgent', () => {
     const piAi = (await import('@mariozechner/pi-ai')) as any
     mockStream = piAi.stream
 
-    const orchestratorMod = (await import('../lib/planRideOrchestrator')) as any
+    const orchestratorMod = (await import('../lib/planRideOrchestrator.js')) as any
     planRideOrchestrator = orchestratorMod.planRideOrchestrator
 
-    const planRideMod = (await import('../planRide')) as any
+    const planRideMod = (await import('../planRide.js')) as any
     buildOptionsFromResults = planRideMod.buildOptionsFromResults
     // Restore the default return value after clearAllMocks wiped it.
     buildOptionsFromResults.mockReturnValue({
@@ -575,7 +575,7 @@ describe('executeRidePlanningAgent', () => {
     })
 
     // Restore buildInSessionRouteBlock default (returns "" so no route block in prompt).
-    const sessionContextMod = (await import('../sessionContext')) as any
+    const sessionContextMod = (await import('../sessionContext.js')) as any
     sessionContextMod.buildInSessionRouteBlock.mockResolvedValue('')
   })
 
@@ -665,7 +665,7 @@ describe('executeRidePlanningAgent', () => {
 
     // The first runMutation call must be createForAgentInternal.
     // Verify it received planningSessionId from ctx.planningSessionId.
-    const { internal: internalApi } = (await import('../../../_generated/api')) as any
+    const { internal: internalApi } = (await import('../../../_generated/api.js')) as any
     const firstCall = ctx.runMutation.mock.calls[0]
     expect(firstCall[0]).toBe(internalApi.db.routePlans.createForAgentInternal)
     expect(firstCall[1]).toMatchObject({ planningSessionId: 'session_test' })
@@ -1077,7 +1077,7 @@ describe('executeRidePlanningAgent', () => {
       .mockReturnValueOnce(makeSimpleStream(twoGeoMsg))
       .mockReturnValueOnce(makeSimpleStream(textMsg))
 
-    const { createGeocodingProvider } = (await import('../providers/geocodingProvider')) as any
+    const { createGeocodingProvider } = (await import('../providers/geocodingProvider.js')) as any
     const ctx = makeAgentContext()
     await executeRidePlanningAgent(ctx, 'geocode Santa Cruz and Half Moon Bay')
 
@@ -1255,12 +1255,12 @@ describe('executeRidePlanningAgent', () => {
     let normalizeRouteMock: ReturnType<typeof vi.fn>
 
     beforeEach(async () => {
-      const compileSketchMod = (await import('../tools/compileSketch')) as any
+      const compileSketchMod = (await import('../tools/compileSketch.js')) as any
       compileSegmentsMock = compileSketchMod.compileSegments
       stitchSegmentsMock = compileSketchMod.stitchSegments
       compileSketchImplMock = compileSketchMod.compileSketch
 
-      const normalizeRouteMod = (await import('../tools/normalizeRoute')) as any
+      const normalizeRouteMod = (await import('../tools/normalizeRoute.js')) as any
       normalizeRouteMock = normalizeRouteMod.normalizeRoute
 
       // Default: normalize returns a route snapshot
@@ -1556,11 +1556,11 @@ describe('executeRidePlanningAgent', () => {
     let normalizeRouteMock: ReturnType<typeof vi.fn>
 
     beforeEach(async () => {
-      const compileSketchMod = (await import('../tools/compileSketch')) as any
+      const compileSketchMod = (await import('../tools/compileSketch.js')) as any
       compileSegmentsMock = compileSketchMod.compileSegments
       stitchSegmentsMock = compileSketchMod.stitchSegments
 
-      const normalizeRouteMod = (await import('../tools/normalizeRoute')) as any
+      const normalizeRouteMod = (await import('../tools/normalizeRoute.js')) as any
       normalizeRouteMock = normalizeRouteMod.normalizeRoute
       normalizeRouteMock.mockResolvedValue(makeRouteSnapshot())
     })
@@ -2022,7 +2022,7 @@ describe('executeRidePlanningAgent', () => {
     })
 
     it('lookupRoad tool executes and returns road match data when called', async () => {
-      const { lookupRoad: lookupRoadMock } = (await import('../tools/lookupRoad')) as any
+      const { lookupRoad: lookupRoadMock } = (await import('../tools/lookupRoad.js')) as any
 
       const lookupCall = makeAssistantMessage(
         [
@@ -2069,7 +2069,7 @@ describe('executeRidePlanningAgent', () => {
     })
 
     it('getCurvature tool executes and returns score data when called', async () => {
-      const { getCurvature: getCurvatureMock } = (await import('../tools/getCurvature')) as any
+      const { getCurvature: getCurvatureMock } = (await import('../tools/getCurvature.js')) as any
 
       const curvatureCall = makeAssistantMessage(
         [
@@ -2130,7 +2130,7 @@ describe('executeRidePlanningAgent', () => {
     })
 
     it('getElevation tool executes and returns elevation profile when called', async () => {
-      const { getElevation: getElevationMock } = (await import('../tools/getElevation')) as any
+      const { getElevation: getElevationMock } = (await import('../tools/getElevation.js')) as any
 
       const elevCall = makeAssistantMessage(
         [
@@ -2165,7 +2165,7 @@ describe('executeRidePlanningAgent', () => {
 
     it('getRouteWeather tool executes and returns weather summary when called', async () => {
       const { getRouteWeather: getRouteWeatherMock } = (await import(
-        '../tools/getRouteWeather'
+        '../tools/getRouteWeather.js'
       )) as any
 
       const weatherCall = makeAssistantMessage(
@@ -2202,7 +2202,7 @@ describe('executeRidePlanningAgent', () => {
 
     it('searchAlongRoute tool executes and returns nearby places when called', async () => {
       const { searchAlongRoute: searchAlongRouteMock } = (await import(
-        '../tools/searchAlongRoute'
+        '../tools/searchAlongRoute.js'
       )) as any
 
       const sarCall = makeAssistantMessage(

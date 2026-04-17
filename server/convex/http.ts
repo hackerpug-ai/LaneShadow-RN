@@ -33,7 +33,7 @@ http.route({
 
     let parsed: { routes: unknown }
     try {
-      parsed = await req.json()
+      parsed = (await req.json()) as { routes: unknown }
     } catch {
       return new Response(JSON.stringify({ error: 'invalid_body', detail: 'not json' }), {
         status: 400,
@@ -82,7 +82,7 @@ http.route({
 
     let parsed: { enrichments: unknown }
     try {
-      parsed = await req.json()
+      parsed = (await req.json()) as { enrichments: unknown }
     } catch {
       return new Response(JSON.stringify({ error: 'invalid_body', detail: 'not json' }), {
         status: 400,
@@ -131,7 +131,7 @@ http.route({
 
     let parsed: { routeIds: unknown }
     try {
-      parsed = await req.json()
+      parsed = (await req.json()) as { routeIds: unknown }
     } catch {
       return new Response(JSON.stringify({ error: 'invalid_body', detail: 'not json' }), {
         status: 400,
@@ -179,7 +179,7 @@ http.route({
 
     let parsed: { updates: unknown }
     try {
-      parsed = await req.json()
+      parsed = (await req.json()) as { updates: unknown }
     } catch {
       return new Response(JSON.stringify({ error: 'invalid_body', detail: 'not json' }), {
         status: 400,
@@ -361,7 +361,7 @@ http.route({
 
     let body: { pairs: { routeId: string; version: number }[] }
     try {
-      body = await request.json()
+      body = (await request.json()) as { pairs: { routeId: string; version: number }[] }
     } catch {
       return new Response(JSON.stringify({ error: 'invalid_body', detail: 'not json' }), {
         status: 400,
@@ -408,7 +408,14 @@ http.route({
       archetypeFilter?: string
     }
     try {
-      body = await request.json()
+      body = (await request.json()) as {
+        routeId: string
+        action: string
+        rating?: number
+        locationLat?: number
+        locationLng?: number
+        archetypeFilter?: string
+      }
     } catch {
       return new Response(JSON.stringify({ error: 'invalid_body', detail: 'not json' }), {
         status: 400,
@@ -453,7 +460,7 @@ http.route({
 
     let body: { intent: string }
     try {
-      body = await request.json()
+      body = (await request.json()) as { intent: string }
     } catch {
       return new Response(JSON.stringify({ error: 'invalid_body', detail: 'not json' }), {
         status: 400,
@@ -484,7 +491,7 @@ http.route({
   path: '/osm/importNodes',
   method: 'POST',
   handler: httpAction(async (ctx, req) => {
-    const { nodes } = await req.json()
+    const { nodes } = (await req.json()) as { nodes: unknown }
 
     const result = await ctx.runMutation(convexInternal.db.osm.importNodes, { nodes })
 
@@ -499,7 +506,7 @@ http.route({
   path: '/osm/importWays',
   method: 'POST',
   handler: httpAction(async (ctx, req) => {
-    const { ways } = await req.json()
+    const { ways } = (await req.json()) as { ways: unknown }
 
     const result = await ctx.runMutation(convexInternal.db.osm.importWays, { ways })
 

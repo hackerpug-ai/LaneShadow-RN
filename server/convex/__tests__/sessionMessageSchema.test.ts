@@ -14,7 +14,7 @@ import { describe, expect, it, vi } from 'vitest'
 describe('session_messages schema extension', () => {
   describe('AC-1: kind field on sessionMessageValidator', () => {
     it('should export sessionMessageKindValidator as a union of text | routing_card | weather_card | saved_route_card', async () => {
-      const { sessionMessageKindValidator } = await import('../../models/session-messages')
+      const { sessionMessageKindValidator } = await import('../../models/session-messages.js')
       // Should be a v.union with 4 literals
       expect(sessionMessageKindValidator).toBeDefined()
       // Validate each literal works
@@ -41,7 +41,7 @@ describe('session_messages schema extension', () => {
     })
 
     it('sessionMessageValidator should have kind as an optional field', async () => {
-      const { sessionMessageValidator } = await import('../../models/session-messages')
+      const { sessionMessageValidator } = await import('../../models/session-messages.js')
       // The validator is a v.object — its fields should include kind
       const fields = (sessionMessageValidator as any).fields
       expect(fields).toHaveProperty('kind')
@@ -50,12 +50,12 @@ describe('session_messages schema extension', () => {
 
   describe('AC-2: status field on sessionMessageValidator', () => {
     it('should export sessionMessageStatusValidator as a union of streaming | running | complete | failed', async () => {
-      const { sessionMessageStatusValidator } = await import('../../models/session-messages')
+      const { sessionMessageStatusValidator } = await import('../../models/session-messages.js')
       expect(sessionMessageStatusValidator).toBeDefined()
     })
 
     it('sessionMessageValidator should have status as an optional field', async () => {
-      const { sessionMessageValidator } = await import('../../models/session-messages')
+      const { sessionMessageValidator } = await import('../../models/session-messages.js')
       const fields = (sessionMessageValidator as any).fields
       expect(fields).toHaveProperty('status')
     })
@@ -63,7 +63,7 @@ describe('session_messages schema extension', () => {
 
   describe('AC-3: named exports', () => {
     it('should export SESSION_MESSAGE_KIND constant', async () => {
-      const mod = await import('../../models/session-messages')
+      const mod = await import('../../models/session-messages.js')
       expect(mod.SESSION_MESSAGE_KIND).toBeDefined()
       expect(mod.SESSION_MESSAGE_KIND.TEXT).toBe('text')
       expect(mod.SESSION_MESSAGE_KIND.ROUTING_CARD).toBe('routing_card')
@@ -72,7 +72,7 @@ describe('session_messages schema extension', () => {
     })
 
     it('should export SESSION_MESSAGE_STATUS constant', async () => {
-      const mod = await import('../../models/session-messages')
+      const mod = await import('../../models/session-messages.js')
       expect(mod.SESSION_MESSAGE_STATUS).toBeDefined()
       expect(mod.SESSION_MESSAGE_STATUS.STREAMING).toBe('streaming')
       expect(mod.SESSION_MESSAGE_STATUS.RUNNING).toBe('running')
@@ -122,7 +122,7 @@ describe('session_messages schema extension', () => {
       }
 
       const { backfillSessionMessageKindStatusHandler } = await import(
-        '../migrations/backfillSessionMessageKindStatus'
+        '../migrations/backfillSessionMessageKindStatus.js'
       )
       await backfillSessionMessageKindStatusHandler(mockCtx as any)
 

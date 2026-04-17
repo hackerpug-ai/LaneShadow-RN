@@ -74,6 +74,20 @@ All three must pass before a commit is accepted. Do not bypass these checks with
 
 ---
 
+## Verification Standards by Platform
+
+Every platform must pass **lint, typecheck, and test** before committing.
+
+| Platform | Lint | Typecheck | Test |
+|----------|------|-----------|------|
+| **Server** (Convex/TS) | `pnpm lint` | `pnpm type-check:native` | `pnpm test` |
+| **iOS** (Swift/SwiftUI) | `swiftlint` | `null` | `xcodebuild test -scheme {scheme} -destination 'platform=iOS Simulator,name=iPhone 16'` |
+| **Android** (Kotlin/Compose) | `./gradlew detekt` | `null` | `./gradlew test` |
+
+Agents and reviewers must run all applicable checks for the platform they are working on. Do not skip or bypass failing checks.
+
+---
+
 ## .spec Directory — Progressive Disclosure Guide
 
 The `.spec/` directory is your centralized artifact store for planning, research, designs, and specifications. It's organized for progressive disclosure: start shallow, dig deeper as needed.

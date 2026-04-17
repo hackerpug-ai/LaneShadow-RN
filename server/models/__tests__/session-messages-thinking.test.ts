@@ -15,7 +15,7 @@ import { describe, expect, it } from 'vitest'
 describe('US-055: thinking_card kind + thinkingSteps validators', () => {
   describe('AC-1: SESSION_MESSAGE_KIND constant contains THINKING_CARD', () => {
     it('should export SESSION_MESSAGE_KIND with THINKING_CARD property', async () => {
-      const { SESSION_MESSAGE_KIND } = await import('../session-messages')
+      const { SESSION_MESSAGE_KIND } = await import('../session-messages.js')
       expect(SESSION_MESSAGE_KIND).toBeDefined()
       expect(SESSION_MESSAGE_KIND.THINKING_CARD).toBe('thinking_card')
     })
@@ -23,7 +23,7 @@ describe('US-055: thinking_card kind + thinkingSteps validators', () => {
 
   describe('AC-2: sessionMessageKindValidator validates thinking_card', () => {
     it('should accept thinking_card as a valid kind', async () => {
-      const { sessionMessageKindValidator } = await import('../session-messages')
+      const { sessionMessageKindValidator } = await import('../session-messages.js')
       expect(sessionMessageKindValidator).toBeDefined()
 
       // The validator should be a union that includes 'thinking_card'
@@ -35,12 +35,12 @@ describe('US-055: thinking_card kind + thinkingSteps validators', () => {
 
   describe('AC-3: thinkingStepValidator accepts tool_start step', () => {
     it('should export thinkingStepValidator', async () => {
-      const { thinkingStepValidator } = await import('../session-messages')
+      const { thinkingStepValidator } = await import('../session-messages.js')
       expect(thinkingStepValidator).toBeDefined()
     })
 
     it('should accept valid tool_start step with all required fields', async () => {
-      const { thinkingStepValidator } = await import('../session-messages')
+      const { thinkingStepValidator } = await import('../session-messages.js')
 
       const _validStep = {
         type: 'tool_start' as const,
@@ -64,7 +64,7 @@ describe('US-055: thinking_card kind + thinkingSteps validators', () => {
 
   describe('AC-4: thinkingStepValidator type thinking has optional fields', () => {
     it('should accept thinking type without toolName and detail', async () => {
-      const { thinkingStepValidator } = await import('../session-messages')
+      const { thinkingStepValidator } = await import('../session-messages.js')
 
       const _thinkingStep = {
         type: 'thinking' as const,
@@ -81,7 +81,7 @@ describe('US-055: thinking_card kind + thinkingSteps validators', () => {
 
   describe('AC-5: sessionMessageValidator has thinkingSteps field', () => {
     it('should have thinkingSteps as optional array field', async () => {
-      const { sessionMessageValidator } = await import('../session-messages')
+      const { sessionMessageValidator } = await import('../session-messages.js')
       const fields = (sessionMessageValidator as any).fields
 
       expect(fields).toHaveProperty('thinkingSteps')
@@ -94,12 +94,12 @@ describe('US-055: thinking_card kind + thinkingSteps validators', () => {
 
   describe('AC-6: Existing reasoning kind still valid', () => {
     it('should still have REASONING in SESSION_MESSAGE_KIND', async () => {
-      const { SESSION_MESSAGE_KIND } = await import('../session-messages')
+      const { SESSION_MESSAGE_KIND } = await import('../session-messages.js')
       expect(SESSION_MESSAGE_KIND.REASONING).toBe('reasoning')
     })
 
     it('should accept reasoning in sessionMessageKindValidator', async () => {
-      const { sessionMessageKindValidator } = await import('../session-messages')
+      const { sessionMessageKindValidator } = await import('../session-messages.js')
       const unionMembers = (sessionMessageKindValidator as any).members
 
       const hasReasoning = unionMembers?.some((member: any) => member.value === 'reasoning')

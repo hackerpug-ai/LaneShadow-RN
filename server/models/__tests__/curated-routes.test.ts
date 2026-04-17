@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 // AC-1: curatedRouteValidator has all 20+ lean fields
 describe('curatedRouteValidator', () => {
   it('has all lean fields from PRD schema', async () => {
-    const { curatedRouteValidator } = await import('../curated-routes')
+    const { curatedRouteValidator } = await import('../curated-routes.js')
     expect(curatedRouteValidator).toBeDefined()
     expect(curatedRouteValidator.kind).toBe('object')
 
@@ -39,7 +39,7 @@ describe('curatedRouteValidator', () => {
   })
 
   it('source field accepts exactly 5 literal values', async () => {
-    const { CURATED_ROUTE_FIELDS } = await import('../curated-routes')
+    const { CURATED_ROUTE_FIELDS } = await import('../curated-routes.js')
     const sourceValidator = CURATED_ROUTE_FIELDS.source
 
     expect(sourceValidator.kind).toBe('union')
@@ -53,7 +53,7 @@ describe('curatedRouteValidator', () => {
   })
 
   it('primaryArchetype field accepts exactly 6 literal values', async () => {
-    const { CURATED_ROUTE_FIELDS } = await import('../curated-routes')
+    const { CURATED_ROUTE_FIELDS } = await import('../curated-routes.js')
     const archetypeValidator = CURATED_ROUTE_FIELDS.primaryArchetype
 
     expect(archetypeValidator.kind).toBe('union')
@@ -68,7 +68,7 @@ describe('curatedRouteValidator', () => {
   })
 
   it('season field accepts exactly 4 literal values', async () => {
-    const { CURATED_ROUTE_FIELDS } = await import('../curated-routes')
+    const { CURATED_ROUTE_FIELDS } = await import('../curated-routes.js')
     const seasonValidator = CURATED_ROUTE_FIELDS.season
 
     expect(seasonValidator.kind).toBe('union')
@@ -81,7 +81,7 @@ describe('curatedRouteValidator', () => {
   })
 
   it('enrichmentVersion field is optional', async () => {
-    const { curatedRouteValidator } = await import('../curated-routes')
+    const { curatedRouteValidator } = await import('../curated-routes.js')
     const fields = curatedRouteValidator.fields
     expect(fields.enrichmentVersion?.isOptional).toBe('optional')
   })

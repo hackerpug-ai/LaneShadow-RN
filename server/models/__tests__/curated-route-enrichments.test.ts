@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 // AC-2: enrichmentValidator handles nested photo/source objects
 describe('curatedRouteEnrichmentValidator', () => {
   it('has all fields from PRD rich tier schema', async () => {
-    const { curatedRouteEnrichmentValidator } = await import('../curated-route-enrichments')
+    const { curatedRouteEnrichmentValidator } = await import('../curated-route-enrichments.js')
     expect(curatedRouteEnrichmentValidator).toBeDefined()
     expect(curatedRouteEnrichmentValidator.kind).toBe('object')
 
@@ -36,21 +36,21 @@ describe('curatedRouteEnrichmentValidator', () => {
   })
 
   it('photos field is an array validator', async () => {
-    const { CURATED_ROUTE_ENRICHMENT_FIELDS } = await import('../curated-route-enrichments')
+    const { CURATED_ROUTE_ENRICHMENT_FIELDS } = await import('../curated-route-enrichments.js')
     const photosValidator = CURATED_ROUTE_ENRICHMENT_FIELDS.photos
 
     expect(photosValidator.kind).toBe('array')
   })
 
   it('sources field is an array validator', async () => {
-    const { CURATED_ROUTE_ENRICHMENT_FIELDS } = await import('../curated-route-enrichments')
+    const { CURATED_ROUTE_ENRICHMENT_FIELDS } = await import('../curated-route-enrichments.js')
     const sourcesValidator = CURATED_ROUTE_ENRICHMENT_FIELDS.sources
 
     expect(sourcesValidator.kind).toBe('array')
   })
 
   it('elevationProfile and gpxUrl are optional fields', async () => {
-    const { curatedRouteEnrichmentValidator } = await import('../curated-route-enrichments')
+    const { curatedRouteEnrichmentValidator } = await import('../curated-route-enrichments.js')
     const fields = curatedRouteEnrichmentValidator.fields
     expect(fields.elevationProfile?.isOptional).toBe('optional')
     expect(fields.gpxUrl?.isOptional).toBe('optional')

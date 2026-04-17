@@ -130,7 +130,7 @@ describe('planRide action - Favorites Integration', () => {
 
   describe('AC-9: Return route with includedFavorites count', () => {
     it('should return includedFavorites in response', async () => {
-      const { buildOptionsFromResults } = await import('../planRide')
+      const { buildOptionsFromResults } = await import('../planRide.js')
 
       const results = [
         {
@@ -173,7 +173,7 @@ describe('planRide action - Favorites Integration', () => {
 
   describe('AC-10: Return excludedFavorites list with names', () => {
     it('should return excludedFavorites with reasons', async () => {
-      const { buildOptionsFromResults } = await import('../planRide')
+      const { buildOptionsFromResults } = await import('../planRide.js')
 
       const results = [
         {
@@ -214,7 +214,7 @@ describe('planRide action - Favorites Integration', () => {
     })
 
     it('should provide clear reason codes', async () => {
-      const { buildOptionsFromResults } = await import('../planRide')
+      const { buildOptionsFromResults } = await import('../planRide.js')
 
       const validReasons = ['too_far', 'no_bounds']
 
@@ -250,7 +250,7 @@ describe('planRide action - Favorites Integration', () => {
 
       const view = buildOptionsFromResults(results, 'test-plan-id')
 
-      view.excludedFavorites?.forEach((excluded) => {
+      view.excludedFavorites?.forEach((excluded: { id: string; reason: string }) => {
         expect(validReasons).toContain(excluded.reason)
       })
     })
@@ -258,7 +258,7 @@ describe('planRide action - Favorites Integration', () => {
 
   describe('AC-11: Plan route normally without favorites when toggle is OFF', () => {
     it('should not include favorites metadata when includeFavorites is false', async () => {
-      const { buildOptionsFromResults } = await import('../planRide')
+      const { buildOptionsFromResults } = await import('../planRide.js')
 
       const results = [
         {
@@ -345,7 +345,7 @@ describe('planRide action - Favorites Integration', () => {
 
   describe('buildOptionsFromResults with favorites', () => {
     it('should aggregate includedFavorites from all route options', async () => {
-      const { buildOptionsFromResults } = await import('../planRide')
+      const { buildOptionsFromResults } = await import('../planRide.js')
 
       const results = [
         {
@@ -414,7 +414,7 @@ describe('planRide action - Favorites Integration', () => {
     })
 
     it('should handle results without favorites metadata', async () => {
-      const { buildOptionsFromResults } = await import('../planRide')
+      const { buildOptionsFromResults } = await import('../planRide.js')
 
       const results = [
         {

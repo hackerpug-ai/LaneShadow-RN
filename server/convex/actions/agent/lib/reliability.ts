@@ -9,7 +9,7 @@ export type TimeoutOptions = {
  * Caller should catch and translate timeout failures to deterministic error codes.
  */
 export const withTimeout = async <T>(
-  operation: (signal: AbortSignal) => Promise<T>,
+  operation: (signal: any) => Promise<T>,
   { ms, label }: TimeoutOptions,
 ): Promise<T> => {
   const controller = new AbortController()

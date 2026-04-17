@@ -96,7 +96,7 @@ out body;`
 // HTTP helpers
 // ---------------------------------------------------------------------------
 
-const fetchOverpass = async (query: string, signal: AbortSignal): Promise<OverpassResponse> => {
+const fetchOverpass = async (query: string, signal: any): Promise<OverpassResponse> => {
   const response = await fetch(OVERPASS_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

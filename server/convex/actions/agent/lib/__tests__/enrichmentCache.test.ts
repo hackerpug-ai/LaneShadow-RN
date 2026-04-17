@@ -25,7 +25,7 @@ describe('generateContentFingerprint', () => {
   let generateContentFingerprint: (planInput: PlanInput) => string
 
   beforeAll(async () => {
-    const module = await import('../enrichmentCache')
+    const module = await import('../enrichmentCache.js')
     generateContentFingerprint = module.generateContentFingerprint
   })
 

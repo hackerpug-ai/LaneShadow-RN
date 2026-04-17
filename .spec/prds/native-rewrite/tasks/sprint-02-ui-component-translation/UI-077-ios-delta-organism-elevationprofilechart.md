@@ -133,6 +133,7 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 ## VERIFICATION GATES
 
+- pnpm type-check:native
 - swiftformat --lint ios/LaneShadow --config .swiftformat
 - xcodebuild -workspace ios/LaneShadow.xcworkspace -scheme LaneShadow -destination "platform=iOS Simulator,name=iPhone 16" test
 - Validate sandbox scenarios for this task in the native sandbox host

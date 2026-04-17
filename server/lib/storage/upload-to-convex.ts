@@ -106,8 +106,8 @@ export const uploadImage = async (
     }
 
     // 4. Extract storage ID
-    const result = await uploadResponse.json()
-    const storageId = result.storageId as string
+    const result = (await uploadResponse.json()) as { storageId: string }
+    const storageId = result.storageId
 
     if (!storageId) {
       throw new Error('No storage ID in upload response')

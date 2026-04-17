@@ -48,7 +48,7 @@ describe('planUsage integration with createPlan', () => {
 
   beforeEach(async () => {
     // Import and store original functions
-    const planUsageModule = await import('../planUsage')
+    const planUsageModule = await import('../planUsage.js')
     _originalCheckUsage = planUsageModule.checkUsage
     _originalIncrementUsage = planUsageModule.incrementUsage
   })
@@ -81,11 +81,11 @@ describe('planUsage integration with createPlan', () => {
       }
 
       // Mock checkUsage to be called from routePlans
-      const planUsageModule = await import('../planUsage')
+      const planUsageModule = await import('../planUsage.js')
       vi.spyOn(planUsageModule, 'checkUsage').mockImplementation(mockCheckUsage)
 
       // Import createPlanHandler after mocking
-      const { createPlanHandler } = await import('../routePlans')
+      const { createPlanHandler } = await import('../routePlans.js')
 
       // Act & Assert
       await expect(
@@ -144,12 +144,12 @@ describe('planUsage integration with createPlan', () => {
       }
 
       // Mock checkUsage and incrementUsage
-      const planUsageModule = await import('../planUsage')
+      const planUsageModule = await import('../planUsage.js')
       vi.spyOn(planUsageModule, 'checkUsage').mockImplementation(mockCheckUsage)
       vi.spyOn(planUsageModule, 'incrementUsage').mockImplementation(mockIncrementUsage)
 
       // Import createPlanHandler after mocking
-      const { createPlanHandler } = await import('../routePlans')
+      const { createPlanHandler } = await import('../routePlans.js')
 
       // Act
       const result = await createPlanHandler(
@@ -228,12 +228,12 @@ describe('planUsage integration with createPlan', () => {
       const mockIncrementUsage = vi.fn().mockResolvedValue(createUsageCheckMock(true, 5))
 
       // Mock functions
-      const planUsageModule = await import('../planUsage')
+      const planUsageModule = await import('../planUsage.js')
       vi.spyOn(planUsageModule, 'checkUsage').mockImplementation(mockCheckUsage)
       vi.spyOn(planUsageModule, 'incrementUsage').mockImplementation(mockIncrementUsage)
 
       // Import createPlanHandler after mocking
-      const { createPlanHandler } = await import('../routePlans')
+      const { createPlanHandler } = await import('../routePlans.js')
 
       const ctx = {
         db: {
@@ -270,11 +270,11 @@ describe('planUsage integration with createPlan', () => {
       const mockCheckUsage = vi.fn().mockResolvedValue(createUsageCheckMock(false, 5))
 
       // Mock functions
-      const planUsageModule = await import('../planUsage')
+      const planUsageModule = await import('../planUsage.js')
       vi.spyOn(planUsageModule, 'checkUsage').mockImplementation(mockCheckUsage)
 
       // Import createPlanHandler after mocking
-      const { createPlanHandler } = await import('../routePlans')
+      const { createPlanHandler } = await import('../routePlans.js')
 
       const ctx = {
         db: {

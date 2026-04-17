@@ -1,16 +1,16 @@
 'use node'
 
 import { type Tool, type ToolCall, validateToolCall } from '@mariozechner/pi-ai'
-import { internal } from '../../../_generated/api'
-import type { Id } from '../../../_generated/dataModel'
-import { getAgentModel } from '../lib/models'
-import { AgentToolSchemas } from '../lib/piTools'
-import { planRideOrchestrator } from '../lib/planRideOrchestrator'
-import { buildOptionsFromResults } from '../planRide'
-import { createGeocodingProvider } from '../providers/geocodingProvider'
-import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
-import { runAgent } from '../runAgent'
-import type { RoutingAgentResult, SubAgentConfig } from './types'
+import { internal } from '../../../_generated/api.js'
+import type { Id } from '../../../_generated/dataModel.js'
+import { getAgentModel } from '../lib/models.js'
+import { AgentToolSchemas } from '../lib/piTools.js'
+import { planRideOrchestrator } from '../lib/planRideOrchestrator.js'
+import { buildOptionsFromResults } from '../planRide.js'
+import { createGeocodingProvider } from '../providers/geocodingProvider.js'
+import type { AgentContext, ExecuteContext } from '../ridePlanningAgent.js'
+import { runAgent } from '../runAgent.js'
+import type { RoutingAgentResult, SubAgentConfig } from './types.js'
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -157,7 +157,7 @@ async function _runLookupRoad(
     bbox: { south: number; west: number; north: number; east: number }
   },
 ): Promise<unknown> {
-  const lookupRoad = await import('../tools/lookupRoad')
+  const lookupRoad = await import('../tools/lookupRoad.js')
 
   // Try Convex OSM data first for fast name lookup
   try {
@@ -328,9 +328,9 @@ async function runCompileSketch(
       compileSketch: compileSketchImpl,
       compileSegments,
       stitchSegments,
-    } = await import('../tools/compileSketch')
-    const { normalizeRoute } = await import('../tools/normalizeRoute')
-    const { buildOptionsFromResults: buildOpts } = await import('../planRide')
+    } = await import('../tools/compileSketch.js')
+    const { normalizeRoute } = await import('../tools/normalizeRoute.js')
+    const { buildOptionsFromResults: buildOpts } = await import('../planRide.js')
 
     let providerRoute: import('../providers/routingProvider').ProviderRouteResponse
 
@@ -1093,7 +1093,7 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
   })
 
   // Determine result from tool results and response text
-  const { extractRouteAttachments } = await import('../ridePlanningAgent')
+  const { extractRouteAttachments } = await import('../ridePlanningAgent.js')
   const attachments = extractRouteAttachments(result.toolResults)
 
   if (attachments.length > 0 && attachments[0].routePlanId) {

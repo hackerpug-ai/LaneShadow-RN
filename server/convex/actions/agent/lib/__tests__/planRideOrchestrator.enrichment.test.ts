@@ -38,7 +38,7 @@ describe('executePlanHandler - Enrichment Integration', () => {
     it('should generate content fingerprint from plan input', async () => {
       // Verify that generateContentFingerprint can be called and returns a valid fingerprint
       const planInput = buildPlanInput()
-      const { generateContentFingerprint } = await import('../enrichmentCache')
+      const { generateContentFingerprint } = await import('../enrichmentCache.js')
 
       const fingerprint = generateContentFingerprint(planInput)
 
@@ -54,7 +54,7 @@ describe('executePlanHandler - Enrichment Integration', () => {
       // We'll mock the context and verify the correct query is called
 
       const planInput = buildPlanInput()
-      const { generateContentFingerprint } = await import('../enrichmentCache')
+      const { generateContentFingerprint } = await import('../enrichmentCache.js')
       const fingerprint = generateContentFingerprint(planInput)
 
       const mockCtx = {
@@ -66,7 +66,7 @@ describe('executePlanHandler - Enrichment Integration', () => {
       }
 
       // Import the handler we're testing
-      const { executePlanHandler } = await import('../../planRide')
+      const { executePlanHandler } = await import('../../planRide.js')
 
       // Mock the orchestrator to return a simple result
       const mockOrchestrator = vi.fn().mockResolvedValue([
@@ -182,7 +182,7 @@ describe('executePlanHandler - Enrichment Integration', () => {
         },
       }
 
-      const { executePlanHandler } = await import('../../planRide')
+      const { executePlanHandler } = await import('../../planRide.js')
 
       const mockOrchestrator = vi.fn().mockResolvedValue([
         {
@@ -232,7 +232,7 @@ describe('executePlanHandler - Enrichment Integration', () => {
         },
       }
 
-      const { executePlanHandler } = await import('../../planRide')
+      const { executePlanHandler } = await import('../../planRide.js')
 
       const mockOrchestrator = vi.fn().mockResolvedValue([
         {
@@ -322,7 +322,7 @@ describe('executePlanHandler - Enrichment Integration', () => {
         },
       }
 
-      const { executePlanHandler } = await import('../../planRide')
+      const { executePlanHandler } = await import('../../planRide.js')
 
       const mockOrchestrator = vi.fn().mockResolvedValue([
         {
