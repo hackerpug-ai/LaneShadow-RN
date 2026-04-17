@@ -10,7 +10,6 @@
  */
 
 import { act, render } from '@testing-library/react-native'
-import React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtendedTheme } from '../../../styles/types'
 

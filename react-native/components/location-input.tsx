@@ -5,13 +5,13 @@
  * Follows project patterns: semantic theme, uses @components/ui/input.tsx
  */
 
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import type { RouteStop } from '../../server/models/saved-routes'
 import { usePlaceAutocomplete } from '../hooks/use-place-autocomplete'
 import { useSemanticTheme } from '../hooks/use-semantic-theme'
-import type { RouteStop } from '../models/saved-routes'
-import { type IconName, IconSymbol } from './ui/icon-symbol'
+import type { IconName } from './ui/icon-symbol'
 import { Input } from './ui/input'
 
 type LocationInputProps = {

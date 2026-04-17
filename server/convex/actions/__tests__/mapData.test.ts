@@ -5,8 +5,8 @@ import { checkFreshnessWithAlertLogic } from '../mapData'
 
 // Mock console methods before importing
 const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+const _consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+const _consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
 describe('Map Data Actions', () => {
   beforeEach(() => {

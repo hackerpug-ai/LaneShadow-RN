@@ -25,7 +25,7 @@ const toHex = (color: string, bgHex: string = '#000000'): string => {
     const a = rgbaMatch[4] !== undefined ? parseFloat(rgbaMatch[4]) : 1
 
     if (a >= 1) {
-      return '#' + [r, g, b].map((c) => c.toString(16).padStart(2, '0')).join('')
+      return `#${[r, g, b].map((c) => c.toString(16).padStart(2, '0')).join('')}`
     }
 
     // Composite against background
@@ -35,7 +35,7 @@ const toHex = (color: string, bgHex: string = '#000000'): string => {
     const cR = Math.round(r * a + bgR * (1 - a))
     const cG = Math.round(g * a + bgG * (1 - a))
     const cB = Math.round(b * a + bgB * (1 - a))
-    return '#' + [cR, cG, cB].map((c) => c.toString(16).padStart(2, '0')).join('')
+    return `#${[cR, cG, cB].map((c) => c.toString(16).padStart(2, '0')).join('')}`
   }
 
   // Fallback: return as-is (shouldn't happen with our theme tokens)

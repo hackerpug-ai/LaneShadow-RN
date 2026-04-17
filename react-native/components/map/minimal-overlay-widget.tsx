@@ -21,7 +21,7 @@ import Animated, {
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { IconSymbol } from '../ui/icon-symbol'
 
-const AnimatedIcon = Animated.createAnimatedComponent(IconSymbol)
+const _AnimatedIcon = Animated.createAnimatedComponent(IconSymbol)
 
 export type OverlayType = 'wind' | 'rain' | 'temperature'
 
@@ -185,7 +185,7 @@ export const MinimalOverlayWidget = ({
                   styles.iconButton,
                   {
                     backgroundColor: isActive
-                      ? semantic.color.primary.default + '33'
+                      ? `${semantic.color.primary.default}33`
                       : pressed
                         ? semantic.color.surfaceVariant.pressed
                         : semantic.color.surfaceVariant.default,

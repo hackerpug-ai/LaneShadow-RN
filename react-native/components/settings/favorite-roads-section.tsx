@@ -14,10 +14,10 @@
 import { useMutation, useQuery } from 'convex/react'
 import { useState } from 'react'
 import { FlatList, Pressable, StyleSheet, View } from 'react-native'
-import { api } from '../../convex/_generated/api'
-import type { Id } from '../../convex/_generated/dataModel'
+import { api } from '../../../server/convex/_generated/api'
+import type { Id } from '../../../server/convex/_generated/dataModel'
+import type { SavedRoutesListView } from '../../../server/types/routes'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { SavedRoutesListView } from '../../types/routes'
 import { DeleteFavoriteDialog } from '../ui/delete-favorite-dialog'
 import { EmptyState } from '../ui/empty-state'
 import { IconSymbol } from '../ui/icon-symbol'
@@ -85,12 +85,6 @@ export const SavedRoutesSection: React.FC = () => {
     limit: 50,
   })
 
-  console.log('[SavedRoutesSection] Render state:', {
-    savedRoutesData,
-    routesCount: savedRoutesData?.routes.length ?? 0,
-    isUndefined: savedRoutesData === undefined,
-  })
-
   const softDeleteRoute = useMutation(api.db.savedRoutes.softDeleteRoute)
 
   const handleDelete = (savedRouteId: string) => {
@@ -105,8 +99,7 @@ export const SavedRoutesSection: React.FC = () => {
         savedRouteId: deleteTarget as Id<'saved_routes'>,
       })
       setDeleteTarget(null)
-    } catch (error) {
-      console.error('Failed to delete saved route:', error)
+    } catch (_error) {
       // Error handling could be improved with toast/snackbar in future iteration
     }
   }

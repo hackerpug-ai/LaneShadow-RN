@@ -13,10 +13,10 @@
  * - Tap to view on map, long-press to select
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import type { PlannedRouteOptionsView } from '../../../server/types/routes'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { PlannedRouteOptionsView } from '../../types/routes'
 import { RouteDirectionsSheet } from '../sheets/route-directions-sheet'
 import { Badge } from '../ui/badge'
 import { IconSymbol } from '../ui/icon-symbol'
@@ -81,13 +81,6 @@ export const RouteAttachmentCard = ({
   onLegSelect,
   selectedLegIndex,
 }: RouteAttachmentCardProps) => {
-  console.info('[RouteAttachmentCard] Rendering', {
-    routeId: route.routeOptionId,
-    label: route.label,
-    isSelected,
-    variant,
-  })
-
   const { semantic } = useSemanticTheme()
   const [directionsVisible, setDirectionsVisible] = useState(false)
 
@@ -125,23 +118,14 @@ export const RouteAttachmentCard = ({
 
   const handlePress = () => {
     if (variant === 'full') {
-      console.info('[RouteAttachmentCard] Press in chat context - navigating to map', {
-        routeId: route.routeOptionId,
-      })
       onSelect(route.routeOptionId)
       onViewOnMap?.()
     } else {
-      console.info('[RouteAttachmentCard] Press in map context - opening directions sheet', {
-        routeId: route.routeOptionId,
-      })
       setDirectionsVisible(true)
     }
   }
 
   const handleLongPress = () => {
-    console.info('[RouteAttachmentCard] Long press - selecting route', {
-      routeId: route.routeOptionId,
-    })
     onSelect(route.routeOptionId)
   }
 
@@ -158,13 +142,13 @@ export const RouteAttachmentCard = ({
           isSelected ? styles.selectedBorder : styles.defaultBorder,
           {
             backgroundColor: isSelected
-              ? semantic.color.primary.default + '33'
+              ? `${semantic.color.primary.default}33`
               : isCompact
-                ? semantic.color.surface.default + 'E6'
+                ? `${semantic.color.surface.default}E6`
                 : semantic.color.surfaceVariant.default,
             borderColor: isSelected
               ? semantic.color.primary.default
-              : semantic.color.border.default + '66',
+              : `${semantic.color.border.default}66`,
             borderRadius: isCompact ? semantic.radius.sm : semantic.radius.md,
             paddingHorizontal: isCompact ? semantic.space.sm : semantic.space.md,
             paddingVertical: isCompact ? semantic.space.xs : semantic.space.md,
@@ -294,7 +278,7 @@ export const RouteAttachmentCard = ({
                       <View
                         style={[
                           styles.weatherBadge,
-                          { backgroundColor: semantic.color.danger.default + '20' },
+                          { backgroundColor: `${semantic.color.danger.default}20` },
                         ]}
                       >
                         <IconSymbol
@@ -312,7 +296,7 @@ export const RouteAttachmentCard = ({
                     <View
                       style={[
                         styles.weatherBadge,
-                        { backgroundColor: semantic.color.warning.default + '20' },
+                        { backgroundColor: `${semantic.color.warning.default}20` },
                       ]}
                     >
                       <IconSymbol

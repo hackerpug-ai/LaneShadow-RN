@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ProtomapsError } from '../../../../lib/errors/protomaps'
 import {
   createProtomapsProvider,
   getProtomapsPresignedUrl,
@@ -214,13 +213,13 @@ describe('Protomaps Provider', () => {
     })
 
     it('should handle network errors', async () => {
-      const provider = createProtomapsProvider('https://example.com/test.pmtiles')
+      const _provider = createProtomapsProvider('https://example.com/test.pmtiles')
 
       // This test verifies the provider handles errors from PMTiles
       // We can't easily mock the instance method, so we'll skip this for now
       // The actual error handling is tested in integration tests
 
-      const bbox = { south: 37.7, west: -122.5, north: 37.8, east: -122.4 }
+      const _bbox = { south: 37.7, west: -122.5, north: 37.8, east: -122.4 }
 
       // This test would require mocking the PMTiles instance method
       // which is complex with vitest's hoisting. Skipping for now.

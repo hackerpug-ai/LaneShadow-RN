@@ -148,7 +148,7 @@ export const DrawerMenu = ({
                       borderRadius: semantic.radius.lg,
                       marginBottom: semantic.space.xs,
                       backgroundColor: item.active
-                        ? semantic.color.primary.default + '1A'
+                        ? `${semantic.color.primary.default}1A`
                         : pressed
                           ? semantic.color.surface.pressed
                           : 'transparent',

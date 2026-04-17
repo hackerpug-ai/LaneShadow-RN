@@ -43,7 +43,7 @@ export const SetupRequiredScreen: React.FC<SetupRequiredScreenProps> = ({
       <View style={styles.content}>
         {/* Warning Icon */}
         <View
-          style={[styles.iconContainer, { backgroundColor: semantic.color.warning.default + '20' }]}
+          style={[styles.iconContainer, { backgroundColor: `${semantic.color.warning.default}20` }]}
         >
           <Text style={[styles.icon, { color: semantic.color.warning.default }]}>⚠️</Text>
         </View>

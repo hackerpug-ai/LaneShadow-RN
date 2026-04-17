@@ -14,10 +14,7 @@ import { IconSymbol } from './icon-symbol'
  */
 export function OldButtonExample() {
   return (
-    <Button
-      icon={<IconSymbol name="motorbike" size={20} color="white" />}
-      onPress={() => console.log('clicked')}
-    >
+    <Button icon={<IconSymbol name="motorbike" size={20} color="white" />} onPress={() => {}}>
       Plan Ride
     </Button>
   )
@@ -29,7 +26,7 @@ export function OldButtonExample() {
  */
 export function NewButtonExample() {
   return (
-    <Button icon="motorbike" onPress={() => console.log('clicked')}>
+    <Button icon="motorbike" onPress={() => {}}>
       Plan Ride
     </Button>
   )

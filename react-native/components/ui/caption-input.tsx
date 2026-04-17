@@ -6,7 +6,6 @@
  */
 
 import { Pressable, StyleSheet, TextInput, View } from 'react-native'
-import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { IconSymbol } from '../ui/icon-symbol'
 

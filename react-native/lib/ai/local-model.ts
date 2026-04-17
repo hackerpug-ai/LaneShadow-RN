@@ -1,12 +1,6 @@
 import * as FileSystem from 'expo-file-system/legacy'
 import { NativeModules } from 'react-native'
-import type {
-  ChecksumValidator,
-  InferenceResult,
-  MemoryUsage,
-  ModelDownloadManager,
-  ModelLoadResult,
-} from './types'
+import type { ChecksumValidator, InferenceResult, MemoryUsage, ModelLoadResult } from './types'
 
 /**
  * Native module interface for MLX model operations
@@ -46,8 +40,9 @@ export class LocalModelManager {
   private modelLoaded: boolean = false
   private modelPath: string | null = null
   private checksumValidator: ChecksumValidator
-  private downloadManager: ModelDownloadManager
   private nativeModule: MLXNativeModule | null = null
+  // biome-ignore lint/suspicious/noExplicitAny: legacy class pending typed refactor
+  private downloadManager: any
 
   constructor(downloadManager: any, checksumValidator: any) {
     this.downloadManager = downloadManager
@@ -58,8 +53,7 @@ export class LocalModelManager {
     // For now, we'll use a fallback implementation
     try {
       this.nativeModule = (NativeModules as any).MLXModelBridge || null
-    } catch (error) {
-      console.warn('MLX native module not available, using fallback implementation')
+    } catch (_error) {
       this.nativeModule = null
     }
   }
@@ -187,7 +181,6 @@ export class LocalModelManager {
 
         // Validate inference time meets requirement (<0.5s)
         if (inferenceTime >= 500) {
-          console.warn(`Inference slow: ${inferenceTime}ms (target: <500ms)`)
         }
 
         return {
@@ -203,7 +196,6 @@ export class LocalModelManager {
         const inferenceTime = endTime - startTime
 
         if (inferenceTime >= 500) {
-          console.warn(`Inference slow: ${inferenceTime}ms (target: <500ms)`)
         }
 
         return {
@@ -262,9 +254,7 @@ export class LocalModelManager {
     if (this.nativeModule && this.modelPath) {
       try {
         await this.nativeModule.unloadModel(this.modelPath)
-      } catch (error) {
-        console.error('Error unloading model from native module:', error)
-      }
+      } catch (_error) {}
     }
 
     this.modelLoaded = false

@@ -1,15 +1,16 @@
 import { useRouter } from 'expo-router'
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { FlatList, RefreshControl, StyleSheet, View } from 'react-native'
+import { FlatList, RefreshControl } from 'react-native'
 import type { Swipeable } from 'react-native-gesture-handler'
 import { Notifier } from 'react-native-notifier'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import type { Id } from '../../../../server/convex/_generated/dataModel'
+import type { SavedRouteListItemView } from '../../../../server/types/routes'
 import { SubpageLayout } from '../../../components/layouts/subpage-layout'
 import { DeleteRouteDialog } from '../../../components/ui/delete-route-dialog'
 import { EmptyState } from '../../../components/ui/empty-state'
 import { SavedRouteCard } from '../../../components/ui/saved-route-card'
 import { formatDate } from '../../../components/ui/saved-route-card.utils'
-import type { Id } from '../../../convex/_generated/dataModel'
 import {
   useSavedRoutesList,
   useSoftDeleteRoute,
@@ -17,7 +18,6 @@ import {
 } from '../../../hooks/use-saved-routes'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { showSuccessNotification } from '../../../lib/notifier-helpers'
-import type { SavedRouteListItemView } from '../../../types/routes'
 import {
   FilteredEmptyState,
   FilterHeader,

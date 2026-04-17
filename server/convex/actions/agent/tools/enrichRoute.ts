@@ -4,12 +4,10 @@ import {
   type AssistantMessage,
   type Context,
   complete,
-  getModel,
   type Tool,
   type ToolCall,
   Type,
 } from '@mariozechner/pi-ai'
-import { OPENAI_API_KEY } from '../../../lib/env'
 import { getAgentModel } from '../lib/models'
 import { withTimeout } from '../lib/reliability'
 
@@ -89,8 +87,6 @@ export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrich
   )
 
   try {
-    console.info(`[enrichRoute] using model=low (enrichment), routes=${params.routes.length}`)
-
     const model = getAgentModel('low')
 
     const context: Context = {
@@ -149,8 +145,7 @@ export const enrichRoute = async (params: EnrichRouteInput): Promise<RouteEnrich
     }
 
     return routes
-  } catch (error) {
-    console.warn('[enrichRoute] LLM call failed, using fallback labels', error)
+  } catch (_error) {
     return params.routes.map((route, idx) =>
       fallbackEnrichment(idx, route.legContext?.length ?? 0, route.existingLegLabels),
     )

@@ -76,7 +76,7 @@ export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessage
   // Cheap fingerprint that changes whenever any message's content or
   // status changes — ensures the detection effect re-fires even when
   // the array length stays the same (e.g. streaming content updates).
-  const fingerprint = useMemo(() => {
+  const _fingerprint = useMemo(() => {
     let fp = ''
     for (const m of transcriptMessages) {
       fp += `${m.id}:${m.content.length}:${m.status ?? ''};`
@@ -89,7 +89,7 @@ export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessage
     baselineIdsRef.current = null
     toastedIdsRef.current = new Set()
     setToasts([])
-  }, [sessionId])
+  }, [])
 
   // Clear all toasts when entering chat mode (full transcript shows all messages)
   // But don't clear immediately - let them auto-dismiss naturally
@@ -137,7 +137,7 @@ export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessage
     if (newToasts.length > 0) {
       setToasts((prev) => [...prev, ...newToasts].slice(-maxVisible))
     }
-  }, [fingerprint, chatMode, maxVisible, isLoading, transcriptMessages])
+  }, [chatMode, maxVisible, isLoading, transcriptMessages])
 
   // Update content & status of existing toasts when messages stream in
   useEffect(() => {
@@ -176,7 +176,7 @@ export function useToastMessages(opts: UseToastMessagesOptions): UseToastMessage
     return () => {
       timers.forEach((timer) => clearTimeout(timer))
     }
-  }, [toasts, chatMode]) // Include chatMode so timers reset when mode changes
+  }, [toasts]) // Include chatMode so timers reset when mode changes
 
   const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id))

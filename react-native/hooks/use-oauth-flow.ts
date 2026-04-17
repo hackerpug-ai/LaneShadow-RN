@@ -76,15 +76,11 @@ export const useOAuthFlow = (strategy: OAuthFlowProvider, options?: UseOAuthFlow
         await setActive!({ session: createdSessionId })
         options?.onSuccess?.()
       } else {
-        // Additional steps needed (MFA, email verification, etc.)
-        console.log('OAuth incomplete - additional steps needed:', { signIn, signUp })
-
         // For MVP, we'll treat this as an error
         // In production, handle these flows properly
         options?.onError?.(new Error('OAuth requires additional steps'))
       }
     } catch (err) {
-      console.error(`OAuth ${strategy} error:`, JSON.stringify(err, null, 2))
       options?.onError?.(err as Error)
     }
   }

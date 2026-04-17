@@ -87,8 +87,8 @@ export const DepartureTimeSelector = ({
         style={({ pressed }) => [
           styles.button,
           {
-            backgroundColor: semantic.color.primary.default + '1F', // Add 12% alpha
-            borderColor: semantic.color.primary.default + '4D', // Add 30% alpha
+            backgroundColor: `${semantic.color.primary.default}1F`, // Add 12% alpha
+            borderColor: `${semantic.color.primary.default}4D`, // Add 30% alpha
             opacity: pressed ? 0.8 : 1,
           },
         ]}

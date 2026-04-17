@@ -134,7 +134,7 @@ export const MarkdownText = ({ children, style, testID }: MarkdownTextProps) => 
       fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
     },
     blockquote: {
-      backgroundColor: semantic.color.surfaceVariant.default + '33',
+      backgroundColor: `${semantic.color.surfaceVariant.default}33`,
       borderLeftWidth: 4,
       borderLeftColor: semantic.color.primary.default,
       paddingLeft: semantic.space.md,

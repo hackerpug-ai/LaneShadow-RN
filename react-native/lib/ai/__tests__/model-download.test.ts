@@ -26,7 +26,7 @@ describe('ModelDownloadManager - AC-002: Download Interruption and Resume', () =
   describe('GIVEN model download is in progress (45% complete)', () => {
     it('WHEN app is terminated by user or system THEN download state is persisted to local storage', async () => {
       // Arrange: Simulate partial download (45% complete)
-      const mockUrl = 'https://example.com/model.bin'
+      const _mockUrl = 'https://example.com/model.bin'
       const totalSize = 800 * 1024 * 1024 // 800MB
       const downloadedSize = Math.floor(totalSize * 0.45) // 45% of 800MB
 

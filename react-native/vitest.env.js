@@ -120,8 +120,8 @@ Module._resolveFilename = function (request, parent, ...rest) {
     ) {
       const baseDir = path.dirname(parent.filename)
       const candidates = [
-        path.resolve(baseDir, request + '.ts'),
-        path.resolve(baseDir, request + '.tsx'),
+        path.resolve(baseDir, `${request}.ts`),
+        path.resolve(baseDir, `${request}.tsx`),
         path.resolve(baseDir, request, 'index.ts'),
         path.resolve(baseDir, request, 'index.tsx'),
       ]
@@ -202,10 +202,5 @@ global.jest = {
   advanceTimersByTime: vi.advanceTimersByTime,
   runAllTimers: vi.runAllTimers,
   runOnlyPendingTimers: vi.runOnlyPendingTimers,
-  resetModules: () => {
-    // Vitest doesn't have module reset, so we warn and skip
-    console.warn(
-      'jest.resetModules() is not supported in Vitest - modules are automatically reloaded between tests',
-    )
-  },
+  resetModules: () => {},
 }

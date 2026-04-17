@@ -8,7 +8,7 @@
  * run outside a React Native / Convex provider tree.
  */
 
-import { act, renderHook } from '@testing-library/react'
+import { renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ---------------------------------------------------------------------------

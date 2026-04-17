@@ -14,9 +14,7 @@ import { asyncStorage } from '../hooks/use-async-storage'
 export const getStoredAccessToken = async (): Promise<string | undefined> => {
   const token = await asyncStorage.getItem('workos_access_token')
   if (token) {
-    console.log('🔑 Token retrieved from secure storage (length:', token.length, ')')
   } else {
-    console.log('⚠️  No token found in secure storage')
   }
   return token ?? undefined
 }

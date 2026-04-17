@@ -9,7 +9,7 @@
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
 import type { ExtendedTheme } from '../../styles/types'
-import { type IconName, IconSymbol } from './icon-symbol'
+import type { IconName } from './icon-symbol'
 import { RouteBadge } from './route-badge'
 import { StatRow } from './stat-row'
 import { WeatherPill } from './weather-pill'

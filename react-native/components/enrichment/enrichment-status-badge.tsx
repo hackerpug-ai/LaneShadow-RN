@@ -80,8 +80,8 @@ export const EnrichmentStatusBadge = ({
   const color = config.getColor(semantic)
   const isSmall = size === 'small'
 
-  const backgroundColor = color + '1A' // 10% opacity
-  const borderColor = color + '4D' // 30% opacity
+  const backgroundColor = `${color}1A` // 10% opacity
+  const borderColor = `${color}4D` // 30% opacity
 
   return (
     <View

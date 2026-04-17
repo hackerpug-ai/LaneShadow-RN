@@ -42,7 +42,7 @@ export const DevMenu = () => {
   const { semantic } = useSemanticTheme()
   const isEnabled = useDevMenuEnabled()
 
-  const clearModel = useDownloadStore((state) => state.clearModel)
+  const _clearModel = useDownloadStore((state) => state.clearModel)
   const resetSetup = useDownloadStore((state) => state.resetSetup)
 
   // State
@@ -53,10 +53,7 @@ export const DevMenu = () => {
   const snapPoints = useMemo(() => ['60%'], [])
 
   // Debug: Check if modal is mounted
-  useEffect(() => {
-    console.log('[DevMenu] Component mounted, isEnabled:', isEnabled)
-    console.log('[DevMenu] bottomSheetRef.current:', bottomSheetRef.current)
-  }, [isEnabled])
+  useEffect(() => {}, [])
 
   // Drag position — useSharedValue runs on UI thread (like RML EdgeTab)
   const BUTTON_SIZE = 56
@@ -85,15 +82,12 @@ export const DevMenu = () => {
   }, [])
 
   const handlePresent = useCallback(() => {
-    console.log('[DevMenu] FAB pressed, presenting bottom sheet')
-    console.log('[DevMenu] bottomSheetRef.current:', bottomSheetRef.current)
     setResult(null)
     loadModelInfo()
 
     // Small delay to ensure modal is fully mounted (iOS fix)
     setTimeout(() => {
       bottomSheetRef.current?.present()
-      console.log('[DevMenu] present() called after delay')
     }, 50)
   }, [loadModelInfo])
 
@@ -210,7 +204,7 @@ export const DevMenu = () => {
         animateOnMount={true}
         android_keyboardInputMode="adjustResize"
         topInset={0}
-        onChange={(index) => console.log('[DevMenu] BottomSheet onChange:', index)}
+        onChange={(index) => {}}
       >
         <BottomSheetView style={[styles.content, { gap: semantic.space.lg }]}>
           {/* Header */}

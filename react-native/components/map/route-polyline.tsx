@@ -1,10 +1,9 @@
-import { getRainColor, getTemperatureColor, getWindColor } from '../../lib/map/overlay-colors'
 import {
   computeCumulativeDistances,
   decodePolylineGeometry,
   type MapLatLng,
   slicePolylineByMeters,
-} from '../../lib/polyline'
+} from '../../../server/lib/polyline'
 import type {
   PolylineGeometry,
   RainOverlayByLeg,
@@ -15,7 +14,8 @@ import type {
   TemperatureOverlaySegment,
   WindOverlayByLeg,
   WindOverlaySegment,
-} from '../../models/saved-routes'
+} from '../../../server/models/saved-routes'
+import { getRainColor, getTemperatureColor, getWindColor } from '../../lib/map/overlay-colors'
 import type { ExtendedTheme } from '../../styles/types'
 
 type RoutePolylineInput = {

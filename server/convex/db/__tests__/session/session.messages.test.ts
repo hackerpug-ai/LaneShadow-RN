@@ -6,7 +6,7 @@
  */
 
 import { ConvexError } from 'convex/values'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../../_generated/dataModel'
 import { ERROR_CODES } from '../../../errors'
 import { addSystemMessageHandler, listHandler, sendHandler } from '../../sessionMessages'
@@ -17,7 +17,7 @@ import { addSystemMessageHandler, listHandler, sendHandler } from '../../session
 
 const CLERK_USER_ID = 'user_test_123'
 const SESSION_ID = 'session_abc' as Id<'planning_sessions'>
-const OTHER_SESSION_ID = 'session_xyz' as Id<'planning_sessions'>
+const _OTHER_SESSION_ID = 'session_xyz' as Id<'planning_sessions'>
 const MESSAGE_ID = 'msg_123' as Id<'session_messages'>
 const ROUTE_PLAN_ID = 'route_456' as Id<'route_plans'>
 

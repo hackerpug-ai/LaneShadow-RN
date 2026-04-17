@@ -19,14 +19,14 @@
 
 import { Camera, LineLayer, MapView as MapboxMapView, ShapeSource } from '@rnmapbox/maps'
 import type { FeatureCollection, LineString, Position } from 'geojson'
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { Platform, StyleSheet, View } from 'react-native'
+import type { MapLatLng } from '../../../../server/lib/polyline'
+import { decodePolylineGeometry } from '../../../../server/lib/polyline'
+import type { PolylineGeometry } from '../../../../server/models/saved-routes'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { convertCoordinateArray } from '../../../lib/mapbox/coordinate-converter'
 import { MAP_STYLES } from '../../../lib/mapbox/styles'
-import type { MapLatLng } from '../../../lib/polyline'
-import { decodePolylineGeometry } from '../../../lib/polyline'
-import type { PolylineGeometry } from '../../../models/saved-routes'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -59,8 +59,7 @@ export const RouteMiniMap = ({
   const coordinates = useMemo((): MapLatLng[] => {
     try {
       return decodePolylineGeometry(overviewGeometry)
-    } catch (error) {
-      console.error('[RouteMiniMap] Failed to decode polyline', error)
+    } catch (_error) {
       return []
     }
   }, [overviewGeometry])

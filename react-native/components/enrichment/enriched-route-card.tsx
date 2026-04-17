@@ -13,7 +13,7 @@
  */
 
 import { useMemo } from 'react'
-import type { Id } from '../../convex/_generated/dataModel'
+import type { Id } from '../../../server/convex/_generated/dataModel'
 import { useEnrichmentStatus } from '../../hooks/use-enrichment-status'
 import { EnrichmentStatusIndicator } from '../planning/enrichment-status-indicator'
 import type { RouteOptionCardProps } from '../ui/route-option-card'

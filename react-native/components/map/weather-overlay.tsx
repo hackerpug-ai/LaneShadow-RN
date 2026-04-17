@@ -2,14 +2,12 @@ import { LineLayer, ShapeSource } from '@rnmapbox/maps'
 import type { FeatureCollection, LineString } from 'geojson'
 import type { FC } from 'react'
 import { useMemo } from 'react'
-import { getRainColor, getTemperatureColor, getWindColor } from '../../lib/map/overlay-colors'
-import { convertCoordinateArray } from '../../lib/mapbox/coordinate-converter'
 import {
   computeCumulativeDistances,
   decodePolylineGeometry,
   type MapLatLng,
   slicePolylineByMeters,
-} from '../../lib/polyline'
+} from '../../../server/lib/polyline'
 import type {
   RainOverlayByLeg,
   RainOverlaySegment,
@@ -19,7 +17,9 @@ import type {
   TemperatureOverlaySegment,
   WindOverlayByLeg,
   WindOverlaySegment,
-} from '../../models/saved-routes'
+} from '../../../server/models/saved-routes'
+import { getRainColor, getTemperatureColor, getWindColor } from '../../lib/map/overlay-colors'
+import { convertCoordinateArray } from '../../lib/mapbox/coordinate-converter'
 import type { ExtendedTheme } from '../../styles/types'
 
 // ---------------------------------------------------------------------------
@@ -61,7 +61,7 @@ type WeatherFeature = {
 // ---------------------------------------------------------------------------
 
 /** Line width scale factors by zoom range */
-const ZOOM_WIDTH_SCALE = {
+const _ZOOM_WIDTH_SCALE = {
   low: 1.5, // zoom < 12 (country level)
   medium: 1.0, // zoom 12-15 (city level)
   high: 0.75, // zoom > 15 (street level)

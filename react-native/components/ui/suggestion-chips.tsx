@@ -1,5 +1,5 @@
 import type React from 'react'
-import { Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 

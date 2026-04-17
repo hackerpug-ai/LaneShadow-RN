@@ -7,7 +7,6 @@
  * - Test that handlers accept valid data
  */
 
-import { ConvexError } from 'convex/values'
 import { describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../_generated/dataModel'
 import { sendHandler } from '../sessionMessages'

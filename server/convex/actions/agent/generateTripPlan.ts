@@ -1,7 +1,7 @@
 'use node'
 
 import type { AssistantMessage, Context, Message } from '@mariozechner/pi-ai'
-import { complete, getModel } from '@mariozechner/pi-ai'
+import { complete } from '@mariozechner/pi-ai'
 import { v } from 'convex/values'
 import { planInputValidator } from '../../../models/saved-routes'
 import type { TripLeg, TripPlan } from '../../../models/trip-plan'
@@ -297,8 +297,8 @@ export const generateTripPlan = action({
         try {
           rawResponse = await callLLM(piMessages)
         } catch (llmError) {
-          const errMsg = llmError instanceof Error ? llmError.message : String(llmError)
-          console.error('[generateTripPlan] LLM call failed', { attempt, error: errMsg })
+          const _errMsg = llmError instanceof Error ? llmError.message : String(llmError)
+
           // Drop the user message we added (can't continue this turn) and continue
           piMessages.pop()
           continue
@@ -329,8 +329,8 @@ export const generateTripPlan = action({
         try {
           parsed = parseTripPlan(rawResponse)
         } catch (parseError) {
-          const errMsg = parseError instanceof Error ? parseError.message : String(parseError)
-          console.error('[generateTripPlan] Parse failed', { attempt, error: errMsg })
+          const _errMsg = parseError instanceof Error ? parseError.message : String(parseError)
+
           // Treat all legs as failed — add correction request if more attempts remain
           if (attempt < MAX_ATTEMPTS) {
             piMessages.push({
@@ -418,7 +418,6 @@ export const generateTripPlan = action({
       // Ensure we never leave the record in a stuck state
       const errMsg =
         unexpectedError instanceof Error ? unexpectedError.message : String(unexpectedError)
-      console.error('[generateTripPlan] Unexpected error', { error: errMsg })
 
       await ctx.runMutation(internal.db.tripPlans.updateTripPlan, {
         tripPlanId,

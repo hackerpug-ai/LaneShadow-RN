@@ -15,7 +15,6 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type {
   PlanInput,
   RainOverlay,
@@ -24,8 +23,9 @@ import type {
   RouteOverlays,
   WindOverlay,
   WindSummary,
-} from '../../models/saved-routes'
-import { getWorstRainLevel, RAIN_SUMMARY, WIND_SUMMARY } from '../../models/saved-routes'
+} from '../../../server/models/saved-routes'
+import { getWorstRainLevel, RAIN_SUMMARY, WIND_SUMMARY } from '../../../server/models/saved-routes'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { WindBadge } from '../planning/wind-badge'
 import { RainBadge } from './rain-badge'
 

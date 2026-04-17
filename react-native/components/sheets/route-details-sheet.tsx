@@ -11,8 +11,8 @@
 import { StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from 'react-native-paper'
+import type { PlannedRouteOptionView } from '../../../server/types/routes'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { PlannedRouteOptionView } from '../../types/routes'
 import { WindBadge } from '../planning/wind-badge'
 import { Button } from '../ui/button'
 import { IconSymbol } from '../ui/icon-symbol'
@@ -90,7 +90,7 @@ export const RouteDetailsSheet = ({
           <View
             style={[
               styles.badge,
-              { backgroundColor: semantic.color.primary.default + '1F' }, // Add 12% alpha
+              { backgroundColor: `${semantic.color.primary.default}1F` }, // Add 12% alpha
             ]}
           >
             <IconSymbol name="routes" size={14} color={semantic.color.primary.default} />

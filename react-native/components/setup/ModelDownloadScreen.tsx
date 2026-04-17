@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 import { ChecksumValidator } from '../../lib/ai/checksum'
 import { LocalModelManager } from '../../lib/ai/local-model'
@@ -28,23 +28,20 @@ export function ModelDownloadScreen({ onComplete }: { onComplete: () => void }) 
   const downloadManager = new ModelDownloadManager()
   const checksumValidator = new ChecksumValidator()
 
-  useEffect(() => {
-    checkNetworkStatus()
-  }, [])
-
   const checkNetworkStatus = async () => {
     try {
-      // For now, assume WiFi is connected
-      // In a real implementation, you'd use expo-network or NetInfo
       setNetworkStatus({
         isConnected: true,
         type: 'wifi',
       })
-    } catch (err) {
-      console.error('Failed to check network status:', err)
+    } catch (_err) {
       setNetworkStatus({ isConnected: false, type: 'none' })
     }
   }
+
+  useEffect(() => {
+    checkNetworkStatus()
+  }, [checkNetworkStatus])
 
   const startDownload = async () => {
     if (!isOnWiFi()) {

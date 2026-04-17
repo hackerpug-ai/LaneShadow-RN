@@ -48,7 +48,7 @@ export type ExecuteContext = {
   onToolStart?: (
     toolName: string,
     args: unknown,
-  ) => Promise<{ messageId: Id<'session_messages'> } | void>
+  ) => Promise<{ messageId: Id<'session_messages'> } | undefined>
   onToolFinish?: (
     toolCallId: string,
     toolName: string,

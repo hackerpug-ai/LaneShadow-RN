@@ -7,7 +7,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { View } from 'react-native'
 import { TempRangeSummary } from '../../components/planning/temp-range-summary'
-import type { TemperatureOverlay } from '../../models/saved-routes'
+import type { TemperatureOverlay } from '../../../server/models/saved-routes'
 
 const meta: Meta<typeof TempRangeSummary> = {
   title: 'Components/TempRangeSummary',

@@ -168,10 +168,6 @@ export const RoutePolyline: FC<RoutePolylineProps> = ({
       {polylines.map((polyline, index) => {
         // Skip polylines with invalid coordinates
         if (!polyline.coordinates || polyline.coordinates.length < 2) {
-          console.warn('[RoutePolylineComponent] Skipping invalid polyline:', {
-            id: polyline.id,
-            coordinatesLength: polyline.coordinates?.length,
-          })
           return null
         }
 

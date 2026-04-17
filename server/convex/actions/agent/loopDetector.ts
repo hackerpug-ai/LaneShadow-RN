@@ -1,6 +1,6 @@
 'use node'
 
-import { createHash } from 'crypto'
+import { createHash } from 'node:crypto'
 
 export type ToolCall = {
   name: string

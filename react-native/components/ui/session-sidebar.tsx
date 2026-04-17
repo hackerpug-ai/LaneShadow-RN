@@ -1,13 +1,5 @@
 import type React from 'react'
-import {
-  Dimensions,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native'
+import { Dimensions, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { IconSymbol } from './icon-symbol'
 import { SessionCard } from './session-card'
@@ -57,7 +49,7 @@ export const SessionSidebar: React.FC<SessionSidebarProps> = ({
     ),
   }
 
-  const formatDate = (date: Date) => {
+  const _formatDate = (date: Date) => {
     const now = new Date()
     const sessionDate = new Date(date)
     const diffMs = now.getTime() - sessionDate.getTime()
@@ -109,7 +101,7 @@ export const SessionSidebar: React.FC<SessionSidebarProps> = ({
                   styles.pressableButton,
                   {
                     backgroundColor: pressed
-                      ? semantic.color.primary.pressed + '20'
+                      ? `${semantic.color.primary.pressed}20`
                       : 'transparent',
                   },
                 ]}

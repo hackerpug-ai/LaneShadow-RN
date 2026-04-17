@@ -10,7 +10,6 @@
  * AC-6: Existing reasoning kind still valid, no regression
  */
 
-import { v } from 'convex/values'
 import { describe, expect, it } from 'vitest'
 
 describe('US-055: thinking_card kind + thinkingSteps validators', () => {
@@ -43,7 +42,7 @@ describe('US-055: thinking_card kind + thinkingSteps validators', () => {
     it('should accept valid tool_start step with all required fields', async () => {
       const { thinkingStepValidator } = await import('../session-messages')
 
-      const validStep = {
+      const _validStep = {
         type: 'tool_start' as const,
         toolName: 'geocode',
         summary: 'Searching...',
@@ -67,7 +66,7 @@ describe('US-055: thinking_card kind + thinkingSteps validators', () => {
     it('should accept thinking type without toolName and detail', async () => {
       const { thinkingStepValidator } = await import('../session-messages')
 
-      const thinkingStep = {
+      const _thinkingStep = {
         type: 'thinking' as const,
         summary: 'Analyzing route options...',
         timestamp: 456,

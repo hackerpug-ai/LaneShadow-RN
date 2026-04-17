@@ -30,7 +30,6 @@
 import { useState } from 'react'
 import type { TextInputProps, ViewStyle } from 'react-native'
 import { StyleSheet, TextInput, View } from 'react-native'
-import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 
 /**

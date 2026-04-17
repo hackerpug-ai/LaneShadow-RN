@@ -1,7 +1,7 @@
 'use node'
 
 import { v } from 'convex/values'
-import type { PlanInput, RouteLeg, RouteSnapshot } from '../../../../models/saved-routes'
+import type { PlanInput, RouteSnapshot } from '../../../../models/saved-routes'
 import { internal } from '../../../_generated/api'
 import type { Id } from '../../../_generated/dataModel'
 import { internalAction } from '../../../_generated/server'
@@ -69,8 +69,6 @@ export const runEnrichmentJobHandler = async (
       routePlanId: enrichment.routePlanId,
       enrichments: results,
     })
-
-    console.log(`Enrichment ${args.phase} completed for routePlan ${enrichment.routePlanId}`)
   } catch (error) {
     await ctx.runMutation(internal.db.routeEnrichments.failEnrichment, {
       enrichmentId: args.enrichmentId,

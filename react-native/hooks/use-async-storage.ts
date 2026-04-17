@@ -127,8 +127,7 @@ export const asyncStorage = {
     try {
       const value = await storage.getItem(key)
       return value as StorageSchema[K] | null
-    } catch (error) {
-      console.error(`Failed to get ${key}:`, error)
+    } catch (_error) {
       return null
     }
   },
@@ -139,9 +138,7 @@ export const asyncStorage = {
   async setItem<K extends StorageKey>(key: K, value: NonNullable<StorageSchema[K]>): Promise<void> {
     try {
       await storage.setItem(key, value as string)
-    } catch (error) {
-      console.error(`Failed to set ${key}:`, error)
-    }
+    } catch (_error) {}
   },
 
   /**
@@ -150,9 +147,7 @@ export const asyncStorage = {
   async removeItem<K extends StorageKey>(key: K): Promise<void> {
     try {
       await storage.deleteItem(key)
-    } catch (error) {
-      console.error(`Failed to remove ${key}:`, error)
-    }
+    } catch (_error) {}
   },
 
   /**
@@ -246,7 +241,7 @@ export const useMultipleAsyncStorage = <K extends StorageKey>(
     }
 
     loadValues()
-  }, [keys.join(',')])
+  }, [keys.map, keys.forEach])
 
   return [values, isLoading]
 }

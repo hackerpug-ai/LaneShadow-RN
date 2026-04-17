@@ -10,7 +10,7 @@
  *   npx tsx scripts/import-osm-overpass.ts --region="Seattle" --bbox="47.5,-122.5,47.7,-122.3"
  */
 
-import { execSync } from 'child_process'
+import { execSync } from 'node:child_process'
 import { S2CellId, S2LatLng } from 'nodes2ts'
 
 interface ImportOptions {
@@ -70,7 +70,6 @@ async function fetchOverpassData(bbox: BoundingBox): Promise<any> {
     out skel qt;
   `
 
-  console.log(`📡 Fetching data from Overpass API...`)
   const response = await fetch('https://overpass-api.de/api/interpreter', {
     method: 'POST',
     body: query,
@@ -204,73 +203,49 @@ function importBatchViaCli(
  * Main import function
  */
 async function main(options: ImportOptions): Promise<void> {
-  console.log(`\n🌍 OSM Data Import for: ${options.region}`)
-  console.log(`━`.repeat(50))
-
   const [south, west, north, east] = options.bbox.split(',').map(Number)
 
   try {
     // Step 1: Fetch OSM data from Overpass
     const overpassData = await fetchOverpassData({ south, west, north, east })
 
-    // Step 2: Extract nodes and ways
-    console.log(`\n🔍 Extracting scenic nodes...`)
     const nodes = extractScenicNodes(overpassData)
-    console.log(`✅ Found ${nodes.length} scenic nodes`)
 
-    console.log(`\n🔍 Extracting road ways...`)
     const ways = extractRoadWays(overpassData)
-    console.log(`✅ Found ${ways.length} road ways`)
 
     // Step 3: Import to Convex in batches
     const BATCH_SIZE = 100
 
     if (nodes.length > 0) {
-      console.log(`\n📦 Importing nodes to Convex...`)
-      let nodesInserted = 0
-      let nodesUpdated = 0
+      let _nodesInserted = 0
+      let _nodesUpdated = 0
       for (let i = 0; i < nodes.length; i += BATCH_SIZE) {
         const batch = nodes.slice(i, i + BATCH_SIZE)
         const result = importBatchViaCli('importNodes', batch)
-        nodesInserted += result.inserted
-        nodesUpdated += result.updated
+        _nodesInserted += result.inserted
+        _nodesUpdated += result.updated
         process.stdout.write(
           `\r   Progress: ${Math.min(i + BATCH_SIZE, nodes.length)}/${nodes.length}`,
         )
       }
-      console.log(`\n✅ Nodes: ${nodesInserted} inserted, ${nodesUpdated} updated`)
     } else {
-      console.log(`\n⚠️  No scenic nodes found to import`)
     }
 
     if (ways.length > 0) {
-      console.log(`\n📦 Importing ways to Convex...`)
-      let waysInserted = 0
-      let waysUpdated = 0
+      let _waysInserted = 0
+      let _waysUpdated = 0
       for (let i = 0; i < ways.length; i += BATCH_SIZE) {
         const batch = ways.slice(i, i + BATCH_SIZE)
         const result = importBatchViaCli('importWays', batch)
-        waysInserted += result.inserted
-        waysUpdated += result.updated
+        _waysInserted += result.inserted
+        _waysUpdated += result.updated
         process.stdout.write(
           `\r   Progress: ${Math.min(i + BATCH_SIZE, ways.length)}/${ways.length}`,
         )
       }
-      console.log(`\n✅ Ways: ${waysInserted} inserted, ${waysUpdated} updated`)
     } else {
-      console.log(`\n⚠️  No road ways found to import`)
     }
-
-    // Summary
-    console.log(`\n` + '━'.repeat(50))
-    console.log(`✨ Import complete!`)
-    console.log(`   Nodes: ${nodes.length} processed`)
-    console.log(`   Ways: ${ways.length} processed`)
-    console.log(`\n🎯 Next steps:`)
-    console.log(`   1. Verify data in Convex dashboard`)
-    console.log(`   2. Test queries with the routing agent`)
   } catch (error: any) {
-    console.error(`\n❌ Import failed:`, error.message)
     throw error
   }
 }
@@ -284,9 +259,6 @@ async function cli() {
   const bboxArg = args.find((a) => a.startsWith('--bbox='))
 
   if (!regionArg || !bboxArg) {
-    console.error(
-      'Usage: npx tsx scripts/import-osm-overpass.ts --region=Seattle --bbox=47.5,-122.5,47.7,-122.3',
-    )
     process.exit(1)
   }
 
@@ -298,7 +270,6 @@ async function cli() {
 
 if (require.main === module) {
   cli().catch((error) => {
-    console.error('\n❌ Import failed:', error.message)
     process.exit(1)
   })
 }

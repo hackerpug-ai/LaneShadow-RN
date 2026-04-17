@@ -308,10 +308,7 @@ describe('planRide action - Favorites Integration', () => {
       try {
         // Simulate a database error
         throw new Error('Database connection failed')
-      } catch (error) {
-        // This is what planRide.ts does - logs warning but doesn't re-throw
-        console.warn('[planRide] Failed to fetch favorites, continuing without them:', error)
-      }
+      } catch (_error) {}
 
       // Verify warning was logged
       expect(mockConsoleWarn).toHaveBeenCalledWith(
@@ -336,10 +333,7 @@ describe('planRide action - Favorites Integration', () => {
       try {
         // Simulate favorites fetch failure
         throw new Error('Favorites fetch failed')
-      } catch (error) {
-        // Log warning but don't re-throw
-        console.warn('[planRide] Failed to fetch favorites, continuing without them:', error)
-      }
+      } catch (_error) {}
 
       // Planning should continue with empty favorites
       planningSucceeded = true

@@ -94,7 +94,7 @@ export const FavoriteExclusionAlert = ({
   sessionKey,
 }: FavoriteExclusionAlertProps) => {
   const { semantic } = useSemanticTheme()
-  const theme = useTheme()
+  const _theme = useTheme()
   const [isVisible, setIsVisible] = useState(false)
 
   // Track session keys we've already shown
@@ -136,7 +136,7 @@ export const FavoriteExclusionAlert = ({
         clearTimeout(timerRef.current)
       }
     }
-  }, [excludedFavorites, includeFavorites, sessionKey])
+  }, [excludedFavorites, includeFavorites, sessionKey, onDismiss])
 
   const handleDismiss = () => {
     // Clear the auto-dismiss timer if it's running

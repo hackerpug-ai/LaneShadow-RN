@@ -5,7 +5,7 @@ type RouteItem = { savedRouteId: string; name: string; createdAt: number }
 
 const now = 1000000000000 // fixed epoch ms for determinism
 const oneWeekMs = 7 * 24 * 60 * 60 * 1000
-const oneMonthMs = 30 * 24 * 60 * 60 * 1000
+const _oneMonthMs = 30 * 24 * 60 * 60 * 1000
 
 const makeRoutes = (offsets: number[]): RouteItem[] =>
   offsets.map((offset, idx) => ({

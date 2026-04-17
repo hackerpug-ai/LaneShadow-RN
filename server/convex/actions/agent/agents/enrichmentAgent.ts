@@ -1,6 +1,6 @@
 'use node'
 
-import { getModel, type Tool, type ToolCall, validateToolCall } from '@mariozechner/pi-ai'
+import { type Tool, type ToolCall, validateToolCall } from '@mariozechner/pi-ai'
 import { getAgentModel } from '../lib/models'
 import { AgentToolSchemas } from '../lib/piTools'
 import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
@@ -59,7 +59,7 @@ const enrichmentToolNames = new Set(enrichmentTools.map((t) => t.name))
 // Tool handler functions (extracted from ridePlanningAgent.ts)
 // -----------------------------------------------------------------------------
 
-async function runLookupRoad(
+async function _runLookupRoad(
   _ctx: AgentContext,
   args: {
     roadName: string
@@ -69,7 +69,7 @@ async function runLookupRoad(
   return lookupRoad(args)
 }
 
-async function runGetCurvature(
+async function _runGetCurvature(
   _ctx: AgentContext,
   args: {
     roadName: string
@@ -80,7 +80,7 @@ async function runGetCurvature(
   return getCurvature(args)
 }
 
-async function runCheckSurface(
+async function _runCheckSurface(
   _ctx: AgentContext,
   args: {
     surface: string | null
@@ -262,8 +262,6 @@ export async function executeEnrichmentAgent(
       const errorDetails = failedTools
         .map((ft) => `${ft.toolName}: ${(ft.result as any).message ?? 'unknown error'}`)
         .join('; ')
-
-      console.warn(`[executeEnrichmentAgent] ${failedTools.length} tool(s) failed: ${errorDetails}`)
 
       // Still return 'answered' if we have a response, but include error context
       if (result.response) {

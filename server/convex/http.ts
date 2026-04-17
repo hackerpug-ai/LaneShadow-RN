@@ -533,8 +533,7 @@ http.route({
         'svix-timestamp': svixTimestamp,
         'svix-signature': svixSignature,
       }) as { type: string; data: any }
-    } catch (error) {
-      console.error('[Clerk webhook] verification failed', error)
+    } catch (_error) {
       return new Response('Invalid signature', { status: 401 })
     }
 

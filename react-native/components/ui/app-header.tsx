@@ -47,9 +47,9 @@ export const AppHeader = ({
       style={[
         styles.header,
         {
-          backgroundColor: semantic.color.background.default + 'CC', // 80% opacity for blur effect
+          backgroundColor: `${semantic.color.background.default}CC`, // 80% opacity for blur effect
           borderBottomWidth: 1,
-          borderBottomColor: semantic.color.primary.default + '33', // 20% opacity
+          borderBottomColor: `${semantic.color.primary.default}33`, // 20% opacity
           padding: semantic.space.lg,
         },
       ]}

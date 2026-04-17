@@ -246,7 +246,7 @@ export const cancelPlanHandler = async (
 
 // When calling functions defined in the same module, route through a local reference
 // to avoid Convex/TS circular inference issues.
-const internalRoutePlans = (internal as any).db.routePlans
+const _internalRoutePlans = (internal as any).db.routePlans
 
 export const createPlan = mutation({
   args: {
@@ -488,7 +488,7 @@ export const mergeEnrichmentHandler = async (
   },
 ): Promise<void> => {
   const plan = await ctx.db.get(args.routePlanId)
-  if (!plan || !plan.result) {
+  if (!plan?.result) {
     return
   }
 

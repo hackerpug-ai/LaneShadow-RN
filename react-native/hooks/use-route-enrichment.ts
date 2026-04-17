@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { openDiscoveryDB } from '../lib/discovery/db'
-import { type EnrichmentData, fetchEnrichment } from '../lib/discovery/fetch-enrichment'
+import { openDiscoveryDB } from '../../server/lib/discovery/db'
+import { type EnrichmentData, fetchEnrichment } from '../../server/lib/discovery/fetch-enrichment'
 
 /**
  * Hook for loading route enrichment data.

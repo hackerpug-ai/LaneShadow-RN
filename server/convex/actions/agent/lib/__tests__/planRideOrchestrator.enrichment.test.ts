@@ -5,8 +5,8 @@
  * following TDD principles: RED → GREEN → REFACTOR
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Doc, Id } from '../../../../../convex/_generated/dataModel'
+import { describe, expect, it, vi } from 'vitest'
+import type { Id } from '../../../../../convex/_generated/dataModel'
 import type { PlanInput } from '../../../../../models/saved-routes'
 
 // ---------------------------------------------------------------------------
@@ -145,7 +145,7 @@ describe('executePlanHandler - Enrichment Integration', () => {
     it('should schedule enrichment job with 100ms delay when no cached enrichment exists', async () => {
       const planInput = buildPlanInput()
       let queryCallCount = 0
-      let mutationCallCount = 0
+      let _mutationCallCount = 0
 
       const mockCtx = {
         runQuery: vi.fn().mockImplementation((ref: any, args: any) => {
@@ -169,7 +169,7 @@ describe('executePlanHandler - Enrichment Integration', () => {
           return Promise.resolve(null) // Cache miss
         }),
         runMutation: vi.fn().mockImplementation((ref: any, args: any) => {
-          mutationCallCount++
+          _mutationCallCount++
           // createEnrichment should return enrichmentId
           if (args?.routePlanId && args?.clerkUserId && args?.contentFingerprint) {
             return Promise.resolve({ enrichmentId: mockEnrichmentId })
@@ -212,7 +212,7 @@ describe('executePlanHandler - Enrichment Integration', () => {
       const schedulerCalls = mockCtx.scheduler.runAfter.mock.calls
       expect(schedulerCalls.length).toBeGreaterThan(0)
 
-      const [delayMs, jobFunc, jobArgs] = schedulerCalls[0]
+      const [delayMs, _jobFunc, jobArgs] = schedulerCalls[0]
       expect(delayMs).toBe(100)
       expect(jobArgs).toEqual({
         enrichmentId: mockEnrichmentId,

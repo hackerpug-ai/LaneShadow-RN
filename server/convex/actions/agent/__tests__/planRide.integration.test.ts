@@ -63,12 +63,7 @@ const makeFakeCtx = () => {
     runQuery: async (_ref: unknown, _args: unknown) => basePlanDoc,
     runMutation: async (_ref: unknown, args: any) => {
       mutations.push(args)
-      console.info(
-        '[test] runMutation:',
-        args.status,
-        args.statusMessage ?? '',
-        args.errorCode ?? '',
-      )
+
       return null
     },
   }
@@ -100,15 +95,7 @@ describe('planRide integration (real APIs)', () => {
     const completed = mutations.find((m) => m.status === ROUTE_PLAN_STATUS.COMPLETED)
     const failed = mutations.find((m) => m.status === ROUTE_PLAN_STATUS.FAILED)
 
-    console.info(
-      '[test] All mutation statuses:',
-      mutations.map((m) => m.status),
-    )
-    if (failed) console.error('[test] FAILED:', failed.errorCode)
-    if (completed)
-      console.info('[test] Result options count:', (completed.result as any)?.options?.length)
-
-    expect(failed, `Plan failed: ${failed?.errorCode}`).toBeUndefined()
+    if (failed) if (completed) expect(failed, `Plan failed: ${failed?.errorCode}`).toBeUndefined()
     expect(completed).toBeDefined()
     expect((completed?.result as any)?.options).toBeInstanceOf(Array)
     expect((completed?.result as any)?.options.length).toBeGreaterThan(0)

@@ -11,7 +11,6 @@ import {
   type ToolCall,
   type ToolResultMessage,
 } from '@mariozechner/pi-ai'
-import { ERROR_CODES } from '../../errors'
 import type { BudgetTracker } from './budgetTracker'
 import type { LoopDetector } from './loopDetector'
 import type { ExecuteContext } from './ridePlanningAgent'
@@ -103,19 +102,11 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
   let stepCount = 0
   const toolNames = new Set<string>()
 
-  console.info(
-    `[runAgent] Starting agent loop: maxSteps=${maxSteps}, timeoutMs=${timeoutMs}, tools=${(context.tools ?? []).map((t) => t.name).join(', ')}`,
-  )
-
   for (let step = 0; step < maxSteps; step++) {
     if (Date.now() > deadline) {
-      console.warn(
-        `[runAgent] TIMEOUT at step ${step} — breaking loop (levelsetting: log, don't throw)`,
-      )
       break
     }
 
-    console.info(`[runAgent] Step ${step + 1}/${maxSteps}`)
     await callbacks?.onStepStart?.(step, maxSteps)
 
     // Always stream so we capture all event types.
@@ -165,9 +156,7 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
     }
 
     const toolCalls = assistant.content.filter((b): b is ToolCall => b.type === 'toolCall')
-    console.info(
-      `[runAgent] Step ${step + 1} stopReason=${assistant.stopReason}, toolCalls=[${toolCalls.map((c) => c.name).join(', ')}]`,
-    )
+
     if (toolCalls.length === 0) break
 
     // Notify caller that the assistant turn with tool calls is complete.
@@ -198,20 +187,14 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
     // Execute safe calls in parallel (excluding loop-detected ones).
     const safeCallsToRun = safeCalls.filter((c) => !outcomes.has(c.id))
     if (safeCallsToRun.length > 0) {
-      console.info(
-        `[runAgent] Executing ${safeCallsToRun.length} parallel-safe tools: [${safeCallsToRun.map((c) => c.name).join(', ')}]`,
-      )
     }
     await Promise.all(
       safeCallsToRun.map(async (call) => {
         let result: unknown
         let isError = false
-        const t0 = Date.now()
+        const _t0 = Date.now()
         try {
           result = await executor(call)
-          console.info(
-            `[runAgent] ✅ ${call.name} completed in ${Date.now() - t0}ms → ${JSON.stringify(result ?? null).slice(0, 200)}`,
-          )
         } catch (err) {
           const errMsg = err instanceof Error ? err.message : String(err)
           const isValidation = errMsg.includes('Validation failed')
@@ -224,7 +207,6 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
             retryGuidance: isValidation ? 'fix_args_and_retry' : 'ask_rider',
           }
           isError = true
-          console.error(`[runAgent] ❌ ${call.name} FAILED in ${Date.now() - t0}ms: ${errMsg}`)
         }
         outcomes.set(call.id, { result, isError, loopDetected: false })
       }),
@@ -235,13 +217,10 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
       if (outcomes.has(call.id)) continue
       let result: unknown
       let isError = false
-      const t0 = Date.now()
-      console.info(`[runAgent] Executing sequential tool: ${call.name}`)
+      const _t0 = Date.now()
+
       try {
         result = await executor(call)
-        console.info(
-          `[runAgent] ✅ ${call.name} completed in ${Date.now() - t0}ms → ${JSON.stringify(result ?? null).slice(0, 200)}`,
-        )
       } catch (err) {
         const errMsg = err instanceof Error ? err.message : String(err)
         const isValidation = errMsg.includes('Validation failed')
@@ -254,7 +233,6 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
           retryGuidance: isValidation ? 'fix_args_and_retry' : 'ask_rider',
         }
         isError = true
-        console.error(`[runAgent] ❌ ${call.name} FAILED in ${Date.now() - t0}ms: ${errMsg}`)
       }
       outcomes.set(call.id, { result, isError, loopDetected: false })
     }
@@ -311,10 +289,6 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
     }
   }
 
-  console.info(
-    `[runAgent] Agent loop finished after ${context.messages.length} messages, ${toolResults.length} tool calls: [${toolResults.map((r) => r.toolName).join(', ')}]`,
-  )
-
   // Extract final text from the last assistant message.
   const last = context.messages[context.messages.length - 1]
   let response = ''
@@ -336,10 +310,6 @@ export async function runAgent(config: RunAgentConfig): Promise<RunAgentResult> 
     cacheReadTokens: totalCacheReadTokens,
     totalCostUsd: totalCostUsd,
   }
-
-  console.info(
-    `[runAgent] metrics: steps=${metrics.steps} tools=[${metrics.tools.join(',')}] duration=${metrics.durationMs}ms cost=$${metrics.totalCostUsd.toFixed(4)} tokens(in=${metrics.inputTokens} out=${metrics.outputTokens} cache=${metrics.cacheReadTokens})`,
-  )
 
   return {
     response,

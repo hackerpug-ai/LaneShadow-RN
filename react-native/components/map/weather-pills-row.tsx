@@ -13,7 +13,6 @@
 
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import {
   getMaxTemperatureFahrenheit,
   getMaxWindSpeedMph,
@@ -22,9 +21,8 @@ import {
   getWorstWindLevel,
   type RainSummary,
   type RouteOverlays,
-  type TemperatureSummary,
-  type WindSummary,
-} from '../../models/saved-routes'
+} from '../../../server/models/saved-routes'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { IconName } from '../ui/icon-symbol'
 import { IconSymbol } from '../ui/icon-symbol'
 

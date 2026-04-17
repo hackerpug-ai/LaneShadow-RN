@@ -181,7 +181,7 @@ export const ToggleGroupItem = ({
   }
 
   // Get text color based on state
-  const getTextColor = (pressed: boolean): string => {
+  const _getTextColor = (pressed: boolean): string => {
     if (disabled) {
       return semantic.color.onSurface.disabled || semantic.color.onSurface.default
     }

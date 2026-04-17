@@ -46,8 +46,7 @@ export const audioToBase64 = async (uri: string): Promise<string | null> => {
       reader.onerror = () => reject(new Error('Failed to convert audio to base64'))
       reader.readAsDataURL(blob)
     })
-  } catch (error) {
-    console.error('Audio base64 conversion failed:', error)
+  } catch (_error) {
     return null
   }
 }
@@ -136,8 +135,7 @@ export const uploadImage = async (
       storageId,
       mediaAssetId: mediaAssetResult.id,
     }
-  } catch (error) {
-    console.error('Image upload failed:', error)
+  } catch (_error) {
     return null
   }
 }

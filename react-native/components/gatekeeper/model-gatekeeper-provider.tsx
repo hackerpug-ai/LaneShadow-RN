@@ -14,7 +14,6 @@
  */
 
 import type React from 'react'
-import { useEffect } from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import { useModelSetup } from '../../hooks/useModelSetup'
 import { useDownloadStore } from '../../stores/download-store'

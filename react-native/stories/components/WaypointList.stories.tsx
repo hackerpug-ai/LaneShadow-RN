@@ -6,7 +6,7 @@ import type { Meta, StoryObj } from '@storybook/react-native'
 import React from 'react'
 import { View, ScrollView } from 'react-native'
 import { WaypointList } from '../../components/waypoints/waypoint-list'
-import type { Id } from '../../convex/_generated/dataModel'
+import type { Id } from '../../../server/convex/_generated/dataModel'
 
 // Mock waypoints data for stories
 const mockWaypoints = [

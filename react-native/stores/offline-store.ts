@@ -114,10 +114,10 @@ function convertPackBounds(packBounds: unknown): RegionBounds | null {
     // Validate the parsed values are actual numbers and make geographic sense
     const { ne: bNE, sw: bSW } = bounds
     if (
-      !isFinite(bNE.lat) ||
-      !isFinite(bNE.lng) ||
-      !isFinite(bSW.lat) ||
-      !isFinite(bSW.lng) ||
+      !Number.isFinite(bNE.lat) ||
+      !Number.isFinite(bNE.lng) ||
+      !Number.isFinite(bSW.lat) ||
+      !Number.isFinite(bSW.lng) ||
       bSW.lat >= bNE.lat ||
       bSW.lng >= bNE.lng
     ) {
@@ -185,7 +185,6 @@ export const useOfflineStore = create<OfflineRegionState>()(
 
             const bounds = convertPackBounds(pack.bounds)
             if (!bounds) {
-              console.warn(`Skipping pack "${pack.name}" — invalid bounds:`, pack.bounds)
               continue
             }
 
@@ -300,7 +299,6 @@ export const useOfflineStore = create<OfflineRegionState>()(
               },
               isDownloading: false,
             }))
-            console.error(`Download failed for ${params.name}:`, error)
           },
         })
       },

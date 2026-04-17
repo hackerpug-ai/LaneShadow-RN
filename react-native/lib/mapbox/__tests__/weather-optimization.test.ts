@@ -4,7 +4,7 @@ import type {
   RouteLeg,
   RouteOverlays,
   RouteStop,
-} from '../../../models/saved-routes'
+} from '../../../../server/models/saved-routes'
 import type { ExtendedTheme } from '../../../styles/types'
 import {
   createRainOverlay,

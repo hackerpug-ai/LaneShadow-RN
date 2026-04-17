@@ -8,7 +8,6 @@
  */
 
 import { fireEvent, render } from '@testing-library/react-native'
-import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtendedTheme } from '../../../styles/types'
 
@@ -16,7 +15,7 @@ import type { ExtendedTheme } from '../../../styles/types'
 // Import after mocks
 // ---------------------------------------------------------------------------
 
-import type { RouteStop } from '../../../models/saved-routes'
+import type { RouteStop } from '../../../../server/models/saved-routes'
 import { PlanRideSheet } from '../plan-ride-sheet'
 
 // ---------------------------------------------------------------------------
@@ -191,13 +190,13 @@ vi.mock('@gorhom/bottom-sheet', () => {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const mockStartStop: RouteStop = {
+const _mockStartStop: RouteStop = {
   label: 'San Francisco, CA',
   lat: 37.7749,
   lng: -122.4194,
 }
 
-const mockEndStop: RouteStop = {
+const _mockEndStop: RouteStop = {
   label: 'Los Angeles, CA',
   lat: 34.0522,
   lng: -118.2437,

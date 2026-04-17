@@ -2,7 +2,7 @@ import { ConvexError, v } from 'convex/values'
 import { planInputValidator } from '../../models/saved-routes'
 import { type TripPlan, tripPlanValidator } from '../../models/trip-plan'
 import type { Doc, Id } from '../_generated/dataModel'
-import { internalMutation, internalQuery, mutation, query } from '../_generated/server'
+import { internalMutation, mutation, query } from '../_generated/server'
 import { ERROR_CODES } from '../errors'
 import { requireIdentity } from '../guards'
 

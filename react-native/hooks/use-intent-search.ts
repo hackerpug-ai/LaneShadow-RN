@@ -1,16 +1,19 @@
 import NetInfo from '@react-native-community/netinfo'
 import { useCallback, useState } from 'react'
-import { openDiscoveryDB } from '../lib/discovery/db'
+import { openDiscoveryDB } from '../../server/lib/discovery/db'
 import {
   bumpHitCount,
   lookupIntentCache,
   topHitIntents,
   writeIntentCache,
-} from '../lib/discovery/intent/cache'
-import { CURRENT_SCHEMA_VERSION, normalizeIntent } from '../lib/discovery/intent/normalize'
-import { runParamsQuery } from '../lib/discovery/intent/params-to-sql'
-import type { IntentParams, IntentSearchState } from '../lib/discovery/intent/types'
-import { validateEnums } from '../lib/discovery/intent/validate'
+} from '../../server/lib/discovery/intent/cache'
+import {
+  CURRENT_SCHEMA_VERSION,
+  normalizeIntent,
+} from '../../server/lib/discovery/intent/normalize'
+import { runParamsQuery } from '../../server/lib/discovery/intent/params-to-sql'
+import type { IntentParams, IntentSearchState } from '../../server/lib/discovery/intent/types'
+import { validateEnums } from '../../server/lib/discovery/intent/validate'
 
 export interface IntentSearchParams {
   center: { lat: number; lng: number }
@@ -80,8 +83,7 @@ export function useIntentSearch({ center }: IntentSearchParams) {
           params: validated,
           source: 'haiku',
         })
-      } catch (error) {
-        console.error('Intent search error:', error)
+      } catch (_error) {
         setState({ status: 'idle' })
       }
     },

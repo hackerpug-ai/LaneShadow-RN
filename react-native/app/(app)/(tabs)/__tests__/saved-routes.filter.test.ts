@@ -12,8 +12,8 @@
 
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { SavedRouteListItemView } from '../../../../types/routes'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import type { SavedRouteListItemView } from '../../../../../server/types/routes'
 import SavedRoutesScreen from '../saved-routes'
 import { FilteredEmptyState, FilterHeader } from '../saved-routes.components'
 
@@ -145,7 +145,7 @@ vi.mock('../../../../lib/notifier-helpers', () => ({
   showErrorNotification: vi.fn(),
 }))
 
-const makeRoute = (
+const _makeRoute = (
   overrides: Partial<SavedRouteListItemView> & { savedRouteId: string },
 ): SavedRouteListItemView => ({
   name: 'Test Route',

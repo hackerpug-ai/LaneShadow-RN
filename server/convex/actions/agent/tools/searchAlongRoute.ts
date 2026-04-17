@@ -114,8 +114,7 @@ const searchAlongRouteImpl = async (
       origin,
     })
     return results
-  } catch (error) {
-    console.warn('searchAlongRoute: Places API call failed', error)
+  } catch (_error) {
     return { status: 'error', reason: 'places_api_error' }
   }
 }

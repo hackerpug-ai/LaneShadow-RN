@@ -42,7 +42,6 @@ export const ModelSetupScreen: React.FC = () => {
     try {
       await startDownload()
     } catch (error) {
-      console.error('Failed to start setup:', error)
       toast.error(
         error instanceof Error
           ? error.message
@@ -54,9 +53,7 @@ export const ModelSetupScreen: React.FC = () => {
   const handleCancelDownload = async () => {
     try {
       await cancelDownload()
-    } catch (error) {
-      console.error('Failed to cancel setup:', error)
-    }
+    } catch (_error) {}
   }
 
   if (isChecking) {

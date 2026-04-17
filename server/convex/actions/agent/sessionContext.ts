@@ -61,7 +61,7 @@ function formatRoute(summary: RoutePlanSummary, index: number): string {
   const prefsText = formatPreferences(summary.preferences)
 
   const lines = [
-    `${index}. ${summary.routeLabel || startLabel + ' \u2192 ' + endLabel}: ${distMiles}mi \u00b7 ${durationMins}min`,
+    `${index}. ${summary.routeLabel || `${startLabel} \u2192 ${endLabel}`}: ${distMiles}mi \u00b7 ${durationMins}min`,
   ]
 
   if (summary.routeRationale) {

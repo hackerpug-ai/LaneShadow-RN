@@ -10,8 +10,8 @@
 
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
-import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
-import type { SavedRouteListItemView } from '../../../../types/routes'
+import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
+import type { SavedRouteListItemView } from '../../../../../server/types/routes'
 import SavedRoutesScreen from '../saved-routes'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -427,8 +427,8 @@ describe('AC3: Accessibility role and label on SavedRouteCard', () => {
   it('SavedRouteCard component source should have accessibilityRole button and label with name', () => {
     // Verify the component source has the expected accessibility attributes
     // by inspecting the saved-route-card.tsx source directly
-    const fs = require('fs') as typeof import('fs')
-    const path = require('path') as typeof import('path')
+    const fs = require('node:fs') as typeof import('fs')
+    const path = require('node:path') as typeof import('path')
     const source = fs.readFileSync(
       path.resolve(__dirname, '../../../../components/ui/saved-route-card.tsx'),
       'utf-8',

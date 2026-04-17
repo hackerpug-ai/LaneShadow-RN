@@ -13,12 +13,12 @@
  */
 
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet'
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import type { RouteLeg } from '../../../server/models/saved-routes'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { RouteLeg } from '../../models/saved-routes'
 import { Button } from '../ui/button'
 import { IconSymbol } from '../ui/icon-symbol'
 import { BottomSheetWrapper } from './bottom-sheet-wrapper'
@@ -147,9 +147,7 @@ export const RouteDirectionsSheet = ({
     if (!finalDestination) return
 
     const mapUrl = getMapUrl(finalDestination)
-    Linking.openURL(mapUrl).catch((err) => {
-      console.error('Failed to open maps:', err)
-    })
+    Linking.openURL(mapUrl).catch((err) => {})
   }
 
   const handleLegPress = (legIndex: number) => {
@@ -172,7 +170,7 @@ export const RouteDirectionsSheet = ({
               paddingHorizontal: semantic.space.lg,
               paddingTop: semantic.space.md,
               paddingBottom: semantic.space.lg + insets.bottom,
-              borderTopColor: semantic.color.border.default + '33',
+              borderTopColor: `${semantic.color.border.default}33`,
               backgroundColor: semantic.color.surface.default,
             },
           ]}
@@ -213,7 +211,7 @@ export const RouteDirectionsSheet = ({
               paddingHorizontal: semantic.space.lg,
               paddingTop: semantic.space.md,
               paddingBottom: semantic.space.sm,
-              borderBottomColor: semantic.color.border.default + '33',
+              borderBottomColor: `${semantic.color.border.default}33`,
             },
           ]}
         >
@@ -264,8 +262,8 @@ export const RouteDirectionsSheet = ({
                         style={[
                           styles.stepCard,
                           {
-                            backgroundColor: semantic.color.surface.default + 'E6',
-                            borderColor: semantic.color.border.default + '4D',
+                            backgroundColor: `${semantic.color.surface.default}E6`,
+                            borderColor: `${semantic.color.border.default}4D`,
                             marginBottom:
                               stepIndex === (leg.steps?.length ?? 0) - 1
                                 ? semantic.space.md
@@ -278,7 +276,7 @@ export const RouteDirectionsSheet = ({
                           <View
                             style={[
                               styles.stepNumber,
-                              { backgroundColor: semantic.color.primary.default + '1A' },
+                              { backgroundColor: `${semantic.color.primary.default}1A` },
                             ]}
                           >
                             <Text
@@ -355,13 +353,13 @@ export const RouteDirectionsSheet = ({
                     styles.legCard,
                     {
                       backgroundColor: isSelected
-                        ? semantic.color.primary.default + '1A'
+                        ? `${semantic.color.primary.default}1A`
                         : pressed
-                          ? semantic.color.surface.default + 'CC'
-                          : semantic.color.surface.default + 'E6',
+                          ? `${semantic.color.surface.default}CC`
+                          : `${semantic.color.surface.default}E6`,
                       borderColor: isSelected
                         ? semantic.color.primary.default
-                        : semantic.color.border.default + '4D',
+                        : `${semantic.color.border.default}4D`,
                       marginBottom:
                         legIndex === legs.length - 1 ? semantic.space.xl : semantic.space.sm,
                     },
@@ -373,7 +371,7 @@ export const RouteDirectionsSheet = ({
                     <View
                       style={[
                         styles.legNumber,
-                        { backgroundColor: semantic.color.primary.default + '1A' },
+                        { backgroundColor: `${semantic.color.primary.default}1A` },
                       ]}
                     >
                       <Text
@@ -488,8 +486,8 @@ export const RouteDirectionsSheet = ({
               style={[
                 styles.summaryCard,
                 {
-                  backgroundColor: semantic.color.primary.default + '0D',
-                  borderColor: semantic.color.primary.default + '33',
+                  backgroundColor: `${semantic.color.primary.default}0D`,
+                  borderColor: `${semantic.color.primary.default}33`,
                 },
               ]}
             >

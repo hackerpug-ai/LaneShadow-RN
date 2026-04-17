@@ -20,7 +20,7 @@
  * Following react-rules.md: named export, no unnecessary useCallback/useMemo.
  */
 
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AccessibilityInfo, Pressable, StyleSheet, Text, View } from 'react-native'
 import Animated, {
   useAnimatedStyle,
@@ -29,7 +29,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated'
-import type { Id } from '../../../convex/_generated/dataModel'
+import type { Id } from '../../../../server/convex/_generated/dataModel'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { IconSymbol } from '../../ui/icon-symbol'
 import type { CardAttachment } from '../card-registry'
@@ -225,9 +225,9 @@ export const ReasoningCard = ({ message }: ReasoningCardProps) => {
   const surfaceColor = semantic.color.surfaceVariant.default
   // Streaming adds a subtle primary tint overlay (8% alpha) — the '14' hex
   // suffix pattern follows RoutingCard.FailedCard (lines 285-290).
-  const streamingOverlay = semantic.color.primary.default + '14'
-  const rippleColor = mutedColor + '14'
-  const dividerColor = mutedColor + '33' // 20% alpha fallback for outline.subtle
+  const streamingOverlay = `${semantic.color.primary.default}14`
+  const rippleColor = `${mutedColor}14`
+  const dividerColor = `${mutedColor}33` // 20% alpha fallback for outline.subtle
 
   // Live region is polite ONLY while streaming, to announce "Agent is
   // thinking" on entry without re-announcing on every delta/toggle.

@@ -10,7 +10,6 @@ export const openCamera = async (): Promise<string | undefined> => {
   const { status } = await ImagePicker.requestCameraPermissionsAsync()
 
   if (status !== 'granted') {
-    console.warn('Camera permission denied')
     return undefined
   }
 

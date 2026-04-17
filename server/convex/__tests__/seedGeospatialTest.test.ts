@@ -5,8 +5,8 @@
  * AC-7: Seeded routes span at least 5 distinct US states
  */
 
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 describe('AC-3: 100 seed routes inserted with valid coordinates', () => {

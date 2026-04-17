@@ -125,7 +125,6 @@ const getElevationImpl = async (params: { polyline: LatLng[] }): Promise<Elevati
     const profile = computeProfile(sampled, elevationsM)
     return { status: 'ok', ...profile }
   } catch (_error) {
-    console.warn('getElevation: Open-Elevation API failed, returning unavailable')
     return { status: 'unavailable' }
   }
 }

@@ -121,7 +121,6 @@ export const useModelSetup = (): UseModelSetupResult => {
 
       gatekeeper.destroy()
     } catch (error) {
-      console.error('Error checking model status:', error)
       const errorMessage = error instanceof Error ? error.message : 'Failed to check model status'
       toast.error(errorMessage, 'Setup Error')
       setStatus('required')
@@ -147,7 +146,6 @@ export const useModelSetup = (): UseModelSetupResult => {
 
       setStatus('downloading')
     } catch (error) {
-      console.error('Error restoring model:', error)
       const errorMessage = error instanceof Error ? error.message : 'Failed to restore model'
       toast.error(errorMessage, 'Restore Failed')
       throw error
@@ -171,7 +169,6 @@ export const useModelSetup = (): UseModelSetupResult => {
           setStatus('valid')
         })
         .catch((error) => {
-          console.error('Error during download:', error)
           const errorMessage = error instanceof Error ? error.message : 'Download failed'
           toast.error(errorMessage, 'Download Error')
           setStatus('corrupted')
@@ -188,7 +185,6 @@ export const useModelSetup = (): UseModelSetupResult => {
         }
       }, 1000)
     } catch (error) {
-      console.error('Error starting download:', error)
       const errorMessage = error instanceof Error ? error.message : 'Failed to start download'
       toast.error(errorMessage, 'Download Error')
       setStatus('corrupted')
@@ -206,7 +202,6 @@ export const useModelSetup = (): UseModelSetupResult => {
       setCanResumeDownload(false)
       setStatus('required')
     } catch (error) {
-      console.error('Error cancelling download:', error)
       const errorMessage = error instanceof Error ? error.message : 'Failed to cancel download'
       toast.error(errorMessage, 'Cancel Error')
       throw error
@@ -222,7 +217,6 @@ export const useModelSetup = (): UseModelSetupResult => {
 
       setStatus('ready')
     } catch (error) {
-      console.error('Error marking setup complete:', error)
       const errorMessage = error instanceof Error ? error.message : 'Failed to complete setup'
       toast.error(errorMessage, 'Setup Error')
       throw error

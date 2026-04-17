@@ -5,7 +5,7 @@
  * unit-tested without a running Convex backend.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { Id } from '../_generated/dataModel'
 import {
   deleteCuratedRoutesByRouteIdsHandler,

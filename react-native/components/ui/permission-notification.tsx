@@ -57,7 +57,6 @@ export const PermissionNotification = ({
         <View pointerEvents="box-none">
           <Pressable
             onPress={(e) => {
-              console.log('Permission notification action pressed')
               // Stop event propagation to prevent notification dismissal
               e?.stopPropagation?.()
               onActionPress()
@@ -70,8 +69,8 @@ export const PermissionNotification = ({
               styles.actionButton,
               {
                 backgroundColor: pressed
-                  ? semantic.color.onPrimary.default + '30'
-                  : semantic.color.onPrimary.default + '20',
+                  ? `${semantic.color.onPrimary.default}30`
+                  : `${semantic.color.onPrimary.default}20`,
                 borderRadius: semantic.radius.md,
                 padding: semantic.space.sm,
                 marginTop: semantic.space.xs,
@@ -99,7 +98,6 @@ export const PermissionNotification = ({
     return (
       <TouchableWithoutFeedback
         onPress={() => {
-          console.log('Notification body tapped - preventing dismissal')
           // Do nothing to prevent dismissal
         }}
       >

@@ -279,7 +279,7 @@ export const invalidateStaleEnrichmentsHandler = async (
 
 // When calling functions defined in the same module, route through a local reference
 // to avoid Convex/TS circular inference issues.
-const internalRouteEnrichments = (internal as any).db.routeEnrichments
+const _internalRouteEnrichments = (internal as any).db.routeEnrichments
 
 export const createEnrichment = internalMutation({
   args: {

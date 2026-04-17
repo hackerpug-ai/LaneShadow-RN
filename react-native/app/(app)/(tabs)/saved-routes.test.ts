@@ -19,8 +19,8 @@
 
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { SavedRouteListItemView } from '../../../types/routes'
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { SavedRouteListItemView } from '../../../../server/types/routes'
 import SavedRoutesScreen, {
   formatDistance,
   formatDuration,

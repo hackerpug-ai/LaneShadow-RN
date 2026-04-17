@@ -17,7 +17,7 @@
  * Following react-rules.md: named export, no unnecessary useCallback/useMemo.
  */
 
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AccessibilityInfo, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import Animated, {
   useAnimatedStyle,
@@ -26,9 +26,9 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated'
-import type { Id } from '../../../convex/_generated/dataModel'
+import type { Id } from '../../../../server/convex/_generated/dataModel'
+import type { ThinkingStep } from '../../../../server/models/session-messages'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import type { ThinkingStep } from '../../../models/session-messages'
 import { BottomSheetWrapper } from '../../sheets/bottom-sheet-wrapper'
 import type { IconName } from '../../ui/icon-symbol'
 import { IconSymbol } from '../../ui/icon-symbol'
@@ -175,7 +175,7 @@ const StepRow = ({ step, isFirst, isLast, baseTimestamp, semantic }: StepRowProp
 
   const iconColor = getIconColor()
   const mutedColor = semantic.color.onSurface.muted ?? semantic.color.onSurface.default
-  const dividerColor = mutedColor + '33'
+  const dividerColor = `${mutedColor}33`
 
   // Accessibility label
   const accessibilityLabel = `${step.type === 'thinking' ? 'Thought' : step.type === 'tool_start' ? 'Tool start' : 'Tool finish'}: ${step.summary}${step.toolName ? `, using ${step.toolName}` : ''}`
@@ -280,7 +280,7 @@ export const ThinkingCard = ({ message }: ThinkingCardProps) => {
 
   const chipSummary = getChipSummary()
   const truncatedSummary =
-    chipSummary.length > 120 ? chipSummary.slice(0, 117) + '...' : chipSummary
+    chipSummary.length > 120 ? `${chipSummary.slice(0, 117)}...` : chipSummary
 
   const handleToggle = () => {
     if (!canExpand) return
@@ -300,8 +300,8 @@ export const ThinkingCard = ({ message }: ThinkingCardProps) => {
   // Color computations
   const mutedColor = semantic.color.onSurface.muted ?? semantic.color.onSurface.default
   const surfaceColor = semantic.color.surfaceVariant.default
-  const streamingOverlay = semantic.color.primary.default + '14'
-  const rippleColor = mutedColor + '14'
+  const streamingOverlay = `${semantic.color.primary.default}14`
+  const rippleColor = `${mutedColor}14`
 
   // Live region is polite ONLY while streaming
   const liveRegion: 'polite' | 'none' = isStreaming ? 'polite' : 'none'

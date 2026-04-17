@@ -3,7 +3,7 @@
  * Tests organization membership webhooks with role data
  */
 
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 
 // Configuration
 const WEBHOOK_URL = 'https://enchanted-bobcat-288.convex.site/webhooks/workos'
@@ -27,9 +27,6 @@ async function sendWebhook(eventType: string, payload: any) {
   const body = JSON.stringify(payload)
   const signature = generateWorkOSSignature(body, WEBHOOK_SECRET)
 
-  console.log(`\n🧪 Testing: ${eventType}`)
-  console.log(`📋 Payload:`, JSON.stringify(payload.data, null, 2))
-
   try {
     const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
@@ -41,15 +38,10 @@ async function sendWebhook(eventType: string, payload: any) {
     })
 
     if (response.ok) {
-      console.log(`   ✅ SUCCESS (${response.status})`)
     } else {
-      const errorText = await response.text()
-      console.log(`   ❌ FAILED (${response.status} ${response.statusText})`)
-      console.log(`   Error: ${errorText}`)
+      const _errorText = await response.text()
     }
-  } catch (error: any) {
-    console.log(`   ❌ ERROR: ${error.message}`)
-  }
+  } catch (_error: any) {}
 }
 
 /**
@@ -275,22 +267,6 @@ const organizationDeleted = {
  * Run role change tests
  */
 async function runRoleTests() {
-  console.log('🚀 Starting WorkOS Role Change Webhook Tests')
-  console.log('Webhook URL:', WEBHOOK_URL)
-  console.log('='.repeat(80))
-
-  console.log('\n📝 Test Flow:')
-  console.log('1. Create organization')
-  console.log('2. Create user')
-  console.log('3. Create membership with "spectator" role')
-  console.log('4. Update membership to "lead-teacher" role')
-  console.log('5. Update membership to "assistant-teacher" role')
-  console.log('6. Test alternative roles array format')
-  console.log('7. Update membership to "lead-teacher" role (HYPHEN)')
-  console.log('8. Update membership to "assistant-teacher" role (HYPHEN)')
-  console.log('9. Cleanup (delete membership, user, org)')
-  console.log('='.repeat(80))
-
   // 1. Create organization
   await sendWebhook('organization.created', organizationCreated)
   await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -299,40 +275,24 @@ async function runRoleTests() {
   await sendWebhook('user.created', userCreated)
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  // 3. Create membership with initial role
-  console.log('\n🎯 Creating membership with SPECTATOR role...')
   await sendWebhook('organization_membership.created', membershipCreatedWithRole)
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  // 4. Update role to lead_teacher
-  console.log('\n🎯 Changing role to LEAD_TEACHER...')
   await sendWebhook('organization_membership.updated', membershipUpdatedToLeadTeacher)
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  // 5. Update role to assistant_teacher
-  console.log('\n🎯 Changing role to ASSISTANT_TEACHER...')
   await sendWebhook('organization_membership.updated', membershipUpdatedToAssistantTeacher)
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  // 6. Test roles array format
-  console.log('\n🎯 Testing alternative roles array format (LEAD_TEACHER)...')
   await sendWebhook('organization_membership.updated', membershipUpdatedWithRolesArray)
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  // 7. Test hyphenated format (lead-teacher)
-  console.log('\n🎯 Testing HYPHENATED format: "lead-teacher" (should map to lead_teacher)...')
   await sendWebhook('organization_membership.updated', membershipUpdatedWithHyphenatedRole)
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  // 8. Test hyphenated assistant-teacher
-  console.log(
-    '\n🎯 Testing HYPHENATED format: "assistant-teacher" (should map to assistant_teacher)...',
-  )
   await sendWebhook('organization_membership.updated', membershipUpdatedWithHyphenatedAssistant)
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  // 9. Cleanup
-  console.log('\n🧹 Cleanup...')
   await sendWebhook('organization_membership.deleted', membershipDeleted)
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
@@ -340,22 +300,6 @@ async function runRoleTests() {
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
   await sendWebhook('organization.deleted', organizationDeleted)
-
-  console.log('\n' + '='.repeat(80))
-  console.log('✅ All role change webhook tests completed!')
-  console.log('\n📊 Expected Results:')
-  console.log('   - Initial assignment with spectator role')
-  console.log('   - Assignment updated to lead-teacher role')
-  console.log('   - Assignment updated to assistant-teacher role')
-  console.log('   - Assignment updated to lead-teacher role (roles array format)')
-  console.log('   - Assignment updated to lead-teacher role (hyphenated: lead-teacher)')
-  console.log('   - Assignment updated to assistant-teacher role (hyphenated: assistant-teacher)')
-  console.log('   - All assignments removed on cleanup')
-  console.log('\n💡 Check Convex logs for:')
-  console.log('   - 📋 Raw membership data (shows role/roles fields)')
-  console.log('   - 📋 Mapped membership (shows extracted roleSlug)')
-  console.log('   - 🔄 Role: [role name] (shows mapped internal role)')
-  console.log('   - Assignment created/updated messages')
 }
 
 // Run tests

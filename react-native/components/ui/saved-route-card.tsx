@@ -10,7 +10,6 @@ import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { RouteThumbnail } from './route-thumbnail'
 import type { SavedRouteCardProps } from './saved-route-card.types'
-import { formatDate } from './saved-route-card.utils'
 
 /**
  * SavedRouteCard component for saved routes list

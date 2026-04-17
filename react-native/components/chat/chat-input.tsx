@@ -157,7 +157,7 @@ export const ChatInput = ({
 
       return () => clearTimeout(timer)
     }
-  }, [state.phase, dispatch])
+  }, [state.phase, dispatch, state])
 
   const handleSend = useCallback(() => {
     // Block sending if planning is in progress

@@ -1,8 +1,8 @@
 import { useAuth } from '@clerk/clerk-expo'
 import { useQuery } from 'convex/react'
 import { Redirect } from 'expo-router'
-import { useEffect, useRef, useState } from 'react'
-import { api } from '../convex/_generated/api'
+import { useEffect, useState } from 'react'
+import { api } from '../../server/convex/_generated/api'
 
 const Index = () => {
   const { isLoaded: clerkLoaded, isSignedIn } = useAuth()
@@ -23,14 +23,6 @@ const Index = () => {
   // - If Clerk is loaded but user is not signed in, go to auth (tabs will handle this)
   // - If Clerk is loaded and user is signed in, wait for sessions then redirect
   useEffect(() => {
-    console.info('[Index] Navigation state', {
-      clerkLoaded,
-      isSignedIn,
-      isLoading,
-      sessionsCount: sessions?.length ?? 0,
-      redirectTarget,
-    })
-
     // Skip if already set redirect
     if (redirectTarget !== null) {
       return
@@ -38,20 +30,17 @@ const Index = () => {
 
     // If Clerk not loaded yet, wait
     if (!clerkLoaded) {
-      console.info('[Index] Waiting for Clerk to load')
       return
     }
 
     // If user is not signed in, go to tabs (auth screen will show)
     if (!isSignedIn) {
-      console.info('[Index] User not signed in, navigating to tabs for auth')
       setRedirectTarget('/(app)/(tabs)')
       return
     }
 
     // If sessions are still loading, wait
     if (isLoading) {
-      console.info('[Index] Sessions loading, waiting...')
       return
     }
 
@@ -59,12 +48,8 @@ const Index = () => {
     // Otherwise, navigate to tabs without sessionId (empty state)
     if (sessions && sessions.length > 0) {
       const mostRecent = sessions[0]
-      console.info('[Index] Redirecting to most recent session', {
-        sessionId: mostRecent._id,
-      })
       setRedirectTarget(`/(app)/(tabs)?sessionId=${mostRecent._id}`)
     } else {
-      console.info('[Index] No sessions found, navigating to tabs without session')
       setRedirectTarget('/(app)/(tabs)')
     }
   }, [clerkLoaded, isSignedIn, isLoading, sessions, redirectTarget])

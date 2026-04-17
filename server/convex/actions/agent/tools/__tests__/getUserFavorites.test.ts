@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { type GetUserFavoritesArgs, getUserFavorites, type UserFavorite } from '../getUserFavorites'
+import { getUserFavorites, type UserFavorite } from '../getUserFavorites'
 
 // Bay Area bounding box used across tests
 const BAY_AREA_BBOX = {

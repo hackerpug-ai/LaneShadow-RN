@@ -73,7 +73,7 @@ const buildSummary = (segments: WeatherSegment[]): string => {
     parts.push('Fog expected along part of the route')
   }
 
-  return parts.join('. ') + '.'
+  return `${parts.join('. ')}.`
 }
 
 const getRouteWeatherImpl = async ({

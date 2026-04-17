@@ -31,7 +31,7 @@ const PRESETS: { key: DateRangePreset; label: string; daysBack?: number }[] = [
 
 function getDateRange(preset: DateRangePreset): DateRange {
   const found = PRESETS.find((p) => p.key === preset)
-  if (!found || !found.daysBack) {
+  if (!found?.daysBack) {
     return { afterDate: undefined, beforeDate: undefined }
   }
   const afterDate = Date.now() - found.daysBack * 24 * 60 * 60 * 1000

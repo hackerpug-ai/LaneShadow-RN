@@ -48,7 +48,6 @@
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { VectorTile } from '@mapbox/vector-tile'
-import { S2CellId, S2LatLng } from 'nodes2ts'
 import Pbf from 'pbf'
 import { PMTiles } from 'pmtiles'
 import { ProtomapsError } from '../../../lib/errors/protomaps'
@@ -64,7 +63,7 @@ const LAYERS = {
 
 // S2 level for tile calculations (z14 tiles ≈ 1km resolution)
 const TILE_ZOOM = 14
-const S2_LEVEL = 10
+const _S2_LEVEL = 10
 
 interface BoundingBox {
   south: number
@@ -158,7 +157,7 @@ function extractFeaturesFromTile(
   tileZoom: number,
   filter?: (feature: any) => boolean,
 ): TileFeature[] {
-  if (!tileData || !tileData.data || tileData.data.byteLength === 0) return []
+  if (!tileData?.data || tileData.data.byteLength === 0) return []
 
   // Decode the raw protobuf MVT bytes
   const tile = new VectorTile(new Pbf(tileData.data))
@@ -212,7 +211,6 @@ export async function getProtomapsPresignedUrl(): Promise<string> {
       const command = new GetObjectCommand({ Bucket: r2Bucket, Key: key })
       const presignedUrl = await getSignedUrl(client, command, { expiresIn: 3600 })
 
-      console.info(`[Protomaps] Generated presigned R2 URL for ${key}`)
       return presignedUrl
     } catch (error) {
       // Record the failure with monitoring
@@ -239,11 +237,6 @@ export async function getProtomapsPresignedUrl(): Promise<string> {
           error,
         )
       }
-
-      // In development, fall back to sample data
-      console.warn(
-        `[Protomaps] R2 presigned URL generation failed, falling back to sample data: ${errorMessage}`,
-      )
     }
   }
 
@@ -271,11 +264,8 @@ export function getProtomapsUrl(): string {
 
       // Check if it's a .pmtiles file
       if (!url.endsWith('.pmtiles')) {
-        console.warn(`[Protomaps] PROTOMAPS_US_URL does not point to a .pmtiles file: ${url}`)
       }
-    } catch {
-      console.warn(`[Protomaps] Invalid PROTOMAPS_US_URL format: ${url}`)
-    }
+    } catch {}
 
     return url
   }
@@ -307,8 +297,6 @@ export function createProtomapsProvider(pmtilesUrl: string) {
 
     // Warm up the connection
     await pmtiles.getHeader()
-
-    console.log(`[Protomaps] Connected to ${currentUrl.substring(0, 80)}...`)
   }
 
   /**

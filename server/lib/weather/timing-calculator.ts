@@ -5,7 +5,7 @@
  * All functions are timezone-aware and use 12-hour time format.
  */
 
-import type { RainOverlay, RouteLeg } from '../../models/saved-routes'
+import type { RainOverlay, RouteLeg } from '../../../server/models/saved-routes'
 
 /**
  * Result type for rain timing calculation

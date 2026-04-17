@@ -113,9 +113,6 @@ export const TemperatureBadge = ({
 
     // Unknown type (new backend value) - warn in dev, show fallback
     if (__DEV__) {
-      console.warn(
-        `⚠️ Unmapped temperature level: "${level}" - add to LABELS in temperature-badge.tsx`,
-      )
     }
 
     // Graceful fallback: CAPS_CASE with underscores converted to spaces

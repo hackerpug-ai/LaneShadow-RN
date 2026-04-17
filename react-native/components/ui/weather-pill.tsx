@@ -37,7 +37,7 @@ export const WeatherPill = ({
   const theme = useTheme<ExtendedTheme>()
   const { semantic } = theme
 
-  const bgColor = backgroundColor || semantic.color.warning.default + '26' // Add 15% alpha
+  const bgColor = backgroundColor || `${semantic.color.warning.default}26` // Add 15% alpha
   const color = textColor || semantic.color.warning.default
 
   return (

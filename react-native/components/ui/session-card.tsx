@@ -57,14 +57,14 @@ export const SessionCard: React.FC<SessionCardProps> = ({
     }
   }
 
-  const Container = onPress || onLongPress ? Pressable : View
+  const _Container = onPress || onLongPress ? Pressable : View
   const renderContent = (pressed: boolean): React.ReactNode => (
     <View
       style={[
         styles.card,
         {
           backgroundColor: isActive
-            ? semantic.color.primary.default + '15'
+            ? `${semantic.color.primary.default}15`
             : semantic.color.surfaceVariant.default,
           borderColor: isActive ? semantic.color.primary.default : semantic.color.border.default,
           opacity: pressed && !isActive ? 0.8 : 1,
@@ -101,9 +101,9 @@ export const SessionCard: React.FC<SessionCardProps> = ({
             {
               backgroundColor:
                 status === 'active'
-                  ? semantic.color.primary.default + '25'
+                  ? `${semantic.color.primary.default}25`
                   : status === 'completed'
-                    ? semantic.color.success.default + '25'
+                    ? `${semantic.color.success.default}25`
                     : semantic.color.surfaceVariant.pressed,
             },
           ]}
@@ -159,7 +159,7 @@ export const SessionCard: React.FC<SessionCardProps> = ({
         styles.card,
         {
           backgroundColor: isActive
-            ? semantic.color.primary.default + '15'
+            ? `${semantic.color.primary.default}15`
             : semantic.color.surfaceVariant.default,
           borderColor: isActive ? semantic.color.primary.default : semantic.color.border.default,
           opacity: pressed && !isActive ? 0.8 : 1,
@@ -177,7 +177,7 @@ export const SessionCard: React.FC<SessionCardProps> = ({
         styles.card,
         {
           backgroundColor: isActive
-            ? semantic.color.primary.default + '15'
+            ? `${semantic.color.primary.default}15`
             : semantic.color.surfaceVariant.default,
           borderColor: isActive ? semantic.color.primary.default : semantic.color.border.default,
         },

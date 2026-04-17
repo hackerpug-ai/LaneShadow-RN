@@ -1,7 +1,7 @@
 'use node'
 
 import { v } from 'convex/values'
-import { clerkClient } from '../../../lib/clerk-backend'
+import { clerkClient } from '../../lib/clerk-backend'
 import { internal } from '../_generated/api'
 import type { Id } from '../_generated/dataModel'
 import { action } from '../_generated/server'

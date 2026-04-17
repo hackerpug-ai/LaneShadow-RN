@@ -81,11 +81,8 @@ if (protomapsUrl) {
 
     // Warn if not a .pmtiles URL
     if (!protomapsUrl.endsWith('.pmtiles') && !protomapsUrl.includes('.pmtiles?')) {
-      console.warn(
-        `Warning: PROTOMAPS_US_URL does not appear to be a .pmtiles URL: ${protomapsUrl}`,
-      )
     }
-  } catch (e) {
+  } catch (_e) {
     throw new Error(`Invalid PROTOMAPS_US_URL: ${protomapsUrl} is not a valid URL`)
   }
 }

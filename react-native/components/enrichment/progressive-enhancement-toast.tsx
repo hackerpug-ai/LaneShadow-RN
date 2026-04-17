@@ -120,8 +120,8 @@ export const ProgressiveEnhancementToast = ({
       style={[
         styles.toast,
         {
-          backgroundColor: semantic.color.card.default + 'CC', // 80% opacity
-          borderColor: semantic.color.primary.default + '4D', // 30% opacity
+          backgroundColor: `${semantic.color.card.default}CC`, // 80% opacity
+          borderColor: `${semantic.color.primary.default}4D`, // 30% opacity
           borderRadius: semantic.radius.lg,
           padding: semantic.space.lg,
           ...semantic.elevation[3],

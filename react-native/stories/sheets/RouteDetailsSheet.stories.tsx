@@ -6,7 +6,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { View, StyleSheet } from 'react-native'
 import { RouteDetailsSheet } from '../../components/sheets/route-details-sheet'
-import type { PlannedRouteOptionView } from '../../types/routes'
+import type { PlannedRouteOptionView } from '../../../server/types/routes'
 
 // Mock route data
 const mockRoute: PlannedRouteOptionView = {

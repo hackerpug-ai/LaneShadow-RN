@@ -1,4 +1,3 @@
-import { ConvexError } from 'convex/values'
 import { describe, expect, it, vi } from 'vitest'
 
 // Note: Testing environment variables is tricky because modules cache their values at load time.
@@ -13,7 +12,6 @@ const validateProtomapsUrl = (url: string | undefined): string | undefined => {
 
     // Warn if not a .pmtiles URL
     if (!url.endsWith('.pmtiles') && !url.includes('.pmtiles?')) {
-      console.warn(`Warning: PROTOMAPS_US_URL does not appear to be a .pmtiles URL: ${url}`)
     }
     return url
   } catch {

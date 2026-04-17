@@ -25,7 +25,7 @@ import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { BottomSheetWrapper } from '../sheets/bottom-sheet-wrapper'
 import { Button } from '../ui/button'
-import { type IconName, IconSymbol } from '../ui/icon-symbol'
+import { IconSymbol } from '../ui/icon-symbol'
 import { IntentSummaryPill } from './intent-summary-pill'
 
 /**
@@ -77,7 +77,7 @@ export const IntentSearchSheet = ({
   const { semantic } = useSemanticTheme()
 
   const isSearching = searchState.status === 'searching'
-  const isDisabled = isSearching
+  const _isDisabled = isSearching
 
   return (
     <BottomSheetWrapper

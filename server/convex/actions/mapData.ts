@@ -18,7 +18,7 @@ import {
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { v } from 'convex/values'
-import { action, internalAction } from '../_generated/server'
+import { internalAction } from '../_generated/server'
 
 // ---------------------------------------------------------------------------
 // R2 Client
@@ -55,11 +55,11 @@ function getBucket(): string {
 
 const PMTILES_KEY = 'map-data/us-canada.pmtiles'
 const PRESIGNED_URL_EXPIRY_SECONDS = 3600 // 1 hour
-const PROTOMAPS_BUILD_BASE = 'https://build.protomaps.com'
+const _PROTOMAPS_BUILD_BASE = 'https://build.protomaps.com'
 
 // US + Canada bounding box: all 50 states + all Canadian provinces/territories
-const US_CANADA_BBOX = '-170,24,-52,72'
-const MAX_ZOOM = 14
+const _US_CANADA_BBOX = '-170,24,-52,72'
+const _MAX_ZOOM = 14
 
 // ---------------------------------------------------------------------------
 // Health Check
@@ -121,9 +121,6 @@ export const getPresignedUrl = internalAction({
       expiresIn: PRESIGNED_URL_EXPIRY_SECONDS,
     })
 
-    console.log(
-      `[mapData] Generated presigned URL for ${PMTILES_KEY} (expires in ${PRESIGNED_URL_EXPIRY_SECONDS}s)`,
-    )
     return url
   },
 })
@@ -202,7 +199,6 @@ export const checkFreshness = internalAction({
       const ageDays = Math.floor(ageMs / (1000 * 60 * 60 * 24))
 
       if (ageDays > 30) {
-        console.warn(`[mapData] PMTiles file is ${ageDays} days old — consider updating`)
         return {
           status: 'stale',
           ageInDays: ageDays,
@@ -210,7 +206,6 @@ export const checkFreshness = internalAction({
         }
       }
 
-      console.log(`[mapData] PMTiles file is ${ageDays} days old — fresh`)
       return {
         status: 'fresh',
         ageInDays: ageDays,
@@ -218,7 +213,6 @@ export const checkFreshness = internalAction({
       }
     } catch (error: any) {
       if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
-        console.warn('[mapData] No PMTiles file found on R2')
         return {
           status: 'missing',
           message: 'No PMTiles file found on R2. Run: npx tsx scripts/sync-protomaps-r2.ts',
@@ -255,16 +249,6 @@ export async function checkFreshnessWithAlertLogic(
 
   // Emit error log for stale or missing data
   if (result.status === 'stale' || result.status === 'missing') {
-    console.error(
-      '[LOG]',
-      JSON.stringify({
-        timestamp: new Date().toISOString(),
-        level: 'error',
-        category: 'protomaps.error',
-        message: 'Map data is stale or missing',
-        data: result,
-      }),
-    )
   }
 
   return result
@@ -359,10 +343,6 @@ export const uploadChunk = internalAction({
         Body: buffer,
         ContentType: 'application/octet-stream',
       }),
-    )
-
-    console.log(
-      `[mapData] Uploaded chunk ${args.partNumber}/${args.totalParts} for ${args.key} (${buffer.length} bytes)`,
     )
 
     return { uploaded: true }

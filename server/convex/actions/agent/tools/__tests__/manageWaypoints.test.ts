@@ -1,7 +1,6 @@
 // Set env variables before imports
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
-  type AddWaypointResult,
   addWaypoint,
   applyWaypointDecisions,
   isAddWaypointError,
@@ -9,7 +8,6 @@ import {
   listWaypoints,
   optimizeWaypointOrder,
   presentDeviationOptions,
-  type WaypointApprovalResult,
 } from '../manageWaypoints'
 
 process.env.GOOGLE_MAPS_API_KEY = 'test-api-key'
@@ -18,7 +16,7 @@ process.env.CLERK_WEBHOOK_SECRET = 'test-secret'
 ;('use node')
 
 // Mock Id type for tests
-type Id<T> = string
+type Id<_T> = string
 
 const mockRoutePlanId: Id<'route_plans'> = 'mock-route-plan-id'
 const mockWaypointId: Id<'waypoints'> = 'mock-waypoint-id'

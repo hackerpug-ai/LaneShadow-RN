@@ -339,7 +339,6 @@ export const cleanupOldEmptySessionsHandler = async (
   }
 
   if (deletedCount > 0) {
-    console.log(`[cleanup] Cleaned up ${deletedCount} empty planning session(s) older than 1 hour`)
   }
 
   return { deletedCount }

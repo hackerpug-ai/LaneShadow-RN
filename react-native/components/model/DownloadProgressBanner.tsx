@@ -11,7 +11,6 @@ import type React from 'react'
 import { useEffect, useState } from 'react'
 import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { IconButton, Text } from 'react-native-paper'
-import { formatBytes } from './formatters'
 
 interface DownloadProgressBannerProps {
   progress: number // 0-100

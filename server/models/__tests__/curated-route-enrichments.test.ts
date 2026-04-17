@@ -1,4 +1,3 @@
-import { v } from 'convex/values'
 import { describe, expect, it } from 'vitest'
 
 // AC-2: enrichmentValidator handles nested photo/source objects

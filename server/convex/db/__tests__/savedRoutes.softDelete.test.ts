@@ -6,7 +6,7 @@
  */
 
 import { ConvexError } from 'convex/values'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import type { Id } from '../../_generated/dataModel'
 import { buildSoftDeletePatch, buildUndoPatch, shouldExcludeFromList } from '../savedRoutes'

@@ -68,7 +68,6 @@ export const Skeleton = ({
         return semantic.radius.full
       case 'rectangle':
         return semantic.radius.none
-      case 'rounded':
       default:
         return semantic.radius.md
     }

@@ -14,8 +14,8 @@
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import type { PlannedRouteOptionView } from '../../../server/types/routes'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { PlannedRouteOptionView } from '../../types/routes'
 import { SubpageLayout } from '../layouts/subpage-layout'
 import { Button } from '../ui/button'
 import { IconSymbol } from '../ui/icon-symbol'
@@ -68,7 +68,7 @@ export const RouteComparisonView = ({
   testID,
 }: RouteComparisonViewProps) => {
   const { semantic } = useSemanticTheme()
-  const insets = useSafeAreaInsets()
+  const _insets = useSafeAreaInsets()
 
   if (isLoading) {
     return (
@@ -144,7 +144,7 @@ export const RouteComparisonView = ({
                     styles.routeCard,
                     {
                       backgroundColor: isSelected
-                        ? semantic.color.primary.default + '14' // Add 8% alpha
+                        ? `${semantic.color.primary.default}14` // Add 8% alpha
                         : semantic.color.card.default,
                       borderColor: isSelected ? semantic.color.primary.default : 'transparent',
                       borderWidth: isSelected ? 2 : 0,
@@ -159,7 +159,7 @@ export const RouteComparisonView = ({
                           styles.routeBadge,
                           {
                             backgroundColor: isSelected
-                              ? semantic.color.primary.default + '26' // Add 15% alpha
+                              ? `${semantic.color.primary.default}26` // Add 15% alpha
                               : semantic.color.divider.default,
                           },
                         ]}

@@ -5,7 +5,7 @@
  * Run this in Storybook or add to a test screen to see the widget in action.
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import type { OverlayType } from './minimal-overlay-widget'
 import { MinimalOverlayWidget } from './minimal-overlay-widget'

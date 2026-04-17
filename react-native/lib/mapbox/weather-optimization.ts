@@ -11,22 +11,22 @@
  */
 
 import type { FeatureCollection, LineString, Position } from 'geojson'
+import {
+  computeCumulativeDistances,
+  decodePolylineGeometry,
+  type MapLatLng,
+  slicePolylineByMeters,
+} from '../../../server/lib/polyline'
 import type {
   RainOverlayByLeg,
   RouteLeg,
   RouteOverlays,
   TemperatureOverlayByLeg,
   WindOverlayByLeg,
-} from '../../models/saved-routes'
+} from '../../../server/models/saved-routes'
 import type { ExtendedTheme } from '../../styles/types'
 import { getRainColor, getTemperatureColor, getWindColor } from '../map/overlay-colors'
 import { convertCoordinateArray } from '../mapbox/coordinate-converter'
-import {
-  computeCumulativeDistances,
-  decodePolylineGeometry,
-  type MapLatLng,
-  slicePolylineByMeters,
-} from '../polyline'
 
 // ---------------------------------------------------------------------------
 // Types

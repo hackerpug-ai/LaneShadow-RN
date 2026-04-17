@@ -52,7 +52,7 @@ export function createWebSearchProvider(): WebSearchProvider {
       Accept: 'application/json',
     }
     if (apiKey) {
-      headers['Authorization'] = `Bearer ${apiKey}`
+      headers.Authorization = `Bearer ${apiKey}`
     }
 
     try {
@@ -60,7 +60,6 @@ export function createWebSearchProvider(): WebSearchProvider {
         async (signal) => {
           const response = await fetch(url, { headers, signal })
           if (!response.ok) {
-            console.warn(`webSearchProvider: Jina search returned HTTP ${response.status}`)
             return null
           }
           return (await response.json()) as JinaResponse
@@ -79,8 +78,7 @@ export function createWebSearchProvider(): WebSearchProvider {
           .slice(0, SNIPPET_MAX_CHARS),
         url: item.url ?? '',
       }))
-    } catch (error) {
-      console.warn('webSearchProvider.search: Jina search failed', error)
+    } catch (_error) {
       return []
     }
   }

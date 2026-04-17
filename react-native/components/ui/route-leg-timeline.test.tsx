@@ -12,9 +12,8 @@
 import { render } from '@testing-library/react-native'
 import { MD3DarkTheme, PaperProvider } from 'react-native-paper'
 import { describe, expect, it, vi } from 'vitest'
-import type { PlanInput, RouteLeg, RouteOverlays } from '../../models/saved-routes'
+import type { PlanInput, RouteLeg, RouteOverlays } from '../../../server/models/saved-routes'
 import type { ExtendedTheme } from '../../styles/types'
-import type { RouteLegTimelineProps } from './route-leg-timeline'
 import { RouteLegTimeline } from './route-leg-timeline'
 
 // ---------------------------------------------------------------------------

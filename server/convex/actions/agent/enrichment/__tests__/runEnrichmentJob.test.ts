@@ -8,12 +8,12 @@ process.env.CLERK_WEBHOOK_SECRET = 'test-secret'
 ;('use node')
 
 // Mock Id type for tests
-type Id<T> = string
+type Id<_T> = string
 
 const CLERK_USER_ID = 'user_test_123'
 const ENRICHMENT_ID = 'route_enrichments_id_abc' as Id<'route_enrichments'>
 const ROUTE_PLAN_ID = 'route_plans_id_xyz' as Id<'route_plans'>
-const PLANNING_SESSION_ID = 'planning_sessions_id_123' as Id<'planning_sessions'>
+const _PLANNING_SESSION_ID = 'planning_sessions_id_123' as Id<'planning_sessions'>
 
 describe('runEnrichmentJob', () => {
   beforeEach(() => {
@@ -88,7 +88,7 @@ describe('runEnrichmentJob', () => {
 
       const updateStatusCalls: any[] = []
       const completeEnrichmentCalls: any[] = []
-      const mergeEnrichmentCalls: any[] = []
+      const _mergeEnrichmentCalls: any[] = []
 
       // Mock ctx.runQuery
       const mockRunQuery = vi.fn((func, args) => {

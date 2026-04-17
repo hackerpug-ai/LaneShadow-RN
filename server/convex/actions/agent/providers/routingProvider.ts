@@ -183,11 +183,7 @@ export const resolveViaWaypoints = (
   if (viaNames.length === 0) return []
 
   if (viaNames.length > MAX_VIA_WAYPOINTS_PER_SEGMENT) {
-    const excess = viaNames.slice(MAX_VIA_WAYPOINTS_PER_SEGMENT)
-    console.warn(
-      `[resolveViaWaypoints] Segment has ${viaNames.length} viaNames; max is ${MAX_VIA_WAYPOINTS_PER_SEGMENT}. ` +
-        `Skipping excess: ${excess.join(', ')}`,
-    )
+    const _excess = viaNames.slice(MAX_VIA_WAYPOINTS_PER_SEGMENT)
   }
 
   const capped = viaNames.slice(0, MAX_VIA_WAYPOINTS_PER_SEGMENT)
@@ -199,9 +195,6 @@ export const resolveViaWaypoints = (
         a.name.trim().toLowerCase() === normalised && a.lat !== undefined && a.lng !== undefined,
     )
     if (!anchor) {
-      console.warn(
-        `[resolveViaWaypoints] Could not resolve viaName "${name}" to an anchorPoint with coordinates — skipping.`,
-      )
       return acc
     }
     acc.push({ lat: anchor.lat as number, lng: anchor.lng as number })
@@ -297,7 +290,7 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
     if (!routes.length) {
       throw new Error('Google Routes response missing routes')
     }
-    console.info(`[routingProvider] Google returned ${routes.length} alternative routes`)
+
     return routes.map(parseGoogleRoute)
   },
 
@@ -310,10 +303,7 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
       if (anchor?.lat !== undefined && anchor?.lng !== undefined) {
         return { lat: anchor.lat, lng: anchor.lng }
       }
-      // Auto-geocode missing anchor points with location bias
-      console.info(
-        `[routeSegment] Geocoding missing anchor: "${name}"${locationBias ? ` (bias: ${locationBias.lat.toFixed(2)},${locationBias.lng.toFixed(2)})` : ''}`,
-      )
+
       const geocoder = createGeocodingProvider()
       const results = await geocoder.geocode(name, locationBias)
       if (results.length === 0) {
@@ -352,9 +342,7 @@ const createGoogleProvider = (apiKey: string): RoutingProvider => ({
           intermediates.push({
             location: { latLng: { latitude: coords.lat, longitude: coords.lng } },
           })
-        } catch {
-          console.warn(`[routeSegment] Skipping via "${via}" — geocode failed`)
-        }
+        } catch {}
       }
     }
 

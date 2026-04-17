@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import type { TemperatureOverlay } from '../../models/saved-routes'
+import type { TemperatureOverlay } from '../../../server/models/saved-routes'
 import {
   calculateTempRange,
   formatTempRange,

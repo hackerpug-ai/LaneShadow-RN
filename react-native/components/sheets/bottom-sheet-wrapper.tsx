@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
-import { ScrollView, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { BottomActionSheet } from '../ui/bottom-action-sheet'
 import { SheetHandle } from './sheet-handle'

@@ -5,23 +5,18 @@ export const clerkTokenCache: TokenCache = {
   async getToken(key: string): Promise<string | null> {
     try {
       return await SecureStore.getItemAsync(key)
-    } catch (error) {
-      console.error('❌ Error retrieving token from SecureStore:', error)
+    } catch (_error) {
       return null
     }
   },
   async saveToken(key: string, value: string): Promise<void> {
     try {
       await SecureStore.setItemAsync(key, value)
-    } catch (error) {
-      console.error('❌ Error saving token to SecureStore:', error)
-    }
+    } catch (_error) {}
   },
   async clearToken(key: string): Promise<void> {
     try {
       await SecureStore.deleteItemAsync(key)
-    } catch (error) {
-      console.error('❌ Error clearing token from SecureStore:', error)
-    }
+    } catch (_error) {}
   },
 }

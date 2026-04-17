@@ -4,7 +4,7 @@
  * These tests exercise the dashboard metrics aggregation behavior.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { Id } from '../_generated/dataModel'
 
 // ---------------------------------------------------------------------------

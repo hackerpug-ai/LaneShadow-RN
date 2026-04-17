@@ -1,6 +1,6 @@
 import * as Location from 'expo-location'
 import { useEffect, useState } from 'react'
-import type { RouteStop } from '../types/routes'
+import type { RouteStop } from '../../server/types/routes'
 
 type CurrentLocationState = {
   location: RouteStop | null

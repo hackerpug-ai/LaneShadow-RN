@@ -31,7 +31,7 @@ export const Banner = ({ visible, message, icon, actions, testID }: BannerProps)
       style={[
         styles.banner,
         {
-          backgroundColor: semantic.color.warning.default + '33', // 20% opacity
+          backgroundColor: `${semantic.color.warning.default}33`, // 20% opacity
         },
       ]}
       contentStyle={[

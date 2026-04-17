@@ -12,7 +12,7 @@
 
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import SavedRoutesScreen from '../saved-routes'
 
 const mockPush = vi.fn()

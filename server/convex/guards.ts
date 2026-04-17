@@ -76,8 +76,7 @@ export const requireSession = async (ctx: Ctx, devBypassKey?: string): Promise<S
       throw new Error('SESSION_REQUIRED')
     }
     return response
-  } catch (error) {
-    console.error(error)
+  } catch (_error) {
     throw new Error('SESSION_REQUIRED')
   }
 }

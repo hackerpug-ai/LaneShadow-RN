@@ -42,7 +42,7 @@ type PlanRouteSuccessSummary = {
 }
 
 function summarizePlanRoute(result: Record<string, unknown>): unknown {
-  const resultType = result['type']
+  const resultType = result.type
 
   // Pass-through shapes that are already small
   if (resultType === 'error' || resultType === 'chat') {
@@ -51,15 +51,15 @@ function summarizePlanRoute(result: Record<string, unknown>): unknown {
 
   // Success: { type: 'routes', data: { planId, options: [...] }, routePlanId }
   if (resultType === 'routes') {
-    const data = result['data']
-    const routePlanId = result['routePlanId']
+    const data = result.data
+    const routePlanId = result.routePlanId
 
     if (!isObject(data)) {
       // Unexpected shape — pass through unchanged
       return result
     }
 
-    const options = data['options']
+    const options = data.options
     if (!Array.isArray(options)) {
       return result
     }
@@ -70,14 +70,12 @@ function summarizePlanRoute(result: Record<string, unknown>): unknown {
       }
 
       // label may be on the option directly
-      const label = typeof option['label'] === 'string' ? option['label'] : `Route ${index + 1}`
+      const label = typeof option.label === 'string' ? option.label : `Route ${index + 1}`
 
       // stats.distanceMeters / stats.durationSeconds
-      const stats = isObject(option['stats']) ? option['stats'] : {}
-      const distanceMeters =
-        typeof stats['distanceMeters'] === 'number' ? stats['distanceMeters'] : 0
-      const durationSeconds =
-        typeof stats['durationSeconds'] === 'number' ? stats['durationSeconds'] : 0
+      const stats = isObject(option.stats) ? option.stats : {}
+      const distanceMeters = typeof stats.distanceMeters === 'number' ? stats.distanceMeters : 0
+      const durationSeconds = typeof stats.durationSeconds === 'number' ? stats.durationSeconds : 0
 
       const distanceMi = roundInt(distanceMeters / 1609)
       const durationMin = roundInt(durationSeconds / 60)
@@ -85,7 +83,7 @@ function summarizePlanRoute(result: Record<string, unknown>): unknown {
       const entry: RouteSummaryEntry = { index, label, distanceMi, durationMin }
 
       // Include highlights if present (optional enrichment field)
-      const highlights = option['highlights']
+      const highlights = option.highlights
       if (Array.isArray(highlights) && highlights.length > 0) {
         entry.highlights = highlights as string[]
       }
@@ -102,7 +100,7 @@ function summarizePlanRoute(result: Record<string, unknown>): unknown {
     // Preserve any partial-route user-facing message embedded in data
     // (e.g. "I routed most of the trip but couldn't find a path for Bad Road").
     const dataMessage =
-      isObject(data) && typeof data['message'] === 'string' ? data['message'] : undefined
+      isObject(data) && typeof data.message === 'string' ? data.message : undefined
     if (dataMessage) {
       summarized.message = dataMessage
     }

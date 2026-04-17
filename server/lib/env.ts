@@ -29,7 +29,4 @@ export const env = {
  * Type-safe environment validator
  * Call this at app startup to ensure all required env vars are present
  */
-export const validateEnv = () => {
-  // Validation happens at module load time above
-  console.log('✅ Environment variables validated')
-}
+export const validateEnv = () => {}

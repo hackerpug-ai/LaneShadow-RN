@@ -11,7 +11,6 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useDownloadStore } from '../../stores/download-store'
 
 /**
  * Model manifest entry
@@ -127,15 +126,10 @@ export class ModelManifestService {
           timestamp: Date.now(),
         }),
       )
-
-      console.log('[ModelManifestService] Manifest fetched successfully')
       return manifest
     } catch (error) {
-      console.error('[ModelManifestService] Failed to fetch manifest:', error)
-
       // Return cached manifest if available
       if (this.cachedManifest) {
-        console.log('[ModelManifestService] Using cached manifest')
         return this.cachedManifest
       }
 
@@ -156,8 +150,7 @@ export class ModelManifestService {
       }
 
       return JSON.parse(data)
-    } catch (error) {
-      console.error('[ModelManifestService] Failed to get local metadata:', error)
+    } catch (_error) {
       return null
     }
   }
@@ -169,9 +162,7 @@ export class ModelManifestService {
     try {
       const key = `model-metadata-${metadata.id}`
       await AsyncStorage.setItem(key, JSON.stringify(metadata))
-      console.log('[ModelManifestService] Local metadata saved')
     } catch (error) {
-      console.error('[ModelManifestService] Failed to save local metadata:', error)
       throw error
     }
   }
@@ -204,8 +195,6 @@ export class ModelManifestService {
       const remoteModel = manifest.models.find((m) => m.id === modelId)
 
       if (!remoteModel) {
-        // Model removed from manifest
-        console.warn('[ModelManifestService] Model not found in remote manifest')
         return {
           hasUpdate: false,
           currentVersion: localMetadata.version,
@@ -229,7 +218,6 @@ export class ModelManifestService {
         currentVersion: localMetadata.version,
       }
     } catch (error) {
-      console.error('[ModelManifestService] Failed to check for updates:', error)
       throw error
     }
   }
@@ -272,8 +260,7 @@ export class ModelManifestService {
       }
 
       return result.valid
-    } catch (error) {
-      console.error('[ModelManifestService] Checksum validation failed:', error)
+    } catch (_error) {
       return false
     }
   }
@@ -285,10 +272,7 @@ export class ModelManifestService {
     try {
       await AsyncStorage.removeItem(MANIFEST_CACHE_KEY)
       this.cachedManifest = null
-      console.log('[ModelManifestService] Manifest cache cleared')
-    } catch (error) {
-      console.error('[ModelManifestService] Failed to clear cache:', error)
-    }
+    } catch (_error) {}
   }
 
   /**
@@ -320,8 +304,7 @@ export class ModelManifestService {
       if (currMinor > minMinor) return true
       if (currMinor < minMinor) return false
       return currPatch >= minPatch
-    } catch (error) {
-      console.error('[ModelManifestService] Failed to check min app version:', error)
+    } catch (_error) {
       return false
     }
   }
@@ -335,7 +318,6 @@ export class ModelManifestService {
     if (localMetadata) {
       // Save current model metadata for rollback
       await AsyncStorage.setItem(`model-backup-${modelId}`, JSON.stringify(localMetadata))
-      console.log('[ModelManifestService] Update backup prepared')
     }
   }
 
@@ -344,7 +326,6 @@ export class ModelManifestService {
    */
   async commitUpdate(modelId: string): Promise<void> {
     await AsyncStorage.removeItem(`model-backup-${modelId}`)
-    console.log('[ModelManifestService] Update committed')
   }
 
   /**
@@ -356,7 +337,6 @@ export class ModelManifestService {
       const backupData = await AsyncStorage.getItem(backupKey)
 
       if (!backupData) {
-        console.warn('[ModelManifestService] No backup found for rollback')
         return null
       }
 
@@ -367,11 +347,8 @@ export class ModelManifestService {
 
       // Remove backup
       await AsyncStorage.removeItem(backupKey)
-
-      console.log('[ModelManifestService] Update rolled back to version:', backup.version)
       return backup
-    } catch (error) {
-      console.error('[ModelManifestService] Rollback failed:', error)
+    } catch (_error) {
       return null
     }
   }

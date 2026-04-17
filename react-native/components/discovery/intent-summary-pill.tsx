@@ -46,10 +46,10 @@ export const IntentSummaryPill = ({
       style={[
         styles.pill,
         {
-          backgroundColor: semantic.color.primary.default + '1A', // 10% opacity
+          backgroundColor: `${semantic.color.primary.default}1A`, // 10% opacity
           borderRadius: semantic.radius.full,
           borderWidth: 1,
-          borderColor: semantic.color.primary.default + '4D', // 30% opacity
+          borderColor: `${semantic.color.primary.default}4D`, // 30% opacity
         },
       ]}
       testID={testID}
@@ -83,7 +83,7 @@ export const IntentSummaryPill = ({
         style={[
           styles.dismissButton,
           {
-            backgroundColor: semantic.color.primary.default + '33', // 20% opacity
+            backgroundColor: `${semantic.color.primary.default}33`, // 20% opacity
             borderRadius: semantic.radius.full,
           },
         ]}

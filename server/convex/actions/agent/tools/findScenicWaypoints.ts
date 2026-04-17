@@ -6,7 +6,7 @@ import { traceableToolAsync } from '../lib/tracing'
 // Constants
 // ---------------------------------------------------------------------------
 
-const MAX_WAYPOINTS_PER_VARIANT = 4
+const _MAX_WAYPOINTS_PER_VARIANT = 4
 
 // ---------------------------------------------------------------------------
 // Output types

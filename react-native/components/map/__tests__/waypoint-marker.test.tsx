@@ -6,7 +6,7 @@
  * - AC-2: Press fires haptic feedback and onPress callback with waypoint id
  */
 
-import { fireEvent, render } from '@testing-library/react-native'
+import { render } from '@testing-library/react-native'
 import { ThemeProvider } from 'react-native-paper'
 import { describe, expect, it, vi } from 'vitest'
 import type { ExtendedTheme } from '../../../styles/types'

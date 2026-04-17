@@ -2,7 +2,6 @@
 
 import {
   type Context,
-  getModel,
   type Message,
   type Tool,
   type ToolCall,

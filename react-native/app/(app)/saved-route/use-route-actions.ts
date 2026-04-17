@@ -6,7 +6,7 @@
 import { useRouter } from 'expo-router'
 import { useCallback, useRef, useState } from 'react'
 import { Notifier } from 'react-native-notifier'
-import type { Id } from '../../../convex/_generated/dataModel'
+import type { Id } from '../../../../server/convex/_generated/dataModel'
 import {
   useRenameRoute,
   useSoftDeleteRoute,

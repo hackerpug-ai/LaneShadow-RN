@@ -2,10 +2,8 @@ import { ConvexError, v } from 'convex/values'
 import {
   FREE_TIER_MONTHLY_LIMIT,
   isValidMonth,
-  type PlanUsage,
   type UsageCheckResult,
 } from '../../models/plan-usage'
-import type { Doc, Id } from '../_generated/dataModel'
 import type { MutationCtx, QueryCtx } from '../_generated/server'
 import { internalMutation, internalQuery } from '../_generated/server'
 import { ERROR_CODES } from '../errors'

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { View, StyleSheet } from 'react-native'
 import { PlanRideSheet } from '../../components/sheets/plan-ride-sheet'
-import type { RouteStop } from '../../types/routes'
+import type { RouteStop } from '../../../server/types/routes'
 
 // Mock RouteStop data
 const mockStartStop: RouteStop = {

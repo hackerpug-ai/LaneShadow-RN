@@ -9,7 +9,6 @@
 
 import { useCallback, useMemo } from 'react'
 import { buildRoutePolylines } from '../components/map/route-polyline'
-import type { PlannedRouteOptionsView } from '../types/routes'
 import type { RideFlowState } from './use-ride-flow'
 import { useSemanticTheme } from './use-semantic-theme'
 

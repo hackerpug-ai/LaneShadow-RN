@@ -114,15 +114,11 @@ const fetchPlaces = async (
 ): Promise<PlaceResult[]> => {
   // Validate API key presence
   if (!apiKey) {
-    console.error('fetchPlaces: GOOGLE_MAPS_API_KEY is missing or empty')
     throw new Error('Places API key is missing')
   }
 
   // Build field mask based on whether routing is included
   const fieldMask = includeRouting ? `${BASE_FIELD_MASK},${ROUTING_FIELD_MASK}` : BASE_FIELD_MASK
-
-  console.log('fetchPlaces: Request body:', JSON.stringify(body, null, 2))
-  console.log('fetchPlaces: Field mask:', fieldMask)
 
   const response = await fetch(PLACES_ENDPOINT, {
     method: 'POST',
@@ -136,7 +132,7 @@ const fetchPlaces = async (
 
   if (!response.ok) {
     const errorText = await response.text()
-    console.error(`fetchPlaces: HTTP ${response.status} - ${errorText}`)
+
     throw new Error(`Places API returned HTTP ${response.status}: ${errorText}`)
   }
 
@@ -162,7 +158,6 @@ export function createPlacesProvider(): PlacesProvider {
   }) => {
     // Validate and sanitize query
     if (!query || query.trim().length === 0) {
-      console.warn('searchAlongRoute: Empty query provided')
       return []
     }
 
@@ -192,7 +187,6 @@ export function createPlacesProvider(): PlacesProvider {
   }) => {
     // Validate and sanitize query
     if (!query || query.trim().length === 0) {
-      console.warn('searchNearby: Empty query provided')
       return []
     }
 

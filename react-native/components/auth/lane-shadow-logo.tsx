@@ -1,4 +1,3 @@
-import React from 'react'
 import Svg, { Circle, Path } from 'react-native-svg'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 

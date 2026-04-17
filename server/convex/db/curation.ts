@@ -7,7 +7,7 @@
 
 // Import paginationOptsValidator from convex/server
 import { paginationOptsValidator } from 'convex/server'
-import { ConvexError, v } from 'convex/values'
+import { v } from 'convex/values'
 import type { Doc } from '../_generated/dataModel'
 import { internalQuery } from '../_generated/server'
 import { requireIdentity } from '../guards'

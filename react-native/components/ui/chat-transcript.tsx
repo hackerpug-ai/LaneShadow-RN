@@ -36,7 +36,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import React, { useEffect, useMemo, useRef } from 'react'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
-import type { Id } from '../../convex/_generated/dataModel'
+import type { Id } from '../../../server/convex/_generated/dataModel'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { CARD_REGISTRY, type CardAttachment, type CardKind } from '../chat/card-registry'
 import { TypingIndicator } from '../chat/typing-indicator'
@@ -253,7 +253,7 @@ const AgentMessage = ({ message, onRoutePress, transparent }: AgentMessageProps)
       style={[
         styles.agentMessageRow,
         transparent && {
-          backgroundColor: semantic.color.surface.default + 'D9', // ~85% opacity
+          backgroundColor: `${semantic.color.surface.default}D9`, // ~85% opacity
           borderRadius: semantic.radius.lg,
           paddingHorizontal: semantic.space.md,
           paddingVertical: semantic.space.sm,
@@ -315,33 +315,16 @@ interface CardRowProps {
 
 const CardRow = ({ message, onViewOnMap }: CardRowProps) => {
   const kind = message.kind as CardKind | undefined
-  console.info('[ChatTranscript] CardRow called:', {
-    kind,
-    messageId: message.id,
-    isText: kind === ('text' as CardKind),
-    hasKind: !!kind,
-  })
 
   if (!kind || kind === ('text' as CardKind)) {
-    console.info('[ChatTranscript] CardRow returning null (text or no kind)')
     return null
   }
 
   const CardComponent = CARD_REGISTRY[kind]
   // Defensive: if kind isn't in the registry, render nothing.
   if (!CardComponent) {
-    console.warn('[ChatTranscript] Unknown card kind:', kind)
     return null
   }
-
-  // Debug logging to see what's being rendered
-  console.info('[ChatTranscript] Rendering card:', {
-    kind,
-    messageId: message.id,
-    hasAttachments: !!message.attachments,
-    attachmentsCount: message.attachments?.length ?? 0,
-    attachments: message.attachments,
-  })
 
   // Shape attachments to match the CardProps contract.
   const attachments: CardAttachment[] = message.attachments ?? []

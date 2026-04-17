@@ -12,7 +12,7 @@ import { fireEvent, render } from '@testing-library/react-native'
 import { MD3DarkTheme, PaperProvider } from 'react-native-paper'
 import { describe, expect, it, vi } from 'vitest'
 import type { ExtendedTheme } from '../../styles/types'
-import type { OverlayAvailability, OverlayType } from './overlay-toggle'
+import type { OverlayAvailability } from './overlay-toggle'
 import { OverlayToggle } from './overlay-toggle'
 
 // Mock semantic theme for testing

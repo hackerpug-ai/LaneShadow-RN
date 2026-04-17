@@ -9,7 +9,6 @@
 
 import * as FileSystem from 'expo-file-system/legacy'
 import { useDownloadStore } from '../../stores/download-store'
-import { atomicWrite, verifyFile } from './atomic-write'
 import type { DownloadResult, ModelConfig, NetworkStatus } from './types'
 
 /**
@@ -117,7 +116,6 @@ export class PersistentDownloadManager {
         const fileInfo = await FileSystem.getInfoAsync(filePath)
         if (fileInfo.exists && existingProgress.progress.downloadedBytes > 0) {
           startByte = existingProgress.progress.downloadedBytes
-          console.log('[PersistentDownloadManager] Resuming download from byte:', startByte)
         }
       }
 
@@ -169,8 +167,6 @@ export class PersistentDownloadManager {
     config: ModelConfig,
     onProgress?: ProgressCallback,
   ): Promise<DownloadResult> {
-    console.log('[PersistentDownloadManager] Starting fresh download')
-
     try {
       // Create a DownloadResumable for progress tracking
       const downloadResumable = FileSystem.createDownloadResumable(
@@ -212,8 +208,6 @@ export class PersistentDownloadManager {
     config: ModelConfig,
     onProgress?: ProgressCallback,
   ): Promise<DownloadResult> {
-    console.log('[PersistentDownloadManager] Resuming download from byte:', startByte)
-
     try {
       // Create a DownloadResumable with Range header for resume
       const downloadResumable = FileSystem.createDownloadResumable(
@@ -282,7 +276,6 @@ export class PersistentDownloadManager {
    */
   markComplete(checksum: string, totalBytes: number): void {
     useDownloadStore.getState().completeDownload(checksum, totalBytes)
-    console.log('[PersistentDownloadManager] Download marked complete')
   }
 
   /**
@@ -292,7 +285,6 @@ export class PersistentDownloadManager {
    */
   resetProgress(): void {
     useDownloadStore.getState().resetDownload()
-    console.log('[PersistentDownloadManager] Download progress reset')
   }
 
   /**
@@ -305,8 +297,6 @@ export class PersistentDownloadManager {
 
       // Update store to cancelled state
       useDownloadStore.getState().cancelDownload()
-
-      console.log('[PersistentDownloadManager] Download cancelled')
     }
   }
 
@@ -326,9 +316,7 @@ export class PersistentDownloadManager {
       if (!dirInfo.exists) {
         await FileSystem.makeDirectoryAsync(this.downloadDirectory, { intermediates: true })
       }
-    } catch (error) {
-      console.error('[PersistentDownloadManager] Failed to create download directory:', error)
-    }
+    } catch (_error) {}
   }
 
   /**
@@ -345,8 +333,6 @@ export class PersistentDownloadManager {
   private async deleteFile(filePath: string): Promise<void> {
     try {
       await FileSystem.deleteAsync(filePath, { idempotent: true })
-    } catch (error) {
-      console.error('[PersistentDownloadManager] Failed to delete file:', error)
-    }
+    } catch (_error) {}
   }
 }

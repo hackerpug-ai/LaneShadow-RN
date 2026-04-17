@@ -20,7 +20,7 @@
  * Following react-rules.md: named export, no unnecessary useCallback/useMemo.
  */
 
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AccessibilityInfo, StyleSheet, Text, View } from 'react-native'
 import Animated, {
   useAnimatedStyle,
@@ -29,7 +29,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated'
-import type { Id } from '../../../convex/_generated/dataModel'
+import type { Id } from '../../../../server/convex/_generated/dataModel'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { IconSymbol } from '../../ui/icon-symbol'
 import type { CardAttachment } from '../card-registry'
@@ -126,12 +126,6 @@ const PulsingDot = ({ reduceMotion, color }: PulsingDotProps) => {
 // ---------------------------------------------------------------------------
 
 export const PlanningCard = ({ message }: PlanningCardProps) => {
-  console.info('[PlanningCard] Component mounting', {
-    messageId: message._id,
-    status: message.status,
-    contentLength: message.content?.length,
-  })
-
   const { semantic } = useSemanticTheme()
 
   const [reduceMotion, setReduceMotion] = useState(false)
@@ -142,11 +136,6 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
   const isFailed = status === 'failed'
 
   const content = parsePlanningContent(message.content)
-
-  console.info('[PlanningCard] Content parsed', {
-    statusLine: content.statusLine,
-    totalDurationMs: content.totalDurationMs,
-  })
 
   // ---------------------------------------------------------------------------
   // Accessibility: reduce-motion support
@@ -195,7 +184,7 @@ export const PlanningCard = ({ message }: PlanningCardProps) => {
 
   const mutedColor = semantic.color.onSurface.muted ?? semantic.color.onSurface.default
   const surfaceColor = semantic.color.surfaceVariant.default
-  const streamingOverlay = semantic.color.primary.default + '14'
+  const streamingOverlay = `${semantic.color.primary.default}14`
 
   // Icon selection
   const glyphName = isComplete

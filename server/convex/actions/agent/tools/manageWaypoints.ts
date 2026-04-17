@@ -1,17 +1,9 @@
 'use node'
 
-import {
-  type Context,
-  complete,
-  getModel,
-  type Tool,
-  type ToolCall,
-  Type,
-} from '@mariozechner/pi-ai'
+import { type Context, Type } from '@mariozechner/pi-ai'
 import type { RouteSnapshot } from '../../../../models/saved-routes'
-import { internal } from '../../../_generated/api'
+import { api, internal } from '../../../_generated/api'
 import type { Id } from '../../../_generated/dataModel'
-import { createRoutingProvider } from '../providers/routingProvider'
 import { calculateDeviation, type DeviationResult } from '../providers/waypointService'
 
 // ---------------------------------------------------------------------------
@@ -400,7 +392,7 @@ export async function addWaypointImpl(
     })
 
     // 4. Store waypoint with proper status workflow
-    const waypointId = await ctxAny.runMutation(internal.db.waypoints.createWaypoint, {
+    const waypointId = await ctxAny.runMutation(api.db.waypoints.createWaypoint, {
       routePlanId: args.routePlanId,
       kind: deviation.kind,
       location: coordinates,
@@ -421,7 +413,7 @@ export async function addWaypointImpl(
     })
 
     // Fetch the created waypoint to return full data
-    const waypoint = await ctxAny.runQuery(internal.db.waypoints.getWaypoint, { waypointId })
+    const waypoint = await ctxAny.runQuery(api.db.waypoints.getWaypoint, { waypointId })
 
     if (!waypoint) {
       return {
@@ -454,7 +446,7 @@ export async function listWaypointsImpl(
 ): Promise<ListWaypointsResult> {
   const ctxAny = ctx as any
   try {
-    const waypoints = await ctxAny.runQuery(internal.db.waypoints.listWaypointsByRoutePlan, {
+    const waypoints = await ctxAny.runQuery(api.db.waypoints.listWaypointsByRoutePlan, {
       routePlanId: args.routePlanId,
     })
 
@@ -479,7 +471,7 @@ export async function presentDeviationOptionsImpl(
 ): Promise<PresentDeviationResult> {
   const ctxAny = ctx as any
   try {
-    const waypoint = await ctxAny.runQuery(internal.db.waypoints.getWaypoint, {
+    const waypoint = await ctxAny.runQuery(api.db.waypoints.getWaypoint, {
       waypointId: args.waypointId,
     })
 
@@ -542,7 +534,7 @@ export async function applyWaypointDecisionsImpl(
 
     // 1. Update statuses for approved waypoints
     for (const waypointId of args.approvedWaypointIds) {
-      await ctxAny.runMutation(internal.db.waypoints.updateWaypoint, {
+      await ctxAny.runMutation(api.db.waypoints.updateWaypoint, {
         waypointId,
         status: 'approved',
       })
@@ -550,7 +542,7 @@ export async function applyWaypointDecisionsImpl(
 
     // 2. Update statuses for rejected waypoints
     for (const waypointId of args.rejectedWaypointIds) {
-      await ctxAny.runMutation(internal.db.waypoints.updateWaypoint, {
+      await ctxAny.runMutation(api.db.waypoints.updateWaypoint, {
         waypointId,
         status: 'rejected',
       })
@@ -558,7 +550,7 @@ export async function applyWaypointDecisionsImpl(
 
     // 3. Get approved waypoints sorted by order (if on-route)
     const approvedWaypoints = await ctxAny.runQuery(
-      internal.db.waypoints.listWaypointsByRoutePlanAndStatus,
+      api.db.waypoints.listWaypointsByRoutePlanAndStatus,
       {
         routePlanId: args.routePlanId,
         status: 'approved',

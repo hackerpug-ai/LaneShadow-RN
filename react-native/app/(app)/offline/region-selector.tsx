@@ -79,10 +79,10 @@ export default function RegionSelectorScreen() {
       const ne = { lat: parseFloat(params.neLat), lng: parseFloat(params.neLng) }
       // Guard against NaN from invalid URL params
       if (
-        !isFinite(sw.lat) ||
-        !isFinite(sw.lng) ||
-        !isFinite(ne.lat) ||
-        !isFinite(ne.lng) ||
+        !Number.isFinite(sw.lat) ||
+        !Number.isFinite(sw.lng) ||
+        !Number.isFinite(ne.lat) ||
+        !Number.isFinite(ne.lng) ||
         sw.lat >= ne.lat ||
         sw.lng >= ne.lng
       ) {
@@ -177,7 +177,7 @@ export default function RegionSelectorScreen() {
 
   // Guard against NaN — fall back to Denver area if bounds are corrupted
   const safeCameraCenter: [number, number] =
-    isFinite(cameraCenter[0]) && isFinite(cameraCenter[1])
+    Number.isFinite(cameraCenter[0]) && Number.isFinite(cameraCenter[1])
       ? cameraCenter
       : [FALLBACK_CENTER.lng, FALLBACK_CENTER.lat]
 

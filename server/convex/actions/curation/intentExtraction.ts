@@ -11,7 +11,6 @@
 import { v } from 'convex/values'
 
 import { action } from '../../_generated/server'
-import { requireIdentity } from '../../guards'
 
 // ---------------------------------------------------------------------------
 // Validators

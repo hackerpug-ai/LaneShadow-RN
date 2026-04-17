@@ -6,7 +6,7 @@ import type { Meta, StoryObj } from '@storybook/react-native'
 import React from 'react'
 import { View } from 'react-native'
 import { WeatherStrip, WeatherStripProps } from '../../components/planning/weather-strip'
-import type { RouteOverlays } from '../../models/saved-routes'
+import type { RouteOverlays } from '../../../server/models/saved-routes'
 
 const meta: Meta<typeof WeatherStrip> = {
   title: 'Components/WeatherStrip',

@@ -127,7 +127,7 @@ const PlaceResultRow = ({ result, index, isSelected, onPress }: PlaceResultRowPr
         styles.resultRow,
         {
           backgroundColor: isSelected
-            ? semantic.color.info.default + '1A'
+            ? `${semantic.color.info.default}1A`
             : pressed
               ? semantic.color.surfaceVariant.default
               : 'transparent',
@@ -144,7 +144,7 @@ const PlaceResultRow = ({ result, index, isSelected, onPress }: PlaceResultRowPr
           {
             backgroundColor: isSelected
               ? semantic.color.info.default
-              : semantic.color.info.default + '26',
+              : `${semantic.color.info.default}26`,
             width: 28,
             height: 28,
             borderRadius: 14,
@@ -288,11 +288,11 @@ export const LocationSearchCard = ({ message, attachments, onViewOnMap }: CardPr
         style={[
           styles.card,
           {
-            backgroundColor: semantic.color.danger.default + '1A',
+            backgroundColor: `${semantic.color.danger.default}1A`,
             borderRadius: semantic.radius.md,
             padding: semantic.space.md,
             borderWidth: 1,
-            borderColor: semantic.color.danger.default + '4D',
+            borderColor: `${semantic.color.danger.default}4D`,
           },
         ]}
         testID="location-search-card-failed"

@@ -1,5 +1,5 @@
 import polyline from '@mapbox/polyline'
-import type { PolylineGeometry } from '../models/saved-routes'
+import type { PolylineGeometry } from '../../server/models/saved-routes'
 
 export type LatLng = { lat: number; lng: number }
 export type MapLatLng = { latitude: number; longitude: number }

@@ -59,8 +59,6 @@ export class GatekeeperDownloadManager {
    * CLR-004: Implements full download with Zustand persistence
    */
   async startDownload(networkStatus?: NetworkStatus): Promise<void> {
-    console.log('[GatekeeperDownloadManager] Starting model download...')
-
     try {
       // Model configuration (should come from app config/env)
       const config = {
@@ -80,7 +78,6 @@ export class GatekeeperDownloadManager {
         config,
         actualNetworkStatus,
         (progress) => {
-          console.log('[GatekeeperDownloadManager] Download progress:', progress)
           // Progress is automatically persisted to Zustand store by PersistentDownloadManager
         },
       )
@@ -88,9 +85,6 @@ export class GatekeeperDownloadManager {
       if (!result.success) {
         throw new Error(result.error || 'Download failed')
       }
-
-      // Validate checksum after successful download
-      console.log('[GatekeeperDownloadManager] Download complete, validating checksum...')
       const expectedChecksum = '6eb923e7d26e9cea28811e1a8e852009b21242fb157b26149d3b188f3a8c8653'
       const checksumResult = await this.checksumValidator.validate(
         result.filePath!,
@@ -109,10 +103,7 @@ export class GatekeeperDownloadManager {
 
       // Mark download as complete in Zustand store
       this.persistentManager.markComplete(actualChecksum, result.downloadedBytes)
-
-      console.log('[GatekeeperDownloadManager] Download complete and validated')
     } catch (error) {
-      console.error('[GatekeeperDownloadManager] Download failed:', error)
       throw error
     }
   }
@@ -172,17 +163,12 @@ export class GatekeeperDownloadManager {
    * CLR-004: Resets progress in Zustand store
    */
   async cancelDownload(): Promise<void> {
-    console.log('[GatekeeperDownloadManager] Cancelling download...')
-
     try {
       this.persistentManager.cancelDownload()
 
       // Clean up partial file
       await FileSystem.deleteAsync(this.modelFilePath, { idempotent: true })
-
-      console.log('[GatekeeperDownloadManager] Download cancelled and cleaned up')
     } catch (error) {
-      console.error('[GatekeeperDownloadManager] Failed to cancel download:', error)
       throw error
     }
   }

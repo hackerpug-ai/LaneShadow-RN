@@ -446,7 +446,7 @@ describe('invalidateStaleEnrichmentsHandler', () => {
   it('AC-4: does not cancel enrichments for other planning sessions', async () => {
     const oldRoutePlanId = 'route_plans_old' as Id<'route_plans'>
     const otherSessionId = 'other_session' as Id<'planning_sessions'>
-    const staleEnrichment = makeEnrichmentDoc({
+    const _staleEnrichment = makeEnrichmentDoc({
       routePlanId: oldRoutePlanId,
       planningSessionId: otherSessionId,
       status: 'running' as const,

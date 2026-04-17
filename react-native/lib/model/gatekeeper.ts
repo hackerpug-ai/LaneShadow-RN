@@ -82,12 +82,6 @@ export class ModelGatekeeper {
     }
     this.checksumValidator = checksumValidator
     this.setupCompleteKey = this.config.storageKey!
-
-    // Log initialization
-    console.log('[ModelGatekeeper] Initialized with config:', {
-      modelPath: modelFilePath,
-      expectedChecksum: expectedChecksum.substring(0, 8) + '...',
-    })
   }
 
   /**
@@ -106,17 +100,12 @@ export class ModelGatekeeper {
     const checkedAt = Date.now()
 
     try {
-      console.log('[ModelGatekeeper] Checking model status...')
-
       // Step 1: Check if model file exists
       const fileInfo = await FileSystem.getInfoAsync(this.config.modelFilePath)
       const modelExists = fileInfo.exists
 
-      console.log('[ModelGatekeeper] Model file exists:', modelExists)
-
       // AC-001: If model is missing, route to setup wizard
       if (!modelExists) {
-        console.log('[ModelGatekeeper] Model missing - routing to setup wizard')
         return {
           modelExists: false,
           modelValid: false,
@@ -125,18 +114,10 @@ export class ModelGatekeeper {
           checkedAt,
         }
       }
-
-      // AC-002: Validate file integrity with checksum
-      console.log('[ModelGatekeeper] Model exists - validating checksum...')
       const checksumResult = await this.checksumValidator.validate(
         this.config.modelFilePath,
         this.config.expectedChecksum,
       )
-
-      console.log('[ModelGatekeeper] Checksum validation result:', {
-        valid: checksumResult.valid,
-        hasError: !!checksumResult.error,
-      })
 
       // AC-002: Mark model as corrupted if checksum differs
       // Note: ChecksumValidator returns empty string for files >50MB (bypass),
@@ -144,7 +125,6 @@ export class ModelGatekeeper {
       const checksumBypassed = checksumResult.actualChecksum === '' && !checksumResult.error
       if (!checksumResult.valid && !checksumBypassed) {
         const errorMessage = checksumResult.error || 'Model file checksum validation failed'
-        console.log('[ModelGatekeeper] Model corrupted - routing to restore screen')
 
         return {
           modelExists: true,
@@ -155,9 +135,6 @@ export class ModelGatekeeper {
           checkedAt,
         }
       }
-
-      // Model is valid - user can proceed
-      console.log('[ModelGatekeeper] Model valid - app unlocked')
       return {
         modelExists: true,
         modelValid: true,
@@ -168,7 +145,6 @@ export class ModelGatekeeper {
     } catch (error) {
       // Handle errors gracefully
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      console.error('[ModelGatekeeper] Error checking model status:', errorMessage)
 
       return {
         modelExists: false,
@@ -189,18 +165,13 @@ export class ModelGatekeeper {
    */
   async deleteCorruptedModel(): Promise<void> {
     try {
-      console.log('[ModelGatekeeper] Deleting corrupted model...')
-
       await FileSystem.deleteAsync(this.config.modelFilePath, {
         idempotent: true, // Don't error if file doesn't exist
       })
 
-      console.log('[ModelGatekeeper] Corrupted model deleted successfully')
-
       // Also clear setup complete flag since model is gone
       await this.clearSetupCompleteFlag()
     } catch (error) {
-      console.error('[ModelGatekeeper] Error deleting corrupted model:', error)
       throw error
     }
   }
@@ -213,11 +184,8 @@ export class ModelGatekeeper {
    */
   async markSetupComplete(): Promise<void> {
     try {
-      console.log('[ModelGatekeeper] Marking setup as complete...')
       await AsyncStorage.setItem(this.setupCompleteKey, 'true')
-      console.log('[ModelGatekeeper] Setup complete flag saved')
     } catch (error) {
-      console.error('[ModelGatekeeper] Error marking setup complete:', error)
       throw error
     }
   }
@@ -232,8 +200,7 @@ export class ModelGatekeeper {
     try {
       const value = await AsyncStorage.getItem(this.setupCompleteKey)
       return value === 'true'
-    } catch (error) {
-      console.error('[ModelGatekeeper] Error checking setup complete flag:', error)
+    } catch (_error) {
       return false
     }
   }
@@ -245,11 +212,8 @@ export class ModelGatekeeper {
    */
   async clearSetupCompleteFlag(): Promise<void> {
     try {
-      console.log('[ModelGatekeeper] Clearing setup complete flag...')
       await AsyncStorage.removeItem(this.setupCompleteKey)
-      console.log('[ModelGatekeeper] Setup complete flag cleared')
     } catch (error) {
-      console.error('[ModelGatekeeper] Error clearing setup complete flag:', error)
       throw error
     }
   }
@@ -264,24 +228,11 @@ export class ModelGatekeeper {
    * @returns Whether navigation should be allowed
    */
   async validateNavigation(targetRoute: string): Promise<boolean> {
-    console.log('[ModelGatekeeper] Navigation attempt:', {
-      targetRoute,
-      timestamp: Date.now(),
-    })
-
     const status = await this.checkModelStatus()
 
     if (!status.canProceed) {
-      console.log('[ModelGatekeeper] Navigation blocked - model not ready', {
-        targetRoute,
-        reason: status.requiredAction,
-      })
       return false
     }
-
-    console.log('[ModelGatekeeper] Navigation allowed - model validated', {
-      targetRoute,
-    })
     return true
   }
 
@@ -291,7 +242,6 @@ export class ModelGatekeeper {
    * Called when gatekeeper is no longer needed.
    */
   destroy(): void {
-    console.log('[ModelGatekeeper] Destroying gatekeeper instance')
     // No resources to clean up currently
     // This method exists for future extensibility
   }

@@ -53,7 +53,7 @@ export const MapControls = ({
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
 
-  const offsets = {
+  const _offsets = {
     top: position?.top ?? insets.top + semantic.space['2xl'],
     right: position?.right ?? semantic.space.lg,
     bottom: position?.bottom,

@@ -79,9 +79,7 @@ export class BackgroundDownloadService {
       await this.checkForIncompleteDownloads()
 
       this.isInitialized = true
-      console.log('[BackgroundDownloadService] Initialized successfully')
     } catch (error) {
-      console.error('[BackgroundDownloadService] Initialization failed:', error)
       throw error
     }
   }
@@ -93,11 +91,8 @@ export class BackgroundDownloadService {
     TaskManager.defineTask(BACKGROUND_DOWNLOAD_TASK, async ({ data, error }) => {
       try {
         if (error) {
-          console.error('[BackgroundDownloadService] Task error:', error)
           return
         }
-
-        console.log('[BackgroundDownloadService] Background task executed')
 
         // Check if there's an active download
         const state = useDownloadStore.getState()
@@ -118,13 +113,10 @@ export class BackgroundDownloadService {
         }
 
         return { success: true }
-      } catch (error) {
-        console.error('[BackgroundDownloadService] Background task failed:', error)
+      } catch (_error) {
         return { success: false }
       }
     })
-
-    console.log('[BackgroundDownloadService] Background task registered')
   }
 
   /**
@@ -138,8 +130,6 @@ export class BackgroundDownloadService {
       lightColor: '#B87333', // Copper
       sound: 'default',
     })
-
-    console.log('[BackgroundDownloadService] Notification channel configured')
   }
 
   /**
@@ -158,7 +148,6 @@ export class BackgroundDownloadService {
 
     // Add notification response listener
     Notifications.addNotificationResponseReceivedListener((response) => {
-      console.log('[BackgroundDownloadService] Notification tapped:', response)
       // Handle navigation to download screen
       // This will be implemented by the UI layer
     })
@@ -176,8 +165,6 @@ export class BackgroundDownloadService {
    */
   private handleAppStateChange = async (nextAppState: AppStateStatus): Promise<void> => {
     const state = useDownloadStore.getState()
-
-    console.log('[BackgroundDownloadService] App state changed to:', nextAppState)
 
     if (nextAppState === 'background' && state.state === 'downloading') {
       // Register background task when app goes to background
@@ -203,25 +190,18 @@ export class BackgroundDownloadService {
           state.bytesDownloaded,
           state.totalBytes,
         )
-
-        console.log('[BackgroundDownloadService] Background task registered on app background')
-      } catch (error) {
-        console.error('[BackgroundDownloadService] Failed to register background task:', error)
-      }
+      } catch (_error) {}
     } else if (nextAppState === 'active') {
       // Unregister background task when app comes to foreground
       try {
         const isRegistered = await TaskManager.isTaskRegisteredAsync(BACKGROUND_DOWNLOAD_TASK)
         if (isRegistered) {
           await TaskManager.unregisterTaskAsync(BACKGROUND_DOWNLOAD_TASK)
-          console.log('[BackgroundDownloadService] Background task unregistered on app foreground')
         }
 
         // Dismiss progress notification
         await Notifications.dismissAllNotificationsAsync()
-      } catch (error) {
-        console.error('[BackgroundDownloadService] Failed to unregister background task:', error)
-      }
+      } catch (_error) {}
     }
   }
 
@@ -232,12 +212,6 @@ export class BackgroundDownloadService {
     const state = useDownloadStore.getState()
 
     if (state.state === 'downloading' && state.progressPercent < 100) {
-      console.log(
-        '[BackgroundDownloadService] Found incomplete download at',
-        state.progressPercent,
-        '%',
-      )
-
       // Show notification to user about incomplete download
       await this.showResumeNotification(state.progressPercent)
     }
@@ -258,8 +232,8 @@ export class BackgroundDownloadService {
 
     this.lastNotificationProgress = progress
 
-    const downloadedMB = Math.round(downloadedBytes / (1024 * 1024))
-    const totalMB = Math.round(totalBytes / (1024 * 1024))
+    const _downloadedMB = Math.round(downloadedBytes / (1024 * 1024))
+    const _totalMB = Math.round(totalBytes / (1024 * 1024))
     const percent = Math.floor(progress)
 
     await Notifications.scheduleNotificationAsync({
@@ -278,8 +252,6 @@ export class BackgroundDownloadService {
       trigger: null, // Show immediately
       identifier: 'model-download-progress',
     })
-
-    console.log('[BackgroundDownloadService] Progress notification updated:', percent, '%')
   }
 
   /**
@@ -299,8 +271,6 @@ export class BackgroundDownloadService {
       trigger: null,
       identifier: 'model-download-complete',
     })
-
-    console.log('[BackgroundDownloadService] Completion notification shown')
   }
 
   /**
@@ -321,8 +291,6 @@ export class BackgroundDownloadService {
       trigger: null,
       identifier: 'model-download-resume',
     })
-
-    console.log('[BackgroundDownloadService] Resume notification shown')
   }
 
   /**
@@ -372,7 +340,6 @@ export class BackgroundDownloadService {
       // Show completion notification
       await this.showCompletionNotification()
     } catch (error) {
-      console.error('[BackgroundDownloadService] Download failed:', error)
       useDownloadStore
         .getState()
         .failDownload(error instanceof Error ? error.message : 'Unknown download error')
@@ -389,8 +356,6 @@ export class BackgroundDownloadService {
 
     // Dismiss notifications
     await Notifications.dismissAllNotificationsAsync()
-
-    console.log('[BackgroundDownloadService] Download cancelled')
   }
 
   /**

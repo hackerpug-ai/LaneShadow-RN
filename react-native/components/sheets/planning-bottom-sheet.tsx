@@ -104,7 +104,7 @@ const StreamingThinking = ({ text }: StreamingThinkingProps) => {
         {
           backgroundColor: semantic.color.surfaceVariant.default,
           borderRadius: semantic.radius.md,
-          borderColor: semantic.color.primary.default + '30',
+          borderColor: `${semantic.color.primary.default}30`,
           borderWidth: 1,
         },
       ]}

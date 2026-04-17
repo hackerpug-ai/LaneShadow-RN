@@ -11,7 +11,6 @@
  * - Timeout: Asks to retry
  */
 
-import React from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'

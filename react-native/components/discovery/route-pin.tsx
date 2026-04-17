@@ -20,9 +20,8 @@
  */
 
 import { useState } from 'react'
-import type { StyleProp, ViewStyle } from 'react-native'
 import { Animated, Pressable, StyleSheet, View } from 'react-native'
-import MapView, { Marker } from 'react-native-maps'
+import { Marker } from 'react-native-maps'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { IconSymbol } from '../ui/icon-symbol'
@@ -89,7 +88,7 @@ export function RoutePin({
   testID = 'route-pin',
 }: RoutePinProps) {
   const { semantic } = useSemanticTheme()
-  const [pressed, setPressed] = useState(false)
+  const [_pressed, setPressed] = useState(false)
 
   // Animated scale value for press feedback
   const scaleAnim = useState(new Animated.Value(1))[0]

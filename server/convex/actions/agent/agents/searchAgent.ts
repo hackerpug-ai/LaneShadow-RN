@@ -1,6 +1,6 @@
 'use node'
 
-import { getModel, type Tool, type ToolCall, validateToolCall } from '@mariozechner/pi-ai'
+import { type Tool, type ToolCall, validateToolCall } from '@mariozechner/pi-ai'
 import { getAgentModel } from '../lib/models'
 import { AgentToolSchemas } from '../lib/piTools'
 import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
@@ -175,8 +175,6 @@ export async function executeSearchAgent(config: SubAgentConfig): Promise<Search
       const errorDetails = failedTools
         .map((ft) => `${ft.toolName}: ${(ft.result as any).reason ?? 'unknown error'}`)
         .join('; ')
-
-      console.warn(`[executeSearchAgent] ${failedTools.length} tool(s) failed: ${errorDetails}`)
 
       // Still return 'answered' if we have a response, but include error context
       if (result.response) {

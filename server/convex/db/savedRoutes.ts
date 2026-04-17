@@ -1,5 +1,4 @@
 import { ConvexError, v } from 'convex/values'
-import type { SavedRouteDetailView, SavedRoutesListView } from '../../../types/routes'
 import {
   OWNER_TYPE,
   planInputValidator,
@@ -13,6 +12,7 @@ import {
   snapshotMetaValidator,
   VISIBILITY,
 } from '../../models/saved-routes'
+import type { SavedRouteDetailView, SavedRoutesListView } from '../../types/routes'
 import { internal } from '../_generated/api'
 import type { Doc, Id } from '../_generated/dataModel'
 import { internalMutation, internalQuery, mutation, query } from '../_generated/server'

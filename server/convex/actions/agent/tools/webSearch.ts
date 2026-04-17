@@ -43,8 +43,7 @@ const webSearchImpl = async (params: WebSearchParams): Promise<WebSearchHit[]> =
     const provider = createWebSearchProvider()
     const results = await provider.search({ query: params.query, maxResults })
     return results
-  } catch (error) {
-    console.warn('webSearch: provider call failed', error)
+  } catch (_error) {
     return []
   }
 }

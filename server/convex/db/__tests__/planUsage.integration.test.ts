@@ -43,14 +43,14 @@ const createUsageCheckMock = (allowed: boolean, count: number) => {
 // ---------------------------------------------------------------------------
 
 describe('planUsage integration with createPlan', () => {
-  let originalCheckUsage: any
-  let originalIncrementUsage: any
+  let _originalCheckUsage: any
+  let _originalIncrementUsage: any
 
   beforeEach(async () => {
     // Import and store original functions
     const planUsageModule = await import('../planUsage')
-    originalCheckUsage = planUsageModule.checkUsage
-    originalIncrementUsage = planUsageModule.incrementUsage
+    _originalCheckUsage = planUsageModule.checkUsage
+    _originalIncrementUsage = planUsageModule.incrementUsage
   })
 
   afterEach(() => {

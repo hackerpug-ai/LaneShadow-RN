@@ -2,11 +2,11 @@ import { useAction, useQuery } from 'convex/react'
 import type { FunctionReturnType } from 'convex/server'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
-import { api } from '../convex/_generated/api'
+import { api } from '../../server/convex/_generated/api'
+import { logger } from '../../server/lib/logger/frontend-logger'
+import type { PlanInput } from '../../server/types/routes'
 import { getUserFacingError } from '../lib/convex-error'
-import { logger } from '../lib/logger/frontend-logger'
 import { showErrorNotification } from '../lib/notifier-helpers'
-import type { PlanInput } from '../types/routes'
 
 type PlanInitData = FunctionReturnType<typeof api.db.routesPlan.getPlanInit>
 type PlanRideResult = FunctionReturnType<typeof api.actions.agent.planRide.planRide>

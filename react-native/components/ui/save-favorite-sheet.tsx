@@ -15,9 +15,9 @@ import { useMutation } from 'convex/react'
 import { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { api } from '../../convex/_generated/api'
+import { api } from '../../../server/convex/_generated/api'
+import type { SavedRoute } from '../../../server/models/saved-routes'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { SavedRoute } from '../../models/saved-routes'
 import { BottomActionSheet } from './bottom-action-sheet'
 import { BottomSheetInput } from './bottom-sheet-input'
 import { Button } from './button'
@@ -89,7 +89,6 @@ export const SaveRouteSheet: React.FC<SaveRouteSheetProps> = ({
   const handleSave = async () => {
     // Validate name
     const trimmedName = name.trim()
-    console.log('[SaveRouteSheet] handleSave called', { trimmedName, routeData })
 
     if (!trimmedName) {
       setError('Please enter a name')
@@ -111,20 +110,10 @@ export const SaveRouteSheet: React.FC<SaveRouteSheetProps> = ({
 
     try {
       const payload = buildSaveRoutePayload(trimmedName, routeData)
-      console.log('[SaveRouteSheet] Calling saveRoute with:', {
-        name: payload.name,
-        planInput: payload.planInput,
-        hasRouteSnapshot: !!payload.routeSnapshot,
-        hasRouteIndex: !!payload.routeIndex,
-        snapshotMeta: payload.snapshotMeta,
-        hasRouteProvenance: !!payload.routeProvenance,
-      })
       await saveRoute(payload)
-      console.log('[SaveRouteSheet] saveRoute succeeded')
       onSuccess?.()
       onClose()
-    } catch (error) {
-      console.error('[SaveRouteSheet] saveRoute failed:', error)
+    } catch (_error) {
       setError('Failed to save route. Please try again.')
     } finally {
       setIsSaving(false)

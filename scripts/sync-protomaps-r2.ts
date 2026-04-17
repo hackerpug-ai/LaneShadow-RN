@@ -21,12 +21,12 @@
  *   4. Sets PROTOMAPS_US_URL in Convex
  */
 
+import { execSync } from 'node:child_process'
+import { existsSync, readFileSync, statSync, unlinkSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { execSync } from 'child_process'
 import * as dotenv from 'dotenv'
-import { existsSync, readFileSync, statSync, unlinkSync } from 'fs'
-import { resolve } from 'path'
 
 // Load .env.local
 dotenv.config({ path: resolve(process.cwd(), '.env.local') })
@@ -88,13 +88,8 @@ async function generatePresignedUrl(): Promise<string> {
 }
 
 async function main() {
-  console.log('🗺️  Protomaps R2 Sync')
-  console.log('====================\n')
-
   // Check prerequisites
   if (!R2_ENDPOINT || !R2_KEY_ID || !R2_SECRET || !R2_BUCKET) {
-    console.error('❌ Missing R2 credentials in .env.local')
-    console.error('   Required: R2_S3_API, R2_S3_KEY_ID, R2_S3_SECRET, R2_S3_BUCKET_NAME')
     process.exit(1)
   }
 
@@ -102,30 +97,20 @@ async function main() {
   try {
     execSync('npx pmtiles --version', { stdio: 'pipe' })
   } catch {
-    console.error('❌ pmtiles CLI not found. Install: npm install -g pmtiles')
     process.exit(1)
   }
 
-  // Check current R2 state
-  console.log('🔍 Checking R2 bucket...')
   const r2State = await checkR2Freshness()
 
   if (r2State.exists && r2State.ageDays !== undefined) {
-    console.log(`   Found existing file, ${r2State.ageDays} days old`)
-
     if (r2State.ageDays < 7) {
-      console.log('   ✅ File is fresh (< 7 days old). Skipping sync.')
-      console.log('   Use --force to sync anyway.')
-
       if (!process.argv.includes('--force')) {
         // Still generate and set the presigned URL
         await setConvexUrl()
         return
       }
-      console.log('   --force flag detected, proceeding with sync...\n')
     }
   } else {
-    console.log('   No existing file found')
   }
 
   // Get build date
@@ -133,21 +118,13 @@ async function main() {
   const buildUrl = `https://build.protomaps.com/${buildDate}.pmtiles`
   const localFile = `us-west-${buildDate}.pmtiles`
 
-  console.log(`\n📥 Extracting US West from ${buildUrl}`)
-  console.log(`   BBOX: ${US_WEST_BBOX}`)
-  console.log(`   Max zoom: ${MAX_ZOOM}`)
-  console.log(`   Output: ${localFile}`)
-  console.log('   This may take 10-30 minutes...\n')
-
   // Extract US West region
   try {
     execSync(
       `npx pmtiles extract "${buildUrl}" "${localFile}" --bbox="${US_WEST_BBOX}" --maxzoom=${MAX_ZOOM}`,
       { stdio: 'inherit' },
     )
-  } catch (error) {
-    // If today's build isn't available yet, try yesterday
-    console.warn(`\n⚠️  Build for ${buildDate} may not be ready. Trying yesterday...`)
+  } catch (_error) {
     const yesterday = new Date()
     yesterday.setDate(yesterday.getDate() - 1)
     const yesterdayDate = `${yesterday.getFullYear()}${String(yesterday.getMonth() + 1).padStart(2, '0')}${String(yesterday.getDate()).padStart(2, '0')}`
@@ -160,17 +137,11 @@ async function main() {
   }
 
   if (!existsSync(localFile)) {
-    console.error('❌ Extract failed — no output file')
     process.exit(1)
   }
 
   const fileSize = statSync(localFile).size
-  const fileSizeMB = (fileSize / (1024 * 1024)).toFixed(1)
-  console.log(`\n✅ Extract complete: ${localFile} (${fileSizeMB} MB)`)
-
-  // Upload to R2
-  console.log(`\n☁️  Uploading to R2: ${R2_BUCKET}/${PMTILES_KEY}`)
-  console.log('   This may take 5-15 minutes...\n')
+  const _fileSizeMB = (fileSize / (1024 * 1024)).toFixed(1)
 
   const client = getR2Client()
   const fileBuffer = readFileSync(localFile)
@@ -184,24 +155,14 @@ async function main() {
     }),
   )
 
-  console.log('✅ Upload complete')
-
   // Set Convex env var
   await setConvexUrl()
 
-  // Cleanup local file
-  console.log(`\n🧹 Cleaning up ${localFile}...`)
   unlinkSync(localFile)
-
-  console.log('\n🎉 Sync complete!')
-  console.log(`   R2 key: ${PMTILES_KEY}`)
-  console.log(`   Size: ${fileSizeMB} MB`)
-  console.log('   PROTOMAPS_US_URL set in Convex')
 }
 
 async function setConvexUrl() {
-  console.log('\n⚙️  Setting PROTOMAPS_US_URL in Convex...')
-  const presignedUrl = await generatePresignedUrl()
+  const _presignedUrl = await generatePresignedUrl()
 
   // For Convex, we need a stable URL. Presigned URLs expire.
   // Instead, set the S3-style URL that the action can use to generate presigned URLs on-the-fly.
@@ -211,14 +172,9 @@ async function setConvexUrl() {
 
   try {
     execSync(`npx convex env set PROTOMAPS_US_URL "${r2Url}"`, { stdio: 'inherit' })
-    console.log('✅ PROTOMAPS_US_URL set in Convex')
-  } catch {
-    console.warn('⚠️  Could not set Convex env var automatically.')
-    console.log(`   Set manually: npx convex env set PROTOMAPS_US_URL "${r2Url}"`)
-  }
+  } catch {}
 }
 
 main().catch((error) => {
-  console.error('❌ Sync failed:', error)
   process.exit(1)
 })

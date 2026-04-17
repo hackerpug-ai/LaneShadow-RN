@@ -53,7 +53,7 @@ export const StateListItem = ({ state, isSelected, onPress, testID }: StateListI
           backgroundColor: pressed
             ? semantic.color.surfaceVariant.pressed
             : isSelected
-              ? semantic.color.primary.default + '1A' // 10% opacity per copper opacity pattern
+              ? `${semantic.color.primary.default}1A` // 10% opacity per copper opacity pattern
               : semantic.color.surface.default,
           borderColor: isSelected ? semantic.color.primary.default : semantic.color.border.default,
           minHeight: 48, // WCAG AA minimum touch target

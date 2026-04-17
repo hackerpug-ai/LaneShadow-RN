@@ -8,10 +8,10 @@
  * - AC4: useSelectedRoute throws when used outside SelectedRouteProvider
  */
 
-import { act, render } from '@testing-library/react-native'
+import { render } from '@testing-library/react-native'
 import React from 'react'
 import { Text } from 'react-native'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { SelectedRouteProvider, useSelectedRoute } from './selected-route'
 
 // ---------------------------------------------------------------------------

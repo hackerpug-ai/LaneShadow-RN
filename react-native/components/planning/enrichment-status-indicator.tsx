@@ -142,15 +142,15 @@ export const EnrichmentStatusIndicator = ({
   const backgroundColor: string = (() => {
     switch (status) {
       case 'completed':
-        return semantic.color.success.default + '15'
+        return `${semantic.color.success.default}15`
       case 'failed':
-        return semantic.color.danger.default + '15'
+        return `${semantic.color.danger.default}15`
       case 'cancelled':
         return semantic.color.surfaceVariant.pressed ?? semantic.color.surfaceVariant.default
       case 'running-extended':
-        return semantic.color.info.default + '15'
+        return `${semantic.color.info.default}15`
       default:
-        return semantic.color.primary.default + '15'
+        return `${semantic.color.primary.default}15`
     }
   })()
 
@@ -302,7 +302,7 @@ export const EnrichmentStatusIndicator = ({
               styles.inlineInner,
               {
                 backgroundColor,
-                borderColor: accentColor + '40',
+                borderColor: `${accentColor}40`,
               },
               status === 'pending' || status === 'running-fast' || status === 'running-extended'
                 ? pulseAnimatedStyle
@@ -351,7 +351,7 @@ export const EnrichmentStatusIndicator = ({
         styles.standaloneContainer,
         {
           backgroundColor,
-          borderColor: accentColor + '40',
+          borderColor: `${accentColor}40`,
           borderRadius: semantic.radius.md,
           padding: semantic.space.md,
           ...semantic.elevation[1],
@@ -394,7 +394,7 @@ export const EnrichmentStatusIndicator = ({
             style={[
               styles.progressBar,
               {
-                backgroundColor: accentColor + '30',
+                backgroundColor: `${accentColor}30`,
               },
             ]}
           >

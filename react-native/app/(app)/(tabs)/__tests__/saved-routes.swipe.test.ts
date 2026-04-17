@@ -11,8 +11,8 @@
 
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
-import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
-import type { SavedRouteListItemView } from '../../../../types/routes'
+import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
+import type { SavedRouteListItemView } from '../../../../../server/types/routes'
 import SavedRoutesScreen from '../saved-routes'
 import { SwipeableRouteCard } from '../saved-routes.components'
 
@@ -430,7 +430,7 @@ describe('AC5: Semantic theme tokens used for delete area', () => {
 
     // Background should use danger color (from mock: #EF4444)
     const bgStyle = deleteAction.props.style.find(
-      (s: Record<string, unknown>) => s && s.backgroundColor,
+      (s: Record<string, unknown>) => s?.backgroundColor,
     )
     expect(bgStyle.backgroundColor).toBe('#EF4444')
 

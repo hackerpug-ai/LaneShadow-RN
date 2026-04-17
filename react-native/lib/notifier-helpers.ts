@@ -12,8 +12,6 @@ export const showCameraPermissionNotification = (
   onRequestPermission?: () => void | Promise<void>,
   canAskAgain = true,
 ) => {
-  console.log('Showing camera permission notification with callback:', !!onRequestPermission)
-
   const title = 'Camera Permission Required'
   const description = canAskAgain
     ? 'Tap to grant camera access for capturing photos and videos.'
@@ -33,10 +31,6 @@ export const showCameraPermissionNotification = (
     swipeEnabled: true,
     // WORKAROUND: Due to iOS issue #107, use top-level onPress instead of nested button
     onPress: async () => {
-      console.log(
-        'Notification tapped -',
-        canAskAgain ? 'requesting permission' : 'opening Settings',
-      )
       if (onRequestPermission) {
         await onRequestPermission()
       }

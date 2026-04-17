@@ -245,7 +245,7 @@ describe('lookupRoad', () => {
       call[0]?.includes?.('[lookupRoad] Protomaps failed, falling back to Overpass'),
     )
     expect(warnCall).toBeDefined()
-    if (warnCall && warnCall[1]) {
+    if (warnCall?.[1]) {
       expect(warnCall[1]).toMatchObject({
         fallbackReason: expect.any(String),
         bbox: JSON.stringify(BBOX),

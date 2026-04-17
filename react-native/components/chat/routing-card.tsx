@@ -28,16 +28,16 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated'
-import { useSelectedRoute } from '../../contexts/selected-route'
-import { api } from '../../convex/_generated/api'
-import type { Id } from '../../convex/_generated/dataModel'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { api } from '../../../server/convex/_generated/api'
+import type { Id } from '../../../server/convex/_generated/dataModel'
 import {
   ROUTE_PLAN_PHASE,
   type RoutePlanPhase,
   type RoutePlanStatus,
-} from '../../models/route-plans'
-import type { PlannedRouteOptionsView } from '../../types/routes'
+} from '../../../server/models/route-plans'
+import type { PlannedRouteOptionsView } from '../../../server/types/routes'
+import { useSelectedRoute } from '../../contexts/selected-route'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { RouteAttachmentCard } from './route-attachment-card'
 
 // ---------------------------------------------------------------------------
@@ -179,12 +179,6 @@ const RunningCard = ({ routePlan, semantic, reduceMotion }: RunningCardProps) =>
 
   const accessibilityLabel = activePhase ? `Phase: ${activePhase}. ${statusText}` : statusText
 
-  console.info('[RoutingCard] RunningCard render:', {
-    activePhase,
-    statusText,
-    phasesCount: PHASES.length,
-  })
-
   return (
     <View
       style={[
@@ -282,11 +276,11 @@ const FailedCard = ({ routePlan, semantic }: FailedCardProps) => {
       style={[
         styles.card,
         {
-          backgroundColor: semantic.color.danger.default + '1A', // ~10% opacity tint
+          backgroundColor: `${semantic.color.danger.default}1A`, // ~10% opacity tint
           borderRadius: semantic.radius.md,
           padding: semantic.space.md,
           borderWidth: 1,
-          borderColor: semantic.color.danger.default + '4D', // ~30% opacity
+          borderColor: `${semantic.color.danger.default}4D`, // ~30% opacity
         },
       ]}
       testID="routing-card-failed"
@@ -333,8 +327,6 @@ export const RoutingCard = ({
   attachments,
   onViewOnMap,
 }: RoutingCardProps & { onViewOnMap?: () => void }) => {
-  console.info('[RoutingCard] Component mounting', { attachmentsCount: attachments.length })
-
   const { semantic } = useSemanticTheme()
 
   // Reduce-motion state: initialise to false, update asynchronously.
@@ -350,8 +342,6 @@ export const RoutingCard = ({
 
   const routePlanId = attachments[0]?.routePlanId
 
-  console.info('[RoutingCard] Route plan ID extracted', { routePlanId })
-
   // Reactive Convex query — passes 'skip' sentinel when there is no planId so
   // the query is dormant. Pattern copied from hooks/use-chat-planning.ts:114-117.
   const routePlan = useQuery(
@@ -359,25 +349,10 @@ export const RoutingCard = ({
     routePlanId ? { routePlanId } : ('skip' as any),
   ) as RoutePlanDoc | null | undefined
 
-  console.info('[RoutingCard] Route plan query result', {
-    hasRoutePlan: !!routePlan,
-    status: routePlan?.status,
-    phase: routePlan?.phase,
-  })
-
   // While loading or if no planId, show pending state
   const status: RoutePlanStatus = routePlan?.status ?? 'pending'
 
   const renderInner = () => {
-    // Debug logging to understand what's happening
-    console.info('[RoutingCard] Render state:', {
-      routePlanId,
-      status,
-      hasRoutePlan: !!routePlan,
-      hasResult: !!routePlan?.result,
-      resultOptionsCount: routePlan?.result?.options?.length ?? 0,
-    })
-
     switch (status) {
       case 'pending':
         return <PendingCard semantic={semantic} />
@@ -390,12 +365,6 @@ export const RoutingCard = ({
       case 'completed': {
         const result = routePlan?.result
         if (!result) {
-          // Completed but no result yet — show pending with debug info
-          console.warn('[RoutingCard] Completed but no result:', {
-            routePlanId,
-            routePlan,
-            status,
-          })
           return <PendingCard semantic={semantic} />
         }
         return (
@@ -415,7 +384,6 @@ export const RoutingCard = ({
         return <CancelledCard semantic={semantic} />
 
       default:
-        console.warn('[RoutingCard] Unknown status:', status)
         return <PendingCard semantic={semantic} />
     }
   }

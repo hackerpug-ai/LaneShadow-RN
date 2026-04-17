@@ -8,7 +8,6 @@
  * Positioned above ChatInput, centered horizontally.
  */
 
-import React from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'

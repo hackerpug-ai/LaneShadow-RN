@@ -56,10 +56,7 @@ export class BudgetTracker {
           limitUSD: this.limitUSD,
         })
       } else {
-        const label = agentLabel ? ` agent=${agentLabel}` : ''
-        console.warn(
-          `[BudgetTracker]${label} cost=${usage.cost.total} cumulative=${this.cumulativeUSD} limit=${this.limitUSD} exceeded`,
-        )
+        const _label = agentLabel ? ` agent=${agentLabel}` : ''
       }
     }
   }

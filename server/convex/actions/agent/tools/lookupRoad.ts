@@ -97,7 +97,6 @@ out body;`
 // ---------------------------------------------------------------------------
 
 const fetchOverpass = async (query: string, signal: AbortSignal): Promise<OverpassResponse> => {
-  console.info(`[lookupRoad] Overpass query:\n${query}`)
   const response = await fetch(OVERPASS_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -110,8 +109,7 @@ const fetchOverpass = async (query: string, signal: AbortSignal): Promise<Overpa
     // Extract the actual error from the HTML — look for the error message between <p> tags
     const errorMatch = body.match(/<p[^>]*>.*?<strong[^>]*>(.*?)<\/strong>/s)
     const errorDetail = errorMatch?.[1] ?? body.slice(0, 500)
-    console.error(`[lookupRoad] Overpass HTTP ${response.status} error: ${errorDetail}`)
-    console.error(`[lookupRoad] Query was:\n${query}`)
+
     throw new Error(`Overpass HTTP ${response.status}: ${errorDetail.slice(0, 200)}`)
   }
 
@@ -155,15 +153,15 @@ const parseWays = (elements: OverpassWay[]): RoadMatch[] => {
   for (const el of elements) {
     if (el.type !== 'way') continue
     const tags = el.tags ?? {}
-    const name = tags['name']
+    const name = tags.name
     if (!name || name.trim() === '') continue
-    const highway = tags['highway']
+    const highway = tags.highway
     if (!highway) continue
 
     matches.push({
       name: name.trim(),
       highway,
-      surface: tags['surface'] ?? null,
+      surface: tags.surface ?? null,
       geometry: simplifyGeometry(el.geometry),
     })
   }
@@ -184,7 +182,7 @@ const extractSuggestions = (elements: OverpassWay[]): string[] => {
 
   for (const el of elements) {
     if (el.type !== 'way') continue
-    const name = el.tags?.['name']
+    const name = el.tags?.name
     if (!name || name.trim() === '') continue
     const trimmed = name.trim()
     if (!seen.has(trimmed)) {

@@ -7,7 +7,7 @@ import type { Meta, StoryObj } from '@storybook/react-native'
 import React from 'react'
 import { View } from 'react-native'
 import { WaypointCard } from '../../../components/waypoints/waypoint-card'
-import type { Doc } from '../../../convex/_generated/dataModel'
+import type { Doc } from '../../../../server/convex/_generated/dataModel'
 
 // Mock waypoint factory
 const createMockWaypoint = (overrides?: Partial<Doc<'waypoints'>>): Doc<'waypoints'> => ({

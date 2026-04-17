@@ -107,7 +107,7 @@ export const RouteOptionsScreen = ({
               <View
                 style={[
                   styles.errorIcon,
-                  { backgroundColor: semantic.color.danger.default + '26' }, // Add 15% alpha
+                  { backgroundColor: `${semantic.color.danger.default}26` }, // Add 15% alpha
                 ]}
               >
                 <View

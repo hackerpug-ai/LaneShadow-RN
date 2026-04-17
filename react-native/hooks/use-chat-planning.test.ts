@@ -149,7 +149,7 @@ describe('useChatPlanning', () => {
 
   describe('AC4: No TODO comments remain', () => {
     it('should have no TODO comments in implementation', () => {
-      const fs = require('fs')
+      const fs = require('node:fs')
       const hookCode = fs.readFileSync('./hooks/use-chat-planning.ts', 'utf8')
 
       expect(hookCode).not.toMatch(/TODO/)

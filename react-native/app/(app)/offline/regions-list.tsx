@@ -49,10 +49,10 @@ export default function OfflineRegionsScreen() {
         const { sw, ne } = region.bounds
         // Guard against corrupted bounds
         if (
-          !isFinite(sw.lat) ||
-          !isFinite(sw.lng) ||
-          !isFinite(ne.lat) ||
-          !isFinite(ne.lng) ||
+          !Number.isFinite(sw.lat) ||
+          !Number.isFinite(sw.lng) ||
+          !Number.isFinite(ne.lat) ||
+          !Number.isFinite(ne.lng) ||
           sw.lat >= ne.lat ||
           sw.lng >= ne.lng
         ) {

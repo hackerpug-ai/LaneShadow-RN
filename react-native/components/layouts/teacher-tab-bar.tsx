@@ -124,7 +124,7 @@ function TabButton({
           style={[
             styles.activeIndicator,
             {
-              backgroundColor: semantic.color.primary.default + '33',
+              backgroundColor: `${semantic.color.primary.default}33`,
               borderRadius: semantic.radius.full,
               paddingHorizontal: semantic.space.sm,
               paddingVertical: semantic.space.sm,

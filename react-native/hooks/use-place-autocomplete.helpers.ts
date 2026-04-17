@@ -7,7 +7,7 @@
  * vite/rollup cannot parse in the node test environment.
  */
 
-import type { RouteStop } from '../types/routes'
+import type { RouteStop } from '../../server/types/routes'
 
 export type PlacePrediction = {
   placeId: string

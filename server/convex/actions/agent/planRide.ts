@@ -1,8 +1,7 @@
 'use node'
 
+import { randomUUID } from 'node:crypto'
 import { v } from 'convex/values'
-import { randomUUID } from 'crypto'
-import type { PlannedRouteOptionsView } from '../../../../types/routes'
 import { ROUTE_PLAN_STATUS } from '../../../models/route-plans'
 import {
   boundsValidator,
@@ -15,6 +14,7 @@ import {
   temperatureSummaryValidator,
   windSummaryValidator,
 } from '../../../models/saved-routes'
+import type { PlannedRouteOptionsView } from '../../../types/routes'
 import { internal } from '../../_generated/api'
 import type { Id } from '../../_generated/dataModel'
 import { action, internalAction } from '../../_generated/server'
@@ -263,14 +263,10 @@ export const executePlanHandler = async (
 ): Promise<void> => {
   const { routePlanId } = args
 
-  console.info('[planRide] executePlanHandler started', { routePlanId })
-
   // Step 1: Read the plan record
   const plan = (await ctx.runQuery((internal as any).db.routePlans.getPlanByIdInternal, {
     routePlanId,
   })) as any
-
-  console.info('[planRide] Plan retrieved', { planId: plan?._id, status: plan?.status })
 
   // Step 2: Early return if plan is null or cancelled
   if (!plan || plan.status === ROUTE_PLAN_STATUS.CANCELLED) {
@@ -309,12 +305,9 @@ export const executePlanHandler = async (
     // Step 6: Timeout guard (240 seconds for background job)
     const timeoutPromise = new Promise<never>((_, reject) => {
       setTimeout(() => {
-        console.error('[planRide] Orchestrator timeout after 240 seconds')
         reject(new Error(ERROR_CODES.AGENT_TIMEOUT))
       }, 240_000)
     })
-
-    console.info('[planRide] Starting planRideOrchestrator...')
 
     // Step 6: Run orchestrator - race against timeout
     const results = await Promise.race([
@@ -324,8 +317,6 @@ export const executePlanHandler = async (
       }),
       timeoutPromise,
     ])
-
-    console.info('[planRide] Orchestrator completed, routes:', results.length)
 
     // Check cancellation after orchestrator completes
     if (await checkCancelled()) {
@@ -345,30 +336,11 @@ export const executePlanHandler = async (
     const result: PlannedRouteOptionsView = buildOptionsFromResults(results, randomUUID())
 
     const firstOption = result.options[0]
-    const firstLeg = firstOption?.map?.legs?.[0]
-    console.info('[planRide] Writing completed result to DB:', {
-      optionsCount: result.options.length,
-      firstOptionLabel: firstOption?.label,
-      firstLegKeys: firstLeg ? Object.keys(firstLeg) : [],
-      firstLegHasGeometry: !!firstLeg?.geometry,
-      firstLegGeometry: firstLeg?.geometry
-        ? {
-            format: firstLeg.geometry.format,
-            encoding: firstLeg.geometry.encoding,
-            hasValue: !!firstLeg.geometry.value,
-            valueLen: firstLeg.geometry.value?.length,
-          }
-        : 'MISSING',
-    })
+    const _firstLeg = firstOption?.map?.legs?.[0]
 
     // AC-1: Generate content fingerprint for enrichment caching
     const { generateContentFingerprint } = await import('./lib/enrichmentCache')
     const fingerprint = generateContentFingerprint(plan.planInput)
-
-    console.info('[planRide] Generated content fingerprint for enrichment', {
-      fingerprint,
-      routePlanId,
-    })
 
     // AC-2: Check cache for existing enrichment before scheduling new job
     const cached = (await ctx.runQuery(
@@ -377,17 +349,7 @@ export const executePlanHandler = async (
     )) as any
 
     if (cached) {
-      console.info('[planRide] Cache hit for enrichment - skipping job scheduling', {
-        fingerprint,
-        cachedEnrichmentId: cached._id,
-        cachedStatus: cached.status,
-      })
     } else {
-      console.info('[planRide] Cache miss - scheduling background enrichment', {
-        fingerprint,
-        routePlanId,
-      })
-
       // AC-3: Schedule background enrichment job (100ms delay)
       const { enrichmentId } = (await ctx.runMutation(
         (internal as any).db.routeEnrichments.createEnrichment,
@@ -400,11 +362,6 @@ export const executePlanHandler = async (
         },
       )) as { enrichmentId: Id<'route_enrichments'> }
 
-      console.info('[planRide] Enrichment record created', {
-        enrichmentId,
-        routePlanId,
-      })
-
       // Schedule background job with 100ms delay
       const scheduledJobId = await ctx.scheduler.runAfter(
         100,
@@ -412,19 +369,8 @@ export const executePlanHandler = async (
         { enrichmentId, phase: 'fast' },
       )
 
-      console.info('[planRide] Background enrichment job scheduled', {
-        enrichmentId,
-        scheduledJobId,
-        delayMs: 100,
-      })
-
       // AC-5: Store scheduledJobId in enrichment record
       await ctx.runMutation((internal as any).db.routeEnrichments.updateEnrichment, {
-        enrichmentId,
-        scheduledJobId,
-      })
-
-      console.info('[planRide] Enrichment record updated with scheduled job ID', {
         enrichmentId,
         scheduledJobId,
       })
@@ -440,11 +386,6 @@ export const executePlanHandler = async (
   } catch (error) {
     // On any failure, write 'failed' to DB - never leave plan stuck in 'running'
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error('[planRide] Error during execution:', {
-      routePlanId,
-      error: errorMessage,
-      errorStack: error instanceof Error ? error.stack : undefined,
-    })
 
     // Determine error code for conversational error
     let errorCode: (typeof ERROR_CODES)[keyof typeof ERROR_CODES] = ERROR_CODES.GENERATION_FAILED

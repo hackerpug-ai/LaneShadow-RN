@@ -14,10 +14,6 @@ import type { LogCategory, LogEntry, LogLevel } from './types'
 let sessionId: string | null = null
 
 const logToConsole = (entry: LogEntry): void => {
-  // Output as JSON - captured by Metro/Expo console
-  // Prefix with [LOG] for easy filtering
-  console.log(`[LOG]${JSON.stringify(entry)}`)
-
   // Also log readable format in development
   if (__DEV__ && config.includeConsole) {
     const consoleMethod =

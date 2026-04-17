@@ -6,9 +6,9 @@
  */
 
 import { useQuery } from 'convex/react'
+import { api } from '../../server/convex/_generated/api'
+import type { Id } from '../../server/convex/_generated/dataModel'
 import { useSelectedRoute } from '../contexts/selected-route'
-import { api } from '../convex/_generated/api'
-import type { Id } from '../convex/_generated/dataModel'
 
 type RoutePlanResult = {
   routePlanId: Id<'route_plans'> | null
@@ -74,25 +74,6 @@ export const useActiveSessionRoute = (
   let activeOption: RoutePlanResult['activeOption'] = null
   if (validatedRoutePlan?.result?.options) {
     const options = validatedRoutePlan.result.options as { routeOptionId: string }[]
-    console.info('[useActiveSessionRoute] Route plan data:', {
-      routePlanId: validatedRoutePlan._id,
-      planningSessionId: validatedRoutePlan.planningSessionId,
-      currentSessionId: sessionId,
-      sessionMatch: validatedRoutePlan.planningSessionId === sessionId,
-      status: validatedRoutePlan.status,
-      hasResult: !!validatedRoutePlan.result,
-      optionsCount: options.length,
-      firstOption: options[0]
-        ? {
-            routeOptionId: options[0].routeOptionId,
-            hasMap: !!(options[0] as any).map,
-            hasOverviewGeometry: !!(options[0] as any).map?.overviewGeometry,
-            overviewGeometryPreview:
-              (options[0] as any).map?.overviewGeometry?.value?.substring(0, 50) + '...',
-            legsCount: (options[0] as any).map?.legs?.length,
-          }
-        : null,
-    })
     if (options.length > 0) {
       if (selectedRouteId === null) {
         // No selection - use the first option
@@ -104,13 +85,6 @@ export const useActiveSessionRoute = (
       }
     }
   } else {
-    console.info('[useActiveSessionRoute] No route plan or options:', {
-      hasRoutePlan: !!validatedRoutePlan,
-      wasFilteredOut: routePlan !== null && validatedRoutePlan === null,
-      status: validatedRoutePlan?.status,
-      hasResult: !!validatedRoutePlan?.result,
-      hasOptions: !!validatedRoutePlan?.result?.options,
-    })
   }
 
   return {

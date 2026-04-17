@@ -3,7 +3,7 @@
  * These helpers create valid overlay objects with all required fields
  */
 
-import type { RouteOverlays } from '../models/saved-routes'
+import type { RouteOverlays } from '../../server/models/saved-routes'
 
 /**
  * Create a minimal valid RainOverlay

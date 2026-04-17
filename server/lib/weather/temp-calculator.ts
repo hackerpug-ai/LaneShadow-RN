@@ -5,7 +5,7 @@
  * All temperatures are displayed in Fahrenheit for US locale.
  */
 
-import type { TemperatureOverlay } from '../../models/saved-routes'
+import type { TemperatureOverlay } from '../../../server/models/saved-routes'
 
 /**
  * Temperature range result type

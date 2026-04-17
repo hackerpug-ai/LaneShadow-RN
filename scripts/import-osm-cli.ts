@@ -10,10 +10,10 @@
  *   npx tsx scripts/import-osm-cli.ts --region=district-of-columbia
  */
 
-import { execSync } from 'child_process'
-import fs from 'fs'
+import { execSync } from 'node:child_process'
+import fs from 'node:fs'
+import path from 'node:path'
 import { S2CellId, S2LatLng } from 'nodes2ts'
-import path from 'path'
 
 interface ImportOptions {
   region: string
@@ -64,8 +64,6 @@ function calculateBounds(coords: number[][]): BoundingBox {
  * Download OSM PBF file
  */
 async function downloadOsmPbf(url: string, outputPath: string): Promise<void> {
-  console.log(`📥 Downloading OSM data from: ${url}`)
-
   const response = await fetch(url)
   if (!response.ok) {
     throw new Error(`Failed to download: ${response.statusText}`)
@@ -74,8 +72,7 @@ async function downloadOsmPbf(url: string, outputPath: string): Promise<void> {
   const buffer = await response.arrayBuffer()
   fs.writeFileSync(outputPath, Buffer.from(buffer))
 
-  const sizeMB = (buffer.byteLength / 1024 / 1024).toFixed(2)
-  console.log(`✅ Downloaded ${sizeMB}MB to: ${outputPath}`)
+  const _sizeMB = (buffer.byteLength / 1024 / 1024).toFixed(2)
 }
 
 /**
@@ -183,9 +180,6 @@ function importBatchViaCli(
  * Main import function
  */
 async function main(options: ImportOptions): Promise<void> {
-  console.log(`\n🌍 OSM Data Import for: ${options.region}`)
-  console.log(`━`.repeat(50))
-
   // Default Geofabrik URLs if not provided
   const sourceUrl =
     options.sourceUrl ||
@@ -198,69 +192,46 @@ async function main(options: ImportOptions): Promise<void> {
     // Step 1: Download OSM PBF
     await downloadOsmPbf(sourceUrl, pbfPath)
 
-    // Step 2: Convert to GeoJSON using CLI tool
-    console.log(`\n🔄 Converting OSM PBF to GeoJSON...`)
     const geojsonPath = pbfPath.replace('.osm.pbf', '.geojson')
     execSync(`npx osmtogeojson "${pbfPath}" > "${geojsonPath}"`, { stdio: 'inherit' })
     const geojson = JSON.parse(fs.readFileSync(geojsonPath, 'utf-8'))
-    console.log(`✅ Converted ${geojson.features.length} features`)
 
-    // Step 3: Extract nodes and ways
-    console.log(`\n🔍 Extracting scenic nodes...`)
     const nodes = extractScenicNodes(geojson.features)
-    console.log(`✅ Found ${nodes.length} scenic nodes`)
 
-    console.log(`\n🔍 Extracting road ways...`)
     const ways = extractRoadWays(geojson.features)
-    console.log(`✅ Found ${ways.length} road ways`)
 
     // Step 4: Import to Convex in batches
     const BATCH_SIZE = 100
 
     if (nodes.length > 0) {
-      console.log(`\n📦 Importing nodes to Convex...`)
-      let nodesInserted = 0
-      let nodesUpdated = 0
+      let _nodesInserted = 0
+      let _nodesUpdated = 0
       for (let i = 0; i < nodes.length; i += BATCH_SIZE) {
         const batch = nodes.slice(i, i + BATCH_SIZE)
         const result = importBatchViaCli('importNodes', batch)
-        nodesInserted += result.inserted
-        nodesUpdated += result.updated
+        _nodesInserted += result.inserted
+        _nodesUpdated += result.updated
         process.stdout.write(
           `\r   Progress: ${Math.min(i + BATCH_SIZE, nodes.length)}/${nodes.length}`,
         )
       }
-      console.log(`\n✅ Nodes: ${nodesInserted} inserted, ${nodesUpdated} updated`)
     } else {
-      console.log(`\n⚠️  No scenic nodes found to import`)
     }
 
     if (ways.length > 0) {
-      console.log(`\n📦 Importing ways to Convex...`)
-      let waysInserted = 0
-      let waysUpdated = 0
+      let _waysInserted = 0
+      let _waysUpdated = 0
       for (let i = 0; i < ways.length; i += BATCH_SIZE) {
         const batch = ways.slice(i, i + BATCH_SIZE)
         const result = importBatchViaCli('importWays', batch)
-        waysInserted += result.inserted
-        waysUpdated += result.updated
+        _waysInserted += result.inserted
+        _waysUpdated += result.updated
         process.stdout.write(
           `\r   Progress: ${Math.min(i + BATCH_SIZE, ways.length)}/${ways.length}`,
         )
       }
-      console.log(`\n✅ Ways: ${waysInserted} inserted, ${waysUpdated} updated`)
     } else {
-      console.log(`\n⚠️  No road ways found to import`)
     }
-
-    // Summary
-    console.log(`\n` + '━'.repeat(50))
-    console.log(`✨ Import complete!`)
-    console.log(`   Nodes: ${nodes.length} processed`)
-    console.log(`   Ways: ${ways.length} processed`)
-    console.log(`\n🎯 Next steps:`)
-    console.log(`   1. Verify data in Convex dashboard`)
-    console.log(`   2. Test queries with the routing agent`)
   } finally {
     // Cleanup temp files
     if (fs.existsSync(pbfPath)) {
@@ -281,7 +252,6 @@ async function cli() {
   const regionArg = args.find((a) => a.startsWith('--region='))
 
   if (!regionArg) {
-    console.error('Usage: npx tsx scripts/import-osm-cli.ts --region=district-of-columbia')
     process.exit(1)
   }
 
@@ -292,7 +262,6 @@ async function cli() {
 
 if (require.main === module) {
   cli().catch((error) => {
-    console.error('\n❌ Import failed:', error.message)
     process.exit(1)
   })
 }

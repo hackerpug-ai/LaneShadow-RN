@@ -79,6 +79,7 @@ export const useVoiceAssistant = (_config?: VoiceAssistantConfig): VoiceAssistan
       state,
       stopRecording,
       submitDraft,
+      openCamera,
     ],
   )
 }

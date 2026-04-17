@@ -550,15 +550,15 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
       validCenter &&
       Array.isArray(validCenter) &&
       validCenter.length === 2 &&
-      isFinite(validCenter[0]) &&
-      isFinite(validCenter[1])
+      Number.isFinite(validCenter[0]) &&
+      Number.isFinite(validCenter[1])
 
     // Build defaultSettings from initialCamera — applied once on mount with no animation.
     // This is the no-fly-in path: the map opens directly at the saved position.
     const defaultSettings = useMemo(() => {
       if (!initialCamera?.center) return undefined
       const [lng, lat] = initialCamera.center
-      if (!isFinite(lng) || !isFinite(lat)) return undefined
+      if (!Number.isFinite(lng) || !Number.isFinite(lat)) return undefined
       return {
         centerCoordinate: initialCamera.center,
         zoomLevel: initialCamera.zoom,

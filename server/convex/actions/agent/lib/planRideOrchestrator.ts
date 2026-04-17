@@ -48,8 +48,6 @@ export const planRideOrchestrator = async (params: {
     preferences: planInput.preferences,
   })
 
-  console.info(`[planRideOrchestrator] ${variants.length} variants generated`)
-
   // Step 2: Build RouteSketch + compile + normalize in parallel
   // Promise.allSettled ensures one variant failure does not block the others
   const compiled = await Promise.allSettled(
@@ -78,13 +76,8 @@ export const planRideOrchestrator = async (params: {
 
   // Log failures so we can debug NO_ROUTES_GENERATED
   const failed = compiled.filter((r) => r.status === 'rejected') as PromiseRejectedResult[]
-  for (const f of failed) {
-    console.error(`[planRideOrchestrator] variant compile failed:`, f.reason?.message ?? f.reason)
+  for (const _f of failed) {
   }
-
-  console.info(
-    `[planRideOrchestrator] ${variants.length} variants, ${successful.length} routes compiled, ${failed.length} failed`,
-  )
 
   if (successful.length === 0) {
     throw new Error('NO_ROUTES_GENERATED')
@@ -105,21 +98,14 @@ export const planRideOrchestrator = async (params: {
         }
         return { routeSnapshot: updatedSnapshot, sketch }
       } catch {
-        console.warn(
-          '[planRideOrchestrator] conditions failed for one route, continuing without weather',
-        )
         return { routeSnapshot, sketch }
       }
     }),
   )
 
-  const conditionsCount = withConditions.filter(
+  const _conditionsCount = withConditions.filter(
     (r) => r.routeSnapshot.overlays?.wind !== undefined,
   ).length
-
-  console.info(
-    `[planRideOrchestrator] ${variants.length} variants, ${successful.length} succeeded, conditions: ${conditionsCount}/${successful.length}`,
-  )
 
   // Note: enrichRoute (US-052) will be wired in after it exists.
   // For now, build fallback labels from variant IDs.

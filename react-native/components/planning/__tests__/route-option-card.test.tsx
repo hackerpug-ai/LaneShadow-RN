@@ -16,7 +16,7 @@
 import { fireEvent, render, screen } from '@testing-library/react-native'
 import type React from 'react'
 import { MD3DarkTheme, PaperProvider } from 'react-native-paper'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { ExtendedTheme } from '../../../styles/types'
 
 import { RouteOptionCard } from '../route-option-card'

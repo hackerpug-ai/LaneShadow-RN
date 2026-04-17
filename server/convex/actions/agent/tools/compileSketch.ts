@@ -62,8 +62,7 @@ const compileSketchImpl = async (params: {
       )
 
     return await retryOnce(runOnce)
-  } catch (error) {
-    console.error('compileSketch failed', error)
+  } catch (_error) {
     throw new Error('ROUTING_COMPILE_FAILED')
   }
 }

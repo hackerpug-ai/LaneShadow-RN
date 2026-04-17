@@ -13,14 +13,13 @@
  */
 
 import { fireEvent, render } from '@testing-library/react-native'
-import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ---------------------------------------------------------------------------
 // Import after mocks
 // ---------------------------------------------------------------------------
 
-import type { Doc } from '../../../convex/_generated/dataModel'
+import type { Doc } from '../../../../server/convex/_generated/dataModel'
 import { WaypointCard } from '../waypoint-card'
 
 // ---------------------------------------------------------------------------

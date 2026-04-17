@@ -1,5 +1,5 @@
-import type { ServerErrorCode } from './errors'
-import { getErrorMessage, SERVER_ERROR_MESSAGES } from './errors'
+import type { ServerErrorCode } from '../../server/lib/errors'
+import { getErrorMessage, SERVER_ERROR_MESSAGES } from '../../server/lib/errors'
 
 const SERVER_ERROR_CODES = new Set<ServerErrorCode>(
   Object.keys(SERVER_ERROR_MESSAGES) as ServerErrorCode[],

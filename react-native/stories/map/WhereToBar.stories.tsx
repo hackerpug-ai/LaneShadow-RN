@@ -7,7 +7,7 @@ import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { WhereToBar } from '../../components/map/where-to-bar'
-import type { RouteStop } from '../../types/routes'
+import type { RouteStop } from '../../../server/types/routes'
 
 const meta: Meta<typeof WhereToBar> = {
   title: 'Map/WhereToBar',

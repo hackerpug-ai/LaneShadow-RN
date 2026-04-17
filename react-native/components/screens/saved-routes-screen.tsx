@@ -9,10 +9,8 @@
 
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import type { ExtendedTheme } from '../../styles/types'
 import { SubpageLayout } from '../layouts/subpage-layout'
-import { FAB } from '../ui/fab'
 import { SavedRouteCard } from '../ui/saved-route-card'
 import { SearchBar } from '../ui/search-bar'
 

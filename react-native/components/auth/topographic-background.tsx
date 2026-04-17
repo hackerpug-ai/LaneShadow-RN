@@ -1,4 +1,3 @@
-import React from 'react'
 import { StyleSheet, View } from 'react-native'
 import Svg, { Defs, Path, RadialGradient, Rect, Stop } from 'react-native-svg'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'

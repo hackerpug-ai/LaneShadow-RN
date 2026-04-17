@@ -5,7 +5,6 @@ import { SelectedRouteProvider } from '../../contexts/selected-route'
 
 export const AppLayout = () => {
   const { sessionId } = useAuth()
-  console.log('app sessionId', sessionId)
 
   return (
     <SelectedRouteProvider>

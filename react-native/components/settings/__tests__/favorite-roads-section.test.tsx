@@ -8,11 +8,9 @@
  * - AC4: Given: User deletes saved route, When: savedRoutes.softDeleteRoute called, Then: Card removed, list updates
  */
 
-import { fireEvent, render, waitFor } from '@testing-library/react-native'
+import { render, waitFor } from '@testing-library/react-native'
 import { useMutation, useQuery } from 'convex/react'
-import React from 'react'
 import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
-import type { Doc } from '../../../convex/_generated/dataModel'
 import { SavedRoutesSection } from '../favorite-roads-section'
 
 // ---------------------------------------------------------------------------

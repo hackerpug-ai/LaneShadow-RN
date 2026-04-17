@@ -22,19 +22,22 @@
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
-import { buildRoutePolylines } from '../../../../components/map/route-polyline'
-import {
-  buildSaveRoutePayload,
-  SaveRouteSheet,
-} from '../../../../components/ui/save-favorite-sheet'
 import type {
   RainOverlay,
   RouteOverlays,
   TemperatureOverlay,
   WindOverlay,
-} from '../../../../models/saved-routes'
-import { getWorstRainLevel, getWorstTemperatureLevel } from '../../../../models/saved-routes'
-import type { SavedRouteDetailView } from '../../../../types/routes'
+} from '../../../../../server/models/saved-routes'
+import {
+  getWorstRainLevel,
+  getWorstTemperatureLevel,
+} from '../../../../../server/models/saved-routes'
+import type { SavedRouteDetailView } from '../../../../../server/types/routes'
+import { buildRoutePolylines } from '../../../../components/map/route-polyline'
+import {
+  buildSaveRoutePayload,
+  SaveRouteSheet,
+} from '../../../../components/ui/save-favorite-sheet'
 import {
   deriveWindSummary,
   formatDistance,
@@ -47,7 +50,7 @@ const mockBack = vi.fn()
 const mockSaveRouteMutation = vi.fn()
 
 const mockHookReturn: {
-  data: import('../../../../types/routes').SavedRouteDetailView | null | undefined
+  data: import('../../../../../server/types/routes').SavedRouteDetailView | null | undefined
   isLoading: boolean
 } = {
   data: undefined,

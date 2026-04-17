@@ -32,7 +32,6 @@ const searchNearbyImpl = async (params: SearchNearbyParams): Promise<SearchNearb
       radiusMeters: params.radiusMeters,
     })
   } catch (error) {
-    console.warn('searchNearby: provider initialization failed', error)
     return { status: 'error', reason: String(error) }
   }
 }

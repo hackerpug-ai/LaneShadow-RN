@@ -7,8 +7,8 @@
 
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import type { Bounds } from '../../../server/models/favorite-roads'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { Bounds } from '../../models/favorite-roads'
 import { IconSymbol } from './icon-symbol'
 import { RouteThumbnail } from './route-thumbnail'
 

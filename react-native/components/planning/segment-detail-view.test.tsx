@@ -11,7 +11,7 @@
 import { fireEvent, render } from '@testing-library/react-native'
 import { MD3DarkTheme, PaperProvider } from 'react-native-paper'
 import { describe, expect, it, vi } from 'vitest'
-import type { RouteLeg, RouteOverlays } from '../../models/saved-routes'
+import type { RouteLeg, RouteOverlays } from '../../../server/models/saved-routes'
 import type { ExtendedTheme } from '../../styles/types'
 import { SegmentDetailView } from './segment-detail-view'
 

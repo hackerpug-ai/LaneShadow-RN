@@ -16,7 +16,7 @@
  */
 
 import { useReducer } from 'react'
-import type { PlannedRouteOptionsView } from '../types/routes'
+import type { PlannedRouteOptionsView } from '../../server/types/routes'
 
 /**
  * State discriminators - each state has a unique phase

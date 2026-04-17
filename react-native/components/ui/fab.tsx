@@ -31,7 +31,7 @@ export const FAB = ({ icon, label, onPress, visible = true, testID, style }: FAB
       style={[
         {
           backgroundColor: semantic.color.primary.default,
-          borderRadius: semantic.radius['xl'],
+          borderRadius: semantic.radius.xl,
         },
         style,
       ]}

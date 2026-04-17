@@ -57,9 +57,9 @@ export const PlanningProgressIndicator: React.FC<PlanningProgressIndicatorProps>
                 styles.iconContainer,
                 {
                   backgroundColor: isCompleted
-                    ? semantic.color.success.default + '25'
+                    ? `${semantic.color.success.default}25`
                     : isCurrent
-                      ? semantic.color.primary.default + '25'
+                      ? `${semantic.color.primary.default}25`
                       : semantic.color.surfaceVariant.default,
                   borderColor: isCompleted
                     ? semantic.color.success.default
@@ -106,7 +106,7 @@ export const PlanningProgressIndicator: React.FC<PlanningProgressIndicatorProps>
                   styles.connector,
                   {
                     backgroundColor: isCompleted
-                      ? semantic.color.success.default + '60'
+                      ? `${semantic.color.success.default}60`
                       : semantic.color.border.default,
                   },
                 ]}

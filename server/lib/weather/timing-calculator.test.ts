@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import type { RainOverlay, RouteLeg } from '../../models/saved-routes'
+import type { RainOverlay, RouteLeg } from '../../../server/models/saved-routes'
 import {
   calculateRainTiming,
   formatRainTiming,

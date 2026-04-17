@@ -12,7 +12,7 @@
  * full chat mode. Streaming toasts show inline typing dots.
  */
 
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'

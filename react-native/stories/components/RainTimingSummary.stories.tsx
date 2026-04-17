@@ -7,7 +7,7 @@ import type { Meta, StoryObj } from '@storybook/react-native'
 import React from 'react'
 import { View } from 'react-native'
 import { RainTimingSummary, RainTimingSummaryProps } from '../../components/planning/rain-timing-summary'
-import type { RainOverlay, RouteLeg } from '../../models/saved-routes'
+import type { RainOverlay, RouteLeg } from '../../../server/models/saved-routes'
 
 const mockLegs: RouteLeg[] = [
   {

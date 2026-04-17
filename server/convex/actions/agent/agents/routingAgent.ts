@@ -1,7 +1,7 @@
 'use node'
 
-import { getModel, type Tool, type ToolCall, validateToolCall } from '@mariozechner/pi-ai'
-import { api, internal } from '../../../_generated/api'
+import { type Tool, type ToolCall, validateToolCall } from '@mariozechner/pi-ai'
+import { internal } from '../../../_generated/api'
 import type { Id } from '../../../_generated/dataModel'
 import { getAgentModel } from '../lib/models'
 import { AgentToolSchemas } from '../lib/piTools'
@@ -150,7 +150,7 @@ export async function runGeocode(ctx: AgentContext, args: { query: string }): Pr
   return { results: results.slice(0, 3) }
 }
 
-async function runLookupRoad(
+async function _runLookupRoad(
   ctx: AgentContext,
   args: {
     roadName: string
@@ -178,10 +178,7 @@ async function runLookupRoad(
         })),
       }
     }
-  } catch (error) {
-    // Convex query failed, fall back to Overpass
-    console.warn('Convex OSM query failed, falling back to Overpass:', error)
-  }
+  } catch (_error) {}
 
   // Fall back to Overpass tool
   return lookupRoad.lookupRoad(args)
@@ -393,7 +390,6 @@ async function runCompileSketch(
           try {
             built = buildOpts(results, crypto.randomUUID())
           } catch (buildError) {
-            console.error('[runCompileSketch] Error building partial route options:', buildError)
             await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
               routePlanId,
               status: 'failed',
@@ -411,7 +407,6 @@ async function runCompileSketch(
               result: built,
             })
           } catch (updateError) {
-            console.error('[runCompileSketch] Error updating status to completed:', updateError)
             throw updateError
           }
 
@@ -459,7 +454,6 @@ async function runCompileSketch(
         try {
           built = buildOpts(results, crypto.randomUUID())
         } catch (buildError) {
-          console.error('[runCompileSketch] Error building route options:', buildError)
           await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
             routePlanId,
             status: 'failed',
@@ -475,7 +469,6 @@ async function runCompileSketch(
             result: built,
           })
         } catch (updateError) {
-          console.error('[runCompileSketch] Error updating status to completed:', updateError)
           throw updateError
         }
 
@@ -597,7 +590,6 @@ async function runCompileSketch(
     try {
       built = buildOpts(results, crypto.randomUUID())
     } catch (buildError) {
-      console.error('[runCompileSketch] Error building options:', buildError)
       await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
         routePlanId,
         status: 'failed',
@@ -609,23 +601,6 @@ async function runCompileSketch(
     // Clear the pending sketch after successful compilation
     clearPendingSketch(sessionId)
 
-    // Debug: log the result structure before storing
-    console.info('[runCompileSketch] Storing route plan result:', {
-      routePlanId,
-      status: 'completed',
-      optionsCount: built.options?.length,
-      firstOption: built.options?.[0]
-        ? {
-            routeOptionId: built.options[0].routeOptionId,
-            hasMap: !!built.options[0].map,
-            hasOverviewGeometry: !!built.options[0].map?.overviewGeometry,
-            overviewGeometryValue:
-              built.options[0].map?.overviewGeometry?.value?.substring(0, 50) + '...',
-            legsCount: built.options[0].map?.legs?.length,
-          }
-        : null,
-    })
-
     // Finalize the route_plans row
     try {
       await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
@@ -634,7 +609,6 @@ async function runCompileSketch(
         result: built,
       })
     } catch (updateError) {
-      console.error('[runCompileSketch] Error updating status to completed:', updateError)
       throw updateError
     }
 
@@ -645,7 +619,6 @@ async function runCompileSketch(
 
     return { type: 'routes', data: built, routePlanId }
   } catch (error) {
-    console.error('[runCompileSketch] Error:', error)
     const errorMessage = error instanceof Error ? error.message : String(error)
 
     // Check if it's a routing compilation error (e.g., invalid road, no connection)
@@ -742,18 +715,11 @@ async function runPlanRoute(
     newRoutePlanId: routePlanId,
   })
 
-  console.info('[runPlanRoute] Starting route planning:', {
-    routePlanId,
-    start: args.start.label,
-    end: args.end.label,
-    departureTime: new Date(args.departureTime).toISOString(),
-  })
-
   // Retry orchestrator internally before surfacing errors to the agent/UI.
   // This prevents the UI from flashing a failure while the agent retries
   // with a brand-new plan record.
   const MAX_ORCHESTRATOR_RETRIES = 2
-  let lastError: unknown = null
+  let _lastError: unknown = null
 
   for (let attempt = 1; attempt <= MAX_ORCHESTRATOR_RETRIES; attempt++) {
     try {
@@ -766,7 +732,6 @@ async function runPlanRoute(
       try {
         built = buildOptionsFromResults(results, crypto.randomUUID())
       } catch (buildError) {
-        console.error('[runPlanRoute] Error building options:', buildError)
         await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
           routePlanId,
           status: 'failed',
@@ -782,23 +747,6 @@ async function runPlanRoute(
         }
       }
 
-      // Debug: log the result structure before storing
-      console.info('[runPlanRoute] Storing route plan result:', {
-        routePlanId,
-        status: 'completed',
-        optionsCount: built.options?.length,
-        firstOption: built.options?.[0]
-          ? {
-              routeOptionId: built.options[0].routeOptionId,
-              hasMap: !!built.options[0].map,
-              hasOverviewGeometry: !!built.options[0].map?.overviewGeometry,
-              overviewGeometryValue:
-                built.options[0].map?.overviewGeometry?.value?.substring(0, 50) + '...',
-              legsCount: built.options[0].map?.legs?.length,
-            }
-          : null,
-      })
-
       try {
         // Check if the route plan was already cancelled or failed (e.g., agent returned needs_clarification)
         const currentPlan = (await ctx.runQuery(internal.db.routePlans.getPlanByIdInternal, {
@@ -812,18 +760,9 @@ async function runPlanRoute(
             status: 'completed',
             result: built,
           })
-          console.info('[runPlanRoute] Route plan completed successfully:', {
-            routePlanId,
-            optionsCount: built.options?.length,
-          })
         } else {
-          console.info('[runPlanRoute] Route plan already cancelled/failed, skipping completion:', {
-            routePlanId,
-            currentStatus: currentPlan?.status,
-          })
         }
       } catch (updateError) {
-        console.error('[runPlanRoute] Error updating status to completed:', updateError)
         throw updateError
       }
 
@@ -834,14 +773,10 @@ async function runPlanRoute(
 
       return { type: 'routes', data: built, routePlanId }
     } catch (error) {
-      lastError = error
+      _lastError = error
       const errorMessage = error instanceof Error ? error.message : String(error)
 
       if (attempt < MAX_ORCHESTRATOR_RETRIES) {
-        console.warn(
-          `[runPlanRoute] Attempt ${attempt}/${MAX_ORCHESTRATOR_RETRIES} failed, retrying:`,
-          errorMessage,
-        )
         // Update status to show retry in progress (not "failed")
         await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
           routePlanId,
@@ -850,14 +785,6 @@ async function runPlanRoute(
         })
         continue
       }
-
-      // Final attempt failed — now surface the error
-      console.error('[runPlanRoute] All attempts exhausted:', errorMessage)
-      console.info('[runPlanRoute] Route plan failed:', {
-        routePlanId,
-        errorMessage,
-        attempts: attempt,
-      })
 
       // Check if the route plan was already completed or cancelled (race condition guard)
       const currentPlan = (await ctx.runQuery(internal.db.routePlans.getPlanByIdInternal, {
@@ -872,13 +799,6 @@ async function runPlanRoute(
           errorMessage,
         })
       } else {
-        console.info(
-          '[runPlanRoute] Route plan already completed/cancelled, skipping failure mark:',
-          {
-            routePlanId,
-            currentStatus: currentPlan?.status,
-          },
-        )
       }
       return {
         type: 'error',
@@ -913,13 +833,9 @@ async function runSetSessionTitle(ctx: AgentContext, args: { title: string }): P
       sessionId: ctx.planningSessionId,
       title: args.title,
     })
-    console.info('[runSetSessionTitle] Session title updated:', {
-      sessionId: ctx.planningSessionId,
-      title: args.title,
-    })
+
     return { type: 'confirmation', message: 'Session title updated' }
   } catch (error) {
-    console.error('[runSetSessionTitle] Error updating session title:', error)
     return {
       type: 'error',
       message: "I couldn't update the session title.",

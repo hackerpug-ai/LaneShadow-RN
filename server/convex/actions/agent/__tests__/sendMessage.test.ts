@@ -202,9 +202,7 @@ async function sendMessageHandler(
       },
       args.content,
     )
-  } catch (error) {
-    // Convert agent errors to conversational messages
-    console.error('[sendMessage] Agent error:', error)
+  } catch (_error) {
     agentResult = {
       response: "I'm having trouble right now. Could you try again?",
       attachments: undefined,
@@ -393,23 +391,23 @@ describe('sendMessage', () => {
 
 describe('TOOL_TO_CARD_KIND', () => {
   it('maps planRoute to routing_card', () => {
-    expect(TOOL_TO_CARD_KIND['planRoute']).toBe('routing_card')
+    expect(TOOL_TO_CARD_KIND.planRoute).toBe('routing_card')
   })
 
   it('maps compileSketch to routing_card', () => {
-    expect(TOOL_TO_CARD_KIND['compileSketch']).toBe('routing_card')
+    expect(TOOL_TO_CARD_KIND.compileSketch).toBe('routing_card')
   })
 
   it('does not map fetchWeather (placeholder stub excluded)', () => {
-    expect(TOOL_TO_CARD_KIND['fetchWeather']).toBeUndefined()
+    expect(TOOL_TO_CARD_KIND.fetchWeather).toBeUndefined()
   })
 
   it('does not map saveRoute (placeholder stub excluded)', () => {
-    expect(TOOL_TO_CARD_KIND['saveRoute']).toBeUndefined()
+    expect(TOOL_TO_CARD_KIND.saveRoute).toBeUndefined()
   })
 
   it('does not map geocode', () => {
-    expect(TOOL_TO_CARD_KIND['geocode']).toBeUndefined()
+    expect(TOOL_TO_CARD_KIND.geocode).toBeUndefined()
   })
 })
 

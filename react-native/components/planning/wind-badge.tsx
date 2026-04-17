@@ -9,8 +9,8 @@
  */
 
 import { StyleSheet, View } from 'react-native'
+import type { WindSummary } from '../../../server/models/saved-routes'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { WindSummary } from '../../models/saved-routes'
 import { Badge } from '../ui/badge'
 
 export type WindBadgeProps = {
@@ -57,7 +57,6 @@ export const WindBadge = ({ windLevel, testID }: WindBadgeProps) => {
 
     // Unknown type (new backend value) - warn in dev, show fallback
     if (__DEV__) {
-      console.warn(`⚠️ Unmapped wind level: "${level}" - add to LABELS in wind-badge.tsx`)
     }
 
     // Graceful fallback: CAPS_CASE with underscores converted to spaces
@@ -71,7 +70,7 @@ export const WindBadge = ({ windLevel, testID }: WindBadgeProps) => {
   }
 
   // Safe getter for icon (all levels use same icon)
-  const getWindIcon = (): string => {
+  const _getWindIcon = (): string => {
     return 'weather-windy'
   }
 

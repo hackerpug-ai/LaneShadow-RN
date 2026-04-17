@@ -8,11 +8,7 @@
 import { ConvexError } from 'convex/values'
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { Id } from '../_generated/dataModel'
-import {
-  recordRouteFeedbackHandler,
-  recordRouteFeedbackInputValidator,
-  routeFeedbackActionValidator,
-} from '../db/routeFeedback'
+import { recordRouteFeedbackHandler } from '../db/routeFeedback'
 
 // ---------------------------------------------------------------------------
 // Test data helpers

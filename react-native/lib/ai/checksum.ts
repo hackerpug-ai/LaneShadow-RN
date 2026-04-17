@@ -61,7 +61,6 @@ export class ChecksumValidator {
       // For large files (> 50MB), skip validation to avoid memory issues
       // The download already completed successfully if we got here
       if (fileSize > 50 * 1024 * 1024) {
-        console.log('[ChecksumValidator] Large file detected, skipping checksum validation')
         return '' // Return empty to bypass validation
       }
 

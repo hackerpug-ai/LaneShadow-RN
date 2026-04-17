@@ -3,7 +3,7 @@
  * Tests all webhook types with proper signature generation
  */
 
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 
 // Configuration
 const WEBHOOK_URL = 'https://enchanted-bobcat-288.convex.site/webhooks/workos'
@@ -27,8 +27,6 @@ async function sendWebhook(eventType: string, payload: any) {
   const body = JSON.stringify(payload)
   const signature = generateWorkOSSignature(body, WEBHOOK_SECRET)
 
-  console.log(`\n🧪 Testing: ${eventType}`)
-
   try {
     const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
@@ -40,15 +38,10 @@ async function sendWebhook(eventType: string, payload: any) {
     })
 
     if (response.ok) {
-      console.log(`   ✅ SUCCESS (${response.status})`)
     } else {
-      const errorText = await response.text()
-      console.log(`   ❌ FAILED (${response.status} ${response.statusText})`)
-      console.log(`   Error: ${errorText}`)
+      const _errorText = await response.text()
     }
-  } catch (error: any) {
-    console.log(`   ❌ ERROR: ${error.message}`)
-  }
+  } catch (_error: any) {}
 }
 
 /**
@@ -221,10 +214,6 @@ const membershipDeleted = {
  * Run all tests
  */
 async function runAllTests() {
-  console.log('🚀 Starting WorkOS Webhook Tests')
-  console.log('Webhook URL:', WEBHOOK_URL)
-  console.log('='.repeat(80))
-
   // Test in PROGRESSIVE order (critical for DB dependencies):
   // 1. CREATE entities first (org → user → membership)
   // 2. UPDATE entities
@@ -254,9 +243,6 @@ async function runAllTests() {
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
   await sendWebhook('organization.deleted', organizationDeleted)
-
-  console.log('\n' + '='.repeat(80))
-  console.log('✅ All webhook tests completed!')
 }
 
 // Run tests
