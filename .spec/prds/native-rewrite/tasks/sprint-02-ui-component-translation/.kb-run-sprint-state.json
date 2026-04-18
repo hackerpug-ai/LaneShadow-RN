@@ -1,14 +1,11 @@
 {
   "sprint_id": "sprint-02-ui-component-translation",
   "version": 1,
-  "updated_at": "2026-04-18T02:03:28.366Z",
+  "updated_at": "2026-04-18T02:10:14.943Z",
   "scheduler": {
     "mode": "loop",
     "effective_concurrency": 4,
-    "ready_queue": [
-      "UI-002",
-      "UI-002B"
-    ],
+    "ready_queue": [],
     "active_tasks": [],
     "terminal_tasks": [
       "UI-001",
@@ -50,7 +47,7 @@
     },
     "UI-002": {
       "title": "Enforce theme token schema in iOS",
-      "status": "pending",
+      "status": "blocked",
       "assignee": "swift-implementer",
       "reviewer": "swift-reviewer",
       "review_mode": "SINGLE",
@@ -66,21 +63,27 @@
       "reviewer_agent_id": "",
       "worktree_path": "",
       "worktree_branch": "",
-      "attempt_count": 0,
+      "attempt_count": 1,
       "review_cycle_count": 0,
-      "last_heartbeat_at": "",
-      "last_event": "planned",
-      "blocker_class": "none",
-      "next_action": "dispatch_implementer",
+      "last_heartbeat_at": "2026-04-18T02:10:14.943Z",
+      "last_event": "task_blocked",
+      "blocker_class": "spec_ambiguous",
+      "next_action": "await_user",
       "commit_sha": "",
       "evidence_path": "",
       "evidence_manifest_path": "",
       "open_findings": [],
-      "notes": []
+      "notes": [
+        "Task specs assume standalone native roots at ios/** and android/**.",
+        "Actual repo has Xcode project at react-native/ios/LaneShadow.xcodeproj.",
+        "No top-level ios/ directory exists.",
+        "No top-level android/ directory exists and no react-native/android tree exists.",
+        "Phase A native-enforcement tasks cannot be executed deterministically against the current repo layout without changing sprint assumptions."
+      ]
     },
     "UI-002B": {
       "title": "Enforce theme token schema in Android",
-      "status": "pending",
+      "status": "blocked",
       "assignee": "kotlin-implementer",
       "reviewer": "kotlin-reviewer",
       "review_mode": "SINGLE",
@@ -98,15 +101,21 @@
       "worktree_branch": "",
       "attempt_count": 0,
       "review_cycle_count": 0,
-      "last_heartbeat_at": "",
-      "last_event": "planned",
-      "blocker_class": "none",
-      "next_action": "dispatch_implementer",
+      "last_heartbeat_at": "2026-04-18T02:10:14.943Z",
+      "last_event": "task_blocked",
+      "blocker_class": "spec_ambiguous",
+      "next_action": "await_user",
       "commit_sha": "",
       "evidence_path": "",
       "evidence_manifest_path": "",
       "open_findings": [],
-      "notes": []
+      "notes": [
+        "Task specs assume standalone native roots at ios/** and android/**.",
+        "Actual repo has Xcode project at react-native/ios/LaneShadow.xcodeproj.",
+        "No top-level ios/ directory exists.",
+        "No top-level android/ directory exists and no react-native/android tree exists.",
+        "Phase A native-enforcement tasks cannot be executed deterministically against the current repo layout without changing sprint assumptions."
+      ]
     },
     "UI-003": {
       "title": "Bootstrap Android sandbox host, catalog navigation, and RN reference registry",
