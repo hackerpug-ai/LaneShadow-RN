@@ -33,4 +33,13 @@ class AtomsContractTest {
         assertEquals(Icons.Filled.Search.name, iconVectorForName("search").name)
         assertEquals(iconVectorForName("unknown-token").name, iconVectorForName("still-unknown").name)
     }
+
+    @Test
+    fun formControlEnums_coverExpectedVariants() {
+        assertTrue(ThemeButtonVariant.entries.contains(ThemeButtonVariant.Default))
+        assertTrue(ThemeButtonVariant.entries.contains(ThemeButtonVariant.Destructive))
+        assertTrue(ThemeButtonSize.entries.contains(ThemeButtonSize.Icon))
+        assertTrue(ThemeToggleVariant.entries.contains(ThemeToggleVariant.Outline))
+        assertTrue(ThemeToggleSize.entries.contains(ThemeToggleSize.Lg))
+    }
 }
