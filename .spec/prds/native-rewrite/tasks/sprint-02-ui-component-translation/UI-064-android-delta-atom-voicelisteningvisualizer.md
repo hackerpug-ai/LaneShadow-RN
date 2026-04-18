@@ -24,7 +24,7 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 ### MUST
 - Implement the listed components or compositions with parity-aligned naming and interfaces: Android delta atom — `VoiceListeningVisualizer` (audio amplitude waveform atom for UC-VOICE-02); Compose custom Canvas + animateFloat.
-- Use only shared semantic tokens for colors, spacing, typography, radii, elevation, and state styling.
+- Use only the LaneShadow core theme contract locked by `UI-001`: `tokens/semantic/semantic.tokens.json` as the source of truth, generated `native-theme` outputs as the shared packaging layer, and the platform theme entry points (`LaneShadowTheme` on Android, `.laneShadowTheme()` on iOS) for colors, spacing, typography, radii, elevation, and state styling.
 - Register sandbox scenarios for default, interactive, and edge-case states with RN reference labels.
 - Treat parity as spec-driven against the delta composition contract when there is no existing RN baseline story.
 
@@ -53,7 +53,7 @@ Sprint 2 translates the React Native baseline into native platform components an
 ### AC-2
 **GIVEN** Sprint 2 requires token-only styling and light and dark support.
 **WHEN** The task scenarios render in the sandbox.
-**THEN** All visuals use shared semantic tokens and render correctly in both color modes without hardcoded UI primitives.
+**THEN** All visuals use the LaneShadow core theme contract from `UI-001` and render correctly in both color modes without hardcoded UI primitives.
 **Verify:** `rg -n "Token consumption|light and dark" .spec/prds/native-rewrite/08d-component-parity-spec.md .spec/prds/native-rewrite/08-design-system.md`
 
 ### AC-3
@@ -86,7 +86,7 @@ Sprint 2 translates the React Native baseline into native platform components an
 | ID | Maps To | Boolean Statement | Verify |
 |---|---|---|---|
 | TC-1 | AC-1 | The listed components or compositions exist in the correct Android Compose directories with parity-aligned names and signatures: Android delta atom — `VoiceListeningVisualizer` (audio amplitude waveform atom for UC-VOICE-02); Compose custom Canvas + animateFloat. | `printf "%s\n" "Android delta atom — `VoiceListeningVisualizer` (audio amplitude waveform atom for UC-VOICE-02); Compose custom Canvas + animateFloat"` |
-| TC-2 | AC-2 | All visuals use shared semantic tokens and render correctly in both color modes without hardcoded UI primitives. | `rg -n "Token consumption\|light and dark" .spec/prds/native-rewrite/08d-component-parity-spec.md .spec/prds/native-rewrite/08-design-system.md` |
+| TC-2 | AC-2 | All visuals use the LaneShadow core theme contract from `UI-001` and render correctly in both color modes without hardcoded UI primitives. | `rg -n "Token consumption\|light and dark" .spec/prds/native-rewrite/08d-component-parity-spec.md .spec/prds/native-rewrite/08-design-system.md` |
 | TC-3 | AC-3 | Each listed component has deterministic sandbox coverage with RN reference labels and explicit state variants where applicable. | `rg -n "RN reference\|scenario\|interactive states" .spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/SPRINT.md` |
 | TC-4 | AC-4 | Accessibility labels, touch targets, keyboard or safe-area handling, and motion or state parity behave correctly for this component family. | `rg -n "Accessibility\|Keyboard handling\|RTL support\|Animation parity\|State parity" .spec/prds/native-rewrite/08d-component-parity-spec.md` |
 | TC-5 | AC-5 | The composition renders using only previously defined platform components, deterministic fixtures, and no backend or auth dependencies. | `rg -n "deterministic\|fixtures\|no auth\|no backend" .spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/SPRINT.md` |

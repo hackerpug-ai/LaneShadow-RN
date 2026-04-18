@@ -5,22 +5,22 @@
 
 ## Overview
 
-Translate all 195 React Native components to Kotlin/Compose (Android) and Swift/SwiftUI (iOS) following the atomic design hierarchy. Every RN component gets identically-named platform equivalents (e.g., `Button` → `Button.kt` + `Button.swift`) consuming shared semantic tokens. Tasks are dual (Android + iOS run in parallel per component subset) and iterative (each subset respects the atomic dependency graph: atoms → molecules → organisms → templates → screens).
+Translate all 195 React Native components to Kotlin/Compose (Android) and Swift/SwiftUI (iOS) following the atomic design hierarchy. Every RN component gets identically-named platform equivalents (e.g., `Button` → `Button.kt` + `Button.swift`) consuming the LaneShadow core theme contract locked by `UI-001` (`tokens/semantic/semantic.tokens.json` -> generated `native-theme` outputs -> `LaneShadowTheme` / `.laneShadowTheme()`). Tasks are dual (Android + iOS run in parallel per component subset) and iterative (each subset respects the atomic dependency graph: atoms → molecules → organisms → templates → screens).
 
 ## Human Testing Gate
 
-**Gate:** A reviewer can launch the installed native-sandbox library on Android and iOS via `make android_sandbox` / `make ios_sandbox`, browse every atom/molecule/organism/template/screen story registered in `AppStories.all` (Android) / `LaneShadowStories.all` (iOS), and confirm each native component renders with token-accurate parity against the React Native Storybook baseline through the `previewWrapper` theme wiring.
+**Gate:** A reviewer can launch the installed native-sandbox library on Android and iOS via `make android_sandbox` / `make ios_sandbox`, browse every atom/molecule/organism/template/screen story registered in `AppStories.all` (Android) / `LaneShadowStories.all` (iOS), and confirm each native component renders with token-accurate parity against the React Native Storybook baseline through the `previewWrapper` theme wiring backed by the `UI-001` core theme contract (`tokens/semantic/semantic.tokens.json` -> generated `native-theme` outputs -> platform theme entry points).
 
 ## Human Test Deliverable
 
-Both native platforms expose the native-sandbox library's sandbox mode wired to LaneShadow's aggregator (`LaneShadowStories.all` on iOS, `AppStories.all` on Android) with themed preview canvases (`.laneShadowTheme()` on iOS, `LaneShadowTheme { }` on Android), enabling side-by-side fidelity verification against the RN Storybook baseline before rider-facing auth, discovery, and planning sprints resume.
+Both native platforms expose the native-sandbox library's sandbox mode wired to LaneShadow's aggregator (`LaneShadowStories.all` on iOS, `AppStories.all` on Android) with themed preview canvases (`.laneShadowTheme()` on iOS, `LaneShadowTheme { }` on Android) that consume the `UI-001` core theme contract, enabling side-by-side fidelity verification against the RN Storybook baseline before rider-facing auth, discovery, and planning sprints resume.
 
 ## Human Test Steps
 
 1. Launch React Native Storybook and confirm the baseline `Tokens`, `Atoms`, `Molecules`, `Organisms`, `Templates`, and `Screens` scenario groups render in light and dark mode.
 2. From the repo root run `make android_sandbox` (launches the native-sandbox library host into LaneShadow via the Gradle composite build; alternative triggers: deep link `app-sandbox://sandbox`, long-press, or intent extra `com.laneshadow.OPEN_SANDBOX=true`). Confirm it exposes the same top-level groups from `AppStories.all`, with each `Story.id` / `Story.summary` labeling its RN reference.
 3. From the repo root run `make ios_sandbox` (launches the native-sandbox SPM package host; alternative triggers: deep link `laneshadow-sandbox://sandbox`, shake gesture, `-LaneShadowSandbox` launch arg, or `LANESHADOW_LAUNCH_SANDBOX=1` env). Confirm it exposes the same top-level groups from `LaneShadowStories.all`, with each `Story.id` / `Story.summary` labeling its RN reference.
-4. For each completed atom subset (primitives, form controls, feedback/containers, icon/branding, map polylines): browse its stories on RN / Android / iOS side-by-side — confirming the native canvases render through `previewWrapper` (`themedPreview { content -> LaneShadowTheme { content() } }` / `themedPreview { $0.laneShadowTheme() }`) with token-accurate parity. The sandbox chrome itself is theme-neutral by design; only the story content is themed.
+4. For each completed atom subset (primitives, form controls, feedback/containers, icon/branding, map polylines): browse its stories on RN / Android / iOS side-by-side — confirming the native canvases render through `previewWrapper` (`themedPreview { content -> LaneShadowTheme { content() } }` / `themedPreview { $0.laneShadowTheme() }`) with token-accurate parity from the same `UI-001` core theme contract (`tokens/semantic/semantic.tokens.json` -> generated `native-theme` outputs). The sandbox chrome itself is theme-neutral by design; only the story content is themed.
 5. For each completed molecule subset (12 categories): browse its stories on all three platforms and confirm interaction parity (states, animations, keyboard avoidance).
 6. For each completed organism subset (7 categories): browse sheet/map/chat/navigation stories using deterministic fixtures (no auth, no backend) and confirm composition parity.
 7. Open template stories (layouts, sheet wrappers, error boundaries) and confirm each platform renders the wrapper with correct safe-area + gradient handling.
@@ -56,9 +56,9 @@ Both native platforms expose the native-sandbox library's sandbox mode wired to 
 
 ## Sprint Structure
 
-Tasks are organized into 7 phases following the atomic dependency graph. Each phase (except Foundation and Fidelity verification) runs its Android and iOS tasks in parallel. Within a phase, subsets are iterative — later subsets may depend on earlier ones within the same atomic level only when noted.
+Tasks are organized into 8 phases following the atomic dependency graph. Each phase (except Foundation and Fidelity verification) runs its Android and iOS tasks in parallel. Within a phase, subsets are iterative — later subsets may depend on earlier ones within the same atomic level only when noted.
 
-- **Phase A** — Foundation & sandbox bootstrap (4 tasks, shared)
+- **Phase A** — Foundation & sandbox bootstrap (4 tasks, shared; `UI-001` freezes the core theme contract that every later task consumes rather than redefines)
 - **Phase B** — Atoms (10 tasks — 5 subsets × dual platform)
 - **Phase C** — Molecules (24 tasks — 12 subsets × dual platform)
 - **Phase D** — Organisms (14 tasks — 7 subsets × dual platform)
@@ -248,7 +248,7 @@ Every Android task has a dual iOS task in the same subset. They MUST stay name-p
 
 Each task is complete when:
 - [ ] Every listed RN component has an identically-named Compose (Android) or SwiftUI (iOS) equivalent in the appropriate `atoms/`, `molecules/`, `organisms/`, `templates/`, or `screens/` directory
-- [ ] Each component consumes ONLY shared semantic tokens (no hardcoded colors, spacing, radii, elevations)
+- [ ] Each component consumes ONLY the `UI-001` core theme contract (`tokens/semantic/semantic.tokens.json` -> generated `native-theme` outputs -> `LaneShadowTheme` / `.laneShadowTheme()`) with no hardcoded colors, spacing, radii, or elevations
 - [ ] Each component has at least one native-sandbox `Story` entry registered in `AppStories.all` (Android) / `LaneShadowStories.all` (iOS), with `Story.summary` labeling its RN reference path
 - [ ] All interactive states (default, pressed, disabled, loading, error) are represented in sandbox stories
 - [ ] Light and dark mode render correctly for every story through the `previewWrapper` theme (`LaneShadowTheme { }` / `.laneShadowTheme()`)
@@ -256,7 +256,7 @@ Each task is complete when:
 
 ## Sprint Definition of Done
 
-- All 63 tasks marked complete
+- All 63 original tasks plus the 22 delta tasks marked complete, with `UI-001` treated as the frozen core-theme foundation if it has already shipped
 - Android and iOS sandbox modes (launched via `make android_sandbox` / `make ios_sandbox`) expose the full catalog hierarchy (atoms → molecules → organisms → templates → screens) through `AppStories.all` / `LaneShadowStories.all`
 - Phase-1 fidelity screenshot set captured on all three platforms keyed by `Story.id` with variance report published
 - No regressions in React Native Storybook — RN remains the baseline reference
