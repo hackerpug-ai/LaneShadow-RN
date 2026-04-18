@@ -88,7 +88,7 @@ final class LaneShadowTests: XCTestCase {
     }
 
     func test_ui006_ac3_registersDeterministicAtomsStoriesWithRnReferenceSummaries() {
-        let storiesSource = try? sandboxSource(named: "LaneShadowStories.swift")
+        let storiesSource = try? sandboxStoriesSource(named: "AtomsStories.swift")
 
         XCTAssertNotNil(storiesSource)
         XCTAssertTrue(storiesSource?.contains("id: \"atoms/theme-text/default\"") == true)
@@ -101,7 +101,7 @@ final class LaneShadowTests: XCTestCase {
     }
 
     func test_ui006_ac4_storyCoverageIncludesAccessibilitySafeAreaAndStateParityHooks() {
-        let storiesSource = try? sandboxSource(named: "LaneShadowStories.swift")
+        let storiesSource = try? sandboxStoriesSource(named: "AtomsStories.swift")
 
         XCTAssertNotNil(storiesSource)
         XCTAssertTrue(storiesSource?.contains(".accessibilityLabel(") == true)
@@ -116,6 +116,80 @@ final class LaneShadowTests: XCTestCase {
         XCTAssertTrue(storiesSource?.contains("AtomsStories.all") == true)
     }
 
+    func test_ui008_ac1_formControlAtomFilesExistWithExpectedTypes() {
+        let themeButton = try? atomsSource(named: "ThemeButton.swift")
+        let themePrimaryButton = try? atomsSource(named: "ThemePrimaryButton.swift")
+        let themeInput = try? atomsSource(named: "ThemeInput.swift")
+        let themeTextarea = try? atomsSource(named: "ThemeTextarea.swift")
+        let themeBottomSheetInput = try? atomsSource(named: "ThemeBottomSheetInput.swift")
+        let themeSwitch = try? atomsSource(named: "ThemeSwitch.swift")
+        let themeToggle = try? atomsSource(named: "ThemeToggle.swift")
+        let themeCheckbox = try? atomsSource(named: "ThemeCheckbox.swift")
+        let themeSlider = try? atomsSource(named: "ThemeSlider.swift")
+
+        XCTAssertTrue(themeButton?.contains("struct ThemeButton: View") == true)
+        XCTAssertTrue(themePrimaryButton?.contains("struct ThemePrimaryButton: View") == true)
+        XCTAssertTrue(themeInput?.contains("struct ThemeInput: View") == true)
+        XCTAssertTrue(themeTextarea?.contains("struct ThemeTextarea: View") == true)
+        XCTAssertTrue(themeBottomSheetInput?.contains("struct ThemeBottomSheetInput: View") == true)
+        XCTAssertTrue(themeSwitch?.contains("struct ThemeSwitch: View") == true)
+        XCTAssertTrue(themeToggle?.contains("struct ThemeToggle: View") == true)
+        XCTAssertTrue(themeCheckbox?.contains("struct ThemeCheckbox: View") == true)
+        XCTAssertTrue(themeSlider?.contains("struct ThemeSlider: View") == true)
+    }
+
+    func test_ui008_ac2_formControlAtomsUseThemeTokensWithoutUIKitFallbacks() {
+        let joined = [
+            try? atomsSource(named: "ThemeButton.swift"),
+            try? atomsSource(named: "ThemePrimaryButton.swift"),
+            try? atomsSource(named: "ThemeInput.swift"),
+            try? atomsSource(named: "ThemeTextarea.swift"),
+            try? atomsSource(named: "ThemeBottomSheetInput.swift"),
+            try? atomsSource(named: "ThemeSwitch.swift"),
+            try? atomsSource(named: "ThemeToggle.swift"),
+            try? atomsSource(named: "ThemeCheckbox.swift"),
+            try? atomsSource(named: "ThemeSlider.swift"),
+        ].compactMap { $0 }.joined(separator: "\n")
+
+        XCTAssertTrue(joined.contains("@Environment(\\.theme)"))
+        XCTAssertFalse(joined.contains("UIColor("))
+        XCTAssertFalse(joined.contains("Color.red"))
+    }
+
+    func test_ui008_ac3_registersDeterministicFormControlStoriesWithRnReferenceSummaries() {
+        let storiesSource = try? sandboxStoriesSource(named: "AtomsStories.swift")
+
+        XCTAssertNotNil(storiesSource)
+        XCTAssertTrue(storiesSource?.contains("id: \"atoms/theme-button/default\"") == true)
+        XCTAssertTrue(storiesSource?.contains("id: \"atoms/theme-primary-button/default\"") == true)
+        XCTAssertTrue(storiesSource?.contains("id: \"atoms/theme-input/default\"") == true)
+        XCTAssertTrue(storiesSource?.contains("id: \"atoms/theme-input/error\"") == true)
+        XCTAssertTrue(storiesSource?.contains("id: \"atoms/theme-textarea/default\"") == true)
+        XCTAssertTrue(storiesSource?.contains("id: \"atoms/theme-bottom-sheet-input/default\"") == true)
+        XCTAssertTrue(storiesSource?.contains("id: \"atoms/theme-switch/on\"") == true)
+        XCTAssertTrue(storiesSource?.contains("id: \"atoms/theme-toggle/pressed\"") == true)
+        XCTAssertTrue(storiesSource?.contains("id: \"atoms/theme-checkbox/checked\"") == true)
+        XCTAssertTrue(storiesSource?.contains("id: \"atoms/theme-slider/default\"") == true)
+        XCTAssertTrue(storiesSource?.contains("summary: \"react-native/") == true)
+    }
+
+    func test_ui008_ac4_formControlStoriesIncludeAccessibilityAndStateParityHooks() {
+        let storiesSource = try? sandboxStoriesSource(named: "AtomsStories.swift")
+
+        XCTAssertNotNil(storiesSource)
+        XCTAssertTrue(storiesSource?.contains("@State private var") == true)
+        XCTAssertTrue(storiesSource?.contains(".accessibilityLabel(") == true)
+        XCTAssertTrue(storiesSource?.contains(".animation(") == true)
+        XCTAssertTrue(storiesSource?.contains(".safeAreaPadding()") == true)
+    }
+
+    func test_ui008_ac5_laneShadowStoriesStillAggregatesAtomsStories() {
+        let storiesSource = try? sandboxSource(named: "LaneShadowStories.swift")
+
+        XCTAssertNotNil(storiesSource)
+        XCTAssertTrue(storiesSource?.contains("] + AtomsStories.all") == true)
+    }
+
     private func sandboxSource(named fileName: String) throws -> String {
         let repoRoot = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
@@ -126,6 +200,22 @@ final class LaneShadowTests: XCTestCase {
             .appendingPathComponent("ios")
             .appendingPathComponent("LaneShadow")
             .appendingPathComponent("Sandbox")
+            .appendingPathComponent(fileName)
+
+        return try String(contentsOf: fileURL, encoding: .utf8)
+    }
+
+    private func sandboxStoriesSource(named fileName: String) throws -> String {
+        let repoRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+
+        let fileURL = repoRoot
+            .appendingPathComponent("ios")
+            .appendingPathComponent("LaneShadow")
+            .appendingPathComponent("Sandbox")
+            .appendingPathComponent("Stories")
             .appendingPathComponent(fileName)
 
         return try String(contentsOf: fileURL, encoding: .utf8)
