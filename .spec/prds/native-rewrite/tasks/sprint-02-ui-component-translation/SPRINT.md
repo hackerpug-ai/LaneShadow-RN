@@ -28,6 +28,29 @@ Both native platforms expose the native-sandbox library's sandbox mode wired to 
 9. Capture the phase-1 fidelity screenshot set across RN, Android, iOS keyed by `Story.id` for side-by-side comparison with the RN baseline.
 10. Confirm every Android / iOS task in the Tasks table has a matching completion record referencing the specific component files that were translated and the `Story` entries registered in `AppStories.all` / `LaneShadowStories.all`.
 
+## UI-002 RN Scenario Registry
+
+`UI-002` defines the RN reference registry that native iOS and Android mirror. The canonical baseline lives in `react-native/stories/registry/scenarioRegistry.generated.ts`, and the reviewer-facing browser lives in `react-native/stories/registry/ScenarioRegistry.stories.tsx`.
+
+Scenario IDs follow `{tier-slug}/{component-slug}/{story-slug}` and are reused verbatim by `LaneShadowStories.all` and `AppStories.all`. RN reference registry summaries are stored as RN reference paths plus the story export so native `Story.summary` can render the same scenario context beside the canvas.
+
+Top-level scenario groups are explicit and stable:
+
+- `Tokens`
+- `Atoms`
+- `Molecules`
+- `Organisms`
+- `Templates`
+- `Screens`
+
+Screenshot capture is deterministic and scenario keyed:
+
+- screenshot basename: `rn--{scenario-id-with-double-dashes}--{theme}`
+- variance report basename: `variance--{scenario-id-with-double-dashes}--rn-vs-{platform}--{theme}.json`
+- fixture keys are stored per scenario entry to make cross-platform scenario capture reproducible
+
+Detailed registry, screenshot, scenario, and variance rules live in `UI-002-rn-scenario-registry.md`.
+
 ## Source Coverage
 
 - `06-technical-requirements.md`
