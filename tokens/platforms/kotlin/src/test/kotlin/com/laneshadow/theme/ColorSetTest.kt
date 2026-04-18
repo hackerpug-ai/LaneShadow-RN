@@ -1,6 +1,7 @@
 package com.laneshadow.theme
 
 import androidx.compose.ui.graphics.Color
+import dev.nativetheme.primitives.ColorSet
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull

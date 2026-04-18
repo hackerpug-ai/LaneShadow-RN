@@ -1,5 +1,7 @@
 package com.laneshadow.theme
 
+import dev.nativetheme.primitives.ColorSet
+
 data class DomainColors(
     val waypointOnRoute: ColorSet,
     val waypointOffRoute: ColorSet,

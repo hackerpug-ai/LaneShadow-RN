@@ -31,6 +31,9 @@ android {
 }
 
 dependencies {
+    // api(): ColorSet/parseColorString/etc. are part of :theme's public surface
+    // (theme.colors.primary.default returns ColorSet), so :app must see them.
+    api("dev.nativetheme:primitives")
     implementation(platform("androidx.compose:compose-bom:2024.06.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")

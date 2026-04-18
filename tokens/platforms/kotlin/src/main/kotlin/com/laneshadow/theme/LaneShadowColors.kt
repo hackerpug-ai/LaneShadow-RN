@@ -1,5 +1,8 @@
 package com.laneshadow.theme
 
+import dev.nativetheme.primitives.ColorSet
+import dev.nativetheme.primitives.parseColorString
+
 data class LaneShadowColors(
     val primary: ColorSet,
     val secondary: ColorSet,
