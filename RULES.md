@@ -31,21 +31,27 @@ When dispatching subagents for planning, review, or implementation, prefer these
 | `convex-planner` | Convex planning | Schemas, API endpoints, migration strategies |
 | `convex-implementer` | Convex implementation | Mutations, queries, migrations using TDD |
 | `convex-reviewer` | Convex review | API design, data integrity, migration safety |
-| `react-native-ui-planner` | Mobile planning | Expo, react-native-paper, mobile-specific patterns |
-| `react-native-ui-implementer` | Mobile implementation | React Native components using TDD with Expo |
-| `react-native-ui-reviewer` | Mobile review | Theme compliance, accessibility, TDD quality with Expo |
+| `react-native-ui-planner` | RN planning | React Native baseline, Storybook, shared UI contracts, and Expo/mobile-specific patterns |
+| `react-native-ui-implementer` | RN implementation | React Native components, Storybook registries, shared token/sandbox contracts, and other RN-owned UI infrastructure |
+| `react-native-ui-reviewer` | RN review | RN UI quality, theme compliance, accessibility, Storybook parity, and shared RN-owned UI contracts |
 | `kotlin-planner` | Android planning | Kotlin/Compose architecture, Hilt DI, Room schemas, Material 3 |
 | `kotlin-implementer` | Android implementation | Kotlin/Compose code using TDD with Hilt, Room, Material 3 |
 | `kotlin-reviewer` | Android review | Compose patterns, coroutine safety, Hilt DI correctness, TDD quality |
 | `swift-planner` | iOS planning | Swift/SwiftUI architecture, SwiftData schemas, @Observable design, navigation |
 | `swift-implementer` | iOS implementation | Swift/SwiftUI code using TDD with @Observable, SwiftData, XcodeBuildMCP |
 | `swift-reviewer` | iOS review | Swift 6 concurrency safety, memory management, modern API usage, TDD quality |
-| `frontend-designer` | Visual presentation | Layout, styling, animations ONLY — not for logic or state management |
+| `frontend-designer` | Standalone visual exploration | Mockups and presentation-only exploration outside sprint execution. Do not assign sprint implementation, verification, token pipelines, registries, or stateful UI work to this agent. |
 | `pi-agent-planner` | pi agent planning | Extension design, tools, workflows, event handlers |
 | `pi-agent-implementer` | pi agent implementation | Extensions, tools, workflows using pi coding-agent SDK |
 | `pi-agent-reviewer` | pi agent review | pi SDK best practices, TypeScript quality standards |
 
 **Dispatch priority**: Always check this table first. Only fall back to generic `general-purpose` agents when no domain expert matches the task.
+
+Platform ownership rule for sprint execution:
+- iOS implementation tasks must use `swift-*` agents for implementation and review.
+- Android implementation tasks must use `kotlin-*` agents for implementation and review.
+- Do not assign `frontend-designer` to executable sprint tasks.
+- In `.spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/`, only native execution agents are valid. Treat any task that writes `react-native/**`, `tokens/**`, or mixed React Native/native paths as a planning error that must be split, moved, or rewritten before `/kb-run-sprint` dispatches it.
 
 ---
 
@@ -57,13 +63,18 @@ For UI/UX design rules, component patterns, and theme usage, see [`styles/RULES.
 
 ## Pre-Commit Checks
 
-Every commit runs the following checks via a husky pre-commit hook (`.husky/pre-commit`):
+Every commit runs the following checks via `lefthook` `pre-commit` jobs declared in [`lefthook.yml`](lefthook.yml):
 
-1. **TypeScript type check** — `npm run type-check` (`tsc --noEmit`)
-2. **ESLint** — `npm run lint`
-3. **Convex build** — `npx convex dev --once` (pushes schema, functions, and runs typecheck in one shot)
+1. **TypeScript type check** — `pnpm type-check:native`
+2. **Biome lint/format/imports** — `pnpm exec biome check --no-errors-on-unmatched {staged_files}`
+3. **Token validation and sync checks** — `pnpm tokens:validate`, `pnpm tokens:sync-check` when matching files are staged
+4. **Platform-native checks** — `swiftformat`, `xcodebuild ... build`, or `./gradlew :app:compileDebugKotlin` when matching platform files are staged
 
-All three must pass before a commit is accepted. Do not bypass these checks with `--no-verify`.
+Additional repo-wide verification runs via `lefthook pre-push`:
+
+1. **Convex build** — `pnpm --dir server run convex:dev -- --once`
+
+Do not bypass these checks with `--no-verify`.
 
 ## Agent / Subagent Commit Policy
 
