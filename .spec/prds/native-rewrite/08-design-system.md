@@ -34,41 +34,6 @@ When a UC requires a composition not in the 195-component catalog (flagged under
 | `theme.semantic.type.body.md` | `Theme.Typography.bodyMd` | `MaterialTheme.typography.bodyMedium` |
 | Domain tokens (waypoint colors, deviation paths, enrichment phases) | `@Immutable` data classes / Environment values | Extended `ColorScheme` with domain properties |
 
-## Token Schema Contract
-
-Sprint 2 now freezes the token source of truth as a **single JSON contract**:
-
-- Schema: `tokens/theme.schema.json`
-- Document: `tokens/theme.json`
-- Validator: `pnpm tokens:validate`
-
-The contract covers the full shared semantic surface required by the native rewrite:
-
-- `color` with parallel `light` and `dark` trees
-- `spacing`
-- `typography`
-- `radius`
-- `elevation`
-- `motion`
-- `opacity`
-
-### Contract rules
-
-- `tokens/theme.json` is the only machine-validated token source for downstream native enforcement work.
-- `color.light` and `color.dark` must stay structurally identical. `pnpm tokens:validate` rejects drift.
-- Color naming is DTCG-aligned through hierarchical namespaces such as `color.light.surface.background` and `color.dark.waypoint.onRoute`.
-- `UI-002` consumes this contract to enforce the schema in iOS.
-- `UI-002B` consumes this contract to enforce the schema in Android.
-
-### Explicit waivers
-
-- Spacing and radius preserve the existing semantic aliases (`xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`) instead of numeric steps so the contract matches the current React Native semantic API without renames.
-- Typography preserves the existing `label/body/title/heading/display × sm/md/lg` scale and uses `family: "System"` plus `letterSpacing: 0` as the cross-platform baseline until platform-native font materialization occurs in downstream enforcement tasks.
-
-### Sprint 2 note
-
-This JSON pair supersedes the older per-category token-file split as the foundation contract for Sprint 2. Platform-specific generation may still fan out later, but `UI-001`, `UI-002`, and `UI-002B` depend on the single-file contract above.
-
 ### What Already Exists in `styles/theme.ts`
 
 - **40+ color tokens** across light/dark with state variants (default/hover/pressed/disabled)
