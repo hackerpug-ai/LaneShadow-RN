@@ -1,20 +1,16 @@
 // Public types for the LaneShadow theme. Mirror of the Swift / Kotlin shapes.
+// ColorSet and TypographyStyle now come from native-theme-primitives so all
+// consumers across platforms agree on the primitive shapes.
+
+export type {
+  ColorSet,
+  ElevationStyle,
+  TypographyStyle,
+} from 'native-theme-primitives'
+
+import type { ColorSet, TypographyStyle } from 'native-theme-primitives'
 
 export type ColorScheme = 'light' | 'dark'
-
-export interface ColorSet {
-  default: string
-  hover?: string
-  pressed?: string
-  disabled?: string
-  focus?: string
-}
-
-export interface TypographyStyle {
-  fontSize: number
-  lineHeight: number
-  fontWeight: string
-}
 
 export interface TypeScale {
   sm: TypographyStyle

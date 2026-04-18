@@ -314,6 +314,9 @@ importers:
 
   tokens/platforms/typescript:
     dependencies:
+      native-theme-primitives:
+        specifier: file:../../../../native-theme/platforms/typescript
+        version: file:../native-theme/platforms/typescript
       react:
         specifier: '>=18'
         version: 19.1.0
@@ -14558,4 +14561,9 @@ packages:
     dependencies:
       '@types/react': 19.1.17
       react: 19.1.0
+    dev: false
+
+  file:../native-theme/platforms/typescript:
+    resolution: {directory: ../native-theme/platforms/typescript, type: directory}
+    name: native-theme-primitives
     dev: false
