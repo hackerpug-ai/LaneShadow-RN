@@ -17,6 +17,76 @@ import SwiftUI
     }
 #endif
 
+// MARK: - Color string → SwiftUI.Color
+
+@inline(__always)
+func parseColorString(_ raw: String) -> Color {
+    let t = raw.trimmingCharacters(in: .whitespaces)
+    if t == "transparent" || t == "clear" { return .clear }
+    if t.hasPrefix("#") {
+        let hex = String(t.dropFirst())
+        let norm: String = hex.count == 3
+            ? String(hex.flatMap { [$0, $0] })
+            : hex
+        if norm.count == 6, let v = UInt64(norm, radix: 16) {
+            return Color(
+                red: Double((v >> 16) & 0xFF) / 255,
+                green: Double((v >> 8) & 0xFF) / 255,
+                blue: Double(v & 0xFF) / 255
+            )
+        }
+        if norm.count == 8, let v = UInt64(norm, radix: 16) {
+            let a = Double((v >> 24) & 0xFF) / 255
+            return Color(
+                red: Double((v >> 16) & 0xFF) / 255,
+                green: Double((v >> 8) & 0xFF) / 255,
+                blue: Double(v & 0xFF) / 255
+            ).opacity(a)
+        }
+    }
+    if t.hasPrefix("rgb") {
+        var s = t
+        if s.hasPrefix("rgba(") { s = String(s.dropFirst(5)) }
+        else if s.hasPrefix("rgb(") { s = String(s.dropFirst(4)) }
+        if s.hasSuffix(")") { s = String(s.dropLast()) }
+        let parts = s.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+        guard parts.count >= 3,
+              let r = Double(parts[0]),
+              let g = Double(parts[1]),
+              let b = Double(parts[2]) else { return .black }
+        let a = parts.count >= 4 ? (Double(parts[3]) ?? 1) : 1
+        return Color(red: r / 255, green: g / 255, blue: b / 255).opacity(a)
+    }
+    return .black
+}
+
+// MARK: - ColorSet factory (dynamic light/dark) from DTO dicts
+
+@inline(__always)
+func makeColorSet(
+    _ light: [String: ColorStatesDef],
+    _ dark: [String: ColorStatesDef],
+    _ key: String
+) -> ColorSet {
+    guard let l = light[key], let d = dark[key] else {
+        fatalError("LaneShadowTheme: missing color group '\(key)' in semantic.tokens.json")
+    }
+    func resolve(_ lc: ColorToken, _ dc: ColorToken) -> Color {
+        dyn(parseColorString(lc.value), parseColorString(dc.value))
+    }
+    func resolveOpt(_ lc: ColorToken?, _ dc: ColorToken?) -> Color? {
+        guard let lc, let dc else { return nil }
+        return resolve(lc, dc)
+    }
+    return ColorSet(
+        default: resolve(l.defaultColor, d.defaultColor),
+        hover: resolveOpt(l.hover, d.hover),
+        pressed: resolveOpt(l.pressed, d.pressed),
+        disabled: resolveOpt(l.disabled, d.disabled),
+        focus: resolveOpt(l.focus, d.focus)
+    )
+}
+
 // MARK: - Aggregated category structs
 
 public struct ThemeColors: Sendable {
@@ -102,302 +172,145 @@ public struct Theme: Sendable {
     public let elevation: ThemeElevation
     public let domain: DomainColors
 
-    public static let shared: Theme = buildShared()
+    /// Resolved once at first access by decoding the bundled semantic.tokens.json.
+    public static let shared: Theme = build(from: ThemeLoader.loadSemanticTokens())
 }
 
-// MARK: - Builders (split out to keep type-checker happy + readable)
+// MARK: - Builders
 
 private extension Theme {
-    static func buildShared() -> Theme {
+    static func build(from tokens: SemanticTokens) -> Theme {
         Theme(
-            colors: buildColors(),
-            space: buildSpace(),
-            radius: buildRadius(),
-            type: buildType(),
-            elevation: buildElevation(),
-            domain: DomainColors.shared
+            colors: buildColors(from: tokens),
+            space: buildSpace(from: tokens),
+            radius: buildRadius(from: tokens),
+            type: buildType(from: tokens),
+            elevation: buildElevation(from: tokens),
+            domain: DomainColors.build(from: tokens)
         )
     }
 
-    static func buildColors() -> ThemeColors {
-        let L = Tokens.Semantic.Color.Light.self
-        let D = Tokens.Semantic.Color.Dark.self
+    static func buildColors(from tokens: SemanticTokens) -> ThemeColors {
+        let L = tokens.color.light
+        let D = tokens.color.dark
         return ThemeColors(
-            primary: ColorSet(
-                default: dyn(L.Primary.default, D.Primary.default),
-                hover: dyn(L.Primary.hover, D.Primary.hover),
-                pressed: dyn(L.Primary.pressed, D.Primary.pressed),
-                disabled: dyn(L.Primary.disabled, D.Primary.disabled)
-            ),
-            secondary: ColorSet(
-                default: dyn(L.Secondary.default, D.Secondary.default),
-                hover: dyn(L.Secondary.hover, D.Secondary.hover),
-                pressed: dyn(L.Secondary.pressed, D.Secondary.pressed),
-                disabled: dyn(L.Secondary.disabled, D.Secondary.disabled)
-            ),
-            tertiary: ColorSet(
-                default: dyn(L.Tertiary.default, D.Tertiary.default),
-                hover: dyn(L.Tertiary.hover, D.Tertiary.hover),
-                pressed: dyn(L.Tertiary.pressed, D.Tertiary.pressed),
-                disabled: dyn(L.Tertiary.disabled, D.Tertiary.disabled)
-            ),
-            success: ColorSet(
-                default: dyn(L.Success.default, D.Success.default),
-                hover: dyn(L.Success.hover, D.Success.hover),
-                pressed: dyn(L.Success.pressed, D.Success.pressed),
-                disabled: dyn(L.Success.disabled, D.Success.disabled)
-            ),
-            warning: ColorSet(
-                default: dyn(L.Warning.default, D.Warning.default),
-                hover: dyn(L.Warning.hover, D.Warning.hover),
-                pressed: dyn(L.Warning.pressed, D.Warning.pressed),
-                disabled: dyn(L.Warning.disabled, D.Warning.disabled)
-            ),
-            warningContainer: ColorSet(
-                default: dyn(L.WarningContainer.default, D.WarningContainer.default),
-                hover: dyn(L.WarningContainer.hover, D.WarningContainer.hover),
-                pressed: dyn(L.WarningContainer.pressed, D.WarningContainer.pressed),
-                disabled: dyn(L.WarningContainer.disabled, D.WarningContainer.disabled)
-            ),
-            onWarningContainer: ColorSet(
-                default: dyn(L.OnWarningContainer.default, D.OnWarningContainer.default),
-                hover: dyn(L.OnWarningContainer.hover, D.OnWarningContainer.hover),
-                pressed: dyn(L.OnWarningContainer.pressed, D.OnWarningContainer.pressed),
-                disabled: dyn(L.OnWarningContainer.disabled, D.OnWarningContainer.disabled)
-            ),
-            danger: ColorSet(
-                default: dyn(L.Danger.default, D.Danger.default),
-                hover: dyn(L.Danger.hover, D.Danger.hover),
-                pressed: dyn(L.Danger.pressed, D.Danger.pressed),
-                disabled: dyn(L.Danger.disabled, D.Danger.disabled)
-            ),
-            info: ColorSet(
-                default: dyn(L.Info.default, D.Info.default),
-                hover: dyn(L.Info.hover, D.Info.hover),
-                pressed: dyn(L.Info.pressed, D.Info.pressed),
-                disabled: dyn(L.Info.disabled, D.Info.disabled)
-            ),
-            surface: ColorSet(
-                default: dyn(L.Surface.default, D.Surface.default),
-                hover: dyn(L.Surface.hover, D.Surface.hover),
-                pressed: dyn(L.Surface.pressed, D.Surface.pressed),
-                disabled: dyn(L.Surface.disabled, D.Surface.disabled)
-            ),
-            surfaceVariant: ColorSet(
-                default: dyn(L.SurfaceVariant.default, D.SurfaceVariant.default),
-                hover: dyn(L.SurfaceVariant.hover, D.SurfaceVariant.hover),
-                pressed: dyn(L.SurfaceVariant.pressed, D.SurfaceVariant.pressed),
-                disabled: dyn(L.SurfaceVariant.disabled, D.SurfaceVariant.disabled)
-            ),
-            background: ColorSet(
-                default: dyn(L.Background.default, D.Background.default),
-                hover: dyn(L.Background.hover, D.Background.hover),
-                pressed: dyn(L.Background.pressed, D.Background.pressed),
-                disabled: dyn(L.Background.disabled, D.Background.disabled)
-            ),
-            onSurface: ColorSet(
-                default: dyn(L.OnSurface.default, D.OnSurface.default),
-                hover: dyn(L.OnSurface.hover, D.OnSurface.hover),
-                pressed: dyn(L.OnSurface.pressed, D.OnSurface.pressed),
-                disabled: dyn(L.OnSurface.disabled, D.OnSurface.disabled)
-            ),
-            onPrimary: ColorSet(
-                default: dyn(L.OnPrimary.default, D.OnPrimary.default),
-                hover: dyn(L.OnPrimary.hover, D.OnPrimary.hover),
-                pressed: dyn(L.OnPrimary.pressed, D.OnPrimary.pressed),
-                disabled: dyn(L.OnPrimary.disabled, D.OnPrimary.disabled)
-            ),
-            onSecondary: ColorSet(
-                default: dyn(L.OnSecondary.default, D.OnSecondary.default),
-                hover: dyn(L.OnSecondary.hover, D.OnSecondary.hover),
-                pressed: dyn(L.OnSecondary.pressed, D.OnSecondary.pressed),
-                disabled: dyn(L.OnSecondary.disabled, D.OnSecondary.disabled)
-            ),
-            secondaryContainer: ColorSet(
-                default: dyn(L.SecondaryContainer.default, D.SecondaryContainer.default),
-                hover: dyn(L.SecondaryContainer.hover, D.SecondaryContainer.hover),
-                pressed: dyn(L.SecondaryContainer.pressed, D.SecondaryContainer.pressed),
-                disabled: dyn(L.SecondaryContainer.disabled, D.SecondaryContainer.disabled)
-            ),
-            onSecondaryContainer: ColorSet(
-                default: dyn(L.OnSecondaryContainer.default, D.OnSecondaryContainer.default),
-                hover: dyn(L.OnSecondaryContainer.hover, D.OnSecondaryContainer.hover),
-                pressed: dyn(L.OnSecondaryContainer.pressed, D.OnSecondaryContainer.pressed),
-                disabled: dyn(L.OnSecondaryContainer.disabled, D.OnSecondaryContainer.disabled)
-            ),
-            border: ColorSet(
-                default: dyn(L.Border.default, D.Border.default),
-                hover: dyn(L.Border.hover, D.Border.hover),
-                pressed: dyn(L.Border.pressed, D.Border.pressed),
-                disabled: dyn(L.Border.disabled, D.Border.disabled)
-            ),
-            input: ColorSet(
-                default: dyn(L.Input.default, D.Input.default),
-                hover: dyn(L.Input.hover, D.Input.hover),
-                pressed: dyn(L.Input.pressed, D.Input.pressed),
-                disabled: dyn(L.Input.disabled, D.Input.disabled)
-            ),
-            ring: ColorSet(
-                default: dyn(L.Ring.default, D.Ring.default),
-                hover: dyn(L.Ring.hover, D.Ring.hover),
-                pressed: dyn(L.Ring.pressed, D.Ring.pressed),
-                disabled: dyn(L.Ring.disabled, D.Ring.disabled)
-            ),
-            card: ColorSet(
-                default: dyn(L.Card.default, D.Card.default),
-                hover: dyn(L.Card.hover, D.Card.hover),
-                pressed: dyn(L.Card.pressed, D.Card.pressed),
-                disabled: dyn(L.Card.disabled, D.Card.disabled)
-            ),
-            popover: ColorSet(
-                default: dyn(L.Popover.default, D.Popover.default),
-                hover: dyn(L.Popover.hover, D.Popover.hover),
-                pressed: dyn(L.Popover.pressed, D.Popover.pressed),
-                disabled: dyn(L.Popover.disabled, D.Popover.disabled)
-            ),
-            accent: ColorSet(
-                default: dyn(L.Accent.default, D.Accent.default),
-                hover: dyn(L.Accent.hover, D.Accent.hover),
-                pressed: dyn(L.Accent.pressed, D.Accent.pressed),
-                disabled: dyn(L.Accent.disabled, D.Accent.disabled)
-            ),
-            muted: ColorSet(
-                default: dyn(L.Muted.default, D.Muted.default),
-                hover: dyn(L.Muted.hover, D.Muted.hover),
-                pressed: dyn(L.Muted.pressed, D.Muted.pressed),
-                disabled: dyn(L.Muted.disabled, D.Muted.disabled)
-            ),
-            divider: ColorSet(default: dyn(L.Divider.default, D.Divider.default)),
-            scrim: ColorSet(default: dyn(L.Scrim.default, D.Scrim.default)),
-            routeSelected: ColorSet(
-                default: dyn(L.RouteSelected.default, D.RouteSelected.default),
-                hover: dyn(L.RouteSelected.hover, D.RouteSelected.hover),
-                pressed: dyn(L.RouteSelected.pressed, D.RouteSelected.pressed)
-            ),
-            routeAlternate: ColorSet(
-                default: dyn(L.RouteAlternate.default, D.RouteAlternate.default)
-            )
+            primary: makeColorSet(L, D, "primary"),
+            secondary: makeColorSet(L, D, "secondary"),
+            tertiary: makeColorSet(L, D, "tertiary"),
+            success: makeColorSet(L, D, "success"),
+            warning: makeColorSet(L, D, "warning"),
+            warningContainer: makeColorSet(L, D, "warningContainer"),
+            onWarningContainer: makeColorSet(L, D, "onWarningContainer"),
+            danger: makeColorSet(L, D, "danger"),
+            info: makeColorSet(L, D, "info"),
+            surface: makeColorSet(L, D, "surface"),
+            surfaceVariant: makeColorSet(L, D, "surfaceVariant"),
+            background: makeColorSet(L, D, "background"),
+            onSurface: makeColorSet(L, D, "onSurface"),
+            onPrimary: makeColorSet(L, D, "onPrimary"),
+            onSecondary: makeColorSet(L, D, "onSecondary"),
+            secondaryContainer: makeColorSet(L, D, "secondaryContainer"),
+            onSecondaryContainer: makeColorSet(L, D, "onSecondaryContainer"),
+            border: makeColorSet(L, D, "border"),
+            input: makeColorSet(L, D, "input"),
+            ring: makeColorSet(L, D, "ring"),
+            card: makeColorSet(L, D, "card"),
+            popover: makeColorSet(L, D, "popover"),
+            accent: makeColorSet(L, D, "accent"),
+            muted: makeColorSet(L, D, "muted"),
+            divider: makeColorSet(L, D, "divider"),
+            scrim: makeColorSet(L, D, "scrim"),
+            routeSelected: makeColorSet(L, D, "routeSelected"),
+            routeAlternate: makeColorSet(L, D, "routeAlternate")
         )
     }
 
-    static func buildSpace() -> ThemeSpace {
-        let S = Tokens.Semantic.Space.self
+    static func buildSpace(from tokens: SemanticTokens) -> ThemeSpace {
+        let s = tokens.space
         return ThemeSpace(
-            xs: S.xs, sm: S.sm, md: S.md, lg: S.lg,
-            xl: S.xl, xxl: S._2xl, xxxl: S._3xl, xxxxl: S._4xl
+            xs: CGFloat(s["xs"]!.value),
+            sm: CGFloat(s["sm"]!.value),
+            md: CGFloat(s["md"]!.value),
+            lg: CGFloat(s["lg"]!.value),
+            xl: CGFloat(s["xl"]!.value),
+            xxl: CGFloat(s["2xl"]!.value),
+            xxxl: CGFloat(s["3xl"]!.value),
+            xxxxl: CGFloat(s["4xl"]!.value)
         )
     }
 
-    static func buildRadius() -> ThemeRadius {
-        let R = Tokens.Semantic.Radius.self
+    static func buildRadius(from tokens: SemanticTokens) -> ThemeRadius {
+        let r = tokens.radius
         return ThemeRadius(
-            none: R.none, sm: R.sm, md: R.md, lg: R.lg,
-            xl: R.xl, xxl: R._2xl, full: R.full
+            none: CGFloat(r["none"]!.value),
+            sm: CGFloat(r["sm"]!.value),
+            md: CGFloat(r["md"]!.value),
+            lg: CGFloat(r["lg"]!.value),
+            xl: CGFloat(r["xl"]!.value),
+            xxl: CGFloat(r["2xl"]!.value),
+            full: CGFloat(r["full"]!.value)
         )
     }
 
-    static func ts(_ size: CGFloat, _ lh: CGFloat, _ weightRaw: String) -> TypographyStyle {
-        TypographyStyle(fontSize: size, lineHeight: lh, fontWeight: fontWeight(from: weightRaw))
+    static func typographyStyle(from def: TypeStyleDef) -> TypographyStyle {
+        TypographyStyle(
+            fontSize: CGFloat(def.fontSize.value),
+            lineHeight: CGFloat(def.lineHeight.value),
+            fontWeight: fontWeight(from: def.fontWeight.value)
+        )
     }
 
-    static func buildType() -> ThemeType {
-        let T = Tokens.Semantic.Typography.self
+    static func buildType(from tokens: SemanticTokens) -> ThemeType {
+        let t = tokens.type
         return ThemeType(
             label: ThemeTypeScale(
-                sm: ts(T.Label.Sm.fontSize, T.Label.Sm.lineHeight, T.Label.Sm.fontWeight),
-                md: ts(T.Label.Md.fontSize, T.Label.Md.lineHeight, T.Label.Md.fontWeight),
-                lg: ts(T.Label.Lg.fontSize, T.Label.Lg.lineHeight, T.Label.Lg.fontWeight)
+                sm: typographyStyle(from: t.label.sm),
+                md: typographyStyle(from: t.label.md),
+                lg: typographyStyle(from: t.label.lg)
             ),
             body: ThemeTypeScale(
-                sm: ts(T.Body.Sm.fontSize, T.Body.Sm.lineHeight, T.Body.Sm.fontWeight),
-                md: ts(T.Body.Md.fontSize, T.Body.Md.lineHeight, T.Body.Md.fontWeight),
-                lg: ts(T.Body.Lg.fontSize, T.Body.Lg.lineHeight, T.Body.Lg.fontWeight)
+                sm: typographyStyle(from: t.body.sm),
+                md: typographyStyle(from: t.body.md),
+                lg: typographyStyle(from: t.body.lg)
             ),
             title: ThemeTypeScale(
-                sm: ts(T.Title.Sm.fontSize, T.Title.Sm.lineHeight, T.Title.Sm.fontWeight),
-                md: ts(T.Title.Md.fontSize, T.Title.Md.lineHeight, T.Title.Md.fontWeight),
-                lg: ts(T.Title.Lg.fontSize, T.Title.Lg.lineHeight, T.Title.Lg.fontWeight)
+                sm: typographyStyle(from: t.title.sm),
+                md: typographyStyle(from: t.title.md),
+                lg: typographyStyle(from: t.title.lg)
             ),
             heading: ThemeTypeScale(
-                sm: ts(T.Heading.Sm.fontSize, T.Heading.Sm.lineHeight, T.Heading.Sm.fontWeight),
-                md: ts(T.Heading.Md.fontSize, T.Heading.Md.lineHeight, T.Heading.Md.fontWeight),
-                lg: ts(T.Heading.Lg.fontSize, T.Heading.Lg.lineHeight, T.Heading.Lg.fontWeight)
+                sm: typographyStyle(from: t.heading.sm),
+                md: typographyStyle(from: t.heading.md),
+                lg: typographyStyle(from: t.heading.lg)
             ),
             display: ThemeTypeScale(
-                sm: ts(T.Display.Sm.fontSize, T.Display.Sm.lineHeight, T.Display.Sm.fontWeight),
-                md: ts(T.Display.Md.fontSize, T.Display.Md.lineHeight, T.Display.Md.fontWeight),
-                lg: ts(T.Display.Lg.fontSize, T.Display.Lg.lineHeight, T.Display.Lg.fontWeight)
+                sm: typographyStyle(from: t.display.sm),
+                md: typographyStyle(from: t.display.md),
+                lg: typographyStyle(from: t.display.lg)
             )
         )
     }
 
-    static func el(_ shadow: Color, _ ox: CGFloat, _ oy: CGFloat, _ op: CGFloat, _ rad: CGFloat,
-                   _ elv: CGFloat) -> ElevationStyle
-    {
+    static func elevationStyle(from def: ElevationDef) -> ElevationStyle {
         ElevationStyle(
-            shadowColor: shadow,
-            offsetX: ox,
-            offsetY: oy,
-            opacity: Double(op),
-            radius: rad,
-            elevation: elv
+            shadowColor: parseColorString(def.shadowColor.value),
+            offsetX: CGFloat(def.shadowOffset.width.value),
+            offsetY: CGFloat(def.shadowOffset.height.value),
+            opacity: def.shadowOpacity.value,
+            radius: CGFloat(def.shadowRadius.value),
+            elevation: CGFloat(def.elevation.value)
         )
     }
 
-    static func buildElevation() -> ThemeElevation {
-        // Use the light variants as the source of truth; Compose-equivalent logic
-        // would resolve dark variants similarly. For the Theme.shared singleton
-        // we match the bootstrap behavior of using light tokens for shadow values.
-        let E = Tokens.Semantic.Elevation.Light.self
+    static func buildElevation(from tokens: SemanticTokens) -> ThemeElevation {
+        let e = tokens.elevation.light
         return ThemeElevation(
-            level0: el(
-                E._0.shadowColor,
-                E._0.ShadowOffset.width,
-                E._0.ShadowOffset.height,
-                E._0.shadowOpacity,
-                E._0.shadowRadius,
-                E._0.elevation
-            ),
-            level1: el(
-                E._1.shadowColor,
-                E._1.ShadowOffset.width,
-                E._1.ShadowOffset.height,
-                E._1.shadowOpacity,
-                E._1.shadowRadius,
-                E._1.elevation
-            ),
-            level2: el(
-                E._2.shadowColor,
-                E._2.ShadowOffset.width,
-                E._2.ShadowOffset.height,
-                E._2.shadowOpacity,
-                E._2.shadowRadius,
-                E._2.elevation
-            ),
-            level3: el(
-                E._3.shadowColor,
-                E._3.ShadowOffset.width,
-                E._3.ShadowOffset.height,
-                E._3.shadowOpacity,
-                E._3.shadowRadius,
-                E._3.elevation
-            ),
-            level4: el(
-                E._4.shadowColor,
-                E._4.ShadowOffset.width,
-                E._4.ShadowOffset.height,
-                E._4.shadowOpacity,
-                E._4.shadowRadius,
-                E._4.elevation
-            ),
-            level5: el(
-                E._5.shadowColor,
-                E._5.ShadowOffset.width,
-                E._5.ShadowOffset.height,
-                E._5.shadowOpacity,
-                E._5.shadowRadius,
-                E._5.elevation
-            )
+            level0: elevationStyle(from: e["0"]!),
+            level1: elevationStyle(from: e["1"]!),
+            level2: elevationStyle(from: e["2"]!),
+            level3: elevationStyle(from: e["3"]!),
+            level4: elevationStyle(from: e["4"]!),
+            level5: elevationStyle(from: e["5"]!)
         )
     }
 }

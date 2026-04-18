@@ -13,7 +13,8 @@ let package = Package(
     targets: [
         .target(
             name: "LaneShadowTheme",
-            path: "Sources/LaneShadowTheme"
+            path: "Sources/LaneShadowTheme",
+            resources: [.process("Resources")]
         ),
         .testTarget(
             name: "LaneShadowThemeTests",
