@@ -42,4 +42,47 @@ class AtomsContractTest {
         assertTrue(ThemeToggleVariant.entries.contains(ThemeToggleVariant.Outline))
         assertTrue(ThemeToggleSize.entries.contains(ThemeToggleSize.Lg))
     }
+
+    @Test
+    fun feedbackAndContainerEnums_coverExpectedVariants() {
+        assertEquals(
+            setOf(
+                BadgeVariant.Default,
+                BadgeVariant.Secondary,
+                BadgeVariant.Destructive,
+                BadgeVariant.Outline,
+                BadgeVariant.Success,
+                BadgeVariant.Warning,
+                BadgeVariant.Info,
+            ),
+            BadgeVariant.entries.toSet(),
+        )
+        assertEquals(
+            setOf(
+                CardVariant.Default,
+                CardVariant.Primary,
+                CardVariant.Success,
+                CardVariant.Warning,
+                CardVariant.Danger,
+            ),
+            CardVariant.entries.toSet(),
+        )
+        assertEquals(
+            setOf(
+                AvatarSize.Sm,
+                AvatarSize.Md,
+                AvatarSize.Lg,
+            ),
+            AvatarSize.entries.toSet(),
+        )
+        assertEquals(
+            setOf(
+                SkeletonShape.Rect,
+                SkeletonShape.Circle,
+                SkeletonShape.Rounded,
+                SkeletonShape.Text,
+            ),
+            SkeletonShape.entries.toSet(),
+        )
+    }
 }

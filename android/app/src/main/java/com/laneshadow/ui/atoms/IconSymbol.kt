@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Menu
@@ -65,6 +66,7 @@ internal fun iconVectorForName(name: String): ImageVector =
         "dots-vertical" -> Icons.Filled.MoreVert
         "warning", "alert-circle" -> Icons.Filled.Warning
         "info" -> Icons.Filled.Info
+        "user", "person", "account" -> Icons.Filled.Person
         "drag-handle" -> Icons.Filled.KeyboardArrowUp
         "sheet-handle" -> Icons.Filled.KeyboardArrowDown
         else -> Icons.Filled.Check

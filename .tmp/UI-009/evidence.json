@@ -1,0 +1,116 @@
+{
+  "summary": "UI-009 adds the Android feedback and container atom set, extends the sandbox with deterministic RN-referenced stories for each new atom, and locks the new enums and icon fallback surface with Android unit tests.",
+  "task_id": "UI-009",
+  "files_changed": [
+    "android/app/src/main/java/com/laneshadow/ui/atoms/ThemeBadge.kt",
+    "android/app/src/main/java/com/laneshadow/ui/atoms/ThemeCard.kt",
+    "android/app/src/main/java/com/laneshadow/ui/atoms/ThemeChip.kt",
+    "android/app/src/main/java/com/laneshadow/ui/atoms/ThemeAvatar.kt",
+    "android/app/src/main/java/com/laneshadow/ui/atoms/Skeleton.kt",
+    "android/app/src/main/java/com/laneshadow/ui/atoms/Progress.kt",
+    "android/app/src/main/java/com/laneshadow/ui/atoms/Collapsible.kt",
+    "android/app/src/main/java/com/laneshadow/ui/atoms/FAB.kt",
+    "android/app/src/main/java/com/laneshadow/ui/atoms/IconSymbol.kt",
+    "android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt",
+    "android/app/src/test/java/com/laneshadow/ui/atoms/AtomsContractTest.kt"
+  ],
+  "verification_commands": [
+    "pnpm type-check:native",
+    "cd android && ./gradlew :app:testDebugUnitTest",
+    "cd android && ./gradlew test",
+    "cd android && ./gradlew :app:assembleDebug",
+    "make android_sandbox"
+  ],
+  "reviewer_considerations": [
+    "The Android project does not expose a detekt task; `cd android && ./gradlew detekt` fails with `Task 'detekt' not found`, so the bounded Android gates for this task are unit tests, full Gradle tests, assembleDebug, and sandbox launch.",
+    "ThemeAvatar accepts `imageUrl` for parity with the Android component map, but there is no image-loading dependency in this module yet, so sandbox coverage uses deterministic initials and badge states instead of network-backed image fixtures.",
+    "UI-009 keeps the new surfaces under `ui/atoms/**` per the sprint task guardrails even though the older component map classifies `Collapsible` and `FAB` higher in the stack."
+  ],
+  "artifacts": [
+    {
+      "kind": "notes",
+      "path": ".tmp/UI-009/notes.md"
+    },
+    {
+      "kind": "screenshot",
+      "path": ".tmp/UI-009/android-sandbox-ui009.png"
+    }
+  ],
+  "acceptance_criteria_evidence": [
+    {
+      "id": "AC-1",
+      "status": "met",
+      "evidence": [
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeBadge.kt:22",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeCard.kt:21",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeCard.kt:86",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeCard.kt:106",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeCard.kt:126",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeCard.kt:149",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeChip.kt:20",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeAvatar.kt:22",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/Skeleton.kt:29",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/Progress.kt:18",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/Collapsible.kt:19",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/FAB.kt:14"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "status": "met",
+      "evidence": [
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeBadge.kt:111",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeCard.kt:184",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeChip.kt:83",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeAvatar.kt:31",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/Skeleton.kt:38",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/Progress.kt:26",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/FAB.kt:30",
+        "command:cd android && ./gradlew :app:assembleDebug"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "status": "met",
+      "evidence": [
+        "file:android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt:222",
+        "file:android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt:236",
+        "file:android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt:250",
+        "file:android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt:264",
+        "file:android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt:278",
+        "file:android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt:292",
+        "file:android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt:306",
+        "file:android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt:320",
+        "artifact:.tmp/UI-009/android-sandbox-ui009.png"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "status": "met",
+      "evidence": [
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeBadge.kt:49",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeCard.kt:42",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeChip.kt:36",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/ThemeAvatar.kt:48",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/Progress.kt:27",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/Collapsible.kt:33",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/FAB.kt:30",
+        "file:android/app/src/main/java/com/laneshadow/ui/atoms/IconSymbol.kt:69",
+        "file:android/app/src/test/java/com/laneshadow/ui/atoms/AtomsContractTest.kt:47",
+        "command:cd android && ./gradlew :app:testDebugUnitTest"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "status": "met",
+      "evidence": [
+        "file:android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt:222",
+        "file:android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt:586",
+        "file:android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt:704",
+        "file:android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt:726",
+        "command:make android_sandbox",
+        "artifact:.tmp/UI-009/android-sandbox-ui009.png"
+      ]
+    }
+  ]
+}
