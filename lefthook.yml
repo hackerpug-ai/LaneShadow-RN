@@ -8,6 +8,10 @@ pre-commit:
       glob: "tokens/**/*"
       run: pnpm tokens:validate
 
+    - name: tokens:check-drift
+      glob: "tokens/**/*"
+      run: pnpm tokens:check-drift
+
     # TypeScript typecheck via tsgo (Go-based compiler, ~10x faster than tsc).
     # pnpm type-check still uses tsc for the benchmark baseline.
     - name: typecheck
@@ -38,7 +42,7 @@ pre-commit:
     - name: ios-typecheck
       root: ios/
       glob: "ios/**/*.{swift,pbxproj,xcconfig}"
-      run: xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'generic/platform=iOS Simulator' -quiet ONLY_ACTIVE_ARCH=YES COMPILER_INDEX_STORE_ENABLE=NO SWIFT_COMPILATION_MODE=incremental build
+      run: xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES COMPILER_INDEX_STORE_ENABLE=NO SWIFT_COMPILATION_MODE=incremental build
 
     # Android typecheck: gradle compileDebugKotlin transitively compiles all subprojects.
     - name: android-typecheck

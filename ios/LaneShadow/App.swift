@@ -1,3 +1,4 @@
+import LaneShadowTheme
 import SwiftUI
 
 @main
@@ -7,6 +8,7 @@ struct LaneShadowApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(convexStore: convexStore)
+                .laneShadowTheme()
         }
     }
 }

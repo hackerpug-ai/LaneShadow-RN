@@ -1,25 +1,28 @@
+import LaneShadowTheme
 import SwiftUI
 
 struct ContentView: View {
     @Bindable var convexStore: ConvexStore
+    @Environment(\.theme) private var theme
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: ThemeSpacing.large) {
+            VStack(spacing: theme.space.xl) {
                 Text("LaneShadow")
-                    .font(ThemeTypography.title)
-                    .foregroundStyle(ThemeColor.primaryText)
+                    .font(theme.type.title.lg.font)
+                    .foregroundStyle(theme.colors.onSurface.default)
 
                 Text("hello:get")
-                    .font(ThemeTypography.label)
-                    .foregroundStyle(ThemeColor.secondaryText)
+                    .font(theme.type.label.md.font)
+                    .foregroundStyle(theme.colors.onSurface.default)
 
                 Text(convexStore.helloValue)
-                    .font(ThemeTypography.body)
-                    .foregroundStyle(ThemeColor.secondaryText)
+                    .font(theme.type.body.md.font)
+                    .foregroundStyle(theme.colors.onSurface.default)
                     .multilineTextAlignment(.center)
             }
-            .padding(ThemeSpacing.large)
+            .padding(theme.space.xl)
+            .background(theme.colors.background.default)
             .navigationTitle("LaneShadow")
             .navigationBarTitleDisplayMode(.inline)
             .task {
@@ -31,4 +34,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView(convexStore: ConvexStore.preview)
+        .laneShadowTheme()
 }
