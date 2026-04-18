@@ -1,64 +1,11 @@
 import CoreGraphics
+import NativeTheme
 import SwiftUI
 
-#if canImport(UIKit)
-    import UIKit
-
-    @inline(__always)
-    func dyn(_ light: Color, _ dark: Color) -> Color {
-        Color(uiColor: UIColor { trait in
-            trait.userInterfaceStyle == .dark ? UIColor(dark) : UIColor(light)
-        })
-    }
-#else
-    @inline(__always)
-    func dyn(_ light: Color, _ dark: Color) -> Color {
-        light
-    }
-#endif
-
-// MARK: - Color string → SwiftUI.Color
-
-@inline(__always)
-func parseColorString(_ raw: String) -> Color {
-    let t = raw.trimmingCharacters(in: .whitespaces)
-    if t == "transparent" || t == "clear" { return .clear }
-    if t.hasPrefix("#") {
-        let hex = String(t.dropFirst())
-        let norm: String = hex.count == 3
-            ? String(hex.flatMap { [$0, $0] })
-            : hex
-        if norm.count == 6, let v = UInt64(norm, radix: 16) {
-            return Color(
-                red: Double((v >> 16) & 0xFF) / 255,
-                green: Double((v >> 8) & 0xFF) / 255,
-                blue: Double(v & 0xFF) / 255
-            )
-        }
-        if norm.count == 8, let v = UInt64(norm, radix: 16) {
-            let a = Double((v >> 24) & 0xFF) / 255
-            return Color(
-                red: Double((v >> 16) & 0xFF) / 255,
-                green: Double((v >> 8) & 0xFF) / 255,
-                blue: Double(v & 0xFF) / 255
-            ).opacity(a)
-        }
-    }
-    if t.hasPrefix("rgb") {
-        var s = t
-        if s.hasPrefix("rgba(") { s = String(s.dropFirst(5)) }
-        else if s.hasPrefix("rgb(") { s = String(s.dropFirst(4)) }
-        if s.hasSuffix(")") { s = String(s.dropLast()) }
-        let parts = s.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-        guard parts.count >= 3,
-              let r = Double(parts[0]),
-              let g = Double(parts[1]),
-              let b = Double(parts[2]) else { return .black }
-        let a = parts.count >= 4 ? (Double(parts[3]) ?? 1) : 1
-        return Color(red: r / 255, green: g / 255, blue: b / 255).opacity(a)
-    }
-    return .black
-}
+// Support primitives (ColorSet, TypographyStyle, ElevationStyle, parseColorString,
+// dyn, fontWeight) now come from the NativeTheme Swift Package at
+// ../../../../native-theme/platforms/swift. This file owns only the LaneShadow-
+// specific aggregation of those primitives into a typed Theme struct.
 
 // MARK: - ColorSet factory (dynamic light/dark) from DTO dicts
 

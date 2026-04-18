@@ -10,9 +10,15 @@ let package = Package(
     products: [
         .library(name: "LaneShadowTheme", targets: ["LaneShadowTheme"]),
     ],
+    dependencies: [
+        .package(path: "../../../../native-theme/platforms/NativeTheme"),
+    ],
     targets: [
         .target(
             name: "LaneShadowTheme",
+            dependencies: [
+                .product(name: "NativeTheme", package: "NativeTheme"),
+            ],
             path: "Sources/LaneShadowTheme",
             resources: [.process("Resources")]
         ),

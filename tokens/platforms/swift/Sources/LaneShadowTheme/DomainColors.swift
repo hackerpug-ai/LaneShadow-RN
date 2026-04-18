@@ -1,3 +1,4 @@
+import NativeTheme
 import SwiftUI
 
 public struct DomainColors: Sendable {
