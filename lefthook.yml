@@ -33,6 +33,19 @@ pre-commit:
     #   glob: "*.{kt,kts}"
     #   run: detekt --input {staged_files} --config .detekt/config.yml
 
+    # iOS typecheck: full Xcode incremental build for any Swift / project file change.
+    # Runs from ios/ root. Targets a generic Simulator destination so no device boot is needed.
+    - name: ios-typecheck
+      root: ios/
+      glob: "ios/**/*.{swift,pbxproj,xcconfig}"
+      run: xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'generic/platform=iOS Simulator' -quiet ONLY_ACTIVE_ARCH=YES COMPILER_INDEX_STORE_ENABLE=NO SWIFT_COMPILATION_MODE=incremental build
+
+    # Android typecheck: gradle compileDebugKotlin transitively compiles all subprojects.
+    - name: android-typecheck
+      root: android/
+      glob: "android/**/*.{kt,kts,gradle,properties,toml}"
+      run: ./gradlew :app:compileDebugKotlin
+
 pre-push:
   jobs:
     # Convex schema + codegen validation from backend workspace.
