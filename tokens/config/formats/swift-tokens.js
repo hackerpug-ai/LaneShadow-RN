@@ -50,6 +50,7 @@ const SWIFT_RESERVED = new Set([
   'static',
   'true',
   'false',
+  'Type',
 ])
 
 function escapeIdent(name) {
@@ -155,11 +156,17 @@ function leafValue(node) {
   if (t === 'number') return { type: 'Double', expr: String(v) }
   if (t === 'opacity') return { type: 'Double', expr: String(v) }
   if (t === 'fontWeight') return { type: 'String', expr: JSON.stringify(v) }
+  if (t === 'string' && (v === 'transparent' || v === 'clear')) {
+    return { type: 'SwiftUI.Color', expr: 'SwiftUI.Color.clear' }
+  }
   if (t === 'typography') return { type: 'LaneShadowTypographyStyle', expr: emitTypography(v) }
   if (t === 'shadow' || t === 'elevation')
     return { type: 'LaneShadowElevation', expr: emitElevation(v) }
   if (t === 'cubicBezier') return { type: 'LaneShadowEasing', expr: emitMotionEasing(v) }
   if (t === 'duration') return { type: 'Double', expr: String(v) }
+  if (Array.isArray(v)) {
+    return { type: '[Double]', expr: `[${v.map((n) => String(n)).join(', ')}]` }
+  }
   return { type: 'String', expr: JSON.stringify(v) }
 }
 
@@ -167,8 +174,16 @@ function isLeaf(node) {
   return node && typeof node === 'object' && '$value' in node
 }
 
+// Swift-specific source-name renames so consumer code is ergonomic.
+// `type` collides with Swift's `.Type` metatype expression, even when backtick-escaped
+// at declaration; rename to `typography` in this codegen target only.
+const SWIFT_KEY_RENAMES = { type: 'typography' }
+function aliasName(name) {
+  return SWIFT_KEY_RENAMES[name] || name
+}
+
 function emitNamespace(name, node, indent) {
-  const lines = [`${indent}public enum ${pascalCase(name)} {`]
+  const lines = [`${indent}public enum ${escapeIdent(pascalCase(aliasName(name)))} {`]
   for (const [key, child] of Object.entries(node)) {
     if (isLeaf(child)) {
       const { type, expr } = leafValue(child)

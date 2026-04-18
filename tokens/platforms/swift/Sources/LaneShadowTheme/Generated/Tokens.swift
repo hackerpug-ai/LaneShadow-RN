@@ -524,7 +524,7 @@ public enum Tokens {
       public static let _2xl: CGFloat = 32
       public static let full: CGFloat = 9999
     }
-    public enum Type {
+    public enum Typography {
       public enum Label {
         public enum Sm {
           public static let fontSize: CGFloat = 12
@@ -614,7 +614,7 @@ public enum Tokens {
     public enum Elevation {
       public enum Light {
         public enum _0 {
-          public static let shadowColor: String = "transparent"
+          public static let shadowColor: SwiftUI.Color = SwiftUI.Color.clear
           public enum ShadowOffset {
             public static let width: CGFloat = 0
             public static let height: CGFloat = 0
@@ -676,7 +676,7 @@ public enum Tokens {
       }
       public enum Dark {
         public enum _0 {
-          public static let shadowColor: String = "transparent"
+          public static let shadowColor: SwiftUI.Color = SwiftUI.Color.clear
           public enum ShadowOffset {
             public static let width: CGFloat = 0
             public static let height: CGFloat = 0
@@ -746,11 +746,11 @@ public enum Tokens {
         public static let slower: CGFloat = 400
       }
       public enum Easing {
-        public static let standard: String = [0.2,0,0,1]
-        public static let emphasized: String = [0.2,0,0,1]
-        public static let decelerate: String = [0,0,0.2,1]
-        public static let accelerate: String = [0.4,0,1,1]
-        public static let sharp: String = [0.4,0,0.6,1]
+        public static let standard: [Double] = [0.2, 0, 0, 1]
+        public static let emphasized: [Double] = [0.2, 0, 0, 1]
+        public static let decelerate: [Double] = [0, 0, 0.2, 1]
+        public static let accelerate: [Double] = [0.4, 0, 1, 1]
+        public static let sharp: [Double] = [0.4, 0, 0.6, 1]
       }
     }
     public enum Opacity {

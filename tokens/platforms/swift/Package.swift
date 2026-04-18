@@ -5,6 +5,7 @@ let package = Package(
     name: "LaneShadowTheme",
     platforms: [
         .iOS(.v17),
+        .macOS(.v13),
     ],
     products: [
         .library(name: "LaneShadowTheme", targets: ["LaneShadowTheme"]),
