@@ -116,6 +116,10 @@ tmp/
 # Pipeline state DB (local SQLite, not committed)
 .pipeline-state/
 
+# Local worktrees — not committed; they are local dev checkouts of other branches
+.codex-worktrees/
+.claude/worktrees/
+
 # Swift Package Manager build artifacts (generated during swift build / describe)
 tokens/platforms/swift/.build/
 tokens/platforms/swift/.swiftpm/

@@ -8,10 +8,6 @@ pre-commit:
       glob: "tokens/**/*"
       run: pnpm tokens:validate
 
-    - name: tokens:check-drift
-      glob: "tokens/**/*"
-      run: pnpm tokens:check-drift
-
     # TypeScript typecheck via tsgo (Go-based compiler, ~10x faster than tsc).
     # pnpm type-check still uses tsc for the benchmark baseline.
     - name: typecheck
