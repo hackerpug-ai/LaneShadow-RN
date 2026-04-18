@@ -5,7 +5,7 @@
 **Assigned To:** worker
 **Estimate:** 360 min
 **Type:** [FEATURE] [INFRA]
-**Status:** Backlog
+**Status:** Completed
 
 ---
 
@@ -93,3 +93,23 @@
 
 - Native Kotlin/Swift feature implementation
 - Convex deploy verification
+
+---
+
+## REVIEW (orchestrator verification after restart)
+
+**Review Date:** 2026-04-17
+**Commit SHA:** 07453f1409434b4a8d6ed80d17c48302b7671cfd
+**Verdict:** APPROVED
+
+### Acceptance Criteria Checklist
+
+- [x] AC-001: Expo app is relocated under `react-native/` (`git ls-files | rg '^react-native/'` shows the tracked Expo app tree in the new workspace)
+- [x] AC-002: Tooling points at `react-native/` (`eas.json` sets `"projectRoot": "./react-native"`, root `README.md` and `package.json` delegate app workflows to `react-native/`)
+- [x] AC-003: Repo layout matches the intended multi-app shape closely enough to proceed (`react-native/`, `server/`, `android/`, and `ios/` all exist in the root layout)
+
+### Task-Local Verification
+
+- `pnpm --dir react-native exec expo config --type public` (passes, proving Expo resolves configuration from `react-native/`)
+- `rg -n 'react-native/|projectRoot|Expo app workspace' README.md eas.json package.json .spec/prds/native-rewrite -g '*.md'` (root docs/configs reference `react-native/` as the client root)
+- `find . -maxdepth 2 -type d \\( -name 'react-native' -o -name 'server' -o -name 'android' -o -name 'ios' \\) | sort` (expected multi-app layout present)
