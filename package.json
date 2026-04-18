@@ -103,7 +103,6 @@
   "devDependencies": {
     "@aws-sdk/lib-storage": "^3.1026.0",
     "@biomejs/biome": "^2.4.12",
-    "ajv": "^8.17.1",
     "@langchain/core": "^1.1.12",
     "@langchain/langgraph": "^1.0.15",
     "@langchain/openai": "^1.2.1",
@@ -117,12 +116,14 @@
     "@types/react": "~19.1.17",
     "@typescript/native-preview": "7.0.0-dev.20260416.2",
     "@vitest/ui": "^3.0.9",
+    "ajv": "^8.17.1",
     "dotenv": "^16.6.0",
     "jsdom": "^29.0.1",
     "langchain": "^1.2.7",
     "langsmith": "^0.5.16",
     "lefthook": "^2.1.6",
     "react-test-renderer": "19.1.0",
+    "style-dictionary": "^4.0.0",
     "tsx": "^4.20.6",
     "typescript": "~5.9.2",
     "vitest": "^3.0.9"
