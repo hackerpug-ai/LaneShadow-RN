@@ -9,24 +9,24 @@ Translate all 195 React Native components to Kotlin/Compose (Android) and Swift/
 
 ## Human Testing Gate
 
-**Gate:** A reviewer can open Android and iOS sandbox modes, browse every atom/molecule/organism/template/screen scenario grouped by the atomic catalog, and confirm each native component renders with token-accurate parity against the React Native Storybook baseline.
+**Gate:** A reviewer can launch the installed native-sandbox library on Android and iOS via `make android_sandbox` / `make ios_sandbox`, browse every atom/molecule/organism/template/screen story registered in `AppStories.all` (Android) / `LaneShadowStories.all` (iOS), and confirm each native component renders with token-accurate parity against the React Native Storybook baseline through the `previewWrapper` theme wiring.
 
 ## Human Test Deliverable
 
-Both native platforms expose sandbox modes that mirror the React Native baseline component-by-component, enabling side-by-side fidelity verification before rider-facing auth, discovery, and planning sprints resume.
+Both native platforms expose the native-sandbox library's sandbox mode wired to LaneShadow's aggregator (`LaneShadowStories.all` on iOS, `AppStories.all` on Android) with themed preview canvases (`.laneShadowTheme()` on iOS, `LaneShadowTheme { }` on Android), enabling side-by-side fidelity verification against the RN Storybook baseline before rider-facing auth, discovery, and planning sprints resume.
 
 ## Human Test Steps
 
 1. Launch React Native Storybook and confirm the baseline `Tokens`, `Atoms`, `Molecules`, `Organisms`, `Templates`, and `Screens` scenario groups render in light and dark mode.
-2. Launch the Android sandbox mode and confirm it exposes the same top-level groups, with RN reference labels linking each scenario to its source file.
-3. Launch the iOS sandbox mode and confirm it exposes the same top-level groups, with RN reference labels.
-4. For each completed atom subset (primitives, form controls, feedback/containers, icon/branding, map polylines): browse its scenarios on RN / Android / iOS side-by-side and confirm token-accurate parity.
-5. For each completed molecule subset (12 categories): browse its scenarios on all three platforms and confirm interaction parity (states, animations, keyboard avoidance).
-6. For each completed organism subset (7 categories): browse sheet/map/chat/navigation scenarios using deterministic fixtures (no auth, no backend) and confirm composition parity.
-7. Open template scenarios (layouts, sheet wrappers, error boundaries) and confirm each platform renders the wrapper with correct safe-area + gradient handling.
-8. Browse the screen scenarios (onboarding, route flows) on all three platforms and confirm screen-level composition parity.
-9. Capture the phase-1 fidelity screenshot set across RN, Android, iOS for the approved verification slice.
-10. Confirm every Android / iOS task in the Tasks table has a matching completion record referencing the specific component files that were translated.
+2. From the repo root run `make android_sandbox` (launches the native-sandbox library host into LaneShadow via the Gradle composite build; alternative triggers: deep link `app-sandbox://sandbox`, long-press, or intent extra `com.laneshadow.OPEN_SANDBOX=true`). Confirm it exposes the same top-level groups from `AppStories.all`, with each `Story.id` / `Story.summary` labeling its RN reference.
+3. From the repo root run `make ios_sandbox` (launches the native-sandbox SPM package host; alternative triggers: deep link `laneshadow-sandbox://sandbox`, shake gesture, `-LaneShadowSandbox` launch arg, or `LANESHADOW_LAUNCH_SANDBOX=1` env). Confirm it exposes the same top-level groups from `LaneShadowStories.all`, with each `Story.id` / `Story.summary` labeling its RN reference.
+4. For each completed atom subset (primitives, form controls, feedback/containers, icon/branding, map polylines): browse its stories on RN / Android / iOS side-by-side — confirming the native canvases render through `previewWrapper` (`themedPreview { content -> LaneShadowTheme { content() } }` / `themedPreview { $0.laneShadowTheme() }`) with token-accurate parity. The sandbox chrome itself is theme-neutral by design; only the story content is themed.
+5. For each completed molecule subset (12 categories): browse its stories on all three platforms and confirm interaction parity (states, animations, keyboard avoidance).
+6. For each completed organism subset (7 categories): browse sheet/map/chat/navigation stories using deterministic fixtures (no auth, no backend) and confirm composition parity.
+7. Open template stories (layouts, sheet wrappers, error boundaries) and confirm each platform renders the wrapper with correct safe-area + gradient handling.
+8. Browse the screen stories (onboarding, route flows) on all three platforms and confirm screen-level composition parity.
+9. Capture the phase-1 fidelity screenshot set across RN, Android, iOS keyed by `Story.id` for side-by-side comparison with the RN baseline.
+10. Confirm every Android / iOS task in the Tasks table has a matching completion record referencing the specific component files that were translated and the `Story` entries registered in `AppStories.all` / `LaneShadowStories.all`.
 
 ## Source Coverage
 
@@ -249,14 +249,14 @@ Every Android task has a dual iOS task in the same subset. They MUST stay name-p
 Each task is complete when:
 - [ ] Every listed RN component has an identically-named Compose (Android) or SwiftUI (iOS) equivalent in the appropriate `atoms/`, `molecules/`, `organisms/`, `templates/`, or `screens/` directory
 - [ ] Each component consumes ONLY shared semantic tokens (no hardcoded colors, spacing, radii, elevations)
-- [ ] Each component has at least one sandbox scenario browsable in the platform's sandbox mode, labeled with its RN reference path
-- [ ] All interactive states (default, pressed, disabled, loading, error) are represented in sandbox scenarios
-- [ ] Light and dark mode render correctly for every scenario
+- [ ] Each component has at least one native-sandbox `Story` entry registered in `AppStories.all` (Android) / `LaneShadowStories.all` (iOS), with `Story.summary` labeling its RN reference path
+- [ ] All interactive states (default, pressed, disabled, loading, error) are represented in sandbox stories
+- [ ] Light and dark mode render correctly for every story through the `previewWrapper` theme (`LaneShadowTheme { }` / `.laneShadowTheme()`)
 - [ ] The task's component files are committed with the test IDs from `08d-component-parity-spec.md` attached
 
 ## Sprint Definition of Done
 
 - All 63 tasks marked complete
-- Android and iOS sandbox modes expose the full catalog hierarchy (atoms → molecules → organisms → templates → screens)
-- Phase-1 fidelity screenshot set captured on all three platforms with variance report published
+- Android and iOS sandbox modes (launched via `make android_sandbox` / `make ios_sandbox`) expose the full catalog hierarchy (atoms → molecules → organisms → templates → screens) through `AppStories.all` / `LaneShadowStories.all`
+- Phase-1 fidelity screenshot set captured on all three platforms keyed by `Story.id` with variance report published
 - No regressions in React Native Storybook — RN remains the baseline reference

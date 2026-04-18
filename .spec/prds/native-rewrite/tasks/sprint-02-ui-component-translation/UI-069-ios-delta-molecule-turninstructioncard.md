@@ -38,7 +38,7 @@ Sprint 2 translates the React Native baseline into native platform components an
 ## DELIVERABLES
 
 - ios/LaneShadow/Views/Molecules/**
-- ios/LaneShadow/Sandbox/**
+- ios/LaneShadow/Sandbox/Stories/MoleculesStories.swift — @MainActor enum with `static let all: [Story]`, aggregated into LaneShadowStories.all
 - ios/LaneShadowTests/**
 - ios/LaneShadowSnapshotTests/**
 
@@ -73,6 +73,13 @@ Sprint 2 translates the React Native baseline into native platform components an
 **WHEN** The platform scenario is exercised end to end in the sandbox.
 **THEN** The composition renders using only previously defined platform components, deterministic fixtures, and no backend or auth dependencies.
 **Verify:** `rg -n "deterministic|fixtures|no auth|no backend" .spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/SPRINT.md`
+
+### AC-6
+**GIVEN** native-sandbox is installed and a DEBUG build is running.
+**WHEN** `make ios_sandbox` launches the sandbox (passes `-LaneShadowSandbox` arg to the app).
+**THEN** every component listed in DELIVERABLES has at least one `Story(id: "<tier>.<component>.<state>", tier: .<tier>, component: "<Name>", name: "<State>", summary: "<rn-reference-path>") { _ in <SwiftUI usage> }` registered in `LaneShadowStories.all` and renders in the story-tree drawer under its tier, wrapped by `themedPreview { $0.laneShadowTheme() }`.
+
+**Launch:** `make ios_sandbox` (canonical). Secondary: device shake (simulator: `xcrun simctl io booted shake`) or `xcrun simctl launch <id> com.laneshadow.app -LaneShadowSandbox`.
 
 ## TEST CRITERIA
 
@@ -152,3 +159,31 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 - Feature wiring beyond sandbox-ready component translation.
 - Changes to unrelated sprints or backend and server code.
+
+---
+
+## Native Sandbox Integration (added 2026-04-18)
+
+`native-sandbox` is installed as a local SPM package (`NativeSandbox` product at `relativePath = ../../native-sandbox/ios`, linked into the LaneShadow target).
+
+### Sandbox Deliverables (in addition to the component sources above)
+
+- `ios/LaneShadow/Sandbox/Stories/<ComponentGroup>Stories.swift` — `@MainActor enum <Group>Stories { static let all: [Story] }` aggregated into `LaneShadowStories.all` at `ios/LaneShadow/Sandbox/LaneShadowStories.swift`.
+
+### Sandbox Acceptance Criterion
+
+**GIVEN** the NativeSandbox SPM package is linked and a DEBUG build is running.
+**WHEN** the reviewer runs `make ios_sandbox` (or shakes the device / passes `-LaneShadowSandbox` arg).
+**THEN** every component named in DELIVERABLES has at least one registered `Story(id: "<tier>.<component>.<state>", tier: .<tier>, component: "<Name>", name: "<State>", summary: "<rn-reference-path>") { _ in <SwiftUI usage> }` appearing in the sandbox story-tree drawer, wrapped by `previewWrapper: themedPreview { $0.laneShadowTheme() }` so the preview canvas inherits LaneShadow tokens while chrome stays neutral.
+
+### Reviewer Launch
+
+- **Primary:** `make ios_sandbox` (from repo root) — builds Debug, installs to simulator, launches with `-LaneShadowSandbox` arg.
+- **Secondary:** device shake (simulator: `xcrun simctl io booted shake`), or `xcrun simctl launch <sim-id> com.laneshadow.app -LaneShadowSandbox`, or deep link `laneshadow-sandbox://sandbox`.
+
+### Contract references
+
+- `NativeSandbox.Story` — `id`, `tier` (`.atom|.molecule|.organism|.template|.screen`), `component`, `name`, `summary`, `content` view builder (`{ _ in ... }`).
+- `NativeSandbox.SandboxRoot` — entry view; receives `stories`, optional `themeController`, `previewWrapper`.
+- Swift 6 strict concurrency: Story containers MUST be `@MainActor` because `Story` is not Sendable.
+- Chrome is theme-neutral by design; only the preview canvas is re-themed via `previewWrapper`.

@@ -38,7 +38,7 @@ Sprint 2 translates the React Native baseline into native platform components an
 ## DELIVERABLES
 
 - android/app/src/main/java/com/laneshadow/ui/molecules/**
-- android/app/src/main/java/com/laneshadow/ui/sandbox/**
+- android/app/src/debug/java/com/laneshadow/sandbox/stories/MoleculesStories.kt — story set aggregated into AppStories.all
 - android/app/src/test/java/com/laneshadow/**
 - android/app/src/androidTest/java/com/laneshadow/**
 
@@ -73,6 +73,13 @@ Sprint 2 translates the React Native baseline into native platform components an
 **WHEN** The platform scenario is exercised end to end in the sandbox.
 **THEN** The composition renders using only previously defined platform components, deterministic fixtures, and no backend or auth dependencies.
 **Verify:** `rg -n "deterministic|fixtures|no auth|no backend" .spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/SPRINT.md`
+
+### AC-6
+**GIVEN** native-sandbox is installed and the DEBUG variant is running.
+**WHEN** `make android_sandbox` launches the sandbox (sends intent extra `com.laneshadow.OPEN_SANDBOX=true` to MainActivity).
+**THEN** every component listed in DELIVERABLES has at least one `Story(id = "<tier>.<component>.<state>", tier = ComponentTier.<Tier>, component = "<Name>", name = "<State>", summary = "<rn-reference-path>") { <Composable usage> }` registered in `AppStories.all` and renders in the story-tree drawer under its tier, wrapped by `themedPreview { content -> LaneShadowTheme { content() } }`.
+
+**Launch:** `make android_sandbox` (canonical). Secondary: long-press app root (debug gesture) or `adb shell am start -a android.intent.action.VIEW -d "app-sandbox://sandbox"`.
 
 ## TEST CRITERIA
 
@@ -151,3 +158,30 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 - Feature wiring beyond sandbox-ready component translation.
 - Changes to unrelated sprints or backend and server code.
+
+---
+
+## Native Sandbox Integration (added 2026-04-18)
+
+`native-sandbox` is installed as a Gradle composite build (`com.nativesandbox:library` via `includeBuild("../../native-sandbox/android")` with `debugImplementation`).
+
+### Sandbox Deliverables (in addition to the component sources above)
+
+- `android/app/src/debug/java/com/laneshadow/sandbox/stories/<ComponentGroup>Stories.kt` — debug-only story set; `object` with `val all: List<Story>`, aggregated into `AppStories.all` at `android/app/src/debug/java/com/laneshadow/sandbox/stories/AppStories.kt`.
+
+### Sandbox Acceptance Criterion
+
+**GIVEN** the native-sandbox Gradle composite build is wired and the DEBUG variant is built.
+**WHEN** the reviewer runs `make android_sandbox` (or triggers the long-press gesture / sends intent extra `com.laneshadow.OPEN_SANDBOX=true`).
+**THEN** every component named in DELIVERABLES has at least one registered `Story(id = "<tier>.<component>.<state>", tier = ComponentTier.<Tier>, component = "<Name>", name = "<State>", summary = "<rn-reference-path>") { <Composable usage> }` appearing in the sandbox story-tree drawer, wrapped by `previewWrapper = themedPreview { content -> LaneShadowTheme { content() } }` so the preview canvas inherits LaneShadow tokens while chrome stays neutral.
+
+### Reviewer Launch
+
+- **Primary:** `make android_sandbox` (from repo root) — builds debug APK, installs, launches MainActivity with the sandbox intent extra.
+- **Secondary:** long-press app root (debug-only gesture), or `adb shell am start -a android.intent.action.VIEW -d "app-sandbox://sandbox"`.
+
+### Contract references
+
+- `com.nativesandbox.model.Story` — `id`, `tier` (ComponentTier), `component`, `name`, `summary`, `content: @Composable`.
+- `com.nativesandbox.views.SandboxRoot` — entry composable; receives `stories`, optional `themeController`, `previewWrapper`.
+- Chrome is theme-neutral by design; only the preview canvas is re-themed via `previewWrapper`.

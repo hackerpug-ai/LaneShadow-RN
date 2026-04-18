@@ -37,7 +37,8 @@ Sprint 2 translates the React Native baseline into native platform components an
 ## DELIVERABLES
 
 - ios/LaneShadow/Views/artifacts/**
-- ios/LaneShadow/Sandbox/**
+- ios/LaneShadow/Sandbox/Stories/ScreenStories.swift — @MainActor enum with `static let all: [Story]`, aggregated into LaneShadowStories.all
+- ios/scripts/capture-fidelity.sh — XCUITest-driven harness that iterates `LaneShadowStories.all` by Story.id and writes screenshots keyed by id for side-by-side diff with RN baseline
 - ios/LaneShadowTests/**
 - ios/LaneShadowSnapshotTests/**
 
@@ -67,6 +68,13 @@ Sprint 2 translates the React Native baseline into native platform components an
 **THEN** Review findings clearly distinguish acceptable platform variance from parity failures that block downstream sprints.
 **Verify:** `printf "review artifact expected for UI-063
 "`
+
+### AC-5
+**GIVEN** native-sandbox is installed and a DEBUG build is running.
+**WHEN** `make ios_sandbox` launches the sandbox (passes `-LaneShadowSandbox` arg to the app).
+**THEN** every component listed in DELIVERABLES has at least one `Story(id: "<tier>.<component>.<state>", tier: .<tier>, component: "<Name>", name: "<State>", summary: "<rn-reference-path>") { _ in <SwiftUI usage> }` registered in `LaneShadowStories.all` and renders in the story-tree drawer under its tier, wrapped by `themedPreview { $0.laneShadowTheme() }`.
+
+**Launch:** `make ios_sandbox` (canonical). Secondary: device shake (simulator: `xcrun simctl io booted shake`) or `xcrun simctl launch <id> com.laneshadow.app -LaneShadowSandbox`.
 
 ## TEST CRITERIA
 
@@ -156,3 +164,22 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 - Feature wiring beyond sandbox-ready component translation.
 - Changes to unrelated sprints or backend and server code.
+
+---
+
+## Native Sandbox Integration (added 2026-04-18)
+
+### Fidelity Capture Deliverables
+
+- `ios/scripts/capture-fidelity.sh` — XCUITest or `xcrun simctl io booted screenshot` harness iterating `LaneShadowStories.all` by `Story.id`, launching each with `xcrun simctl launch <sim> com.laneshadow.app -LaneShadowSandbox -SandboxStoryId <story-id>` (if supported) or via deep link `laneshadow-sandbox://sandbox?id=<story-id>`, writing one PNG per Story.id keyed identically to Android and RN.
+
+### Sandbox Acceptance Criterion
+
+**GIVEN** `LaneShadowStories.all` is populated by upstream Sprint 2 tasks and a DEBUG simulator build is installed.
+**WHEN** the reviewer runs `make ios_sandbox` (to validate the drawer) then the capture script.
+**THEN** each `Story.id` produces a screenshot at the same canvas size as the RN and Android baselines, wrapped by `themedPreview { $0.laneShadowTheme() }`.
+
+### Reviewer Launch
+
+- **Primary:** `make ios_sandbox` (from repo root).
+- **Capture:** `ios/scripts/capture-fidelity.sh`.

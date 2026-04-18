@@ -16,9 +16,9 @@
 
 Sprint 2 translates the React Native baseline into native platform components and sandbox scenarios before rider-facing feature sprints resume. This task covers the `design` slice for `Lock shared token source, Style Dictionary outputs, and RN consumption contract`.
 
-**Objective:** Lock the cross-platform semantic token contract so RN, Android, and iOS all consume the same generated values before component translation begins.
+**Objective:** Lock the cross-platform semantic token contract so RN, Android, and iOS all consume the same generated values before component translation begins. The same generated token outputs feed the installed native-sandbox library's `previewWrapper` theme call paths — iOS `themedPreview { $0.laneShadowTheme() }` (the `.laneShadowTheme()` SwiftUI view extension) and Android `themedPreview { content -> LaneShadowTheme { content() } }` (the `LaneShadowTheme` composable) — so every `Story` canvas renders with identical token values on both platforms.
 
-**Success State:** Generated token outputs, naming rules, and RN consumption expectations are fixed and can be referenced without ambiguity across all Sprint 2 tasks.
+**Success State:** Generated token outputs, naming rules, and RN consumption expectations are fixed and can be referenced without ambiguity across all Sprint 2 tasks, including the native-sandbox `previewWrapper` theme wiring used by `LaneShadowStories.all` (iOS) and `AppStories.all` (Android).
 
 ## CRITICAL CONSTRAINTS
 
@@ -26,10 +26,12 @@ Sprint 2 translates the React Native baseline into native platform components an
 - Define one semantic token source of truth and fixed generated output paths for TypeScript, Swift, and Kotlin.
 - Preserve the RN `theme.semantic.*` consumption contract while moving underlying values to generated tokens.
 - Require token-only styling for all Sprint 2 UI work.
+- Ensure the same generated token artifacts are consumed by the iOS `.laneShadowTheme()` extension and the Android `LaneShadowTheme` composable, which are the native-sandbox `previewWrapper` entry points.
 
 ### NEVER
 - Allow hardcoded UI primitives in native components.
 - Rename semantic tokens differently across platforms.
+- Allow the native-sandbox preview canvas theme to diverge from the token artifacts RN consumes.
 
 ### STRICTLY
 - Any platform-specific deviation must be documented as an explicit waiver.
@@ -40,6 +42,7 @@ Sprint 2 translates the React Native baseline into native platform components an
 - config/**
 - react-native/styles/generated/**
 - .spec/prds/native-rewrite/08-design-system.md
+- Documented contract that the Android `LaneShadowTheme` composable and iOS `.laneShadowTheme()` view extension (the `previewWrapper` consumers in `AppStories.all` / `LaneShadowStories.all`) consume the same generated token artifacts as RN.
 
 ## ACCEPTANCE CRITERIA
 
@@ -62,9 +65,9 @@ Sprint 2 translates the React Native baseline into native platform components an
 **Verify:** `rg -n "Token consumption|hardcoded|drift|validate:tokens" .spec/prds/native-rewrite/08d-component-parity-spec.md .spec/prds/native-rewrite/08-design-system.md`
 
 ### AC-4
-**GIVEN** All three UI stacks must remain aligned through Sprint 2.
+**GIVEN** All three UI stacks must remain aligned through Sprint 2, including the native-sandbox `previewWrapper` theme call paths (`.laneShadowTheme()` on iOS, `LaneShadowTheme { }` on Android).
 **WHEN** Public token APIs and naming rules are frozen.
-**THEN** Android, iOS, and RN can reference the same semantic token names without platform-specific renames or ambiguity.
+**THEN** Android, iOS, and RN can reference the same semantic token names without platform-specific renames or ambiguity, and the native-sandbox preview canvases consume the identical token artifacts.
 **Verify:** `rg -n "PascalCase|semantic|Theme|ColorScheme" .spec/prds/native-rewrite/08-design-system.md .spec/prds/native-rewrite/08b-android-component-map.md .spec/prds/native-rewrite/08c-ios-component-map.md`
 
 ## TEST CRITERIA
@@ -114,15 +117,16 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Reference:** `react-native/styles/theme.ts`
 
-**Pattern:** Preserve a stable semantic token surface while moving underlying values to generated token artifacts for all three platforms.
+**Pattern:** Preserve a stable semantic token surface while moving underlying values to generated token artifacts for all three platforms. The same generated artifacts back the native-sandbox `previewWrapper` entry points: iOS `themedPreview { $0.laneShadowTheme() }` and Android `themedPreview { content -> LaneShadowTheme { content() } }`.
 
-**Anti-pattern:** Fork semantic token names or introduce platform-only hardcoded values.
+**Anti-pattern:** Fork semantic token names or introduce platform-only hardcoded values; theme the native-sandbox preview canvas from a source other than the shared generated tokens.
 
 ## DESIGN NOTES
 
 - Lock semantic token naming, generation outputs, and state variant conventions before platform implementation starts.
 - Require token-only styling and explicit waivers for any unavoidable platform variance.
 - Preserve RN semantic token consumption while moving underlying values to generated artifacts.
+- The native-sandbox library is installed and consumes its theme exclusively through `previewWrapper`: `.laneShadowTheme()` (iOS view extension) and `LaneShadowTheme { }` (Android composable). Both extensions MUST resolve their values from the generated token artifacts this task locks. Sandbox chrome is intentionally theme-neutral; only the preview canvas is themed.
 
 ## VERIFICATION GATES
 

@@ -37,7 +37,7 @@ Sprint 2 translates the React Native baseline into native platform components an
 ## DELIVERABLES
 
 - android/app/src/main/java/com/laneshadow/ui/artifacts/**
-- android/app/src/main/java/com/laneshadow/ui/sandbox/**
+- android/app/src/debug/java/com/laneshadow/sandbox/stories/FidelityStories.kt — story set aggregated into AppStories.all
 - android/app/src/test/java/com/laneshadow/**
 - android/app/src/androidTest/java/com/laneshadow/**
 
@@ -67,6 +67,13 @@ Sprint 2 translates the React Native baseline into native platform components an
 **THEN** Review findings clearly distinguish acceptable platform variance from parity failures that block downstream sprints.
 **Verify:** `printf "review artifact expected for UI-062
 "`
+
+### AC-5
+**GIVEN** native-sandbox is installed and the DEBUG variant is running.
+**WHEN** `make android_sandbox` launches the sandbox (sends intent extra `com.laneshadow.OPEN_SANDBOX=true` to MainActivity).
+**THEN** every component listed in DELIVERABLES has at least one `Story(id = "<tier>.<component>.<state>", tier = ComponentTier.<Tier>, component = "<Name>", name = "<State>", summary = "<rn-reference-path>") { <Composable usage> }` registered in `AppStories.all` and renders in the story-tree drawer under its tier, wrapped by `themedPreview { content -> LaneShadowTheme { content() } }`.
+
+**Launch:** `make android_sandbox` (canonical). Secondary: long-press app root (debug gesture) or `adb shell am start -a android.intent.action.VIEW -d "app-sandbox://sandbox"`.
 
 ## TEST CRITERIA
 
@@ -154,3 +161,22 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 - Feature wiring beyond sandbox-ready component translation.
 - Changes to unrelated sprints or backend and server code.
+
+---
+
+## Native Sandbox Integration (added 2026-04-18)
+
+### Fidelity Capture Deliverables
+
+- `android/scripts/capture-fidelity.sh` — iterates `AppStories.all` by `Story.id`, launches each via `adb shell am start -a android.intent.action.VIEW -d "app-sandbox://sandbox?id=<story-id>"` (or UiAutomator equivalent), and writes `adb shell screencap` output keyed by `Story.id` for side-by-side with RN baseline.
+
+### Sandbox Acceptance Criterion
+
+**GIVEN** `AppStories.all` is populated by upstream Sprint 2 tasks and the DEBUG APK is installed.
+**WHEN** the reviewer runs `make android_sandbox` (to validate the drawer) then the capture script.
+**THEN** each `Story.id` produces a screenshot at the same canvas size as the RN baseline, wrapped by `themedPreview { content -> LaneShadowTheme { content() } }`.
+
+### Reviewer Launch
+
+- **Primary:** `make android_sandbox` (from repo root).
+- **Capture:** `android/scripts/capture-fidelity.sh`.
