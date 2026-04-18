@@ -31,6 +31,22 @@ This document guarantees UX fidelity between the React Native app and both nativ
 
 ---
 
+## Token Contract
+
+All three UI stacks consume the same semantic token names from the canonical JSON source at `tokens/semantic/semantic.tokens.json`.
+
+- **Canonical source**: `tokens/semantic/semantic.tokens.json`
+- **Native bundle sync**: `pnpm tokens:sync` mirrors that file into the Swift and Kotlin package resource paths defined in `tokens/sync.config.json`
+- **Runtime delivery**:
+  - React Native loads canonical JSON through `tokens/platforms/typescript`
+  - Swift loads bundled JSON through `tokens/platforms/swift/Sources/LaneShadowTheme/ThemeLoader.swift`
+  - Kotlin loads bundled JSON through `tokens/platforms/kotlin/src/main/kotlin/com/laneshadow/theme/ThemeLoader.kt`
+- **Shared primitives**: `../native-theme` provides the cross-platform `ColorSet`, typography, elevation, and color parsing primitives
+- **Token consumption rule**: component code must reference semantic token accessors only; hardcoded colors, spacing, radii, elevations, or platform-only renames are forbidden
+- **Drift gates**: `pnpm tokens:validate` validates schema integrity, `pnpm tokens:sync-check` verifies bundled copies are current. Legacy references to `validate:tokens` or Style Dictionary codegen are historical only and are not the locked Sprint 2 contract.
+
+---
+
 ## Component Parity Matrix
 
 ### Atoms (60 components)

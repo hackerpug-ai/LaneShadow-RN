@@ -24,8 +24,8 @@
     "android:start": "make android_start",
     "prepare": "lefthook install",
     "tokens:validate": "node tokens/scripts/validate-contract.js",
-    "tokens:sync": "node tokens/scripts/sync-bundled-json.js",
-    "tokens:sync-check": "node tokens/scripts/sync-bundled-json.js --check"
+    "tokens:sync": "node ../native-theme/scripts/sync-bundled-json.js --config tokens/sync.config.json",
+    "tokens:sync-check": "node ../native-theme/scripts/sync-bundled-json.js --config tokens/sync.config.json --check"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1026.0",

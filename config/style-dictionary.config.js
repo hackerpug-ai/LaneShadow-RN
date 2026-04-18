@@ -1,7 +1,7 @@
 /**
  * Style Dictionary configuration for LaneShadow semantic tokens.
  *
- * Source of truth: `tokens/**` (DTCG-shaped JSON).
+ * Source of truth: semantic token JSON under `tokens/semantic/`.
  * Outputs:
  * - `react-native/styles/generated/tokens.ts`
  * - `tokens/generated/swift/LaneShadowTokens.swift`
@@ -9,7 +9,7 @@
  */
 
 module.exports = {
-  source: ['tokens/**/*.json'],
+  source: ['tokens/semantic/**/*.json'],
   platforms: {
     'react-native': {
       buildPath: 'react-native/styles/generated/',

@@ -13,9 +13,9 @@ LaneShadow's native rewrite requires a unified design system that works across R
 
 This PRD defines a three-layer architecture:
 
-1. **Token Source** — W3C DTCG standard JSON (platform-agnostic, industry standard since Oct 2025)
-2. **Build-Time Transformer** — Style Dictionary compiles tokens to Swift enums, Kotlin objects, TS constants
-3. **Platform-Native Theming** — SwiftUI Environment + Compose MaterialTheme consume tokens idiomatically
+1. **Token Source** — W3C DTCG standard JSON at `tokens/semantic/semantic.tokens.json`
+2. **Bundle Sync** — `pnpm tokens:sync` mirrors that canonical JSON into the Swift and Kotlin package resource paths using `../native-theme/scripts/sync-bundled-json.js --config tokens/sync.config.json`
+3. **Platform-Native Theming** — React Native, SwiftUI, and Compose load the same semantic JSON at runtime while relying on `../native-theme` primitives for shared parsing and token-state semantics
 
 ### Atom-First Delivery Model (effective 2026-04-17)
 
@@ -65,7 +65,7 @@ All defined in `SemanticTheme` TypeScript type in `styles/types.ts`.
 
 ## UC-DESIGN-01: Token Extraction Pipeline
 
-Extract all existing `styles/theme.ts` semantic tokens to W3C DTCG JSON format and configure Style Dictionary to generate platform-specific token files.
+Extract all existing `styles/theme.ts` semantic tokens to W3C DTCG JSON format and lock the no-build delivery contract: one canonical JSON source, synchronized bundled copies for native packages, and runtime theme loaders built on `../native-theme` primitives.
 
 ### Acceptance Criteria
 
@@ -76,29 +76,28 @@ Extract all existing `styles/theme.ts` semantic tokens to W3C DTCG JSON format a
   - `semantic.color.light.*` and `semantic.color.dark.*`
   - `semantic.elevation.light.*` and `semantic.elevation.dark.*`
 - ☐ State variants exist where applicable: `default` (required), plus `hover`, `pressed`, `disabled`, `focus` (optional)
-- ☐ Style Dictionary configured at `config/style-dictionary.config.js` with custom format plugins for Swift and Kotlin
-- ☐ `npm run build:tokens` generates:
-  - `react-native/styles/generated/tokens.ts` — TypeScript constants
-  - `ios/LaneShadow/Theme/Generated/` — Swift enums with ThemeColor, ThemeSpacing, ThemeTypography
-  - `android/app/src/main/java/com/laneshadow/ui/theme/generated/` — Kotlin objects with ThemeColor, ThemeSpacing, ThemeTypography
-- ☐ Generated files are read-only (gitignored or marked with `@generated` header)
+- ☐ `tokens/sync.config.json` defines the canonical mirror contract for bundled copies consumed by the Swift and Kotlin theme packages
+- ☐ `pnpm tokens:sync` mirrors `tokens/semantic/semantic.tokens.json` into:
+  - `tokens/platforms/swift/Sources/LaneShadowTheme/Resources/semantic.tokens.json`
+  - `tokens/platforms/kotlin/src/main/assets/semantic.tokens.json`
+  - `tokens/platforms/kotlin/src/test/resources/semantic.tokens.json`
+- ☐ React Native consumes the canonical JSON directly through `tokens/platforms/typescript/src/index.ts` with no generated `react-native/styles/generated/tokens.ts` dependency
+- ☐ `../native-theme` is the shared primitives dependency for Swift, Kotlin, and TypeScript; LaneShadow does not require a Style Dictionary codegen step or `build:tokens` command for the locked Sprint 2 contract
 - ☐ Token JSON validates against W3C DTCG schema in CI
 
 ### Technical Requirements
 
 - **W3C DTCG Format Module 2025.10 compliance** — Use official `$meta` and `$type` fields
 - **Token file naming**: `{category}/{semantic-name}.json` (kebab-case)
-- **Token group naming**: PascalCase for generated code (e.g., `waypoint-on-route.json` → `WaypointOnRoute` enum case)
-- **Style Dictionary v4+** with custom format plugins:
-  - `swift/enum.swift` — Generates Swift enum cases
-  - `kotlin/object.kt` — Generates Kotlin objects
-  - `typescript/constants.ts` — Generates TypeScript const objects
+- **Token group naming**: PascalCase for public component and theme APIs across RN, Swift, and Kotlin
+- **Shared primitives dependency**: `../native-theme` provides `ColorSet`, `TypographyStyle`, `ElevationStyle`, color parsing, and sync tooling
+- **Legacy note**: the repo still contains early Style Dictionary experiments under `config/style-dictionary*`, but they are not the canonical Sprint 2 delivery path and should not be used to redefine the token contract
 
 ---
 
 ## UC-DESIGN-02: SwiftUI Theme Integration
 
-Create SwiftUI theme infrastructure that consumes generated Swift token files and provides automatic dark/light mode resolution.
+Create SwiftUI theme infrastructure that consumes bundled semantic JSON through the LaneShadow theme package and provides automatic dark/light mode resolution.
 
 ### Acceptance Criteria
 
@@ -132,7 +131,7 @@ Create SwiftUI theme infrastructure that consumes generated Swift token files an
 
 ## UC-DESIGN-03: Compose Theme Integration
 
-Create Compose theme infrastructure that consumes generated Kotlin token files and extends MaterialTheme with domain-specific tokens.
+Create Compose theme infrastructure that consumes bundled semantic JSON through the LaneShadow theme package and extends MaterialTheme with domain-specific tokens.
 
 ### Acceptance Criteria
 
@@ -228,13 +227,13 @@ Create CI/CD pipeline that validates token schema integrity and prevents drift b
 - ☐ Pre-commit hook (`lefthook.yml`) runs `pnpm tokens:validate` when `tokens/**/*` changes
 - ☐ `pnpm tokens:validate` validates `tokens/semantic/semantic.tokens.json` against the repo contract schema: `tokens/schema/laneshadow-tokens.schema.json`
 - ☐ `pnpm tokens:validate` also runs a deliberate mutation check to prove contract violations fail with a named field path in the error output
-- ☐ CI pipeline runs `npm run build:tokens` and verifies no drift:
-  - Generated files match committed versions
-  - If drift detected, CI fails with instructions to run `npm run build:tokens`
-- ☐ Token changes trigger rebuild of all platform theme files:
-  - `tokens/**/*.json` changes → CI runs `build:tokens` → commits generated files
+- ☐ CI pipeline runs `pnpm tokens:sync-check` and verifies no drift:
+  - Bundled JSON copies match committed versions
+  - If drift detected, CI fails with instructions to run `pnpm tokens:sync`
+- ☐ Token changes trigger refresh of all platform theme bundles:
+  - `tokens/semantic/**/*.json` changes → CI runs `pnpm tokens:sync-check`
 - ☐ Pre-commit hook prevents committing invalid token JSON
-- ☐ CI pipeline fails if generated files are not committed (ensures single source of truth)
+- ☐ CI pipeline fails if bundled JSON copies are not committed (ensures single source of truth)
 
 ---
 
@@ -249,9 +248,11 @@ LaneShadow/
 │   │   └── semantic.tokens.json
 │   ├── schema/
 │   │   └── laneshadow-tokens.schema.json
-│   └── generated/             # Generated (platform-specific) artifacts
-│       ├── swift/
-│       └── kotlin/
+│   ├── sync.config.json       # native-theme mirror contract
+│   └── platforms/
+│       ├── swift/             # SPM package resources / wrappers
+│       ├── kotlin/            # Android asset-backed theme package
+│       └── typescript/        # RN/web runtime loader package
 ├── android/                   # Native Android app
 ├── ios/                       # Native iOS app
 ├── react-native/              # React Native app
@@ -268,21 +269,17 @@ LaneShadow/
 ### Token Format Compliance
 
 - **W3C DTCG Format Module 2025.10** — Use official schema with `$meta` and `$type` fields
-- **Token naming convention** — kebab-case for filenames, PascalCase for generated code
+- **Token naming convention** — kebab-case for filenames, PascalCase for public theme and component APIs
 - **Token structure** — All tokens include `$value`, `$type`, and optional `$extensions` for platform-specific overrides
 
-### Style Dictionary Configuration
+### Runtime Delivery Configuration
 
-- **Version**: Style Dictionary v4+
-- **Custom format plugins**:
-  - `swift/enum.swift` — Generates Swift enums with cases
-  - `kotlin/object.kt` — Generates Kotlin objects with const vals
-  - `typescript/constants.ts` — Generates TypeScript const objects
-- **Source**: `tokens/**/*.json`
+- **Canonical source**: `tokens/semantic/**/*.json`
+- **Mirror tooling**: `../native-theme/scripts/sync-bundled-json.js --config tokens/sync.config.json`
 - **Platforms**:
-  - `ios` → Swift enums
-  - `android` → Kotlin objects
-  - `react-native` → TypeScript constants
+  - `tokens/platforms/swift/**` → decodes bundled JSON and maps through `NativeTheme`
+  - `tokens/platforms/kotlin/**` → decodes bundled JSON and maps through `dev.nativetheme.primitives`
+  - `tokens/platforms/typescript/**` → imports canonical JSON directly and exposes a typed `buildTheme()` / `useTheme()` API
 
 ### Token Consumption Rules
 
@@ -297,9 +294,9 @@ LaneShadow/
 ### Build Commands
 
 ```bash
-npm run build:tokens    # Generate all platform token files
 pnpm tokens:validate    # Validate tokens against LaneShadow contract
-npm run watch:tokens    # Watch token files for changes and rebuild
+pnpm tokens:sync        # Mirror canonical JSON into bundled platform resources
+pnpm tokens:sync-check  # Verify bundled resources have no drift
 ```
 
 ---
@@ -309,26 +306,26 @@ npm run watch:tokens    # Watch token files for changes and rebuild
 ### Phase 1: Token Extraction (Before Native Code)
 
 - Extract all `styles/theme.ts` values to `tokens/` directory
-- Configure Style Dictionary
-- Validate generated files match existing theme.ts exactly
+- Lock `tokens/semantic/semantic.tokens.json` as the only source of truth
+- Validate canonical JSON matches existing theme semantics exactly
 
-### Phase 2: React Native Consumes Generated Tokens
+### Phase 2: React Native Consumes Canonical JSON
 
-- Replace hand-maintained `theme.ts` with generated `tokens.ts`
+- Replace hand-maintained literals with `tokens/platforms/typescript` runtime accessors backed by canonical JSON
 - Verify no visual regressions in React Native app
 - Commit: React Native now consumes single source of truth
 
 ### Phase 3: iOS Theme Wrapper
 
 - Create `ios/LaneShadow/Theme/AppTheme.swift`
-- Consume generated Swift token files
+- Consume bundled JSON from `tokens/platforms/swift/Sources/LaneShadowTheme/Resources/semantic.tokens.json`
 - Build SwiftUI Environment infrastructure
 - No UI code yet — theme foundation only
 
 ### Phase 4: Android Theme Wrapper
 
 - Create `android/app/src/main/java/com/laneshadow/ui/theme/Theme.kt`
-- Consume generated Kotlin token files
+- Consume bundled JSON from `tokens/platforms/kotlin/src/main/assets/semantic.tokens.json`
 - Extend MaterialTheme with domain tokens
 - No UI code yet — theme foundation only
 
@@ -406,7 +403,7 @@ object ThemeColor {
 ## Cross-Platform Consistency Guarantees
 
 1. **Single Source of Truth** — All tokens defined once in `tokens/` directory
-2. **Automated Generation** — Style Dictionary generates platform files from JSON
+2. **Automated Sync** — one canonical JSON file is mirrored into platform bundle locations
 3. **Schema Validation** — CI prevents invalid token commits
 4. **Snapshot Tests** — UI components verified visually across platforms
 5. **Semantic Naming** — Components use token names, not values (prevents drift)
@@ -417,8 +414,8 @@ object ThemeColor {
 
 - ☐ Zero hardcoded colors in component code
 - ☐ All tokens defined in W3C DTCG JSON
-- ☐ Generated files committed (no runtime generation)
+- ☐ Bundled JSON copies committed and in sync with the canonical source
 - ☐ CI validates token schema on every commit
-- ☐ React Native app consumes generated tokens with zero visual regression
+- ☐ React Native app consumes canonical semantic JSON through the runtime theme package with zero visual regression
 - ☐ iOS and Android theme wrappers ready for UI implementation
 - ☐ First 6 atomic components built with snapshot tests passing

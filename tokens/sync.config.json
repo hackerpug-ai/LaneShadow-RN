@@ -1,0 +1,9 @@
+{
+  "$schema": "https://native-theme.dev/schema/sync-config.schema.json",
+  "source": "semantic/semantic.tokens.json",
+  "targets": [
+    "platforms/swift/Sources/LaneShadowTheme/Resources/semantic.tokens.json",
+    "platforms/kotlin/src/main/assets/semantic.tokens.json",
+    "platforms/kotlin/src/test/resources/semantic.tokens.json"
+  ]
+}
