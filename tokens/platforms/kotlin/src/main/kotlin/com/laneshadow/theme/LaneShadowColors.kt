@@ -1,7 +1,5 @@
 package com.laneshadow.theme
 
-import com.laneshadow.theme.generated.Tokens
-
 data class LaneShadowColors(
     val primary: ColorSet,
     val secondary: ColorSet,
@@ -33,70 +31,49 @@ data class LaneShadowColors(
     val routeAlternate: ColorSet,
 ) {
     companion object {
-        fun light(): LaneShadowColors {
+        fun from(tokens: SemanticTokens, darkMode: Boolean): LaneShadowColors {
+            val m = if (darkMode) tokens.color.dark else tokens.color.light
             return LaneShadowColors(
-                primary = ColorSet(Tokens.Semantic.Color.Light.Primary.`default`, Tokens.Semantic.Color.Light.Primary.hover, Tokens.Semantic.Color.Light.Primary.pressed, Tokens.Semantic.Color.Light.Primary.disabled),
-                secondary = ColorSet(Tokens.Semantic.Color.Light.Secondary.`default`, Tokens.Semantic.Color.Light.Secondary.hover, Tokens.Semantic.Color.Light.Secondary.pressed, Tokens.Semantic.Color.Light.Secondary.disabled),
-                tertiary = ColorSet(Tokens.Semantic.Color.Light.Tertiary.`default`, Tokens.Semantic.Color.Light.Tertiary.hover, Tokens.Semantic.Color.Light.Tertiary.pressed, Tokens.Semantic.Color.Light.Tertiary.disabled),
-                success = ColorSet(Tokens.Semantic.Color.Light.Success.`default`, Tokens.Semantic.Color.Light.Success.hover, Tokens.Semantic.Color.Light.Success.pressed, Tokens.Semantic.Color.Light.Success.disabled),
-                warning = ColorSet(Tokens.Semantic.Color.Light.Warning.`default`, Tokens.Semantic.Color.Light.Warning.hover, Tokens.Semantic.Color.Light.Warning.pressed, Tokens.Semantic.Color.Light.Warning.disabled),
-                warningContainer = ColorSet(Tokens.Semantic.Color.Light.WarningContainer.`default`, Tokens.Semantic.Color.Light.WarningContainer.hover, Tokens.Semantic.Color.Light.WarningContainer.pressed, Tokens.Semantic.Color.Light.WarningContainer.disabled),
-                onWarningContainer = ColorSet(Tokens.Semantic.Color.Light.OnWarningContainer.`default`, Tokens.Semantic.Color.Light.OnWarningContainer.hover, Tokens.Semantic.Color.Light.OnWarningContainer.pressed, Tokens.Semantic.Color.Light.OnWarningContainer.disabled),
-                danger = ColorSet(Tokens.Semantic.Color.Light.Danger.`default`, Tokens.Semantic.Color.Light.Danger.hover, Tokens.Semantic.Color.Light.Danger.pressed, Tokens.Semantic.Color.Light.Danger.disabled),
-                info = ColorSet(Tokens.Semantic.Color.Light.Info.`default`, Tokens.Semantic.Color.Light.Info.hover, Tokens.Semantic.Color.Light.Info.pressed, Tokens.Semantic.Color.Light.Info.disabled),
-                surface = ColorSet(Tokens.Semantic.Color.Light.Surface.`default`, Tokens.Semantic.Color.Light.Surface.hover, Tokens.Semantic.Color.Light.Surface.pressed, Tokens.Semantic.Color.Light.Surface.disabled),
-                surfaceVariant = ColorSet(Tokens.Semantic.Color.Light.SurfaceVariant.`default`, Tokens.Semantic.Color.Light.SurfaceVariant.hover, Tokens.Semantic.Color.Light.SurfaceVariant.pressed, Tokens.Semantic.Color.Light.SurfaceVariant.disabled),
-                background = ColorSet(Tokens.Semantic.Color.Light.Background.`default`, Tokens.Semantic.Color.Light.Background.hover, Tokens.Semantic.Color.Light.Background.pressed, Tokens.Semantic.Color.Light.Background.disabled),
-                onSurface = ColorSet(Tokens.Semantic.Color.Light.OnSurface.`default`, Tokens.Semantic.Color.Light.OnSurface.hover, Tokens.Semantic.Color.Light.OnSurface.pressed, Tokens.Semantic.Color.Light.OnSurface.disabled),
-                onPrimary = ColorSet(Tokens.Semantic.Color.Light.OnPrimary.`default`, Tokens.Semantic.Color.Light.OnPrimary.hover, Tokens.Semantic.Color.Light.OnPrimary.pressed, Tokens.Semantic.Color.Light.OnPrimary.disabled),
-                onSecondary = ColorSet(Tokens.Semantic.Color.Light.OnSecondary.`default`, Tokens.Semantic.Color.Light.OnSecondary.hover, Tokens.Semantic.Color.Light.OnSecondary.pressed, Tokens.Semantic.Color.Light.OnSecondary.disabled),
-                secondaryContainer = ColorSet(Tokens.Semantic.Color.Light.SecondaryContainer.`default`, Tokens.Semantic.Color.Light.SecondaryContainer.hover, Tokens.Semantic.Color.Light.SecondaryContainer.pressed, Tokens.Semantic.Color.Light.SecondaryContainer.disabled),
-                onSecondaryContainer = ColorSet(Tokens.Semantic.Color.Light.OnSecondaryContainer.`default`, Tokens.Semantic.Color.Light.OnSecondaryContainer.hover, Tokens.Semantic.Color.Light.OnSecondaryContainer.pressed, Tokens.Semantic.Color.Light.OnSecondaryContainer.disabled),
-                border = ColorSet(Tokens.Semantic.Color.Light.Border.`default`, Tokens.Semantic.Color.Light.Border.hover, Tokens.Semantic.Color.Light.Border.pressed, Tokens.Semantic.Color.Light.Border.disabled),
-                input = ColorSet(Tokens.Semantic.Color.Light.Input.`default`, Tokens.Semantic.Color.Light.Input.hover, Tokens.Semantic.Color.Light.Input.pressed, Tokens.Semantic.Color.Light.Input.disabled),
-                ring = ColorSet(Tokens.Semantic.Color.Light.Ring.`default`, Tokens.Semantic.Color.Light.Ring.hover, Tokens.Semantic.Color.Light.Ring.pressed, Tokens.Semantic.Color.Light.Ring.disabled),
-                card = ColorSet(Tokens.Semantic.Color.Light.Card.`default`, Tokens.Semantic.Color.Light.Card.hover, Tokens.Semantic.Color.Light.Card.pressed, Tokens.Semantic.Color.Light.Card.disabled),
-                popover = ColorSet(Tokens.Semantic.Color.Light.Popover.`default`, Tokens.Semantic.Color.Light.Popover.hover, Tokens.Semantic.Color.Light.Popover.pressed, Tokens.Semantic.Color.Light.Popover.disabled),
-                accent = ColorSet(Tokens.Semantic.Color.Light.Accent.`default`, Tokens.Semantic.Color.Light.Accent.hover, Tokens.Semantic.Color.Light.Accent.pressed, Tokens.Semantic.Color.Light.Accent.disabled),
-                muted = ColorSet(Tokens.Semantic.Color.Light.Muted.`default`, Tokens.Semantic.Color.Light.Muted.hover, Tokens.Semantic.Color.Light.Muted.pressed, Tokens.Semantic.Color.Light.Muted.disabled),
-                divider = ColorSet(Tokens.Semantic.Color.Light.Divider.`default`),
-                scrim = ColorSet(Tokens.Semantic.Color.Light.Scrim.`default`),
-                routeSelected = ColorSet(Tokens.Semantic.Color.Light.RouteSelected.`default`, Tokens.Semantic.Color.Light.RouteSelected.hover, Tokens.Semantic.Color.Light.RouteSelected.pressed),
-                routeAlternate = ColorSet(Tokens.Semantic.Color.Light.RouteAlternate.`default`),
-            )
-        }
-
-        fun dark(): LaneShadowColors {
-            return LaneShadowColors(
-                primary = ColorSet(Tokens.Semantic.Color.Dark.Primary.`default`, Tokens.Semantic.Color.Dark.Primary.hover, Tokens.Semantic.Color.Dark.Primary.pressed, Tokens.Semantic.Color.Dark.Primary.disabled),
-                secondary = ColorSet(Tokens.Semantic.Color.Dark.Secondary.`default`, Tokens.Semantic.Color.Dark.Secondary.hover, Tokens.Semantic.Color.Dark.Secondary.pressed, Tokens.Semantic.Color.Dark.Secondary.disabled),
-                tertiary = ColorSet(Tokens.Semantic.Color.Dark.Tertiary.`default`, Tokens.Semantic.Color.Dark.Tertiary.hover, Tokens.Semantic.Color.Dark.Tertiary.pressed, Tokens.Semantic.Color.Dark.Tertiary.disabled),
-                success = ColorSet(Tokens.Semantic.Color.Dark.Success.`default`, Tokens.Semantic.Color.Dark.Success.hover, Tokens.Semantic.Color.Dark.Success.pressed, Tokens.Semantic.Color.Dark.Success.disabled),
-                warning = ColorSet(Tokens.Semantic.Color.Dark.Warning.`default`, Tokens.Semantic.Color.Dark.Warning.hover, Tokens.Semantic.Color.Dark.Warning.pressed, Tokens.Semantic.Color.Dark.Warning.disabled),
-                warningContainer = ColorSet(Tokens.Semantic.Color.Dark.WarningContainer.`default`, Tokens.Semantic.Color.Dark.WarningContainer.hover, Tokens.Semantic.Color.Dark.WarningContainer.pressed, Tokens.Semantic.Color.Dark.WarningContainer.disabled),
-                onWarningContainer = ColorSet(Tokens.Semantic.Color.Dark.OnWarningContainer.`default`, Tokens.Semantic.Color.Dark.OnWarningContainer.hover, Tokens.Semantic.Color.Dark.OnWarningContainer.pressed, Tokens.Semantic.Color.Dark.OnWarningContainer.disabled),
-                danger = ColorSet(Tokens.Semantic.Color.Dark.Danger.`default`, Tokens.Semantic.Color.Dark.Danger.hover, Tokens.Semantic.Color.Dark.Danger.pressed, Tokens.Semantic.Color.Dark.Danger.disabled),
-                info = ColorSet(Tokens.Semantic.Color.Dark.Info.`default`, Tokens.Semantic.Color.Dark.Info.hover, Tokens.Semantic.Color.Dark.Info.pressed, Tokens.Semantic.Color.Dark.Info.disabled),
-                surface = ColorSet(Tokens.Semantic.Color.Dark.Surface.`default`, Tokens.Semantic.Color.Dark.Surface.hover, Tokens.Semantic.Color.Dark.Surface.pressed, Tokens.Semantic.Color.Dark.Surface.disabled),
-                surfaceVariant = ColorSet(Tokens.Semantic.Color.Dark.SurfaceVariant.`default`, Tokens.Semantic.Color.Dark.SurfaceVariant.hover, Tokens.Semantic.Color.Dark.SurfaceVariant.pressed, Tokens.Semantic.Color.Dark.SurfaceVariant.disabled),
-                background = ColorSet(Tokens.Semantic.Color.Dark.Background.`default`, Tokens.Semantic.Color.Dark.Background.hover, Tokens.Semantic.Color.Dark.Background.pressed, Tokens.Semantic.Color.Dark.Background.disabled),
-                onSurface = ColorSet(Tokens.Semantic.Color.Dark.OnSurface.`default`, Tokens.Semantic.Color.Dark.OnSurface.hover, Tokens.Semantic.Color.Dark.OnSurface.pressed, Tokens.Semantic.Color.Dark.OnSurface.disabled),
-                onPrimary = ColorSet(Tokens.Semantic.Color.Dark.OnPrimary.`default`, Tokens.Semantic.Color.Dark.OnPrimary.hover, Tokens.Semantic.Color.Dark.OnPrimary.pressed, Tokens.Semantic.Color.Dark.OnPrimary.disabled),
-                onSecondary = ColorSet(Tokens.Semantic.Color.Dark.OnSecondary.`default`, Tokens.Semantic.Color.Dark.OnSecondary.hover, Tokens.Semantic.Color.Dark.OnSecondary.pressed, Tokens.Semantic.Color.Dark.OnSecondary.disabled),
-                secondaryContainer = ColorSet(Tokens.Semantic.Color.Dark.SecondaryContainer.`default`, Tokens.Semantic.Color.Dark.SecondaryContainer.hover, Tokens.Semantic.Color.Dark.SecondaryContainer.pressed, Tokens.Semantic.Color.Dark.SecondaryContainer.disabled),
-                onSecondaryContainer = ColorSet(Tokens.Semantic.Color.Dark.OnSecondaryContainer.`default`, Tokens.Semantic.Color.Dark.OnSecondaryContainer.hover, Tokens.Semantic.Color.Dark.OnSecondaryContainer.pressed, Tokens.Semantic.Color.Dark.OnSecondaryContainer.disabled),
-                border = ColorSet(Tokens.Semantic.Color.Dark.Border.`default`, Tokens.Semantic.Color.Dark.Border.hover, Tokens.Semantic.Color.Dark.Border.pressed, Tokens.Semantic.Color.Dark.Border.disabled),
-                input = ColorSet(Tokens.Semantic.Color.Dark.Input.`default`, Tokens.Semantic.Color.Dark.Input.hover, Tokens.Semantic.Color.Dark.Input.pressed, Tokens.Semantic.Color.Dark.Input.disabled),
-                ring = ColorSet(Tokens.Semantic.Color.Dark.Ring.`default`, Tokens.Semantic.Color.Dark.Ring.hover, Tokens.Semantic.Color.Dark.Ring.pressed, Tokens.Semantic.Color.Dark.Ring.disabled),
-                card = ColorSet(Tokens.Semantic.Color.Dark.Card.`default`, Tokens.Semantic.Color.Dark.Card.hover, Tokens.Semantic.Color.Dark.Card.pressed, Tokens.Semantic.Color.Dark.Card.disabled),
-                popover = ColorSet(Tokens.Semantic.Color.Dark.Popover.`default`, Tokens.Semantic.Color.Dark.Popover.hover, Tokens.Semantic.Color.Dark.Popover.pressed, Tokens.Semantic.Color.Dark.Popover.disabled),
-                accent = ColorSet(Tokens.Semantic.Color.Dark.Accent.`default`, Tokens.Semantic.Color.Dark.Accent.hover, Tokens.Semantic.Color.Dark.Accent.pressed, Tokens.Semantic.Color.Dark.Accent.disabled),
-                muted = ColorSet(Tokens.Semantic.Color.Dark.Muted.`default`, Tokens.Semantic.Color.Dark.Muted.hover, Tokens.Semantic.Color.Dark.Muted.pressed, Tokens.Semantic.Color.Dark.Muted.disabled),
-                divider = ColorSet(Tokens.Semantic.Color.Dark.Divider.`default`),
-                scrim = ColorSet(Tokens.Semantic.Color.Dark.Scrim.`default`),
-                routeSelected = ColorSet(Tokens.Semantic.Color.Dark.RouteSelected.`default`, Tokens.Semantic.Color.Dark.RouteSelected.hover, Tokens.Semantic.Color.Dark.RouteSelected.pressed),
-                routeAlternate = ColorSet(Tokens.Semantic.Color.Dark.RouteAlternate.`default`),
+                primary = colorSet(m, "primary"),
+                secondary = colorSet(m, "secondary"),
+                tertiary = colorSet(m, "tertiary"),
+                success = colorSet(m, "success"),
+                warning = colorSet(m, "warning"),
+                warningContainer = colorSet(m, "warningContainer"),
+                onWarningContainer = colorSet(m, "onWarningContainer"),
+                danger = colorSet(m, "danger"),
+                info = colorSet(m, "info"),
+                surface = colorSet(m, "surface"),
+                surfaceVariant = colorSet(m, "surfaceVariant"),
+                background = colorSet(m, "background"),
+                onSurface = colorSet(m, "onSurface"),
+                onPrimary = colorSet(m, "onPrimary"),
+                onSecondary = colorSet(m, "onSecondary"),
+                secondaryContainer = colorSet(m, "secondaryContainer"),
+                onSecondaryContainer = colorSet(m, "onSecondaryContainer"),
+                border = colorSet(m, "border"),
+                input = colorSet(m, "input"),
+                ring = colorSet(m, "ring"),
+                card = colorSet(m, "card"),
+                popover = colorSet(m, "popover"),
+                accent = colorSet(m, "accent"),
+                muted = colorSet(m, "muted"),
+                divider = colorSet(m, "divider"),
+                scrim = colorSet(m, "scrim"),
+                routeSelected = colorSet(m, "routeSelected"),
+                routeAlternate = colorSet(m, "routeAlternate"),
             )
         }
     }
+}
+
+internal fun colorSet(mode: Map<String, ColorStatesDefDto>, key: String): ColorSet {
+    val group = mode[key] ?: error("LaneShadowTheme: missing color group '$key' in semantic.tokens.json")
+    return ColorSet(
+        default = parseColorString(group.defaultColor.value),
+        hover = group.hover?.let { parseColorString(it.value) },
+        pressed = group.pressed?.let { parseColorString(it.value) },
+        disabled = group.disabled?.let { parseColorString(it.value) },
+        focus = group.focus?.let { parseColorString(it.value) },
+    )
 }

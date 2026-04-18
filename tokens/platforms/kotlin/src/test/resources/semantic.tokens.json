@@ -1,0 +1,2198 @@
+{
+  "semantic": {
+    "color": {
+      "light": {
+        "primary": {
+          "default": {
+            "$type": "color",
+            "$value": "#B87333"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#C58545"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#8C5A2B"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#E3C3A5"
+          }
+        },
+        "secondary": {
+          "default": {
+            "$type": "color",
+            "$value": "#1A1C1F"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#24272B"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#0E0F11"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#D4CFCA"
+          }
+        },
+        "tertiary": {
+          "default": {
+            "$type": "color",
+            "$value": "#2B9AEB"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#5DB3F0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#1081D6"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#B8DCF5"
+          }
+        },
+        "success": {
+          "default": {
+            "$type": "color",
+            "$value": "#31A362"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#4FBD7F"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#268A4D"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#A0DDB8"
+          }
+        },
+        "warning": {
+          "default": {
+            "$type": "color",
+            "$value": "#D98E04"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#E6A42C"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#A86D00"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#F5D182"
+          }
+        },
+        "warningContainer": {
+          "default": {
+            "$type": "color",
+            "$value": "#FFF8E7"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#FFFCF0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#F5ECD0"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#FFF8E7"
+          }
+        },
+        "onWarningContainer": {
+          "default": {
+            "$type": "color",
+            "$value": "#5C3E00"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#7A5200"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#4C3300"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#A57700"
+          }
+        },
+        "danger": {
+          "default": {
+            "$type": "color",
+            "$value": "#E35D6A"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#EA7A88"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#C94352"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#F5B9C1"
+          }
+        },
+        "info": {
+          "default": {
+            "$type": "color",
+            "$value": "#2B9AEB"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#5DB3F0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#1081D6"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#B8DCF5"
+          }
+        },
+        "surface": {
+          "default": {
+            "$type": "color",
+            "$value": "#F7F3EF"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#EFE8E2"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#E5DCD5"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#FFFFFF"
+          }
+        },
+        "surfaceVariant": {
+          "default": {
+            "$type": "color",
+            "$value": "#EBE3DD"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#E2D8CF"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#D7CCC2"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#F7F1EB"
+          }
+        },
+        "background": {
+          "default": {
+            "$type": "color",
+            "$value": "#F5F0EB"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#EEE8E2"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#E3DAD2"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#F5F0EB"
+          }
+        },
+        "onSurface": {
+          "default": {
+            "$type": "color",
+            "$value": "#1E1E1E"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#2A2A2A"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#141414"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#9CA3AF"
+          },
+          "muted": {
+            "$type": "color",
+            "$value": "#49454F"
+          },
+          "subtle": {
+            "$type": "color",
+            "$value": "#6B7280"
+          }
+        },
+        "onPrimary": {
+          "default": {
+            "$type": "color",
+            "$value": "#0E0F11"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#0E0F11"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#0E0F11"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#3A2B1F"
+          }
+        },
+        "onSecondary": {
+          "default": {
+            "$type": "color",
+            "$value": "#FFFFFF"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#EDEDED"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#DADADA"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#B3B3B3"
+          }
+        },
+        "secondaryContainer": {
+          "default": {
+            "$type": "color",
+            "$value": "#FFFFFF"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#F5F3F0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#EAE4DD"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#FFFFFF"
+          }
+        },
+        "onSecondaryContainer": {
+          "default": {
+            "$type": "color",
+            "$value": "#1E1E1E"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#2A2A2A"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#141414"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#8C7A6B"
+          },
+          "muted": {
+            "$type": "color",
+            "$value": "#5C4A3B"
+          },
+          "subtle": {
+            "$type": "color",
+            "$value": "#7C6A5B"
+          }
+        },
+        "border": {
+          "default": {
+            "$type": "color",
+            "$value": "#D9D0C7"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#CEC3B9"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#C2B6AC"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#EFEAE4"
+          }
+        },
+        "input": {
+          "default": {
+            "$type": "color",
+            "$value": "#FFFFFF"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#F5F3F0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#EAE4DD"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#F7F3EE"
+          }
+        },
+        "ring": {
+          "default": {
+            "$type": "color",
+            "$value": "#B87333"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#C58545"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#8C5A2B"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#E3C3A5"
+          }
+        },
+        "locationPoiFill": {
+          "default": {
+            "$type": "color",
+            "$value": "#2C2A28"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#353230"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#1F1D1B"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#BFB8B0"
+          }
+        },
+        "locationPoiRing": {
+          "default": {
+            "$type": "color",
+            "$value": "#B87333"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#C58545"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#8C5A2B"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#BFB8B0"
+          }
+        },
+        "locationPoiMuted": {
+          "default": {
+            "$type": "color",
+            "$value": "#6E6A64"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#7A7670"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#5F5B56"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#BFB8B0"
+          }
+        },
+        "locationPoiBg": {
+          "default": {
+            "$type": "color",
+            "$value": "#F3EFE8"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#F7F3ED"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#EAE4DD"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#BFB8B0"
+          }
+        },
+        "card": {
+          "default": {
+            "$type": "color",
+            "$value": "#FFFFFF"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#F5F3F0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#EAE4DD"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#FFFFFF"
+          }
+        },
+        "popover": {
+          "default": {
+            "$type": "color",
+            "$value": "#FFFFFF"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#F5F3F0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#EAE4DD"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#FFFFFF"
+          }
+        },
+        "accent": {
+          "default": {
+            "$type": "color",
+            "$value": "#88C7A6"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#9DD4B7"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#73BA95"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#CAEAD9"
+          }
+        },
+        "orange": {
+          "default": {
+            "$type": "color",
+            "$value": "#FF6B35"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#FF8555"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#E6572E"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#FFB8A0"
+          }
+        },
+        "muted": {
+          "default": {
+            "$type": "color",
+            "$value": "#F2EFED"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#EBE7E4"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#DCD7D3"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#F9F8F7"
+          }
+        },
+        "divider": {
+          "default": {
+            "$type": "color",
+            "$value": "rgba(0,0,0,0.08)"
+          }
+        },
+        "scrim": {
+          "default": {
+            "$type": "color",
+            "$value": "rgba(0,0,0,0.55)"
+          }
+        },
+        "routeSelected": {
+          "default": {
+            "$type": "color",
+            "$value": "#B87333"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#C58545"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#8C5A2B"
+          }
+        },
+        "routeAlternate": {
+          "default": {
+            "$type": "color",
+            "$value": "rgba(0,0,0,0.45)"
+          }
+        },
+        "waypointOnRoute": {
+          "default": {
+            "$type": "color",
+            "$value": "#31A362"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#4FBD7F"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#268A4D"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#A0DDB8"
+          }
+        },
+        "waypointOffRoute": {
+          "default": {
+            "$type": "color",
+            "$value": "#D98E04"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#E6A42C"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#A86D00"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#F5D182"
+          }
+        },
+        "waypointMixed": {
+          "default": {
+            "$type": "color",
+            "$value": "#2B9AEB"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#5DB3F0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#1081D6"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#B8DCF5"
+          }
+        },
+        "enrichmentFast": {
+          "default": {
+            "$type": "color",
+            "$value": "#2C9F9B"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#4DBFB9"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#1F7A7B"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#A0E5E0"
+          }
+        },
+        "enrichmentExtended": {
+          "default": {
+            "$type": "color",
+            "$value": "#8B5CF6"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#A78BFA"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#6D28D9"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#C4B5FD"
+          }
+        },
+        "enrichmentCached": {
+          "default": {
+            "$type": "color",
+            "$value": "#6B7280"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#8B93A0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#4B5563"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#D1D5DB"
+          }
+        },
+        "deviationOriginalRoute": {
+          "default": {
+            "$type": "color",
+            "$value": "#9CA3AF"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#B0B7C0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#6B7280"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#E5E7EB"
+          }
+        },
+        "deviationDetourPath": {
+          "default": {
+            "$type": "color",
+            "$value": "#FF6B35"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#FF8555"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#E6572E"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#FFB8A0"
+          }
+        },
+        "deviationReconnectPoint": {
+          "default": {
+            "$type": "color",
+            "$value": "#31A362"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#4FBD7F"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#268A4D"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#A0DDB8"
+          }
+        }
+      },
+      "dark": {
+        "primary": {
+          "default": {
+            "$type": "color",
+            "$value": "#B87333"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#C58545"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#8C5A2B"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#6A3F1F"
+          }
+        },
+        "secondary": {
+          "default": {
+            "$type": "color",
+            "$value": "#1A1C1F"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#24272B"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#0E0F11"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#4F5F72"
+          }
+        },
+        "tertiary": {
+          "default": {
+            "$type": "color",
+            "$value": "#2B9AEB"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#5DB3F0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#1081D6"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#1C6AA6"
+          }
+        },
+        "success": {
+          "default": {
+            "$type": "color",
+            "$value": "#31A362"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#4FBD7F"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#268A4D"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#1B5F35"
+          }
+        },
+        "warning": {
+          "default": {
+            "$type": "color",
+            "$value": "#D98E04"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#E6A42C"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#A86D00"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#A96419"
+          }
+        },
+        "warningContainer": {
+          "default": {
+            "$type": "color",
+            "$value": "#4A3C00"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#5C4B00"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#3E3200"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#6A5800"
+          }
+        },
+        "onWarningContainer": {
+          "default": {
+            "$type": "color",
+            "$value": "#FFF8E7"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#FFFCF0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#F5ECD0"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#E5D5A0"
+          }
+        },
+        "danger": {
+          "default": {
+            "$type": "color",
+            "$value": "#E35D6A"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#EA7A88"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#C94352"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#801B1B"
+          }
+        },
+        "info": {
+          "default": {
+            "$type": "color",
+            "$value": "#2B9AEB"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#5DB3F0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#1081D6"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#1C6AA6"
+          }
+        },
+        "surface": {
+          "default": {
+            "$type": "color",
+            "$value": "#2B2725"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#332F2B"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#221E1C"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#3A3431"
+          }
+        },
+        "surfaceVariant": {
+          "default": {
+            "$type": "color",
+            "$value": "#34302D"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#3C3633"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#272321"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#3D3734"
+          }
+        },
+        "background": {
+          "default": {
+            "$type": "color",
+            "$value": "#1B1715"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#231E1B"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#14110F"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#1B1715"
+          }
+        },
+        "onSurface": {
+          "default": {
+            "$type": "color",
+            "$value": "rgba(255,255,255,0.92)"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "rgba(255,255,255,0.96)"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "rgba(255,255,255,0.86)"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#6B7280"
+          },
+          "muted": {
+            "$type": "color",
+            "$value": "rgba(255,255,255,0.72)"
+          },
+          "subtle": {
+            "$type": "color",
+            "$value": "rgba(255,255,255,0.55)"
+          }
+        },
+        "onPrimary": {
+          "default": {
+            "$type": "color",
+            "$value": "#0E0F11"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#0E0F11"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#0E0F11"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#2A1F15"
+          }
+        },
+        "onSecondary": {
+          "default": {
+            "$type": "color",
+            "$value": "#F8F7F6"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#FFFFFF"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#E3E3E3"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#6B7D8F"
+          }
+        },
+        "secondaryContainer": {
+          "default": {
+            "$type": "color",
+            "$value": "#36302B"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#403A34"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#2C2623"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#1A1C1F"
+          }
+        },
+        "onSecondaryContainer": {
+          "default": {
+            "$type": "color",
+            "$value": "#E3E3E3"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#EBEBEB"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#DADADA"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#B3A095"
+          },
+          "muted": {
+            "$type": "color",
+            "$value": "#D3BBA5"
+          },
+          "subtle": {
+            "$type": "color",
+            "$value": "#C3AB95"
+          }
+        },
+        "border": {
+          "default": {
+            "$type": "color",
+            "$value": "#3A3431"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#443E3A"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#2F2A27"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "rgba(255,255,255,0.06)"
+          }
+        },
+        "input": {
+          "default": {
+            "$type": "color",
+            "$value": "#24272B"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#2D3136"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#1A1C1F"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#1A1C1F"
+          }
+        },
+        "ring": {
+          "default": {
+            "$type": "color",
+            "$value": "#B87333"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#C58545"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#8C5A2B"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#6A3F1F"
+          }
+        },
+        "locationPoiFill": {
+          "default": {
+            "$type": "color",
+            "$value": "#EDEDED"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#FFFFFF"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#DADADA"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#5A5652"
+          }
+        },
+        "locationPoiRing": {
+          "default": {
+            "$type": "color",
+            "$value": "#B87333"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#C58545"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#8C5A2B"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#5A5652"
+          }
+        },
+        "locationPoiMuted": {
+          "default": {
+            "$type": "color",
+            "$value": "#A3A3A3"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#B0B0B0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#8F8F8F"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#5A5652"
+          }
+        },
+        "locationPoiBg": {
+          "default": {
+            "$type": "color",
+            "$value": "#1B1816"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#241F1C"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#14110F"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#5A5652"
+          }
+        },
+        "card": {
+          "default": {
+            "$type": "color",
+            "$value": "#24272B"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#2D3136"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#1A1C1F"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#1A1C1F"
+          }
+        },
+        "popover": {
+          "default": {
+            "$type": "color",
+            "$value": "#24272B"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#2D3136"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#1A1C1F"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#1A1C1F"
+          }
+        },
+        "accent": {
+          "default": {
+            "$type": "color",
+            "$value": "#407C5D"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#4D8F6B"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#346950"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#24473A"
+          }
+        },
+        "orange": {
+          "default": {
+            "$type": "color",
+            "$value": "#FF6B35"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#FF8555"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#E6572E"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#B8451F"
+          }
+        },
+        "muted": {
+          "default": {
+            "$type": "color",
+            "$value": "#1A1C1F"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#24272B"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#0E0F11"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#1A1C1F"
+          }
+        },
+        "divider": {
+          "default": {
+            "$type": "color",
+            "$value": "rgba(255,255,255,0.08)"
+          }
+        },
+        "scrim": {
+          "default": {
+            "$type": "color",
+            "$value": "rgba(0,0,0,0.55)"
+          }
+        },
+        "routeSelected": {
+          "default": {
+            "$type": "color",
+            "$value": "#B87333"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#C58545"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#8C5A2B"
+          }
+        },
+        "routeAlternate": {
+          "default": {
+            "$type": "color",
+            "$value": "rgba(255,255,255,0.45)"
+          }
+        },
+        "waypointOnRoute": {
+          "default": {
+            "$type": "color",
+            "$value": "#31A362"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#4FBD7F"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#268A4D"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#1B5F35"
+          }
+        },
+        "waypointOffRoute": {
+          "default": {
+            "$type": "color",
+            "$value": "#D98E04"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#E6A42C"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#A86D00"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#A96419"
+          }
+        },
+        "waypointMixed": {
+          "default": {
+            "$type": "color",
+            "$value": "#2B9AEB"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#5DB3F0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#1081D6"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#1C6AA6"
+          }
+        },
+        "enrichmentFast": {
+          "default": {
+            "$type": "color",
+            "$value": "#2C9F9B"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#4DBFB9"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#1F7A7B"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#1A5F5C"
+          }
+        },
+        "enrichmentExtended": {
+          "default": {
+            "$type": "color",
+            "$value": "#8B5CF6"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#A78BFA"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#6D28D9"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#4C1D95"
+          }
+        },
+        "enrichmentCached": {
+          "default": {
+            "$type": "color",
+            "$value": "#9CA3AF"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#B0B7C0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#6B7280"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#4B5563"
+          }
+        },
+        "deviationOriginalRoute": {
+          "default": {
+            "$type": "color",
+            "$value": "#6B7280"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#8B93A0"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#4B5563"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#374151"
+          }
+        },
+        "deviationDetourPath": {
+          "default": {
+            "$type": "color",
+            "$value": "#FF6B35"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#FF8555"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#E6572E"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#B8451F"
+          }
+        },
+        "deviationReconnectPoint": {
+          "default": {
+            "$type": "color",
+            "$value": "#31A362"
+          },
+          "hover": {
+            "$type": "color",
+            "$value": "#4FBD7F"
+          },
+          "pressed": {
+            "$type": "color",
+            "$value": "#268A4D"
+          },
+          "disabled": {
+            "$type": "color",
+            "$value": "#1B5F35"
+          }
+        }
+      }
+    },
+    "space": {
+      "xs": {
+        "$type": "dimension",
+        "$value": 4
+      },
+      "sm": {
+        "$type": "dimension",
+        "$value": 8
+      },
+      "md": {
+        "$type": "dimension",
+        "$value": 12
+      },
+      "lg": {
+        "$type": "dimension",
+        "$value": 16
+      },
+      "xl": {
+        "$type": "dimension",
+        "$value": 24
+      },
+      "2xl": {
+        "$type": "dimension",
+        "$value": 32
+      },
+      "3xl": {
+        "$type": "dimension",
+        "$value": 48
+      },
+      "4xl": {
+        "$type": "dimension",
+        "$value": 64
+      }
+    },
+    "radius": {
+      "none": {
+        "$type": "dimension",
+        "$value": 0
+      },
+      "sm": {
+        "$type": "dimension",
+        "$value": 4
+      },
+      "md": {
+        "$type": "dimension",
+        "$value": 8
+      },
+      "lg": {
+        "$type": "dimension",
+        "$value": 16
+      },
+      "xl": {
+        "$type": "dimension",
+        "$value": 24
+      },
+      "2xl": {
+        "$type": "dimension",
+        "$value": 32
+      },
+      "full": {
+        "$type": "dimension",
+        "$value": 9999
+      }
+    },
+    "type": {
+      "label": {
+        "sm": {
+          "fontSize": {
+            "$type": "dimension",
+            "$value": 12
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": 18
+          },
+          "fontWeight": {
+            "$type": "string",
+            "$value": "500"
+          }
+        },
+        "md": {
+          "fontSize": {
+            "$type": "dimension",
+            "$value": 14
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": 20
+          },
+          "fontWeight": {
+            "$type": "string",
+            "$value": "500"
+          }
+        },
+        "lg": {
+          "fontSize": {
+            "$type": "dimension",
+            "$value": 14
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": 20
+          },
+          "fontWeight": {
+            "$type": "string",
+            "$value": "500"
+          }
+        }
+      },
+      "body": {
+        "sm": {
+          "fontSize": {
+            "$type": "dimension",
+            "$value": 14
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": 21
+          },
+          "fontWeight": {
+            "$type": "string",
+            "$value": "400"
+          }
+        },
+        "md": {
+          "fontSize": {
+            "$type": "dimension",
+            "$value": 16
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": 24
+          },
+          "fontWeight": {
+            "$type": "string",
+            "$value": "400"
+          }
+        },
+        "lg": {
+          "fontSize": {
+            "$type": "dimension",
+            "$value": 16
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": 24
+          },
+          "fontWeight": {
+            "$type": "string",
+            "$value": "400"
+          }
+        }
+      },
+      "title": {
+        "sm": {
+          "fontSize": {
+            "$type": "dimension",
+            "$value": 14
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": 20
+          },
+          "fontWeight": {
+            "$type": "string",
+            "$value": "600"
+          }
+        },
+        "md": {
+          "fontSize": {
+            "$type": "dimension",
+            "$value": 16
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": 24
+          },
+          "fontWeight": {
+            "$type": "string",
+            "$value": "600"
+          }
+        },
+        "lg": {
+          "fontSize": {
+            "$type": "dimension",
+            "$value": 24
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": 32
+          },
+          "fontWeight": {
+            "$type": "string",
+            "$value": "700"
+          }
+        }
+      },
+      "heading": {
+        "sm": {
+          "fontSize": {
+            "$type": "dimension",
+            "$value": 16
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": 24
+          },
+          "fontWeight": {
+            "$type": "string",
+            "$value": "600"
+          }
+        },
+        "md": {
+          "fontSize": {
+            "$type": "dimension",
+            "$value": 18
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": 27
+          },
+          "fontWeight": {
+            "$type": "string",
+            "$value": "600"
+          }
+        },
+        "lg": {
+          "fontSize": {
+            "$type": "dimension",
+            "$value": 20
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": 28
+          },
+          "fontWeight": {
+            "$type": "string",
+            "$value": "600"
+          }
+        }
+      },
+      "display": {
+        "sm": {
+          "fontSize": {
+            "$type": "dimension",
+            "$value": 36
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": 44
+          },
+          "fontWeight": {
+            "$type": "string",
+            "$value": "400"
+          }
+        },
+        "md": {
+          "fontSize": {
+            "$type": "dimension",
+            "$value": 45
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": 52
+          },
+          "fontWeight": {
+            "$type": "string",
+            "$value": "400"
+          }
+        },
+        "lg": {
+          "fontSize": {
+            "$type": "dimension",
+            "$value": 57
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": 64
+          },
+          "fontWeight": {
+            "$type": "string",
+            "$value": "400"
+          }
+        }
+      }
+    },
+    "elevation": {
+      "light": {
+        "0": {
+          "shadowColor": {
+            "$type": "string",
+            "$value": "transparent"
+          },
+          "shadowOffset": {
+            "width": {
+              "$type": "dimension",
+              "$value": 0
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": 0
+            }
+          },
+          "shadowOpacity": {
+            "$type": "dimension",
+            "$value": 0
+          },
+          "shadowRadius": {
+            "$type": "dimension",
+            "$value": 0
+          },
+          "elevation": {
+            "$type": "dimension",
+            "$value": 0
+          }
+        },
+        "1": {
+          "shadowColor": {
+            "$type": "color",
+            "$value": "#000000"
+          },
+          "shadowOffset": {
+            "width": {
+              "$type": "dimension",
+              "$value": 0
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": 1
+            }
+          },
+          "shadowOpacity": {
+            "$type": "dimension",
+            "$value": 0.05
+          },
+          "shadowRadius": {
+            "$type": "dimension",
+            "$value": 2
+          },
+          "elevation": {
+            "$type": "dimension",
+            "$value": 1
+          }
+        },
+        "2": {
+          "shadowColor": {
+            "$type": "color",
+            "$value": "#000000"
+          },
+          "shadowOffset": {
+            "width": {
+              "$type": "dimension",
+              "$value": 0
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": 2
+            }
+          },
+          "shadowOpacity": {
+            "$type": "dimension",
+            "$value": 0.05
+          },
+          "shadowRadius": {
+            "$type": "dimension",
+            "$value": 4
+          },
+          "elevation": {
+            "$type": "dimension",
+            "$value": 2
+          }
+        },
+        "3": {
+          "shadowColor": {
+            "$type": "color",
+            "$value": "#000000"
+          },
+          "shadowOffset": {
+            "width": {
+              "$type": "dimension",
+              "$value": 0
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": 4
+            }
+          },
+          "shadowOpacity": {
+            "$type": "dimension",
+            "$value": 0.08
+          },
+          "shadowRadius": {
+            "$type": "dimension",
+            "$value": 8
+          },
+          "elevation": {
+            "$type": "dimension",
+            "$value": 3
+          }
+        },
+        "4": {
+          "shadowColor": {
+            "$type": "color",
+            "$value": "#000000"
+          },
+          "shadowOffset": {
+            "width": {
+              "$type": "dimension",
+              "$value": 0
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": 8
+            }
+          },
+          "shadowOpacity": {
+            "$type": "dimension",
+            "$value": 0.12
+          },
+          "shadowRadius": {
+            "$type": "dimension",
+            "$value": 16
+          },
+          "elevation": {
+            "$type": "dimension",
+            "$value": 4
+          }
+        },
+        "5": {
+          "shadowColor": {
+            "$type": "color",
+            "$value": "#000000"
+          },
+          "shadowOffset": {
+            "width": {
+              "$type": "dimension",
+              "$value": 0
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": 12
+            }
+          },
+          "shadowOpacity": {
+            "$type": "dimension",
+            "$value": 0.15
+          },
+          "shadowRadius": {
+            "$type": "dimension",
+            "$value": 24
+          },
+          "elevation": {
+            "$type": "dimension",
+            "$value": 5
+          }
+        }
+      },
+      "dark": {
+        "0": {
+          "shadowColor": {
+            "$type": "string",
+            "$value": "transparent"
+          },
+          "shadowOffset": {
+            "width": {
+              "$type": "dimension",
+              "$value": 0
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": 0
+            }
+          },
+          "shadowOpacity": {
+            "$type": "dimension",
+            "$value": 0
+          },
+          "shadowRadius": {
+            "$type": "dimension",
+            "$value": 0
+          },
+          "elevation": {
+            "$type": "dimension",
+            "$value": 0
+          }
+        },
+        "1": {
+          "shadowColor": {
+            "$type": "color",
+            "$value": "#000000"
+          },
+          "shadowOffset": {
+            "width": {
+              "$type": "dimension",
+              "$value": 0
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": 1
+            }
+          },
+          "shadowOpacity": {
+            "$type": "dimension",
+            "$value": 0.2
+          },
+          "shadowRadius": {
+            "$type": "dimension",
+            "$value": 2
+          },
+          "elevation": {
+            "$type": "dimension",
+            "$value": 1
+          }
+        },
+        "2": {
+          "shadowColor": {
+            "$type": "color",
+            "$value": "#000000"
+          },
+          "shadowOffset": {
+            "width": {
+              "$type": "dimension",
+              "$value": 0
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": 2
+            }
+          },
+          "shadowOpacity": {
+            "$type": "dimension",
+            "$value": 0.2
+          },
+          "shadowRadius": {
+            "$type": "dimension",
+            "$value": 4
+          },
+          "elevation": {
+            "$type": "dimension",
+            "$value": 2
+          }
+        },
+        "3": {
+          "shadowColor": {
+            "$type": "color",
+            "$value": "#000000"
+          },
+          "shadowOffset": {
+            "width": {
+              "$type": "dimension",
+              "$value": 0
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": 4
+            }
+          },
+          "shadowOpacity": {
+            "$type": "dimension",
+            "$value": 0.25
+          },
+          "shadowRadius": {
+            "$type": "dimension",
+            "$value": 8
+          },
+          "elevation": {
+            "$type": "dimension",
+            "$value": 3
+          }
+        },
+        "4": {
+          "shadowColor": {
+            "$type": "color",
+            "$value": "#000000"
+          },
+          "shadowOffset": {
+            "width": {
+              "$type": "dimension",
+              "$value": 0
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": 8
+            }
+          },
+          "shadowOpacity": {
+            "$type": "dimension",
+            "$value": 0.3
+          },
+          "shadowRadius": {
+            "$type": "dimension",
+            "$value": 16
+          },
+          "elevation": {
+            "$type": "dimension",
+            "$value": 4
+          }
+        },
+        "5": {
+          "shadowColor": {
+            "$type": "color",
+            "$value": "#000000"
+          },
+          "shadowOffset": {
+            "width": {
+              "$type": "dimension",
+              "$value": 0
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": 12
+            }
+          },
+          "shadowOpacity": {
+            "$type": "dimension",
+            "$value": 0.35
+          },
+          "shadowRadius": {
+            "$type": "dimension",
+            "$value": 24
+          },
+          "elevation": {
+            "$type": "dimension",
+            "$value": 5
+          }
+        }
+      }
+    },
+    "motion": {
+      "duration": {
+        "instant": {
+          "$type": "dimension",
+          "$value": 0
+        },
+        "fast": {
+          "$type": "dimension",
+          "$value": 120
+        },
+        "normal": {
+          "$type": "dimension",
+          "$value": 200
+        },
+        "slow": {
+          "$type": "dimension",
+          "$value": 300
+        },
+        "slower": {
+          "$type": "dimension",
+          "$value": 400
+        }
+      },
+      "easing": {
+        "standard": {
+          "$type": "object",
+          "$value": [0.2, 0, 0, 1]
+        },
+        "emphasized": {
+          "$type": "object",
+          "$value": [0.2, 0, 0, 1]
+        },
+        "decelerate": {
+          "$type": "object",
+          "$value": [0, 0, 0.2, 1]
+        },
+        "accelerate": {
+          "$type": "object",
+          "$value": [0.4, 0, 1, 1]
+        },
+        "sharp": {
+          "$type": "object",
+          "$value": [0.4, 0, 0.6, 1]
+        }
+      }
+    },
+    "opacity": {
+      "0": {
+        "$type": "dimension",
+        "$value": 0
+      },
+      "5": {
+        "$type": "dimension",
+        "$value": 0.05
+      },
+      "10": {
+        "$type": "dimension",
+        "$value": 0.1
+      },
+      "20": {
+        "$type": "dimension",
+        "$value": 0.2
+      },
+      "30": {
+        "$type": "dimension",
+        "$value": 0.3
+      },
+      "40": {
+        "$type": "dimension",
+        "$value": 0.4
+      },
+      "50": {
+        "$type": "dimension",
+        "$value": 0.5
+      },
+      "60": {
+        "$type": "dimension",
+        "$value": 0.6
+      },
+      "70": {
+        "$type": "dimension",
+        "$value": 0.7
+      },
+      "80": {
+        "$type": "dimension",
+        "$value": 0.8
+      },
+      "90": {
+        "$type": "dimension",
+        "$value": 0.9
+      },
+      "100": {
+        "$type": "dimension",
+        "$value": 1
+      }
+    }
+  }
+}

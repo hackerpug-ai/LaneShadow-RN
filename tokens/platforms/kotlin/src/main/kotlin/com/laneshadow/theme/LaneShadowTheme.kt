@@ -10,11 +10,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.laneshadow.theme.generated.Tokens
 
 data class LaneShadowSpace(
     val xs: Dp,
@@ -72,63 +73,52 @@ private fun fontWeightFrom(raw: String): FontWeight =
         else -> FontWeight.Normal
     }
 
-private fun ts(fontSize: Dp, lineHeight: Dp, weightRaw: String): TextStyle =
+private fun textStyleFrom(def: TypeStyleDefDto): TextStyle =
     TextStyle(
-        fontSize = fontSize.value.sp,
-        lineHeight = lineHeight.value.sp,
-        fontWeight = fontWeightFrom(weightRaw),
+        fontSize = def.fontSize.value.sp,
+        lineHeight = def.lineHeight.value.sp,
+        fontWeight = fontWeightFrom(def.fontWeight.value),
     )
 
-private fun spaceValues(): LaneShadowSpace {
-    val S = Tokens.Semantic.Space
+internal fun spaceValues(tokens: SemanticTokens): LaneShadowSpace {
+    val s = tokens.space
     return LaneShadowSpace(
-        xs = S.xs, sm = S.sm, md = S.md, lg = S.lg,
-        xl = S.xl, xxl = S.`_2xl`, xxxl = S.`_3xl`, xxxxl = S.`_4xl`,
+        xs = requireNotNull(s["xs"]).value.dp,
+        sm = requireNotNull(s["sm"]).value.dp,
+        md = requireNotNull(s["md"]).value.dp,
+        lg = requireNotNull(s["lg"]).value.dp,
+        xl = requireNotNull(s["xl"]).value.dp,
+        xxl = requireNotNull(s["2xl"]).value.dp,
+        xxxl = requireNotNull(s["3xl"]).value.dp,
+        xxxxl = requireNotNull(s["4xl"]).value.dp,
     )
 }
 
-private fun radiusValues(): LaneShadowRadius {
-    val R = Tokens.Semantic.Radius
+internal fun radiusValues(tokens: SemanticTokens): LaneShadowRadius {
+    val r = tokens.radius
     return LaneShadowRadius(
-        none = R.none, sm = R.sm, md = R.md, lg = R.lg,
-        xl = R.xl, xxl = R.`_2xl`, full = R.full,
+        none = requireNotNull(r["none"]).value.dp,
+        sm = requireNotNull(r["sm"]).value.dp,
+        md = requireNotNull(r["md"]).value.dp,
+        lg = requireNotNull(r["lg"]).value.dp,
+        xl = requireNotNull(r["xl"]).value.dp,
+        xxl = requireNotNull(r["2xl"]).value.dp,
+        full = requireNotNull(r["full"]).value.dp,
     )
 }
 
-private fun typeValues(): LaneShadowType {
-    // Nested objects (Label, Body, Sm, Md, Lg ...) must be accessed via their
-    // direct object paths. Kotlin 1.9 errors on every intermediate `val` binding
-    // that holds a nested-object reference. Hence the fully-inlined paths below.
+internal fun typeValues(tokens: SemanticTokens): LaneShadowType {
+    val t = tokens.type
     return LaneShadowType(
-        label = LaneShadowTypeScale(
-            ts(Tokens.Semantic.Type.Label.Sm.fontSize, Tokens.Semantic.Type.Label.Sm.lineHeight, Tokens.Semantic.Type.Label.Sm.fontWeight),
-            ts(Tokens.Semantic.Type.Label.Md.fontSize, Tokens.Semantic.Type.Label.Md.lineHeight, Tokens.Semantic.Type.Label.Md.fontWeight),
-            ts(Tokens.Semantic.Type.Label.Lg.fontSize, Tokens.Semantic.Type.Label.Lg.lineHeight, Tokens.Semantic.Type.Label.Lg.fontWeight),
-        ),
-        body = LaneShadowTypeScale(
-            ts(Tokens.Semantic.Type.Body.Sm.fontSize, Tokens.Semantic.Type.Body.Sm.lineHeight, Tokens.Semantic.Type.Body.Sm.fontWeight),
-            ts(Tokens.Semantic.Type.Body.Md.fontSize, Tokens.Semantic.Type.Body.Md.lineHeight, Tokens.Semantic.Type.Body.Md.fontWeight),
-            ts(Tokens.Semantic.Type.Body.Lg.fontSize, Tokens.Semantic.Type.Body.Lg.lineHeight, Tokens.Semantic.Type.Body.Lg.fontWeight),
-        ),
-        title = LaneShadowTypeScale(
-            ts(Tokens.Semantic.Type.Title.Sm.fontSize, Tokens.Semantic.Type.Title.Sm.lineHeight, Tokens.Semantic.Type.Title.Sm.fontWeight),
-            ts(Tokens.Semantic.Type.Title.Md.fontSize, Tokens.Semantic.Type.Title.Md.lineHeight, Tokens.Semantic.Type.Title.Md.fontWeight),
-            ts(Tokens.Semantic.Type.Title.Lg.fontSize, Tokens.Semantic.Type.Title.Lg.lineHeight, Tokens.Semantic.Type.Title.Lg.fontWeight),
-        ),
-        heading = LaneShadowTypeScale(
-            ts(Tokens.Semantic.Type.Heading.Sm.fontSize, Tokens.Semantic.Type.Heading.Sm.lineHeight, Tokens.Semantic.Type.Heading.Sm.fontWeight),
-            ts(Tokens.Semantic.Type.Heading.Md.fontSize, Tokens.Semantic.Type.Heading.Md.lineHeight, Tokens.Semantic.Type.Heading.Md.fontWeight),
-            ts(Tokens.Semantic.Type.Heading.Lg.fontSize, Tokens.Semantic.Type.Heading.Lg.lineHeight, Tokens.Semantic.Type.Heading.Lg.fontWeight),
-        ),
-        display = LaneShadowTypeScale(
-            ts(Tokens.Semantic.Type.Display.Sm.fontSize, Tokens.Semantic.Type.Display.Sm.lineHeight, Tokens.Semantic.Type.Display.Sm.fontWeight),
-            ts(Tokens.Semantic.Type.Display.Md.fontSize, Tokens.Semantic.Type.Display.Md.lineHeight, Tokens.Semantic.Type.Display.Md.fontWeight),
-            ts(Tokens.Semantic.Type.Display.Lg.fontSize, Tokens.Semantic.Type.Display.Lg.lineHeight, Tokens.Semantic.Type.Display.Lg.fontWeight),
-        ),
+        label = LaneShadowTypeScale(textStyleFrom(t.label.sm), textStyleFrom(t.label.md), textStyleFrom(t.label.lg)),
+        body = LaneShadowTypeScale(textStyleFrom(t.body.sm), textStyleFrom(t.body.md), textStyleFrom(t.body.lg)),
+        title = LaneShadowTypeScale(textStyleFrom(t.title.sm), textStyleFrom(t.title.md), textStyleFrom(t.title.lg)),
+        heading = LaneShadowTypeScale(textStyleFrom(t.heading.sm), textStyleFrom(t.heading.md), textStyleFrom(t.heading.lg)),
+        display = LaneShadowTypeScale(textStyleFrom(t.display.sm), textStyleFrom(t.display.md), textStyleFrom(t.display.lg)),
     )
 }
 
-private fun materialColorScheme(colors: LaneShadowColors, dark: Boolean): ColorScheme {
+internal fun materialColorScheme(colors: LaneShadowColors, dark: Boolean): ColorScheme {
     val base = if (dark) darkColorScheme() else lightColorScheme()
     return base.copy(
         primary = colors.primary.default,
@@ -145,22 +135,24 @@ private fun materialColorScheme(colors: LaneShadowColors, dark: Boolean): ColorS
     )
 }
 
+/** Build LaneShadowThemeValues from a decoded SemanticTokens DTO. Pure; unit-testable. */
+fun laneShadowThemeValues(tokens: SemanticTokens, darkTheme: Boolean): LaneShadowThemeValues =
+    LaneShadowThemeValues(
+        colors = LaneShadowColors.from(tokens, darkTheme),
+        space = spaceValues(tokens),
+        radius = radiusValues(tokens),
+        type = typeValues(tokens),
+        domain = DomainColors.from(tokens, darkTheme),
+    )
+
 @Composable
 fun LaneShadowTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
-    val themeValues = remember(darkTheme) {
-        val colors = if (darkTheme) LaneShadowColors.dark() else LaneShadowColors.light()
-        val domain = if (darkTheme) DomainColors.dark() else DomainColors.light()
-        LaneShadowThemeValues(
-            colors = colors,
-            space = spaceValues(),
-            radius = radiusValues(),
-            type = typeValues(),
-            domain = domain,
-        )
-    }
+    val context = LocalContext.current.applicationContext
+    val tokens = remember { ThemeLoader.fromAssets(context) }
+    val themeValues = remember(darkTheme, tokens) { laneShadowThemeValues(tokens, darkTheme) }
 
     CompositionLocalProvider(LocalLaneShadowTheme provides themeValues) {
         MaterialTheme(

@@ -33,6 +33,16 @@ const TARGETS = [
     'assets',
     'semantic.tokens.json',
   ),
+  path.join(
+    REPO_ROOT,
+    'tokens',
+    'platforms',
+    'kotlin',
+    'src',
+    'test',
+    'resources',
+    'semantic.tokens.json',
+  ),
 ]
 
 const args = process.argv.slice(2)
