@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "com.laneshadow.tokens.schema",
+  "title": "LaneShadow tokens (DTCG-shaped subset)",
+  "type": "object",
+  "additionalProperties": {
+    "anyOf": [
+      {
+        "type": "object",
+        "required": ["$type", "$value"],
+        "properties": {
+          "$type": { "type": "string", "minLength": 1 },
+          "$value": {},
+          "$description": { "type": "string" },
+          "$extensions": { "type": "object" }
+        },
+        "additionalProperties": false
+      },
+      { "$ref": "#/$defs/group" }
+    ]
+  },
+  "$defs": {
+    "group": {
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "object",
+            "required": ["$type", "$value"],
+            "properties": {
+              "$type": { "type": "string", "minLength": 1 },
+              "$value": {},
+              "$description": { "type": "string" },
+              "$extensions": { "type": "object" }
+            },
+            "additionalProperties": false
+          },
+          { "$ref": "#/$defs/group" }
+        ]
+      }
+    }
+  }
+}
