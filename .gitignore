@@ -43,6 +43,23 @@ app-example
 /android
 /react-native/ios
 /react-native/android
+!/ios/
+!/ios/LaneShadow/
+!/ios/LaneShadow/**
+!/ios/LaneShadowTests/
+!/ios/LaneShadowTests/**
+!/ios/LaneShadow.xcodeproj/
+!/ios/LaneShadow.xcodeproj/**
+!/android/
+!/android/app/
+!/android/app/src/
+!/android/app/src/**
+!/android/build.gradle.kts
+!/android/settings.gradle.kts
+!/android/gradlew
+!/android/gradlew.bat
+!/android/gradle/
+!/android/gradle/**
 
 # Android native app build artifacts
 android/.gradle/
