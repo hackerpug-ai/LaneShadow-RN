@@ -621,7 +621,7 @@ public object Tokens {
     public object Elevation {
       public object Light {
         public object _0 {
-          public val shadowColor: String = "transparent"
+          public val shadowColor: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Transparent
           public object ShadowOffset {
             public val width: androidx.compose.ui.unit.Dp = 0.dp
             public val height: androidx.compose.ui.unit.Dp = 0.dp
@@ -683,7 +683,7 @@ public object Tokens {
       }
       public object Dark {
         public object _0 {
-          public val shadowColor: String = "transparent"
+          public val shadowColor: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Transparent
           public object ShadowOffset {
             public val width: androidx.compose.ui.unit.Dp = 0.dp
             public val height: androidx.compose.ui.unit.Dp = 0.dp
@@ -753,11 +753,11 @@ public object Tokens {
         public val slower: androidx.compose.ui.unit.Dp = 400.dp
       }
       public object Easing {
-        public val standard: String = [0.2,0,0,1]
-        public val emphasized: String = [0.2,0,0,1]
-        public val decelerate: String = [0,0,0.2,1]
-        public val accelerate: String = [0.4,0,1,1]
-        public val sharp: String = [0.4,0,0.6,1]
+        public val standard: List<Double> = listOf(0.2, 0, 0, 1)
+        public val emphasized: List<Double> = listOf(0.2, 0, 0, 1)
+        public val decelerate: List<Double> = listOf(0, 0, 0.2, 1)
+        public val accelerate: List<Double> = listOf(0.4, 0, 1, 1)
+        public val sharp: List<Double> = listOf(0.4, 0, 0.6, 1)
       }
     }
     public object Opacity {

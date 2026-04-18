@@ -149,12 +149,21 @@ function leafValue(node) {
   if (t === 'number') return { type: 'Double', expr: `${v}` }
   if (t === 'opacity') return { type: 'Float', expr: `${v}f` }
   if (t === 'fontWeight') return { type: 'String', expr: JSON.stringify(v) }
+  if (t === 'string' && (v === 'transparent' || v === 'clear')) {
+    return {
+      type: 'androidx.compose.ui.graphics.Color',
+      expr: 'androidx.compose.ui.graphics.Color.Transparent',
+    }
+  }
   if (t === 'typography')
     return { type: 'androidx.compose.ui.text.TextStyle', expr: emitTypography(v) }
   if (t === 'shadow' || t === 'elevation')
     return { type: 'com.laneshadow.theme.LaneShadowElevation', expr: emitElevation(v) }
   if (t === 'cubicBezier') return { type: 'List<Double>', expr: `listOf(${v.join(', ')})` }
   if (t === 'duration') return { type: 'Int', expr: String(v) }
+  if (Array.isArray(v)) {
+    return { type: 'List<Double>', expr: `listOf(${v.map((n) => String(n)).join(', ')})` }
+  }
   return { type: 'String', expr: JSON.stringify(v) }
 }
 
