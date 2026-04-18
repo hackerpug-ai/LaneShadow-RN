@@ -53,23 +53,36 @@ server_start: ## Deploy to production Convex
 # ── iOS (Swift/SwiftUI) ──────────────────────────────
 
 ios_build: ## Build iOS app for simulator
-	cd ios && xcodebuild -project Storywright.xcodeproj -scheme Storywright \
-		-sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
+	@SIMULATOR_ID=$$(xcrun simctl list devices available | sed -nE 's/.*iPhone 16 \\(([A-F0-9-]+)\\).*/\\1/p' | head -1); \
+	if [ -z "$$SIMULATOR_ID" ]; then \
+		RUNTIME_ID=$$(xcrun simctl list runtimes -j | jq -r '.runtimes[] | select(.isAvailable == true and (.name | startswith("iOS"))) | .identifier' | head -1); \
+		SIMULATOR_ID=$$(xcrun simctl create "iPhone 16" "com.apple.CoreSimulator.SimDeviceType.iPhone-16" "$$RUNTIME_ID"); \
+	fi; \
+	cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow \
+		-derivedDataPath build/DerivedData \
+		-destination "id=$$SIMULATOR_ID" build
 
 ios_dev: ## Build, install, and launch iOS app in simulator (hot-rebuild on changes)
-	@echo "==> Booting iPhone 17 Pro simulator..."
-	open -a Simulator
-	xcrun simctl boot "iPhone 17 Pro" 2>/dev/null || true
-	@echo "==> Building and installing Storywright..."
-	cd ios && xcodebuild -project Storywright.xcodeproj -scheme Storywright \
-		-sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
-		build 2>&1 | tail -5
-	@APP_PATH=$$(find ~/Library/Developer/Xcode/DerivedData -name "Storywright.app" -path "*/Debug-iphonesimulator/*" 2>/dev/null | head -1); \
-	if [ -n "$$APP_PATH" ]; then \
+	@SIMULATOR_ID=$$(xcrun simctl list devices available | sed -nE 's/.*iPhone 16 \\(([A-F0-9-]+)\\).*/\\1/p' | head -1); \
+	if [ -z "$$SIMULATOR_ID" ]; then \
+		RUNTIME_ID=$$(xcrun simctl list runtimes -j | jq -r '.runtimes[] | select(.isAvailable == true and (.name | startswith("iOS"))) | .identifier' | head -1); \
+		SIMULATOR_ID=$$(xcrun simctl create "iPhone 16" "com.apple.CoreSimulator.SimDeviceType.iPhone-16" "$$RUNTIME_ID"); \
+	fi; \
+	echo "==> Ensuring iPhone 16 simulator exists ($$SIMULATOR_ID)..."; \
+	echo "==> Booting iPhone 16 simulator..."; \
+	open -a Simulator; \
+	xcrun simctl boot "$$SIMULATOR_ID" 2>/dev/null || true; \
+	echo "==> Building and installing LaneShadow..."; \
+	cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow \
+		-derivedDataPath build/DerivedData \
+		-destination "id=$$SIMULATOR_ID" \
+		build 2>&1 | tail -5; \
+	APP_PATH="build/DerivedData/Build/Products/Debug-iphonesimulator/LaneShadow.app"; \
+	if [ -d "$$APP_PATH" ]; then \
 		echo "==> Installing app to simulator..."; \
-		xcrun simctl install booted "$$APP_PATH"; \
-		echo "==> Launching Storywright..."; \
-		xcrun simctl launch booted com.storywright.app 2>/dev/null || \
+		xcrun simctl install "$$SIMULATOR_ID" "$$APP_PATH"; \
+		echo "==> Launching LaneShadow..."; \
+		xcrun simctl launch "$$SIMULATOR_ID" com.laneshadow.app 2>/dev/null || \
 			echo "Note: app launched via Simulator. If bundle ID differs, check Xcode scheme."; \
 	else \
 		echo "ERROR: Could not find built .app bundle"; \
@@ -77,8 +90,11 @@ ios_dev: ## Build, install, and launch iOS app in simulator (hot-rebuild on chan
 	fi
 
 ios_start: ## Build iOS release archive
-	cd ios && xcodebuild -project Storywright.xcodeproj -scheme Storywright \
-		-sdk iphoneos -configuration Release archive -archivePath build/Storywright.xcarchive
+	cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow \
+		-derivedDataPath build/DerivedData \
+		-configuration Release \
+		-destination 'generic/platform=iOS Simulator' \
+		build
 
 # ── Android (Kotlin/Compose) ─────────────────────────
 

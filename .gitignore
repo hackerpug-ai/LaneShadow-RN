@@ -39,10 +39,15 @@ yarn-error.*
 app-example
 
 # generated native folders (Expo prebuild output — not tracked)
-/ios
 /android
 /react-native/ios
 /react-native/android
+
+# Native iOS bootstrap artifacts
+/ios/build/
+/ios/DerivedData/
+/ios/*.xcworkspace/xcuserdata/
+/ios/*.xcodeproj/xcuserdata/
 
 # Detox
 .detox/
