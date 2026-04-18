@@ -3,6 +3,7 @@ import java.io.File
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 fun readConvexDeployment(): String {
@@ -27,7 +28,7 @@ fun readConvexDeployment(): String {
 
 android {
     namespace = "com.laneshadow"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.laneshadow.app"
@@ -64,10 +65,6 @@ android {
         buildConfig = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
-    }
-
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -95,4 +92,5 @@ dependencies {
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    debugImplementation("com.nativesandbox:library")
 }

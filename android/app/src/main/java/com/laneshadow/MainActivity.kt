@@ -1,3 +1,4 @@
+// native-sandbox: configured
 package com.laneshadow
 
 import android.os.Bundle
@@ -13,12 +14,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.laneshadow.sandbox.SandboxRouter
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.theme.LocalLaneShadowTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (SandboxRouter.shouldOpen(intent)) {
+            setContent { SandboxRouter.Content() }
+            return
+        }
         setContent {
             LaneShadowTheme {
                 LaneShadowAppContent(deploymentId = BuildConfig.CONVEX_DEPLOYMENT)

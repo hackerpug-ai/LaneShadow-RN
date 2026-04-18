@@ -8,13 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		0845C4AC551760BC96454D32 /* ConvexMobile in Frameworks */ = {isa = PBXBuildFile; productRef = 603E52C39223C28F74C3296F /* ConvexMobile */; };
-		AABBCCDD00000000CAFE0003 /* LaneShadowTheme in Frameworks */ = {isa = PBXBuildFile; productRef = AABBCCDD00000000CAFE0002 /* LaneShadowTheme */; };
 		0D14EDD6EBE39F655775566D /* ConvexConfig.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7781149F2F15D8931F7BD59 /* ConvexConfig.generated.swift */; };
 		2D064A18B4A7465DBCC5D509 /* LaneShadowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D1CEB0F9194AA0A1298E94 /* LaneShadowTests.swift */; };
 		4B0AA98B99C3EBAED48BB3C7 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19C0C8E34938049BC6509361 /* App.swift */; };
 		63DF5AF231CF6918D89B667C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2D8422CC809A6C6F9E33663 /* Foundation.framework */; };
 		7487EB2311A36A4E3BA14212 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 042C70965E7517B7DB83BEBC /* Assets.xcassets */; };
+		83DED50F9B7D6E11F1B30091 /* LaneShadowSandboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C934E3A63158B5E395D53E00 /* LaneShadowSandboxEntry.swift */; };
+		AABBCCDD00000000CAFE0003 /* LaneShadowTheme in Frameworks */ = {isa = PBXBuildFile; productRef = AABBCCDD00000000CAFE0002 /* LaneShadowTheme */; };
+		AD8EF4A701C10E1634387601 /* LaneShadowStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D305F1F06CD33A026AD81A /* LaneShadowStories.swift */; };
 		C071BBB67191B0BB0B63057E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B65C904E4A0AAC1820E0B04 /* ContentView.swift */; };
+		C1BA82A170AEFD8BD4626532 /* NativeSandbox in Frameworks */ = {isa = PBXBuildFile; productRef = 52008D1AF11776E1CEC82B7F /* NativeSandbox */; };
 		E7BF3CA6E1D3EB02CB7C6C68 /* ConvexStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BFA01AC71D220DB33A48A4C /* ConvexStore.swift */; };
 /* End PBXBuildFile section */
 
@@ -24,11 +27,13 @@
 		1BFA01AC71D220DB33A48A4C /* ConvexStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConvexStore.swift; path = LaneShadow/ConvexStore.swift; sourceTree = "<group>"; };
 		7B65C904E4A0AAC1820E0B04 /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = LaneShadow/ContentView.swift; sourceTree = "<group>"; };
 		A7781149F2F15D8931F7BD59 /* ConvexConfig.generated.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConvexConfig.generated.swift; path = LaneShadow/Generated/ConvexConfig.generated.swift; sourceTree = "<group>"; };
+		C1D305F1F06CD33A026AD81A /* LaneShadowStories.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LaneShadowStories.swift; path = LaneShadow/Sandbox/LaneShadowStories.swift; sourceTree = "<group>"; };
 		C40B550C00DF5E8EB169537B /* LaneShadow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LaneShadow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C934E3A63158B5E395D53E00 /* LaneShadowSandboxEntry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LaneShadowSandboxEntry.swift; path = LaneShadow/Sandbox/LaneShadowSandboxEntry.swift; sourceTree = "<group>"; };
 		EA2218D2E4024A3E89BBD26A /* LaneShadowTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LaneShadowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2D8422CC809A6C6F9E33663 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		F5D1CEB0F9194AA0A1298E94 /* LaneShadowTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LaneShadowTests.swift; path = LaneShadowTests/LaneShadowTests.swift; sourceTree = "<group>"; };
 		F3AD9C6E4235BE61F90118DB /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = LaneShadow/Info.plist; sourceTree = "<group>"; };
+		F5D1CEB0F9194AA0A1298E94 /* LaneShadowTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LaneShadowTests.swift; path = LaneShadowTests/LaneShadowTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +44,14 @@
 				63DF5AF231CF6918D89B667C /* Foundation.framework in Frameworks */,
 				0845C4AC551760BC96454D32 /* ConvexMobile in Frameworks */,
 				AABBCCDD00000000CAFE0003 /* LaneShadowTheme in Frameworks */,
+				C1BA82A170AEFD8BD4626532 /* NativeSandbox in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B35F1748A3B54B28A60D0372 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,6 +68,8 @@
 				1BFA01AC71D220DB33A48A4C /* ConvexStore.swift */,
 				F3AD9C6E4235BE61F90118DB /* Info.plist */,
 				042C70965E7517B7DB83BEBC /* Assets.xcassets */,
+				C934E3A63158B5E395D53E00 /* LaneShadowSandboxEntry.swift */,
+				C1D305F1F06CD33A026AD81A /* LaneShadowStories.swift */,
 			);
 			name = LaneShadow;
 			sourceTree = "<group>";
@@ -137,6 +152,7 @@
 			packageProductDependencies = (
 				603E52C39223C28F74C3296F /* ConvexMobile */,
 				AABBCCDD00000000CAFE0002 /* LaneShadowTheme */,
+				52008D1AF11776E1CEC82B7F /* NativeSandbox */,
 			);
 			productName = LaneShadow;
 			productReference = C40B550C00DF5E8EB169537B /* LaneShadow.app */;
@@ -155,8 +171,6 @@
 			dependencies = (
 			);
 			name = LaneShadowTests;
-			packageProductDependencies = (
-			);
 			productName = LaneShadowTests;
 			productReference = EA2218D2E4024A3E89BBD26A /* LaneShadowTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -182,7 +196,8 @@
 			minimizedProjectReferenceProxies = 0;
 			packageReferences = (
 				9F46D45B90BF0C22388E92D9 /* XCRemoteSwiftPackageReference "convex-swift" */,
-				AABBCCDD00000000CAFE0001 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */,
+				AABBCCDD00000000CAFE0001 /* XCLocalSwiftPackageReference "swift" */,
+				CFDF619F02AFB83170AAE277 /* XCLocalSwiftPackageReference "ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C8F2429BC9B2805FC918C04A /* Products */;
@@ -237,17 +252,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		F0B9873112100C749FB6CA98 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4B0AA98B99C3EBAED48BB3C7 /* App.swift in Sources */,
-				C071BBB67191B0BB0B63057E /* ContentView.swift in Sources */,
-				E7BF3CA6E1D3EB02CB7C6C68 /* ConvexStore.swift in Sources */,
-				0D14EDD6EBE39F655775566D /* ConvexConfig.generated.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		BDA972E04D9E4A00AA617638 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -256,17 +260,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-/* End PBXSourcesBuildPhase section */
-
-/* Begin PBXFrameworksBuildPhase section */
-		B35F1748A3B54B28A60D0372 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
+		F0B9873112100C749FB6CA98 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B0AA98B99C3EBAED48BB3C7 /* App.swift in Sources */,
+				C071BBB67191B0BB0B63057E /* ContentView.swift in Sources */,
+				E7BF3CA6E1D3EB02CB7C6C68 /* ConvexStore.swift in Sources */,
+				0D14EDD6EBE39F655775566D /* ConvexConfig.generated.swift in Sources */,
+				83DED50F9B7D6E11F1B30091 /* LaneShadowSandboxEntry.swift in Sources */,
+				AD8EF4A701C10E1634387601 /* LaneShadowStories.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-/* End PBXFrameworksBuildPhase section */
+/* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
 		726610CA216E57A1143F06A4 /* Release */ = {
@@ -346,6 +353,24 @@
 			};
 			name = Release;
 		};
+		BD950CD12FCB4D11B73A43BE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
 		D1222F6D9F79F335B266ECCA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -367,42 +392,6 @@
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
-		};
-		BD950CD12FCB4D11B73A43BE /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app.tests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		EAA42636881C41B989D6AF27 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app.tests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
 		};
 		D6A7BE3AC444853DFD9FAA61 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -465,9 +454,36 @@
 			};
 			name = Debug;
 		};
+		EAA42636881C41B989D6AF27 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2C71741237EB43FBBD6E4F65 /* Build configuration list for PBXNativeTarget "LaneShadowTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD950CD12FCB4D11B73A43BE /* Debug */,
+				EAA42636881C41B989D6AF27 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		30A2B288E4EE97369BFACE58 /* Build configuration list for PBXNativeTarget "LaneShadow" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -486,21 +502,16 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2C71741237EB43FBBD6E4F65 /* Build configuration list for PBXNativeTarget "LaneShadowTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				BD950CD12FCB4D11B73A43BE /* Debug */,
-				EAA42636881C41B989D6AF27 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		AABBCCDD00000000CAFE0001 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */ = {
+		AABBCCDD00000000CAFE0001 /* XCLocalSwiftPackageReference "swift" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = "../tokens/platforms/swift";
+			relativePath = ../tokens/platforms/swift;
+		};
+		CFDF619F02AFB83170AAE277 /* XCLocalSwiftPackageReference "ios" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../native-sandbox/ios;
 		};
 /* End XCLocalSwiftPackageReference section */
 
@@ -516,6 +527,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		52008D1AF11776E1CEC82B7F /* NativeSandbox */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFDF619F02AFB83170AAE277 /* XCLocalSwiftPackageReference "ios" */;
+			productName = NativeSandbox;
+		};
 		603E52C39223C28F74C3296F /* ConvexMobile */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 9F46D45B90BF0C22388E92D9 /* XCRemoteSwiftPackageReference "convex-swift" */;
@@ -523,7 +539,7 @@
 		};
 		AABBCCDD00000000CAFE0002 /* LaneShadowTheme */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AABBCCDD00000000CAFE0001 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */;
+			package = AABBCCDD00000000CAFE0001 /* XCLocalSwiftPackageReference "swift" */;
 			productName = LaneShadowTheme;
 		};
 /* End XCSwiftPackageProductDependency section */
