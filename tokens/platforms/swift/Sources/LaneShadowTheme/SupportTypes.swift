@@ -1,5 +1,5 @@
-import SwiftUI
 import CoreGraphics
+import SwiftUI
 
 public struct ColorSet: Sendable {
     public let `default`: Color
@@ -34,7 +34,9 @@ public struct TypographyStyle: Sendable {
         self.fontWeight = fontWeight
     }
 
-    public var font: Font { Font.system(size: fontSize, weight: fontWeight) }
+    public var font: Font {
+        Font.system(size: fontSize, weight: fontWeight)
+    }
 }
 
 public struct ElevationStyle: Sendable {
@@ -63,17 +65,17 @@ public struct ElevationStyle: Sendable {
 }
 
 @inline(__always)
-internal func fontWeight(from raw: String) -> Font.Weight {
+func fontWeight(from raw: String) -> Font.Weight {
     switch raw {
-    case "100": return .ultraLight
-    case "200": return .thin
-    case "300": return .light
-    case "400", "normal": return .regular
-    case "500": return .medium
-    case "600": return .semibold
-    case "700", "bold": return .bold
-    case "800": return .heavy
-    case "900": return .black
-    default: return .regular
+    case "100": .ultraLight
+    case "200": .thin
+    case "300": .light
+    case "400", "normal": .regular
+    case "500": .medium
+    case "600": .semibold
+    case "700", "bold": .bold
+    case "800": .heavy
+    case "900": .black
+    default: .regular
     }
 }
