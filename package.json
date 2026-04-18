@@ -22,7 +22,8 @@
     "android:build": "make android_build",
     "android:dev": "make android_dev",
     "android:start": "make android_start",
-    "prepare": "lefthook install"
+    "prepare": "lefthook install",
+    "tokens:validate": "node tokens/scripts/validate-contract.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1026.0",
@@ -102,6 +103,7 @@
   "devDependencies": {
     "@aws-sdk/lib-storage": "^3.1026.0",
     "@biomejs/biome": "^2.4.12",
+    "ajv": "^8.17.1",
     "@langchain/core": "^1.1.12",
     "@langchain/langgraph": "^1.0.15",
     "@langchain/openai": "^1.2.1",

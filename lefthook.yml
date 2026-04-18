@@ -4,6 +4,10 @@
 pre-commit:
   parallel: true
   jobs:
+    - name: tokens:validate
+      glob: "tokens/**/*"
+      run: pnpm tokens:validate
+
     # TypeScript typecheck via tsgo (Go-based compiler, ~10x faster than tsc).
     # pnpm type-check still uses tsc for the benchmark baseline.
     - name: typecheck

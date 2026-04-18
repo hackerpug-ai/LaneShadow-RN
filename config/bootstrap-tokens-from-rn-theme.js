@@ -170,6 +170,37 @@ function main() {
         light: lightSemanticTheme.elevation,
         dark: darkSemanticTheme.elevation,
       },
+      motion: {
+        duration: {
+          instant: 0,
+          fast: 120,
+          normal: 200,
+          slow: 300,
+          slower: 400,
+        },
+        easing: {
+          // Cubic-bezier control points.
+          standard: [0.2, 0.0, 0.0, 1.0],
+          emphasized: [0.2, 0.0, 0.0, 1.0],
+          decelerate: [0.0, 0.0, 0.2, 1.0],
+          accelerate: [0.4, 0.0, 1.0, 1.0],
+          sharp: [0.4, 0.0, 0.6, 1.0],
+        },
+      },
+      opacity: {
+        0: 0,
+        5: 0.05,
+        10: 0.1,
+        20: 0.2,
+        30: 0.3,
+        40: 0.4,
+        50: 0.5,
+        60: 0.6,
+        70: 0.7,
+        80: 0.8,
+        90: 0.9,
+        100: 1,
+      },
     },
   }
 

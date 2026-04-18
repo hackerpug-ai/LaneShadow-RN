@@ -1,43 +1,384 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "com.laneshadow.tokens.schema",
-  "title": "LaneShadow tokens (DTCG-shaped subset)",
+  "title": "LaneShadow semantic tokens (RN shape-of-record contract)",
   "type": "object",
-  "additionalProperties": {
-    "anyOf": [
-      {
-        "type": "object",
-        "required": ["$type", "$value"],
-        "properties": {
-          "$type": { "type": "string", "minLength": 1 },
-          "$value": {},
-          "$description": { "type": "string" },
-          "$extensions": { "type": "object" }
-        },
-        "additionalProperties": false
-      },
-      { "$ref": "#/$defs/group" }
-    ]
+  "required": ["semantic"],
+  "properties": {
+    "semantic": { "$ref": "#/$defs/semanticTokens" }
   },
+  "additionalProperties": false,
   "$defs": {
-    "group": {
+    "dtcgLeaf": {
       "type": "object",
-      "additionalProperties": {
-        "anyOf": [
-          {
-            "type": "object",
-            "required": ["$type", "$value"],
-            "properties": {
-              "$type": { "type": "string", "minLength": 1 },
-              "$value": {},
-              "$description": { "type": "string" },
-              "$extensions": { "type": "object" }
-            },
-            "additionalProperties": false
+      "required": ["$type", "$value"],
+      "properties": {
+        "$type": { "type": "string", "minLength": 1 },
+        "$value": {},
+        "$description": { "type": "string" },
+        "$extensions": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "colorToken": {
+      "allOf": [
+        { "$ref": "#/$defs/dtcgLeaf" },
+        {
+          "type": "object",
+          "properties": {
+            "$value": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    },
+    "numberToken": {
+      "allOf": [
+        { "$ref": "#/$defs/dtcgLeaf" },
+        {
+          "type": "object",
+          "properties": {
+            "$value": { "type": "number" }
+          }
+        }
+      ]
+    },
+    "intToken": {
+      "allOf": [
+        { "$ref": "#/$defs/dtcgLeaf" },
+        {
+          "type": "object",
+          "properties": {
+            "$value": { "type": "integer" }
+          }
+        }
+      ]
+    },
+    "opacityToken": {
+      "allOf": [
+        { "$ref": "#/$defs/numberToken" },
+        {
+          "type": "object",
+          "properties": {
+            "$value": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      ]
+    },
+    "fontWeightToken": {
+      "allOf": [
+        { "$ref": "#/$defs/dtcgLeaf" },
+        {
+          "type": "object",
+          "properties": {
+            "$value": {
+              "type": "string",
+              "enum": [
+                "normal",
+                "bold",
+                "100",
+                "200",
+                "300",
+                "400",
+                "500",
+                "600",
+                "700",
+                "800",
+                "900"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "semanticColorSet": {
+      "type": "object",
+      "required": ["default"],
+      "properties": {
+        "default": { "$ref": "#/$defs/colorToken" },
+        "hover": { "$ref": "#/$defs/colorToken" },
+        "pressed": { "$ref": "#/$defs/colorToken" },
+        "disabled": { "$ref": "#/$defs/colorToken" },
+        "focus": { "$ref": "#/$defs/colorToken" },
+        "muted": { "$ref": "#/$defs/colorToken" },
+        "subtle": { "$ref": "#/$defs/colorToken" }
+      },
+      "additionalProperties": false
+    },
+    "semanticColorsRequired": {
+      "type": "object",
+      "required": [
+        "primary",
+        "secondary",
+        "tertiary",
+        "success",
+        "warning",
+        "warningContainer",
+        "onWarningContainer",
+        "danger",
+        "info",
+        "surface",
+        "surfaceVariant",
+        "background",
+        "onSurface",
+        "onPrimary",
+        "onSecondary",
+        "secondaryContainer",
+        "onSecondaryContainer",
+        "border",
+        "input",
+        "ring",
+        "locationPoiFill",
+        "locationPoiRing",
+        "locationPoiMuted",
+        "locationPoiBg",
+        "card",
+        "popover",
+        "accent",
+        "orange",
+        "muted",
+        "divider",
+        "scrim",
+        "routeSelected",
+        "routeAlternate"
+      ],
+      "properties": {
+        "primary": { "$ref": "#/$defs/semanticColorSet" },
+        "secondary": { "$ref": "#/$defs/semanticColorSet" },
+        "tertiary": { "$ref": "#/$defs/semanticColorSet" },
+        "success": { "$ref": "#/$defs/semanticColorSet" },
+        "warning": { "$ref": "#/$defs/semanticColorSet" },
+        "warningContainer": { "$ref": "#/$defs/semanticColorSet" },
+        "onWarningContainer": { "$ref": "#/$defs/semanticColorSet" },
+        "danger": { "$ref": "#/$defs/semanticColorSet" },
+        "info": { "$ref": "#/$defs/semanticColorSet" },
+        "surface": { "$ref": "#/$defs/semanticColorSet" },
+        "surfaceVariant": { "$ref": "#/$defs/semanticColorSet" },
+        "background": { "$ref": "#/$defs/semanticColorSet" },
+        "onSurface": { "$ref": "#/$defs/semanticColorSet" },
+        "onPrimary": { "$ref": "#/$defs/semanticColorSet" },
+        "onSecondary": { "$ref": "#/$defs/semanticColorSet" },
+        "secondaryContainer": { "$ref": "#/$defs/semanticColorSet" },
+        "onSecondaryContainer": { "$ref": "#/$defs/semanticColorSet" },
+        "border": { "$ref": "#/$defs/semanticColorSet" },
+        "input": { "$ref": "#/$defs/semanticColorSet" },
+        "ring": { "$ref": "#/$defs/semanticColorSet" },
+        "locationPoiFill": { "$ref": "#/$defs/semanticColorSet" },
+        "locationPoiRing": { "$ref": "#/$defs/semanticColorSet" },
+        "locationPoiMuted": { "$ref": "#/$defs/semanticColorSet" },
+        "locationPoiBg": { "$ref": "#/$defs/semanticColorSet" },
+        "card": { "$ref": "#/$defs/semanticColorSet" },
+        "popover": { "$ref": "#/$defs/semanticColorSet" },
+        "accent": { "$ref": "#/$defs/semanticColorSet" },
+        "orange": { "$ref": "#/$defs/semanticColorSet" },
+        "muted": { "$ref": "#/$defs/semanticColorSet" },
+        "divider": { "$ref": "#/$defs/semanticColorSet" },
+        "scrim": { "$ref": "#/$defs/semanticColorSet" },
+        "routeSelected": { "$ref": "#/$defs/semanticColorSet" },
+        "routeAlternate": { "$ref": "#/$defs/semanticColorSet" },
+        "waypointOnRoute": { "$ref": "#/$defs/semanticColorSet" },
+        "waypointOffRoute": { "$ref": "#/$defs/semanticColorSet" },
+        "waypointMixed": { "$ref": "#/$defs/semanticColorSet" },
+        "enrichmentFast": { "$ref": "#/$defs/semanticColorSet" },
+        "enrichmentExtended": { "$ref": "#/$defs/semanticColorSet" },
+        "enrichmentCached": { "$ref": "#/$defs/semanticColorSet" },
+        "deviationOriginalRoute": { "$ref": "#/$defs/semanticColorSet" },
+        "deviationDetourPath": { "$ref": "#/$defs/semanticColorSet" },
+        "deviationReconnectPoint": { "$ref": "#/$defs/semanticColorSet" }
+      },
+      "additionalProperties": false
+    },
+    "semanticSpacing": {
+      "type": "object",
+      "required": ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl"],
+      "properties": {
+        "xs": { "$ref": "#/$defs/intToken" },
+        "sm": { "$ref": "#/$defs/intToken" },
+        "md": { "$ref": "#/$defs/intToken" },
+        "lg": { "$ref": "#/$defs/intToken" },
+        "xl": { "$ref": "#/$defs/intToken" },
+        "2xl": { "$ref": "#/$defs/intToken" },
+        "3xl": { "$ref": "#/$defs/intToken" },
+        "4xl": { "$ref": "#/$defs/intToken" }
+      },
+      "additionalProperties": false
+    },
+    "semanticRadius": {
+      "type": "object",
+      "required": ["none", "sm", "md", "lg", "xl", "2xl", "full"],
+      "properties": {
+        "none": { "$ref": "#/$defs/intToken" },
+        "sm": { "$ref": "#/$defs/intToken" },
+        "md": { "$ref": "#/$defs/intToken" },
+        "lg": { "$ref": "#/$defs/intToken" },
+        "xl": { "$ref": "#/$defs/intToken" },
+        "2xl": { "$ref": "#/$defs/intToken" },
+        "full": { "$ref": "#/$defs/intToken" }
+      },
+      "additionalProperties": false
+    },
+    "typographyStyle": {
+      "type": "object",
+      "required": ["fontSize", "lineHeight", "fontWeight"],
+      "properties": {
+        "fontSize": { "$ref": "#/$defs/intToken" },
+        "lineHeight": { "$ref": "#/$defs/intToken" },
+        "fontWeight": { "$ref": "#/$defs/fontWeightToken" }
+      },
+      "additionalProperties": false
+    },
+    "typographyScale": {
+      "type": "object",
+      "required": ["sm", "md", "lg"],
+      "properties": {
+        "sm": { "$ref": "#/$defs/typographyStyle" },
+        "md": { "$ref": "#/$defs/typographyStyle" },
+        "lg": { "$ref": "#/$defs/typographyStyle" }
+      },
+      "additionalProperties": false
+    },
+    "semanticTypography": {
+      "type": "object",
+      "required": ["label", "body", "title", "heading", "display"],
+      "properties": {
+        "label": { "$ref": "#/$defs/typographyScale" },
+        "body": { "$ref": "#/$defs/typographyScale" },
+        "title": { "$ref": "#/$defs/typographyScale" },
+        "heading": { "$ref": "#/$defs/typographyScale" },
+        "display": { "$ref": "#/$defs/typographyScale" }
+      },
+      "additionalProperties": false
+    },
+    "shadowOffset": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "$ref": "#/$defs/intToken" },
+        "height": { "$ref": "#/$defs/intToken" }
+      },
+      "additionalProperties": false
+    },
+    "shadowStyle": {
+      "type": "object",
+      "required": ["shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "elevation"],
+      "properties": {
+        "shadowColor": { "$ref": "#/$defs/colorToken" },
+        "shadowOffset": { "$ref": "#/$defs/shadowOffset" },
+        "shadowOpacity": { "$ref": "#/$defs/opacityToken" },
+        "shadowRadius": { "$ref": "#/$defs/numberToken" },
+        "elevation": { "$ref": "#/$defs/intToken" }
+      },
+      "additionalProperties": false
+    },
+    "semanticElevation": {
+      "type": "object",
+      "required": ["0", "1", "2", "3", "4", "5"],
+      "properties": {
+        "0": { "$ref": "#/$defs/shadowStyle" },
+        "1": { "$ref": "#/$defs/shadowStyle" },
+        "2": { "$ref": "#/$defs/shadowStyle" },
+        "3": { "$ref": "#/$defs/shadowStyle" },
+        "4": { "$ref": "#/$defs/shadowStyle" },
+        "5": { "$ref": "#/$defs/shadowStyle" }
+      },
+      "additionalProperties": false
+    },
+    "semanticElevationModes": {
+      "type": "object",
+      "required": ["light", "dark"],
+      "properties": {
+        "light": { "$ref": "#/$defs/semanticElevation" },
+        "dark": { "$ref": "#/$defs/semanticElevation" }
+      },
+      "additionalProperties": false
+    },
+    "semanticColorsModes": {
+      "type": "object",
+      "required": ["light", "dark"],
+      "properties": {
+        "light": { "$ref": "#/$defs/semanticColorsRequired" },
+        "dark": { "$ref": "#/$defs/semanticColorsRequired" }
+      },
+      "additionalProperties": false
+    },
+    "motionEasingToken": {
+      "allOf": [
+        { "$ref": "#/$defs/dtcgLeaf" },
+        {
+          "type": "object",
+          "properties": {
+            "$value": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": { "type": "number" }
+            }
+          }
+        }
+      ]
+    },
+    "semanticMotion": {
+      "type": "object",
+      "required": ["duration", "easing"],
+      "properties": {
+        "duration": {
+          "type": "object",
+          "required": ["instant", "fast", "normal", "slow", "slower"],
+          "properties": {
+            "instant": { "$ref": "#/$defs/intToken" },
+            "fast": { "$ref": "#/$defs/intToken" },
+            "normal": { "$ref": "#/$defs/intToken" },
+            "slow": { "$ref": "#/$defs/intToken" },
+            "slower": { "$ref": "#/$defs/intToken" }
           },
-          { "$ref": "#/$defs/group" }
-        ]
-      }
+          "additionalProperties": false
+        },
+        "easing": {
+          "type": "object",
+          "required": ["standard", "emphasized", "decelerate", "accelerate", "sharp"],
+          "properties": {
+            "standard": { "$ref": "#/$defs/motionEasingToken" },
+            "emphasized": { "$ref": "#/$defs/motionEasingToken" },
+            "decelerate": { "$ref": "#/$defs/motionEasingToken" },
+            "accelerate": { "$ref": "#/$defs/motionEasingToken" },
+            "sharp": { "$ref": "#/$defs/motionEasingToken" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "semanticOpacity": {
+      "type": "object",
+      "required": ["0", "5", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100"],
+      "properties": {
+        "0": { "$ref": "#/$defs/opacityToken" },
+        "5": { "$ref": "#/$defs/opacityToken" },
+        "10": { "$ref": "#/$defs/opacityToken" },
+        "20": { "$ref": "#/$defs/opacityToken" },
+        "30": { "$ref": "#/$defs/opacityToken" },
+        "40": { "$ref": "#/$defs/opacityToken" },
+        "50": { "$ref": "#/$defs/opacityToken" },
+        "60": { "$ref": "#/$defs/opacityToken" },
+        "70": { "$ref": "#/$defs/opacityToken" },
+        "80": { "$ref": "#/$defs/opacityToken" },
+        "90": { "$ref": "#/$defs/opacityToken" },
+        "100": { "$ref": "#/$defs/opacityToken" }
+      },
+      "additionalProperties": false
+    },
+    "semanticTokens": {
+      "type": "object",
+      "required": ["color", "space", "radius", "type", "elevation", "motion", "opacity"],
+      "properties": {
+        "color": { "$ref": "#/$defs/semanticColorsModes" },
+        "space": { "$ref": "#/$defs/semanticSpacing" },
+        "radius": { "$ref": "#/$defs/semanticRadius" },
+        "type": { "$ref": "#/$defs/semanticTypography" },
+        "elevation": { "$ref": "#/$defs/semanticElevationModes" },
+        "motion": { "$ref": "#/$defs/semanticMotion" },
+        "opacity": { "$ref": "#/$defs/semanticOpacity" }
+      },
+      "additionalProperties": false
     }
   }
 }
