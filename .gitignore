@@ -40,6 +40,7 @@ app-example
 
 # generated native folders (Expo prebuild output — not tracked)
 /ios
+/android
 /react-native/ios
 /react-native/android
 
@@ -48,6 +49,12 @@ android/.gradle/
 android/local.properties
 android/**/build/
 android/.kotlin/
+
+# Native iOS bootstrap artifacts
+/ios/build/
+/ios/DerivedData/
+/ios/*.xcworkspace/xcuserdata/
+/ios/*.xcodeproj/xcuserdata/
 
 # Detox
 .detox/
