@@ -9,3 +9,4 @@
 --self remove
 --header strip
 --disable unusedArguments
+--exclude tokens/platforms/swift/Sources/LaneShadowTheme/Generated
