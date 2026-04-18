@@ -15,7 +15,6 @@
 		63DF5AF231CF6918D89B667C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2D8422CC809A6C6F9E33663 /* Foundation.framework */; };
 		7487EB2311A36A4E3BA14212 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 042C70965E7517B7DB83BEBC /* Assets.xcassets */; };
 		C071BBB67191B0BB0B63057E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B65C904E4A0AAC1820E0B04 /* ContentView.swift */; };
-		DD57C9A9DFF55D3791E5EFBE /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B685365036F2823497196E /* Theme.swift */; };
 		E7BF3CA6E1D3EB02CB7C6C68 /* ConvexStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BFA01AC71D220DB33A48A4C /* ConvexStore.swift */; };
 /* End PBXBuildFile section */
 
@@ -26,7 +25,6 @@
 		7B65C904E4A0AAC1820E0B04 /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = LaneShadow/ContentView.swift; sourceTree = "<group>"; };
 		A7781149F2F15D8931F7BD59 /* ConvexConfig.generated.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConvexConfig.generated.swift; path = LaneShadow/Generated/ConvexConfig.generated.swift; sourceTree = "<group>"; };
 		C40B550C00DF5E8EB169537B /* LaneShadow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LaneShadow.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		C8B685365036F2823497196E /* Theme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Theme.swift; path = LaneShadow/Theme.swift; sourceTree = "<group>"; };
 		EA2218D2E4024A3E89BBD26A /* LaneShadowTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LaneShadowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2D8422CC809A6C6F9E33663 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		F5D1CEB0F9194AA0A1298E94 /* LaneShadowTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LaneShadowTests.swift; path = LaneShadowTests/LaneShadowTests.swift; sourceTree = "<group>"; };
@@ -55,7 +53,6 @@
 				19C0C8E34938049BC6509361 /* App.swift */,
 				7B65C904E4A0AAC1820E0B04 /* ContentView.swift */,
 				1BFA01AC71D220DB33A48A4C /* ConvexStore.swift */,
-				C8B685365036F2823497196E /* Theme.swift */,
 				F3AD9C6E4235BE61F90118DB /* Info.plist */,
 				042C70965E7517B7DB83BEBC /* Assets.xcassets */,
 			);
@@ -247,7 +244,6 @@
 				4B0AA98B99C3EBAED48BB3C7 /* App.swift in Sources */,
 				C071BBB67191B0BB0B63057E /* ContentView.swift in Sources */,
 				E7BF3CA6E1D3EB02CB7C6C68 /* ConvexStore.swift in Sources */,
-				DD57C9A9DFF55D3791E5EFBE /* Theme.swift in Sources */,
 				0D14EDD6EBE39F655775566D /* ConvexConfig.generated.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
