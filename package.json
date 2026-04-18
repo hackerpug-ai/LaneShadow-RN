@@ -22,6 +22,7 @@
     "android:build": "make android_build",
     "android:dev": "make android_dev",
     "android:start": "make android_start",
+    "tokens:validate": "node tokens/validate.js",
     "prepare": "lefthook install"
   },
   "dependencies": {

@@ -1,0 +1,742 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://laneshadow.app/schemas/theme.schema.json",
+  "title": "LaneShadow Theme Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "color",
+    "spacing",
+    "typography",
+    "radius",
+    "elevation",
+    "motion",
+    "opacity"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "color": {
+      "$ref": "#/$defs/colorContract"
+    },
+    "spacing": {
+      "$ref": "#/$defs/spacingContract"
+    },
+    "typography": {
+      "$ref": "#/$defs/typographyContract"
+    },
+    "radius": {
+      "$ref": "#/$defs/radiusContract"
+    },
+    "elevation": {
+      "$ref": "#/$defs/elevationContract"
+    },
+    "motion": {
+      "$ref": "#/$defs/motionContract"
+    },
+    "opacity": {
+      "$ref": "#/$defs/opacityContract"
+    }
+  },
+  "$defs": {
+    "colorValue": {
+      "type": "string",
+      "pattern": "^(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{8}|rgba?\\([^\\)]+\\))$"
+    },
+    "paintColorValue": {
+      "type": "string",
+      "pattern": "^(transparent|#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{8}|rgba?\\([^\\)]+\\))$"
+    },
+    "scaleValue": {
+      "type": "number",
+      "minimum": 0
+    },
+    "interactiveColorToken": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default"],
+      "properties": {
+        "default": {
+          "$ref": "#/$defs/colorValue"
+        },
+        "hover": {
+          "$ref": "#/$defs/colorValue"
+        },
+        "pressed": {
+          "$ref": "#/$defs/colorValue"
+        },
+        "disabled": {
+          "$ref": "#/$defs/colorValue"
+        },
+        "focus": {
+          "$ref": "#/$defs/colorValue"
+        }
+      }
+    },
+    "textColorToken": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default"],
+      "properties": {
+        "default": {
+          "$ref": "#/$defs/colorValue"
+        },
+        "hover": {
+          "$ref": "#/$defs/colorValue"
+        },
+        "pressed": {
+          "$ref": "#/$defs/colorValue"
+        },
+        "disabled": {
+          "$ref": "#/$defs/colorValue"
+        },
+        "focus": {
+          "$ref": "#/$defs/colorValue"
+        },
+        "muted": {
+          "$ref": "#/$defs/colorValue"
+        },
+        "subtle": {
+          "$ref": "#/$defs/colorValue"
+        }
+      }
+    },
+    "singleColorToken": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default"],
+      "properties": {
+        "default": {
+          "$ref": "#/$defs/colorValue"
+        }
+      }
+    },
+    "colorContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["light", "dark"],
+      "properties": {
+        "light": {
+          "$ref": "#/$defs/colorTheme"
+        },
+        "dark": {
+          "$ref": "#/$defs/colorTheme"
+        }
+      }
+    },
+    "colorTheme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "brand",
+        "intent",
+        "surface",
+        "content",
+        "border",
+        "route",
+        "location",
+        "waypoint",
+        "enrichment",
+        "deviation",
+        "overlay"
+      ],
+      "properties": {
+        "brand": {
+          "$ref": "#/$defs/brandColors"
+        },
+        "intent": {
+          "$ref": "#/$defs/intentColors"
+        },
+        "surface": {
+          "$ref": "#/$defs/surfaceColors"
+        },
+        "content": {
+          "$ref": "#/$defs/contentColors"
+        },
+        "border": {
+          "$ref": "#/$defs/borderColors"
+        },
+        "route": {
+          "$ref": "#/$defs/routeColors"
+        },
+        "location": {
+          "$ref": "#/$defs/locationColors"
+        },
+        "waypoint": {
+          "$ref": "#/$defs/waypointColors"
+        },
+        "enrichment": {
+          "$ref": "#/$defs/enrichmentColors"
+        },
+        "deviation": {
+          "$ref": "#/$defs/deviationColors"
+        },
+        "overlay": {
+          "$ref": "#/$defs/overlayColors"
+        }
+      }
+    },
+    "brandColors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary", "secondary", "tertiary", "accent", "orange"],
+      "properties": {
+        "primary": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "secondary": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "tertiary": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "accent": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "orange": {
+          "$ref": "#/$defs/interactiveColorToken"
+        }
+      }
+    },
+    "intentColors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "success",
+        "warning",
+        "warningContainer",
+        "onWarningContainer",
+        "danger",
+        "info"
+      ],
+      "properties": {
+        "success": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "warning": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "warningContainer": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "onWarningContainer": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "danger": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "info": {
+          "$ref": "#/$defs/interactiveColorToken"
+        }
+      }
+    },
+    "surfaceColors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["surface", "surfaceVariant", "background", "card", "popover", "muted"],
+      "properties": {
+        "surface": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "surfaceVariant": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "background": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "card": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "popover": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "muted": {
+          "$ref": "#/$defs/interactiveColorToken"
+        }
+      }
+    },
+    "contentColors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["onSurface", "onPrimary", "onSecondary", "onSecondaryContainer"],
+      "properties": {
+        "onSurface": {
+          "$ref": "#/$defs/textColorToken"
+        },
+        "onPrimary": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "onSecondary": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "onSecondaryContainer": {
+          "$ref": "#/$defs/textColorToken"
+        }
+      }
+    },
+    "borderColors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["border", "input", "ring", "divider"],
+      "properties": {
+        "border": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "input": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "ring": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "divider": {
+          "$ref": "#/$defs/singleColorToken"
+        }
+      }
+    },
+    "routeColors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selected", "alternate"],
+      "properties": {
+        "selected": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "alternate": {
+          "$ref": "#/$defs/singleColorToken"
+        }
+      }
+    },
+    "locationColors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["poi"],
+      "properties": {
+        "poi": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["fill", "ring", "muted", "background"],
+          "properties": {
+            "fill": {
+              "$ref": "#/$defs/interactiveColorToken"
+            },
+            "ring": {
+              "$ref": "#/$defs/interactiveColorToken"
+            },
+            "muted": {
+              "$ref": "#/$defs/interactiveColorToken"
+            },
+            "background": {
+              "$ref": "#/$defs/interactiveColorToken"
+            }
+          }
+        }
+      }
+    },
+    "waypointColors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["onRoute", "offRoute", "mixed"],
+      "properties": {
+        "onRoute": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "offRoute": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "mixed": {
+          "$ref": "#/$defs/interactiveColorToken"
+        }
+      }
+    },
+    "enrichmentColors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fast", "extended", "cached"],
+      "properties": {
+        "fast": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "extended": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "cached": {
+          "$ref": "#/$defs/interactiveColorToken"
+        }
+      }
+    },
+    "deviationColors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["originalRoute", "detourPath", "reconnectPoint"],
+      "properties": {
+        "originalRoute": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "detourPath": {
+          "$ref": "#/$defs/interactiveColorToken"
+        },
+        "reconnectPoint": {
+          "$ref": "#/$defs/interactiveColorToken"
+        }
+      }
+    },
+    "overlayColors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scrim"],
+      "properties": {
+        "scrim": {
+          "$ref": "#/$defs/singleColorToken"
+        }
+      }
+    },
+    "spacingContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scale"],
+      "properties": {
+        "scale": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl"],
+          "properties": {
+            "xs": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "sm": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "md": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "lg": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "xl": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "2xl": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "3xl": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "4xl": {
+              "$ref": "#/$defs/scaleValue"
+            }
+          }
+        }
+      }
+    },
+    "typographyToken": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["family", "weight", "size", "lineHeight", "letterSpacing"],
+      "properties": {
+        "family": {
+          "type": "string",
+          "minLength": 1
+        },
+        "weight": {
+          "type": "string",
+          "enum": ["100", "200", "300", "400", "500", "600", "700", "800", "900", "normal", "bold"]
+        },
+        "size": {
+          "$ref": "#/$defs/scaleValue"
+        },
+        "lineHeight": {
+          "$ref": "#/$defs/scaleValue"
+        },
+        "letterSpacing": {
+          "type": "number"
+        }
+      }
+    },
+    "typographyScale": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sm", "md", "lg"],
+      "properties": {
+        "sm": {
+          "$ref": "#/$defs/typographyToken"
+        },
+        "md": {
+          "$ref": "#/$defs/typographyToken"
+        },
+        "lg": {
+          "$ref": "#/$defs/typographyToken"
+        }
+      }
+    },
+    "typographyContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "body", "title", "heading", "display"],
+      "properties": {
+        "label": {
+          "$ref": "#/$defs/typographyScale"
+        },
+        "body": {
+          "$ref": "#/$defs/typographyScale"
+        },
+        "title": {
+          "$ref": "#/$defs/typographyScale"
+        },
+        "heading": {
+          "$ref": "#/$defs/typographyScale"
+        },
+        "display": {
+          "$ref": "#/$defs/typographyScale"
+        }
+      }
+    },
+    "radiusContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scale"],
+      "properties": {
+        "scale": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["none", "sm", "md", "lg", "xl", "2xl", "full"],
+          "properties": {
+            "none": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "sm": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "md": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "lg": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "xl": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "2xl": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "full": {
+              "$ref": "#/$defs/scaleValue"
+            }
+          }
+        }
+      }
+    },
+    "elevationToken": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shadowColor",
+        "shadowOffsetX",
+        "shadowOffsetY",
+        "shadowOpacity",
+        "shadowRadius",
+        "elevation"
+      ],
+      "properties": {
+        "shadowColor": {
+          "$ref": "#/$defs/paintColorValue"
+        },
+        "shadowOffsetX": {
+          "type": "number"
+        },
+        "shadowOffsetY": {
+          "type": "number"
+        },
+        "shadowOpacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "shadowRadius": {
+          "$ref": "#/$defs/scaleValue"
+        },
+        "elevation": {
+          "$ref": "#/$defs/scaleValue"
+        }
+      }
+    },
+    "elevationContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level"],
+      "properties": {
+        "level": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["0", "1", "2", "3", "4", "5"],
+          "properties": {
+            "0": {
+              "$ref": "#/$defs/elevationToken"
+            },
+            "1": {
+              "$ref": "#/$defs/elevationToken"
+            },
+            "2": {
+              "$ref": "#/$defs/elevationToken"
+            },
+            "3": {
+              "$ref": "#/$defs/elevationToken"
+            },
+            "4": {
+              "$ref": "#/$defs/elevationToken"
+            },
+            "5": {
+              "$ref": "#/$defs/elevationToken"
+            }
+          }
+        }
+      }
+    },
+    "motionContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["duration", "easing"],
+      "properties": {
+        "duration": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["instant", "fast", "standard", "emphasized", "slow", "toast", "skeleton"],
+          "properties": {
+            "instant": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "fast": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "standard": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "emphasized": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "slow": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "toast": {
+              "$ref": "#/$defs/scaleValue"
+            },
+            "skeleton": {
+              "$ref": "#/$defs/scaleValue"
+            }
+          }
+        },
+        "easing": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["standard", "accelerate", "decelerate", "emphasized", "linear"],
+          "properties": {
+            "standard": {
+              "type": "string",
+              "enum": ["easeInOut"]
+            },
+            "accelerate": {
+              "type": "string",
+              "enum": ["easeIn"]
+            },
+            "decelerate": {
+              "type": "string",
+              "enum": ["easeOut"]
+            },
+            "emphasized": {
+              "type": "string",
+              "enum": ["easeOut"]
+            },
+            "linear": {
+              "type": "string",
+              "enum": ["linear"]
+            }
+          }
+        }
+      }
+    },
+    "opacityContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "overlay"],
+      "properties": {
+        "state": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "subtle",
+            "selected",
+            "border",
+            "strongBorder",
+            "focusRing",
+            "disabled",
+            "backdrop"
+          ],
+          "properties": {
+            "subtle": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "selected": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "border": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "strongBorder": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "focusRing": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "disabled": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "backdrop": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "overlay": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["lightOverlay", "darkOverlay", "cardOverlay"],
+          "properties": {
+            "lightOverlay": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "darkOverlay": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "cardOverlay": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

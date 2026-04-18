@@ -77,8 +77,9 @@ Tasks are organized into 7 phases following the atomic dependency graph. Each ph
 
 | ID | Title | Agent | Estimate |
 |----|-------|-------|----------|
-| UI-001 | Lock shared token source, Style Dictionary outputs, and RN consumption contract | frontend-designer | 1 day |
-| UI-002 | Create the RN baseline scenario registry, sandbox IA, and screenshot workflow | frontend-designer | 1 day |
+| UI-001 | Define theme token JSON schema (source of truth) | frontend-designer | 0.5 day |
+| UI-002 | Enforce theme token schema in iOS | swift-implementer | 0.75 day |
+| UI-002B | Enforce theme token schema in Android | kotlin-implementer | 0.75 day |
 | UI-003 | Bootstrap Android sandbox host, catalog navigation, and RN reference registry | kotlin-implementer | 1 day |
 | UI-004 | Bootstrap iOS sandbox host, catalog navigation, and RN reference registry | swift-implementer | 1 day |
 
@@ -182,6 +183,70 @@ Runs after each platform has completed its full translation path and all sandbox
 | UI-061 | Define phase-1 fidelity scenario set (atom subset 1, molecule subsets 1+3+4, organism subset 2, template subset 1, onboarding screen) + screenshot capture protocol | frontend-designer | 0.5 days |
 | UI-062 | Android phase-1 fidelity capture: run screenshot harness on all scenarios in UI-061 set, compare against RN baseline, file variance report | kotlin-reviewer | 0.5 days |
 | UI-063 | iOS phase-1 fidelity capture: run screenshot harness on all scenarios in UI-061 set, compare against RN baseline, file variance report | swift-reviewer | 0.5 days |
+
+## Phase-1 Fidelity Scenario Set (UI-061)
+
+UI-062 and UI-063 must run the same deterministic phase-1 fidelity slice. Every selected scenario is fixture-backed, captured in light and dark unless noted otherwise, and labeled with its RN reference path.
+
+### Scenario IDs
+
+| Scenario ID | Slice | RN reference | Fixture key | Themes | Capture notes |
+|---|---|---|---|---|---|
+| `tokens.colors.default` | Atom subset 1 | `react-native/stories/tokens/Colors.stories.tsx#Default` | `token-colors-v1` | light and dark | Token palette board only; no scrolling |
+| `tokens.typography.default` | Atom subset 1 | `react-native/stories/tokens/Typography.stories.tsx#Default` | `token-typography-v1` | light and dark | Full type ramp in fixed-width frame |
+| `atoms.icon-symbol.common-icons` | Atom subset 1 | `react-native/stories/components/IconSymbol.stories.tsx#CommonIcons` | `icon-common-v1` | light and dark | Use default symbol grid ordering |
+| `atoms.separator.in-list` | Atom subset 1 | `react-native/stories/components/Separator.stories.tsx#InList` | `separator-list-v1` | light and dark | Three-row list fixture with stable copy |
+| `atoms.drag-handle.in-context` | Atom subset 1 | `react-native/stories/components/DragHandle.stories.tsx#InContext` | `drag-handle-sheet-v1` | light and dark | Centered in bottom-sheet chrome fixture |
+| `molecules.layout.app-header.with-both-icons` | Molecule subset 1 | `react-native/stories/components/AppHeader.stories.tsx#WithBothIcons` | `app-header-dual-actions-v1` | light and dark | Header title, leading icon, trailing icon fixed |
+| `molecules.layout.section-header.complete` | Molecule subset 1 | `react-native/stories/components/SectionHeader.stories.tsx#Complete` | `section-header-complete-v1` | light and dark | Title, subtitle, action button fixed |
+| `molecules.layout.bottom-navigation.saved-active` | Molecule subset 1 | `react-native/stories/components/BottomNavigation.stories.tsx#SavedActive` | `bottom-nav-saved-v1` | light and dark | Selected tab must remain `Saved` |
+| `molecules.layout.banner.with-actions` | Molecule subset 1 | `react-native/stories/components/Banner.stories.tsx#WithActions` | `banner-actions-v1` | light and dark | Two action labels, no dismiss animation |
+| `molecules.weather.weather-pill.multiple` | Molecule subset 3 | `react-native/stories/components/WeatherPill.stories.tsx#Multiple` | `weather-pill-multi-v1` | light and dark | Render the full row fixture, no overflow wrapping |
+| `molecules.weather.temperature-badge.all-states` | Molecule subset 3 | `react-native/stories/components/TemperatureBadge.stories.tsx#AllStates` | `temperature-badge-all-v1` | light and dark | All temperature states in one board |
+| `molecules.weather.rain-badge.all-states` | Molecule subset 3 | `react-native/stories/components/RainBadge.stories.tsx#AllStates` | `rain-badge-all-v1` | light and dark | All rain states in one board |
+| `molecules.weather.weather-gauge.all-metrics` | Molecule subset 3 | `react-native/stories/map/WeatherGauge.stories.tsx#AllMetrics` | `weather-gauge-all-metrics-v1` | light and dark | Wind, rain, and temperature all present |
+| `molecules.route.route-thumbnail.default` | Molecule subset 4 | `react-native/stories/components/RouteThumbnail.stories.tsx#Default` | `route-thumbnail-default-v1` | light and dark | Use the default bounds and rotation from story |
+| `molecules.route.route-badge.with-icon` | Molecule subset 4 | `react-native/stories/components/RouteBadge.stories.tsx#WithIcon` | `route-badge-icon-v1` | light and dark | Icon and label stay fixed |
+| `molecules.route.route-option-card.with-heavy-rain` | Molecule subset 4 | `react-native/stories/components/RouteOptionCard.stories.tsx#WithHeavyRain` | `route-option-heavy-rain-v1` | light and dark | Preserve selected-state styling from story fixture |
+| `molecules.route.session-card.many-routes` | Molecule subset 4 | `react-native/stories/components/SessionCard.stories.tsx#ManyRoutes` | `session-card-many-routes-v1` | light and dark | Use multi-route session fixture unchanged |
+| `molecules.route.saved-route-card.long-route` | Molecule subset 4 | `react-native/stories/components/SavedRouteCard.stories.tsx#LongRoute` | `saved-route-long-v1` | light and dark | Long metadata strings must not wrap differently |
+| `molecules.route.route-attachment-card.compact-selected` | Molecule subset 4 | `react-native/stories/components/RouteAttachmentCard.stories.tsx#CompactSelected` | `route-attachment-compact-selected-v1` | light and dark | Compact card with selected state locked on |
+| `organisms.route-details.high-wind-route` | Organism subset 2 | `react-native/stories/sheets/RouteDetailsSheet.stories.tsx#HighWindRoute` | `route-details-high-wind-v1` | light and dark | Capture sheet body at rest, no drag interaction |
+| `templates.layout.base-view-layout.default-shell` | Template subset 1 | `react-native/components/layouts/base-view-layout.tsx` | `base-view-layout-shell-v1` | light and dark | Source-backed baseline; no RN Storybook export exists |
+| `templates.layout.teacher-simple-view-layout.default-shell` | Template subset 1 | `react-native/components/layouts/teacher-simple-view-layout.tsx` | `teacher-simple-layout-shell-v1` | light and dark | Source-backed baseline; static title and content blocks |
+| `templates.layout.auth-screen-layout.default-shell` | Template subset 1 | `react-native/components/auth/auth-screen-layout.tsx` | `auth-screen-layout-shell-v1` | light and dark | Source-backed baseline with fixed auth-card placeholder |
+| `screens.onboarding.welcome.default` | Onboarding screen | `react-native/components/onboarding/welcome-screen.tsx` | `welcome-screen-default-v1` | light and dark | Source-backed baseline; downloading state must be off |
+
+### Deterministic capture protocol
+
+- Use deterministic fixtures only. No auth, backend, geolocation, network, timers, or random data.
+- Freeze locale to `en-US`, calendar to Gregorian, timezone to `America/Denver`, and text scale to the platform default.
+- Disable live animations before capture. Motion tokens may define the intended durations, but screenshots capture the resting state only.
+- Use light and dark capture for every scenario above. A waiver is allowed only if the scenario is monochrome and the waiver is documented in the variance report.
+- For atoms, molecules, and organisms, capture the component bounds inside a fixed review frame with 24pt outer padding and no scroll offset.
+- For templates and screens, capture the full portrait phone frame with safe areas visible.
+
+### Device and simulator assumptions
+
+- React Native baseline: Storybook scenario rendered in portrait review frame with the same fixture payload and theme as native capture.
+- Android native capture: Pixel 9 emulator, portrait, default font scale, deterministic seed data.
+- iOS native capture: iPhone 16 simulator, portrait, default Dynamic Type, deterministic seed data.
+- For map-backed fixtures, camera position, zoom, and route geometry must be hard-coded by fixture key before capture begins.
+
+### Output naming and report shape
+
+- Screenshot file naming: `phase1/{platform}/{scenario_id}--{theme}--{device_key}.png`
+- Variance report naming: `phase1/{platform}/variance-report.md`
+- UI-062 and UI-063 must emit one variance report section per scenario ID, in the same order as the table above.
+- Every report entry must include: scenario ID, RN reference, fixture key, theme, screenshot paths, verdict, and remediation note if failed.
+
+### Failure rules
+
+- Token mismatches are failures. This includes incorrect semantic colors, spacing, radius, typography, elevation, motion labels, or opacity usage relative to the fixture.
+- Layout shifts are failures. This includes different bounds, clipping, wrapping, misalignment, or safe-area handling against the RN baseline.
+- Missing states are failures. If a fixture expects a selected, active, compact, or warning state and the native capture omits it, the scenario fails.
+- Accessibility regressions are failures. This includes contrast loss, touch-target regressions, missing labels in the sandbox metadata, or Dynamic Type breakage visible in capture.
+- Cosmetic anti-aliasing differences may be noted, but they are not failures unless they obscure token consumption or visual parity.
 
 ### Phase H — Delta Compositions from UC Audit (22 tasks, 11 compositions × dual platform)
 
