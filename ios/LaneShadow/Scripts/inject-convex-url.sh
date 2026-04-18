@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
-PRIMARY_ENV_FILE="/Users/justinrich/Projects/LaneShadow/server/.env.local"
+PRIMARY_ENV_FILE="${PROJECT_ROOT}/server/.env.local"
 
 find_fallback_env_file() {
   if ! command -v git >/dev/null 2>&1; then

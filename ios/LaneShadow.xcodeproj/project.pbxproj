@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0845C4AC551760BC96454D32 /* ConvexMobile in Frameworks */ = {isa = PBXBuildFile; productRef = 603E52C39223C28F74C3296F /* ConvexMobile */; };
 		0D14EDD6EBE39F655775566D /* ConvexConfig.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7781149F2F15D8931F7BD59 /* ConvexConfig.generated.swift */; };
+		2D064A18B4A7465DBCC5D509 /* LaneShadowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D1CEB0F9194AA0A1298E94 /* LaneShadowTests.swift */; };
 		4B0AA98B99C3EBAED48BB3C7 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19C0C8E34938049BC6509361 /* App.swift */; };
 		63DF5AF231CF6918D89B667C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2D8422CC809A6C6F9E33663 /* Foundation.framework */; };
 		7487EB2311A36A4E3BA14212 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 042C70965E7517B7DB83BEBC /* Assets.xcassets */; };
@@ -25,7 +26,9 @@
 		A7781149F2F15D8931F7BD59 /* ConvexConfig.generated.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConvexConfig.generated.swift; path = LaneShadow/Generated/ConvexConfig.generated.swift; sourceTree = "<group>"; };
 		C40B550C00DF5E8EB169537B /* LaneShadow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LaneShadow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C8B685365036F2823497196E /* Theme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Theme.swift; path = LaneShadow/Theme.swift; sourceTree = "<group>"; };
+		EA2218D2E4024A3E89BBD26A /* LaneShadowTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LaneShadowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2D8422CC809A6C6F9E33663 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		F5D1CEB0F9194AA0A1298E94 /* LaneShadowTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LaneShadowTests.swift; path = LaneShadowTests/LaneShadowTests.swift; sourceTree = "<group>"; };
 		F3AD9C6E4235BE61F90118DB /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = LaneShadow/Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -71,6 +74,7 @@
 				C8F2429BC9B2805FC918C04A /* Products */,
 				3358ABF0E9A0A26A2DC29ABF /* Frameworks */,
 				2E6DE740AB1D3CC3AAFDAD66 /* LaneShadow */,
+				EDE941005FEE4271A0B6705D /* LaneShadowTests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -93,8 +97,17 @@
 			isa = PBXGroup;
 			children = (
 				C40B550C00DF5E8EB169537B /* LaneShadow.app */,
+				EA2218D2E4024A3E89BBD26A /* LaneShadowTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		EDE941005FEE4271A0B6705D /* LaneShadowTests */ = {
+			isa = PBXGroup;
+			children = (
+				F5D1CEB0F9194AA0A1298E94 /* LaneShadowTests.swift */,
+			);
+			name = LaneShadowTests;
 			sourceTree = "<group>";
 		};
 		F5998C2A0B559E2ADD097C96 /* iOS */ = {
@@ -129,6 +142,25 @@
 			productReference = C40B550C00DF5E8EB169537B /* LaneShadow.app */;
 			productType = "com.apple.product-type.application";
 		};
+		D4D1C503A6F94EC6A21B28A4 /* LaneShadowTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2C71741237EB43FBBD6E4F65 /* Build configuration list for PBXNativeTarget "LaneShadowTests" */;
+			buildPhases = (
+				BDA972E04D9E4A00AA617638 /* Sources */,
+				B35F1748A3B54B28A60D0372 /* Frameworks */,
+				F780BFCEBB8A4EB489C6E8D9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LaneShadowTests;
+			packageProductDependencies = (
+			);
+			productName = LaneShadowTests;
+			productReference = EA2218D2E4024A3E89BBD26A /* LaneShadowTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -157,6 +189,7 @@
 			projectRoot = "";
 			targets = (
 				B7E51DDBAE69A0395EFCA6F1 /* LaneShadow */,
+				D4D1C503A6F94EC6A21B28A4 /* LaneShadowTests */,
 			);
 		};
 /* End PBXProject section */
@@ -167,6 +200,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				7487EB2311A36A4E3BA14212 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F780BFCEBB8A4EB489C6E8D9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -181,7 +221,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				/Users/justinrich/Projects/LaneShadow/server/.env.local,
+				"$(SRCROOT)/../server/.env.local",
 			);
 			name = "Inject Convex URL";
 			outputFileListPaths = (
@@ -208,7 +248,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BDA972E04D9E4A00AA617638 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D064A18B4A7465DBCC5D509 /* LaneShadowTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B35F1748A3B54B28A60D0372 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
 		726610CA216E57A1143F06A4 /* Release */ = {
@@ -310,6 +368,42 @@
 			};
 			name = Debug;
 		};
+		BD950CD12FCB4D11B73A43BE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		EAA42636881C41B989D6AF27 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 		D6A7BE3AC444853DFD9FAA61 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -388,6 +482,15 @@
 			buildConfigurations = (
 				D6A7BE3AC444853DFD9FAA61 /* Debug */,
 				726610CA216E57A1143F06A4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2C71741237EB43FBBD6E4F65 /* Build configuration list for PBXNativeTarget "LaneShadowTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD950CD12FCB4D11B73A43BE /* Debug */,
+				EAA42636881C41B989D6AF27 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

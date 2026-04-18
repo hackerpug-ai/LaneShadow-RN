@@ -20,6 +20,20 @@
                ReferencedContainer = "container:LaneShadow.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D4D1C503A6F94EC6A21B28A4"
+               BuildableName = "LaneShadowTests.xctest"
+               BlueprintName = "LaneShadowTests"
+               ReferencedContainer = "container:LaneShadow.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -37,6 +51,16 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D4D1C503A6F94EC6A21B28A4"
+               BuildableName = "LaneShadowTests.xctest"
+               BlueprintName = "LaneShadowTests"
+               ReferencedContainer = "container:LaneShadow.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
