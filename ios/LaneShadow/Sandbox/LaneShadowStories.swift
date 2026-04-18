@@ -12,6 +12,6 @@ enum LaneShadowStories {
             summary: "Your first sandbox story."
         ) { _ in
             Text("Hello from LaneShadow!")
-        }
+        },
     ]
 }

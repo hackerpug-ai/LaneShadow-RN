@@ -1,7 +1,7 @@
 // native-sandbox: configured
 import LaneShadowTheme
-import SwiftUI
 import NativeSandbox
+import SwiftUI
 
 @main
 struct LaneShadowApp: App {
@@ -9,25 +9,25 @@ struct LaneShadowApp: App {
 
     init() {
         #if DEBUG
-        SandboxLaunch.configure(.init(
-            argFlags: ["-LaneShadowSandbox"],
-            envKeys: ["LANESHADOW_LAUNCH_SANDBOX"]
-        ))
+            SandboxLaunch.configure(.init(
+                argFlags: ["-LaneShadowSandbox"],
+                envKeys: ["LANESHADOW_LAUNCH_SANDBOX"]
+            ))
         #endif
     }
 
     var body: some Scene {
         WindowGroup {
             #if DEBUG
-            if SandboxLaunch.shouldLaunch {
-                LaneShadowSandboxEntry()
-            } else {
+                if SandboxLaunch.shouldLaunch {
+                    LaneShadowSandboxEntry()
+                } else {
+                    ContentView(convexStore: convexStore)
+                        .laneShadowTheme()
+                }
+            #else
                 ContentView(convexStore: convexStore)
                     .laneShadowTheme()
-            }
-            #else
-            ContentView(convexStore: convexStore)
-                .laneShadowTheme()
             #endif
         }
     }
