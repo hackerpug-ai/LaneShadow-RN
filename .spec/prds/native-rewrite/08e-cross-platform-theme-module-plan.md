@@ -1,5 +1,14 @@
 # Cross-Platform Theme Module Implementation Plan
 
+> **⚠ Historical — codegen-era plan (v1).** This plan drove the initial landing
+> (Style Dictionary v4 → generated `Tokens.swift`/`Tokens.kt`/`tokens.ts`,
+> committed 18 + 1 merge). Same-day (2026-04-17) the approach was pivoted to
+> runtime JSON decoding; codegen was removed. Keep this file for provenance;
+> for the current architecture refer to the design spec
+> ([`08e-cross-platform-theme-module.md`](./08e-cross-platform-theme-module.md) v2.0.0)
+> and the subsequent refactor commits on `main` (look for
+> `refactor(tokens-*): replace generated Tokens with …`).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build a single-source-of-truth theme module: Style Dictionary v4 compiles `tokens/semantic/semantic.tokens.json` into three sibling platform packages under `tokens/platforms/{swift,kotlin,typescript}/`, each containing generated constants + hand-written theming logic. Bootstrap iOS and Android apps consume the module end-to-end. RN cutover deferred.

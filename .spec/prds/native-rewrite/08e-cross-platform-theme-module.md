@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
 last_validated: 2026-04-17
-prd_version: 1.0.0
+prd_version: 2.0.0
 functional_group: DESIGN
 parent: 08-design-system.md
 refines: UC-DESIGN-01, UC-DESIGN-02, UC-DESIGN-03, UC-DESIGN-05
@@ -9,11 +9,13 @@ refines: UC-DESIGN-01, UC-DESIGN-02, UC-DESIGN-03, UC-DESIGN-05
 
 # Cross-Platform Theme Module — Implementation Design
 
+> **v2.0.0 pivot (2026-04-17, same-day):** Codegen was replaced by runtime JSON decoding. `tokens/semantic/semantic.tokens.json` is bundled into each platform package (Swift Package resource, Android asset, TS workspace import) and decoded at app init via Codable / `@Serializable` / `resolveJsonModule`. **Style Dictionary and the drift gate are gone.** A lightweight `tokens/scripts/sync-bundled-json.js` mirrors the canonical JSON into the per-platform bundle paths (lefthook-enforced). Everything in this spec about codegen now describes the earlier approach; the **Architecture** and **What's in the module** sections below have been rewritten to match what shipped on `main`.
+
 ## Overview
 
-This spec refines `08-design-system.md` with a concrete implementation plan for the cross-platform theme module. It locks in the **module-based delivery shape**: a single source of truth (`tokens/semantic/semantic.tokens.json`) is compiled by Style Dictionary into three sibling platform packages under `tokens/platforms/`, each containing both the generated token constants *and* the hand-written theming logic (Theme struct, Environment wiring, ColorScheme extensions). The native rewrite apps (`ios/`, `android/`) and the React Native app (`react-native/`) consume the module via their native package managers (Swift Package Manager, Gradle subproject, pnpm workspace).
+Single source of truth (`tokens/semantic/semantic.tokens.json`) is bundled into three sibling platform packages under `tokens/platforms/{swift,kotlin,typescript}/`. Each package decodes the JSON at app init into typed DTOs and exposes an ergonomic Theme API. The native rewrite apps (`ios/`, `android/`) and the React Native app (`react-native/`) consume the module via their native package managers (Swift Package Manager, Gradle subproject, pnpm workspace).
 
-**Authoritative principle:** parsing and theming logic live *outside* `ios/` and `android/`. Consumer apps `import` the module — they never read JSON at runtime, and they never define theme structures locally.
+**Authoritative principle:** parsing and theming logic live *outside* `ios/` and `android/`. Consumer apps `import` the module — JSON is decoded once at init, Theme values are cached, no native app ever parses tokens directly or defines theme structures locally.
 
 ---
 
@@ -40,27 +42,35 @@ This spec refines `08-design-system.md` with a concrete implementation plan for 
 
 ```
                 ┌──────────────────────────────────────────┐
-                │  tokens/semantic/semantic.tokens.json     │   ← source (W3C DTCG, exists)
-                │  tokens/schema/laneshadow-tokens.schema   │   ← contract (exists)
+                │  tokens/semantic/semantic.tokens.json     │   ← source (W3C DTCG)
+                │  tokens/schema/laneshadow-tokens.schema   │   ← contract (pre-commit enforced)
                 └────────────────────┬─────────────────────┘
                                      │
-                          ┌──────────┴──────────┐
-                          │ Style Dictionary v4 │   ← codegen (NEW)
-                          │ tokens/config/*.js  │
-                          └──────────┬──────────┘
+                        ┌────────────┴────────────┐
+                        │ tokens:sync (copy file) │   ← pre-commit gate
+                        └────────────┬────────────┘
                                      │
         ┌────────────────────────────┼────────────────────────────┐
         ▼                            ▼                            ▼
   tokens/platforms/swift/     tokens/platforms/kotlin/     tokens/platforms/typescript/
-  ├ Generated/Tokens.swift    ├ generated/Tokens.kt        ├ generated/tokens.ts
-  └ Theme.swift, etc.         └ LaneShadowTheme.kt, etc.   └ index.ts (hooks)
+  Resources/semantic.tokens   src/main/assets/             (no copy — imports
+                              semantic.tokens.json          JSON directly from
+  Sources/.../ThemeSchema     src/main/kotlin/.../          tokens/semantic/)
+    (Codable DTOs)              ThemeSchema.kt
+  Sources/.../ThemeLoader       (@Serializable DTOs)       src/index.ts
+    (Bundle.module decode)    src/main/kotlin/.../          (unwraps DTCG inline)
+  Sources/.../Theme.swift       ThemeLoader.kt
+    (public API)                (Context.assets decode)
+                              src/main/kotlin/.../
+                                LaneShadowTheme.kt
+                                (public composable)
         │                            │                            │
         ▼                            ▼                            ▼
   ios/LaneShadow              android/app                  react-native/  (deferred)
   imports as SPM              includes as Gradle subproj    imports as pnpm workspace
 ```
 
-**Boundary rule:** no platform reads JSON at runtime. Codegen produces typed constants; hand-written theming wraps those constants in platform-idiomatic APIs.
+**Boundary rule:** the JSON is decoded ONCE at app init per platform; the Theme cached value is immutable. No runtime tree-walking of the raw JSON from consumer code. The Codable / `@Serializable` / TS interface layers are the type contract; the JSON file is the value contract.
 
 ---
 
