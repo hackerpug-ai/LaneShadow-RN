@@ -1,5 +1,5 @@
-# Makefile — unified commands for Storywright monorepo
-# Individual targets become functional as REPO-002/003/004 populate their directories
+# Makefile — unified commands for LaneShadow monorepo
+# Individual targets become functional as workstreams populate their directories
 # Note: Using underscore namespace (server_build) instead of colon (server:build)
 # for compatibility with GNU Make 3.81 (macOS default)
 
@@ -85,22 +85,28 @@ ios_start: ## Build iOS release archive
 android_build: ## Build Android debug APK
 	cd android && ./gradlew assembleDebug
 
-ANDROID_AVD := Pixel_7_API_34
+ANDROID_PACKAGE := com.laneshadow.app
+ANDROID_ACTIVITY := com.laneshadow.MainActivity
+ANDROID_AVD ?= $(shell emulator -list-avds | head -n 1)
 
 android_dev: ## Build, install, and launch Android app on emulator
 	@echo "==> Checking for running Android emulator..."
 	@adb devices 2>/dev/null | grep -q "emulator" || { \
+		if [ -z "$(ANDROID_AVD)" ]; then \
+			echo "ERROR: No Android AVD found. Create one in Android Studio first."; \
+			exit 1; \
+		fi; \
 		echo "No emulator running. Starting $(ANDROID_AVD)..."; \
-		$(ANDROID_HOME)/emulator/emulator -avd $(ANDROID_AVD) -no-snapshot-load & \
+		emulator -avd $(ANDROID_AVD) -no-snapshot-load & \
 		echo "Waiting for emulator to boot..."; \
 		adb wait-for-device; \
 		adb shell 'while [[ -z $$(getprop sys.boot_completed) ]]; do sleep 1; done'; \
 		echo "Emulator ready."; \
 	}
-	@echo "==> Building and installing Storywright..."
+	@echo "==> Building and installing LaneShadow..."
 	cd android && ./gradlew installDebug
-	@echo "==> Launching Storywright..."
-	adb shell am start -n com.storywright.app/.MainActivity
+	@echo "==> Launching LaneShadow..."
+	adb shell am start -W -n $(ANDROID_PACKAGE)/$(ANDROID_ACTIVITY)
 
 android_start: ## Build Android release APK
 	cd android && ./gradlew assembleRelease

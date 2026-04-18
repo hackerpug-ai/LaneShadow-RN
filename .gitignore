@@ -40,9 +40,14 @@ app-example
 
 # generated native folders (Expo prebuild output — not tracked)
 /ios
-/android
 /react-native/ios
 /react-native/android
+
+# Android native app build artifacts
+android/.gradle/
+android/local.properties
+android/**/build/
+android/.kotlin/
 
 # Detox
 .detox/
