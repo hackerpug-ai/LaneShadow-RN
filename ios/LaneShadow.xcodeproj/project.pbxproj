@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0845C4AC551760BC96454D32 /* ConvexMobile in Frameworks */ = {isa = PBXBuildFile; productRef = 603E52C39223C28F74C3296F /* ConvexMobile */; };
+		AABBCCDD00000000CAFE0003 /* LaneShadowTheme in Frameworks */ = {isa = PBXBuildFile; productRef = AABBCCDD00000000CAFE0002 /* LaneShadowTheme */; };
 		0D14EDD6EBE39F655775566D /* ConvexConfig.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7781149F2F15D8931F7BD59 /* ConvexConfig.generated.swift */; };
 		2D064A18B4A7465DBCC5D509 /* LaneShadowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D1CEB0F9194AA0A1298E94 /* LaneShadowTests.swift */; };
 		4B0AA98B99C3EBAED48BB3C7 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19C0C8E34938049BC6509361 /* App.swift */; };
@@ -39,6 +40,7 @@
 			files = (
 				63DF5AF231CF6918D89B667C /* Foundation.framework in Frameworks */,
 				0845C4AC551760BC96454D32 /* ConvexMobile in Frameworks */,
+				AABBCCDD00000000CAFE0003 /* LaneShadowTheme in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,6 +139,7 @@
 			name = LaneShadow;
 			packageProductDependencies = (
 				603E52C39223C28F74C3296F /* ConvexMobile */,
+				AABBCCDD00000000CAFE0002 /* LaneShadowTheme */,
 			);
 			productName = LaneShadow;
 			productReference = C40B550C00DF5E8EB169537B /* LaneShadow.app */;
@@ -182,6 +185,7 @@
 			minimizedProjectReferenceProxies = 0;
 			packageReferences = (
 				9F46D45B90BF0C22388E92D9 /* XCRemoteSwiftPackageReference "convex-swift" */,
+				AABBCCDD00000000CAFE0001 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C8F2429BC9B2805FC918C04A /* Products */;
@@ -497,6 +501,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		AABBCCDD00000000CAFE0001 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../tokens/platforms/swift";
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		9F46D45B90BF0C22388E92D9 /* XCRemoteSwiftPackageReference "convex-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -513,6 +524,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9F46D45B90BF0C22388E92D9 /* XCRemoteSwiftPackageReference "convex-swift" */;
 			productName = ConvexMobile;
+		};
+		AABBCCDD00000000CAFE0002 /* LaneShadowTheme */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AABBCCDD00000000CAFE0001 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */;
+			productName = LaneShadowTheme;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
