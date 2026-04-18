@@ -1,6 +1,6 @@
 ---
 stability: FEATURE_SPEC
-last_validated: 2026-04-16
+last_validated: 2026-04-17
 prd_version: 1.0.0
 functional_group: DESIGN
 ---
@@ -69,10 +69,13 @@ Extract all existing `styles/theme.ts` semantic tokens to W3C DTCG JSON format a
 
 ### Acceptance Criteria
 
-- ☐ `tokens/` directory exists at repo root with subdirectories: `color/`, `spacing/`, `typography/`, `radius/`, `elevation/`, `domain/`
-- ☐ All 40+ color tokens from `theme.ts` extracted to `tokens/color/{semantic-name}.json` files
-- ☐ Token names match TypeScript exactly: `color/primary.json`, `color/waypoint-on-route.json`, etc.
-- ☐ Token values include all state variants: `{ "default": "#B87333", "hover": "#C58545", "pressed": "#8C5A2B", "disabled": "#E3C3A5" }`
+- ☐ `tokens/semantic/semantic.tokens.json` exists and is the single source-of-truth token tree (W3C DTCG-shaped JSON)
+- ☐ Token contract is derived from `react-native/styles/types.ts` + `react-native/styles/theme.ts` as the authoritative shape-of-record (do not edit RN files to satisfy token tooling)
+- ☐ Token contract covers: `color`, `space`, `type`, `radius`, `elevation`, `motion`, `opacity`
+- ☐ Light/dark mode is modeled explicitly as:
+  - `semantic.color.light.*` and `semantic.color.dark.*`
+  - `semantic.elevation.light.*` and `semantic.elevation.dark.*`
+- ☐ State variants exist where applicable: `default` (required), plus `hover`, `pressed`, `disabled`, `focus` (optional)
 - ☐ Style Dictionary configured at `config/style-dictionary.config.js` with custom format plugins for Swift and Kotlin
 - ☐ `npm run build:tokens` generates:
   - `react-native/styles/generated/tokens.ts` — TypeScript constants
@@ -222,12 +225,9 @@ Create CI/CD pipeline that validates token schema integrity and prevents drift b
 
 ### Acceptance Criteria
 
-- ☐ Pre-commit hook (`.husky/pre-commit`) runs `npm run validate:tokens` before commit
-- ☐ `npm run validate:tokens` validates token JSON against W3C DTCG schema:
-  ```bash
-  ajv validate -s tokens/schema/dtcg-2025.10.json \
-               -d tokens/**/*.json
-  ```
+- ☐ Pre-commit hook (`lefthook.yml`) runs `pnpm tokens:validate` when `tokens/**/*` changes
+- ☐ `pnpm tokens:validate` validates `tokens/semantic/semantic.tokens.json` against the repo contract schema: `tokens/schema/laneshadow-tokens.schema.json`
+- ☐ `pnpm tokens:validate` also runs a deliberate mutation check to prove contract violations fail with a named field path in the error output
 - ☐ CI pipeline runs `npm run build:tokens` and verifies no drift:
   - Generated files match committed versions
   - If drift detected, CI fails with instructions to run `npm run build:tokens`
@@ -245,29 +245,13 @@ The `tokens/` directory joins the monorepo at root level:
 ```
 LaneShadow/
 ├── tokens/                    # Design token source (W3C DTCG JSON)
-│   ├── color/                 # Color tokens (40+ files)
-│   │   ├── primary.json
-│   │   ├── secondary.json
-│   │   ├── waypoint-on-route.json
-│   │   ├── enrichment-fast.json
-│   │   ├── deviation-detour-path.json
-│   │   └── ...
-│   ├── spacing/               # Spacing scale (4pt grid)
-│   │   ├── xs.json
-│   │   ├── sm.json
-│   │   └── ...
-│   ├── typography/            # Typography scale
-│   │   ├── label-sm.json
-│   │   ├── body-md.json
-│   │   └── ...
-│   ├── radius/                # Border radius scale
-│   ├── elevation/             # Elevation/shadow system
-│   ├── domain/                # Domain-specific tokens
-│   │   ├── waypoint/
-│   │   ├── enrichment/
-│   │   └── deviation/
-│   └── schema/                # W3C DTCG schema files
-│       └── dtcg-2025.10.json
+│   ├── semantic/
+│   │   └── semantic.tokens.json
+│   ├── schema/
+│   │   └── laneshadow-tokens.schema.json
+│   └── generated/             # Generated (platform-specific) artifacts
+│       ├── swift/
+│       └── kotlin/
 ├── android/                   # Native Android app
 ├── ios/                       # Native iOS app
 ├── react-native/              # React Native app
@@ -314,7 +298,7 @@ LaneShadow/
 
 ```bash
 npm run build:tokens    # Generate all platform token files
-npm run validate:tokens # Validate token JSON against W3C DTCG schema
+pnpm tokens:validate    # Validate tokens against LaneShadow contract
 npm run watch:tokens    # Watch token files for changes and rebuild
 ```
 
