@@ -11,6 +11,7 @@
       "!!**/dist",
       "!!**/.expo",
       "!!**/convex/_generated",
+      "!!**/tokens/platforms/**/generated/**",
       "!!**/.claude/worktrees",
       "!!**/.worktrees",
       "!!**/.tmp",

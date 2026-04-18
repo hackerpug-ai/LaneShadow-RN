@@ -23,7 +23,9 @@
     "android:dev": "make android_dev",
     "android:start": "make android_start",
     "prepare": "lefthook install",
-    "tokens:validate": "node tokens/scripts/validate-contract.js"
+    "tokens:validate": "node tokens/scripts/validate-contract.js",
+    "build:tokens": "node tokens/scripts/build.js",
+    "tokens:check-drift": "node tokens/scripts/check-drift.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1026.0",
