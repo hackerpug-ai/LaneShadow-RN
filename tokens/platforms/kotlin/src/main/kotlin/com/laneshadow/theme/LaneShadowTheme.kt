@@ -96,32 +96,34 @@ private fun radiusValues(): LaneShadowRadius {
 }
 
 private fun typeValues(): LaneShadowType {
-    val T = Tokens.Semantic.Type
+    // Nested objects (Label, Body, Sm, Md, Lg ...) must be accessed via their
+    // direct object paths. Kotlin 1.9 errors on every intermediate `val` binding
+    // that holds a nested-object reference. Hence the fully-inlined paths below.
     return LaneShadowType(
         label = LaneShadowTypeScale(
-            ts(T.Label.Sm.fontSize, T.Label.Sm.lineHeight, T.Label.Sm.fontWeight),
-            ts(T.Label.Md.fontSize, T.Label.Md.lineHeight, T.Label.Md.fontWeight),
-            ts(T.Label.Lg.fontSize, T.Label.Lg.lineHeight, T.Label.Lg.fontWeight),
+            ts(Tokens.Semantic.Type.Label.Sm.fontSize, Tokens.Semantic.Type.Label.Sm.lineHeight, Tokens.Semantic.Type.Label.Sm.fontWeight),
+            ts(Tokens.Semantic.Type.Label.Md.fontSize, Tokens.Semantic.Type.Label.Md.lineHeight, Tokens.Semantic.Type.Label.Md.fontWeight),
+            ts(Tokens.Semantic.Type.Label.Lg.fontSize, Tokens.Semantic.Type.Label.Lg.lineHeight, Tokens.Semantic.Type.Label.Lg.fontWeight),
         ),
         body = LaneShadowTypeScale(
-            ts(T.Body.Sm.fontSize, T.Body.Sm.lineHeight, T.Body.Sm.fontWeight),
-            ts(T.Body.Md.fontSize, T.Body.Md.lineHeight, T.Body.Md.fontWeight),
-            ts(T.Body.Lg.fontSize, T.Body.Lg.lineHeight, T.Body.Lg.fontWeight),
+            ts(Tokens.Semantic.Type.Body.Sm.fontSize, Tokens.Semantic.Type.Body.Sm.lineHeight, Tokens.Semantic.Type.Body.Sm.fontWeight),
+            ts(Tokens.Semantic.Type.Body.Md.fontSize, Tokens.Semantic.Type.Body.Md.lineHeight, Tokens.Semantic.Type.Body.Md.fontWeight),
+            ts(Tokens.Semantic.Type.Body.Lg.fontSize, Tokens.Semantic.Type.Body.Lg.lineHeight, Tokens.Semantic.Type.Body.Lg.fontWeight),
         ),
         title = LaneShadowTypeScale(
-            ts(T.Title.Sm.fontSize, T.Title.Sm.lineHeight, T.Title.Sm.fontWeight),
-            ts(T.Title.Md.fontSize, T.Title.Md.lineHeight, T.Title.Md.fontWeight),
-            ts(T.Title.Lg.fontSize, T.Title.Lg.lineHeight, T.Title.Lg.fontWeight),
+            ts(Tokens.Semantic.Type.Title.Sm.fontSize, Tokens.Semantic.Type.Title.Sm.lineHeight, Tokens.Semantic.Type.Title.Sm.fontWeight),
+            ts(Tokens.Semantic.Type.Title.Md.fontSize, Tokens.Semantic.Type.Title.Md.lineHeight, Tokens.Semantic.Type.Title.Md.fontWeight),
+            ts(Tokens.Semantic.Type.Title.Lg.fontSize, Tokens.Semantic.Type.Title.Lg.lineHeight, Tokens.Semantic.Type.Title.Lg.fontWeight),
         ),
         heading = LaneShadowTypeScale(
-            ts(T.Heading.Sm.fontSize, T.Heading.Sm.lineHeight, T.Heading.Sm.fontWeight),
-            ts(T.Heading.Md.fontSize, T.Heading.Md.lineHeight, T.Heading.Md.fontWeight),
-            ts(T.Heading.Lg.fontSize, T.Heading.Lg.lineHeight, T.Heading.Lg.fontWeight),
+            ts(Tokens.Semantic.Type.Heading.Sm.fontSize, Tokens.Semantic.Type.Heading.Sm.lineHeight, Tokens.Semantic.Type.Heading.Sm.fontWeight),
+            ts(Tokens.Semantic.Type.Heading.Md.fontSize, Tokens.Semantic.Type.Heading.Md.lineHeight, Tokens.Semantic.Type.Heading.Md.fontWeight),
+            ts(Tokens.Semantic.Type.Heading.Lg.fontSize, Tokens.Semantic.Type.Heading.Lg.lineHeight, Tokens.Semantic.Type.Heading.Lg.fontWeight),
         ),
         display = LaneShadowTypeScale(
-            ts(T.Display.Sm.fontSize, T.Display.Sm.lineHeight, T.Display.Sm.fontWeight),
-            ts(T.Display.Md.fontSize, T.Display.Md.lineHeight, T.Display.Md.fontWeight),
-            ts(T.Display.Lg.fontSize, T.Display.Lg.lineHeight, T.Display.Lg.fontWeight),
+            ts(Tokens.Semantic.Type.Display.Sm.fontSize, Tokens.Semantic.Type.Display.Sm.lineHeight, Tokens.Semantic.Type.Display.Sm.fontWeight),
+            ts(Tokens.Semantic.Type.Display.Md.fontSize, Tokens.Semantic.Type.Display.Md.lineHeight, Tokens.Semantic.Type.Display.Md.fontWeight),
+            ts(Tokens.Semantic.Type.Display.Lg.fontSize, Tokens.Semantic.Type.Display.Lg.lineHeight, Tokens.Semantic.Type.Display.Lg.fontWeight),
         ),
     )
 }

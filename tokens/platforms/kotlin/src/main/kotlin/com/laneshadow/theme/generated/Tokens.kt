@@ -753,11 +753,11 @@ public object Tokens {
         public val slower: androidx.compose.ui.unit.Dp = 400.dp
       }
       public object Easing {
-        public val standard: List<Double> = listOf(0.2, 0, 0, 1)
-        public val emphasized: List<Double> = listOf(0.2, 0, 0, 1)
-        public val decelerate: List<Double> = listOf(0, 0, 0.2, 1)
-        public val accelerate: List<Double> = listOf(0.4, 0, 1, 1)
-        public val sharp: List<Double> = listOf(0.4, 0, 0.6, 1)
+        public val standard: List<Double> = listOf(0.2, 0.0, 0.0, 1.0)
+        public val emphasized: List<Double> = listOf(0.2, 0.0, 0.0, 1.0)
+        public val decelerate: List<Double> = listOf(0.0, 0.0, 0.2, 1.0)
+        public val accelerate: List<Double> = listOf(0.4, 0.0, 1.0, 1.0)
+        public val sharp: List<Double> = listOf(0.4, 0.0, 0.6, 1.0)
       }
     }
     public object Opacity {

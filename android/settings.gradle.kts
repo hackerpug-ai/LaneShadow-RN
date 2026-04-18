@@ -16,3 +16,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "LaneShadowAndroid"
 include(":app")
+include(":theme")
+project(":theme").projectDir = file("../tokens/platforms/kotlin")

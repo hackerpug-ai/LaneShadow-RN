@@ -162,7 +162,9 @@ function leafValue(node) {
   if (t === 'cubicBezier') return { type: 'List<Double>', expr: `listOf(${v.join(', ')})` }
   if (t === 'duration') return { type: 'Int', expr: String(v) }
   if (Array.isArray(v)) {
-    return { type: 'List<Double>', expr: `listOf(${v.map((n) => String(n)).join(', ')})` }
+    // Force every element to Double so Kotlin's type inference doesn't mix Int/Double.
+    const doubles = v.map((n) => (Number.isInteger(n) ? `${n}.0` : String(n)))
+    return { type: 'List<Double>', expr: `listOf(${doubles.join(', ')})` }
   }
   return { type: 'String', expr: JSON.stringify(v) }
 }
