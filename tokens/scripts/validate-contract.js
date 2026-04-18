@@ -7,6 +7,7 @@ const Ajv2020 = require('ajv/dist/2020')
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..')
 const TOKENS_DIR = path.join(REPO_ROOT, 'tokens')
+const SEMANTIC_DIR = path.join(TOKENS_DIR, 'semantic')
 const SCHEMA_PATH = path.join(TOKENS_DIR, 'schema', 'laneshadow-tokens.schema.json')
 
 const SKIP_DIRS = new Set(['.build', 'node_modules', 'build', 'dist', '.gradle', '.kotlin'])
@@ -41,9 +42,10 @@ function loadSchema() {
 }
 
 function validateAllTokenFiles(validate) {
-  const jsonFiles = listJsonFiles(TOKENS_DIR).filter(
-    (p) => !p.includes(`${path.sep}schema${path.sep}`),
-  )
+  // Only scan tokens/semantic/ — that's the canonical token tree.
+  // Anything under tokens/platforms/ is platform packaging (package.json,
+  // generated outputs, build artifacts) which has its own validation.
+  const jsonFiles = listJsonFiles(SEMANTIC_DIR)
 
   let hadError = false
   for (const filePath of jsonFiles) {

@@ -1,3 +1,4 @@
 packages:
   - server
   - react-native
+  - tokens/platforms/typescript
