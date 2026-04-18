@@ -6,48 +6,51 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.laneshadow.theme.LaneShadowTheme
+import com.laneshadow.theme.LocalLaneShadowTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            LaneShadowAppContent(deploymentId = BuildConfig.CONVEX_DEPLOYMENT)
+            LaneShadowTheme {
+                LaneShadowAppContent(deploymentId = BuildConfig.CONVEX_DEPLOYMENT)
+            }
         }
     }
 }
 
 @Composable
 private fun LaneShadowAppContent(deploymentId: String) {
-    MaterialTheme {
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "LaneShadow placeholder",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Text(
-                    text = "hello:get value",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = if (deploymentId.isBlank()) "deployment: missing" else "deployment: $deploymentId",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+    val theme = LocalLaneShadowTheme.current
+    Surface(modifier = Modifier.fillMaxSize(), color = theme.colors.background.default) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(theme.space.xl),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "LaneShadow placeholder",
+                style = theme.type.heading.md,
+                color = theme.colors.onSurface.default,
+            )
+            Text(
+                text = "hello:get value",
+                style = theme.type.body.md,
+                color = theme.colors.onSurface.default,
+            )
+            Text(
+                text = if (deploymentId.isBlank()) "deployment: missing" else "deployment: $deploymentId",
+                style = theme.type.body.sm,
+                color = theme.colors.onSurface.default,
+            )
         }
     }
 }
@@ -55,5 +58,7 @@ private fun LaneShadowAppContent(deploymentId: String) {
 @Preview(showBackground = true)
 @Composable
 private fun LaneShadowAppContentPreview() {
-    LaneShadowAppContent(deploymentId = "dev:quirky-panther-164")
+    LaneShadowTheme {
+        LaneShadowAppContent(deploymentId = "dev:quirky-panther-164")
+    }
 }
