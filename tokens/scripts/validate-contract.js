@@ -9,9 +9,12 @@ const REPO_ROOT = path.resolve(__dirname, '..', '..')
 const TOKENS_DIR = path.join(REPO_ROOT, 'tokens')
 const SCHEMA_PATH = path.join(TOKENS_DIR, 'schema', 'laneshadow-tokens.schema.json')
 
+const SKIP_DIRS = new Set(['.build', 'node_modules', 'build', 'dist', '.gradle', '.kotlin'])
+
 function listJsonFiles(dir) {
   const out = []
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (SKIP_DIRS.has(entry.name)) continue
     const full = path.join(dir, entry.name)
     if (entry.isDirectory()) out.push(...listJsonFiles(full))
     else if (entry.isFile() && full.endsWith('.json')) out.push(full)
