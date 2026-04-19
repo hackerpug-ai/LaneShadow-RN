@@ -112,5 +112,74 @@ enum MoleculesStories {
             }
             .padding()
         },
+
+        // Error Toast Stories
+
+        Story(
+            id: "molecules.error-toast.default",
+            tier: .molecule,
+            component: "ErrorToast",
+            name: "Default Error Toast",
+            summary: "react-native/components/toasts/error-toast.tsx - Error toast with close button"
+        ) { context in
+            LSErrorToast(
+                title: "Error",
+                description: "Something went wrong. Please try again."
+            )
+        },
+
+        Story(
+            id: "molecules.error-toast.without-close",
+            tier: .molecule,
+            component: "ErrorToast",
+            name: "Error Toast Without Close Button",
+            summary: "react-native/components/toasts/error-toast.tsx - Error toast without close button"
+        ) { context in
+            LSErrorToast(
+                title: "Network Error",
+                description: "Unable to connect to the server.",
+                showCloseButton: false
+            )
+        },
+
+        Story(
+            id: "molecules.error-toast.with-callback",
+            tier: .molecule,
+            component: "ErrorToast",
+            name: "Error Toast With Callback",
+            summary: "react-native/components/toasts/error-toast.tsx - Error toast with close callback"
+        ) { context in
+            LSErrorToast(
+                title: "Error",
+                description: "This toast has a close callback.",
+                onClose: {
+                    print("Close button tapped")
+                }
+            )
+        },
+
+        Story(
+            id: "molecules.error-toast.multiple",
+            tier: .molecule,
+            component: "ErrorToast",
+            name: "Multiple Error Toasts",
+            summary: "react-native/components/toasts/error-toast.tsx - Multiple error toasts stacked"
+        ) { context in
+            VStack(spacing: 16) {
+                LSErrorToast(
+                    title: "Error",
+                    description: "Something went wrong. Please try again."
+                )
+                LSErrorToast(
+                    title: "Network Error",
+                    description: "Unable to connect to the server. Check your internet connection."
+                )
+                LSErrorToast(
+                    title: "Validation Error",
+                    description: "Please check your input and try again.",
+                    showCloseButton: false
+                )
+            }
+        },
     ]
 }
