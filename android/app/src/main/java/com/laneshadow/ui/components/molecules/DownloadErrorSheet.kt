@@ -3,9 +3,7 @@ package com.laneshadow.ui.components.molecules
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -22,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.laneshadow.ui.components.atoms.Button
+import com.laneshadow.ui.components.atoms.ButtonSize
 import com.laneshadow.ui.components.atoms.ButtonVariant
 import com.laneshadow.theme.LocalLaneShadowTheme
 
@@ -69,7 +68,29 @@ fun DownloadErrorSheet(
             .semantics {
                 contentDescription = accessibilityDescription
             },
-        title = null,
+        icon = {
+            // Error icon (64x64 danger circle with "!" text)
+            ErrorIcon(
+                modifier = Modifier
+                    .size(64.dp)
+                    .testTag(testID?.let { "$it-icon" } ?: "download-error-icon")
+            )
+        },
+        title = {
+            // Title: "Download Failed" (title.lg = 18sp, SemiBold)
+            Text(
+                text = "Download Failed",
+                color = theme.colors.onSurface.default,
+                style = androidx.compose.ui.text.TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                ),
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag(testID?.let { "$it-title" } ?: "download-error-title")
+            )
+        },
         text = {
             Column(
                 modifier = Modifier
@@ -77,31 +98,6 @@ fun DownloadErrorSheet(
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                // Error icon (64x64 danger circle with "!" text)
-                ErrorIcon(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .testTag(testID?.let { "$it-icon" } ?: "download-error-icon")
-                )
-
-                Spacer(modifier = Modifier.height(theme.space.lg))
-
-                // Title: "Download Failed" (title.lg = 18sp, SemiBold)
-                Text(
-                    text = "Download Failed",
-                    color = theme.colors.onSurface.default,
-                    style = androidx.compose.ui.text.TextStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                    ),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag(testID?.let { "$it-title" } ?: "download-error-title")
-                )
-
-                Spacer(modifier = Modifier.height(theme.space.md))
-
                 // Error message (body.md = 14sp, muted color)
                 Text(
                     text = errorMessage,
@@ -115,27 +111,30 @@ fun DownloadErrorSheet(
                         .fillMaxWidth()
                         .testTag(testID?.let { "$it-message" } ?: "download-error-message")
                 )
-
-                Spacer(modifier = Modifier.height(theme.space.lg))
-
-                // Retry Download button (default variant, lg size = 44dp, full width)
-                Button(
-                    variant = ButtonVariant.Default,
-                    size = com.laneshadow.ui.components.atoms.ButtonSize.Large,
-                    text = "Retry Download",
-                    onPress = onRetry,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag(testID?.let { "$it-retry" } ?: "download-error-retry"),
-                )
-
-                Spacer(modifier = Modifier.height(theme.space.md))
-
+            }
+        },
+        confirmButton = {
+            // Retry Download button (default variant, lg size = 44dp, full width)
+            Button(
+                variant = ButtonVariant.Default,
+                size = ButtonSize.Large,
+                text = "Retry Download",
+                onPress = onRetry,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag(testID?.let { "$it-retry" } ?: "download-error-retry"),
+            )
+        },
+        dismissButton = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                 // Contact Support button (ghost, shown when retryCount >= 3)
                 if (showContactSupport) {
                     Button(
                         variant = ButtonVariant.Ghost,
-                        size = com.laneshadow.ui.components.atoms.ButtonSize.Default,
+                        size = ButtonSize.Default,
                         text = "Contact Support",
                         onPress = {
                             // TODO: Navigate to support flow
@@ -145,14 +144,12 @@ fun DownloadErrorSheet(
                             .fillMaxWidth()
                             .testTag(testID?.let { "$it-support" } ?: "download-error-support"),
                     )
-
-                    Spacer(modifier = Modifier.height(theme.space.md))
                 }
 
                 // Cancel button (ghost, full width)
                 Button(
                     variant = ButtonVariant.Ghost,
-                    size = com.laneshadow.ui.components.atoms.ButtonSize.Default,
+                    size = ButtonSize.Default,
                     text = "Cancel",
                     onPress = onClose,
                     modifier = Modifier
@@ -161,7 +158,6 @@ fun DownloadErrorSheet(
                 )
             }
         },
-        confirmButton = {},
         containerColor = theme.colors.surface.default,
         shape = androidx.compose.foundation.shape.RoundedCornerShape(theme.radius.xl),
     )
