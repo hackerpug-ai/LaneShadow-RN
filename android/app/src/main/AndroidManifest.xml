@@ -22,7 +22,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         <intent-filter>
-    <data android:scheme="app-sandbox" />
+    <data android:scheme="app-sandbox" android:host="sandbox" />
     <action android:name="android.intent.action.VIEW" />
     <category android:name="android.intent.category.DEFAULT" />
     <category android:name="android.intent.category.BROWSABLE" />

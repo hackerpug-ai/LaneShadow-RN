@@ -7,6 +7,6 @@ object SandboxRouter {
     fun shouldOpen(intent: Intent?): Boolean = false
 
     @Composable
-    fun Content() {
+    fun Content(intent: Intent?) {
     }
 }

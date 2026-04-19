@@ -2,14 +2,31 @@ package com.laneshadow.sandbox
 
 import android.content.Intent
 import androidx.compose.runtime.Composable
-import com.nativesandbox.launch.SandboxLaunch
+import com.laneshadow.sandbox.stories.AppStories
+
+data class SandboxRoute(
+    val shouldOpenSandbox: Boolean,
+    val storyId: String?,
+)
 
 object SandboxRouter {
-    fun shouldOpen(intent: Intent?): Boolean =
-        SandboxLaunch.shouldOpen(intent, extraKey = "com.laneshadow.OPEN_SANDBOX")
+    fun resolve(intent: Intent?): SandboxRoute {
+        val request = SandboxIntentParser.parse(intent)
+        val storyId =
+            request.requestedStoryId?.takeIf { requestedId ->
+                AppStories.all.any { story -> story.id == requestedId }
+            }
+
+        return SandboxRoute(
+            shouldOpenSandbox = request.shouldOpenSandbox,
+            storyId = storyId,
+        )
+    }
+
+    fun shouldOpen(intent: Intent?): Boolean = resolve(intent).shouldOpenSandbox
 
     @Composable
-    fun Content() {
-        AppSandbox()
+    fun Content(intent: Intent?) {
+        AppSandbox(route = resolve(intent))
     }
 }

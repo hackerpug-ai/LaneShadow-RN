@@ -6,8 +6,8 @@
 .PHONY: help build start clean install \
         lint format typecheck check \
         server_build server_dev server_start \
-        ios_build ios_dev ios_start ios_sandbox \
-        android_build android_dev android_start android_sandbox
+        ios_build ios_dev ios_start ios_sandbox ios_sandbox_story \
+        android_build android_dev android_start android_sandbox android_sandbox_story
 
 # ── All Projects ──────────────────────────────────────
 
@@ -117,6 +117,29 @@ ios_sandbox: ## Launch iOS app into NativeSandbox (debug builds only)
 	echo "==> Launching sandbox (-LaneShadowSandbox)..."; \
 	xcrun simctl launch "$$SIMULATOR_ID" com.laneshadow.app -LaneShadowSandbox
 
+ios_sandbox_story: ## Launch iOS sandbox directly to one story (set STORY_ID=...)
+	@if [ -z "$(STORY_ID)" ]; then echo "ERROR: set STORY_ID=<tier/component/state>"; exit 1; fi
+	@SIMULATOR_ID=$$(xcrun simctl list devices available | sed -nE 's/.*iPhone 16 \(([A-F0-9-]+)\).*/\1/p' | head -1); \
+	if [ -z "$$SIMULATOR_ID" ]; then \
+		RUNTIME_ID=$$(xcrun simctl list runtimes -j | jq -r '.runtimes[] | select(.isAvailable == true and (.name | startswith("iOS"))) | .identifier' | head -1); \
+		SIMULATOR_ID=$$(xcrun simctl create "iPhone 16" "com.apple.CoreSimulator.SimDeviceType.iPhone-16" "$$RUNTIME_ID"); \
+	fi; \
+	ENCODED_ID=$$(node -e 'process.stdout.write(encodeURIComponent(process.argv[1]))' "$(STORY_ID)"); \
+	echo "==> Booting iPhone 16 simulator ($$SIMULATOR_ID)..."; \
+	open -a Simulator; \
+	xcrun simctl boot "$$SIMULATOR_ID" 2>/dev/null || true; \
+	echo "==> Building LaneShadow (Debug)..."; \
+	cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow \
+		-derivedDataPath build/DerivedData \
+		-destination "id=$$SIMULATOR_ID" \
+		build 2>&1 | tail -5; \
+	APP_PATH="build/DerivedData/Build/Products/Debug-iphonesimulator/LaneShadow.app"; \
+	if [ ! -d "$$APP_PATH" ]; then echo "ERROR: missing $$APP_PATH"; exit 1; fi; \
+	echo "==> Installing app..."; \
+	xcrun simctl install "$$SIMULATOR_ID" "$$APP_PATH"; \
+	echo "==> Opening sandbox story ($(STORY_ID))..."; \
+	xcrun simctl openurl "$$SIMULATOR_ID" "laneshadow-sandbox://sandbox?id=$$ENCODED_ID"
+
 # ── Android (Kotlin/Compose) ─────────────────────────
 
 android_build: ## Build Android debug APK
@@ -168,6 +191,29 @@ android_sandbox: ## Launch Android app into NativeSandbox (debug builds only)
 	adb shell am start -W \
 		-n $(ANDROID_PACKAGE)/$(ANDROID_ACTIVITY) \
 		--ez com.laneshadow.OPEN_SANDBOX true
+
+android_sandbox_story: ## Launch Android sandbox directly to one story (set STORY_ID=...)
+	@if [ -z "$(STORY_ID)" ]; then echo "ERROR: set STORY_ID=<tier/component/state>"; exit 1; fi
+	@echo "==> Checking for running Android emulator..."
+	@adb devices 2>/dev/null | grep -q "emulator" || { \
+		if [ -z "$(ANDROID_AVD)" ]; then \
+			echo "ERROR: No Android AVD found. Create one in Android Studio first."; \
+			exit 1; \
+		fi; \
+		echo "No emulator running. Starting $(ANDROID_AVD)..."; \
+		emulator -avd $(ANDROID_AVD) -no-snapshot-load & \
+		echo "Waiting for emulator to boot..."; \
+		adb wait-for-device; \
+		adb shell 'while [[ -z $$(getprop sys.boot_completed) ]]; do sleep 1; done'; \
+		echo "Emulator ready."; \
+	}
+	@echo "==> Building and installing LaneShadow (debug)..."
+	cd android && ./gradlew installDebug
+	@ENCODED_ID=$$(node -e 'process.stdout.write(encodeURIComponent(process.argv[1]))' "$(STORY_ID)"); \
+	echo "==> Opening sandbox story ($(STORY_ID))..."; \
+	adb shell am start -W \
+		-a android.intent.action.VIEW \
+		-d "app-sandbox://sandbox?id=$$ENCODED_ID"
 
 # ── Help ──────────────────────────────────────────────
 

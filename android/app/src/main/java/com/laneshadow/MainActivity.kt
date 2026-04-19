@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -19,17 +22,26 @@ import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.theme.LocalLaneShadowTheme
 
 class MainActivity : ComponentActivity() {
+    private var currentIntent: android.content.Intent? by mutableStateOf(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (SandboxRouter.shouldOpen(intent)) {
-            setContent { SandboxRouter.Content() }
-            return
-        }
+        currentIntent = intent
         setContent {
-            LaneShadowTheme {
-                LaneShadowAppContent(deploymentId = BuildConfig.CONVEX_DEPLOYMENT)
+            if (SandboxRouter.shouldOpen(currentIntent)) {
+                SandboxRouter.Content(currentIntent)
+            } else {
+                LaneShadowTheme {
+                    LaneShadowAppContent(deploymentId = BuildConfig.CONVEX_DEPLOYMENT)
+                }
             }
         }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        currentIntent = intent
     }
 }
 

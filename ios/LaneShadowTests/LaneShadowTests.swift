@@ -190,6 +190,18 @@ final class LaneShadowTests: XCTestCase {
         XCTAssertTrue(storiesSource?.contains("] + AtomsStories.all") == true)
     }
 
+    func test_sandboxPresentation_parsingHooksExistInAppSource() {
+        let appSource = try? appSource(named: "App.swift")
+
+        XCTAssertNotNil(appSource)
+        XCTAssertTrue(appSource?.contains("struct LaneShadowSandboxPresentation: Equatable") == true)
+        XCTAssertTrue(appSource?.contains("arguments.contains(\"-LaneShadowSandbox\")") == true)
+        XCTAssertTrue(appSource?.contains("requestedStoryId(from: arguments)") == true)
+        XCTAssertTrue(appSource?.contains("SandboxLaunch.handleURL(url)") == true)
+        XCTAssertTrue(appSource?.contains(".first(where: { $0.name == \"id\" })") == true)
+        XCTAssertTrue(appSource?.contains("environment[\"LANESHADOW_LAUNCH_SANDBOX\"] == \"1\"") == true)
+    }
+
     private func sandboxSource(named fileName: String) throws -> String {
         let repoRoot = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
@@ -200,6 +212,20 @@ final class LaneShadowTests: XCTestCase {
             .appendingPathComponent("ios")
             .appendingPathComponent("LaneShadow")
             .appendingPathComponent("Sandbox")
+            .appendingPathComponent(fileName)
+
+        return try String(contentsOf: fileURL, encoding: .utf8)
+    }
+
+    private func appSource(named fileName: String) throws -> String {
+        let repoRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+
+        let fileURL = repoRoot
+            .appendingPathComponent("ios")
+            .appendingPathComponent("LaneShadow")
             .appendingPathComponent(fileName)
 
         return try String(contentsOf: fileURL, encoding: .utf8)
