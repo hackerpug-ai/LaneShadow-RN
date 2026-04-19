@@ -108,6 +108,14 @@ public struct SemanticTokens: Decodable, Sendable {
     public let elevation: ElevationModes
     public let motion: MotionDef
     public let opacity: [String: NumberToken]
+    public let borderWidth: [String: DimensionToken]
+    public let control: [String: DimensionToken]
+    public let hitSlop: [String: DimensionToken]
+    public let iconSize: [String: DimensionToken]
+    public let shadow: [String: DimensionToken]
+    public let size: [String: DimensionToken]
+    public let strokeWidth: [String: DimensionToken]
+    public let touchTarget: [String: DimensionToken]
 }
 
 public struct ThemeTokensFile: Decodable, Sendable {

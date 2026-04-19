@@ -112,6 +112,80 @@ public struct ThemeElevation: Sendable {
     public let level8: ElevationStyle
 }
 
+public struct ThemeBorderWidth: Sendable {
+    public let hairline: CGFloat
+    public let thin: CGFloat
+    public let normal: CGFloat
+    public let thick: CGFloat
+}
+
+public struct ThemeControl: Sendable {
+    public let minHeight: CGFloat
+    public let minTouchTarget: CGFloat
+}
+
+public struct ThemeHitSlop: Sendable {
+    public let all: CGFloat
+    public let small: CGFloat
+    public let medium: CGFloat
+    public let large: CGFloat
+}
+
+public struct ThemeIconSize: Sendable {
+    public let xsmall: CGFloat
+    public let small: CGFloat
+    public let medium: CGFloat
+    public let large: CGFloat
+    public let xlarge: CGFloat
+}
+
+public struct ThemeMotion: Sendable {
+    public let duration: [String: Int]
+    public let easing: [String: [Double]]
+}
+
+public struct ThemeOpacity: Sendable {
+    public let step00: CGFloat
+    public let step01: CGFloat
+    public let step02: CGFloat
+    public let step03: CGFloat
+    public let step04: CGFloat
+    public let step05: CGFloat
+    public let step06: CGFloat
+    public let step07: CGFloat
+    public let step08: CGFloat
+    public let step09: CGFloat
+    public let step10: CGFloat
+    public let step11: CGFloat
+}
+
+public struct ThemeShadow: Sendable {
+    public let xsmall: CGFloat
+    public let small: CGFloat
+    public let medium: CGFloat
+    public let large: CGFloat
+    public let xlarge: CGFloat
+}
+
+public struct ThemeSize: Sendable {
+    public let xsmall: CGFloat
+    public let small: CGFloat
+    public let medium: CGFloat
+    public let large: CGFloat
+    public let xlarge: CGFloat
+}
+
+public struct ThemeStrokeWidth: Sendable {
+    public let hairline: CGFloat
+    public let thin: CGFloat
+    public let normal: CGFloat
+    public let thick: CGFloat
+}
+
+public struct ThemeTouchTarget: Sendable {
+    public let minTouchTarget: CGFloat
+}
+
 public struct Theme: Sendable {
     public let colors: ThemeColors
     public let space: ThemeSpace
@@ -119,6 +193,16 @@ public struct Theme: Sendable {
     public let type: ThemeType
     public let elevation: ThemeElevation
     public let domain: DomainColors
+    public let borderWidth: ThemeBorderWidth
+    public let control: ThemeControl
+    public let hitSlop: ThemeHitSlop
+    public let iconSize: ThemeIconSize
+    public let motion: ThemeMotion
+    public let opacity: ThemeOpacity
+    public let shadow: ThemeShadow
+    public let size: ThemeSize
+    public let strokeWidth: ThemeStrokeWidth
+    public let touchTarget: ThemeTouchTarget
 
     /// Resolved once at first access by decoding the bundled semantic.tokens.json.
     public static let shared: Theme = build(from: ThemeLoader.loadSemanticTokens())
@@ -134,7 +218,17 @@ private extension Theme {
             radius: buildRadius(from: tokens),
             type: buildType(from: tokens),
             elevation: buildElevation(from: tokens),
-            domain: DomainColors.build(from: tokens)
+            domain: DomainColors.build(from: tokens),
+            borderWidth: buildBorderWidth(from: tokens),
+            control: buildControl(from: tokens),
+            hitSlop: buildHitSlop(from: tokens),
+            iconSize: buildIconSize(from: tokens),
+            motion: buildMotion(from: tokens),
+            opacity: buildOpacity(from: tokens),
+            shadow: buildShadow(from: tokens),
+            size: buildSize(from: tokens),
+            strokeWidth: buildStrokeWidth(from: tokens),
+            touchTarget: buildTouchTarget(from: tokens)
         )
     }
 
@@ -260,6 +354,116 @@ private extension Theme {
             level4: elevationStyle(from: e["4"]!),
             level5: elevationStyle(from: e["5"]!),
             level8: elevationStyle(from: e["8"]!)
+        )
+    }
+
+    static func buildBorderWidth(from tokens: SemanticTokens) -> ThemeBorderWidth {
+        let bw = tokens.borderWidth
+        return ThemeBorderWidth(
+            hairline: CGFloat(bw["hairline"]!.value),
+            thin: CGFloat(bw["thin"]!.value),
+            normal: CGFloat(bw["normal"]!.value),
+            thick: CGFloat(bw["thick"]!.value)
+        )
+    }
+
+    static func buildControl(from tokens: SemanticTokens) -> ThemeControl {
+        let c = tokens.control
+        return ThemeControl(
+            minHeight: CGFloat(c["minHeight"]!.value),
+            minTouchTarget: CGFloat(c["minTouchTarget"]!.value)
+        )
+    }
+
+    static func buildHitSlop(from tokens: SemanticTokens) -> ThemeHitSlop {
+        let h = tokens.hitSlop
+        return ThemeHitSlop(
+            all: CGFloat(h["all"]!.value),
+            small: CGFloat(h["small"]!.value),
+            medium: CGFloat(h["medium"]!.value),
+            large: CGFloat(h["large"]!.value)
+        )
+    }
+
+    static func buildIconSize(from tokens: SemanticTokens) -> ThemeIconSize {
+        let i = tokens.iconSize
+        return ThemeIconSize(
+            xsmall: CGFloat(i["xsmall"]!.value),
+            small: CGFloat(i["small"]!.value),
+            medium: CGFloat(i["medium"]!.value),
+            large: CGFloat(i["large"]!.value),
+            xlarge: CGFloat(i["xlarge"]!.value)
+        )
+    }
+
+    static func buildMotion(from tokens: SemanticTokens) -> ThemeMotion {
+        let m = tokens.motion
+        let durationDict = m.duration.reduce(into: [String: Int]()) { dict, item in
+            dict[item.key] = Int(item.value.value)
+        }
+        let easingDict = m.easing.reduce(into: [String: [Double]]()) { dict, item in
+            dict[item.key] = item.value.value
+        }
+        return ThemeMotion(
+            duration: durationDict,
+            easing: easingDict
+        )
+    }
+
+    static func buildOpacity(from tokens: SemanticTokens) -> ThemeOpacity {
+        let o = tokens.opacity
+        return ThemeOpacity(
+            step00: CGFloat(o["step00"]!.value),
+            step01: CGFloat(o["step01"]!.value),
+            step02: CGFloat(o["step02"]!.value),
+            step03: CGFloat(o["step03"]!.value),
+            step04: CGFloat(o["step04"]!.value),
+            step05: CGFloat(o["step05"]!.value),
+            step06: CGFloat(o["step06"]!.value),
+            step07: CGFloat(o["step07"]!.value),
+            step08: CGFloat(o["step08"]!.value),
+            step09: CGFloat(o["step09"]!.value),
+            step10: CGFloat(o["step10"]!.value),
+            step11: CGFloat(o["step11"]!.value)
+        )
+    }
+
+    static func buildShadow(from tokens: SemanticTokens) -> ThemeShadow {
+        let s = tokens.shadow
+        return ThemeShadow(
+            xsmall: CGFloat(s["xsmall"]!.value),
+            small: CGFloat(s["small"]!.value),
+            medium: CGFloat(s["medium"]!.value),
+            large: CGFloat(s["large"]!.value),
+            xlarge: CGFloat(s["xlarge"]!.value)
+        )
+    }
+
+    static func buildSize(from tokens: SemanticTokens) -> ThemeSize {
+        let s = tokens.size
+        return ThemeSize(
+            xsmall: CGFloat(s["xsmall"]!.value),
+            small: CGFloat(s["small"]!.value),
+            medium: CGFloat(s["medium"]!.value),
+            large: CGFloat(s["large"]!.value),
+            xlarge: CGFloat(s["xlarge"]!.value)
+        )
+    }
+
+    static func buildStrokeWidth(from tokens: SemanticTokens) -> ThemeStrokeWidth {
+        let sw = tokens.strokeWidth
+        return ThemeStrokeWidth(
+            hairline: CGFloat(sw["hairline"]!.value),
+            thin: CGFloat(sw["thin"]!.value),
+            normal: CGFloat(sw["normal"]!.value),
+            thick: CGFloat(sw["thick"]!.value)
+        )
+    }
+
+    static func buildTouchTarget(from tokens: SemanticTokens) -> ThemeTouchTarget {
+        let tt = tokens.touchTarget
+        return ThemeTouchTarget(
+            minTouchTarget: CGFloat(tt["minTouchTarget"]!.value)
         )
     }
 }
