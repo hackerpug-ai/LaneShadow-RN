@@ -1,5 +1,5 @@
-import SwiftUI
 import LaneShadowTheme
+import SwiftUI
 
 struct LSSkeleton: View {
     let width: CGFloat
