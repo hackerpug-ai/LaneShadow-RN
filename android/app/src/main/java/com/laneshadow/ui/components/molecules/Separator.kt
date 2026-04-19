@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.laneshadow.theme.LocalLaneShadowTheme
 
@@ -46,7 +48,10 @@ fun Separator(
                 modifier = modifier
                     .fillMaxWidth()
                     .height(1.dp)
-                    .background(theme.colors.border.default),
+                    .background(theme.colors.border.default)
+                    .semantics {
+                        contentDescription = "Separator"
+                    },
             )
         }
         SeparatorOrientation.Vertical -> {
@@ -54,7 +59,10 @@ fun Separator(
                 modifier = modifier
                     .width(1.dp)
                     .fillMaxHeight()
-                    .background(theme.colors.border.default),
+                    .background(theme.colors.border.default)
+                    .semantics {
+                        contentDescription = "Separator"
+                    },
             )
         }
     }
