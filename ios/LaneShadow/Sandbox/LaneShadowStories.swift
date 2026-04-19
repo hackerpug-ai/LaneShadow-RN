@@ -78,6 +78,7 @@ enum LaneShadowStories {
             RNReferenceRegistryStoryView(isEmpty: true)
         },
     ] + AtomsStories.all
+    // Note: MoleculesStories.all will be added once MoleculesStories.swift is added to Xcode project
 }
 
 private struct SandboxTokenStoryView: View {
