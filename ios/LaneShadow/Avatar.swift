@@ -7,9 +7,9 @@ import SwiftUI
  * Following RN wrapper API from react-native/components/ui/avatar.tsx
  */
 public enum AvatarSize {
-    case defaultSize  // 40×40px
-    case lg           // 64×64px
-    case xl           // 96×96px
+    case defaultSize // 40×40px
+    case lg // 64×64px
+    case xl // 96×96px
 }
 
 /**
@@ -69,39 +69,33 @@ public struct Avatar: View {
         let theme = Theme.shared
 
         // Get avatar dimensions based on size
-        let avatarSize: CGFloat = {
-            switch size {
-            case .defaultSize:
-                return 40
-            case .lg:
-                return 64
-            case .xl:
-                return 96
-            }
-        }()
+        let avatarSize: CGFloat = switch size {
+        case .defaultSize:
+            40
+        case .lg:
+            64
+        case .xl:
+            96
+        }
 
         // Get initials font size based on avatar size
-        let initialsFontSize: CGFloat = {
-            switch size {
-            case .defaultSize:
-                return 16
-            case .lg:
-                return 24
-            case .xl:
-                return 36
-            }
-        }()
+        let initialsFontSize: CGFloat = switch size {
+        case .defaultSize:
+            16
+        case .lg:
+            24
+        case .xl:
+            36
+        }
 
         // Determine border color and width
-        let borderColor: Color = {
-            if showRing {
-                return theme.colors.primary.default
-            } else if showBorder {
-                return theme.colors.border.default
-            } else {
-                return .clear
-            }
-        }()
+        let borderColor: Color = if showRing {
+            theme.colors.primary.default
+        } else if showBorder {
+            theme.colors.border.default
+        } else {
+            .clear
+        }
 
         let borderWidth: CGFloat = (showBorder || showRing) ? 2 : 0
 
@@ -109,15 +103,15 @@ public struct Avatar: View {
         ZStack(alignment: .topTrailing) {
             // Main avatar circle
             ZStack {
-                if let source = source {
+                if let source {
                     // TODO: Add AsyncImage support when image loading is implemented
                     // For now, show initials as fallback
-                    if let initials = initials {
+                    if let initials {
                         Text(initials)
                             .font(.system(size: initialsFontSize, weight: .medium))
                             .foregroundStyle(theme.colors.onSurface.default)
                     }
-                } else if let initials = initials {
+                } else if let initials {
                     Text(initials)
                         .font(.system(size: initialsFontSize, weight: .medium))
                         .foregroundStyle(theme.colors.onSurface.default)
@@ -133,7 +127,7 @@ public struct Avatar: View {
             .accessibilityLabel(alt ?? (initials ?? "Avatar"))
 
             // Badge positioning: absolute at top-right (-4, -4) offset
-            if let badge = badge {
+            if let badge {
                 badge()
                     .offset(x: -4, y: -4)
             }
@@ -155,7 +149,7 @@ public struct AvatarBadge: View {
     private let content: (() -> AnyView)?
 
     public init(
-        variant: AvatarBadgeVariant = .`default`,
+        variant: AvatarBadgeVariant = .default,
         content: (() -> AnyView)? = nil
     ) {
         self.variant = variant
@@ -165,21 +159,19 @@ public struct AvatarBadge: View {
     public var body: some View {
         let theme = Theme.shared
 
-        let backgroundColor: Color = {
-            switch variant {
-            case .`default`:
-                return theme.colors.primary.default
-            case .success:
-                return theme.colors.success.default
-            case .warning:
-                return theme.colors.warning.default
-            case .danger:
-                return theme.colors.danger.default
-            }
-        }()
+        let backgroundColor: Color = switch variant {
+        case .default:
+            theme.colors.primary.default
+        case .success:
+            theme.colors.success.default
+        case .warning:
+            theme.colors.warning.default
+        case .danger:
+            theme.colors.danger.default
+        }
 
         ZStack {
-            if let content = content {
+            if let content {
                 content()
             }
         }

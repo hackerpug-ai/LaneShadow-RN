@@ -81,7 +81,7 @@ public struct DeviationPolyline: View {
             )
 
             // Draw reconnect point if provided
-            if let reconnectPoint = reconnectPoint {
+            if let reconnectPoint {
                 drawReconnectPoint(
                     context: context,
                     coordinate: reconnectPoint,
@@ -251,10 +251,10 @@ public struct DeviationPolyline: View {
     VStack(spacing: 20) {
         DeviationPolyline(
             originalRoute: [
-                CLLocationCoordinate(latitude: 37.7749, longitude: -122.4194)
+                CLLocationCoordinate(latitude: 37.7749, longitude: -122.4194),
             ],
             detourPath: [
-                CLLocationCoordinate(latitude: 37.7750, longitude: -122.4180)
+                CLLocationCoordinate(latitude: 37.7750, longitude: -122.4180),
             ],
             reconnectPoint: CLLocationCoordinate(latitude: 37.7755, longitude: -122.4170),
             strokeWidth: 6

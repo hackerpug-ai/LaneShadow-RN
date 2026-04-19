@@ -131,7 +131,7 @@ public struct LSChip: View {
                     .stroke(borderColor, lineWidth: theme.borderWidth.thin)
             )
 
-        if let onPress = onPress {
+        if let onPress {
             Button(action: onPress) {
                 content
             }

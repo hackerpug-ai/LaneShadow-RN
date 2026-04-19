@@ -10,9 +10,9 @@ import SwiftUI
  * Matrix reference: .spec/prds/native-rewrite/matrices/ui/atoms/Avatar.md
  */
 public enum AvatarSize {
-    case defaultSize  // 40×40px (theme.size.avatarDefault)
-    case lg           // 64×64px (theme.size.avatarLg)
-    case xl           // 96×96px (theme.size.avatarXl)
+    case defaultSize // 40×40px (theme.size.avatarDefault)
+    case lg // 64×64px (theme.size.avatarLg)
+    case xl // 96×96px (theme.size.avatarXl)
 }
 
 // MARK: - Avatar Badge Variant Enum
@@ -88,39 +88,33 @@ public struct Avatar: View {
 
     public var body: some View {
         // Get avatar dimensions from theme tokens
-        let avatarSize: CGFloat = {
-            switch size {
-            case .defaultSize:
-                return theme.size.avatarDefault
-            case .lg:
-                return theme.size.avatarLg
-            case .xl:
-                return theme.size.avatarXl
-            }
-        }()
+        let avatarSize: CGFloat = switch size {
+        case .defaultSize:
+            theme.size.avatarDefault
+        case .lg:
+            theme.size.avatarLg
+        case .xl:
+            theme.size.avatarXl
+        }
 
         // Get initials font size from theme tokens
-        let initialsFontSize: CGFloat = {
-            switch size {
-            case .defaultSize:
-                return theme.type.body.sm.fontSize
-            case .lg:
-                return theme.type.title.lg.fontSize
-            case .xl:
-                return theme.type.display.sm.fontSize
-            }
-        }()
+        let initialsFontSize: CGFloat = switch size {
+        case .defaultSize:
+            theme.type.body.sm.fontSize
+        case .lg:
+            theme.type.title.lg.fontSize
+        case .xl:
+            theme.type.display.sm.fontSize
+        }
 
         // Determine border color and width from theme
-        let borderColor: Color = {
-            if showRing {
-                return theme.colors.primary.default
-            } else if showBorder {
-                return theme.colors.border.default
-            } else {
-                return .clear
-            }
-        }()
+        let borderColor: Color = if showRing {
+            theme.colors.primary.default
+        } else if showBorder {
+            theme.colors.border.default
+        } else {
+            .clear
+        }
 
         let borderWidth: CGFloat = (showBorder || showRing) ? theme.borderWidth.thick : 0
 
@@ -131,14 +125,14 @@ public struct Avatar: View {
         ZStack(alignment: .topTrailing) {
             // Main avatar circle
             ZStack {
-                if let source = source {
+                if let source {
                     // Image loading not yet implemented - show initials as fallback
-                    if let initials = initials {
+                    if let initials {
                         Text(initials)
                             .font(.system(size: initialsFontSize, weight: .medium))
                             .foregroundStyle(theme.colors.onSurface.default)
                     }
-                } else if let initials = initials {
+                } else if let initials {
                     Text(initials)
                         .font(.system(size: initialsFontSize, weight: .medium))
                         .foregroundStyle(theme.colors.onSurface.default)
@@ -154,7 +148,7 @@ public struct Avatar: View {
             .accessibilityLabel(alt ?? (initials ?? "Avatar"))
 
             // Badge positioning: absolute at top-right with theme-based offset
-            if let badge = badge {
+            if let badge {
                 badge()
                     .offset(x: -badgeOffset, y: -badgeOffset)
             }
@@ -189,7 +183,7 @@ public struct AvatarBadge: View {
     private let content: (() -> AnyView)?
 
     public init(
-        variant: AvatarBadgeVariant = .`default`,
+        variant: AvatarBadgeVariant = .default,
         content: (() -> AnyView)? = nil
     ) {
         self.variant = variant
@@ -197,21 +191,19 @@ public struct AvatarBadge: View {
     }
 
     public var body: some View {
-        let backgroundColor: Color = {
-            switch variant {
-            case .`default`:
-                return theme.colors.primary.default
-            case .success:
-                return theme.colors.success.default
-            case .warning:
-                return theme.colors.warning.default
-            case .danger:
-                return theme.colors.danger.default
-            }
-        }()
+        let backgroundColor: Color = switch variant {
+        case .default:
+            theme.colors.primary.default
+        case .success:
+            theme.colors.success.default
+        case .warning:
+            theme.colors.warning.default
+        case .danger:
+            theme.colors.danger.default
+        }
 
         ZStack {
-            if let content = content {
+            if let content {
                 content()
             }
         }

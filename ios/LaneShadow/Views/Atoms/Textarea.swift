@@ -61,7 +61,7 @@ public struct LSTextarea: View {
             // Textarea container
             ZStack(alignment: .topLeading) {
                 // Placeholder text (shown when empty)
-                if value.isEmpty && !isFocused {
+                if value.isEmpty, !isFocused {
                     Text(placeholder)
                         .font(.system(size: 14, weight: .regular))
                         .foregroundStyle(theme.colors.onSurface.subtle.opacity(0.6))

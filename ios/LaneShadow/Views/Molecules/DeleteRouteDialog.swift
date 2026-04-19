@@ -55,8 +55,10 @@ public struct LSDeleteRouteDialog: View {
                 Alert(
                     title: Text("Delete Route")
                         .foregroundStyle(theme.colors.onSurface.default),
-                    message: Text("Are you sure you want to delete \"\(routeName)\"? You can undo this within 5 seconds.")
-                        .foregroundStyle(theme.colors.onSurface.default),
+                    message: Text(
+                        "Are you sure you want to delete \"\(routeName)\"? You can undo this within 5 seconds."
+                    )
+                    .foregroundStyle(theme.colors.onSurface.default),
                     primaryButton: .destructive(
                         Text("Delete")
                             .foregroundStyle(theme.colors.danger.default)

@@ -62,7 +62,7 @@ public struct BottomSheetInput: View {
         rightIcon: String? = nil,
         testID: String? = nil
     ) {
-        self._value = value
+        _value = value
         self.placeholder = placeholder
         self.label = label
         self.error = error
@@ -150,29 +150,29 @@ public struct BottomSheetInput: View {
 
     private var borderColor: Color {
         if error {
-            return theme.colors.danger.default
+            theme.colors.danger.default
         } else if isFocused {
-            return theme.colors.primary.default
+            theme.colors.primary.default
         } else {
-            return .clear
+            .clear
         }
     }
 
     private var textColor: Color {
         if editable {
-            return theme.colors.onSurface.default
+            theme.colors.onSurface.default
         } else {
-            return theme.colors.onSurface.subtle
+            theme.colors.onSurface.subtle
         }
     }
 
     private var iconColor: Color {
         if error {
-            return theme.colors.danger.default
+            theme.colors.danger.default
         } else if isFocused {
-            return theme.colors.primary.default
+            theme.colors.primary.default
         } else {
-            return theme.colors.onSurface.subtle
+            theme.colors.onSurface.subtle
         }
     }
 }
@@ -181,9 +181,9 @@ public struct BottomSheetInput: View {
 
 private extension View {
     @ViewBuilder
-    func `if`<Content: View>(
+    func `if`(
         _ condition: Bool,
-        transform: (Self) -> Content
+        transform: (Self) -> some View
     ) -> some View {
         if condition {
             transform(self)

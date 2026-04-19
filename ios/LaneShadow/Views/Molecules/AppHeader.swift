@@ -62,7 +62,7 @@ public struct LSAppHeader: View {
     public var body: some View {
         HStack(alignment: .center) {
             // Leading icon area
-            if let leadingIcon = leadingIcon {
+            if let leadingIcon {
                 Button(action: {
                     onLeadingClick?()
                 }) {
@@ -83,7 +83,7 @@ public struct LSAppHeader: View {
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(theme.colors.onSurface.default)
 
-                if let subtitle = subtitle {
+                if let subtitle {
                     Text(subtitle)
                         .font(.system(size: 14, weight: .regular))
                         .foregroundStyle(theme.colors.onSurface.default.opacity(0.7))
@@ -93,7 +93,7 @@ public struct LSAppHeader: View {
             Spacer()
 
             // Trailing content area
-            if let trailingContent = trailingContent {
+            if let trailingContent {
                 trailingContent
             } else {
                 Spacer()
@@ -119,9 +119,9 @@ public struct LSAppHeader: View {
 
 private extension View {
     @ViewBuilder
-    func `if`<Content: View>(
+    func `if`(
         _ condition: Bool,
-        transform: (Self) -> Content
+        transform: (Self) -> some View
     ) -> some View {
         if condition {
             transform(self)

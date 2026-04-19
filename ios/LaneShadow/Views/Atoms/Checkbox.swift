@@ -107,7 +107,6 @@ public struct LSCheckbox: View {
 
     // MARK: - Checkbox Content
 
-    @ViewBuilder
     private var checkboxContent: some View {
         ZStack {
             // Background
@@ -175,22 +174,22 @@ public struct LSCheckbox: View {
     private var accessibilityLabelForState: String {
         switch state {
         case .unchecked:
-            return "Checkbox"
+            "Checkbox"
         case .checked:
-            return "Checkbox"
+            "Checkbox"
         case .indeterminate:
-            return "Checkbox"
+            "Checkbox"
         }
     }
 
     private var accessibilityValueForState: Text {
         switch state {
         case .unchecked:
-            return Text("Unchecked")
+            Text("Unchecked")
         case .checked:
-            return Text("Checked")
+            Text("Checked")
         case .indeterminate:
-            return Text("Indeterminate")
+            Text("Indeterminate")
         }
     }
 }
@@ -264,11 +263,11 @@ private extension View {
         private var stateName: String {
             switch checkboxState {
             case .unchecked:
-                return "Unchecked"
+                "Unchecked"
             case .checked:
-                return "Checked"
+                "Checked"
             case .indeterminate:
-                return "Indeterminate"
+                "Indeterminate"
             }
         }
     }

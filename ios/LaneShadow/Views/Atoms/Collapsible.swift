@@ -36,7 +36,7 @@ public struct LSCollapsible<Content: View>: View {
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.title = title
-        self._isOpen = isOpen
+        _isOpen = isOpen
         self.testID = testID
         self.content = content
     }

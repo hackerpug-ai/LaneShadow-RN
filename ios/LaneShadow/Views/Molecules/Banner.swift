@@ -18,10 +18,10 @@ public enum LSBannerVariant: Sendable {
     /// Returns the theme color associated with this variant
     var color: ThemeColors.KeyPath<ColorSet> {
         switch self {
-        case .info: return \.info
-        case .success: return \.success
-        case .warning: return \.warning
-        case .error: return \.danger
+        case .info: \.info
+        case .success: \.success
+        case .warning: \.warning
+        case .error: \.danger
         }
     }
 }

@@ -3,7 +3,7 @@ import SwiftUI
 
 // MARK: - Toggle Component
 
-/**
+/* 
  * Toggle atom component
  *
  * Following RN wrapper API from react-native/components/ui/toggle.tsx
@@ -35,9 +35,9 @@ public enum LSToggleVariant {
 }
 
 public enum LSToggleSize {
-    case small    // 36pt
+    case small // 36pt
     case `default` // 40pt
-    case large    // 44pt
+    case large // 44pt
 }
 
 public struct LSToggle: View {
@@ -88,11 +88,11 @@ public struct LSToggle: View {
     private var height: CGFloat {
         switch size {
         case .small:
-            return 36
+            36
         case .default:
-            return 40
+            40
         case .large:
-            return 44
+            44
         }
     }
 
@@ -111,9 +111,9 @@ public struct LSToggle: View {
     private var borderColor: Color? {
         switch variant {
         case .default:
-            return nil
+            nil
         case .outline:
-            return theme.colors.border.default
+            theme.colors.border.default
         }
     }
 

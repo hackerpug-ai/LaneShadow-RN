@@ -17,10 +17,10 @@ public enum LSDateRangePreset: String, CaseIterable, Sendable {
     /// Returns the number of days to go back from today (nil for "all time")
     var daysBack: Int? {
         switch self {
-        case .all: return nil
-        case .week: return 7
-        case .month: return 30
-        case .threeMonths: return 90
+        case .all: nil
+        case .week: 7
+        case .month: 30
+        case .threeMonths: 90
         }
     }
 }
@@ -135,7 +135,9 @@ public struct LSDateRangePicker: View {
         .accessibilityLabel(preset.rawValue)
         .accessibilityValue(isSelected ? "Selected" : "Not selected")
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
-        .accessibilityIdentifier("\(testID)-chip-\(preset.rawValue.lowercased().replacingOccurrences(of: " ", with: "-"))")
+        .accessibilityIdentifier(
+            "\(testID)-chip-\(preset.rawValue.lowercased().replacingOccurrences(of: " ", with: "-"))"
+        )
     }
 
     // MARK: - Interaction Handlers

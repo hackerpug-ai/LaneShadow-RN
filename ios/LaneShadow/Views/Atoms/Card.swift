@@ -64,7 +64,7 @@ public struct Card<Content: View>: View {
 
     public var body: some View {
         Group {
-            if let onPress = onPress, !disabled {
+            if let onPress, !disabled {
                 // Interactive card
                 Button(action: onPress) {
                     cardContent
@@ -92,7 +92,6 @@ public struct Card<Content: View>: View {
 
     // MARK: - Card Content
 
-    @ViewBuilder
     private var cardContent: some View {
         content()
             .frame(maxWidth: .infinity)
@@ -129,30 +128,30 @@ public struct Card<Content: View>: View {
     private var defaultBackgroundColor: Color {
         switch variant {
         case .default:
-            return theme.colors.card.default
+            theme.colors.card.default
         case .primary:
-            return theme.colors.primary.default
+            theme.colors.primary.default
         case .success:
-            return theme.colors.success.default
+            theme.colors.success.default
         case .warning:
-            return theme.colors.warning.default
+            theme.colors.warning.default
         case .danger:
-            return theme.colors.danger.default
+            theme.colors.danger.default
         }
     }
 
     private var pressedBackgroundColor: Color {
         switch variant {
         case .default:
-            return theme.colors.card.pressed ?? theme.colors.card.default
+            theme.colors.card.pressed ?? theme.colors.card.default
         case .primary:
-            return theme.colors.primary.pressed ?? theme.colors.primary.default
+            theme.colors.primary.pressed ?? theme.colors.primary.default
         case .success:
-            return theme.colors.success.pressed ?? theme.colors.success.default
+            theme.colors.success.pressed ?? theme.colors.success.default
         case .warning:
-            return theme.colors.warning.pressed ?? theme.colors.warning.default
+            theme.colors.warning.pressed ?? theme.colors.warning.default
         case .danger:
-            return theme.colors.danger.pressed ?? theme.colors.danger.default
+            theme.colors.danger.pressed ?? theme.colors.danger.default
         }
     }
 
@@ -180,7 +179,7 @@ public struct CardHeader: View {
 
     /// Creates a CardHeader with the given content
     /// - Parameter content: The header's content
-    public init<Content: View>(@ViewBuilder content: @escaping () -> Content) {
+    public init(@ViewBuilder content: @escaping () -> some View) {
         self.content = { AnyView(content()) }
     }
 
@@ -224,9 +223,9 @@ public struct CardTitle: View {
     private var textColor: Color {
         switch variant {
         case .primary, .success, .warning, .danger:
-            return theme.colors.onPrimary.default
+            theme.colors.onPrimary.default
         case .default:
-            return theme.colors.onSurface.default
+            theme.colors.onSurface.default
         }
     }
 }
@@ -281,10 +280,10 @@ public struct CardDescription: View {
     private var textColor: Color {
         switch variant {
         case .primary, .success, .warning, .danger:
-            return theme.colors.onPrimary.default
+            theme.colors.onPrimary.default
         case .default:
             // Use onSurface.muted if available, otherwise fall back to onSurface.default
-            return theme.colors.onSurface.muted ?? theme.colors.onSurface.default
+            theme.colors.onSurface.muted ?? theme.colors.onSurface.default
         }
     }
 }

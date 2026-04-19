@@ -120,17 +120,17 @@ public struct LSButton: View {
     private var height: CGFloat {
         switch size {
         case .sm:
-            return theme.space.xl + theme.space.md // 24 + 12 = 36
+            theme.space.xl + theme.space.md // 24 + 12 = 36
         case .lg:
-            return theme.space.xxl + theme.space.md // 32 + 12 = 44
+            theme.space.xxl + theme.space.md // 32 + 12 = 44
         case .xl:
-            return theme.space.xxxl // 48
+            theme.space.xxxl // 48
         case .xxl:
-            return theme.space.xxxxl - theme.space.sm // 64 - 8 = 56
+            theme.space.xxxxl - theme.space.sm // 64 - 8 = 56
         case .icon:
-            return theme.space.xxl + theme.space.sm // 32 + 8 = 40
+            theme.space.xxl + theme.space.sm // 32 + 8 = 40
         case .default:
-            return theme.space.xxl + theme.space.sm // 32 + 8 = 40
+            theme.space.xxl + theme.space.sm // 32 + 8 = 40
         }
     }
 
@@ -151,13 +151,13 @@ public struct LSButton: View {
     private var cornerRadius: CGFloat {
         switch size {
         case .icon:
-            return theme.radius.full
+            theme.radius.full
         case .xxl:
-            return theme.radius.xl
+            theme.radius.xl
         case .xl:
-            return theme.radius.lg
+            theme.radius.lg
         case .sm, .lg, .default:
-            return theme.radius.md
+            theme.radius.md
         }
     }
 
@@ -178,49 +178,49 @@ public struct LSButton: View {
     private var backgroundColorForDefaultState: Color {
         switch variant {
         case .ghost, .link:
-            return .clear
+            .clear
         case .glass:
-            return theme.colors.surfaceVariant.default
+            theme.colors.surfaceVariant.default
         case .secondary:
-            return theme.colors.secondary.default
+            theme.colors.secondary.default
         case .destructive:
-            return theme.colors.danger.default
+            theme.colors.danger.default
         case .outline:
-            return theme.colors.background.default
+            theme.colors.background.default
         case .default:
-            return theme.colors.primary.default
+            theme.colors.primary.default
         }
     }
 
     private var backgroundColorForPressedState: Color {
         switch variant {
         case .ghost, .link:
-            return .clear
+            .clear
         case .glass:
-            return theme.colors.surfaceVariant.pressed ?? theme.colors.surfaceVariant.default
+            theme.colors.surfaceVariant.pressed ?? theme.colors.surfaceVariant.default
         case .secondary:
-            return theme.colors.secondary.pressed ?? theme.colors.secondary.default
+            theme.colors.secondary.pressed ?? theme.colors.secondary.default
         case .destructive:
-            return theme.colors.danger.pressed ?? theme.colors.danger.default
+            theme.colors.danger.pressed ?? theme.colors.danger.default
         case .outline:
-            return theme.colors.accent.pressed ?? theme.colors.accent.default
+            theme.colors.accent.pressed ?? theme.colors.accent.default
         case .default:
-            return theme.colors.primary.pressed ?? theme.colors.primary.default
+            theme.colors.primary.pressed ?? theme.colors.primary.default
         }
     }
 
     private var backgroundColorForDisabledState: Color {
         switch variant {
         case .ghost, .link, .outline:
-            return theme.colors.background.default
+            theme.colors.background.default
         case .glass:
-            return theme.colors.surfaceVariant.disabled ?? theme.colors.surfaceVariant.default
+            theme.colors.surfaceVariant.disabled ?? theme.colors.surfaceVariant.default
         case .secondary:
-            return theme.colors.secondary.disabled ?? theme.colors.secondary.default
+            theme.colors.secondary.disabled ?? theme.colors.secondary.default
         case .destructive:
-            return theme.colors.danger.disabled ?? theme.colors.danger.default
+            theme.colors.danger.disabled ?? theme.colors.danger.default
         case .default:
-            return theme.colors.primary.disabled ?? theme.colors.primary.default
+            theme.colors.primary.disabled ?? theme.colors.primary.default
         }
     }
 
@@ -246,20 +246,20 @@ public struct LSButton: View {
     private var defaultForegroundColor: Color {
         switch variant {
         case .secondary:
-            return theme.colors.onSecondary.default ?? theme.colors.onSurface.default
+            theme.colors.onSecondary.default ?? theme.colors.onSurface.default
         case .link:
-            return theme.colors.primary.default
+            theme.colors.primary.default
         case .default, .destructive, .glass, .outline, .ghost:
-            return theme.colors.onSurface.default
+            theme.colors.onSurface.default
         }
     }
 
     private var borderColor: Color? {
         switch variant {
         case .outline, .glass:
-            return theme.colors.border.default
+            theme.colors.border.default
         case .default, .secondary, .destructive, .ghost, .link:
-            return nil
+            nil
         }
     }
 
@@ -345,7 +345,7 @@ public struct LSButton: View {
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
-                    if !disabled && !loading {
+                    if !disabled, !loading {
                         isPressed = true
                     }
                 }
@@ -366,7 +366,7 @@ public struct LSButton: View {
 
 private extension View {
     @ViewBuilder
-    func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+    func `if`(_ condition: Bool, transform: (Self) -> some View) -> some View {
         if condition {
             transform(self)
         } else {
@@ -378,7 +378,6 @@ private extension View {
 // MARK: - Text Underline Extension
 
 private extension View {
-    @ViewBuilder
     func underline() -> some View {
         self
     }

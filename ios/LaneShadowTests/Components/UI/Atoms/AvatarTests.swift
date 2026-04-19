@@ -1,5 +1,5 @@
-import XCTest
 import SwiftUI
+import XCTest
 @testable import LaneShadow
 
 /**
@@ -12,7 +12,6 @@ import SwiftUI
  * .spec/prds/native-rewrite/matrices/ui/atoms/Avatar.md
  */
 final class AvatarTests: XCTestCase {
-
     // MARK: - AC-1: Component renders in default state
 
     func testAvatarDefaultRendering() {
@@ -105,7 +104,7 @@ final class AvatarTests: XCTestCase {
         // GIVEN: AvatarBadge supports variants
         // WHEN: Each variant is rendered
 
-        let defaultBadge = AvatarBadge(variant: .`default`)
+        let defaultBadge = AvatarBadge(variant: .default)
         let successBadge = AvatarBadge(variant: .success)
         let warningBadge = AvatarBadge(variant: .warning)
         let dangerBadge = AvatarBadge(variant: .danger)

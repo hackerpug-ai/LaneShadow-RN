@@ -65,9 +65,9 @@ public struct LSFAB: View {
 
     private var horizontalPadding: CGFloat {
         if label != nil {
-            return theme.space.lg // 16
+            theme.space.lg // 16
         } else {
-            return 0
+            0
         }
     }
 

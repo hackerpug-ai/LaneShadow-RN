@@ -212,8 +212,8 @@ public struct LSCaptionInput: View {
 #Preview("Long Text") {
     LSCaptionInput(
         value: .constant("""
-            This is a longer caption that demonstrates the multiline capabilities of the caption input component. It should wrap properly and allow scrolling when the content exceeds the minimum height.
-            """),
+        This is a longer caption that demonstrates the multiline capabilities of the caption input component. It should wrap properly and allow scrolling when the content exceeds the minimum height.
+        """),
         onSend: { print("Send tapped") }
     )
     .laneShadowTheme()
@@ -255,10 +255,10 @@ public struct LSCaptionInput: View {
 
         LSCaptionInput(
             value: .constant("""
-                Long caption with multiple lines
-                that demonstrates scrolling
-                and proper text wrapping.
-                """),
+            Long caption with multiple lines
+            that demonstrates scrolling
+            and proper text wrapping.
+            """),
             onSend: { print("Send 3") }
         )
     }

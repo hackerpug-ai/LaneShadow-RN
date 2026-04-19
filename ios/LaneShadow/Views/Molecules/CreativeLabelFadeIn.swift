@@ -76,7 +76,7 @@ public struct LSCreativeLabelFadeIn: View {
                     .accessibilityAddTraits(.isHeader)
 
                 // Optional subtitle with stagger delay
-                if let subtitle = subtitle {
+                if let subtitle {
                     Text(subtitle)
                         .font(theme.type.body.md.font)
                         .foregroundStyle(
@@ -149,7 +149,7 @@ public struct LSCreativeLabelFadeIn: View {
         subtitleVisible = false
     }
 
-    // Estimate label width based on character count (rough approximation)
+    /// Estimate label width based on character count (rough approximation)
     private var estimatedLabelWidth: CGFloat {
         let charWidth = theme.type.display.md.fontSize * 0.6
         let minWidth: CGFloat = 120
@@ -158,7 +158,7 @@ public struct LSCreativeLabelFadeIn: View {
         return min(max(estimated, minWidth), maxWidth)
     }
 
-    // Estimate subtitle width based on character count
+    /// Estimate subtitle width based on character count
     private var estimatedSubtitleWidth: CGFloat {
         let charWidth = theme.type.body.md.fontSize * 0.5
         let minWidth: CGFloat = 80

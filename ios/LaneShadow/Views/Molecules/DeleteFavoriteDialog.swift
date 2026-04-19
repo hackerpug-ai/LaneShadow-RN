@@ -52,26 +52,26 @@ public struct LSDeleteFavoriteDialog: View {
     public var body: some View {
         EmptyView()
             .alert(isPresented: .constant(visible)) {
-            Alert(
-                title: Text("Delete saved route?")
-                    .foregroundStyle(theme.colors.onSurface.default),
-                message: Text("Are you sure you want to delete \"\(favoriteName)\"?")
-                    .foregroundStyle(theme.colors.onSurface.default),
-                primaryButton: .destructive(
-                    Text("Delete")
-                        .foregroundStyle(theme.colors.danger.default)
-                ) {
-                    onConfirm()
-                },
-                secondaryButton: .cancel(
-                    Text("Cancel")
-                        .foregroundStyle(theme.colors.onSurface.default)
-                ) {
-                    onDismiss()
-                }
-            )
-        }
-        .accessibilityIdentifier(testID ?? "delete-favorite-dialog")
+                Alert(
+                    title: Text("Delete saved route?")
+                        .foregroundStyle(theme.colors.onSurface.default),
+                    message: Text("Are you sure you want to delete \"\(favoriteName)\"?")
+                        .foregroundStyle(theme.colors.onSurface.default),
+                    primaryButton: .destructive(
+                        Text("Delete")
+                            .foregroundStyle(theme.colors.danger.default)
+                    ) {
+                        onConfirm()
+                    },
+                    secondaryButton: .cancel(
+                        Text("Cancel")
+                            .foregroundStyle(theme.colors.onSurface.default)
+                    ) {
+                        onDismiss()
+                    }
+                )
+            }
+            .accessibilityIdentifier(testID ?? "delete-favorite-dialog")
     }
 }
 

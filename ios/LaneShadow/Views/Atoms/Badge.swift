@@ -9,7 +9,6 @@ import SwiftUI
 /// - borderRadius: full (9999 for pill shape)
 /// - Typography: type.label.sm (12sp / 18lh / 600w)
 public struct Badge: View {
-
     // MARK: - Properties
 
     @Environment(\.theme) private var theme
@@ -54,7 +53,7 @@ public struct Badge: View {
                 .foregroundStyle(resolvedColors.foreground)
         }
         .padding(.horizontal, 10) // Matrix: paddingHorizontal = 10
-        .padding(.vertical, 2)   // Matrix: paddingVertical = 2
+        .padding(.vertical, 2) // Matrix: paddingVertical = 2
         .background(resolvedColors.background)
         .clipShape(Capsule(style: .continuous)) // Matrix: borderRadius = full
         .overlay {
@@ -99,43 +98,43 @@ private struct BadgeResolvedColors {
     static func resolve(theme: Theme, variant: BadgeVariant) -> Self {
         switch variant {
         case .default:
-            return Self(
+            Self(
                 background: theme.colors.primary.default,
                 foreground: theme.colors.onPrimary.default,
                 border: nil
             )
         case .secondary:
-            return Self(
+            Self(
                 background: theme.colors.secondary.default,
                 foreground: theme.colors.onSecondary.default,
                 border: nil
             )
         case .destructive:
-            return Self(
+            Self(
                 background: theme.colors.danger.default,
                 foreground: theme.colors.onPrimary.default,
                 border: nil
             )
         case .outline:
-            return Self(
+            Self(
                 background: .clear,
                 foreground: theme.colors.onSurface.default,
                 border: theme.colors.border.default
             )
         case .success:
-            return Self(
+            Self(
                 background: theme.colors.success.default,
                 foreground: theme.colors.onPrimary.default,
                 border: nil
             )
         case .warning:
-            return Self(
+            Self(
                 background: theme.colors.warning.default,
                 foreground: theme.colors.onPrimary.default,
                 border: nil
             )
         case .info:
-            return Self(
+            Self(
                 background: theme.colors.info.default,
                 foreground: theme.colors.onPrimary.default,
                 border: nil
