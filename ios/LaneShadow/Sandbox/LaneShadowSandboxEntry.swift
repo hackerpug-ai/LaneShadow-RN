@@ -3,6 +3,22 @@ import LaneShadowTheme
 import NativeSandbox
 import SwiftUI
 
+/// Theme controller for LaneShadow sandbox. Supports Auto/Light/Dark toggling
+/// via the sandbox's Appearance section.
+@MainActor
+public final class LaneShadowThemeController: ThemeController {
+    public static let shared = LaneShadowThemeController()
+
+    @Published private var mode: NativeSandbox.ThemeMode = .auto
+
+    public var themeMode: NativeSandbox.ThemeMode {
+        get { mode }
+        set { mode = newValue }
+    }
+
+    private init() {}
+}
+
 struct LaneShadowSandboxEntry: View {
     let selectedStoryId: String?
     @State private var activeStoryId: String?
@@ -22,6 +38,7 @@ struct LaneShadowSandboxEntry: View {
             } else {
                 SandboxRoot(
                     stories: LaneShadowStories.all,
+                    themeController: LaneShadowThemeController.shared,
                     previewWrapper: themedPreview { $0.laneShadowTheme() }
                 )
             }

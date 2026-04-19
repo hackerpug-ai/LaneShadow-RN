@@ -58,6 +58,7 @@ fun AppSandbox(route: SandboxRoute = SandboxRoute(shouldOpenSandbox = true, stor
 
     SandboxRoot(
         stories = AppStories.all,
+        themeController = LaneShadowThemeController,
         previewWrapper = previewWrapper,
     )
 }
