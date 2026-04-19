@@ -328,9 +328,7 @@ public struct LSChatTranscript: View {
                 .font(.system(size: 8))
                 .foregroundStyle(theme.colors.onSurface.subtle)
 
-            Text(message.content)
-                .font(theme.type.body.md.font)
-                .foregroundStyle(theme.colors.onSurface.default)
+            MarkdownText(markdown: message.content)
 
             // Typing indicator for streaming messages
             if message.status == .streaming {
