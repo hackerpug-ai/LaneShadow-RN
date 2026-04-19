@@ -42,7 +42,6 @@ struct ThemeAvatar<Badge: View>: View {
         .accessibilityLabel(accessibilityLabel ?? "ThemeAvatar")
     }
 
-    @ViewBuilder
     private var avatarBody: some View {
         Group {
             if let imageURL, let url = URL(string: imageURL) {
@@ -68,7 +67,11 @@ struct ThemeAvatar<Badge: View>: View {
     private var placeholderBody: some View {
         Group {
             if let initials, !initials.isEmpty {
-                ThemeText(String(initials.prefix(2)).uppercased(), variant: size.textVariant, color: theme.colors.onSurface.default)
+                ThemeText(
+                    String(initials.prefix(2)).uppercased(),
+                    variant: size.textVariant,
+                    color: theme.colors.onSurface.default
+                )
             } else {
                 ThemeIcon(name: "user", size: size.iconSize, color: theme.colors.onSurface.default)
             }

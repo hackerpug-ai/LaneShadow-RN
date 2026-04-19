@@ -143,35 +143,35 @@ private struct ThemeCardResolvedColors {
     static func resolve(theme: Theme, variant: ThemeCardVariant) -> Self {
         switch variant {
         case .default:
-            return .init(
+            .init(
                 background: theme.colors.card.default,
                 foreground: theme.colors.onSurface.default,
                 mutedForeground: theme.colors.onSurface.default.opacity(0.72),
                 border: theme.colors.border.default
             )
         case .primary:
-            return .init(
+            .init(
                 background: theme.colors.primary.default,
                 foreground: theme.colors.onPrimary.default,
                 mutedForeground: theme.colors.onPrimary.default.opacity(0.8),
                 border: theme.colors.primary.default.opacity(0.4)
             )
         case .success:
-            return .init(
+            .init(
                 background: theme.colors.success.default,
                 foreground: theme.colors.onPrimary.default,
                 mutedForeground: theme.colors.onPrimary.default.opacity(0.8),
                 border: theme.colors.success.default.opacity(0.4)
             )
         case .warning:
-            return .init(
+            .init(
                 background: theme.colors.warningContainer.default,
                 foreground: theme.colors.onWarningContainer.default,
                 mutedForeground: theme.colors.onWarningContainer.default.opacity(0.8),
                 border: theme.colors.warning.default.opacity(0.4)
             )
         case .danger:
-            return .init(
+            .init(
                 background: theme.colors.danger.default,
                 foreground: theme.colors.onPrimary.default,
                 mutedForeground: theme.colors.onPrimary.default.opacity(0.8),
