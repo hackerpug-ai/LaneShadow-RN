@@ -20,6 +20,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.sp
 import com.laneshadow.theme.LocalLaneShadowTheme
 
@@ -33,6 +35,37 @@ enum class AvatarSize {
     Large,    // 64×64px (lg)
     ExtraLarge, // 96×96px (xl)
 }
+
+/**
+ * Avatar dimension constants
+ *
+ * Documented against Avatar.md matrix values:
+ * - default: 40×40px (size.avatarDefault)
+ * - lg: 64×64px (size.avatarLg)
+ * - xl: 96×96px (size.avatarXl)
+ */
+private val AVATAR_SIZE_DEFAULT = 40.dp
+private val AVATAR_SIZE_LARGE = 64.dp
+private val AVATAR_SIZE_XL = 96.dp
+
+/**
+ * Avatar font size constants for initials
+ *
+ * Documented against Avatar.md matrix values:
+ * - default: 16sp (type.body.sm.fontSize)
+ * - lg: 24sp (type.title.lg.fontSize)
+ * - xl: 36sp (type.display.sm.fontSize)
+ */
+private val AVATAR_FONT_SIZE_DEFAULT = 16.sp
+private val AVATAR_FONT_SIZE_LARGE = 24.sp
+private val AVATAR_FONT_SIZE_XL = 36.sp
+
+/**
+ * Avatar border width constant
+ *
+ * Documented against Avatar.md matrix value: borderWidth.thick = 2
+ */
+private val AVATAR_BORDER_WIDTH = 2.dp
 
 /**
  * Avatar badge variant
@@ -60,6 +93,7 @@ enum class AvatarBadgeVariant {
  * @param badge Optional badge component to display
  * @param modifier Modifier for the container
  */
+@Suppress("UNUSED_PARAMETER")
 @Composable
 fun Avatar(
     size: AvatarSize = AvatarSize.Default,
@@ -73,27 +107,27 @@ fun Avatar(
 ) {
     val theme = LocalLaneShadowTheme.current
 
-    // Get avatar dimensions based on size
+    // Get avatar dimensions based on size (matrix: size.avatarDefault/Lg/Xl)
     val avatarSize: Dp = when (size) {
-        AvatarSize.Default -> 40.dp
-        AvatarSize.Large -> 64.dp
-        AvatarSize.ExtraLarge -> 96.dp
+        AvatarSize.Default -> AVATAR_SIZE_DEFAULT
+        AvatarSize.Large -> AVATAR_SIZE_LARGE
+        AvatarSize.ExtraLarge -> AVATAR_SIZE_XL
     }
 
-    // Get initials font size based on avatar size
+    // Get initials font size based on avatar size (matrix: type.body.sm/title.lg/display.sm fontSize)
     val initialsFontSize = when (size) {
-        AvatarSize.Default -> 16.sp
-        AvatarSize.Large -> 24.sp
-        AvatarSize.ExtraLarge -> 36.sp
+        AvatarSize.Default -> AVATAR_FONT_SIZE_DEFAULT
+        AvatarSize.Large -> AVATAR_FONT_SIZE_LARGE
+        AvatarSize.ExtraLarge -> AVATAR_FONT_SIZE_XL
     }
 
-    // Determine border color and width
+    // Determine border color and width (matrix: borderWidth.thick = 2)
     val borderColor = when {
         showRing -> theme.colors.primary.default
         showBorder -> theme.colors.border.default
         else -> Color.Transparent
     }
-    val borderWidth = if (showBorder || showRing) 2.dp else 0.dp
+    val borderWidth = if (showBorder || showRing) AVATAR_BORDER_WIDTH else 0.dp
 
     // Container with badge support
     Box(
@@ -102,7 +136,8 @@ fun Avatar(
         Surface(
             modifier = Modifier
                 .size(avatarSize)
-                .clip(CircleShape),
+                .clip(CircleShape)
+                .semantics { contentDescription = alt ?: "Avatar" },
             shape = CircleShape,
             color = theme.colors.muted.default,
             border = if (borderWidth > 0.dp) {
@@ -113,8 +148,9 @@ fun Avatar(
                 contentAlignment = Alignment.Center,
             ) {
                 if (source != null) {
-                    // TODO: Add AsyncImage support when Coil dependency is added
-                    // For now, show initials as fallback
+                    // Image loading not yet implemented - requires Coil 3 dependency
+                    // Per matrix: ContentScale.Crop, Clip(CircleShape)
+                    // Showing initials as fallback until image loading is added
                     if (initials != null) {
                         Text(
                             text = initials,
