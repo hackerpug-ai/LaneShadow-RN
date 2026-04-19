@@ -135,12 +135,12 @@ public struct LSChatTranscript: View {
 
     // MARK: - Message Row
 
-    @ViewBuilder
     private func messageRow(for message: LSChatMessage) -> some View {
         VStack(alignment: message.role == .rider ? .trailing : .leading, spacing: 4) {
             // Timestamp divider (shown conditionally)
             if let index = messages.firstIndex(where: { $0.id == message.id }),
-               shouldShowTimestamp(for: message, at: index) {
+               shouldShowTimestamp(for: message, at: index)
+            {
                 timestampDivider(for: message)
             }
 
@@ -289,7 +289,7 @@ public struct LSChatTranscript: View {
             content: "Hello, I need help finding a route",
             timestamp: Date(),
             status: .complete
-        )
+        ),
     ])
     .laneShadowTheme()
 }
@@ -324,7 +324,7 @@ public struct LSChatTranscript: View {
             content: "The route is approximately 45 miles and takes about 2 hours to complete.",
             timestamp: now,
             status: .streaming
-        )
+        ),
     ]
 
     return LSChatTranscript(messages: messages, isTyping: false)
@@ -339,7 +339,7 @@ public struct LSChatTranscript: View {
             content: "What's the weather like on this route?",
             timestamp: Date(),
             status: .complete
-        )
+        ),
     ]
 
     return LSChatTranscript(messages: messages, isTyping: true)
@@ -369,7 +369,7 @@ public struct LSChatTranscript: View {
             content: "Any good routes nearby?",
             timestamp: Date(), // Now - more than 5 min gap
             status: .complete
-        )
+        ),
     ]
 
     return LSChatTranscript(messages: messages)
@@ -391,7 +391,7 @@ public struct LSChatTranscript: View {
             content: "I'd be happy to help you plan that! Based on your location, I found several routes that match your criteria. Would you prefer routes that are more coastal or inland through the mountains?",
             timestamp: Date(),
             status: .complete
-        )
+        ),
     ]
 
     return LSChatTranscript(messages: messages)
