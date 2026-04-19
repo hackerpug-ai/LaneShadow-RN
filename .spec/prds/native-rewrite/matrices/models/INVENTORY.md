@@ -47,7 +47,7 @@ This inventory classifies every TypeScript business logic file in `react-native/
 
 **Priority**: P0 (auth is foundational)
 
-**Translation Plan**: `MODEL-auth-tokens.md`
+**Translation Plan**: [MODEL-auth-tokens.md](./MODEL-auth-tokens.md)
 
 ---
 
@@ -196,7 +196,7 @@ This inventory classifies every TypeScript business logic file in `react-native/
 
 **Priority**: P0 (model download integrity)
 
-**Translation Plan**: `MODEL-ai-atomic-write.md`
+**Translation Plan**: [MODEL-ai-atomic-write.md](./MODEL-ai-atomic-write.md)
 
 ---
 
@@ -228,7 +228,7 @@ This inventory classifies every TypeScript business logic file in `react-native/
 
 **Priority**: P0 (model integrity)
 
-**Translation Plan**: `MODEL-ai-checksum.md`
+**Translation Plan**: [MODEL-ai-checksum.md](./MODEL-ai-checksum.md)
 
 ---
 
@@ -260,7 +260,7 @@ This inventory classifies every TypeScript business logic file in `react-native/
 
 **Priority**: P0 (model download)
 
-**Translation Plan**: `MODEL-ai-model-download.md`
+**Translation Plan**: [MODEL-ai-model-download.md](./MODEL-ai-model-download.md)
 
 ---
 
@@ -275,7 +275,7 @@ This inventory classifies every TypeScript business logic file in `react-native/
 
 **Priority**: P0 (model version management)
 
-**Translation Plan**: `MODEL-ai-model-manifest.md`
+**Translation Plan**: [MODEL-ai-model-manifest.md](./MODEL-ai-model-manifest.md)
 
 ---
 
@@ -335,7 +335,7 @@ This inventory classifies every TypeScript business logic file in `react-native/
 
 **Priority**: P0 (offline map downloads)
 
-**Translation Plan**: `MODEL-mapbox-download-queue.md`
+**Translation Plan**: [MODEL-mapbox-download-queue.md](./MODEL-mapbox-download-queue.md)
 
 ---
 
@@ -365,7 +365,7 @@ This inventory classifies every TypeScript business logic file in `react-native/
 
 **Priority**: P0 (storage validation)
 
-**Translation Plan**: `MODEL-mapbox-storage-utils.md`
+**Translation Plan**: [MODEL-mapbox-storage-utils.md](./MODEL-mapbox-storage-utils.md)
 
 ---
 
@@ -394,7 +394,7 @@ This inventory classifies every TypeScript business logic file in `react-native/
 
 **Priority**: P1 (weather overlays)
 
-**Translation Plan**: `MODEL-mapbox-weather-optimization.md`
+**Translation Plan**: [MODEL-mapbox-weather-optimization.md](./MODEL-mapbox-weather-optimization.md)
 
 ---
 
@@ -440,7 +440,7 @@ This inventory classifies every TypeScript business logic file in `react-native/
 
 **Priority**: P0 (model download wrapper)
 
-**Translation Plan**: `MODEL-model-download-manager.md`
+**Translation Plan**: [MODEL-model-download-manager.md](./MODEL-model-download-manager.md)
 
 ---
 
