@@ -21,7 +21,10 @@
 		C1BA82A170AEFD8BD4626532 /* NativeSandbox in Frameworks */ = {isa = PBXBuildFile; productRef = 52008D1AF11776E1CEC82B7F /* NativeSandbox */; };
 		E7BF3CA6E1D3EB02CB7C6C68 /* ConvexStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BFA01AC71D220DB33A48A4C /* ConvexStore.swift */; };
 		BADGE00254112FC5BA984AE290A1 /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BADGE0019A2E238139FA48C29445 /* Badge.swift */; };
+				BADGE00254112FC5BA984AE290A1 /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BADGE0019A2E238139FA48C29445 /* Badge.swift */; };
 		BADGETS29DDB9086B21047E59FFF /* BadgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BADGETS126F3D7CF8D6F427690C2 /* BadgeTests.swift */; };
+		INFOTOASTE67E27D5C52B /* InfoToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = INFOTOAST0F8DD02B5849 /* InfoToast.swift */; };
+		INFOTOASTTESTS8148B6D07EB6 /* InfoToastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = INFOTOASTTESTS7E6AEEEC027C /* InfoToastTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,7 +42,9 @@
 		F3AD9C6E4235BE61F90118DB /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = LaneShadow/Info.plist; sourceTree = "<group>"; };
 		F5D1CEB0F9194AA0A1298E94 /* LaneShadowTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LaneShadowTests.swift; path = LaneShadowTests/LaneShadowTests.swift; sourceTree = "<group>"; };
 		BADGE0019A2E238139FA48C29445 /* Badge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LaneShadow/Views/Atoms/Badge.swift; sourceTree = "<group>"; };
-		BADGETS126F3D7CF8D6F427690C2 /* BadgeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LaneShadowTests/Components/UI/Atoms/BadgeTests.swift; sourceTree = "<group>"; };
+				BADGETS126F3D7CF8D6F427690C2 /* BadgeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LaneShadowTests/Components/UI/Atoms/BadgeTests.swift; sourceTree = "<group>"; };
+		INFOTOAST0F8DD02B5849 /* InfoToast.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LaneShadow/Views/Molecules/InfoToast.swift; sourceTree = "<group>"; };
+		INFOTOASTTESTS7E6AEEEC027C /* InfoToastTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LaneShadowTests/Molecules/InfoToastTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
