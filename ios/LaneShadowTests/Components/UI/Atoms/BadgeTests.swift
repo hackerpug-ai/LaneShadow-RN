@@ -1,13 +1,12 @@
-import XCTest
-import SwiftUI
 import LaneShadowTheme
+import SwiftUI
+import XCTest
 @testable import LaneShadow
 
 final class BadgeTests: XCTestCase {
-
     // MARK: - AC-1: Component renders in default state
 
-    func testBadgeDefaultRendering() throws {
+    func testBadgeDefaultRendering() {
         // GIVEN: App is running and component is mounted
         // WHEN: Badge is rendered with required props (default variant)
         let badge = Badge("Test Badge")
