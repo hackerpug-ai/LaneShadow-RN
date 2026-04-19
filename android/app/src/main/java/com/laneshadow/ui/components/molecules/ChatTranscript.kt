@@ -233,11 +233,13 @@ private fun TimestampDivider(
     val currDate = Date(message.timestamp)
     val prevDate = previousMessage?.timestamp?.let { Date(it) }
 
-    // Determine if this is a new day
-    val isNewDay = prevDate == null ||
-        currDate.date != prevDate.date ||
-        currDate.month != prevDate.month ||
-        currDate.year != prevDate.year
+    // Determine if this is a new day using Calendar to avoid deprecated Date properties
+    val currCal = java.util.Calendar.getInstance().apply { time = currDate }
+    val prevCal = prevDate?.let { java.util.Calendar.getInstance().apply { time = it } }
+
+    val isNewDay = prevCal == null ||
+        currCal.get(java.util.Calendar.DAY_OF_YEAR) != prevCal.get(java.util.Calendar.DAY_OF_YEAR) ||
+        currCal.get(java.util.Calendar.YEAR) != prevCal.get(java.util.Calendar.YEAR)
 
     // Format label
     val label = if (isNewDay) {
@@ -397,13 +399,12 @@ private fun shouldShowTimestamp(
     val currTime = current.timestamp
     val prevTime = previous.timestamp
 
-    // Check for new day
-    val currDate = Date(currTime)
-    val prevDate = Date(prevTime)
+    // Check for new day using Calendar to avoid deprecated Date properties
+    val currCal = java.util.Calendar.getInstance().apply { timeInMillis = currTime }
+    val prevCal = java.util.Calendar.getInstance().apply { timeInMillis = prevTime }
 
-    if (currDate.date != prevDate.date ||
-        currDate.month != prevDate.month ||
-        currDate.year != prevDate.year
+    if (currCal.get(java.util.Calendar.DAY_OF_YEAR) != prevCal.get(java.util.Calendar.DAY_OF_YEAR) ||
+        currCal.get(java.util.Calendar.YEAR) != prevCal.get(java.util.Calendar.YEAR)
     ) {
         return true
     }
