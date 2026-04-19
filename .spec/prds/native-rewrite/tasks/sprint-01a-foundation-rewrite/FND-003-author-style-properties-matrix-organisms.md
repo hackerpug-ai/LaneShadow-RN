@@ -3,7 +3,7 @@ TASK: FND-003 - Author STYLE PROPERTIES MATRIX files for all 24 RN organisms
 ================================================================================
 
 TASK_TYPE: INFRA
-STATUS: Backlog
+STATUS: Complete
 PRIORITY: P0
 EFFORT: L
 ESTIMATE: 480 min

@@ -3,7 +3,7 @@ TASK: FND-002 - Author STYLE PROPERTIES MATRIX files for all 107 RN molecules
 ================================================================================
 
 TASK_TYPE: INFRA
-STATUS: Backlog
+STATUS: Complete
 PRIORITY: P0
 EFFORT: XL
 ESTIMATE: 720 min

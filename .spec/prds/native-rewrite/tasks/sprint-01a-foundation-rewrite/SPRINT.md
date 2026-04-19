@@ -1,7 +1,7 @@
 # Sprint 1a: Foundation and Sprint 2 Rewrite
 
 **Sequence:** 1a (interstitial, between Sprint 1 and Sprint 2)
-**Status:** In Progress (Wave 0 complete, Wave 1 complete, Wave 2 ready)
+**Status:** Complete (All waves finished, ESCALATE tokens remediated, Sprint 2 atomized)
 
 ## Overview
 

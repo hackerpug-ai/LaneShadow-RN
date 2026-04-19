@@ -3,7 +3,7 @@ TASK: FND-007 - Harvest and resolve ~54 ESCALATE tokens
 ================================================================================
 
 TASK_TYPE: FEATURE
-STATUS: Backlog
+STATUS: Complete
 PRIORITY: P0
 EFFORT: M
 ESTIMATE: 240 min

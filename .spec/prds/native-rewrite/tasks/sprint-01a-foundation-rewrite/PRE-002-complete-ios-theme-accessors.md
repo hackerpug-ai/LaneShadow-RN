@@ -3,7 +3,7 @@ TASK: PRE-002 - Complete iOS Theme Accessors (motion, opacity)
 ================================================================================
 
 TASK_TYPE: FEATURE
-STATUS: Backlog
+STATUS: Complete
 PRIORITY: P0
 EFFORT: M
 ESTIMATE: 120 min

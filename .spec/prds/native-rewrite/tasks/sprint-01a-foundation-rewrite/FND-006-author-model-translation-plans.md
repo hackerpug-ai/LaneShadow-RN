@@ -3,7 +3,7 @@ TASK: FND-006 - Author per-file MODEL-*.md translation plans for PORT files
 ================================================================================
 
 TASK_TYPE: INFRA
-STATUS: Backlog
+STATUS: Complete
 PRIORITY: P0
 EFFORT: L
 ESTIMATE: 480 min
