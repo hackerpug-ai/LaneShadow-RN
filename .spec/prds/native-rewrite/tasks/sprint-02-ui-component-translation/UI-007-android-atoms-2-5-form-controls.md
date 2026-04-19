@@ -24,16 +24,22 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 ### MUST
 - Implement the listed components or compositions with parity-aligned naming and interfaces: `Button`, `PrimaryButton`, `Input`, `Textarea`, `BottomSheetInput`, `Switch`, `Toggle`, `Checkbox`, `Slider`.
-- Use only the LaneShadow core theme contract locked by `UI-001`: `tokens/semantic/semantic.tokens.json` as the source of truth, generated `native-theme` outputs as the shared packaging layer, and the platform theme entry points (`LaneShadowTheme` on Android, `.laneShadowTheme()` on iOS) for colors, spacing, typography, radii, elevation, and state styling.
-- Register sandbox scenarios for default, interactive, and edge-case states with RN reference labels.
+- Follow the **Photocopy Translation Protocol** in `.spec/prds/native-rewrite/08f-translation-protocol.md`. For every component, read **both** the LaneShadow RN wrapper at `react-native/components/ui/<name>.tsx` **and** the framework primitive source(s) in `node_modules` (react-native-paper, @gorhom/bottom-sheet, react-native core) per the Framework-source Reading Map in `08b-android-component-map.md`.
+- Map **every visual decision** in the RN source (color, height, padding, radius, opacity, border, shadow / elevation, animation, state-transition, typography metric) to its semantic-token equivalent from the `UI-001` core theme contract. Read the framework primitive's source in `node_modules` for any external library import and enumerate **every** style property it contributes to the rendered visual. If no token covers a value, STOP and escalate to this sprint's `DECISIONS.md` before improvising.
+- Honor the **Prohibited Primitives** rule in `08b-android-component-map.md` § Prohibited Primitives. Do not ship `androidx.compose.material3.Button` / `TextField` / `Switch` / `Checkbox` / `Slider` / `Card` / `FloatingActionButton` as the final rendered surface. Compose using the allowed neutral primitives (`Surface` with `tonalElevation = 0.dp`, `Box`, `Row`, `Column`, `BasicText`, `BasicTextField`, `Canvas`, `Modifier.clickable / pointerInput`).
+- Populate the `TRANSLATION SOURCES` table and `STYLE PROPERTIES MATRIX` sub-sections below before implementation begins. Implementer reads these as the authoritative spec.
+- Register sandbox scenarios for default, interactive, and edge-case states with RN reference labels (Story.summary = relative RN reference path).
 - Cover all interactive states required by the parity spec for atomic controls and visuals.
 
 ### NEVER
 - Add unrelated feature wiring or backend dependencies to satisfy sandbox rendering.
 - Introduce hardcoded UI primitives or platform-only naming drift.
+- Ship `androidx.compose.material3.*` final-rendered surfaces without the full default override pattern documented in `08b` § Override pattern.
+- Improvise a value when no semantic token covers it — escalate via `DECISIONS.md` instead.
 
 ### STRICTLY
 - Preserve light and dark parity, accessibility labels, and deterministic fixtures for every scenario.
+- Side-by-side AC-6 verification (RN sandbox vs Android sandbox) is mandatory; screenshot pairs attached to the task PR.
 
 ## DELIVERABLES
 
@@ -75,6 +81,12 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Launch:** `make android_sandbox` (canonical). Secondary: long-press app root (debug gesture) or `adb shell am start -a android.intent.action.VIEW -d "app-sandbox://sandbox"`.
 
+### AC-6 — RN-Baseline-Diff Gate (universal, per `08f`)
+**GIVEN** the RN baseline scenario registry from `UI-002` (`react-native/stories/registry/scenarioRegistry.generated.ts`) and the native sandbox stories registered for this task in `AppStories.all`.
+**WHEN** a reviewer opens the same `Story.id` in the RN sandbox and the Android sandbox side-by-side.
+**THEN** rendering matches at parity: token-mapped colors are identical, heights / radii / paddings match within ±1px tolerance, all interactive state transitions (press, focus, disable, error, loading) produce visually identical results, and accessibility roles / labels match. Any intentional deviation is logged in `tasks/sprint-02-ui-component-translation/DECISIONS.md` with rationale and reviewer sign-off.
+**Verify:** Screenshot pair (RN | Android) attached to the task PR for at least one variant per component, plus a `variance--<scenario-id>--rn-vs-android--<theme>.json` entry per `UI-002` conventions.
+
 ## TEST CRITERIA
 
 | ID | Maps To | Boolean Statement | Verify |
@@ -87,12 +99,35 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 ## READING LIST
 
+### Spec layer (read first)
 1. `.spec/prds/native-rewrite/README.md`
 2. `.spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/SPRINT.md`
 3. `.spec/prds/native-rewrite/08a-atomic-component-catalog.md`
 4. `.spec/prds/native-rewrite/08d-component-parity-spec.md`
-5. `RULES.md`
-6. `.spec/prds/native-rewrite/08b-android-component-map.md`
+5. `.spec/prds/native-rewrite/08b-android-component-map.md` — including § Prohibited Primitives and § Framework-source Reading Map (NEW)
+6. `.spec/prds/native-rewrite/08f-translation-protocol.md` — Photocopy Translation Protocol (NEW, mandatory)
+7. `RULES.md`
+
+### LaneShadow RN wrappers (the source of truth for visual + behavior — read in full)
+8. `react-native/components/ui/button.tsx`
+9. `react-native/components/ui/primary-button.tsx`
+10. `react-native/components/ui/input.tsx`
+11. `react-native/components/ui/textarea.tsx`
+12. `react-native/components/ui/bottom-sheet-input.tsx`
+13. `react-native/components/ui/switch.tsx`
+14. `react-native/components/ui/toggle.tsx`
+15. `react-native/components/ui/checkbox.tsx`
+16. `react-native/components/ui/slider.tsx`
+17. `react-native/components/CLAUDE.md` — keyboard-handling contract for `BottomSheetInput`
+
+### Framework primitive sources in `node_modules` (read for every style property contributed to the rendered visual)
+18. `node_modules/react-native-paper/src/components/Typography/Text.tsx` + `node_modules/react-native-paper/src/components/Typography/v2/*.tsx` (used by Button, PrimaryButton, Input, BottomSheetInput, Toggle, Checkbox)
+19. `node_modules/react-native-paper/src/core/theming.tsx` (used by PrimaryButton via `useTheme`)
+20. `node_modules/@gorhom/bottom-sheet/src/components/bottomSheetTextInput/BottomSheetTextInput.tsx` (used by BottomSheetInput)
+21. `node_modules/react-native/Libraries/Components/Pressable/Pressable.js` (used by Button, PrimaryButton, Toggle, Checkbox)
+22. `node_modules/react-native/Libraries/Components/TextInput/TextInput.js` (used by Input, Textarea)
+23. `node_modules/react-native/Libraries/Components/Switch/Switch.js` (used by Switch)
+24. `react-native/components/ui/__tests__/` (any existing snapshot or behavior tests for these atoms)
 
 ## GUARDRAILS
 
@@ -119,11 +154,58 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 ## CODE PATTERN
 
-**Reference:** `.spec/prds/native-rewrite/08b-android-component-map.md`
+**Reference:** `.spec/prds/native-rewrite/08b-android-component-map.md` (+ § Prohibited Primitives, § Override pattern, § Framework-source Reading Map)
 
-**Pattern:** Single reusable @Composable with variant props or enums, token-backed MaterialTheme access, and sandbox fixture registration.
+**Pattern:** Single reusable `@Composable` per component, composed from allowed neutral primitives (`Surface(tonalElevation = 0.dp)`, `Box`, `Row`, `Column`, `BasicText`, `BasicTextField`, `Canvas`, `Modifier.clickable / pointerInput`), with variant / size / state expressed as enum parameters, all visual values sourced from `LaneShadowTheme.colors / spacing / radius / typography`, and one `Story(id = "atom.<component>.<state>", tier = ComponentTier.Atom, ...)` per state in the `STYLE PROPERTIES MATRIX` registered in `AppStories.all`.
 
-**Anti-pattern:** Backend-aware composables, duplicated variant files, or hardcoded visual constants.
+**Anti-pattern:** Shipping `androidx.compose.material3.Button / TextField / Switch / Checkbox / Slider / Card / FloatingActionButton` as the final rendered surface; using `MaterialTheme.colorScheme.*` instead of `LaneShadowTheme.colors.*`; hardcoded `Color(0xFF...)`, `4.dp`, `16.sp` literals; backend-aware composables; duplicated variant files (use one composable + enum parameter).
+
+## TRANSLATION SOURCES
+
+> **Populated by `kotlin-planner` per `08f-translation-protocol.md` § Output artifacts.** Implementer reads this table as the authoritative source-file map before reading any 3rd-party docs.
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| Button | `react-native/components/ui/button.tsx` | _planner-filled_ | `android/app/src/main/java/com/laneshadow/ui/atoms/Button.kt` | _planner-filled_ |
+| PrimaryButton | `react-native/components/ui/primary-button.tsx` | _planner-filled_ | `android/app/src/main/java/com/laneshadow/ui/atoms/PrimaryButton.kt` | _planner-filled_ |
+| Input | `react-native/components/ui/input.tsx` | _planner-filled_ | `android/app/src/main/java/com/laneshadow/ui/atoms/Input.kt` | _planner-filled_ |
+| Textarea | `react-native/components/ui/textarea.tsx` | _planner-filled_ | `android/app/src/main/java/com/laneshadow/ui/atoms/Textarea.kt` | _planner-filled_ |
+| BottomSheetInput | `react-native/components/ui/bottom-sheet-input.tsx` | _planner-filled_ | `android/app/src/main/java/com/laneshadow/ui/atoms/BottomSheetInput.kt` | _planner-filled_ |
+| Switch | `react-native/components/ui/switch.tsx` | _planner-filled_ | `android/app/src/main/java/com/laneshadow/ui/atoms/Switch.kt` | _planner-filled_ |
+| Toggle | `react-native/components/ui/toggle.tsx` | _planner-filled_ | `android/app/src/main/java/com/laneshadow/ui/atoms/Toggle.kt` | _planner-filled_ |
+| Checkbox | `react-native/components/ui/checkbox.tsx` | _planner-filled_ | `android/app/src/main/java/com/laneshadow/ui/atoms/Checkbox.kt` | _planner-filled_ |
+| Slider | `react-native/components/ui/slider.tsx` | _planner-filled_ | `android/app/src/main/java/com/laneshadow/ui/atoms/Slider.kt` | _planner-filled_ |
+
+## STYLE PROPERTIES MATRIX
+
+> **Populated by `kotlin-planner` per `08f-translation-protocol.md` § Style Property Enumeration Rules.** One sub-section per component above. Each sub-section is the **exhaustive** style enumeration (Layout / Visual / Typography / State / Interaction / Keyboard / Animation) with `Source | Value | Android equivalent | iOS equivalent | Token mapping` columns. `ESCALATE` rows MUST also appear in `DECISIONS.md`.
+
+### Button
+_planner-filled_
+
+### PrimaryButton
+_planner-filled_
+
+### Input
+_planner-filled_
+
+### Textarea
+_planner-filled_
+
+### BottomSheetInput
+_planner-filled_
+
+### Switch
+_planner-filled_
+
+### Toggle
+_planner-filled_
+
+### Checkbox
+_planner-filled_
+
+### Slider
+_planner-filled_
 
 ## DESIGN NOTES
 

@@ -931,3 +931,80 @@ fun rememberIconPainter(icon: IconSymbol): Painter {
 - ☐ Build order prioritizes atoms before molecules before organisms
 - ☐ Estimated complexity provided for each component
 - ☐ Cross-platform naming consistency verified (iOS uses same names)
+
+---
+
+## Prohibited Primitives (Sprint 2 photocopy enforcement)
+
+The visual reference for every translated component is the **LaneShadow RN wrapper**, not Material Design 3 defaults. Material 3 defaults paint colors, radii, paddings, ripple, elevation, and typography that do **not** match the RN baseline. Any composable shipped as the final rendered surface must compose from neutral primitives + LaneShadow tokens.
+
+### Final-rendered surfaces — DO NOT use as the visible composable
+
+These Material 3 composables apply default visual styling that violates photocopy parity. They MAY appear inside an implementation only when fully overridden by `LaneShadowTheme` colors, custom `Modifier` chains, and disabled defaults — but they are **prohibited as the final rendered surface** for any RN-translated component.
+
+| Material 3 composable | Why prohibited | Use instead |
+|---|---|---|
+| `androidx.compose.material3.Button` (and `OutlinedButton`, `TextButton`, `ElevatedButton`, `FilledTonalButton`) | Applies M3 ripple, default min height (40dp), default content padding, M3 color roles | `Surface` + `Box` + `Modifier.clickable(indication = rememberRipple(color = LaneShadowTheme.colors.primary))` (or `Modifier.pointerInput` for press-state replication) |
+| `androidx.compose.material3.TextField` (and `OutlinedTextField`) | Applies M3 floating label, indicator line, default 56dp height, M3 color roles | `BasicTextField` wrapped in `Surface` + custom `decorationBox` for label / icons / focus ring |
+| `androidx.compose.material3.Switch` | Applies M3 thumb / track sizing, M3 color roles | Custom `Box` + `Canvas` (or `Switch` with full `SwitchDefaults.colors(...)` override + `Modifier.size` matching RN baseline) |
+| `androidx.compose.material3.Checkbox` | Applies M3 checkmark drawing, M3 color roles, M3 ripple | Custom `Box` + `Canvas` checkmark, or `Checkbox` with full `CheckboxDefaults.colors(...)` override |
+| `androidx.compose.material3.Slider` | Applies M3 thumb size, track height, tick marks | Custom `Slider` with `SliderDefaults.colors(...)` override + custom `thumb` and `track` slots; or `Canvas`-based slider |
+| `androidx.compose.material3.Card` | Applies M3 elevation tonal overlay, M3 surface color | `Surface` with `tonalElevation = 0.dp` + explicit `LaneShadowTheme.colors.*` background |
+| `androidx.compose.material3.FloatingActionButton` | Applies M3 size, M3 elevation, M3 surface color | `Surface(shape = CircleShape)` + `Modifier.clickable` with explicit token sizing |
+| `androidx.compose.material3.Chip` (and variants) | Applies M3 shape, M3 colors, M3 elevation | `Surface` + `Row` + custom selection state |
+| `androidx.compose.material3.TopAppBar` / `BottomAppBar` | Applies M3 height, M3 surface color, M3 navigation icon padding | Custom `Row` + `Surface` matching RN AppHeader / BottomNavigation |
+| `androidx.compose.material3.Snackbar` | Applies M3 shape, M3 surface color | Custom toast composable (matches RN ErrorToast / SuccessToast / etc.) |
+
+### Allowed neutral primitives
+
+These primitives carry no Material visual opinion and are the building blocks of every photocopy translation:
+
+- `androidx.compose.foundation.layout.*` — `Box`, `Row`, `Column`, `Spacer`, `BoxWithConstraints`
+- `androidx.compose.foundation.*` — `Image`, `Canvas`, `clickable`, `combinedClickable`, `border`, `background`
+- `androidx.compose.foundation.text.BasicText`, `BasicTextField`
+- `androidx.compose.material3.Surface` — used purely as a tinted container with `tonalElevation = 0.dp` (M3 elevation overlay disabled)
+- `androidx.compose.ui.draw.*` — `clip`, `shadow`, `alpha`
+- `androidx.compose.ui.input.pointer.*` — `pointerInput`, `awaitPointerEventScope` for custom press / drag gestures
+- `androidx.compose.runtime.*` — `remember`, `mutableStateOf`, `derivedStateOf`, `LaunchedEffect`
+- `androidx.compose.ui.semantics.*` — `semantics`, `Role`, `stateDescription`
+
+### Override pattern when an M3 composable is genuinely the right base
+
+If — and only if — an M3 composable's behavior (e.g., `Slider`'s thumb-drag math) is genuinely worth keeping, it must be wrapped with full default override:
+
+```kotlin
+Slider(
+    value = value,
+    onValueChange = onChange,
+    colors = SliderDefaults.colors(
+        thumbColor = LaneShadowTheme.colors.primary,
+        activeTrackColor = LaneShadowTheme.colors.primary,
+        inactiveTrackColor = LaneShadowTheme.colors.surfaceVariant,
+        // every color role explicitly set, no M3 default leaks
+    ),
+    modifier = Modifier.height(LaneShadowTheme.spacing.xl), // RN baseline height, not M3 default
+    thumb = { /* custom thumb matching RN baseline */ },
+    track = { sliderPositions -> /* custom track matching RN baseline */ },
+)
+```
+
+If the override block is incomplete (any `*Defaults` color or sizing not explicitly set), the implementation fails the photocopy gate.
+
+---
+
+## Framework-source Reading Map (Sprint 2)
+
+Planners and implementers MUST read these source files when their RN wrapper imports the corresponding primitive:
+
+| RN-wrapper import | Source file in `node_modules` |
+|---|---|
+| `Text`, `useTheme` from `react-native-paper` | `node_modules/react-native-paper/src/components/Typography/Text.tsx` + `node_modules/react-native-paper/src/components/Typography/v2/*.tsx` (variant tables) + `node_modules/react-native-paper/src/core/theming.tsx` |
+| `BottomSheetTextInput`, `BottomSheetView`, `BottomSheetScrollView` from `@gorhom/bottom-sheet` | `node_modules/@gorhom/bottom-sheet/src/components/<name>/<Name>.tsx` (e.g., `bottomSheetTextInput/BottomSheetTextInput.tsx`) |
+| `Pressable`, `TouchableOpacity` from `react-native` | `node_modules/react-native/Libraries/Components/Pressable/Pressable.js` + `node_modules/react-native/Libraries/Components/Touchable/TouchableOpacity.js` |
+| `TextInput` from `react-native` | `node_modules/react-native/Libraries/Components/TextInput/TextInput.js` |
+| `Switch` from `react-native` | `node_modules/react-native/Libraries/Components/Switch/Switch.js` |
+| `ScrollView`, `View` from `react-native` | `node_modules/react-native/Libraries/Components/ScrollView/ScrollView.js`, `node_modules/react-native/Libraries/Components/View/View.js` |
+| `LinearGradient` from `expo-linear-gradient` | `node_modules/expo-linear-gradient/build/LinearGradient.js` (+ types) |
+| Any other RN-paper / RN-core / RN-third-party import | Locate at `node_modules/<package>/src/...` (TS source) or `node_modules/<package>/Libraries/...` (RN core JS) |
+
+Every style property surfaced by these framework primitives must appear in the `STYLE PROPERTIES MATRIX` of the consuming task per `08f-translation-protocol.md` § Style Property Enumeration Rules.

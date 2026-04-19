@@ -24,16 +24,23 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 ### MUST
 - Implement the listed components or compositions with parity-aligned naming and interfaces: `ThemeButton`, `ThemePrimaryButton`, `ThemeInput`, `ThemeTextarea`, `ThemeBottomSheetInput`, `ThemeSwitch`, `ThemeToggle`, `ThemeCheckbox`, `ThemeSlider`.
-- Use only the LaneShadow core theme contract locked by `UI-001`: `tokens/semantic/semantic.tokens.json` as the source of truth, generated `native-theme` outputs as the shared packaging layer, and the platform theme entry points (`LaneShadowTheme` on Android, `.laneShadowTheme()` on iOS) for colors, spacing, typography, radii, elevation, and state styling.
-- Register sandbox scenarios for default, interactive, and edge-case states with RN reference labels.
+- Follow the **Photocopy Translation Protocol** in `.spec/prds/native-rewrite/08f-translation-protocol.md`. For every component, read **both** the LaneShadow RN wrapper at `react-native/components/ui/<name>.tsx` **and** the framework primitive source(s) in `node_modules` (react-native-paper, @gorhom/bottom-sheet, react-native core) per the Framework-source Reading Map in `08c-ios-component-map.md`.
+- Map **every visual decision** in the RN source (color, height, padding, radius, opacity, border, shadow, animation, state-transition, typography metric) to its semantic-token equivalent from the `UI-001` core theme contract. Read the framework primitive's source in `node_modules` for any external library import and enumerate **every** style property it contributes to the rendered visual. If no token covers a value, STOP and escalate to this sprint's `DECISIONS.md` before improvising.
+- Honor the **Prohibited Primitives** rule in `08c-ios-component-map.md` § Prohibited Primitives. Do not ship default-styled `Button`, `TextField`, `TextEditor`, `Toggle`, `Slider`, `Picker`, `List`, `Form`, or `Alert` as the final rendered surface. Compose using the allowed neutral primitives (`ZStack`, `VStack`, `HStack`, `RoundedRectangle`, `Capsule`, `Text` with explicit `.font(.system(...))`, `Canvas`) or wrap a SwiftUI view in a custom `ButtonStyle` / `TextFieldStyle` / `ToggleStyle` that fully overrides the visual.
+- Populate the `TRANSLATION SOURCES` table and `STYLE PROPERTIES MATRIX` sub-sections below before implementation begins. Implementer reads these as the authoritative spec.
+- Register sandbox scenarios for default, interactive, and edge-case states with RN reference labels (Story.summary = relative RN reference path).
 - Cover all interactive states required by the parity spec for atomic controls and visuals.
 
 ### NEVER
 - Add unrelated feature wiring or backend dependencies to satisfy sandbox rendering.
 - Introduce hardcoded UI primitives or platform-only naming drift.
+- Ship default `.buttonStyle(.automatic)` / `.textFieldStyle(.automatic)` / `.toggleStyle(.switch)` final-rendered surfaces without a custom `*Style` per `08c` § Override pattern.
+- Improvise a value when no semantic token covers it — escalate via `DECISIONS.md` instead.
 
 ### STRICTLY
-- Preserve light and dark parity, accessibility labels, and deterministic fixtures for every scenario.
+- Preserve light and dark parity, accessibility labels, Dynamic Type, and deterministic fixtures for every scenario.
+- Side-by-side AC-6 verification (RN sandbox vs iOS sandbox) is mandatory; screenshot pairs attached to the task PR.
+- Swift 6 strict concurrency: Story containers MUST be `@MainActor` because `Story` is not `Sendable`.
 
 ## DELIVERABLES
 
@@ -75,6 +82,12 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Launch:** `make ios_sandbox` (canonical). Secondary: device shake (simulator: `xcrun simctl io booted shake`) or `xcrun simctl launch <id> com.laneshadow.app -LaneShadowSandbox`.
 
+### AC-6 — RN-Baseline-Diff Gate (universal, per `08f`)
+**GIVEN** the RN baseline scenario registry from `UI-002` (`react-native/stories/registry/scenarioRegistry.generated.ts`) and the native sandbox stories registered for this task in `LaneShadowStories.all`.
+**WHEN** a reviewer opens the same `Story.id` in the RN sandbox and the iOS sandbox side-by-side.
+**THEN** rendering matches at parity: token-mapped colors are identical, heights / radii / paddings match within ±1px tolerance, all interactive state transitions (press, focus, disable, error, loading) produce visually identical results, and accessibility traits / labels match. Any intentional deviation is logged in `tasks/sprint-02-ui-component-translation/DECISIONS.md` with rationale and reviewer sign-off.
+**Verify:** Screenshot pair (RN | iOS) attached to the task PR for at least one variant per component, plus a `variance--<scenario-id>--rn-vs-ios--<theme>.json` entry per `UI-002` conventions.
+
 ## TEST CRITERIA
 
 | ID | Maps To | Boolean Statement | Verify |
@@ -87,12 +100,35 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 ## READING LIST
 
+### Spec layer (read first)
 1. `.spec/prds/native-rewrite/README.md`
 2. `.spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/SPRINT.md`
 3. `.spec/prds/native-rewrite/08a-atomic-component-catalog.md`
 4. `.spec/prds/native-rewrite/08d-component-parity-spec.md`
-5. `RULES.md`
-6. `.spec/prds/native-rewrite/08c-ios-component-map.md`
+5. `.spec/prds/native-rewrite/08c-ios-component-map.md` — including § Prohibited Primitives and § Framework-source Reading Map (NEW)
+6. `.spec/prds/native-rewrite/08f-translation-protocol.md` — Photocopy Translation Protocol (NEW, mandatory)
+7. `RULES.md`
+
+### LaneShadow RN wrappers (the source of truth for visual + behavior — read in full)
+8. `react-native/components/ui/button.tsx`
+9. `react-native/components/ui/primary-button.tsx`
+10. `react-native/components/ui/input.tsx`
+11. `react-native/components/ui/textarea.tsx`
+12. `react-native/components/ui/bottom-sheet-input.tsx`
+13. `react-native/components/ui/switch.tsx`
+14. `react-native/components/ui/toggle.tsx`
+15. `react-native/components/ui/checkbox.tsx`
+16. `react-native/components/ui/slider.tsx`
+17. `react-native/components/CLAUDE.md` — keyboard-handling contract for `BottomSheetInput`
+
+### Framework primitive sources in `node_modules` (read for every style property contributed to the rendered visual)
+18. `node_modules/react-native-paper/src/components/Typography/Text.tsx` + `node_modules/react-native-paper/src/components/Typography/v2/*.tsx` (used by Button, PrimaryButton, Input, BottomSheetInput, Toggle, Checkbox)
+19. `node_modules/react-native-paper/src/core/theming.tsx` (used by PrimaryButton via `useTheme`)
+20. `node_modules/@gorhom/bottom-sheet/src/components/bottomSheetTextInput/BottomSheetTextInput.tsx` (used by BottomSheetInput)
+21. `node_modules/react-native/Libraries/Components/Pressable/Pressable.js` (used by Button, PrimaryButton, Toggle, Checkbox)
+22. `node_modules/react-native/Libraries/Components/TextInput/TextInput.js` (used by Input, Textarea)
+23. `node_modules/react-native/Libraries/Components/Switch/Switch.js` (used by Switch)
+24. `react-native/components/ui/__tests__/` (any existing snapshot or behavior tests for these atoms)
 
 ## GUARDRAILS
 
@@ -120,11 +156,58 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 ## CODE PATTERN
 
-**Reference:** `.spec/prds/native-rewrite/08c-ios-component-map.md`
+**Reference:** `.spec/prds/native-rewrite/08c-ios-component-map.md` (+ § Prohibited Primitives, § Override pattern, § Framework-source Reading Map)
 
-**Pattern:** Single SwiftUI view with enum or binding-driven variants, theme environment consumption, and deterministic sandbox scenarios.
+**Pattern:** Single SwiftUI `View` per component, composed from allowed neutral primitives (`ZStack`, `VStack`, `HStack`, `RoundedRectangle`, `Capsule`, `Text` with explicit `.font(.system(...))`, `Canvas`) or wrapped in a custom `ButtonStyle` / `TextFieldStyle` / `ToggleStyle` that fully overrides the system visual. Variant / size / state expressed as enum parameters. All visual values sourced from `LaneShadowTheme` via `@Environment(\.laneShadowTheme)`. One `Story(id: "atom.<component>.<state>", tier: .atom, ...)` per state in the `STYLE PROPERTIES MATRIX` registered in `LaneShadowStories.all` (in a `@MainActor enum` because `Story` is not `Sendable`).
 
-**Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
+**Anti-pattern:** Shipping `.buttonStyle(.automatic)` / `.textFieldStyle(.automatic)` / `.toggleStyle(.switch)` / default `Slider` / `Picker` / `List` / `Form` / `Alert` as the final rendered surface; using `Color.accentColor` instead of `LaneShadowTheme.shared.colors.primary`; hardcoded `.foregroundColor(.white)`, `.padding(16)`, `.font(.system(size: 14))` literals (all must source from theme); live service dependencies; platform-specific naming drift.
+
+## TRANSLATION SOURCES
+
+> **Populated by `swift-planner` per `08f-translation-protocol.md` § Output artifacts.** Implementer reads this table as the authoritative source-file map before reading any 3rd-party docs.
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| ThemeButton | `react-native/components/ui/button.tsx` | _planner-filled_ | `ios/LaneShadow/Views/Atoms/ThemeButton.swift` | _planner-filled_ |
+| ThemePrimaryButton | `react-native/components/ui/primary-button.tsx` | _planner-filled_ | `ios/LaneShadow/Views/Atoms/ThemePrimaryButton.swift` | _planner-filled_ |
+| ThemeInput | `react-native/components/ui/input.tsx` | _planner-filled_ | `ios/LaneShadow/Views/Atoms/ThemeInput.swift` | _planner-filled_ |
+| ThemeTextarea | `react-native/components/ui/textarea.tsx` | _planner-filled_ | `ios/LaneShadow/Views/Atoms/ThemeTextarea.swift` | _planner-filled_ |
+| ThemeBottomSheetInput | `react-native/components/ui/bottom-sheet-input.tsx` | _planner-filled_ | `ios/LaneShadow/Views/Atoms/ThemeBottomSheetInput.swift` | _planner-filled_ |
+| ThemeSwitch | `react-native/components/ui/switch.tsx` | _planner-filled_ | `ios/LaneShadow/Views/Atoms/ThemeSwitch.swift` | _planner-filled_ |
+| ThemeToggle | `react-native/components/ui/toggle.tsx` | _planner-filled_ | `ios/LaneShadow/Views/Atoms/ThemeToggle.swift` | _planner-filled_ |
+| ThemeCheckbox | `react-native/components/ui/checkbox.tsx` | _planner-filled_ | `ios/LaneShadow/Views/Atoms/ThemeCheckbox.swift` | _planner-filled_ |
+| ThemeSlider | `react-native/components/ui/slider.tsx` | _planner-filled_ | `ios/LaneShadow/Views/Atoms/ThemeSlider.swift` | _planner-filled_ |
+
+## STYLE PROPERTIES MATRIX
+
+> **Populated by `swift-planner` per `08f-translation-protocol.md` § Style Property Enumeration Rules.** One sub-section per component above. Each sub-section is the **exhaustive** style enumeration (Layout / Visual / Typography / State / Interaction / Keyboard / Animation) with `Source | Value | Android equivalent | iOS equivalent | Token mapping` columns. `ESCALATE` rows MUST also appear in `DECISIONS.md`.
+
+### ThemeButton
+_planner-filled_
+
+### ThemePrimaryButton
+_planner-filled_
+
+### ThemeInput
+_planner-filled_
+
+### ThemeTextarea
+_planner-filled_
+
+### ThemeBottomSheetInput
+_planner-filled_
+
+### ThemeSwitch
+_planner-filled_
+
+### ThemeToggle
+_planner-filled_
+
+### ThemeCheckbox
+_planner-filled_
+
+### ThemeSlider
+_planner-filled_
 
 ## DESIGN NOTES
 

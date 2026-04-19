@@ -944,3 +944,84 @@ struct LaneShadowApp: App {
 - ☐ Mapbox custom styling matching app theme
 - ☐ Build order reflects actual dependency graph
 - ☐ Total estimate within ±20% of actual implementation time
+
+---
+
+## Prohibited Primitives (Sprint 2 photocopy enforcement)
+
+The visual reference for every translated component is the **LaneShadow RN wrapper**, not SwiftUI defaults. SwiftUI default styles paint platform-idiomatic colors, paddings, corner radii, focus rings, and typography that do **not** match the RN baseline. Any view shipped as the final rendered surface must compose from neutral primitives + LaneShadow tokens.
+
+### Final-rendered surfaces — DO NOT use the default style
+
+These SwiftUI views apply implicit styling that violates photocopy parity. They MAY appear inside an implementation when wrapped in a custom `*Style` (`ButtonStyle`, `TextFieldStyle`, `ToggleStyle`, etc.) that completely overrides the visual — but the **default style** is prohibited as the final rendered surface for any RN-translated component.
+
+| SwiftUI view | Why prohibited as default | Use instead |
+|---|---|---|
+| `Button { } .buttonStyle(.automatic)` (or `.borderedProminent`, `.bordered`, `.borderless`, `.plain`) | Applies platform tint, default padding, default corner radius, default focus ring | `Button { } .buttonStyle(LaneShadowButtonStyle(variant:, size:))` — custom `ButtonStyle` composing `ZStack` + `RoundedRectangle(cornerRadius: tokens.radius.md)` + `LaneShadowTheme.colors.*` background |
+| `TextField("", text:) .textFieldStyle(.automatic)` (or `.roundedBorder`, `.plain`) | Applies system focus ring, system padding, no leading/trailing icon slots | `TextField` wrapped in `HStack { leftIcon? ; TextField ; rightIcon? }` inside `RoundedRectangle` with explicit `LaneShadowTheme` background, border, and focus state via `@FocusState` |
+| `TextEditor(text:)` | Applies system padding, system background | `TextEditor` with `.scrollContentBackground(.hidden)` + explicit `LaneShadowTheme.colors.surface` background + `RoundedRectangle` clip |
+| `Toggle(isOn:)` (default `.toggleStyle(.switch)`) | Applies system green tint, system thumb sizing | `Toggle` with custom `ToggleStyle` composing `Capsule` track + `Circle` thumb sized to RN baseline + `LaneShadowTheme.colors.primary` tint |
+| `Slider(value:in:)` (default style) | Applies system tint, system thumb / track sizing | Custom `Slider` with `.tint(LaneShadowTheme.shared.colors.primary)` AND custom thumb / track via `GestureState` if RN baseline diverges from system sizing |
+| `Stepper`, `DatePicker`, `Picker(.menu)` | Apply platform-idiomatic chrome that does not match RN | Compose with `Button` + custom action sheet / popover, or use `Picker(.segmented)` only after full override |
+| `List`, `Form` | Apply iOS grouped insets, separators, default backgrounds | `ScrollView { LazyVStack { ... } }` with explicit `LaneShadowTheme.colors.background` |
+| `NavigationLink`, `NavigationStack` default chrome | Applies system back chevron, large title, system background | Custom header view matching RN `AppHeader` / `SubpageLayout` |
+| `Alert`, `ConfirmationDialog` default | Applies system modal chrome | Custom `Sheet` with LaneShadow-themed buttons (matches RN `DeleteRouteDialog` / `RenameRouteDialog`) |
+
+### Allowed neutral primitives
+
+These views carry no system visual opinion and are the building blocks of every photocopy translation:
+
+- Containers: `ZStack`, `VStack`, `HStack`, `LazyVStack`, `LazyHStack`, `ScrollView`, `GeometryReader`
+- Shapes: `Rectangle`, `RoundedRectangle`, `Circle`, `Capsule`, `Path`, `Canvas`
+- Content: `Text` (with explicit `.font(.system(...))`), `Image`, `Label`
+- Input shells: `TextField` / `TextEditor` (when fully wrapped per the table above)
+- Modifiers: `.frame`, `.padding`, `.background`, `.foregroundStyle`, `.overlay`, `.clipShape`, `.opacity`, `.shadow`, `.gesture`, `.accessibilityLabel`, `.accessibilityAddTraits`
+- State: `@State`, `@StateObject`, `@Observable`, `@FocusState`, `@Environment`
+
+### Override pattern when a SwiftUI view is genuinely the right base
+
+If — and only if — a SwiftUI view's behavior (e.g., `TextField`'s text editing, `Slider`'s drag math) is genuinely worth keeping, it must be wrapped with a custom `*Style` that fully overrides the visual:
+
+```swift
+struct LaneShadowButtonStyle: ButtonStyle {
+    let variant: ButtonVariant
+    let size: ButtonSize
+    @Environment(\.laneShadowTheme) private var theme
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: theme.typography.labelLarge.size, weight: .medium))
+            .tracking(theme.typography.labelLarge.tracking)
+            .foregroundStyle(theme.colors.onPrimary)
+            .frame(height: heightFor(size))
+            .padding(.horizontal, paddingFor(size))
+            .background(
+                RoundedRectangle(cornerRadius: theme.radius.md)
+                    .fill(backgroundColor(configuration.isPressed))
+            )
+            .opacity(configuration.isEnabled ? 1 : 0.5)
+            // every visual decision sourced from `theme`, no system default leaks
+    }
+}
+```
+
+If the style does not override every visual decision sourced in the RN baseline, the implementation fails the photocopy gate.
+
+---
+
+## Framework-source Reading Map (Sprint 2)
+
+Planners and implementers MUST read these source files when the RN wrapper imports the corresponding primitive:
+
+| RN-wrapper import | Source file in `node_modules` |
+|---|---|
+| `Text`, `useTheme` from `react-native-paper` | `node_modules/react-native-paper/src/components/Typography/Text.tsx` + `node_modules/react-native-paper/src/components/Typography/v2/*.tsx` (variant tables) + `node_modules/react-native-paper/src/core/theming.tsx` |
+| `BottomSheetTextInput`, `BottomSheetView`, `BottomSheetScrollView` from `@gorhom/bottom-sheet` | `node_modules/@gorhom/bottom-sheet/src/components/<name>/<Name>.tsx` (e.g., `bottomSheetTextInput/BottomSheetTextInput.tsx`) |
+| `Pressable`, `TouchableOpacity` from `react-native` | `node_modules/react-native/Libraries/Components/Pressable/Pressable.js` + `node_modules/react-native/Libraries/Components/Touchable/TouchableOpacity.js` |
+| `TextInput` from `react-native` | `node_modules/react-native/Libraries/Components/TextInput/TextInput.js` |
+| `Switch` from `react-native` | `node_modules/react-native/Libraries/Components/Switch/Switch.js` |
+| `ScrollView`, `View` from `react-native` | `node_modules/react-native/Libraries/Components/ScrollView/ScrollView.js`, `node_modules/react-native/Libraries/Components/View/View.js` |
+| `LinearGradient` from `expo-linear-gradient` | `node_modules/expo-linear-gradient/build/LinearGradient.js` (+ types) |
+| Any other RN-paper / RN-core / RN-third-party import | Locate at `node_modules/<package>/src/...` (TS source) or `node_modules/<package>/Libraries/...` (RN core JS) |
+
+Every style property surfaced by these framework primitives must appear in the `STYLE PROPERTIES MATRIX` of the consuming task per `08f-translation-protocol.md` § Style Property Enumeration Rules.
