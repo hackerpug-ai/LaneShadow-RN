@@ -87,18 +87,18 @@ public struct LSRoutePolyline: View {
     private var routeColor: Color {
         switch variant {
         case .selected:
-            return theme.colors.routeSelected.default
+            theme.colors.routeSelected.default
         case .alternate:
-            return theme.colors.routeAlternate.default
+            theme.colors.routeAlternate.default
         }
     }
 
     private var accessibilityLabel: String {
         switch variant {
         case .selected:
-            return "Selected route"
+            "Selected route"
         case .alternate:
-            return "Alternate route"
+            "Alternate route"
         }
     }
 
@@ -158,7 +158,7 @@ public struct LSRoutePolyline: View {
         let waveAmplitude: CGFloat = 10
         let waveLength = (endX - startX) / CGFloat(waveCount)
 
-        for i in 0..<waveCount {
+        for i in 0 ..< waveCount {
             let startX = padding + CGFloat(i) * waveLength
             let endX = padding + CGFloat(i + 1) * waveLength
             let controlX1 = startX + waveLength * 0.25
