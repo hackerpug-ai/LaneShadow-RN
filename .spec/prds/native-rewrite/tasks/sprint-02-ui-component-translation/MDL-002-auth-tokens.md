@@ -19,7 +19,7 @@ Translate auth-tokens model/logic from TypeScript to Kotlin following the MODEL 
 DELIVERABLE
 --------------------------------------------------------------------------------
 
-- react-native/android/app/src/main/java/com/laneshadow/models/AuthTokens.kt (NEW): Kotlin implementation
+- android/app/src/main/java/com/laneshadow/models/AuthTokens.kt (NEW): Kotlin implementation
 - react-native/android/app/src/test/java/com/laneshadow/models/AuthTokensTest.kt (NEW): Model tests
 
 --------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ GUARDRAILS
 --------------------------------------------------------------------------------
 
 WRITE-ALLOWED:
-- react-native/android/app/src/main/java/com/laneshadow/models/AuthTokens.kt (NEW)
+- android/app/src/main/java/com/laneshadow/models/AuthTokens.kt (NEW)
 - react-native/android/app/src/test/java/com/laneshadow/models/AuthTokensTest.kt (NEW)
 
 WRITE-PROHIBITED:

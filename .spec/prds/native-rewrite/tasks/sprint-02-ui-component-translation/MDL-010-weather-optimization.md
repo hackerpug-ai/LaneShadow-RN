@@ -19,7 +19,7 @@ Translate weather-optimization model/logic from TypeScript to Kotlin following t
 DELIVERABLE
 --------------------------------------------------------------------------------
 
-- react-native/android/app/src/main/java/com/laneshadow/models/WeatherOptimization.kt (NEW): Kotlin implementation
+- android/app/src/main/java/com/laneshadow/models/WeatherOptimization.kt (NEW): Kotlin implementation
 - react-native/android/app/src/test/java/com/laneshadow/models/WeatherOptimizationTest.kt (NEW): Model tests
 
 --------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ GUARDRAILS
 --------------------------------------------------------------------------------
 
 WRITE-ALLOWED:
-- react-native/android/app/src/main/java/com/laneshadow/models/WeatherOptimization.kt (NEW)
+- android/app/src/main/java/com/laneshadow/models/WeatherOptimization.kt (NEW)
 - react-native/android/app/src/test/java/com/laneshadow/models/WeatherOptimizationTest.kt (NEW)
 
 WRITE-PROHIBITED:

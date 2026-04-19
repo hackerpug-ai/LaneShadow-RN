@@ -93,6 +93,22 @@
           }
         }
       }
+    },
+    {
+      "includes": [
+        "scripts/fix-sprint-02-paths.js",
+        "scripts/fix-mdl-paths.js"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          },
+          "style": {
+            "useTemplate": "off"
+          }
+        }
+      }
     }
   ],
   "assist": {

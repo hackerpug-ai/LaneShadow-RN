@@ -3,7 +3,7 @@ TASK: FND-009 - Author per-component screenshot-diff harness
 ================================================================================
 
 TASK_TYPE: FEATURE
-STATUS: Backlog
+STATUS: Done
 PRIORITY: P1
 EFFORT: L
 ESTIMATE: 480 min
@@ -33,12 +33,12 @@ DELIVERABLE
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] All 5 TypeScript scripts exist in scripts/ui-diff/
-- [ ] pnpm ui:diff script wired and runs full harness
-- [ ] lefthook pre-push gate is opt-in (git config lane-shadow.ui-diff.enabled)
-- [ ] README.md documents usage, setup, and CI/CD integration
-- [ ] `pnpm type-check:native` passes for all scripts
-- [ ] Variance reports conform to variance-schema.ts
+- [x] All 5 TypeScript scripts exist in scripts/ui-diff/
+- [x] pnpm ui:diff script wired and runs full harness
+- [x] lefthook pre-push gate is opt-in (git config lane-shadow.ui-diff.enabled)
+- [x] README.md documents usage, setup, and CI/CD integration
+- [x] `pnpm type-check:native` passes for all scripts
+- [x] Variance reports conform to variance-schema.ts
 
 --------------------------------------------------------------------------------
 OUT OF SCOPE
@@ -88,37 +88,37 @@ AC-1: RN screenshot capture works
   GIVEN: React Native app is running with Storybook
   WHEN: capture-rn.ts is executed
   THEN: Screenshots captured to screenshots/rn/baseline/{component-name}.png
-  TDD_STATE: [ ] RED  [ ] VERIFY_RED  [ ] GREEN  [ ] VERIFY_GREEN  [ ] REFACTOR
+  TDD_STATE: [x] RED  [x] VERIFY_RED  [x] GREEN  [x] VERIFY_GREEN  [x] REFACTOR
 
 AC-2: Android screenshot capture works
   GIVEN: Android emulator is running with app installed
   WHEN: capture-android.ts is executed
   THEN: Screenshots captured to screenshots/android/baseline/{component-name}.png
-  TDD_STATE: [ ] RED  [ ] VERIFY_RED  [ ] GREEN  [ ] VERIFY_GREEN  [ ] REFACTOR
+  TDD_STATE: [x] RED  [x] VERIFY_RED  [x] GREEN  [x] VERIFY_GREEN  [x] REFACTOR
 
 AC-3: iOS screenshot capture works
   GIVEN: iOS simulator is running with app installed
   WHEN: capture-ios.ts is executed
   THEN: Screenshots captured to screenshots/ios/baseline/{component-name}.png
-  TDD_STATE: [ ] RED  [ ] VERIFY_RED  [ ] GREEN  [ ] VERIFY_GREEN  [ ] REFACTOR
+  TDD_STATE: [x] RED  [x] VERIFY_RED  [x] GREEN  [x] VERIFY_GREEN  [x] REFACTOR
 
 AC-4: Pixel diff detects variance
   GIVEN: Baseline screenshots exist for all platforms
   WHEN: compare.ts is executed
   THEN: Diff images generated in screenshots/diff/ and variance.json report created
-  TDD_STATE: [ ] RED  [ ] VERIFY_RED  [ ] GREEN  [ ] VERIFY_GREEN  [ ] REFACTOR
+  TDD_STATE: [x] RED  [x] VERIFY_RED  [x] GREEN  [x] VERIFY_GREEN  [x] REFACTOR
 
 AC-5: pnpm ui:diff runs full harness
   GIVEN: All platforms are available
   WHEN: pnpm ui:diff is executed
   THEN: Full harness runs, exits 0 for passing, 1 for failing diffs
-  TDD_STATE: [ ] RED  [ ] VERIFY_RED  [ ] GREEN  [ ] VERIFY_GREEN  [ ] REFACTOR
+  TDD_STATE: [x] RED  [x] VERIFY_RED  [x] GREEN  [x] VERIFY_GREEN  [x] REFACTOR
 
 AC-6: lefthook pre-push gate is opt-in
   GIVEN: lefthook is configured with pre-push hook
   WHEN: User pushes without enabling ui-diff
   THEN: Push succeeds without running ui-diff
-  TDD_STATE: [ ] RED  [ ] VERIFY_RED  [ ] GREEN  [ ] VERIFY_GREEN  [ ] REFACTOR
+  TDD_STATE: [x] RED  [x] VERIFY_RED  [x] GREEN  [x] VERIFY_GREEN  [x] REFACTOR
 
 --------------------------------------------------------------------------------
 TEST CRITERIA

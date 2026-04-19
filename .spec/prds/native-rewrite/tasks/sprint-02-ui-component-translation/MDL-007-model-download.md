@@ -19,7 +19,7 @@ Translate model-download model/logic from TypeScript to Kotlin following the MOD
 DELIVERABLE
 --------------------------------------------------------------------------------
 
-- react-native/android/app/src/main/java/com/laneshadow/models/ModelDownload.kt (NEW): Kotlin implementation
+- android/app/src/main/java/com/laneshadow/models/ModelDownload.kt (NEW): Kotlin implementation
 - react-native/android/app/src/test/java/com/laneshadow/models/ModelDownloadTest.kt (NEW): Model tests
 
 --------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ GUARDRAILS
 --------------------------------------------------------------------------------
 
 WRITE-ALLOWED:
-- react-native/android/app/src/main/java/com/laneshadow/models/ModelDownload.kt (NEW)
+- android/app/src/main/java/com/laneshadow/models/ModelDownload.kt (NEW)
 - react-native/android/app/src/test/java/com/laneshadow/models/ModelDownloadTest.kt (NEW)
 
 WRITE-PROHIBITED:

@@ -19,7 +19,7 @@ Implement FavoritesInfoSheet component in Jetpack Compose following the translat
 DELIVERABLE
 --------------------------------------------------------------------------------
 
-- react-native/android/app/src/main/java/com/laneshadow/components/ui/FavoritesInfoSheet.kt (NEW): Jetpack Compose implementation
+- android/app/src/main/java/com/laneshadow/ui/components/atoms/FavoritesInfoSheet.kt (NEW): Jetpack Compose implementation
 - react-native/android/app/src/test/java/com/laneshadow/components/ui/FavoritesInfoSheetTest.kt (NEW): Component tests
 
 --------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ GUARDRAILS
 --------------------------------------------------------------------------------
 
 WRITE-ALLOWED:
-- react-native/android/app/src/main/java/com/laneshadow/components/ui/FavoritesInfoSheet.kt (NEW)
+- android/app/src/main/java/com/laneshadow/ui/components/atoms/FavoritesInfoSheet.kt (NEW)
 - react-native/android/app/src/test/java/com/laneshadow/components/ui/FavoritesInfoSheetTest.kt (NEW)
 
 WRITE-PROHIBITED:
@@ -157,3 +157,47 @@ Depends On:
 - FND-004 — Composition matrices complete (if composition)
 
 Blocks: (none — UI tasks are leaf nodes)
+
+## THEME COMPLIANCE (MANDATORY)
+
+**Non-negotiable requirements for all UI component implementations:**
+
+### Token Category Usage
+
+1. **Colors**: Use `LaneShadowTheme.colors` (Android) or `Theme.shared.colors` (iOS)
+   - Primary, secondary, tertiary, success, warning, danger, info
+   - Surface, background, border, input, ring, card, popover
+   - All color state variants (default, hover, pressed, disabled, focus)
+
+2. **Typography**: Use `LaneShadowTheme.type` (Android) or `Theme.shared.type` (iOS)
+   - Label, body, title, heading, display scales
+   - sm/md/lg variants per scale
+
+3. **Spacing**: Use `LaneShadowTheme.space` (Android) or `Theme.shared.space` (iOS)
+   - xs, sm, md, lg, xl, 2xl, 3xl, 4xl
+
+4. **Border Radius**: Use `LaneShadowTheme.radius` (Android) or `Theme.shared.radius` (iOS)
+   - none, sm, md, lg, xl, 2xl, full
+
+5. **Elevation**: Use `LaneShadowTheme.elevation` (Android) or `Theme.shared.elevation` (iOS)
+   - level0, level1, level2, level3, level4, level5, level8
+
+6. **Motion**: Use `LaneShadowTheme.motion` (Android) or `Theme.shared.motion` (iOS)
+   - Duration, delay, scale, easing values
+
+7. **Opacity**: Use `LaneShadowTheme.opacity` (Android) or `Theme.shared.opacity` (iOS)
+   - step00 through step11 values
+
+### Source of Truth
+
+All component styling MUST derive from the platform theme accessor. Do NOT hardcode colors, dimensions, or values. Cross-reference your component's STYLE PROPERTIES MATRIX file in `.spec/prds/native-rewrite/matrices/ui/` to identify which tokens apply to each property.
+
+### Verification
+
+Before marking this task complete, verify:
+- [ ] No hardcoded color values (hex, RGB, etc.)
+- [ ] No hardcoded dimension values (dp, pt, sp, etc.)
+- [ ] All styling values reference theme tokens
+- [ ] Component renders in both light and dark themes
+- [ ] Sandbox story demonstrates theme compliance
+

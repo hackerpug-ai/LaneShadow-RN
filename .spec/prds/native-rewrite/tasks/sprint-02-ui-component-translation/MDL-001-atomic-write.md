@@ -19,7 +19,7 @@ Translate atomic-write model/logic from TypeScript to Kotlin following the MODEL
 DELIVERABLE
 --------------------------------------------------------------------------------
 
-- react-native/android/app/src/main/java/com/laneshadow/models/AtomicWrite.kt (NEW): Kotlin implementation
+- android/app/src/main/java/com/laneshadow/models/AtomicWrite.kt (NEW): Kotlin implementation
 - react-native/android/app/src/test/java/com/laneshadow/models/AtomicWriteTest.kt (NEW): Model tests
 
 --------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ GUARDRAILS
 --------------------------------------------------------------------------------
 
 WRITE-ALLOWED:
-- react-native/android/app/src/main/java/com/laneshadow/models/AtomicWrite.kt (NEW)
+- android/app/src/main/java/com/laneshadow/models/AtomicWrite.kt (NEW)
 - react-native/android/app/src/test/java/com/laneshadow/models/AtomicWriteTest.kt (NEW)
 
 WRITE-PROHIBITED:

@@ -19,7 +19,7 @@ Translate download-queue model/logic from TypeScript to Kotlin following the MOD
 DELIVERABLE
 --------------------------------------------------------------------------------
 
-- react-native/android/app/src/main/java/com/laneshadow/models/DownloadQueue.kt (NEW): Kotlin implementation
+- android/app/src/main/java/com/laneshadow/models/DownloadQueue.kt (NEW): Kotlin implementation
 - react-native/android/app/src/test/java/com/laneshadow/models/DownloadQueueTest.kt (NEW): Model tests
 
 --------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ GUARDRAILS
 --------------------------------------------------------------------------------
 
 WRITE-ALLOWED:
-- react-native/android/app/src/main/java/com/laneshadow/models/DownloadQueue.kt (NEW)
+- android/app/src/main/java/com/laneshadow/models/DownloadQueue.kt (NEW)
 - react-native/android/app/src/test/java/com/laneshadow/models/DownloadQueueTest.kt (NEW)
 
 WRITE-PROHIBITED:

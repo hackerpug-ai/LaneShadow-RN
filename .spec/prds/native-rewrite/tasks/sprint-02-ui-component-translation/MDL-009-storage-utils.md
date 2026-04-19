@@ -19,7 +19,7 @@ Translate storage-utils model/logic from TypeScript to Kotlin following the MODE
 DELIVERABLE
 --------------------------------------------------------------------------------
 
-- react-native/android/app/src/main/java/com/laneshadow/models/StorageUtils.kt (NEW): Kotlin implementation
+- android/app/src/main/java/com/laneshadow/models/StorageUtils.kt (NEW): Kotlin implementation
 - react-native/android/app/src/test/java/com/laneshadow/models/StorageUtilsTest.kt (NEW): Model tests
 
 --------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ GUARDRAILS
 --------------------------------------------------------------------------------
 
 WRITE-ALLOWED:
-- react-native/android/app/src/main/java/com/laneshadow/models/StorageUtils.kt (NEW)
+- android/app/src/main/java/com/laneshadow/models/StorageUtils.kt (NEW)
 - react-native/android/app/src/test/java/com/laneshadow/models/StorageUtilsTest.kt (NEW)
 
 WRITE-PROHIBITED:

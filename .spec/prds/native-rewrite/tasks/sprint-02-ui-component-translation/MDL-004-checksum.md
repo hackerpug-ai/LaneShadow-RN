@@ -19,7 +19,7 @@ Translate checksum model/logic from TypeScript to Kotlin following the MODEL tra
 DELIVERABLE
 --------------------------------------------------------------------------------
 
-- react-native/android/app/src/main/java/com/laneshadow/models/Checksum.kt (NEW): Kotlin implementation
+- android/app/src/main/java/com/laneshadow/models/Checksum.kt (NEW): Kotlin implementation
 - react-native/android/app/src/test/java/com/laneshadow/models/ChecksumTest.kt (NEW): Model tests
 
 --------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ GUARDRAILS
 --------------------------------------------------------------------------------
 
 WRITE-ALLOWED:
-- react-native/android/app/src/main/java/com/laneshadow/models/Checksum.kt (NEW)
+- android/app/src/main/java/com/laneshadow/models/Checksum.kt (NEW)
 - react-native/android/app/src/test/java/com/laneshadow/models/ChecksumTest.kt (NEW)
 
 WRITE-PROHIBITED:

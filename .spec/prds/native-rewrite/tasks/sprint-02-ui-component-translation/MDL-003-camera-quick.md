@@ -19,7 +19,7 @@ Translate camera-quick model/logic from TypeScript to Kotlin following the MODEL
 DELIVERABLE
 --------------------------------------------------------------------------------
 
-- react-native/android/app/src/main/java/com/laneshadow/models/CameraQuick.kt (NEW): Kotlin implementation
+- android/app/src/main/java/com/laneshadow/models/CameraQuick.kt (NEW): Kotlin implementation
 - react-native/android/app/src/test/java/com/laneshadow/models/CameraQuickTest.kt (NEW): Model tests
 
 --------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ GUARDRAILS
 --------------------------------------------------------------------------------
 
 WRITE-ALLOWED:
-- react-native/android/app/src/main/java/com/laneshadow/models/CameraQuick.kt (NEW)
+- android/app/src/main/java/com/laneshadow/models/CameraQuick.kt (NEW)
 - react-native/android/app/src/test/java/com/laneshadow/models/CameraQuickTest.kt (NEW)
 
 WRITE-PROHIBITED:
