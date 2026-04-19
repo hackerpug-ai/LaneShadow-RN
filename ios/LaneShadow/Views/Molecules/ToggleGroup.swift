@@ -41,7 +41,7 @@ public enum LSToggleVariant: Sendable {
 // MARK: - ToggleGroup Environment Key
 
 private struct ToggleGroupStateKey: EnvironmentKey {
-    static let defaultValue: ToggleGroupState = ToggleGroupState(
+    static let defaultValue: ToggleGroupState = .init(
         type: .single,
         value: nil,
         onValueChange: { _ in },
@@ -246,9 +246,9 @@ public struct LSToggleGroupItem<Content: View>: View {
     private var borderColor: Color? {
         switch groupState.variant {
         case .default:
-            return nil
+            nil
         case .outline:
-            return theme.colors.border.default
+            theme.colors.border.default
         }
     }
 
@@ -690,8 +690,12 @@ public extension LSToggleGroup {
                         Text("With Icons")
                             .font(.headline)
                         LSToggleGroup(value: singleValue) {
-                            LSToggleGroupItem(value: "list", icon: AnyView(Image(systemName: "list.bullet"))) { Text("List") }
-                            LSToggleGroupItem(value: "grid", icon: AnyView(Image(systemName: "square.grid.2x2"))) { Text("Grid") }
+                            LSToggleGroupItem(value: "list", icon: AnyView(Image(systemName: "list.bullet"))) {
+                                Text("List")
+                            }
+                            LSToggleGroupItem(value: "grid", icon: AnyView(Image(systemName: "square.grid.2x2"))) {
+                                Text("Grid")
+                            }
                             LSToggleGroupItem(value: "map", icon: AnyView(Image(systemName: "map"))) { Text("Map") }
                         }
                     }

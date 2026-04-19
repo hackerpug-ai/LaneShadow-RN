@@ -130,7 +130,6 @@ public struct LSSuggestionChips: View {
 
     // MARK: - Chip Button
 
-    @ViewBuilder
     private func chipButton(for suggestion: LSSuggestionChip) -> some View {
         Button(action: {
             onPress(suggestion)
@@ -201,7 +200,10 @@ private struct FlowLayout: Layout {
             spacing: spacing
         )
         for (index, subview) in subviews.enumerated() {
-            subview.place(at: CGPoint(x: bounds.minX + result.positions[index].x, y: bounds.minY + result.positions[index].y), proposal: .unspecified)
+            subview.place(
+                at: CGPoint(x: bounds.minX + result.positions[index].x, y: bounds.minY + result.positions[index].y),
+                proposal: .unspecified
+            )
         }
     }
 
@@ -218,7 +220,7 @@ private struct FlowLayout: Layout {
             for subview in subviews {
                 let size = subview.sizeThatFits(.unspecified)
 
-                if currentX + size.width > maxWidth && currentX > 0 {
+                if currentX + size.width > maxWidth, currentX > 0 {
                     // Move to next row
                     currentX = 0
                     currentY += rowHeight + spacing
@@ -230,7 +232,7 @@ private struct FlowLayout: Layout {
                 rowHeight = max(rowHeight, size.height)
             }
 
-            self.size = CGSize(width: maxWidth, height: currentY + rowHeight)
+            size = CGSize(width: maxWidth, height: currentY + rowHeight)
             self.positions = positions
         }
     }
