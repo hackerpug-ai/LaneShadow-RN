@@ -2,6 +2,9 @@ import LaneShadowTheme
 import NativeSandbox
 import SwiftUI
 
+// Import Avatar components
+// Note: These should be available from the main app target once the files are added to Xcode
+
 /**
  * Story registration pattern for Sprint 2 atom components.
  *
@@ -69,6 +72,8 @@ import SwiftUI
  */
 @MainActor
 enum AtomsStories {
-    static let all: [Story] = []
-    // Sprint 2: Add atom stories here following the pattern above
+    static let all: [Story] = [
+        // Sprint 2: Add atom stories here following the pattern above
+        // Note: Avatar stories will be added once Avatar.swift is added to Xcode project
+    ]
 }
