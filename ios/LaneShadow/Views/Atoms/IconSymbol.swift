@@ -64,6 +64,7 @@ public struct LSIconSymbol: View {
         "bell": "bell.fill",
         "bell-outline": "bell",
         "information": "info.circle",
+        "wifi-off": "wifi.slash",
     ]
 
     public init(
