@@ -84,7 +84,7 @@ private fun DrawScope.drawLaneShadowLogo(
 
     // Scale all drawing operations
     withTransform({
-        scale(scale, scale)
+        this.scale(scale, scale)
     }) {
         // Draw S-curve path (stroke, no fill)
         // Path data: "M8 6 V12 C8 15 12 15 12 12 V10 C12 7 16 7 16 10 V18"
