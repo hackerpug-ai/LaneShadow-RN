@@ -12,10 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -90,36 +86,13 @@ fun Card(
     // Determine if card should be disabled
     val isDisabled = disabled || (onPress == null)
 
-    // Track pressed state for interaction feedback
-    var isPressed by remember { mutableStateOf(false) }
-
-    // Get background color based on variant and state
+    // Get background color based on variant
     val backgroundColor: Color = when (variant) {
-        CardVariant.Default -> if (isPressed) {
-            theme.colors.card.pressed ?: theme.colors.card.default
-        } else {
-            theme.colors.card.default
-        }
-        CardVariant.Primary -> if (isPressed) {
-            theme.colors.primary.pressed ?: theme.colors.primary.default
-        } else {
-            theme.colors.primary.default
-        }
-        CardVariant.Success -> if (isPressed) {
-            theme.colors.success.pressed ?: theme.colors.success.default
-        } else {
-            theme.colors.success.default
-        }
-        CardVariant.Warning -> if (isPressed) {
-            theme.colors.warning.pressed ?: theme.colors.warning.default
-        } else {
-            theme.colors.warning.default
-        }
-        CardVariant.Danger -> if (isPressed) {
-            theme.colors.danger.pressed ?: theme.colors.danger.default
-        } else {
-            theme.colors.danger.default
-        }
+        CardVariant.Default -> theme.colors.card.default
+        CardVariant.Primary -> theme.colors.primary.default
+        CardVariant.Success -> theme.colors.success.default
+        CardVariant.Warning -> theme.colors.warning.default
+        CardVariant.Danger -> theme.colors.danger.default
     }
 
     // Get border style
@@ -132,11 +105,7 @@ fun Card(
     }
 
     // Get elevation based on state
-    val elevation: Dp = when {
-        isDisabled -> CARD_ELEVATION_DEFAULT
-        isPressed -> CARD_ELEVATION_PRESSED
-        else -> CARD_ELEVATION_DEFAULT
-    }
+    val elevation: Dp = CARD_ELEVATION_DEFAULT
 
     // Build base modifier
     val baseModifier = modifier
@@ -154,20 +123,8 @@ fun Card(
         }
 
     // Add click handling if not disabled
-    val interactiveModifier = if (!isDisabled && onPress != null) {
-        baseModifier
-            .clickable(
-                onClick = onPress,
-                onClickLabel = null,
-            )
-            .then(
-                Modifier.clickable(
-                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                    indication = null,
-                ) {
-                    isPressed = true
-                }
-            )
+    val interactiveModifier = if (!disabled && onPress != null) {
+        baseModifier.clickable(onClick = onPress)
     } else {
         baseModifier
     }
