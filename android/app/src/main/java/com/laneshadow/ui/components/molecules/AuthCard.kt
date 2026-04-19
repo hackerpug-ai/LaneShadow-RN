@@ -70,7 +70,7 @@ fun AuthCard(
             Text(
                 text = title,
                 modifier = Modifier.padding(bottom = if (subtitle != null) 8.dp else 24.dp),
-                style = androidx.compose.material3.MaterialTheme.typography.titleMedium.copy(
+                style = androidx.compose.ui.text.TextStyle(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                 ),
@@ -82,7 +82,7 @@ fun AuthCard(
                 Text(
                     text = subtitle,
                     modifier = Modifier.padding(bottom = 24.dp),
-                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium.copy(
+                    style = androidx.compose.ui.text.TextStyle(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Normal,
                     ),
