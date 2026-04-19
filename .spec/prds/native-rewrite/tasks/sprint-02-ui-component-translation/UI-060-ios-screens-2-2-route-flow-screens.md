@@ -133,6 +133,123 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| RouteDiscoveryScreen | `react-native/components/discovery/route-discovery-screen.tsx` | `node_modules/react-native/Libraries/Components/View/View.js`; `node_modules/react-native-mapbox-gl/maps/mapbox/MapView.js` | `ios/LaneShadow/Views/Screens/RouteDiscoveryScreen.swift` | 1 screen × 2 filters (all/specific) × 2 sorts (best/distance) |
+| RouteComparisonView | `react-native/components/screens/route-comparison-view.tsx` | `node_modules/react-native/Libraries/Components/View/View.js`; `node_modules/react-native/Libraries/Components/ScrollView/ScrollView.js` | `ios/LaneShadow/Views/Screens/RouteComparisonView.swift` | 1 screen × 3 states (loading/empty/with-routes) |
+| RouteOptionsScreen | `react-native/components/screens/route-options-screen.tsx` | `node_modules/react-native/Libraries/Components/View/View.js`; `node_modules/react-native/Libraries/Components/ScrollView/ScrollView.js` | `ios/LaneShadow/Views/Screens/RouteOptionsScreen.swift` | 1 screen × 3 states (loading/error/with-routes) |
+| SavedRoutesScreen | `react-native/components/screens/saved-routes-screen.tsx` | `node_modules/react-native/Libraries/Components/View/View.js`; `node_modules/react-native/Libraries/Components/ScrollView/ScrollView.js` | `ios/LaneShadow/Views/Screens/SavedRoutesScreen.swift` | 1 screen × 3 states (loading/empty/with-routes) |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper labelLarge**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1. **Paper labelSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=11, lineHeight=16, letterSpacing=0.5. **semantic.type.label.md**: fontSize=14, lineHeight=20, fontWeight=500. **semantic.type.body.sm**: fontSize=14, lineHeight=21, fontWeight=400.
+
+### RouteDiscoveryScreen
+
+**Source files read:**
+- LaneShadow: `react-native/components/discovery/route-discovery-screen.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`, `node_modules/react-native-mapbox-gl/maps/mapbox/MapView.js`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Composition | MenuLayout | RN-wrapper | yes | `MenuLayout {}` | `MenuLayout {}` | n/a |
+| Composition | MapViewWrapper | RN-wrapper | yes | `MapViewWrapper {}` | `MapViewWrapper {}` | n/a |
+| Composition | DiscoveryFilterBar | RN-wrapper | yes | `DiscoveryFilterBar {}` | `DiscoveryFilterBar {}` | n/a |
+| Composition | DiscoverySortToggle | RN-wrapper | yes | `DiscoverySortToggle {}` | `DiscoverySortToggle {}` | n/a |
+| Layout | filterBarContainer position | RN-wrapper | absolute top | `Box(Modifier.align(Alignment.TopCenter))` | `.overlay(..., alignment: .top)` | n/a |
+| Layout | filterBarContainer paddingHorizontal | RN-wrapper | `semantic.space.lg` = 16 | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
+| Layout | filterBarContainer paddingBottom | RN-wrapper | `semantic.space.md` = 12 | `Modifier.padding(bottom = 12.dp)` | `.padding(.bottom, 12)` | `space.md` |
+| State | selectedArchetypes | RN-wrapper | `RouteArchetype[]` | `Set<RouteArchetype>` | `Set<RouteArchetype>` | n/a |
+| State | sortMode | RN-wrapper | `'best'` or `'nearest'` | `enum class SortMode { BEST, NEAREST }` | `enum SortMode { case best, nearest }` | n/a |
+
+### RouteComparisonView
+
+**Source files read:**
+- LaneShadow: `react-native/components/screens/route-comparison-view.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`, `node_modules/react-native/Libraries/Components/ScrollView/ScrollView.js`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Composition | SubpageLayout | RN-wrapper | yes | `SubpageLayout {}` | `SubpageLayout {}` | n/a |
+| Layout | scrollView | RN-wrapper | `flex: 1` | `Modifier.fillMaxSize()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
+| Layout | scrollContent paddingHorizontal | RN-wrapper | `semantic.space.lg` = 16 | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
+| Layout | routesList gap | RN-wrapper | hardcoded `12` | `Arrangement.spacedBy(12.dp)` | `VStack(spacing: 12)` | `space.md` (=12) ✓ |
+| Layout | subtitleContainer marginBottom | RN-wrapper | hardcoded `8` | `Modifier.padding(bottom = 8.dp)` | `.padding(.bottom, 8)` | `space.sm` (=8) ✓ |
+| Visual | routeCard backgroundColor (selected) | RN-wrapper | `primary.default + 14% alpha` | `LaneShadowTheme.colors.primary.copy(alpha = 0.14f)` | `theme.colors.primary.opacity(0.14)` | `color.primary.default` |
+| Visual | routeCard backgroundColor (unselected) | RN-wrapper | `semantic.color.card.default` | `LaneShadowTheme.colors.card` | `theme.colors.card` | `color.card.default` |
+| Visual | routeCard borderColor (selected) | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+| Visual | routeCard borderWidth (selected) | RN-wrapper | hardcoded `2` | `Modifier.border(2.dp, ...)` | `.overlay(RoundedRectangle(...).stroke(..., lineWidth: 2))` | ESCALATE — propose `borderWidth.thick = 2` |
+| Visual | routeBadge backgroundColor (selected) | RN-wrapper | `primary.default + 26% alpha` | `LaneShadowTheme.colors.primary.copy(alpha = 0.26f)` | `theme.colors.primary.opacity(0.26)` | `color.primary.default` |
+| Visual | routeBadge backgroundColor (unselected) | RN-wrapper | `semantic.color.divider.default` | `LaneShadowTheme.colors.divider` | `theme.colors.divider` | `color.divider.default` |
+| Typography — subtitle | fontSize | Paper bodyMedium | 14 | `14.sp` | `.font(.body)` | `type.body.md.fontSize` (=14) ✓ |
+| Typography — subtitle | color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
+| Typography — badge text fontSize | RN-wrapper | hardcoded (icon label) | `11.sp` | `11` | ESCALATE — `type.label.sm.fontSize = 11` missing |
+| Interaction | loading indicator | RN-wrapper | `ActivityIndicator` | `CircularProgressIndicator()` | `ProgressView()` | n/a |
+| Interaction | empty state icon size | RN-wrapper | hardcoded `48` | `Modifier.size(48.dp)` | `.frame(width: 48, height: 48)` | ESCALATE — propose `iconSize.md = 48` |
+| Interaction | empty state icon color | RN-wrapper | `semantic.color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
+
+### RouteOptionsScreen
+
+**Source files read:**
+- LaneShadow: `react-native/components/screens/route-options-screen.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`, `node_modules/react-native/Libraries/Components/ScrollView/ScrollView.js`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Composition | SubpageLayout | RN-wrapper | yes | `SubpageLayout {}` | `SubpageLayout {}` | n/a |
+| Composition | RouteOptionCard | RN-wrapper | yes | `RouteOptionCard {}` | `RouteOptionCard {}` | n/a |
+| Composition | PrimaryButton | RN-wrapper | yes | `PrimaryButton {}` | `PrimaryButton {}` | n/a |
+| Layout | scrollView | RN-wrapper | `flex: 1` | `Modifier.fillMaxSize()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
+| Layout | scrollContent paddingHorizontal | RN-wrapper | `semantic.space.lg` = 16 | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
+| Layout | scrollContent paddingTop | RN-wrapper | hardcoded `16` | `Modifier.padding(top = 16.dp)` | `.padding(.top, 16)` | `space.lg` (=16) ✓ |
+| Layout | routesList gap | RN-wrapper | hardcoded `12` | `Arrangement.spacedBy(12.dp)` | `VStack(spacing: 12)` | `space.md` (=12) ✓ |
+| Layout | subtitleContainer marginBottom | RN-wrapper | hardcoded `8` | `Modifier.padding(bottom = 8.dp)` | `.padding(.bottom, 8)` | `space.sm` (=8) ✓ |
+| Layout | bottomBar paddingHorizontal | RN-wrapper | `semantic.space.lg` = 16 | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
+| Layout | bottomBar paddingBottom | RN-wrapper | `insets.bottom + space.md` = `insets.bottom + 12` | `Modifier.padding(bottom = WindowInsets.safeContent.asPaddingValues().calculateBottomPadding() + 12.dp)` | `.padding(.bottom, safeAreaInsets.bottom + 12)` | `space.md` (=12) ✓ |
+| Visual | bottomBar borderTopColor | RN-wrapper | `semantic.color.divider.default` | `LaneShadowTheme.colors.divider` | `theme.colors.divider` | `color.divider.default` |
+| Typography — subtitle | variant | Paper bodyMedium | fontSize=14 | `14.sp` | `.font(.body)` | `type.body.md.fontSize` (=14) ✓ |
+| Typography — subtitle | color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
+| Interaction | loading spinner | RN-wrapper | custom View with rotation | `LaunchedEffect + InfiniteTransition` | `.rotationEffect(...)` | n/a |
+| Interaction | spinner size | RN-wrapper | hardcoded `40` | `Modifier.size(40.dp)` | `.frame(width: 40, height: 40)` | ESCALATE — propose `size.spinner = 40` |
+| Interaction | spinner borderTopColor | RN-wrapper | `semantic.color.primary.default` | `Color(0xFF...)` (gradient) | n/a | `color.primary.default` |
+| Interaction | error iconContainer size | RN-wrapper | hardcoded `64` × `64` | `Modifier.size(64.dp)` | `.frame(width: 64, height: 64)` | ESCALATE — `space.2xl` (=32) × 2 |
+| Interaction | error iconContainer borderRadius | RN-wrapper | hardcoded `32` (half of 64) | `CircleShape` | `Circle()` | `radius.full` |
+| Interaction | error iconContainer backgroundColor | RN-wrapper | `danger.default + 26% alpha` | `LaneShadowTheme.colors.danger.copy(alpha = 0.26f)` | `theme.colors.danger.opacity(0.26)` | `color.danger.default` |
+| Interaction | errorDot size | RN-wrapper | hardcoded `12` × `12` | `Modifier.size(12.dp)` | `.frame(width: 12, height: 12)` | ESCALATE — propose `size.dotMd = 12` |
+| Interaction | errorDot backgroundColor | RN-wrapper | `semantic.color.danger.default` | `LaneShadowTheme.colors.danger` | `theme.colors.danger` | `color.danger.default` |
+
+### SavedRoutesScreen
+
+**Source files read:**
+- LaneShadow: `react-native/components/screens/saved-routes-screen.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`, `node_modules/react-native/Libraries/Components/ScrollView/ScrollView.js`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Composition | SubpageLayout | RN-wrapper | yes | `SubpageLayout {}` | `SubpageLayout {}` | n/a |
+| Composition | SavedRouteCard | RN-wrapper | yes | `SavedRouteCard {}` | `SavedRouteCard {}` | n/a |
+| Composition | SearchBar | RN-wrapper | yes | `SearchBar {}` | `SearchBar {}` | n/a |
+| Layout | scrollView | RN-wrapper | `flex: 1` | `Modifier.fillMaxSize()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
+| Layout | scrollContent paddingHorizontal | RN-wrapper | `semantic.space.lg` = 16 | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
+| Layout | scrollContent paddingTop | RN-wrapper | hardcoded `16` | `Modifier.padding(top = 16.dp)` | `.padding(.top, 16)` | `space.lg` (=16) ✓ |
+| Layout | scrollContent paddingBottom | RN-wrapper | hardcoded `16` | `Modifier.padding(bottom = 16.dp)` | `.padding(.bottom, 16)` | `space.lg` (=16) ✓ |
+| Layout | subtitleContainer marginBottom | RN-wrapper | hardcoded `8` | `Modifier.padding(bottom = 8.dp)` | `.padding(.bottom, 8)` | `space.sm` (=8) ✓ |
+| Layout | searchContainer marginTop | RN-wrapper | hardcoded `8` | `Modifier.padding(top = 8.dp)` | `.padding(.top, 8)` | `space.sm` (=8) ✓ |
+| Layout | searchContainer marginBottom | RN-wrapper | hardcoded `16` | `Modifier.padding(bottom = 16.dp)` | `.padding(.bottom, 16)` | `space.lg` (=16) ✓ |
+| Layout | routesList gap | RN-wrapper | hardcoded `12` | `Arrangement.spacedBy(12.dp)` | `VStack(spacing: 12)` | `space.md` (=12) ✓ |
+| Visual | emptyThumbnail borderColor | RN-wrapper | `semantic.color.divider.default` | `LaneShadowTheme.colors.divider` | `theme.colors.divider` | `color.divider.default` |
+| Visual | emptyRoute borderColor | RN-wrapper | `semantic.color.divider.default` | `LaneShadowTheme.colors.divider` | `theme.colors.divider` | `color.divider.default` |
+| Typography — subtitle | variant | Paper bodyMedium | fontSize=14 | `14.sp` | `.font(.body)` | `type.body.md.fontSize` (=14) ✓ |
+| Typography — subtitle | color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
+| Interaction | loading spinner | RN-wrapper | custom View with rotation | `LaunchedEffect + InfiniteTransition` | `.rotationEffect(...)` | n/a |
+| Interaction | spinner size | RN-wrapper | hardcoded `40` | `Modifier.size(40.dp)` | `.frame(width: 40, height: 40)` | ESCALATE — propose `size.spinner = 40` |
+
+---
+
 ## DESIGN NOTES
 
 - Compose only previously translated components and avoid one-off screen-level styling or ad hoc primitives.

@@ -126,6 +126,101 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| BottomSheetWrapper | N/A (Gorhom wrapper parity) | `node_modules/@gorhom/bottom-sheet/src/components/bottomSheet/BottomSheet.tsx` | `ios/LaneShadow/Views/Templates/BottomSheetWrapper.swift` | 1 wrapper × 2 states (visible/dismissed) |
+| BottomActionSheet | `react-native/components/ui/bottom-action-sheet.tsx` | `node_modules/@gorhom/bottom-sheet/src/components/bottomSheetModal/BottomSheetModal.tsx`; `node_modules/@gorhom/bottom-sheet/src/components/bottomSheetBackdrop/BottomSheetBackdrop.tsx` | `ios/LaneShadow/Views/Templates/BottomActionSheet.swift` | 1 sheet × 2 variants (hasTextInput true/false) |
+| ThemeErrorBoundary | `react-native/components/logging/error-boundary.tsx` | `node_modules/react/src/React.js` (ErrorBoundary pattern) | `ios/LaneShadow/Views/Templates/ThemeErrorBoundary.swift` | 1 wrapper × 2 states (normal/error) |
+| ModelGatekeeperProvider | `react-native/components/gatekeeper/model-gatekeeper-provider.tsx` | `node_modules/react/src/React.js` (Context pattern) | `ios/LaneShadow/Views/Templates/ModelGatekeeperProvider.swift` | 1 provider × 2 states (locked/unlocked) |
+| ButtonUsage | `react-native/components/ui/button.usage.tsx` | `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Templates/ButtonUsage.swift` | Documentation examples (no runtime) |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper labelLarge**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1. **Paper labelSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=11, lineHeight=16, letterSpacing=0.5. **semantic.type.label.md**: fontSize=14, lineHeight=20, fontWeight=500. **semantic.type.body.sm**: fontSize=14, lineHeight=21, fontWeight=400.
+
+### BottomSheetWrapper
+
+**Source files read:**
+- LaneShadow: N/A (Gorhom wrapper parity)
+- Framework: `node_modules/@gorhom/bottom-sheet/src/components/bottomSheet/BottomSheet.tsx`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout | snapPoints | Gorhom default | `['90%']` | `BottomSheetScaffold(sheetPeekHeight = 0.9f * screenHeight)` | `presentationDetent([.large])` | n/a |
+| Layout | topInset | Gorhom default | `insets.top` | `WindowInsets.statusBars.asPaddingValues()` | `safeAreaInsets.top` | n/a (safe area) |
+| Interaction | enablePanDownToClose | Gorhom default | `true` | `BottomSheetScaffold(sheetSwipeEnabled = true)` | `.presentationDragIndicator(.visible)` | n/a |
+| Visual | backgroundColor | RN-wrapper | `semantic.color.background.default` | `LaneShadowTheme.colors.background` | `theme.colors.background` | `color.background.default` |
+| Visual | handleComponent | RN-wrapper | `null` (hidden) | no handle | `.dragIndicator(.hidden())` | n/a |
+| Visual | backdropComponent | Gorhom | `BottomSheetBackdrop` with opacity 0.5 | `ModalBottomSheet(scrimColor = Color.Black.copy(alpha = 0.5f))` | `.presentationBackground(.regularMaterial)` | ESCALATE — propose `opacity.scrim = 0.5` |
+
+### BottomActionSheet
+
+**Source files read:**
+- LaneShadow: `react-native/components/ui/bottom-action-sheet.tsx`
+- Framework: `node_modules/@gorhom/bottom-sheet/src/components/bottomSheetModal/BottomSheetModal.tsx`, `node_modules/@gorhom/bottom-sheet/src/components/bottomSheetBackdrop/BottomSheetBackdrop.tsx`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout | snapPoints | RN-wrapper | `['90%']` (customizable) | `BottomSheetScaffold(sheetPeekHeight = 0.9f * screenHeight)` | `presentationDetent([.large])` | n/a |
+| Layout | topInset | RN-wrapper | `insets.top` | `WindowInsets.statusBars.asPaddingValues()` | `safeAreaInsets.top` | n/a (safe area) |
+| Layout | stackBehavior | RN-wrapper | `'push'` | `BottomSheetScaffold(sheetSkipPeeked = false)` | `.presentationDetent(.medium, .large)` | n/a |
+| Interaction | enablePanDownToClose | RN-wrapper | `true` | `BottomSheetScaffold(sheetSwipeEnabled = true)` | `.presentationDragIndicator(.visible)` | n/a |
+| Interaction | keyboardBehavior (hasTextInput=true) | RN-wrapper | `'interactive'` | `WindowInsets.ime` (Compose) | `.keyboard(.interactive)` | n/a |
+| Interaction | keyboardBehavior (hasTextInput=false) | RN-wrapper | `'fillParent'` | `WindowInsets.ime` (Compose) | `.keyboard(.default)` | n/a |
+| Interaction | android_keyboardInputMode | RN-wrapper | `'adjustResize'` | `WindowInsets.ime` (Compose) | n/a (iOS-only) | n/a |
+| Interaction | keyboardBlurBehavior (hasTextInput=true) | RN-wrapper | `'restore'` | n/a | n/a | n/a |
+| Visual | backgroundColor | RN-wrapper | `semantic.color.background.default` | `LaneShadowTheme.colors.background` | `theme.colors.background` | `color.background.default` |
+| Visual | handleComponent | RN-wrapper | `null` (hidden) | no handle | `.dragIndicator(.hidden())` | n/a |
+| Visual | backdropComponent | RN-wrapper | `BottomSheetBackdrop` with opacity 0.5 | `ModalBottomSheet(scrimColor = Color.Black.copy(alpha = 0.5f))` | `.presentationBackground(.regularMaterial)` | ESCALATE — propose `opacity.scrim = 0.5` |
+| Visual | backdrop pressBehavior | RN-wrapper | `'close'` | `ModalBottomSheet(onDismissRequest = ...)` | `.presentationBackground(.interactive)` | n/a |
+
+### ThemeErrorBoundary
+
+**Source files read:**
+- LaneShadow: `react-native/components/logging/error-boundary.tsx`
+- Framework: `node_modules/react/src/React.js` (ErrorBoundary pattern)
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout | pattern | RN-wrapper | class component wrapper | `LaunchedEffect + try/catch` or `ViewModel` | `.task { try { ... } catch { ... } }` | n/a |
+| Visual | error screen | RN-wrapper | centered View with Text | `Column(horizontalAlignment = Alignment.CenterHorizontally)` | `VStack { ... }` | n/a |
+| Visual | error message | RN-wrapper | "Something went wrong." | `Text("Something went wrong.")` | `Text("Something went wrong.")` | n/a |
+| Visual | error details (DEV) | RN-wrapper | `error.message` | `if (BuildConfig.DEBUG) Text(error.message)` | `if #DEBUG Text(error.localizedDescription)` | n/a |
+| Visual | loadingContainer | RN-wrapper | `flex: 1, center` | `Box(contentAlignment = Alignment.Center)` | `VStack { Spacer(); ...; Spacer() }` | n/a |
+
+### ModelGatekeeperProvider
+
+**Source files read:**
+- LaneShadow: `react-native/components/gatekeeper/model-gatekeeper-provider.tsx`
+- Framework: `node_modules/react/src/React.js` (Context pattern)
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout | pattern | RN-wrapper | Context Provider with conditional rendering | `CompositionLocalProvider` | `@Environment` | n/a |
+| State | modelValid | RN-wrapper | derived from `status` | `val modelValid: State<Boolean>` | `@Environment var modelValid: Bool` | n/a |
+| State | hasCompletedOnboarding | RN-wrapper | Zustand store | `DataStore` | `@AppStorage` | n/a |
+| State | isReady | RN-wrapper | `settingsHydrated && downloadHydrated` | `val isReady: Boolean` | `@State var isReady: Bool` | n/a |
+| Layout | loadingContainer | RN-wrapper | `flex: 1, center` | `Box(contentAlignment = Alignment.Center)` | `VStack { Spacer(); ...; Spacer() }` | n/a |
+| Visual | ActivityIndicator | RN-wrapper | `size="large"` | `CircularProgressIndicator()` | `ProgressView()` | n/a |
+| Interaction | conditional rendering | RN-wrapper | if/else based on status | `when (status) { ... }` | `switch status { case ... }` | n/a |
+
+### ButtonUsage
+
+**Source files read:**
+- LaneShadow: `react-native/components/ui/button.usage.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout | pattern | RN-wrapper | Documentation/examples only | KDoc/examples | Doc examples | n/a |
+| Visual | demo buttons | RN-wrapper | various Button variants | `Button(variant = ..., size = ...)` | `Button(variant: ..., size: ...)` | n/a |
+
+---
+
 ## DESIGN NOTES
 
 - Treat safe-area, background, and layout shell behavior as parity-sensitive design work, not platform defaults.
