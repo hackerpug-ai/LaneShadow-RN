@@ -198,7 +198,12 @@
         "xl": { "$ref": "#/$defs/intToken" },
         "2xl": { "$ref": "#/$defs/intToken" },
         "3xl": { "$ref": "#/$defs/intToken" },
-        "4xl": { "$ref": "#/$defs/intToken" }
+        "4xl": { "$ref": "#/$defs/intToken" },
+        "xxs": { "$ref": "#/$defs/intToken" },
+        "md2": { "$ref": "#/$defs/intToken" },
+        "lg2": { "$ref": "#/$defs/intToken" },
+        "xl2": { "$ref": "#/$defs/intToken" },
+        "3xl2": { "$ref": "#/$defs/intToken" }
       },
       "additionalProperties": false
     },
@@ -207,9 +212,14 @@
       "required": ["none", "sm", "md", "lg", "xl", "2xl", "full"],
       "properties": {
         "none": { "$ref": "#/$defs/intToken" },
+        "xs": { "$ref": "#/$defs/intToken" },
         "sm": { "$ref": "#/$defs/intToken" },
+        "sm2": { "$ref": "#/$defs/intToken" },
         "md": { "$ref": "#/$defs/intToken" },
+        "md2": { "$ref": "#/$defs/intToken" },
+        "md3": { "$ref": "#/$defs/intToken" },
         "lg": { "$ref": "#/$defs/intToken" },
+        "xl2": { "$ref": "#/$defs/intToken" },
         "xl": { "$ref": "#/$defs/intToken" },
         "2xl": { "$ref": "#/$defs/intToken" },
         "full": { "$ref": "#/$defs/intToken" }
@@ -222,7 +232,9 @@
       "properties": {
         "fontSize": { "$ref": "#/$defs/intToken" },
         "lineHeight": { "$ref": "#/$defs/intToken" },
-        "fontWeight": { "$ref": "#/$defs/fontWeightToken" }
+        "fontWeight": { "$ref": "#/$defs/fontWeightToken" },
+        "fontFamily": { "$ref": "#/$defs/dtcgLeaf" },
+        "letterSpacing": { "$ref": "#/$defs/numberToken" }
       },
       "additionalProperties": false
     },
@@ -230,6 +242,7 @@
       "type": "object",
       "required": ["sm", "md", "lg"],
       "properties": {
+        "xs": { "$ref": "#/$defs/typographyStyle" },
         "sm": { "$ref": "#/$defs/typographyStyle" },
         "md": { "$ref": "#/$defs/typographyStyle" },
         "lg": { "$ref": "#/$defs/typographyStyle" }
@@ -244,7 +257,9 @@
         "body": { "$ref": "#/$defs/typographyScale" },
         "title": { "$ref": "#/$defs/typographyScale" },
         "heading": { "$ref": "#/$defs/typographyScale" },
-        "display": { "$ref": "#/$defs/typographyScale" }
+        "display": { "$ref": "#/$defs/typographyScale" },
+        "avatar": { "$ref": "#/$defs/typographyScale" },
+        "checkmark": { "$ref": "#/$defs/typographyScale" }
       },
       "additionalProperties": false
     },
@@ -278,7 +293,8 @@
         "2": { "$ref": "#/$defs/shadowStyle" },
         "3": { "$ref": "#/$defs/shadowStyle" },
         "4": { "$ref": "#/$defs/shadowStyle" },
-        "5": { "$ref": "#/$defs/shadowStyle" }
+        "5": { "$ref": "#/$defs/shadowStyle" },
+        "8": { "$ref": "#/$defs/shadowStyle" }
       },
       "additionalProperties": false
     },
@@ -328,7 +344,9 @@
             "fast": { "$ref": "#/$defs/intToken" },
             "normal": { "$ref": "#/$defs/intToken" },
             "slow": { "$ref": "#/$defs/intToken" },
-            "slower": { "$ref": "#/$defs/intToken" }
+            "slower": { "$ref": "#/$defs/intToken" },
+            "fade": { "$ref": "#/$defs/intToken" },
+            "highlight": { "$ref": "#/$defs/intToken" }
           },
           "additionalProperties": false
         },
@@ -341,6 +359,23 @@
             "decelerate": { "$ref": "#/$defs/motionEasingToken" },
             "accelerate": { "$ref": "#/$defs/motionEasingToken" },
             "sharp": { "$ref": "#/$defs/motionEasingToken" }
+          },
+          "additionalProperties": false
+        },
+        "delay": {
+          "type": "object",
+          "required": ["stagger"],
+          "properties": {
+            "stagger": { "$ref": "#/$defs/intToken" }
+          },
+          "additionalProperties": false
+        },
+        "scale": {
+          "type": "object",
+          "required": ["highlight", "pop"],
+          "properties": {
+            "highlight": { "$ref": "#/$defs/numberToken" },
+            "pop": { "$ref": "#/$defs/numberToken" }
           },
           "additionalProperties": false
         }
@@ -362,7 +397,25 @@
         "70": { "$ref": "#/$defs/opacityToken" },
         "80": { "$ref": "#/$defs/opacityToken" },
         "90": { "$ref": "#/$defs/opacityToken" },
-        "100": { "$ref": "#/$defs/opacityToken" }
+        "100": { "$ref": "#/$defs/opacityToken" },
+        "actionIdle": { "$ref": "#/$defs/opacityToken" },
+        "actionPressed": { "$ref": "#/$defs/opacityToken" },
+        "border": { "$ref": "#/$defs/opacityToken" },
+        "boundingBox": { "$ref": "#/$defs/opacityToken" },
+        "container": { "$ref": "#/$defs/opacityToken" },
+        "disabled": { "$ref": "#/$defs/opacityToken" },
+        "overlay": { "$ref": "#/$defs/opacityToken" },
+        "overlaySurface": { "$ref": "#/$defs/opacityToken" },
+        "pressed": { "$ref": "#/$defs/opacityToken" },
+        "pressedStrong": { "$ref": "#/$defs/opacityToken" },
+        "previewOverlay": { "$ref": "#/$defs/opacityToken" },
+        "pulseMin": { "$ref": "#/$defs/opacityToken" },
+        "pulseMax": { "$ref": "#/$defs/opacityToken" },
+        "reducedMotion": { "$ref": "#/$defs/opacityToken" },
+        "shadow": { "$ref": "#/$defs/opacityToken" },
+        "shadowPrimary": { "$ref": "#/$defs/opacityToken" },
+        "surface": { "$ref": "#/$defs/opacityToken" },
+        "tint": { "$ref": "#/$defs/opacityToken" }
       },
       "additionalProperties": false
     },
@@ -376,9 +429,39 @@
         "type": { "$ref": "#/$defs/semanticTypography" },
         "elevation": { "$ref": "#/$defs/semanticElevationModes" },
         "motion": { "$ref": "#/$defs/semanticMotion" },
-        "opacity": { "$ref": "#/$defs/semanticOpacity" }
+        "opacity": { "$ref": "#/$defs/semanticOpacity" },
+        "borderWidth": { "$ref": "#/$defs/semanticDimensionScale" },
+        "control": { "$ref": "#/$defs/semanticDimensionScale" },
+        "fontWeight": { "$ref": "#/$defs/semanticFontWeightScale" },
+        "hitSlop": { "$ref": "#/$defs/semanticDimensionScale" },
+        "iconSize": { "$ref": "#/$defs/semanticDimensionScale" },
+        "shadow": { "$ref": "#/$defs/semanticShadow" },
+        "size": { "$ref": "#/$defs/semanticDimensionScale" },
+        "strokeWidth": { "$ref": "#/$defs/semanticDimensionScale" },
+        "touchTarget": { "$ref": "#/$defs/semanticDimensionScale" }
       },
       "additionalProperties": false
+    },
+    "semanticDimensionScale": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/numberToken" }
+    },
+    "semanticFontWeightScale": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/fontWeightToken" }
+    },
+    "semanticShadow": {
+      "type": "object",
+      "properties": {
+        "offset": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/shadowOffset" }
+        },
+        "radius": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/intToken" }
+        }
+      }
     }
   }
 }
