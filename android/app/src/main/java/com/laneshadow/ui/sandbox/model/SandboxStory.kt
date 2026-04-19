@@ -4,6 +4,11 @@ import androidx.compose.runtime.Composable
 
 enum class SandboxTier {
     Infrastructure,
+    Atom,
+    Molecule,
+    Organism,
+    Template,
+    Screen,
 }
 
 data class SandboxStory(

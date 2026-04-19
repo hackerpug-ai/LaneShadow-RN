@@ -25,4 +25,9 @@ private fun SandboxStory.asNativeStory(): Story =
 private fun SandboxStory.nativeTier(): ComponentTier =
     when (tier) {
         SandboxTier.Infrastructure -> ComponentTier.Template
+        SandboxTier.Atom -> ComponentTier.Atom
+        SandboxTier.Molecule -> ComponentTier.Molecule
+        SandboxTier.Organism -> ComponentTier.Organism
+        SandboxTier.Template -> ComponentTier.Template
+        SandboxTier.Screen -> ComponentTier.Template // Map Screen to Template (native-sandbox doesn't have Screen tier)
     }
