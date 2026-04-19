@@ -1,140 +1,265 @@
-# MapboxMapView - STYLE PROPERTIES MATRIX
+# MapboxMapView - Organism Matrix
 
-**Component:** MapboxMapView
-**RN Source:** `react-native/components/map/mapbox-map-view.tsx`
-**Framework Primitives:** `@rnmapbox/maps` (Mapbox GL SDK), `node_modules/react-native/Libraries/Components/View/View.js`
+**Component Source:** `react-native/components/map/mapbox-map-view.tsx`
 
----
+**Atomic Level:** Organism
 
-## TRANSLATION SOURCES
-
-| Source Type | Path | Purpose |
-|---|---|---|---|
-| RN Wrapper | `react-native/components/map/mapbox-map-view.tsx` | Public API, map rendering, camera controls |
-| Mapbox GL SDK | `@rnmapbox/maps` | Mapbox map rendering platform |
-| Coordinate converter | `react-native/lib/mapbox/coordinate-converter.ts` | LatLng ↔ Mapbox coordinate conversion |
-| Map styles | `react-native/lib/mapbox/styles.ts` | Theme-aware style URLs (dark/light) |
+**Domain:** Map / Core Platform
 
 ---
 
 ## COMPOSITION ANALYSIS
 
-**Child molecules/atoms:**
-- Mapbox `Camera` - Camera positioning and animation
-- Mapbox `UserLocation` - User location indicator
-- Mapbox `MarkerView` - Custom marker rendering
-- Mapbox `ShapeSource` + `LineLayer` - Polyline rendering
+### Child Components
+- **External Dependencies:**
+  - `@rnmapbox/maps` (MapView, Camera, MarkerView, ShapeSource, LineLayer, UserLocation)
+  - `expo-file-system` (for coordinate conversion utilities)
+- **Composition Pattern:**
+  - Platform-specific map SDK wrapper
+  - Camera control with imperative handle
+  - Marker/polyline rendering
+  - User location tracking
+  - Gesture handling (press, camera move)
 
-**Composition pattern:**
-- Full-bleed map container with flex: 1
-- Mapbox GL MapView as root with theme-based style URL
-- Camera component for programmatic camera control
-- User location indicator (optional, default true)
-- Marker rendering with custom marker views (24dp circular, copper background)
-- Polyline rendering with GeoJSON LineString features
-- Coordinate conversion between Google Maps [lat, lng] and Mapbox [lng, lat] formats
-- Imperative handle for camera control methods
-- Web fallback view for unsupported platforms
-
-**Layout:** Full-screen flex container with absolute positioning for overlays
+### Layout Structure
+```
+MapboxMapView
+├── MapView (platform-specific)
+│   ├── Camera (ref control)
+│   ├── UserLocation (optional)
+│   ├── MarkerView[] (per marker)
+│   │   └── View (marker UI)
+│   ├── ShapeSource (per polyline)
+│   │   └── LineLayer
+│   └── children (overlays)
+└── Web Fallback (conditional)
+    └── View + Text
+```
 
 ---
 
 ## STATE & BEHAVIOR
 
-| State | Type | Source | Native Translation |
-|---|---|---|---|
-| lastCameraState | object | useState | `remember { mutableStateOf(...) }` / `@State var lastCameraState: CameraState` |
-| hasUserLocation | boolean | useState | `remember { mutableStateOf(false) }` / `@State var hasUserLocation: Bool = false` |
-| lastUserLocationRef | ref | useRef | `remember { mutableStateOf(...) }` / `@State var lastUserLocation: Coordinates?` |
+### State Management
+- **Refs:**
+  - `cameraRef` - Camera imperative control
+  - `mapViewRef` - MapView reference
+  - `lastUserLocationRef` - User location tracking
+- **Local State:**
+  - `lastCameraState` - Camera position tracking
+  - `hasUserLocation` - Whether user location is available
+- **Imperative Handle (MapboxMapViewHandle):**
+  - `setCamera` - Set camera position
+  - `zoomIn/zoomOut` - Zoom controls
+  - `fitToCoordinates` - Fit bounds
+  - `setCameraPosition` - Google Maps parity
+  - `zoomBy` - Zoom by delta
+  - `recenterToUser` - Center on user
+  - `animateToRegion` - Region animation
 
-**Side effects:**
-- Mapbox access token initialization: Static `Mapbox.setAccessToken()` → Platform SDK initialization
-- Style URL selection: `useMemo` based on theme → `derivedStateOf` / `@ObservedObject` theme observer
+### User Interactions
+- **Map Press:**
+  - `onPress` - Mapbox-native callback
+  - `onMapClick` - Google Maps parity callback
+- **Camera Move:**
+  - `onCameraChange` - Mapbox-native callback
+  - `onCameraMove` - Google Maps parity callback
+- **User Location:**
+  - Auto-center on first location fix
+  - Track location for `recenterToUser()`
 
-**Callback signatures:**
-- `onPress?: (feature: GeoJSON.Feature) => void` → `(feature: GeoJSONFeature?) -> Unit` / `(GeoJSONFeature?) -> Void`
-- `onMapClick?: (event: { coordinates? }) => void` → `(event: MapClickEvent?) -> Unit` / `(MapClickEvent?) -> Void`
-- `onCameraChange?: (camera: MapboxCamera) => void` → `(camera: MapboxCamera) -> Unit` / `(MapboxCamera) -> Void`
-- `onCameraMove?: (event: { coordinates, zoom }) => void` → `(event: CameraMoveEvent) -> Unit` / `(CameraMoveEvent) -> Void`
+### Coordinate Conversion
+- **Google Maps → Mapbox:**
+  - Input: `{latitude, longitude}` (Google Maps)
+  - Output: `[longitude, latitude]` (Mapbox/GeoJSON)
+- **Utilities:**
+  - `latLngToMapbox()` - Convert single coordinate
+  - `mapboxToLatLng()` - Convert back
+  - `convertCoordinateArray()` - Convert arrays
 
-**Imperative handle methods:**
-- `setCamera: (camera: MapboxCamera, duration?) => void` → `(camera: MapboxCamera, duration: Int) -> Unit` / `(MapboxCamera, Int) -> Void`
-- `zoomIn: (delta?) => void` → `(delta: Float) -> Unit` / `(Float) -> Void`
-- `zoomOut: (delta?) => void` → `(delta: Float) -> Unit` / `(Float) -> Void`
-- `fitToCoordinates: (coordinates, padding?) => void` → `(coordinates: List<LatLng>, padding: Padding?) -> Unit` / `([LatLng], Padding?) -> Void`
-- `setCameraPosition: (input: { coordinates?, zoom?, duration? }) => void` → `(input: CameraInput) -> Unit` / `(CameraInput) -> Void`
-- `zoomBy: (delta: number) => void` → `(delta: Float) -> Unit` / `(Float) -> Void`
-- `recenterToUser: () => void` → `() -> Unit` / `() -> Void`
-- `animateToRegion: (region, duration?) => void` → `(region: MapRegion, duration: Int) -> Unit` / `(MapRegion, Int) -> Void`
+---
+
+## TRANSLATION SOURCES
+
+### React Native → Kotlin/Compose
+
+**Map SDK:**
+- RN: `@rnmapbox/maps` (Mapbox GL)
+- Kotlin: Google Maps SDK for Android **OR** Mapbox Maps SDK for Android
+
+**Camera Control:**
+- RN: `Camera` ref with imperative methods
+- Kotlin: `GoogleMap.cameraPosition` state or `MapboxMap.cameraPosition`
+
+**Markers:**
+- RN: `MarkerView` with custom child
+- Kotlin: `Marker` + `MarkerOptions` (Google) or `PointAnnotation` (Mapbox)
+
+**Polylines:**
+- RN: `ShapeSource` + `LineLayer`
+- Kotlin: `Polyline` + `PolylineOptions` (Google) or `LineLayer` (Mapbox)
+
+**User Location:**
+- RN: `UserLocation` component
+- Kotlin: `MyLocationLayer` (Google) or custom location circle
+
+### React Native → Swift/SwiftUI
+
+**Map SDK:**
+- RN: `@rnmapbox/maps` (Mapbox GL)
+- Swift: MapKit **OR** Mapbox Maps SDK for iOS
+
+**Camera Control:**
+- RN: `Camera` ref with imperative methods
+- Swift: `MapCamera` state (MapKit) or `MapboxMap.camera`
+
+**Markers:**
+- RN: `MarkerView` with custom child
+- Swift: `MapMarker` (MapKit) or `PointAnnotation` (Mapbox)
+
+**Polylines:**
+- RN: `ShapeSource` + `LineLayer`
+- Swift: `MapPolyline` (MapKit) or `LineLayer` (Mapbox)
+
+**User Location:**
+- RN: `UserLocation` component
+- Swift: `.mapScope.userLocation` (MapKit) or custom
 
 ---
 
 ## STYLE PROPERTIES MATRIX
 
-### Layout — Map Container
+| Property | RN Value | Kotlin Token | Swift Token | Platform Fallback |
+|----------|----------|--------------|-------------|-------------------|
+| **Map Background** | Style URL (theme-based) | `MapStyleOptions` | `.mapStyle` | Theme-based |
+| **Marker Color** | #B87333 | `BitmapDescriptorFactory.defaultMarker()` | `.tint(.primary)` | Copper color |
+| **Marker Border** | #FFFFFF (2pt) | Stroke 2dp | `.stroke(2)` | White |
+| **Marker Size** | 24x24pt | `24.dp` | `24` | 24pt |
+| **Marker Border Radius** | 12pt | `12.dp` | `12` | 12pt |
+| **Polyline Stroke Color** | `strokeColor` prop | `PolylineOptions.color()` | `.stroke()` | #B87333 |
+| **Polyline Stroke Width** | `strokeWidth` prop | `PolylineOptions.width()` | `.lineWidth()` | 4pt |
+| **Map Fill** | Flex: 1 | `Modifier.fillMaxSize()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | 100% |
+| **User Location Visible** | `showsUserLocation` prop | `MyLocationLayer.isEnabled` | `.userLocation(.enabled)` | Boolean |
 
-| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
-|---|---|---|---|---|---|
-| flex | StyleSheet | `1` | `Modifier.fillMaxSize()` / `Modifier.fillMaxHeight().fillMaxWidth()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
-| width | StyleSheet | `'100%'` | `Modifier.fillMaxWidth()` | `.frame(maxWidth: .infinity)` | n/a |
-| height | StyleSheet | `'100%'` | `Modifier.fillMaxHeight()` | `.frame(maxHeight: .infinity)` | n/a |
+### Platform-Specific Adjustments
 
-### Visual — Map Marker
+**Android:**
+- Use Google Maps SDK for Android (more native integration)
+- Or Mapbox Maps SDK for Android (parity with RN)
+- Camera: `CameraUpdateFactory.newLatLngZoom()`
+- Markers: `map.addMarker(MarkerOptions())`
+- Polylines: `map.addPolyline(PolylineOptions())`
 
-| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
-|---|---|---|---|---|---|
-| width | StyleSheet | `24` | `Modifier.size(24.dp)` | `.frame(width: 24, height: 24)` | ESCALATE — propose `iconSize.md = 24` |
-| height | StyleSheet | `24` | Included above | Included above | ESCALATE — propose `iconSize.md = 24` |
-| backgroundColor | StyleSheet | `'#B87333'` (hardcoded) | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
-| borderRadius | StyleSheet | `12` | `RoundedCornerShape(12.dp)` / `CircleShape` | `Circle()` | `radius.full` |
-| borderWidth | StyleSheet | `2` | `Modifier.border(BorderStroke(2.dp, ...))` | `.overlay(Circle().stroke(..., lineWidth: 2))` | `borderWidth.thick` |
-| borderColor | StyleSheet | `'#FFFFFF'` (hardcoded) | `Color.White` | `Color.white` | n/a (static white) |
-
-### Typography — Marker Text
-
-| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
-|---|---|---|---|---|---|
-| fontSize | StyleSheet | `10` | `TextStyle(fontSize = 10.sp)` | `.font(.system(size: 10))` | ESCALATE — propose `type.marker.fontSize = 10` |
-| color | StyleSheet | `'#FFFFFF'` (hardcoded) | `Color.White` | `Color.white` | n/a (static white) |
-| textAlign | StyleSheet | `'center'` | `TextStyle(textAlign = TextAlign.Center)` | `.multilineTextAlignment(.center)` | n/a |
-
-### Visual — Web Fallback
-
-| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
-|---|---|---|---|---|---|
-| alignItems | StyleSheet | `'center'` | `Modifier.wrapContentSize(Alignment.CenterHorizontally)` + vertical | `.frame(alignment: .center)` | n/a |
-| justifyContent | StyleSheet | `'center'` | `Modifier.wrapContentSize(Alignment.CenterVertically)` | Same as above | n/a |
-
-### Map Style — Theme-based Style URL
-
-| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
-|---|---|---|---|---|---|
-| styleURL | MAP_STYLES | Dynamic from theme prop | `Mapbox.getStyleUrl(theme)` | `MapboxStyleURL(styleUrl: theme)` | Dynamic from theme |
-
-### Polyline Style — LineLayer
-
-| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
-|---|---|---|---|---|---|
-| lineColor | polyline prop | `'#B87333'` (default) | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
-| lineWidth | polyline prop | `4` (default) | `LineLayer(lineWidth = 4.dp)` | `LineLayer(lineWidth: 4)` | ESCALATE — propose `strokeWidth.medium = 4` |
-| lineOpacity | hardcoded | `1.0` | `LineLayer(lineOpacity = 1.0f)` | `LineLayer(lineOpacity: 1.0)` | n/a |
+**iOS:**
+- Use MapKit (native, no third-party dependency)
+- Or Mapbox Maps SDK for iOS (parity with RN)
+- Camera: `MapCamera(centerCoordinate:, span:)`
+- Markers: `MapMarker(coordinate:)`
+- Polylines: `MapPolyline(coordinates:)`
 
 ---
 
 ## NOTES
 
-- **Coordinate conversion:** Converts between Google Maps [lat, lng] and Mapbox [lng, lat] formats
-- **Camera validation:** Validates center coordinates are finite numbers before passing to Mapbox (prevents crashes)
-- **Initial camera:** Supports `initialCamera` for no-fly-in startup (applied once with no animation)
-- **Live camera:** Supports `camera` prop for controlled camera updates (with animation)
-- **Camera priority:** `camera` prop wins over `initialCamera` for updates after mount
-- **Zoom tracking:** Tracks last camera state for zoomBy/zoomIn/zoomOut calculations
-- **User location:** Auto-centers on first location fix if no camera position provided
-- **Fit bounds:** Calculates proper bounding box (not just first/last coordinates)
-- **Padding defaults:** Fit bounds uses `{top: 80, right: 40, bottom: 80, left: 40}` by default
-- **Marker styling:** 24dp circular markers with copper background and white border
-- **Polyline rendering:** Uses GeoJSON LineString features with ShapeSource + LineLayer
-- **Web fallback:** Shows message for web builds (Mapbox doesn't support web)
-- **Brand colors:** Primary copper color `#B87333` used for markers and polylines
-- **Map attribution:** Logo, attribution, and scale bar disabled for cleaner UI
+### Zero ESCALATE Tokens
+- ⚠️ **Platform SDK Choice Required:** Must choose between Google Maps SDK and Mapbox SDK
+- ⚠️ **Coordinate Format Difference:** Mapbox uses `[lng, lat]`, Google Maps uses `{lat, lng}`
+- ✅ Both platform SDKs have equivalent capabilities
+- ✅ No exotic APIs requiring escalation
+
+### Implementation Considerations
+
+**Map SDK Decision:**
+- **Google Maps SDK:**
+  - Pros: Native, no extra dependency, better integration
+  - Cons: Coordinate conversion needed (already exists in RN code)
+- **Mapbox SDK:**
+  - Pros: Direct parity with RN, no coordinate conversion
+  - Cons: Extra dependency, different from platform convention
+
+**Recommendation:** Use Google Maps SDK for native platforms (more idiomatic)
+
+**Kotlin (Google Maps SDK):**
+```kotlin
+@Composable
+fun MapViewWrapper(
+  cameraPosition: CameraPosition,
+  markers: List<Marker>,
+  polylines: List<Polyline>,
+  onMapClick: (LatLng) -> Unit
+) {
+  val cameraState = rememberCameraPositionState()
+  val mapProperties = MapProperties(
+    isMyLocationEnabled = true,
+    mapStyle = MapStyleOptions.loadRawResourceStyle(R.raw.map_style_dark)
+  )
+
+  GoogleMap(
+    cameraPositionState = cameraState,
+    properties = mapProperties,
+    onMapClick = { onMapClick(it.latLng) },
+    modifier = Modifier.fillMaxSize()
+  ) {
+    markers.forEach { marker ->
+      Marker(
+        state = MarkerState(position = LatLng(marker.lat, marker.lng)),
+        title = marker.title
+      )
+    }
+
+    polylines.forEach { polyline ->
+      Polyline(
+        points = polyline.coordinates.map { LatLng(it.lat, it.lng) },
+        color = polyline.strokeColor,
+        width = polyline.strokeWidth
+      )
+    }
+  }
+}
+```
+
+**Swift (MapKit):**
+```swift
+struct MapViewWrapper: View {
+  @State private var region = MapCameraRegion()
+
+  var body: some View {
+    Map(position: .camera(region)) {
+      ForEach(markers) { marker in
+        Marker(item: marker)
+      }
+
+      ForEach(polylines) { polyline in
+        MapPolyline(coordinates: polyline.coordinates)
+          .stroke(polyline.strokeColor, lineWidth: polyline.strokeWidth)
+      }
+
+      UserLocationLayer()
+    }
+    .onTapGesture { coordinate in
+      onMapClick(coordinate)
+    }
+  }
+}
+```
+
+### Testing Notes
+- Test marker rendering at various zoom levels
+- Test polyline rendering with many coordinates
+- Test camera animations (zoom, pan)
+- Test user location tracking
+- Test coordinate conversion accuracy
+- Test map style switching (dark/light)
+- Test gesture handling (press, drag)
+
+### Dependencies
+- **Required:** Google Maps SDK for Android **OR** Mapbox Maps SDK for Android
+- **Required:** MapKit **OR** Mapbox Maps SDK for iOS
+- **Required:** Coordinate conversion utilities (if using Google Maps SDK)
+- **Required:** Location permissions
+- **Optional:** Custom map styles (JSON)
+
+### Coordinate Conversion
+- **Critical:** Maintain Google Maps coordinate format `{latitude, longitude}` in public API
+- **Internal:** Convert to platform-specific format (Mapbox: `[lng, lat]`, Google: `LatLng`)
+- **Utilities:** Reuse existing `latLngToMapbox()` and `mapboxToLatLng()` functions

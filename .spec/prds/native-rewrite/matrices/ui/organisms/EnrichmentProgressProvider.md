@@ -2,7 +2,7 @@
 
 **Component:** EnrichmentProgressProvider
 **RN Source:** `react-native/components/enrichment/enrichment-progress-provider.tsx`
-**Framework Primitives:** `react` Context API
+**Framework Primitives:** None (React context provider)
 
 ---
 
@@ -10,23 +10,22 @@
 
 | Source Type | Path | Purpose |
 |---|---|---|---|
-| RN Wrapper | `react-native/components/enrichment/enrichment-progress-provider.tsx` | Public API, enrichment progress state |
-| Context (React) | `node_modules/react/index.js` | State management provider |
+| RN Wrapper | `react-native/components/enrichment/enrichment-progress-provider.tsx` | Public API, context provider |
+| React Context | `node_modules/react/src/React.js` | Context API |
 
 ---
 
 ## COMPOSITION ANALYSIS
 
 **Child molecules/atoms:**
-- None (state provider only)
+- None (provider component)
 
 **Composition pattern:**
-- Context provider for enrichment progress state
-- Manages enrichment phase (idle, enriching, complete, error)
-- Provides progress percentage (0-100)
-- Provides enrichment status (fast, extended, cached)
-- Wraps child components with enrichment context
-- No visual output (state management only)
+- React Context provider for enrichment progress state
+- Manages progress state (draft → partial → complete → failed)
+- Manages toast visibility with auto-dismiss on completion
+- Broadcasts screen reader announcements on status transitions
+- Provides callbacks for manual toast control
 
 **Layout:** None (invisible provider wrapper)
 
@@ -35,45 +34,48 @@
 ## STATE & BEHAVIOR
 
 | State | Type | Source | Native Translation |
-|---|---|---|---|---|
-| enrichmentPhase | enum | Context state | `remember { mutableStateOf(EnrichmentPhase.IDLE) }` / `@State var phase: EnrichmentPhase = .idle` |
-| progress | number | Context state | `remember { mutableStateOf(0) }` / `@State var progress: Double = 0` |
-| enrichmentStatus | enum | Context state | `remember { mutableStateOf(EnrichmentStatus.UNKNOWN) }` / `@State var status: EnrichmentStatus = .unknown` |
+|---|---|---|---|
+| progress | EnrichmentProgress | useState({routeId, status, stage, progress, stages}) | `remember { mutableStateOf(...) }` / `@State var progress: EnrichmentProgress` |
+| toastVisible | boolean | useState(false) | `remember { mutableStateOf(false) }` / `@State var toastVisible: Bool` |
 
 **Side effects:**
-- Progress updates: `useEffect` with enrichment service → `LaunchedEffect(routeId) { ... }` / `.task { ... }` async task
-- Phase transitions: State updates from enrichment service → State updates from enrichment service callbacks
+- Auto-dismiss toast on completion: `useEffect([progress.status, toastVisible, autoDismissDelay])` → `LaunchedEffect(progress.status) { if (status == complete) delay(autoDismissDelay); toastVisible = false }` / `.onChange(of: progress.status) { if status == complete { DispatchQueue.main.asyncAfter(deadline: .now() + autoDismissDelay) { toastVisible = false } } }`
+- Accessibility announcements: `useEffect([progress.status])` with `AccessibilityInfo.announceForAccessibility` → `LaunchedEffect(progress.status) { LocalContext.current.announce(...) }` / `.accessibilityAnnouncement(status)` |
 
 **Callback signatures:**
-- (none - provider only, no callbacks)
+- `updateProgress: (update: Partial<EnrichmentProgress>) => void` → `(update: Partial<EnrichmentProgress>) -> Unit` / `(Partial<EnrichmentProgress>) -> Void`
+- `dismissToast: () => void` → `() -> Unit` / `() -> Void`
+- `showToast: () => void` → `() -> Unit` / `() -> Void`
 
-**Context values:**
-- `enrichmentPhase: EnrichmentPhase` → `EnrichmentPhase` enum / `EnrichmentPhase` enum
-- `progress: number` (0-100) → `Float` (0.0-1.0) / `Double` (0.0-1.0)
-- `enrichmentStatus: EnrichmentStatus` → `EnrichmentStatus` enum / `EnrichmentStatus` enum
+**Context value:**
+```typescript
+{
+  progress: EnrichmentProgress,
+  toastVisible: boolean,
+  updateProgress: (update: Partial<EnrichmentProgress>) => void,
+  dismissToast: () => void,
+  showToast: () => void
+}
+```
 
 ---
 
 ## STYLE PROPERTIES MATRIX
 
-### Layout — Provider Wrapper
-
-| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
-|---|---|---|---|---|---|
-| (none - invisible provider) | - | - | `CompositionLocalProvider(...)` | `@Environment(\.enrichmentProgress)` | n/a |
+**Note:** This component has no visual properties. It's a state provider only.
 
 ---
 
 ## NOTES
 
-- **State provider:** Context provider for enrichment progress state
-- **Enrichment phases:** IDLE, ENRICHING, COMPLETE, ERROR
-- **Progress range:** 0-100 (percentage) or 0.0-1.0 (fraction)
-- **Enrichment status:** FAST (teal), EXTENDED (purple), CACHED (gray), UNKNOWN
-- **Child components:** Access progress via context hook
-- **No styling:** Pure state management, no visual output
-- **Android translation:** Use `CompositionLocalProvider` or `ViewModel` with state flow
-- **iOS translation:** Use `@Environment` values or `@StateObject` view model
-- **Async updates:** Progress updates from enrichment service via async callbacks
-- **Route-scoped:** One provider per route being enriched
-- **Lifecycle:** Mounts when route card mounts, unmounts when card unmounts
+- **Context provider:** No visual output, provides state via React Context
+- **Auto-dismiss:** 3000ms default delay when progress.status === 'complete'
+- **Stages:** Default stages are ['Leg labels', 'Weather data', 'Elevation', 'Scenic analysis']
+- **Progress values:** 0-100 range
+- **Status transitions:** draft → partial → complete OR failed
+- **Accessibility:** Announces status changes to screen readers
+- **Announcements:** "Route enrichment starting", "Route partially enriched", "Route enrichment complete", "Route enrichment failed"
+- **Toast control:** Manual show/hide via callbacks, auto-dismiss on completion
+- **Route ID:** Immutable, preserved through updates
+- **Hook access:** Children use `useEnrichmentProgress()` hook to access context
+- **Custom stages:** Can be overridden via initialProgress.stages prop

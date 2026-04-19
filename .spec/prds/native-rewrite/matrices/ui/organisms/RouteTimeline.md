@@ -11,40 +11,30 @@
 | Source Type | Path | Purpose |
 |---|---|---|---|
 | RN Wrapper | `react-native/components/sheets/route-timeline.tsx` | Public API, timeline visualization |
-| LinearGradient | `expo-linear-gradient` | Vertical gradient line |
-| Theme hook | `react-native/hooks/use-semantic-theme.ts` | Theme-aware styling |
+| LinearGradient | `expo-linear-gradient` | Gradient line connecting dots |
+| View (RN) | `node_modules/react-native/Libraries/Components/View/View.js` | Container, dots, line |
 
 ---
 
 ## COMPOSITION ANALYSIS
 
 **Child molecules/atoms:**
-- None (primitive composition)
+- None (pure visualization component)
 
 **Composition pattern:**
-- Vertical timeline with start dot (top) and end dot (bottom)
-- Gradient line connecting dots (primary → 50% primary → 30% onSurface)
-- Start dot: 12dp hollow circle with 2dp primary border
-- End dot: 12dp filled circle with 50% alpha onSurface muted color
-- Designed for horizontal row layout (to the left of input fields)
-- Accessibility labels for screen reader support
-- Custom alpha utility function for color transparency
+- 24px wide vertical column
+- Start dot (top): 12px hollow circle with 2px primary border
+- Gradient line (middle): 2px wide, flex: 1, fades from primary to muted
+- End dot (bottom): 12px filled circle with 50% opacity muted color
+- Gradient colors: primary → 50% primary → 30% muted
 
-**Layout:** Vertical flex container with top padding, 12dp dots, flexible height line
+**Layout:** Fixed width column, stretches to fill parent height
 
 ---
 
 ## STATE & BEHAVIOR
 
-| State | Type | Source | Native Translation |
-|---|---|---|---|---|
-| (none - presentational) | - | - | - |
-
-**Side effects:**
-- (none - purely presentational)
-
-**Callback signatures:**
-- (none - no callbacks)
+No local state. Pure presentational component.
 
 ---
 
@@ -54,53 +44,56 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| flexDirection | StyleSheet | `'column'` | `Column(...)` | `VStack` | n/a |
-| paddingTop | semantic | `semantic.space.lg` (= 16) | `Modifier.padding(top = 16.dp)` | `.padding(.top, 16)` | `space.lg` |
-| alignItems | StyleSheet | `'center'` | `Modifier.wrapContentSize(Alignment.CenterHorizontally)` | `.frame(alignment: .center)` | n/a |
-| gap | constant | `4` | `Arrangement.spacedBy(4.dp)` / vertical spacing | `spacing(4)` | `space.xs` |
+| width | RN-wrapper | `24` | `Modifier.width(24.dp)` | `.frame(width: 24)` | ESCALATE — propose `layout.timelineWidth = 24` |
+| flexDirection | RN-wrapper | `'column'` | `Column(...)` | `VStack` | n/a |
+| alignItems | RN-wrapper | `'center'` | `Modifier.wrapContentSize(Alignment.CenterHorizontally)` + vertical | `.frame(maxWidth: .infinity).overlay(..., alignment: .center)` | n/a |
+| flexShrink | RN-wrapper | `0` | `Modifier.requiredWidth(24.dp)` (no shrink) | `.fixedSize(horizontal: true, vertical: false)` | n/a |
+| alignSelf | RN-wrapper | `'stretch'` | `Modifier.fillMaxHeight()` / `Modifier.height(IntrinsicSize.Max)` | `.frame(maxHeight: .infinity)` | n/a |
+| paddingTop | RN-wrapper | `semantic.space.lg` (= 16) | `Modifier.padding(top = 16.dp)` | `.padding(.top, 16)` | `space.lg` |
+
+### Visual — Timeline Dots (both start and end)
+
+| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|
+| width | RN-wrapper | `semantic.space.md` (= 12) | `Modifier.size(12.dp)` | `.frame(width: 12, height: 12)` | `space.md` |
+| height | RN-wrapper | `semantic.space.md` (= 12) | Included above | Included above | `space.md` |
+| borderRadius | RN-wrapper | `semantic.radius.full` (= 9999) | `CircleShape` | `Circle()` / `Capsule()` | `radius.full` |
 
 ### Visual — Start Dot (top)
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| width | semantic | `semantic.space.md` (= 12) | `Modifier.size(12.dp)` | `.frame(width: 12, height: 12)` | `space.md` |
-| height | semantic | `semantic.space.md` (= 12) | Included above | Included above | `space.md` |
-| borderRadius | semantic | `semantic.radius.full` (= 9999) | `CircleShape` / `RoundedCornerShape(50.percent)` | `Circle()` | `radius.full` |
-| backgroundColor | constant | `'transparent'` | `Color.Transparent` | `Color.clear` | n/a |
-| borderWidth | constant | `2` | `Modifier.border(BorderStroke(2.dp, ...))` | `.overlay(Circle().stroke(..., lineWidth: 2))` | `borderWidth.thick` |
-| borderColor | semantic | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+| backgroundColor | RN-wrapper | `'transparent'` | `Color.Transparent` | `Color.clear` | n/a |
+| borderWidth | RN-wrapper | `2` | `Modifier.border(BorderStroke(2.dp, ...))` | `.overlay(Circle().stroke(..., lineWidth: 2))` | `borderWidth.thick` |
+| borderColor | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
 
 ### Visual — End Dot (bottom)
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| width | semantic | `semantic.space.md` (= 12) | `Modifier.size(12.dp)` | `.frame(width: 12, height: 12)` | `space.md` |
-| height | semantic | `semantic.space.md` (= 12) | Included above | Included above | `space.md` |
-| borderRadius | semantic | `semantic.radius.full` (= 9999) | `CircleShape` / `RoundedCornerShape(50.percent)` | `Circle()` | `radius.full` |
-| backgroundColor | computed | `onSurface.muted with 50% alpha` | `LaneShadowTheme.colors.onSurfaceMuted.copy(alpha = 0.5f)` | `theme.colors.onSurfaceMuted.opacity(0.5)` | `color.onSurface.muted` + `opacity.container` |
+| backgroundColor | RN-wrapper | `onSurface.muted with 50% opacity` | `LaneShadowTheme.colors.onSurfaceMuted?.copy(alpha = 0.5f)` | `theme.colors.onSurfaceMuted?.opacity(0.5)` | `color.onSurface.muted + opacity 0.5` |
 
-### Visual — Gradient Line
+### Visual — Timeline Line (gradient)
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| width | constant | `2` | `Modifier.width(2.dp)` | `.frame(width: 2)` | ESCALATE — propose `strokeWidth.timeline = 2` |
-| flex | StyleSheet | `1` | `Modifier.weight(1f)` | `.layoutPriority(1)` | n/a |
-| gradient colors | computed | `[primary, primary@50%, onSurface.muted@30%]` | `Brush.verticalGradient(...)` | `LinearGradient(...)` | Dynamic from theme |
-| gradient start | constant | `{x: 0.5, y: 0}` | `Offset(0.5f, 0f)` | `UnitPoint(x: 0.5, y: 0)` | n/a |
-| gradient end | constant | `{x: 0.5, y: 1}` | `Offset(0.5f, 1f)` | `UnitPoint(x: 0.5, y: 1)` | n/a |
+| width | RN-wrapper | `2` | `Modifier.width(2.dp)` | `.frame(width: 2)` | ESCALATE — propose `borderWidth.timeline = 2` |
+| flex | RN-wrapper | `1` | `Modifier.weight(1f)` / `Modifier.fillMaxHeight()` | `.frame(maxHeight: .infinity)` | n/a |
+| marginVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | ESCALATE — propose `space.micro = 4` |
+| borderRadius | RN-wrapper | `9999` | `RoundedCornerShape(50.dp)` / `CircleShape` (for ends) | `.clipShape(Capsule())` | `radius.full` |
+| gradient | RN-wrapper | `[primary, 50% primary, 30% muted]` | `Brush.verticalGradient(...colors = [...])` | `LinearGradient(...)` | n/a (multi-color) |
 
 ---
 
 ## NOTES
 
-- **Alpha utility:** Custom `withAlpha()` function supports hex, rgb(), rgba() color formats
-- **Gradient transition:** Primary color fades to 50% primary, then to 30% onSurface muted
-- **Start dot:** Hollow circle indicates start point (origin)
-- **End dot:** Filled circle indicates destination
-- **Dot size:** 12dp (semantic.space.md) for both dots
-- **Line width:** 2dp for subtle visual connection
-- **Horizontal layout:** Designed for use in horizontal row (timeline to left of inputs)
-- **Accessibility:** Includes testID and accessibilityLabel for screen readers
-- **Flex line:** Vertical line uses flex: 1 to fill available space between dots
-- **4dp gap:** Small gap between dots and line for visual separation
-- **No state:** Purely presentational component with no interactivity
+- **Fixed width:** 24px container
+- **Dot size:** 12px (space.md)
+- **Start dot:** Hollow circle with 2px primary border
+- **End dot:** Filled circle with 50% opacity muted color
+- **Line width:** 2px
+- **Gradient:** Three-stop vertical gradient (primary → 50% primary → 30% muted)
+- **Stretch:** Timeline stretches to fill available height via flex: 1 on line
+- **Spacing:** 4px margin above and below the line
+- **Usage:** Designed to be displayed to the left of input fields in a horizontal row
+- **Accessibility:** Includes accessibility labels for start/end points when selected

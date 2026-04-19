@@ -2,7 +2,7 @@
 
 **Component:** RouteDetailsSheet
 **RN Source:** `react-native/components/sheets/route-details-sheet.tsx`
-**Framework Primitives:** `@gorhom/bottom-sheet`, `node_modules/react-native/Libraries/Components/View/View.js`
+**Framework Primitives:** `node_modules/react-native/Libraries/Components/ScrollView/ScrollView.js`, `node_modules/react-native-paper/src/components/Typography/Text.tsx`
 
 ---
 
@@ -10,120 +10,202 @@
 
 | Source Type | Path | Purpose |
 |---|---|---|---|
-| RN Wrapper | `react-native/components/sheets/route-details-sheet.tsx` | Public API, sheet layout, route details |
-| BottomSheetWrapper | `react-native/components/sheets/bottom-sheet-wrapper.tsx` | Gorhom bottom sheet integration (see `matrices/ui/templates/BottomSheetWrapper.md`) |
-| ScrollView | `react-native-gesture-handler` | Scrollable content area |
-| StatRow | `react-native/components/ui/stat-row.tsx` | Route statistics display (see `matrices/ui/molecules/StatRow.md`) |
-| WindBadge | `react-native/components/planning/wind-badge.tsx` | Wind conditions display (see `matrices/ui/molecules/WindBadge.md`) |
-| Button | `react-native/components/ui/button.tsx` | Save action button (see `matrices/ui/atoms/Button.md`) |
-| IconSymbol | `react-native/components/ui/icon-symbol.tsx` | Route type icon (see `matrices/ui/atoms/IconSymbol.md`) |
+| RN Wrapper | `react-native/components/sheets/route-details-sheet.tsx` | Public API, bottom sheet layout |
+| StatRow | `react-native/components/ui/stat-row.tsx` | Stats display (see `matrices/ui/molecules/StatRow.md`) |
+| WindBadge | `react-native/components/planning/wind-badge.tsx` | Wind level (see `matrices/ui/molecules/WindBadge.md`) |
+| Button | `react-native/components/ui/button.tsx` | Save button (see `matrices/ui/atoms/Button.md`) |
+| IconSymbol | `react-native/components/ui/icon-symbol.tsx` | Icons (see `matrices/ui/atoms/IconSymbol.md`) |
+| BottomSheetWrapper | `react-native/components/sheets/bottom-sheet-wrapper.tsx` | Sheet container |
+| ScrollView (RN) | `node_modules/react-native/Libraries/Components/ScrollView/ScrollView.js` | Scrollable content |
 
 ---
 
 ## COMPOSITION ANALYSIS
 
 **Child molecules/atoms:**
-- `BottomSheetWrapper` - Gorhom bottom sheet container
-- `StatRow` - Distance, duration, elevation stats
-- `WindBadge` - Wind conditions badge
-- `Button` - Save route button
-- `IconSymbol` - Route type icon
+- `StatRow` - Route statistics (distance, duration, legs) (see `matrices/ui/molecules/StatRow.md`)
+- `WindBadge` - Wind level badge (see `matrices/ui/molecules/WindBadge.md`)
+- `Button` - Save button (see `matrices/ui/atoms/Button.md`)
+- `IconSymbol` - Status icons
 
 **Composition pattern:**
-- Half-height bottom sheet with close button
-- Header with "Route Details" title and route label badge
-- Badge uses primary color with 12% alpha background
-- Scrollable content area with route statistics
-- Stat rows for distance, duration, elevation
-- Wind badge for conditions
-- Save button with loading state
-- Custom alpha utility function for transparent colors
+- Bottom sheet with half preset
+- Header with title and badge
+- ScrollView with sections (Rationale, Stats, Conditions)
+- Rationale section shows route explanation
+- Stats card shows distance, duration, legs count
+- Conditions card shows wind and status
+- Save button at bottom (conditional)
+- Glassmorphic cards with 80% opacity surface background
 
-**Layout:** Vertical stack with 16dp padding, header row with title and badge
+**Layout:** Column layout with 16px gap, sections have 20px bottom margin
 
 ---
 
 ## STATE & BEHAVIOR
 
-| State | Type | Source | Native Translation |
-|---|---|---|---|---|
-| (none - controlled component) | - | - | - |
-
-**Side effects:**
-- (none - purely presentational)
+No local state. Pure presentational component.
 
 **Callback signatures:**
 - `onClose: () => void` → `() -> Unit` / `() -> Void`
 - `onSave?: () => void` → `() -> Unit` / `() -> Void`
 
+**Helpers:**
+- `formatDistance(meters): string` → Converts meters to "Xm" or "X.Xkm"
+- `formatDuration(seconds): string` → Converts seconds to "Xh Xm" or "Xm"
+- `addOpacity(hexColor, opacity): string` → Adds alpha to hex color
+
 ---
 
 ## STYLE PROPERTIES MATRIX
 
-### Layout — Sheet Container
+### Layout — Container
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| preset | BottomSheetWrapper | `'half'` | `BottomSheetState(...halfExpandedRatio = 0.5)` | `.presentationDetents([.medium()])` | n/a (preset name) |
-| paddingHorizontal | constant | `16` | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
+| flex | RN-wrapper | `1` | `Modifier.fillMaxHeight()` / `Modifier.weight(1f)` | `.frame(maxHeight: .infinity)` | n/a |
+| gap | RN-wrapper | `16` | `Arrangement.spacedBy(16.dp)` / `Modifier.padding(bottom = 16.dp)` between items | `spacing(16)` | `space.lg` |
 
-### Visual — Header
-
-| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
-|---|---|---|---|---|---|
-| gap | constant | `8` | `Arrangement.spacedBy(8.dp)` / `Modifier.padding(end = 8.dp)` | `spacing(8)` | `space.sm` |
-| alignItems | constant | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
-
-### Typography — Title
+### Layout — Header
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| variant | react-native-paper | `titleLarge` | `LaneShadowTheme.typography.titleLarge` | `theme.typography.titleLarge` | `type.title.lg` |
-| color | semantic | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
+| justifyContent | RN-wrapper | `'space-between'` | `horizontalArrangement = Arrangement.SpaceBetween` | n/a | n/a |
+| alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
+| paddingBottom | RN-wrapper | `8` | `Modifier.padding(bottom = 8.dp)` | `.padding(.bottom, 8)` | `space.sm` |
 
-### Visual — Route Label Badge
-
-| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
-|---|---|---|---|---|---|
-| backgroundColor | computed | `${primary}1F` (12% alpha) | `LaneShadowTheme.colors.primary.copy(alpha = 0.12f)` | `theme.colors.primary.opacity(0.12)` | `color.primary.default` + `opacity.container` |
-| gap | constant | `4` | `Arrangement.spacedBy(4.dp)` | `spacing(4)` | `space.xs` |
-| paddingHorizontal | constant | `8` | `Modifier.padding(horizontal = 8.dp)` | `.padding(.horizontal, 8)` | `space.sm` |
-| paddingVertical | constant | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | `space.xs` |
-| borderRadius | constant | `8` | `RoundedCornerShape(8.dp)` | `RoundedRectangle(cornerRadius: 8)` | `radius.md` |
-
-### Icon — Route Badge Icon
+### Typography — Header Title
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | constant | `14` | `Modifier.size(14.dp)` | `.frame(width: 14, height: 14)` | ESCALATE — propose `iconSize.xs = 14` |
-| color | semantic | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+| variant | RN-wrapper | `titleLarge` | `LaneShadowTheme.typography.titleLarge` | `theme.typography.titleLarge` | n/a |
+| color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+
+### Visual — Badge
+
+| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|
+| flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
+| alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
+| gap | RN-wrapper | `4` | `Arrangement.spacedBy(4.dp)` / `Modifier.padding(end = 4.dp)` between items | `spacing(4)` | ESCALATE — propose `space.micro = 4` |
+| paddingVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | ESCALATE — propose `space.micro = 4` |
+| paddingHorizontal | RN-wrapper | `10` | `Modifier.padding(horizontal = 10.dp)` | `.padding(.horizontal, 10)` | ESCALATE — propose `space.badge = 10` |
+| borderRadius | RN-wrapper | `6` | `RoundedCornerShape(6.dp)` | `RoundedRectangle(cornerRadius: 6)` | ESCALATE — propose `radius.sm = 6` |
+| backgroundColor | RN-wrapper | `primary.default with 12% alpha` | `LaneShadowTheme.colors.primary.copy(alpha = 0.12f)` | `theme.colors.primary.opacity(0.12)` | `color.primary.default + opacity 0.12` |
 
 ### Typography — Badge Text
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| fontSize | constant | `12` | `TextStyle(fontSize = 12.sp)` | `.font(.system(size: 12))` | `type.label.sm.fontSize` |
-| fontWeight | constant | `'500'` | `TextStyle(fontWeight = FontWeight.Medium)` | `.fontWeight(.medium)` | `type.label.sm.fontWeight` |
-| color | semantic | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+| fontSize | RN-wrapper | `12` | `12.sp` | `.font(.system(size: 12))` | ESCALATE — verify `type.label.xs.fontSize = 12` |
+| fontWeight | RN-wrapper | `'600'` (semibold) | `FontWeight.SemiBold` | `.semibold` | ESCALATE — verify `type.label.xs.fontWeight = 600` |
+| textTransform | RN-wrapper | `'uppercase'` | Uppercase string | `.textCase(.uppercase)` | n/a |
+| letterSpacing | RN-wrapper | `0.5` | `style { letterSpacing = 0.5.sp }` | `.tracking(0.5)` | ESCALATE — verify `type.label.xs.letterSpacing = 0.5` |
+| color | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
 
-### Layout — Content Sections
+### Icon — Badge
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| gap | constant | `16` | `Arrangement.spacedBy(16.dp)` / `Modifier.padding(top = 16.dp)` between sections | `spacing(16)` | `space.lg` |
-| marginTop | constant | `16` | `Modifier.padding(top = 16.dp)` | `.padding(.top, 16)` | `space.lg` |
+| size | RN-wrapper | `14` | `Modifier.size(14.dp)` | `.frame(width: 14, height: 14)` | ESCALATE — propose `icon.xs = 14` |
+| color | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+
+### Layout — ScrollView
+
+| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|
+| flex | RN-wrapper | `1` | `Modifier.fillMaxHeight()` / `Modifier.weight(1f)` | `.frame(maxHeight: .infinity)` | n/a |
+
+### Layout — Section
+
+| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|
+| marginBottom | RN-wrapper | `20` | `Modifier.padding(bottom = 20.dp)` | `.padding(.bottom, 20)` | `space.xl` |
+
+### Typography — Section Label
+
+| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|
+| variant | RN-wrapper | `labelMedium` | `LaneShadowTheme.typography.labelMedium` | `theme.typography.labelMedium` | n/a |
+| color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
+| marginBottom | RN-wrapper | `8` | `Modifier.padding(bottom = 8.dp)` | `.padding(.bottom, 8)` | `space.sm` |
+| textTransform | RN-wrapper | `'uppercase'` | Uppercase string | `.textCase(.uppercase)` | n/a |
+| letterSpacing | RN-wrapper | `0.5` | `style { letterSpacing = 0.5.sp }` | `.tracking(0.5)` | ESCALATE — verify `type.label.letterSpacing = 0.5` |
+
+### Typography — Rationale Text
+
+| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|
+| variant | RN-wrapper | `bodyMedium` | `LaneShadowTheme.typography.bodyMedium` | `theme.typography.bodyMedium` | n/a |
+| color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| lineHeight | RN-wrapper | `22` | `LaneShadowTheme.typography.bodyMedium.lineHeight` | `theme.typography.bodyMedium.lineSpacing` + baseline | ESCALATE — verify `type.body.md.lineHeight = 22` |
+
+### Visual — Stats Card / Conditions Card
+
+| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|
+| backgroundColor | RN-wrapper | `surface.default with 80% opacity` | `LaneShadowTheme.colors.surface.copy(alpha = 0.8f)` | `theme.colors.surface.opacity(0.8)` | `color.surface.default + opacity 0.8` |
+| borderRadius | RN-wrapper | `12` | `RoundedCornerShape(12.dp)` | `RoundedRectangle(cornerRadius: 12)` | `radius.lg` |
+| padding | RN-wrapper | `16` | `Modifier.padding(16.dp)` | `.padding(16)` | `space.lg` |
+| gap | RN-wrapper | `12` | `Arrangement.spacedBy(12.dp)` / `Modifier.padding(bottom = 12.dp)` between items | `spacing(12)` | `space.md` |
+
+### Layout — Condition Row
+
+| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|
+| flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
+| justifyContent | RN-wrapper | `'space-between'` | `horizontalArrangement = Arrangement.SpaceBetween` | n/a | n/a |
+| alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
+
+### Typography — Condition Label
+
+| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|
+| variant | RN-wrapper | `bodyMedium` | `LaneShadowTheme.typography.bodyMedium` | `theme.typography.bodyMedium` | n/a |
+| color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+
+### Layout — Status Row
+
+| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|
+| flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
+| alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
+| gap | RN-wrapper | `6` | `Arrangement.spacedBy(6.dp)` / `Modifier.padding(end = 6.dp)` between items | `spacing(6)` | ESCALATE — propose `space.tight = 6` |
+
+### Icon — Status
+
+| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|
+| size | RN-wrapper | `16` | `Modifier.size(16.dp)` | `.frame(width: 16, height: 16)` | ESCALATE — propose `icon.xs = 16` |
+| color (ok) | RN-wrapper | `semantic.color.success.default` | `LaneShadowTheme.colors.success` | `theme.colors.success` | `color.success.default` |
+| color (error) | RN-wrapper | `semantic.color.warning.default` | `LaneShadowTheme.colors.warning` | `theme.colors.warning` | `color.warning.default` |
+
+### Typography — Status Text
+
+| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|
+| variant | RN-wrapper | `bodySmall` | `LaneShadowTheme.typography.bodySmall` | `theme.typography.bodySmall` | n/a |
+| color (ok) | RN-wrapper | `semantic.color.success.default` | `LaneShadowTheme.colors.success` | `theme.colors.success` | `color.success.default` |
+| color (error) | RN-wrapper | `semantic.color.warning.default` | `LaneShadowTheme.colors.warning` | `theme.colors.warning` | `color.warning.default` |
+
+### Layout — Actions
+
+| Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|
+| paddingTop | RN-wrapper | `8` | `Modifier.padding(top = 8.dp)` | `.padding(.top, 8)` | `space.sm` |
 
 ---
 
 ## NOTES
 
-- **Alpha utility:** Custom `addOpacity()` function adds alpha to hex colors (e.g., `#B873331F` for 12% alpha)
-- **Badge background:** Primary color with 12% alpha for subtle badge background
-- **Route label:** Displays route label from `route.label` property
-- **Format utilities:** `formatDistance()` and `formatDuration()` for display formatting
-- **Loading state:** Save button shows loading spinner when `isSaving={true}`
-- **Scrollable:** Content wraps in ScrollView for overflow handling
-- **Half modal:** Uses preset="half" for half-height bottom sheet
-- **Child components:** Composed from StatRow, WindBadge, Button, IconSymbol
-- **Theme integration:** All colors sourced from semantic theme tokens
-- **No inline styles:** All styling via StyleSheet constants or semantic tokens
+- **Bottom sheet:** Half preset, uses BottomSheetWrapper
+- **Container gap:** 16px between header, scroll content, and actions
+- **Section margin:** 20px bottom margin on each section
+- **Glassmorphic cards:** 80% opacity surface background, 12px radius, 16px padding
+- **Badge:** Primary color with 12% alpha, 6px radius, uppercase text with 0.5 letter spacing
+- **Stats card:** Shows distance, duration, legs count using StatRow
+- **Conditions card:** Shows wind badge and status row
+- **Status icons:** check-circle (success) or alert-circle (warning)
+- **Save button:** Large primary button with icon, shows "Saving..." when disabled
+- **Formatting helpers:** Distance in meters/km, duration in minutes/hours
