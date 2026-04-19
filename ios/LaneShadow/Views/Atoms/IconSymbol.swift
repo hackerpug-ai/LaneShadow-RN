@@ -62,6 +62,7 @@ public struct LSIconSymbol: View {
         "delete": "trash",
         "bell": "bell.fill",
         "bell-outline": "bell",
+        "information": "info.circle",
     ]
 
     public init(
