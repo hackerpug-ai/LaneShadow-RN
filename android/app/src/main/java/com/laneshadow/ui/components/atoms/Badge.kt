@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
 import com.laneshadow.theme.LocalLaneShadowTheme
 
@@ -39,6 +42,7 @@ enum class BadgeVariant {
  * @param text Text content to display
  * @param icon Optional icon composable to display before text
  * @param opacity Opacity value for semi-transparent backgrounds (default: 1.0)
+ * @param contentDescription Accessibility description for screen readers (defaults to text if null)
  * @param modifier Modifier for the container
  */
 @Composable
@@ -47,6 +51,7 @@ fun Badge(
     text: String,
     icon: @Composable (() -> Unit)? = null,
     opacity: Float = 1.0f,
+    contentDescription: String? = null,
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
@@ -79,7 +84,12 @@ fun Badge(
     }
 
     Surface(
-        modifier = modifier.alpha(opacity),
+        modifier = modifier
+            .alpha(opacity)
+            .heightIn(min = 24.dp)
+            .semantics {
+                this.contentDescription = contentDescription ?: text
+            },
         shape = androidx.compose.foundation.shape.CircleShape,
         color = backgroundColor,
         border = border,
