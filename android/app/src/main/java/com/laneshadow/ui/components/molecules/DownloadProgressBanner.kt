@@ -1,11 +1,5 @@
 package com.laneshadow.ui.components.molecules
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,7 +18,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -61,146 +54,118 @@ fun DownloadProgressBanner(
 ) {
     val theme = LocalLaneShadowTheme.current
 
-    // Animate progress bar width
-    val progressAnim by animateFloatAsState(
-        targetValue = progress,
-        animationSpec = androidx.compose.animation.core.tween(
-            durationMillis = theme.motion.duration["standard"] ?: 300,
-            easing = androidx.compose.animation.core.FastOutSlowInEasing,
-        ),
-        label = "progress",
-    )
-
     // Round progress to nearest integer for display
-    val progressPercent = progressAnim.toInt()
+    val progressPercent = progress.toInt()
 
     // Build accessibility description
     val accessibilityDescription = "Download progress: $progressPercent% complete"
 
-    AnimatedVisibility(
-        visible = isVisible,
-        enter = expandVertically(
-            animationSpec = androidx.compose.animation.core.tween(
-                durationMillis = theme.motion.duration["standard"] ?: 300,
-            )
-        ) + fadeIn(
-            animationSpec = androidx.compose.animation.core.tween(
-                durationMillis = theme.motion.duration["standard"] ?: 300,
-            )
-        ),
-        exit = shrinkVertically(
-            animationSpec = androidx.compose.animation.core.tween(
-                durationMillis = theme.motion.duration["standard"] ?: 300,
-            )
-        ) + fadeOut(
-            animationSpec = androidx.compose.animation.core.tween(
-                durationMillis = theme.motion.duration["standard"] ?: 300,
-            )
-        ),
-        modifier = modifier,
-    ) {
-        Surface(
-            modifier = Modifier
-                .semantics {
-                    contentDescription = accessibilityDescription
+    // Only render if visible
+    if (!isVisible) {
+        return
+    }
+
+    Surface(
+        modifier = modifier
+            .semantics {
+                contentDescription = accessibilityDescription
+            }
+            .then(
+                if (onPress != null) {
+                    Modifier.clickable { onPress() }
+                } else {
+                    Modifier
                 }
-                .then(
-                    if (onPress != null) {
-                        Modifier.clickable { onPress() }
-                    } else {
-                        Modifier
-                    }
-                ),
-            color = theme.colors.onSurface.default.copy(
-                alpha = 0.95f
             ),
-            border = BorderStroke(
-                width = 1.dp,
-                color = theme.colors.warning.default.copy(
-                    alpha = theme.opacity.values["step03"] ?: 0.3f
-                ),
+        color = theme.colors.onSurface.default.copy(
+            alpha = 0.95f
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = theme.colors.warning.default.copy(
+                alpha = theme.opacity.values["step03"] ?: 0.3f
             ),
+        ),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = theme.space.md, vertical = theme.space.xs),
         ) {
-            Column(
+            // Progress bar at top (2px height)
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = theme.space.md, vertical = theme.space.xs),
+                    .height(2.dp)
+                    .background(
+                        theme.colors.warning.default.copy(
+                            alpha = theme.opacity.values["step02"] ?: 0.2f
+                        )
+                    ),
             ) {
-                // Progress bar at top (2px height)
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(progressPercent / 100f)
                         .height(2.dp)
-                        .background(
-                            theme.colors.warning.default.copy(
-                                alpha = theme.opacity.values["step02"] ?: 0.2f
-                            )
-                        ),
+                        .background(theme.colors.warning.default),
+                )
+            }
+
+            // Content row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = theme.space.xs),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                // Title and subtitle
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(theme.space.xs),
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(progressAnim / 100f)
-                            .height(2.dp)
-                            .background(theme.colors.warning.default),
+                    // Title text
+                    Text(
+                        text = "Setting up your AI Companion...",
+                        color = theme.colors.onSurface.default.copy(
+                            alpha = theme.opacity.values["step09"] ?: 0.9f
+                        ),
+                        style = androidx.compose.ui.text.TextStyle(
+                            fontSize = 14.sp,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                            letterSpacing = (-0.2).sp,
+                        ),
+                    )
+
+                    // Subtitle text with progress percentage
+                    Text(
+                        text = "$progressPercent% complete · Keep WiFi connected",
+                        color = theme.colors.onSurface.default.copy(
+                            alpha = 0.6f
+                        ),
+                        style = androidx.compose.ui.text.TextStyle(
+                            fontSize = 12.sp,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                        ),
                     )
                 }
 
-                // Content row
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = theme.space.xs),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    // Title and subtitle
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(theme.space.xs),
+                // Dismiss button
+                if (onDismiss != null) {
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .padding(start = theme.space.xs)
+                            .size(24.dp),
                     ) {
-                        // Title text
-                        Text(
-                            text = "Setting up your AI Companion...",
-                            color = theme.colors.onSurface.default.copy(
-                                alpha = theme.opacity.values["step09"] ?: 0.9f
-                            ),
-                            style = androidx.compose.ui.text.TextStyle(
-                                fontSize = 14.sp,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                                letterSpacing = (-0.2).sp,
-                            ),
-                        )
-
-                        // Subtitle text with progress percentage
-                        Text(
-                            text = "$progressPercent% complete · Keep WiFi connected",
-                            color = theme.colors.onSurface.default.copy(
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Dismiss",
+                            tint = theme.colors.onSurface.default.copy(
                                 alpha = 0.6f
                             ),
-                            style = androidx.compose.ui.text.TextStyle(
-                                fontSize = 12.sp,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
-                            ),
+                            modifier = Modifier.size(16.dp),
                         )
-                    }
-
-                    // Dismiss button
-                    if (onDismiss != null) {
-                        IconButton(
-                            onClick = onDismiss,
-                            modifier = Modifier
-                                .padding(start = theme.space.xs)
-                                .size(24.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Dismiss",
-                                tint = theme.colors.onSurface.default.copy(
-                                    alpha = 0.6f
-                                ),
-                                modifier = Modifier.size(16.dp),
-                            )
-                        }
                     }
                 }
             }
