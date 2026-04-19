@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.components.atoms.MotorcyclePlusIcon
 import com.laneshadow.ui.components.atoms.TypingIndicator
+import com.laneshadow.ui.components.molecules.MarkdownText
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -441,10 +442,8 @@ private fun AgentMessage(message: ChatMessage) {
                 .padding(start = theme.space.sm)
                 .testTag("agent-message-content"),
         ) {
-            Text(
-                text = message.content,
-                style = theme.type.body.lg,
-                color = theme.colors.onSurface.default,
+            MarkdownText(
+                markdown = message.content,
             )
         }
 
