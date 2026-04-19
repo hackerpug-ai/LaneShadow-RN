@@ -14,10 +14,10 @@ This inventory classifies every TypeScript business logic file in `react-native/
 - **PORT**: Business logic requiring platform-native implementation with behavioral parity
 - **NATIVE-OWNED**: UI state management and platform-specific orchestration — replace with platform-idiomatic equivalents
 
-**Total Files**: 38
+**Total Files**: 32 (non-test)
 - SHARED-TS: 8
-- PORT: 17
-- NATIVE-OWNED: 13
+- PORT: 9
+- NATIVE-OWNED: 15
 
 ---
 
@@ -552,25 +552,24 @@ This inventory classifies every TypeScript business logic file in `react-native/
 
 | Classification | Count | Percentage |
 |----------------|-------|------------|
-| SHARED-TS | 16 | 40% |
-| PORT | 17 | 42% |
-| NATIVE-OWNED | 13 | 18% |
-| **Total (non-test)** | **46** | **100%** |
+| SHARED-TS | 8 | 25% |
+| PORT | 9 | 28% |
+| NATIVE-OWNED | 15 | 47% |
+| **Total (non-test)** | **32** | **100%** |
 | Test Files | 8 | — |
-| **Grand Total** | **54** | — |
+| **Grand Total** | **40** | — |
 
 ### By Directory
 
 | Directory | SHARED-TS | PORT | NATIVE-OWNED | Test Files | Total |
 |----------|-----------|------|--------------|------------|-------|
-| lib/ (root) | 3 | 1 | 4 | 1 | 9 |
-| lib/ai/ | 1 | 4 | 3 | 4 | 12 |
+| lib/ (root) | 4 | 1 | 4 | 1 | 10 |
+| lib/ai/ | 1 | 4 | 4 | 4 | 13 |
 | lib/mapbox/ | 2 | 3 | 2 | 2 | 9 |
 | lib/map/ | 1 | 0 | 0 | 1 | 2 |
 | lib/model/ | 0 | 1 | 1 | 0 | 2 |
 | stores/ | 0 | 0 | 4 | 0 | 4 |
-| types/ | 1 | 0 | 0 | 0 | 1 |
-| **Total** | **8** | **9** | **14** | **8** | **39** |
+| **Total** | **8** | **9** | **15** | **8** | **40** |
 
 ### By Priority
 
