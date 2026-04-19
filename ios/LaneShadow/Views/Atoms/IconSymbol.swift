@@ -60,6 +60,7 @@ public struct LSIconSymbol: View {
         "check": "checkmark",
         "pencil": "pencil",
         "delete": "trash",
+        "trash-can-outline": "trash",
         "bell": "bell.fill",
         "bell-outline": "bell",
         "information": "info.circle",

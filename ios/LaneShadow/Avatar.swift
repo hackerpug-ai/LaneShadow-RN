@@ -104,12 +104,30 @@ public struct Avatar: View {
             // Main avatar circle
             ZStack {
                 if let source {
-                    // TODO: Add AsyncImage support when image loading is implemented
-                    // For now, show initials as fallback
-                    if let initials {
-                        Text(initials)
-                            .font(.system(size: initialsFontSize, weight: .medium))
-                            .foregroundStyle(theme.colors.onSurface.default)
+                    // Use AsyncImage for remote image loading
+                    AsyncImage(url: URL(string: source)) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        case .failure(_):
+                            // Show initials on error
+                            if let initials {
+                                Text(initials)
+                                    .font(.system(size: initialsFontSize, weight: .medium))
+                                    .foregroundStyle(theme.colors.onSurface.default)
+                            }
+                        case .empty:
+                            // Show initials while loading
+                            if let initials {
+                                Text(initials)
+                                    .font(.system(size: initialsFontSize, weight: .medium))
+                                    .foregroundStyle(theme.colors.onSurface.default.opacity(0.5))
+                            }
+                        @unknown default:
+                            EmptyView()
+                        }
                     }
                 } else if let initials {
                     Text(initials)
