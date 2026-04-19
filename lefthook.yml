@@ -55,3 +55,8 @@ pre-push:
     # Convex schema + codegen validation from backend workspace.
     - name: convex build
       run: pnpm --dir server run convex:dev -- --once
+
+    # UI screenshot diff validation (opt-in via git config).
+    # Enable with: git config lane-shadow.ui-diff.enabled true
+    - name: ui-diff
+      run: test "$(git config lane-shadow.ui-diff.enabled)" = "true" && pnpm ui:diff || true
