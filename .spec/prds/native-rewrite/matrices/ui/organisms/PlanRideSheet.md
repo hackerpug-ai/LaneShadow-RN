@@ -102,7 +102,7 @@
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
 | variant | RN-wrapper | `'default'` | Badge variant default | Badge variant default | n/a |
-| opacity | RN-wrapper | `0.2` (20%) | `Modifier.alpha(0.2f)` | `.opacity(0.2)` | ESCALATE — propose `opacity.badgeSubtle = 0.2` |
+| opacity | RN-wrapper | `0.2` (20%) | `Modifier.alpha(0.2f)` | `.opacity(0.2)` | semantic.opacity.badgeSubtle |
 | textStyle color | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
 | textStyle textTransform | RN-wrapper | `'uppercase'` | Uppercase string | `.textCase(.uppercase)` | n/a |
 | textStyle letterSpacing | RN-wrapper | `0.5` | `style { letterSpacing = 0.5.sp }` | `.tracking(0.5)` | ESCALATE — verify `type.label.letterSpacing = 0.5` |

@@ -36,7 +36,7 @@
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Typography | variant | RN-wrapper | `headlineMedium` (Paper) | `MaterialTheme.typography.headlineMedium` | `.font(.headlineMedium)` | ESCALATE — map to semantic |
+| Typography | variant | RN-wrapper | `headlineMedium` (Paper) | `MaterialTheme.typography.headlineMedium` | `.font(.headlineMedium)` | semantic.type.title.md (closest to headlineMedium) |
 | Typography | textAlign | RN-wrapper | `'center'` | `textAlign = TextAlign.Center` | `.multilineTextAlignment(.center)` | n/a |
 | Typography | color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
 | Layout | marginBottom | RN-wrapper | `space.md` = 12 | `Modifier.padding(bottom = 12.dp)` | `.padding(.bottom, 12)` | `space.md` |
@@ -45,7 +45,7 @@
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Typography | variant | RN-wrapper | `bodyLarge` (Paper) | `MaterialTheme.typography.bodyLarge` | `.font(.bodyLarge)` | ESCALATE — map to `type.body.md` |
+| Typography | variant | RN-wrapper | `bodyLarge` (Paper) | `MaterialTheme.typography.bodyLarge` | `.font(.bodyLarge)` | semantic.type.body.md |
 | Typography | textAlign | RN-wrapper | `'center'` | `textAlign = TextAlign.Center` | `.multilineTextAlignment(.center)` | n/a |
 | Typography | color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
 | Layout | marginBottom | RN-wrapper | `space.xl` = 24 | `Modifier.padding(bottom = 24.dp)` | `.padding(.bottom, 24)` | `space.xl` |

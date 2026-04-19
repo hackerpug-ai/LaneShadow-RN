@@ -28,7 +28,7 @@
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
 | Layout | flex | RN-wrapper | `flex: 1` | `Modifier.fillMaxSize()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
-| Layout | drawerWidth | RN-wrapper | hardcoded `280` | `Modifier.width(280.dp)` | `.frame(width: 280)` | ESCALATE — propose `size.menuDrawerWidth = 280` |
+| Layout | drawerWidth | RN-wrapper | hardcoded `280` | `Modifier.width(280.dp)` | `.frame(width: 280)` | semantic.size.menuDrawerWidth |
 | Layout | drawerMaxWidth | RN-wrapper | `80%` | `Modifier.requiredWidth(Insets.maxWidth * 0.8f)` | `.frame(maxWidth: .infinity * 0.8)` | n/a |
 | Visual | backgroundColor | RN-wrapper | `semantic.color.surface.default` | `LaneShadowTheme.colors.surface` | `theme.colors.surface` | `color.surface.default` |
 | Visual | scrimColor | RN-wrapper | `rgba(0,0,0,0.55)` | `Color.Black.copy(alpha = 0.55f)` | `.black.opacity(0.55)` | `color.scrim.default` |

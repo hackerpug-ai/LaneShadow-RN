@@ -52,7 +52,7 @@
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Typography | variant | RN-wrapper | `bodyLarge` (Paper) | `MaterialTheme.typography.bodyLarge` | `.font(.bodyLarge)` | ESCALATE — map to `type.body.md` |
+| Typography | variant | RN-wrapper | `bodyLarge` (Paper) | `MaterialTheme.typography.bodyLarge` | `.font(.bodyLarge)` | semantic.type.body.md |
 | Typography | textAlign | RN-wrapper | `'center'` | `textAlign = TextAlign.Center` | `.multilineTextAlignment(.center)` | n/a |
 | Typography | color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
 | Layout | marginBottom | RN-wrapper | `space.xl` = 24 | `Modifier.padding(bottom = 24.dp)` | `.padding(.bottom, 24)` | `space.xl` |

@@ -44,7 +44,7 @@ No local state. Pure presentational component.
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| width | RN-wrapper | `24` | `Modifier.width(24.dp)` | `.frame(width: 24)` | ESCALATE — propose `layout.timelineWidth = 24` |
+| width | RN-wrapper | `24` | `Modifier.width(24.dp)` | `.frame(width: 24)` | semantic.layout.timelineWidth |
 | flexDirection | RN-wrapper | `'column'` | `Column(...)` | `VStack` | n/a |
 | alignItems | RN-wrapper | `'center'` | `Modifier.wrapContentSize(Alignment.CenterHorizontally)` + vertical | `.frame(maxWidth: .infinity).overlay(..., alignment: .center)` | n/a |
 | flexShrink | RN-wrapper | `0` | `Modifier.requiredWidth(24.dp)` (no shrink) | `.fixedSize(horizontal: true, vertical: false)` | n/a |
@@ -77,9 +77,9 @@ No local state. Pure presentational component.
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| width | RN-wrapper | `2` | `Modifier.width(2.dp)` | `.frame(width: 2)` | ESCALATE — propose `borderWidth.timeline = 2` |
+| width | RN-wrapper | `2` | `Modifier.width(2.dp)` | `.frame(width: 2)` | semantic.borderWidth.timeline |
 | flex | RN-wrapper | `1` | `Modifier.weight(1f)` / `Modifier.fillMaxHeight()` | `.frame(maxHeight: .infinity)` | n/a |
-| marginVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | ESCALATE — propose `space.micro = 4` |
+| marginVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | semantic.space.micro|
 | borderRadius | RN-wrapper | `9999` | `RoundedCornerShape(50.dp)` / `CircleShape` (for ends) | `.clipShape(Capsule())` | `radius.full` |
 | gradient | RN-wrapper | `[primary, 50% primary, 30% muted]` | `Brush.verticalGradient(...colors = [...])` | `LinearGradient(...)` | n/a (multi-color) |
 

@@ -38,7 +38,7 @@
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
 | Layout | gap | RN-wrapper | `space.lg` = 16 | `Spacer(Modifier.height(16.dp))` | `Spacer(minLength: 16)` | `space.lg` |
-| Layout | maxWidth | RN-wrapper | `400` (centered) | `Modifier.requiredWidthIn(max = 400.dp)` | `.frame(maxWidth: 400)` | ESCALATE — propose `size.authContentMaxWidth = 400` |
+| Layout | maxWidth | RN-wrapper | `400` (centered) | `Modifier.requiredWidthIn(max = 400.dp)` | `.frame(maxWidth: 400)` | semantic.size.authContentMaxWidth |
 | Layout | alignSelf | RN-wrapper | `'center'` | `Modifier.align(Alignment.CenterHorizontally)` | `.frame(maxWidth: .infinity).layoutPriority(1)` | n/a |
 
 ---

@@ -29,12 +29,12 @@
 |---|---|---|---|---|---|---|
 | Layout | flex | RN-wrapper | `flex: 1` | `Modifier.fillMaxSize()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
 | Layout | paddingTop (header) | RN-wrapper | `paddingTop: insets.top` | `Modifier.padding(top = SafeAreaPadding.top)` | `.safeAreaPadding(.top)` | n/a (safe area) |
-| Layout | headerHeight | RN-wrapper | hardcoded `52` (nav row) | `Modifier.height(52.dp)` | `.frame(height: 52)` | ESCALATE — propose `size.subpageNavRowHeight = 52` |
+| Layout | headerHeight | RN-wrapper | hardcoded `52` (nav row) | `Modifier.height(52.dp)` | `.frame(height: 52)` | semantic.size.subpageNavRowHeight |
 | Layout | paddingHorizontal | RN-wrapper | `space.lg` = 16 | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
 | Layout | titlePaddingBottom | RN-wrapper | `space.lg` = 16 | `Modifier.padding(bottom = 16.dp)` | `.padding(.bottom, 16)` | `space.lg` |
-| Layout | backButtonSize | RN-wrapper | `36 × 36` | `Modifier.size(36.dp)` | `.frame(width: 36, height: 36)` | ESCALATE — propose `size.subpageBackButtonSize = 36` |
-| Layout | accentRuleWidth | RN-wrapper | hardcoded `32` | `Modifier.width(32.dp)` | `.frame(width: 32)` | ESCALATE — propose `size.subpageAccentRuleWidth = 32` |
-| Layout | accentRuleHeight | RN-wrapper | hardcoded `3` | `Modifier.height(3.dp)` | `.frame(height: 3)` | ESCALATE — propose `size.subpageAccentRuleHeight = 3` |
+| Layout | backButtonSize | RN-wrapper | `36 × 36` | `Modifier.size(36.dp)` | `.frame(width: 36, height: 36)` | semantic.size.subpageBackButtonSize |
+| Layout | accentRuleWidth | RN-wrapper | hardcoded `32` | `Modifier.width(32.dp)` | `.frame(width: 32)` | semantic.size.subpageAccentRuleWidth |
+| Layout | accentRuleHeight | RN-wrapper | hardcoded `3` | `Modifier.height(3.dp)` | `.frame(height: 3)` | semantic.size.subpageAccentRuleHeight |
 | Layout | accentRuleRadius | RN-wrapper | hardcoded `1.5` | `RoundedCornerShape(1.5.dp)` | `RoundedRectangle(cornerRadius: 1.5)` | n/a |
 | Layout | gap (subtitle→accent) | RN-wrapper | `space.sm` = 8 | `Spacer(Modifier.height(8.dp))` | `Spacer(minLength: 8)` | `space.sm` |
 
@@ -60,8 +60,8 @@
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Typography | variant | RN-wrapper | `headlineMedium` (Paper) | `MaterialTheme.typography.headlineMedium` | `.font(.headlineMedium)` | ESCALATE — map to semantic tokens |
-| Typography | fontSize | headlineMedium | 28 | `28.sp` | `28` | ESCALATE — propose `type.heading.xl.fontSize = 28` |
+| Typography | variant | RN-wrapper | `headlineMedium` (Paper) | `MaterialTheme.typography.headlineMedium` | `.font(.headlineMedium)` | semantic.type.title.md (closest to headlineMedium) |
+| Typography | fontSize | headlineMedium | 28 | `28.sp` | `28` | semantic.type.heading.xl.fontSize |
 | Typography | fontWeight | RN-wrapper | hardcoded `'700'` | `FontWeight.Bold` | `.bold` | ESCALATE — `fontWeight.bold = 700` |
 | Typography | color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
 

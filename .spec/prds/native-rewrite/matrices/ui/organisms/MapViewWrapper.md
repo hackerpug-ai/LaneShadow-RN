@@ -115,14 +115,14 @@
 |---|---|---|---|---|---|
 | coordinates | polylines prop | `[{latitude, longitude}[]]` | `Polyline(...points = ...)` | `Polyline(...coordinates: ...)` | n/a |
 | strokeColor | polylines prop | `string?` | `Polyline(...color = Color(...))` | `Polyline(...strokeColor: ...)` | n/a (dynamic) |
-| strokeWidth | polylines prop | `4` (default) | `Polyline(...width = 4.dp)` | `Polyline(...lineWidth: 4)` | ESCALATE — propose `borderWidth.polyline = 4` |
+| strokeWidth | polylines prop | `4` (default) | `Polyline(...width = 4.dp)` | `Polyline(...lineWidth: 4)` | semantic.borderWidth.polyline |
 
 ### Map Camera Properties
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
 | initialCamera.center | cameraPosition prop | `{latitude, longitude}?` | `CameraPositionState(...position = ...)` | `MapCameraPosition(center: ...)` | n/a |
-| initialCamera.zoom | cameraPosition prop | `12` (default) | `CameraPositionState(...zoom = 12f)` | `MapCameraPosition(zoom: 12)` | ESCALATE — propose `map.defaultZoom = 12` |
+| initialCamera.zoom | cameraPosition prop | `12` (default) | `CameraPositionState(...zoom = 12f)` | `MapCameraPosition(zoom: 12)` | semantic.map.defaultZoom |
 | moveOnMarkerPress | RN-wrapper | `false` | `Marker(...onClick = { ... })` (no auto-move) | `.onTapGesture { ... }` | n/a |
 | showsUserLocation | RN-wrapper | `true` | `MapEffect(...isMyLocationEnabled = true)` | `.showsUserLocation = true` | n/a |
 

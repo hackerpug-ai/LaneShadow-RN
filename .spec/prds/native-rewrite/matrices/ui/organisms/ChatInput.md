@@ -96,24 +96,24 @@
 | flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
 | alignItems | RN-wrapper | `'flex-end'` | `verticalAlignment = Alignment.Bottom` | `.alignment(.bottom)` | n/a |
 | flex | RN-wrapper | `1` | `Modifier.weight(1f)` | `.layoutPriority(1)` | n/a |
-| maxWidth | RN-wrapper | `780` | `Modifier.requiredWidthIn(max = 780.dp)` | `.frame(maxWidth: 780)` | ESCALATE — propose `layout.inputMaxWidth = 780` |
+| maxWidth | RN-wrapper | `780` | `Modifier.requiredWidthIn(max = 780.dp)` | `.frame(maxWidth: 780)` | semantic.layout.inputMaxWidth |
 | backgroundColor | RN-wrapper | `semantic.color.surface.default` | `LaneShadowTheme.colors.surface` | `theme.colors.surface` | `color.surface.default` |
 | borderRadius | RN-wrapper | `semantic.radius.xl` (= 16) | `RoundedCornerShape(16.dp)` | `RoundedRectangle(cornerRadius: 16)` | `radius.xl` |
 | borderWidth | RN-wrapper | `1` | `Modifier.border(BorderStroke(1.dp, ...))` | `.overlay(RoundedRectangle(...).stroke(..., lineWidth: 1))` | `borderWidth.thin` |
 | borderColor | RN-wrapper | `semantic.color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
 | paddingHorizontal | RN-wrapper | `16` | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
-| paddingVertical | RN-wrapper | `10` | `Modifier.padding(vertical = 10.dp)` | `.padding(.vertical, 10)` | ESCALATE — propose `space.inputVertical = 10` |
+| paddingVertical | RN-wrapper | `10` | `Modifier.padding(vertical = 10.dp)` | `.padding(.vertical, 10)` | semantic.space.inputVertical |
 | gap | RN-wrapper | `12` | `Arrangement.spacedBy(12.dp)` / `Modifier.padding(end = 12.dp)` between items | `spacing(12)` | `space.md` |
-| minHeight | RN-wrapper | `56` | `Modifier.heightIn(min = 56.dp)` | `.frame(minHeight: 56)` | ESCALATE — propose `layout.inputMinHeight = 56` |
+| minHeight | RN-wrapper | `56` | `Modifier.heightIn(min = 56.dp)` | `.frame(minHeight: 56)` | semantic.layout.inputMinHeight |
 
 ### Layout — Manual Mode Button
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
 | alignSelf | RN-wrapper | `'flex-end'` | `Modifier.align(Alignment.End)` | `.frame(maxWidth: .infinity, alignment: .trailing)` | n/a |
-| marginBottom | RN-wrapper | `4` | `Modifier.padding(bottom = 4.dp)` | `.padding(.bottom, 4)` | ESCALATE — propose `space.micro = 4` |
-| width | RN-wrapper | `32` | `Modifier.width(32.dp)` | `.frame(width: 32)` | ESCALATE — propose `size.iconSm = 32` |
-| height | RN-wrapper | `32` | `Modifier.height(32.dp)` | `.frame(height: 32)` | ESCALATE — propose `size.iconSm = 32` |
+| marginBottom | RN-wrapper | `4` | `Modifier.padding(bottom = 4.dp)` | `.padding(.bottom, 4)` | semantic.space.micro|
+| width | RN-wrapper | `32` | `Modifier.width(32.dp)` | `.frame(width: 32)` | semantic.size.iconSm |
+| height | RN-wrapper | `32` | `Modifier.height(32.dp)` | `.frame(height: 32)` | semantic.size.iconSm |
 | borderRadius | RN-wrapper | `16` | `RoundedCornerShape(16.dp)` | `RoundedRectangle(cornerRadius: 16)` | `radius.full` |
 | alignItems | RN-wrapper | `'center'` | `Modifier.wrapContentWidth(Alignment.CenterHorizontally)` + vertical | `.frame(alignment: .center)` | n/a |
 | justifyContent | RN-wrapper | `'center'` | `Modifier.wrapContentHeight(Alignment.CenterVertically)` | `.frame(alignment: .center)` | n/a |
@@ -122,7 +122,7 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | RN-wrapper | `18` | `Modifier.size(18.dp)` | `.frame(width: 18, height: 18)` | ESCALATE — propose `icon.xs = 18` |
+| size | RN-wrapper | `18` | `Modifier.size(18.dp)` | `.frame(width: 18, height: 18)` | semantic.icon.xs|
 | color | RN-wrapper | `semantic.color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
 
 ### Layout — Text Input Wrapper
@@ -130,7 +130,7 @@
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
 | flex | RN-wrapper | `1` | `Modifier.weight(1f)` | `.layoutPriority(1)` | n/a |
-| minHeight | RN-wrapper | `24` | `Modifier.heightIn(min = 24.dp)` | `.frame(minHeight: 24)` | ESCALATE — propose `layout.textMinHeight = 24` |
+| minHeight | RN-wrapper | `24` | `Modifier.heightIn(min = 24.dp)` | `.frame(minHeight: 24)` | semantic.layout.textMinHeight |
 | justifyContent | RN-wrapper | `'center'` | `Modifier.wrapContentHeight(Alignment.CenterVertically)` | `.frame(alignment: .center)` | n/a |
 | paddingBottom | RN-wrapper | `8` | `Modifier.padding(bottom = 8.dp)` | `.padding(.bottom, 8)` | `space.sm` |
 
@@ -144,14 +144,14 @@
 | multiline | RN-wrapper | `true` | `TextField(...maxLines = 5)` / `OutlinedTextField(...maxLines = 5)` | `TextEditor(...multilineTextAlignment: ...)` | n/a |
 | textAlignVertical | RN-wrapper | `'center'` | `TextField(...textAlign = TextAlign.Center)` / `TextStyle(textAlign = Center)` | `.multilineTextAlignment(.center)` | n/a |
 | opacity (disabled) | RN-wrapper | `0.5` | `Modifier.alpha(if (isPlanning) 0.5f else 1f)` | `.opacity(isPlanning ? 0.5 : 1)` | `opacity.disabled = 0.5` |
-| maxHeight | RN-wrapper | `140` | `TextField(...maxHeight = 140.dp)` | `TextEditor(...frame(maxHeight: 140))` | ESCALATE — propose `layout.inputMaxHeight = 140` |
+| maxHeight | RN-wrapper | `140` | `TextField(...maxHeight = 140.dp)` | `TextEditor(...frame(maxHeight: 140))` | semantic.layout.inputMaxHeight |
 
 ### Layout — Send/Cancel Button
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| width | RN-wrapper | `40` | `Modifier.size(40.dp)` | `.frame(width: 40, height: 40)` | ESCALATE — propose `size.iconButton = 40` |
-| height | RN-wrapper | `40` | Included above | Included above | ESCALATE — propose `size.iconButton = 40` |
+| width | RN-wrapper | `40` | `Modifier.size(40.dp)` | `.frame(width: 40, height: 40)` | semantic.size.iconButton |
+| height | RN-wrapper | `40` | Included above | Included above | semantic.size.iconButton |
 | borderRadius | RN-wrapper | `20` | `RoundedCornerShape(20.dp)` / `CircleShape` | `Circle()` / `RoundedRectangle(cornerRadius: 20)` | `radius.full` |
 | alignItems | RN-wrapper | `'center'` | `Modifier.wrapContentSize(Alignment.CenterHorizontally)` + vertical | `.frame(alignment: .center)` | n/a |
 | justifyContent | RN-wrapper | `'center'` | Included above | Included above | n/a |
@@ -169,20 +169,20 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | RN-wrapper | `20` | `Modifier.size(20.dp)` | `.frame(width: 20, height: 20)` | ESCALATE — propose `icon.sm = 20` |
+| size | RN-wrapper | `20` | `Modifier.size(20.dp)` | `.frame(width: 20, height: 20)` | semantic.icon.sm|
 | color | RN-wrapper | `semantic.color.onPrimary.default` | `LaneShadowTheme.colors.onPrimary` | `theme.colors.onPrimary` | `color.onPrimary.default` |
 
 ### Layout — Toggle Button
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| width | RN-wrapper | `40` | `Modifier.size(40.dp)` | `.frame(width: 40, height: 40)` | ESCALATE — propose `size.iconButton = 40` |
-| height | RN-wrapper | `40` | Included above | Included above | ESCALATE — propose `size.iconButton = 40` |
+| width | RN-wrapper | `40` | `Modifier.size(40.dp)` | `.frame(width: 40, height: 40)` | semantic.size.iconButton |
+| height | RN-wrapper | `40` | Included above | Included above | semantic.size.iconButton |
 | borderRadius | RN-wrapper | `20` | `RoundedCornerShape(20.dp)` / `CircleShape` | `Circle()` | `radius.full` |
 | alignItems | RN-wrapper | `'center'` | `Modifier.wrapContentSize(Alignment.CenterHorizontally)` + vertical | `.frame(alignment: .center)` | n/a |
 | justifyContent | RN-wrapper | `'center'` | Included above | Included above | n/a |
 | backgroundColor | RN-wrapper | `semantic.color.surfaceVariant.default` | `LaneShadowTheme.colors.surfaceVariant` | `theme.colors.surfaceVariant` | `color.surfaceVariant.default` |
-| borderWidth | RN-wrapper | `1.5` | `Modifier.border(BorderStroke(1.5.dp, ...))` | `.overlay(RoundedRectangle(...).stroke(..., lineWidth: 1.5))` | ESCALATE — propose `borderWidth.medium = 1.5` |
+| borderWidth | RN-wrapper | `1.5` | `Modifier.border(BorderStroke(1.5.dp, ...))` | `.overlay(RoundedRectangle(...).stroke(..., lineWidth: 1.5))` | semantic.borderWidth.medium |
 | borderColor | RN-wrapper | `semantic.color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
 | elevation | RN-wrapper | `semantic.elevation[3]` | `Modifier.shadow(elevation = 3.dp, ...)` | `.shadow(...)` | `elevation[3]` |
 | hitSlop | RN-wrapper | `semantic.space.xs` (= 4) all sides | `Modifier.padding(4.dp).clickable(...)` with negative padding | `.padding(-4).contentShape(Rectangle()).onTapGesture { ... }` | `space.xs` |
@@ -191,7 +191,7 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | RN-wrapper | `20` | `Modifier.size(20.dp)` | `.frame(width: 20, height: 20)` | ESCALATE — propose `icon.sm = 20` |
+| size | RN-wrapper | `20` | `Modifier.size(20.dp)` | `.frame(width: 20, height: 20)` | semantic.icon.sm|
 | color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
 
 ### Layout — Suggestion Chips
@@ -200,7 +200,7 @@
 |---|---|---|---|---|---|
 | horizontal | RN-wrapper | `true` | `LazyRow(...)` / `Row(horizontalScrollEnabled = true)` | `ScrollView(.horizontal)` | n/a |
 | showsHorizontalScrollIndicator | RN-wrapper | `false` | `LazyRow(...flingBehavior = ...).scrollbar(false)` | `.scrollIndicators(.hidden)` | n/a |
-| maxWidth | RN-wrapper | `780` | `Modifier.requiredWidthIn(max = 780.dp)` | `.frame(maxWidth: 780)` | ESCALATE — propose `layout.inputMaxWidth = 780` |
+| maxWidth | RN-wrapper | `780` | `Modifier.requiredWidthIn(max = 780.dp)` | `.frame(maxWidth: 780)` | semantic.layout.inputMaxWidth |
 | gap | RN-wrapper | `semantic.space.sm` (= 8) | `Arrangement.spacedBy(8.dp)` / `Modifier.padding(end = 8.dp)` between items | `spacing(8)` | `space.sm` |
 | paddingHorizontal | RN-wrapper | `semantic.space.md` (= 16) | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
 | paddingVertical | RN-wrapper | `semantic.space.sm` (= 8) | `Modifier.padding(vertical = 8.dp)` | `.padding(.vertical, 8)` | `space.sm` |

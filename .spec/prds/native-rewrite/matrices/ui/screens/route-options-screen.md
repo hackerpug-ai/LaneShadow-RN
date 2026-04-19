@@ -34,13 +34,13 @@
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Layout | gap | RN-wrapper | `12` | `Spacer(Modifier.height(12.dp))` | `Spacer(minLength: 12)` | ESCALATE — `space.md` |
+| Layout | gap | RN-wrapper | `12` | `Spacer(Modifier.height(12.dp))` | `Spacer(minLength: 12)` | semantic.space.md|
 
 ### Layout — Route Option Cards
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Layout | padding | RN-wrapper | `16` | `Modifier.padding(16.dp)` | `.padding(16)` | ESCALATE — `space.lg` |
+| Layout | padding | RN-wrapper | `16` | `Modifier.padding(16.dp)` | `.padding(16)` | semantic.space.lg|
 | Layout | margin | RN-wrapper | `0` | none | none | n/a |
 | Visual | backgroundColor | RN-wrapper | `semantic.color.card.default` | `LaneShadowTheme.colors.card` | `theme.colors.card` | `color.card.default` |
 | Visual | borderRadius | RN-wrapper | `16` | `RoundedCornerShape(16.dp)` | `RoundedRectangle(cornerRadius: 16)` | `radius.lg` |

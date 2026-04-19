@@ -65,13 +65,13 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| width | RN-wrapper | `DRAWER_WIDTH = 280` | `Modifier.width(280.dp)` | `.frame(width: 280)` | ESCALATE — propose `layout.drawerWidth = 280` |
+| width | RN-wrapper | `DRAWER_WIDTH = 280` | `Modifier.width(280.dp)` | `.frame(width: 280)` | semantic.layout.drawerWidth |
 | height | RN-wrapper | `'100%'` | `Modifier.fillMaxHeight()` | `.frame(maxHeight: .infinity)` | n/a |
 | position | RN-wrapper | `'absolute'` | `Modifier.wrapContentSize(unbounded = true).absoluteOffset(...)` | `.frame(maxWidth: .infinity, maxHeight: .infinity).overlay(...)` | n/a |
 | top | RN-wrapper | `0` | `Modifier.absoluteOffset(y = 0.dp)` / `Modifier.padding(top = 0.dp)` | alignment `.top` | n/a |
 | left | RN-wrapper | `0` | `Modifier.absoluteOffset(x = -280.dp)` (initial) → `0.dp` (open) | `.offset(x: isOpen ? 0 : -280)` | n/a |
 | bottom | RN-wrapper | `0` | Implicit from height: 100% | `.frame(maxHeight: .infinity)` | n/a |
-| zIndex | RN-wrapper | `20` | `Modifier.zIndex(20)` (Compose 1.6+) or `Box` with elevation | `.zIndex(20)` | ESCALATE — propose `elevation.drawer = 20` |
+| zIndex | RN-wrapper | `20` | `Modifier.zIndex(20)` (Compose 1.6+) or `Box` with elevation | `.zIndex(20)` | semantic.elevation.drawer|
 | backgroundColor | RN-wrapper | `semantic.color.background.default` | `LaneShadowTheme.colors.background` | `theme.colors.background` | `color.background.default` |
 | paddingTop | RN-wrapper | `insets.top` (safe area) | `Modifier.padding(top = WindowInsets.safeDrawing.asPaddingValues().calculateTopPadding())` | `.padding(.top, safeAreaInsets.top)` | n/a (safe area) |
 | paddingBottom | RN-wrapper | `insets.bottom` (safe area) | `Modifier.padding(bottom = WindowInsets.safeDrawing.asPaddingValues().calculateBottomPadding())` | `.padding(.bottom, safeAreaInsets.bottom)` | n/a (safe area) |
@@ -82,7 +82,7 @@
 |---|---|---|---|---|---|
 | position | RN-wrapper | `'absolute'` | `Modifier.wrapContentSize(unbounded = true)` | `.frame(maxWidth: .infinity, maxHeight: .infinity).overlay(...)` | n/a |
 | top/left/right/bottom | RN-wrapper | `0` | `Modifier.fillMaxSize()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
-| zIndex | RN-wrapper | `10` | `Modifier.zIndex(10)` (Compose 1.6+) or `Box` with elevation | `.zIndex(10)` | ESCALATE — propose `elevation.backdrop = 10` |
+| zIndex | RN-wrapper | `10` | `Modifier.zIndex(10)` (Compose 1.6+) or `Box` with elevation | `.zIndex(10)` | semantic.elevation.backdrop|
 | backgroundColor | RN-wrapper | `semantic.color.scrim.default` | `LaneShadowTheme.colors.scrim` | `theme.colors.scrim` | `color.scrim.default` |
 
 ### Layout — Header
@@ -124,7 +124,7 @@
 |---|---|---|---|---|---|
 | flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
 | alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
-| gap | RN-wrapper | `12` | `Arrangement.spacedBy(12.dp)` / `Modifier.padding(end = 12.dp)` between items | `spacing(12)` | ESCALATE — propose `space.itemGap = 12` |
+| gap | RN-wrapper | `12` | `Arrangement.spacedBy(12.dp)` / `Modifier.padding(end = 12.dp)` between items | `spacing(12)` | semantic.space.itemGap |
 | padding | RN-wrapper | `semantic.space.md` (= 12) | `Modifier.padding(12.dp)` | `.padding(12)` | `space.md` |
 | borderRadius | RN-wrapper | `semantic.radius.lg` (= 12) | `RoundedCornerShape(12.dp)` | `RoundedRectangle(cornerRadius: 12)` | `radius.lg` |
 | marginBottom | RN-wrapper | `semantic.space.xs` (= 4) | `Modifier.padding(bottom = 4.dp)` | `.padding(.bottom, 4)` | `space.xs` |
@@ -142,7 +142,7 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | RN-wrapper | `24` | `Modifier.size(24.dp)` | `.frame(width: 24, height: 24)` | ESCALATE — propose `icon.md = 24` |
+| size | RN-wrapper | `24` | `Modifier.size(24.dp)` | `.frame(width: 24, height: 24)` | semantic.icon.md|
 | color (active) | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
 | color (disabled) | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
 | color (default) | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
@@ -184,7 +184,7 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | RN-wrapper | `24` | `Modifier.size(24.dp)` | `.frame(width: 24, height: 24)` | ESCALATE — propose `icon.md = 24` |
+| size | RN-wrapper | `24` | `Modifier.size(24.dp)` | `.frame(width: 24, height: 24)` | semantic.icon.md|
 | color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
 
 ### Typography — Footer Item Label

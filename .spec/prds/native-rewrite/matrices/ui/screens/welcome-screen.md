@@ -29,17 +29,17 @@
 |---|---|---|---|---|---|---|
 | Layout | flex | RN-wrapper | `flex: 1` | `Modifier.fillMaxSize()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
 | Layout | justifyContent | RN-wrapper | `'space-between'` | `Modifier.wrapContentSize(unbounded = true)` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
-| Layout | paddingHorizontal | RN-wrapper | `24` | `Modifier.padding(horizontal = 24.dp)` | `.padding(.horizontal, 24)` | ESCALATE — `space.xl` |
-| Layout | paddingTop | RN-wrapper | `max(insets.top, 24)` | `max(SafeAreaPadding.top, 24.dp)` | `.safeAreaPadding(.top).padding(.top, 24)` | ESCALATE — `space.xl` |
-| Layout | paddingBottom | RN-wrapper | `max(insets.bottom, 40)` | `max(SafeAreaPadding.bottom, 40.dp)` | `.safeAreaPadding(.bottom).padding(.bottom, 40)` | ESCALATE — propose `space.2xl + 8` |
+| Layout | paddingHorizontal | RN-wrapper | `24` | `Modifier.padding(horizontal = 24.dp)` | `.padding(.horizontal, 24)` | semantic.space.xl|
+| Layout | paddingTop | RN-wrapper | `max(insets.top, 24)` | `max(SafeAreaPadding.top, 24.dp)` | `.safeAreaPadding(.top).padding(.top, 24)` | semantic.space.xl|
+| Layout | paddingBottom | RN-wrapper | `max(insets.bottom, 40)` | `max(SafeAreaPadding.bottom, 40.dp)` | `.safeAreaPadding(.bottom).padding(.bottom, 40)` | semantic.space.3xl (48, closest to 40) |
 | Visual | backgroundColor | RN-wrapper | `semantic.color.background.default` | `LaneShadowTheme.colors.background` | `theme.colors.background` | `color.background.default` |
 
 ### Layout — Logo Container
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Layout | width | RN-wrapper | `120` | `Modifier.width(120.dp)` | `.frame(width: 120)` | ESCALATE — propose `size.logoContainer = 120` |
-| Layout | height | RN-wrapper | `120` | `Modifier.height(120.dp)` | `.frame(height: 120)` | ESCALATE — propose `size.logoContainer = 120` |
+| Layout | width | RN-wrapper | `120` | `Modifier.width(120.dp)` | `.frame(width: 120)` | semantic.size.logoContainer |
+| Layout | height | RN-wrapper | `120` | `Modifier.height(120.dp)` | `.frame(height: 120)` | semantic.size.logoContainer |
 | Layout | justifyContent | RN-wrapper | `'center'` | `Modifier.wrapContentSize(Alignment.Center)` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
 | Visual | backgroundColor | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
 | Visual | borderRadius | RN-wrapper | `radius.xl` = 16 | `RoundedCornerShape(16.dp)` | `RoundedRectangle(cornerRadius: 16)` | `radius.lg` (16) |
@@ -52,15 +52,15 @@
 | Layout | flex | RN-wrapper | `flex: 1` | `Modifier.weight(1f)` | `.layoutPriority(1)` | n/a |
 | Layout | justifyContent | RN-wrapper | `'center'` | `Modifier.wrapContentSize(Alignment.Center)` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
 | Layout | alignItems | RN-wrapper | `'center'` | `Modifier.align(Alignment.CenterHorizontally)` | `.frame(maxWidth: .infinity)` | n/a |
-| Layout | maxWidth | RN-wrapper | `400` | `Modifier.requiredWidthIn(max = 400.dp)` | `.frame(maxWidth: 400)` | ESCALATE — propose `size.contentMaxWidth = 400` |
+| Layout | maxWidth | RN-wrapper | `400` | `Modifier.requiredWidthIn(max = 400.dp)` | `.frame(maxWidth: 400)` | semantic.size.contentMaxWidth |
 | Layout | paddingHorizontal | RN-wrapper | `16` | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
 
 ### Typography — Welcome Text
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Typography | variant | RN-wrapper | `headlineLarge` (Paper) | `MaterialTheme.typography.headlineLarge` | `.font(.headlineLarge)` | ESCALATE — map to `type.display.sm` (36) |
-| Typography | fontSize | headlineLarge | 32 | `32.sp` | `32` | ESCALATE — `type.display.sm.fontSize = 36` (closest) |
+| Typography | variant | RN-wrapper | `headlineLarge` (Paper) | `MaterialTheme.typography.headlineLarge` | `.font(.headlineLarge)` | semantic.type.display.sm.fontSize|
+| Typography | fontSize | headlineLarge | 32 | `32.sp` | `32` | semantic.type.display.sm.fontSize (closest to 36)|
 | Typography | textAlign | RN-wrapper | `'center'` | `textAlign = TextAlign.Center` | `.multilineTextAlignment(.center)` | n/a |
 | Typography | color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
 
@@ -68,7 +68,7 @@
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Typography | variant | RN-wrapper | `bodyLarge` (Paper) | `MaterialTheme.typography.bodyLarge` | `.font(.bodyLarge)` | ESCALATE — map to `type.body.md` (16) |
+| Typography | variant | RN-wrapper | `bodyLarge` (Paper) | `MaterialTheme.typography.bodyLarge` | `.font(.bodyLarge)` | semantic.type.body.md.fontSize|
 | Typography | fontSize | bodyLarge | 16 | `16.sp` | `16` | `type.body.md.fontSize` |
 | Typography | lineHeight | RN-wrapper | `24` | `LineHeightStyle(24.sp)` | `.lineSpacing(24 - 16)` = 8 | `type.body.md.lineHeight` |
 | Typography | textAlign | RN-wrapper | `'center'` | `textAlign = TextAlign.Center` | `.multilineTextAlignment(.center)` | n/a |
@@ -87,7 +87,7 @@
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Typography | variant | RN-wrapper | `headlineSmall` (Paper) | `MaterialTheme.typography.headlineSmall` | `.font(.headlineSmall)` | ESCALATE — map to `type.heading.lg` (20) |
+| Typography | variant | RN-wrapper | `headlineSmall` (Paper) | `MaterialTheme.typography.headlineSmall` | `.font(.headlineSmall)` | semantic.type.label.md.lineHeight|
 | Typography | textAlign | RN-wrapper | `'center'` | `textAlign = TextAlign.Center` | `.multilineTextAlignment(.center)` | n/a |
 | Typography | color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
 | Layout | marginBottom | RN-wrapper | `space.sm` = 8 | `Modifier.padding(bottom = 8.dp)` | `.padding(.bottom, 8)` | `space.sm` |
@@ -97,8 +97,8 @@
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
 | Layout | gap | RN-wrapper | `space.sm` = 8 | `Spacer(Modifier.width(8.dp))` | `Spacer(minLength: 8)` | `space.sm` |
-| Layout | marginTop | RN-wrapper | `24` | `Modifier.padding(top = 24.dp)` | `.padding(.top, 24)` | ESCALATE — `space.xl` |
-| Layout | dotSize | RN-wrapper | `6 × 6` | `Modifier.size(6.dp)` | `.frame(width: 6, height: 6)` | ESCALATE — propose `size.carouselDot = 6` |
+| Layout | marginTop | RN-wrapper | `24` | `Modifier.padding(top = 24.dp)` | `.padding(.top, 24)` | semantic.space.xl|
+| Layout | dotSize | RN-wrapper | `6 × 6` | `Modifier.size(6.dp)` | `.frame(width: 6, height: 6)` | semantic.size.carouselDot |
 | Visual | dotColor (active) | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
 | Visual | dotColor (inactive) | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
 | Visual | borderRadius | RN-wrapper | `radius.full` = 9999 | `CircleShape` | `Circle()` | `radius.full` |
@@ -115,7 +115,7 @@
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Layout | height | RN-wrapper | `4` | `Modifier.height(4.dp)` | `.frame(height: 4)` | ESCALATE — propose `size.progressHeight = 4` |
+| Layout | height | RN-wrapper | `4` | `Modifier.height(4.dp)` | `.frame(height: 4)` | semantic.size.progressHeight |
 | Visual | backgroundColor | RN-wrapper | `semantic.color.secondary.default` | `LaneShadowTheme.colors.secondary` | `theme.colors.secondary` | `color.secondary.default` |
 | Visual | borderRadius | RN-wrapper | `radius.full` = 9999 | `RoundedCornerShape(percent = 50)` | `Capsule()` | `radius.full` |
 
@@ -133,7 +133,7 @@
 |---|---|---|---|---|---|---|
 | Layout | gap | RN-wrapper | row with `space-between` | `Arrangement.SpaceBetween` | `.frame(maxWidth: .infinity)` | n/a |
 | Layout | marginTop | RN-wrapper | `space.sm` = 8 | `Modifier.padding(top = 8.dp)` | `.padding(.top, 8)` | `space.sm` |
-| Typography | variant | RN-wrapper | `bodySmall` (Paper) | `MaterialTheme.typography.bodySmall` | `.font(.bodySmall)` | ESCALATE — map to `type.body.sm` (14) |
+| Typography | variant | RN-wrapper | `bodySmall` (Paper) | `MaterialTheme.typography.bodySmall` | `.font(.bodySmall)` | semantic.type.label.md.fontSize|
 | Typography | color (label) | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
 | Typography | color (percent) | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
 

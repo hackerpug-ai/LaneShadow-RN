@@ -130,7 +130,7 @@
 | fontWeight | RN-wrapper | `semantic.type.label.sm.fontWeight` | `LaneShadowTheme.typography.labelSmall.fontWeight` | `theme.typography.labelSmall.weight` | `type.label.sm.fontWeight` |
 | textAlign | RN-wrapper | `'center'` | `TextAlign.Center` | `.multilineTextAlignment(.center)` | n/a |
 | color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
-| paddingVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | ESCALATE — propose `space.micro = 4` |
+| paddingVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | semantic.space.micro|
 
 ### Layout — Empty State
 
@@ -155,7 +155,7 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | RN-wrapper | `40` | `Modifier.size(40.dp)` | `.frame(width: 40, height: 40)` | ESCALATE — propose `icon.lg = 40` |
+| size | RN-wrapper | `40` | `Modifier.size(40.dp)` | `.frame(width: 40, height: 40)` | semantic.icon.lg|
 | color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
 
 ### Layout — Route Attachments Row
@@ -164,7 +164,7 @@
 |---|---|---|---|---|---|
 | marginLeft | RN-wrapper | `0` | `Modifier.padding(start = 0.dp)` | `.padding(.leading, 0)` | n/a |
 | gap | RN-wrapper | `8` | `HorizontalArrangement.spacedBy(8.dp)` / `Modifier.padding(end = 8.dp)` between items | `spacing(8)` | `space.sm` |
-| marginTop | RN-wrapper | `4` | `Modifier.padding(top = 4.dp)` | `.padding(.top, 4)` | ESCALATE — propose `space.micro = 4` |
+| marginTop | RN-wrapper | `4` | `Modifier.padding(top = 4.dp)` | `.padding(.top, 4)` | semantic.space.micro|
 
 ### Interaction — ScrollView
 

@@ -72,8 +72,8 @@
 |---|---|---|---|---|---|
 | padding | RN-wrapper | `12` | `Modifier.padding(12.dp)` | `.padding(12)` | `space.md` |
 | marginBottom | RN-wrapper | `12` | `Modifier.padding(bottom = 12.dp)` | `.padding(.bottom, 12)` | `space.md` |
-| minHeight | RN-wrapper | `80` | `Modifier.heightIn(min = 80.dp)` | `.frame(minHeight: 80)` | ESCALATE — propose `layout.thinkingMinHeight = 80` |
-| maxHeight | RN-wrapper | `200` | `Modifier.heightIn(max = 200.dp)` | `.frame(maxHeight: 200)` | ESCALATE — propose `layout.thinkingMaxHeight = 200` |
+| minHeight | RN-wrapper | `80` | `Modifier.heightIn(min = 80.dp)` | `.frame(minHeight: 80)` | semantic.layout.thinkingMinHeight |
+| maxHeight | RN-wrapper | `200` | `Modifier.heightIn(max = 200.dp)` | `.frame(maxHeight: 200)` | semantic.layout.thinkingMaxHeight |
 | backgroundColor | RN-wrapper | `semantic.color.surfaceVariant.default` | `LaneShadowTheme.colors.surfaceVariant` | `theme.colors.surfaceVariant` | `color.surfaceVariant.default` |
 | borderRadius | RN-wrapper | `semantic.radius.md` (= 8) | `RoundedCornerShape(8.dp)` | `RoundedRectangle(cornerRadius: 8)` | `radius.md` |
 | borderWidth | RN-wrapper | `1` | `Modifier.border(BorderStroke(1.dp, ...))` | `.overlay(RoundedRectangle(...).stroke(..., lineWidth: 1))` | `borderWidth.thin` |
@@ -92,8 +92,8 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| width | RN-wrapper | `8` | `Modifier.size(8.dp)` | `.frame(width: 8, height: 8)` | ESCALATE — propose `size.indicator = 8` |
-| height | RN-wrapper | `8` | Included above | Included above | ESCALATE — propose `size.indicator = 8` |
+| width | RN-wrapper | `8` | `Modifier.size(8.dp)` | `.frame(width: 8, height: 8)` | semantic.size.indicator|
+| height | RN-wrapper | `8` | Included above | Included above | semantic.size.indicator|
 | borderRadius | RN-wrapper | `4` | `RoundedCornerShape(4.dp)` | `RoundedRectangle(cornerRadius: 4)` | `radius.sm` |
 | backgroundColor | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
 | opacity (animated) | RN-wrapper | `0.4 ↔ 1.0` (pulsing) | `infiniteRepeatable(animation = tween(600ms), repeatMode = RepeatMode.Reverse)` | `.animation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true)).opacity(...)` | n/a |
@@ -109,7 +109,7 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| maxHeight | RN-wrapper | `150` | `Modifier.heightIn(max = 150.dp)` | `.frame(maxHeight: 150)` | ESCALATE — propose `layout.thinkingScrollMaxHeight = 150` |
+| maxHeight | RN-wrapper | `150` | `Modifier.heightIn(max = 150.dp)` | `.frame(maxHeight: 150)` | semantic.layout.thinkingScrollMaxHeight |
 
 ### Typography — Thinking Text
 
@@ -132,15 +132,15 @@
 |---|---|---|---|---|---|
 | flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
 | alignItems | RN-wrapper | `'flex-start'` | `verticalAlignment = Alignment.Top` | `.alignment(.top)` | n/a |
-| gap | RN-wrapper | `10` | `Arrangement.spacedBy(10.dp)` / `Modifier.padding(end = 10.dp)` between items | `spacing(10)` | ESCALATE — propose `space.rowGap = 10` |
+| gap | RN-wrapper | `10` | `Arrangement.spacedBy(10.dp)` / `Modifier.padding(end = 10.dp)` between items | `spacing(10)` | semantic.space.rowGap |
 | minHeight | RN-wrapper | `44` | `Modifier.heightIn(min = 44.dp)` | `.frame(minHeight: 44)` | ESCALATE — verify `touchTarget.minTouch = 44` |
-| paddingVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | ESCALATE — propose `space.micro = 4` |
+| paddingVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | semantic.space.micro|
 
 ### Icon — Event Row Check Icon
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | RN-wrapper | `16` | `Modifier.size(16.dp)` | `.frame(width: 16, height: 16)` | ESCALATE — propose `icon.xs = 16` |
+| size | RN-wrapper | `16` | `Modifier.size(16.dp)` | `.frame(width: 16, height: 16)` | semantic.icon.xs|
 | color | RN-wrapper | `semantic.color.success.default` | `LaneShadowTheme.colors.success` | `theme.colors.success` | `color.success.default` |
 | name | RN-wrapper | `'check-circle-outline'` | `Icons.Rounded.CheckCircle` | `checkmark.circle` | n/a |
 
@@ -169,7 +169,7 @@
 |---|---|---|---|---|---|
 | height | RN-wrapper | `StyleSheet.hairlineWidth` (= 1) | `Modifier.height(1.dp)` | `.frame(height: 1)` | `borderWidth.hairline` |
 | backgroundColor | RN-wrapper | `semantic.color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
-| marginVertical | RN-wrapper | `2` | `Modifier.padding(vertical = 2.dp)` | `.padding(.vertical, 2)` | ESCALATE — propose `space.separatorGap = 2` |
+| marginVertical | RN-wrapper | `2` | `Modifier.padding(vertical = 2.dp)` | `.padding(.vertical, 2)` | semantic.space.separatorGap |
 
 ### Visual — Divider (before total)
 
@@ -177,7 +177,7 @@
 |---|---|---|---|---|---|
 | height | RN-wrapper | `1` | `Modifier.height(1.dp)` | `.frame(height: 1)` | `borderWidth.thin` |
 | backgroundColor | RN-wrapper | `semantic.color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
-| marginVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | ESCALATE — propose `space.micro = 4` |
+| marginVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | semantic.space.micro|
 
 ### Layout — Total Row
 
@@ -185,7 +185,7 @@
 |---|---|---|---|---|---|
 | flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
 | alignItems | RN-wrapper | `'flex-start'` | `verticalAlignment = Alignment.Top` | `.alignment(.top)` | n/a |
-| gap | RN-wrapper | `10` | `Arrangement.spacedBy(10.dp)` / `Modifier.padding(end = 10.dp)` between items | `spacing(10)` | ESCALATE — propose `space.rowGap = 10` |
+| gap | RN-wrapper | `10` | `Arrangement.spacedBy(10.dp)` / `Modifier.padding(end = 10.dp)` between items | `spacing(10)` | semantic.space.rowGap |
 
 ### Layout — Total Spacer
 

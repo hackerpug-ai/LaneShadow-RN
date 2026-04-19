@@ -82,8 +82,8 @@
 | borderRadius | RN-wrapper | `semantic.radius.xl` (= 16) | `RoundedCornerShape(16.dp)` | `RoundedRectangle(cornerRadius: 16)` | `radius.xl` |
 | paddingVertical | RN-wrapper | `semantic.space.sm` (= 8) | `Modifier.padding(vertical = 8.dp)` | `.padding(.vertical, 8)` | `space.sm` |
 | paddingHorizontal | RN-wrapper | `semantic.space.lg` (= 16) | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
-| maxWidth | RN-wrapper | `85%` | `Modifier.requiredWidthIn(max = maxWidth * 0.85f)` | `.frame(maxWidth: screenWidth * 0.85)` | ESCALATE — propose `layout.toastMaxWidth = 0.85` |
-| minWidth | RN-wrapper | `200` | `Modifier.requiredWidthIn(min = 200.dp)` | `.frame(minWidth: 200)` | ESCALATE — propose `layout.toastMinWidth = 200` |
+| maxWidth | RN-wrapper | `85%` | `Modifier.requiredWidthIn(max = maxWidth * 0.85f)` | `.frame(maxWidth: screenWidth * 0.85)` | semantic.layout.toastMaxWidth |
+| minWidth | RN-wrapper | `200` | `Modifier.requiredWidthIn(min = 200.dp)` | `.frame(minWidth: 200)` | semantic.layout.toastMinWidth |
 | alignSelf | RN-wrapper | `'center'` | `Modifier.align(Alignment.CenterHorizontally)` | `.frame(maxWidth: .infinity).overlay(..., alignment: .center)` | n/a |
 | elevation | RN-wrapper | `semantic.elevation[2]` | `Modifier.shadow(elevation = 2.dp, ...)` | `.shadow(...)` | `elevation[2]` |
 
@@ -110,7 +110,7 @@
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
 | marginLeft | RN-wrapper | `semantic.space.xs` (= 4) | `Modifier.padding(start = 4.dp)` | `.padding(.leading, 4)` | `space.xs` |
-| paddingBottom | RN-wrapper | `2` | `Modifier.padding(bottom = 2.dp)` | `.padding(.bottom, 2)` | ESCALATE — propose `space.typingOffset = 2` |
+| paddingBottom | RN-wrapper | `2` | `Modifier.padding(bottom = 2.dp)` | `.padding(.bottom, 2)` | semantic.space.typingOffset |
 
 ---
 

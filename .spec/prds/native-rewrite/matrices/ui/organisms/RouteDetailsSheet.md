@@ -88,10 +88,10 @@ No local state. Pure presentational component.
 |---|---|---|---|---|---|
 | flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
 | alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
-| gap | RN-wrapper | `4` | `Arrangement.spacedBy(4.dp)` / `Modifier.padding(end = 4.dp)` between items | `spacing(4)` | ESCALATE — propose `space.micro = 4` |
-| paddingVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | ESCALATE — propose `space.micro = 4` |
-| paddingHorizontal | RN-wrapper | `10` | `Modifier.padding(horizontal = 10.dp)` | `.padding(.horizontal, 10)` | ESCALATE — propose `space.badge = 10` |
-| borderRadius | RN-wrapper | `6` | `RoundedCornerShape(6.dp)` | `RoundedRectangle(cornerRadius: 6)` | ESCALATE — propose `radius.sm = 6` |
+| gap | RN-wrapper | `4` | `Arrangement.spacedBy(4.dp)` / `Modifier.padding(end = 4.dp)` between items | `spacing(4)` | semantic.space.micro|
+| paddingVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | semantic.space.micro|
+| paddingHorizontal | RN-wrapper | `10` | `Modifier.padding(horizontal = 10.dp)` | `.padding(.horizontal, 10)` | semantic.space.badge|
+| borderRadius | RN-wrapper | `6` | `RoundedCornerShape(6.dp)` | `RoundedRectangle(cornerRadius: 6)` | semantic.radius.sm|
 | backgroundColor | RN-wrapper | `primary.default with 12% alpha` | `LaneShadowTheme.colors.primary.copy(alpha = 0.12f)` | `theme.colors.primary.opacity(0.12)` | `color.primary.default + opacity 0.12` |
 
 ### Typography — Badge Text
@@ -108,7 +108,7 @@ No local state. Pure presentational component.
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | RN-wrapper | `14` | `Modifier.size(14.dp)` | `.frame(width: 14, height: 14)` | ESCALATE — propose `icon.xs = 14` |
+| size | RN-wrapper | `14` | `Modifier.size(14.dp)` | `.frame(width: 14, height: 14)` | semantic.icon.xs|
 | color | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
 
 ### Layout — ScrollView
@@ -171,13 +171,13 @@ No local state. Pure presentational component.
 |---|---|---|---|---|---|
 | flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
 | alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
-| gap | RN-wrapper | `6` | `Arrangement.spacedBy(6.dp)` / `Modifier.padding(end = 6.dp)` between items | `spacing(6)` | ESCALATE — propose `space.tight = 6` |
+| gap | RN-wrapper | `6` | `Arrangement.spacedBy(6.dp)` / `Modifier.padding(end = 6.dp)` between items | `spacing(6)` | semantic.space.tight|
 
 ### Icon — Status
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | RN-wrapper | `16` | `Modifier.size(16.dp)` | `.frame(width: 16, height: 16)` | ESCALATE — propose `icon.xs = 16` |
+| size | RN-wrapper | `16` | `Modifier.size(16.dp)` | `.frame(width: 16, height: 16)` | semantic.icon.xs|
 | color (ok) | RN-wrapper | `semantic.color.success.default` | `LaneShadowTheme.colors.success` | `theme.colors.success` | `color.success.default` |
 | color (error) | RN-wrapper | `semantic.color.warning.default` | `LaneShadowTheme.colors.warning` | `theme.colors.warning` | `color.warning.default` |
 

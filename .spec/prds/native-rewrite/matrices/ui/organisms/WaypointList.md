@@ -94,7 +94,7 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| fontSize | RN-wrapper | `18` | `18.sp` | `.font(.system(size: 18))` | ESCALATE — propose `type.title.md.fontSize = 18` |
+| fontSize | RN-wrapper | `18` | `18.sp` | `.font(.system(size: 18))` | semantic.type.title.md.fontSize |
 | fontWeight | RN-wrapper | `'600'` (semibold) | `FontWeight.SemiBold` | `.semibold` | `type.title.md.fontWeight` |
 | color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
 
@@ -109,8 +109,8 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| width | RN-wrapper | `8` | `Modifier.size(8.dp)` | `.frame(width: 8, height: 8)` | ESCALATE — propose `size.indicator = 8` |
-| height | RN-wrapper | `8` | Included above | Included above | ESCALATE — propose `size.indicator = 8` |
+| width | RN-wrapper | `8` | `Modifier.size(8.dp)` | `.frame(width: 8, height: 8)` | semantic.size.indicator|
+| height | RN-wrapper | `8` | Included above | Included above | semantic.size.indicator|
 | borderRadius | RN-wrapper | `4` | `RoundedCornerShape(4.dp)` | `RoundedRectangle(cornerRadius: 4)` | `radius.sm` |
 | backgroundColor | RN-wrapper | `semantic.color.warning.default` | `LaneShadowTheme.colors.warning` | `theme.colors.warning` | `color.warning.default` |
 
@@ -118,7 +118,7 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | RN-wrapper | `24` | `Modifier.size(24.dp)` | `.frame(width: 24, height: 24)` | ESCALATE — propose `icon.md = 24` |
+| size | RN-wrapper | `24` | `Modifier.size(24.dp)` | `.frame(width: 24, height: 24)` | semantic.icon.md|
 | color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
 | name (collapsed) | RN-wrapper | `'chevron-down'` | `Icons.Rounded.KeyboardArrowDown` | `chevron.down` | n/a |
 | name (expanded) | RN-wrapper | `'chevron-up'` | `Icons.Rounded.KeyboardArrowUp` | `chevron.up` | n/a |
@@ -128,7 +128,7 @@
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
 | alignItems | RN-wrapper | `'center'` | `Modifier.align(Alignment.CenterHorizontally)` | `.frame(maxWidth: .infinity).overlay(..., alignment: .center)` | n/a |
-| paddingVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | ESCALATE — propose `space.micro = 4` |
+| paddingVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | semantic.space.micro|
 
 ### Layout — Waypoint Cards Container
 

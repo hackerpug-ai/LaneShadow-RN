@@ -31,7 +31,7 @@
 | Visual | backgroundColor | RN-wrapper | `semantic.color.card.default` | `LaneShadowTheme.colors.card` | `theme.colors.card` | `color.card.default` |
 | Visual | shadow | RN-wrapper | `elevation[3]` | `Modifier.shadow(elevation = 3.dp)` | `.shadow(color:.black.opacity(0.08), radius:8, y:4)` | `elevation.light.3` |
 | Layout | handleHeight | RN-wrapper | `space.lg + space.xs` = 20 | `Modifier.height(20.dp)` | `.frame(height: 20)` | composed |
-| Layout | handleWidth | RN-wrapper | hardcoded `32` | `Modifier.width(32.dp)` | `.frame(width: 32)` | ESCALATE — propose `size.bottomSheetHandleWidth = 32` |
+| Layout | handleWidth | RN-wrapper | hardcoded `32` | `Modifier.width(32.dp)` | `.frame(width: 32)` | semantic.size.bottomSheetHandleWidth |
 | Layout | handleRadius | RN-wrapper | `radius.full` = 9999 | `RoundedCornerShape(percent = 50)` | `Capsule()` | `radius.full` |
 | Visual | handleColor | RN-wrapper | `semantic.color.onSurface.disabled` | `LaneShadowTheme.colors.onSurfaceDisabled` | `theme.colors.onSurfaceDisabled` | `color.onSurface.disabled` |
 

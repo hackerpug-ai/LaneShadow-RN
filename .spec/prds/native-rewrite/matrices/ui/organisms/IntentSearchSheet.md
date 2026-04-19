@@ -75,7 +75,7 @@ No local state. State-driven by `searchState` prop.
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| gap | RN-wrapper | `4` | `Arrangement.spacedBy(4.dp)` / `Modifier.padding(bottom = 4.dp)` between items | `spacing(4)` | ESCALATE — propose `space.micro = 4` |
+| gap | RN-wrapper | `4` | `Arrangement.spacedBy(4.dp)` / `Modifier.padding(bottom = 4.dp)` between items | `spacing(4)` | semantic.space.micro|
 | paddingBottom | RN-wrapper | `16` | `Modifier.padding(bottom = 16.dp)` | `.padding(.bottom, 16)` | `space.lg` |
 | borderBottomWidth | RN-wrapper | `1` | `Modifier.border(BorderStroke(1.dp, ...))` / `Divider()` | `.overlay(RoundedRectangle(...).stroke(..., lineWidth: 1))` | `borderWidth.thin` |
 | borderBottomColor | RN-wrapper | `semantic.color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
@@ -100,7 +100,7 @@ No local state. State-driven by `searchState` prop.
 |---|---|---|---|---|---|
 | flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
 | alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
-| height | RN-wrapper | `48` | `Modifier.height(48.dp)` | `.frame(height: 48)` | ESCALATE — propose `layout.inputHeight = 48` |
+| height | RN-wrapper | `48` | `Modifier.height(48.dp)` | `.frame(height: 48)` | semantic.layout.inputHeight |
 | paddingHorizontal | RN-wrapper | `12` | `Modifier.padding(horizontal = 12.dp)` | `.padding(.horizontal, 12)` | `space.md` |
 | backgroundColor | RN-wrapper | `semantic.color.surface.default` | `LaneShadowTheme.colors.surface` | `theme.colors.surface` | `color.surface.default` |
 | borderRadius | RN-wrapper | `semantic.radius.lg` (= 12) | `RoundedCornerShape(12.dp)` | `RoundedRectangle(cornerRadius: 12)` | `radius.lg` |
@@ -120,7 +120,7 @@ No local state. State-driven by `searchState` prop.
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | RN-wrapper | `20` | `Modifier.size(20.dp)` | `.frame(width: 20, height: 20)` | ESCALATE — propose `icon.sm = 20` |
+| size | RN-wrapper | `20` | `Modifier.size(20.dp)` | `.frame(width: 20, height: 20)` | semantic.icon.sm|
 | color | RN-wrapper | `semantic.color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
 
 ### Typography — Input Text
@@ -136,14 +136,14 @@ No local state. State-driven by `searchState` prop.
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| width | RN-wrapper | `32` | `Modifier.size(32.dp)` | `.frame(width: 32, height: 32)` | ESCALATE — propose `size.iconSm = 32` |
-| height | RN-wrapper | `32` | Included above | Included above | ESCALATE — propose `size.iconSm = 32` |
+| width | RN-wrapper | `32` | `Modifier.size(32.dp)` | `.frame(width: 32, height: 32)` | semantic.size.iconSm |
+| height | RN-wrapper | `32` | Included above | Included above | semantic.size.iconSm |
 
 ### Icon — Clear Button
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | RN-wrapper | `20` | `Modifier.size(20.dp)` | `.frame(width: 20, height: 20)` | ESCALATE — propose `icon.sm = 20` |
+| size | RN-wrapper | `20` | `Modifier.size(20.dp)` | `.frame(width: 20, height: 20)` | semantic.icon.sm|
 | color | RN-wrapper | `semantic.color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
 
 ### Layout — State Container
@@ -193,7 +193,7 @@ No local state. State-driven by `searchState` prop.
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | RN-wrapper | `48` | `Modifier.size(48.dp)` | `.frame(width: 48, height: 48)` | ESCALATE — propose `icon.xl = 48` |
+| size | RN-wrapper | `48` | `Modifier.size(48.dp)` | `.frame(width: 48, height: 48)` | semantic.icon.xl|
 | color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
 
 ### Typography — Offline Messages

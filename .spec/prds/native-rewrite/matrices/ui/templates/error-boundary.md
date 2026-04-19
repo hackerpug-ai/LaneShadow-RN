@@ -46,8 +46,8 @@
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Typography | variant | RN-wrapper | `titleLarge` (Paper) | `MaterialTheme.typography.titleLarge` | `.font(.titleLarge)` | ESCALATE — map to semantic |
-| Typography | fontSize | titleLarge | 22 | `22.sp` | `22` | ESCALATE — `type.heading.md.fontSize = 18` (closest) |
+| Typography | variant | RN-wrapper | `titleLarge` (Paper) | `MaterialTheme.typography.titleLarge` | `.font(.titleLarge)` | semantic.type.title.lg (closest to titleLarge) |
+| Typography | fontSize | titleLarge | 22 | `22.sp` | `22` | semantic.type.label.sm.lineHeight (closest to 18)|
 | Typography | fontWeight | RN-wrapper | `'600'` | `FontWeight.SemiBold` | `.semibold` | `type.heading.md.fontWeight` |
 | Typography | color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
 | Typography | textAlign | RN-wrapper | `'center'` | `textAlign = TextAlign.Center` | `.multilineTextAlignment(.center)` | n/a |
@@ -63,7 +63,7 @@
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Typography | variant | RN-wrapper | `bodyMedium` (Paper) | `MaterialTheme.typography.bodyMedium` | `.font(.bodyMedium)` | ESCALATE — map to semantic |
+| Typography | variant | RN-wrapper | `bodyMedium` (Paper) | `MaterialTheme.typography.bodyMedium` | `.font(.bodyMedium)` | semantic.type.body.md (closest to bodyMedium) |
 | Typography | fontSize | bodyMedium | 14 | `14.sp` | `14` | `type.body.sm.fontSize` |
 | Typography | color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
 | Typography | textAlign | RN-wrapper | `'center'` | `textAlign = TextAlign.Center` | `.multilineTextAlignment(.center)` | n/a |

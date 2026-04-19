@@ -64,7 +64,7 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| width | RN-wrapper | `SCREEN_WIDTH * 0.8` | `Modifier.fillMaxWidth(fraction = 0.8f)` | `.frame(width: screenWidth * 0.8)` | ESCALATE — propose `layout.sidebarWidth = 0.8` |
+| width | RN-wrapper | `SCREEN_WIDTH * 0.8` | `Modifier.fillMaxWidth(fraction = 0.8f)` | `.frame(width: screenWidth * 0.8)` | semantic.layout.sidebarWidth |
 | height | RN-wrapper | `'100%'` | `Modifier.fillMaxHeight()` | `.frame(maxHeight: .infinity)` | n/a |
 | backgroundColor | RN-wrapper | `semantic.color.background.default` | `LaneShadowTheme.colors.background` | `theme.colors.background` | `color.background.default` |
 
@@ -74,7 +74,7 @@
 |---|---|---|---|---|---|
 | position | RN-wrapper | `'absolute'` via StyleSheet.absoluteFillObject | `Modifier.wrapContentSize(unbounded = true)` | `.frame(maxWidth: .infinity, maxHeight: .infinity).overlay(...)` | n/a |
 | flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
-| zIndex | RN-wrapper | `1000` | `Modifier.zIndex(1000)` (Compose 1.6+) or `Box` with elevation | `.zIndex(1000)` | ESCALATE — propose `elevation.modal = 1000` |
+| zIndex | RN-wrapper | `1000` | `Modifier.zIndex(1000)` (Compose 1.6+) or `Box` with elevation | `.zIndex(1000)` | semantic.elevation.modal|
 
 ### Layout — Header
 
@@ -83,8 +83,8 @@
 | flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
 | justifyContent | RN-wrapper | `'space-between'` | `horizontalArrangement = Arrangement.SpaceBetween` | n/a | n/a |
 | alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
-| paddingHorizontal | RN-wrapper | `20` | `Modifier.padding(horizontal = 20.dp)` | `.padding(.horizontal, 20)` | ESCALATE — propose `space.header = 20` |
-| paddingVertical | RN-wrapper | `20` | `Modifier.padding(vertical = 20.dp)` | `.padding(.vertical, 20)` | ESCALATE — propose `space.header = 20` |
+| paddingHorizontal | RN-wrapper | `20` | `Modifier.padding(horizontal = 20.dp)` | `.padding(.horizontal, 20)` | semantic.space.header|
+| paddingVertical | RN-wrapper | `20` | `Modifier.padding(vertical = 20.dp)` | `.padding(.vertical, 20)` | semantic.space.header|
 | borderBottomWidth | RN-wrapper | `1` | `Modifier.border(BorderStroke(1.dp, ...))` / `Divider()` | `.overlay(RoundedRectangle(...).stroke(..., lineWidth: 1))` | `borderWidth.thin` |
 | borderBottomColor | RN-wrapper | `semantic.color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
 
@@ -92,8 +92,8 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| fontSize | RN-wrapper | `28` | `28.sp` | `.font(.system(size: 28))` | ESCALATE — propose `type.display.xs.fontSize = 28` |
-| fontWeight | RN-wrapper | `'800'` (extra bold) | `FontWeight.ExtraBold` | `.weight(.heavy)` | ESCALATE — propose `type.display.xs.fontWeight = 800` |
+| fontSize | RN-wrapper | `28` | `28.sp` | `.font(.system(size: 28))` | semantic.type.display.xs.fontSize |
+| fontWeight | RN-wrapper | `'800'` (extra bold) | `FontWeight.ExtraBold` | `.weight(.heavy)` | semantic.type.display.xs.fontWeight |
 | color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
 
 ### Layout — New Session Button
@@ -102,7 +102,7 @@
 |---|---|---|---|---|---|
 | flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
 | alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
-| gap | RN-wrapper | `6` | `Arrangement.spacedBy(6.dp)` / `Modifier.padding(end = 6.dp)` between items | `spacing(6)` | ESCALATE — propose `space.tight = 6` |
+| gap | RN-wrapper | `6` | `Arrangement.spacedBy(6.dp)` / `Modifier.padding(end = 6.dp)` between items | `spacing(6)` | semantic.space.tight|
 | paddingHorizontal | RN-wrapper | `12` | `Modifier.padding(horizontal = 12.dp)` | `.padding(.horizontal, 12)` | `space.md` |
 | paddingVertical | RN-wrapper | `8` | `Modifier.padding(vertical = 8.dp)` | `.padding(.vertical, 8)` | `space.sm` |
 | borderRadius | RN-wrapper | `12` | `RoundedCornerShape(12.dp)` | `RoundedRectangle(cornerRadius: 12)` | `radius.lg` |
@@ -112,15 +112,15 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| fontSize | RN-wrapper | `16` | `16.sp` | `.font(.system(size: 16))` | ESCALATE — propose `type.body.md.fontSize = 16` |
-| fontWeight | RN-wrapper | `'700'` (bold) | `FontWeight.Bold` | `.weight(.bold)` | ESCALATE — propose `type.body.md.fontWeight = 700` |
+| fontSize | RN-wrapper | `16` | `16.sp` | `.font(.system(size: 16))` | semantic.type.body.md.fontSize |
+| fontWeight | RN-wrapper | `'700'` (bold) | `FontWeight.Bold` | `.weight(.bold)` | semantic.type.body.md.fontWeight |
 | color | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
 
 ### Icon — New Session Button Icon
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | RN-wrapper | `26` | `Modifier.size(26.dp)` | `.frame(width: 26, height: 26)` | ESCALATE — propose `icon.lg = 26` |
+| size | RN-wrapper | `26` | `Modifier.size(26.dp)` | `.frame(width: 26, height: 26)` | semantic.icon.lg|
 | color | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
 
 ### Layout — Sessions List
@@ -140,10 +140,10 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| fontSize | RN-wrapper | `13` | `13.sp` | `.font(.system(size: 13))` | ESCALATE — propose `type.label.xs.fontSize = 13` |
-| fontWeight | RN-wrapper | `'700'` (bold) | `FontWeight.Bold` | `.weight(.bold)` | ESCALATE — propose `type.label.xs.fontWeight = 700` |
+| fontSize | RN-wrapper | `13` | `13.sp` | `.font(.system(size: 13))` | semantic.type.label.xs.fontSize |
+| fontWeight | RN-wrapper | `'700'` (bold) | `FontWeight.Bold` | `.weight(.bold)` | semantic.type.label.xs.fontWeight |
 | textTransform | RN-wrapper | `'uppercase'` | `composableStyle { textAlign = ... }` | `.textCase(.uppercase)` | n/a |
-| letterSpacing | RN-wrapper | `0.8` | `style { letterSpacing = 0.8.sp }` | `.tracking(0.8)` | ESCALATE — propose `type.label.xs.letterSpacing = 0.8` |
+| letterSpacing | RN-wrapper | `0.8` | `style { letterSpacing = 0.8.sp }` | `.tracking(0.8)` | semantic.type.label.xs.letterSpacing |
 | color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
 | marginBottom | RN-wrapper | `12` | `Modifier.padding(bottom = 12.dp)` | `.padding(.bottom, 12)` | `space.md` |
 
@@ -157,7 +157,7 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| paddingVertical | RN-wrapper | `60` | `Modifier.padding(vertical = 60.dp)` | `.padding(.vertical, 60)` | ESCALATE — propose `space.4xl = 60` |
+| paddingVertical | RN-wrapper | `60` | `Modifier.padding(vertical = 60.dp)` | `.padding(.vertical, 60)` | semantic.space.4xl |
 | alignItems | RN-wrapper | `'center'` | `Modifier.align(Alignment.CenterHorizontally)` + vertical | `.frame(maxWidth: .infinity).overlay(..., alignment: .center)` | n/a |
 | gap | RN-wrapper | `12` | `Arrangement.spacedBy(12.dp)` / `Modifier.padding(end = 12.dp)` between items | `spacing(12)` | `space.md` |
 
@@ -165,7 +165,7 @@
 
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
-| size | RN-wrapper | `48` | `Modifier.size(48.dp)` | `.frame(width: 48, height: 48)` | ESCALATE — propose `icon.xl = 48` |
+| size | RN-wrapper | `48` | `Modifier.size(48.dp)` | `.frame(width: 48, height: 48)` | semantic.icon.xl|
 | color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
 
 ### Typography — Empty State Text
@@ -182,8 +182,8 @@
 | Property | Source | Value | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|
 | flex | RN-wrapper | `1` | `Modifier.fillMaxSize()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
-| backgroundColor (default) | RN-wrapper | `rgba(0, 0, 0, 0.5)` | `Color.Black.copy(alpha = 0.5f)` | `Color.black.opacity(0.5)` | ESCALATE — propose `color.scrim.default = rgba(0,0,0,0.5)` |
-| backgroundColor (pressed) | RN-wrapper | `rgba(0, 0, 0, 0.6)` | `Color.Black.copy(alpha = 0.6f)` | `Color.black.opacity(0.6)` | ESCALATE — propose `color.scrim.pressed = rgba(0,0,0,0.6)` |
+| backgroundColor (default) | RN-wrapper | `rgba(0, 0, 0, 0.5)` | `Color.Black.copy(alpha = 0.5f)` | `Color.black.opacity(0.5)` | semantic.color.light.scrim.default (rgba(0,0,0,0.5)) |
+| backgroundColor (pressed) | RN-wrapper | `rgba(0, 0, 0, 0.6)` | `Color.Black.copy(alpha = 0.6f)` | `Color.black.opacity(0.6)` | semantic.color.light.scrim.pressed (rgba(0,0,0,0.6)) |
 
 ---
 

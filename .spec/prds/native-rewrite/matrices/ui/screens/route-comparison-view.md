@@ -35,16 +35,16 @@
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
 | Layout | paddingHorizontal | RN-wrapper | `space.lg` = 16 | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
-| Layout | paddingTop | RN-wrapper | `16` | `Modifier.padding(top = 16.dp)` | `.padding(.top, 16)` | ESCALATE — `space.lg` |
-| Layout | paddingBottom | RN-wrapper | `16` | `Modifier.padding(bottom = 16.dp)` | `.padding(.bottom, 16)` | ESCALATE — `space.lg` |
-| Layout | gap | RN-wrapper | `12` | `Spacer(Modifier.height(12.dp))` | `Spacer(minLength: 12)` | ESCALATE — `space.md` |
+| Layout | paddingTop | RN-wrapper | `16` | `Modifier.padding(top = 16.dp)` | `.padding(.top, 16)` | semantic.space.lg|
+| Layout | paddingBottom | RN-wrapper | `16` | `Modifier.padding(bottom = 16.dp)` | `.padding(.bottom, 16)` | semantic.space.lg|
+| Layout | gap | RN-wrapper | `12` | `Spacer(Modifier.height(12.dp))` | `Spacer(minLength: 12)` | semantic.space.md|
 
 ### Layout — Route Cards
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Layout | padding | RN-wrapper | `16` | `Modifier.padding(16.dp)` | `.padding(16)` | ESCALATE — `space.lg` |
-| Layout | gap | RN-wrapper | `12` | `Spacer(Modifier.height(12.dp))` | `Spacer(minLength: 12)` | ESCALATE — `space.md` |
+| Layout | padding | RN-wrapper | `16` | `Modifier.padding(16.dp)` | `.padding(16)` | semantic.space.lg|
+| Layout | gap | RN-wrapper | `12` | `Spacer(Modifier.height(12.dp))` | `Spacer(minLength: 12)` | semantic.space.md|
 | Visual | backgroundColor (selected) | RN-wrapper | `primary.default` + 8% alpha | `LaneShadowTheme.colors.primary.copy(alpha = 0.08f)` | `theme.colors.primary.opacity(0.08)` | `color.primary.default` + alpha |
 | Visual | backgroundColor (unselected) | RN-wrapper | `semantic.color.card.default` | `LaneShadowTheme.colors.card` | `theme.colors.card` | `color.card.default` |
 | Visual | borderWidth (selected) | RN-wrapper | `2` | `Modifier.border(2.dp, ...)` | `.overlay(RoundedRectangle(...).stroke(..., lineWidth: 2))` | ESCALATE — `borderWidth.thick = 2` |
@@ -95,14 +95,14 @@
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
 | Layout | justifyContent | RN-wrapper | `'center'` | `Modifier.wrapContentSize(Alignment.Center)` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
-| Layout | gap | RN-wrapper | `12` | `Spacer(Modifier.height(12.dp))` | `Spacer(minLength: 12)` | ESCALATE — `space.md` |
+| Layout | gap | RN-wrapper | `12` | `Spacer(Modifier.height(12.dp))` | `Spacer(minLength: 12)` | semantic.space.md|
 | Visual | indicatorColor | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
 
 ### Typography — Loading Text
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Typography | variant | RN-wrapper | `bodyMedium` (Paper) | `MaterialTheme.typography.bodyMedium` | `.font(.bodyMedium)` | ESCALATE — map to semantic |
+| Typography | variant | RN-wrapper | `bodyMedium` (Paper) | `MaterialTheme.typography.bodyMedium` | `.font(.bodyMedium)` | semantic.type.body.md (closest to bodyMedium) |
 | Typography | color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
 
 ### Layout — Empty State
@@ -110,15 +110,15 @@
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
 | Layout | justifyContent | RN-wrapper | `'center'` | `Modifier.wrapContentSize(Alignment.Center)` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
-| Layout | gap | RN-wrapper | `12` | `Spacer(Modifier.height(12.dp))` | `Spacer(minLength: 12)` | ESCALATE — `space.md` |
+| Layout | gap | RN-wrapper | `12` | `Spacer(Modifier.height(12.dp))` | `Spacer(minLength: 12)` | semantic.space.md|
 
 ### Typography — Empty State
 
 | Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|---|
-| Typography | variant (title) | RN-wrapper | `titleMedium` (Paper) | `MaterialTheme.typography.titleMedium` | `.font(.titleMedium)` | ESCALATE — map to semantic |
+| Typography | variant (title) | RN-wrapper | `titleMedium` (Paper) | `MaterialTheme.typography.titleMedium` | `.font(.titleMedium)` | semantic.type.title.md (closest to titleMedium) |
 | Typography | color (title) | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
-| Typography | variant (body) | RN-wrapper | `bodyMedium` (Paper) | `MaterialTheme.typography.bodyMedium` | `.font(.bodyMedium)` | ESCALATE — map to semantic |
+| Typography | variant (body) | RN-wrapper | `bodyMedium` (Paper) | `MaterialTheme.typography.bodyMedium` | `.font(.bodyMedium)` | semantic.type.body.md (closest to bodyMedium) |
 | Typography | color (body) | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
 
 ---
