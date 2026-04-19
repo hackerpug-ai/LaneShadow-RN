@@ -38,6 +38,21 @@ data class LaneShadowRadius(
     val full: Dp,
 )
 
+data class LaneShadowElevationLevel(
+    val level0: Dp,
+    val level1: Dp,
+    val level2: Dp,
+    val level3: Dp,
+    val level4: Dp,
+    val level5: Dp,
+    val level8: Dp,
+)
+
+data class LaneShadowElevation(
+    val light: LaneShadowElevationLevel,
+    val dark: LaneShadowElevationLevel,
+)
+
 data class LaneShadowTypeScale(val sm: TextStyle, val md: TextStyle, val lg: TextStyle)
 
 data class LaneShadowType(
@@ -53,6 +68,7 @@ data class LaneShadowThemeValues(
     val space: LaneShadowSpace,
     val radius: LaneShadowRadius,
     val type: LaneShadowType,
+    val elevation: LaneShadowElevation,
     val domain: DomainColors,
 )
 
@@ -107,6 +123,33 @@ internal fun radiusValues(tokens: SemanticTokens): LaneShadowRadius {
     )
 }
 
+internal fun elevationValues(tokens: SemanticTokens): LaneShadowElevation {
+    val e = tokens.elevation
+    fun level(map: Map<String, com.laneshadow.theme.ElevationDefDto>, key: String) =
+        requireNotNull(map[key]).elevation.value.dp
+
+    return LaneShadowElevation(
+        light = LaneShadowElevationLevel(
+            level0 = level(e.light, "0"),
+            level1 = level(e.light, "1"),
+            level2 = level(e.light, "2"),
+            level3 = level(e.light, "3"),
+            level4 = level(e.light, "4"),
+            level5 = level(e.light, "5"),
+            level8 = level(e.light, "8"),
+        ),
+        dark = LaneShadowElevationLevel(
+            level0 = level(e.dark, "0"),
+            level1 = level(e.dark, "1"),
+            level2 = level(e.dark, "2"),
+            level3 = level(e.dark, "3"),
+            level4 = level(e.dark, "4"),
+            level5 = level(e.dark, "5"),
+            level8 = level(e.dark, "8"),
+        ),
+    )
+}
+
 internal fun typeValues(tokens: SemanticTokens): LaneShadowType {
     val t = tokens.type
     return LaneShadowType(
@@ -142,6 +185,7 @@ fun laneShadowThemeValues(tokens: SemanticTokens, darkTheme: Boolean): LaneShado
         space = spaceValues(tokens),
         radius = radiusValues(tokens),
         type = typeValues(tokens),
+        elevation = elevationValues(tokens),
         domain = DomainColors.from(tokens, darkTheme),
     )
 

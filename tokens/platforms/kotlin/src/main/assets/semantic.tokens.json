@@ -2095,7 +2095,199 @@
             "$type": "dimension",
             "$value": 5
           }
+        },
+        "8": {
+          "shadowColor": {
+            "$type": "color",
+            "$value": "#000000"
+          },
+          "shadowOffset": {
+            "width": {
+              "$type": "dimension",
+              "$value": 0
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": 16
+            }
+          },
+          "shadowOpacity": {
+            "$type": "dimension",
+            "$value": 0.45
+          },
+          "shadowRadius": {
+            "$type": "dimension",
+            "$value": 32
+          },
+          "elevation": {
+            "$type": "dimension",
+            "$value": 8
+          }
         }
+      }
+    },
+    "borderWidth": {
+      "hairline": {
+        "$type": "dimension",
+        "$value": 0.5
+      },
+      "thin": {
+        "$type": "dimension",
+        "$value": 1
+      },
+      "thick": {
+        "$type": "dimension",
+        "$value": 2
+      },
+      "thumb": {
+        "$type": "dimension",
+        "$value": 2
+      }
+    },
+    "control": {
+      "sliderContainerHeight": {
+        "$type": "dimension",
+        "$value": 20
+      },
+      "sliderThumbSize": {
+        "$type": "dimension",
+        "$value": 20
+      },
+      "sliderTrackHeight": {
+        "$type": "dimension",
+        "$value": 8
+      }
+    },
+    "fontWeight": {
+      "bold": {
+        "$type": "string",
+        "$value": "700"
+      },
+      "semibold": {
+        "$type": "string",
+        "$value": "600"
+      }
+    },
+    "hitSlop": {
+      "md": {
+        "$type": "dimension",
+        "$value": 8
+      },
+      "lg": {
+        "$type": "dimension",
+        "$value": 12
+      }
+    },
+    "iconSize": {
+      "xs": {
+        "$type": "dimension",
+        "$value": 12
+      },
+      "sm": {
+        "$type": "dimension",
+        "$value": 14
+      },
+      "md": {
+        "$type": "dimension",
+        "$value": 16
+      },
+      "md2": {
+        "$type": "dimension",
+        "$value": 20
+      },
+      "lg": {
+        "$type": "dimension",
+        "$value": 24
+      },
+      "xl": {
+        "$type": "dimension",
+        "$value": 28
+      },
+      "2xl": {
+        "$type": "dimension",
+        "$value": 32
+      },
+      "emptyState": {
+        "$type": "dimension",
+        "$value": 40
+      },
+      "logoDot": {
+        "$type": "dimension",
+        "$value": 3
+      }
+    },
+    "shadow": {
+      "offset": {
+        "menu": {
+          "width": {
+            "$type": "dimension",
+            "$value": 0
+          },
+          "height": {
+            "$type": "dimension",
+            "$value": 4
+          }
+        }
+      },
+      "radius": {
+        "sm": {
+          "$type": "dimension",
+          "$value": 4
+        },
+        "md": {
+          "$type": "dimension",
+          "$value": 8
+        },
+        "menu": {
+          "$type": "dimension",
+          "$value": 8
+        },
+        "primary": {
+          "$type": "dimension",
+          "$value": 16
+        }
+      }
+    },
+    "size": {
+      "avatarDefault": {
+        "$type": "dimension",
+        "$value": 40
+      },
+      "avatarLg": {
+        "$type": "dimension",
+        "$value": 64
+      },
+      "avatarXl": {
+        "$type": "dimension",
+        "$value": 96
+      },
+      "chatMaxWidth": {
+        "$type": "dimension",
+        "$value": 780
+      },
+      "inputHeight": {
+        "$type": "dimension",
+        "$value": 48
+      },
+      "inputTextMinHeight": {
+        "$type": "dimension",
+        "$value": 24
+      },
+      "pulsingDot": {
+        "$type": "dimension",
+        "$value": 8
+      }
+    },
+    "strokeWidth": {
+      "logo": {
+        "$type": "dimension",
+        "$value": 3
+      }
+    },
+    "touchTarget": {
+      "min": {
+        "$type": "dimension",
+        "$value": 44
       }
     },
     "motion": {
@@ -2119,6 +2311,30 @@
         "slower": {
           "$type": "dimension",
           "$value": 400
+        },
+        "fade": {
+          "$type": "dimension",
+          "$value": 300
+        },
+        "highlight": {
+          "$type": "dimension",
+          "$value": 500
+        }
+      },
+      "delay": {
+        "stagger": {
+          "$type": "dimension",
+          "$value": 100
+        }
+      },
+      "scale": {
+        "highlight": {
+          "$type": "dimension",
+          "$value": 1.02
+        },
+        "pop": {
+          "$type": "dimension",
+          "$value": 0.95
         }
       },
       "easing": {
@@ -2192,6 +2408,78 @@
       "100": {
         "$type": "dimension",
         "$value": 1
+      },
+      "actionIdle": {
+        "$type": "dimension",
+        "$value": 0.2
+      },
+      "actionPressed": {
+        "$type": "dimension",
+        "$value": 0.3
+      },
+      "border": {
+        "$type": "dimension",
+        "$value": 0.3
+      },
+      "boundingBox": {
+        "$type": "dimension",
+        "$value": 0.1
+      },
+      "container": {
+        "$type": "dimension",
+        "$value": 0.15
+      },
+      "disabled": {
+        "$type": "dimension",
+        "$value": 0.5
+      },
+      "overlay": {
+        "$type": "dimension",
+        "$value": 0.5
+      },
+      "overlaySurface": {
+        "$type": "dimension",
+        "$value": 0.5
+      },
+      "pressed": {
+        "$type": "dimension",
+        "$value": 0.7
+      },
+      "pressedStrong": {
+        "$type": "dimension",
+        "$value": 0.8
+      },
+      "previewOverlay": {
+        "$type": "dimension",
+        "$value": 0.6
+      },
+      "pulseMin": {
+        "$type": "dimension",
+        "$value": 0.4
+      },
+      "pulseMax": {
+        "$type": "dimension",
+        "$value": 1
+      },
+      "reducedMotion": {
+        "$type": "dimension",
+        "$value": 0.7
+      },
+      "shadow": {
+        "$type": "dimension",
+        "$value": 0.15
+      },
+      "shadowPrimary": {
+        "$type": "dimension",
+        "$value": 0.4
+      },
+      "surface": {
+        "$type": "dimension",
+        "$value": 0.85
+      },
+      "tint": {
+        "$type": "dimension",
+        "$value": 0.21
       }
     }
   }

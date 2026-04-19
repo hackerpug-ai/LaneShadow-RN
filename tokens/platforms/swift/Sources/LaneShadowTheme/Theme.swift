@@ -109,6 +109,7 @@ public struct ThemeElevation: Sendable {
     public let level3: ElevationStyle
     public let level4: ElevationStyle
     public let level5: ElevationStyle
+    public let level8: ElevationStyle
 }
 
 public struct Theme: Sendable {
@@ -257,7 +258,8 @@ private extension Theme {
             level2: elevationStyle(from: e["2"]!),
             level3: elevationStyle(from: e["3"]!),
             level4: elevationStyle(from: e["4"]!),
-            level5: elevationStyle(from: e["5"]!)
+            level5: elevationStyle(from: e["5"]!),
+            level8: elevationStyle(from: e["8"]!)
         )
     }
 }
