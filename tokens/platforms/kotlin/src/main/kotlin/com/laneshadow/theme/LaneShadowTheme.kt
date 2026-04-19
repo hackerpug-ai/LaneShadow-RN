@@ -53,6 +53,31 @@ data class LaneShadowElevation(
     val dark: LaneShadowElevationLevel,
 )
 
+data class LaneShadowMotionDuration(
+    val fast: Int,
+    val standard: Int,
+    val slow: Int,
+    val slower: Int,
+)
+
+data class LaneShadowMotionEasing(
+    val linear: List<Double>,
+    val easeIn: List<Double>,
+    val easeOut: List<Double>,
+    val easeInOut: List<Double>,
+)
+
+data class LaneShadowMotion(
+    val duration: Map<String, Int>,
+    val delay: Map<String, Int>,
+    val scale: Map<String, Double>,
+    val easing: Map<String, List<Double>>,
+)
+
+data class LaneShadowOpacity(
+    val values: Map<String, Float>,
+)
+
 data class LaneShadowTypeScale(val sm: TextStyle, val md: TextStyle, val lg: TextStyle)
 
 data class LaneShadowType(
@@ -69,6 +94,8 @@ data class LaneShadowThemeValues(
     val radius: LaneShadowRadius,
     val type: LaneShadowType,
     val elevation: LaneShadowElevation,
+    val motion: LaneShadowMotion,
+    val opacity: LaneShadowOpacity,
     val domain: DomainColors,
 )
 
@@ -150,6 +177,28 @@ internal fun elevationValues(tokens: SemanticTokens): LaneShadowElevation {
     )
 }
 
+internal fun motionValues(tokens: SemanticTokens): LaneShadowMotion {
+    val m = tokens.motion
+    val duration = m.duration.mapValues { (_, dto) -> dto.value.toInt() }
+    val delay = m.delay?.mapValues { (_, dto) -> dto.value.toInt() } ?: emptyMap()
+    val scale = m.scale?.mapValues { (_, dto) -> dto.value } ?: emptyMap()
+    val easing = m.easing.mapValues { (_, dto) -> dto.value }
+
+    return LaneShadowMotion(
+        duration = duration,
+        delay = delay,
+        scale = scale,
+        easing = easing,
+    )
+}
+
+internal fun opacityValues(tokens: SemanticTokens): LaneShadowOpacity {
+    val o = tokens.opacity
+    val values = o.mapValues { (_, dto) -> dto.value.toFloat() }
+
+    return LaneShadowOpacity(values = values)
+}
+
 internal fun typeValues(tokens: SemanticTokens): LaneShadowType {
     val t = tokens.type
     return LaneShadowType(
@@ -186,6 +235,8 @@ fun laneShadowThemeValues(tokens: SemanticTokens, darkTheme: Boolean): LaneShado
         radius = radiusValues(tokens),
         type = typeValues(tokens),
         elevation = elevationValues(tokens),
+        motion = motionValues(tokens),
+        opacity = opacityValues(tokens),
         domain = DomainColors.from(tokens, darkTheme),
     )
 

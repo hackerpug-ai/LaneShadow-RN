@@ -89,6 +89,8 @@ data class ElevationModesDto(
 @Serializable
 data class MotionDto(
     val duration: Map<String, DimensionTokenDto>,
+    val delay: Map<String, DimensionTokenDto>? = null,
+    val scale: Map<String, DimensionTokenDto>? = null,
     val easing: Map<String, EasingTokenDto>,
 )
 
