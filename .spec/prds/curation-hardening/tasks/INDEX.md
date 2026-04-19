@@ -3,11 +3,11 @@
 **Project:** LaneShadow Curation Pipeline Hardening
 **Feature:** Source Diversification, Quality Infrastructure, Scoring Realignment, Rider Signals
 **Generated:** 2026-04-12
-**Revised:** 2026-04-12 — BDR (SRC-002), twtex (SRC-003), and USFS (SRC-005) dropped after VAL-002/VAL-003 invalidated PRD assumptions and V3 strategy shifted to lifestyle ride community (ADV/dual-sport sources no longer fit). Epic 5 deleted; SRC-004 folded into Epic 4.
+**Revised:** 2026-04-12 — BDR (SRC-002), twtex (SRC-003), and USFS (SRC-005) dropped after VAL-002/VAL-003 invalidated PRD assumptions and V3 strategy shifted to lifestyle ride community (ADV/dual-sport sources no longer fit). Sprint 5 deleted; SRC-004 folded into Epic 4.
 **Revised:** 2026-04-12 — Epic 2 BASE-001 decomposed from a single 240-min task into 8 smaller tasks (BASE-001..008) for parallelization and context-window manageability. Original file preserved at `epic-02-baseline-pipeline-validation/BASE-001.md.archived`.
 **Revised:** 2026-04-13 — Epic 2 BASE-000 inserted as Wave 0 data-prep prerequisite after `/kb-run-epic` preflight revealed the FHWA input CSV did not exist and the canonical DOT ArcGIS source returns 645 routes (not the 184 the PRD originally assumed). Curation-hardening PRD docs updated to reflect the ~645-route superset reality. See `epic-02-baseline-pipeline-validation/DECISIONS.md`.
 **Revised:** 2026-04-13 (evening) — BASE-009 inserted as Epic 2 Wave 6 remediation task. [`tasks/CRAWL-PLAN-PROTOCOL.md`](./CRAWL-PLAN-PROTOCOL.md) adopted as mandatory pre-extraction gate for all source tasks (Forms A/B/C/D; Form E pre-computed file consumers exempt). New pipeline principle **P6** added to `00-overview.md` ("Committed crawl plan before extraction at scale"). Step 1 of `CURATION-REVIEW-PROTOCOL.md` upgraded to require a committed verdict-PASS `crawl-report.md` per in-scope source. See `epic-02-baseline-pipeline-validation/DECISIONS.md` "Crawl Plan Protocol adoption" for the full rationale.
-**Revised:** 2026-04-16 — Epic 11 (Mobile UI — New Field Display) deferred to native-rewrite PRD (`.spec/prds/native-rewrite/07-native-app-backlog.md`). Client transitioning to native Kotlin/Swift; React Native UI work would be throwaway. Pipeline still produces all data fields — only the consumption layer is deferred. Task count 45→41, epics 11→10. Path references updated from `convex/` to `server/convex/` for parallel execution with native-rewrite restructure.
+**Revised:** 2026-04-16 — Sprint 11 (Mobile UI — New Field Display) deferred to native-rewrite PRD (`.spec/prds/native-rewrite/07-native-app-backlog.md`). Client transitioning to native Kotlin/Swift; React Native UI work would be throwaway. Pipeline still produces all data fields — only the consumption layer is deferred. Task count 45→41, sprints 11→10. Path references updated from `convex/` to `server/convex/` for parallel execution with native-rewrite restructure.
 **PRD:** [`.spec/prds/curation-hardening/README.md`](../README.md)
 **Appetite:** 7 weeks (including Week 0 validation)
 
@@ -17,19 +17,19 @@
 
 | Metric | Value |
 |--------|-------|
-| **Total Epics** | 10 (Epic 5 deleted; Epic 11 deferred 2026-04-16 to native-rewrite; sequence numbers preserved — gaps at 5 and 11) |
-| **Total Tasks** | 41 (Epic 2 expanded from 1 → 11 across 2026-04-12 decomposition + 2026-04-13 AM BASE-000 insertion + 2026-04-13 PM BASE-009 Crawl Plan Protocol remediation split into BASE-009a + BASE-009b; Epic 11's 4 DESIGN tasks deferred 2026-04-16) |
+| **Total Sprints** | 10 (Sprint 5 deleted; Sprint 11 deferred 2026-04-16 to native-rewrite; sequence numbers preserved — gaps at 5 and 11) |
+| **Total Tasks** | 41 (Epic 2 expanded from 1 → 11 across 2026-04-12 decomposition + 2026-04-13 AM BASE-000 insertion + 2026-04-13 PM BASE-009 Crawl Plan Protocol remediation split into BASE-009a + BASE-009b; Sprint 11's 4 DESIGN tasks deferred 2026-04-16) |
 | **Full-Detail Task Files** | 15 (Epic 1: 4 VAL tasks; Epic 2: 11 BASE tasks) |
 | **Stub Tasks** | 26 (Epics 3-4, 6-10, 12) |
 | **PRD Coverage** | 100% of 16 surviving use cases + cross-priority infra (mobile UI consumption deferred to native-rewrite) |
-| **Estimated Effort** | ~6010 minutes (~100.2 hours total) — round-1 Epic 2 decomposition preserved the 240-min total; round-2 (2026-04-13 AM) added 90 min for BASE-000 data prep; round-3 (2026-04-13 PM) added 480 min for BASE-009 Crawl Plan Protocol remediation; round-4 (2026-04-13 PM) split BASE-009 into BASE-009a (270 min) + BASE-009b (300 min), adding 90 min of split overhead for risk isolation; round-5 (2026-04-13 PM, later same evening) revised BASE-009a upward to 330 min after Phase 0 recon corrected the MR route universe from 300-1000 to ~2,044 routes; round-6 (2026-04-16) subtracted 345 min for deferred Epic 11 (DESIGN-008..011) |
+| **Estimated Effort** | ~6010 minutes (~100.2 hours total) — round-1 Epic 2 decomposition preserved the 240-min total; round-2 (2026-04-13 AM) added 90 min for BASE-000 data prep; round-3 (2026-04-13 PM) added 480 min for BASE-009 Crawl Plan Protocol remediation; round-4 (2026-04-13 PM) split BASE-009 into BASE-009a (270 min) + BASE-009b (300 min), adding 90 min of split overhead for risk isolation; round-5 (2026-04-13 PM, later same evening) revised BASE-009a upward to 330 min after Phase 0 recon corrected the MR route universe from 300-1000 to ~2,044 routes; round-6 (2026-04-16) subtracted 345 min for deferred Sprint 11 (DESIGN-008..011) |
 
 ### Task Quality
 
 - **Epic 1 (VAL-001..004)** — Full TASK-TEMPLATE v4.0 compliance, quality score 115/115 average
 - **Epic 2 (BASE-000..009b)** — Full TASK-TEMPLATE v4.0 compliance, quality score ~112/115 average (BASE-001 through BASE-008 originated from a 2026-04-12 decomposition; BASE-000 added 2026-04-13 AM as a data-prep prerequisite; BASE-009 added 2026-04-13 PM as a Crawl Plan Protocol remediation task and same-evening split into BASE-009a [framework + MR, 270 min] + BASE-009b [BBR + baseline regeneration + review.md verdict upgrade, 300 min] for risk isolation — see `tasks/CRAWL-PLAN-PROTOCOL.md` and the "Crawl Plan Protocol adoption" decision in Epic 2 DECISIONS.md)
-- **Epic 3-12** — Stub-level (task_id, title, agent, dependencies, one-line spec) per user directive
-- **Task files for Epics 3-12** — Will be written as each epic enters execution phase
+- **Epic 3-4 + Sprint 5-12** — Stub-level (task_id, title, agent, dependencies, one-line spec) per user directive
+- **Task files for Epic 3-4 + Sprint 5-12** — Will be written as each sprint enters execution phase
 
 ---
 
@@ -38,15 +38,15 @@
 1. **Start with Epic 1** — Run `/kb-run-epic epic-01-week0-validation`. This executes all 4 Week 0 validation spikes. No code is written beyond the validation pilot directories.
 2. **Gate on Week 0 report** — Before proceeding to Epic 2, review `results.json` / `verification_report.json` / `feasibility_report.json` from each VAL task. Any FAIL requires remediation or descope.
 3. **Run Epic 2 (Baseline Validation)** — Validate the EXISTING curation pipeline works end-to-end before adding hardening.
-4. **Sequential epic execution** — Epics 3-4, 6-10, 12 depend on earlier epics (see dependency graph below). Most tasks within an epic can run in parallel. Epic 11 (Mobile UI) has been deferred to the native-rewrite PRD.
-5. **Write task files just-in-time** — When an epic enters active development, generate full task files from the stubs via `/kb-project-plan` targeted at that epic.
-6. **Every epic runs the full curation pipeline** — Per the [Curation Review Protocol](./CURATION-REVIEW-PROTOCOL.md), NO epic is marked Done until the full pipeline (every curation script available at that epic boundary) has been executed, the catalog diffed against the prior epic baseline, landmark spot checks pass, and a `review.md` artifact is committed with verdict PASS. The protocol scales — Epic 1 runs a minimal subset, Epic 12 runs everything.
+4. **Sequential sprint execution** — Epic 3-4 and Sprint 6-10/12 depend on earlier planning artifacts (see dependency graph below). Most tasks within a sprint can run in parallel. Sprint 11 (Mobile UI) has been deferred to the native-rewrite PRD.
+5. **Write task files just-in-time** — When a sprint enters active development, generate full task files from the stubs via `/kb-project-plan` targeted at that sprint.
+6. **Every sprint runs the full curation pipeline** — Per the [Curation Review Protocol](./CURATION-REVIEW-PROTOCOL.md), no sprint is marked Done until the full pipeline (every curation script available at that sprint boundary) has been executed, the catalog diffed against the prior sprint baseline, landmark spot checks pass, and a `review.md` artifact is committed with verdict PASS. The protocol scales — Epic 1 runs a minimal subset, Sprint 12 runs everything.
 
-## Curation Review Protocol (MANDATORY per epic)
+## Curation Review Protocol (MANDATORY per sprint)
 
-**Every epic MUST execute the [Curation Review Protocol](./CURATION-REVIEW-PROTOCOL.md) before being marked Done.** The protocol defines a conditional set of pipeline stages that activate as each epic adds new capabilities:
+**Every sprint MUST execute the [Curation Review Protocol](./CURATION-REVIEW-PROTOCOL.md) before being marked Done.** The protocol defines a conditional set of pipeline stages that activate as each sprint adds new capabilities:
 
-| Epic | Protocol Steps Active | What Gets Executed |
+| Sprint | Protocol Steps Active | What Gets Executed |
 |------|----------------------|---------------------|
 | 1 | 1 (minimal), 6, 7, 8, 12 | Existing baseline only — no change |
 | 2 | 1 (existing), 2 (OSM), 6, 7, 8, 12 | First full baseline run |
@@ -56,12 +56,12 @@
 | 6 | Add step 3 (dedup) + step 4 (quality floor) | First dedup run |
 | 7 | Add steps 10 (coverage report) + 11 (data quality report) | First quality reports |
 | 8 | Add step 2 (HPMS + NWS) + step 5 (calibration gate) | First calibrated run |
-| 9 | Same as Epic 8 (community staging only, no curated_routes impact) | Regression check |
+| 9 | Same as Sprint 8 (community staging only, no curated_routes impact) | Regression check |
 | 10 | Add step 9 (NLP + signal merge) | First NLP run |
 | ~~11~~ | — | *Deferred 2026-04-16 to native-rewrite PRD (React Native UI → native Kotlin/Swift)* |
 | 12 | ALL 13 steps + orchestrator + Convex field verification | Final initiative close-out |
 
-**Runtime budget grows per epic.** Epic 2 review may take ~30 minutes. Epic 12 review may take 2+ hours. Cache aggressively (OSM cache, NLP extraction cache, HPMS spatial join cache).
+**Runtime budget grows per sprint.** Epic 2 review may take ~30 minutes. Sprint 12 review may take 2+ hours. Cache aggressively (OSM cache, NLP extraction cache, HPMS spatial join cache).
 
 ---
 
@@ -81,28 +81,28 @@
 
 **Protocol execution rhythm per source task:** Phase 0 RECON (manual, ~30-60 min) → Phase 1 INVENTORY (committed `urls.jsonl`) → Phase 2 FIXTURES (committed HTML/JSON/XML samples + manifest) → Phase 3 SELECTOR SPEC (AI-assisted, committed `selectors.yaml` with `fixture_yield` scoring) → Phase 4 DRY-RUN PARSE (committed pytest contract tests) → Phase 5 EXECUTION (rate-limited, resumable, audited) → Phase 6 ACCOUNTING (committed `crawl-report.md` with binary PASS verdict).
 
-**Integration point with the Curation Review Protocol:** Step 1 of the review protocol requires that every in-scope source for the current epic has a committed, verdict-PASS `crawl-report.md`. Missing or failing crawl reports fail the curation review at Step 1, blocking the epic from being marked Done.
+**Integration point with the Curation Review Protocol:** Step 1 of the review protocol requires that every in-scope source for the current sprint has a committed, verdict-PASS `crawl-report.md`. Missing or failing crawl reports fail the curation review at Step 1, blocking the sprint from being marked Done.
 
-**First application:** [BASE-009a](./epic-02-baseline-pipeline-validation/BASE-009a.md) (framework + MotorcycleRoads) → [BASE-009b](./epic-02-baseline-pipeline-validation/BASE-009b.md) (BestBikingRoads + baseline regeneration + review.md verdict upgrade). Split by source for risk isolation: framework bugs surfaced on MR's ~30 min Phase 5 cost one re-run; the same bugs surfaced on BBR's ~3.75 hr Phase 5 would cost 3.75 hr per re-run. BASE-009a builds the shared `scripts/curation/pipeline/sources/crawl_plan/` framework module that BASE-009b + Epic 4 SRC-001/006 + Epic 9 RID-001/002/006 subsequently consume.
+**First application:** [BASE-009a](./epic-02-baseline-pipeline-validation/BASE-009a.md) (framework + MotorcycleRoads) → [BASE-009b](./epic-02-baseline-pipeline-validation/BASE-009b.md) (BestBikingRoads + baseline regeneration + review.md verdict upgrade). Split by source for risk isolation: framework bugs surfaced on MR's ~30 min Phase 5 cost one re-run; the same bugs surfaced on BBR's ~3.75 hr Phase 5 would cost 3.75 hr per re-run. BASE-009a builds the shared `scripts/curation/pipeline/sources/crawl_plan/` framework module that BASE-009b + Epic 4 SRC-001/006 + Sprint 9 RID-001/002/006 subsequently consume.
 
 ---
 
-## Epic Summary
+## Sprint Summary
 
-| # | Epic | Folder | Tasks | Priority | Human Test Focus |
+| # | Sprint | Folder | Tasks | Priority | Human Test Focus |
 |---|------|--------|-------|----------|------------------|
 | 1 | Week 0 — Validation & De-Risking | [epic-01-week0-validation/](./epic-01-week0-validation/) | 4 | P0 | Run 4 validation spikes, verify go/no-go for each risk |
 | 2 | Baseline Curation Pipeline Validation | [epic-02-baseline-pipeline-validation/](./epic-02-baseline-pipeline-validation/) | 11 | P0 | Fetch FHWA CSV (BASE-000) + run existing pipeline end-to-end before hardening + BASE-009a/b Crawl Plan Protocol remediation (framework + MR → human checkpoint → BBR + baseline regen + review.md PASS) |
 | 3 | Foundation — Models, Schema, Dependencies | [epic-03-foundation-models-schema/](./epic-03-foundation-models-schema/) | 6 | P0 | Install deps, extend models, migrate Convex schema |
 | 4 | Source Diversification — Government, Editorial & Geometric | [epic-04-sources-government-editorial/](./epic-04-sources-government-editorial/) | 3 | P1 | Run 3 surviving sources (Scenic Byways, Rider Mag, curvature) through full pipeline |
-| ~~5~~ | ~~Source Diversification — Community + Geometric~~ | *deleted 2026-04-12* | 0 | — | *BDR + twtex sources invalidated; SRC-004 (curvature) folded into Epic 4* |
-| 6 | Quality Infrastructure — Dedup & Floor | [epic-06-quality-dedup-floor/](./epic-06-quality-dedup-floor/) | 2 | P1 | Run dedup on full catalog, verify tier assignments |
-| 7 | Quality Infrastructure — Reports | [epic-07-quality-reports/](./epic-07-quality-reports/) | 2 | P1 | Generate coverage + data quality reports with CI gating |
-| 8 | Scoring & Calibration | [epic-08-scoring-calibration/](./epic-08-scoring-calibration/) | 6 | P1 | Realign weights, calibration gate, extraction audit |
-| 9 | Community Sources — Ingestion | [epic-09-community-ingestion/](./epic-09-community-ingestion/) | 3 | P2 | Run ADVRider/Reddit/Pushshift ingest, verify staging |
-| 10 | Community NLP & Signal Merge | [epic-10-community-nlp-signals/](./epic-10-community-nlp-signals/) | 4 | P2 | Run NLP extraction, see mention_frequency in scores |
+| ~~5~~ | ~~Source Diversification — Community + Geometric~~ | [sprint-05-sources-community-geometric/](./sprint-05-sources-community-geometric/) | 0 | — | *BDR + twtex sources invalidated; SRC-004 (curvature) folded into Epic 4* |
+| 6 | Quality Infrastructure — Dedup & Floor | [sprint-06-quality-dedup-floor/](./sprint-06-quality-dedup-floor/) | 2 | P1 | Run dedup on full catalog, verify tier assignments |
+| 7 | Quality Infrastructure — Reports | [sprint-07-quality-reports/](./sprint-07-quality-reports/) | 2 | P1 | Generate coverage + data quality reports with CI gating |
+| 8 | Scoring & Calibration | [sprint-08-scoring-calibration/](./sprint-08-scoring-calibration/) | 6 | P1 | Realign weights, calibration gate, extraction audit |
+| 9 | Community Sources — Ingestion | [sprint-09-community-ingestion/](./sprint-09-community-ingestion/) | 3 | P2 | Run ADVRider/Reddit/Pushshift ingest, verify staging |
+| 10 | Community NLP & Signal Merge | [sprint-10-community-nlp-signals/](./sprint-10-community-nlp-signals/) | 4 | P2 | Run NLP extraction, see mention_frequency in scores |
 | ~~11~~ | ~~Mobile UI — New Field Display~~ | *deferred 2026-04-16 to [native-rewrite PRD](../../native-rewrite/07-native-app-backlog.md)* | ~~4~~ | — | *React Native UI deferred; client transitioning to native Kotlin/Swift* |
-| 12 | Pipeline Orchestrator & E2E Integration | [epic-12-orchestrator-integration/](./epic-12-orchestrator-integration/) | 1 | P1 | Run one command, entire pipeline runs end-to-end |
+| 12 | Pipeline Orchestrator & E2E Integration | [sprint-12-orchestrator-integration/](./sprint-12-orchestrator-integration/) | 1 | P1 | Run one command, entire pipeline runs end-to-end |
 
 ---
 
@@ -113,7 +113,7 @@ Epic 1: Week 0 Validation (VAL-001..004)
     │
     ├─► VAL-002 ✗ (BDR source invalidated — SRC-002 dropped)
     ├─► VAL-003 ✗ (twtex source invalidated — SRC-003 dropped)
-    ├─► VAL-001 ──────────────────────────────────► RID-003 (Epic 10)
+    ├─► VAL-001 ──────────────────────────────────► RID-003 (Sprint 10)
     └─► VAL-004 ──► Epic 2 (Baseline Validation)
                             │
                             ▼
@@ -122,38 +122,38 @@ Epic 1: Week 0 Validation (VAL-001..004)
                             │
                     ┌───────┴───────┐
                     ▼               ▼
-             Epic 4: SRC      (Epic 5 deleted)
+             Epic 4: SRC      (Sprint 5 deleted)
              (Gov + Editorial
               + Geometric)
              SRC-001, 006, 004
                     │
                     ▼
-             Epic 6: Quality Dedup + Floor
+             Sprint 6: Quality Dedup + Floor
              (QUAL-001, QUAL-002)
                     │
                     ▼
-             Epic 7: Quality Reports
+             Sprint 7: Quality Reports
              (QUAL-003, QUAL-004)
                     │
                     ▼
-             Epic 8: Scoring & Calibration
+             Sprint 8: Scoring & Calibration
              (INF-008, 009, SCO-001..004)
                     │
                     ▼
-             Epic 9: Community Ingestion
+             Sprint 9: Community Ingestion
              (RID-001, 002, 006)
                     │
                     ▼
-             Epic 10: Community NLP + Signals
+             Sprint 10: Community NLP + Signals
              (RID-003, 005, 004)
                     │
                     ▼
-             Epic 12: Orchestrator & E2E
+             Sprint 12: Orchestrator & E2E
              (INF-012)
 ```
 
-*Dropped from graph 2026-04-12: SRC-002 (BDR), SRC-003 (twtex), SRC-005 (USFS MVUM). Epic 5 deleted entirely.*
-*Deferred from graph 2026-04-16: Epic 11 (Mobile UI) deferred to native-rewrite PRD.*
+*Dropped from graph 2026-04-12: SRC-002 (BDR), SRC-003 (twtex), SRC-005 (USFS MVUM). Sprint 5 deleted entirely.*
+*Deferred from graph 2026-04-16: Sprint 11 (Mobile UI) deferred to native-rewrite PRD.*
 
 ---
 
@@ -163,13 +163,13 @@ Epic 1: Week 0 Validation (VAL-001..004)
 |---------------|-------|-----------|
 | Epic 1 all 4 VAL | VAL-001, VAL-002, VAL-003, VAL-004 | No inter-task dependencies |
 | Epic 3 INF-005/006/007 | After INF-001/002/003 | Independent infra concerns |
-| Epic 4 all 3 SRC | SRC-001, SRC-006, SRC-004 | Independent source scrapers (absorbed SRC-004 from deleted Epic 5) |
-| Epic 6 QUAL-001 → QUAL-002 | Sequential | QUAL-002 uses dedup output |
-| Epic 7 QUAL-003/004 | Parallel | Independent reports |
-| Epic 8 INF-008/009 parallel → SCO-001/002 → SCO-003/004 | Partial parallel | Enrichment first, then scoring |
-| Epic 9 RID-001/002 parallel → RID-006 | Sequential after RID-002 | Pushshift depends on Reddit schema |
-| Epic 10 RID-003 → RID-004 → RID-005/INF-010 | Mostly sequential | NLP pipeline chain |
-| ~~Epic 11~~ | *Deferred 2026-04-16* | *React Native UI work moved to native-rewrite PRD* |
+| Epic 4 all 3 SRC | SRC-001, SRC-006, SRC-004 | Independent source scrapers (absorbed SRC-004 from deleted Sprint 5) |
+| Sprint 6 QUAL-001 → QUAL-002 | Sequential | QUAL-002 uses dedup output |
+| Sprint 7 QUAL-003/004 | Parallel | Independent reports |
+| Sprint 8 INF-008/009 parallel → SCO-001/002 → SCO-003/004 | Partial parallel | Enrichment first, then scoring |
+| Sprint 9 RID-001/002 parallel → RID-006 | Sequential after RID-002 | Pushshift depends on Reddit schema |
+| Sprint 10 RID-003 → RID-004 → RID-005/INF-010 | Mostly sequential | NLP pipeline chain |
+| ~~Sprint 11~~ | *Deferred 2026-04-16* | *React Native UI work moved to native-rewrite PRD* |
 
 ---
 
@@ -223,7 +223,7 @@ Epic 1: Week 0 Validation (VAL-001..004)
 | SRC-006 | Ingest Rider Magazine 50 Best Roads | python-implement | S | 150 |
 | SRC-004 | adamfranco/curvature Pre-Computed Output Consumer | python-implement | S | 150 |
 
-**Epic 5 — Deleted 2026-04-12.** Originally held SRC-002 (BDR), SRC-003 (twtex), SRC-004 (curvature). SRC-002 and SRC-003 dropped entirely after VAL-002 and VAL-003 invalidated their PRD assumptions. SRC-004 folded into Epic 4 above.
+**Sprint 5 — Deleted 2026-04-12.** Originally held SRC-002 (BDR), SRC-003 (twtex), SRC-004 (curvature). SRC-002 and SRC-003 dropped entirely after VAL-002 and VAL-003 invalidated their PRD assumptions. SRC-004 folded into Epic 4 above. See [sprint-05-sources-community-geometric/](./sprint-05-sources-community-geometric/).
 
 ### Dropped Tasks
 
@@ -233,7 +233,7 @@ Epic 1: Week 0 Validation (VAL-001..004)
 | ~~SRC-003~~ | twtex.com Top 100 Scraper | PRD assumption invalidated (site is a Texas forum, not a curated list) | Dropped 2026-04-12 via VAL-003 |
 | ~~SRC-005~~ | Ingest USFS Motor Vehicle Use Maps | V3 lifestyle mismatch (forest service gravel/dirt roads) | Dropped 2026-04-12 |
 
-### Epic 6: Quality — Dedup & Floor (STUBS)
+### Sprint 6: Quality — Dedup & Floor (STUBS)
 
 | Task ID | Title | Agent | Effort | Est. Min |
 |---------|-------|-------|--------|----------|
@@ -243,11 +243,11 @@ Epic 1: Week 0 Validation (VAL-001..004)
 | QUAL-004 | Coverage Validation Report | python-implement | M | 180 |
 | QUAL-005 | Data Quality Report with CI Gating | python-implement | M | 180 |
 
-### Epic 7: Quality — Reports (CONSOLIDATED INTO EPIC 6 — 2026-04-14)
+### Sprint 7: Quality — Reports (CONSOLIDATED INTO SPRINT 6 — 2026-04-14)
 
-QUAL-003 (Coverage Report) and QUAL-004 (Data Quality Report) were absorbed into Epic 6 during the semantic matching pivot (Agent 4 rewrite). Epic 7 EPIC.md still exists as a placeholder but its tasks now live under Epic 6 as QUAL-004 and QUAL-005. Resolve this structural cleanup in a follow-up: either delete the Epic 7 directory or re-expand it with a different set of tasks.
+QUAL-003 (Coverage Report) and QUAL-004 (Data Quality Report) were absorbed into Sprint 6 during the semantic matching pivot (Agent 4 rewrite). Sprint 7 `SPRINT.md` still exists as a placeholder but its tasks now live under Sprint 6 as QUAL-004 and QUAL-005. Resolve this structural cleanup in a follow-up: either delete the Sprint 7 directory or re-expand it with a different set of tasks.
 
-### Epic 8: Scoring & Calibration (STUBS)
+### Sprint 8: Scoring & Calibration (STUBS)
 
 | Task ID | Title | Agent | Effort | Est. Min |
 |---------|-------|-------|--------|----------|
@@ -258,7 +258,7 @@ QUAL-003 (Coverage Report) and QUAL-004 (Data Quality Report) were absorbed into
 | SCO-003 | Calibration Gate Enforcement | python-implement | M | 150 |
 | SCO-004 | Extraction Accuracy Audit — Per-Attribute F1 Report | python-implement | M | 150 |
 
-### Epic 9: Community Sources — Ingestion (STUBS)
+### Sprint 9: Community Sources — Ingestion (STUBS)
 
 | Task ID | Title | Agent | Effort | Est. Min |
 |---------|-------|-------|--------|----------|
@@ -266,7 +266,7 @@ QUAL-003 (Coverage Report) and QUAL-004 (Data Quality Report) were absorbed into
 | RID-002 | Reddit API OAuth2 Community Source | python-implement | M | 240 |
 | RID-006 | Pushshift Historical Backfill | python-implement | M | 180 |
 
-### Epic 10: Community NLP & Signals (STUBS)
+### Sprint 10: Community NLP & Signals (STUBS)
 
 | Task ID | Title | Agent | Effort | Est. Min |
 |---------|-------|-------|--------|----------|
@@ -274,9 +274,9 @@ QUAL-003 (Coverage Report) and QUAL-004 (Data Quality Report) were absorbed into
 | RID-005 | Route Reconciliation & Temporal Decay | python-implement | L | 300 |
 | RID-004 | Merge Community Signals into Composite Scoring | python-implement | M | 180 |
 
-*Note 2026-04-14: Old INF-010 (GitHub Actions Community Ingest Cron Workflow) was removed during the semantic matching pivot — scheduling now belongs to Epic 12 Orchestrator. Effort dropped ~40% vs the old two-stage GLM plan because custom NLP (sentiment classifier, aspect scorer, attribute detector) is now folded into the single Claude Haiku 4.5 call at the Epic 9 ingestion boundary (PostExtraction contract, Epic 3 INF-005).*
+*Note 2026-04-14: Old INF-010 (GitHub Actions Community Ingest Cron Workflow) was removed during the semantic matching pivot — scheduling now belongs to Sprint 12 Orchestrator. Effort dropped ~40% vs the old two-stage GLM plan because custom NLP (sentiment classifier, aspect scorer, attribute detector) is now folded into the single Claude Haiku 4.5 call at the Sprint 9 ingestion boundary (PostExtraction contract, Epic 3 INF-005).*
 
-### Epic 11: Mobile UI — New Field Display (DEFERRED 2026-04-16)
+### Sprint 11: Mobile UI — New Field Display (DEFERRED 2026-04-16)
 
 **Deferred to native-rewrite PRD:** `.spec/prds/native-rewrite/07-native-app-backlog.md`
 
@@ -289,7 +289,7 @@ The client is transitioning from React Native to native Kotlin (Android) + Swift
 | ~~DESIGN-010~~ | ~~RouteDetailsSheet: description, best months, and community signals section~~ | ~~frontend-designer~~ | ~~M~~ | ~~90~~ | Deferred |
 | ~~DESIGN-011~~ | ~~Lean sync schema extension: surface, bestMonths, qualityTier in local SQLite~~ | ~~frontend-designer~~ | ~~S~~ | ~~60~~ | Deferred |
 
-### Epic 12: Orchestrator & E2E (STUBS)
+### Sprint 12: Orchestrator & E2E (STUBS)
 
 | Task ID | Title | Agent | Effort | Est. Min |
 |---------|-------|-------|--------|----------|
@@ -308,7 +308,7 @@ The client is transitioning from React Native to native Kotlin (Android) + Swift
 | S1.2 Priority 2: Quality Infrastructure | QUAL-001..004 |
 | S1.3 Priority 3: Scoring & Calibration | SCO-001..004, INF-008, INF-009 |
 | S1.4 Priority 4: Community Sources & NLP | RID-001..006, INF-010 |
-| S1.5 Cross-Priority Infrastructure | INF-001..007, INF-011, INF-012 (orchestrator in Epic 12) |
+| S1.5 Cross-Priority Infrastructure | INF-001..007, INF-011, INF-012 (orchestrator in Sprint 12) |
 | S4 UC-SRC-01, 04, 06 | SRC-001, SRC-004, SRC-006 |
 | ~~S4 UC-SRC-02, 03, 05~~ | *Dropped 2026-04-12 — see Dropped Tasks table above* |
 | S5 UC-QUAL-01..04 | QUAL-001..004 |
@@ -361,11 +361,11 @@ cat .spec/prds/curation-hardening/tasks/epic-01-week0-validation/VAL-001.md
 
 ## Notes
 
-- **Sequential chains**: Epic 1 → Epic 2 → Epic 3 → Epic 4 → Epic 6 → Epic 7 → Epic 8 → Epic 9 → Epic 10 → Epic 12. *(Epic 5 deleted 2026-04-12. Epic 11 deferred 2026-04-16 to native-rewrite PRD.)*
+- **Sequential chains**: Epic 1 → Epic 2 → Epic 3 → Epic 4 → Sprint 6 → Sprint 7 → Sprint 8 → Sprint 9 → Sprint 10 → Sprint 12. *(Sprint 5 deleted 2026-04-12. Sprint 11 deferred 2026-04-16 to native-rewrite PRD.)*
 - **Human test philosophy**: Every epic's human tests exercise the pipeline end-to-end via the [Curation Review Protocol](./CURATION-REVIEW-PROTOCOL.md). The user hasn't run the existing curation logic before, so Epic 2 establishes the baseline truth before hardening begins.
 - **Curation review is non-optional**: every epic runs all available curation scripting, diffs the catalog against the prior baseline, and writes a `review.md` before being marked Done. No epic proceeds without a green review.
 - **Stub tasks**: Epics 3-4, 6-12 contain stub-level task references only. Full TASK-TEMPLATE v4.0 files for these epics will be generated as each epic enters active development, to avoid context window bloat at planning time.
 - **Week 0 proved its worth**: VAL-002 and VAL-003 invalidated two PRD assumptions before any implementation was written. Budget time for source-level pivots — the Week 0 gate is doing exactly what it was designed to do.
-- **Calibration gate is the single biggest risk in Epic 8**: First run is expected to FAIL. Budget time for prompt iteration.
+- **Calibration gate is the single biggest risk in Sprint 8**: First run is expected to FAIL. Budget time for prompt iteration.
 - **Initiative thesis revised (2026-04-12)**: With 3 of 6 new sources dropped, BBR concentration reduction shifts from ~70% target to ~85-90% achievable. The initiative's real value now lives in Epics 6-10 (signal enrichment — dedup, quality floor, scoring realignment, community NLP, measured data). This is a more honest framing than "volume diversification."
 - **Boy Scout rule**: If Epic 2 baseline validation finds bugs in existing pipeline code, fix them in place before layering hardening. Same rule applies to any later epic's curation review.

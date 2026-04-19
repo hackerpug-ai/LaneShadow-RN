@@ -133,6 +133,123 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| PlatformNotificationTemplate | **RN baseline pending — OS-level notifications render outside React tree** | n/a (NEW component — delta) | `ios/LaneShadow/Views/Molecules/PlatformNotificationTemplate.swift` | 2 variants (navigation/download) × 3 states (active/progress/success) × OS notification integration (UNMutableNotificationContent) |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper labelLarge**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1. **Paper labelSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=11, lineHeight=16, letterSpacing=0.5. **semantic.type.label.md**: fontSize=14, lineHeight=20, fontWeight=500. **semantic.type.body.sm**: fontSize=14, lineHeight=21, fontWeight=400.
+
+### PlatformNotificationTemplate
+
+**Source files read:**
+- LaneShadow: **RN baseline pending — OS-level notifications render outside React tree**
+- Framework: n/a (NEW component — delta)
+- Use cases: `.spec/prds/native-rewrite/09-uc-navigation.md` (UC-NAV-07: Background Navigation), `.spec/prds/native-rewrite/11-uc-offline.md` (UC-OFFL-09: Background Download)
+
+> **Note**: This is a **NEW delta component** — no RN baseline exists because OS-level notifications render outside the React Native view tree. Properties are derived from the task description ("cross-platform OS notification template for UC-NAV-07 + UC-OFFL-09; iOS background task notification") and UC-NAV-07/UC-OFFL-09 which specify platform-notification content compositions for navigation and download progress.
+
+**Layout — notification (UNMutableNotificationContent):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| sound | Task spec | `default` | `setSound(...)` | `.sound = .default` | n/a |
+| badge | Task spec | `1` (show app badge) | `setNumber(1)` | `.badge = 1` | n/a |
+| categoryIdentifier | Task spec | `"navigation"` or `"download"` | `setCategory("navigation")` | `.categoryIdentifier = "navigation"` | n/a |
+| threadIdentifier | Task spec | `unique per session` | `setGroup("nav_session_123")` | `.threadIdentifier = "nav_session_123"` | n/a |
+| targetContentIdentifier | Task spec | `session ID` | n/a | `.targetContentIdentifier = "session_123"` | n/a |
+
+**Layout — navigation variant (UC-NAV-07):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| title | Task spec | `"Navigating to {destination}"` | `setContentTitle("Navigating to $destination")` | `.title = "Navigating to \(destination)"` | n/a |
+| body | Task spec | `"{distance} remaining • {eta}"` | `setContentText("$distance remaining • $eta")` | `.body = "\(distance) remaining • \(eta)"` | n/a |
+| subtitle | Task spec | `"LaneShadow Navigation"` | `setSubText("LaneShadow Navigation")` | `.subtitle = "LaneShadow Navigation"` | n/a |
+| category | Task spec | `.navigation` | `setCategory(Notification.CATEGORY_NAVIGATION)` | `.category = .navigation` | n/a |
+| sound | Task spec | `default` | n/a | `.sound = .defaultCritical` | n/a |
+
+**Layout — download variant (UC-OFFL-09):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| title | Task spec | `"Downloading {regionName}"` | `setContentTitle("Downloading $regionName")` | `.title = "Downloading \(regionName)"` | n/a |
+| body | Task spec | `"{progress}% • {sizeMB} MB of {totalMB} MB"` | `setContentText("$progress% • $sizeMB MB of $totalMB MB")` | `.body = "\(progress)% • \(sizeMB) MB of \(totalMB) MB"` | n/a |
+| subtitle | Task spec | `"LaneShadow Offline Maps"` | `setSubText("LaneShadow Offline Maps")` | `.subtitle = "LaneShadow Offline Maps"` | n/a |
+| category | Task spec | `.progress` | `setCategory(Notification.CATEGORY_PROGRESS)` | `.category = .progress` | n/a |
+| sound | Task spec | `none` (progress is silent) | n/a | `.sound = .none` | n/a |
+
+**Visual — colors (via UNNotificationContent extension):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| backgroundColor | Task spec | `color.surface.default` | `<item name="android:background">@color/surface</item>` | n/a | `color.surface.default` |
+| titleColor | Task spec | `color.onSurface.default` | `TextView textColor="@color/onSurface"` | n/a | `color.onSurface.default` |
+| bodyColor | Task spec | `color.onSurface.muted` | `TextView textColor="@color/onSurfaceMuted"` | n/a | `color.onSurface.muted` |
+| iconColor | Task spec | `color.primary.default` | `Icon tint="@color/primary"` | n/a | `color.primary.default` |
+
+**Typography — title:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| fontSize | Paper labelLarge | 14 | `14sp` (in XML) | n/a | `type.label.md.fontSize` |
+| fontWeight | Paper labelLarge | `'500'` | `android:textStyle="bold"` | n/a | `type.label.md.fontWeight` |
+| color | Task spec | `color.onSurface.default` | `@color/onSurface` | n/a | `color.onSurface.default` |
+
+**Typography — body:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| fontSize | Paper labelSmall | 11 | `11sp` (in XML) | n/a | ESCALATE — `type.label.sm.fontSize = 11` |
+| fontWeight | Paper labelSmall | `'400'` | `android:textStyle="normal"` | n/a | `type.label.sm.fontWeight` |
+| color | Task spec | `color.onSurface.muted` | `@color/onSurfaceMuted` | n/a | `color.onSurface.muted` |
+
+**Action buttons (navigation variant):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| stopAction | Task spec | `"Stop Navigation"` | `addAction(Action(..., "Stop Navigation", ...))` | `.categoryActionIdentifiers = [.stopNavigation]` | n/a |
+| pauseAction | Task spec | `"Pause" (optional)` | `addAction(Action(..., "Pause", ...))` | n/a | n/a |
+| resumeAction | Task spec | `"Resume" (optional)` | `addAction(Action(..., "Resume", ...))` | n/a | n/a |
+
+**Action buttons (download variant):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| cancelAction | Task spec | `"Cancel"` | `addAction(Action(..., "Cancel", ...))` | `.categoryActionIdentifiers = [.cancel]` | n/a |
+| pauseAction | Task spec | `"Pause"` | `addAction(Action(..., "Pause", ...))` | n/a | n/a |
+| resumeAction | Task spec | `"Resume"` | `addAction(Action(..., "Resume", ...))` | n/a | n/a |
+
+**Interaction:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| contentIntent | Task spec | `tap opens app` | `setContentIntent(PendingIntent...)` | n/a | n/a |
+| notificationId | Task spec | `unique per session` | `NOTIFICATION_ID_NAVIGATION = 1` | n/a | n/a |
+| categoryId | Task spec | `"laneshadow_navigation"` | `createNotificationChannel("laneshadow_navigation", ...)` | `UNUserNotificationCenterDelegate` | n/a |
+
+**State — props (navigation):**
+
+| State | Source | Type | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| destination | Task spec | `String` | `val destination: String` | `var destination: String` | n/a |
+| distanceRemaining | Task spec | `String` | `val distanceRemaining: String` | `var distanceRemaining: String` | n/a |
+| eta | Task spec | `String` | `val eta: String` | `var eta: String` | n/a |
+
+**State — props (download):**
+
+| State | Source | Type | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| regionName | Task spec | `String` | `val regionName: String` | `var regionName: String` | n/a |
+| progress | Task spec | `Int` (0-100) | `val progress: Int` | `var progress: Int` | n/a |
+| sizeMB | Task spec | `Int` | `val sizeMB: Int` | `var sizeMB: Int` | n/a |
+| totalMB | Task spec | `Int` | `val totalMB: Int` | `var totalMB: Int` | n/a |
+
 ## DESIGN NOTES
 
 - Treat parity as spec-driven against the delta composition contract when no RN baseline story exists.

@@ -74,9 +74,9 @@ After all 4 tasks are complete, an administrator should be able to:
 **Blocks:**
 - Epic 2: Baseline Pipeline Validation (must complete spikes before baseline validation)
 - Epic 3: Foundation — Models, Schema, Dependencies
-- Epic 6: Quality Infrastructure — Dedup & Floor (QUAL-001 depends on VAL-004)
-- Epic 10: Community NLP & Signals (RID-003 depends on VAL-001)
-- *Epic 5 (Community + Geometric) was deleted 2026-04-12 after VAL-002 and VAL-003 invalidated their respective sources. SRC-004 (curvature) was folded into Epic 4.*
+- Sprint 6: Quality Infrastructure — Dedup & Floor (QUAL-001 depends on VAL-004)
+- Sprint 10: Community NLP & Signals (RID-003 depends on VAL-001)
+- *Sprint 5 (Community + Geometric) was deleted 2026-04-12 after VAL-002 and VAL-003 invalidated their respective sources. SRC-004 (curvature) was folded into Epic 4.*
 
 **Depends On:**
 - (none — this is the entry epic)

@@ -132,6 +132,352 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Backend-aware composables, duplicated variant files, or hardcoded visual constants.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| IntentSearchSheet | `react-native/components/discovery/intent-search-sheet.tsx` | `node_modules/react-native/Libraries/Components/View/View.js` (View); `node_modules/react-native-paper/src/components/Typography/Text.js` (titleLarge, bodyMedium, bodyLarge, bodySmall); `node_modules/react-native/Libraries/Components/ActivityIndicator/ActivityIndicator.js` | `android/app/src/main/java/com/laneshadow/ui/organisms/IntentSearchSheet.kt` | 5 states (idle/cache_hit/searching/offline_unsupported/results) × 1 fixed size |
+| StateFilterSheet | `react-native/components/discovery/state-filter-sheet.tsx` | `node_modules/react-native/Libraries/Lists/FlatList/FlatList.js` (FlatList); `node_modules/@gorhom/bottom-sheet/src/components/bottomSheetTextInput/BottomSheetTextInput.tsx` (via BottomSheetInput); `node_modules/react-native/Libraries/Components/ScrollView/ScrollView.js` (horizontal chips) | `android/app/src/main/java/com/laneshadow/ui/organisms/StateFilterSheet.kt` | 2 states (has selection/empty) × 1 fixed size × searchable |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper labelLarge**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1. **Paper labelSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=11, lineHeight=16, letterSpacing=0.5. **semantic.type.label.md**: fontSize=14, lineHeight=20, fontWeight=500. **semantic.type.body.sm**: fontSize=14, lineHeight=21, fontWeight=400.
+
+### IntentSearchSheet
+
+**Source files read:**
+- LaneShadow: `react-native/components/discovery/intent-search-sheet.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`, `node_modules/react-native-paper/src/components/Typography/Text.js`, `node_modules/react-native/Libraries/Components/ActivityIndicator/ActivityIndicator.js`
+- Dependencies: `react-native/components/sheets/bottom-sheet-wrapper.tsx`, `react-native/components/ui/button.tsx`, `react-native/components/ui/icon-symbol.tsx`, `react-native/components/discovery/intent-summary-pill.tsx`
+
+**Layout — container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| flex | RN-wrapper | `1` | `Modifier.fillMaxSize()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
+| gap | RN-wrapper | `16` | `Modifier.padding(vertical = 16.dp)` or `Arrangement.spacedBy(16.dp)` | `Spacer(minLength: 16)` or `.padding(16)` | `space.xl` ✓ |
+
+**Layout — header:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| gap | RN-wrapper | `4` | `Arrangement.spacedBy(4.dp)` | `Spacer(minLength: 4)` | `space.xs` ✓ |
+| paddingBottom | RN-wrapper | `16` | `Modifier.padding(bottom = 16.dp)` | `.padding(.bottom, 16)` | `space.xl` ✓ |
+| borderBottomWidth | RN-wrapper | `1` | `Modifier.border(1.dp, ...)` | `.overlay(RoundedRectangle(...).stroke(..., lineWidth: 1))` | ESCALATE — propose `borderWidth.thin = 1` |
+| borderColor | RN-wrapper | `semantic.color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
+
+**Typography — header title:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| variant | Paper | `titleLarge` | `MaterialTheme.typography.titleLarge` | `.font(.title)` (custom) | ESCALATE — Paper titleLarge not in tokens; map to `type.heading.lg` |
+| fontSize | Paper titleLarge | 22 | `22.sp` | `22` | ESCALATE — propose `type.heading.lg.fontSize = 22` |
+| fontWeight | Paper titleLarge | `'400'` (regular) | `FontWeight.Normal` | `.regular` | `type.heading.lg.fontWeight` |
+| lineHeight | Paper titleLarge | 28 | `28.sp` | `.lineSpacing(28 - 22)` = 6 | `type.heading.lg.lineHeight` |
+| color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+
+**Typography — header subtitle:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| variant | Paper | `bodyMedium` | `MaterialTheme.typography.bodyMedium` | `.font(.body)` | ESCALATE — Paper bodyMedium not in tokens; map to `type.body.sm` |
+| fontSize | Paper bodyMedium | 14 | `14.sp` | `14` | `type.body.sm.fontSize` ✓ |
+| fontWeight | Paper bodyMedium | `'400'` | `FontWeight.Normal` | `.regular` | `type.body.sm.fontWeight` ✓ |
+| lineHeight | Paper bodyMedium | 20 | `20.sp` | `.lineSpacing(20 - 14)` = 6 | `type.body.sm.lineHeight` ✓ |
+| color | RN-wrapper | `semantic.color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
+
+**Layout — input row:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
+| alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
+| height | RN-wrapper | `48` | `Modifier.height(48.dp)` | `.frame(height: 48)` | ESCALATE — propose `size.inputHeight = 48` |
+| paddingHorizontal | RN-wrapper | `12` | `Modifier.padding(horizontal = 12.dp)` | `.padding(.horizontal, 12)` | `space.md` ✓ |
+| backgroundColor | RN-wrapper | `semantic.color.surface.default` | `LaneShadowTheme.colors.surface` | `theme.colors.surface` | `color.surface.default` |
+| borderRadius | RN-wrapper | `semantic.radius.lg` = 16 | `RoundedCornerShape(16.dp)` | `RoundedRectangle(cornerRadius: 16)` | `radius.lg` ✓ |
+| borderWidth | RN-wrapper | `1` | `Modifier.border(1.dp, ...)` | `.overlay(RoundedRectangle(...).stroke(..., lineWidth: 1))` | ESCALATE — propose `borderWidth.thin = 1` |
+| borderColor | RN-wrapper | `semantic.color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
+
+**Layout — input container (icon + text):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| flex | RN-wrapper | `1` | `Modifier.weight(1f)` | `.frame(maxWidth: .infinity)` | n/a |
+| gap | RN-wrapper | `8` | `Arrangement.spacedBy(8.dp)` | `Spacer(minLength: 8)` | `space.sm` ✓ |
+
+**Visual — search icon:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| size | RN-wrapper | `20` | `20.dp` | `20` | ESCALATE — propose `icon.sm = 20` |
+| color | RN-wrapper | `semantic.color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
+| marginLeft | RN-wrapper | `4` | `Modifier.padding(start = 4.dp)` | `.padding(.leading, 4)` | `space.xs` ✓ |
+
+**Visual — input text:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| variant | Paper | `bodyLarge` | `MaterialTheme.typography.bodyLarge` | `.font(.body)` | ESCALATE — Paper bodyLarge not in tokens; map to `type.body.md` |
+| fontSize | Paper bodyLarge | 16 | `16.sp` | `16` | `type.body.md.fontSize` ✓ |
+| fontWeight | Paper bodyLarge | `'400'` | `FontWeight.Normal` | `.regular` | `type.body.md.fontWeight` ✓ |
+| lineHeight | Paper bodyLarge | 24 | `24.sp` | `.lineSpacing(24 - 16)` = 8 | `type.body.md.lineHeight` ✓ |
+| color (has query) | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| color (placeholder) | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
+
+**Layout — clear button:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| size | RN-wrapper | `32 × 32` | `Modifier.size(32.dp)` | `.frame(width: 32, height: 32)` | `space.xl + space.sm` (composed) = 32 ✓ |
+
+**Layout — loading container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| alignItems | RN-wrapper | `'center'` | `Modifier.align(Alignment.CenterHorizontally)` | `.frame(maxWidth: .infinity)` + `HStack` center | n/a |
+| gap | RN-wrapper | `semantic.space.md` = 12 | `Arrangement.spacedBy(12.dp)` | `Spacer(minLength: 12)` | `space.md` ✓ |
+| paddingVertical | RN-wrapper | `32` | `Modifier.padding(vertical = 32.dp)` | `.padding(.vertical, 32)` | `space.xl + space.md` (composed) = 40, closest `space.2xl` = 32 ✓ |
+
+**Visual — activity indicator:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| size | RN-wrapper | `'large'` | `Modifier.size(48.dp)` (Compose large=48) | `48` | ESCALATE — propose `size.activityIndicator.large = 48` |
+| color | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+
+**Typography — loading message:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| variant (primary) | Paper | `bodyLarge` | `MaterialTheme.typography.bodyLarge` | `.font(.body)` | `type.body.md` ✓ |
+| textAlign | RN-wrapper | `'center'` | `textAlign = TextAlign.Center` | `.multilineTextAlignment(.center)` | n/a |
+| variant (secondary) | Paper | `bodySmall` | `MaterialTheme.typography.bodySmall` | `.font(.caption)` | ESCALATE — Paper bodySmall not in tokens; map to `type.body.xs` |
+| fontSize | Paper bodySmall | 12 | `12.sp` | `12` | ESCALATE — propose `type.body.xs.fontSize = 12` |
+| lineHeight | Paper bodySmall | 16 | `16.sp` | `.lineSpacing(16 - 12)` = 4 | ESCALATE — propose `type.body.xs.lineHeight = 16` |
+
+**Layout — offline container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| gap | RN-wrapper | `semantic.space.lg` = 16 | `Arrangement.spacedBy(16.dp)` | `Spacer(minLength: 16)` | `space.lg` ✓ |
+
+**Layout — empty state:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| alignItems | RN-wrapper | `'center'` | `Modifier.align(Alignment.CenterHorizontally)` | `.frame(maxWidth: .infinity)` + center | n/a |
+| gap | RN-wrapper | `semantic.space.md` = 12 | `Arrangement.spacedBy(12.dp)` | `Spacer(minLength: 12)` | `space.md` ✓ |
+| paddingHorizontal | RN-wrapper | `24` | `Modifier.padding(horizontal = 24.dp)` | `.padding(.horizontal, 24)` | ESCALATE — `space.xl = 24` ✓ |
+
+**Visual — offline icon:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| size | RN-wrapper | `48` | `48.dp` | `48` | `space.3xl` ✓ |
+| color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
+
+**Layout — chips scroll container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| horizontal | RN-wrapper | `true` | `LazyRow(...)` (horizontal) | `.scrollContentBackground(.hidden)` + `.horizontal` | n/a |
+| showsHorizontalScrollIndicator | RN-wrapper | `false` | `LazyRow(..., userScrollEnabled = true)` | `.scrollIndicators(.hidden)` | n/a |
+| gap | RN-wrapper | `semantic.space.sm` = 8 | `Arrangement.spacedBy(8.dp)` | `Spacer(minLength: 8)` | `space.sm` ✓ |
+| paddingHorizontal | RN-wrapper | `16` | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` ✓ |
+| paddingVertical | RN-wrapper | `8` | `Modifier.padding(vertical = 8.dp)` | `.padding(.vertical, 8)` | `space.sm` ✓ |
+
+**Layout — chip:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| backgroundColor | RN-wrapper | `semantic.color.surfaceVariant.default` | `LaneShadowTheme.colors.surfaceVariant` | `theme.colors.surfaceVariant` | `color.surfaceVariant.default` |
+| borderRadius | RN-wrapper | `semantic.radius.full` = 9999 | `CircleShape` | `Capsule()` | `radius.full` ✓ |
+| borderWidth | RN-wrapper | `1` | `Modifier.border(1.dp, ...)` | `.overlay(Capsule().stroke(..., lineWidth: 1))` | ESCALATE — propose `borderWidth.thin = 1` |
+| borderColor | RN-wrapper | `semantic.color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
+| paddingHorizontal | RN-wrapper | `16` | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` ✓ |
+| paddingVertical | RN-wrapper | `8` | `Modifier.padding(vertical = 8.dp)` | `.padding(.vertical, 8)` | `space.sm` ✓ |
+
+**Typography — chip text:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| variant | Paper | `labelMedium` | `MaterialTheme.typography.labelMedium` | `.font(.subheadline)` | ESCALATE — Paper labelMedium not in tokens; map to `type.label.sm` |
+| fontSize | Paper labelMedium | 12 | `12.sp` | `12` | ESCALATE — propose `type.label.sm.fontSize = 12` |
+| fontWeight | Paper labelMedium | `'500'` | `FontWeight.Medium` | `.medium` | `type.label.sm.fontWeight` ✓ |
+| lineHeight | Paper labelMedium | 16 | `16.sp` | `.lineSpacing(16 - 12)` = 4 | ESCALATE — propose `type.label.sm.lineHeight = 16` |
+| color | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+
+---
+
+### StateFilterSheet
+
+**Source files read:**
+- LaneShadow: `react-native/components/discovery/state-filter-sheet.tsx`
+- Framework: `node_modules/react-native/Libraries/Lists/FlatList/FlatList.js`, `node_modules/react-native/Libraries/Components/ScrollView/ScrollView.js`
+- Dependencies: `react-native/components/sheets/bottom-sheet-wrapper.tsx`, `react-native/components/ui/bottom-sheet-input.tsx`, `react-native/components/discovery/state-list-item.tsx`
+
+**Layout — container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| flex | RN-wrapper | `1` | `Modifier.fillMaxSize()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
+| gap | RN-wrapper | `16` | `Arrangement.spacedBy(16.dp)` or `Column(verticalArrangement = Arrangement.spacedBy(16.dp))` | `Spacer(minLength: 16)` or `.padding(16)` | `space.xl` ✓ |
+
+**Layout — header:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| gap | RN-wrapper | `4` | `Arrangement.spacedBy(4.dp)` | `Spacer(minLength: 4)` | `space.xs` ✓ |
+| paddingBottom | RN-wrapper | `16` | `Modifier.padding(bottom = 16.dp)` | `.padding(.bottom, 16)` | `space.xl` ✓ |
+| borderBottomWidth | RN-wrapper | `1` | `Modifier.border(1.dp, ...)` | `.overlay(RoundedRectangle(...).stroke(..., lineWidth: 1))` | ESCALATE — propose `borderWidth.thin = 1` |
+| borderColor | RN-wrapper | `semantic.color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
+
+**Typography — header title:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| variant | Paper | `titleLarge` | `MaterialTheme.typography.titleLarge` | `.font(.title)` | ESCALATE — Paper titleLarge; map to `type.heading.lg` |
+| color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+
+**Typography — header subtitle:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| variant | Paper | `bodyMedium` | `MaterialTheme.typography.bodyMedium` | `.font(.body)` | `type.body.sm` ✓ |
+| color | RN-wrapper | `semantic.color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
+
+**Layout — list:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| flex | RN-wrapper | `1` | `Modifier.fillMaxSize()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
+| showsVerticalScrollIndicator | RN-wrapper | `true` | `LazyColumn(..., userScrollEnabled = true)` | `.scrollIndicators(.visible)` | n/a |
+
+**Layout — empty container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| alignItems | RN-wrapper | `'center'` | `Modifier.align(Alignment.CenterHorizontally)` | `.frame(maxWidth: .infinity)` + center | n/a |
+| gap | RN-wrapper | `semantic.space.md` = 12 | `Arrangement.spacedBy(12.dp)` | `Spacer(minLength: 12)` | `space.md` ✓ |
+| paddingVertical | RN-wrapper | `48` | `Modifier.padding(vertical = 48.dp)` | `.padding(.vertical, 48)` | `space.3xl` ✓ |
+| paddingHorizontal | RN-wrapper | `24` | `Modifier.padding(horizontal = 24.dp)` | `.padding(.horizontal, 24)` | `space.xl` ✓ |
+
+**Visual — empty icon:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| size | RN-wrapper | `48` | `48.dp` | `48` | `space.3xl` ✓ |
+| color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
+
+**Typography — empty text:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| variant | Paper | `bodyMedium` | `MaterialTheme.typography.bodyMedium` | `.font(.body)` | `type.body.sm` ✓ |
+| textAlign | RN-wrapper | `'center'` | `textAlign = TextAlign.Center` | `.multilineTextAlignment(.center)` | n/a |
+| color | RN-wrapper | `semantic.color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
+
+**Layout — footer:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| paddingTop | RN-wrapper | `16` | `Modifier.padding(top = 16.dp)` | `.padding(.top, 16)` | `space.lg` ✓ |
+| borderTopWidth | RN-wrapper | `0` | no border | no border | n/a |
+
+**Layout — clear button:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| width | RN-wrapper | `'100%'` | `Modifier.fillMaxWidth()` | `.frame(maxWidth: .infinity)` | n/a |
+| variant | RN-wrapper (Button) | `'outline'` | `ButtonColors.outline` | `.buttonStyle(.bordered)` | n/a (variant) |
+
+---
+
+### StateListItem (dependency of StateFilterSheet)
+
+**Source files read:**
+- LaneShadow: `react-native/components/discovery/state-list-item.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/Pressable/Pressable.js`
+
+**Layout — container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
+| alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
+| paddingHorizontal | RN-wrapper | `16` | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` ✓ |
+| paddingVertical | RN-wrapper | `12` | `Modifier.padding(vertical = 12.dp)` | `.padding(.vertical, 12)` | `space.md` ✓ |
+| borderRadius | RN-wrapper | `12` | `RoundedCornerShape(12.dp)` | `RoundedRectangle(cornerRadius: 12)` | ESCALATE — `radius` token 12 missing; propose `radius.md2 = 12` or map to `radius.md = 8` |
+| borderWidth | RN-wrapper | `1` | `Modifier.border(1.dp, ...)` | `.overlay(RoundedRectangle(...).stroke(..., lineWidth: 1))` | ESCALATE — propose `borderWidth.thin = 1` |
+| marginVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | `space.xs` ✓ |
+| minHeight | RN-wrapper | `48` (WCAG AA) | `Modifier.heightIn(min = 48.dp)` | `.frame(minHeight: 48)` | ESCALATE — propose `size.touchTarget.min = 48` |
+
+**Visual — backgroundColor (pressed):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| pressed | RN-wrapper | `semantic.color.surfaceVariant.pressed` | `LaneShadowTheme.colors.surfaceVariantPressed` (via interactionSource) | `.opacity(pressed ? 1.0 : 0.8)` | `color.surfaceVariant.pressed` |
+
+**Visual — backgroundColor (selected):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| selected | RN-wrapper | `${semantic.color.primary.default}1A` (10% opacity) | `LaneShadowTheme.colors.primary.copy(alpha = 0.1f)` | `theme.colors.primary.opacity(0.1)` | ESCALATE — `color.primary.tint = 10%` not in tokens; use opacity |
+
+**Visual — backgroundColor (default):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| default | RN-wrapper | `semantic.color.surface.default` | `LaneShadowTheme.colors.surface` | `theme.colors.surface` | `color.surface.default` |
+
+**Visual — borderColor (selected):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| selected | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+
+**Visual — borderColor (default):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| default | RN-wrapper | `semantic.color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
+
+**Typography — state name:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| variant | Paper | `bodyLarge` | `MaterialTheme.typography.bodyLarge` | `.font(.body)` | `type.body.md` ✓ |
+| fontWeight (selected) | RN-wrapper | `'600'` | `FontWeight.SemiBold` | `.semibold` | ESCALATE — propose `fontWeight.semibold = 600` |
+| fontWeight (default) | RN-wrapper | `'400'` | `FontWeight.Normal` | `.regular` | `type.body.md.fontWeight` ✓ |
+| color (selected) | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+| color (default) | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+
+**Typography — route count:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| variant | Paper | `bodyMedium` | `MaterialTheme.typography.bodyMedium` | `.font(.body)` | `type.body.sm` ✓ |
+| marginTop | RN-wrapper | `2` | `Modifier.padding(top = 2.dp)` | `.padding(.top, 2)` | ESCALATE — `space.xxs = 2` not in tokens; propose |
+| color | RN-wrapper | `semantic.color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
+
+**Layout — checkmark container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| marginLeft | RN-wrapper | `12` | `Modifier.padding(start = 12.dp)` | `.padding(.leading, 12)` | `space.md` ✓ |
+
+**Visual — checkmark icon:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| size | RN-wrapper | `20` | `20.dp` | `20` | ESCALATE — propose `icon.md = 20` |
+| color | RN-wrapper | `semantic.color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+
+---
+
 ## DESIGN NOTES
 
 - Use deterministic composition fixtures so complex sheets, maps, chat, and stacked layouts remain diffable.

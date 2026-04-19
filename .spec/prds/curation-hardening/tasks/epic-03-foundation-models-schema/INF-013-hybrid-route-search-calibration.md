@@ -636,9 +636,9 @@ Depends On:
 - INF-012 (postEmbedding field exists for dedup in future)
 
 Blocks:
-- Epic 6 (dedup can use hybrid search for better recall)
-- Epic 9 (ingestion can use addCommunityWaypointMention)
-- Epic 10 (reconciliation can use hybrid search for matching)
+- Sprint 6 (dedup can use hybrid search for better recall)
+- Sprint 9 (ingestion can use addCommunityWaypointMention)
+- Sprint 10 (reconciliation can use hybrid search for matching)
 
 --------------------------------------------------------------------------------
 NOTES

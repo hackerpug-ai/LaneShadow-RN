@@ -133,6 +133,104 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| RideCompletionScreen | **RN BASELINE PENDING** — new delta screen for UC-FLOW-08 | Composes: `CompletionSummaryCard` (UI-079), `RideShareSheet` (UI-081); reference: `node_modules/react-navigation/src/native navigators/StackNavigator.tsx`; `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Screens/RideCompletionScreen.swift` | 1 fixed layout × 3 states (loading/loaded/error) × 2 action modes (save/discard) |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper labelLarge**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1. **Paper labelSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=11, lineHeight=16, letterSpacing=0.5. **semantic.type.label.md**: fontSize=14, lineHeight=20, fontWeight=500. **semantic.type.body.sm**: fontSize=14, lineHeight=21, fontWeight=400.
+
+### RideCompletionScreen
+
+**Source files read:**
+- Task specification: UI-085 task description
+- Composed screens: CompletionSummaryCard (UI-079), RideShareSheet (UI-081)
+
+**Note:** This is a NEW delta screen component. Properties below are derived from the UC-FLOW-08 use case and task specification. RN baseline implementation is pending.
+
+**Layout — screen container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| screenPadding | Task spec | 0 (edge-to-edge) | `Modifier.padding(0.dp)` | `.padding(0)` | n/a |
+| safeAreaTop | Task spec | system status bar | `WindowInsets.systemBars.asPaddingValues()` | `safeAreaInset(.top)` | n/a (system) |
+| safeAreaBottom | Task spec | system navigation | `WindowInsets.systemBars.asPaddingValues()` | `safeAreaInset(.bottom)` | n/a (system) |
+| screenGap | Task spec | `space.lg` = 16 between sections | `Arrangement.spacedBy(16.dp)` | `VStack(spacing: 16)` | `space.lg` |
+
+**Layout — hero section (CompletionSummaryCard):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| heroGap | Task spec | `space.md` = 12 | `Arrangement.spacedBy(12.dp)` | `VStack(spacing: 12)` | `space.md` |
+| cardPadding | Task spec | `space.lg` = 16 | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
+
+**Layout — action section (buttons):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| actionPadding | Task spec | `space.lg` = 16 | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
+| actionGap | Task spec | `space.md` = 12 | `Arrangement.spacedBy(12.dp)` | `HStack(spacing: 12)` | `space.md` |
+| buttonHeight | Button component | `space.2xl + space.sm` = 40 | `Modifier.height(40.dp)` | `.frame(height: 40)` | `space.2xl + space.sm` |
+
+**Visual — colors:**
+
+| Element | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| screenBackground | Task spec | `color.background.default` | `LaneShadowTheme.colors.background` | `theme.colors.background` | `color.background.default` |
+| statusBarStyle | Task spec | dark (light icons) | `SystemBarsController.dark` | `.statusBar(hidden: false).statusBarStyle(.darkContent)` | n/a (system) |
+| saveButtonBackground | Button component (default) | `color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+| discardButtonBackground | Button component (outline) | `color.background.default` | `LaneShadowTheme.colors.background` | `theme.colors.background` | `color.background.default` |
+| shareButtonBackground | Button component (secondary) | `color.secondary.default` | `LaneShadowTheme.colors.secondary` | `theme.colors.secondary` | `color.secondary.default` |
+
+**Typography — screen header (if any):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| headerSize | Task spec | `headlineLarge` (22sp) | `MaterialTheme.typography.headlineLarge` | `theme.typography.title` | ESCALATE — propose `type.display.lg = 22` |
+| headerColor | Task spec | `color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+
+**Interaction — navigation:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| backButton | Task spec | system navigation | `NavigationBarBackButton` | `.navigationBarBackButtonHidden(false)` | n/a (system) |
+| swipeToDismiss | Task spec | enabled | `SwipeToDismissBox(...)` | `.interactiveDismiss(...)` | n/a (system) |
+| hapticFeedback | Task spec | medium impact on save | `LocalHapticFeedback.current.performHapticFeedback(HapticFeedbackType.LongPress)` | `UIImpactFeedbackGenerator(style: .medium).impactOccurred()` | n/a |
+
+**States — loading/loaded/error:**
+
+| State | Source | Visual | Android | iOS | Token |
+|---|---|---|---|---|---|
+| loading | Task spec | shimmer skeleton with `color.surfaceVariant.default` | `LaneShadowTheme.colors.surfaceVariant` | `theme.colors.surfaceVariant` | `color.surfaceVariant.default` |
+| loaded | Task spec | full screen render with CompletionSummaryCard + actions | (see composed components) | (see composed components) | (see composed components) |
+| error | Task spec | error message with retry button | `LaneShadowTheme.colors.error` | `theme.colors.error` | `color.error.default` |
+
+**Action modes — save/discard:**
+
+| Mode | Source | Visual | Android | iOS | Token |
+|---|---|---|---|---|---|
+| save | Task spec | primary button + share button | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+| discard | Task spec | outline button only | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+
+**Animation — screen transitions:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| enterTransition | Task spec | slide-up + fade 300ms | `AnimatedContentTransitionScope.slideIntoContainer(...)` | `.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity))` | ESCALATE — propose `motion.duration.fast = 300` |
+| exitTransition | Task spec | slide-down + fade 250ms | `AnimatedContentTransitionScope.slideOutOfContainer(...)` | `.asymmetric(removal: .move(edge: .bottom).combined(with: .opacity))` | ESCALATE — propose `motion.duration.standard = 250` |
+
+**Accessibility — screen-level:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| screenLabel | Task spec | "Ride Complete" | `Modifier.semantics { contentDescription = "Ride Complete" }` | `.accessibilityLabel("Ride Complete")` | n/a |
+| focusOrder | Task spec | summary → save → share → discard | `Modifier.focusOrder(...)` | `\.accessibilitySortPriority(...)` | n/a |
+
 ## DESIGN NOTES
 
 - Treat parity as spec-driven against the delta composition contract when no RN baseline story exists.

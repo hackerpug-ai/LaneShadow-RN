@@ -16,7 +16,7 @@ ESTIMATED_EFFORT_MINUTES: 330
 CRITICAL CONSTRAINTS
 --------------------------------------------------------------------------------
 
-MUST: Build the shared `scripts/curation/pipeline/sources/crawl_plan/` framework module (`inventory.py`, `selectors.py`, `parser.py`, `executor.py`, `__init__.py`) with dedicated unit tests. This framework is consumed by BASE-009b (BBR remediation), Epic 4 SRC-001/006, and Epic 9 RID-001/002/006 — it MUST be generic, not MR-specific.
+MUST: Build the shared `scripts/curation/pipeline/sources/crawl_plan/` framework module (`inventory.py`, `selectors.py`, `parser.py`, `executor.py`, `__init__.py`) with dedicated unit tests. This framework is consumed by BASE-009b (BBR remediation), Epic 4 SRC-001/006, and Sprint 9 RID-001/002/006 — it MUST be generic, not MR-specific.
 MUST: Apply all seven phases of [CRAWL-PLAN-PROTOCOL.md](../CRAWL-PLAN-PROTOCOL.md) to motorcycleroads.com (Form A — HTML scraper). Each phase's deliverable must be committed before the next phase runs.
 MUST: Use the Phase 0 `site-map.md` pre-committed by the user (manual recon, not agent-driven). If the committed site-map.md is missing or empty at task start, STOP and escalate.
 MUST: Replace `staging/motorcycleroads.jsonl` with the protocol-driven executor output. The new file has row count matching the committed `urls.jsonl` inventory within ±10%.
@@ -31,7 +31,7 @@ STRICTLY: Framework code must be **generic**. It must work as-is for BASE-009b (
 
 CROSS-CUTTING RULES (from 2026-04-13 Phase 0 recon — see DECISIONS.md "Phase 0 recon findings"):
 
-MUST: Use `state_primary` (URL-derived) + `states_all` (DOM-parsed list) schema for route records. The previously-assumed single-string `state` field breaks on multi-state routes like Natchez Trace Parkway (crosses AL/MS/TN). Phase 4 fixture tests MUST assert `expected.state in record.states_all` (list membership), never `record.state == expected.state` (string equality). This rule applies to the framework schema, not just MR — BASE-009b (BBR), Epic 4 SRC-001/006, and Epic 9 RID-001/002/006 all inherit it. See `.spec/prds/curation-hardening/crawl-plans/motorcycleroads/site-map.md` for the Natchez Trace evidence.
+MUST: Use `state_primary` (URL-derived) + `states_all` (DOM-parsed list) schema for route records. The previously-assumed single-string `state` field breaks on multi-state routes like Natchez Trace Parkway (crosses AL/MS/TN). Phase 4 fixture tests MUST assert `expected.state in record.states_all` (list membership), never `record.state == expected.state` (string equality). This rule applies to the framework schema, not just MR — BASE-009b (BBR), Epic 4 SRC-001/006, and Sprint 9 RID-001/002/006 all inherit it. See `.spec/prds/curation-hardening/crawl-plans/motorcycleroads/site-map.md` for the Natchez Trace evidence.
 
 MUST: `canonicalize(url)` MUST preserve path, query, and fragment case. Lowercase ONLY the scheme and host. MotorcycleRoads happens to have lowercase slugs (so this rule doesn't bite MR directly), but BestBikingRoads has mixed-case slugs like `Columbia-2`, and the framework is shared — so the path-case rule is framework-wide. Lowercasing the path would collapse `/alabama/Columbia-2` and `/alabama/columbia-2` into a single canonical URL and erase distinct routes. Example signature: `canonicalize(url) -> url with scheme+host lowercased, trailing slash stripped, path/query/fragment case preserved`.
 

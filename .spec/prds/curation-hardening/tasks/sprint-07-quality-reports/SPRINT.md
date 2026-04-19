@@ -1,4 +1,4 @@
-# Epic 7: Quality Infrastructure — Coverage & Data Quality Reports
+# Sprint 7: Quality Infrastructure — Coverage & Data Quality Reports
 
 **Sequence:** 7 / 12
 **Priority:** P1
@@ -33,7 +33,7 @@ After both tasks are complete, an administrator should be able to:
 10. **Integrate into CI** — (Optional) Add the report as a GitHub Actions step and verify it blocks a simulated regression PR.
 11. **Push to dev Convex with report gate** — Run full pipeline → reports → Convex push only if report exit code 0. Verify the workflow.
 
-12. **Execute the Curation Review Protocol** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. Applicable steps NOW INCLUDE: 10 (coverage report) and 11 (data quality report) for the first time. Full steps: 1, 2, 3, 4, 6, 7, 8, 10, 11, 12. **Diff against Epic 6 baseline — catalog size stable (same dedup logic). Review coverage gaps (which states are underrepresented?). Review data quality report for anomaly flags. Verify the report IS the canonical go/no-go signal.** Write `review.md` with verdict PASS.
+12. **Execute the Curation Review Protocol** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. Applicable steps NOW INCLUDE: 10 (coverage report) and 11 (data quality report) for the first time. Full steps: 1, 2, 3, 4, 6, 7, 8, 10, 11, 12. **Diff against Sprint 6 baseline — catalog size stable (same dedup logic). Review coverage gaps (which states are underrepresented?). Review data quality report for anomaly flags. Verify the report IS the canonical go/no-go signal.** Write `review.md` with verdict PASS.
 
 All 12 verifications must pass.
 
@@ -80,7 +80,7 @@ All 12 verifications must pass.
 ## Dependencies
 
 **Blocks:**
-- Epic 12: Orchestrator & E2E (reports are pipeline stages)
+- Sprint 12: Orchestrator & E2E (reports are pipeline stages)
 
 **Depends On:**
 - Epic 06: Quality Infrastructure — Dedup & Floor (reports need deduped, tiered catalog). **NOTE**: Epic 06 QUAL-002 (LLM Arbitration) must complete before these reports run — reports consume the reconciled catalog.
@@ -91,14 +91,14 @@ All 12 verifications must pass.
 
 - [ ] Both task files written and merged
 - [ ] Both tasks moved to `Done`
-- [ ] Both reports run successfully on the post-Epic 6 catalog
+- [ ] Both reports run successfully on the post-Sprint 6 catalog
 - [ ] Coverage gaps identified for manual review
 - [ ] Data quality report correctly flags anomalies vs clean runs
 - [ ] CI exit codes verified (0 clean, 1 anomaly)
 - [ ] Full pipeline end-to-end test passes with report gating
 - [ ] Curation Review Protocol executed with PASS verdict
 - [ ] `review.md` + coverage + data quality reports committed
-- [ ] User has approved proceeding to Epic 8
+- [ ] User has approved proceeding to Sprint 8
 
 ---
 

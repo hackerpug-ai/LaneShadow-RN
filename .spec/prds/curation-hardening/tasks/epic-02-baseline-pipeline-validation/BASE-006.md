@@ -39,7 +39,7 @@ BACKGROUND
 
 **Problem:** `enrichment/osm_client.py` has an `OSMClient` class that wraps the Overpass API with `httpx` and a `FileCache` backend, but no `__main__` block. Before Epic 2 can close, the OSM enrichment stage needs to be proven end-to-end — both that the Overpass lookups succeed and that the cache layer works (critical for controlling runtime in later epics).
 
-**Why it matters:** Epic 4 (SRC-004) will run the adamfranco/curvature pre-compute pipeline on US OSM PBF data; Epic 8 will add HPMS AADT enrichment. Both require the OSM/cache infrastructure to be proven. Epic 2's OSM validation is the canary — if the cache layer silently fails, future epics will burn Overpass API quota unnecessarily.
+**Why it matters:** Epic 4 (SRC-004) will run the adamfranco/curvature pre-compute pipeline on US OSM PBF data; Sprint 8 will add HPMS AADT enrichment. Both require the OSM/cache infrastructure to be proven. Epic 2's OSM validation is the canary — if the cache layer silently fails, future epics will burn Overpass API quota unnecessarily.
 
 **Current state:** `OSMClient(cache_dir: Path)` has `compute_curvature_for_route(lat, lng, radius_m=5000, route_id=None) -> Optional[float]` as the primary method. The FileCache stores responses as JSON files keyed by a deterministic hash of the lat/lng/radius. Cache hits log "Using cached OSM response"; cache misses log "Querying Overpass API". `RATE_LIMIT_SECONDS=1.0` between live calls.
 

@@ -1,4 +1,4 @@
-# Epic 6: Quality Infrastructure — Semantic Dedup & Floor
+# Sprint 6: Quality Infrastructure — Semantic Dedup & Floor
 
 **Sequence:** 6 / 12
 **Priority:** P0
@@ -23,9 +23,9 @@ The quality floor (QUAL-003) runs after dedup on the reconciled catalog, marking
 
 ## Architectural Decision
 
-Epic 6 previously specified a three-stage deterministic cascade for deduplication (exact name+state → fuzzy Levenshtein via `rapidfuzz.token_sort_ratio` → geospatial proximity via Convex GeospatialIndex). That plan was never validated against real community data, and analysis revealed critical blind spots: nicknames (“The Dragon” vs “Tail of the Dragon” vs “US-129”), contextual references (“that twisty road past the dam”), ambiguous names (“Skyline Drive” in multiple states), and regional shorthand (“that Chattanooga ride”) all fail deterministic string matching.
+Sprint 6 previously specified a three-stage deterministic cascade for deduplication (exact name+state → fuzzy Levenshtein via `rapidfuzz.token_sort_ratio` → geospatial proximity via Convex GeospatialIndex). That plan was never validated against real community data, and analysis revealed critical blind spots: nicknames (“The Dragon” vs “Tail of the Dragon” vs “US-129”), contextual references (“that twisty road past the dam”), ambiguous names (“Skyline Drive” in multiple states), and regional shorthand (“that Chattanooga ride”) all fail deterministic string matching.
 
-Epic 3 pivoted the matching primitive to **semantic retrieval via Convex vectorIndex + LLM rerank** (see `../epic-03-foundation-models-schema/EPIC.md` for the full rationale). This epic now consumes that primitive:
+Epic 3 pivoted the matching primitive to **semantic retrieval via Convex vectorIndex + LLM rerank** (see `../epic-03-foundation-models-schema/EPIC.md` for the full rationale). This sprint now consumes that primitive:
 
 - **Candidate retrieval:** `findCandidateRoutesByEmbedding` (INF-006) returns top-10 cosine-similar routes — embeddings capture semantic similarity across nicknames, synonyms, and contextual references.
 - **Decision layer:** cosine > 0.92 auto-merges, 0.75–0.92 queues for Claude Haiku 4.5 arbitration, < 0.75 stays standalone.
@@ -55,7 +55,7 @@ All 11 verifications must pass.
 
 ---
 
-## Acceptance Criteria (Epic-Level)
+## Acceptance Criteria (Sprint-Level)
 
 - [ ] `scripts/curation/pipeline/dedup/semantic_deduplicator.py` implements vector-search-based dedup using `findCandidateRoutesByEmbedding`
 - [ ] Cosine similarity thresholds: > 0.92 auto-merge, 0.75–0.92 arbitration queue, < 0.75 separate routes
@@ -86,11 +86,11 @@ All 11 verifications must pass.
 
 | ID | Title | Type | Agent | Priority | Effort | Est. Min | Depends On | Blocks | File |
 |----|-------|------|-------|----------|--------|----------|------------|--------|------|
-| QUAL-001 | Semantic Deduplication Engine | FEATURE | python-implement | P0 | L | 360 | INF-003, INF-004, INF-006 | QUAL-002, Epic 7 | [QUAL-001.md](QUAL-001.md) *(not yet written)* |
+| QUAL-001 | Semantic Deduplication Engine | FEATURE | python-implement | P0 | L | 360 | INF-003, INF-004, INF-006 | QUAL-002, Sprint 7 | [QUAL-001.md](QUAL-001.md) *(not yet written)* |
 | QUAL-002 | LLM Arbitration Batch Runner | FEATURE | python-implement | P0 | M | 180 | QUAL-001 | QUAL-003 | [QUAL-002.md](QUAL-002.md) *(not yet written)* |
 | QUAL-003 | Quality Floor Filter (premium/standard/minimal) | FEATURE | python-implement | P0 | S | 90 | QUAL-001 | QUAL-004 | [QUAL-003.md](QUAL-003.md) *(not yet written)* |
-| QUAL-004 | Coverage Validation Report | FEATURE | python-implement | P1 | M | 180 | QUAL-003 | Epic 7 | [QUAL-004.md](QUAL-004.md) *(not yet written)* |
-| QUAL-005 | Data Quality Report with CI Gating | FEATURE | python-implement | P1 | M | 180 | QUAL-004 | Epic 12 | [QUAL-005.md](QUAL-005.md) *(not yet written)* |
+| QUAL-004 | Coverage Validation Report | FEATURE | python-implement | P1 | M | 180 | QUAL-003 | Sprint 7 | [QUAL-004.md](QUAL-004.md) *(not yet written)* |
+| QUAL-005 | Data Quality Report with CI Gating | FEATURE | python-implement | P1 | M | 180 | QUAL-004 | Sprint 12 | [QUAL-005.md](QUAL-005.md) *(not yet written)* |
 
 **Total Tasks:** 5
 **Total Estimated Effort:** 990 minutes (~16.5 hours)
@@ -106,7 +106,7 @@ All 11 verifications must pass.
 
 - **QUAL-004: Coverage Validation Report** — Generate `baseline/coverage-report.md` with routes per state, routes per archetype, and score distributions. Sanity-checks the reconciled catalog's breadth.
 
-- **QUAL-005: Data Quality Report with CI Gating** — Comprehensive post-pipeline report with CI pass/fail thresholds (minimum routes per state, minimum routes per archetype, maximum percentage `minimal` tier, non-null description rate, etc.). CI gate exits 0 on pass, non-zero with a clear failure message on fail. Blocks Epic 12 orchestrator if thresholds are violated.
+- **QUAL-005: Data Quality Report with CI Gating** — Comprehensive post-pipeline report with CI pass/fail thresholds (minimum routes per state, minimum routes per archetype, maximum percentage `minimal` tier, non-null description rate, etc.). CI gate exits 0 on pass, non-zero with a clear failure message on fail. Blocks Sprint 12 orchestrator if thresholds are violated.
 
 ---
 
@@ -121,9 +121,9 @@ All 11 verifications must pass.
 - Epic 4: Source Diversification (catalog must contain the full merged source set before dedup)
 
 **Blocks:**
-- Epic 7: Quality Infrastructure — Reports
-- Epic 8: Scoring & Calibration (reads reconciled catalog)
-- Epic 12: Orchestrator & E2E Integration (dedup + quality floor are pipeline stages)
+- Sprint 7: Quality Infrastructure — Reports
+- Sprint 8: Scoring & Calibration (reads reconciled catalog)
+- Sprint 12: Orchestrator & E2E Integration (dedup + quality floor are pipeline stages)
 
 ---
 
@@ -143,7 +143,7 @@ All 11 verifications must pass.
 - [ ] Curation Review Protocol executed with PASS verdict
 - [ ] `review.md` + updated `baseline/catalog.jsonl` committed
 - [ ] Catalog diff vs Epic 4 baseline shows expected dedup-driven shrink
-- [ ] User has approved proceeding to Epic 7
+- [ ] User has approved proceeding to Sprint 7
 
 ---
 
@@ -159,3 +159,15 @@ All 11 verifications must pass.
 - **Epic 03 completion note**: The INF-003 schema contract referenced here is now deployed in production Convex. All 5,608 routes have populated `searchEmbedding` fields. Dedup can run against the full production catalog without requiring a re-embed. See [Epic 03 RETRO](../epic-03-foundation-models-schema/RETRO.md) for production verification evidence.
 - **Old QUAL task files (rapidfuzz cascade version)** are preserved in git history. Don't reference them from the new task files — they will be rewritten in a separate pass.
 - **Boy Scout rule applies** — if the dedup run surfaces a latent bug in the embedding pipeline (INF-004) or the query wrappers (INF-006), fix it as part of this epic and document in the close-out notes.
+
+---
+
+## Task Detail Files
+
+Generated by `/kb-sprint-tasks-plan` on 2026-04-18T00:00:00Z (TASK-TEMPLATE v5.0, avg quality 113/115).
+
+- [QUAL-001-semantic-deduplication-engine.md](QUAL-001-semantic-deduplication-engine.md)
+- [QUAL-002-llm-arbitration-batch-runner.md](QUAL-002-llm-arbitration-batch-runner.md)
+- [QUAL-003-quality-floor-filter.md](QUAL-003-quality-floor-filter.md)
+- [QUAL-004-coverage-validation-report.md](QUAL-004-coverage-validation-report.md)
+- [QUAL-005-data-quality-report-with-ci-gating.md](QUAL-005-data-quality-report-with-ci-gating.md)

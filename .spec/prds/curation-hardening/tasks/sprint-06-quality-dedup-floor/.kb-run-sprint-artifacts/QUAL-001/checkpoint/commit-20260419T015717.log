@@ -1,0 +1,39 @@
+$ git commit
+exit_code=0
+
+[stdout]
+[task/QUAL-001 d418ba7a] feat: implement QUAL-001 semantic deduplication engine
+ 5 files changed, 857 insertions(+)
+ create mode 100644 scripts/curation/data/arbitration/arbitration_queue.json
+ create mode 100644 scripts/curation/data/calibration/dedup_calibration_set.json
+ create mode 100644 scripts/curation/pipeline/dedup/__init__.py
+ create mode 100644 scripts/curation/pipeline/dedup/semantic_deduplicator.py
+ create mode 100644 scripts/curation/tests/test_qual_001.py
+
+
+[stderr]
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+│  tokens:sync-check (skip) no matching staged files
+│  android-typecheck (skip) no matching staged files
+│  swiftformat (skip) no files for inspection
+│  ios-typecheck (skip) no matching staged files
+│  tokens:validate (skip) no matching staged files
+┃  biome ❯ 
+
+Checked 2 files in 15ms. No fixes applied.
+
+┃  typecheck ❯ 
+
+
+> laneshadow@1.0.0 type-check:native /Users/justinrich/Projects/LaneShadow/.codex-worktrees/QUAL-001
+> cd server && npx tsgo --noEmit
+
+
+                                      
+  ────────────────────────────────────
+summary: (done in 1.27 seconds)       
+✓ biome (0.53 seconds)
+✓ typecheck (1.23 seconds)
+

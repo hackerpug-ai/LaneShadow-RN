@@ -121,6 +121,10 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Fork semantic token names or introduce platform-only hardcoded values; theme the native-sandbox preview canvas from a source other than the shared generated tokens.
 
+## TRANSLATION SOURCES
+
+> This task is infrastructure/setup and does not require per-component translation mapping.
+
 ## DESIGN NOTES
 
 - Lock semantic token naming, generation outputs, and state variant conventions before platform implementation starts.

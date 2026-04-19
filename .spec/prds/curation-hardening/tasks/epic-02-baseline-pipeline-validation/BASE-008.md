@@ -40,7 +40,7 @@ BACKGROUND
 
 **Problem:** BASE-001 through BASE-007 validate individual pipeline stages, but the Curation Review Protocol is a holistic review that ties them together, diffs the catalog against a baseline, runs landmark spot checks, and produces a `review.md` artifact. Without this closing task, Epic 2 cannot be marked Done because the protocol is MANDATORY per the review protocol document.
 
-**Why it matters:** Every subsequent epic (Epic 3 through Epic 12) diffs its catalog against the *previous* epic's baseline. Epic 2 is the origin point — the reference snapshot that Epic 3 will compare against to detect regressions from schema extension. If the baseline is incomplete or the review artifact is missing, Epic 3's regression check has no anchor.
+**Why it matters:** Every subsequent epic (Epic 3 through Sprint 12) diffs its catalog against the *previous* epic's baseline. Epic 2 is the origin point — the reference snapshot that Epic 3 will compare against to detect regressions from schema extension. If the baseline is incomplete or the review artifact is missing, Epic 3's regression check has no anchor.
 
 **Current state (after BASE-001..BASE-007):** `staging/fhwa.jsonl`, `staging/motorcycleroads.jsonl`, `staging/bestbikingroads.jsonl` exist with validated counts; `baseline/catalog.jsonl` has 20 extracted records; `baseline/scores.json` has 20 scored records; `baseline/archetype_counts.json` has the distribution dict; `baseline-report.md` has stage-by-stage sections; the 6 Boy Scout `__main__` fixes are committed separately. BUT: `baseline/source_counts.json` does not yet exist; `review.md` does not yet exist; nothing is committed as a single baseline commit.
 
@@ -237,13 +237,13 @@ AGENT: python-implement
     - Verdict line: "Verdict: PASS" (or "Verdict: PASS WITH ISSUES" if any step had issues)
     - Step 1: Sources — fhwa/motorcycleroads/bestbikingroads counts from source_counts.json
     - Step 2: Enrichment — OSM cache hit rate from BASE-006 results
-    - Steps 3-5: "N/A until Epic 6 (dedup), Epic 6 (quality floor), Epic 8 (calibration)"
+    - Steps 3-5: "N/A until Sprint 6 (dedup), Sprint 6 (quality floor), Sprint 8 (calibration)"
     - Step 6: Extraction — 20/20 records, temperature=0, EXTRACTION_SCHEMA_VERSION=1
     - Step 7: Scoring — WEIGHTS dict verbatim + score distribution from scores.json
     - Step 8: Classification — archetype distribution from archetype_counts.json
-    - Steps 9-11: "N/A until Epic 10 (NLP), Epic 7 (coverage report), Epic 7 (data quality report)"
+    - Steps 9-11: "N/A until Sprint 10 (NLP), Sprint 7 (coverage report), Sprint 7 (data quality report)"
     - Step 12: Convex push — dry-run exit 0, serialization clean
-    - Step 13: "N/A until Epic 12 (orchestrator)"
+    - Step 13: "N/A until Sprint 12 (orchestrator)"
     - Landmark Spot Check section: 5 landmarks with FOUND/NOT FOUND status
     - Verdict Rationale: 1-3 sentences
 

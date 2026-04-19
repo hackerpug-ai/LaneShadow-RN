@@ -20,7 +20,7 @@ This epic **replaces** the originally-planned deterministic string-matching casc
 5. **Enrich** — LLM extracts structured fields (surface quality, traffic, scenery, warnings) from the matched post.
 6. **Reconcile** — Multiple mentions per route → LLM resolves conflicts, applies temporal decay, weights by source authority.
 
-Epic 3 lays the foundation. Downstream epics (Epic 6 dedup, Epic 9/10 community NLP) execute the pipeline on top of this foundation.
+Epic 3 lays the foundation. Downstream epics (Sprint 6 dedup, Sprint 9/10 community NLP) execute the pipeline on top of this foundation.
 
 **Critical:** All new Convex fields are `v.optional()` — this epic is NON-BREAKING for existing mobile clients.
 
@@ -102,10 +102,10 @@ All 9 verifications must pass to confirm the foundation is solid. Any failure me
 | INF-001 | Install Semantic Matching Dependencies | INFRA | python-implement | P0 | XS | 30 | VAL-*, BASE-001 | INF-002 | [INF-001.md](INF-001.md) |
 | INF-002 | Extended Route Models — Embedding, Identifiers, LLM Artifacts | INFRA | python-implement | P0 | S | 90 | INF-001 | INF-003, INF-004, INF-005, INF-007 | [INF-002.md](INF-002.md) |
 | INF-003 | Convex Vector Index + Match Audit Schema | INFRA | convex-implementer | P0 | M | 120 | VAL-004, INF-002 | INF-004, INF-006, INF-007 | [INF-003.md](INF-003.md) |
-| INF-004 | Route Embedding Generation Pipeline | INFRA | python-implement | P0 | M | 120 | INF-003 | Epic 9/10 | [INF-004.md](INF-004.md) |
-| INF-005 | LLM Extraction Schema Contract — PostExtraction v2 | INFRA | python-implement | P0 | S | 90 | INF-002 | SCO-003, SCO-004, Epic 9/10 | [INF-005.md](INF-005.md) |
-| INF-006 | Convex Vector Search Query Wrappers | INFRA | convex-implementer | P0 | S | 90 | VAL-004, INF-003 | Epic 6, Epic 9/10 | [INF-006.md](INF-006.md) |
-| INF-007 | Convex Push Serialization — Embedding + Artifacts | INFRA | convex-implementer | P1 | S | 60 | INF-002, INF-003 | Epic 9/10 | [INF-007.md](INF-007.md) |
+| INF-004 | Route Embedding Generation Pipeline | INFRA | python-implement | P0 | M | 120 | INF-003 | Sprint 9/10 | [INF-004.md](INF-004.md) |
+| INF-005 | LLM Extraction Schema Contract — PostExtraction v2 | INFRA | python-implement | P0 | S | 90 | INF-002 | SCO-003, SCO-004, Sprint 9/10 | [INF-005.md](INF-005.md) |
+| INF-006 | Convex Vector Search Query Wrappers | INFRA | convex-implementer | P0 | S | 90 | VAL-004, INF-003 | Sprint 6, Sprint 9/10 | [INF-006.md](INF-006.md) |
+| INF-007 | Convex Push Serialization — Embedding + Artifacts | INFRA | convex-implementer | P1 | S | 60 | INF-002, INF-003 | Sprint 9/10 | [INF-007.md](INF-007.md) |
 | INF-011 | US_STATES Allowlist in Crawl Plan Inventory | INFRA | python-implement | P2 | S | 60 | BASE-009b | None | [INF-011-us-states-allowlist.md](INF-011-us-states-allowlist.md) (Phase 1 DONE) |
 
 **Total Tasks:** 8 (7 backlog + 1 phase-1 complete)
@@ -118,13 +118,13 @@ All 9 verifications must pass to confirm the foundation is solid. Any failure me
 
 **Blocks:**
 - Epic 4: Source Diversification — needs extended Route model + Convex schema
-- Epic 6: Quality Infrastructure — Dedup & Floor — **REWRITE REQUIRED** (cascade logic obsolete; use vector similarity + LLM arbitration)
-- Epic 7: Quality Infrastructure — Reports
-- Epic 8: Scoring & Calibration — reads from reconciled LLM extractions
-- Epic 9: Community Sources — Ingestion — **SIMPLIFIES** (~30%, single LLM extraction call replaces multi-stage rapidfuzz)
-- Epic 10: Community Sources — NLP & Signals — **SIMPLIFIES** (~40%, LLM does aspect scoring/sentiment/attributes in one call)
-- Epic 11: Mobile UI — New Field Display
-- Epic 12: Pipeline Orchestrator & E2E Integration
+- Sprint 6: Quality Infrastructure — Dedup & Floor — **REWRITE REQUIRED** (cascade logic obsolete; use vector similarity + LLM arbitration)
+- Sprint 7: Quality Infrastructure — Reports
+- Sprint 8: Scoring & Calibration — reads from reconciled LLM extractions
+- Sprint 9: Community Sources — Ingestion — **SIMPLIFIES** (~30%, single LLM extraction call replaces multi-stage rapidfuzz)
+- Sprint 10: Community Sources — NLP & Signals — **SIMPLIFIES** (~40%, LLM does aspect scoring/sentiment/attributes in one call)
+- Sprint 11: Mobile UI — New Field Display
+- Sprint 12: Pipeline Orchestrator & E2E Integration
 
 **Depends On:**
 - Epic 1: Week 0 Validation (VAL-004 provides the GeospatialIndex prerequisite; still valid for mobile viewport queries)
@@ -136,7 +136,7 @@ All 9 verifications must pass to confirm the foundation is solid. Any failure me
 
 This semantic matching pivot requires rewriting or simplifying the following downstream epics. They are flagged here so the project team knows to revisit them **before** execution:
 
-### Epic 6 (Quality Infrastructure — Dedup & Floor) — REWRITE REQUIRED
+### Sprint 6 (Quality Infrastructure — Dedup & Floor) — REWRITE REQUIRED
 
 **Old logic:** Three-stage cascade (exact name → fuzzy name → geospatial fallback → new route).
 
@@ -154,7 +154,7 @@ for candidate in candidate_routes:
 
 Net effort: estimated **drop ~25%** (no cascade logic to build, but adds LLM arbitration).
 
-### Epic 9 (Community Sources — Ingestion) — SIMPLIFIES
+### Sprint 9 (Community Sources — Ingestion) — SIMPLIFIES
 
 **Old logic:** Multi-stage extraction — separate name extraction, highway extraction, sentiment classifier, aspect scorer, attribute detector.
 
@@ -162,7 +162,7 @@ Net effort: estimated **drop ~25%** (no cascade logic to build, but adds LLM arb
 
 Net effort: estimated **drop ~30%**.
 
-### Epic 10 (Community Sources — NLP & Signals) — SIMPLIFIES
+### Sprint 10 (Community Sources — NLP & Signals) — SIMPLIFIES
 
 **Old logic:** Custom NLP pipeline for sentiment, aspects, attributes; rapidfuzz matching; temporal decay.
 
@@ -170,7 +170,7 @@ Net effort: estimated **drop ~30%**.
 
 Net effort: estimated **drop ~40%**.
 
-### Epic 8 (Scoring & Calibration) — MINOR REFACTOR
+### Sprint 8 (Scoring & Calibration) — MINOR REFACTOR
 
 Scoring reads from reconciled LLM extractions (mention_frequency_score, aspect_scores) instead of custom-extracted fields. Net effect: simpler, no effort change.
 
@@ -178,7 +178,7 @@ Scoring reads from reconciled LLM extractions (mention_frequency_score, aspect_s
 
 Same sources ingested, same raw data flow. Extraction becomes uniform across sources (same LLM call pattern). No structural change.
 
-**Recommendation:** Before Epic 6/9/10 are executed, spend one planning session updating their EPIC.md files to reflect this new foundation. Epic 3 can proceed independently in the meantime.
+**Recommendation:** Before Sprint 6/9/10 are executed, spend one planning session updating their EPIC.md files to reflect this new foundation. Epic 3 can proceed independently in the meantime.
 
 ---
 
@@ -192,7 +192,7 @@ Same sources ingested, same raw data flow. Extraction becomes uniform across sou
 - [x] Baseline pipeline (Epic 2) re-runs successfully against extended models
 - [x] Mobile app smoke-tested on device — no regression
 - [x] Cost ledger for embedding backfill documented (expected ~$0.05 one-time)
-- [x] Epic 6/9/10 downstream ripple effects documented in each epic's EPIC.md (can be deferred but flagged)
+- [x] Sprint 6/9/10 downstream ripple effects documented in each epic's EPIC.md (can be deferred but flagged)
 - [x] User has approved proceeding to Epic 4
 
 ---
@@ -205,9 +205,9 @@ Same sources ingested, same raw data flow. Extraction becomes uniform across sou
 | Incremental route embedding (ongoing) | $0.00002/1k tokens | ~500/mo | ~$0.001/mo |
 | **Epic 3 foundation total** | | | **<$0.05** |
 
-Downstream pipeline LLM costs (extraction, rerank, enrichment, reconciliation) are budgeted in Epic 9/10, not Epic 3. Foundation only pays for the one-time embedding backfill.
+Downstream pipeline LLM costs (extraction, rerank, enrichment, reconciliation) are budgeted in Sprint 9/10, not Epic 3. Foundation only pays for the one-time embedding backfill.
 
-**Projected Epic 9/10 LLM budget (for reference, not this epic):**
+**Projected Sprint 9/10 LLM budget (for reference, not this epic):**
 - Post extraction (100k posts × $0.002/call) = $200
 - LLM rerank (60k candidate sets × $0.003/call) = $180
 - LLM enrichment (30k matches × $0.003/call) = $90
@@ -221,7 +221,7 @@ Downstream pipeline LLM costs (extraction, rerank, enrichment, reconciliation) a
 - **Non-breaking schema change is critical** — all new Convex fields MUST be `v.optional()`. Older mobile app versions in the wild continue to work.
 - **Boy Scout rule applies** — if INF-002 reveals an existing bug in `models.py`, fix it as part of this epic.
 - **Vector dimension choice:** 1536 (OpenAI `text-embedding-3-small`). Chosen for low cost + broad ecosystem support. Can upgrade later without schema break — the field is `v.array(v.number())`, dimensions are enforced only at the index level.
-- **Cosine similarity thresholds (0.92 auto-merge, 0.75 arbitration)** are initial guesses — Epic 6 should calibrate against a held-out test set.
+- **Cosine similarity thresholds (0.92 auto-merge, 0.75 arbitration)** are initial guesses — Sprint 6 should calibrate against a held-out test set.
 - **Convex has native vector search** via `.vectorIndex()` and `.vectorSearch()` — no external vector DB needed. One source of truth, simpler ops.
 - **LLM provider split:** OpenAI for embeddings (cheap, broad), Anthropic/Claude for all reasoning calls (extraction, rerank, enrichment, reconciliation) per project convention.
 - **Old INF-001 through INF-007 task files** are preserved in git commit `0bae608` if revert is needed.

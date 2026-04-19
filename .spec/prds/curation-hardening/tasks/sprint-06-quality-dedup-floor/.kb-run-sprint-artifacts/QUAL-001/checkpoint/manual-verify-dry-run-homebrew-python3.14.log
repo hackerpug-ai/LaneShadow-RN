@@ -1,0 +1,13 @@
+<frozen runpy>:128: RuntimeWarning: 'pipeline.dedup.semantic_deduplicator' found in sys.modules after import of package 'pipeline.dedup', but prior to execution of 'pipeline.dedup.semantic_deduplicator'; this may result in unpredictable behaviour
+2026-04-18 19:59:14,519 - __main__ - WARNING - CONVEX_URL/CURATION_DEPLOY_KEY not provided in --dry-run; running with empty catalog
+{
+  "total_routes": 0,
+  "total_pairs_evaluated": 0,
+  "auto_merged": 0,
+  "queued_arbitration": 0,
+  "separated": 0,
+  "wall_seconds": 0.0,
+  "started_at": "2026-04-19T01:59:14.519697Z",
+  "finished_at": "2026-04-19T01:59:14.519703Z",
+  "errors": []
+}

@@ -67,7 +67,7 @@ Reddit's API restrictions (2024+) require conservative rate limiting and bot det
 
 ## UC-RIDER-03: Extract Route Mentions via LLM PostExtraction
 
-**Description:** Pipeline runs structured LLM extraction over each community post in the community_mentions staging table. A single Claude Haiku 4.5 call per post returns a `PostExtraction` (scripts/curation/pipeline/extraction/schema.py, Epic 3 INF-005) containing road_name_mentions, highway_refs, state_refs, landmark_refs, sentiment, aspect_scores, attributes, warnings, and extraction_confidence. The PostExtraction is persisted to the `route_posts_raw` Convex table as the raw artifact. A separate matching stage (UC-RIDER-04 or Epic 6 dedup) uses Convex vectorSearch + LLM rerank to decide which route(s) each mention refers to, writing the result to `route_matches`.
+**Description:** Pipeline runs structured LLM extraction over each community post in the community_mentions staging table. A single Claude Haiku 4.5 call per post returns a `PostExtraction` (scripts/curation/pipeline/extraction/schema.py, Epic 3 INF-005) containing road_name_mentions, highway_refs, state_refs, landmark_refs, sentiment, aspect_scores, attributes, warnings, and extraction_confidence. The PostExtraction is persisted to the `route_posts_raw` Convex table as the raw artifact. A separate matching stage (UC-RIDER-04 or Sprint 6 dedup) uses Convex vectorSearch + LLM rerank to decide which route(s) each mention refers to, writing the result to `route_matches`.
 
 **Extraction Strategy:**
 - Model: Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) via Anthropic SDK (`anthropic>=0.39.0`). OpenAI is reserved for embeddings only.
@@ -128,7 +128,7 @@ class PostExtraction(BaseModel):
 ```
 
 **Acceptance Criteria:**
-- ☐ Administrator can run extraction via `python -m scripts.curation.pipeline.extraction.extract_posts` (new module, implemented in Epic 9/10)
+- ☐ Administrator can run extraction via `python -m scripts.curation.pipeline.extraction.extract_posts` (new module, implemented in Sprint 9/10)
 - ☐ System runs one LLM call per community post, producing a PostExtraction instance
 - ☐ System uses Claude Haiku 4.5 with Anthropic tool-use for structured output
 - ☐ System validates each extraction against the PostExtraction Pydantic schema

@@ -105,7 +105,7 @@ RouteName,State,CentroidLat,CentroidLng,LengthMiles,AgencyTags
 
 These are **not filtered in BASE-000**. They will flow through the pipeline and
 likely fail OSM enrichment gracefully (returning `None` curvature scores) and will
-be filtered out by Epic 6's quality floor when that epic lands. Filtering them in
+be filtered out by Sprint 6's quality floor when that epic lands. Filtering them in
 BASE-000 would require ad-hoc heuristics that could mask other data-quality issues.
 
 **Execution strategy.** Narrow, sequential (not full-epic parallel dispatch). Rationale:
@@ -154,20 +154,20 @@ Investigation of the two scrapers revealed a recurring pattern in `motorcycleroa
    after running at scale (and only then patched in commit `facb67b`).
 
 This is a systemic failure mode, not an Epic 2 bug. Epic 4 (3 new sources — Scenic Byways GIS,
-Rider Magazine 50 Best, curvature discovery) and Epic 9 (3 new community sources — ADVRider RSS,
+Rider Magazine 50 Best, curvature discovery) and Sprint 9 (3 new community sources — ADVRider RSS,
 Reddit API, Pushshift) would reproduce the pattern six more times without intervention. At least
-one of those failures (Rider Magazine 50 Best → Epic 8 SCO-002 calibration ground truth) cascades
+one of those failures (Rider Magazine 50 Best → Sprint 8 SCO-002 calibration ground truth) cascades
 directly into downstream epics and compromises the entire scoring-realignment work.
 
 **Options considered.**
 
 | # | Option | Rejected because |
 |---|---|---|
-| A | Accept the PASS WITH ISSUES verdict and move forward | The Epic 2 baseline is load-bearing for every downstream epic's diff. Epic 6 dedup measures merge rates against this baseline; Epic 8 calibration diffs against it; Epic 12 orchestrator uses it as the ground reference. A junk baseline poisons all of them. The 98% BBR-miss and MR sidebar contamination would compound silently through every later epic. |
+| A | Accept the PASS WITH ISSUES verdict and move forward | The Epic 2 baseline is load-bearing for every downstream epic's diff. Sprint 6 dedup measures merge rates against this baseline; Sprint 8 calibration diffs against it; Sprint 12 orchestrator uses it as the ground reference. A junk baseline poisons all of them. The 98% BBR-miss and MR sidebar contamination would compound silently through every later epic. |
 | B | Reactively patch the two scrapers again and call it done | This is what commits `facb67b`/`12dfdfb`/`b60629b` already did. Did not produce a clean baseline. Does not generalize to the six future scrapers in Epics 4 and 9. Kicks the same problem down the road. |
-| C | Wait for Epic 6 dedup to "fix" the duplicates at a later stage | Dedup cannot recover data that was never scraped. BBR's 90% miss rate is a discovery failure, not a duplication problem. Dedup cannot correct sidebar contamination that stamped Alabama onto Blue Ridge Parkway — the state field is already wrong at the row level. |
+| C | Wait for Sprint 6 dedup to "fix" the duplicates at a later stage | Dedup cannot recover data that was never scraped. BBR's 90% miss rate is a discovery failure, not a duplication problem. Dedup cannot correct sidebar contamination that stamped Alabama onto Blue Ridge Parkway — the state field is already wrong at the row level. |
 | D | Rewrite only the two existing scrapers (no protocol, no framework) | Addresses Epic 2 but does not prevent Epic 4/9 from reproducing the pattern. The cost of writing two scrapers carefully is comparable to the cost of writing a reusable framework plus two scrapers that consume it. |
-| **E** | **Institutionalize a seven-phase Crawl Plan Protocol as a pre-extraction gate, build a shared `crawl_plan/` framework module, retroactively remediate MR + BBR under the protocol, then enforce the protocol on all future source tasks via acceptance criteria and at Curation Review Protocol Step 1** | **Selected.** Addresses the systemic failure mode, produces a clean Epic 2 baseline, prevents Epic 4 and Epic 9 from reproducing the pattern, and creates a reusable framework that all six future source tasks consume. Cost: ~1-2 days for remediation + framework build; much cheaper than debugging cascading failures across Epics 4/6/8/9/12. |
+| **E** | **Institutionalize a seven-phase Crawl Plan Protocol as a pre-extraction gate, build a shared `crawl_plan/` framework module, retroactively remediate MR + BBR under the protocol, then enforce the protocol on all future source tasks via acceptance criteria and at Curation Review Protocol Step 1** | **Selected.** Addresses the systemic failure mode, produces a clean Epic 2 baseline, prevents Epic 4 and Sprint 9 from reproducing the pattern, and creates a reusable framework that all six future source tasks consume. Cost: ~1-2 days for remediation + framework build; much cheaper than debugging cascading failures across Epics 4/6/8/9/12. |
 
 **Decision.** Adopt [`tasks/CRAWL-PLAN-PROTOCOL.md`](../CRAWL-PLAN-PROTOCOL.md) as the mandatory
 methodology for any task that extracts data from a remote source at scale:
@@ -188,7 +188,7 @@ The protocol is enforced through three binding mechanisms:
    `crawl-report.md`. No fallback to PASS WITH ISSUES at the Step 1 level; if the crawl plan
    is incomplete, the review cannot proceed.
 3. **Mandatory acceptance criteria block** in every source task file — Epic 4 SRC-001/SRC-006,
-   Epic 9 RID-001/RID-002/RID-006, and retroactively Epic 2 BASE-009. The AC block lists each
+   Sprint 9 RID-001/RID-002/RID-006, and retroactively Epic 2 BASE-009. The AC block lists each
    of the seven protocol phases with binary gates; a source task cannot be marked Done without
    all gates green.
 
@@ -214,9 +214,9 @@ prevents. BASE-008 is updated to block BASE-009 rather than INF-001.
 for all six future source tasks:
 - Epic 4 SRC-001 (Scenic Byways GIS) — Form B extension with a JSONPath adapter over the framework
 - Epic 4 SRC-006 (Rider Magazine 50 Best) — Form A, uses the framework as-is
-- Epic 9 RID-001 (ADVRider 17-forum RSS) — Form C extension with an XML/feedparser adapter
-- Epic 9 RID-002 (Reddit OAuth2 API) — Form D extension with a cursor-pagination adapter
-- Epic 9 RID-006 (Pushshift historical backfill) — Form D variant with date-range windowing
+- Sprint 9 RID-001 (ADVRider 17-forum RSS) — Form C extension with an XML/feedparser adapter
+- Sprint 9 RID-002 (Reddit OAuth2 API) — Form D extension with a cursor-pagination adapter
+- Sprint 9 RID-006 (Pushshift historical backfill) — Form D variant with date-range windowing
 
 All five tasks share the same seven-phase shape and same gate structure. BASE-009 is the
 battle-test for Form A on a known-hard case before the framework is applied to unknown
@@ -358,7 +358,7 @@ Phase 4 contract assertions for these routes. Framework schema decision:
   mandating this schema
 - BASE-009b CRITICAL CONSTRAINTS updated to inherit the rule
 - CRAWL-PLAN-PROTOCOL.md Revision History entry added codifying this as a framework-wide rule
-  that Epic 4 SRC-001/006 and Epic 9 RID-001/002/006 also inherit
+  that Epic 4 SRC-001/006 and Sprint 9 RID-001/002/006 also inherit
 - Epic 3 INF-002 Route model extension task (currently stub-level) should be flagged to include
   both fields when that task file is generated — add to the stub's description before Epic 3
   dispatch
@@ -402,7 +402,7 @@ mandate — if inventory row count comes in below 3,500 it almost certainly mean
 were skipped and Phase 1 must return to the start.
 
 **Cross-cutting rules for the protocol.** Findings 2 and 3 are not MR/BBR-specific — they apply
-to every future source task (Epic 4 SRC-001/006, Epic 9 RID-001/002/006). They're elevated to
+to every future source task (Epic 4 SRC-001/006, Sprint 9 RID-001/002/006). They're elevated to
 framework-general constraints in BASE-009a's CRITICAL CONSTRAINTS section and documented in
 CRAWL-PLAN-PROTOCOL.md's Revision History. The framework's design-review gate (BASE-009a AC-1
 review by python-review + code-reviewer) specifically checks both.
@@ -556,7 +556,7 @@ violations. The entry makes the design choice explicit and traceable.
 **Future reopening.** If BBR adds a meta-description-style authoritative state list later
 (schema change on BBR's side), or if NLP-over-route-names becomes in-scope for mention
 extraction, revisit this decision and widen BBR's `states_all` to carry true multi-state info.
-Track as non-urgent future work; not blocking for Epic 2, Epic 4, or Epic 9.
+Track as non-urgent future work; not blocking for Epic 2, Epic 4, or Sprint 9.
 
 ### 3c — Anti-pattern: Python module cache during mid-run parser edits
 
@@ -610,7 +610,7 @@ call, raising if the on-disk file changed) would catch this automatically. Rejec
 because (a) the discipline "don't edit during run" is simpler and catches more failure modes
 (including dependency edits, not just parser.py), (b) adding the check to every framework
 module is code bloat for a narrow protection, and (c) this kind of supervisor concern belongs
-to Epic 12 orchestrator, not BASE-009b. Documented for future reference.
+to Sprint 12 orchestrator, not BASE-009b. Documented for future reference.
 
 ### 3d — Anti-pattern: subagent session death orphaning background crawlers
 
@@ -654,7 +654,7 @@ naive child processes. The fix is process-lifetime independence:
   directly via `run_in_background=true`, not via a subagent — the crawler is a child of the
   orchestrator's shell, not of a transient subagent
 - **Option C (platform-level):** use systemd/launchd/tmux/screen for true process supervision —
-  overkill for Phase 5 runs but the right long-term answer for Epic 12 orchestrator
+  overkill for Phase 5 runs but the right long-term answer for Sprint 12 orchestrator
 
 **Decision.** Elevate to protocol-level rule in CRAWL-PLAN-PROTOCOL.md Revision History:
 
@@ -669,7 +669,7 @@ row) and to BASE-009a/b Phase 5 execution briefs (retroactively via DECISIONS.md
 **Framework defense considered and deferred.** A PID file + heartbeat supervisor would catch
 this automatically — the crawler writes its PID + last-progress timestamp periodically, and a
 supervisor process checks heartbeat staleness and alerts or restarts. Rejected for now as
-Epic 12 orchestrator concern, not BASE-009b scope. Documented for future reference.
+Sprint 12 orchestrator concern, not BASE-009b scope. Documented for future reference.
 
 ---
 

@@ -14,7 +14,7 @@ ITERATION: 1
 BACKGROUND
 --------------------------------------------------------------------------------
 
-**Problem:** Epic 9/10 community ingestion will produce high-quality waypoint mentions from rider posts, but the curated_routes table currently lacks a `descriptiveSummary` field to aggregate and display these community insights. Additionally, `route_posts_raw` needs a `postEmbedding` field for semantic deduplication, and PostExtraction needs a v3 update to include `waypoint_mentions` for the waypoint-ready data shape.
+**Problem:** Sprint 9/10 community ingestion will produce high-quality waypoint mentions from rider posts, but the curated_routes table currently lacks a `descriptiveSummary` field to aggregate and display these community insights. Additionally, `route_posts_raw` needs a `postEmbedding` field for semantic deduplication, and PostExtraction needs a v3 update to include `waypoint_mentions` for the waypoint-ready data shape.
 
 **Why it matters:** This enables three critical capabilities: (1) UI can display community-curated summaries on route cards, (2) the pipeline can detect duplicate/similar posts via embedding similarity before expensive LLM processing, and (3) waypoint mentions are properly structured for the Waypoints PRD (`.spec/prds/waypoints/09-technical-requirements.md` requires `candidate_route_ids` linkage).
 
@@ -476,8 +476,8 @@ Depends On:
 
 Blocks:
 - INF-013 (hybrid search uses postEmbedding for dedup)
-- Epic 9 (ingestion uses waypoint_mentions for Waypoints PRD)
-- Epic 10 (reconciliation uses descriptiveSummary for display)
+- Sprint 9 (ingestion uses waypoint_mentions for Waypoints PRD)
+- Sprint 10 (reconciliation uses descriptiveSummary for display)
 
 --------------------------------------------------------------------------------
 NOTES

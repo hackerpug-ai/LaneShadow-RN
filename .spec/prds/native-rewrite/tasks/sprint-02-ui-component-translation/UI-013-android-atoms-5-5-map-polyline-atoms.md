@@ -125,6 +125,85 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Backend-aware composables, duplicated variant files, or hardcoded visual constants.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| RoutePolyline | `react-native/components/map/route-polyline.tsx` | `node_modules/@rnmapbox/maps/lib/components/lineLayer.js` (LineLayer style properties); `node_modules/@rnmapbox/maps/lib/components/shapeSource.js` (ShapeSource onPress) | `android/app/src/main/java/com/laneshadow/ui/atoms/RoutePolyline.kt` | 3 segment types (overview/leg/overlay) × 4 overlay types (wind/rain/temperature/scenic) × 2 states (default/selected) |
+| RoutePolylineComponent | `react-native/components/map/route-polyline-component.tsx` | `node_modules/@rnmapbox/maps/lib/components/lineLayer.js`; `node_modules/@rnmapbox/maps/lib/components/shapeSource.js`; `node_modules/@mapbox/polyline/src/index.js` (encodePolyline for geometry callback) | `android/app/src/main/java/com/laneshadow/ui/atoms/RoutePolylineComponent.kt` | Uses RoutePolyline data model; adds tap handling, highlight state, haptic feedback |
+| DeviationPolyline | `react-native/components/map/deviation-polyline.tsx` | `node_modules/@rnmapbox/maps/lib/components/lineLayer.js`; `node_modules/@rnmapbox/maps/lib/components/shapeSource.js` | `android/app/src/main/java/com/laneshadow/ui/atoms/DeviationPolyline.kt` | 3 segment types (original/detour/reconnect) × 2 states (default/active) |
+
+> **Library note:** RN baseline uses `@rnmapbox/maps` (Mapbox GL JS SDK). Android native equivalent uses Google Maps Compose SDK — different APIs, same visual output.
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999.
+
+### RoutePolyline (data builder)
+
+**Source files read:**
+- LaneShadow: `react-native/components/map/route-polyline.tsx`
+- Framework: `node_modules/@rnmapbox/maps/lib/components/lineLayer.js`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout | overview.strokeWidth | RN-wrapper | `6` | `Stroke.width(6.dp)` | `strokeWidth: 6` | ESCALATE — propose `polylineWidth.routeOverview = 6` |
+| Layout | leg.strokeWidth | RN-wrapper | `4` | `Stroke.width(4.dp)` | `strokeWidth: 4` | ESCALATE — propose `polylineWidth.routeLeg = 4` |
+| Layout | overlay.strokeWidth | RN-wrapper | `6` (wind/rain/temp) | `Stroke.width(6.dp)` | `strokeWidth: 6` | `polylineWidth.routeOverlay` (same as overview) |
+| Visual | overview.color (selected) | RN-wrapper | `semantic.color.routeSelected.default` | `LaneShadowTheme.colors.routeSelected` | `theme.colors.routeSelected` | `color.routeSelected.default` |
+| Visual | overview.color (alternate) | RN-wrapper | `semantic.color.routeAlternate.default` | `LaneShadowTheme.colors.routeAlternate` | `theme.colors.routeAlternate` | `color.routeAlternate.default` |
+| Visual | leg.color (selected) | RN-wrapper | `semantic.color.routeSelected.default` | `LaneShadowTheme.colors.routeSelected` | `theme.colors.routeSelected` | `color.routeSelected.default` |
+| Visual | leg.color (alternate) | RN-wrapper | `semantic.color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
+| Visual | wind overlay.color | RN-wrapper | `getWindColor(level, semantic)` — dynamic | `LaneShadowTheme.colors.windXXX` | `theme.colors.windXXX` | ESCALATE — overlay color tokens not defined; propose `color.overlay.wind.mild/medium/extreme` |
+| Visual | rain overlay.color | RN-wrapper | `getRainColor(level, semantic)` — dynamic | `LaneShadowTheme.colors.rainXXX` | `theme.colors.rainXXX` | ESCALATE — propose `color.overlay.rain.light/moderate/heavy` |
+| Visual | temperature overlay.color | RN-wrapper | `getTemperatureColor(level, semantic)` — dynamic | `LaneShadowTheme.colors.tempXXX` | `theme.colors.tempXXX` | ESCALATE — propose `color.overlay.temp.cold/mild/hot` |
+| Visual | lineCap | RN-wrapper | `'round'` (via Mapbox LineLayer default) | `Stroke.cap = RoundCap` / `Cap.round()` | `lineCap: .round` | n/a |
+| Visual | lineJoin | RN-wrapper | `'round'` (via Mapbox LineLayer default) | `Stroke.join = RoundJoint` / `Join.round()` | `lineJoin: .round` | n/a |
+| Visual | lineOpacity | RN-wrapper | `1.0` (explicit in RoutePolylineComponent) | `Stroke.opacity = 1.0f` | `strokeOpacity: 1.0` | n/a |
+| Visual | geodesic | RN-wrapper | not set (Mapbox default: false) | `Polyline.geodesic(false)` | `isGeodesic: false` | n/a |
+| Interaction | tappable | RN-wrapper | `ShapeSource onPress` callback | `Polyline clickable = true` + `Polyline.onClick` | `MKMapView delegate didSelectPolyline` | n/a |
+| Interaction | zIndex | RN-wrapper | not set (Mapbox renders in ShapeSource order) | `Polyline.zIndex` — overlay segments above overview | `renderer.zPosition` | n/a |
+
+### RoutePolylineComponent (tap handler + visual highlight)
+
+**Source files read:**
+- LaneShadow: `react-native/components/map/route-polyline-component.tsx`
+- Framework: `node_modules/@rnmapbox/maps/lib/components/lineLayer.js`, `node_modules/expo-haptics/src/Haptics.ts`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Visual | highlight.color | RN-wrapper | `semantic.color.tertiary.default` (when selected) | `LaneShadowTheme.colors.tertiary` | `theme.colors.tertiary` | `color.tertiary.default` |
+| Visual | highlight.strokeWidth | RN-wrapper | `semantic.space.sm` = 8 | `Stroke.width(8.dp)` | `strokeWidth: 8` | `space.sm` ✓ |
+| Visual | normal.strokeWidth fallback | RN-wrapper | `semantic.space.sm / 2` = 4 | `Stroke.width(4.dp)` | `strokeWidth: 4` | `space.sm / 2` (composed) |
+| Interaction | hapticFeedback | RN-wrapper | `Haptics.impactAsync(ImpactFeedbackStyle.Medium)` | `LocalHapticFeedback.provideHapticFeedback(HapticFeedbackType.LongPress)` | `UIImpactFeedbackGenerator(style: .medium).impactOccurred()` | ESCALATE — propose `haptic.style.segmentSelect = medium` |
+| Interaction | tap callback | RN-wrapper | `onSegmentSelect(segment: SegmentSelectData)` | `Polyline.onClick { segment -> callback(...) }` | `mapView(_:didSelect:)` delegate | n/a |
+| Interaction | callback.geometry | RN-wrapper | Google Polyline encoded string via `@mapbox/polyline.encode` | `Polyline.encode()` | `MKPolyline.coordinates` | n/a (geometry encoding) |
+| Interaction | callback.bounds | RN-wrapper | `{ northEast, southWest }` computed from coordinates | `LatLngBounds.builder()` | `MKMapRect` from coordinates | n/a |
+| Interaction | callback.legIndex | RN-wrapper | parsed from segment ID (`leg-0` → 0) | `segmentId.split("-")[1].toInt()` | same parsing | n/a |
+| Interaction | callback.segmentType | RN-wrapper | `'overview' \| 'leg' \| 'wind' \| 'rain' \| 'temp'` | `enum class SegmentType` | `enum SegmentType` | n/a |
+| State | selectedSegmentId | RN-wrapper | prop drives `isHighlighted` bool | `selectedSegmentId: String?` prop | `selectedSegmentID: String?` prop | n/a |
+| State | activeSegment | RN-wrapper | internal state from tap, resets on next tap | `remember { mutableStateOf<String?>(null) }` | `@State var activeSegment: String?` | n/a |
+
+### DeviationPolyline
+
+**Source files read:**
+- LaneShadow: `react-native/components/map/deviation-polyline.tsx`
+- Framework: `node_modules/@rnmapbox/maps/lib/components/lineLayer.js`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout | strokeWidth (default) | RN-wrapper | prop default `4` | `Stroke.width(width.dp)` | `strokeWidth: width` | ESCALATE — propose `polylineWidth.deviation = 4` |
+| Layout | strokeWidth (active) | RN-wrapper | `strokeWidth + 2` = 6 | `Stroke.width((strokeWidth + 2).dp)` | `strokeWidth: strokeWidth + 2` | composed from base |
+| Visual | original.color | RN-wrapper | `semantic.color.deviationOriginalRoute.default` (fallback: `semantic.color.muted.default`) | `LaneShadowTheme.colors.deviationOriginalRoute` | `theme.colors.deviationOriginalRoute` | ESCALATE — token missing; use `color.muted.default` |
+| Visual | detour.color | RN-wrapper | `semantic.color.deviationDetourPath.default` (fallback: `semantic.color.orange.default`) | `LaneShadowTheme.colors.deviationDetourPath` | `theme.colors.deviationDetourPath` | ESCALATE — token missing; use `color.orange.default` |
+| Visual | reconnect.color | RN-wrapper | `semantic.color.deviationReconnectPoint.default` (fallback: `semantic.color.success.default`) | `LaneShadowTheme.colors.deviationReconnectPoint` | `theme.colors.deviationReconnectPoint` | ESCALATE — token missing; use `color.success.default` |
+| Visual | lineCap | RN-wrapper | `'round'` | `Stroke.cap = RoundCap` | `lineCap: .round` | n/a |
+| Visual | lineJoin | RN-wrapper | `'round'` | `Stroke.join = RoundJoint` | `lineJoin: .round` | n/a |
+| Visual | lineOpacity | RN-wrapper | `1.0` | `Stroke.opacity = 1.0f` | `strokeOpacity: 1.0` | n/a |
+| State | isActive | RN-wrapper | prop drives stroke width increment | `isActive: Boolean` prop | `isActive: Bool` prop | n/a |
+
 ## DESIGN NOTES
 
 - Cover baseline states and typography or icon behavior explicitly so later molecules inherit stable primitives.

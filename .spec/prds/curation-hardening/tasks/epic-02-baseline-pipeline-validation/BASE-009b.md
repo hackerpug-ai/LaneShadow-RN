@@ -75,14 +75,14 @@ SPECIFICATION
 5. `scripts/curation/pipeline/sources/bestbikingroads.py` is ≤100 lines of thin glue over the framework
 6. `baseline/catalog.jsonl`, `baseline/scores.json`, `baseline/archetype_counts.json`, `baseline/source_counts.json` regenerated from clean FHWA + MR + BBR staging
 7. `review.md` verdict is exactly "PASS" (not "PASS WITH ISSUES", not "FAIL")
-8. All 5 landmarks (Tail of the Dragon, Blue Ridge Parkway, Beartooth Highway, Pacific Coast Highway, Million Dollar Highway) present in the regenerated catalog in at least one source (cross-source dedup is Epic 6, not this task)
+8. All 5 landmarks (Tail of the Dragon, Blue Ridge Parkway, Beartooth Highway, Pacific Coast Highway, Million Dollar Highway) present in the regenerated catalog in at least one source (cross-source dedup is Sprint 6, not this task)
 9. `baseline-report.md` Community Scrapers section reflects the new counts and PASS verdicts
 
 --------------------------------------------------------------------------------
 BACKGROUND
 --------------------------------------------------------------------------------
 
-**Why this task exists:** Epic 2's BASE-002 (community scrapers validation) declared BBR "slow but functional" after ~21 minutes of scraping had produced ~413 routes against a true US universe of ~4,100. The review.md verdict was "PASS WITH ISSUES" and was allowed to stand. Every downstream epic (Epic 6 dedup, Epic 8 calibration, Epic 12 orchestrator) diffs against this baseline. A ~10% yield with sidebar contamination makes every downstream diff meaningless.
+**Why this task exists:** Epic 2's BASE-002 (community scrapers validation) declared BBR "slow but functional" after ~21 minutes of scraping had produced ~413 routes against a true US universe of ~4,100. The review.md verdict was "PASS WITH ISSUES" and was allowed to stand. Every downstream epic (Sprint 6 dedup, Sprint 8 calibration, Sprint 12 orchestrator) diffs against this baseline. A ~10% yield with sidebar contamination makes every downstream diff meaningless.
 
 **Why this task needs BASE-009a first:** The shared `crawl_plan/` framework does not exist at Epic 2 BASE-008 completion. BASE-009a builds it and proves it on MR (the smaller of the two community scrapers, ~30 min Phase 5 vs BBR's ~3.75 hr). Splitting the work means framework bugs are discovered on MR's cheap execution cycle, not on BBR's expensive one.
 

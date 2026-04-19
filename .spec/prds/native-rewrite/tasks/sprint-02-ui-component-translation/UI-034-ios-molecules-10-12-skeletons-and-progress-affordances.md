@@ -126,6 +126,34 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| CardSkeleton | `react-native/components/skeleton/card-skeleton.tsx` | `node_modules/react-native/Libraries/Animated/Animated.js`; `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Molecules/CardSkeleton.swift` | 2 variants (compact/default) × 2 badges (best/weather) |
+| LabelSkeleton | `react-native/components/skeleton/label-skeleton.tsx` | `node_modules/react-native/Libraries/Animated/Animated.js`; `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Molecules/LabelSkeleton.swift` | 3 widths (short=80/medium=160/long=240) × custom height × custom radius |
+| SkeletonWrapper | `react-native/components/skeleton/skeleton-wrapper.tsx` | `node_modules/react-native-reanimated/src/reanimated2/FadeIn.ts` | `ios/LaneShadow/Views/Molecules/SkeletonWrapper.swift` | Wrapper with loading/skeleton/content states × fade transition |
+| WeatherBadgeSkeleton | `react-native/components/skeleton/weather-badge-skeleton.tsx` | `node_modules/react-native/Libraries/Animated/Animated.js`; `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Molecules/WeatherBadgeSkeleton.swift` | 2 variants (compact/default) |
+| DownloadProgressIndicator (x2) | `react-native/components/model/DownloadProgressIndicator.tsx` | `node_modules/react-native/Libraries/Animated/Animated.js`; `node_modules/react-native-paper/src/components/ActivityIndicator/ActivityIndicator.tsx` | `ios/LaneShadow/Views/Molecules/DownloadProgressIndicator.swift` | 4 states (downloading/completed/failed/paused) × radial animation |
+| DownloadProgressBanner | `react-native/components/model/DownloadProgressBanner.tsx` | `node_modules/react-native/Libraries/Animated/Animated.js`; `node_modules/react-native/Libraries/Components/TouchableOpacity/TouchableOpacity.js` | `ios/LaneShadow/Views/Molecules/DownloadProgressBanner.swift` | Slim horizontal banner × slide animation × dismiss button |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper labelLarge**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1. **Paper labelSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=11, lineHeight=16, letterSpacing=0.5. **semantic.type.label.md**: fontSize=14, lineHeight=20, fontWeight=500. **semantic.type.body.sm**: fontSize=14, lineHeight=21, fontWeight=400.
+
+> **Note:** The iOS components use the same source files as Android, so the style properties are identical. Refer to UI-033 for the complete STYLE PROPERTIES MATRIX. The iOS equivalents are already documented in the Android table's "iOS equivalent" column. Key differences:
+> - Use SwiftUI native primitives: `RoundedRectangle`, `Capsule`, `Circle()`, `shadow(color:radius:y:)`
+> - Animations via `.animation(.linear(duration:).repeatForever(autoreverses:))` or `withAnimation`
+> - Shimmer effect via `.overlay(LinearGradient(...))` with offset animation
+> - Progress via `.trim(from:to:)` with rotation on `Circle()`
+> - Skeleton wrapper via `@ViewBuilder` with conditional content and `.transition(.opacity)`
+> - Reduce motion via `@Environment(\.accessibilityReduceMotion)`
+> - Spacing via `.padding(_:)` with token values
+> - Radius via `.cornerRadius(_:)` or `RoundedRectangle(cornerRadius:)` with token values
+> - Colors via `theme.colors.*` environment values
+
 ## DESIGN NOTES
 
 - Preserve RN spacing, composition hierarchy, and edge-case fixtures such as long labels, loading, and error states.

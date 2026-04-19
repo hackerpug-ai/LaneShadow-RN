@@ -39,7 +39,7 @@ BACKGROUND
 
 **Problem:** Both community scrapers (`motorcycleroads.py`, `bestbikingroads.py`) have `__main__` blocks and should be runnable as-is, but they have never been executed end-to-end against live sites as part of an Epic 2 baseline run. The BBR scraper in particular is the source of ~98.8% of the catalog per the curation-hardening PRD — if it crashes or produces wildly different counts than the ~17k expected, the entire baseline assumption collapses.
 
-**Why it matters:** BestBikingRoads is the catalog's cornerstone source. Epic 2 must prove that (a) BBR still scrapes successfully, (b) rate limits are respected, and (c) the count is in the expected 10k–20k band so dedup (Epic 6) and quality floor (Epic 6) can be planned against a real baseline. MotorcycleRoads is a smaller source but its robots.txt behavior is the canary for the scraper base class.
+**Why it matters:** BestBikingRoads is the catalog's cornerstone source. Epic 2 must prove that (a) BBR still scrapes successfully, (b) rate limits are respected, and (c) the count is in the expected 10k–20k band so dedup (Sprint 6) and quality floor (Sprint 6) can be planned against a real baseline. MotorcycleRoads is a smaller source but its robots.txt behavior is the canary for the scraper base class.
 
 **Current state:** `BaseScraper` enforces robots.txt via `RobotsChecker` and applies a rate limit per instance. `motorcycleroads.py` and `bestbikingroads.py` inherit from `BaseScraper` and already have `if __name__ == "__main__":` blocks that call `asyncio.run(main())`. Expected runtimes: MR ~1–3 minutes; BBR ~30–60 minutes depending on throttle.
 
@@ -255,8 +255,8 @@ Code Quality:
 - [ ] No staging files committed
 
 Domain-Specific:
-- [ ] BBR count in [10000, 20000] — flag if near edges for Epic 6 dedup planning
-- [ ] MR count documented for dedup overlap analysis in Epic 6
+- [ ] BBR count in [10000, 20000] — flag if near edges for Sprint 6 dedup planning
+- [ ] MR count documented for dedup overlap analysis in Sprint 6
 
 Review Verdict: [ ] APPROVED   [ ] NEEDS_FIXES
 

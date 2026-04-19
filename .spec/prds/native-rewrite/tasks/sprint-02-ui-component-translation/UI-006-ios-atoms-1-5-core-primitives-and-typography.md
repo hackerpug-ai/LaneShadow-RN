@@ -126,6 +126,119 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| ThemeText | `react-native/components/themed-text.tsx` | `node_modules/react-native-paper/src/components/Typography/Text.tsx` (variant: bodyMedium, titleSmall) | `ios/LaneShadow/Views/Atoms/ThemeText.swift` | 2 variants (default/defaultSemiBold) × 1 size × 1 state |
+| ThemeBackground | `react-native/components/themed-view.tsx` | `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Atoms/ThemeBackground.swift` | 1 variant × 1 size × 1 state |
+| ThemeIcon | `react-native/components/ui/icon-symbol.tsx`, `react-native/components/ui/icon-symbol.ios.tsx` | `node_modules/@expo/vector-icons/MaterialCommunityIcons.js` (iOS uses MaterialCommunityIcons for consistency) | `ios/LaneShadow/Views/Atoms/ThemeIcon.swift` | 1 fixed type × variable size × 1 state |
+| ThemeSeparator | `react-native/components/ui/separator.tsx` | `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Atoms/ThemeSeparator.swift` | 2 orientations (horizontal/vertical) × 1 size × 1 state |
+| ThemeDragHandle (inline) | `react-native/components/ui/drag-handle.tsx` | `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Atoms/ThemeDragHandle.swift` | 1 fixed style × 1 size × 1 state |
+| ThemeSheetHandle (inline) | `react-native/components/sheets/sheet-handle.tsx` | `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Atoms/ThemeSheetHandle.swift` | 1 fixed style × 1 size × 1 state |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper bodyMedium**: fontFamily=sans-serif, fontWeight=400, fontSize=14, lineHeight=20, letterSpacing=0.25. **Paper titleSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1.
+
+### ThemeText
+
+**Source files read:**
+- LaneShadow: `react-native/components/themed-text.tsx`
+- Framework: `node_modules/react-native-paper/src/components/Typography/Text.tsx`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Typography — default | fontFamily | Paper bodyMedium | `sans-serif` (default) | `MaterialTheme.typography.bodyMedium.fontFamily` → map to LaneShadow font | `.font(.body)` | `type.body.md.fontFamily` |
+| Typography — default | fontSize | Paper bodyMedium | 14 | `14.sp` | `14` | `type.body.md.fontSize` |
+| Typography — default | fontWeight | Paper bodyMedium | `'400'` (normal) | `FontWeight.Normal` | `.regular` | `type.body.md.fontWeight` |
+| Typography — default | lineHeight | Paper bodyMedium | 20 | `LineHeightStyle` or `lineHeight = 20.sp` | `.lineSpacing(20 - 14)` = 6 | `type.body.md.lineHeight` |
+| Typography — default | letterSpacing | Paper bodyMedium | 0.25 | `LetterSpacing(0.25.sp)` | `.tracking(0.25)` | ESCALATE — `type.body.md` missing letterSpacing; propose `0.25` |
+| Typography — defaultSemiBold | fontFamily | Paper titleSmall | `sans-serif-medium` | `MaterialTheme.typography.titleSmall.fontFamily` → map to LaneShadow font | `.font(.system(size: 14, weight: .medium))` | `type.label.md.fontWeight` |
+| Typography — defaultSemiBold | fontSize | Paper titleSmall | 14 | `14.sp` | `14` | `type.label.md.fontSize` |
+| Typography — defaultSemiBold | fontWeight | Paper titleSmall | `'500'` (medium) | `FontWeight.Medium` | `.medium` | `type.label.md.fontWeight` |
+| Typography — defaultSemiBold | lineHeight | Paper titleSmall | 20 | `20.sp` | `.lineSpacing(20 - 14)` = 6 | `type.label.md.lineHeight` |
+| Typography — defaultSemiBold | letterSpacing | Paper titleSmall | 0.1 | `LetterSpacing(0.1.sp)` | `.tracking(0.1)` | ESCALATE — `type.label.md` missing letterSpacing; propose `0.1` |
+| Visual | color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| Interaction | testID | RN-wrapper | passed via prop | `Modifier.testTag(testID)` | `.accessibilityIdentifier(testID)` | n/a |
+
+### ThemeBackground
+
+**Source files read:**
+- LaneShadow: `react-native/components/themed-view.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout | flexDirection | RN-wrapper | `'column'` | `Column(...)` | `VStack` | n/a |
+| Visual | backgroundColor | RN-wrapper | `semantic.color.surface.default` | `LaneShadowTheme.colors.surface` | `theme.colors.surface` | `color.surface.default` |
+| Visual | style | RN-wrapper | prop `style?: ViewStyle` | `Modifier.then(if style != null)` | `.background(...)` | n/a (passed through) |
+
+### ThemeIcon
+
+**Source files read:**
+- LaneShadow: `react-native/components/ui/icon-symbol.tsx`, `react-native/components/ui/icon-symbol.ios.tsx`
+- Framework: `node_modules/@expo/vector-icons/MaterialCommunityIcons.js`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout | size | RN-wrapper | prop default=24 | `Modifier.size(size.dp)` | `.frame(width: size, height: size)` | ESCALATE — propose `iconSize.default = 24` |
+| Visual | color | RN-wrapper | prop `color: string \| OpaqueColorValue` | `tint = color` | `.foregroundStyle(color)` | n/a (passed through) |
+| Visual | name | RN-wrapper | prop `name: IconName` (keyof MaterialCommunityIcons.glyphMap) | `Icon(imageVector = Icons.Default[name])` | `Image(systemName: mappedSFSymbol)` | n/a (name mapping) |
+| Visual | style | RN-wrapper | prop `style?: StyleProp<TextStyle>` | `Modifier.then(if style != null)` | `.background(...)` | n/a (passed through) |
+| Interaction | testID | RN-wrapper | passed via prop | `Modifier.testTag(testID)` | `.accessibilityIdentifier(testID)` | n/a |
+| Note | weight | RN-wrapper | prop `weight?: SymbolWeight` (unused on iOS — MaterialCommunityIcons doesn't support weight) | n/a | n/a | n/a |
+
+### ThemeSeparator
+
+**Source files read:**
+- LaneShadow: `react-native/components/ui/separator.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout — horizontal | height | RN-wrapper | hardcoded `1` | `Modifier.height(1.dp)` | `.frame(height: 1)` | ESCALATE — propose `borderWidth.thin = 1` |
+| Layout — horizontal | width | RN-wrapper | `'100%'` | `Modifier.fillMaxWidth()` | `.frame(maxWidth: .infinity)` | n/a |
+| Layout — vertical | height | RN-wrapper | `'100%'` | `Modifier.fillMaxHeight()` | `.frame(maxHeight: .infinity)` | n/a |
+| Layout — vertical | width | RN-wrapper | hardcoded `1` | `Modifier.width(1.dp)` | `.frame(width: 1)` | ESCALATE — propose `borderWidth.thin = 1` |
+| Visual | backgroundColor | RN-wrapper | `semantic.color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
+| Layout | orientation | RN-wrapper | prop `orientation?: 'horizontal' \| 'vertical'` default=`'horizontal'` | `if (orientation == vertical) Modifier.width(1.dp).fillMaxHeight() else Modifier.height(1.dp).fillMaxWidth()` | `.frame(width: orientation == vertical ? 1 : nil, height: orientation == horizontal ? 1 : nil)` | n/a |
+| Visual | style | RN-wrapper | prop `style?: ViewStyle` | `Modifier.then(if style != null)` | `.background(...)` | n/a (passed through) |
+
+### ThemeDragHandle (inline)
+
+**Source files read:**
+- LaneShadow: `react-native/components/ui/drag-handle.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout | width | RN-wrapper | prop default=36 | `Modifier.width(36.dp)` | `.frame(width: 36)` | ESCALATE — propose `size.dragHandleWidth = 36` |
+| Layout | height | RN-wrapper | prop default=4 | `Modifier.height(4.dp)` | `.frame(height: 4)` | ESCALATE — propose `size.dragHandleHeight = 4` |
+| Layout | borderRadius | RN-wrapper | prop default=2 | `RoundedCornerShape(2.dp)` | `RoundedRectangle(cornerRadius: 2)` | ESCALATE — propose `radius.dragHandle = 2` or map to `radius.sm = 4` (nearest) |
+| Layout | alignSelf | RN-wrapper | `'center'` | `Modifier.align(Alignment.CenterHorizontally)` | `.frame(maxWidth: .infinity)` | n/a |
+| Layout | marginVertical | StyleSheet | hardcoded `8` | `Modifier.padding(vertical = 8.dp)` | `.padding(.vertical, 8)` | `space.sm` ✓ |
+| Visual | backgroundColor | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
+
+### ThemeSheetHandle (inline)
+
+**Source files read:**
+- LaneShadow: `react-native/components/sheets/sheet-handle.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout — container | width | StyleSheet | `'100%'` | `Modifier.fillMaxWidth()` | `.frame(maxWidth: .infinity)` | n/a |
+| Layout — container | alignItems | StyleSheet | `'center'` | `Modifier.align(Alignment.CenterHorizontally)` | `.frame(maxWidth: .infinity)` | n/a |
+| Layout — container | justifyContent | StyleSheet | `'center'` | `Arrangement.Center` | n/a | n/a |
+| Layout — handle | width | StyleSheet | hardcoded `48` | `Modifier.width(48.dp)` | `.frame(width: 48)` | ESCALATE — propose `size.sheetHandleWidth = 48` |
+| Layout — handle | height | StyleSheet | hardcoded `5` | `Modifier.height(5.dp)` | `.frame(height: 5)` | ESCALATE — propose `size.sheetHandleHeight = 5` |
+| Layout — handle | borderRadius | StyleSheet | hardcoded `999` (full pill) | `CircleShape` or `RoundedCornerShape(999.dp)` | `Capsule()` or `RoundedRectangle(cornerRadius: 999)` | `radius.full` ✓ |
+| Visual | backgroundColor | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
+| Interaction | testID | RN-wrapper | hardcoded `'sheet-handle'` | `Modifier.testTag("sheet-handle")` | `.accessibilityIdentifier("sheet-handle")` | n/a |
+
 ## DESIGN NOTES
 
 - Cover baseline states and typography or icon behavior explicitly so later molecules inherit stable primitives.

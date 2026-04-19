@@ -133,6 +133,127 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| TurnInstructionCard | **RN baseline pending — properties derived from task spec and UC-NAV-02** | n/a (NEW component — delta) | `ios/LaneShadow/Views/Molecules/TurnInstructionCard.swift` | 1 variant (top-of-screen navigation card) × 3 states (approaching/immediate/none) × lane guidance (optional) |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper labelLarge**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1. **Paper labelSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=11, lineHeight=16, letterSpacing=0.5. **semantic.type.label.md**: fontSize=14, lineHeight=20, fontWeight=500. **semantic.type.body.sm**: fontSize=14, lineHeight=21, fontWeight=400.
+
+### TurnInstructionCard
+
+**Source files read:**
+- LaneShadow: **RN baseline pending — properties derived from task spec**
+- Framework: n/a (NEW component — delta)
+- Use case: `.spec/prds/native-rewrite/09-uc-navigation.md` (UC-NAV-02: Follow Route with Voice Instructions)
+
+> **Note**: This is a **NEW delta component** — no RN baseline exists. Properties are derived from the task description and UC-NAV-02 which specifies: "top-of-screen card with maneuver icon, street name, distance countdown, and optional lane guidance strip".
+
+**Layout — container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| width | Task spec | `'100%'` (full width, positioned at top) | `Modifier.fillMaxWidth()` | `.frame(maxWidth: .infinity)` | n/a |
+| height | Task spec | `auto` (expands to content) | `Modifier.wrapContentHeight()` | n/a | n/a |
+| padding | Task spec | `space.md` = 12 | `Modifier.padding(12.dp)` | `.padding(12)` | `space.md` |
+| borderRadius | Task spec | `radius.lg` = 16 | `RoundedCornerShape(16.dp)` | `RoundedRectangle(cornerRadius: 16)` | `radius.lg` |
+| margin | Task spec | `space.md` = 12 (from edges) | `Modifier.padding(horizontal = 12.dp, vertical = 12.dp)` | `.padding(12)` | `space.md` |
+
+**Layout — internal structure (Row):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| flexDirection | Task spec | `'row'` (icon left, text right) | `Row(...)` | `HStack` | n/a |
+| alignItems | Task spec | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
+| gap | Task spec | `space.md` = 12 | `Spacer(Modifier.width(12.dp))` | `Spacer(minLength: 12)` | `space.md` |
+
+**Layout — maneuver icon:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| iconSize | Task spec | `32` | `Modifier.size(32.dp)` | `.frame(width: 32, height: 32)` | ESCALATE — propose `iconSize.lg = 32` |
+| iconColor | Task spec | `color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| iconBackground | Task spec | `color.surface.default` | `LaneShadowTheme.colors.surface` | `theme.colors.surface` | `color.surface.default` |
+| iconBorderRadius | Task spec | `radius.md` = 8 | `RoundedCornerShape(8.dp)` | `RoundedRectangle(cornerRadius: 8)` | `radius.md` |
+| iconPadding | Task spec | `space.sm` = 8 | `Modifier.padding(8.dp)` | `.padding(8)` | `space.sm` |
+
+**Layout — text content (Column):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| flexDirection | Task spec | `'column'` (street name top, distance bottom) | `Column(...)` | `VStack` | n/a |
+| gap | Task spec | `space.xs` = 4 | `Spacer(Modifier.height(4.dp))` | `Spacer(minLength: 4)` | `space.xs` |
+
+**Typography — street name (primary):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| fontSize | Paper labelLarge | 14 | `14.sp` | `.font(.system(size: 14, weight: .medium))` | `type.label.md.fontSize` |
+| fontWeight | Paper labelLarge | `'500'` | `FontWeight.Medium` | `.medium` | `type.label.md.fontWeight` |
+| color | Task spec | `color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| lineHeight | Paper labelLarge | 20 | `LineHeightStyle` or `lineHeight = 20.sp` | `.lineSpacing(20 - 14)` = 6 | `type.label.md.lineHeight` |
+| maxLines | Task spec | `2` (truncate long names) | `maxLines = 2` | `.lineLimit(2)` | n/a |
+| overflow | Task spec | `'ellipsis'` | `overflow = TextOverflow.Ellipsis` | `.truncationMode(.tail)` | n/a |
+
+**Typography — distance (secondary):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| fontSize | Paper labelSmall | 11 | `11.sp` | `.font(.system(size: 11, weight: .medium))` | ESCALATE — `type.label.sm.fontSize = 11` |
+| fontWeight | Paper labelSmall | `'500'` | `FontWeight.Medium` | `.medium` | `type.label.sm.fontWeight` |
+| color | Task spec | `color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
+| lineHeight | Paper labelSmall | 16 | `16.sp` | `.lineSpacing(16 - 11)` = 5 | n/a |
+| text | Task spec | `"500 m"` or `"100 m"` | `Text("${distance} m")` | `Text("\(distance) m")` | n/a |
+
+**Visual — background:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| backgroundColor | Task spec | `color.surface.default` | `LaneShadowTheme.colors.surface` | `theme.colors.surface` | `color.surface.default` |
+| shadow | Task spec | `elevation[2]` | `Modifier.shadow(elevation = 2.dp)` | `.shadow(color:.black.opacity(0.05), radius: 4, y: 2)` | `elevation[2]` |
+
+**Visual — lane guidance strip (optional):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| height | Task spec | `4` | `Modifier.height(4.dp)` | `.frame(height: 4)` | ESCALATE — propose `size.laneGuidanceHeight = 4` |
+| width | Task spec | `'100%'` | `Modifier.fillMaxWidth()` | `.frame(maxWidth: .infinity)` | n/a |
+| position | Task spec | `bottom` (attached to bottom edge) | `Modifier.align(Alignment.BottomEnd)` | `.frame(maxWidth: .infinity, alignment: .bottom)` | n/a |
+| lanes | Task spec | `array of lane states` (e.g., [straight, left, straight]) | Render as colored rects | Same | n/a |
+| laneColor (active) | Task spec | `color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+| laneColor (inactive) | Task spec | `color.surfaceVariant.default` | `LaneShadowTheme.colors.surfaceVariant` | `theme.colors.surfaceVariant` | `color.surfaceVariant.default` |
+| laneSpacing | Task spec | `2` | `Spacer(Modifier.width(2.dp))` | `Spacer(minLength: 2)` | `space.xs / 2`, ESCALATE — propose `space.xxs = 2` |
+
+**Animation — card appearance:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| animationType | Task spec | `slideInFromTop` | `AnimatedVisibility(..., enter = slideInVertically())` | `.transition(.move(edge: .top))` | n/a |
+| duration | Task spec | `300ms` | `durationMillis = 300` | `0.3` | ESCALATE — propose `motion.duration.medium = 300` |
+| easing | Task spec | `easeOut` | `EaseOut` | `.easeOut` | n/a |
+
+**Interaction:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| accessibilityRole | Task spec | `'text'` (instructional) | `Modifier.semantics { role = Role.Img }` | `.accessibilityAddTraits(.isStaticText)` | n/a |
+| accessibilityLabel | Task spec | `"Turn left onto Oak Street in 500 meters"` | `contentDescription = "$maneuver $street in $distance"` | `.accessibilityLabel("\(maneuver) \(street) in \(distance)")` | n/a |
+| testID | Task spec | passed via prop | `Modifier.testTag(testID)` | `.accessibilityIdentifier(testID)` | n/a |
+
+**State — props:**
+
+| State | Source | Type | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| maneuver | Task spec | `String` ("Turn left", "Turn right", "U-turn") | `val maneuver: String` | `var maneuver: String` | n/a |
+| street | Task spec | `String` | `val street: String` | `var street: String` | n/a |
+| distance | Task spec | `Int` (meters) | `val distance: Int` | `var distance: Int` | n/a |
+| laneGuidance | Task spec | `List<Bool>?` (optional) | `val laneGuidance: List<Boolean>?` | `var laneGuidance: [Bool]?` | n/a |
+
 ## DESIGN NOTES
 
 - Treat parity as spec-driven against the delta composition contract when no RN baseline story exists.

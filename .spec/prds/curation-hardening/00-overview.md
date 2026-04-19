@@ -59,4 +59,4 @@ Build four layers of pipeline hardening:
 
 **Timeline:** 6 weeks (full feature with polish)
 **Team:** 1 full-stack developer
-**Scope note (2026-04-16):** This is a backend pipeline initiative. All frontend work (Epic 11: Mobile UI — New Field Display) has been deferred to the [native-rewrite PRD](../../native-rewrite/07-native-app-backlog.md). The client is transitioning from React Native to native Kotlin (Android) + Swift (iOS). The pipeline still produces all data fields (surface, qualityTier, bestMonths, etc.) for the native apps to consume — only the React Native consumption layer is deferred.
+**Scope note (2026-04-16):** This is a backend pipeline initiative. All frontend work (Sprint 11: Mobile UI — New Field Display) has been deferred to the [native-rewrite PRD](../../native-rewrite/07-native-app-backlog.md). The client is transitioning from React Native to native Kotlin (Android) + Swift (iOS). The pipeline still produces all data fields (surface, qualityTier, bestMonths, etc.) for the native apps to consume — only the React Native consumption layer is deferred.

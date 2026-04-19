@@ -126,6 +126,47 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| ThemeMapHeaderOverlay | `react-native/components/map/map-header-overlay.tsx` | `expo-linear-gradient` (LinearGradient); `react-native-safe-area-context` (useSafeAreaInsets) | `ios/LaneShadow/Views/Molecules/ThemeMapHeaderOverlay.swift` | 2 layouts (with/without background) × optional left/right actions |
+| MapControls | `react-native/components/map/map-controls.tsx` | `react-native/Libraries/Components/Pressable/Pressable.js`; `react-native-paper/src/components/Icon/Icon.js` | `ios/LaneShadow/Views/Molecules/MapControls.swift` | 2 modes (map/chat) × 5 buttons (zoom in/out/recenter/layers/save) × optional labels |
+| ThemeMapPlanningIndicator | `react-native/components/map/map-planning-indicator.tsx` | `react-native-reanimated` (FadeIn/FadeOut); `react-native/Libraries/Components/ActivityIndicator/ActivityIndicator.js` | `ios/LaneShadow/Views/Molecules/ThemeMapPlanningIndicator.swift` | 1 layout × visible/hidden × bottom offset positioning |
+| ThemeMinimalOverlayWidget | `react-native/components/map/minimal-overlay-widget.tsx` | `react-native-reanimated` (spring/timing animations); `react-native/Libraries/Components/Pressable/Pressable.js` | `ios/LaneShadow/Views/Molecules/ThemeMinimalOverlayWidget.swift` | 3 overlays (wind/rain/temperature) × 2 states (collapsed/expanded) × availability flags |
+| ThemeMinimalOverlayWidgetPreview | `react-native/components/map/minimal-overlay-widget-preview.tsx` | `react-native/Libraries/Components/ScrollView/ScrollView.js` (horizontal); `react-native/Libraries/Components/Pressable/Pressable.js` | `ios/LaneShadow/Sandbox/Stories/ThemeMinimalOverlayWidgetPreviewStories.swift` | 4 scenarios (all/wind-only/rain+temp/none) × demo showcase |
+| ThemeOverlayToggle | `react-native/components/map/overlay-toggle.tsx` | `react-native/Libraries/Components/Pressable/Pressable.js`; `react-native-paper/src/components/ToggleGroup/ToggleGroup.js` | `ios/LaneShadow/Views/Molecules/ThemeOverlayToggle.swift` | 3 overlays (wind/rain/temperature) × single-select × disabled states |
+| ThemePlanFAB | `react-native/components/map/plan-fab.tsx` | `react-native-safe-area-context` (useSafeAreaInsets); `react-native-paper/src/components/IconButton/IconButton.js` | `ios/LaneShadow/Views/Molecules/ThemePlanFAB.swift` | 1 fixed layout × safe-area bottom positioning |
+| SearchResultMarker | `react-native/components/map/search-result-marker.tsx` | `@rnmapbox/maps` (MarkerView); `expo-haptics` (Haptics.impactAsync); `react-native-svg` (Svg, Circle) | `ios/LaneShadow/Views/Molecules/SearchResultMarker.swift` | Numbered marker (1-based index) × 2 states (default/selected) × tap feedback |
+| WaypointMarker | `react-native/components/map/waypoint-marker.tsx` | `@rnmapbox/maps` (MarkerView); `expo-haptics` (Haptics.impactAsync); `react-native-svg` (Svg, Circle, Path, G) | `ios/LaneShadow/Views/Molecules/WaypointMarker.swift` | Pin-shaped marker × 3 kinds (on-route/off-route/mixed) × 4 states (default/selected/pressed/disabled) × optional index |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper labelLarge**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1. **Paper labelSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=11, lineHeight=16, letterSpacing=0.5. **semantic.type.label.md**: fontSize=14, lineHeight=20, fontWeight=500. **semantic.type.body.sm**: fontSize=14, lineHeight=21, fontWeight=400.
+
+> **NOTE:** iOS equivalents below reference SwiftUI modifiers. For detailed Android mappings, see UI-025 (Android molecules 6/12) which shares the same RN wrapper sources.
+
+### ThemeMapHeaderOverlay, MapControls, ThemeMapPlanningIndicator, ThemeMinimalOverlayWidget, ThemeOverlayToggle, ThemePlanFAB, SearchResultMarker, WaypointMarker
+
+> **NOTE:** For all map overlay UI components, the iOS mappings follow the same pattern as Android — using SwiftUI equivalents for React Native primitives. See UI-025 for complete property matrices. Key differences:
+> - `View` → `VStack`/`HStack`/`ZStack`
+> - `Text` → `Text` with `.font()` modifiers
+> - `Pressable` → `Button` with `.buttonStyle()`
+> - `ScrollView` → `ScrollView`/`LazyHStack`/`LazyVStack`
+> - `ActivityIndicator` → `ProgressView()` (iOS native activity indicator)
+> - `Animated.View` with `FadeIn/FadeOut` → `.transition(.opacity)` or `.animation()`
+> - `StyleSheet.hairlineWidth` → `1` (use explicit 1pt on iOS)
+> - `rgba()` color utilities → `.opacity()` modifier on Color
+> - `useSemanticTheme()` → `@Environment(\.theme)` or `.laneShadowTheme()` modifier
+> - `useSafeAreaInsets()` → `GeometryReader` { $0.safeAreaInsets } or `.safeAreaInset()`
+> - `@rnmapbox/maps` (MarkerView) → Mapbox SDK for iOS native annotations
+> - `expo-haptics` (Haptics.impactAsync) → `UIImpactFeedbackGenerator(style: .light).impactOccurred()`
+> - `react-native-svg` → SwiftUI native `Shape` or `Path` drawing with `Circle()`
+> - `expo-linear-gradient` → SwiftUI native `LinearGradient`
+> - `react-native-reanimated` animations → SwiftUI native `.animation(.spring())` or `.transition()`
+
 ## DESIGN NOTES
 
 - Preserve RN spacing, composition hierarchy, and edge-case fixtures such as long labels, loading, and error states.

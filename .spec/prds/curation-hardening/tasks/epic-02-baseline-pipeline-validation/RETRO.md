@@ -157,11 +157,11 @@ The `crawl_plan/` module was built generic from day 1. Forms A (MR, BBR) both co
 - INF-011 added `us_states.py` + parser post-processing as a new cascade without modifying `canonicalize()`, `classify()`, `discover()`, or `run_crawl()`.
 - The framework unit tests (`test_crawl_plan_framework.py`) were extended by 40+ tests for us_states without changing existing tests.
 
-Epic 4 (SRC-001 GIS, SRC-006 Rider Magazine) and Epic 9 (RID-001 ADVRider RSS, RID-002 Reddit, RID-006 Pushshift) will extend the framework via adapter layers. No framework rewrite is anticipated.
+Epic 4 (SRC-001 GIS, SRC-006 Rider Magazine) and Sprint 9 (RID-001 ADVRider RSS, RID-002 Reddit, RID-006 Pushshift) will extend the framework via adapter layers. No framework rewrite is anticipated.
 
 ### 5. Honest verdicts throughout
 
-Every verdict in the arc is traceable to measurement. No "PASS WITH NOTES" softening. When something couldn't honestly pass (e.g., the 17 remaining MR cross-country records), it was documented as a non-blocking follow-up with a tracked stub (INF-011 Phase 2 → Epic 10).
+Every verdict in the arc is traceable to measurement. No "PASS WITH NOTES" softening. When something couldn't honestly pass (e.g., the 17 remaining MR cross-country records), it was documented as a non-blocking follow-up with a tracked stub (INF-011 Phase 2 → Sprint 10).
 
 The Epic 2 `review.md` verdict upgrade from "PASS WITH ISSUES" to "PASS" was backed by:
 - 5,768 records in combined staging
@@ -217,7 +217,7 @@ The Alabama-stamped Blue Ridge Parkway was the observable symptom. The underlyin
 
 **Recovery:** Crawl Plan Protocol adopted as cross-cutting methodology; BASE-009 inserted as retroactive remediation; two protocol-level operational rules elevated.
 
-**Lasting impact:** Future source tasks (Epic 4, Epic 9) cannot repeat this pattern. The protocol's Phase 0-6 gates + the `crawl_plan/` framework's fail-closed parsing make blind-selector crawlers structurally impossible.
+**Lasting impact:** Future source tasks (Epic 4, Sprint 9) cannot repeat this pattern. The protocol's Phase 0-6 gates + the `crawl_plan/` framework's fail-closed parsing make blind-selector crawlers structurally impossible.
 
 ### 2. Python module cache trap
 
@@ -303,17 +303,17 @@ During the retro / cleanup phase, the user's parallel waypoint research left `.s
 
 ### Shortly after (Epic 3 scope)
 
-3. **INF-011 Phase 2** — NLP-based state extraction from route names for the 17 remaining MR cross-country records (`united-states`, `northeast`, `midwest`, etc.). Currently deferred to Epic 10 where the NLP pipeline lives. Could also land in Epic 3 if a simpler regex heuristic suffices.
+3. **INF-011 Phase 2** — NLP-based state extraction from route names for the 17 remaining MR cross-country records (`united-states`, `northeast`, `midwest`, etc.). Currently deferred to Sprint 10 where the NLP pipeline lives. Could also land in Epic 3 if a simpler regex heuristic suffices.
 
-### Medium-term (Epic 6 scope)
+### Medium-term (Sprint 6 scope)
 
-4. **Quality floor — state name vs URL state cross-check.** The Tier 2 human test uncovered a BBR source-data bug: `Spring Green - Barneveld` is filed under BBR's `/illinois/ride/...` path but both towns are in Wisconsin. The framework faithfully extracted Illinois as `state_primary` because that's what BBR's URL says. A downstream quality rule should cross-check the state name against route-name text (e.g., NLP-extracted place names, or a geocoding fallback). Track in Epic 6 QUAL-002 or similar.
+4. **Quality floor — state name vs URL state cross-check.** The Tier 2 human test uncovered a BBR source-data bug: `Spring Green - Barneveld` is filed under BBR's `/illinois/ride/...` path but both towns are in Wisconsin. The framework faithfully extracted Illinois as `state_primary` because that's what BBR's URL says. A downstream quality rule should cross-check the state name against route-name text (e.g., NLP-extracted place names, or a geocoding fallback). Track in Sprint 6 QUAL-002 or similar.
 5. **Cross-country route model.** The 11 `united-states` MR records are legitimately multi-state tour routes that span many states. A `is_cross_country: bool` flag in the Route model (Epic 3 INF-002) would let downstream consumers treat them as first-class rather than flagging them as "non-canonical state_primary".
 
-### Long-term (Epic 10+ scope)
+### Long-term (Sprint 10+ scope)
 
-6. **Module hash-at-load-time check.** A framework-level defense against the Python module cache trap: on module load, compute `hashlib.sha256(open(__file__,'rb').read())`; on each call, re-check; raise if the file on disk has changed. Rejected for INF-011 scope as YAGNI / Epic 12 orchestrator concern. Documented for future reference.
-7. **PID file + heartbeat supervisor.** A framework-level defense against session death orphaning crawlers: the crawler writes a PID + last-progress timestamp periodically; a supervisor detects staleness and alerts/restarts. Rejected for BASE-009 scope as Epic 12 orchestrator concern. Documented for future reference.
+6. **Module hash-at-load-time check.** A framework-level defense against the Python module cache trap: on module load, compute `hashlib.sha256(open(__file__,'rb').read())`; on each call, re-check; raise if the file on disk has changed. Rejected for INF-011 scope as YAGNI / Sprint 12 orchestrator concern. Documented for future reference.
+7. **PID file + heartbeat supervisor.** A framework-level defense against session death orphaning crawlers: the crawler writes a PID + last-progress timestamp periodically; a supervisor detects staleness and alerts/restarts. Rejected for BASE-009 scope as Sprint 12 orchestrator concern. Documented for future reference.
 
 ### Meta / tooling
 
@@ -330,14 +330,14 @@ The BASE-009a/b framework and protocol rules propagate forward:
 | Future epic | How it inherits |
 |---|---|
 | **Epic 3 INF-001..007** | Extends Route model with `state_primary` + `states_all`; migrates Convex schema; enables downstream consumers to treat multi-state as first-class |
-| **Epic 3 INF-011** (new stub) | Completes the `US_STATES` normalization work for framework cross-source use; Phase 2 NLP extraction deferred to Epic 10 |
+| **Epic 3 INF-011** (new stub) | Completes the `US_STATES` normalization work for framework cross-source use; Phase 2 NLP extraction deferred to Sprint 10 |
 | **Epic 4 SRC-001** (Scenic Byways GIS) | Form B adapter on the `crawl_plan/` framework; inherits canonicalize, classify, parser, executor, us_states normalization |
 | **Epic 4 SRC-006** (Rider Magazine 50 Best) | Form A adapter (like MR/BBR); framework consumed unchanged |
 | **Epic 4 SRC-004** (curvature discovery) | Form E — exempt from Crawl Plan Protocol (pre-computed file consumer) |
-| **Epic 9 RID-001** (ADVRider RSS) | Form C adapter — XML/feedparser layer on top of the `crawl_plan/` framework |
-| **Epic 9 RID-002** (Reddit OAuth2) | Form D adapter — cursor-pagination layer |
-| **Epic 9 RID-006** (Pushshift backfill) | Form D variant with date-range windowing |
-| **Epic 12 orchestrator** | Inherits `urls.jsonl` inventories as fan-out units, `audit.json` as success gates, `.progress` files for resumability. May land the deferred module-hash + PID-supervisor defenses from this arc's lessons. |
+| **Sprint 9 RID-001** (ADVRider RSS) | Form C adapter — XML/feedparser layer on top of the `crawl_plan/` framework |
+| **Sprint 9 RID-002** (Reddit OAuth2) | Form D adapter — cursor-pagination layer |
+| **Sprint 9 RID-006** (Pushshift backfill) | Form D variant with date-range windowing |
+| **Sprint 12 orchestrator** | Inherits `urls.jsonl` inventories as fan-out units, `audit.json` as success gates, `.progress` files for resumability. May land the deferred module-hash + PID-supervisor defenses from this arc's lessons. |
 
 Every future source task has a mandatory CRAWL-PLAN-PROTOCOL acceptance criteria block and a pre-verification gate at CURATION-REVIEW-PROTOCOL Step 1.
 

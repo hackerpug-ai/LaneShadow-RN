@@ -95,7 +95,7 @@ This appetite supports Week 0 validation to de-risk technical assumptions, follo
 
 ### Deferred to Native-Rewrite (2026-04-16)
 
-Epic 11 (Mobile UI — New Field Display) has been deferred to the [native-rewrite PRD](../../native-rewrite/07-native-app-backlog.md). The client is transitioning from React Native to native Kotlin (Android) + Swift (iOS). Writing React Native UI components now would be throwaway work.
+Sprint 11 (Mobile UI — New Field Display) has been deferred to the [native-rewrite PRD](../../native-rewrite/07-native-app-backlog.md). The client is transitioning from React Native to native Kotlin (Android) + Swift (iOS). Writing React Native UI components now would be throwaway work.
 
 **What is deferred (consumption layer only):**
 - Surface type badge on route discovery cards (DESIGN-008)
@@ -106,10 +106,10 @@ Epic 11 (Mobile UI — New Field Display) has been deferred to the [native-rewri
 **What is NOT deferred (production layer — stays in this initiative):**
 - All pipeline data fields are still produced: `surface`, `qualityTier`, `bestMonths`, `description`, `rating`, `sourceCount`, `mentionFrequency`, `weatherSuitability`
 - Convex schema (Epic 3 INF-003) still adds these optional fields
-- Pipeline output (Epic 12 orchestrator) still pushes these fields to Convex
+- Pipeline output (Sprint 12 orchestrator) still pushes these fields to Convex
 - The native apps will consume these fields via the same Convex API
 
-**Data contract guarantee:** The curation-hardening pipeline ensures all fields listed in `09-technical-requirements.md` exist in Convex as `v.optional()` columns by Epic 12 completion. The native-rewrite PRD documents these fields as the consumption contract.
+**Data contract guarantee:** The curation-hardening pipeline ensures all fields listed in `09-technical-requirements.md` exist in Convex as `v.optional()` columns by Sprint 12 completion. The native-rewrite PRD documents these fields as the consumption contract.
 
 ### Rationale for Exclusions
 

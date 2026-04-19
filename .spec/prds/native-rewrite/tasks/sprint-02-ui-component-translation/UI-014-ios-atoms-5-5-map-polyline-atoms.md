@@ -126,6 +126,113 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| RoutePolyline (utility) | `react-native/components/map/route-polyline.tsx` | `server/lib/polyline` (decodePolylineGeometry, slicePolylineByMeters, computeCumulativeDistances); `react-native/components/lib/map/overlay-colors.ts` (getWindColor, getRainColor, getTemperatureColor) | `ios/LaneShadow/Views/Atoms/RoutePolylineBuilder.swift` | Pure utility — no UI; builds `BuiltPolyline[]` arrays with coordinates, strokeColor, strokeWidth |
+| RoutePolylineComponent | `react-native/components/map/route-polyline-component.tsx` | `@rnmapbox/maps` — ShapeSource, LineLayer; `@mapbox/polyline` — PolylineEncoder.encode; `expo-haptics` — Haptics.impactAsync; `react-native-paper` — useTheme | `ios/LaneShadow/Views/Atoms/RoutePolylineView.swift` | Mapbox rendering: ShapeSource + LineLayer per segment; tap-to-select with haptic feedback; highlighted state (selectedSegmentId or activeSegment) |
+| DeviationPolyline | `react-native/components/map/deviation-polyline.tsx` | `@rnmapbox/maps` — ShapeSource, LineLayer; `react-native/components/lib/mapbox/coordinate-converter.ts` (convertCoordinateArray) | `ios/LaneShadow/Views/Atoms/DeviationPolylineView.swift` | 3 segment types (original/detour/reconnect) × isActive state × strokeWidth prop |
+
+> **iOS platform note:** iOS uses Mapbox iOS SDK (`MapboxMap` module) or native MapKit (`MKPolylineRenderer` / `MKOverlayPathRenderer`). The RN baseline uses `@rnmapbox/maps`, which wraps Mapbox GL Native. iOS translation should use Mapbox iOS SDK's `MGLPolyline` / `MGLLineStyleLayer` for parity, or MapKit's `MKPolyline` + `MKPolylineRenderer` if targeting Apple Maps. Coordinate format: RN stores Google-format `{latitude, longitude}`; Mapbox expects `[longitude, latitude]` — conversion required (see `convertCoordinateArray` in RN lib).
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | iOS equivalent (Mapbox / MapKit) | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowColor=#000, shadowOffset={0,2}, shadowOpacity=0.05, shadowRadius=4.
+
+### RoutePolyline (utility builder)
+
+**Source files read:**
+- LaneShadow: `react-native/components/map/route-polyline.tsx`
+- Framework: `server/lib/polyline.ts` (geometry utilities), `react-native/components/lib/map/overlay-colors.ts` (semantic color lookups)
+
+| Category | Property | Source | Value in source | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|
+| Data | overviewGeometry | RN-wrapper | `PolylineGeometry` (encoded string) | Decode via `Polyline` utility or Mapbox's `MGLPolylineFeature` | n/a (data format) |
+| Data | leg geometry | RN-wrapper | `RouteLeg[].geometry` (encoded per leg) | Same as above | n/a |
+| Data | coordinates | RN-wrapper | `decodePolylineGeometry()` returns `MapLatLng[] = {latitude, longitude}[]` | Convert to `[CLLocationCoordinate2D]` for MapKit or `[[lng, lat]]` for Mapbox | n/a |
+| Visual | overview.strokeColor (selected) | RN-wrapper | `semantic.color.routeSelected.default` | `LaneShadowTheme.colors.routeSelected` → MGLStyle layer `lineColor` | `color.routeSelected.default` |
+| Visual | overview.strokeColor (alternate) | RN-wrapper | `semantic.color.routeAlternate.default` | `LaneShadowTheme.colors.routeAlternate` → same | `color.routeAlternate.default` |
+| Visual | overview.strokeWidth | RN-wrapper | hardcoded `6` | `MGLLineStyleLayer.lineWidth = 6` (Mapbox) or `MKPolylineRenderer.lineWidth = 6` (MapKit) | ESCALATE — propose `strokeWidth.routeOverview = 6` |
+| Visual | leg.strokeColor (selected) | RN-wrapper | `semantic.color.routeSelected.default` | `LaneShadowTheme.colors.routeSelected` | `color.routeSelected.default` |
+| Visual | leg.strokeColor (unselected) | RN-wrapper | `semantic.color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `color.onSurface.muted` |
+| Visual | leg.strokeWidth | RN-wrapper | hardcoded `4` | `lineWidth = 4` | ESCALATE — propose `strokeWidth.routeLeg = 4` |
+| Visual | wind overlay.strokeWidth | RN-wrapper | hardcoded `6` | `lineWidth = 6` | ESCALATE — same as above |
+| Visual | rain overlay.strokeWidth | RN-wrapper | hardcoded `6` | `lineWidth = 6` | ESCALATE — same |
+| Visual | temperature overlay.strokeWidth | RN-wrapper | hardcoded `6` | `lineWidth = 6` | ESCALATE — same |
+| Visual | wind overlay colors | overlay-colors.ts | `getWindColor(level, semantic)` — maps level to semantic colors (success/warning/danger) | Use same color lookup via `LaneShadowTheme.colors` | Depends on overlay level — see overlay-colors.ts source |
+| Visual | rain overlay colors | overlay-colors.ts | `getRainColor(level, semantic)` | Same | Same |
+| Visual | temperature overlay colors | overlay-colors.ts | `getTemperatureColor(level, semantic)` | Same | Same |
+| Data | segment ID format | RN-wrapper | `"{routeId-}{type}-{legIndex}-{startMeters}-{endMeters}"` | Keep for parity | n/a |
+| Data | slicing | RN-wrapper | `slicePolylineByMeters(coords, distances, start, end)` | Implement on iOS via `CLLocation` distance math or reuse Polyline utility | n/a (algorithm) |
+
+---
+
+### RoutePolylineComponent (Mapbox renderer)
+
+**Source files read:**
+- LaneShadow: `react-native/components/map/route-polyline-component.tsx`
+- Framework: `@rnmapbox/maps` (ShapeSource, LineLayer), `@mapbox/polyline` (PolylineEncoder), `expo-haptics`, `react-native-paper` (useTheme)
+
+> **iOS rendering strategy:** Use Mapbox iOS SDK's `MGLShapeSource` + `MGLLineStyleLayer` (via Swift Mapbox wrapper). For MapKit parity, use `MKPolyline` + `MKPolylineRenderer` with custom `strokeColor` / `lineWidth` per segment. Coordinate conversion required: Google `{lat, lng}` → MapKit `CLLocationCoordinate2D(latitude:, longitude:)` or Mapbox `[lng, lat]`.
+
+| Category | Property | Source | Value in source | iOS equivalent (Mapbox / MapKit) | Token mapping |
+|---|---|---|---|---|---|
+| Layout | coordinate format | RN-wrapper | `{latitude, longitude}` per point | Convert to `CLLocationCoordinate2D` (MapKit) or `[lng, lat]` tuple (Mapbox) | n/a (data format) |
+| Layout | GeoJSON FeatureCollection | RN-wrapper | `buildLineFeature()` returns `{type: 'FeatureCollection', features: [{type: 'Feature', geometry: {type: 'LineString', coordinates: [lng, lat]}}]}` | Mapbox: `MGLShapeSource(identifier:data:)` with `MGLPolylineFeature`; MapKit: `MKPolyline(coordinates:count:)` | n/a |
+| Visual | lineCap (all segments) | RN-wrapper | `'round'` via LineLayer | `MGLLineStyleLayer.lineCap = .round` (Mapbox) or `MKPolylineRenderer.lineCapStyle = .round` (MapKit, iOS 16+) | n/a |
+| Visual | lineJoin (all segments) | RN-wrapper | `'round'` via LineLayer | `MGLLineStyleLayer.lineJoin = .round` (Mapbox) or `MKPolylineRenderer.lineJoinStyle = .round` (MapKit) | n/a |
+| Visual | lineOpacity (all segments) | RN-wrapper | `1.0` via LineLayer | `MGLLineStyleLayer.lineOpacity = 1.0` (Mapbox) or `MKPolylineRenderer.alpha = 1.0` (MapKit) | n/a |
+| Visual | strokeColor (normal) | RN-wrapper | `polyline.strokeColor` from `BuiltPolyline` | `MGLLineStyleLayer.lineColor = .constant(color)` or `renderer.strokeColor` | From `BuiltPolyline.strokeColor` (semantic token) |
+| Visual | strokeColor (highlighted) | RN-wrapper | `semantic.color.tertiary.default` | `LaneShadowTheme.colors.tertiary` | `color.tertiary.default` |
+| Visual | strokeWidth (normal) | RN-wrapper | `polyline.strokeWidth ?? semantic.space.sm / 2` (default 4) | `MGLLineStyleLayer.lineWidth = 4` or `renderer.lineWidth = 4` | `space.sm / 2` = 4 ✓ |
+| Visual | strokeWidth (highlighted) | RN-wrapper | `semantic.space.sm` (8) | `lineWidth = 8` | `space.sm` = 8 ✓ |
+| Visual | strokeColor fallback | RN-wrapper | If no `strokeColor` on polyline, uses `polyline.strokeColor ??` normal width | Same | n/a |
+| Interaction | tap gesture | RN-wrapper | `ShapeSource.onPress` — triggers `handlePress` | Mapbox: `MGLMapView.delegate` tap detection + `MGLPolyline.contains()`; MapKit: `MKMapView.delegate` `didSelectAnnotation` or gesture recognizer on overlay | n/a |
+| Interaction | haptic feedback | RN-wrapper | `Haptics.impactAsync(ImpactFeedbackStyle.Medium)` | `UIImpactFeedbackGenerator(style: .medium).impactOccurred()` | n/a |
+| Interaction | selectedSegmentId | RN-wrapper | prop `selectedSegmentId?: string` | Bind to `@State var selectedSegmentId: String?` | n/a |
+| Interaction | activeSegment (internal) | RN-wrapper | `useState<string \| null>(null)` | `@State var activeSegmentId: String? = nil` | n/a |
+| Interaction | highlight condition | RN-wrapper | `selectedSegmentId === polyline.id \|\| activeSegment === polyline.id` | Same logic in Swift | n/a |
+| Data | segment ID parsing | RN-wrapper | `parseSegmentId()` extracts type and legIndex from IDs like `"leg-0"`, `"wind-1-500-1500"` | Implement same parsing | n/a |
+| Data | bounds calculation | RN-wrapper | `calculateBounds()` returns `{northEast, southWest}` with max/min lat/lng | Use `MKMapPoint` for bounding box or `MGLCoordinateBounds` (Mapbox) | n/a |
+| Data | geometry encoding | RN-wrapper | `PolylineEncoder.encode(points)` — Google polyline format | Use `GMSPolyline` (Google Maps SDK) or implement encoder; Mapbox uses GeoJSON | n/a |
+| Data | callback payload | RN-wrapper | `SegmentSelectData = {geometry, bounds, legIndex?, segmentType, segmentId}` | Same struct in Swift | n/a |
+| Accessibility | testID | RN-wrapper | `testID` prop + `--segment-{id}` suffix | `.accessibilityIdentifier(testID + "-segment-" + id)` | n/a |
+| Accessibility | accessibilityLabel | RN-wrapper | NOT SET in RN source | Add `.accessibilityLabel("Route segment \(type)")` | ESCALATE — propose accessibility labels |
+
+---
+
+### DeviationPolyline
+
+**Source files read:**
+- LaneShadow: `react-native/components/map/deviation-polyline.tsx`
+- Framework: `@rnmapbox/maps` (ShapeSource, LineLayer), `react-native/components/lib/mapbox/coordinate-converter.ts` (convertCoordinateArray)
+
+| Category | Property | Source | Value in source | iOS equivalent (Mapbox / MapKit) | Token mapping |
+|---|---|---|---|---|---|
+| Layout | coordinate format | RN-wrapper | `{latitude, longitude}` per point | Convert to `CLLocationCoordinate2D` or `[lng, lat]` | n/a |
+| Visual | lineCap (all segments) | RN-wrapper | `'round'` via LineLayer | `MGLLineStyleLayer.lineCap = .round` or `MKPolylineRenderer.lineCapStyle = .round` | n/a |
+| Visual | lineJoin (all segments) | RN-wrapper | `'round'` via LineLayer | `MGLLineStyleLayer.lineJoin = .round` or `MKPolylineRenderer.lineJoinStyle = .round` | n/a |
+| Visual | lineOpacity (all segments) | RN-wrapper | `1.0` via LineLayer | `lineOpacity = 1.0` or `alpha = 1.0` | n/a |
+| Visual | original segment color | RN-wrapper | `semantic.color.deviationOriginalRoute?.default ?? semantic.color.muted.default` | `LaneShadowTheme.colors.deviationOriginalRoute` or fallback to `.muted` | `color.deviationOriginalRoute.default` (ESCALATE if missing) |
+| Visual | detour segment color | RN-wrapper | `semantic.color.deviationDetourPath?.default ?? semantic.color.orange.default` | `LaneShadowTheme.colors.deviationDetourPath` or fallback to `.orange` | `color.deviationDetourPath.default` (ESCALATE if missing) |
+| Visual | reconnect segment color | RN-wrapper | `semantic.color.deviationReconnectPoint?.default ?? semantic.color.success.default` | `LaneShadowTheme.colors.deviationReconnectPoint` or fallback to `.success` | `color.deviationReconnectPoint.default` (ESCALATE if missing) |
+| Visual | strokeWidth (inactive) | RN-wrapper | `strokeWidth` prop (default 4) | `lineWidth = strokeWidth` | ESCALATE — propose `strokeWidth.deviationInactive = 4` |
+| Visual | strokeWidth (active) | RN-wrapper | `strokeWidth + 2` (default 6) | `lineWidth = strokeWidth + 2` | ESCALATE — propose `strokeWidth.deviationActive = 6` |
+| Visual | fallback color | RN-wrapper | `semantic.color.muted.default` for unknown segment types | `LaneShadowTheme.colors.muted` | `color.muted.default` |
+| Interaction | isActive | RN-wrapper | `isActive?: boolean` prop | `@Binding var isActive: Bool` or `@State var isActive` | n/a |
+| Data | segment type | RN-wrapper | `DeviationSegmentType = 'original' \| 'detour' \| 'reconnect'` | Swift enum `DeviationSegmentType` | n/a |
+| Data | DeviationSegment | RN-wrapper | `{type: DeviationSegmentType, coordinates: [...]}` | Swift struct with same shape | n/a |
+| Data | coordinates validation | RN-wrapper | Skip segments with `< 2` coordinates | Same guard in Swift | n/a |
+| Accessibility | testID | RN-wrapper | `testID` prop + `-{type}-{index}` suffix | `.accessibilityIdentifier(testID + "-" + type + "-" + index)` | n/a |
+| Accessibility | accessibilityLabel | RN-wrapper | NOT SET in RN source | Add `.accessibilityLabel("Deviation \(type)")` | ESCALATE — propose labels |
+
+> **Note on overlay color tokens:** The RN source uses semantic color tokens that may not exist in `semantic.tokens.json`: `deviationOriginalRoute`, `deviationDetourPath`, `deviationReconnectPoint`. If these are missing, implementer should ESCALATE to `DECISIONS.md` with proposed token values before implementing.
+
+---
+
 ## DESIGN NOTES
 
 - Cover baseline states and typography or icon behavior explicitly so later molecules inherit stable primitives.

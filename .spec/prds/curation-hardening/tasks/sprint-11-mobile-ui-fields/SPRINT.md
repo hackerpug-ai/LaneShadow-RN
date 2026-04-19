@@ -1,4 +1,4 @@
-# Epic 11: Mobile UI — New Field Display
+# Sprint 11: Mobile UI — New Field Display
 
 **Sequence:** 11 / 11
 **Priority:** P1
@@ -39,7 +39,7 @@ After all 4 tasks are complete, a user should be able to:
 11. **Component tests pass** — Run `npx jest components/ui/route-option-card components/discovery/discovery-filter-bar components/sheets/route-details-sheet`. Verify all pass.
 12. **SQLite sync extended** — Run `lib/discovery/sync-lean.ts` tests. Verify new columns `surface`, `quality_tier`, `best_months` (JSON TEXT) exist and round-trip correctly through `bulkSyncLeanRoutes` and `queryByBoundingBox`.
 
-13. **Execute the Curation Review Protocol** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. Applicable: ALL steps (1-12). **Diff against the most recent baseline (likely Epic 10 if run in sequence, or Epic 3 if Epic 11 runs in parallel with Epic 4-10). Verify pipeline outputs unchanged by mobile UI work — Epic 11 is pure consumer, not producer. Then run the mobile smoke test: open app, verify surface filter works with real data, verify community signals visible on details sheet, verify zero visual regression.** Write `review.md` with verdict PASS including the mobile smoke test results.
+13. **Execute the Curation Review Protocol** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. Applicable: ALL steps (1-12). **Diff against the most recent baseline (likely Sprint 10 if run in sequence, or Epic 3 if Sprint 11 runs in parallel with Epic 4-10). Verify pipeline outputs unchanged by mobile UI work — Sprint 11 is pure consumer, not producer. Then run the mobile smoke test: open app, verify surface filter works with real data, verify community signals visible on details sheet, verify zero visual regression.** Write `review.md` with verdict PASS including the mobile smoke test results.
 
 All 13 verifications must pass. **Zero visual regression on routes without new fields.**
 
@@ -91,7 +91,7 @@ These are the 4 DESIGN tasks produced by the UID agent analysis.
 ## Dependencies
 
 **Blocks:**
-- (none — Epic 11 is independent of Epic 12)
+- (none — Sprint 11 is independent of Sprint 12)
 
 **Depends On:**
 - Epic 3: Foundation (INF-003 Convex schema with new fields must exist)
@@ -109,7 +109,7 @@ These are the 4 DESIGN tasks produced by the UID agent analysis.
 - [ ] Route details sheet shows rich Rider Mag descriptions
 - [ ] Curation Review Protocol executed with PASS verdict (mobile smoke test included)
 - [ ] `review.md` committed with mobile smoke test results
-- [ ] User has approved proceeding to Epic 12
+- [ ] User has approved proceeding to Sprint 12
 
 ---
 

@@ -126,6 +126,289 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| ThemeWeatherPill | `react-native/components/ui/weather-pill.tsx` | `node_modules/react-native/Libraries/Components/View/View.js` (View); `node_modules/react-native-paper/src/styles/themes/v3/tokens.tsx` (useTheme) | `ios/LaneShadow/Views/Molecules/ThemeWeatherPill.swift` | 1 layout × iconSize (default 16) × backgroundColor override × textColor override |
+| ThemeTemperatureBadge | `react-native/components/ui/temperature-badge.tsx` | `react-native/components/ui/badge.tsx` (Badge); `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Molecules/ThemeTemperatureBadge.swift` | 5 temperature levels (cold/mild/warm/hot/unavailable) × withValue/withoutValue × opacity (0.15/0.08) |
+| ThemeRainBadge | `react-native/components/ui/rain-badge.tsx` | `react-native/components/ui/badge.tsx` (Badge); `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Molecules/ThemeRainBadge.swift` | 5 rain levels (none/light/moderate/heavy/unavailable) × 4 variants (success/warning/destructive/secondary) × opacity (0.15/0.2/0.08) |
+| ThemeWindBadge | `react-native/components/planning/wind-badge.tsx` | `react-native/components/ui/badge.tsx` (Badge); `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Molecules/ThemeWindBadge.swift` | 4 wind levels (low/moderate/high/unavailable) × 4 variants (success/warning/destructive/secondary) |
+| WeatherOverlay | `react-native/components/map/weather-overlay.tsx` | `node_modules/@rnmapbox/maps/lib/components/shapeSource.js` (ShapeSource); `node_modules/@rnmapbox/maps/lib/components/lineLayer.js` (LineLayer) | `ios/LaneShadow/Views/Molecules/WeatherOverlay.swift` | 3 layers (wind/rain/temperature) × BASE_STROKE_WIDTH (6) × opacity (0.75-0.95) × zoom-based width scale |
+| ThemeWeatherGauge | `react-native/components/map/weather-gauge.tsx` | `node_modules/react-native/Libraries/Components/View/View.js` (View); `node_modules/react-native/Libraries/Components/Text/Text.js` | `ios/LaneShadow/Views/Molecules/ThemeWeatherGauge.swift` | 3 metrics (wind/rain/temp) × 1 fixed size (minWidth 56, padding 8) |
+| ThemeWeatherPillsRow | `react-native/components/map/weather-pills-row.tsx` | `node_modules/react-native/Libraries/Components/View/View.js` (View); `node_modules/react-native-paper/src/styles/themes/v3/tokens.tsx` (useTheme) | `ios/LaneShadow/Views/Molecules/ThemeWeatherPillsRow.swift` | 3 pills (wind/temp/conditions) × glassmorphic background × severity tints (10% opacity) |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper labelLarge**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1. **Paper labelSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=11, lineHeight=16, letterSpacing=0.5. **semantic.type.label.md**: fontSize=14, lineHeight=20, fontWeight=500. **semantic.type.body.sm**: fontSize=14, lineHeight=21, fontWeight=400.
+
+### ThemeWeatherPill
+
+**Source files read:**
+- LaneShadow: `react-native/components/ui/weather-pill.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`, `node_modules/react-native-paper/src/styles/themes/v3/tokens.tsx`
+
+**Layout — container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
+| alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
+| gap | RN-wrapper | `6` | `Arrangement.spacedBy(6.dp)` | `Spacer(minLength: 6)` | ESCALATE — propose `space.xs = 4` has 4, need 6 |
+| paddingVertical | RN-wrapper | `6` | `Modifier.padding(vertical = 6.dp)` | `.padding(.vertical, 6)` | ESCALATE — propose `space.sm = 8` (6 is between xs=4 and sm=8) |
+| paddingHorizontal | RN-wrapper | `12` | `Modifier.padding(horizontal = 12.dp)` | `.padding(.horizontal, 12)` | ESCALATE — propose `space.md = 12` |
+| borderRadius | RN-wrapper | `20` | `RoundedCornerShape(20.dp)` | `RoundedRectangle(cornerRadius: 20)` | ESCALATE — propose `radius.xl = 24` (20 is close) |
+| alignSelf | RN-wrapper | `'flex-start'` | `Modifier.align(Alignment.Start)` | `.frame(maxWidth: .infinity, alignment: .leading)` | n/a |
+
+**Layout — icon:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| iconSize (default) | RN-wrapper props | `16` | `size = 16.dp` | `16` | ESCALATE — between sm=8 and md=12 |
+| gap (icon-text) | RN-wrapper | `6` | `Spacer(minLength: 6.dp)` | `Spacer(minLength: 6)` | same as container gap |
+
+**Visual — colors:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| backgroundColor (default) | RN-wrapper | `${semantic.color.warning.default}26` (15% alpha) | `LaneShadowTheme.colors.warning.copy(alpha = 0.15f)` | `theme.colors.warning.opacity(0.15)` | `color.warning.default` + alpha |
+| textColor (default) | RN-wrapper | `semantic.color.warning.default` | `LaneShadowTheme.colors.warning` | `theme.colors.warning` | `color.warning.default` |
+| fontSize (description) | RN-wrapper | `13` | `fontSize = 13.sp` | `.font(.system(size: 13))` | ESCALATE — 13 is non-standard |
+
+### ThemeTemperatureBadge
+
+**Source files read:**
+- LaneShadow: `react-native/components/ui/temperature-badge.tsx`, `react-native/components/ui/badge.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`
+
+**Layout — inherits from Badge:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| flexDirection | Badge | `'row'` | `Row(...)` | `HStack` | n/a |
+| gap | Badge | `4` | `Arrangement.spacedBy(4.dp)` | `Spacer(minLength: 4)` | `space.xs = 4` |
+| paddingHorizontal | Badge | `10` | `Modifier.padding(horizontal = 10.dp)` | `.padding(.horizontal, 10)` | ESCALATE — 10 (between xs=4 and sm=8) |
+| paddingVertical | Badge | `2` | `Modifier.padding(vertical = 2.dp)` | `.padding(.vertical, 2)` | ESCALATE — 2 is minimal |
+| borderRadius | Badge | `semantic.radius.full` | `CircleShape` | `Capsule` / `RoundedRectangle(cornerRadius: .infinity)` | `radius.full = 9999` |
+
+**Visual — badge variants × opacity:**
+
+| Level | Badge variant | Opacity | Background color | Text color | Token |
+|---|---|---|---|---|---|
+| cold | `info` | 0.15 | `color.info.default × 0.15` | `color.onSurface.subtle` | `color.info.default` |
+| mild | `success` | 0.15 | `color.success.default × 0.15` | `color.onSurface.subtle` | `color.success.default` |
+| warm | `warning` | 0.15 | `color.warning.default × 0.15` | `color.onSurface.subtle` | `color.warning.default` |
+| hot | `destructive` | 0.15 | `color.danger.default × 0.15` | `color.onSurface.subtle` | `color.danger.default` |
+| unavailable | `secondary` | 0.08 | `color.secondary.default × 0.08` | `color.onSurface.subtle` | `color.secondary.default` |
+
+**Visual — icon:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| iconSize | RN-wrapper | `14` | `size = 14.dp` | `14` | ESCALATE — 14 is non-standard |
+| iconColor | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
+| gap (icon-text) | Badge | `4` | `Spacer(minLength: 4.dp)` | `Spacer(minLength: 4)` | `space.xs = 4` |
+
+**Typography — text:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| fontSize | Badge | `semantic.type.label.sm` | `MaterialTheme.typography.labelSmall` | `.font(.system(size: 11))` | `type.label.sm` |
+| fontWeight | Badge | `600` (from Badge) | `FontWeight.SemiBold` | `.fontWeight(.semibold)` | non-token |
+
+### ThemeRainBadge
+
+**Source files read:**
+- LaneShadow: `react-native/components/ui/rain-badge.tsx`, `react-native/components/ui/badge.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`
+
+**Layout — inherits from Badge (same as ThemeTemperatureBadge above)**
+
+**Visual — badge variants × opacity:**
+
+| Level | Badge variant | Opacity | Background color | Text color | Token |
+|---|---|---|---|---|---|
+| none | `success` | 0.15 | `color.success.default × 0.15` | `color.onSurface.subtle` | `color.success.default` |
+| light | `warning` | 0.15 | `color.warning.default × 0.15` | `color.onSurface.subtle` | `color.warning.default` |
+| moderate | `warning` | 0.2 | `color.warning.default × 0.2` | `color.onSurface.subtle` | `color.warning.default` |
+| heavy | `destructive` | 0.15 | `color.danger.default × 0.15` | `color.onSurface.subtle` | `color.danger.default` |
+| unavailable | `secondary` | 0.08 | `color.secondary.default × 0.08` | `color.onSurface.subtle` | `color.secondary.default` |
+
+**Visual — icon color (overrides Badge default):**
+
+| Level | Icon color | Token |
+|---|---|---|
+| none | `color.success.default` | `color.success.default` |
+| light | `color.warning.default` | `color.warning.default` |
+| moderate | `color.warning.default` | `color.warning.default` |
+| heavy | `color.danger.default` | `color.danger.default` |
+| unavailable | `color.onSurface.subtle` | `color.onSurface.subtle` |
+
+### ThemeWindBadge
+
+**Source files read:**
+- LaneShadow: `react-native/components/planning/wind-badge.tsx`, `react-native/components/ui/badge.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`
+
+**Layout — inherits from Badge (same as ThemeTemperatureBadge above)**
+
+**Visual — badge variants:**
+
+| Level | Badge variant | Background color | Text color | Token |
+|---|---|---|---|---|
+| low | `success` | `color.success.default` | `color.onSurface.subtle` | `color.success.default` |
+| moderate | `warning` | `color.warning.default` | `color.onSurface.subtle` | `color.warning.default` |
+| high | `destructive` | `color.danger.default` | `color.onSurface.subtle` | `color.danger.default` |
+| unavailable | `secondary` | `color.secondary.default` | `color.onSurface.subtle` | `color.secondary.default` |
+
+**Visual — icon:**
+- Uses `weather-windy` icon name
+- No explicit iconSize — relies on Badge icon rendering
+
+### WeatherOverlay
+
+**Source files read:**
+- LaneShadow: `react-native/components/map/weather-overlay.tsx`
+- Framework: `node_modules/@rnmapbox/maps/lib/components/shapeSource.js`, `node_modules/@rnmapbox/maps/lib/components/lineLayer.js`
+
+**Visual — line properties:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| BASE_STROKE_WIDTH | RN-wrapper | `6` | `lineWidth = 6f` | `lineWidth = 6` | ESCALATE — propose `strokeWidth.medium = 6` |
+| wind opacity | RN-wrapper | `0.85` | `lineOpacity = 0.85f` | `lineOpacity = 0.85` | ESCALATE — opacity constant |
+| rain opacity (light) | RN-wrapper | `0.75` | `lineOpacity = 0.75f` | `lineOpacity = 0.75` | ESCALATE — opacity constant |
+| rain opacity (moderate) | RN-wrapper | `0.85` | `lineOpacity = 0.85f` | `lineOpacity = 0.85` | ESCALATE — opacity constant |
+| rain opacity (heavy) | RN-wrapper | `0.95` | `lineOpacity = 0.95f` | `lineOpacity = 0.95` | ESCALATE — opacity constant |
+| rain width | RN-wrapper | `BASE_STROKE_WIDTH + 1 = 7` | `lineWidth = 7f` | `lineWidth = 7` | ESCALATE — derived constant |
+| temperature opacity | RN-wrapper | `0.9` | `lineOpacity = 0.9f` | `lineOpacity = 0.9` | ESCALATE — opacity constant |
+| temperature width | RN-wrapper | `BASE_STROKE_WIDTH - 1 = 5` | `lineWidth = 5f` | `lineWidth = 5` | ESCALATE — derived constant |
+| lineCap | RN-wrapper | `'round'` | `lineCap = LineCap.Round` | `lineCap = .round` | n/a |
+| lineJoin | RN-wrapper | `'round'` | `lineJoin = LineJoin.Round` | `lineJoin = .round` | n/a |
+
+**Visual — colors (by level):**
+- Wind: `getWindColor(level, semantic)` — uses `semantic.color.success/warning/danger.default`
+- Rain: `getRainColor(level, semantic)` — uses `semantic.color.success/warning/danger.default`
+- Temperature: `getTemperatureColor(level, semantic)` — uses `semantic.color.info/warning/danger/default`
+
+**Zoom-based width scale:**
+
+| Zoom range | Scale factor | Effective width (base=6) |
+|---|---|---|
+| < 12 (low) | 1.5 | 9 |
+| 12-15 (medium) | 1.0 | 6 |
+| > 15 (high) | 0.75 | 4.5 |
+
+### ThemeWeatherGauge
+
+**Source files read:**
+- LaneShadow: `react-native/components/map/weather-gauge.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`, `node_modules/react-native/Libraries/Components/Text/Text.js`
+
+**Layout — container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| position | RN-wrapper | `absolute top:0 right:0` | `Modifier.align(Alignment.TopEnd)` | `.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)` | n/a |
+| borderRadius | RN-wrapper | `12` | `RoundedCornerShape(12.dp)` | `RoundedRectangle(cornerRadius: 12)` | `radius.lg = 16` (12 is close) |
+| padding | RN-wrapper | `8` | `Modifier.padding(8.dp)` | `.padding(8)` | `space.sm = 8` |
+| gap | RN-wrapper | `8` | `Arrangement.spacedBy(8.dp)` | `Spacer(minLength: 8)` | `space.sm = 8` |
+| minWidth | RN-wrapper | `56` | `Modifier.widthIn(min = 56.dp)` | `.frame(minWidth: 56)` | ESCALATE — 56 is non-standard |
+
+**Layout — value circle:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| width/height | RN-wrapper | `44` | `Modifier.size(44.dp)` | `.frame(width: 44, height: 44)` | ESCALATE — 44 is between 2xl=32 and 3xl=48 |
+| borderRadius | RN-wrapper | `22` (half of 44) | `CircleShape` | `Circle()` | `radius.full = 9999` |
+| borderWidth | RN-wrapper | `1.5` | `BorderStroke(1.5.dp, color)` | `.border(width: 1.5)` | ESCALATE — 1.5 is non-standard |
+
+**Typography — value:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| fontSize | RN-wrapper | `16` | `fontSize = 16.sp` | `.font(.system(size: 16))` | ESCALATE — 16 is close to md=12 |
+| fontWeight | RN-wrapper | `700` | `FontWeight.Bold` | `.fontWeight(.bold)` | non-token |
+| lineHeight | RN-wrapper | `20` | `lineHeight = 20.sp` | `.lineSpacing(4)` (16+4=20) | `type.label.md = 20` |
+
+**Typography — unit:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| fontSize | RN-wrapper | `9` | `fontSize = 9.sp` | `.font(.system(size: 9))` | ESCALATE — 9 is non-standard |
+| fontWeight | RN-wrapper | `600` | `FontWeight.SemiBold` | `.fontWeight(.semibold)` | non-token |
+| letterSpacing | RN-wrapper | `0.5` | `letterSpacing = 0.5.sp` | `.tracking(0.5)` | ESCALATE — 0.5 is Paper labelSmall |
+| textTransform | RN-wrapper | `'uppercase'` | `text = text.uppercase()` | `.textCase(.uppercase)` | n/a |
+
+**Layout — metric border:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| borderTopWidth | RN-wrapper | `1` | `BorderStroke(1.dp, color)` | `.border(width: 1)` | ESCALATE — minimal border |
+| borderStyle | RN-wrapper | `'dotted'` | `BorderStroke(1.dp, color, BorderStyle.Dashed)` (no dotted in Compose) | `.border(style: .dotted)` | n/a |
+| borderColor | RN-wrapper | `'rgba(255,255,255,0.1)'` | `Color.White.copy(alpha = 0.1f)` | `Color.white.opacity(0.1)` | ESCALATE — hardcoded white |
+
+### ThemeWeatherPillsRow
+
+**Source files read:**
+- LaneShadow: `react-native/components/map/weather-pills-row.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`, `node_modules/react-native-paper/src/styles/themes/v3/tokens.tsx`
+
+**Layout — container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
+| alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
+| paddingHorizontal | RN-wrapper | `8` | `Modifier.padding(horizontal = 8.dp)` | `.padding(.horizontal, 8)` | `space.sm = 8` |
+| paddingVertical | RN-wrapper | `6` | `Modifier.padding(vertical = 6.dp)` | `.padding(.vertical, 6)` | ESCALATE — 6 is between xs=4 and sm=8 |
+| borderRadius | RN-wrapper | `semantic.radius.full` | `CircleShape` | `Capsule` | `radius.full = 9999` |
+| borderWidth | RN-wrapper | `1` | `BorderStroke(1.dp, color)` | `.border(width: 1)` | ESCALATE — minimal border |
+| gap | RN-wrapper | `semantic.space.xs` | `Arrangement.spacedBy(4.dp)` | `Spacer(minLength: 4)` | `space.xs = 4` |
+
+**Layout — pill:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
+| alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
+| paddingHorizontal | RN-wrapper | `8` | `Modifier.padding(horizontal = 8.dp)` | `.padding(.horizontal, 8)` | `space.sm = 8` |
+| paddingVertical | RN-wrapper | `4` | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | `space.xs = 4` |
+| borderRadius | RN-wrapper | `9999` | `CircleShape` | `Capsule` | `radius.full = 9999` |
+| gap | RN-wrapper | `4` | `Arrangement.spacedBy(4.dp)` | `Spacer(minLength: 4)` | `space.xs = 4` |
+
+**Visual — container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| backgroundColor | RN-wrapper | `addOpacity(semantic.color.surface.default, 0.85)` | `LaneShadowTheme.colors.surface.copy(alpha = 0.85f)` | `theme.colors.surface.opacity(0.85)` | `color.surface.default` + alpha |
+| borderColor | RN-wrapper | `addOpacity(semantic.color.border.default, 0.3)` | `LaneShadowTheme.colors.border.copy(alpha = 0.3f)` | `theme.colors.border.opacity(0.3)` | `color.border.default` + alpha |
+
+**Visual — pill (severity tint at 10% opacity):**
+
+| Level | Background color | Token |
+|---|---|---|
+| high/heavy | `color.danger.default × 0.1` | `color.danger.default` |
+| moderate/warm/hot | `color.warning.default × 0.1` | `color.warning.default` |
+| cold | `color.info.default × 0.1` | `color.info.default` |
+| none/low/mild | `color.success.default × 0.1` | `color.success.default` |
+
+**Typography — pill text:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| semantic.type.label.sm | RN-wrapper | `fontSize: 11, fontWeight: 500, lineHeight: 16` | `MaterialTheme.typography.labelSmall` | `.font(.system(size: 11)).fontWeight(.medium)` | `type.label.sm` |
+| fontWeight | RN-wrapper | `500` | `FontWeight.Medium` | `.fontWeight(.medium)` | non-token |
+
+**Visual — icon:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| iconSize | RN-wrapper | `14` | `size = 14.dp` | `14` | ESCALATE — 14 is non-standard |
+| iconColor | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+
 ## DESIGN NOTES
 
 - Preserve RN spacing, composition hierarchy, and edge-case fixtures such as long labels, loading, and error states.

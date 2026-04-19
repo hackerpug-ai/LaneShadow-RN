@@ -132,6 +132,200 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Backend-aware composables, duplicated variant files, or hardcoded visual constants.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| MapViewWrapper | `react-native/components/map/map-view.tsx` | `node_modules/react-native-maps` (MapView, Marker, Polyline, PROVIDER_GOOGLE); `node_modules/react-native-maps/lib/android/src/...` | `android/app/src/main/java/com/laneshadow/ui/organisms/MapViewWrapper.kt` | 1 fixed layout × 2 providers (Google Maps/Mapbox) × imperative camera controls |
+| MapboxMapView | `react-native/components/map/mapbox-map-view.tsx` | `node_modules/@rnmapbox/maps` (MapView, Camera, MarkerView, ShapeSource, LineLayer, UserLocation); `node_modules/@rnmapbox/maps/lib/android/...` | `android/app/src/main/java/com/laneshadow/ui/organisms/MapboxMapView.kt` | 1 fixed layout × 2 themes (dark/light) × imperative camera controls |
+| MapToastStack | `react-native/components/map/map-toast-stack.tsx` | `node_modules/react-native-reanimated` (Animated.View, FadeIn, FadeOut); `node_modules/react-native/Libraries/Components/Pressable/Pressable.js` | `android/app/src/main/java/com/laneshadow/ui/organisms/MapToastStack.kt` | 1 fixed layout × max 85% width × auto-fade (5s) × 2 states (streaming/idle) |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2.
+
+### MapViewWrapper (Google Maps SDK)
+
+**Source files read:**
+- LaneShadow: `react-native/components/map/map-view.tsx`
+- Framework: `node_modules/react-native-maps`, Google Maps SDK for Android
+
+**Layout — container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| width | RN-wrapper | `'100%'` | `Modifier.fillMaxWidth()` | `.frame(maxWidth: .infinity)` | n/a |
+| height | RN-wrapper | `'100%'` | `Modifier.fillMaxHeight()` | `.frame(maxHeight: .infinity)` | n/a |
+| flex | RN-wrapper | `1` | `Modifier.weight(1f)` | `frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
+
+**Layout — web fallback:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| padding | RN-wrapper | `space.lg` = 16 | `Modifier.padding(16.dp)` | `.padding(16)` | `space.lg` |
+| alignItems | RN-wrapper | `'center'` | `Modifier.align(Alignment.CenterHorizontally)` | `.frame(maxWidth: .infinity)` | n/a |
+| justifyContent | RN-wrapper | `'center'` | `Modifier.align(Alignment.CenterVertically)` | `.frame(maxHeight: .infinity)` | n/a |
+| backgroundColor | RN-wrapper | `color.surface.default` | `LaneShadowTheme.colors.surface` | `theme.colors.surface` | `color.surface.default` |
+
+**Visual — map style (dark/light):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| styleURL (dark) | RN-wrapper | `buildMapStyleFromTheme({ semantic, dark: true })` | `MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_dark)` | `darkModeStyleURL` | `color.map.dark` (custom) |
+| styleURL (light) | RN-wrapper | `buildMapStyleFromTheme({ semantic, dark: false })` | `MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_light)` | `lightModeStyleURL` | `color.map.light` (custom) |
+
+**Typography — web fallback:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| style | RN-wrapper | `bodyMedium` (Paper) | `LaneShadowTheme.typography.bodyMd` | `theme.typography.bodyMd` | `type.body.md` |
+| color | RN-wrapper | `color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+
+**Camera controls — imperative handle:**
+
+| Method | Source | Android | iOS | Notes |
+|---|---|---|---|---|
+| setCameraPosition | RN-wrapper | `googleMap.animateCamera(...)` | `mapView.setCamera(...)` | Accepts {coordinates?, zoom?, duration} |
+| zoomBy | RN-wrapper | `googleMap.animateToRegion(...)` | `mapView.setCamera(zoomLevel: ...)` | Positive = zoom in, negative = zoom out |
+| recenterToUser | RN-wrapper | `googleMap.animateCamera(...)` | `mapView.setCamera(centerCoordinate: userLoc)` | Requires user location tracking |
+| animateToRegion | RN-wrapper | `googleMap.animateToRegion(...)` | `mapView.setCamera(...)` | Region = {latitude, longitude, latitudeDelta, longitudeDelta} |
+| fitToCoordinates | RN-wrapper | `googleMap.fitToCoordinates(...)` | `mapView.fitBounds(...)` | Accepts edgePadding option |
+
+### MapboxMapView
+
+**Source files read:**
+- LaneShadow: `react-native/components/map/mapbox-map-view.tsx`
+- Framework: `node_modules/@rnmapbox/maps`, Mapbox Maps SDK for Android
+
+**Layout — container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| width | RN-wrapper | `'100%'` | `Modifier.fillMaxWidth()` | `.frame(maxWidth: .infinity)` | n/a |
+| height | RN-wrapper | `'100%'` | `Modifier.fillMaxHeight()` | `.frame(maxHeight: .infinity)` | n/a |
+| flex | RN-wrapper | `1` | `Modifier.weight(1f)` | `frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
+
+**Layout — web fallback:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| alignItems | RN-wrapper | `'center'` | `Modifier.align(Alignment.CenterHorizontally)` | `.frame(maxWidth: .infinity)` | n/a |
+| justifyContent | RN-wrapper | `'center'` | `Modifier.align(Alignment.CenterVertically)` | `.frame(maxHeight: .infinity)` | n/a |
+
+**Visual — map style (dark/light):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| styleURL (dark) | RN-wrapper | `MAP_STYLES.dark` | `Style.OUTDOORS` or `Style.DARK` | `Style.dark` | n/a (Mapbox constant) |
+| styleURL (light) | RN-wrapper | `MAP_STYLES.light` | `Style.LIGHT` | `Style.light` | n/a (Mapbox constant) |
+
+**Visual — marker:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| width | RN-wrapper | `24` | `24.dp` | `24` | ESCALATE — propose `space.markerSize = 24` |
+| height | RN-wrapper | `24` | `24.dp` | `24` | ESCALATE — propose `space.markerSize = 24` |
+| backgroundColor | RN-wrapper | `'#B87333'` (copper) | `Color(0xFFB87333)` | `Color(red: 0.72, green: 0.45, blue: 0.2)` | ESCALATE — propose `color.map.marker = #B87333` |
+| borderRadius | RN-wrapper | `12` (half width) | `CircleShape` | `Circle()` | `radius.full` |
+| borderWidth | RN-wrapper | `2` | `border(2.dp, ...)` | `overlay(stroke: lineWidth: 2)` | n/a |
+| borderColor | RN-wrapper | `'#FFFFFF'` | `Color.White` | `Color.white` | n/a |
+
+**Visual — polyline:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| strokeColor | RN-wrapper | `'#B87333'` (copper, default) | `Color(0xFFB87333)` | `Color(red: 0.72, green: 0.45, blue: 0.2)` | ESCALATE — propose `color.map.polyline = #B87333` |
+| strokeWidth | RN-wrapper | `4` (default) | `4.dp` | `4` | ESCALATE — propose `space.mapPolylineWidth = 4` |
+| lineOpacity | RN-wrapper | `1.0` | `1.0f` | `1.0` | n/a |
+
+**Camera controls — imperative handle:**
+
+| Method | Source | Android | iOS | Notes |
+|---|---|---|---|---|
+| setCamera | RN-wrapper (native) | `cameraRef.setCamera(...)` | `mapView.camera.setCamera(...)` | Accepts {center, zoom, pitch, heading, duration} |
+| zoomIn / zoomOut | RN-wrapper (native) | `cameraRef.zoomTo(...)` | `mapView.camera.setCamera(zoomLevel: ...)` | Delta-based zoom |
+| setCameraPosition | RN-wrapper (parity) | `setCamera(...)` with coordinate conversion | `setCamera(...)` with coordinate conversion | Google Maps format {latitude, longitude} → Mapbox [lng, lat] |
+| zoomBy | RN-wrapper (parity) | `zoomTo(...)` | `setCamera(zoomLevel: ...)` | Positive = zoom in, negative = zoom out |
+| recenterToUser | RN-wrapper (parity) | `setCamera(centerCoordinate: userLoc)` | `setCamera(centerCoordinate: userLoc)` | Requires user location tracking |
+| animateToRegion | RN-wrapper (parity) | `setCamera(...)` with zoom calc | `setCamera(...)` with zoom calc | Converts Google Maps region to Mapbox camera |
+| fitToCoordinates | RN-wrapper (parity) | `fitBounds(...)` | `mapView.camera.setBounds(...)` | Accepts padding option |
+
+**Coordinate conversion:**
+
+| Format | Source | Android | iOS | Notes |
+|---|---|---|---|---|
+| Google Maps | RN-wrapper | `{latitude: Double, longitude: Double}` | `{latitude: Double, longitude: Double}` | Standard geo format |
+| Mapbox | RN-wrapper | `[longitude, latitude]` (Point) | `[longitude, latitude]` (CLLocationCoordinate2D) | GeoJSON spec |
+
+### MapToastStack
+
+**Source files read:**
+- LaneShadow: `react-native/components/map/map-toast-stack.tsx`
+- Framework: `node_modules/react-native-reanimated`, `node_modules/react-native/Libraries/Components/Pressable/Pressable.js`
+
+**Layout — container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| position | RN-wrapper | `'absolute'` | `Modifier.wrapContentSize(unbounded = true)` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
+| bottom | RN-wrapper | `bottomOffset` (prop) | `Modifier.offset(y = -bottomOffset.dp)` | `.offset(y: -bottomOffset)` | n/a (runtime prop) |
+| paddingHorizontal | RN-wrapper | `space.lg` = 16 | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
+| gap | RN-wrapper | `space.sm` = 8 | `Arrangement.spacedBy(8.dp)` | `Spacer(minLength: 8)` | `space.sm` |
+| zIndex | RN-wrapper | `25` | `Modifier.zIndex(25)` | `.zIndex(25)` | n/a |
+
+**Layout — toast:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| maxWidth | RN-wrapper | `85%` (of screen width) | `Modifier.fillMaxWidth(0.85f)` | `.frame(maxWidth: .infinity * 0.85)` | ESCALATE — propose `space.toastMaxWidthRatio = 0.85` |
+| minWidth | RN-wrapper | `200` | `Modifier.widthIn(min = 200.dp)` | `.frame(minWidth: 200)` | ESCALATE — propose `space.toastMinWidth = 200` |
+| paddingVertical | RN-wrapper | `space.sm` = 8 | `Modifier.padding(vertical = 8.dp)` | `.padding(.vertical, 8)` | `space.sm` |
+| paddingHorizontal | RN-wrapper | `space.lg` = 16 | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
+| borderRadius | RN-wrapper | `radius.xl` = 24 | `RoundedCornerShape(24.dp)` | `RoundedRectangle(cornerRadius: 24)` | `radius.xl` |
+
+**Visual — toast container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| backgroundColor | RN-wrapper | `color.surface.default` | `LaneShadowTheme.colors.surface` | `theme.colors.surface` | `color.surface.default` |
+| borderWidth | RN-wrapper | `StyleSheet.hairlineWidth` (~1px) | `border(1.dp, ...)` | `overlay(stroke: lineWidth: 1)` | n/a |
+| borderColor | RN-wrapper | `color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
+| opacity | RN-wrapper | `0.92` | `alpha(0.92f)` | `.opacity(0.92)` | ESCALATE — propose `opacity.toast = 0.92` |
+| shadow | RN-wrapper | `elevation[2]` | `Modifier.shadow(elevation = 2.dp, ...)` | `.shadow(radius: 4)` | `elevation[2]` |
+
+**Typography — toast text:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| style | RN-wrapper | `type.body.sm` | `LaneShadowTheme.typography.bodySm` | `theme.typography.bodySm` | `type.body.sm` |
+| color | RN-wrapper | `color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| numberOfLines | RN-wrapper | `2` | `maxLines = 2` | `.lineLimit(2)` | n/a |
+| flexShrink | RN-wrapper | `1` | `Modifier.weight(1f)` | `layoutPriority(1)` | n/a |
+
+**Animation — toast enter/exit:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| enterDuration | RN-wrapper | `200` (FadeIn) | `AnimatedVisibility(enters = fadeIn(animationSpec = tween(200)))` | `.opacity(0).animation(.easeInOut(duration: 0.2))` | ESCALATE — propose `duration.toastEnter = 200` |
+| exitDuration | RN-wrapper | `300` (FadeOut) | `AnimatedVisibility(exits = fadeOut(animationSpec = tween(300)))` | `.opacity(0).animation(.easeInOut(duration: 0.3))` | ESCALATE — propose `duration.toastExit = 300` |
+
+**Animation — auto-fade:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| autoFadeMs | RN-wrapper | `5000` (default) | `LaunchedEffect { delay(5000) }` | `.onReceive(timer) { ... }` | ESCALATE — propose `duration.toastAutoFade = 5000` |
+| streaming behavior | RN-wrapper | Deferred until `status !== 'streaming'` | Skip timer while streaming | Skip timer while streaming | n/a |
+
+**Layout — typing indicator:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| marginLeft | RN-wrapper | `space.xs` = 4 | `Modifier.padding(start = 4.dp)` | `.padding(.leading, 4)` | `space.xs` |
+| paddingBottom | RN-wrapper | `2` | `Modifier.padding(bottom = 2.dp)` | `.padding(.bottom, 2)` | n/a |
+| size | RN-wrapper | `'sm'` | `TypingIndicator(size = "sm")` | `TypingIndicator(size: .sm)` | n/a (component prop) |
+
 ## DESIGN NOTES
 
 - Use deterministic composition fixtures so complex sheets, maps, chat, and stacked layouts remain diffable.

@@ -59,7 +59,7 @@ All 9 verifications must pass before proceeding to Epic 3. Any failure means an 
 - [x] BASE-009a complete — `crawl_plan/` framework module committed with unit tests; MotorcycleRoads re-crawled under the new methodology; `crawl-plans/motorcycleroads/crawl-report.md` verdict PASS; `staging/motorcycleroads.jsonl` replaced with clean data; user has reviewed the MR crawl-report and approved proceeding to BASE-009b
 - [x] BASE-009b complete — BestBikingRoads re-crawled under the new methodology using the BASE-009a framework unchanged; `crawl-plans/bestbikingroads/crawl-report.md` verdict PASS; `staging/bestbikingroads.jsonl` replaced with clean data; Epic 2 baseline artifacts regenerated from clean FHWA+MR+BBR staging; `review.md` verdict upgraded from "PASS WITH ISSUES" to "PASS"
 - [x] `.spec/prds/curation-hardening/crawl-plans/motorcycleroads/` and `.../bestbikingroads/` artifacts committed (site-map.md, urls.jsonl, selectors.yaml, crawl-report.md — all four files per source with verdict PASS)
-- [x] `scripts/curation/pipeline/sources/crawl_plan/` shared framework module committed, unit-tested, and importable by future source tasks (Epic 4 SRC-001/006, Epic 9 RID-001/002/006)
+- [x] `scripts/curation/pipeline/sources/crawl_plan/` shared framework module committed, unit-tested, and importable by future source tasks (Epic 4 SRC-001/006, Sprint 9 RID-001/002/006)
 - [x] `fixtures/motorcycleroads/` and `fixtures/bestbikingroads/` committed with ≥3 samples per page type + `fixtures.manifest.yaml` with expected field values
 - [x] `scripts/curation/tests/sources/test_motorcycleroads_fixtures.py` and `test_bestbikingroads_fixtures.py` exist and pass locally
 - [x] `scripts/curation/tests/sources/test_crawl_plan_framework.py` unit tests for the shared framework pass locally
@@ -137,7 +137,7 @@ Captured during `/kb-run-epic` preflight investigation before any agent dispatch
 
 5. **Landmark set verified.** Blue Ridge Parkway, Beartooth Highway, and Pacific Coast (OR+WA segments) are present in layer 107 with NSB tags. Tail of the Dragon and Million Dollar Highway are **NOT** — they're state-designated and will enter the catalog via BBR/MR community scrapers (BASE-002), not via BASE-001. BASE-008's 5-landmark spot check still works because it validates the full post-dedup catalog, not just the FHWA source.
 
-6. **AAR/NSB binary retired.** The proposed `Designation` column (NSB vs AAR) was replaced with `AgencyTags` because the DOT layer doesn't encode AAR at all. Downstream scoring in Epic 8 (SCO-001) can derive a more granular `fhwa_designation` signal from the raw `Admin_Org` tag string than the current binary.
+6. **AAR/NSB binary retired.** The proposed `Designation` column (NSB vs AAR) was replaced with `AgencyTags` because the DOT layer doesn't encode AAR at all. Downstream scoring in Sprint 8 (SCO-001) can derive a more granular `fhwa_designation` signal from the raw `Admin_Org` tag string than the current binary.
 
 7. **Narrow-execution strategy adopted.** The two spec-drift findings above (both discovered within minutes of preflight kickoff) indicated the 2026-04-12 task specs had significant unverified assumptions. Execution strategy shifted from full-epic parallel dispatch to narrow sequential: BASE-000 → BASE-001 → evaluate preconditions for each remaining task before dispatching. See DECISIONS.md for rationale.
 
@@ -185,7 +185,7 @@ Pipeline reality check (2026-04-12): 6 of the 8 existing pipeline modules had **
 - [x] Any discovered bugs fixed in a separate commit (Boy Scout rule)
 - [x] BASE-009a Crawl Plan Protocol framework + MR remediation complete (~270 min); user has reviewed the MR crawl-report.md at the human checkpoint between 009a and 009b
 - [x] BASE-009b BBR remediation + Epic 2 baseline regeneration complete (~300 min); `review.md` verdict upgraded from "PASS WITH ISSUES" to "PASS"
-- [x] `scripts/curation/pipeline/sources/crawl_plan/` shared framework module committed (consumed by Epic 4 and Epic 9 source tasks)
+- [x] `scripts/curation/pipeline/sources/crawl_plan/` shared framework module committed (consumed by Epic 4 and Sprint 9 source tasks)
 - [x] `.spec/prds/curation-hardening/crawl-plans/motorcycleroads/` and `.../bestbikingroads/` protocol artifacts committed (site-map, inventory, selectors, crawl-report.md with verdict PASS)
 - [x] User has explicitly approved proceeding to Epic 3
 
@@ -197,5 +197,5 @@ Pipeline reality check (2026-04-12): 6 of the 8 existing pipeline modules had **
 - If a pipeline stage is broken, STOP and fix it. Do NOT proceed to hardening on a broken foundation.
 - `sync/convex_push.py` should be run in `--dry-run` mode only — no writes to production Convex
 - Use a fresh Convex dev deployment for any write tests to avoid polluting existing data
-- Document the current `WEIGHTS` values in composite.py as a baseline for comparison against the realigned weights in Epic 8 (SCO-001)
+- Document the current `WEIGHTS` values in composite.py as a baseline for comparison against the realigned weights in Sprint 8 (SCO-001)
 - The `baseline-report.md` becomes a reference document — it captures the state of the pipeline at the moment hardening begins

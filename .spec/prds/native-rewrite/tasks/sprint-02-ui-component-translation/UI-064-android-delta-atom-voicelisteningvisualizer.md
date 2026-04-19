@@ -132,6 +132,91 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Backend-aware composables, duplicated variant files, or hardcoded visual constants.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| VoiceListeningVisualizer | **RN baseline pending — properties derived from task spec and UC-VOICE-02 voice interaction UX** | n/a (NEW component — delta) | `android/app/src/main/java/com/laneshadow/ui/atoms/VoiceListeningVisualizer.kt` | 1 variant (audio amplitude waveform) × 2 states (idle/recording) × animation (amplitude bars driven by audio input) |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper labelLarge**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1. **Paper labelSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=11, lineHeight=16, letterSpacing=0.5. **semantic.type.label.md**: fontSize=14, lineHeight=20, fontWeight=500. **semantic.type.body.sm**: fontSize=14, lineHeight=21, fontWeight=400.
+
+### VoiceListeningVisualizer
+
+**Source files read:**
+- LaneShadow: **RN baseline pending — properties derived from task spec**
+- Framework: n/a (NEW component — delta)
+- Use case: `.spec/artifacts/team-product/320-voice-interaction-ux.md` (voice interaction UX for motorcycle riding)
+
+> **Note**: This is a **NEW delta component** — no RN baseline exists. Properties are derived from the task description ("audio amplitude waveform atom for UC-VOICE-02; Compose custom Canvas + animateFloat") and the voice interaction UX specification which shows a waveform visualization pattern: `●  ● ● ● ●  ●` with animated amplitude bars during recording.
+
+**Layout — container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| width | Task spec | `'100%'` (full width of parent) | `Modifier.fillMaxWidth()` | `.frame(maxWidth: .infinity)` | n/a |
+| height | Task spec | `48` (to accommodate waveform bars) | `Modifier.height(48.dp)` | `.frame(height: 48)` | `space.2xl + space.sm` = 40, ESCALATE — propose `space.5xl = 56` or `size.waveformHeight = 48` |
+| flexDirection | Task spec | `'row'` (horizontal waveform) | `Row(...)` | `HStack` | n/a |
+| alignItems | Task spec | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
+| justifyContent | Task spec | `'center'` (waveform centered) | `horizontalArrangement = Arrangement.Center` | n/a | n/a |
+| gap | Task spec | `4` (spacing between amplitude bars) | `Spacer(Modifier.width(4.dp))` | `Spacer(minLength: 4)` | `space.xs` |
+
+**Layout — amplitude bars:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| barCount | Task spec | `7` (fixed number of bars) | Loop 7 times | ForEach 0..<7 | n/a |
+| barWidth | Task spec | `4` (thin bars) | `Modifier.width(4.dp)` | `.frame(width: 4)` | ESCALATE — propose `size.waveformBarWidth = 4` |
+| barMinHeight | Task spec | `8` (minimum height when idle) | `Modifier.height(8.dp)` | `.frame(height: 8)` | ESCALATE — propose `size.waveformBarMinHeight = 8` |
+| barMaxHeight | Task spec | `32` (maximum height during loud audio) | `Modifier.height(32.dp)` | `.frame(height: 32)` | ESCALATE — propose `size.waveformBarMaxHeight = 32` |
+| barBorderRadius | Task spec | `2` (slightly rounded caps) | `RoundedCornerShape(2.dp)` | `RoundedRectangle(cornerRadius: 2)` | `radius.sm = 4` (nearest) or ESCALATE — `radius.xs = 2` |
+
+**Visual — colors (by state):**
+
+| State | Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| idle | backgroundColor | Task spec | `color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+| idle | opacity | Task spec | `0.3` (subtle when not recording) | `Modifier.alpha(0.3f)` | `.opacity(0.3)` | ESCALATE — propose `opacity.waveformIdle = 0.3` |
+| recording | backgroundColor | Task spec | `color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+| recording | opacity | Task spec | `1.0` (full visibility when recording) | `Modifier.alpha(1f)` | `.opacity(1)` | n/a |
+
+**Animation — amplitude response:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| animationType | Task spec | `animateFloat` (per-bar height animation) | `animateFloatAsState(targetValue = amplitude)` | `.animation(.easeInOut(duration: 0.1))` | n/a |
+| duration | Task spec | `100ms` (fast response to audio) | `durationMillis = 100` | `0.1` | ESCALATE — propose `motion.duration.fast = 100` |
+| easing | Task spec | `easeInOut` (smooth amplitude transitions) | `EaseInOut` | `.easeInOut` | n/a |
+| amplitudeSource | Task spec | `audio amplitude` (0.0-1.0 from audio input) | Passed as `List<Float>` or `Flow<List<Float>>` | Passed as `[CGFloat]` or `@State` | n/a |
+| idleAnimation | Task spec | `gentle pulse` (subtle breathing when idle) | `infiniteRepeatable(animation, ...)` | `.animation(.easeInOut(duration: 1.5).repeatForever())` | ESCALATE — propose `motion.duration.slow = 1500` |
+
+**Typography — status label (optional):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| text | UX spec | `"Listening..."` | `Text("Listening...")` | `Text("Listening...")` | n/a |
+| fontSize | Paper labelSmall | 11 | `11.sp` | `11` | ESCALATE — `type.label.sm.fontSize = 11` |
+| fontWeight | Paper labelSmall | `'500'` | `FontWeight.Medium` | `.medium` | `type.label.sm.fontWeight` |
+| color | Task spec | `color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
+| textAlign | Task spec | `'center'` | `TextAlign.Center` | `.multilineTextAlignment(.center)` | n/a |
+
+**Interaction:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| accessibilityRole | Task spec | `'none'` (visual feedback only) | `Modifier.semantics { invisibleToUser() }` | `.accessibilityElement(.isAccessibilityElement(false))` | n/a |
+| testID | Task spec | passed via prop | `Modifier.testTag(testID)` | `.accessibilityIdentifier(testID)` | n/a |
+
+**State — recording state:**
+
+| State | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| isRecording | Task spec | `boolean` prop | drives animation target (idle pulse vs amplitude-driven) | same | n/a |
+| amplitudes | Task spec | `List<Float>` or `Flow<List<Float>>` | 0.0-1.0 values driving bar heights | same | n/a |
+
 ## DESIGN NOTES
 
 - Treat parity as spec-driven against the delta composition contract when no RN baseline story exists.

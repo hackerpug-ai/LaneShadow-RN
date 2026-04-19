@@ -117,6 +117,10 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Allow token, scenario, or parity rules to drift during component translation; capture screenshots with ad-hoc names that cannot be paired by `Story.id` across platforms.
 
+## TRANSLATION SOURCES
+
+> This task is infrastructure/setup and does not require per-component translation mapping.
+
 ## DESIGN NOTES
 
 - Select the exact phase-1 `Story.id` values from `LaneShadowStories.all` / `AppStories.all` called out by the sprint and bind each one to fixed fixtures.

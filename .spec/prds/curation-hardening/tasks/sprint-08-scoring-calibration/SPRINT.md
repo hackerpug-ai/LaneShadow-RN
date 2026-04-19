@@ -1,4 +1,4 @@
-# Epic 8: Scoring & Calibration
+# Sprint 8: Scoring & Calibration
 
 **Sequence:** 8 / 12
 **Priority:** P1
@@ -33,7 +33,7 @@ After all 6 tasks are complete, an administrator should be able to:
 10. **Run extraction accuracy audit** — Execute `python -m scripts.curation.pipeline.extraction.validator`. Verify per-attribute precision/recall/F1 reported. Confusion matrix shown for categorical attributes. Flag attributes with F1 < 0.7 as "needs prompt improvement".
 11. **Full pipeline end-to-end with calibrated scoring** — Run source ingest → dedup → quality floor → calibration gate (PASS) → extraction → scoring → classify → push. Verify Rider Mag 50 routes appear in top 10 by composite score in mobile app.
 
-12. **Execute the Curation Review Protocol** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. Applicable steps NOW INCLUDE: 2 (HPMS + NWS enrichment for the first time) and 5 (calibration gate) for the first time. Full steps: 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12. **Diff against Epic 7 baseline — this is the largest score shift of the plan. Expect TOP-10 ROUTES TO CHANGE SIGNIFICANTLY (community_rating and mention_frequency now weight more). Verify Rider Mag 50 routes dominate top 25. Verify aadt/pavement_iri populated on routes with HPMS coverage. Verify best_months populated. Calibration gate MUST return PASS (or documented --force with justification).** Write `review.md` with verdict PASS.
+12. **Execute the Curation Review Protocol** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. Applicable steps NOW INCLUDE: 2 (HPMS + NWS enrichment for the first time) and 5 (calibration gate) for the first time. Full steps: 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12. **Diff against Sprint 7 baseline — this is the largest score shift of the plan. Expect TOP-10 ROUTES TO CHANGE SIGNIFICANTLY (community_rating and mention_frequency now weight more). Verify Rider Mag 50 routes dominate top 25. Verify aadt/pavement_iri populated on routes with HPMS coverage. Verify best_months populated. Calibration gate MUST return PASS (or documented --force with justification).** Write `review.md` with verdict PASS.
 
 All 12 verifications must pass. First-run calibration gate FAIL is expected and part of the process.
 
@@ -88,8 +88,8 @@ All 12 verifications must pass. First-run calibration gate FAIL is expected and 
 ## Dependencies
 
 **Blocks:**
-- Epic 10: Community NLP & Signals (RID-004 depends on SCO-001 for mention_frequency weight)
-- Epic 12: Orchestrator & E2E (all scoring tasks are pipeline stages)
+- Sprint 10: Community NLP & Signals (RID-004 depends on SCO-001 for mention_frequency weight)
+- Sprint 12: Orchestrator & E2E (all scoring tasks are pipeline stages)
 
 **Depends On:**
 - Epic 3: Foundation (INF-002 models, INF-005 extraction schema v2)
@@ -111,7 +111,7 @@ All 12 verifications must pass. First-run calibration gate FAIL is expected and 
 - [ ] Curation Review Protocol executed with PASS verdict
 - [ ] `review.md` + updated `baseline/catalog.jsonl` committed
 - [ ] Top-10 route changes documented in review.md (gainers/losers from weight realignment)
-- [ ] User has approved proceeding to Epic 9
+- [ ] User has approved proceeding to Sprint 9
 
 ---
 

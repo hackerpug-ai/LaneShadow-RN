@@ -40,7 +40,7 @@ SPECIFICATION
 **Success looks like:** `scripts/curation/data_prep/fetch_fhwa.py` exists and is re-runnable; `data/fhwa_byways.csv` exists with **580–710 rows** (expected ~645), six columns (`RouteName, State, CentroidLat, CentroidLng, LengthMiles, AgencyTags`), every row has non-empty `RouteName`/`State` and numeric `CentroidLat`/`CentroidLng`; the five in-scope landmarks (Blue Ridge Parkway, Beartooth Highway, Pacific Coast Scenic Byway - Oregon, Pacific Coast Scenic Byway - Washington, Historic Columbia River Highway) appear in the CSV; both the script and the CSV are committed to git.
 
 **Non-goals for this task:**
-- No filtering of "non-road" routes (Alaska Marine Highway, Alaska Railroad remain in the CSV — Epic 6 quality floor handles them).
+- No filtering of "non-road" routes (Alaska Marine Highway, Alaska Railroad remain in the CSV — Sprint 6 quality floor handles them).
 - No AAR / NSB binary distinction (the DOT layer does not encode AAR; `AgencyTags` preserves the raw string for downstream use).
 - No modification to `parse_fhwa_csv()` or any pipeline code.
 - No network fetch at runtime — the CSV is committed.
@@ -563,7 +563,7 @@ NOTES
 
 - This task was inserted into Epic 2 on **2026-04-13** after `/kb-run-epic` preflight revealed the original BASE-001 input file (`data/fhwa_byways.csv`) did not exist and no publicly-available FHWA CSV ships the expected schema. See `DECISIONS.md` for the full investigation.
 - The 645-route count is the "DOT superset" reality, not the 184-route "America's Byways" federal program the predecessor PRD referenced. The decision (Option 1) is to accept this superset and update the curation-hardening PRD's 184 references accordingly — see the 2026-04-13 diff batch.
-- Edge-case routes like `"Alaska's Marine Highway"` (ferry) and `"Alaska Railroad"` (railroad) are included in the CSV. They will likely produce `None` curvature scores in BASE-006 (OSM enrichment) and will be filtered out by Epic 6's quality floor.
+- Edge-case routes like `"Alaska's Marine Highway"` (ferry) and `"Alaska Railroad"` (railroad) are included in the CSV. They will likely produce `None` curvature scores in BASE-006 (OSM enrichment) and will be filtered out by Sprint 6's quality floor.
 - Runtime: ~5-10 seconds (two HTTP calls + shapely geometry processing on 648 features).
 - Cost: $0 (DOT endpoint is public, no account or API key).
 - The script is committed under `scripts/curation/data_prep/` rather than `scripts/curation/pipeline/` because it is a one-shot tool, not production pipeline code. Future data prep scripts (e.g., `fetch_rider_mag.py` in Epic 4) should live in the same directory.

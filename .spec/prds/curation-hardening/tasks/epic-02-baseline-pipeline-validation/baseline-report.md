@@ -198,7 +198,7 @@ Both community scrapers were completely rewritten as thin glue over the `scripts
 - **Both scrapers respect robots.txt and rate limits** (unchanged from prior assessment)
 - **MR scraper:** PASS — 1,899 routes (from 30), 99.5% yield, 0 schema failures, Natchez Trace multi-state validated, no Alabama-stamped BRP
 - **BBR scraper:** PASS — 3,224 routes (from 413), 99.94% yield, 0 schema failures, all 5 landmarks present including BBR-resident Tail of the Dragon and Million Dollar Highway
-- **Framework is generic:** `scripts/curation/pipeline/sources/crawl_plan/` is re-usable for Epic 4 SRC-001/006 (Form B + Form A) and Epic 9 RID-001/002/006 (Form C + Form D) without modification
+- **Framework is generic:** `scripts/curation/pipeline/sources/crawl_plan/` is re-usable for Epic 4 SRC-001/006 (Form B + Form A) and Sprint 9 RID-001/002/006 (Form C + Form D) without modification
 - **Open follow-ups (non-blocking):** INF-011 Epic 3 stub tracks the `US_STATES` allowlist improvement for the combined ~47 region-aggregator records across MR (27) and BBR (20) = 1.0% of combined community catalog
 
 ---

@@ -79,3 +79,9 @@ Cross-platform variance reports should use the same scenario id and theme suffix
 - `variance--{scenario-id-with-double-dashes}--rn-vs-ios--{theme}.json`
 
 This keeps RN, Android, and iOS artifacts aligned under the same baseline key.
+
+---
+
+## TRANSLATION SOURCES
+
+> This is a contract specification document, not a component translation task. Translation sources are managed by the individual component translation tasks that consume this registry contract.

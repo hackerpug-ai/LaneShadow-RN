@@ -1,7 +1,7 @@
 # INF-011 — US_STATES allowlist in crawl_plan inventory classifier
 
 **Epic:** epic-03-foundation-models-schema
-**Status:** **PHASE 1 COMPLETE (2026-04-14 afternoon)** — framework scaffolding + USPS prefix mapping + `states_all` fallback + DC support landed. Phase 2 (NLP-based extraction for 17 remaining MR cross-country records) deferred to Epic 10.
+**Status:** **PHASE 1 COMPLETE (2026-04-14 afternoon)** — framework scaffolding + USPS prefix mapping + `states_all` fallback + DC support landed. Phase 2 (NLP-based extraction for 17 remaining MR cross-country records) deferred to Sprint 10.
 **Priority:** P2 (non-blocking follow-up)
 **Agent:** python-implement
 **Estimated effort:** S (~60 min) — actual Phase 1 wall clock ~90 min including tests + retroactive normalization script
@@ -36,7 +36,7 @@ Framework-general improvement to `crawl_plan.inventory.classify()`. Two implemen
 - [ ] `classify()` accepts an optional `state_allowlist` parameter (default: `US_STATES`), used to intersect PT-03 URL slugs
 - [ ] Unit tests in `test_crawl_plan_framework.py` cover: allowed state → PT-03 classification, disallowed region slug → null / PT-04 / reject (depending on Option A or B)
 - [ ] Re-run MR inventory + execution → new staging has 0 non-US-state `state_primary` values OR 27 records with explicit marking (page_type or state_primary=null)
-- [ ] Epic 4 SRC-001/006 and Epic 9 RID-001/002/006 inherit the change (framework-general)
+- [ ] Epic 4 SRC-001/006 and Sprint 9 RID-001/002/006 inherit the change (framework-general)
 - [ ] Existing 108 fixture tests still pass
 - [ ] Framework unit tests still pass
 - [ ] MR `crawl-report.md` "Known limitation" section updated to reflect the fix (or removed if Option A and yield is clean)
@@ -61,10 +61,10 @@ This is an inventory-contract / schema-correctness fix, not a dedup or quality-f
 
 1. The change defines what a valid `state_primary` value is — a schema-level contract
 2. The fix affects the Route / EnrichedRoute model (Option B adds a nullable field)
-3. The INF-011 change is a framework improvement that benefits all future source tasks (Epic 4 SRC-001/006, Epic 9 RID-001/002/006) which is the same cross-epic scope as the existing INF-001..007
+3. The INF-011 change is a framework improvement that benefits all future source tasks (Epic 4 SRC-001/006, Sprint 9 RID-001/002/006) which is the same cross-epic scope as the existing INF-001..007
 
 Alternative placements considered and rejected:
-- **Epic 6 (Quality — Dedup & Floor):** the 27 records are not a dedup or quality-floor issue; they parse cleanly and have honest data
+- **Sprint 6 (Quality — Dedup & Floor):** the 27 records are not a dedup or quality-floor issue; they parse cleanly and have honest data
 - **BASE-009c (new Epic 2 task):** would inflate BASE-009 scope; the point of closing BASE-009a/b cleanly is to unblock Epic 3, not to spawn follow-up work in the same epic
 
 ## Notes
@@ -105,11 +105,11 @@ Alternative placements considered and rejected:
 
 **What the 17 remaining MR records are:**
 
-- **11 `united-states` cross-country routes** — literally multi-state tour routes ("Indian's Northeast Texas Loop", "Ashley National Forest to Flaming Gorge National Recreation Area", "Rt 50 - Clarksburg, WV East to Winchester, VA"). `states_all=['United States']` only. Cannot be collapsed to a single `state_primary`. Future option: add `is_cross_country: bool` flag to the Route model (Epic 3 INF-002 scope) or parse state hints from route names via NLP (Epic 10).
-- **6 regional slug records** — routes under `golf-coast`, `great-lakes` (wait no, this was fixed), `midwest`, `northeast`, `pacific-coast`, `southeast` with `states_all` containing only the region name. Route names contain state hints ("PA Route 340 Through Pennsylvania Amish Country" → PA; "Nacimiento Road - Paso Robles to Big Sur" → CA) but extracting them requires NLP. Deferred to Epic 10.
+- **11 `united-states` cross-country routes** — literally multi-state tour routes ("Indian's Northeast Texas Loop", "Ashley National Forest to Flaming Gorge National Recreation Area", "Rt 50 - Clarksburg, WV East to Winchester, VA"). `states_all=['United States']` only. Cannot be collapsed to a single `state_primary`. Future option: add `is_cross_country: bool` flag to the Route model (Epic 3 INF-002 scope) or parse state hints from route names via NLP (Sprint 10).
+- **6 regional slug records** — routes under `golf-coast`, `great-lakes` (wait no, this was fixed), `midwest`, `northeast`, `pacific-coast`, `southeast` with `states_all` containing only the region name. Route names contain state hints ("PA Route 340 Through Pennsylvania Amish Country" → PA; "Nacimiento Road - Paso Robles to Big Sur" → CA) but extracting them requires NLP. Deferred to Sprint 10.
 
-**Why not fix the remaining 17 now?** NLP-based state extraction from route names is the wrong tool to build in BASE-009 / INF-011 scope. Epic 10 (Community NLP & Signal Merge) has the NLP pipeline; the `normalize_state_primary()` cascade can be extended there with a 5th case: "regex against route_name for state hints". At 0.33% of combined community catalog, the remaining records are well within any downstream quality-floor tolerance and do not block Epic 3-12 progress.
+**Why not fix the remaining 17 now?** NLP-based state extraction from route names is the wrong tool to build in BASE-009 / INF-011 scope. Sprint 10 (Community NLP & Signal Merge) has the NLP pipeline; the `normalize_state_primary()` cascade can be extended there with a 5th case: "regex against route_name for state hints". At 0.33% of combined community catalog, the remaining records are well within any downstream quality-floor tolerance and do not block Epic 3-12 progress.
 
-**Phase 2 (deferred to Epic 10):** extend `normalize_state_primary()` with route-name NLP pattern matching. Goal: bring combined non-canonical rate from 0.33% to <0.05%. Non-blocking, tracked here for future pickup.
+**Phase 2 (deferred to Sprint 10):** extend `normalize_state_primary()` with route-name NLP pattern matching. Goal: bring combined non-canonical rate from 0.33% to <0.05%. Non-blocking, tracked here for future pickup.
 
-**Cross-epic inheritance.** The `normalize_state_primary()` cascade is in the framework's parser post-processing, so Epic 4 SRC-001/006 (Scenic Byways GIS, Rider Magazine) and Epic 9 RID-001/002/006 (ADVRider, Reddit, Pushshift) automatically inherit the normalization. Future sources with similar region-aggregator URL patterns will be correctly handled without any task-level changes.
+**Cross-epic inheritance.** The `normalize_state_primary()` cascade is in the framework's parser post-processing, so Epic 4 SRC-001/006 (Scenic Byways GIS, Rider Magazine) and Sprint 9 RID-001/002/006 (ADVRider, Reddit, Pushshift) automatically inherit the normalization. Future sources with similar region-aggregator URL patterns will be correctly handled without any task-level changes.

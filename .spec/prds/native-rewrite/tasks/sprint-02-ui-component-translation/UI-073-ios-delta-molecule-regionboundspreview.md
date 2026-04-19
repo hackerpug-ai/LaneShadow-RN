@@ -133,6 +133,117 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| RegionBoundsPreview | **RN baseline pending — properties derived from task spec and UC-OFFL-01** | n/a (NEW component — delta) | `ios/LaneShadow/Views/Molecules/RegionBoundsPreview.swift` | 1 variant (static region thumbnail) × 2 states (loading/loaded) × map SDK integration (Mapbox Snapshotter) |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper labelLarge**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1. **Paper labelSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=11, lineHeight=16, letterSpacing=0.5. **semantic.type.label.md**: fontSize=14, lineHeight=20, fontWeight=500. **semantic.type.body.sm**: fontSize=14, lineHeight=21, fontWeight=400.
+
+### RegionBoundsPreview
+
+**Source files read:**
+- LaneShadow: **RN baseline pending — properties derived from task spec**
+- Framework: n/a (NEW component — delta)
+- Use case: `.spec/prds/native-rewrite/11-uc-offline.md` (UC-OFFL-01: Browse Available Offline Regions)
+
+> **Note**: This is a **NEW delta component** — no RN baseline exists. Properties are derived from the task description ("static region thumbnail for UC-OFFL-01; Mapbox Snapshotter") and UC-OFFL-01 which specifies: "static Mapbox Snapshot thumbnail of region bounds".
+
+**Layout — container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| width | Task spec | `'100%'` | `Modifier.fillMaxWidth()` | `.frame(maxWidth: .infinity)` | n/a |
+| height | Task spec | `120` (thumbnail size) | `Modifier.height(120.dp)` | `.frame(height: 120)` | ESCALATE — propose `size.regionPreviewHeight = 120` |
+| borderRadius | Task spec | `radius.md` = 8 | `RoundedCornerShape(8.dp)` | `RoundedRectangle(cornerRadius: 8)` | `radius.md` |
+| overflow | Task spec | `'hidden'` (clip snapshot) | `Modifier.clip(shape)` | `.clipped()` | n/a |
+
+**Layout — snapshot (Mapbox Snapshotter):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| snapshotSize | Task spec | `matches container` | `Size(width, height)` | `CGSize(width: width, height: height)` | n/a |
+| cameraCenter | Task spec | `bounds.center` | `cameraPosition = CameraPosition.Builder().target(bounds.center).build()` | `centerCoordinate = bounds.center` | n/a |
+| cameraZoom | Task spec | `fit bounds` | `cameraPosition = ...zoom(levelToFit)` | `zoomLevel = levelToFit` | n/a |
+| cameraPitch | Task spec | `0` (top-down) | `tilt = 0.0` | `pitch = 0` | n/a |
+| cameraBearing | Task spec | `0` (north-up) | `bearing = 0.0` | `heading = 0` | n/a |
+| styleUrl | Task spec | `Mapbox Streets` | `styleUri = Style.MAPBOX_STREETS` | `styleURL = MGLStyle.streetsStyleURL` | n/a |
+
+**Layout — overlay (region info):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| position | Task spec | `bottom-left` | `Modifier.align(Alignment.BottomStart)` | `.frame(maxWidth: .infinity, alignment: .bottomLeading)` | n/a |
+| padding | Task spec | `space.sm` = 8 | `Modifier.padding(8.dp)` | `.padding(8)` | `space.sm` |
+| flexDirection | Task spec | `'column'` (name, size) | `Column(...)` | `VStack` | n/a |
+
+**Visual — background:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| backgroundColor | Task spec | `color.surface.default` | `LaneShadowTheme.colors.surface` | `theme.colors.surface` | `color.surface.default` |
+| overlay | Task spec | `gradient from transparent to black` | `Brush.verticalGradient(...)` | `.overlay(LinearGradient(...))` | n/a |
+| overlayOpacity | Task spec | `0.6` (60% black) | `alpha = 0.6f` | `.opacity(0.6)` | ESCALATE — `opacity.previewOverlay = 0.6` |
+
+**Typography — region name:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| fontSize | Paper labelLarge | 14 | `14.sp` | `.font(.system(size: 14, weight: .medium))` | `type.label.md.fontSize` |
+| fontWeight | Paper labelLarge | `'500'` | `FontWeight.Medium` | `.medium` | `type.label.md.fontWeight` |
+| color | Task spec | `color.onSurface.default` (white on overlay) | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| maxLines | Task spec | `1` | `maxLines = 1` | `.lineLimit(1)` | n/a |
+| overflow | Task spec | `'ellipsis'` | `overflow = TextOverflow.Ellipsis` | `.truncationMode(.tail)` | n/a |
+
+**Typography — region size:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| fontSize | Paper labelSmall | 11 | `11.sp` | `.font(.system(size: 11, weight: .medium))` | ESCALATE — `type.label.sm.fontSize = 11` |
+| fontWeight | Paper labelSmall | `'500'` | `FontWeight.Medium` | `.medium` | `type.label.sm.fontWeight` |
+| color | Task spec | `color.onSurface.muted` (80% white) | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
+| text | Task spec | `"~245 MB"` | `Text("~${size} MB")` | `Text("~\(size) MB")` | n/a |
+
+**Visual — loading state:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| backgroundColor | Task spec | `color.surfaceVariant.default` | `LaneShadowTheme.colors.surfaceVariant` | `theme.colors.surfaceVariant` | `color.surfaceVariant.default` |
+| indicator | Task spec | `circular progress` | `CircularProgressIndicator()` | `ProgressView()` | n/a |
+| indicatorColor | Task spec | `color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+
+**Visual — error state:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| backgroundColor | Task spec | `color.error.default` | `LaneShadowTheme.colors.error` | `theme.colors.error` | `color.error.default` |
+| icon | Task spec | `error icon` | `Icon(Icons.Default.Error)` | `Image(systemName: "exclamationmark.triangle")` | n/a |
+| iconColor | Task spec | `color.onError.default` | `LaneShadowTheme.colors.onError` | `theme.colors.onError` | `color.onError.default` |
+| iconSize | Task spec | `24` | `Modifier.size(24.dp)` | `.frame(width: 24, height: 24)` | ESCALATE — propose `iconSize.md = 24` |
+
+**Interaction:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| accessibilityRole | Task spec | `'image'` | `Modifier.semantics { role = Role.Img }` | `.accessibilityAddTraits(.isImage)` | n/a |
+| accessibilityLabel | Task spec | `"Preview of {regionName}"` | `contentDescription = "Preview of $regionName"` | `.accessibilityLabel("Preview of \(regionName)")` | n/a |
+| testID | Task spec | passed via prop | `Modifier.testTag(testID)` | `.accessibilityIdentifier(testID)` | n/a |
+
+**State — props:**
+
+| State | Source | Type | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| bounds | Task spec | `GMSCoordinateBounds` or `MGLCoordinateBounds` | `val bounds: LatLngBounds` | `var bounds: GMSCoordinateBounds` | n/a |
+| regionName | Task spec | `String` | `val regionName: String` | `var regionName: String` | n/a |
+| sizeInMB | Task spec | `Int` | `val sizeInMB: Int` | `var sizeInMB: Int` | n/a |
+| isLoading | Task spec | `Boolean` | `val isLoading: Boolean` | `var isLoading: Bool` | n/a |
+| isError | Task spec | `Boolean` | `val isError: Boolean` | `var isError: Bool` | n/a |
+
 ## DESIGN NOTES
 
 - Treat parity as spec-driven against the delta composition contract when no RN baseline story exists.

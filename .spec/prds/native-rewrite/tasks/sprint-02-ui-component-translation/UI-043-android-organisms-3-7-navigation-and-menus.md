@@ -132,6 +132,253 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Backend-aware composables, duplicated variant files, or hardcoded visual constants.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| DrawerMenu (ui) | `react-native/components/ui/drawer-menu.tsx` | `node_modules/react-native/Libraries/Animated/Animated.js` (Animated.timing/Value); `node_modules/react-native/Libraries/Components/Pressable/Pressable.js` | `android/app/src/main/java/com/laneshadow/ui/organisms/DrawerMenu.kt` | 1 fixed layout × 2 states (open/closed) × 2 alignments (left/right) |
+| DrawerMenu (ui/menus) | `react-native/components/ui/menus/drawer-menu.tsx` | `node_modules/react-native/Libraries/Animated/Animated.js` (Animated.timing/Value); `node_modules/react-native/Libraries/Components/Pressable/Pressable.js` | `android/app/src/main/java/com/laneshadow/ui/organisms/menus/DrawerMenu.kt` | 1 fixed layout × 2 states (open/closed) × 2 alignments (left/right) |
+| SessionSidebar | `react-native/components/ui/session-sidebar.tsx` | `node_modules/react-native/Libraries/Components/ScrollView/ScrollView.js` | `android/app/src/main/java/com/laneshadow/ui/organisms/SessionSidebar.kt` | 1 fixed layout × 2 states (visible/hidden) × session grouping (today/yesterday/older) |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2.
+
+### DrawerMenu (ui)
+
+**Source files read:**
+- LaneShadow: `react-native/components/ui/drawer-menu.tsx`
+- Framework: `node_modules/react-native/Libraries/Animated/Animated.js`, `node_modules/react-native/Libraries/Components/Pressable/Pressable.js`
+
+**Layout — drawer dimensions:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| width | RN-wrapper | `280` (hardcoded) | `Modifier.width(280.dp)` | `.frame(width: 280)` | ESCALATE — propose `space.drawerWidth = 280` |
+| height | RN-wrapper | `'100%'` | `Modifier.fillMaxHeight()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
+
+**Layout — header:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| paddingVertical | RN-wrapper | `space.xs` = 4 | `Modifier.padding(vertical = 4.dp)` | `.padding(.vertical, 4)` | `space.xs` |
+| paddingHorizontal | RN-wrapper | `space.md` = 12 | `Modifier.padding(horizontal = 12.dp)` | `.padding(.horizontal, 12)` | `space.md` |
+| borderBottomWidth | RN-wrapper | `1` | `Modifier.border(1.dp, ...)` | `.overlay(border...)` | n/a |
+| borderBottomColor | RN-wrapper | `color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
+
+**Layout — section:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| padding | RN-wrapper | `space.lg` = 16 | `Modifier.padding(16.dp)` | `.padding(16)` | `space.lg` |
+
+**Layout — menu item:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| padding | RN-wrapper | `space.md` = 12 | `Modifier.padding(12.dp)` | `.padding(12)` | `space.md` |
+| borderRadius | RN-wrapper | `radius.lg` = 16 | `RoundedCornerShape(16.dp)` | `RoundedRectangle(cornerRadius: 16)` | `radius.lg` |
+| marginBottom | RN-wrapper | `space.xs` = 4 | `Modifier.padding(bottom = 4.dp)` | `.padding(.bottom, 4)` | `space.xs` |
+| gap | RN-wrapper | `12` (hardcoded) | `Arrangement.spacedBy(12.dp)` | `Spacer(minLength: 12)` | ESCALATE — propose `space.iconTextGap = 12` |
+
+**Layout — footer:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| paddingVertical | RN-wrapper | `space.sm` = 8 | `Modifier.padding(vertical = 8.dp)` | `.padding(.vertical, 8)` | `space.sm` |
+| paddingHorizontal | RN-wrapper | `space.md` = 12 | `Modifier.padding(horizontal = 12.dp)` | `.padding(.horizontal, 12)` | `space.md` |
+| gap | RN-wrapper | `space.lg` = 16 | `Arrangement.spacedBy(16.dp)` | `Spacer(minLength: 16)` | `space.lg` |
+| borderTopWidth | RN-wrapper | `1` | `Modifier.border(1.dp, ...)` | `.overlay(border...)` | n/a |
+| borderTopColor | RN-wrapper | `color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
+
+**Visual — backdrop:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| backgroundColor | RN-wrapper | `color.scrim.default` | `LaneShadowTheme.colors.scrim` | `theme.colors.scrim` | `color.scrim.default` |
+| position | RN-wrapper | `'absolute'` | `Modifier.fillMaxSize()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
+| zIndex | RN-wrapper | `10` | `Modifier.zIndex(10)` | `.zIndex(10)` | n/a |
+
+**Visual — drawer container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| backgroundColor | RN-wrapper | `color.background.default` | `LaneShadowTheme.colors.background` | `theme.colors.background` | `color.background.default` |
+| position | RN-wrapper | `'absolute'` | `Modifier.wrapContentSize(unbounded = true)` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
+| zIndex | RN-wrapper | `20` | `Modifier.zIndex(20)` | `.zIndex(20)` | n/a |
+
+**Visual — menu item states:**
+
+| State | Source | backgroundColor | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| active | RN-wrapper | `${color.primary.default}1A` (10% opacity) | `LaneShadowTheme.colors.primary.copy(alpha = 0.1f)` | `theme.colors.primary.opacity(0.1)` | `color.primary.default` + alpha |
+| pressed | RN-wrapper | `color.surface.pressed` | `LaneShadowTheme.colors.surfacePressed` | `theme.colors.surfacePressed` | `color.surface.pressed` |
+| disabled | RN-wrapper | `opacity: 0.5` | `alpha(0.5f)` | `.opacity(0.5)` | n/a |
+
+**Typography — header:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| style | RN-wrapper | `type.heading.md` | `LaneShadowTheme.typography.headingMd` | `theme.typography.headingMd` | `type.heading.md` |
+| color | RN-wrapper | `color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+
+**Typography — section title:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| style | RN-wrapper | `type.label.sm` | `LaneShadowTheme.typography.labelSm` | `theme.typography.labelSm` | `type.label.sm` |
+| color | RN-wrapper | `color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
+| marginBottom | RN-wrapper | `space.sm` = 8 | `Modifier.padding(bottom = 8.dp)` | `.padding(.bottom, 8)` | `space.sm` |
+
+**Typography — menu item:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| style | RN-wrapper | `type.body.md` | `LaneShadowTheme.typography.bodyMd` | `theme.typography.bodyMd` | `type.body.md` |
+| fontWeight (active) | RN-wrapper | `'500'` | `FontWeight.Medium` | `.weight(.medium)` | n/a |
+| fontWeight (inactive) | RN-wrapper | `'400'` | `FontWeight.Normal` | `.weight(.regular)` | n/a |
+| color (active) | RN-wrapper | `color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+| color (inactive) | RN-wrapper | `color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| color (disabled) | RN-wrapper | `color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
+
+**Iconography — menu item:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| size | RN-wrapper | `24` | `24.dp` | `24` | ESCALATE — propose `space.iconSize = 24` |
+| color (active) | RN-wrapper | `color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+| color (inactive) | RN-wrapper | `color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| color (disabled) | RN-wrapper | `color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
+
+**Animation — slide transition:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| duration | RN-wrapper | `300` | `300` (animateFloatAsState) | `0.3` | ESCALATE — propose `duration.drawerSlide = 300` |
+| easing | RN-wrapper | `'ease-in-out'` (default timing) | `AnimationSpec(spring() or tween(easing = FastOutSlowInEasing))` | `.easeInOut` | n/a |
+| translateX (closed, left) | RN-wrapper | `-280` | `-280.dp` | `-280` | `space.drawerWidth` |
+| translateX (closed, right) | RN-wrapper | `280` | `280.dp` | `280` | `space.drawerWidth` |
+
+### DrawerMenu (ui/menus)
+
+**Source files read:**
+- LaneShadow: `react-native/components/ui/menus/drawer-menu.tsx`
+- Framework: `node_modules/react-native/Libraries/Animated/Animated.js`, `node_modules/react-native/Libraries/Components/Pressable/Pressable.js`
+
+**Note:** This variant is nearly identical to DrawerMenu (ui) but includes the `alignment` prop ('left' | 'right') for right-side drawer support. Style properties are identical — see DrawerMenu (ui) matrix above. Key difference:
+
+| Property | Source | Value (left) | Value (right) | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| alignment | RN-wrapper | `'left'` | `'right'` | `Modifier.wrapContentSize(unbounded = true).offset(x = ...)` | `.offset(x: ...)` | n/a |
+| translateX (closed, left) | RN-wrapper | `-280` | n/a | `-280.dp` | `-280` | `space.drawerWidth` |
+| translateX (closed, right) | RN-wrapper | n/a | `280` | `280.dp` | `280` | `space.drawerWidth` |
+
+### SessionSidebar
+
+**Source files read:**
+- LaneShadow: `react-native/components/ui/session-sidebar.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/ScrollView/ScrollView.js`
+
+**Layout — sidebar dimensions:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| width | RN-wrapper | `SCREEN_WIDTH * 0.8` | `Modifier.fillMaxWidth(0.8f)` | `.frame(maxWidth: .infinity * 0.8)` | ESCALATE — propose `space.sidebarWidthRatio = 0.8` |
+| height | RN-wrapper | `'100%'` | `Modifier.fillMaxHeight()` | `.frame(maxHeight: .infinity)` | n/a |
+
+**Layout — header:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| paddingHorizontal | RN-wrapper | `20` (hardcoded) | `Modifier.padding(horizontal = 20.dp)` | `.padding(.horizontal, 20)` | ESCALATE — propose `space.sidebarPadding = 20` |
+| paddingVertical | RN-wrapper | `20` (hardcoded) | `Modifier.padding(vertical = 20.dp)` | `.padding(.vertical, 20)` | ESCALATE — propose `space.sidebarPadding = 20` |
+| borderBottomWidth | RN-wrapper | `1` | `Modifier.border(1.dp, ...)` | `.overlay(border...)` | n/a |
+| borderBottomColor | RN-wrapper | `color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
+
+**Layout — header title:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| fontSize | RN-wrapper | `28` | `fontSize(28.sp)` | `font(.system(size: 28))` | ESCALATE — propose `type.display.lg.fontSize = 28` |
+| fontWeight | RN-wrapper | `'800'` | `FontWeight.ExtraBold` | `.weight(.heavy)` | n/a |
+
+**Layout — new session button:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| gap | RN-wrapper | `6` (hardcoded) | `Arrangement.spacedBy(6.dp)` | `Spacer(minLength: 6)` | ESCALATE — propose `space.buttonIconGap = 6` |
+| paddingHorizontal | RN-wrapper | `12` | `Modifier.padding(horizontal = 12.dp)` | `.padding(.horizontal, 12)` | `space.md` |
+| paddingVertical | RN-wrapper | `8` | `Modifier.padding(vertical = 8.dp)` | `.padding(.vertical, 8)` | `space.sm` |
+| borderRadius | RN-wrapper | `12` (hardcoded) | `RoundedCornerShape(12.dp)` | `RoundedRectangle(cornerRadius: 12)` | `radius.lg` |
+
+**Layout — sessions list:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| padding | RN-wrapper | `16` (hardcoded) | `Modifier.padding(16.dp)` | `.padding(16)` | `space.lg` |
+
+**Layout — group:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| marginBottom | RN-wrapper | `24` (hardcoded) | `Modifier.padding(bottom = 24.dp)` | `.padding(.bottom, 24)` | ESCALATE — propose `space.xl = 24` |
+
+**Layout — group title:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| fontSize | RN-wrapper | `13` | `fontSize(13.sp)` | `font(.system(size: 13))` | `type.label.sm.fontSize` |
+| fontWeight | RN-wrapper | `'700'` | `FontWeight.Bold` | `.weight(.bold)` | n/a |
+| textTransform | RN-wrapper | `'uppercase'` | `toUpperCase()` | `.uppercase()` | n/a |
+| marginBottom | RN-wrapper | `12` | `Modifier.padding(bottom = 12.dp)` | `.padding(.bottom, 12)` | `space.md` |
+| letterSpacing | RN-wrapper | `0.8` | `letterSpacing(0.8.sp)` | `.tracking(0.8)` | n/a |
+
+**Layout — empty state:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| paddingVertical | RN-wrapper | `60` | `Modifier.padding(vertical = 60.dp)` | `.padding(.vertical, 60)` | ESCALATE — propose `space.5xl = 64` (use 60) |
+| gap | RN-wrapper | `12` | `Arrangement.spacedBy(12.dp)` | `Spacer(minLength: 12)` | `space.md` |
+
+**Visual — backdrop:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| backgroundColor (idle) | RN-wrapper | `'rgba(0, 0, 0, 0.5)'` | `Color.Black.copy(alpha = 0.5f)` | `Color.black.opacity(0.5)` | ESCALATE — propose `color.scrim.default = rgba(0,0,0,0.5)` |
+| backgroundColor (pressed) | RN-wrapper | `'rgba(0, 0, 0, 0.6)'` | `Color.Black.copy(alpha = 0.6f)` | `Color.black.opacity(0.6)` | n/a |
+
+**Typography — new session button:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| fontSize | RN-wrapper | `16` | `fontSize(16.sp)` | `font(.system(size: 16))` | `type.body.md.fontSize` |
+| fontWeight | RN-wrapper | `'700'` | `FontWeight.Bold` | `.weight(.bold)` | n/a |
+| color | RN-wrapper | `color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+
+**Typography — empty state:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| fontSize | RN-wrapper | `15` | `fontSize(15.sp)` | `font(.system(size: 15))` | ESCALATE — propose `type.body.sm.fontSize = 15` |
+| fontWeight | RN-wrapper | `'500'` | `FontWeight.Medium` | `.weight(.medium)` | n/a |
+| color | RN-wrapper | `color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
+
+**Iconography — new session button:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| size | RN-wrapper | `26` | `26.dp` | `26` | ESCALATE — propose `space.iconSizeLg = 26` |
+| color | RN-wrapper | `color.primary.default` | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+
+**Iconography — empty state:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| size | RN-wrapper | `48` | `48.dp` | `48` | `space.3xl` |
+| color | RN-wrapper | `color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
+
 ## DESIGN NOTES
 
 - Use deterministic composition fixtures so complex sheets, maps, chat, and stacked layouts remain diffable.

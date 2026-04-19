@@ -133,6 +133,124 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| Speedometer | **RN baseline pending — properties derived from task spec and UC-NAV-04** | n/a (NEW component — delta) | `ios/LaneShadow/Views/Molecules/Speedometer.swift` | 1 variant (radial speed gauge) × 3 states (under-limit/near-limit/over-limit) × animation (needle sweep, color transitions) |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper labelLarge**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1. **Paper labelSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=11, lineHeight=16, letterSpacing=0.5. **semantic.type.label.md**: fontSize=14, lineHeight=20, fontWeight=500. **semantic.type.body.sm**: fontSize=14, lineHeight=21, fontWeight=400.
+
+### Speedometer
+
+**Source files read:**
+- LaneShadow: **RN baseline pending — properties derived from task spec**
+- Framework: n/a (NEW component — delta)
+- Use case: `.spec/prds/native-rewrite/09-uc-navigation.md` (UC-NAV-04: Real-Time Metrics)
+
+> **Note**: This is a **NEW delta component** — no RN baseline exists. Properties are derived from the task description ("radial speed gauge with speed-limit color states for UC-NAV-04; SwiftUI Canvas + arc path") and UC-NAV-04 which specifies: "circular/radial speed gauge with speed-limit color state (green/yellow/red)".
+
+**Layout — container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| size | Task spec | `120 × 120` (circular gauge) | `Modifier.size(120.dp)` | `.frame(width: 120, height: 120)` | ESCALATE — propose `size.speedometer = 120` |
+| aspectRatio | Task spec | `1:1` (circular) | n/a (size handles) | n/a | n/a |
+
+**Layout — gauge arc:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| arcStartAngle | Task spec | `135°` (bottom-left, 7 o'clock) | `startAngle = 135f` | `.degrees(135)` | n/a |
+| arcEndAngle | Task spec | `405°` (bottom-right, 5 o'clock via 270° sweep) | `endAngle = 405f` (sweep 270°) | `.degrees(405)` | n/a |
+| arcStrokeWidth | Task spec | `8` (thick arc for visibility) | `style = Stroke(width = 8.dp)` | `.stroke(lineWidth: 8)` | ESCALATE — propose `size.speedometerArcWidth = 8` |
+| arcBorderRadius | Task spec | `4` (rounded caps) | `Stroke(cap = StrokeCap.Round)` or `pathEffect = PathEffect.roundCorner(4.dp)` | `.lineCap(.round)` | `radius.sm = 4` ✓ |
+
+**Layout — needle:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| needleLength | Task spec | `45` (from center to edge) | Calculated: `(size / 2) - padding` | Same | n/a |
+| needleWidth | Task spec | `2` (thin needle) | `Modifier.width(2.dp)` | `.frame(width: 2)` | ESCALATE — propose `size.speedometerNeedleWidth = 2` |
+| needlePivot | Task spec | `center` (rotates from center) | `rotate(angle, pivot = center)` | `.rotationEffect(Angle(degrees: angle), anchor: .center)` | n/a |
+| needleRotationRange | Task spec | `135° to 405°` (270° total sweep) | `135f + (speed / maxSpeed) * 270f` | Same | n/a |
+
+**Layout — center pivot:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| pivotSize | Task spec | `8` (small circle at center) | `Modifier.size(8.dp)` | `.frame(width: 8, height: 8)` | `space.xs = 4`, ESCALATE — propose `size.speedometerPivot = 8` |
+| pivotBorderRadius | Task spec | `radius.full` (circle) | `CircleShape` | `Circle()` | `radius.full` |
+
+**Visual — colors (by speed-limit state):**
+
+| State | Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| under-limit | arcColor | Task spec | `color.success.default` (green) | `LaneShadowTheme.colors.success` | `theme.colors.success` | `color.success.default` |
+| under-limit | needleColor | Task spec | `color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| near-limit | arcColor | Task spec | `color.warning.default` (yellow) | `LaneShadowTheme.colors.warning` | `theme.colors.warning` | `color.warning.default` |
+| near-limit | threshold | Task spec | `speedLimit * 0.9` (90% of limit) | Calculated: `if (speed >= limit * 0.9)` | Same | n/a |
+| over-limit | arcColor | Task spec | `color.danger.default` (red) | `LaneShadowTheme.colors.danger` | `theme.colors.danger` | `color.danger.default` |
+| over-limit | threshold | Task spec | `speedLimit * 1.0` (at or over limit) | Calculated: `if (speed >= limit)` | Same | n/a |
+
+**Visual — pivot colors:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| pivotColor | Task spec | `color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| pivotBorder | Task spec | `1px color.border.default` | `Modifier.border(1.dp, ...)` | `.overlay(Circle().stroke(...))` | `color.border.default` |
+
+**Typography — speed value (center overlay):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| text | Task spec | `speed` (numeric, e.g., "45") | `Text("${speed.toInt()}")` | `Text("\(speed)")` | n/a |
+| fontSize | Task spec | `24` (large, readable) | `24.sp` | `.font(.system(size: 24, weight: .bold))` | ESCALATE — propose `type.speedometerValue.fontSize = 24` |
+| fontWeight | Task spec | `'700'` (bold) | `FontWeight.Bold` | `.bold` | ESCALATE — `type.speedometerValue.fontWeight = 700` |
+| color | Task spec | `color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| textAlign | Task spec | `'center'` | `TextAlign.Center` | `.multilineTextAlignment(.center)` | n/a |
+| offset | Task spec | `below center` (y+35 from center) | `Modifier.offset(y = 35.dp)` | `.offset(y: 35)` | ESCALATE — propose `space.lg + space.md = 28` or `offset.speedometerValue = 35` |
+
+**Typography — unit label:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| text | Task spec | `"mph"` or `"km/h"` | `Text(unit)` | `Text(unit)` | n/a |
+| fontSize | Paper labelSmall | 11 | `11.sp` | `.font(.system(size: 11, weight: .medium))` | ESCALATE — `type.label.sm.fontSize = 11` |
+| fontWeight | Paper labelSmall | `'500'` | `FontWeight.Medium` | `.medium` | `type.label.sm.fontWeight` |
+| color | Task spec | `color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
+| offset | Task spec | `below speed value` | `Modifier.offset(y = 55.dp)` | `.offset(y: 55)` | ESCALATE — propose `offset.speedometerUnit = 55` |
+
+**Animation — needle response:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| animationType | Task spec | `animateFloat` (needle rotation) | `animateFloatAsState(targetValue = rotation)` | `.animation(.easeInOut(duration: 0.3))` | n/a |
+| duration | Task spec | `300ms` (smooth but responsive) | `durationMillis = 300` | `0.3` | ESCALATE — propose `motion.duration.medium = 300` |
+| easing | Task spec | `easeInOut` | `EaseInOut` | `.easeInOut` | n/a |
+| colorTransition | Task spec | `animateColor` (arc color state change) | `animateColorAsState(targetValue = arcColor)` | `.animation(.easeInOut(duration: 0.2))` | ESCALATE — propose `motion.duration.colorState = 200` |
+
+**Interaction:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| accessibilityRole | Task spec | `'summary'` (displays live metric) | `Modifier.semantics { role = Role.Img }` | `.accessibilityAddTraits(.isImage)` | n/a |
+| accessibilityLabel | Task spec | `"Speed: {speed} {unit}"` | `contentDescription = "Speed: $speed $unit"` | `.accessibilityLabel("Speed: \(speed) \(unit)")` | n/a |
+| accessibilityState | Task spec | `"Over speed limit"` when over | `stateDescription = if (overLimit) "Over speed limit" else null` | `.accessibilityHint(overLimit ? "Over speed limit" : nil)` | n/a |
+| testID | Task spec | passed via prop | `Modifier.testTag(testID)` | `.accessibilityIdentifier(testID)` | n/a |
+
+**State — props:**
+
+| State | Source | Type | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| speed | Task spec | `Float` (0-200+) | `val speed: Float` | `var speed: CGFloat` | n/a |
+| speedLimit | Task spec | `Float` (e.g., 55, 65, 75) | `val speedLimit: Float` | `var speedLimit: CGFloat` | n/a |
+| unit | Task spec | `String` ("mph" or "km/h") | `val unit: String` | `var unit: String` | n/a |
+
 ## DESIGN NOTES
 
 - Treat parity as spec-driven against the delta composition contract when no RN baseline story exists.

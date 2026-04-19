@@ -1,0 +1,92 @@
+{
+  "task_id": "QUAL-001",
+  "summary": "Implemented SemanticDeduplicator with strict cosine thresholds (0.92/0.75), source-priority auto-merge logic, Convex HTTP calls for findCandidateRoutesByEmbedding and addRouteMatch, arbitration queue emission, calibration set emission, runtime budget warning in main(), and full mocked HTTP test coverage for ACs.",
+  "files_changed": [
+    "scripts/curation/pipeline/dedup/__init__.py",
+    "scripts/curation/pipeline/dedup/semantic_deduplicator.py",
+    "scripts/curation/tests/test_qual_001.py",
+    "scripts/curation/data/calibration/dedup_calibration_set.json",
+    "scripts/curation/data/arbitration/arbitration_queue.json"
+  ],
+  "verification_commands": [
+    "cd scripts/curation && python3 -m pytest tests/test_qual_001.py -v",
+    "cd scripts/curation && python3 -m pipeline.dedup.semantic_deduplicator --dry-run --limit 5608"
+  ],
+  "acceptance_criteria_evidence": [
+    {
+      "id": "AC-1",
+      "status": "met",
+      "evidence": [
+        "file:scripts/curation/pipeline/dedup/semantic_deduplicator.py:259",
+        "file:scripts/curation/tests/test_qual_001.py:39",
+        "command:cd scripts/curation && python3 -m pytest tests/test_qual_001.py -v"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "status": "met",
+      "evidence": [
+        "file:scripts/curation/pipeline/dedup/semantic_deduplicator.py:286",
+        "file:scripts/curation/tests/test_qual_001.py:98",
+        "command:cd scripts/curation && python3 -m pytest tests/test_qual_001.py -v"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "status": "met",
+      "evidence": [
+        "file:scripts/curation/pipeline/dedup/semantic_deduplicator.py:188",
+        "file:scripts/curation/tests/test_qual_001.py:153",
+        "command:cd scripts/curation && python3 -m pytest tests/test_qual_001.py -v"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "status": "met",
+      "evidence": [
+        "file:scripts/curation/pipeline/dedup/semantic_deduplicator.py:196",
+        "file:scripts/curation/tests/test_qual_001.py:159",
+        "command:cd scripts/curation && python3 -m pytest tests/test_qual_001.py -v"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "status": "met",
+      "evidence": [
+        "file:scripts/curation/pipeline/dedup/semantic_deduplicator.py:323",
+        "file:scripts/curation/tests/test_qual_001.py:172",
+        "command:cd scripts/curation && python3 -m pytest tests/test_qual_001.py -v"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "status": "met",
+      "evidence": [
+        "file:scripts/curation/pipeline/dedup/semantic_deduplicator.py:501",
+        "file:scripts/curation/tests/test_qual_001.py:246",
+        "command:cd scripts/curation && python3 -m pipeline.dedup.semantic_deduplicator --dry-run --limit 5608"
+      ]
+    }
+  ],
+  "reviewer_considerations": [
+    "This environment exposes Python as `python3`; verification commands are normalized to the passing `python3` variants.",
+    "New task files appear as untracked additions in the worktree until the orchestrator checkpoint stages them."
+  ],
+  "artifacts": [
+    {
+      "kind": "report",
+      "path": ".tmp/QUAL-001/started.json",
+      "description": "Implementer startup marker"
+    },
+    {
+      "kind": "log",
+      "path": ".tmp/QUAL-001/activity.jsonl",
+      "description": "Implementer activity log"
+    },
+    {
+      "kind": "report",
+      "path": ".tmp/QUAL-001/done.json",
+      "description": "Implementer completion artifact"
+    }
+  ]
+}

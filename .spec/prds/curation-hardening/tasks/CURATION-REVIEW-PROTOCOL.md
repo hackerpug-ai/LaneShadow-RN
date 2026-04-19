@@ -27,7 +27,7 @@
 
 ## Review Steps (Conditional by Epic)
 
-Each step runs ONLY if the referenced scripting exists at the current epic boundary. Steps marked "required starting Epic X" are skipped for earlier epics. As the plan progresses, more steps apply — by Epic 12 all steps are mandatory.
+Each step runs ONLY if the referenced scripting exists at the current epic boundary. Steps marked "required starting Epic X" are skipped for earlier epics. As the plan progresses, more steps apply — by Sprint 12 all steps are mandatory.
 
 ### Step 1: Run all source scrapers
 **Required starting:** Epic 2 (existing sources), grows at Epic 4 (+3 new sources)
@@ -52,31 +52,31 @@ python -m scripts.curation.pipeline.sources.fhwa                # Form E — pre
 python -m scripts.curation.pipeline.sources.motorcycleroads     # Form A — requires crawl plan (see BASE-009)
 python -m scripts.curation.pipeline.sources.bestbikingroads     # Form A — requires crawl plan (see BASE-009)
 
-# New sources (all required starting at Epic 4 — Epic 5 deleted 2026-04-12)
+# New sources (all required starting at Epic 4 — Sprint 5 deleted 2026-04-12)
 python -m scripts.curation.pipeline.sources.scenic_byways       # Epic 4+ — Form B (Koordinates GIS API), requires crawl plan
 python -m scripts.curation.pipeline.sources.rider_mag           # Epic 4+ — Form A (editorial HTML), requires crawl plan
 python -m scripts.curation.pipeline.sources.curvature_discovery # Epic 4+ — Form E (pre-computed), exempt
 
-# Community (required starting Epic 9+)
-python -m scripts.curation.pipeline.sources.advrider            # Epic 9+ — Form C (RSS feeds × 17), requires crawl plan
-python -m scripts.curation.pipeline.sources.reddit              # Epic 9+ — Form D (OAuth2 paginated API), requires crawl plan
-python -m scripts.curation.pipeline.sources.pushshift           # Epic 9+ — Form D variant (historical backfill), requires crawl plan
+# Community (required starting Sprint 9+)
+python -m scripts.curation.pipeline.sources.advrider            # Sprint 9+ — Form C (RSS feeds × 17), requires crawl plan
+python -m scripts.curation.pipeline.sources.reddit              # Sprint 9+ — Form D (OAuth2 paginated API), requires crawl plan
+python -m scripts.curation.pipeline.sources.pushshift           # Sprint 9+ — Form D variant (historical backfill), requires crawl plan
 ```
 *Sources removed 2026-04-12: `bdr` (dropped — V3 lifestyle mismatch + VAL-002 403s), `twtex` (dropped — PRD assumption failed, VAL-003 no-go), `usfs_mvum` (dropped — V3 lifestyle mismatch).*
 *FHWA data lineage (2026-04-13): `scripts/curation/pipeline/sources/fhwa.py` consumes `data/fhwa_byways.csv`, a static committed file produced by Epic 2 BASE-000 from the DOT ArcGIS `US_Scenic_Byways/MapServer/107` layer (~645 routes across NSB / state / USFS / NPS / BLM tags). The predecessor PRD's aspirational "184-route data.gov CSV" reference has been retired — see `epic-02-baseline-pipeline-validation/DECISIONS.md`. Expected FHWA count in each epic's `source_counts.json` is ~645 (tolerance 580–710) unless DOT updates the layer, in which case a new DECISIONS.md entry documents the delta.*
 **Verify:** each source produces a JSONL staging file with record count matching the Phase 1 inventory (±5% for dead links); the source's `.audit.json` shows fetch ≥95%, parse ≥99%, schema_validation_fail <1%. Log discrepancies against the committed `crawl-report.md`.
 
 ### Step 2: Run enrichment clients
-**Required starting:** Epic 8 (HPMS + NWS) + existing OSM enrichment
+**Required starting:** Sprint 8 (HPMS + NWS) + existing OSM enrichment
 ```bash
 python -m scripts.curation.pipeline.enrichment.osm_client       # Existing (Epic 2+)
-python -m scripts.curation.pipeline.enrichment.hpms_client      # Epic 8+
-python -m scripts.curation.pipeline.enrichment.weather_client   # Epic 8+
+python -m scripts.curation.pipeline.enrichment.hpms_client      # Sprint 8+
+python -m scripts.curation.pipeline.enrichment.weather_client   # Sprint 8+
 ```
 **Verify:** enrichment fields populate on Route objects. Spot-check 10 routes.
 
 ### Step 3: Run deduplication
-**Required starting:** Epic 6
+**Required starting:** Sprint 6
 ```bash
 python -m scripts.curation.pipeline.dedup.semantic_deduplicator
 ```
@@ -89,14 +89,14 @@ python -m scripts.curation.pipeline.dedup.llm_arbitrator
 **Verify:** Arbitration batch completes without errors. `route_matches.isArbitrated=true` rows are populated with `arbitrationNotes` from Claude.
 
 ### Step 4: Run quality floor filter
-**Required starting:** Epic 6
+**Required starting:** Sprint 6
 ```bash
 python -m scripts.curation.pipeline.quality.floor_filter --phase=1
 ```
 **Verify:** tier distribution (premium/standard/minimal) makes sense. Not 100% minimal. Not 100% premium.
 
 ### Step 5: Run calibration gate (ground truth validation)
-**Required starting:** Epic 8
+**Required starting:** Sprint 8
 ```bash
 python -m scripts.curation.pipeline.extraction.calibration_gate
 ```
@@ -114,7 +114,7 @@ python -m scripts.curation.pipeline.extraction.client
 ```bash
 python -m scripts.curation.pipeline.scoring.composite
 ```
-**Verify:** all routes have `composite_score` in [0,1]. Current WEIGHTS logged. Top 10 routes sanity-checked (Rider Mag routes should dominate from Epic 8+).
+**Verify:** all routes have `composite_score` in [0,1]. Current WEIGHTS logged. Top 10 routes sanity-checked (Rider Mag routes should dominate from Sprint 8+).
 
 ### Step 8: Run archetype classification
 **Required starting:** Epic 2 (existing classification)
@@ -124,9 +124,9 @@ python -m scripts.curation.pipeline.classification.archetype
 **Verify:** every route has `primary_archetype` from the 6 valid values. Distribution across archetypes looks reasonable.
 
 ### Step 9: Run community post matching & signal merge
-**Required starting:** Epic 10
+**Required starting:** Sprint 10
 
-Note: per-post LLM extraction into `route_posts_raw` (PostExtraction contract from Epic 3 INF-005) runs upstream in Epic 9 ingestion. Epic 10 handles the semantic matching, reconciliation, and signal merge.
+Note: per-post LLM extraction into `route_posts_raw` (PostExtraction contract from Epic 3 INF-005) runs upstream in Sprint 9 ingestion. Sprint 10 handles the semantic matching, reconciliation, and signal merge.
 ```bash
 python -m scripts.curation.pipeline.nlp.post_matcher       # vector search + LLM rerank against route_posts_raw
 python -m scripts.curation.pipeline.nlp.reconciler         # llm_reconciliation_log + temporal decay
@@ -135,14 +135,14 @@ python -m scripts.curation.pipeline.nlp.merge_signals      # merge reconciled si
 **Verify:** `route_matches` rows populated with `matchConfidence`, `llm_reconciliation_log` populated on multi-match routes, `mention_frequency` populated on target routes. Cost logged. Cache hits on re-run.
 
 ### Step 10: Run coverage report
-**Required starting:** Epic 7
+**Required starting:** Sprint 7
 ```bash
 python -m scripts.curation.pipeline.quality.coverage_report
 ```
 **Verify:** JSON + markdown output. Coverage gaps flagged per tiered thresholds.
 
 ### Step 11: Run data quality report
-**Required starting:** Epic 7
+**Required starting:** Sprint 7
 ```bash
 python -m scripts.curation.pipeline.quality.data_quality_report
 ```
@@ -157,7 +157,7 @@ python -m scripts.curation.pipeline.sync.convex_push            # Only if dry-ru
 **Verify:** serialization succeeds. No type errors. Dev Convex deployment reflects the new catalog. Mobile app renders updated catalog without crashes.
 
 ### Step 13: Run orchestrator end-to-end (if available)
-**Required starting:** Epic 12
+**Required starting:** Sprint 12
 ```bash
 python -m scripts.curation.pipeline.orchestrator
 ```
@@ -218,7 +218,7 @@ Compare against Epic 2 baseline (the original working pipeline state):
 - Open Expo dev server, point at Convex dev deployment
 - Open discovery screen — routes render without crashes
 - Tap 3 routes — details load correctly (optional fields handled)
-- Verify any new UI elements from Epic 11 work (if Epic 11 complete)
+- Verify any new UI elements from Sprint 11 work (if Sprint 11 complete)
 
 ---
 
@@ -315,5 +315,5 @@ The next epic's review uses this as the baseline diff target.
 - **Boy Scout rule** — if the review finds bugs in existing code, fix them within the epic, commit, re-run the review
 - **This protocol is non-optional** — no epic is marked Done without a green (or PASS WITH ISSUES) review artifact
 - **Review cost is not zero** — later epics may take 1-2 hours to run the full pipeline. Budget for this in epic timelines.
-- **Runtime grows per epic** — Epic 2 review might be 30 minutes; Epic 12 review might be 2+ hours with all stages
+- **Runtime grows per epic** — Epic 2 review might be 30 minutes; Sprint 12 review might be 2+ hours with all stages
 - **Cache aggressively** — OSM cache, NLP extraction cache, HPMS spatial join cache — all help keep review runtime manageable

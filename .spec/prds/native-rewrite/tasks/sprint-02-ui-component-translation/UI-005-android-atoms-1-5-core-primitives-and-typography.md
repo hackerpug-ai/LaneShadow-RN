@@ -125,6 +125,160 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Backend-aware composables, duplicated variant files, or hardcoded visual constants.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| ThemedText | `react-native/components/themed-text.tsx` | `node_modules/react-native-paper/src/components/Typography/Text.tsx` (Text with variant prop); `node_modules/react-native/Libraries/Text/Text.js` | `android/app/src/main/java/com/laneshadow/ui/atoms/ThemedText.kt` | 2 variants (default/defaultSemiBold) × Paper variants (bodyMedium/titleSmall) |
+| ThemedView | `react-native/components/themed-view.tsx` | `node_modules/react-native/Libraries/Components/View/View.js` | `android/app/src/main/java/com/laneshadow/ui/atoms/ThemedView.kt` | 1 fixed layout (column) × 1 style (surface background) |
+| IconSymbol | `react-native/components/ui/icon-symbol.tsx` (Android/web); `react-native/components/ui/icon-symbol.ios.tsx` (iOS) | `node_modules/@expo/vector-icons/MaterialCommunityIcons.js`; `node_modules/react-native/Libraries/Text/Text.js` (icon renders as text) | `android/app/src/main/java/com/laneshadow/ui/atoms/IconSymbol.kt` | All MaterialCommunityIcons.glyphMap icons × 2 props (size/color) |
+| Separator | `react-native/components/ui/separator.tsx` | `node_modules/react-native/Libraries/Components/View/View.js` | `android/app/src/main/java/com/laneshadow/ui/atoms/Separator.kt` | 2 orientations (horizontal/vertical) × 1 fixed dimension (1px line) |
+| DragHandle | `react-native/components/ui/drag-handle.tsx` | `node_modules/react-native/Libraries/Components/View/View.js` | `android/app/src/main/java/com/laneshadow/ui/atoms/DragHandle.kt` | 1 fixed size (36×4) × 3 configurable props (width/height/borderRadius) |
+| SheetHandle | `react-native/components/sheets/sheet-handle.tsx` | `node_modules/react-native/Libraries/Components/View/View.js` | `android/app/src/main/java/com/laneshadow/ui/atoms/SheetHandle.kt` | 1 fixed size (48×5) × 1 fixed style (onSurface.subtle, full radius) |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper bodyMedium**: fontFamily=sans-serif, fontWeight=400, fontSize=14, lineHeight=20, letterSpacing=0.25. **Paper titleSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1.
+
+### ThemedText
+
+**Source files read:**
+- LaneShadow: `react-native/components/themed-text.tsx`
+- Framework: `node_modules/react-native-paper/src/components/Typography/Text.tsx`, `node_modules/react-native/Libraries/Text/Text.js`
+
+**Typography — by type variant:**
+
+| Type | Source | Paper variant | fontSize | fontWeight | lineHeight | letterSpacing | Android | iOS | Token |
+|---|---|---|---|---|---|---|---|---|---|
+| default | RN-wrapper | `bodyMedium` | 14 | 400 | 20 | 0.25 | `MaterialTheme.typography.bodyMedium` | `Font.bodyMedium` | ESCALATE — propose `type.body.md = fontSize=14, lineHeight=20, fontWeight=400, letterSpacing=0.25` |
+| defaultSemiBold | RN-wrapper | `titleSmall` | 14 | 500 | 20 | 0.1 | `MaterialTheme.typography.titleSmall` | `Font.titleSmall` | ESCALATE — propose `type.label.md = fontSize=14, lineHeight=20, fontWeight=500, letterSpacing=0.1` |
+
+**Visual — color:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| color | RN-wrapper | `semantic.color.onSurface.default` | `MaterialTheme.colors.onSurface` | `Color.onSurface` | `color.onSurface.default` |
+
+**Layout — flex:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| default | Text | inherits | n/a | n/a | n/a |
+
+### ThemedView
+
+**Source files read:**
+- LaneShadow: `react-native/components/themed-view.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`
+
+**Layout — flex:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| flexDirection | RN-wrapper StyleSheet | `'column'` | `Column(...)` | `VStack` | n/a |
+
+**Visual — backgroundColor:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| backgroundColor | RN-wrapper | `semantic.color.surface.default` | `MaterialTheme.colors.surface` | `Color.surface` | `color.surface.default` |
+
+### IconSymbol
+
+**Source files read:**
+- LaneShadow: `react-native/components/ui/icon-symbol.tsx` (Android/web), `react-native/components/ui/icon-symbol.ios.tsx` (iOS)
+- Framework: `node_modules/@expo/vector-icons/MaterialCommunityIcons.js`, `node_modules/react-native/Libraries/Text/Text.js`
+
+**Layout — dimensions:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| size | RN-wrapper prop | `24` (default) | `Modifier.size(24.dp)` | `.frame(width: 24, height: 24)` | ESCALATE — propose `iconSize.default = 24` |
+| size | RN-wrapper prop | `size?: number` (custom) | `Modifier.size(size.dp)` | `.frame(width: size, height: size)` | n/a (dynamic) |
+
+**Visual — color:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| color | RN-wrapper prop | `color: string \| OpaqueColorValue` | `tint = Color(color)` | `.foregroundColor(Color(color))` | n/a (dynamic, caller-provided) |
+
+**Typography — name mapping:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| name | RN-wrapper type | `IconName = keyof typeof MaterialCommunityIcons.glyphMap` | `Icons.Default[name]` (ImageVector) | `Image(systemName: mappedSFName)` | n/a (icon name registry) |
+
+### Separator
+
+**Source files read:**
+- LaneShadow: `react-native/components/ui/separator.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`
+
+**Layout — by orientation:**
+
+| Orientation | Source | Width | Height | Android | iOS | Token |
+|---|---|---|---|---|---|---|
+| horizontal | RN-wrapper | `'100%'` | `1` | `Modifier.fillMaxWidth().height(1.dp)` | `.frame(maxWidth: .infinity).frame(height: 1)` | n/a (hardcoded 1px) |
+| vertical | RN-wrapper | `1` | `'100%'` | `Modifier.width(1.dp).fillMaxHeight()` | `.frame(width: 1).frame(maxHeight: .infinity)` | n/a (hardcoded 1px) |
+
+**Visual — backgroundColor:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| backgroundColor | RN-wrapper | `semantic.color.border.default` | `MaterialTheme.colors.border` | `Color.border` | `color.border.default` |
+
+### DragHandle
+
+**Source files read:**
+- LaneShadow: `react-native/components/ui/drag-handle.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`
+
+**Layout — dimensions:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| width | RN-wrapper prop default | `36` | `Modifier.width(36.dp)` | `.frame(width: 36)` | ESCALATE — propose `dragHandle.width = 36` |
+| height | RN-wrapper prop default | `4` | `Modifier.height(4.dp)` | `.frame(height: 4)` | ESCALATE — propose `dragHandle.height = 4` |
+| borderRadius | RN-wrapper prop default | `2` | `RoundedCornerShape(2.dp)` | `RoundedRectangle(cornerRadius: 2)` | `radius.sm = 4` (mismatch) |
+| alignSelf | RN-wrapper StyleSheet | `'center'` | `Modifier.align(Alignment.CenterHorizontally)` | `.frame(maxWidth: .infinity)` + alignment | n/a |
+| marginVertical | RN-wrapper StyleSheet | `8` | `Modifier.padding(vertical = 8.dp)` | `.padding(.vertical, 8)` | `space.sm = 8` |
+
+**Visual — backgroundColor:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| backgroundColor | RN-wrapper | `semantic.color.onSurface.subtle` | `MaterialTheme.colors.onSurfaceVariant` (alpha) | `Color.onSurface.opacity(0.4)` | ESCALATE — propose `color.onSurface.subtle = onSurfaceVariant with opacity` |
+
+### SheetHandle
+
+**Source files read:**
+- LaneShadow: `react-native/components/sheets/sheet-handle.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`
+
+**Layout — container:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| width | RN-wrapper StyleSheet | `'100%'` | `Modifier.fillMaxWidth()` | `.frame(maxWidth: .infinity)` | n/a |
+| alignItems | RN-wrapper StyleSheet | `'center'` | `Modifier.align(Alignment.CenterHorizontally)` | alignment in container | n/a |
+| justifyContent | RN-wrapper StyleSheet | `'center'` | `Modifier.align(Alignment.CenterVertically)` | alignment in container | n/a |
+
+**Layout — handle:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| width | RN-wrapper StyleSheet | `48` | `Modifier.width(48.dp)` | `.frame(width: 48)` | ESCALATE — propose `sheetHandle.width = 48` |
+| height | RN-wrapper StyleSheet | `5` | `Modifier.height(5.dp)` | `.frame(height: 5)` | ESCALATE — propose `sheetHandle.height = 5` |
+| borderRadius | RN-wrapper StyleSheet | `999` | `CircleShape` | `Capsule()` / `RoundedRectangle(cornerRadius: 999)` | `radius.full = 9999` |
+
+**Visual — backgroundColor:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| backgroundColor | RN-wrapper | `semantic.color.onSurface.subtle` | `MaterialTheme.colors.onSurfaceVariant` (alpha) | `Color.onSurface.opacity(0.4)` | ESCALATE — propose `color.onSurface.subtle = onSurfaceVariant with opacity` |
+
 ## DESIGN NOTES
 
 - Cover baseline states and typography or icon behavior explicitly so later molecules inherit stable primitives.

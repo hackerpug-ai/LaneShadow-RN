@@ -125,6 +125,122 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Backend-aware composables, duplicated variant files, or hardcoded visual constants.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| AuthCard | `react-native/components/auth/auth-card.tsx` | `node_modules/react-native/Libraries/Components/View/View.js`; `node_modules/react-native-paper/src/core/theming.tsx` (useTheme) | `android/app/src/main/java/com/laneshadow/ui/molecules/AuthCard.kt` | 1 layout × title/no-title × footer/no-footer |
+| TopographicBackground | `react-native/components/auth/topographic-background.tsx` | `node_modules/react-native-svg/src/elements/Svg.tsx`; `node_modules/react-native/Libraries/Components/View/View.js` | `android/app/src/main/java/com/laneshadow/ui/molecules/TopographicBackground.kt` | 1 layout × opacity prop (default 0.1) |
+| DownloadErrorSheet | `react-native/components/onboarding/download-error-sheet.tsx` | `node_modules/@gorhom/bottom-sheet/src/components/bottomSheet/BottomSheet.tsx`; `node_modules/react-native-paper/src/components/Button/Button.tsx` | `android/app/src/main/java/com/laneshadow/ui/molecules/DownloadErrorSheet.kt` | 1 layout × retryCount 0/1/2/3+ (show support link) |
+| WifiRequiredSheet | `react-native/components/onboarding/wifi-required-sheet.tsx` | `node_modules/@gorhom/bottom-sheet/src/components/bottomSheet/BottomSheet.tsx`; `node_modules/react-native-paper/src/components/Button/Button.tsx` | `android/app/src/main/java/com/laneshadow/ui/molecules/WifiRequiredSheet.kt` | 1 layout × 1 fixed state |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[4] shadowOffset=0/4 shadowOpacity=0.15 shadowRadius=8 androidElevation=4.
+
+### AuthCard
+
+**Source files read:**
+- LaneShadow: `react-native/components/auth/auth-card.tsx`
+- Framework: `node_modules/react-native/Libraries/Components/View/View.js`, `node_modules/react-native-paper/src/core/theming.tsx`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout | borderWidth | RN-wrapper | 1 | `Modifier.border(1.dp, ...)` | `.overlay(RoundedRectangle(...).stroke(..., lineWidth: 1))` | ESCALATE — propose `borderWidth.thin = 1` |
+| Layout | backgroundColor | RN-wrapper | `semantic.color.card.default` | `LaneShadowTheme.colors.card` | `theme.colors.card` | `color.card.default` |
+| Layout | borderColor | RN-wrapper | `semantic.color.border.default` | `LaneShadowTheme.colors.border` | `theme.colors.border` | `color.border.default` |
+| Layout | borderRadius | RN-wrapper | `semantic.radius.lg` = 16 | `RoundedCornerShape(16.dp)` | `RoundedRectangle(cornerRadius: 16)` | `radius.lg` |
+| Layout | padding | RN-wrapper | `semantic.space.xl` = 24 | `Modifier.padding(24.dp)` | `.padding(24)` | `space.xl` |
+| Layout | gap | RN-wrapper | `semantic.space.md` = 12 | `Arrangement.spacedBy(12.dp)` | `Spacing(12)` | `space.md` |
+| Typography — title | variant | Paper | `titleMedium` | `MaterialTheme.typography.titleMedium` | `.font(.titleMedium)` | `type.title.md` |
+| Typography — title | color | RN-wrapper | `semantic.color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| Visual | elevation | RN-wrapper | `semantic.elevation[4]` | `Modifier.shadow(elevation = 4.dp)` | `.shadow(...)` | `elevation[4]` |
+
+### AuthDivider (exported from auth-card.tsx)
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout | flexDirection | RN-wrapper | `'row'` | `Row(...)` | `HStack` | n/a |
+| Layout | alignItems | RN-wrapper | `'center'` | `verticalAlignment = Alignment.CenterVertically` | `.alignment(.center)` | n/a |
+| Layout | gap | RN-wrapper | `semantic.space.sm` = 8 | `Arrangement.spacedBy(8.dp)` | `Spacing(8)` | `space.sm` |
+| Visual | dividerLine height | RN-wrapper | `StyleSheet.hairlineWidth` | `Modifier.height(1.dp)` | `.frame(height: 1)` | ESCALATE — propose `borderWidth.hairline = 1` |
+| Visual | dividerLine backgroundColor | RN-wrapper | `semantic.color.divider.default` | `LaneShadowTheme.colors.divider` | `theme.colors.divider` | `color.divider.default` |
+| Typography | variant | Paper | `labelMedium` | `MaterialTheme.typography.labelMedium` | `.font(.labelMedium)` | `type.label.sm` |
+| Typography | color | RN-wrapper | `semantic.color.onSurface.subtle` | `LaneShadowTheme.colors.onSurfaceSubtle` | `theme.colors.onSurfaceSubtle` | `color.onSurface.subtle` |
+
+### TopographicBackground
+
+**Source files read:**
+- LaneShadow: `react-native/components/auth/topographic-background.tsx`
+- Framework: `node_modules/react-native-svg/src/elements/Svg.tsx`, `node_modules/react-native/Libraries/Components/View/View.js`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout | pointerEvents | RN-wrapper | `'none'` | `Modifier.pointerEvents(PointerEventType.PassThrough)` | `.allowsHitTesting(false)` | n/a |
+| Layout | style | RN-wrapper | `StyleSheet.absoluteFillObject` | `Modifier.fillMaxSize()` | `.frame(maxWidth: .infinity, maxHeight: .infinity)` | n/a |
+| Layout | viewBox | Svg | `"0 0 360 800"` | `ContentScale` + bounds | SwiftUI `SVGView` bounds | n/a |
+| Visual | opacity (prop) | RN-wrapper | default 0.1 | `Modifier.alpha(0.1f)` | `.opacity(0.1)` | ESCALATE — propose `opacity.topographic = 0.1` |
+| Visual | strokeWidth | RN-wrapper | `Math.max(1, Math.round(semantic.space.xs / 2))` = 2 | `Stroke(width = 2.dp)` | `.stroke(lineWidth: 2)` | `space.xs / 2` (computed) |
+| Visual | RadialGradient cx/cy | RN-wrapper | `20% / 25%` | same | same | n/a |
+| Visual | RadialGradient rx/ry | RN-wrapper | `60%` | same | same | n/a |
+| Visual | RadialGradient stop 0% | RN-wrapper | `primary.default` stopOpacity 0.22 | `Color(0.22f).compositeOver(primary)` | same | `color.primary.default` |
+| Visual | RadialGradient stop 55% | RN-wrapper | `primary.default` stopOpacity 0.08 | `Color(0.08f).compositeOver(primary)` | same | `color.primary.default` |
+| Visual | RadialGradient stop 100% | RN-wrapper | `primary.default` stopOpacity 0 | `Color.Transparent` | `.clear` | `color.primary.default` |
+| Visual | Path stroke | RN-wrapper | `onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| Visual | Path strokeOpacity | RN-wrapper | 0.06, 0.05, 0.045, 0.04, 0.035, 0.03 (gradient) | `Color(0.06f)` etc | `.opacity(0.06)` | ESCALATE — propose `opacity.topographicPath` values |
+| Visual | Path fill | RN-wrapper | `'none'` | no fill | no fill | n/a |
+
+### DownloadErrorSheet
+
+**Source files read:**
+- LaneShadow: `react-native/components/onboarding/download-error-sheet.tsx`
+- Framework: `node_modules/@gorhom/bottom-sheet/src/components/bottomSheet/BottomSheet.tsx`, `node_modules/react-native-paper/src/components/Button/Button.tsx`, `react-native/components/sheets/bottom-sheet-wrapper.tsx`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout — BottomSheetWrapper | paddingHorizontal | RN-wrapper | `semantic.space.lg` = 16 | `Modifier.padding(horizontal = 16.dp)` | `.padding(.horizontal, 16)` | `space.lg` |
+| Layout — BottomSheetWrapper | paddingTop | RN-wrapper | `semantic.space.md` = 12 | `Modifier.padding(top = 12.dp)` | `.padding(.top, 12)` | `space.md` |
+| Layout — BottomSheetWrapper | paddingBottom | RN-wrapper | `semantic.space.lg` = 16 | `Modifier.padding(bottom = 16.dp)` | `.padding(.bottom, 16)` | `space.lg` |
+| Layout — BottomSheetWrapper | gap | RN-wrapper | `semantic.space.md` = 12 | `Arrangement.spacedBy(12.dp)` | `Spacing(12)` | `space.md` |
+| Layout — content | alignItems | RN-wrapper | `'center'` | `horizontalAlignment = Alignment.CenterHorizontally` | `.frame(maxWidth: .infinity)` | n/a |
+| Layout — content | padding | RN-wrapper | hardcoded 24 | `Modifier.padding(24.dp)` | `.padding(24)` | `space.xl` ✓ |
+| Layout — content | gap | RN-wrapper | `semantic.space.lg` = 16 | `Arrangement.spacedBy(16.dp)` | `Spacing(16)` | `space.lg` |
+| Layout — iconContainer | width/height | RN-wrapper | hardcoded 64 | `Modifier.size(64.dp)` | `.frame(width: 64, height: 64)` | ESCALATE — propose `space.4xl = 64` ✓ |
+| Layout — iconContainer | borderRadius | RN-wrapper | `semantic.radius.full` = 9999 | `CircleShape` | `Circle()` | `radius.full` |
+| Visual — iconContainer | backgroundColor | RN-wrapper | `semantic.color.danger.default` | `LaneShadowTheme.colors.danger` | `theme.colors.danger` | `color.danger.default` |
+| Visual — iconContainer | marginBottom | RN-wrapper | hardcoded 16 | `Modifier.padding(bottom = 16.dp)` | `.padding(.bottom, 16)` | `space.lg` ✓ |
+| Typography — icon | variant | Paper | `headlineLarge` | `MaterialTheme.typography.headlineLarge` | `.font(.headlineLarge)` | `type.display.xl` |
+| Typography — icon | fontSize | RN-wrapper | hardcoded 32 | `32.sp` | `.font(.system(size: 32))` | ESCALATE — `type.display.xl.fontSize = 32` |
+| Typography — icon | fontWeight | RN-wrapper | hardcoded `'700'` | `FontWeight.Bold` | `.bold` | ESCALATE — `fontWeight.bold = 700` |
+| Typography — icon | color | RN-wrapper | `semantic.color.onPrimary.default` | `LaneShadowTheme.colors.onPrimary` | `theme.colors.onPrimary` | `color.onPrimary.default` |
+| Typography — title | variant | Paper | `titleLarge` | `MaterialTheme.typography.titleLarge` | `.font(.titleLarge)` | `type.title.lg` |
+| Typography — title | textAlign | RN-wrapper | `'center'` | `textAlign = TextAlign.Center` | `.multilineTextAlignment(.center)` | n/a |
+| Typography — message | variant | Paper | `bodyMedium` | `MaterialTheme.typography.bodyMedium` | `.font(.bodyMedium)` | `type.body.md` |
+| Typography — message | textAlign | RN-wrapper | `'center'` | `textAlign = TextAlign.Center` | `.multilineTextAlignment(.center)` | n/a |
+| Typography — message | color | RN-wrapper | `semantic.color.onSurface.muted` | `LaneShadowTheme.colors.onSurfaceMuted` | `theme.colors.onSurfaceMuted` | `color.onSurface.muted` |
+| Interaction | supportLink shown | RN-wrapper | `retryCount >= 3` | `if (retryCount >= 3)` | same | n/a |
+
+### WifiRequiredSheet
+
+**Source files read:**
+- LaneShadow: `react-native/components/onboarding/wifi-required-sheet.tsx`
+- Framework: `node_modules/@gorhom/bottom-sheet/src/components/bottomSheet/BottomSheet.tsx`, `node_modules/react-native-paper/src/components/Button/Button.tsx`, `react-native/components/sheets/bottom-sheet-wrapper.tsx`
+
+| Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping |
+|---|---|---|---|---|---|---|
+| Layout — BottomSheetWrapper | Same as DownloadErrorSheet | — | — | — | — | — |
+| Layout — content | Same as DownloadErrorSheet | — | — | — | — | — |
+| Layout — iconContainer | Same as DownloadErrorSheet | — | — | — | — | — |
+| Visual — iconContainer | backgroundColor | RN-wrapper | `semantic.color.warning.default` | `LaneShadowTheme.colors.warning` | `theme.colors.warning` | `color.warning.default` |
+| Typography — icon | variant | Paper | `headlineLarge` | `MaterialTheme.typography.headlineLarge` | `.font(.headlineLarge)` | `type.display.xl` |
+| Typography — icon | fontSize | RN-wrapper | hardcoded 24 | `24.sp` | `.font(.system(size: 24))` | ESCALATE — `type.display.md.fontSize = 24` |
+| Typography — icon | fontWeight | RN-wrapper | hardcoded `'700'` | `FontWeight.Bold` | `.bold` | ESCALATE — `fontWeight.bold = 700` |
+| Typography — icon | text | RN-wrapper | hardcoded `'WiFi'` | same | same | n/a |
+| Typography — title | Same as DownloadErrorSheet | — | — | — | — | — |
+| Typography — message | Same as DownloadErrorSheet | — | — | — | — | — |
+
 ## DESIGN NOTES
 
 - Preserve RN spacing, composition hierarchy, and edge-case fixtures such as long labels, loading, and error states.

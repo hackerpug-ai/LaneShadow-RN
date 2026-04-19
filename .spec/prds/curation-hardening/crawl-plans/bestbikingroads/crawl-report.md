@@ -88,7 +88,7 @@
 
 **Why DC was missed initially.** My first US_STATES draft was strictly the 50 states; BBR's 7 DC records had `state_primary="washington-dc"` which failed the US_STATES check. Fix: DC is included in the framework's US_STATES set with a docstring noting it's a federal district included for URL-classification purposes, not geographic/legal semantics. If a future consumer needs strict 50-state-only semantics, they can filter `US_STATES - {"washington-dc"}` at the call site.
 
-**Epic 4/9 inheritance.** The `normalize_state_primary()` cascade is in the framework's parser post-processing, so Epic 4 SRC-001/006 and Epic 9 RID-001/002/006 inherit the fix without any task-level changes. Future sources with similar region-aggregator patterns will be automatically normalized.
+**Epic 4/9 inheritance.** The `normalize_state_primary()` cascade is in the framework's parser post-processing, so Epic 4 SRC-001/006 and Sprint 9 RID-001/002/006 inherit the fix without any task-level changes. Future sources with similar region-aggregator patterns will be automatically normalized.
 
 ---
 
@@ -132,6 +132,6 @@ All 10 AC gates met:
 - **AC-9** Epic 2 baseline artifacts regenerated (source_counts.json updated: fhwa 645 / motorcycleroads 1899 / bestbikingroads 3224; catalog.jsonl / scores.json / archetype_counts.json unchanged because Epic 2 pipeline validates on FHWA-only 20-sample — MR/BBR catalog aggregation deferred to Epic 3+ when the Route model is extended) ✓
 - **AC-10** review.md verdict upgraded from "PASS WITH ISSUES" to "PASS"; all 5 landmarks present in combined staging ✓
 
-**Framework battle-tested end-to-end.** BASE-009a proved the framework on MR (Form A, ~1,899 routes); BASE-009b proved it on BBR (Form A, ~3,224 routes) consuming the framework unchanged (AC-1 held — no framework code edits in this task's commits). The generic design (inventory, selectors, parser, executor) is ready for Epic 4 SRC-001 (Form B Koordinates GIS), SRC-006 (Form A Rider Magazine), and Epic 9 RID-001 (Form C ADVRider RSS), RID-002/006 (Form D Reddit + Pushshift) to extend with adapter layers.
+**Framework battle-tested end-to-end.** BASE-009a proved the framework on MR (Form A, ~1,899 routes); BASE-009b proved it on BBR (Form A, ~3,224 routes) consuming the framework unchanged (AC-1 held — no framework code edits in this task's commits). The generic design (inventory, selectors, parser, executor) is ready for Epic 4 SRC-001 (Form B Koordinates GIS), SRC-006 (Form A Rider Magazine), and Sprint 9 RID-001 (Form C ADVRider RSS), RID-002/006 (Form D Reddit + Pushshift) to extend with adapter layers.
 
 **Epic 2 baseline replaced.** The prior community-scraper staging (MR 30 routes with sidebar contamination, BBR 413 routes "slow but functional") is overwritten with 5,123 clean community records (1,899 MR + 3,224 BBR). Combined with FHWA's 645, the Epic 2 baseline is 5,768 records — enough to unblock Epic 3 Foundation (INF-001) and every downstream epic that diffs against Epic 2.

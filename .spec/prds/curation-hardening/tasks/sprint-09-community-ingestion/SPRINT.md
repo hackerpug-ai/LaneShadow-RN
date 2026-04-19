@@ -1,4 +1,4 @@
-# Epic 9: Community Sources — Ingestion
+# Sprint 9: Community Sources — Ingestion
 
 **Sequence:** 9 / 12
 **Priority:** P2
@@ -9,7 +9,7 @@
 
 ## Overview
 
-Ingest raw community content from ADVRider's 17 regional forum RSS feeds, Reddit's 3 motorcycle subreddits (via public API with strict rate limiting + jitter), and Pushshift historical archives (2020-2025 backfill). These sources populate the `community_mentions` staging table. Each ingested post then runs through a single Claude Haiku 4.5 extraction call returning a structured `PostExtraction` (**✅ Epic 03 INF-005 schema v3 deployed in production**) and the artifact is persisted to the `route_posts_raw` Convex table. Matching (post → route via vectorSearch + LLM rerank) and reconciliation (multi-mention routes) happen in Epic 10.
+Ingest raw community content from ADVRider's 17 regional forum RSS feeds, Reddit's 3 motorcycle subreddits (via public API with strict rate limiting + jitter), and Pushshift historical archives (2020-2025 backfill). These sources populate the `community_mentions` staging table. Each ingested post then runs through a single Claude Haiku 4.5 extraction call returning a structured `PostExtraction` (**✅ Epic 03 INF-005 schema v3 deployed in production**) and the artifact is persisted to the `route_posts_raw` Convex table. Matching (post → route via vectorSearch + LLM rerank) and reconciliation (multi-mention routes) happen in Sprint 10.
 
 **Theme:** Run community source ingests and see raw posts land in staging. No NLP yet — just raw text.
 
@@ -19,7 +19,7 @@ Ingest raw community content from ADVRider's 17 regional forum RSS feeds, Reddit
 
 ## Crawl Plan Protocol Compliance (MANDATORY)
 
-Epic 9 extends the [Crawl Plan Protocol](../CRAWL-PLAN-PROTOCOL.md) to the community-source modalities (Forms C and D — RSS feeds and authenticated paginated APIs). The protocol was adopted 2026-04-13 after Epic 2 BBR/MR findings (see [`../epic-02-baseline-pipeline-validation/DECISIONS.md`](../epic-02-baseline-pipeline-validation/DECISIONS.md)) and is mandatory for every task that extracts data from a remote source at scale.
+Sprint 9 extends the [Crawl Plan Protocol](../CRAWL-PLAN-PROTOCOL.md) to the community-source modalities (Forms C and D — RSS feeds and authenticated paginated APIs). The protocol was adopted 2026-04-13 after Epic 2 BBR/MR findings (see [`../epic-02-baseline-pipeline-validation/DECISIONS.md`](../epic-02-baseline-pipeline-validation/DECISIONS.md)) and is mandatory for every task that extracts data from a remote source at scale.
 
 **Per-task protocol applicability:**
 
@@ -60,9 +60,9 @@ After all 3 tasks are complete, an administrator should be able to:
 8. **Verify Reddit conservative user agent** — Inspect request headers. Confirm User-Agent is `linux:laneshadow-research:v1.0 (by /u/LaneShadowResearch)`.
 9. **Run Pushshift historical backfill** — Execute `python -m scripts.curation.pipeline.sources.pushshift`. Verify 2020-2025 range, ~10k posts per subreddit (30k total), 100 req/min rate limit. Dedup against existing Reddit posts by Reddit post ID.
 10. **Inspect staging table totals** — Query `community_mentions` count per source. Should show ADVRider (thousands), Reddit (thousands), Pushshift (30k historical).
-11. **Verify no PII stored** — Spot-check posts. Verify author handles are stored (public) but no PII beyond what's publicly available. Verify raw post bodies are stored (needed for NLP in Epic 10).
+11. **Verify no PII stored** — Spot-check posts. Verify author handles are stored (public) but no PII beyond what's publicly available. Verify raw post bodies are stored (needed for NLP in Sprint 10).
 
-12. **Execute the Curation Review Protocol** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. Applicable steps: 1 (all sources INCLUDING new ADVRider/Reddit/Pushshift community staging), 2, 3, 4, 5, 6, 7, 8, 10, 11, 12. Step 9 (NLP) still N/A — deferred to Epic 10. **Diff against Epic 8 baseline — `curated_routes` table unchanged (community_mentions staging is separate). Route count, scores, archetypes identical. Verify community_mentions staging populated with ~30k+ posts across 3 sources. No regression in curated catalog.** Write `review.md` with verdict PASS.
+12. **Execute the Curation Review Protocol** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. Applicable steps: 1 (all sources INCLUDING new ADVRider/Reddit/Pushshift community staging), 2, 3, 4, 5, 6, 7, 8, 10, 11, 12. Step 9 (NLP) still N/A — deferred to Sprint 10. **Diff against Sprint 8 baseline — `curated_routes` table unchanged (community_mentions staging is separate). Route count, scores, archetypes identical. Verify community_mentions staging populated with ~30k+ posts across 3 sources. No regression in curated catalog.** Write `review.md` with verdict PASS.
 
 All 12 verifications must pass. Rate limiting is the biggest risk.
 
@@ -110,7 +110,7 @@ All 12 verifications must pass. Rate limiting is the biggest risk.
 ## Dependencies
 
 **Blocks:**
-- Epic 10: Community NLP & Signals (RID-003 NLP extraction depends on ingested raw posts)
+- Sprint 10: Community NLP & Signals (RID-003 NLP extraction depends on ingested raw posts)
 
 **Depends On:**
 - **✅ SATISFIED** — Epic 03 completed 2026-04-15:
@@ -131,7 +131,7 @@ All 12 verifications must pass. Rate limiting is the biggest risk.
 - [ ] Pushshift backfill has ~30k historical posts
 - [ ] Curation Review Protocol executed with PASS verdict
 - [ ] `review.md` committed confirming no curated_routes regression
-- [ ] User has approved proceeding to Epic 10
+- [ ] User has approved proceeding to Sprint 10
 
 ---
 
@@ -140,6 +140,6 @@ All 12 verifications must pass. Rate limiting is the biggest risk.
 - **Reddit rate limiting is the highest-risk element** — conservative limits and jitter are required per PRD (AD-002 guardrails)
 - If Reddit API access is revoked/changed, fall back to old.reddit.com HTML scraping (slower but viable)
 - Pushshift's reliability has been inconsistent — verify API accessibility at task start; may need a third-party mirror
-- Store raw post bodies in staging — Epic 10 NLP extraction needs them
+- Store raw post bodies in staging — Sprint 10 NLP extraction needs them
 - The `community_mentions` staging should be deletable without affecting `curated_routes` — it's a transient analysis layer
 - No PII should be logged beyond public author handles and public post content

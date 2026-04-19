@@ -128,6 +128,10 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+> This task is a fidelity capture/review task and does not require per-component translation mapping.
+
 ## DESIGN NOTES
 
 - Follow the phase-1 capture protocol exactly, including scenario IDs, device metadata, and mode coverage.

@@ -132,6 +132,89 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Backend-aware composables, duplicated variant files, or hardcoded visual constants.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| ElevationProfileChart | **RN BASELINE PENDING** — new delta component for UC-COMP-04 | `node_modules/@shopify/flash-list/src/FlashList.tsx` (reference for list patterns); `node_modules/react-native-maps/lib/androidmapview/MapView.js` (for elevation data patterns); custom Canvas/SVG drawing (reference: `react-native/Libraries/Components/View/View.js`) | `android/app/src/main/java/com/laneshadow/ui/organisms/ElevationProfileChart.kt` | 1 fixed layout × 3 states (empty/loading/loaded) × 2 interaction modes (static/interactive with crosshair) |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper labelLarge**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1. **Paper labelSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=11, lineHeight=16, letterSpacing=0.5. **semantic.type.label.md**: fontSize=14, lineHeight=20, fontWeight=500. **semantic.type.body.sm**: fontSize=14, lineHeight=21, fontWeight=400.
+
+### ElevationProfileChart
+
+**Source files read:**
+- Task specification: UI-076 task description
+- Framework reference: `node_modules/react-native/Libraries/Components/View/View.js`
+- Vico chart library (Android): `patiolabs/vico` (compose-charts)
+
+**Note:** This is a NEW delta component. Properties below are derived from the UC-COMP-04 use case and task specification. RN baseline implementation is pending.
+
+**Layout — container dimensions:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| containerHeight | Task spec | `space.4xl + space.2xl` = 96 | `Modifier.height(96.dp)` | `.frame(height: 96)` | `space.4xl + space.2xl` |
+| containerWidth | Task spec | 100% parent | `Modifier.fillMaxWidth()` | `.frame(maxWidth: .infinity)` | n/a |
+| chartPadding | Task spec | `space.md` = 12 | `Modifier.padding(all = 12.dp)` | `.padding(12)` | `space.md` |
+
+**Layout — crosshair marker (interactive mode):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| markerLineWidth | Task spec | 1 | `drawLine(width = 1.dp)` | `.stroke(style: StrokeStyle(lineWidth: 1))` | ESCALATE — propose `strokeWidth.thin = 1` |
+| markerColor | Task spec | `color.onSurface.default` | `LaneShadowTheme.colors.onSurface` | `theme.colors.onSurface` | `color.onSurface.default` |
+| markerRadius | Task spec | `radius.xs` = 4 | `CircleShape(radius = 4.dp)` | `Circle().frame(width: 8, height: 8)` | `radius.sm` (half) |
+
+**Visual — chart colors (grade-based segments):**
+
+| Grade | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| flat (0-3%) | Task spec | `color.success.default` (green) | `LaneShadowTheme.colors.success` | `theme.colors.success` | `color.success.default` |
+| moderate (3-6%) | Task spec | `color.primary.default` (blue) | `LaneShadowTheme.colors.primary` | `theme.colors.primary` | `color.primary.default` |
+| steep (6-10%) | Task spec | `color.warning.default` (yellow) | `LaneShadowTheme.colors.warning` | `theme.colors.warning` | `color.warning.default` |
+| extreme (10%+) | Task spec | `color.danger.default` (red) | `LaneShadowTheme.colors.danger` | `theme.colors.danger` | `color.danger.default` |
+
+**Visual — background and surface:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| chartBackground | Task spec | `color.surface.default` | `LaneShadowTheme.colors.surface` | `theme.colors.surface` | `color.surface.default` |
+| gridLineColor | Task spec | `color.outline.default` with alpha 0.3 | `LaneShadowTheme.colors.outline.copy(alpha = 0.3f)` | `theme.colors.outline.opacity(0.3)` | `color.outline.default` + alpha |
+| axisTextColor | Task spec | `color.onSurfaceVariant.default` | `LaneShadowTheme.colors.onSurfaceVariant` | `theme.colors.onSurfaceVariant` | `color.onSurfaceVariant.default` |
+
+**Typography — axis labels:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| labelStyle | Task spec | `labelSmall` (11sp) | `MaterialTheme.typography.labelSmall` | `theme.typography.caption` | ESCALATE — propose `type.label.xs = 11` |
+| labelColor | Task spec | `color.onSurfaceVariant.default` | `LaneShadowTheme.colors.onSurfaceVariant` | `theme.colors.onSurfaceVariant` | `color.onSurfaceVariant.default` |
+
+**Interaction — crosshair behavior:**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| touchTargetSize | Task spec | `space.3xl` = 48 (minimum) | `Modifier.size(48.dp)` | `.frame(width: 48, height: 48)` | `space.3xl` |
+| hapticFeedback | Task spec | light impact on marker move | `LocalHapticFeedback.current.performHapticFeedback(HapticFeedbackType.TextHandleMove)` | `UIImpactFeedbackGenerator(style: .light).impactOccurred()` | n/a |
+
+**States — empty/loading/loaded:**
+
+| State | Source | Visual | Android | iOS | Token |
+|---|---|---|---|---|---|
+| empty | Task spec | placeholder illustration with `color.onSurface.disabled` | `LaneShadowTheme.colors.onSurfaceDisabled` | `theme.colors.onSurfaceDisabled` | `color.onSurface.disabled` |
+| loading | Task spec | shimmer effect with `color.surfaceVariant.default` | `LaneShadowTheme.colors.surfaceVariant` | `theme.colors.surfaceVariant` | `color.surfaceVariant.default` |
+| loaded | Task spec | full chart render with grade-colored segments | (see chart colors above) | (see chart colors above) | (see chart colors above) |
+
+**Vico-specific configuration (Android):**
+
+| Property | Source | Value | Android | iOS | Token |
+|---|---|---|---|---|---|
+| chartType | Task spec | Line chart with segmented colored areas | `LineChart(...)` with `LineComponent(...)` per segment | `Chart { ... }` with `AreaPlot` | n/a |
+| animationDuration | Task spec | 300ms | `animationSpec = tween(300)` | `.animation(.easeInOut(duration: 0.3))` | ESCALATE — propose `motion.duration.fast = 300` |
+
 ## DESIGN NOTES
 
 - Treat parity as spec-driven against the delta composition contract when no RN baseline story exists.

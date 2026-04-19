@@ -119,6 +119,10 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Maintain separate unsynchronized scenario lists for RN, Android, and iOS; let native `Story.id` values drift from the RN registry.
 
+## TRANSLATION SOURCES
+
+> This task is infrastructure/setup and does not require per-component translation mapping.
+
 ## DESIGN NOTES
 
 - Assign stable scenario IDs and atomic group paths across RN, Android, and iOS — the RN registry is authoritative and native-sandbox `Story.id` values mirror it.

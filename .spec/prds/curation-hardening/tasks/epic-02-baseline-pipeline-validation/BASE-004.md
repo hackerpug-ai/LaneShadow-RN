@@ -16,10 +16,10 @@ CRITICAL CONSTRAINTS
 --------------------------------------------------------------------------------
 
 MUST: Add a `__main__` block to `scoring/composite.py` (Boy Scout fix, committed separately) that reads a JSONL file of Route objects, calls `compute_scores()` on each, and writes a scored JSONL to a specified output path.
-MUST: Capture the `WEIGHTS` dict from `scoring/composite.py` verbatim in `baseline-report.md` — the exact current values (curviness: 0.25, scenery: 0.15, traffic: 0.15, condition: 0.10, osm_curvature: 0.15, elevation_drama: 0.10, fhwa_designation: 0.05, community_rating: 0.05) are a critical baseline reference for Epic 8 (SCO-001).
+MUST: Capture the `WEIGHTS` dict from `scoring/composite.py` verbatim in `baseline-report.md` — the exact current values (curviness: 0.25, scenery: 0.15, traffic: 0.15, condition: 0.10, osm_curvature: 0.15, elevation_drama: 0.10, fhwa_designation: 0.05, community_rating: 0.05) are a critical baseline reference for Sprint 8 (SCO-001).
 MUST: Write scored output to `.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/baseline/scores.json` as a JSON array of dicts with `route_id` + all score fields — this is BASE-005 and BASE-007's input.
 MUST: Verify every `composite_score` value is a float in [0.0, 1.0] — Phase 1 returns neutral 0.5 across all dimensions, so `composite_score` should be deterministically 0.5 × weighted_sum; assert no NaN or None.
-NEVER: Modify `WEIGHTS` values — this is a baseline capture; `WEIGHTS` are changed only in Epic 8 (SCO-001).
+NEVER: Modify `WEIGHTS` values — this is a baseline capture; `WEIGHTS` are changed only in Sprint 8 (SCO-001).
 NEVER: Run extraction or push to Convex in this task.
 NEVER: Call `compute_scores()` with a mock or stub Route — use real Route objects deserialized from `staging/fhwa.jsonl`.
 STRICTLY: Use `Route(**json.loads(line))` to reconstruct Route objects from the JSONL input, then pass Route instances to `compute_scores()`.
@@ -37,9 +37,9 @@ SPECIFICATION
 BACKGROUND
 --------------------------------------------------------------------------------
 
-**Problem:** `scoring/composite.py` contains the `WEIGHTS` dict and a `compute_scores()` function but no `__main__` block. The `WEIGHTS` dict is the most important configuration artifact in the entire curation pipeline — Epic 8 (SCO-001) will realign these weights based on research, and every downstream epic depends on understanding the baseline weights. Without a runnable entry point, there's no mechanism to both execute scoring and capture the weights in one step.
+**Problem:** `scoring/composite.py` contains the `WEIGHTS` dict and a `compute_scores()` function but no `__main__` block. The `WEIGHTS` dict is the most important configuration artifact in the entire curation pipeline — Sprint 8 (SCO-001) will realign these weights based on research, and every downstream epic depends on understanding the baseline weights. Without a runnable entry point, there's no mechanism to both execute scoring and capture the weights in one step.
 
-**Why it matters:** The current `WEIGHTS` are divergent from the research formula per the curation-hardening PRD overview. Epic 8 will realign them (e.g., community_rating 5%→15%, add mention_frequency at 10%, reduce curviness). Before that realignment, Epic 2 must capture the baseline verbatim so Epic 8's diff report has a reference point. This task is the single authoritative source for "what were the weights at baseline?"
+**Why it matters:** The current `WEIGHTS` are divergent from the research formula per the curation-hardening PRD overview. Sprint 8 will realign them (e.g., community_rating 5%→15%, add mention_frequency at 10%, reduce curviness). Before that realignment, Epic 2 must capture the baseline verbatim so Sprint 8's diff report has a reference point. This task is the single authoritative source for "what were the weights at baseline?"
 
 **Current state:** `WEIGHTS = {"curviness": 0.25, "scenery": 0.15, "traffic": 0.15, "condition": 0.10, "osm_curvature": 0.15, "elevation_drama": 0.10, "fhwa_designation": 0.05, "community_rating": 0.05}`. `compute_scores(route: Route) -> dict[str, float]` returns a dict of score dimensions keyed by name. Phase 1 returns neutral 0.5 across all dimensions because most fields are not yet populated (no OSM curvature, no community ratings, etc.) — so `composite_score` is deterministic and predictable.
 
@@ -265,7 +265,7 @@ Code Quality:
 - [ ] `Path.mkdir(parents=True, exist_ok=True)` used
 
 Domain-Specific:
-- [ ] WEIGHTS dict unchanged (critical for Epic 8)
+- [ ] WEIGHTS dict unchanged (critical for Sprint 8)
 - [ ] WEIGHTS verbatim in baseline-report.md
 - [ ] Phase 1 neutrality note in the report (composite ≈ 0.5 for most routes)
 
@@ -297,7 +297,7 @@ Can Execute In Parallel With: (none — sequential after BASE-003)
 NOTES
 --------------------------------------------------------------------------------
 
-- The `WEIGHTS` capture is the single most important artifact this task produces. Epic 8 (SCO-001) will diff against it.
+- The `WEIGHTS` capture is the single most important artifact this task produces. Sprint 8 (SCO-001) will diff against it.
 - Phase 1 scoring returns neutral 0.5 across most dimensions — `composite_score` will be predictable. Document this in baseline-report.md so it's not confused for a bug.
 - This task was extracted from the archived BASE-001.md (the 240-minute single task) during the Epic 2 decomposition on 2026-04-12.
 

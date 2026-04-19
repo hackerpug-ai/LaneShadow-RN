@@ -626,7 +626,7 @@ Before dispatching BASE-009a Phase 1, verify:
 - `.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/EPIC.md` (effort + ACs + task table + wave plan + DoD)
 - `.spec/prds/curation-hardening/tasks/epic-02-baseline-pipeline-validation/DECISIONS.md` (adoption + split + Phase 0 findings entries)
 - `.spec/prds/curation-hardening/tasks/epic-04-sources-government-editorial/EPIC.md` (Crawl Plan Protocol compliance section)
-- `.spec/prds/curation-hardening/tasks/epic-09-community-ingestion/EPIC.md` (Crawl Plan Protocol compliance section)
+- `.spec/prds/curation-hardening/tasks/sprint-09-community-ingestion/SPRINT.md` (Crawl Plan Protocol compliance section)
 
 **Committed earlier in `e7f6368` (Phase 0 recon output):**
 - `.spec/prds/curation-hardening/crawl-plans/motorcycleroads/site-map.md`

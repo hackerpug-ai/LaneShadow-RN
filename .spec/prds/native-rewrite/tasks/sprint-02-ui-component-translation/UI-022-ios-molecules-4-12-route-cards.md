@@ -126,6 +126,58 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|---|
+| ThemeRouteThumbnail | `react-native/components/ui/route-thumbnail.tsx` | `node_modules/expo-linear-gradient/src/LinearGradient.tsx` (LinearGradient); `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Molecules/ThemeRouteThumbnail.swift` | 1 layout × width (default 96) × height (default 96) × bounds/rotation props |
+| RouteBadge | `react-native/components/ui/route-badge.tsx` | `node_modules/react-native/Libraries/Components/View/View.js` (View); `node_modules/react-native-paper/src/styles/themes/v3/tokens.tsx` (useTheme) | `ios/LaneShadow/Views/Molecules/RouteBadge.swift` | 2 variants (primary/neutral) × withIcon/withoutIcon × iconSize (default 14) |
+| ThemeRouteOptionCard (x2) | `react-native/components/ui/route-option-card.tsx` (ui) + `react-native/components/planning/route-option-card.tsx` (planning) | Same as Android UI-021 | `ios/LaneShadow/Views/Molecules/ThemeRouteOptionCard.swift` | 2 variants (selected/compact) × withBadges/withoutBadges × withStats/withoutStats × withWeather/withoutWeather (ui) + isSelected × isLoading × includeFavorites (planning) |
+| ThemeSessionCard | `react-native/components/ui/session-card.tsx` | `node_modules/react-native/Libraries/Components/Pressable/Pressable.js` (Pressable); `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Molecules/ThemeSessionCard.swift` | 3 statuses (active/completed/saved) × isActive/isActive=false × compact/compact=false × pressable/non-pressable |
+| ThemeSavedRouteCard | `react-native/components/ui/saved-route-card.tsx` | `react-native/components/ui/route-thumbnail.tsx` (RouteThumbnail); `node_modules/react-native/Libraries/Components/Pressable/Pressable.js` | `ios/LaneShadow/Views/Molecules/ThemeSavedRouteCard.swift` | 1 layout × thumbnail size 60×60 × withStats/withoutStats |
+| ThemeFavoriteRoadCard | `react-native/components/ui/favorite-road-card.tsx` | `react-native/components/ui/route-thumbnail.tsx` (RouteThumbnail); `node_modules/react-native/Libraries/Components/Pressable/Pressable.js` | `ios/LaneShadow/Views/Molecules/ThemeFavoriteRoadCard.swift` | 1 layout × thumbnail size 80×80 × withDeleteButton/withoutDeleteButton |
+| ThemeRouteAttachmentCard (x2) | `react-native/components/ui/route-attachment-card.tsx` | `node_modules/react-native/Libraries/Components/Pressable/Pressable.js` (Pressable); `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Molecules/ThemeRouteAttachmentCard.swift` | 2 variants (compact/full) × isBest/isBest=false × isSelected/isSelected=false × withWeatherBadge/withoutWeatherBadge |
+| ThemeRouteLegTimeline | `react-native/components/ui/route-leg-timeline.tsx` | `node_modules/expo-linear-gradient/src/LinearGradient.tsx` (LinearGradient); `react-native/components/planning/wind-badge.tsx` (WindBadge); `react-native/components/ui/rain-badge.tsx` (RainBadge) | `ios/LaneShadow/Views/Molecules/ThemeRouteLegTimeline.swift` | 1 layout × legs array × withOverlays/withoutOverlays |
+| RoutePin | `react-native/components/discovery/route-pin.tsx` | `node_modules/react-native-maps/lib/components/MapMarker.js` (Marker); `node_modules/react-native/Libraries/Components/Pressable/Pressable.js` | `ios/LaneShadow/Views/Molecules/RoutePin.swift` | 6 archetypes × withRank/withoutRank (1-10) × withDistance/withoutDistance × pressed/default states |
+| ThemeWaypointCard | `react-native/components/map/waypoint-marker.tsx` | `node_modules/@rnmapbox/maps/lib/components/markerView.js` (MarkerView); `node_modules/react-native-svg/src/elements/Shape.tsx` (Path, Circle) | `ios/LaneShadow/Views/Molecules/ThemeWaypointMarker.swift` | 3 kinds (on_route/off_route/mixed) × 4 states (default/selected/pressed/disabled) × showIndex/showIndex=false × size (default 32) |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper labelLarge**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1. **Paper labelSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=11, lineHeight=16, letterSpacing=0.5. **semantic.type.label.md**: fontSize=14, lineHeight=20, fontWeight=500. **semantic.type.body.sm**: fontSize=14, lineHeight=21, fontWeight=400.
+
+> **Note:** The STYLE PROPERTIES MATRIX for iOS components is identical to Android (UI-021) since both platforms translate from the same RN wrapper sources. Only the platform-specific implementation differs (SwiftUI vs Jetpack Compose). Refer to UI-021 for the complete matrix — all values, tokens, and ESCALATE items are the same.
+
+**Platform-specific implementation notes:**
+
+| Category | Android (Compose) | iOS (SwiftUI) |
+|---|---|---|
+| Layout direction | `Row(...)` / `Column(...)` | `HStack` / `VStack` |
+| Alignment | `verticalAlignment` / `horizontalArrangement` | `.alignment(...)` (HStack/VStack handle automatically) |
+| Spacing | `Arrangement.spacedBy(8.dp)` | `Spacer(minLength: 8)` |
+| Padding | `Modifier.padding(16.dp)` | `.padding(16)` |
+| Border radius | `RoundedCornerShape(16.dp)` | `RoundedRectangle(cornerRadius: 16)` |
+| Border | `BorderStroke(1.dp, color)` | `.border(width: 1)` |
+| Colors | `LaneShadowTheme.colors.primary` | `theme.colors.primary` |
+| Typography | `MaterialTheme.typography.titleMedium` | `.font(.title2)` or `.font(.system(size: 18))` |
+| Opacity | `alpha = 0.8f` | `.opacity(0.8)` |
+| Shadow/elevation | `Modifier.shadow(elevation = 3.dp)` | `.shadow(radius: 3)` |
+| Gradient | `Brush.horizontalGradient(...)` | `LinearGradient(...)` |
+| Transform | `Modifier.graphicsLayer { rotationZ = -10f }` | `.rotationEffect(.degrees(-10))` |
+| Pressable | `Modifier.clickable(...)` | `.onTapGesture { }` |
+
+**Key differences for iOS:**
+
+1. **No hairlineWidth** — Use `.border(width: 0.5)` for hairline equivalent
+2. **No StyleSheet.create** — Use computed properties or view modifiers
+3. **No transform origin** — SwiftUI handles automatically
+4. **Shadow API** — Use `.shadow(radius:...)` instead of separate offset/opacity/radius
+5. **Gradient syntax** — `LinearGradient(colors: [...], startPoint: ..., endPoint: ...)`
+6. **No flexbox** — Use HStack/VStack with Spacer and LayoutPriority
+7. **No alignSelf** — Use `.frame(maxWidth: .infinity, alignment: .leading)`
+8. **Text transformation** — Use `.textCase(.uppercase)` — no capitalize in SwiftUI
+
 ## DESIGN NOTES
 
 - Preserve RN spacing, composition hierarchy, and edge-case fixtures such as long labels, loading, and error states.

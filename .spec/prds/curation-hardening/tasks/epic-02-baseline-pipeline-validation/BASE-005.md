@@ -290,7 +290,7 @@ NOTES
 --------------------------------------------------------------------------------
 
 - Phase 1 archetype distribution is expected to be heavily `coastal` / `scenic_byway` because curvature/elevation scores are neutral. Document this in baseline-report.md as a known limitation, not a bug.
-- Epic 8 will improve archetype diversity by adding OSM curvature, HPMS AADT, and NWS weather signals that drive `mountain` / `adventure` / `desert` classifications.
+- Sprint 8 will improve archetype diversity by adding OSM curvature, HPMS AADT, and NWS weather signals that drive `mountain` / `adventure` / `desert` classifications.
 - This task was extracted from the archived BASE-001.md (the 240-minute single task) during the Epic 2 decomposition on 2026-04-12.
 
 --------------------------------------------------------------------------------

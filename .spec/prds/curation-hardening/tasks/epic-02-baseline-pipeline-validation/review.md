@@ -21,13 +21,13 @@
 - **Verdict:** PASS (cache validated)
 
 ### Step 3: Deduplication
-**N/A until Epic 6** (dedup not yet implemented)
+**N/A until Sprint 6** (dedup not yet implemented)
 
 ### Step 4: Quality Floor
-**N/A until Epic 6** (quality scoring not yet implemented)
+**N/A until Sprint 6** (quality scoring not yet implemented)
 
 ### Step 5: Weight Calibration
-**N/A until Epic 8** (weight realignment not yet implemented)
+**N/A until Sprint 8** (weight realignment not yet implemented)
 
 ### Step 6: LLM Extraction
 - 20/20 routes extracted via GLM-4.7-flash (z.ai PaaS endpoint)
@@ -56,13 +56,13 @@
 - **Verdict:** PASS
 
 ### Step 9: NLP One-Liners
-**N/A until Epic 10** (NLP generation not yet implemented)
+**N/A until Sprint 10** (NLP generation not yet implemented)
 
 ### Step 10: Coverage Report
-**N/A until Epic 7** (coverage analysis not yet implemented)
+**N/A until Sprint 7** (coverage analysis not yet implemented)
 
 ### Step 11: Data Quality Report
-**N/A until Epic 7** (data quality scoring not yet implemented)
+**N/A until Sprint 7** (data quality scoring not yet implemented)
 
 ### Step 12: Convex Push
 - Dry-run: 20 routes serialized successfully
@@ -71,7 +71,7 @@
 - **Verdict:** PASS
 
 ### Step 13: Orchestrator
-**N/A until Epic 12** (orchestrator not yet implemented)
+**N/A until Sprint 12** (orchestrator not yet implemented)
 
 ---
 
@@ -142,7 +142,7 @@ All 6 applicable Curation Review Protocol steps pass. Both community scrapers �
 - Archetype distribution skewed to `scenic_byway` — will diversify when curvature and elevation data are populated
 - OSM enrichment partial (2/10 routes with geometry due to Overpass API 504s) — Epic 4 will switch to local OSM PBF
 
-**Remediation summary:** BASE-009a/b together added a generic `crawl_plan/` framework under `scripts/curation/pipeline/sources/crawl_plan/` (inventory, selectors, parser, executor) that Epic 4 SRC-001/006 and Epic 9 RID-001/002/006 will consume unchanged. The framework is unit-tested (37 tests in `test_crawl_plan_framework.py`), fixture-tested (MR: 108 tests; BBR: contract tests), and honors two cross-cutting rules documented in `tasks/CRAWL-PLAN-PROTOCOL.md` Revision History — multi-state schema and canonicalize path-case preservation.
+**Remediation summary:** BASE-009a/b together added a generic `crawl_plan/` framework under `scripts/curation/pipeline/sources/crawl_plan/` (inventory, selectors, parser, executor) that Epic 4 SRC-001/006 and Sprint 9 RID-001/002/006 will consume unchanged. The framework is unit-tested (37 tests in `test_crawl_plan_framework.py`), fixture-tested (MR: 108 tests; BBR: contract tests), and honors two cross-cutting rules documented in `tasks/CRAWL-PLAN-PROTOCOL.md` Revision History — multi-state schema and canonicalize path-case preservation.
 
 **Open follow-ups (non-blocking):**
 - INF-011 (Epic 3 stub): `US_STATES` allowlist in `crawl_plan.inventory.classify()` to reclassify the combined ~47 region-aggregator records (MR: 27; BBR: 20; 0.8% of community catalog)

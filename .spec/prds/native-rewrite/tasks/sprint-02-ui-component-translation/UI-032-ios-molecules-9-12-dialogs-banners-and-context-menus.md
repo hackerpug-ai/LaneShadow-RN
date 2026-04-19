@@ -126,6 +126,39 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| ThemeDeleteRouteDialog | `react-native/components/ui/delete-route-dialog.tsx` | `node_modules/react-native-paper/src/components/Dialog/Dialog.tsx`; `node_modules/react-native-paper/src/components/Button/Button.tsx` | `ios/LaneShadow/Views/Molecules/ThemeDeleteRouteDialog.swift` | 1 variant × 2 actions (cancel/confirm) |
+| ThemeRenameRouteDialog | `react-native/components/ui/rename-route-dialog.tsx` | `node_modules/react-native-paper/src/components/Dialog/Dialog.tsx`; `node_modules/react-native-paper/src/components/TextInput/TextInput.tsx` | `ios/LaneShadow/Views/Molecules/ThemeRenameRouteDialog.swift` | 1 variant × 3 states (idle/valid/invalid) × 2 actions |
+| DeleteFavoriteDialog | `react-native/components/ui/delete-favorite-dialog.tsx` | `node_modules/react-native-paper/src/components/Dialog/Dialog.tsx` | `ios/LaneShadow/Views/Molecules/DeleteFavoriteDialog.swift` | 1 variant × 2 actions (cancel/confirm) |
+| SaveFavoriteSheet | `react-native/components/ui/save-favorite-sheet.tsx` | `node_modules/@gorhom/bottom-sheet/src/components/bottomSheet/BottomSheet.tsx`; `node_modules/react-native-paper/src/components/TextInput/TextInput.tsx` | `ios/LaneShadow/Views/Molecules/SaveFavoriteSheet.swift` | 1 variant × 3 states (idle/saving/error) |
+| FavoriteExclusionAlert | `react-native/components/ui/favorite-exclusion-alert.tsx` | `node_modules/react-native/Libraries/Components/Pressable/Pressable.js` | `ios/LaneShadow/Views/Molecules/FavoriteExclusionAlert.swift` | 1 variant × auto-dismiss (10s) |
+| ThemeSessionContextMenu | `react-native/components/ui/session-context-menu.tsx` | `node_modules/react-native/Libraries/Modal/Modal.js`; `node_modules/react-native/Libraries/Components/Pressable/Pressable.js` | `ios/LaneShadow/Views/Molecules/ThemeSessionContextMenu.swift` | Modal positioned menu × N items × destructive variant |
+| ThemeNewSessionButton | `react-native/components/ui/new-session-button.tsx` | `node_modules/react-native/Libraries/Components/Pressable/Pressable.js` | `ios/LaneShadow/Views/Molecules/ThemeNewSessionButton.swift` | 3 variants (header/fab/text) × 3 sizes (sm/md/lg) × 2 states (idle/disabled) |
+| ThemeConnectionBanner | `react-native/components/ui/connection-banner.tsx` | `node_modules/react-native/Libraries/Components/View/View.js` | `ios/LaneShadow/Views/Molecules/ThemeConnectionBanner.swift` | 1 fixed variant |
+| ThemePermissionNotification | `react-native/components/ui/permission-notification.tsx` | `node_modules/react-native/Libraries/Components/Pressable/Pressable.js`; `node_modules/react-native-safe-area-context/src/NativeSafeAreaProvider.tsx` | `ios/LaneShadow/Views/Molecules/ThemePermissionNotification.swift` | 1 variant × optional action button × safe-area top |
+| ThemeFavoritesInfoSheet | `react-native/components/sheets/favorites-info-sheet.tsx` | `node_modules/@gorhom/bottom-sheet/src/components/bottomSheet/BottomSheet.tsx` | `ios/LaneShadow/Views/Molecules/ThemeFavoritesInfoSheet.swift` | 1 variant × list content |
+| ThemePlanningErrorSheet | `react-native/components/sheets/planning-error-sheet.tsx` | `node_modules/@gorhom/bottom-sheet/src/components/bottomSheet/BottomSheet.tsx` | `ios/LaneShadow/Views/Molecules/ThemePlanningErrorSheet.swift` | 1 variant × 2 actions (try again/back) |
+| ThemePlanningLoading | `react-native/components/sheets/planning-loading.tsx` | `node_modules/react-native/Libraries/Components/View/View.js`; `node_modules/react-native-paper/src/components/ActivityIndicator/ActivityIndicator.tsx` | `ios/LaneShadow/Views/Molecules/ThemePlanningLoading.swift` | Full-screen scrim × activity indicator × cancel button |
+| ThemeTogglesContainer | `react-native/components/sheets/toggles-container.tsx` | `node_modules/react-native/Libraries/Components/View/View.js`; Switch atom | `ios/LaneShadow/Views/Molecules/ThemeTogglesContainer.swift` | 2 toggles (avoid highways/avoid tolls) × icon containers |
+| SaveRouteConfirmationSheet | `react-native/components/sheets/save-route-confirmation-sheet.tsx` | `node_modules/@gorhom/bottom-sheet/src/components/bottomSheet/BottomSheet.tsx`; `node_modules/react-native-paper/src/components/TextInput/TextInput.tsx` | `ios/LaneShadow/Views/Molecules/SaveRouteConfirmationSheet.swift` | 1 variant × 3 states (idle/saving/error) |
+
+## STYLE PROPERTIES MATRIX
+
+> Exhaustive enumeration of every style property from both sources per `08f-translation-protocol.md`. Columns: Category | Property | Source | Value in source | Android equivalent | iOS equivalent | Token mapping. `ESCALATE` = no token covers the value — add a proposed token to DECISIONS.md before implementing.
+>
+> **Token reference** (from `tokens/semantic/semantic.tokens.json`): space xs=4 sm=8 md=12 lg=16 xl=24 2xl=32 3xl=48 4xl=64; radius none=0 sm=4 md=8 lg=16 xl=24 2xl=32 full=9999; elevation[2] shadowOffset=0/2 shadowOpacity=0.05 shadowRadius=4 androidElevation=2. **Paper labelLarge**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=14, lineHeight=20, letterSpacing=0.1. **Paper labelSmall**: fontFamily=sans-serif-medium, fontWeight=500, fontSize=11, lineHeight=16, letterSpacing=0.5. **semantic.type.label.md**: fontSize=14, lineHeight=20, fontWeight=500. **semantic.type.body.sm**: fontSize=14, lineHeight=21, fontWeight=400.
+
+> **Note:** The iOS components use the same source files as Android, so the style properties are identical. Refer to UI-031 for the complete STYLE PROPERTIES MATRIX. The iOS equivalents are already documented in the Android table's "iOS equivalent" column. Key differences:
+> - Use SwiftUI native primitives: `Alert`, `sheet`, `presentationDetents`, `confirmationDialog`
+> - Shadow via `.shadow(color:radius:y:)`, elevation via `.shadow(...)` with radius
+> - Typography via `.font(.system(size:weight:))` mapping to token values
+> - Spacing via `.padding(_:)` with token values
+> - Radius via `.cornerRadius(_:)` or `RoundedRectangle(cornerRadius:)` with token values
+> - Colors via `theme.colors.*` environment values
+
 ## DESIGN NOTES
 
 - Preserve RN spacing, composition hierarchy, and edge-case fixtures such as long labels, loading, and error states.

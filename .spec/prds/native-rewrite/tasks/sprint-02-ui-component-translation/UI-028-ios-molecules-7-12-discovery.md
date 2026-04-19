@@ -126,6 +126,19 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Anti-pattern:** Default SwiftUI styling, live service dependencies, or platform-specific naming drift.
 
+## TRANSLATION SOURCES
+
+| Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
+|---|---|---|---|---|
+| DiscoveryFilterBar | **PLANNED** — not yet implemented in RN baseline | N/A (to be designed) | `ios/LaneShadow/Views/Molecules/DiscoveryFilterBar.swift` | Horizontal scrollable filter chips × selected/unselected states |
+| DiscoverySortToggle | **PLANNED** — not yet implemented in RN baseline | N/A (to be designed) | `ios/LaneShadow/Views/Molecules/DiscoverySortToggle.swift` | Segmented control: Distance/Quality/Scenic × selected state |
+| DiscoveryEmptyOverlay | **PLANNED** — not yet implemented in RN baseline | N/A (to be designed) | `ios/LaneShadow/Views/Molecules/DiscoveryEmptyOverlay.swift` | Single variant with icon + headline + body text |
+| DiscoveryLoadingOverlay | **PLANNED** — not yet implemented in RN baseline | N/A (to be designed) | `ios/LaneShadow/Views/Molecules/DiscoveryLoadingOverlay.swift` | Single variant with progress indicator + loading text |
+| IntentSummaryPill | **PLANNED** — not yet implemented in RN baseline | N/A (to be designed) | `ios/LaneShadow/Views/Molecules/IntentSummaryPill.swift` | Compact pill showing current intent × dismissible state |
+| StateListItem | **PLANNED** — not yet implemented in RN baseline | N/A (to be designed) | `ios/LaneShadow/Views/Molecules/StateListItem.swift` | List item for state selection × selected/unselected/disabled states |
+
+> **NOTE**: All components in this task are planned for future implementation in Sprint 3 (auth-and-discovery-shell). The TRANSLATION SOURCES table above marks the expected file locations. STYLE PROPERTIES MATRIX will be populated once RN baseline components are designed and implemented. Refer to Sprint 3 planning documents for component specifications.
+
 ## DESIGN NOTES
 
 - Preserve RN spacing, composition hierarchy, and edge-case fixtures such as long labels, loading, and error states.

@@ -1,4 +1,4 @@
-# Epic 12: Pipeline Orchestrator & End-to-End Integration
+# Sprint 12: Pipeline Orchestrator & End-to-End Integration
 
 **Sequence:** 12 / 10  *(sequence numbers retained; gaps at 5 [deleted 2026-04-12] and 11 [deferred 2026-04-16])*
 **Priority:** P1
@@ -51,7 +51,7 @@ After the single task is complete, an administrator should be able to:
     - Best months present on weather-enriched routes (`bestMonths` field)
     - All new optional fields are `undefined`-safe (no crashes on routes missing enrichment data)
 
-11. **Execute the Curation Review Protocol (FINAL RUN)** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. **ALL 13 protocol steps are now active, including Step 13 (orchestrator). Run once using individual stages, then once via `python -m scripts.curation.pipeline.orchestrator` — verify outputs are byte-identical.** Diff against every prior epic baseline to see the full journey: Epic 2 baseline → Epic 12 final. **Produce a final initiative close-out `review.md` capturing the full journey: route count evolution, score distribution evolution, top-10 routes evolution, dedup merge counts, calibration gate history, cost totals, regressions found + fixed.** This review.md is the final artifact of the Curation Pipeline Hardening initiative. Verdict PASS is required to close the initiative.
+11. **Execute the Curation Review Protocol (FINAL RUN)** — Run [`../CURATION-REVIEW-PROTOCOL.md`](../CURATION-REVIEW-PROTOCOL.md) end-to-end. **ALL 13 protocol steps are now active, including Step 13 (orchestrator). Run once using individual stages, then once via `python -m scripts.curation.pipeline.orchestrator` — verify outputs are byte-identical.** Diff against every prior epic baseline to see the full journey: Epic 2 baseline → Sprint 12 final. **Produce a final initiative close-out `review.md` capturing the full journey: route count evolution, score distribution evolution, top-10 routes evolution, dedup merge counts, calibration gate history, cost totals, regressions found + fixed.** This review.md is the final artifact of the Curation Pipeline Hardening initiative. Verdict PASS is required to close the initiative.
 
 All 11 verifications must pass. This is the final validation of the entire Curation Pipeline Hardening initiative.
 
@@ -99,10 +99,10 @@ All 11 verifications must pass. This is the final validation of the entire Curat
 
 **Depends On:**
 - Epic 4: Source Diversification — Government, Editorial & Geometric (all SRC tasks)
-- Epic 6: Quality Infrastructure — Dedup & Floor (QUAL-001, QUAL-002)
-- Epic 7: Quality Infrastructure — Reports (QUAL-003, QUAL-004)
-- Epic 8: Scoring & Calibration (all SCO + INF tasks)
-- Epic 10: Community NLP & Signals (RID-003, RID-004)
+- Sprint 6: Quality Infrastructure — Dedup & Floor (QUAL-001, QUAL-002)
+- Sprint 7: Quality Infrastructure — Reports (QUAL-003, QUAL-004)
+- Sprint 8: Scoring & Calibration (all SCO + INF tasks)
+- Sprint 10: Community NLP & Signals (RID-003, RID-004)
 - Epic 3 (INF-006, INF-007 Convex push + geospatial queries)
 
 ---
@@ -118,7 +118,7 @@ All 11 verifications must pass. This is the final validation of the entire Curat
 - [ ] Resumability verified (kill + resume)
 - [ ] Convex field verification passed (all new enrichment fields present and queryable)
 - [ ] Curation Review Protocol executed (BOTH stage-by-stage AND via orchestrator — outputs identical)
-- [ ] Final initiative close-out `review.md` committed documenting full journey (Epic 2 → Epic 12)
+- [ ] Final initiative close-out `review.md` committed documenting full journey (Epic 2 → Sprint 12)
 - [ ] All 12 epics moved to `Done`
 - [ ] Curation Pipeline Hardening initiative officially complete
 
@@ -132,4 +132,4 @@ All 11 verifications must pass. This is the final validation of the entire Curat
 - Per-stage duration logging is critical for future optimization (which stage is the bottleneck?)
 - The `--dry-run` mode should estimate runtime based on prior runs (from checkpoint history)
 - Consider a `--parallel` flag for future optimization (independent sources can run in parallel)
-- After Epic 12 completes, the Curation Pipeline Hardening initiative is DONE. Update `.spec/prds/curation-hardening/README.md` with close-out notes.
+- After Sprint 12 completes, the Curation Pipeline Hardening initiative is DONE. Update `.spec/prds/curation-hardening/README.md` with close-out notes.

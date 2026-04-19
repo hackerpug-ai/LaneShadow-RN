@@ -26,7 +26,7 @@ This epic stays scoped to the existing three source tasks, but tightens them to 
 ## Why This Epic Matters
 
 - Scenic Byways GIS is no longer a raw count-expansion story; it is the higher-fidelity geometry and metadata upgrade over the Epic 2 FHWA baseline.
-- Rider Magazine becomes the primary editorial ground-truth input for Epic 8 calibration, so partial ingest is unacceptable.
+- Rider Magazine becomes the primary editorial ground-truth input for Sprint 8 calibration, so partial ingest is unacceptable.
 - Curvature discovery is the only surviving “hidden gem” source after the 2026-04-12 scope revision.
 - Mobile discovery currently syncs only lean route-card fields. Epic 4 is the first time source-specific provenance needs to survive from ingest through Convex into rider-facing detail surfaces.
 
@@ -91,8 +91,8 @@ All 7 steps must pass.
 
 **Blocks**
 
-- Epic 6 quality/dedup floor, which depends on new source output entering the shared pipeline
-- Epic 8 calibration, where Rider Magazine is the upstream editorial anchor
+- Sprint 6 quality/dedup floor, which depends on new source output entering the shared pipeline
+- Sprint 8 calibration, where Rider Magazine is the upstream editorial anchor
 
 ---
 
@@ -109,7 +109,7 @@ All 7 steps must pass.
 ## Notes
 
 - Scenic Byways GIS should be planned as a geometry and metadata upgrade over the Epic 2 FHWA baseline, not a naïve “799 new routes” assumption.
-- Rider Magazine is upstream of the calibration gate. A partial or softened ingest here poisons Epic 8.
+- Rider Magazine is upstream of the calibration gate. A partial or softened ingest here poisons Sprint 8.
 - Curvature discovery must consume a precomputed artifact only. Running raw OSM curvature generation is out of scope for this epic.
 - The current mobile lean sync path only persists route-card fields. That gap is folded into `SRC-001` so provenance survives to existing detail surfaces without adding a fourth task.
 - Curvature storage follow-up is now implemented: the full US artifact, manifest, and 51 state shards were published to Convex File Storage, release/shard metadata is live in `curation_artifact_releases` and `curation_artifact_shards`, and the active release `adamfranco-us-curvature-51-states-sha256-ab590f7234b9` is verified on both dev (`quirky-panther-164`) and prod (`fantastic-owl-967`).

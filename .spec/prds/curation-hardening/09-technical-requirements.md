@@ -10,7 +10,7 @@ prd_version: 1.0.1
 
 ## Mobile UI Scope Note (2026-04-16)
 
-Epic 11 (Mobile UI — New Field Display) has been deferred to the [native-rewrite PRD](../../native-rewrite/07-native-app-backlog.md). The client is transitioning from React Native to native Kotlin/Swift. The pipeline still produces all data fields listed below (surface, qualityTier, bestMonths, description, rating, sourceCount, mentionFrequency, weatherSuitability) — only the React Native consumption layer is deferred. The Convex schema and API contract are unchanged.
+Sprint 11 (Mobile UI — New Field Display) has been deferred to the [native-rewrite PRD](../../native-rewrite/07-native-app-backlog.md). The client is transitioning from React Native to native Kotlin/Swift. The pipeline still produces all data fields listed below (surface, qualityTier, bestMonths, description, rating, sourceCount, mentionFrequency, weatherSuitability) — only the React Native consumption layer is deferred. The Convex schema and API contract are unchanged.
 
 ## System Components
 
