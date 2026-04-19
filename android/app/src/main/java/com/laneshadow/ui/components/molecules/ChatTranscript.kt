@@ -70,6 +70,105 @@ enum class ChatMessageStatus {
 }
 
 /**
+ * Chat message kind enum
+ *
+ * Defines the type of content in a message for card rendering.
+ */
+enum class ChatMessageKind {
+    /** Plain text message */
+    TEXT,
+
+    /** Routing card showing route calculation status */
+    ROUTING_CARD,
+
+    /** Weather information card */
+    WEATHER_CARD,
+
+    /** Saved route card */
+    SAVED_ROUTE_CARD,
+
+    /** Reasoning card with expanded agent thinking */
+    REASONING,
+
+    /** Thinking card with step timeline */
+    THINKING_CARD,
+
+    /** Planning card for orchestration status */
+    PLANNING,
+
+    /** Location search results card */
+    LOCATION_SEARCH_CARD,
+}
+
+/**
+ * Route attachment data class
+ *
+ * Represents a route that can be attached to a chat message.
+ */
+data class RouteAttachment(
+    val id: String,
+    val label: String,
+    val description: String,
+    val distance: String,
+    val duration: String,
+    val scenicScore: Double,
+    val weatherBadge: WeatherBadge? = null,
+    val isBest: Boolean = false,
+)
+
+/**
+ * Weather badge data class
+ *
+ * Represents weather information for a route.
+ */
+data class WeatherBadge(
+    val type: WeatherBadgeType,
+    val text: String,
+)
+
+/**
+ * Weather badge type enum
+ */
+enum class WeatherBadgeType {
+    CLEAR,
+    RAIN,
+    WIND,
+    CLOUDY,
+}
+
+/**
+ * Card attachment data class
+ *
+ * Base class for card attachments passed to card components.
+ */
+sealed class CardAttachment {
+    abstract val id: String
+    abstract val type: String
+}
+
+/**
+ * Thinking step data class
+ *
+ * Represents a single step in agent thinking process.
+ */
+data class ThinkingStep(
+    val type: ThinkingStepType,
+    val toolName: String? = null,
+    val summary: String,
+    val detail: String? = null,
+    val timestamp: Long,
+)
+
+/**
+ * Thinking step type enum
+ */
+enum class ThinkingStepType {
+    THINKING,
+    TOOL_START,
+    TOOL_FINISH,
+}
+
+/**
  * Chat message data class
  *
  * Represents a single message in the chat transcript.
@@ -79,6 +178,10 @@ enum class ChatMessageStatus {
  * @property content Text content of the message
  * @property timestamp Unix timestamp in milliseconds
  * @property status Current status of the message (default: COMPLETE)
+ * @property kind Type of content for card rendering (default: TEXT)
+ * @property routeAttachments Optional list of routes attached to this message
+ * @property attachments Optional card attachments for specialized rendering
+ * @property thinkingSteps Optional thinking steps showing agent reasoning
  */
 data class ChatMessage(
     val id: String,
@@ -86,6 +189,10 @@ data class ChatMessage(
     val content: String,
     val timestamp: Long,
     val status: ChatMessageStatus = ChatMessageStatus.COMPLETE,
+    val kind: ChatMessageKind? = null,
+    val routeAttachments: List<RouteAttachment>? = null,
+    val attachments: List<CardAttachment>? = null,
+    val thinkingSteps: List<ThinkingStep>? = null,
 )
 
 /**

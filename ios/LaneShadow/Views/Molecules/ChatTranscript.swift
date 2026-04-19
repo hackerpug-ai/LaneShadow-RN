@@ -27,6 +27,135 @@ public enum LSChatMessageStatus: String, Sendable {
     case failed
 }
 
+// MARK: - Chat Message Kind
+
+/**
+ * Chat message kind enum
+ *
+ * Defines the type of content for card rendering.
+ */
+public enum LSChatMessageKind: String, Sendable {
+    case text
+    case routing_card
+    case weather_card
+    case saved_route_card
+    case reasoning
+    case thinking_card
+    case planning
+    case location_search_card
+}
+
+// MARK: - Weather Badge Type
+
+/**
+ * Weather badge type enum
+ */
+public enum LSWeatherBadgeType: String, Sendable {
+    case clear
+    case rain
+    case wind
+    case cloudy
+}
+
+// MARK: - Weather Badge
+
+/**
+ * Weather badge model
+ */
+public struct LSWeatherBadge: Sendable {
+    public let type: LSWeatherBadgeType
+    public let text: String
+
+    public init(type: LSWeatherBadgeType, text: String) {
+        self.type = type
+        self.text = text
+    }
+}
+
+// MARK: - Route Attachment
+
+/**
+ * Route attachment model
+ */
+public struct LSRouteAttachment: Sendable {
+    public let id: String
+    public let label: String
+    public let description: String
+    public let distance: String
+    public let duration: String
+    public let scenicScore: Double
+    public let weatherBadge: LSWeatherBadge?
+    public let isBest: Bool
+
+    public init(
+        id: String,
+        label: String,
+        description: String,
+        distance: String,
+        duration: String,
+        scenicScore: Double,
+        weatherBadge: LSWeatherBadge? = nil,
+        isBest: Bool = false
+    ) {
+        self.id = id
+        self.label = label
+        self.description = description
+        self.distance = distance
+        self.duration = duration
+        self.scenicScore = scenicScore
+        self.weatherBadge = weatherBadge
+        self.isBest = isBest
+    }
+}
+
+// MARK: - Card Attachment
+
+/**
+ * Card attachment base class
+ */
+public protocol LSCardAttachment: Sendable {
+    var id: String { get }
+    var type: String { get }
+}
+
+// MARK: - Thinking Step Type
+
+/**
+ * Thinking step type enum
+ */
+public enum LSThinkingStepType: String, Sendable {
+    case thinking
+    case tool_start
+    case tool_finish
+}
+
+// MARK: - Thinking Step
+
+/**
+ * Thinking step model
+ */
+public struct LSThinkingStep: Sendable {
+    public let type: LSThinkingStepType
+    public let toolName: String?
+    public let summary: String
+    public let detail: String?
+    public let timestamp: TimeInterval
+
+    public init(
+        type: LSThinkingStepType,
+        toolName: String? = nil,
+        summary: String,
+        detail: String? = nil,
+        timestamp: TimeInterval
+    ) {
+        self.type = type
+        self.toolName = toolName
+        self.summary = summary
+        self.detail = detail
+        self.timestamp = timestamp
+    }
+}
+
 // MARK: - Chat Message Model
 
 /**
@@ -41,19 +170,31 @@ public struct LSChatMessage: Identifiable, Sendable {
     public let content: String
     public let timestamp: Date
     public let status: LSChatMessageStatus
+    public let kind: LSChatMessageKind?
+    public let routeAttachments: [LSRouteAttachment]?
+    public let attachments: [any LSCardAttachment]?
+    public let thinkingSteps: [LSThinkingStep]?
 
     public init(
         id: String,
         role: LSChatMessageRole,
         content: String,
         timestamp: Date,
-        status: LSChatMessageStatus = .complete
+        status: LSChatMessageStatus = .complete,
+        kind: LSChatMessageKind? = nil,
+        routeAttachments: [LSRouteAttachment]? = nil,
+        attachments: [any LSCardAttachment]? = nil,
+        thinkingSteps: [LSThinkingStep]? = nil
     ) {
         self.id = id
         self.role = role
         self.content = content
         self.timestamp = timestamp
         self.status = status
+        self.kind = kind
+        self.routeAttachments = routeAttachments
+        self.attachments = attachments
+        self.thinkingSteps = thinkingSteps
     }
 }
 
