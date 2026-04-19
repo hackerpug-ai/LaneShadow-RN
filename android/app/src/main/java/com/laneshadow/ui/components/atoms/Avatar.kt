@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.sp
+import coil3.compose.SubcomposeAsyncImage
 import com.laneshadow.theme.LocalLaneShadowTheme
 
 /**
@@ -148,17 +149,31 @@ fun Avatar(
                 contentAlignment = Alignment.Center,
             ) {
                 if (source != null) {
-                    // Image loading not yet implemented - requires Coil 3 dependency
-                    // Per matrix: ContentScale.Crop, Clip(CircleShape)
-                    // Showing initials as fallback until image loading is added
-                    if (initials != null) {
-                        Text(
-                            text = initials,
-                            style = theme.type.body.sm,
-                            fontSize = initialsFontSize,
-                            color = theme.colors.onSurface.default,
-                        )
-                    }
+                    SubcomposeAsyncImage(
+                        model = source,
+                        contentDescription = alt,
+                        contentScale = ContentScale.Crop,
+                        loading = {
+                            if (initials != null) {
+                                Text(
+                                    text = initials,
+                                    style = theme.type.body.sm,
+                                    fontSize = initialsFontSize,
+                                    color = theme.colors.onSurface.default.copy(alpha = 0.5f),
+                                )
+                            }
+                        },
+                        error = {
+                            if (initials != null) {
+                                Text(
+                                    text = initials,
+                                    style = theme.type.body.sm,
+                                    fontSize = initialsFontSize,
+                                    color = theme.colors.onSurface.default,
+                                )
+                            }
+                        }
+                    )
                 } else if (initials != null) {
                     Text(
                         text = initials,

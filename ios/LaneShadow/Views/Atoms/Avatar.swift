@@ -129,11 +129,11 @@ public struct Avatar: View {
                     // Use AsyncImage for remote image loading
                     AsyncImage(url: URL(string: source)) { phase in
                         switch phase {
-                        case .success(let image):
+                        case let .success(image):
                             image
                                 .resizable()
                                 .scaledToFill()
-                        case .failure(_):
+                        case .failure:
                             // Show initials on error
                             if let initials {
                                 Text(initials)

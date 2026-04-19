@@ -181,5 +181,55 @@ enum MoleculesStories {
                 )
             }
         },
+
+        // Favorites Info Sheet Stories
+
+        Story(
+            id: "molecules.favorites-info-sheet.default",
+            tier: .molecule,
+            component: "FavoritesInfoSheet",
+            name: "Default with Favorites",
+            summary: "react-native/components/sheets/favorites-info-sheet.tsx - Info sheet with unavailable favorites"
+        ) { context in
+            VStack {
+                Text("Parent View")
+                    .font(context.theme.type.title.md.font)
+                    .foregroundStyle(context.theme.colors.onSurface.default)
+                    .padding()
+            }
+            .laneShadowTheme()
+        },
+
+        Story(
+            id: "molecules.favorites-info-sheet.empty",
+            tier: .molecule,
+            component: "FavoritesInfoSheet",
+            name: "Empty Favorites List",
+            summary: "react-native/components/sheets/favorites-info-sheet.tsx - Info sheet with no favorites"
+        ) { context in
+            VStack {
+                Text("Parent View")
+                    .font(context.theme.type.title.md.font)
+                    .foregroundStyle(context.theme.colors.onSurface.default)
+                    .padding()
+            }
+            .laneShadowTheme()
+        },
+
+        Story(
+            id: "molecules.favorites-info-sheet.single",
+            tier: .molecule,
+            component: "FavoritesInfoSheet",
+            name: "Single Favorite",
+            summary: "react-native/components/sheets/favorites-info-sheet.tsx - Info sheet with one favorite"
+        ) { context in
+            VStack {
+                Text("Parent View")
+                    .font(context.theme.type.title.md.font)
+                    .foregroundStyle(context.theme.colors.onSurface.default)
+                    .padding()
+            }
+            .laneShadowTheme()
+        },
     ]
 }
