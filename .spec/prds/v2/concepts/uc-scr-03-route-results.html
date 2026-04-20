@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<!-- uc-scr-03-route-results.html — UC-SCR-03 "RouteResultsScreen"
+     LaneShadow V2 · Copper · Navigator Design Mock · 2026-04-20
+     Surface: LIGHT (+ dark variant)
+     Authority: concepts/designs.html · 08-uc-scr.md §UC-SCR-03 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-SCR-03 — RouteResultsScreen — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════ COPPER TOKEN SYSTEM ═══════════ */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --paper-50:#FDFBF8;--paper-100:#F8F7F6;--paper-150:#F5F2EE;--paper-200:#F2EFED;
+  --paper-300:#EDE7E1;--paper-400:#E5DED9;--paper-500:#C9BDB3;
+  --ink-900:#1E1A16;--ink-800:#221810;--ink-700:#2D2218;--ink-600:#362A1F;
+  --ink-500:#3D3228;--ink-400:#49454F;--ink-300:#6B6460;--ink-200:#9CA3AF;
+  --ink-100:#CAC4D0;--ink-050:#F2EEE8;
+  --copper-700:#9E4A22;--copper-600:#B85A2C;--copper-500:#EE7C2B;
+  --copper-400:#F3A164;--copper-200:#F9D5B5;--copper-100:#FCE8D4;
+  --route-best:#EE7C2B;--route-alt1:#4D8470;--route-alt2:#6B7B8F;
+  --wx-clear:#E6A52A;--wx-clear-tint:#FBEFCF;
+  --wx-rain:#4A86BE;--wx-rain-tint:#DBEAF4;
+  --wx-wind:#6B7B8F;--wx-wind-tint:#E1E6EC;
+  --wx-storm:#5E3FAE;--wx-storm-tint:#E3DCF2;
+  --status-warning:#C46F1B;
+  --font-opinion:'Newsreader',Georgia,serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+
+  --surface-primary:var(--paper-100);--surface-card:var(--paper-50);--surface-inset:var(--paper-200);
+  --surface-overlay:rgba(253,251,248,0.92);--surface-glass:rgba(253,251,248,0.72);
+  --surface-scrim:rgba(34,24,16,0.35);
+  --map-paper:var(--paper-150);--map-contour:rgba(73,69,79,0.22);--map-contour-faint:rgba(73,69,79,0.10);
+  --content-primary:var(--ink-900);--content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300);--content-subtle:var(--ink-200);--content-onSignal:#FFF;
+  --signal-default:var(--copper-500);--signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200);--signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400);--border-subtle:var(--paper-300);--border-strong:var(--paper-500);
+  --border-focus:var(--copper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+}
+body { background: var(--surface-primary); color: var(--content-primary); }
+.mode-dark {
+  --surface-primary:var(--ink-800);--surface-card:var(--ink-700);--surface-inset:var(--ink-600);
+  --surface-overlay:rgba(45,34,24,0.92);--surface-glass:rgba(45,34,24,0.72);
+  --surface-scrim:rgba(10,6,3,0.50);--map-paper:#1B140E;
+  --map-contour:rgba(242,238,232,0.16);--map-contour-faint:rgba(242,238,232,0.07);
+  --content-primary:var(--ink-050);--content-secondary:var(--ink-100);
+  --content-tertiary:var(--ink-200);--content-subtle:var(--ink-300);
+  --border-default:rgba(242,238,232,0.12);--border-subtle:rgba(242,238,232,0.07);
+  --border-strong:rgba(242,238,232,0.22);
+  --elev-overlay:0 8px 24px rgba(0,0,0,0.42),0 2px 6px rgba(0,0,0,0.28);
+  --elev-chrome:0 1px 3px rgba(0,0,0,0.24),0 4px 14px rgba(0,0,0,0.28);
+}
+
+/* ═══════════ TYPOGRAPHY ═══════════ */
+.t-opinion-xl{font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em;}
+.t-opinion-lg{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em;}
+.t-opinion-md{font-family:var(--font-opinion);font-weight:400;font-size:17px;line-height:1.32;}
+.t-title-md{font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em;}
+.t-title-sm{font-family:var(--font-ui);font-weight:600;font-size:12px;line-height:1.28;}
+.t-body-md{font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52;}
+.t-body-sm{font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48;}
+.t-label-md{font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase;}
+.t-label-sm{font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase;}
+.t-instr-md{font-family:var(--font-instrument);font-weight:500;font-size:13px;line-height:1.2;font-feature-settings:"tnum" 1;}
+.t-instr-sm{font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1;}
+.t-instr-xs{font-family:var(--font-instrument);font-weight:500;font-size:8.5px;line-height:1.0;font-feature-settings:"tnum" 1;}
+
+/* ═══════════ DOC CHROME ═══════════ */
+body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden;}
+.wrap{max-width:1440px;margin:0 auto;padding:0 72px;}
+.doc-header{position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden;}
+.doc-header::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none;}
+.doc-header>*{position:relative;z-index:1;}
+.doc-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px;}
+.doc-eyebrow::before{content:"";width:28px;height:1px;background:var(--signal-default);}
+.doc-eyebrow-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em;}
+.doc-title{font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px;}
+.doc-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.doc-tagline{font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px;}
+.doc-meta-row{display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default);}
+.meta-item{display:flex;flex-direction:column;gap:6px;}
+.meta-label{font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);}
+.meta-value{font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary);}
+
+.section{padding:96px 0;border-bottom:1px solid var(--border-default);position:relative;}
+.section:last-child{border-bottom:none;}
+.section-header{display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px;}
+.section-index{font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+.section-index::before{content:"";display:block;width:48px;height:1px;background:var(--signal-default);}
+.section-title{font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px;}
+.section-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.prose{font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px;}
+.prose+.prose{margin-top:20px;}
+.prose em{font-style:italic;}
+.prose strong{font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px;}
+
+.screens-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:56px 40px;align-items:start;padding-left:152px;}
+.screens-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.screen-cell{display:flex;flex-direction:column;gap:22px;}
+.screen-annotation{display:flex;flex-direction:column;gap:8px;max-width:280px;}
+.screen-num{font-family:var(--font-instrument);font-size:10.5px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);}
+.screen-name{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.2;letter-spacing:-0.015em;color:var(--content-primary);}
+.screen-desc{font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:14px;line-height:1.6;color:var(--content-secondary);}
+.ac-cite{font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px;}
+.ac-cite::before{content:"☐";position:absolute;left:0;top:0;color:var(--border-strong);}
+
+/* ═══════════ PHONE FRAME ═══════════ */
+.phone-frame{width:100%;max-width:282px;margin:0 auto;aspect-ratio:9/19.5;position:relative;border-radius:44px;background:#0F0A07;box-shadow:inset 0 0 0 1px #2A1F16,inset 0 0 0 2.5px #0F0A07,0 30px 70px -16px rgba(34,24,16,0.38),0 10px 24px -10px rgba(34,24,16,0.22);overflow:hidden;}
+.phone-screen{position:absolute;inset:3px;border-radius:41px;overflow:hidden;display:flex;flex-direction:column;background:var(--surface-primary);color:var(--content-primary);isolation:isolate;}
+.phone-di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:96px;height:26px;background:#000;border-radius:14px;z-index:60;}
+.phone-sb{display:flex;justify-content:space-between;align-items:center;padding:46px 22px 0;flex-shrink:0;z-index:10;position:relative;}
+.phone-sb .sb-time{font-family:var(--font-instrument);font-size:12px;font-weight:600;letter-spacing:-0.02em;color:var(--content-primary);}
+.phone-sb .sb-icons{display:flex;gap:5px;align-items:center;color:var(--content-primary);}
+.phone-hi{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:108px;height:4px;border-radius:3px;z-index:60;background:rgba(0,0,0,0.38);}
+.mode-dark .phone-hi{background:rgba(255,255,255,0.30);}
+
+/* ═══════════ PAPER MAP ═══════════ */
+.pmap{position:absolute;inset:0;background:var(--map-paper);overflow:hidden;z-index:0;}
+.pmap::before{content:"";position:absolute;inset:-8px;background-image:linear-gradient(var(--map-contour-faint) 1px,transparent 1px),linear-gradient(90deg,var(--map-contour-faint) 1px,transparent 1px);background-size:28px 28px;opacity:0.55;pointer-events:none;}
+.pmap::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 60% at 50% 30%,transparent 40%,rgba(34,24,16,0.08) 100%);pointer-events:none;}
+.mode-dark .pmap::after{background:radial-gradient(120% 60% at 50% 30%,transparent 40%,rgba(0,0,0,0.40) 100%);}
+.pmap-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+
+/* ═══════════ CHROME ═══════════ */
+.ls-topbar{position:absolute;top:46px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:14px 14px 0;z-index:30;}
+.chrome-chip{background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);box-shadow:var(--elev-chrome);backdrop-filter:blur(14px) saturate(1.2);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--content-primary);}
+.mode-dark .chrome-chip{border-color:rgba(242,238,232,0.12);}
+.chrome-chip.circular{width:40px;height:40px;border-radius:50%;}
+.chrome-chip.pill{padding:0 14px;height:40px;border-radius:22px;display:flex;align-items:center;gap:6px;}
+
+/* ═══════════ ROUTE POLYLINES ═══════════ */
+.routes-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;}
+.routes-svg path{fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.route-best{stroke:var(--route-best);stroke-width:3.5px;filter:drop-shadow(0 1px 3px rgba(238,124,43,0.35));}
+.route-alt1{stroke:var(--route-alt1);stroke-width:2.5px;stroke-dasharray:6 4;opacity:0.85;}
+.route-alt2{stroke:var(--route-alt2);stroke-width:2.5px;stroke-dasharray:3 4;opacity:0.75;}
+
+/* Start/End markers */
+.rt-marker{position:absolute;z-index:4;}
+.rt-start{width:14px;height:14px;border-radius:50%;background:var(--signal-default);border:2.5px solid var(--surface-card);box-shadow:0 2px 6px rgba(238,124,43,0.45);}
+.rt-end{width:18px;height:18px;border-radius:50%;background:var(--surface-card);border:2.5px solid var(--signal-default);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(34,24,16,0.2);}
+.rt-end::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--signal-default);}
+
+/* ═══════════ NAVIGATOR MESSAGE (top overlay with attachments) ═══════════ */
+.nav-message{position:absolute;top:108px;left:14px;right:14px;z-index:20;background:var(--surface-glass);border:1px solid var(--signal-tint);border-top:2px solid var(--signal-default);backdrop-filter:blur(16px) saturate(1.2);border-radius:14px;padding:14px 14px;box-shadow:var(--elev-overlay);}
+.nav-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;}
+.compass-chip{width:24px;height:24px;border-radius:50%;background:var(--signal-whisper);border:1px solid var(--signal-tint);display:flex;align-items:center;justify-content:center;color:var(--signal-default);flex-shrink:0;}
+.nav-head-text{flex:1;}
+.nav-head-label{font-family:var(--font-ui);font-size:8.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--signal-default);margin-bottom:3px;}
+.nav-head-body{font-family:var(--font-opinion);font-weight:400;font-size:13.5px;line-height:1.45;color:var(--content-primary);}
+.nav-head-actions{display:flex;gap:4px;}
+.nav-action{width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--content-tertiary);}
+.nav-action.active{color:var(--signal-default);}
+
+.nav-attachments{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+
+/* ═══════════ ROUTE ATTACHMENT CARD ═══════════ */
+.rt-card{background:var(--surface-card);border:1px solid var(--border-default);border-radius:10px;padding:9px 10px 9px 13px;display:flex;flex-direction:column;gap:5px;position:relative;overflow:hidden;}
+.rt-card.selected{border-color:var(--signal-default);background:color-mix(in srgb, var(--surface-card) 92%, var(--signal-default));}
+.rt-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;}
+.rt-card.v-best::before{background:var(--route-best);}
+.rt-card.v-alt1::before{background:var(--route-alt1);}
+.rt-card.v-alt2::before{background:var(--route-alt2);}
+.rt-card-head{display:flex;align-items:center;gap:6px;}
+.rt-best-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;background:var(--signal-default);color:#FFF;border-radius:3px;font-family:var(--font-ui);font-size:7.5px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;box-shadow:0 2px 5px rgba(238,124,43,0.4);}
+.rt-card-title{font-family:var(--font-ui);font-weight:600;font-size:12.5px;color:var(--content-primary);flex:1;line-height:1.2;}
+.rt-card-via{font-family:var(--font-ui);font-weight:400;font-size:10px;color:var(--content-secondary);line-height:1.3;}
+.rt-card-meta{display:flex;align-items:center;gap:10px;margin-top:2px;}
+.rt-meta-group{display:flex;align-items:center;gap:3px;font-family:var(--font-instrument);font-size:10px;color:var(--content-primary);font-feature-settings:"tnum" 1;}
+.rt-meta-sep{width:1px;height:10px;background:var(--border-default);}
+.rt-scenic-dots{display:flex;gap:2px;align-items:center;}
+.rt-scenic-dots .d{width:4px;height:4px;border-radius:50%;background:var(--border-strong);}
+.rt-scenic-dots .d.f{background:var(--signal-default);}
+.rt-scenic-label{font-family:var(--font-ui);font-size:7.5px;font-weight:600;letter-spacing:0.1em;color:var(--content-tertiary);text-transform:uppercase;}
+.rt-card-right{position:absolute;top:8px;right:8px;}
+.wx-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 5px;border-radius:4px;font-family:var(--font-ui);font-size:8px;font-weight:600;letter-spacing:0.05em;}
+.wx-clear{background:var(--wx-clear-tint);color:var(--wx-clear);border:1px solid rgba(230,165,42,0.33);}
+.wx-wind{background:var(--wx-wind-tint);color:var(--wx-wind);border:1px solid rgba(107,123,143,0.33);}
+.wx-rain{background:var(--wx-rain-tint);color:var(--wx-rain);border:1px solid rgba(74,134,190,0.33);}
+
+/* ═══════════ CHAT INPUT (refine) ═══════════ */
+.ls-chatinput-anchor{position:absolute;bottom:16px;left:12px;right:12px;z-index:40;}
+.ls-chatinput{height:54px;background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);backdrop-filter:blur(14px) saturate(1.2);border-radius:18px;display:flex;align-items:center;padding:0 6px 0 14px;gap:10px;box-shadow:var(--elev-chrome);}
+.mode-dark .ls-chatinput{border-color:rgba(242,238,232,0.12);}
+.chat-icon-btn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--content-secondary);flex-shrink:0;}
+.chat-field{flex:1;font-family:var(--font-ui);font-size:12.5px;font-weight:400;color:var(--content-tertiary);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.chat-field.has-value{color:var(--content-primary);font-weight:500;}
+.chat-filter-btn{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--content-secondary);flex-shrink:0;}
+.chat-send-btn{width:42px;height:42px;background:var(--signal-default);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#FFF;flex-shrink:0;box-shadow:0 2px 8px rgba(238,124,43,0.38);}
+
+/* ═══════════ §04–§06 ═══════════ */
+.cmp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-left:152px;}
+.cmp-card{background:var(--surface-card);border:1px solid var(--border-default);border-radius:12px;padding:20px 22px;}
+.cmp-tier-label{font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;color:var(--signal-default);text-transform:uppercase;margin-bottom:14px;display:block;}
+.cmp-item{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.cmp-item:last-child{border-bottom:none;}
+.cmp-name{font-family:var(--font-ui);font-weight:600;font-size:13px;color:var(--content-primary);margin-bottom:4px;}
+.cmp-ref{font-family:var(--font-instrument);font-size:10px;color:var(--content-tertiary);line-height:1.4;}
+.motion-table{padding-left:152px;display:grid;grid-template-columns:160px 1fr 2fr;row-gap:14px;column-gap:28px;font-family:var(--font-ui);font-size:13px;}
+.motion-table>div{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.motion-recipe{font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px;}
+.motion-trigger{color:var(--content-primary);font-weight:500;}
+.motion-effect{color:var(--content-secondary);}
+.rationale-grid{padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+.rationale-block h4{font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px;}
+.rationale-block p{font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px;}
+.rationale-block ul{list-style:none;}
+.rationale-block li{padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle);}
+.rationale-block li::before{content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument);}
+.rationale-block li strong{font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px;}
+
+.doc-footer{padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;}
+.footer-mark{font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;color:var(--content-primary);letter-spacing:-0.02em;}
+.footer-mark em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.footer-mark span{display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300;}
+.footer-note{font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-SCR-03</span><span class="doc-eyebrow-pill">● Screens · Template</span></div>
+    <h1 class="doc-title">Three <em>answers</em>,<br>drawn on paper.</h1>
+    <p class="doc-tagline">
+      The Navigator has finished. Three polylines — best, alt1, alt2 —
+      fan across the map, and a signal-accented message carries the
+      reasoning plus a stack of compact route cards the rider can pick from
+      without leaving the map.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-SCR-03</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">08-uc-scr.md</div></div>
+      <div class="meta-item"><div class="meta-label">Surface</div><div class="meta-value">Light (+ dark)</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">A recommendation with <em>receipts</em>.</h2>
+    </div>
+    <p class="prose">
+      RouteResultsScreen is where the Navigator argues for its answer. The
+      best route is drawn in copper — bold, 3.5px stroke, slight drop
+      shadow. Alternatives render dashed in sage (alt1) and slate (alt2)
+      so the eye can triangulate without the map feeling like a ribbon
+      chart. The camera auto-fits all three polylines with <strong>spacing.4</strong>
+      padding so the union is always visible.
+    </p>
+    <p class="prose">
+      The NavigatorMessage carries three responsibilities in one overlay:
+      (1) <em>state the recommendation in Newsreader prose</em>,
+      (2) <em>attach three compact route cards</em> with the first
+      pre-selected, and (3) <em>expose pin + dismiss actions</em> so the
+      rider can park the message or close it entirely. When pinned, the
+      auto-dismiss recipe does not fire.
+    </p>
+    <p class="prose">
+      The chat input stays available but switches its placeholder to a
+      refine-prompt — "Refine — 'make it shorter' / 'avoid Hwy 1'". This is
+      the loop's closing move: the rider can accept an attachment (→ UC-SCR-04
+      RouteDetails), refine via chat (→ UC-SCR-02 PlanningScreen), or discard
+      everything and ask again.
+    </p>
+  </section>
+</div>
+
+<!-- §02 SCREENS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · Screens</div>
+      <h2 class="section-title">Three <em>routes</em>, three <em>cards</em>, one <em>recommendation</em>.</h2>
+    </div>
+
+    <div class="screens-grid">
+
+      <!-- S01 · DEFAULT (after draw-on, best selected) -->
+      <div class="screen-cell" id="uc-scr-03-s01-default">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 210 C 60 180, 120 250, 180 210 S 260 230, 320 190"/>
+                  <path d="M -20 280 C 50 250, 120 320, 180 280 S 260 310, 320 270"/>
+                  <path d="M -20 360 C 50 340, 110 390, 180 360 S 260 390, 320 350"/>
+                  <path d="M -20 450 C 60 420, 120 480, 180 450 S 260 470, 320 420"/>
+                </g>
+                <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
+                  <path d="M -20 175 C 60 160, 130 215, 180 175 S 260 195, 320 160"/>
+                  <path d="M -20 320 C 60 300, 130 360, 180 320 S 260 345, 320 305"/>
+                </g>
+                <path d="M 260 -10 C 230 60, 270 140, 250 230 S 240 370, 280 470" stroke="rgba(74,134,190,0.35)" stroke-width="0.8" fill="none"/>
+              </svg>
+
+              <!-- Routes SVG -->
+              <svg class="routes-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <path class="route-alt2" d="M 50 320 C 80 390, 130 420, 160 400 S 210 360, 240 320"/>
+                <path class="route-alt1" d="M 50 320 C 90 270, 130 270, 160 290 S 210 320, 240 320"/>
+                <path class="route-best" d="M 50 320 C 80 260, 120 240, 160 220 S 210 230, 240 320"/>
+              </svg>
+
+              <div class="rt-marker rt-start" style="left:16%;top:52%;"></div>
+              <div class="rt-marker rt-end" style="left:85%;top:52%;"></div>
+            </div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <!-- Navigator Message + attachments -->
+            <div class="nav-message">
+              <div class="nav-head">
+                <div class="compass-chip"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div class="nav-head-text">
+                  <div class="nav-head-label">The Navigator</div>
+                  <div class="nav-head-body">Skyline's wide open — take 35 to 9. Two alternatives if you want inland sun or a shorter loop.</div>
+                </div>
+                <div class="nav-head-actions">
+                  <div class="nav-action active"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div>
+                  <div class="nav-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6l-12 12"/></svg></div>
+                </div>
+              </div>
+
+              <div class="nav-attachments">
+                <!-- BEST -->
+                <div class="rt-card v-best selected">
+                  <div class="rt-card-head">
+                    <span class="rt-best-badge">★ Best</span>
+                    <div class="rt-card-title">The Skyline Spine</div>
+                    <div class="rt-card-right"><span class="wx-badge wx-clear">☀ Clear</span></div>
+                  </div>
+                  <div class="rt-card-via">via Hwy 35 → Hwy 9</div>
+                  <div class="rt-card-meta">
+                    <div class="rt-meta-group">64 mi</div>
+                    <div class="rt-meta-sep"></div>
+                    <div class="rt-meta-group">2h 10m</div>
+                    <div class="rt-meta-sep"></div>
+                    <div class="rt-scenic-dots"><span class="d f"></span><span class="d f"></span><span class="d f"></span><span class="d f"></span><span class="d f"></span></div>
+                    <span class="rt-scenic-label">Scenic</span>
+                  </div>
+                </div>
+
+                <!-- ALT1 -->
+                <div class="rt-card v-alt1">
+                  <div class="rt-card-head">
+                    <div class="rt-card-title">Sun-Side Loop</div>
+                    <div class="rt-card-right"><span class="wx-badge wx-clear">☀ Clear</span></div>
+                  </div>
+                  <div class="rt-card-via">via Hwy 84 → inland</div>
+                  <div class="rt-card-meta">
+                    <div class="rt-meta-group">58 mi</div>
+                    <div class="rt-meta-sep"></div>
+                    <div class="rt-meta-group">1h 55m</div>
+                    <div class="rt-meta-sep"></div>
+                    <div class="rt-scenic-dots"><span class="d f"></span><span class="d f"></span><span class="d f"></span><span class="d"></span><span class="d"></span></div>
+                    <span class="rt-scenic-label">Scenic</span>
+                  </div>
+                </div>
+
+                <!-- ALT2 -->
+                <div class="rt-card v-alt2">
+                  <div class="rt-card-head">
+                    <div class="rt-card-title">Back-Roads Short</div>
+                    <div class="rt-card-right"><span class="wx-badge wx-wind">≋ Wind</span></div>
+                  </div>
+                  <div class="rt-card-via">via Old La Honda</div>
+                  <div class="rt-card-meta">
+                    <div class="rt-meta-group">41 mi</div>
+                    <div class="rt-meta-sep"></div>
+                    <div class="rt-meta-group">1h 20m</div>
+                    <div class="rt-meta-sep"></div>
+                    <div class="rt-scenic-dots"><span class="d f"></span><span class="d f"></span><span class="d f"></span><span class="d f"></span><span class="d"></span></div>
+                    <span class="rt-scenic-label">Scenic</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field">Refine — 'make it shorter' / 'avoid Hwy 1'</div>
+                <div class="chat-filter-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:44</div><div class="sb-icons"><svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S01 · Default · Pinned</div>
+          <div class="screen-name">Best <em class="opinion-ital">pre-selected</em></div>
+          <div class="screen-desc">
+            Three polylines fan from start to end with the best route drawn in copper, alt1 dashed sage, alt2 dashed slate. NavigatorMessage body in Newsreader; three compact attachments stacked with best selected.
+          </div>
+          <div class="ac-cite">LSNavigatorMessage pinned with "THE NAVIGATOR" label + compass chip.</div>
+          <div class="ac-cite">Three compact LSRouteAttachmentCards; first has selected border + best badge.</div>
+          <div class="ac-cite">Polylines render in color.route.best / alt1 / alt2.</div>
+        </div>
+      </div>
+
+      <!-- S02 · ALT1 TAPPED (selection shifts) -->
+      <div class="screen-cell" id="uc-scr-03-s02-alt1-selected">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 210 C 60 180, 120 250, 180 210 S 260 230, 320 190"/>
+                  <path d="M -20 280 C 50 250, 120 320, 180 280 S 260 310, 320 270"/>
+                  <path d="M -20 360 C 50 340, 110 390, 180 360 S 260 390, 320 350"/>
+                  <path d="M -20 450 C 60 420, 120 480, 180 450 S 260 470, 320 420"/>
+                </g>
+                <path d="M 260 -10 C 230 60, 270 140, 250 230 S 240 370, 280 470" stroke="rgba(74,134,190,0.35)" stroke-width="0.8" fill="none"/>
+              </svg>
+              <!-- alt1 promoted visually (alt1 stroke goes solid + thick) -->
+              <svg class="routes-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <path class="route-alt2" d="M 50 320 C 80 390, 130 420, 160 400 S 210 360, 240 320" style="opacity:0.4;"/>
+                <path class="route-best" d="M 50 320 C 80 260, 120 240, 160 220 S 210 230, 240 320" style="stroke-dasharray:4 5;opacity:0.5;stroke-width:2.5;filter:none;"/>
+                <path d="M 50 320 C 90 270, 130 270, 160 290 S 210 320, 240 320" style="fill:none;stroke:var(--route-alt1);stroke-width:3.5;stroke-linecap:round;filter:drop-shadow(0 1px 3px rgba(77,132,112,0.35));"/>
+              </svg>
+              <div class="rt-marker rt-start" style="left:16%;top:52%;"></div>
+              <div class="rt-marker rt-end" style="left:85%;top:52%;"></div>
+            </div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <div class="nav-message">
+              <div class="nav-head">
+                <div class="compass-chip" style="background:rgba(77,132,112,0.12);border-color:rgba(77,132,112,0.35);color:var(--route-alt1);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div class="nav-head-text">
+                  <div class="nav-head-label" style="color:var(--route-alt1);">The Navigator</div>
+                  <div class="nav-head-body">Sun side it is — 84 stays south of the fog line today.</div>
+                </div>
+                <div class="nav-head-actions">
+                  <div class="nav-action active"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div>
+                  <div class="nav-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6l-12 12"/></svg></div>
+                </div>
+              </div>
+              <div class="nav-attachments">
+                <div class="rt-card v-best">
+                  <div class="rt-card-head">
+                    <span class="rt-best-badge">★ Best</span>
+                    <div class="rt-card-title">The Skyline Spine</div>
+                    <div class="rt-card-right"><span class="wx-badge wx-clear">☀ Clear</span></div>
+                  </div>
+                  <div class="rt-card-via">via Hwy 35 → Hwy 9</div>
+                  <div class="rt-card-meta">
+                    <div class="rt-meta-group">64 mi</div>
+                    <div class="rt-meta-sep"></div>
+                    <div class="rt-meta-group">2h 10m</div>
+                    <div class="rt-meta-sep"></div>
+                    <div class="rt-scenic-dots"><span class="d f"></span><span class="d f"></span><span class="d f"></span><span class="d f"></span><span class="d f"></span></div>
+                    <span class="rt-scenic-label">Scenic</span>
+                  </div>
+                </div>
+                <div class="rt-card v-alt1 selected" style="border-color:var(--route-alt1);background:color-mix(in srgb, var(--surface-card) 92%, var(--route-alt1));">
+                  <div class="rt-card-head">
+                    <div class="rt-card-title">Sun-Side Loop</div>
+                    <div class="rt-card-right"><span class="wx-badge wx-clear">☀ Clear</span></div>
+                  </div>
+                  <div class="rt-card-via">via Hwy 84 → inland</div>
+                  <div class="rt-card-meta">
+                    <div class="rt-meta-group">58 mi</div>
+                    <div class="rt-meta-sep"></div>
+                    <div class="rt-meta-group">1h 55m</div>
+                    <div class="rt-meta-sep"></div>
+                    <div class="rt-scenic-dots"><span class="d f"></span><span class="d f"></span><span class="d f"></span><span class="d"></span><span class="d"></span></div>
+                    <span class="rt-scenic-label">Scenic</span>
+                  </div>
+                </div>
+                <div class="rt-card v-alt2">
+                  <div class="rt-card-head">
+                    <div class="rt-card-title">Back-Roads Short</div>
+                    <div class="rt-card-right"><span class="wx-badge wx-wind">≋ Wind</span></div>
+                  </div>
+                  <div class="rt-card-via">via Old La Honda</div>
+                  <div class="rt-card-meta">
+                    <div class="rt-meta-group">41 mi</div>
+                    <div class="rt-meta-sep"></div>
+                    <div class="rt-meta-group">1h 20m</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field">Tap a card to see details…</div>
+                <div class="chat-filter-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:44</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S02 · Alt1 tapped</div>
+          <div class="screen-name">Sage polyline <em class="opinion-ital">promoted</em></div>
+          <div class="screen-desc">
+            Tapping the Sun-Side Loop card promotes its polyline to solid/bold; the copper best-route dims to a dashed ghost. Header compass + label re-tint to the alt1 sage to signal variant switch. Best badge stays on its original card.
+          </div>
+        </div>
+      </div>
+
+      <!-- S03 · REFINING (user typing) -->
+      <div class="screen-cell" id="uc-scr-03-s03-refining">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 280 C 50 250, 120 320, 180 280 S 260 310, 320 270"/>
+                  <path d="M -20 450 C 60 420, 120 480, 180 450 S 260 470, 320 420"/>
+                </g>
+              </svg>
+              <svg class="routes-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice" style="opacity:0.4;">
+                <path class="route-alt2" d="M 50 320 C 80 390, 130 420, 160 400 S 210 360, 240 320"/>
+                <path class="route-alt1" d="M 50 320 C 90 270, 130 270, 160 290 S 210 320, 240 320"/>
+                <path class="route-best" d="M 50 320 C 80 260, 120 240, 160 220 S 210 230, 240 320"/>
+              </svg>
+              <div class="rt-marker rt-start" style="left:16%;top:52%;opacity:0.45;"></div>
+              <div class="rt-marker rt-end" style="left:85%;top:52%;opacity:0.45;"></div>
+            </div>
+            <div style="position:absolute;inset:0;background:rgba(34,24,16,0.18);z-index:11;"></div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <!-- Chat input expanded with suggestion ghosts above -->
+            <div class="ls-chatinput-anchor" style="bottom:16px;">
+              <div style="display:flex;gap:8px;padding:0 4px 10px;overflow-x:auto;">
+                <div style="flex-shrink:0;padding:9px 14px;background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);backdrop-filter:blur(14px) saturate(1.2);border-radius:999px;font-family:var(--font-ui);font-size:11.5px;font-weight:500;color:var(--content-primary);box-shadow:var(--elev-chrome);white-space:nowrap;">Make it shorter</div>
+                <div style="flex-shrink:0;padding:9px 14px;background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);backdrop-filter:blur(14px) saturate(1.2);border-radius:999px;font-family:var(--font-ui);font-size:11.5px;font-weight:500;color:var(--content-primary);box-shadow:var(--elev-chrome);white-space:nowrap;">Avoid Hwy 1</div>
+                <div style="flex-shrink:0;padding:9px 14px;background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);backdrop-filter:blur(14px) saturate(1.2);border-radius:999px;font-family:var(--font-ui);font-size:11.5px;font-weight:500;color:var(--content-primary);box-shadow:var(--elev-chrome);white-space:nowrap;">Add a café stop</div>
+              </div>
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field has-value">Add a lunch stop near Boulder Creek<span style="display:inline-block;width:1.5px;height:15px;background:var(--signal-default);margin-left:1px;vertical-align:text-bottom;"></span></div>
+                <div class="chat-send-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l14-7-5 7 5 7z"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:45</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S03 · Refining</div>
+          <div class="screen-name">Chat field active, routes dim</div>
+          <div class="screen-desc">
+            Rider typed into the input — the map dims with a thin warm scrim, routes fade to 40%, NavigatorMessage auto-dismisses (it was unpinned). Three refine primers appear above the input as quick completions; send button is live.
+          </div>
+          <div class="ac-cite">Chat field accepts input; trailing icon swaps to send.</div>
+        </div>
+      </div>
+
+      <!-- S04 · DARK MODE -->
+      <div class="screen-cell" id="uc-scr-03-s04-dark">
+        <div class="phone-frame">
+          <div class="phone-screen mode-dark">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 210 C 60 180, 120 250, 180 210 S 260 230, 320 190"/>
+                  <path d="M -20 280 C 50 250, 120 320, 180 280 S 260 310, 320 270"/>
+                  <path d="M -20 360 C 50 340, 110 390, 180 360 S 260 390, 320 350"/>
+                  <path d="M -20 450 C 60 420, 120 480, 180 450 S 260 470, 320 420"/>
+                </g>
+              </svg>
+              <svg class="routes-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <path class="route-alt2" d="M 50 320 C 80 390, 130 420, 160 400 S 210 360, 240 320"/>
+                <path class="route-alt1" d="M 50 320 C 90 270, 130 270, 160 290 S 210 320, 240 320"/>
+                <path class="route-best" d="M 50 320 C 80 260, 120 240, 160 220 S 210 230, 240 320" style="filter:drop-shadow(0 0 8px rgba(238,124,43,0.5));"/>
+              </svg>
+              <div class="rt-marker rt-start" style="left:16%;top:52%;"></div>
+              <div class="rt-marker rt-end" style="left:85%;top:52%;"></div>
+            </div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <div class="nav-message">
+              <div class="nav-head">
+                <div class="compass-chip"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div class="nav-head-text">
+                  <div class="nav-head-label">The Navigator</div>
+                  <div class="nav-head-body">Night ride to Santa Cruz — the coast road is empty after 8.</div>
+                </div>
+                <div class="nav-head-actions">
+                  <div class="nav-action active"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div>
+                  <div class="nav-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6l-12 12"/></svg></div>
+                </div>
+              </div>
+              <div class="nav-attachments">
+                <div class="rt-card v-best selected">
+                  <div class="rt-card-head">
+                    <span class="rt-best-badge">★ Best</span>
+                    <div class="rt-card-title">Coast After Dark</div>
+                  </div>
+                  <div class="rt-card-via">via Hwy 1 — Davenport exit</div>
+                  <div class="rt-card-meta">
+                    <div class="rt-meta-group">38 mi</div>
+                    <div class="rt-meta-sep"></div>
+                    <div class="rt-meta-group">1h 05m</div>
+                    <div class="rt-meta-sep"></div>
+                    <div class="rt-scenic-dots"><span class="d f"></span><span class="d f"></span><span class="d f"></span><span class="d f"></span><span class="d f"></span></div>
+                    <span class="rt-scenic-label">Scenic</span>
+                  </div>
+                </div>
+                <div class="rt-card v-alt1">
+                  <div class="rt-card-head">
+                    <div class="rt-card-title">Redwoods Loop</div>
+                  </div>
+                  <div class="rt-card-via">via Big Basin Way</div>
+                  <div class="rt-card-meta">
+                    <div class="rt-meta-group">52 mi</div>
+                    <div class="rt-meta-sep"></div>
+                    <div class="rt-meta-group">1h 45m</div>
+                  </div>
+                </div>
+                <div class="rt-card v-alt2">
+                  <div class="rt-card-head">
+                    <div class="rt-card-title">City Shortcut</div>
+                  </div>
+                  <div class="rt-card-via">via Hwy 17</div>
+                  <div class="rt-card-meta">
+                    <div class="rt-meta-group">29 mi</div>
+                    <div class="rt-meta-sep"></div>
+                    <div class="rt-meta-group">0h 48m</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field">Refine — 'stick to coast' / 'less mileage'</div>
+                <div class="chat-filter-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">8:02 PM</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S04 · Dark mode</div>
+          <div class="screen-name">Night ride on ink paper</div>
+          <div class="screen-desc">
+            Same composition on the dark Copper Studio map style. Best polyline gets an 8px outer copper glow so it reads against ink. Message re-uses signal-whisper at reduced alpha; weather badges swap to dark-friendly tints.
+          </div>
+          <div class="ac-cite">Map style re-resolves to dark Copper; glass, stripes, route colors all re-render.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES & VARIANTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States &amp; Variants</div>
+      <h2 class="section-title">Fewer answers, <em>different weather</em>, or <em>dismissed</em>.</h2>
+    </div>
+    <div class="screens-grid cols-3">
+
+      <!-- V01 · TWO CANDIDATES ONLY -->
+      <div class="screen-cell" id="uc-scr-03-v01-two-candidates">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 210 C 60 180, 120 250, 180 210 S 260 230, 320 190"/>
+                  <path d="M -20 360 C 50 340, 110 390, 180 360 S 260 390, 320 350"/>
+                </g>
+              </svg>
+              <svg class="routes-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <path class="route-alt1" d="M 50 320 C 90 270, 130 270, 160 290 S 210 320, 240 320"/>
+                <path class="route-best" d="M 50 320 C 80 260, 120 240, 160 220 S 210 230, 240 320"/>
+              </svg>
+              <div class="rt-marker rt-start" style="left:16%;top:52%;"></div>
+              <div class="rt-marker rt-end" style="left:85%;top:52%;"></div>
+            </div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <div class="nav-message">
+              <div class="nav-head">
+                <div class="compass-chip"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div class="nav-head-text">
+                  <div class="nav-head-label">The Navigator</div>
+                  <div class="nav-head-body">Two candidates — the third wanted the highway you asked me to skip.</div>
+                </div>
+                <div class="nav-head-actions">
+                  <div class="nav-action active"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div>
+                  <div class="nav-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6l-12 12"/></svg></div>
+                </div>
+              </div>
+              <div class="nav-attachments">
+                <div class="rt-card v-best selected">
+                  <div class="rt-card-head">
+                    <span class="rt-best-badge">★ Best</span>
+                    <div class="rt-card-title">The Skyline Spine</div>
+                  </div>
+                  <div class="rt-card-via">via Hwy 35 → Hwy 9</div>
+                  <div class="rt-card-meta"><div class="rt-meta-group">64 mi</div><div class="rt-meta-sep"></div><div class="rt-meta-group">2h 10m</div></div>
+                </div>
+                <div class="rt-card v-alt1">
+                  <div class="rt-card-head">
+                    <div class="rt-card-title">Sun-Side Loop</div>
+                  </div>
+                  <div class="rt-card-via">via Hwy 84 → inland</div>
+                  <div class="rt-card-meta"><div class="rt-meta-group">58 mi</div><div class="rt-meta-sep"></div><div class="rt-meta-group">1h 55m</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field">Want me to allow highways for a third?</div>
+                <div class="chat-filter-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:44</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V01 · Two candidates</div>
+          <div class="screen-name">Constraint narrowed the set</div>
+          <div class="screen-desc">
+            Only two viable candidates. Navigator is transparent about the missing third. Chat input placeholder invites relaxing the constraint.
+          </div>
+        </div>
+      </div>
+
+      <!-- V02 · WEATHER DIVERGENT -->
+      <div class="screen-cell" id="uc-scr-03-v02-weather-divergent">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 280 C 50 250, 120 320, 180 280 S 260 310, 320 270"/>
+                  <path d="M -20 450 C 60 420, 120 480, 180 450 S 260 470, 320 420"/>
+                </g>
+                <!-- storm hatching on one half -->
+                <g stroke="var(--wx-storm)" stroke-width="0.5" opacity="0.35">
+                  <line x1="20" y1="20" x2="15" y2="40"/>
+                  <line x1="60" y1="10" x2="55" y2="30"/>
+                  <line x1="110" y1="30" x2="105" y2="50"/>
+                  <line x1="150" y1="110" x2="145" y2="130"/>
+                  <line x1="90" y1="210" x2="85" y2="230"/>
+                  <line x1="130" y1="280" x2="125" y2="300"/>
+                </g>
+              </svg>
+              <svg class="routes-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <path class="route-alt2" d="M 50 320 C 80 390, 130 420, 160 400 S 210 360, 240 320" style="opacity:0.45;"/>
+                <path class="route-alt1" d="M 50 320 C 90 270, 130 270, 160 290 S 210 320, 240 320"/>
+                <path class="route-best" d="M 50 320 C 80 260, 120 240, 160 220 S 210 230, 240 320"/>
+              </svg>
+              <div class="rt-marker rt-start" style="left:16%;top:52%;"></div>
+              <div class="rt-marker rt-end" style="left:85%;top:52%;"></div>
+            </div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+            <div class="nav-message">
+              <div class="nav-head">
+                <div class="compass-chip"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div class="nav-head-text">
+                  <div class="nav-head-label">The Navigator</div>
+                  <div class="nav-head-body">Rain is moving inland. Two routes clear, one gets wet around 2pm.</div>
+                </div>
+                <div class="nav-head-actions">
+                  <div class="nav-action active"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h12v16l-6-4-6 4z"/></svg></div>
+                  <div class="nav-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6l-12 12"/></svg></div>
+                </div>
+              </div>
+              <div class="nav-attachments">
+                <div class="rt-card v-best selected">
+                  <div class="rt-card-head">
+                    <span class="rt-best-badge">★ Best</span>
+                    <div class="rt-card-title">The Skyline Spine</div>
+                    <div class="rt-card-right"><span class="wx-badge wx-clear">☀ Clear</span></div>
+                  </div>
+                  <div class="rt-card-via">via Hwy 35 → Hwy 9</div>
+                  <div class="rt-card-meta"><div class="rt-meta-group">64 mi</div><div class="rt-meta-sep"></div><div class="rt-meta-group">2h 10m</div></div>
+                </div>
+                <div class="rt-card v-alt1">
+                  <div class="rt-card-head">
+                    <div class="rt-card-title">Sun-Side Loop</div>
+                    <div class="rt-card-right"><span class="wx-badge wx-clear">☀ Clear</span></div>
+                  </div>
+                  <div class="rt-card-via">via Hwy 84 → inland</div>
+                  <div class="rt-card-meta"><div class="rt-meta-group">58 mi</div><div class="rt-meta-sep"></div><div class="rt-meta-group">1h 55m</div></div>
+                </div>
+                <div class="rt-card v-alt2">
+                  <div class="rt-card-head">
+                    <div class="rt-card-title">East Ridge</div>
+                    <div class="rt-card-right"><span class="wx-badge wx-rain">☂ Rain 2pm</span></div>
+                  </div>
+                  <div class="rt-card-via">via Mt Hamilton Rd</div>
+                  <div class="rt-card-meta"><div class="rt-meta-group">72 mi</div><div class="rt-meta-sep"></div><div class="rt-meta-group">2h 30m</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field">Refine — 'beat the rain' / 'stay inland'</div>
+                <div class="chat-filter-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:44</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V02 · Weather divergent</div>
+          <div class="screen-name">One route gets <em class="opinion-ital">wet</em></div>
+          <div class="screen-desc">
+            Weather badges per-card surface the divergence. The map includes faint storm hatching on the affected quadrant. Body copy names the time and direction of the weather front.
+          </div>
+        </div>
+      </div>
+
+      <!-- V03 · MESSAGE DISMISSED -->
+      <div class="screen-cell" id="uc-scr-03-v03-message-dismissed">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 210 C 60 180, 120 250, 180 210 S 260 230, 320 190"/>
+                  <path d="M -20 280 C 50 250, 120 320, 180 280 S 260 310, 320 270"/>
+                  <path d="M -20 360 C 50 340, 110 390, 180 360 S 260 390, 320 350"/>
+                  <path d="M -20 450 C 60 420, 120 480, 180 450 S 260 470, 320 420"/>
+                </g>
+              </svg>
+              <svg class="routes-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <path class="route-alt2" d="M 50 320 C 80 390, 130 420, 160 400 S 210 360, 240 320"/>
+                <path class="route-alt1" d="M 50 320 C 90 270, 130 270, 160 290 S 210 320, 240 320"/>
+                <path class="route-best" d="M 50 320 C 80 260, 120 240, 160 220 S 210 230, 240 320"/>
+              </svg>
+              <div class="rt-marker rt-start" style="left:16%;top:52%;"></div>
+              <div class="rt-marker rt-end" style="left:85%;top:52%;"></div>
+            </div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <!-- recall chip floating right -->
+            <div style="position:absolute;top:108px;right:14px;z-index:30;">
+              <div class="chrome-chip pill" style="gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 11l8-8 8 8M5 12v8a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-8"/></svg>
+                <span class="t-label-md" style="color:var(--content-primary);">Recall</span>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field">Tap a route to see details…</div>
+                <div class="chat-filter-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:44</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V03 · Message dismissed</div>
+          <div class="screen-name">Clean map, <em class="opinion-ital">routes remain</em></div>
+          <div class="screen-desc">
+            Rider tapped close on the Navigator message; the three polylines stay drawn. A small "Recall" chip parks where the message was so the reasoning isn't lost. Chat input placeholder primes tap-to-pick behavior.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §04 COMPONENTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Components</div>
+      <h2 class="section-title">Composed from <em>atoms</em>, molecules, organisms.</h2>
+    </div>
+    <div class="cmp-grid">
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Atoms · ATM</div>
+        <div class="cmp-item"><div class="cmp-name">LSMap</div><div class="cmp-ref">polylines: 3<br>cameraFit: .polylines(padding:.spacing4)</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSGlassPanel</div><div class="cmp-ref">.callout(accent:.signal)<br>+ .chrome for chips</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSBestBadge</div><div class="cmp-ref">star + "BEST" in ui.label.sm</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSIcon</div><div class="cmp-ref">compass · bookmark · close<br>send · sliders · mic</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Molecules · MOL</div>
+        <div class="cmp-item"><div class="cmp-name">LSRouteAttachmentCard</div><div class="cmp-ref">UC-MOL-08 · compact:true<br>3px leading stripe · scenic dots</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSWeatherBadge</div><div class="cmp-ref">UC-MOL-05 · clear · wind · rain<br>tinted pill with icon</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSChatInput</div><div class="cmp-ref">UC-MOL-06 · refine placeholder</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Organisms · ORG</div>
+        <div class="cmp-item"><div class="cmp-name">LSNavigatorMessage</div><div class="cmp-ref">UC-ORG-03 · pinned:true<br>attachments: 3<br>compass chip + pin + close</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSMapLayer</div><div class="cmp-ref">UC-ORG-02 · 3 polylines<br>topOverlays: [navigatorMessage]</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSTopBar</div><div class="cmp-ref">UC-ORG-01 · hamburger + NEW</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Tokens consumed</div>
+        <div class="cmp-item"><div class="cmp-name">color.route.*</div><div class="cmp-ref">best · alt1 · alt2<br>3.5 / 2.5 / 2.5 stroke</div></div>
+        <div class="cmp-item"><div class="cmp-name">color.weather.*</div><div class="cmp-ref">clear / wind / rain triplets</div></div>
+        <div class="cmp-item"><div class="cmp-name">motion.recipe.*</div><div class="cmp-ref">routeDrawOn · chatOverlayEnter<br>bestBadgeEnter · chatOverlayDismiss</div></div>
+        <div class="cmp-item"><div class="cmp-name">typography.*</div><div class="cmp-ref">opinion.md body · ui.title.md<br>instrument.sm metrics</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Three strokes draw, <em>one badge arrives</em>.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="motion-recipe">routeDrawOn</div>
+      <div class="motion-trigger">Screen mount</div>
+      <div class="motion-effect">Per-path strokeDashoffset 1→0, 1200ms ease-out, staggered 120ms between paths. Best draws first, alt1 second, alt2 third.</div>
+
+      <div class="motion-recipe">bestBadgeEnter</div>
+      <div class="motion-trigger">Best card visible</div>
+      <div class="motion-effect">400ms delay after best polyline completes; translateY 4→0 + opacity 0→1, 300ms ease-out.</div>
+
+      <div class="motion-recipe">chatOverlayEnter</div>
+      <div class="motion-trigger">NavigatorMessage mount</div>
+      <div class="motion-effect">Glass panel slides down from top (-20→0) with opacity fade, 300ms.</div>
+
+      <div class="motion-recipe">chatOverlayDismiss</div>
+      <div class="motion-trigger">Close tap OR auto after 5s unpinned</div>
+      <div class="motion-effect">Panel opacity 1→0, 200ms linear. Routes remain; Recall chip replaces panel origin.</div>
+
+      <div class="motion-recipe">mapTapDismiss</div>
+      <div class="motion-trigger">Tap on map outside overlays</div>
+      <div class="motion-effect">Chat input placeholder revealed; message auto-dismisses if unpinned.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Why the <em>best</em> is <em>selected</em>, not <em>chosen</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design principles honored</h4>
+        <p>
+          The best route is pre-selected, not pre-committed. The rider still
+          taps to advance to details — this is an opinion the Navigator
+          offers, not a decision it makes. The copper stroke is bold to read
+          at distance; the sage and slate alts are dashed so they don't
+          visually compete for primacy.
+        </p>
+        <p>
+          Three cards, not five, not ten. A motorcycle rider planning a ride
+          doesn't want a list — they want a <em>recommendation</em> and two
+          honest alternatives. If the pipeline produces only two viable
+          candidates, the message says so directly instead of padding.
+        </p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC traceability</h4>
+        <ul>
+          <li><strong>AC-01</strong> LSNavigatorMessage pinned + 3 compact cards, best selected — S01.</li>
+          <li><strong>AC-02</strong> iOS + Android identical.</li>
+          <li><strong>AC-03</strong> Three polylines render in color.route.best/alt1/alt2 with polyline-union camera fit.</li>
+          <li><strong>AC-04</strong> motion.recipe.routeDrawOn fires with 120ms stagger — S01 on mount.</li>
+          <li><strong>AC-05</strong> Pin icon tap fires onPin; close tap fires onDismiss — V03.</li>
+          <li><strong>AC-06</strong> Light/dark re-resolve — S04.</li>
+          <li><strong>AC-07</strong> RouteResultsMockProvider injects message + 3 attachments.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">Lane<em>Shadow</em><span>V2 · Copper · UC-SCR-03</span></div>
+    <div class="footer-note">
+      The Navigator argues. The rider <em>chooses</em>.<br>
+      Neither a vending machine nor a back-seat driver.
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

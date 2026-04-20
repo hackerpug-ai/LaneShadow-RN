@@ -2,7 +2,7 @@
   "inventory_size": 3,
   "processed": 3,
   "written": 3,
-  "overlaps_reconciled": 3,
+  "overlaps_reconciled": 2,
   "required_fields": {
     "name": 3,
     "state": 3,
