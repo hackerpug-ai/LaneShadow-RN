@@ -4,6 +4,19 @@
 
 ---
 
+## Platforms
+
+This project targets: **iOS, Android, Web**
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| iOS | Required | Native Swift/SwiftUI implementation |
+| Android | Required | Native Kotlin/Compose implementation |
+| Web | Required | React-based web platform |
+| Desktop | Not targeted | - |
+
+---
+
 ## User Context
 
 **Required reading for all product decisions:** [User Profiles](.spec/USER-PROFILES.md) — defines our 4 primary personas (experienced cruisers, touring planners, returning riders, group organizers) and design principles derived from their needs.
