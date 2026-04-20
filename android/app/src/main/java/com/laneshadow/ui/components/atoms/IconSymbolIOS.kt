@@ -37,6 +37,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -49,9 +54,12 @@ import androidx.compose.ui.unit.dp
  * This component accepts a Material icon name and maps it to the appropriate
  * ImageVector from the Material Icons library.
  *
+ * Following the translation matrix from:
+ * .spec/prds/native-rewrite/matrices/ui/atoms/IconSymbol-iOS.md
+ *
  * @param name Icon name (Material icon identifier, e.g., "star", "check", "close")
- * @param size Icon size in density-independent pixels (default: 24.dp)
- * @param color Icon tint color
+ * @param size Icon size in density-independent pixels (default: 24.dp per matrix)
+ * @param color Icon tint color (required per RN wrapper)
  * @param modifier Modifier for the icon
  * @param testID Test ID for UI testing
  */
@@ -66,11 +74,24 @@ fun IconSymbolIOS(
     // Map icon name to Material Design icon
     val imageVector: ImageVector = mapNameToMaterialIcon(name)
 
+    // Build semantics with proper accessibility role and content description
+    val baseModifier = modifier.semantics {
+        role = Role.Image
+        contentDescription = name
+    }
+
+    // Add testTag if testID is provided
+    val finalModifier = if (testID != null) {
+        baseModifier.testTag(testID)
+    } else {
+        baseModifier
+    }
+
     Icon(
         imageVector = imageVector,
         contentDescription = name,
         tint = color,
-        modifier = modifier,
+        modifier = finalModifier,
     )
 }
 
