@@ -7,8 +7,8 @@
 {"task_id": "MDL-006-gatekeeper-download-manager", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "749c5f7cdedfb854615f7d557baf2b775ff448c1", "blocked_by": []}
 {"task_id": "MDL-007-model-download", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "4d92a7303d85e27f929decc5f67d6ac7561dce89", "blocked_by": []}
 {"task_id": "MDL-008-model-manifest", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "9a5302ba6083970bde32418bbb8a466966fc711f", "blocked_by": []}
-{"task_id": "MDL-009-storage-utils", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
-{"task_id": "MDL-010-weather-optimization", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "MDL-009-storage-utils", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "a272e06ee562ae253f9fd5d5633d84e8cf45f92f", "blocked_by": []}
+{"task_id": "MDL-010-weather-optimization", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "5f5e6a6eecbeb854fbba4e52003f75ad1837cbfe", "blocked_by": []}
 {"task_id": "MDL-011-wifi-validator", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "2e1942baca786c01b2d2db590821391c742f95a8", "blocked_by": []}
 {"task_id": "UI-001-android-avatar", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
 {"task_id": "UI-001-ios-avatar", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
