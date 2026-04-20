@@ -15,7 +15,7 @@
 {"task_id": "UI-002-android-badge", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
 {"task_id": "UI-002-ios-badge", "assignee": "swift-implementer", "status": "completed", "commit_sha": null, "blocked_by": []}
 {"task_id": "UI-003-android-bottomsheetinput", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
-{"task_id": "UI-003-ios-bottomsheetinput", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-003-ios-bottomsheetinput", "assignee": "swift-implementer", "status": "completed", "commit_sha": "585d2308ec1c40fd37e63199aa37ca85ba781bb6", "blocked_by": []}
 {"task_id": "UI-004-android-button", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
 {"task_id": "UI-004-ios-button", "assignee": "swift-implementer", "status": "completed", "commit_sha": "fd2d69bc", "blocked_by": []}
 {"task_id": "UI-005-android-card", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
