@@ -70,9 +70,12 @@ public struct LSAppHeader: View {
                         .frame(width: 24, height: 24)
                 }
                 .buttonStyle(PlainButtonStyle())
+                .accessibilityLabel("Back")
+                .accessibilityHint("Navigate back")
             } else {
                 Spacer()
                     .frame(width: 24, height: 24)
+                    .accessibilityHidden(true)
             }
 
             Spacer()
@@ -82,13 +85,17 @@ public struct LSAppHeader: View {
                 Text(title)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(theme.colors.onSurface.default)
+                    .accessibilityAddTraits(.isHeader)
 
                 if let subtitle {
                     Text(subtitle)
                         .font(.system(size: 14, weight: .regular))
                         .foregroundStyle(theme.colors.onSurface.default.opacity(0.7))
+                        .accessibilityHidden(false)
                 }
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(title + (subtitle.map { ". \($0)" } ?? ""))
 
             Spacer()
 
@@ -98,6 +105,7 @@ public struct LSAppHeader: View {
             } else {
                 Spacer()
                     .frame(width: 24, height: 24)
+                    .accessibilityHidden(true)
             }
         }
         .frame(maxWidth: .infinity)

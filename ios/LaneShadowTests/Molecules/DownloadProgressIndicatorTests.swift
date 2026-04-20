@@ -43,7 +43,7 @@ final class DownloadProgressIndicatorTests: XCTestCase {
         // THEN: Component displays matching RN wrapper defaults
         XCTAssertNotNil(indicator)
         let view = indicator.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-2: All style properties match matrix

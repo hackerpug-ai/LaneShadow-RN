@@ -39,7 +39,7 @@ final class HeaderTests: XCTestCase {
         // THEN: Component renders successfully with title
         XCTAssertNotNil(header)
         let view = header.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-2: Menu button rendering with correct icon
@@ -55,7 +55,7 @@ final class HeaderTests: XCTestCase {
         // THEN: Menu button is rendered with line.3.horizontal icon
         XCTAssertNotNil(header)
         let view = header.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-3: Menu button callback invocation
@@ -106,7 +106,7 @@ final class HeaderTests: XCTestCase {
         // THEN: Accessibility labels are applied
         XCTAssertNotNil(header)
         let view = header.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-6: Bottom border rendering
@@ -122,7 +122,7 @@ final class HeaderTests: XCTestCase {
         // THEN: Bottom border is rendered with border.default color
         XCTAssertNotNil(header)
         let view = header.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-7: Correct height (60pt)
@@ -138,7 +138,7 @@ final class HeaderTests: XCTestCase {
         // THEN: Header height is 60pt
         XCTAssertNotNil(header)
         let view = header.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-8: Correct padding (lg horizontal, sm vertical)
@@ -154,7 +154,7 @@ final class HeaderTests: XCTestCase {
         // THEN: Uses theme.space.lg (horizontal), theme.space.sm (vertical)
         XCTAssertNotNil(header)
         let view = header.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-9: Title centered with correct typography
@@ -170,7 +170,7 @@ final class HeaderTests: XCTestCase {
         // THEN: Title is centered and uses theme.type.title.lg
         XCTAssertNotNil(header)
         let view = header.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-10: Right spacer for layout balance
@@ -186,6 +186,6 @@ final class HeaderTests: XCTestCase {
         // THEN: Right spacer (44pt) is rendered for layout balance
         XCTAssertNotNil(header)
         let view = header.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 }

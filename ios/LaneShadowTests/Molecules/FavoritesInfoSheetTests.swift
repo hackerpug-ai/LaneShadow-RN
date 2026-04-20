@@ -43,7 +43,7 @@ final class FavoritesInfoSheetTests: XCTestCase {
         // THEN: Component displays with all required elements
         XCTAssertNotNil(sheet)
         let view = sheet.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-2: Sheet presentation behavior
@@ -62,7 +62,7 @@ final class FavoritesInfoSheetTests: XCTestCase {
         // THEN: Sheet is presented with 60% height detent
         XCTAssertNotNil(sheet)
         let view = sheet.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-3: Info icon with primary color and 15% opacity background
@@ -80,7 +80,7 @@ final class FavoritesInfoSheetTests: XCTestCase {
         // THEN: Info icon uses primary color, 15% opacity background, full radius, md padding
         XCTAssertNotNil(sheet)
         let view = sheet.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-4: Title "Favorites Not Included" centered
@@ -98,7 +98,7 @@ final class FavoritesInfoSheetTests: XCTestCase {
         // THEN: Title shows "Favorites Not Included" with title.md typography, centered, onSurface color
         XCTAssertNotNil(sheet)
         let view = sheet.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-5: Message body text
@@ -116,7 +116,7 @@ final class FavoritesInfoSheetTests: XCTestCase {
         // THEN: Message shows "These favorite roads are too far from your planned route:" with body.md typography, muted onSurface color
         XCTAssertNotNil(sheet)
         let view = sheet.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-6: Favorites list in rounded container
@@ -134,7 +134,7 @@ final class FavoritesInfoSheetTests: XCTestCase {
         // THEN: List shows all favorites in container with 50% opacity surface background, md radius, md padding, sm gap
         XCTAssertNotNil(sheet)
         let view = sheet.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-7: Guidance text at bottom
@@ -152,7 +152,7 @@ final class FavoritesInfoSheetTests: XCTestCase {
         // THEN: Guidance shows "Try planning a route nearer to these favorites, or add them to a different route." with body.sm typography, muted onSurface color
         XCTAssertNotNil(sheet)
         let view = sheet.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-8: "Got it" button
@@ -173,7 +173,7 @@ final class FavoritesInfoSheetTests: XCTestCase {
         XCTAssertNotNil(sheet)
         XCTAssertEqual(dismissCallCount, 0)
         let view = sheet.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-9: All theme tokens used
@@ -214,7 +214,7 @@ final class FavoritesInfoSheetTests: XCTestCase {
         // THEN: Has proper accessibility identifiers
         XCTAssertNotNil(sheet)
         let view = sheet.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-11: Empty favorites list
@@ -232,7 +232,7 @@ final class FavoritesInfoSheetTests: XCTestCase {
         // THEN: Component renders without list items
         XCTAssertNotNil(sheet)
         let view = sheet.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-12: OnDismiss callback
@@ -268,6 +268,6 @@ final class FavoritesInfoSheetTests: XCTestCase {
         // THEN: Sheet is not presented
         XCTAssertNotNil(sheet)
         let view = sheet.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 }

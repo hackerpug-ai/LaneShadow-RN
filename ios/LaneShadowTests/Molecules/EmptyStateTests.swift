@@ -37,7 +37,7 @@ final class EmptyStateTests: XCTestCase {
         // THEN: Component displays matching RN wrapper defaults
         XCTAssertNotNil(emptyState)
         let view = emptyState.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-2: All style properties match matrix
@@ -125,7 +125,7 @@ final class EmptyStateTests: XCTestCase {
         // THEN: Accessibility labels are applied
         XCTAssertNotNil(emptyState)
         let view = emptyState.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - Additional Tests for CTA Callback

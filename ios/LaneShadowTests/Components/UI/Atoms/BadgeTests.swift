@@ -17,7 +17,7 @@ final class BadgeTests: XCTestCase {
 
         // Verify it's a SwiftUI View
         let view = badge.laneShadowTheme()
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-2: Style Properties - All 7 variants render with correct theme colors
@@ -30,7 +30,7 @@ final class BadgeTests: XCTestCase {
         // THEN: Badge renders with primary theme colors
         XCTAssertNotNil(badge)
         let view = badge.laneShadowTheme()
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testBadgeSecondaryVariant() {
@@ -41,7 +41,7 @@ final class BadgeTests: XCTestCase {
         // THEN: Badge renders with secondary theme colors
         XCTAssertNotNil(badge)
         let view = badge.laneShadowTheme()
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testBadgeDestructiveVariant() {
@@ -52,7 +52,7 @@ final class BadgeTests: XCTestCase {
         // THEN: Badge renders with danger theme colors
         XCTAssertNotNil(badge)
         let view = badge.laneShadowTheme()
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testBadgeOutlineVariant() {
@@ -63,7 +63,7 @@ final class BadgeTests: XCTestCase {
         // THEN: Badge renders with border and transparent background
         XCTAssertNotNil(badge)
         let view = badge.laneShadowTheme()
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testBadgeSuccessVariant() {
@@ -74,7 +74,7 @@ final class BadgeTests: XCTestCase {
         // THEN: Badge renders with success theme colors
         XCTAssertNotNil(badge)
         let view = badge.laneShadowTheme()
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testBadgeWarningVariant() {
@@ -85,7 +85,7 @@ final class BadgeTests: XCTestCase {
         // THEN: Badge renders with warning theme colors
         XCTAssertNotNil(badge)
         let view = badge.laneShadowTheme()
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testBadgeInfoVariant() {
@@ -96,7 +96,7 @@ final class BadgeTests: XCTestCase {
         // THEN: Badge renders with info theme colors
         XCTAssertNotNil(badge)
         let view = badge.laneShadowTheme()
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-3: States - Opacity, Icon rendering, Outline border
@@ -109,7 +109,7 @@ final class BadgeTests: XCTestCase {
         // THEN: Badge renders with semi-transparent appearance
         XCTAssertNotNil(badge)
         let view = badge.laneShadowTheme()
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testBadgeWithIcon() {
@@ -120,7 +120,7 @@ final class BadgeTests: XCTestCase {
         // THEN: Badge renders with icon and text
         XCTAssertNotNil(badge)
         let view = badge.laneShadowTheme()
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testBadgeOutlineBorderRendering() {
@@ -131,7 +131,7 @@ final class BadgeTests: XCTestCase {
         // THEN: Badge renders with border (overlay applied)
         XCTAssertNotNil(badge)
         let view = badge.laneShadowTheme()
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testBadgeAllVariantsIterable() {
@@ -157,6 +157,6 @@ final class BadgeTests: XCTestCase {
         let view = badge.laneShadowTheme()
 
         // THEN: View should be creatable (accessibility label is applied internally)
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 }

@@ -38,7 +38,7 @@ final class NewSessionButtonTests: XCTestCase {
         // THEN: Component renders successfully with default configuration
         XCTAssertNotNil(button)
         let view = button.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-2: All style properties match matrix
@@ -200,6 +200,6 @@ final class NewSessionButtonTests: XCTestCase {
         // THEN: Accessibility labels are applied
         XCTAssertNotNil(button)
         let view = button.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 }

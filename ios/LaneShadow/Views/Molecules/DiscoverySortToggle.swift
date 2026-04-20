@@ -67,11 +67,15 @@ public struct LSDiscoverySortToggle: View {
         ) {
             LSToggleGroupItem(value: "best") {
                 Text("Best")
+                    .accessibilityLabel("Best")
             }
             LSToggleGroupItem(value: "nearest") {
                 Text("Nearest")
+                    .accessibilityLabel("Nearest")
             }
         }
+        .accessibilityLabel("Sort by")
+        .accessibilityHint("Double-tap to change sort order")
         .padding(12)
         .background(
             RoundedRectangle(cornerRadius: theme.radius.md)

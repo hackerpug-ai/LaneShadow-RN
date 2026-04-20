@@ -108,8 +108,11 @@ public struct LSFavoritesInfoSheet: View {
                         Text("• \(favorite)")
                             .font(theme.type.body.md.font)
                             .foregroundStyle(theme.colors.onSurface.default)
+                            .accessibilityLabel(favorite)
                     }
                 }
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel("Favorite roads not included")
                 .padding(theme.space.md)
                 .background(
                     RoundedRectangle(cornerRadius: theme.radius.md)

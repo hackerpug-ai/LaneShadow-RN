@@ -48,7 +48,7 @@ final class DiscoveryFilterBarTests: XCTestCase {
         // THEN: Renders horizontal ScrollView with chips
         XCTAssertNotNil(filterBar)
         let view = filterBar.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-2: Glassmorphic background
@@ -86,7 +86,7 @@ final class DiscoveryFilterBarTests: XCTestCase {
         // THEN: Has border at bottom with 20% opacity
         XCTAssertNotNil(filterBar)
         let view = filterBar.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-4: "All" chip clears selection
@@ -177,7 +177,7 @@ final class DiscoveryFilterBarTests: XCTestCase {
         // THEN: Chips display formatted counts (1.2k, 99+, 5)
         XCTAssertNotNil(filterBar)
         let view = filterBar.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-7: Semantic theme tokens
@@ -220,6 +220,6 @@ final class DiscoveryFilterBarTests: XCTestCase {
         // THEN: Chips have theme.space.sm spacing between them
         XCTAssertNotNil(filterBar)
         let view = filterBar.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 }

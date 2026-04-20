@@ -42,14 +42,23 @@ public struct LSPrimaryButton: View {
 
     // Design spec: primary button height (no size token)
     private let height: CGFloat = 56
-    private var cornerRadius: CGFloat { theme.radius.xl }
-    private var horizontalPadding: CGFloat { theme.space.xl }
-    private var iconSize: CGFloat { theme.iconSize.small }
+    private var cornerRadius: CGFloat {
+        theme.radius.xl
+    }
 
-    // Copper glow shadow color (rgba(184,115,50,0.4))
+    private var horizontalPadding: CGFloat {
+        theme.space.xl
+    }
+
+    private var iconSize: CGFloat {
+        theme.iconSize.small
+    }
+
+    /// Copper glow shadow color (rgba(184,115,50,0.4))
     private var glowColor: Color {
         theme.colors.primary.default.opacity(theme.opacity.shadowPrimary)
     }
+
     private let glowRadius: CGFloat = 16
     private let glowOffset: CGFloat = 8
 

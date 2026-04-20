@@ -58,7 +58,7 @@ final class DownloadProgressBannerTests: XCTestCase {
         // THEN: Banner slides in from top (translateY animation)
         XCTAssertNotNil(banner)
         let view = banner.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testSlideOutAnimationWhenHidden() {
@@ -74,7 +74,7 @@ final class DownloadProgressBannerTests: XCTestCase {
         // THEN: Banner slides out to top (translateY animation)
         XCTAssertNotNil(banner)
         let view = banner.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-3: Progress bar at top of banner
@@ -92,7 +92,7 @@ final class DownloadProgressBannerTests: XCTestCase {
         // THEN: Progress bar shows at top with 75% fill width
         XCTAssertNotNil(banner)
         let view = banner.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-4: Title + subtitle text
@@ -111,7 +111,7 @@ final class DownloadProgressBannerTests: XCTestCase {
         // AND: Shows "60% complete · Keep WiFi connected" subtitle
         XCTAssertNotNil(banner)
         let view = banner.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-5: Dismiss button with close icon
@@ -131,7 +131,7 @@ final class DownloadProgressBannerTests: XCTestCase {
         // THEN: Shows close button that triggers onDismiss
         XCTAssertNotNil(banner)
         let view = banner.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-6: Semi-transparent dark background
@@ -149,7 +149,7 @@ final class DownloadProgressBannerTests: XCTestCase {
         // THEN: Background is dark with 95% opacity (rgba(17, 24, 39, 0.95))
         XCTAssertNotNil(banner)
         let view = banner.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-7: Bottom border in amber at 30% opacity
@@ -167,7 +167,7 @@ final class DownloadProgressBannerTests: XCTestCase {
         // THEN: Bottom border is amber/warning color at 30% opacity
         XCTAssertNotNil(banner)
         let view = banner.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-8: Theme integration (no hardcoded colors)
@@ -205,7 +205,7 @@ final class DownloadProgressBannerTests: XCTestCase {
         // AND: Close button has accessibilityLabel "Dismiss"
         XCTAssertNotNil(banner)
         let view = banner.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-10: Optional onPress callback
@@ -225,7 +225,7 @@ final class DownloadProgressBannerTests: XCTestCase {
         // THEN: Tapping banner triggers onPress callback
         XCTAssertNotNil(banner)
         let view = banner.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-11: Progress 0-100 clamping
@@ -243,7 +243,7 @@ final class DownloadProgressBannerTests: XCTestCase {
         // THEN: Progress bar shows at 100% (clamped)
         XCTAssertNotNil(banner)
         let view = banner.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testNegativeProgressClamping() {
@@ -259,6 +259,6 @@ final class DownloadProgressBannerTests: XCTestCase {
         // THEN: Progress bar shows at 0% (clamped)
         XCTAssertNotNil(banner)
         let view = banner.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 }

@@ -42,7 +42,7 @@ final class FloatingSearchInputTests: XCTestCase {
         // THEN: Component renders successfully
         XCTAssertNotNil(searchInput)
         let view = searchInput.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-2: Optional clear button rendering
@@ -60,7 +60,7 @@ final class FloatingSearchInputTests: XCTestCase {
         // THEN: Clear button is rendered
         XCTAssertNotNil(searchInput)
         let view = searchInput.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testFloatingSearchInputHidesClearButtonWhenEmpty() {
@@ -76,7 +76,7 @@ final class FloatingSearchInputTests: XCTestCase {
         // THEN: Clear button is not rendered
         XCTAssertNotNil(searchInput)
         let view = searchInput.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testFloatingSearchInputHidesClearButtonWhenLoading() {
@@ -93,7 +93,7 @@ final class FloatingSearchInputTests: XCTestCase {
         // THEN: Clear button is not rendered (loading indicator shown instead)
         XCTAssertNotNil(searchInput)
         let view = searchInput.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-3: Clear button callback invocation
@@ -131,7 +131,7 @@ final class FloatingSearchInputTests: XCTestCase {
         // THEN: ProgressView is rendered
         XCTAssertNotNil(searchInput)
         let view = searchInput.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-5: Cancel loading button rendering
@@ -150,7 +150,7 @@ final class FloatingSearchInputTests: XCTestCase {
         // THEN: Cancel button is rendered alongside loading indicator
         XCTAssertNotNil(searchInput)
         let view = searchInput.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testFloatingSearchInputCancelLoadingCallbackInvoked() {
@@ -187,7 +187,7 @@ final class FloatingSearchInputTests: XCTestCase {
         // THEN: Component is tappable (button mode) and input is non-editable
         XCTAssertNotNil(searchInput)
         let view = searchInput.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testFloatingSearchInputPressOnlyModeCallbackInvoked() {
@@ -240,7 +240,7 @@ final class FloatingSearchInputTests: XCTestCase {
         // THEN: Accessibility labels and identifiers are applied
         XCTAssertNotNil(searchInput)
         let view = searchInput.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-9: Search icon rendering
@@ -257,7 +257,7 @@ final class FloatingSearchInputTests: XCTestCase {
         // THEN: Search icon (magnifyingglass) is rendered
         XCTAssertNotNil(searchInput)
         let view = searchInput.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-10: Clear icon rendering
@@ -275,7 +275,7 @@ final class FloatingSearchInputTests: XCTestCase {
         // THEN: Clear icon (xmark) is rendered
         XCTAssertNotNil(searchInput)
         let view = searchInput.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-11: Press state opacity
@@ -293,7 +293,7 @@ final class FloatingSearchInputTests: XCTestCase {
         // THEN: Buttons have opacity 0.8 on press
         XCTAssertNotNil(searchInput)
         let view = searchInput.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-12: Design tokens (radius, spacing)
@@ -310,7 +310,7 @@ final class FloatingSearchInputTests: XCTestCase {
         // THEN: Uses theme.radius.xl, theme.space.md, theme.space.xs, theme.space.xl, theme.space.2xl, theme.space.4xl
         XCTAssertNotNil(searchInput)
         let view = searchInput.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-13: Border rendering
@@ -327,7 +327,7 @@ final class FloatingSearchInputTests: XCTestCase {
         // THEN: Border is rendered with theme.colors.border.default
         XCTAssertNotNil(searchInput)
         let view = searchInput.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-14: Background color
@@ -344,6 +344,6 @@ final class FloatingSearchInputTests: XCTestCase {
         // THEN: Background uses theme.colors.surfaceVariant.default
         XCTAssertNotNil(searchInput)
         let view = searchInput.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 }

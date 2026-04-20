@@ -108,7 +108,7 @@ public struct LSLabelSkeleton: View {
                             gradient: Gradient(colors: [
                                 theme.colors.surface.default.opacity(0),
                                 theme.colors.surface.default.opacity(theme.opacity.pressed),
-                                theme.colors.surface.default.opacity(0)
+                                theme.colors.surface.default.opacity(0),
                             ]),
                             startPoint: .leading,
                             endPoint: .trailing

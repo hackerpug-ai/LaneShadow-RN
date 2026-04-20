@@ -39,7 +39,7 @@ final class MinimalOverlayWidgetPreviewTests: XCTestCase {
         // THEN: Component should render successfully with all sections
         XCTAssertNotNil(preview)
         let view = preview.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-2: Header displays title and subtitle

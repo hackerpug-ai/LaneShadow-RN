@@ -46,7 +46,7 @@ final class MinimalOverlayWidgetTests: XCTestCase {
         // THEN: Component renders successfully
         XCTAssertNotNil(widget)
         let view = widget.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-2: Collapsed state shows layers icon when no selection

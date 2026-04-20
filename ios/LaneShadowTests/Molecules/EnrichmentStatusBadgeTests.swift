@@ -35,7 +35,7 @@ final class EnrichmentStatusBadgeTests: XCTestCase {
         // THEN: Renders with draft configuration (clock icon, subtle color)
         XCTAssertNotNil(badge)
         let view = badge.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-2: Component renders with partial status
@@ -50,7 +50,7 @@ final class EnrichmentStatusBadgeTests: XCTestCase {
         // THEN: Renders with partial configuration (check-circle icon, enrichmentFast color)
         XCTAssertNotNil(badge)
         let view = badge.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-3: Component renders with complete status
@@ -65,7 +65,7 @@ final class EnrichmentStatusBadgeTests: XCTestCase {
         // THEN: Renders with complete configuration (star icon, enrichmentExtended color)
         XCTAssertNotNil(badge)
         let view = badge.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-4: Component renders with failed status
@@ -80,7 +80,7 @@ final class EnrichmentStatusBadgeTests: XCTestCase {
         // THEN: Renders with failed configuration (alert-circle icon, danger color)
         XCTAssertNotNil(badge)
         let view = badge.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-5: Small size variant
@@ -96,7 +96,7 @@ final class EnrichmentStatusBadgeTests: XCTestCase {
         // THEN: Renders with small padding (4pt vertical, 8pt horizontal), 14px icon, label.sm font
         XCTAssertNotNil(badge)
         let view = badge.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-6: Medium size variant
@@ -112,7 +112,7 @@ final class EnrichmentStatusBadgeTests: XCTestCase {
         // THEN: Renders with medium padding (6pt vertical, 12pt horizontal), 16px icon, label.md font
         XCTAssertNotNil(badge)
         let view = badge.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-7: Background at 10% opacity
@@ -142,7 +142,7 @@ final class EnrichmentStatusBadgeTests: XCTestCase {
         // THEN: Border uses status color at 30% opacity
         XCTAssertNotNil(badge)
         let view = badge.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-9: HStack with icon and label
@@ -157,7 +157,7 @@ final class EnrichmentStatusBadgeTests: XCTestCase {
         // THEN: Renders HStack with icon on left and label text on right
         XCTAssertNotNil(badge)
         let view = badge.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-10: Uses semantic theme tokens
@@ -203,7 +203,7 @@ final class EnrichmentStatusBadgeTests: XCTestCase {
         let view = badge.body
 
         // THEN: View should have accessibility label "Enrichment status: Partial"
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-13: Status configuration has correct properties

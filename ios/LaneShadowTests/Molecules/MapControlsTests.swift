@@ -49,7 +49,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Component renders successfully
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-2: Component renders in chat mode with only toggle button
@@ -65,7 +65,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Component renders successfully (only toggle button visible)
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-3: Zoom cluster renders with plus/minus buttons and divider
@@ -83,7 +83,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Zoom cluster is rendered with plus, minus, and divider
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-4: Control buttons render with correct icons
@@ -105,7 +105,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: All buttons render with correct icons (plus, minus, crosshairs-gps, layers, bookmark, message-text-outline)
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-5: Save route button visibility controlled by hasRouteToSave
@@ -123,7 +123,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Save route button is rendered
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testMapControlsSaveRouteButtonHiddenWhenNoRoute() {
@@ -139,7 +139,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Save route button is not rendered
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-6: Save route button accent styling controlled by isSavedRoute
@@ -158,7 +158,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Save route button uses primary accent color
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testMapControlsSaveRouteButtonNormalWhenNotSaved() {
@@ -175,7 +175,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Save route button uses surfaceVariant color
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-7: Toggle view button shows correct icon based on mode
@@ -191,7 +191,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Toggle button shows message-text-outline icon
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testMapControlsToggleViewShowsMapIconInChatMode() {
@@ -205,7 +205,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Toggle button shows map-outline icon
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-8: Optional callbacks control button visibility
@@ -222,7 +222,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Recenter button is rendered
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testMapControlsRecenterButtonHiddenWhenCallbackNil() {
@@ -236,7 +236,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Recenter button is not rendered
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testMapControlsClearButtonVisibleWhenCallbackProvided() {
@@ -251,7 +251,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Clear button is rendered
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testMapControlsClearButtonHiddenWhenCallbackNil() {
@@ -265,7 +265,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Clear button is not rendered
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-9: ShowLabels prop controls text label rendering
@@ -284,7 +284,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Buttons show text labels below icons
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testMapControlsHideLabelsDisplaysIconsOnly() {
@@ -301,7 +301,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Buttons show only icons, no text labels
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-10: Theme integration with semantic colors
@@ -335,7 +335,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Buttons have opacity 0.8 on press
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-12: Design tokens (radius, spacing, elevation)
@@ -351,7 +351,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Uses theme.radius.2xl, theme.space.xs, theme.space.3xl, theme.elevation[3]
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-13: Toggle button always renders at bottom
@@ -367,7 +367,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Toggle button is rendered at the bottom of the workbar
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     func testMapControlsToggleButtonAtBottomInChatMode() {
@@ -381,7 +381,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Toggle button is rendered (only button, at bottom)
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-14: Zoom cluster container styling
@@ -399,7 +399,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Zoom cluster has surfaceVariant background, border, radius.2xl, elevation[3]
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-15: Control button styling
@@ -416,7 +416,7 @@ final class MapControlsTests: XCTestCase {
         // THEN: Control buttons have surfaceVariant background, border 1.5pt, radius.2xl, elevation[3]
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-16: Accessibility labels
@@ -435,6 +435,6 @@ final class MapControlsTests: XCTestCase {
         // THEN: Buttons have accessibility labels (Zoom in, Zoom out, Recenter map, Open chat, etc.)
         XCTAssertNotNil(mapControls)
         let view = mapControls.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 }

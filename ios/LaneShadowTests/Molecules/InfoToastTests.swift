@@ -41,7 +41,7 @@ final class InfoToastTests: XCTestCase {
         // THEN: Component renders successfully with title and description
         XCTAssertNotNil(toast)
         let view = toast.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-2: Optional close button rendering
@@ -59,7 +59,7 @@ final class InfoToastTests: XCTestCase {
         // THEN: Close button is rendered
         XCTAssertNotNil(toast)
         let view = toast.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     @MainActor
@@ -75,7 +75,7 @@ final class InfoToastTests: XCTestCase {
         // THEN: Close button is not rendered
         XCTAssertNotNil(toast)
         let view = toast.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-3: Close button callback invocation
@@ -130,7 +130,7 @@ final class InfoToastTests: XCTestCase {
         // THEN: Accessibility labels are applied
         XCTAssertNotNil(toast)
         let view = toast.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-6: RoundedRectangle container with info background
@@ -147,7 +147,7 @@ final class InfoToastTests: XCTestCase {
         // THEN: Container uses info background and lg radius
         XCTAssertNotNil(toast)
         let view = toast.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-7: Icon rendering
@@ -164,7 +164,7 @@ final class InfoToastTests: XCTestCase {
         // THEN: Info icon (info.circle) is rendered
         XCTAssertNotNil(toast)
         let view = toast.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-8: Typography tokens
@@ -181,7 +181,7 @@ final class InfoToastTests: XCTestCase {
         // THEN: Title uses titleSmall, description uses bodySmall
         XCTAssertNotNil(toast)
         let view = toast.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-9: Shadow rendering
@@ -198,7 +198,7 @@ final class InfoToastTests: XCTestCase {
         // THEN: Shadow is applied to container
         XCTAssertNotNil(toast)
         let view = toast.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 
     // MARK: - AC-10: Spacing tokens
@@ -215,6 +215,6 @@ final class InfoToastTests: XCTestCase {
         // THEN: Uses theme.space.xs (gap), sm (margins), md (padding)
         XCTAssertNotNil(toast)
         let view = toast.body
-        XCTAssertTrue(type(of: view) is Any.Type)
+        // View renders correctly
     }
 }

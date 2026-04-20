@@ -158,7 +158,7 @@ public struct ThemeOpacity: Sendable {
     public let pressedStrong: CGFloat
     public let surface: CGFloat
 
-    // Numeric steps as dictionary for general access (0, 5, 10, ..., 100)
+    /// Numeric steps as dictionary for general access (0, 5, 10, ..., 100)
     public let values: [String: CGFloat]
 }
 
