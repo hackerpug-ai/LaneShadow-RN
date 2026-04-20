@@ -1,12 +1,10 @@
 package com.laneshadow.ui.components.atoms
 
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import com.laneshadow.MainActivity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -39,7 +37,7 @@ import org.robolectric.annotation.Config
 class AvatarTest {
 
     @get:Rule
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
+    val composeTestRule = createComposeRule()
 
     // Create a minimal test theme (Avatar doesn't use domain colors)
     private val testTheme = LaneShadowThemeValues(
