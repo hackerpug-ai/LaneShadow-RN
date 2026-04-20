@@ -779,6 +779,213 @@ body { font-family:var(--font-ui);color:var(--content-primary);background:var(--
   </section>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════════════
+     DARK MODE CSS BLOCK
+     ═══════════════════════════════════════════════════════════════════ -->
+<style>
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+  --surface-scrim:     rgba(10,6,3,0.50);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+</style>
+
+<!-- §02b DARK MODE FULL SHOWCASE — Navigator Molecules -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02b · Dark Mode</div>
+      <h2 class="section-title">Navigator molecules, <em>dark surface</em>.</h2>
+    </div>
+    <p class="prose">
+      All three navigator molecules on ink-800. <em>LSPhaseIndicator</em> glass panel shifts to ink-based glass with copper border; the copper pulse ring pops brilliantly against dark. <em>LSWeatherTimeline</em> semantic tints remain unchanged — condition recognition consistency is paramount. <em>LSInstrumentReadout</em> copper accent value stands out strongly on dark backgrounds.
+    </p>
+
+    <!-- Dark: LSPhaseIndicator full progression -->
+    <div class="group-head" style="margin-top:40px;"><h3><em>LSPhaseIndicator</em> — Dark · full progression</h3></div>
+    <div class="mol-grid mode-dark" style="background: var(--ink-800); padding: 24px; border-radius: 12px; margin-bottom: 32px;">
+
+      <!-- Just started -->
+      <div class="mol-card">
+        <div class="mol-card-label" style="color: var(--copper-400);">Just started</div>
+        <div class="ls-phase-indicator" style="background: var(--surface-card); border-color: rgba(242,238,232,0.12); border-top-color: var(--signal-default);">
+          <div class="phase-head">
+            <div class="compass-chip" style="background: rgba(238,124,43,0.14); border-color: rgba(238,124,43,0.28); color: var(--copper-400);">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 3.5v.5m0 6v.5M3.5 7h.5m6 0h.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/></svg>
+            </div>
+            <div class="phase-header-text" style="color: var(--ink-050);">Understanding your request…</div>
+          </div>
+          <div class="phase-steps">
+            <div class="phase-step">
+              <div class="ls-phase-dot active" style="position:relative;">
+                <div style="position:absolute;inset:-5px;border-radius:50%;border:1.5px solid var(--signal-default);animation:phaseDotPulse 900ms ease-in-out infinite;opacity:0;"></div>
+              </div>
+              <div class="phase-step-label state-active" style="color: var(--ink-050);">Understanding your request</div>
+            </div>
+            <div class="phase-step"><div class="ls-phase-dot pending" style="background:var(--ink-600);border-color:rgba(242,238,232,0.22);"></div><div class="phase-step-label state-pending">Searching routes</div></div>
+            <div class="phase-step"><div class="ls-phase-dot pending" style="background:var(--ink-600);border-color:rgba(242,238,232,0.22);"></div><div class="phase-step-label state-pending">Checking conditions</div></div>
+            <div class="phase-step"><div class="ls-phase-dot pending" style="background:var(--ink-600);border-color:rgba(242,238,232,0.22);"></div><div class="phase-step-label state-pending">Preparing results</div></div>
+          </div>
+        </div>
+        <div class="mol-card-desc" style="color: var(--ink-200);">Copper pulse ring pops against dark. Pending dots: ink-600 bg + rgba border.</div>
+      </div>
+
+      <!-- 2 done, step 3 active -->
+      <div class="mol-card">
+        <div class="mol-card-label" style="color: var(--copper-400);">2 done, step 3 active</div>
+        <div class="ls-phase-indicator" style="background: var(--surface-card); border-color: rgba(242,238,232,0.12); border-top-color: var(--signal-default);">
+          <div class="phase-head">
+            <div class="compass-chip" style="background: rgba(238,124,43,0.14); border-color: rgba(238,124,43,0.28); color: var(--copper-400);">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 3.5v.5m0 6v.5M3.5 7h.5m6 0h.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/></svg>
+            </div>
+            <div class="phase-header-text" style="color: var(--ink-050);">Cross-referencing weather windows…</div>
+          </div>
+          <div class="phase-steps">
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done" style="color: var(--ink-300);">Understanding your request</div></div>
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done" style="color: var(--ink-300);">Searching routes</div></div>
+            <div class="phase-step">
+              <div class="ls-phase-dot active" style="position:relative;">
+                <div style="position:absolute;inset:-5px;border-radius:50%;border:1.5px solid var(--signal-default);animation:phaseDotPulse 900ms ease-in-out infinite;opacity:0;"></div>
+              </div>
+              <div class="phase-step-label state-active" style="color: var(--ink-050);">Checking conditions</div>
+            </div>
+            <div class="phase-step"><div class="ls-phase-dot pending" style="background:var(--ink-600);border-color:rgba(242,238,232,0.22);"></div><div class="phase-step-label state-pending">Preparing results</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- All done -->
+      <div class="mol-card">
+        <div class="mol-card-label" style="color: var(--copper-400);">All done</div>
+        <div class="ls-phase-indicator" style="background: var(--surface-card); border-color: rgba(22,163,74,0.22); border-top-color: var(--status-success);">
+          <div class="phase-head">
+            <div class="compass-chip" style="background:rgba(22,163,74,0.12);border-color:rgba(22,163,74,0.30);color:var(--status-success);">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l4 4 5-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="phase-header-text" style="color: var(--ink-050);">Here are three routes for you.</div>
+          </div>
+          <div class="phase-steps">
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done" style="color: var(--ink-300);">Understanding your request</div></div>
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done" style="color: var(--ink-300);">Searching routes</div></div>
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done" style="color: var(--ink-300);">Checking conditions</div></div>
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done" style="color: var(--ink-300);">Scoring scenic value</div></div>
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done" style="color: var(--ink-300);">Preparing results</div></div>
+          </div>
+        </div>
+        <div class="mol-card-desc" style="color: var(--ink-200);">Top border → status.success; chip switches to green. On dark: success green stands out cleanly.</div>
+      </div>
+
+    </div>
+
+    <!-- Dark: LSWeatherTimeline -->
+    <div class="group-head" style="margin-top:56px;"><h3><em>LSWeatherTimeline</em> — Dark · all-clear + mixed</h3></div>
+    <div style="padding-left:152px; display:flex; flex-direction:column; gap:28px; margin-bottom:32px;">
+
+      <!-- Dark: All Clear -->
+      <div class="mol-card" style="max-width:440px;">
+        <div class="mol-card-label" style="color: var(--copper-400);">All Clear — Dark · 9 AM to 2 PM</div>
+        <div class="dark-panel" style="max-width:440px;padding:16px;">
+          <div class="ls-wx-timeline" style="background:var(--surface-card);">
+            <div class="wx-timeline-header">
+              <div class="wx-timeline-title">Weather along the way</div>
+              <div class="wx-timeline-range">9 AM — 2 PM</div>
+            </div>
+            <div class="wx-cells">
+              <div class="wx-cell clear"><div class="hour">9 AM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">68°</div></div>
+              <div class="wx-cell clear"><div class="hour">10 AM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">72°</div></div>
+              <div class="wx-cell clear"><div class="hour">11 AM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">75°</div></div>
+              <div class="wx-cell clear"><div class="hour">12 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">76°</div></div>
+              <div class="wx-cell clear"><div class="hour">1 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">78°</div></div>
+              <div class="wx-cell clear"><div class="hour">2 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">77°</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="mol-card-desc">Semantic tints unchanged for condition recognition. Surface.card ink-700 container.</div>
+      </div>
+
+      <!-- Dark: Mixed -->
+      <div class="mol-card" style="max-width:440px;">
+        <div class="mol-card-label" style="color: var(--copper-400);">Mixed — Dark · Clear → Wind → Rain</div>
+        <div class="dark-panel" style="max-width:440px;padding:16px;">
+          <div class="ls-wx-timeline" style="background:var(--surface-card);">
+            <div class="wx-timeline-header">
+              <div class="wx-timeline-title">Weather along the way</div>
+              <div class="wx-timeline-range">10 AM — 3 PM</div>
+            </div>
+            <div class="wx-cells">
+              <div class="wx-cell clear"><div class="hour">10 AM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">70°</div></div>
+              <div class="wx-cell clear"><div class="hour">11 AM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">72°</div></div>
+              <div class="wx-cell wind"><div class="hour">12 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M1 4.5h7a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><path d="M1 7h9a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></div><div class="temp">68°</div></div>
+              <div class="wx-cell wind"><div class="hour">1 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M1 4.5h7a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><path d="M1 7h9a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></div><div class="temp">65°</div></div>
+              <div class="wx-cell rain"><div class="hour">2 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/><line x1="3.5" y1="9.5" x2="3" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="9.5" x2="5.5" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div><div class="temp">61°</div></div>
+              <div class="wx-cell storm"><div class="hour">3 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/><path d="M6 8l-.8 2h1.6l-.8 2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div><div class="temp">57°</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Dark: LSInstrumentReadout -->
+    <div class="group-head" style="margin-top:56px;"><h3><em>LSInstrumentReadout</em> — Dark · 4-col + 3-col</h3></div>
+    <div style="padding-left:152px; display:flex; flex-direction:column; gap:28px; margin-bottom:0;">
+
+      <!-- Dark: 4-col -->
+      <div class="mol-card" style="max-width:520px;">
+        <div class="mol-card-label" style="color: var(--copper-400);">4 metrics — DIST / TIME / CLIMB / SCENIC · Dark</div>
+        <div class="dark-panel" style="max-width:520px;padding:16px;">
+          <div class="ls-instrument-readout">
+            <div class="instr-divider"></div>
+            <div class="instrument-grid">
+              <div class="instr-cell"><div class="instr-label">Dist</div><div class="instr-value">64 mi</div></div>
+              <div class="instr-cell"><div class="instr-label">Time</div><div class="instr-value">2h 10m</div></div>
+              <div class="instr-cell"><div class="instr-label">Climb</div><div class="instr-value">2,400<div class="instr-sub">ft gain</div></div></div>
+              <div class="instr-cell"><div class="instr-label">Scenic</div><div class="instr-value accent">9.2</div></div>
+            </div>
+            <div class="instr-divider"></div>
+          </div>
+        </div>
+        <div class="mol-card-desc">Copper accent value (9.2) stands out against ink surface. Mono alignment preserved. Divider uses border.default rgba.</div>
+      </div>
+
+      <!-- Dark: 3-col -->
+      <div class="mol-card" style="max-width:390px;">
+        <div class="mol-card-label" style="color: var(--copper-400);">3 metrics — DIST / TIME / CLIMB · Dark</div>
+        <div class="dark-panel" style="max-width:390px;padding:16px;">
+          <div class="ls-instrument-readout">
+            <div class="instr-divider"></div>
+            <div class="instrument-grid cols-3">
+              <div class="instr-cell"><div class="instr-label">Dist</div><div class="instr-value">38 mi</div></div>
+              <div class="instr-cell"><div class="instr-label">Time</div><div class="instr-value">1h 24m</div></div>
+              <div class="instr-cell"><div class="instr-label">Climb</div><div class="instr-value">1,100<div class="instr-sub">ft gain</div></div></div>
+            </div>
+            <div class="instr-divider"></div>
+          </div>
+        </div>
+        <div class="mol-card-desc">3-col dark: values ink-050, labels ink-200. Divider border rgba.</div>
+      </div>
+
+    </div>
+
+  </section>
+</div>
+
 <!-- §03 STATES & VARIANTS -->
 <div class="wrap">
   <section class="section">
