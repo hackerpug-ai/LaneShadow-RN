@@ -76,6 +76,28 @@
   --elev-chrome:       0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
 }
 
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+  --surface-scrim:     rgba(10,6,3,0.50);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+
 /* TYPOGRAPHY */
 .t-opinion-xl  { font-family: var(--font-opinion); font-weight: 400; font-size: 30px; line-height: 1.12; letter-spacing: -0.015em; }
 .t-opinion-lg  { font-family: var(--font-opinion); font-weight: 400; font-size: 22px; line-height: 1.18; letter-spacing: -0.01em; }
@@ -1038,6 +1060,140 @@ body {
         <li><strong>AC-07</strong> pnpm tokens:validate exits zero errors</li>
       </ul>
     </div>
+  </div>
+</div>
+</div>
+
+<!-- §07 DARK TOKEN SHOWCASE -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§07</div><h2 class="section-title">Dark token <em>swatches</em></h2></div>
+  <p class="prose" style="margin-bottom: 40px;">The dark semantic tokens annotated with their resolved hex / rgba values. These are the exact values emitted by the generator for the dark mode color scheme. The copper signal is unchanged across both modes.</p>
+
+  <h3 style="margin-left: 152px; margin-bottom: 32px; font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);">Color Semantics — Dark</h3>
+
+  <div class="color-content mode-dark" style="background: var(--ink-800); padding: 48px 56px; border-radius: 14px; box-shadow: var(--elev-overlay);">
+
+    <!-- surface.* dark swatches -->
+    <div class="namespace-block">
+      <div class="ns-header">
+        <span class="ns-name" style="color: var(--signal-default);">color.surface.* — Dark resolved values</span>
+        <span class="ns-desc" style="color: var(--content-tertiary);">Warm-ink backgrounds, overlays, glass, and scrim</span>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#221810;"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">#221810</span><span class="swatch-var" style="color: var(--content-tertiary);">surface.primary</span><span class="swatch-name" style="color: var(--content-subtle);">ink.800 — page bg</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#2D2218;"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">#2D2218</span><span class="swatch-var" style="color: var(--content-tertiary);">surface.card</span><span class="swatch-name" style="color: var(--content-subtle);">ink.700 — card fill</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#362A1F;"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">#362A1F</span><span class="swatch-var" style="color: var(--content-tertiary);">surface.inset</span><span class="swatch-name" style="color: var(--content-subtle);">ink.600 — inset/table row</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:rgba(45,34,24,0.92); border: 1px solid rgba(242,238,232,0.12);"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">rgba(45,34,24,0.92)</span><span class="swatch-var" style="color: var(--content-tertiary);">surface.overlay</span><span class="swatch-name" style="color: var(--content-subtle);">92% warm ink</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:rgba(45,34,24,0.72); border: 1px solid rgba(242,238,232,0.12);"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">rgba(45,34,24,0.72)</span><span class="swatch-var" style="color: var(--content-tertiary);">surface.glass</span><span class="swatch-name" style="color: var(--content-subtle);">72% warm ink</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:rgba(10,6,3,0.50);"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">rgba(10,6,3,0.50)</span><span class="swatch-var" style="color: var(--content-tertiary);">surface.scrim</span><span class="swatch-name" style="color: var(--content-subtle);">50% deep ink</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- content.* dark swatches -->
+    <div class="namespace-block">
+      <div class="ns-header">
+        <span class="ns-name" style="color: var(--signal-default);">color.content.* — Dark resolved values</span>
+        <span class="ns-desc" style="color: var(--content-tertiary);">Text hierarchy on warm-ink surfaces</span>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch" style="min-width:160px;">
+          <div class="swatch-chip" style="background:#F2EEE8;"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">#F2EEE8</span><span class="swatch-var" style="color: var(--content-tertiary);">content.primary</span><span class="swatch-name" style="color: var(--content-subtle);">ink.050 — primary text</span></div>
+        </div>
+        <div class="swatch" style="min-width:160px;">
+          <div class="swatch-chip" style="background:#CAC4D0;"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">#CAC4D0</span><span class="swatch-var" style="color: var(--content-tertiary);">content.secondary</span><span class="swatch-name" style="color: var(--content-subtle);">ink.100 — body text</span></div>
+        </div>
+        <div class="swatch" style="min-width:160px;">
+          <div class="swatch-chip" style="background:#9CA3AF;"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">#9CA3AF</span><span class="swatch-var" style="color: var(--content-tertiary);">content.tertiary</span><span class="swatch-name" style="color: var(--content-subtle);">ink.200 — subdued label</span></div>
+        </div>
+        <div class="swatch" style="min-width:160px;">
+          <div class="swatch-chip" style="background:#6B6460;"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">#6B6460</span><span class="swatch-var" style="color: var(--content-tertiary);">content.subtle</span><span class="swatch-name" style="color: var(--content-subtle);">ink.300 — hint/placeholder</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- border.* dark swatches -->
+    <div class="namespace-block">
+      <div class="ns-header">
+        <span class="ns-name" style="color: var(--signal-default);">color.border.* — Dark resolved values</span>
+        <span class="ns-desc" style="color: var(--content-tertiary);">White-alpha borders on dark surfaces — maintain warm character</span>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch" style="min-width:180px;">
+          <div class="swatch-chip" style="background:rgba(242,238,232,0.12);"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">rgba(242,238,232,0.12)</span><span class="swatch-var" style="color: var(--content-tertiary);">border.default</span><span class="swatch-name" style="color: var(--content-subtle);">12% warm white</span></div>
+        </div>
+        <div class="swatch" style="min-width:180px;">
+          <div class="swatch-chip" style="background:rgba(242,238,232,0.07);"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">rgba(242,238,232,0.07)</span><span class="swatch-var" style="color: var(--content-tertiary);">border.subtle</span><span class="swatch-name" style="color: var(--content-subtle);">7% warm white</span></div>
+        </div>
+        <div class="swatch" style="min-width:180px;">
+          <div class="swatch-chip" style="background:rgba(242,238,232,0.22);"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">rgba(242,238,232,0.22)</span><span class="swatch-var" style="color: var(--content-tertiary);">border.strong</span><span class="swatch-name" style="color: var(--content-subtle);">22% warm white</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- signal.* unchanged note + copper swatch row -->
+    <div class="namespace-block" style="margin-bottom: 0;">
+      <div class="ns-header">
+        <span class="ns-name" style="color: var(--signal-default);">color.signal.* — Unchanged in dark mode</span>
+        <span class="ns-desc" style="color: var(--content-tertiary);">Copper accent is theme-agnostic — pops against both paper and ink backgrounds</span>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#EE7C2B;"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">#EE7C2B</span><span class="swatch-var" style="color: var(--content-tertiary);">signal.default</span><span class="swatch-name" style="color: var(--content-subtle);">unchanged</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#9E4A22;"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">#9E4A22</span><span class="swatch-var" style="color: var(--content-tertiary);">signal.pressed</span><span class="swatch-name" style="color: var(--content-subtle);">unchanged</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#F9D5B5;"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">#F9D5B5</span><span class="swatch-var" style="color: var(--content-tertiary);">signal.tint</span><span class="swatch-name" style="color: var(--content-subtle);">unchanged</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#FCE8D4;"></div>
+          <div class="swatch-meta" style="background: var(--surface-card);"><span class="swatch-hex" style="color: var(--content-primary);">#FCE8D4</span><span class="swatch-var" style="color: var(--content-tertiary);">signal.whisper</span><span class="swatch-name" style="color: var(--content-subtle);">unchanged</span></div>
+        </div>
+      </div>
+      <!-- Live UI composition demo -->
+      <div style="margin-top: 32px; background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 14px; padding: 28px 32px; box-shadow: var(--elev-card);">
+        <div style="font-family: var(--font-instrument); font-size: 9px; color: var(--content-subtle); letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 16px;">Live composition — all dark tokens in context</div>
+        <div style="font-family: var(--font-opinion); font-size: 22px; color: var(--content-primary); line-height: 1.18; margin-bottom: 8px;">Pacific Coast Highway</div>
+        <div style="font-family: var(--font-ui); font-size: 14px; color: var(--content-secondary); line-height: 1.48; margin-bottom: 16px;">62.4 scenic miles, light traffic today.</div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <div style="background: var(--signal-default); color: #fff; padding: 8px 16px; border-radius: 8px; font-family: var(--font-ui); font-size: 12px; font-weight: 600;">Best Route</div>
+          <div style="font-family: var(--font-instrument); font-size: 18px; font-weight: 500; color: var(--content-primary);">62.4 mi</div>
+          <div style="font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-secondary);">2:14 hr</div>
+          <div style="margin-left: auto; font-family: var(--font-instrument); font-size: 9px; color: var(--content-subtle); letter-spacing: 0.12em; text-transform: uppercase;">surface.card · content.primary · signal.default</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 </div>

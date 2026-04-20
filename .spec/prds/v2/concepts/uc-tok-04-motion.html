@@ -40,6 +40,26 @@
   --elev-chrome: 0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
 }
 
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --surface-glass:     rgba(45,34,24,0.72);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+
 body {
   font-family: var(--font-ui); color: var(--content-primary);
   background: var(--surface-primary); -webkit-font-smoothing: antialiased;
@@ -646,6 +666,233 @@ body {
         <li><strong>AC-07</strong> pnpm tokens:validate exits zero errors</li>
       </ul>
     </div>
+  </div>
+</div>
+</div>
+
+<!-- §07 DARK MODE -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§07</div><h2 class="section-title">Dark <em>surfaces</em></h2></div>
+  <p class="prose" style="margin-bottom: 40px;">Motion tokens carry no color — durations, easing curves, and recipe payloads are identical in both modes. The dark showcase confirms that animation demo cells, the easing curve SVGs, and the recipe table remain legible on warm-ink backgrounds. Copper polylines and phase dots pop distinctly against the dark surface.</p>
+
+  <h3 style="margin-left: 152px; margin-bottom: 32px; font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);">Motion Catalog — Dark</h3>
+
+  <div class="motion-content mode-dark" style="background: var(--ink-800); padding: 48px 56px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.42);">
+
+    <!-- Duration bars on dark -->
+    <div class="sub-header">motion.duration.* — durations on dark background</div>
+    <div class="duration-block" style="margin-bottom: 48px;">
+      <div class="duration-row">
+        <div class="duration-label">
+          <span class="duration-token">motion.duration.instant</span>
+          <span class="duration-desc">State-switch, no perceived delay</span>
+        </div>
+        <div class="duration-track"><div class="duration-bar duration-instant"></div></div>
+        <div class="duration-ms">0 ms</div>
+      </div>
+      <div class="duration-row">
+        <div class="duration-label">
+          <span class="duration-token">motion.duration.fast</span>
+          <span class="duration-desc">Micro-interaction, tap feedback</span>
+        </div>
+        <div class="duration-track"><div class="duration-bar duration-fast"></div></div>
+        <div class="duration-ms">120 ms</div>
+      </div>
+      <div class="duration-row">
+        <div class="duration-label">
+          <span class="duration-token">motion.duration.standard</span>
+          <span class="duration-desc">Default screen transition</span>
+        </div>
+        <div class="duration-track"><div class="duration-bar duration-standard"></div></div>
+        <div class="duration-ms">240 ms</div>
+      </div>
+      <div class="duration-row">
+        <div class="duration-label">
+          <span class="duration-token">motion.duration.slow</span>
+          <span class="duration-desc">Complex element entrance</span>
+        </div>
+        <div class="duration-track"><div class="duration-bar duration-slow"></div></div>
+        <div class="duration-ms">400 ms</div>
+      </div>
+      <div class="duration-row">
+        <div class="duration-label">
+          <span class="duration-token">motion.duration.deliberate</span>
+          <span class="duration-desc">Full-screen reveal, onboarding</span>
+        </div>
+        <div class="duration-track"><div class="duration-bar duration-deliberate"></div></div>
+        <div class="duration-ms">600 ms</div>
+      </div>
+    </div>
+
+    <!-- Easing curves on dark -->
+    <div class="sub-header">motion.easing.* — curves on dark background</div>
+    <div class="easing-grid" style="margin-bottom: 48px;">
+      <div class="easing-card">
+        <div class="easing-name">standard</div>
+        <span class="easing-bezier">cubic-bezier(0.4, 0.0, 0.2, 1.0)</span>
+        <svg width="100%" viewBox="0 0 100 100" fill="none" style="overflow: visible;">
+          <rect width="100" height="100" fill="var(--surface-inset)" rx="4"/>
+          <line x1="0" y1="100" x2="0" y2="0" stroke="var(--border-default)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="100" y2="100" stroke="var(--border-default)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="40" y2="100" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <line x1="100" y1="0" x2="80" y2="0" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <path d="M0,100 C40,100 80,0 100,0" stroke="var(--copper-500)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="40" cy="100" r="3" fill="var(--copper-400)"/>
+          <circle cx="80" cy="0" r="3" fill="var(--copper-400)"/>
+        </svg>
+        <div class="easing-use">Screen transitions, general UI enter/exit</div>
+      </div>
+      <div class="easing-card">
+        <div class="easing-name">emphasized</div>
+        <span class="easing-bezier">cubic-bezier(0.2, 0.0, 0.0, 1.0)</span>
+        <svg width="100%" viewBox="0 0 100 100" fill="none" style="overflow: visible;">
+          <rect width="100" height="100" fill="var(--surface-inset)" rx="4"/>
+          <line x1="0" y1="100" x2="0" y2="0" stroke="var(--border-default)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="100" y2="100" stroke="var(--border-default)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="20" y2="100" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <line x1="100" y1="0" x2="100" y2="0" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <path d="M0,100 C20,100 0,0 100,0" stroke="var(--copper-500)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="20" cy="100" r="3" fill="var(--copper-400)"/>
+          <circle cx="100" cy="0" r="3" fill="var(--copper-400)"/>
+        </svg>
+        <div class="easing-use">Purposeful, high-emphasis entrances</div>
+      </div>
+      <div class="easing-card">
+        <div class="easing-name">decelerated</div>
+        <span class="easing-bezier">cubic-bezier(0.0, 0.0, 0.2, 1.0)</span>
+        <svg width="100%" viewBox="0 0 100 100" fill="none" style="overflow: visible;">
+          <rect width="100" height="100" fill="var(--surface-inset)" rx="4"/>
+          <line x1="0" y1="100" x2="0" y2="0" stroke="var(--border-default)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="100" y2="100" stroke="var(--border-default)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="0" y2="100" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <line x1="100" y1="0" x2="80" y2="0" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <path d="M0,100 C0,100 80,0 100,0" stroke="var(--copper-500)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="0" cy="100" r="3" fill="var(--copper-400)"/>
+          <circle cx="80" cy="0" r="3" fill="var(--copper-400)"/>
+        </svg>
+        <div class="easing-use">Elements entering from off-screen</div>
+      </div>
+      <div class="easing-card">
+        <div class="easing-name">accelerated</div>
+        <span class="easing-bezier">cubic-bezier(0.4, 0.0, 1.0, 1.0)</span>
+        <svg width="100%" viewBox="0 0 100 100" fill="none" style="overflow: visible;">
+          <rect width="100" height="100" fill="var(--surface-inset)" rx="4"/>
+          <line x1="0" y1="100" x2="0" y2="0" stroke="var(--border-default)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="100" y2="100" stroke="var(--border-default)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="40" y2="100" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <line x1="100" y1="0" x2="100" y2="0" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <path d="M0,100 C40,100 100,0 100,0" stroke="var(--copper-500)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="40" cy="100" r="3" fill="var(--copper-400)"/>
+          <circle cx="100" cy="0" r="3" fill="var(--copper-400)"/>
+        </svg>
+        <div class="easing-use">Elements exiting to off-screen</div>
+      </div>
+    </div>
+
+    <!-- Live demos on dark -->
+    <div class="sub-header">Live looping demos — dark background</div>
+    <div class="demo-grid">
+      <div class="demo-cell">
+        <span class="demo-label">chatOverlayEnter</span>
+        <div class="demo-stage">
+          <div class="demo-overlay-enter" style="background: var(--surface-glass); border-color: var(--border-default); color: var(--content-primary);">Ready for today's ride?</div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">300ms · decelerated · translateY -20→0</div>
+      </div>
+
+      <div class="demo-cell">
+        <span class="demo-label">chatOverlayDismiss</span>
+        <div class="demo-stage">
+          <div class="demo-overlay-dismiss" style="background: var(--surface-glass); border-color: var(--border-default); color: var(--content-primary);">Ready for today's ride?</div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">200ms · linear · opacity 1→0</div>
+      </div>
+
+      <div class="demo-cell">
+        <span class="demo-label">sidebarSlideIn</span>
+        <div class="demo-stage" style="justify-content: flex-start; overflow: hidden;">
+          <div class="demo-sidebar" style="background: var(--surface-card); border-color: var(--border-default); box-shadow: var(--elev-card);"></div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">250ms · decelerated · translateX -300→0</div>
+      </div>
+
+      <div class="demo-cell">
+        <span class="demo-label">sketchPolylineLoop</span>
+        <div class="demo-stage">
+          <svg width="90%" height="24" viewBox="0 0 200 24" fill="none">
+            <path d="M4,12 C40,4 80,20 120,8 C160,2 180,16 196,12" stroke="var(--copper-500)" stroke-width="3" stroke-linecap="round" fill="none" stroke-dasharray="220" stroke-dashoffset="220">
+              <animate attributeName="stroke-dashoffset" from="220" to="0" dur="2s" repeatCount="indefinite"/>
+            </path>
+            <circle r="4" fill="var(--copper-500)">
+              <animateMotion dur="2s" repeatCount="indefinite" path="M4,12 C40,4 80,20 120,8 C160,2 180,16 196,12"/>
+            </circle>
+          </svg>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">2000ms · linear · copper on ink</div>
+      </div>
+
+      <div class="demo-cell">
+        <span class="demo-label">routeDrawOn</span>
+        <div class="demo-stage">
+          <svg width="90%" height="40" viewBox="0 0 200 40" fill="none">
+            <path d="M4,20 C50,6 100,34 160,12 C175,8 185,22 196,20" stroke="#EE7C2B" stroke-width="3" stroke-linecap="round" fill="none" stroke-dasharray="220" stroke-dashoffset="220">
+              <animate attributeName="stroke-dashoffset" from="220" to="0" dur="1.2s" repeatCount="indefinite"/>
+            </path>
+            <path d="M4,28 C50,18 100,38 160,22 C175,18 185,28 196,24" stroke="#4D8470" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="220" stroke-dashoffset="220" opacity="0.8">
+              <animate attributeName="stroke-dashoffset" from="220" to="0" dur="1.2s" begin="0.12s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">1200ms · ease-out · copper + sage</div>
+      </div>
+
+      <div class="demo-cell">
+        <span class="demo-label">bestBadgeEnter</span>
+        <div class="demo-stage">
+          <div class="demo-badge">Best Route</div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">300ms · emphasized · delay 400ms</div>
+      </div>
+
+      <div class="demo-cell">
+        <span class="demo-label">phaseDotPulse</span>
+        <div class="demo-stage">
+          <div style="display:flex; gap:16px; align-items:center;">
+            <div class="demo-phase-dot"></div>
+            <div style="width:12px; height:12px; border-radius:50%; background:var(--border-strong);"></div>
+            <div style="width:12px; height:12px; border-radius:50%; background:var(--border-strong);"></div>
+          </div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">900ms · ease-in-out · ring pulse</div>
+      </div>
+
+      <div class="demo-cell">
+        <span class="demo-label">mapTapDismiss</span>
+        <div class="demo-stage">
+          <div class="demo-map-overlay" style="background: var(--surface-glass); border-color: var(--border-default); color: var(--content-secondary);">Overlay</div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">150ms · linear · opacity 1→0</div>
+      </div>
+    </div>
+
+    <!-- Gradient tokens on dark (copperNight natural fit) -->
+    <div class="sub-header" style="margin-top:48px;">gradient.* — copper gradients on dark surface</div>
+    <div class="gradient-row">
+      <div class="gradient-swatch" style="background: linear-gradient(135deg, #EE7C2B 0%, #B85A2C 60%, #9E4A22 100%);">
+        <div class="gradient-label">copperWarm</div>
+        <div class="gradient-token">gradient.copperWarm</div>
+      </div>
+      <div class="gradient-swatch" style="background: linear-gradient(180deg, #EE7C2B 0%, #221810 100%);">
+        <div class="gradient-label">copperNight</div>
+        <div class="gradient-token">gradient.copperNight — natural dark pairing</div>
+      </div>
+      <div class="gradient-swatch" style="background: linear-gradient(180deg, rgba(34,24,16,0) 0%, rgba(34,24,16,0.95) 100%);">
+        <div class="gradient-label">surfaceSweep (dark)</div>
+        <div class="gradient-token">gradient.surfaceSweep — ink variant</div>
+      </div>
+    </div>
+
   </div>
 </div>
 </div>
