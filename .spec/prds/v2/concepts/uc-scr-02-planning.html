@@ -135,17 +135,20 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
 
 /* ═══════════ CHROME ═══════════ */
 .ls-topbar{position:absolute;top:46px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:14px 14px 0;z-index:30;}
-.chrome-chip{background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);box-shadow:var(--elev-chrome);backdrop-filter:blur(14px) saturate(1.2);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--content-primary);}
+/* FIX 2026-04-20: chrome-chip base border-radius 12px → 14px (radius.lg) per LSGlassPanel.chrome spec */
+.chrome-chip{background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);box-shadow:var(--elev-chrome);backdrop-filter:blur(14px) saturate(1.2);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--content-primary);}
 .mode-dark .chrome-chip{border-color:rgba(242,238,232,0.12);}
 .chrome-chip.circular{width:40px;height:40px;border-radius:50%;}
 .chrome-chip.pill{padding:0 14px;height:40px;border-radius:22px;display:flex;align-items:center;gap:6px;}
 
 /* ═══════════ CHAT INPUT (thinking) ═══════════ */
 .ls-chatinput-anchor{position:absolute;bottom:16px;left:12px;right:12px;z-index:40;}
-.ls-chatinput{height:54px;background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);backdrop-filter:blur(14px) saturate(1.2);border-radius:18px;display:flex;align-items:center;padding:0 6px 0 14px;gap:10px;box-shadow:var(--elev-chrome);}
+/* FIX 2026-04-20: border-radius 18px → 20px (radius.xl) per uc-tok-03 spec */
+.ls-chatinput{height:54px;background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);backdrop-filter:blur(14px) saturate(1.2);border-radius:20px;display:flex;align-items:center;padding:0 6px 0 14px;gap:10px;box-shadow:var(--elev-chrome);}
 .mode-dark .ls-chatinput{border-color:rgba(242,238,232,0.12);}
 .chat-icon-btn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--content-secondary);flex-shrink:0;}
-.chat-field{flex:1;font-family:var(--font-ui);font-size:13px;font-weight:500;color:var(--content-primary);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;line-height:1.4;}
+/* FIX 2026-04-20: font-size 13px → 14px (ui.body.lg) per uc-tok-01 LSChatInput spec */
+.chat-field{flex:1;font-family:var(--font-ui);font-size:14px;font-weight:500;color:var(--content-primary);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;line-height:1.4;}
 .chat-field .prompt-text{display:block;}
 .chat-spinner{width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;}
 .chat-spinner::before,.chat-spinner::after{content:"";position:absolute;border-radius:50%;border:2px solid var(--signal-default);}
@@ -162,7 +165,8 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
 .phase-head .title{font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:16px;line-height:1.3;color:var(--content-primary);flex:1;}
 .phase-steps{display:flex;flex-direction:column;gap:11px;}
 .phase-step{display:flex;align-items:center;gap:10px;}
-.phase-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;position:relative;}
+/* FIX 2026-04-20: phase-dot 12px → 10px per uc-atm-08 (10pt dot spec) */
+.phase-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;position:relative;}
 .phase-dot.done{background:var(--signal-default);border:1px solid var(--signal-default);}
 .phase-dot.done::after{content:"";position:absolute;inset:2.5px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 12 10 18 20 6'/%3E%3C/svg%3E") center/contain no-repeat;}
 .phase-dot.active{background:var(--signal-default);box-shadow:0 0 0 3px var(--signal-tint),0 0 0 6px rgba(238,124,43,0);animation:phaseRing 0.9s ease-in-out infinite;}
@@ -597,9 +601,10 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
             <div style="position:absolute;bottom:80px;left:16px;right:16px;background:var(--surface-card);border-radius:14px;padding:18px 18px;box-shadow:var(--elev-overlay);z-index:45;">
               <div style="font-family:var(--font-opinion);font-size:18px;line-height:1.25;letter-spacing:-0.015em;margin-bottom:6px;">Cancel this plan?</div>
               <div style="font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:13px;color:var(--content-secondary);line-height:1.5;margin-bottom:16px;">I've drawn one route already. You can back out now — but I'll toss what I have.</div>
+              <!-- FIX 2026-04-20: button height 44px + justify-content center per LSButton spec (uc-atm-02); radius.md=10px confirmed -->
               <div style="display:flex;gap:8px;">
-                <div style="flex:1;padding:11px;border:1px solid var(--border-default);border-radius:10px;text-align:center;font-family:var(--font-ui);font-weight:500;font-size:11px;color:var(--content-secondary);">Keep thinking</div>
-                <div style="flex:1;padding:11px;background:var(--surface-inset);color:var(--content-primary);border-radius:10px;text-align:center;font-family:var(--font-ui);font-weight:600;font-size:11px;">Cancel plan</div>
+                <div style="flex:1;height:44px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border-default);border-radius:10px;text-align:center;font-family:var(--font-ui);font-weight:500;font-size:11px;color:var(--content-secondary);">Keep thinking</div>
+                <div style="flex:1;height:44px;display:flex;align-items:center;justify-content:center;background:var(--surface-inset);color:var(--content-primary);border-radius:10px;text-align:center;font-family:var(--font-ui);font-weight:600;font-size:11px;">Cancel plan</div>
               </div>
             </div>
             <div class="phone-hi"></div>

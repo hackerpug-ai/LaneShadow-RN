@@ -134,7 +134,8 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
 
 /* CHROME */
 .ls-topbar{position:absolute;top:46px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:14px 14px 0;z-index:30;}
-.chrome-chip{background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);box-shadow:var(--elev-chrome);backdrop-filter:blur(14px) saturate(1.2);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--content-primary);}
+/* FIX 2026-04-20: chrome-chip base border-radius 12px → 14px (radius.lg) per LSGlassPanel.chrome spec */
+.chrome-chip{background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);box-shadow:var(--elev-chrome);backdrop-filter:blur(14px) saturate(1.2);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--content-primary);}
 .mode-dark .chrome-chip{border-color:rgba(242,238,232,0.12);}
 .chrome-chip.circular{width:40px;height:40px;border-radius:50%;}
 .chrome-chip.pill{padding:0 14px;height:40px;border-radius:22px;display:flex;align-items:center;gap:6px;}
@@ -148,7 +149,8 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
 .rt-end::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--signal-default);}
 
 /* ═══════════ ROUTE SHEET (bottom) ═══════════ */
-.route-sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface-card);border-radius:22px 22px 0 0;padding:10px 16px 18px;box-shadow:var(--elev-sheet);z-index:40;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--border-subtle);}
+/* FIX 2026-04-20: route-sheet top radius 22px → 20px (radius.xl per uc-tok-03); 22px matches no token */
+.route-sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface-card);border-radius:20px 20px 0 0;padding:10px 16px 18px;box-shadow:var(--elev-sheet);z-index:40;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--border-subtle);}
 .route-sheet.detent-medium{max-height:62%;}
 .route-sheet.detent-large{max-height:86%;}
 .sheet-handle{width:36px;height:4px;background:var(--border-strong);border-radius:2px;margin:0 auto 6px;}
@@ -167,7 +169,8 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
 .instr-cell{display:flex;flex-direction:column;gap:3px;padding:0 6px;border-right:1px solid var(--border-subtle);}
 .instr-cell:last-child{border-right:none;}
 .instr-label{font-family:var(--font-ui);font-size:7.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--content-tertiary);}
-.instr-value{font-family:var(--font-instrument);font-weight:500;font-size:15px;letter-spacing:-0.02em;color:var(--content-primary);font-feature-settings:"tnum" 1;}
+/* FIX 2026-04-20: instr-value 15px → 18px (instrument.lg per uc-tok-01); 15px is off-scale between instrument.md(13) and instrument.lg(18) */
+.instr-value{font-family:var(--font-instrument);font-weight:500;font-size:18px;letter-spacing:-0.02em;color:var(--content-primary);font-feature-settings:"tnum" 1;}
 .instr-sub{font-family:var(--font-ui);font-size:8.5px;font-weight:500;color:var(--content-tertiary);}
 
 /* Weather timeline */
@@ -190,8 +193,9 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
 
 /* Action row */
 .sheet-actions{display:flex;gap:8px;margin-top:2px;}
-.btn-outline{flex:1;padding:11px;border:1.5px solid var(--border-default);border-radius:12px;background:transparent;color:var(--content-primary);font-family:var(--font-ui);font-weight:500;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px;}
-.btn-primary{flex:2;padding:11px;background:var(--signal-default);color:#FFF;border-radius:12px;font-family:var(--font-ui);font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 3px 12px rgba(238,124,43,0.35);letter-spacing:0.01em;}
+/* FIX 2026-04-20: btn-outline/btn-primary height set to 44px (component.buttonHeight) per uc-atm-02 LSButton; radius 12px → 10px (radius.md) */
+.btn-outline{flex:1;height:44px;padding:0 16px;border:1.5px solid var(--border-default);border-radius:10px;background:transparent;color:var(--content-primary);font-family:var(--font-ui);font-weight:500;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-primary{flex:2;height:44px;padding:0 16px;background:var(--signal-default);color:#FFF;border-radius:10px;font-family:var(--font-ui);font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 3px 12px rgba(238,124,43,0.35);letter-spacing:0.01em;}
 
 /* §04–§06 */
 .cmp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-left:152px;}

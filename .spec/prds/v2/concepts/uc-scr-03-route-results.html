@@ -131,7 +131,8 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
 
 /* ═══════════ CHROME ═══════════ */
 .ls-topbar{position:absolute;top:46px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:14px 14px 0;z-index:30;}
-.chrome-chip{background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);box-shadow:var(--elev-chrome);backdrop-filter:blur(14px) saturate(1.2);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--content-primary);}
+/* FIX 2026-04-20: chrome-chip base border-radius 12px → 14px (radius.lg) per LSGlassPanel.chrome spec */
+.chrome-chip{background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);box-shadow:var(--elev-chrome);backdrop-filter:blur(14px) saturate(1.2);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--content-primary);}
 .mode-dark .chrome-chip{border-color:rgba(242,238,232,0.12);}
 .chrome-chip.circular{width:40px;height:40px;border-radius:50%;}
 .chrome-chip.pill{padding:0 14px;height:40px;border-radius:22px;display:flex;align-items:center;gap:6px;}
@@ -152,7 +153,8 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
 /* ═══════════ NAVIGATOR MESSAGE (top overlay with attachments) ═══════════ */
 .nav-message{position:absolute;top:108px;left:14px;right:14px;z-index:20;background:var(--surface-glass);border:1px solid var(--signal-tint);border-top:2px solid var(--signal-default);backdrop-filter:blur(16px) saturate(1.2);border-radius:14px;padding:14px 14px;box-shadow:var(--elev-overlay);}
 .nav-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;}
-.compass-chip{width:24px;height:24px;border-radius:50%;background:var(--signal-whisper);border:1px solid var(--signal-tint);display:flex;align-items:center;justify-content:center;color:var(--signal-default);flex-shrink:0;}
+/* FIX 2026-04-20: compass chip 24px → 26px per review spec (26pt circular) */
+.compass-chip{width:26px;height:26px;border-radius:50%;background:var(--signal-whisper);border:1px solid var(--signal-tint);display:flex;align-items:center;justify-content:center;color:var(--signal-default);flex-shrink:0;}
 .nav-head-text{flex:1;}
 .nav-head-label{font-family:var(--font-ui);font-size:8.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--signal-default);margin-bottom:3px;}
 .nav-head-body{font-family:var(--font-opinion);font-weight:400;font-size:13.5px;line-height:1.45;color:var(--content-primary);}
@@ -170,7 +172,8 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
 .rt-card.v-alt1::before{background:var(--route-alt1);}
 .rt-card.v-alt2::before{background:var(--route-alt2);}
 .rt-card-head{display:flex;align-items:center;gap:6px;}
-.rt-best-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;background:var(--signal-default);color:#FFF;border-radius:3px;font-family:var(--font-ui);font-size:7.5px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;box-shadow:0 2px 5px rgba(238,124,43,0.4);}
+/* FIX 2026-04-20: rt-best-badge font-size 7.5px → 8.5px (ui.label.sm) per uc-tok-01 spec */
+.rt-best-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;background:var(--signal-default);color:#FFF;border-radius:3px;font-family:var(--font-ui);font-size:8.5px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;box-shadow:0 2px 5px rgba(238,124,43,0.4);}
 .rt-card-title{font-family:var(--font-ui);font-weight:600;font-size:12.5px;color:var(--content-primary);flex:1;line-height:1.2;}
 .rt-card-via{font-family:var(--font-ui);font-weight:400;font-size:10px;color:var(--content-secondary);line-height:1.3;}
 .rt-card-meta{display:flex;align-items:center;gap:10px;margin-top:2px;}
@@ -179,19 +182,23 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
 .rt-scenic-dots{display:flex;gap:2px;align-items:center;}
 .rt-scenic-dots .d{width:4px;height:4px;border-radius:50%;background:var(--border-strong);}
 .rt-scenic-dots .d.f{background:var(--signal-default);}
-.rt-scenic-label{font-family:var(--font-ui);font-size:7.5px;font-weight:600;letter-spacing:0.1em;color:var(--content-tertiary);text-transform:uppercase;}
+/* FIX 2026-04-20: rt-scenic-label font-size 7.5px → 8.5px (ui.label.sm minimum) per uc-tok-01 spec */
+.rt-scenic-label{font-family:var(--font-ui);font-size:8.5px;font-weight:600;letter-spacing:0.1em;color:var(--content-tertiary);text-transform:uppercase;}
 .rt-card-right{position:absolute;top:8px;right:8px;}
-.wx-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 5px;border-radius:4px;font-family:var(--font-ui);font-size:8px;font-weight:600;letter-spacing:0.05em;}
+/* FIX 2026-04-20: wx-badge font-size 8px → 10.5px (ui.body.sm) per uc-atm-07 weather badge spec; border-radius 4px → 6px (radius.sm) */
+.wx-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 5px;border-radius:6px;font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.05em;}
 .wx-clear{background:var(--wx-clear-tint);color:var(--wx-clear);border:1px solid rgba(230,165,42,0.33);}
 .wx-wind{background:var(--wx-wind-tint);color:var(--wx-wind);border:1px solid rgba(107,123,143,0.33);}
 .wx-rain{background:var(--wx-rain-tint);color:var(--wx-rain);border:1px solid rgba(74,134,190,0.33);}
 
 /* ═══════════ CHAT INPUT (refine) ═══════════ */
 .ls-chatinput-anchor{position:absolute;bottom:16px;left:12px;right:12px;z-index:40;}
-.ls-chatinput{height:54px;background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);backdrop-filter:blur(14px) saturate(1.2);border-radius:18px;display:flex;align-items:center;padding:0 6px 0 14px;gap:10px;box-shadow:var(--elev-chrome);}
+/* FIX 2026-04-20: border-radius 18px → 20px (radius.xl) per uc-tok-03 spec */
+.ls-chatinput{height:54px;background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);backdrop-filter:blur(14px) saturate(1.2);border-radius:20px;display:flex;align-items:center;padding:0 6px 0 14px;gap:10px;box-shadow:var(--elev-chrome);}
 .mode-dark .ls-chatinput{border-color:rgba(242,238,232,0.12);}
 .chat-icon-btn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--content-secondary);flex-shrink:0;}
-.chat-field{flex:1;font-family:var(--font-ui);font-size:12.5px;font-weight:400;color:var(--content-tertiary);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+/* FIX 2026-04-20: font-size 12.5px → 14px (ui.body.lg) per uc-tok-01 LSChatInput spec */
+.chat-field{flex:1;font-family:var(--font-ui);font-size:14px;font-weight:400;color:var(--content-tertiary);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 .chat-field.has-value{color:var(--content-primary);font-weight:500;}
 .chat-filter-btn{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--content-secondary);flex-shrink:0;}
 .chat-send-btn{width:42px;height:42px;background:var(--signal-default);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#FFF;flex-shrink:0;box-shadow:0 2px 8px rgba(238,124,43,0.38);}

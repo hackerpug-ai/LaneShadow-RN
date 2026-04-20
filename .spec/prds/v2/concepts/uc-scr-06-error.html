@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<!-- uc-scr-06-error.html — UC-SCR-06 "ErrorScreen"
+     LaneShadow V2 · Copper · Navigator Design Mock · 2026-04-20
+     Surface: LIGHT (+ dark variant)
+     Authority: concepts/designs.html · 08-uc-scr.md §UC-SCR-06 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-SCR-06 — ErrorScreen — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --paper-50:#FDFBF8;--paper-100:#F8F7F6;--paper-150:#F5F2EE;--paper-200:#F2EFED;
+  --paper-300:#EDE7E1;--paper-400:#E5DED9;--paper-500:#C9BDB3;
+  --ink-900:#1E1A16;--ink-800:#221810;--ink-700:#2D2218;--ink-600:#362A1F;
+  --ink-500:#3D3228;--ink-400:#49454F;--ink-300:#6B6460;--ink-200:#9CA3AF;
+  --ink-100:#CAC4D0;--ink-050:#F2EEE8;
+  --copper-700:#9E4A22;--copper-600:#B85A2C;--copper-500:#EE7C2B;
+  --copper-400:#F3A164;--copper-200:#F9D5B5;--copper-100:#FCE8D4;
+  --route-best:#EE7C2B;--route-alt1:#4D8470;--route-alt2:#6B7B8F;
+  --wx-storm:#5E3FAE;--wx-storm-tint:#E3DCF2;
+  --status-warning:#C46F1B;--status-warning-tint:#F8E0C3;
+  --status-error:#C9423C;--status-error-tint:#F5D8D6;
+  --font-opinion:'Newsreader',Georgia,serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+
+  --surface-primary:var(--paper-100);--surface-card:var(--paper-50);--surface-inset:var(--paper-200);
+  --surface-overlay:rgba(253,251,248,0.92);--surface-glass:rgba(253,251,248,0.72);
+  --surface-scrim:rgba(34,24,16,0.35);
+  --map-paper:var(--paper-150);--map-contour:rgba(73,69,79,0.22);--map-contour-faint:rgba(73,69,79,0.10);
+  --content-primary:var(--ink-900);--content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300);--content-subtle:var(--ink-200);--content-onSignal:#FFF;
+  --signal-default:var(--copper-500);--signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200);--signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400);--border-subtle:var(--paper-300);--border-strong:var(--paper-500);
+  --border-focus:var(--copper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+}
+body { background: var(--surface-primary); color: var(--content-primary); }
+.mode-dark {
+  --surface-primary:var(--ink-800);--surface-card:var(--ink-700);--surface-inset:var(--ink-600);
+  --surface-overlay:rgba(45,34,24,0.92);--surface-glass:rgba(45,34,24,0.72);
+  --surface-scrim:rgba(10,6,3,0.50);--map-paper:#1B140E;
+  --map-contour:rgba(242,238,232,0.16);--map-contour-faint:rgba(242,238,232,0.07);
+  --content-primary:var(--ink-050);--content-secondary:var(--ink-100);
+  --content-tertiary:var(--ink-200);--content-subtle:var(--ink-300);
+  --border-default:rgba(242,238,232,0.12);--border-subtle:rgba(242,238,232,0.07);
+  --border-strong:rgba(242,238,232,0.22);
+  --elev-overlay:0 8px 24px rgba(0,0,0,0.42),0 2px 6px rgba(0,0,0,0.28);
+  --elev-chrome:0 1px 3px rgba(0,0,0,0.24),0 4px 14px rgba(0,0,0,0.28);
+}
+
+/* TYPOGRAPHY */
+.t-opinion-xl{font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em;}
+.t-opinion-lg{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em;}
+.t-opinion-md{font-family:var(--font-opinion);font-weight:400;font-size:17px;line-height:1.32;}
+.t-title-md{font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em;}
+.t-body-md{font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52;}
+.t-body-sm{font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48;}
+.t-label-md{font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase;}
+.t-label-sm{font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase;}
+.t-instr-sm{font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1;}
+
+/* DOC CHROME */
+body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden;}
+.wrap{max-width:1440px;margin:0 auto;padding:0 72px;}
+.doc-header{position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden;}
+.doc-header::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(196,111,27,0.10),transparent 44%),radial-gradient(circle at 92% 12%,rgba(201,66,60,0.06),transparent 50%);pointer-events:none;}
+.doc-header>*{position:relative;z-index:1;}
+.doc-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--status-warning);margin-bottom:28px;}
+.doc-eyebrow::before{content:"";width:28px;height:1px;background:var(--status-warning);}
+.doc-eyebrow-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--status-warning);color:var(--status-warning);background:var(--status-warning-tint);font-size:9.5px;letter-spacing:0.14em;}
+.doc-title{font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px;}
+.doc-title em{font-style:italic;color:var(--status-warning);font-weight:400;}
+.doc-tagline{font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px;}
+.doc-meta-row{display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default);}
+.meta-item{display:flex;flex-direction:column;gap:6px;}
+.meta-label{font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);}
+.meta-value{font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary);}
+
+.section{padding:96px 0;border-bottom:1px solid var(--border-default);position:relative;}
+.section:last-child{border-bottom:none;}
+.section-header{display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px;}
+.section-index{font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--status-warning);text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+.section-index::before{content:"";display:block;width:48px;height:1px;background:var(--status-warning);}
+.section-title{font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px;}
+.section-title em{font-style:italic;color:var(--status-warning);font-weight:400;}
+.prose{font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px;}
+.prose+.prose{margin-top:20px;}
+.prose em{font-style:italic;}
+.prose strong{font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--status-warning);display:inline-block;padding:2px 8px;background:var(--status-warning-tint);border:1px solid rgba(196,111,27,0.25);border-radius:4px;margin:0 2px;}
+
+.screens-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:56px 40px;align-items:start;padding-left:152px;}
+.screens-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.screen-cell{display:flex;flex-direction:column;gap:22px;}
+.screen-annotation{display:flex;flex-direction:column;gap:8px;max-width:280px;}
+.screen-num{font-family:var(--font-instrument);font-size:10.5px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--status-warning);}
+.screen-name{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.2;letter-spacing:-0.015em;color:var(--content-primary);}
+.screen-desc{font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:14px;line-height:1.6;color:var(--content-secondary);}
+.ac-cite{font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px;}
+.ac-cite::before{content:"☐";position:absolute;left:0;top:0;color:var(--border-strong);}
+
+/* PHONE FRAME */
+.phone-frame{width:100%;max-width:282px;margin:0 auto;aspect-ratio:9/19.5;position:relative;border-radius:44px;background:#0F0A07;box-shadow:inset 0 0 0 1px #2A1F16,inset 0 0 0 2.5px #0F0A07,0 30px 70px -16px rgba(34,24,16,0.38),0 10px 24px -10px rgba(34,24,16,0.22);overflow:hidden;}
+.phone-screen{position:absolute;inset:3px;border-radius:41px;overflow:hidden;display:flex;flex-direction:column;background:var(--surface-primary);color:var(--content-primary);isolation:isolate;}
+.phone-di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:96px;height:26px;background:#000;border-radius:14px;z-index:60;}
+.phone-sb{display:flex;justify-content:space-between;align-items:center;padding:46px 22px 0;flex-shrink:0;z-index:10;position:relative;}
+.phone-sb .sb-time{font-family:var(--font-instrument);font-size:12px;font-weight:600;letter-spacing:-0.02em;color:var(--content-primary);}
+.phone-sb .sb-icons{display:flex;gap:5px;align-items:center;color:var(--content-primary);}
+.phone-hi{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:108px;height:4px;border-radius:3px;z-index:60;background:rgba(0,0,0,0.38);}
+.mode-dark .phone-hi{background:rgba(255,255,255,0.30);}
+
+/* PAPER MAP */
+.pmap{position:absolute;inset:0;background:var(--map-paper);overflow:hidden;z-index:0;}
+.pmap::before{content:"";position:absolute;inset:-8px;background-image:linear-gradient(var(--map-contour-faint) 1px,transparent 1px),linear-gradient(90deg,var(--map-contour-faint) 1px,transparent 1px);background-size:28px 28px;opacity:0.55;pointer-events:none;}
+.pmap::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 60% at 50% 30%,transparent 40%,rgba(34,24,16,0.08) 100%);pointer-events:none;}
+.mode-dark .pmap::after{background:radial-gradient(120% 60% at 50% 30%,transparent 40%,rgba(0,0,0,0.40) 100%);}
+.pmap-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+
+/* CHROME */
+.ls-topbar{position:absolute;top:46px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:14px 14px 0;z-index:30;}
+/* FIX 2026-04-20: chrome-chip base border-radius 12px → 14px (radius.lg) per LSGlassPanel.chrome spec */
+.chrome-chip{background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);box-shadow:var(--elev-chrome);backdrop-filter:blur(14px) saturate(1.2);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--content-primary);}
+.mode-dark .chrome-chip{border-color:rgba(242,238,232,0.12);}
+.chrome-chip.circular{width:40px;height:40px;border-radius:50%;}
+.chrome-chip.pill{padding:0 14px;height:40px;border-radius:22px;display:flex;align-items:center;gap:6px;}
+
+/* ═══════════ INLINE ERROR CALLOUT ═══════════ */
+.err-callout{position:absolute;top:108px;left:14px;right:14px;z-index:20;background:var(--surface-glass);border:1px solid rgba(196,111,27,0.24);border-top:2px solid var(--status-warning);backdrop-filter:blur(16px) saturate(1.2);border-radius:14px;padding:14px 14px 12px;box-shadow:var(--elev-overlay);}
+.err-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;}
+.err-compass{width:26px;height:26px;border-radius:50%;background:var(--status-warning-tint);border:1px solid rgba(196,111,27,0.3);display:flex;align-items:center;justify-content:center;color:var(--status-warning);flex-shrink:0;}
+.err-head-text{flex:1;}
+.err-head-label{font-family:var(--font-ui);font-size:8.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--status-warning);margin-bottom:4px;display:flex;align-items:center;gap:5px;}
+.err-head-label::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--status-warning);}
+.err-head-body{font-family:var(--font-opinion);font-weight:400;font-size:15px;line-height:1.42;color:var(--content-primary);letter-spacing:-0.01em;}
+/* FIX 2026-04-20: err-detail font-size 11.5px → 12px (ui.body.md) per uc-tok-01; 11.5px is off-scale */
+.err-detail{font-family:var(--font-ui);font-size:12px;line-height:1.5;color:var(--content-secondary);margin:8px 0 0;}
+
+.err-suggestions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px dashed rgba(196,111,27,0.22);}
+/* FIX 2026-04-20: err-sugg-chip font-size 11px → 10.5px (ui.body.sm) per uc-tok-01; min-height 32px (sizing.pill.md) */
+.err-sugg-chip{padding:8px 12px;min-height:32px;display:inline-flex;align-items:center;background:var(--surface-card);border:1px solid var(--border-default);border-radius:999px;font-family:var(--font-ui);font-size:10.5px;font-weight:500;color:var(--content-primary);box-shadow:var(--elev-chrome);}
+.err-sugg-chip.primary{background:var(--status-warning-tint);border-color:rgba(196,111,27,0.4);color:var(--status-warning);font-weight:600;}
+
+/* CHAT INPUT */
+.ls-chatinput-anchor{position:absolute;bottom:16px;left:12px;right:12px;z-index:40;}
+/* FIX 2026-04-20: border-radius 18px → 20px (radius.xl) per uc-tok-03 spec */
+.ls-chatinput{height:54px;background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);backdrop-filter:blur(14px) saturate(1.2);border-radius:20px;display:flex;align-items:center;padding:0 6px 0 14px;gap:10px;box-shadow:var(--elev-chrome);}
+.mode-dark .ls-chatinput{border-color:rgba(242,238,232,0.12);}
+.chat-icon-btn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--content-secondary);flex-shrink:0;}
+/* FIX 2026-04-20: font-size 12.5px → 14px (ui.body.lg) per uc-tok-01 LSChatInput spec */
+.chat-field{flex:1;font-family:var(--font-ui);font-size:14px;font-weight:400;color:var(--content-tertiary);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.chat-field.has-value{color:var(--content-primary);font-weight:500;}
+.chat-send-btn{width:42px;height:42px;background:var(--signal-default);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#FFF;flex-shrink:0;box-shadow:0 2px 8px rgba(238,124,43,0.38);}
+.chat-filter-btn{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--content-secondary);flex-shrink:0;}
+
+/* Broken polyline indicator */
+.broken-line{fill:none;stroke:var(--status-error);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:4 6;opacity:0.75;}
+.broken-mark{position:absolute;width:20px;height:20px;background:var(--status-error-tint);border:1.5px solid var(--status-error);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--status-error);font-family:var(--font-ui);font-size:11px;font-weight:700;z-index:4;}
+
+/* §04–§06 */
+.cmp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-left:152px;}
+.cmp-card{background:var(--surface-card);border:1px solid var(--border-default);border-radius:12px;padding:20px 22px;}
+.cmp-tier-label{font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;color:var(--status-warning);text-transform:uppercase;margin-bottom:14px;display:block;}
+.cmp-item{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.cmp-item:last-child{border-bottom:none;}
+.cmp-name{font-family:var(--font-ui);font-weight:600;font-size:13px;color:var(--content-primary);margin-bottom:4px;}
+.cmp-ref{font-family:var(--font-instrument);font-size:10px;color:var(--content-tertiary);line-height:1.4;}
+.motion-table{padding-left:152px;display:grid;grid-template-columns:160px 1fr 2fr;row-gap:14px;column-gap:28px;font-family:var(--font-ui);font-size:13px;}
+.motion-table>div{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.motion-recipe{font-family:var(--font-instrument);color:var(--status-warning);font-size:11.5px;}
+.motion-trigger{color:var(--content-primary);font-weight:500;}
+.motion-effect{color:var(--content-secondary);}
+.rationale-grid{padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+.rationale-block h4{font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--status-warning);margin-bottom:14px;}
+.rationale-block p{font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px;}
+.rationale-block ul{list-style:none;}
+.rationale-block li{padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle);}
+.rationale-block li::before{content:"→";position:absolute;left:0;top:8px;color:var(--status-warning);font-family:var(--font-instrument);}
+.rationale-block li strong{font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px;}
+.doc-footer{padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;}
+.footer-mark{font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;color:var(--content-primary);letter-spacing:-0.02em;}
+.footer-mark em{font-style:italic;color:var(--status-warning);font-weight:400;}
+.footer-mark span{display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300;}
+.footer-note{font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-SCR-06</span><span class="doc-eyebrow-pill">● Screens · Template</span></div>
+    <h1 class="doc-title">Couldn't<br><em>stitch</em> that one.</h1>
+    <p class="doc-tagline">
+      The Navigator owns its failures. A warn-stripe callout names what broke,
+      offers two recoveries as suggestion chips, and keeps the chat input
+      open so the rider can rewrite the ask themselves.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-SCR-06</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">08-uc-scr.md</div></div>
+      <div class="meta-item"><div class="meta-label">Surface</div><div class="meta-value">Light (+ dark)</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper · warn</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Failure as a <em>conversation</em>, not a <em>dead end</em>.</h2>
+    </div>
+    <p class="prose">
+      ErrorScreen is the Navigator's humility surface. When the planner
+      can't produce a route that meets the rider's constraints — a segment
+      was broken, an endpoint was unreachable, a network call timed out,
+      a safety rule tripped — the screen doesn't blank out or modal-slam.
+      It drops an inline callout where the Navigator message would
+      normally sit, explains <em>what went wrong in plain Newsreader
+      prose</em>, and offers <strong>two</strong> suggestion chips the
+      rider can tap to try an adjusted version of the same ask.
+    </p>
+    <p class="prose">
+      The distinction between this screen and an error toast is structural:
+      toasts auto-dismiss; this callout stays. It uses the same
+      LSGlassPanel callout chassis as UC-SCR-03's NavigatorMessage — same
+      compass chip, same label row, same opinion-serif body — but swaps
+      the top-stripe from signal-copper to status-warning, and the compass
+      chip to a warning tint. Visual continuity is <em>on purpose</em>:
+      the Navigator is still speaking, just honestly.
+    </p>
+    <p class="prose">
+      The chat input remains fully active and primed with a recovery
+      placeholder ("Try again, or let me know what to change…"). The
+      rider always has three doors out: (1) tap a suggestion chip,
+      (2) rewrite the prompt in the input, or (3) tap the map to dismiss
+      the callout and pan back to Idle.
+    </p>
+  </section>
+</div>
+
+<!-- §02 SCREENS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · Screens</div>
+      <h2 class="section-title">Broken stitch, <em>network</em>, <em>timeout</em>, dark.</h2>
+    </div>
+    <div class="screens-grid">
+
+      <!-- S01 · DEFAULT — broken-segment error -->
+      <div class="screen-cell" id="uc-scr-06-s01-broken">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 210 C 60 180, 120 250, 180 210 S 260 230, 320 190"/>
+                  <path d="M -20 280 C 50 250, 120 320, 180 280 S 260 310, 320 270"/>
+                  <path d="M -20 360 C 50 340, 110 390, 180 360 S 260 390, 320 350"/>
+                </g>
+                <!-- attempted polyline with a break -->
+                <g fill="none">
+                  <path d="M 30 320 C 60 280, 90 300, 120 290" stroke="var(--status-error)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 6" opacity="0.75"/>
+                  <path d="M 160 280 C 200 300, 230 280, 250 260" stroke="var(--status-error)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 6" opacity="0.6"/>
+                </g>
+              </svg>
+              <div style="position:absolute;left:10%;top:60%;width:11px;height:11px;border-radius:50%;background:var(--signal-default);border:2.5px solid var(--surface-card);z-index:4;"></div>
+              <!-- broken mark at gap -->
+              <div class="broken-mark" style="left:48%;top:48%;">!</div>
+              <div style="position:absolute;left:87%;top:45%;width:18px;height:18px;border-radius:50%;background:var(--surface-card);border:2.5px solid var(--signal-default);z-index:4;display:flex;align-items:center;justify-content:center;"><div style="width:6px;height:6px;border-radius:50%;background:var(--signal-default);"></div></div>
+            </div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <!-- Error callout -->
+            <div class="err-callout">
+              <div class="err-head">
+                <div class="err-compass"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div class="err-head-text">
+                  <div class="err-head-label">The Navigator</div>
+                  <div class="err-head-body">Couldn't stitch that one together — the segment through Lucia looked broken.</div>
+                </div>
+              </div>
+              <div class="err-detail">Try a different end point, or let me route you inland via Carmel Valley Rd instead?</div>
+              <div class="err-suggestions">
+                <div class="err-sugg-chip primary">Try inland</div>
+                <div class="err-sugg-chip primary">End at Big Sur</div>
+                <div class="err-sugg-chip">Rewrite the ask</div>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field">Try again, or let me know what to change…</div>
+                <div class="chat-filter-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:46</div><div class="sb-icons"><svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S01 · Broken segment</div>
+          <div class="screen-name">Lucia <em class="opinion-ital">broken</em> — inland or Big Sur</div>
+          <div class="screen-desc">
+            Default error state. Warn-stripe callout with compass + "THE NAVIGATOR" label + opinion-serif body + muted detail line + two primary suggestion chips + one tertiary "Rewrite the ask". Map shows the attempted polyline with a red broken-mark at the failed gap.
+          </div>
+          <div class="ac-cite">LSInlineErrorCallout with warn-stripe, compass chip, label, body, detail, suggestions.</div>
+          <div class="ac-cite">Suggestion chip tap fires onSuggestionTap once.</div>
+        </div>
+      </div>
+
+      <!-- S02 · NETWORK TIMEOUT -->
+      <div class="screen-cell" id="uc-scr-06-s02-network">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 280 C 50 250, 120 320, 180 280 S 260 310, 320 270"/>
+                  <path d="M -20 410 C 60 380, 120 440, 180 410 S 260 430, 320 380"/>
+                </g>
+              </svg>
+              <!-- disconnected wifi glyph watermark -->
+              <div style="position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:70px;height:70px;opacity:0.25;color:var(--status-warning);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 8 C 8 4, 16 4, 21 8"/><path d="M5 12 C 8 10, 16 10, 19 12" stroke-dasharray="1.5 2"/><path d="M7 15 C 9 14, 15 14, 17 15" stroke-dasharray="1 2"/><circle cx="12" cy="18" r="1.5" fill="currentColor"/><line x1="3" y1="3" x2="21" y2="21"/></svg></div>
+            </div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <div class="err-callout">
+              <div class="err-head">
+                <div class="err-compass"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div class="err-head-text">
+                  <div class="err-head-label">The Navigator</div>
+                  <div class="err-head-body">I lost the signal mid-thought. Let's try that again when you're back on data.</div>
+                </div>
+              </div>
+              <div class="err-detail">You're offline. Suggestions below are drawn from your last 14 days of rides.</div>
+              <div class="err-suggestions">
+                <div class="err-sugg-chip primary">Retry when online</div>
+                <div class="err-sugg-chip">Santa Cruz loop (recent)</div>
+                <div class="err-sugg-chip">Coast after dark (recent)</div>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput" style="opacity:0.7;">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field">Offline — reconnect to try again…</div>
+                <div class="chat-filter-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:46</div><div class="sb-icons"><svg width="16" height="10" viewBox="0 0 16 10" opacity="0.5"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg><svg width="14" height="10" viewBox="0 0 14 10" opacity="0.35"><path d="M1 5 C 3 2, 11 2, 13 5 M3 6 C 4 4, 10 4, 11 6" stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"/><line x1="1" y1="1" x2="13" y2="9" stroke="currentColor" stroke-width="1"/></svg><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S02 · Offline</div>
+          <div class="screen-name">Connection <em class="opinion-ital">lost</em></div>
+          <div class="screen-desc">
+            Watermark glyph makes the network state legible. Suggestions include a retry CTA + two cached recent sessions the rider can open without network. Chat input dims.
+          </div>
+        </div>
+      </div>
+
+      <!-- S03 · CONSTRAINT IMPOSSIBLE -->
+      <div class="screen-cell" id="uc-scr-06-s03-impossible">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 280 C 50 250, 120 320, 180 280 S 260 310, 320 270"/>
+                </g>
+                <!-- crossed-through attempted route -->
+                <path d="M 30 320 C 60 280, 120 260, 180 270 S 240 300, 250 320" fill="none" stroke="var(--content-subtle)" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+                <g stroke="var(--status-error)" stroke-width="2" stroke-linecap="round">
+                  <line x1="100" y1="255" x2="170" y2="325"/>
+                  <line x1="170" y1="255" x2="100" y2="325"/>
+                </g>
+              </svg>
+              <div style="position:absolute;left:10%;top:60%;width:11px;height:11px;border-radius:50%;background:var(--signal-default);border:2.5px solid var(--surface-card);"></div>
+              <div style="position:absolute;left:87%;top:60%;width:18px;height:18px;border-radius:50%;background:var(--surface-card);border:2.5px solid var(--signal-default);display:flex;align-items:center;justify-content:center;"><div style="width:6px;height:6px;border-radius:50%;background:var(--signal-default);"></div></div>
+            </div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <div class="err-callout">
+              <div class="err-head">
+                <div class="err-compass"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div class="err-head-text">
+                  <div class="err-head-label">The Navigator</div>
+                  <div class="err-head-body">30 miles and no highways between here and Big Sur? The geography says no.</div>
+                </div>
+              </div>
+              <div class="err-detail">The route you asked for would require teleportation. One of these should loosen it:</div>
+              <div class="err-suggestions">
+                <div class="err-sugg-chip primary">Allow Hwy 1</div>
+                <div class="err-sugg-chip primary">Closer end point</div>
+                <div class="err-sugg-chip">Open 100 miles</div>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field">Try again, or let me know what to change…</div>
+                <div class="chat-filter-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:46</div><div class="sb-icons"><svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S03 · Impossible constraint</div>
+          <div class="screen-name">The ask <em class="opinion-ital">breaks physics</em></div>
+          <div class="screen-desc">
+            When the rider's constraints cannot be satisfied (e.g., distance &lt; minimum viable between endpoints), the Navigator states the contradiction directly. Suggestions are constraint relaxations, ordered by minimum impact.
+          </div>
+        </div>
+      </div>
+
+      <!-- S04 · DARK MODE (safety-gate error) -->
+      <div class="screen-cell" id="uc-scr-06-s04-dark">
+        <div class="phone-frame">
+          <div class="phone-screen mode-dark">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 280 C 50 250, 120 320, 180 280 S 260 310, 320 270"/>
+                </g>
+                <!-- storm hatching -->
+                <g stroke="var(--wx-storm)" stroke-width="0.6" opacity="0.55">
+                  <line x1="30" y1="40" x2="25" y2="60"/>
+                  <line x1="80" y1="30" x2="75" y2="50"/>
+                  <line x1="140" y1="50" x2="135" y2="70"/>
+                  <line x1="200" y1="40" x2="195" y2="60"/>
+                  <line x1="60" y1="130" x2="55" y2="150"/>
+                  <line x1="170" y1="110" x2="165" y2="130"/>
+                  <line x1="100" y1="220" x2="95" y2="240"/>
+                  <line x1="220" y1="200" x2="215" y2="220"/>
+                  <line x1="40" y1="310" x2="35" y2="330"/>
+                  <line x1="200" y1="340" x2="195" y2="360"/>
+                </g>
+              </svg>
+            </div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <div class="err-callout" style="border-top-color:var(--wx-storm);border-color:rgba(94,63,174,0.3);">
+              <div class="err-head">
+                <div class="err-compass" style="background:var(--wx-storm-tint);border-color:rgba(94,63,174,0.35);color:var(--wx-storm);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div class="err-head-text">
+                  <div class="err-head-label" style="color:var(--wx-storm);"><span style="background:var(--wx-storm);"></span>The Navigator</div>
+                  <div class="err-head-body">Thunderstorm across the entire region. I won't plan a ride through that.</div>
+                </div>
+              </div>
+              <div class="err-detail">The safety gate blocked every candidate. Weather clears after midnight — I can hold the ask until then.</div>
+              <div class="err-suggestions">
+                <div class="err-sugg-chip primary" style="background:var(--wx-storm-tint);border-color:rgba(94,63,174,0.4);color:var(--wx-storm);">Remind me at midnight</div>
+                <div class="err-sugg-chip primary" style="background:var(--wx-storm-tint);border-color:rgba(94,63,174,0.4);color:var(--wx-storm);">Ride tomorrow</div>
+                <div class="err-sugg-chip">Something indoors</div>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field">Try again, or let me know what to change…</div>
+                <div class="chat-filter-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">8:18 PM</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S04 · Dark · Safety gate</div>
+          <div class="screen-name">Storm blocks the region</div>
+          <div class="screen-desc">
+            Dark-mode variant with the safety-gate accent in storm-purple instead of warning-copper. The callout's top stripe and compass adopt the condition color. Suggestions shift to temporal recoveries ("midnight", "tomorrow").
+          </div>
+          <div class="ac-cite">Light/dark re-renders warn stripe, glass chrome, suggestion chips.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES & VARIANTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States &amp; Variants</div>
+      <h2 class="section-title">Suggestion <em>tapped</em>, long detail, partial.</h2>
+    </div>
+    <div class="screens-grid cols-3">
+
+      <!-- V01 · SUGGESTION TAPPED -->
+      <div class="screen-cell" id="uc-scr-06-v01-sugg-tapped">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"><svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none"><path d="M -20 280 C 50 250, 120 320, 180 280 S 260 310, 320 270"/></g></svg></div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+            <div class="err-callout" style="opacity:0.55;">
+              <div class="err-head">
+                <div class="err-compass"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div class="err-head-text">
+                  <div class="err-head-label">The Navigator</div>
+                  <div class="err-head-body">Couldn't stitch that one together.</div>
+                </div>
+              </div>
+              <div class="err-suggestions">
+                <div class="err-sugg-chip primary">Try inland</div>
+              </div>
+            </div>
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field has-value">Plan inland alternative<span style="display:inline-block;width:1.5px;height:14px;background:var(--signal-default);margin-left:1px;vertical-align:text-bottom;"></span></div>
+                <div class="chat-send-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12l14-7-5 7 5 7z"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:46</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V01 · Suggestion tapped</div>
+          <div class="screen-name">Chip primed the input</div>
+          <div class="screen-desc">
+            Tapping "Try inland" primed the chat field with an adjusted prompt and swapped trailing to send. The callout fades to 55% as the screen prepares to transition back to PlanningScreen.
+          </div>
+        </div>
+      </div>
+
+      <!-- V02 · LONG DETAIL -->
+      <div class="screen-cell" id="uc-scr-06-v02-long-detail">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"><svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none"><path d="M -20 280 C 50 250, 120 320, 180 280 S 260 310, 320 270"/></g></svg></div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+            <div class="err-callout">
+              <div class="err-head">
+                <div class="err-compass"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div class="err-head-text">
+                  <div class="err-head-label">The Navigator</div>
+                  <div class="err-head-body">Couldn't route a loop that stays under 40 minutes and still touches the coast — you're 52 miles from Hwy 1.</div>
+                </div>
+              </div>
+              <div class="err-detail">I tried three shapes: a tight coastal-only loop, a start-side detour, and a bluff overlook. Each needed at least 55 minutes one-way. If you can flex the time limit to an hour I have a 58-minute coastal version ready.</div>
+              <div class="err-suggestions">
+                <div class="err-sugg-chip primary">Flex to 60 min</div>
+                <div class="err-sugg-chip primary">Skip the coast</div>
+                <div class="err-sugg-chip">Rewrite</div>
+              </div>
+            </div>
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field">Try again, or let me know what to change…</div>
+                <div class="chat-filter-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:46</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V02 · Long detail</div>
+          <div class="screen-name">The Navigator <em class="opinion-ital">shows its work</em></div>
+          <div class="screen-desc">
+            When it helps the rider, the detail line expands into three-sentence reasoning. Body and detail remain typographically distinct (opinion-serif body, sans detail). Suggestions remain two primaries + a tertiary rewrite.
+          </div>
+        </div>
+      </div>
+
+      <!-- V03 · NO SUGGESTIONS (generic failure) -->
+      <div class="screen-cell" id="uc-scr-06-v03-no-suggestions">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"><svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none"><path d="M -20 280 C 50 250, 120 320, 180 280 S 260 310, 320 270"/></g></svg></div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+            <div class="err-callout">
+              <div class="err-head">
+                <div class="err-compass"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div class="err-head-text">
+                  <div class="err-head-label">The Navigator</div>
+                  <div class="err-head-body">Something went wrong on my end. I don't have a good suggestion this time.</div>
+                </div>
+              </div>
+              <div class="err-detail">Please rewrite the ask — a slightly different prompt usually works.</div>
+            </div>
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field">Try again, or let me know what to change…</div>
+                <div class="chat-filter-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:46</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V03 · No suggestions</div>
+          <div class="screen-name">Generic failure, honest copy</div>
+          <div class="screen-desc">
+            When the system can't generate recovery suggestions, the callout says so plainly. No chips appear. The chat input remains the only recovery path; the rider is trusted to rephrase.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §04 COMPONENTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Components</div>
+      <h2 class="section-title">One organism, a <em>warning stripe</em>, three doors.</h2>
+    </div>
+    <div class="cmp-grid">
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Atoms · ATM</div>
+        <div class="cmp-item"><div class="cmp-name">LSMap</div><div class="cmp-ref">mode: .preview<br>no polylines · camera at region</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSGlassPanel</div><div class="cmp-ref">.callout(accent: .warning)<br>2px top stripe · status-warning</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSIcon</div><div class="cmp-ref">compass · alert · wifi-off<br>storm · retry</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Molecules · MOL</div>
+        <div class="cmp-item"><div class="cmp-name">LSSuggestionChip</div><div class="cmp-ref">UC-MOL-05 · primary vs tertiary variants<br>copper-whisper vs plain</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSChatInput</div><div class="cmp-ref">UC-MOL-06 · recovery placeholder<br>dimmed when offline</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Organisms · ORG</div>
+        <div class="cmp-item"><div class="cmp-name">LSInlineErrorCallout</div><div class="cmp-ref">UC-ORG-03 · primary<br>compass + label + body + detail + chips</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSMapLayer</div><div class="cmp-ref">UC-ORG-02<br>topOverlays: [errorCallout]<br>bottomOverlays: [chatInput]</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSTopBar</div><div class="cmp-ref">UC-ORG-01 · hamburger + NEW</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Tokens consumed</div>
+        <div class="cmp-item"><div class="cmp-name">color.status.warning</div><div class="cmp-ref">callout top stripe<br>primary chip accent</div></div>
+        <div class="cmp-item"><div class="cmp-name">color.status.error</div><div class="cmp-ref">broken-segment marker · crossed X</div></div>
+        <div class="cmp-item"><div class="cmp-name">color.weather.storm</div><div class="cmp-ref">safety-gate variant (S04)</div></div>
+        <div class="cmp-item"><div class="cmp-name">typography.*</div><div class="cmp-ref">opinion.md body · ui.body.sm detail<br>ui.label.sm chips</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Callout lands, <em>suggestion primes</em>, return.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="motion-recipe">chatOverlayEnter</div>
+      <div class="motion-trigger">Error state enters</div>
+      <div class="motion-effect">Callout translateY −20 → 0, opacity 0 → 1, 300ms ease-out. Chat input remains mounted.</div>
+
+      <div class="motion-recipe">— (chip prime)</div>
+      <div class="motion-trigger">Suggestion chip tap</div>
+      <div class="motion-effect">Chat field populated with the chip's adjusted prompt; trailing swaps to send; callout fades to 55% as screen prepares to transition.</div>
+
+      <div class="motion-recipe">— (callout dismiss)</div>
+      <div class="motion-trigger">Map tap outside overlays</div>
+      <div class="motion-effect">Callout dismisses 200ms linear; chat input returns to plain placeholder; screen is now Idle.</div>
+
+      <div class="motion-recipe">— (retry online)</div>
+      <div class="motion-trigger">Network restored</div>
+      <div class="motion-effect">Offline variant swaps automatically: watermark fades, sb-icons restore full alpha, chip set updates, placeholder refreshes.</div>
+
+      <div class="motion-recipe">mapTapDismiss</div>
+      <div class="motion-trigger">Tap on map</div>
+      <div class="motion-effect">150ms linear; overlays fade; screen returns to Idle.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Why <em>warn</em>, not <em>error</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design principles honored</h4>
+        <p>
+          The screen uses <em>warning</em> (copper) as the primary accent —
+          not <em>error</em> (red). A failed plan is not a broken app;
+          it's a conversation that didn't quite land. Warning keeps the
+          Navigator's voice intact. Error-red is reserved for the map's
+          broken-segment markers and crossed-out attempted paths, where
+          the point is <em>spatial</em>: <em>this specific edge cannot be
+          traversed</em>, not <em>the app is sorry</em>.
+        </p>
+        <p>
+          Suggestion chips are opinions, not form fields. Two primary
+          suggestions (warning-tinted) are the Navigator's best guesses at
+          what to try next; a third tertiary "Rewrite the ask" is the escape
+          hatch that always exists. This three-way structure keeps the
+          rider from feeling cornered.
+        </p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC traceability</h4>
+        <ul>
+          <li><strong>AC-01</strong> LSInlineErrorCallout with warn stripe + compass chip + THE NAVIGATOR label + opinion body + detail + two primary chips — S01.</li>
+          <li><strong>AC-02</strong> iOS + Android identical.</li>
+          <li><strong>AC-03</strong> Suggestion tap fires onSuggestionTap exactly once — V01.</li>
+          <li><strong>AC-04</strong> Chat input remains usable; typing swaps trailing icon.</li>
+          <li><strong>AC-05</strong> Light/dark re-renders warn stripe, glass chrome, chips — S04.</li>
+          <li><strong>AC-06</strong> ErrorMockProvider injects error + suggestions.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">Lane<em>Shadow</em><span>V2 · Copper · UC-SCR-06</span></div>
+    <div class="footer-note">
+      A machine that cannot say <em>"I couldn't"</em><br>
+      will eventually say something <em>worse</em>.
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

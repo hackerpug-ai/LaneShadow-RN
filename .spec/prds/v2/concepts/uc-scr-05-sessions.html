@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<!-- uc-scr-05-sessions.html — UC-SCR-05 "SessionsScreen"
+     LaneShadow V2 · Copper · Navigator Design Mock · 2026-04-20
+     Surface: LIGHT (+ dark variant)
+     Authority: concepts/designs.html · 08-uc-scr.md §UC-SCR-05 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-SCR-05 — SessionsScreen — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --paper-50:#FDFBF8;--paper-100:#F8F7F6;--paper-150:#F5F2EE;--paper-200:#F2EFED;
+  --paper-300:#EDE7E1;--paper-400:#E5DED9;--paper-500:#C9BDB3;
+  --ink-900:#1E1A16;--ink-800:#221810;--ink-700:#2D2218;--ink-600:#362A1F;
+  --ink-500:#3D3228;--ink-400:#49454F;--ink-300:#6B6460;--ink-200:#9CA3AF;
+  --ink-100:#CAC4D0;--ink-050:#F2EEE8;
+  --copper-700:#9E4A22;--copper-600:#B85A2C;--copper-500:#EE7C2B;
+  --copper-400:#F3A164;--copper-200:#F9D5B5;--copper-100:#FCE8D4;
+  --route-best:#EE7C2B;--route-alt1:#4D8470;--route-alt2:#6B7B8F;
+  --status-warning:#C46F1B;
+  --font-opinion:'Newsreader',Georgia,serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+
+  --surface-primary:var(--paper-100);--surface-card:var(--paper-50);--surface-inset:var(--paper-200);
+  --surface-overlay:rgba(253,251,248,0.92);--surface-glass:rgba(253,251,248,0.88);
+  --surface-scrim:rgba(34,24,16,0.35);
+  --map-paper:var(--paper-150);--map-contour:rgba(73,69,79,0.22);--map-contour-faint:rgba(73,69,79,0.10);
+  --content-primary:var(--ink-900);--content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300);--content-subtle:var(--ink-200);--content-onSignal:#FFF;
+  --signal-default:var(--copper-500);--signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200);--signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400);--border-subtle:var(--paper-300);--border-strong:var(--paper-500);
+  --border-focus:var(--copper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+  --elev-drawer:2px 0 16px rgba(34,24,16,0.14);
+}
+body { background: var(--surface-primary); color: var(--content-primary); }
+.mode-dark {
+  --surface-primary:var(--ink-800);--surface-card:var(--ink-700);--surface-inset:var(--ink-600);
+  --surface-overlay:rgba(45,34,24,0.92);--surface-glass:rgba(45,34,24,0.88);
+  --surface-scrim:rgba(10,6,3,0.50);--map-paper:#1B140E;
+  --map-contour:rgba(242,238,232,0.16);--map-contour-faint:rgba(242,238,232,0.07);
+  --content-primary:var(--ink-050);--content-secondary:var(--ink-100);
+  --content-tertiary:var(--ink-200);--content-subtle:var(--ink-300);
+  --border-default:rgba(242,238,232,0.12);--border-subtle:rgba(242,238,232,0.07);
+  --border-strong:rgba(242,238,232,0.22);
+  --elev-overlay:0 8px 24px rgba(0,0,0,0.42),0 2px 6px rgba(0,0,0,0.28);
+  --elev-drawer:2px 0 16px rgba(0,0,0,0.6);
+}
+
+/* TYPOGRAPHY */
+.t-opinion-xl{font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em;}
+.t-opinion-lg{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em;}
+.t-title-lg{font-family:var(--font-ui);font-weight:600;font-size:17px;line-height:1.24;letter-spacing:-0.01em;}
+.t-title-md{font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em;}
+.t-body-md{font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52;}
+.t-body-sm{font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48;}
+.t-label-md{font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase;}
+.t-label-sm{font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase;}
+.t-instr-sm{font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1;}
+.t-instr-xs{font-family:var(--font-instrument);font-weight:500;font-size:8.5px;line-height:1.0;font-feature-settings:"tnum" 1;}
+
+/* DOC CHROME */
+body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden;}
+.wrap{max-width:1440px;margin:0 auto;padding:0 72px;}
+.doc-header{position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden;}
+.doc-header::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none;}
+.doc-header>*{position:relative;z-index:1;}
+.doc-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px;}
+.doc-eyebrow::before{content:"";width:28px;height:1px;background:var(--signal-default);}
+.doc-eyebrow-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em;}
+.doc-title{font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px;}
+.doc-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.doc-tagline{font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px;}
+.doc-meta-row{display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default);}
+.meta-item{display:flex;flex-direction:column;gap:6px;}
+.meta-label{font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);}
+.meta-value{font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary);}
+
+.section{padding:96px 0;border-bottom:1px solid var(--border-default);position:relative;}
+.section:last-child{border-bottom:none;}
+.section-header{display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px;}
+.section-index{font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+.section-index::before{content:"";display:block;width:48px;height:1px;background:var(--signal-default);}
+.section-title{font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px;}
+.section-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.prose{font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px;}
+.prose+.prose{margin-top:20px;}
+.prose em{font-style:italic;}
+.prose strong{font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px;}
+
+.screens-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:56px 40px;align-items:start;padding-left:152px;}
+.screens-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.screen-cell{display:flex;flex-direction:column;gap:22px;}
+.screen-annotation{display:flex;flex-direction:column;gap:8px;max-width:280px;}
+.screen-num{font-family:var(--font-instrument);font-size:10.5px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);}
+.screen-name{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.2;letter-spacing:-0.015em;color:var(--content-primary);}
+.screen-desc{font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:14px;line-height:1.6;color:var(--content-secondary);}
+.ac-cite{font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px;}
+.ac-cite::before{content:"☐";position:absolute;left:0;top:0;color:var(--border-strong);}
+
+/* PHONE FRAME */
+.phone-frame{width:100%;max-width:282px;margin:0 auto;aspect-ratio:9/19.5;position:relative;border-radius:44px;background:#0F0A07;box-shadow:inset 0 0 0 1px #2A1F16,inset 0 0 0 2.5px #0F0A07,0 30px 70px -16px rgba(34,24,16,0.38),0 10px 24px -10px rgba(34,24,16,0.22);overflow:hidden;}
+.phone-screen{position:absolute;inset:3px;border-radius:41px;overflow:hidden;display:flex;flex-direction:column;background:var(--surface-primary);color:var(--content-primary);isolation:isolate;}
+.phone-di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:96px;height:26px;background:#000;border-radius:14px;z-index:60;}
+.phone-sb{display:flex;justify-content:space-between;align-items:center;padding:46px 22px 0;flex-shrink:0;z-index:10;position:relative;}
+.phone-sb .sb-time{font-family:var(--font-instrument);font-size:12px;font-weight:600;letter-spacing:-0.02em;color:var(--content-primary);}
+.phone-sb .sb-icons{display:flex;gap:5px;align-items:center;color:var(--content-primary);}
+.phone-hi{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:108px;height:4px;border-radius:3px;z-index:60;background:rgba(0,0,0,0.38);}
+.mode-dark .phone-hi{background:rgba(255,255,255,0.30);}
+
+/* PAPER MAP (dimmed) */
+.pmap{position:absolute;inset:0;background:var(--map-paper);overflow:hidden;z-index:0;}
+.pmap::before{content:"";position:absolute;inset:-8px;background-image:linear-gradient(var(--map-contour-faint) 1px,transparent 1px),linear-gradient(90deg,var(--map-contour-faint) 1px,transparent 1px);background-size:28px 28px;opacity:0.55;pointer-events:none;}
+.pmap-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+
+/* SCRIM */
+.map-scrim{position:absolute;inset:0;background:var(--surface-scrim);z-index:12;pointer-events:none;}
+
+/* ═══════════ SESSIONS DRAWER ═══════════ */
+.sessions-drawer{position:absolute;top:0;bottom:0;left:0;width:82%;background:var(--surface-card);border-right:1px solid var(--border-default);box-shadow:var(--elev-drawer);z-index:30;display:flex;flex-direction:column;}
+.sessions-drawer.peek{width:62%;}
+
+.drawer-status-bar{display:flex;justify-content:space-between;align-items:center;padding:46px 16px 0;flex-shrink:0;font-family:var(--font-instrument);font-size:12px;font-weight:600;color:var(--content-primary);}
+
+.drawer-header{display:flex;justify-content:space-between;align-items:center;padding:18px 16px 14px;flex-shrink:0;border-bottom:1px solid var(--border-subtle);}
+.drawer-title{font-family:var(--font-opinion);font-weight:400;font-size:28px;line-height:1;letter-spacing:-0.02em;color:var(--content-primary);}
+.drawer-title em{font-style:italic;color:var(--signal-default);}
+
+.btn-new-chip{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border-radius:10px;border:1px solid var(--signal-default);color:var(--signal-default);background:transparent;font-family:var(--font-ui);font-weight:600;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;}
+
+.section-label-row{padding:14px 16px 6px;display:flex;justify-content:space-between;align-items:baseline;}
+.section-label{font-family:var(--font-ui);font-size:8.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--content-tertiary);}
+.section-count{font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);}
+
+.session-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.session-row{position:relative;padding:12px 16px 12px 19px;border-bottom:1px solid var(--border-subtle);}
+.session-row.active{background:color-mix(in srgb, var(--surface-card) 94%, var(--signal-default));}
+.session-row.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--signal-default);}
+.session-row-title-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:3px;}
+.session-title{font-family:var(--font-ui);font-weight:600;font-size:13.5px;line-height:1.25;color:var(--content-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+.session-when{font-family:var(--font-instrument);font-size:9.5px;font-weight:500;color:var(--content-tertiary);white-space:nowrap;flex-shrink:0;font-feature-settings:"tnum" 1;}
+/* FIX 2026-04-20: session-preview font-size 12px → 14px (opinion.sm per uc-tok-01); 12px is off-scale for opinion family */
+.session-preview{font-family:var(--font-opinion);font-weight:300;font-style:italic;font-size:14px;line-height:1.4;color:var(--content-secondary);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;margin-bottom:5px;}
+.session-meta{display:flex;align-items:center;gap:7px;}
+.session-meta-chip{display:inline-flex;align-items:center;gap:3px;font-family:var(--font-ui);font-size:8px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--content-tertiary);}
+.session-row.active .session-meta-chip.primary{color:var(--signal-default);}
+.session-meta-sep{width:3px;height:3px;border-radius:50%;background:var(--border-strong);}
+
+/* Variant stripe swatch (mini) */
+.variant-dot{width:8px;height:2px;border-radius:1px;}
+.variant-dot.best{background:var(--route-best);}
+.variant-dot.alt1{background:var(--route-alt1);}
+.variant-dot.alt2{background:var(--route-alt2);}
+
+/* CHROME (when drawer doesn't cover all) */
+/* FIX 2026-04-20: chrome-chip base border-radius 12px → 14px (radius.lg) per LSGlassPanel.chrome spec */
+.chrome-chip{background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);box-shadow:var(--elev-chrome);backdrop-filter:blur(14px) saturate(1.2);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--content-primary);}
+.mode-dark .chrome-chip{border-color:rgba(242,238,232,0.12);}
+
+/* §04–§06 */
+.cmp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-left:152px;}
+.cmp-card{background:var(--surface-card);border:1px solid var(--border-default);border-radius:12px;padding:20px 22px;}
+.cmp-tier-label{font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;color:var(--signal-default);text-transform:uppercase;margin-bottom:14px;display:block;}
+.cmp-item{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.cmp-item:last-child{border-bottom:none;}
+.cmp-name{font-family:var(--font-ui);font-weight:600;font-size:13px;color:var(--content-primary);margin-bottom:4px;}
+.cmp-ref{font-family:var(--font-instrument);font-size:10px;color:var(--content-tertiary);line-height:1.4;}
+.motion-table{padding-left:152px;display:grid;grid-template-columns:160px 1fr 2fr;row-gap:14px;column-gap:28px;font-family:var(--font-ui);font-size:13px;}
+.motion-table>div{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.motion-recipe{font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px;}
+.motion-trigger{color:var(--content-primary);font-weight:500;}
+.motion-effect{color:var(--content-secondary);}
+.rationale-grid{padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+.rationale-block h4{font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px;}
+.rationale-block p{font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px;}
+.rationale-block ul{list-style:none;}
+.rationale-block li{padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle);}
+.rationale-block li::before{content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument);}
+.rationale-block li strong{font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px;}
+.doc-footer{padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;}
+.footer-mark{font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;color:var(--content-primary);letter-spacing:-0.02em;}
+.footer-mark em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.footer-mark span{display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300;}
+.footer-note{font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-SCR-05</span><span class="doc-eyebrow-pill">● Screens · Template</span></div>
+    <h1 class="doc-title">Rides<br>you've <em>ridden</em>.</h1>
+    <p class="doc-tagline">
+      A left-anchored drawer slides over a dimmed map. Sessions are
+      grouped by recency; the active one carries a copper stripe; every
+      row is one tap back to the conversation that produced it.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-SCR-05</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">08-uc-scr.md</div></div>
+      <div class="meta-item"><div class="meta-label">Surface</div><div class="meta-value">Drawer + scrim</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">A <em>conversation</em>, not a <em>log</em>.</h2>
+    </div>
+    <p class="prose">
+      Sessions is the one place where the Navigator's relationship with the
+      rider persists across time. Every ride starts as a conversation — a
+      prompt, a planning phase, a set of routes, a choice. This screen
+      remembers those conversations as <strong>sessions</strong>, grouped
+      by recency, each labeled with the rider's named result ("Santa Cruz
+      loop") and a one-line italic preview of the opening prompt.
+    </p>
+    <p class="prose">
+      A copper active-stripe + tinted row background marks the session the
+      rider is currently in — the one whose map is dimmed behind the
+      drawer. Tapping a non-active row restores that conversation whole:
+      its route, its Navigator message, its phase history. This is why
+      sessions are organized as conversations, not as "saved routes" —
+      a route is the output; the session is the <em>negotiation</em>.
+    </p>
+    <p class="prose">
+      The drawer is <em>always</em> left-anchored (never bottom-modal, never
+      center-sheet) so the map behind it stays partially visible. The scrim
+      is intentionally lighter than a full modal (0.35 opacity, warm-black
+      tint) to keep the rider oriented while they pick.
+    </p>
+  </section>
+</div>
+
+<!-- §02 SCREENS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · Screens</div>
+      <h2 class="section-title">Five <em>this week</em>, one <em>active</em>.</h2>
+    </div>
+    <div class="screens-grid">
+
+      <!-- S01 · DEFAULT — 5 sessions, 1 active -->
+      <div class="screen-cell" id="uc-scr-05-s01-default">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none"><path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/><path d="M -20 250 C 50 220, 120 290, 180 250 S 260 280, 320 240"/><path d="M -20 410 C 60 380, 120 440, 180 410 S 260 430, 320 380"/></g></svg>
+            </div>
+            <div class="map-scrim"></div>
+
+            <div class="sessions-drawer">
+              <div class="drawer-status-bar">
+                <span>9:44</span>
+                <div style="display:flex;gap:5px;align-items:center;">
+                  <svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg>
+                  <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+                </div>
+              </div>
+
+              <div class="drawer-header">
+                <div class="drawer-title"><em>Rides</em></div>
+                <div class="btn-new-chip">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                  New
+                </div>
+              </div>
+
+              <div class="section-label-row">
+                <span class="section-label">This week</span>
+                <span class="section-count">5</span>
+              </div>
+
+              <div class="session-list">
+                <!-- ACTIVE -->
+                <div class="session-row active">
+                  <div class="session-row-title-row">
+                    <div class="session-title">Santa Cruz loop</div>
+                    <div class="session-when">now</div>
+                  </div>
+                  <div class="session-preview">"Scenic 2-hour ride to Santa Cruz, avoid highways."</div>
+                  <div class="session-meta">
+                    <div class="session-meta-chip primary"><span class="variant-dot best"></span> BEST · 64mi</div>
+                    <span class="session-meta-sep"></span>
+                    <div class="session-meta-chip primary">Active</div>
+                  </div>
+                </div>
+                <!-- YESTERDAY -->
+                <div class="session-row">
+                  <div class="session-row-title-row">
+                    <div class="session-title">Evening glass-off</div>
+                    <div class="session-when">Yesterday</div>
+                  </div>
+                  <div class="session-preview">"Coast ride after work, end near a café."</div>
+                  <div class="session-meta">
+                    <div class="session-meta-chip"><span class="variant-dot alt1"></span> ALT 1 · 38mi</div>
+                    <span class="session-meta-sep"></span>
+                    <div class="session-meta-chip">Saved</div>
+                  </div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row">
+                    <div class="session-title">The rain window</div>
+                    <div class="session-when">Tue</div>
+                  </div>
+                  <div class="session-preview">"Short loop between storms — 45 min or less."</div>
+                  <div class="session-meta">
+                    <div class="session-meta-chip"><span class="variant-dot best"></span> BEST · 26mi</div>
+                  </div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row">
+                    <div class="session-title">Big Basin &amp; back</div>
+                    <div class="session-when">Mon</div>
+                  </div>
+                  <div class="session-preview">"Into the redwoods, home before dark."</div>
+                  <div class="session-meta">
+                    <div class="session-meta-chip"><span class="variant-dot best"></span> BEST · 72mi</div>
+                    <span class="session-meta-sep"></span>
+                    <div class="session-meta-chip">Ridden</div>
+                  </div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row">
+                    <div class="session-title">Coffee &amp; Old La Honda</div>
+                    <div class="session-when">Sun</div>
+                  </div>
+                  <div class="session-preview">"Twisty, under an hour, finish at a coffee shop."</div>
+                  <div class="session-meta">
+                    <div class="session-meta-chip"><span class="variant-dot alt2"></span> ALT 2 · 18mi</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S01 · Default</div>
+          <div class="screen-name">Five sessions · one <em class="opinion-ital">active</em></div>
+          <div class="screen-desc">
+            Drawer slid in from the left at 82% width. Newsreader "Rides" title with italic accent; outline NEW chip on the trailing edge; THIS WEEK section label; five rows with Santa Cruz loop marked active via signal stripe + tinted bg.
+          </div>
+          <div class="ac-cite">312-wide left drawer with "Rides" header + NEW button.</div>
+          <div class="ac-cite">"THIS WEEK" section label.</div>
+          <div class="ac-cite">5 session rows, active session highlighted (stripe + tinted background).</div>
+        </div>
+      </div>
+
+      <!-- S02 · LONG LIST (scrollable, mid-scroll) -->
+      <div class="screen-cell" id="uc-scr-05-s02-long-list">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none"><path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/><path d="M -20 410 C 60 380, 120 440, 180 410 S 260 430, 320 380"/></g></svg>
+            </div>
+            <div class="map-scrim"></div>
+
+            <div class="sessions-drawer">
+              <div class="drawer-status-bar">
+                <span>9:44</span>
+                <div style="display:flex;gap:5px;align-items:center;">
+                  <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+                </div>
+              </div>
+              <div class="drawer-header">
+                <div class="drawer-title"><em>Rides</em></div>
+                <div class="btn-new-chip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> New</div>
+              </div>
+
+              <div class="section-label-row">
+                <span class="section-label" style="color:var(--content-subtle);">This week</span>
+                <span class="section-count" style="color:var(--content-subtle);">▲ scrolled</span>
+              </div>
+
+              <div class="session-list">
+                <div class="section-label-row" style="padding-top:6px;background:var(--surface-card);position:sticky;top:0;z-index:2;border-bottom:1px solid var(--border-subtle);">
+                  <span class="section-label">Last week</span>
+                  <span class="section-count">7</span>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Tunitas creek sprint</div><div class="session-when">7d</div></div>
+                  <div class="session-preview">"Want to climb something — hour and a half max."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot best"></span> BEST · 42mi</div></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Pescadero lunch run</div><div class="session-when">8d</div></div>
+                  <div class="session-preview">"Coast then inland, stop for a sandwich."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot alt1"></span> ALT 1 · 58mi</div><span class="session-meta-sep"></span><div class="session-meta-chip">Ridden</div></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Skyline to the sea</div><div class="session-when">10d</div></div>
+                  <div class="session-preview">"All ridge, all coast, half day."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot best"></span> BEST · 98mi</div></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Rainy-day short</div><div class="session-when">12d</div></div>
+                  <div class="session-preview">"Under 30 min, bail if it rains harder."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot alt2"></span> ALT 2 · 14mi</div></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Alice's scramble</div><div class="session-when">13d</div></div>
+                  <div class="session-preview">"Short twisty loop, back by 11."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot best"></span> BEST · 22mi</div></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Calero dam climb</div><div class="session-when">14d</div></div>
+                  <div class="session-preview">"Up to the dam and back, easy."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot alt1"></span> ALT 1 · 31mi</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S02 · Scrolled</div>
+          <div class="screen-name">Long list · sticky group label</div>
+          <div class="screen-desc">
+            Scrolling reveals LAST WEEK group. The drawer header and NEW button remain fixed; section labels stick to the top of their group. "▲ scrolled" cue in the pre-section row shows the list has been scrolled past the first group.
+          </div>
+          <div class="ac-cite">Scrolling the list keeps header/NEW/section label sticky.</div>
+        </div>
+      </div>
+
+      <!-- S03 · EMPTY STATE -->
+      <div class="screen-cell" id="uc-scr-05-s03-empty">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none"><path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/><path d="M -20 410 C 60 380, 120 440, 180 410 S 260 430, 320 380"/></g></svg>
+            </div>
+            <div class="map-scrim"></div>
+
+            <div class="sessions-drawer">
+              <div class="drawer-status-bar">
+                <span>9:44</span>
+                <div style="display:flex;gap:5px;align-items:center;">
+                  <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+                </div>
+              </div>
+              <div class="drawer-header">
+                <div class="drawer-title"><em>Rides</em></div>
+                <div class="btn-new-chip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> New</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 22px;text-align:center;gap:12px;">
+                <!-- compass icon -->
+                <div style="width:54px;height:54px;border-radius:50%;background:var(--signal-whisper);border:1px dashed var(--signal-tint);display:flex;align-items:center;justify-content:center;color:var(--signal-default);margin-bottom:6px;">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg>
+                </div>
+                <div style="font-family:var(--font-opinion);font-weight:400;font-size:21px;line-height:1.22;letter-spacing:-0.015em;color:var(--content-primary);">No rides <em style="font-style:italic;color:var(--signal-default);">yet</em></div>
+                <div style="font-family:var(--font-opinion);font-weight:300;font-style:italic;font-size:14px;line-height:1.5;color:var(--content-secondary);max-width:220px;">Your conversations with the Navigator will show up here. Start one and it'll remember.</div>
+                <div style="margin-top:14px;padding:10px 18px;background:var(--signal-default);color:#FFF;border-radius:12px;font-family:var(--font-ui);font-weight:600;font-size:11px;letter-spacing:0.04em;box-shadow:0 3px 10px rgba(238,124,43,0.3);">Plan a ride</div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S03 · Empty state</div>
+          <div class="screen-name">First launch · no sessions</div>
+          <div class="screen-desc">
+            Dashed compass chip + opinion-serif headline ("No rides yet") + italic prose. Primary CTA "Plan a ride" bounces the user back to IdleScreen. Drawer header remains consistent with populated state.
+          </div>
+        </div>
+      </div>
+
+      <!-- S04 · DARK MODE -->
+      <div class="screen-cell" id="uc-scr-05-s04-dark">
+        <div class="phone-frame">
+          <div class="phone-screen mode-dark">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none"><path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/><path d="M -20 410 C 60 380, 120 440, 180 410 S 260 430, 320 380"/></g></svg>
+            </div>
+            <div class="map-scrim"></div>
+
+            <div class="sessions-drawer">
+              <div class="drawer-status-bar">
+                <span>8:02 PM</span>
+                <div style="display:flex;gap:5px;align-items:center;">
+                  <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+                </div>
+              </div>
+
+              <div class="drawer-header">
+                <div class="drawer-title"><em>Rides</em></div>
+                <div class="btn-new-chip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> New</div>
+              </div>
+
+              <div class="section-label-row">
+                <span class="section-label">Tonight</span>
+                <span class="section-count">1</span>
+              </div>
+
+              <div class="session-list">
+                <div class="session-row active">
+                  <div class="session-row-title-row"><div class="session-title">Coast after dark</div><div class="session-when">now</div></div>
+                  <div class="session-preview">"Night ride to Santa Cruz, coast road."</div>
+                  <div class="session-meta"><div class="session-meta-chip primary"><span class="variant-dot best"></span> BEST · 38mi</div><span class="session-meta-sep"></span><div class="session-meta-chip primary">Active</div></div>
+                </div>
+
+                <div class="section-label-row" style="padding-top:14px;">
+                  <span class="section-label">This week</span>
+                  <span class="section-count">4</span>
+                </div>
+
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Santa Cruz loop</div><div class="session-when">Today · 9am</div></div>
+                  <div class="session-preview">"Scenic 2-hour, avoid highways."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot best"></span> BEST · 64mi</div><span class="session-meta-sep"></span><div class="session-meta-chip">Ridden</div></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Evening glass-off</div><div class="session-when">Yesterday</div></div>
+                  <div class="session-preview">"Coast ride after work."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot alt1"></span> ALT 1 · 38mi</div></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Big Basin &amp; back</div><div class="session-when">Mon</div></div>
+                  <div class="session-preview">"Into the redwoods, home before dark."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot best"></span> BEST · 72mi</div></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Coffee &amp; Old La Honda</div><div class="session-when">Sun</div></div>
+                  <div class="session-preview">"Twisty, under an hour."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot alt2"></span> ALT 2 · 18mi</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S04 · Dark mode</div>
+          <div class="screen-name">Tonight + <em class="opinion-ital">This week</em></div>
+          <div class="screen-desc">
+            Warm-ink drawer over a dimmed dark map. TONIGHT group for the active-right-now session; THIS WEEK for the earlier rides. Active stripe + copper-on-ink signal chip remain identical in hue; the drawer surface tone shifts to surface.card (dark).
+          </div>
+          <div class="ac-cite">Light/dark re-renders scrim, drawer chrome, active stripe, row bg.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES & VARIANTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States &amp; Variants</div>
+      <h2 class="section-title">Search, <em>no active</em>, mid-transition.</h2>
+    </div>
+    <div class="screens-grid cols-3">
+
+      <!-- V01 · SEARCH (filtering) -->
+      <div class="screen-cell" id="uc-scr-05-v01-search">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"><svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none"><path d="M -20 250 C 50 220, 120 290, 180 250 S 260 280, 320 240"/></g></svg></div>
+            <div class="map-scrim"></div>
+
+            <div class="sessions-drawer">
+              <div class="drawer-status-bar"><span>9:44</span><div style="display:flex;gap:5px;align-items:center;"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+              <div class="drawer-header">
+                <div class="drawer-title"><em>Rides</em></div>
+                <div class="btn-new-chip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> New</div>
+              </div>
+              <!-- search field -->
+              <div style="padding:10px 14px 12px;">
+                <div style="display:flex;align-items:center;gap:8px;background:var(--surface-inset);border:1px solid var(--border-default);border-radius:11px;padding:9px 12px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--signal-default)" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="6"/><line x1="15" y1="15" x2="20" y2="20"/></svg>
+                  <div style="flex:1;font-family:var(--font-ui);font-size:12.5px;font-weight:500;color:var(--content-primary);">coast<span style="display:inline-block;width:1.5px;height:14px;background:var(--signal-default);margin-left:1px;vertical-align:text-bottom;"></span></div>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--content-tertiary)" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6l-12 12"/></svg>
+                </div>
+              </div>
+              <div class="section-label-row" style="padding-top:2px;">
+                <span class="section-label">3 matching</span>
+              </div>
+              <div class="session-list">
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title"><span style="background:var(--signal-whisper);color:var(--signal-default);padding:0 2px;">Coast</span> after dark</div><div class="session-when">Yesterday</div></div>
+                  <div class="session-preview">"Night ride to Santa Cruz, <span style="background:var(--signal-whisper);color:var(--signal-default);padding:0 2px;">coast</span> road."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot best"></span> BEST · 38mi</div></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Evening glass-off</div><div class="session-when">Yesterday</div></div>
+                  <div class="session-preview">"<span style="background:var(--signal-whisper);color:var(--signal-default);padding:0 2px;">Coast</span> ride after work, café stop."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot alt1"></span> ALT 1 · 38mi</div></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Pescadero lunch run</div><div class="session-when">8d</div></div>
+                  <div class="session-preview">"<span style="background:var(--signal-whisper);color:var(--signal-default);padding:0 2px;">Coast</span> then inland, sandwich."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot alt1"></span> ALT 1 · 58mi</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V01 · Search</div>
+          <div class="screen-name">Filter by <em class="opinion-ital">prompt text</em></div>
+          <div class="screen-desc">
+            Search field sits below the header. Matches highlight the query token in copper-whisper. Group labels collapse into a single count ("3 matching"). Empty-search returns to default grouped view.
+          </div>
+        </div>
+      </div>
+
+      <!-- V02 · NO ACTIVE SESSION -->
+      <div class="screen-cell" id="uc-scr-05-v02-no-active">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"><svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none"><path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/><path d="M -20 410 C 60 380, 120 440, 180 410 S 260 430, 320 380"/></g></svg></div>
+            <div class="map-scrim"></div>
+            <div class="sessions-drawer">
+              <div class="drawer-status-bar"><span>9:44</span><div style="display:flex;gap:5px;align-items:center;"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+              <div class="drawer-header">
+                <div class="drawer-title"><em>Rides</em></div>
+                <div class="btn-new-chip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> New</div>
+              </div>
+              <div class="section-label-row"><span class="section-label">This week</span><span class="section-count">4</span></div>
+              <div class="session-list">
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Santa Cruz loop</div><div class="session-when">Today</div></div>
+                  <div class="session-preview">"Scenic 2-hour, avoid highways."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot best"></span> BEST · 64mi</div><span class="session-meta-sep"></span><div class="session-meta-chip">Ridden</div></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Evening glass-off</div><div class="session-when">Yesterday</div></div>
+                  <div class="session-preview">"Coast ride after work."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot alt1"></span> ALT 1 · 38mi</div></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">The rain window</div><div class="session-when">Tue</div></div>
+                  <div class="session-preview">"Short loop between storms."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot best"></span> BEST · 26mi</div></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Big Basin &amp; back</div><div class="session-when">Mon</div></div>
+                  <div class="session-preview">"Redwoods, home before dark."</div>
+                  <div class="session-meta"><div class="session-meta-chip"><span class="variant-dot best"></span> BEST · 72mi</div></div>
+                </div>
+              </div>
+              <!-- banner -->
+              <div style="padding:12px 14px;border-top:1px solid var(--border-subtle);background:var(--signal-whisper);display:flex;align-items:center;gap:10px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--signal-default)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="var(--signal-default)" stroke="none"/></svg>
+                <div style="flex:1;font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:12.5px;color:var(--content-primary);line-height:1.4;">No ride in progress. Tap one to pick up where you left off.</div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V02 · No active</div>
+          <div class="screen-name">Nothing in progress</div>
+          <div class="screen-desc">
+            When activeSessionId is null, no row carries the stripe. A copper-whisper banner at the drawer footer invites a resume. Banner disappears once a row is tapped.
+          </div>
+        </div>
+      </div>
+
+      <!-- V03 · DRAWER MID-TRANSITION (slide in) -->
+      <div class="screen-cell" id="uc-scr-05-v03-sliding">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"><svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour)" stroke-width="0.9" fill="none"><path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/><path d="M -20 250 C 50 220, 120 290, 180 250 S 260 280, 320 240"/><path d="M -20 410 C 60 380, 120 440, 180 410 S 260 430, 320 380"/></g></svg></div>
+            <!-- partial scrim -->
+            <div style="position:absolute;inset:0;background:linear-gradient(90deg, rgba(34,24,16,0.42) 0%, rgba(34,24,16,0.35) 55%, rgba(34,24,16,0.15) 85%, transparent 100%);z-index:12;"></div>
+
+            <!-- drawer at 62% translation -->
+            <div class="sessions-drawer peek" style="transform:translateX(0);">
+              <div class="drawer-status-bar"><span>9:44</span><div style="display:flex;gap:5px;align-items:center;"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+              <div class="drawer-header">
+                <div class="drawer-title"><em>Rides</em></div>
+                <div class="btn-new-chip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> New</div>
+              </div>
+              <div class="section-label-row"><span class="section-label">This week</span><span class="section-count">5</span></div>
+              <div class="session-list">
+                <div class="session-row active">
+                  <div class="session-row-title-row"><div class="session-title">Santa Cruz loop</div><div class="session-when">now</div></div>
+                  <div class="session-preview">"Scenic 2-hour, avoid highways."</div>
+                  <div class="session-meta"><div class="session-meta-chip primary"><span class="variant-dot best"></span> BEST · 64mi</div></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">Evening glass-off</div><div class="session-when">Yd</div></div>
+                  <div class="session-preview">"Coast ride."</div>
+                </div>
+                <div class="session-row">
+                  <div class="session-row-title-row"><div class="session-title">The rain window</div><div class="session-when">Tue</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V03 · Mid-slide</div>
+          <div class="screen-name">sidebarSlideIn in progress</div>
+          <div class="screen-desc">
+            The drawer captured at ~65% through its slide-in motion. The scrim is a soft gradient that darkens toward the drawer edge; the map is still partially visible at the trailing edge so the rider retains context.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §04 COMPONENTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Components</div>
+      <h2 class="section-title">A <em>drawer</em> is an <em>organism</em>.</h2>
+    </div>
+    <div class="cmp-grid">
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Atoms · ATM</div>
+        <div class="cmp-item"><div class="cmp-name">LSScrim</div><div class="cmp-ref">opacity: 0.35<br>warm-black tint</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSDivider</div><div class="cmp-ref">between session rows<br>border.subtle</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSButton</div><div class="cmp-ref">.outline (NEW chip · copper border)<br>.primary (Plan a ride · empty state)</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSIcon</div><div class="cmp-ref">plus · close · search<br>compass (empty state)</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Molecules · MOL</div>
+        <div class="cmp-item"><div class="cmp-name">LSListRow</div><div class="cmp-ref">UC-MOL-01 · session row layout<br>leading stripe + title + meta</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSSectionHeader</div><div class="cmp-ref">UC-ORG-07 (reused as mol)<br>"THIS WEEK" · sticky</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSEmptyState</div><div class="cmp-ref">UC-MOL-04 · compass + prose<br>+ primary action</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSFormField</div><div class="cmp-ref">UC-MOL-04 · search variant (V01)</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Organisms · ORG</div>
+        <div class="cmp-item"><div class="cmp-name">LSSessionsDrawer</div><div class="cmp-ref">UC-ORG-05 · primary<br>82% wide · header + list + sticky sections</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSMapLayer</div><div class="cmp-ref">UC-ORG-02<br>scrim: 0.35 · leadingDrawer slot</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Tokens consumed</div>
+        <div class="cmp-item"><div class="cmp-name">color.signal.*</div><div class="cmp-ref">default (stripe) · whisper (active bg)</div></div>
+        <div class="cmp-item"><div class="cmp-name">color.surface.scrim</div><div class="cmp-ref">0.35 opacity over map</div></div>
+        <div class="cmp-item"><div class="cmp-name">color.route.*</div><div class="cmp-ref">mini variant stripe dots</div></div>
+        <div class="cmp-item"><div class="cmp-name">typography.*</div><div class="cmp-ref">opinion.lg drawer title<br>ui.label.sm section · instrument.xs when</div></div>
+        <div class="cmp-item"><div class="cmp-name">elevation.drawer</div><div class="cmp-ref">trailing-edge shadow</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Slide in, <em>scrim up</em>, dismiss on tap.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="motion-recipe">sidebarSlideIn</div>
+      <div class="motion-trigger">Hamburger tap (from UC-SCR-01)</div>
+      <div class="motion-effect">Drawer translateX −300 → 0, 250ms ease-out. Scrim opacity 0 → 0.35 in parallel.</div>
+
+      <div class="motion-recipe">sidebarSlideIn (reverse)</div>
+      <div class="motion-trigger">Scrim tap OR edge swipe</div>
+      <div class="motion-effect">Drawer translateX 0 → −300, 200ms ease-in. Scrim fades concurrently. onDismiss fires at 50% progress.</div>
+
+      <div class="motion-recipe">— (row press)</div>
+      <div class="motion-trigger">Session row tap</div>
+      <div class="motion-effect">Row pressed state (color.signal.tint) in 120ms. onSelect fires on release. Drawer dismisses via sidebarSlideIn reverse with the newly-active session's canvas pre-mounted beneath.</div>
+
+      <div class="motion-recipe">— (section sticky)</div>
+      <div class="motion-trigger">Scroll inside session-list</div>
+      <div class="motion-effect">Section labels stick to top of viewport when their first row passes under.</div>
+
+      <div class="motion-recipe">mapTapDismiss</div>
+      <div class="motion-trigger">Scrim tap</div>
+      <div class="motion-effect">150ms linear scrim fade; onDismiss from parent.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Why a <em>drawer</em>, not a <em>feed</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design principles honored</h4>
+        <p>
+          Sessions is <em>not</em> the app's home. It's a place the rider
+          visits when they want to resume something. The drawer shape
+          respects that — it's a navigation affordance, not a destination.
+          The map stays partially visible behind the scrim so the rider
+          doesn't forget they're in the middle of planning.
+        </p>
+        <p>
+          Each row treats the session like a sentence: a title ("Santa Cruz
+          loop"), a prompt in italic prose, and a small mono meta line.
+          That's enough context to decide whether to resume, without
+          opening the session and finding out the wrong answer.
+        </p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC traceability</h4>
+        <ul>
+          <li><strong>AC-01</strong> Scrim 0.35 + drawer sliding in + "Rides" header + NEW + THIS WEEK + 5 rows (1 active) — S01.</li>
+          <li><strong>AC-02</strong> iOS + Android identical.</li>
+          <li><strong>AC-03</strong> onSelect fires on non-active tap.</li>
+          <li><strong>AC-04</strong> onNew fires on NEW tap.</li>
+          <li><strong>AC-05</strong> Scrim tap fires onDismiss; drawer reverses motion.recipe.sidebarSlideIn.</li>
+          <li><strong>AC-06</strong> Scroll keeps header/NEW/section labels sticky — S02.</li>
+          <li><strong>AC-07</strong> Light/dark re-renders — S04.</li>
+          <li><strong>AC-08</strong> SessionsMockProvider injects sessions + activeSessionId.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">Lane<em>Shadow</em><span>V2 · Copper · UC-SCR-05</span></div>
+    <div class="footer-note">
+      A session is not a <em>record</em>.<br>
+      It's a <em>conversation</em> you can re-enter.
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>
