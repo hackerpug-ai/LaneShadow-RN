@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<!-- uc-atm-01-text.html — UC-ATM-01 "LSText Typography Atoms"
+     LaneShadow V2 · Copper · Navigator Design Mock · 2026-04-20
+     Surface: LIGHT (design token spine, all type variants)
+     Authority: .spec/prds/v2/05-uc-atm.md §UC-ATM-01 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ATM-01 — LSText Typography Atoms — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM — shared across all UC-SCR / UC-ATM mocks.
+   Source of truth: uc-scr-01-idle.html, 04-uc-tok.md.
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:  #FDFBF8;
+  --paper-100: #F8F7F6;
+  --paper-150: #F5F2EE;
+  --paper-200: #F2EFED;
+  --paper-300: #EDE7E1;
+  --paper-400: #E5DED9;
+  --paper-500: #C9BDB3;
+
+  --ink-900:   #1E1A16;
+  --ink-800:   #221810;
+  --ink-700:   #2D2218;
+  --ink-600:   #362A1F;
+  --ink-500:   #3D3228;
+  --ink-400:   #49454F;
+  --ink-300:   #6B6460;
+  --ink-200:   #9CA3AF;
+  --ink-100:   #CAC4D0;
+  --ink-050:   #F2EEE8;
+
+  --copper-700: #9E4A22;
+  --copper-600: #B85A2C;
+  --copper-500: #EE7C2B;
+  --copper-400: #F3A164;
+  --copper-200: #F9D5B5;
+  --copper-100: #FCE8D4;
+
+  --status-error: #C9423C;
+  --status-error-tint: #F5D8D6;
+
+  --font-opinion:    'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+}
+
+:root {
+  --surface-primary:   var(--paper-100);
+  --surface-card:      var(--paper-50);
+  --surface-inset:     var(--paper-200);
+  --surface-overlay:   rgba(253,251,248,0.92);
+  --surface-glass:     rgba(253,251,248,0.72);
+  --surface-scrim:     rgba(34,24,16,0.35);
+
+  --content-primary:   var(--ink-900);
+  --content-secondary: var(--ink-400);
+  --content-tertiary:  var(--ink-300);
+  --content-subtle:    var(--ink-200);
+  --content-onSignal:  #FFFFFF;
+  --content-error:     var(--status-error);
+
+  --signal-default:    var(--copper-500);
+  --signal-pressed:    var(--copper-700);
+  --signal-tint:       var(--copper-200);
+  --signal-whisper:    var(--copper-100);
+
+  --border-default:    var(--paper-400);
+  --border-subtle:     var(--paper-300);
+  --border-strong:     var(--paper-500);
+  --border-focus:      var(--copper-500);
+
+  --elev-overlay:      0 8px 24px rgba(34,24,16,0.10), 0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:         0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:       0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
+}
+
+body { background: var(--surface-primary); color: var(--content-primary); }
+
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+  --surface-scrim:     rgba(10,6,3,0.50);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+
+/* ── TYPOGRAPHY SCALE ─────────────────────────────────────────────────── */
+.t-opinion-xl  { font-family: var(--font-opinion); font-weight: 400; font-size: 30px; line-height: 1.12; letter-spacing: -0.015em; }
+.t-opinion-lg  { font-family: var(--font-opinion); font-weight: 400; font-size: 22px; line-height: 1.18; letter-spacing: -0.01em; }
+.t-opinion-md  { font-family: var(--font-opinion); font-weight: 400; font-size: 17px; line-height: 1.32; letter-spacing: 0; }
+.t-opinion-sm  { font-family: var(--font-opinion); font-weight: 400; font-size: 14px; line-height: 1.45; letter-spacing: 0; }
+
+.t-title-lg    { font-family: var(--font-ui); font-weight: 600; font-size: 17px; line-height: 1.24; letter-spacing: -0.01em; }
+.t-title-md    { font-family: var(--font-ui); font-weight: 600; font-size: 14px; line-height: 1.28; letter-spacing: -0.005em; }
+.t-title-sm    { font-family: var(--font-ui); font-weight: 600; font-size: 12px; line-height: 1.28; letter-spacing: 0; }
+
+.t-body-lg     { font-family: var(--font-ui); font-weight: 400; font-size: 14px; line-height: 1.48; }
+.t-body-md     { font-family: var(--font-ui); font-weight: 400; font-size: 12px; line-height: 1.52; }
+.t-body-sm     { font-family: var(--font-ui); font-weight: 400; font-size: 10.5px; line-height: 1.48; }
+
+.t-label-lg    { font-family: var(--font-ui); font-weight: 500; font-size: 11px; line-height: 1.0; letter-spacing: 0.08em; text-transform: uppercase; }
+.t-label-md    { font-family: var(--font-ui); font-weight: 600; font-size: 9.5px; line-height: 1.0; letter-spacing: 0.12em; text-transform: uppercase; }
+.t-label-sm    { font-family: var(--font-ui); font-weight: 600; font-size: 8.5px; line-height: 1.0; letter-spacing: 0.14em; text-transform: uppercase; }
+
+.t-instr-lg    { font-family: var(--font-instrument); font-weight: 500; font-size: 18px; line-height: 1.12; letter-spacing: -0.02em; font-feature-settings: "tnum" 1; }
+.t-instr-md    { font-family: var(--font-instrument); font-weight: 500; font-size: 13px; line-height: 1.2; letter-spacing: -0.01em; font-feature-settings: "tnum" 1; }
+.t-instr-sm    { font-family: var(--font-instrument); font-weight: 500; font-size: 10px; line-height: 1.2; letter-spacing: 0; font-feature-settings: "tnum" 1; }
+.t-instr-xs    { font-family: var(--font-instrument); font-weight: 500; font-size: 8.5px; line-height: 1.0; letter-spacing: 0; font-feature-settings: "tnum" 1; }
+
+em.opinion-ital { font-style: italic; font-weight: 400; }
+
+/* ── DOCUMENT CHROME ──────────────────────────────────────────────────── */
+body {
+  font-family: var(--font-ui);
+  color: var(--content-primary);
+  background: var(--surface-primary);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+
+.doc-header {
+  position: relative;
+  padding: 96px 0 72px;
+  border-bottom: 1px solid var(--border-default);
+  overflow: hidden;
+}
+.doc-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 80%, rgba(238,124,43,0.08), transparent 44%),
+    radial-gradient(circle at 92% 12%, rgba(184,90,44,0.05), transparent 50%);
+  pointer-events: none;
+}
+.doc-header > * { position: relative; z-index: 1; }
+
+.doc-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-ui);
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--signal-default);
+  margin-bottom: 28px;
+}
+.doc-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--signal-default); }
+.doc-eyebrow-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--signal-default);
+  color: var(--signal-default);
+  background: var(--signal-whisper);
+  font-size: 9.5px; letter-spacing: 0.14em;
+}
+
+.doc-title {
+  font-family: var(--font-opinion);
+  font-size: 104px; font-weight: 300;
+  line-height: 0.94; letter-spacing: -0.035em;
+  color: var(--content-primary);
+  margin-bottom: 32px; max-width: 1000px;
+}
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+
+.doc-tagline {
+  font-family: var(--font-opinion);
+  font-style: italic; font-size: 22px; font-weight: 300;
+  color: var(--content-secondary); max-width: 640px;
+  line-height: 1.55; margin-bottom: 56px;
+}
+
+.doc-meta-row {
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  gap: 24px; padding-top: 36px;
+  border-top: 1px solid var(--border-default);
+}
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label { font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary); }
+.meta-value { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); }
+
+.section {
+  padding: 96px 0;
+  border-bottom: 1px solid var(--border-default);
+  position: relative;
+}
+.section:last-child { border-bottom: none; }
+
+.section-header {
+  display: grid; grid-template-columns: 120px 1fr;
+  align-items: baseline; gap: 32px; margin-bottom: 56px;
+}
+.section-index {
+  font-family: var(--font-instrument);
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em; color: var(--signal-default);
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-index::before { content: ""; display: block; width: 48px; height: 1px; background: var(--signal-default); }
+
+.section-title {
+  font-family: var(--font-opinion);
+  font-size: 52px; font-weight: 300;
+  letter-spacing: -0.025em; line-height: 1.04;
+  color: var(--content-primary); max-width: 900px;
+}
+.section-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+
+.prose {
+  font-family: var(--font-opinion);
+  font-weight: 300; font-size: 19px; line-height: 1.68;
+  color: var(--content-secondary); max-width: 720px;
+  margin-left: 152px;
+}
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+.prose strong {
+  font-family: var(--font-ui);
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--signal-default);
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--signal-whisper);
+  border: 1px solid var(--signal-tint);
+  border-radius: 4px; margin: 0 2px;
+}
+
+.ac-cite {
+  font-family: var(--font-ui);
+  font-size: 10.5px; line-height: 1.55;
+  color: var(--content-tertiary);
+  padding-left: 18px; position: relative; margin-top: 4px;
+}
+.ac-cite::before { content: "☐"; position: absolute; left: 0; top: 0; color: var(--border-strong); }
+
+.doc-footer {
+  padding: 80px 0;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 40px; align-items: end;
+}
+.footer-mark {
+  font-family: var(--font-opinion);
+  font-size: 44px; font-weight: 300; line-height: 1;
+  color: var(--content-primary); letter-spacing: -0.02em;
+}
+.footer-mark em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.footer-mark span { display: block; font-size: 14px; font-style: italic; color: var(--content-tertiary); margin-top: 10px; font-weight: 300; }
+.footer-note {
+  font-family: var(--font-opinion);
+  font-style: italic; font-size: 14px; line-height: 1.7;
+  color: var(--content-tertiary); text-align: right; font-weight: 300;
+}
+
+/* ── ATM-01 SPECIFIC STYLES ──────────────────────────────────────────── */
+
+/* Type specimen rows */
+.specimen-grid {
+  margin-left: 152px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.family-group {
+  margin-bottom: 48px;
+}
+
+.family-label {
+  font-family: var(--font-ui);
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--signal-default);
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: 0;
+  display: flex; align-items: center; gap: 10px;
+}
+.family-label::before { content: ""; width: 24px; height: 1px; background: var(--signal-default); }
+
+.specimen-row {
+  display: grid;
+  grid-template-columns: 220px 1fr 340px;
+  gap: 24px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.specimen-row:last-child { border-bottom: none; }
+
+.specimen-text { /* the actual text rendered at its real size */ }
+
+.specimen-meta {
+  font-family: var(--font-instrument);
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--content-tertiary);
+  line-height: 1.6;
+  letter-spacing: 0;
+}
+.specimen-meta .token-name {
+  color: var(--signal-default);
+  font-weight: 500;
+}
+
+.specimen-annotation {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  background: var(--surface-inset);
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+}
+.ann-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.ann-key {
+  font-family: var(--font-ui);
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+.ann-val {
+  font-family: var(--font-instrument);
+  font-size: 10.5px; font-weight: 500;
+  color: var(--content-primary);
+}
+
+/* Dynamic type preview */
+.dyntype-row {
+  margin-left: 152px;
+  display: flex;
+  gap: 48px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-top: 40px;
+}
+.dyntype-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.dyntype-label {
+  font-family: var(--font-instrument);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--content-tertiary);
+  border: 1px solid var(--border-default);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* Color matrix */
+.color-matrix {
+  margin-left: 152px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+  margin-top: 32px;
+}
+.color-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 14px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+}
+.color-cell-label {
+  font-family: var(--font-ui);
+  font-size: 8.5px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+.color-cell-sample {
+  font-family: var(--font-opinion);
+  font-size: 16px; font-weight: 400;
+  line-height: 1.2;
+}
+
+/* Cross-family pairing */
+.pairing-demo {
+  margin-left: 152px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 40px 48px;
+  max-width: 720px;
+  margin-top: 32px;
+}
+.pairing-overline {
+  font-family: var(--font-ui);
+  font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--content-tertiary);
+  margin-bottom: 10px;
+}
+.pairing-headline {
+  font-family: var(--font-opinion);
+  font-size: 30px; font-weight: 400;
+  line-height: 1.12; letter-spacing: -0.015em;
+  color: var(--content-primary);
+  margin-bottom: 8px;
+}
+.pairing-headline em { font-style: italic; color: var(--signal-default); }
+.pairing-label-row {
+  font-family: var(--font-ui);
+  font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--content-tertiary);
+  margin-bottom: 16px;
+}
+.pairing-instruments {
+  display: flex;
+  gap: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+.pairing-instr-cell { display: flex; flex-direction: column; gap: 4px; }
+.pairing-instr-label {
+  font-family: var(--font-ui);
+  font-size: 7.5px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+.pairing-instr-value {
+  font-family: var(--font-instrument);
+  font-size: 18px; font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--content-primary);
+  font-feature-settings: "tnum" 1;
+}
+
+/* Dimensions table */
+.dims-table {
+  margin-left: 152px;
+  width: calc(100% - 152px);
+  border-collapse: collapse;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  margin-top: 32px;
+}
+.dims-table th {
+  font-size: 8.5px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--content-tertiary);
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-default);
+  background: var(--surface-inset);
+}
+.dims-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--content-secondary);
+  vertical-align: top;
+}
+.dims-table td:first-child {
+  font-family: var(--font-instrument);
+  font-size: 11px;
+  color: var(--signal-default);
+  font-weight: 500;
+}
+.dims-table td .inline-swatch {
+  display: inline-block;
+  font-family: var(--font-instrument);
+  font-size: 10.5px;
+  color: var(--content-primary);
+  font-weight: 500;
+}
+.dims-table tr:last-child td { border-bottom: none; }
+.dims-table thead tr th:first-child { border-radius: 6px 0 0 0; }
+.dims-table thead tr th:last-child { border-radius: 0 6px 0 0; }
+
+/* Rationale block */
+.rationale-grid {
+  padding-left: 152px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+.rationale-block h4 {
+  font-family: var(--font-ui); font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--signal-default); margin-bottom: 14px;
+}
+.rationale-block p {
+  font-family: var(--font-opinion); font-weight: 300; font-size: 15px;
+  line-height: 1.65; color: var(--content-secondary); margin-bottom: 10px;
+}
+.rationale-block ul { list-style: none; }
+.rationale-block li {
+  padding: 8px 0 8px 18px; position: relative;
+  font-family: var(--font-ui); font-size: 12.5px;
+  color: var(--content-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.rationale-block li::before { content: "→"; position: absolute; left: 0; top: 8px; color: var(--signal-default); font-family: var(--font-instrument); }
+.rationale-block li strong { font-family: var(--font-instrument); color: var(--content-primary); font-weight: 500; font-size: 11px; }
+
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═════════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow">
+      <span>UC-ATM-01</span>
+      <span class="doc-eyebrow-pill">● Atoms · Tier A</span>
+    </div>
+    <h1 class="doc-title">The <em>three</em><br>families.</h1>
+    <p class="doc-tagline">
+      Opinion in Newsreader. UI in Geist. Numbers in JetBrains Mono.
+      Every text atom resolves from a typed variant — no raw font stacks,
+      no literal sizes, no color literals.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-ATM-01</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">05-uc-atm.md</div></div>
+      <div class="meta-item"><div class="meta-label">Surface</div><div class="meta-value">Light</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- ═══ §01 PURPOSE ═══════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">One atom. <em>Thirteen</em> variants across three families.</h2>
+    </div>
+    <p class="prose">
+      <strong>LSText</strong> is the single typed text primitive. Downstream code never reaches for
+      <em>font-size</em> directly — it selects a variant token: <strong>.opinion.xl</strong>,
+      <strong>.ui.body.md</strong>, <strong>.instrument.lg</strong>. The atom resolves the
+      font family, size, weight, line-height, letter-spacing, and tabular-num feature setting.
+    </p>
+    <p class="prose">
+      Color is a separate <strong>ContentColor</strong> enum resolving from
+      <strong>color.content.*</strong>. Raw color literals are rejected at type-check.
+      Dynamic Type on iOS and font-scale on Android scale all instances proportionally
+      when the user adjusts system font size.
+    </p>
+  </section>
+</div>
+
+<!-- ═══ §02 THE ATOM ══════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · The Atom</div>
+      <h2 class="section-title">Full scale: <em>opinion</em>, ui, <em>instrument</em>.</h2>
+    </div>
+
+    <!-- OPINION FAMILY -->
+    <div class="specimen-grid">
+      <div class="family-group">
+        <div class="family-label">Opinion — Newsreader / navigator voice / display</div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-opinion-xl">Where are we<br><em class="opinion-ital">riding today?</em></div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.opinion.xl</div>
+            <div>Newsreader · weight 400</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">30px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.12 (33.6px)</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">-0.015em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">400 (Regular)</span></div>
+            <div class="ann-row"><span class="ann-key">Italic capable</span><span class="ann-val">Yes — .opinion-ital</span></div>
+          </div>
+        </div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-opinion-lg">Skyline Spine</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.opinion.lg</div>
+            <div>Newsreader · weight 400</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">22px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.18 (25.96px)</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">-0.01em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">400 (Regular)</span></div>
+          </div>
+        </div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-opinion-md">The route follows the ridge, never leaving the view.</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.opinion.md</div>
+            <div>Newsreader · weight 400</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">17px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.32 (22.44px)</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">0em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">400 (Regular)</span></div>
+          </div>
+        </div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-opinion-sm">A gentle descent through ponderosa pines.</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.opinion.sm</div>
+            <div>Newsreader · weight 400</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">14px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.45 (20.3px)</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">0em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">400 (Regular)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UI FAMILY -->
+      <div class="family-group">
+        <div class="family-label">UI — Geist / labels / buttons / body copy</div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-title-lg">Route Details</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.ui.title.lg</div>
+            <div>Geist · weight 600</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">17px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.24 (21.08px)</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">-0.01em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">600 (SemiBold)</span></div>
+          </div>
+        </div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-title-md">Continue Riding</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.ui.title.md</div>
+            <div>Geist · weight 600</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">14px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.28 (17.92px)</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">-0.005em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">600 (SemiBold)</span></div>
+          </div>
+        </div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-title-sm">Save Route</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.ui.title.sm</div>
+            <div>Geist · weight 600</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">12px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.28 (15.36px)</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">0em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">600 (SemiBold)</span></div>
+          </div>
+        </div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-body-lg">Plan a ride for Friday through the coastal hills.</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.ui.body.lg</div>
+            <div>Geist · weight 400</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">14px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.48 (20.72px)</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">0em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">400 (Regular)</span></div>
+          </div>
+        </div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-body-md">Distance, time, and elevation at a glance.</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.ui.body.md</div>
+            <div>Geist · weight 400</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">12px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.52 (18.24px)</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">0em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">400 (Regular)</span></div>
+          </div>
+        </div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-body-sm">Six hours of weather. One decision.</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.ui.body.sm</div>
+            <div>Geist · weight 400</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">10.5px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.48 (15.54px)</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">0em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">400 (Regular)</span></div>
+          </div>
+        </div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-label-lg">Best For Today</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.ui.label.lg</div>
+            <div>Geist · weight 500 · caps</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">11px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.0</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">0.08em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">500 (Medium)</span></div>
+            <div class="ann-row"><span class="ann-key">Transform</span><span class="ann-val">uppercase</span></div>
+          </div>
+        </div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-label-md">Scenic Score</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.ui.label.md</div>
+            <div>Geist · weight 600 · caps</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">9.5px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.0</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">0.12em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">600 (SemiBold)</span></div>
+            <div class="ann-row"><span class="ann-key">Transform</span><span class="ann-val">uppercase</span></div>
+          </div>
+        </div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-label-sm">Friday · 68°F · Clear</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.ui.label.sm</div>
+            <div>Geist · weight 600 · caps</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">8.5px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.0</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">0.14em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">600 (SemiBold)</span></div>
+            <div class="ann-row"><span class="ann-key">Transform</span><span class="ann-val">uppercase</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INSTRUMENT FAMILY -->
+      <div class="family-group">
+        <div class="family-label">Instrument — JetBrains Mono / numeric readouts / tabular</div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-instr-lg">64 mi · 2h 10m</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.instrument.lg</div>
+            <div>JetBrains Mono · weight 500 · tnum</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">18px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.12 (20.16px)</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">-0.02em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">500 (Medium)</span></div>
+            <div class="ann-row"><span class="ann-key">Features</span><span class="ann-val">tnum (tabular)</span></div>
+          </div>
+        </div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-instr-md">9,847 ft gain</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.instrument.md</div>
+            <div>JetBrains Mono · weight 500 · tnum</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">13px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.2 (15.6px)</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">-0.01em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">500 (Medium)</span></div>
+            <div class="ann-row"><span class="ann-key">Features</span><span class="ann-val">tnum (tabular)</span></div>
+          </div>
+        </div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-instr-sm">68°F · 12 mph NW</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.instrument.sm</div>
+            <div>JetBrains Mono · weight 500 · tnum</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">10px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.2 (12px)</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">0em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">500 (Medium)</span></div>
+            <div class="ann-row"><span class="ann-key">Features</span><span class="ann-val">tnum (tabular)</span></div>
+          </div>
+        </div>
+
+        <div class="specimen-row">
+          <div class="specimen-text t-instr-xs">DIST · TIME · ELV</div>
+          <div class="specimen-meta">
+            <div class="token-name">typography.instrument.xs</div>
+            <div>JetBrains Mono · weight 500 · tnum</div>
+          </div>
+          <div class="specimen-annotation">
+            <div class="ann-row"><span class="ann-key">Size</span><span class="ann-val">8.5px</span></div>
+            <div class="ann-row"><span class="ann-key">Line-height</span><span class="ann-val">1.0</span></div>
+            <div class="ann-row"><span class="ann-key">Letter-spacing</span><span class="ann-val">0em</span></div>
+            <div class="ann-row"><span class="ann-key">Weight</span><span class="ann-val">500 (Medium)</span></div>
+            <div class="ann-row"><span class="ann-key">Features</span><span class="ann-val">tnum (tabular)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic-Type Preview -->
+    <div style="margin-left:152px; margin-top:56px;">
+      <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);margin-bottom:20px;">Dynamic Type / font-scale preview — opinion.xl at 1.0x, 1.3x, 1.7x</div>
+      <div class="dyntype-row">
+        <div class="dyntype-cell">
+          <div class="dyntype-label">1.0x (100%)</div>
+          <div style="font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em;">Where are we<br><em style="font-style:italic;">riding today?</em></div>
+        </div>
+        <div class="dyntype-cell">
+          <div class="dyntype-label">1.3x (130%)</div>
+          <div style="font-family:var(--font-opinion);font-weight:400;font-size:39px;line-height:1.12;letter-spacing:-0.015em;">Where are we<br><em style="font-style:italic;">riding today?</em></div>
+        </div>
+        <div class="dyntype-cell">
+          <div class="dyntype-label">1.7x (170%)</div>
+          <div style="font-family:var(--font-opinion);font-weight:400;font-size:51px;line-height:1.12;letter-spacing:-0.015em;">Where are we<br><em style="font-style:italic;">riding today?</em></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Color matrix -->
+    <div style="margin-left:152px;margin-top:56px;">
+      <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);margin-bottom:20px;">ContentColor override matrix — all seven roles shown on opinion.md</div>
+    </div>
+    <div class="color-matrix">
+      <div class="color-cell">
+        <div class="color-cell-label">content.primary</div>
+        <div class="color-cell-sample" style="color:var(--content-primary);">The Skyline Spine</div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);">#1E1A16</div>
+      </div>
+      <div class="color-cell">
+        <div class="color-cell-label">content.secondary</div>
+        <div class="color-cell-sample" style="color:var(--content-secondary);">The Skyline Spine</div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);">#49454F</div>
+      </div>
+      <div class="color-cell">
+        <div class="color-cell-label">content.tertiary</div>
+        <div class="color-cell-sample" style="color:var(--content-tertiary);">The Skyline Spine</div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);">#6B6460</div>
+      </div>
+      <div class="color-cell">
+        <div class="color-cell-label">content.subtle</div>
+        <div class="color-cell-sample" style="color:var(--content-subtle);">The Skyline Spine</div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);">#9CA3AF</div>
+      </div>
+      <div class="color-cell">
+        <div class="color-cell-label">signal.default</div>
+        <div class="color-cell-sample" style="color:var(--signal-default);">The Skyline Spine</div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);">#EE7C2B</div>
+      </div>
+      <div class="color-cell">
+        <div class="color-cell-label">content.error</div>
+        <div class="color-cell-sample" style="color:var(--content-error);">The Skyline Spine</div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);">#C9423C</div>
+      </div>
+      <div class="color-cell" style="background:var(--signal-default);">
+        <div class="color-cell-label" style="color:rgba(255,255,255,0.7);">content.onSignal</div>
+        <div class="color-cell-sample" style="color:#FFFFFF;">The Skyline Spine</div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:rgba(255,255,255,0.6);">#FFFFFF</div>
+      </div>
+    </div>
+
+    <!-- Cross-family pairing example -->
+    <div style="margin-left:152px;margin-top:56px;">
+      <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);margin-bottom:20px;">Cross-family pairing — opinion headline + ui label + instrument readout</div>
+    </div>
+    <div class="pairing-demo">
+      <div class="pairing-overline">FRIDAY · 68°F · CLEAR</div>
+      <div class="pairing-headline"><em class="opinion-ital">Where are we riding</em> today?</div>
+      <div class="pairing-label-row">NAVIGATOR · COPPER BUILD · 2026</div>
+      <div class="pairing-instruments">
+        <div class="pairing-instr-cell">
+          <div class="pairing-instr-label">Distance</div>
+          <div class="pairing-instr-value">64 mi</div>
+        </div>
+        <div class="pairing-instr-cell">
+          <div class="pairing-instr-label">Time</div>
+          <div class="pairing-instr-value">2h 10m</div>
+        </div>
+        <div class="pairing-instr-cell">
+          <div class="pairing-instr-label">Elevation</div>
+          <div class="pairing-instr-value">3,240 ft</div>
+        </div>
+        <div class="pairing-instr-cell">
+          <div class="pairing-instr-label">Scenic</div>
+          <div class="pairing-instr-value" style="color:var(--signal-default);">9.4</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══ §03 STATES / INTERACTIONS ═════════════════════════════════════ -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States / Interactions</div>
+      <h2 class="section-title">Accessibility, truncation, <em>italic</em>.</h2>
+    </div>
+    <p class="prose">
+      <strong>LSText</strong> is a display atom with no interactive states. Its state surface
+      is limited to: normal rendering, <em>truncated</em> (single-line with ellipsis, or
+      multi-line clamped to maxLines), and <em>highlighted</em> (when a consumer wraps
+      it inside a selection context).
+    </p>
+    <p class="prose">
+      Italic is available on the <strong>opinion</strong> family only (Newsreader is
+      italic-capable at opsz 6–72). Geist and JetBrains Mono do not use italic in the
+      Copper system — weight contrast carries hierarchy instead.
+    </p>
+    <p class="prose">
+      Dynamic Type scaling on iOS and font-scale on Android multiply every
+      <strong>font-size</strong> token by the system scale factor. Components
+      using <strong>LSText</strong> must not clip at larger scales — use flexible
+      heights and scroll containers.
+    </p>
+  </section>
+</div>
+
+<!-- ═══ §04 DIMENSIONS TABLE ══════════════════════════════════════════ -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Dimensions</div>
+      <h2 class="section-title">Every variant <em>pinned</em> to pixel values.</h2>
+    </div>
+    <table class="dims-table">
+      <thead>
+        <tr>
+          <th>Token</th>
+          <th>Family</th>
+          <th>Size (px)</th>
+          <th>Line-height</th>
+          <th>Cap-height (px)</th>
+          <th>Letter-spacing</th>
+          <th>Weight</th>
+          <th>Features</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>opinion.xl</td><td>Newsreader</td><td>30</td><td>1.12 → 33.6px</td><td>~18px</td><td>-0.015em</td><td>400</td><td>italic-capable</td></tr>
+        <tr><td>opinion.lg</td><td>Newsreader</td><td>22</td><td>1.18 → 25.96px</td><td>~13px</td><td>-0.01em</td><td>400</td><td>italic-capable</td></tr>
+        <tr><td>opinion.md</td><td>Newsreader</td><td>17</td><td>1.32 → 22.44px</td><td>~10px</td><td>0em</td><td>400</td><td>italic-capable</td></tr>
+        <tr><td>opinion.sm</td><td>Newsreader</td><td>14</td><td>1.45 → 20.3px</td><td>~8.5px</td><td>0em</td><td>400</td><td>italic-capable</td></tr>
+        <tr><td>ui.title.lg</td><td>Geist</td><td>17</td><td>1.24 → 21.08px</td><td>~11.5px</td><td>-0.01em</td><td>600</td><td>—</td></tr>
+        <tr><td>ui.title.md</td><td>Geist</td><td>14</td><td>1.28 → 17.92px</td><td>~9.5px</td><td>-0.005em</td><td>600</td><td>—</td></tr>
+        <tr><td>ui.title.sm</td><td>Geist</td><td>12</td><td>1.28 → 15.36px</td><td>~8px</td><td>0em</td><td>600</td><td>—</td></tr>
+        <tr><td>ui.body.lg</td><td>Geist</td><td>14</td><td>1.48 → 20.72px</td><td>~9.5px</td><td>0em</td><td>400</td><td>—</td></tr>
+        <tr><td>ui.body.md</td><td>Geist</td><td>12</td><td>1.52 → 18.24px</td><td>~8px</td><td>0em</td><td>400</td><td>—</td></tr>
+        <tr><td>ui.body.sm</td><td>Geist</td><td>10.5</td><td>1.48 → 15.54px</td><td>~7px</td><td>0em</td><td>400</td><td>—</td></tr>
+        <tr><td>ui.label.lg</td><td>Geist</td><td>11</td><td>1.0 → 11px</td><td>~7.5px</td><td>0.08em</td><td>500</td><td>uppercase</td></tr>
+        <tr><td>ui.label.md</td><td>Geist</td><td>9.5</td><td>1.0 → 9.5px</td><td>~6.5px</td><td>0.12em</td><td>600</td><td>uppercase</td></tr>
+        <tr><td>ui.label.sm</td><td>Geist</td><td>8.5</td><td>1.0 → 8.5px</td><td>~5.5px</td><td>0.14em</td><td>600</td><td>uppercase</td></tr>
+        <tr><td>instrument.lg</td><td>JetBrains Mono</td><td>18</td><td>1.12 → 20.16px</td><td>~12px</td><td>-0.02em</td><td>500</td><td>tnum</td></tr>
+        <tr><td>instrument.md</td><td>JetBrains Mono</td><td>13</td><td>1.2 → 15.6px</td><td>~8.5px</td><td>-0.01em</td><td>500</td><td>tnum</td></tr>
+        <tr><td>instrument.sm</td><td>JetBrains Mono</td><td>10</td><td>1.2 → 12px</td><td>~6.5px</td><td>0em</td><td>500</td><td>tnum</td></tr>
+        <tr><td>instrument.xs</td><td>JetBrains Mono</td><td>8.5</td><td>1.0 → 8.5px</td><td>~5.5px</td><td>0em</td><td>500</td><td>tnum</td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<!-- ═══ §05 MOTION ════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Text is <em>static</em>.</h2>
+    </div>
+    <p class="prose">
+      <strong>LSText</strong> has no intrinsic animation. Motion is applied
+      by composing organisms — e.g., the Navigator message fade-in or
+      the route title slide-up on sheet expansion. The text atom itself
+      does not own motion tokens. Downstream molecules own transition timing.
+    </p>
+  </section>
+</div>
+
+<!-- ═══ §06 RATIONALE ═════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Why three families, not <em>one</em>?</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Acceptance Criteria Coverage</h4>
+        <ul>
+          <li><strong>AC-1</strong> — opinion.xl rendered in Newsreader at 30px / 1.12lh on iOS and Android identically.</li>
+          <li><strong>AC-2</strong> — instrument.lg rendered in JetBrains Mono at 18px / tnum on both platforms.</li>
+          <li><strong>AC-3</strong> — Full cross-family matrix visible in this mock; story parity required per AC-3/4.</li>
+          <li><strong>AC-5</strong> — Dynamic Type / font-scale preview validates proportional scaling.</li>
+          <li><strong>AC-6</strong> — ContentColor enum demonstrated across all seven color roles.</li>
+          <li><strong>AC-7</strong> — No raw color literals appear in any LSText usage.</li>
+        </ul>
+      </div>
+      <div class="rationale-block">
+        <h4>Design Rationale</h4>
+        <p>
+          Three families serve three cognitive modes in the riding experience:
+          <em>Opinion</em> (Newsreader) voices the Navigator — editorial, persuasive,
+          human. <em>UI</em> (Geist) labels controls — neutral, legible, efficient.
+          <em>Instrument</em> (JetBrains Mono) carries numbers — tabular-aligned,
+          scannable mid-glance. Mixing them in a single surface creates hierarchy
+          without requiring size jumps.
+        </p>
+        <p>
+          The italic capability of Newsreader is intentional. Navigator voice phrases
+          use italic for emphasis ("Where are we <em>riding</em> today?"). This is
+          a semantic choice, not a stylistic decoration — italic Newsreader reads
+          as the Navigator's tone of voice.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══ FOOTER ════════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">
+      Lane<em>Shadow</em>
+      <span>V2 Copper Navigator · ATM Tier A · 2026</span>
+    </div>
+    <div class="footer-note">
+      UC-ATM-01 — LSText<br>
+      All thirteen variants pinned.<br>
+      <em>Three families. One atom.</em>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

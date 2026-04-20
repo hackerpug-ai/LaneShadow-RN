@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<!-- uc-atm-03-input.html — UC-ATM-03 "LSTextField + LSTextArea Atoms"
+     LaneShadow V2 · Copper · Navigator Design Mock · 2026-04-20
+     Surface: LIGHT
+     Authority: .spec/prds/v2/05-uc-atm.md §UC-ATM-03 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ATM-03 — LSTextField + LSTextArea — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM — shared spine
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:  #FDFBF8;
+  --paper-100: #F8F7F6;
+  --paper-150: #F5F2EE;
+  --paper-200: #F2EFED;
+  --paper-300: #EDE7E1;
+  --paper-400: #E5DED9;
+  --paper-500: #C9BDB3;
+  --ink-900:   #1E1A16;
+  --ink-800:   #221810;
+  --ink-700:   #2D2218;
+  --ink-600:   #362A1F;
+  --ink-500:   #3D3228;
+  --ink-400:   #49454F;
+  --ink-300:   #6B6460;
+  --ink-200:   #9CA3AF;
+  --ink-100:   #CAC4D0;
+  --ink-050:   #F2EEE8;
+  --copper-700: #9E4A22;
+  --copper-600: #B85A2C;
+  --copper-500: #EE7C2B;
+  --copper-400: #F3A164;
+  --copper-200: #F9D5B5;
+  --copper-100: #FCE8D4;
+  --status-error: #C9423C;
+  --status-error-tint: #F5D8D6;
+  --font-opinion:    'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+}
+:root {
+  --surface-primary:   var(--paper-100);
+  --surface-card:      var(--paper-50);
+  --surface-inset:     var(--paper-200);
+  --surface-input:     var(--paper-50);
+  --content-primary:   var(--ink-900);
+  --content-secondary: var(--ink-400);
+  --content-tertiary:  var(--ink-300);
+  --content-subtle:    var(--ink-200);
+  --content-onSignal:  #FFFFFF;
+  --content-error:     var(--status-error);
+  --signal-default:    var(--copper-500);
+  --signal-pressed:    var(--copper-700);
+  --signal-tint:       var(--copper-200);
+  --signal-whisper:    var(--copper-100);
+  --border-default:    var(--paper-400);
+  --border-subtle:     var(--paper-300);
+  --border-strong:     var(--paper-500);
+  --border-focus:      var(--copper-500);
+  --border-error:      var(--status-error);
+  --elev-card:         0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:       0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
+}
+body { background: var(--surface-primary); color: var(--content-primary); }
+
+/* TYPOGRAPHY */
+.t-opinion-xl  { font-family: var(--font-opinion); font-weight: 400; font-size: 30px; line-height: 1.12; letter-spacing: -0.015em; }
+.t-opinion-lg  { font-family: var(--font-opinion); font-weight: 400; font-size: 22px; line-height: 1.18; letter-spacing: -0.01em; }
+.t-opinion-md  { font-family: var(--font-opinion); font-weight: 400; font-size: 17px; line-height: 1.32; }
+.t-opinion-sm  { font-family: var(--font-opinion); font-weight: 400; font-size: 14px; line-height: 1.45; }
+.t-title-lg    { font-family: var(--font-ui); font-weight: 600; font-size: 17px; line-height: 1.24; letter-spacing: -0.01em; }
+.t-title-md    { font-family: var(--font-ui); font-weight: 600; font-size: 14px; line-height: 1.28; letter-spacing: -0.005em; }
+.t-title-sm    { font-family: var(--font-ui); font-weight: 600; font-size: 12px; line-height: 1.28; }
+.t-body-lg     { font-family: var(--font-ui); font-weight: 400; font-size: 14px; line-height: 1.48; }
+.t-body-md     { font-family: var(--font-ui); font-weight: 400; font-size: 12px; line-height: 1.52; }
+.t-body-sm     { font-family: var(--font-ui); font-weight: 400; font-size: 10.5px; line-height: 1.48; }
+.t-label-lg    { font-family: var(--font-ui); font-weight: 500; font-size: 11px; line-height: 1.0; letter-spacing: 0.08em; text-transform: uppercase; }
+.t-label-md    { font-family: var(--font-ui); font-weight: 600; font-size: 9.5px; line-height: 1.0; letter-spacing: 0.12em; text-transform: uppercase; }
+.t-label-sm    { font-family: var(--font-ui); font-weight: 600; font-size: 8.5px; line-height: 1.0; letter-spacing: 0.14em; text-transform: uppercase; }
+.t-instr-lg    { font-family: var(--font-instrument); font-weight: 500; font-size: 18px; line-height: 1.12; letter-spacing: -0.02em; font-feature-settings: "tnum" 1; }
+.t-instr-md    { font-family: var(--font-instrument); font-weight: 500; font-size: 13px; line-height: 1.2; font-feature-settings: "tnum" 1; }
+.t-instr-sm    { font-family: var(--font-instrument); font-weight: 500; font-size: 10px; line-height: 1.2; font-feature-settings: "tnum" 1; }
+.t-instr-xs    { font-family: var(--font-instrument); font-weight: 500; font-size: 8.5px; line-height: 1.0; font-feature-settings: "tnum" 1; }
+
+/* DOCUMENT CHROME */
+body { font-family: var(--font-ui); -webkit-font-smoothing: antialiased; min-height: 100vh; line-height: 1.55; overflow-x: hidden; }
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+.doc-header { position: relative; padding: 96px 0 72px; border-bottom: 1px solid var(--border-default); overflow: hidden; }
+.doc-header::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%); pointer-events: none; }
+.doc-header > * { position: relative; z-index: 1; }
+.doc-eyebrow { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-ui); font-size: 10.5px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--signal-default); margin-bottom: 28px; }
+.doc-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--signal-default); }
+.doc-eyebrow-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--signal-default); color: var(--signal-default); background: var(--signal-whisper); font-size: 9.5px; letter-spacing: 0.14em; }
+.doc-title { font-family: var(--font-opinion); font-size: 104px; font-weight: 300; line-height: 0.94; letter-spacing: -0.035em; color: var(--content-primary); margin-bottom: 32px; max-width: 1000px; }
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.doc-tagline { font-family: var(--font-opinion); font-style: italic; font-size: 22px; font-weight: 300; color: var(--content-secondary); max-width: 640px; line-height: 1.55; margin-bottom: 56px; }
+.doc-meta-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 24px; padding-top: 36px; border-top: 1px solid var(--border-default); }
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label { font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary); }
+.meta-value { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); }
+.section { padding: 96px 0; border-bottom: 1px solid var(--border-default); position: relative; }
+.section:last-child { border-bottom: none; }
+.section-header { display: grid; grid-template-columns: 120px 1fr; align-items: baseline; gap: 32px; margin-bottom: 56px; }
+.section-index { font-family: var(--font-instrument); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; color: var(--signal-default); text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+.section-index::before { content: ""; display: block; width: 48px; height: 1px; background: var(--signal-default); }
+.section-title { font-family: var(--font-opinion); font-size: 52px; font-weight: 300; letter-spacing: -0.025em; line-height: 1.04; color: var(--content-primary); max-width: 900px; }
+.section-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.prose { font-family: var(--font-opinion); font-weight: 300; font-size: 19px; line-height: 1.68; color: var(--content-secondary); max-width: 720px; margin-left: 152px; }
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+.prose strong { font-family: var(--font-ui); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal-default); display: inline-block; padding: 2px 8px; background: var(--signal-whisper); border: 1px solid var(--signal-tint); border-radius: 4px; margin: 0 2px; }
+.doc-footer { padding: 80px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: end; }
+.footer-mark { font-family: var(--font-opinion); font-size: 44px; font-weight: 300; line-height: 1; color: var(--content-primary); letter-spacing: -0.02em; }
+.footer-mark em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.footer-mark span { display: block; font-size: 14px; font-style: italic; color: var(--content-tertiary); margin-top: 10px; font-weight: 300; }
+.footer-note { font-family: var(--font-opinion); font-style: italic; font-size: 14px; line-height: 1.7; color: var(--content-tertiary); text-align: right; font-weight: 300; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   INPUT ATOM STYLES
+   LSTextField: height 48px, radius 6px (radius.sm), padding 12px (spacing.3)
+   LSTextArea: min-height 48px, same radius + padding, auto-growing
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Form field wrapper — label + input + helper */
+.ls-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--content-primary);
+  letter-spacing: 0;
+  line-height: 1.28;
+}
+
+.field-label.required::after {
+  content: " *";
+  color: var(--content-error);
+}
+
+/* Input wrapper — contains leading/trailing icons */
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Base input field */
+.ls-input {
+  width: 100%;
+  height: 48px;                     /* sizing.component.inputHeight */
+  padding: 0 12px;                  /* spacing.3 */
+  border-radius: 6px;               /* radius.sm */
+  border: 1px solid var(--border-default);
+  background: var(--surface-input); /* color.surface.input */
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--content-primary);
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  -webkit-appearance: none;
+}
+
+.ls-input::placeholder {
+  color: var(--content-subtle);
+}
+
+/* Leading icon padding shift */
+.input-wrap.has-leading .ls-input { padding-left: 40px; }
+.input-wrap.has-trailing .ls-input { padding-right: 40px; }
+
+/* States */
+.ls-input.focused,
+.ls-input:focus {
+  border-color: var(--border-focus);          /* color.border.focus = copper-500 */
+  box-shadow: 0 0 0 3px rgba(238,124,43,0.15);
+  background: var(--surface-card);
+}
+
+.ls-input.error-state {
+  border-color: var(--border-error);          /* color.border.error */
+  background: var(--status-error-tint);
+  box-shadow: 0 0 0 3px rgba(201,66,60,0.12);
+}
+
+.ls-input:disabled,
+.ls-input.disabled {
+  background: var(--paper-200);
+  border-color: var(--border-subtle);
+  color: var(--content-subtle);
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* Icon slots */
+.input-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;    /* sizing.icon.sm */
+  height: 16px;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  color: var(--content-tertiary);
+}
+.input-icon.leading { left: 12px; }   /* spacing.3 */
+.input-icon.trailing { right: 12px; pointer-events: auto; cursor: pointer; }
+.input-icon svg { width: 16px; height: 16px; stroke-width: 1.5; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Error when icon is present: icon turns red */
+.error-state ~ .input-icon,
+.input-wrap.has-error .input-icon.trailing { color: var(--content-error); }
+
+/* Helper text */
+.field-helper {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--content-tertiary);
+  line-height: 1.45;
+}
+.field-helper.error { color: var(--content-error); }
+
+/* LSTextArea — auto-grow, min 1 row, max specified via JS in production */
+.ls-textarea {
+  width: 100%;
+  min-height: 48px;                  /* 1 row = input height */
+  padding: 12px;                     /* spacing.3 all around */
+  border-radius: 6px;                /* radius.sm */
+  border: 1px solid var(--border-default);
+  background: var(--surface-input);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--content-primary);
+  outline: none;
+  resize: vertical;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+  line-height: 1.55;
+  -webkit-appearance: none;
+}
+.ls-textarea::placeholder { color: var(--content-subtle); }
+.ls-textarea.focused, .ls-textarea:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(238,124,43,0.15); background: var(--surface-card); }
+.ls-textarea.error-state { border-color: var(--border-error); background: var(--status-error-tint); box-shadow: 0 0 0 3px rgba(201,66,60,0.12); }
+.ls-textarea:disabled, .ls-textarea.disabled { background: var(--paper-200); border-color: var(--border-subtle); color: var(--content-subtle); cursor: not-allowed; opacity: 0.65; }
+/* row heights: each row ≈ 14*1.55 + 24 = ~45.7px (1 row=48, 2 rows=72, 3 rows=96) */
+
+/* ── STATES GRID ─────────────────────────────────────────────────── */
+.states-grid {
+  margin-left: 152px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 32px;
+}
+.state-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.state-col-label {
+  font-family: var(--font-ui);
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--content-tertiary);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+/* ── ICON VARIANTS STRIP ─────────────────────────────────────────── */
+.icon-strip {
+  margin-left: 152px;
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin-top: 40px;
+}
+.icon-field { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 240px; max-width: 320px; }
+.icon-field-label { font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--content-tertiary); }
+
+/* ── TEXTAREA GROW PREVIEW ───────────────────────────────────────── */
+.grow-strip {
+  margin-left: 152px;
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin-top: 40px;
+}
+.grow-cell { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 240px; max-width: 340px; }
+.grow-label { font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--content-tertiary); }
+
+/* ── COMPLETE FORM COMPOSITION ───────────────────────────────────── */
+.form-composition {
+  margin-left: 152px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 32px 36px;
+  max-width: 480px;
+  box-shadow: var(--elev-card);
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.form-title {
+  font-family: var(--font-opinion);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.18;
+  color: var(--content-primary);
+  margin-bottom: 4px;
+}
+
+/* Dims table */
+.dims-table { margin-left: 152px; width: calc(100% - 152px); border-collapse: collapse; font-family: var(--font-ui); font-size: 12px; margin-top: 32px; }
+.dims-table th { font-size: 8.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--content-tertiary); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border-default); background: var(--surface-inset); }
+.dims-table td { padding: 10px 14px; border-bottom: 1px solid var(--border-subtle); color: var(--content-secondary); }
+.dims-table td:first-child { font-family: var(--font-instrument); font-size: 11px; color: var(--signal-default); font-weight: 500; }
+.dims-table tr:last-child td { border-bottom: none; }
+
+.rationale-grid { padding-left: 152px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+.rationale-block h4 { font-family: var(--font-ui); font-size: 10.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--signal-default); margin-bottom: 14px; }
+.rationale-block p { font-family: var(--font-opinion); font-weight: 300; font-size: 15px; line-height: 1.65; color: var(--content-secondary); margin-bottom: 10px; }
+.rationale-block ul { list-style: none; }
+.rationale-block li { padding: 8px 0 8px 18px; position: relative; font-family: var(--font-ui); font-size: 12.5px; color: var(--content-secondary); border-bottom: 1px solid var(--border-subtle); }
+.rationale-block li::before { content: "→"; position: absolute; left: 0; top: 8px; color: var(--signal-default); font-family: var(--font-instrument); }
+.rationale-block li strong { font-family: var(--font-instrument); color: var(--content-primary); font-weight: 500; font-size: 11px; }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow">
+      <span>UC-ATM-03</span>
+      <span class="doc-eyebrow-pill">● Atoms · Tier A</span>
+    </div>
+    <h1 class="doc-title">Input that <em>listens</em>.</h1>
+    <p class="doc-tagline">
+      48px single-line and auto-growing multi-line inputs — both with
+      copper focus border, icon slots, error state, and disabled state.
+      radius.sm, spacing.3, color.border.focus.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-ATM-03</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">05-uc-atm.md</div></div>
+      <div class="meta-item"><div class="meta-label">Surface</div><div class="meta-value">Light</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Text entry with four <em>visual states</em>.</h2>
+    </div>
+    <p class="prose">
+      <strong>LSTextField</strong> and <strong>LSTextArea</strong> are the only typed text
+      entry atoms in the Copper system. Both expose the same four states:
+      <em>default</em>, <em>focused</em>, <em>error</em>, <em>disabled</em>.
+      Both share structural tokens: <strong>48px height</strong> (input height),
+      <strong>6px radius</strong> (radius.sm), <strong>12px padding</strong> (spacing.3).
+    </p>
+    <p class="prose">
+      The focused state resolves the border to <strong>color.border.focus</strong>
+      (copper-500, #EE7C2B) with a 3px glow ring. This is the single most important
+      affordance in the system — it tells the rider exactly where their keyboard input
+      is going in a high-vibration, gloved context.
+    </p>
+  </section>
+</div>
+
+<!-- §02 THE ATOM -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · The Atom</div>
+      <h2 class="section-title"><em>LSTextField</em> — four states.</h2>
+    </div>
+
+    <!-- TextField states -->
+    <div class="states-grid">
+      <div class="state-col">
+        <div class="state-col-label">Default</div>
+        <div class="ls-form-field">
+          <label class="field-label">Ride destination</label>
+          <div class="input-wrap">
+            <input class="ls-input" type="text" placeholder="Plan a ride…" value="">
+          </div>
+          <div class="field-helper">Enter a city, road, or region.</div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);line-height:1.6;">
+          bg: surface.input (#FDFBF8)<br>
+          border: border.default (#E5DED9)<br>
+          h: 48px · r: 6px · px: 12px
+        </div>
+      </div>
+
+      <div class="state-col">
+        <div class="state-col-label">Focused</div>
+        <div class="ls-form-field">
+          <label class="field-label">Ride destination</label>
+          <div class="input-wrap">
+            <input class="ls-input focused" type="text" placeholder="Plan a ride…" value="Marin Headlands">
+          </div>
+          <div class="field-helper">Enter a city, road, or region.</div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);line-height:1.6;">
+          bg: surface.card (#FDFBF8)<br>
+          border: border.focus (#EE7C2B)<br>
+          ring: copper 15% / 3px
+        </div>
+      </div>
+
+      <div class="state-col">
+        <div class="state-col-label">Error</div>
+        <div class="ls-form-field">
+          <label class="field-label required">Start location</label>
+          <div class="input-wrap">
+            <input class="ls-input error-state" type="text" placeholder="" value="xxxxxx">
+          </div>
+          <div class="field-helper error">
+            Location not recognized. Try a city or landmark.
+          </div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);line-height:1.6;">
+          bg: status.error.tint (#F5D8D6)<br>
+          border: border.error (#C9423C)<br>
+          helper: content.error · 11px Geist
+        </div>
+      </div>
+
+      <div class="state-col">
+        <div class="state-col-label">Disabled</div>
+        <div class="ls-form-field">
+          <label class="field-label" style="color:var(--content-subtle);">End location</label>
+          <div class="input-wrap">
+            <input class="ls-input disabled" type="text" placeholder="Set automatically" disabled>
+          </div>
+          <div class="field-helper">Set by Navigator based on route.</div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);line-height:1.6;">
+          bg: paper.200 (#F2EFED)<br>
+          border: border.subtle (#EDE7E1)<br>
+          fg: content.subtle · opacity:0.65
+        </div>
+      </div>
+    </div>
+
+    <!-- Icon variants -->
+    <div style="margin-left:152px;margin-top:56px;margin-bottom:20px;">
+      <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);">With icon slots — leading (search) + trailing (clear)</div>
+    </div>
+    <div class="icon-strip">
+      <div class="icon-field">
+        <div class="icon-field-label">Leading icon (.search)</div>
+        <div class="ls-form-field">
+          <div class="input-wrap has-leading">
+            <span class="input-icon leading">
+              <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M11 11 L14 14"/></svg>
+            </span>
+            <input class="ls-input" type="text" placeholder="Search routes…">
+          </div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);">icon:16px · left:12px · pl:40px</div>
+      </div>
+
+      <div class="icon-field">
+        <div class="icon-field-label">Trailing icon (.close)</div>
+        <div class="ls-form-field">
+          <div class="input-wrap has-trailing">
+            <input class="ls-input focused" type="text" value="Marin Headlands">
+            <span class="input-icon trailing">
+              <svg viewBox="0 0 16 16"><path d="M4 4 L12 12 M12 4 L4 12"/></svg>
+            </span>
+          </div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);">icon:16px · right:12px · pr:40px</div>
+      </div>
+
+      <div class="icon-field">
+        <div class="icon-field-label">Both icons (search + clear) — focused</div>
+        <div class="ls-form-field">
+          <div class="input-wrap has-leading has-trailing">
+            <span class="input-icon leading">
+              <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M11 11 L14 14"/></svg>
+            </span>
+            <input class="ls-input focused" type="text" value="Pacific Coast Route">
+            <span class="input-icon trailing">
+              <svg viewBox="0 0 16 16"><path d="M4 4 L12 12 M12 4 L4 12"/></svg>
+            </span>
+          </div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);">pl:40px · pr:40px</div>
+      </div>
+
+      <div class="icon-field">
+        <div class="icon-field-label">Error + trailing icon</div>
+        <div class="ls-form-field">
+          <div class="input-wrap has-trailing has-error">
+            <input class="ls-input error-state" type="text" value="???">
+            <span class="input-icon trailing" style="color:var(--content-error);">
+              <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5 L8 8.5 M8 11 L8 11.5" stroke-width="1.8"/></svg>
+            </span>
+          </div>
+          <div class="field-helper error">Location not recognized.</div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);">icon: content.error</div>
+      </div>
+    </div>
+
+    <!-- TextArea section -->
+    <div style="margin-left:152px;margin-top:72px;margin-bottom:56px;">
+      <div style="font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px;color:var(--content-primary);">
+        <em style="font-style:italic;color:var(--signal-default);">LSTextArea</em> — auto-grow.
+      </div>
+    </div>
+
+    <!-- TextArea states -->
+    <div class="states-grid">
+      <div class="state-col">
+        <div class="state-col-label">Default (1 row)</div>
+        <div class="ls-form-field">
+          <label class="field-label">Notes</label>
+          <textarea class="ls-textarea" placeholder="Add any notes…" rows="1" style="height:48px;resize:none;"></textarea>
+          <div class="field-helper">Optional ride notes.</div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);line-height:1.6;">
+          h: 48px (1 row)<br>border: border.default<br>resize: none (auto-grows)
+        </div>
+      </div>
+
+      <div class="state-col">
+        <div class="state-col-label">Focused (2 rows)</div>
+        <div class="ls-form-field">
+          <label class="field-label">Route notes</label>
+          <textarea class="ls-textarea focused" rows="2" style="height:76px;resize:none;">Takes the scenic approach via the ridge road, then descends through the valley floor.</textarea>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);line-height:1.6;">
+          h: 76px (2 rows)<br>border: border.focus (#EE7C2B)<br>ring: copper 15% / 3px
+        </div>
+      </div>
+
+      <div class="state-col">
+        <div class="state-col-label">Error (3 rows)</div>
+        <div class="ls-form-field">
+          <label class="field-label required">Description</label>
+          <textarea class="ls-textarea error-state" rows="3" style="height:104px;resize:none;">Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua quisque id diam vel.</textarea>
+          <div class="field-helper error">Description must be under 160 characters.</div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);line-height:1.6;">
+          h: 104px (3 rows)<br>border: border.error (#C9423C)<br>bg: error.tint
+        </div>
+      </div>
+
+      <div class="state-col">
+        <div class="state-col-label">Disabled</div>
+        <div class="ls-form-field">
+          <label class="field-label" style="color:var(--content-subtle);">Auto-summary</label>
+          <textarea class="ls-textarea disabled" rows="2" style="height:76px;resize:none;" disabled>Navigator will generate a route summary automatically.</textarea>
+          <div class="field-helper">Generated by Navigator.</div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);line-height:1.6;">
+          bg: paper.200<br>border: border.subtle<br>opacity: 0.65
+        </div>
+      </div>
+    </div>
+
+    <!-- Auto-grow row heights preview -->
+    <div style="margin-left:152px;margin-top:56px;margin-bottom:20px;">
+      <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);">Auto-grow height progression</div>
+    </div>
+    <div class="grow-strip">
+      <div class="grow-cell">
+        <div class="grow-label">1 row — 48px</div>
+        <textarea class="ls-textarea" style="height:48px;resize:none;" placeholder="1 row = 48px minimum"></textarea>
+      </div>
+      <div class="grow-cell">
+        <div class="grow-label">2 rows — 76px</div>
+        <textarea class="ls-textarea" style="height:76px;resize:none;">Two rows of text grow the field to 76px total, maintaining 12px padding top and bottom.</textarea>
+      </div>
+      <div class="grow-cell">
+        <div class="grow-label">3 rows — 104px</div>
+        <textarea class="ls-textarea" style="height:104px;resize:none;">Three rows at 28px per line (14×1.55 ≈ 21.7px, rounded for breathing room) plus 24px vertical padding = 104px. This is a common maxRows in the Navigator form surfaces.</textarea>
+      </div>
+      <div class="grow-cell">
+        <div class="grow-label">maxRows — scrolls internally</div>
+        <textarea class="ls-textarea" style="height:104px;overflow-y:auto;resize:none;">When the content exceeds maxRows (typically 4–6), the textarea stops growing and becomes internally scrollable. The field itself does not exceed its max height. The scroll bar is styled with the surface.inset color.</textarea>
+      </div>
+    </div>
+
+    <!-- Complete form composition -->
+    <div style="margin-left:152px;margin-top:56px;margin-bottom:20px;">
+      <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);">Complete LSFormField composition — two stacked rows</div>
+    </div>
+    <div class="form-composition">
+      <div class="form-title"><em style="font-style:italic;color:var(--signal-default);">Plan</em> your ride.</div>
+      <div class="ls-form-field">
+        <label class="field-label required">Start location</label>
+        <div class="input-wrap has-leading">
+          <span class="input-icon leading">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="8" cy="7" r="3"/><path d="M8 14 C8 14 2.5 9.5 2.5 7 a5.5 5.5 0 0 1 11 0 C13.5 9.5 8 14 8 14z"/>
+            </svg>
+          </span>
+          <input class="ls-input focused" type="text" value="Marin Headlands, CA">
+        </div>
+        <div class="field-helper">Where does your ride begin?</div>
+      </div>
+      <div class="ls-form-field">
+        <label class="field-label">Route notes</label>
+        <textarea class="ls-textarea" style="height:76px;resize:none;" placeholder="Any preferences for this ride… scenic, fast, avoid highways…"></textarea>
+        <div class="field-helper">Optional — the Navigator uses this to refine suggestions.</div>
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<!-- §03 STATES / INTERACTIONS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States / Interactions</div>
+      <h2 class="section-title">Focus, keyboard, <em>accessibility</em>.</h2>
+    </div>
+    <p class="prose">
+      The focused state shows the copper border + glow — not a filled background.
+      The field stays the <em>same color</em> as default (surface.card) so text
+      on the copper border has sufficient contrast. WCAG 2.1 AA requires 3:1 contrast
+      between the focus indicator and adjacent non-focused elements. The 3px copper
+      ring at 15% opacity fulfills this combined with the solid 1px copper border.
+    </p>
+    <p class="prose">
+      <strong>LSTextArea</strong> grows vertically as the user types. In production
+      iOS this is a UITextView with intrinsic content size updates on every keystroke.
+      On Android, a Compose TextField with minLines/maxLines. Both platforms must
+      not animate the height growth — it should be instantaneous to avoid fighting
+      the keyboard animation.
+    </p>
+    <p class="prose">
+      Error state is set externally by the form owner — the atom does not
+      validate itself. The helper text row exists below both field types and
+      must expand without truncation. Error text uses <strong>content.error</strong>
+      (#C9423C), not an inline red literal.
+    </p>
+  </section>
+</div>
+
+<!-- §04 DIMENSIONS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Dimensions</div>
+      <h2 class="section-title">Structural tokens, <em>pinned</em>.</h2>
+    </div>
+    <table class="dims-table">
+      <thead>
+        <tr>
+          <th>Component / State</th>
+          <th>Height</th>
+          <th>Padding (all)</th>
+          <th>Radius</th>
+          <th>Border</th>
+          <th>Border color</th>
+          <th>Bg</th>
+          <th>Font</th>
+          <th>Icon size</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>LSTextField · default</td><td>48px</td><td>0 12px</td><td>6px (radius.sm)</td><td>1px solid</td><td>border.default (#E5DED9)</td><td>surface.input</td><td>Geist 14/400</td><td>16px (icon.sm)</td></tr>
+        <tr><td>LSTextField · focused</td><td>48px</td><td>0 12px</td><td>6px</td><td>1px solid + 3px ring</td><td>border.focus (#EE7C2B)</td><td>surface.card</td><td>Geist 14/400</td><td>16px</td></tr>
+        <tr><td>LSTextField · error</td><td>48px</td><td>0 12px</td><td>6px</td><td>1px solid + 3px ring</td><td>border.error (#C9423C)</td><td>error.tint</td><td>Geist 14/400</td><td>16px</td></tr>
+        <tr><td>LSTextField · disabled</td><td>48px</td><td>0 12px</td><td>6px</td><td>1px solid</td><td>border.subtle (#EDE7E1)</td><td>paper.200</td><td>Geist 14/400</td><td>16px</td></tr>
+        <tr><td>LSTextField · with-icon</td><td>48px</td><td>0 12px, icon at 12px from edge</td><td>6px</td><td>1px solid</td><td>per state</td><td>per state</td><td>Geist 14/400</td><td>16px · gap: 8px</td></tr>
+        <tr><td>LSTextArea · 1 row</td><td>48px (min)</td><td>12px (spacing.3)</td><td>6px</td><td>1px solid</td><td>border.default</td><td>surface.input</td><td>Geist 14/400 · lh:1.55</td><td>N/A</td></tr>
+        <tr><td>LSTextArea · 2 rows</td><td>76px</td><td>12px</td><td>6px</td><td>1px solid</td><td>per state</td><td>per state</td><td>Geist 14/400 · lh:1.55</td><td>N/A</td></tr>
+        <tr><td>LSTextArea · 3 rows</td><td>104px</td><td>12px</td><td>6px</td><td>1px solid</td><td>per state</td><td>per state</td><td>Geist 14/400 · lh:1.55</td><td>N/A</td></tr>
+        <tr><td>LSTextArea · maxRows</td><td>104–160px</td><td>12px</td><td>6px</td><td>1px solid</td><td>per state</td><td>per state</td><td>Geist 14/400 · lh:1.55</td><td>N/A</td></tr>
+        <tr><td>Field label</td><td>auto</td><td>0</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Geist 12/600</td><td>—</td></tr>
+        <tr><td>Helper text</td><td>auto</td><td>0</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Geist 11/400</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Border transitions, <em>no height animation</em>.</h2>
+    </div>
+    <p class="prose">
+      Border-color and box-shadow transitions use <strong>120ms ease</strong>.
+      This is slightly faster than button transitions (100ms) because focus
+      changes must not lag behind the keyboard appearance.
+    </p>
+    <p class="prose">
+      TextArea height growth is instantaneous — no CSS height animation.
+      Animating height during keyboard appearance creates a double-animation
+      fight on mobile that feels broken. The content reflow is the affordance.
+    </p>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Why <em>48px</em> for inputs?</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Acceptance Criteria Coverage</h4>
+        <ul>
+          <li><strong>AC-1</strong> — LSTextField default: surface.input bg, border.default stroke, radius.sm, spacing.3 pad.</li>
+          <li><strong>AC-2</strong> — Android identical values confirmed in story parity (Compose TextField).</li>
+          <li><strong>AC-3</strong> — Focused state: border.focus (#EE7C2B) with 3px copper glow ring.</li>
+          <li><strong>AC-4</strong> — Error state: border.error + helper text in content.error.</li>
+          <li><strong>AC-5</strong> — Leading icon slot (.search) renders at sizing.icon.sm (16px) with spacing.2 gap.</li>
+          <li><strong>AC-6</strong> — Sandbox stories cover all 4 states per component on both platforms.</li>
+          <li><strong>AC-7</strong> — Live args.value control reflects typed text in real time.</li>
+        </ul>
+      </div>
+      <div class="rationale-block">
+        <h4>Design Rationale</h4>
+        <p>
+          48px input height exceeds the 44px button height intentionally.
+          Inputs are stationary tap targets — the user aims at a labeled field
+          and taps once. The extra 4px improves hit accuracy for gloved
+          or distracted riders without visually overwhelming the form.
+        </p>
+        <p>
+          radius.sm (6px) is softer than radius.md (10px for buttons) but
+          harder than a pill. It reads as <em>utilitarian</em> — a form field,
+          not a decorative chip. The copper focus ring is the system's primary
+          interactive affordance and must not be compromised by making it too subtle.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">
+      Lane<em>Shadow</em>
+      <span>V2 Copper Navigator · ATM Tier A · 2026</span>
+    </div>
+    <div class="footer-note">
+      UC-ATM-03 — LSTextField + LSTextArea<br>
+      48px · radius.sm · spacing.3<br>
+      <em>Copper focus, always.</em>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

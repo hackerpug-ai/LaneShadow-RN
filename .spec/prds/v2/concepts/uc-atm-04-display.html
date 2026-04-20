@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<!-- uc-atm-04-display.html — UC-ATM-04 "LSAvatar + LSDivider + LSSpinner"
+     LaneShadow V2 · Copper · Navigator Design Mock · 2026-04-20
+     Surface: LIGHT
+     Authority: .spec/prds/v2/05-uc-atm.md §UC-ATM-04 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ATM-04 — LSAvatar + LSDivider + LSSpinner — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM — shared spine
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:  #FDFBF8;
+  --paper-100: #F8F7F6;
+  --paper-150: #F5F2EE;
+  --paper-200: #F2EFED;
+  --paper-300: #EDE7E1;
+  --paper-400: #E5DED9;
+  --paper-500: #C9BDB3;
+  --ink-900:   #1E1A16;
+  --ink-800:   #221810;
+  --ink-700:   #2D2218;
+  --ink-600:   #362A1F;
+  --ink-500:   #3D3228;
+  --ink-400:   #49454F;
+  --ink-300:   #6B6460;
+  --ink-200:   #9CA3AF;
+  --ink-100:   #CAC4D0;
+  --ink-050:   #F2EEE8;
+  --copper-700: #9E4A22;
+  --copper-600: #B85A2C;
+  --copper-500: #EE7C2B;
+  --copper-400: #F3A164;
+  --copper-200: #F9D5B5;
+  --copper-100: #FCE8D4;
+  --font-opinion:    'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+}
+:root {
+  --surface-primary:   var(--paper-100);
+  --surface-card:      var(--paper-50);
+  --surface-inset:     var(--paper-200);
+  --content-primary:   var(--ink-900);
+  --content-secondary: var(--ink-400);
+  --content-tertiary:  var(--ink-300);
+  --content-subtle:    var(--ink-200);
+  --content-onSignal:  #FFFFFF;
+  --signal-default:    var(--copper-500);
+  --signal-pressed:    var(--copper-700);
+  --signal-tint:       var(--copper-200);
+  --signal-whisper:    var(--copper-100);
+  --border-default:    var(--paper-400);
+  --border-subtle:     var(--paper-300);
+  --border-strong:     var(--paper-500);
+  --border-focus:      var(--copper-500);
+  --elev-card:         0 2px 6px rgba(34,24,16,0.06);
+  --elev-overlay:      0 8px 24px rgba(34,24,16,0.10), 0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:       0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
+}
+body { background: var(--surface-primary); color: var(--content-primary); }
+
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+}
+
+/* TYPOGRAPHY */
+.t-opinion-xl  { font-family: var(--font-opinion); font-weight: 400; font-size: 30px; line-height: 1.12; letter-spacing: -0.015em; }
+.t-opinion-lg  { font-family: var(--font-opinion); font-weight: 400; font-size: 22px; line-height: 1.18; letter-spacing: -0.01em; }
+.t-opinion-md  { font-family: var(--font-opinion); font-weight: 400; font-size: 17px; line-height: 1.32; }
+.t-opinion-sm  { font-family: var(--font-opinion); font-weight: 400; font-size: 14px; line-height: 1.45; }
+.t-title-lg    { font-family: var(--font-ui); font-weight: 600; font-size: 17px; line-height: 1.24; letter-spacing: -0.01em; }
+.t-title-md    { font-family: var(--font-ui); font-weight: 600; font-size: 14px; line-height: 1.28; letter-spacing: -0.005em; }
+.t-title-sm    { font-family: var(--font-ui); font-weight: 600; font-size: 12px; line-height: 1.28; }
+.t-body-lg     { font-family: var(--font-ui); font-weight: 400; font-size: 14px; line-height: 1.48; }
+.t-body-md     { font-family: var(--font-ui); font-weight: 400; font-size: 12px; line-height: 1.52; }
+.t-body-sm     { font-family: var(--font-ui); font-weight: 400; font-size: 10.5px; line-height: 1.48; }
+.t-label-lg    { font-family: var(--font-ui); font-weight: 500; font-size: 11px; line-height: 1.0; letter-spacing: 0.08em; text-transform: uppercase; }
+.t-label-md    { font-family: var(--font-ui); font-weight: 600; font-size: 9.5px; line-height: 1.0; letter-spacing: 0.12em; text-transform: uppercase; }
+.t-label-sm    { font-family: var(--font-ui); font-weight: 600; font-size: 8.5px; line-height: 1.0; letter-spacing: 0.14em; text-transform: uppercase; }
+.t-instr-lg    { font-family: var(--font-instrument); font-weight: 500; font-size: 18px; line-height: 1.12; letter-spacing: -0.02em; font-feature-settings: "tnum" 1; }
+.t-instr-md    { font-family: var(--font-instrument); font-weight: 500; font-size: 13px; line-height: 1.2; font-feature-settings: "tnum" 1; }
+.t-instr-sm    { font-family: var(--font-instrument); font-weight: 500; font-size: 10px; line-height: 1.2; font-feature-settings: "tnum" 1; }
+.t-instr-xs    { font-family: var(--font-instrument); font-weight: 500; font-size: 8.5px; line-height: 1.0; font-feature-settings: "tnum" 1; }
+
+/* DOCUMENT CHROME */
+body { font-family: var(--font-ui); -webkit-font-smoothing: antialiased; min-height: 100vh; line-height: 1.55; overflow-x: hidden; }
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+.doc-header { position: relative; padding: 96px 0 72px; border-bottom: 1px solid var(--border-default); overflow: hidden; }
+.doc-header::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%); pointer-events: none; }
+.doc-header > * { position: relative; z-index: 1; }
+.doc-eyebrow { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-ui); font-size: 10.5px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--signal-default); margin-bottom: 28px; }
+.doc-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--signal-default); }
+.doc-eyebrow-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--signal-default); color: var(--signal-default); background: var(--signal-whisper); font-size: 9.5px; letter-spacing: 0.14em; }
+.doc-title { font-family: var(--font-opinion); font-size: 104px; font-weight: 300; line-height: 0.94; letter-spacing: -0.035em; color: var(--content-primary); margin-bottom: 32px; max-width: 1000px; }
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.doc-tagline { font-family: var(--font-opinion); font-style: italic; font-size: 22px; font-weight: 300; color: var(--content-secondary); max-width: 640px; line-height: 1.55; margin-bottom: 56px; }
+.doc-meta-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 24px; padding-top: 36px; border-top: 1px solid var(--border-default); }
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label { font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary); }
+.meta-value { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); }
+.section { padding: 96px 0; border-bottom: 1px solid var(--border-default); position: relative; }
+.section:last-child { border-bottom: none; }
+.section-header { display: grid; grid-template-columns: 120px 1fr; align-items: baseline; gap: 32px; margin-bottom: 56px; }
+.section-index { font-family: var(--font-instrument); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; color: var(--signal-default); text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+.section-index::before { content: ""; display: block; width: 48px; height: 1px; background: var(--signal-default); }
+.section-title { font-family: var(--font-opinion); font-size: 52px; font-weight: 300; letter-spacing: -0.025em; line-height: 1.04; color: var(--content-primary); max-width: 900px; }
+.section-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.prose { font-family: var(--font-opinion); font-weight: 300; font-size: 19px; line-height: 1.68; color: var(--content-secondary); max-width: 720px; margin-left: 152px; }
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+.prose strong { font-family: var(--font-ui); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal-default); display: inline-block; padding: 2px 8px; background: var(--signal-whisper); border: 1px solid var(--signal-tint); border-radius: 4px; margin: 0 2px; }
+.doc-footer { padding: 80px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: end; }
+.footer-mark { font-family: var(--font-opinion); font-size: 44px; font-weight: 300; line-height: 1; color: var(--content-primary); letter-spacing: -0.02em; }
+.footer-mark em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.footer-mark span { display: block; font-size: 14px; font-style: italic; color: var(--content-tertiary); margin-top: 10px; font-weight: 300; }
+.footer-note { font-family: var(--font-opinion); font-style: italic; font-size: 14px; line-height: 1.7; color: var(--content-tertiary); text-align: right; font-weight: 300; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   UC-ATM-04 DISPLAY ATOMS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── LSAVATAR ─────────────────────────────────────────────────────── */
+/*
+   Size mapping (sizing.icon.* + xl):
+   xs  → 12px (icon.xs)
+   sm  → 16px (icon.sm)
+   md  → 20px (icon.md)
+   lg  → 24px (icon.lg)
+   xl  → 32px (icon.xl)
+   Note: Avatars in the app are typically 32–48px; the icon token names
+   provide the baseline but the avatar sizes extend to 48px.
+   For UC-ATM-04, sizes are: xs=24, sm=32, md=40, lg=48, xl=56
+   (avatar.size.{xs,sm,md,lg,xl} tokens — one step above icon.*)
+*/
+.ls-avatar {
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* Size variants */
+.ls-avatar.xs { width: 24px;  height: 24px;  }
+.ls-avatar.sm { width: 32px;  height: 32px;  }
+.ls-avatar.md { width: 40px;  height: 40px;  }
+.ls-avatar.lg { width: 48px;  height: 48px;  }
+.ls-avatar.xl { width: 56px;  height: 56px;  }
+
+/* Image variant — fills the circle */
+.ls-avatar img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Initials variant — typography.ui.label.md on surface.card */
+.ls-avatar .avatar-initials {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--content-primary);
+  user-select: none;
+  line-height: 1;
+}
+
+/* Initials font size proportional to avatar size */
+.ls-avatar.xs .avatar-initials { font-size: 9px; }
+.ls-avatar.sm .avatar-initials { font-size: 11px; letter-spacing: 0.04em; }
+.ls-avatar.md .avatar-initials { font-size: 13px; letter-spacing: 0.05em; }
+.ls-avatar.lg .avatar-initials { font-size: 15px; letter-spacing: 0.05em; }
+.ls-avatar.xl .avatar-initials { font-size: 18px; letter-spacing: 0.06em; }
+
+/* Copper signal tint bg for initials to differentiate from surface */
+.ls-avatar.initials-variant {
+  background: var(--signal-whisper);
+  border-color: var(--signal-tint);
+}
+
+/* Online indicator ring */
+.avatar-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.avatar-status-dot {
+  position: absolute;
+  bottom: 0; right: 0;
+  border-radius: 50%;
+  border: 2px solid var(--surface-primary);
+  background: #2E7D52;   /* status.success */
+}
+.ls-avatar.xs + .avatar-status-dot,
+.avatar-wrap.xs .avatar-status-dot { width: 7px; height: 7px; }
+.avatar-wrap.sm .avatar-status-dot  { width: 8px; height: 8px; }
+.avatar-wrap.md .avatar-status-dot  { width: 10px; height: 10px; }
+.avatar-wrap.lg .avatar-status-dot  { width: 12px; height: 12px; }
+.avatar-wrap.xl .avatar-status-dot  { width: 14px; height: 14px; }
+
+/* ── LSDIVIDER ────────────────────────────────────────────────────── */
+.ls-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border-subtle);  /* color.border.subtle */
+  border: none;
+  display: block;
+}
+
+.ls-divider.with-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: auto;
+  background: none;
+}
+.ls-divider.with-label::before,
+.ls-divider.with-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+.divider-label {
+  font-family: var(--font-ui);
+  font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--content-tertiary);
+  white-space: nowrap;
+}
+
+/* ── LSSPINNER ────────────────────────────────────────────────────── */
+/*
+   Three sizes: sm (16px), md (20px), lg (24px)
+   Border width: 2px
+   Color: signal.default (copper-500 = #EE7C2B)
+   Animation: 700ms linear infinite rotate
+*/
+.ls-spinner {
+  border-radius: 50%;
+  border-style: solid;
+  border-color: var(--signal-tint);  /* track: copper whisper */
+  border-top-color: var(--signal-default);  /* active arc: copper-500 */
+  animation: ls-spin 700ms linear infinite;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.ls-spinner.sm { width: 16px; height: 16px; border-width: 2px; }
+.ls-spinner.md { width: 20px; height: 20px; border-width: 2px; }
+.ls-spinner.lg { width: 24px; height: 24px; border-width: 2.5px; }
+
+@keyframes ls-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ── LAYOUT HELPERS ──────────────────────────────────────────────── */
+.avatar-row {
+  margin-left: 152px;
+  display: flex;
+  align-items: flex-end;
+  gap: 40px;
+  flex-wrap: wrap;
+  margin-top: 32px;
+}
+.avatar-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.size-label {
+  font-family: var(--font-instrument);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+
+.divider-showcase {
+  margin-left: 152px;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-top: 32px;
+}
+.divider-context {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.divider-context-label {
+  font-family: var(--font-ui);
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--content-tertiary);
+  margin-bottom: 0;
+}
+.divider-content-row {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--content-secondary);
+}
+
+.spinner-row {
+  margin-left: 152px;
+  display: flex;
+  align-items: flex-end;
+  gap: 48px;
+  flex-wrap: wrap;
+  margin-top: 32px;
+}
+.spinner-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Avatar + meta composition (e.g. rider card) */
+.rider-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 360px;
+  box-shadow: var(--elev-card);
+}
+.rider-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.rider-meta { display: flex; flex-direction: column; gap: 3px; }
+.rider-name {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--content-primary);
+  letter-spacing: -0.005em;
+}
+.rider-handle {
+  font-family: var(--font-instrument);
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--content-tertiary);
+}
+
+/* Spinner loading states context */
+.loading-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 320px;
+  box-shadow: var(--elev-card);
+}
+.loading-text {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--content-primary);
+}
+.loading-sub {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--content-tertiary);
+  margin-top: 3px;
+}
+
+/* Dims table */
+.dims-table { margin-left: 152px; width: calc(100% - 152px); border-collapse: collapse; font-family: var(--font-ui); font-size: 12px; margin-top: 32px; }
+.dims-table th { font-size: 8.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--content-tertiary); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border-default); background: var(--surface-inset); }
+.dims-table td { padding: 10px 14px; border-bottom: 1px solid var(--border-subtle); color: var(--content-secondary); }
+.dims-table td:first-child { font-family: var(--font-instrument); font-size: 11px; color: var(--signal-default); font-weight: 500; }
+.dims-table tr:last-child td { border-bottom: none; }
+
+.rationale-grid { padding-left: 152px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+.rationale-block h4 { font-family: var(--font-ui); font-size: 10.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--signal-default); margin-bottom: 14px; }
+.rationale-block p { font-family: var(--font-opinion); font-weight: 300; font-size: 15px; line-height: 1.65; color: var(--content-secondary); margin-bottom: 10px; }
+.rationale-block ul { list-style: none; }
+.rationale-block li { padding: 8px 0 8px 18px; position: relative; font-family: var(--font-ui); font-size: 12.5px; color: var(--content-secondary); border-bottom: 1px solid var(--border-subtle); }
+.rationale-block li::before { content: "→"; position: absolute; left: 0; top: 8px; color: var(--signal-default); font-family: var(--font-instrument); }
+.rationale-block li strong { font-family: var(--font-instrument); color: var(--content-primary); font-weight: 500; font-size: 11px; }
+
+/* Placeholder avatar photo (uses CSS gradient to simulate a head photo) */
+.avatar-photo-placeholder {
+  width: 100%; height: 100%;
+  background: linear-gradient(160deg, var(--copper-200) 0%, var(--paper-400) 100%);
+  display: flex; align-items: center; justify-content: center;
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow">
+      <span>UC-ATM-04</span>
+      <span class="doc-eyebrow-pill">● Atoms · Tier A</span>
+    </div>
+    <h1 class="doc-title">Three small <em>atoms</em>.</h1>
+    <p class="doc-tagline">
+      LSAvatar — five sizes, image and initials.
+      LSDivider — 1px border.subtle hairline.
+      LSSpinner — three sizes, copper signal, live animation.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-ATM-04</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">05-uc-atm.md</div></div>
+      <div class="meta-item"><div class="meta-label">Surface</div><div class="meta-value">Light</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Three atoms. Zero <em>interaction semantics</em>.</h2>
+    </div>
+    <p class="prose">
+      These three atoms are display-only primitives. <strong>LSAvatar</strong> shows
+      a rider identity — either a photo or initials fallback. <strong>LSDivider</strong>
+      separates content sections with a 1px <em>color.border.subtle</em> hairline.
+      <strong>LSSpinner</strong> communicates loading state in the system's copper accent color.
+    </p>
+    <p class="prose">
+      None of these atoms owns interaction. Tap callbacks, selection state, and
+      press effects are handled by organisms that compose them. The divider does not
+      receive focus. The spinner does not animate to completion — it animates
+      indefinitely until the consuming organism removes it.
+    </p>
+  </section>
+</div>
+
+<!-- §02 THE ATOMS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · The Atoms</div>
+      <h2 class="section-title"><em>Avatar</em>, Divider, Spinner.</h2>
+    </div>
+
+    <!-- LSAVATAR -->
+    <div style="margin-left:152px;margin-bottom:20px;">
+      <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);">LSAvatar — five sizes, image variant</div>
+    </div>
+    <div class="avatar-row">
+      <div class="avatar-cell">
+        <div class="size-label">xs · 24px</div>
+        <div class="avatar-wrap xs">
+          <div class="ls-avatar xs">
+            <div class="avatar-photo-placeholder"></div>
+          </div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:8.5px;color:var(--content-tertiary);">24×24</div>
+      </div>
+      <div class="avatar-cell">
+        <div class="size-label">sm · 32px</div>
+        <div class="avatar-wrap sm">
+          <div class="ls-avatar sm">
+            <div class="avatar-photo-placeholder"></div>
+          </div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:8.5px;color:var(--content-tertiary);">32×32</div>
+      </div>
+      <div class="avatar-cell">
+        <div class="size-label">md · 40px</div>
+        <div class="avatar-wrap md">
+          <div class="ls-avatar md">
+            <div class="avatar-photo-placeholder"></div>
+          </div>
+          <div class="avatar-status-dot" style="width:10px;height:10px;bottom:1px;right:1px;"></div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:8.5px;color:var(--content-tertiary);">40×40 + status dot</div>
+      </div>
+      <div class="avatar-cell">
+        <div class="size-label">lg · 48px</div>
+        <div class="avatar-wrap lg">
+          <div class="ls-avatar lg">
+            <div class="avatar-photo-placeholder"></div>
+          </div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:8.5px;color:var(--content-tertiary);">48×48</div>
+      </div>
+      <div class="avatar-cell">
+        <div class="size-label">xl · 56px</div>
+        <div class="avatar-wrap xl">
+          <div class="ls-avatar xl">
+            <div class="avatar-photo-placeholder"></div>
+          </div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:8.5px;color:var(--content-tertiary);">56×56</div>
+      </div>
+    </div>
+
+    <!-- Initials fallback -->
+    <div style="margin-left:152px;margin-top:40px;margin-bottom:20px;">
+      <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);">LSAvatar — five sizes, initials fallback (ui.label.md · surface.card tinted)</div>
+    </div>
+    <div class="avatar-row">
+      <div class="avatar-cell">
+        <div class="size-label">xs · 24px</div>
+        <div class="ls-avatar xs initials-variant">
+          <span class="avatar-initials">JR</span>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:8.5px;color:var(--content-tertiary);">9px Geist/600</div>
+      </div>
+      <div class="avatar-cell">
+        <div class="size-label">sm · 32px</div>
+        <div class="ls-avatar sm initials-variant">
+          <span class="avatar-initials">JR</span>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:8.5px;color:var(--content-tertiary);">11px Geist/600</div>
+      </div>
+      <div class="avatar-cell">
+        <div class="size-label">md · 40px</div>
+        <div class="ls-avatar md initials-variant">
+          <span class="avatar-initials">JR</span>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:8.5px;color:var(--content-tertiary);">13px Geist/600</div>
+      </div>
+      <div class="avatar-cell">
+        <div class="size-label">lg · 48px</div>
+        <div class="ls-avatar lg initials-variant">
+          <span class="avatar-initials">JR</span>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:8.5px;color:var(--content-tertiary);">15px Geist/600</div>
+      </div>
+      <div class="avatar-cell">
+        <div class="size-label">xl · 56px</div>
+        <div class="ls-avatar xl initials-variant">
+          <span class="avatar-initials">JR</span>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:8.5px;color:var(--content-tertiary);">18px Geist/600</div>
+      </div>
+    </div>
+
+    <!-- Rider card composition -->
+    <div style="margin-left:152px;margin-top:48px;margin-bottom:16px;">
+      <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);">Composition — avatar in rider card context</div>
+    </div>
+    <div style="margin-left:152px;display:flex;gap:24px;flex-wrap:wrap;">
+      <div class="rider-card">
+        <div class="rider-row">
+          <div class="avatar-wrap md" style="position:relative;">
+            <div class="ls-avatar md">
+              <div class="avatar-photo-placeholder"></div>
+            </div>
+            <div class="avatar-status-dot" style="width:10px;height:10px;bottom:1px;right:1px;"></div>
+          </div>
+          <div class="rider-meta">
+            <div class="rider-name">Justin Rich</div>
+            <div class="rider-handle">@justinrich</div>
+          </div>
+        </div>
+        <hr class="ls-divider">
+        <div style="font-family:var(--font-ui);font-size:12px;color:var(--content-secondary);">142 routes saved · Joined March 2024</div>
+      </div>
+      <div class="rider-card">
+        <div class="rider-row">
+          <div class="ls-avatar lg initials-variant">
+            <span class="avatar-initials">SA</span>
+          </div>
+          <div class="rider-meta">
+            <div class="rider-name">Sofia A.</div>
+            <div class="rider-handle">@sofiamoto</div>
+          </div>
+        </div>
+        <hr class="ls-divider">
+        <div style="font-family:var(--font-ui);font-size:12px;color:var(--content-secondary);">89 routes saved · Joined July 2025</div>
+      </div>
+    </div>
+
+    <!-- LSDIVIDER section -->
+    <div style="margin-left:152px;margin-top:72px;margin-bottom:56px;">
+      <div style="font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px;color:var(--content-primary);">
+        <em style="font-style:italic;color:var(--signal-default);">LSDivider</em> — 1px hairline.
+      </div>
+    </div>
+    <div class="divider-showcase">
+      <div class="divider-context">
+        <div class="divider-context-label">Full-width horizontal — color.border.subtle (#EDE7E1)</div>
+        <div class="divider-content-row">Content above the divider — route title, instrument readout, any block element.</div>
+        <hr class="ls-divider">
+        <div class="divider-content-row">Content below the divider — supporting details, action row.</div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);margin-top:4px;">1px solid · color.border.subtle (#EDE7E1) · w:100%</div>
+      </div>
+
+      <div class="divider-context">
+        <div class="divider-context-label">With centered label</div>
+        <div class="ls-divider with-label"><span class="divider-label">Or search by region</span></div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);margin-top:4px;">Label: ui.label.md · content.tertiary · gap:12px</div>
+      </div>
+
+      <div class="divider-context">
+        <div class="divider-context-label">Three dividers in an instrument readout grid (from uc-scr-04)</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden;">
+          <div style="padding:12px 10px;border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;gap:4px;">
+            <div style="font-family:var(--font-ui);font-size:7.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--content-tertiary);">Dist</div>
+            <div style="font-family:var(--font-instrument);font-weight:500;font-size:15px;letter-spacing:-0.02em;font-feature-settings:'tnum' 1;">64 mi</div>
+          </div>
+          <div style="padding:12px 10px;border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;gap:4px;">
+            <div style="font-family:var(--font-ui);font-size:7.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--content-tertiary);">Time</div>
+            <div style="font-family:var(--font-instrument);font-weight:500;font-size:15px;letter-spacing:-0.02em;font-feature-settings:'tnum' 1;">2h 10m</div>
+          </div>
+          <div style="padding:12px 10px;border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;gap:4px;">
+            <div style="font-family:var(--font-ui);font-size:7.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--content-tertiary);">Elv</div>
+            <div style="font-family:var(--font-instrument);font-weight:500;font-size:15px;letter-spacing:-0.02em;font-feature-settings:'tnum' 1;">3,240 ft</div>
+          </div>
+          <div style="padding:12px 10px;display:flex;flex-direction:column;gap:4px;">
+            <div style="font-family:var(--font-ui);font-size:7.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--content-tertiary);">Scenic</div>
+            <div style="font-family:var(--font-instrument);font-weight:500;font-size:15px;letter-spacing:-0.02em;color:var(--signal-default);font-feature-settings:'tnum' 1;">9.4</div>
+          </div>
+        </div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);margin-top:4px;">Vertical dividers: 1px solid border.subtle · LSDivider orientation:vertical</div>
+      </div>
+    </div>
+
+    <!-- LSSPINNER section -->
+    <div style="margin-left:152px;margin-top:72px;margin-bottom:56px;">
+      <div style="font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px;color:var(--content-primary);">
+        <em style="font-style:italic;color:var(--signal-default);">LSSpinner</em> — live animation.
+      </div>
+    </div>
+    <div class="spinner-row">
+      <div class="spinner-cell">
+        <div class="size-label">sm · 16px</div>
+        <div class="ls-spinner sm"></div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);text-align:center;">16×16<br>border:2px</div>
+      </div>
+      <div class="spinner-cell">
+        <div class="size-label">md · 20px</div>
+        <div class="ls-spinner md"></div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);text-align:center;">20×20<br>border:2px</div>
+      </div>
+      <div class="spinner-cell">
+        <div class="size-label">lg · 24px</div>
+        <div class="ls-spinner lg"></div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);text-align:center;">24×24<br>border:2.5px</div>
+      </div>
+    </div>
+
+    <!-- Spinner in context -->
+    <div style="margin-left:152px;margin-top:40px;margin-bottom:16px;">
+      <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);">Spinner in loading contexts</div>
+    </div>
+    <div style="margin-left:152px;display:flex;gap:20px;flex-wrap:wrap;">
+      <div class="loading-card">
+        <div class="ls-spinner md"></div>
+        <div>
+          <div class="loading-text">Planning your route…</div>
+          <div class="loading-sub">Navigator is analyzing conditions</div>
+        </div>
+      </div>
+      <div class="loading-card">
+        <div class="ls-spinner sm"></div>
+        <div>
+          <div class="loading-text">Saving route</div>
+          <div class="loading-sub">Adding to your library</div>
+        </div>
+      </div>
+      <div class="loading-card" style="justify-content:center;align-items:center;flex-direction:column;gap:12px;">
+        <div class="ls-spinner lg"></div>
+        <div style="font-family:var(--font-ui);font-size:12px;color:var(--content-tertiary);text-align:center;">Loading map…</div>
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<!-- §03 STATES / INTERACTIONS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States / Interactions</div>
+      <h2 class="section-title">Display-only. <em>No press states.</em></h2>
+    </div>
+    <p class="prose">
+      <strong>LSAvatar</strong> has one state: rendered. Tap interaction is
+      layered by consuming organisms (profile card tap → navigation). The
+      avatar itself does not change appearance on press. The initials fallback
+      activates when the image URL fails to load or no URL is provided.
+    </p>
+    <p class="prose">
+      <strong>LSDivider</strong> is purely decorative structure. It has no
+      interactive states, no focus, no press handling. Accessibility: it is
+      marked as <em>role="separator"</em> on both platforms so screen readers
+      identify it as a structural separator, not focusable content.
+    </p>
+    <p class="prose">
+      <strong>LSSpinner</strong> animates indefinitely while visible. It is
+      removed from the tree (not hidden) when the loading state resolves —
+      this prevents GPU resources from being wasted on an invisible animation.
+      Accessibility: set <em>accessibilityLabel = "Loading"</em> on the
+      containing element, not the spinner itself.
+    </p>
+  </section>
+</div>
+
+<!-- §04 DIMENSIONS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Dimensions</div>
+      <h2 class="section-title">All three atoms <em>pinned</em>.</h2>
+    </div>
+    <table class="dims-table">
+      <thead>
+        <tr>
+          <th>Atom / Variant</th>
+          <th>Width</th>
+          <th>Height</th>
+          <th>Radius</th>
+          <th>Border</th>
+          <th>Background</th>
+          <th>Initials font</th>
+          <th>Stroke / border-width</th>
+          <th>Animation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>LSAvatar · xs</td><td>24px</td><td>24px</td><td>50%</td><td>1px solid border.subtle</td><td>surface.card (image: cover)</td><td>9px Geist/600</td><td>1px</td><td>—</td></tr>
+        <tr><td>LSAvatar · sm</td><td>32px</td><td>32px</td><td>50%</td><td>1px solid border.subtle</td><td>surface.card</td><td>11px Geist/600</td><td>1px</td><td>—</td></tr>
+        <tr><td>LSAvatar · md</td><td>40px</td><td>40px</td><td>50%</td><td>1px solid border.subtle</td><td>surface.card</td><td>13px Geist/600</td><td>1px</td><td>—</td></tr>
+        <tr><td>LSAvatar · lg</td><td>48px</td><td>48px</td><td>50%</td><td>1px solid border.subtle</td><td>surface.card</td><td>15px Geist/600</td><td>1px</td><td>—</td></tr>
+        <tr><td>LSAvatar · xl</td><td>56px</td><td>56px</td><td>50%</td><td>1px solid border.subtle</td><td>surface.card</td><td>18px Geist/600</td><td>1px</td><td>—</td></tr>
+        <tr><td>LSAvatar · initials bg</td><td>any size</td><td>any size</td><td>50%</td><td>1px solid signal.tint</td><td>signal.whisper (#FCE8D4)</td><td>per size above</td><td>1px</td><td>—</td></tr>
+        <tr><td>Avatar status dot · xs</td><td>7px</td><td>7px</td><td>50%</td><td>2px solid surface.primary</td><td>status.success (#2E7D52)</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>Avatar status dot · md</td><td>10px</td><td>10px</td><td>50%</td><td>2px solid surface.primary</td><td>status.success</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>Avatar status dot · xl</td><td>14px</td><td>14px</td><td>50%</td><td>2px solid surface.primary</td><td>status.success</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>LSDivider · horizontal</td><td>100%</td><td>1px</td><td>0</td><td>none</td><td>border.subtle (#EDE7E1)</td><td>—</td><td>1px</td><td>—</td></tr>
+        <tr><td>LSDivider · with-label</td><td>100%</td><td>auto</td><td>0</td><td>none (pseudo line)</td><td>border.subtle (line)</td><td>label: ui.label.md 9.5px</td><td>1px</td><td>—</td></tr>
+        <tr><td>LSSpinner · sm</td><td>16px</td><td>16px</td><td>50%</td><td>2px</td><td>track: signal.tint / arc: signal.default</td><td>—</td><td>2px</td><td>700ms linear infinite</td></tr>
+        <tr><td>LSSpinner · md</td><td>20px</td><td>20px</td><td>50%</td><td>2px</td><td>track: signal.tint / arc: signal.default</td><td>—</td><td>2px</td><td>700ms linear infinite</td></tr>
+        <tr><td>LSSpinner · lg</td><td>24px</td><td>24px</td><td>50%</td><td>2.5px</td><td>track: signal.tint / arc: signal.default</td><td>—</td><td>2.5px</td><td>700ms linear infinite</td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Spinner only. <em>700ms linear loop.</em></h2>
+    </div>
+    <p class="prose">
+      Only <strong>LSSpinner</strong> animates. It uses a CSS border rotation at
+      <strong>700ms linear infinite</strong>. The animation property is
+      <code style="font-family:var(--font-instrument);font-size:0.9em;color:var(--signal-default);">transform: rotate(360deg)</code>
+      — always hardware-accelerated. No easing curves.
+    </p>
+    <p class="prose">
+      The track ring is <strong>signal.tint</strong> (#F9D5B5, copper-200) at full
+      opacity. The active arc is <strong>signal.default</strong> (#EE7C2B, copper-500)
+      as the border-top-color. This matches the platform convention for activity
+      indicators — iOS UIActivityIndicatorView uses this pattern natively.
+    </p>
+    <p class="prose">
+      <strong>LSAvatar</strong> and <strong>LSDivider</strong> have no motion.
+      Fade-in of avatar images is handled by the image loader, not the atom.
+    </p>
+
+    <!-- Motion spec table -->
+    <div style="margin-left:152px;margin-top:40px;">
+      <table style="border-collapse:collapse;font-family:var(--font-ui);font-size:12px;width:auto;">
+        <thead>
+          <tr>
+            <th style="font-size:8.5px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--content-tertiary);text-align:left;padding:10px 20px 10px 0;border-bottom:1px solid var(--border-default);">Atom</th>
+            <th style="font-size:8.5px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--content-tertiary);text-align:left;padding:10px 20px;border-bottom:1px solid var(--border-default);">Property</th>
+            <th style="font-size:8.5px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--content-tertiary);text-align:left;padding:10px 20px;border-bottom:1px solid var(--border-default);">Value</th>
+            <th style="font-size:8.5px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--content-tertiary);text-align:left;padding:10px 0;border-bottom:1px solid var(--border-default);">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-family:var(--font-instrument);font-size:11px;color:var(--signal-default);font-weight:500;padding:10px 20px 10px 0;border-bottom:1px solid var(--border-subtle);">LSSpinner</td>
+            <td style="padding:10px 20px;border-bottom:1px solid var(--border-subtle);color:var(--content-secondary);">animation</td>
+            <td style="padding:10px 20px;border-bottom:1px solid var(--border-subtle);color:var(--content-secondary);font-family:var(--font-instrument);font-size:11px;">ls-spin 700ms linear infinite</td>
+            <td style="padding:10px 0;border-bottom:1px solid var(--border-subtle);color:var(--content-tertiary);">rotate(0 → 360deg)</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-instrument);font-size:11px;color:var(--signal-default);font-weight:500;padding:10px 20px 10px 0;border-bottom:1px solid var(--border-subtle);">LSSpinner</td>
+            <td style="padding:10px 20px;border-bottom:1px solid var(--border-subtle);color:var(--content-secondary);">will-change</td>
+            <td style="padding:10px 20px;border-bottom:1px solid var(--border-subtle);color:var(--content-secondary);font-family:var(--font-instrument);font-size:11px;">transform</td>
+            <td style="padding:10px 0;border-bottom:1px solid var(--border-subtle);color:var(--content-tertiary);">GPU-composited</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-instrument);font-size:11px;color:var(--content-tertiary);font-weight:500;padding:10px 20px 10px 0;border-bottom:1px solid var(--border-subtle);">LSAvatar</td>
+            <td style="padding:10px 20px;border-bottom:1px solid var(--border-subtle);color:var(--content-subtle);">—</td>
+            <td style="padding:10px 20px;border-bottom:1px solid var(--border-subtle);color:var(--content-subtle);">none</td>
+            <td style="padding:10px 0;border-bottom:1px solid var(--border-subtle);color:var(--content-tertiary);">Image fade delegated to image loader</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-instrument);font-size:11px;color:var(--content-tertiary);font-weight:500;padding:10px 20px 10px 0;">LSDivider</td>
+            <td style="padding:10px 20px;color:var(--content-subtle);">—</td>
+            <td style="padding:10px 20px;color:var(--content-subtle);">none</td>
+            <td style="padding:10px 0;color:var(--content-tertiary);">Static structural element</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Three atoms, <em>shared token patterns</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Acceptance Criteria Coverage</h4>
+        <ul>
+          <li><strong>AC-1</strong> — LSAvatar(.image, .md) shows circular image at sizing.icon.md equivalent (40px). Initials fall back to ui.label.md on surface.card.</li>
+          <li><strong>AC-2</strong> — LSDivider() renders 1px horizontal in color.border.subtle (#EDE7E1).</li>
+          <li><strong>AC-3</strong> — LSSpinner() renders with live animation tinted color.signal.default (#EE7C2B).</li>
+          <li><strong>AC-4</strong> — Sandbox "Atoms / Display" story family contains stories for each atom on both platforms.</li>
+        </ul>
+      </div>
+      <div class="rationale-block">
+        <h4>Design Rationale</h4>
+        <p>
+          These three atoms are grouped together because they share a behavioral
+          property: <em>zero interaction semantics</em>. Icon, Badge, and Chip are
+          split into separate UCs (ATM-10, ATM-07, ATM-06) because those atoms
+          do carry variant/state logic that warrants their own spec surface.
+        </p>
+        <p>
+          The spinner uses copper signal color deliberately — it is the system's
+          primary affordance color. Loading state is not a neutral event in the
+          Navigator context; it means the system is working <em>for the rider</em>.
+          Copper communicates agency, not just busyness.
+        </p>
+        <p>
+          Avatar initials use <strong>signal.whisper</strong> (#FCE8D4) background
+          with <strong>signal.tint</strong> (#F9D5B5) border — a warm paper palette
+          consistent with the system rather than a random color-per-user approach.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">
+      Lane<em>Shadow</em>
+      <span>V2 Copper Navigator · ATM Tier A · 2026</span>
+    </div>
+    <div class="footer-note">
+      UC-ATM-04 — LSAvatar + LSDivider + LSSpinner<br>
+      Circular. Hairline. Copper spin.<br>
+      <em>Display-only atoms.</em>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>
