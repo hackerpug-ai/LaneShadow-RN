@@ -38,6 +38,8 @@ class SemanticDeduplicator:
 
     MERGE_THRESHOLD = 0.92
     ARBITRATION_FLOOR = 0.75
+    CALIBRATION_MIN_POSITIVES = 50
+    CALIBRATION_MIN_NEGATIVES = 50
     SOURCE_PRIORITY = {
         "fhwa": 6,
         "scenic byways": 5,
@@ -130,13 +132,17 @@ class SemanticDeduplicator:
                     self._append_reconciliation_entry(winner)
                     self.merged_route_ids.add(loser.route_id)
                     self.cost_ledger.auto_merged += 1
-                    self._calibration_positives.append({**pair_record, "label": "duplicate"})
+                    self._calibration_positives.append(
+                        {**pair_record, "label": "duplicate", "label_source": "auto_cosine"}
+                    )
                 elif classification == "arbitration":
                     self.arbitration_queue.append(pair_record)
                     self.cost_ledger.queued_arbitration += 1
                 else:
                     self.cost_ledger.separated += 1
-                    self._calibration_negatives.append({**pair_record, "label": "non-duplicate"})
+                    self._calibration_negatives.append(
+                        {**pair_record, "label": "non-duplicate", "label_source": "auto_cosine"}
+                    )
 
         self._write_arbitration_queue()
         self.cost_ledger.finished_at = _utc_now_iso()
@@ -203,9 +209,26 @@ class SemanticDeduplicator:
 
     def emit_calibration_set(self) -> None:
         """Write calibration dataset for threshold tuning."""
+        meets_minimum = (
+            len(self._calibration_positives) >= self.CALIBRATION_MIN_POSITIVES
+            and len(self._calibration_negatives) >= self.CALIBRATION_MIN_NEGATIVES
+        )
+        if not meets_minimum:
+            logger.warning(
+                "calibration set below minimum: %d/%d positives, %d/%d negatives",
+                len(self._calibration_positives),
+                self.CALIBRATION_MIN_POSITIVES,
+                len(self._calibration_negatives),
+                self.CALIBRATION_MIN_NEGATIVES,
+            )
         payload = {
             "runId": self.run_id,
             "generatedAt": _utc_now_iso(),
+            "metadata": {
+                "min_positives": self.CALIBRATION_MIN_POSITIVES,
+                "min_negatives": self.CALIBRATION_MIN_NEGATIVES,
+                "meets_minimum": meets_minimum,
+            },
             "positives": self._calibration_positives,
             "negatives": self._calibration_negatives,
         }
