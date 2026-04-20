@@ -44,6 +44,28 @@
 
 body { background: var(--surface-primary); color: var(--content-primary); }
 
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+  --surface-scrim:     rgba(10,6,3,0.50);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    TYPOGRAPHY SCALE
    ═══════════════════════════════════════════════════════════════════════ */
@@ -395,6 +417,113 @@ body { font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:
             <div class="ls-pill lg" style="background:var(--signal-default);color:#fff;padding:0 16px;font-family:var(--font-ui);font-size:14px;font-weight:600;height:40px;border-radius:999px;">
               Start Ride
             </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- DARK DEMO -->
+<div class="wrap">
+  <section class="section">
+    <h3 style="margin-top: 0; margin-bottom: 32px; font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);">LSPill — Dark</h3>
+    <div class="mode-dark" style="background: var(--ink-800); padding: 32px; border-radius: 12px;">
+
+      <!-- SM row dark -->
+      <div style="margin-bottom:32px;">
+        <div style="font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:16px;">Size: sm — dark ink surface</div>
+        <div style="display:flex;align-items:center;gap:28px;flex-wrap:wrap;">
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);">Shape only</span>
+            <div class="ls-pill sm" style="background:var(--surface-inset);border:1px solid var(--border-default);color:var(--content-secondary);min-width:40px;">&nbsp;</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);">Icon + Label</span>
+            <div class="ls-pill sm" style="background:var(--surface-inset);border:1px solid var(--border-default);color:var(--content-secondary);">
+              <span style="display:flex;align-items:center;justify-content:center;flex-shrink:0;color:inherit;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="5"/></svg>
+              </span>
+              Clear
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);">Label only</span>
+            <div class="ls-pill sm" style="background:var(--surface-inset);border:1px solid var(--border-default);color:var(--content-secondary);">Scenic</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);">Signal-filled</span>
+            <div class="ls-pill sm" style="background:var(--signal-tint);border:1px solid var(--signal-default);color:var(--ink-900);">
+              <span style="display:flex;align-items:center;justify-content:center;flex-shrink:0;color:inherit;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="5"/></svg>
+              </span>
+              Best
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);">Selected (ink bg)</span>
+            <div class="ls-pill sm" style="background:var(--ink-050);border:1px solid var(--border-strong);color:var(--ink-800);">Active</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MD row dark -->
+      <div style="margin-bottom:32px;">
+        <div style="font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:16px;">Size: md — dark ink surface</div>
+        <div style="display:flex;align-items:center;gap:28px;flex-wrap:wrap;">
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);">Shape only</span>
+            <div class="ls-pill md" style="background:var(--surface-inset);border:1px solid var(--border-default);color:var(--content-secondary);min-width:52px;">&nbsp;</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);">Icon + Label</span>
+            <div class="ls-pill md" style="background:var(--surface-inset);border:1px solid var(--border-default);color:var(--content-secondary);">
+              <span style="display:flex;align-items:center;justify-content:center;flex-shrink:0;color:inherit;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 20h20M12 4l8 16H4z"/></svg>
+              </span>
+              Mountain
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);">Label only</span>
+            <div class="ls-pill md" style="background:var(--surface-inset);border:1px solid var(--border-default);color:var(--content-secondary);">Scenic byway</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);">Signal copper</span>
+            <div class="ls-pill md" style="background:var(--copper-500);border:none;color:#fff;padding:0 12px;">Start Ride</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);">Selected state</span>
+            <div class="ls-pill md" style="background:var(--signal-tint);border:1.5px solid var(--signal-default);color:var(--ink-900);">Selected</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LG row dark -->
+      <div>
+        <div style="font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:16px;">Size: lg — dark ink surface</div>
+        <div style="display:flex;align-items:center;gap:28px;flex-wrap:wrap;">
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);">Shape only</span>
+            <div class="ls-pill lg" style="background:var(--surface-inset);border:1px solid var(--border-default);color:var(--content-secondary);min-width:64px;">&nbsp;</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);">Icon + Label</span>
+            <div class="ls-pill lg" style="background:var(--surface-inset);border:1px solid var(--border-default);color:var(--content-secondary);">
+              <span style="display:flex;align-items:center;justify-content:center;flex-shrink:0;color:inherit;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </span>
+              Compass
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);">Label only</span>
+            <div class="ls-pill lg" style="background:var(--surface-inset);border:1px solid var(--border-default);color:var(--content-secondary);">Plan a ride</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);">Signal primary</span>
+            <div class="ls-pill lg" style="background:var(--copper-500);border:none;color:#fff;font-family:var(--font-ui);font-size:14px;font-weight:600;height:40px;border-radius:999px;padding:0 16px;">Start Ride</div>
           </div>
         </div>
       </div>

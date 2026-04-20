@@ -73,6 +73,29 @@
 }
 body { background: var(--surface-primary); color: var(--content-primary); }
 
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+  --surface-scrim:     rgba(10,6,3,0.50);
+  --surface-input:     var(--ink-700);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+
 /* TYPOGRAPHY */
 .t-opinion-xl  { font-family: var(--font-opinion); font-weight: 400; font-size: 30px; line-height: 1.12; letter-spacing: -0.015em; }
 .t-opinion-lg  { font-family: var(--font-opinion); font-weight: 400; font-size: 22px; line-height: 1.18; letter-spacing: -0.01em; }
@@ -301,6 +324,20 @@ body { font-family: var(--font-ui); -webkit-font-smoothing: antialiased; min-hei
 }
 .grow-cell { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 240px; max-width: 340px; }
 .grow-label { font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--content-tertiary); }
+
+/* Dark mode disabled override — .mode-dark context uses ink tokens */
+.mode-dark .ls-input:disabled,
+.mode-dark .ls-input.disabled {
+  background: var(--ink-600);
+  border-color: var(--border-subtle);
+  color: var(--content-subtle);
+}
+.mode-dark .ls-textarea:disabled,
+.mode-dark .ls-textarea.disabled {
+  background: var(--ink-600);
+  border-color: var(--border-subtle);
+  color: var(--content-subtle);
+}
 
 /* ── COMPLETE FORM COMPOSITION ───────────────────────────────────── */
 .form-composition {
@@ -634,6 +671,137 @@ body { font-family: var(--font-ui); -webkit-font-smoothing: antialiased; min-hei
         <textarea class="ls-textarea" style="height:76px;resize:none;" placeholder="Any preferences for this ride… scenic, fast, avoid highways…"></textarea>
         <div class="field-helper">Optional — the Navigator uses this to refine suggestions.</div>
       </div>
+    </div>
+
+
+    <!-- Dark mode demo -->
+    <h3 style="margin-top: 48px; margin-bottom: 32px; padding-left: 152px; font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);">LSTextField + LSTextArea — Dark</h3>
+    <div class="mode-dark" style="background: var(--ink-800); padding: 48px 152px; border-radius: 12px; margin: 0 0 48px 0;">
+
+      <!-- TextField dark states -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 48px;">
+
+        <div class="state-col">
+          <div class="state-col-label" style="color: var(--content-tertiary);">Default</div>
+          <div class="ls-form-field">
+            <label class="field-label">Ride destination</label>
+            <div class="input-wrap">
+              <input class="ls-input" type="text" placeholder="Plan a ride…" value="">
+            </div>
+            <div class="field-helper">Enter a city, road, or region.</div>
+          </div>
+          <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);line-height:1.6;">
+            bg: ink-700<br>
+            border: rgba(242,238,232,0.12)<br>
+            placeholder: content.subtle
+          </div>
+        </div>
+
+        <div class="state-col">
+          <div class="state-col-label" style="color: var(--content-tertiary);">Focused</div>
+          <div class="ls-form-field">
+            <label class="field-label">Ride destination</label>
+            <div class="input-wrap">
+              <input class="ls-input focused" type="text" placeholder="Plan a ride…" value="Marin Headlands">
+            </div>
+            <div class="field-helper">Enter a city, road, or region.</div>
+          </div>
+          <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);line-height:1.6;">
+            bg: ink-700 (surface.card)<br>
+            border: border.focus (#EE7C2B)<br>
+            ring: copper 15% / 3px
+          </div>
+        </div>
+
+        <div class="state-col">
+          <div class="state-col-label" style="color: var(--content-tertiary);">Error</div>
+          <div class="ls-form-field">
+            <label class="field-label required" style="color: var(--content-primary);">Start location</label>
+            <div class="input-wrap">
+              <input class="ls-input error-state" type="text" placeholder="" value="xxxxxx">
+            </div>
+            <div class="field-helper error">Location not recognized. Try a city or landmark.</div>
+          </div>
+          <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);line-height:1.6;">
+            bg: error.tint (#F5D8D6)<br>
+            border: border.error (#C9423C)<br>
+            helper: content.error
+          </div>
+        </div>
+
+        <div class="state-col">
+          <div class="state-col-label" style="color: var(--content-tertiary);">Disabled</div>
+          <div class="ls-form-field">
+            <label class="field-label" style="color: var(--content-subtle);">End location</label>
+            <div class="input-wrap">
+              <input class="ls-input disabled" type="text" placeholder="Set automatically" disabled>
+            </div>
+            <div class="field-helper" style="color: var(--content-subtle);">Set by Navigator based on route.</div>
+          </div>
+          <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);line-height:1.6;">
+            bg: ink-600<br>
+            border: border.subtle<br>
+            fg: content.subtle · opacity:0.65
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Icon slots dark -->
+      <div style="margin-bottom:12px;font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);">With icon slots — dark surface</div>
+      <div style="display:flex;gap:32px;flex-wrap:wrap;margin-bottom:48px;">
+        <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:240px;max-width:320px;">
+          <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--content-tertiary);">Leading icon (.search)</div>
+          <div class="ls-form-field">
+            <div class="input-wrap has-leading">
+              <span class="input-icon leading">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.5"/><path d="M11 11 L14 14"/></svg>
+              </span>
+              <input class="ls-input" type="text" placeholder="Search routes…">
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:240px;max-width:320px;">
+          <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--content-tertiary);">Trailing clear — focused</div>
+          <div class="ls-form-field">
+            <div class="input-wrap has-trailing">
+              <input class="ls-input focused" type="text" value="Pacific Coast Route">
+              <span class="input-icon trailing">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4 L12 12 M12 4 L4 12"/></svg>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TextArea dark -->
+      <div style="margin-bottom:12px;font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);">LSTextArea — dark surface</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;">
+        <div class="state-col">
+          <div class="state-col-label" style="color:var(--content-tertiary);">Default (1 row)</div>
+          <div class="ls-form-field">
+            <label class="field-label">Notes</label>
+            <textarea class="ls-textarea" placeholder="Add any notes…" rows="1" style="height:48px;resize:none;"></textarea>
+            <div class="field-helper">Optional ride notes.</div>
+          </div>
+        </div>
+        <div class="state-col">
+          <div class="state-col-label" style="color:var(--content-tertiary);">Focused (2 rows)</div>
+          <div class="ls-form-field">
+            <label class="field-label">Route notes</label>
+            <textarea class="ls-textarea focused" rows="2" style="height:76px;resize:none;">Takes the scenic approach via the ridge road, then descends through the valley floor.</textarea>
+          </div>
+        </div>
+        <div class="state-col">
+          <div class="state-col-label" style="color:var(--content-tertiary);">Disabled</div>
+          <div class="ls-form-field">
+            <label class="field-label" style="color:var(--content-subtle);">Auto-summary</label>
+            <textarea class="ls-textarea disabled" rows="2" style="height:76px;resize:none;" disabled>Navigator will generate a route summary automatically.</textarea>
+            <div class="field-helper" style="color:var(--content-subtle);">Generated by Navigator.</div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </section>
