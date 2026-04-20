@@ -34,6 +34,8 @@ STAGING_FILES = {
     "motorcycleroads": STAGING_DIR / "motorcycleroads.jsonl",
     "bestbikingroads": STAGING_DIR / "bestbikingroads.jsonl",
     "fhwa": STAGING_DIR / "fhwa.jsonl",
+    "scenic_byways": STAGING_DIR / "scenic_byways.jsonl",
+    "rider_mag": STAGING_DIR / "rider_mag.jsonl",
 }
 
 # Cost estimate: GLM-4.7-flash ~$0.0001/call (very rough estimate)
@@ -51,7 +53,7 @@ def ingest(
 
     Args:
         conn: SQLite connection
-        source: 'motorcycleroads' | 'bestbikingroads' | 'fhwa' | 'all'
+        source: 'motorcycleroads' | 'bestbikingroads' | 'fhwa' | 'scenic_byways' | 'rider_mag' | 'all'
 
     Returns:
         Stats dict with inserted, skipped, errors counts per source

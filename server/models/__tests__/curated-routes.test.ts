@@ -38,18 +38,20 @@ describe('curatedRouteValidator', () => {
     expect(fields.seededAt).toBeDefined()
   })
 
-  it('source field accepts exactly 5 literal values', async () => {
+  it('source field accepts exactly 7 literal values', async () => {
     const { CURATED_ROUTE_FIELDS } = await import('../curated-routes.js')
     const sourceValidator = CURATED_ROUTE_FIELDS.source
 
     expect(sourceValidator.kind).toBe('union')
     const members = sourceValidator.members.map((m: { value: string }) => m.value)
     expect(members).toContain('fhwa')
+    expect(members).toContain('scenic_byways')
     expect(members).toContain('motorcycleroads')
     expect(members).toContain('bestbikingroads')
+    expect(members).toContain('rider_mag')
     expect(members).toContain('bdr')
     expect(members).toContain('editorial')
-    expect(members.length).toBe(5)
+    expect(members.length).toBe(7)
   })
 
   it('primaryArchetype field accepts exactly 6 literal values', async () => {

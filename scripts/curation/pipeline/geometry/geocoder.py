@@ -1,8 +1,8 @@
 """Geometry orchestrator — dispatches to per-source fetchers.
 
 Provides a single entry point for the geocode pipeline stage.
-Handles FHWA (existing data), motorcycleroads (page scraping),
-and bestbikingroads (Nominatim geocoding).
+Handles FHWA, scenic_byways, rider_mag (existing data),
+motorcycleroads (page scraping), and bestbikingroads (Nominatim geocoding).
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ def fetch_geometry_for_route(
 
     Args:
         route_id: Pipeline route ID
-        source: Data source ("motorcycleroads", "bestbikingroads", "fhwa")
+        source: Data source ("motorcycleroads", "bestbikingroads", "fhwa", "scenic_byways", "rider_mag")
         raw_staging_json: Raw staging JSON string from route_state table
         route_name: Route name (for logging / geocoding)
         state_primary: State name (for geocoding)
@@ -43,8 +43,8 @@ def fetch_geometry_for_route(
         logger.warning(f"Could not parse staging JSON for {route_id}")
         staging = {}
 
-    if source == "fhwa":
-        return _fetch_fhwa(route_id, staging)
+    if source in ("fhwa", "scenic_byways", "rider_mag"):
+        return _fetch_existing(route_id, staging, source)
     elif source == "motorcycleroads":
         from scripts.curation.pipeline.geometry.motorcycleroads import fetch_geometry as mr_fetch
         url = source_url or staging.get("canonical_url") or staging.get("source_url", "")
@@ -66,21 +66,21 @@ def fetch_geometry_for_route(
         return None
 
 
-def _fetch_fhwa(route_id: str, staging: dict[str, Any]) -> Optional[RouteGeometry]:
-    """Extract geometry from existing FHWA staging data (no HTTP needed)."""
+def _fetch_existing(route_id: str, staging: dict[str, Any], source: str) -> Optional[RouteGeometry]:
+    """Extract geometry from existing staging data (no HTTP needed)."""
     lat = staging.get("centroid_lat")
     lng = staging.get("centroid_lng")
 
     if lat is None or lng is None:
-        logger.warning(f"FHWA route {route_id} missing centroid coordinates")
+        logger.warning(f"{source} route {route_id} missing centroid coordinates")
         return None
 
     geometry = RouteGeometry(
         route_id=route_id,
-        source="fhwa",
+        source=source,
         centroid_lat=float(lat),
         centroid_lng=float(lng),
-        geometry_source="fhwa_existing",
+        geometry_source=f"{source}_existing",
     )
 
     # Populate bounds if available

@@ -16,6 +16,7 @@ export const CURATED_ROUTE_SOURCE = {
   SCENIC_BYWAYS: 'scenic_byways',
   MOTORCYCLEROADS: 'motorcycleroads',
   BESTBIKINGROADS: 'bestbikingroads',
+  RIDER_MAG: 'rider_mag',
   BDR: 'bdr',
   EDITORIAL: 'editorial',
 } as const
@@ -62,6 +63,7 @@ export const CURATED_ROUTE_FIELDS = {
     v.literal('scenic_byways'),
     v.literal('motorcycleroads'),
     v.literal('bestbikingroads'),
+    v.literal('rider_mag'),
     v.literal('bdr'),
     v.literal('editorial'),
   ),

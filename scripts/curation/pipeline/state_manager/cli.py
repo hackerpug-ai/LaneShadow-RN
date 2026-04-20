@@ -42,7 +42,7 @@ def _load_dotenv() -> None:
                 key, _, val = line.partition("=")
                 key = key.strip()
                 val = val.strip()
-                if key and key not in os.environ:
+                if key and (key not in os.environ or not os.environ[key]):
                     os.environ[key] = val
 
 
@@ -453,7 +453,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_ingest = sub.add_parser("ingest", help="Load staging JSONL into state table")
     p_ingest.add_argument(
         "--source",
-        choices=["motorcycleroads", "bestbikingroads", "fhwa", "all"],
+        choices=["motorcycleroads", "bestbikingroads", "fhwa", "scenic_byways", "rider_mag", "all"],
         default="all",
         help="Source to ingest (default: all)",
     )
