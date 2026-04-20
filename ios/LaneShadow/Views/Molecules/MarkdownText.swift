@@ -63,7 +63,7 @@ public struct LSMarkdownText: View {
      * Apply theme-specific styling to markdown attributes
      */
     private func applyThemeStyling(to attributedString: inout AttributedString) {
-        attributedString.runs.forEach { run in
+        for run in attributedString.runs {
             if let inlinePresentationIntent = run.inlinePresentationIntent {
                 switch inlinePresentationIntent {
                 case .code:
