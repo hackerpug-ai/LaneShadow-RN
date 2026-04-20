@@ -20,6 +20,7 @@ from typing import Any
 from scripts.curation.pipeline.models import EnrichedRoute, Route
 
 COMMON_ARCHETYPES = {"twisties", "mountain", "coastal", "scenic_byway"}
+NICHE_ARCHETYPES = {"adventure", "desert"}
 STATE_MINIMUM_COUNT = 10
 COMMON_ARCHETYPE_MINIMUM_COUNT = 50
 NICHE_ARCHETYPE_MINIMUM_COUNT = 20
@@ -212,7 +213,9 @@ def _compute_state_coverage(routes: Sequence[Route]) -> dict[str, dict[str, Any]
 
 
 def _compute_archetype_coverage(routes: Sequence[Route]) -> dict[str, dict[str, Any]]:
-    counts: Counter[str] = Counter()
+    counts: Counter[str] = Counter(
+        {archetype: 0 for archetype in sorted(COMMON_ARCHETYPES | NICHE_ARCHETYPES)}
+    )
     for route in routes:
         archetype = _extract_archetype(route)
         if archetype:

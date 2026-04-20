@@ -67,6 +67,30 @@ class TestArchetypeCoverage:
         assert report.archetype_coverage["adventure"]["is_gap"] is True
         assert report.archetype_coverage["desert"]["is_gap"] is False
 
+    def test_missing_common_archetype_is_seeded_as_gap(self) -> None:
+        """AC-2: missing common archetypes are seeded with count=0 and flagged."""
+        routes = [
+            *[_route(f"tw-{idx}", archetype="twisties") for idx in range(55)],
+            *[_route(f"mt-{idx}", archetype="mountain") for idx in range(55)],
+            *[_route(f"sb-{idx}", archetype="scenic_byway") for idx in range(55)],
+        ]
+
+        report = generate_coverage_report(routes)
+
+        assert report.archetype_coverage["coastal"]["count"] == 0
+        assert report.archetype_coverage["coastal"]["is_gap"] is True
+        assert "coastal" in report.coverage_gaps["archetypes"]
+
+    def test_missing_niche_archetype_is_seeded_as_gap(self) -> None:
+        """AC-3: missing niche archetypes are seeded with count=0 and flagged."""
+        routes = [*[_route(f"de-{idx}", archetype="desert") for idx in range(25)]]
+
+        report = generate_coverage_report(routes)
+
+        assert report.archetype_coverage["adventure"]["count"] == 0
+        assert report.archetype_coverage["adventure"]["is_gap"] is True
+        assert "adventure" in report.coverage_gaps["archetypes"]
+
 
 class TestHistogram:
     """Composite-score histogram and anomaly detection."""
