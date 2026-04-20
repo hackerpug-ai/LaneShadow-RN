@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -214,6 +215,7 @@ data class ChatMessage(
  *
  * @param messages List of chat messages to display
  * @param isTyping Whether to show typing indicator at bottom (default: false)
+ * @param transparent When true, background is transparent and agent messages get glass container (default: false)
  * @param modifier Modifier for the component
  * @param contentDescription Accessibility description for screen readers
  */
@@ -221,6 +223,7 @@ data class ChatMessage(
 fun ChatTranscript(
     messages: List<ChatMessage>,
     isTyping: Boolean = false,
+    transparent: Boolean = false,
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
 ) {
@@ -228,9 +231,29 @@ fun ChatTranscript(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    // Auto-scroll to bottom when messages change
-    LaunchedEffect(messages.size) {
-        if (messages.isNotEmpty()) {
+    // Track if user has manually scrolled up from bottom
+    // Using derivedStateOf to recalculate only when layout info changes
+    val userHasScrolled by remember {
+        derivedStateOf {
+            // Check if we're not at the bottom (within 50dp threshold)
+            val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val totalItems = messages.size
+            val lastItemOffset = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.offset ?: 0
+            val lastItemSize = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.size ?: 0
+
+            // We're considered "scrolled up" if:
+            // 1. The last visible item is not the last message, OR
+            // 2. The last visible item is more than 50dp from the bottom
+            val isNotAtLastItem = lastVisibleItemIndex < totalItems - 1
+            val isFarFromBottom = lastItemOffset + lastItemSize < listState.layoutInfo.viewportEndOffset - 50
+
+            isNotAtLastItem || isFarFromBottom
+        }
+    }
+
+    // Auto-scroll to bottom when messages change, but only if user hasn't scrolled up
+    LaunchedEffect(messages.size, userHasScrolled) {
+        if (messages.isNotEmpty() && !userHasScrolled) {
             listState.animateScrollToItem(messages.size)
         }
     }
@@ -247,7 +270,7 @@ fun ChatTranscript(
         Box(
             modifier = transcriptModifier
                 .fillMaxSize()
-                .background(theme.colors.background.default),
+                .background(if (transparent) Color.Transparent else theme.colors.background.default),
             contentAlignment = Alignment.Center,
         ) {
             Column(
@@ -274,7 +297,7 @@ fun ChatTranscript(
     LazyColumn(
         modifier = transcriptModifier
             .fillMaxSize()
-            .background(theme.colors.background.default),
+            .background(if (transparent) Color.Transparent else theme.colors.background.default),
         state = listState,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(theme.space.md),
@@ -297,7 +320,7 @@ fun ChatTranscript(
             // Render message based on role
             when (message.role) {
                 ChatMessageRole.RIDER -> RiderBubble(message = message)
-                ChatMessageRole.AGENT -> AgentMessage(message = message)
+                ChatMessageRole.AGENT -> AgentMessage(message = message, transparent = transparent)
             }
         }
 
@@ -417,14 +440,29 @@ private fun RiderBubble(message: ChatMessage) {
  *
  * Left-aligned, no bubble — plain text with small motorbike avatar to the left.
  * Mirrors LLM chat UI assistant message pattern.
+ *
+ * When transparent=true, wraps content in a semi-transparent glass container
+ * for readability over map backgrounds.
  */
 @Composable
-private fun AgentMessage(message: ChatMessage) {
+private fun AgentMessage(message: ChatMessage, transparent: Boolean = false) {
     val theme = LocalLaneShadowTheme.current
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .then(
+                if (transparent) {
+                    Modifier
+                        .background(
+                            color = theme.colors.surface.default.copy(alpha = 0.85f),
+                            shape = RoundedCornerShape(theme.radius.md),
+                        )
+                        .padding(horizontal = theme.space.md, vertical = theme.space.sm)
+                } else {
+                    Modifier
+                }
+            )
             .testTag("agent-message-row"),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.Top,
