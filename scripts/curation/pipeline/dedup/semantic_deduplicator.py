@@ -7,14 +7,14 @@ import json
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
 import requests
-
 from scripts.curation.pipeline.models import Route
+from scripts.curation.pipeline.sync.convex_fetch import ConfigurationError, _dict_to_route
 
 logger = logging.getLogger(__name__)
 
@@ -267,12 +267,67 @@ class SemanticDeduplicator:
 
 
 def fetch_all_routes(base_url: str, deploy_key: str, limit: int | None = None) -> list[Route]:
-    """Fetch curated routes for deduplication.
+    """Fetch curated routes for deduplication from Convex HTTP API."""
+    if not deploy_key:
+        raise ConfigurationError(
+            "CURATION_DEPLOY_KEY is not set. "
+            "Add it to .env.local (see 09-technical-requirements.md §API Design)."
+        )
 
-    Returns an empty list when no fetch adapter is configured.
-    """
-    _ = (base_url, deploy_key, limit)
-    return []
+    base = base_url.rstrip("/")
+    headers = {
+        "Authorization": f"Bearer {deploy_key}",
+        "Content-Type": "application/json",
+    }
+    url = f"{base}/api/run/curationAdmin:getAllCuratedRoutes"
+
+    collected: list[Route] = []
+    cursor: str | None = None
+
+    while True:
+        if limit is not None and len(collected) >= limit:
+            break
+
+        response = requests.post(
+            url,
+            headers=headers,
+            json={"args": {"cursor": cursor, "numItems": 1000}},
+            timeout=30,
+        )
+        response.raise_for_status()
+
+        body = response.json()
+        value = body.get("value")
+
+        page_docs: list[dict[str, Any]] = []
+        is_done = True
+        next_cursor: str | None = None
+
+        if isinstance(value, list):
+            page_docs = [item for item in value if isinstance(item, dict)]
+        elif isinstance(value, dict):
+            page = value.get("page")
+            if isinstance(page, list):
+                page_docs = [item for item in page if isinstance(item, dict)]
+                is_done = bool(value.get("isDone", True))
+                raw_cursor = value.get("continueCursor")
+                next_cursor = raw_cursor if isinstance(raw_cursor, str) else None
+            else:
+                result = value.get("result")
+                if isinstance(result, list):
+                    page_docs = [item for item in result if isinstance(item, dict)]
+
+        collected.extend(_dict_to_route(doc) for doc in page_docs)
+
+        if limit is not None and len(collected) >= limit:
+            collected = collected[:limit]
+            break
+
+        cursor = next_cursor
+        if is_done or cursor is None:
+            break
+
+    return collected
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -312,7 +367,7 @@ def main(
 
 
 def _utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 if __name__ == "__main__":
