@@ -38,7 +38,7 @@ public struct LSEmptyState: View {
 
     private let icon: String
     private let headline: String
-    private let body: String
+    private let bodyText: String
     private let ctaLabel: String?
     private let onCtaPress: (() -> Void)?
 
@@ -50,13 +50,13 @@ public struct LSEmptyState: View {
     public init(
         icon: String,
         headline: String,
-        body: String,
+        bodyText: String,
         ctaLabel: String? = nil,
         onCtaPress: (() -> Void)? = nil
     ) {
         self.icon = icon
         self.headline = headline
-        self.body = body
+        self.bodyText = bodyText
         self.ctaLabel = ctaLabel
         self.onCtaPress = onCtaPress
     }
@@ -80,7 +80,7 @@ public struct LSEmptyState: View {
                     .foregroundStyle(theme.colors.onSurface.default)
                     .multilineTextAlignment(.center)
 
-                Text(body)
+                Text(bodyText)
                     .font(.system(size: 14, weight: .regular))
                     .foregroundStyle(theme.colors.onSurface.default.opacity(0.6))
                     .multilineTextAlignment(.center)
@@ -109,7 +109,7 @@ public struct LSEmptyState: View {
         }
         .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(headline). \(body)")
+        .accessibilityLabel("\(headline). \(bodyText)")
     }
 }
 
@@ -119,7 +119,7 @@ public struct LSEmptyState: View {
     LSEmptyState(
         icon: "tray.fill",
         headline: "No items yet",
-        body: "Items you add will appear here."
+        bodyText: "Items you add will appear here."
     )
     .laneShadowTheme()
 }
@@ -128,7 +128,7 @@ public struct LSEmptyState: View {
     LSEmptyState(
         icon: "map.marker.path",
         headline: "No saved routes yet",
-        body: "Plan a route and save it to see it here.",
+        bodyText: "Plan a route and save it to see it here.",
         ctaLabel: "Plan your first route",
         onCtaPress: {
             print("CTA tapped")
@@ -141,7 +141,7 @@ public struct LSEmptyState: View {
     LSEmptyState(
         icon: "heart.slash.fill",
         headline: "No favorites",
-        body: "Save rides to your favorites to quickly find them later."
+        bodyText: "Save rides to your favorites to quickly find them later."
     )
     .laneShadowTheme()
 }
@@ -150,7 +150,7 @@ public struct LSEmptyState: View {
     LSEmptyState(
         icon: "bell.slash.fill",
         headline: "No notifications",
-        body: "We'll notify you when there are updates.",
+        bodyText: "We'll notify you when there are updates.",
         ctaLabel: "Explore rides",
         onCtaPress: {
             print("Explore tapped")
@@ -163,7 +163,7 @@ public struct LSEmptyState: View {
     LSEmptyState(
         icon: "magnifyingglass",
         headline: "No results found",
-        body: "Try adjusting your search or filters to find what you're looking for."
+        bodyText: "Try adjusting your search or filters to find what you're looking for."
     )
     .laneShadowTheme()
 }
