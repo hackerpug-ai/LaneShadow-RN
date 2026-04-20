@@ -58,10 +58,12 @@ class SemanticDeduplicator:
         calibration_output_path: Path | str = Path("scripts/curation/data/calibration/dedup_calibration_set.json"),
         run_id: str | None = None,
         timeout_seconds: int = 30,
+        dry_run: bool = False,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.deploy_key = deploy_key
         self.timeout_seconds = timeout_seconds
+        self.dry_run = dry_run
         self.run_id = run_id or f"dedup-{uuid4()}"
         self.arbitration_output_path = Path(arbitration_output_path)
         self.calibration_output_path = Path(calibration_output_path)
@@ -75,6 +77,8 @@ class SemanticDeduplicator:
     def run(self, routes: list[Route]) -> DedupCostLedger:
         """Process all routes and classify candidate pairs for merge/arbitration/separate."""
         started = time.monotonic()
+        if self.dry_run:
+            logger.info("dry-run mode: skipping all writes")
         self.cost_ledger.total_routes = len(routes)
 
         route_by_id = {route.route_id: route for route in routes}
@@ -209,6 +213,8 @@ class SemanticDeduplicator:
 
     def emit_calibration_set(self) -> None:
         """Write calibration dataset for threshold tuning."""
+        if self.dry_run:
+            return
         meets_minimum = (
             len(self._calibration_positives) >= self.CALIBRATION_MIN_POSITIVES
             and len(self._calibration_negatives) >= self.CALIBRATION_MIN_NEGATIVES
@@ -236,6 +242,8 @@ class SemanticDeduplicator:
         self.calibration_output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     def _write_arbitration_queue(self) -> None:
+        if self.dry_run:
+            return
         self.arbitration_output_path.parent.mkdir(parents=True, exist_ok=True)
         self.arbitration_output_path.write_text(json.dumps(self.arbitration_queue, indent=2), encoding="utf-8")
 
@@ -249,6 +257,8 @@ class SemanticDeduplicator:
         arbitration_notes: str | None,
     ) -> None:
         """Write route match audit row using INF-006 addRouteMatch."""
+        if self.dry_run:
+            return
         url = f"{self.base_url}/api/run/semanticSearch:addRouteMatch"
         headers = {
             "Authorization": f"Bearer {self.deploy_key}",
@@ -279,6 +289,8 @@ class SemanticDeduplicator:
         response.raise_for_status()
 
     def _append_reconciliation_entry(self, winner: Route) -> None:
+        if self.dry_run:
+            return
         winner.llm_reconciliation_log.append(
             {
                 "runId": self.run_id,
@@ -358,6 +370,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--base-url", required=True, help="Convex deployment URL")
     parser.add_argument("--deploy-key", required=True, help="Convex deploy key")
     parser.add_argument("--limit", type=int, default=None, help="Optional route limit")
+    parser.add_argument("--dry-run", action="store_true", help="Skip writes, benchmark only")
     return parser.parse_args(argv)
 
 
@@ -378,6 +391,7 @@ def main(
         deploy_key=args.deploy_key,
         arbitration_output_path=arbitration_output_path,
         calibration_output_path=calibration_output_path,
+        dry_run=args.dry_run,
     )
     deduplicator.run(routes)
     deduplicator.emit_calibration_set()
