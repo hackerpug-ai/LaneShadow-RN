@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<!-- uc-atm-10-icon.html — UC-ATM-10 "LSIcon" — 25-SVG Catalog
+     LaneShadow V2 · Copper · ATM Tier-C Design Mock · 2026-04-20
+     Authority: .spec/prds/v2/05-uc-atm.md §UC-ATM-10 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ATM-10 — LSIcon Catalog — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:  #FDFBF8;
+  --paper-100: #F8F7F6;
+  --paper-150: #F5F2EE;
+  --paper-200: #F2EFED;
+  --paper-300: #EDE7E1;
+  --paper-400: #E5DED9;
+  --paper-500: #C9BDB3;
+
+  --ink-900:   #1E1A16;
+  --ink-800:   #221810;
+  --ink-700:   #2D2218;
+  --ink-600:   #362A1F;
+  --ink-500:   #3D3228;
+  --ink-400:   #49454F;
+  --ink-300:   #6B6460;
+  --ink-200:   #9CA3AF;
+  --ink-100:   #CAC4D0;
+  --ink-050:   #F2EEE8;
+
+  --copper-700: #9E4A22;
+  --copper-600: #B85A2C;
+  --copper-500: #EE7C2B;
+  --copper-400: #F3A164;
+  --copper-200: #F9D5B5;
+  --copper-100: #FCE8D4;
+
+  --route-best: #EE7C2B;
+  --route-alt1: #4D8470;
+  --route-alt2: #6B7B8F;
+
+  --status-success:   #3D8A5E;
+  --status-error:     #C43C3C;
+  --status-warning:   #C46F1B;
+  --status-info:      #3A6FBE;
+  --status-recording: #C43C3C;
+
+  --font-opinion:    'Newsreader', Georgia, serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* Semantic tokens */
+  --surface-primary:   var(--paper-100);
+  --surface-card:      var(--paper-50);
+  --surface-inset:     var(--paper-200);
+  --surface-overlay:   rgba(253,251,248,0.92);
+  --surface-glass:     rgba(253,251,248,0.72);
+  --surface-scrim:     rgba(34,24,16,0.35);
+  --map-paper:         var(--paper-150);
+  --map-contour:       rgba(73,69,79,0.22);
+  --map-contour-faint: rgba(73,69,79,0.10);
+
+  --content-primary:   var(--ink-900);
+  --content-secondary: var(--ink-400);
+  --content-tertiary:  var(--ink-300);
+  --content-subtle:    var(--ink-200);
+  --content-onSignal:  #FFFFFF;
+  --content-error:     var(--status-error);
+
+  --signal-default:    var(--copper-500);
+  --signal-pressed:    var(--copper-700);
+  --signal-tint:       var(--copper-200);
+  --signal-whisper:    var(--copper-100);
+
+  --border-default:    var(--paper-400);
+  --border-subtle:     var(--paper-300);
+  --border-strong:     var(--paper-500);
+  --border-focus:      var(--copper-500);
+
+  --elev-overlay:      0 8px 24px rgba(34,24,16,0.10), 0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:         0 2px 6px rgba(34,24,16,0.06);
+
+  /* Icon sizing tokens */
+  --icon-xs: 12px;
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --icon-xl: 32px;
+  --icon-stroke: 1.5px;
+}
+
+body {
+  font-family: var(--font-ui);
+  color: var(--content-primary);
+  background: var(--surface-primary);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+
+/* ── HEADER ── */
+.doc-header {
+  position: relative;
+  padding: 96px 0 72px;
+  border-bottom: 1px solid var(--border-default);
+  overflow: hidden;
+}
+.doc-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 80%, rgba(238,124,43,0.08), transparent 44%),
+    radial-gradient(circle at 92% 12%, rgba(184,90,44,0.05), transparent 50%);
+  pointer-events: none;
+}
+.doc-header > * { position: relative; z-index: 1; }
+
+.doc-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--signal-default); margin-bottom: 28px;
+}
+.doc-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--signal-default); }
+.doc-eyebrow-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--signal-default);
+  color: var(--signal-default); background: var(--signal-whisper);
+  font-size: 9.5px; letter-spacing: 0.14em;
+}
+.doc-title {
+  font-family: var(--font-opinion);
+  font-size: 104px; font-weight: 300;
+  line-height: 0.94; letter-spacing: -0.035em;
+  margin-bottom: 32px; max-width: 1000px;
+}
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.doc-tagline {
+  font-family: var(--font-opinion);
+  font-style: italic; font-size: 22px; font-weight: 300;
+  color: var(--content-secondary); max-width: 640px;
+  line-height: 1.55; margin-bottom: 56px;
+}
+.doc-meta-row {
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  gap: 24px; padding-top: 36px;
+  border-top: 1px solid var(--border-default);
+}
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label { font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary); }
+.meta-value { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); }
+
+/* ── SECTION ── */
+.section {
+  padding: 96px 0;
+  border-bottom: 1px solid var(--border-default);
+  position: relative;
+}
+.section:last-child { border-bottom: none; }
+.section-header {
+  display: grid; grid-template-columns: 120px 1fr;
+  align-items: baseline; gap: 32px; margin-bottom: 56px;
+}
+.section-index {
+  font-family: var(--font-instrument);
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em; color: var(--signal-default);
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-index::before { content: ""; display: block; width: 48px; height: 1px; background: var(--signal-default); }
+.section-title {
+  font-family: var(--font-opinion);
+  font-size: 52px; font-weight: 300;
+  letter-spacing: -0.025em; line-height: 1.04; max-width: 900px;
+}
+.section-title em { font-style: italic; color: var(--signal-default); }
+.prose {
+  font-family: var(--font-opinion); font-weight: 300;
+  font-size: 19px; line-height: 1.68;
+  color: var(--content-secondary); max-width: 720px;
+  margin-left: 152px;
+}
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+
+/* ── ICON CATALOG GRID ── */
+.icon-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 2px;
+  margin-left: 152px;
+  background: var(--border-default);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.icon-cell {
+  background: var(--surface-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 12px 16px;
+  transition: background 0.15s ease;
+  cursor: default;
+}
+.icon-cell:hover { background: var(--surface-inset); }
+.icon-cell svg {
+  display: block;
+  width: var(--icon-md);
+  height: var(--icon-md);
+  color: var(--content-primary);
+  flex-shrink: 0;
+}
+.icon-cell-name {
+  font-family: var(--font-instrument);
+  font-size: 8.5px;
+  font-weight: 500;
+  color: var(--content-tertiary);
+  letter-spacing: 0.04em;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* ── SIZE SCALE ROW ── */
+.size-scale-section { margin-left: 152px; margin-top: 64px; }
+.size-scale-label {
+  font-family: var(--font-ui);
+  font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--content-tertiary); margin-bottom: 24px;
+}
+.size-scale-row {
+  display: flex; align-items: center; gap: 32px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 28px 32px;
+}
+.size-scale-item {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.size-scale-item svg { display: block; color: var(--content-primary); }
+.size-token {
+  font-family: var(--font-instrument);
+  font-size: 9px; font-weight: 500;
+  color: var(--content-tertiary);
+  letter-spacing: 0.06em;
+}
+.size-px {
+  font-family: var(--font-instrument);
+  font-size: 8px;
+  color: var(--content-subtle);
+}
+
+/* ── COLOR SWATCHES ── */
+.color-swatch-section { margin-left: 152px; margin-top: 56px; }
+.color-swatch-row {
+  display: flex; align-items: center; gap: 0;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.color-swatch-cell {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 10px;
+  padding: 28px 16px;
+  border-right: 1px solid var(--border-subtle);
+}
+.color-swatch-cell:last-child { border-right: none; }
+.color-swatch-cell svg { display: block; width: var(--icon-lg); height: var(--icon-lg); }
+.swatch-token-label {
+  font-family: var(--font-instrument);
+  font-size: 8.5px; font-weight: 500;
+  color: var(--content-tertiary);
+  letter-spacing: 0.06em;
+}
+
+/* ── USAGE SECTION ── */
+.usage-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-left: 152px;
+}
+.usage-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.usage-card-title {
+  font-family: var(--font-ui);
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+.usage-demo {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px;
+  background: var(--surface-inset);
+  border-radius: 8px;
+}
+.usage-demo svg { display: block; width: var(--icon-md); height: var(--icon-md); flex-shrink: 0; }
+.usage-label {
+  font-family: var(--font-ui);
+  font-size: 12px; font-weight: 500;
+  color: var(--content-primary);
+}
+.usage-desc {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--content-tertiary);
+  line-height: 1.5;
+}
+
+/* ── REJECTION BLOCK ── */
+.rejection-block {
+  margin-left: 152px;
+  background: #FEF2F2;
+  border: 1px solid rgba(196,60,60,0.25);
+  border-left: 4px solid var(--status-error);
+  border-radius: 8px;
+  padding: 28px 32px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.rejection-title {
+  font-family: var(--font-ui);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--status-error);
+}
+.rejection-list {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.rejection-list li {
+  font-family: var(--font-instrument);
+  font-size: 12.5px; font-weight: 500;
+  color: var(--ink-600);
+  display: flex; align-items: baseline; gap: 10px;
+}
+.rejection-list li::before {
+  content: "BLOCKED";
+  font-size: 8px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--status-error);
+  background: rgba(196,60,60,0.1);
+  padding: 2px 6px; border-radius: 3px;
+  flex-shrink: 0;
+}
+.rejection-note {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--ink-400);
+  line-height: 1.55;
+}
+
+/* ── DIMENSIONS TABLE ── */
+.dim-table {
+  margin-left: 152px;
+  width: calc(100% - 152px);
+  border-collapse: collapse;
+}
+.dim-table th, .dim-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+}
+.dim-table th {
+  font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--content-tertiary);
+  background: var(--surface-inset);
+}
+.dim-table td { color: var(--content-primary); }
+.dim-table td.mono { font-family: var(--font-instrument); font-size: 12px; }
+.dim-table tr:last-child td { border-bottom: none; }
+.dim-table tr:hover td { background: var(--surface-inset); }
+
+/* ── AC BLOCK ── */
+.ac-block {
+  margin-left: 152px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.ac-item {
+  display: flex; align-items: baseline; gap: 12px;
+  font-family: var(--font-ui); font-size: 13px;
+  color: var(--content-secondary); line-height: 1.55;
+}
+.ac-item::before {
+  content: "☐";
+  font-size: 14px; color: var(--border-strong);
+  flex-shrink: 0;
+}
+.ac-ref {
+  font-family: var(--font-instrument);
+  font-size: 10px; font-weight: 500;
+  color: var(--signal-default);
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+/* ── FOOTER ── */
+.doc-footer {
+  padding: 48px 0;
+  border-top: 1px solid var(--border-default);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-brand {
+  font-family: var(--font-instrument);
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+.footer-meta {
+  font-family: var(--font-instrument);
+  font-size: 11px; color: var(--content-subtle);
+  letter-spacing: 0.06em;
+}
+
+/* ── Icon SVG base style ── */
+.ls-icon {
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  display: block;
+}
+.ls-icon-fill {
+  stroke: none;
+  fill: currentColor;
+  display: block;
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════════════ -->
+<header class="doc-header">
+  <div class="wrap">
+    <div class="doc-eyebrow">
+      LaneShadow V2 · Copper
+      <span class="doc-eyebrow-pill">UC-ATM-10</span>
+      <span class="doc-eyebrow-pill">ATM Tier-C</span>
+    </div>
+    <h1 class="doc-title">LS<em>Icon</em></h1>
+    <p class="doc-tagline">Design-owned 31-glyph SVG catalog. 1.5px rounded stroke. Token-driven color. No SF Symbols. No Material Icons.</p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><span class="meta-label">UC ID</span><span class="meta-value">UC-ATM-10</span></div>
+      <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">2026-04-20</span></div>
+      <div class="meta-item"><span class="meta-label">Status</span><span class="meta-value">Tier-C Mock</span></div>
+      <div class="meta-item"><span class="meta-label">Stroke</span><span class="meta-value">1.5px rounded</span></div>
+      <div class="meta-item"><span class="meta-label">Catalog size</span><span class="meta-value">31 glyphs</span></div>
+      <div class="meta-item"><span class="meta-label">Sizes</span><span class="meta-value">xs · sm · md · lg · xl</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ §01 PURPOSE ══════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§01</div>
+      <h2 class="section-title">Purpose &amp; <em>Scope</em></h2>
+    </div>
+    <p class="prose">LSIcon is the sole icon primitive for LaneShadow V2. All 31 glyphs are design-owned SVGs — no platform system icons (SF Symbols, Material Icons) are permitted anywhere in the codebase. Each icon resolves its color through the <em>ContentColor</em> enum (never a raw hex), its size through <em>IconSize</em> tokens, and its stroke through the shared <em>icon.stroke.width</em> = 1.5px token.</p>
+    <p class="prose">Icons are bundled at build time: iOS emits Asset.xcassets or SwiftUI Shape conversions; Android emits Compose ImageVector resources. The <em>pnpm icons:check</em> script enforces that every basename matches an IconName enum value exactly.</p>
+  </div>
+</section>
+
+<!-- ══ §02 ICON CATALOG ═════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§02</div>
+      <h2 class="section-title">Icon <em>Catalog</em></h2>
+    </div>
+    <p class="prose" style="margin-bottom:48px;">All 31 glyphs at <em>sizing.icon.md</em> (20px). Stroke-width 1.5px · linecap round · linejoin round. Color: content.primary (#1E1A16 light).</p>
+
+    <div class="icon-catalog-grid">
+
+      <!-- send -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="send">
+          <path d="M17 3L9.5 10.5M17 3L11.5 17.5L9.5 10.5M17 3L3 8L9.5 10.5"/>
+        </svg>
+        <span class="icon-cell-name">send</span>
+      </div>
+
+      <!-- expand -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="expand">
+          <path d="M13 3h4v4M7 17H3v-4M3 3l6 6M17 17l-6-6"/>
+        </svg>
+        <span class="icon-cell-name">expand</span>
+      </div>
+
+      <!-- collapse -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="collapse">
+          <path d="M3 9h4V5M17 11h-4v4M9 3l-6 6M11 17l6-6"/>
+        </svg>
+        <span class="icon-cell-name">collapse</span>
+      </div>
+
+      <!-- menu -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="menu">
+          <path d="M3 5h14M3 10h14M3 15h14"/>
+        </svg>
+        <span class="icon-cell-name">menu</span>
+      </div>
+
+      <!-- plus -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="plus">
+          <path d="M10 3v14M3 10h14"/>
+        </svg>
+        <span class="icon-cell-name">plus</span>
+      </div>
+
+      <!-- close -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="close">
+          <path d="M4 4l12 12M16 4L4 16"/>
+        </svg>
+        <span class="icon-cell-name">close</span>
+      </div>
+
+      <!-- sliders -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="sliders">
+          <path d="M3 5h14M3 10h14M3 15h14"/>
+          <circle cx="7" cy="5" r="2.5"/>
+          <circle cx="13" cy="10" r="2.5"/>
+          <circle cx="7" cy="15" r="2.5"/>
+        </svg>
+        <span class="icon-cell-name">sliders</span>
+      </div>
+
+      <!-- bookmark -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="bookmark">
+          <path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/>
+        </svg>
+        <span class="icon-cell-name">bookmark</span>
+      </div>
+
+      <!-- bookmarkFill -->
+      <div class="icon-cell">
+        <svg viewBox="0 0 20 20" aria-label="bookmarkFill" style="width:20px;height:20px;display:block;fill:currentColor;stroke:none;">
+          <path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/>
+        </svg>
+        <span class="icon-cell-name">bookmarkFill</span>
+      </div>
+
+      <!-- star -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="star">
+          <path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/>
+        </svg>
+        <span class="icon-cell-name">star</span>
+      </div>
+
+      <!-- starFill -->
+      <div class="icon-cell">
+        <svg viewBox="0 0 20 20" aria-label="starFill" style="width:20px;height:20px;display:block;fill:currentColor;stroke:none;">
+          <path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/>
+        </svg>
+        <span class="icon-cell-name">starFill</span>
+      </div>
+
+      <!-- pin -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="pin">
+          <path d="M10 2a5 5 0 015 5c0 3.5-5 11-5 11S5 10.5 5 7a5 5 0 015-5z"/>
+          <circle cx="10" cy="7" r="2"/>
+        </svg>
+        <span class="icon-cell-name">pin</span>
+      </div>
+
+      <!-- clock -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="clock">
+          <circle cx="10" cy="10" r="7.5"/>
+          <path d="M10 6v4l2.5 2.5"/>
+        </svg>
+        <span class="icon-cell-name">clock</span>
+      </div>
+
+      <!-- sun -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="sun">
+          <circle cx="10" cy="10" r="3.5"/>
+          <path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/>
+        </svg>
+        <span class="icon-cell-name">sun</span>
+      </div>
+
+      <!-- rain -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="rain">
+          <path d="M14.5 8.5a4.5 4.5 0 10-9 0H5a3 3 0 000 6h10a3 3 0 000-6h-.5z"/>
+          <path d="M7 15l-1 3M10 15l-1 3M13 15l-1 3"/>
+        </svg>
+        <span class="icon-cell-name">rain</span>
+      </div>
+
+      <!-- wind -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="wind">
+          <path d="M3 8h9.5a2.5 2.5 0 000-5c-1.38 0-2.5 1.12-2.5 2.5"/>
+          <path d="M3 12h12.5a2.5 2.5 0 010 5c-1.38 0-2.5-1.12-2.5-2.5"/>
+          <path d="M3 10h7"/>
+        </svg>
+        <span class="icon-cell-name">wind</span>
+      </div>
+
+      <!-- storm -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="storm">
+          <path d="M13 2L7 10h5l-2 8 8-10h-5l2-6z"/>
+        </svg>
+        <span class="icon-cell-name">storm</span>
+      </div>
+
+      <!-- therm -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="therm">
+          <path d="M10 4v8.15A3 3 0 1010 17V4z"/>
+          <rect x="9" y="4" width="2" height="8.5" rx="1" style="fill:currentColor;stroke:none;opacity:0.18;"/>
+          <path d="M12.5 6h2M12.5 9h1.5"/>
+        </svg>
+        <span class="icon-cell-name">therm</span>
+      </div>
+
+      <!-- route -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="route">
+          <circle cx="4.5" cy="15.5" r="2"/>
+          <circle cx="15.5" cy="4.5" r="2"/>
+          <path d="M6.5 15.5H10a5 5 0 000-10H6.5A3.5 3.5 0 006.5 13H10"/>
+        </svg>
+        <span class="icon-cell-name">route</span>
+      </div>
+
+      <!-- map -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="map">
+          <path d="M7.5 2L2 5v13l5.5-3 5 3 5.5-3V2L13 5l-5.5-3z"/>
+          <path d="M7.5 2v13M12.5 5v13"/>
+        </svg>
+        <span class="icon-cell-name">map</span>
+      </div>
+
+      <!-- layers -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="layers">
+          <path d="M10 2L2 6.5l8 4.5 8-4.5L10 2z"/>
+          <path d="M2 10.5l8 4.5 8-4.5"/>
+          <path d="M2 14.5l8 4.5 8-4.5"/>
+        </svg>
+        <span class="icon-cell-name">layers</span>
+      </div>
+
+      <!-- share -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="share">
+          <path d="M15 6a2 2 0 100-4 2 2 0 000 4zM5 12a2 2 0 100-4 2 2 0 000 4zM15 18a2 2 0 100-4 2 2 0 000 4z"/>
+          <path d="M7 10.7l5.5 3.2M12.5 6.1L7 9.3"/>
+        </svg>
+        <span class="icon-cell-name">share</span>
+      </div>
+
+      <!-- heart -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="heart">
+          <path d="M10 16.5S2.5 12 2.5 6.5a4 4 0 017.5-2 4 4 0 017.5 2C17.5 12 10 16.5 10 16.5z"/>
+        </svg>
+        <span class="icon-cell-name">heart</span>
+      </div>
+
+      <!-- heartFill -->
+      <div class="icon-cell">
+        <svg viewBox="0 0 20 20" aria-label="heartFill" style="width:20px;height:20px;display:block;fill:currentColor;stroke:none;">
+          <path d="M10 16.5S2.5 12 2.5 6.5a4 4 0 017.5-2 4 4 0 017.5 2C17.5 12 10 16.5 10 16.5z"/>
+        </svg>
+        <span class="icon-cell-name">heartFill</span>
+      </div>
+
+      <!-- sparkle -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="sparkle">
+          <path d="M10 2l1.5 5.5L17 9l-5.5 1.5L10 16l-1.5-5.5L3 9l5.5-1.5L10 2z"/>
+          <path d="M17 3l.7 2 2 .7-2 .7L17 9l-.7-2.3-2-.7 2-.7L17 3z"/>
+        </svg>
+        <span class="icon-cell-name">sparkle</span>
+      </div>
+
+      <!-- compass -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="compass">
+          <circle cx="10" cy="10" r="7.5"/>
+          <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+        </svg>
+        <span class="icon-cell-name">compass</span>
+      </div>
+
+      <!-- edit -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="edit">
+          <path d="M14 3l3 3L6 17H3v-3L14 3z"/>
+          <path d="M12.5 4.5l3 3"/>
+        </svg>
+        <span class="icon-cell-name">edit</span>
+      </div>
+
+      <!-- trash -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="trash">
+          <path d="M4 6h12l-1 11H5L4 6z"/>
+          <path d="M2.5 6h15M8 6V4h4v2"/>
+        </svg>
+        <span class="icon-cell-name">trash</span>
+      </div>
+
+      <!-- bike -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="bike">
+          <circle cx="5" cy="14" r="3"/>
+          <circle cx="15" cy="14" r="3"/>
+          <path d="M5 14l4-7h4l2 7"/>
+          <path d="M9 7l-3 7M12 7l1 4"/>
+          <circle cx="12" cy="6" r="1.5"/>
+        </svg>
+        <span class="icon-cell-name">bike</span>
+      </div>
+
+      <!-- chevR -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="chevR">
+          <path d="M7.5 5l5 5-5 5"/>
+        </svg>
+        <span class="icon-cell-name">chevR</span>
+      </div>
+
+      <!-- chevL -->
+      <div class="icon-cell">
+        <svg class="ls-icon" viewBox="0 0 20 20" aria-label="chevL">
+          <path d="M12.5 5l-5 5 5 5"/>
+        </svg>
+        <span class="icon-cell-name">chevL</span>
+      </div>
+
+    </div>
+
+    <!-- SIZE SCALE ROW -->
+    <div class="size-scale-section">
+      <p class="size-scale-label">Size scale — compass glyph at all 5 token sizes. Stroke holds 1.5px at xs (12px).</p>
+      <div class="size-scale-row">
+
+        <div class="size-scale-item">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:12px;height:12px;" aria-label="compass xs">
+            <circle cx="10" cy="10" r="7.5"/>
+            <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+          </svg>
+          <span class="size-token">icon.xs</span>
+          <span class="size-px">12px</span>
+        </div>
+
+        <div class="size-scale-item">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:16px;height:16px;" aria-label="compass sm">
+            <circle cx="10" cy="10" r="7.5"/>
+            <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+          </svg>
+          <span class="size-token">icon.sm</span>
+          <span class="size-px">16px</span>
+        </div>
+
+        <div class="size-scale-item">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:20px;height:20px;" aria-label="compass md">
+            <circle cx="10" cy="10" r="7.5"/>
+            <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+          </svg>
+          <span class="size-token">icon.md</span>
+          <span class="size-px">20px</span>
+        </div>
+
+        <div class="size-scale-item">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:24px;height:24px;" aria-label="compass lg">
+            <circle cx="10" cy="10" r="7.5"/>
+            <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+          </svg>
+          <span class="size-token">icon.lg</span>
+          <span class="size-px">24px</span>
+        </div>
+
+        <div class="size-scale-item">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:32px;height:32px;" aria-label="compass xl">
+            <circle cx="10" cy="10" r="7.5"/>
+            <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+          </svg>
+          <span class="size-token">icon.xl</span>
+          <span class="size-px">32px</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- COLOR SWATCHES -->
+    <div class="color-swatch-section">
+      <p class="size-scale-label" style="margin-bottom:24px;">Color override — compass at all ContentColor roles</p>
+      <div class="color-swatch-row">
+
+        <div class="color-swatch-cell">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:24px;height:24px;color:var(--content-primary);">
+            <circle cx="10" cy="10" r="7.5"/>
+            <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+          </svg>
+          <span class="swatch-token-label">content.primary</span>
+        </div>
+
+        <div class="color-swatch-cell">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:24px;height:24px;color:var(--content-secondary);">
+            <circle cx="10" cy="10" r="7.5"/>
+            <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+          </svg>
+          <span class="swatch-token-label">content.secondary</span>
+        </div>
+
+        <div class="color-swatch-cell">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:24px;height:24px;color:var(--content-tertiary);">
+            <circle cx="10" cy="10" r="7.5"/>
+            <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+          </svg>
+          <span class="swatch-token-label">content.tertiary</span>
+        </div>
+
+        <div class="color-swatch-cell">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:24px;height:24px;color:var(--signal-default);">
+            <circle cx="10" cy="10" r="7.5"/>
+            <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+          </svg>
+          <span class="swatch-token-label">signal.default</span>
+        </div>
+
+        <div class="color-swatch-cell">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:24px;height:24px;color:var(--status-error);">
+            <circle cx="10" cy="10" r="7.5"/>
+            <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+          </svg>
+          <span class="swatch-token-label">status.error</span>
+        </div>
+
+        <div class="color-swatch-cell">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:24px;height:24px;color:var(--status-success);">
+            <circle cx="10" cy="10" r="7.5"/>
+            <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+          </svg>
+          <span class="swatch-token-label">status.success</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ §03 USAGE CONTEXTS ═══════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§03</div>
+      <h2 class="section-title">Usage <em>Contexts</em></h2>
+    </div>
+
+    <div class="usage-grid">
+
+      <div class="usage-card">
+        <span class="usage-card-title">Phase card header</span>
+        <div class="usage-demo">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:20px;height:20px;color:var(--signal-default);">
+            <circle cx="10" cy="10" r="7.5"/>
+            <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+          </svg>
+          <span class="usage-label">Navigator</span>
+        </div>
+        <p class="usage-desc">compass · size md · color signal.default. Identifies the Navigator agent persona on phase cards and message bubbles.</p>
+      </div>
+
+      <div class="usage-card">
+        <span class="usage-card-title">Location tag</span>
+        <div class="usage-demo">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:20px;height:20px;color:var(--signal-default);">
+            <path d="M10 2a5 5 0 015 5c0 3.5-5 11-5 11S5 10.5 5 7a5 5 0 015-5z"/>
+            <circle cx="10" cy="7" r="2"/>
+          </svg>
+          <span class="usage-label">Twin Peaks, SF</span>
+        </div>
+        <p class="usage-desc">pin · size sm · color signal.default. Used in waypoint chips, location pill tags, and annotation labels.</p>
+      </div>
+
+      <div class="usage-card">
+        <span class="usage-card-title">Chat send button</span>
+        <div class="usage-demo" style="background:var(--signal-default);border-radius:50%;width:42px;height:42px;padding:0;gap:0;justify-content:center;align-self:flex-start;flex-shrink:0;box-shadow:0 2px 8px rgba(238,124,43,0.38);">
+          <svg viewBox="0 0 20 20" style="width:18px;height:18px;color:#fff;display:block;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transform:translate(-1px,1px);">
+            <path d="M17 3L9.5 10.5M17 3L11.5 17.5L9.5 10.5M17 3L3 8L9.5 10.5"/>
+          </svg>
+        </div>
+        <p class="usage-desc">send · size sm · color content.onSignal. Embedded in the ChatInput send button on signal.default background (42px circular · radius.pill · elevation.1 copper glow).</p>
+      </div>
+
+      <div class="usage-card">
+        <span class="usage-card-title">Filter / sliders</span>
+        <div class="usage-demo">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:20px;height:20px;color:var(--content-secondary);">
+            <path d="M3 5h14M3 10h14M3 15h14"/>
+            <circle cx="7" cy="5" r="2.5"/>
+            <circle cx="13" cy="10" r="2.5"/>
+            <circle cx="7" cy="15" r="2.5"/>
+          </svg>
+          <span class="usage-label">Filters</span>
+        </div>
+        <p class="usage-desc">sliders · size md · color content.secondary. Used in the ChatInput filter chip alongside preference controls.</p>
+      </div>
+
+      <div class="usage-card">
+        <span class="usage-card-title">Route card best badge</span>
+        <div class="usage-demo">
+          <svg viewBox="0 0 20 20" style="width:16px;height:16px;fill:var(--signal-default);stroke:none;display:block;">
+            <path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/>
+          </svg>
+          <span class="usage-label">Best for Today</span>
+        </div>
+        <p class="usage-desc">starFill · size sm · color signal.default. Leads the LSBestBadge label in route variant cards.</p>
+      </div>
+
+      <div class="usage-card">
+        <span class="usage-card-title">Saved / bookmark</span>
+        <div class="usage-demo">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:20px;height:20px;color:var(--signal-default);">
+            <path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/>
+          </svg>
+          <span class="usage-label">Save ride</span>
+        </div>
+        <p class="usage-desc">bookmark / bookmarkFill toggling · size md. Used in ride detail header and session card trailing action.</p>
+      </div>
+
+      <div class="usage-card">
+        <span class="usage-card-title">Weather pill</span>
+        <div class="usage-demo">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:16px;height:16px;color:#4A86BE;">
+            <path d="M14.5 8.5a4.5 4.5 0 10-9 0H5a3 3 0 000 6h10a3 3 0 000-6h-.5z"/>
+            <path d="M7 15l-1 3M10 15l-1 3M13 15l-1 3"/>
+          </svg>
+          <span class="usage-label">Rain 3pm</span>
+        </div>
+        <p class="usage-desc">rain / sun / wind / storm / therm · size xs–sm. Used in LSBadge weather variants on route cards.</p>
+      </div>
+
+      <div class="usage-card">
+        <span class="usage-card-title">AI sparkle indicator</span>
+        <div class="usage-demo">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:20px;height:20px;color:var(--signal-default);">
+            <path d="M10 2l1.5 5.5L17 9l-5.5 1.5L10 16l-1.5-5.5L3 9l5.5-1.5L10 2z"/>
+            <path d="M17 3l.7 2 2 .7-2 .7L17 9l-.7-2.3-2-.7 2-.7L17 3z"/>
+          </svg>
+          <span class="usage-label">Navigator thinking</span>
+        </div>
+        <p class="usage-desc">sparkle · size md · color signal.default. Appears in the Navigator message header while the agent is composing.</p>
+      </div>
+
+    </div>
+
+    <!-- REJECTION BLOCK -->
+    <div class="rejection-block" style="margin-top:64px;">
+      <span class="rejection-title">Forbidden patterns — audit grep rejects these</span>
+      <ul class="rejection-list">
+        <li>UIImage(systemName:) — SF Symbols API on iOS</li>
+        <li>Image(systemName:) — SwiftUI SF Symbols shorthand</li>
+        <li>Icons.Filled.* — Material Icons filled family (Android/Compose)</li>
+        <li>Icons.Outlined.* — Material Icons outlined family (Android/Compose)</li>
+        <li>Icons.Rounded.* — Material Icons rounded family (Android/Compose)</li>
+        <li>Icons.Sharp.* — Material Icons sharp family (Android/Compose)</li>
+        <li>Icons.TwoTone.* — Material Icons two-tone family (Android/Compose)</li>
+        <li>MaterialIcon — Any MaterialIcon import alias</li>
+        <li>systemImage: — SwiftUI Label(systemImage:) pattern</li>
+      </ul>
+      <p class="rejection-note">The pnpm icons:check script greps for all patterns above and fails CI if any match is found. Post-Sprint-2 the codebase must show zero hits on these patterns across both iOS and Android targets.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ §04 DIMENSIONS ════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§04</div>
+      <h2 class="section-title">Dimensions <em>Table</em></h2>
+    </div>
+
+    <table class="dim-table">
+      <thead>
+        <tr>
+          <th>Token</th>
+          <th>Value</th>
+          <th>Platform (iOS)</th>
+          <th>Platform (Android)</th>
+          <th>Use</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="mono">sizing.icon.xs</td><td class="mono">12px / 12pt</td><td class="mono">12.pt</td><td class="mono">12.dp</td><td>Badge leading icon, tiny decorative</td></tr>
+        <tr><td class="mono">sizing.icon.sm</td><td class="mono">16px / 16pt</td><td class="mono">16.pt</td><td class="mono">16.dp</td><td>Inline button icon, chip leading icon</td></tr>
+        <tr><td class="mono">sizing.icon.md</td><td class="mono">20px / 20pt</td><td class="mono">20.pt</td><td class="mono">20.dp</td><td>Default catalog size, nav actions</td></tr>
+        <tr><td class="mono">sizing.icon.lg</td><td class="mono">24px / 24pt</td><td class="mono">24.pt</td><td class="mono">24.dp</td><td>Phase card header, prominent actions</td></tr>
+        <tr><td class="mono">sizing.icon.xl</td><td class="mono">32px / 32pt</td><td class="mono">32.pt</td><td class="mono">32.dp</td><td>Empty state illustration, onboarding</td></tr>
+        <tr><td class="mono">icon.stroke.width</td><td class="mono">1.5px</td><td class="mono">lineWidth: 1.5</td><td class="mono">strokeWidth = 1.5.dp</td><td>All outline glyphs — enforced at type-level</td></tr>
+        <tr><td class="mono">icon.linecap</td><td class="mono">round</td><td class="mono">.round</td><td class="mono">StrokeCap.Round</td><td>All stroke paths</td></tr>
+        <tr><td class="mono">icon.linejoin</td><td class="mono">round</td><td class="mono">.round</td><td class="mono">StrokeJoin.Round</td><td>All stroke paths</td></tr>
+        <tr><td class="mono">icon.viewBox</td><td class="mono">0 0 20 20</td><td class="mono">CGRect(20,20)</td><td class="mono">ViewBox(0,0,20,20)</td><td>Canonical grid for all glyphs</td></tr>
+        <tr><td class="mono">icon.touchTarget</td><td class="mono">44×44pt (iOS) / 48×48dp (Android)</td><td class="mono">frame(44,44)</td><td class="mono">size(48.dp)</td><td>Minimum accessible tap area</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ §05 MOTION ════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§05</div>
+      <h2 class="section-title">Motion &amp; <em>Hover</em></h2>
+    </div>
+    <p class="prose">Icons themselves carry no animation. Interactive contexts that wrap an LSIcon may apply the following token-referenced transitions.</p>
+    <p class="prose" style="margin-top:32px;"><em>Press state</em> — parent button scales the icon to 0.92× over 100ms ease-out. Resolves from <em>motion.duration.fast</em> (100ms) + <em>motion.easing.decelerate</em>.</p>
+    <p class="prose" style="margin-top:20px;"><em>Hover state (web / Mac Catalyst)</em> — icon color transitions from content.secondary to content.primary over 150ms. Resolves from <em>motion.duration.quick</em> (150ms) + <em>motion.easing.standard</em>.</p>
+    <p class="prose" style="margin-top:20px;"><em>Bookmark fill toggle</em> — cross-fade between bookmark and bookmarkFill over 180ms with a spring scale bounce (scale 0.85 → 1.08 → 1.0). Resolves from <em>motion.recipe.favoriteToggle</em>.</p>
+  </div>
+</section>
+
+<!-- ══ §06 RATIONALE + AC ════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§06</div>
+      <h2 class="section-title">Rationale &amp; <em>AC Trace</em></h2>
+    </div>
+
+    <p class="prose" style="margin-bottom:48px;">Design-owned icons ensure visual consistency across platforms without platform symbol drift. 1.5px stroke was chosen as the minimum weight that reads clearly at 12px (xs) while remaining crisp at 32px (xl) — confirmed via optical testing at 1x and 2x pixel density.</p>
+
+    <div class="ac-block">
+      <div class="ac-item"><span class="ac-ref">AC-01</span>tokens/icons/ contains exactly the named SVG files; basenames match IconName enum (enforced by pnpm icons:check).</div>
+      <div class="ac-item"><span class="ac-ref">AC-02</span>LSIcon(name: .compass, size: .md) renders at sizing.icon.md with 1.5px rounded stroke; color: .signal resolves to color.signal.default.</div>
+      <div class="ac-item"><span class="ac-ref">AC-03</span>Android renders identical glyph per parity manifest — visual diff tolerance ≤ 2px at 2x density.</div>
+      <div class="ac-item"><span class="ac-ref">AC-04</span>Post-Sprint-2 grep: zero references to UIImage(systemName:) / Image(systemName:) / Icons.Filled.* / Icons.Outlined.* anywhere in the codebase.</div>
+      <div class="ac-item"><span class="ac-ref">AC-05</span>"Atoms / Icon" sandbox story renders every name × size (5 sizes × 31 glyphs = 155 cells) in a swatch grid on both platforms.</div>
+      <div class="ac-item"><span class="ac-ref">AC-06</span>iOS XCTest and Android JUnit verify LSIcon rejects raw color inputs at type-check and that stroke width resolves from icon.stroke.width token.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══════════════════════════════════════════════════════════════ -->
+<footer class="wrap doc-footer">
+  <span class="footer-brand">LaneShadow V2 · Copper · UC-ATM-10</span>
+  <span class="footer-meta">uc-atm-10-icon.html · 2026-04-20 · ATM Tier-C</span>
+</footer>
+
+</body>
+</html>

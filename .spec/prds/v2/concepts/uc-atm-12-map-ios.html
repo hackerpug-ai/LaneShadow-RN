@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<!-- uc-atm-12-map-ios.html — UC-ATM-12 "LSMap" iOS Implementation Stories
+     LaneShadow V2 · Copper · ATM Tier-C Design Mock · 2026-04-20
+     Authority: .spec/prds/v2/05-uc-atm.md §UC-ATM-12 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ATM-12 — LSMap iOS — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:#FDFBF8;--paper-100:#F8F7F6;--paper-150:#F5F2EE;
+  --paper-200:#F2EFED;--paper-300:#EDE7E1;--paper-400:#E5DED9;--paper-500:#C9BDB3;
+  --ink-900:#1E1A16;--ink-800:#221810;--ink-700:#2D2218;--ink-600:#362A1F;
+  --ink-500:#3D3228;--ink-400:#49454F;--ink-300:#6B6460;--ink-200:#9CA3AF;
+  --ink-100:#CAC4D0;--ink-050:#F2EEE8;
+  --copper-700:#9E4A22;--copper-600:#B85A2C;--copper-500:#EE7C2B;
+  --copper-400:#F3A164;--copper-200:#F9D5B5;--copper-100:#FCE8D4;
+  --route-best:#EE7C2B;--route-alt1:#4D8470;--route-alt2:#6B7B8F;
+  --status-success:#3D8A5E;--status-error:#C43C3C;--status-warning:#C46F1B;
+  --status-info:#3A6FBE;--status-recording:#C43C3C;
+
+  --font-opinion:'Newsreader',Georgia,serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+
+  --surface-primary:var(--paper-100);--surface-card:var(--paper-50);
+  --surface-inset:var(--paper-200);--surface-glass:rgba(253,251,248,0.72);
+  --map-paper:var(--paper-150);--map-contour:rgba(73,69,79,0.22);
+  --map-contour-faint:rgba(73,69,79,0.10);
+  --content-primary:var(--ink-900);--content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300);--content-subtle:var(--ink-200);
+  --signal-default:var(--copper-500);--signal-tint:var(--copper-200);--signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400);--border-subtle:var(--paper-300);--border-strong:var(--paper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+}
+
+body {
+  font-family: var(--font-ui);
+  color: var(--content-primary);
+  background: var(--surface-primary);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+
+/* ── HEADER ── */
+.doc-header {
+  position: relative; padding: 96px 0 72px;
+  border-bottom: 1px solid var(--border-default); overflow: hidden;
+}
+.doc-header::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 80%, rgba(238,124,43,0.08), transparent 44%),
+    radial-gradient(circle at 92% 12%, rgba(184,90,44,0.05), transparent 50%);
+  pointer-events: none;
+}
+.doc-header > * { position: relative; z-index: 1; }
+.doc-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--signal-default); margin-bottom: 28px;
+}
+.doc-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--signal-default); }
+.doc-eyebrow-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--signal-default);
+  color: var(--signal-default); background: var(--signal-whisper);
+  font-size: 9.5px; letter-spacing: 0.14em;
+}
+.doc-title {
+  font-family: var(--font-opinion); font-size: 104px; font-weight: 300;
+  line-height: 0.94; letter-spacing: -0.035em; margin-bottom: 32px; max-width: 1000px;
+}
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.doc-tagline {
+  font-family: var(--font-opinion); font-style: italic; font-size: 22px; font-weight: 300;
+  color: var(--content-secondary); max-width: 640px; line-height: 1.55; margin-bottom: 56px;
+}
+.doc-meta-row {
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  gap: 24px; padding-top: 36px; border-top: 1px solid var(--border-default);
+}
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label { font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary); }
+.meta-value { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); }
+
+/* ── SECTION ── */
+.section { padding: 96px 0; border-bottom: 1px solid var(--border-default); position: relative; }
+.section:last-child { border-bottom: none; }
+.section-header {
+  display: grid; grid-template-columns: 120px 1fr;
+  align-items: baseline; gap: 32px; margin-bottom: 56px;
+}
+.section-index {
+  font-family: var(--font-instrument); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em; color: var(--signal-default); text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-index::before { content: ""; display: block; width: 48px; height: 1px; background: var(--signal-default); }
+.section-title {
+  font-family: var(--font-opinion); font-size: 52px; font-weight: 300;
+  letter-spacing: -0.025em; line-height: 1.04; max-width: 900px;
+}
+.section-title em { font-style: italic; color: var(--signal-default); }
+.prose {
+  font-family: var(--font-opinion); font-weight: 300; font-size: 19px;
+  line-height: 1.68; color: var(--content-secondary); max-width: 720px; margin-left: 152px;
+}
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+
+/* ── PHONE FRAMES GRID ── */
+.stories-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 56px 40px;
+  align-items: start;
+  padding-left: 152px;
+}
+.story-cell { display: flex; flex-direction: column; gap: 22px; }
+.story-annotation { display: flex; flex-direction: column; gap: 8px; }
+.story-num {
+  font-family: var(--font-instrument); font-size: 10.5px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal-default);
+}
+.story-name {
+  font-family: var(--font-opinion); font-weight: 400; font-size: 18px;
+  line-height: 1.2; letter-spacing: -0.01em; color: var(--content-primary);
+}
+.story-desc {
+  font-family: var(--font-opinion); font-style: italic; font-weight: 300;
+  font-size: 13px; line-height: 1.6; color: var(--content-secondary);
+}
+
+/* ── PHONE FRAME ── */
+.phone-frame {
+  width: 100%; max-width: 282px; margin: 0 auto;
+  aspect-ratio: 9/19.5; position: relative; border-radius: 44px;
+  background: #0F0A07;
+  box-shadow:
+    inset 0 0 0 1px #2A1F16,
+    inset 0 0 0 2.5px #0F0A07,
+    0 30px 70px -16px rgba(34,24,16,0.38),
+    0 10px 24px -10px rgba(34,24,16,0.22);
+  overflow: hidden;
+}
+.phone-screen {
+  position: absolute; inset: 3px; border-radius: 41px;
+  overflow: hidden; display: flex; flex-direction: column;
+  background: var(--surface-primary); color: var(--content-primary);
+  isolation: isolate;
+}
+.phone-di {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  width: 96px; height: 26px; background: #000; border-radius: 14px; z-index: 60;
+}
+.phone-sb {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 46px 22px 0; flex-shrink: 0; z-index: 10; position: relative;
+}
+.phone-sb .sb-time { font-family: var(--font-instrument); font-size: 12px; font-weight: 600; letter-spacing: -0.02em; color: var(--content-primary); }
+.phone-sb .sb-icons { display: flex; gap: 5px; align-items: center; color: var(--content-primary); }
+.phone-hi {
+  position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%);
+  width: 108px; height: 4px; border-radius: 3px; z-index: 60; background: rgba(0,0,0,0.38);
+}
+
+/* ── PAPER MAP ── */
+.pmap { position: absolute; inset: 0; background: var(--map-paper); overflow: hidden; z-index: 0; }
+.pmap::before {
+  content: ""; position: absolute; inset: -8px;
+  background-image:
+    linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
+  background-size: 28px 28px; opacity: 0.55;
+}
+.pmap::after {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(120% 60% at 50% 30%, transparent 40%, rgba(34,24,16,0.08) 100%);
+}
+.pmap-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* ── DARK MAP ── */
+.pmap-dark { position: absolute; inset: 0; background: #1B140E; overflow: hidden; z-index: 0; }
+.pmap-dark::before {
+  content: ""; position: absolute; inset: -8px;
+  background-image:
+    linear-gradient(rgba(242,238,232,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(242,238,232,0.07) 1px, transparent 1px);
+  background-size: 28px 28px; opacity: 0.55;
+}
+.pmap-dark::after {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(120% 60% at 50% 30%, transparent 40%, rgba(0,0,0,0.40) 100%);
+}
+
+/* ── CHROME ── */
+.ls-topbar {
+  position: absolute; top: 46px; left: 0; right: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 14px 0; z-index: 30;
+}
+.chrome-chip {
+  background: var(--surface-glass);
+  border: 1px solid rgba(255,255,255,0.55);
+  box-shadow: var(--elev-chrome);
+  backdrop-filter: blur(14px) saturate(1.2);
+  color: var(--content-primary);
+}
+.chrome-chip.circular { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.chrome-chip.pill { padding: 0 14px; height: 40px; border-radius: 22px; display: flex; align-items: center; gap: 6px; }
+
+/* ── ROUTE POLYLINES ── */
+.routes-svg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 3;
+}
+.routes-svg path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.route-best { stroke: var(--route-best); stroke-width: 2; filter: drop-shadow(0 1px 2px rgba(238,124,43,0.35)); }
+.route-alt1 { stroke: var(--route-alt1); stroke-width: 2; stroke-dasharray: 6 4; opacity: 0.85; }
+.route-alt2 { stroke: var(--route-alt2); stroke-width: 2; stroke-dasharray: 3 4; opacity: 0.75; }
+
+/* ── ANNOTATIONS ── */
+.rt-marker { position: absolute; z-index: 4; }
+.rt-start {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--status-success);
+  border: 2.5px solid var(--surface-card);
+  box-shadow: 0 2px 6px rgba(61,138,94,0.45);
+}
+.rt-end {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--surface-card);
+  border: 2.5px solid var(--status-recording);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 6px rgba(34,24,16,0.2);
+}
+.rt-end::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--status-recording); }
+
+/* ── GESTURE HINTS ── */
+.gesture-hint {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.gesture-ring {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 2px solid rgba(238,124,43,0.55);
+  display: flex; align-items: center; justify-content: center;
+}
+.gesture-ring::after {
+  content: ""; width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(238,124,43,0.45);
+}
+.gesture-label {
+  position: absolute; bottom: 80px; left: 0; right: 0;
+  text-align: center;
+  font-family: var(--font-ui); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--content-tertiary);
+  background: var(--surface-glass);
+  backdrop-filter: blur(8px);
+  padding: 5px 0;
+}
+
+/* ── CAMERA FIT BOUNDS ── */
+.fit-bounds-rect {
+  position: absolute; z-index: 4;
+  border: 1.5px dashed rgba(238,124,43,0.55);
+  border-radius: 4px;
+}
+.fit-label {
+  position: absolute; font-family: var(--font-instrument);
+  font-size: 7px; font-weight: 500; letter-spacing: 0.1em;
+  color: var(--signal-default); white-space: nowrap;
+}
+
+/* ── GLASS PANEL FALLBACK ── */
+.ls-glass-panel {
+  position: absolute; inset: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+}
+.ls-glass-inner {
+  background: var(--surface-glass);
+  border: 1px solid rgba(255,255,255,0.55);
+  backdrop-filter: blur(14px) saturate(1.2);
+  border-radius: 14px;
+  padding: 18px 22px;
+  box-shadow: var(--elev-overlay);
+  display: flex; flex-direction: column; gap: 8px;
+  max-width: 190px; text-align: center;
+}
+.ls-glass-inner svg {
+  width: 20px; height: 20px; margin: 0 auto;
+  stroke: var(--content-tertiary); fill: none;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+}
+.ls-glass-title { font-family: var(--font-ui); font-size: 11px; font-weight: 600; color: var(--content-primary); }
+.ls-glass-caption { font-family: var(--font-ui); font-size: 10px; font-weight: 400; color: var(--content-tertiary); line-height: 1.5; }
+
+/* ── STORY BADGE CHIP ── */
+.story-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 8px; border-radius: 6px;
+  background: var(--signal-whisper);
+  border: 1px solid var(--signal-tint);
+  font-family: var(--font-instrument); font-size: 8.5px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--signal-default);
+  margin-bottom: 2px;
+}
+
+/* ── CODE BLOCK ── */
+.code-block-wrap { margin-left: 152px; margin-top: 40px; }
+.code-block-label {
+  font-family: var(--font-ui); font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--content-tertiary); margin-bottom: 12px;
+}
+.code-block {
+  background: var(--ink-700); border: 1px solid rgba(242,238,232,0.10);
+  border-radius: 10px; padding: 28px 32px; overflow-x: auto;
+}
+.code-block pre {
+  font-family: var(--font-instrument); font-size: 12.5px; font-weight: 400;
+  line-height: 1.7; color: var(--ink-050); white-space: pre; tab-size: 2;
+}
+.code-kw { color: #F3A164; }
+.code-type { color: #7ECBA8; }
+.code-str { color: #C4C87E; }
+.code-comment { color: var(--ink-300); font-style: italic; }
+.code-param { color: var(--ink-050); }
+
+/* ── TEST CHECKLIST ── */
+.test-list { margin-left: 152px; display: flex; flex-direction: column; gap: 8px; }
+.test-item {
+  display: flex; align-items: baseline; gap: 10px;
+  font-family: var(--font-ui); font-size: 12.5px;
+  color: var(--content-secondary); line-height: 1.55;
+}
+.test-item::before { content: "☐"; font-size: 13px; color: var(--border-strong); flex-shrink: 0; }
+
+/* ── DIM TABLE ── */
+.dim-table { margin-left: 152px; width: calc(100% - 152px); border-collapse: collapse; }
+.dim-table th, .dim-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-subtle); font-family: var(--font-ui); font-size: 12.5px; }
+.dim-table th { font-size: 9.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary); background: var(--surface-inset); }
+.dim-table td { color: var(--content-primary); }
+.dim-table td.mono { font-family: var(--font-instrument); font-size: 12px; }
+.dim-table tr:last-child td { border-bottom: none; }
+.dim-table tr:hover td { background: var(--surface-inset); }
+
+/* ── SCROLL ISOLATION NOTE ── */
+.scroll-note {
+  margin-left: 152px; margin-top: 32px;
+  background: var(--copper-100);
+  border: 1px solid var(--signal-tint);
+  border-left: 4px solid var(--signal-default);
+  border-radius: 8px; padding: 20px 24px;
+}
+.scroll-note p { font-family: var(--font-ui); font-size: 13px; color: var(--ink-600); line-height: 1.6; }
+.scroll-note strong { font-weight: 600; color: var(--copper-700); }
+
+/* ── FOOTER ── */
+.doc-footer {
+  padding: 48px 0; border-top: 1px solid var(--border-default);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-brand { font-family: var(--font-instrument); font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary); }
+.footer-meta { font-family: var(--font-instrument); font-size: 11px; color: var(--content-subtle); letter-spacing: 0.06em; }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════════════ -->
+<header class="doc-header">
+  <div class="wrap">
+    <div class="doc-eyebrow">
+      LaneShadow V2 · Copper
+      <span class="doc-eyebrow-pill">UC-ATM-12</span>
+      <span class="doc-eyebrow-pill">ATM Tier-C · iOS</span>
+    </div>
+    <h1 class="doc-title">LSMap <em>iOS</em></h1>
+    <p class="doc-tagline">Nine canonical sandbox stories for the UIViewRepresentable-backed SwiftUI map atom. Mapbox Maps SDK for iOS. Copper Studio styles. Multi-polyline, annotations, camera-fit, scroll-isolation, and error fallbacks.</p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><span class="meta-label">UC ID</span><span class="meta-value">UC-ATM-12</span></div>
+      <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">2026-04-20</span></div>
+      <div class="meta-item"><span class="meta-label">Status</span><span class="meta-value">Tier-C Mock</span></div>
+      <div class="meta-item"><span class="meta-label">Depends on</span><span class="meta-value">UC-ATM-11</span></div>
+      <div class="meta-item"><span class="meta-label">Parallel to</span><span class="meta-value">UC-ATM-13</span></div>
+      <div class="meta-item"><span class="meta-label">Stories</span><span class="meta-value">9 canonical</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ §01 PURPOSE ══════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§01</div>
+      <h2 class="section-title">Purpose &amp; <em>Scope</em></h2>
+    </div>
+    <p class="prose">UC-ATM-12 replaces the iOS stub from UC-ATM-11 with a production UIViewRepresentable wrapper that loads the Copper Mapbox Studio style, renders multiple polylines with per-variant colors, places typed annotations, honors preview vs interactive mode, camera-fits to polyline union bounds, and renders error fallbacks without crashing. Out of scope: offline packs, turn-by-turn nav, geocoding, 3D terrain, traffic layers.</p>
+    <p class="prose">The nine stories below are the canonical sandbox story set. Story names must match iOS and Android exactly — per the UC-SBX-01 parity manifest — so QA can run visual diff across platforms.</p>
+  </div>
+</section>
+
+<!-- ══ §02 NINE STORIES ══════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§02</div>
+      <h2 class="section-title">Sandbox <em>Stories</em></h2>
+    </div>
+
+    <div class="stories-grid">
+
+      <!-- Story 1: Preview (static) -->
+      <div class="story-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <!-- topo contour lines via ::before, vignette via ::after -->
+              <svg class="pmap-svg" viewBox="0 0 282 600" preserveAspectRatio="xMidYMid slice">
+                <path d="M0,280 C40,260 80,270 120,255 C160,240 200,250 282,240" fill="none" stroke="rgba(73,69,79,0.22)" stroke-width="1"/>
+                <path d="M0,320 C50,305 90,315 140,300 C180,288 220,298 282,285" fill="none" stroke="rgba(73,69,79,0.22)" stroke-width="1"/>
+                <path d="M0,360 C60,348 100,355 160,345 C200,338 240,345 282,335" fill="none" stroke="rgba(73,69,79,0.22)" stroke-width="1"/>
+              </svg>
+            </div>
+            <div class="ls-topbar" style="z-index:30;">
+              <div class="chrome-chip circular">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12.5 5l-5 5 5 5"/>
+                </svg>
+              </div>
+              <div class="chrome-chip pill" style="font-family:var(--font-ui);font-size:11px;font-weight:500;gap:6px;">
+                <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="10" cy="10" r="7.5"/><path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+                </svg>
+                San Francisco
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="story-annotation">
+          <span class="story-num">Story 1 / 9</span>
+          <span class="story-badge">Preview (static)</span>
+          <p class="story-name">Preview (static)</p>
+          <p class="story-desc">mode: .preview · camera centered · no gestures. Copper Light Studio style. Topo contour background confirms paper map token.</p>
+        </div>
+      </div>
+
+      <!-- Story 2: Interactive -->
+      <div class="story-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 282 600" preserveAspectRatio="xMidYMid slice">
+                <path d="M0,280 C40,260 80,270 120,255 C160,240 200,250 282,240" fill="none" stroke="rgba(73,69,79,0.22)" stroke-width="1"/>
+                <path d="M0,320 C50,305 90,315 140,300 C180,288 220,298 282,285" fill="none" stroke="rgba(73,69,79,0.22)" stroke-width="1"/>
+              </svg>
+            </div>
+            <div class="gesture-hint">
+              <div class="gesture-ring"></div>
+            </div>
+            <div class="gesture-label">pan · zoom · rotate</div>
+            <div class="ls-topbar" style="z-index:30;">
+              <div class="chrome-chip circular">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12.5 5l-5 5 5 5"/>
+                </svg>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="story-annotation">
+          <span class="story-num">Story 2 / 9</span>
+          <span class="story-badge">Interactive</span>
+          <p class="story-name">Interactive</p>
+          <p class="story-desc">mode: .interactive · pan/zoom/rotate enabled. onTap fires with tapped LatLng. Gesture ring indicates touch target. Scale bar color: content.secondary.</p>
+        </div>
+      </div>
+
+      <!-- Story 3: One Polyline (best) -->
+      <div class="story-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 282 600" preserveAspectRatio="xMidYMid slice">
+                <path d="M0,280 C40,260 80,270 120,255 C160,240 200,250 282,240" fill="none" stroke="rgba(73,69,79,0.22)" stroke-width="1"/>
+              </svg>
+            </div>
+            <svg class="routes-svg" viewBox="0 0 282 600" preserveAspectRatio="none">
+              <path class="route-best" d="M60,480 C80,420 110,380 145,330 C175,285 205,240 230,200 C248,170 260,148 268,120"/>
+            </svg>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="story-annotation">
+          <span class="story-num">Story 3 / 9</span>
+          <span class="story-badge">With One Polyline (best)</span>
+          <p class="story-name">With One Polyline (best)</p>
+          <p class="story-desc">Single polyline · variant: .best · stroke color.route.best (#EE7C2B) · stroke-width sizing.stroke.md (2px). Drop shadow 35% alpha.</p>
+        </div>
+      </div>
+
+      <!-- Story 4: Three Alt Polylines -->
+      <div class="story-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 282 600" preserveAspectRatio="xMidYMid slice">
+                <path d="M0,280 C40,260 80,270 120,255 C160,240 200,250 282,240" fill="none" stroke="rgba(73,69,79,0.22)" stroke-width="1"/>
+              </svg>
+            </div>
+            <svg class="routes-svg" viewBox="0 0 282 600" preserveAspectRatio="none">
+              <path class="route-alt2" d="M55,490 C75,435 100,395 132,348 C162,305 195,260 224,218 C244,186 258,162 265,132"/>
+              <path class="route-alt1" d="M58,485 C77,428 106,387 140,338 C170,294 200,250 227,210 C246,178 260,155 267,126"/>
+              <path class="route-best" d="M60,480 C80,420 110,380 145,330 C175,285 205,240 230,200 C248,170 260,148 268,120"/>
+            </svg>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="story-annotation">
+          <span class="story-num">Story 4 / 9</span>
+          <span class="story-badge">With Three Alt Polylines (best+alt1+alt2)</span>
+          <p class="story-name">Three Alt Polylines</p>
+          <p class="story-desc">best copper + alt1 sage dashed + alt2 slate dotted. Each 2px sizing.stroke.md. Separate line layers per RouteVariant.</p>
+        </div>
+      </div>
+
+      <!-- Story 5: Start + End Markers -->
+      <div class="story-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 282 600" preserveAspectRatio="xMidYMid slice">
+                <path d="M0,300 C60,285 120,295 180,278 C220,265 252,272 282,262" fill="none" stroke="rgba(73,69,79,0.22)" stroke-width="1"/>
+              </svg>
+            </div>
+            <svg class="routes-svg" viewBox="0 0 282 600" preserveAspectRatio="none">
+              <path class="route-best" d="M60,480 C80,420 110,380 145,330 C175,285 205,240 230,200 C248,170 260,148 268,120"/>
+            </svg>
+            <!-- start marker at bottom -->
+            <div class="rt-marker rt-start" style="left:53px;bottom:110px;"></div>
+            <!-- end marker at top -->
+            <div class="rt-marker rt-end" style="right:7px;top:118px;"></div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="story-annotation">
+          <span class="story-num">Story 5 / 9</span>
+          <span class="story-badge">With Start+End Markers</span>
+          <p class="story-name">Start + End Markers</p>
+          <p class="story-desc">Annotation.start (14px, color.status.success) · Annotation.end (18px ring, color.status.recording). Rendered via Mapbox circle annotations.</p>
+        </div>
+      </div>
+
+      <!-- Story 6: Auto-fit to Multi-polyline -->
+      <div class="story-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 282 600" preserveAspectRatio="xMidYMid slice">
+                <path d="M0,320 C60,308 120,315 180,302 C220,292 252,300 282,290" fill="none" stroke="rgba(73,69,79,0.22)" stroke-width="1"/>
+              </svg>
+            </div>
+            <svg class="routes-svg" viewBox="0 0 282 600" preserveAspectRatio="none">
+              <path class="route-alt2" d="M55,500 C75,445 98,408 128,362 C158,318 190,272 218,230 C238,198 253,175 260,148"/>
+              <path class="route-alt1" d="M58,495 C78,438 104,400 135,354 C164,310 196,264 222,222 C242,190 257,167 263,140"/>
+              <path class="route-best" d="M60,490 C82,432 108,393 140,348 C170,304 202,258 228,216 C248,184 261,160 267,132"/>
+            </svg>
+            <!-- fit bounds dashed rect -->
+            <div class="fit-bounds-rect" style="left:50px;top:120px;right:8px;bottom:98px;"></div>
+            <span class="fit-label" style="left:50px;top:108px;">spacing.4 padding (16pt)</span>
+            <div class="rt-marker rt-start" style="left:54px;bottom:94px;"></div>
+            <div class="rt-marker rt-end" style="right:7px;top:126px;"></div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="story-annotation">
+          <span class="story-num">Story 6 / 9</span>
+          <span class="story-badge">Auto-fit to Multi-polyline</span>
+          <p class="story-name">Auto-fit to Multi-polyline</p>
+          <p class="story-desc">cameraFit: .polylines(padding: .spacing4) — camera eases to union bounds of all three polylines. 16pt padding on all sides. Dashed rect shows framed area.</p>
+        </div>
+      </div>
+
+      <!-- Story 7: Dark Style -->
+      <div class="story-cell">
+        <div class="phone-frame">
+          <div class="phone-screen" style="background:#221810;color:#F2EEE8;">
+            <div class="phone-di"></div>
+            <div class="pmap-dark">
+              <svg class="pmap-svg" viewBox="0 0 282 600" preserveAspectRatio="xMidYMid slice">
+                <path d="M0,280 C40,265 80,275 120,260 C160,246 200,255 282,244" fill="none" stroke="rgba(242,238,232,0.16)" stroke-width="1"/>
+                <path d="M0,320 C50,308 90,318 140,304 C180,292 220,301 282,290" fill="none" stroke="rgba(242,238,232,0.16)" stroke-width="1"/>
+              </svg>
+            </div>
+            <svg class="routes-svg" viewBox="0 0 282 600" preserveAspectRatio="none">
+              <path class="route-best" d="M60,480 C80,420 110,380 145,330 C175,285 205,240 230,200 C248,170 260,148 268,120"/>
+            </svg>
+            <div class="ls-topbar" style="z-index:30;">
+              <div style="width:40px;height:40px;border-radius:50%;background:rgba(45,34,24,0.72);border:1px solid rgba(242,238,232,0.12);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(14px);">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#F2EEE8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12.5 5l-5 5 5 5"/>
+                </svg>
+              </div>
+            </div>
+            <div class="phone-hi" style="background:rgba(255,255,255,0.30);"></div>
+          </div>
+        </div>
+        <div class="story-annotation">
+          <span class="story-num">Story 7 / 9</span>
+          <span class="story-badge">Dark Style</span>
+          <p class="story-name">Dark Style</p>
+          <p class="story-desc">map.style.dark (LaneShadow Copper Dark Studio URL). Map paper #1B140E · contour rgba(242,238,232,0.16). Dark chrome chips. No MapView unmount on theme switch.</p>
+        </div>
+      </div>
+
+      <!-- Story 8: Error (no token) -->
+      <div class="story-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap" style="opacity:0.35;"></div>
+            <div class="ls-glass-panel">
+              <div class="ls-glass-inner">
+                <svg viewBox="0 0 20 20">
+                  <circle cx="10" cy="10" r="7.5"/>
+                  <path d="M10 6v5M10 14.5v.5"/>
+                </svg>
+                <p class="ls-glass-title">Map unavailable</p>
+                <p class="ls-glass-caption">Missing access token — set MAPBOX_ACCESS_TOKEN in build environment.</p>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="story-annotation">
+          <span class="story-num">Story 8 / 9</span>
+          <span class="story-badge">Error (no token)</span>
+          <p class="story-name">Error (no token)</p>
+          <p class="story-desc">MAPBOX_ACCESS_TOKEN absent at build time. MapError.missingToken → LSGlassPanel fallback. No crash. Paper map background visible at reduced opacity.</p>
+        </div>
+      </div>
+
+      <!-- Story 9: Error (no network) -->
+      <div class="story-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap" style="opacity:0.35;"></div>
+            <div class="ls-glass-panel">
+              <div class="ls-glass-inner">
+                <svg viewBox="0 0 20 20">
+                  <path d="M3 3l14 14M10 2.5a9.5 9.5 0 016.8 2.8M2.5 10a7.7 7.7 0 012-4.5M8 10a2.5 2.5 0 013.5.5"/>
+                  <circle cx="10" cy="14" r="1.5" style="fill:currentColor;stroke:none;"/>
+                </svg>
+                <p class="ls-glass-title">Map unavailable</p>
+                <p class="ls-glass-caption">No network — check connection and try again.</p>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="story-annotation">
+          <span class="story-num">Story 9 / 9</span>
+          <span class="story-badge">Error (no network)</span>
+          <p class="story-name">Error (no network)</p>
+          <p class="story-desc">Device offline or DNS failure. MapError.networkUnavailable → LSGlassPanel fallback. No crash. Retry not shown — consuming molecule handles retry UI.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ §03 UIVIEWREPRESENTABLE SKETCH ══════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§03</div>
+      <h2 class="section-title">UIViewRepresentable <em>Wrapper</em></h2>
+    </div>
+    <p class="prose" style="margin-bottom:40px;">The production SwiftUI wrapper hides all Mapbox SDK symbols behind the UC-ATM-11 contract. Reference pseudocode — not compilable but captures the structural contract.</p>
+
+    <div class="code-block-wrap">
+      <p class="code-block-label">LSMapViewRepresentable — structural reference (Swift pseudocode)</p>
+      <div class="code-block">
+        <pre><span class="code-comment">// Production file: ios/LaneShadow/Components/LSMapViewRepresentable.swift</span>
+<span class="code-comment">// SDK import is contained here — never leaks into contract surface.</span>
+<span class="code-kw">import</span> MapboxMaps
+
+<span class="code-kw">struct</span> <span class="code-type">LSMap</span>: <span class="code-type">View</span> {
+  <span class="code-kw">let</span> <span class="code-param">mode</span>:          <span class="code-type">MapMode</span>
+  <span class="code-kw">let</span> <span class="code-param">camera</span>:        <span class="code-type">CameraPosition</span>
+  <span class="code-kw">var</span> <span class="code-param">cameraFit</span>:     <span class="code-type">CameraFit</span>        = .static
+  <span class="code-kw">var</span> <span class="code-param">polylines</span>:     [<span class="code-type">PolylineData</span>]   = []
+  <span class="code-kw">var</span> <span class="code-param">annotations</span>:   [<span class="code-type">Annotation</span>]     = []
+  <span class="code-kw">var</span> <span class="code-param">showFavorites</span>: <span class="code-type">Bool</span>             = false
+  <span class="code-kw">var</span> <span class="code-param">onTap</span>:         ((<span class="code-type">LatLng</span>) -> <span class="code-type">Void</span>)? = nil
+  @Environment(\.colorScheme) <span class="code-kw">private var</span> <span class="code-param">colorScheme</span>
+
+  <span class="code-kw">var</span> body: <span class="code-kw">some</span> <span class="code-type">View</span> {
+    <span class="code-kw">let</span> <span class="code-param">token</span> = Bundle.main.object(
+      forInfoDictionaryKey: <span class="code-str">"MBXAccessToken"</span>) <span class="code-kw">as</span>? <span class="code-type">String</span>
+    <span class="code-kw">if</span> token == <span class="code-kw">nil</span> || token!.isEmpty {
+      <span class="code-type">LSGlassPanel</span>(error: .missingToken)
+    } <span class="code-kw">else</span> {
+      <span class="code-type">_LSMapViewRepresentable</span>(
+        mode: mode, camera: camera,
+        cameraFit: cameraFit, polylines: polylines,
+        annotations: annotations, onTap: onTap,
+        styleURL: colorScheme == .dark
+          ? <span class="code-type">Tokens</span>.map.style.dark
+          : <span class="code-type">Tokens</span>.map.style.light,
+        token: token!
+      )
+      .onReceive(networkMonitor.$isOnline) { online <span class="code-kw">in</span>
+        <span class="code-comment">// → MapError.networkUnavailable if offline</span>
+      }
+    }
+  }
+}
+
+<span class="code-kw">struct</span> <span class="code-type">_LSMapViewRepresentable</span>: <span class="code-type">UIViewRepresentable</span> {
+  <span class="code-comment">// makeUIView: init MapView, set ResourceOptions(accessToken)</span>
+  <span class="code-comment">// updateUIView: diff polylines, add/update LineAnnotations per variant</span>
+  <span class="code-comment">// color: Tokens.color.route.{best,alt1,alt2} — never raw hex</span>
+  <span class="code-comment">// strokeWidth: Tokens.sizing.stroke.md — never raw number</span>
+  <span class="code-comment">// cameraFit: camera.ease(to: unionBounds, padding: Tokens.spacing.s4)</span>
+  <span class="code-comment">// scrollIsolation: gestureManager.options.panDecelerationFactor handled</span>
+  <span class="code-comment">//   so outer ScrollView scroll is not hijacked</span>
+}</pre>
+      </div>
+    </div>
+
+    <!-- Scroll isolation note -->
+    <div class="scroll-note">
+      <p><strong>Scroll-isolation requirement:</strong> When an interactive LSMap is placed inside a SwiftUI ScrollView, the map's gesture recognizer must NOT hijack the outer vertical scroll when the user's drag originates outside the map bounds. Implementation: UIScrollView.gestureRecognizers delegation via shouldRecognizeSimultaneouslyWith — tested by XCTest verifying the outer scroll fires when drag starts above/below the map frame.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ §04 DIMENSIONS ════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§04</div>
+      <h2 class="section-title">Dimensions <em>Table</em></h2>
+    </div>
+    <table class="dim-table">
+      <thead>
+        <tr><th>Token</th><th>iOS pt</th><th>Use in story</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="mono">sizing.stroke.md</td><td class="mono">2.pt lineWidth</td><td>All route polylines (stories 3, 4, 5, 6)</td></tr>
+        <tr><td class="mono">sizing.stroke.lg</td><td class="mono">3.pt lineWidth</td><td>Selected polyline hover state (story 4, interactive)</td></tr>
+        <tr><td class="mono">annotation start diameter</td><td class="mono">14.pt</td><td>CircleAnnotation fill, story 5 + 6</td></tr>
+        <tr><td class="mono">annotation start border</td><td class="mono">2.5.pt</td><td>Ring stroke around start dot, stories 5 + 6</td></tr>
+        <tr><td class="mono">annotation end diameter</td><td class="mono">18.pt</td><td>End ring outer diameter, stories 5 + 6</td></tr>
+        <tr><td class="mono">annotation end inner</td><td class="mono">6.pt</td><td>Center dot in end ring, stories 5 + 6</td></tr>
+        <tr><td class="mono">spacing.4 (cameraFit)</td><td class="mono">16.pt all sides</td><td>CameraFit.polylines padding (story 6)</td></tr>
+        <tr><td class="mono">map camera ease</td><td class="mono">400ms standard easing</td><td>Camera animate-to-bounds (story 6)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ §05 MOTION ════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§05</div>
+      <h2 class="section-title">Motion — <em>routeDrawOn</em></h2>
+    </div>
+    <p class="prose">Story 3 and 4 animate the best polyline using motion.recipe.routeDrawOn. On iOS this is implemented via a MapboxMaps layer property animation on line-dasharray or stroke-dashoffset — the approach is platform-specific but the token-referenced duration and easing are cross-platform.</p>
+    <p class="prose" style="margin-top:20px;"><em>Duration</em>: motion.duration.routeDrawOn = max(600ms, min(1400ms, routeKm * 6ms)).</p>
+    <p class="prose" style="margin-top:20px;"><em>Camera fit ease</em>: motion.duration.cameraEase = 400ms, motion.easing.standard.</p>
+    <p class="prose" style="margin-top:20px;"><em>Dark style transition</em>: Mapbox loadStyle() is called with the new URL when colorScheme changes. The underlying MapView is NOT unmounted — the SDK reloads the style in-place (Story 7 verifies this).</p>
+  </div>
+</section>
+
+<!-- ══ §06 RATIONALE + AC ════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§06</div>
+      <h2 class="section-title">Rationale &amp; <em>AC + Tests</em></h2>
+    </div>
+    <p class="prose" style="margin-bottom:40px;">Nine stories give a complete coverage surface: two modes, three polyline configurations, camera fit, both themes, and both error paths. The test suite mirrors the story list exactly — each story has a corresponding XCTest.</p>
+
+    <div class="test-list">
+      <div class="test-item">XCTest: multi-polyline rendering — three LineAnnotations added; each has stroke color = Tokens.color.route.{best,alt1,alt2}; width = Tokens.sizing.stroke.md.</div>
+      <div class="test-item">XCTest: style URL resolution — colorScheme light → Tokens.map.style.light URL loaded; dark → Tokens.map.style.dark URL loaded.</div>
+      <div class="test-item">XCTest: token-gated fallback — nil MBXAccessToken → LSGlassPanel rendered, no MapView created, no crash.</div>
+      <div class="test-item">XCTest: annotation rendering — Annotation.start → CircleAnnotation fill = color.status.success; Annotation.end → ring fill = color.status.recording.</div>
+      <div class="test-item">XCTest: camera-fit-to-union-bounds — cameraFit: .polylines → camera eases to union of all polyline coordinate bounds with spacing.4 padding.</div>
+      <div class="test-item">XCTest: onTap callback — interactive mode + simulated tap → onTap fires exactly once with the tapped LatLng.</div>
+      <div class="test-item">XCTest: scroll-isolation — interactive LSMap inside ScrollView → vertical drag originating above map frame scrolls the ScrollView, not the map.</div>
+      <div class="test-item">XCTest: no-symbol-leak — post-build grep of app binary confirms zero references to UIImage(systemName:) / Image(systemName:) in LSMap implementation files.</div>
+      <div class="test-item">XCTest: dark style no-unmount — toggle colorScheme dark/light; verify underlying MapView instance identity is preserved (same pointer).</div>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap doc-footer">
+  <span class="footer-brand">LaneShadow V2 · Copper · UC-ATM-12</span>
+  <span class="footer-meta">uc-atm-12-map-ios.html · 2026-04-20 · ATM Tier-C · iOS</span>
+</footer>
+
+</body>
+</html>

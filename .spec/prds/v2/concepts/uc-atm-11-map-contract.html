@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<!-- uc-atm-11-map-contract.html — UC-ATM-11 "LSMap" Shared Contract
+     LaneShadow V2 · Copper · ATM Tier-C Design Mock · 2026-04-20
+     Authority: .spec/prds/v2/05-uc-atm.md §UC-ATM-11 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ATM-11 — LSMap Contract — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:#FDFBF8;--paper-100:#F8F7F6;--paper-150:#F5F2EE;
+  --paper-200:#F2EFED;--paper-300:#EDE7E1;--paper-400:#E5DED9;--paper-500:#C9BDB3;
+  --ink-900:#1E1A16;--ink-800:#221810;--ink-700:#2D2218;--ink-600:#362A1F;
+  --ink-500:#3D3228;--ink-400:#49454F;--ink-300:#6B6460;--ink-200:#9CA3AF;
+  --ink-100:#CAC4D0;--ink-050:#F2EEE8;
+  --copper-700:#9E4A22;--copper-600:#B85A2C;--copper-500:#EE7C2B;
+  --copper-400:#F3A164;--copper-200:#F9D5B5;--copper-100:#FCE8D4;
+  --route-best:#EE7C2B;--route-alt1:#4D8470;--route-alt2:#6B7B8F;
+  --status-success:#3D8A5E;--status-error:#C43C3C;--status-warning:#C46F1B;
+  --status-info:#3A6FBE;--status-recording:#C43C3C;
+
+  --font-opinion:'Newsreader',Georgia,serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+
+  --surface-primary:var(--paper-100);--surface-card:var(--paper-50);
+  --surface-inset:var(--paper-200);--surface-overlay:rgba(253,251,248,0.92);
+  --surface-glass:rgba(253,251,248,0.72);--surface-scrim:rgba(34,24,16,0.35);
+  --map-paper:var(--paper-150);--map-contour:rgba(73,69,79,0.22);
+  --map-contour-faint:rgba(73,69,79,0.10);
+  --content-primary:var(--ink-900);--content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300);--content-subtle:var(--ink-200);
+  --content-onSignal:#FFF;
+  --signal-default:var(--copper-500);--signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200);--signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400);--border-subtle:var(--paper-300);
+  --border-strong:var(--paper-500);--border-focus:var(--copper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+}
+
+body {
+  font-family: var(--font-ui);
+  color: var(--content-primary);
+  background: var(--surface-primary);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+
+/* ── HEADER ── */
+.doc-header {
+  position: relative; padding: 96px 0 72px;
+  border-bottom: 1px solid var(--border-default); overflow: hidden;
+}
+.doc-header::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 80%, rgba(238,124,43,0.08), transparent 44%),
+    radial-gradient(circle at 92% 12%, rgba(184,90,44,0.05), transparent 50%);
+  pointer-events: none;
+}
+.doc-header > * { position: relative; z-index: 1; }
+.doc-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--signal-default); margin-bottom: 28px;
+}
+.doc-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--signal-default); }
+.doc-eyebrow-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--signal-default);
+  color: var(--signal-default); background: var(--signal-whisper);
+  font-size: 9.5px; letter-spacing: 0.14em;
+}
+.doc-title {
+  font-family: var(--font-opinion); font-size: 104px; font-weight: 300;
+  line-height: 0.94; letter-spacing: -0.035em; margin-bottom: 32px; max-width: 1000px;
+}
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.doc-tagline {
+  font-family: var(--font-opinion); font-style: italic; font-size: 22px; font-weight: 300;
+  color: var(--content-secondary); max-width: 640px; line-height: 1.55; margin-bottom: 56px;
+}
+.doc-meta-row {
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  gap: 24px; padding-top: 36px; border-top: 1px solid var(--border-default);
+}
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label { font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary); }
+.meta-value { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); }
+
+/* ── SECTION ── */
+.section { padding: 96px 0; border-bottom: 1px solid var(--border-default); position: relative; }
+.section:last-child { border-bottom: none; }
+.section-header {
+  display: grid; grid-template-columns: 120px 1fr;
+  align-items: baseline; gap: 32px; margin-bottom: 56px;
+}
+.section-index {
+  font-family: var(--font-instrument); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em; color: var(--signal-default); text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-index::before { content: ""; display: block; width: 48px; height: 1px; background: var(--signal-default); }
+.section-title {
+  font-family: var(--font-opinion); font-size: 52px; font-weight: 300;
+  letter-spacing: -0.025em; line-height: 1.04; max-width: 900px;
+}
+.section-title em { font-style: italic; color: var(--signal-default); }
+.prose {
+  font-family: var(--font-opinion); font-weight: 300; font-size: 19px;
+  line-height: 1.68; color: var(--content-secondary); max-width: 720px; margin-left: 152px;
+}
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+
+/* ── CODE BLOCK ── */
+.code-block-wrap { margin-left: 152px; margin-top: 40px; }
+.code-block-label {
+  font-family: var(--font-ui); font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--content-tertiary); margin-bottom: 12px;
+}
+.code-block {
+  background: var(--ink-700);
+  border: 1px solid rgba(242,238,232,0.10);
+  border-radius: 10px;
+  padding: 28px 32px;
+  overflow-x: auto;
+}
+.code-block pre {
+  font-family: var(--font-instrument);
+  font-size: 13px; font-weight: 400;
+  line-height: 1.7;
+  color: var(--ink-050);
+  white-space: pre;
+  tab-size: 2;
+}
+.code-kw { color: #F3A164; }
+.code-type { color: #7ECBA8; }
+.code-str { color: #C4C87E; }
+.code-comment { color: var(--ink-300); font-style: italic; }
+.code-param { color: var(--ink-050); }
+.code-sig { color: #9FC8EE; }
+
+/* ── TOKEN MAP TABLE ── */
+.tok-table {
+  margin-left: 152px;
+  width: calc(100% - 152px);
+  border-collapse: collapse;
+}
+.tok-table th, .tok-table td {
+  padding: 12px 16px; text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+  font-family: var(--font-ui); font-size: 12.5px;
+}
+.tok-table th {
+  font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--content-tertiary); background: var(--surface-inset);
+}
+.tok-table td { color: var(--content-primary); }
+.tok-table td.mono { font-family: var(--font-instrument); font-size: 12px; }
+.tok-table tr:last-child td { border-bottom: none; }
+.tok-table tr:hover td { background: var(--surface-inset); }
+.color-swatch-dot {
+  display: inline-block; width: 10px; height: 10px;
+  border-radius: 50%; margin-right: 6px; vertical-align: middle;
+}
+
+/* ── FIXTURE PREVIEW ── */
+.fixture-wrap { margin-left: 152px; margin-top: 48px; }
+.fixture-label {
+  font-family: var(--font-ui); font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--content-tertiary); margin-bottom: 20px;
+}
+.fixture-preview {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;
+}
+.fixture-schema-block {
+  background: var(--ink-700);
+  border: 1px solid rgba(242,238,232,0.10);
+  border-radius: 10px; padding: 24px 28px;
+}
+.fixture-schema-block pre {
+  font-family: var(--font-instrument); font-size: 11.5px; font-weight: 400;
+  line-height: 1.65; color: var(--ink-050); white-space: pre; tab-size: 2;
+}
+.fixture-map-card {
+  background: var(--map-paper);
+  border: 1px solid var(--border-default);
+  border-radius: 12px; overflow: hidden; position: relative;
+  aspect-ratio: 4/3;
+}
+.fixture-map-card .pmap-grid {
+  position: absolute; inset: -8px;
+  background-image:
+    linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.55;
+}
+.fixture-map-card .pmap-vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(120% 60% at 50% 30%, transparent 40%, rgba(34,24,16,0.08) 100%);
+  z-index: 1;
+}
+.fixture-map-card svg.routes-overlay {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  z-index: 2; pointer-events: none;
+}
+.fixture-map-card .ann-start {
+  position: absolute; z-index: 3;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--status-success);
+  border: 2.5px solid var(--surface-card);
+  box-shadow: 0 2px 6px rgba(61,138,94,0.45);
+}
+.fixture-map-card .ann-end {
+  position: absolute; z-index: 3;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--surface-card);
+  border: 2.5px solid var(--status-recording);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 6px rgba(34,24,16,0.2);
+}
+.fixture-map-card .ann-end::after {
+  content: ""; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--status-recording);
+}
+.fixture-map-caption {
+  position: absolute; bottom: 12px; left: 12px; right: 12px;
+  z-index: 4;
+  background: var(--surface-glass);
+  backdrop-filter: blur(10px) saturate(1.2);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex; gap: 16px; align-items: center;
+}
+.fixture-legend-item {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--font-instrument); font-size: 10px; color: var(--content-primary);
+}
+.legend-line {
+  width: 24px; height: 3px; border-radius: 2px; flex-shrink: 0;
+}
+
+/* ── ERROR FALLBACK ── */
+.fallback-wrap { margin-left: 152px; margin-top: 48px; }
+.fallback-demo {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px;
+}
+.fallback-card {
+  background: var(--map-paper);
+  border: 1px solid var(--border-default);
+  border-radius: 12px; overflow: hidden;
+  padding: 0;
+  position: relative; aspect-ratio: 4/3;
+  display: flex; align-items: center; justify-content: center;
+}
+.fallback-card .pmap-bg-grid {
+  position: absolute; inset: -8px;
+  background-image:
+    linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
+  background-size: 28px 28px; opacity: 0.35;
+}
+.ls-glass-panel {
+  position: relative; z-index: 2;
+  background: var(--surface-glass);
+  border: 1px solid rgba(255,255,255,0.55);
+  backdrop-filter: blur(14px) saturate(1.2);
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: var(--elev-overlay);
+  display: flex; flex-direction: column; gap: 10px;
+  max-width: 260px;
+  text-align: center;
+}
+.ls-glass-panel svg {
+  width: 24px; height: 24px;
+  margin: 0 auto;
+  stroke: var(--content-tertiary); fill: none;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+}
+.ls-glass-title {
+  font-family: var(--font-ui); font-size: 13px; font-weight: 600;
+  color: var(--content-primary);
+}
+.ls-glass-caption {
+  font-family: var(--font-ui); font-size: 11.5px; font-weight: 400;
+  color: var(--content-tertiary); line-height: 1.5;
+}
+.fallback-card-label {
+  position: absolute; top: 10px; left: 10px; z-index: 3;
+  font-family: var(--font-instrument); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--content-tertiary);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 4px; padding: 2px 7px;
+}
+
+/* ── PLATFORM TOKEN TABLE ── */
+.platform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-left: 152px; }
+.platform-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 12px; padding: 28px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.platform-card-title {
+  font-family: var(--font-ui); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+.platform-card pre {
+  font-family: var(--font-instrument); font-size: 12px; font-weight: 400;
+  line-height: 1.7; color: var(--ink-600); white-space: pre-wrap;
+  background: var(--surface-inset); border-radius: 8px;
+  padding: 16px 18px;
+}
+
+/* ── AC BLOCK ── */
+.ac-block { margin-left: 152px; display: flex; flex-direction: column; gap: 10px; }
+.ac-item {
+  display: flex; align-items: baseline; gap: 12px;
+  font-family: var(--font-ui); font-size: 13px;
+  color: var(--content-secondary); line-height: 1.55;
+}
+.ac-item::before { content: "☐"; font-size: 14px; color: var(--border-strong); flex-shrink: 0; }
+.ac-ref {
+  font-family: var(--font-instrument); font-size: 10px; font-weight: 500;
+  color: var(--signal-default); letter-spacing: 0.08em; flex-shrink: 0;
+}
+
+/* ── DIM TABLE ── */
+.dim-table { margin-left: 152px; width: calc(100% - 152px); border-collapse: collapse; }
+.dim-table th, .dim-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-subtle); font-family: var(--font-ui); font-size: 12.5px; }
+.dim-table th { font-size: 9.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary); background: var(--surface-inset); }
+.dim-table td { color: var(--content-primary); }
+.dim-table td.mono { font-family: var(--font-instrument); font-size: 12px; }
+.dim-table tr:last-child td { border-bottom: none; }
+.dim-table tr:hover td { background: var(--surface-inset); }
+
+/* ── FOOTER ── */
+.doc-footer {
+  padding: 48px 0; border-top: 1px solid var(--border-default);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-brand { font-family: var(--font-instrument); font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary); }
+.footer-meta { font-family: var(--font-instrument); font-size: 11px; color: var(--content-subtle); letter-spacing: 0.06em; }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════════════ -->
+<header class="doc-header">
+  <div class="wrap">
+    <div class="doc-eyebrow">
+      LaneShadow V2 · Copper
+      <span class="doc-eyebrow-pill">UC-ATM-11</span>
+      <span class="doc-eyebrow-pill">ATM Tier-C</span>
+    </div>
+    <h1 class="doc-title">LS<em>Map</em> Contract</h1>
+    <p class="doc-tagline">Cross-platform API contract for multi-polyline map rendering. No SDK symbols leak. Tokens, fixtures, stubs, and access-token convention — all defined before iOS and Android implementations begin.</p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><span class="meta-label">UC ID</span><span class="meta-value">UC-ATM-11</span></div>
+      <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">2026-04-20</span></div>
+      <div class="meta-item"><span class="meta-label">Status</span><span class="meta-value">Tier-C Mock</span></div>
+      <div class="meta-item"><span class="meta-label">Depends on</span><span class="meta-value">UC-TOK-05</span></div>
+      <div class="meta-item"><span class="meta-label">Unblocks</span><span class="meta-value">ATM-12, ATM-13</span></div>
+      <div class="meta-item"><span class="meta-label">SDK symbols</span><span class="meta-value">Zero in contract</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ §01 PURPOSE ══════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§01</div>
+      <h2 class="section-title">Purpose &amp; <em>Scope</em></h2>
+    </div>
+    <p class="prose">UC-ATM-11 establishes the typed cross-platform contract for LSMap before either iOS (UC-ATM-12) or Android (UC-ATM-13) implementation begins. Its sole output is a typed API surface, a token reference map, sandbox fixture data, access-token loading conventions, and a stub renderer. No Mapbox SDK symbols appear in this contract — they are internal implementation details hidden behind the platform wrappers.</p>
+    <p class="prose">This contract lands first so iOS and Android engineers can work in parallel without contract drift. The stub renders an LSGlassPanel error fallback for every story until the platform implementations replace it.</p>
+  </div>
+</section>
+
+<!-- ══ §02 API CONTRACT ══════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§02</div>
+      <h2 class="section-title">Typed <em>API</em></h2>
+    </div>
+
+    <p class="prose" style="margin-bottom:40px;">All types below are cross-platform. iOS idiom uses Swift structs + enums. Android idiom uses Kotlin data classes + sealed classes. Field names are identical across platforms — only syntax differs.</p>
+
+    <div class="code-block-wrap">
+      <p class="code-block-label">CameraPosition — map viewport anchor</p>
+      <div class="code-block">
+        <pre><span class="code-comment">// Cross-platform: Swift struct / Kotlin data class</span>
+<span class="code-kw">struct</span> <span class="code-type">CameraPosition</span> {
+  <span class="code-param">center</span>:   <span class="code-type">LatLng</span>         <span class="code-comment">// { lat: Double, lon: Double }</span>
+  <span class="code-param">zoom</span>:     <span class="code-type">Double</span>         <span class="code-comment">// Mapbox zoom level 0–22; typical ride view: 10–14</span>
+  <span class="code-param">pitch</span>?:   <span class="code-type">Double</span>         <span class="code-comment">// 0–60 degrees; nil = 0 (flat)</span>
+  <span class="code-param">bearing</span>?: <span class="code-type">Double</span>         <span class="code-comment">// 0–360 degrees; nil = 0 (north-up)</span>
+}</pre>
+      </div>
+    </div>
+
+    <div class="code-block-wrap" style="margin-top:32px;">
+      <p class="code-block-label">Annotation — typed map point</p>
+      <div class="code-block">
+        <pre><span class="code-kw">enum</span> <span class="code-type">AnnotationKind</span> {
+  <span class="code-comment">// Color resolves from status tokens — not Mapbox SDK colors</span>
+  <span class="code-param">start</span>     <span class="code-comment">// color.status.success   (#3D8A5E) · 14px circle · 2.5px card border</span>
+  <span class="code-param">end</span>       <span class="code-comment">// color.status.recording (#C43C3C) · 18px ring circle · inner dot 6px</span>
+  <span class="code-param">waypoint</span>  <span class="code-comment">// color.status.info      (#3A6FBE) · 12px circle</span>
+}
+
+<span class="code-kw">struct</span> <span class="code-type">Annotation</span> {
+  <span class="code-param">kind</span>:       <span class="code-type">AnnotationKind</span>
+  <span class="code-param">coordinate</span>: <span class="code-type">LatLng</span>
+  <span class="code-param">label</span>?:     <span class="code-type">String</span>          <span class="code-comment">// Optional floating label text</span>
+}</pre>
+      </div>
+    </div>
+
+    <div class="code-block-wrap" style="margin-top:32px;">
+      <p class="code-block-label">RouteVariant + PolylineData — multi-polyline rendering</p>
+      <div class="code-block">
+        <pre><span class="code-kw">enum</span> <span class="code-type">RouteVariant</span> {
+  <span class="code-param">best</span>              <span class="code-comment">// color.route.best  #EE7C2B · stroke-width sizing.stroke.md (2px)</span>
+  <span class="code-param">alt1</span>              <span class="code-comment">// color.route.alt1  #4D8470 · stroke-width sizing.stroke.md</span>
+  <span class="code-param">alt2</span>              <span class="code-comment">// color.route.alt2  #6B7B8F · stroke-width sizing.stroke.md</span>
+  <span class="code-param">custom</span>(<span class="code-type">ColorToken</span>) <span class="code-comment">// escape hatch — still token-gated, no raw color</span>
+}
+
+<span class="code-kw">struct</span> <span class="code-type">PolylineData</span> {
+  <span class="code-param">coordinates</span>:  [<span class="code-type">LatLng</span>]        <span class="code-comment">// ordered path points</span>
+  <span class="code-param">variant</span>:      <span class="code-type">RouteVariant</span>   <span class="code-comment">// determines stroke color</span>
+  <span class="code-param">strokeWidth</span>?: <span class="code-type">StrokeSize</span>     <span class="code-comment">// .sm(1) / .md(2) / .lg(3); default .md</span>
+}</pre>
+      </div>
+    </div>
+
+    <div class="code-block-wrap" style="margin-top:32px;">
+      <p class="code-block-label">MapMode + CameraFit + MapError</p>
+      <div class="code-block">
+        <pre><span class="code-kw">enum</span> <span class="code-type">MapMode</span> {
+  <span class="code-param">preview</span>     <span class="code-comment">// gestures disabled; static viewport</span>
+  <span class="code-param">interactive</span> <span class="code-comment">// pan / zoom / rotate enabled; onTap fires</span>
+}
+
+<span class="code-kw">enum</span> <span class="code-type">CameraFit</span> {
+  <span class="code-param">static</span>                                   <span class="code-comment">// use CameraPosition as-is</span>
+  <span class="code-param">polyline</span>(<span class="code-param">padding</span>: <span class="code-type">SpacingToken</span>)         <span class="code-comment">// fit bounds of first polyline</span>
+  <span class="code-param">polylines</span>(<span class="code-param">padding</span>: <span class="code-type">SpacingToken</span>)        <span class="code-comment">// fit union bounds of all polylines; spacing.4 = 16dp/pt</span>
+}
+
+<span class="code-kw">enum</span> <span class="code-type">MapError</span> {
+  <span class="code-param">missingToken</span>       <span class="code-comment">// MAPBOX_ACCESS_TOKEN not set at build time</span>
+  <span class="code-param">networkUnavailable</span> <span class="code-comment">// device offline or DNS failure</span>
+  <span class="code-param">styleLoadFailed</span>    <span class="code-comment">// Studio URL unreachable or malformed</span>
+}</pre>
+      </div>
+    </div>
+
+    <div class="code-block-wrap" style="margin-top:32px;">
+      <p class="code-block-label">LSMap public API signature</p>
+      <div class="code-block">
+        <pre><span class="code-comment">// iOS (Swift/SwiftUI) — platform wrapper hides UIViewRepresentable</span>
+<span class="code-kw">func</span> <span class="code-sig">LSMap</span>(
+  <span class="code-param">mode</span>:          <span class="code-type">MapMode</span>,
+  <span class="code-param">camera</span>:        <span class="code-type">CameraPosition</span>,
+  <span class="code-param">cameraFit</span>:     <span class="code-type">CameraFit</span>        = .static,
+  <span class="code-param">polylines</span>:     [<span class="code-type">PolylineData</span>]   = [],
+  <span class="code-param">annotations</span>:   [<span class="code-type">Annotation</span>]     = [],
+  <span class="code-param">showFavorites</span>: <span class="code-type">Bool</span>             = false,
+  <span class="code-param">onTap</span>:         ((<span class="code-type">LatLng</span>) -> <span class="code-type">Void</span>)? = nil
+) -> <span class="code-type">some View</span>
+
+<span class="code-comment">// Android (Kotlin/Compose) — platform wrapper hides AndroidView</span>
+<span class="code-kw">@Composable fun</span> <span class="code-sig">LSMap</span>(
+  <span class="code-param">mode</span>:          <span class="code-type">MapMode</span>,
+  <span class="code-param">camera</span>:        <span class="code-type">CameraPosition</span>,
+  <span class="code-param">cameraFit</span>:     <span class="code-type">CameraFit</span>        = CameraFit.Static,
+  <span class="code-param">polylines</span>:     List&lt;<span class="code-type">PolylineData</span>&gt; = emptyList(),
+  <span class="code-param">annotations</span>:   List&lt;<span class="code-type">Annotation</span>&gt;   = emptyList(),
+  <span class="code-param">showFavorites</span>: <span class="code-type">Boolean</span>          = false,
+  <span class="code-param">onTap</span>:         ((<span class="code-type">LatLng</span>) -> Unit)? = null
+)</pre>
+      </div>
+    </div>
+
+    <!-- Token map -->
+    <div style="margin-top:64px;">
+      <p class="prose" style="margin-bottom:32px;">Token references consumed by LSMap:</p>
+      <table class="tok-table">
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Value</th>
+            <th>Use in LSMap</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">map.style.light</td>
+            <td class="mono">mapbox://styles/laneshadow/copper-light</td>
+            <td>Mapbox Studio URL loaded when system theme = light</td>
+          </tr>
+          <tr>
+            <td class="mono">map.style.dark</td>
+            <td class="mono">mapbox://styles/laneshadow/copper-dark</td>
+            <td>Mapbox Studio URL loaded when system theme = dark</td>
+          </tr>
+          <tr>
+            <td class="mono">sizing.stroke.sm</td>
+            <td class="mono">1px / 1dp</td>
+            <td>Thin polyline stroke (unused by route variants; available for custom)</td>
+          </tr>
+          <tr>
+            <td class="mono">sizing.stroke.md</td>
+            <td class="mono">2px / 2dp</td>
+            <td>Default polyline stroke — best, alt1, alt2 all use this</td>
+          </tr>
+          <tr>
+            <td class="mono">sizing.stroke.lg</td>
+            <td class="mono">3px / 3dp</td>
+            <td>Emphasized stroke for selected / active polyline</td>
+          </tr>
+          <tr>
+            <td class="mono">color.route.best</td>
+            <td><span class="color-swatch-dot" style="background:#EE7C2B;"></span><span class="mono">#EE7C2B</span></td>
+            <td>RouteVariant.best polyline stroke color</td>
+          </tr>
+          <tr>
+            <td class="mono">color.route.alt1</td>
+            <td><span class="color-swatch-dot" style="background:#4D8470;"></span><span class="mono">#4D8470</span></td>
+            <td>RouteVariant.alt1 polyline stroke color</td>
+          </tr>
+          <tr>
+            <td class="mono">color.route.alt2</td>
+            <td><span class="color-swatch-dot" style="background:#6B7B8F;"></span><span class="mono">#6B7B8F</span></td>
+            <td>RouteVariant.alt2 polyline stroke color</td>
+          </tr>
+          <tr>
+            <td class="mono">annotation.start → color.status.success</td>
+            <td><span class="color-swatch-dot" style="background:#3D8A5E;"></span><span class="mono">#3D8A5E</span></td>
+            <td>Start marker fill (14px circle, 2.5px card border)</td>
+          </tr>
+          <tr>
+            <td class="mono">annotation.end → color.status.recording</td>
+            <td><span class="color-swatch-dot" style="background:#C43C3C;"></span><span class="mono">#C43C3C</span></td>
+            <td>End marker ring + inner dot (18px outer, 6px inner)</td>
+          </tr>
+          <tr>
+            <td class="mono">annotation.waypoint → color.status.info</td>
+            <td><span class="color-swatch-dot" style="background:#3A6FBE;"></span><span class="mono">#3A6FBE</span></td>
+            <td>Waypoint marker fill (12px circle)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Fixture preview -->
+    <div class="fixture-wrap" style="margin-top:64px;">
+      <p class="fixture-label">Fixture data — routes.fixtures.json schema + route_results_three_alts preview</p>
+      <div class="fixture-preview">
+
+        <div>
+          <p style="font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--content-tertiary);margin-bottom:12px;">tokens/sandbox/fixtures/routes.fixtures.json (schema)</p>
+          <div class="fixture-schema-block">
+            <pre><span class="code-kw">{</span>
+  <span class="code-str">"$schema"</span>: <span class="code-str">"./routes.schema.json"</span>,
+  <span class="code-str">"scenarios"</span>: {
+    <span class="code-str">"route_preview_single"</span>: {
+      <span class="code-str">"polylines"</span>: [
+        {
+          <span class="code-str">"variant"</span>: <span class="code-str">"best"</span>,
+          <span class="code-str">"coordinates"</span>: [[lon, lat], ...]
+        }
+      ],
+      <span class="code-str">"start"</span>: { <span class="code-str">"lat"</span>: 37.77, <span class="code-str">"lon"</span>: -122.41 },
+      <span class="code-str">"end"</span>:   { <span class="code-str">"lat"</span>: 37.80, <span class="code-str">"lon"</span>: -122.45 }
+    },
+    <span class="code-str">"route_results_three_alts"</span>: {
+      <span class="code-str">"polylines"</span>: [
+        { <span class="code-str">"variant"</span>: <span class="code-str">"best"</span>, <span class="code-str">"coordinates"</span>: [...] },
+        { <span class="code-str">"variant"</span>: <span class="code-str">"alt1"</span>, <span class="code-str">"coordinates"</span>: [...] },
+        { <span class="code-str">"variant"</span>: <span class="code-str">"alt2"</span>, <span class="code-str">"coordinates"</span>: [...] }
+      ],
+      <span class="code-str">"start"</span>: { <span class="code-str">"lat"</span>: 37.77, <span class="code-str">"lon"</span>: -122.41 },
+      <span class="code-str">"end"</span>:   { <span class="code-str">"lat"</span>: 37.83, <span class="code-str">"lon"</span>: -122.47 },
+      <span class="code-str">"waypoints"</span>: [
+        { <span class="code-str">"lat"</span>: 37.79, <span class="code-str">"lon"</span>: -122.43 }
+      ]
+    },
+    <span class="code-str">"route_preview_long_coastal"</span>: {
+      <span class="code-str">"polylines"</span>: [
+        { <span class="code-str">"variant"</span>: <span class="code-str">"best"</span>, <span class="code-str">"coordinates"</span>: [...] }
+      ],
+      <span class="code-str">"start"</span>: { <span class="code-str">"lat"</span>: 37.59, <span class="code-str">"lon"</span>: -122.49 },
+      <span class="code-str">"end"</span>:   { <span class="code-str">"lat"</span>: 38.05, <span class="code-str">"lon"</span>: -122.76 }
+    }
+  }
+<span class="code-kw">}</span></pre>
+          </div>
+        </div>
+
+        <div>
+          <p style="font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--content-tertiary);margin-bottom:12px;">route_results_three_alts — rendered on Copper paper map</p>
+          <div class="fixture-map-card">
+            <div class="pmap-grid"></div>
+            <div class="pmap-vignette"></div>
+
+            <!-- Three polylines as SVG paths -->
+            <svg class="routes-overlay" viewBox="0 0 400 300" preserveAspectRatio="none">
+              <!-- best route (copper) — sizing.stroke.md = 2px -->
+              <path d="M60,250 C80,200 110,180 150,160 C190,140 210,110 240,90 C270,70 300,60 340,50"
+                fill="none" stroke="#EE7C2B" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"
+                filter="url(#best-shadow)"/>
+              <!-- alt1 route (sage-green) -->
+              <path d="M60,250 C90,210 120,195 155,175 C190,155 215,125 250,105 C280,88 310,72 340,50"
+                fill="none" stroke="#4D8470" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"
+                stroke-dasharray="6 4" opacity="0.85"/>
+              <!-- alt2 route (slate) -->
+              <path d="M60,250 C70,215 95,200 130,182 C168,163 200,140 230,115 C260,92 298,68 340,50"
+                fill="none" stroke="#6B7B8F" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"
+                stroke-dasharray="3 4" opacity="0.75"/>
+              <defs>
+                <filter id="best-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="rgba(238,124,43,0.35)"/>
+                </filter>
+              </defs>
+            </svg>
+
+            <!-- Start marker (success green, 14px) at bottom-left -->
+            <div class="ann-start" style="left:46px;bottom:44px;"></div>
+            <!-- End marker (recording red, 18px) at top-right -->
+            <div class="ann-end" style="right:18px;top:40px;"></div>
+
+            <div class="fixture-map-caption">
+              <div class="fixture-legend-item">
+                <div class="legend-line" style="background:#EE7C2B;"></div>
+                <span>best · 2px · color.route.best</span>
+              </div>
+              <div class="fixture-legend-item">
+                <div class="legend-line" style="background:#4D8470;border-top:2px dashed #4D8470;height:0;"></div>
+                <span>alt1 · color.route.alt1</span>
+              </div>
+              <div class="fixture-legend-item">
+                <div class="legend-line" style="background:#6B7B8F;border-top:2px dotted #6B7B8F;height:0;"></div>
+                <span>alt2 · color.route.alt2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ §03 ERROR FALLBACK + ACCESS TOKEN ════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§03</div>
+      <h2 class="section-title">Fallback &amp; <em>Token Setup</em></h2>
+    </div>
+
+    <p class="prose" style="margin-bottom:48px;">The stub LSMap renders an LSGlassPanel error fallback for every story until UC-ATM-12 and UC-ATM-13 replace it. The fallback must not crash — it only renders a translucent glass callout over the dormant paper map background.</p>
+
+    <div class="fallback-wrap">
+      <p class="fixture-label" style="margin-bottom:20px;">LSGlassPanel error fallback — two error variants</p>
+      <div class="fallback-demo">
+
+        <div class="fallback-card">
+          <div class="pmap-bg-grid"></div>
+          <span class="fallback-card-label">MapError.missingToken</span>
+          <div class="ls-glass-panel">
+            <svg viewBox="0 0 20 20">
+              <circle cx="10" cy="10" r="7.5"/>
+              <path d="M10 6v5M10 14.5v.5"/>
+            </svg>
+            <p class="ls-glass-title">Map unavailable</p>
+            <p class="ls-glass-caption">Missing access token — set MAPBOX_ACCESS_TOKEN in build environment.</p>
+          </div>
+        </div>
+
+        <div class="fallback-card">
+          <div class="pmap-bg-grid"></div>
+          <span class="fallback-card-label">MapError.networkUnavailable</span>
+          <div class="ls-glass-panel">
+            <svg viewBox="0 0 20 20">
+              <path d="M3 3l14 14M10 2.5a9.5 9.5 0 016.8 2.8M2.5 10a7.7 7.7 0 012-4.5M8 10a2.5 2.5 0 013.5.5"/>
+              <circle cx="10" cy="14" r="1.5" style="fill:currentColor;stroke:none;"/>
+            </svg>
+            <p class="ls-glass-title">Map unavailable</p>
+            <p class="ls-glass-caption">No network — check connection and try again.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Access token convention -->
+    <div class="platform-grid" style="margin-top:56px;">
+      <div class="platform-card">
+        <p class="platform-card-title">iOS — access token convention</p>
+        <pre>// ios/LaneShadow/Info.plist
+// Key: MBXAccessToken
+// Value: $(MAPBOX_ACCESS_TOKEN)
+//
+// Build-time substitution via Xcode build setting:
+// MAPBOX_ACCESS_TOKEN = pk.eyJ1Ijoi...
+// Set in local .xcconfig (gitignored)
+// or via CI/CD environment variable.
+//
+// Never commit a literal token.
+// LSMap reads MBXAccessToken from
+// Bundle.main.infoDictionary at runtime.
+// If nil → MapError.missingToken → fallback.</pre>
+      </div>
+      <div class="platform-card">
+        <p class="platform-card-title">Android — access token convention</p>
+        <pre>// android/app/src/main/res/values/secrets.xml
+// Generated pre-build by Gradle task from
+// MAPBOX_ACCESS_TOKEN environment variable.
+// File is gitignored.
+//
+// build.gradle.kts:
+// tasks.register("generateSecrets") {
+//   doFirst {
+//     val token = System.getenv(
+//       "MAPBOX_ACCESS_TOKEN") ?: ""
+//     // writes secrets.xml with token value
+//   }
+// }
+// preBuild.dependsOn("generateSecrets")
+//
+// LSMap reads from R.string.mapbox_access_token.
+// If blank → MapError.missingToken → fallback.</pre>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ §04 DIMENSIONS ════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§04</div>
+      <h2 class="section-title">Dimensions <em>Table</em></h2>
+    </div>
+    <table class="dim-table">
+      <thead>
+        <tr><th>Token</th><th>Value</th><th>iOS</th><th>Android</th><th>Use</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="mono">sizing.stroke.sm</td><td class="mono">1px</td><td class="mono">1.pt</td><td class="mono">1.dp</td><td>Thin custom polyline</td></tr>
+        <tr><td class="mono">sizing.stroke.md</td><td class="mono">2px</td><td class="mono">2.pt</td><td class="mono">2.dp</td><td>Default route polylines (best/alt1/alt2)</td></tr>
+        <tr><td class="mono">sizing.stroke.lg</td><td class="mono">3px</td><td class="mono">3.pt</td><td class="mono">3.dp</td><td>Selected / active polyline emphasis</td></tr>
+        <tr><td class="mono">annotation.start diameter</td><td class="mono">14px</td><td class="mono">14.pt</td><td class="mono">14.dp</td><td>Start marker circle</td></tr>
+        <tr><td class="mono">annotation.start border</td><td class="mono">2.5px</td><td class="mono">2.5.pt</td><td class="mono">2.5.dp</td><td>Start marker card-color ring</td></tr>
+        <tr><td class="mono">annotation.end diameter</td><td class="mono">18px</td><td class="mono">18.pt</td><td class="mono">18.dp</td><td>End marker outer ring</td></tr>
+        <tr><td class="mono">annotation.end inner dot</td><td class="mono">6px</td><td class="mono">6.pt</td><td class="mono">6.dp</td><td>End marker center dot</td></tr>
+        <tr><td class="mono">spacing.4 (cameraFit padding)</td><td class="mono">16px</td><td class="mono">16.pt</td><td class="mono">16.dp</td><td>CameraFit.polylines default padding</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ §05 MOTION ════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§05</div>
+      <h2 class="section-title">Motion — <em>routeDrawOn</em></h2>
+    </div>
+    <p class="prose">When polylines are injected into LSMap, a stroke-dashoffset animation draws the path from start to end. This recipe is <em>motion.recipe.routeDrawOn</em> and applies to the best polyline only; alt1/alt2 fade in at opacity 0 to 1 simultaneously.</p>
+    <p class="prose" style="margin-top:20px;"><em>Duration</em>: 600ms per 100km of route distance, capped at 1400ms. Resolves from <em>motion.duration.routeDrawOn</em>.</p>
+    <p class="prose" style="margin-top:20px;"><em>Easing</em>: cubic-bezier(0.25, 0.1, 0.25, 1.0) — resolves from <em>motion.easing.standard</em>.</p>
+    <p class="prose" style="margin-top:20px;"><em>Alt fade duration</em>: 300ms ease-out, starts when the best polyline draw reaches 40% progress.</p>
+    <p class="prose" style="margin-top:20px;"><em>Camera fit animation</em>: CameraFit.polylines triggers a Mapbox camera ease over 400ms once polylines are drawn. Resolves from <em>motion.duration.cameraEase</em> (400ms).</p>
+  </div>
+</section>
+
+<!-- ══ §06 RATIONALE + AC ════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§06</div>
+      <h2 class="section-title">Rationale &amp; <em>AC Trace</em></h2>
+    </div>
+    <p class="prose" style="margin-bottom:40px;">The contract-first approach allows iOS and Android engineers to work concurrently without waiting for each other. The stub renders proof-of-life via the same LSGlassPanel used by UC-ATM-05, confirming that token + fixture wiring is correct before SDK code lands.</p>
+    <div class="ac-block">
+      <div class="ac-item"><span class="ac-ref">AC-01</span>tokens/api/LSMap.contract.md contains all typed definitions — CameraPosition, Annotation, RouteVariant, PolylineData, MapMode, CameraFit, MapError — with field-level docs. LSMap signature takes polylines: [PolylineData] (plural).</div>
+      <div class="ac-item"><span class="ac-ref">AC-02</span>No Mapbox SDK symbols (MapView, MapboxMap, CircleAnnotation, LineLayer) appear in the contract surface — only in the platform wrappers.</div>
+      <div class="ac-item"><span class="ac-ref">AC-03</span>map.style.light, map.style.dark, sizing.stroke.md, color.route.{best,alt1,alt2} token references documented in contract; annotation-kind mapping to color.status.* documented.</div>
+      <div class="ac-item"><span class="ac-ref">AC-04</span>tokens/sandbox/fixtures/routes.fixtures.json contains 3+ routes; route_results_three_alts has PolylineData entries with variants .best, .alt1, .alt2.</div>
+      <div class="ac-item"><span class="ac-ref">AC-05</span>iOS stub LSMap type-checks, compiles, and renders LSGlassPanel fallback until UC-ATM-12 replaces it.</div>
+      <div class="ac-item"><span class="ac-ref">AC-06</span>Android stub analogous to iOS — type-checks, compiles, renders fallback until UC-ATM-13 replaces it.</div>
+      <div class="ac-item"><span class="ac-ref">AC-07</span>"Atoms / Map (stub)" story renders fallback on both platforms — proving token + fixture pipeline is wired end-to-end before SDK code lands.</div>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap doc-footer">
+  <span class="footer-brand">LaneShadow V2 · Copper · UC-ATM-11</span>
+  <span class="footer-meta">uc-atm-11-map-contract.html · 2026-04-20 · ATM Tier-C</span>
+</footer>
+
+</body>
+</html>
