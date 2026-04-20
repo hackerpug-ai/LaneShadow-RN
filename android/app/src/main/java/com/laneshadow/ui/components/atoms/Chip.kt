@@ -75,7 +75,7 @@ fun Chip(
     // Background color based on state
     val backgroundColor: Color = when {
         selected -> theme.colors.primary.default.copy(alpha = 0.12f)
-        isPressed -> theme.colors.muted.default
+        isPressed && !selected -> theme.colors.muted.pressed ?: theme.colors.muted.default
         else -> Color.Transparent
     }
 
@@ -90,6 +90,13 @@ fun Chip(
         theme.colors.primary.default
     } else {
         theme.colors.onSurface.default
+    }
+
+    // Icon color based on state (for icon rendering)
+    val iconColor = if (selected) {
+        theme.colors.primary.default
+    } else {
+        theme.colors.onSurface.default.copy(alpha = 0.6f)
     }
 
     // Build modifier with semantics and click handling
@@ -121,7 +128,7 @@ fun Chip(
                 shape = CircleShape,
             )
             .padding(
-                horizontal = theme.space.md,
+                horizontal = 12.dp,
                 vertical = 6.dp,
             ),
         horizontalArrangement = Arrangement.spacedBy(4.dp),

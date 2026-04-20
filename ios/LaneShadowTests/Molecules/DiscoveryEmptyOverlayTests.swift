@@ -1,7 +1,6 @@
 import LaneShadowTheme
 import SwiftUI
 import XCTest
-
 @testable import LaneShadow
 
 // MARK: - Discovery Empty Overlay Tests

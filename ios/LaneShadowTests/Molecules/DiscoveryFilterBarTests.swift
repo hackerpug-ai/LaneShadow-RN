@@ -23,7 +23,6 @@ import XCTest
  * - Semantic theme tokens used
  */
 final class DiscoveryFilterBarTests: XCTestCase {
-
     // MARK: - AC-1: Horizontal scrollable layout
 
     func testHorizontalScrollableLayout() {
@@ -35,7 +34,7 @@ final class DiscoveryFilterBarTests: XCTestCase {
             .technical: 15,
             .cruising: 20,
             .sport: 10,
-            .adventure: 5
+            .adventure: 5,
         ]
 
         // WHEN: Component is rendered
@@ -164,7 +163,7 @@ final class DiscoveryFilterBarTests: XCTestCase {
         let counts: [LSRouteArchetype: Int] = [
             .all: 1250,
             .scenic: 99,
-            .twisties: 5
+            .twisties: 5,
         ]
 
         // WHEN: Component is rendered
@@ -207,7 +206,7 @@ final class DiscoveryFilterBarTests: XCTestCase {
             .all: 100,
             .scenic: 25,
             .twisties: 30,
-            .technical: 15
+            .technical: 15,
         ]
 
         // WHEN: Component is rendered
