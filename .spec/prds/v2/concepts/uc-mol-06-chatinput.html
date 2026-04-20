@@ -405,6 +405,41 @@ body { font-family:var(--font-ui);color:var(--content-primary);background:var(--
 .phone-frame .tag-pill { font-size: 8.5px; padding: 4px 8px; }
 .phone-frame .tag-pill.mode-label { font-size: 7.5px; padding: 4px 8px; }
 
+/* PHONE FRAME — actual-size variant inside .stories-breakout so the chat input
+   renders at its TRUE token sizes (54h input, 36pt icon btn, etc.) rather than
+   the compact 240px-calibrated overrides above. iPhone 390×780 → 360×720. */
+.stories-breakout .phone-frame{max-width:360px !important;aspect-ratio:9/18;border-radius:52px;}
+.stories-breakout .phone-screen{border-radius:49px;}
+.stories-breakout .phone-di{width:120px;height:32px;border-radius:17px;top:12px;}
+.stories-breakout .phone-hi{width:134px;height:5px;bottom:8px;}
+/* Reset the compact overrides to their true token values */
+.stories-breakout .phone-frame .ls-chatinput{height:54px;padding:0 6px 0 14px;gap:10px;border-radius:18px;}
+.stories-breakout .phone-frame .chat-icon-btn{width:36px;height:36px;}
+.stories-breakout .phone-frame .chat-filter-btn{width:42px;height:42px;}
+.stories-breakout .phone-frame .chat-send-btn{width:42px;height:42px;}
+.stories-breakout .phone-frame .chat-spinner{width:42px;height:42px;}
+.stories-breakout .phone-frame .chat-field{font-size:12.5px;}
+.stories-breakout .phone-frame .sugg-chip{padding:9px 14px;font-size:11.5px;}
+.stories-breakout .phone-frame .tag-pill{font-size:10.5px;padding:5px 10px;}
+.stories-breakout .phone-frame .tag-pill.mode-label{font-size:9.5px;padding:5px 10px;}
+.stories-breakout{
+  margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);
+  width:100vw;overflow-x:auto;overflow-y:visible;
+  padding:8px 48px 24px;box-sizing:border-box;
+}
+/* Flex container variant (mol-06 uses flex rows of phones, not grid) */
+.stories-breakout > .stories-flex-row{
+  padding-left:0 !important;
+  display:flex;flex-wrap:nowrap;gap:32px;
+  width:max-content;margin:0 auto;
+  justify-content:center;align-items:flex-start;
+}
+/* Each phone's flex-column wrapper currently inlines max-width:240px; expand so
+   the phone can reach its full 360px. */
+.stories-breakout > .stories-flex-row > div{
+  max-width:360px !important;width:360px;flex-shrink:0;
+}
+
 /* States grid for full doc section */
 .states-grid {
   display: grid;
@@ -489,8 +524,9 @@ body { font-family:var(--font-ui);color:var(--content-primary);background:var(--
       <h2 class="section-title">Five <em>rendered</em> states.</h2>
     </div>
 
-    <!-- Five states in phone frames side by side -->
-    <div style="padding-left:152px;display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start;">
+    <!-- Five states in phone frames side by side — actual-size breakout -->
+    <div class="stories-breakout">
+    <div class="stories-flex-row">
 
       <!-- State 1: Default empty with suggestions + location -->
       <div style="display:flex;flex-direction:column;gap:12px;max-width:240px;">
@@ -639,6 +675,7 @@ body { font-family:var(--font-ui);color:var(--content-primary);background:var(--
       </div>
 
     </div>
+    </div><!-- /stories-breakout -->
 
     <!-- Dark mode variants -->
     <div style="padding-left:152px;margin-top:56px;margin-bottom:12px;">
@@ -732,7 +769,8 @@ body { font-family:var(--font-ui);color:var(--content-primary);background:var(--
       LSChatInput in dark mode. The glass panel backing shifts to <em>rgba(45,34,24,0.72)</em> — an ink-based glass that floats above the dark map layer. Border shifts to <em>rgba(242,238,232,0.12)</em>. Send button copper remains fully saturated — it anchors the interaction in both modes. Suggestion chips and location tags adopt the same glass treatment.
     </p>
 
-    <div style="padding-left:152px; display:flex; gap:40px; flex-wrap:wrap; align-items:flex-start; margin-top: 48px;">
+    <div class="stories-breakout" style="margin-top:48px;">
+    <div class="stories-flex-row">
 
       <!-- Dark: State 1 — Default -->
       <div style="display:flex;flex-direction:column;gap:12px;max-width:240px;">
@@ -885,6 +923,7 @@ body { font-family:var(--font-ui);color:var(--content-primary);background:var(--
       </div>
 
     </div>
+    </div><!-- /stories-breakout -->
 
     <div style="padding-left:152px; margin-top: 32px;">
       <div style="display:flex;gap:24px;flex-wrap:wrap;">

@@ -235,6 +235,14 @@ body {
 }
 .phone-content { flex: 1; overflow: hidden; }
 
+/* PHONE FRAME — actual-size variant inside .stories-breakout (iPhone 390×780 → 360×720). */
+.stories-breakout .phone-frame{max-width:360px !important;aspect-ratio:9/18;border-radius:52px;}
+.stories-breakout .phone-screen{border-radius:49px;}
+.stories-breakout .phone-di{width:120px;height:32px;border-radius:17px;top:12px;}
+.stories-breakout .phone-punch{width:14px;height:14px;top:14px;}
+.stories-breakout{margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);width:100vw;overflow-x:auto;overflow-y:visible;padding:8px 48px 24px;box-sizing:border-box;}
+.stories-breakout > .demo-grid, .stories-breakout > .screens-grid{padding-left:0 !important;grid-template-columns:repeat(var(--phones-per-row,5),360px) !important;gap:28px 32px;width:max-content;margin:0 auto;justify-content:center;}
+
 /* ── Safe area annotations ─────────────────────────────────────────── */
 .safe-area-bar {
   display: flex; align-items: center; justify-content: center;
@@ -839,6 +847,7 @@ body {
     <div style="font-family: var(--font-instrument); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--copper-400); margin: 48px 0 24px;">
       Platform chrome · Dark
     </div>
+    <div class="stories-breakout" style="--phones-per-row:2;">
     <div class="demo-grid cols-2" style="padding-left: 0; gap: 32px; align-items: start;">
 
       <!-- iOS Dark Phone -->
@@ -912,6 +921,7 @@ body {
       </div>
 
     </div>
+    </div><!-- /stories-breakout -->
 
     <!-- Dark safe-area diagram -->
     <div style="font-family: var(--font-instrument); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--copper-400); margin: 48px 0 16px;">
@@ -947,6 +957,7 @@ body {
   </div>
 
   <!-- Side-by-side iOS vs Android phone mocks -->
+  <div class="stories-breakout" style="--phones-per-row:2;">
   <div class="demo-grid cols-2" style="margin-bottom: 64px; align-items: start;">
 
     <!-- iOS Phone Mock -->
@@ -1026,6 +1037,7 @@ body {
     </div>
 
   </div>
+  </div><!-- /stories-breakout -->
 
   <!-- Safe area breakdown diagram -->
   <div style="padding-left: 152px; max-width: 560px;">

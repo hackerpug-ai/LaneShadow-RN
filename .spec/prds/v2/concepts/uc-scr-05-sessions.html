@@ -116,6 +116,15 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
 .phone-hi{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:108px;height:4px;border-radius:3px;z-index:60;background:rgba(0,0,0,0.38);}
 .mode-dark .phone-hi{background:rgba(255,255,255,0.30);}
 
+/* PHONE FRAME — actual-size variant inside .stories-breakout (iPhone 390×780 → 360×720). */
+.stories-breakout .phone-frame{max-width:360px !important;aspect-ratio:9/18;border-radius:52px;}
+.stories-breakout .phone-screen{border-radius:49px;}
+.stories-breakout .phone-di{width:120px;height:32px;border-radius:17px;top:12px;}
+.stories-breakout .phone-hi{width:134px;height:5px;bottom:8px;}
+.stories-breakout{margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);width:100vw;overflow-x:auto;overflow-y:visible;padding:8px 48px 24px;box-sizing:border-box;}
+.stories-breakout > .screens-grid{padding-left:0 !important;grid-template-columns:repeat(var(--phones-per-row,5),360px) !important;gap:28px 32px;width:max-content;margin:0 auto;justify-content:center;}
+.stories-breakout .screen-annotation{max-width:340px;}
+
 /* PAPER MAP (dimmed) */
 .pmap{position:absolute;inset:0;background:var(--map-paper);overflow:hidden;z-index:0;}
 .pmap::before{content:"";position:absolute;inset:-8px;background-image:linear-gradient(var(--map-contour-faint) 1px,transparent 1px),linear-gradient(90deg,var(--map-contour-faint) 1px,transparent 1px);background-size:28px 28px;opacity:0.55;pointer-events:none;}
@@ -254,6 +263,7 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
       <div class="section-index">§02 · Screens</div>
       <h2 class="section-title">Five <em>this week</em>, one <em>active</em>.</h2>
     </div>
+    <div class="stories-breakout" style="--phones-per-row:4;">
     <div class="screens-grid">
 
       <!-- S01 · DEFAULT — 5 sessions, 1 active -->
@@ -560,6 +570,7 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
       </div>
 
     </div>
+    </div><!-- /stories-breakout -->
   </section>
 </div>
 
@@ -570,6 +581,7 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
       <div class="section-index">§03 · States &amp; Variants</div>
       <h2 class="section-title">Search, <em>no active</em>, mid-transition.</h2>
     </div>
+    <div class="stories-breakout" style="--phones-per-row:3;">
     <div class="screens-grid cols-3">
 
       <!-- V01 · SEARCH (filtering) -->
@@ -726,6 +738,7 @@ body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:10
       </div>
 
     </div>
+    </div><!-- /stories-breakout -->
   </section>
 </div>
 
