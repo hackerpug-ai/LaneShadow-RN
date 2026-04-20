@@ -1,12 +1,14 @@
 package com.laneshadow.ui.components.atoms
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.laneshadow.theme.LocalLaneShadowTheme
@@ -276,7 +278,7 @@ class ChipTest {
                     onPress = {},
                     icon = {
                         androidx.compose.foundation.layout.Box(
-                            modifier = androidx.compose.ui.Modifier.size(16.dp),
+                            modifier = Modifier.size(16.dp),
                         ) {
                             // Icon placeholder
                         }
