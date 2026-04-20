@@ -1,6 +1,6 @@
 # E2E Testing with Detox - Complete Guide
 
-Comprehensive guide for end-to-end testing in the Hummingbird project using Detox, Jest, and iOS Simulator.
+Comprehensive guide for end-to-end testing in the LaneShadow project using Detox, Jest, and iOS Simulator.
 
 ---
 
@@ -42,7 +42,7 @@ pnpm test:e2e -- e2e/app-launch.test.js
 App Launch (Baseline)
   ✓ should launch the app without crashing
   ✓ should display the sign-in screen
-  ✓ should display the Hummingbird title
+  ✓ should display the LaneShadow title
   ✓ should display the sign-in button
   ✓ should display subtitle text
 
@@ -245,7 +245,7 @@ From `package.json`:
 
 1. ✅ App launches without crashing
 2. ✅ Sign-in screen is visible
-3. ✅ "Hummingbird" title is displayed
+3. ✅ "LaneShadow" title is displayed
 4. ✅ Sign-in button is present
 5. ✅ Subtitle text is visible
 
@@ -267,8 +267,8 @@ describe('App Launch (Baseline)', () => {
       .withTimeout(10000)
   })
 
-  it('should display the Hummingbird title', async () => {
-    await expect(element(by.text('Hummingbird'))).toBeVisible()
+  it('should display the LaneShadow title', async () => {
+    await expect(element(by.text('LaneShadow'))).toBeVisible()
   })
 })
 ```

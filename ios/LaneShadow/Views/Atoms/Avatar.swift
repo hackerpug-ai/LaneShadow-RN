@@ -15,6 +15,7 @@ public enum AvatarSize {
     case lg // 64×64px (theme.size.avatarLg)
     case xl // 96×96px (theme.size.avatarXl)
 }
+
 // swiftlint:enable identifier_name
 
 // MARK: - Avatar Badge Variant Enum
