@@ -112,7 +112,6 @@ public struct LSMapHeaderOverlay: View {
 
     // MARK: - Gradient View
 
-    @ViewBuilder
     private var gradientView: some View {
         ZStack {
             // Background gradient
@@ -121,7 +120,7 @@ public struct LSMapHeaderOverlay: View {
                     colors: [
                         theme.colors.surface.default.opacity(0.95),
                         theme.colors.surface.default.opacity(0.5),
-                        Color.clear
+                        Color.clear,
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -150,7 +149,6 @@ public struct LSMapHeaderOverlay: View {
 
     // MARK: - Content View
 
-    @ViewBuilder
     private var contentView: some View {
         HStack(alignment: .center, spacing: 0) {
             // Left section
