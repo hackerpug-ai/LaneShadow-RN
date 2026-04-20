@@ -70,8 +70,14 @@
       "reviewer": "python-review",
       "wave": 4,
       "depends_on": ["QUAL-001"],
-      "status": "pending",
-      "iterations": [],
+      "status": "implemented",
+      "iterations": [
+        {
+          "number": 1,
+          "commit_sha": "e49cc389",
+          "verdict": null
+        }
+      ],
       "approved_at": null,
       "worktree_path": null,
       "worktree_branch": null
@@ -82,14 +88,20 @@
       "reviewer": "python-review",
       "wave": 4,
       "depends_on": ["QUAL-001"],
-      "status": "pending",
-      "iterations": [],
+      "status": "implemented",
+      "iterations": [
+        {
+          "number": 1,
+          "commit_sha": "71b54c8e",
+          "verdict": null
+        }
+      ],
       "approved_at": null,
       "worktree_path": null,
       "worktree_branch": null
     },
     "QUAL-008": {
-      "title": "Runtime Benchmark — Full Catalog Dry Run",
+      "title": "Runtime Benchmark \u2014 Full Catalog Dry Run",
       "implementer": "python-implement",
       "reviewer": "python-review",
       "wave": 5,
