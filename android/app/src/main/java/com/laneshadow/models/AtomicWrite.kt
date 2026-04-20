@@ -178,7 +178,9 @@ object AtomicWriteUtils {
      */
     suspend fun atomicDelete(filePath: String): Boolean = withContext(Dispatchers.IO) {
         try {
-            File(filePath).delete()
+            val file = File(filePath)
+            // Idempotent: return true if file doesn't exist or was successfully deleted
+            !file.exists() || file.delete()
         } catch (_: Throwable) {
             false
         }
