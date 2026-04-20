@@ -56,6 +56,7 @@ public struct LSIconSymbol: View {
         "chevron-down": "chevron.down",
         "chevron-up": "chevron.up",
         "plus": "plus",
+        "plus-circle-outline": "plus.circle",
         "minus": "minus",
         "check": "checkmark",
         "pencil": "pencil",
