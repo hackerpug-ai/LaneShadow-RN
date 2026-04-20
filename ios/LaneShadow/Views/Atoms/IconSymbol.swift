@@ -65,6 +65,16 @@ public struct LSIconSymbol: View {
         "bell-outline": "bell",
         "information": "info.circle",
         "wifi-off": "wifi.slash",
+        // Weather icons
+        "weather-sunny": "sun.max.fill",
+        "weather-rainy": "cloud.rain.fill",
+        "weather-windy": "wind",
+        "weather-cloudy": "cloud.fill",
+        "weather-partly-cloudy": "cloud.sun.fill",
+        // Map and navigation icons
+        "map-marker-distance": "signpost.right",
+        "clock-outline": "clock",
+        "leaf": "leaf.fill",
     ]
 
     public init(
