@@ -78,16 +78,13 @@ fun Input(
     // - Container height: size.inputHeight = 48
     // - Border radius: radius.xl = 16
     // - Border width: borderWidth.thin = 1
-    // - Horizontal padding: space.lg = 16
+    // - Horizontal padding: space.md (using theme)
     // - Icon size: 20dp
-    // - Input text: type.body.md.fontSize = 16
-    // - Label: type.label.sm.fontSize = 12
+    // - Input text: type.body.md (using theme)
+    // - Label: type.label.sm (using theme)
     // - Label padding start: space.xs = 4
     val INPUT_HEIGHT = 48.dp
     val ICON_SIZE = 20.dp
-    val LABEL_FONT_SIZE = 12.sp
-    val INPUT_FONT_SIZE = 16.sp
-    val HORIZONTAL_PADDING = 16.dp
 
     var isFocused by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
@@ -130,7 +127,6 @@ fun Input(
             Text(
                 text = label.uppercase(),
                 style = theme.type.label.sm,
-                fontSize = LABEL_FONT_SIZE,
                 color = theme.colors.onSurface.default.copy(alpha = 0.6f),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -176,7 +172,7 @@ fun Input(
                 if (leftIcon != null) {
                     Box(
                         modifier = Modifier
-                            .padding(start = HORIZONTAL_PADDING, end = theme.space.sm)
+                            .padding(start = theme.space.md, end = theme.space.sm)
                             .width(ICON_SIZE)
                             .height(ICON_SIZE),
                         contentAlignment = Alignment.Center
@@ -185,7 +181,7 @@ fun Input(
                     }
                 } else if (leftIcon == null && rightIcon != null) {
                     // Add spacing to align with inputs that have icons
-                    Spacer(modifier = Modifier.width(HORIZONTAL_PADDING))
+                    Spacer(modifier = Modifier.width(theme.space.md))
                 }
 
                 // Text input field
@@ -200,7 +196,7 @@ fun Input(
                     singleLine = true,
                     textStyle = TextStyle(
                         color = theme.colors.onSurface.default,
-                        fontSize = INPUT_FONT_SIZE,
+                        fontSize = theme.type.body.md.fontSize,
                     ),
                     cursorBrush = SolidColor(theme.colors.primary.default),
                     keyboardOptions = KeyboardOptions.Default.copy(
@@ -213,7 +209,7 @@ fun Input(
                             Text(
                                 text = placeholder,
                                 color = theme.colors.onSurface.default.copy(alpha = 0.6f),
-                                fontSize = INPUT_FONT_SIZE,
+                                fontSize = theme.type.body.md.fontSize,
                             )
                         }
                         innerTextField()
@@ -224,7 +220,7 @@ fun Input(
                 if (rightIcon != null) {
                     Box(
                         modifier = Modifier
-                            .padding(start = theme.space.sm, end = HORIZONTAL_PADDING)
+                            .padding(start = theme.space.sm, end = theme.space.md)
                             .width(ICON_SIZE)
                             .height(ICON_SIZE),
                         contentAlignment = Alignment.Center
@@ -233,7 +229,7 @@ fun Input(
                     }
                 } else if (rightIcon == null && leftIcon != null) {
                     // Add spacing to align with inputs that have icons
-                    Spacer(modifier = Modifier.width(HORIZONTAL_PADDING))
+                    Spacer(modifier = Modifier.width(theme.space.md))
                 }
             }
         }
@@ -243,7 +239,6 @@ fun Input(
             Text(
                 text = error,
                 style = theme.type.label.sm,
-                fontSize = LABEL_FONT_SIZE,
                 color = theme.colors.danger.default,
                 modifier = Modifier
                     .fillMaxWidth()

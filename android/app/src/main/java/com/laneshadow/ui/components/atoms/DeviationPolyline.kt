@@ -57,11 +57,10 @@ fun DeviationPolyline(
     val theme = LocalLaneShadowTheme.current
     val isPreview = LocalInspectionMode.current
 
-    // Map deviation colors from theme or use fallback colors
-    // These will be added to the theme system in a future update
-    val originalRouteColor: Color = Color.Gray
-    val detourPathColor: Color = Color(0xFFFF9800) // Orange
-    val reconnectPointColor: Color = Color(0xFF4CAF50) // Green
+    // Map deviation colors from theme domain colors
+    val originalRouteColor: Color = theme.domain.deviationOriginalRoute.default
+    val detourPathColor: Color = theme.domain.deviationDetourPath.default
+    val reconnectPointColor: Color = theme.domain.deviationReconnectPoint.default
 
     // Build content description for accessibility
     val contentDescription = buildDeviationContentDescription(

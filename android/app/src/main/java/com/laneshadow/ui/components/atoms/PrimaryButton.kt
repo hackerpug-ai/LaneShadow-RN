@@ -56,13 +56,13 @@ fun PrimaryButton(
     // Determine if button should be disabled (loading also disables)
     val isDisabled = disabled || loading
 
-    // Copper glow color with 40% opacity
-    val copperGlow = Color(0xFFB87333).copy(alpha = 0.4f)
+    // Copper glow color using theme with shadowPrimary opacity
+    val copperGlow = theme.colors.primary.default.copy(alpha = theme.opacity.values["shadowPrimary"]!!)
 
     // Button dimensions from spec
-    val buttonHeight = 56.dp
-    val buttonRadius = RoundedCornerShape(20.dp) // radius.xl
-    val horizontalPadding = 24.dp // space.xl
+    val buttonHeight = 56.dp // Convention: fixed height per spec
+    val buttonRadius = RoundedCornerShape(theme.radius.xl)
+    val horizontalPadding = theme.space.xl
 
     // Background color
     val backgroundColor = if (isDisabled) {

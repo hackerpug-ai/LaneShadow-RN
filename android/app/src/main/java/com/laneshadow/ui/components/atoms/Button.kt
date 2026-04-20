@@ -97,13 +97,6 @@ private val BUTTON_PADDING_HORIZONTAL_XL = 16.dp
 private val BUTTON_PADDING_HORIZONTAL_XXL = 16.dp
 private val BUTTON_PADDING_HORIZONTAL_ICON = 0.dp
 
-private val BUTTON_RADIUS_SMALL = 8.dp
-private val BUTTON_RADIUS_DEFAULT = 8.dp
-private val BUTTON_RADIUS_LARGE = 8.dp
-private val BUTTON_RADIUS_XL = 16.dp
-private val BUTTON_RADIUS_XXL = 24.dp
-private val BUTTON_RADIUS_ICON = CircleShape
-
 /**
  * Disabled opacity constant
  *

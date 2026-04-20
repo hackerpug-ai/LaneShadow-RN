@@ -48,14 +48,10 @@ private const val CARD_DISABLED_OPACITY = 0.5f
  * Card dimension constants
  *
  * Following design system specifications:
- * - Border radius: 16dp (theme.radius.lg)
- * - Padding: 16dp (theme.space.lg)
- * - Elevation: 2dp default, 3dp pressed
+ * - Elevation: 2dp default
+ * - Border width: 1dp
  */
-private val CARD_BORDER_RADIUS = 16.dp
-private val CARD_PADDING = 16.dp
 private val CARD_ELEVATION_DEFAULT = 2.dp
-private val CARD_ELEVATION_PRESSED = 3.dp
 private val CARD_BORDER_WIDTH = 1.dp
 
 /**

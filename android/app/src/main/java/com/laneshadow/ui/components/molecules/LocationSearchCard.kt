@@ -282,7 +282,7 @@ private fun PlaceResultRow(
     theme: com.laneshadow.theme.LaneShadowThemeValues,
     testTag: String,
 ) {
-    val badgeInfo = remember(result.types) { getPlaceTypeBadge(result.types) }
+    val badgeInfo = remember(result.types) { getPlaceTypeBadge(result.types, theme) }
 
     // Format distance
     val distanceLabel = remember(result.distanceMeters) {
@@ -521,27 +521,28 @@ private fun PulsingDot(
  * Maps Google Place types to badge labels and colors.
  *
  * @param types List of place type strings
+ * @param theme LaneShadow theme values
  * @return Pair of label and color
  */
-private fun getPlaceTypeBadge(types: List<String>): BadgeInfo {
+private fun getPlaceTypeBadge(types: List<String>, theme: com.laneshadow.theme.LaneShadowThemeValues): BadgeInfo {
     if (types.isEmpty()) {
-        return BadgeInfo("Place", Color.Gray)
+        return BadgeInfo("Place", theme.colors.muted.default)
     }
 
-    // Place type mapping
+    // Place type mapping using theme colors
     val typeMap = mapOf(
-        "gas_station" to BadgeInfo("Gas", Color(0xFFF59E0B)), // warning
-        "restaurant" to BadgeInfo("Food", Color(0xFF10B981)), // success
-        "cafe" to BadgeInfo("Coffee", Color(0xFF3B82F6)), // info
-        "coffee_shop" to BadgeInfo("Coffee", Color(0xFF3B82F6)), // info
-        "lodging" to BadgeInfo("Stay", Color(0xFF8B5CF6)), // secondary
-        "hotel" to BadgeInfo("Stay", Color(0xFF8B5CF6)), // secondary
-        "tourist_attraction" to BadgeInfo("Scenic", Color(0xFF6366F1)), // primary
-        "point_of_interest" to BadgeInfo("POI", Color(0xFF6366F1)), // primary
-        "park" to BadgeInfo("Park", Color(0xFF10B981)), // success
-        "parking" to BadgeInfo("Parking", Color(0xFF8B5CF6)), // secondary
-        "car_repair" to BadgeInfo("Repair", Color(0xFFF59E0B)), // warning
-        "convenience_store" to BadgeInfo("Store", Color(0xFF8B5CF6)), // secondary
+        "gas_station" to BadgeInfo("Gas", theme.colors.warning.default),
+        "restaurant" to BadgeInfo("Food", theme.colors.success.default),
+        "cafe" to BadgeInfo("Coffee", theme.colors.info.default),
+        "coffee_shop" to BadgeInfo("Coffee", theme.colors.info.default),
+        "lodging" to BadgeInfo("Stay", theme.colors.secondary.default),
+        "hotel" to BadgeInfo("Stay", theme.colors.secondary.default),
+        "tourist_attraction" to BadgeInfo("Scenic", theme.colors.primary.default),
+        "point_of_interest" to BadgeInfo("POI", theme.colors.primary.default),
+        "park" to BadgeInfo("Park", theme.colors.success.default),
+        "parking" to BadgeInfo("Parking", theme.colors.secondary.default),
+        "car_repair" to BadgeInfo("Repair", theme.colors.warning.default),
+        "convenience_store" to BadgeInfo("Store", theme.colors.secondary.default),
     )
 
     // Find first matching type
@@ -556,7 +557,7 @@ private fun getPlaceTypeBadge(types: List<String>): BadgeInfo {
         .joinToString(" ") { word ->
             word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
         }
-    return BadgeInfo(fallback, Color.Gray)
+    return BadgeInfo(fallback, theme.colors.muted.default)
 }
 
 /**
