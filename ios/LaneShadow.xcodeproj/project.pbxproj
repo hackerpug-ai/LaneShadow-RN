@@ -10,6 +10,7 @@
 		0845C4AC551760BC96454D32 /* ConvexMobile in Frameworks */ = {isa = PBXBuildFile; productRef = 603E52C39223C28F74C3296F /* ConvexMobile */; };
 		0D14EDD6EBE39F655775566D /* ConvexConfig.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7781149F2F15D8931F7BD59 /* ConvexConfig.generated.swift */; };
 		2D064A18B4A7465DBCC5D509 /* LaneShadowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D1CEB0F9194AA0A1298E94 /* LaneShadowTests.swift */; };
+		44631CF3F12CB71F56F331C2 /* MarkdownText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1B5EEE51CDB5681B896E7B /* MarkdownText.swift */; };
 		4B0AA98B99C3EBAED48BB3C7 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19C0C8E34938049BC6509361 /* App.swift */; };
 		58B9F2B1A10000000000000E /* AtomsStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9F2B1A10000000000010E /* AtomsStories.swift */; };
 		63DF5AF231CF6918D89B667C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2D8422CC809A6C6F9E33663 /* Foundation.framework */; };
@@ -19,9 +20,8 @@
 		AD8EF4A701C10E1634387601 /* LaneShadowStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D305F1F06CD33A026AD81A /* LaneShadowStories.swift */; };
 		C071BBB67191B0BB0B63057E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B65C904E4A0AAC1820E0B04 /* ContentView.swift */; };
 		C1BA82A170AEFD8BD4626532 /* NativeSandbox in Frameworks */ = {isa = PBXBuildFile; productRef = 52008D1AF11776E1CEC82B7F /* NativeSandbox */; };
+		CD7B43287CB6BD30DAAB6CA4 /* MarkdownTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8DF06DFAC4862640146C5EC /* MarkdownTextTests.swift */; };
 		E7BF3CA6E1D3EB02CB7C6C68 /* ConvexStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BFA01AC71D220DB33A48A4C /* ConvexStore.swift */; };
-		BADGE00254112FC5BA984AE290A1 /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BADGE0019A2E238139FA48C29445 /* Badge.swift */; };
-		BADGETS29DDB9086B21047E59FFF /* BadgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BADGETS126F3D7CF8D6F427690C2 /* BadgeTests.swift */; };
 		INFOTOASTBUILD19DA81322E4 /* InfoToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = INFOTOAST19DA81322E4 /* InfoToast.swift */; };
 		INFOTOASTTESTSBUILD19DA81322E4 /* InfoToastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = INFOTOASTTESTS19DA81322E4 /* InfoToastTests.swift */; };
 /* End PBXBuildFile section */
@@ -33,15 +33,15 @@
 		58B9F2B1A10000000000010E /* AtomsStories.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AtomsStories.swift; path = LaneShadow/Sandbox/Stories/AtomsStories.swift; sourceTree = "<group>"; };
 		7B65C904E4A0AAC1820E0B04 /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = LaneShadow/ContentView.swift; sourceTree = "<group>"; };
 		A7781149F2F15D8931F7BD59 /* ConvexConfig.generated.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConvexConfig.generated.swift; path = LaneShadow/Generated/ConvexConfig.generated.swift; sourceTree = "<group>"; };
+		A8DF06DFAC4862640146C5EC /* MarkdownTextTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MarkdownTextTests.swift; path = LaneShadowTests/Molecules/MarkdownTextTests.swift; sourceTree = "<group>"; };
 		C1D305F1F06CD33A026AD81A /* LaneShadowStories.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LaneShadowStories.swift; path = LaneShadow/Sandbox/LaneShadowStories.swift; sourceTree = "<group>"; };
 		C40B550C00DF5E8EB169537B /* LaneShadow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LaneShadow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C934E3A63158B5E395D53E00 /* LaneShadowSandboxEntry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LaneShadowSandboxEntry.swift; path = LaneShadow/Sandbox/LaneShadowSandboxEntry.swift; sourceTree = "<group>"; };
 		EA2218D2E4024A3E89BBD26A /* LaneShadowTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LaneShadowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF1B5EEE51CDB5681B896E7B /* MarkdownText.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MarkdownText.swift; path = LaneShadow/Views/Molecules/MarkdownText.swift; sourceTree = "<group>"; };
 		F2D8422CC809A6C6F9E33663 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		F3AD9C6E4235BE61F90118DB /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = LaneShadow/Info.plist; sourceTree = "<group>"; };
 		F5D1CEB0F9194AA0A1298E94 /* LaneShadowTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LaneShadowTests.swift; path = LaneShadowTests/LaneShadowTests.swift; sourceTree = "<group>"; };
-		BADGE0019A2E238139FA48C29445 /* Badge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LaneShadow/Views/Atoms/Badge.swift; sourceTree = "<group>"; };
-		BADGETS126F3D7CF8D6F427690C2 /* BadgeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LaneShadowTests/Components/UI/Atoms/BadgeTests.swift; sourceTree = "<group>"; };
 		INFOTOAST19DA81322E4 /* InfoToast.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LaneShadow/Views/Molecules/InfoToast.swift; sourceTree = "<group>"; };
 		INFOTOASTTESTS19DA81322E4 /* InfoToastTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LaneShadowTests/Molecules/InfoToastTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -81,6 +81,7 @@
 				C934E3A63158B5E395D53E00 /* LaneShadowSandboxEntry.swift */,
 				C1D305F1F06CD33A026AD81A /* LaneShadowStories.swift */,
 				58B9F2B1A10000000000010E /* AtomsStories.swift */,
+				EF1B5EEE51CDB5681B896E7B /* MarkdownText.swift */,
 			);
 			name = LaneShadow;
 			sourceTree = "<group>";
@@ -132,6 +133,7 @@
 			children = (
 				INFOTOASTTESTS19DA81322E4 /* InfoToastTests.swift */,
 				F5D1CEB0F9194AA0A1298E94 /* LaneShadowTests.swift */,
+				A8DF06DFAC4862640146C5EC /* MarkdownTextTests.swift */,
 			);
 			name = LaneShadowTests;
 			sourceTree = "<group>";
@@ -270,6 +272,7 @@
 			files = (
 				2D064A18B4A7465DBCC5D509 /* LaneShadowTests.swift in Sources */,
 				INFOTOASTTESTSBUILD19DA81322E4 /* InfoToastTests.swift in Sources */,
+				CD7B43287CB6BD30DAAB6CA4 /* MarkdownTextTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -285,6 +288,7 @@
 				AD8EF4A701C10E1634387601 /* LaneShadowStories.swift in Sources */,
 				58B9F2B1A10000000000000E /* AtomsStories.swift in Sources */,
 				INFOTOASTBUILD19DA81322E4 /* InfoToast.swift in Sources */,
+				44631CF3F12CB71F56F331C2 /* MarkdownText.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -526,7 +530,7 @@
 		};
 		CFDF619F02AFB83170AAE277 /* XCLocalSwiftPackageReference "ios" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../native-sandbox/ios;
+			relativePath = "../../native-sandbox/ios";
 		};
 /* End XCLocalSwiftPackageReference section */
 
