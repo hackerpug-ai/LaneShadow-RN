@@ -23,6 +23,13 @@ pre-commit:
       glob: "*.{js,jsx,ts,tsx,json,jsonc}"
       run: pnpm exec biome check --no-errors-on-unmatched {staged_files}
 
+    # Ruff: lint + format for Python (scripts/curation/).
+    # Install: `uv tool install ruff` or `brew install ruff`
+    # Config: scripts/curation/pyproject.toml [tool.ruff]
+    - name: ruff
+      glob: "scripts/curation/**/*.py"
+      run: ruff check --force-exclude {staged_files}
+
     # SwiftFormat: format Swift files in ios/ only.
     # ios/ is gitignored (Expo prebuild), so this only fires if you add custom Swift files
     # outside ios/ or un-gitignore the folder. Config: .swiftformat
