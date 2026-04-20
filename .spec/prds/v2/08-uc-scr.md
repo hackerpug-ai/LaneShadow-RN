@@ -24,6 +24,8 @@ All six screens share the `LSMapLayer` organism (UC-ORG-02) as their canvas — 
 
 ## UC-SCR-01 — `IdleScreen`
 
+> **Design reference:** [`concepts/uc-scr-01-idle.html`](concepts/uc-scr-01-idle.html) — complete visual writeout showing rendered DOM examples of the Idle screen with map, greeting overlay (opinion-serif headline with italicized "today"), TopBar glass chrome, and ChatInput with suggestion chips + location badge. Use the visual examples to understand full-screen composition and overlay positioning; do NOT copy the HTML wholesale. Extract screen layout, overlay stacking, and token mappings into native screen implementations.
+
 The dormant-Navigator home screen. Seen when the rider opens the app with no active session. Map-primary; favorites shown; no polyline; Navigator listens via suggestion chips + chat input.
 
 Composition (via `LSMapLayer`):
@@ -49,6 +51,8 @@ Mock provider: `IdleMockProvider` produces `{ greeting: Greeting, location: Loca
 
 ## UC-SCR-02 — `PlanningScreen`
 
+> **Design reference:** [`concepts/uc-scr-02-planning.html`](concepts/uc-scr-02-planning.html) — complete visual writeout showing rendered DOM examples of the Planning screen with sketching polyline animation, PhaseIndicator with active step pulsing, and thinking-state ChatInput with spinner. Use the visual examples to understand the planning-phase visual narrative; do NOT copy the HTML wholesale. Extract animation references, phase step layout, and token mappings into native screen implementations.
+
 The Navigator is thinking. A sketching polyline animation draws continuously on the paper map; the phase indicator shows which step of the planning pipeline is active; the chat input is disabled (`isThinking: true`) with the rider's prompt visible.
 
 Composition (via `LSMapLayer`):
@@ -71,6 +75,8 @@ Mock provider: `PlanningMockProvider` produces `{ prompt: String, phases: [Plann
 ---
 
 ## UC-SCR-03 — `RouteResultsScreen`
+
+> **Design reference:** [`concepts/uc-scr-03-route-results.html`](concepts/uc-scr-03-route-results.html) — complete visual writeout showing rendered DOM examples of the RouteResults screen with three concurrent polylines (best/alt1/alt2), NavigatorMessage with attached route cards, and refine-prompt ChatInput. Use the visual examples to understand multi-polyline rendering and message-with-attachments composition; do NOT copy the HTML wholesale. Extract polyline variant colors, card stacking, and token mappings into native screen implementations.
 
 Navigator has responded with three alternatives. The map shows three concurrent polylines (best / alt1 / alt2) drawn on via `motion.recipe.routeDrawOn`; the Navigator message overlay holds the response body and three compact attached route cards; the chat input is available for refinement.
 
@@ -95,6 +101,8 @@ Mock provider: `RouteResultsMockProvider` produces `{ message: NavigatorMessage,
 
 ## UC-SCR-04 — `RouteDetailsScreen`
 
+> **Design reference:** [`concepts/uc-scr-04-route-details.html`](concepts/uc-scr-04-route-details.html) — complete visual writeout showing rendered DOM examples of the RouteDetails screen with single best-variant polyline, RouteSheet bottom sheet with best badge, instrument readout, weather timeline, and Save/Ride this action row. Use the visual examples to understand the details-screen sheet composition; do NOT copy the HTML wholesale. Extract sheet detent behavior, metric grid, and token mappings into native screen implementations.
+
 The rider picked a route. The map shows just that route (best variant); the bottom sheet shows full metrics and weather; the action row lets them save or ride.
 
 Composition (via `LSMapLayer`):
@@ -116,6 +124,8 @@ Mock provider: `RouteDetailsMockProvider` produces `{ route: RouteDetails, weath
 ---
 
 ## UC-SCR-05 — `SessionsScreen`
+
+> **Design reference:** [`concepts/uc-scr-05-sessions.html`](concepts/uc-scr-05-sessions.html) — complete visual writeout showing rendered DOM examples of the Sessions screen with scrimmed map, left-anchored SessionsDrawer with grouped session rows and active-session stripe. Use the visual examples to understand the drawer-over-map composition and scrim behavior; do NOT copy the HTML wholesale. Extract drawer slide-in animation, session row styling, and token mappings into native screen implementations.
 
 Conversation history. The map is dimmed; the left drawer shows this week's sessions with the active one stripe-highlighted.
 
@@ -140,6 +150,8 @@ Mock provider: `SessionsMockProvider` produces `{ sessions: [Session], activeSes
 ---
 
 ## UC-SCR-06 — `ErrorScreen`
+
+> **Design reference:** [`concepts/uc-scr-06-error.html`](concepts/uc-scr-06-error.html) — complete visual writeout showing rendered DOM examples of the Error screen with InlineErrorCallout (warning-stripe, Navigator body, detail text, suggestion chips) and recovery ChatInput. Use the visual examples to understand error-state composition and recovery flow; do NOT copy the HTML wholesale. Extract callout styling, suggestion chip layout, and token mappings into native screen implementations.
 
 Navigator couldn't fulfill the request. Inline recovery callout with suggestions + chat input for the rider to try again.
 

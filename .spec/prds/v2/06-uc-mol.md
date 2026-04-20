@@ -24,6 +24,8 @@ Molecules compose atoms into small, reusable patterns. A molecule **must not** i
 
 ## UC-MOL-01 — Card + ListRow molecules
 
+> **Design reference:** [`concepts/uc-mol-01-card-listrow.html`](concepts/uc-mol-01-card-listrow.html) — complete visual writeout showing rendered DOM examples of `LSContentCard` (with image header, title-only, title+subtitle+chips, with actions) and `LSListRow` (with leading icon, leading avatar, subtitle, toggle, chevron, trailing button). Use the visual examples to understand card/row layout composition and atom delegation; do NOT copy the HTML wholesale. Extract layout patterns, spacing, and token mappings into native molecule implementations.
+
 Deliver `LSContentCard` (structured card wrapping `LSCard`: optional header slot, title row, subtitle row, metadata row, optional action footer) and `LSListRow` (horizontal row with leading content — icon or avatar — title + optional subtitle stack, trailing content — icon, chevron, toggle, or button). Minimum touch target for interactive `LSListRow`.
 
 ### Acceptance Criteria
@@ -39,6 +41,8 @@ Deliver `LSContentCard` (structured card wrapping `LSCard`: optional header slot
 
 ## UC-MOL-02 — Toolbar + NavHeader molecules
 
+> **Design reference:** [`concepts/uc-mol-02-toolbar-navheader.html`](concepts/uc-mol-02-toolbar-navheader.html) — complete visual writeout showing rendered DOM examples of `LSToolbar` (back+title+action, title only, title+two actions, no back button) and `LSNavHeader` (default, large title, large title with subtitle). Use the visual examples to understand toolbar slot layout and large-title behavior; do NOT copy the HTML wholesale. Extract slot composition, safe-area handling, and token mappings into native molecule implementations.
+
 Deliver `LSToolbar` (top bar for app screens) and `LSNavHeader` (screen-level header with optional large-title variant for iOS large-title behavior on scroll). Both expose leading / title / trailing slots; chrome colors from `color.surface.*` and content from `color.content.*`. Height `sizing.component.toolbarHeight`. Respect safe areas / window insets.
 
 ### Acceptance Criteria
@@ -52,6 +56,8 @@ Deliver `LSToolbar` (top bar for app screens) and `LSNavHeader` (screen-level he
 ---
 
 ## UC-MOL-03 — BottomSheet + Toast + Modal molecules
+
+> **Design reference:** [`concepts/uc-mol-03-bottomsheet-toast-modal.html`](concepts/uc-mol-03-bottomsheet-toast-modal.html) — complete visual writeout showing rendered DOM examples of `LSBottomSheet` (small/medium/large detents), `LSToast` (all status variants), and `LSModal` (dialog with action buttons) with enter/exit animation states. Use the visual examples to understand overlay composition and motion choreography; do NOT copy the HTML wholesale. Extract detent sizing, animation tokens, and status color mappings into native molecule implementations.
 
 Deliver `LSBottomSheet` (bottom-anchored sheet with drag handle, token-driven surface, content slot; supports three detents `small` ≈25%, `medium` ≈50%, `large` ≈90%), `LSToast` (transient top/bottom message with `default / success / warning / error` variants from `color.status.*`, auto-dismissing after `motion.recipe.chatOverlayDismiss` timing), `LSModal` (center-anchored card dialog with title, body, optional two-button action row). All three use TOK motion recipes for enter/exit animations.
 
@@ -68,6 +74,8 @@ Deliver `LSBottomSheet` (bottom-anchored sheet with drag handle, token-driven su
 
 ## UC-MOL-04 — FormField + TabItem + EmptyState molecules
 
+> **Design reference:** [`concepts/uc-mol-04-formfield-tabitem-emptystate.html`](concepts/uc-mol-04-formfield-tabitem-emptystate.html) — complete visual writeout showing rendered DOM examples of `LSFormField` (default/focused/error states), `LSTabItem` (selected/unselected), and `LSEmptyState` (with/without illustration, with action button). Use the visual examples to understand form field stacking, tab indicator styling, and empty-state centering; do NOT copy the HTML wholesale. Extract spacing, state-dependent styling, and token mappings into native molecule implementations.
+
 Deliver `LSFormField` (label + input atom + helper/error text, vertically stacked with `spacing.2`), `LSTabItem` (single tab — icon + label + selected-state indicator), and `LSEmptyState` (centered composition with optional illustration slot, title, body, action button).
 
 ### Acceptance Criteria
@@ -81,6 +89,8 @@ Deliver `LSFormField` (label + input atom + helper/error text, vertically stacke
 ---
 
 ## UC-MOL-05 — Pill semantics family (TagPill / FilterChip / SuggestionChip / WeatherBadge)
+
+> **Design reference:** [`concepts/uc-mol-05-pill-family.html`](concepts/uc-mol-05-pill-family.html) — complete visual writeout showing rendered DOM examples of all four semantic pill molecules: `LSTagPill`, `LSFilterChip` (selected/unselected), `LSSuggestionChip`, and `LSWeatherBadge` (all six weather conditions × two sizes). Use the visual examples to understand pill semantics, interaction states, and weather color resolution; do NOT copy the HTML wholesale. Extract semantic color mappings and interaction patterns into native molecule implementations.
 
 Deliver four semantic molecules composing `LSPill` (UC-ATM-06):
 
@@ -101,6 +111,8 @@ Deliver four semantic molecules composing `LSPill` (UC-ATM-06):
 ---
 
 ## UC-MOL-06 — ChatInput molecule (`LSChatInput`)
+
+> **Design reference:** [`concepts/uc-mol-06-chatinput.html`](concepts/uc-mol-06-chatinput.html) — complete visual writeout showing rendered DOM examples of the chat input bar in all states: default (empty with sliders icon), with text (send shown), thinking (spinner), disabled, with suggestion chips, and with location badge. Use the visual examples to understand the glass-panel input bar composition, icon swapping behavior, and chip row layout; do NOT copy the HTML wholesale. Extract slot composition, state transitions, and token mappings into native molecule implementations.
 
 Deliver `LSChatInput` — the pinned chat input at the bottom of every Navigator screen that has one. Signature:
 
@@ -143,6 +155,8 @@ Composition (bottom → top, layered):
 
 ## UC-MOL-07 — Navigator molecules (PhaseIndicator / WeatherTimeline / InstrumentReadout)
 
+> **Design reference:** [`concepts/uc-mol-07-navigator-molecules.html`](concepts/uc-mol-07-navigator-molecules.html) — complete visual writeout showing rendered DOM examples of `LSPhaseIndicator` (with compass chip, header, phase dots per state), `LSWeatherTimeline` (6-cell grid with per-condition tinted backgrounds), and `LSInstrumentReadout` (4-column metric grid with dividers). Use the visual examples to understand Navigator-specific composition patterns; do NOT copy the HTML wholesale. Extract layout structure, animation references, and token mappings into native molecule implementations.
+
 Three Navigator-specific molecules that embed domain structure once so organisms don't re-implement it.
 
 - **`LSPhaseIndicator(phases: [PlanningPhase], header: String = "Let me think on that…")`** — vertical stack: a leading row with a compass chip (`LSIcon(.compass, color: .signal)` inside an `LSPill(size: .sm)` backed by `color.signal.default` tinted at 22%) + header in `typography.opinion.md`; followed by a vertical list of steps, each a `LSPhaseDot(state:)` + step label in `typography.instrument.sm` (mono) + `color.content.{text|textSubtle}` by state.
@@ -159,6 +173,8 @@ Three Navigator-specific molecules that embed domain structure once so organisms
 ---
 
 ## UC-MOL-08 — LocationContextBar + RouteAttachmentCard molecules
+
+> **Design reference:** [`concepts/uc-mol-08-location-route.html`](concepts/uc-mol-08-location-route.html) — complete visual writeout showing rendered DOM examples of `LSLocationContextBar` (location + mode pills row) and `LSRouteAttachmentCard` (compact and full variants with route-variant leading stripe, scenic dot meter, best badge, weather badge). Use the visual examples to understand route card composition and variant stripe coloring; do NOT copy the HTML wholesale. Extract layout patterns, stripe color resolution, and token mappings into native molecule implementations.
 
 Two molecules used by the Navigator screens.
 

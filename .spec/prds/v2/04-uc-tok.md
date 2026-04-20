@@ -21,6 +21,8 @@ The TOK group establishes the single canonical source of design values for V2 Na
 
 ## UC-TOK-01 — Typography families (opinion / ui / instrument)
 
+> **Design reference:** [`concepts/uc-tok-01-typography.html`](concepts/uc-tok-01-typography.html) — complete visual writeout showing rendered DOM examples of all three typography families across every size variant, weight, and line height. Use the visual examples to understand how each variant should render; do NOT copy the HTML wholesale. Extract typographic patterns and translate them into native design tokens.
+
 Establish three semantic typography families in `tokens/semantic/semantic.tokens.json`. Each family has an explicit **role** — not a generic size scale — so downstream components can refer to typography by what it says, not how big it is.
 
 - **`typography.opinion.{md,lg,xl}`** — Newsreader serif, italic-capable, used for Navigator voice: greetings, opinionated headings, callout bodies (e.g., "Where are we riding today?", "Let me think on that…").
@@ -40,6 +42,8 @@ Each variant is a `TypographyStyle` composed of `family`, `weight`, `size`, `lin
 ---
 
 ## UC-TOK-02 — Color semantics (surface / signal / role / weather / route / status)
+
+> **Design reference:** [`concepts/uc-tok-02-colors.html`](concepts/uc-tok-02-colors.html) — complete visual writeout showing rendered DOM swatches for all color tokens in light and dark modes. Use the visual examples to understand color relationships and semantic groupings; do NOT copy the HTML wholesale. Extract color values and mappings into native token definitions.
 
 Establish the complete color token surface of V2 in DTCG `{$type: "color", $value: "#..."}` format. Tokens are grouped by semantic role (not palette role) so that consumers reference intent (e.g., `color.weather.rain.default`) rather than hue. Every token has both light and dark variants. The Copper palette drives `color.signal.*`; the warm-paper topographic aesthetic drives `color.surface.*`.
 
@@ -68,6 +72,8 @@ Namespaces:
 
 ## UC-TOK-03 — Spacing, sizing, stroke, radius, opacity, elevation tokens
 
+> **Design reference:** [`concepts/uc-tok-03-dimensions.html`](concepts/uc-tok-03-dimensions.html) — complete visual writeout showing rendered DOM examples of spacing scales, sizing, stroke widths, radius values, opacity levels, and elevation tiers with visual shadows. Use the visual examples to understand spatial relationships; do NOT copy the HTML wholesale. Extract numeric scales into native dimension tokens.
+
 Define numeric scales. Spacing uses a 4px base with named rungs (`spacing.0` through `spacing.12` = 0, 2, 4, 8, 12, 16, 20, 24, 32, 40, 48, 56, 64). Sizing covers minimum touch target (44px iOS / 48dp Android), icon sizes (xs/sm/md/lg/xl), and component heights (`buttonHeight`, `inputHeight`, `toolbarHeight`). Stroke covers polyline and icon stroke widths (`sizing.stroke.{sm,md,lg}` + `icon.stroke.width` = 1.5px). Radius covers `none`, `xs`, `sm`, `md`, `lg`, `xl`, `pill`. Opacity covers `disabled`, `overlay`, `focus`, `dim`, `veil`. Elevation covers `0` / `1` / `2` / `3` plus a dedicated `overlay` tier used by sheets, drawers, and glass callouts.
 
 ### Acceptance Criteria
@@ -83,6 +89,8 @@ Define numeric scales. Spacing uses a 4px base with named rungs (`spacing.0` thr
 ---
 
 ## UC-TOK-04 — Motion recipes + primitive duration/easing
+
+> **Design reference:** [`concepts/uc-tok-04-motion.html`](concepts/uc-tok-04-motion.html) — complete visual writeout showing animated DOM demos of the eight named motion recipes with duration, easing curves, and gradient tokens. Use the animated examples to understand the motion feel and choreography; do NOT copy the HTML wholesale. Extract timing values and easing curves into native animation tokens.
 
 Motion is declared at **two levels**: primitives (durations + easings) and **recipes** (named composite motions the design source enumerates). Downstream components consume *recipes*, not primitives — this prevents drift and makes "which animation is this?" a grep-able question.
 
@@ -113,6 +121,8 @@ Gradient tokens retained (`gradient.copperWarm`, `gradient.copperNight`, `gradie
 ---
 
 ## UC-TOK-05 — Cross-platform token generation pipeline + icon catalog + Mapbox style URLs
+
+> **Design reference:** [`concepts/uc-tok-05-pipeline.html`](concepts/uc-tok-05-pipeline.html) — complete visual writeout showing the token generation pipeline output, icon catalog, and font asset registration examples. Use the visual examples to understand the cross-platform output structure; do NOT copy the HTML wholesale. Extract pipeline conventions into native codegen tooling.
 
 A deterministic pipeline converts `semantic.tokens.json` plus the SVG icon catalog and font assets into three platform outputs:
 

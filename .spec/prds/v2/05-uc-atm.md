@@ -29,6 +29,8 @@ Atoms are the smallest typed UI primitives. Every atom consumes only TOK-generat
 
 ## UC-ATM-01 — Typography atoms (`LSText` across opinion / ui / instrument)
 
+> **Design reference:** [`concepts/uc-atm-01-text.html`](concepts/uc-atm-01-text.html) — complete visual writeout showing rendered DOM examples of the `LSText` atom across all three typography families, size variants, weights, and color overrides in both light and dark modes. Use the visual examples to understand how each variant renders and how atoms compose; do NOT copy the HTML wholesale. Extract typographic patterns, spacing, and color mappings into native atom implementations.
+
 Deliver a single `LSText` atom that takes a string and a variant mapping to one of the three typography families (UC-TOK-01). Variants are exhaustively typed so downstream code cannot pass arbitrary strings.
 
 iOS API: `LSText("Hello", variant: .ui.body.md)`, `.opinion.xl`, `.instrument.lg`.
@@ -50,6 +52,8 @@ Accessibility: Dynamic Type on iOS, font-scale on Android. Color override is a `
 
 ## UC-ATM-02 — Button atom (all variants + states)
 
+> **Design reference:** [`concepts/uc-atm-02-button.html`](concepts/uc-atm-02-button.html) — complete visual writeout showing rendered DOM examples of `LSButton` across all six variants × five interactive states with color mappings, sizing, and icon slots. Use the visual examples to understand button styling and state transitions; do NOT copy the HTML wholesale. Extract variant×state color matrices, sizing, and spacing into native atom implementations.
+
 Deliver a single `LSButton` atom on both platforms covering six variants (`primary`, `secondary`, `ghost`, `accept`, `destructive`, `outline`) and five interactive states (`default`, `hover`, `pressed`, `disabled`, `focus`). Minimum height `sizing.component.buttonHeight`. Minimum touch target `sizing.touchTarget`. Background/foreground/border resolve from `color.action.*` per variant×state matrix. Corner radius `radius.md`. Internal horizontal padding `spacing.4`. Accepts an optional `icon: IconName?` (leading or trailing slot) resolving through `LSIcon` (UC-ATM-10).
 
 ### Acceptance Criteria
@@ -66,6 +70,8 @@ Deliver a single `LSButton` atom on both platforms covering six variants (`prima
 
 ## UC-ATM-03 — Input atoms (`LSTextField`, `LSTextArea`)
 
+> **Design reference:** [`concepts/uc-atm-03-input.html`](concepts/uc-atm-03-input.html) — complete visual writeout showing rendered DOM examples of input atoms across all visual states (default, focused, error, disabled) with icon slots and padding. Use the visual examples to understand input styling and state-dependent border/background behavior; do NOT copy the HTML wholesale. Extract state×style mappings into native atom implementations.
+
 Deliver `LSTextField` (single-line) and `LSTextArea` (multi-line, auto-growing up to `maxRows`). Both expose four visual states: `default`, `focused`, `error`, `disabled`. Padding `spacing.3`, border radius `radius.sm`, border colors resolve from `color.border.*`. Both support leading/trailing icon slots from UC-ATM-10.
 
 ### Acceptance Criteria
@@ -80,6 +86,8 @@ Deliver `LSTextField` (single-line) and `LSTextArea` (multi-line, auto-growing u
 ---
 
 ## UC-ATM-04 — Base display atoms (Avatar, Divider, Spinner)
+
+> **Design reference:** [`concepts/uc-atm-04-display.html`](concepts/uc-atm-04-display.html) — complete visual writeout showing rendered DOM examples of Avatar (all sizes, image + initials fallback), Divider, and Spinner atoms. Use the visual examples to understand sizing variants and color resolution; do NOT copy the HTML wholesale. Extract sizing scales and token mappings into native atom implementations.
 
 Deliver three small display atoms bundled together because they share token patterns and zero interaction semantics.
 
@@ -98,6 +106,8 @@ Deliver three small display atoms bundled together because they share token patt
 ---
 
 ## UC-ATM-05 — Surface trio (`LSCard`, `LSPanel`, `LSGlassPanel`)
+
+> **Design reference:** [`concepts/uc-atm-05-surfaces.html`](concepts/uc-atm-05-surfaces.html) — complete visual writeout showing rendered DOM examples of all three surface atoms (elevated card, flat panel, translucent glass-panel) in both light and dark modes, with chrome and callout variants for the glass panel. Use the visual examples to understand elevation, blur, and leading-stripe styling; do NOT copy the HTML wholesale. Extract surface token mappings, elevation tiers, and blur effects into native atom implementations.
 
 Deliver three container atoms.
 
@@ -122,6 +132,8 @@ All three atoms expose a content slot (SwiftUI `ViewBuilder` / Compose `content:
 
 ## UC-ATM-06 — Pill atom (`LSPill`)
 
+> **Design reference:** [`concepts/uc-atm-06-pill.html`](concepts/uc-atm-06-pill.html) — complete visual writeout showing rendered DOM examples of the pill-shaped container primitive at all three sizes with various content compositions (icon+label, icon only, label only). Use the visual examples to understand pill sizing and shape; do NOT copy the HTML wholesale. Extract height, padding, and radius token mappings into native atom implementations.
+
 Deliver `LSPill(size: .sm | .md | .lg, padding?, content)` — a pill-shaped container primitive. Not interactive on its own; semantic interaction (filter toggling, suggestion primer tap, weather readout) is layered by the molecules in UC-MOL-05.
 
 Resolves: corner radius `radius.pill`, height per size (`24 / 32 / 40` — expressed as `sizing.pill.{sm,md,lg}` tokens), padding per size, no default background/border (inherits from content).
@@ -135,6 +147,8 @@ Resolves: corner radius `radius.pill`, height per size (`24 / 32 / 40` — expre
 ---
 
 ## UC-ATM-07 — Badge atom (`LSBadge` + `LSBestBadge`)
+
+> **Design reference:** [`concepts/uc-atm-07-badge.html`](concepts/uc-atm-07-badge.html) — complete visual writeout showing rendered DOM examples of status badges, weather badges (all six conditions), and the `LSBestBadge` sub-variant. Use the visual examples to understand badge coloring, sizing, and icon placement; do NOT copy the HTML wholesale. Extract status/weather color mappings into native atom implementations.
 
 Deliver `LSBadge(count: Int? = nil, label: String? = nil, variant: BadgeVariant)` where `BadgeVariant` is the union of `status.*` (`info / success / warning / error / recording`) **and** `weather.*` (`clear / rain / wind / storm / hot / cold`). Status variants resolve backgrounds + foregrounds from `color.status.*`; weather variants resolve from `color.weather.*.tint` (background), `color.weather.*.default` (foreground + border). Rendered as an `LSPill(size: .sm)` composition.
 
@@ -151,6 +165,8 @@ Also deliver `LSBestBadge` — a typed sub-variant (not a variant of `LSBadge`) 
 
 ## UC-ATM-08 — PhaseDot atom (`LSPhaseDot`)
 
+> **Design reference:** [`concepts/uc-atm-08-phasedot.html`](concepts/uc-atm-08-phasedot.html) — complete visual writeout showing rendered DOM examples of the three-state PhaseDot (pending, active with ring-pulse animation, done). Use the visual examples to understand the dot sizing, color per state, and pulse animation behavior; do NOT copy the HTML wholesale. Extract state×color mappings and animation parameters into native atom implementations.
+
 Deliver `LSPhaseDot(state: .pending | .active | .done)` — a 10px dot atom with typed state. `.pending` renders a hollow dot bordered with `color.border.strong`. `.active` renders filled with `color.signal.default` AND animates a concentric ring pulse per `motion.recipe.phaseDotPulse`. `.done` renders filled with `color.status.success.default`.
 
 ### Acceptance Criteria
@@ -164,6 +180,8 @@ Deliver `LSPhaseDot(state: .pending | .active | .done)` — a 10px dot atom with
 
 ## UC-ATM-09 — Scrim atom (`LSScrim`)
 
+> **Design reference:** [`concepts/uc-atm-09-scrim.html`](concepts/uc-atm-09-scrim.html) — complete visual writeout showing rendered DOM examples of the scrim overlay at various opacity levels and in blocking vs pass-through modes. Use the visual examples to understand scrim behavior as a map dimmer; do NOT copy the HTML wholesale. Extract opacity values and color mappings into native atom implementations.
+
 Deliver `LSScrim(opacity: Double = 0.35)` — a full-screen (or full-parent) color overlay using `color.surface.scrim`. Taps pass through unless a consumer opts into blocking. Consumed by `LSSessionsDrawer` (0.35 per design) and modal-tier organisms.
 
 ### Acceptance Criteria
@@ -175,6 +193,8 @@ Deliver `LSScrim(opacity: Double = 0.35)` — a full-screen (or full-parent) col
 ---
 
 ## UC-ATM-10 — Icon atom (`LSIcon`) — design-owned SVG catalog
+
+> **Design reference:** [`concepts/uc-atm-10-icon.html`](concepts/uc-atm-10-icon.html) — complete visual writeout showing rendered DOM examples of the 25-icon catalog at all size variants with color overrides. Use the visual examples to understand icon stroke style, sizing, and color resolution; do NOT copy the HTML wholesale. Extract icon names, stroke width, and sizing mappings into native atom implementations.
 
 Deliver a design-owned SVG icon catalog at `tokens/icons/*.svg` rendered via `LSIcon(name: IconName, size: IconSize, color: ContentColor = .primary)`. The 25-name catalog is:
 
@@ -195,6 +215,8 @@ Generation: `pnpm tokens:generate` emits a typed `IconName` enum on both platfor
 ---
 
 ## UC-ATM-11 — `LSMap` shared contract (multi-polyline, route variants)
+
+> **Design reference:** [`concepts/uc-atm-11-map-contract.html`](concepts/uc-atm-11-map-contract.html) — complete visual writeout showing rendered DOM examples of the cross-platform map contract including multi-polyline rendering, route variant colors, annotation kinds, and camera fit modes. Use the visual examples to understand map composition and token resolution; do NOT copy the HTML wholesale. Extract API shapes, token references, and fixture conventions into native implementations.
 
 Establish the cross-platform contract for both map implementations. This UC lands **before** UC-ATM-12 and UC-ATM-13 and contains no SDK integration — it defines the shape of `LSMap` so the two platform implementations can proceed in parallel without drifting.
 
@@ -226,6 +248,8 @@ Establish the cross-platform contract for both map implementations. This UC land
 
 ## UC-ATM-12 — `LSMap` iOS implementation (Mapbox Maps SDK for iOS)
 
+> **Design reference:** [`concepts/uc-atm-12-map-ios.html`](concepts/uc-atm-12-map-ios.html) — complete visual writeout showing rendered DOM examples of the iOS Mapbox implementation with Copper Studio styles, multi-polyline rendering, annotations, and error fallback states. Use the visual examples to understand the iOS-specific rendering behavior; do NOT copy the HTML wholesale. Extract platform-specific patterns into native implementation.
+
 Full iOS implementation behind the UC-ATM-11 contract using the [Mapbox Maps SDK for iOS](https://docs.mapbox.com/ios/maps/guides/). Replaces the iOS stub with a production `UIViewRepresentable`-backed SwiftUI wrapper that loads the Copper Studio style, renders **multiple** polylines with per-variant colors, renders annotations, honors preview vs interactive mode, handles errors gracefully, and is covered by XCTest. **Depends on UC-ATM-11.** Parallel to UC-ATM-13. **Out of scope**: offline packs, turn-by-turn nav, geocoding, 3D terrain, traffic.
 
 ### Acceptance Criteria
@@ -246,6 +270,8 @@ Full iOS implementation behind the UC-ATM-11 contract using the [Mapbox Maps SDK
 ---
 
 ## UC-ATM-13 — `LSMap` Android implementation (Mapbox Maps SDK for Android)
+
+> **Design reference:** [`concepts/uc-atm-13-map-android.html`](concepts/uc-atm-13-map-android.html) — complete visual writeout showing rendered DOM examples of the Android Mapbox implementation with Copper Studio styles, multi-polyline rendering, annotations, and error fallback states. Use the visual examples to understand the Android-specific rendering behavior; do NOT copy the HTML wholesale. Extract platform-specific patterns into native implementation.
 
 Full Android implementation behind the UC-ATM-11 contract using the [Mapbox Maps SDK for Android](https://docs.mapbox.com/android/maps/guides/). Replaces the Android stub with a production `AndroidView`-backed Compose wrapper that loads the Copper Studio style, renders **multiple** polylines with per-variant colors, renders annotations, honors preview vs interactive mode, handles errors gracefully, and is covered by JUnit + Compose UI tests. **Depends on UC-ATM-11.** Parallel to UC-ATM-12. **Out of scope**: offline packs, turn-by-turn nav, geocoding, 3D terrain, traffic.
 

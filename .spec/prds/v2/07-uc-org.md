@@ -23,6 +23,8 @@ Organisms embed feature-domain concepts (Navigator conversations, routes, sessio
 
 ## UC-ORG-01 — Navigation organisms (`LSTopBar` + `LSNavBar`)
 
+> **Design reference:** [`concepts/uc-org-01-topbar-navbar.html`](concepts/uc-org-01-topbar-navbar.html) — complete visual writeout showing rendered DOM examples of `LSTopBar` (default with hamburger+NEW chips, with centered title, record highlight variant) and `LSNavBar` (modal-sheet navigation bar). Use the visual examples to understand glass-panel chrome composition and translucent+blurred styling; do NOT copy the HTML wholesale. Extract slot layouts, chip composition, and token mappings into native organism implementations.
+
 Deliver two top-chrome organisms consumed across the Navigator screens.
 
 **`LSTopBar`** — the primary chrome used on Idle / Planning / RouteResults / RouteDetails / Error. Positioned at top of screen (respecting safe area / status bar). Slot API:
@@ -56,6 +58,8 @@ Every chip consumes `LSGlassPanel(.chrome)` so they visually match the design's 
 
 ## UC-ORG-02 — `LSMapLayer` organism
 
+> **Design reference:** [`concepts/uc-org-02-maplayer.html`](concepts/uc-org-02-maplayer.html) — complete visual writeout showing rendered DOM examples of the map-primary canvas with all overlay slots populated: scrim, top overlays, bottom overlays, leading drawer, bottom sheet, and top bar. Use the visual examples to understand z-order stacking, safe-area padding, and slot composition; do NOT copy the HTML wholesale. Extract z-order contract, slot API patterns, and token mappings into native organism implementations.
+
 Deliver the map-primary canvas used by every Navigator screen. It solves positioning / z-index / safe-area / overlay stacking once so screens don't re-implement it.
 
 Signature:
@@ -87,6 +91,8 @@ Z-order bottom-to-top: map → scrim → top/bottom overlays (together) → shee
 ---
 
 ## UC-ORG-03 — `LSNavigatorMessage` + `LSInlineErrorCallout`
+
+> **Design reference:** [`concepts/uc-org-03-navigator-message-error-callout.html`](concepts/uc-org-03-navigator-message-error-callout.html) — complete visual writeout showing rendered DOM examples of `LSNavigatorMessage` (with/without attachments, pinned/unpinned, signal-stripe callout) and `LSInlineErrorCallout` (warning-stripe with detail and suggestion chips). Use the visual examples to understand callout composition, attached route card stacking, and auto-dismiss behavior; do NOT copy the HTML wholesale. Extract callout layout patterns, motion references, and token mappings into native organism implementations.
 
 Two Navigator-specific callout organisms.
 
@@ -141,6 +147,8 @@ Composition:
 
 ## UC-ORG-04 — `LSRouteSheet` organism
 
+> **Design reference:** [`concepts/uc-org-04-route-sheet.html`](concepts/uc-org-04-route-sheet.html) — complete visual writeout showing rendered DOM examples of the route details bottom sheet with drag handle, best badge, opinion-serif title, instrument readout, weather timeline, and sticky action row (Save/Ride this). Use the visual examples to understand sheet composition and molecule delegation; do NOT copy the HTML wholesale. Extract sheet layout structure, detent sizing, and token mappings into native organism implementations.
+
 Deliver the RouteDetails bottom sheet composed from the molecules defined in UC-MOL-07/08.
 
 Signature:
@@ -174,6 +182,8 @@ Presented via `LSBottomSheet` (UC-MOL-03) with `.large` detent by default. Enter
 ---
 
 ## UC-ORG-05 — `LSSessionsDrawer` organism
+
+> **Design reference:** [`concepts/uc-org-05-sessions-drawer.html`](concepts/uc-org-05-sessions-drawer.html) — complete visual writeout showing rendered DOM examples of the left-anchored sessions drawer with grouped session rows, active-session stripe highlighting, sticky header with NEW button, and scroll behavior. Use the visual examples to understand drawer composition and session row styling; do NOT copy the HTML wholesale. Extract drawer width, row layout, active-state styling, and token mappings into native organism implementations.
 
 Deliver the left-anchored conversation-history drawer shown on SessionsScreen.
 
@@ -216,6 +226,8 @@ Presentation: lives inside `LSMapLayer.leadingDrawer` slot so positioning + scri
 
 ## UC-ORG-06 — `LSRouteCard` domain organism
 
+> **Design reference:** [`concepts/uc-org-06-route-card.html`](concepts/uc-org-06-route-card.html) — complete visual writeout showing rendered DOM examples of the full route card organism with map preview, polyline rendering, title/subtitle rows, difficulty tags, and saved-state accent. Use the visual examples to understand the full card composition with embedded map; do NOT copy the HTML wholesale. Extract card layout, map preview sizing, and token mappings into native organism implementations.
+
 Deliver a full route-card organism used in catalog views and as a referenceable domain composition. Unlike `LSRouteAttachmentCard` (compact, UC-MOL-08), `LSRouteCard` is the full card:
 
 - `LSCard` wrapper.
@@ -233,6 +245,8 @@ Deliver a full route-card organism used in catalog views and as a referenceable 
 ---
 
 ## UC-ORG-07 — `LSSectionHeader` organism
+
+> **Design reference:** [`concepts/uc-org-07-section-header.html`](concepts/uc-org-07-section-header.html) — complete visual writeout showing rendered DOM examples of section headers with title only, title + "See all" link, caps-label style, and custom inset variants. Use the visual examples to understand section header layout and trailing link styling; do NOT copy the HTML wholesale. Extract title/spacing patterns and token mappings into native organism implementations.
 
 Deliver `LSSectionHeader` for in-screen group titles (used by `LSSessionsDrawer` and catalog views).
 
