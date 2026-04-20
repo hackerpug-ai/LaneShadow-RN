@@ -65,6 +65,13 @@ public struct LSIconSymbol: View {
         "bell-outline": "bell",
         "information": "info.circle",
         "wifi-off": "wifi.slash",
+        // Map controls icons
+        "crosshairs-gps": "crosshair.circle",
+        "layers": "square.stack.3d.up",
+        "bookmark": "bookmark",
+        "bookmark-outline": "bookmark",
+        "message-text-outline": "bubble.left.and.bubble.right",
+        "map-outline": "map",
         // Weather icons
         "weather-sunny": "sun.max.fill",
         "weather-rainy": "cloud.rain.fill",
