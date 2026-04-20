@@ -42,6 +42,25 @@
   --elev-chrome:       0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
 }
 
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+
 body {
   font-family: var(--font-ui); color: var(--content-primary);
   background: var(--surface-primary); -webkit-font-smoothing: antialiased;
@@ -736,6 +755,160 @@ body {
         <li><strong>AC-08</strong> pnpm tokens:validate exits zero errors</li>
       </ul>
     </div>
+  </div>
+</div>
+</div>
+
+<!-- §07 DARK MODE -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§07</div><h2 class="section-title">Dark <em>surfaces</em></h2></div>
+  <p class="prose" style="margin-bottom: 40px;">Dimension tokens are unit values — they carry no color. The dark showcase confirms that spacing rulers, sizing circles, radius boxes, and elevation cards all remain visible and readable on warm-ink surfaces.</p>
+
+  <h3 style="margin-left: 152px; margin-bottom: 32px; font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);">Dimension Scales — Dark</h3>
+
+  <div class="dim-content mode-dark" style="background: var(--ink-800); padding: 48px 56px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.42);">
+
+    <!-- Spacing ruler -->
+    <div class="sub-header">spacing.* — rulers on dark surface</div>
+    <div class="spacing-ruler-block" style="margin-bottom: 40px;">
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.3</span><span>8px — standard gap</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:12.5%;"></div></div>
+        <div class="spacing-px">8px</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.5</span><span>16px — inset padding md</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:25%;"></div></div>
+        <div class="spacing-px">16px</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.7</span><span>24px — row vertical rhythm</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:37.5%;"></div></div>
+        <div class="spacing-px">24px</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.8</span><span>32px — card padding lg</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:50%;"></div></div>
+        <div class="spacing-px">32px</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.10</span><span>48px — section gap lg</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:75%;"></div></div>
+        <div class="spacing-px">48px</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.12</span><span>64px — max rung</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:100%;"></div></div>
+        <div class="spacing-px">64px</div>
+      </div>
+    </div>
+
+    <!-- Radius boxes on dark -->
+    <div class="sub-header">radius.* — corner radii on dark surface</div>
+    <div class="radius-row" style="margin-bottom: 40px;">
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:0; background: var(--surface-inset); border-color: var(--border-default);"></div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">0px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">radius.none</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:6px; background: var(--surface-inset); border-color: var(--border-default);"></div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">6px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">radius.sm</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:10px; background: var(--surface-inset); border-color: var(--border-default);"></div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">10px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">radius.md</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:14px; background: var(--surface-inset); border-color: var(--border-default);"></div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">14px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">radius.lg</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:20px; background: var(--surface-inset); border-color: var(--border-default);"></div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">20px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">radius.xl</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:999px; background: var(--surface-inset); border-color: var(--border-default);"></div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">999px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">radius.pill</div>
+      </div>
+    </div>
+
+    <!-- Elevation tiers on dark -->
+    <div class="sub-header">elevation.* — dark surface shadow tiers</div>
+    <div class="elevation-row" style="margin-bottom: 40px;">
+      <div class="elev-card-item">
+        <div class="elev-card-demo tier-0" style="background: var(--surface-card); border-color: var(--border-default);">
+          <span style="font-family:var(--font-instrument); font-size:10px; color:var(--content-tertiary);">Tier 0</span>
+        </div>
+        <div class="elev-spec">
+          <span class="elev-spec-token">elevation.0</span>
+          <span class="elev-spec-value" style="color:var(--content-tertiary);">no shadow · border only</span>
+        </div>
+      </div>
+      <div class="elev-card-item">
+        <div class="elev-card-demo" style="background: var(--surface-card); border-color: var(--border-default); box-shadow: 0 1px 3px rgba(0,0,0,0.24);">
+          <span style="font-family:var(--font-instrument); font-size:10px; color:var(--content-tertiary);">Tier 1</span>
+        </div>
+        <div class="elev-spec">
+          <span class="elev-spec-token">elevation.1</span>
+          <span class="elev-spec-value" style="color:var(--content-tertiary);">0 1px 3px rgba(0,0,0,0.24)</span>
+        </div>
+      </div>
+      <div class="elev-card-item">
+        <div class="elev-card-demo" style="background: var(--surface-card); border-color: var(--border-default); box-shadow: var(--elev-card);">
+          <span style="font-family:var(--font-instrument); font-size:10px; color:var(--content-tertiary);">Tier 2</span>
+        </div>
+        <div class="elev-spec">
+          <span class="elev-spec-token">elevation.2</span>
+          <span class="elev-spec-value" style="color:var(--content-tertiary);">elev-card — LSCard default</span>
+        </div>
+      </div>
+      <div class="elev-card-item">
+        <div class="elev-card-demo" style="background: var(--surface-card); border-color: var(--border-default); box-shadow: 0 4px 14px rgba(0,0,0,0.28), 0 1px 4px rgba(0,0,0,0.24);">
+          <span style="font-family:var(--font-instrument); font-size:10px; color:var(--content-tertiary);">Tier 3</span>
+        </div>
+        <div class="elev-spec">
+          <span class="elev-spec-token">elevation.3</span>
+          <span class="elev-spec-value" style="color:var(--content-tertiary);">stronger ambient shadow</span>
+        </div>
+      </div>
+      <div class="elev-card-item">
+        <div class="elev-card-demo" style="background: var(--surface-card); border-color: var(--border-default); border-top: 2px solid var(--signal-default); box-shadow: var(--elev-overlay);">
+          <span style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default);">Overlay</span>
+        </div>
+        <div class="elev-spec">
+          <span class="elev-spec-token">elevation.overlay</span>
+          <span class="elev-spec-value" style="color:var(--content-tertiary);">elev-overlay — sheet/drawer only</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pill heights on dark -->
+    <div class="sub-header">sizing.pill.* — pill heights on dark</div>
+    <div class="pill-row" style="margin-bottom: 0;">
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <div class="pill-demo" style="height:24px; font-size:10px; font-weight:600; background: var(--surface-inset); border-color: var(--border-default); color: var(--signal-default);">Pill sm</div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">24px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">sizing.pill.sm</div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <div class="pill-demo" style="height:32px; font-size:11px; font-weight:600; background: var(--surface-inset); border-color: var(--border-default); color: var(--signal-default);">Pill medium</div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">32px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">sizing.pill.md</div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <div class="pill-demo" style="height:40px; font-size:12px; font-weight:600; background: var(--signal-default); border-color: var(--signal-default); color: #fff;">Pill large</div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">40px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">sizing.pill.lg</div>
+      </div>
+    </div>
+
   </div>
 </div>
 </div>

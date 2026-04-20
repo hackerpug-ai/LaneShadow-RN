@@ -39,6 +39,24 @@
   --elev-chrome: 0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
 }
 
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+
 body { font-family: var(--font-ui); color: var(--content-primary); background: var(--surface-primary); -webkit-font-smoothing: antialiased; min-height: 100vh; line-height: 1.55; overflow-x: hidden; }
 .wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
 
@@ -788,6 +806,174 @@ export const tokens = {
         <li><strong>AC-08</strong> map.style.light/dark tokens have $type: "string", match pattern</li>
       </ul>
     </div>
+  </div>
+</div>
+</div>
+
+<!-- §07 DARK MODE -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§07</div><h2 class="section-title">Dark <em>surfaces</em></h2></div>
+  <p class="prose" style="margin-bottom: 40px;">The pipeline diagram, code blocks, font table, icon catalog, and drift-check flow all remain readable on warm-ink dark surfaces. Code blocks already use <code>--ink-800</code> as their background — they become embedded naturally in the dark layout.</p>
+
+  <h3 style="margin-left: 152px; margin-bottom: 32px; font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);">Pipeline Docs — Dark</h3>
+
+  <div class="pipe-content mode-dark" style="background: var(--ink-800); padding: 48px 56px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.42);">
+
+    <!-- Pipeline diagram on dark -->
+    <div class="sub-header">Token generation pipeline — dark view</div>
+    <div style="margin-bottom: 32px;">
+      <div style="display:grid; grid-template-columns:1fr auto 1fr auto 1fr; align-items:center; gap:0; background:var(--surface-card); border:1px solid var(--border-default); border-radius:14px; overflow:hidden; box-shadow:var(--elev-card);">
+
+        <!-- SOURCE -->
+        <div style="padding:28px 24px; background:var(--surface-inset); border-right:1px solid var(--border-default);">
+          <div style="font-family:var(--font-instrument); font-size:9px; letter-spacing:0.22em; text-transform:uppercase; color:var(--signal-default); margin-bottom:8px;">Source · DTCG format</div>
+          <div style="font-family:var(--font-ui); font-size:13px; font-weight:600; color:var(--content-primary); margin-bottom:6px;">semantic.tokens.json</div>
+          <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary); line-height:1.6;">tokens/semantic/<br>semantic.tokens.json<br><br>tokens/icons/*.svg<br>tokens/fonts/manifest.json</div>
+        </div>
+
+        <!-- ARROW -->
+        <div style="padding:0 20px; font-family:var(--font-instrument); font-size:22px; color:var(--signal-default);">→</div>
+
+        <!-- GENERATOR -->
+        <div style="padding:28px 24px; border-right:1px solid var(--border-default);">
+          <div style="font-family:var(--font-instrument); font-size:9px; letter-spacing:0.22em; text-transform:uppercase; color:var(--content-tertiary); margin-bottom:8px;">Generator · pnpm tokens:generate</div>
+          <div style="font-family:var(--font-ui); font-size:13px; font-weight:600; color:var(--content-primary); margin-bottom:6px;">Style Dictionary v4</div>
+          <div style="font-family:var(--font-ui); font-size:11px; color:var(--content-secondary); line-height:1.6;">Reads DTCG tokens, resolves<br>references, applies transforms,<br>emits per-platform format.</div>
+        </div>
+
+        <!-- ARROW -->
+        <div style="padding:0 20px; font-family:var(--font-instrument); font-size:22px; color:var(--signal-default);">→</div>
+
+        <!-- OUTPUTS -->
+        <div style="padding:16px 24px; display:flex; flex-direction:column; gap:12px;">
+          <div style="background:rgba(58,123,222,0.15); border-left:3px solid #3A7BDE; border-radius:0 6px 6px 0; padding:10px 14px;">
+            <div style="font-family:var(--font-instrument); font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:#6EAAFF; margin-bottom:3px;">Swift</div>
+            <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">Tokens.swift</div>
+          </div>
+          <div style="background:rgba(124,82,200,0.15); border-left:3px solid #7C52C8; border-radius:0 6px 6px 0; padding:10px 14px;">
+            <div style="font-family:var(--font-instrument); font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:#A98BEA; margin-bottom:3px;">Kotlin</div>
+            <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">Tokens.kt</div>
+          </div>
+          <div style="background:rgba(58,132,112,0.15); border-left:3px solid #3A8470; border-radius:0 6px 6px 0; padding:10px 14px;">
+            <div style="font-family:var(--font-instrument); font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:#6ABFAA; margin-bottom:3px;">TypeScript</div>
+            <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">tokens.ts</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Code block — already dark by nature, shown in context -->
+    <div class="sub-header">Code snippet — dark surface context</div>
+    <div class="code-block" style="margin-bottom: 32px;">
+      <code><span class="c-comment">// Generated output — dark surface example (surface.glass resolves differently per mode)</span>
+<span class="c-key">export const tokens</span> = {
+  color: {
+    surface: {
+      glass: {
+        light: <span class="c-string">"rgba(253,251,248,0.72)"</span>,
+        dark:  <span class="c-string">"rgba(45,34,24,0.72)"</span>
+      },
+      primary: {
+        light: <span class="c-string">"#F8F7F6"</span>,
+        dark:  <span class="c-string">"#221810"</span>
+      }
+    },
+    signal: {
+      default: <span class="c-string">"#EE7C2B"</span>  <span class="c-comment">// unchanged across modes</span>
+    }
+  }
+} as const;</code>
+    </div>
+
+    <!-- Drift check flow on dark -->
+    <div class="sub-header">Drift-check flow — dark view</div>
+    <div class="drift-flow" style="border-color: var(--border-default);">
+      <div class="drift-step" style="border-color: var(--border-subtle);">
+        <div class="drift-step-num">1</div>
+        <div class="drift-step-body">
+          <span class="drift-step-name" style="color: var(--content-primary);">Stage validation</span>
+          <span class="drift-step-cmd">git diff --cached --name-only</span>
+          <span class="drift-step-desc" style="color: var(--content-tertiary);">Detect staged token/icon/font/platform files.</span>
+        </div>
+        <span class="drift-step-badge pass">always runs</span>
+      </div>
+      <div class="drift-step" style="border-color: var(--border-subtle);">
+        <div class="drift-step-num">2</div>
+        <div class="drift-step-body">
+          <span class="drift-step-name" style="color: var(--content-primary);">Schema validation</span>
+          <span class="drift-step-cmd">pnpm tokens:validate</span>
+          <span class="drift-step-desc" style="color: var(--content-tertiary);">Validates against semantic.tokens.schema.json.</span>
+        </div>
+        <span class="drift-step-badge block">blocks on fail</span>
+      </div>
+      <div class="drift-step" style="border-color: var(--border-subtle);">
+        <div class="drift-step-num">3</div>
+        <div class="drift-step-body">
+          <span class="drift-step-name" style="color: var(--content-primary);">Sync check</span>
+          <span class="drift-step-cmd">pnpm tokens:sync-check</span>
+          <span class="drift-step-desc" style="color: var(--content-tertiary);">Dry-run generator, diff vs committed outputs.</span>
+        </div>
+        <span class="drift-step-badge block">blocks on fail</span>
+      </div>
+      <div class="drift-step" style="border-color: var(--border-subtle);">
+        <div class="drift-step-num">4</div>
+        <div class="drift-step-body">
+          <span class="drift-step-name" style="color: var(--content-primary);">Icon set check</span>
+          <span class="drift-step-cmd">pnpm icons:check</span>
+          <span class="drift-step-desc" style="color: var(--content-tertiary);">SVG filenames vs Swift + Kotlin IconName enums.</span>
+        </div>
+        <span class="drift-step-badge block">blocks on fail</span>
+      </div>
+      <div class="drift-step">
+        <div class="drift-step-num pass">5</div>
+        <div class="drift-step-body">
+          <span class="drift-step-name" style="color: var(--content-primary);">Commit allowed</span>
+          <span class="drift-step-cmd">exit 0</span>
+          <span class="drift-step-desc" style="color: var(--content-tertiary);">All checks pass. Source and outputs in sync.</span>
+        </div>
+        <span class="drift-step-badge pass">commit proceeds</span>
+      </div>
+    </div>
+
+    <!-- Icon spot-check on dark -->
+    <div class="sub-header" style="margin-top: 48px;">Icon catalog — copper accent on dark surface</div>
+    <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--copper-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l4-8 4 4 4-6 4 10"/></svg>
+        <span style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">route</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--content-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        <span style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">map</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--content-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+        <span style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">compass</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--copper-500)" stroke="var(--copper-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        <span style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">bookmarkFill</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--copper-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L13.5 8.5L19 8.5L14.75 11.5L16.5 17L12 14L7.5 17L9.25 11.5L5 8.5L10.5 8.5Z"/></svg>
+        <span style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">sparkle</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--copper-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="2.5"/><circle cx="18.5" cy="17.5" r="2.5"/><path d="M15 6H9L6 14h12l-2-7z"/><path d="M6 14H3l-.5 1.5"/><path d="M18 14h2l.5 1.5"/></svg>
+        <span style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">bike</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--content-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <span style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">send</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--content-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/></svg>
+        <span style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">sliders</span>
+      </div>
+      <div style="margin-left: auto; font-family: var(--font-instrument); font-size: 9px; color: var(--content-subtle); letter-spacing: 0.12em; text-transform: uppercase; line-height: 1.6;">stroke 1.5px at all sizes<br>copper accent pops on ink</div>
+    </div>
+
   </div>
 </div>
 </div>
