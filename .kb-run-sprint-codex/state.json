@@ -1,0 +1,106 @@
+{
+  "sprint_id": "sprint-06-quality-dedup-floor",
+  "started_at": "2026-04-20T00:00:00Z",
+  "max_iterations": 5,
+  "max_kickbacks": 3,
+  "tasks": {
+    "QUAL-001": {
+      "title": "Semantic Deduplication Engine",
+      "implementer": "python-implement",
+      "reviewer": "python-review",
+      "wave": 0,
+      "depends_on": [],
+      "status": "completed",
+      "iterations": [],
+      "approved_at": "2026-04-20T17:52:51.659677+00:00",
+      "worktree_path": null,
+      "worktree_branch": null
+    },
+    "QUAL-002": {
+      "title": "LLM Arbitration Batch Runner",
+      "implementer": "python-implement",
+      "reviewer": "python-review",
+      "wave": 1,
+      "depends_on": ["QUAL-001"],
+      "status": "completed",
+      "iterations": [],
+      "approved_at": "2026-04-20T18:12:12.908954+00:00",
+      "worktree_path": null,
+      "worktree_branch": null
+    },
+    "QUAL-003": {
+      "title": "Quality Floor Filter",
+      "implementer": "python-implement",
+      "reviewer": "python-review",
+      "wave": 1,
+      "depends_on": ["QUAL-001"],
+      "status": "completed",
+      "iterations": [],
+      "approved_at": "2026-04-20T18:12:12.908954+00:00",
+      "worktree_path": null,
+      "worktree_branch": null
+    },
+    "QUAL-004": {
+      "title": "Coverage Validation Report",
+      "implementer": "python-implement",
+      "reviewer": "python-review",
+      "wave": 2,
+      "depends_on": ["QUAL-003"],
+      "status": "approved",
+      "iterations": [],
+      "approved_at": "2026-04-20T19:39:11Z",
+      "worktree_path": null,
+      "worktree_branch": null
+    },
+    "QUAL-005": {
+      "title": "Data Quality Report with CI Gating",
+      "implementer": "python-implement",
+      "reviewer": "python-review",
+      "wave": 3,
+      "depends_on": ["QUAL-004"],
+      "status": "approved",
+      "iterations": [],
+      "approved_at": "2026-04-20T19:54:39Z",
+      "worktree_path": null,
+      "worktree_branch": null
+    },
+    "QUAL-006": {
+      "title": "Implement fetch_all_routes Convex Bridge",
+      "implementer": "python-implement",
+      "reviewer": "python-review",
+      "wave": 4,
+      "depends_on": ["QUAL-001"],
+      "status": "pending",
+      "iterations": [],
+      "approved_at": null,
+      "worktree_path": null,
+      "worktree_branch": null
+    },
+    "QUAL-007": {
+      "title": "Calibration Set with Minimum Count Enforcement",
+      "implementer": "python-implement",
+      "reviewer": "python-review",
+      "wave": 4,
+      "depends_on": ["QUAL-001"],
+      "status": "pending",
+      "iterations": [],
+      "approved_at": null,
+      "worktree_path": null,
+      "worktree_branch": null
+    },
+    "QUAL-008": {
+      "title": "Runtime Benchmark — Full Catalog Dry Run",
+      "implementer": "python-implement",
+      "reviewer": "python-review",
+      "wave": 5,
+      "depends_on": ["QUAL-006"],
+      "status": "pending",
+      "iterations": [],
+      "approved_at": null,
+      "worktree_path": null,
+      "worktree_branch": null
+    }
+  },
+  "active_processes": {},
+  "reaped_processes": {}
+}

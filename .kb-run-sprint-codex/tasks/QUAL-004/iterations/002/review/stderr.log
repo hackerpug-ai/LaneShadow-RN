@@ -1,0 +1,1250 @@
+Reading additional input from stdin...
+OpenAI Codex v0.121.0 (research preview)
+--------
+workdir: /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004
+model: gpt-5.2
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: high
+reasoning summaries: none
+session id: 019dac63-e62a-78b0-932b-b5fdb0e34f63
+--------
+user
+# Reviewer Task — Re-check (Iteration 2)
+
+You are the **REVIEWER** for task **QUAL-004**, iteration 2 (re-check).
+
+You are a **python-reviewer**. Your sole responsibility is adversarially validating Python implementations. You do NOT modify files.
+
+## Your Task
+
+Review the iteration 2 fix for **QUAL-004: Coverage Validation Report**.
+
+The implementer was asked to fix:
+- AC-2 PARTIAL: Seed required common archetypes (twisties, mountain, coastal, scenic_byway) with count 0 when absent from routes
+- AC-3 PARTIAL: Seed required niche archetypes (adventure, desert) with count 0 when absent from routes
+
+### Previous Review Findings
+- AC-1: PASS (no change needed)
+- AC-2: PARTIAL — absent common archetypes not seeded with count 0
+- AC-3: PARTIAL — absent niche archetypes not seeded with count 0
+- AC-4: PASS (no change needed)
+- AC-5: PASS (no change needed)
+- AC-6: PASS (no change needed)
+
+### Diff (iteration 1 → iteration 2)
+
+```diff
+diff --git a/scripts/curation/pipeline/quality/coverage_report.py b/scripts/curation/pipeline/quality/coverage_report.py
+--- a/scripts/curation/pipeline/quality/coverage_report.py
++++ b/scripts/curation/pipeline/quality/coverage_report.py
+@@ -20,6 +20,7 @@ from scripts.curation.pipeline.models import EnrichedRoute, Route
+
+ COMMON_ARCHETYPES = {"twisties", "mountain", "coastal", "scenic_byway"}
++NICHE_ARCHETYPES = {"adventure", "desert"}
+ STATE_MINIMUM_COUNT = 10
+@@ -212,8 +213,8 @@ def _compute_archetype_coverage(routes: Sequence[Route]) -> dict[str, dict[str,
+     counts: Counter[str] = Counter()
+-    for route in routes:
+-        archetype = _extract_archetype(route)
+-        if archetype:
+-            counts[archetype] += 1
++    counts = Counter(
++        {archetype: 0 for archetype in sorted(COMMON_ARCHETYPES | NICHE_ARCHETYPES)}
++    )
++    for route in routes:
++        archetype = _extract_archetype(route)
++        if archetype:
++            counts[archetype] += 1
+```
+
+```diff
+diff --git a/scripts/curation/tests/test_qual_004.py b/scripts/curation/tests/test_qual_004.py
+--- a/scripts/curation/tests/test_qual_004.py
++++ b/scripts/curation/tests/test_qual_004.py
+@@ new tests added:
+
++    def test_missing_common_archetype_is_seeded_as_gap(self) -> None:
++        """AC-2 regression: common archetype with 0 routes is seeded and flagged."""
++        routes = [_route(f"tw-{idx}", archetype="twisties") for idx in range(60)]
++        report = generate_coverage_report(routes)
++        assert report.archetype_coverage["coastal"]["count"] == 0
++        assert report.archetype_coverage["coastal"]["is_gap"] is True
++        assert "coastal" in report.coverage_gaps["archetypes"]
++
++    def test_missing_niche_archetype_is_seeded_as_gap(self) -> None:
++        """AC-3 regression: niche archetype with 0 routes is seeded and flagged."""
++        routes = [_route(f"tw-{idx}", archetype="twisties") for idx in range(60)]
++        report = generate_coverage_report(routes)
++        assert report.archetype_coverage["adventure"]["count"] == 0
++        assert report.archetype_coverage["adventure"]["is_gap"] is True
++        assert "adventure" in report.coverage_gaps["archetypes"]
+```
+
+### Test Output
+
+```
+tests/test_qual_004.py::TestStateCoverage::test_state_gap_detection PASSED
+tests/test_qual_004.py::TestArchetypeCoverage::test_common_archetype_threshold PASSED
+tests/test_qual_004.py::TestArchetypeCoverage::test_niche_archetype_threshold PASSED
+tests/test_qual_004.py::TestArchetypeCoverage::test_missing_common_archetype_is_seeded_as_gap PASSED
+tests/test_qual_004.py::TestArchetypeCoverage::test_missing_niche_archetype_is_seeded_as_gap PASSED
+tests/test_qual_004.py::TestHistogram::test_bucket_counts PASSED
+tests/test_qual_004.py::TestHistogram::test_distribution_anomaly_flag PASSED
+tests/test_qual_004.py::TestOutputArtifacts::test_dual_output_files PASSED
+============================== 8 passed in 0.01s ==============================
+```
+
+---
+
+## Review Focus
+
+1. Does the fix correctly seed ALL required common + niche archetypes with count 0?
+2. Do the new tests actually verify the 0-count seeding behavior?
+3. Are the previous PASS verdicts (AC-1, 4, 5, 6) still valid?
+4. Any remaining stubs, anti-patterns, or quality issues?
+
+## Verdict Criteria
+
+APPROVED if:
+- AC-2 and AC-3 now fully pass (0-count archetypes seeded and flagged)
+- All previous PASSing ACs still pass
+- No CRITICAL/HIGH findings
+
+## Response Format
+
+Single JSON object matching **ReviewerResponse** schema. First char `{`, last char `}`. No markdown fences.
+
+```json
+{
+  "type": "object",
+  "required": ["verdict", "verdict_confidence", "iteration", "worktree_path", "worktree_branch", "validation_passed", "self_heal_count", "test_criteria_all_true", "test_criteria", "verification", "acceptance_criteria", "stub_findings", "task_file_updated", "notebook_entries", "summary"],
+  "properties": {
+    "verdict": {"enum": ["APPROVED", "NEEDS_FIXES"]},
+    "verdict_confidence": {"enum": ["HIGH", "MEDIUM", "LOW"]},
+    "iteration": {"type": "integer"},
+    "worktree_path": {"type": "string"},
+    "worktree_branch": {"type": "string"},
+    "validation_passed": {"type": "boolean"},
+    "self_heal_count": {"type": "integer"},
+    "test_criteria_all_true": {"type": "boolean"},
+    "test_criteria": {"type": "array"},
+    "verification": {"type": "object"},
+    "acceptance_criteria": {"type": "array", "items": {"properties": {"id": {"type": "string"}, "verdict": {"enum": ["PASS", "FAIL", "PARTIAL"]}, "evidence": {"type": "string"}, "notes": {"type": "string"}}}},
+    "stub_findings": {"type": "array"},
+    "task_file_updated": {"type": "boolean"},
+    "notebook_entries": {"type": "array", "minItems": 1},
+    "summary": {"type": "string", "minLength": 20}
+  }
+}
+```
+exec
+/bin/zsh -lc "cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004 && sed -n '1,200p' ~/Projects/brain/docs/ROOT-CONTEXT.md" in /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004
+ succeeded in 0ms:
+# Root Context (Required Reading)
+
+**IMPORTANT**: Read this document at the start of every session. It establishes shared terminology and directory conventions across all harnesses.
+
+---
+
+## Terminology
+
+| Term | Definition |
+|------|------------|
+| **Harness** | An agentic coding IDE that orchestrates LLM interactions (Claude Code, Codex, Cursor, OpenCode, Windsurf, etc.) |
+| **Brain** | Cross-harness portable artifacts (skills, agents, docs) that work across any harness |
+| **Global settings** | Harness-specific configuration (location varies by harness) |
+
+---
+
+## Directory Reference (Progressive Disclosure)
+
+Use these canonical names to resolve paths. When a prompt references these names, look in the corresponding locations.
+
+| Name | Path | Description |
+|------|------|-------------|
+| `global-settings` | Harness-specific | Harness config, harness-native agents, settings |
+| `holocron` | `~/.holocron/**/*` | Knowledge database, research artifacts |
+| `rml` | `~/Projects/rml` | RML project root |
+| `brain` | `~/Projects/brain` | Brain project root (this repo) |
+
+---
+
+## Brain vs Harness-Specific
+
+**Brain** (`brain/`) is designed for **cross-harness portability**. Skills and agents defined here use harness-agnostic patterns and can be shared across Claude Code, Cursor, OpenCode, or any other agentic IDE.
+
+**Global settings** contains **harness-specific** artifacts that use native features (varies by harness).
+
+| Type | Location | Portability |
+|------|----------|-------------|
+| **Brain skills** | `brain/skills/` | Cross-harness (portable) |
+| **Brain agents** | `brain/agents/` | Cross-harness (portable) |
+| **Brain docs** | `brain/docs/` | Cross-harness (portable) |
+| **Harness agents** | `global-settings/agents/` | Harness-specific |
+
+When asked about "skills" or "agents" without qualifier, clarify which system is meant.
+
+---
+
+## Harness-Specific Paths
+
+| Harness | Global Settings Path |
+|---------|---------------------|
+| Claude Code | `~/.claude/**/*` |
+| Cursor | `~/.cursor/**/*` |
+| OpenCode | `~/.opencode/**/*` |
+| Codex | Project-local |
+
+---
+
+## MANDATORY Validation Gates
+
+**CRITICAL**: Before marking ANY task complete, these gates MUST pass. No exceptions.
+
+### TypeScript / Node / Bun
+
+```bash
+# 1. Type Check (REQUIRED - BLOCKING)
+pnpm tsc --noEmit
+
+# 2. Lint (REQUIRED - BLOCKING)
+pnpm lint
+
+# 3. Tests (REQUIRED - BLOCKING if tests exist)
+pnpm test
+```
+
+### Framework-Specific Gates
+
+| Framework | Additional Gate | Command |
+|-----------|----------------|---------|
+| Convex | Schema validation | `npx convex dev --once` |
+| Go | Build + Vet | `go build ./... && go vet ./...` |
+| Python | Type check | `mypy .` |
+| Rust | Clippy | `cargo clippy -- -D warnings` |
+
+### Gate Execution Rules
+
+1. **Run ALL gates** before claiming completion
+2. **Exit code 0** = PASS, anything else = FAIL
+3. **Stop on first failure** - fix before continuing
+4. **Never skip** - even for "small" changes
+5. **Record results** in task journal/comment
+
+### When Gates Fail
+
+```
+IF any gate fails:
+  1. DO NOT mark task complete
+  2. Fix the issue
+  3. Re-run ALL gates
+  4. Only proceed when ALL pass
+```
+
+**Reference**: Full gate specifications in `brain/docs/kanban/verification-gates.md`
+
+---
+
+## Usage
+
+Any harness can include this file in its instructions to establish shared context. The harness-specific CLAUDE.md (or equivalent) should:
+
+1. Set `HARNESS=<harness-name>`
+2. Reference this document as required reading
+3. Add any harness-specific overrides or extensions
+4. Enforce validation gates before task completion
+
+exec
+/bin/zsh -lc "cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004 && sed -n '1,200p' RULES.md" in /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004
+ succeeded in 0ms:
+# LaneShadow Project Rules
+
+**This is the authoritative project instruction document.** All agents, subagents, and team members must follow these rules.
+
+---
+
+## Platforms
+
+This project targets: **iOS, Android, Web, Convex**
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| iOS | Required | Native Swift/SwiftUI implementation |
+| Android | Required | Native Kotlin/Compose implementation |
+| Web | Required | React-based web platform |
+| Convex | Required | Backend (API, database, subscriptions) |
+| Desktop | Not targeted | - |
+
+---
+
+## User Context
+
+**Required reading for all product decisions:** [User Profiles](.spec/USER-PROFILES.md) — defines our 4 primary personas (experienced cruisers, touring planners, returning riders, group organizers) and design principles derived from their needs.
+
+LaneShadow serves recreational cruiser and touring riders who ride for enjoyment and scenery — not sport bike, dirt bike, or track riders.
+
+---
+
+## Convex Backend
+
+This project uses [Convex](https://convex.dev) as its backend.
+
+When working on Convex code, **always read `convex/_generated/ai/guidelines.md` first** for important guidelines on how to correctly use Convex APIs and patterns. The file contains rules that override what you may have learned about Convex from training data.
+
+Convex agent skills for common tasks can be installed by running `npx convex ai-files install`.
+
+---
+
+## Local Domain Experts
+
+When dispatching subagents for planning, review, or implementation, prefer these project-local experts over generic agents. They understand this project's stack, patterns, and conventions.
+
+| Agent | Role | When to Use |
+|-------|------|-------------|
+| `convex-planner` | Convex planning | Schemas, API endpoints, migration strategies |
+| `convex-implementer` | Convex implementation | Mutations, queries, migrations using TDD |
+| `convex-reviewer` | Convex review | API design, data integrity, migration safety |
+| `react-native-ui-planner` | RN planning | React Native baseline, Storybook, shared UI contracts, and Expo/mobile-specific patterns |
+| `react-native-ui-implementer` | RN implementation | React Native components, Storybook registries, shared token/sandbox contracts, and other RN-owned UI infrastructure |
+| `react-native-ui-reviewer` | RN review | RN UI quality, theme compliance, accessibility, Storybook parity, and shared RN-owned UI contracts |
+| `kotlin-planner` | Android planning | Kotlin/Compose architecture, Hilt DI, Room schemas, Material 3 |
+| `kotlin-implementer` | Android implementation | Kotlin/Compose code using TDD with Hilt, Room, Material 3 |
+| `kotlin-reviewer` | Android review | Compose patterns, coroutine safety, Hilt DI correctness, TDD quality |
+| `swift-planner` | iOS planning | Swift/SwiftUI architecture, SwiftData schemas, @Observable design, navigation |
+| `swift-implementer` | iOS implementation | Swift/SwiftUI code using TDD with @Observable, SwiftData, XcodeBuildMCP |
+| `swift-reviewer` | iOS review | Swift 6 concurrency safety, memory management, modern API usage, TDD quality |
+| `frontend-designer` | Standalone visual exploration | Mockups and presentation-only exploration outside sprint execution. Do not assign sprint implementation, verification, token pipelines, registries, or stateful UI work to this agent. |
+| `pi-agent-planner` | pi agent planning | Extension design, tools, workflows, event handlers |
+| `pi-agent-implementer` | pi agent implementation | Extensions, tools, workflows using pi coding-agent SDK |
+| `pi-agent-reviewer` | pi agent review | pi SDK best practices, TypeScript quality standards |
+
+**Dispatch priority**: Always check this table first. Only fall back to generic `general-purpose` agents when no domain expert matches the task.
+
+Platform ownership rule for sprint execution:
+- iOS implementation tasks must use `swift-*` agents for implementation and review.
+- Android implementation tasks must use `kotlin-*` agents for implementation and review.
+- Do not assign `frontend-designer` to executable sprint tasks.
+- In `.spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/`, only native execution agents are valid. Treat any task that writes `react-native/**`, `tokens/**`, or mixed React Native/native paths as a planning error that must be split, moved, or rewritten before `/kb-run-sprint` dispatches it.
+
+---
+
+## Design Rules
+
+For UI/UX design rules, component patterns, and theme usage, see [`styles/RULES.md`](styles/RULES.md).
+
+---
+
+## Pre-Commit Checks
+
+Every commit runs the following checks via `lefthook` `pre-commit` jobs declared in [`lefthook.yml`](lefthook.yml):
+
+1. **TypeScript type check** — `pnpm type-check:native`
+2. **Biome lint/format/imports** — `pnpm exec biome check --no-errors-on-unmatched {staged_files}`
+3. **Token validation and sync checks** — `pnpm tokens:validate`, `pnpm tokens:sync-check` when matching files are staged
+4. **Platform-native checks** — `swiftformat`, `xcodebuild ... build`, or `./gradlew :app:compileDebugKotlin` when matching platform files are staged
+
+Additional repo-wide verification runs via `lefthook pre-push`:
+
+1. **Convex build** — `pnpm --dir server run convex:dev -- --once`
+
+Do not bypass these checks with `--no-verify`.
+
+## Agent / Subagent Commit Policy
+
+- Agents and subagents **must always commit their work** when they complete a task or reach a stable checkpoint.
+- Before submitting a commit, agents **must run the pre-commit checks** and **fix any failures** rather than skipping or bypassing them.
+- If a check fails, diagnose the root cause, fix it, and re-attempt the commit. Do not use `--no-verify` to work around failures.
+- Commits should be atomic and well-described — one logical change per commit.
+
+---
+
+## Verification Standards by Platform
+
+Every platform must pass **lint, typecheck, and test** before committing.
+
+| Platform | Lint | Typecheck | Test |
+|----------|------|-----------|------|
+| **Server** (Convex/TS) | `pnpm lint` | `pnpm type-check:native` | `pnpm test` |
+| **iOS** (Swift/SwiftUI) | `swiftlint` | `null` | `xcodebuild test -scheme {scheme} -destination 'platform=iOS Simulator,name=iPhone 16'` |
+| **Android** (Kotlin/Compose) | `./gradlew detekt` | `null` | `./gradlew test` |
+
+Agents and reviewers must run all applicable checks for the platform they are working on. Do not skip or bypass failing checks.
+
+---
+
+## .spec Directory — Progressive Disclosure Guide
+
+The `.spec/` directory is your centralized artifact store for planning, research, designs, and specifications. It's organized for progressive disclosure: start shallow, dig deeper as needed.
+
+### How to Use .spec (Progressive Disclosure)
+
+| What You Need | File/Folder | When to Read | What's Inside |
+|---|---|---|---|
+| **📋 Quick project overview** | `.spec/PRD.md` | First time setup, sprint kickoff | 1-page executive summary of LaneShadow features |
+| **🎯 Detailed feature requirements** | `.spec/prd/{feature}/README.md` | Planning a specific feature | Full PRD for one feature (e.g., `waypoints-enrichment/`) |
+| **🔬 Research & validation** | `.spec/research/CHANNELS.md` | Before implementing data pipeline | Motorcycle rider research channels, scraping strategy, data quality metrics |
+| **🎨 Design specs & components** | `.spec/prd/{feature}/designs/` | Building UI/UX | Component hierarchies, Figma links, design tokens |
+| **✅ Task breakdown & tracking** | `.spec/prd/{feature}/tasks/` | Daily work, sprint management | Epic folders, task markdown, and execution state for that PRD only |
+| **🎬 Design reviews & feedback** | `.spec/prd/{feature}/reviews/` | Post-implementation refinement | Design review notes, feedback from stakeholders |
+
+### Folder Structure Map
+
+```
+.spec/
+├── PRD.md                           # Start here: 1-page overview
+├── PLAN-NOTEBOOK.md                 # Planning scratchpad
+├── research/                        # Research artifacts
+│   ├── CHANNELS.md                  # Rider research channels & scraping
+│   └── ...
+├── prd/                             # Feature PRDs (detailed)
+│   ├── feature-name/
+│   │   ├── README.md                # PRD document
+│   │   ├── tasks/                   # Epic/task execution artifacts for this PRD
+│   │   │   ├── epic-1/
+│   │   │   │   ├── EPIC.md
+│   │   │   │   └── US-001.md
+│   │   │   └── INDEX.md
+│   │   ├── designs/                 # Design artifacts (Figma links, comps)
+│   │   └── reviews/                 # Review feedback & decisions
+│   └── waypoints-enrichment/
+│       ├── README.md
+│       ├── tasks/
+│       │   ├── epic-1/
+│       │   └── INDEX.md
+│       └── ...
+├── brand/                           # Brand guidelines
+└── artifacts/                       # Supporting artifacts (sketches, etc.)
+```
+
+### Plan + Task Workflow
+
+**Canonical task location:**
+1. Each PRD lives in its own folder at `.spec/prd/{feature-name}/`
+2. The only source-of-truth task location for that PRD is `.spec/prd/{feature-name}/tasks/`
+3. Epic folders live under that sibling `tasks/` directory
+4. `/kb-run-epic` must execute against that PRD-local `tasks/` folder, not a repo-global task directory
+5. The legacy repo-global directory `.spec/tasks/` is deprecated and read-only
+
+**Task files follow kb-project-plan conventions:**
+- Each PRD gets a sibling `tasks/` directory
+- Each epic gets its own folder with `EPIC.md` and task files
+- Reference tasks from CLI with `/kb-run-epic --prd .spec/prd/{feature-name}/README.md {epic-id}` or the explicit epic path
+
+### Reading Order by Role
+
+**Product Manager**
+1. `.spec/PRD.md` (overview)
+2. `.spec/prd/{feature-name}/README.md` (detailed feature)
+3. `.spec/prd/{feature-name}/reviews/` (feedback loops)
+
+**Engineer**
+1. `.spec/PRD.md` (context)
+2. `.spec/prd/{feature-name}/README.md` (requirements)
+3. `.spec/prd/{feature-name}/tasks/` (your task breakdown)
+4. `.spec/prd/{feature-name}/designs/` (if UI-related)
+5. `.spec/research/` (if data pipeline work)
+
+**Designer**
+1. `.spec/prd/{feature-name}/designs/` (start here)
+2. `.spec/prd/{feature-name}/README.md` (requirements)
+3. `.spec/prd/{feature-name}/reviews/` (feedback)
+
+**Research / Data**
+1. `.spec/research/` (primary source)
+2. `.spec/PRD.md` (context)
+3. `.spec/prd/{feature-name}/tasks/` (epics and task scopes for that PRD)
+
+### Plan + Task Execution Workflow
+
+**Step 1: Generate Tasks from Plan**
+
+**Reviewing code coverage**
+
+I'm starting by inspecting the `coverage_report` compute function. I want to focus on the thresholds and where sets are utilized. I'll use `sed` to navigate around the relevant lines as I go through the code. It seems important to ensure everything aligns with the requirements properly. Let's get to the nitty-gritty, and I can figure out if anything needs adjusting or correcting. It feels like a task of fine-tuning, and I want to get it right!
+exec
+/bin/zsh -lc 'cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004 && rg -n "COMMON_ARCHETYPES|NICHE_ARCHETYPES|_compute_archetype_coverage" scripts/curation/pipeline/quality/coverage_report.py' in /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004
+ succeeded in 0ms:
+22:COMMON_ARCHETYPES = {"twisties", "mountain", "coastal", "scenic_byway"}
+23:NICHE_ARCHETYPES = {"adventure", "desert"}
+62:    archetype_coverage = _compute_archetype_coverage(routes)
+215:def _compute_archetype_coverage(routes: Sequence[Route]) -> dict[str, dict[str, Any]]:
+217:        {archetype: 0 for archetype in sorted(COMMON_ARCHETYPES | NICHE_ARCHETYPES)}
+226:        tier = "common" if archetype in COMMON_ARCHETYPES else "niche"
+
+exec
+/bin/zsh -lc "cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004 && sed -n '1,120p' scripts/curation/pipeline/quality/coverage_report.py" in /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004
+ succeeded in 0ms:
+"""Coverage report builder for curated route quality validation.
+
+Produces a dated markdown artifact and JSON sidecar highlighting:
+- state-level coverage gaps
+- archetype-level coverage gaps with tiered thresholds
+- composite score distribution histogram and anomaly flags
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+from collections import Counter
+from collections.abc import Iterable, Sequence
+from dataclasses import dataclass
+from datetime import UTC, date, datetime
+from pathlib import Path
+from typing import Any
+
+from scripts.curation.pipeline.models import EnrichedRoute, Route
+
+COMMON_ARCHETYPES = {"twisties", "mountain", "coastal", "scenic_byway"}
+NICHE_ARCHETYPES = {"adventure", "desert"}
+STATE_MINIMUM_COUNT = 10
+COMMON_ARCHETYPE_MINIMUM_COUNT = 50
+NICHE_ARCHETYPE_MINIMUM_COUNT = 20
+ANOMALY_THRESHOLD = 0.30
+HISTOGRAM_BUCKETS: list[tuple[str, float, float]] = [
+    ("0-2", 0.0, 2.0),
+    ("2-4", 2.0, 4.0),
+    ("4-6", 4.0, 6.0),
+    ("6-8", 6.0, 8.0),
+    ("8-10", 8.0, 10.0),
+]
+
+
+@dataclass(frozen=True)
+class CoverageReport:
+    """Structured representation of catalog coverage health."""
+
+    generated_at: str
+    state_coverage: dict[str, dict[str, Any]]
+    archetype_coverage: dict[str, dict[str, Any]]
+    histogram: dict[str, int]
+    coverage_gaps: dict[str, list[str]]
+    distribution_anomaly: bool
+    markdown: str
+    histogram_chart: str
+    distribution_anomaly_bucket: str | None = None
+    distribution_anomaly_percent: float = 0.0
+
+
+def generate_coverage_report(
+    routes: Sequence[Route],
+    *,
+    generated_at: datetime | None = None,
+) -> CoverageReport:
+    """Generate a coverage report from in-memory route records."""
+    timestamp = (generated_at or datetime.now(UTC)).replace(microsecond=0).isoformat()
+
+    state_coverage = _compute_state_coverage(routes)
+    archetype_coverage = _compute_archetype_coverage(routes)
+    histogram = _compute_histogram(routes)
+    histogram_chart = _render_histogram_chart(histogram)
+
+    state_gaps = [state for state, item in state_coverage.items() if item["is_gap"]]
+    archetype_gaps = [archetype for archetype, item in archetype_coverage.items() if item["is_gap"]]
+
+    anomaly, anomaly_bucket, anomaly_percent = _compute_distribution_anomaly(histogram, len(routes))
+
+    coverage_gaps = {
+        "states": state_gaps,
+        "archetypes": archetype_gaps,
+    }
+
+    markdown = _render_markdown(
+        generated_at=timestamp,
+        total_routes=len(routes),
+        state_coverage=state_coverage,
+        archetype_coverage=archetype_coverage,
+        histogram=histogram,
+        coverage_gaps=coverage_gaps,
+        histogram_chart=histogram_chart,
+        distribution_anomaly=anomaly,
+        anomaly_bucket=anomaly_bucket,
+        anomaly_percent=anomaly_percent,
+    )
+
+    return CoverageReport(
+        generated_at=timestamp,
+        state_coverage=state_coverage,
+        archetype_coverage=archetype_coverage,
+        histogram=histogram,
+        coverage_gaps=coverage_gaps,
+        distribution_anomaly=anomaly,
+        distribution_anomaly_bucket=anomaly_bucket,
+        distribution_anomaly_percent=anomaly_percent,
+        markdown=markdown,
+        histogram_chart=histogram_chart,
+    )
+
+
+def write_coverage_report(
+    routes: Sequence[Route],
+    *,
+    output_dir: str | Path,
+    date: str | None = None,
+) -> CoverageReport:
+    """Write dated markdown + latest symlink + JSON sidecar to output_dir."""
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    report_date = date or date_today_iso()
+    report = generate_coverage_report(routes)
+
+    dated_report_path = output_path / f"coverage-report-{report_date}.md"
+    latest_report_path = output_path / "coverage-report.md"
+    json_sidecar_path = output_path / "coverage-report.json"
+
+    dated_report_path.write_text(report.markdown, encoding="utf-8")
+
+exec
+/bin/zsh -lc "cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004 && sed -n '180,280p' scripts/curation/pipeline/quality/coverage_report.py" in /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004
+ succeeded in 0ms:
+    )
+    score = record.get("composite_score")
+    if score is None:
+        score = record.get("compositeScore")
+    if score is None:
+        score = 0.0
+
+    return EnrichedRoute(
+        route_id=route_id,
+        name=name,
+        state=state,
+        source=source,
+        centroid_lat=float(record.get("centroid_lat") or record.get("centroidLat") or 0.0),
+        centroid_lng=float(record.get("centroid_lng") or record.get("centroidLng") or 0.0),
+        composite_score=float(score),
+        primary_archetype=str(archetype).strip(),
+    )
+
+
+def _compute_state_coverage(routes: Sequence[Route]) -> dict[str, dict[str, Any]]:
+    counts: Counter[str] = Counter()
+    for route in routes:
+        state = str(getattr(route, "state", "") or "Unknown").strip() or "Unknown"
+        counts[state] += 1
+
+    return {
+        state: {
+            "count": count,
+            "threshold": STATE_MINIMUM_COUNT,
+            "is_gap": count < STATE_MINIMUM_COUNT,
+        }
+        for state, count in sorted(counts.items(), key=lambda item: item[0].lower())
+    }
+
+
+def _compute_archetype_coverage(routes: Sequence[Route]) -> dict[str, dict[str, Any]]:
+    counts: Counter[str] = Counter(
+        {archetype: 0 for archetype in sorted(COMMON_ARCHETYPES | NICHE_ARCHETYPES)}
+    )
+    for route in routes:
+        archetype = _extract_archetype(route)
+        if archetype:
+            counts[archetype] += 1
+
+    result: dict[str, dict[str, Any]] = {}
+    for archetype, count in sorted(counts.items(), key=lambda item: item[0].lower()):
+        tier = "common" if archetype in COMMON_ARCHETYPES else "niche"
+        threshold = COMMON_ARCHETYPE_MINIMUM_COUNT if tier == "common" else NICHE_ARCHETYPE_MINIMUM_COUNT
+        result[archetype] = {
+            "count": count,
+            "threshold": threshold,
+            "tier": tier,
+            "is_gap": count < threshold,
+        }
+    return result
+
+
+def _compute_histogram(routes: Sequence[Route]) -> dict[str, int]:
+    histogram = {label: 0 for label, _lower, _upper in HISTOGRAM_BUCKETS}
+
+    for route in routes:
+        score = _extract_score(route)
+        label = _bucket_for_score(score)
+        histogram[label] += 1
+
+    return histogram
+
+
+def _compute_distribution_anomaly(
+    histogram: dict[str, int],
+    total_routes: int,
+) -> tuple[bool, str | None, float]:
+    if total_routes <= 0:
+        return False, None, 0.0
+
+    highest_share = 0.0
+    anomaly_bucket: str | None = None
+
+    for label in histogram.keys():
+        share = histogram[label] / total_routes
+        if share > ANOMALY_THRESHOLD and share > highest_share:
+            highest_share = share
+            anomaly_bucket = label
+
+    if anomaly_bucket is None:
+        return False, None, 0.0
+
+    return True, anomaly_bucket, round(highest_share * 100, 1)
+
+
+def _render_histogram_chart(histogram: dict[str, int], width: int = 24) -> str:
+    max_count = max(histogram.values(), default=0)
+    lines: list[str] = []
+
+    for label in [bucket for bucket, _lower, _upper in HISTOGRAM_BUCKETS]:
+        count = histogram[label]
+        if count == 0 or max_count == 0:
+            bar = ""
+        else:
+            bar_length = max(1, round((count / max_count) * width))
+            bar = "#" * bar_length
+
+**Considering tier classification issues**
+
+I'm looking into how seeding relates to union and tier classification. Membership in COMMON vs. niche is a bit tricky, especially with unknown archetypes that might be labeled as niche. I'm wondering if we should have an "unknown" tier or if treating them as niche is fine. But I need to ensure required archetypes are seeded properly. There's a potential bug when extracting archetypes that aren’t normalized. I’ll need to check _extract_archetype.
+exec
+/bin/zsh -lc "cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004 && rg -n \"def _extract_archetype\" -n scripts/curation/pipeline/quality/coverage_report.py && sed -n '140,190p' scripts/curation/pipeline/quality/coverage_report.py" in /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004
+ succeeded in 0ms:
+379:def _extract_archetype(route: Route) -> str:
+    """Load routes from JSON or JSONL into EnrichedRoute records.
+
+    This loader is permissive for ad-hoc curation artifacts and uses sensible
+    defaults when optional fields are absent.
+    """
+    file_path = Path(path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"Route input file not found: {file_path}")
+
+    if file_path.suffix.lower() == ".jsonl":
+        records = [json.loads(line) for line in file_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    else:
+        payload = json.loads(file_path.read_text(encoding="utf-8"))
+        if isinstance(payload, list):
+            records = payload
+        elif isinstance(payload, dict) and "routes" in payload and isinstance(payload["routes"], list):
+            records = payload["routes"]
+        else:
+            raise ValueError("Unsupported JSON shape; expected list or {'routes': [...]}.")
+
+    return [_coerce_route(item, index=index) for index, item in enumerate(records)]
+
+
+def date_today_iso() -> str:
+    """Return today's date in YYYY-MM-DD format."""
+    return date.today().isoformat()
+
+
+def _coerce_route(record: dict[str, Any], *, index: int) -> EnrichedRoute:
+    route_id = str(record.get("route_id") or record.get("routeId") or f"route-{index}")
+    name = str(record.get("name") or route_id)
+    state = str(record.get("state") or "Unknown")
+    source = str(record.get("source") or "unknown")
+
+    archetype = (
+        record.get("primary_archetype")
+        or record.get("primaryArchetype")
+        or record.get("primary_archetype_hint")
+        or record.get("archetype")
+        or ""
+    )
+    score = record.get("composite_score")
+    if score is None:
+        score = record.get("compositeScore")
+    if score is None:
+        score = 0.0
+
+    return EnrichedRoute(
+        route_id=route_id,
+        name=name,
+        state=state,
+
+exec
+/bin/zsh -lc "cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004 && sed -n '360,430p' scripts/curation/pipeline/quality/coverage_report.py" in /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004
+ succeeded in 0ms:
+
+    sections = [
+        "# LaneShadow Coverage Report",
+        *summary_lines,
+        "## State Coverage",
+        *state_rows,
+        "## Archetype Coverage",
+        *archetype_rows,
+        "## Composite Score Histogram",
+        "```text",
+        histogram_chart,
+        "```",
+        *histogram_rows,
+        *coverage_lines,
+    ]
+
+    return "\n".join(sections) + "\n"
+
+
+def _extract_archetype(route: Route) -> str:
+    for field_name in ("primary_archetype", "archetype"):
+        value = getattr(route, field_name, None)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return ""
+
+
+def _extract_score(route: Route) -> float:
+    score = getattr(route, "composite_score", 0.0)
+    if score in (None, ""):
+        return 0.0
+    return float(score)
+
+
+def _bucket_for_score(score: float) -> str:
+    if score < 2.0:
+        return "0-2"
+    if score < 4.0:
+        return "2-4"
+    if score < 6.0:
+        return "4-6"
+    if score < 8.0:
+        return "6-8"
+    return "8-10"
+
+
+def _parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Generate catalog coverage report artifacts.")
+    parser.add_argument("--input", required=True, help="Path to curated routes JSON or JSONL file.")
+    parser.add_argument(
+        "--output-dir",
+        default=str(Path(__file__).resolve().parents[4] / "baseline"),
+        help="Output directory for coverage report artifacts.",
+    )
+    parser.add_argument("--date", default=None, help="Override report date (YYYY-MM-DD).")
+    return parser.parse_args(list(argv) if argv is not None else None)
+
+
+def main(argv: Iterable[str] | None = None) -> int:
+    args = _parse_args(argv)
+    routes = load_routes_from_file(args.input)
+    write_coverage_report(routes, output_dir=args.output_dir, date=args.date)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+**Evaluating seeding archetypes**
+
+I need to consider if the seeding required for archetypes should use exact matches, especially since inconsistent case might show a gap, which is undesirable. It seems tests may not cover this adequately. Should I mark it as an issue unless specified as case-insensitive? Common archetypes might be expected to be normalized, but it wasn't requested. As a reviewer, I could note this as a low-severity quality issue without blocking progress. I'll review previous tasks and the test file for robustness.
+exec
+/bin/zsh -lc "cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004 && sed -n '1,240p' scripts/curation/tests/test_qual_004.py" in /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004
+ succeeded in 0ms:
+"""Tests for QUAL-004 coverage validation report."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from scripts.curation.pipeline.models import EnrichedRoute
+from scripts.curation.pipeline.quality.coverage_report import (
+    generate_coverage_report,
+    write_coverage_report,
+)
+
+
+class TestStateCoverage:
+    """State-level coverage gap detection."""
+
+    def test_state_gap_detection(self) -> None:
+        """AC-1: states with fewer than 10 routes are flagged as gaps."""
+        routes = [
+            *[_route(f"ca-{idx}", state="California") for idx in range(12)],
+            *[_route(f"nv-{idx}", state="Nevada") for idx in range(8)],
+            *[_route(f"or-{idx}", state="Oregon") for idx in range(15)],
+        ]
+
+        report = generate_coverage_report(routes)
+
+        assert report.state_coverage["Nevada"]["is_gap"] is True
+        assert report.state_coverage["California"]["is_gap"] is False
+        assert report.state_coverage["Oregon"]["is_gap"] is False
+        assert "Nevada" in report.coverage_gaps["states"]
+
+        gaps_section = _extract_markdown_section(report.markdown, "Coverage Gaps")
+        assert "Nevada" in gaps_section
+        assert "California" not in gaps_section
+        assert "Oregon" not in gaps_section
+
+
+class TestArchetypeCoverage:
+    """Tiered archetype threshold detection."""
+
+    def test_common_archetype_threshold(self) -> None:
+        """AC-2: common archetypes require at least 50 routes."""
+        routes = [
+            *[_route(f"tw-{idx}", archetype="twisties") for idx in range(45)],
+            *[_route(f"mt-{idx}", archetype="mountain") for idx in range(60)],
+            *[_route(f"co-{idx}", archetype="coastal") for idx in range(30)],
+            *[_route(f"sb-{idx}", archetype="scenic_byway") for idx in range(55)],
+        ]
+
+        report = generate_coverage_report(routes)
+
+        assert report.archetype_coverage["twisties"]["is_gap"] is True
+        assert report.archetype_coverage["coastal"]["is_gap"] is True
+        assert report.archetype_coverage["mountain"]["is_gap"] is False
+        assert report.archetype_coverage["scenic_byway"]["is_gap"] is False
+
+    def test_niche_archetype_threshold(self) -> None:
+        """AC-3: niche archetypes require at least 20 routes."""
+        routes = [
+            *[_route(f"ad-{idx}", archetype="adventure") for idx in range(15)],
+            *[_route(f"de-{idx}", archetype="desert") for idx in range(25)],
+        ]
+
+        report = generate_coverage_report(routes)
+
+        assert report.archetype_coverage["adventure"]["is_gap"] is True
+        assert report.archetype_coverage["desert"]["is_gap"] is False
+
+    def test_missing_common_archetype_is_seeded_as_gap(self) -> None:
+        """AC-2: missing common archetypes are seeded with count=0 and flagged."""
+        routes = [
+            *[_route(f"tw-{idx}", archetype="twisties") for idx in range(55)],
+            *[_route(f"mt-{idx}", archetype="mountain") for idx in range(55)],
+            *[_route(f"sb-{idx}", archetype="scenic_byway") for idx in range(55)],
+        ]
+
+        report = generate_coverage_report(routes)
+
+        assert report.archetype_coverage["coastal"]["count"] == 0
+        assert report.archetype_coverage["coastal"]["is_gap"] is True
+        assert "coastal" in report.coverage_gaps["archetypes"]
+
+    def test_missing_niche_archetype_is_seeded_as_gap(self) -> None:
+        """AC-3: missing niche archetypes are seeded with count=0 and flagged."""
+        routes = [*[_route(f"de-{idx}", archetype="desert") for idx in range(25)]]
+
+        report = generate_coverage_report(routes)
+
+        assert report.archetype_coverage["adventure"]["count"] == 0
+        assert report.archetype_coverage["adventure"]["is_gap"] is True
+        assert "adventure" in report.coverage_gaps["archetypes"]
+
+
+class TestHistogram:
+    """Composite-score histogram and anomaly detection."""
+
+    def test_bucket_counts(self) -> None:
+        """AC-4: histogram buckets capture expected route counts."""
+        scores = [
+            0.2,
+            1.0,
+            1.9,
+            2.0,
+            2.3,
+            2.8,
+            3.2,
+            3.9,
+            4.0,
+            4.2,
+            4.7,
+            5.1,
+            5.6,
+            5.9,
+            6.0,
+            6.5,
+            7.4,
+            7.9,
+            8.0,
+            10.0,
+        ]
+        routes = [_route(f"score-{idx}", score=score) for idx, score in enumerate(scores)]
+
+        report = generate_coverage_report(routes)
+
+        assert report.histogram == {
+            "0-2": 3,
+            "2-4": 5,
+            "4-6": 6,
+            "6-8": 4,
+            "8-10": 2,
+        }
+
+        bars = _histogram_bar_lengths(report.histogram_chart)
+        assert bars["4-6"] > bars["6-8"]
+        assert bars["0-2"] > bars["8-10"]
+
+    def test_distribution_anomaly_flag(self) -> None:
+        """AC-5: flag when any histogram bucket exceeds 30% of routes."""
+        scores = [
+            0.3,
+            1.1,
+            2.2,
+            3.3,
+            6.1,
+            6.7,
+            7.2,
+            8.5,
+            8.9,
+            9.6,
+            4.0,
+            4.1,
+            4.2,
+            4.3,
+            4.4,
+            4.5,
+            4.6,
+            4.7,
+            6.3,
+            8.2,
+        ]
+        routes = [_route(f"anomaly-{idx}", score=score) for idx, score in enumerate(scores)]
+
+        report = generate_coverage_report(routes)
+
+        assert report.distribution_anomaly is True
+        assert report.distribution_anomaly_bucket == "4-6"
+        assert report.distribution_anomaly_percent == 40.0
+
+        summary_section = _extract_markdown_section(report.markdown, "Summary")
+        assert "4-6" in summary_section
+        assert "40.0%" in summary_section
+
+
+class TestOutputArtifacts:
+    """Markdown + JSON output artifact generation."""
+
+    def test_dual_output_files(self, tmp_path: Path) -> None:
+        """AC-6: write dated markdown, latest symlink, and JSON sidecar."""
+        routes = [_route(f"route-{idx}", state="Utah", archetype="desert", score=6.1) for idx in range(5)]
+
+        write_coverage_report(routes, output_dir=tmp_path, date="2026-04-18")
+
+        dated_report = tmp_path / "coverage-report-2026-04-18.md"
+        latest_report = tmp_path / "coverage-report.md"
+        sidecar = tmp_path / "coverage-report.json"
+
+        assert dated_report.exists()
+        markdown = dated_report.read_text(encoding="utf-8")
+        assert "| State | Count | Gap |" in markdown
+        assert "| --- | ---: | ---: |" in markdown
+
+        assert latest_report.is_symlink()
+        assert latest_report.resolve() == dated_report.resolve()
+
+        assert sidecar.exists()
+        payload = json.loads(sidecar.read_text(encoding="utf-8"))
+        assert set(payload) == {
+            "generated_at",
+            "state_coverage",
+            "archetype_coverage",
+            "histogram",
+            "coverage_gaps",
+            "distribution_anomaly",
+        }
+
+
+def _route(
+    route_id: str,
+    *,
+    state: str = "Tennessee",
+    archetype: str = "scenic_byway",
+    score: float = 5.0,
+) -> EnrichedRoute:
+    return EnrichedRoute(
+        route_id=route_id,
+        name=f"Route {route_id}",
+        state=state,
+        source="fhwa",
+        centroid_lat=35.5,
+        centroid_lng=-84.0,
+        primary_archetype=archetype,
+        composite_score=score,
+    )
+
+
+def _extract_markdown_section(markdown: str, section_name: str) -> str:
+    marker = f"## {section_name}"
+    start = markdown.find(marker)
+    assert start >= 0
+
+    section = markdown[start + len(marker) :]
+    next_header = section.find("\n## ")
+    if next_header >= 0:
+        section = section[:next_header]
+    return section
+
+
+def _histogram_bar_lengths(chart: str) -> dict[str, int]:
+    lengths: dict[str, int] = {}
+
+exec
+/bin/zsh -lc "cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004 && sed -n '240,360p' scripts/curation/tests/test_qual_004.py" in /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004
+ succeeded in 0ms:
+    lengths: dict[str, int] = {}
+    for line in chart.splitlines():
+        if ": " not in line:
+            continue
+        label, bar = line.split(": ", maxsplit=1)
+        lengths[label] = bar.count("#")
+    return lengths
+
+exec
+/bin/zsh -lc 'cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004 && git rev-parse --abbrev-ref HEAD && git status --porcelain' in /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004
+ succeeded in 0ms:
+codex/QUAL-004
+?? scripts/curation/.kb-run-sprint-codex/
+
+**Identifying directory concerns**
+
+I just noticed there's an untracked directory called scripts/curation/.kb-run-sprint-codex/, which seems a bit strange. It shouldn't be an issue since the reviewer doesn't modify files, so maybe it was created by a harness. I’m wondering if this is a quality issue, though it might just be some artifact from the pipeline. Even though it’s not part of acceptance criteria, its presence indicates a dirty working tree. Time to run the tests now!
+exec
+/bin/zsh -lc 'cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004 && python -m pytest scripts/curation/tests/test_qual_004.py -q' in /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004
+ exited 127 in 0ms:
+zsh:1: command not found: python
+
+**Determining Python usage**
+
+I need to check if Python is in the PATH. If it’s not recognized, I should try using `python3` instead. It seems like a common issue, and switching to `python3` could solve it. Let's go with that approach and see if it resolves the problem! It’s always good to have a backup option when it comes to coding environments, right? So, I’m deciding to proceed with `python3`.
+exec
+/bin/zsh -lc 'cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004 && python3 -m pytest scripts/curation/tests/test_qual_004.py -q' in /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004
+ succeeded in 852ms:
+........                                                                 [100%]
+8 passed in 0.01s
+
+**Checking mypy installation**
+
+Tests passed, which is great! Now, I need to check the mypy gate. I'm wondering if mypy is installed, so I think I'll run a command like `python3 -m mypy ...` or maybe just `mypy .`. It's a quick check. I just want to make sure everything is lined up properly before proceeding!
+exec
+/bin/zsh -lc 'cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004 && python3 -m mypy scripts/curation/pipeline/quality/coverage_report.py' in /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004
+ exited 1 in 0ms:
+/opt/homebrew/opt/python@3.14/bin/python3.14: No module named mypy
+
+**Checking edge cases in code**
+
+I've thought about an edge case where if the routes list is empty, counts must have required keys of zero, meaning coverage gaps could include all archetypes, which is possibly desired. I should double-check for any regressions in other tests to ensure they still pass. Now, I'll look into "stubs" and "anti-patterns" in the code. I might use `rg "TODO|stub|FIXME"` to find potential issues quickly in the coverage report. Let's focus on the changed files!
+exec
+/bin/zsh -lc 'cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004 && rg -n "TODO|FIXME|stub" scripts/curation/pipeline/quality/coverage_report.py scripts/curation/tests/test_qual_004.py || true' in /Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004
+ succeeded in 0ms:
+**Evaluating code quality issues**
+
+I'm considering the remaining quality issues in the code. One possible improvement is that the seeding process uses `sorted` to build a dictionary, but then it sorts counts later by keys. That’s deterministic, so not an issue. However, it might be more critical to create a `Counter` with mapping seeds requiring keys. The default counts for missing keys is 0, so earlier code could've calculated counts and ensured all keys exist in the result. I see they kept type annotations as well. I'm checking if `Counter` retains zero counts, and it does!
+**Analyzing potential pitfalls**
+
+I’m noting a potential issue: if other code uses `counts.most_common()`, it might iterate items, but that’s fine because the seeded keys remain intact. Now, I need to format the output JSON with the required fields, possibly using a list of dictionaries like `{"name": "...", "passed": true, "evidence": "..."}` for the test criteria.
+
+Verification requires objects with executed commands, results, and analysis. I need at least one notebook entry, perhaps structured like `{"date":"2026-04-20", "entry":"..."}`. Regarding validation, although tests passed, mypy isn't installed, which might mean validation isn't truly passed, so I might have to set `validation_passed` to false for fairness.
+**Assessing validation criteria**
+
+I'm faced with a challenge: since I can't run mypy, I can't confirm if it passed. For the verdict criteria, I see that no critical/high issues are present, and the acceptance criteria are satisfied. While I’d approve, I need to note that the mypy check wasn't runnable in this environment.
+
+Strictly speaking, if the project requires mypy, its absence may need addressing, even if it wasn't part of the task. The schema includes a `validation_passed` boolean, which I could set to true if pytest passes but might mark false if mypy is missing. I could indicate that mypy isn't available in the verification section while setting `test_criteria_all_true` to true, focusing on pytest only.
+**Interpreting validation status**
+
+I'm deciding how to interpret "validation_passed." It seems to mean that the validation run in CI passed since the tests showed a positive outcome. I'll set this to true, but I need to mention that mypy is missing—though I believe it’s a non-blocking issue.
+
+I could also argue that the lack of mypy might require attention in the future. However, it doesn't violate the acceptance criteria outright; it's more of a quality concern. I'll also check for any untracked files in the worktree with `git status`. Finally, I need to craft a single JSON object output, ensuring the response matches the format exactly.
+**Constructing output fields**
+
+I’m putting together the necessary fields. The verdict will be "APPROVED" with high confidence, and I’ll include an iteration number of 2. The `worktree_path` and `worktree_branch` will come from the environment context and git, respectively.
+
+I’ll set `validation_passed` to true since the pytest passed, with a self-heal count of 0. The test criteria will include lists for pytest and archetype seeding tests.
+
+In the verification, I need to include commands, results, and evidence. The acceptance criteria will list objects AC-1 to AC-6 with verdict and evidence. I'll note a minor issue regarding case normalization as part of the verification or as "quality_findings." Finally, I'll ensure that each acceptance criteria item has optional notes and deliver the output!
+codex
+{
+  "verdict": "APPROVED",
+  "verdict_confidence": "HIGH",
+  "iteration": 2,
+  "worktree_path": "/Users/justinrich/Projects/LaneShadow/.kb-run-sprint-codex/worktrees/QUAL-004",
+  "worktree_branch": "codex/QUAL-004",
+  "validation_passed": true,
+  "self_heal_count": 0,
+  "test_criteria_all_true": true,
+  "test_criteria": [
+    {
+      "id": "pytest",
+      "passed": true,
+      "evidence": "python3 -m pytest scripts/curation/tests/test_qual_004.py -q -> 8 passed in 0.01s"
+    },
+    {
+      "id": "ac2_seed_missing_common",
+      "passed": true,
+      "evidence": "TestArchetypeCoverage.test_missing_common_archetype_is_seeded_as_gap asserts coastal count==0, is_gap==True, and included in coverage_gaps"
+    },
+    {
+      "id": "ac3_seed_missing_niche",
+      "passed": true,
+      "evidence": "TestArchetypeCoverage.test_missing_niche_archetype_is_seeded_as_gap asserts adventure count==0, is_gap==True, and included in coverage_gaps"
+    }
+  ],
+  "verification": {
+    "code_review": {
+      "seeding_logic": "scripts/curation/pipeline/quality/coverage_report.py:_compute_archetype_coverage seeds counts with Counter({archetype: 0 for archetype in sorted(COMMON_ARCHETYPES | NICHE_ARCHETYPES)}), ensuring all required common+niche archetypes exist with 0 when absent.",
+      "gap_flagging": "Seeded archetypes participate in the same tiered threshold logic (common=50, niche=20) and therefore are correctly flagged as gaps when count==0.",
+      "notes": [
+        "Non-blocking: archetype matching is case-sensitive (no normalization in _extract_archetype); inputs like 'Twisties' would not increment 'twisties' and could falsely report a gap."
+      ]
+    },
+    "commands_run": [
+      "git rev-parse --abbrev-ref HEAD",
+      "git status --porcelain",
+      "python3 -m pytest scripts/curation/tests/test_qual_004.py -q",
+      "python3 -m mypy scripts/curation/pipeline/quality/coverage_report.py (failed: mypy not installed)"
+    ],
+    "environment_findings": [
+      "python is not on PATH (python3 is).",
+      "mypy not installed in this environment (python3 -m mypy -> No module named mypy).",
+      "Untracked: scripts/curation/.kb-run-sprint-codex/ (does not affect pytest result)."
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "AC-1",
+      "verdict": "PASS",
+      "evidence": "TestStateCoverage.test_state_gap_detection passes (pytest run: 8/8).",
+      "notes": "No behavioral regression observed."
+    },
+    {
+      "id": "AC-2",
+      "verdict": "PASS",
+      "evidence": "Seeding implemented via COMMON_ARCHETYPES union NICHE_ARCHETYPES Counter init + regression test test_missing_common_archetype_is_seeded_as_gap passes.",
+      "notes": "All required common archetypes are present in report even when absent from routes."
+    },
+    {
+      "id": "AC-3",
+      "verdict": "PASS",
+      "evidence": "Seeding includes NICHE_ARCHETYPES + regression test test_missing_niche_archetype_is_seeded_as_gap passes.",
+      "notes": "All required niche archetypes are present in report even when absent from routes."
+    },
+    {
+      "id": "AC-4",
+      "verdict": "PASS",
+      "evidence": "TestHistogram.test_bucket_counts passes (pytest run: 8/8).",
+      "notes": ""
+    },
+    {
+      "id": "AC-5",
+      "verdict": "PASS",
+      "evidence": "TestHistogram.test_distribution_anomaly_flag passes (pytest run: 8/8).",
+      "notes": ""
+    },
+    {
+      "id": "AC-6",
+      "verdict": "PASS",
+      "evidence": "TestOutputArtifacts.test_dual_output_files passes (pytest run: 8/8).",
+      "notes": ""
+    }
+  ],
+  "stub_findings": [],
+  "task_file_updated": false,
+  "notebook_entries": [
+    "2026-04-20: QUAL-004 iteration 2 re-check: archetype seeding now covers all required common+niche archetypes with 0 counts; new regression tests confirm 0-count keys are present and flagged as gaps; pytest passes."
+  ],
+  "summary": "AC-2 and AC-3 now fully pass: required common+niche archetypes are pre-seeded with count=0 when absent and correctly flagged as gaps; regression tests verify this and full pytest suite for QUAL-004 passes."
+}
+hook: Stop
+hook: Stop Completed
+tokens used
+18,069

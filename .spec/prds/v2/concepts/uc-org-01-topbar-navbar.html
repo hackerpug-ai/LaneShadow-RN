@@ -114,7 +114,7 @@ body{font-family:var(--font-ui);color:var(--content-primary);background:var(--su
 .ac-cite{font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px;}
 .ac-cite::before{content:"☐";position:absolute;left:0;top:0;color:var(--border-strong);}
 
-/* PHONE FRAME */
+/* PHONE FRAME — default (compact, fits 4-column grids) */
 .phone-frame{width:100%;max-width:282px;margin:0 auto;aspect-ratio:9/19.5;position:relative;border-radius:44px;background:#0F0A07;box-shadow:inset 0 0 0 1px #2A1F16,inset 0 0 0 2.5px #0F0A07,0 30px 70px -16px rgba(34,24,16,0.38),0 10px 24px -10px rgba(34,24,16,0.22);overflow:hidden;}
 .phone-screen{position:absolute;inset:3px;border-radius:41px;overflow:hidden;display:flex;flex-direction:column;background:var(--surface-primary);color:var(--content-primary);isolation:isolate;}
 .phone-di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:96px;height:26px;background:#000;border-radius:14px;z-index:60;}
@@ -124,6 +124,35 @@ body{font-family:var(--font-ui);color:var(--content-primary);background:var(--su
 .phone-hi{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:108px;height:4px;border-radius:3px;z-index:60;background:rgba(0,0,0,0.38);}
 .mode-dark .phone-hi{background:rgba(255,255,255,0.30);}
 
+/* PHONE FRAME — actual-size variant used inside .stories-breakout so LSTopBar chips render at
+   the exact pixel sizes they will have on a real device (iPhone 390×780, scaled to 360×720). */
+.stories-breakout .phone-frame{max-width:360px;aspect-ratio:9/18;border-radius:52px;}
+.stories-breakout .phone-screen{border-radius:49px;}
+.stories-breakout .phone-di{width:120px;height:32px;border-radius:17px;top:12px;}
+.stories-breakout .phone-hi{width:134px;height:5px;bottom:8px;}
+
+/* Breakout row — escapes the 1440 .wrap so 5 phones at near-actual width can sit in one row.
+   On viewports narrower than the row total, the container scrolls horizontally rather than
+   shrinking the phones below actual size. */
+.stories-breakout{
+  margin-left:calc(50% - 50vw);
+  margin-right:calc(50% - 50vw);
+  width:100vw;
+  overflow-x:auto;
+  overflow-y:visible;
+  padding:8px 48px 24px;
+  box-sizing:border-box;
+}
+.stories-breakout > .screens-grid{
+  padding-left:0;
+  grid-template-columns:repeat(5,360px);
+  gap:28px 32px;
+  width:max-content;
+  margin:0 auto;
+  justify-content:center;
+}
+.stories-breakout .screen-annotation{max-width:340px;}
+
 /* PAPER MAP */
 .pmap{position:absolute;inset:0;background:var(--map-paper);overflow:hidden;z-index:0;}
 .pmap::before{content:"";position:absolute;inset:-8px;background-image:linear-gradient(var(--map-contour-faint) 1px,transparent 1px),linear-gradient(90deg,var(--map-contour-faint) 1px,transparent 1px);background-size:28px 28px;opacity:0.55;pointer-events:none;}
@@ -131,44 +160,54 @@ body{font-family:var(--font-ui);color:var(--content-primary);background:var(--su
 .mode-dark .pmap::after{background:radial-gradient(120% 60% at 50% 30%,transparent 40%,rgba(0,0,0,0.40) 100%);}
 
 /* ═══════════ LSTopBar ORGANISM ═══════════
-   Positions: absolute top:46px (below status bar), z-index 30.
-   Chips: 40×40 circular (hamburger) or 40h pill (NEW).
-   Both use LSGlassPanel.chrome (glass backdrop + blur).
-   Safe-area top padding: 14pt below the 46pt status bar offset = 60pt from phone top.
+   Aligned to primary design (designs.html · TopBar).
+   Position: absolute top:46px (below 46pt status-bar), z-index 30, 12px horizontal inset.
+   Both chips share identical rounded-rect geometry: 40pt tall, radius.md (6px).
+   Surface is ~90% opaque over map (not heavy glass); subtle 8px backdrop blur softens
+   the edge where the chip meets terrain. Shadow is elev-1 only — these float lightly.
 */
 .ls-topbar{
   position:absolute;top:46px;left:0;right:0;
-  display:flex;justify-content:space-between;align-items:center;
-  padding:14px 14px 0;z-index:30;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:14px 12px 0;z-index:30;
 }
 .chrome-chip{
-  background:var(--surface-glass);
-  border:1px solid rgba(255,255,255,0.55);
-  box-shadow:var(--elev-chrome);
-  backdrop-filter:blur(14px) saturate(1.2);
-  -webkit-backdrop-filter:blur(14px) saturate(1.2);
+  height:40px;border-radius:6px;
+  background:rgba(255,255,255,0.90);
+  border:1px solid var(--border-default);
+  box-shadow:0 1px 2px rgba(30,30,30,0.05),0 1px 1px rgba(30,30,30,0.04);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
   display:flex;align-items:center;justify-content:center;
   color:var(--content-primary);
 }
-.mode-dark .chrome-chip{border-color:rgba(242,238,232,0.12);}
-/* circular: 40×40pt, radius.md = 50% */
-.chrome-chip.circular{width:40px;height:40px;border-radius:50%;}
-/* pill: 40h, dynamic width, 22px radius */
-.chrome-chip.pill{padding:0 14px;height:40px;border-radius:22px;display:flex;align-items:center;gap:6px;}
+.mode-dark .chrome-chip{
+  background:rgba(45,34,24,0.90);
+  border-color:var(--border-default);
+  box-shadow:0 1px 2px rgba(0,0,0,0.45),0 1px 1px rgba(0,0,0,0.30);
+}
+/* square: 40×40pt hamburger target */
+.chrome-chip.square{width:40px;}
+/* with-label: dynamic-width chip carrying icon + label (e.g. NEW) */
+.chrome-chip.with-label{padding:0 12px;gap:6px;}
 
-/* Title centered absolutely between chips */
-.topbar-title{
-  position:absolute;left:0;right:0;top:14px;
-  display:flex;justify-content:center;align-items:center;
-  pointer-events:none;padding-top:0;
-  font-family:var(--font-ui);font-weight:600;font-size:14px;
-  letter-spacing:-0.005em;color:var(--content-primary);
+/* NEW label typography — primary label_md · Geist 500 13px 0.01em */
+.topbar-label{
+  font-family:var(--font-ui);font-weight:500;font-size:13px;
+  letter-spacing:0.01em;color:var(--content-primary);line-height:1.0;
 }
 
-/* Recording chip variant — copper → red */
+/* Title when present — primary title_md · Newsreader display serif 500 18px */
+.topbar-title{
+  flex:1;text-align:center;
+  font-family:var(--font-opinion);font-weight:500;font-size:18px;
+  line-height:1.25;letter-spacing:-0.005em;color:var(--content-primary);
+}
+
+/* Recording chip variant — copper → red (component-level extension) */
 .chrome-chip.record{
   background:rgba(201,66,60,0.12);
-  border-color:rgba(201,66,60,0.4);
+  border-color:rgba(201,66,60,0.40);
 }
 .chrome-chip.record .rec-dot{
   width:6px;height:6px;border-radius:50%;background:#C9423C;
@@ -301,11 +340,12 @@ body{font-family:var(--font-ui);color:var(--content-primary);background:var(--su
     <p class="prose">
       <strong>LSTopBar</strong> is the primary top chrome organism used on every
       Navigator screen — Idle, Planning, RouteResults, RouteDetails, and Error.
-      It floats above the map via <em>LSGlassPanel(.chrome)</em>, respecting the
-      status-bar safe area, and exposes three slots: a leading hamburger chip,
-      an optional centered title, and a trailing NEW chip. Both chips are 40pt
-      diameter circular or pill-height constructs backed by the same glass surface
-      so they read legibly against both light paper and dark night-mode maps.
+      It floats above the map as a row of chips backed by the warm surface at
+      90% alpha with a light 8pt backdrop blur, respecting the status-bar safe
+      area. It exposes three slots: a leading hamburger chip, an optional
+      centered title, and a trailing NEW chip. Both chips share the same
+      geometry — 40pt tall, <em>radius.md</em> rounded rectangles — so they
+      read as a single family against both light paper and night-mode maps.
     </p>
     <p class="prose">
       <strong>LSNavBar</strong> is retained for modal-sheet and full-screen modal
@@ -324,8 +364,9 @@ body{font-family:var(--font-ui);color:var(--content-primary);background:var(--su
       <h2 class="section-title"><em>LSTopBar</em> — five states.</h2>
     </div>
 
-    <!-- LSTopBar Stories -->
-    <div class="screens-grid cols-5" style="padding-left:152px;">
+    <!-- LSTopBar Stories — breakout so 5 phones render at near-actual pixel size -->
+    <div class="stories-breakout">
+    <div class="screens-grid cols-5">
 
       <!-- Story 1: Default -->
       <div class="screen-cell">
@@ -334,19 +375,16 @@ body{font-family:var(--font-ui);color:var(--content-primary);background:var(--su
             <div class="phone-di"></div>
             <div class="pmap"></div>
             <div class="ls-topbar">
-              <div class="chrome-chip circular">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
-                  <rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
-                  <rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+              <div class="chrome-chip square">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/>
                 </svg>
               </div>
-              <div class="chrome-chip pill">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                  <line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <div class="chrome-chip with-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 5 V19"/><path d="M5 12 H19"/>
                 </svg>
-                <span class="t-label-md">NEW</span>
+                <span class="topbar-label">NEW</span>
               </div>
             </div>
             <div class="phone-hi"></div>
@@ -355,7 +393,7 @@ body{font-family:var(--font-ui);color:var(--content-primary);background:var(--su
         <div class="screen-annotation">
           <div class="screen-num">S.01</div>
           <div class="screen-name">Default</div>
-          <div class="screen-desc">Hamburger leading + NEW pill trailing. No title. Both glass-backed.</div>
+          <div class="screen-desc">Hamburger leading + NEW trailing. Unified rounded-rect chips (radius.md), 90% surface alpha over map.</div>
         </div>
       </div>
 
@@ -366,20 +404,17 @@ body{font-family:var(--font-ui);color:var(--content-primary);background:var(--su
             <div class="phone-di"></div>
             <div class="pmap"></div>
             <div class="ls-topbar">
-              <div class="chrome-chip circular">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
-                  <rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
-                  <rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+              <div class="chrome-chip square">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/>
                 </svg>
               </div>
-              <div class="topbar-title" style="font-family:var(--font-ui);font-weight:600;font-size:13px;color:var(--content-primary);text-shadow:0 1px 8px var(--surface-glass);">Details</div>
-              <div class="chrome-chip pill">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                  <line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <div class="topbar-title">Details</div>
+              <div class="chrome-chip with-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 5 V19"/><path d="M5 12 H19"/>
                 </svg>
-                <span class="t-label-md">NEW</span>
+                <span class="topbar-label">NEW</span>
               </div>
             </div>
             <div class="phone-hi"></div>
@@ -388,7 +423,7 @@ body{font-family:var(--font-ui);color:var(--content-primary);background:var(--su
         <div class="screen-annotation">
           <div class="screen-num">S.02</div>
           <div class="screen-name">With Title</div>
-          <div class="screen-desc">Centered title in ui.title.md between the two chips. Title centered absolutely.</div>
+          <div class="screen-desc">Title fills the flex gap between chips; display.title.md — Newsreader serif 18pt 500.</div>
         </div>
       </div>
 
@@ -399,11 +434,9 @@ body{font-family:var(--font-ui);color:var(--content-primary);background:var(--su
             <div class="phone-di"></div>
             <div class="pmap"></div>
             <div class="ls-topbar">
-              <div class="chrome-chip circular">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
-                  <rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
-                  <rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+              <div class="chrome-chip square">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/>
                 </svg>
               </div>
             </div>
@@ -424,16 +457,14 @@ body{font-family:var(--font-ui);color:var(--content-primary);background:var(--su
             <div class="phone-di"></div>
             <div class="pmap"></div>
             <div class="ls-topbar">
-              <div class="chrome-chip circular">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
-                  <rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
-                  <rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+              <div class="chrome-chip square">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/>
                 </svg>
               </div>
-              <div class="chrome-chip pill record" style="color:#C9423C;">
+              <div class="chrome-chip with-label record" style="color:#C9423C;">
                 <span class="rec-dot"></span>
-                <span style="font-family:var(--font-ui);font-weight:700;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;">REC</span>
+                <span class="topbar-label" style="color:#C9423C;">REC</span>
               </div>
             </div>
             <div class="phone-hi"></div>
@@ -453,19 +484,16 @@ body{font-family:var(--font-ui);color:var(--content-primary);background:var(--su
             <div class="phone-di"></div>
             <div class="pmap"></div>
             <div class="ls-topbar">
-              <div class="chrome-chip circular">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
-                  <rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
-                  <rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+              <div class="chrome-chip square">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/>
                 </svg>
               </div>
-              <div class="chrome-chip pill">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                  <line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <div class="chrome-chip with-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 5 V19"/><path d="M5 12 H19"/>
                 </svg>
-                <span class="t-label-md">NEW</span>
+                <span class="topbar-label">NEW</span>
               </div>
             </div>
             <div class="phone-hi"></div>
@@ -474,11 +502,12 @@ body{font-family:var(--font-ui);color:var(--content-primary);background:var(--su
         <div class="screen-annotation">
           <div class="screen-num">S.05</div>
           <div class="screen-name">Dark Mode</div>
-          <div class="screen-desc">Glass tint + blur re-resolve against dark paper map. Border adopts ink-tinted alpha.</div>
+          <div class="screen-desc">Surface re-resolves to night_800 @ 90% against warm-night map. Border stays on the token — ink-warm at elev-1.</div>
         </div>
       </div>
 
     </div><!-- /screens-grid -->
+    </div><!-- /stories-breakout -->
 
     <!-- LSNavBar Stories -->
     <div class="section-header" style="margin-top:96px;">
@@ -602,10 +631,13 @@ body{font-family:var(--font-ui);color:var(--content-primary);background:var(--su
       <h2 class="section-title">Chips, slots, <em>variants</em>.</h2>
     </div>
     <div class="dim-table">
-      <div class="dim-name">LSTopBar.hamburger</div><div class="dim-val">40×40pt circular</div><div class="dim-desc">LSGlassPanel.chrome, LSIcon(.menu), z-index 30, radius 50%</div>
-      <div class="dim-name">LSTopBar.newChip</div><div class="dim-val">40pt h × dynamic w</div><div class="dim-desc">LSGlassPanel.chrome pill, 22pt radius, .plus icon + "NEW" ui.label.md</div>
-      <div class="dim-name">LSTopBar.title</div><div class="dim-val">centered absolute</div><div class="dim-desc">ui.title.md (14pt 600), pointer-events:none, z-index below chips</div>
-      <div class="dim-name">LSTopBar safe-area top</div><div class="dim-val">46pt + 14pt = 60pt</div><div class="dim-desc">46pt status-bar offset + 14pt padding below it</div>
+      <div class="dim-name">LSTopBar.hamburger</div><div class="dim-val">40×40pt · radius.md</div><div class="dim-desc">Rounded-rect chip, LSIcon(.menu) 18pt stroke 1.75, surface @ 90% alpha, elev-1</div>
+      <div class="dim-name">LSTopBar.newChip</div><div class="dim-val">40pt h × dynamic w</div><div class="dim-desc">Same rounded-rect (radius.md), .plus icon 14pt stroke 2 + "NEW" label.md (13pt 500)</div>
+      <div class="dim-name">LSTopBar.title</div><div class="dim-val">flex:1 centered</div><div class="dim-desc">display.title.md — Newsreader 500 18pt, fills gap between chips (not absolute)</div>
+      <div class="dim-name">LSTopBar surface</div><div class="dim-val">surface + E6</div><div class="dim-desc">rgba(255,255,255,0.90) light / rgba(45,34,24,0.90) dark — mostly opaque, not glass</div>
+      <div class="dim-name">LSTopBar backdrop</div><div class="dim-val">blur(8px)</div><div class="dim-desc">Light 8pt blur softens edge where chip meets terrain without obscuring it</div>
+      <div class="dim-name">LSTopBar elevation</div><div class="dim-val">shadow_1</div><div class="dim-desc">0 1px 2px rgba(30,30,30,0.05), 0 1px 1px rgba(30,30,30,0.04) — chips float lightly</div>
+      <div class="dim-name">LSTopBar safe-area</div><div class="dim-val">46pt + 14pt = 60pt</div><div class="dim-desc">46pt status-bar offset + 14pt padding; 12pt horizontal inset each side</div>
       <div class="dim-name">LSTopBar z-index</div><div class="dim-val">30</div><div class="dim-desc">Above map (0), scrim (1), overlays (20), below sheet (40)</div>
       <div class="dim-name">LSNavBar height</div><div class="dim-val">~56pt total</div><div class="dim-desc">12pt padding top+bottom, 34pt icon targets, surface.card bg</div>
       <div class="dim-name">Record chip bg</div><div class="dim-val">rgba(201,66,60,0.12)</div><div class="dim-desc">color.status.recording at 12% alpha + red dot pulse animation</div>
