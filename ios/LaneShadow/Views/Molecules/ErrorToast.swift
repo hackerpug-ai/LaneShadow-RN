@@ -93,10 +93,10 @@ public struct LSErrorToast: View {
         .background(theme.colors.danger.default)
         .clipShape(RoundedRectangle(cornerRadius: theme.radius.lg))
         .shadow(
-            color: Color.black.opacity(0.15),
-            radius: 8,
-            x: 0,
-            y: 4
+            color: theme.elevation.level2.shadowColor,
+            radius: theme.elevation.level2.radius,
+            x: theme.elevation.level2.offsetX,
+            y: theme.elevation.level2.offsetY
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Error: \(title). \(description)")

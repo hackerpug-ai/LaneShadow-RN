@@ -100,7 +100,12 @@ public struct LSSwitch: View {
             Circle()
                 .fill(theme.colors.surface.default)
                 .frame(width: thumbSize, height: thumbSize)
-                .shadow(color: .black.opacity(0.25), radius: shadowRadius, y: shadowYOffset)
+                .shadow(
+                    color: theme.elevation.level1.shadowColor,
+                    radius: theme.elevation.level1.radius,
+                    x: theme.elevation.level1.offsetX,
+                    y: theme.elevation.level1.offsetY
+                )
                 .offset(x: value ? thumbOffsetChecked : thumbOffsetUnchecked)
                 .animation(.easeInOut(duration: animationDuration), value: value)
         }

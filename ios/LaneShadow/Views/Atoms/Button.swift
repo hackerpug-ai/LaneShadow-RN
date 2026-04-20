@@ -321,7 +321,7 @@ public struct LSButton: View {
                 .font(.system(size: theme.type.label.sm.fontSize, weight: .medium))
                 .foregroundStyle(foregroundColor)
                 .if(variant == .link) { view in
-                    view.underline()
+                    view.underline(true)
                 }
                 .frame(height: height)
                 .if(!isIconOnly) { view in
@@ -372,13 +372,5 @@ private extension View {
         } else {
             self
         }
-    }
-}
-
-// MARK: - Text Underline Extension
-
-private extension View {
-    func underline() -> some View {
-        self
     }
 }

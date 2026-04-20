@@ -88,9 +88,10 @@ public struct LSAuthCard<Content: View>: View {
                 .stroke(theme.colors.border.default, lineWidth: 1)
         )
         .shadow(
-            color: Color.black.opacity(0.1),
-            radius: 2,
-            y: 1
+            color: theme.elevation.level1.shadowColor,
+            radius: theme.elevation.level1.radius,
+            x: theme.elevation.level1.offsetX,
+            y: theme.elevation.level1.offsetY
         )
     }
 }

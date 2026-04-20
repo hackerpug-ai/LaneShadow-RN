@@ -148,7 +148,12 @@ public struct LSMapControls: View {
                 RoundedRectangle(cornerRadius: theme.radius.xl2)
                     .stroke(theme.colors.border.default, lineWidth: 1.5)
             }
-            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+            .shadow(
+                color: theme.elevation.level1.shadowColor,
+                radius: theme.elevation.level1.radius,
+                x: theme.elevation.level1.offsetX,
+                y: theme.elevation.level1.offsetY
+            )
         }
 
         // Recenter button
@@ -279,7 +284,12 @@ private struct LSMapControlButton: View {
                 RoundedRectangle(cornerRadius: theme.radius.xl2)
                     .stroke(accent ? theme.colors.primary.default : theme.colors.border.default, lineWidth: 1.5)
             }
-            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+            .shadow(
+                color: theme.elevation.level1.shadowColor,
+                radius: theme.elevation.level1.radius,
+                x: theme.elevation.level1.offsetX,
+                y: theme.elevation.level1.offsetY
+            )
         }
         .buttonStyle(PressOpacityButtonStyle())
         .accessibilityLabel(accessibilityLabel)

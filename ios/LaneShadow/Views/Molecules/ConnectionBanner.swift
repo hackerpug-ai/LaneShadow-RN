@@ -54,12 +54,12 @@ public struct LSConnectionBanner: View {
                 // Wifi/exclamation icon on the left
                 Image(systemName: "wifi.exclamationmark")
                     .font(.system(size: 20, weight: .medium))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(theme.colors.onPrimary.default)
 
                 // Message text
                 Text(message)
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(theme.colors.onPrimary.default)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
             .frame(maxWidth: .infinity)

@@ -40,13 +40,16 @@ public struct LSPrimaryButton: View {
     private let loading: Bool
     private let disabled: Bool
 
+    // Design spec: primary button height (no size token)
     private let height: CGFloat = 56
-    private let cornerRadius: CGFloat = 20
-    private let horizontalPadding: CGFloat = 24
-    private let iconSize: CGFloat = 20
+    private var cornerRadius: CGFloat { theme.radius.xl }
+    private var horizontalPadding: CGFloat { theme.space.xl }
+    private var iconSize: CGFloat { theme.iconSize.small }
 
     // Copper glow shadow color (rgba(184,115,50,0.4))
-    private let glowColor = Color(red: 0.722, green: 0.451, blue: 0.2, opacity: 0.4)
+    private var glowColor: Color {
+        theme.colors.primary.default.opacity(theme.opacity.shadowPrimary)
+    }
     private let glowRadius: CGFloat = 16
     private let glowOffset: CGFloat = 8
 

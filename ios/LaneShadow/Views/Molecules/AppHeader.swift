@@ -107,9 +107,10 @@ public struct LSAppHeader: View {
         .background(theme.colors.surface.default)
         .if(elevated) { view in
             view.shadow(
-                color: Color.black.opacity(0.1),
-                radius: 4,
-                y: 2
+                color: theme.elevation.level1.shadowColor,
+                radius: theme.elevation.level1.radius,
+                x: theme.elevation.level1.offsetX,
+                y: theme.elevation.level1.offsetY
             )
         }
     }
