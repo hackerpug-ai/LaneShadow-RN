@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<!-- uc-tok-04-motion.html — UC-TOK-04 "Motion Recipes + Primitives"
+     LaneShadow V2 · Copper · Foundation Token Mock · 2026-04-20
+     Authority: .spec/prds/v2/04-uc-tok.md §UC-TOK-04 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-TOK-04 — Motion — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:  #FDFBF8;  --paper-100: #F8F7F6;  --paper-150: #F5F2EE;
+  --paper-200: #F2EFED;  --paper-300: #EDE7E1;  --paper-400: #E5DED9;  --paper-500: #C9BDB3;
+  --ink-900: #1E1A16;  --ink-800: #221810;  --ink-700: #2D2218;
+  --ink-600: #362A1F;  --ink-500: #3D3228;  --ink-400: #49454F;
+  --ink-300: #6B6460;  --ink-200: #9CA3AF;  --ink-100: #CAC4D0;  --ink-050: #F2EEE8;
+  --copper-700: #9E4A22;  --copper-600: #B85A2C;  --copper-500: #EE7C2B;
+  --copper-400: #F3A164;  --copper-200: #F9D5B5;  --copper-100: #FCE8D4;
+  --font-opinion:    'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+}
+:root {
+  --surface-primary: var(--paper-100);   --surface-card: var(--paper-50);
+  --surface-inset: var(--paper-200);     --surface-glass: rgba(253,251,248,0.72);
+  --content-primary: var(--ink-900);     --content-secondary: var(--ink-400);
+  --content-tertiary: var(--ink-300);    --content-subtle: var(--ink-200);
+  --signal-default: var(--copper-500);   --signal-pressed: var(--copper-700);
+  --signal-tint: var(--copper-200);      --signal-whisper: var(--copper-100);
+  --border-default: var(--paper-400);    --border-subtle: var(--paper-300);
+  --border-strong: var(--paper-500);     --border-focus: var(--copper-500);
+  --elev-overlay: 0 8px 24px rgba(34,24,16,0.10), 0 2px 6px rgba(34,24,16,0.06);
+  --elev-card: 0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome: 0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
+}
+
+body {
+  font-family: var(--font-ui); color: var(--content-primary);
+  background: var(--surface-primary); -webkit-font-smoothing: antialiased;
+  min-height: 100vh; line-height: 1.55; overflow-x: hidden;
+}
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+
+/* SHARED CHROME */
+.doc-header { position: relative; padding: 96px 0 72px; border-bottom: 1px solid var(--border-default); overflow: hidden; }
+.doc-header::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle at 8% 80%, rgba(238,124,43,0.08), transparent 44%), radial-gradient(circle at 92% 12%, rgba(184,90,44,0.05), transparent 50%); pointer-events: none; }
+.doc-header > * { position: relative; z-index: 1; }
+.doc-eyebrow { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-ui); font-size: 10.5px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--signal-default); margin-bottom: 28px; }
+.doc-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--signal-default); }
+.doc-eyebrow-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--signal-default); color: var(--signal-default); background: var(--signal-whisper); font-size: 9.5px; letter-spacing: 0.14em; }
+.doc-title { font-family: var(--font-opinion); font-size: 104px; font-weight: 300; line-height: 0.94; letter-spacing: -0.035em; color: var(--content-primary); margin-bottom: 32px; max-width: 1000px; }
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.doc-tagline { font-family: var(--font-opinion); font-style: italic; font-size: 22px; font-weight: 300; color: var(--content-secondary); max-width: 640px; line-height: 1.55; margin-bottom: 56px; }
+.doc-meta-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 24px; padding-top: 36px; border-top: 1px solid var(--border-default); }
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label { font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary); }
+.meta-value { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); }
+.section { padding: 96px 0; border-bottom: 1px solid var(--border-default); position: relative; }
+.section:last-child { border-bottom: none; }
+.section-header { display: grid; grid-template-columns: 120px 1fr; align-items: baseline; gap: 32px; margin-bottom: 56px; }
+.section-index { font-family: var(--font-instrument); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; color: var(--signal-default); text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+.section-index::before { content: ""; display: block; width: 48px; height: 1px; background: var(--signal-default); }
+.section-title { font-family: var(--font-opinion); font-size: 52px; font-weight: 300; letter-spacing: -0.025em; line-height: 1.04; color: var(--content-primary); max-width: 900px; }
+.section-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.prose { font-family: var(--font-opinion); font-weight: 300; font-size: 19px; line-height: 1.68; color: var(--content-secondary); max-width: 720px; margin-left: 152px; }
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+.prose strong { font-family: var(--font-ui); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal-default); display: inline-block; padding: 2px 8px; background: var(--signal-whisper); border: 1px solid var(--signal-tint); border-radius: 4px; margin: 0 2px; }
+.rationale-grid { padding-left: 152px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+.rationale-block h4 { font-family: var(--font-ui); font-size: 10.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--signal-default); margin-bottom: 14px; }
+.rationale-block p { font-family: var(--font-opinion); font-weight: 300; font-size: 15px; line-height: 1.65; color: var(--content-secondary); margin-bottom: 10px; }
+.rationale-block ul { list-style: none; }
+.rationale-block li { padding: 8px 0 8px 18px; position: relative; font-family: var(--font-ui); font-size: 12.5px; color: var(--content-secondary); border-bottom: 1px solid var(--border-subtle); }
+.rationale-block li::before { content: "→"; position: absolute; left: 0; top: 8px; color: var(--signal-default); font-family: var(--font-instrument); }
+.rationale-block li strong { font-family: var(--font-instrument); color: var(--content-primary); font-weight: 500; font-size: 11px; letter-spacing: 0.01em; }
+.doc-footer { padding: 80px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: end; }
+.footer-mark { font-family: var(--font-opinion); font-size: 44px; font-weight: 300; line-height: 1; color: var(--content-primary); letter-spacing: -0.02em; }
+.footer-mark em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.footer-mark span { display: block; font-size: 14px; font-style: italic; color: var(--content-tertiary); margin-top: 10px; font-weight: 300; }
+.footer-note { font-family: var(--font-opinion); font-style: italic; font-size: 14px; line-height: 1.7; color: var(--content-tertiary); text-align: right; font-weight: 300; }
+
+/* ── LOCAL MOTION MOCK STYLES ───────────────────────────────────── */
+.motion-content { padding-left: 152px; }
+.sub-header { font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--signal-default); margin-bottom: 20px; margin-top: 56px; display: flex; align-items: center; gap: 16px; }
+.sub-header:first-child { margin-top: 0; }
+.sub-header::after { content: ""; flex: 1; height: 1px; background: var(--border-default); }
+
+/* DURATION BARS */
+.duration-block { display: flex; flex-direction: column; gap: 16px; max-width: 900px; }
+.duration-row { display: grid; grid-template-columns: 220px auto 80px; align-items: center; gap: 24px; }
+.duration-label { display: flex; flex-direction: column; gap: 2px; }
+.duration-token { font-family: var(--font-instrument); font-size: 10px; font-weight: 500; color: var(--signal-default); }
+.duration-desc { font-family: var(--font-ui); font-size: 10.5px; color: var(--content-tertiary); }
+.duration-track { flex: 1; min-width: 0; position: relative; }
+.duration-bar {
+  height: 8px; border-radius: 4px;
+  background: linear-gradient(90deg, var(--copper-500), var(--copper-600));
+  animation-name: duration-pulse;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+@keyframes duration-pulse { 0% { opacity: 0.3; } 100% { opacity: 1.0; } }
+
+.duration-instant { width: 2px; animation-duration: 0.1s; }
+.duration-fast     { width: 100px; animation-duration: 0.12s; }
+.duration-standard { width: 200px; animation-duration: 0.24s; }
+.duration-slow     { width: 320px; animation-duration: 0.40s; }
+.duration-deliberate { width: 440px; animation-duration: 0.60s; }
+.duration-ms { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); text-align: right; }
+
+/* EASING CURVES SVG */
+.easing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; max-width: 900px; }
+.easing-card { background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 12px; padding: 24px 24px 20px; box-shadow: var(--elev-card); }
+.easing-name { font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal-default); margin-bottom: 4px; }
+.easing-bezier { font-family: var(--font-instrument); font-size: 9px; color: var(--content-tertiary); margin-bottom: 16px; display: block; }
+.easing-use { font-family: var(--font-ui); font-size: 10.5px; color: var(--content-secondary); margin-top: 12px; }
+
+/* RECIPE TABLE */
+.recipe-table { width: 100%; border-collapse: collapse; border: 1px solid var(--border-default); border-radius: 10px; overflow: hidden; box-shadow: var(--elev-card); }
+.recipe-table th { padding: 12px 16px; font-family: var(--font-instrument); font-size: 9px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; background: var(--surface-inset); color: var(--content-tertiary); border-bottom: 1px solid var(--border-default); text-align: left; }
+.recipe-table td { padding: 16px; border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+.recipe-table tr:last-child td { border-bottom: none; }
+.recipe-name { font-family: var(--font-instrument); font-size: 11px; font-weight: 500; color: var(--signal-default); letter-spacing: 0.01em; }
+.recipe-duration { font-family: var(--font-instrument); font-size: 12px; font-weight: 500; color: var(--content-primary); }
+.recipe-easing { font-family: var(--font-instrument); font-size: 10px; color: var(--content-tertiary); }
+.recipe-transform { font-family: var(--font-instrument); font-size: 10px; color: var(--content-secondary); line-height: 1.6; }
+.recipe-use { font-family: var(--font-ui); font-size: 11.5px; color: var(--content-secondary); }
+
+/* LIVE DEMOS */
+.demo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.demo-cell { background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 12px; padding: 20px; overflow: hidden; min-height: 120px; display: flex; flex-direction: column; gap: 12px; justify-content: space-between; box-shadow: var(--elev-card); }
+.demo-label { font-family: var(--font-instrument); font-size: 9px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default); }
+.demo-stage { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; min-height: 64px; }
+
+/* chatOverlayEnter demo */
+.demo-overlay-enter {
+  background: var(--surface-glass);
+  border: 1px solid var(--signal-tint);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: var(--font-opinion); font-size: 13px; color: var(--content-primary);
+  width: 90%;
+  animation: chatOverlayEnter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) infinite alternate;
+}
+@keyframes chatOverlayEnter { 0% { opacity: 0; transform: translateY(-20px); } 100% { opacity: 1; transform: translateY(0); } }
+
+/* chatOverlayDismiss demo */
+.demo-overlay-dismiss {
+  background: var(--surface-glass);
+  border: 1px solid var(--signal-tint);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: var(--font-opinion); font-size: 13px; color: var(--content-primary);
+  width: 90%;
+  animation: chatOverlayDismiss 0.2s linear infinite alternate;
+}
+@keyframes chatOverlayDismiss { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+/* sidebarSlideIn demo */
+.demo-sidebar {
+  width: 60px;
+  height: 80px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  box-shadow: var(--elev-card);
+  animation: sidebarSlideIn 0.25s cubic-bezier(0.0, 0.0, 0.2, 1) infinite alternate;
+}
+@keyframes sidebarSlideIn { 0% { transform: translateX(-60px); opacity: 0.3; } 100% { transform: translateX(0); opacity: 1; } }
+
+/* sketchPolylineLoop demo */
+.demo-polyline {
+  width: 90%;
+  height: 3px;
+}
+
+/* routeDrawOn demo */
+.demo-route-path {
+  animation: routeDrawOn 1.2s cubic-bezier(0.0, 0.0, 0.2, 1) infinite;
+}
+@keyframes routeDrawOn { 0% { stroke-dashoffset: 200; opacity: 0.3; } 100% { stroke-dashoffset: 0; opacity: 1; } }
+
+/* bestBadgeEnter demo */
+.demo-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 999px;
+  background: var(--signal-default);
+  font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #fff;
+  animation: bestBadgeEnter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s infinite alternate;
+}
+@keyframes bestBadgeEnter { 0% { opacity: 0; transform: translateY(4px); } 100% { opacity: 1; transform: translateY(0); } }
+
+/* phaseDotPulse demo */
+.demo-phase-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--copper-500);
+  position: relative;
+}
+.demo-phase-dot::after {
+  content: ""; position: absolute; inset: -4px; border-radius: 50%;
+  border: 1.5px solid var(--copper-500);
+  animation: phasePulseRing 0.9s ease-in-out infinite;
+}
+@keyframes phasePulseRing { 0% { transform: scale(0); opacity: 0.4; } 100% { transform: scale(1.5); opacity: 0; } }
+
+/* mapTapDismiss demo */
+.demo-map-overlay {
+  width: 80px; height: 40px; border-radius: 8px;
+  background: rgba(253,251,248,0.72);
+  border: 1px solid var(--border-default);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-ui); font-size: 10px; color: var(--content-secondary);
+  animation: mapTapDismiss 0.15s linear infinite alternate;
+}
+@keyframes mapTapDismiss { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+/* GRADIENT SWATCHES */
+.gradient-row { display: flex; gap: 24px; }
+.gradient-swatch {
+  flex: 1; height: 100px; border-radius: 12px;
+  border: 1px solid var(--border-default);
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 14px 16px;
+  box-shadow: var(--elev-card);
+}
+.gradient-label { font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.80); }
+.gradient-token { font-family: var(--font-instrument); font-size: 9px; color: rgba(255,255,255,0.55); margin-top: 4px; }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-header">
+<div class="wrap">
+  <div class="doc-eyebrow">UC-TOK-04 <span class="doc-eyebrow-pill">Foundation · Motion</span></div>
+  <h1 class="doc-title">Motion by <em>recipe,</em><br>not by guesswork.</h1>
+  <p class="doc-tagline">Eight named recipes, five duration primitives, four easing curves. Downstream components reference recipes by name — never raw duration + easing pairs.</p>
+  <div class="doc-meta-row">
+    <div class="meta-item"><span class="meta-label">Version</span><span class="meta-value">2.0.0</span></div>
+    <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">2026-04-20</span></div>
+    <div class="meta-item"><span class="meta-label">Use Case</span><span class="meta-value">UC-TOK-04</span></div>
+    <div class="meta-item"><span class="meta-label">PRD Ref</span><span class="meta-value">04-uc-tok.md</span></div>
+    <div class="meta-item"><span class="meta-label">Surface</span><span class="meta-value">Foundation</span></div>
+    <div class="meta-item"><span class="meta-label">Theme</span><span class="meta-value">Copper</span></div>
+  </div>
+</div>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§01</div><h2 class="section-title"><em>Purpose</em></h2></div>
+  <p class="prose">Motion in Navigator communicates hierarchy and causality. An overlay that enters too slowly feels sluggish; one that exits too quickly feels abrupt. The recipe system prevents engineers from choosing ad-hoc durations and ensures that every animation in every screen matches the design-approved choreography. Primitives (durations, easings) exist to compose recipes — consumers never reference primitives directly.</p>
+  <p class="prose">Gradient tokens are retained in this group because they are dynamic color sequences — closer to motion than static color. They are consumed by backgrounds and overlays that animate with the copper accent.</p>
+</div>
+</div>
+
+<!-- §02 THE TOKEN VISUALIZATION (MAIN) -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§02</div><h2 class="section-title">Token <em>catalog</em></h2></div>
+  <div class="motion-content">
+
+    <!-- PRIMITIVE DURATIONS -->
+    <div class="sub-header">motion.duration.* — five primitive durations</div>
+    <div class="duration-block">
+      <div class="duration-row">
+        <div class="duration-label">
+          <span class="duration-token">motion.duration.instant</span>
+          <span class="duration-desc">State-switch, no perceived delay</span>
+        </div>
+        <div class="duration-track"><div class="duration-bar duration-instant"></div></div>
+        <div class="duration-ms">0 ms</div>
+      </div>
+      <div class="duration-row">
+        <div class="duration-label">
+          <span class="duration-token">motion.duration.fast</span>
+          <span class="duration-desc">Micro-interaction, tap feedback</span>
+        </div>
+        <div class="duration-track"><div class="duration-bar duration-fast"></div></div>
+        <div class="duration-ms">120 ms</div>
+      </div>
+      <div class="duration-row">
+        <div class="duration-label">
+          <span class="duration-token">motion.duration.standard</span>
+          <span class="duration-desc">Default screen transition</span>
+        </div>
+        <div class="duration-track"><div class="duration-bar duration-standard"></div></div>
+        <div class="duration-ms">240 ms</div>
+      </div>
+      <div class="duration-row">
+        <div class="duration-label">
+          <span class="duration-token">motion.duration.slow</span>
+          <span class="duration-desc">Complex element entrance</span>
+        </div>
+        <div class="duration-track"><div class="duration-bar duration-slow"></div></div>
+        <div class="duration-ms">400 ms</div>
+      </div>
+      <div class="duration-row">
+        <div class="duration-label">
+          <span class="duration-token">motion.duration.deliberate</span>
+          <span class="duration-desc">Full-screen reveal, onboarding</span>
+        </div>
+        <div class="duration-track"><div class="duration-bar duration-deliberate"></div></div>
+        <div class="duration-ms">600 ms</div>
+      </div>
+    </div>
+
+    <!-- EASING CURVES -->
+    <div class="sub-header">motion.easing.* — four cubic-bezier curves</div>
+    <div class="easing-grid">
+      <div class="easing-card">
+        <div class="easing-name">standard</div>
+        <span class="easing-bezier">cubic-bezier(0.4, 0.0, 0.2, 1.0)</span>
+        <!-- SVG bezier curve plot -->
+        <svg width="100%" viewBox="0 0 100 100" fill="none" style="overflow: visible;">
+          <rect width="100" height="100" fill="var(--surface-inset)" rx="4"/>
+          <line x1="0" y1="100" x2="0" y2="0" stroke="var(--border-default)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="100" y2="100" stroke="var(--border-default)" stroke-width="1"/>
+          <!-- bezier handles -->
+          <line x1="0" y1="100" x2="40" y2="100" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <line x1="100" y1="0" x2="80" y2="0" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <path d="M0,100 C40,100 80,0 100,0" stroke="var(--copper-500)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="40" cy="100" r="3" fill="var(--copper-400)"/>
+          <circle cx="80" cy="0" r="3" fill="var(--copper-400)"/>
+        </svg>
+        <div class="easing-use">Screen transitions, general UI enter/exit</div>
+      </div>
+      <div class="easing-card">
+        <div class="easing-name">emphasized</div>
+        <span class="easing-bezier">cubic-bezier(0.2, 0.0, 0.0, 1.0)</span>
+        <svg width="100%" viewBox="0 0 100 100" fill="none" style="overflow: visible;">
+          <rect width="100" height="100" fill="var(--surface-inset)" rx="4"/>
+          <line x1="0" y1="100" x2="0" y2="0" stroke="var(--border-default)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="100" y2="100" stroke="var(--border-default)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="20" y2="100" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <line x1="100" y1="0" x2="100" y2="0" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <path d="M0,100 C20,100 0,0 100,0" stroke="var(--copper-500)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="20" cy="100" r="3" fill="var(--copper-400)"/>
+          <circle cx="100" cy="0" r="3" fill="var(--copper-400)"/>
+        </svg>
+        <div class="easing-use">Purposeful, high-emphasis entrances (bestBadgeEnter)</div>
+      </div>
+      <div class="easing-card">
+        <div class="easing-name">decelerated</div>
+        <span class="easing-bezier">cubic-bezier(0.0, 0.0, 0.2, 1.0)</span>
+        <svg width="100%" viewBox="0 0 100 100" fill="none" style="overflow: visible;">
+          <rect width="100" height="100" fill="var(--surface-inset)" rx="4"/>
+          <line x1="0" y1="100" x2="0" y2="0" stroke="var(--border-default)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="100" y2="100" stroke="var(--border-default)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="0" y2="100" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <line x1="100" y1="0" x2="80" y2="0" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <path d="M0,100 C0,100 80,0 100,0" stroke="var(--copper-500)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="0" cy="100" r="3" fill="var(--copper-400)"/>
+          <circle cx="80" cy="0" r="3" fill="var(--copper-400)"/>
+        </svg>
+        <div class="easing-use">Elements entering from off-screen (sidebarSlideIn)</div>
+      </div>
+      <div class="easing-card">
+        <div class="easing-name">accelerated</div>
+        <span class="easing-bezier">cubic-bezier(0.4, 0.0, 1.0, 1.0)</span>
+        <svg width="100%" viewBox="0 0 100 100" fill="none" style="overflow: visible;">
+          <rect width="100" height="100" fill="var(--surface-inset)" rx="4"/>
+          <line x1="0" y1="100" x2="0" y2="0" stroke="var(--border-default)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="100" y2="100" stroke="var(--border-default)" stroke-width="1"/>
+          <line x1="0" y1="100" x2="40" y2="100" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <line x1="100" y1="0" x2="100" y2="0" stroke="var(--border-strong)" stroke-width="0.8" stroke-dasharray="3,2"/>
+          <path d="M0,100 C40,100 100,0 100,0" stroke="var(--copper-500)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="40" cy="100" r="3" fill="var(--copper-400)"/>
+          <circle cx="100" cy="0" r="3" fill="var(--copper-400)"/>
+        </svg>
+        <div class="easing-use">Elements exiting to off-screen (chatOverlayDismiss)</div>
+      </div>
+    </div>
+
+    <!-- RECIPE TABLE -->
+    <div class="sub-header" style="margin-top:64px;">motion.recipe.* — eight named recipes</div>
+    <table class="recipe-table">
+      <thead>
+        <tr>
+          <th>Recipe token</th>
+          <th>Duration</th>
+          <th>Easing</th>
+          <th>Transform payload</th>
+          <th>Use site</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="recipe-name">chatOverlayEnter</span></td>
+          <td><span class="recipe-duration">300 ms</span></td>
+          <td><span class="recipe-easing">ease-out<br>(decelerated)</span></td>
+          <td><span class="recipe-transform">translateY: [-20px, 0]<br>opacity: [0, 1]</span></td>
+          <td><span class="recipe-use">LSNavigatorBubble enters from above on Navigator response</span></td>
+        </tr>
+        <tr>
+          <td><span class="recipe-name">chatOverlayDismiss</span></td>
+          <td><span class="recipe-duration">200 ms</span></td>
+          <td><span class="recipe-easing">linear</span></td>
+          <td><span class="recipe-transform">opacity: [1, 0]<br>delay: 5000ms visible</span></td>
+          <td><span class="recipe-use">LSNavigatorBubble auto-dismisses after 5s visibility</span></td>
+        </tr>
+        <tr>
+          <td><span class="recipe-name">sidebarSlideIn</span></td>
+          <td><span class="recipe-duration">250 ms</span></td>
+          <td><span class="recipe-easing">ease-out<br>(decelerated)</span></td>
+          <td><span class="recipe-transform">translateX: [-300px, 0]</span></td>
+          <td><span class="recipe-use">LSSessionsDrawer opens from left edge</span></td>
+        </tr>
+        <tr>
+          <td><span class="recipe-name">sketchPolylineLoop</span></td>
+          <td><span class="recipe-duration">2000 ms</span></td>
+          <td><span class="recipe-easing">linear</span></td>
+          <td><span class="recipe-transform">strokeDashoffset: animated<br>loop: true<br>leadingDot: 2px pulse</span></td>
+          <td><span class="recipe-use">LSRoutePolyline "thinking" sketch animation during route generation</span></td>
+        </tr>
+        <tr>
+          <td><span class="recipe-name">routeDrawOn</span></td>
+          <td><span class="recipe-duration">1200 ms</span></td>
+          <td><span class="recipe-easing">ease-out<br>(decelerated)</span></td>
+          <td><span class="recipe-transform">strokeDashoffset: [1, 0] per path<br>stagger: 120ms between paths</span></td>
+          <td><span class="recipe-use">LSRoutePolyline draws onto map after route results appear</span></td>
+        </tr>
+        <tr>
+          <td><span class="recipe-name">bestBadgeEnter</span></td>
+          <td><span class="recipe-duration">300 ms</span></td>
+          <td><span class="recipe-easing">ease-out<br>(emphasized)</span></td>
+          <td><span class="recipe-transform">translateY: [4px, 0]<br>opacity: [0, 1]<br>delay: 400ms</span></td>
+          <td><span class="recipe-use">LSBestBadge appears after route results settle (delay lets polylines draw first)</span></td>
+        </tr>
+        <tr>
+          <td><span class="recipe-name">phaseDotPulse</span></td>
+          <td><span class="recipe-duration">900 ms</span></td>
+          <td><span class="recipe-easing">ease-in-out</span></td>
+          <td><span class="recipe-transform">ring scale: [0, 1.5×]<br>ring opacity: [0.4, 0]<br>loop: true</span></td>
+          <td><span class="recipe-use">LSPhaseTracker active-step indicator pulses to show current phase</span></td>
+        </tr>
+        <tr>
+          <td><span class="recipe-name">mapTapDismiss</span></td>
+          <td><span class="recipe-duration">150 ms</span></td>
+          <td><span class="recipe-easing">linear</span></td>
+          <td><span class="recipe-transform">opacity: [1, 0]<br>all overlays</span></td>
+          <td><span class="recipe-use">Tapping the map background dismisses all floating overlays simultaneously</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- LIVE DEMOS -->
+    <div class="sub-header" style="margin-top:64px;">Live looping demos — all recipes</div>
+    <div class="demo-grid">
+      <div class="demo-cell">
+        <span class="demo-label">chatOverlayEnter</span>
+        <div class="demo-stage">
+          <div class="demo-overlay-enter">Ready for today's ride?</div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">300ms · decelerated · translateY -20→0 · opacity 0→1</div>
+      </div>
+
+      <div class="demo-cell">
+        <span class="demo-label">chatOverlayDismiss</span>
+        <div class="demo-stage">
+          <div class="demo-overlay-dismiss">Ready for today's ride?</div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">200ms · linear · opacity 1→0 · after 5000ms</div>
+      </div>
+
+      <div class="demo-cell">
+        <span class="demo-label">sidebarSlideIn</span>
+        <div class="demo-stage" style="justify-content: flex-start; overflow: hidden;">
+          <div class="demo-sidebar"></div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">250ms · decelerated · translateX -300→0</div>
+      </div>
+
+      <div class="demo-cell">
+        <span class="demo-label">sketchPolylineLoop</span>
+        <div class="demo-stage">
+          <svg width="90%" height="24" viewBox="0 0 200 24" fill="none">
+            <path d="M4,12 C40,4 80,20 120,8 C160,2 180,16 196,12" stroke="var(--copper-500)" stroke-width="3" stroke-linecap="round" fill="none" stroke-dasharray="220" stroke-dashoffset="220">
+              <animate attributeName="stroke-dashoffset" from="220" to="0" dur="2s" repeatCount="indefinite"/>
+            </path>
+            <circle r="4" fill="var(--copper-500)">
+              <animateMotion dur="2s" repeatCount="indefinite" path="M4,12 C40,4 80,20 120,8 C160,2 180,16 196,12"/>
+            </circle>
+          </svg>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">2000ms · linear · dashOffset loop · 2px leading dot</div>
+      </div>
+
+      <div class="demo-cell">
+        <span class="demo-label">routeDrawOn</span>
+        <div class="demo-stage">
+          <svg width="90%" height="40" viewBox="0 0 200 40" fill="none">
+            <path class="demo-route-path" d="M4,20 C50,6 100,34 160,12 C175,8 185,22 196,20" stroke="#EE7C2B" stroke-width="3" stroke-linecap="round" fill="none" stroke-dasharray="220" stroke-dashoffset="220">
+              <animate attributeName="stroke-dashoffset" from="220" to="0" dur="1.2s" repeatCount="indefinite"/>
+            </path>
+            <path d="M4,28 C50,18 100,38 160,22 C175,18 185,28 196,24" stroke="#4D8470" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="220" stroke-dashoffset="220" opacity="0.6">
+              <animate attributeName="stroke-dashoffset" from="220" to="0" dur="1.2s" begin="0.12s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">1200ms · ease-out · dashOffset 0→1 · stagger 120ms</div>
+      </div>
+
+      <div class="demo-cell">
+        <span class="demo-label">bestBadgeEnter</span>
+        <div class="demo-stage">
+          <div class="demo-badge">Best Route</div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">300ms · emphasized · translateY 4→0 · opacity 0→1 · delay 400ms</div>
+      </div>
+
+      <div class="demo-cell">
+        <span class="demo-label">phaseDotPulse</span>
+        <div class="demo-stage">
+          <div style="display:flex; gap:16px; align-items:center;">
+            <div class="demo-phase-dot"></div>
+            <div style="width:12px; height:12px; border-radius:50%; background:var(--border-default);"></div>
+            <div style="width:12px; height:12px; border-radius:50%; background:var(--border-default);"></div>
+          </div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">900ms · ease-in-out · ring scale 0→1.5× · opacity 0.4→0 · loop</div>
+      </div>
+
+      <div class="demo-cell">
+        <span class="demo-label">mapTapDismiss</span>
+        <div class="demo-stage">
+          <div class="demo-map-overlay">Overlay</div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">150ms · linear · opacity 1→0 · all overlays simultaneous</div>
+      </div>
+    </div>
+
+    <!-- GRADIENT TOKENS -->
+    <div class="sub-header" style="margin-top:64px;">gradient.* — three copper gradient tokens</div>
+    <div class="gradient-row">
+      <div class="gradient-swatch" style="background: linear-gradient(135deg, #EE7C2B 0%, #B85A2C 60%, #9E4A22 100%);">
+        <div class="gradient-label">copperWarm</div>
+        <div class="gradient-token">gradient.copperWarm</div>
+      </div>
+      <div class="gradient-swatch" style="background: linear-gradient(180deg, #EE7C2B 0%, #221810 100%);">
+        <div class="gradient-label">copperNight</div>
+        <div class="gradient-token">gradient.copperNight</div>
+      </div>
+      <div class="gradient-swatch" style="background: linear-gradient(180deg, rgba(248,247,246,0) 0%, rgba(248,247,246,0.95) 100%);">
+        <div class="gradient-label" style="color:var(--content-tertiary);">surfaceSweep</div>
+        <div class="gradient-token" style="color:var(--content-subtle);">gradient.surfaceSweep</div>
+      </div>
+    </div>
+    <div style="margin-top:16px; font-family:var(--font-ui); font-size:11.5px; color:var(--content-tertiary); line-height:1.6;">
+      Each gradient is stored as an array of color-token references plus stop positions. Example: gradient.copperWarm = [{ token: "color.signal.default", stop: 0 }, { token: "color.signal.pressed", stop: 0.6 }, { token: "color.signal.pressed.deep", stop: 1 }]. Platform generators emit the correct gradient syntax (CGGradient / Compose Brush / CSS linear-gradient).
+    </div>
+
+  </div><!-- /motion-content -->
+</div>
+</div>
+
+<!-- §03 STATES & VARIANTS -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§03</div><h2 class="section-title">States &amp; <em>variants</em></h2></div>
+  <p class="prose">Reduced motion: when the platform reports <strong>prefers-reduced-motion</strong>, all recipe durations collapse to <em>motion.duration.instant</em> (0ms) and opacity transitions are preserved but transform translations are zeroed. Recipes define their own reduced-motion fallback in the recipe schema.</p>
+  <p class="prose">Loop recipes (<strong>sketchPolylineLoop</strong>, <strong>phaseDotPulse</strong>) are explicitly marked <code>loop: true</code> and must be cancelled when the component unmounts. Non-loop recipes run once and resolve.</p>
+</div>
+</div>
+
+<!-- §04 CONSUMER COMPONENTS -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§04</div><h2 class="section-title">Consumer <em>atoms</em></h2></div>
+  <div class="motion-content">
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px;">
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSNavigatorBubble</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">chatOverlayEnter on appear<br>chatOverlayDismiss on auto-hide</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSSessionsDrawer</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">sidebarSlideIn on open<br>reverse on close</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSRoutePolyline</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">sketchPolylineLoop during generation<br>routeDrawOn on result</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSBestBadge</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">bestBadgeEnter with 400ms delay after routeDrawOn completes</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSPhaseTracker</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">phaseDotPulse on active step (loop until next phase)</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSMap</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">mapTapDismiss on map background tap</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSGlassPanel</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">gradient.surfaceSweep as background, no motion token</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSOnboarding</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">gradient.copperWarm / copperNight hero backgrounds</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- §05 MOTION REFERENCE (self-referential, this IS the motion doc) -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§05</div><h2 class="section-title"><em>Motion</em> reference</h2></div>
+  <p class="prose">This document is the canonical motion reference for V2 Navigator. All primitives (duration + easing) and all named recipes are enumerated in §02. Downstream component files must import recipes by token name — no inline animation values.</p>
+</div>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§06</div><h2 class="section-title"><em>Rationale</em> &amp; references</h2></div>
+  <div class="rationale-grid">
+    <div class="rationale-block">
+      <h4>Design decisions</h4>
+      <p>The two-level architecture (primitives + recipes) ensures that changing a single duration primitive automatically updates every recipe that references it. This is critical for accessibility — when the designer bumps <code>motion.duration.standard</code> from 240ms to 300ms, all screen transitions update without hunting through component files.</p>
+      <p>The sketchPolylineLoop recipe uses a leading-dot pulse rather than a shimmer because it reads better on the paper-map aesthetic — it evokes a pencil drawing a route, not a loading skeleton.</p>
+    </div>
+    <div class="rationale-block">
+      <h4>PRD acceptance criteria</h4>
+      <ul>
+        <li><strong>AC-01</strong> motion.duration section: instant/fast/standard/slow/deliberate</li>
+        <li><strong>AC-02</strong> motion.easing section: 4 cubic-bezier values</li>
+        <li><strong>AC-03</strong> motion.recipe section: 8 recipes with duration, easing, transform payload</li>
+        <li><strong>AC-04</strong> motion.recipe items validate against shared recipe schema</li>
+        <li><strong>AC-05</strong> Sprint 2+ organisms reference recipes by name, not primitives</li>
+        <li><strong>AC-06</strong> gradient section with 3 named gradients as color-token arrays</li>
+        <li><strong>AC-07</strong> pnpm tokens:validate exits zero errors</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+<div class="doc-footer">
+  <div class="footer-mark">Lane<em>Shadow</em><span>V2 Navigator · Copper Design System · Foundation Tokens</span></div>
+  <div class="footer-note">UC-TOK-04 Motion — 2026-04-20<br>Eight recipes. Five durations. Four curves.<br>Components reference recipes, never raw primitives.</div>
+</div>
+</div>
+
+</body>
+</html>

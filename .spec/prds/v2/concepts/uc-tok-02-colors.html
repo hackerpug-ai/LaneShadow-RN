@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<!-- uc-tok-02-colors.html — UC-TOK-02 "Color Semantics"
+     LaneShadow V2 · Copper · Foundation Token Mock · 2026-04-20
+     Authority: .spec/prds/v2/04-uc-tok.md §UC-TOK-02 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-TOK-02 — Color Semantics — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:  #FDFBF8;
+  --paper-100: #F8F7F6;
+  --paper-150: #F5F2EE;
+  --paper-200: #F2EFED;
+  --paper-300: #EDE7E1;
+  --paper-400: #E5DED9;
+  --paper-500: #C9BDB3;
+  --ink-900:   #1E1A16;
+  --ink-800:   #221810;
+  --ink-700:   #2D2218;
+  --ink-600:   #362A1F;
+  --ink-500:   #3D3228;
+  --ink-400:   #49454F;
+  --ink-300:   #6B6460;
+  --ink-200:   #9CA3AF;
+  --ink-100:   #CAC4D0;
+  --ink-050:   #F2EEE8;
+  --copper-700: #9E4A22;
+  --copper-600: #B85A2C;
+  --copper-500: #EE7C2B;
+  --copper-400: #F3A164;
+  --copper-200: #F9D5B5;
+  --copper-100: #FCE8D4;
+  --route-best: #EE7C2B;
+  --route-alt1: #4D8470;
+  --route-alt2: #6B7B8F;
+  --wx-clear:       #E6A52A;  --wx-clear-tint:  #FBEFCF;
+  --wx-rain:        #4A86BE;  --wx-rain-tint:   #DBEAF4;
+  --wx-wind:        #6B7B8F;  --wx-wind-tint:   #E1E6EC;
+  --wx-storm:       #5E3FAE;  --wx-storm-tint:  #E3DCF2;
+  --wx-hot:         #C9423C;  --wx-hot-tint:    #F5D8D6;
+  --wx-cold:        #3A8BE3;  --wx-cold-tint:   #D6E5F7;
+  --status-warning: #C46F1B;
+  --font-opinion:    'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+}
+:root {
+  --surface-primary:   var(--paper-100);
+  --surface-card:      var(--paper-50);
+  --surface-inset:     var(--paper-200);
+  --surface-overlay:   rgba(253,251,248,0.92);
+  --surface-glass:     rgba(253,251,248,0.72);
+  --surface-scrim:     rgba(34,24,16,0.35);
+  --content-primary:   var(--ink-900);
+  --content-secondary: var(--ink-400);
+  --content-tertiary:  var(--ink-300);
+  --content-subtle:    var(--ink-200);
+  --signal-default:    var(--copper-500);
+  --signal-pressed:    var(--copper-700);
+  --signal-tint:       var(--copper-200);
+  --signal-whisper:    var(--copper-100);
+  --border-default:    var(--paper-400);
+  --border-subtle:     var(--paper-300);
+  --border-strong:     var(--paper-500);
+  --border-focus:      var(--copper-500);
+  --elev-overlay:      0 8px 24px rgba(34,24,16,0.10), 0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:         0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:       0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
+}
+
+/* TYPOGRAPHY */
+.t-opinion-xl  { font-family: var(--font-opinion); font-weight: 400; font-size: 30px; line-height: 1.12; letter-spacing: -0.015em; }
+.t-opinion-lg  { font-family: var(--font-opinion); font-weight: 400; font-size: 22px; line-height: 1.18; letter-spacing: -0.01em; }
+.t-instr-lg    { font-family: var(--font-instrument); font-weight: 500; font-size: 18px; line-height: 1.12; letter-spacing: -0.02em; font-feature-settings: "tnum" 1; }
+.t-instr-md    { font-family: var(--font-instrument); font-weight: 500; font-size: 13px; line-height: 1.2; letter-spacing: -0.01em; font-feature-settings: "tnum" 1; }
+.t-instr-sm    { font-family: var(--font-instrument); font-weight: 500; font-size: 10px; line-height: 1.2; font-feature-settings: "tnum" 1; }
+.t-instr-xs    { font-family: var(--font-instrument); font-weight: 500; font-size: 8.5px; line-height: 1.0; font-feature-settings: "tnum" 1; }
+.t-label-md    { font-family: var(--font-ui); font-weight: 600; font-size: 9.5px; line-height: 1.0; letter-spacing: 0.12em; text-transform: uppercase; }
+em.opinion-ital { font-style: italic; font-weight: 400; }
+
+/* DOCUMENT CHROME */
+body {
+  font-family: var(--font-ui);
+  color: var(--content-primary);
+  background: var(--surface-primary);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+
+.doc-header {
+  position: relative; padding: 96px 0 72px;
+  border-bottom: 1px solid var(--border-default); overflow: hidden;
+}
+.doc-header::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 80%, rgba(238,124,43,0.08), transparent 44%),
+    radial-gradient(circle at 92% 12%, rgba(184,90,44,0.05), transparent 50%);
+  pointer-events: none;
+}
+.doc-header > * { position: relative; z-index: 1; }
+.doc-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-ui); font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--signal-default); margin-bottom: 28px;
+}
+.doc-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--signal-default); }
+.doc-eyebrow-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--signal-default);
+  color: var(--signal-default); background: var(--signal-whisper);
+  font-size: 9.5px; letter-spacing: 0.14em;
+}
+.doc-title {
+  font-family: var(--font-opinion); font-size: 104px; font-weight: 300;
+  line-height: 0.94; letter-spacing: -0.035em;
+  color: var(--content-primary); margin-bottom: 32px; max-width: 1000px;
+}
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.doc-tagline {
+  font-family: var(--font-opinion); font-style: italic; font-size: 22px; font-weight: 300;
+  color: var(--content-secondary); max-width: 640px; line-height: 1.55; margin-bottom: 56px;
+}
+.doc-meta-row {
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  gap: 24px; padding-top: 36px; border-top: 1px solid var(--border-default);
+}
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label {
+  font-family: var(--font-ui); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary);
+}
+.meta-value { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); }
+
+.section { padding: 96px 0; border-bottom: 1px solid var(--border-default); position: relative; }
+.section:last-child { border-bottom: none; }
+.section-header {
+  display: grid; grid-template-columns: 120px 1fr;
+  align-items: baseline; gap: 32px; margin-bottom: 56px;
+}
+.section-index {
+  font-family: var(--font-instrument); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em; color: var(--signal-default); text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-index::before { content: ""; display: block; width: 48px; height: 1px; background: var(--signal-default); }
+.section-title {
+  font-family: var(--font-opinion); font-size: 52px; font-weight: 300;
+  letter-spacing: -0.025em; line-height: 1.04; color: var(--content-primary); max-width: 900px;
+}
+.section-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.prose {
+  font-family: var(--font-opinion); font-weight: 300; font-size: 19px; line-height: 1.68;
+  color: var(--content-secondary); max-width: 720px; margin-left: 152px;
+}
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+.prose strong {
+  font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal-default);
+  display: inline-block; padding: 2px 8px; background: var(--signal-whisper);
+  border: 1px solid var(--signal-tint); border-radius: 4px; margin: 0 2px;
+}
+.rationale-grid { padding-left: 152px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+.rationale-block h4 {
+  font-family: var(--font-ui); font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--signal-default); margin-bottom: 14px;
+}
+.rationale-block p {
+  font-family: var(--font-opinion); font-weight: 300; font-size: 15px;
+  line-height: 1.65; color: var(--content-secondary); margin-bottom: 10px;
+}
+.rationale-block ul { list-style: none; }
+.rationale-block li {
+  padding: 8px 0 8px 18px; position: relative;
+  font-family: var(--font-ui); font-size: 12.5px; color: var(--content-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.rationale-block li::before { content: "→"; position: absolute; left: 0; top: 8px; color: var(--signal-default); font-family: var(--font-instrument); }
+.rationale-block li strong { font-family: var(--font-instrument); color: var(--content-primary); font-weight: 500; font-size: 11px; letter-spacing: 0.01em; }
+.doc-footer { padding: 80px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: end; }
+.footer-mark { font-family: var(--font-opinion); font-size: 44px; font-weight: 300; line-height: 1; color: var(--content-primary); letter-spacing: -0.02em; }
+.footer-mark em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.footer-mark span { display: block; font-size: 14px; font-style: italic; color: var(--content-tertiary); margin-top: 10px; font-weight: 300; }
+.footer-note { font-family: var(--font-opinion); font-style: italic; font-size: 14px; line-height: 1.7; color: var(--content-tertiary); text-align: right; font-weight: 300; }
+
+/* ── LOCAL COLOR MOCK STYLES ─────────────────────────────────────── */
+.color-content { padding-left: 152px; }
+
+.namespace-block { margin-bottom: 64px; }
+.ns-header {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 24px; padding-bottom: 12px;
+  border-bottom: 2px solid var(--border-default);
+}
+.ns-name {
+  font-family: var(--font-instrument); font-size: 10px; font-weight: 500;
+  letter-spacing: 0.22em; text-transform: uppercase; color: var(--signal-default);
+}
+.ns-desc { font-family: var(--font-ui); font-size: 12px; color: var(--content-tertiary); }
+
+/* Raw palette swatch grid */
+.swatch-row {
+  display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 40px;
+}
+.swatch {
+  display: flex; flex-direction: column; gap: 0;
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.08);
+  min-width: 110px;
+  box-shadow: 0 2px 6px rgba(34,24,16,0.06);
+}
+.swatch-chip {
+  height: 64px; width: 100%;
+}
+.swatch-meta {
+  padding: 10px 12px 12px;
+  background: var(--surface-card);
+}
+.swatch-hex {
+  font-family: var(--font-instrument); font-size: 10px; font-weight: 500;
+  color: var(--content-primary); letter-spacing: 0.01em;
+  display: block; margin-bottom: 3px;
+}
+.swatch-var {
+  font-family: var(--font-instrument); font-size: 8.5px; font-weight: 400;
+  color: var(--content-tertiary); display: block;
+}
+.swatch-name {
+  font-family: var(--font-ui); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.10em; text-transform: uppercase;
+  color: var(--content-subtle); display: block; margin-top: 2px;
+}
+
+/* Semantic namespace: light/dark pair grid */
+.sem-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 48px;
+}
+.sem-panel {
+  border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--border-default);
+  box-shadow: var(--elev-card);
+}
+.sem-panel-header {
+  padding: 12px 16px;
+  font-family: var(--font-instrument); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.22em; text-transform: uppercase;
+}
+.sem-panel-header.light { background: var(--paper-200); color: var(--ink-400); }
+.sem-panel-header.dark  { background: var(--ink-700);   color: var(--ink-100); }
+.sem-rows { display: flex; flex-direction: column; }
+.sem-row {
+  display: grid; grid-template-columns: 40px 1fr auto;
+  align-items: center; gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(128,128,128,0.10);
+}
+.sem-row:last-child { border-bottom: none; }
+.sem-chip { width: 32px; height: 32px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.10); flex-shrink: 0; }
+.sem-token-name { font-family: var(--font-instrument); font-size: 10px; color: var(--content-primary); }
+.sem-hex { font-family: var(--font-instrument); font-size: 9.5px; color: var(--content-tertiary); }
+
+/* Contrast callout */
+.contrast-row {
+  display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 40px; align-items: stretch;
+}
+.contrast-card {
+  border-radius: 10px; overflow: hidden; min-width: 180px;
+  border: 1px solid var(--border-default); box-shadow: var(--elev-card);
+  flex: 1;
+}
+.contrast-demo {
+  height: 56px; display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-ui); font-weight: 600; font-size: 14px;
+}
+.contrast-meta {
+  padding: 10px 14px; background: var(--surface-card);
+}
+.contrast-ratio {
+  font-family: var(--font-instrument); font-size: 13px; font-weight: 500;
+  color: var(--content-primary); display: block; margin-bottom: 3px;
+}
+.contrast-pass {
+  font-family: var(--font-ui); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; display: block;
+}
+.contrast-pair {
+  font-family: var(--font-instrument); font-size: 9px;
+  color: var(--content-tertiary); display: block; margin-top: 3px;
+}
+
+/* Accent x Surface matrix */
+.matrix-table {
+  border-collapse: collapse; width: 100%;
+  border: 1px solid var(--border-default); border-radius: 10px; overflow: hidden;
+  box-shadow: var(--elev-card);
+  margin-bottom: 48px;
+}
+.matrix-table th {
+  padding: 10px 16px;
+  font-family: var(--font-instrument); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  background: var(--surface-inset); color: var(--content-tertiary);
+  border-bottom: 1px solid var(--border-default);
+  text-align: left;
+}
+.matrix-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-family: var(--font-ui); font-size: 12px; color: var(--content-primary);
+  vertical-align: middle;
+}
+.matrix-table tr:last-child td { border-bottom: none; }
+.matrix-chip {
+  display: inline-block; width: 20px; height: 20px; border-radius: 4px;
+  vertical-align: middle; margin-right: 8px;
+  border: 1px solid rgba(0,0,0,0.10);
+}
+.pass-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-family: var(--font-ui); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.10em; text-transform: uppercase;
+}
+.pass-badge.aa   { background: #D4EDDA; color: #2A6B3E; }
+.pass-badge.fail { background: #FAD7D5; color: #8B2A25; }
+.pass-badge.aaa  { background: #C3E6CB; color: #1B5E36; }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-header">
+<div class="wrap">
+  <div class="doc-eyebrow">
+    UC-TOK-02
+    <span class="doc-eyebrow-pill">Foundation · Color</span>
+  </div>
+  <h1 class="doc-title">Color by <em>intent,</em><br>not by hue.</h1>
+  <p class="doc-tagline">Ten semantic namespaces, each with light and dark variants. Every surface, every text, every weather state — resolved from a token, never from a raw hex value in component code.</p>
+  <div class="doc-meta-row">
+    <div class="meta-item"><span class="meta-label">Version</span><span class="meta-value">2.0.0</span></div>
+    <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">2026-04-20</span></div>
+    <div class="meta-item"><span class="meta-label">Use Case</span><span class="meta-value">UC-TOK-02</span></div>
+    <div class="meta-item"><span class="meta-label">PRD Ref</span><span class="meta-value">04-uc-tok.md</span></div>
+    <div class="meta-item"><span class="meta-label">Surface</span><span class="meta-value">Foundation</span></div>
+    <div class="meta-item"><span class="meta-label">Theme</span><span class="meta-value">Copper</span></div>
+  </div>
+</div>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§01</div><h2 class="section-title"><em>Purpose</em></h2></div>
+  <p class="prose">The Copper palette is a warm-paper topographic aesthetic rooted in the physical world of road maps and navigation instruments. Warm-paper neutrals define the day surfaces; warm-ink neutrals define the night. The copper signal color at <strong>#EE7C2B</strong> is the single accent hue — it carries the brand, the "best route" indicator, the interactive focus state, and the Navigator identity.</p>
+  <p class="prose">All colors are declared in <em>semantic namespaces</em> so that a designer changing the weather palette for accessibility does not touch surface or signal tokens. No downstream component ever references a raw hex value.</p>
+</div>
+</div>
+
+<!-- §02 TOKEN VISUALIZATION -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§02</div><h2 class="section-title">Token <em>visualization</em></h2></div>
+
+  <div class="color-content">
+
+    <!-- RAW PALETTE -->
+    <div class="namespace-block">
+      <div class="ns-header">
+        <span class="ns-name">Raw palette — Warm-paper neutrals (day)</span>
+        <span class="ns-desc">--paper-* · light mode surfaces, borders, map base</span>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#FDFBF8;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#FDFBF8</span><span class="swatch-var">--paper-50</span><span class="swatch-name">card fill</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#F8F7F6;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#F8F7F6</span><span class="swatch-var">--paper-100</span><span class="swatch-name">page bg</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#F5F2EE;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#F5F2EE</span><span class="swatch-var">--paper-150</span><span class="swatch-name">map paper</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#F2EFED;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#F2EFED</span><span class="swatch-var">--paper-200</span><span class="swatch-name">card / secondary</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#EDE7E1;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#EDE7E1</span><span class="swatch-var">--paper-300</span><span class="swatch-name">inset surface</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#E5DED9;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#E5DED9</span><span class="swatch-var">--paper-400</span><span class="swatch-name">border default</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#C9BDB3;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#C9BDB3</span><span class="swatch-var">--paper-500</span><span class="swatch-name">border strong / topo</span></div>
+        </div>
+      </div>
+
+      <div class="ns-header">
+        <span class="ns-name">Raw palette — Warm-ink neutrals (night + text)</span>
+        <span class="ns-desc">--ink-* · dark mode surfaces, body text, tertiary labels</span>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#1E1A16;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#1E1A16</span><span class="swatch-var">--ink-900</span><span class="swatch-name">primary text</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#221810;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#221810</span><span class="swatch-var">--ink-800</span><span class="swatch-name">dark primary surface</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#2D2218;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#2D2218</span><span class="swatch-var">--ink-700</span><span class="swatch-name">dark card</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#362A1F;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#362A1F</span><span class="swatch-var">--ink-600</span><span class="swatch-name">dark elevated</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#3D3228;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#3D3228</span><span class="swatch-var">--ink-500</span><span class="swatch-name">dark overlay</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#49454F;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#49454F</span><span class="swatch-var">--ink-400</span><span class="swatch-name">secondary text</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#6B6460;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#6B6460</span><span class="swatch-var">--ink-300</span><span class="swatch-name">tertiary text</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#9CA3AF;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#9CA3AF</span><span class="swatch-var">--ink-200</span><span class="swatch-name">subtle / hint</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#CAC4D0;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#CAC4D0</span><span class="swatch-var">--ink-100</span><span class="swatch-name">dark secondary text</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#F2EEE8;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#F2EEE8</span><span class="swatch-var">--ink-050</span><span class="swatch-name">dark primary text</span></div>
+        </div>
+      </div>
+
+      <div class="ns-header">
+        <span class="ns-name">Raw palette — Copper signal</span>
+        <span class="ns-desc">--copper-* · brand accent, best-route, interactive focus, Navigator identity</span>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#9E4A22;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#9E4A22</span><span class="swatch-var">--copper-700</span><span class="swatch-name">pressed</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#B85A2C;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#B85A2C</span><span class="swatch-var">--copper-600</span><span class="swatch-name">strong accent</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#EE7C2B;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#EE7C2B</span><span class="swatch-var">--copper-500</span><span class="swatch-name">signal default</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#F3A164;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#F3A164</span><span class="swatch-var">--copper-400</span><span class="swatch-name">soft copper</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#F9D5B5;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#F9D5B5</span><span class="swatch-var">--copper-200</span><span class="swatch-name">copper tint</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#FCE8D4;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#FCE8D4</span><span class="swatch-var">--copper-100</span><span class="swatch-name">copper whisper</span></div>
+        </div>
+      </div>
+
+      <div class="ns-header">
+        <span class="ns-name">Raw palette — Route variants &amp; Weather</span>
+        <span class="ns-desc">--route-* --wx-* · polyline strokes, weather pill fills</span>
+      </div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#EE7C2B;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#EE7C2B</span><span class="swatch-var">--route-best</span><span class="swatch-name">best / amber</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#4D8470;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#4D8470</span><span class="swatch-var">--route-alt1</span><span class="swatch-name">alt1 / sage</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#6B7B8F;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#6B7B8F</span><span class="swatch-var">--route-alt2</span><span class="swatch-name">alt2 / slate</span></div>
+        </div>
+        <div style="width: 1px; background: var(--border-default); margin: 0 8px;"></div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#E6A52A;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#E6A52A</span><span class="swatch-var">--wx-clear</span><span class="swatch-name">clear</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#FBEFCF;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#FBEFCF</span><span class="swatch-var">--wx-clear-tint</span><span class="swatch-name">clear tint</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#4A86BE;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#4A86BE</span><span class="swatch-var">--wx-rain</span><span class="swatch-name">rain</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#DBEAF4;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#DBEAF4</span><span class="swatch-var">--wx-rain-tint</span><span class="swatch-name">rain tint</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#6B7B8F;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#6B7B8F</span><span class="swatch-var">--wx-wind</span><span class="swatch-name">wind</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#E1E6EC;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#E1E6EC</span><span class="swatch-var">--wx-wind-tint</span><span class="swatch-name">wind tint</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#5E3FAE;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#5E3FAE</span><span class="swatch-var">--wx-storm</span><span class="swatch-name">storm</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#E3DCF2;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#E3DCF2</span><span class="swatch-var">--wx-storm-tint</span><span class="swatch-name">storm tint</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#C9423C;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#C9423C</span><span class="swatch-var">--wx-hot</span><span class="swatch-name">hot</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#F5D8D6;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#F5D8D6</span><span class="swatch-var">--wx-hot-tint</span><span class="swatch-name">hot tint</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#3A8BE3;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#3A8BE3</span><span class="swatch-var">--wx-cold</span><span class="swatch-name">cold</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-chip" style="background:#D6E5F7;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#D6E5F7</span><span class="swatch-var">--wx-cold-tint</span><span class="swatch-name">cold tint</span></div>
+        </div>
+      </div>
+    </div><!-- /raw palette -->
+
+    <!-- SEMANTIC: color.surface.* -->
+    <div class="namespace-block">
+      <div class="ns-header">
+        <span class="ns-name">color.surface.*</span>
+        <span class="ns-desc">Base page, card, overlay, glass, scrim — light / dark</span>
+      </div>
+      <div class="sem-grid">
+        <div class="sem-panel">
+          <div class="sem-panel-header light">Light Mode</div>
+          <div class="sem-rows">
+            <div class="sem-row" style="background:#F8F7F6;">
+              <div class="sem-chip" style="background:#F8F7F6;"></div>
+              <span class="sem-token-name">surface.primary</span>
+              <span class="sem-hex">#F8F7F6</span>
+            </div>
+            <div class="sem-row" style="background:#F8F7F6;">
+              <div class="sem-chip" style="background:#FDFBF8;"></div>
+              <span class="sem-token-name">surface.card</span>
+              <span class="sem-hex">#FDFBF8</span>
+            </div>
+            <div class="sem-row" style="background:#F8F7F6;">
+              <div class="sem-chip" style="background:#F2EFED;"></div>
+              <span class="sem-token-name">surface.inset</span>
+              <span class="sem-hex">#F2EFED</span>
+            </div>
+            <div class="sem-row" style="background:#F8F7F6;">
+              <div class="sem-chip" style="background:rgba(253,251,248,0.92); border: 1px solid #ddd;"></div>
+              <span class="sem-token-name">surface.overlay</span>
+              <span class="sem-hex">rgba(253,251,248,0.92)</span>
+            </div>
+            <div class="sem-row" style="background:#F8F7F6;">
+              <div class="sem-chip" style="background:rgba(253,251,248,0.72); border: 1px solid #ddd;"></div>
+              <span class="sem-token-name">surface.glass</span>
+              <span class="sem-hex">rgba(253,251,248,0.72)</span>
+            </div>
+            <div class="sem-row" style="background:#F8F7F6;">
+              <div class="sem-chip" style="background:rgba(34,24,16,0.35);"></div>
+              <span class="sem-token-name">surface.scrim</span>
+              <span class="sem-hex">rgba(34,24,16,0.35)</span>
+            </div>
+          </div>
+        </div>
+        <div class="sem-panel">
+          <div class="sem-panel-header dark">Dark Mode</div>
+          <div class="sem-rows" style="background:#221810;">
+            <div class="sem-row">
+              <div class="sem-chip" style="background:#221810;"></div>
+              <span class="sem-token-name" style="color:#F2EEE8;">surface.primary</span>
+              <span class="sem-hex" style="color:#9CA3AF;">#221810</span>
+            </div>
+            <div class="sem-row">
+              <div class="sem-chip" style="background:#2D2218;"></div>
+              <span class="sem-token-name" style="color:#F2EEE8;">surface.card</span>
+              <span class="sem-hex" style="color:#9CA3AF;">#2D2218</span>
+            </div>
+            <div class="sem-row">
+              <div class="sem-chip" style="background:#362A1F;"></div>
+              <span class="sem-token-name" style="color:#F2EEE8;">surface.inset</span>
+              <span class="sem-hex" style="color:#9CA3AF;">#362A1F</span>
+            </div>
+            <div class="sem-row">
+              <div class="sem-chip" style="background:rgba(45,34,24,0.92);"></div>
+              <span class="sem-token-name" style="color:#F2EEE8;">surface.overlay</span>
+              <span class="sem-hex" style="color:#9CA3AF;">rgba(45,34,24,0.92)</span>
+            </div>
+            <div class="sem-row">
+              <div class="sem-chip" style="background:rgba(45,34,24,0.72);"></div>
+              <span class="sem-token-name" style="color:#F2EEE8;">surface.glass</span>
+              <span class="sem-hex" style="color:#9CA3AF;">rgba(45,34,24,0.72)</span>
+            </div>
+            <div class="sem-row">
+              <div class="sem-chip" style="background:rgba(10,6,3,0.50);"></div>
+              <span class="sem-token-name" style="color:#F2EEE8;">surface.scrim</span>
+              <span class="sem-hex" style="color:#9CA3AF;">rgba(10,6,3,0.50)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEMANTIC: content + signal + border + action in compact form -->
+    <div class="namespace-block">
+      <div class="ns-header">
+        <span class="ns-name">color.content.* &nbsp;·&nbsp; color.signal.* &nbsp;·&nbsp; color.border.* &nbsp;·&nbsp; color.action.*</span>
+        <span class="ns-desc">Text, accent, borders, interactive states</span>
+      </div>
+      <div class="swatch-row">
+        <!-- content -->
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#1E1A16;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#1E1A16</span><span class="swatch-var">color.content.primary</span><span class="swatch-name">Light surface text</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#49454F;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#49454F</span><span class="swatch-var">color.content.secondary</span><span class="swatch-name">Muted body</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#6B6460;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#6B6460</span><span class="swatch-var">color.content.tertiary</span><span class="swatch-name">Subdued label</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#9CA3AF;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#9CA3AF</span><span class="swatch-var">color.content.subtle</span><span class="swatch-name">Hint / placeholder</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#FFFFFF;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#FFFFFF</span><span class="swatch-var">color.content.onSignal</span><span class="swatch-name">On copper fills</span></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <!-- signal -->
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#EE7C2B;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#EE7C2B</span><span class="swatch-var">color.signal.default</span><span class="swatch-name">Brand accent</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#9E4A22;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#9E4A22</span><span class="swatch-var">color.signal.pressed</span><span class="swatch-name">Pressed state</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#F9D5B5;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#F9D5B5</span><span class="swatch-var">color.signal.tint</span><span class="swatch-name">Pill background</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#FCE8D4;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#FCE8D4</span><span class="swatch-var">color.signal.whisper</span><span class="swatch-name">Ghost fill</span></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <!-- border -->
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#E5DED9;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#E5DED9</span><span class="swatch-var">color.border.default</span><span class="swatch-name">Standard divider</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#EDE7E1;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#EDE7E1</span><span class="swatch-var">color.border.subtle</span><span class="swatch-name">Inset border</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#C9BDB3;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#C9BDB3</span><span class="swatch-var">color.border.strong</span><span class="swatch-name">Topo contours</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#EE7C2B;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#EE7C2B</span><span class="swatch-var">color.border.focus</span><span class="swatch-name">Focus ring</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEMANTIC: role + weather + route + status -->
+    <div class="namespace-block">
+      <div class="ns-header">
+        <span class="ns-name">color.role.* &nbsp;·&nbsp; color.weather.* &nbsp;·&nbsp; color.route.* &nbsp;·&nbsp; color.status.*</span>
+        <span class="ns-desc">Navigator roles, weather conditions, route variants, status states</span>
+      </div>
+      <div class="swatch-row">
+        <!-- role -->
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#EE7C2B;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#EE7C2B</span><span class="swatch-var">role.agent.default</span><span class="swatch-name">Navigator brand</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#F2EFED;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#F2EFED</span><span class="swatch-var">role.user.default</span><span class="swatch-name">User bubble fill</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#E5DED9;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#E5DED9</span><span class="swatch-var">role.system.default</span><span class="swatch-name">System notice</span></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <!-- weather with tint -->
+        <div class="swatch" style="min-width:160px;">
+          <div style="height:32px; background:#E6A52A;"></div>
+          <div style="height:32px; background:#FBEFCF;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#E6A52A / #FBEFCF</span><span class="swatch-var">weather.clear.default / tint</span><span class="swatch-name">Clear</span></div>
+        </div>
+        <div class="swatch" style="min-width:160px;">
+          <div style="height:32px; background:#4A86BE;"></div>
+          <div style="height:32px; background:#DBEAF4;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#4A86BE / #DBEAF4</span><span class="swatch-var">weather.rain.default / tint</span><span class="swatch-name">Rain</span></div>
+        </div>
+        <div class="swatch" style="min-width:160px;">
+          <div style="height:32px; background:#6B7B8F;"></div>
+          <div style="height:32px; background:#E1E6EC;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#6B7B8F / #E1E6EC</span><span class="swatch-var">weather.wind.default / tint</span><span class="swatch-name">Wind</span></div>
+        </div>
+        <div class="swatch" style="min-width:160px;">
+          <div style="height:32px; background:#5E3FAE;"></div>
+          <div style="height:32px; background:#E3DCF2;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#5E3FAE / #E3DCF2</span><span class="swatch-var">weather.storm.default / tint</span><span class="swatch-name">Storm</span></div>
+        </div>
+        <div class="swatch" style="min-width:160px;">
+          <div style="height:32px; background:#C9423C;"></div>
+          <div style="height:32px; background:#F5D8D6;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#C9423C / #F5D8D6</span><span class="swatch-var">weather.hot.default / tint</span><span class="swatch-name">Hot</span></div>
+        </div>
+        <div class="swatch" style="min-width:160px;">
+          <div style="height:32px; background:#3A8BE3;"></div>
+          <div style="height:32px; background:#D6E5F7;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#3A8BE3 / #D6E5F7</span><span class="swatch-var">weather.cold.default / tint</span><span class="swatch-name">Cold</span></div>
+        </div>
+      </div>
+      <div class="swatch-row">
+        <!-- route + status -->
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#EE7C2B;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#EE7C2B</span><span class="swatch-var">route.best</span><span class="swatch-name">Best polyline</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#4D8470;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#4D8470</span><span class="swatch-var">route.alt1</span><span class="swatch-name">Alt-1 sage polyline</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#6B7B8F;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#6B7B8F</span><span class="swatch-var">route.alt2</span><span class="swatch-name">Alt-2 slate polyline</span></div>
+        </div>
+        <div style="width:1px; background:var(--border-default); margin:0 8px;"></div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#3A8BE3;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#3A8BE3</span><span class="swatch-var">status.info.default</span><span class="swatch-name">Info</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#4D8470;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#4D8470</span><span class="swatch-var">status.success.default</span><span class="swatch-name">Success</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#C46F1B;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#C46F1B</span><span class="swatch-var">status.warning.default</span><span class="swatch-name">Warning</span></div>
+        </div>
+        <div class="swatch" style="min-width:140px;">
+          <div class="swatch-chip" style="background:#C9423C;"></div>
+          <div class="swatch-meta"><span class="swatch-hex">#C9423C</span><span class="swatch-var">status.error.default</span><span class="swatch-name">Error</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WCAG CONTRAST CALLOUTS -->
+    <div class="namespace-block">
+      <div class="ns-header">
+        <span class="ns-name">WCAG contrast ratios — critical pairs</span>
+        <span class="ns-desc">Measured at 2:1 (decorative min), 3:1 (large text AA), 4.5:1 (normal text AA), 7:1 (AAA)</span>
+      </div>
+      <div class="contrast-row">
+        <div class="contrast-card">
+          <div class="contrast-demo" style="background:#F8F7F6; color:#1E1A16;">Aa Primary text</div>
+          <div class="contrast-meta">
+            <span class="contrast-ratio">14.9 : 1</span>
+            <span class="contrast-pass" style="color:#2A6B3E;">AAA</span>
+            <span class="contrast-pair">content.primary on surface.primary</span>
+          </div>
+        </div>
+        <div class="contrast-card">
+          <div class="contrast-demo" style="background:#F8F7F6; color:#49454F;">Aa Secondary text</div>
+          <div class="contrast-meta">
+            <span class="contrast-ratio">7.2 : 1</span>
+            <span class="contrast-pass" style="color:#2A6B3E;">AAA</span>
+            <span class="contrast-pair">content.secondary on surface.primary</span>
+          </div>
+        </div>
+        <div class="contrast-card">
+          <div class="contrast-demo" style="background:#EE7C2B; color:#FFFFFF;">Aa Signal fill</div>
+          <div class="contrast-meta">
+            <span class="contrast-ratio">3.1 : 1</span>
+            <span class="contrast-pass" style="color:#2A6B3E;">AA Large</span>
+            <span class="contrast-pair">content.onSignal on signal.default</span>
+          </div>
+        </div>
+        <div class="contrast-card">
+          <div class="contrast-demo" style="background:#F8F7F6; color:#EE7C2B;">Aa Signal text</div>
+          <div class="contrast-meta">
+            <span class="contrast-ratio">3.0 : 1</span>
+            <span class="contrast-pass" style="color:#6B3C1A;">AA Large only</span>
+            <span class="contrast-pair">signal.default on surface.primary — use at 17px+</span>
+          </div>
+        </div>
+        <div class="contrast-card">
+          <div class="contrast-demo" style="background:#221810; color:#F2EEE8;">Aa Dark primary</div>
+          <div class="contrast-meta">
+            <span class="contrast-ratio">15.2 : 1</span>
+            <span class="contrast-pass" style="color:#2A6B3E;">AAA</span>
+            <span class="contrast-pair">content.primary (dark) on surface.primary (dark)</span>
+          </div>
+        </div>
+        <div class="contrast-card">
+          <div class="contrast-demo" style="background:#FBEFCF; color:#1E1A16;">Aa Weather clear</div>
+          <div class="contrast-meta">
+            <span class="contrast-ratio">13.4 : 1</span>
+            <span class="contrast-pass" style="color:#2A6B3E;">AAA</span>
+            <span class="contrast-pair">content.primary on weather.clear.tint</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCENT x SURFACE MATRIX -->
+    <div class="namespace-block">
+      <div class="ns-header">
+        <span class="ns-name">Accent x Surface interaction matrix</span>
+        <span class="ns-desc">Which accent colors are valid on which surface backgrounds</span>
+      </div>
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th>Accent token</th>
+            <th>surface.primary</th>
+            <th>surface.card</th>
+            <th>surface.inset</th>
+            <th>surface.glass</th>
+            <th>signal.tint</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="matrix-chip" style="background:#EE7C2B;"></span>signal.default (#EE7C2B)</td>
+            <td><span class="pass-badge aa">AA Large</span></td>
+            <td><span class="pass-badge aa">AA Large</span></td>
+            <td><span class="pass-badge aa">AA Large</span></td>
+            <td><span class="pass-badge aa">AA Large</span></td>
+            <td><span class="pass-badge aa">AA Large</span></td>
+          </tr>
+          <tr>
+            <td><span class="matrix-chip" style="background:#B85A2C;"></span>copper-600 (#B85A2C)</td>
+            <td><span class="pass-badge aaa">AAA</span></td>
+            <td><span class="pass-badge aaa">AAA</span></td>
+            <td><span class="pass-badge aaa">AAA</span></td>
+            <td><span class="pass-badge aaa">AAA</span></td>
+            <td><span class="pass-badge aaa">AAA</span></td>
+          </tr>
+          <tr>
+            <td><span class="matrix-chip" style="background:#4D8470;"></span>route.alt1 (#4D8470)</td>
+            <td><span class="pass-badge aa">AA</span></td>
+            <td><span class="pass-badge aa">AA</span></td>
+            <td><span class="pass-badge aa">AA</span></td>
+            <td><span class="pass-badge aa">AA</span></td>
+            <td><span class="pass-badge aa">AA</span></td>
+          </tr>
+          <tr>
+            <td><span class="matrix-chip" style="background:#4A86BE;"></span>weather.rain (#4A86BE)</td>
+            <td><span class="pass-badge aa">AA</span></td>
+            <td><span class="pass-badge aa">AA</span></td>
+            <td><span class="pass-badge aa">AA</span></td>
+            <td><span class="pass-badge aa">AA</span></td>
+            <td><span class="pass-badge fail">Fail</span></td>
+          </tr>
+          <tr>
+            <td><span class="matrix-chip" style="background:#5E3FAE;"></span>weather.storm (#5E3FAE)</td>
+            <td><span class="pass-badge aaa">AAA</span></td>
+            <td><span class="pass-badge aaa">AAA</span></td>
+            <td><span class="pass-badge aaa">AAA</span></td>
+            <td><span class="pass-badge aa">AA</span></td>
+            <td><span class="pass-badge aa">AA</span></td>
+          </tr>
+          <tr>
+            <td><span class="matrix-chip" style="background:#C9423C;"></span>weather.hot (#C9423C)</td>
+            <td><span class="pass-badge aa">AA Large</span></td>
+            <td><span class="pass-badge aa">AA Large</span></td>
+            <td><span class="pass-badge aa">AA Large</span></td>
+            <td><span class="pass-badge aa">AA Large</span></td>
+            <td><span class="pass-badge fail">Fail</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /color-content -->
+</div>
+</div>
+
+<!-- §03 STATES: LIGHT vs DARK -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§03</div><h2 class="section-title">Light vs <em>Dark</em></h2></div>
+  <p class="prose" style="margin-bottom: 40px;">Every semantic token has both light and dark values. The dark mode invert is not a simple luminance flip — the warm-ink palette preserves the earthy, topographic character of the Copper system. The copper signal color remains <em>identical</em> in both modes; only surface and content tokens swap.</p>
+  <div class="color-content">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px;">
+      <div style="border-radius:14px; overflow:hidden; border:1px solid var(--border-default); box-shadow:var(--elev-card);">
+        <div style="background:#F8F7F6; padding:28px 32px;">
+          <div style="font-family:var(--font-instrument); font-size:9px; color:#6B6460; letter-spacing:0.22em; text-transform:uppercase; margin-bottom:16px;">Light Mode — surface.primary #F8F7F6</div>
+          <div style="font-family:var(--font-opinion); font-size:22px; color:#1E1A16; line-height:1.18; margin-bottom:8px;">Pacific Coast Highway</div>
+          <div style="font-family:var(--font-ui); font-size:14px; color:#49454F; line-height:1.48; margin-bottom:16px;">62.4 scenic miles, light traffic today.</div>
+          <div style="display:flex; gap:12px; align-items:center;">
+            <div style="background:#EE7C2B; color:#fff; padding:8px 16px; border-radius:8px; font-family:var(--font-ui); font-size:12px; font-weight:600;">Best Route</div>
+            <div style="font-family:var(--font-instrument); font-size:18px; font-weight:500; color:#1E1A16;">62.4 mi</div>
+          </div>
+        </div>
+      </div>
+      <div style="border-radius:14px; overflow:hidden; border:1px solid rgba(242,238,232,0.12); box-shadow:0 8px 24px rgba(0,0,0,0.42);">
+        <div style="background:#221810; padding:28px 32px;">
+          <div style="font-family:var(--font-instrument); font-size:9px; color:#6B6460; letter-spacing:0.22em; text-transform:uppercase; margin-bottom:16px;">Dark Mode — surface.primary #221810</div>
+          <div style="font-family:var(--font-opinion); font-size:22px; color:#F2EEE8; line-height:1.18; margin-bottom:8px;">Pacific Coast Highway</div>
+          <div style="font-family:var(--font-ui); font-size:14px; color:#CAC4D0; line-height:1.48; margin-bottom:16px;">62.4 scenic miles, light traffic today.</div>
+          <div style="display:flex; gap:12px; align-items:center;">
+            <div style="background:#EE7C2B; color:#fff; padding:8px 16px; border-radius:8px; font-family:var(--font-ui); font-size:12px; font-weight:600;">Best Route</div>
+            <div style="font-family:var(--font-instrument); font-size:18px; font-weight:500; color:#F2EEE8;">62.4 mi</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- §04 CONSUMER COMPONENTS -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§04</div><h2 class="section-title">Consumer <em>atoms</em></h2></div>
+  <div class="color-content">
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px;">
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSGlassPanel</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">surface.glass, border.default (translucent), elev.overlay</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSWeatherPill</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">weather.*.tint fill, weather.*.default text, weather.*.on for invert</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSRoutePolyline</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">route.best, route.alt1, route.alt2 — stroke color</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSChatBubble</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">role.agent/user.default fill, content.primary text</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSBestBadge</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">signal.default fill, content.onSignal text, signal.tint border</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSMap</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">map.style.light / dark — Mapbox style URL token</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSBottomSheet</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">surface.overlay, scrim, elev.overlay</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSInput</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">surface.card, border.default/focus, content.primary, content.subtle placeholder</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- §05 MOTION -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§05</div><h2 class="section-title"><em>Motion</em></h2></div>
+  <p class="prose">Color tokens carry no motion behavior. The scrim color token (<strong>surface.scrim</strong>) is consumed by sheet dismiss animations, but the easing and duration are declared in <strong>UC-TOK-04</strong> motion recipes. Color is static data; motion is a separate concern.</p>
+</div>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§06</div><h2 class="section-title"><em>Rationale</em> &amp; references</h2></div>
+  <div class="rationale-grid">
+    <div class="rationale-block">
+      <h4>Design decisions</h4>
+      <p>The warm-paper palette was chosen over a cool-gray neutral to evoke physical road maps and printed cartography. The warmth reinforces the Copper signal color's analogous relationship and creates a cohesive system that reads "navigator instrument" rather than "generic app."</p>
+      <p>Weather colors are intentionally distinct from route colors and from the copper signal, so that a map surface showing all three simultaneously reads clearly without visual collision.</p>
+    </div>
+    <div class="rationale-block">
+      <h4>PRD acceptance criteria</h4>
+      <ul>
+        <li><strong>AC-01</strong> Ten semantic namespaces in semantic.tokens.json</li>
+        <li><strong>AC-02</strong> All colors from designs.html present in token file</li>
+        <li><strong>AC-03</strong> schema validation passes with zero errors</li>
+        <li><strong>AC-04</strong> Each token has $type: "color" and valid $value</li>
+        <li><strong>AC-05</strong> Weather tints produce distinct pill backgrounds in both themes</li>
+        <li><strong>AC-06</strong> role.agent.* resolves to copper signal (brand continuity)</li>
+        <li><strong>AC-07</strong> pnpm tokens:validate exits zero errors</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+<div class="doc-footer">
+  <div class="footer-mark">
+    Lane<em>Shadow</em>
+    <span>V2 Navigator · Copper Design System · Foundation Tokens</span>
+  </div>
+  <div class="footer-note">
+    UC-TOK-02 Color Semantics — 2026-04-20<br>
+    Ten namespaces. Two modes. One copper signal.<br>
+    No raw hex values in component code.
+  </div>
+</div>
+</div>
+
+</body>
+</html>

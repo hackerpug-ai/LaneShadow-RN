@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<!-- uc-tok-01-typography.html — UC-TOK-01 "Typography Families"
+     LaneShadow V2 · Copper · Foundation Token Mock · 2026-04-20
+     Authority: .spec/prds/v2/04-uc-tok.md §UC-TOK-01 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-TOK-01 — Typography Families — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM — shared CSS spine (mirrors uc-scr-01-idle.html).
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:  #FDFBF8;
+  --paper-100: #F8F7F6;
+  --paper-150: #F5F2EE;
+  --paper-200: #F2EFED;
+  --paper-300: #EDE7E1;
+  --paper-400: #E5DED9;
+  --paper-500: #C9BDB3;
+  --ink-900:   #1E1A16;
+  --ink-800:   #221810;
+  --ink-700:   #2D2218;
+  --ink-600:   #362A1F;
+  --ink-500:   #3D3228;
+  --ink-400:   #49454F;
+  --ink-300:   #6B6460;
+  --ink-200:   #9CA3AF;
+  --ink-100:   #CAC4D0;
+  --ink-050:   #F2EEE8;
+  --copper-700: #9E4A22;
+  --copper-600: #B85A2C;
+  --copper-500: #EE7C2B;
+  --copper-400: #F3A164;
+  --copper-200: #F9D5B5;
+  --copper-100: #FCE8D4;
+  --font-opinion:    'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+}
+
+:root {
+  --surface-primary:   var(--paper-100);
+  --surface-card:      var(--paper-50);
+  --surface-inset:     var(--paper-200);
+  --surface-overlay:   rgba(253,251,248,0.92);
+  --surface-glass:     rgba(253,251,248,0.72);
+  --surface-scrim:     rgba(34,24,16,0.35);
+  --content-primary:   var(--ink-900);
+  --content-secondary: var(--ink-400);
+  --content-tertiary:  var(--ink-300);
+  --content-subtle:    var(--ink-200);
+  --signal-default:    var(--copper-500);
+  --signal-pressed:    var(--copper-700);
+  --signal-tint:       var(--copper-200);
+  --signal-whisper:    var(--copper-100);
+  --border-default:    var(--paper-400);
+  --border-subtle:     var(--paper-300);
+  --border-strong:     var(--paper-500);
+  --border-focus:      var(--copper-500);
+  --action-primary:    var(--copper-500);
+  --elev-overlay:      0 8px 24px rgba(34,24,16,0.10), 0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:         0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:       0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
+}
+
+/* ── TYPOGRAPHY ROLES ─────────────────────────────────────────────── */
+.t-opinion-xl  { font-family: var(--font-opinion); font-weight: 400; font-size: 30px; line-height: 1.12; letter-spacing: -0.015em; }
+.t-opinion-lg  { font-family: var(--font-opinion); font-weight: 400; font-size: 22px; line-height: 1.18; letter-spacing: -0.01em; }
+.t-opinion-md  { font-family: var(--font-opinion); font-weight: 400; font-size: 17px; line-height: 1.32; letter-spacing: 0; }
+.t-opinion-sm  { font-family: var(--font-opinion); font-weight: 400; font-size: 14px; line-height: 1.45; letter-spacing: 0; }
+.t-title-lg    { font-family: var(--font-ui); font-weight: 600; font-size: 17px; line-height: 1.24; letter-spacing: -0.01em; }
+.t-title-md    { font-family: var(--font-ui); font-weight: 600; font-size: 14px; line-height: 1.28; letter-spacing: -0.005em; }
+.t-title-sm    { font-family: var(--font-ui); font-weight: 600; font-size: 12px; line-height: 1.28; letter-spacing: 0; }
+.t-body-lg     { font-family: var(--font-ui); font-weight: 400; font-size: 14px; line-height: 1.48; }
+.t-body-md     { font-family: var(--font-ui); font-weight: 400; font-size: 12px; line-height: 1.52; }
+.t-body-sm     { font-family: var(--font-ui); font-weight: 400; font-size: 10.5px; line-height: 1.48; }
+.t-label-lg    { font-family: var(--font-ui); font-weight: 500; font-size: 11px; line-height: 1.0; letter-spacing: 0.08em; text-transform: uppercase; }
+.t-label-md    { font-family: var(--font-ui); font-weight: 600; font-size: 9.5px; line-height: 1.0; letter-spacing: 0.12em; text-transform: uppercase; }
+.t-label-sm    { font-family: var(--font-ui); font-weight: 600; font-size: 8.5px; line-height: 1.0; letter-spacing: 0.14em; text-transform: uppercase; }
+.t-instr-lg    { font-family: var(--font-instrument); font-weight: 500; font-size: 18px; line-height: 1.12; letter-spacing: -0.02em; font-feature-settings: "tnum" 1; }
+.t-instr-md    { font-family: var(--font-instrument); font-weight: 500; font-size: 13px; line-height: 1.2; letter-spacing: -0.01em; font-feature-settings: "tnum" 1; }
+.t-instr-sm    { font-family: var(--font-instrument); font-weight: 500; font-size: 10px; line-height: 1.2; letter-spacing: 0; font-feature-settings: "tnum" 1; }
+.t-instr-xs    { font-family: var(--font-instrument); font-weight: 500; font-size: 8.5px; line-height: 1.0; letter-spacing: 0; font-feature-settings: "tnum" 1; }
+em.opinion-ital { font-style: italic; font-weight: 400; }
+
+/* ── DOCUMENT CHROME ──────────────────────────────────────────────── */
+body {
+  font-family: var(--font-ui);
+  color: var(--content-primary);
+  background: var(--surface-primary);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+
+.doc-header {
+  position: relative;
+  padding: 96px 0 72px;
+  border-bottom: 1px solid var(--border-default);
+  overflow: hidden;
+}
+.doc-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 80%, rgba(238,124,43,0.08), transparent 44%),
+    radial-gradient(circle at 92% 12%, rgba(184,90,44,0.05), transparent 50%);
+  pointer-events: none;
+}
+.doc-header > * { position: relative; z-index: 1; }
+
+.doc-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-ui);
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--signal-default);
+  margin-bottom: 28px;
+}
+.doc-eyebrow::before {
+  content: ""; width: 28px; height: 1px; background: var(--signal-default);
+}
+.doc-eyebrow-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--signal-default);
+  color: var(--signal-default);
+  background: var(--signal-whisper);
+  font-size: 9.5px; letter-spacing: 0.14em;
+}
+.doc-title {
+  font-family: var(--font-opinion);
+  font-size: 104px;
+  font-weight: 300;
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  color: var(--content-primary);
+  margin-bottom: 32px;
+  max-width: 1000px;
+}
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.doc-tagline {
+  font-family: var(--font-opinion);
+  font-style: italic;
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--content-secondary);
+  max-width: 640px;
+  line-height: 1.55;
+  margin-bottom: 56px;
+}
+.doc-meta-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 24px;
+  padding-top: 36px;
+  border-top: 1px solid var(--border-default);
+}
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label {
+  font-family: var(--font-ui);
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+.meta-value {
+  font-family: var(--font-instrument);
+  font-size: 13px; font-weight: 500;
+  color: var(--content-primary);
+}
+
+.section {
+  padding: 96px 0;
+  border-bottom: 1px solid var(--border-default);
+  position: relative;
+}
+.section:last-child { border-bottom: none; }
+.section-header {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: baseline;
+  gap: 32px;
+  margin-bottom: 56px;
+}
+.section-index {
+  font-family: var(--font-instrument);
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em;
+  color: var(--signal-default);
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-index::before {
+  content: ""; display: block; width: 48px; height: 1px;
+  background: var(--signal-default);
+}
+.section-title {
+  font-family: var(--font-opinion);
+  font-size: 52px;
+  font-weight: 300;
+  letter-spacing: -0.025em;
+  line-height: 1.04;
+  color: var(--content-primary);
+  max-width: 900px;
+}
+.section-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.prose {
+  font-family: var(--font-opinion);
+  font-weight: 300;
+  font-size: 19px;
+  line-height: 1.68;
+  color: var(--content-secondary);
+  max-width: 720px;
+  margin-left: 152px;
+}
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+.prose strong {
+  font-family: var(--font-ui);
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--signal-default);
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--signal-whisper);
+  border: 1px solid var(--signal-tint);
+  border-radius: 4px;
+  margin: 0 2px;
+}
+.rationale-grid {
+  padding-left: 152px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+.rationale-block h4 {
+  font-family: var(--font-ui);
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--signal-default);
+  margin-bottom: 14px;
+}
+.rationale-block p {
+  font-family: var(--font-opinion);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--content-secondary);
+  margin-bottom: 10px;
+}
+.rationale-block ul { list-style: none; }
+.rationale-block li {
+  padding: 8px 0 8px 18px;
+  position: relative;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  color: var(--content-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.rationale-block li::before {
+  content: "→";
+  position: absolute; left: 0; top: 8px;
+  color: var(--signal-default);
+  font-family: var(--font-instrument);
+}
+.rationale-block li strong {
+  font-family: var(--font-instrument);
+  color: var(--content-primary);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.01em;
+}
+.doc-footer {
+  padding: 80px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: end;
+}
+.footer-mark {
+  font-family: var(--font-opinion);
+  font-size: 44px;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--content-primary);
+  letter-spacing: -0.02em;
+}
+.footer-mark em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.footer-mark span {
+  display: block;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--content-tertiary);
+  margin-top: 10px;
+  font-weight: 300;
+}
+.footer-note {
+  font-family: var(--font-opinion);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--content-tertiary);
+  text-align: right;
+  font-weight: 300;
+}
+
+/* ── LOCAL: TYPOGRAPHY MOCK STYLES ──────────────────────────────── */
+.type-content {
+  padding-left: 152px;
+}
+
+.family-block {
+  margin-bottom: 72px;
+}
+.family-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 36px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--border-default);
+}
+.family-name {
+  font-family: var(--font-instrument);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--signal-default);
+}
+.family-role-tag {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--signal-tint);
+  background: var(--signal-whisper);
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--signal-default);
+}
+.family-actual {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--content-tertiary);
+}
+
+.specimen-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 280px;
+  gap: 32px;
+  align-items: start;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.specimen-row:last-child { border-bottom: none; }
+
+.specimen-meta { display: flex; flex-direction: column; gap: 8px; padding-top: 4px; }
+.specimen-token {
+  font-family: var(--font-instrument);
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--signal-default);
+  letter-spacing: 0.01em;
+}
+.specimen-label {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+
+.specimen-text { color: var(--content-primary); }
+.specimen-text.italic-demo { font-style: italic; }
+
+.specimen-annotations {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-top: 4px;
+}
+.ann-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.ann-row:last-child { border-bottom: none; }
+.ann-key {
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--content-tertiary);
+  letter-spacing: 0.04em;
+}
+.ann-val {
+  font-family: var(--font-instrument);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--content-primary);
+}
+
+/* Cross-family pairing */
+.pairing-block {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 14px;
+  padding: 48px 56px;
+  max-width: 880px;
+  margin-bottom: 40px;
+  box-shadow: var(--elev-card);
+}
+.pairing-label {
+  font-family: var(--font-instrument);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--signal-default);
+  margin-bottom: 32px;
+}
+.pairing-opinion {
+  font-family: var(--font-opinion);
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  color: var(--content-primary);
+  margin-bottom: 12px;
+}
+.pairing-opinion em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.pairing-ui {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.48;
+  color: var(--content-secondary);
+  margin-bottom: 16px;
+  max-width: 600px;
+}
+.pairing-instrument-row {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+.pairing-instr {
+  font-family: var(--font-instrument);
+  font-weight: 500;
+  font-feature-settings: "tnum" 1;
+}
+.pairing-instr.lg { font-size: 18px; line-height: 1.12; letter-spacing: -0.02em; color: var(--content-primary); }
+.pairing-instr.md { font-size: 13px; line-height: 1.2; letter-spacing: -0.01em; color: var(--content-secondary); }
+.pairing-instr.sm { font-size: 10px; line-height: 1.2; color: var(--content-tertiary); }
+.pairing-family-tag {
+  font-family: var(--font-instrument);
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--content-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 2px 6px;
+  align-self: center;
+}
+
+/* Dynamic Type scale preview */
+.scale-preview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 32px;
+}
+.scale-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 28px 28px 24px;
+  box-shadow: var(--elev-card);
+}
+.scale-card-label {
+  font-family: var(--font-instrument);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--signal-default);
+  margin-bottom: 20px;
+}
+.scale-item {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.scale-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.scale-1-0 { font-size: 1em; }
+.scale-1-3 { font-size: 1.3em; }
+.scale-1-7 { font-size: 1.7em; }
+
+/* Consumer components list */
+.consumer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.consumer-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+.consumer-card-name {
+  font-family: var(--font-instrument);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  color: var(--signal-default);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.consumer-card-items { list-style: none; }
+.consumer-card-items li {
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  color: var(--content-secondary);
+}
+.consumer-card-items li:last-child { border-bottom: none; }
+.tok-ref {
+  font-family: var(--font-instrument);
+  font-size: 10px;
+  color: var(--content-tertiary);
+  display: block;
+  margin-top: 2px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════ HEADER ════════════════════════════ -->
+<div class="doc-header">
+<div class="wrap">
+  <div class="doc-eyebrow">
+    UC-TOK-01
+    <span class="doc-eyebrow-pill">Foundation · Typography</span>
+  </div>
+  <h1 class="doc-title">Three <em>families,</em><br>one voice.</h1>
+  <p class="doc-tagline">Opinion, UI, and Instrument — the complete typographic vocabulary of LaneShadow V2 Navigator. Every pixel value pinned here is binding for all downstream atoms.</p>
+  <div class="doc-meta-row">
+    <div class="meta-item">
+      <span class="meta-label">Version</span>
+      <span class="meta-value">2.0.0</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Date</span>
+      <span class="meta-value">2026-04-20</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Use Case</span>
+      <span class="meta-value">UC-TOK-01</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">PRD Ref</span>
+      <span class="meta-value">04-uc-tok.md</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Surface</span>
+      <span class="meta-value">Foundation</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Theme</span>
+      <span class="meta-value">Copper</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════ §01 PURPOSE ════════════════ -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header">
+    <div class="section-index">§01</div>
+    <h2 class="section-title"><em>Purpose</em></h2>
+  </div>
+  <p class="prose">Typography in Navigator is not a size scale — it is a <em>role system.</em> Three semantic families exist because three fundamentally different communication registers are in use simultaneously: the Navigator voice (opinionated, warm, serif), the application chrome (clean, functional, Geist), and instrument readouts (tabular numerics, monospaced precision).</p>
+  <p class="prose">Every component downstream consumes a token name from one of these three namespaces. No raw font-size values appear in component code. When a designer changes <strong>typography.opinion.xl</strong>, every heading in every surface updates atomically across iOS, Android, and TypeScript.</p>
+</div>
+</div>
+
+<!-- ════════════════ §02 SPECIMENS ════════════════ -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header">
+    <div class="section-index">§02</div>
+    <h2 class="section-title">Token <em>specimens</em></h2>
+  </div>
+
+  <div class="type-content">
+
+    <!-- ── OPINION family ── -->
+    <div class="family-block">
+      <div class="family-header">
+        <span class="family-name">typography.opinion.*</span>
+        <span class="family-role-tag">Navigator Voice</span>
+        <span class="family-actual">Newsreader — italic-capable optical-size serif</span>
+      </div>
+
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.opinion.xl</span>
+          <span class="specimen-label">Display / Greeting</span>
+        </div>
+        <div class="specimen-text t-opinion-xl">
+          Where are we riding today?<br>
+          <span style="font-style: italic; color: var(--signal-default);">Let me think on that…</span>
+        </div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">Newsreader</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">400</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">30px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.12 (33.6px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">-0.015em (-0.45px)</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-opinion-xl</span></div>
+        </div>
+      </div>
+
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.opinion.lg</span>
+          <span class="specimen-label">Callout / Section heading</span>
+        </div>
+        <div class="specimen-text t-opinion-lg">
+          Great roads await.<br>
+          <span style="font-style: italic; color: var(--signal-default);">62 scenic miles to the coast.</span>
+        </div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">Newsreader</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">400</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">22px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.18 (25.96px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">-0.01em (-0.22px)</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-opinion-lg</span></div>
+        </div>
+      </div>
+
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.opinion.md</span>
+          <span class="specimen-label">Body / Chat response</span>
+        </div>
+        <div class="specimen-text t-opinion-md">
+          This route takes you through the Mendocino ridge — light traffic on weekdays,<br>occasional logging trucks on weekends. Best window: Thursday morning.
+        </div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">Newsreader</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">400</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">17px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.32 (22.44px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">0</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-opinion-md</span></div>
+        </div>
+      </div>
+
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.opinion.sm</span>
+          <span class="specimen-label">Caption / Attribution</span>
+        </div>
+        <div class="specimen-text t-opinion-sm">
+          <span style="font-style: italic;">Navigator · Route suggestion based on saved preferences and current conditions.</span>
+        </div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">Newsreader</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">400</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">14px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.45 (20.3px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">0</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-opinion-sm</span></div>
+        </div>
+      </div>
+    </div><!-- /opinion -->
+
+    <!-- ── UI family ── -->
+    <div class="family-block">
+      <div class="family-header">
+        <span class="family-name">typography.ui.*</span>
+        <span class="family-role-tag">Application Chrome</span>
+        <span class="family-actual">Geist — clean geometric sans-serif</span>
+      </div>
+
+      <!-- TITLES -->
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.ui.title.lg</span>
+          <span class="specimen-label">Screen title</span>
+        </div>
+        <div class="specimen-text t-title-lg">Route Options</div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">Geist</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">600</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">17px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.24 (21.08px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">-0.01em (-0.17px)</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-title-lg</span></div>
+        </div>
+      </div>
+
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.ui.title.md</span>
+          <span class="specimen-label">Card title / List header</span>
+        </div>
+        <div class="specimen-text t-title-md">Pacific Coast Highway</div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">Geist</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">600</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">14px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.28 (17.92px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">-0.005em (-0.07px)</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-title-md</span></div>
+        </div>
+      </div>
+
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.ui.title.sm</span>
+          <span class="specimen-label">Section divider / Group label</span>
+        </div>
+        <div class="specimen-text t-title-sm">Saved Routes</div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">Geist</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">600</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">12px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.28 (15.36px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">0</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-title-sm</span></div>
+        </div>
+      </div>
+
+      <!-- BODY -->
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.ui.body.lg</span>
+          <span class="specimen-label">List row / Description</span>
+        </div>
+        <div class="specimen-text t-body-lg">Highway 1 runs along the coastline with sweeping views of the Pacific Ocean from Carmel to Mendocino.</div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">Geist</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">400</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">14px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.48 (20.72px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">0</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-body-lg</span></div>
+        </div>
+      </div>
+
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.ui.body.md</span>
+          <span class="specimen-label">Secondary detail / Metadata</span>
+        </div>
+        <div class="specimen-text t-body-md">Updated 3 hours ago · Saved to Pacific Rides</div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">Geist</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">400</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">12px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.52 (18.24px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">0</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-body-md</span></div>
+        </div>
+      </div>
+
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.ui.body.sm</span>
+          <span class="specimen-label">Disclaimer / Fine print</span>
+        </div>
+        <div class="specimen-text t-body-sm">Conditions updated at 06:42. Road closures may affect this route during winter months.</div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">Geist</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">400</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">10.5px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.48 (15.54px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">0</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-body-sm</span></div>
+        </div>
+      </div>
+
+      <!-- LABELS -->
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.ui.label.lg</span>
+          <span class="specimen-label">Pill label / Chip text</span>
+        </div>
+        <div class="specimen-text t-label-lg" style="color: var(--signal-default);">Best Route</div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">Geist</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">500</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">11px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.0 (11px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">0.08em (0.88px)</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-label-lg</span></div>
+        </div>
+      </div>
+
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.ui.label.md</span>
+          <span class="specimen-label">Meta label / Status chip</span>
+        </div>
+        <div class="specimen-text t-label-md" style="color: var(--content-tertiary);">Scenic · 2 hrs 14 min</div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">Geist</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">600</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">9.5px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.0 (9.5px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">0.12em (1.14px)</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-label-md</span></div>
+        </div>
+      </div>
+
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.ui.label.sm</span>
+          <span class="specimen-label">Eyebrow / Token annotation</span>
+        </div>
+        <div class="specimen-text t-label-sm" style="color: var(--content-subtle);">Foundation · Copper · V2</div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">Geist</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">600</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">8.5px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.0 (8.5px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">0.14em (1.19px)</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-label-sm</span></div>
+        </div>
+      </div>
+    </div><!-- /ui -->
+
+    <!-- ── INSTRUMENT family ── -->
+    <div class="family-block">
+      <div class="family-header">
+        <span class="family-name">typography.instrument.*</span>
+        <span class="family-role-tag">Numeric Readout</span>
+        <span class="family-actual">JetBrains Mono — tabular lining, tnum feature active</span>
+      </div>
+
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.instrument.lg</span>
+          <span class="specimen-label">Primary stat readout</span>
+        </div>
+        <div class="specimen-text t-instr-lg">62.4 mi &nbsp;&nbsp; 1,842 ft &nbsp;&nbsp; 2:14</div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">JetBrains Mono</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">500</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">18px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.12 (20.16px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">-0.02em (-0.36px)</span></div>
+          <div class="ann-row"><span class="ann-key">tnum</span><span class="ann-val">enabled</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-instr-lg</span></div>
+        </div>
+      </div>
+
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.instrument.md</span>
+          <span class="specimen-label">Secondary stat / Phase label</span>
+        </div>
+        <div class="specimen-text t-instr-md" style="color: var(--content-secondary);">+1,842 ft gain &nbsp;&nbsp; 68°F &nbsp;&nbsp; Step 3 of 7</div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">JetBrains Mono</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">500</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">13px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.2 (15.6px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">-0.01em (-0.13px)</span></div>
+          <div class="ann-row"><span class="ann-key">tnum</span><span class="ann-val">enabled</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-instr-md</span></div>
+        </div>
+      </div>
+
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.instrument.sm</span>
+          <span class="specimen-label">Scenic dot / Timestamp</span>
+        </div>
+        <div class="specimen-text t-instr-sm" style="color: var(--content-tertiary);">06:42 AM &nbsp;&nbsp; 0.3 mi &nbsp;&nbsp; ETA 09:15</div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">JetBrains Mono</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">500</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">10px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.2 (12px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">0</span></div>
+          <div class="ann-row"><span class="ann-key">tnum</span><span class="ann-val">enabled</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-instr-sm</span></div>
+        </div>
+      </div>
+
+      <div class="specimen-row">
+        <div class="specimen-meta">
+          <span class="specimen-token">typography.instrument.xs</span>
+          <span class="specimen-label">Chip badge / Map label</span>
+        </div>
+        <div class="specimen-text t-instr-xs" style="color: var(--content-subtle);">·&nbsp;3&nbsp;·&nbsp;&nbsp; 12.4 mi</div>
+        <div class="specimen-annotations">
+          <div class="ann-row"><span class="ann-key">font-family</span><span class="ann-val">JetBrains Mono</span></div>
+          <div class="ann-row"><span class="ann-key">font-weight</span><span class="ann-val">500</span></div>
+          <div class="ann-row"><span class="ann-key">font-size</span><span class="ann-val">8.5px</span></div>
+          <div class="ann-row"><span class="ann-key">line-height</span><span class="ann-val">1.0 (8.5px)</span></div>
+          <div class="ann-row"><span class="ann-key">letter-spacing</span><span class="ann-val">0</span></div>
+          <div class="ann-row"><span class="ann-key">tnum</span><span class="ann-val">enabled</span></div>
+          <div class="ann-row"><span class="ann-key">CSS class</span><span class="ann-val">.t-instr-xs</span></div>
+        </div>
+      </div>
+    </div><!-- /instrument -->
+
+    <!-- ── CROSS-FAMILY PAIRING ── -->
+    <div style="margin-top: 16px; margin-bottom: 12px;">
+      <span style="font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--signal-default);">Cross-family canonical pairing</span>
+    </div>
+
+    <div class="pairing-block">
+      <div class="pairing-label">Opinion xl + UI body.lg + Instrument lg/md/sm — the standard Navigator composition</div>
+      <div class="pairing-opinion">
+        Ready for the<br><em>Pacific Coast</em> run?
+      </div>
+      <div class="pairing-ui">Highway 1 from Carmel to Mendocino. Light winds, 62°F. The coastal shelf section has one advisory — reduced lane width near Point Reyes. Best departure window is 07:30.</div>
+      <div class="pairing-instrument-row">
+        <div>
+          <div class="pairing-instr lg">62.4 mi</div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-subtle); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 3px;">instrument.lg</div>
+        </div>
+        <div>
+          <div class="pairing-instr md">2:14 hr</div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-subtle); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 3px;">instrument.md</div>
+        </div>
+        <div>
+          <div class="pairing-instr sm">+1,842 ft</div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-subtle); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 3px;">instrument.sm</div>
+        </div>
+        <div style="margin-left: auto;">
+          <span class="pairing-family-tag">opinion</span>
+          <span class="pairing-family-tag">ui</span>
+          <span class="pairing-family-tag">instrument</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /type-content -->
+</div>
+</div>
+
+<!-- ════════════════ §03 STATES: DYNAMIC TYPE SCALE ════════════════ -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header">
+    <div class="section-index">§03</div>
+    <h2 class="section-title">Dynamic Type <em>scale preview</em></h2>
+  </div>
+  <p class="prose" style="margin-bottom: 40px;">Three scale multipliers are shown: 1.0x (default), 1.3x (accessibility medium), 1.7x (accessibility large). Token sizes are the 1.0x base; platform runtimes multiply at render time. The layout system uses flexible containers so no text truncation occurs at 1.3x.</p>
+
+  <div class="type-content">
+    <div class="scale-preview">
+      <div class="scale-card">
+        <div class="scale-card-label">Scale 1.0x — Default</div>
+        <div class="scale-item">
+          <div style="font-family: var(--font-opinion); font-size: 30px; line-height: 1.12; letter-spacing: -0.015em; color: var(--content-primary);">Where are we riding today?</div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-subtle); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 6px;">opinion.xl · 30px</div>
+        </div>
+        <div class="scale-item">
+          <div style="font-family: var(--font-ui); font-size: 14px; line-height: 1.48; color: var(--content-secondary);">Highway 1, Carmel to Mendocino.</div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-subtle); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 6px;">ui.body.lg · 14px</div>
+        </div>
+        <div class="scale-item">
+          <div style="font-family: var(--font-instrument); font-size: 18px; font-weight: 500; font-feature-settings: 'tnum' 1; color: var(--content-primary);">62.4 mi</div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-subtle); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 6px;">instrument.lg · 18px</div>
+        </div>
+      </div>
+
+      <div class="scale-card">
+        <div class="scale-card-label">Scale 1.3x — Accessibility Medium</div>
+        <div class="scale-item">
+          <div style="font-family: var(--font-opinion); font-size: calc(30px * 1.3); line-height: 1.12; letter-spacing: -0.015em; color: var(--content-primary);">Where are we riding today?</div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-subtle); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 6px;">opinion.xl · 39px</div>
+        </div>
+        <div class="scale-item">
+          <div style="font-family: var(--font-ui); font-size: calc(14px * 1.3); line-height: 1.48; color: var(--content-secondary);">Highway 1, Carmel to Mendocino.</div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-subtle); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 6px;">ui.body.lg · 18.2px</div>
+        </div>
+        <div class="scale-item">
+          <div style="font-family: var(--font-instrument); font-size: calc(18px * 1.3); font-weight: 500; font-feature-settings: 'tnum' 1; color: var(--content-primary);">62.4 mi</div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-subtle); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 6px;">instrument.lg · 23.4px</div>
+        </div>
+      </div>
+
+      <div class="scale-card">
+        <div class="scale-card-label">Scale 1.7x — Accessibility Large</div>
+        <div class="scale-item">
+          <div style="font-family: var(--font-opinion); font-size: calc(30px * 1.7); line-height: 1.12; letter-spacing: -0.015em; color: var(--content-primary);">Where are we riding?</div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-subtle); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 6px;">opinion.xl · 51px</div>
+        </div>
+        <div class="scale-item">
+          <div style="font-family: var(--font-ui); font-size: calc(14px * 1.7); line-height: 1.48; color: var(--content-secondary);">Highway 1, Carmel–Mendocino.</div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-subtle); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 6px;">ui.body.lg · 23.8px</div>
+        </div>
+        <div class="scale-item">
+          <div style="font-family: var(--font-instrument); font-size: calc(18px * 1.7); font-weight: 500; font-feature-settings: 'tnum' 1; color: var(--content-primary);">62.4 mi</div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-subtle); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 6px;">instrument.lg · 30.6px</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════ §04 CONSUMER COMPONENTS ════════════════ -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header">
+    <div class="section-index">§04</div>
+    <h2 class="section-title">Consumer <em>atoms</em></h2>
+  </div>
+  <div class="type-content">
+    <div class="consumer-grid">
+      <div class="consumer-card">
+        <div class="consumer-card-name">LSNavigatorBubble</div>
+        <ul class="consumer-card-items">
+          <li>Headline<span class="tok-ref">typography.opinion.xl</span></li>
+          <li>Body response<span class="tok-ref">typography.opinion.md</span></li>
+          <li>Attribution<span class="tok-ref">typography.opinion.sm</span></li>
+        </ul>
+      </div>
+      <div class="consumer-card">
+        <div class="consumer-card-name">LSRouteCard</div>
+        <ul class="consumer-card-items">
+          <li>Route name<span class="tok-ref">typography.ui.title.md</span></li>
+          <li>Detail row<span class="tok-ref">typography.ui.body.md</span></li>
+          <li>Distance stat<span class="tok-ref">typography.instrument.lg</span></li>
+          <li>Duration stat<span class="tok-ref">typography.instrument.md</span></li>
+        </ul>
+      </div>
+      <div class="consumer-card">
+        <div class="consumer-card-name">LSWeatherPill</div>
+        <ul class="consumer-card-items">
+          <li>Temperature<span class="tok-ref">typography.instrument.md</span></li>
+          <li>Condition label<span class="tok-ref">typography.ui.label.md</span></li>
+        </ul>
+      </div>
+      <div class="consumer-card">
+        <div class="consumer-card-name">LSPhaseTracker</div>
+        <ul class="consumer-card-items">
+          <li>Step label<span class="tok-ref">typography.instrument.sm</span></li>
+          <li>Phase name<span class="tok-ref">typography.ui.title.sm</span></li>
+        </ul>
+      </div>
+      <div class="consumer-card">
+        <div class="consumer-card-name">LSTopBar</div>
+        <ul class="consumer-card-items">
+          <li>Screen title<span class="tok-ref">typography.ui.title.lg</span></li>
+          <li>Subtitle<span class="tok-ref">typography.ui.body.sm</span></li>
+        </ul>
+      </div>
+      <div class="consumer-card">
+        <div class="consumer-card-name">LSChatInput</div>
+        <ul class="consumer-card-items">
+          <li>Placeholder<span class="tok-ref">typography.ui.body.lg</span></li>
+          <li>Input text<span class="tok-ref">typography.ui.body.lg</span></li>
+        </ul>
+      </div>
+      <div class="consumer-card">
+        <div class="consumer-card-name">LSBestBadge</div>
+        <ul class="consumer-card-items">
+          <li>Badge label<span class="tok-ref">typography.ui.label.lg</span></li>
+          <li>Route rank<span class="tok-ref">typography.instrument.xs</span></li>
+        </ul>
+      </div>
+      <div class="consumer-card">
+        <div class="consumer-card-name">LSScenicDot</div>
+        <ul class="consumer-card-items">
+          <li>Dot count<span class="tok-ref">typography.instrument.xs</span></li>
+          <li>Location name<span class="tok-ref">typography.ui.label.sm</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════ §05 MOTION ════════════════ -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header">
+    <div class="section-index">§05</div>
+    <h2 class="section-title"><em>Motion</em></h2>
+  </div>
+  <p class="prose">Typography tokens carry no motion behavior. Type rendering on iOS and Android is subject to Dynamic Type animation when the user changes their preferred text size in system settings — this is handled by the platform, not the design token layer. See <strong>UC-TOK-04</strong> for all motion primitives and named recipes.</p>
+</div>
+</div>
+
+<!-- ════════════════ §06 RATIONALE ════════════════ -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header">
+    <div class="section-index">§06</div>
+    <h2 class="section-title"><em>Rationale</em> &amp; references</h2>
+  </div>
+  <div class="rationale-grid">
+    <div class="rationale-block">
+      <h4>Design decisions</h4>
+      <p>Newsreader was chosen over a standard editorial serif for its optical-size axis, allowing the same font to read as intimate caption text and commanding display headline without switching files. The italic variant carries the Navigator voice in UI — it signals opinion, not data.</p>
+      <p>JetBrains Mono is set with <code>font-feature-settings: "tnum" 1</code> so all numeric readouts are tabular-lining — columns of numbers align precisely regardless of digit width. This is non-negotiable for distance, duration, and temperature readouts.</p>
+    </div>
+    <div class="rationale-block">
+      <h4>PRD acceptance criteria</h4>
+      <ul>
+        <li><strong>AC-01</strong> Three top-level namespaces in semantic.tokens.json</li>
+        <li><strong>AC-02</strong> Each variant has family, weight, size, lineHeight fields</li>
+        <li><strong>AC-03</strong> Three font families declared as bundled assets (see UC-TOK-05)</li>
+        <li><strong>AC-04</strong> Typography swatch story renders on iOS (UC-ATM-01)</li>
+        <li><strong>AC-05</strong> Android byte-identical values within density rounding</li>
+        <li><strong>AC-06</strong> pnpm tokens:validate exits zero errors</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<div class="wrap">
+<div class="doc-footer">
+  <div class="footer-mark">
+    Lane<em>Shadow</em>
+    <span>V2 Navigator · Copper Design System · Foundation Tokens</span>
+  </div>
+  <div class="footer-note">
+    UC-TOK-01 Typography — 2026-04-20<br>
+    Every downstream atom resolves font properties<br>
+    from this token set. No raw values in component code.
+  </div>
+</div>
+</div>
+
+</body>
+</html>

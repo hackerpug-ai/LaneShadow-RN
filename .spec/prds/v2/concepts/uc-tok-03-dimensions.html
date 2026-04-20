@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<!-- uc-tok-03-dimensions.html — UC-TOK-03 "Spacing, Sizing, Stroke, Radius, Opacity, Elevation"
+     LaneShadow V2 · Copper · Foundation Token Mock · 2026-04-20
+     Authority: .spec/prds/v2/04-uc-tok.md §UC-TOK-03 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-TOK-03 — Dimensions — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:  #FDFBF8;  --paper-100: #F8F7F6;  --paper-150: #F5F2EE;
+  --paper-200: #F2EFED;  --paper-300: #EDE7E1;  --paper-400: #E5DED9;
+  --paper-500: #C9BDB3;
+  --ink-900:   #1E1A16;  --ink-800: #221810;  --ink-700: #2D2218;
+  --ink-600:   #362A1F;  --ink-500: #3D3228;  --ink-400: #49454F;
+  --ink-300:   #6B6460;  --ink-200: #9CA3AF;  --ink-100: #CAC4D0;  --ink-050: #F2EEE8;
+  --copper-700: #9E4A22;  --copper-600: #B85A2C;  --copper-500: #EE7C2B;
+  --copper-400: #F3A164;  --copper-200: #F9D5B5;  --copper-100: #FCE8D4;
+  --font-opinion:    'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+}
+:root {
+  --surface-primary:   var(--paper-100);  --surface-card: var(--paper-50);
+  --surface-inset:     var(--paper-200);  --surface-overlay: rgba(253,251,248,0.92);
+  --surface-glass:     rgba(253,251,248,0.72);  --surface-scrim: rgba(34,24,16,0.35);
+  --content-primary:   var(--ink-900);  --content-secondary: var(--ink-400);
+  --content-tertiary:  var(--ink-300);  --content-subtle: var(--ink-200);
+  --signal-default:    var(--copper-500);  --signal-pressed: var(--copper-700);
+  --signal-tint:       var(--copper-200);  --signal-whisper: var(--copper-100);
+  --border-default:    var(--paper-400);  --border-subtle: var(--paper-300);
+  --border-strong:     var(--paper-500);  --border-focus: var(--copper-500);
+  --elev-overlay:      0 8px 24px rgba(34,24,16,0.10), 0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:         0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:       0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
+}
+
+body {
+  font-family: var(--font-ui); color: var(--content-primary);
+  background: var(--surface-primary); -webkit-font-smoothing: antialiased;
+  min-height: 100vh; line-height: 1.55; overflow-x: hidden;
+}
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+
+.doc-header {
+  position: relative; padding: 96px 0 72px;
+  border-bottom: 1px solid var(--border-default); overflow: hidden;
+}
+.doc-header::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 80%, rgba(238,124,43,0.08), transparent 44%),
+    radial-gradient(circle at 92% 12%, rgba(184,90,44,0.05), transparent 50%);
+  pointer-events: none;
+}
+.doc-header > * { position: relative; z-index: 1; }
+.doc-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-ui); font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase; color: var(--signal-default); margin-bottom: 28px;
+}
+.doc-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--signal-default); }
+.doc-eyebrow-pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--signal-default); color: var(--signal-default); background: var(--signal-whisper);
+  font-size: 9.5px; letter-spacing: 0.14em;
+}
+.doc-title {
+  font-family: var(--font-opinion); font-size: 104px; font-weight: 300;
+  line-height: 0.94; letter-spacing: -0.035em; color: var(--content-primary); margin-bottom: 32px; max-width: 1000px;
+}
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.doc-tagline {
+  font-family: var(--font-opinion); font-style: italic; font-size: 22px; font-weight: 300;
+  color: var(--content-secondary); max-width: 640px; line-height: 1.55; margin-bottom: 56px;
+}
+.doc-meta-row {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 24px;
+  padding-top: 36px; border-top: 1px solid var(--border-default);
+}
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label { font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary); }
+.meta-value { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); }
+.section { padding: 96px 0; border-bottom: 1px solid var(--border-default); position: relative; }
+.section:last-child { border-bottom: none; }
+.section-header { display: grid; grid-template-columns: 120px 1fr; align-items: baseline; gap: 32px; margin-bottom: 56px; }
+.section-index {
+  font-family: var(--font-instrument); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em; color: var(--signal-default); text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-index::before { content: ""; display: block; width: 48px; height: 1px; background: var(--signal-default); }
+.section-title { font-family: var(--font-opinion); font-size: 52px; font-weight: 300; letter-spacing: -0.025em; line-height: 1.04; color: var(--content-primary); max-width: 900px; }
+.section-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.prose { font-family: var(--font-opinion); font-weight: 300; font-size: 19px; line-height: 1.68; color: var(--content-secondary); max-width: 720px; margin-left: 152px; }
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+.prose strong { font-family: var(--font-ui); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal-default); display: inline-block; padding: 2px 8px; background: var(--signal-whisper); border: 1px solid var(--signal-tint); border-radius: 4px; margin: 0 2px; }
+.rationale-grid { padding-left: 152px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+.rationale-block h4 { font-family: var(--font-ui); font-size: 10.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--signal-default); margin-bottom: 14px; }
+.rationale-block p { font-family: var(--font-opinion); font-weight: 300; font-size: 15px; line-height: 1.65; color: var(--content-secondary); margin-bottom: 10px; }
+.rationale-block ul { list-style: none; }
+.rationale-block li { padding: 8px 0 8px 18px; position: relative; font-family: var(--font-ui); font-size: 12.5px; color: var(--content-secondary); border-bottom: 1px solid var(--border-subtle); }
+.rationale-block li::before { content: "→"; position: absolute; left: 0; top: 8px; color: var(--signal-default); font-family: var(--font-instrument); }
+.rationale-block li strong { font-family: var(--font-instrument); color: var(--content-primary); font-weight: 500; font-size: 11px; letter-spacing: 0.01em; }
+.doc-footer { padding: 80px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: end; }
+.footer-mark { font-family: var(--font-opinion); font-size: 44px; font-weight: 300; line-height: 1; color: var(--content-primary); letter-spacing: -0.02em; }
+.footer-mark em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.footer-mark span { display: block; font-size: 14px; font-style: italic; color: var(--content-tertiary); margin-top: 10px; font-weight: 300; }
+.footer-note { font-family: var(--font-opinion); font-style: italic; font-size: 14px; line-height: 1.7; color: var(--content-tertiary); text-align: right; font-weight: 300; }
+
+/* ── LOCAL DIMENSION MOCK STYLES ────────────────────────────────── */
+.dim-content { padding-left: 152px; }
+
+.sub-header {
+  font-family: var(--font-instrument); font-size: 10px; font-weight: 500;
+  letter-spacing: 0.22em; text-transform: uppercase; color: var(--signal-default);
+  margin-bottom: 20px; margin-top: 56px; display: flex; align-items: center; gap: 16px;
+}
+.sub-header:first-child { margin-top: 0; }
+.sub-header::after { content: ""; flex: 1; height: 1px; background: var(--border-default); }
+
+/* SPACING RULERS */
+.spacing-ruler-block { display: flex; flex-direction: column; gap: 14px; }
+.spacing-row {
+  display: grid; grid-template-columns: 200px 1fr 80px;
+  align-items: center; gap: 24px;
+}
+.spacing-label {
+  font-family: var(--font-instrument); font-size: 10px; font-weight: 500; color: var(--content-tertiary);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.spacing-token { color: var(--signal-default); }
+.spacing-ruler-track {
+  height: 20px; background: var(--surface-inset);
+  border-radius: 3px; border: 1px solid var(--border-default);
+  position: relative; overflow: visible;
+}
+.spacing-ruler-fill {
+  height: 100%; background: var(--copper-500); opacity: 0.22; border-radius: 2px;
+  position: relative;
+}
+.spacing-ruler-fill::after {
+  content: ""; position: absolute; right: 0; top: 0; bottom: 0;
+  width: 2px; background: var(--copper-500);
+}
+.spacing-px {
+  font-family: var(--font-instrument); font-size: 12px; font-weight: 500;
+  color: var(--content-primary); text-align: right;
+}
+
+/* SIZING */
+.sizing-block { display: flex; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+.size-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.size-circle {
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid var(--copper-500);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.size-circle::before {
+  content: ""; position: absolute;
+  inset: 3px; border-radius: 50%; background: var(--copper-100);
+}
+.size-label {
+  font-family: var(--font-instrument); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary); text-align: center;
+}
+.size-px { font-family: var(--font-instrument); font-size: 11px; font-weight: 500; color: var(--content-primary); text-align: center; }
+.size-token { font-family: var(--font-instrument); font-size: 8.5px; color: var(--signal-default); text-align: center; }
+
+/* COMPONENT HEIGHTS */
+.comp-height-block { display: flex; gap: 24px; align-items: flex-end; }
+.comp-height-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.comp-height-bar {
+  width: 96px; background: var(--copper-500); opacity: 0.18;
+  border: 2px solid var(--copper-500); border-radius: 6px;
+  position: relative;
+}
+.comp-height-bar::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0;
+  height: 2px; background: var(--copper-500);
+}
+
+/* STROKE LINES */
+.stroke-block { display: flex; flex-direction: column; gap: 20px; }
+.stroke-row { display: grid; grid-template-columns: 200px 1fr 80px; align-items: center; gap: 24px; }
+.stroke-line { border-radius: 999px; background: var(--content-primary); }
+.stroke-sm-line { height: 1px; }
+.stroke-md-line { height: 2px; }
+.stroke-lg-line { height: 3px; }
+
+/* RADIUS */
+.radius-row { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-end; }
+.radius-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.radius-box {
+  width: 80px; height: 60px;
+  background: var(--copper-100); border: 2px solid var(--copper-500);
+}
+
+/* OPACITY */
+.opacity-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end; }
+.opacity-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.opacity-chip {
+  width: 80px; height: 60px;
+  background: var(--copper-500); border-radius: 8px;
+  border: 1px solid var(--border-default);
+  position: relative;
+}
+.opacity-checker {
+  width: 80px; height: 60px;
+  border-radius: 8px; overflow: hidden;
+  position: relative;
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+}
+.opacity-fill {
+  position: absolute; inset: 0;
+  background: var(--copper-500);
+  border-radius: 8px;
+}
+
+/* ELEVATION CARDS */
+.elevation-row { display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start; }
+.elev-card-item { display: flex; flex-direction: column; gap: 12px; }
+.elev-card-demo {
+  width: 160px; height: 100px;
+  background: var(--surface-card);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border-subtle);
+}
+.elev-card-demo.tier-0 { box-shadow: none; border-color: var(--border-default); }
+.elev-card-demo.tier-1 { box-shadow: 0 1px 3px rgba(34,24,16,0.08); }
+.elev-card-demo.tier-2 { box-shadow: 0 2px 6px rgba(34,24,16,0.06); }
+.elev-card-demo.tier-3 { box-shadow: 0 4px 14px rgba(34,24,16,0.08), 0 1px 4px rgba(34,24,16,0.06); }
+.elev-card-demo.tier-overlay { box-shadow: 0 8px 24px rgba(34,24,16,0.10), 0 2px 6px rgba(34,24,16,0.06); }
+.elev-spec { display: flex; flex-direction: column; gap: 4px; }
+.elev-spec-token { font-family: var(--font-instrument); font-size: 10px; font-weight: 500; color: var(--signal-default); }
+.elev-spec-value { font-family: var(--font-instrument); font-size: 9px; color: var(--content-tertiary); line-height: 1.5; max-width: 160px; word-break: break-all; }
+
+/* PILL HEIGHTS */
+.pill-row { display: flex; gap: 24px; align-items: flex-end; }
+.pill-demo {
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 16px; border-radius: 999px;
+  background: var(--signal-whisper); border: 1px solid var(--signal-tint);
+  font-family: var(--font-ui); font-weight: 600; color: var(--signal-default);
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-header">
+<div class="wrap">
+  <div class="doc-eyebrow">UC-TOK-03 <span class="doc-eyebrow-pill">Foundation · Dimensions</span></div>
+  <h1 class="doc-title">Proportion<br>by <em>system.</em></h1>
+  <p class="doc-tagline">Spacing, sizing, stroke, radius, opacity, and elevation — every numeric value in the Copper system, labeled explicitly. Downstream atoms read these token values; no magic numbers appear in component code.</p>
+  <div class="doc-meta-row">
+    <div class="meta-item"><span class="meta-label">Version</span><span class="meta-value">2.0.0</span></div>
+    <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">2026-04-20</span></div>
+    <div class="meta-item"><span class="meta-label">Use Case</span><span class="meta-value">UC-TOK-03</span></div>
+    <div class="meta-item"><span class="meta-label">PRD Ref</span><span class="meta-value">04-uc-tok.md</span></div>
+    <div class="meta-item"><span class="meta-label">Surface</span><span class="meta-value">Foundation</span></div>
+    <div class="meta-item"><span class="meta-label">Theme</span><span class="meta-value">Copper</span></div>
+  </div>
+</div>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§01</div><h2 class="section-title"><em>Purpose</em></h2></div>
+  <p class="prose">All spatial relationships — the gap between a label and its icon, the height of a button, the corner radius of a card — derive from this token set. The 4px base grid keeps proportions consistent across iOS (pt) and Android (dp). Pixel values annotated here are the canonical source; platform generators convert to the correct unit at build time.</p>
+  <p class="prose">The <em>touch target</em> minimum exists to ensure accessibility. The elevation tiers exist to communicate surface hierarchy. The opacity scale exists so that disabled, overlay, and dim states are consistent everywhere.</p>
+</div>
+</div>
+
+<!-- §02 TOKEN VISUALIZATION -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§02</div><h2 class="section-title">Token <em>scales</em></h2></div>
+
+  <div class="dim-content">
+
+    <!-- SPACING SCALE -->
+    <div class="sub-header">spacing.* — 4px base, 13 rungs, 0px to 64px</div>
+    <div class="spacing-ruler-block">
+      <!-- spacing.0 = 0px -->
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.0</span><span>0px — zero / flush</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:0%;"></div></div>
+        <div class="spacing-px">0px</div>
+      </div>
+      <!-- spacing.1 = 2px -->
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.1</span><span>2px — hairline gap</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:3.125%;"></div></div>
+        <div class="spacing-px">2px</div>
+      </div>
+      <!-- spacing.2 = 4px -->
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.2</span><span>4px — icon nudge, tight pair</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:6.25%;"></div></div>
+        <div class="spacing-px">4px</div>
+      </div>
+      <!-- spacing.3 = 8px -->
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.3</span><span>8px — standard gap, chip padding</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:12.5%;"></div></div>
+        <div class="spacing-px">8px</div>
+      </div>
+      <!-- spacing.4 = 12px -->
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.4</span><span>12px — inset padding sm</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:18.75%;"></div></div>
+        <div class="spacing-px">12px</div>
+      </div>
+      <!-- spacing.5 = 16px -->
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.5</span><span>16px — inset padding md, card gutter</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:25%;"></div></div>
+        <div class="spacing-px">16px</div>
+      </div>
+      <!-- spacing.6 = 20px -->
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.6</span><span>20px — section gap sm</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:31.25%;"></div></div>
+        <div class="spacing-px">20px</div>
+      </div>
+      <!-- spacing.7 = 24px -->
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.7</span><span>24px — row vertical rhythm</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:37.5%;"></div></div>
+        <div class="spacing-px">24px</div>
+      </div>
+      <!-- spacing.8 = 32px -->
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.8</span><span>32px — card padding lg</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:50%;"></div></div>
+        <div class="spacing-px">32px</div>
+      </div>
+      <!-- spacing.9 = 40px -->
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.9</span><span>40px — section gap md</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:62.5%;"></div></div>
+        <div class="spacing-px">40px</div>
+      </div>
+      <!-- spacing.10 = 48px -->
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.10</span><span>48px — section gap lg</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:75%;"></div></div>
+        <div class="spacing-px">48px</div>
+      </div>
+      <!-- spacing.11 = 56px -->
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.11</span><span>56px — toolbar height</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:87.5%;"></div></div>
+        <div class="spacing-px">56px</div>
+      </div>
+      <!-- spacing.12 = 64px -->
+      <div class="spacing-row">
+        <div class="spacing-label"><span class="spacing-token">spacing.12</span><span>64px — max spacing rung</span></div>
+        <div class="spacing-ruler-track"><div class="spacing-ruler-fill" style="width:100%;"></div></div>
+        <div class="spacing-px">64px</div>
+      </div>
+    </div>
+
+    <!-- TOUCH TARGET + ICON SIZES -->
+    <div class="sub-header">sizing.touchTarget &amp; sizing.icon.* — touch areas and icon frames</div>
+    <div class="sizing-block" style="margin-bottom: 16px; align-items: flex-end;">
+      <!-- Touch target circles -->
+      <div class="size-item">
+        <div class="size-circle" style="width:44px; height:44px;"></div>
+        <div class="size-px">44px</div>
+        <div class="size-label">sizing<br>touchTarget iOS</div>
+        <div class="size-token">iOS min ≥ 44pt</div>
+      </div>
+      <div class="size-item">
+        <div class="size-circle" style="width:48px; height:48px;"></div>
+        <div class="size-px">48px</div>
+        <div class="size-label">sizing<br>touchTarget Android</div>
+        <div class="size-token">Android min ≥ 48dp</div>
+      </div>
+
+      <div style="width:1px; height:80px; background:var(--border-default); margin:0 8px;"></div>
+
+      <!-- Icon sizes -->
+      <div class="size-item">
+        <div style="width:12px; height:12px; border-radius:2px; border:1.5px solid var(--copper-500); background:var(--copper-100);"></div>
+        <div class="size-px">12px</div>
+        <div class="size-label">icon.xs</div>
+        <div class="size-token">sizing.icon.xs</div>
+      </div>
+      <div class="size-item">
+        <div style="width:16px; height:16px; border-radius:2px; border:1.5px solid var(--copper-500); background:var(--copper-100);"></div>
+        <div class="size-px">16px</div>
+        <div class="size-label">icon.sm</div>
+        <div class="size-token">sizing.icon.sm</div>
+      </div>
+      <div class="size-item">
+        <div style="width:20px; height:20px; border-radius:3px; border:1.5px solid var(--copper-500); background:var(--copper-100);"></div>
+        <div class="size-px">20px</div>
+        <div class="size-label">icon.md</div>
+        <div class="size-token">sizing.icon.md</div>
+      </div>
+      <div class="size-item">
+        <div style="width:24px; height:24px; border-radius:3px; border:1.5px solid var(--copper-500); background:var(--copper-100);"></div>
+        <div class="size-px">24px</div>
+        <div class="size-label">icon.lg</div>
+        <div class="size-token">sizing.icon.lg</div>
+      </div>
+      <div class="size-item">
+        <div style="width:32px; height:32px; border-radius:4px; border:1.5px solid var(--copper-500); background:var(--copper-100);"></div>
+        <div class="size-px">32px</div>
+        <div class="size-label">icon.xl</div>
+        <div class="size-token">sizing.icon.xl</div>
+      </div>
+
+      <div style="width:1px; height:80px; background:var(--border-default); margin:0 8px;"></div>
+
+      <!-- stroke.width annotation -->
+      <div class="size-item">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="12" stroke="#EE7C2B" stroke-width="1.5" fill="none"/>
+          <path d="M10 16h12M16 10v12" stroke="#EE7C2B" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div class="size-px">1.5px</div>
+        <div class="size-label">icon stroke<br>width</div>
+        <div class="size-token">icon.stroke.width</div>
+      </div>
+    </div>
+
+    <!-- COMPONENT HEIGHTS -->
+    <div class="sub-header">sizing.component.* — button, input, toolbar heights</div>
+    <div class="comp-height-block" style="align-items: flex-end; margin-bottom: 16px;">
+      <div class="comp-height-item">
+        <div class="comp-height-bar" style="height:44px;"></div>
+        <div style="font-family:var(--font-instrument); font-size:12px; font-weight:500; color:var(--content-primary); text-align:center;">44px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default); text-align:center; margin-top:2px;">component<br>.buttonHeight</div>
+        <div style="font-family:var(--font-ui); font-size:9.5px; color:var(--content-tertiary); text-align:center; margin-top:4px;">LSButton primary</div>
+      </div>
+      <div class="comp-height-item">
+        <div class="comp-height-bar" style="height:48px;"></div>
+        <div style="font-family:var(--font-instrument); font-size:12px; font-weight:500; color:var(--content-primary); text-align:center;">48px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default); text-align:center; margin-top:2px;">component<br>.inputHeight</div>
+        <div style="font-family:var(--font-ui); font-size:9.5px; color:var(--content-tertiary); text-align:center; margin-top:4px;">LSInput, LSChatInput</div>
+      </div>
+      <div class="comp-height-item">
+        <div class="comp-height-bar" style="height:56px;"></div>
+        <div style="font-family:var(--font-instrument); font-size:12px; font-weight:500; color:var(--content-primary); text-align:center;">56px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default); text-align:center; margin-top:2px;">component<br>.toolbarHeight</div>
+        <div style="font-family:var(--font-ui); font-size:9.5px; color:var(--content-tertiary); text-align:center; margin-top:4px;">LSTopBar, LSTabBar</div>
+      </div>
+    </div>
+
+    <!-- PILL HEIGHTS -->
+    <div class="sub-header">sizing.pill.* — pill component heights sm / md / lg</div>
+    <div class="pill-row" style="margin-bottom: 16px;">
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <div class="pill-demo" style="height:24px; font-size:10px; font-weight:600;">Pill sm</div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">24px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">sizing.pill.sm</div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <div class="pill-demo" style="height:32px; font-size:11px; font-weight:600;">Pill medium</div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">32px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">sizing.pill.md</div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <div class="pill-demo" style="height:40px; font-size:12px; font-weight:600;">Pill large</div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">40px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">sizing.pill.lg</div>
+      </div>
+    </div>
+
+    <!-- STROKE WIDTHS -->
+    <div class="sub-header">sizing.stroke.* — polyline and UI stroke widths</div>
+    <div class="stroke-block" style="margin-bottom: 16px; max-width:640px;">
+      <div class="stroke-row">
+        <div class="spacing-label"><span class="spacing-token">sizing.stroke.sm</span><span>Border, divider, icon outline</span></div>
+        <div class="stroke-line stroke-sm-line"></div>
+        <div class="spacing-px">1px</div>
+      </div>
+      <div class="stroke-row">
+        <div class="spacing-label"><span class="spacing-token">sizing.stroke.md</span><span>Route polyline, emphasis border</span></div>
+        <div class="stroke-line stroke-md-line"></div>
+        <div class="spacing-px">2px</div>
+      </div>
+      <div class="stroke-row">
+        <div class="spacing-label"><span class="spacing-token">sizing.stroke.lg</span><span>Best-route polyline (thick)</span></div>
+        <div class="stroke-line stroke-lg-line"></div>
+        <div class="spacing-px">3px</div>
+      </div>
+      <div class="stroke-row">
+        <div class="spacing-label"><span class="spacing-token">icon.stroke.width</span><span>SVG icon stroke — all sizes</span></div>
+        <div style="height:1.5px; border-radius:999px; background:var(--copper-500); flex:1;"></div>
+        <div class="spacing-px">1.5px</div>
+      </div>
+    </div>
+
+    <!-- RADIUS SCALE -->
+    <div class="sub-header">radius.* — seven border-radius values</div>
+    <div class="radius-row" style="margin-bottom: 16px;">
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:0;"></div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">0px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">radius.none</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:2px;"></div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">2px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">radius.xs</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:6px;"></div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">6px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">radius.sm</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:10px;"></div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">10px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">radius.md</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:14px;"></div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">14px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">radius.lg</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:20px;"></div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">20px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">radius.xl</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:999px;"></div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">999px</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">radius.pill</div>
+      </div>
+    </div>
+
+    <!-- OPACITY SCALE -->
+    <div class="sub-header">opacity.* — five semantic opacity values</div>
+    <div class="opacity-row" style="margin-bottom: 16px;">
+      <div class="opacity-item">
+        <div class="opacity-checker">
+          <div class="opacity-fill" style="opacity:0.12;"></div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">0.12</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">opacity.focus</div>
+        <div style="font-family:var(--font-ui); font-size:9.5px; color:var(--content-tertiary); text-align:center; margin-top:2px;">Focus ring overlay</div>
+      </div>
+      <div class="opacity-item">
+        <div class="opacity-checker">
+          <div class="opacity-fill" style="opacity:0.38;"></div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">0.38</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">opacity.disabled</div>
+        <div style="font-family:var(--font-ui); font-size:9.5px; color:var(--content-tertiary); text-align:center; margin-top:2px;">Disabled element</div>
+      </div>
+      <div class="opacity-item">
+        <div class="opacity-checker">
+          <div class="opacity-fill" style="opacity:0.60;"></div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">0.60</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">opacity.overlay</div>
+        <div style="font-family:var(--font-ui); font-size:9.5px; color:var(--content-tertiary); text-align:center; margin-top:2px;">Sheet / scrim</div>
+      </div>
+      <div class="opacity-item">
+        <div class="opacity-checker">
+          <div class="opacity-fill" style="opacity:0.76;"></div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">0.76</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">opacity.dim</div>
+        <div style="font-family:var(--font-ui); font-size:9.5px; color:var(--content-tertiary); text-align:center; margin-top:2px;">Map dim under sheet</div>
+      </div>
+      <div class="opacity-item">
+        <div class="opacity-checker">
+          <div class="opacity-fill" style="opacity:0.95;"></div>
+        </div>
+        <div style="font-family:var(--font-instrument); font-size:11px; font-weight:500; color:var(--content-primary);">0.95</div>
+        <div style="font-family:var(--font-instrument); font-size:9px; color:var(--signal-default);">opacity.veil</div>
+        <div style="font-family:var(--font-ui); font-size:9.5px; color:var(--content-tertiary); text-align:center; margin-top:2px;">Full modal bg</div>
+      </div>
+    </div>
+
+    <!-- ELEVATION TIERS -->
+    <div class="sub-header">elevation.* — five tiers: 0, 1, 2, 3, overlay</div>
+    <div class="elevation-row">
+      <div class="elev-card-item">
+        <div class="elev-card-demo tier-0">
+          <span style="font-family:var(--font-instrument); font-size:10px; color:var(--content-tertiary);">Tier 0</span>
+        </div>
+        <div class="elev-spec">
+          <span class="elev-spec-token">elevation.0</span>
+          <span class="elev-spec-value">box-shadow: none<br>border: 1px solid border.default</span>
+        </div>
+      </div>
+      <div class="elev-card-item">
+        <div class="elev-card-demo tier-1">
+          <span style="font-family:var(--font-instrument); font-size:10px; color:var(--content-tertiary);">Tier 1</span>
+        </div>
+        <div class="elev-spec">
+          <span class="elev-spec-token">elevation.1</span>
+          <span class="elev-spec-value">0 1px 3px rgba(34,24,16,0.08)</span>
+        </div>
+      </div>
+      <div class="elev-card-item">
+        <div class="elev-card-demo tier-2">
+          <span style="font-family:var(--font-instrument); font-size:10px; color:var(--content-tertiary);">Tier 2</span>
+        </div>
+        <div class="elev-spec">
+          <span class="elev-spec-token">elevation.2</span>
+          <span class="elev-spec-value">0 2px 6px rgba(34,24,16,0.06)<br>— LSCard default</span>
+        </div>
+      </div>
+      <div class="elev-card-item">
+        <div class="elev-card-demo tier-3">
+          <span style="font-family:var(--font-instrument); font-size:10px; color:var(--content-tertiary);">Tier 3</span>
+        </div>
+        <div class="elev-spec">
+          <span class="elev-spec-token">elevation.3</span>
+          <span class="elev-spec-value">0 4px 14px rgba(34,24,16,0.08),<br>0 1px 4px rgba(34,24,16,0.06)</span>
+        </div>
+      </div>
+      <div class="elev-card-item">
+        <div class="elev-card-demo tier-overlay" style="border-top:2px solid var(--copper-500);">
+          <span style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default);">Overlay</span>
+        </div>
+        <div class="elev-spec">
+          <span class="elev-spec-token">elevation.overlay</span>
+          <span class="elev-spec-value">0 8px 24px rgba(34,24,16,0.10),<br>0 2px 6px rgba(34,24,16,0.06)<br>— LSGlassPanel, LSBottomSheet,<br>LSSessionsDrawer ONLY</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /dim-content -->
+</div>
+</div>
+
+<!-- §03 STATES -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§03</div><h2 class="section-title">States &amp; <em>variants</em></h2></div>
+  <p class="prose">The spacing scale is unit-agnostic at the token level. Platform generators emit the correct unit: <em>px</em> for web, <em>pt</em> for iOS, <em>dp</em> for Android. The numeric value is always the 1x pixel equivalent. Touch target sizing is enforced at generation time — if a component height token falls below 44px (iOS) or 48dp (Android), the validator emits an error.</p>
+  <p class="prose">Icon sizes are frame sizes, not SVG viewport sizes. The SVG may have a built-in viewBox of 24×24; the <em>rendered frame</em> is scaled to the token value. stroke-width is always <strong>1.5px</strong> at the SVG level — the visual weight scales proportionally with frame size.</p>
+</div>
+</div>
+
+<!-- §04 CONSUMER COMPONENTS -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§04</div><h2 class="section-title">Consumer <em>atoms</em></h2></div>
+  <div class="dim-content">
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px;">
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSButton</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">height: component.buttonHeight (44px)<br>radius: radius.md (10px)<br>padding-h: spacing.5 (16px)</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSInput</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">height: component.inputHeight (48px)<br>radius: radius.md (10px)<br>icon-size: icon.md (20px)</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSIcon</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">frame: icon.{xs,sm,md,lg,xl}<br>stroke-width: icon.stroke.width (1.5px)<br>touch-target: touchTarget (44px)</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSCard</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">radius: radius.lg (14px)<br>padding: spacing.7 (24px)<br>elevation: elevation.2</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSGlassPanel</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">radius: radius.lg (14px)<br>elevation: elevation.overlay only</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSWeatherPill</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">height: sizing.pill.md (32px)<br>radius: radius.pill (999px)<br>icon-size: icon.sm (16px)</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSTopBar</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">height: component.toolbarHeight (56px)<br>padding-h: spacing.5 (16px)</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSRoutePolyline</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">stroke: sizing.stroke.lg (3px) best<br>stroke: sizing.stroke.md (2px) alt</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- §05 MOTION -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§05</div><h2 class="section-title"><em>Motion</em></h2></div>
+  <p class="prose">Dimension tokens carry no animation. Component layout adapts to Dynamic Type scale changes via platform-managed re-layout, not motion tokens. See <strong>UC-TOK-04</strong> for all named motion recipes.</p>
+</div>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§06</div><h2 class="section-title"><em>Rationale</em> &amp; references</h2></div>
+  <div class="rationale-grid">
+    <div class="rationale-block">
+      <h4>Design decisions</h4>
+      <p>The 4px base grid was chosen because it divides cleanly into common screen densities (1x, 1.5x, 2x, 3x) without sub-pixel rendering artifacts. The 13 spacing rungs cover all layout needs without introducing arbitrary intermediate values.</p>
+      <p>The elevation.overlay tier is deliberately distinct from tier 3 because glass panels, bottom sheets, and drawers all sit at a different perceptual height than regular cards — they float above the map, not just above adjacent content.</p>
+    </div>
+    <div class="rationale-block">
+      <h4>PRD acceptance criteria</h4>
+      <ul>
+        <li><strong>AC-01</strong> spacing section with 13 rungs 0–64px in semantic.tokens.json</li>
+        <li><strong>AC-02</strong> sizing section: touchTarget, icon.{xs,sm,md,lg,xl}, component heights, stroke widths, icon.stroke.width</li>
+        <li><strong>AC-03</strong> radius section: none, xs, sm, md, lg, xl, pill</li>
+        <li><strong>AC-04</strong> opacity section: disabled(0.38), overlay(0.60), focus(0.12), dim(0.76), veil(0.95)</li>
+        <li><strong>AC-05</strong> elevation section: 0, 1, 2, 3, overlay — overlay distinct from 2/3</li>
+        <li><strong>AC-06</strong> All tokens have $type: "dimension" with correct $value pattern</li>
+        <li><strong>AC-07</strong> Touch-target meets iOS 44px / Android 48dp at generation time</li>
+        <li><strong>AC-08</strong> pnpm tokens:validate exits zero errors</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+<div class="doc-footer">
+  <div class="footer-mark">Lane<em>Shadow</em><span>V2 Navigator · Copper Design System · Foundation Tokens</span></div>
+  <div class="footer-note">UC-TOK-03 Dimensions — 2026-04-20<br>Every spacing, size, radius, opacity, and elevation<br>value labeled. No magic numbers in component code.</div>
+</div>
+</div>
+
+</body>
+</html>

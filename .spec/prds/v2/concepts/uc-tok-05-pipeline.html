@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<!-- uc-tok-05-pipeline.html — UC-TOK-05 "Cross-Platform Token Pipeline + Icon Catalog"
+     LaneShadow V2 · Copper · Foundation Token Mock · 2026-04-20
+     Authority: .spec/prds/v2/04-uc-tok.md §UC-TOK-05 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-TOK-05 — Pipeline — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:  #FDFBF8;  --paper-100: #F8F7F6;  --paper-200: #F2EFED;
+  --paper-300: #EDE7E1;  --paper-400: #E5DED9;  --paper-500: #C9BDB3;
+  --ink-900: #1E1A16;  --ink-800: #221810;  --ink-700: #2D2218;
+  --ink-600: #362A1F;  --ink-400: #49454F;  --ink-300: #6B6460;
+  --ink-200: #9CA3AF;  --ink-100: #CAC4D0;  --ink-050: #F2EEE8;
+  --copper-700: #9E4A22;  --copper-600: #B85A2C;  --copper-500: #EE7C2B;
+  --copper-400: #F3A164;  --copper-200: #F9D5B5;  --copper-100: #FCE8D4;
+  --font-opinion:    'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+}
+:root {
+  --surface-primary: var(--paper-100);   --surface-card: var(--paper-50);
+  --surface-inset: var(--paper-200);
+  --content-primary: var(--ink-900);     --content-secondary: var(--ink-400);
+  --content-tertiary: var(--ink-300);    --content-subtle: var(--ink-200);
+  --signal-default: var(--copper-500);   --signal-tint: var(--copper-200);
+  --signal-whisper: var(--copper-100);
+  --border-default: var(--paper-400);    --border-subtle: var(--paper-300);
+  --border-strong: var(--paper-500);
+  --elev-card: 0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome: 0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
+}
+
+body { font-family: var(--font-ui); color: var(--content-primary); background: var(--surface-primary); -webkit-font-smoothing: antialiased; min-height: 100vh; line-height: 1.55; overflow-x: hidden; }
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+
+.doc-header { position: relative; padding: 96px 0 72px; border-bottom: 1px solid var(--border-default); overflow: hidden; }
+.doc-header::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle at 8% 80%, rgba(238,124,43,0.08), transparent 44%), radial-gradient(circle at 92% 12%, rgba(184,90,44,0.05), transparent 50%); pointer-events: none; }
+.doc-header > * { position: relative; z-index: 1; }
+.doc-eyebrow { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-ui); font-size: 10.5px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--signal-default); margin-bottom: 28px; }
+.doc-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--signal-default); }
+.doc-eyebrow-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--signal-default); color: var(--signal-default); background: var(--signal-whisper); font-size: 9.5px; letter-spacing: 0.14em; }
+.doc-title { font-family: var(--font-opinion); font-size: 104px; font-weight: 300; line-height: 0.94; letter-spacing: -0.035em; color: var(--content-primary); margin-bottom: 32px; max-width: 1000px; }
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.doc-tagline { font-family: var(--font-opinion); font-style: italic; font-size: 22px; font-weight: 300; color: var(--content-secondary); max-width: 640px; line-height: 1.55; margin-bottom: 56px; }
+.doc-meta-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 24px; padding-top: 36px; border-top: 1px solid var(--border-default); }
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label { font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary); }
+.meta-value { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); }
+
+.section { padding: 96px 0; border-bottom: 1px solid var(--border-default); position: relative; }
+.section:last-child { border-bottom: none; }
+.section-header { display: grid; grid-template-columns: 120px 1fr; align-items: baseline; gap: 32px; margin-bottom: 56px; }
+.section-index { font-family: var(--font-instrument); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; color: var(--signal-default); text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+.section-index::before { content: ""; display: block; width: 48px; height: 1px; background: var(--signal-default); }
+.section-title { font-family: var(--font-opinion); font-size: 52px; font-weight: 300; letter-spacing: -0.025em; line-height: 1.04; color: var(--content-primary); max-width: 900px; }
+.section-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.prose { font-family: var(--font-opinion); font-weight: 300; font-size: 19px; line-height: 1.68; color: var(--content-secondary); max-width: 720px; margin-left: 152px; }
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+.prose strong { font-family: var(--font-ui); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal-default); display: inline-block; padding: 2px 8px; background: var(--signal-whisper); border: 1px solid var(--signal-tint); border-radius: 4px; margin: 0 2px; }
+.rationale-grid { padding-left: 152px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+.rationale-block h4 { font-family: var(--font-ui); font-size: 10.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--signal-default); margin-bottom: 14px; }
+.rationale-block p { font-family: var(--font-opinion); font-weight: 300; font-size: 15px; line-height: 1.65; color: var(--content-secondary); margin-bottom: 10px; }
+.rationale-block ul { list-style: none; }
+.rationale-block li { padding: 8px 0 8px 18px; position: relative; font-family: var(--font-ui); font-size: 12.5px; color: var(--content-secondary); border-bottom: 1px solid var(--border-subtle); }
+.rationale-block li::before { content: "→"; position: absolute; left: 0; top: 8px; color: var(--signal-default); font-family: var(--font-instrument); }
+.rationale-block li strong { font-family: var(--font-instrument); color: var(--content-primary); font-weight: 500; font-size: 11px; letter-spacing: 0.01em; }
+.doc-footer { padding: 80px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: end; }
+.footer-mark { font-family: var(--font-opinion); font-size: 44px; font-weight: 300; line-height: 1; color: var(--content-primary); letter-spacing: -0.02em; }
+.footer-mark em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.footer-mark span { display: block; font-size: 14px; font-style: italic; color: var(--content-tertiary); margin-top: 10px; font-weight: 300; }
+.footer-note { font-family: var(--font-opinion); font-style: italic; font-size: 14px; line-height: 1.7; color: var(--content-tertiary); text-align: right; font-weight: 300; }
+
+/* ── LOCAL PIPELINE STYLES ─────────────────────────────────────── */
+.pipe-content { padding-left: 152px; }
+.sub-header { font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--signal-default); margin-bottom: 20px; margin-top: 56px; display: flex; align-items: center; gap: 16px; }
+.sub-header:first-child { margin-top: 0; }
+.sub-header::after { content: ""; flex: 1; height: 1px; background: var(--border-default); }
+
+/* PIPELINE DIAGRAM */
+.pipeline-diagram {
+  display: flex; align-items: stretch; gap: 0;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--elev-card);
+  margin-bottom: 40px;
+}
+.pipe-node {
+  flex: 1; padding: 28px 24px; display: flex; flex-direction: column; gap: 10px;
+  border-right: 1px solid var(--border-default);
+  position: relative;
+}
+.pipe-node:last-child { border-right: none; }
+.pipe-node::after {
+  content: "→";
+  position: absolute; right: -14px; top: 50%; transform: translateY(-50%);
+  font-family: var(--font-instrument); font-size: 16px; color: var(--signal-default);
+  z-index: 2; background: var(--surface-card); padding: 2px 4px;
+}
+.pipe-node:last-child::after { display: none; }
+.pipe-node-label {
+  font-family: var(--font-instrument); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.22em; text-transform: uppercase; color: var(--signal-default);
+}
+.pipe-node-name {
+  font-family: var(--font-ui); font-size: 13px; font-weight: 600; color: var(--content-primary); line-height: 1.3;
+}
+.pipe-node-path {
+  font-family: var(--font-instrument); font-size: 9px; color: var(--content-tertiary); line-height: 1.5;
+  word-break: break-all;
+}
+.pipe-node-detail {
+  font-family: var(--font-ui); font-size: 10.5px; color: var(--content-secondary); line-height: 1.5;
+}
+.pipe-node.source { background: var(--signal-whisper); border-color: var(--signal-tint); }
+.pipe-node.output-swift  { background: #F0F6FF; border-left: 3px solid #3A7BDE; }
+.pipe-node.output-kotlin { background: #F6F0FF; border-left: 3px solid #7C52C8; }
+.pipe-node.output-ts     { background: #F0FFF4; border-left: 3px solid #3A8470; }
+
+/* Three-output split row */
+.pipeline-outputs {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px;
+}
+.output-card {
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--border-default);
+  box-shadow: var(--elev-card);
+}
+.output-card-header {
+  padding: 12px 16px;
+  font-family: var(--font-instrument); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase;
+}
+.output-card-body { padding: 14px 16px; background: var(--surface-card); }
+.output-card-path {
+  font-family: var(--font-instrument); font-size: 9.5px; color: var(--content-tertiary);
+  word-break: break-all; line-height: 1.6; margin-bottom: 10px; display: block;
+}
+.output-card-example {
+  font-family: var(--font-instrument); font-size: 10px; color: var(--content-primary);
+  background: var(--surface-inset); border-radius: 6px; padding: 10px 12px;
+  line-height: 1.7; overflow: auto;
+}
+
+/* ICON CATALOG */
+.icon-table-header {
+  display: grid; grid-template-columns: 200px repeat(5, 1fr);
+  gap: 0; background: var(--surface-inset);
+  border: 1px solid var(--border-default);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+}
+.icon-table-header > div {
+  padding: 10px 14px;
+  font-family: var(--font-instrument); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--content-tertiary);
+  border-right: 1px solid var(--border-default);
+}
+.icon-table-header > div:last-child { border-right: none; }
+
+.icon-table-body {
+  border: 1px solid var(--border-default);
+  border-radius: 0 0 10px 10px;
+  overflow: hidden;
+  box-shadow: var(--elev-card);
+}
+.icon-row {
+  display: grid; grid-template-columns: 200px repeat(5, 1fr);
+  border-bottom: 1px solid var(--border-subtle);
+  align-items: center;
+}
+.icon-row:last-child { border-bottom: none; }
+.icon-row:nth-child(even) { background: var(--paper-50); }
+.icon-name-cell {
+  padding: 12px 14px;
+  font-family: var(--font-instrument); font-size: 10px; font-weight: 500;
+  color: var(--signal-default); border-right: 1px solid var(--border-subtle);
+}
+.icon-size-cell {
+  padding: 12px 14px; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  border-right: 1px solid var(--border-subtle);
+}
+.icon-size-cell:last-child { border-right: none; }
+.icon-px-label {
+  font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-subtle);
+}
+
+/* FONT TABLE */
+.font-table {
+  width: 100%; border-collapse: collapse;
+  border: 1px solid var(--border-default); border-radius: 10px; overflow: hidden;
+  box-shadow: var(--elev-card); margin-bottom: 40px;
+}
+.font-table th {
+  padding: 10px 16px; font-family: var(--font-instrument); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase; background: var(--surface-inset);
+  color: var(--content-tertiary); border-bottom: 1px solid var(--border-default); text-align: left;
+}
+.font-table td {
+  padding: 14px 16px; border-bottom: 1px solid var(--border-subtle); vertical-align: top;
+  font-family: var(--font-ui); font-size: 12px; color: var(--content-secondary);
+}
+.font-table tr:last-child td { border-bottom: none; }
+.font-name { font-family: var(--font-instrument); font-size: 11px; font-weight: 500; color: var(--signal-default); }
+.font-weights-list { font-family: var(--font-instrument); font-size: 10px; color: var(--content-primary); }
+.font-path { font-family: var(--font-instrument); font-size: 9px; color: var(--content-tertiary); line-height: 1.6; word-break: break-all; }
+
+/* CODE BLOCK */
+.code-block {
+  background: var(--ink-800); border-radius: 10px; padding: 20px 24px;
+  margin-bottom: 24px; overflow-x: auto;
+}
+.code-block code {
+  font-family: var(--font-instrument); font-size: 11px; color: var(--ink-050);
+  line-height: 1.8; display: block; white-space: pre;
+}
+.code-block code .c-token  { color: #F3A164; }
+.code-block code .c-string { color: #FBEFCF; }
+.code-block code .c-key    { color: var(--copper-400); }
+.code-block code .c-comment{ color: #6B6460; }
+
+/* DRIFT CHECK FLOW */
+.drift-flow {
+  display: flex; flex-direction: column; gap: 0;
+  border: 1px solid var(--border-default); border-radius: 12px; overflow: hidden;
+  box-shadow: var(--elev-card); max-width: 800px;
+}
+.drift-step {
+  display: grid; grid-template-columns: 40px 1fr auto;
+  align-items: center; gap: 16px; padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.drift-step:last-child { border-bottom: none; }
+.drift-step-num {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--signal-default); color: #fff;
+  font-family: var(--font-instrument); font-size: 12px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.drift-step-num.gate { background: var(--copper-700); }
+.drift-step-num.pass { background: #4D8470; }
+.drift-step-num.fail { background: #C9423C; }
+.drift-step-body { display: flex; flex-direction: column; gap: 3px; }
+.drift-step-name { font-family: var(--font-ui); font-size: 13px; font-weight: 600; color: var(--content-primary); }
+.drift-step-cmd { font-family: var(--font-instrument); font-size: 10px; color: var(--signal-default); }
+.drift-step-desc { font-family: var(--font-ui); font-size: 11px; color: var(--content-tertiary); }
+.drift-step-badge {
+  font-family: var(--font-instrument); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 999px;
+}
+.drift-step-badge.pass { background: #D4EDDA; color: #2A6B3E; }
+.drift-step-badge.fail { background: #FAD7D5; color: #8B2A25; }
+.drift-step-badge.block { background: #FDE8CE; color: #7A3C0E; }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-header">
+<div class="wrap">
+  <div class="doc-eyebrow">UC-TOK-05 <span class="doc-eyebrow-pill">Foundation · Pipeline</span></div>
+  <h1 class="doc-title">One source,<br>three <em>platforms.</em></h1>
+  <p class="doc-tagline">semantic.tokens.json plus the SVG icon catalog and font manifest generates Swift, Kotlin, and TypeScript outputs. Drift-check runs in lefthook pre-commit and blocks the commit if any output is stale.</p>
+  <div class="doc-meta-row">
+    <div class="meta-item"><span class="meta-label">Version</span><span class="meta-value">2.0.0</span></div>
+    <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">2026-04-20</span></div>
+    <div class="meta-item"><span class="meta-label">Use Case</span><span class="meta-value">UC-TOK-05</span></div>
+    <div class="meta-item"><span class="meta-label">PRD Ref</span><span class="meta-value">04-uc-tok.md</span></div>
+    <div class="meta-item"><span class="meta-label">Surface</span><span class="meta-value">Foundation</span></div>
+    <div class="meta-item"><span class="meta-label">Theme</span><span class="meta-value">Copper</span></div>
+  </div>
+</div>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§01</div><h2 class="section-title"><em>Purpose</em></h2></div>
+  <p class="prose">The pipeline enforces a single source of truth. Every color, spacing value, typography spec, motion recipe, icon name, and Mapbox style URL that exists in the app must trace back to <em>semantic.tokens.json</em> — never to a literal in component code. This document describes the generation pipeline, the 25-icon SVG catalog, font registration, Mapbox style token format, and the lefthook drift-check that prevents stale generated files from reaching main.</p>
+</div>
+</div>
+
+<!-- §02 TOKEN VISUALIZATION -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§02</div><h2 class="section-title">Pipeline <em>catalog</em></h2></div>
+
+  <div class="pipe-content">
+
+    <!-- PIPELINE DIAGRAM -->
+    <div class="sub-header">Token generation pipeline — source to three platform outputs</div>
+
+    <div style="margin-bottom:16px;">
+      <div style="display:grid; grid-template-columns:1fr auto 1fr auto 1fr; align-items:center; gap:0; background:var(--surface-card); border:1px solid var(--border-default); border-radius:14px; overflow:hidden; box-shadow:var(--elev-card);">
+
+        <!-- SOURCE -->
+        <div style="padding:28px 24px; background:var(--signal-whisper); border-right:1px solid var(--signal-tint);">
+          <div style="font-family:var(--font-instrument); font-size:9px; letter-spacing:0.22em; text-transform:uppercase; color:var(--signal-default); margin-bottom:8px;">Source · DTCG format</div>
+          <div style="font-family:var(--font-ui); font-size:13px; font-weight:600; color:var(--content-primary); margin-bottom:6px;">semantic.tokens.json</div>
+          <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary); line-height:1.6;">tokens/semantic/<br>semantic.tokens.json<br><br>tokens/icons/*.svg<br>tokens/fonts/manifest.json</div>
+        </div>
+
+        <!-- ARROW -->
+        <div style="padding:0 20px; font-family:var(--font-instrument); font-size:22px; color:var(--signal-default);">→</div>
+
+        <!-- GENERATOR -->
+        <div style="padding:28px 24px; border-right:1px solid var(--border-default);">
+          <div style="font-family:var(--font-instrument); font-size:9px; letter-spacing:0.22em; text-transform:uppercase; color:var(--content-tertiary); margin-bottom:8px;">Generator · pnpm tokens:generate</div>
+          <div style="font-family:var(--font-ui); font-size:13px; font-weight:600; color:var(--content-primary); margin-bottom:6px;">Style Dictionary v4</div>
+          <div style="font-family:var(--font-ui); font-size:11px; color:var(--content-secondary); line-height:1.6;">Reads DTCG tokens, resolves<br>references, applies transforms,<br>emits per-platform format.<br>Hash of inputs embedded in banner.</div>
+        </div>
+
+        <!-- ARROW -->
+        <div style="padding:0 20px; font-family:var(--font-instrument); font-size:22px; color:var(--signal-default);">→</div>
+
+        <!-- OUTPUTS (stacked) -->
+        <div style="padding:16px 24px; display:flex; flex-direction:column; gap:12px;">
+          <div style="background:#F0F6FF; border-left:3px solid #3A7BDE; border-radius:0 6px 6px 0; padding:10px 14px;">
+            <div style="font-family:var(--font-instrument); font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:#3A7BDE; margin-bottom:3px;">Swift</div>
+            <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">tokens/platforms/swift/…/Tokens.swift</div>
+          </div>
+          <div style="background:#F6F0FF; border-left:3px solid #7C52C8; border-radius:0 6px 6px 0; padding:10px 14px;">
+            <div style="font-family:var(--font-instrument); font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:#7C52C8; margin-bottom:3px;">Kotlin</div>
+            <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">tokens/platforms/kotlin/…/Tokens.kt</div>
+          </div>
+          <div style="background:#F0FFF4; border-left:3px solid #3A8470; border-radius:0 6px 6px 0; padding:10px 14px;">
+            <div style="font-family:var(--font-instrument); font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:#3A8470; margin-bottom:3px;">TypeScript</div>
+            <div style="font-family:var(--font-instrument); font-size:9px; color:var(--content-tertiary);">tokens/platforms/typescript/…/tokens.ts</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLATFORM OUTPUT DETAIL -->
+    <div class="pipeline-outputs" style="margin-top:32px;">
+      <div class="output-card">
+        <div class="output-card-header" style="background:#EBF3FF; color:#3A7BDE;">Swift — LaneShadowTheme</div>
+        <div class="output-card-body">
+          <span class="output-card-path">tokens/platforms/swift/Sources/LaneShadowTheme/Generated/Tokens.swift</span>
+          <div class="output-card-example">// GENERATED — do not edit
+// input-hash: a3f9c2d1
+import NativeTheme
+
+enum LaneShadowTheme {
+  enum color {
+    enum surface {
+      static let glass = ColorSet(
+        light: parseColorString("#FDFBF8B8"),
+        dark:  parseColorString("#2D2218B8")
+      )
+    }
+    enum signal {
+      static let `default` = ColorSet(
+        light: parseColorString("#EE7C2B"),
+        dark:  parseColorString("#EE7C2B")
+      )
+    }
+  }
+  enum typography {
+    static let opinionXl = TypographyStyle(
+      family: .newsreader,
+      weight: .regular,
+      size: 30, lineHeight: 1.12
+    )
+  }
+  enum icon {
+    enum name: String, CaseIterable {
+      case send, compass, route, map
+      // … 21 more
+    }
+  }
+}</div>
+        </div>
+      </div>
+
+      <div class="output-card">
+        <div class="output-card-header" style="background:#F2EEFF; color:#7C52C8;">Kotlin — LaneShadowTheme</div>
+        <div class="output-card-body">
+          <span class="output-card-path">tokens/platforms/kotlin/src/main/java/com/laneshadow/theme/generated/Tokens.kt</span>
+          <div class="output-card-example">// GENERATED — do not edit
+// input-hash: a3f9c2d1
+package com.laneshadow.theme.generated
+
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+
+object LaneShadowTheme {
+  object color {
+    object surface {
+      val glass = Color(0xB8FDFBF8)
+    }
+    object signal {
+      val default = Color(0xFFEE7C2B)
+    }
+  }
+  object typography {
+    val opinionXl = TextStyle(
+      fontFamily = NewsreaderFamily,
+      fontWeight = FontWeight.Normal,
+      fontSize = 30.sp,
+      lineHeight = 33.6.sp
+    )
+  }
+  enum class IconName { Send, Compass, Route,
+    Map /*, … 21 more */ }
+}</div>
+        </div>
+      </div>
+
+      <div class="output-card">
+        <div class="output-card-header" style="background:#EDFFF5; color:#3A8470;">TypeScript — sync-gate target</div>
+        <div class="output-card-body">
+          <span class="output-card-path">tokens/platforms/typescript/src/generated/tokens.ts</span>
+          <div class="output-card-example">// GENERATED — do not edit
+// input-hash: a3f9c2d1
+
+export const tokens = {
+  color: {
+    surface: {
+      glass: {
+        light: "rgba(253,251,248,0.72)",
+        dark:  "rgba(45,34,24,0.72)"
+      }
+    },
+    signal: {
+      default: "#EE7C2B"
+    }
+  },
+  typography: {
+    opinion: {
+      xl: { family: "Newsreader",
+            weight: 400, size: 30,
+            lineHeight: 1.12 }
+    }
+  },
+  icon: {
+    name: ["send","compass","route",
+           "map" /* … 21 more */]
+  }
+} as const;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAPBOX STYLE URLS -->
+    <div class="sub-header">map.style.* — Mapbox Studio URL tokens ($type: "string")</div>
+    <div class="code-block">
+      <code><span class="c-comment">// semantic.tokens.json — map style URL tokens (DTCG format)</span>
+{
+  <span class="c-key">"map"</span>: {
+    <span class="c-key">"style"</span>: {
+      <span class="c-key">"light"</span>: {
+        <span class="c-key">"$type"</span>: <span class="c-string">"string"</span>,
+        <span class="c-key">"$value"</span>: <span class="c-string">"mapbox://styles/laneshadow/clxwarm01"</span>,
+        <span class="c-key">"$description"</span>: <span class="c-string">"Warm-paper topographic map · Copper day theme"</span>
+      },
+      <span class="c-key">"dark"</span>: {
+        <span class="c-key">"$type"</span>: <span class="c-string">"string"</span>,
+        <span class="c-key">"$value"</span>: <span class="c-string">"mapbox://styles/laneshadow/clxnight02"</span>,
+        <span class="c-key">"$description"</span>: <span class="c-string">"Warm-ink night map · Copper dark theme"</span>
+      }
+    }
+  }
+}</code>
+    </div>
+    <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-tertiary); line-height:1.6; margin-bottom:40px;">Pattern constraint: <span style="font-family:var(--font-instrument); color:var(--content-secondary);">^mapbox://styles/laneshadow/[a-z0-9]+$</span> — validated by pnpm tokens:validate. Consumed by LSMap atom style loader on both platforms.</div>
+
+    <!-- FONT REGISTRATION TABLE -->
+    <div class="sub-header">Font registration — three families, all weights, both platforms</div>
+    <table class="font-table">
+      <thead>
+        <tr>
+          <th>Family</th>
+          <th>Token namespace</th>
+          <th>Weights bundled</th>
+          <th>iOS path / Info.plist key</th>
+          <th>Android path / resource</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="font-name">Newsreader</span><br><span style="font-family:'Newsreader',serif; font-size:14px; font-style:italic; color:var(--content-secondary); margin-top:4px; display:block;">Opinion serif</span></td>
+          <td><span class="font-weights-list">typography.opinion.*</span></td>
+          <td><span class="font-weights-list">300, 400, 500, 600<br>+ italic variants of each</span></td>
+          <td><span class="font-path">ios/LaneShadow/Resources/Fonts/<br>Newsreader-[Weight][Italic].ttf<br>UIAppFonts in Info.plist</span></td>
+          <td><span class="font-path">android/app/src/main/<br>assets/fonts/Newsreader-*.ttf<br>res/font/newsreader.xml</span></td>
+        </tr>
+        <tr>
+          <td><span class="font-name">Geist</span><br><span style="font-family:'Geist',sans-serif; font-size:14px; color:var(--content-secondary); margin-top:4px; display:block;">UI sans-serif</span></td>
+          <td><span class="font-weights-list">typography.ui.*</span></td>
+          <td><span class="font-weights-list">300, 400, 500, 600, 700</span></td>
+          <td><span class="font-path">ios/LaneShadow/Resources/Fonts/<br>Geist-[Weight].ttf<br>UIAppFonts in Info.plist</span></td>
+          <td><span class="font-path">android/app/src/main/<br>assets/fonts/Geist-*.ttf<br>res/font/geist.xml</span></td>
+        </tr>
+        <tr>
+          <td><span class="font-name">JetBrains Mono</span><br><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--content-secondary); margin-top:4px; display:block;">62.4 mi · 1,842 ft</span></td>
+          <td><span class="font-weights-list">typography.instrument.*</span></td>
+          <td><span class="font-weights-list">400, 500, 600<br>+ italic 400</span></td>
+          <td><span class="font-path">ios/LaneShadow/Resources/Fonts/<br>JetBrainsMono-[Weight].ttf<br>UIAppFonts in Info.plist</span></td>
+          <td><span class="font-path">android/app/src/main/<br>assets/fonts/JetBrainsMono-*.ttf<br>res/font/jetbrainsmono.xml</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- ICON CATALOG -->
+    <div class="sub-header">SVG icon catalog — 25 icons at 5 sizes · stroke-width 1.5px at all scales</div>
+    <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-tertiary); margin-bottom:20px; line-height:1.6;">All icons live at <span style="font-family:var(--font-instrument); color:var(--content-secondary);">tokens/icons/*.svg</span> with a 24×24 viewBox. Stroke-width is always 1.5px in the SVG file; the rendered frame is scaled to the icon size token value. The generator emits an <span style="font-family:var(--font-instrument); color:var(--signal-default);">IconName</span> enum on both platforms from the filename set.</div>
+
+    <div class="icon-table-header">
+      <div>Icon · token name</div>
+      <div>xs · 12px</div>
+      <div>sm · 16px</div>
+      <div>md · 20px</div>
+      <div>lg · 24px</div>
+      <div>xl · 32px</div>
+    </div>
+    <div class="icon-table-body">
+
+      <!-- send -->
+      <div class="icon-row">
+        <div class="icon-name-cell">send<br><span style="font-family:var(--font-ui); font-size:9px; color:var(--content-subtle);">icon.name.send</span></div>
+        <div class="icon-size-cell"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span class="icon-px-label">12px</span></div>
+        <div class="icon-size-cell"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span class="icon-px-label">16px</span></div>
+        <div class="icon-size-cell"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span class="icon-px-label">20px</span></div>
+        <div class="icon-size-cell"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span class="icon-px-label">24px</span></div>
+        <div class="icon-size-cell"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span class="icon-px-label">32px</span></div>
+      </div>
+
+      <!-- expand -->
+      <div class="icon-row">
+        <div class="icon-name-cell">expand<br><span style="font-family:var(--font-ui); font-size:9px; color:var(--content-subtle);">icon.name.expand</span></div>
+        <div class="icon-size-cell"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg><span class="icon-px-label">12px</span></div>
+        <div class="icon-size-cell"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg><span class="icon-px-label">16px</span></div>
+        <div class="icon-size-cell"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg><span class="icon-px-label">20px</span></div>
+        <div class="icon-size-cell"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg><span class="icon-px-label">24px</span></div>
+        <div class="icon-size-cell"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg><span class="icon-px-label">32px</span></div>
+      </div>
+
+      <!-- collapse -->
+      <div class="icon-row">
+        <div class="icon-name-cell">collapse<br><span style="font-family:var(--font-ui); font-size:9px; color:var(--content-subtle);">icon.name.collapse</span></div>
+        <div class="icon-size-cell"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg><span class="icon-px-label">12px</span></div>
+        <div class="icon-size-cell"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg><span class="icon-px-label">16px</span></div>
+        <div class="icon-size-cell"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg><span class="icon-px-label">20px</span></div>
+        <div class="icon-size-cell"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg><span class="icon-px-label">24px</span></div>
+        <div class="icon-size-cell"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg><span class="icon-px-label">32px</span></div>
+      </div>
+
+      <!-- menu -->
+      <div class="icon-row">
+        <div class="icon-name-cell">menu<br><span style="font-family:var(--font-ui); font-size:9px; color:var(--content-subtle);">icon.name.menu</span></div>
+        <div class="icon-size-cell"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg><span class="icon-px-label">12px</span></div>
+        <div class="icon-size-cell"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg><span class="icon-px-label">16px</span></div>
+        <div class="icon-size-cell"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg><span class="icon-px-label">20px</span></div>
+        <div class="icon-size-cell"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg><span class="icon-px-label">24px</span></div>
+        <div class="icon-size-cell"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg><span class="icon-px-label">32px</span></div>
+      </div>
+
+      <!-- plus -->
+      <div class="icon-row">
+        <div class="icon-name-cell">plus<br><span style="font-family:var(--font-ui); font-size:9px; color:var(--content-subtle);">icon.name.plus</span></div>
+        <div class="icon-size-cell"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span class="icon-px-label">12px</span></div>
+        <div class="icon-size-cell"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span class="icon-px-label">16px</span></div>
+        <div class="icon-size-cell"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span class="icon-px-label">20px</span></div>
+        <div class="icon-size-cell"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span class="icon-px-label">24px</span></div>
+        <div class="icon-size-cell"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span class="icon-px-label">32px</span></div>
+      </div>
+
+      <!-- close -->
+      <div class="icon-row">
+        <div class="icon-name-cell">close<br><span style="font-family:var(--font-ui); font-size:9px; color:var(--content-subtle);">icon.name.close</span></div>
+        <div class="icon-size-cell"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span class="icon-px-label">12px</span></div>
+        <div class="icon-size-cell"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span class="icon-px-label">16px</span></div>
+        <div class="icon-size-cell"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span class="icon-px-label">20px</span></div>
+        <div class="icon-size-cell"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span class="icon-px-label">24px</span></div>
+        <div class="icon-size-cell"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span class="icon-px-label">32px</span></div>
+      </div>
+
+      <!-- sliders -->
+      <div class="icon-row">
+        <div class="icon-name-cell">sliders<br><span style="font-family:var(--font-ui); font-size:9px; color:var(--content-subtle);">icon.name.sliders</span></div>
+        <div class="icon-size-cell"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/></svg><span class="icon-px-label">12px</span></div>
+        <div class="icon-size-cell"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/></svg><span class="icon-px-label">16px</span></div>
+        <div class="icon-size-cell"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/></svg><span class="icon-px-label">20px</span></div>
+        <div class="icon-size-cell"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/></svg><span class="icon-px-label">24px</span></div>
+        <div class="icon-size-cell"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/></svg><span class="icon-px-label">32px</span></div>
+      </div>
+
+      <!-- bookmark + bookmarkFill + star + starFill (show md/lg/xl only to conserve space) -->
+      <div class="icon-row">
+        <div class="icon-name-cell">bookmark / bookmarkFill<br><span style="font-family:var(--font-ui); font-size:9px; color:var(--content-subtle);">icon.name.bookmark/Fill</span></div>
+        <div class="icon-size-cell"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span class="icon-px-label">outline</span></div>
+        <div class="icon-size-cell"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span class="icon-px-label">outline</span></div>
+        <div class="icon-size-cell"><svg width="20" height="20" viewBox="0 0 24 24" fill="var(--copper-500)" stroke="var(--copper-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span class="icon-px-label">filled</span></div>
+        <div class="icon-size-cell"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span class="icon-px-label">outline</span></div>
+        <div class="icon-size-cell"><svg width="32" height="32" viewBox="0 0 24 24" fill="var(--copper-500)" stroke="var(--copper-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span class="icon-px-label">filled</span></div>
+      </div>
+
+      <!-- star + starFill -->
+      <div class="icon-row">
+        <div class="icon-name-cell">star / starFill<br><span style="font-family:var(--font-ui); font-size:9px; color:var(--content-subtle);">icon.name.star/Fill</span></div>
+        <div class="icon-size-cell"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="icon-px-label">outline</span></div>
+        <div class="icon-size-cell"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="icon-px-label">outline</span></div>
+        <div class="icon-size-cell"><svg width="20" height="20" viewBox="0 0 24 24" fill="var(--copper-500)" stroke="var(--copper-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="icon-px-label">filled</span></div>
+        <div class="icon-size-cell"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="icon-px-label">outline</span></div>
+        <div class="icon-size-cell"><svg width="32" height="32" viewBox="0 0 24 24" fill="var(--copper-500)" stroke="var(--copper-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="icon-px-label">filled</span></div>
+      </div>
+
+      <!-- pin, clock, sun, rain, wind, storm, therm, route, map, layers, share, heart, heartFill, sparkle, compass, edit, trash, bike, chevR, chevL -->
+      <div class="icon-row">
+        <div class="icon-name-cell">pin · clock · sun · rain<br><span style="font-family:var(--font-ui); font-size:9px; color:var(--content-subtle);">icon.name.*</span></div>
+        <div class="icon-size-cell"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="icon-px-label">pin</span></div>
+        <div class="icon-size-cell"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="icon-px-label">clock</span></div>
+        <div class="icon-size-cell"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E6A52A" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><span class="icon-px-label">sun</span></div>
+        <div class="icon-size-cell"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4A86BE" stroke-width="1.5" stroke-linecap="round"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><line x1="8" y1="19" x2="8" y2="21"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="16" y1="19" x2="16" y2="21"/></svg><span class="icon-px-label">rain</span></div>
+        <div class="icon-size-cell"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6B7B8F" stroke-width="1.5" stroke-linecap="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg><span class="icon-px-label">wind</span></div>
+      </div>
+
+      <div class="icon-row">
+        <div class="icon-name-cell">storm · therm · route · map · layers<br><span style="font-family:var(--font-ui); font-size:9px; color:var(--content-subtle);">icon.name.*</span></div>
+        <div class="icon-size-cell"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5E3FAE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg><span class="icon-px-label">storm</span></div>
+        <div class="icon-size-cell"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9423C" stroke-width="1.5" stroke-linecap="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg><span class="icon-px-label">therm</span></div>
+        <div class="icon-size-cell"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--copper-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l4-8 4 4 4-6 4 10"/></svg><span class="icon-px-label">route</span></div>
+        <div class="icon-size-cell"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><span class="icon-px-label">map</span></div>
+        <div class="icon-size-cell"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><span class="icon-px-label">layers</span></div>
+      </div>
+
+      <div class="icon-row">
+        <div class="icon-name-cell">share · heart / heartFill · sparkle · compass<br><span style="font-family:var(--font-ui); font-size:9px; color:var(--content-subtle);">icon.name.*</span></div>
+        <div class="icon-size-cell"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg><span class="icon-px-label">share</span></div>
+        <div class="icon-size-cell"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="icon-px-label">outline</span></div>
+        <div class="icon-size-cell"><svg width="20" height="20" viewBox="0 0 24 24" fill="var(--copper-500)" stroke="var(--copper-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="icon-px-label">filled</span></div>
+        <div class="icon-size-cell"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--copper-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L13.5 8.5L19 8.5L14.75 11.5L16.5 17L12 14L7.5 17L9.25 11.5L5 8.5L10.5 8.5Z"/></svg><span class="icon-px-label">sparkle</span></div>
+        <div class="icon-size-cell"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg><span class="icon-px-label">compass</span></div>
+      </div>
+
+      <div class="icon-row">
+        <div class="icon-name-cell">edit · trash · bike · chevR · chevL<br><span style="font-family:var(--font-ui); font-size:9px; color:var(--content-subtle);">icon.name.*</span></div>
+        <div class="icon-size-cell"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span class="icon-px-label">edit</span></div>
+        <div class="icon-size-cell"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg><span class="icon-px-label">trash</span></div>
+        <div class="icon-size-cell"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--copper-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="2.5"/><circle cx="18.5" cy="17.5" r="2.5"/><path d="M15 6H9L6 14h12l-2-7z"/><path d="M6 14H3l-.5 1.5"/><path d="M18 14h2l.5 1.5"/></svg><span class="icon-px-label">bike</span></div>
+        <div class="icon-size-cell"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg><span class="icon-px-label">chevR</span></div>
+        <div class="icon-size-cell"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg><span class="icon-px-label">chevL</span></div>
+      </div>
+
+    </div><!-- /icon-table-body -->
+
+    <!-- DRIFT CHECK FLOW -->
+    <div class="sub-header" style="margin-top:64px;">lefthook pre-commit drift-check sequence</div>
+    <div class="drift-flow">
+      <div class="drift-step">
+        <div class="drift-step-num">1</div>
+        <div class="drift-step-body">
+          <span class="drift-step-name">Stage validation</span>
+          <span class="drift-step-cmd">git diff --cached --name-only</span>
+          <span class="drift-step-desc">Detect if any tokens/semantic/**, tokens/icons/**, tokens/fonts/**, or tokens/platforms/** files are staged.</span>
+        </div>
+        <span class="drift-step-badge pass">always runs</span>
+      </div>
+      <div class="drift-step">
+        <div class="drift-step-num">2</div>
+        <div class="drift-step-body">
+          <span class="drift-step-name">Schema validation</span>
+          <span class="drift-step-cmd">pnpm tokens:validate</span>
+          <span class="drift-step-desc">Validates semantic.tokens.json against semantic.tokens.schema.json. Fails on any type mismatch, missing $type, or invalid $value pattern.</span>
+        </div>
+        <span class="drift-step-badge block">blocks commit on fail</span>
+      </div>
+      <div class="drift-step">
+        <div class="drift-step-num">3</div>
+        <div class="drift-step-body">
+          <span class="drift-step-name">Sync check</span>
+          <span class="drift-step-cmd">pnpm tokens:sync-check</span>
+          <span class="drift-step-desc">Re-runs the generator in dry-run mode, diffs output against committed generated files. Exits non-zero if any platform output is stale relative to current source + icons + fonts.</span>
+        </div>
+        <span class="drift-step-badge block">blocks commit on fail</span>
+      </div>
+      <div class="drift-step">
+        <div class="drift-step-num">4</div>
+        <div class="drift-step-body">
+          <span class="drift-step-name">Icon set check</span>
+          <span class="drift-step-cmd">pnpm icons:check</span>
+          <span class="drift-step-desc">Compares SVG filenames in tokens/icons/*.svg against the IconName enum in both Swift and Kotlin generated outputs. Fails if any icon is missing from an enum or an enum has an icon with no SVG file.</span>
+        </div>
+        <span class="drift-step-badge block">blocks commit on fail</span>
+      </div>
+      <div class="drift-step">
+        <div class="drift-step-num pass">5</div>
+        <div class="drift-step-body">
+          <span class="drift-step-name">Commit allowed</span>
+          <span class="drift-step-cmd">exit 0</span>
+          <span class="drift-step-desc">All three checks pass. lefthook allows the commit to proceed. Generated files and source are in sync.</span>
+        </div>
+        <span class="drift-step-badge pass">commit proceeds</span>
+      </div>
+      <div class="drift-step" style="background:rgba(201,66,60,0.05);">
+        <div class="drift-step-num fail">!</div>
+        <div class="drift-step-body">
+          <span class="drift-step-name">Any check fails</span>
+          <span class="drift-step-cmd">exit 1 + error message</span>
+          <span class="drift-step-desc">lefthook blocks the commit and prints which check failed with the diff or schema error. Developer must run pnpm tokens:generate (or fix the schema) and re-stage before committing.</span>
+        </div>
+        <span class="drift-step-badge fail">commit blocked</span>
+      </div>
+    </div>
+
+  </div><!-- /pipe-content -->
+</div>
+</div>
+
+<!-- §03 STATES & VARIANTS -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§03</div><h2 class="section-title">States &amp; <em>variants</em></h2></div>
+  <p class="prose">The generator runs deterministically — same input hash always produces the same output. The generated file banner includes the SHA-256 of the concatenated source inputs (semantic.tokens.json + sorted icon filenames + font manifest). If the banner hash mismatches the current input hash, pnpm tokens:sync-check exits non-zero.</p>
+  <p class="prose">Platform outputs are checked in to the repository so that native builds are not blocked by a Node dependency at build time. The drift-check enforces that checked-in outputs are never stale.</p>
+</div>
+</div>
+
+<!-- §04 CONSUMER COMPONENTS -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§04</div><h2 class="section-title">Consumer <em>atoms</em></h2></div>
+  <div class="pipe-content">
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px;">
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSIcon (iOS)</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">Reads LSIcon.Name enum. Loads SVG from xcassets or renders as native Shape. stroke-width: icon.stroke.width</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSIcon (Android)</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">Reads com.laneshadow.theme.generated.IconName. Loads via Compose Image painter from bundled SVG asset.</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">LSMap</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">Style URL loaded from LaneShadowTheme.map.style.light / .dark token. Never a hardcoded URL.</div>
+      </div>
+      <div style="background:var(--surface-card); border:1px solid var(--border-default); border-radius:10px; padding:18px 20px;">
+        <div style="font-family:var(--font-instrument); font-size:10px; color:var(--signal-default); letter-spacing:0.10em; text-transform:uppercase; margin-bottom:10px;">All typography atoms</div>
+        <div style="font-family:var(--font-ui); font-size:11.5px; color:var(--content-secondary);">Font registration at app startup (UIFont.registerFonts / Android ResourcesCompat). All three families available before first render.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- §05 MOTION -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§05</div><h2 class="section-title"><em>Motion</em></h2></div>
+  <p class="prose">The pipeline itself has no motion behavior. The icon SVG assets use static geometry only — no SMIL animations. Motion recipes referencing icon-containing components are declared in <strong>UC-TOK-04</strong>.</p>
+</div>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="section">
+<div class="wrap">
+  <div class="section-header"><div class="section-index">§06</div><h2 class="section-title"><em>Rationale</em> &amp; references</h2></div>
+  <div class="rationale-grid">
+    <div class="rationale-block">
+      <h4>Design decisions</h4>
+      <p>The drift-check runs in lefthook rather than CI so that the feedback loop is immediate — the developer finds out about stale outputs before a push, not after a CI run. This prevents a class of "works on my machine" issues where a designer updates tokens but forgets to regenerate.</p>
+      <p>Icons are stored as SVG files (not icon fonts or image assets) to preserve crisp rendering at all display scales and to enable easy per-icon color overrides via the <span style="font-family:var(--font-instrument);">stroke</span> attribute. The 1.5px stroke-width was chosen to read at every icon size from xs (12px frame) to xl (32px frame) without looking too heavy or too thin.</p>
+    </div>
+    <div class="rationale-block">
+      <h4>PRD acceptance criteria</h4>
+      <ul>
+        <li><strong>AC-01</strong> pnpm tokens:generate writes Swift/Kotlin/TS outputs from source</li>
+        <li><strong>AC-02</strong> LaneShadowTheme importable in Swift with no raw literals</li>
+        <li><strong>AC-03</strong> LaneShadowTheme importable in Kotlin with no raw literals</li>
+        <li><strong>AC-04</strong> pnpm tokens:sync-check exits 0 when in sync, non-zero on drift</li>
+        <li><strong>AC-05</strong> pnpm icons:check compares SVG set vs both platform enums</li>
+        <li><strong>AC-06</strong> lefthook pre-commit runs validate + sync-check + icons:check</li>
+        <li><strong>AC-07</strong> Generated files include banner with input hash</li>
+        <li><strong>AC-08</strong> map.style.light/dark tokens have $type: "string", match pattern</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+<div class="doc-footer">
+  <div class="footer-mark">Lane<em>Shadow</em><span>V2 Navigator · Copper Design System · Foundation Tokens</span></div>
+  <div class="footer-note">UC-TOK-05 Pipeline — 2026-04-20<br>One source file. Three platform outputs. Zero stale tokens.<br>Drift blocked at commit time, not CI time.</div>
+</div>
+</div>
+
+</body>
+</html>
