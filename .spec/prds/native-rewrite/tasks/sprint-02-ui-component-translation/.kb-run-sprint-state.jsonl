@@ -1,9 +1,9 @@
 {"header": "sprint-02-ui-component-translation", "total_tasks": 399, "timestamp": "2026-04-19T22:13:22.589273Z"}
-{"task_id": "MDL-001-atomic-write", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
-{"task_id": "MDL-002-auth-tokens", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
-{"task_id": "MDL-003-camera-quick", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
-{"task_id": "MDL-004-checksum", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
-{"task_id": "MDL-005-download-queue", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "MDL-001-atomic-write", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "a4a2570a25e3aa4cf938b8af8ea47df1229c429b", "blocked_by": []}
+{"task_id": "MDL-002-auth-tokens", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "7a59b37d81f77962cc42af7a5e16864481a212b35", "blocked_by": []}
+{"task_id": "MDL-003-camera-quick", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "abddd3811a1674e4562171a7e16864481a212b35", "blocked_by": []}
+{"task_id": "MDL-004-checksum", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "476d1570993ac1c1202764b9f2a4fa1ff1336d19", "blocked_by": []}
+{"task_id": "MDL-005-download-queue", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "f821e5d08ff9eea5134900a81acdca616eb0efa7", "blocked_by": []}
 {"task_id": "MDL-006-gatekeeper-download-manager", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
 {"task_id": "MDL-007-model-download", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
 {"task_id": "MDL-008-model-manifest", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
