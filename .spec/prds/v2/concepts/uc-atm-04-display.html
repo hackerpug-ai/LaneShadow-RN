@@ -885,6 +885,249 @@ body { font-family: var(--font-ui); -webkit-font-smoothing: antialiased; min-hei
   </section>
 </div>
 
+<!-- §07 DARK MODE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§07 · Dark Mode</div>
+      <h2 class="section-title">Avatar, Divider, Spinner on <em>ink-800</em>.</h2>
+    </div>
+    <p class="prose">
+      <strong>LSAvatar</strong> resolves <em>surface.card → ink-700</em> for the circle
+      background and <em>border.subtle</em> for the ring. The initials copper tint
+      (<strong>signal.whisper → copper-100</strong>) is unchanged — it reads warmly on
+      the dark base. <strong>LSDivider</strong> switches from paper-300 to
+      <em>rgba(242,238,232,0.07)</em>. <strong>LSSpinner</strong> keeps its copper arc
+      — signal colors are mode-invariant.
+    </p>
+  </section>
+</div>
+
+<div class="wrap">
+  <div style="padding-bottom: 96px;">
+
+    <h3 style="margin-top: 48px; margin-bottom: 32px; font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);">LSAvatar + LSDivider + LSSpinner — Dark</h3>
+
+    <div class="mode-dark" style="background: var(--ink-800); padding: 40px 48px; border-radius: 12px;">
+
+      <!-- LSAVATAR DARK — image variant -->
+      <div style="margin-bottom: 16px;">
+        <div style="font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary);">LSAvatar — five sizes, image variant (dark)</div>
+      </div>
+      <div style="display: flex; align-items: flex-end; gap: 40px; flex-wrap: wrap; margin-bottom: 40px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <div style="font-family: var(--font-instrument); font-size: 9.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary);">xs · 24px</div>
+          <div class="ls-avatar xs" style="background:var(--ink-700);border-color:rgba(242,238,232,0.07);">
+            <div style="width:100%;height:100%;background:linear-gradient(160deg,var(--copper-200) 0%,var(--ink-500) 100%);"></div>
+          </div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-tertiary);">24×24</div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <div style="font-family: var(--font-instrument); font-size: 9.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary);">sm · 32px</div>
+          <div class="ls-avatar sm" style="background:var(--ink-700);border-color:rgba(242,238,232,0.07);">
+            <div style="width:100%;height:100%;background:linear-gradient(160deg,var(--copper-200) 0%,var(--ink-500) 100%);"></div>
+          </div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-tertiary);">32×32</div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <div style="font-family: var(--font-instrument); font-size: 9.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary);">md · 40px</div>
+          <div style="position: relative; display: inline-flex;">
+            <div class="ls-avatar md" style="background:var(--ink-700);border-color:rgba(242,238,232,0.07);">
+              <div style="width:100%;height:100%;background:linear-gradient(160deg,var(--copper-200) 0%,var(--ink-500) 100%);"></div>
+            </div>
+            <div style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;border-radius:50%;background:#2E7D52;border:2px solid var(--ink-800);"></div>
+          </div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-tertiary);">40×40 + status dot</div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <div style="font-family: var(--font-instrument); font-size: 9.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary);">lg · 48px</div>
+          <div class="ls-avatar lg" style="background:var(--ink-700);border-color:rgba(242,238,232,0.07);">
+            <div style="width:100%;height:100%;background:linear-gradient(160deg,var(--copper-200) 0%,var(--ink-500) 100%);"></div>
+          </div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-tertiary);">48×48</div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <div style="font-family: var(--font-instrument); font-size: 9.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary);">xl · 56px</div>
+          <div class="ls-avatar xl" style="background:var(--ink-700);border-color:rgba(242,238,232,0.07);">
+            <div style="width:100%;height:100%;background:linear-gradient(160deg,var(--copper-200) 0%,var(--ink-500) 100%);"></div>
+          </div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-tertiary);">56×56</div>
+        </div>
+      </div>
+
+      <!-- LSAVATAR DARK — initials fallback -->
+      <div style="margin-bottom: 16px; margin-top: 8px;">
+        <div style="font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary);">LSAvatar — initials fallback (dark) — copper tint bg unchanged</div>
+      </div>
+      <div style="display: flex; align-items: flex-end; gap: 40px; flex-wrap: wrap; margin-bottom: 48px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <div style="font-family: var(--font-instrument); font-size: 9.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary);">xs · 24px</div>
+          <div class="ls-avatar xs initials-variant">
+            <span class="avatar-initials">JR</span>
+          </div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-tertiary);">9px Geist/600</div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <div style="font-family: var(--font-instrument); font-size: 9.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary);">sm · 32px</div>
+          <div class="ls-avatar sm initials-variant">
+            <span class="avatar-initials">JR</span>
+          </div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-tertiary);">11px Geist/600</div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <div style="font-family: var(--font-instrument); font-size: 9.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary);">md · 40px</div>
+          <div class="ls-avatar md initials-variant">
+            <span class="avatar-initials">JR</span>
+          </div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-tertiary);">13px Geist/600</div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <div style="font-family: var(--font-instrument); font-size: 9.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary);">lg · 48px</div>
+          <div class="ls-avatar lg initials-variant">
+            <span class="avatar-initials">JR</span>
+          </div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-tertiary);">15px Geist/600</div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <div style="font-family: var(--font-instrument); font-size: 9.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary);">xl · 56px</div>
+          <div class="ls-avatar xl initials-variant">
+            <span class="avatar-initials">JR</span>
+          </div>
+          <div style="font-family: var(--font-instrument); font-size: 8.5px; color: var(--content-tertiary);">18px Geist/600</div>
+        </div>
+      </div>
+
+      <!-- Rider card composition dark -->
+      <div style="margin-bottom: 16px;">
+        <div style="font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary);">Composition — avatar in rider card context (dark)</div>
+      </div>
+      <div style="display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 56px;">
+        <div style="background:var(--ink-700);border:1px solid var(--border-default);border-radius:12px;padding:20px 22px;display:flex;flex-direction:column;gap:16px;max-width:360px;box-shadow:0 2px 6px rgba(0,0,0,0.24);">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="position:relative;display:inline-flex;">
+              <div class="ls-avatar md" style="background:var(--ink-600);border-color:rgba(242,238,232,0.07);">
+                <div style="width:100%;height:100%;background:linear-gradient(160deg,var(--copper-200) 0%,var(--ink-400) 100%);"></div>
+              </div>
+              <div style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;border-radius:50%;background:#2E7D52;border:2px solid var(--ink-700);"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:3px;">
+              <div style="font-family:var(--font-ui);font-weight:600;font-size:14px;color:var(--content-primary);letter-spacing:-0.005em;">Justin Rich</div>
+              <div style="font-family:var(--font-instrument);font-size:10.5px;font-weight:500;color:var(--content-tertiary);">@justinrich</div>
+            </div>
+          </div>
+          <hr class="ls-divider" style="background:rgba(242,238,232,0.07);">
+          <div style="font-family:var(--font-ui);font-size:12px;color:var(--content-secondary);">142 routes saved · Joined March 2024</div>
+        </div>
+        <div style="background:var(--ink-700);border:1px solid var(--border-default);border-radius:12px;padding:20px 22px;display:flex;flex-direction:column;gap:16px;max-width:360px;box-shadow:0 2px 6px rgba(0,0,0,0.24);">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div class="ls-avatar lg initials-variant">
+              <span class="avatar-initials">SA</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:3px;">
+              <div style="font-family:var(--font-ui);font-weight:600;font-size:14px;color:var(--content-primary);letter-spacing:-0.005em;">Sofia A.</div>
+              <div style="font-family:var(--font-instrument);font-size:10.5px;font-weight:500;color:var(--content-tertiary);">@sofiamoto</div>
+            </div>
+          </div>
+          <hr class="ls-divider" style="background:rgba(242,238,232,0.07);">
+          <div style="font-family:var(--font-ui);font-size:12px;color:var(--content-secondary);">89 routes saved · Joined July 2025</div>
+        </div>
+      </div>
+
+      <!-- LSDIVIDER DARK -->
+      <div style="margin-bottom: 16px;">
+        <div style="font-family: var(--font-opinion); font-size: 36px; font-weight: 300; letter-spacing: -0.025em; line-height: 1.04; max-width: 600px; color: var(--content-primary);">
+          <em style="font-style:italic;color:var(--signal-default);">LSDivider</em> on dark.
+        </div>
+      </div>
+      <div style="max-width: 720px; display: flex; flex-direction: column; gap: 24px; margin-bottom: 56px;">
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary);">Full-width horizontal — border: rgba(242,238,232,0.07)</div>
+          <div style="font-family: var(--font-ui); font-size: 13px; color: var(--content-secondary);">Content above the divider.</div>
+          <hr class="ls-divider" style="background:rgba(242,238,232,0.07);">
+          <div style="font-family: var(--font-ui); font-size: 13px; color: var(--content-secondary);">Content below the divider.</div>
+          <div style="font-family: var(--font-instrument); font-size: 9px; color: var(--content-tertiary);">1px solid · rgba(242,238,232,0.07) · w:100%</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary);">With centered label</div>
+          <div class="ls-divider with-label" style="--border-subtle:rgba(242,238,232,0.07);"><span class="divider-label" style="color:var(--content-tertiary);">Or search by region</span></div>
+          <div style="font-family: var(--font-instrument); font-size: 9px; color: var(--content-tertiary);">Label: ui.label.md · content.tertiary dark · gap:12px</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary);">Instrument readout grid (vertical dividers)</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);border:1px solid rgba(242,238,232,0.12);border-radius:8px;overflow:hidden;">
+            <div style="padding:12px 10px;border-right:1px solid rgba(242,238,232,0.07);display:flex;flex-direction:column;gap:4px;">
+              <div style="font-family:var(--font-ui);font-size:7.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--content-tertiary);">Dist</div>
+              <div style="font-family:var(--font-instrument);font-weight:500;font-size:15px;letter-spacing:-0.02em;font-feature-settings:'tnum' 1;color:var(--content-primary);">64 mi</div>
+            </div>
+            <div style="padding:12px 10px;border-right:1px solid rgba(242,238,232,0.07);display:flex;flex-direction:column;gap:4px;">
+              <div style="font-family:var(--font-ui);font-size:7.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--content-tertiary);">Time</div>
+              <div style="font-family:var(--font-instrument);font-weight:500;font-size:15px;letter-spacing:-0.02em;font-feature-settings:'tnum' 1;color:var(--content-primary);">2h 10m</div>
+            </div>
+            <div style="padding:12px 10px;border-right:1px solid rgba(242,238,232,0.07);display:flex;flex-direction:column;gap:4px;">
+              <div style="font-family:var(--font-ui);font-size:7.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--content-tertiary);">Elv</div>
+              <div style="font-family:var(--font-instrument);font-weight:500;font-size:15px;letter-spacing:-0.02em;font-feature-settings:'tnum' 1;color:var(--content-primary);">3,240 ft</div>
+            </div>
+            <div style="padding:12px 10px;display:flex;flex-direction:column;gap:4px;">
+              <div style="font-family:var(--font-ui);font-size:7.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--content-tertiary);">Scenic</div>
+              <div style="font-family:var(--font-instrument);font-weight:500;font-size:15px;letter-spacing:-0.02em;color:var(--signal-default);font-feature-settings:'tnum' 1;">9.4</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LSSPINNER DARK -->
+      <div style="margin-bottom: 16px;">
+        <div style="font-family: var(--font-opinion); font-size: 36px; font-weight: 300; letter-spacing: -0.025em; line-height: 1.04; max-width: 600px; color: var(--content-primary);">
+          <em style="font-style:italic;color:var(--signal-default);">LSSpinner</em> — copper arc on dark.
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-end; gap: 48px; flex-wrap: wrap; margin-bottom: 32px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+          <div style="font-family: var(--font-instrument); font-size: 9.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary);">sm · 16px</div>
+          <div class="ls-spinner sm"></div>
+          <div style="font-family: var(--font-instrument); font-size: 9px; color: var(--content-tertiary); text-align: center;">16×16<br>arc: #EE7C2B</div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+          <div style="font-family: var(--font-instrument); font-size: 9.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary);">md · 20px</div>
+          <div class="ls-spinner md"></div>
+          <div style="font-family: var(--font-instrument); font-size: 9px; color: var(--content-tertiary); text-align: center;">20×20<br>arc: #EE7C2B</div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+          <div style="font-family: var(--font-instrument); font-size: 9.5px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary);">lg · 24px</div>
+          <div class="ls-spinner lg"></div>
+          <div style="font-family: var(--font-instrument); font-size: 9px; color: var(--content-tertiary); text-align: center;">24×24<br>arc: #EE7C2B</div>
+        </div>
+      </div>
+
+      <!-- Spinner in context dark -->
+      <div style="margin-bottom: 16px;">
+        <div style="font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary);">Spinner in loading contexts (dark)</div>
+      </div>
+      <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div style="background:var(--ink-700);border:1px solid var(--border-default);border-radius:10px;padding:24px 28px;display:flex;align-items:center;gap:16px;max-width:320px;box-shadow:0 2px 6px rgba(0,0,0,0.24);">
+          <div class="ls-spinner md"></div>
+          <div>
+            <div style="font-family:var(--font-ui);font-size:14px;font-weight:500;color:var(--content-primary);">Planning your route…</div>
+            <div style="font-family:var(--font-ui);font-size:11px;color:var(--content-tertiary);margin-top:3px;">Navigator is analyzing conditions</div>
+          </div>
+        </div>
+        <div style="background:var(--ink-700);border:1px solid var(--border-default);border-radius:10px;padding:24px 28px;display:flex;align-items:center;gap:16px;max-width:320px;box-shadow:0 2px 6px rgba(0,0,0,0.24);">
+          <div class="ls-spinner sm"></div>
+          <div>
+            <div style="font-family:var(--font-ui);font-size:14px;font-weight:500;color:var(--content-primary);">Saving route</div>
+            <div style="font-family:var(--font-ui);font-size:11px;color:var(--content-tertiary);margin-top:3px;">Adding to your library</div>
+          </div>
+        </div>
+        <div style="background:var(--ink-700);border:1px solid var(--border-default);border-radius:10px;padding:24px 28px;display:flex;justify-content:center;align-items:center;flex-direction:column;gap:12px;box-shadow:0 2px 6px rgba(0,0,0,0.24);">
+          <div class="ls-spinner lg"></div>
+          <div style="font-family:var(--font-ui);font-size:12px;color:var(--content-tertiary);text-align:center;">Loading map…</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <div class="wrap">
   <footer class="doc-footer">
