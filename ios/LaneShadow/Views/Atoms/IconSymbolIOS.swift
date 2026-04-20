@@ -35,7 +35,7 @@ public struct LSIconSymbolIOS: View {
     private let size: CGFloat
     private let color: Color
     private let weight: Font.Weight
-    private let renderingMode: SymbolRenderingMode
+    private let renderingMode: Image.TemplateRenderingMode?
     private let variant: SymbolVariants
     private let accessibilityLabel: String?
     private let testID: String?
@@ -75,7 +75,7 @@ public struct LSIconSymbolIOS: View {
         size: CGFloat = 24,
         color: Color,
         weight: Font.Weight = .regular,
-        renderingMode: SymbolRenderingMode = .template,
+        renderingMode: Image.TemplateRenderingMode? = nil,
         variant: SymbolVariants = .none,
         accessibilityLabel: String? = nil,
         testID: String? = nil
@@ -93,13 +93,19 @@ public struct LSIconSymbolIOS: View {
     public var body: some View {
         let mappedName = Self.iconMap[name] ?? name
 
-        Image(systemName: mappedName)
+        var baseImage = Image(systemName: mappedName)
+
+        // Apply rendering mode first (before resizable)
+        if let renderingMode = renderingMode {
+            baseImage = baseImage.renderingMode(renderingMode)
+        }
+
+        return baseImage
             .resizable()
             .scaledToFit()
             .frame(width: size, height: size)
             .foregroundStyle(color)
             .font(.system(size: size).weight(weight))
-            .renderingMode(renderingMode)
             .symbolVariant(variant)
             .accessibilityLabel(accessibilityLabel ?? name)
             .accessibilityHidden(false)
@@ -131,14 +137,7 @@ public struct LSIconSymbolIOS: View {
         LSIconSymbolIOS(
             name: "heart.fill",
             size: 32,
-            color: .red,
-            renderingMode: .original
-        )
-        LSIconSymbolIOS(
-            name: "heart.fill",
-            size: 32,
-            color: .red,
-            renderingMode: .hierarchical
+            color: .red
         )
     }
     .padding()

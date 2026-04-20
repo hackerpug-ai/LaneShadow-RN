@@ -10,12 +10,15 @@
 		0845C4AC551760BC96454D32 /* ConvexMobile in Frameworks */ = {isa = PBXBuildFile; productRef = 603E52C39223C28F74C3296F /* ConvexMobile */; };
 		0D14EDD6EBE39F655775566D /* ConvexConfig.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7781149F2F15D8931F7BD59 /* ConvexConfig.generated.swift */; };
 		2D064A18B4A7465DBCC5D509 /* LaneShadowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D1CEB0F9194AA0A1298E94 /* LaneShadowTests.swift */; };
+		2F0CC613A052CB8DCD986EBA /* IconSymbolIOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F2D864836475C036BD1BBB /* IconSymbolIOSTests.swift */; };
 		44631CF3F12CB71F56F331C2 /* MarkdownText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1B5EEE51CDB5681B896E7B /* MarkdownText.swift */; };
 		4B0AA98B99C3EBAED48BB3C7 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19C0C8E34938049BC6509361 /* App.swift */; };
 		58B9F2B1A10000000000000E /* AtomsStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9F2B1A10000000000010E /* AtomsStories.swift */; };
 		63DF5AF231CF6918D89B667C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2D8422CC809A6C6F9E33663 /* Foundation.framework */; };
 		7487EB2311A36A4E3BA14212 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 042C70965E7517B7DB83BEBC /* Assets.xcassets */; };
+		74A822E1E4CFFA3A23517B97 /* IconSymbolIOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3E4B933872BFD447BAC71ED /* IconSymbolIOS.swift */; };
 		83DED50F9B7D6E11F1B30091 /* LaneShadowSandboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C934E3A63158B5E395D53E00 /* LaneShadowSandboxEntry.swift */; };
+		9CBE1C1BAFE71A86A9369501 /* LaneShadow.app in Frameworks */ = {isa = PBXBuildFile; fileRef = C40B550C00DF5E8EB169537B /* LaneShadow.app */; };
 		AABBCCDD00000000CAFE0003 /* LaneShadowTheme in Frameworks */ = {isa = PBXBuildFile; productRef = AABBCCDD00000000CAFE0002 /* LaneShadowTheme */; };
 		AD8EF4A701C10E1634387601 /* LaneShadowStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D305F1F06CD33A026AD81A /* LaneShadowStories.swift */; };
 		C071BBB67191B0BB0B63057E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B65C904E4A0AAC1820E0B04 /* ContentView.swift */; };
@@ -26,7 +29,18 @@
 		INFOTOASTTESTSBUILD19DA81322E4 /* InfoToastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = INFOTOASTTESTS19DA81322E4 /* InfoToastTests.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		756AB40C25F70D41A0A91407 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8195E2F6510082D0036AB4FF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B7E51DDBAE69A0395EFCA6F1;
+			remoteInfo = LaneShadow;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		00F2D864836475C036BD1BBB /* IconSymbolIOSTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IconSymbolIOSTests.swift; path = LaneShadowTests/Components/UI/Atoms/IconSymbolIOSTests.swift; sourceTree = "<group>"; };
 		042C70965E7517B7DB83BEBC /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = LaneShadow/Assets.xcassets; sourceTree = "<group>"; };
 		19C0C8E34938049BC6509361 /* App.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = App.swift; path = LaneShadow/App.swift; sourceTree = "<group>"; };
 		1BFA01AC71D220DB33A48A4C /* ConvexStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConvexStore.swift; path = LaneShadow/ConvexStore.swift; sourceTree = "<group>"; };
@@ -37,6 +51,7 @@
 		C1D305F1F06CD33A026AD81A /* LaneShadowStories.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LaneShadowStories.swift; path = LaneShadow/Sandbox/LaneShadowStories.swift; sourceTree = "<group>"; };
 		C40B550C00DF5E8EB169537B /* LaneShadow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LaneShadow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C934E3A63158B5E395D53E00 /* LaneShadowSandboxEntry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LaneShadowSandboxEntry.swift; path = LaneShadow/Sandbox/LaneShadowSandboxEntry.swift; sourceTree = "<group>"; };
+		E3E4B933872BFD447BAC71ED /* IconSymbolIOS.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IconSymbolIOS.swift; path = ../../Atoms/IconSymbolIOS.swift; sourceTree = "<group>"; };
 		EA2218D2E4024A3E89BBD26A /* LaneShadowTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LaneShadowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF1B5EEE51CDB5681B896E7B /* MarkdownText.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MarkdownText.swift; path = LaneShadow/Views/Molecules/MarkdownText.swift; sourceTree = "<group>"; };
 		F2D8422CC809A6C6F9E33663 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -62,6 +77,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CBE1C1BAFE71A86A9369501 /* LaneShadow.app in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,6 +98,7 @@
 				C1D305F1F06CD33A026AD81A /* LaneShadowStories.swift */,
 				58B9F2B1A10000000000010E /* AtomsStories.swift */,
 				EF1B5EEE51CDB5681B896E7B /* MarkdownText.swift */,
+				E7E531984886FF607143AF5E /* Views */,
 			);
 			name = LaneShadow;
 			sourceTree = "<group>";
@@ -104,6 +121,15 @@
 			);
 			sourceTree = "<group>";
 		};
+		577E493B06A7D568B7E86BFC /* Atoms */ = {
+			isa = PBXGroup;
+			children = (
+				E3E4B933872BFD447BAC71ED /* IconSymbolIOS.swift */,
+			);
+			name = Atoms;
+			path = Views/Atoms;
+			sourceTree = "<group>";
+		};
 		6217363634E70A222B949755 /* Scripts */ = {
 			isa = PBXGroup;
 			children = (
@@ -119,6 +145,14 @@
 			name = Generated;
 			sourceTree = "<group>";
 		};
+		9532E203B711B4469F5112A2 /* Atoms */ = {
+			isa = PBXGroup;
+			children = (
+				00F2D864836475C036BD1BBB /* IconSymbolIOSTests.swift */,
+			);
+			name = Atoms;
+			sourceTree = "<group>";
+		};
 		C8F2429BC9B2805FC918C04A /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -128,14 +162,40 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		E4943BB25E9DFBCC12B26001 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F3662683309BCC71F94A1161 /* UI */,
+			);
+			name = Components;
+			sourceTree = "<group>";
+		};
+		E7E531984886FF607143AF5E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				577E493B06A7D568B7E86BFC /* Atoms */,
+			);
+			name = Views;
+			path = LaneShadow/Views;
+			sourceTree = "<group>";
+		};
 		EDE941005FEE4271A0B6705D /* LaneShadowTests */ = {
 			isa = PBXGroup;
 			children = (
 				INFOTOASTTESTS19DA81322E4 /* InfoToastTests.swift */,
 				F5D1CEB0F9194AA0A1298E94 /* LaneShadowTests.swift */,
 				A8DF06DFAC4862640146C5EC /* MarkdownTextTests.swift */,
+				E4943BB25E9DFBCC12B26001 /* Components */,
 			);
 			name = LaneShadowTests;
+			sourceTree = "<group>";
+		};
+		F3662683309BCC71F94A1161 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				9532E203B711B4469F5112A2 /* Atoms */,
+			);
+			name = UI;
 			sourceTree = "<group>";
 		};
 		F5998C2A0B559E2ADD097C96 /* iOS */ = {
@@ -183,6 +243,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				5B3891D2FE50F582262655B2 /* PBXTargetDependency */,
 			);
 			name = LaneShadowTests;
 			productName = LaneShadowTests;
@@ -273,6 +334,7 @@
 				2D064A18B4A7465DBCC5D509 /* LaneShadowTests.swift in Sources */,
 				INFOTOASTTESTSBUILD19DA81322E4 /* InfoToastTests.swift in Sources */,
 				CD7B43287CB6BD30DAAB6CA4 /* MarkdownTextTests.swift in Sources */,
+				2F0CC613A052CB8DCD986EBA /* IconSymbolIOSTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,10 +351,20 @@
 				58B9F2B1A10000000000000E /* AtomsStories.swift in Sources */,
 				INFOTOASTBUILD19DA81322E4 /* InfoToast.swift in Sources */,
 				44631CF3F12CB71F56F331C2 /* MarkdownText.swift in Sources */,
+				74A822E1E4CFFA3A23517B97 /* IconSymbolIOS.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		5B3891D2FE50F582262655B2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = LaneShadow;
+			target = B7E51DDBAE69A0395EFCA6F1 /* LaneShadow */;
+			targetProxy = 756AB40C25F70D41A0A91407 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		726610CA216E57A1143F06A4 /* Release */ = {
