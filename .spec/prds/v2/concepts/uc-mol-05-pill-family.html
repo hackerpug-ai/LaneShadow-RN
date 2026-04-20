@@ -585,6 +585,255 @@ body { font-family:var(--font-ui);color:var(--content-primary);background:var(--
   </section>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════════════
+     DARK MODE CSS BLOCK
+     ═══════════════════════════════════════════════════════════════════ -->
+<style>
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+  --surface-scrim:     rgba(10,6,3,0.50);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+</style>
+
+<!-- §02b DARK MODE FULL SHOWCASE — Pill Family -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02b · Dark Mode</div>
+      <h2 class="section-title">All variants, <em>dark surface</em>.</h2>
+    </div>
+    <p class="prose">
+      All four pill molecules on ink-800 background. Glass variants shift to <em>rgba(45,34,24,0.72)</em> backing. <em>LSFilterChip</em> selected state remains copper — it stands out powerfully on dark. Weather badge tints are semantic and unchanged. Signal accents pop against the dark ink surface.
+    </p>
+
+    <!-- Dark: LSTagPill full family -->
+    <div class="group-head" style="margin-top: 40px;"><h3><em>LSTagPill</em> — Dark · all sizes &amp; modes</h3></div>
+    <div class="mol-row mode-dark" style="background: var(--ink-800); padding: 24px; border-radius: 12px; margin-bottom: 32px; align-items: center;">
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Location · sm</div>
+        <div class="ls-tag-pill" style="height:24px;padding:0 8px;font-size:9.5px;border-color:rgba(242,238,232,0.12);">
+          <svg class="pin-icon" width="10" height="10" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.79 0 2 1.79 2 4c0 3 4 8.5 4 8.5S10 7 10 4c0-2.21-1.79-4-4-4zm0 5.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="currentColor"/></svg>
+          Near Santa Cruz, CA
+        </div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Location · md</div>
+        <div class="ls-tag-pill" style="border-color:rgba(242,238,232,0.12);">
+          <svg class="pin-icon" width="12" height="12" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.79 0 2 1.79 2 4c0 3 4 8.5 4 8.5S10 7 10 4c0-2.21-1.79-4-4-4zm0 5.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="currentColor"/></svg>
+          Near Big Sur, CA
+        </div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Mode · MANUAL</div>
+        <div class="ls-tag-pill mode-label" style="border-color:rgba(242,238,232,0.12);">MANUAL</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Mode · AUTO</div>
+        <div class="ls-tag-pill mode-label" style="border-color:rgba(242,238,232,0.12);">AUTO</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Generic · time</div>
+        <div class="ls-tag-pill" style="border-color:rgba(242,238,232,0.12);">
+          <svg width="10" height="10" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 4v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          2h 30m
+        </div>
+      </div>
+    </div>
+    <div style="padding-left: 152px; margin-bottom: 8px;">
+      <span style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);letter-spacing:0.18em;text-transform:uppercase;">surface.glass shifts to ink-based rgba · border rgba(242,238,232,0.12) · copper signal unchanged</span>
+    </div>
+
+    <!-- Dark: LSFilterChip full family -->
+    <div class="group-head" style="margin-top: 48px;"><h3><em>LSFilterChip</em> — Dark · all states + row composition</h3></div>
+    <div class="mol-row mode-dark" style="background: var(--ink-800); padding: 24px; border-radius: 12px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Unselected</div>
+        <div class="ls-filter-chip">Scenic</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Selected</div>
+        <div class="ls-filter-chip selected">
+          <svg class="check-icon" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Scenic
+        </div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Unselected</div>
+        <div class="ls-filter-chip">Twisty</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Selected</div>
+        <div class="ls-filter-chip selected">
+          <svg class="check-icon" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Twisty
+        </div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Unselected</div>
+        <div class="ls-filter-chip">Avoid Highway</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Selected</div>
+        <div class="ls-filter-chip selected">
+          <svg class="check-icon" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Avoid Highway
+        </div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Unselected</div>
+        <div class="ls-filter-chip">Mountain Pass</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Disabled</div>
+        <div class="ls-filter-chip" style="opacity:0.38;pointer-events:none;">Coastal Only</div>
+      </div>
+    </div>
+    <div style="padding-left: 152px; margin-bottom: 8px;">
+      <span style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);letter-spacing:0.18em;text-transform:uppercase;">unselected: surface.card ink-700 · selected: signal.default copper pops powerfully on dark ink</span>
+    </div>
+
+    <!-- Dark: LSSuggestionChip family -->
+    <div class="group-head" style="margin-top: 48px;"><h3><em>LSSuggestionChip</em> — Dark · default + primed states</h3></div>
+    <div class="mol-row mode-dark" style="background: var(--ink-800); padding: 24px; border-radius: 12px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Default</div>
+        <div class="ls-sugg-chip" style="border-color:rgba(242,238,232,0.12);">Twisty back roads</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Default</div>
+        <div class="ls-sugg-chip" style="border-color:rgba(242,238,232,0.12);">Avoid highway</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Default</div>
+        <div class="ls-sugg-chip" style="border-color:rgba(242,238,232,0.12);">Scenic coastal route</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Default</div>
+        <div class="ls-sugg-chip" style="border-color:rgba(242,238,232,0.12);">Mountain passes</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Primed (post-tap)</div>
+        <div class="ls-sugg-chip primed">Twisty back roads</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Primed (post-tap)</div>
+        <div class="ls-sugg-chip primed">Avoid highway</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label" style="color: var(--copper-400);">Disabled</div>
+        <div class="ls-sugg-chip" style="opacity:0.38;pointer-events:none;border-color:rgba(242,238,232,0.12);">Coastal loop</div>
+      </div>
+    </div>
+    <div style="padding-left: 152px; margin-bottom: 8px;">
+      <span style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);letter-spacing:0.18em;text-transform:uppercase;">glass: rgba(45,34,24,0.72) · border rgba · primed: signal.whisper copper tint on dark</span>
+    </div>
+
+    <!-- Dark: LSWeatherBadge full matrix -->
+    <div class="group-head" style="margin-top: 48px;"><h3><em>LSWeatherBadge</em> — Dark · all 6 conditions × sm + md</h3></div>
+    <div style="padding-left:152px; background: var(--ink-800); padding: 24px 24px 24px 176px; border-radius: 12px; margin-bottom: 0; display:grid;grid-template-columns:repeat(6,1fr);gap:16px;max-width:900px;">
+      <!-- Clear -->
+      <div class="mol-cell">
+        <div class="mol-label" style="color:var(--copper-400);">Clear · sm</div>
+        <div class="ls-wx-badge clear sm">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="9" height="9"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/><line x1="1.76" y1="1.76" x2="2.82" y2="2.82"/><line x1="9.18" y1="9.18" x2="10.24" y2="10.24"/><line x1="1.76" y1="10.24" x2="2.82" y2="9.18"/><line x1="9.18" y1="2.82" x2="10.24" y2="1.76"/></g></svg>
+          Clear
+        </div>
+        <div class="mol-label" style="margin-top:8px;color:var(--copper-400);">Clear · md</div>
+        <div class="ls-wx-badge clear md">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="11" height="11"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg>
+          Clear · 72F
+        </div>
+      </div>
+      <!-- Rain -->
+      <div class="mol-cell">
+        <div class="mol-label" style="color:var(--copper-400);">Rain · sm</div>
+        <div class="ls-wx-badge rain sm">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="9" height="9"><path d="M2 7.5A3.5 3.5 0 0 1 5.5 2a3 3 0 0 1 5.5 1.5 2.5 2.5 0 0 1-1 4.5H4" stroke="currentColor" stroke-width="1.2" fill="none"/><line x1="4" y1="10" x2="3" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Rain
+        </div>
+        <div class="mol-label" style="margin-top:8px;color:var(--copper-400);">Rain · md</div>
+        <div class="ls-wx-badge rain md">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="11" height="11"><path d="M2 7.5A3.5 3.5 0 0 1 5.5 2a3 3 0 0 1 5.5 1.5 2.5 2.5 0 0 1-1 4.5H4" stroke="currentColor" stroke-width="1.2" fill="none"/><line x1="4" y1="10" x2="3" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Rain 3pm
+        </div>
+      </div>
+      <!-- Wind -->
+      <div class="mol-cell">
+        <div class="mol-label" style="color:var(--copper-400);">Wind · sm</div>
+        <div class="ls-wx-badge wind sm">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="9" height="9"><path d="M1 5h7a2 2 0 0 0 0-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M1 8h9a2 2 0 0 0 0-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Wind
+        </div>
+        <div class="mol-label" style="margin-top:8px;color:var(--copper-400);">Wind · md</div>
+        <div class="ls-wx-badge wind md">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="11" height="11"><path d="M1 5h7a2 2 0 0 0 0-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M1 8h9a2 2 0 0 0 0-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Wind 18mph
+        </div>
+      </div>
+      <!-- Storm -->
+      <div class="mol-cell">
+        <div class="mol-label" style="color:var(--copper-400);">Storm · sm</div>
+        <div class="ls-wx-badge storm sm">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="9" height="9"><path d="M2 7.5A3.5 3.5 0 0 1 5.5 2a3 3 0 0 1 5.5 1.5 2.5 2.5 0 0 1-1 4.5H4" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M6 8l-1 3h2l-1 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Storm
+        </div>
+        <div class="mol-label" style="margin-top:8px;color:var(--copper-400);">Storm · md</div>
+        <div class="ls-wx-badge storm md">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="11" height="11"><path d="M2 7.5A3.5 3.5 0 0 1 5.5 2a3 3 0 0 1 5.5 1.5 2.5 2.5 0 0 1-1 4.5H4" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M6 8l-1 3h2l-1 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Storm 4pm
+        </div>
+      </div>
+      <!-- Hot -->
+      <div class="mol-cell">
+        <div class="mol-label" style="color:var(--copper-400);">Hot · sm</div>
+        <div class="ls-wx-badge hot sm">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="9" height="9"><path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Hot
+        </div>
+        <div class="mol-label" style="margin-top:8px;color:var(--copper-400);">Hot · md</div>
+        <div class="ls-wx-badge hot md">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="11" height="11"><path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Hot · 94F
+        </div>
+      </div>
+      <!-- Cold -->
+      <div class="mol-cell">
+        <div class="mol-label" style="color:var(--copper-400);">Cold · sm</div>
+        <div class="ls-wx-badge cold sm">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="9" height="9"><path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Cold
+        </div>
+        <div class="mol-label" style="margin-top:8px;color:var(--copper-400);">Cold · md</div>
+        <div class="ls-wx-badge cold md">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="11" height="11"><path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Cold · 38F
+        </div>
+      </div>
+    </div>
+    <div style="padding-left: 152px; margin-top: 12px; margin-bottom: 0;">
+      <span style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);letter-spacing:0.18em;text-transform:uppercase;">weather badge tints are semantic — they render identically in light and dark for condition recognition consistency</span>
+    </div>
+
+  </section>
+</div>
+
 <!-- §03 STATES & VARIANTS -->
 <div class="wrap">
   <section class="section">

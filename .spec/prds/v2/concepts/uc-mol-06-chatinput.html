@@ -694,6 +694,210 @@ body { font-family:var(--font-ui);color:var(--content-primary);background:var(--
   </section>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════════════
+     DARK MODE CSS BLOCK
+     ═══════════════════════════════════════════════════════════════════ -->
+<style>
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+  --surface-scrim:     rgba(10,6,3,0.50);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+</style>
+
+<!-- §02b DARK MODE FULL SHOWCASE — ChatInput all 5 states -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02b · Dark Mode</div>
+      <h2 class="section-title">Five states, <em>dark surface</em>.</h2>
+    </div>
+    <p class="prose">
+      LSChatInput in dark mode. The glass panel backing shifts to <em>rgba(45,34,24,0.72)</em> — an ink-based glass that floats above the dark map layer. Border shifts to <em>rgba(242,238,232,0.12)</em>. Send button copper remains fully saturated — it anchors the interaction in both modes. Suggestion chips and location tags adopt the same glass treatment.
+    </p>
+
+    <div style="padding-left:152px; display:flex; gap:40px; flex-wrap:wrap; align-items:flex-start; margin-top: 48px;">
+
+      <!-- Dark: State 1 — Default -->
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:240px;">
+        <div class="state-name" style="color: var(--copper-400);">01 — Default · Dark</div>
+        <div class="phone-frame">
+          <div class="phone-screen" style="background: #130E09;">
+            <div class="phone-di"></div>
+            <div class="phone-map" style="background: #1A1208;">
+              <div style="position:absolute;inset:0;background:repeating-linear-gradient(45deg,#2D2218 0,#2D2218 1px,transparent 0,transparent 50%) center/18px 18px;opacity:0.25;"></div>
+            </div>
+            <div class="phone-chatarea">
+              <div class="ls-location-bar">
+                <div class="tag-pill" style="border-color:rgba(242,238,232,0.12);">
+                  <div class="pin-dot"></div>
+                  Near Santa Cruz, CA
+                </div>
+                <div class="tag-pill mode-label" style="border-color:rgba(242,238,232,0.12);">AUTO</div>
+              </div>
+              <div class="ls-sugg-row">
+                <div class="sugg-chip" style="border-color:rgba(242,238,232,0.12);">Twisty back roads</div>
+                <div class="sugg-chip" style="border-color:rgba(242,238,232,0.12);">Avoid highway</div>
+                <div class="sugg-chip" style="border-color:rgba(242,238,232,0.12);">Scenic coastal</div>
+              </div>
+              <div class="ls-chatinput" style="border-color:rgba(242,238,232,0.12);">
+                <div class="chat-icon-btn" style="color: #9CA3AF;">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12 4H4a2 2 0 0 0-2 2v8l3-3h7a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="chat-field" style="color: #6B6460;">Plan a ride…</div>
+                <div class="chat-filter-btn" style="color: #9CA3AF;">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><line x1="4" y1="6" x2="16" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="6" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="14" x2="12" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="state-note">Glass: rgba(45,34,24,0.72) · placeholder content.subtle</div>
+      </div>
+
+      <!-- Dark: State 2 — With Text -->
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:240px;">
+        <div class="state-name" style="color: var(--copper-400);">02 — With Text · Dark</div>
+        <div class="phone-frame">
+          <div class="phone-screen" style="background: #130E09;">
+            <div class="phone-di"></div>
+            <div class="phone-map" style="background: #1A1208;">
+              <div style="position:absolute;inset:0;background:repeating-linear-gradient(45deg,#2D2218 0,#2D2218 1px,transparent 0,transparent 50%) center/18px 18px;opacity:0.25;"></div>
+            </div>
+            <div class="phone-chatarea">
+              <div class="ls-sugg-row">
+                <div class="sugg-chip" style="border-color:rgba(242,238,232,0.12);">Twisty back roads</div>
+              </div>
+              <div class="ls-chatinput" style="border-color:rgba(242,238,232,0.12);">
+                <div class="chat-icon-btn" style="color: #9CA3AF;">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12 4H4a2 2 0 0 0-2 2v8l3-3h7a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="chat-field has-value" style="color: #F2EEE8;">Twisty 3-hour loop near SLO</div>
+                <div class="chat-send-btn">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M17 10H4M10 4l6 6-6 6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="state-note">Send button: copper pops on dark · value text: content.primary ink-050</div>
+      </div>
+
+      <!-- Dark: State 3 — Thinking -->
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:240px;">
+        <div class="state-name" style="color: var(--copper-400);">03 — Thinking · Dark</div>
+        <div class="phone-frame">
+          <div class="phone-screen" style="background: #130E09;">
+            <div class="phone-di"></div>
+            <div class="phone-map" style="background: #1A1208;">
+              <div style="position:absolute;inset:0;background:repeating-linear-gradient(45deg,#2D2218 0,#2D2218 1px,transparent 0,transparent 50%) center/18px 18px;opacity:0.25;"></div>
+            </div>
+            <div class="phone-chatarea">
+              <div class="ls-chatinput" style="border-color:rgba(242,238,232,0.12);">
+                <div class="chat-icon-btn" style="opacity:0.38;color:#9CA3AF;">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12 4H4a2 2 0 0 0-2 2v8l3-3h7a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="chat-field" style="font-style:italic;color:#6B6460;">Planning your ride…</div>
+                <div class="chat-spinner" style="--border-default:rgba(242,238,232,0.12);"></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="state-note">Spinner border: rgba dark · track subtle, copper arc</div>
+      </div>
+
+      <!-- Dark: State 4 — Disabled -->
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:240px;">
+        <div class="state-name" style="color: var(--copper-400);">04 — Disabled · Dark</div>
+        <div class="phone-frame">
+          <div class="phone-screen" style="background: #130E09;">
+            <div class="phone-di"></div>
+            <div class="phone-map" style="background: #1A1208;">
+              <div style="position:absolute;inset:0;background:repeating-linear-gradient(45deg,#2D2218 0,#2D2218 1px,transparent 0,transparent 50%) center/18px 18px;opacity:0.25;"></div>
+            </div>
+            <div class="phone-chatarea">
+              <div class="ls-location-bar" style="opacity:0.38;">
+                <div class="tag-pill" style="border-color:rgba(242,238,232,0.12);"><div class="pin-dot"></div>Near Santa Cruz, CA</div>
+                <div class="tag-pill mode-label" style="border-color:rgba(242,238,232,0.12);">AUTO</div>
+              </div>
+              <div class="ls-sugg-row" style="opacity:0.38;">
+                <div class="sugg-chip" style="border-color:rgba(242,238,232,0.12);">Twisty back roads</div>
+              </div>
+              <div class="ls-chatinput is-disabled" style="border-color:rgba(242,238,232,0.12);">
+                <div class="chat-icon-btn" style="color:#9CA3AF;">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12 4H4a2 2 0 0 0-2 2v8l3-3h7a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="chat-field" style="color:#6B6460;">Plan a ride…</div>
+                <div class="chat-filter-btn" style="color:#9CA3AF;">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><line x1="4" y1="6" x2="16" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="6" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="14" x2="12" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="state-note">opacity.disabled 0.38 · all children dimmed · no callbacks</div>
+      </div>
+
+      <!-- Dark: State 5 — Refining -->
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:240px;">
+        <div class="state-name" style="color: var(--copper-400);">05 — Refining · Dark</div>
+        <div class="phone-frame">
+          <div class="phone-screen" style="background: #130E09;">
+            <div class="phone-di"></div>
+            <div class="phone-map" style="background: #1A1208;">
+              <div style="position:absolute;inset:0;background:repeating-linear-gradient(45deg,#2D2218 0,#2D2218 1px,transparent 0,transparent 50%) center/18px 18px;opacity:0.25;"></div>
+            </div>
+            <div class="phone-chatarea">
+              <div class="ls-chatinput" style="border-color:rgba(242,238,232,0.12);">
+                <div class="chat-icon-btn" style="color:#9CA3AF;">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12 4H4a2 2 0 0 0-2 2v8l3-3h7a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="chat-field" style="font-style:italic;font-size:9px;color:#CAC4D0;">Refine: fewer highway miles, add twisty section near Big Sur…</div>
+                <div class="chat-send-btn">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M17 10H4M10 4l6 6-6 6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="state-note">Refining prompt text: content.secondary on dark · send active</div>
+      </div>
+
+    </div>
+
+    <div style="padding-left:152px; margin-top: 32px;">
+      <div style="display:flex;gap:24px;flex-wrap:wrap;">
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);letter-spacing:0.14em;text-transform:uppercase;">glass: rgba(45,34,24,0.72)</div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);letter-spacing:0.14em;text-transform:uppercase;">border: rgba(242,238,232,0.12)</div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);letter-spacing:0.14em;text-transform:uppercase;">send: copper-500 unchanged</div>
+        <div style="font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);letter-spacing:0.14em;text-transform:uppercase;">icons: content.tertiary ink-200</div>
+      </div>
+    </div>
+
+  </section>
+</div>
+
 <!-- §03 STATES & DIMENSIONS CALLOUT -->
 <div class="wrap">
   <section class="section">

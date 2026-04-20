@@ -849,6 +849,341 @@ body {
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════════
+     DARK MODE CSS BLOCK
+     ═══════════════════════════════════════════════════════════════════ -->
+<style>
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+  --surface-scrim:     rgba(10,6,3,0.50);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+</style>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §02c DARK MODE — LSContentCard + LSListRow
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§02c</span>
+    <h2 class="section-title">Dark Mode — <em>Cards &amp; Rows</em></h2>
+  </div>
+  <p class="prose">
+    Dark surfaces swap via <em>.mode-dark</em> tokens. Card shadow deepens to <strong>elev-card dark variant</strong>, card surface shifts to <strong>ink-700 (#2D2218)</strong>. Meta rows, chevrons, and dividers retain hierarchy through adjusted opacity borders.
+  </p>
+
+  <h3 style="margin-left: 152px; margin-top: 48px; margin-bottom: 32px; font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);">LSContentCard — Dark</h3>
+  <div class="demo-grid mode-dark" style="background: var(--ink-800); padding: 32px; border-radius: 12px; margin-bottom: 48px;">
+
+    <!-- Dark: Title Only -->
+    <div class="demo-cell">
+      <span class="cell-label" style="color: var(--copper-400);">Title Only</span>
+      <div class="ls-card content-card" style="max-width: 280px;">
+        <div class="content-card__body">
+          <div class="content-card__title-row">
+            <span class="content-card__title">Highway 1 Coastal Loop</span>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">surface.card</span><span class="ann-val">#2D2218 (ink-700)</span></div>
+      <div class="annotation-row"><span class="ann-token">border</span><span class="ann-val">rgba(242,238,232,0.12)</span></div>
+      <div class="annotation-row"><span class="ann-token">shadow</span><span class="ann-val">0 2px 6px rgba(0,0,0,0.24)</span></div>
+    </div>
+
+    <!-- Dark: Title + Subtitle + Meta -->
+    <div class="demo-cell">
+      <span class="cell-label" style="color: var(--copper-400);">Title + Subtitle + Meta</span>
+      <div class="ls-card content-card" style="max-width: 280px;">
+        <div class="content-card__body">
+          <div class="content-card__title-row">
+            <span class="content-card__title">Pacific Coast Highway</span>
+          </div>
+          <div class="content-card__subtitle">42 mi · 1h 12m · Scenic</div>
+          <div class="content-card__meta">
+            <span class="content-card__meta-item">3,200 ft gain</span>
+            <span class="content-card__meta-dot"></span>
+            <span class="content-card__meta-item">Last ridden Apr 12</span>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">title</span><span class="ann-val">content.primary #F2EEE8</span></div>
+      <div class="annotation-row"><span class="ann-token">subtitle</span><span class="ann-val">content.secondary #CAC4D0</span></div>
+      <div class="annotation-row"><span class="ann-token">meta</span><span class="ann-val">content.tertiary #9CA3AF</span></div>
+    </div>
+
+    <!-- Dark: With Chips -->
+    <div class="demo-cell">
+      <span class="cell-label" style="color: var(--copper-400);">Title + Subtitle + Chips</span>
+      <div class="ls-card content-card" style="max-width: 280px;">
+        <div class="content-card__body">
+          <div class="content-card__title-row">
+            <span class="content-card__title">Marin Headlands Sweep</span>
+          </div>
+          <div class="content-card__subtitle">28 mi · 54m · Twisty</div>
+          <div class="content-card__chip-row">
+            <span class="chip signal">Best Route</span>
+            <span class="chip">Twisty</span>
+            <span class="chip">Coastal</span>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">chip bg</span><span class="ann-val">signal.whisper copper tint</span></div>
+      <div class="annotation-row"><span class="ann-token">chip border</span><span class="ann-val">border.default rgba</span></div>
+    </div>
+
+    <!-- Dark: With Actions Footer -->
+    <div class="demo-cell">
+      <span class="cell-label" style="color: var(--copper-400);">With Actions Footer</span>
+      <div class="ls-card content-card" style="max-width: 280px;">
+        <div class="content-card__body">
+          <div class="content-card__title-row">
+            <span class="content-card__title">Skyline Boulevard</span>
+          </div>
+          <div class="content-card__subtitle">19 mi · 38m · Mountain</div>
+          <div class="content-card__meta">
+            <span class="content-card__meta-item">1,800 ft gain</span>
+            <span class="content-card__meta-dot"></span>
+            <span class="content-card__meta-item">Saved</span>
+          </div>
+        </div>
+        <div class="content-card__footer">
+          <button class="ls-btn ls-btn--primary ls-btn--sm" style="flex:1;">Ride This</button>
+          <button class="ls-btn ls-btn--ghost ls-btn--sm" style="background: rgba(242,238,232,0.08); color: var(--ink-050);">Save</button>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">footer bg</span><span class="ann-val">surface.inset #362A1F</span></div>
+      <div class="annotation-row"><span class="ann-token">ghost btn</span><span class="ann-val">rgba(242,238,232,0.08)</span></div>
+    </div>
+
+    <!-- Dark: With Image Header + Footer -->
+    <div class="demo-cell">
+      <span class="cell-label" style="color: var(--copper-400);">With Image Header</span>
+      <div class="ls-card content-card" style="max-width: 280px;">
+        <div class="content-card__image-header" style="background: linear-gradient(135deg, var(--ink-600) 0%, var(--ink-700) 100%);">
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(238,124,43,0.30) 0%,rgba(45,34,24,0.80) 100%);"></div>
+          <span class="content-card__image-label">Header Image Slot · Dark</span>
+        </div>
+        <div class="content-card__body">
+          <div class="content-card__title-row">
+            <span class="content-card__title">Big Sur Bluffs Ride</span>
+          </div>
+          <div class="content-card__subtitle">64 mi · 2h 10m · Epic</div>
+          <div class="content-card__chip-row">
+            <span class="chip signal">Best Route</span>
+            <span class="chip">Ocean View</span>
+          </div>
+        </div>
+        <div class="content-card__footer">
+          <button class="ls-btn ls-btn--primary ls-btn--sm" style="flex:1;">Open Route</button>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">header gradient</span><span class="ann-val">ink-600→ink-700 + copper overlay</span></div>
+    </div>
+
+  </div>
+
+  <h3 style="margin-left: 152px; margin-top: 48px; margin-bottom: 32px; font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);">LSListRow — Dark</h3>
+  <div class="demo-grid cols-2 mode-dark" style="background: var(--ink-800); padding: 32px; border-radius: 12px; gap: 48px; margin-bottom: 0;">
+
+    <!-- Dark: Leading Icon rows -->
+    <div class="demo-cell">
+      <span class="cell-label" style="color: var(--copper-400);">Leading Icon — Title Only</span>
+      <div class="ls-list-group" style="max-width: 320px;">
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-list-row__icon-container">
+              <svg class="icon-svg icon-sm" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Notifications</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-list-row__icon-container">
+              <svg class="icon-svg icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+            </div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Bluetooth Sensors</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-list-row__icon-container">
+              <svg class="icon-svg icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Profile</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">row bg</span><span class="ann-val">surface.card #2D2218</span></div>
+      <div class="annotation-row"><span class="ann-token">divider</span><span class="ann-val">border.subtle rgba(242,238,232,0.07)</span></div>
+      <div class="annotation-row"><span class="ann-token">chevron</span><span class="ann-val">content.subtle #6B6460</span></div>
+    </div>
+
+    <!-- Dark: Leading Avatar rows -->
+    <div class="demo-cell">
+      <span class="cell-label" style="color: var(--copper-400);">Leading Avatar — Title + Subtitle</span>
+      <div class="ls-list-group" style="max-width: 320px;">
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-avatar ls-avatar--md" style="background: linear-gradient(135deg, rgba(238,124,43,0.35), rgba(45,34,24,0.80)); color: var(--copper-400);">JR</div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Justin Rich</span>
+            <span class="ls-list-row__subtitle">Joined 2023 · 847 mi total</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-avatar ls-avatar--md" style="background: linear-gradient(135deg, rgba(74,134,190,0.35), rgba(45,34,24,0.80)); color: var(--ink-100);">MK</div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Maya Kim</span>
+            <span class="ls-list-row__subtitle">Following · 1,240 mi total</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <button class="ls-btn ls-btn--outline ls-btn--sm">Follow</button>
+          </div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-avatar ls-avatar--md" style="background: linear-gradient(135deg, rgba(22,163,74,0.25), rgba(45,34,24,0.80)); color: var(--ink-100);">TS</div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Tom S.</span>
+            <span class="ls-list-row__subtitle">Privacy Mode — enabled</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <div class="ls-toggle ls-toggle--on"></div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">avatar bg</span><span class="ann-val">tinted ink-700 gradients</span></div>
+      <div class="annotation-row"><span class="ann-token">toggle-on</span><span class="ann-val">signal.default copper</span></div>
+    </div>
+
+    <!-- Dark: Toggle states -->
+    <div class="demo-cell">
+      <span class="cell-label" style="color: var(--copper-400);">Trailing Toggle · Disabled States</span>
+      <div class="ls-list-group" style="max-width: 320px;">
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-list-row__icon-container">
+              <svg class="icon-svg icon-sm" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Privacy Mode</span>
+            <span class="ls-list-row__subtitle">Hide location on social feed</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <div class="ls-toggle ls-toggle--on"></div>
+          </div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-list-row__icon-container">
+              <svg class="icon-svg icon-sm" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
+            </div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Auto-Pause</span>
+            <span class="ls-list-row__subtitle">Stop at red lights</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <div class="ls-toggle"></div>
+          </div>
+        </div>
+        <div class="ls-list-row ls-list-row--no-press" style="opacity: 0.4;">
+          <div class="ls-list-row__leading">
+            <div class="ls-list-row__icon-container">
+              <svg class="icon-svg icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            </div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Advanced Metrics</span>
+            <span class="ls-list-row__subtitle">Requires sensor pairing</span>
+          </div>
+          <div class="ls-list-row__trailing" style="font-family: var(--font-ui); font-size: 11px; color: var(--content-subtle);">Locked</div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">toggle off</span><span class="ann-val">border.default rgba track</span></div>
+      <div class="annotation-row"><span class="ann-token">disabled</span><span class="ann-val">opacity 0.40</span></div>
+    </div>
+
+    <!-- Dark: 5-row recent routes in a card -->
+    <div class="demo-cell">
+      <span class="cell-label" style="color: var(--copper-400);">Composition — 5-Row List in a Card</span>
+      <div class="ls-card" style="max-width: 320px; padding: 0; overflow: hidden;">
+        <div style="padding: 12px 12px 8px; border-bottom: 1px solid var(--border-subtle);">
+          <span style="font-family: var(--font-ui); font-weight: 600; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--content-tertiary);">Recent Routes</span>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading"><div class="ls-avatar ls-avatar--xs" style="background:rgba(238,124,43,0.25);color:var(--copper-400);">H1</div></div>
+          <div class="ls-list-row__content"><span class="ls-list-row__title">Highway 1 South</span><span class="ls-list-row__subtitle">42 mi · 3 days ago</span></div>
+          <div class="ls-list-row__trailing"><svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading"><div class="ls-avatar ls-avatar--xs" style="background:rgba(74,134,190,0.25);color:var(--ink-100);">MB</div></div>
+          <div class="ls-list-row__content"><span class="ls-list-row__title">Marin Backroads</span><span class="ls-list-row__subtitle">28 mi · 1 week ago</span></div>
+          <div class="ls-list-row__trailing"><svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading"><div class="ls-avatar ls-avatar--xs" style="background:rgba(22,163,74,0.20);color:var(--ink-100);">SB</div></div>
+          <div class="ls-list-row__content"><span class="ls-list-row__title">Skyline Boulevard</span><span class="ls-list-row__subtitle">19 mi · 2 weeks ago</span></div>
+          <div class="ls-list-row__trailing"><svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading"><div class="ls-avatar ls-avatar--xs" style="background:rgba(238,124,43,0.18);color:var(--copper-400);">BS</div></div>
+          <div class="ls-list-row__content"><span class="ls-list-row__title">Big Sur Cliffs</span><span class="ls-list-row__subtitle">64 mi · last month</span></div>
+          <div class="ls-list-row__trailing"><svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading"><div class="ls-avatar ls-avatar--xs" style="background:rgba(230,165,42,0.22);color:var(--ink-100);">NV</div></div>
+          <div class="ls-list-row__content"><span class="ls-list-row__title">Napa Valley Sweep</span><span class="ls-list-row__subtitle">51 mi · last month</span></div>
+          <div class="ls-list-row__trailing"><svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">header bg</span><span class="ann-val">surface.card ink-700</span></div>
+      <div class="annotation-row"><span class="ann-token">section label</span><span class="ann-val">content.tertiary #9CA3AF</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
      §03 STATES & VARIANTS
      ═══════════════════════════════════════════════════════════════════ -->
 <section class="section">

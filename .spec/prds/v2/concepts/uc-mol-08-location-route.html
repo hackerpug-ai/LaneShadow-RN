@@ -386,6 +386,31 @@ body { font-family:var(--font-ui);color:var(--content-primary);background:var(--
   color: var(--signal-default);
 }
 
+/* ── Dark mode token scope ── */
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+  --surface-scrim:     rgba(10,6,3,0.50);
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+.mode-dark .ls-tag-pill { border-color: rgba(242,238,232,0.12); }
+.mode-dark .ls-location-bar-demo {
+  border-color: rgba(242,238,232,0.12);
+  background: rgba(45,34,24,0.72);
+}
+
 </style>
 </head>
 <body>
@@ -728,6 +753,224 @@ body { font-family:var(--font-ui);color:var(--content-primary);background:var(--
         </div>
       </div>
     </div>
+  </section>
+</div>
+
+<!-- §02c DARK MODE — LocationContextBar + RouteAttachmentCard -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02c · Dark Mode</div>
+      <h2 class="section-title">On <em>ink</em> and map.</h2>
+    </div>
+    <p class="prose">Both molecules appear against dark map layers and ink-800 navigator surfaces.
+    Glass pills stay translucent; the copper stripe and signal accents remain unchanged.</p>
+
+    <!-- ── LSLocationContextBar · Dark ── -->
+    <div class="group-head" style="margin-top:48px;"><h3><em>LSLocationContextBar</em> — dark</h3></div>
+
+    <div class="mol-grid mode-dark" style="flex-direction:column;gap:24px;max-width:560px;background:var(--surface-primary);padding:32px;border-radius:16px;">
+
+      <!-- Auto mode · dark -->
+      <div class="mol-card" style="width:100%;">
+        <div class="mol-card-label" style="color:var(--signal-default);">Auto mode · dark</div>
+        <div class="ls-location-bar-demo">
+          <div class="ls-location-bar">
+            <div class="ls-tag-pill">
+              <div class="pin-dot"></div>
+              Near Santa Cruz, CA
+            </div>
+            <div class="ls-tag-pill mode-label">AUTO</div>
+          </div>
+        </div>
+        <div class="mol-card-desc" style="color:var(--content-tertiary);">Glass surface tints from ink-800 · pin dot retains signal.default copper · border rgba(242,238,232,0.12)</div>
+      </div>
+
+      <!-- Manual mode · dark -->
+      <div class="mol-card" style="width:100%;">
+        <div class="mol-card-label" style="color:var(--signal-default);">Manual mode · dark</div>
+        <div class="ls-location-bar-demo">
+          <div class="ls-location-bar">
+            <div class="ls-tag-pill">
+              <div class="pin-dot"></div>
+              Big Sur, CA
+            </div>
+            <div class="ls-tag-pill mode-label">MANUAL</div>
+          </div>
+        </div>
+        <div class="mol-card-desc" style="color:var(--content-tertiary);">MANUAL chip: content.tertiary (ink-200) label on glass pill · tappable · fires onModeChange</div>
+      </div>
+
+      <!-- Long label truncation · dark -->
+      <div class="mol-card" style="width:100%;">
+        <div class="mol-card-label" style="color:var(--signal-default);">Long label — truncation · dark</div>
+        <div class="ls-location-bar-demo">
+          <div class="ls-location-bar">
+            <div class="ls-tag-pill" style="max-width:260px;overflow:hidden;text-overflow:ellipsis;">
+              <div class="pin-dot"></div>
+              <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Near Paso Robles Wine Country, CA</span>
+            </div>
+            <div class="ls-tag-pill mode-label">AUTO</div>
+          </div>
+        </div>
+        <div class="mol-card-desc" style="color:var(--content-tertiary);">Leading pill max-width constrained + overflow:hidden · trailing pill always visible</div>
+      </div>
+
+    </div>
+
+    <!-- ── LSRouteAttachmentCard · Dark ── -->
+    <div class="group-head" style="margin-top:64px;"><h3><em>LSRouteAttachmentCard</em> — dark variant matrix</h3></div>
+
+    <div class="mol-grid mode-dark" style="flex-wrap:wrap;gap:24px;background:var(--surface-primary);padding:32px;border-radius:16px;align-items:flex-start;">
+
+      <!-- Best selected · dark -->
+      <div class="mol-card">
+        <div class="mol-card-label" style="color:var(--signal-default);">Best · selected · dark</div>
+        <div class="rt-card v-best selected">
+          <div class="rt-card-head">
+            <div class="rt-best-badge">
+              <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><path d="M4 1l.94 2.06L7 3.24l-1.5 1.46.35 2.06L4 5.69l-2.19.99.35-2.06L.72 3.24l2.06-.18z" fill="currentColor"/></svg>
+              Best
+            </div>
+            <div class="rt-card-title">The Skyline Spine</div>
+          </div>
+          <div class="rt-card-via">via Hwy 9 · Saratoga Gap · Skyline Blvd</div>
+          <div class="rt-card-meta">
+            <div class="rt-meta-group">64 mi</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-meta-group">2h 10m</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-scenic-dots">
+              <div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div>
+            </div>
+            <div class="rt-scenic-label">Scenic</div>
+          </div>
+          <div class="rt-card-right">
+            <div class="wx-badge wx-clear">
+              <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="2" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="5" y1="0.5" x2="5" y2="1.8"/><line x1="5" y1="8.2" x2="5" y2="9.5"/><line x1="0.5" y1="5" x2="1.8" y2="5"/><line x1="8.2" y1="5" x2="9.5" y2="5"/></g></svg>
+              Clear
+            </div>
+          </div>
+        </div>
+        <div class="mol-card-desc" style="color:var(--content-tertiary);">surface.card ink-700 · copper tint on selected bg · copper border unchanged · stripe route-best copper</div>
+      </div>
+
+      <!-- Best compact · dark -->
+      <div class="mol-card">
+        <div class="mol-card-label" style="color:var(--signal-default);">Best · compact · dark</div>
+        <div class="rt-card v-best compact">
+          <div class="rt-card-head">
+            <div class="rt-card-title">The Skyline Spine</div>
+          </div>
+          <div class="rt-card-via">via Hwy 9 · Skyline Blvd</div>
+          <div class="rt-card-meta">
+            <div class="rt-meta-group">64 mi</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-meta-group">2h 10m</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-scenic-dots">
+              <div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div>
+            </div>
+            <div class="rt-scenic-label">Scenic</div>
+          </div>
+        </div>
+        <div class="mol-card-desc" style="color:var(--content-tertiary);">compact: no best badge, no weather badge · content.primary ink-050 on surface.card ink-700</div>
+      </div>
+
+      <!-- Alt 1 · dark -->
+      <div class="mol-card">
+        <div class="mol-card-label" style="color:var(--signal-default);">Alt 1 · unselected · dark</div>
+        <div class="rt-card v-alt1">
+          <div class="rt-card-head">
+            <div class="rt-card-title">The Valley Loop</div>
+          </div>
+          <div class="rt-card-via">via Hwy 152 · Pacheco Pass</div>
+          <div class="rt-card-meta">
+            <div class="rt-meta-group">58 mi</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-meta-group">1h 55m</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-scenic-dots">
+              <div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d"></div><div class="d"></div>
+            </div>
+            <div class="rt-scenic-label">Scenic</div>
+          </div>
+          <div class="rt-card-right">
+            <div class="wx-badge wx-wind">
+              <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1 4h6a1.2 1.2 0 0 0 0-2.4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><path d="M1 6h7a1.2 1.2 0 0 0 0-2.4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+              Wind
+            </div>
+          </div>
+        </div>
+        <div class="mol-card-desc" style="color:var(--content-tertiary);">route-alt1 sage stripe · border.default rgba · weather badge tints unchanged (semantic)</div>
+      </div>
+
+      <!-- Alt 2 · dark -->
+      <div class="mol-card">
+        <div class="mol-card-label" style="color:var(--signal-default);">Alt 2 · unselected · dark</div>
+        <div class="rt-card v-alt2">
+          <div class="rt-card-head">
+            <div class="rt-card-title">Coast Highway</div>
+          </div>
+          <div class="rt-card-via">via Hwy 1 · Devil's Slide</div>
+          <div class="rt-card-meta">
+            <div class="rt-meta-group">82 mi</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-meta-group">2h 48m</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-scenic-dots">
+              <div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d"></div>
+            </div>
+            <div class="rt-scenic-label">Scenic</div>
+          </div>
+          <div class="rt-card-right">
+            <div class="wx-badge wx-rain">
+              <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 2a2.2 2.2 0 0 1 4 1 1.8 1.8 0 0 1-.5 3.5H3" stroke="currentColor" stroke-width="1" fill="none"/><line x1="3" y1="8" x2="2.5" y2="9.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="5.5" y1="8" x2="5" y2="9.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+              Rain
+            </div>
+          </div>
+        </div>
+        <div class="mol-card-desc" style="color:var(--content-tertiary);">route-alt2 slate stripe · rain badge · 4 scenic dots filled · ink-300 empty dots</div>
+      </div>
+
+      <!-- With favorite flag · dark -->
+      <div class="mol-card">
+        <div class="mol-card-label" style="color:var(--signal-default);">With favorite flag · dark</div>
+        <div class="rt-card v-best selected">
+          <div class="rt-card-head">
+            <div class="rt-best-badge">
+              <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><path d="M4 1l.94 2.06L7 3.24l-1.5 1.46.35 2.06L4 5.69l-2.19.99.35-2.06L.72 3.24l2.06-.18z" fill="currentColor"/></svg>
+              Best
+            </div>
+            <div class="rt-card-title">The Skyline Spine</div>
+          </div>
+          <div class="rt-card-via">via Hwy 9 · Skyline Blvd</div>
+          <div class="rt-card-meta">
+            <div class="rt-meta-group">64 mi</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-meta-group">2h 10m</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-scenic-dots">
+              <div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div>
+            </div>
+            <div class="rt-scenic-label">Scenic</div>
+          </div>
+          <div class="rt-fav-row">
+            <svg class="rt-fav-icon" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M6 10.5s-5-3.5-5-6.5a3 3 0 0 1 5-2.24A3 3 0 0 1 11 4c0 3-5 6.5-5 6.5z" fill="currentColor"/></svg>
+            <div class="rt-fav-label">Includes Sunset Climb</div>
+          </div>
+          <div class="rt-card-right">
+            <div class="wx-badge wx-clear">
+              <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="2" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="5" y1="0.5" x2="5" y2="1.8"/><line x1="5" y1="8.2" x2="5" y2="9.5"/><line x1="0.5" y1="5" x2="1.8" y2="5"/><line x1="8.2" y1="5" x2="9.5" y2="5"/></g></svg>
+              Clear
+            </div>
+          </div>
+        </div>
+        <div class="mol-card-desc" style="color:var(--content-tertiary);">Favorite heart + label in signal.default copper — pops on ink-700 surface · selected copper tint preserved</div>
+      </div>
+
+    </div>
+
   </section>
 </div>
 
