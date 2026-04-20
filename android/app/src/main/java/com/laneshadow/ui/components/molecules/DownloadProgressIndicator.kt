@@ -152,7 +152,7 @@ fun DownloadProgressIndicator(
         if (state == DownloadState.Downloading && onCancel != null) {
             Button(
                 variant = ButtonVariant.Ghost,
-                size = ButtonSize.Small,
+                size = ButtonSize.Sm,
                 text = "Cancel Download",
                 onPress = onCancel,
                 accessibilityLabel = "Cancel Download",

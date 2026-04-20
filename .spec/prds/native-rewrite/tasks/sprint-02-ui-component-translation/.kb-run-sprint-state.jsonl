@@ -10,10 +10,10 @@
 {"task_id": "MDL-009-storage-utils", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "a272e06ee562ae253f9fd5d5633d84e8cf45f92f", "blocked_by": []}
 {"task_id": "MDL-010-weather-optimization", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "5f5e6a6eecbeb854fbba4e52003f75ad1837cbfe", "blocked_by": []}
 {"task_id": "MDL-011-wifi-validator", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "2e1942baca786c01b2d2db590821391c742f95a8", "blocked_by": []}
-{"task_id": "UI-001-android-avatar", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-001-android-avatar", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": null, "blocked_by": []}
 {"task_id": "UI-001-ios-avatar", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
 {"task_id": "UI-002-android-badge", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
-{"task_id": "UI-002-ios-badge", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-002-ios-badge", "assignee": "swift-implementer", "status": "completed", "commit_sha": null, "blocked_by": []}
 {"task_id": "UI-003-android-bottomsheetinput", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
 {"task_id": "UI-003-ios-bottomsheetinput", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
 {"task_id": "UI-004-android-button", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}

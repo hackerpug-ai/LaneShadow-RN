@@ -154,7 +154,7 @@ fun FavoritesInfoSheet(
             // Got it button (default variant, lg size, full width)
             Button(
                 variant = ButtonVariant.Default,
-                size = ButtonSize.Large,
+                size = ButtonSize.Lg,
                 text = "Got it",
                 onPress = onClose,
                 modifier = Modifier
