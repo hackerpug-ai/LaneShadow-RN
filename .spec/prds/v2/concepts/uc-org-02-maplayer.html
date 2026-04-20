@@ -518,6 +518,149 @@ body{font-family:var(--font-ui);color:var(--content-primary);background:var(--su
       </div>
 
     </div>
+
+    <!-- Dark Mode Stories -->
+    <h3 style="margin-top: 48px; margin-bottom: 32px; font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);">Map Layer — Dark</h3>
+
+    <div class="screens-grid mode-dark" style="background: var(--ink-800); padding: 32px 32px 32px 152px; border-radius: 12px;">
+
+      <!-- Dark S.01: Map Only -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen mode-dark">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 598" fill="none">
+                <path d="M40 300 Q100 240 138 200 Q180 160 220 180" stroke="var(--map-contour)" stroke-width="1.5" fill="none" opacity="0.6"/>
+                <path d="M30 350 Q90 310 150 280 Q200 250 250 260" stroke="var(--map-contour)" stroke-width="1" fill="none" opacity="0.4"/>
+              </svg>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num" style="color:var(--signal-default);">D.01</div>
+          <div class="screen-name" style="color:var(--ink-050);">Map Only · Dark</div>
+          <div class="screen-desc" style="color:var(--ink-100);">map-paper resolves to #1B140E. Grid contours use ink-tinted alpha. Home indicator adopts white 30% opacity.</div>
+        </div>
+      </div>
+
+      <!-- Dark S.02: Map + TopBar -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen mode-dark">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="topbar-slot">
+              <div class="ls-topbar">
+                <div class="chrome-chip circular">
+                  <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+                    <rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                    <rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                    <rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div class="chrome-chip pill">
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  <span class="t-label-sm">NEW</span>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num" style="color:var(--signal-default);">D.02</div>
+          <div class="screen-name" style="color:var(--ink-050);">Map + TopBar · Dark</div>
+          <div class="screen-desc" style="color:var(--ink-100);">Glass chips re-resolve to dark tinted glass. Border adopts ink-alpha rgba(242,238,232,0.12). Scrim gradient deepens.</div>
+        </div>
+      </div>
+
+      <!-- Dark S.04: Map + Bottom Overlay (ChatInput) -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen mode-dark">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 598" fill="none">
+                <path d="M40 300 Q100 240 138 200 Q180 160 220 180" stroke="var(--map-contour)" stroke-width="1.5" fill="none" opacity="0.6"/>
+              </svg>
+            </div>
+            <div class="bottom-overlay-slot">
+              <div class="chat-mini">
+                <div class="chat-mini-field">Where do you want to ride?</div>
+                <div class="chat-mini-send">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 14L14 8L2 2V7L10 8L2 9V14Z" fill="currentColor"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="topbar-slot">
+              <div class="ls-topbar">
+                <div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div>
+                <div class="chrome-chip pill"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="t-label-sm">NEW</span></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num" style="color:var(--signal-default);">D.04</div>
+          <div class="screen-name" style="color:var(--ink-050);">Map + Bottom Overlay · Dark</div>
+          <div class="screen-desc" style="color:var(--ink-100);">ChatInput glass tint + border resolve against dark map. ink-alpha border activates via .mode-dark .chat-mini override.</div>
+        </div>
+      </div>
+
+      <!-- Dark S.07: Full Stack -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen mode-dark">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 598" fill="none">
+                <path d="M60 220 Q100 190 140 170 Q180 150 220 165" stroke="var(--route-best)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="map-scrim" style="opacity:0.2;"></div>
+            <div class="top-overlay-slot" style="top:108px;">
+              <div class="nav-msg-mini">
+                <div class="nav-msg-label">The Navigator</div>
+                <div class="nav-msg-body">Best route selected.</div>
+              </div>
+            </div>
+            <div class="bottom-overlay-slot">
+              <div class="chat-mini">
+                <div class="chat-mini-field">Refine route…</div>
+                <div class="chat-mini-send"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M2 14L14 8L2 2V7L10 8L2 9V14Z" fill="currentColor"/></svg></div>
+              </div>
+            </div>
+            <div class="bottom-sheet-slot">
+              <div class="sheet-mini">
+                <div class="sheet-handle-mini"></div>
+                <div class="sheet-title-mini">The Skyline Spine</div>
+                <div class="sheet-actions-mini">
+                  <div class="sheet-btn-mini sheet-btn-outline">Save</div>
+                  <div class="sheet-btn-mini sheet-btn-primary">Ride this</div>
+                </div>
+              </div>
+            </div>
+            <div class="topbar-slot">
+              <div class="ls-topbar">
+                <div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div>
+                <div class="chrome-chip pill"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="t-label-sm">NEW</span></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num" style="color:var(--signal-default);">D.07</div>
+          <div class="screen-name" style="color:var(--ink-050);">Full Stack · Dark</div>
+          <div class="screen-desc" style="color:var(--ink-100);">All seven slots on dark canvas. Deeper scrim (rgba 0,0,0,0.40), ink-alpha glass borders, RouteSheet surface resolves to ink-700.</div>
+        </div>
+      </div>
+
+    </div><!-- /dark stories -->
+
   </section>
 </div>
 
