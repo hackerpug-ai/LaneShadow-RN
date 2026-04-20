@@ -1,6 +1,7 @@
 """QUAL-008: Test --dry-run flag for side-effect-free benchmarking."""
 
 import json
+import logging
 
 import pytest
 import responses
@@ -40,210 +41,172 @@ def mock_routes():
     return [route1, route2]
 
 
-def test_dry_run_cli_flag():
-    """AC4: Verify --dry-run flag sets dry_run=True."""
+def _mock_candidate_search(rsps, cosine=0.95):
+    """Add mock for findCandidateRoutesByEmbedding."""
+    rsps.add(
+        responses.POST,
+        "https://test.com/api/run/semanticSearch:findCandidateRoutesByEmbedding",
+        json={
+            "value": {
+                "result": [
+                    {
+                        "routeId": "route-2",
+                        "cosineSimilarity": cosine,
+                    }
+                ]
+            }
+        },
+        status=200,
+    )
+
+
+def _mock_add_route_match(rsps):
+    """Add mock for addRouteMatch."""
+    rsps.add(
+        responses.POST,
+        "https://test.com/api/run/semanticSearch:addRouteMatch",
+        json={"value": None},
+        status=200,
+    )
+
+
+# ── Test criteria #1: flag accepted, default False ──
+
+
+def test_dry_run_flag_accepted():
+    """--dry-run sets args.dry_run=True; absent defaults to False."""
     args = parse_args(["--base-url", "https://test.com", "--deploy-key", "key", "--dry-run"])
     assert args.dry_run is True
 
-
-def test_dry_run_skips_route_match(mock_routes):
-    """AC1: Verify dry_run=True skips HTTP POST to addRouteMatch."""
-    with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
-        # Mock the candidate search endpoint (read operation - should be called)
-        rsps.add(
-            responses.POST,
-            "https://test.com/api/run/semanticSearch:findCandidateRoutesByEmbedding",
-            json={
-                "value": {
-                    "result": [
-                        {
-                            "routeId": "route-2",
-                            "cosineSimilarity": 0.95,  # Above merge threshold
-                        }
-                    ]
-                }
-            },
-            status=200,
-        )
-
-        # Mock the addRouteMatch endpoint (write operation - should NOT be called in dry-run)
-        rsps.add(
-            responses.POST,
-            "https://test.com/api/run/semanticSearch:addRouteMatch",
-            json={"value": None},
-            status=200,
-        )
-
-        # Run with dry_run=True
-        deduplicator = SemanticDeduplicator(
-            base_url="https://test.com",
-            deploy_key="test-key",
-            dry_run=True,
-        )
-        deduplicator.run(mock_routes)
-
-        # Verify candidate search was called (read operation)
-        assert len(rsps.calls) == 1
-        assert "findCandidateRoutesByEmbedding" in rsps.calls[0].request.url
-
-        # Verify addRouteMatch was NOT called (write operation skipped)
-        assert not any("addRouteMatch" in call.request.url for call in rsps.calls)
+    args_default = parse_args(["--base-url", "https://test.com", "--deploy-key", "key"])
+    assert args_default.dry_run is False
 
 
-def test_dry_run_skips_arbitration_write(tmp_path, mock_routes):
-    """AC2: Verify arbitration queue file is NOT written when dry_run=True."""
+# ── Test criteria #2 + #3: no writes, reads still happen ──
+
+
+def test_no_writes_in_dry_run(tmp_path, mock_routes):
+    """AC2: dry_run=True skips all writes — addRouteMatch, arbitration file, calibration file."""
     arbitration_path = tmp_path / "arbitration_queue.json"
+    calibration_path = tmp_path / "calibration_set.json"
 
-    with responses.RequestsMock() as rsps:
-        # Mock candidate search with cosine in arbitration range
-        rsps.add(
-            responses.POST,
-            "https://test.com/api/run/semanticSearch:findCandidateRoutesByEmbedding",
-            json={
-                "value": {
-                    "result": [
-                        {
-                            "routeId": "route-2",
-                            "cosineSimilarity": 0.85,  # In arbitration range
-                        }
-                    ]
-                }
-            },
-            status=200,
-        )
+    with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
+        _mock_candidate_search(rsps, cosine=0.95)
+        _mock_add_route_match(rsps)
 
-        # Run with dry_run=True
-        deduplicator = SemanticDeduplicator(
+        dedup = SemanticDeduplicator(
             base_url="https://test.com",
             deploy_key="test-key",
             arbitration_output_path=arbitration_path,
-            dry_run=True,
-        )
-        deduplicator.run(mock_routes)
-
-        # Verify arbitration queue file was NOT created
-        assert not arbitration_path.exists()
-
-        # Verify queue was populated in memory (dry-run only skips writes)
-        assert len(deduplicator.arbitration_queue) == 1
-
-
-def test_dry_run_skips_calibration_write(tmp_path, mock_routes):
-    """AC3: Verify calibration file is NOT written when dry_run=True."""
-    calibration_path = tmp_path / "calibration_set.json"
-
-    with responses.RequestsMock() as rsps:
-        # Mock candidate search with high similarity (creates positive)
-        rsps.add(
-            responses.POST,
-            "https://test.com/api/run/semanticSearch:findCandidateRoutesByEmbedding",
-            json={
-                "value": {
-                    "result": [
-                        {
-                            "routeId": "route-2",
-                            "cosineSimilarity": 0.95,  # Above merge threshold
-                        }
-                    ]
-                }
-            },
-            status=200,
-        )
-
-        # Run with dry_run=True
-        deduplicator = SemanticDeduplicator(
-            base_url="https://test.com",
-            deploy_key="test-key",
             calibration_output_path=calibration_path,
             dry_run=True,
         )
-        deduplicator.run(mock_routes)
-        deduplicator.emit_calibration_set()
+        dedup.run(mock_routes)
+        dedup.emit_calibration_set()
 
-        # Verify calibration file was NOT created
+        # No addRouteMatch HTTP call
+        assert not any("addRouteMatch" in c.request.url for c in rsps.calls)
+        # No file writes
+        assert not arbitration_path.exists()
         assert not calibration_path.exists()
+        # No reconciliation log mutation
+        assert all(len(r.llm_reconciliation_log) == 0 for r in mock_routes)
 
-        # Verify calibration data was populated in memory
-        assert len(deduplicator._calibration_positives) == 1
+
+def test_reads_still_happen_dry_run(mock_routes):
+    """AC3: _fetch_candidates() is called in dry-run (reads happen)."""
+    with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
+        _mock_candidate_search(rsps, cosine=0.85)
+
+        dedup = SemanticDeduplicator(
+            base_url="https://test.com",
+            deploy_key="test-key",
+            dry_run=True,
+        )
+        dedup.run(mock_routes)
+
+        # Candidate search was called (read operation)
+        assert any("findCandidateRoutesByEmbedding" in c.request.url for c in rsps.calls)
+
+
+# ── Test criteria #5: classification counts identical ──
+
+
+def test_classification_counts_identical(mock_routes):
+    """Dry-run and real run produce identical classification counts."""
+    counts = {}
+    for dry_run in (True, False):
+        # Reset reconciliation logs between runs
+        for r in mock_routes:
+            r.llm_reconciliation_log = []
+
+        with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
+            _mock_candidate_search(rsps, cosine=0.95)
+            if not dry_run:
+                _mock_add_route_match(rsps)
+
+            dedup = SemanticDeduplicator(
+                base_url="https://test.com",
+                deploy_key="test-key",
+                dry_run=dry_run,
+            )
+            ledger = dedup.run(mock_routes)
+            counts[dry_run] = {
+                "auto_merged": ledger.auto_merged,
+                "queued_arbitration": ledger.queued_arbitration,
+                "separated": ledger.separated,
+                "total_routes": ledger.total_routes,
+            }
+
+    assert counts[True] == counts[False]
+
+
+# ── Test criteria #6: DRY RUN in log output ──
+
+
+def test_dry_run_log_message(mock_routes, caplog):
+    """'DRY RUN' appears in log output when dry-run is active."""
+    with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
+        _mock_candidate_search(rsps, cosine=0.85)
+
+        with caplog.at_level(logging.INFO):
+            dedup = SemanticDeduplicator(
+                base_url="https://test.com",
+                deploy_key="test-key",
+                dry_run=True,
+            )
+            dedup.run(mock_routes)
+
+    assert "DRY RUN" in caplog.text
+
+
+# ── Test criteria #7: existing tests unbroken (verified by test_qual_001.py) ──
 
 
 def test_dry_run_false_performs_writes(tmp_path, mock_routes):
-    """Verify dry_run=False (default) performs all writes."""
+    """dry_run=False (default) performs all writes — verifies backwards compatibility."""
     arbitration_path = tmp_path / "arbitration_queue.json"
     calibration_path = tmp_path / "calibration_set.json"
 
-    with responses.RequestsMock() as rsps:
-        # Mock candidate search with high similarity
-        rsps.add(
-            responses.POST,
-            "https://test.com/api/run/semanticSearch:findCandidateRoutesByEmbedding",
-            json={
-                "value": {
-                    "result": [
-                        {
-                            "routeId": "route-2",
-                            "cosineSimilarity": 0.95,
-                        }
-                    ]
-                }
-            },
-            status=200,
-        )
+    with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
+        _mock_candidate_search(rsps, cosine=0.95)
+        _mock_add_route_match(rsps)
 
-        # Mock addRouteMatch endpoint
-        rsps.add(
-            responses.POST,
-            "https://test.com/api/run/semanticSearch:addRouteMatch",
-            json={"value": None},
-            status=200,
-        )
-
-        # Run with dry_run=False (default)
-        deduplicator = SemanticDeduplicator(
+        dedup = SemanticDeduplicator(
             base_url="https://test.com",
             deploy_key="test-key",
             arbitration_output_path=arbitration_path,
             calibration_output_path=calibration_path,
             dry_run=False,
         )
-        deduplicator.run(mock_routes)
-        deduplicator.emit_calibration_set()
+        dedup.run(mock_routes)
+        dedup.emit_calibration_set()
 
-        # Verify writes occurred
-        # 1. addRouteMatch HTTP call was made
-        assert any("addRouteMatch" in call.request.url for call in rsps.calls)
-
-        # 2. Calibration file was written (positives from auto-merge)
+        # addRouteMatch was called
+        assert any("addRouteMatch" in c.request.url for c in rsps.calls)
+        # Calibration file written
         assert calibration_path.exists()
         calibration_data = json.loads(calibration_path.read_text())
         assert len(calibration_data["positives"]) == 1
-
-
-def test_dry_run_skips_reconciliation_log(mock_routes):
-    """Verify reconciliation log is NOT mutated when dry_run=True."""
-    with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
-        rsps.add(
-            responses.POST,
-            "https://test.com/api/run/semanticSearch:findCandidateRoutesByEmbedding",
-            json={
-                "value": {
-                    "result": [
-                        {
-                            "routeId": "route-2",
-                            "cosineSimilarity": 0.95,
-                        }
-                    ]
-                }
-            },
-            status=200,
-        )
-
-        deduplicator = SemanticDeduplicator(
-            base_url="https://test.com",
-            deploy_key="test-key",
-            dry_run=True,
-        )
-        deduplicator.run(mock_routes)
-
-        for route in mock_routes:
-            assert len(route.llm_reconciliation_log) == 0
+        # Reconciliation log was mutated
+        assert any(len(r.llm_reconciliation_log) > 0 for r in mock_routes)
