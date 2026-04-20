@@ -1,0 +1,49 @@
+{
+  "verdict": "PASS",
+  "exit_code": 0,
+  "run_id": "qual-005-baseline",
+  "timestamp": "2026-04-20T19:47:20+00:00",
+  "metrics": [
+    {
+      "name": "completeness_pct",
+      "current": 0.86,
+      "previous": null,
+      "delta": "n/a",
+      "threshold": 0.1,
+      "passed": true
+    },
+    {
+      "name": "source_overlap_pct",
+      "current": 0.64,
+      "previous": null,
+      "delta": "n/a",
+      "threshold": 0.1,
+      "passed": true
+    },
+    {
+      "name": "extraction_success_rate",
+      "current": 0.93,
+      "previous": null,
+      "delta": "n/a",
+      "threshold": 0.1,
+      "passed": true
+    },
+    {
+      "name": "dedup_merge_rate",
+      "current": 0.21,
+      "previous": null,
+      "delta": "n/a",
+      "threshold": 0.1,
+      "passed": true
+    },
+    {
+      "name": "quality_floor_exclusion_rate",
+      "current": 0.08,
+      "previous": null,
+      "delta": "n/a",
+      "threshold": 0.1,
+      "passed": true
+    }
+  ],
+  "violations": []
+}
