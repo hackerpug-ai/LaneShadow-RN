@@ -47,12 +47,12 @@ enum class BadgeVariant {
  */
 @Composable
 fun Badge(
-    variant: BadgeVariant = BadgeVariant.Default,
     text: String,
+    modifier: Modifier = Modifier,
+    variant: BadgeVariant = BadgeVariant.Default,
     icon: @Composable (() -> Unit)? = null,
     opacity: Float = 1.0f,
     contentDescription: String? = null,
-    modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
 
