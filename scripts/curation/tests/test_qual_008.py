@@ -217,3 +217,33 @@ def test_dry_run_false_performs_writes(tmp_path, mock_routes):
         assert calibration_path.exists()
         calibration_data = json.loads(calibration_path.read_text())
         assert len(calibration_data["positives"]) == 1
+
+
+def test_dry_run_skips_reconciliation_log(mock_routes):
+    """Verify reconciliation log is NOT mutated when dry_run=True."""
+    with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
+        rsps.add(
+            responses.POST,
+            "https://test.com/api/run/semanticSearch:findCandidateRoutesByEmbedding",
+            json={
+                "value": {
+                    "result": [
+                        {
+                            "routeId": "route-2",
+                            "cosineSimilarity": 0.95,
+                        }
+                    ]
+                }
+            },
+            status=200,
+        )
+
+        deduplicator = SemanticDeduplicator(
+            base_url="https://test.com",
+            deploy_key="test-key",
+            dry_run=True,
+        )
+        deduplicator.run(mock_routes)
+
+        for route in mock_routes:
+            assert len(route.llm_reconciliation_log) == 0

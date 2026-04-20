@@ -78,7 +78,7 @@ class SemanticDeduplicator:
         """Process all routes and classify candidate pairs for merge/arbitration/separate."""
         started = time.monotonic()
         if self.dry_run:
-            logger.info("dry-run mode: skipping all writes")
+            logger.info("DRY RUN — no writes performed")
         self.cost_ledger.total_routes = len(routes)
 
         route_by_id = {route.route_id: route for route in routes}
