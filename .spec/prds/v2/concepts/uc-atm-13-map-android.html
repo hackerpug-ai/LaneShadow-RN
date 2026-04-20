@@ -41,6 +41,31 @@
   --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
 }
 
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+  --surface-scrim:     rgba(10,6,3,0.50);
+  --map-paper:         #1B140E;
+  --map-contour:       rgba(242,238,232,0.16);
+  --map-contour-faint: rgba(242,238,232,0.07);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+
 body {
   font-family: var(--font-ui);
   color: var(--content-primary);
@@ -867,6 +892,125 @@ fun</span> <span class="code-type">LSMap</span>(
       <div class="test-item">JUnit + Compose UI: scroll-isolation — interactive LSMap inside LazyColumn → vertical drag originating above composable bounds scrolls the LazyColumn, not the map.</div>
       <div class="test-item">JUnit + Compose UI: no-symbol-leak — post-build lint check confirms zero references to Icons.Filled.* / Icons.Outlined.* in LSMap implementation files.</div>
       <div class="test-item">JUnit + Compose UI: dark style no-unmount — toggle isSystemInDarkTheme(); verify MapView instance identity is preserved in AndroidView (same reference across recomposition).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ §07 DARK MODE ══════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§07</div>
+      <h2 class="section-title">Dark <em>Android</em></h2>
+    </div>
+    <p class="prose">Dark map on Android (Story 7 — Dark Style) uses <em>map.style.dark</em> loaded via <em>mapView.getMapboxMap().loadStyleUri()</em>. The MapView instance is preserved across theme changes — the AndroidView composable's <em>update</em> lambda calls loadStyleUri() in-place when <em>isSystemInDarkTheme()</em> changes, mirroring the iOS no-unmount guarantee. The design-system mock renders with <em>background #1B140E</em> and contour <em>rgba(242,238,232,0.16)</em>. Glass chrome chips use <em>rgba(242,238,232,0.12)</em> border. Android punch-hole camera remains dark.</p>
+    <p class="prose" style="margin-top:20px;">Route stroke tokens are visually identical to iOS dark (Story 7 parity). Annotation dot borders flip to ink-700 identical to iOS. QA visual diff confirms the only permitted difference is the Android punch-hole vs iOS Dynamic Island chrome.</p>
+
+    <h3 style="margin-top: 48px; margin-bottom: 32px; font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);">LSMap Android — Dark</h3>
+
+    <div class="stories-grid mode-dark" style="background: var(--ink-800); padding: 48px 48px 48px 200px; border-radius: 12px;">
+
+      <!-- Dark: Preview (static) — Android punch-hole -->
+      <div class="story-cell">
+        <div class="phone-frame">
+          <div class="phone-screen" style="background:#221810;color:#F2EEE8;">
+            <div class="phone-camera" style="background:#1a1a1a;"></div>
+            <div class="pmap-dark">
+              <svg class="pmap-svg" viewBox="0 0 282 600" preserveAspectRatio="xMidYMid slice">
+                <path d="M0,280 C40,265 80,275 120,260 C160,246 200,255 282,244" fill="none" stroke="rgba(242,238,232,0.16)" stroke-width="1"/>
+                <path d="M0,320 C50,308 90,318 140,304 C180,292 220,301 282,290" fill="none" stroke="rgba(242,238,232,0.16)" stroke-width="1"/>
+                <path d="M0,360 C60,350 100,357 160,347 C200,340 240,347 282,337" fill="none" stroke="rgba(242,238,232,0.16)" stroke-width="1"/>
+              </svg>
+            </div>
+            <div class="ls-topbar" style="z-index:30;top:36px;">
+              <div style="width:40px;height:40px;border-radius:50%;background:rgba(45,34,24,0.72);border:1px solid rgba(242,238,232,0.12);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(14px);">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#F2EEE8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 5l-5 5 5 5"/></svg>
+              </div>
+              <div style="padding:0 14px;height:40px;border-radius:22px;background:rgba(45,34,24,0.72);border:1px solid rgba(242,238,232,0.12);display:flex;align-items:center;gap:6px;backdrop-filter:blur(14px);color:#F2EEE8;">
+                <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7.5"/><path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/></svg>
+                <span style="font-family:var(--font-ui);font-size:11px;font-weight:500;">San Francisco</span>
+              </div>
+            </div>
+            <div class="phone-hi" style="background:rgba(255,255,255,0.30);"></div>
+          </div>
+        </div>
+        <div class="story-annotation">
+          <span class="story-num" style="color:var(--signal-default);">Story 1 / 9 — Dark</span>
+          <span class="story-badge">Preview (static) · Dark</span>
+          <p class="story-name" style="color:#F2EEE8;">Preview — Dark Style</p>
+          <p class="story-desc" style="color:#CAC4D0;">MapMode.Preview · map.style.dark · tile #1B140E · punch-hole camera · chrome rgba(242,238,232,0.12) border. Parity: identical to iOS Story 7 except punch-hole vs Dynamic Island.</p>
+          <span class="parity-check">iOS parity: story name matches UC-ATM-12</span>
+        </div>
+      </div>
+
+      <!-- Dark: Three Alt Polylines — Android punch-hole -->
+      <div class="story-cell">
+        <div class="phone-frame">
+          <div class="phone-screen" style="background:#221810;color:#F2EEE8;">
+            <div class="phone-camera" style="background:#1a1a1a;"></div>
+            <div class="pmap-dark">
+              <svg class="pmap-svg" viewBox="0 0 282 600" preserveAspectRatio="xMidYMid slice">
+                <path d="M0,300 C50,288 100,296 160,282 C210,271 252,278 282,268" fill="none" stroke="rgba(242,238,232,0.16)" stroke-width="1"/>
+              </svg>
+            </div>
+            <svg class="routes-svg" viewBox="0 0 282 600" preserveAspectRatio="none">
+              <path class="route-alt2" d="M55,490 C75,435 100,395 132,348 C162,305 195,260 224,218 C244,186 258,162 265,132"/>
+              <path class="route-alt1" d="M58,485 C77,428 106,387 140,338 C170,294 200,250 227,210 C246,178 260,155 267,126"/>
+              <path fill="none" stroke="#EE7C2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" filter="url(#best-shadow-and-dark)" d="M60,480 C80,420 110,380 145,330 C175,285 205,240 230,200 C248,170 260,148 268,120"/>
+              <defs>
+                <filter id="best-shadow-and-dark" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="rgba(238,124,43,0.55)"/>
+                </filter>
+              </defs>
+            </svg>
+            <div class="phone-hi" style="background:rgba(255,255,255,0.30);"></div>
+          </div>
+        </div>
+        <div class="story-annotation">
+          <span class="story-num" style="color:var(--signal-default);">Story 4 / 9 — Dark</span>
+          <span class="story-badge">Three Alt Polylines · Dark</span>
+          <p class="story-name" style="color:#F2EEE8;">Three Polylines — Dark Tile</p>
+          <p class="story-desc" style="color:#CAC4D0;">Three LineLayers on dark tile — best copper glow 55% · alt1 sage · alt2 slate. Identical to iOS Story 4 dark per parity manifest.</p>
+          <span class="parity-check">iOS parity: story name matches UC-ATM-12</span>
+        </div>
+      </div>
+
+      <!-- Dark: Start + End Markers — Android punch-hole -->
+      <div class="story-cell">
+        <div class="phone-frame">
+          <div class="phone-screen" style="background:#221810;color:#F2EEE8;">
+            <div class="phone-camera" style="background:#1a1a1a;"></div>
+            <div class="pmap-dark">
+              <svg class="pmap-svg" viewBox="0 0 282 600" preserveAspectRatio="xMidYMid slice">
+                <path d="M0,310 C60,296 120,305 180,290 C220,278 252,285 282,275" fill="none" stroke="rgba(242,238,232,0.16)" stroke-width="1"/>
+              </svg>
+            </div>
+            <svg class="routes-svg" viewBox="0 0 282 600" preserveAspectRatio="none">
+              <path fill="none" stroke="#EE7C2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" filter="url(#best-shadow-and-dark2)" d="M60,480 C80,420 110,380 145,330 C175,285 205,240 230,200 C248,170 260,148 268,120"/>
+              <defs>
+                <filter id="best-shadow-and-dark2" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="rgba(238,124,43,0.55)"/>
+                </filter>
+              </defs>
+            </svg>
+            <!-- start marker — border ink-700 in dark -->
+            <div class="rt-marker" style="left:53px;bottom:110px;width:14px;height:14px;border-radius:50%;background:#3D8A5E;border:2.5px solid #2D2218;box-shadow:0 2px 6px rgba(61,138,94,0.55);"></div>
+            <!-- end marker — inner bg ink-700 in dark -->
+            <div class="rt-marker" style="right:7px;top:118px;width:18px;height:18px;border-radius:50%;background:#2D2218;border:2.5px solid #C43C3C;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.45);">
+              <div style="width:6px;height:6px;border-radius:50%;background:#C43C3C;"></div>
+            </div>
+            <div class="phone-hi" style="background:rgba(255,255,255,0.30);"></div>
+          </div>
+        </div>
+        <div class="story-annotation">
+          <span class="story-num" style="color:var(--signal-default);">Story 5 / 9 — Dark</span>
+          <span class="story-badge">Start+End Markers · Dark</span>
+          <p class="story-name" style="color:#F2EEE8;">Annotations — Dark Tile</p>
+          <p class="story-desc" style="color:#CAC4D0;">CircleAnnotationManager: start border → ink-700 · end bg → ink-700. Status fill colors unchanged. dp sizes identical to iOS pt (14dp / 18dp). QA diff: punch-hole only diff permitted.</p>
+          <span class="parity-check">iOS parity: story name matches UC-ATM-12</span>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>

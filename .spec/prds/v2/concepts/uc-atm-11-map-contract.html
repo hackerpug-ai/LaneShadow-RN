@@ -46,6 +46,31 @@
   --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
 }
 
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+  --surface-scrim:     rgba(10,6,3,0.50);
+  --map-paper:         #1B140E;
+  --map-contour:       rgba(242,238,232,0.16);
+  --map-contour-faint: rgba(242,238,232,0.07);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+
 body {
   font-family: var(--font-ui);
   color: var(--content-primary);
@@ -826,6 +851,112 @@ body {
       <div class="ac-item"><span class="ac-ref">AC-06</span>Android stub analogous to iOS — type-checks, compiles, renders fallback until UC-ATM-13 replaces it.</div>
       <div class="ac-item"><span class="ac-ref">AC-07</span>"Atoms / Map (stub)" story renders fallback on both platforms — proving token + fixture pipeline is wired end-to-end before SDK code lands.</div>
     </div>
+  </div>
+</section>
+
+<!-- ══ §07 DARK MODE CONTRACT ═════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-header">
+      <div class="section-index">§07</div>
+      <h2 class="section-title">Dark Map <em>Contract</em></h2>
+    </div>
+    <p class="prose">In dark mode the map tile surface and all design-system chrome invert to the ink palette. The tile backgrounds switch via <em>map.style.dark</em> → Mapbox Studio URL. Within this design-system mock the tile inversion is represented by <em>--map-paper: #1B140E</em> with <em>--map-contour: rgba(242,238,232,0.16)</em> grid lines. Route stroke tokens (<em>color.route.best/alt1/alt2</em>) are unchanged — copper-500, sage, and slate all remain legible on dark tile backgrounds. Annotation dot border color flips from <em>surface.card (paper-50)</em> to <em>surface.card (ink-700)</em> to preserve contrast against the dark tile.</p>
+    <p class="prose" style="margin-top:20px;">The contract property <em>map.style.dark</em> = <strong>mapbox://styles/laneshadow/copper-dark</strong> — the Studio style handles the tile inversion; no app-layer color manipulation is needed for tiles. The tokens above cover only design-system chrome (scrim, glass panels, route strokes, annotations).</p>
+
+    <h3 style="margin-top: 48px; margin-bottom: 32px; font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);">LSMap Contract — Dark</h3>
+
+    <div class="fixture-wrap mode-dark" style="background: var(--ink-800); padding: 32px; border-radius: 12px; margin-left: 0; margin-top: 0;">
+      <p class="fixture-label" style="color: var(--content-tertiary);">route_results_three_alts — dark tile surface · copper route unchanged · dim contour grid</p>
+      <div class="fixture-preview" style="gap: 40px;">
+
+        <!-- Dark map tile preview -->
+        <div>
+          <p style="font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--content-tertiary);margin-bottom:12px;">Dark surface — map.style.dark · --map-paper #1B140E · contour rgba(242,238,232,0.16)</p>
+          <div class="fixture-map-card" style="background: #1B140E; border-color: rgba(242,238,232,0.12);">
+            <!-- Dark contour grid -->
+            <div class="pmap-grid" style="background-image: linear-gradient(rgba(242,238,232,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(242,238,232,0.07) 1px, transparent 1px); background-size: 28px 28px; position: absolute; inset: -8px; opacity: 0.55;"></div>
+            <!-- Dark vignette -->
+            <div class="pmap-vignette" style="background: radial-gradient(120% 60% at 50% 30%, transparent 40%, rgba(0,0,0,0.40) 100%); position: absolute; inset: 0; z-index: 1;"></div>
+
+            <!-- Three polylines — same stroke tokens, dark tile backdrop -->
+            <svg class="routes-overlay" viewBox="0 0 400 300" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;z-index:2;">
+              <!-- alt2 — slate, dotted -->
+              <path d="M60,250 C70,215 95,200 130,182 C168,163 200,140 230,115 C260,92 298,68 340,50"
+                fill="none" stroke="#6B7B8F" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"
+                stroke-dasharray="3 4" opacity="0.80"/>
+              <!-- alt1 — sage, dashed -->
+              <path d="M60,250 C90,210 120,195 155,175 C190,155 215,125 250,105 C280,88 310,72 340,50"
+                fill="none" stroke="#4D8470" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"
+                stroke-dasharray="6 4" opacity="0.88"/>
+              <!-- best — copper with stronger glow on dark -->
+              <path d="M60,250 C80,200 110,180 150,160 C190,140 210,110 240,90 C270,70 300,60 340,50"
+                fill="none" stroke="#EE7C2B" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"
+                filter="url(#best-shadow-dark)"/>
+              <defs>
+                <filter id="best-shadow-dark" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="rgba(238,124,43,0.55)"/>
+                </filter>
+              </defs>
+            </svg>
+
+            <!-- Start marker — border uses ink-700 (surface.card dark) -->
+            <div style="position:absolute;z-index:3;left:46px;bottom:44px;width:14px;height:14px;border-radius:50%;background:#3D8A5E;border:2.5px solid #2D2218;box-shadow:0 2px 6px rgba(61,138,94,0.55);"></div>
+            <!-- End marker — inner surface uses ink-700 -->
+            <div style="position:absolute;z-index:3;right:18px;top:40px;width:18px;height:18px;border-radius:50%;background:#2D2218;border:2.5px solid #C43C3C;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.45);">
+              <div style="width:6px;height:6px;border-radius:50%;background:#C43C3C;"></div>
+            </div>
+
+            <!-- Glass legend caption — dark glass -->
+            <div style="position:absolute;bottom:12px;left:12px;right:12px;z-index:4;background:rgba(45,34,24,0.72);backdrop-filter:blur(10px) saturate(1.2);border:1px solid rgba(242,238,232,0.12);border-radius:8px;padding:8px 12px;display:flex;gap:16px;align-items:center;">
+              <div class="fixture-legend-item" style="color:#F2EEE8;">
+                <div class="legend-line" style="background:#EE7C2B;"></div>
+                <span>best · color.route.best</span>
+              </div>
+              <div class="fixture-legend-item" style="color:#F2EEE8;">
+                <div class="legend-line" style="border-top:2px dashed #4D8470;height:0;background:transparent;"></div>
+                <span>alt1</span>
+              </div>
+              <div class="fixture-legend-item" style="color:#F2EEE8;">
+                <div class="legend-line" style="border-top:2px dotted #6B7B8F;height:0;background:transparent;"></div>
+                <span>alt2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dark contract token summary -->
+        <div>
+          <p style="font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--content-tertiary);margin-bottom:12px;">Dark mode token overrides for map chrome</p>
+          <div class="fixture-schema-block" style="background: var(--ink-600); border-color: rgba(242,238,232,0.10);">
+            <pre style="color:#F2EEE8;font-family:var(--font-instrument);font-size:11.5px;line-height:1.65;"><span style="color:#F3A164;">map.style</span>.<span style="color:#7ECBA8;">dark</span>  = <span style="color:#C4C87E;">"mapbox://styles/laneshadow/copper-dark"</span>
+
+<span style="color:#9CA3AF;">-- tile surface (design-system mock equivalent) --</span>
+<span style="color:#F3A164;">--map-paper</span>          = <span style="color:#C4C87E;">#1B140E</span>
+<span style="color:#F3A164;">--map-contour</span>        = <span style="color:#C4C87E;">rgba(242,238,232,0.16)</span>
+<span style="color:#F3A164;">--map-contour-faint</span>  = <span style="color:#C4C87E;">rgba(242,238,232,0.07)</span>
+
+<span style="color:#9CA3AF;">-- route strokes: UNCHANGED in dark --</span>
+<span style="color:#F3A164;">color.route.best</span>     = <span style="color:#EE7C2B;">#EE7C2B</span>  <span style="color:#9CA3AF;">copper-500</span>
+<span style="color:#F3A164;">color.route.alt1</span>     = <span style="color:#4D8470;">#4D8470</span>  <span style="color:#9CA3AF;">sage</span>
+<span style="color:#F3A164;">color.route.alt2</span>     = <span style="color:#6B7B8F;">#6B7B8F</span>  <span style="color:#9CA3AF;">slate</span>
+
+<span style="color:#9CA3AF;">-- annotation dot border: surface.card → ink-700 --</span>
+<span style="color:#F3A164;">annotation.start.border</span> = <span style="color:#C4C87E;">var(--ink-700)</span>
+<span style="color:#F3A164;">annotation.end.bg</span>       = <span style="color:#C4C87E;">var(--ink-700)</span>
+
+<span style="color:#9CA3AF;">-- glass chrome on dark tiles --</span>
+<span style="color:#F3A164;">--surface-glass</span>      = <span style="color:#C4C87E;">rgba(45,34,24,0.72)</span>
+<span style="color:#F3A164;">--border-default</span>     = <span style="color:#C4C87E;">rgba(242,238,232,0.12)</span></pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </section>
 
