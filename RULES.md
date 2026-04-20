@@ -6,13 +6,14 @@
 
 ## Platforms
 
-This project targets: **iOS, Android, Web**
+This project targets: **iOS, Android, Web, Convex**
 
 | Platform | Status | Notes |
 |----------|--------|-------|
 | iOS | Required | Native Swift/SwiftUI implementation |
 | Android | Required | Native Kotlin/Compose implementation |
 | Web | Required | React-based web platform |
+| Convex | Required | Backend (API, database, subscriptions) |
 | Desktop | Not targeted | - |
 
 ---
