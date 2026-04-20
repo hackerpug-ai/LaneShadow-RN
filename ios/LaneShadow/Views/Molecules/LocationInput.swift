@@ -116,8 +116,8 @@ public struct LSLocationInput: View {
                     .font(.system(size: theme.type.body.sm.fontSize, weight: .regular))
                     .foregroundStyle(theme.colors.onSurface.default)
                     .focused($internalFocused)
-                    .onChange(of: internalFocused) { newFocus in
-                        onFocusChange?(newFocus)
+                    .onChange(of: internalFocused) { oldValue, newValue in
+                        onFocusChange?(newValue)
                     }
                     .padding(.horizontal, theme.space.sm)
 
@@ -136,11 +136,11 @@ public struct LSLocationInput: View {
             }
 
             // Suggestions dropdown (flush with input)
-            if isFocused && (isLoading || !suggestions.isEmpty) {
+            if isFocused, isLoading || !suggestions.isEmpty {
                 VStack(spacing: 0) {
                     if isLoading {
                         // Skeleton loading state - 3 rows
-                        ForEach(0..<3, id: \.self) { index in
+                        ForEach(0 ..< 3, id: \.self) { index in
                             skeletonSuggestionRow
                         }
                     } else {
@@ -202,7 +202,7 @@ public struct LSLocationInput: View {
 
     private var bottomBorderRadius: CGFloat {
         // Remove bottom border radius when suggestions showing
-        if isFocused && (isLoading || !suggestions.isEmpty) {
+        if isFocused, isLoading || !suggestions.isEmpty {
             return 0
         }
         return theme.radius.lg
@@ -259,7 +259,7 @@ public struct LSLocationInput: View {
         suggestions: [
             "San Francisco, CA",
             "San Jose, CA",
-            "San Diego, CA"
+            "San Diego, CA",
         ],
         isLoading: false
     )
@@ -302,7 +302,7 @@ public struct LSLocationInput: View {
             suggestions: [
                 "San Francisco, CA",
                 "San Jose, CA",
-                "San Diego, CA"
+                "San Diego, CA",
             ],
             isLoading: false
         )
