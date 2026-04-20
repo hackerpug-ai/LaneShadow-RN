@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<!-- uc-atm-06-pill.html — UC-ATM-06 "LSPill"
+     LaneShadow V2 · Copper · Atom Design Mock · 2026-04-20
+     Atom: LSPill — shape primitive (sm/md/lg)
+     Authority: .spec/prds/v2/05-uc-atm.md §UC-ATM-06 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ATM-06 — LSPill — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM — shared across all UC-ATM mocks.
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:#FDFBF8; --paper-100:#F8F7F6; --paper-150:#F5F2EE; --paper-200:#F2EFED;
+  --paper-300:#EDE7E1; --paper-400:#E5DED9; --paper-500:#C9BDB3;
+  --ink-900:#1E1A16; --ink-800:#221810; --ink-700:#2D2218; --ink-600:#362A1F;
+  --ink-500:#3D3228; --ink-400:#49454F; --ink-300:#6B6460; --ink-200:#9CA3AF;
+  --ink-100:#CAC4D0; --ink-050:#F2EEE8;
+  --copper-700:#9E4A22; --copper-600:#B85A2C; --copper-500:#EE7C2B;
+  --copper-400:#F3A164; --copper-200:#F9D5B5; --copper-100:#FCE8D4;
+  --font-opinion:'Newsreader',Georgia,'Times New Roman',serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono','Menlo',monospace;
+
+  --surface-primary:var(--paper-100); --surface-card:var(--paper-50); --surface-inset:var(--paper-200);
+  --surface-glass:rgba(253,251,248,0.72);
+  --content-primary:var(--ink-900); --content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300); --content-subtle:var(--ink-200);
+  --content-onSignal:#FFFFFF;
+  --signal-default:var(--copper-500); --signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200); --signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400); --border-subtle:var(--paper-300); --border-strong:var(--paper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:0 2px 6px rgba(34,24,16,0.06);
+}
+
+body { background: var(--surface-primary); color: var(--content-primary); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TYPOGRAPHY SCALE
+   ═══════════════════════════════════════════════════════════════════════ */
+.t-opinion-xl  { font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em; }
+.t-opinion-lg  { font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em; }
+.t-title-lg    { font-family:var(--font-ui);font-weight:600;font-size:17px;line-height:1.24;letter-spacing:-0.01em; }
+.t-title-md    { font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em; }
+.t-body-md     { font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52; }
+.t-body-sm     { font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48; }
+.t-label-lg    { font-family:var(--font-ui);font-weight:500;font-size:11px;line-height:1.0;letter-spacing:0.08em;text-transform:uppercase; }
+.t-label-md    { font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase; }
+.t-label-sm    { font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase; }
+.t-instr-lg    { font-family:var(--font-instrument);font-weight:500;font-size:18px;line-height:1.12;letter-spacing:-0.02em;font-feature-settings:"tnum" 1; }
+.t-instr-md    { font-family:var(--font-instrument);font-weight:500;font-size:13px;line-height:1.2;font-feature-settings:"tnum" 1; }
+.t-instr-sm    { font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1; }
+.t-instr-xs    { font-family:var(--font-instrument);font-weight:500;font-size:8.5px;line-height:1.0;font-feature-settings:"tnum" 1; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DOCUMENT CHROME
+   ═══════════════════════════════════════════════════════════════════════ */
+body { font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden; }
+.wrap { max-width:1440px;margin:0 auto;padding:0 72px; }
+.doc-header { position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden; }
+.doc-header::before { content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none; }
+.doc-header>* { position:relative;z-index:1; }
+.doc-eyebrow { display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px; }
+.doc-eyebrow::before { content:"";width:28px;height:1px;background:var(--signal-default); }
+.doc-eyebrow-pill { display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em; }
+.doc-title { font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px; }
+.doc-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.doc-tagline { font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px; }
+.doc-meta-row { display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default); }
+.meta-item { display:flex;flex-direction:column;gap:6px; }
+.meta-label { font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary); }
+.meta-value { font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary); }
+.section { padding:96px 0;border-bottom:1px solid var(--border-default);position:relative; }
+.section:last-child { border-bottom:none; }
+.section-header { display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px; }
+.section-index { font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px; }
+.section-index::before { content:"";display:block;width:48px;height:1px;background:var(--signal-default); }
+.section-title { font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px; }
+.section-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.prose { font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px; }
+.prose+.prose { margin-top:20px; }
+.prose em { font-style:italic; }
+.prose strong { font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px; }
+.ac-cite { font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px; }
+.ac-cite::before { content:"☐";position:absolute;left:0;top:0;color:var(--border-strong); }
+.doc-footer { padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end; }
+.footer-mark { font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;color:var(--content-primary);letter-spacing:-0.02em; }
+.footer-mark em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.footer-mark span { display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300; }
+.footer-note { font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ATOM DEMO LAYOUT
+   ═══════════════════════════════════════════════════════════════════════ */
+.atom-row { display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start;padding-left:152px; }
+.atom-cell { display:flex;flex-direction:column;gap:12px; }
+.atom-label { font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default); }
+.atom-sub { font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);line-height:1.5; }
+
+/* Dimensions table */
+.dim-table { padding-left:152px;display:grid;grid-template-columns:100px 80px 80px 80px 100px 120px 1fr;row-gap:0;column-gap:0; }
+.dim-table>div { padding:10px 14px;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:12px;color:var(--content-secondary); }
+.dim-table>div.head { font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px; }
+.dim-val { font-family:var(--font-instrument);color:var(--content-primary); }
+
+.motion-table { padding-left:152px;display:grid;grid-template-columns:180px 1fr 2fr;row-gap:0; }
+.motion-table>div { padding:10px 0;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:13px; }
+.motion-recipe { font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px; }
+.motion-trigger { color:var(--content-primary);font-weight:500; }
+.motion-effect { color:var(--content-secondary); }
+
+.rationale-grid { padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px; }
+.rationale-block h4 { font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px; }
+.rationale-block p { font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px; }
+.rationale-block ul { list-style:none; }
+.rationale-block li { padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle); }
+.rationale-block li::before { content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument); }
+.rationale-block li strong { font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSPill ATOM
+   radius.pill = 999px (fully rounded)
+   Heights: sm=24px / md=32px / lg=40px
+   Default horizontal padding per size:
+     sm: 8px  (spacing.2)
+     md: 12px (spacing.3)
+     lg: 16px (spacing.4)
+   No default background — inherits from consumer.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.ls-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  flex-shrink: 0;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+/* Size: sm — height 24px */
+.ls-pill.sm {
+  height: 24px;
+  padding: 0 8px;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1;
+}
+.ls-pill.sm.icon-only { width: 24px; padding: 0; }
+
+/* Size: md — height 32px */
+.ls-pill.md {
+  height: 32px;
+  padding: 0 12px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+}
+.ls-pill.md.icon-only { width: 32px; padding: 0; }
+
+/* Size: lg — height 40px */
+.ls-pill.lg {
+  height: 40px;
+  padding: 0 16px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+}
+.ls-pill.lg.icon-only { width: 40px; padding: 0; }
+
+/* Padding override examples */
+.ls-pill.pad-custom-sm  { padding: 0 6px; }
+.ls-pill.pad-custom-lg  { padding: 0 20px; }
+
+/* Demo fill styles — show the shape, not production colors */
+.pill-demo-neutral {
+  background: var(--surface-inset);
+  border: 1px solid var(--border-default);
+  color: var(--content-secondary);
+}
+.pill-demo-signal {
+  background: var(--signal-tint);
+  border: 1px solid var(--signal-default);
+  color: var(--ink-900);
+}
+.pill-demo-ink {
+  background: var(--ink-900);
+  border: 1px solid var(--ink-900);
+  color: #fff;
+}
+
+/* Icon inside pill */
+.pill-icon {
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+/* Size matrix row */
+.size-matrix { display:flex;flex-direction:column;gap:40px;padding-left:152px; }
+.size-row { display:flex;align-items:center;gap:28px;flex-wrap:wrap; }
+.size-row-label {
+  width: 120px;
+  font-family:var(--font-instrument);font-size:9px;font-weight:500;
+  letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);
+  flex-shrink:0;
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-ATM-06</span><span class="doc-eyebrow-pill">● Atoms · Tier B</span></div>
+    <h1 class="doc-title">A <em>pill</em> that holds<br>anything.</h1>
+    <p class="doc-tagline">
+      LSPill is the shape atom behind every chip, badge, tag, and suggestion button.
+      It resolves three sizes — 24px, 32px, 40px — and carries no background of its own.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-ATM-06</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">05-uc-atm.md</div></div>
+      <div class="meta-item"><div class="meta-label">Atom</div><div class="meta-value">LSPill</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">The shape that everything <em>inherits</em>.</h2>
+    </div>
+    <p class="prose">
+      LSPill is a pure container — it provides the pill shape (radius.pill = 999px), the height
+      constraint (sizing.pill.sm/md/lg), and the horizontal padding defaults. It carries no color,
+      no border, no shadow. Those are the responsibility of the molecules that consume it:
+      LSBadge, FilterChip, WeatherPill, SuggestionChip.
+    </p>
+    <p class="prose">
+      Not interactive by itself. Semantic interaction — filter toggling, suggestion tap, weather
+      readout — is layered by molecules in UC-MOL-05. The atom only guarantees the bounding shape.
+    </p>
+  </section>
+</div>
+
+<!-- §02 THE ATOM -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · The Atom</div>
+      <h2 class="section-title">Three sizes × four content <em>configurations</em>.</h2>
+    </div>
+
+    <!-- Size matrix -->
+    <div class="size-matrix">
+
+      <!-- SM row -->
+      <div>
+        <div style="padding-left:152px;margin-bottom:16px;">
+          <span class="atom-label">Size: sm — height 24px · padding 0 8px · font 10.5px</span>
+        </div>
+        <div class="size-row" style="padding-left:152px;">
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span class="atom-sub">Shape only (empty)</span>
+            <div class="ls-pill sm pill-demo-neutral" style="min-width:40px;">&nbsp;</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span class="atom-sub">Icon + Label</span>
+            <div class="ls-pill sm pill-demo-neutral">
+              <span class="pill-icon">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+              </span>
+              Clear
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span class="atom-sub">Label only</span>
+            <div class="ls-pill sm pill-demo-neutral">Scenic</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span class="atom-sub">Icon only</span>
+            <div class="ls-pill sm icon-only pill-demo-neutral">
+              <span class="pill-icon">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+              </span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span class="atom-sub">Signal-filled (consumer)</span>
+            <div class="ls-pill sm pill-demo-signal">
+              <span class="pill-icon">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="5"/></svg>
+              </span>
+              Best
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MD row -->
+      <div>
+        <div style="padding-left:152px;margin-bottom:16px;">
+          <span class="atom-label">Size: md — height 32px · padding 0 12px · font 12px</span>
+        </div>
+        <div class="size-row" style="padding-left:152px;">
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span class="atom-sub">Shape only (empty)</span>
+            <div class="ls-pill md pill-demo-neutral" style="min-width:52px;">&nbsp;</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span class="atom-sub">Icon + Label</span>
+            <div class="ls-pill md pill-demo-neutral">
+              <span class="pill-icon">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 20h20M12 4l8 16H4z"/></svg>
+              </span>
+              Mountain
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span class="atom-sub">Label only</span>
+            <div class="ls-pill md pill-demo-neutral">Scenic byway</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span class="atom-sub">Icon only</span>
+            <div class="ls-pill md icon-only pill-demo-neutral">
+              <span class="pill-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+              </span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span class="atom-sub">Ink-filled (consumer)</span>
+            <div class="ls-pill md pill-demo-ink">
+              <span class="pill-icon">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </span>
+              Active
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LG row -->
+      <div>
+        <div style="padding-left:152px;margin-bottom:16px;">
+          <span class="atom-label">Size: lg — height 40px · padding 0 16px · font 14px</span>
+        </div>
+        <div class="size-row" style="padding-left:152px;">
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span class="atom-sub">Shape only (empty)</span>
+            <div class="ls-pill lg pill-demo-neutral" style="min-width:64px;">&nbsp;</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span class="atom-sub">Icon + Label</span>
+            <div class="ls-pill lg pill-demo-neutral">
+              <span class="pill-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="12 6 16 12 12 18 8 12" fill="currentColor" stroke="none"/></svg>
+              </span>
+              Compass
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span class="atom-sub">Label only</span>
+            <div class="ls-pill lg pill-demo-neutral">Plan a ride</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span class="atom-sub">Icon only</span>
+            <div class="ls-pill lg icon-only pill-demo-neutral">
+              <span class="pill-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <span class="atom-sub">Signal-filled (consumer)</span>
+            <div class="ls-pill lg" style="background:var(--signal-default);color:#fff;padding:0 16px;font-family:var(--font-ui);font-size:14px;font-weight:600;height:40px;border-radius:999px;">
+              Start Ride
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES / VARIANTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States / Variants</div>
+      <h2 class="section-title">Padding override <em>matrix</em>.</h2>
+    </div>
+    <div class="atom-row">
+      <div class="atom-cell">
+        <div class="atom-label">md / default padding (12px)</div>
+        <div class="ls-pill md pill-demo-neutral">Default</div>
+        <span class="atom-sub">padding: 0 12px</span>
+      </div>
+      <div class="atom-cell">
+        <div class="atom-label">md / spacing.2 override (8px)</div>
+        <div class="ls-pill md pill-demo-neutral" style="padding: 0 8px;">Narrow</div>
+        <span class="atom-sub">padding override: .spacing2 (8px)</span>
+      </div>
+      <div class="atom-cell">
+        <div class="atom-label">md / spacing.4 override (16px)</div>
+        <div class="ls-pill md pill-demo-neutral" style="padding: 0 16px;">Wide</div>
+        <span class="atom-sub">padding override: .spacing4 (16px)</span>
+      </div>
+      <div class="atom-cell">
+        <div class="atom-label">sm / spacing.3 override (12px)</div>
+        <div class="ls-pill sm pill-demo-neutral" style="padding: 0 12px;">Custom sm</div>
+        <span class="atom-sub">padding override: .spacing3 (12px)</span>
+      </div>
+      <div class="atom-cell">
+        <div class="atom-label">lg / spacing.5 override (20px)</div>
+        <div class="ls-pill lg pill-demo-neutral" style="padding: 0 20px;">Wide lg</div>
+        <span class="atom-sub">padding override: .spacing5 (20px)</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §04 DIMENSIONS TABLE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Dimensions</div>
+      <h2 class="section-title">Exact pixel values — <em>pinned</em>.</h2>
+    </div>
+    <div class="dim-table">
+      <div class="head">Size</div>
+      <div class="head">Token</div>
+      <div class="head">Height</div>
+      <div class="head">Radius</div>
+      <div class="head">H-Padding (default)</div>
+      <div class="head">Font size</div>
+      <div class="head">Icon size (when present)</div>
+
+      <div><span class="dim-val">sm</span></div>
+      <div>sizing.pill.sm</div>
+      <div><span class="dim-val">24px</span></div>
+      <div><span class="dim-val">999px</span> (radius.pill)</div>
+      <div><span class="dim-val">8px</span> (spacing.2)</div>
+      <div><span class="dim-val">10.5px</span></div>
+      <div>10px (sizing.icon.xs)</div>
+
+      <div><span class="dim-val">md</span></div>
+      <div>sizing.pill.md</div>
+      <div><span class="dim-val">32px</span></div>
+      <div><span class="dim-val">999px</span> (radius.pill)</div>
+      <div><span class="dim-val">12px</span> (spacing.3)</div>
+      <div><span class="dim-val">12px</span></div>
+      <div>13px (sizing.icon.sm)</div>
+
+      <div><span class="dim-val">lg</span></div>
+      <div>sizing.pill.lg</div>
+      <div><span class="dim-val">40px</span></div>
+      <div><span class="dim-val">999px</span> (radius.pill)</div>
+      <div><span class="dim-val">16px</span> (spacing.4)</div>
+      <div><span class="dim-val">14px</span></div>
+      <div>16px (sizing.icon.md)</div>
+
+      <div><span class="dim-val">icon-only</span></div>
+      <div>—</div>
+      <div>same as size</div>
+      <div><span class="dim-val">999px</span></div>
+      <div><span class="dim-val">width = height</span></div>
+      <div>—</div>
+      <div>size-appropriate</div>
+
+      <div><span class="dim-val">gap (icon+label)</span></div>
+      <div>spacing.icon-gap</div>
+      <div>—</div>
+      <div>—</div>
+      <div><span class="dim-val">5px</span></div>
+      <div>—</div>
+      <div>Between icon and label text</div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">LSPill is a <em>static</em> shape atom.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px;">Recipe</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px;">Trigger</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px;">Effect</div>
+      <div class="motion-recipe">none (static)</div>
+      <div class="motion-trigger">Mount / unmount</div>
+      <div class="motion-effect">No intrinsic animation. Press feedback (scale 0.96, 80ms) is layered by consuming molecule — not part of the atom spec.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Shape separation from <em>meaning</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design Intent</h4>
+        <p>
+          Separating the pill shape from its semantic coloring prevents the proliferation of
+          nearly-identical components. Badge, FilterChip, SuggestionChip, and WeatherPill all
+          have different colors, borders, and behaviors — but they all have the same geometry.
+          LSPill is that geometry, extracted once.
+        </p>
+        <p>
+          Three sizes are defined because the three usage contexts have different information
+          densities: sm for compact metadata badges (recording count, status dot), md for filter
+          chips in horizontal scrollers, lg for primary action pills in route detail drawers.
+        </p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC Traceability</h4>
+        <ul>
+          <li><strong>AC-1</strong> LSPill(size: .md) renders at token-specified height: 32px</li>
+          <li><strong>AC-2</strong> Custom padding .spacing3 resolves from token, not raw dp/pt</li>
+          <li><strong>AC-3</strong> Story family: Small / Medium / Large / Icon+Label / Icon Only</li>
+          <li><strong>AC-4</strong> iOS + Android: pill height matches sizing.pill.{size} exactly</li>
+          <li><strong>AC-5</strong> No default background — inherits from consumer context</li>
+          <li><strong>AC-6</strong> radius.pill = 999px applied; not a computed value</li>
+          <li><strong>AC-7</strong> Icon gap = 5px (spacing.icon-gap token)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">
+      Lane<em>Shadow</em>
+      <span>V2 · Copper · UC-ATM-06 · 2026-04-20</span>
+    </div>
+    <p class="footer-note">
+      LSPill shape primitive pinned. sm(24) / md(32) / lg(40) — radius.pill.<br>
+      Empty, icon+label, label-only, icon-only configurations documented.<br>
+      Downstream: LSBadge (UC-ATM-07), FilterChip (UC-MOL-05), WeatherPill (UC-MOL-06).
+    </p>
+  </footer>
+</div>
+
+</body>
+</html>

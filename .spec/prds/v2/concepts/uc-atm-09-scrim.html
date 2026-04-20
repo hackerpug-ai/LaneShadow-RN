@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<!-- uc-atm-09-scrim.html — UC-ATM-09 "LSScrim"
+     LaneShadow V2 · Copper · Atom Design Mock · 2026-04-20
+     Atom: LSScrim — map-dimmer overlay, opacity variants, use-site examples
+     Authority: .spec/prds/v2/05-uc-atm.md §UC-ATM-09 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ATM-09 — LSScrim — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing:border-box;margin:0;padding:0; }
+
+:root {
+  --paper-50:#FDFBF8; --paper-100:#F8F7F6; --paper-150:#F5F2EE; --paper-200:#F2EFED;
+  --paper-300:#EDE7E1; --paper-400:#E5DED9; --paper-500:#C9BDB3;
+  --ink-900:#1E1A16; --ink-800:#221810; --ink-700:#2D2218; --ink-600:#362A1F;
+  --ink-500:#3D3228; --ink-400:#49454F; --ink-300:#6B6460; --ink-200:#9CA3AF;
+  --ink-100:#CAC4D0; --ink-050:#F2EEE8;
+  --copper-700:#9E4A22; --copper-600:#B85A2C; --copper-500:#EE7C2B;
+  --copper-400:#F3A164; --copper-200:#F9D5B5; --copper-100:#FCE8D4;
+
+  /* SCRIM: warm-black tint, not pure #000 */
+  --scrim-color: rgba(34,24,16,1); /* at full opacity — actual rendering multiplies by opacity */
+
+  --font-opinion:'Newsreader',Georgia,'Times New Roman',serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono','Menlo',monospace;
+
+  --surface-primary:var(--paper-100); --surface-card:var(--paper-50); --surface-inset:var(--paper-200);
+  --surface-glass:rgba(253,251,248,0.72); --surface-scrim:rgba(34,24,16,0.35);
+  --map-paper:var(--paper-150); --map-contour:rgba(73,69,79,0.22); --map-contour-faint:rgba(73,69,79,0.10);
+  --content-primary:var(--ink-900); --content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300); --content-subtle:var(--ink-200);
+  --signal-default:var(--copper-500); --signal-tint:var(--copper-200); --signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400); --border-subtle:var(--paper-300); --border-strong:var(--paper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:0 2px 6px rgba(34,24,16,0.06);
+}
+
+body { background: var(--surface-primary); color: var(--content-primary); }
+
+/* TYPOGRAPHY */
+.t-opinion-xl  { font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em; }
+.t-opinion-lg  { font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em; }
+.t-title-lg    { font-family:var(--font-ui);font-weight:600;font-size:17px;line-height:1.24;letter-spacing:-0.01em; }
+.t-body-md     { font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52; }
+.t-label-md    { font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase; }
+.t-label-sm    { font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase; }
+.t-instr-md    { font-family:var(--font-instrument);font-weight:500;font-size:13px;line-height:1.2;font-feature-settings:"tnum" 1; }
+.t-instr-sm    { font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1; }
+.t-instr-xs    { font-family:var(--font-instrument);font-weight:500;font-size:8.5px;line-height:1.0;font-feature-settings:"tnum" 1; }
+
+/* DOC CHROME */
+body { font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden; }
+.wrap { max-width:1440px;margin:0 auto;padding:0 72px; }
+.doc-header { position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden; }
+.doc-header::before { content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none; }
+.doc-header>* { position:relative;z-index:1; }
+.doc-eyebrow { display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px; }
+.doc-eyebrow::before { content:"";width:28px;height:1px;background:var(--signal-default); }
+.doc-eyebrow-pill { display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em; }
+.doc-title { font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px; }
+.doc-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.doc-tagline { font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px; }
+.doc-meta-row { display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default); }
+.meta-item { display:flex;flex-direction:column;gap:6px; }
+.meta-label { font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary); }
+.meta-value { font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary); }
+.section { padding:96px 0;border-bottom:1px solid var(--border-default);position:relative; }
+.section:last-child { border-bottom:none; }
+.section-header { display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px; }
+.section-index { font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px; }
+.section-index::before { content:"";display:block;width:48px;height:1px;background:var(--signal-default); }
+.section-title { font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px; }
+.section-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.prose { font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px; }
+.prose+.prose { margin-top:20px; }
+.prose em { font-style:italic; }
+.prose strong { font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px; }
+.doc-footer { padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end; }
+.footer-mark { font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;color:var(--content-primary);letter-spacing:-0.02em; }
+.footer-mark em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.footer-mark span { display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300; }
+.footer-note { font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300; }
+
+/* LAYOUT */
+.atom-row { display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start;padding-left:152px; }
+.atom-cell { display:flex;flex-direction:column;gap:12px; }
+.atom-label { font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default); }
+.atom-sub { font-family:var(--font-ui);font-size:10px;color:var(--content-tertiary);line-height:1.5; }
+
+/* Dim table */
+.dim-table { padding-left:152px;display:grid;grid-template-columns:180px 120px 120px 1fr;row-gap:0;column-gap:0; }
+.dim-table>div { padding:10px 14px;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:12px;color:var(--content-secondary); }
+.dim-table>div.head { font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px; }
+.dim-val { font-family:var(--font-instrument);color:var(--content-primary); }
+
+/* Motion table */
+.motion-table { padding-left:152px;display:grid;grid-template-columns:200px 1fr 2fr;row-gap:0; }
+.motion-table>div { padding:10px 0;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:13px; }
+.motion-recipe { font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px; }
+.motion-trigger { color:var(--content-primary);font-weight:500; }
+.motion-effect { color:var(--content-secondary); }
+
+/* Rationale */
+.rationale-grid { padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px; }
+.rationale-block h4 { font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px; }
+.rationale-block p { font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px; }
+.rationale-block ul { list-style:none; }
+.rationale-block li { padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle); }
+.rationale-block li::before { content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument); }
+.rationale-block li strong { font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSScrim ATOM
+   color.surface.scrim = rgba(34,24,16, opacity)
+   Warm black tint — not pure #000.
+   Default opacity: 0.35 (opacity.scrim.default token)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Map background mock for scrim demos */
+.map-bg {
+  background: var(--map-paper);
+  background-image:
+    linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
+  background-size: 28px 28px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--border-default);
+}
+
+/* Topo curves on map mock */
+.map-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cpath d='M -20 60 C 40 40, 90 80, 140 60 S 200 80, 240 50' stroke='rgba(73,69,79,0.18)' stroke-width='0.9' fill='none'/%3E%3Cpath d='M -20 100 C 40 80, 90 120, 140 100 S 200 120, 240 90' stroke='rgba(73,69,79,0.18)' stroke-width='0.9' fill='none'/%3E%3Cpath d='M -20 140 C 40 120, 90 160, 140 140 S 200 160, 240 130' stroke='rgba(73,69,79,0.12)' stroke-width='0.7' fill='none'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* The scrim layer itself */
+.ls-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(34,24,16,1); /* warm black; opacity set inline */
+  pointer-events: none; /* non-blocking default */
+  border-radius: inherit;
+  z-index: 2;
+}
+
+/* Blocking variant */
+.ls-scrim.blocking {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* Scrim swatch — map bg + label overlay */
+.scrim-swatch {
+  width: 200px;
+  height: 140px;
+  position: relative;
+  flex-shrink: 0;
+}
+.scrim-label-overlay {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 10;
+  font-family: var(--font-instrument);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(253,251,248,0.90);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* Map content inside scrim demo */
+.map-content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Use-site demos */
+.use-site-demo {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+  flex-shrink: 0;
+}
+
+/* Bottom sheet mock */
+.bottom-sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface-card);
+  border-radius: 14px 14px 0 0;
+  padding: 16px;
+  z-index: 5;
+  box-shadow: 0 -4px 24px rgba(34,24,16,0.12);
+}
+.bs-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-strong);
+  margin: 0 auto 12px;
+}
+
+/* Modal mock */
+.modal-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--surface-card);
+  border-radius: 14px;
+  padding: 16px;
+  z-index: 5;
+  box-shadow: var(--elev-overlay);
+  width: 72%;
+}
+
+/* Touch-through annotation */
+.touch-annotation {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-family: var(--font-instrument);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.touch-annotation.pass { background: var(--surface-inset); color: var(--content-tertiary); border: 1px solid var(--border-subtle); }
+.touch-annotation.block { background: var(--copper-100); color: var(--copper-700); border: 1px solid var(--copper-200); }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-ATM-09</span><span class="doc-eyebrow-pill">● Atoms · Tier B</span></div>
+    <h1 class="doc-title">The map dims — <em>warmly</em>.</h1>
+    <p class="doc-tagline">
+      LSScrim is a warm-black overlay at default 0.35 opacity — not pure black, never jarring.
+      Six opacity levels. Touches pass through unless blocking is explicitly enabled.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-ATM-09</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">05-uc-atm.md</div></div>
+      <div class="meta-item"><div class="meta-label">Atom</div><div class="meta-value">LSScrim</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Depth without <em>darkness</em>.</h2>
+    </div>
+    <p class="prose">
+      LSScrim dims the map canvas when a drawer or modal needs visual priority. The warm-black
+      tint (rgba(34,24,16,…) — the same ink-800 base used across the dark palette) preserves
+      the paper feeling rather than flattening to a cold grey overlay. At 0.35 the map remains
+      recognizable. At 0.60 the drawer or modal holds full attention. At 0.95 the scrim is
+      functionally opaque — reserved for critical modal interruptions.
+    </p>
+    <p class="prose">
+      Touches pass through by default. The rider can still interact with map controls visible
+      beneath. The <em>blocking</em> property is opt-in and enables tap-to-dismiss on the scrim
+      layer itself — needed for BottomSheet and Modal, not for SessionsDrawer which uses an
+      explicit close button.
+    </p>
+  </section>
+</div>
+
+<!-- §02 THE ATOM -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · The Atom</div>
+      <h2 class="section-title">Default 0.35 — six opacity <em>levels</em>.</h2>
+    </div>
+
+    <!-- Default opacity demo -->
+    <div style="padding-left:152px;margin-bottom:56px;">
+      <div class="atom-label" style="margin-bottom:16px;">Default — opacity.scrim.default = 0.35</div>
+      <div class="map-bg" style="width:320px;height:200px;">
+        <!-- Map content hint -->
+        <div style="position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;">
+          <div style="font-family:var(--font-instrument);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--map-contour);text-align:center;">MAP CANVAS<br>paper base · topo contours</div>
+        </div>
+        <div class="ls-scrim" style="opacity:0.35;"></div>
+        <div style="position:absolute;bottom:8px;left:10px;z-index:10;font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(253,251,248,0.9);">opacity.scrim.default = 0.35</div>
+      </div>
+      <div class="atom-sub" style="margin-top:10px;">color.surface.scrim = rgba(34,24,16, opacity). Warm-black, not pure black.</div>
+    </div>
+
+    <!-- Opacity variant swatches -->
+    <div style="padding-left:152px;">
+      <div class="atom-label" style="margin-bottom:20px;">Opacity variants — all six levels</div>
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start;">
+
+        <!-- 0.12 -->
+        <div class="atom-cell">
+          <div class="scrim-swatch map-bg">
+            <div style="position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;">
+              <div style="font-family:var(--font-instrument);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--map-contour);text-align:center;">MAP</div>
+            </div>
+            <div class="ls-scrim" style="opacity:0.12;"></div>
+            <div class="scrim-label-overlay">0.12</div>
+          </div>
+          <span class="atom-sub">opacity.scrim.hint<br>Subtle ambient dim</span>
+        </div>
+
+        <!-- 0.35 default -->
+        <div class="atom-cell">
+          <div class="scrim-swatch map-bg">
+            <div style="position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;">
+              <div style="font-family:var(--font-instrument);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--map-contour);text-align:center;">MAP</div>
+            </div>
+            <div class="ls-scrim" style="opacity:0.35;"></div>
+            <div class="scrim-label-overlay" style="color:rgba(253,251,248,0.95);">0.35 DEFAULT</div>
+          </div>
+          <span class="atom-sub">opacity.scrim.default<br>SessionsDrawer use-site</span>
+        </div>
+
+        <!-- 0.50 -->
+        <div class="atom-cell">
+          <div class="scrim-swatch map-bg">
+            <div style="position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;">
+              <div style="font-family:var(--font-instrument);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(73,69,79,0.15);text-align:center;">MAP</div>
+            </div>
+            <div class="ls-scrim" style="opacity:0.50;"></div>
+            <div class="scrim-label-overlay">0.50</div>
+          </div>
+          <span class="atom-sub">opacity.scrim.medium<br>BottomSheet use-site</span>
+        </div>
+
+        <!-- 0.60 -->
+        <div class="atom-cell">
+          <div class="scrim-swatch map-bg">
+            <div style="position:absolute;inset:0;z-index:1;"></div>
+            <div class="ls-scrim" style="opacity:0.60;"></div>
+            <div class="scrim-label-overlay">0.60</div>
+          </div>
+          <span class="atom-sub">opacity.scrim.strong<br>Modal use-site</span>
+        </div>
+
+        <!-- 0.76 -->
+        <div class="atom-cell">
+          <div class="scrim-swatch map-bg">
+            <div class="ls-scrim" style="opacity:0.76;"></div>
+            <div class="scrim-label-overlay">0.76</div>
+          </div>
+          <span class="atom-sub">opacity.scrim.heavy<br>Critical modal</span>
+        </div>
+
+        <!-- 0.95 -->
+        <div class="atom-cell">
+          <div class="scrim-swatch map-bg">
+            <div class="ls-scrim" style="opacity:0.95;"></div>
+            <div class="scrim-label-overlay">0.95</div>
+          </div>
+          <span class="atom-sub">opacity.scrim.opaque<br>Full interrupt</span>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<!-- §03 STATES / VARIANTS — blocking vs non-blocking + use-site demos -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States / Variants</div>
+      <h2 class="section-title">Blocking vs <em>non-blocking</em> — and three use-sites.</h2>
+    </div>
+
+    <!-- Touch-through annotations -->
+    <div style="padding-left:152px;margin-bottom:48px;">
+      <div class="atom-label" style="margin-bottom:20px;">Touch behavior</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
+        <div style="display:flex;flex-direction:column;gap:8px;max-width:280px;">
+          <span class="touch-annotation pass">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+            Touch-through (default)
+          </span>
+          <span class="atom-sub">pointer-events: none. Taps pass through to map controls beneath. Used by LSSessionsDrawer — rider can still interact with the visible map strip.</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;max-width:280px;">
+          <span class="touch-annotation block">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+            Blocking (explicit opt-in)
+          </span>
+          <span class="atom-sub">pointer-events: auto. Captures taps. Fires onTap callback. Used by BottomSheet (tap-to-dismiss) and Modal (tap-to-cancel). Must be explicitly enabled — never default.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Use-site examples -->
+    <div style="padding-left:152px;">
+      <div class="atom-label" style="margin-bottom:24px;">Use-site examples — LSScrim in context</div>
+      <div style="display:flex;gap:32px;flex-wrap:wrap;align-items:flex-start;">
+
+        <!-- SessionsDrawer -->
+        <div class="atom-cell" style="align-items:flex-start;">
+          <div class="atom-label">Behind SessionsDrawer — 0.35 non-blocking</div>
+          <div class="use-site-demo map-bg" style="width:200px;height:340px;">
+            <!-- Map content -->
+            <div style="position:absolute;inset:0;z-index:1;padding:16px;">
+              <svg width="100%" height="100%" viewBox="0 0 170 300" preserveAspectRatio="xMidYMid slice">
+                <g stroke="rgba(73,69,79,0.22)" stroke-width="0.9" fill="none">
+                  <path d="M -10 60 C 40 40, 90 80, 140 60 S 200 80, 230 50"/>
+                  <path d="M -10 100 C 40 80, 90 120, 140 100 S 200 120, 230 90"/>
+                  <path d="M -10 160 C 40 140, 90 180, 140 160 S 200 175, 230 145"/>
+                </g>
+                <path d="M 30 200 C 50 180, 80 190, 100 210 S 130 230, 150 200" stroke="rgba(238,124,43,0.7)" stroke-width="2" fill="none" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <!-- Scrim: 0.35 non-blocking -->
+            <div class="ls-scrim" style="opacity:0.35;z-index:3;"></div>
+            <!-- Drawer panel -->
+            <div class="bottom-sheet" style="z-index:6;">
+              <div class="bs-handle"></div>
+              <div style="font-family:var(--font-ui);font-size:11px;font-weight:600;color:var(--content-primary);margin-bottom:6px;">Sessions</div>
+              <div style="font-family:var(--font-ui);font-size:9.5px;color:var(--content-tertiary);">3 rides this week</div>
+            </div>
+          </div>
+          <span class="atom-sub">opacity 0.35 · pointer-events none · map strip remains tappable at top</span>
+        </div>
+
+        <!-- BottomSheet -->
+        <div class="atom-cell" style="align-items:flex-start;">
+          <div class="atom-label">Behind BottomSheet — 0.50 blocking</div>
+          <div class="use-site-demo map-bg" style="width:200px;height:340px;">
+            <div style="position:absolute;inset:0;z-index:1;padding:16px;">
+              <svg width="100%" height="100%" viewBox="0 0 170 300" preserveAspectRatio="xMidYMid slice">
+                <g stroke="rgba(73,69,79,0.22)" stroke-width="0.9" fill="none">
+                  <path d="M -10 60 C 40 40, 90 80, 140 60"/>
+                  <path d="M -10 120 C 40 100, 90 140, 140 120"/>
+                </g>
+              </svg>
+            </div>
+            <!-- Scrim: 0.50 blocking -->
+            <div class="ls-scrim blocking" style="opacity:0.50;z-index:3;" title="Tap to dismiss"></div>
+            <!-- Bottom sheet -->
+            <div class="bottom-sheet" style="z-index:6;height:56%;">
+              <div class="bs-handle"></div>
+              <div style="font-family:var(--font-ui);font-size:11px;font-weight:600;color:var(--content-primary);margin-bottom:6px;">Blue Ridge Pkwy</div>
+              <div style="font-family:var(--font-ui);font-size:9px;color:var(--content-tertiary);">64 mi · 4h 20m</div>
+              <div style="margin-top:8px;font-family:var(--font-instrument);font-size:8px;color:var(--copper-500);letter-spacing:0.1em;text-transform:uppercase;">tap scrim to dismiss</div>
+            </div>
+          </div>
+          <span class="atom-sub">opacity 0.50 · blocking: true · tap fires onTap dismiss callback</span>
+        </div>
+
+        <!-- Modal -->
+        <div class="atom-cell" style="align-items:flex-start;">
+          <div class="atom-label">Behind Modal — 0.60 blocking</div>
+          <div class="use-site-demo map-bg" style="width:200px;height:340px;">
+            <div style="position:absolute;inset:0;z-index:1;padding:16px;">
+              <svg width="100%" height="100%" viewBox="0 0 170 300" preserveAspectRatio="xMidYMid slice">
+                <g stroke="rgba(73,69,79,0.22)" stroke-width="0.9" fill="none">
+                  <path d="M -10 80 C 40 60, 90 100, 140 80"/>
+                  <path d="M -10 140 C 40 120, 90 160, 140 140"/>
+                </g>
+              </svg>
+            </div>
+            <!-- Scrim: 0.60 blocking -->
+            <div class="ls-scrim blocking" style="opacity:0.60;z-index:3;" title="Tap to cancel"></div>
+            <!-- Modal card -->
+            <div class="modal-card" style="z-index:6;">
+              <div style="font-family:var(--font-ui);font-size:11px;font-weight:600;color:var(--content-primary);margin-bottom:6px;">Save this route?</div>
+              <div style="font-family:var(--font-ui);font-size:9px;color:var(--content-tertiary);margin-bottom:10px;">It will appear in your library.</div>
+              <div style="display:flex;gap:6px;">
+                <div style="height:24px;padding:0 10px;background:var(--copper-500);border-radius:999px;display:flex;align-items:center;font-family:var(--font-ui);font-size:9px;font-weight:600;color:#fff;">Save</div>
+                <div style="height:24px;padding:0 10px;background:var(--paper-200);border-radius:999px;display:flex;align-items:center;font-family:var(--font-ui);font-size:9px;color:var(--content-secondary);">Cancel</div>
+              </div>
+            </div>
+          </div>
+          <span class="atom-sub">opacity 0.60 · blocking: true · tap scrim fires cancel callback</span>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<!-- §04 DIMENSIONS TABLE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Dimensions</div>
+      <h2 class="section-title">Exact opacity values — <em>pinned</em>.</h2>
+    </div>
+    <div class="dim-table">
+      <div class="head">Property / Token</div>
+      <div class="head">Value</div>
+      <div class="head">Use-site</div>
+      <div class="head">Notes</div>
+
+      <div>color.surface.scrim</div>
+      <div><span class="dim-val">rgba(34,24,16,1)</span></div>
+      <div>all (opacity multiplied)</div>
+      <div>Warm-black base. Equivalent to ink-800 fully opaque. Never pure #000.</div>
+
+      <div>opacity.scrim.hint</div>
+      <div><span class="dim-val">0.12</span></div>
+      <div>ambient dimming</div>
+      <div>Barely perceptible — map fully legible. For subtle focus-context shifts.</div>
+
+      <div>opacity.scrim.default</div>
+      <div><span class="dim-val">0.35</span></div>
+      <div>LSSessionsDrawer</div>
+      <div>Default LSScrim() — map recognizable. Touch-through default.</div>
+
+      <div>opacity.scrim.medium</div>
+      <div><span class="dim-val">0.50</span></div>
+      <div>LSBottomSheet</div>
+      <div>Map readable but secondary. Blocking recommended.</div>
+
+      <div>opacity.scrim.strong</div>
+      <div><span class="dim-val">0.60</span></div>
+      <div>Modal</div>
+      <div>Full modal focus. Blocking required. Map behind is impressionistic.</div>
+
+      <div>opacity.scrim.heavy</div>
+      <div><span class="dim-val">0.76</span></div>
+      <div>Critical modal</div>
+      <div>Near-opaque. Reserved for system-critical interruptions.</div>
+
+      <div>opacity.scrim.opaque</div>
+      <div><span class="dim-val">0.95</span></div>
+      <div>Full interrupt</div>
+      <div>Functionally opaque. Map hidden. Use sparingly — breaks spatial continuity.</div>
+
+      <div>Sizing</div>
+      <div>full-parent</div>
+      <div>all</div>
+      <div>position:absolute;inset:0. Inherits parent bounds. Not full-screen by default — consumer clips to context.</div>
+
+      <div>touch behavior (default)</div>
+      <div>pass-through</div>
+      <div>non-blocking</div>
+      <div>pointer-events:none. Default state — never blocks unless consumer opts in.</div>
+
+      <div>touch behavior (blocking)</div>
+      <div>capture</div>
+      <div>BottomSheet / Modal</div>
+      <div>pointer-events:auto. Fires onTap callback. Explicit opt-in only.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Fade-in on mount — <em>consumed by organisms</em>.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px;">Recipe</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px;">Trigger</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px;">Effect</div>
+      <div class="motion-recipe">none (static atom)</div>
+      <div class="motion-trigger">Mount / opacity prop change</div>
+      <div class="motion-effect">
+        LSScrim itself has no intrinsic animation. Fade-in and fade-out transitions are owned by
+        the organism that renders the scrim (LSBottomSheet, LSModal, LSSessionsDrawer). The organism
+        animates opacity from 0 to target — this keeps motion logic at the correct layer and lets
+        each organism tune its own enter/exit timing.
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Warm-black, <em>not cold</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design Intent</h4>
+        <p>
+          Using rgba(34,24,16,…) — the ink-800 warm base — instead of pure rgba(0,0,0,…) preserves
+          the Copper paper feeling even when the map is dimmed. A cold scrim conflicts with the warm
+          paper aesthetic and makes the overlaid surface look fluorescent by contrast.
+        </p>
+        <p>
+          Six opacity levels are defined because different overlay contexts have different information
+          requirements. The SessionsDrawer at 0.35 still lets the rider see the map edge; a save-route
+          modal at 0.60 demands full visual attention. Exposing the full scale as tokens means
+          product engineers never need to invent opacity values.
+        </p>
+        <p>
+          Touch-through by default reflects the map-first philosophy. The Navigator's map is always
+          the primary surface. Blocking must be opted into intentionally, not accidentally inherited.
+        </p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC Traceability</h4>
+        <ul>
+          <li><strong>AC-1</strong> LSScrim() — full-parent overlay, color.surface.scrim at 0.35 opacity</li>
+          <li><strong>AC-2</strong> opacity override (e.g., 0.5) resolves from opacity.* tokens, not raw literal</li>
+          <li><strong>AC-3</strong> Default: touches pass through (pointer-events none)</li>
+          <li><strong>AC-4</strong> blocking:true — captures taps, fires onTap callback</li>
+          <li><strong>AC-5</strong> Story: Default, Opacity 0.6, Blocking (tap to dismiss)</li>
+          <li><strong>AC-6</strong> Warm-black base rgba(34,24,16) confirmed — not #000</li>
+          <li><strong>AC-7</strong> Six opacity levels documented: 0.12/0.35/0.50/0.60/0.76/0.95</li>
+          <li><strong>AC-8</strong> Use-sites: SessionsDrawer (0.35 non-blocking), BottomSheet (0.50 blocking), Modal (0.60 blocking)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">
+      Lane<em>Shadow</em>
+      <span>V2 · Copper · UC-ATM-09 · 2026-04-20</span>
+    </div>
+    <p class="footer-note">
+      LSScrim pinned. Warm-black rgba(34,24,16) · 6 opacity levels · default 0.35.<br>
+      Non-blocking default · blocking opt-in · three use-sites demonstrated.<br>
+      Downstream: LSSessionsDrawer, LSBottomSheet, LSModal organisms.
+    </p>
+  </footer>
+</div>
+
+</body>
+</html>

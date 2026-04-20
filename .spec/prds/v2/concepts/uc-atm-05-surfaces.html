@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<!-- uc-atm-05-surfaces.html — UC-ATM-05 "Surface Trio"
+     LaneShadow V2 · Copper · Atom Design Mock · 2026-04-20
+     Atoms: LSCard · LSPanel · LSGlassPanel
+     Authority: .spec/prds/v2/05-uc-atm.md §UC-ATM-05 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ATM-05 — Surface Trio — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM — shared across all UC-ATM mocks.
+   Source of truth: uc-scr-01-idle.html · 04-uc-tok.md
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* RAW: WARM-PAPER NEUTRALS */
+  --paper-50:  #FDFBF8;
+  --paper-100: #F8F7F6;
+  --paper-150: #F5F2EE;
+  --paper-200: #F2EFED;
+  --paper-300: #EDE7E1;
+  --paper-400: #E5DED9;
+  --paper-500: #C9BDB3;
+
+  /* RAW: WARM-INK NEUTRALS */
+  --ink-900:   #1E1A16;
+  --ink-800:   #221810;
+  --ink-700:   #2D2218;
+  --ink-600:   #362A1F;
+  --ink-500:   #3D3228;
+  --ink-400:   #49454F;
+  --ink-300:   #6B6460;
+  --ink-200:   #9CA3AF;
+  --ink-100:   #CAC4D0;
+  --ink-050:   #F2EEE8;
+
+  /* RAW: COPPER SIGNAL */
+  --copper-700: #9E4A22;
+  --copper-600: #B85A2C;
+  --copper-500: #EE7C2B;
+  --copper-400: #F3A164;
+  --copper-200: #F9D5B5;
+  --copper-100: #FCE8D4;
+
+  /* RAW: STATUS */
+  --status-info:       #2563EB;
+  --status-info-tint:  #DBEAFE;
+  --status-success:    #16A34A;
+  --status-success-tint: #DCFCE7;
+  --status-warning:    #C46F1B;
+  --status-warning-tint: #FEF3C7;
+  --status-error:      #DC2626;
+  --status-error-tint: #FEE2E2;
+  --status-recording:  #DC2626;
+
+  /* FONTS */
+  --font-opinion:    'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+}
+
+/* SEMANTIC TOKENS — light mode defaults */
+:root {
+  --surface-primary:   var(--paper-100);
+  --surface-card:      var(--paper-50);
+  --surface-inset:     var(--paper-200);
+  --surface-overlay:   rgba(253,251,248,0.92);
+  --surface-glass:     rgba(253,251,248,0.72);
+  --surface-scrim:     rgba(34,24,16,0.35);
+  --map-paper:         var(--paper-150);
+
+  --content-primary:   var(--ink-900);
+  --content-secondary: var(--ink-400);
+  --content-tertiary:  var(--ink-300);
+  --content-subtle:    var(--ink-200);
+  --content-onSignal:  #FFFFFF;
+
+  --signal-default:    var(--copper-500);
+  --signal-pressed:    var(--copper-700);
+  --signal-tint:       var(--copper-200);
+  --signal-whisper:    var(--copper-100);
+
+  --border-default:    var(--paper-400);
+  --border-subtle:     var(--paper-300);
+  --border-strong:     var(--paper-500);
+  --border-focus:      var(--copper-500);
+
+  --elev-overlay:      0 8px 24px rgba(34,24,16,0.10), 0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:         0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:       0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
+}
+
+body { background: var(--surface-primary); color: var(--content-primary); }
+
+/* Dark mode override — applied via .mode-dark on a container */
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+  --surface-scrim:     rgba(10,6,3,0.50);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TYPOGRAPHY SCALE
+   ═══════════════════════════════════════════════════════════════════════ */
+.t-opinion-xl  { font-family: var(--font-opinion); font-weight: 400; font-size: 30px; line-height: 1.12; letter-spacing: -0.015em; }
+.t-opinion-lg  { font-family: var(--font-opinion); font-weight: 400; font-size: 22px; line-height: 1.18; letter-spacing: -0.01em; }
+.t-opinion-md  { font-family: var(--font-opinion); font-weight: 400; font-size: 17px; line-height: 1.32; }
+.t-opinion-sm  { font-family: var(--font-opinion); font-weight: 400; font-size: 14px; line-height: 1.45; }
+.t-title-lg    { font-family: var(--font-ui); font-weight: 600; font-size: 17px; line-height: 1.24; letter-spacing: -0.01em; }
+.t-title-md    { font-family: var(--font-ui); font-weight: 600; font-size: 14px; line-height: 1.28; letter-spacing: -0.005em; }
+.t-title-sm    { font-family: var(--font-ui); font-weight: 600; font-size: 12px; line-height: 1.28; }
+.t-body-lg     { font-family: var(--font-ui); font-weight: 400; font-size: 14px; line-height: 1.48; }
+.t-body-md     { font-family: var(--font-ui); font-weight: 400; font-size: 12px; line-height: 1.52; }
+.t-body-sm     { font-family: var(--font-ui); font-weight: 400; font-size: 10.5px; line-height: 1.48; }
+.t-label-lg    { font-family: var(--font-ui); font-weight: 500; font-size: 11px; line-height: 1.0; letter-spacing: 0.08em; text-transform: uppercase; }
+.t-label-md    { font-family: var(--font-ui); font-weight: 600; font-size: 9.5px; line-height: 1.0; letter-spacing: 0.12em; text-transform: uppercase; }
+.t-label-sm    { font-family: var(--font-ui); font-weight: 600; font-size: 8.5px; line-height: 1.0; letter-spacing: 0.14em; text-transform: uppercase; }
+.t-instr-lg    { font-family: var(--font-instrument); font-weight: 500; font-size: 18px; line-height: 1.12; letter-spacing: -0.02em; font-feature-settings: "tnum" 1; }
+.t-instr-md    { font-family: var(--font-instrument); font-weight: 500; font-size: 13px; line-height: 1.2; letter-spacing: -0.01em; font-feature-settings: "tnum" 1; }
+.t-instr-sm    { font-family: var(--font-instrument); font-weight: 500; font-size: 10px; line-height: 1.2; font-feature-settings: "tnum" 1; }
+.t-instr-xs    { font-family: var(--font-instrument); font-weight: 500; font-size: 8.5px; line-height: 1.0; font-feature-settings: "tnum" 1; }
+
+em.opinion-ital { font-style: italic; font-weight: 400; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DOCUMENT CHROME
+   ═══════════════════════════════════════════════════════════════════════ */
+body {
+  font-family: var(--font-ui);
+  color: var(--content-primary);
+  background: var(--surface-primary);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+
+.doc-header {
+  position: relative;
+  padding: 96px 0 72px;
+  border-bottom: 1px solid var(--border-default);
+  overflow: hidden;
+}
+.doc-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 80%, rgba(238,124,43,0.08), transparent 44%),
+    radial-gradient(circle at 92% 12%, rgba(184,90,44,0.05), transparent 50%);
+  pointer-events: none;
+}
+.doc-header > * { position: relative; z-index: 1; }
+
+.doc-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--signal-default);
+  margin-bottom: 28px;
+}
+.doc-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--signal-default); }
+.doc-eyebrow-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--signal-default);
+  color: var(--signal-default);
+  background: var(--signal-whisper);
+  font-size: 9.5px; letter-spacing: 0.14em;
+}
+.doc-title {
+  font-family: var(--font-opinion);
+  font-size: 104px; font-weight: 300; line-height: 0.94;
+  letter-spacing: -0.035em; margin-bottom: 32px; max-width: 1000px;
+}
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.doc-tagline {
+  font-family: var(--font-opinion);
+  font-style: italic; font-size: 22px; font-weight: 300;
+  color: var(--content-secondary); max-width: 640px;
+  line-height: 1.55; margin-bottom: 56px;
+}
+.doc-meta-row {
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  gap: 24px; padding-top: 36px; border-top: 1px solid var(--border-default);
+}
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label { font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary); }
+.meta-value { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); }
+
+.section { padding: 96px 0; border-bottom: 1px solid var(--border-default); position: relative; }
+.section:last-child { border-bottom: none; }
+.section-header { display: grid; grid-template-columns: 120px 1fr; align-items: baseline; gap: 32px; margin-bottom: 56px; }
+.section-index {
+  font-family: var(--font-instrument); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em; color: var(--signal-default); text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-index::before { content: ""; display: block; width: 48px; height: 1px; background: var(--signal-default); }
+.section-title {
+  font-family: var(--font-opinion); font-size: 52px; font-weight: 300;
+  letter-spacing: -0.025em; line-height: 1.04; max-width: 900px;
+}
+.section-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+
+.prose {
+  font-family: var(--font-opinion); font-weight: 300; font-size: 19px;
+  line-height: 1.68; color: var(--content-secondary); max-width: 720px; margin-left: 152px;
+}
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+.prose strong {
+  font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal-default);
+  display: inline-block; padding: 2px 8px;
+  background: var(--signal-whisper); border: 1px solid var(--signal-tint);
+  border-radius: 4px; margin: 0 2px;
+}
+
+.ac-cite {
+  font-family: var(--font-ui); font-size: 10.5px; line-height: 1.55;
+  color: var(--content-tertiary); padding-left: 18px; position: relative; margin-top: 4px;
+}
+.ac-cite::before { content: "☐"; position: absolute; left: 0; top: 0; color: var(--border-strong); }
+
+.doc-footer {
+  padding: 80px 0; display: grid; grid-template-columns: 1fr 1fr;
+  gap: 40px; align-items: end;
+}
+.footer-mark {
+  font-family: var(--font-opinion); font-size: 44px; font-weight: 300;
+  line-height: 1; color: var(--content-primary); letter-spacing: -0.02em;
+}
+.footer-mark em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.footer-mark span { display: block; font-size: 14px; font-style: italic; color: var(--content-tertiary); margin-top: 10px; font-weight: 300; }
+.footer-note {
+  font-family: var(--font-opinion); font-style: italic; font-size: 14px;
+  line-height: 1.7; color: var(--content-tertiary); text-align: right; font-weight: 300;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ATOM DEMO LAYOUT
+   ═══════════════════════════════════════════════════════════════════════ */
+.atom-row {
+  display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start;
+  padding-left: 152px;
+}
+.atom-cell { display: flex; flex-direction: column; gap: 12px; }
+.atom-label {
+  font-family: var(--font-instrument); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.22em; text-transform: uppercase; color: var(--signal-default);
+}
+.atom-sub {
+  font-family: var(--font-ui); font-size: 10.5px; color: var(--content-tertiary); line-height: 1.5;
+}
+
+/* Light / Dark pair */
+.mode-pair { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+.mode-swatch {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 24px; border-radius: 14px; border: 1px solid var(--border-default);
+  min-width: 260px;
+}
+.mode-swatch.dark { background: var(--ink-800); border-color: rgba(242,238,232,0.10); }
+.mode-tag {
+  font-family: var(--font-instrument); font-size: 8.5px; font-weight: 500;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--content-tertiary);
+  margin-bottom: 4px;
+}
+.mode-swatch.dark .mode-tag { color: var(--ink-100); }
+
+/* Dimensions table */
+.dim-table {
+  padding-left: 152px;
+  display: grid;
+  grid-template-columns: 160px 100px 120px 80px 100px 1fr;
+  row-gap: 0;
+  column-gap: 0;
+}
+.dim-table > div {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-family: var(--font-ui); font-size: 12px; color: var(--content-secondary);
+}
+.dim-table > div.head {
+  font-family: var(--font-instrument); font-size: 8.5px; font-weight: 500;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--signal-default);
+  border-bottom: 2px solid var(--border-default);
+  padding-bottom: 8px;
+}
+.dim-val { font-family: var(--font-instrument); color: var(--content-primary); }
+
+/* Motion table */
+.motion-table { padding-left: 152px; display: grid; grid-template-columns: 180px 1fr 2fr; row-gap: 0; }
+.motion-table > div { padding: 10px 0; border-bottom: 1px solid var(--border-subtle); font-family: var(--font-ui); font-size: 13px; }
+.motion-recipe { font-family: var(--font-instrument); color: var(--signal-default); font-size: 11.5px; }
+.motion-trigger { color: var(--content-primary); font-weight: 500; }
+.motion-effect { color: var(--content-secondary); }
+
+/* Rationale */
+.rationale-grid { padding-left: 152px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+.rationale-block h4 { font-family: var(--font-ui); font-size: 10.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--signal-default); margin-bottom: 14px; }
+.rationale-block p { font-family: var(--font-opinion); font-weight: 300; font-size: 15px; line-height: 1.65; color: var(--content-secondary); margin-bottom: 10px; }
+.rationale-block ul { list-style: none; }
+.rationale-block li { padding: 8px 0 8px 18px; position: relative; font-family: var(--font-ui); font-size: 12.5px; color: var(--content-secondary); border-bottom: 1px solid var(--border-subtle); }
+.rationale-block li::before { content: "→"; position: absolute; left: 0; top: 8px; color: var(--signal-default); font-family: var(--font-instrument); }
+.rationale-block li strong { font-family: var(--font-instrument); color: var(--content-primary); font-weight: 500; font-size: 11px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SURFACE ATOMS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* LSCard — elevation.2, radius.lg (14px), spacing.4 padding */
+.ls-card {
+  background: var(--surface-card);
+  border-radius: 14px;
+  box-shadow: var(--elev-card);
+  border: 1px solid var(--border-default);
+  padding: 16px;
+}
+.ls-card.spacing3 { padding: 12px; }
+.ls-card.spacing5 { padding: 20px; }
+
+/* LSPanel — flat, radius.md (10px), spacing.3 padding */
+.ls-panel {
+  background: var(--surface-primary);
+  border-radius: 10px;
+  border: 1px solid var(--border-default);
+  padding: 12px;
+}
+
+/* LSGlassPanel — translucent, radius.xl (20px), elevation.overlay */
+.ls-glass-panel {
+  background: var(--surface-glass);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.55);
+  box-shadow: var(--elev-overlay);
+  backdrop-filter: blur(13px) saturate(1.2);
+  -webkit-backdrop-filter: blur(13px) saturate(1.2);
+  padding: 16px;
+}
+
+/* GlassPanel .chrome variant — plain translucent (TopBar, ChatInput) */
+.ls-glass-panel.chrome {
+  border-color: rgba(255,255,255,0.55);
+}
+
+/* GlassPanel .callout — leading 3px stripe */
+.ls-glass-panel.callout {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  padding-left: 19px; /* 3px stripe + 16px inner pad */
+}
+.ls-glass-panel.callout::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.ls-glass-panel.callout.signal::before  { background: var(--signal-default); }
+.ls-glass-panel.callout.warning::before { background: var(--status-warning); }
+
+/* Dark mode glass border */
+.mode-dark .ls-glass-panel { border-color: rgba(242,238,232,0.12); }
+
+/* Demo placeholder content */
+.demo-content-block {
+  background: var(--surface-inset);
+  border-radius: 8px;
+  padding: 12px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--content-secondary);
+  line-height: 1.5;
+}
+.demo-title {
+  font-family: var(--font-ui); font-weight: 600; font-size: 13px;
+  color: var(--content-primary); margin-bottom: 4px;
+}
+.demo-sub {
+  font-family: var(--font-ui); font-size: 11px;
+  color: var(--content-tertiary); line-height: 1.5;
+}
+
+/* Map mock background for glass demo */
+.map-mock {
+  background: var(--map-paper);
+  background-image:
+    linear-gradient(rgba(73,69,79,0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(73,69,79,0.10) 1px, transparent 1px);
+  background-size: 28px 28px;
+  border-radius: 14px;
+  padding: 20px;
+  position: relative;
+  min-height: 140px;
+  display: flex; align-items: flex-start;
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-ATM-05</span><span class="doc-eyebrow-pill">● Atoms · Tier B</span></div>
+    <h1 class="doc-title">Three <em>surfaces</em><br>that hold everything.</h1>
+    <p class="doc-tagline">
+      LSCard carries weight. LSPanel sits flat. LSGlassPanel floats above the map —
+      chrome-clear or accented with a signal or warning stripe.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-ATM-05</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">05-uc-atm.md</div></div>
+      <div class="meta-item"><div class="meta-label">Atoms</div><div class="meta-value">LSCard · LSPanel · LSGlassPanel</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Every molecule needs a <em>surface</em> to stand on.</h2>
+    </div>
+    <p class="prose">
+      The surface trio defines three distinct elevation registers. <em>LSCard</em> is elevated with a
+      subtle shadow — used for route cards, session tiles, any content that must float above the page.
+      <em>LSPanel</em> is flat — an inset container that clarifies structure without adding visual weight.
+      <em>LSGlassPanel</em> is the translucent chrome floating above the map canvas: backdrop-blurred,
+      slightly warm, and capable of wearing a 3px leading stripe when it needs to carry a message.
+    </p>
+    <p class="prose">
+      All three atoms consume only token-resolved values. Raw color literals and raw dp/pt values
+      are rejected at the type level — every consumer must name a semantic token.
+    </p>
+  </section>
+</div>
+
+<!-- §02 THE ATOM — all variants -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · The Atom</div>
+      <h2 class="section-title">Card, Panel, <em>GlassPanel</em> — light and dark.</h2>
+    </div>
+
+    <!-- LSCard -->
+    <div style="margin-left:152px; margin-bottom:64px;">
+      <div class="atom-label" style="margin-bottom:20px;">LSCard — color.surface.card · radius.lg (14px) · elevation.2 · spacing.4 (16px)</div>
+      <div class="mode-pair">
+
+        <div class="mode-swatch">
+          <div class="mode-tag">Light</div>
+          <!-- Empty -->
+          <div class="atom-cell">
+            <div class="atom-sub">Default — empty</div>
+            <div class="ls-card" style="width:260px; min-height:64px;"></div>
+          </div>
+          <!-- With content -->
+          <div class="atom-cell" style="margin-top:20px;">
+            <div class="atom-sub">With content</div>
+            <div class="ls-card" style="width:260px;">
+              <div class="demo-title">Blue Ridge Parkway</div>
+              <div class="demo-sub">64 mi · 4h 20m · Scenic route, rolling ridgelines</div>
+            </div>
+          </div>
+          <!-- With nested content -->
+          <div class="atom-cell" style="margin-top:20px;">
+            <div class="atom-sub">With nested LSPanel</div>
+            <div class="ls-card" style="width:260px;">
+              <div class="demo-title" style="margin-bottom:10px;">Today's Ride</div>
+              <div class="ls-panel">
+                <div class="demo-sub">Inner LSPanel — color.surface.primary, no shadow, radius.md</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mode-swatch dark" style="--surface-card:var(--ink-700);--surface-primary:var(--ink-800);--surface-inset:var(--ink-600);--border-default:rgba(242,238,232,0.12);--border-subtle:rgba(242,238,232,0.07);--content-primary:var(--ink-050);--content-secondary:var(--ink-100);--content-tertiary:var(--ink-200);--elev-card:0 2px 6px rgba(0,0,0,0.24);">
+          <div class="mode-tag">Dark</div>
+          <div class="atom-cell">
+            <div class="atom-sub" style="color:#6B6460;">Default — empty</div>
+            <div class="ls-card" style="width:260px; min-height:64px;"></div>
+          </div>
+          <div class="atom-cell" style="margin-top:20px;">
+            <div class="atom-sub" style="color:#6B6460;">With content</div>
+            <div class="ls-card" style="width:260px;">
+              <div class="demo-title">Blue Ridge Parkway</div>
+              <div class="demo-sub">64 mi · 4h 20m · Scenic route, rolling ridgelines</div>
+            </div>
+          </div>
+          <div class="atom-cell" style="margin-top:20px;">
+            <div class="atom-sub" style="color:#6B6460;">With nested LSPanel</div>
+            <div class="ls-card" style="width:260px;">
+              <div class="demo-title" style="margin-bottom:10px;">Today's Ride</div>
+              <div class="ls-panel" style="background:var(--ink-600);border-color:rgba(242,238,232,0.07);">
+                <div class="demo-sub">Inner LSPanel dark — ink-600 bg, no shadow</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- LSPanel -->
+    <div style="margin-left:152px; margin-bottom:64px;">
+      <div class="atom-label" style="margin-bottom:20px;">LSPanel — color.surface.primary · radius.md (10px) · no shadow · spacing.3 (12px)</div>
+      <div class="mode-pair">
+
+        <div class="mode-swatch">
+          <div class="mode-tag">Light</div>
+          <div class="atom-cell">
+            <div class="atom-sub">Default — empty</div>
+            <div class="ls-panel" style="width:260px; min-height:48px;"></div>
+          </div>
+          <div class="atom-cell" style="margin-top:20px;">
+            <div class="atom-sub">Nested inside LSCard</div>
+            <div class="ls-card" style="width:260px;">
+              <div class="demo-title" style="margin-bottom:10px;">Route Details</div>
+              <div class="ls-panel">
+                <div class="demo-sub">Distance: 64 mi · Duration: 4h 20m</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mode-swatch dark" style="--surface-card:var(--ink-700);--surface-primary:var(--ink-800);--border-default:rgba(242,238,232,0.12);--content-primary:var(--ink-050);--content-secondary:var(--ink-100);--content-tertiary:var(--ink-200);--elev-card:0 2px 6px rgba(0,0,0,0.24);">
+          <div class="mode-tag">Dark</div>
+          <div class="atom-cell">
+            <div class="atom-sub" style="color:#6B6460;">Default — empty</div>
+            <div class="ls-panel" style="width:260px; min-height:48px;"></div>
+          </div>
+          <div class="atom-cell" style="margin-top:20px;">
+            <div class="atom-sub" style="color:#6B6460;">Nested inside LSCard</div>
+            <div class="ls-card" style="width:260px;">
+              <div class="demo-title" style="margin-bottom:10px;">Route Details</div>
+              <div class="ls-panel" style="background:var(--ink-600);border-color:rgba(242,238,232,0.07);">
+                <div class="demo-sub">Distance: 64 mi · Duration: 4h 20m</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- LSGlassPanel -->
+    <div style="margin-left:152px;">
+      <div class="atom-label" style="margin-bottom:20px;">LSGlassPanel — color.surface.glass · radius.xl (20px) · elevation.overlay · backdrop-blur 13px</div>
+      <div class="mode-pair" style="flex-direction:column; gap:40px;">
+
+        <!-- Chrome variant -->
+        <div>
+          <div class="atom-sub" style="margin-bottom:14px;">variant: .chrome — plain translucent (TopBar / ChatInput use-site)</div>
+          <div class="mode-pair">
+            <div class="mode-swatch" style="background:#F5F2EE;">
+              <div class="mode-tag">Light</div>
+              <div class="map-mock">
+                <div class="ls-glass-panel chrome" style="width:100%;">
+                  <div class="demo-title">Where are we riding today?</div>
+                  <div class="demo-sub">ChatInput chrome backing — warm glass, no accent stripe</div>
+                </div>
+              </div>
+            </div>
+            <div class="mode-swatch" style="background:#1B140E;border-color:rgba(242,238,232,0.08);">
+              <div class="mode-tag">Dark</div>
+              <div class="map-mock" style="background:#1B140E;background-image:linear-gradient(rgba(242,238,232,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(242,238,232,0.07) 1px,transparent 1px);background-size:28px 28px;">
+                <div class="ls-glass-panel chrome" style="width:100%;background:rgba(45,34,24,0.72);border-color:rgba(242,238,232,0.12);">
+                  <div class="demo-title" style="color:#F2EEE8;">Where are we riding today?</div>
+                  <div class="demo-sub" style="color:#9CA3AF;">ChatInput chrome backing — dark warm glass</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Callout signal variant -->
+        <div>
+          <div class="atom-sub" style="margin-bottom:14px;">variant: .callout(accent: .signal) — 3px signal stripe (LSNavigatorMessage use-site)</div>
+          <div class="mode-pair">
+            <div class="mode-swatch" style="background:#F5F2EE;">
+              <div class="mode-tag">Light</div>
+              <div class="map-mock">
+                <div class="ls-glass-panel callout signal" style="width:100%;">
+                  <div class="demo-title">The Skyline Drive section is closed.</div>
+                  <div class="demo-sub">Navigator message — signal stripe signals the system's own voice.</div>
+                </div>
+              </div>
+            </div>
+            <div class="mode-swatch" style="background:#1B140E;border-color:rgba(242,238,232,0.08);">
+              <div class="mode-tag">Dark</div>
+              <div class="map-mock" style="background:#1B140E;background-image:linear-gradient(rgba(242,238,232,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(242,238,232,0.07) 1px,transparent 1px);background-size:28px 28px;">
+                <div class="ls-glass-panel callout signal" style="width:100%;background:rgba(45,34,24,0.72);border-color:rgba(242,238,232,0.12);">
+                  <div class="demo-title" style="color:#F2EEE8;">The Skyline Drive section is closed.</div>
+                  <div class="demo-sub" style="color:#9CA3AF;">Navigator message — dark glass with copper stripe</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Callout warning variant -->
+        <div>
+          <div class="atom-sub" style="margin-bottom:14px;">variant: .callout(accent: .warning) — 3px warning stripe (LSInlineErrorCallout use-site)</div>
+          <div class="mode-pair">
+            <div class="mode-swatch" style="background:#F5F2EE;">
+              <div class="mode-tag">Light</div>
+              <div class="map-mock">
+                <div class="ls-glass-panel callout warning" style="width:100%;">
+                  <div class="demo-title" style="color:#C46F1B;">No network connection.</div>
+                  <div class="demo-sub">Inline error callout — status.warning stripe flags degraded state.</div>
+                </div>
+              </div>
+            </div>
+            <div class="mode-swatch" style="background:#1B140E;border-color:rgba(242,238,232,0.08);">
+              <div class="mode-tag">Dark</div>
+              <div class="map-mock" style="background:#1B140E;background-image:linear-gradient(rgba(242,238,232,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(242,238,232,0.07) 1px,transparent 1px);background-size:28px 28px;">
+                <div class="ls-glass-panel callout warning" style="width:100%;background:rgba(45,34,24,0.72);border-color:rgba(242,238,232,0.12);">
+                  <div class="demo-title" style="color:#C46F1B;">No network connection.</div>
+                  <div class="demo-sub" style="color:#9CA3AF;">Inline error callout — dark glass with warning stripe</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<!-- §03 STATES / VARIANTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States / Variants</div>
+      <h2 class="section-title">Padding overrides — <em>three levels</em>.</h2>
+    </div>
+    <div class="atom-row">
+      <div class="atom-cell">
+        <div class="atom-label">spacing.3 — 12px padding</div>
+        <div class="ls-card spacing3" style="width:180px; min-height:60px;">
+          <div class="demo-sub">LSCard with padding override .spacing3 (12px)</div>
+        </div>
+      </div>
+      <div class="atom-cell">
+        <div class="atom-label">spacing.4 — 16px padding (default)</div>
+        <div class="ls-card" style="width:180px; min-height:60px;">
+          <div class="demo-sub">LSCard default padding .spacing4 (16px)</div>
+        </div>
+      </div>
+      <div class="atom-cell">
+        <div class="atom-label">spacing.5 — 20px padding</div>
+        <div class="ls-card spacing5" style="width:180px; min-height:60px;">
+          <div class="demo-sub">LSCard with padding override .spacing5 (20px)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §04 DIMENSIONS TABLE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Dimensions</div>
+      <h2 class="section-title">Exact pixel values — <em>pinned</em>.</h2>
+    </div>
+    <div class="dim-table">
+      <div class="head">Atom</div>
+      <div class="head">Radius</div>
+      <div class="head">Background</div>
+      <div class="head">Shadow</div>
+      <div class="head">Padding (default)</div>
+      <div class="head">Notes</div>
+
+      <div><span class="dim-val">LSCard</span></div>
+      <div><span class="dim-val">14px</span> (radius.lg)</div>
+      <div>color.surface.card (#FDFBF8 light / #2D2218 dark)</div>
+      <div>elevation.2</div>
+      <div><span class="dim-val">16px</span> (spacing.4)</div>
+      <div>1px border color.border.default</div>
+
+      <div><span class="dim-val">LSPanel</span></div>
+      <div><span class="dim-val">10px</span> (radius.md)</div>
+      <div>color.surface.primary (#F8F7F6 light / #221810 dark)</div>
+      <div>none</div>
+      <div><span class="dim-val">12px</span> (spacing.3)</div>
+      <div>1px border color.border.default</div>
+
+      <div><span class="dim-val">LSGlassPanel.chrome</span></div>
+      <div><span class="dim-val">20px</span> (radius.xl)</div>
+      <div>color.surface.glass (rgba warm, 72% opacity)</div>
+      <div>elevation.overlay</div>
+      <div><span class="dim-val">16px</span> (spacing.4)</div>
+      <div>backdrop-blur: 13px; border: rgba white 55%</div>
+
+      <div><span class="dim-val">LSGlassPanel.callout</span></div>
+      <div><span class="dim-val">20px</span> (radius.xl)</div>
+      <div>color.surface.glass</div>
+      <div>elevation.overlay</div>
+      <div><span class="dim-val">16px + 3px stripe</span></div>
+      <div>Leading 3px stripe: signal.default or status.warning.default</div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Surface atoms — <em>static</em> by design.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px;">Recipe</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px;">Trigger</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px;">Effect</div>
+      <div class="motion-recipe">none (static)</div>
+      <div class="motion-trigger">Mount / unmount</div>
+      <div class="motion-effect">No intrinsic animation. Consumers may apply spring-enter via molecules. LSGlassPanel backdrop-blur renders immediately on mount.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Why three surfaces, not <em>one</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design Intent</h4>
+        <p>
+          Three surfaces correspond to three visual layers. Cards lift content above the
+          page canvas. Panels group content within a card or screen zone without adding another
+          visual layer. GlassPanels float above the map — they must be transparent enough to
+          hint at the geography below while opaque enough to remain readable.
+        </p>
+        <p>
+          The callout variant was separated from chrome because the semantic weight differs.
+          Chrome panels are ambient infrastructure; callout panels carry meaning — signal for
+          Navigator voice, warning for errors. The 3px stripe communicates that distinction
+          at a glance without requiring the rider to read.
+        </p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC Traceability</h4>
+        <ul>
+          <li><strong>AC-1</strong> LSCard: color.surface.card + radius.lg + elevation.2 + spacing.4</li>
+          <li><strong>AC-2</strong> LSPanel: flat, color.surface.primary, radius.md, spacing.3</li>
+          <li><strong>AC-3</strong> LSGlassPanel.chrome: backdrop-blur 13px, elevation.overlay</li>
+          <li><strong>AC-4</strong> LSGlassPanel.callout(signal): 3px leading stripe color.signal.default</li>
+          <li><strong>AC-5</strong> LSGlassPanel.callout(warning): 3px stripe color.status.warning.default</li>
+          <li><strong>AC-6</strong> padding override: .spacing3 / .spacing4 / .spacing5 — token-only</li>
+          <li><strong>AC-7</strong> backgroundColor override: .surfaceCard only — raw literals rejected</li>
+          <li><strong>AC-8</strong> Light + dark mode verified for all three atoms</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">
+      Lane<em>Shadow</em>
+      <span>V2 · Copper · UC-ATM-05 · 2026-04-20</span>
+    </div>
+    <p class="footer-note">
+      Surface trio pinned. LSCard, LSPanel, LSGlassPanel (chrome + callout signal + callout warning).<br>
+      Light and dark pairs documented. Dimensions table complete.<br>
+      Downstream: UC-MOL-05 (FilterChip), UC-MOL-06 (WeatherPill), UC-MOL-07 (PhaseIndicator).
+    </p>
+  </footer>
+</div>
+
+</body>
+</html>

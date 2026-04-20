@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<!-- uc-atm-07-badge.html — UC-ATM-07 "LSBadge + LSBestBadge"
+     LaneShadow V2 · Copper · Atom Design Mock · 2026-04-20
+     Atoms: LSBadge (status + weather variants) · LSBestBadge
+     Authority: .spec/prds/v2/05-uc-atm.md §UC-ATM-07 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ATM-07 — LSBadge + LSBestBadge — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing:border-box;margin:0;padding:0; }
+
+:root {
+  --paper-50:#FDFBF8; --paper-100:#F8F7F6; --paper-150:#F5F2EE; --paper-200:#F2EFED;
+  --paper-300:#EDE7E1; --paper-400:#E5DED9; --paper-500:#C9BDB3;
+  --ink-900:#1E1A16; --ink-800:#221810; --ink-700:#2D2218; --ink-600:#362A1F;
+  --ink-500:#3D3228; --ink-400:#49454F; --ink-300:#6B6460; --ink-200:#9CA3AF;
+  --ink-100:#CAC4D0; --ink-050:#F2EEE8;
+  --copper-700:#9E4A22; --copper-600:#B85A2C; --copper-500:#EE7C2B;
+  --copper-400:#F3A164; --copper-200:#F9D5B5; --copper-100:#FCE8D4;
+
+  /* STATUS */
+  --status-info-bg:     #DBEAFE;
+  --status-info-fg:     #1D4ED8;
+  --status-info-on:     #1D4ED8;
+  --status-success-bg:  #DCFCE7;
+  --status-success-fg:  #15803D;
+  --status-success-on:  #15803D;
+  --status-warning-bg:  #FEF3C7;
+  --status-warning-fg:  #C46F1B;
+  --status-warning-on:  #C46F1B;
+  --status-error-bg:    #FEE2E2;
+  --status-error-fg:    #DC2626;
+  --status-error-on:    #DC2626;
+  --status-recording-bg:#FEE2E2;
+  --status-recording-fg:#DC2626;
+  --status-recording-on:#DC2626;
+
+  /* WEATHER */
+  --wx-clear:           #E6A52A;
+  --wx-clear-tint:      #FBEFCF;
+  --wx-rain:            #4A86BE;
+  --wx-rain-tint:       #DBEAF4;
+  --wx-wind:            #6B7B8F;
+  --wx-wind-tint:       #E1E6EC;
+  --wx-storm:           #5E3FAE;
+  --wx-storm-tint:      #E3DCF2;
+  --wx-hot:             #C9423C;
+  --wx-hot-tint:        #F5D8D6;
+  --wx-cold:            #3A8BE3;
+  --wx-cold-tint:       #D6E5F7;
+
+  --font-opinion:'Newsreader',Georgia,'Times New Roman',serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono','Menlo',monospace;
+
+  --surface-primary:var(--paper-100); --surface-card:var(--paper-50); --surface-inset:var(--paper-200);
+  --content-primary:var(--ink-900); --content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300); --content-subtle:var(--ink-200);
+  --content-onSignal:#FFFFFF;
+  --signal-default:var(--copper-500); --signal-tint:var(--copper-200); --signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400); --border-subtle:var(--paper-300); --border-strong:var(--paper-500);
+  --elev-card:0 2px 6px rgba(34,24,16,0.06);
+}
+
+body { background: var(--surface-primary); color: var(--content-primary); }
+
+/* TYPOGRAPHY */
+.t-opinion-xl  { font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em; }
+.t-opinion-lg  { font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em; }
+.t-title-lg    { font-family:var(--font-ui);font-weight:600;font-size:17px;line-height:1.24;letter-spacing:-0.01em; }
+.t-body-md     { font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52; }
+.t-body-sm     { font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48; }
+.t-label-md    { font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase; }
+.t-label-sm    { font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase; }
+.t-instr-md    { font-family:var(--font-instrument);font-weight:500;font-size:13px;line-height:1.2;font-feature-settings:"tnum" 1; }
+.t-instr-sm    { font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1; }
+.t-instr-xs    { font-family:var(--font-instrument);font-weight:500;font-size:8.5px;line-height:1.0;font-feature-settings:"tnum" 1; }
+
+/* DOC CHROME */
+body { font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden; }
+.wrap { max-width:1440px;margin:0 auto;padding:0 72px; }
+.doc-header { position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden; }
+.doc-header::before { content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none; }
+.doc-header>* { position:relative;z-index:1; }
+.doc-eyebrow { display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px; }
+.doc-eyebrow::before { content:"";width:28px;height:1px;background:var(--signal-default); }
+.doc-eyebrow-pill { display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em; }
+.doc-title { font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px; }
+.doc-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.doc-tagline { font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px; }
+.doc-meta-row { display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default); }
+.meta-item { display:flex;flex-direction:column;gap:6px; }
+.meta-label { font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary); }
+.meta-value { font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary); }
+.section { padding:96px 0;border-bottom:1px solid var(--border-default);position:relative; }
+.section:last-child { border-bottom:none; }
+.section-header { display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px; }
+.section-index { font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px; }
+.section-index::before { content:"";display:block;width:48px;height:1px;background:var(--signal-default); }
+.section-title { font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px; }
+.section-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.prose { font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px; }
+.prose+.prose { margin-top:20px; }
+.prose em { font-style:italic; }
+.prose strong { font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px; }
+.doc-footer { padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end; }
+.footer-mark { font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;color:var(--content-primary);letter-spacing:-0.02em; }
+.footer-mark em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.footer-mark span { display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300; }
+.footer-note { font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300; }
+
+/* LAYOUT */
+.atom-row { display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start;padding-left:152px; }
+.atom-cell { display:flex;flex-direction:column;gap:8px; }
+.atom-label { font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default); }
+.atom-sub { font-family:var(--font-ui);font-size:10px;color:var(--content-tertiary);line-height:1.5; }
+.group-label { padding-left:152px;margin-bottom:20px;margin-top:48px; font-family:var(--font-opinion);font-size:22px;font-weight:300;color:var(--content-secondary); }
+.group-label:first-child { margin-top:0; }
+
+/* Dimensions table */
+.dim-table { padding-left:152px;display:grid;grid-template-columns:180px 120px 120px 120px 1fr;row-gap:0;column-gap:0; }
+.dim-table>div { padding:10px 14px;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:12px;color:var(--content-secondary); }
+.dim-table>div.head { font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px; }
+.dim-val { font-family:var(--font-instrument);color:var(--content-primary); }
+
+.motion-table { padding-left:152px;display:grid;grid-template-columns:180px 1fr 2fr;row-gap:0; }
+.motion-table>div { padding:10px 0;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:13px; }
+.motion-recipe { font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px; }
+.motion-trigger { color:var(--content-primary);font-weight:500; }
+.motion-effect { color:var(--content-secondary); }
+
+.rationale-grid { padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px; }
+.rationale-block h4 { font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px; }
+.rationale-block p { font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px; }
+.rationale-block ul { list-style:none; }
+.rationale-block li { padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle); }
+.rationale-block li::before { content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument); }
+.rationale-block li strong { font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSBadge ATOM
+   Built on LSPill(size: .sm) — height 24px, radius.pill, padding 0 8px
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Base badge — pill shape */
+.ls-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Count-only badge — minimal, circular when single digit */
+.ls-badge.count-only {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  font-size: 9.5px;
+  font-weight: 700;
+  justify-content: center;
+  border-radius: 999px;
+}
+
+/* Badge icon */
+.badge-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+}
+
+/* STATUS VARIANTS */
+.ls-badge.status-info {
+  background: var(--status-info-bg);
+  color: var(--status-info-on);
+  border: 0.5px solid rgba(29,78,216,0.28);
+}
+.ls-badge.status-success {
+  background: var(--status-success-bg);
+  color: var(--status-success-on);
+  border: 0.5px solid rgba(21,128,61,0.28);
+}
+.ls-badge.status-warning {
+  background: var(--status-warning-bg);
+  color: var(--status-warning-on);
+  border: 0.5px solid rgba(196,111,27,0.28);
+}
+.ls-badge.status-error {
+  background: var(--status-error-bg);
+  color: var(--status-error-on);
+  border: 0.5px solid rgba(220,38,38,0.28);
+}
+.ls-badge.status-recording {
+  background: var(--status-recording-bg);
+  color: var(--status-recording-on);
+  border: 0.5px solid rgba(220,38,38,0.40);
+}
+/* Recording has a live-indicator dot */
+.ls-badge.status-recording .rec-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--status-recording-fg);
+  animation: recPulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes recPulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(0.85); }
+}
+
+/* WEATHER VARIANTS */
+.ls-badge.weather-clear  { background:var(--wx-clear-tint); color:var(--wx-clear);  border:0.5px solid rgba(230,165,42,0.55); }
+.ls-badge.weather-rain   { background:var(--wx-rain-tint);  color:var(--wx-rain);   border:0.5px solid rgba(74,134,190,0.55); }
+.ls-badge.weather-wind   { background:var(--wx-wind-tint);  color:var(--wx-wind);   border:0.5px solid rgba(107,123,143,0.55); }
+.ls-badge.weather-storm  { background:var(--wx-storm-tint); color:var(--wx-storm);  border:0.5px solid rgba(94,63,174,0.55); }
+.ls-badge.weather-hot    { background:var(--wx-hot-tint);   color:var(--wx-hot);    border:0.5px solid rgba(201,66,60,0.55); }
+.ls-badge.weather-cold   { background:var(--wx-cold-tint);  color:var(--wx-cold);   border:0.5px solid rgba(58,139,227,0.55); }
+
+/* LSBestBadge — signal.default bg, signal.on text, star icon */
+.ls-best-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--signal-default);
+  color: #FFFFFF;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ls-best-badge .star-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-ATM-07</span><span class="doc-eyebrow-pill">● Atoms · Tier B</span></div>
+    <h1 class="doc-title"><em>Badges</em> that signal<br>state and sky.</h1>
+    <p class="doc-tagline">
+      LSBadge covers five status variants and six weather variants.
+      LSBestBadge is a typed sub-variant — copper background, white text, star prefix.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-ATM-07</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">05-uc-atm.md</div></div>
+      <div class="meta-item"><div class="meta-label">Atoms</div><div class="meta-value">LSBadge · LSBestBadge</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Status at a glance, <em>weather in the same breath</em>.</h2>
+    </div>
+    <p class="prose">
+      LSBadge renders context-sensitive metadata in a pill shape. The status group (info, success,
+      warning, error, recording) communicates system state using color pairs from color.status.*.
+      The weather group (clear, rain, wind, storm, hot, cold) communicates conditions using
+      color.weather.*.tint backgrounds with color.weather.*.default foregrounds.
+    </p>
+    <p class="prose">
+      LSBestBadge is a distinct atom — not a variant of LSBadge. It carries a unique semantic role:
+      "the Navigator's recommendation." Its copper fill and white text are reserved exclusively for
+      this meaning. The star icon reinforces the premium signal without requiring text to explain it.
+    </p>
+  </section>
+</div>
+
+<!-- §02 THE ATOM -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · The Atom</div>
+      <h2 class="section-title">Status, weather, <em>best</em>.</h2>
+    </div>
+
+    <!-- STATUS VARIANTS -->
+    <div class="group-label"><em>Status variants</em> — color.status.*.default bg + color.status.*.on foreground</div>
+    <div class="atom-row">
+
+      <div class="atom-cell">
+        <div class="atom-label">status.info</div>
+        <div class="ls-badge status-info">
+          <span class="badge-icon">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </span>
+          Info
+        </div>
+        <span class="atom-sub">#DBEAFE bg · #1D4ED8 fg · 0.5px border 28%</span>
+      </div>
+
+      <div class="atom-cell">
+        <div class="atom-label">status.success</div>
+        <div class="ls-badge status-success">
+          <span class="badge-icon">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="4 12 10 18 20 6"/></svg>
+          </span>
+          Done
+        </div>
+        <span class="atom-sub">#DCFCE7 bg · #15803D fg · 0.5px border 28%</span>
+      </div>
+
+      <div class="atom-cell">
+        <div class="atom-label">status.warning</div>
+        <div class="ls-badge status-warning">
+          <span class="badge-icon">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </span>
+          Warning
+        </div>
+        <span class="atom-sub">#FEF3C7 bg · #C46F1B fg · 0.5px border 28%</span>
+      </div>
+
+      <div class="atom-cell">
+        <div class="atom-label">status.error</div>
+        <div class="ls-badge status-error">
+          <span class="badge-icon">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          </span>
+          Error
+        </div>
+        <span class="atom-sub">#FEE2E2 bg · #DC2626 fg · 0.5px border 28%</span>
+      </div>
+
+      <div class="atom-cell">
+        <div class="atom-label">status.recording</div>
+        <div class="ls-badge status-recording">
+          <span class="rec-dot"></span>
+          Recording
+        </div>
+        <span class="atom-sub">#FEE2E2 bg · #DC2626 fg · pulsing live dot</span>
+      </div>
+
+      <div class="atom-cell">
+        <div class="atom-label">count-only (recording)</div>
+        <div class="ls-badge status-recording count-only">3</div>
+        <span class="atom-sub">Count badge — 20px min-width · no label · compact</span>
+      </div>
+
+    </div>
+
+    <!-- WEATHER VARIANTS -->
+    <div class="group-label"><em>Weather variants</em> — color.weather.*.tint bg + color.weather.*.default fg + 0.5px border at 55% alpha</div>
+    <div class="atom-row">
+
+      <div class="atom-cell">
+        <div class="atom-label">weather.clear</div>
+        <div class="ls-badge weather-clear">
+          <span class="badge-icon">
+            <!-- sun icon -->
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/></svg>
+          </span>
+          Clear 72F
+        </div>
+        <span class="atom-sub">#FBEFCF bg · #E6A52A fg · .sun icon</span>
+      </div>
+
+      <div class="atom-cell">
+        <div class="atom-label">weather.rain</div>
+        <div class="ls-badge weather-rain">
+          <span class="badge-icon">
+            <!-- rain icon -->
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 10a6 6 0 00-12 0c0 4 6 10 6 10s6-6 6-10z"/><line x1="12" y1="14" x2="12" y2="17"/><line x1="9" y1="16" x2="9" y2="19"/><line x1="15" y1="16" x2="15" y2="19"/></svg>
+          </span>
+          Rain 3pm
+        </div>
+        <span class="atom-sub">#DBEAF4 bg · #4A86BE fg · .rain icon</span>
+      </div>
+
+      <div class="atom-cell">
+        <div class="atom-label">weather.wind</div>
+        <div class="ls-badge weather-wind">
+          <span class="badge-icon">
+            <!-- wind icon -->
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M17.7 7.7a2.5 2.5 0 111.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1111 8H2"/><path d="M12.6 19.4A2 2 0 1014 16H2"/></svg>
+          </span>
+          18mph NW
+        </div>
+        <span class="atom-sub">#E1E6EC bg · #6B7B8F fg · .wind icon</span>
+      </div>
+
+      <div class="atom-cell">
+        <div class="atom-label">weather.storm</div>
+        <div class="ls-badge weather-storm">
+          <span class="badge-icon">
+            <!-- storm / lightning icon -->
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </span>
+          Storm PM
+        </div>
+        <span class="atom-sub">#E3DCF2 bg · #5E3FAE fg · .storm icon</span>
+      </div>
+
+      <div class="atom-cell">
+        <div class="atom-label">weather.hot</div>
+        <div class="ls-badge weather-hot">
+          <span class="badge-icon">
+            <!-- therm icon -->
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"/></svg>
+          </span>
+          98F Heat
+        </div>
+        <span class="atom-sub">#F5D8D6 bg · #C9423C fg · .therm icon</span>
+      </div>
+
+      <div class="atom-cell">
+        <div class="atom-label">weather.cold</div>
+        <div class="ls-badge weather-cold">
+          <span class="badge-icon">
+            <!-- snowflake / cold therm -->
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 7l-5 5-5-5"/><path d="M17 17l-5-5-5 5"/><path d="M2 7l5 2.5M22 7l-5 2.5"/><path d="M2 17l5-2.5M22 17l-5-2.5"/></svg>
+          </span>
+          34F Cold
+        </div>
+        <span class="atom-sub">#D6E5F7 bg · #3A8BE3 fg · .cold icon</span>
+      </div>
+
+    </div>
+
+    <!-- LSBestBadge -->
+    <div class="group-label"><em>LSBestBadge</em> — signal.default bg · signal.on text · leading filled star</div>
+    <div class="atom-row">
+      <div class="atom-cell">
+        <div class="atom-label">LSBestBadge</div>
+        <div class="ls-best-badge">
+          <span class="star-icon">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </span>
+          Best for Today
+        </div>
+        <span class="atom-sub">Height 24px · signal.default (#EE7C2B) bg · white text · filled star</span>
+      </div>
+      <div class="atom-cell">
+        <div class="atom-label">LSBestBadge — label only variant</div>
+        <div class="ls-best-badge">
+          <span class="star-icon">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </span>
+          Best Route
+        </div>
+        <span class="atom-sub">Always carries filled-star prefix — not optional</span>
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<!-- §03 STATES / VARIANTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States / Variants</div>
+      <h2 class="section-title">Count-only badge — <em>compact numeric</em>.</h2>
+    </div>
+    <div class="atom-row">
+      <div class="atom-cell">
+        <div class="atom-label">recording count — 1</div>
+        <div class="ls-badge status-recording count-only">1</div>
+        <span class="atom-sub">20px diameter · centered · no label</span>
+      </div>
+      <div class="atom-cell">
+        <div class="atom-label">recording count — 3</div>
+        <div class="ls-badge status-recording count-only">3</div>
+      </div>
+      <div class="atom-cell">
+        <div class="atom-label">recording count — 12</div>
+        <div class="ls-badge status-recording count-only">12</div>
+        <span class="atom-sub">Wider than circular at 2 digits</span>
+      </div>
+      <div class="atom-cell">
+        <div class="atom-label">info count</div>
+        <div class="ls-badge status-info count-only">5</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §04 DIMENSIONS TABLE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Dimensions</div>
+      <h2 class="section-title">Exact pixel values — <em>pinned</em>.</h2>
+    </div>
+    <div class="dim-table">
+      <div class="head">Atom / Variant</div>
+      <div class="head">Height</div>
+      <div class="head">Radius</div>
+      <div class="head">H-Padding</div>
+      <div class="head">Notes</div>
+
+      <div><span class="dim-val">LSBadge (all variants)</span></div>
+      <div><span class="dim-val">24px</span></div>
+      <div><span class="dim-val">999px</span> (radius.pill)</div>
+      <div><span class="dim-val">8px</span> (spacing.2)</div>
+      <div>Built on LSPill(size:.sm) · icon gap 5px · icon size 10-11px (sizing.icon.xs)</div>
+
+      <div><span class="dim-val">LSBadge.count-only</span></div>
+      <div><span class="dim-val">20px</span></div>
+      <div><span class="dim-val">999px</span></div>
+      <div><span class="dim-val">5px</span> (min)</div>
+      <div>Min-width 20px · font 9.5px · single or double digit</div>
+
+      <div><span class="dim-val">LSBestBadge</span></div>
+      <div><span class="dim-val">24px</span></div>
+      <div><span class="dim-val">999px</span></div>
+      <div><span class="dim-val">10px</span> (spacing.2.5)</div>
+      <div>signal.default (#EE7C2B) fill · white fg · filled-star 11px · font-weight 700 · letter-spacing 0.06em</div>
+
+      <div><span class="dim-val">Weather badge border</span></div>
+      <div>—</div>
+      <div>—</div>
+      <div>—</div>
+      <div>0.5px border at 55% alpha of weather.*.default color</div>
+
+      <div><span class="dim-val">Status badge border</span></div>
+      <div>—</div>
+      <div>—</div>
+      <div>—</div>
+      <div>0.5px border at 28% alpha of status.*.on color</div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Recording badge — <em>pulsing dot</em>.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px;">Recipe</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px;">Trigger</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px;">Effect</div>
+      <div class="motion-recipe">recDotPulse</div>
+      <div class="motion-trigger">status.recording variant rendered</div>
+      <div class="motion-effect">6px dot pulses: opacity 1→0.5→1, scale 1→0.85→1. Duration 1.4s ease-in-out, infinite loop.</div>
+      <div class="motion-recipe">none (static)</div>
+      <div class="motion-trigger">All other variants</div>
+      <div class="motion-effect">No intrinsic animation.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Two type systems under <em>one interface</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design Intent</h4>
+        <p>
+          Status and weather are unified under BadgeVariant because both communicate
+          contextual metadata in the same shape and at the same size. The type system prevents
+          mixing — a developer cannot accidentally pass a raw color or invent a new variant.
+          The full set is exhaustive: every badge in the Navigator UI resolves to exactly one
+          of the eleven variants defined here.
+        </p>
+        <p>
+          LSBestBadge is kept separate because its semantic weight is categorically different.
+          It is the Navigator's opinion — the copper fill is reserved for this meaning. If it
+          were just another variant of LSBadge, future developers might use the copper fill for
+          other purposes, diluting the signal.
+        </p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC Traceability</h4>
+        <ul>
+          <li><strong>AC-1</strong> LSBadge(count:3, variant:.status.recording) — correct bg + fg + rec dot</li>
+          <li><strong>AC-2</strong> LSBadge(label:"Rain 3pm", variant:.weather.rain) — tint bg + rain.default fg + 0.5px border</li>
+          <li><strong>AC-3</strong> LSBadge(label:"18mph NW", variant:.weather.wind) — wind colors + .wind icon</li>
+          <li><strong>AC-4</strong> LSBestBadge() — signal.default bg + signal.on text + filled star</li>
+          <li><strong>AC-5</strong> Story: one story per status variant + weather variant + LSBestBadge</li>
+          <li><strong>AC-6</strong> All 5 status + 6 weather + 1 best = 12 badge variants documented</li>
+          <li><strong>AC-7</strong> Weather border = 0.5px at 55% alpha of weather.*.default</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">
+      Lane<em>Shadow</em>
+      <span>V2 · Copper · UC-ATM-07 · 2026-04-20</span>
+    </div>
+    <p class="footer-note">
+      11 badge variants pinned: 5 status + 6 weather + LSBestBadge.<br>
+      Count-only variant and recording pulse animation documented.<br>
+      Downstream: FilterChip (UC-MOL-05), WeatherPill (UC-MOL-06), RouteCard (UC-MOL-09).
+    </p>
+  </footer>
+</div>
+
+</body>
+</html>

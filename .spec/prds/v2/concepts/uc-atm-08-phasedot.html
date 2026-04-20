@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<!-- uc-atm-08-phasedot.html — UC-ATM-08 "LSPhaseDot"
+     LaneShadow V2 · Copper · Atom Design Mock · 2026-04-20
+     Atom: LSPhaseDot — pending / active / done states with ring-pulse
+     Authority: .spec/prds/v2/05-uc-atm.md §UC-ATM-08 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ATM-08 — LSPhaseDot — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing:border-box;margin:0;padding:0; }
+
+:root {
+  --paper-50:#FDFBF8; --paper-100:#F8F7F6; --paper-150:#F5F2EE; --paper-200:#F2EFED;
+  --paper-300:#EDE7E1; --paper-400:#E5DED9; --paper-500:#C9BDB3;
+  --ink-900:#1E1A16; --ink-800:#221810; --ink-700:#2D2218; --ink-600:#362A1F;
+  --ink-500:#3D3228; --ink-400:#49454F; --ink-300:#6B6460; --ink-200:#9CA3AF;
+  --ink-100:#CAC4D0; --ink-050:#F2EEE8;
+  --copper-700:#9E4A22; --copper-600:#B85A2C; --copper-500:#EE7C2B;
+  --copper-400:#F3A164; --copper-200:#F9D5B5; --copper-100:#FCE8D4;
+  --status-success:#16A34A;
+  --font-opinion:'Newsreader',Georgia,'Times New Roman',serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono','Menlo',monospace;
+
+  --surface-primary:var(--paper-100); --surface-card:var(--paper-50); --surface-inset:var(--paper-200);
+  --content-primary:var(--ink-900); --content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300); --content-subtle:var(--ink-200);
+  --signal-default:var(--copper-500); --signal-tint:var(--copper-200); --signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400); --border-subtle:var(--paper-300); --border-strong:var(--paper-500);
+  --elev-card:0 2px 6px rgba(34,24,16,0.06);
+}
+
+body { background: var(--surface-primary); color: var(--content-primary); }
+
+/* TYPOGRAPHY */
+.t-opinion-xl  { font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em; }
+.t-opinion-lg  { font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em; }
+.t-title-lg    { font-family:var(--font-ui);font-weight:600;font-size:17px;line-height:1.24;letter-spacing:-0.01em; }
+.t-body-md     { font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52; }
+.t-label-md    { font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase; }
+.t-label-sm    { font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase; }
+.t-instr-md    { font-family:var(--font-instrument);font-weight:500;font-size:13px;line-height:1.2;font-feature-settings:"tnum" 1; }
+.t-instr-sm    { font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1; }
+.t-instr-xs    { font-family:var(--font-instrument);font-weight:500;font-size:8.5px;line-height:1.0;font-feature-settings:"tnum" 1; }
+
+/* DOC CHROME */
+body { font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden; }
+.wrap { max-width:1440px;margin:0 auto;padding:0 72px; }
+.doc-header { position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden; }
+.doc-header::before { content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none; }
+.doc-header>* { position:relative;z-index:1; }
+.doc-eyebrow { display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px; }
+.doc-eyebrow::before { content:"";width:28px;height:1px;background:var(--signal-default); }
+.doc-eyebrow-pill { display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em; }
+.doc-title { font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px; }
+.doc-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.doc-tagline { font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px; }
+.doc-meta-row { display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default); }
+.meta-item { display:flex;flex-direction:column;gap:6px; }
+.meta-label { font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary); }
+.meta-value { font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary); }
+.section { padding:96px 0;border-bottom:1px solid var(--border-default);position:relative; }
+.section:last-child { border-bottom:none; }
+.section-header { display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px; }
+.section-index { font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px; }
+.section-index::before { content:"";display:block;width:48px;height:1px;background:var(--signal-default); }
+.section-title { font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px; }
+.section-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.prose { font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px; }
+.prose+.prose { margin-top:20px; }
+.prose em { font-style:italic; }
+.doc-footer { padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end; }
+.footer-mark { font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;color:var(--content-primary);letter-spacing:-0.02em; }
+.footer-mark em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.footer-mark span { display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300; }
+.footer-note { font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300; }
+
+/* LAYOUT */
+.atom-row { display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start;padding-left:152px; }
+.atom-cell { display:flex;flex-direction:column;gap:12px;align-items:center; }
+.atom-label { font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default); }
+.atom-sub { font-family:var(--font-ui);font-size:10px;color:var(--content-tertiary);line-height:1.5;text-align:center;max-width:120px; }
+
+/* Dim table */
+.dim-table { padding-left:152px;display:grid;grid-template-columns:180px 80px 100px 120px 1fr;row-gap:0;column-gap:0; }
+.dim-table>div { padding:10px 14px;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:12px;color:var(--content-secondary); }
+.dim-table>div.head { font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px; }
+.dim-val { font-family:var(--font-instrument);color:var(--content-primary); }
+
+/* Rationale */
+.rationale-grid { padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px; }
+.rationale-block h4 { font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px; }
+.rationale-block p { font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px; }
+.rationale-block ul { list-style:none; }
+.rationale-block li { padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle); }
+.rationale-block li::before { content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument); }
+.rationale-block li strong { font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSPhaseDot ATOM
+   Diameter: 10px (production size)
+   Scaled demo: 50px for inspection
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Production size: 10px */
+.ls-phase-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+  display: inline-block;
+}
+
+/* State: pending — hollow, border.strong */
+.ls-phase-dot.pending {
+  background: var(--surface-card);
+  border: 1px solid var(--border-strong);
+}
+
+/* State: active — filled signal + concentric ring pulse */
+.ls-phase-dot.active {
+  background: var(--signal-default);
+}
+.ls-phase-dot.active::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid var(--signal-default);
+  opacity: 0;
+  animation: phaseDotPulse 900ms ease-in-out infinite;
+}
+
+/* State: done — filled status.success */
+.ls-phase-dot.done {
+  background: var(--status-success);
+}
+/* Done checkmark */
+.ls-phase-dot.done::after {
+  content: "";
+  position: absolute;
+  inset: 1.5px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 12 10 18 20 6'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+/* motion.recipe.phaseDotPulse — 900ms ease-in-out, scale 0→1.5×, opacity 0.4→0 */
+@keyframes phaseDotPulse {
+  0%   { transform: scale(0); opacity: 0.4; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* ── SCALED DEMO: 50px for inspection ── */
+.ls-phase-dot-lg {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+  display: inline-block;
+}
+
+.ls-phase-dot-lg.pending {
+  background: var(--surface-card);
+  border: 5px solid var(--border-strong); /* scaled: 1px * 5 */
+}
+
+.ls-phase-dot-lg.active {
+  background: var(--signal-default);
+}
+/* Active ring pulse — scaled bounding */
+.ls-phase-dot-lg.active::after {
+  content: "";
+  position: absolute;
+  inset: -16px; /* approx ring-max-radius = 10px*0.5 * 1.5 - half-dot, scaled */
+  border-radius: 50%;
+  border: 5px solid var(--signal-default);
+  opacity: 0;
+  animation: phaseDotPulseLg 900ms ease-in-out infinite;
+}
+@keyframes phaseDotPulseLg {
+  0%   { transform: scale(0); opacity: 0.4; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+.ls-phase-dot-lg.done {
+  background: var(--status-success);
+}
+.ls-phase-dot-lg.done::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 12 10 18 20 6'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+/* Phase indicator composition */
+.phase-indicator-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.phase-step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+/* Connector line between dots */
+.phase-step-item::after {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: var(--border-strong);
+  flex-shrink: 0;
+}
+.phase-step-item:last-child::after { display: none; }
+.phase-step-item.done::after { background: var(--status-success); }
+.phase-step-item.active::after { background: var(--border-default); }
+
+.phase-step-label {
+  font-family: var(--font-instrument);
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--content-tertiary);
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.phase-step-item.done .phase-step-label { color: var(--content-tertiary); }
+.phase-step-item.active .phase-step-label { color: var(--content-primary); font-weight: 600; }
+.phase-step-item.pending .phase-step-label { color: var(--content-subtle); }
+
+/* Motion table */
+.motion-table { padding-left:152px;display:grid;grid-template-columns:220px 1fr 2fr;row-gap:0; }
+.motion-table>div { padding:10px 0;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:13px; }
+.motion-recipe { font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px; }
+.motion-trigger { color:var(--content-primary);font-weight:500; }
+.motion-effect { color:var(--content-secondary); }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-ATM-08</span><span class="doc-eyebrow-pill">● Atoms · Tier B</span></div>
+    <h1 class="doc-title">The dot that <em>pulses</em><br>when the machine thinks.</h1>
+    <p class="doc-tagline">
+      LSPhaseDot — 10px, three states. Pending is hollow. Active fills with signal copper
+      and emits a concentric ring per motion.recipe.phaseDotPulse. Done fills with success green.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-ATM-08</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">05-uc-atm.md</div></div>
+      <div class="meta-item"><div class="meta-label">Atom</div><div class="meta-value">LSPhaseDot</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Machine-state made <em>visible</em>.</h2>
+    </div>
+    <p class="prose">
+      LSPhaseDot communicates position in a multi-step process. The Navigator's planning pipeline
+      has five steps — scout, draw, check weather, score, rank. The rider does not need to know
+      the names. They need to see progress. Three states give them that at a glance: hollow (waiting),
+      copper-filled with a pulse ring (in progress), green-filled (complete).
+    </p>
+    <p class="prose">
+      The 10px diameter is intentional. The dot must be legible in a crowded row but not consume
+      the visual weight of adjacent labels. The ring pulse adds temporal rhythm without requiring
+      the rider to look away from the map.
+    </p>
+  </section>
+</div>
+
+<!-- §02 THE ATOM -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · The Atom</div>
+      <h2 class="section-title">Scaled for inspection — <em>50px demo</em>, 10px production.</h2>
+    </div>
+
+    <!-- Scaled demo: 50px -->
+    <div class="atom-row" style="margin-bottom:64px;">
+
+      <div class="atom-cell">
+        <div class="atom-label">pending</div>
+        <!-- bounding box: 50px dot only, no ring -->
+        <div style="width:82px;height:82px;display:flex;align-items:center;justify-content:center;">
+          <div class="ls-phase-dot-lg pending"></div>
+        </div>
+        <span class="atom-sub">Hollow · color.border.strong 1px · no animation</span>
+      </div>
+
+      <div class="atom-cell">
+        <div class="atom-label">active (pulsing)</div>
+        <!-- bounding box: 50px + 16px ring overhang each side = 82px -->
+        <div style="width:82px;height:82px;display:flex;align-items:center;justify-content:center;overflow:visible;position:relative;">
+          <div class="ls-phase-dot-lg active"></div>
+        </div>
+        <span class="atom-sub">Filled signal · ring pulse · motion.recipe.phaseDotPulse · 900ms</span>
+      </div>
+
+      <div class="atom-cell">
+        <div class="atom-label">done</div>
+        <div style="width:82px;height:82px;display:flex;align-items:center;justify-content:center;">
+          <div class="ls-phase-dot-lg done"></div>
+        </div>
+        <span class="atom-sub">Filled success (#16A34A) · checkmark inset · no animation</span>
+      </div>
+
+    </div>
+
+    <!-- Production size: 10px -->
+    <div style="padding-left:152px;">
+      <div class="atom-label" style="margin-bottom:20px;">Production size — 10px diameter</div>
+      <div style="display:flex;gap:32px;align-items:center;">
+
+        <div class="atom-cell">
+          <div class="atom-label">pending</div>
+          <div style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;">
+            <div class="ls-phase-dot pending"></div>
+          </div>
+          <span class="atom-sub">10px · hollow · border.strong</span>
+        </div>
+
+        <div class="atom-cell">
+          <div class="atom-label">active</div>
+          <div style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;overflow:visible;position:relative;">
+            <div class="ls-phase-dot active"></div>
+          </div>
+          <span class="atom-sub">10px · signal fill · ring pulse</span>
+        </div>
+
+        <div class="atom-cell">
+          <div class="atom-label">done</div>
+          <div style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;">
+            <div class="ls-phase-dot done"></div>
+          </div>
+          <span class="atom-sub">10px · success fill · check</span>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<!-- §03 STATES / VARIANTS — PhaseIndicator composition -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States / Variants</div>
+      <h2 class="section-title">PhaseIndicator composition — five dots in a <em>row</em>.</h2>
+    </div>
+
+    <p class="prose" style="margin-bottom:56px;">
+      The PhaseIndicator molecule (UC-MOL-07) composes five LSPhaseDot atoms in sequence with
+      connector lines and step labels in instrument.sm below. This demo mirrors
+      the PlanningScreen state where steps 1 and 2 are done, step 3 is active, steps 4 and 5 are pending.
+    </p>
+
+    <div style="padding-left:152px;">
+      <div style="padding:32px;background:var(--surface-card);border-radius:14px;border:1px solid var(--border-default);box-shadow:var(--elev-card);display:inline-block;">
+        <!-- Composition: done / done / active / pending / pending -->
+        <div style="position:relative;padding-bottom:28px;">
+          <div style="display:flex;align-items:center;gap:0;">
+
+            <!-- Step 1: done -->
+            <div style="display:flex;flex-direction:column;align-items:center;position:relative;">
+              <div style="display:flex;align-items:center;">
+                <div class="ls-phase-dot done"></div>
+                <div style="width:48px;height:1px;background:var(--status-success);flex-shrink:0;"></div>
+              </div>
+              <div class="t-instr-sm" style="position:absolute;top:16px;color:var(--content-tertiary);white-space:nowrap;font-size:9px;">Scout</div>
+            </div>
+
+            <!-- Step 2: done -->
+            <div style="display:flex;flex-direction:column;align-items:center;position:relative;">
+              <div style="display:flex;align-items:center;">
+                <div class="ls-phase-dot done"></div>
+                <div style="width:48px;height:1px;background:var(--signal-tint);flex-shrink:0;"></div>
+              </div>
+              <div class="t-instr-sm" style="position:absolute;top:16px;color:var(--content-tertiary);white-space:nowrap;font-size:9px;">Draw</div>
+            </div>
+
+            <!-- Step 3: active -->
+            <div style="display:flex;flex-direction:column;align-items:center;position:relative;overflow:visible;">
+              <div style="display:flex;align-items:center;overflow:visible;">
+                <div class="ls-phase-dot active" style="overflow:visible;"></div>
+                <div style="width:48px;height:1px;background:var(--border-default);flex-shrink:0;"></div>
+              </div>
+              <div class="t-instr-sm" style="position:absolute;top:16px;color:var(--content-primary);white-space:nowrap;font-size:9px;font-weight:600;">Weather</div>
+            </div>
+
+            <!-- Step 4: pending -->
+            <div style="display:flex;flex-direction:column;align-items:center;position:relative;">
+              <div style="display:flex;align-items:center;">
+                <div class="ls-phase-dot pending"></div>
+                <div style="width:48px;height:1px;background:var(--border-subtle);flex-shrink:0;"></div>
+              </div>
+              <div class="t-instr-sm" style="position:absolute;top:16px;color:var(--content-subtle);white-space:nowrap;font-size:9px;">Score</div>
+            </div>
+
+            <!-- Step 5: pending (no connector) -->
+            <div style="display:flex;flex-direction:column;align-items:center;position:relative;">
+              <div style="display:flex;align-items:center;">
+                <div class="ls-phase-dot pending"></div>
+              </div>
+              <div class="t-instr-sm" style="position:absolute;top:16px;color:var(--content-subtle);white-space:nowrap;font-size:9px;">Rank</div>
+            </div>
+
+          </div>
+        </div>
+
+        <div style="margin-top:8px;font-family:var(--font-instrument);font-size:8.5px;color:var(--content-tertiary);letter-spacing:0.14em;text-transform:uppercase;">
+          PhaseIndicator — 5 steps — done / done / active / pending / pending
+        </div>
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<!-- §04 DIMENSIONS TABLE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Dimensions</div>
+      <h2 class="section-title">10px dot — bounding box for <em>ring-pulse</em>.</h2>
+    </div>
+    <div class="dim-table">
+      <div class="head">Property</div>
+      <div class="head">Value</div>
+      <div class="head">Token</div>
+      <div class="head">State</div>
+      <div class="head">Notes</div>
+
+      <div>Dot diameter</div>
+      <div><span class="dim-val">10px</span></div>
+      <div>sizing.phaseDot</div>
+      <div>all</div>
+      <div>Fixed; not responsive to font scale</div>
+
+      <div>Border (pending)</div>
+      <div><span class="dim-val">1px</span></div>
+      <div>border.strong</div>
+      <div>pending</div>
+      <div>Hollow — fill is color.surface.card</div>
+
+      <div>Fill color (active)</div>
+      <div><span class="dim-val">#EE7C2B</span></div>
+      <div>color.signal.default</div>
+      <div>active</div>
+      <div>Solid fill; ring is concentric overlay</div>
+
+      <div>Fill color (done)</div>
+      <div><span class="dim-val">#16A34A</span></div>
+      <div>color.status.success.default</div>
+      <div>done</div>
+      <div>Green fill with embedded white checkmark</div>
+
+      <div>Ring — starting size</div>
+      <div><span class="dim-val">0px</span> (scale 0)</div>
+      <div>motion.recipe.phaseDotPulse</div>
+      <div>active</div>
+      <div>Ring begins at dot center, expands outward</div>
+
+      <div>Ring — max radius</div>
+      <div><span class="dim-val">15px</span> (scale 1.5x)</div>
+      <div>motion.recipe.phaseDotPulse</div>
+      <div>active</div>
+      <div>At scale(1.5) the ring outer edge = 15px from dot center. Bounding box must allow 15px clearance per side.</div>
+
+      <div>Ring opacity</div>
+      <div><span class="dim-val">0.4 → 0</span></div>
+      <div>motion.recipe.phaseDotPulse</div>
+      <div>active</div>
+      <div>Fades from 40% to 0 as it expands</div>
+
+      <div>Animation duration</div>
+      <div><span class="dim-val">900ms</span></div>
+      <div>motion.recipe.phaseDotPulse</div>
+      <div>active</div>
+      <div>Ease-in-out, infinite loop</div>
+
+      <div>Bounding box (active)</div>
+      <div><span class="dim-val">40px × 40px</span></div>
+      <div>—</div>
+      <div>active</div>
+      <div>Minimum parent container: 10px dot + 15px ring clearance each side = 40px. UC-MOL-07 PhaseIndicator must reserve this width per step.</div>
+
+      <div>Connector line</div>
+      <div><span class="dim-val">1px</span></div>
+      <div>border.strong / success</div>
+      <div>molecule</div>
+      <div>Done steps: success.default. Active+pending steps: border.default. Defined in UC-MOL-07, not the atom.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title"><em>phaseDotPulse</em> — the active ring recipe.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px;">Recipe</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px;">Trigger</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px;">Effect / Implementation Notes</div>
+
+      <div class="motion-recipe">motion.recipe.phaseDotPulse</div>
+      <div class="motion-trigger">state == .active (rendered)</div>
+      <div class="motion-effect">
+        Concentric ring element (pseudo ::after / separate view) starts at scale(0) opacity(0.4),
+        expands to scale(1.5) opacity(0). Duration 900ms, easing ease-in-out, repeat infinite.
+        iOS: SwiftUI scaleEffect + opacity withAnimation(.easeInOut(duration:0.9).repeatForever(autoreverses:false)).
+        Android: Compose LaunchedEffect + animateFloatAsState / InfiniteTransition.
+        Both platforms must reference motion.recipe.phaseDotPulse token — no hardcoded duration.
+      </div>
+
+      <div class="motion-recipe">none</div>
+      <div class="motion-trigger">state == .pending or .done</div>
+      <div class="motion-effect">No animation. Static rendering. The done checkmark is not animated on entry (molecule may add a brief opacity-in via its own recipe).</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Why a 10px dot, <em>not larger</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design Intent</h4>
+        <p>
+          10px is the minimum legible diameter on both retina iOS (3x) and Android XXXHDPI screens.
+          At 10px the dot sits comfortably between label lines in a compact indicator row without
+          requiring the indicator to grow taller than two lines of text.
+        </p>
+        <p>
+          The ring-pulse at 1.5x scale means the effective visual bounding box is 40px — but only
+          during animation. The ring is visually transparent by design; it does not occupy space in
+          layout terms. PhaseIndicator reserves 40px per step slot to avoid clipping the animation.
+        </p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC Traceability</h4>
+        <ul>
+          <li><strong>AC-1</strong> LSPhaseDot(.pending) — hollow, border.strong 1px, 10px diameter</li>
+          <li><strong>AC-2</strong> LSPhaseDot(.active) — signal fill + phaseDotPulse ring, 900ms ease-in-out infinite</li>
+          <li><strong>AC-3</strong> LSPhaseDot(.done) — success fill, no animation</li>
+          <li><strong>AC-4</strong> Story family: Pending, Active (animated), Done on both platforms</li>
+          <li><strong>AC-5</strong> Tests verify active-state animation references motion.recipe.phaseDotPulse — no hardcoded duration</li>
+          <li><strong>AC-6</strong> Ring max-radius = 15px; bounding box 40px documented for UC-MOL-07</li>
+          <li><strong>AC-7</strong> PhaseIndicator composition demo: done/done/active/pending/pending with labels in instrument.sm</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">
+      Lane<em>Shadow</em>
+      <span>V2 · Copper · UC-ATM-08 · 2026-04-20</span>
+    </div>
+    <p class="footer-note">
+      LSPhaseDot pinned. 10px dot · pending/active/done · motion.recipe.phaseDotPulse (900ms).<br>
+      Ring max-radius 15px · bounding box 40px documented for UC-MOL-07.<br>
+      PhaseIndicator composition (5-dot row) shown. Downstream: UC-MOL-07 (PhaseIndicator).
+    </p>
+  </footer>
+</div>
+
+</body>
+</html>
