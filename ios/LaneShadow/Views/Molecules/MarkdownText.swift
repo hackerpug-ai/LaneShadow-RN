@@ -29,7 +29,7 @@ import SwiftUI
  * ## Parameters
  * - markdown: Markdown content to render
  */
-public struct MarkdownText: View {
+public struct LSMarkdownText: View {
     @Environment(\.theme) private var theme
 
     private let markdown: String
@@ -69,15 +69,15 @@ public struct MarkdownText: View {
                 case .code:
                     // Inline code styling
                     attributedString[run.range].backgroundColor = theme.colors.surfaceVariant.default
-                    attributedString[run.range].font = .system(
+                    attributedString[run.range].font = Font.system(
                         size: theme.type.body.sm.fontSize,
-                        family: .monospaced
+                        design: .monospaced
                     )
                     attributedString[run.range].foregroundColor = theme.colors.primary.default
 
                 case .stronglyEmphasized:
                     // Bold styling
-                    attributedString[run.range].font = .system(
+                    attributedString[run.range].font = Font.system(
                         size: theme.type.body.lg.fontSize,
                         weight: .bold
                     )
@@ -85,7 +85,7 @@ public struct MarkdownText: View {
 
                 case .emphasized:
                     // Italic styling
-                    attributedString[run.range].font = .system(
+                    attributedString[run.range].font = Font.system(
                         size: theme.type.body.lg.fontSize,
                         weight: .regular
                     ).italic()
@@ -97,14 +97,6 @@ public struct MarkdownText: View {
             } else if let link = run.link {
                 // Link styling is handled by .tint() modifier on Text
                 attributedString[run.range].underlineStyle = .single
-            } else if run.codeBlockPresentationIntent != nil {
-                // Code block styling
-                attributedString[run.range].backgroundColor = theme.colors.surfaceVariant.default
-                attributedString[run.range].font = .system(
-                    size: theme.type.body.sm.fontSize,
-                    family: .monospaced
-                )
-                attributedString[run.range].foregroundColor = theme.colors.primary.default
             }
         }
     }
@@ -113,7 +105,7 @@ public struct MarkdownText: View {
 // MARK: - Preview
 
 #Preview("MarkdownText - Basic") {
-    MarkdownText(
+    LSMarkdownText(
         markdown: """
         **Bold text** and *italic text*
 
@@ -127,7 +119,7 @@ public struct MarkdownText: View {
 }
 
 #Preview("MarkdownText - Code Block") {
-    MarkdownText(
+    LSMarkdownText(
         markdown: """
         Here's a code block:
 
@@ -144,7 +136,7 @@ public struct MarkdownText: View {
 }
 
 #Preview("MarkdownText - Complex") {
-    MarkdownText(
+    LSMarkdownText(
         markdown: """
         # Heading
 

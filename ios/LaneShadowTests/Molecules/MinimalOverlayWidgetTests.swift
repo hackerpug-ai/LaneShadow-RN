@@ -25,7 +25,6 @@ import XCTest
  * - Accessibility labels
  */
 final class MinimalOverlayWidgetTests: XCTestCase {
-
     // MARK: - AC-1: Component renders with required props
 
     func testMinimalOverlayWidgetRendersWithRequiredProps() {

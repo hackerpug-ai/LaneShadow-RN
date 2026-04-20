@@ -57,9 +57,9 @@ public struct LSOverlayAvailability: Sendable {
     /// Returns availability for a given overlay type
     func isAvailable(_ overlayType: LSOverlayType) -> Bool {
         switch overlayType {
-        case .wind: return wind
-        case .rain: return rain
-        case .temperature: return temperature
+        case .wind: wind
+        case .rain: rain
+        case .temperature: temperature
         }
     }
 }
@@ -119,11 +119,11 @@ public struct LSMinimalOverlayWidget: View {
     private let availability: LSOverlayAvailability
     private let testID: String?
 
-    // Radial positions (angles in degrees)
+    /// Radial positions (angles in degrees)
     private let radialPositions: [(angle: Double, overlay: LSOverlayType)] = [
         (-30, .wind),
         (0, .rain),
-        (30, .temperature)
+        (30, .temperature),
     ]
 
     private let radialRadius: CGFloat = 36
@@ -212,11 +212,10 @@ public struct LSMinimalOverlayWidget: View {
             guard isAvailable else { return }
 
             // Toggle behavior: selecting same overlay deselects it
-            let newValue: LSOverlayType?
-            if value == overlayType {
-                newValue = nil
+            let newValue: LSOverlayType? = if value == overlayType {
+                nil
             } else {
-                newValue = overlayType
+                overlayType
             }
 
             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -267,7 +266,7 @@ public struct LSMinimalOverlayWidget: View {
 
     /// Returns the current icon to display in the center button
     private var currentIcon: String {
-        guard let value = value else {
+        guard let value else {
             return "square.stack.3d.up" // Stack icon when nothing selected
         }
         return value.icon
