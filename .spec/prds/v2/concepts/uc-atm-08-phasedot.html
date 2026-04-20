@@ -41,6 +41,28 @@
 
 body { background: var(--surface-primary); color: var(--content-primary); }
 
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+  --surface-scrim:     rgba(10,6,3,0.50);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+
 /* TYPOGRAPHY */
 .t-opinion-xl  { font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em; }
 .t-opinion-lg  { font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em; }
@@ -365,6 +387,128 @@ body { font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:
       </div>
     </div>
 
+  </section>
+</div>
+
+<!-- DARK DEMO -->
+<div class="wrap">
+  <section class="section">
+    <h3 style="margin-top: 0; margin-bottom: 32px; font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);">LSPhaseDot — Dark</h3>
+    <div class="mode-dark" style="background: var(--ink-800); padding: 32px; border-radius: 12px;">
+
+      <!-- Scaled 50px demo dark -->
+      <div style="font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:20px;">Scaled demo — 50px — copper active pops against ink-800</div>
+      <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start;margin-bottom:48px;">
+
+        <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+          <div style="font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);">pending</div>
+          <div style="width:82px;height:82px;display:flex;align-items:center;justify-content:center;">
+            <div class="ls-phase-dot-lg pending"></div>
+          </div>
+          <span style="font-family:var(--font-ui);font-size:10px;color:var(--content-tertiary);text-align:center;max-width:120px;">Hollow · border.strong rgba · fill ink-700</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+          <div style="font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);">active (pulsing)</div>
+          <div style="width:82px;height:82px;display:flex;align-items:center;justify-content:center;overflow:visible;position:relative;">
+            <div class="ls-phase-dot-lg active"></div>
+          </div>
+          <span style="font-family:var(--font-ui);font-size:10px;color:var(--content-tertiary);text-align:center;max-width:120px;">Copper #EE7C2B — maximum contrast on ink</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+          <div style="font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);">done</div>
+          <div style="width:82px;height:82px;display:flex;align-items:center;justify-content:center;">
+            <div class="ls-phase-dot-lg done"></div>
+          </div>
+          <span style="font-family:var(--font-ui);font-size:10px;color:var(--content-tertiary);text-align:center;max-width:120px;">Success green #16A34A · checkmark inset</span>
+        </div>
+
+      </div>
+
+      <!-- Production size dark -->
+      <div style="margin-bottom:20px;font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);">Production size — 10px</div>
+      <div style="display:flex;gap:32px;align-items:center;margin-bottom:48px;">
+        <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+          <div style="font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);">pending</div>
+          <div style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;">
+            <div class="ls-phase-dot pending"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+          <div style="font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);">active</div>
+          <div style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;overflow:visible;position:relative;">
+            <div class="ls-phase-dot active"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+          <div style="font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);">done</div>
+          <div style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;">
+            <div class="ls-phase-dot done"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PhaseIndicator composition dark -->
+      <div style="margin-bottom:20px;font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);">PhaseIndicator composition — dark surface</div>
+      <div style="display:inline-block;">
+        <div style="padding:32px;background:var(--surface-card);border-radius:14px;border:1px solid var(--border-default);box-shadow:var(--elev-card);">
+          <div style="position:relative;padding-bottom:28px;">
+            <div style="display:flex;align-items:center;gap:0;">
+
+              <!-- Step 1: done dark -->
+              <div style="display:flex;flex-direction:column;align-items:center;position:relative;">
+                <div style="display:flex;align-items:center;">
+                  <div class="ls-phase-dot done"></div>
+                  <div style="width:48px;height:1px;background:var(--status-success);flex-shrink:0;"></div>
+                </div>
+                <div style="position:absolute;top:16px;font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);white-space:nowrap;">Scout</div>
+              </div>
+
+              <!-- Step 2: done dark -->
+              <div style="display:flex;flex-direction:column;align-items:center;position:relative;">
+                <div style="display:flex;align-items:center;">
+                  <div class="ls-phase-dot done"></div>
+                  <div style="width:48px;height:1px;background:var(--signal-tint);flex-shrink:0;"></div>
+                </div>
+                <div style="position:absolute;top:16px;font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);white-space:nowrap;">Draw</div>
+              </div>
+
+              <!-- Step 3: active dark -->
+              <div style="display:flex;flex-direction:column;align-items:center;position:relative;overflow:visible;">
+                <div style="display:flex;align-items:center;overflow:visible;">
+                  <div class="ls-phase-dot active" style="overflow:visible;"></div>
+                  <div style="width:48px;height:1px;background:var(--border-default);flex-shrink:0;"></div>
+                </div>
+                <div style="position:absolute;top:16px;font-family:var(--font-instrument);font-size:9px;color:var(--content-primary);white-space:nowrap;font-weight:600;">Weather</div>
+              </div>
+
+              <!-- Step 4: pending dark -->
+              <div style="display:flex;flex-direction:column;align-items:center;position:relative;">
+                <div style="display:flex;align-items:center;">
+                  <div class="ls-phase-dot pending"></div>
+                  <div style="width:48px;height:1px;background:var(--border-subtle);flex-shrink:0;"></div>
+                </div>
+                <div style="position:absolute;top:16px;font-family:var(--font-instrument);font-size:9px;color:var(--content-subtle);white-space:nowrap;">Score</div>
+              </div>
+
+              <!-- Step 5: pending dark (no connector) -->
+              <div style="display:flex;flex-direction:column;align-items:center;position:relative;">
+                <div style="display:flex;align-items:center;">
+                  <div class="ls-phase-dot pending"></div>
+                </div>
+                <div style="position:absolute;top:16px;font-family:var(--font-instrument);font-size:9px;color:var(--content-subtle);white-space:nowrap;">Rank</div>
+              </div>
+
+            </div>
+          </div>
+          <div style="margin-top:8px;font-family:var(--font-instrument);font-size:8.5px;color:var(--content-tertiary);letter-spacing:0.14em;text-transform:uppercase;">
+            PhaseIndicator dark — done / done / active / pending / pending
+          </div>
+        </div>
+      </div>
+
+    </div>
   </section>
 </div>
 
